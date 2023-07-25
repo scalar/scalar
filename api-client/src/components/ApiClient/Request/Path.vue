@@ -1,0 +1,29 @@
+<script setup lang="ts">
+import type { BaseParameter } from '../../../types'
+import { CollapsibleSection } from '../../CollapsibleSection'
+// import Copilot from './Copilot.vue'
+import { Grid } from '../../Grid'
+
+defineProps<{ paths: BaseParameter[] }>()
+</script>
+<template>
+  <CollapsibleSection title="Path">
+    <template v-if="paths.length === 0">
+      <span>No Path Parameters</span>
+    </template>
+    <template v-else>
+      <Grid :items="paths" />
+      <!-- @addAnother="addQuery"
+          @deleteItem="deleteQuery"
+          @toggleDescription="toggleDescription"
+          @toggleVisibility="(key, value) => updateQuery(key, 'active', value)"
+          @updateDescription="(key, value) => updateQuery(key, 'description', value)"
+          @updateKey="(key, value) => updateQuery(key, 'key', value)"
+          @updateOrder="updateQueryOrder"
+          @updateValue="(key, value) => updateQuery(key, 'value', value)" -->
+      <div style="margin-top: 12px; width: 100%">
+        <!-- <Copilot /> -->
+      </div>
+    </template>
+  </CollapsibleSection>
+</template>

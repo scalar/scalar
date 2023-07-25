@@ -1,0 +1,385 @@
+<script setup lang="ts">
+import { useMarkdown } from '@anc/library'
+import { StarterKit } from '@tiptap/starter-kit'
+import { Editor, EditorContent } from '@tiptap/vue-3'
+import { Markdown } from 'tiptap-markdown'
+import { computed, ref, watch } from 'vue'
+
+import { CopilotLoadingStates, useCopilot } from '../../../hooks/useCopilot'
+
+const content = ref('')
+const editor = ref<any>()
+const itemSuggestionOpen = ref(false)
+const contentFilled = ref(false)
+
+editor.value = new Editor({
+  editable: false,
+  extensions: [StarterKit],
+})
+
+const { html, setMarkdown } = useMarkdown(content, [StarterKit, Markdown])
+
+const { state, onRecommendation, setLoadingState } = useCopilot()
+
+onRecommendation((recommendation: string) => {
+  contentFilled.value = true
+  content.value += recommendation
+  setMarkdown(content.value)
+  setLoadingState(CopilotLoadingStates.Fix)
+})
+
+watch(html, () => {
+  editor.value.commands.setContent(html)
+})
+
+const classLookUp: Partial<Record<CopilotLoadingStates, string>> = {
+  [CopilotLoadingStates.Loading]: 'scalar-copilot__header-button--loading',
+  [CopilotLoadingStates.Working]: 'scalar-copilot__header-button--working',
+  [CopilotLoadingStates.Success]: 'scalar-copilot__header-button--success',
+}
+
+const loadingStateClass = computed(() => classLookUp[state.loadingState])
+
+const toggleItemSuggestion = () => {
+  itemSuggestionOpen.value = !itemSuggestionOpen.value
+}
+
+const itemSuggestionState = computed(() => ({
+  'scalar-copilot__suggestion--open': itemSuggestionOpen.value,
+}))
+
+const contentFilledState = computed(() => ({
+  'scalar-copilot--inactive': !contentFilled.value,
+}))
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+const fixErrors = async () => {
+  setLoadingState(CopilotLoadingStates.Working)
+  await sleep(3000) // Sleep for 3 seconds
+  content.value = ''
+  setMarkdown(content.value)
+  setLoadingState(CopilotLoadingStates.Success)
+  contentFilled.value = false
+}
+</script>
+<template>
+  <!-- remove class scalar-copilot--inactive once we start loading suggestions-->
+  <!-- add the class "scalar-copilot__response" when copilot is within response -->
+  <div
+    class="scalar-copilot"
+    :class="contentFilledState">
+    <div class="scalar-copilot__header">
+      <span>
+        <svg
+          fill="none"
+          height="48"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="48"
+          xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M16.625 13.724c-4.988 1.68-6.632 3.552-7.848 8.213-1.216-4.66-2.86-6.532-7.848-8.213 4.988-1.68 6.632-3.552 7.848-8.214 1.216 4.662 2.86 6.533 7.848 8.214ZM22.813 5.948c-2.814.944-3.741 1.996-4.427 4.615-.686-2.619-1.614-3.67-4.427-4.615 2.813-.944 3.74-1.996 4.427-4.615.686 2.62 1.613 3.67 4.427 4.615ZM23.178 19.562c-2.082.684-2.769 1.446-3.276 3.344-.508-1.898-1.195-2.66-3.277-3.344 2.082-.684 2.769-1.446 3.277-3.344.507 1.898 1.194 2.66 3.276 3.344Z"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        AI Suggestions
+      </span>
+      <!-- Add this class: "scalar-copilot__header-button--loading" when you blur an input and are loading to check for errors -->
+      <div
+        v-if="state.loadingState !== CopilotLoadingStates.Inactive"
+        class="scalar-copilot__header-button"
+        :class="loadingStateClass"
+        @click="fixErrors">
+        <!--should be applied to the tag above-->
+        Fix (1) Error
+      </div>
+      <!-- Add this class: "scalar-copilot__header-button--working" after you click button -->
+      <!-- Add this class: "scalar-copilot__header-button--success" after button is done working add the success -->
+      <!-- class IF there is no more errors to fix IF there is still errors to fix don't add -->
+    </div>
+    <div
+      v-if="contentFilled"
+      class="scalar-copilot__item">
+      <div
+        class="scalar-copilot__suggestion"
+        :class="itemSuggestionState">
+        <!--  when you click toggle you need to add and remove the class "scalar-copilot__suggestion--open" to the div above it-->
+        <div
+          class="scalar-copilot__item__toggle"
+          @click="toggleItemSuggestion">
+          <div class="scalar-copilot__item__toggle-button" />
+        </div>
+        <EditorContent
+          class="scalar-copilot__suggestion__content"
+          :editor="editor" />
+      </div>
+      <div class="scalar-copilot__item-check">
+        <label class="meta-check">
+          <input
+            checked
+            type="checkbox" />
+          <span class="meta-checkmark" />
+        </label>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.scalar-copilot__response .scalar-copilot__header {
+  height: 0px;
+  min-height: 0px;
+  padding: 0;
+  border-bottom: 0;
+}
+.scalar-copilot__response .scalar-copilot__header span {
+  display: none;
+}
+.scalar-copilot__response .scalar-copilot__header-button {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+}
+.scalar-copilot {
+  color: var(--scalar-api-client-theme-color-1);
+  width: 100%;
+  border-radius: var(--scalar-api-client-radius);
+  border: var(--scalar-api-client-border);
+}
+.scalar-copilot--inactive {
+  border: 1px solid transparent;
+  background: var(--scalar-api-client-background-3);
+}
+.scalar-copilot__header {
+  padding: 7px 7px 7px 9px;
+  min-height: 32.5px;
+  display: flex;
+  color: var(--scalar-api-client-color-3);
+  font-weight: var(--scalar-api-client-theme-bold);
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: var(--scalar-api-client-border);
+}
+.scalar-copilot__header span {
+  display: flex;
+  align-items: center;
+}
+.scalar-copilot__header svg {
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+}
+.scalar-copilot__item {
+  line-height: 1.45;
+  display: flex;
+}
+.scalar-copilot__item:not(:last-of-type) {
+  border-bottom: var(--scalar-api-client-border);
+}
+.scalar-copilot__suggestion {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+}
+.scalar-copilot__suggestion__content {
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-height: 52.8px;
+  display: -webkit-box;
+  padding: 9px 9px 9px 27px;
+}
+.scalar-copilot__suggestion__content:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 9px;
+  background: var(--scalar-api-client-background-2);
+}
+.scalar-copilot__suggestion--open .scalar-copilot__suggestion__content {
+  max-height: initial;
+  cursor: initial;
+  display: block;
+}
+.scalar-copilot__item-check {
+  border-left: var(--scalar-api-client-border);
+  width: 32.5px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.scalar-copilot__header-button {
+  background: var(--scalar-api-client-color);
+  border-radius: var(--scalar-api-client-radius);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  color: white;
+  padding: 2px 6px;
+}
+.dark-mode .scalar-copilot__header-button {
+  color: black;
+}
+.scalar-copilot__header-button--loading {
+  background: transparent;
+  font-size: 0px;
+  color: var(--scalar-api-client-color-3);
+}
+.scalar-copilot__header-button--working {
+  font-size: 0px;
+}
+.scalar-copilot__header-button--working:before,
+.scalar-copilot__header-button--loading:before {
+  content: '';
+  border: 1px solid var(--scalar-api-client-color-3);
+  border-top: 1px solid var(--scalar-api-client-theme-color-1);
+  animation: urlloader 0.45s linear infinite;
+  background: transparent;
+  width: 14px;
+  height: 14px;
+  margin-left: 0;
+  margin-right: 9px;
+  border-radius: 50%;
+  display: block;
+}
+.scalar-copilot__header-button--working:before {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid white;
+}
+.dark-mode .scalar-copilot__header-button--working:before {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-top: 1px solid black;
+}
+.scalar-copilot__header-button--working:after {
+  content: 'Working';
+  font-size: 12px;
+}
+.scalar-copilot__header-button--loading:after {
+  content: 'Loading';
+  font-size: 12px;
+}
+.scalar-copilot__header-button--success {
+  font-size: 0;
+  background: transparent;
+  cursor: default;
+}
+.scalar-copilot__header-button--success:after {
+  content: 'Success';
+  font-size: 12px;
+  color: var(--scalar-api-client-theme-color-2);
+}
+.scalar-copilot__header-button--success:before {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 8px;
+  border: solid var(--scalar-api-client-theme-color-2);
+  margin-right: 9px;
+  top: 3px;
+  position: relative;
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg) translate3d(0, -1px, 0);
+}
+@keyframes urlloader {
+  0% {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(1turn);
+  }
+}
+.scalar-copilot__item__toggle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding: 9px;
+  z-index: 10;
+  cursor: pointer;
+}
+.scalar-copilot__item__toggle-button {
+  width: 6px;
+  height: 6px;
+  margin-right: 12px;
+  flex-shrink: 0;
+  position: relative;
+  top: 5px;
+  left: -2px;
+  transform: rotate(315deg);
+  box-shadow: 1px 1px 0 var(--scalar-api-client-color-3);
+  z-index: 10;
+}
+.scalar-copilot__item__toggle-button:after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  position: absolute;
+  display: block;
+  left: -5px;
+  top: -4px;
+}
+.scalar-copilot__item__toggle-button:hover {
+  box-shadow: 1px 1px 0 var(--scalar-api-client-theme-color-1);
+}
+.scalar-copilot__suggestion--open .scalar-copilot__item__toggle-button {
+  transform: rotate(45deg);
+  left: 2px;
+  top: 1px;
+}
+.scalar-copilot__suggestion--open .scalar-copilot__item__toggle {
+  height: 24px;
+  position: absolute;
+  width: 24px;
+}
+.scalar-copilot__item__toggle:hover:after {
+  content: '';
+  background: var(--scalar-api-client-background-3);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  position: absolute;
+  left: 3px;
+  top: 7px;
+  z-index: 0;
+}
+.scalar-copilot__suggestion--open .scalar-copilot__item__toggle:hover:after {
+  top: 6px;
+  left: 4px;
+}
+
+.scalar-api-client__item:hover .scalar-copilot__item__toggle-button,
+.scalar-api-client__item:focus-within .scalar-copilot__item__toggle-button {
+  opacity: 1;
+}
+
+.scalar-copilot__toggle-button {
+  appearance: none;
+  color: var(--scalar-api-client-color2);
+  font-size: var(--scalar-api-client-theme-small);
+  background: var(--scalar-api-client-gradient);
+  border-radius: var(--scalar-api-client-radius);
+  border: var(--scalar-api-client-border);
+  font-weight: var(--scalar-api-client-theme-bold);
+  max-height: 25px;
+  padding: 4px 8px;
+  outline: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease-in-out;
+  white-space: nowrap;
+  &:hover {
+    color: var(--scalar-api-client-theme-color-1);
+  }
+}
+
+.scalar-copilot__toggle-button svg {
+  margin-left: 6px;
+  width: 8px;
+}
+</style>
