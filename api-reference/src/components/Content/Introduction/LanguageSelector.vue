@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
 import { type TargetId, availableTargets } from 'httpsnippet-lite'
-import { computed } from 'vue'
+import { ref } from 'vue'
 
 import ProjectIcon from '@lib/icon-library/ProjectIcon.vue'
 
 import { useTemplateStore } from '../../../stores/template'
 
+type Language = {
+  title: string | undefined
+  key: Exclude<TargetId, 'http'>
+}
+
 // Use the template store to keep it accessible globally
-const { state, setItem } = useTemplateStore()
+const { state, setItem, getLanguageTitleByKey } = useTemplateStore()
 
 // Check if the given language key is a valid target.
 const isValidTargetId = (language: TargetId) =>
@@ -18,75 +23,94 @@ const isValidTargetId = (language: TargetId) =>
 
 const defaultLanguage = isValidTargetId(state.preferredLanguage)
   ? state.preferredLanguage
-  : state.preferredLanguage
+  : 'shell'
 
 // Overwrite default setting for preferred language
 setItem('preferredLanguage', defaultLanguage)
 
 const selectLanguage = (language: TargetId) => {
   setItem('preferredLanguage', language)
-}
 
-type Language = {
-  title: string
-  key: TargetId
+  // Check if selected language is featured already (icon + text)
+  const preferedLanguageIsIncluded = !!featuredLanguages.value.filter(
+    (preferedLanguage) => {
+      return preferedLanguage.key === state.preferredLanguage
+    },
+  ).length
+
+  // Exit early if the language is already featured
+  if (preferedLanguageIsIncluded) {
+    return
+  }
+
+  // Remove first item and add the preferred language to the end of the list
+  featuredLanguages.value = [
+    // @ts-ignore
+    ...featuredLanguages.value.slice(1),
+    {
+      title: getLanguageTitleByKey(language),
+      // @ts-ignore
+      key: language,
+    },
+  ]
 }
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
 
 // Show popular languages with an icon, not just in a select.
-const popularLanguages = computed<Language[]>(() => {
-  if (isMobile.value) {
-    return [
-      {
-        title: 'Shell',
-        key: 'shell',
-      },
-      {
-        title: 'Ruby',
-        key: 'ruby',
-      },
-      {
-        title: 'Node',
-        key: 'node',
-      },
-      {
-        title: 'Python',
-        key: 'python',
-      },
-    ]
-  }
-  return [
-    {
-      title: 'Shell',
-      key: 'shell',
-    },
-    {
-      title: 'Ruby',
-      key: 'ruby',
-    },
-    {
-      title: 'Node',
-      key: 'node',
-    },
-    {
-      title: 'PHP',
-      key: 'php',
-    },
-    {
-      title: 'Python',
-      key: 'python',
-    },
-    {
-      title: 'C',
-      key: 'c',
-    },
-  ]
-})
+const featuredLanguages = ref<Language[]>(
+  isMobile.value
+    ? // Mobile
+      [
+        {
+          title: 'Shell',
+          key: 'shell',
+        },
+        {
+          title: 'Ruby',
+          key: 'ruby',
+        },
+        {
+          title: 'Node',
+          key: 'node',
+        },
+        {
+          title: 'Python',
+          key: 'python',
+        },
+      ]
+    : // Desktop
+      [
+        {
+          title: 'Shell',
+          key: 'shell',
+        },
+        {
+          title: 'Ruby',
+          key: 'ruby',
+        },
+        {
+          title: 'Node',
+          key: 'node',
+        },
+        {
+          title: 'PHP',
+          key: 'php',
+        },
+        {
+          title: 'Python',
+          key: 'python',
+        },
+        {
+          title: 'C',
+          key: 'c',
+        },
+      ],
+)
 </script>
 <template>
   <div
-    v-for="language in popularLanguages"
+    v-for="language in featuredLanguages"
     :key="language.key"
     class="code-languages rendered-code-sdks"
     :class="{
@@ -99,13 +123,7 @@ const popularLanguages = computed<Language[]>(() => {
     <span>{{ language.title }}</span>
   </div>
 
-  <div
-    class="code-languages code-languages__select"
-    :class="{
-      'code-languages__active': !popularLanguages.find(
-        (language) => language.key === state.preferredLanguage,
-      ),
-    }">
+  <div class="code-languages code-languages__select">
     <select
       :value="state.preferredLanguage"
       @input="
@@ -117,7 +135,9 @@ const popularLanguages = computed<Language[]>(() => {
           .filter((target) => target.key !== 'http')
           .filter(
             (target) =>
-              !popularLanguages.find((language) => language.key === target.key),
+              !featuredLanguages.find(
+                (language) => language.key === target.key,
+              ),
           )"
         :key="target.key"
         :value="target.key">
