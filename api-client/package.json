@@ -1,7 +1,7 @@
 {
   "name": "@scalar/api-client",
   "version": "0.1.0",
-  "author": "Copyright ANC 2023",
+  "author": "Scalar",
   "license": "UNLICENSED",
   "private": true,
   "engines": {
