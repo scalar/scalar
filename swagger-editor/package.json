@@ -1,5 +1,5 @@
 {
-  "name": "@scalar/api-reference",
+  "name": "@scalar/swagger-editor",
   "version": "0.0.0",
   "author": "Copyright ANC 2023",
   "license": "UNLICENSED",
@@ -39,7 +39,6 @@
     "@hocuspocus/provider": "2.1.0",
     "@lezer/highlight": "1.1.6",
     "@scalar/api-client": "workspace:*",
-    "@scalar/swagger-editor": "workspace:*",
     "@tiptap/core": "2.0.3",
     "@tiptap/extension-bold": "2.0.3",
     "@tiptap/extension-bubble-menu": "2.0.3",

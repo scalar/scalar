@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
+import { CodeEditor } from '@scalar/swagger-editor'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, onMounted, reactive, ref } from 'vue'
@@ -11,7 +12,6 @@ import { useTemplateStore } from '../stores/template'
 import { ApiReferenceClasses } from '../styles'
 import type { ReferenceProps, Spec } from '../types'
 import { default as ApiClientOverlay } from './ApiClientOverlay.vue'
-import { CodeEditor } from './CodeEditor'
 import { Content } from './Content'
 import Sidebar from './Sidebar.vue'
 
