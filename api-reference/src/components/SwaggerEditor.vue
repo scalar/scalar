@@ -80,12 +80,7 @@ onMounted(() => {
   })
 })
 
-const showContent = computed(() => {
-  return (
-    initialContentRenderedSuccessfully.value &&
-    (isLargeScreen.value || !props.isEditable)
-  )
-})
+const showAside = computed(() => isLargeScreen.value || !props.isEditable)
 
 const showCodeEditor = computed(() => {
   return props.isEditable
@@ -149,9 +144,10 @@ const breadCrumbs = computed(() => {
     </div>
     <!-- Rendered reference -->
     <div
-      v-if="showContent"
+      v-if="showAside"
       class="layout-aside-right">
       <Content
+        v-if="initialContentRenderedSuccessfully"
         :ready="parserReady"
         :spec="spec" />
     </div>
