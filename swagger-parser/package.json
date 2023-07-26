@@ -1,0 +1,32 @@
+{
+  "name": "@scalar/swagger-parser",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm run build:wasm && tsc && vite build",
+    "build:wasm": "cd src/wasm-swagger-parser && ./run.sh",
+    "coverage": "pnpm run build:wasm && vitest run --coverage",
+    "test": "pnpm run build:wasm && vitest"
+  },
+  "type": "module",
+  "main": "./dist/swagger-parser.umd.cjs",
+  "exports": {
+    ".": {
+      "import": "./dist/swagger-parser.js",
+      "require": "./dist/swagger-parser.umd.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@vitest/browser": "0.33.0",
+    "playwright": "1.36.1",
+    "typescript": "5.0.4",
+    "vite": "4.4.0",
+    "vite-plugin-static-copy": "0.17.0",
+    "vitest": "0.33.0",
+    "webdriverio": "8.13.4"
+  },
+  "module": "./dist/swagger-parser.js"
+}
