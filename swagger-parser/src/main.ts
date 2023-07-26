@@ -1,3 +1,3 @@
-export { loadWasmFile } from './lib/loadWasmFile'
-export { parseSwaggerString } from './lib/parseSwaggerString'
-export { validateSwaggerString } from './lib/validateSwaggerString'
+export { loadWasmFile } from './helpers/loadWasmFile'
+export { parseSwaggerString } from './helpers/parseSwaggerString'
+export { validateSwaggerString } from './helpers/validateSwaggerString'
