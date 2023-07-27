@@ -107,6 +107,20 @@ const featuredLanguages = ref<Language[]>(
         },
       ],
 )
+
+/**
+ * Icons have longer names to appear in icon searches, e.g. "javascript-js" instead of just "javascript". This function
+ * maps the language key to the icon name.
+ */
+const getProjectIconByLanguageKey = (languageKey: TargetId) => {
+  const languageKeyMap: Partial<Record<TargetId, string>> = {
+    javascript: 'javascript-js',
+  }
+
+  const icon = languageKeyMap[languageKey] ?? languageKey
+
+  return `brand/programming-language-${icon}`
+}
 </script>
 <template>
   <div
@@ -119,7 +133,7 @@ const featuredLanguages = ref<Language[]>(
     @click="() => selectLanguage(language.key)">
     <ProjectIcon
       :class="`code-languages-icon code-languages-icon__${language.key}`"
-      :src="`brand/programming-language-${language.key}`" />
+      :src="getProjectIconByLanguageKey(language.key)" />
     <span>{{ language.title }}</span>
   </div>
 
