@@ -6,6 +6,7 @@ import { useDebounceFn } from '@vueuse/core'
 import { computed, onMounted, reactive, ref } from 'vue'
 
 import { DocumentClasses } from '@guide/index'
+import { customFooterClass } from '@guide/styles'
 
 import { useSwaggerParser } from '../hooks/useSwaggerParser'
 import { useTemplateStore } from '../stores/template'
@@ -104,7 +105,7 @@ const breadCrumbs = computed(() => {
       'layout-swagger-editor',
       DocumentClasses.Document,
       ApiReferenceClasses.Base,
-      !isEditable && 'preview',
+      { 'footer-below-sidebar': footerBelowSidebar, 'preview': !isEditable },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
     <!-- Desktop header -->
@@ -151,6 +152,10 @@ const breadCrumbs = computed(() => {
         :ready="parserReady"
         :spec="spec" />
     </div>
+    <div
+      class="layout-footer"
+      :class="customFooterClass"
+      v-html="footer"></div>
     <!-- REST API Client Overlay -->
     <ApiClientOverlay :spec="spec" />
   </div>

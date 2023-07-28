@@ -3,6 +3,8 @@ export type ReferenceProps = {
   token?: string
   isEditable: boolean
   showSidebar: boolean
+  footerBelowSidebar?: boolean
+  footer?: string
 }
 
 export type Security = {
