@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ApiClient, useApiClientStore } from '@scalar/api-client'
-
-import FlowDrawer from '@lib/components/FlowDrawer.vue'
+import { useMediaQuery } from '@vueuse/core'
 
 import { type Spec } from '../types'
 import { default as Sidebar } from './Sidebar.vue'
@@ -9,31 +8,39 @@ import { default as Sidebar } from './Sidebar.vue'
 defineProps<{ spec: Spec }>()
 
 const { hideApiClient, state } = useApiClientStore()
+
+const isMobile = useMediaQuery('(max-width: 1000px)')
 </script>
 <template>
-  <FlowDrawer
-    :open="state.showApiClient"
-    @close="hideApiClient">
+  <div
+    v-if="state.showApiClient"
+    class="api-client-drawer">
     <div class="scalar-api-client__overlay">
       <div class="scalar-api-client__container">
-        <div class="scalar-api-client__navigation">
+        <!-- <div class="scalar-api-client__navigation">
           <button
             class="scalar-api-client__close"
             type="button"
             @click="hideApiClient">
             <span>Back to Reference</span>
           </button>
-        </div>
-        <div class="flex flex-row">
-          <Sidebar :spec="spec" />
+        </div> -->
+        <div class="scalar-api-client-height flex flex-row">
+          <Sidebar
+            v-show="!isMobile"
+            :spec="spec" />
           <ApiClient @escapeKeyPress="hideApiClient" />
         </div>
       </div>
     </div>
-  </FlowDrawer>
+  </div>
+  <div
+    v-if="state.showApiClient"
+    class="api-client-drawer-exit"
+    @click="hideApiClient"></div>
 </template>
 
-<style>
+<style scoped>
 .scalar-api-client__container {
   position: absolute;
   right: 0;
@@ -51,6 +58,8 @@ const { hideApiClient, state } = useApiClientStore()
   box-shadow: var(--theme-shadow-1);
   height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 @media screen and (max-width: 1265px) {
@@ -64,7 +73,7 @@ const { hideApiClient, state } = useApiClientStore()
   display: flex;
   align-items: center;
   padding: 11px 12px;
-  max-height: var(--theme-header-height);
+  height: var(--theme-header-height);
   background-color: var(--theme-background-1);
   z-index: 10;
   position: sticky;
@@ -106,4 +115,62 @@ TODO: Markup is missing
   height: 12px;
   transform: rotate(180deg);
 } */
+.api-client-drawer {
+  background: var(--theme-background-1);
+  height: calc(100vh - 58px);
+  width: calc(100vw - 8px);
+  border-radius: 12px;
+  overflow: hidden;
+  visibility: visible;
+  position: fixed;
+  bottom: 4px;
+  left: 4px;
+  z-index: 9999;
+  opacity: 0;
+  animation: apiclientfadein 0.35s forwards;
+}
+@keyframes apiclientfadein {
+  from {
+    transform: translate3d(0, 20px, 0) scale(0.985);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+}
+.api-client-drawer-exit {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.44);
+  transition: all 0.3s ease-in-out;
+  z-index: 9998;
+  cursor: pointer;
+  animation: drawerexitfadein 0.35s forwards;
+}
+@keyframes drawerexitfadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.scalar-api-client-height {
+  height: 100%;
+}
+.scalar-api-client-height .sidebar {
+  flex: 1 1 0%;
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: var(--theme-sidebar-width);
+  border-right: 1px solid var(--theme-border-color);
+}
 </style>

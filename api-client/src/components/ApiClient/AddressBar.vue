@@ -78,7 +78,9 @@ async function send() {
 
 const lastRequestTimestamp = computed(() => {
   const lastRequestKey = requestHistoryOrder.value[0]
-  return timeAgo.format(requestHistory[lastRequestKey].sentTime)
+  return requestHistory[lastRequestKey]
+    ? timeAgo.format(requestHistory[lastRequestKey].sentTime)
+    : 'HISTORY'
 })
 </script>
 
@@ -92,6 +94,7 @@ const lastRequestTimestamp = computed(() => {
         <span>{{ requestType }}</span>
       </div>
       <CodeMirror
+        class="scalar-api-client__url-input"
         :content="formattedUrl"
         :readOnly="true"
         :withPlaceholders="true" />
@@ -133,9 +136,7 @@ const lastRequestTimestamp = computed(() => {
       </FlowModal>
     </div>
 
-    <div
-      v-if="requestHistoryOrder.length > 0"
-      class="scalar-api-client__history">
+    <div class="scalar-api-client__history">
       <div
         class="scalar-api-client__history__toggle"
         @click="historyModal.show()">

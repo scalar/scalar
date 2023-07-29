@@ -3,6 +3,8 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { useMediaQuery } from '@vueuse/core'
 import { ref } from 'vue'
 
+import { useKeyboardEvent } from '@lib/hooks/useKeyboardEvent'
+
 import { useApiClientRequestStore } from '../../stores/apiClientRequestStore'
 import AdressBar from './AddressBar.vue'
 import { Request } from './Request'
@@ -26,6 +28,11 @@ const Tabs = {
 function changeTab(index: number) {
   selectedTab.value = index
 }
+
+useKeyboardEvent({
+  keyList: ['escape'],
+  handler: () => emit('escapeKeyPress'),
+})
 </script>
 
 <template>
@@ -87,14 +94,19 @@ function changeTab(index: number) {
 
 <style>
 .scalar-api-client {
-  width: 100%;
-  height: var(--scalar-api-client-height) !important;
-  background: --scalar-api-client-background-1;
+  width: calc(100% - var(--theme-sidebar-width));
+  background: var(--scalar-api-client-background-1);
   position: relative;
-  height: 100vh;
+  height: 100%;
   overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
 }
-
+@media screen and (max-width: 1000px) {
+  .scalar-api-client {
+    width: 100%;
+  }
+}
 .scalar-api-client--post {
   --scalar-api-client-color: var(--scalar-api-client-post-color);
   --scalar-api-client-background: var(--scalar-api-client-post-background);
@@ -144,7 +156,9 @@ function changeTab(index: number) {
 
 .scalar-api-client__main {
   display: flex;
-  background: --scalar-api-client-background-1;
+  height: 100%;
+  min-height: 0;
+  background: var(--scalar-api-client-background-1);
   border-top: var(--scalar-api-client-border);
 }
 
@@ -157,7 +171,7 @@ function changeTab(index: number) {
 /** TODO: Consider to make a Column component */
 .scalar-api-client__main__content {
   padding: 12px;
-  background: --scalar-api-client-background-1;
+  background: var(--scalar-api-client-background-1);
   top: 0;
   position: sticky;
   z-index: 100;

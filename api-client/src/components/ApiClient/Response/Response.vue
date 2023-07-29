@@ -219,8 +219,6 @@ const statusText = computed(() => {
 <style>
 .scalar-api-client__main__right {
   width: 50%;
-  height: 95vh;
-  /* max-height: calc(100vh - 194px); */
   padding: 0 0 12px 12px;
 }
 @media screen and (max-width: 820px) {

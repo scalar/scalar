@@ -37,6 +37,7 @@ import { computed, onMounted, watch } from 'vue'
 
 import { useClipboard } from '@lib/hooks/useClipboard'
 import { useCodeMirror } from '@lib/hooks/useCodeMirror'
+import { useDarkModeState } from '@lib/hooks/useDarkModeState'
 import ProjectIcon from '@lib/icon-library/ProjectIcon.vue'
 
 import { useTemplateStore } from '../../../stores/template'
@@ -50,6 +51,8 @@ const { copyToClipboard } = useClipboard()
 const { setActiveRequest } = useApiClientRequestStore()
 
 const { toggleApiClient } = useApiClientStore()
+
+const { isDark } = useDarkModeState()
 
 const {
   state: templateState,
@@ -170,32 +173,10 @@ const selectLanguage = (language: TargetId) => {
     <div class="codemenu-topbar">
       <div class="codemenu">
         <a class="endpoint">
-          <span :class="[operation.httpVerb]">{{ operation.httpVerb }}</span>
+          <span class="codemenu-item-title">{{ operation.httpVerb }}</span>
           <span class="codemenu-item-url">{{ operation.path }}</span>
         </a>
         <div class="coder-right">
-          <div
-            class="trigger-client"
-            :class="[operation.httpVerb]">
-            <div class="trigger-client-button">
-              <svg
-                height="22"
-                viewBox="0 0 19 22"
-                width="19"
-                xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M3.4 21.3c-1.9 1.2-3.4.3-3.4-1.9v-17C0 .2 1.5-.6 3.4.5l13.2 8.3c1.9 1.2 1.9 3 0 4.2L3.4 21.3Z"
-                  fill="currentColor"
-                  fill-rule="nonzero" />
-              </svg>
-              <button
-                class="code-runit"
-                type="button"
-                @click="showItemInClient">
-                Test
-              </button>
-            </div>
-          </div>
           <div class="codemirror-select">
             <span>{{
               getLanguageTitleByKey(templateState.preferredLanguage)
@@ -227,19 +208,76 @@ const selectLanguage = (language: TargetId) => {
       </div>
     </div>
     <div ref="codeMirrorRef" />
+    <div class="trigger-scalar-client">
+      <button
+        class="trigger-scalar-client-button"
+        :class="[operation.httpVerb, isDark ? 'dark-mode' : 'light-mode']"
+        type="button"
+        @click="showItemInClient">
+        <svg
+          fill="none"
+          height="48"
+          viewBox="0 0 14 14"
+          width="48"
+          xmlns="http://www.w3.org/2000/svg">
+          <g id="send-email--mail-send-email-paper-airplane">
+            <path
+              id="Subtract"
+              clip-rule="evenodd"
+              d="M11.8215 0.0977331C12.1097 -0.0075178 12.422 -0.0287134 12.7219 0.0367172C13.0248 0.102803 13.3024 0.254481 13.5216 0.473719C13.7409 0.692957 13.8926 0.970537 13.9586 1.27346C14.0241 1.57338 14.0029 1.88566 13.8976 2.17389L10.3236 12.8859L10.3234 12.8866C10.2363 13.15 10.083 13.3867 9.87813 13.5739C9.67383 13.7606 9.42512 13.8917 9.15575 13.9549C8.88633 14.0206 8.60444 14.015 8.33777 13.9388C8.07134 13.8627 7.82929 13.7187 7.63532 13.5209L5.71798 11.6123L3.70392 12.6538C3.54687 12.735 3.3586 12.7272 3.20877 12.6333C3.05895 12.5395 2.96984 12.3734 2.97443 12.1967L3.057 9.01294L10.102 3.89553C10.3812 3.69267 10.4432 3.30182 10.2403 3.02255C10.0375 2.74327 9.64662 2.68133 9.36734 2.88419L2.20286 8.0884L0.473156 6.35869L0.473098 6.35864L0.472971 6.35851C0.285648 6.17132 0.147746 5.94054 0.0716498 5.68688C-0.00390565 5.43503 -0.016181 5.16847 0.0358684 4.91079C0.087985 4.62928 0.213827 4.36658 0.400607 4.14951C0.588668 3.93095 0.831681 3.76658 1.10453 3.67339L1.1079 3.67224L1.1079 3.67225L11.8215 0.0977331Z"
+              fill="currentColor"
+              fill-rule="evenodd"></path>
+          </g>
+        </svg>
+        Test Request in API Client
+      </button>
+    </div>
   </div>
 </template>
 <style scoped>
+.trigger-scalar-client-button {
+  width: 100%;
+  display: block;
+  appearance: none;
+  outline: none;
+  border: none;
+  border-radius: var(--theme-radius);
+  height: 35px;
+  color: white;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  align-items: center;
+  font-weight: var(--theme-bold);
+  -webkit-font-smoothing: auto;
+  font-size: var(--theme-micro);
+}
+.trigger-scalar-client-button svg {
+  height: 12px;
+  width: auto;
+  margin-right: 6px;
+}
+.trigger-scalar-client-button.dark-mode {
+  color: black;
+}
+.trigger-scalar-client-button.put {
+  background: var(--theme-put-color);
+}
+.trigger-scalar-client-button.post {
+  background: var(--theme-post-color);
+}
+.trigger-scalar-client-button.patch {
+  background: var(--theme-patch-color);
+}
+.trigger-scalar-client-button.get {
+  background: var(--theme-get-color);
+}
+.trigger-scalar-client-button.delete {
+  background: var(--theme-delete-color);
+}
 .coder {
   border-radius: var(--theme-radius);
   overflow: hidden;
-}
-.coder:hover .trigger-client {
-  width: 62px;
-  transition: none;
-}
-.coder:hover .trigger-client-button {
-  transform: translate3d(-37px, 0, 0);
 }
 .code-copy {
   appearance: none;
@@ -260,75 +298,6 @@ const selectLanguage = (language: TargetId) => {
     width: 13px;
     height: 13px;
   }
-}
-.trigger-client {
-  display: flex;
-  position: relative;
-  cursor: pointer;
-  user-select: none;
-  transform: translate3d(0, 0, 0);
-  margin-right: 8px;
-  width: 25px;
-  height: 25px;
-  border-radius: 3px;
-  overflow: hidden;
-  transition: width 0.01s ease-in-out 0.3s;
-}
-.trigger-client-button {
-  position: absolute;
-  right: -37px;
-  top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease-in-out;
-  border-radius: 3px;
-}
-.trigger-client svg {
-  color: white;
-  position: absolute;
-  left: 0;
-  z-index: 2;
-  width: 25px;
-  height: 25px;
-  padding: 6px;
-  border-radius: 3px;
-  pointer-events: none;
-}
-.trigger-client.post svg {
-  color: var(--theme-post-color);
-}
-.trigger-client.post .trigger-client-button {
-  background: var(--theme-post-background);
-  color: var(--theme-post-color);
-}
-.trigger-client.patch svg {
-  color: var(--theme-patch-color);
-}
-.trigger-client.patch .trigger-client-button {
-  background: var(--theme-patch-background);
-  color: var(--theme-patch-color);
-}
-.trigger-client.get svg {
-  color: var(--theme-get-color);
-}
-.trigger-client.get .trigger-client-button {
-  background: var(--theme-get-background);
-  color: var(--theme-get-color);
-}
-.trigger-client.delete svg {
-  color: var(--theme-delete-color);
-}
-.trigger-client.delete .trigger-client-button {
-  background: var(--theme-delete-background);
-  color: var(--theme-delete-color);
-}
-.trigger-client.put svg {
-  color: var(--theme-put-color);
-}
-.trigger-client.put .trigger-client-button {
-  background: var(--theme-put-background);
-  color: var(--theme-put-color);
 }
 .code-runit {
   appearance: none;
@@ -388,5 +357,12 @@ const selectLanguage = (language: TargetId) => {
   display: flex;
   align-items: center;
   min-height: 21px;
+}
+.trigger-scalar-client {
+  background: var(--theme-background-2);
+  padding: 3px 6px 9px 6px;
+}
+.codemenu-item-title {
+  color: var(--theme-color-1) !important;
 }
 </style>

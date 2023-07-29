@@ -9,7 +9,7 @@ import RequestHeaders from './RequestHeaders.vue'
 const { activeRequest, readMode } = useApiClientRequestStore()
 </script>
 <template>
-  <div class="scalar-api-client__main__left">
+  <div class="scalar-api-client__main__left custom-scroll">
     <div class="scalar-api-client__main__content">
       <label>Request</label>
       <div class="meta">
@@ -40,8 +40,6 @@ const { activeRequest, readMode } = useApiClientRequestStore()
 .scalar-api-client__main__left {
   width: 50%;
   border-right: var(--scalar-api-client-border);
-  height: 95vh;
-  /* max-height: calc(100vh - 194px); */
   padding: 0 0 12px 12px;
 }
 @media screen and (max-width: 820px) {

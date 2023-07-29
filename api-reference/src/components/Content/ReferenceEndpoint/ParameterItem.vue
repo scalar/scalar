@@ -25,4 +25,3 @@ defineProps<{ parameter: Parameters }>()
     </p>
   </li>
 </template>
-../../../types
