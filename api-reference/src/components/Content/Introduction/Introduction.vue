@@ -52,13 +52,21 @@ const standardLibrary = computed(() => {
       <div class="copy">
         <div :class="EditorClasses.Heading">
           <h1
-            v-if="info.title"
-            class="heading">
-            {{ info.title }}
+            class="heading"
+            :class="{ loading: !info.title }">
+            {{ info.title || '&nbsp;' }}
           </h1>
         </div>
         <p class="tag-description">
-          <MarkdownRenderer :value="info.description" />
+          <template v-if="info.description">
+            <MarkdownRenderer :value="info.description" />
+          </template>
+          <template
+            v-for="i in [...Array(8).keys()]"
+            v-else
+            :key="i">
+            <span class="loading" />
+          </template>
         </p>
       </div>
       <div
@@ -90,5 +98,33 @@ const standardLibrary = computed(() => {
 <style scoped>
 .heading {
   margin-top: 0px !important;
+}
+.loading {
+  background: var(--theme-background-2);
+  animation: loading-skeleton 2s infinite alternate;
+  border-radius: var(--theme-radius);
+}
+.heading.loading {
+  width: 80%;
+}
+.tag-description .loading {
+  height: 20px;
+  margin-bottom: 4px;
+  width: 100%;
+  display: inline-block;
+}
+.tag-description .loading:first-of-type {
+  margin-top: 12px;
+}
+.tag-description .loading:last-of-type {
+  width: 40%;
+}
+@keyframes loading-skeleton {
+  from {
+    background: var(--theme-background-2);
+  }
+  to {
+    background: var(--theme-background-3);
+  }
 }
 </style>
