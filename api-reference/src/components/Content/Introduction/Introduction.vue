@@ -51,7 +51,9 @@ const standardLibrary = computed(() => {
     <div class="reference-container">
       <div class="copy">
         <div :class="EditorClasses.Heading">
-          <h1 class="heading">
+          <h1
+            v-if="info.title"
+            class="heading">
             {{ info.title }}
           </h1>
         </div>
@@ -90,4 +92,3 @@ const standardLibrary = computed(() => {
   margin-top: 0px !important;
 }
 </style>
-../../../stores/template../../../types

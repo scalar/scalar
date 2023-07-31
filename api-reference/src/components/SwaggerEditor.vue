@@ -146,7 +146,6 @@ const breadCrumbs = computed(() => {
       v-if="showAside"
       class="layout-aside-right">
       <Content
-        v-if="initialContentRenderedSuccessfully"
         :ready="parserReady"
         :spec="spec" />
     </div>

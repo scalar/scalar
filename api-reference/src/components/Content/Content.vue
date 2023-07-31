@@ -11,6 +11,7 @@ import type { Spec } from '../../types'
 import Introduction from './Introduction'
 import ReferenceEndpoint from './ReferenceEndpoint'
 import ReferenceTag from './ReferenceTag.vue'
+import Spinner from './Spinner.vue'
 
 defineProps<{ ready: boolean; spec: Spec }>()
 
@@ -30,47 +31,59 @@ const { state: templateState, setCollapsedSidebarItem } = useTemplateStore()
 </script>
 <template>
   <div
-    v-if="ready"
     ref="referenceEl"
     :class="{
       [ApiReferenceClasses.Endpoints]: true,
       [ApiReferenceClasses.Tags]: true,
       'references-narrow': isNarrow,
     }">
-    <Introduction
-      :info="spec.info"
-      :server="spec.servers?.[0] ?? { url: windowServer }" />
-    <template
-      v-for="(tag, index) in spec.tags"
-      :key="tag.id">
-      <div class="reference">
-        <ReferenceTag
-          :index="index"
-          :tag="tag" />
-        <button
-          v-if="index !== 0 && !templateState.collapsedSidebarItems[tag.name]"
-          class="show-more"
-          type="button"
-          @click="setCollapsedSidebarItem(tag.name, true)">
-          Show More
-          <FlowIcon
-            class="show-more-icon"
-            icon="ChevronDown" />
-        </button>
-        <template
-          v-if="index === 0 || templateState.collapsedSidebarItems[tag.name]">
-          <ReferenceEndpoint
-            v-for="operation in tag.operations"
-            :key="operation.operationId"
-            :operation="operation"
-            :parentTag="tag"
-            :server="spec.servers?.[0] ?? { url: windowServer }" />
-        </template>
-      </div>
+    <template v-if="ready">
+      <Introduction
+        :info="spec.info"
+        :server="spec.servers?.[0] ?? { url: windowServer }" />
+      <template
+        v-for="(tag, index) in spec.tags"
+        :key="tag.id">
+        <div class="reference">
+          <ReferenceTag
+            :index="index"
+            :tag="tag" />
+          <button
+            v-if="index !== 0 && !templateState.collapsedSidebarItems[tag.name]"
+            class="show-more"
+            type="button"
+            @click="setCollapsedSidebarItem(tag.name, true)">
+            Show More
+            <FlowIcon
+              class="show-more-icon"
+              icon="ChevronDown" />
+          </button>
+          <template
+            v-if="index === 0 || templateState.collapsedSidebarItems[tag.name]">
+            <ReferenceEndpoint
+              v-for="operation in tag.operations"
+              :key="operation.operationId"
+              :operation="operation"
+              :parentTag="tag"
+              :server="spec.servers?.[0] ?? { url: windowServer }" />
+          </template>
+        </div>
+      </template>
     </template>
+    <div
+      v-else
+      class="render-loading">
+      <Spinner />
+    </div>
   </div>
 </template>
 <style scoped>
+.render-loading {
+  height: calc(var(--full-height) - var(--theme-header-height));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .show-more {
   background: var(--theme-background-1);
   appearance: none;
