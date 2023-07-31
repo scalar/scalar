@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
 import { CodeEditor } from '@scalar/swagger-editor'
-import { useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { useDebounceFn } from '@vueuse/core'
+import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, reactive, ref } from 'vue'
 
 import { DocumentClasses } from '@guide/index'
@@ -17,7 +16,6 @@ import { Content } from './Content'
 import Sidebar from './Sidebar.vue'
 
 const props = defineProps<ReferenceProps>()
-defineEmits<{ (e: 'toggleSidebar'): void }>()
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
 const isMobile = useMediaQuery('(max-width: 1000px)')
