@@ -13,8 +13,7 @@
     "types": ["vite/client"],
     "paths": {
       /* TODO: Remove/Separate dependencies */
-      "@lib/*": ["../../packages/library/src/*"],
-      "@guide/*": ["../../packages/guide/src/*"]
+      "@lib/*": ["../../packages/library/src/*"]
     }
   },
   "exclude": ["dist", "vite.config.ts", "node_modules"],

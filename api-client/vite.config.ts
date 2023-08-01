@@ -11,9 +11,6 @@ export default defineConfig({
       '@lib': fileURLToPath(
         new URL('../../packages/library/src', import.meta.url),
       ),
-      '@guide': fileURLToPath(
-        new URL('../../packages/guide/src', import.meta.url),
-      ),
     },
   },
   build: {
