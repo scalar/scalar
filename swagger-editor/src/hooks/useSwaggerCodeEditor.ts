@@ -28,13 +28,26 @@ export const useSwaggerCodeEditor = ({
 }) => {
   let provider: HocuspocusProvider | null = null
 
-  if (documentName) {
+  const configureHocuspocus = (data: {
+    documentName?: string
+    token?: string
+  }) => {
+    const { documentName: newDocumentName, token: newToken } = data
+
+    if (provider) {
+      provider.destroy()
+    }
+
+    if (!newDocumentName) {
+      return
+    }
+
     provider = useHocuspocus({
-      name: documentName,
-      token,
+      name: newDocumentName,
+      token: newToken,
       onAuthenticated() {
         console.debug(
-          `[useHocusPocus] ✅ Authenticated with Hocuspocus (documentName: ${documentName})`,
+          `[useHocusPocus] ✅ Authenticated with Hocuspocus (documentName: ${newDocumentName})`,
         )
 
         const states = provider?.awareness.getStates()
@@ -47,7 +60,7 @@ export const useSwaggerCodeEditor = ({
       },
       onAuthenticationFailed() {
         console.debug(
-          `[useHocusPocus] ❌ Authentication with Hocuspocus failed (documentName: ${documentName})`,
+          `[useHocusPocus] ❌ Authentication with Hocuspocus failed (documentName: ${newDocumentName})`,
         )
       },
       onAwarenessUpdate({ states }: onAwarenessUpdateParameters) {
@@ -56,6 +69,15 @@ export const useSwaggerCodeEditor = ({
         }
       },
     }).provider
+
+    addHocuspocusProvider(provider)
+  }
+
+  if (documentName) {
+    configureHocuspocus({
+      documentName: documentName,
+      token,
+    })
   }
 
   function getExtensions(
@@ -83,34 +105,34 @@ export const useSwaggerCodeEditor = ({
     ]
   }
 
-  const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
-    useCodeMirror({
-      provider,
-      extensions: [
-        EditorView.updateListener.of((v: ViewUpdate) => {
-          if (v.docChanged) {
-            if (onUpdate) {
-              onUpdate(v.state.doc.toString())
-            }
-
-            try {
-              JSON.parse(v.state.doc.toString())
-              reconfigureCodeMirror(
-                getExtensions('json', reconfigureCodeMirror),
-              )
-            } catch (e) {
-              reconfigureCodeMirror(
-                getExtensions('yaml', reconfigureCodeMirror),
-              )
-            }
+  const {
+    codeMirrorRef,
+    setCodeMirrorContent,
+    reconfigureCodeMirror,
+    addHocuspocusProvider,
+  } = useCodeMirror({
+    provider,
+    extensions: [
+      EditorView.updateListener.of((v: ViewUpdate) => {
+        if (v.docChanged) {
+          if (onUpdate) {
+            onUpdate(v.state.doc.toString())
           }
-        }),
-        basicSetup,
-        json(),
-        lineNumbers(),
-        StreamLanguage.define(yaml),
-      ],
-    })
+
+          try {
+            JSON.parse(v.state.doc.toString())
+            reconfigureCodeMirror(getExtensions('json', reconfigureCodeMirror))
+          } catch (e) {
+            reconfigureCodeMirror(getExtensions('yaml', reconfigureCodeMirror))
+          }
+        }
+      }),
+      basicSetup,
+      json(),
+      lineNumbers(),
+      StreamLanguage.define(yaml),
+    ],
+  })
 
   onUnmounted(() => {
     provider?.destroy()
@@ -121,5 +143,6 @@ export const useSwaggerCodeEditor = ({
     codeMirrorRef,
     setCodeMirrorContent,
     reconfigureCodeMirror,
+    configureHocuspocus,
   }
 }
