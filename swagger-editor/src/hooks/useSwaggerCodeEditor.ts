@@ -33,6 +33,10 @@ export const useSwaggerCodeEditor = ({
       name: documentName,
       token,
       onAuthenticated() {
+        console.debug(
+          `[useHocusPocus] ✅ Authenticated with Hocuspocus (documentName: ${documentName})`,
+        )
+
         const states = provider?.awareness.getStates()
 
         if (states) {
@@ -40,6 +44,11 @@ export const useSwaggerCodeEditor = ({
             onAwarenessUpdate(awarenessStatesToArray(states))
           }
         }
+      },
+      onAuthenticationFailed() {
+        console.debug(
+          `[useHocusPocus] ❌ Authentication with Hocuspocus failed (documentName: ${documentName})`,
+        )
       },
       onAwarenessUpdate({ states }: onAwarenessUpdateParameters) {
         if (onAwarenessUpdate) {
