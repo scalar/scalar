@@ -40,7 +40,7 @@ const { activeRequest, readMode } = useApiClientRequestStore()
 .scalar-api-client__main__left {
   width: 50%;
   border-right: var(--scalar-api-client-border);
-  padding: 0 0 12px 12px;
+  padding: 0 12px 12px 12px;
 }
 @media screen and (max-width: 820px) {
   .scalar-api-client__main__left {

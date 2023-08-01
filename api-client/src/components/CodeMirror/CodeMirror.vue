@@ -76,11 +76,6 @@ watch(
   width: 100%;
 }
 
-.scalar-api-client__url-input__method {
-  color: var(--scalar-api-client-color);
-  background: var(--scalar-api-client-background);
-}
-
 .scalar-api-client__url-input {
   font-size: 13px;
   font-weight: var(--scalar-api-client-theme-bold);
@@ -120,7 +115,9 @@ watch(
   font-size: var(--scalar-api-client-micro) !important;
 }
 .scalar-api-client__url-input__method {
-  border-radius: 30px;
+  color: var(--scalar-api-client-color);
+  border-radius: var(--scalar-api-client-radius) !important;
+  background: var(--scalar-api-client-background);
   padding: 2px;
   font: var(--scalar-api-client-font-code);
   font-size: 11px !important;

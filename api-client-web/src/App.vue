@@ -29,7 +29,8 @@ import { ApiClient } from '@scalar/api-client'
   /** Second font color  */
   --scalar-api-client-color-3: #868e96;
   --scalar-api-client-border: 1px solid #f1f3f5;
-  --scalar-api-client-font-code: /*'Comic Sans MS',*/ 'JetBrains Mono', monospace;
+  --scalar-api-client-theme-font: 'Inter', sans-serif;
+  --scalar-api-client-font-code: 'JetBrains Mono', monospace;
   --scalar-api-client-theme-bold: bold;
   /* Font color */
   --scalar-api-client-theme-color-1:#343a40;

@@ -104,12 +104,30 @@ useKeyboardEvent({
   overflow: hidden !important;
   display: flex;
   flex-direction: column;
+  font-family: var(--scalar-api-client-theme-font);
 }
 @media screen and (max-width: 1000px) {
   .scalar-api-client {
     width: 100%;
   }
 }
+.scalar-api-client,
+.scalar-api-client *,
+.scalar-api-client *:before,
+.scalar-api-client *:after {
+  box-sizing: border-box;
+}
+.scalar-api-client input {
+  padding: 0;
+}
+.scalar-api-client button {
+  border: none;
+  text-align: left;
+}
+.scalar-api-client pre {
+  font-family: var(--scalar-api-client-font-code);
+}
+
 .scalar-api-client--post {
   --scalar-api-client-color: var(--scalar-api-client-post-color);
   --scalar-api-client-background: var(--scalar-api-client-post-background);

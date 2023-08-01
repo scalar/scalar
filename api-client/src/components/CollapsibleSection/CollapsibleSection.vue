@@ -47,9 +47,13 @@ defineProps<{
 .scalar-api-client__item {
   border-radius: var(--scalar-api-client-radius);
   margin-bottom: 6px;
-  background: --scalar-api-client-background-1;
+  background: var(--scalar-api-client-background-2);
   box-shadow: var(--shadow1);
   position: relative;
+}
+
+.scalar-api-client__item button {
+  background-color: transparent;
 }
 
 .scalar-api-client__item:hover {
