@@ -5,14 +5,6 @@ import { configDefaults } from 'vitest/config'
 
 export default defineConfig({
   plugins: [vue()],
-  resolve: {
-    alias: {
-      /* TODO: Remove/Separate dependencies */
-      '@lib': fileURLToPath(
-        new URL('../../packages/library/src', import.meta.url),
-      ),
-    },
-  },
   build: {
     cssCodeSplit: true,
     minify: false,
