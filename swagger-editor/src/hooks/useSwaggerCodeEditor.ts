@@ -70,7 +70,9 @@ export const useSwaggerCodeEditor = ({
       },
     }).provider
 
-    addHocuspocusProvider(provider)
+    if (addHocuspocusProvider && provider) {
+      addHocuspocusProvider(provider)
+    }
   }
 
   if (documentName) {
