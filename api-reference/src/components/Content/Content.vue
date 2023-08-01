@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { useRefOnMount } from '@anc/library'
 import { useResizeObserver } from '@vueuse/core'
 import { ref } from 'vue'
 
 import FlowIcon from '@lib/components/FlowIcon.vue'
-import { useRefOnMount } from '@lib/hooks/useRefOnMount'
 
 import { useTemplateStore } from '../../stores/template'
 import { ApiReferenceClasses } from '../../styles'

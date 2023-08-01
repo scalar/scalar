@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useClipboard } from '@lib/hooks/useClipboard'
+import { useClipboard } from '@anc/library'
 
 defineProps<{ url: string | null }>()
 

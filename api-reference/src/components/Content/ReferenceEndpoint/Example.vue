@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useDarkModeState } from '@lib/hooks/useDarkModeState'
+import { useDarkModeState } from '@anc/library'
 
 import { EditorClasses } from '@guide/styles'
 

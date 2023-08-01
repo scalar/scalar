@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import { useClipboard, useCodeMirror } from '@anc/library'
 import { json } from '@codemirror/lang-json'
 import { foldGutter } from '@codemirror/language'
 import { EditorView } from 'codemirror'
 import { computed, onMounted, ref, watch } from 'vue'
 
-import { useClipboard } from '@lib/hooks/useClipboard'
-import { useCodeMirror } from '@lib/hooks/useCodeMirror'
 import ProjectIcon from '@lib/icon-library/ProjectIcon.vue'
 
 import { ApiReferenceClasses } from '../../../styles'

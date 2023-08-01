@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useClipboard, useCodeMirror, useDarkModeState } from '@anc/library'
 import { java } from '@codemirror/lang-java'
 import { javascript } from '@codemirror/lang-javascript'
 import { python } from '@codemirror/lang-python'
@@ -35,9 +36,6 @@ import {
 } from 'httpsnippet-lite'
 import { computed, onMounted, watch } from 'vue'
 
-import { useClipboard } from '@lib/hooks/useClipboard'
-import { useCodeMirror } from '@lib/hooks/useCodeMirror'
-import { useDarkModeState } from '@lib/hooks/useDarkModeState'
 import ProjectIcon from '@lib/icon-library/ProjectIcon.vue'
 
 import { useTemplateStore } from '../../../stores/template'

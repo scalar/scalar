@@ -1,7 +1,6 @@
 <script lang="ts" setup>
+import { useTooltip } from '@anc/library'
 import { computed } from 'vue'
-
-import { useTooltip } from '@lib/hooks/useTooltip'
 
 const props = defineProps<{ title: string }>()
 
