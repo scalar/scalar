@@ -29,7 +29,9 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
           <Sidebar
             v-show="!isMobile"
             :spec="spec" />
-          <ApiClient @escapeKeyPress="hideApiClient" />
+          <ApiClient
+            :proxyUrl="import.meta.env.VITE_CLIENT_PROXY"
+            @escapeKeyPress="hideApiClient" />
         </div>
       </div>
     </div>

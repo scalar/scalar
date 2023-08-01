@@ -9,6 +9,8 @@ import AdressBar from './AddressBar.vue'
 import { Request } from './Request'
 import { Response } from './Response'
 
+defineProps<{ proxyUrl: string }>()
+
 const emit = defineEmits<{
   (e: 'escapeKeyPress'): void
 }>()
@@ -37,9 +39,11 @@ useKeyboardEvent({
 <template>
   <div
     class="scalar-api-client"
-    :class="`scalar-api-client--${activeRequest.type || 'get'}`"
+    :class="`scalar-api-client--${activeRequest.type.toLowerCase() || 'get'}`"
     @keydown.esc="emit('escapeKeyPress')">
-    <AdressBar @onSend="changeTab(Tabs.Response)" />
+    <AdressBar
+      :proxyUrl="proxyUrl"
+      @onSend="changeTab(Tabs.Response)" />
     <div class="scalar-api-client__main">
       <!-- Desktop-->
       <template v-if="!isSmallScreen">
@@ -93,7 +97,7 @@ useKeyboardEvent({
 
 <style>
 .scalar-api-client {
-  width: calc(100% - var(--theme-sidebar-width));
+  width: calc(100% - var(--scalar-api-client-sidebar-width));
   background: var(--scalar-api-client-background-1);
   position: relative;
   height: 100%;

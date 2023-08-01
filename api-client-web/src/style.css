@@ -1,0 +1,36 @@
+// TODO: Nove to package
+*,
+.scalar-api-client__address-bar {
+  box-sizing: border-box !important;
+}
+
+body {
+  margin: 0;
+}
+
+body,
+input {
+  font-family: 'Inter', sans-serif;
+}
+
+button {
+  border: none;
+  background: transparent;
+  text-align: left;
+}
+
+.scalar-api-client__item {
+  background: var(--scalar-api-client-background-2);
+}
+
+.scalar-api-client__main__left {
+  padding-right: 12px !important;
+}
+
+.scalar-api-client__url-input__method {
+  border-radius: var(--scalar-api-client-radius) !important;
+}
+
+pre {
+  font-family: var(--scalar-api-client-font-code);
+}

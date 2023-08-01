@@ -22,6 +22,7 @@ const templateEngine = nunjucks.configure({
  */
 export async function sendRequest(
   request: ClientRequestConfig,
+  proxyUrl: string,
 ): Promise<RequestResult | null> {
   // Format complete URL
   const fullUrl = `${request.url}${request.path}`
@@ -49,7 +50,7 @@ export async function sendRequest(
   const config = proxy
     ? {
         method: 'POST',
-        url: import.meta.env.VITE_CLIENT_PROXY,
+        url: proxyUrl,
         data: requestOptions,
       }
     : {

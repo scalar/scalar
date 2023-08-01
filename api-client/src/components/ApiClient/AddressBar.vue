@@ -10,6 +10,10 @@ import { useApiClientRequestStore } from '../../stores/apiClientRequestStore'
 import { CodeMirror } from '../CodeMirror'
 import RequestHistory from './RequestHistory.vue'
 
+const props = defineProps<{
+  proxyUrl: string
+}>()
+
 const emits = defineEmits<{
   (event: 'onSend'): void
 }>()
@@ -68,7 +72,7 @@ const formattedUrl = computed(() => {
 async function send() {
   loading.value = true
   emits('onSend')
-  const result = await sendRequest(activeRequest)
+  const result = await sendRequest(activeRequest, props.proxyUrl)
 
   if (result) {
     addRequestToHistory(result)

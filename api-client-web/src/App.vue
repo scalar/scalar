@@ -1,0 +1,56 @@
+<script setup lang="ts">
+import { ApiClient } from '@scalar/api-client'
+
+// import '@scalar/api-client/dist/style.css'
+// import '@scalar/api-client/dist/variables.css'
+</script>
+
+<template>
+  <ApiClient proxyUrl="http://localhost:1236" />
+</template>
+
+<style>
+.scalar-api-client,
+#headlessui-portal-root {
+  --scalar-api-client-height: 100px;
+  --scalar-api-client-post-color: white;
+  --scalar-api-client-post-background: black;
+  --scalar-api-client-delete-color: white;
+  --scalar-api-client-delete-background: black;
+  --scalar-api-client-patch-color: white;
+  --scalar-api-client-patch-background: black;
+  --scalar-api-client-get-color: #51cf66;
+  --scalar-api-client-get-background: white;
+  --scalar-api-client-put-color: white;
+  --scalar-api-client-put-background: black;
+  --scalar-api-client-radius: 4px;
+  /** Background address bar, collapsible sections */
+  --scalar-api-client-background-2: #f1f3f5;
+  /** Second font color  */
+  --scalar-api-client-color-3: #868e96;
+  --scalar-api-client-border: 1px solid #f1f3f5;
+  --scalar-api-client-font-code: /*'Comic Sans MS',*/ 'JetBrains Mono', monospace;
+  --scalar-api-client-theme-bold: bold;
+  /* Font color */
+  --scalar-api-client-theme-color-1:#343a40;
+  /* Select font color */
+  --scalar-api-client-theme-color-2: #868e96;
+  --scalar-api-client-theme-shadow-2: 0 0 0 1px white;
+  --scalar-api-client-theme-small: 12px;
+  --scalar-api-client-theme-regular: 14px;
+  --scalar-api-client-large: 18px;
+  --scalar-api-client-normal: font-size: 16px;
+  --scalar-api-client-fill: black;
+  --scalar-api-client-color2: white;
+  --scalar-api-client-bg3: black;
+  --scalar-api-client-gradient: linear-gradient(180deg, black 0%, black 100%);
+  /** General Background */
+  --scalar-api-client-background-1: #fff;
+  --scalar-api-client-border-color: black;
+  /** Select background */
+  --scalar-api-client-background-3: #f8f9fa;
+  --scalar-api-client-semibold: 600;
+  --scalar-api-client-micro: 10px;
+  --scalar-api-client-sidebar-width: 0;
+}
+</style>

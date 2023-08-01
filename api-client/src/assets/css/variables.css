@@ -33,4 +33,5 @@
   --scalar-api-client-background-3: var(--theme-background-3);
   --scalar-api-client-semibold: var(--theme-semibold);
   --scalar-api-client-micro: var(--micro);
+  --scalar-api-client-sidebar-width: var(--theme-sidebar-width);
 }
