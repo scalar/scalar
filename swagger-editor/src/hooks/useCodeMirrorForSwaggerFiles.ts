@@ -5,152 +5,163 @@ import { type Extension } from '@codemirror/state'
 import { EditorView, type ViewUpdate, lineNumbers } from '@codemirror/view'
 import { awarenessStatesToArray } from '@hocuspocus/common'
 import {
-  type HocuspocusProvider,
+  HocuspocusProvider,
   type StatesArray,
   type onAwarenessUpdateParameters,
 } from '@hocuspocus/provider'
+import { duotoneDark, duotoneLight } from '@uiw/codemirror-theme-duotone'
 import { basicSetup } from 'codemirror'
-import { type Ref, onUnmounted, ref, watch } from 'vue'
+import { type Ref, computed, onUnmounted, ref, watch } from 'vue'
 import { yCollab as CodeMirrorYjsBinding } from 'y-codemirror.next'
 import * as Y from 'yjs'
 
-import { useCodeMirror } from '@lib/hooks/useCodeMirror'
-import { useHocuspocus } from '@lib/hooks/useHocuspocus'
+import { useDarkModeState } from '@lib/hooks/useDarkModeState'
 
-export const useCodeMirrorForSwaggerFiles = ({
-  documentName,
-  token,
-  onUpdate,
-  onAwarenessUpdate,
-}: {
+type UseCodeMirrorForSwaggerFilesParameters = {
   documentName?: Ref<string | undefined>
   token?: Ref<string | undefined>
   onUpdate?: (content: string) => void
   onAwarenessUpdate?: (states: StatesArray) => void
-}) => {
-  const provider: Ref<HocuspocusProvider | null> = ref(null)
+  /**
+   * Always use dark mode.
+   */
+  forceDarkMode?: boolean
+}
+
+const { isDark } = useDarkModeState()
+
+export const useCodeMirrorForSwaggerFiles = (
+  parameters: UseCodeMirrorForSwaggerFilesParameters,
+) => {
+  const codeMirror = ref<EditorView | null>(null)
+  const codeMirrorRef = ref<HTMLDivElement | null>(null)
   const currentContent = ref<string>('')
-  const currentContentIsJson = ref<boolean>(true)
+  const { documentName, token, onUpdate, onAwarenessUpdate, forceDarkMode } =
+    parameters
 
-  // Watch for changes in the document name or token. If they change, we need to create a new Hocuspocus provider.
-  watch(
-    [documentName, token],
-    () => {
-      provider.value?.destroy()
-
-      // No document name, no need for a Hocuspocus provider
-      if (!documentName?.value) {
-        return
-      }
-
-      provider.value = useHocuspocus({
-        name: documentName?.value,
-        token: token?.value,
-        onAuthenticationFailed() {
-          console.debug(
-            `[useHocusPocus] ❌ Authentication with Hocuspocus failed (documentName: ${documentName.value})`,
-          )
-        },
-        onAwarenessUpdate({ states }: onAwarenessUpdateParameters) {
-          if (onAwarenessUpdate) {
-            onAwarenessUpdate(states)
-          }
-        },
-      }).provider
-
-      provider.value?.on('authenticated', () => {
-        const states = provider.value?.awareness.getStates()
-
-        if (states) {
-          if (onAwarenessUpdate) {
-            onAwarenessUpdate(awarenessStatesToArray(states))
-          }
-        }
-      })
-    },
-    { immediate: true },
-  )
-
-  // Watch for content changes to check if its JSON or YAML
-  watch(
-    () => currentContent.value,
-    () => {
-      try {
-        JSON.parse(currentContent.value)
-        currentContentIsJson.value = true
-      } catch {
-        currentContentIsJson.value = false
-      }
-    },
-  )
-
-  // Check if the content is JSON or YAML
-  watch(
-    () => currentContentIsJson.value,
-    () => {
-      reconfigureCodeMirror(getExtensions())
-    },
-  )
-
-  // Check if the Hocuspocus provider is available
-  watch(
-    () => provider.value,
-    () => {
-      restartCodeMirror(getExtensions())
-    },
-  )
-
-  // Get the extensions for the editor
-  const getExtensions = (): Extension[] => {
-    const allExtensions = [
-      EditorView.updateListener.of((v: ViewUpdate) => {
-        if (v.docChanged) {
-          currentContent.value = v.state.doc.toString()
-
-          if (onUpdate) {
-            onUpdate(v.state.doc.toString())
-          }
-        }
-      }),
-      basicSetup,
-      lineNumbers(),
-      currentContentIsJson.value ? json() : StreamLanguage.define(yaml),
-    ]
-
-    // Collaborative editing
-    if (provider.value) {
-      console.info(
-        '[useCodeMirrorForSwaggerFiles] Collaborative editing enabled',
-      )
-      const ytext = provider.value?.document.getText('codemirror')
-
-      allExtensions.push(
-        CodeMirrorYjsBinding(ytext, provider.value.awareness, {
-          undoManager: new Y.UndoManager(ytext),
-        }),
-      )
+  /**
+   * Watch documentName and token to create a new HocuspocusProvider.
+   */
+  watch([documentName, token], () => {
+    if (!documentName?.value) {
+      return
     }
 
-    return allExtensions
+    const provider = new HocuspocusProvider({
+      url: import.meta.env.VITE_HOCUS_POCUS as string,
+      token: token?.value,
+      name: documentName.value,
+      onAuthenticated() {
+        console.log('✅ Authenticated!')
+      },
+      onAuthenticationFailed() {
+        console.debug(
+          `[useHocusPocus] ❌ Authentication with Hocuspocus failed (documentName: ${documentName.value})`,
+        )
+      },
+    })
+
+    // Authenticated
+    provider.on('authenticated', () => {
+      const states = provider.awareness.getStates()
+
+      if (states) {
+        if (onAwarenessUpdate) {
+          onAwarenessUpdate(awarenessStatesToArray(states))
+        }
+      }
+    })
+
+    // Authentication failed
+    provider.on('authenticationFailed', () => {
+      console.debug(
+        `[useHocusPocus] ❌ Authentication with Hocuspocus failed (documentName: ${documentName.value})`,
+      )
+    })
+
+    // Awareness updates
+    provider.on(
+      'awarenessUpdate',
+      ({ states }: onAwarenessUpdateParameters) => {
+        if (onAwarenessUpdate) {
+          onAwarenessUpdate(states)
+        }
+      },
+    )
+
+    // Don’t mount, if there’s no codeMirrorRef
+    if (!codeMirrorRef?.value) {
+      return
+    }
+
+    // Check if content is JSON
+    const currentContentIsJson = computed(() => {
+      try {
+        JSON.parse(currentContent.value)
+        return true
+      } catch (e) {
+        return false
+      }
+    })
+
+    // Initialize CodeMirror
+    const selectedTheme = isDark.value ? duotoneDark : duotoneLight
+    const ytext = provider.document.getText('codemirror')
+
+    codeMirror.value = new EditorView({
+      parent: codeMirrorRef?.value,
+      extensions: [
+        EditorView.theme({}, { dark: forceDarkMode ? false : isDark.value }),
+        forceDarkMode ? duotoneLight : selectedTheme,
+        EditorView.updateListener.of((v: ViewUpdate) => {
+          if (v.docChanged) {
+            const content = v.state.doc.toString()
+
+            currentContent.value = content
+
+            if (onUpdate) {
+              onUpdate(content)
+            }
+          }
+        }),
+        basicSetup,
+        lineNumbers(),
+        CodeMirrorYjsBinding(ytext, provider.awareness, {
+          undoManager: new Y.UndoManager(ytext),
+        }),
+        currentContentIsJson.value ? json() : StreamLanguage.define(yaml),
+      ],
+    })
+  })
+
+  const setCodeMirrorContent = (value: string) => {
+    if (!codeMirror.value) {
+      return
+    }
+
+    codeMirror.value.dispatch({
+      changes: {
+        from: 0,
+        to: codeMirror.value.state.doc.length,
+        insert: value,
+      },
+      selection: {
+        anchor: Math.min(
+          codeMirror.value.state.selection.main.anchor,
+          value.length,
+        ),
+      },
+    })
   }
 
-  const {
-    codeMirrorRef,
-    setCodeMirrorContent,
-    reconfigureCodeMirror,
-    restartCodeMirror,
-  } = useCodeMirror({
-    extensions: getExtensions(),
-  })
-
-  onUnmounted(() => {
-    provider.value?.destroy()
-  })
-
   return {
-    provider,
+    /**
+     * The ref where CodeMirror is mounted.
+     */
     codeMirrorRef,
+    /**
+     * Overwrite the current content of the CodeMirror editor.
+     */
     setCodeMirrorContent,
-    reconfigureCodeMirror,
   }
 }

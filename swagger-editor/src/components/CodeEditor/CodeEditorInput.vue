@@ -23,6 +23,13 @@ const { codeMirrorRef, setCodeMirrorContent } = useCodeMirrorForSwaggerFiles({
   onAwarenessUpdate: (states) => emit('awarenessUpdate', states),
 })
 
+// const { codeMirrorRef, setCodeMirrorContent } = useCodeMirrorForSwaggerFiles({
+//   documentName: documentNameRef,
+//   token: tokenRef,
+//   onUpdate: (value) => emit('contentUpdate', value),
+//   onAwarenessUpdate: (states) => emit('awarenessUpdate', states),
+// })
+
 defineExpose({
   setCodeMirrorContent,
 })
