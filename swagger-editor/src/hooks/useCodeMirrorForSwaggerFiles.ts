@@ -35,21 +35,19 @@ type UseCodeMirrorForSwaggerFilesParameters = {
   forceDarkMode?: boolean
 }
 
-export const useCodeMirrorForSwaggerFiles = (
-  parameters: UseCodeMirrorForSwaggerFilesParameters,
-) => {
+export const useCodeMirrorForSwaggerFiles = ({
+  documentName,
+  token,
+  username,
+  onUpdate,
+  onAwarenessUpdate,
+  forceDarkMode,
+}: UseCodeMirrorForSwaggerFilesParameters) => {
   const codeMirror = ref<EditorView | null>(null)
   const codeMirrorRef = ref<HTMLDivElement | null>(null)
   const currentContent = ref<string>('')
+
   let provider: HocuspocusProvider | null = null
-  const {
-    documentName,
-    token,
-    username,
-    onUpdate,
-    onAwarenessUpdate,
-    forceDarkMode,
-  } = parameters
 
   // Check if content is JSON
   const currentContentIsJson = computed(() => {
@@ -66,14 +64,10 @@ export const useCodeMirrorForSwaggerFiles = (
    */
   const mountCodeMirror = () => {
     // Clean up
-    if (codeMirror.value) {
-      codeMirror.value.destroy()
-    }
+    if (codeMirror.value) codeMirror.value.destroy()
 
     // Don’t mount, if there’s no codeMirrorRef
-    if (!codeMirrorRef?.value) {
-      return
-    }
+    if (!codeMirrorRef?.value) return
 
     // Add CodeMirror classes
     codeMirrorRef.value.classList.add(EditorClasses.CodeMirror)
@@ -89,9 +83,7 @@ export const useCodeMirrorForSwaggerFiles = (
 
           currentContent.value = content
 
-          if (onUpdate) {
-            onUpdate(content)
-          }
+          if (onUpdate) onUpdate(content)
         }
       }),
       basicSetup,
@@ -101,11 +93,11 @@ export const useCodeMirrorForSwaggerFiles = (
 
     // Optional: collaborative editing
     if (provider) {
-      const ytext = provider.document.getText('codemirror')
+      const yText = provider.document.getText('codemirror')
 
       extensions.push(
-        CodeMirrorYjsBinding(ytext, provider.awareness, {
-          undoManager: new Y.UndoManager(ytext),
+        CodeMirrorYjsBinding(yText, provider.awareness, {
+          undoManager: new Y.UndoManager(yText),
         }),
       )
     }
@@ -125,7 +117,6 @@ export const useCodeMirrorForSwaggerFiles = (
       () => {
         if (!documentName?.value) {
           mountCodeMirror()
-
           return
         }
 
@@ -161,10 +152,8 @@ export const useCodeMirrorForSwaggerFiles = (
 
           const states = provider?.awareness.getStates()
 
-          if (states) {
-            if (onAwarenessUpdate) {
-              onAwarenessUpdate(awarenessStatesToArray(states))
-            }
+          if (states && onAwarenessUpdate) {
+            onAwarenessUpdate(awarenessStatesToArray(states))
           }
         })
 
@@ -192,9 +181,7 @@ export const useCodeMirrorForSwaggerFiles = (
   })
 
   const setCodeMirrorContent = (value: string) => {
-    if (!codeMirror.value) {
-      return
-    }
+    if (!codeMirror.value) return
 
     codeMirror.value.dispatch({
       changes: {
