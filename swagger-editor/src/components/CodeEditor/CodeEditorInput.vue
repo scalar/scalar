@@ -7,6 +7,7 @@ import { useCodeMirrorForSwaggerFiles } from '../../hooks/useCodeMirrorForSwagge
 const props = defineProps<{
   documentName?: string
   token?: string
+  username?: string
 }>()
 
 const emit = defineEmits<{
@@ -20,8 +21,7 @@ const tokenRef = toRef(props, 'token')
 const { codeMirrorRef, setCodeMirrorContent } = useCodeMirrorForSwaggerFiles({
   documentName: documentNameRef,
   token: tokenRef,
-  // TODO: Make dynamic
-  username: 'User',
+  username: props.username,
   onUpdate: (value) => emit('contentUpdate', value),
   onAwarenessUpdate: (states) => emit('awarenessUpdate', states),
 })

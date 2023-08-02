@@ -139,6 +139,7 @@ const breadCrumbs = computed(() => {
         :documentName="documentName"
         :error="parserError"
         :token="token"
+        :username="username"
         @contentUpdate="handleContentUpdate" />
     </div>
     <!-- Rendered reference -->

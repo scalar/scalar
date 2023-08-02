@@ -10,6 +10,7 @@ import CodeEditorStatusBar from './CodeEditorStatusBar.vue'
 defineProps<{
   documentName?: string
   token?: string
+  username?: string
   error: string
 }>()
 
@@ -46,6 +47,7 @@ const codeMirrorReference = ref<typeof CodeEditorInput | null>(null)
       ref="codeMirrorReference"
       :documentName="documentName"
       :token="token"
+      :username="username"
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
     <CodeEditorStatusBar v-if="documentName">
