@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useTippy } from '@anc/library'
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import prettyBytes from 'pretty-bytes'
 import prettyMilliseconds from 'pretty-ms'
 import { onMounted, ref } from 'vue'
 
+import { useTippy } from '../../hooks'
 import { useApiClientRequestStore } from '../../stores/apiClientRequestStore'
 import { type ClientResponse } from '../../types'
 

@@ -39,7 +39,8 @@
     "nanoid": "4.0.2",
     "nunjucks": "3.2.4",
     "pretty-bytes": "6.1.0",
-    "pretty-ms": "8.0.0"
+    "pretty-ms": "8.0.0",
+    "tippy.js": "6.3.7"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",
