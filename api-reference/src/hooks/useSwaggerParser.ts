@@ -7,7 +7,7 @@ const { data, post } = useWebWorker('/web-worker.js')
 
 const parserResult = ref<Record<any, any>>()
 const parserError = ref<string>('')
-const parserReady = ref(false)
+const parserReady = ref(true)
 
 type ErrorObject = { error: string }
 

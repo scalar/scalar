@@ -1,12 +1,14 @@
 <script lang="ts" setup>
 import { useClipboard } from '@lib/hooks/useClipboard'
 
-defineProps<{ url: string }>()
+defineProps<{ url: string | null }>()
 
 const { copyToClipboard } = useClipboard()
 </script>
 <template>
-  <div class="tag-endpoints example-item">
+  <div
+    v-if="url"
+    class="tag-endpoints example-item">
     <span class="example-item-title">Base URL</span>
     <div class="example-item-endpoints custom-scroll">
       <a

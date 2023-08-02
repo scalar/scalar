@@ -10,7 +10,7 @@ import {
   type onAwarenessUpdateParameters,
 } from '@hocuspocus/provider'
 import { basicSetup } from 'codemirror'
-import { onUnmounted } from 'vue'
+import { onUnmounted, ref, watch } from 'vue'
 
 import { useCodeMirror } from '@lib/hooks/useCodeMirror'
 import { useHocuspocus } from '@lib/hooks/useHocuspocus'
@@ -27,6 +27,8 @@ export const useSwaggerCodeEditor = ({
   onAwarenessUpdate?: (states: StatesArray) => void
 }) => {
   let provider: HocuspocusProvider | null = null
+  const currentContent = ref<string>('')
+  const currentContentIsJson = ref<boolean>(true)
 
   const configureHocuspocus = (data: {
     documentName?: string
@@ -82,28 +84,42 @@ export const useSwaggerCodeEditor = ({
     })
   }
 
-  function getExtensions(
-    language: 'json' | 'yaml',
-    reconfigureCodeMirror: (newExtensions: Extension[]) => void,
-  ) {
+  // Watch for changes to check if its JSON or YAML
+  watch(
+    () => currentContent.value,
+    () => {
+      try {
+        JSON.parse(currentContent.value)
+        currentContentIsJson.value = true
+      } catch {
+        currentContentIsJson.value = false
+      }
+    },
+  )
+
+  // Check if the content is JSON or YAML
+  watch(
+    () => currentContentIsJson.value,
+    () => {
+      reconfigureCodeMirror(getExtensions())
+    },
+  )
+
+  // Get the extensions for the editor
+  const getExtensions = (): Extension[] => {
     return [
       EditorView.updateListener.of((v: ViewUpdate) => {
+        currentContent.value = v.state.doc.toString()
+
         if (v.docChanged) {
           if (onUpdate) {
             onUpdate(v.state.doc.toString())
           }
-
-          try {
-            JSON.parse(v.state.doc.toString())
-            reconfigureCodeMirror(getExtensions('json', reconfigureCodeMirror))
-          } catch {
-            reconfigureCodeMirror(getExtensions('yaml', reconfigureCodeMirror))
-          }
         }
       }),
       basicSetup,
-      language === 'json' ? json() : StreamLanguage.define(yaml),
       lineNumbers(),
+      currentContentIsJson.value ? json() : StreamLanguage.define(yaml),
     ]
   }
 
@@ -114,26 +130,7 @@ export const useSwaggerCodeEditor = ({
     addHocuspocusProvider,
   } = useCodeMirror({
     provider,
-    extensions: [
-      EditorView.updateListener.of((v: ViewUpdate) => {
-        if (v.docChanged) {
-          if (onUpdate) {
-            onUpdate(v.state.doc.toString())
-          }
-
-          try {
-            JSON.parse(v.state.doc.toString())
-            reconfigureCodeMirror(getExtensions('json', reconfigureCodeMirror))
-          } catch (e) {
-            reconfigureCodeMirror(getExtensions('yaml', reconfigureCodeMirror))
-          }
-        }
-      }),
-      basicSetup,
-      json(),
-      lineNumbers(),
-      StreamLanguage.define(yaml),
-    ],
+    extensions: getExtensions(),
   })
 
   onUnmounted(() => {

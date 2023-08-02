@@ -14,7 +14,7 @@ const emit = defineEmits<{
   (e: 'contentUpdate', value: string): void
 }>()
 
-const { codeMirrorRef, setCodeMirrorContent, configureHocuspocus } =
+const { codeMirrorRef, setCodeMirrorContent, configureHocuspocus, provider } =
   useSwaggerCodeEditor({
     documentName: props.documentName,
     token: props.token,

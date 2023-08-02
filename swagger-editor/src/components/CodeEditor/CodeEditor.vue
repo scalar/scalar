@@ -49,8 +49,8 @@ const codeMirrorReference = ref<typeof CodeEditorInput | null>(null)
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
     <CodeEditorStatusBar v-if="documentName">
-      {{ awarenessStates }} user{{ awarenessStates === 1 ? '' : 's' }}
-      online
+      {{ awarenessStates }} user{{ awarenessStates === 1 ? '' : 's' }} online @
+      {{ documentName }}
     </CodeEditorStatusBar>
   </div>
 </template>
