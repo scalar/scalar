@@ -27,6 +27,7 @@
     "@codemirror/view": "6.16.0",
     "@hocuspocus/common": "2.3.1",
     "@hocuspocus/provider": "2.3.1",
+    "@uiw/codemirror-theme-duotone": "4.21.3",
     "@vueuse/core": "10.1.2",
     "codemirror": "6.0.1",
     "y-codemirror.next": "0.3.2",

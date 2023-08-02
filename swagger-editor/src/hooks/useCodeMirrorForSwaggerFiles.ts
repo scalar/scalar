@@ -1,7 +1,6 @@
 import { json } from '@codemirror/lang-json'
 import { StreamLanguage } from '@codemirror/language'
 import { yaml } from '@codemirror/legacy-modes/mode/yaml'
-import { type Extension } from '@codemirror/state'
 import { EditorView, type ViewUpdate, lineNumbers } from '@codemirror/view'
 import { awarenessStatesToArray } from '@hocuspocus/common'
 import {
@@ -211,6 +210,10 @@ export const useCodeMirrorForSwaggerFiles = (
       },
     })
   }
+
+  onUnmounted(() => {
+    provider?.destroy()
+  })
 
   return {
     /**
