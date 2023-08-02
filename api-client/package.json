@@ -30,6 +30,7 @@
     "@headlessui/vue": "1.7.14",
     "@lezer/highlight": "1.1.6",
     "@types/nunjucks": "3.2.2",
+    "@uiw/codemirror-theme-duotone": "4.21.3",
     "@uiw/codemirror-themes": "4.21.3",
     "@vueuse/core": "10.1.2",
     "axios": "1.4.0",

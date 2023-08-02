@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { useCodeMirror } from '@anc/library'
 import { javascript } from '@codemirror/lang-javascript'
 import { type Extension } from '@codemirror/state'
 import {
@@ -8,6 +7,7 @@ import {
 } from '@codemirror/view'
 import { watch } from 'vue'
 
+import { useCodeMirror } from '../../hooks'
 import { placeholders } from './extensions/placeholders'
 
 type Language = 'javascript'
