@@ -28,7 +28,9 @@
     "@hocuspocus/common": "2.1.0",
     "@hocuspocus/provider": "2.1.0",
     "@vueuse/core": "10.1.2",
-    "codemirror": "6.0.1"
+    "codemirror": "6.0.1",
+    "y-codemirror.next": "0.3.2",
+    "yjs": "13.6.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",

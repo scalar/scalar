@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { type StatesArray } from '@hocuspocus/provider'
-import { watch } from 'vue'
+import { toRef, watch } from 'vue'
 
-import { useSwaggerCodeEditor } from '../../hooks/useSwaggerCodeEditor'
+import { useCodeMirrorForSwaggerFiles } from '../../hooks/useCodeMirrorForSwaggerFiles'
 
 const props = defineProps<{
   documentName?: string
@@ -13,26 +13,15 @@ const emit = defineEmits<{
   (e: 'awarenessUpdate', states: StatesArray): void
   (e: 'contentUpdate', value: string): void
 }>()
+const documentNameRef = toRef(props, 'documentName')
+const tokenRef = toRef(props, 'token')
 
-const { codeMirrorRef, setCodeMirrorContent, configureHocuspocus, provider } =
-  useSwaggerCodeEditor({
-    documentName: props.documentName,
-    token: props.token,
-    onUpdate: (value) => emit('contentUpdate', value),
-    onAwarenessUpdate: (states) => emit('awarenessUpdate', states),
-  })
-
-// If the document name or token changes, (re-)connect Hocuspocus
-watch(
-  [() => props.documentName, () => props.token],
-  () => {
-    configureHocuspocus({
-      documentName: props.documentName,
-      token: props.token,
-    })
-  },
-  { immediate: true },
-)
+const { codeMirrorRef, setCodeMirrorContent } = useCodeMirrorForSwaggerFiles({
+  documentName: documentNameRef,
+  token: tokenRef,
+  onUpdate: (value) => emit('contentUpdate', value),
+  onAwarenessUpdate: (states) => emit('awarenessUpdate', states),
+})
 
 defineExpose({
   setCodeMirrorContent,
