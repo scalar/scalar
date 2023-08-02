@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type StatesArray } from '@hocuspocus/provider'
-import { toRef, watch } from 'vue'
+import { toRef } from 'vue'
 
 import { useCodeMirrorForSwaggerFiles } from '../../hooks/useCodeMirrorForSwaggerFiles'
 
