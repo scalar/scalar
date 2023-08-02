@@ -26,7 +26,7 @@
     "@anc/library": "workspace:*",
     "@codemirror/lang-javascript": "6.1.9",
     "@codemirror/state": "6.2.1",
-    "@codemirror/view": "6.13.2",
+    "@codemirror/view": "6.16.0",
     "@headlessui/vue": "1.7.14",
     "@lezer/highlight": "1.1.6",
     "@types/nunjucks": "3.2.2",

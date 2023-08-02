@@ -22,15 +22,15 @@
   "dependencies": {
     "@codemirror/lang-json": "6.0.1",
     "@codemirror/language": "6.8.0",
-    "@codemirror/legacy-modes": "6.3.2",
+    "@codemirror/legacy-modes": "6.3.3",
     "@codemirror/state": "6.2.1",
-    "@codemirror/view": "6.13.2",
-    "@hocuspocus/common": "2.1.0",
-    "@hocuspocus/provider": "2.1.0",
+    "@codemirror/view": "6.16.0",
+    "@hocuspocus/common": "2.3.1",
+    "@hocuspocus/provider": "2.3.1",
     "@vueuse/core": "10.1.2",
     "codemirror": "6.0.1",
     "y-codemirror.next": "0.3.2",
-    "yjs": "13.6.2"
+    "yjs": "13.6.7"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",
