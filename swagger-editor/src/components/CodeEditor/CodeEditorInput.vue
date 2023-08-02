@@ -60,4 +60,8 @@ defineExpose({
 .code-editor-input .cm-editor .cm-activeLine {
   background-color: var(--theme-background-3) !important;
 }
+
+.code-editor-input .cm-yLineSelection {
+  margin: 0;
+}
 </style>
