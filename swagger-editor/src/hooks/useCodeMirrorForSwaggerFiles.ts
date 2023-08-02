@@ -96,7 +96,7 @@ export const useCodeMirrorForSwaggerFiles = ({
   watch(
     () => provider.value,
     () => {
-      reconfigureCodeMirror(getExtensions())
+      restartCodeMirror(getExtensions())
     },
   )
 
@@ -119,7 +119,9 @@ export const useCodeMirrorForSwaggerFiles = ({
 
     // Collaborative editing
     if (provider.value) {
-      console.log('extensions with … collaborative editing')
+      console.info(
+        '[useCodeMirrorForSwaggerFiles] Collaborative editing enabled',
+      )
       const ytext = provider.value?.document.getText('codemirror')
 
       allExtensions.push(
@@ -127,17 +129,19 @@ export const useCodeMirrorForSwaggerFiles = ({
           undoManager: new Y.UndoManager(ytext),
         }),
       )
-    } else {
-      console.log('extensions without collaborative editing')
     }
 
     return allExtensions
   }
 
-  const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
-    useCodeMirror({
-      extensions: getExtensions(),
-    })
+  const {
+    codeMirrorRef,
+    setCodeMirrorContent,
+    reconfigureCodeMirror,
+    restartCodeMirror,
+  } = useCodeMirror({
+    extensions: getExtensions(),
+  })
 
   onUnmounted(() => {
     provider.value?.destroy()
