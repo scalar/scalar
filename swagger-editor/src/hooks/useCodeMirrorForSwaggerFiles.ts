@@ -11,7 +11,7 @@ import {
 } from '@hocuspocus/provider'
 import { duotoneDark, duotoneLight } from '@uiw/codemirror-theme-duotone'
 import { basicSetup } from 'codemirror'
-import { type Ref, computed, onUnmounted, ref, watch } from 'vue'
+import { type Ref, computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { yCollab as CodeMirrorYjsBinding } from 'y-codemirror.next'
 import * as Y from 'yjs'
 
@@ -66,6 +66,11 @@ export const useCodeMirrorForSwaggerFiles = (
    * Mount CodeMirror.
    */
   const mountCodeMirror = () => {
+    // Clean up
+    if (codeMirror.value) {
+      codeMirror.value.destroy()
+    }
+
     // Don’t mount, if there’s no codeMirrorRef
     if (!codeMirrorRef?.value) {
       return
@@ -115,72 +120,76 @@ export const useCodeMirrorForSwaggerFiles = (
   /**
    * Watch documentName and token to create a new HocuspocusProvider.
    */
-  watch([documentName, token], () => {
-    if (!documentName?.value) {
-      return
-    }
+  onMounted(() => {
+    watch(
+      [documentName, token],
+      () => {
+        if (!documentName?.value) {
+          mountCodeMirror()
 
-    provider = new HocuspocusProvider({
-      url: import.meta.env.VITE_HOCUS_POCUS as string,
-      token: token?.value,
-      name: documentName.value,
-      onAuthenticated() {
-        console.log('✅ Authenticated!')
-      },
-      onAuthenticationFailed() {
-        console.debug(
-          `[useHocusPocus] ❌ Authentication with Hocuspocus failed (documentName: ${documentName.value})`,
+          return
+        }
+
+        provider = new HocuspocusProvider({
+          url: import.meta.env.VITE_HOCUS_POCUS as string,
+          token: token?.value,
+          name: documentName.value,
+        })
+
+        // Authenticated
+        provider.on('authenticated', () => {
+          console.debug(
+            `[useHocusPocus] ✅ Authenticated with Hocuspocus (documentName: ${documentName.value})`,
+          )
+
+          // Pick a random color for the cursor
+          const cursorColor = getRandomElement([
+            '#958DF1',
+            '#F98181',
+            '#FBBC88',
+            '#FAF594',
+            '#70CFF8',
+            '#94FADB',
+            '#B9F18D',
+          ])
+
+          // Collaborative user settings
+          provider?.setAwarenessField('user', {
+            name: username,
+            color: cursorColor,
+            colorLight: cursorColor,
+          })
+
+          const states = provider?.awareness.getStates()
+
+          if (states) {
+            if (onAwarenessUpdate) {
+              onAwarenessUpdate(awarenessStatesToArray(states))
+            }
+          }
+        })
+
+        // Authentication failed
+        provider.on('authenticationFailed', () => {
+          console.debug(
+            `[useHocusPocus] ❌ Authentication with Hocuspocus failed (documentName: ${documentName.value})`,
+          )
+        })
+
+        // Awareness updates
+        provider.on(
+          'awarenessUpdate',
+          ({ states }: onAwarenessUpdateParameters) => {
+            if (onAwarenessUpdate) {
+              onAwarenessUpdate(states)
+            }
+          },
         )
+
+        mountCodeMirror()
       },
-    })
-
-    // Authenticated
-    provider.on('authenticated', () => {
-      // Pick a random color for the cursor
-      const cursorColor = getRandomElement([
-        '#958DF1',
-        '#F98181',
-        '#FBBC88',
-        '#FAF594',
-        '#70CFF8',
-        '#94FADB',
-        '#B9F18D',
-      ])
-
-      // Collaborative user settings
-      provider?.setAwarenessField('user', {
-        name: username,
-        color: cursorColor,
-        colorLight: cursorColor,
-      })
-
-      const states = provider?.awareness.getStates()
-
-      if (states) {
-        if (onAwarenessUpdate) {
-          onAwarenessUpdate(awarenessStatesToArray(states))
-        }
-      }
-    })
-
-    // Authentication failed
-    provider.on('authenticationFailed', () => {
-      console.debug(
-        `[useHocusPocus] ❌ Authentication with Hocuspocus failed (documentName: ${documentName.value})`,
-      )
-    })
-
-    // Awareness updates
-    provider.on(
-      'awarenessUpdate',
-      ({ states }: onAwarenessUpdateParameters) => {
-        if (onAwarenessUpdate) {
-          onAwarenessUpdate(states)
-        }
-      },
+      { immediate: true },
     )
-
-    mountCodeMirror()
   })
 
   const setCodeMirrorContent = (value: string) => {

@@ -13,6 +13,7 @@ const emit = defineEmits<{
   (e: 'awarenessUpdate', states: StatesArray): void
   (e: 'contentUpdate', value: string): void
 }>()
+
 const documentNameRef = toRef(props, 'documentName')
 const tokenRef = toRef(props, 'token')
 
@@ -24,13 +25,6 @@ const { codeMirrorRef, setCodeMirrorContent } = useCodeMirrorForSwaggerFiles({
   onUpdate: (value) => emit('contentUpdate', value),
   onAwarenessUpdate: (states) => emit('awarenessUpdate', states),
 })
-
-// const { codeMirrorRef, setCodeMirrorContent } = useCodeMirrorForSwaggerFiles({
-//   documentName: documentNameRef,
-//   token: tokenRef,
-//   onUpdate: (value) => emit('contentUpdate', value),
-//   onAwarenessUpdate: (states) => emit('awarenessUpdate', states),
-// })
 
 defineExpose({
   setCodeMirrorContent,
