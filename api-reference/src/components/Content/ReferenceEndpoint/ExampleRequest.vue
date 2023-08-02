@@ -233,7 +233,7 @@ const selectLanguage = (language: TargetId) => {
               fill-rule="evenodd"></path>
           </g>
         </svg>
-        Test Request in API Client
+        Test {{ operation.httpVerb }} Request in Client
       </button>
     </div>
   </div>
@@ -253,12 +253,13 @@ const selectLanguage = (language: TargetId) => {
   cursor: pointer;
   align-items: center;
   font-weight: var(--theme-bold);
-  -webkit-font-smoothing: auto;
   font-size: var(--theme-micro);
-  background: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  background: transparent;
 }
 .trigger-scalar-client-button:hover {
-  background: rgba(255, 255, 255, 0.4);
+  opacity: 0.8;
 }
 .trigger-scalar-client-button svg {
   height: 12px;

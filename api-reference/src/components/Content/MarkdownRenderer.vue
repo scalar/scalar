@@ -48,45 +48,43 @@ watch(
 </template>
 
 <style scoped>
-.markdown {
-  margin: 12px 0;
-  color: var(--theme-color-1);
+.markdown >>> * {
+  margin-top: 12px;
 }
-
-.markdown h1,
-.markdown h2,
-.markdown h3,
-.markdown h4,
-.markdown h5,
-.markdown h6 {
+.markdown >>> h1,
+.markdown >>> h2,
+.markdown >>> h3,
+.markdown >>> h4,
+.markdown >>> h5,
+.markdown >>> h6 {
   font-size: var(--font-size);
   margin: 12px 0 6px;
 }
 
-.markdown p {
+.markdown >>> p {
   font-size: var(--font-size, var(--theme-paragraph));
   color: var(--font-color, var(--theme-color-1));
   font-weight: var(--font-weight, var(--theme-regular));
   line-height: 1.5;
 }
 
-.markdown ul,
-.markdown ol {
+.markdown >>> ul,
+.markdown >>> ol {
   padding-left: 24px;
   line-height: 1.5;
   margin: 12px 0;
 }
 
-.markdown ul.contains-task-list {
+.markdown >>> ul.contains-task-list {
   list-style: none;
   padding-left: 0;
 }
 
-.markdown li {
+.markdown >>> li {
   margin: 6px 0;
 }
 
-.markdown code {
+.markdown >>> code {
   font-family: var(--theme-font-code);
   background-color: var(--theme-background-2);
   box-shadow: 0 0 0 1px var(--theme-border-color);
@@ -95,7 +93,7 @@ watch(
   padding: 0 3px;
 }
 
-.markdown pre code {
+.markdown >>> pre code {
   display: block;
   white-space: pre;
   padding: 3px;
@@ -106,12 +104,12 @@ watch(
   min-width: 100px;
 }
 
-.markdown blockquote {
+.markdown >>> blockquote {
   border-left: 3px solid var(--theme-border-color);
   padding-left: 12px;
 }
 
-.markdown table {
+.markdown >>> table {
   position: relative;
   border-collapse: collapse;
   table-layout: fixed;
@@ -122,8 +120,8 @@ watch(
   border-radius: var(--theme-radius);
 }
 
-.markdown td,
-.markdown th {
+.markdown >>> td,
+.markdown >>> th {
   min-width: 1em;
   padding: 6px;
   vertical-align: top;
@@ -134,11 +132,15 @@ watch(
   border-bottom: var(--theme-border);
 }
 
-.markdown td > *,
-.markdown th > * {
+.markdown >>> td > *,
+.markdown >>> th > * {
   margin-bottom: 0;
 }
-
+.markdown.parameter-description >>> p {
+  font-size: var(--theme-small);
+  color: var(--theme-color-2);
+  line-height: initial;
+}
 .markdown td:first-of-type,
 .markdown th:first-of-type {
   border-left: none;

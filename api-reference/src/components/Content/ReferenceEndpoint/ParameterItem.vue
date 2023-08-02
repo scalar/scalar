@@ -18,10 +18,9 @@ defineProps<{ parameter: Parameters }>()
       class="parameter-type">
       {{ parameter.schema?.type }}
     </span>
-    <p
+    <MarkdownRenderer
       v-if="parameter.description"
-      class="parameter-description">
-      <MarkdownRenderer :value="parameter.description" />
-    </p>
+      class="parameter-description"
+      :value="parameter.description" />
   </li>
 </template>
