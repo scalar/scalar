@@ -102,6 +102,9 @@ const { state: templateState, setCollapsedSidebarItem } = useTemplateStore()
   margin-bottom: 48px;
   position: relative;
 }
+.editor-mode .show-more {
+  margin-top: -24px;
+}
 .show-more:hover {
   color: var(--theme-color-2);
   cursor: pointer;

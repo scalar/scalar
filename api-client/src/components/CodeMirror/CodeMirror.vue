@@ -194,6 +194,5 @@ watch(
 }
 .scalar-api-client__codemirror .cm-gutterElement {
   font-family: var(--scalar-api-client-font-code) !important;
-  padding: 0 6px !important;
 }
 </style>

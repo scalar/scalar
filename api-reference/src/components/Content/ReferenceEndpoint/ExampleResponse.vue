@@ -105,7 +105,7 @@ onMounted(() => {
   margin-top: 12px;
 }
 .coder {
-  border-radius: var(--theme-radius);
+  border-radius: var(--theme-radius-lg);
   overflow: hidden;
 }
 .endpoint-teleport-response :deep(.cm-editor .cm-scroller) {
@@ -115,8 +115,6 @@ onMounted(() => {
   padding: 0 6px;
 }
 .code-copy {
-  opacity: 0;
-  transition: opacity 0.2s ease-in-out;
   display: flex;
   appearance: none;
   -webkit-appearance: none;
@@ -128,13 +126,13 @@ onMounted(() => {
   border: none;
   border-radius: 3px;
   padding: 5px;
-  &:hover {
-    color: var(--theme-color-1);
-  }
-  svg {
-    width: 13px;
-    height: 13px;
-  }
+}
+.code-copy:hover {
+  color: var(--theme-color-1);
+}
+.code-copy svg {
+  width: 13px;
+  height: 13px;
 }
 
 .endpoint-teleport-response:hover .code-copy {

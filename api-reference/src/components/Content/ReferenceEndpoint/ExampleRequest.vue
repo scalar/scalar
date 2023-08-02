@@ -173,7 +173,11 @@ const selectLanguage = (language: TargetId) => {
     <div class="codemenu-topbar">
       <div class="codemenu">
         <a class="endpoint">
-          <span class="codemenu-item-title">{{ operation.httpVerb }}</span>
+          <span
+            class="codemenu-item-title"
+            :class="operation.httpVerb">
+            {{ operation.httpVerb }}
+          </span>
           <span class="codemenu-item-url">{{ operation.path }}</span>
         </a>
         <div class="coder-right">
@@ -241,7 +245,7 @@ const selectLanguage = (language: TargetId) => {
   appearance: none;
   outline: none;
   border: none;
-  border-radius: var(--theme-radius);
+  border-radius: var(--theme-radius-lg);
   height: 35px;
   color: white;
   display: flex;
@@ -251,32 +255,18 @@ const selectLanguage = (language: TargetId) => {
   font-weight: var(--theme-bold);
   -webkit-font-smoothing: auto;
   font-size: var(--theme-micro);
+  background: rgba(255, 255, 255, 0.3);
+}
+.trigger-scalar-client-button:hover {
+  background: rgba(255, 255, 255, 0.4);
 }
 .trigger-scalar-client-button svg {
   height: 12px;
   width: auto;
   margin-right: 6px;
 }
-.trigger-scalar-client-button.dark-mode {
-  color: black;
-}
-.trigger-scalar-client-button.put {
-  background: var(--theme-put-color);
-}
-.trigger-scalar-client-button.post {
-  background: var(--theme-post-color);
-}
-.trigger-scalar-client-button.patch {
-  background: var(--theme-patch-color);
-}
-.trigger-scalar-client-button.get {
-  background: var(--theme-get-color);
-}
-.trigger-scalar-client-button.delete {
-  background: var(--theme-delete-color);
-}
 .coder {
-  border-radius: var(--theme-radius);
+  border-radius: var(--theme-radius-lg);
   overflow: hidden;
 }
 .code-copy {
@@ -315,6 +305,9 @@ const selectLanguage = (language: TargetId) => {
 }
 .codemirror-select {
   position: relative;
+  padding-right: 9px;
+  border-right: 1px solid var(--theme-border-color);
+  height: 21px;
 }
 .codemirror-select select {
   border: none;
@@ -332,7 +325,7 @@ const selectLanguage = (language: TargetId) => {
   appearance: none;
 }
 .codemirror-select span {
-  height: 25px;
+  height: 100%;
   font-size: 12px;
   padding: 4px 0;
   color: var(--theme-color-3);
@@ -360,9 +353,9 @@ const selectLanguage = (language: TargetId) => {
 }
 .trigger-scalar-client {
   background: var(--theme-background-2);
-  padding: 3px 6px 9px 6px;
+  padding: 4px 12px 12px 12px;
 }
 .codemenu-item-title {
-  color: var(--theme-color-1) !important;
+  /* color: var(--theme-color-1) !important; */
 }
 </style>
