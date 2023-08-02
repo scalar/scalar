@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { FlowModal, useModalState } from '@anc/library'
 import { useMediaQuery } from '@vueuse/core'
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
@@ -8,6 +7,7 @@ import { computed, ref, watch } from 'vue'
 import { sendRequest } from '../../helpers/sendRequest'
 import { useApiClientRequestStore } from '../../stores/apiClientRequestStore'
 import { CodeMirror } from '../CodeMirror'
+import FlowModal, { useModalState } from '../FlowModal.vue'
 import RequestHistory from './RequestHistory.vue'
 
 const props = defineProps<{
