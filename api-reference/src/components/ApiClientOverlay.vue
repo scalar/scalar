@@ -10,6 +10,8 @@ defineProps<{ spec: Spec }>()
 const { hideApiClient, state } = useApiClientStore()
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
+
+const proxyUrl = import.meta.env.VITE_CLIENT_PROXY
 </script>
 <template>
   <div
@@ -30,7 +32,7 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
             v-show="!isMobile"
             :spec="spec" />
           <ApiClient
-            :proxyUrl="import.meta.env.VITE_CLIENT_PROXY"
+            :proxyUrl="proxyUrl"
             @escapeKeyPress="hideApiClient" />
         </div>
       </div>
