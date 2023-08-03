@@ -183,9 +183,8 @@ const lastRequestTimestamp = computed(() => {
 }
 .scalar-api-client__address-bar__address {
   display: flex;
-  height: 100%;
   width: 100%;
-  align-items: center;
+  align-items: stretch;
   border-radius: var(--scalar-api-client-rounded);
 }
 .scalar-api-client__address-bar-data {
@@ -198,12 +197,11 @@ const lastRequestTimestamp = computed(() => {
 .request-type {
   display: flex;
   align-items: center;
-  height: 100%;
   background: var(--scalar-api-client-background-secondary);
   color: var(--scalar-api-client-color-3);
   appearance: none;
   -webkit-appearance: none;
-  padding: 8px 12px;
+  padding: 0 12px;
   border-right: var(--scalar-api-client-border);
   border-radius: var(--scalar-api-client-rounded) 0 0
     var(--scalar-api-client-rounded);
