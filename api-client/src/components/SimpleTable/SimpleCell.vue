@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 withDefaults(
-  defineProps<{ wrap?: boolean; strong?: boolean; href: string | null }>(),
+  defineProps<{ wrap?: boolean; strong?: boolean; href?: string | null }>(),
   {
     wrap: true,
     strong: false,
