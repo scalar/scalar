@@ -158,3 +158,44 @@ const breadCrumbs = computed(() => {
     <ApiClientOverlay :spec="spec" />
   </div>
 </template>
+
+<style>
+.scalar-api-client,
+#headlessui-portal-root {
+  --scalar-api-client-height: var(--theme-document-height-minus-header);
+  --scalar-api-client-post-color: var(--theme-post-color);
+  --scalar-api-client-post-background: var(--theme-post-background);
+  --scalar-api-client-delete-color: var(--theme-delete-color);
+  --scalar-api-client-delete-background: var(--theme-delete-background);
+  --scalar-api-client-patch-color: var(--theme-patch-color);
+  --scalar-api-client-patch-background: var(--theme-patch-background);
+  --scalar-api-client-get-color: var(--theme-get-color);
+  --scalar-api-client-get-background: var(--theme-get-background);
+  --scalar-api-client-put-color: var(--theme-put-color);
+  --scalar-api-client-put-background: var(--theme-put-background);
+  --scalar-api-client-radius: var(--theme-radius);
+  --scalar-api-client-background-2: var(--theme-background-2);
+  --scalar-api-client-color-3: var(--theme-color-3);
+  --scalar-api-client-border: var(--theme-border);
+  --scalar-api-client-theme-font: var(--theme-font);
+  --scalar-api-client-font-code: var(--theme-font-code);
+  --scalar-api-client-theme-bold: var(--theme-bold);
+  --scalar-api-client-theme-color-1: var(--theme-color-1);
+  --scalar-api-client-theme-color-2: var(--theme-color-2);
+  --scalar-api-client-theme-shadow-2: var(--theme-shadow-2);
+  --scalar-api-client-theme-small: var(--theme-small);
+  --scalar-api-client-theme-regular: var(--theme-regular);
+  --scalar-api-client-large: var(--large);
+  --scalar-api-client-normal: var(--normal);
+  --scalar-api-client-fill: var(--fill);
+  --scalar-api-client-color2: var(--color2);
+  --scalar-api-client-bg3: var(--bg3);
+  --scalar-api-client-gradient: var(--gradient);
+  --scalar-api-client-background-1: var(--theme-background-1);
+  --scalar-api-client-border-color: var(--theme-border-color);
+  --scalar-api-client-background-3: var(--theme-background-3);
+  --scalar-api-client-semibold: var(--theme-semibold);
+  --scalar-api-client-micro: var(--micro);
+  --scalar-api-client-sidebar-width: var(--theme-sidebar-width);
+}
+</style>
