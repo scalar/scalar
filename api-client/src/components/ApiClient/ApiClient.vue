@@ -99,8 +99,7 @@ useKeyboardEvent({
 
 <style>
 .scalar-api-client {
-  width: calc(100% - var(--scalar-api-client-sidebar-width));
-  background: var(--scalar-api-client-background-1);
+  background: var(--scalar-api-client-background-primary);
   position: relative;
   height: 100%;
   overflow: hidden !important;
@@ -145,7 +144,7 @@ useKeyboardEvent({
 .scalar-api-client__mobile-navigation {
   padding: 12px 12px 0 12px;
   display: flex;
-  font-size: var(--scalar-api-client-theme-small);
+  font-size: var(--scalar-api-client-text-sm);
   color: var(--scalar-api-client-theme-color-2);
   font-weight: var(--scalar-api-client-theme-bold);
 }
@@ -168,7 +167,7 @@ useKeyboardEvent({
   display: flex;
   height: 100%;
   min-height: 0;
-  background: var(--scalar-api-client-background-1);
+  background: var(--scalar-api-client-background-primary);
   border-top: var(--scalar-api-client-border);
 }
 
@@ -181,13 +180,13 @@ useKeyboardEvent({
 /** TODO: Consider to make a Column component */
 .scalar-api-client__main__content {
   padding: 12px;
-  background: var(--scalar-api-client-background-1);
+  background: var(--scalar-api-client-background-primary);
   top: 0;
   position: sticky;
   z-index: 100;
 }
 .scalar-api-client__main__content label {
-  font-size: var(--scalar-api-client-theme-small);
+  font-size: var(--scalar-api-client-text-sm);
   color: var(--scalar-api-client-theme-color-1);
   font-weight: var(--scalar-api-client-theme-bold);
   display: flex;
@@ -205,8 +204,8 @@ useKeyboardEvent({
 
 .meta {
   display: flex;
-  font-size: var(--scalar-api-client-theme-regular);
-  font-weight: var(--scalar-api-client-normal);
+  font-size: var(--scalar-api-client-text-base);
+  font-weight: var(--scalar-api-client-text-base);
   color: var(--scalar-api-client-color2);
 }
 
@@ -260,7 +259,7 @@ useKeyboardEvent({
 
 .types-item {
   font-weight: var(--scalar-api-client-theme-bold);
-  font-size: var(--scalar-api-client-large);
+  font-size: var(--scalar-api-client-text-lg);
   color: var(--scalar-api-client-color2);
   background: var(--scalar-api-client-bg3);
   padding: 9px 18px;

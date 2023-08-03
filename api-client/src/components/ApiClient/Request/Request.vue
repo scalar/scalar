@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
-import Path from './Path.vue'
-import Query from './Query.vue'
 import RequestAuth from './RequestAuth.vue'
 import RequestBody from './RequestBody.vue'
 import RequestHeaders from './RequestHeaders.vue'
+import RequestQuery from './RequestQuery.vue'
+import RequestVariables from './RequestVariables.vue'
 
 const { activeRequest, readMode } = useApiClientRequestStore()
 </script>
@@ -16,7 +16,7 @@ const { activeRequest, readMode } = useApiClientRequestStore()
         <div class="meta-item meta-item__input">
           <input
             v-model="activeRequest.name"
-            class="scalar-api-client__address-bar__name"
+            class="scalar-api-client__request-name"
             :disabled="readMode"
             placeholder="Request Name"
             type="text" />
@@ -25,8 +25,8 @@ const { activeRequest, readMode } = useApiClientRequestStore()
     </div>
     <div>
       <RequestAuth />
-      <Path :paths="activeRequest.parameters" />
-      <Query :queries="activeRequest.query" />
+      <RequestVariables :paths="activeRequest.parameters" />
+      <RequestQuery :queries="activeRequest.query" />
       <RequestHeaders :headers="activeRequest.headers" />
       <RequestBody
         :body="activeRequest.body"
@@ -58,7 +58,7 @@ const { activeRequest, readMode } = useApiClientRequestStore()
   justify-content: space-between;
   .cm-s-default {
     border: var(--scalar-api-client-border);
-    border-radius: var(--scalar-api-client-radius);
+    border-radius: var(--scalar-api-client-rounded);
   }
 }
 .scalar-api-client__item__content .scalar-api-client__item__content--code {
@@ -95,7 +95,7 @@ const { activeRequest, readMode } = useApiClientRequestStore()
   font-weight: var(--scalar-api-client-theme-bold);
   padding: 12px;
   text-transform: uppercase;
-  border-radius: var(--scalar-api-client-radius);
+  border-radius: var(--scalar-api-client-rounded);
   color: white;
   cursor: pointer;
 }
@@ -106,7 +106,7 @@ const { activeRequest, readMode } = useApiClientRequestStore()
   width: 100%;
 }
 .scalar-collapsible-section-option {
-  font-size: var(--scalar-api-client-theme-small);
+  font-size: var(--scalar-api-client-text-sm);
   font-weight: var(--scalar-api-client-theme-bold);
   color: var(--scalar-api-client-color2);
   background: var(--scalar-api-client-bg3);
@@ -123,7 +123,7 @@ const { activeRequest, readMode } = useApiClientRequestStore()
   }
 }
 .input {
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
   border: var(--scalar-api-client-border);
   border-radius: 3px;
   position: relative;
@@ -174,8 +174,8 @@ const { activeRequest, readMode } = useApiClientRequestStore()
   color: var(--scalar-api-client-theme-color-2);
 }
 .select {
-  background: --scalar-api-client-background-1;
-  border-radius: var(--scalar-api-client-radius);
+  background: --scalar-api-client-background-primary;
+  border-radius: var(--scalar-api-client-rounded);
   font-size: 12px;
   border: var(--scalar-api-client-border);
   width: 100%;
@@ -272,14 +272,14 @@ const { activeRequest, readMode } = useApiClientRequestStore()
 .scalar-api-client__main__scroll-container {
   height: calc(100vh - 320px);
 }
-.scalar-api-client__address-bar__name {
+.scalar-api-client__request-name {
   outline: none;
   border: none;
   appearance: none;
   -webkit-appearance: none;
   color: var(--scalar-api-client-color-3);
-  border-radius: var(--scalar-api-client-radius);
-  font-size: 12px;
+  border-radius: var(--scalar-api-client-rounded);
+  font-size: var(--scalar-api-client-text-xs);
   font-weight: var(--scalar-api-client-theme-bold);
   width: 100%;
   background: transparent;

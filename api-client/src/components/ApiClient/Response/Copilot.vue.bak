@@ -147,7 +147,7 @@ const fixErrors = async () => {
 .scalar-copilot {
   color: var(--scalar-api-client-theme-color-1);
   width: 100%;
-  border-radius: var(--scalar-api-client-radius);
+  border-radius: var(--scalar-api-client-rounded);
   border: var(--scalar-api-client-border);
 }
 .scalar-copilot--inactive {
@@ -200,7 +200,7 @@ const fixErrors = async () => {
   left: 0;
   width: 100%;
   height: 9px;
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
 }
 .scalar-copilot__suggestion--open .scalar-copilot__suggestion__content {
   max-height: initial;
@@ -217,7 +217,7 @@ const fixErrors = async () => {
 }
 .scalar-copilot__header-button {
   background: var(--scalar-api-client-color);
-  border-radius: var(--scalar-api-client-radius);
+  border-radius: var(--scalar-api-client-rounded);
   cursor: pointer;
   flex-shrink: 0;
   display: flex;
@@ -362,9 +362,9 @@ const fixErrors = async () => {
 .scalar-copilot__toggle-button {
   appearance: none;
   color: var(--scalar-api-client-color2);
-  font-size: var(--scalar-api-client-theme-small);
+  font-size: var(--scalar-api-client-text-sm);
   background: var(--scalar-api-client-gradient);
-  border-radius: var(--scalar-api-client-radius);
+  border-radius: var(--scalar-api-client-rounded);
   border: var(--scalar-api-client-border);
   font-weight: var(--scalar-api-client-theme-bold);
   max-height: 25px;

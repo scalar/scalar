@@ -100,7 +100,7 @@ const showDescription = ref(false)
 .table {
   border: var(--scalar-api-client-border);
   background: transparent;
-  border-radius: var(--scalar-api-client-radius);
+  border-radius: var(--scalar-api-client-rounded);
   width: 100%;
 }
 .table-row {
@@ -109,8 +109,8 @@ const showDescription = ref(false)
   position: relative;
 }
 .table-row__add {
-  border-radius: 0 0 var(--scalar-api-client-radius)
-    var(--scalar-api-client-radius);
+  border-radius: 0 0 var(--scalar-api-client-rounded)
+    var(--scalar-api-client-rounded);
   border-bottom: none;
 }
 .table-row.required-parameter .table-row-item:nth-of-type(2):after {
@@ -121,8 +121,8 @@ const showDescription = ref(false)
   padding: 5px 9px 5px 6px;
   font-weight: var(--scalar-api-client-semibold);
   font-size: 12px;
-  background: var(--scalar-api-client-background-2);
-  box-shadow: -2px 0 4px var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
+  box-shadow: -2px 0 4px var(--scalar-api-client-background-secondary);
 }
 .table-row.required-parameter
   .table-row-item:nth-of-type(2):focus-within:after {
@@ -132,8 +132,8 @@ const showDescription = ref(false)
   border-bottom: none;
 }
 .table-row__active {
-  border-radius: 0 0 var(--scalar-api-client-radius)
-    var(--scalar-api-client-radius);
+  border-radius: 0 0 var(--scalar-api-client-rounded)
+    var(--scalar-api-client-rounded);
 }
 .table-row-drag {
   width: 20px;
@@ -164,7 +164,7 @@ const showDescription = ref(false)
   height: 24px;
   top: 50%;
   transform: translate3d(0, -50%, 0);
-  border-radius: var(--scalar-api-client-radius);
+  border-radius: var(--scalar-api-client-rounded);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -191,7 +191,7 @@ const showDescription = ref(false)
   font-size: 12px;
 }
 .table-row-item input:focus {
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
 }
 .table-row-item label {
   background: transparent;
@@ -215,7 +215,7 @@ const showDescription = ref(false)
 .table-row-meta-check {
   width: 18px;
   height: 18px;
-  border-radius: var(--scalar-api-client-radius);
+  border-radius: var(--scalar-api-client-rounded);
   background: rgba(47, 177, 228, 0.1);
 }
 .table-row-meta svg {
@@ -234,7 +234,7 @@ const showDescription = ref(false)
   cursor: pointer;
   align-items: center;
   font-size: 12px;
-  border-radius: var(--scalar-api-client-radius);
+  border-radius: var(--scalar-api-client-rounded);
   user-select: none;
   margin: 0 1px;
   transition: all 0.15s ease-in-out;
@@ -342,7 +342,7 @@ const showDescription = ref(false)
   box-shadow: 0 0 0 1px var(--scalar-api-client-border-color);
 }
 .navtable-item-action:focus {
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
 }
 .navtable-item:hover,
 .navtable-item:focus-within .navtable-item-action {
@@ -360,7 +360,7 @@ const showDescription = ref(false)
   color: var(--scalar-api-client-theme-color-1);
 }
 .navtable-item-add:hover {
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
   cursor: pointer;
 }
 .navtable-item-25 {
@@ -387,7 +387,7 @@ const showDescription = ref(false)
   align-items: center;
 }
 .navtable-item-75:focus-within {
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
 }
 .navtable-item-40 {
   width: 40%;
@@ -405,7 +405,7 @@ const showDescription = ref(false)
   align-items: center;
 }
 .navtable-item-50:focus-within {
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
 }
 .navtable-item p {
   padding: 9px;
@@ -421,7 +421,7 @@ const showDescription = ref(false)
   width: 100%;
 }
 .navtable-item input:focus {
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
 }
 .navtable-item-select {
   position: relative;
@@ -483,7 +483,7 @@ const showDescription = ref(false)
   height: 12px;
   border-radius: 50%;
   margin-right: 4px;
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
 }
 .scalar-api-client__status--2xx:before {
   background: green;

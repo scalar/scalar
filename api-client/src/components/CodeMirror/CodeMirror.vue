@@ -77,18 +77,14 @@ watch(
 }
 
 .scalar-api-client__url-input {
-  font-size: 13px;
-  font-weight: var(--scalar-api-client-theme-bold);
-  border-radius: 0 var(--scalar-api-client-radius)
-    var(--scalar-api-client-radius) 0;
-  background: var(--scalar-api-client-background-2);
+  font-weight: var(--scalar-api-client-semibold);
+  background: var(--scalar-api-client-background-secondary);
   color: var(--scalar-api-client-theme-color-2);
   width: 100%;
   padding: 0 12px;
-  height: 31.5px;
+  height: 30px;
   display: flex;
   align-items: center;
-  margin-right: 12px;
 }
 .scalar-api-client__url-input {
   max-width: calc(108vw - 208px);
@@ -112,11 +108,11 @@ watch(
 }
 .scalar-api-client__url-input .cm-editor .cm-content {
   padding: 0 !important;
-  font-size: var(--scalar-api-client-micro) !important;
+  font-size: var(--scalar-api-client-text-xs) !important;
 }
 .scalar-api-client__url-input__method {
   color: var(--scalar-api-client-color);
-  border-radius: var(--scalar-api-client-radius) !important;
+  border-radius: var(--scalar-api-client-rounded) !important;
   background: var(--scalar-api-client-background);
   padding: 2px;
   font: var(--scalar-api-client-font-code);
@@ -133,7 +129,7 @@ watch(
 }
 
 .scalar-api-client__codemirror .cm-scroller {
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
 }
 
 .scalar-api-client__codemirror .ͼx,
@@ -176,15 +172,15 @@ watch(
   font-size: var(--theme-mini);
   color: var(--scalar-api-client-color-3);
   line-height: 1.44;
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
   border-right-color: var(--scalar-api-client-border-color);
 }
 .simplecode .scalar-api-client__codemirror {
   outline: none !important;
 }
 .simplecode .scalar-api-client__codemirror .cm-scroller {
-  background: var(--scalar-api-client-background-2);
-  border-radius: var(--scalar-api-client-radius);
+  background: var(--scalar-api-client-background-secondary);
+  border-radius: var(--scalar-api-client-rounded);
 }
 .simplecode .scalar-api-client__codemirror .cm-gutters {
   display: none;

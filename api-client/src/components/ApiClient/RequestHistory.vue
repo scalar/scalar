@@ -48,7 +48,7 @@ const { requestHistoryOrder } = useApiClientRequestStore()
   background-image: linear-gradient(
     0deg,
     var(--scalar-api-client-border-color) 1px,
-    --scalar-api-client-background-1 1px
+    --scalar-api-client-background-primary 1px
   );
   background-size: 31px 31px;
   background-position: center 1px;

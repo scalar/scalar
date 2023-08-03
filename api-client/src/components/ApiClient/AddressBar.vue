@@ -84,7 +84,7 @@ const lastRequestTimestamp = computed(() => {
   const lastRequestKey = requestHistoryOrder.value[0]
   return requestHistory[lastRequestKey]
     ? timeAgo.format(requestHistory[lastRequestKey].sentTime)
-    : 'HISTORY'
+    : 'History'
 })
 </script>
 
@@ -140,9 +140,11 @@ const lastRequestTimestamp = computed(() => {
       </FlowModal>
     </div>
 
-    <div class="scalar-api-client__history">
+    <div
+      v-if="requestHistoryOrder.length"
+      class="scalar-api-client__history">
       <div
-        class="scalar-api-client__history__toggle"
+        class="scalar-api-client__history-toggle"
         @click="historyModal.show()">
         <svg
           fill="none"
@@ -177,13 +179,14 @@ const lastRequestTimestamp = computed(() => {
   display: flex;
   align-items: center;
   position: relative;
+  background: var(--scalar-api-client-background-primary);
 }
 .scalar-api-client__address-bar__address {
   display: flex;
   height: 100%;
   width: 100%;
   align-items: center;
-  border-radius: var(--scalar-api-client-radius);
+  border-radius: var(--scalar-api-client-rounded);
 }
 .scalar-api-client__address-bar-data {
   width: 100%;
@@ -196,14 +199,14 @@ const lastRequestTimestamp = computed(() => {
   display: flex;
   align-items: center;
   height: 100%;
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
   color: var(--scalar-api-client-color-3);
   appearance: none;
   -webkit-appearance: none;
   padding: 8px 12px;
   border-right: var(--scalar-api-client-border);
-  border-radius: var(--scalar-api-client-radius) 0 0
-    var(--scalar-api-client-radius);
+  border-radius: var(--scalar-api-client-rounded) 0 0
+    var(--scalar-api-client-rounded);
   position: relative;
 }
 .request-type span {
@@ -239,21 +242,23 @@ const lastRequestTimestamp = computed(() => {
   color: var(--scalar-api-client-theme-color-2);
   display: flex;
   align-items: center;
-  border-radius: var(--scalar-api-client-radius);
+  border-radius: var(--scalar-api-client-rounded);
   height: 100%;
 }
 .scalar-api-client__address-bar__button {
-  font-size: 12px;
-  line-height: 31.5px;
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-size: var(--scalar-api-client-text-xs);
+  letter-spacing: 0.25px;
+  line-height: 30px;
+  font-weight: var(--scalar-api-client-semibold);
   color: white;
   border: none;
   white-space: nowrap;
-  padding: 0 9px;
+  padding: 0 10px;
   text-transform: uppercase;
   cursor: pointer;
   outline: none;
-  border-radius: var(--scalar-api-client-radius);
+  border-radius: 0 var(--scalar-api-client-rounded)
+    var(--scalar-api-client-rounded) 0;
   background: var(--scalar-api-client-color);
   display: flex;
   align-items: center;
@@ -297,12 +302,13 @@ const lastRequestTimestamp = computed(() => {
     transform: rotate(1turn);
   }
 }
-.scalar-api-client__history__toggle {
+.scalar-api-client__history-toggle {
   padding: 0 9px;
-  line-height: 29.5px;
+  line-height: 30px;
   color: var(--scalar-api-client-color-3);
-  font-size: 12px;
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-size: var(--scalar-api-client-text-xs);
+  letter-spacing: 0.125px;
+  font-weight: var(--scalar-api-client-semibold);
   text-transform: uppercase;
   height: 100%;
   display: flex;
@@ -311,12 +317,12 @@ const lastRequestTimestamp = computed(() => {
   white-space: nowrap;
   border: var(--scalar-api-client-border);
   margin-left: 12px;
-  border-radius: var(--scalar-api-client-radius);
+  border-radius: var(--scalar-api-client-rounded);
 }
-.scalar-api-client__history__toggle:hover {
-  background: var(--scalar-api-client-background-2);
+.scalar-api-client__history-toggle:hover {
+  background: var(--scalar-api-client-background-secondary);
 }
-.scalar-api-client__history__toggle svg {
+.scalar-api-client__history-toggle svg {
   height: 13px;
   width: 13px;
   margin-right: 6px;
@@ -334,7 +340,7 @@ const lastRequestTimestamp = computed(() => {
 .scalar-api-client__address-bar-content {
   width: 640px;
   height: 100%;
-  background: --scalar-api-client-background-1;
+  background: --scalar-api-client-background-primary;
   box-shadow: var(--scalar-api-client-theme-shadow-2);
   position: fixed;
   top: 0;
@@ -366,7 +372,7 @@ const lastRequestTimestamp = computed(() => {
   cursor: pointer;
 }
 .scalar-api-client__address-bar .navtable-item__active {
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
   cursor: default;
 }
 .scalar-api-client__address-bar .navtable-item__active .radio:before {
@@ -420,15 +426,15 @@ const lastRequestTimestamp = computed(() => {
   padding: 0 9px;
 }
 @media screen and (max-width: 720px) {
-  .scalar-api-client__history__toggle span,
+  .scalar-api-client__history-toggle span,
   .scalar-api-client__address-bar__button span {
     display: none;
   }
-  .scalar-api-client__history__toggle svg,
+  .scalar-api-client__history-toggle svg,
   .scalar-api-client__address-bar__button svg {
     margin-right: 0;
   }
-  .scalar-api-client__history__toggle,
+  .scalar-api-client__history-toggle,
   .scalar-api-client__address-bar__button {
     height: 31.5px;
     width: 31.5px;

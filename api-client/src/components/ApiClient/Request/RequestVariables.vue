@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import type { Query } from '../../../types'
+import type { BaseParameter } from '../../../types'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
-defineProps<{ queries: Query[] }>()
+defineProps<{ paths: BaseParameter[] }>()
 </script>
 <template>
-  <CollapsibleSection title="Query">
-    <template v-if="queries.length === 0">
-      <span>No Query Parameters</span>
+  <CollapsibleSection title="Variables">
+    <template v-if="paths.length === 0">
+      <span>No Path Parameters</span>
     </template>
     <template v-else>
-      <Grid :items="queries" />
+      <Grid :items="paths" />
       <!-- @addAnother="addQuery"
           @deleteItem="deleteQuery"
           @toggleDescription="toggleDescription"

@@ -45,9 +45,9 @@ defineProps<{
 
 <style>
 .scalar-api-client__item {
-  border-radius: var(--scalar-api-client-radius);
+  border-radius: var(--scalar-api-client-rounded);
   margin-bottom: 6px;
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
   box-shadow: var(--shadow1);
   position: relative;
 }
@@ -61,7 +61,7 @@ defineProps<{
 }
 
 .scalar-api-client__item--open {
-  background: var(--scalar-api-client-background-2);
+  background: var(--scalar-api-client-background-secondary);
 }
 
 .scalar-api-client__item--open:focus-within {
@@ -91,7 +91,7 @@ defineProps<{
 
 .scalar-api-client__item .scalar-api-client__item__title {
   color: var(--scalar-api-client-theme-color-1);
-  font-size: var(--scalar-api-client-theme-small);
+  font-size: var(--scalar-api-client-text-sm);
   font-weight: var(--scalar-api-client-theme-bold);
   user-select: none;
   flex: 1;

@@ -39,7 +39,7 @@ const authDropdownItems = [
 ]
 </script>
 <template>
-  <CollapsibleSection title="Auth">
+  <CollapsibleSection title="Authentication">
     <template #options>
       <div>
         <span>
@@ -71,7 +71,7 @@ const authDropdownItems = [
 
     <template v-if="authState.type === 'none'">
       <div class="flex-row">
-        <div>No Auth Required, or Selected</div>
+        <div>No Authentication</div>
       </div>
     </template>
     <template v-else>

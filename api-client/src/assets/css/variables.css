@@ -1,44 +1,53 @@
 .scalar-api-client,
 #headlessui-portal-root {
-  --scalar-api-client-height: 100px;
+  /** Font sizes */
+  --scalar-api-client-text-xs: 12px;
+  --scalar-api-client-text-sm: 14px;
+  --scalar-api-client-text-base: 16px;
+  --scalar-api-client-text-lg: 18px;
+
+  /** Colors */
+  --scalar-api-client-background-primary: #fff;
+  --scalar-api-client-background-secondary: #f1f3f5;
+
+  /** Borders */
+  --scalar-api-client-border: 1px solid #dee2e6;
+  --scalar-api-client-rounded: 4px;
+
+  /** TODO: Go through the following variables and check what they do */
   --scalar-api-client-post-color: white;
   --scalar-api-client-post-background: black;
   --scalar-api-client-delete-color: white;
   --scalar-api-client-delete-background: black;
   --scalar-api-client-patch-color: white;
   --scalar-api-client-patch-background: black;
-  --scalar-api-client-get-color: #51cf66;
+  --scalar-api-client-get-color: #0ca678;
   --scalar-api-client-get-background: white;
   --scalar-api-client-put-color: white;
   --scalar-api-client-put-background: black;
-  --scalar-api-client-radius: 4px;
-  /** Background address bar, collapsible sections */
-  --scalar-api-client-background-2: #f1f3f5;
-  /** Second font color  */
+
   --scalar-api-client-color-3: #868e96;
-  --scalar-api-client-border: 1px solid #f1f3f5;
-  --scalar-api-client-theme-font: 'Inter', sans-serif;
-  --scalar-api-client-font-code: 'JetBrains Mono', monospace;
+
+  --scalar-api-client-theme-font: system-ui, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  --scalar-api-client-font-code: ui-monospace, Menlo, Monaco, 'Cascadia Mono',
+    'Segoe UI Mono', 'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace',
+    'Source Code Pro', 'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
   --scalar-api-client-theme-bold: bold;
   /* Font color */
   --scalar-api-client-theme-color-1: #343a40;
   /* Select font color */
   --scalar-api-client-theme-color-2: #868e96;
   --scalar-api-client-theme-shadow-2: 0 0 0 1px white;
-  --scalar-api-client-theme-small: 14px;
-  --scalar-api-client-theme-regular: 16px;
-  --scalar-api-client-large: 18px;
-  --scalar-api-client-normal: 16px;
+
   --scalar-api-client-fill: black;
   --scalar-api-client-color2: white;
   --scalar-api-client-bg3: black;
   --scalar-api-client-gradient: linear-gradient(180deg, black 0%, black 100%);
   /** General Background */
-  --scalar-api-client-background-1: #fff;
+
   --scalar-api-client-border-color: black;
   /** Select background */
   --scalar-api-client-background-3: #f8f9fa;
   --scalar-api-client-semibold: 600;
-  --scalar-api-client-micro: 10px;
-  --scalar-api-client-sidebar-width: 0;
 }

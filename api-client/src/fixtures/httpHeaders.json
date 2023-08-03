@@ -1,0 +1,642 @@
+[
+  {
+    "name": "Accept",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Accept-CH",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Accept-CH-Lifetime",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Non-standardDeprecated",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Accept-Charset",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Accept-Encoding",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Accept-Language",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Accept-Patch",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Accept-Post",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Accept-Ranges",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Access-Control-Allow-Credentials",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Access-Control-Allow-Headers",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Access-Control-Allow-Methods",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Access-Control-Allow-Origin",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Access-Control-Expose-Headers",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Access-Control-Max-Age",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Access-Control-Request-Headers",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Access-Control-Request-Method",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Age",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Allow",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Alt-Svc",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Alt-Used",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Authorization",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Cache-Control",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Clear-Site-Data",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Connection",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Content-Disposition",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Content-DPR",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Non-standardDeprecated",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Content-Encoding",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Content-Language",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Content-Length",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Content-Location",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Content-Range",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Content-Security-Policy",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Content-Security-Policy-Report-Only",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Content-Type",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Cookie",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Critical-CH",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Cross-Origin-Embedder-Policy",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Cross-Origin-Opener-Policy",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Cross-Origin-Resource-Policy",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Date",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Device-Memory",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Digest",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Deprecated",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "DNT",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Deprecated",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Downlink",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "DPR",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Non-standardDeprecated",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Early-Data",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "ECT",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "ETag",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Expect",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Expect-CT",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Expires",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Forwarded",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "From",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Host",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "If-Match",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "If-Modified-Since",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "If-None-Match",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "If-Range",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "If-Unmodified-Since",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Keep-Alive",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Large-Allocation",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Non-standardDeprecated",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Last-Modified",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Link",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Location",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Max-Forwards",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "NEL",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Origin",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Permissions-Policy",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Pragma",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Deprecated",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Proxy-Authenticate",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Proxy-Authorization",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Range",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Referer",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Referrer-Policy",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Retry-After",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "RTT",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Save-Data",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-CH-Prefers-Reduced-Motion",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-CH-Prefers-Reduced-Transparency",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-CH-UA",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-CH-UA-Arch",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-CH-UA-Bitness",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-CH-UA-Full-Version",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Deprecated",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-CH-UA-Full-Version-List",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-CH-UA-Mobile",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-CH-UA-Model",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-CH-UA-Platform",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-CH-UA-Platform-Version",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-Fetch-Dest",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-Fetch-Mode",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-Fetch-Site",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-Fetch-User",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-GPC",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Experimental",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-Purpose",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Sec-WebSocket-Accept",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Server",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Server-Timing",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Service-Worker-Navigation-Preload",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Set-Cookie",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "SourceMap",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Strict-Transport-Security",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "TE",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Timing-Allow-Origin",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Tk",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Deprecated",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Trailer",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Transfer-Encoding",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Upgrade",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Upgrade-Insecure-Requests",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "User-Agent",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Vary",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Via",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Viewport-Width",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Non-standardDeprecated",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Want-Digest",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Deprecated",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Warning",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Deprecated",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Width",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Non-standardDeprecated",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "WWW-Authenticate",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "X-Content-Type-Options",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "X-DNS-Prefetch-Control",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Non-standard",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "X-Forwarded-For",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Non-standard",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "X-Forwarded-Host",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Non-standard",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "X-Forwarded-Proto",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "Non-standard",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "X-Frame-Options",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  },
+  {
+    "name": "X-XSS-Protection",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/"
+  }
+]

@@ -9,6 +9,7 @@ import { CodeMirror } from '../../CodeMirror'
 import { CollapsibleSection } from '../../CollapsibleSection'
 // import Copilot from './Copilot.vue'
 import { SimpleGrid } from '../../Grid'
+import ResponseHeaders from './ResponseHeaders.vue'
 
 const { activeResponse, activeRequestId } = useApiClientRequestStore()
 
@@ -179,7 +180,7 @@ const statusText = computed(() => {
         </template>
         <template v-else>
           <div class="meta-item">
-            <span>Send Request to Start</span>
+            <span>Send your first request to start</span>
           </div>
         </template>
       </div>
@@ -187,8 +188,10 @@ const statusText = computed(() => {
     <div>
       <CollapsibleSection title="Preview">
         <CodeMirror
-          :content="activeResponse ? responseData : 'No response'"
+          v-if="activeResponse"
+          :content="responseData"
           :readOnly="true" />
+        <pre v-else>No Response</pre>
       </CollapsibleSection>
       <!-- <CollapsibleSection title="Co Pilot">
         <Copilot />
@@ -196,14 +199,7 @@ const statusText = computed(() => {
           <pre>No headers</pre>
         </template>
       </CollapsibleSection> -->
-      <CollapsibleSection title="Headers">
-        <SimpleGrid
-          v-show="responseHeaders.length > 0"
-          :items="responseHeaders" />
-        <template v-if="responseHeaders.length === 0">
-          <pre>No headers</pre>
-        </template>
-      </CollapsibleSection>
+      <ResponseHeaders :headers="responseHeaders" />
       <CollapsibleSection title="Cookies">
         <SimpleGrid
           v-show="responseCookies.length > 0"

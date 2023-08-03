@@ -45,7 +45,13 @@ const proxyUrl = import.meta.env.VITE_CLIENT_PROXY
 </template>
 
 <style scoped>
+.scalar-api-client__container .scalar-api-client {
+  width: calc(100% - var(--theme-sidebar-width));
+}
+
 .scalar-api-client__container {
+  outline: 10px solid red;
+
   position: absolute;
   right: 0;
   left: 0;
