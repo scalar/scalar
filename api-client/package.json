@@ -24,6 +24,7 @@
   ],
   "dependencies": {
     "@codemirror/lang-javascript": "6.1.9",
+    "@codemirror/lang-json": "6.0.1",
     "@codemirror/state": "6.2.1",
     "@codemirror/view": "6.16.0",
     "@headlessui/vue": "1.7.14",

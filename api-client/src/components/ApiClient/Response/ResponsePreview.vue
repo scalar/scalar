@@ -12,6 +12,7 @@ withDefaults(defineProps<{ active: boolean; data: any }>(), {
     <CodeMirror
       v-if="active"
       :content="data"
+      :languages="['json']"
       :readOnly="true" />
     <div
       v-else

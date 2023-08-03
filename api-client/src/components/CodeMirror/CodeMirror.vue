@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { javascript } from '@codemirror/lang-javascript'
+import { json } from '@codemirror/lang-json'
 import { type Extension } from '@codemirror/state'
 import {
   EditorView,
@@ -38,6 +39,9 @@ if (props.languages) {
     switch (language) {
       case 'javascript':
         extensions.push(javascript())
+        break
+      case 'json':
+        extensions.push(json())
         break
     }
   })
