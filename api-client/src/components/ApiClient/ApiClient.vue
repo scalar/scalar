@@ -113,19 +113,6 @@ useKeyboardEvent({
     width: 100%;
   }
 }
-.scalar-api-client,
-.scalar-api-client *,
-.scalar-api-client *:before,
-.scalar-api-client *:after {
-  box-sizing: border-box;
-}
-.scalar-api-client input {
-  padding: 0;
-}
-.scalar-api-client button {
-  border: none;
-  text-align: left;
-}
 .scalar-api-client pre {
   font-family: var(--scalar-api-client-font-code);
 }
