@@ -5,6 +5,7 @@ import en from 'javascript-time-ago/locale/en'
 import { computed, ref, watch } from 'vue'
 
 import { sendRequest } from '../../helpers/sendRequest'
+import { useKeyboardEvent } from '../../hooks'
 import { useApiClientRequestStore } from '../../stores/apiClientRequestStore'
 import { CodeMirror } from '../CodeMirror'
 import FlowModal, { useModalState } from '../FlowModal.vue'
@@ -85,6 +86,12 @@ const lastRequestTimestamp = computed(() => {
   return requestHistory[lastRequestKey]
     ? timeAgo.format(requestHistory[lastRequestKey].sentTime)
     : 'History'
+})
+
+useKeyboardEvent({
+  keyList: ['enter'],
+  withCtrlCmd: true,
+  handler: send,
 })
 </script>
 
