@@ -2,11 +2,10 @@
 import { useFileDialog } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
-import FlowButton from '@lib/components/FlowButton.vue'
-import FlowModal, { useModalState } from '@lib/components/FlowModal.vue'
-import FlowTextField from '@lib/components/FlowTextField.vue'
-
 import spec from '../../petstorev3.json'
+import FlowButton from '../FlowButton.vue'
+import FlowModal, { useModalState } from '../FlowModal.vue'
+import FlowTextField from '../FlowTextField.vue'
 
 const emit = defineEmits<{
   (e: 'import', value: string): void

@@ -25,11 +25,13 @@
     "@codemirror/legacy-modes": "6.3.3",
     "@codemirror/state": "6.2.1",
     "@codemirror/view": "6.16.0",
+    "@headlessui/vue": "1.7.14",
     "@hocuspocus/common": "2.3.1",
     "@hocuspocus/provider": "2.3.1",
     "@uiw/codemirror-theme-duotone": "4.21.3",
     "@vueuse/core": "10.1.2",
     "codemirror": "6.0.1",
+    "nanoid": "4.0.2",
     "y-codemirror.next": "0.3.2",
     "yjs": "13.6.7"
   },
