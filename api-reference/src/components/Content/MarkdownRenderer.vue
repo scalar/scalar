@@ -48,43 +48,43 @@ watch(
 </template>
 
 <style scoped>
-.markdown >>> * {
+.markdown :deep(*) {
   margin-top: 12px;
 }
-.markdown >>> h1,
-.markdown >>> h2,
-.markdown >>> h3,
-.markdown >>> h4,
-.markdown >>> h5,
-.markdown >>> h6 {
+.markdown :deep(h1),
+.markdown :deep(h2),
+.markdown :deep(h3),
+.markdown :deep(h4),
+.markdown :deep(h5),
+.markdown :deep(h6) {
   font-size: var(--font-size);
   margin: 12px 0 6px;
 }
 
-.markdown >>> p {
+.markdown :deep(p) {
   font-size: var(--font-size, var(--theme-paragraph));
   color: var(--font-color, var(--theme-color-1));
   font-weight: var(--font-weight, var(--theme-regular));
   line-height: 1.5;
 }
 
-.markdown >>> ul,
-.markdown >>> ol {
+.markdown :deep(ul),
+.markdown :deep(ol) {
   padding-left: 24px;
   line-height: 1.5;
   margin: 12px 0;
 }
 
-.markdown >>> ul.contains-task-list {
+.markdown :deep(ul.contains-task-list) {
   list-style: none;
   padding-left: 0;
 }
 
-.markdown >>> li {
+.markdown :deep(li) {
   margin: 6px 0;
 }
 
-.markdown >>> code {
+.markdown :deep(code) {
   font-family: var(--theme-font-code);
   background-color: var(--theme-background-2);
   box-shadow: 0 0 0 1px var(--theme-border-color);
@@ -93,7 +93,7 @@ watch(
   padding: 0 3px;
 }
 
-.markdown >>> pre code {
+.markdown :deep(pre code) {
   display: block;
   white-space: pre;
   padding: 3px;
@@ -104,12 +104,12 @@ watch(
   min-width: 100px;
 }
 
-.markdown >>> blockquote {
+.markdown :deep(blockquote) {
   border-left: 3px solid var(--theme-border-color);
   padding-left: 12px;
 }
 
-.markdown >>> table {
+.markdown :deep(table) {
   position: relative;
   border-collapse: collapse;
   table-layout: fixed;
@@ -120,8 +120,8 @@ watch(
   border-radius: var(--theme-radius);
 }
 
-.markdown >>> td,
-.markdown >>> th {
+.markdown :deep(td),
+.markdown :deep(th) {
   min-width: 1em;
   padding: 6px;
   vertical-align: top;
@@ -132,30 +132,30 @@ watch(
   border-bottom: var(--theme-border);
 }
 
-.markdown >>> td > *,
-.markdown >>> th > * {
+.markdown :deep(td > *),
+.markdown :deep(th > *) {
   margin-bottom: 0;
 }
-.markdown.parameter-description >>> p {
+.markdown.parameter-description :deep(p) {
   font-size: var(--theme-small);
   color: var(--theme-color-2);
   line-height: initial;
 }
-.markdown td:first-of-type,
-.markdown th:first-of-type {
+.markdown :deep(td:first-of-type),
+.markdown :deep(th:first-of-type) {
   border-left: none;
 }
 
-.markdown td:last-of-type,
-.markdown th:last-of-type {
+.markdown :deep(td:last-of-type),
+.markdown :deep(th:last-of-type) {
   border-right: none;
 }
 
-.markdown tr:last-of-type td {
+.markdown :deep(tr:last-of-type td) {
   border-bottom: none;
 }
 
-.markdown th {
+.markdown :deep(th) {
   font-weight: bold !important;
   text-align: left;
   border-left-color: transparent;
