@@ -30,7 +30,8 @@ const getDocumentationUrlForHttpHeader = (headerName: string) => {
           :href="getDocumentationUrlForHttpHeader(header.name)"
           :strong="true"
           :wrap="false">
-          {{ header.name }}</SimpleCell>
+          {{ header.name }}
+        </SimpleCell>
         <SimpleCell>{{ header.value }}</SimpleCell>
       </SimpleRow>
     </SimpleTable>
