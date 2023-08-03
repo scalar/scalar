@@ -510,5 +510,17 @@
   {
     "name": "X-XSS-Protection",
     "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection"
+  },
+  {
+    "name": "Cf-Cache-Status",
+    "url": "https://developers.cloudflare.com/cache/concepts/default-cache-behavior/#cloudflare-cache-responses"
+  },
+  {
+    "name": "Cf-Ray",
+    "url": "https://developers.cloudflare.com/fundamentals/get-started/reference/http-request-headers/#cf-ray"
+  },
+  {
+    "name": "Report-To",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/report-to"
   }
 ]
