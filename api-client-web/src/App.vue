@@ -6,7 +6,7 @@ import { ApiClient } from '@scalar/api-client'
 </script>
 
 <template>
-  <ApiClient proxyUrl="http://localhost:1236" />
+  <ApiClient proxyUrl="http://localhost:4800" />
 </template>
 
 <style>
