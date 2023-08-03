@@ -2,8 +2,6 @@
 import { computed } from 'vue'
 
 import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
-import { type ClientResponse } from '../../../types'
-import { CodeMirror } from '../../CodeMirror'
 import { CollapsibleSection } from '../../CollapsibleSection'
 // import Copilot from './Copilot.vue'
 import { SimpleGrid } from '../../Grid'
