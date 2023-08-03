@@ -81,7 +81,7 @@ watch(
 }
 
 .scalar-api-client__url-input {
-  font-weight: var(--scalar-api-client-semibold);
+  font-weight: var(--scalar-api-client-font-semibold);
   background: var(--scalar-api-client-background-secondary);
   color: var(--scalar-api-client-theme-color-2);
   width: 100%;
@@ -119,7 +119,7 @@ watch(
   border-radius: var(--scalar-api-client-rounded) !important;
   background: var(--scalar-api-client-background);
   padding: 2px;
-  font: var(--scalar-api-client-font-code);
+  font: var(--scalar-api-client-font-mono);
   font-size: 11px !important;
   user-select: none;
   cursor: pointer;
@@ -127,7 +127,7 @@ watch(
 
 .scalar-api-client__codemirror .cm-content *,
 .scalar-api-client__codemirror .cm-content {
-  font-family: var(--scalar-api-client-font-code) !important;
+  font-family: var(--scalar-api-client-font-mono) !important;
   font-size: 12px;
   line-height: 1.44;
 }
@@ -190,6 +190,6 @@ watch(
   display: none;
 }
 .scalar-api-client__codemirror .cm-gutterElement {
-  font-family: var(--scalar-api-client-font-code) !important;
+  font-family: var(--scalar-api-client-font-mono) !important;
 }
 </style>

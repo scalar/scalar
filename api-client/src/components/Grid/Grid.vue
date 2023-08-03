@@ -119,7 +119,7 @@ const showDescription = ref(false)
   top: 4px;
   right: 0;
   padding: 5px 9px 5px 6px;
-  font-weight: var(--scalar-api-client-semibold);
+  font-weight: var(--scalar-api-client-font-semibold);
   font-size: 12px;
   background: var(--scalar-api-client-background-secondary);
   box-shadow: -2px 0 4px var(--scalar-api-client-background-secondary);
@@ -192,7 +192,7 @@ const showDescription = ref(false)
 }
 .table-row-item input[disabled] {
   background: transparent;
-  font-family: var(--scalar-api-client-font-code);
+  font-family: var(--scalar-api-client-font-mono);
 }
 .table-row-item input:focus {
   background: var(--scalar-api-client-background-secondary);
@@ -202,7 +202,7 @@ const showDescription = ref(false)
   text-transform: uppercase;
   display: block;
   padding: 9px;
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
   color: var(--scalar-api-client-color-3);
   font-size: 12px;
 }
@@ -300,7 +300,7 @@ const showDescription = ref(false)
   background-color: black;
 }
 .navtable-follow * {
-  font-family: var(--scalar-api-client-font-code) !important;
+  font-family: var(--scalar-api-client-font-mono) !important;
 }
 .navtable-table {
   position: relative;
@@ -313,7 +313,7 @@ const showDescription = ref(false)
   position: relative;
   color: var(--scalar-api-client-theme-color-1);
   border-top: var(--scalar-api-client-border);
-  font-weight: var(--scalar-api-client-semibold);
+  font-weight: var(--scalar-api-client-font-semibold);
 }
 .navtable-item > div {
   word-wrap: break-word;
@@ -324,7 +324,7 @@ const showDescription = ref(false)
 .navtable-item-action {
   color: var(--scalar-api-client-theme-color-2);
   font-size: 12px;
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
   background: var(--scalar-api-client-bg3);
   border: none;
   border-radius: 30px;
@@ -356,7 +356,7 @@ const showDescription = ref(false)
   display: flex;
   align-items: center;
   padding: 9px;
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
   outline: none;
   border: none;
   appearance: none;
@@ -460,7 +460,7 @@ const showDescription = ref(false)
 .navtable-item label {
   color: var(--scalar-api-client-color-3);
   font-size: 12px;
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
   text-transform: uppercase;
   padding: 9px;
   display: block;

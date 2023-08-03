@@ -92,7 +92,7 @@ const { activeRequest, readMode } = useApiClientRequestStore()
   outline: none;
   font-size: 12px;
   background: var(--scalar-api-client-color);
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
   padding: 12px;
   text-transform: uppercase;
   border-radius: var(--scalar-api-client-rounded);
@@ -107,7 +107,7 @@ const { activeRequest, readMode } = useApiClientRequestStore()
 }
 .scalar-collapsible-section-option {
   font-size: var(--scalar-api-client-text-sm);
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
   color: var(--scalar-api-client-color2);
   background: var(--scalar-api-client-bg3);
   border-radius: 30px;
@@ -280,7 +280,7 @@ const { activeRequest, readMode } = useApiClientRequestStore()
   color: var(--scalar-api-client-color-3);
   border-radius: var(--scalar-api-client-rounded);
   font-size: var(--scalar-api-client-text-xs);
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
   width: 100%;
   background: transparent;
 }

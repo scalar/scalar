@@ -92,7 +92,7 @@ defineProps<{
 .scalar-api-client__item .scalar-api-client__item__title {
   color: var(--scalar-api-client-theme-color-1);
   font-size: var(--scalar-api-client-text-sm);
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
   user-select: none;
   flex: 1;
 }

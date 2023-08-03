@@ -159,7 +159,7 @@ const fixErrors = async () => {
   min-height: 32.5px;
   display: flex;
   color: var(--scalar-api-client-color-3);
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
   align-items: center;
   justify-content: space-between;
   border-bottom: var(--scalar-api-client-border);
@@ -366,7 +366,7 @@ const fixErrors = async () => {
   background: var(--scalar-api-client-gradient);
   border-radius: var(--scalar-api-client-rounded);
   border: var(--scalar-api-client-border);
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
   max-height: 25px;
   padding: 4px 8px;
   outline: none;

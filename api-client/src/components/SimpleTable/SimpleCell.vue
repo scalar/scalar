@@ -44,6 +44,6 @@ withDefaults(
 }
 
 .simple-cell.strong {
-  font-weight: var(--scalar-api-client-semibold);
+  font-weight: var(--scalar-api-client-font-semibold);
 }
 </style>

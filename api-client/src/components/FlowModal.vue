@@ -13,7 +13,7 @@ withDefaults(
     title?: string
     bodyClass?: string
     maxWidth?: string
-    variant?: 'small' | 'normal'
+    variant?: 'small' | 'normal' | 'large'
   }>(),
   {
     variant: 'normal',
@@ -42,6 +42,7 @@ export const useModalState = () =>
       <DialogPanel
         class="modal"
         :class="{
+          'modal-content-large': variant === 'large',
           'modal-content-normal': variant === 'normal',
           'modal-content-small': variant === 'small',
         }"
@@ -74,10 +75,11 @@ export const useModalState = () =>
   animation: modal-fade 0.2s forwards;
 }
 .modal-body {
-  padding: 12px 12px 18px 24px;
+  padding: 18px;
   max-height: calc(100vh - 240px);
-  background: var(--theme-background-1);
-  border-radius: var(--theme-radius-xl);
+  background: var(--scalar-api-client-background-primary);
+  border-radius: var(--scalar-api-client-rounded);
+  font-family: var(--scalar-api-client-font-sans);
 }
 .modal {
   margin: 80px auto 0;
@@ -93,6 +95,9 @@ export const useModalState = () =>
   animation: modal-pop 0.15s 0.15s forwards;
   display: flex;
   flex-direction: column;
+}
+.modal-content-large {
+  max-width: 800px;
 }
 .modal-content-normal {
   max-width: 640px;

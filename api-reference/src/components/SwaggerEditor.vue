@@ -176,9 +176,9 @@ const breadCrumbs = computed(() => {
   --scalar-api-client-background-secondary: var(--theme-background-2);
   --scalar-api-client-color-3: var(--theme-color-3);
   --scalar-api-client-border: var(--theme-border);
-  --scalar-api-client-theme-font: var(--theme-font);
-  --scalar-api-client-font-code: var(--theme-font-code);
-  --scalar-api-client-theme-bold: var(--theme-bold);
+  --scalar-api-client-font-sans: var(--theme-font);
+  --scalar-api-client-font-mono: var(--theme-font-code);
+  --scalar-api-client-font-bold: var(--theme-bold);
   --scalar-api-client-theme-color-1: var(--theme-color-1);
   --scalar-api-client-theme-color-2: var(--theme-color-2);
   --scalar-api-client-theme-shadow-2: var(--theme-shadow-2);
@@ -192,7 +192,7 @@ const breadCrumbs = computed(() => {
   --scalar-api-client-background-primary: var(--theme-background-1);
   --scalar-api-client-border-color: var(--theme-border-color);
   --scalar-api-client-background-3: var(--theme-background-3);
-  --scalar-api-client-semibold: var(--theme-semibold);
+  --scalar-api-client-font-semibold: var(--theme-semibold);
   --scalar-api-client-text-xs: var(--theme-micro);
 }
 </style>

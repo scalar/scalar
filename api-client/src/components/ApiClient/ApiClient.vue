@@ -105,7 +105,7 @@ useKeyboardEvent({
   overflow: hidden !important;
   display: flex;
   flex-direction: column;
-  font-family: var(--scalar-api-client-theme-font);
+  font-family: var(--scalar-api-client-font-sans);
 }
 @media screen and (max-width: 1000px) {
   .scalar-api-client {
@@ -113,7 +113,7 @@ useKeyboardEvent({
   }
 }
 .scalar-api-client pre {
-  font-family: var(--scalar-api-client-font-code);
+  font-family: var(--scalar-api-client-font-mono);
 }
 
 .scalar-api-client--post {
@@ -146,7 +146,7 @@ useKeyboardEvent({
   display: flex;
   font-size: var(--scalar-api-client-text-sm);
   color: var(--scalar-api-client-theme-color-2);
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
 }
 
 .scalar-api-client__mobile-navigation__toggle {
@@ -188,7 +188,7 @@ useKeyboardEvent({
 .scalar-api-client__main__content label {
   font-size: var(--scalar-api-client-text-sm);
   color: var(--scalar-api-client-theme-color-1);
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
   display: flex;
   align-items: center;
 }
@@ -221,7 +221,7 @@ useKeyboardEvent({
   align-items: center;
   margin-right: 12px;
   white-space: nowrap;
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
   font-size: 12px;
   color: var(--scalar-api-client-color-3);
   padding: 3px 0;
@@ -258,7 +258,7 @@ useKeyboardEvent({
 }
 
 .types-item {
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
   font-size: var(--scalar-api-client-text-lg);
   color: var(--scalar-api-client-color2);
   background: var(--scalar-api-client-bg3);

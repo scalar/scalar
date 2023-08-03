@@ -140,7 +140,8 @@ useKeyboardEvent({
     <div class="scalar-api-client__address-bar__content">
       <FlowModal
         :state="historyModal"
-        title="Request History">
+        title="Request History"
+        variant="large">
         <RequestHistory
           :showHistory="showHistory"
           @toggle="showHistory = !showHistory" />
@@ -215,7 +216,7 @@ useKeyboardEvent({
   position: relative;
 }
 .request-type span {
-  font-family: var(--scalar-api-client-font-code);
+  font-family: var(--scalar-api-client-font-mono);
   font-size: 500;
   font-size: 12px;
   text-transform: uppercase;
@@ -254,7 +255,7 @@ useKeyboardEvent({
   font-size: var(--scalar-api-client-text-xs);
   letter-spacing: 0.25px;
   line-height: 30px;
-  font-weight: var(--scalar-api-client-semibold);
+  font-weight: var(--scalar-api-client-font-semibold);
   color: white;
   border: none;
   white-space: nowrap;
@@ -313,7 +314,7 @@ useKeyboardEvent({
   color: var(--scalar-api-client-color-3);
   font-size: var(--scalar-api-client-text-xs);
   letter-spacing: 0.125px;
-  font-weight: var(--scalar-api-client-semibold);
+  font-weight: var(--scalar-api-client-font-semibold);
   text-transform: uppercase;
   height: 100%;
   display: flex;
@@ -418,10 +419,10 @@ useKeyboardEvent({
 .navtable-item-request span em {
   text-transform: uppercase;
   font-style: normal;
-  font-family: var(--scalar-api-client-font-code);
+  font-family: var(--scalar-api-client-font-mono);
   font-size: 11px;
   margin-right: 6px;
-  font-weight: var(--scalar-api-client-theme-bold);
+  font-weight: var(--scalar-api-client-font-bold);
   color: var(--scalar-api-client-color-3);
 }
 .navtable-item-time {
