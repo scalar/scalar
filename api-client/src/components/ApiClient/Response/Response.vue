@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import prettyBytes from 'pretty-bytes'
-import prettyMilliseconds from 'pretty-ms'
 import { computed } from 'vue'
 
-import httpStatusCodes from '../../../fixtures/httpStatusCodes.json'
 import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
 import { type ClientResponse } from '../../../types'
 import { CodeMirror } from '../../CodeMirror'
@@ -11,19 +8,10 @@ import { CollapsibleSection } from '../../CollapsibleSection'
 // import Copilot from './Copilot.vue'
 import { SimpleGrid } from '../../Grid'
 import ResponseHeaders from './ResponseHeaders.vue'
+import ResponseMetaInformation from './ResponseMetaInformation.vue'
 import ResponsePreview from './ResponsePreview.vue'
 
 const { activeResponse, activeRequestId } = useApiClientRequestStore()
-
-// Size of the response
-const getContentLength = (response: ClientResponse) => {
-  if (response?.headers?.['X-API-Client-Content-Length']) {
-    return prettyBytes(
-      parseFloat(response.headers['X-API-Client-Content-Length']),
-    )
-  }
-  return prettyBytes(0)
-}
 
 // Headers
 const responseHeaders = computed(() => {
@@ -76,19 +64,6 @@ const responseData = computed(() => {
 
   return value
 })
-
-const statusText = computed(() => {
-  const statusCode = activeResponse.value?.statusCode
-
-  if (!statusCode) {
-    return ''
-  }
-
-  return Object.hasOwnProperty.call(httpStatusCodes, statusCode)
-    ? // @ts-ignore
-      httpStatusCodes[statusCode]
-    : null
-})
 </script>
 <template>
   <div class="scalar-api-client__main__right custom-scroll">
@@ -96,24 +71,7 @@ const statusText = computed(() => {
       <label>Response</label>
       <div class="meta">
         <template v-if="activeRequestId && activeResponse">
-          <div class="meta-item">
-            <!-- <span>182 ms</span> -->
-            <span>{{ prettyMilliseconds(activeResponse.duration) }}</span>
-          </div>
-          <div class="meta-item">
-            <!-- <span>20 Bytes</span> -->
-            <span>{{ getContentLength(activeResponse) }}</span>
-          </div>
-          <div class="meta-item">
-            <!-- <span>200</span> -->
-            <span
-              :class="`scalar-api-client__status--${String(
-                activeResponse.statusCode,
-              ).charAt(0)}xx`">
-              {{ activeResponse.statusCode }}
-              {{ statusText.name }}
-            </span>
-          </div>
+          <ResponseMetaInformation :response="activeResponse" />
         </template>
         <template v-else>
           <div class="meta-item">
