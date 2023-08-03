@@ -7,7 +7,7 @@ defineProps<{ headers: any[] }>()
 <template>
   <CollapsibleSection title="Headers">
     <template v-if="headers.length === 0">
-      <span>No Headers</span>
+      <div class="scalar-api-client__empty-state">No Headers</div>
     </template>
     <template v-else>
       <Grid :items="headers" />

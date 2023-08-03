@@ -9,9 +9,11 @@
   /** Colors */
   --scalar-api-client-background-primary: #fff;
   --scalar-api-client-background-secondary: #f1f3f5;
+  --scalar-api-client-background-input: #fff;
+  --scalar-api-client-border-color: #dee2e6;
 
   /** Borders */
-  --scalar-api-client-border: 1px solid #dee2e6;
+  --scalar-api-client-border: 1px solid var(--scalar-api-client-border-color);
   --scalar-api-client-rounded: 4px;
 
   /** TODO: Go through the following variables and check what they do */
@@ -46,7 +48,6 @@
   --scalar-api-client-gradient: linear-gradient(180deg, black 0%, black 100%);
   /** General Background */
 
-  --scalar-api-client-border-color: black;
   /** Select background */
   --scalar-api-client-background-3: #f8f9fa;
   --scalar-api-client-semibold: 600;

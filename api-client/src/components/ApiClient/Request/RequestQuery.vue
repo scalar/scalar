@@ -8,7 +8,7 @@ defineProps<{ queries: Query[] }>()
 <template>
   <CollapsibleSection title="Query Parameters">
     <template v-if="queries.length === 0">
-      <span>No query parameters</span>
+      <div class="scalar-api-client__empty-state">No Query Parameters</div>
     </template>
     <template v-else>
       <Grid :items="queries" />

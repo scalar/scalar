@@ -191,7 +191,11 @@ const statusText = computed(() => {
           v-if="activeResponse"
           :content="responseData"
           :readOnly="true" />
-        <pre v-else>No Response</pre>
+        <div
+          v-else
+          class="scalar-api-client__empty-state">
+          No Response
+        </div>
       </CollapsibleSection>
       <!-- <CollapsibleSection title="Co Pilot">
         <Copilot />
@@ -205,7 +209,7 @@ const statusText = computed(() => {
           v-show="responseCookies.length > 0"
           :items="responseCookies" />
         <template v-if="responseCookies.length === 0">
-          <pre>No cookies</pre>
+          <div class="scalar-api-client__empty-state">No Cookies</div>
         </template>
       </CollapsibleSection>
       <div class="scalar-api-client__main__scroll-container" />

@@ -70,9 +70,7 @@ const authDropdownItems = [
     </template>
 
     <template v-if="authState.type === 'none'">
-      <div class="flex-row">
-        <div>No Authentication</div>
-      </div>
+      <div class="scalar-api-client__empty-state">No Authentication</div>
     </template>
     <template v-else>
       <template v-if="authState.type === 'basic'">

@@ -186,9 +186,13 @@ const showDescription = ref(false)
   outline: none;
   padding: 9px;
   width: 100%;
-  background: transparent;
+  background: var(--scalar-api-client-background-input);
   color: var(--scalar-api-client-theme-color-1);
   font-size: 12px;
+}
+.table-row-item input[disabled] {
+  background: transparent;
+  font-family: var(--scalar-api-client-font-code);
 }
 .table-row-item input:focus {
   background: var(--scalar-api-client-background-secondary);
@@ -249,7 +253,7 @@ const showDescription = ref(false)
 .meta-checkmark {
   height: 15px;
   width: 15px;
-  background: var(--scalar-api-client-background-3);
+  background: var(--scalar-api-client-background-input);
   border-radius: 3px;
   display: flex;
   align-items: center;

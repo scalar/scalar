@@ -1,17 +1,41 @@
 <script lang="ts" setup>
-// import httpHeaders from '../../../fixtures/httpHeaders.json'
+import httpHeaders from '../../../fixtures/httpHeaders.json'
 import { CollapsibleSection } from '../../CollapsibleSection'
-import { SimpleGrid } from '../../Grid'
+import {
+  SimpleCell,
+  SimpleHeader,
+  SimpleRow,
+  SimpleTable,
+} from '../../SimpleTable'
 
 defineProps<{ headers: Record<string, string>[] }>()
+
+const getDocumentationUrlForHttpHeader = (headerName) => {
+  return httpHeaders.find((header) => {
+    return header.name.toLowerCase() === headerName.toLowerCase()
+  })?.url
+}
 </script>
 <template>
   <CollapsibleSection title="Headers">
-    <SimpleGrid
-      v-show="headers.length > 0"
-      :items="headers" />
-    <template v-if="headers.length === 0">
-      <pre>No headers</pre>
+    <SimpleTable v-if="headers.length > 0">
+      <SimpleRow>
+        <SimpleHeader>Key</SimpleHeader>
+        <SimpleHeader>Value</SimpleHeader>
+      </SimpleRow>
+      <SimpleRow
+        v-for="header in headers"
+        :key="header.name">
+        <SimpleCell
+          :href="getDocumentationUrlForHttpHeader(header.name)"
+          :strong="true"
+          :wrap="false">
+          {{ header.name }}</SimpleCell>
+        <SimpleCell>{{ header.value }}</SimpleCell>
+      </SimpleRow>
+    </SimpleTable>
+    <template v-else>
+      <div class="scalar-api-client__empty-state">No Headers</div>
     </template>
   </CollapsibleSection>
 </template>

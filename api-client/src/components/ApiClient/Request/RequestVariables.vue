@@ -8,7 +8,7 @@ defineProps<{ paths: BaseParameter[] }>()
 <template>
   <CollapsibleSection title="Variables">
     <template v-if="paths.length === 0">
-      <span>No Path Parameters</span>
+      <div class="scalar-api-client__empty-state">No variables</div>
     </template>
     <template v-else>
       <Grid :items="paths" />

@@ -273,4 +273,12 @@ useKeyboardEvent({
   color: var(--scalar-api-client-theme-color-1);
   cursor: pointer;
 }
+
+.scalar-api-client__empty-state {
+  border: 1px dashed var(--scalar-api-client-border-color);
+  width: 100%;
+  text-align: center;
+  font-size: var(--scalar-api-client-text-sm);
+  padding: 20px;
+}
 </style>
