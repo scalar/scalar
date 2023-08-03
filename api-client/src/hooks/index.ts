@@ -2,3 +2,5 @@
 export { useOperation } from './useOperation'
 export { useCodeMirror } from './useCodeMirror'
 export { useTippy } from './useTippy'
+export { useDarkModeState } from './useDarkModeState'
+export { useKeyboardEvent } from './useKeyboardEvent'

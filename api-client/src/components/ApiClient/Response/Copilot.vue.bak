@@ -5,7 +5,7 @@ import { Editor, EditorContent } from '@tiptap/vue-3'
 import { Markdown } from 'tiptap-markdown'
 import { computed, ref, watch } from 'vue'
 
-import { CopilotLoadingStates, useCopilot } from '../../../hooks/useCopilot'
+import { CopilotLoadingStates, useCopilot } from '../../../hooks'
 
 const content = ref('')
 const editor = ref<any>()

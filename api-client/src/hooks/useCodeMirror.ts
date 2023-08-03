@@ -4,9 +4,7 @@ import { duotoneDark, duotoneLight } from '@uiw/codemirror-theme-duotone'
 import { EditorView } from 'codemirror'
 import { type Ref, ref, watch } from 'vue'
 
-import { useDarkModeState } from '@lib/hooks/useDarkModeState'
-
-import { EditorClasses } from '@guide/styles'
+import { useDarkModeState } from './useDarkModeState'
 
 const { isDark } = useDarkModeState()
 
@@ -50,7 +48,6 @@ export const useCodeMirror = (
   // Initializes CodeMirror.
   const mountCodeMirror = () => {
     if (codeMirrorRef.value) {
-      codeMirrorRef.value.classList.add(EditorClasses.CodeMirror)
       const configuration: EditorViewConfig = {
         parent: codeMirrorRef.value,
         extensions: addDefaultExtensions(extensions),

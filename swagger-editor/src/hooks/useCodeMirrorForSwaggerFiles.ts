@@ -14,9 +14,7 @@ import { type Ref, computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { yCollab as CodeMirrorYjsBinding } from 'y-codemirror.next'
 import * as Y from 'yjs'
 
-import { useDarkModeState } from '@lib/hooks/useDarkModeState'
-
-import { EditorClasses } from '@guide/styles'
+import { useDarkModeState } from '../hooks/useDarkModeState'
 
 const getRandomElement = (list: any) =>
   list[Math.floor(Math.random() * list.length)]
@@ -68,9 +66,6 @@ export const useCodeMirrorForSwaggerFiles = ({
 
     // Don’t mount, if there’s no codeMirrorRef
     if (!codeMirrorRef?.value) return
-
-    // Add CodeMirror classes
-    codeMirrorRef.value.classList.add(EditorClasses.CodeMirror)
 
     // Initialize CodeMirror
     const selectedTheme = isDark.value ? duotoneDark : duotoneLight
