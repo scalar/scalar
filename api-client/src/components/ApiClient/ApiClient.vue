@@ -93,6 +93,8 @@ useKeyboardEvent({
   </div>
 </template>
 
+<style src="../../assets/css/reset.css"></style>
+
 <style src="../../assets/css/variables.css"></style>
 
 <style>
