@@ -4,6 +4,7 @@ import prettyMilliseconds from 'pretty-ms'
 import { computed } from 'vue'
 
 import httpStatusCodes from '../../../fixtures/httpStatusCodes.json'
+import { type ClientResponse } from '../../../types'
 
 const props = defineProps<{ response: any }>()
 

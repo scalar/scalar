@@ -11,7 +11,7 @@ import { watch } from 'vue'
 import { useCodeMirror } from '../../hooks'
 import { placeholders } from './extensions/placeholders'
 
-type Language = 'javascript'
+type Language = 'javascript' | 'json'
 
 const props = defineProps<{
   content?: string

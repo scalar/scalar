@@ -10,7 +10,7 @@ import {
 
 defineProps<{ headers: Record<string, string>[] }>()
 
-const getDocumentationUrlForHttpHeader = (headerName) => {
+const getDocumentationUrlForHttpHeader = (headerName: string) => {
   return httpHeaders.find((header) => {
     return header.name.toLowerCase() === headerName.toLowerCase()
   })?.url
