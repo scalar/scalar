@@ -37,8 +37,8 @@ import { ApiClient } from '@scalar/api-client'
   /* Select font color */
   --scalar-api-client-theme-color-2: #868e96;
   --scalar-api-client-theme-shadow-2: 0 0 0 1px white;
-  --scalar-api-client-theme-small: 12px;
-  --scalar-api-client-theme-regular: 14px;
+  --scalar-api-client-theme-small: 14px;
+  --scalar-api-client-theme-regular: 16px;
   --scalar-api-client-large: 18px;
   --scalar-api-client-normal: font-size: 16px;
   --scalar-api-client-fill: black;
