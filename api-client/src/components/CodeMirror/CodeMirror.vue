@@ -147,7 +147,6 @@ watch(
   color: var(--scalar-api-client-color-3);
 }
 .scalar-api-client__codemirror {
-  font-weight: var(--scalar-api-client-font-semibold);
   background-color: transparent !important;
 }
 .scalar-api-client__codemirror--read-only {
