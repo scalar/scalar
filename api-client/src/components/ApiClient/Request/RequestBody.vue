@@ -29,7 +29,7 @@ defineProps<{
             )
           : '{}'
       "
-      :languages="['javascript']"
+      :languages="['json']"
       :lineNumbers="true" />
   </CollapsibleSection>
 </template>
