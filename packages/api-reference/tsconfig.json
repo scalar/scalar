@@ -15,8 +15,8 @@
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"],
       /* TODO: Remove/Separate dependencies */
-      "@lib/*": ["../../packages/library/src/*"],
-      "@guide/*": ["../../packages/guide/src/*"]
+      "@lib/*": ["../../../packages/library/src/*"],
+      "@guide/*": ["../../../packages/guide/src/*"]
     }
   },
   "include": ["src", "src/declarations"],

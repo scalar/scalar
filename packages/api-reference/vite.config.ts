@@ -11,10 +11,10 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       /* TODO: Remove/Separate dependencies */
       '@lib': fileURLToPath(
-        new URL('../../packages/library/src', import.meta.url),
+        new URL('../../../packages/library/src', import.meta.url),
       ),
       '@guide': fileURLToPath(
-        new URL('../../packages/guide/src', import.meta.url),
+        new URL('../../../packages/guide/src', import.meta.url),
       ),
     },
   },
