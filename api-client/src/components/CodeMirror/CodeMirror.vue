@@ -133,7 +133,7 @@ watch(
 }
 
 .scalar-api-client__codemirror .cm-scroller {
-  background: var(--scalar-api-client-background-secondary);
+  background: var(--scalar-api-client-background-input);
 }
 
 .scalar-api-client__codemirror .ͼx,
