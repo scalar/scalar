@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
+import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
 import { ref } from 'vue'
 
-import { useKeyboardEvent } from '../../hooks'
 import { useApiClientRequestStore } from '../../stores/apiClientRequestStore'
 import AdressBar from './AddressBar.vue'
 import { Request } from './Request'
