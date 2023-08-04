@@ -163,7 +163,6 @@ watch(
 }
 .scalar-api-client__codemirror .cm-content {
   padding: 6px 0;
-  padding-bottom: 12px;
 }
 .scalar-api-client__codemirror .cm-line {
   padding: 0 12px;
