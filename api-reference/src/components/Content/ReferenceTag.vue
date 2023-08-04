@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
 import { useIntersectionObserver } from '@vueuse/core'
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 
 import { EditorClasses } from '@guide/styles'
 
@@ -15,7 +15,9 @@ const { setCollapsedSidebarItem } = useTemplateStore()
 
 const { setActiveSidebar } = useApiClientStore()
 
-const scrollToEndpoint = (item: Operation) => {
+const scrollToEndpoint = async (item: Operation) => {
+  setCollapsedSidebarItem(props.tag.name, true)
+  await nextTick()
   setActiveSidebar(item.operationId)
   document.getElementById(`endpoint/${item.operationId}`)?.scrollIntoView()
 }
