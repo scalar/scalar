@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRefOnMount } from '@anc/library'
 import { useResizeObserver } from '@vueuse/core'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import FlowIcon from '@lib/components/FlowIcon.vue'
 
@@ -13,7 +13,7 @@ import ReferenceEndpoint from './ReferenceEndpoint'
 import ReferenceTag from './ReferenceTag.vue'
 import Spinner from './Spinner.vue'
 
-defineProps<{ ready: boolean; spec: Spec }>()
+const props = defineProps<{ ready: boolean; spec: Spec }>()
 
 const referenceEl = ref<HTMLElement | null>(null)
 
@@ -28,6 +28,12 @@ useResizeObserver(
 const windowServer = useRefOnMount(() => window.location.origin)
 
 const { state: templateState, setCollapsedSidebarItem } = useTemplateStore()
+
+onMounted(() => {
+  if (props.spec.tags.length > 0) {
+    setCollapsedSidebarItem(props.spec.tags[0].name, true)
+  }
+})
 </script>
 <template>
   <div
@@ -88,7 +94,7 @@ const { state: templateState, setCollapsedSidebarItem } = useTemplateStore()
   background: var(--theme-background-1);
   appearance: none;
   border: none;
-  box-shadow: var(--theme-shadow-1);
+  border: 1px solid var(--theme-border-color);
   margin: auto;
   padding: 8px 12px;
   border-radius: 30px;

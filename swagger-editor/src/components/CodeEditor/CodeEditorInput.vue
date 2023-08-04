@@ -160,6 +160,7 @@ defineExpose({
 .cm-editor .ͼb {
   color: var(--cm-green);
 }
+.cm-editor .ͼ9,
 .cm-editor .ͼ1h {
   color: var(--cm-yellow);
 }

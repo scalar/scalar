@@ -38,6 +38,8 @@ import { computed, onMounted, watch } from 'vue'
 
 import ProjectIcon from '@lib/icon-library/ProjectIcon.vue'
 
+import { DocumentClasses } from '@guide/styles'
+
 import { useTemplateStore } from '../../../stores/template'
 import { ApiReferenceClasses } from '../../../styles'
 import type { Operation, Server } from '../../../types'
@@ -165,74 +167,79 @@ const selectLanguage = (language: TargetId) => {
 }
 </script>
 <template>
-  <div
-    class="coder"
-    :class="ApiReferenceClasses.CodeMenu">
-    <div class="codemenu-topbar">
-      <div class="codemenu">
-        <a class="endpoint">
-          <span
-            class="codemenu-item-title"
-            :class="operation.httpVerb">
-            {{ operation.httpVerb }}
-          </span>
-          <span class="codemenu-item-url">{{ operation.path }}</span>
-        </a>
-        <div class="coder-right">
-          <div class="codemirror-select">
-            <span>{{
-              getLanguageTitleByKey(templateState.preferredLanguage)
-            }}</span>
-            <select
-              ref="select-option-code-block"
-              class="codemirror-select"
-              :value="templateState.preferredLanguage"
-              @input="event => selectLanguage((event.target as HTMLSelectElement).value as TargetId)">
-              <option
-                v-for="lang in availableTargets().filter(
-                  (target) => target.key !== 'http',
-                )"
-                :key="lang.key"
-                :value="lang.key">
-                {{ lang.title }}
-              </option>
-            </select>
+  <div class="dark-mode">
+    <div
+      class="dark-mode-document-remove-everything"
+      :class="DocumentClasses.Document">
+      <div
+        class="coder"
+        :class="ApiReferenceClasses.CodeMenu">
+        <div class="codemenu-topbar">
+          <div class="codemenu">
+            <a class="endpoint">
+              <span
+                class="codemenu-item-title"
+                :class="operation.httpVerb">
+                {{ operation.httpVerb }}
+              </span>
+              <span class="codemenu-item-url">{{ operation.path }}</span>
+            </a>
+            <div class="coder-right">
+              <div class="codemirror-select">
+                <span>{{
+                  getLanguageTitleByKey(templateState.preferredLanguage)
+                }}</span>
+                <select
+                  ref="select-option-code-block"
+                  class="codemirror-select"
+                  :value="templateState.preferredLanguage"
+                  @input="event => selectLanguage((event.target as HTMLSelectElement).value as TargetId)">
+                  <option
+                    v-for="lang in availableTargets().filter(
+                      (target) => target.key !== 'http',
+                    )"
+                    :key="lang.key"
+                    :value="lang.key">
+                    {{ lang.title }}
+                  </option>
+                </select>
+              </div>
+              <button
+                class="code-copy"
+                type="button"
+                @click="copyExampleRequest">
+                <ProjectIcon
+                  src="solid/interface-copy-clipboard"
+                  width="10px" />
+              </button>
+            </div>
           </div>
+        </div>
+        <div ref="codeMirrorRef" />
+        <div class="trigger-scalar-client">
           <button
-            class="code-copy"
+            class="trigger-scalar-client-button"
             type="button"
-            @click="copyExampleRequest">
-            <ProjectIcon
-              src="solid/interface-copy-clipboard"
-              width="10px" />
+            @click="showItemInClient">
+            <svg
+              fill="none"
+              height="48"
+              viewBox="0 0 14 14"
+              width="48"
+              xmlns="http://www.w3.org/2000/svg">
+              <g id="send-email--mail-send-email-paper-airplane">
+                <path
+                  id="Subtract"
+                  clip-rule="evenodd"
+                  d="M11.8215 0.0977331C12.1097 -0.0075178 12.422 -0.0287134 12.7219 0.0367172C13.0248 0.102803 13.3024 0.254481 13.5216 0.473719C13.7409 0.692957 13.8926 0.970537 13.9586 1.27346C14.0241 1.57338 14.0029 1.88566 13.8976 2.17389L10.3236 12.8859L10.3234 12.8866C10.2363 13.15 10.083 13.3867 9.87813 13.5739C9.67383 13.7606 9.42512 13.8917 9.15575 13.9549C8.88633 14.0206 8.60444 14.015 8.33777 13.9388C8.07134 13.8627 7.82929 13.7187 7.63532 13.5209L5.71798 11.6123L3.70392 12.6538C3.54687 12.735 3.3586 12.7272 3.20877 12.6333C3.05895 12.5395 2.96984 12.3734 2.97443 12.1967L3.057 9.01294L10.102 3.89553C10.3812 3.69267 10.4432 3.30182 10.2403 3.02255C10.0375 2.74327 9.64662 2.68133 9.36734 2.88419L2.20286 8.0884L0.473156 6.35869L0.473098 6.35864L0.472971 6.35851C0.285648 6.17132 0.147746 5.94054 0.0716498 5.68688C-0.00390565 5.43503 -0.016181 5.16847 0.0358684 4.91079C0.087985 4.62928 0.213827 4.36658 0.400607 4.14951C0.588668 3.93095 0.831681 3.76658 1.10453 3.67339L1.1079 3.67224L1.1079 3.67225L11.8215 0.0977331Z"
+                  fill="currentColor"
+                  fill-rule="evenodd"></path>
+              </g>
+            </svg>
+            Test {{ operation.httpVerb }} Request in Client
           </button>
         </div>
       </div>
-    </div>
-    <div ref="codeMirrorRef" />
-    <div class="trigger-scalar-client">
-      <button
-        class="trigger-scalar-client-button"
-        :class="[operation.httpVerb, isDark ? 'dark-mode' : 'light-mode']"
-        type="button"
-        @click="showItemInClient">
-        <svg
-          fill="none"
-          height="48"
-          viewBox="0 0 14 14"
-          width="48"
-          xmlns="http://www.w3.org/2000/svg">
-          <g id="send-email--mail-send-email-paper-airplane">
-            <path
-              id="Subtract"
-              clip-rule="evenodd"
-              d="M11.8215 0.0977331C12.1097 -0.0075178 12.422 -0.0287134 12.7219 0.0367172C13.0248 0.102803 13.3024 0.254481 13.5216 0.473719C13.7409 0.692957 13.8926 0.970537 13.9586 1.27346C14.0241 1.57338 14.0029 1.88566 13.8976 2.17389L10.3236 12.8859L10.3234 12.8866C10.2363 13.15 10.083 13.3867 9.87813 13.5739C9.67383 13.7606 9.42512 13.8917 9.15575 13.9549C8.88633 14.0206 8.60444 14.015 8.33777 13.9388C8.07134 13.8627 7.82929 13.7187 7.63532 13.5209L5.71798 11.6123L3.70392 12.6538C3.54687 12.735 3.3586 12.7272 3.20877 12.6333C3.05895 12.5395 2.96984 12.3734 2.97443 12.1967L3.057 9.01294L10.102 3.89553C10.3812 3.69267 10.4432 3.30182 10.2403 3.02255C10.0375 2.74327 9.64662 2.68133 9.36734 2.88419L2.20286 8.0884L0.473156 6.35869L0.473098 6.35864L0.472971 6.35851C0.285648 6.17132 0.147746 5.94054 0.0716498 5.68688C-0.00390565 5.43503 -0.016181 5.16847 0.0358684 4.91079C0.087985 4.62928 0.213827 4.36658 0.400607 4.14951C0.588668 3.93095 0.831681 3.76658 1.10453 3.67339L1.1079 3.67224L1.1079 3.67225L11.8215 0.0977331Z"
-              fill="currentColor"
-              fill-rule="evenodd"></path>
-          </g>
-        </svg>
-        Test {{ operation.httpVerb }} Request in Client
-      </button>
     </div>
   </div>
 </template>
@@ -245,7 +252,6 @@ const selectLanguage = (language: TargetId) => {
   border: none;
   border-radius: var(--theme-radius-lg);
   height: 35px;
-  color: white;
   display: flex;
   justify-content: center;
   cursor: pointer;
@@ -254,10 +260,11 @@ const selectLanguage = (language: TargetId) => {
   font-size: var(--theme-micro);
   text-transform: uppercase;
   border: 1px solid currentColor;
-  background: transparent;
+  background: var(--theme-button-1);
+  color: var(--theme-button-1-color);
 }
 .trigger-scalar-client-button:hover {
-  opacity: 0.8;
+  background: var(--theme-button-1-hover);
 }
 .trigger-scalar-client-button svg {
   height: 12px;
@@ -266,6 +273,7 @@ const selectLanguage = (language: TargetId) => {
 }
 .coder {
   border-radius: var(--theme-radius-lg);
+  border: 1px solid var(--theme-border-color);
   overflow: hidden;
 }
 .code-copy {
@@ -356,5 +364,8 @@ const selectLanguage = (language: TargetId) => {
 }
 .codemenu-item-title {
   /* color: var(--theme-color-1) !important; */
+}
+.dark-mode-document-remove-everything {
+  all: unset;
 }
 </style>

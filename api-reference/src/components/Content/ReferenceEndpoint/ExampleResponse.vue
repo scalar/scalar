@@ -105,6 +105,7 @@ onMounted(() => {
 }
 .coder {
   border-radius: var(--theme-radius-lg);
+  border: 1px solid var(--theme-border-color);
   overflow: hidden;
 }
 .endpoint-teleport-response :deep(.cm-editor .cm-scroller) {

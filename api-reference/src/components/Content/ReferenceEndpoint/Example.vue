@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useDarkModeState } from '@anc/library'
-
 import { EditorClasses } from '@guide/styles'
 
 import type { Operation, Server } from '../../../types'
@@ -8,8 +6,6 @@ import ExampleRequest from './ExampleRequest.vue'
 import ExampleResponse from './ExampleResponse.vue'
 
 defineProps<{ operation: Operation; server: Server }>()
-
-const { isDark } = useDarkModeState()
 </script>
 <template>
   <div
@@ -19,9 +15,6 @@ const { isDark } = useDarkModeState()
       class="dark-mode"
       :operation="operation"
       :server="server" />
-    <ExampleResponse
-      :class="isDark ? 'dark-mode' : 'light-mode'"
-      :operation="operation" />
+    <ExampleResponse :operation="operation" />
   </div>
 </template>
-../../../types

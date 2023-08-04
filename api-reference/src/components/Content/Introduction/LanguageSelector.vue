@@ -3,6 +3,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { type TargetId, availableTargets } from 'httpsnippet-lite'
 import { ref } from 'vue'
 
+import FlowIcon from '@lib/components/FlowIcon.vue'
 import ProjectIcon from '@lib/icon-library/ProjectIcon.vue'
 
 import { useTemplateStore } from '../../../stores/template'
@@ -158,11 +159,19 @@ const getProjectIconByLanguageKey = (languageKey: TargetId) => {
         {{ target.title }}
       </option>
     </select>
-
-    <ProjectIcon
+    <svg
       class="code-languages-icon code-languages-icon__more"
-      src="solid/interface-dots-horizontal" />
-
+      height="50"
+      viewBox="0 0 50 50"
+      width="50"
+      xmlns="http://www.w3.org/2000/svg">
+      <g
+        fill="currentColor"
+        fill-rule="nonzero">
+        <path
+          d="M10.71 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0M21.13 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0M31.55 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0" />
+      </g>
+    </svg>
     <span>More</span>
   </div>
 </template>
