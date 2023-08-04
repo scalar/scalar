@@ -99,21 +99,21 @@ useKeyboardEvent({
   <div
     class="scalar-api-client__address-bar"
     :class="{ 'scalar-api-client__address-bar__on': showHistory }">
-    <div class="scalar-api-client__address-bar__address">
-      <div class="request-type">
-        <i :class="requestType.toLowerCase()" />
-        <span>{{ requestType }}</span>
+    <div class="scalar-api-client__url-form">
+      <div class="scalar-api-client__field">
+        <div class="scalar-api-client__request-type">
+          <i :class="requestType.toLowerCase()" />
+          <span>{{ requestType }}</span>
+        </div>
+        <CodeMirror
+          class="scalar-api-client__url-input"
+          :content="formattedUrl"
+          :readOnly="true"
+          :withPlaceholders="true" />
       </div>
-      <CodeMirror
-        class="scalar-api-client__url-input"
-        :content="formattedUrl"
-        :readOnly="true"
-        :withPlaceholders="true" />
       <button
-        class="scalar-api-client__address-bar__button"
-        :class="[
-          { 'scalar-api-client__address-bar__button--loading': loading },
-        ]"
+        class="scalar-api-client__url-submit"
+        :class="[{ 'scalar-api-client__url-submit--loading': loading }]"
         type="button"
         @click="send">
         <svg
@@ -189,11 +189,20 @@ useKeyboardEvent({
   position: relative;
   background: var(--scalar-api-client-background-primary);
 }
-.scalar-api-client__address-bar__address {
+.scalar-api-client__url-form {
   display: flex;
   width: 100%;
   align-items: stretch;
   border-radius: var(--scalar-api-client-rounded);
+}
+.scalar-api-client__field {
+  border: var(--scalar-api-client-border);
+  border-right: 0;
+  border-radius: var(--scalar-api-client-rounded) 0 0
+    var(--scalar-api-client-rounded);
+  display: flex;
+  align-items: stretch;
+  width: 100%;
 }
 .scalar-api-client__address-bar-data {
   width: 100%;
@@ -202,7 +211,7 @@ useKeyboardEvent({
   display: flex;
   margin-top: 5px;
 }
-.request-type {
+.scalar-api-client__request-type {
   display: flex;
   align-items: center;
   background: var(--scalar-api-client-background-secondary);
@@ -215,17 +224,17 @@ useKeyboardEvent({
     var(--scalar-api-client-rounded);
   position: relative;
 }
-.request-type span {
+.scalar-api-client__request-type span {
   font-family: var(--scalar-api-client-font-mono);
   font-size: 500;
   font-size: 12px;
   text-transform: uppercase;
 }
-.request-type svg {
+.scalar-api-client__request-type svg {
   margin-left: 6px;
   width: 8px;
 }
-.request-type i {
+.scalar-api-client__request-type i {
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -251,7 +260,7 @@ useKeyboardEvent({
   border-radius: var(--scalar-api-client-rounded);
   height: 100%;
 }
-.scalar-api-client__address-bar__button {
+.scalar-api-client__url-submit {
   font-size: var(--scalar-api-client-text-xs);
   letter-spacing: 0.25px;
   line-height: 30px;
@@ -266,25 +275,28 @@ useKeyboardEvent({
   border-radius: 0 var(--scalar-api-client-rounded)
     var(--scalar-api-client-rounded) 0;
   background: var(--scalar-api-client-color);
+  /**  #087f5b */
+  border: 1px solid
+    color-mix(in srgb, black 15%, var(--scalar-api-client-color));
   display: flex;
   align-items: center;
 }
-.scalar-api-client__address-bar__button svg {
+.scalar-api-client__url-submit svg {
   width: 12px;
   height: 12px;
   margin-right: 6px;
 }
-.scalar-api-client__address-bar__button--loading {
+.scalar-api-client__url-submit--loading {
   font-size: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 127px;
 }
-.scalar-api-client__address-bar__button--loading svg {
+.scalar-api-client__url-submit--loading svg {
   display: none;
 }
-.scalar-api-client__address-bar__button--loading:before {
+.scalar-api-client__url-submit--loading:before {
   content: '';
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-top: 1px solid white;
@@ -296,7 +308,7 @@ useKeyboardEvent({
   margin-right: 9px;
   border-radius: 50%;
 }
-.scalar-api-client__address-bar__button--loading:after {
+.scalar-api-client__url-submit--loading:after {
   content: 'Loading';
   font-size: 12px;
 }
@@ -433,15 +445,15 @@ useKeyboardEvent({
 }
 @media screen and (max-width: 720px) {
   .scalar-api-client__history-toggle span,
-  .scalar-api-client__address-bar__button span {
+  .scalar-api-client__url-submit span {
     display: none;
   }
   .scalar-api-client__history-toggle svg,
-  .scalar-api-client__address-bar__button svg {
+  .scalar-api-client__url-submit svg {
     margin-right: 0;
   }
   .scalar-api-client__history-toggle,
-  .scalar-api-client__address-bar__button {
+  .scalar-api-client__url-submit {
     height: 31.5px;
     width: 31.5px;
   }

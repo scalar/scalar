@@ -24,9 +24,13 @@ const props = defineProps<{
 const extensions: Extension[] = []
 
 // CSS Class
-extensions.push(
-  EditorView.editorAttributes.of({ class: 'scalar-api-client__codemirror' }),
-)
+const classes = ['scalar-api-client__codemirror']
+
+if (props.readOnly) {
+  classes.push('scalar-api-client__codemirror--read-only')
+}
+
+extensions.push(EditorView.editorAttributes.of({ class: classes.join(' ') }))
 
 // Read only
 if (props.readOnly) {
@@ -143,7 +147,11 @@ watch(
   color: var(--scalar-api-client-color-3);
 }
 .scalar-api-client__codemirror {
+  font-weight: var(--scalar-api-client-font-semibold);
   background-color: transparent !important;
+}
+.scalar-api-client__codemirror--read-only {
+  background: red;
 }
 .scalar-api-client__codemirror .ͼe,
 .scalar-api-client__codemirror .ͼz,
@@ -167,9 +175,6 @@ watch(
 .scalar-api-client__codemirror .cm-line {
   padding: 0 12px;
   color: var(--scalar-api-client-color-3);
-}
-.scalar-api-client__codemirror .cm-matchingBracket {
-  background: var(--scalar-api-client-background-3) !important;
 }
 .scalar-api-client__codemirror .cm-gutters {
   font-size: var(--theme-mini);

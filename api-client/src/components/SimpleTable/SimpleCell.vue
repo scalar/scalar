@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import HelpfulLink from '../HelpfulLink.vue'
+
 withDefaults(
   defineProps<{ wrap?: boolean; strong?: boolean; href?: string | null }>(),
   {
@@ -13,12 +15,9 @@ withDefaults(
     class="simple-cell"
     :class="{ wrap: wrap, strong: strong }">
     <template v-if="href">
-      <a
-        :href="href"
-        rel="noopener noreferrer"
-        target="_blank">
+      <HelpfulLink :href="href">
         <slot />
-      </a>
+      </HelpfulLink>
     </template>
     <template v-else>
       <slot />
@@ -32,11 +31,6 @@ withDefaults(
   padding: 0.75em;
   color: var(--scalar-api-client-theme-color-1);
   white-space: nowrap;
-}
-
-.simple-cell a {
-  text-decoration: dashed underline;
-  cursor: help;
 }
 
 .simple-cell.wrap {

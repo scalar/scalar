@@ -5,6 +5,7 @@ import { computed } from 'vue'
 
 import httpStatusCodes from '../../../fixtures/httpStatusCodes.json'
 import { type ClientResponse } from '../../../types'
+import HelpfulLink from '../../HelpfulLink.vue'
 
 const props = defineProps<{ response: any }>()
 
@@ -48,12 +49,9 @@ const statusText = computed(() => {
         response.statusCode,
       ).charAt(0)}xx`">
       <template v-if="statusText.url">
-        <a
-          :href="statusText.url"
-          rel="noopener noreferrer"
-          target="_blank">
+        <HelpfulLink :href="statusText.url">
           {{ response.statusCode }} {{ statusText.name }}
-        </a>
+        </HelpfulLink>
       </template>
       <template v-else>
         {{ response.statusCode }} {{ statusText.name }}
@@ -61,13 +59,3 @@ const statusText = computed(() => {
     </span>
   </div>
 </template>
-
-<style>
-.scalar-api-client__status a {
-  cursor: help;
-}
-
-.scalar-api-client__status a:hover {
-  text-decoration: dashed underline;
-}
-</style>
