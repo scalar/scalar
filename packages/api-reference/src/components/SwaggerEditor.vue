@@ -549,4 +549,72 @@ const breadCrumbs = computed(() => {
 .copy .parameter-description:empty {
   display: none;
 }
+
+/* ----------------------------------------------------- */
+
+.reference {
+  position: relative;
+  padding: 0 60px;
+  width: 100%;
+}
+
+.reference:not(:last-of-type) {
+  border-bottom: var(--theme-border);
+}
+
+.reference-container {
+  position: relative;
+  display: flex;
+  gap: 48px;
+
+  max-width: 1120px;
+  margin: auto;
+  padding: 90px 0;
+}
+
+.reference-container + .reference-container {
+  border-top: var(--theme-border);
+}
+
+.reference-container .copy,
+.reference-container .example {
+  flex: 1;
+  min-width: 0;
+}
+
+.response .cm-editor {
+  max-height: calc(50vh - 90px);
+}
+
+.example {
+  padding-top: 48px;
+  top: 0;
+  height: fit-content;
+  position: sticky;
+}
+
+.copy .tag-description a {
+  color: var(--theme-color-1);
+  text-decoration: underline;
+}
+
+/* ----------------------------------------------------- */
+/* Responsive styles for narrow reference container (900px) */
+.references-narrow .reference {
+  padding: 0 30px;
+}
+@media screen and (max-width: 1000px) {
+  .references-narrow .reference {
+    padding: 0 24px;
+  }
+}
+.references-narrow .reference-container {
+  flex-direction: column;
+  gap: 24px;
+  padding: 48px 0;
+}
+
+.references-narrow .example {
+  padding-top: 0;
+}
 </style>
