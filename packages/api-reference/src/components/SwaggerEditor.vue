@@ -9,7 +9,6 @@ import { customFooterClass } from '@guide/styles'
 
 import { useSwaggerParser } from '../hooks/useSwaggerParser'
 import { useTemplateStore } from '../stores/template'
-import { ApiReferenceClasses } from '../styles'
 import type { ReferenceProps, Spec } from '../types'
 import { default as ApiClientOverlay } from './ApiClientOverlay.vue'
 import { Content } from './Content'
@@ -97,12 +96,12 @@ const breadCrumbs = computed(() => {
 })
 </script>
 <template>
+  {{ DocumentClasses.Document }}
   <div
     ref="documentEl"
     :class="[
       'layout-swagger-editor',
       DocumentClasses.Document,
-      ApiReferenceClasses.Base,
       { 'footer-below-sidebar': footerBelowSidebar, 'preview': !isEditable },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
@@ -616,5 +615,13 @@ const breadCrumbs = computed(() => {
 
 .references-narrow .example {
   padding-top: 0;
+}
+
+.editor-heading h1 {
+  font-size: var(--font-size, var(--theme-heading-2));
+  font-weight: var(--font-weight, var(--theme-bold));
+  color: var(--font-color, var(--theme-color-1));
+  line-height: 1.45;
+  margin-top: 60px;
 }
 </style>

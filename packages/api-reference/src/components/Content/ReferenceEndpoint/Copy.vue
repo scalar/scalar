@@ -4,8 +4,6 @@ import { type Operation, useOperation } from '@scalar/api-client'
 import { useIntersectionObserver } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 
-import { EditorClasses } from '@guide/styles'
-
 import { useTemplateStore } from '../../../stores/template'
 import type { Tag } from '../../../types'
 import Parameters from './Parameters.vue'
@@ -62,14 +60,14 @@ onMounted(() => {
 </script>
 <template>
   <div class="copy">
-    <div :class="EditorClasses.Heading">
+    <div class="editor-heading">
       <h1
         ref="refHeader"
         class="heading">
         {{ operation.name }}
       </h1>
     </div>
-    <div :class="EditorClasses.Paragraph">
+    <div>
       <p class="tag-description">
         {{ operation.description }}
       </p>

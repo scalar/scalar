@@ -3,8 +3,6 @@ import { useApiClientStore } from '@scalar/api-client'
 import { useIntersectionObserver } from '@vueuse/core'
 import { nextTick, onMounted, ref } from 'vue'
 
-import { EditorClasses } from '@guide/styles'
-
 import { useTemplateStore } from '../../stores/template'
 import type { Operation, Tag } from '../../types'
 import MarkdownRenderer from './MarkdownRenderer.vue'
@@ -53,7 +51,7 @@ onMounted(() => {
     class="reference-container"
     :data-section-id="tag.name">
     <div class="copy">
-      <div :class="EditorClasses.Heading">
+      <div class="editor-heading">
         <h1
           ref="tagHeader"
           class="heading">

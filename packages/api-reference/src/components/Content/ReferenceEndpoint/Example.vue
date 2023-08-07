@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { EditorClasses } from '@guide/styles'
-
 import type { Operation, Server } from '../../../types'
 import ExampleRequest from './ExampleRequest.vue'
 import ExampleResponse from './ExampleResponse.vue'
@@ -8,9 +6,7 @@ import ExampleResponse from './ExampleResponse.vue'
 defineProps<{ operation: Operation; server: Server }>()
 </script>
 <template>
-  <div
-    class="example"
-    :class="[EditorClasses.CodeMirror, EditorClasses.Code]">
+  <div class="example">
     <ExampleRequest
       class="dark-mode"
       :operation="operation"

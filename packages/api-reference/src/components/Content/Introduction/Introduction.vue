@@ -2,8 +2,6 @@
 import { type TargetId } from 'httpsnippet-lite'
 import { computed } from 'vue'
 
-import { EditorClasses } from '@guide/styles'
-
 import { useTemplateStore } from '../../../stores/template'
 import type { Info, Server } from '../../../types'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
@@ -49,7 +47,7 @@ const standardLibrary = computed(() => {
   <div class="reference">
     <div class="reference-container">
       <div class="copy">
-        <div :class="EditorClasses.Heading">
+        <div class="editor-heading">
           <h1
             class="heading"
             :class="{ loading: !info.title }">

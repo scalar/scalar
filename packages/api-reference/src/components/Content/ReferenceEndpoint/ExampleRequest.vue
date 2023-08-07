@@ -38,10 +38,7 @@ import { computed, onMounted, watch } from 'vue'
 
 import ProjectIcon from '@lib/icon-library/ProjectIcon.vue'
 
-import { DocumentClasses } from '@guide/styles'
-
 import { useTemplateStore } from '../../../stores/template'
-import { ApiReferenceClasses } from '../../../styles'
 import type { Operation, Server } from '../../../types'
 
 const props = defineProps<{ operation: Operation; server: Server }>()
@@ -168,9 +165,7 @@ const selectLanguage = (language: TargetId) => {
 </script>
 <template>
   <div class="dark-mode">
-    <div
-      class="dark-mode-document-remove-everything"
-      :class="DocumentClasses.Document">
+    <div class="dark-mode-document-remove-everything">
       <div class="coder">
         <div class="codemenu-topbar">
           <div class="codemenu">
