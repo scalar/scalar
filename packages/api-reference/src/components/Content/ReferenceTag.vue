@@ -81,11 +81,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-<style scoped>
-.heading {
-  margin-top: 0px !important;
-}
-.tag-description {
-  margin-top: 12px;
-}
-</style>

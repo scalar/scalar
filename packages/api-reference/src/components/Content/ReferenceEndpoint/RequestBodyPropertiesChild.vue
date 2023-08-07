@@ -37,4 +37,3 @@ defineProps<{ contentProperties: ContentProperties }>()
     </div>
   </li>
 </template>
-../../../types

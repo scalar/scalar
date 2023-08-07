@@ -471,4 +471,82 @@ const breadCrumbs = computed(() => {
   padding: 12px 0;
   font-size: var(--theme-small);
 }
+
+.heading {
+  margin-top: 0px !important;
+}
+.tag-description {
+  margin-top: 12px;
+}
+
+.endpoint-title {
+  display: flex;
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+.copy .title {
+  font-size: var(--theme-heading-4);
+  font-weight: var(--theme-semibold);
+  color: var(--theme-color-1);
+  line-height: 1.45;
+}
+.response-headers-container {
+  border: var(--theme-border);
+  border-radius: 6px;
+  margin-top: 12px;
+}
+.response-headers-container .parameter li {
+  padding: 12px;
+}
+.response-headers-container .title {
+  padding: 6px 12px;
+  font-size: var(--theme-small);
+}
+.response-headers-container .endpoint-title {
+  margin: 0;
+}
+.response-headers-container .title {
+  padding: 6px 12px;
+  font-size: var(--theme-small);
+}
+.endpoint-response__headers {
+  padding-bottom: 0;
+}
+.endpoint-response__headers + .endpoint-response {
+  border-top: none;
+}
+.parameter {
+  list-style: none;
+  font-size: var(--theme-small);
+}
+.parameter li {
+  border-top: var(--theme-border);
+  padding: 12px 0;
+}
+.parameter-name {
+  font-weight: 500;
+  margin-right: 6px;
+  font-family: var(--theme-font-code);
+  font-size: 13px;
+  color: var(--theme-color-1);
+}
+.parameter-type,
+.parameter-required {
+  color: var(--theme-color-3);
+  font-weight: var(--semi-bold);
+  margin-right: 6px;
+  position: relative;
+}
+.marc_required {
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: var(--bol);
+  color: #ffb040;
+}
+.parameter-options {
+  position: relative;
+}
+.copy .parameter-description:empty {
+  display: none;
+}
 </style>
