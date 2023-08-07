@@ -5,7 +5,6 @@ import { computed } from 'vue'
 import { EditorClasses } from '@guide/styles'
 
 import { useTemplateStore } from '../../../stores/template'
-import { ApiReferenceClasses } from '../../../styles'
 import type { Info, Server } from '../../../types'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import BaseUrl from './BaseUrl.vue'
@@ -69,9 +68,7 @@ const standardLibrary = computed(() => {
           </template>
         </p>
       </div>
-      <div
-        class="example"
-        :class="ApiReferenceClasses.LanguageSelector">
+      <div class="example">
         <BaseUrl :url="server.url" />
         <div
           class="client-libraries"

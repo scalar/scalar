@@ -175,3 +175,179 @@ const getProjectIconByLanguageKey = (languageKey: TargetId) => {
     <span>More</span>
   </div>
 </template>
+<style scoped>
+.editable-code-sdks {
+  display: none;
+}
+.languages {
+  display: flex;
+  overflow: auto;
+  flex-flow: wrap;
+  margin-top: 18px;
+  align-items: center;
+  justify-content: center;
+  background: var(--theme-background-2);
+}
+.code-languages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  max-width: 68px;
+  width: 100%;
+  padding: 12px 0;
+  position: relative;
+  cursor: pointer;
+  white-space: nowrap;
+}
+/* remove php and c on mobile */
+@media screen and (max-width: 450px) {
+  .code-languages:nth-of-type(4),
+  .code-languages:nth-of-type(6) {
+    display: none;
+  }
+}
+.code-languages-icon {
+  max-width: 48px;
+  width: 100%;
+  max-height: 48px;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  padding: 7px;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  justify-content: center;
+}
+.code-languages-icon__shell {
+  background: #000;
+  box-shadow: 0 0 0 1px var(--theme-border-color);
+}
+.code-languages-icon__ruby {
+  background: #d91404;
+}
+.code-languages-icon__php {
+  background: #6181b6;
+}
+.code-languages-icon__python {
+  background: #306998;
+}
+.code-languages-icon__more {
+  background: var(--theme-background-3);
+}
+.code-languages-icon__node {
+  background: #83cd29;
+}
+.code-languages-icon__c {
+  background: #03599c;
+}
+.code-languages-icon__csharp {
+  background: #68217a;
+}
+.code-languages-icon__cplusplus {
+  background: #9c033a;
+}
+.code-languages-icon__clojure {
+  background: #5881d8;
+}
+.code-languages-icon__go {
+  background: #00acd7;
+}
+.code-languages-icon__http {
+  background: #005b9b;
+}
+.code-languages-icon__java {
+  background: #ea2d2e;
+}
+.code-languages-icon__javascript {
+  background: #f0db4f;
+}
+.code-languages-icon__kotlin {
+  background: #7f6cb1;
+}
+.code-languages-icon__objc {
+  background: #0b5a9d;
+}
+.code-languages-icon__ocaml {
+  background: #f29100;
+}
+.code-languages-icon__powershell {
+  background: #2671be;
+}
+.code-languages-icon__r {
+  background: #cbced0;
+}
+.code-languages-icon__swift {
+  background: #f05138;
+}
+.code-languages__loading .code-languages-icon:before {
+  border: 1px solid rgba(255, 255, 255, 0.44);
+  border-top: 1px solid white;
+  animation: codeloader 0.45s linear infinite;
+  background: transparent;
+  width: 18px;
+  height: 18px;
+  content: '';
+  border-radius: 50%;
+}
+.code-languages__loading .code-languages-icon svg {
+  display: none;
+}
+.code-languages__active:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  background: var(--theme-color-1);
+}
+@keyframes codeloader {
+  0% {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(1turn);
+  }
+}
+.code-languages span {
+  margin-top: 3px;
+  color: var(--theme-color-2);
+  font-size: var(--theme-mini);
+}
+.code-languages__active span {
+  color: var(--theme-color-1);
+}
+.languages {
+  display: flex;
+  overflow: auto;
+  flex-flow: wrap;
+  margin-top: 18px;
+  align-items: center;
+  justify-content: center;
+}
+.code-languages__select select {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+.code-languages__select span {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.code-languages__select span:after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--theme-background-1);
+  box-shadow: 1px 1px 0 currentColor;
+  display: block;
+  transform: rotate(45deg);
+  margin-left: 5px;
+  margin-top: -7px;
+}
+</style>
