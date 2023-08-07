@@ -10,14 +10,7 @@
     "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
     "strict": true /* Enable all strict type-checking options. */,
     "strictNullChecks": true,
-    "types": ["vite/client"],
-    "paths": {
-      "@/*": ["./src/*"],
-      "@test/*": ["./test/*"],
-      /* TODO: Remove/Separate dependencies */
-      "@lib/*": ["../../packages/library/src/*"],
-      "@guide/*": ["../../packages/guide/src/*"]
-    }
+    "types": ["vite/client"]
   },
   "exclude": ["dist", "vite.config.ts", "node_modules"],
   "ts-node": {
