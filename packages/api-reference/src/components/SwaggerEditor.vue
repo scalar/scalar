@@ -4,6 +4,7 @@ import { CodeEditor } from '@scalar/swagger-editor'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, reactive, ref } from 'vue'
 
+// TODO: Remove this to separate the references and the main code base
 import { customFooterClass } from '@guide/styles'
 
 import { useSwaggerParser } from '../hooks/useSwaggerParser'
