@@ -196,3 +196,75 @@ const breadCrumbs = computed(() => {
   --scalar-api-client-text-xs: var(--theme-micro);
 }
 </style>
+<style>
+/** TODO: Move to components */
+.codemenu-topbar {
+  background: var(--theme-background-2);
+  border-bottom: 1px solid var(--theme-border-color);
+  padding: 0 7px 0 12px;
+  border-radius: var(--theme-radius) var(--theme-radius) 0 0;
+}
+.codemenu {
+  display: flex;
+  position: relative;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 35px;
+}
+.codemenu-tabs {
+  display: flex;
+  position: relative;
+  column-gap: 6px;
+}
+.codemenu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.codemenu-item-key {
+  font-size: var(--theme-mini);
+  color: var(--theme-color-3);
+  padding: 6px 4px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--theme-semibold);
+  position: relative;
+  margin-left: -4px;
+  margin-right: -4px;
+  border-radius: var(--theme-radius);
+  text-transform: uppercase;
+}
+
+.codemenu-item-key:hover {
+  background: var(--theme-background-3);
+}
+.codemenu-item:first-of-type:last-of-type .codemenu-item-key,
+.codemenu-item__active .codemenu-item-key {
+  color: var(--theme-color-1);
+}
+.codemenu-item:first-of-type:last-of-type:after,
+.codemenu-item__active:after {
+  content: '';
+  width: 100%;
+  height: 1px;
+  position: absolute;
+  bottom: -4px;
+  background: var(--theme-color-1);
+}
+
+.codemenu-item__disabled {
+  pointer-events: none;
+}
+.codemenu-item-url {
+  margin-left: 6px;
+  color: var(--theme-color-2);
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: default;
+  text-overflow: ellipsis;
+  text-transform: none !important;
+}
+</style>

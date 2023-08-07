@@ -7,7 +7,6 @@ import { computed, onMounted, ref, watch } from 'vue'
 
 import ProjectIcon from '@lib/icon-library/ProjectIcon.vue'
 
-import { ApiReferenceClasses } from '../../../styles'
 import type { Operation } from '../../../types'
 import ExampleResponseTab from './ExampleResponseTab.vue'
 
@@ -64,9 +63,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div
-    class="endpoint-teleport-response"
-    :class="ApiReferenceClasses.CodeMenu">
+  <div class="endpoint-teleport-response">
     <div class="coder">
       <div class="codemenu-topbar codemenu-topbar__tabs">
         <div class="codemenu">

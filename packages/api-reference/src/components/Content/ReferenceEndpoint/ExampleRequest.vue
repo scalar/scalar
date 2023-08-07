@@ -171,9 +171,7 @@ const selectLanguage = (language: TargetId) => {
     <div
       class="dark-mode-document-remove-everything"
       :class="DocumentClasses.Document">
-      <div
-        class="coder"
-        :class="ApiReferenceClasses.CodeMenu">
+      <div class="coder">
         <div class="codemenu-topbar">
           <div class="codemenu">
             <a class="endpoint">
