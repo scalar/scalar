@@ -96,7 +96,6 @@ const breadCrumbs = computed(() => {
 })
 </script>
 <template>
-  {{ DocumentClasses.Document }}
   <div
     ref="documentEl"
     :class="[
