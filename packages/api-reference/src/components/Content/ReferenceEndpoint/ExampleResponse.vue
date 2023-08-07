@@ -31,8 +31,6 @@ const getActiveResponseDefaultValue = () => {
 
 const activeResponse = ref(getActiveResponseDefaultValue())
 
-const copyTeleportRef = ref<HTMLElement>()
-
 const jsonify = (obj: any) => JSON.stringify(obj, null, 2)
 
 const doc = computed(() => {
@@ -65,7 +63,7 @@ onMounted(() => {
 <template>
   <div class="endpoint-teleport-response">
     <div class="coder">
-      <div class="codemenu-topbar codemenu-topbar__tabs">
+      <div class="codemenu-topbar">
         <div class="codemenu">
           <div class="codemenu-tabs">
             <div
@@ -81,7 +79,6 @@ onMounted(() => {
               <ExampleResponseTab :title="key" />
             </div>
           </div>
-          <div ref="copyTeleportRef" />
           <button
             class="code-copy"
             type="button"
@@ -108,9 +105,7 @@ onMounted(() => {
 .endpoint-teleport-response :deep(.cm-editor .cm-scroller) {
   max-height: calc(50vh - 100px);
 }
-.codemenu-topbar__tabs {
-  padding: 0 6px;
-}
+
 .code-copy {
   display: flex;
   appearance: none;
@@ -136,4 +131,3 @@ onMounted(() => {
   opacity: 1;
 }
 </style>
-../../../types

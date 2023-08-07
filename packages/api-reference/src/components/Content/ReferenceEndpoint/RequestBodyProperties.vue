@@ -52,4 +52,3 @@ const open = ref(true)
     </div>
   </li>
 </template>
-../../../types

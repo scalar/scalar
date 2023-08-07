@@ -24,4 +24,3 @@ defineProps<{ requestBody?: RequestBody }>()
     </ul>
   </div>
 </template>
-../../../types

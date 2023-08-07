@@ -21,4 +21,3 @@ defineProps<{ parameters?: Parameters[]; title: string }>()
     </ul>
   </div>
 </template>
-../../../types
