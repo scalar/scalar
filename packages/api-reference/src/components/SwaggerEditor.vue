@@ -4,7 +4,6 @@ import { CodeEditor } from '@scalar/swagger-editor'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, reactive, ref } from 'vue'
 
-import { DocumentClasses } from '@guide/index'
 import { customFooterClass } from '@guide/styles'
 
 import { useSwaggerParser } from '../hooks/useSwaggerParser'
@@ -99,8 +98,8 @@ const breadCrumbs = computed(() => {
   <div
     ref="documentEl"
     :class="[
+      'document',
       'layout-swagger-editor',
-      DocumentClasses.Document,
       { 'footer-below-sidebar': footerBelowSidebar, 'preview': !isEditable },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
@@ -111,9 +110,7 @@ const breadCrumbs = computed(() => {
       <slot name="header"></slot>
     </div>
     <!-- Sidebar wrapper -->
-    <aside
-      class="layout-aside-left"
-      :class="DocumentClasses.Sidebar">
+    <aside class="layout-aside-left sidebar">
       <!-- Mobile header content -->
       <slot
         v-if="isMobile"
@@ -622,5 +619,429 @@ const breadCrumbs = computed(() => {
   color: var(--font-color, var(--theme-color-1));
   line-height: 1.45;
   margin-top: 60px;
+}
+
+/** Layout */
+/* ----------------------------------------------------- */
+/* Document Layouts */
+
+.document {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Fallback to 100vh if the element height is not specified */
+  --full-height: var(--full-height, 100vh);
+  /* --theme-header-height: 50px; */
+  /* --theme-sidebar-width: 200px; */
+  /* --theme-toc-width: 200px; */
+
+  --document-height: calc(var(--full-height) - var(--theme-header-height));
+
+  --col-width-1: var(--theme-sidebar-width);
+  --col-width-2: auto;
+  --col-width-3: var(--theme-toc-width);
+
+  /* Redifine theme border at the document level so it's not pulled off the body */
+  --theme-border: var(--theme-border-width) solid var(--theme-border-color);
+
+  display: grid;
+
+  grid-template-rows:
+    var(--theme-header-height)
+    auto
+    auto;
+
+  grid-template-columns:
+    var(--col-width-1)
+    var(--col-width-2)
+    var(--col-width-3);
+
+  grid-template-areas:
+    'header header header'
+    'sidebar content aside'
+    'sidebar footer footer';
+}
+
+.document.hide-aside-left {
+  --col-width-1: 0;
+}
+
+.document.hide-aside-right {
+  --col-width-3: 0;
+}
+.document.hide-aside-left .layout-aside-left .layout-aside-content,
+.document.hide-aside-right .layout-aside-right .layout-aside-content {
+  border-right-color: transparent;
+  border-left-color: transparent;
+  display: none !important;
+}
+
+.document.footer-below-sidebar {
+  grid-template-areas:
+    'header header header'
+    'sidebar content aside'
+    'footer footer footer';
+}
+
+.layout-header {
+  grid-area: header;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.layout-content {
+  grid-area: content;
+  min-width: 0;
+  background: var(--theme-background-1);
+}
+
+/* Measures the visible viewport of the editor */
+.layout-content-viewport {
+  position: fixed;
+  left: var(--theme-sidebar-width);
+  right: var(--theme-toc-width);
+  top: calc(var(--app-header-height) + var(--theme-header-height));
+  bottom: 0;
+  pointer-events: none;
+}
+
+.layout-aside-left {
+  position: relative;
+  grid-area: sidebar;
+  border-right: var(--sidebar-border-color, var(--theme-border));
+}
+
+.layout-aside-right {
+  position: relative;
+  grid-area: aside;
+  background: var(--theme-background-1);
+}
+
+.layout-aside-content {
+  position: sticky;
+  top: var(--theme-header-height);
+  height: var(--document-height);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-footer {
+  grid-area: footer;
+}
+
+/* ----------------------------------------------------- */
+/* Document layout modified for references */
+
+.document.layout-swagger-editor {
+  /* Fallback to 100vh if the element height is not specified */
+  --full-height: var(--full-height, 100vh);
+  /* --theme-header-height: 50px; */
+  /* --theme-sidebar-width: 200px; */
+  /* --theme-toc-width: 200px; */
+
+  --document-height: calc(var(--full-height) - var(--theme-header-height));
+
+  --col-width-1: var(--theme-sidebar-width);
+  --col-width-2: calc(50% - (var(--theme-sidebar-width) / 2));
+  --col-width-3: calc(50% - (var(--theme-sidebar-width) / 2));
+
+  display: grid;
+
+  grid-template-rows:
+    var(--theme-header-height)
+    auto;
+
+  grid-template-columns:
+    var(--col-width-1)
+    var(--col-width-2)
+    var(--col-width-3);
+
+  grid-template-areas:
+    'header header header'
+    'sidebar content aside'
+    'sidebar content footer';
+}
+
+.document.layout-swagger-editor .layout-content {
+  position: sticky;
+  top: var(--theme-header-height);
+  height: var(--document-height);
+}
+
+.document.preview {
+  --col-width-2: calc(100% - (var(--theme-sidebar-width)));
+  --col-width-3: calc(100% - (var(--theme-sidebar-width)));
+
+  grid-template-areas:
+    'header header'
+    'sidebar aside'
+    'sidebar footer';
+}
+
+.document.layout-swagger-editor.footer-below-sidebar.preview {
+  grid-template-areas:
+    'header header'
+    'sidebar aside'
+    'footer footer';
+}
+
+.document.layout-swagger-editor.hide-aside-left {
+  --col-width-1: 0;
+  --col-width-2: 50%;
+  --col-width-3: 50%;
+}
+
+/* ----------------------------------------------------- */
+/* Responsive styles */
+
+@media (max-width: 1150px) {
+  .document.layout-swagger-editor {
+    --col-width-3: 0;
+    --col-width-2: auto;
+  }
+}
+
+@media (max-width: 1000px) {
+  .document,
+  .document.layout-swagger-editor {
+    /** Content area heights are restricted using just the template row defs */
+    grid-template-rows:
+      var(--theme-header-height)
+      auto
+      auto
+      auto;
+
+    grid-template-columns: 100%;
+
+    grid-template-areas:
+      'sidebar'
+      'content'
+      'aside'
+      'footer';
+  }
+
+  .layout-aside-left,
+  .layout-aside-right,
+  .layout-aside-content {
+    position: static;
+    max-height: unset;
+  }
+
+  .layout-aside-left {
+    position: sticky;
+    top: 0;
+    height: var(--theme-header-height);
+    border-bottom: var(--theme-border);
+
+    width: 100%;
+    z-index: 10;
+    border-right: none;
+  }
+
+  .layout-aside-left .layout-aside-content {
+    position: absolute;
+
+    /* Offset by 1px to avoid gap */
+    top: calc(100% - 1px);
+    left: 0;
+    width: 100%;
+
+    /* Offset by 2px to fill screen and compensate for gap */
+    height: calc(var(--document-height) + 2px);
+
+    border-top: var(--theme-border);
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/** Sidebar */
+.sidebar {
+  --theme-sidebar-indent-base: 6px;
+  background: var(--sidebar-background-1, var(--theme-background-1));
+}
+
+/* ----------------------------------------------------- */
+/* Main sidebar styles */
+
+.sidebar {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--sidebar-background-1, var(--theme-background-1));
+  --sidebar-level: 0;
+}
+
+.pages {
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+.sidebar-group {
+  list-style: none;
+  width: 100%;
+}
+
+.sidebar-heading {
+  display: flex;
+  gap: 6px;
+
+  color: var(--sidebar-color-2, var(--theme-color-2));
+  font-size: var(--theme-mini);
+  font-weight: var(--theme-semibold);
+  word-break: break-word;
+  line-height: 1.385;
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+  position: relative;
+  cursor: pointer;
+  border-radius: 0 var(--theme-radius) var(--theme-radius) 0;
+  flex: 1;
+  padding-right: 12px;
+  user-select: none;
+}
+
+/* Folder/page collapse icon */
+.toggle-nested-icon {
+  border: none;
+  position: absolute;
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: currentColor;
+}
+
+.toggle-nested-icon:hover,
+.toggle-nested-icon:focus-visible {
+  color: currentColor;
+  filter: drop-shadow(0 0.125px 0 currentColor)
+    drop-shadow(0 -0.125px 0 currentColor);
+}
+
+/* We indent each level of nesting further */
+.sidebar-indent-nested .sidebar-heading {
+  padding-left: calc(
+    (var(--sidebar-level) * var(--theme-sidebar-indent-base)) + 24px
+  ) !important;
+}
+
+/* Collapse/expand icons must also be offset */
+.sidebar-indent-nested .sidebar-heading .toggle-nested-icon {
+  left: calc(
+    (var(--sidebar-level) * var(--theme-sidebar-indent-base)) + 2px
+  ) !important;
+}
+
+.sidebar-heading-link {
+  padding-right: 12px;
+  padding: 6px 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Sidebar link icon */
+.link-icon {
+  position: relative;
+  left: 4px;
+}
+
+.sidebar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+
+  width: 13px;
+  height: 13px;
+}
+
+.sidebar-icon > svg {
+  width: 13px;
+  height: 13px;
+}
+
+.sidebar-heading:hover {
+  color: var(--sidebar-color-1, var(--theme-color-1));
+  background: var(--sidebar-item-hover-background, var(--theme-background-3));
+}
+
+.active_page.sidebar-heading:hover,
+.active_page.sidebar-heading,
+.marc_active .sidebar-heading {
+  background: var(
+    --sidebar-item-active-background,
+    var(--theme-background-3)
+  ) !important;
+  color: var(--sidebar-color-active, var(--theme-color-accent)) !important;
+}
+.sidebar-group-item {
+  position: relative;
+}
+
+/* Change font colors and weights for nested items */
+.sidebar-indent-nested .sidebar-heading {
+  color: var(--sidebar-color-1, var(--theme-color-1));
+}
+.sidebar-indent-nested .sidebar-indent-nested .sidebar-heading {
+  color: var(--sidebar-color-2, var(--theme-color-2));
+}
+.sidebar-indent-nested > div:has(.active_page) .sidebar-heading {
+  font-weight: var(--theme-bold);
+}
+
+.sidebar-mobile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  width: 100%;
+  padding: 0 6px;
+}
+
+.sidebar-mobile-breadcrumbs {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--theme-small);
+  font-weight: var(--theme-semibold);
+}
+
+.sidebar-mobile-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  height: 24px;
+  align-items: center;
+  padding: 0 4px;
+}
+
+.sidebar-mobile-actions .sidebar-mobile-darkmode-toggle {
+  height: 16px;
+  width: 16px;
+}
+
+@media (max-width: 1000px) {
+  .sidebar {
+    min-height: 0;
+  }
+
+  .pages {
+    padding-top: 12px;
+  }
+}
+
+@media (max-width: 500px) {
+  .header-item-link.header-item-active,
+  .sidebar-section,
+  .sidebar-heading {
+    font-size: var(--theme-mini);
+  }
 }
 </style>
