@@ -4,6 +4,7 @@ import { computed } from 'vue'
 
 import { useTemplateStore } from '../../../stores/template'
 import type { Info, Server } from '../../../types'
+import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import BaseUrl from './BaseUrl.vue'
 import LanguageSelector from './LanguageSelector.vue'
@@ -66,26 +67,27 @@ const standardLibrary = computed(() => {
           </template>
         </p>
       </div>
-      <div class="example">
-        <BaseUrl :url="server.url" />
-        <div
-          class="client-libraries"
-          contenteditable="false"
-          data-node-view-wrapper=""
-          style="white-space: normal">
-          <div
-            class="client-libraries-header"
-            style="width: 100%">
-            <span>Client Libraries</span>
-          </div>
-          <div class="client-libraries-content">
+      <div>
+        <Card>
+          <CardHeader muted>Base URL</CardHeader>
+          <CardContent muted>
+            <BaseUrl :url="server.url" />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>Client Libraries</CardHeader>
+          <CardContent frameless>
             <LanguageSelector />
-          </div>
-          <div class="client-libraries-footer font-mono">
+          </CardContent>
+          <CardFooter
+            class="font-mono"
+            muted
+            style="font-size: var(--theme-mini); color: var(--theme-color-2)">
             {{ getLanguageTitleByKey(state.preferredLanguage) }}
             {{ standardLibrary }}
-          </div>
-        </div>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   </div>

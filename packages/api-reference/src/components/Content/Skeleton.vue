@@ -1,3 +1,6 @@
+<script lang="ts" setup>
+import { Card, CardContent, CardHeader } from '../Card'
+</script>
 <template>
   <div class="reference-container">
     <div class="copy">
@@ -6,17 +9,13 @@
       </div>
       <p class="tag-description"></p>
     </div>
-    <div class="example api-reference-language-selector-cOLIFzVpwu">
-      <div class="tag-endpoints example-item">
-        <span class="example-item-title">Base URL</span>
-        <div class="example-item-endpoints custom-scroll">
-          <a class="endpoint">
-            <span style="text-transform: none !important">
-              https://petstore3.swagger.io/api/v3
-            </span>
-          </a>
-        </div>
-      </div>
+    <div>
+      <Card>
+        <CardHeader muted>Base URL</CardHeader>
+        <CardContent muted>
+          <BaseUrl url="https://petstore3.swagger.io/api/v3" />
+        </CardContent>
+      </Card>
     </div>
   </div>
 </template>

@@ -6,18 +6,12 @@ defineProps<{ url: string | null }>()
 const { copyToClipboard } = useClipboard()
 </script>
 <template>
-  <div
+  <a
     v-if="url"
-    class="tag-endpoints example-item">
-    <span class="example-item-title">Base URL</span>
-    <div class="example-item-endpoints custom-scroll">
-      <a
-        class="endpoint"
-        @click="copyToClipboard(url)">
-        <span style="text-transform: none !important">
-          {{ url }}
-        </span>
-      </a>
-    </div>
-  </div>
+    class="endpoint"
+    @click="copyToClipboard(url)">
+    <span style="text-transform: none !important">
+      {{ url }}
+    </span>
+  </a>
 </template>

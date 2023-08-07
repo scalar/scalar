@@ -124,69 +124,65 @@ const getProjectIconByLanguageKey = (languageKey: TargetId) => {
 }
 </script>
 <template>
-  <div
-    v-for="language in featuredLanguages"
-    :key="language.key"
-    class="code-languages rendered-code-sdks"
-    :class="{
-      'code-languages__active': state.preferredLanguage === language.key,
-    }"
-    @click="() => selectLanguage(language.key)">
-    <ProjectIcon
-      :class="`code-languages-icon code-languages-icon__${language.key}`"
-      :src="getProjectIconByLanguageKey(language.key)" />
-    <span>{{ language.title }}</span>
-  </div>
+  <div class="client-libraries-content">
+    <div
+      v-for="language in featuredLanguages"
+      :key="language.key"
+      class="code-languages rendered-code-sdks"
+      :class="{
+        'code-languages__active': state.preferredLanguage === language.key,
+      }"
+      @click="() => selectLanguage(language.key)">
+      <ProjectIcon
+        :class="`code-languages-icon code-languages-icon__${language.key}`"
+        :src="getProjectIconByLanguageKey(language.key)" />
+      <span>{{ language.title }}</span>
+    </div>
 
-  <div class="code-languages code-languages__select">
-    <select
-      :value="state.preferredLanguage"
-      @input="
-        selectLanguage(($event.target as HTMLSelectElement).value as TargetId)
-      ">
-      <option disabled>Select language:</option>
-      <option
-        v-for="target in availableTargets()
-          .filter((target) => target.key !== 'http')
-          .filter(
-            (target) =>
-              !featuredLanguages.find(
-                (language) => language.key === target.key,
-              ),
-          )"
-        :key="target.key"
-        :value="target.key">
-        {{ target.title }}
-      </option>
-    </select>
-    <svg
-      class="code-languages-icon code-languages-icon__more"
-      height="50"
-      viewBox="0 0 50 50"
-      width="50"
-      xmlns="http://www.w3.org/2000/svg">
-      <g
-        fill="currentColor"
-        fill-rule="nonzero">
-        <path
-          d="M10.71 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0M21.13 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0M31.55 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0" />
-      </g>
-    </svg>
-    <span>More</span>
+    <div class="code-languages code-languages__select">
+      <select
+        :value="state.preferredLanguage"
+        @input="
+          selectLanguage(($event.target as HTMLSelectElement).value as TargetId)
+        ">
+        <option disabled>Select language:</option>
+        <option
+          v-for="target in availableTargets()
+            .filter((target) => target.key !== 'http')
+            .filter(
+              (target) =>
+                !featuredLanguages.find(
+                  (language) => language.key === target.key,
+                ),
+            )"
+          :key="target.key"
+          :value="target.key">
+          {{ target.title }}
+        </option>
+      </select>
+      <svg
+        class="code-languages-icon code-languages-icon__more"
+        height="50"
+        viewBox="0 0 50 50"
+        width="50"
+        xmlns="http://www.w3.org/2000/svg">
+        <g
+          fill="currentColor"
+          fill-rule="nonzero">
+          <path
+            d="M10.71 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0M21.13 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0M31.55 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0" />
+        </g>
+      </svg>
+      <span>More</span>
+    </div>
   </div>
 </template>
 <style scoped>
-.editable-code-sdks {
-  display: none;
-}
-.languages {
+.client-libraries-content {
   display: flex;
-  overflow: auto;
-  flex-flow: wrap;
-  margin-top: 18px;
-  align-items: center;
   justify-content: center;
-  background: var(--theme-background-2);
+  gap: 6px;
+  padding: 0 12px;
 }
 .code-languages {
   display: flex;
@@ -316,14 +312,6 @@ const getProjectIconByLanguageKey = (languageKey: TargetId) => {
 }
 .code-languages__active span {
   color: var(--theme-color-1);
-}
-.languages {
-  display: flex;
-  overflow: auto;
-  flex-flow: wrap;
-  margin-top: 18px;
-  align-items: center;
-  justify-content: center;
 }
 .code-languages__select select {
   opacity: 0;

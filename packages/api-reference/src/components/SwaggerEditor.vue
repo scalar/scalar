@@ -234,7 +234,6 @@ const breadCrumbs = computed(() => {
   border-radius: var(--theme-radius);
   text-transform: uppercase;
 }
-
 .codemenu-item-key:hover {
   background: var(--theme-background-3);
 }
@@ -263,36 +262,6 @@ const breadCrumbs = computed(() => {
   cursor: default;
   text-overflow: ellipsis;
   text-transform: none !important;
-}
-
-.client-libraries {
-  border-radius: var(--theme-radius-lg);
-  border: var(--theme-border);
-  margin: 12px 0;
-  overflow: hidden;
-}
-.client-libraries-header {
-  text-transform: uppercase;
-  padding: 9px 12px;
-  font-size: var(--theme-mini);
-  font-weight: var(--theme-semibold);
-  color: var(--theme-color-3);
-  border-bottom: 1px solid var(--theme-border-color);
-}
-.client-libraries-content {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  padding: 0 12px;
-}
-.client-libraries-footer {
-  padding: 9px 12px;
-  font-weight: var(--theme-semibold);
-  font-size: var(--theme-mini);
-  color: var(--theme-color-2);
-  width: 100%;
-  background: var(--theme-background-2);
-  border-top: var(--theme-border);
 }
 
 .example-item {
@@ -326,12 +295,6 @@ const breadCrumbs = computed(() => {
   width: 12px;
   margin-right: 6px;
 }
-.example-item-endpoints {
-  padding: 12px 0 12px 12px;
-  overflow: auto;
-  background: var(--theme-background-2);
-}
-
 .endpoint {
   display: flex;
   white-space: nowrap;
@@ -361,7 +324,6 @@ const breadCrumbs = computed(() => {
 .endpoint .put {
   white-space: nowrap;
 }
-.base-url,
 .endpoint span {
   color: var(--theme-color-2);
   min-width: 62px;
@@ -375,11 +337,6 @@ const breadCrumbs = computed(() => {
 }
 .endpoint:hover span:nth-of-type(2) {
   color: var(--theme-color-1);
-}
-.base-url {
-  min-width: initial;
-  text-transform: lowercase;
-  text-align: left;
 }
 .languages .example-item-endpoints {
   background: var(--theme-background-2);
@@ -456,11 +413,6 @@ const breadCrumbs = computed(() => {
 .codemenu .endpoint span {
   text-align: left;
   min-width: auto;
-}
-.example-item-endpoints span + span {
-  text-align: left;
-  margin-left: 12px;
-  text-transform: initial;
 }
 .endpoint-response {
   border-top: var(--theme-border);

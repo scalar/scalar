@@ -5,6 +5,7 @@ import { nextTick, onMounted, ref } from 'vue'
 
 import { useTemplateStore } from '../../stores/template'
 import type { Operation, Tag } from '../../types'
+import { Card, CardContent, CardHeader } from '../Card'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
 const props = defineProps<{ tag: Tag; index: number }>()
@@ -58,14 +59,14 @@ onMounted(() => {
           {{ tag.name }}
         </h1>
       </div>
-      <p class="tag-description">
+      <div class="tag-description">
         <MarkdownRenderer :value="tag.description" />
-      </p>
+      </div>
     </div>
-    <div class="example">
-      <div class="tag-endpoints example-item">
-        <span class="example-item-title">Endpoints</span>
-        <div class="example-item-endpoints custom-scroll">
+    <Card>
+      <CardHeader muted>Endpoints</CardHeader>
+      <CardContent muted>
+        <div class="endpoints custom-scroll">
           <a
             v-for="child in tag.operations"
             :key="child.operationId"
@@ -75,7 +76,18 @@ onMounted(() => {
             <span>{{ child.path }}</span>
           </a>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   </div>
 </template>
+<style scoped>
+.endpoints {
+  overflow: auto;
+  background: var(--theme-background-2);
+}
+.endpoints span + span {
+  text-align: left;
+  margin-left: 12px;
+  text-transform: initial;
+}
+</style>
