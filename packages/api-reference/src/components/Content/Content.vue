@@ -39,7 +39,6 @@ onMounted(() => {
   <div
     ref="referenceEl"
     :class="{
-      [ApiReferenceClasses.Endpoints]: true,
       [ApiReferenceClasses.Tags]: true,
       'references-narrow': isNarrow,
     }">

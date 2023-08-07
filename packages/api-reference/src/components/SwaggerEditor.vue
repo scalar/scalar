@@ -160,6 +160,7 @@ const breadCrumbs = computed(() => {
 </template>
 
 <style>
+/** TODO: Move variables to main code base */
 .scalar-api-client,
 #headlessui-portal-root {
   --scalar-api-client-post-color: var(--theme-post-color);
@@ -266,5 +267,208 @@ const breadCrumbs = computed(() => {
   cursor: default;
   text-overflow: ellipsis;
   text-transform: none !important;
+}
+
+.client-libraries {
+  border-radius: var(--theme-radius-lg);
+  border: var(--theme-border);
+  margin: 12px 0;
+  overflow: hidden;
+}
+.client-libraries-header {
+  text-transform: uppercase;
+  padding: 9px 12px;
+  font-size: var(--theme-mini);
+  font-weight: var(--theme-semibold);
+  color: var(--theme-color-3);
+  border-bottom: 1px solid var(--theme-border-color);
+}
+.client-libraries-content {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
+}
+.client-libraries-footer {
+  padding: 9px 12px;
+  font-weight: var(--theme-semibold);
+  font-size: var(--theme-mini);
+  color: var(--theme-color-2);
+  width: 100%;
+  background: var(--theme-background-2);
+  border-top: var(--theme-border);
+}
+
+.example-item {
+  border-radius: var(--theme-radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--theme-border-color);
+}
+.example-item-title {
+  padding: 9px 12px;
+  font-weight: var(--theme-semibold);
+  font-size: var(--theme-mini);
+  color: var(--theme-color-3);
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  background: var(--theme-background-2);
+  border-bottom: 1px solid var(--theme-border-color);
+}
+.example-item-title span {
+  display: flex;
+  align-items: center;
+}
+.example-item-title-add {
+  text-transform: initial;
+}
+.example-item-title-add:hover {
+  color: var(--theme-color-1);
+  cursor: pointer;
+}
+.example-item-title span svg {
+  width: 12px;
+  margin-right: 6px;
+}
+.example-item-endpoints {
+  padding: 12px 0 12px 12px;
+  overflow: auto;
+  background: var(--theme-background-2);
+}
+
+.endpoint {
+  display: flex;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.codemenu .endpoint {
+  overflow: hidden;
+}
+.endpoint .post {
+  color: var(--theme-post-color);
+}
+.endpoint .patch {
+  color: var(--theme-patch-color);
+}
+.endpoint .get {
+  color: var(--theme-get-color);
+}
+.endpoint .delete {
+  color: var(--theme-delete-color);
+}
+.endpoint .put {
+  color: var(--theme-put-color);
+}
+.endpoint .post,
+.endpoint .get,
+.endpoint .delete,
+.endpoint .put {
+  white-space: nowrap;
+}
+.base-url,
+.endpoint span {
+  color: var(--theme-color-2);
+  min-width: 62px;
+  display: inline-block;
+  text-align: right;
+  line-height: 1.55;
+  font-family: var(--theme-font-code);
+  font-size: var(--theme-mini);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.endpoint:hover span:nth-of-type(2) {
+  color: var(--theme-color-1);
+}
+.base-url {
+  min-width: initial;
+  text-transform: lowercase;
+  text-align: left;
+}
+.languages .example-item-endpoints {
+  background: var(--theme-background-2);
+  width: 100%;
+  border-top: var(--theme-border);
+}
+.endpoint-response p {
+  margin-top: 6px;
+  font-size: var(--theme-small);
+  min-height: auto;
+  line-height: 17px;
+}
+.parameter p {
+  margin-top: 6px;
+}
+.parameter .parameter-child {
+  border: var(--theme-border);
+  border-radius: 20px;
+  margin-top: 12px;
+  width: fit-content;
+}
+.parameter .parameter {
+  border: none !important;
+}
+.parameter-child-trigger {
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--theme-color-3);
+  font-size: var(--theme-mini);
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+.parameter-child-trigger:has(+ .parameter li:first-of-type:last-of-type) {
+  display: none;
+}
+.parameter-child-trigger:hover {
+  color: var(--theme-color-1);
+}
+.parameter-child-trigger > span:before {
+  content: 'Show ';
+}
+.parameter-child__open > .parameter-child-trigger span:before {
+  content: 'Hide ';
+}
+.parameter-child-trigger svg {
+  height: 10px;
+  width: 10px;
+  margin-right: 6px;
+}
+.parameter-child__open .parameter-child-trigger svg {
+  transform: rotate(45deg);
+}
+.parameter .parameter li:first-of-type {
+  border-top: none;
+}
+.parameter .parameter li {
+  padding: 12px;
+}
+.parameter-child__open > .parameter {
+  display: block;
+}
+.parameter .parameter-child__open {
+  width: 100%;
+  border-radius: 6px;
+}
+.parameter .parameter-child__open > svg {
+  transform: rotate(45deg);
+}
+.parameter-child__open > .parameter-child-trigger {
+  border-bottom: var(--theme-border);
+}
+.codemenu .endpoint span {
+  text-align: left;
+  min-width: auto;
+}
+.example-item-endpoints span + span {
+  text-align: left;
+  margin-left: 12px;
+  text-transform: initial;
+}
+.endpoint-response {
+  border-top: var(--theme-border);
+  padding: 12px 0;
+  font-size: var(--theme-small);
 }
 </style>
