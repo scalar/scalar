@@ -10,7 +10,7 @@ import { customFooterClass } from '@guide/styles'
 import { useSwaggerParser } from '../hooks/useSwaggerParser'
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceProps, Spec } from '../types'
-import { default as ApiClientOverlay } from './ApiClientOverlay.vue'
+import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
 import Sidebar from './Sidebar.vue'
 
@@ -151,7 +151,7 @@ const breadCrumbs = computed(() => {
       :class="customFooterClass"
       v-html="footer"></div>
     <!-- REST API Client Overlay -->
-    <ApiClientOverlay :spec="spec" />
+    <ApiClientModal :spec="spec" />
   </div>
 </template>
 
