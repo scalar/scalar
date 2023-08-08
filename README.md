@@ -2,6 +2,7 @@
 
 This repository contains all our open source projects.
 
+```
 .
 ├── packages
 │   ├── api-client (@scalar/api-client)
@@ -13,5 +14,6 @@ This repository contains all our open source projects.
 │   ├── use-keyboard-event (@scalar/use-keyboard-event)
 │   └── use-tooltip (@scalar/use-tooltip)
 └── projects
-├── api-client-app (electron app)
-└── api-client-web (web app)
+    ├── api-client-app (electron app)
+    └── api-client-web (web app)
+```
