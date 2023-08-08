@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FlowIcon, useRefOnMount } from '@anc/library'
+import { FlowIcon } from '@anc/library'
 import { useResizeObserver } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 
@@ -20,9 +20,6 @@ useResizeObserver(
   referenceEl,
   (entries) => (isNarrow.value = entries[0].contentRect.width < 900),
 )
-
-// used as a fallback incase the server is not defined in the spec
-const windowServer = useRefOnMount(() => window.location.origin)
 
 const { state: templateState, setCollapsedSidebarItem } = useTemplateStore()
 
@@ -66,7 +63,7 @@ onMounted(() => {
               :key="operation.operationId"
               :operation="operation"
               :parentTag="tag"
-              :server="spec.servers?.[0] ?? { url: windowServer }" />
+              :server="spec.servers?.[0]" />
           </template>
         </div>
       </template>
