@@ -1,7 +1,9 @@
 /**
  * TODO: This is a copy of projects/web/src/stores/utility.ts
  */
-import { type KeyOfType } from '@anc/ts-helpers'
+export type KeyOfType<T, V> = keyof {
+  [P in keyof T as T[P] extends V ? P : never]: any
+}
 
 /** Generic set item for a given store state */
 export function setItemFactory<State extends object>(state: State) {
