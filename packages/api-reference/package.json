@@ -50,7 +50,8 @@
     "remark-rehype": "10.1.0",
     "remark-textr": "5.0.1",
     "typographic-base": "1.0.4",
-    "unified": "10.1.2"
+    "unified": "10.1.2",
+    "xmldom": "0.6.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",
