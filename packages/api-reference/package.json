@@ -32,6 +32,7 @@
     "@codemirror/view": "6.16.0",
     "@scalar/api-client": "workspace:*",
     "@scalar/swagger-editor": "workspace:*",
+    "@scalar/use-clipboard": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
     "@types/js-yaml": "4.0.5",

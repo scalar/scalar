@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useClipboard } from '@anc/library'
 import { json } from '@codemirror/lang-json'
 import { foldGutter } from '@codemirror/language'
+import { useClipboard } from '@scalar/use-clipboard'
 import { useCodeMirror } from '@scalar/use-codemirror'
 import { EditorView } from 'codemirror'
 import { computed, onMounted, ref, watch } from 'vue'

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useClipboard } from '@anc/library'
 import { java } from '@codemirror/lang-java'
 import { javascript } from '@codemirror/lang-javascript'
 import { python } from '@codemirror/lang-python'
@@ -27,6 +26,7 @@ import {
   useApiClientStore,
 } from '@scalar/api-client'
 import { useOperation } from '@scalar/api-client'
+import { useClipboard } from '@scalar/use-clipboard'
 import { useCodeMirror } from '@scalar/use-codemirror'
 import { EditorView } from 'codemirror'
 import {

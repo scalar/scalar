@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useClipboard } from '@anc/library'
+import { useClipboard } from '@scalar/use-clipboard'
 
 defineProps<{ url?: string | null }>()
 
