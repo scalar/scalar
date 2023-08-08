@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useClipboard, useCodeMirror, useDarkModeState } from '@anc/library'
+import { ProjectIcon } from '@anc/library'
 import { java } from '@codemirror/lang-java'
 import { javascript } from '@codemirror/lang-javascript'
 import { python } from '@codemirror/lang-python'
@@ -35,8 +36,6 @@ import {
   availableTargets,
 } from 'httpsnippet-lite'
 import { computed, onMounted, watch } from 'vue'
-
-import ProjectIcon from '@lib/icon-library/ProjectIcon.vue'
 
 import { useTemplateStore } from '../../../stores/template'
 import type { Operation, Server } from '../../../types'

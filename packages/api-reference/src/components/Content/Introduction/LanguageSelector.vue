@@ -1,10 +1,8 @@
 <script setup lang="ts">
+import { ProjectIcon } from '@anc/library'
 import { useMediaQuery } from '@vueuse/core'
 import { type TargetId, availableTargets } from 'httpsnippet-lite'
 import { ref } from 'vue'
-
-import FlowIcon from '@lib/components/FlowIcon.vue'
-import ProjectIcon from '@lib/icon-library/ProjectIcon.vue'
 
 import { useTemplateStore } from '../../../stores/template'
 

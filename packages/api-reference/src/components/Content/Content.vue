@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import { useRefOnMount } from '@anc/library'
+import { FlowIcon, useRefOnMount } from '@anc/library'
 import { useResizeObserver } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 
-import FlowIcon from '@lib/components/FlowIcon.vue'
-
 import { useTemplateStore } from '../../stores/template'
-import { ApiReferenceClasses } from '../../styles'
 import type { Spec } from '../../types'
 import Introduction from './Introduction'
 import ReferenceEndpoint from './ReferenceEndpoint'
@@ -37,9 +34,8 @@ onMounted(() => {
 </script>
 <template>
   <div
-    ref="referenceEl"
+    ref="referenceEl tags"
     :class="{
-      [ApiReferenceClasses.Tags]: true,
       'references-narrow': isNarrow,
     }">
     <template v-if="ready">

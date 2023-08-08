@@ -1,14 +1,9 @@
 <script setup lang="ts">
+import { FindAnythingButton, SidebarElement, SidebarGroup } from '@anc/library'
 import { generateRequest, useApiClientRequestStore } from '@scalar/api-client'
 import { useApiClientStore } from '@scalar/api-client'
 import { useOperation } from '@scalar/api-client'
 import { useMediaQuery } from '@vueuse/core'
-
-import FindAnythingButton from '@lib/composed/FindAnythingButton.vue'
-import SidebarElement from '@lib/composed/SidebarElement.vue'
-import SidebarGroup from '@lib/composed/SidebarGroup.vue'
-
-import { DocumentClasses } from '@guide/index'
 
 import { useTemplateStore } from '../stores/template'
 import type { Operation, Spec } from '../types'
@@ -48,9 +43,7 @@ const {
 } = useTemplateStore()
 </script>
 <template>
-  <div
-    class="sidebar"
-    :class="DocumentClasses.Sidebar">
+  <div class="sidebar">
     <FindAnythingButton
       v-if="!isMobile"
       @click="setTemplateItem('showSearch', true)" />
