@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { FindAnythingButton, SidebarElement, SidebarGroup } from '@anc/library'
 import { generateRequest, useApiClientRequestStore } from '@scalar/api-client'
-import { useApiClientStore } from '@scalar/api-client'
-import { useOperation } from '@scalar/api-client'
+import { useApiClientStore, useOperation } from '@scalar/api-client'
 import { useMediaQuery } from '@vueuse/core'
 
 import { useTemplateStore } from '../stores/template'

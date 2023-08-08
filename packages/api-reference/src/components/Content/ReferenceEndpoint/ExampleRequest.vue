@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useClipboard, useDarkModeState } from '@anc/library'
+import { useClipboard } from '@anc/library'
 import { ProjectIcon } from '@anc/library'
 import { java } from '@codemirror/lang-java'
 import { javascript } from '@codemirror/lang-javascript'
@@ -48,8 +48,6 @@ const { copyToClipboard } = useClipboard()
 const { setActiveRequest } = useApiClientRequestStore()
 
 const { toggleApiClient } = useApiClientStore()
-
-const { isDark } = useDarkModeState()
 
 const {
   state: templateState,
