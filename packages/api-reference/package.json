@@ -32,6 +32,7 @@
     "@codemirror/view": "6.16.0",
     "@scalar/api-client": "workspace:*",
     "@scalar/swagger-editor": "workspace:*",
+    "@scalar/use-tooltip": "workspace:*",
     "@types/js-yaml": "4.0.5",
     "@types/nunjucks": "3.2.2",
     "@vueuse/core": "10.1.2",

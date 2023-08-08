@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { useTooltip } from '@anc/library'
 import { httpStatusCodes } from '@scalar/api-client'
+import { useTooltip } from '@scalar/use-tooltip'
 import { computed } from 'vue'
 
 const props = defineProps<{ title: string }>()
