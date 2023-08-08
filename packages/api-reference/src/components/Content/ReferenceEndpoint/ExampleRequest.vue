@@ -37,6 +37,7 @@ import {
 } from 'httpsnippet-lite'
 import { computed, onMounted, watch } from 'vue'
 
+import { generateAxiosCodeFromRequest } from '../../../helpers/generateAxiosCodeFromRequest'
 import { useTemplateStore } from '../../../stores/template'
 import type { Operation, Server } from '../../../types'
 import { Icon } from '../../Icon'
@@ -57,7 +58,7 @@ const {
 
 // TODO: Add PHP
 const syntaxHighlighting: Record<
-  Exclude<TargetId, 'php'>,
+  Exclude<TargetId, 'php'> | 'axios',
   LanguageSupport | StreamLanguage<any>
 > = {
   c: StreamLanguage.define(c),
@@ -77,6 +78,7 @@ const syntaxHighlighting: Record<
   ruby: StreamLanguage.define(ruby),
   shell: StreamLanguage.define(shell),
   swift: StreamLanguage.define(swift),
+  axios: javascript(),
 }
 
 const editorExtensions = computed(() => {
@@ -105,6 +107,14 @@ const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
 const { parameterMap } = useOperation(props)
 
 async function generateSnippet() {
+  // @ts-ignore
+  if (templateState.preferredLanguage === 'axios') {
+    return generateAxiosCodeFromRequest({
+      method: props.operation.httpVerb.toUpperCase(),
+      url: `${props.server.url}${props.operation.path}`,
+    })
+  }
+
   try {
     const snippet = new HTTPSnippet({
       method: props.operation.httpVerb.toUpperCase(),
@@ -160,6 +170,13 @@ const selectLanguage = (language: TargetId) => {
   setItem('preferredLanguage', language)
   localStorage.setItem(localStorageKey, language)
 }
+
+const availableLanguages = computed(() => {
+  return [
+    ...availableTargets().filter((target) => target.key !== 'http'),
+    { key: 'axios', title: 'JavaScript (Axios)' },
+  ].sort((a, b) => a.title.localeCompare(b.title))
+})
 </script>
 <template>
   <div class="dark-mode">
@@ -186,9 +203,7 @@ const selectLanguage = (language: TargetId) => {
                   :value="templateState.preferredLanguage"
                   @input="event => selectLanguage((event.target as HTMLSelectElement).value as TargetId)">
                   <option
-                    v-for="lang in availableTargets().filter(
-                      (target) => target.key !== 'http',
-                    )"
+                    v-for="lang in availableLanguages"
                     :key="lang.key"
                     :value="lang.key">
                     {{ lang.title }}

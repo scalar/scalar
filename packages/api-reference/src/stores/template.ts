@@ -45,7 +45,11 @@ function setCollapsedSidebarItem(key: string, value: boolean) {
 }
 
 // getLanguageTitleByKey('javascript') => 'JavaScript'
-function getLanguageTitleByKey(language: TargetId) {
+function getLanguageTitleByKey(language: TargetId | 'axios') {
+  if (language === 'axios') {
+    return 'JavaScript (Axios)'
+  }
+
   return availableTargets().find((target) => language === target.key)?.title
 }
 
