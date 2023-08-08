@@ -1,0 +1,8 @@
+<svg stroke-width="2" viewBox="-0.5 -0.5 15 15" xmlns="http://www.w3.org/2000/svg">
+  <g>
+    <line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" x1="13.5" x2="0.5" y1="0.5"
+      y2="13.5" />
+    <line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" x1="0.5" x2="13.5" y1="0.5"
+      y2="13.5" />
+  </g>
+</svg>

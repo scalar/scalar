@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useClipboard } from '@anc/library'
 
-defineProps<{ url: string | null }>()
+defineProps<{ url?: string | null }>()
 
 const { copyToClipboard } = useClipboard()
 </script>

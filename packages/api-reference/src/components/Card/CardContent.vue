@@ -1,5 +1,5 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ muted: boolean; frameless: boolean }>(), {
+withDefaults(defineProps<{ muted?: boolean; frameless?: boolean }>(), {
   muted: false,
   frameless: false,
 })

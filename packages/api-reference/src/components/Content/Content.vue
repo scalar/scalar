@@ -38,7 +38,7 @@ onMounted(() => {
     <template v-if="ready">
       <Introduction
         :info="spec.info"
-        :server="spec.servers?.[0] ?? { url: windowServer }" />
+        :server="spec.servers?.[0]" />
       <template
         v-for="(tag, index) in spec.tags"
         :key="tag.id">

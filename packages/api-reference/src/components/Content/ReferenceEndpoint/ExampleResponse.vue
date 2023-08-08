@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useClipboard } from '@anc/library'
-import { ProjectIcon } from '@anc/library'
 import { json } from '@codemirror/lang-json'
 import { foldGutter } from '@codemirror/language'
 import { useCodeMirror } from '@scalar/use-codemirror'
@@ -8,6 +7,7 @@ import { EditorView } from 'codemirror'
 import { computed, onMounted, ref, watch } from 'vue'
 
 import type { Operation } from '../../../types'
+import { Icon } from '../../Icon'
 import ExampleResponseTab from './ExampleResponseTab.vue'
 
 const props = defineProps<{ operation: Operation }>()
@@ -83,7 +83,7 @@ onMounted(() => {
             class="code-copy"
             type="button"
             @click="() => copyToClipboard(doc)">
-            <ProjectIcon
+            <Icon
               src="solid/interface-copy-clipboard"
               width="10px" />
           </button>

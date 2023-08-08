@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ProjectIcon } from '@anc/library'
 import { useMediaQuery } from '@vueuse/core'
 import { type TargetId, availableTargets } from 'httpsnippet-lite'
 import { ref } from 'vue'
 
 import { useTemplateStore } from '../../../stores/template'
+import { Icon } from '../../Icon'
 
 type Language = {
   title: string | undefined
@@ -111,7 +111,7 @@ const featuredLanguages = ref<Language[]>(
  * Icons have longer names to appear in icon searches, e.g. "javascript-js" instead of just "javascript". This function
  * maps the language key to the icon name.
  */
-const getProjectIconByLanguageKey = (languageKey: TargetId) => {
+const getIconByLanguageKey = (languageKey: TargetId) => {
   const languageKeyMap: Partial<Record<TargetId, string>> = {
     javascript: 'javascript-js',
   }
@@ -131,9 +131,9 @@ const getProjectIconByLanguageKey = (languageKey: TargetId) => {
         'code-languages__active': state.preferredLanguage === language.key,
       }"
       @click="() => selectLanguage(language.key)">
-      <ProjectIcon
+      <Icon
         :class="`code-languages-icon code-languages-icon__${language.key}`"
-        :src="getProjectIconByLanguageKey(language.key)" />
+        :src="getIconByLanguageKey(language.key)" />
       <span>{{ language.title }}</span>
     </div>
 

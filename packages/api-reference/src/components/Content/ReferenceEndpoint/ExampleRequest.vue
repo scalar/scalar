@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useClipboard } from '@anc/library'
-import { ProjectIcon } from '@anc/library'
 import { java } from '@codemirror/lang-java'
 import { javascript } from '@codemirror/lang-javascript'
 import { python } from '@codemirror/lang-python'
@@ -40,6 +39,7 @@ import { computed, onMounted, watch } from 'vue'
 
 import { useTemplateStore } from '../../../stores/template'
 import type { Operation, Server } from '../../../types'
+import { Icon } from '../../Icon'
 
 const props = defineProps<{ operation: Operation; server: Server }>()
 
@@ -199,7 +199,7 @@ const selectLanguage = (language: TargetId) => {
                 class="code-copy"
                 type="button"
                 @click="copyExampleRequest">
-                <ProjectIcon
+                <Icon
                   src="solid/interface-copy-clipboard"
                   width="10px" />
               </button>

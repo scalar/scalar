@@ -9,7 +9,10 @@ import MarkdownRenderer from '../MarkdownRenderer.vue'
 import BaseUrl from './BaseUrl.vue'
 import LanguageSelector from './LanguageSelector.vue'
 
-defineProps<{ info: Info; server: Server }>()
+defineProps<{
+  info: Info
+  server?: Server
+}>()
 
 const { state, getLanguageTitleByKey } = useTemplateStore()
 
@@ -68,10 +71,10 @@ const standardLibrary = computed(() => {
         </p>
       </div>
       <div>
-        <Card>
+        <Card v-if="server?.url">
           <CardHeader muted>Base URL</CardHeader>
           <CardContent muted>
-            <BaseUrl :url="server.url" />
+            <BaseUrl :url="server?.url" />
           </CardContent>
         </Card>
 
