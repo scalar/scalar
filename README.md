@@ -1,8 +1,17 @@
-# Scalar API Reference
+# Scalar
 
-Generate beautiful API references from Swagger files.
+This repository contains all our open source projects.
 
-- @scalar/api-reference (Swagger > HTML)
-- @scalar/swagger-parser (WASM library to parse Swagger files)
-- @scalar/swagger-editor (CodeMirror for Swagger files)
-- Missing: @scalar/cli (Generate beautiful API references on the command line)
+.
+├── packages
+│   ├── api-client (@scalar/api-client)
+│   ├── api-reference (@scalar/api-reference)
+│   ├── cli (@scalar/cli)
+│   ├── swagger-editor (@scalar/swagger-editor)
+│   ├── use-clipboard (@scalar/use-clipboard)
+│   ├── use-codemirror (@scalar/use-codemirror)
+│   ├── use-keyboard-event (@scalar/use-keyboard-event)
+│   └── use-tooltip (@scalar/use-tooltip)
+└── projects
+├── api-client-app (electron app)
+└── api-client-web (web app)
