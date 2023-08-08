@@ -51,7 +51,8 @@
     "remark-textr": "5.0.1",
     "typographic-base": "1.0.4",
     "unified": "10.1.2",
-    "xmldom": "0.6.0"
+    "xmldom": "0.6.0",
+    "@types/xmldom": "0.1.31"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",
