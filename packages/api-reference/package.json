@@ -36,6 +36,7 @@
     "@scalar/use-tooltip": "workspace:*",
     "@types/js-yaml": "4.0.5",
     "@types/nunjucks": "3.2.2",
+    "@types/xmldom": "0.1.31",
     "@vueuse/core": "10.1.2",
     "codemirror": "6.0.1",
     "httpsnippet-lite": "3.0.5",
@@ -51,8 +52,7 @@
     "remark-textr": "5.0.1",
     "typographic-base": "1.0.4",
     "unified": "10.1.2",
-    "xmldom": "0.6.0",
-    "@types/xmldom": "0.1.31"
+    "xmldom": "0.6.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",
