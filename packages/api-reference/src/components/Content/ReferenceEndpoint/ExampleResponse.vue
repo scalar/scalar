@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { useClipboard, useCodeMirror } from '@anc/library'
+import { useClipboard } from '@anc/library'
 import { ProjectIcon } from '@anc/library'
 import { json } from '@codemirror/lang-json'
 import { foldGutter } from '@codemirror/language'
+import { useCodeMirror } from '@scalar/use-codemirror'
 import { EditorView } from 'codemirror'
 import { computed, onMounted, ref, watch } from 'vue'
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useClipboard, useCodeMirror, useDarkModeState } from '@anc/library'
+import { useClipboard, useDarkModeState } from '@anc/library'
 import { ProjectIcon } from '@anc/library'
 import { java } from '@codemirror/lang-java'
 import { javascript } from '@codemirror/lang-javascript'
@@ -28,6 +28,7 @@ import {
   useApiClientStore,
 } from '@scalar/api-client'
 import { useOperation } from '@scalar/api-client'
+import { useCodeMirror } from '@scalar/use-codemirror'
 import { EditorView } from 'codemirror'
 import {
   HTTPSnippet,
