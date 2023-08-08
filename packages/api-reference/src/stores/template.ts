@@ -18,7 +18,7 @@ type TemplateState = {
   showSearch: boolean
   activeNavState: NavState
   collapsedSidebarItems: Partial<Record<string, boolean>>
-  preferredLanguage: TargetId
+  preferredLanguage: TargetId | 'axios' | 'laravel'
 }
 
 const defaultTemplateState = (): TemplateState => ({

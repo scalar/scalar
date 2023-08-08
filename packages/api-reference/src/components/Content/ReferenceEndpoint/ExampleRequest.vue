@@ -37,7 +37,10 @@ import {
 } from 'httpsnippet-lite'
 import { computed, onMounted, watch } from 'vue'
 
-import { generateAxiosCodeFromRequest } from '../../../helpers/generateAxiosCodeFromRequest'
+import {
+  generateAxiosCodeFromRequest,
+  generateLaravelCodeFromRequest,
+} from '../../../helpers'
 import { useTemplateStore } from '../../../stores/template'
 import type { Operation, Server } from '../../../types'
 import { Icon } from '../../Icon'
@@ -107,9 +110,13 @@ const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
 const { parameterMap } = useOperation(props)
 
 async function generateSnippet() {
-  // @ts-ignore
   if (templateState.preferredLanguage === 'axios') {
     return generateAxiosCodeFromRequest({
+      method: props.operation.httpVerb.toUpperCase(),
+      url: `${props.server.url}${props.operation.path}`,
+    })
+  } else if (templateState.preferredLanguage === 'laravel') {
+    return generateLaravelCodeFromRequest({
       method: props.operation.httpVerb.toUpperCase(),
       url: `${props.server.url}${props.operation.path}`,
     })
@@ -175,6 +182,7 @@ const availableLanguages = computed(() => {
   return [
     ...availableTargets().filter((target) => target.key !== 'http'),
     { key: 'axios', title: 'JavaScript (Axios)' },
+    { key: 'laravel', title: 'PHP (Laravel)' },
   ].sort((a, b) => a.title.localeCompare(b.title))
 })
 </script>
