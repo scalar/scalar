@@ -20,7 +20,7 @@ const isValidTargetId = (language: TargetId) =>
     .map((target) => target.key)
     .includes(language)
 
-const defaultLanguage = isValidTargetId(state.preferredLanguage)
+const defaultLanguage = isValidTargetId(state.preferredLanguage as TargetId)
   ? state.preferredLanguage
   : 'shell'
 

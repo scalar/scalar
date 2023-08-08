@@ -1,5 +1,16 @@
-export const generateAxiosCodeFromRequest = (request: any) => {
-  const lines = []
+type HarRequestHeader = {
+  name: string
+  value: string
+}
+
+type HarRequest = {
+  url: string
+  method: string
+  headers?: HarRequestHeader[]
+}
+
+export const generateAxiosCodeFromRequest = (request: HarRequest) => {
+  const lines: string[] = []
 
   lines.push(`import axios from 'axios'`)
   lines.push(``)
@@ -13,7 +24,7 @@ export const generateAxiosCodeFromRequest = (request: any) => {
 
   if (request.headers) {
     const headers = request.headers
-      .map((header: { name: string; value: string }) => {
+      .map((header) => {
         return `    '${header.name}': '${header.value}',`
       })
       .join('\n')

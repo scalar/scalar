@@ -1,5 +1,10 @@
-export const generateLaravelCodeFromRequest = (request: any) => {
-  const lines = []
+type HarRequest = {
+  url: string
+  method: string
+}
+
+export const generateLaravelCodeFromRequest = (request: HarRequest) => {
+  const lines: string[] = []
 
   lines.push(`<?php`)
   lines.push(``)

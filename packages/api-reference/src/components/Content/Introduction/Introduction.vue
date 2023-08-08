@@ -21,7 +21,10 @@ const { state, getLanguageTitleByKey } = useTemplateStore()
 type TargetIdWithoutHttp = TargetId
 
 const standardLibrary = computed(() => {
-  const standardLibraries: Record<TargetIdWithoutHttp, string> = {
+  const standardLibraries: Record<
+    TargetIdWithoutHttp | 'axios' | 'laravel',
+    string
+  > = {
     shell: 'Curl',
     ruby: 'Net::HTTP',
     node: 'HTTPS',
@@ -41,6 +44,8 @@ const standardLibrary = computed(() => {
     swift: 'NSURLSession',
     // TODO: Remove, but fix `TargetIdWithoutHttp` first
     http: '',
+    laravel: '',
+    axios: '',
   }
 
   return standardLibraries[state.preferredLanguage] ?? ''
