@@ -4,9 +4,6 @@ import { CodeEditor } from '@scalar/swagger-editor'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, reactive, ref } from 'vue'
 
-// TODO: Remove this to separate the references and the main code base
-import { customFooterClass } from '@guide/styles'
-
 import { useSwaggerParser } from '../hooks/useSwaggerParser'
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceProps, Spec } from '../types'
@@ -146,10 +143,7 @@ const breadCrumbs = computed(() => {
         :ready="parserReady"
         :spec="spec" />
     </div>
-    <div
-      class="layout-footer"
-      :class="customFooterClass"
-      v-html="footer"></div>
+    <slot name="footer"></slot>
     <!-- REST API Client Overlay -->
     <ApiClientModal :spec="spec" />
   </div>
