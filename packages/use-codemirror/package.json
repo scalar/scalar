@@ -1,0 +1,55 @@
+{
+  "name": "@scalar/use-codemirror",
+  "version": "0.1.0",
+  "author": "Scalar",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "dev": "vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "test:unit": "vitest ./src --coverage",
+    "types:build": "vue-tsc -p tsconfig.build.json",
+    "types:check": "vue-tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
+  "main": "src/index.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@codemirror/lang-javascript": "6.1.9",
+    "@codemirror/lang-json": "6.0.1",
+    "@codemirror/state": "6.2.1",
+    "@codemirror/view": "6.16.0",
+    "@headlessui/vue": "1.7.14",
+    "@lezer/highlight": "1.1.6",
+    "@types/nunjucks": "3.2.2",
+    "@uiw/codemirror-theme-duotone": "4.21.3",
+    "@uiw/codemirror-themes": "4.21.3",
+    "@vueuse/core": "10.1.2",
+    "axios": "1.4.0",
+    "codemirror": "6.0.1",
+    "javascript-time-ago": "2.5.9",
+    "nanoid": "4.0.2",
+    "nunjucks": "3.2.4",
+    "pretty-bytes": "6.1.0",
+    "pretty-ms": "8.0.0",
+    "tippy.js": "6.3.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "4.2.3",
+    "tsc-alias": "1.8.6",
+    "vite": "4.4.8",
+    "vitest": "0.34.1",
+    "vue-tsc": "1.8.8"
+  },
+  "peerDependencies": {
+    "vue": "3.3.4"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@scalar/api-client-web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "vue-tsc && vite build",
+    "dev": "vite",
+    "preview": "vite preview"
+  },
+  "type": "module",
+  "dependencies": {
+    "@scalar/api-client": "workspace:*",
+    "vue": "3.3.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "4.2.3",
+    "typescript": "5.0.4",
+    "vite": "4.4.8",
+    "vue-tsc": "1.8.8"
+  }
+}

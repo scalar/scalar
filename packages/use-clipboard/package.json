@@ -1,0 +1,38 @@
+{
+  "name": "@scalar/use-clipboard",
+  "version": "0.1.0",
+  "author": "Scalar",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "dev": "vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "test:unit": "vitest ./src --coverage",
+    "types:build": "vue-tsc -p tsconfig.build.json",
+    "types:check": "vue-tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
+  "main": "src/index.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "nanoid": "4.0.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "4.2.3",
+    "tsc-alias": "1.8.6",
+    "vite": "4.4.8",
+    "vitest": "0.34.1",
+    "vue-tsc": "1.8.8"
+  },
+  "peerDependencies": {
+    "vue": "3.3.4"
+  }
+}
