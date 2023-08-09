@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { FindAnythingButton, SidebarElement, SidebarGroup } from '@anc/library'
 import { generateRequest, useApiClientRequestStore } from '@scalar/api-client'
 import { useApiClientStore, useOperation } from '@scalar/api-client'
 import { useMediaQuery } from '@vueuse/core'
 
 import { useTemplateStore } from '../stores/template'
 import type { Operation, Spec } from '../types'
+import FindAnythingButton from './FindAnythingButton.vue'
+import SidebarElement from './SidebarElement.vue'
+import SidebarGroup from './SidebarGroup.vue'
 
 const props = defineProps<{ spec: Spec }>()
 

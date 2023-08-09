@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { FlowIcon } from '@anc/library'
 import { useResizeObserver } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 
 import { useTemplateStore } from '../../stores/template'
 import type { Spec } from '../../types'
+import { FlowIcon } from '../Icon'
 import Introduction from './Introduction'
 import ReferenceEndpoint from './ReferenceEndpoint'
 import ReferenceTag from './ReferenceTag.vue'

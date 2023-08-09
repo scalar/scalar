@@ -20,7 +20,6 @@
   "type": "module",
   "main": "src/index.ts",
   "dependencies": {
-    "@anc/library": "workspace:*",
     "@codemirror/lang-java": "github:codemirror/lang-java",
     "@codemirror/lang-javascript": "6.1.9",
     "@codemirror/lang-json": "6.0.1",
