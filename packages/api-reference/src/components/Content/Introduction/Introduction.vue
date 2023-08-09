@@ -91,7 +91,10 @@ const standardLibrary = computed(() => {
           <CardFooter
             class="font-mono"
             muted
-            style="font-size: var(--theme-mini); color: var(--theme-color-2)">
+            style="
+              font-size: var(--scalar-api-reference-theme-mini);
+              color: var(--scalar-api-reference-theme-color-2);
+            ">
             {{ getLanguageTitleByKey(state.preferredLanguage) }}
             {{ standardLibrary }}
           </CardFooter>
@@ -105,9 +108,9 @@ const standardLibrary = computed(() => {
   margin-top: 0px !important;
 }
 .loading {
-  background: var(--theme-background-2);
+  background: var(--scalar-api-reference-theme-background-2);
   animation: loading-skeleton 2s infinite alternate;
-  border-radius: var(--theme-radius);
+  border-radius: var(--scalar-api-reference-theme-radius);
 }
 .heading.loading {
   width: 80%;
@@ -126,10 +129,10 @@ const standardLibrary = computed(() => {
 }
 @keyframes loading-skeleton {
   from {
-    background: var(--theme-background-2);
+    background: var(--scalar-api-reference-theme-background-2);
   }
   to {
-    background: var(--theme-background-3);
+    background: var(--scalar-api-reference-theme-background-3);
   }
 }
 </style>

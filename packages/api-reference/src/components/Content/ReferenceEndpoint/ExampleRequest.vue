@@ -264,21 +264,21 @@ const availableLanguages = computed(() => {
   appearance: none;
   outline: none;
   border: none;
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--scalar-api-reference-theme-radius-lg);
   height: 35px;
   display: flex;
   justify-content: center;
   cursor: pointer;
   align-items: center;
-  font-weight: var(--theme-bold);
-  font-size: var(--theme-micro);
+  font-weight: var(--scalar-api-reference-theme-bold);
+  font-size: var(--scalar-api-reference-theme-micro);
   text-transform: uppercase;
   border: 1px solid currentColor;
-  background: var(--theme-button-1);
-  color: var(--theme-button-1-color);
+  background: var(--scalar-api-reference-theme-button-1);
+  color: var(--scalar-api-reference-theme-button-1-color);
 }
 .trigger-scalar-client-button:hover {
-  background: var(--theme-button-1-hover);
+  background: var(--scalar-api-reference-theme-button-1-hover);
 }
 .trigger-scalar-client-button svg {
   height: 12px;
@@ -286,8 +286,8 @@ const availableLanguages = computed(() => {
   margin-right: 6px;
 }
 .coder {
-  border-radius: var(--theme-radius-lg);
-  border: 1px solid var(--theme-border-color);
+  border-radius: var(--scalar-api-reference-theme-radius-lg);
+  border: 1px solid var(--scalar-api-reference-theme-border-color);
   overflow: hidden;
 }
 .code-copy {
@@ -297,13 +297,13 @@ const availableLanguages = computed(() => {
   background: transparent;
   display: flex;
   cursor: pointer;
-  color: var(--theme-color-3);
+  color: var(--scalar-api-reference-theme-color-3);
   margin-left: 6px;
   border: none;
   border-radius: 3px;
   padding: 5px;
   &:hover {
-    color: var(--theme-color-1);
+    color: var(--scalar-api-reference-theme-color-1);
   }
   svg {
     width: 13px;
@@ -319,7 +319,7 @@ const availableLanguages = computed(() => {
   display: flex;
   cursor: pointer;
   font-size: 11px;
-  font-weight: var(--theme-bold);
+  font-weight: var(--scalar-api-reference-theme-bold);
   text-transform: uppercase;
   color: currentColor;
   padding: 6px 9px 6px 24px;
@@ -327,15 +327,15 @@ const availableLanguages = computed(() => {
 .codemirror-select {
   position: relative;
   padding-right: 9px;
-  border-right: 1px solid var(--theme-border-color);
+  border-right: 1px solid var(--scalar-api-reference-theme-border-color);
   height: 21px;
 }
 .codemirror-select select {
   border: none;
   outline: none;
   cursor: pointer;
-  background: var(--theme-background-3);
-  box-shadow: -2px 0 0 0 var(--theme-background-3);
+  background: var(--scalar-api-reference-theme-background-3);
+  box-shadow: -2px 0 0 0 var(--scalar-api-reference-theme-background-3);
   z-index: 2;
   position: absolute;
   top: 0;
@@ -349,8 +349,8 @@ const availableLanguages = computed(() => {
   height: 100%;
   font-size: 12px;
   padding: 4px 0;
-  color: var(--theme-color-3);
-  font-weight: var(--theme-semibold);
+  color: var(--scalar-api-reference-theme-color-3);
+  font-weight: var(--scalar-api-reference-theme-semibold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -365,7 +365,7 @@ const availableLanguages = computed(() => {
   box-shadow: 1px 1px 0 currentColor;
 }
 .codemirror-select span:hover {
-  background: var(--theme-background-2);
+  background: var(--scalar-api-reference-theme-background-2);
 }
 .coder-right {
   display: flex;
@@ -373,11 +373,11 @@ const availableLanguages = computed(() => {
   min-height: 21px;
 }
 .trigger-scalar-client {
-  background: var(--theme-background-2);
+  background: var(--scalar-api-reference-theme-background-2);
   padding: 4px 12px 12px 12px;
 }
 .codemenu-item-title {
-  /* color: var(--theme-color-1) !important; */
+  /* color: var(--scalar-api-reference-theme-color-1) !important; */
 }
 .dark-mode-document-remove-everything {
   all: unset;

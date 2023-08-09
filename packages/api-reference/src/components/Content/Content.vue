@@ -77,22 +77,25 @@ onMounted(() => {
 </template>
 <style scoped>
 .render-loading {
-  height: calc(var(--full-height) - var(--theme-header-height));
+  height: calc(
+    var(--scalar-api-reference-full-height) -
+      var(--scalar-api-reference-theme-header-height)
+  );
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .show-more {
-  background: var(--theme-background-1);
+  background: var(--scalar-api-reference-theme-background-1);
   appearance: none;
   border: none;
-  border: 1px solid var(--theme-border-color);
+  border: 1px solid var(--scalar-api-reference-theme-border-color);
   margin: auto;
   padding: 8px 12px;
   border-radius: 30px;
-  color: var(--theme-color-1);
-  font-weight: var(--theme-semibold);
-  font-size: var(--theme-font-size-4);
+  color: var(--scalar-api-reference-theme-color-1);
+  font-weight: var(--scalar-api-reference-theme-semibold);
+  font-size: var(--scalar-api-reference-theme-font-size-4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,7 +107,7 @@ onMounted(() => {
   margin-top: -24px;
 }
 .show-more:hover {
-  color: var(--theme-color-2);
+  color: var(--scalar-api-reference-theme-color-2);
   cursor: pointer;
 }
 .show-more-icon {
@@ -113,7 +116,7 @@ onMounted(() => {
   margin-left: 3px;
 }
 .show-more:active {
-  box-shadow: 0 0 0 1px var(--theme-border-color);
+  box-shadow: 0 0 0 1px var(--scalar-api-reference-theme-border-color);
 }
 @media (max-width: 1165px) {
   .show-more {

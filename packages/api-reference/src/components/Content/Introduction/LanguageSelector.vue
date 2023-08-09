@@ -215,7 +215,7 @@ const getIconByLanguageKey = (languageKey: TargetId) => {
 }
 .code-languages-icon__shell {
   background: #000;
-  box-shadow: 0 0 0 1px var(--theme-border-color);
+  box-shadow: 0 0 0 1px var(--scalar-api-reference-theme-border-color);
 }
 .code-languages-icon__ruby {
   background: #d91404;
@@ -227,7 +227,7 @@ const getIconByLanguageKey = (languageKey: TargetId) => {
   background: #306998;
 }
 .code-languages-icon__more {
-  background: var(--theme-background-3);
+  background: var(--scalar-api-reference-theme-background-3);
 }
 .code-languages-icon__node {
   background: #83cd29;
@@ -293,7 +293,7 @@ const getIconByLanguageKey = (languageKey: TargetId) => {
   bottom: 0;
   height: 2px;
   width: 100%;
-  background: var(--theme-color-1);
+  background: var(--scalar-api-reference-theme-color-1);
 }
 @keyframes codeloader {
   0% {
@@ -305,11 +305,11 @@ const getIconByLanguageKey = (languageKey: TargetId) => {
 }
 .code-languages span {
   margin-top: 3px;
-  color: var(--theme-color-2);
-  font-size: var(--theme-mini);
+  color: var(--scalar-api-reference-theme-color-2);
+  font-size: var(--scalar-api-reference-theme-mini);
 }
 .code-languages__active span {
-  color: var(--theme-color-1);
+  color: var(--scalar-api-reference-theme-color-1);
 }
 .code-languages__select select {
   opacity: 0;
@@ -329,7 +329,7 @@ const getIconByLanguageKey = (languageKey: TargetId) => {
   content: '';
   width: 8px;
   height: 8px;
-  background: var(--theme-background-1);
+  background: var(--scalar-api-reference-theme-background-1);
   box-shadow: 1px 1px 0 currentColor;
   display: block;
   transform: rotate(45deg);

@@ -98,8 +98,8 @@ onMounted(() => {
   margin-top: 12px;
 }
 .coder {
-  border-radius: var(--theme-radius-lg);
-  border: 1px solid var(--theme-border-color);
+  border-radius: var(--scalar-api-reference-theme-radius-lg);
+  border: 1px solid var(--scalar-api-reference-theme-border-color);
   overflow: hidden;
 }
 .endpoint-teleport-response :deep(.cm-editor .cm-scroller) {
@@ -113,14 +113,14 @@ onMounted(() => {
   outline: none;
   background: transparent;
   cursor: pointer;
-  color: var(--theme-color-3);
+  color: var(--scalar-api-reference-theme-color-3);
   margin-left: 6px;
   border: none;
   border-radius: 3px;
   padding: 5px;
 }
 .code-copy:hover {
-  color: var(--theme-color-1);
+  color: var(--scalar-api-reference-theme-color-1);
 }
 .code-copy svg {
   width: 13px;

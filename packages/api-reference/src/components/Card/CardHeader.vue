@@ -9,9 +9,9 @@ import CardContent from './CardContent.vue'
 <style scoped>
 .card-header {
   padding: 9px 12px;
-  font-weight: var(--theme-semibold);
-  font-size: var(--theme-mini);
-  color: var(--theme-color-3);
+  font-weight: var(--scalar-api-reference-theme-semibold);
+  font-size: var(--scalar-api-reference-theme-mini);
+  color: var(--scalar-api-reference-theme-color-3);
   text-transform: uppercase;
 }
 </style>

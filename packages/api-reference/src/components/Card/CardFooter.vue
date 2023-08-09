@@ -8,6 +8,6 @@ import CardContent from './CardContent.vue'
 </template>
 <style scoped>
 .card-footer {
-  border-top: 1px solid var(--theme-border-color);
+  border-top: 1px solid var(--scalar-api-reference-theme-border-color);
 }
 </style>

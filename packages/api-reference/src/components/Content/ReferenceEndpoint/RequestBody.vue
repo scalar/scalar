@@ -30,7 +30,7 @@ defineProps<{ requestBody?: RequestBody }>()
   margin-top: 6px;
 }
 .parameter .parameter-child {
-  border: var(--theme-border);
+  border: var(--scalar-api-reference-theme-border);
   border-radius: 20px;
   margin-top: 12px;
   width: fit-content;
@@ -42,8 +42,8 @@ defineProps<{ requestBody?: RequestBody }>()
   padding: 6px 12px;
   cursor: pointer;
   font-weight: 500;
-  color: var(--theme-color-3);
-  font-size: var(--theme-mini);
+  color: var(--scalar-api-reference-theme-color-3);
+  font-size: var(--scalar-api-reference-theme-mini);
   display: flex;
   align-items: center;
   user-select: none;
@@ -52,7 +52,7 @@ defineProps<{ requestBody?: RequestBody }>()
   display: none;
 }
 .parameter-child-trigger:hover {
-  color: var(--theme-color-1);
+  color: var(--scalar-api-reference-theme-color-1);
 }
 .parameter-child-trigger > span:before {
   content: 'Show ';
@@ -85,35 +85,35 @@ defineProps<{ requestBody?: RequestBody }>()
   transform: rotate(45deg);
 }
 .parameter-child__open > .parameter-child-trigger {
-  border-bottom: var(--theme-border);
+  border-bottom: var(--scalar-api-reference-theme-border);
 }
 
 .parameter {
   list-style: none;
-  font-size: var(--theme-small);
+  font-size: var(--scalar-api-reference-theme-small);
 }
 .parameter li {
-  border-top: var(--theme-border);
+  border-top: var(--scalar-api-reference-theme-border);
   padding: 12px 0;
 }
 .parameter-name {
   font-weight: 500;
   margin-right: 6px;
-  font-family: var(--theme-font-code);
+  font-family: var(--scalar-api-reference-theme-font-code);
   font-size: 13px;
-  color: var(--theme-color-1);
+  color: var(--scalar-api-reference-theme-color-1);
 }
 .parameter-type,
 .parameter-required {
-  color: var(--theme-color-3);
-  font-weight: var(--semi-bold);
+  color: var(--scalar-api-reference-theme-color-3);
+  font-weight: var(--themesemi);
   margin-right: 6px;
   position: relative;
 }
 .marc_required {
   text-transform: uppercase;
   font-size: 11px;
-  font-weight: var(--bol);
+  font-weight: var(--scalar-api-reference-theme-bold);
   color: #ffb040;
 }
 .parameter-options {

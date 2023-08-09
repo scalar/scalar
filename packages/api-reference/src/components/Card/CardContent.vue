@@ -18,7 +18,7 @@ withDefaults(defineProps<{ muted?: boolean; frameless?: boolean }>(), {
 .card-content {
   overflow: auto;
   padding: 12px 0 12px 12px;
-  border-bottom: 1px solid var(--theme-border-color);
+  border-bottom: 1px solid var(--scalar-api-reference-theme-border-color);
 }
 
 .card-content:last-of-type {
@@ -26,7 +26,7 @@ withDefaults(defineProps<{ muted?: boolean; frameless?: boolean }>(), {
 }
 
 .card--muted {
-  background: var(--theme-background-2);
+  background: var(--scalar-api-reference-theme-background-2);
 }
 
 .card--frameless {

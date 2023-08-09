@@ -46,12 +46,10 @@ const proxyUrl = import.meta.env.VITE_CLIENT_PROXY
 
 <style scoped>
 .scalar-api-client__container .scalar-api-client {
-  width: calc(100% - var(--theme-sidebar-width));
+  width: calc(100% - var(--scalar-api-reference-theme-sidebar-width));
 }
 
 .scalar-api-client__container {
-  outline: 10px solid red;
-
   position: absolute;
   right: 0;
   left: 0;
@@ -63,9 +61,9 @@ const proxyUrl = import.meta.env.VITE_CLIENT_PROXY
   opacity: 1;
   overflow: hidden;
   pointer-events: all;
-  background: var(--theme-background-1) !important;
-  border-radius: var(--theme-radius);
-  box-shadow: var(--theme-shadow-1);
+  background: var(--scalar-api-reference-theme-background-1) !important;
+  border-radius: var(--scalar-api-reference-theme-radius);
+  box-shadow: var(--scalar-api-reference-theme-shadow-1);
   height: 100%;
   overflow: hidden;
   display: flex;
@@ -83,11 +81,11 @@ const proxyUrl = import.meta.env.VITE_CLIENT_PROXY
   display: flex;
   align-items: center;
   padding: 11px 12px;
-  height: var(--theme-header-height);
-  background-color: var(--theme-background-1);
+  height: var(--scalar-api-reference-theme-header-height);
+  background-color: var(--scalar-api-reference-theme-background-1);
   z-index: 10;
   position: sticky;
-  border-bottom: var(--theme-border);
+  border-bottom: var(--scalar-api-reference-theme-border);
   top: 0;
 }
 
@@ -99,8 +97,8 @@ const proxyUrl = import.meta.env.VITE_CLIENT_PROXY
   align-items: center;
   background: transparent;
   font-size: 14px;
-  color: var(--theme-color-1);
-  font-weight: var(--theme-semibold);
+  color: var(--scalar-api-reference-theme-color-1);
+  font-weight: var(--scalar-api-reference-theme-semibold);
 }
 .scalar-api-client__close:hover {
   cursor: pointer;
@@ -110,15 +108,15 @@ TODO: Markup is missing
 .scalar-api-client__close__icon {
   width: 28px;
   height: 28px;
-  border-radius: var(--theme-radius);
+  border-radius: var(--scalar-api-reference-theme-radius);
   margin-right: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--theme-color-2);
+  color: var(--scalar-api-reference-theme-color-2);
 }
 .scalar-api-client__close__icon:hover {
-  background: var(--theme-background-2);
+  background: var(--scalar-api-reference-theme-background-2);
 }
 .scalar-api-client__close__icon svg {
   width: 12px;
@@ -126,7 +124,7 @@ TODO: Markup is missing
   transform: rotate(180deg);
 } */
 .api-client-drawer {
-  background: var(--theme-background-1);
+  background: var(--scalar-api-reference-theme-background-1);
   height: calc(100vh - 58px);
   width: calc(100vw - 8px);
   border-radius: 12px;
@@ -180,7 +178,7 @@ TODO: Markup is missing
   height: 100%;
   display: flex;
   flex-direction: column;
-  width: var(--theme-sidebar-width);
-  border-right: 1px solid var(--theme-border-color);
+  width: var(--scalar-api-reference-theme-sidebar-width);
+  border-right: 1px solid var(--scalar-api-reference-theme-border-color);
 }
 </style>

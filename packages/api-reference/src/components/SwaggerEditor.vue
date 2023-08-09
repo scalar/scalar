@@ -96,6 +96,7 @@ const breadCrumbs = computed(() => {
   <div
     ref="documentEl"
     :class="[
+      'scalar-api-reference',
       'document',
       'layout-swagger-editor',
       { 'footer-below-sidebar': footerBelowSidebar, 'preview': !isEditable },
@@ -149,51 +150,78 @@ const breadCrumbs = computed(() => {
   </div>
 </template>
 
+<style src="../assets/css/variables.css"></style>
+
 <style>
 /** TODO: Move variables to main code base */
 .scalar-api-client,
 #headlessui-portal-root {
-  --scalar-api-client-post-color: var(--theme-post-color);
-  --scalar-api-client-post-background: var(--theme-post-background);
-  --scalar-api-client-delete-color: var(--theme-delete-color);
-  --scalar-api-client-delete-background: var(--theme-delete-background);
-  --scalar-api-client-patch-color: var(--theme-patch-color);
-  --scalar-api-client-patch-background: var(--theme-patch-background);
-  --scalar-api-client-get-color: var(--theme-get-color);
-  --scalar-api-client-get-background: var(--theme-get-background);
-  --scalar-api-client-put-color: var(--theme-put-color);
-  --scalar-api-client-put-background: var(--theme-put-background);
-  --scalar-api-client-rounded: var(--theme-radius);
-  --scalar-api-client-background-secondary: var(--theme-background-2);
-  --scalar-api-client-color-3: var(--theme-color-3);
-  --scalar-api-client-border: var(--theme-border);
-  --scalar-api-client-font-sans: var(--theme-font);
-  --scalar-api-client-font-mono: var(--theme-font-code);
-  --scalar-api-client-font-bold: var(--theme-bold);
-  --scalar-api-client-theme-color-1: var(--theme-color-1);
-  --scalar-api-client-theme-color-2: var(--theme-color-2);
-  --scalar-api-client-theme-shadow-2: var(--theme-shadow-2);
-  --scalar-api-client-text-sm: var(--theme-small);
-  --scalar-api-client-text-lg: var(--large);
-  --scalar-api-client-text-base: var(--normal);
-  --scalar-api-client-fill: var(--fill);
-  --scalar-api-client-color2: var(--color2);
-  --scalar-api-client-bg3: var(--bg3);
-  --scalar-api-client-gradient: var(--gradient);
-  --scalar-api-client-background-primary: var(--theme-background-1);
-  --scalar-api-client-border-color: var(--theme-border-color);
-  --scalar-api-client-background-3: var(--theme-background-3);
-  --scalar-api-client-font-semibold: var(--theme-semibold);
-  --scalar-api-client-text-xs: var(--theme-micro);
+  --scalar-api-client-post-color: var(--scalar-api-reference-theme-post-color);
+  --scalar-api-client-post-background: var(
+    --scalar-api-reference-theme-post-background
+  );
+  --scalar-api-client-delete-color: var(
+    --scalar-api-reference-theme-delete-color
+  );
+  --scalar-api-client-delete-background: var(
+    --scalar-api-reference-theme-delete-background
+  );
+  --scalar-api-client-patch-color: var(
+    --scalar-api-reference-theme-patch-color
+  );
+  --scalar-api-client-patch-background: var(
+    --scalar-api-reference-theme-patch-background
+  );
+  --scalar-api-client-get-color: var(--scalar-api-reference-theme-get-color);
+  --scalar-api-client-get-background: var(
+    --scalar-api-reference-theme-get-background
+  );
+  --scalar-api-client-put-color: var(--scalar-api-reference-theme-put-color);
+  --scalar-api-client-put-background: var(
+    --scalar-api-reference-theme-put-background
+  );
+  --scalar-api-client-rounded: var(--scalar-api-reference-theme-radius);
+  --scalar-api-client-background-secondary: var(
+    --scalar-api-reference-theme-background-2
+  );
+  --scalar-api-client-color-3: var(--scalar-api-reference-theme-color-3);
+  --scalar-api-client-border: var(--scalar-api-reference-theme-border);
+  --scalar-api-client-font-sans: var(--scalar-api-reference-theme-font);
+  --scalar-api-client-font-mono: var(--scalar-api-reference-theme-font-code);
+  --scalar-api-client-font-bold: var(--scalar-api-reference-theme-bold);
+  --scalar-api-client-theme-color-1: var(--scalar-api-reference-theme-color-1);
+  --scalar-api-client-theme-color-2: var(--scalar-api-reference-theme-color-2);
+  --scalar-api-client-theme-shadow-2: var(
+    --scalar-api-reference-theme-shadow-2
+  );
+  --scalar-api-client-text-sm: var(--scalar-api-reference-theme-small);
+  --scalar-api-client-text-lg: var(--scalar-api-reference-large);
+  --scalar-api-client-text-base: var(--scalar-api-reference-normal);
+  --scalar-api-client-fill: var(--scalar-api-reference-fill);
+  --scalar-api-client-color2: var(--scalar-api-reference-color2);
+  --scalar-api-client-bg3: var(--scalar-api-reference-bg3);
+  --scalar-api-client-gradient: var(--scalar-api-reference-gradient);
+  --scalar-api-client-background-primary: var(
+    --scalar-api-reference-theme-background-1
+  );
+  --scalar-api-client-border-color: var(
+    --scalar-api-reference-theme-border-color
+  );
+  --scalar-api-client-background-3: var(
+    --scalar-api-reference-theme-background-3
+  );
+  --scalar-api-client-font-semibold: var(--scalar-api-reference-theme-semibold);
+  --scalar-api-client-text-xs: var(--scalar-api-reference-theme-micro);
 }
 </style>
 <style>
 /** TODO: Move to components */
 .codemenu-topbar {
-  background: var(--theme-background-2);
-  border-bottom: 1px solid var(--theme-border-color);
+  background: var(--scalar-api-reference-theme-background-2);
+  border-bottom: 1px solid var(--scalar-api-reference-theme-border-color);
   padding: 0 7px 0 12px;
-  border-radius: var(--theme-radius) var(--theme-radius) 0 0;
+  border-radius: var(--scalar-api-reference-theme-radius)
+    var(--scalar-api-reference-theme-radius) 0 0;
 }
 .codemenu {
   display: flex;
@@ -213,27 +241,27 @@ const breadCrumbs = computed(() => {
   align-items: center;
 }
 .codemenu-item-key {
-  font-size: var(--theme-mini);
-  color: var(--theme-color-3);
+  font-size: var(--scalar-api-reference-theme-mini);
+  color: var(--scalar-api-reference-theme-color-3);
   padding: 6px 4px;
   cursor: pointer;
   user-select: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: var(--theme-semibold);
+  font-weight: var(--scalar-api-reference-theme-semibold);
   position: relative;
   margin-left: -4px;
   margin-right: -4px;
-  border-radius: var(--theme-radius);
+  border-radius: var(--scalar-api-reference-theme-radius);
   text-transform: uppercase;
 }
 .codemenu-item-key:hover {
-  background: var(--theme-background-3);
+  background: var(--scalar-api-reference-theme-background-3);
 }
 .codemenu-item:first-of-type:last-of-type .codemenu-item-key,
 .codemenu-item__active .codemenu-item-key {
-  color: var(--theme-color-1);
+  color: var(--scalar-api-reference-theme-color-1);
 }
 .codemenu-item:first-of-type:last-of-type:after,
 .codemenu-item__active:after {
@@ -242,7 +270,7 @@ const breadCrumbs = computed(() => {
   height: 1px;
   position: absolute;
   bottom: -4px;
-  background: var(--theme-color-1);
+  background: var(--scalar-api-reference-theme-color-1);
 }
 
 .codemenu-item__disabled {
@@ -250,7 +278,7 @@ const breadCrumbs = computed(() => {
 }
 .codemenu-item-url {
   margin-left: 6px;
-  color: var(--theme-color-2);
+  color: var(--scalar-api-reference-theme-color-2);
   white-space: nowrap;
   overflow: hidden;
   cursor: default;
@@ -266,19 +294,19 @@ const breadCrumbs = computed(() => {
   overflow: hidden;
 }
 .endpoint .post {
-  color: var(--theme-post-color);
+  color: var(--scalar-api-reference-theme-post-color);
 }
 .endpoint .patch {
-  color: var(--theme-patch-color);
+  color: var(--scalar-api-reference-theme-patch-color);
 }
 .endpoint .get {
-  color: var(--theme-get-color);
+  color: var(--scalar-api-reference-theme-get-color);
 }
 .endpoint .delete {
-  color: var(--theme-delete-color);
+  color: var(--scalar-api-reference-theme-delete-color);
 }
 .endpoint .put {
-  color: var(--theme-put-color);
+  color: var(--scalar-api-reference-theme-put-color);
 }
 .endpoint .post,
 .endpoint .get,
@@ -287,27 +315,27 @@ const breadCrumbs = computed(() => {
   white-space: nowrap;
 }
 .endpoint span {
-  color: var(--theme-color-2);
+  color: var(--scalar-api-reference-theme-color-2);
   min-width: 62px;
   display: inline-block;
   text-align: right;
   line-height: 1.55;
-  font-family: var(--theme-font-code);
-  font-size: var(--theme-mini);
+  font-family: var(--scalar-api-reference-theme-font-code);
+  font-size: var(--scalar-api-reference-theme-mini);
   text-transform: uppercase;
   cursor: pointer;
 }
 .endpoint:hover span:nth-of-type(2) {
-  color: var(--theme-color-1);
+  color: var(--scalar-api-reference-theme-color-1);
 }
 .languages .example-item-endpoints {
-  background: var(--theme-background-2);
+  background: var(--scalar-api-reference-theme-background-2);
   width: 100%;
-  border-top: var(--theme-border);
+  border-top: var(--scalar-api-reference-theme-border);
 }
 .endpoint-response p {
   margin-top: 6px;
-  font-size: var(--theme-small);
+  font-size: var(--scalar-api-reference-theme-small);
   min-height: auto;
   line-height: 17px;
 }
@@ -317,9 +345,9 @@ const breadCrumbs = computed(() => {
   min-width: auto;
 }
 .endpoint-response {
-  border-top: var(--theme-border);
+  border-top: var(--scalar-api-reference-theme-border);
   padding: 12px 0;
-  font-size: var(--theme-small);
+  font-size: var(--scalar-api-reference-theme-small);
 }
 
 .tag-description {
@@ -332,13 +360,13 @@ const breadCrumbs = computed(() => {
   margin-top: 24px;
 }
 .copy .title {
-  font-size: var(--theme-heading-4);
-  font-weight: var(--theme-semibold);
-  color: var(--theme-color-1);
+  font-size: var(--scalar-api-reference-theme-heading-4);
+  font-weight: var(--scalar-api-reference-theme-semibold);
+  color: var(--scalar-api-reference-theme-color-1);
   line-height: 1.45;
 }
 .response-headers-container {
-  border: var(--theme-border);
+  border: var(--scalar-api-reference-theme-border);
   border-radius: 6px;
   margin-top: 12px;
 }
@@ -347,14 +375,14 @@ const breadCrumbs = computed(() => {
 }
 .response-headers-container .title {
   padding: 6px 12px;
-  font-size: var(--theme-small);
+  font-size: var(--scalar-api-reference-theme-small);
 }
 .response-headers-container .endpoint-title {
   margin: 0;
 }
 .response-headers-container .title {
   padding: 6px 12px;
-  font-size: var(--theme-small);
+  font-size: var(--scalar-api-reference-theme-small);
 }
 .endpoint-response__headers {
   padding-bottom: 0;
@@ -372,7 +400,7 @@ const breadCrumbs = computed(() => {
 }
 
 .reference:not(:last-of-type) {
-  border-bottom: var(--theme-border);
+  border-bottom: var(--scalar-api-reference-theme-border);
 }
 
 .reference-container {
@@ -386,7 +414,7 @@ const breadCrumbs = computed(() => {
 }
 
 .reference-container + .reference-container {
-  border-top: var(--theme-border);
+  border-top: var(--scalar-api-reference-theme-border);
 }
 
 .reference-container .copy,
@@ -407,7 +435,7 @@ const breadCrumbs = computed(() => {
 }
 
 .copy .tag-description a {
-  color: var(--theme-color-1);
+  color: var(--scalar-api-reference-theme-color-1);
   text-decoration: underline;
 }
 
@@ -432,9 +460,12 @@ const breadCrumbs = computed(() => {
 }
 
 .editor-heading h1 {
-  font-size: var(--font-size, var(--theme-heading-2));
-  font-weight: var(--font-weight, var(--theme-bold));
-  color: var(--font-color, var(--theme-color-1));
+  font-size: var(--font-size, var(--scalar-api-reference-theme-heading-2));
+  font-weight: var(--font-weight, var(--scalar-api-reference-theme-bold));
+  color: var(
+    --scalar-api-reference-font-color,
+    var(--scalar-api-reference-theme-color-1)
+  );
   line-height: 1.45;
 }
 
@@ -448,31 +479,35 @@ const breadCrumbs = computed(() => {
   overflow-x: hidden;
 
   /* Fallback to 100vh if the element height is not specified */
-  --full-height: var(--full-height, 100vh);
+  --full-height: var(--scalar-api-reference-full-height, 100vh);
   /* --theme-header-height: 50px; */
-  /* --theme-sidebar-width: 200px; */
+  /* --scalar-api-reference-theme-sidebar-width: 200px; */
   /* --theme-toc-width: 200px; */
 
-  --document-height: calc(var(--full-height) - var(--theme-header-height));
+  --document-height: calc(
+    var(--scalar-api-reference-full-height) -
+      var(--scalar-api-reference-theme-header-height)
+  );
 
-  --col-width-1: var(--theme-sidebar-width);
+  --col-width-1: var(--scalar-api-reference-theme-sidebar-width);
   --col-width-2: auto;
-  --col-width-3: var(--theme-toc-width);
+  --col-width-3: var(--scalar-api-reference-theme-toc-width);
 
   /* Redifine theme border at the document level so it's not pulled off the body */
-  --theme-border: var(--theme-border-width) solid var(--theme-border-color);
+  --theme-border: var(--scalar-api-reference-theme-border-width) solid
+    var(--scalar-api-reference-theme-border-color);
 
   display: grid;
 
   grid-template-rows:
-    var(--theme-header-height)
+    var(--scalar-api-reference-theme-header-height)
     auto
     auto;
 
   grid-template-columns:
-    var(--col-width-1)
-    var(--col-width-2)
-    var(--col-width-3);
+    var(--scalar-api-reference-col-width-1)
+    var(--scalar-api-reference-col-width-2)
+    var(--scalar-api-reference-col-width-3);
 
   grid-template-areas:
     'header header header'
@@ -511,15 +546,18 @@ const breadCrumbs = computed(() => {
 .layout-content {
   grid-area: content;
   min-width: 0;
-  background: var(--theme-background-1);
+  background: var(--scalar-api-reference-theme-background-1);
 }
 
 /* Measures the visible viewport of the editor */
 .layout-content-viewport {
   position: fixed;
-  left: var(--theme-sidebar-width);
-  right: var(--theme-toc-width);
-  top: calc(var(--app-header-height) + var(--theme-header-height));
+  left: var(--scalar-api-reference-theme-sidebar-width);
+  right: var(--scalar-api-reference-theme-toc-width);
+  top: calc(
+    var(--scalar-api-reference-app-header-height) +
+      var(--scalar-api-reference-theme-header-height)
+  );
   bottom: 0;
   pointer-events: none;
 }
@@ -527,19 +565,22 @@ const breadCrumbs = computed(() => {
 .layout-aside-left {
   position: relative;
   grid-area: sidebar;
-  border-right: var(--sidebar-border-color, var(--theme-border));
+  border-right: var(
+    --scalar-api-reference-sidebar-border-color,
+    var(--scalar-api-reference-theme-border)
+  );
 }
 
 .layout-aside-right {
   position: relative;
   grid-area: aside;
-  background: var(--theme-background-1);
+  background: var(--scalar-api-reference-theme-background-1);
 }
 
 .layout-aside-content {
   position: sticky;
-  top: var(--theme-header-height);
-  height: var(--document-height);
+  top: var(--scalar-api-reference-theme-header-height);
+  height: var(--scalar-api-reference-document-height);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -554,27 +595,34 @@ const breadCrumbs = computed(() => {
 
 .document.layout-swagger-editor {
   /* Fallback to 100vh if the element height is not specified */
-  --full-height: var(--full-height, 100vh);
+  --full-height: var(--scalar-api-reference-full-height, 100vh);
   /* --theme-header-height: 50px; */
-  /* --theme-sidebar-width: 200px; */
+  /* --scalar-api-reference-theme-sidebar-width: 200px; */
   /* --theme-toc-width: 200px; */
 
-  --document-height: calc(var(--full-height) - var(--theme-header-height));
+  --document-height: calc(
+    var(--scalar-api-reference-full-height) -
+      var(--scalar-api-reference-theme-header-height)
+  );
 
-  --col-width-1: var(--theme-sidebar-width);
-  --col-width-2: calc(50% - (var(--theme-sidebar-width) / 2));
-  --col-width-3: calc(50% - (var(--theme-sidebar-width) / 2));
+  --col-width-1: var(--scalar-api-reference-theme-sidebar-width);
+  --col-width-2: calc(
+    50% - (var(--scalar-api-reference-theme-sidebar-width) / 2)
+  );
+  --col-width-3: calc(
+    50% - (var(--scalar-api-reference-theme-sidebar-width) / 2)
+  );
 
   display: grid;
 
   grid-template-rows:
-    var(--theme-header-height)
+    var(--scalar-api-reference-theme-header-height)
     auto;
 
   grid-template-columns:
-    var(--col-width-1)
-    var(--col-width-2)
-    var(--col-width-3);
+    var(--scalar-api-reference-col-width-1)
+    var(--scalar-api-reference-col-width-2)
+    var(--scalar-api-reference-col-width-3);
 
   grid-template-areas:
     'header header header'
@@ -584,13 +632,13 @@ const breadCrumbs = computed(() => {
 
 .document.layout-swagger-editor .layout-content {
   position: sticky;
-  top: var(--theme-header-height);
-  height: var(--document-height);
+  top: var(--scalar-api-reference-theme-header-height);
+  height: var(--scalar-api-reference-document-height);
 }
 
 .document.preview {
-  --col-width-2: calc(100% - (var(--theme-sidebar-width)));
-  --col-width-3: calc(100% - (var(--theme-sidebar-width)));
+  --col-width-2: calc(100% - (var(--scalar-api-reference-theme-sidebar-width)));
+  --col-width-3: calc(100% - (var(--scalar-api-reference-theme-sidebar-width)));
 
   grid-template-areas:
     'header header'
@@ -626,7 +674,7 @@ const breadCrumbs = computed(() => {
   .document.layout-swagger-editor {
     /** Content area heights are restricted using just the template row defs */
     grid-template-rows:
-      var(--theme-header-height)
+      var(--scalar-api-reference-theme-header-height)
       auto
       auto
       auto;
@@ -650,8 +698,8 @@ const breadCrumbs = computed(() => {
   .layout-aside-left {
     position: sticky;
     top: 0;
-    height: var(--theme-header-height);
-    border-bottom: var(--theme-border);
+    height: var(--scalar-api-reference-theme-header-height);
+    border-bottom: var(--scalar-api-reference-theme-border);
 
     width: 100%;
     z-index: 10;
@@ -667,9 +715,9 @@ const breadCrumbs = computed(() => {
     width: 100%;
 
     /* Offset by 2px to fill screen and compensate for gap */
-    height: calc(var(--document-height) + 2px);
+    height: calc(var(--scalar-api-reference-document-height) + 2px);
 
-    border-top: var(--theme-border);
+    border-top: var(--scalar-api-reference-theme-border);
     display: flex;
     flex-direction: column;
   }

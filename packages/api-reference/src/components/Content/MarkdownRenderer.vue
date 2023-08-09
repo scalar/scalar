@@ -62,9 +62,12 @@ watch(
 }
 
 .markdown :deep(p) {
-  font-size: var(--font-size, var(--theme-paragraph));
-  color: var(--font-color, var(--theme-color-1));
-  font-weight: var(--font-weight, var(--theme-regular));
+  font-size: var(--font-size, var(--scalar-api-reference-theme-paragraph));
+  color: var(
+    --scalar-api-reference-font-color,
+    var(--scalar-api-reference-theme-color-1)
+  );
+  font-weight: var(--font-weight, var(--scalar-api-reference-theme-regular));
   line-height: 1.5;
 }
 
@@ -85,10 +88,10 @@ watch(
 }
 
 .markdown :deep(code) {
-  font-family: var(--theme-font-code);
-  background-color: var(--theme-background-2);
-  box-shadow: 0 0 0 1px var(--theme-border-color);
-  font-size: var(--theme-mini);
+  font-family: var(--scalar-api-reference-theme-font-code);
+  background-color: var(--scalar-api-reference-theme-background-2);
+  box-shadow: 0 0 0 1px var(--scalar-api-reference-theme-border-color);
+  font-size: var(--scalar-api-reference-theme-mini);
   border-radius: 2px;
   padding: 0 3px;
 }
@@ -105,7 +108,7 @@ watch(
 }
 
 .markdown :deep(blockquote) {
-  border-left: 3px solid var(--theme-border-color);
+  border-left: 3px solid var(--scalar-api-reference-theme-border-color);
   padding-left: 12px;
 }
 
@@ -116,8 +119,8 @@ watch(
   width: 100%;
   margin: 0;
   overflow: hidden;
-  box-shadow: 0 0 0 1px var(--theme-border-color);
-  border-radius: var(--theme-radius);
+  box-shadow: 0 0 0 1px var(--scalar-api-reference-theme-border-color);
+  border-radius: var(--scalar-api-reference-theme-radius);
 }
 
 .markdown :deep(td),
@@ -128,8 +131,8 @@ watch(
   box-sizing: border-box;
   position: relative;
   word-break: break-all;
-  border-right: var(--theme-border);
-  border-bottom: var(--theme-border);
+  border-right: var(--scalar-api-reference-theme-border);
+  border-bottom: var(--scalar-api-reference-theme-border);
 }
 
 .markdown :deep(td > *),
@@ -137,8 +140,8 @@ watch(
   margin-bottom: 0;
 }
 .markdown.parameter-description :deep(p) {
-  font-size: var(--theme-small);
-  color: var(--theme-color-2);
+  font-size: var(--scalar-api-reference-theme-small);
+  color: var(--scalar-api-reference-theme-color-2);
   line-height: initial;
 }
 .markdown :deep(td:first-of-type),
@@ -159,6 +162,6 @@ watch(
   font-weight: bold !important;
   text-align: left;
   border-left-color: transparent;
-  background: var(--theme-background-2);
+  background: var(--scalar-api-reference-theme-background-2);
 }
 </style>
