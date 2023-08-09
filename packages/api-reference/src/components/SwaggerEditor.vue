@@ -255,7 +255,7 @@ const breadCrumbs = computed(() => {
   overflow: hidden;
   cursor: default;
   text-overflow: ellipsis;
-  text-transform: none !important;
+  text-transform: none;
 }
 .endpoint {
   display: flex;
@@ -322,9 +322,6 @@ const breadCrumbs = computed(() => {
   font-size: var(--theme-small);
 }
 
-.heading {
-  margin-top: 0px !important;
-}
 .tag-description {
   margin-top: 12px;
 }
@@ -439,7 +436,6 @@ const breadCrumbs = computed(() => {
   font-weight: var(--font-weight, var(--theme-bold));
   color: var(--font-color, var(--theme-color-1));
   line-height: 1.45;
-  margin-top: 60px;
 }
 
 /** Layout */
@@ -495,7 +491,7 @@ const breadCrumbs = computed(() => {
 .document.hide-aside-right .layout-aside-right .layout-aside-content {
   border-right-color: transparent;
   border-left-color: transparent;
-  display: none !important;
+  display: none;
 }
 
 .document.footer-below-sidebar {
