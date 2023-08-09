@@ -75,7 +75,7 @@ const standardLibrary = computed(() => {
           </template>
         </p>
       </div>
-      <div>
+      <div class="example flex-col gap-1">
         <Card v-if="server?.url">
           <CardHeader muted>Base URL</CardHeader>
           <CardContent muted>

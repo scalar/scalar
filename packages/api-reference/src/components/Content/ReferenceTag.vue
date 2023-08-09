@@ -63,21 +63,23 @@ onMounted(() => {
         <MarkdownRenderer :value="tag.description" />
       </div>
     </div>
-    <Card>
-      <CardHeader muted>Endpoints</CardHeader>
-      <CardContent muted>
-        <div class="endpoints custom-scroll">
-          <a
-            v-for="child in tag.operations"
-            :key="child.operationId"
-            class="endpoint"
-            @click="scrollToEndpoint(child)">
-            <span :class="child.httpVerb">{{ child.httpVerb }}</span>
-            <span>{{ child.path }}</span>
-          </a>
-        </div>
-      </CardContent>
-    </Card>
+    <div class="example">
+      <Card>
+        <CardHeader muted>Endpoints</CardHeader>
+        <CardContent muted>
+          <div class="endpoints custom-scroll">
+            <a
+              v-for="child in tag.operations"
+              :key="child.operationId"
+              class="endpoint"
+              @click="scrollToEndpoint(child)">
+              <span :class="child.httpVerb">{{ child.httpVerb }}</span>
+              <span>{{ child.path }}</span>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   </div>
 </template>
 <style scoped>

@@ -31,7 +31,7 @@ onMounted(() => {
 </script>
 <template>
   <div
-    ref="referenceEl tags"
+    ref="referenceEl"
     :class="{
       'references-narrow': isNarrow,
     }">

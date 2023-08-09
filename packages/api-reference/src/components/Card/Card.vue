@@ -9,6 +9,5 @@
   border: 10px solid red;
   overflow: hidden;
   border: 1px solid var(--theme-border-color);
-  margin: 12px 0;
 }
 </style>
