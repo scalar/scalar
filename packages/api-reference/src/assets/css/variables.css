@@ -51,4 +51,9 @@
   --scalar-api-reference-theme-radius-lg: var(--theme-radius-lg);
   --scalar-api-reference-theme-regular: var(--theme-regular);
   --scalar-api-reference-theme-toc-width: var(--theme-toc-width);
+  --scalar-api-reference-theme-post-color: var(--theme-post-color);
+  --scalar-api-reference-theme-patch-color: var(--theme-patch-color);
+  --scalar-api-reference-theme-get-color: var(--theme-get-color);
+  --scalar-api-reference-theme-delete-color: var(--theme-delete-color);
+  --scalar-api-reference-theme-put-color: var(--theme-put-color);
 }

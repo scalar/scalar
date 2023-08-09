@@ -190,10 +190,8 @@ const availableLanguages = computed(() => {
 <template>
   <div class="dark-mode">
     <Card>
-      <CardHeader>
-        <span
-          class="http-method"
-          :class="operation.httpVerb">
+      <CardHeader muted>
+        <span :class="`http-method http-method--${operation.httpVerb}`">
           {{ operation.httpVerb }}
         </span>
         <span class="codemenu-item-url">{{ operation.path }}</span>
@@ -231,7 +229,7 @@ const availableLanguages = computed(() => {
         frameless>
         <div ref="codeMirrorRef" />
       </CardContent>
-      <CardFooter>
+      <CardFooter muted>
         <button
           class="trigger-scalar-client-button"
           type="button"
@@ -358,9 +356,22 @@ const availableLanguages = computed(() => {
   background: var(--scalar-api-reference-theme-background-2);
   padding: 4px 12px 12px 12px;
 }
-.http-method {
-  color: var(--scalar-api-reference-theme-color-1) !important;
+.http-method--post {
+  color: var(--scalar-api-reference-theme-post-color);
 }
+.http-method--patch {
+  color: var(--scalar-api-reference-theme-patch-color);
+}
+.http-method--get {
+  color: var(--scalar-api-reference-theme-get-color);
+}
+.http-method--delete {
+  color: var(--scalar-api-reference-theme-delete-color);
+}
+.http-method--put {
+  color: var(--scalar-api-reference-theme-put-color);
+}
+
 .dark-mode-document-remove-everything {
   all: unset;
 }

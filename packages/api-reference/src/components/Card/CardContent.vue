@@ -26,7 +26,7 @@ withDefaults(
 <style scoped>
 .card-content {
   overflow: auto;
-  padding: 12px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--scalar-api-reference-theme-border-color);
 }
 
