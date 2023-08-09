@@ -264,15 +264,6 @@ const breadCrumbs = computed(() => {
 .codemenu-item__disabled {
   pointer-events: none;
 }
-.codemenu-item-url {
-  margin-left: 6px;
-  color: var(--scalar-api-reference-theme-color-2);
-  white-space: nowrap;
-  overflow: hidden;
-  cursor: default;
-  text-overflow: ellipsis;
-  text-transform: none;
-}
 .endpoint {
   display: flex;
   white-space: nowrap;

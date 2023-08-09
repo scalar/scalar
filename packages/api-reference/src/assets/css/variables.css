@@ -1,5 +1,6 @@
 .scalar-api-reference,
-#headlessui-portal-root {
+#headlessui-portal-root,
+.dark-mode {
   --scalar-api-reference-sidebar-border-color: var(--theme-border-color);
   --scalar-api-reference-theme-background-1: var(--theme-background-1);
   --scalar-api-reference-theme-background-2: var(--theme-background-2);

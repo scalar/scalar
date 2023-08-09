@@ -8,7 +8,6 @@ defineProps<{ operation: Operation; server: Server }>()
 <template>
   <div class="example">
     <ExampleRequest
-      class="dark-mode"
       :operation="operation"
       :server="server" />
     <ExampleResponse :operation="operation" />

@@ -188,93 +188,125 @@ const availableLanguages = computed(() => {
 })
 </script>
 <template>
-  <div class="dark-mode">
-    <Card>
-      <CardHeader muted>
-        <span :class="`http-method http-method--${operation.httpVerb}`">
-          {{ operation.httpVerb }}
-        </span>
-        <span class="codemenu-item-url">{{ operation.path }}</span>
+  <Card class="dark-mode">
+    <CardHeader muted>
+      <span :class="`request-method request-method--${operation.httpVerb}`">
+        {{ operation.httpVerb }}
+      </span>
+      <span class="request-path">{{ operation.path }}</span>
 
-        <template #actions>
-          <div class="scalar-api-reference-language-select">
-            <span>{{
-              getLanguageTitleByKey(templateState.preferredLanguage)
-            }}</span>
-            <select
-              class="scalar-api-reference-language-select"
-              :value="templateState.preferredLanguage"
-              @input="event => selectLanguage((event.target as HTMLSelectElement).value as TargetId)">
-              <option
-                v-for="lang in availableLanguages"
-                :key="lang.key"
-                :value="lang.key">
-                {{ lang.title }}
-              </option>
-            </select>
-          </div>
+      <template #actions>
+        <div class="language-select">
+          <span>{{
+            getLanguageTitleByKey(templateState.preferredLanguage)
+          }}</span>
+          <select
+            class="language-select"
+            :value="templateState.preferredLanguage"
+            @input="event => selectLanguage((event.target as HTMLSelectElement).value as TargetId)">
+            <option
+              v-for="lang in availableLanguages"
+              :key="lang.key"
+              :value="lang.key">
+              {{ lang.title }}
+            </option>
+          </select>
+        </div>
 
-          <button
-            class="code-copy"
-            type="button"
-            @click="copyExampleRequest">
-            <Icon
-              src="solid/interface-copy-clipboard"
-              width="10px" />
-          </button>
-        </template>
-      </CardHeader>
-      <CardContent
-        borderless
-        frameless>
-        <div ref="codeMirrorRef" />
-      </CardContent>
-      <CardFooter muted>
         <button
-          class="trigger-scalar-client-button"
+          class="copy-button"
           type="button"
-          @click="showItemInClient">
-          <Icon src="solid/mail-send-email-paper-airplane" />
-          Test {{ operation.httpVerb }} Request in Client
+          @click="copyExampleRequest">
+          <Icon
+            src="solid/interface-copy-clipboard"
+            width="10px" />
         </button>
-      </CardFooter>
-    </Card>
-  </div>
+      </template>
+    </CardHeader>
+    <CardContent
+      borderless
+      frameless>
+      <div ref="codeMirrorRef" />
+    </CardContent>
+    <CardFooter muted>
+      <button
+        class="show-api-client-button"
+        type="button"
+        @click="showItemInClient">
+        <Icon src="solid/mail-send-email-paper-airplane" />
+        Test {{ operation.httpVerb }} Request in Client
+      </button>
+    </CardFooter>
+  </Card>
 </template>
 <style scoped>
-.trigger-scalar-client-button {
-  width: 100%;
-  display: block;
-  appearance: none;
-  outline: none;
-  border: none;
-  border-radius: var(--scalar-api-reference-theme-radius-lg);
-  height: 35px;
-  display: flex;
-  justify-content: center;
-  cursor: pointer;
-  align-items: center;
-  font-weight: var(--scalar-api-reference-theme-bold);
-  font-size: var(--scalar-api-reference-theme-micro);
-  text-transform: uppercase;
-  border: 1px solid currentColor;
-  background: var(--scalar-api-reference-theme-button-1);
-  color: var(--scalar-api-reference-theme-button-1-color);
+.request-method--post {
+  color: var(--scalar-api-reference-theme-post-color);
 }
-.trigger-scalar-client-button:hover {
-  background: var(--scalar-api-reference-theme-button-1-hover);
+.request-method--patch {
+  color: var(--scalar-api-reference-theme-patch-color);
 }
-.trigger-scalar-client-button svg {
-  height: 12px;
-  width: auto;
-  margin-right: 6px;
+.request-method--get {
+  color: var(--scalar-api-reference-theme-get-color);
 }
-.coder {
-  border-radius: var(--scalar-api-reference-theme-radius-lg);
-  border: 1px solid var(--scalar-api-reference-theme-border-color);
+.request-method--delete {
+  color: var(--scalar-api-reference-theme-delete-color);
+}
+.request-method--put {
+  color: var(--scalar-api-reference-theme-put-color);
+}
+.request-path {
+  margin-left: 6px;
+  color: var(--scalar-api-reference-theme-color-2);
+  white-space: nowrap;
   overflow: hidden;
+  cursor: default;
+  text-overflow: ellipsis;
+  text-transform: none !important;
 }
-.code-copy {
+
+.language-select {
+  position: relative;
+  padding-right: 9px;
+  border-right: 1px solid var(--scalar-api-reference-theme-border-color);
+}
+.language-select select {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  background: var(--scalar-api-reference-theme-background-3);
+  box-shadow: -2px 0 0 0 var(--scalar-api-reference-theme-background-3);
+  z-index: 2;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  appearance: none;
+}
+.language-select span {
+  font-size: 12px;
+  color: var(--scalar-api-reference-theme-color-3);
+  font-weight: var(--scalar-api-reference-theme-semibold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.language-select span:after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  transform: rotate(45deg) translate3d(-2px, -2px, 0);
+  display: block;
+  margin-left: 6px;
+  box-shadow: 1px 1px 0 currentColor;
+}
+.language-select span:hover {
+  background: var(--scalar-api-reference-theme-background-2);
+}
+
+.copy-button {
   appearance: none;
   -webkit-appearance: none;
   outline: none;
@@ -293,86 +325,32 @@ const availableLanguages = computed(() => {
     height: 13px;
   }
 }
-.code-runit {
-  appearance: none;
-  -webkit-appearance: none;
-  background: transparent;
-  outline: none;
-  border: none;
-  display: flex;
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: var(--scalar-api-reference-theme-bold);
-  text-transform: uppercase;
-  color: currentColor;
-  padding: 6px 9px 6px 24px;
-}
-.scalar-api-reference-language-select {
-  position: relative;
-  padding-right: 9px;
-  border-right: 1px solid var(--scalar-api-reference-theme-border-color);
-}
-.scalar-api-reference-language-select select {
-  border: none;
-  outline: none;
-  cursor: pointer;
-  background: var(--scalar-api-reference-theme-background-3);
-  box-shadow: -2px 0 0 0 var(--scalar-api-reference-theme-background-3);
-  z-index: 2;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  appearance: none;
-}
-.scalar-api-reference-language-select span {
-  font-size: 12px;
-  color: var(--scalar-api-reference-theme-color-3);
-  font-weight: var(--scalar-api-reference-theme-semibold);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.scalar-api-reference-language-select span:after {
-  content: '';
-  width: 7px;
-  height: 7px;
-  transform: rotate(45deg) translate3d(-2px, -2px, 0);
-  display: block;
-  margin-left: 6px;
-  box-shadow: 1px 1px 0 currentColor;
-}
-.scalar-api-reference-language-select span:hover {
-  background: var(--scalar-api-reference-theme-background-2);
-}
-.coder-right {
-  display: flex;
-  align-items: center;
-  min-height: 21px;
-}
-.trigger-scalar-client {
-  background: var(--scalar-api-reference-theme-background-2);
-  padding: 4px 12px 12px 12px;
-}
-.http-method--post {
-  color: var(--scalar-api-reference-theme-post-color);
-}
-.http-method--patch {
-  color: var(--scalar-api-reference-theme-patch-color);
-}
-.http-method--get {
-  color: var(--scalar-api-reference-theme-get-color);
-}
-.http-method--delete {
-  color: var(--scalar-api-reference-theme-delete-color);
-}
-.http-method--put {
-  color: var(--scalar-api-reference-theme-put-color);
-}
 
-.dark-mode-document-remove-everything {
-  all: unset;
+.show-api-client-button {
+  width: 100%;
+  display: block;
+  appearance: none;
+  outline: none;
+  border: none;
+  border-radius: var(--scalar-api-reference-theme-radius-lg);
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  align-items: center;
+  font-weight: var(--scalar-api-reference-theme-bold);
+  font-size: var(--scalar-api-reference-theme-micro);
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  background: var(--scalar-api-reference-theme-button-1);
+  color: var(--scalar-api-reference-theme-button-1-color);
+}
+.show-api-client-button:hover {
+  background: var(--scalar-api-reference-theme-button-1-hover);
+}
+.show-api-client-button svg {
+  height: 12px;
+  width: auto;
+  margin-right: 6px;
 }
 </style>
