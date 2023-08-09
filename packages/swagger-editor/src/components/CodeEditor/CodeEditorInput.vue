@@ -177,7 +177,6 @@ defineExpose({
   padding: 6px 0;
 }
 .cm-editor .cm-line {
-  padding: 0 12px;
   color: var(--theme-color-1) !important;
   caret-color: var(--theme-color-1) !important;
 }

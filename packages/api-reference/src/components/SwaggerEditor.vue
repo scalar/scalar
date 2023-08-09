@@ -344,25 +344,6 @@ const breadCrumbs = computed(() => {
   color: var(--scalar-api-reference-theme-color-1);
   line-height: 1.45;
 }
-.response-headers-container {
-  border: var(--scalar-api-reference-theme-border);
-  border-radius: 6px;
-  margin-top: 12px;
-}
-.response-headers-container .parameter li {
-  padding: 12px;
-}
-.response-headers-container .title {
-  padding: 6px 12px;
-  font-size: var(--scalar-api-reference-theme-small);
-}
-.response-headers-container .endpoint-title {
-  margin: 0;
-}
-.response-headers-container .title {
-  padding: 6px 12px;
-  font-size: var(--scalar-api-reference-theme-small);
-}
 .endpoint-response__headers {
   padding-bottom: 0;
 }
