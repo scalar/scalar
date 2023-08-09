@@ -23,7 +23,7 @@ type UseCodeMirrorParameters = {
   /**
    * Whether to load a theme.
    */
-  withoutTheme: boolean
+  withoutTheme?: boolean
 }
 
 export const useCodeMirror = (
