@@ -20,6 +20,10 @@ type UseCodeMirrorParameters = {
    * Inverse the dark mode.
    */
   forceDarkMode?: boolean
+  /**
+   * Whether to load a theme.
+   */
+  withoutTheme: boolean
 }
 
 export const useCodeMirror = (
@@ -31,7 +35,7 @@ export const useCodeMirror = (
   reconfigureCodeMirror: (newExtensions: Extension[]) => void
   restartCodeMirror: (newExtensions: Extension[]) => void
 } => {
-  const { extensions, content, forceDarkMode } = parameters
+  const { extensions, content, forceDarkMode, withoutTheme } = parameters
   const codeMirrorRef = ref<HTMLDivElement | null>(null)
   const codeMirror = ref<EditorView | null>(null)
 
@@ -60,11 +64,18 @@ export const useCodeMirror = (
 
   // Extend the given extension list with a dark/light theme.
   const addDefaultExtensions = (newExtensions: Extension[]) => {
+    const theme = withoutTheme
+      ? null
+      : forceDarkMode
+      ? duotoneLight
+      : isDark.value
+      ? duotoneDark
+      : duotoneLight
     // Themes
     const defaultExtensions: Extension[] = [
       EditorView.theme({}, { dark: forceDarkMode ? false : isDark.value }),
-      forceDarkMode ? duotoneLight : isDark.value ? duotoneDark : duotoneLight,
-    ]
+      theme,
+    ].filter((extension) => extension !== null) as Extension[]
 
     return [...defaultExtensions, newExtensions]
   }

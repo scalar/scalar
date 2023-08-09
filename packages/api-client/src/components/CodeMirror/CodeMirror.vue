@@ -20,6 +20,7 @@ const props = defineProps<{
   languages?: Language[]
   withVariables?: boolean
   lineNumbers?: boolean
+  withoutTheme?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -79,6 +80,7 @@ extensions.push(
 const { codeMirrorRef, setCodeMirrorContent } = useCodeMirror({
   content: props.content ?? '',
   extensions,
+  withoutTheme: props.withoutTheme,
 })
 
 watch(

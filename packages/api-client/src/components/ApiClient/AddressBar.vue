@@ -107,6 +107,7 @@ const onChange = (value: string) => {
           :content="formattedUrl"
           :readOnly="readOnly"
           :withVariables="true"
+          :withoutTheme="true"
           @change="onChange" />
       </div>
       <button
