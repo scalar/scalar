@@ -31,9 +31,8 @@
   --scalar-api-reference-sidebar-color-1: var(--theme-color-1);
   --scalar-api-reference-sidebar-color-2: var(--theme-color-2);
   --scalar-api-reference-sidebar-color-active: var(--theme-color-accent);
-  --scalar-api-reference-sidebar-item-hover-background: var(
-    --theme-background-2
-  );
+  /* prettier-ignore */
+  --scalar-api-reference-sidebar-item-hover-background: var(--theme-background-2);
   --scalar-api-reference-theme-background-3: var(--theme-background-3);
   --scalar-api-reference-theme-bold: var(--theme-bold);
   --scalar-api-reference-theme-border-width: var(--theme-border-width);

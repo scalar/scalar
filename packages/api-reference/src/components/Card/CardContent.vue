@@ -1,8 +1,16 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ muted?: boolean; frameless?: boolean }>(), {
-  muted: false,
-  frameless: false,
-})
+withDefaults(
+  defineProps<{
+    muted?: boolean
+    frameless?: boolean
+    borderless?: boolean
+  }>(),
+  {
+    muted: false,
+    frameless: false,
+    borderless: false,
+  },
+)
 </script>
 <template>
   <div
@@ -10,6 +18,7 @@ withDefaults(defineProps<{ muted?: boolean; frameless?: boolean }>(), {
       'card-content': true,
       'card--muted': muted,
       'card--frameless': frameless,
+      'card--borderless': borderless,
     }">
     <slot />
   </div>
@@ -17,11 +26,12 @@ withDefaults(defineProps<{ muted?: boolean; frameless?: boolean }>(), {
 <style scoped>
 .card-content {
   overflow: auto;
-  padding: 12px 0 12px 12px;
+  padding: 12px;
   border-bottom: 1px solid var(--scalar-api-reference-theme-border-color);
 }
 
-.card-content:last-of-type {
+.card-content:last-of-type,
+.card-content.card--borderless {
   border-bottom: none;
 }
 

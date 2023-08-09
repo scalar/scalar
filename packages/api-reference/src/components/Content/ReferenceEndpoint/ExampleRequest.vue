@@ -43,6 +43,7 @@ import {
 } from '../../../helpers'
 import { useTemplateStore } from '../../../stores/template'
 import type { Operation, Server } from '../../../types'
+import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import { Icon } from '../../Icon'
 
 const props = defineProps<{ operation: Operation; server: Server }>()
@@ -188,73 +189,58 @@ const availableLanguages = computed(() => {
 </script>
 <template>
   <div class="dark-mode">
-    <div class="dark-mode-document-remove-everything">
-      <div class="coder">
-        <div class="codemenu-topbar">
-          <div class="codemenu">
-            <a class="endpoint">
-              <span
-                class="codemenu-item-title"
-                :class="operation.httpVerb">
-                {{ operation.httpVerb }}
-              </span>
-              <span class="codemenu-item-url">{{ operation.path }}</span>
-            </a>
-            <div class="coder-right">
-              <div class="codemirror-select">
-                <span>{{
-                  getLanguageTitleByKey(templateState.preferredLanguage)
-                }}</span>
-                <select
-                  ref="select-option-code-block"
-                  class="codemirror-select"
-                  :value="templateState.preferredLanguage"
-                  @input="event => selectLanguage((event.target as HTMLSelectElement).value as TargetId)">
-                  <option
-                    v-for="lang in availableLanguages"
-                    :key="lang.key"
-                    :value="lang.key">
-                    {{ lang.title }}
-                  </option>
-                </select>
-              </div>
-              <button
-                class="code-copy"
-                type="button"
-                @click="copyExampleRequest">
-                <Icon
-                  src="solid/interface-copy-clipboard"
-                  width="10px" />
-              </button>
-            </div>
+    <Card>
+      <CardHeader>
+        <span
+          class="http-method"
+          :class="operation.httpVerb">
+          {{ operation.httpVerb }}
+        </span>
+        <span class="codemenu-item-url">{{ operation.path }}</span>
+
+        <template #actions>
+          <div class="scalar-api-reference-language-select">
+            <span>{{
+              getLanguageTitleByKey(templateState.preferredLanguage)
+            }}</span>
+            <select
+              class="scalar-api-reference-language-select"
+              :value="templateState.preferredLanguage"
+              @input="event => selectLanguage((event.target as HTMLSelectElement).value as TargetId)">
+              <option
+                v-for="lang in availableLanguages"
+                :key="lang.key"
+                :value="lang.key">
+                {{ lang.title }}
+              </option>
+            </select>
           </div>
-        </div>
-        <div ref="codeMirrorRef" />
-        <div class="trigger-scalar-client">
+
           <button
-            class="trigger-scalar-client-button"
+            class="code-copy"
             type="button"
-            @click="showItemInClient">
-            <svg
-              fill="none"
-              height="48"
-              viewBox="0 0 14 14"
-              width="48"
-              xmlns="http://www.w3.org/2000/svg">
-              <g id="send-email--mail-send-email-paper-airplane">
-                <path
-                  id="Subtract"
-                  clip-rule="evenodd"
-                  d="M11.8215 0.0977331C12.1097 -0.0075178 12.422 -0.0287134 12.7219 0.0367172C13.0248 0.102803 13.3024 0.254481 13.5216 0.473719C13.7409 0.692957 13.8926 0.970537 13.9586 1.27346C14.0241 1.57338 14.0029 1.88566 13.8976 2.17389L10.3236 12.8859L10.3234 12.8866C10.2363 13.15 10.083 13.3867 9.87813 13.5739C9.67383 13.7606 9.42512 13.8917 9.15575 13.9549C8.88633 14.0206 8.60444 14.015 8.33777 13.9388C8.07134 13.8627 7.82929 13.7187 7.63532 13.5209L5.71798 11.6123L3.70392 12.6538C3.54687 12.735 3.3586 12.7272 3.20877 12.6333C3.05895 12.5395 2.96984 12.3734 2.97443 12.1967L3.057 9.01294L10.102 3.89553C10.3812 3.69267 10.4432 3.30182 10.2403 3.02255C10.0375 2.74327 9.64662 2.68133 9.36734 2.88419L2.20286 8.0884L0.473156 6.35869L0.473098 6.35864L0.472971 6.35851C0.285648 6.17132 0.147746 5.94054 0.0716498 5.68688C-0.00390565 5.43503 -0.016181 5.16847 0.0358684 4.91079C0.087985 4.62928 0.213827 4.36658 0.400607 4.14951C0.588668 3.93095 0.831681 3.76658 1.10453 3.67339L1.1079 3.67224L1.1079 3.67225L11.8215 0.0977331Z"
-                  fill="currentColor"
-                  fill-rule="evenodd"></path>
-              </g>
-            </svg>
-            Test {{ operation.httpVerb }} Request in Client
+            @click="copyExampleRequest">
+            <Icon
+              src="solid/interface-copy-clipboard"
+              width="10px" />
           </button>
-        </div>
-      </div>
-    </div>
+        </template>
+      </CardHeader>
+      <CardContent
+        borderless
+        frameless>
+        <div ref="codeMirrorRef" />
+      </CardContent>
+      <CardFooter>
+        <button
+          class="trigger-scalar-client-button"
+          type="button"
+          @click="showItemInClient">
+          <Icon src="solid/mail-send-email-paper-airplane" />
+          Test {{ operation.httpVerb }} Request in Client
+        </button>
+      </CardFooter>
+    </Card>
   </div>
 </template>
 <style scoped>
@@ -301,7 +287,6 @@ const availableLanguages = computed(() => {
   margin-left: 6px;
   border: none;
   border-radius: 3px;
-  padding: 5px;
   &:hover {
     color: var(--scalar-api-reference-theme-color-1);
   }
@@ -324,13 +309,12 @@ const availableLanguages = computed(() => {
   color: currentColor;
   padding: 6px 9px 6px 24px;
 }
-.codemirror-select {
+.scalar-api-reference-language-select {
   position: relative;
   padding-right: 9px;
   border-right: 1px solid var(--scalar-api-reference-theme-border-color);
-  height: 21px;
 }
-.codemirror-select select {
+.scalar-api-reference-language-select select {
   border: none;
   outline: none;
   cursor: pointer;
@@ -345,17 +329,15 @@ const availableLanguages = computed(() => {
   opacity: 0;
   appearance: none;
 }
-.codemirror-select span {
-  height: 100%;
+.scalar-api-reference-language-select span {
   font-size: 12px;
-  padding: 4px 0;
   color: var(--scalar-api-reference-theme-color-3);
   font-weight: var(--scalar-api-reference-theme-semibold);
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.codemirror-select span:after {
+.scalar-api-reference-language-select span:after {
   content: '';
   width: 7px;
   height: 7px;
@@ -364,7 +346,7 @@ const availableLanguages = computed(() => {
   margin-left: 6px;
   box-shadow: 1px 1px 0 currentColor;
 }
-.codemirror-select span:hover {
+.scalar-api-reference-language-select span:hover {
   background: var(--scalar-api-reference-theme-background-2);
 }
 .coder-right {
@@ -376,8 +358,8 @@ const availableLanguages = computed(() => {
   background: var(--scalar-api-reference-theme-background-2);
   padding: 4px 12px 12px 12px;
 }
-.codemenu-item-title {
-  /* color: var(--scalar-api-reference-theme-color-1) !important; */
+.http-method {
+  color: var(--scalar-api-reference-theme-color-1) !important;
 }
 .dark-mode-document-remove-everything {
   all: unset;
