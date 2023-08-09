@@ -30,15 +30,10 @@ import FlowIcon from './Icon/FlowIcon.vue'
   border: none;
   outline: none;
   border-radius: var(--scalar-api-reference-theme-radius);
-  box-shadow: 0 0 0 1px
-    var(
-      --scalar-api-reference-sidebar-border-color,
-      var(--scalar-api-reference-theme-border-color)
-    );
-  background: var(
-    --scalar-api-reference-sidebar-search-background,
-    var(--scalar-api-reference-theme-background-1)
-  );
+  /* prettier-ignore */
+  box-shadow: 0 0 0 1px var(--scalar-api-reference-sidebar-border-color, var(--scalar-api-reference-theme-border-color));
+  /* prettier-ignore */
+  background: var(--scalar-api-reference-sidebar-search-background, var(--scalar-api-reference-theme-background-1));
   cursor: pointer;
   appearance: none;
 }

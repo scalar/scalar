@@ -63,10 +63,8 @@ watch(
 
 .markdown :deep(p) {
   font-size: var(--font-size, var(--scalar-api-reference-theme-paragraph));
-  color: var(
-    --scalar-api-reference-font-color,
-    var(--scalar-api-reference-theme-color-1)
-  );
+  /* prettier-ignore */
+  color: var(--scalar-api-reference-font-color, var(--scalar-api-reference-theme-color-1));
   font-weight: var(--font-weight, var(--scalar-api-reference-theme-regular));
   line-height: 1.5;
 }

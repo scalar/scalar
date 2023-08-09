@@ -125,13 +125,9 @@ function handleToggleOpen() {
   opacity: 1;
 }
 .sidebar-heading:has(~ .action-menu:hover) {
-  color: var(
-    --scalar-api-reference-sidebar-color-1,
-    var(--scalar-api-reference-theme-color-1)
-  );
-  background: var(
-    --scalar-api-reference-sidebar-item-hover-background,
-    var(--scalar-api-reference-theme-background-3)
-  );
+  /* prettier-ignore */
+  color: var(--scalar-api-reference-sidebar-color-1, var(--scalar-api-reference-theme-color-1));
+  /* prettier-ignore */
+  background: var(--scalar-api-reference-sidebar-item-hover-background, var(--scalar-api-reference-theme-background-3));
 }
 </style>

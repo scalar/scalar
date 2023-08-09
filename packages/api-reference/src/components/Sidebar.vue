@@ -91,10 +91,8 @@ const {
 <style>
 .sidebar {
   --theme-sidebar-indent-base: 6px;
-  background: var(
-    --scalar-api-reference-sidebar-background-1,
-    var(--scalar-api-reference-theme-background-1)
-  );
+  /* prettier-ignore */
+  background: var(--scalar-api-reference-sidebar-background-1, var(--scalar-api-reference-theme-background-1));
 }
 
 /* ----------------------------------------------------- */
@@ -105,10 +103,8 @@ const {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: var(
-    --scalar-api-reference-sidebar-background-1,
-    var(--scalar-api-reference-theme-background-1)
-  );
+  /* prettier-ignore */
+  background: var(--scalar-api-reference-sidebar-background-1, var(--scalar-api-reference-theme-background-1));
   --sidebar-level: 0;
 }
 
@@ -126,10 +122,8 @@ const {
   display: flex;
   gap: 6px;
 
-  color: var(
-    --scalar-api-reference-sidebar-color-2,
-    var(--scalar-api-reference-theme-color-2)
-  );
+  /* prettier-ignore */
+  color: var(--scalar-api-reference-sidebar-color-2, var(--scalar-api-reference-theme-color-2));
   font-size: var(--scalar-api-reference-theme-mini);
   font-weight: var(--scalar-api-reference-theme-semibold);
   word-break: break-word;
@@ -139,8 +133,8 @@ const {
   max-width: 100%;
   position: relative;
   cursor: pointer;
-  border-radius: 0 var(--scalar-api-reference-theme-radius)
-    var(--scalar-api-reference-theme-radius) 0;
+  /* prettier-ignore */
+  border-radius: 0 var(--scalar-api-reference-theme-radius) var(--scalar-api-reference-theme-radius) 0;
   flex: 1;
   padding-right: 12px;
   user-select: none;
@@ -165,22 +159,14 @@ const {
 
 /* We indent each level of nesting further */
 .sidebar-indent-nested .sidebar-heading {
-  padding-left: calc(
-    (
-        var(--sidebar-level) *
-          var(--scalar-api-reference-theme-sidebar-indent-base)
-      ) + 24px
-  ) !important;
+  /* prettier-ignore */
+  padding-left: calc((var(--sidebar-level) * var(--theme-sidebar-indent-base)) + 24px) !important;
 }
 
 /* Collapse/expand icons must also be offset */
 .sidebar-indent-nested .sidebar-heading .toggle-nested-icon {
-  left: calc(
-    (
-        var(--sidebar-level) *
-          var(--scalar-api-reference-theme-sidebar-indent-base)
-      ) + 2px
-  ) !important;
+  /* prettier-ignore */
+  left: calc((var(--sidebar-level) * var(--theme-sidebar-indent-base)) + 2px) !important;
 }
 
 .sidebar-heading-link {
@@ -212,27 +198,19 @@ const {
 }
 
 .sidebar-heading:hover {
-  color: var(
-    --scalar-api-reference-sidebar-color-1,
-    var(--scalar-api-reference-theme-color-1)
-  );
-  background: var(
-    --scalar-api-reference-sidebar-item-hover-background,
-    var(--scalar-api-reference-theme-background-3)
-  );
+  /* prettier-ignore */
+  color: var(--scalar-api-reference-sidebar-color-1, var(--scalar-api-reference-theme-color-1));
+  /* prettier-ignore */
+  background: var(--scalar-api-reference-sidebar-item-hover-background, var(--scalar-api-reference-theme-background-3));
 }
 
 .active_page.sidebar-heading:hover,
 .active_page.sidebar-heading,
 .marc_active .sidebar-heading {
-  background: var(
-    --sidebar-item-active-background,
-    var(--scalar-api-reference-theme-background-3)
-  ) !important;
-  color: var(
-    --scalar-api-reference-sidebar-color-active,
-    var(--scalar-api-reference-theme-color-accent)
-  ) !important;
+  /* prettier-ignore */
+  background: var(--sidebar-item-active-background, var(--scalar-api-reference-theme-background-3)) !important;
+  /* prettier-ignore */
+  color: var(--scalar-api-reference-sidebar-color-active, var(--scalar-api-reference-theme-color-accent)) !important;
 }
 .sidebar-group-item {
   position: relative;
@@ -240,16 +218,12 @@ const {
 
 /* Change font colors and weights for nested items */
 .sidebar-indent-nested .sidebar-heading {
-  color: var(
-    --scalar-api-reference-sidebar-color-1,
-    var(--scalar-api-reference-theme-color-1)
-  );
+  /* prettier-ignore */
+  color: var(--scalar-api-reference-sidebar-color-1, var(--scalar-api-reference-theme-color-1));
 }
 .sidebar-indent-nested .sidebar-indent-nested .sidebar-heading {
-  color: var(
-    --scalar-api-reference-sidebar-color-2,
-    var(--scalar-api-reference-theme-color-2)
-  );
+  /* prettier-ignore */
+  color: var(--scalar-api-reference-sidebar-color-2, var(--scalar-api-reference-theme-color-2));
 }
 .sidebar-indent-nested > div:has(.active_page) .sidebar-heading {
   font-weight: var(--scalar-api-reference-theme-bold);

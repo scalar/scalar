@@ -157,33 +157,25 @@ const breadCrumbs = computed(() => {
 .scalar-api-client,
 #headlessui-portal-root {
   --scalar-api-client-post-color: var(--scalar-api-reference-theme-post-color);
-  --scalar-api-client-post-background: var(
-    --scalar-api-reference-theme-post-background
-  );
-  --scalar-api-client-delete-color: var(
-    --scalar-api-reference-theme-delete-color
-  );
-  --scalar-api-client-delete-background: var(
-    --scalar-api-reference-theme-delete-background
-  );
-  --scalar-api-client-patch-color: var(
-    --scalar-api-reference-theme-patch-color
-  );
-  --scalar-api-client-patch-background: var(
-    --scalar-api-reference-theme-patch-background
-  );
+  /* prettier-ignore */
+  --scalar-api-client-post-background: var(--scalar-api-reference-theme-post-background);
+  /* prettier-ignore */
+  --scalar-api-client-delete-color: var(--scalar-api-reference-theme-delete-color);
+  /* prettier-ignore */
+  --scalar-api-client-delete-background: var(--scalar-api-reference-theme-delete-background);
+  /* prettier-ignore */
+  --scalar-api-client-patch-color: var(--scalar-api-reference-theme-patch-color);
+  /* prettier-ignore */
+  --scalar-api-client-patch-background: var(--scalar-api-reference-theme-patch-background);
   --scalar-api-client-get-color: var(--scalar-api-reference-theme-get-color);
-  --scalar-api-client-get-background: var(
-    --scalar-api-reference-theme-get-background
-  );
+  /* prettier-ignore */
+  --scalar-api-client-get-background: var(--scalar-api-reference-theme-get-background);
   --scalar-api-client-put-color: var(--scalar-api-reference-theme-put-color);
-  --scalar-api-client-put-background: var(
-    --scalar-api-reference-theme-put-background
-  );
+  /* prettier-ignore */
+  --scalar-api-client-put-background: var(--scalar-api-reference-theme-put-background);
   --scalar-api-client-rounded: var(--scalar-api-reference-theme-radius);
-  --scalar-api-client-background-secondary: var(
-    --scalar-api-reference-theme-background-2
-  );
+  /* prettier-ignore */
+  --scalar-api-client-background-secondary: var(--scalar-api-reference-theme-background-2);
   --scalar-api-client-color-3: var(--scalar-api-reference-theme-color-3);
   --scalar-api-client-border: var(--scalar-api-reference-theme-border);
   --scalar-api-client-font-sans: var(--scalar-api-reference-theme-font);
@@ -191,9 +183,8 @@ const breadCrumbs = computed(() => {
   --scalar-api-client-font-bold: var(--scalar-api-reference-theme-bold);
   --scalar-api-client-theme-color-1: var(--scalar-api-reference-theme-color-1);
   --scalar-api-client-theme-color-2: var(--scalar-api-reference-theme-color-2);
-  --scalar-api-client-theme-shadow-2: var(
-    --scalar-api-reference-theme-shadow-2
-  );
+  /* prettier-ignore */
+  --scalar-api-client-theme-shadow-2: var(--scalar-api-reference-theme-shadow-2);
   --scalar-api-client-text-sm: var(--scalar-api-reference-theme-small);
   --scalar-api-client-text-lg: var(--scalar-api-reference-large);
   --scalar-api-client-text-base: var(--scalar-api-reference-normal);
@@ -201,15 +192,12 @@ const breadCrumbs = computed(() => {
   --scalar-api-client-color2: var(--scalar-api-reference-color2);
   --scalar-api-client-bg3: var(--scalar-api-reference-bg3);
   --scalar-api-client-gradient: var(--scalar-api-reference-gradient);
-  --scalar-api-client-background-primary: var(
-    --scalar-api-reference-theme-background-1
-  );
-  --scalar-api-client-border-color: var(
-    --scalar-api-reference-theme-border-color
-  );
-  --scalar-api-client-background-3: var(
-    --scalar-api-reference-theme-background-3
-  );
+  /* prettier-ignore */
+  --scalar-api-client-background-primary: var(--scalar-api-reference-theme-background-1);
+  /* prettier-ignore */
+  --scalar-api-client-border-color: var(--scalar-api-reference-theme-border-color);
+  /* prettier-ignore */
+  --scalar-api-client-background-3: var(--scalar-api-reference-theme-background-3);
   --scalar-api-client-font-semibold: var(--scalar-api-reference-theme-semibold);
   --scalar-api-client-text-xs: var(--scalar-api-reference-theme-micro);
 }
@@ -220,8 +208,8 @@ const breadCrumbs = computed(() => {
   background: var(--scalar-api-reference-theme-background-2);
   border-bottom: 1px solid var(--scalar-api-reference-theme-border-color);
   padding: 0 7px 0 12px;
-  border-radius: var(--scalar-api-reference-theme-radius)
-    var(--scalar-api-reference-theme-radius) 0 0;
+  /* prettier-ignore */
+  border-radius: var(--scalar-api-reference-theme-radius) var(--scalar-api-reference-theme-radius) 0 0;
 }
 .codemenu {
   display: flex;
@@ -462,10 +450,8 @@ const breadCrumbs = computed(() => {
 .editor-heading h1 {
   font-size: var(--font-size, var(--scalar-api-reference-theme-heading-2));
   font-weight: var(--font-weight, var(--scalar-api-reference-theme-bold));
-  color: var(
-    --scalar-api-reference-font-color,
-    var(--scalar-api-reference-theme-color-1)
-  );
+  /* prettier-ignore */
+  color: var(--scalar-api-reference-font-color, var(--scalar-api-reference-theme-color-1));
   line-height: 1.45;
 }
 
@@ -565,10 +551,8 @@ const breadCrumbs = computed(() => {
 .layout-aside-left {
   position: relative;
   grid-area: sidebar;
-  border-right: var(
-    --scalar-api-reference-sidebar-border-color,
-    var(--scalar-api-reference-theme-border)
-  );
+  /* prettier-ignore */
+  border-right: var(--scalar-api-reference-sidebar-border-color, var(--scalar-api-reference-theme-border));
 }
 
 .layout-aside-right {
