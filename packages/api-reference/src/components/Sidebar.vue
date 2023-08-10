@@ -52,7 +52,7 @@ const {
       <SidebarGroup :level="0">
         <template v-for="tag in spec.tags">
           <SidebarElement
-            v-if="tag.operations.length > 0"
+            v-if="tag.operations?.length > 0"
             :key="tag.name"
             :hasChildren="true"
             :isActive="false"

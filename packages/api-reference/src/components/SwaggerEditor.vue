@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
 import { CodeEditor } from '@scalar/swagger-editor'
-import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
+import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, reactive, ref } from 'vue'
 
-import { useSwaggerParser } from '../hooks/useSwaggerParser'
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceProps, Spec } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
@@ -23,13 +22,11 @@ useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height
 })
 
-const { parseSwaggerFile, parserError, parserReady } = useSwaggerParser()
 const { toggleCollapsedSidebarItem } = useTemplateStore()
 const { state, setActiveSidebar } = useApiClientStore()
 
 // Handle content updates
 const spec = reactive<Spec>({
-  tags: [],
   info: {
     title: '',
     description: '',
@@ -48,25 +45,18 @@ const spec = reactive<Spec>({
     url: '',
   },
   servers: [],
+  tags: [],
 })
 
-const initialContentRenderedSuccessfully = ref(false)
+// @ts-ignore
+const handleSpecUpdate = (newSpec) => {
+  Object.assign(spec, newSpec)
 
-/**
- * Parsing the Swagger file is a heavy process. It’s not necessary to call it for *every* change, so let’s debounce it.
- */
-const handleContentUpdate = useDebounceFn((content: string) => {
-  parseSwaggerFile(content, (result: Record<any, any>) => {
-    Object.assign(spec, result)
-
-    if (!state.activeSidebar) {
-      toggleCollapsedSidebarItem(spec.tags[0].name)
-      setActiveSidebar(spec.tags[0].operations[0].operationId)
-    }
-
-    initialContentRenderedSuccessfully.value = true
-  })
-}, 300)
+  if (!state.activeSidebar) {
+    toggleCollapsedSidebarItem(spec.tags[0].name)
+    setActiveSidebar(spec.tags[0].operations[0].operationId)
+  }
+}
 
 onMounted(() => {
   document.querySelector('#tippy')?.scrollTo({
@@ -131,17 +121,16 @@ const breadCrumbs = computed(() => {
       class="layout-content">
       <CodeEditor
         :documentName="documentName"
-        :error="parserError"
         :token="token"
         :username="username"
-        @contentUpdate="handleContentUpdate" />
+        @specUpdate="handleSpecUpdate" />
     </div>
     <!-- Rendered reference -->
     <div
       v-if="showAside"
       class="layout-aside-right">
       <Content
-        :ready="parserReady"
+        :ready="true"
         :spec="spec" />
     </div>
     <slot name="footer"></slot>
@@ -156,60 +145,60 @@ const breadCrumbs = computed(() => {
 /** TODO: Move variables to main code base */
 .scalar-api-client,
 #headlessui-portal-root {
-  --scalar-api-client-post-color: var(--scalar-api-reference-theme-post-color);
+  --scalar-api-client-post-color: var(--theme-post-color);
   /* prettier-ignore */
-  --scalar-api-client-post-background: var(--scalar-api-reference-theme-post-background);
+  --scalar-api-client-post-background: var(--theme-post-background);
   /* prettier-ignore */
-  --scalar-api-client-delete-color: var(--scalar-api-reference-theme-delete-color);
+  --scalar-api-client-delete-color: var(--theme-delete-color);
   /* prettier-ignore */
-  --scalar-api-client-delete-background: var(--scalar-api-reference-theme-delete-background);
+  --scalar-api-client-delete-background: var(--theme-delete-background);
   /* prettier-ignore */
-  --scalar-api-client-patch-color: var(--scalar-api-reference-theme-patch-color);
+  --scalar-api-client-patch-color: var(--theme-patch-color);
   /* prettier-ignore */
-  --scalar-api-client-patch-background: var(--scalar-api-reference-theme-patch-background);
-  --scalar-api-client-get-color: var(--scalar-api-reference-theme-get-color);
+  --scalar-api-client-patch-background: var(--theme-patch-background);
+  --scalar-api-client-get-color: var(--theme-get-color);
   /* prettier-ignore */
-  --scalar-api-client-get-background: var(--scalar-api-reference-theme-get-background);
-  --scalar-api-client-put-color: var(--scalar-api-reference-theme-put-color);
+  --scalar-api-client-get-background: var(--theme-get-background);
+  --scalar-api-client-put-color: var(--theme-put-color);
   /* prettier-ignore */
-  --scalar-api-client-put-background: var(--scalar-api-reference-theme-put-background);
-  --scalar-api-client-rounded: var(--scalar-api-reference-theme-radius);
+  --scalar-api-client-put-background: var(--theme-put-background);
+  --scalar-api-client-rounded: var(--theme-radius);
   /* prettier-ignore */
-  --scalar-api-client-background-secondary: var(--scalar-api-reference-theme-background-2);
-  --scalar-api-client-color-3: var(--scalar-api-reference-theme-color-3);
-  --scalar-api-client-border: var(--scalar-api-reference-theme-border);
-  --scalar-api-client-font-sans: var(--scalar-api-reference-theme-font);
-  --scalar-api-client-font-mono: var(--scalar-api-reference-theme-font-code);
-  --scalar-api-client-font-bold: var(--scalar-api-reference-theme-bold);
-  --scalar-api-client-theme-color-1: var(--scalar-api-reference-theme-color-1);
-  --scalar-api-client-theme-color-2: var(--scalar-api-reference-theme-color-2);
+  --scalar-api-client-background-secondary: var(--theme-background-2);
+  --scalar-api-client-color-3: var(--theme-color-3);
+  --scalar-api-client-border: var(--theme-border);
+  --scalar-api-client-font-sans: var(--theme-font);
+  --scalar-api-client-font-mono: var(--theme-font-code);
+  --scalar-api-client-font-bold: var(--theme-bold);
+  --scalar-api-client-theme-color-1: var(--theme-color-1);
+  --scalar-api-client-theme-color-2: var(--theme-color-2);
   /* prettier-ignore */
-  --scalar-api-client-theme-shadow-2: var(--scalar-api-reference-theme-shadow-2);
-  --scalar-api-client-text-sm: var(--scalar-api-reference-theme-small);
-  --scalar-api-client-text-lg: var(--scalar-api-reference-large);
-  --scalar-api-client-text-base: var(--scalar-api-reference-normal);
-  --scalar-api-client-fill: var(--scalar-api-reference-fill);
-  --scalar-api-client-color2: var(--scalar-api-reference-color2);
-  --scalar-api-client-bg3: var(--scalar-api-reference-bg3);
-  --scalar-api-client-gradient: var(--scalar-api-reference-gradient);
+  --scalar-api-client-theme-shadow-2: var(--theme-shadow-2);
+  --scalar-api-client-text-sm: var(--theme-small);
+  --scalar-api-client-text-lg: var(--large);
+  --scalar-api-client-text-base: var(--normal);
+  --scalar-api-client-fill: var(--fill);
+  --scalar-api-client-color2: var(--color2);
+  --scalar-api-client-bg3: var(--bg3);
+  --scalar-api-client-gradient: var(--gradient);
   /* prettier-ignore */
-  --scalar-api-client-background-primary: var(--scalar-api-reference-theme-background-1);
+  --scalar-api-client-background-primary: var(--theme-background-1);
   /* prettier-ignore */
-  --scalar-api-client-border-color: var(--scalar-api-reference-theme-border-color);
+  --scalar-api-client-border-color: var(--theme-border-color);
   /* prettier-ignore */
-  --scalar-api-client-background-3: var(--scalar-api-reference-theme-background-3);
-  --scalar-api-client-font-semibold: var(--scalar-api-reference-theme-semibold);
-  --scalar-api-client-text-xs: var(--scalar-api-reference-theme-micro);
+  --scalar-api-client-background-3: var(--theme-background-3);
+  --scalar-api-client-font-semibold: var(--theme-semibold);
+  --scalar-api-client-text-xs: var(--theme-micro);
 }
 </style>
 <style>
 /** TODO: Move to components */
 .codemenu-topbar {
-  background: var(--scalar-api-reference-theme-background-2);
-  border-bottom: 1px solid var(--scalar-api-reference-theme-border-color);
+  background: var(--theme-background-2);
+  border-bottom: 1px solid var(--theme-border-color);
   padding: 0 7px 0 12px;
   /* prettier-ignore */
-  border-radius: var(--scalar-api-reference-theme-radius) var(--scalar-api-reference-theme-radius) 0 0;
+  border-radius: var(--theme-radius) var(--theme-radius) 0 0;
 }
 .codemenu {
   display: flex;
@@ -269,6 +258,10 @@ const breadCrumbs = computed(() => {
   white-space: nowrap;
   cursor: pointer;
 }
+.endpoint span:first-of-type {
+  text-transform: uppercase;
+}
+
 .codemenu .endpoint {
   overflow: hidden;
 }
@@ -301,11 +294,7 @@ const breadCrumbs = computed(() => {
   line-height: 1.55;
   font-family: var(--scalar-api-reference-theme-font-code);
   font-size: var(--scalar-api-reference-theme-mini);
-  text-transform: uppercase;
   cursor: pointer;
-}
-.endpoint:hover span:nth-of-type(2) {
-  color: var(--scalar-api-reference-theme-color-1);
 }
 .languages .example-item-endpoints {
   background: var(--scalar-api-reference-theme-background-2);

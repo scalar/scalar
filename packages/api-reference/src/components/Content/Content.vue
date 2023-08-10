@@ -38,7 +38,7 @@ onMounted(() => {
     <template v-if="ready">
       <Introduction
         :info="spec.info"
-        :server="spec.servers?.[0]" />
+        :servers="spec.servers" />
       <template
         v-for="(tag, index) in spec.tags"
         :key="tag.id">
@@ -47,7 +47,11 @@ onMounted(() => {
             :index="index"
             :tag="tag" />
           <button
-            v-if="index !== 0 && !templateState.collapsedSidebarItems[tag.name]"
+            v-if="
+              index !== 0 &&
+              !templateState.collapsedSidebarItems[tag.name] &&
+              tag.operations?.length > 1
+            "
             class="show-more"
             type="button"
             @click="setCollapsedSidebarItem(tag.name, true)">

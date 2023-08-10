@@ -11,7 +11,7 @@ import LanguageSelector from './LanguageSelector.vue'
 
 defineProps<{
   info: Info
-  server?: Server
+  servers: Server[]
 }>()
 
 const { state, getLanguageTitleByKey } = useTemplateStore()
@@ -76,10 +76,15 @@ const standardLibrary = computed(() => {
         </p>
       </div>
       <div class="example flex-col gap-1">
-        <Card v-if="server?.url">
-          <CardHeader muted>Base URL</CardHeader>
-          <CardContent muted>
-            <BaseUrl :url="server?.url" />
+        <Card v-if="servers.length > 0">
+          <CardHeader muted>
+            Base URL{{ servers?.length > 1 ? 's' : '' }}
+          </CardHeader>
+          <CardContent
+            v-for="server in servers"
+            :key="server.url"
+            muted>
+            <BaseUrl :server="server" />
           </CardContent>
         </Card>
 

@@ -7,7 +7,7 @@ export default defineConfig({
     minify: false,
     lib: {
       entry: 'src/index.ts',
-      name: '@scalar/swagger-editor',
+      name: '@scalar/swagger-parser',
       fileName: 'index',
       formats: ['es'],
     },

@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { type StatesArray } from '@hocuspocus/provider'
+import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
+import { useDebounceFn } from '@vueuse/core'
 import { ref } from 'vue'
 
 import CodeEditorHeader from './CodeEditorHeader.vue'
@@ -11,17 +13,32 @@ defineProps<{
   documentName?: string
   token?: string
   username?: string
-  error: string
 }>()
 
 const emit = defineEmits<{
   (e: 'awarenessUpdate', states: StatesArray): void
   (e: 'contentUpdate', value: string): void
+  (e: 'specUpdate', spec: SwaggerSpec): void
   (e: 'import', value: string): void
 }>()
 
+const parserError = ref('')
+
+const handleSpecUpdate = useDebounceFn((value) => {
+  parseSwaggerFile(value)
+    .then((spec: SwaggerSpec) => {
+      parserError.value = ''
+
+      emit('specUpdate', spec)
+    })
+    .catch((error) => {
+      parserError.value = error
+    })
+})
+
 const handleContentUpdate = (value: string) => {
   emit('contentUpdate', value)
+  handleSpecUpdate(value)
 }
 
 // Keep track of the present users
@@ -40,8 +57,8 @@ const codeMirrorReference = ref<typeof CodeEditorInput | null>(null)
 <template>
   <div class="code-editor">
     <CodeEditorHeader @import="importHandler" />
-    <CodeEditorNotification v-if="error">
-      {{ error }}
+    <CodeEditorNotification v-if="parserError">
+      {{ parserError }}
     </CodeEditorNotification>
     <CodeEditorInput
       ref="codeMirrorReference"

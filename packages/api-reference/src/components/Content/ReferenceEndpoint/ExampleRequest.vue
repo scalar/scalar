@@ -353,4 +353,11 @@ const availableLanguages = computed(() => {
   width: auto;
   margin-right: 6px;
 }
+
+.request-method {
+  font-family: var(--scalar-api-reference-font-mono);
+}
+.request-path {
+  font-family: var(--scalar-api-reference-font-mono);
+}
 </style>

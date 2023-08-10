@@ -6,7 +6,7 @@ import { computed } from 'vue'
 const props = defineProps<{ title: string }>()
 
 const statusText = computed(() => {
-  return httpStatusCodes[props.title].name ?? null
+  return httpStatusCodes[props.title]?.name ?? null
 })
 
 const tooltipRef = useTooltip({

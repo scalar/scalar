@@ -1,0 +1,1222 @@
+openapi: 3.0.0
+info:
+  title: CoinMarketCap
+  description: >-
+    The CoinMarketCap Professional API is a suite of high-performance RESTful
+    JSON endpoints that are specifically designed to meet the mission-critical
+    demands of application developers, data scientists, and enterprise business
+    platforms.
+
+
+    Contact Support:
+     Name: No Contact
+     Email: email@example.com
+  version: 1.0.0
+servers:
+  - url: http://{{baseurl}}
+tags:
+  - name: v1
+  - name: v1 > cryptocurrency
+  - name: v1 > cryptocurrency > listings
+  - name: v1 > cryptocurrency > quotes
+  - name: v1 > exchange
+  - name: v1 > exchange > listings
+  - name: v1 > exchange > quotes
+  - name: v1 > global-metrics/quotes
+paths:
+  /v1/cryptocurrency/listings/historical:
+    get:
+      tags:
+        - v1 > cryptocurrency > listings
+      summary: List all cryptocurrencies (historical)
+      description: >-
+        **This endpoint is not yet available. It is slated for release in Q3
+        2018.**
+
+
+
+        Get a paginated list of all cryptocurrencies with market data for a
+        given historical time. Use the "convert" option to return market values
+        in multiple fiat and cryptocurrency conversions in the same call.
+      parameters:
+        - name: timestamp
+          in: query
+          schema:
+            type: string
+          description: >-
+            Timestamp (Unix or ISO 8601) to return historical cryptocurrency
+            listings for.
+          example: <get>
+        - name: start
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally offset the start (1-based index) of the paginated list of
+            items to return.
+          example: <>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally specify the number of results to return. Use this
+            parameter and the "start" parameter to determine your own pagination
+            size.
+          example: <>
+        - name: convert
+          in: query
+          schema:
+            type: string
+          description: >-
+            Pass up to 32 comma-separated fiat or cryptocurrency symbols to
+            convert the source amount to.
+          example: <>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: What field to sort the list of cryptocurrencies by.
+          example: <>
+        - name: sort_dir
+          in: query
+          schema:
+            type: string
+          description: >-
+            The direction in which to order cryptocurrencies against the
+            specified sort.
+          example: <>
+        - name: cryptocurrency_type
+          in: query
+          schema:
+            type: string
+          description: The type of cryptocurrency to include.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/cryptocurrency/listings/latest:
+    get:
+      tags:
+        - v1 > cryptocurrency > listings
+      summary: List all cryptocurrencies (latest)
+      description: >-
+        Get a paginated list of all cryptocurrencies with latest market data.
+        You can configure this call to sort by market cap or another market
+        ranking field. Use the "convert" option to return market values in
+        multiple fiat and cryptocurrency conversions in the same call.   
+
+
+
+        Cryptocurrencies are listed by CoinMarketCap Rank by default. You may
+        optionally sort against any of the following:
+
+        **name**: The cryptocurrency name.
+
+        **symbol**: The cryptocurrency symbol.
+
+        **date_added**: Date cryptocurrency w
+      parameters:
+        - name: start
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally offset the start (1-based index) of the paginated list of
+            items to return.
+          example: <>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally specify the number of results to return. Use this
+            parameter and the "start" parameter to determine your own pagination
+            size.
+          example: <>
+        - name: convert
+          in: query
+          schema:
+            type: string
+          description: >-
+            Pass up to 32 comma-separated fiat or cryptocurrency symbols to
+            convert the source amount to.
+          example: <>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: What field to sort the list of cryptocurrencies by.
+          example: <>
+        - name: sort_dir
+          in: query
+          schema:
+            type: string
+          description: >-
+            The direction in which to order cryptocurrencies against the
+            specified sort.
+          example: <>
+        - name: cryptocurrency_type
+          in: query
+          schema:
+            type: string
+          description: The type of cryptocurrency to include.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/cryptocurrency/quotes/historical:
+    get:
+      tags:
+        - v1 > cryptocurrency > quotes
+      summary: Get market quotes (historical)
+      description: >-
+        Returns an interval of historic market quotes for any cryptocurrency
+        based on time and interval parameters.
+
+
+        **Technical Details**
+
+        A historic quote for every "interval" period between your "time_start"
+        and "time_end" will be returned.
+
+        If a "time_start" is not supplied, the "interval" will be applied in
+        reverse from "time_end".
+
+        If "time_end" is not supplied, it defaults to the current time.
+
+        At each "interval" period, the historic quote that is closest in time to
+        the requested time will be returne
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          description: >-
+            One or more comma-separated CoinMarketCap cryptocurrency IDs.
+            Example: "1,2"
+          example: <get>
+        - name: symbol
+          in: query
+          schema:
+            type: string
+          description: >-
+            Alternatively pass one or more comma-separated cryptocurrency
+            symbols. Example: "BTC,ETH". At least one "id" *or* "symbol" is
+            required.
+          example: <get>
+        - name: time_start
+          in: query
+          schema:
+            type: string
+          description: >-
+            Timestamp (Unix or ISO 8601) to start returning OHLCV time periods
+            for.
+          example: <>
+        - name: time_end
+          in: query
+          schema:
+            type: string
+          description: >-
+            Timestamp (Unix or ISO 8601) to stop returning OHLCV time periods
+            for (exclusive). Optional, if not passed we'll default to the
+            current time.
+          example: <>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally limit the number of time periods to return results for.
+            The default is 10 items. The current query limit is 10000 items.
+          example: <>
+        - name: interval
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally adjust the interval that "time_period" is sampled. See
+            main endpoint description for available options.
+          example: <>
+        - name: convert
+          in: query
+          schema:
+            type: string
+          description: >-
+            Pass up to 32 comma-separated fiat or cryptocurrency symbols to
+            convert the source amount to.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/cryptocurrency/quotes/latest:
+    get:
+      tags:
+        - v1 > cryptocurrency > quotes
+      summary: Get market quotes (latest)
+      description: >-
+        Get the latest market quote for 1 or more cryptocurrencies. Use the
+        "convert" option to return market values in multiple fiat and
+        cryptocurrency conversions in the same call.
+
+
+        **This endpoint is available on the following API plans:**
+
+        - Starter
+
+        - Hobbyist
+
+        - Standard
+
+        - Professional
+
+        - Enterprise
+
+
+        **Cache / Update frequency:** Every ~1 minute.
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          description: >-
+            One or more comma-separated CoinMarketCap cryptocurrency IDs.
+            Example: "1,2"
+          example: <get>
+        - name: symbol
+          in: query
+          schema:
+            type: string
+          description: >-
+            Alternatively pass one or more comma-separated cryptocurrency
+            symbols. Example: "BTC,ETH". At least one "id" *or* "symbol" is
+            required.
+          example: <get>
+        - name: convert
+          in: query
+          schema:
+            type: string
+          description: >-
+            Pass up to 32 comma-separated fiat or cryptocurrency symbols to
+            convert the source amount to.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/cryptocurrency/info:
+    get:
+      tags:
+        - v1 > cryptocurrency
+      summary: Get metadata
+      description: >-
+        Returns all static metadata for one or more cryptocurrencies including
+        name, symbol, logo, and its various registered URLs.
+
+
+        **This endpoint is available on the following API plans:**
+
+        - Starter
+
+        - Hobbyist
+
+        - Standard
+
+        - Professional
+
+        - Enterprise
+
+
+        **Cache / Update frequency:** Static data is updated only as needed,
+        every 30 seconds.
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          description: >-
+            One or more comma-separated CoinMarketCap cryptocurrency IDs.
+            Example: "1,2"
+          example: <get>
+        - name: symbol
+          in: query
+          schema:
+            type: string
+          description: >-
+            Alternatively pass one or more comma-separated cryptocurrency
+            symbols. Example: "BTC,ETH". At least one "id" *or* "symbol" is
+            required.
+          example: <get>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/cryptocurrency/map:
+    get:
+      tags:
+        - v1 > cryptocurrency
+      summary: Get CoinMarketCap ID map
+      description: >-
+        Returns a paginated list of all cryptocurrencies by CoinMarketCap ID. We
+        recommend using this convenience endpoint to lookup and utilize our
+        unique cryptocurrency `id` across all endpoints as typical identifiers
+        like ticker symbols can match multiple cryptocurrencies and change over
+        time. As a convenience you may pass a comma-separated list of
+        cryptocurrency symbols as `symbol` to filter this list to only those you
+        require.
+
+
+          **This endpoint is available on the following API plans:**
+          - Start
+      parameters:
+        - name: listing_status
+          in: query
+          schema:
+            type: string
+          description: >-
+            Only active coins are returned by default. Pass 'inactive' to get a
+            list of coins that are no longer active.
+          example: <>
+        - name: start
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally offset the start (1-based index) of the paginated list of
+            items to return.
+          example: <>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally specify the number of results to return. Use this
+            parameter and the "start" parameter to determine your own pagination
+            size.
+          example: <>
+        - name: symbol
+          in: query
+          schema:
+            type: string
+          description: >-
+            Alternatively pass one or more comma-separated cryptocurrency
+            symbols. Example: "BTC,ETH". At least one "id" *or* "symbol" is
+            required.
+          example: <get>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/cryptocurrency/market-pairs/latest:
+    get:
+      tags:
+        - v1 > cryptocurrency
+      summary: Get market pairs (latest)
+      description: >-
+        Lists all market pairs for the specified cryptocurrency with associated
+        stats. Use the "convert" option to return market values in multiple fiat
+        and cryptocurrency conversions in the same call.
+
+
+          **This endpoint is available on the following API plans:**
+          - ~~Starter~~
+          - ~~Hobbyist~~
+          - Standard
+          - Professional
+          - Enterprise
+
+        **Cache / Update frequency:** Every ~1 minute.
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          description: >-
+            One or more comma-separated CoinMarketCap cryptocurrency IDs.
+            Example: "1,2"
+          example: <get>
+        - name: symbol
+          in: query
+          schema:
+            type: string
+          description: >-
+            Alternatively pass one or more comma-separated cryptocurrency
+            symbols. Example: "BTC,ETH". At least one "id" *or* "symbol" is
+            required.
+          example: <get>
+        - name: start
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally offset the start (1-based index) of the paginated list of
+            items to return.
+          example: <>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally specify the number of results to return. Use this
+            parameter and the "start" parameter to determine your own pagination
+            size.
+          example: <>
+        - name: convert
+          in: query
+          schema:
+            type: string
+          description: >-
+            Pass up to 32 comma-separated fiat or cryptocurrency symbols to
+            convert the source amount to.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/cryptocurrency/ohlcv/historical:
+    get:
+      tags:
+        - v1 > cryptocurrency
+      summary: Get OHLCV values (historical)
+      description: >-
+        Return an interval of historic OHLCV (Open, High, Low, Close, Volume)
+        market quotes for a cryptocurrency.
+
+
+        **Technical Details**
+
+        One OHLCV quote will be returned for every "time_period" between your
+        "time_start" and "time_end".
+
+        If a "time_start" is not supplied, the "time_period" will be applied in
+        reverse from "time_end".
+
+        If "time_end" is not supplied, it defaults to the current time.
+
+        If you don't need every "time_period" between your dates you may adjust
+        the frequency that "time_period" is sam
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          description: >-
+            One or more comma-separated CoinMarketCap cryptocurrency IDs.
+            Example: "1,2"
+          example: <get>
+        - name: symbol
+          in: query
+          schema:
+            type: string
+          description: >-
+            Alternatively pass one or more comma-separated cryptocurrency
+            symbols. Example: "BTC,ETH". At least one "id" *or* "symbol" is
+            required.
+          example: <get>
+        - name: time_period
+          in: query
+          schema:
+            type: string
+          description: >-
+            Time period to return OHLCV data for. The default is "daily".
+            Additional options will be available in the future. See the main
+            endpoint description for details.
+          example: <>
+        - name: time_start
+          in: query
+          schema:
+            type: string
+          description: >-
+            Timestamp (Unix or ISO 8601) to start returning OHLCV time periods
+            for.
+          example: <>
+        - name: time_end
+          in: query
+          schema:
+            type: string
+          description: >-
+            Timestamp (Unix or ISO 8601) to stop returning OHLCV time periods
+            for (exclusive). Optional, if not passed we'll default to the
+            current time.
+          example: <>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally limit the number of time periods to return results for.
+            The default is 10 items. The current query limit is 10000 items.
+          example: <>
+        - name: interval
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally adjust the interval that "time_period" is sampled. See
+            main endpoint description for available options.
+          example: <>
+        - name: convert
+          in: query
+          schema:
+            type: string
+          description: >-
+            Pass up to 32 comma-separated fiat or cryptocurrency symbols to
+            convert the source amount to.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/exchange/listings/historical:
+    get:
+      tags:
+        - v1 > exchange > listings
+      summary: List all exchanges (historical)
+      description: >-
+        **This endpoint is not yet available. It is slated for release in Q3
+        2018.**
+
+
+
+        Get a paginated list of all cryptocurrency exchanges with historical
+        market data for a given point in time. Use the "convert" option to
+        return market values in multiple fiat and cryptocurrency conversions in
+        the same call.
+      parameters:
+        - name: timestamp
+          in: query
+          schema:
+            type: string
+          description: >-
+            Timestamp (Unix or ISO 8601) to return historical cryptocurrency
+            listings for.
+          example: <get>
+        - name: start
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally offset the start (1-based index) of the paginated list of
+            items to return.
+          example: <>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally specify the number of results to return. Use this
+            parameter and the "start" parameter to determine your own pagination
+            size.
+          example: <>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: What field to sort the list of cryptocurrencies by.
+          example: <>
+        - name: sort_dir
+          in: query
+          schema:
+            type: string
+          description: >-
+            The direction in which to order cryptocurrencies against the
+            specified sort.
+          example: <>
+        - name: market_type
+          in: query
+          schema:
+            type: string
+          description: The type of exchange markets to include in rankings.
+          example: <>
+        - name: convert
+          in: query
+          schema:
+            type: string
+          description: >-
+            Pass up to 32 comma-separated fiat or cryptocurrency symbols to
+            convert the source amount to.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/exchange/listings/latest:
+    get:
+      tags:
+        - v1 > exchange > listings
+      summary: List all exchanges (latest)
+      description: >-
+        Get a paginated list of all cryptocurrency exchanges with 24 hour
+        volume. Additional market data fields will be available in the future.
+        You can configure this call to sort by 24 hour volume or another field.
+        Use the "convert" option to return market values in multiple fiat and
+        cryptocurrency conversions in the same call.  
+          
+        **This endpoint is available on the following API plans:**
+          - ~~Starter~~
+          - ~~Hobbyist~~
+          - Standard
+          - Professional
+          - Enterprise
+
+        **Cache / Update frequency:** Eve
+      parameters:
+        - name: start
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally offset the start (1-based index) of the paginated list of
+            items to return.
+          example: <>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally specify the number of results to return. Use this
+            parameter and the "start" parameter to determine your own pagination
+            size.
+          example: <>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: What field to sort the list of cryptocurrencies by.
+          example: <>
+        - name: sort_dir
+          in: query
+          schema:
+            type: string
+          description: >-
+            The direction in which to order cryptocurrencies against the
+            specified sort.
+          example: <>
+        - name: market_type
+          in: query
+          schema:
+            type: string
+          description: The type of exchange markets to include in rankings.
+          example: <>
+        - name: convert
+          in: query
+          schema:
+            type: string
+          description: >-
+            Pass up to 32 comma-separated fiat or cryptocurrency symbols to
+            convert the source amount to.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/exchange/quotes/historical:
+    get:
+      tags:
+        - v1 > exchange > quotes
+      summary: Get market quotes (historical)
+      description: >-
+        Returns an interval of historic quotes for any exchange based on time
+        and interval parameters.
+
+
+        Historical exchange quotes currently include:
+
+        volume_24: Combined 24 hour volume for all market pairs at each
+        historical interval.
+
+        num_market_pairs: Number of market pairs available at each historical
+        interval.
+
+        Quotes are returned in USD. Additional currency conversion options and
+        additional fields will be available in the future.
+
+
+        **Technical Details**
+
+        A historic quote for every "interval" period bet
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          description: >-
+            One or more comma-separated CoinMarketCap cryptocurrency IDs.
+            Example: "1,2"
+          example: <get>
+        - name: slug
+          in: query
+          schema:
+            type: string
+          description: >-
+            Alternatively, one or more comma-separated exchange names in URL
+            friendly shorthand "slug" format (all lowercase, spaces replaced
+            with hyphens). Example: "binance,gdax". At least one "id" *or*
+            "slug" is required.
+          example: <get>
+        - name: time_start
+          in: query
+          schema:
+            type: string
+          description: >-
+            Timestamp (Unix or ISO 8601) to start returning OHLCV time periods
+            for.
+          example: <>
+        - name: time_end
+          in: query
+          schema:
+            type: string
+          description: >-
+            Timestamp (Unix or ISO 8601) to stop returning OHLCV time periods
+            for (exclusive). Optional, if not passed we'll default to the
+            current time.
+          example: <>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally limit the number of time periods to return results for.
+            The default is 10 items. The current query limit is 10000 items.
+          example: <>
+        - name: interval
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally adjust the interval that "time_period" is sampled. See
+            main endpoint description for available options.
+          example: <>
+        - name: convert
+          in: query
+          schema:
+            type: string
+          description: >-
+            Pass up to 32 comma-separated fiat or cryptocurrency symbols to
+            convert the source amount to.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/exchange/quotes/latest:
+    get:
+      tags:
+        - v1 > exchange > quotes
+      summary: Get market quotes (latest)
+      description: >-
+        Get the latest 24 hour volume quote for 1 or more exchanges. Additional
+        market data fields will be available in the future. Use the "convert"
+        option to return market values in multiple fiat and cryptocurrency
+        conversions in the same call.
+
+
+        **This endpoint is available on the following API plans:**
+
+        - ~~Starter~~
+
+        - ~~Hobbyist~~
+
+        - Standard
+
+        - Professional
+
+        - Enterprise
+
+
+        **Cache / Update frequency:** Every ~5 minutes. This endpoint will be
+        migrated to ~1 minute updates shortly.
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          description: >-
+            One or more comma-separated CoinMarketCap cryptocurrency IDs.
+            Example: "1,2"
+          example: <get>
+        - name: slug
+          in: query
+          schema:
+            type: string
+          description: >-
+            Alternatively, one or more comma-separated exchange names in URL
+            friendly shorthand "slug" format (all lowercase, spaces replaced
+            with hyphens). Example: "binance,gdax". At least one "id" *or*
+            "slug" is required.
+          example: <get>
+        - name: convert
+          in: query
+          schema:
+            type: string
+          description: >-
+            Pass up to 32 comma-separated fiat or cryptocurrency symbols to
+            convert the source amount to.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/exchange/info:
+    get:
+      tags:
+        - v1 > exchange
+      summary: Get metadata
+      description: >-
+        Returns all static metadata for one or more exchanges including logo and
+        homepage URL.
+
+          **This endpoint is available on the following API plans:**
+          - ~~Starter~~
+          - Hobbyist
+          - Standard
+          - Professional
+          - Enterprise
+
+        **Cache / Update frequency:** Static data is updated only as needed,
+        every 30 seconds.
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          description: >-
+            One or more comma-separated CoinMarketCap cryptocurrency IDs.
+            Example: "1,2"
+          example: <get>
+        - name: slug
+          in: query
+          schema:
+            type: string
+          description: >-
+            Alternatively, one or more comma-separated exchange names in URL
+            friendly shorthand "slug" format (all lowercase, spaces replaced
+            with hyphens). Example: "binance,gdax". At least one "id" *or*
+            "slug" is required.
+          example: <get>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/exchange/map:
+    get:
+      tags:
+        - v1 > exchange
+      summary: Get CoinMarketCap ID map
+      description: >-
+        Returns a paginated list of all cryptocurrency exchanges by
+        CoinMarketCap ID. We recommend using this convenience endpoint to lookup
+        and utilize our unique exchange `id` across all endpoints as typical
+        exchange identifiers may change over time. As a convenience you may pass
+        a comma-separated list of exchanges by `slug` to filter this list to
+        only those you require.
+
+
+        **This endpoint is available on the following API plans:**
+          - ~~Starter~~
+          - Hobbyist
+          - Standard
+          - Professional
+          - Enterpris
+      parameters:
+        - name: listing_status
+          in: query
+          schema:
+            type: string
+          description: >-
+            Only active coins are returned by default. Pass 'inactive' to get a
+            list of coins that are no longer active.
+          example: <>
+        - name: slug
+          in: query
+          schema:
+            type: string
+          description: >-
+            Alternatively, one or more comma-separated exchange names in URL
+            friendly shorthand "slug" format (all lowercase, spaces replaced
+            with hyphens). Example: "binance,gdax". At least one "id" *or*
+            "slug" is required.
+          example: <get>
+        - name: start
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally offset the start (1-based index) of the paginated list of
+            items to return.
+          example: <>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally specify the number of results to return. Use this
+            parameter and the "start" parameter to determine your own pagination
+            size.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/exchange/market-pairs/latest:
+    get:
+      tags:
+        - v1 > exchange
+      summary: List all market pairs (latest)
+      description: >-
+        Get a list of active market pairs for an exchange. Active means the
+        market pair is open for trading. Use the "convert" option to return
+        market values in multiple fiat and cryptocurrency conversions in the
+        same call.'
+
+          **This endpoint is available on the following API plans:**
+          - ~~Starter~~
+          - ~~Hobbyist~~
+          - Standard
+          - Professional
+          - Enterprise
+
+        **Cache / Update frequency:** Every ~5 minutes. This endpoint will be
+        migrated to ~1 minute updates shortly.
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          description: >-
+            One or more comma-separated CoinMarketCap cryptocurrency IDs.
+            Example: "1,2"
+          example: <get>
+        - name: slug
+          in: query
+          schema:
+            type: string
+          description: >-
+            Alternatively, one or more comma-separated exchange names in URL
+            friendly shorthand "slug" format (all lowercase, spaces replaced
+            with hyphens). Example: "binance,gdax". At least one "id" *or*
+            "slug" is required.
+          example: <get>
+        - name: start
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally offset the start (1-based index) of the paginated list of
+            items to return.
+          example: <>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally specify the number of results to return. Use this
+            parameter and the "start" parameter to determine your own pagination
+            size.
+          example: <>
+        - name: convert
+          in: query
+          schema:
+            type: string
+          description: >-
+            Pass up to 32 comma-separated fiat or cryptocurrency symbols to
+            convert the source amount to.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/global-metrics/quotes/historical:
+    get:
+      tags:
+        - v1 > global-metrics/quotes
+      summary: Get aggregate market metrics (historical)
+      description: >-
+        Get an interval of aggregate 24 hour volume and market cap data globally
+        based on time and interval parameters.
+
+
+        **Technical Details**
+
+        A historic quote for every "interval" period between your "time_start"
+        and "time_end" will be returned.
+
+        If a "time_start" is not supplied, the "interval" will be applied in
+        reverse from "time_end".
+
+        If "time_end" is not supplied, it defaults to the current time.
+
+        At each "interval" period, the historic quote that is closest in time to
+        the requested time will be ret
+      parameters:
+        - name: time_start
+          in: query
+          schema:
+            type: string
+          description: >-
+            Timestamp (Unix or ISO 8601) to start returning OHLCV time periods
+            for.
+          example: <>
+        - name: time_end
+          in: query
+          schema:
+            type: string
+          description: >-
+            Timestamp (Unix or ISO 8601) to stop returning OHLCV time periods
+            for (exclusive). Optional, if not passed we'll default to the
+            current time.
+          example: <>
+        - name: count
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally limit the number of time periods to return results for.
+            The default is 10 items. The current query limit is 10000 items.
+          example: <>
+        - name: interval
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optionally adjust the interval that "time_period" is sampled. See
+            main endpoint description for available options.
+          example: <>
+        - name: convert
+          in: query
+          schema:
+            type: string
+          description: >-
+            Pass up to 32 comma-separated fiat or cryptocurrency symbols to
+            convert the source amount to.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/global-metrics/quotes/latest:
+    get:
+      tags:
+        - v1 > global-metrics/quotes
+      summary: Get aggregate market metrics (latest)
+      description: >-
+        Get the latest quote of aggregate market metrics. Use the "convert"
+        option to return market values in multiple fiat and cryptocurrency
+        conversions in the same call.
+
+
+        **This endpoint is available on the following API plans:**
+
+        - Starter
+
+        - Hobbyist
+
+        - Standard
+
+        - Professional
+
+        - Enterprise
+
+
+        **Cache / Update frequency:** Every ~5 minutes. This endpoint will be
+        migrated to ~1 minute updates shortly.
+      parameters:
+        - name: convert
+          in: query
+          schema:
+            type: string
+          description: >-
+            Pass up to 32 comma-separated fiat or cryptocurrency symbols to
+            convert the source amount to.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /v1/tools/price-conversion:
+    get:
+      tags:
+        - v1
+      summary: Price conversion tool
+      description: >-
+        Convert an amount of one currency into up to 32 other cryptocurrency or
+        fiat currencies at the same time using latest exchange rates. Optionally
+        pass a historical timestamp to convert values based on historic
+        averages.
+
+
+        **Note:** Historical fiat conversions aren't yet available and the
+        latest fiat rates will be used as noted by the `last_updated` timestamp
+        included in the market quote. Historical fiat rates will be coming soon.
+
+
+        **This endpoint is available on the following API plans:**
+
+        - ~~Star
+      parameters:
+        - name: amount
+          in: query
+          schema:
+            type: string
+          description: 'An amount of currency to convert. Example: 10.43'
+          example: <get>
+        - name: id
+          in: query
+          schema:
+            type: string
+          description: >-
+            One or more comma-separated CoinMarketCap cryptocurrency IDs.
+            Example: "1,2"
+          example: <get>
+        - name: symbol
+          in: query
+          schema:
+            type: string
+          description: >-
+            Alternatively pass one or more comma-separated cryptocurrency
+            symbols. Example: "BTC,ETH". At least one "id" *or* "symbol" is
+            required.
+          example: <get>
+        - name: time
+          in: query
+          schema:
+            type: string
+          description: >-
+            Optional timestamp (Unix or ISO 8601) to reference historical
+            pricing during conversion. If not passed, the current time will be
+            used. If passed, we'll reference the closest historic values
+            available during conversion.
+          example: <>
+        - name: convert
+          in: query
+          schema:
+            type: string
+          description: >-
+            Pass up to 32 comma-separated fiat or cryptocurrency symbols to
+            convert the source amount to.
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}

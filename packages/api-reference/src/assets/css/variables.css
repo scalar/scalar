@@ -1,6 +1,10 @@
 .scalar-api-reference,
 #headlessui-portal-root,
 .dark-mode {
+  /** Fonts */
+  --scalar-api-reference-font-sans: var(--theme-font);
+  --scalar-api-reference-font-mono: var(--theme-font-code);
+
   --scalar-api-reference-sidebar-border-color: var(--theme-border-color);
   --scalar-api-reference-theme-background-1: var(--theme-background-1);
   --scalar-api-reference-theme-background-2: var(--theme-background-2);

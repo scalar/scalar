@@ -1,0 +1,313 @@
+openapi: 3.0.0
+info:
+  title: Coinbase API
+  description: |-
+    The Coinbase v2 API
+
+    Contact Support:
+     Name: No Contact
+     Email: email@example.com
+  version: 1.0.0
+servers:
+  - url: http://{{baseurl}}
+tags:
+  - name: user
+  - name: accounts
+  - name: accounts > {account id}
+  - name: accounts > {account id} > addresses
+  - name: accounts > {account id} > addresses > {address id}
+  - name: accounts > {account id} > transactions
+  - name: accounts > {account id} > transactions > {transaction id}
+paths:
+  /user:
+    get:
+      tags:
+        - user
+      summary: Show current user
+      description: >-
+        Get current user’s public information. To get user’s email or private
+        information, use permissions wallet:user:email and wallet:user:read.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /user/auth:
+    get:
+      tags:
+        - user
+      summary: Show authorization information
+      description: >-
+        Get current user’s authorization information including granted scopes
+        and send limits when using OAuth2 authentication.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /accounts/{account_id}/addresses/{address_id}:
+    get:
+      tags:
+        - accounts > {account id} > addresses > {address id}
+      summary: Show an address
+      description: >
+        Show an individual address for an account.
+
+        Regular bitcoin address can be used in place of address_id but the
+        address has to be associated to the correct account.
+          
+        *Important* Addresses should be considered one time use only.
+      parameters:
+        - name: account_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The account id
+          example: <>
+        - name: address_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The account id
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /accounts/{account_id}/addresses/{address_id}/transactions:
+    get:
+      tags:
+        - accounts > {account id} > addresses > {address id}
+      summary: List address’s transactions
+      description: >
+        list transactions that have been sent to a specific address. Regular
+        bitcoin address can be used in place of address_id but the address has
+        to be associated to the correct account.
+      parameters:
+        - name: account_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The account id
+          example: <>
+        - name: address_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The account id
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /accounts/{account_id}/addresses:
+    get:
+      tags:
+        - accounts > {account id} > addresses
+      summary: List addresses
+      description: |
+        Lists addresses for an account.
+
+        *Important*: Addresses should be considered one time use only.
+      parameters:
+        - name: account_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The account id
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /accounts/{account_id}/transactions/{transaction_id}:
+    get:
+      tags:
+        - accounts > {account id} > transactions > {transaction id}
+      summary: Show a transaction
+      description: >-
+        Show an individual transaction for an account. See Transaction resource
+        for more information.
+      parameters:
+        - name: account_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The account id
+          example: <>
+        - name: transaction_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The transaction id
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /accounts/{account_id}/transactions/{transaction_id}/complete:
+    post:
+      tags:
+        - accounts > {account id} > transactions > {transaction id}
+      summary: Complete request money
+      description: >-
+        Lets the recipient of a money request complete the request by sending
+        money to the user who requested the money. This can only be completed by
+        the user to whom the request was made, not the user who sent the
+        request.
+      requestBody:
+        content: {}
+      parameters:
+        - name: account_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The account id
+          example: <>
+        - name: transaction_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The transaction id
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /accounts/{account_id}/transactions/{transaction_id}/resend:
+    post:
+      tags:
+        - accounts > {account id} > transactions > {transaction id}
+      summary: Re-send request money
+      description: >-
+        Lets the user resend a money request. This will notify recipient with a
+        new email.
+      requestBody:
+        content: {}
+      parameters:
+        - name: account_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The account id
+          example: <>
+        - name: transaction_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The transaction id
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /accounts/{account_id}/transactions:
+    get:
+      tags:
+        - accounts > {account id} > transactions
+      summary: List transactions
+      description: >-
+        Lists account’s transactions. See Transaction resource for more
+        information.
+      parameters:
+        - name: account_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The account id
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /accounts/{account_id}:
+    get:
+      tags:
+        - accounts > {account id}
+      summary: Show an account
+      description: >-
+        Show current user’s account. To access user’s primary account, primary
+        keyword can be used instead of the account id in the URL.
+      parameters:
+        - name: account_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The account id
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /accounts/{account_id}/primary:
+    get:
+      tags:
+        - accounts > {account id}
+      summary: Set account as primary
+      description: Promote an account as primary account.
+      parameters:
+        - name: account_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The account id
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /accounts:
+    get:
+      tags:
+        - accounts
+      summary: List accounts
+      description: >-
+        Lists current user’s accounts to which the authentication method has
+        access to.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /users/{user_id}:
+    get:
+      tags:
+        - default
+      summary: Show a user
+      description: Get any user’s public information with their ID.
+      parameters:
+        - name: user_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The user id
+          example: <>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}

@@ -59,11 +59,15 @@ onMounted(() => {
           {{ tag.name }}
         </h1>
       </div>
-      <div class="tag-description">
+      <div
+        v-if="tag.description"
+        class="tag-description">
         <MarkdownRenderer :value="tag.description" />
       </div>
     </div>
-    <div class="example">
+    <div
+      v-if="tag.operations?.length > 0"
+      class="example">
       <Card>
         <CardHeader muted>Endpoints</CardHeader>
         <CardContent muted>
