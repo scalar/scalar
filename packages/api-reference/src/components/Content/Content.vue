@@ -107,9 +107,6 @@ onMounted(() => {
   margin-bottom: 48px;
   position: relative;
 }
-.editor-mode .show-more {
-  margin-top: -24px;
-}
 .show-more:hover {
   color: var(--scalar-api-reference-theme-color-2);
   cursor: pointer;
