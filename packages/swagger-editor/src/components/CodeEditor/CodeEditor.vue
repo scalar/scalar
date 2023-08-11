@@ -2,7 +2,7 @@
 import { type StatesArray } from '@hocuspocus/provider'
 import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
 import { useDebounceFn } from '@vueuse/core'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import CodeEditorHeader from './CodeEditorHeader.vue'
 import CodeEditorInput from './CodeEditorInput.vue'
@@ -22,7 +22,7 @@ const emit = defineEmits<{
   (e: 'import', value: string): void
 }>()
 
-const parserError = ref('')
+const parserError = ref<string>('')
 
 const handleSpecUpdate = useDebounceFn((value) => {
   parseSwaggerFile(value)
@@ -32,7 +32,7 @@ const handleSpecUpdate = useDebounceFn((value) => {
       emit('specUpdate', spec)
     })
     .catch((error) => {
-      parserError.value = error
+      parserError.value = error.toString()
     })
 })
 
@@ -53,12 +53,22 @@ const importHandler = (value: string) => {
 }
 
 const codeMirrorReference = ref<typeof CodeEditorInput | null>(null)
+
+const formattedError = computed(() => {
+  // Handle YAMLExceptions
+  if (parserError.value?.startsWith('YAMLException:')) {
+    // Trim everything but the first line
+    return parserError.value.split('\n')[0]
+  }
+
+  return parserError.value
+})
 </script>
 <template>
   <div class="code-editor">
     <CodeEditorHeader @import="importHandler" />
-    <CodeEditorNotification v-if="parserError">
-      {{ parserError }}
+    <CodeEditorNotification v-if="formattedError">
+      {{ formattedError }}
     </CodeEditorNotification>
     <CodeEditorInput
       ref="codeMirrorReference"

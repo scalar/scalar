@@ -8,8 +8,10 @@ import { parseSwaggerFile } from './parseSwaggerFile'
 describe('parseSwaggerFile', () => {
   it('complains if the JSON isn’t valid', () =>
     new Promise((resolve) => {
-      parseSwaggerFile('{"foo": "bar}').catch((error) => {
-        expect(error.message).toContain('Invalid format')
+      const invalidJson = '{"foo": "bar}'
+
+      parseSwaggerFile(invalidJson).catch((error) => {
+        expect(error.message).toContain('JSON')
         resolve(null)
       })
     }))
@@ -58,6 +60,17 @@ describe('parseSwaggerFile', () => {
         expect(result.info.title).toBe('Sample API')
         expect(result.info.version).toBe('0.1.9')
 
+        resolve(null)
+      })
+    }))
+
+  it.only('complains if the Yaml isn’t valid', () =>
+    new Promise((resolve) => {
+      const invalidSwaggerYaml = `openapi: 3.0.0
+info`
+
+      parseSwaggerFile(invalidSwaggerYaml).catch((error) => {
+        expect(error.toString()).toMatch('YAMLException')
         resolve(null)
       })
     }))

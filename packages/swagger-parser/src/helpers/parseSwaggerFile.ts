@@ -151,12 +151,14 @@ export const parseJsonOrYaml = (value: string | AnyObject): AnyObject => {
   if (typeof value === 'string') {
     try {
       return JSON.parse(value) as AnyObject
-    } catch {
-      try {
-        return yaml.load(value) as AnyObject
-      } catch {
-        throw new Error('Invalid format. Could not parse the Swagger file.')
+    } catch (error) {
+      // String starts with { or [, so it’s probably JSON.
+      if (value.length > 0 && ['{', '['].includes(value[0])) {
+        throw error
       }
+
+      // Then maybe it’s YAML?
+      return yaml.load(value) as AnyObject
     }
   }
 
