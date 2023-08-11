@@ -34,9 +34,14 @@ const activeResponse = ref(getActiveResponseDefaultValue())
 const jsonify = (obj: any) => JSON.stringify(obj, null, 2)
 
 const doc = computed(() => {
-  const response = props.operation.information.responses[activeResponse.value]
+  const response =
+    // @ts-ignore
+    props.operation.responses[activeResponse.value]
+      ? // @ts-ignore
+        props.operation.responses[activeResponse.value]['application/json']
+      : undefined
 
-  return jsonify(response)
+  return response ? jsonify(response) : ''
 })
 
 const keys = computed(() => {

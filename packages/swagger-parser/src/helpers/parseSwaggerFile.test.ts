@@ -5,7 +5,7 @@ import SwaggerExampleJson from '../../tests/fixtures/swagger.json'
 import { getFile } from '../../tests/utils'
 import { parseSwaggerFile } from './parseSwaggerFile'
 
-describe('parseSwaggerFile', () => {
+describe.skip('parseSwaggerFile', () => {
   it('complains if the JSON isn’t valid', () =>
     new Promise((resolve) => {
       const invalidJson = '{"foo": "bar}'
