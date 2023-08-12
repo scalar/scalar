@@ -95,16 +95,20 @@ export function keyboardShortcutTooltip(keys: string, title?: string) {
 
   const itemStyle = css`
     border: 1px solid var(--background-2);
-    padding: 4px;
+    padding: 2px;
     display: inline-block;
-    background: var(--theme-background-4);
-    min-width: 22px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    min-width: 20px;
     text-align: center;
   `
   const item = (val: string) => html`<span style="${itemStyle}">${val}</span>`
+  const titleElement = title
+    ? html`<span style="margin: 0 6px 0 3px">${title}</span>`
+    : ''
   return html`
-    <div>
-      ${title}
+    <div style="display: flex; align-items: center">
+      ${titleElement}
       <div style="display: flex; gap: 3px">
         ${formattedKeys.map((k) => item(k)).join('')}
       </div>
