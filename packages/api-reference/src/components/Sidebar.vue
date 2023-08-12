@@ -71,7 +71,7 @@ const {
                 :isActive="state.activeSidebar === operation.operationId"
                 :item="{
                   uid: '',
-                  title: operation.name,
+                  title: operation.name || operation.path,
                   type: 'Page',
                 }"
                 @select="
