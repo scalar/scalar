@@ -28,6 +28,7 @@
     "@codemirror/legacy-modes": "6.3.3",
     "@codemirror/state": "6.2.1",
     "@codemirror/view": "6.16.0",
+    "@headlessui/vue": "1.7.14",
     "@scalar/api-client": "workspace:*",
     "@scalar/swagger-editor": "workspace:*",
     "@scalar/use-clipboard": "workspace:*",
