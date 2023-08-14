@@ -81,13 +81,6 @@ watch(selectedResponseIndex, () => {
         </button>
       </template>
     </CardTabHeader>
-    <CardContent
-      v-if="currentResponse.description"
-      muted>
-      <div class="description">
-        {{ currentResponse.description }}
-      </div>
-    </CardContent>
     <CardContent muted>
       <div
         v-show="currentResponseJsonBody"
@@ -98,6 +91,13 @@ watch(selectedResponseIndex, () => {
         No Body
       </div>
     </CardContent>
+    <CardFooter
+      v-if="currentResponse.description"
+      muted>
+      <div class="description">
+        {{ currentResponse.description }}
+      </div>
+    </CardFooter>
   </Card>
 </template>
 
