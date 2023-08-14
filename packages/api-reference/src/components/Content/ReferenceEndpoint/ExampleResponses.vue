@@ -26,6 +26,7 @@ const statusCodes = computed(() => {
 function getContentByIndex(index: number): string {
   const selectedResponse = statusCodes.value[index]
 
+  // @ts-ignore
   return props.operation.responses[selectedResponse]
     ? JSON.stringify(
         // @ts-ignore
