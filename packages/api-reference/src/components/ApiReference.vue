@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
-import { CodeEditor } from '@scalar/swagger-editor'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, defineAsyncComponent, onMounted, reactive, ref } from 'vue'
 
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceProps, Spec } from '../types'
@@ -11,6 +10,13 @@ import { Content } from './Content'
 import Sidebar from './Sidebar.vue'
 
 const props = defineProps<ReferenceProps>()
+
+/**
+ * The editor component has heavy dependencies (process), let's lazy load it.
+ */
+const LazyLoadedCodeEditor = defineAsyncComponent(() =>
+  import('@scalar/swagger-editor').then((module) => module.CodeEditor),
+)
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
 const isMobile = useMediaQuery('(max-width: 1000px)')
@@ -119,7 +125,7 @@ const breadCrumbs = computed(() => {
     <div
       v-show="showCodeEditor"
       class="layout-content">
-      <CodeEditor
+      <LazyLoadedCodeEditor
         :documentName="documentName"
         :token="token"
         :username="username"
