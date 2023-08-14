@@ -195,7 +195,7 @@ describe('generateResponseContent', () => {
       },
     }
 
-    expect(generateResponseContent(schema)).toMatchObject({
+    expect(generateResponseContent(schema.properties)).toMatchObject({
       id: 10,
       name: 'doggie',
       category: {

@@ -23,9 +23,22 @@ describe('getExampleResponses', () => {
 
     expect(exampleResponses).toMatchObject({
       200: {
-        'application/json': {
-          content: {
-            id: 10,
+        content: {
+          'application/json': {
+            body: JSON.stringify(
+              {
+                id: 10,
+              },
+              null,
+              2,
+            ),
+            schema: {
+              properties: {
+                id: {
+                  example: 10,
+                },
+              },
+            },
           },
         },
       },
