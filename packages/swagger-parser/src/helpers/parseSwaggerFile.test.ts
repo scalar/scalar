@@ -5,7 +5,7 @@ import SwaggerExampleJson from '../../tests/fixtures/swagger.json'
 import { getFile } from '../../tests/utils'
 import { parseSwaggerFile } from './parseSwaggerFile'
 
-describe.skip('parseSwaggerFile', () => {
+describe('parseSwaggerFile', () => {
   it('complains if the JSON isn’t valid', () =>
     new Promise((resolve) => {
       const invalidJson = '{"foo": "bar}'
@@ -64,7 +64,7 @@ describe.skip('parseSwaggerFile', () => {
       })
     }))
 
-  it.only('complains if the Yaml isn’t valid', () =>
+  it('complains if the Yaml isn’t valid', () =>
     new Promise((resolve) => {
       const invalidSwaggerYaml = `openapi: 3.0.0
 info`

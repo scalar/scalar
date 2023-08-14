@@ -1,7 +1,7 @@
 import { getExampleResponses } from 'src/helpers/getExampleResponses'
 import { describe, expect, it } from 'vitest'
 
-describe.only('getExampleResponses', () => {
+describe('getExampleResponses', () => {
   it('returns the schema', () => {
     const responseSchema = {
       200: {

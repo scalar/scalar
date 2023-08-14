@@ -1,7 +1,7 @@
 import { getResponseFromProperties } from 'src/helpers/getResponseFromProperties'
 import { describe, expect, it } from 'vitest'
 
-describe.skip('getResponseFromProperties', () => {
+describe('getResponseFromProperties', () => {
   it('sets example values', () => {
     expect(
       JSON.stringify(

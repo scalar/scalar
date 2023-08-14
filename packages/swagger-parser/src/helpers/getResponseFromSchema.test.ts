@@ -1,7 +1,7 @@
 import { getResponseFromSchema } from 'src/helpers/getResponseFromSchema'
 import { describe, expect, it } from 'vitest'
 
-describe.skip('getResponseFromSchema', () => {
+describe('getResponseFromSchema', () => {
   it('returns the schema', () => {
     const schema = {
       required: ['name', 'photoUrls'],
