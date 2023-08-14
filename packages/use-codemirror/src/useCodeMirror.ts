@@ -29,6 +29,7 @@ type UseCodeMirrorParameters = {
 export const useCodeMirror = (
   parameters: UseCodeMirrorParameters,
 ): {
+  value: Ref<string>
   codeMirrorRef: Ref<HTMLDivElement | null>
   codeMirror: Ref<EditorView | null>
   setCodeMirrorContent: (content: string) => void
@@ -36,6 +37,7 @@ export const useCodeMirror = (
   restartCodeMirror: (newExtensions: Extension[]) => void
 } => {
   const { extensions, content, forceDarkMode, withoutTheme } = parameters
+  const value = ref(content ?? '')
   const codeMirrorRef = ref<HTMLDivElement | null>(null)
   const codeMirror = ref<EditorView | null>(null)
 
@@ -93,21 +95,23 @@ export const useCodeMirror = (
     codeMirror.value?.destroy()
   }
 
-  const setCodeMirrorContent = (value: string) => {
+  const setCodeMirrorContent = (newValue: string) => {
     if (!codeMirror.value) {
       return
     }
+
+    value.value = newValue
 
     codeMirror.value.dispatch({
       changes: {
         from: 0,
         to: codeMirror.value.state.doc.length,
-        insert: value,
+        insert: newValue,
       },
       selection: {
         anchor: Math.min(
           codeMirror.value.state.selection.main.anchor,
-          value.length,
+          newValue.length,
         ),
       },
     })
@@ -129,6 +133,10 @@ export const useCodeMirror = (
   }
 
   return {
+    /**
+     * The current value
+     */
+    value,
     /**
      * An empty reference used to mount CodeMirror when bound to the DOM.
      */

@@ -2,7 +2,7 @@
 import type { Operation, Server, Tag } from '../../../types'
 import Copy from './Copy.vue'
 import ExampleRequest from './ExampleRequest.vue'
-import ExampleResponse from './ExampleResponse.vue'
+import ExampleResponses from './ExampleResponses.vue'
 
 defineProps<{ operation: Operation; server: Server; parentTag: Tag }>()
 </script>
@@ -17,7 +17,9 @@ defineProps<{ operation: Operation; server: Server; parentTag: Tag }>()
       <ExampleRequest
         :operation="operation"
         :server="server" />
-      <ExampleResponse :operation="operation" />
+    </div>
+    <div class="example">
+      <ExampleResponses :operation="operation" />
     </div>
   </div>
 </template>
