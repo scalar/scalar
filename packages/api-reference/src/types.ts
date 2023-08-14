@@ -50,7 +50,21 @@ export type Operation = {
 }
 
 export type TransformedOperation = Operation & {
-  responses: Record<string, Response>
+  responses: Record<
+    string,
+    Response & {
+      headers: Record<
+        string,
+        {
+          description: string
+          schema: {
+            type: string
+            format?: string
+          }
+        }
+      >
+    }
+  >
 }
 
 export type Tag = {
