@@ -2,7 +2,7 @@ import { getExampleResponses } from 'src/helpers/getExampleResponses'
 import { describe, expect, it } from 'vitest'
 
 describe('getExampleResponses', () => {
-  it('returns the schema', () => {
+  it('returns an example response from a schema', () => {
     const responseSchema = {
       200: {
         content: {
@@ -21,16 +21,14 @@ describe('getExampleResponses', () => {
 
     const exampleResponses = getExampleResponses(responseSchema)
 
-    expect(JSON.stringify(exampleResponses)).toBe(
-      JSON.stringify({
-        200: {
-          'application/json': {
-            content: {
-              id: 10,
-            },
+    expect(exampleResponses).toMatchObject({
+      200: {
+        'application/json': {
+          content: {
+            id: 10,
           },
         },
-      }),
-    )
+      },
+    })
   })
 })

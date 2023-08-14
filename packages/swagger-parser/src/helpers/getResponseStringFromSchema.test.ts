@@ -1,7 +1,7 @@
-import { getResponseFromSchema } from 'src/helpers/getResponseFromSchema'
+import { getResponseStringFromSchema } from 'src/helpers/getResponseStringFromSchema'
 import { describe, expect, it } from 'vitest'
 
-describe('getResponseFromSchema', () => {
+describe('getResponseStringFromSchema', () => {
   it('returns the schema', () => {
     const schema = {
       required: ['name', 'photoUrls'],
@@ -77,23 +77,21 @@ describe('getResponseFromSchema', () => {
       },
     }
 
-    expect(JSON.stringify(JSON.parse(getResponseFromSchema(schema)))).toBe(
-      JSON.stringify({
-        id: 10,
-        name: 'doggie',
-        category: {
-          id: 1,
-          name: 'Dogs',
+    expect(JSON.parse(getResponseStringFromSchema(schema))).toMatchObject({
+      id: 10,
+      name: 'doggie',
+      category: {
+        id: 1,
+        name: 'Dogs',
+      },
+      photoUrls: [],
+      tags: [
+        {
+          id: null,
+          name: null,
         },
-        photoUrls: [],
-        tags: [
-          {
-            id: null,
-            name: null,
-          },
-        ],
-        status: 'available',
-      }),
-    )
+      ],
+      status: 'available',
+    })
   })
 })

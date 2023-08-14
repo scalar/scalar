@@ -1,4 +1,4 @@
-import { getResponseFromSchema } from './getResponseFromSchema'
+import { getResponseStringFromSchema } from './getResponseStringFromSchema'
 
 export const getExampleResponses = (responses: Record<string, any>) => {
   const exampleResponses: Record<string, any> = {}
@@ -15,7 +15,7 @@ export const getExampleResponses = (responses: Record<string, any>) => {
 
       exampleResponses[responseCode]['application/json'] = {
         headers: responses[responseCode].content['application/json']['headers'],
-        content: JSON.parse(getResponseFromSchema(jsonResponseSchema)),
+        content: JSON.parse(getResponseStringFromSchema(jsonResponseSchema)),
       }
     }
   })
