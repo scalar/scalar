@@ -54,7 +54,9 @@ function changeTab(index: number) {
       @change="changeTab">
       <CardTab
         v-for="statusCode in statusCodes"
-        :key="statusCode">{{ statusCode }}</CardTab>
+        :key="statusCode">
+        {{ statusCode }}
+      </CardTab>
 
       <template #actions>
         <button
