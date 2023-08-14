@@ -87,8 +87,8 @@ describe('getResponseStringFromSchema', () => {
       photoUrls: [],
       tags: [
         {
-          id: null,
-          name: null,
+          id: 1,
+          name: '',
         },
       ],
       status: 'available',

@@ -40,11 +40,25 @@ export const getResponseFromProperties = (properties: Record<string, any>) => {
       return
     }
 
-    if (property.type === 'array') {
-      response[name] = []
+    // Set an example value based on the type
+    const exampleValues: Record<string, any> = {
+      array: [],
+      string: '',
+      boolean: true,
+      integer: 1,
+    }
+
+    if (exampleValues[property.type] !== undefined) {
+      response[name] = exampleValues[property.type]
       return
     }
 
+    // Warn if the type is unknown …
+    console.warn(
+      `[getResponseFromProperties] Unknown property type "${property.type}" for property "${name}".`,
+    )
+
+    // … and just return null for now.
     response[name] = null
   })
 

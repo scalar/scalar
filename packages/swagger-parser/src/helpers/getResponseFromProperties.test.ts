@@ -56,7 +56,9 @@ describe('getResponseFromProperties', () => {
           type: 'array',
           items: {
             properties: {
-              id: {},
+              id: {
+                example: 1,
+              },
             },
           },
         },
@@ -64,9 +66,57 @@ describe('getResponseFromProperties', () => {
     ).toMatchObject({
       tags: [
         {
-          id: null,
+          id: 1,
         },
       ],
+    })
+  })
+
+  it('uses empty quotes as a fallback for arrays', () => {
+    expect(
+      getResponseFromProperties({
+        title: {
+          type: 'array',
+        },
+      }),
+    ).toMatchObject({
+      title: [],
+    })
+  })
+
+  it('uses empty quotes as a fallback for strings', () => {
+    expect(
+      getResponseFromProperties({
+        title: {
+          type: 'string',
+        },
+      }),
+    ).toMatchObject({
+      title: '',
+    })
+  })
+
+  it('uses true as a fallback for booleans', () => {
+    expect(
+      getResponseFromProperties({
+        public: {
+          type: 'boolean',
+        },
+      }),
+    ).toMatchObject({
+      public: true,
+    })
+  })
+
+  it('uses 1 as a fallback for integers', () => {
+    expect(
+      getResponseFromProperties({
+        id: {
+          type: 'integer',
+        },
+      }),
+    ).toMatchObject({
+      id: 1,
     })
   })
 })
