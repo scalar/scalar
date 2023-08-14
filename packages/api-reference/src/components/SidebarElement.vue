@@ -79,7 +79,7 @@ function handleToggleOpen() {
       <a
         class="flex-1 sidebar-heading-link"
         v-bind="linkProps">
-        <ProjectIcon
+        <Icon
           v-if="item?.icon?.src"
           class="sidebar-icon"
           :src="item.icon.src" />
