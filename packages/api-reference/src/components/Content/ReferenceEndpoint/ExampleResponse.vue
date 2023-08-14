@@ -39,6 +39,7 @@ const doc = computed(() => {
     props.operation.responses[activeResponse.value]
       ? // @ts-ignore
         props.operation.responses[activeResponse.value]['application/json']
+          .content
       : undefined
 
   return response ? jsonify(response) : ''
