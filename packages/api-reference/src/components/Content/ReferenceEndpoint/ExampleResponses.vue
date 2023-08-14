@@ -81,12 +81,14 @@ watch(selectedResponseIndex, () => {
         </button>
       </template>
     </CardTabHeader>
-    <CardContent muted>
-      <div
-        v-if="currentResponse.description"
-        class="description">
+    <CardContent
+      v-if="currentResponse.description"
+      muted>
+      <div class="description">
         {{ currentResponse.description }}
       </div>
+    </CardContent>
+    <CardContent muted>
       <div
         v-show="currentResponseJsonBody"
         ref="codeMirrorRef" />
@@ -120,7 +122,6 @@ watch(selectedResponseIndex, () => {
 .description {
   font-weight: var(--scalar-api-reference-theme-semibold);
   font-size: var(--scalar-api-reference-theme-mini);
-  margin-bottom: 12px;
 }
 .scalar-api-reference__empty-state {
   border: 1px dashed var(--scalar-api-reference-theme-border-color);
