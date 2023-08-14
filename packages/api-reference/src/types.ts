@@ -49,10 +49,14 @@ export type Operation = {
   information: Information
 }
 
+export type TransformedOperation = Operation & {
+  responses: Record<string, Response>
+}
+
 export type Tag = {
   name: string
   description: string
-  operations: Operation[]
+  operations: TransformedOperation[]
 }
 export type Parameter = {
   name: string

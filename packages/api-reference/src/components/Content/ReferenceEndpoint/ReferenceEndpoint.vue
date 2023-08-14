@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import type { Operation, Server, Tag } from '../../../types'
+import type { Server, Tag, TransformedOperation } from '../../../types'
 import Copy from './Copy.vue'
 import ExampleRequest from './ExampleRequest.vue'
 import ExampleResponses from './ExampleResponses.vue'
 
-defineProps<{ operation: Operation; server: Server; parentTag: Tag }>()
+defineProps<{
+  operation: TransformedOperation
+  server: Server
+  parentTag: Tag
+}>()
 </script>
 <template>
   <div

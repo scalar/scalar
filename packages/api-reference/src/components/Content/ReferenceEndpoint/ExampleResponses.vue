@@ -3,17 +3,24 @@ import { json } from '@codemirror/lang-json'
 import { useClipboard } from '@scalar/use-clipboard'
 import { useCodeMirror } from '@scalar/use-codemirror'
 import { EditorView } from 'codemirror'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
-import type { Operation } from '../../../types'
-import { Card, CardContent, CardTab, CardTabHeader } from '../../Card'
+import type { TransformedOperation } from '../../../types'
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardTab,
+  CardTabHeader,
+} from '../../Card'
 import { Icon } from '../../Icon'
 
-const props = defineProps<{ operation: Operation }>()
+const props = defineProps<{ operation: TransformedOperation }>()
 
 const { copyToClipboard } = useClipboard()
 
-const statusCodes = computed(() => {
+// Bring the status codes in the right order.
+const orderedStatusCodes = computed(() => {
   return Object.keys(props.operation.information.responses).sort((x) => {
     if (x === 'default') {
       return -1
@@ -23,29 +30,33 @@ const statusCodes = computed(() => {
   })
 })
 
-function getContentByIndex(index: number): string {
-  const selectedResponse = statusCodes.value[index]
+// Keep track of the current selected tab
+const selectedResponseIndex = ref<number>(0)
 
-  // @ts-ignore
-  return props.operation.responses[selectedResponse]
-    ? JSON.stringify(
-        // @ts-ignore
-        props.operation.responses[selectedResponse]['application/json'].content,
-        null,
-        2,
-      )
-    : ''
+// Return the whole response object
+const currentResponse = computed(() => {
+  const currentStatusCode =
+    orderedStatusCodes.value[selectedResponseIndex.value]
+
+  return props.operation.responses[currentStatusCode]
+})
+
+const currentResponseJsonBody = computed(() => {
+  return currentResponse.value?.content?.['application/json']?.body
+})
+
+const { codeMirrorRef, setCodeMirrorContent } = useCodeMirror({
+  content: currentResponseJsonBody.value,
+  extensions: [json(), EditorView.editable.of(false)],
+})
+
+const changeTab = (index: number) => {
+  selectedResponseIndex.value = index
 }
 
-const { codeMirrorRef, setCodeMirrorContent, codeMirror, value } =
-  useCodeMirror({
-    content: getContentByIndex(0),
-    extensions: [json(), EditorView.editable.of(false)],
-  })
-
-function changeTab(index: number) {
-  setCodeMirrorContent(getContentByIndex(index))
-}
+watch(selectedResponseIndex, () => {
+  setCodeMirrorContent(currentResponseJsonBody.value ?? '')
+})
 </script>
 <template>
   <Card>
@@ -53,19 +64,17 @@ function changeTab(index: number) {
       muted
       @change="changeTab">
       <CardTab
-        v-for="statusCode in statusCodes"
+        v-for="statusCode in orderedStatusCodes"
         :key="statusCode">
         {{ statusCode }}
       </CardTab>
 
       <template #actions>
         <button
-          v-if="value"
+          v-if="currentResponseJsonBody"
           class="code-copy"
           type="button"
-          @click="
-            () => copyToClipboard(codeMirror?.state.doc.toString() ?? '')
-          ">
+          @click="() => copyToClipboard(currentResponseJsonBody)">
           <Icon
             src="solid/interface-copy-clipboard"
             width="10px" />
@@ -74,10 +83,15 @@ function changeTab(index: number) {
     </CardTabHeader>
     <CardContent muted>
       <div
-        v-show="value"
+        v-if="currentResponse.description"
+        class="description">
+        {{ currentResponse.description }}
+      </div>
+      <div
+        v-show="currentResponseJsonBody"
         ref="codeMirrorRef" />
       <div
-        v-if="!value"
+        v-if="!currentResponseJsonBody"
         class="scalar-api-reference__empty-state">
         No Body
       </div>
@@ -85,7 +99,7 @@ function changeTab(index: number) {
   </Card>
 </template>
 
-<style>
+<style scoped>
 .code-copy {
   display: flex;
   appearance: none;
@@ -103,7 +117,11 @@ function changeTab(index: number) {
   width: 13px;
   height: 13px;
 }
-
+.description {
+  font-weight: var(--scalar-api-reference-theme-semibold);
+  font-size: var(--scalar-api-reference-theme-mini);
+  margin-bottom: 12px;
+}
 .scalar-api-reference__empty-state {
   border: 1px dashed var(--scalar-api-reference-theme-border-color);
   width: 100%;

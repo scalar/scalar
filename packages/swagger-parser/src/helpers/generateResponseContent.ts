@@ -1,4 +1,7 @@
-export const getResponseFromProperties = (properties: Record<string, any>) => {
+/**
+ * This function takes a properties object and generates an example response content.
+ */
+export const generateResponseContent = (properties: Record<string, any>) => {
   const response: Record<string, any> = {}
 
   if (typeof properties !== 'object') {
@@ -22,14 +25,14 @@ export const getResponseFromProperties = (properties: Record<string, any>) => {
 
     // properties: { … }
     if (property.properties !== undefined) {
-      response[name] = getResponseFromProperties(property.properties)
+      response[name] = generateResponseContent(property.properties)
 
       return
     }
 
     // items: { properties: { … } }
     if (property.items?.properties !== undefined) {
-      const children = getResponseFromProperties(property.items.properties)
+      const children = generateResponseContent(property.items.properties)
 
       if (property?.type === 'array') {
         response[name] = [children]
@@ -55,7 +58,7 @@ export const getResponseFromProperties = (properties: Record<string, any>) => {
 
     // Warn if the type is unknown …
     console.warn(
-      `[getResponseFromProperties] Unknown property type "${property.type}" for property "${name}".`,
+      `[generateResponseContent] Unknown property type "${property.type}" for property "${name}".`,
     )
 
     // … and just return null for now.
