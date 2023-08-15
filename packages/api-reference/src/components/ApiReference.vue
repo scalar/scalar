@@ -518,8 +518,7 @@ const breadCrumbs = computed(() => {
 .layout-aside-left {
   position: relative;
   grid-area: sidebar;
-  /* prettier-ignore */
-  border-right: var(--scalar-api-reference-sidebar-border-color, var(--scalar-api-reference-theme-border));
+  border-right: var(--scalar-api-reference-theme-border);
 }
 
 .layout-aside-right {
