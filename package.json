@@ -19,7 +19,6 @@
     "eslint-plugin-n": "^15.0.0 || ^16.0.0 ",
     "eslint-plugin-promise": "^6.0.0",
     "lerna": "^7.1.5",
-    "vite": "^4.4.9",
     "vitest": "^0.34.1"
   }
 }
