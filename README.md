@@ -1,5 +1,7 @@
 # Scalar
 
+[![Test](https://github.com/a-numbered-company/api-reference/actions/workflows/test.yml/badge.svg)](https://github.com/a-numbered-company/api-reference/actions/workflows/test.yml)
+
 This repository contains all our open source projects.
 
 ```
