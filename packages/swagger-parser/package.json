@@ -24,8 +24,7 @@
   "types": "./dist/index.d.ts",
   "dependencies": {
     "@apidevtools/swagger-parser": "10.1.0",
-    "js-yaml": "4.1.0",
-    "util": "0.12.5"
+    "js-yaml": "4.1.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "25.0.3",

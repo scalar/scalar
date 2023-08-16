@@ -10,13 +10,13 @@ const config: RollupOptions = {
   output: {
     dir: 'dist',
     format: 'esm',
-    sourcemap: true,
   },
   plugins: [
     del({ targets: 'dist/*' }),
     typescript(),
     nodeResolve({
       browser: true,
+      preferBuiltins: false,
     }),
     commonjs(),
     json(),
