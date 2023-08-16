@@ -15,7 +15,4 @@ export default defineConfig({
       external: ['vue'],
     },
   },
-  server: {
-    port: 7070,
-  },
 })
