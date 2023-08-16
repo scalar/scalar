@@ -30,3 +30,11 @@ Run the development server:
 
 Build all packages:
 `$ pnpm run build`
+
+## Publishing new versions
+
+Prepare the changelog for new versions:
+`$ pnpm changeset`
+
+Build, test, bump versions & publish:
+`$ pnpm publish:packages`
