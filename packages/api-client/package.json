@@ -17,7 +17,7 @@
     "types:check": "vue-tsc --noEmit --skipLibCheck"
   },
   "type": "module",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "files": [
     "dist"
   ],
