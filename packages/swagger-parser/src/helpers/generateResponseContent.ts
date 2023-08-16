@@ -61,7 +61,7 @@ export const generateResponseContent = (properties: Record<string, any>) => {
       `[generateResponseContent] Unknown property type "${property.type}" for property "${name}".`,
     )
 
-    // … and just return null for now.
+    // … and just return null for now.
     response[name] = null
   })
 
