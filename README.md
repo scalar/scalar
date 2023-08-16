@@ -11,6 +11,7 @@ This repository contains all our open source projects.
 │   ├── api-reference (@scalar/api-reference)
 │   ├── cli (@scalar/cli)
 │   ├── swagger-editor (@scalar/swagger-editor)
+│   ├── swagger-parser (@scalar/swagger-parser)
 │   ├── use-clipboard (@scalar/use-clipboard)
 │   ├── use-codemirror (@scalar/use-codemirror)
 │   ├── use-keyboard-event (@scalar/use-keyboard-event)
