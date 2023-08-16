@@ -7,10 +7,11 @@
     "lint:fix": "pnpm -r lint:fix",
     "test": "pnpm -r test",
     "build": "pnpm -r build",
-    "publish:packages": "CI=true pnpm run test && pnpm run build && pnpm -r publish"
+    "publish:packages": "pnpm run build && CI=true pnpm run test && pnpm changeset version && pnpm install && pnpm -r publish"
   },
   "devDependencies": {
     "@babel/runtime": "^7.22.10",
+    "@changesets/cli": "^2.26.2",
     "@typescript-eslint/eslint-plugin": "^5.52.0",
     "@typescript-eslint/parser": "^6.4.0",
     "eslint": "^8.47.0",
@@ -18,7 +19,6 @@
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-n": "^15.0.0 || ^16.0.0 ",
     "eslint-plugin-promise": "^6.0.0",
-    "lerna": "^7.1.5",
     "vitest": "^0.34.1"
   }
 }
