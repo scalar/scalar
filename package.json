@@ -1,0 +1,16 @@
+{
+  "name": "root",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "projects/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter api-client-web dev",
+    "build": "pnpm -r build"
+  },
+  "devDependencies": {
+    "@babel/runtime": "^7.22.10",
+    "lerna": "^7.1.5"
+  }
+}
