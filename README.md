@@ -17,3 +17,14 @@ This repository contains all our open source projects.
     ├── api-client-app (electron app)
     └── api-client-web (web app)
 ```
+
+## Development
+
+Install all dependencies:
+`$ pnpm install`
+
+Run the development server:
+`$ pnpm run dev`
+
+Build all packages:
+`$ pnpm run build`

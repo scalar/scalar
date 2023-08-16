@@ -13,7 +13,7 @@
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
-    "test:unit": "vitest ./src --coverage",
+    "test": "vitest",
     "types:build": "vue-tsc -p tsconfig.build.json",
     "types:check": "vue-tsc --noEmit --skipLibCheck"
   },

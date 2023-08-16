@@ -29,15 +29,4 @@ export default defineConfig({
   server: {
     port: 7070,
   },
-  test: {
-    setupFiles: 'test/setup.ts',
-    exclude: [...configDefaults.exclude],
-    environment: 'jsdom',
-    globals: true,
-    coverage: {
-      all: true,
-      include: ['src/**'],
-      provider: 'istanbul',
-    },
-  },
 })

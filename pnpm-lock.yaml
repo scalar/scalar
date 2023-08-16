@@ -14,6 +14,9 @@ importers:
       lerna:
         specifier: ^7.1.5
         version: 7.1.5
+      vitest:
+        specifier: ^0.34.1
+        version: 0.34.1
 
   packages/api-client:
     dependencies:

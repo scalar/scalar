@@ -12,7 +12,7 @@
     "dev": "vite",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "test:unit": "vitest ./src --coverage",
+    "test": "vitest",
     "types:build": "tsc -p tsconfig.build.json",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
