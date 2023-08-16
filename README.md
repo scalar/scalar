@@ -36,5 +36,8 @@ Build all packages:
 Prepare the changelog for new versions:
 `$ pnpm changeset`
 
-Build, test, bump versions & publish:
-`$ pnpm publish:packages`
+Build, test, bump versions:
+`$ pnpm bump`
+
+Actually publish the packages:
+`$ pnpm -r publish`
