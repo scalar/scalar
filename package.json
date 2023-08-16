@@ -7,7 +7,7 @@
     "lint:fix": "pnpm -r lint:fix",
     "test": "pnpm -r test",
     "build": "pnpm -r build",
-    "publish:packages": "CI=true pnpm run test && pnpm run build && lerna publish"
+    "publish:packages": "CI=true pnpm run test && pnpm run build && pnpm -r publish"
   },
   "devDependencies": {
     "@babel/runtime": "^7.22.10",
