@@ -17,7 +17,7 @@ const config: RollupOptions = {
     typescript(),
     nodeResolve({
       browser: true,
-      preferBuiltins: false,
+      preferBuiltins: true,
     }),
     commonjs(),
     json(),
