@@ -22,7 +22,6 @@
   "files": [
     "dist"
   ],
-  "dependencies": {},
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",
     "tsc-alias": "1.8.6",
