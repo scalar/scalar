@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 0.1.3
+
+### Patch Changes
+
+- e6f4941: fix: basic default styles
+
 ## 0.1.2
 
 ### Patch Changes
