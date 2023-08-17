@@ -56,11 +56,11 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   font-size: 12px;
   margin-top: -3px;
   justify-content: space-between;
-  .cm-s-default {
+}
+.scalar-api-client__item__content  .cm-s-default {
     border: var(--scalar-api-client-border);
     border-radius: var(--scalar-api-client-rounded);
   }
-}
 .scalar-api-client__item__content .scalar-api-client__item__content--code {
   width: 100%;
   max-height: calc(100vh - 200px);
@@ -116,12 +116,13 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   cursor: pointer;
   margin: 0 4px 8px;
   user-select: none;
-  &:hover {
-    box-shadow: 0 0 0 1px var(--scalar-api-client-border-color);
-    background: var(--scalar-api-client-gradient);
-    color: var(--scalar-api-client-theme-color-1);
-  }
 }
+.scalar-collapsible-section-option:hover {
+  box-shadow: 0 0 0 1px var(--scalar-api-client-border-color);
+  background: var(--scalar-api-client-gradient);
+  color: var(--scalar-api-client-theme-color-1);
+}
+
 .input {
   background: var(--scalar-api-client-background-secondary);
   border: var(--scalar-api-client-border);

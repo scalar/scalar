@@ -317,13 +317,15 @@ const availableLanguages = computed(() => {
   margin-left: 6px;
   border: none;
   border-radius: 3px;
-  &:hover {
-    color: var(--scalar-api-reference-theme-color-1);
-  }
-  svg {
-    width: 13px;
-    height: 13px;
-  }
+}
+
+.copy-button:hover {
+  color: var(--scalar-api-reference-theme-color-1);
+}
+
+.copy-button svg {
+  width: 13px;
+  height: 13px;
 }
 
 .show-api-client-button {
