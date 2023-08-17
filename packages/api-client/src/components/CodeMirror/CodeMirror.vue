@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { javascript } from '@codemirror/lang-javascript'
 import { json } from '@codemirror/lang-json'
 import { type Extension } from '@codemirror/state'
 import {
@@ -9,10 +8,70 @@ import {
 } from '@codemirror/view'
 import { useCodeMirror } from '@scalar/use-codemirror'
 import { watch } from 'vue'
-
 import { variables } from './extensions/variables'
+import { java } from '@codemirror/lang-java'
+import { javascript } from '@codemirror/lang-javascript'
+import { python } from '@codemirror/lang-python'
+import { type LanguageSupport } from '@codemirror/language'
+import { StreamLanguage } from '@codemirror/language'
+import {
+  c,
+  csharp,
+  kotlin,
+  objectiveC,
+} from '@codemirror/legacy-modes/mode/clike'
+import { clojure } from '@codemirror/legacy-modes/mode/clojure'
+import { go } from '@codemirror/legacy-modes/mode/go'
+import { http } from '@codemirror/legacy-modes/mode/http'
+import { oCaml } from '@codemirror/legacy-modes/mode/mllike'
+import { powerShell } from '@codemirror/legacy-modes/mode/powershell'
+import { r } from '@codemirror/legacy-modes/mode/r'
+import { ruby } from '@codemirror/legacy-modes/mode/ruby'
+import { shell } from '@codemirror/legacy-modes/mode/shell'
+import { swift } from '@codemirror/legacy-modes/mode/swift'
 
-type Language = 'javascript' | 'json'
+// TODO: Add 'php' and 'laravel'
+const syntaxHighlighting: Record<Language, LanguageSupport | StreamLanguage<any>> = {
+  axios: javascript(),
+  c: StreamLanguage.define(c),
+  clojure: StreamLanguage.define(clojure),
+  csharp: StreamLanguage.define(csharp),
+  go: StreamLanguage.define(go),
+  http: StreamLanguage.define(http),
+  java: java(),
+  javascript: javascript(),
+  json: json(),
+  kotlin: StreamLanguage.define(kotlin),
+  node: javascript(),
+  objc: StreamLanguage.define(objectiveC),
+  ocaml: StreamLanguage.define(oCaml),
+  powershell: StreamLanguage.define(powerShell),
+  python: python(),
+  r: StreamLanguage.define(r),
+  ruby: StreamLanguage.define(ruby),
+  shell: StreamLanguage.define(shell),
+  swift: StreamLanguage.define(swift),
+}
+
+type Language = 'axios'
+  | 'c'
+  | 'clojure'
+  | 'csharp'
+  | 'go'
+  | 'http'
+  | 'java'
+  | 'javascript'
+  | 'json'
+  | 'kotlin'
+  | 'node'
+  | 'objc'
+  | 'ocaml'
+  | 'powershell'
+  | 'python'
+  | 'r'
+  | 'ruby'
+  | 'shell'
+  | 'swift'
 
 const props = defineProps<{
   content?: string
@@ -27,8 +86,6 @@ const emit = defineEmits<{
   (e: 'change', value: string): void
 }>()
 
-const extensions: Extension[] = []
-
 // CSS Class
 const classes = ['scalar-api-client__codemirror']
 
@@ -36,59 +93,59 @@ if (props.readOnly) {
   classes.push('scalar-api-client__codemirror--read-only')
 }
 
-extensions.push(EditorView.editorAttributes.of({ class: classes.join(' ') }))
+const getCodeMirrorExtensions = () => {
+  const extensions: Extension[] = []
 
-// Read only
-if (props.readOnly) {
-  extensions.push(EditorView.editable.of(false))
+  extensions.push(EditorView.editorAttributes.of({ class: classes.join(' ') }))
+
+  // Read only
+  if (props.readOnly) {
+    extensions.push(EditorView.editable.of(false))
+  }
+
+  // Syntax highlighting
+  if (props.languages) {
+    props.languages
+      .filter(language => syntaxHighlighting[language])
+      .forEach((language) => {
+          extensions.push(syntaxHighlighting[language])
+      })
+  }
+
+  // Line numbers
+  if (props.lineNumbers) {
+    extensions.push(lineNumbersExtension())
+  }
+
+  // Highlight variables
+  if (props.withVariables) {
+    extensions.push(variables())
+  }
+
+  // Listen to updates
+  extensions.push(
+    EditorView.updateListener.of((v: ViewUpdate) => {
+      if (!v.docChanged) {
+        return
+      }
+
+      emit('change', v.state.doc.toString())
+    }),
+  )
+
+  return extensions
 }
 
-// Syntax highlighting
-if (props.languages) {
-  props.languages.forEach((language) => {
-    switch (language) {
-      case 'javascript':
-        extensions.push(javascript())
-        break
-      case 'json':
-        extensions.push(json())
-        break
-    }
-  })
-}
-
-// Line numbers
-if (props.lineNumbers) {
-  extensions.push(lineNumbersExtension())
-}
-
-// Highlight variables
-if (props.withVariables) {
-  extensions.push(variables())
-}
-
-// Listen to updates
-extensions.push(
-  EditorView.updateListener.of((v: ViewUpdate) => {
-    if (!v.docChanged) {
-      return
-    }
-
-    emit('change', v.state.doc.toString())
-  }),
-)
-const { codeMirrorRef, setCodeMirrorContent } = useCodeMirror({
+const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } = useCodeMirror({
   content: props.content ?? '',
-  extensions,
+  extensions: getCodeMirrorExtensions(),
   withoutTheme: props.withoutTheme,
 })
 
-watch(
-  () => props.content,
-  () => {
-    setCodeMirrorContent(props.content ?? '')
-  },
-)
+watch(props, () => {
+  setCodeMirrorContent(props.content ?? '')
+  reconfigureCodeMirror(getCodeMirrorExtensions())
+})
 </script>
 
 <template>

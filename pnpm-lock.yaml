@@ -38,12 +38,24 @@ importers:
 
   packages/api-client:
     dependencies:
+      '@codemirror/lang-java':
+        specifier: ^6.0.1
+        version: 6.0.1
       '@codemirror/lang-javascript':
         specifier: 6.1.9
         version: 6.1.9
       '@codemirror/lang-json':
         specifier: 6.0.1
         version: 6.0.1
+      '@codemirror/lang-python':
+        specifier: 6.1.3
+        version: 6.1.3(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)(@lezer/common@1.0.3)
+      '@codemirror/language':
+        specifier: 6.8.0
+        version: 6.8.0
+      '@codemirror/legacy-modes':
+        specifier: 6.3.3
+        version: 6.3.3
       '@codemirror/state':
         specifier: 6.2.1
         version: 6.2.1
@@ -77,24 +89,54 @@ importers:
       axios:
         specifier: 1.4.0
         version: 1.4.0
+      clike:
+        specifier: link:@codemirror/legacy-modes/mode/clike
+        version: link:@codemirror/legacy-modes/mode/clike
+      clojure:
+        specifier: link:@codemirror/legacy-modes/mode/clojure
+        version: link:@codemirror/legacy-modes/mode/clojure
       codemirror:
         specifier: 6.0.1
         version: 6.0.1(@lezer/common@1.0.3)
+      go:
+        specifier: link:@codemirror/legacy-modes/mode/go
+        version: link:@codemirror/legacy-modes/mode/go
+      http:
+        specifier: link:@codemirror/legacy-modes/mode/http
+        version: link:@codemirror/legacy-modes/mode/http
       javascript-time-ago:
         specifier: 2.5.9
         version: 2.5.9
+      mllike:
+        specifier: link:@codemirror/legacy-modes/mode/mllike
+        version: link:@codemirror/legacy-modes/mode/mllike
       nanoid:
         specifier: 4.0.2
         version: 4.0.2
       nunjucks:
         specifier: 3.2.4
         version: 3.2.4
+      powershell:
+        specifier: link:@codemirror/legacy-modes/mode/powershell
+        version: link:@codemirror/legacy-modes/mode/powershell
       pretty-bytes:
         specifier: 6.1.0
         version: 6.1.0
       pretty-ms:
         specifier: 8.0.0
         version: 8.0.0
+      r:
+        specifier: link:@codemirror/legacy-modes/mode/r
+        version: link:@codemirror/legacy-modes/mode/r
+      ruby:
+        specifier: link:@codemirror/legacy-modes/mode/ruby
+        version: link:@codemirror/legacy-modes/mode/ruby
+      shell:
+        specifier: link:@codemirror/legacy-modes/mode/shell
+        version: link:@codemirror/legacy-modes/mode/shell
+      swift:
+        specifier: link:@codemirror/legacy-modes/mode/swift
+        version: link:@codemirror/legacy-modes/mode/swift
       tippy.js:
         specifier: 6.3.7
         version: 6.3.7
@@ -138,9 +180,6 @@ importers:
       '@codemirror/legacy-modes':
         specifier: 6.3.3
         version: 6.3.3
-      '@codemirror/state':
-        specifier: 6.2.1
-        version: 6.2.1
       '@codemirror/view':
         specifier: 6.16.0
         version: 6.16.0
@@ -860,6 +899,13 @@ packages:
       '@codemirror/state': 6.2.1
       '@codemirror/view': 6.16.0
       '@lezer/common': 1.0.3
+    dev: false
+
+  /@codemirror/lang-java@6.0.1:
+    resolution: {integrity: sha512-OOnmhH67h97jHzCuFaIEspbmsT98fNdhVhmA3zCxW0cn7l8rChDhZtwiwJ/JOKXgfm4J+ELxQihxaI7bj7mJRg==}
+    dependencies:
+      '@codemirror/language': 6.8.0
+      '@lezer/java': 1.0.4
     dev: false
 
   /@codemirror/lang-javascript@6.1.9:

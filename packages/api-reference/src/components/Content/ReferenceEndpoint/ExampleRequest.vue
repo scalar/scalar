@@ -1,25 +1,5 @@
 <script setup lang="ts">
-import { java } from '@codemirror/lang-java'
-import { javascript } from '@codemirror/lang-javascript'
-import { python } from '@codemirror/lang-python'
-import { type LanguageSupport } from '@codemirror/language'
-import { StreamLanguage } from '@codemirror/language'
-import {
-  c,
-  csharp,
-  kotlin,
-  objectiveC,
-} from '@codemirror/legacy-modes/mode/clike'
-import { clojure } from '@codemirror/legacy-modes/mode/clojure'
-import { go } from '@codemirror/legacy-modes/mode/go'
-import { http } from '@codemirror/legacy-modes/mode/http'
-import { oCaml } from '@codemirror/legacy-modes/mode/mllike'
-import { powerShell } from '@codemirror/legacy-modes/mode/powershell'
-import { r } from '@codemirror/legacy-modes/mode/r'
-import { ruby } from '@codemirror/legacy-modes/mode/ruby'
-import { shell } from '@codemirror/legacy-modes/mode/shell'
-import { swift } from '@codemirror/legacy-modes/mode/swift'
-import { lineNumbers } from '@codemirror/view'
+import { CodeMirror } from '@scalar/api-client'
 import {
   generateRequest,
   useApiClientRequestStore,
@@ -27,15 +7,13 @@ import {
 } from '@scalar/api-client'
 import { useOperation } from '@scalar/api-client'
 import { useClipboard } from '@scalar/use-clipboard'
-import { useCodeMirror } from '@scalar/use-codemirror'
-import { EditorView } from 'codemirror'
 import {
   HTTPSnippet,
   type HarRequest,
   type TargetId,
   availableTargets,
 } from 'httpsnippet-lite'
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import {
   generateAxiosCodeFromRequest,
@@ -47,6 +25,8 @@ import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import { Icon } from '../../Icon'
 
 const props = defineProps<{ operation: Operation; server: Server }>()
+
+const CodeMirrorValue = ref<string>('')
 
 const { copyToClipboard } = useClipboard()
 
@@ -61,52 +41,55 @@ const {
 } = useTemplateStore()
 
 // TODO: Add PHP
-const syntaxHighlighting: Record<
-  Exclude<TargetId, 'php'> | 'axios',
-  LanguageSupport | StreamLanguage<any>
-> = {
-  c: StreamLanguage.define(c),
-  clojure: StreamLanguage.define(clojure),
-  csharp: StreamLanguage.define(csharp),
-  go: StreamLanguage.define(go),
-  http: StreamLanguage.define(http),
-  java: java(),
-  javascript: javascript(),
-  kotlin: StreamLanguage.define(kotlin),
-  node: javascript(),
-  objc: StreamLanguage.define(objectiveC),
-  ocaml: StreamLanguage.define(oCaml),
-  powershell: StreamLanguage.define(powerShell),
-  python: python(),
-  r: StreamLanguage.define(r),
-  ruby: StreamLanguage.define(ruby),
-  shell: StreamLanguage.define(shell),
-  swift: StreamLanguage.define(swift),
-  axios: javascript(),
-}
+// const syntaxHighlighting: Record<
+//   Exclude<TargetId, 'php'> | 'axios',
+//   LanguageSupport | StreamLanguage<any>
+// > = {
+//   c: StreamLanguage.define(c),
+//   clojure: StreamLanguage.define(clojure),
+//   csharp: StreamLanguage.define(csharp),
+//   go: StreamLanguage.define(go),
+//   http: StreamLanguage.define(http),
+//   java: java(),
+//   javascript: javascript(),
+//   kotlin: StreamLanguage.define(kotlin),
+//   node: javascript(),
+//   objc: StreamLanguage.define(objectiveC),
+//   ocaml: StreamLanguage.define(oCaml),
+//   powershell: StreamLanguage.define(powerShell),
+//   python: python(),
+//   r: StreamLanguage.define(r),
+//   ruby: StreamLanguage.define(ruby),
+//   shell: StreamLanguage.define(shell),
+//   swift: StreamLanguage.define(swift),
+//   axios: javascript(),
+// }
 
-const editorExtensions = computed(() => {
-  const extensions = [lineNumbers(), EditorView.editable.of(false)]
+// const editorExtensions = computed(() => {
+//   const extensions = [lineNumbers(), EditorView.editable.of(false)]
 
-  if (
-    Object.hasOwnProperty.call(
-      syntaxHighlighting,
-      templateState.preferredLanguage,
-    )
-  ) {
-    // @ts-ignore
-    extensions.push(syntaxHighlighting[templateState.preferredLanguage])
-  }
+//   if (
+//     Object.hasOwnProperty.call(
+//       syntaxHighlighting,
+//       templateState.preferredLanguage,
+//     )
+//   ) {
+//     // @ts-ignore
+//     extensions.push(syntaxHighlighting[templateState.preferredLanguage])
+//   }
 
-  return extensions
+//   return extensions
+// })
+const CodeMirrorLanguages = computed(() => {
+  return [templateState.preferredLanguage]
 })
 
-const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
-  useCodeMirror({
-    content: '',
-    extensions: editorExtensions.value,
-    forceDarkMode: true,
-  })
+// const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
+//   useCodeMirror({
+//     content: '',
+//     extensions: editorExtensions.value,
+//     forceDarkMode: true,
+//   })
 
 const { parameterMap } = useOperation(props)
 
@@ -147,19 +130,21 @@ async function generateSnippet() {
 
 onMounted(async () => {
   const initialSnippet = await generateSnippet()
-  setCodeMirrorContent(initialSnippet)
+  CodeMirrorValue.value = initialSnippet
+  // setCodeMirrorContent(initialSnippet)
   watch(
     () => templateState.preferredLanguage,
     async () => {
       const output = await generateSnippet()
-      setCodeMirrorContent(output)
-      reconfigureCodeMirror(editorExtensions.value)
+      CodeMirrorValue.value = output
+      // setCodeMirrorContent(output)
+      // reconfigureCodeMirror(editorExtensions.value)
     },
   )
 })
 
 const copyExampleRequest = async () => {
-  copyToClipboard(await generateSnippet())
+  copyToClipboard(CodeMirrorValue.value)
 }
 
 function showItemInClient() {
@@ -226,6 +211,7 @@ const availableLanguages = computed(() => {
     <CardContent
       borderless
       frameless>
+      <CodeMirror :readOnly="true" :languages="CodeMirrorLanguages" :lineNumbers="true" :content="CodeMirrorValue" />
       <div ref="codeMirrorRef" />
     </CardContent>
     <CardFooter muted>
