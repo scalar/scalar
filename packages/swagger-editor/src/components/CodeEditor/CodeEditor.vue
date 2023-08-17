@@ -88,7 +88,7 @@ const formattedError = computed(() => {
   flex: 1 1 0%;
   min-width: 0;
   min-height: 0;
-  height: var(--document-height);
+  height: 100vh;
 
   display: flex;
   flex-direction: column;

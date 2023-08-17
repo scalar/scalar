@@ -77,15 +77,13 @@ defineExpose({
 }
 .cm-editor .cm-content *,
 .cm-editor .cm-content {
-  font-family: var(--scalar-api-reference-theme-font-code) !important;
   font-size: var(--scalar-api-reference-theme-mini);
   line-height: 1.44;
 }
 .cm-editor .cm-scroller {
   background: var(--scalar-api-reference-theme-background-2);
 }
-.cm-editor .cm-activeLine,
-.cm-editor .cm-activeLineGutter {
+.cm-editor .cm-activeLine, .cm-editor {
   background-color: transparent !important;
 }
 
@@ -200,11 +198,11 @@ defineExpose({
   background: var(--scalar-api-reference-theme-background-2);
   border-radius: var(--scalar-api-reference-theme-radius);
 }
+
 .simplecode .cm-editor .cm-gutters {
   display: none;
 }
 .cm-editor .cm-gutterElement {
-  font-family: var(--scalar-api-reference-theme-font-code) !important;
   padding: 0 6px 0 12px !important;
   display: flex;
   align-items: center;

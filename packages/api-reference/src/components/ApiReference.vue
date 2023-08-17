@@ -373,6 +373,12 @@ const breadCrumbs = computed(() => {
   text-decoration: underline;
 }
 
+.references,
+.references-narrow {
+  height: 100vh;
+  overflow-y: auto;
+}
+
 /* ----------------------------------------------------- */
 /* Responsive styles for narrow reference container (900px) */
 .references-narrow .reference {
