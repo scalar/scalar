@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 0.1.3
+
+### Patch Changes
+
+- fix: add CSS file to swagger editor
+- Updated dependencies
+  - @scalar/use-codemirror@0.1.3
+  - @scalar/use-keyboard-event@0.1.3
+
 ## 0.1.2
 
 ### Patch Changes

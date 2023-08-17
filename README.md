@@ -37,8 +37,8 @@ Build all packages:
 Prepare the changelog for new versions:
 `$ pnpm changeset`
 
-Build, test, bump versions:
+Build, test and bump versions:
 `$ pnpm bump`
 
-Actually publish the packages:
+Actually publish the packages (requires access to @scalar on npm):
 `$ pnpm -r publish`

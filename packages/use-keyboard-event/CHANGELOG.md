@@ -1,5 +1,11 @@
 # @scalar/use-keyboard-event
 
+## 0.1.3
+
+### Patch Changes
+
+- fix: add CSS file to swagger editor
+
 ## 0.1.2
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 0.1.4
+
+### Patch Changes
+
+- fix: add CSS file to swagger editor
+- Updated dependencies
+  - @scalar/api-client@0.1.3
+  - @scalar/swagger-editor@0.1.3
+  - @scalar/use-clipboard@0.1.3
+  - @scalar/use-codemirror@0.1.3
+  - @scalar/use-tooltip@0.1.3
+
 ## 0.1.3
 
 ### Patch Changes
