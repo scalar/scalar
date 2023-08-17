@@ -12,20 +12,5 @@ export default defineConfig({
       fileName: 'index',
       formats: ['es'],
     },
-    rollupOptions: {
-      external: ['vue'],
-      output: {
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'index.css') {
-            return 'style.css'
-          }
-
-          return assetInfo.name ?? 'default'
-        },
-      },
-    },
-  },
-  server: {
-    port: 7070,
   },
 })

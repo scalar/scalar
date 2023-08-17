@@ -18,6 +18,7 @@ const props = withDefaults(defineProps<ReferenceProps>(), {
  * The editor component has heavy dependencies (process), let's lazy load it.
  */
 const LazyLoadedCodeEditor = defineAsyncComponent(() =>
+  /* @vite-ignore */
   import('@scalar/swagger-editor').then((module) => module.CodeEditor),
 )
 

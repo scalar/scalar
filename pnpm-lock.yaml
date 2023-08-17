@@ -523,6 +523,9 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../../packages/api-reference
+      '@scalar/swagger-editor':
+        specifier: workspace:*
+        version: link:../../packages/swagger-editor
       vue:
         specifier: 3.3.4
         version: 3.3.4

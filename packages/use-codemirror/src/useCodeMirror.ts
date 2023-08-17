@@ -65,7 +65,7 @@ export const useCodeMirror = (
   }
 
   // Extend the given extension list with a dark/light theme.
-  const addDefaultExtensions = (newExtensions: Extension[]) => {
+  const addDefaultExtensions = (newExtensions: Extension[] = []) => {
     const theme = withoutTheme
       ? null
       : forceDarkMode
