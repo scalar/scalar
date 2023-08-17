@@ -67,10 +67,11 @@ const standardLibrary = computed(() => {
           <template v-if="info.description">
             <MarkdownRenderer :value="info.description" />
           </template>
+          <!-- @vue-ignore -->
           <template
-            v-for="i in [...Array(8).keys()]"
+            v-for="index in [...Array(8).keys()]"
             v-else
-            :key="i">
+            :key="index">
             <span class="loading" />
           </template>
         </p>

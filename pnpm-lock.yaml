@@ -120,6 +120,9 @@ importers:
 
   packages/api-reference:
     dependencies:
+      '@anc/web':
+        specifier: link:/Users/hanspagel/Documents/Projects/scalar/projects/web
+        version: link:../../../scalar/projects/web
       '@codemirror/lang-java':
         specifier: github:codemirror/lang-java
         version: github.com/codemirror/lang-java/ba9cf869c73c0c12ccf5a715f8470d3f60eda046
@@ -177,6 +180,9 @@ importers:
       codemirror:
         specifier: 6.0.1
         version: 6.0.1(@lezer/common@1.0.3)
+      docs:
+        specifier: link:/Users/hanspagel/Documents/Projects/scalar
+        version: link:../../../scalar
       httpsnippet-lite:
         specifier: 3.0.5
         version: 3.0.5
