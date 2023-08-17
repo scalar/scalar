@@ -55,7 +55,7 @@ button {
 a[href]:focus-visible,
 button:focus-visible,
 [tabindex]:focus-visible {
-  outline: 1px dashed var(--theme-color-2);
+  outline: 1px dashed var(--scalar-api-reference-theme-color-2);
   outline-offset: 2px;
 }
 
@@ -135,7 +135,7 @@ display:revert; revert to element instead of attribute */
 /* revert for bug in Chromium browsers
  - fix for the content editable attribute will work properly.
  - webkit-user-select: auto; added for Safari in case of using user-select:none on wrapper element*/
-:where([contenteditable]:not([contenteditable='false'])) {
+:where([contenteditable]:not([contenteditable="false"])) {
   -moz-user-modify: revert-layer, read-write;
   -webkit-user-modify: revert-layer, read-write;
   overflow-wrap: revert-layer, break-word;
@@ -144,7 +144,7 @@ display:revert; revert to element instead of attribute */
 }
 
 /* apply back the draggable feature - exist only in Chromium and Safari */
-:where([draggable='true']) {
+:where([draggable="true"]) {
   -webkit-user-drag: element;
 }
 

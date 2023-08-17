@@ -115,7 +115,7 @@ const importExampleFile = () => {
 
 .code-editor-header span {
   font-size: 13px;
-  color: var(--theme-color-3);
+  color: var(--scalar-api-reference-theme-color-3);
   font-weight: 600;
   margin-right: 12px;
   position: relative;
@@ -123,7 +123,7 @@ const importExampleFile = () => {
 }
 
 .code-editor-header span.active-mode {
-  color: var(--theme-color-1);
+  color: var(--scalar-api-reference-theme-color-1);
 }
 
 .code-editor-header span.active-mode:after {
@@ -133,7 +133,7 @@ const importExampleFile = () => {
   left: 0;
   width: 100%;
   height: 1px;
-  background: var(--theme-color-1);
+  background: var(--scalar-api-reference-theme-color-1);
 }
 
 .code-editor-header button {
@@ -141,15 +141,15 @@ const importExampleFile = () => {
   padding: 6px 9px;
   background: transparent;
   appearance: none;
-  border: var(--theme-border);
+  border: var(--scalar-api-reference-border);
   font-size: 12px;
-  color: var(--theme-color-3);
+  color: var(--scalar-api-reference-theme-color-3);
   margin-left: 9px;
   font-weight: 500;
 }
 .code-editor-header button:hover {
   cursor: pointer;
-  color: var(--theme-color-1);
+  color: var(--scalar-api-reference-theme-color-1);
   border-color: currentColor;
 }
 @media (max-width: 580px) {

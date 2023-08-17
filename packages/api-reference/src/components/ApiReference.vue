@@ -180,11 +180,10 @@ const breadCrumbs = computed(() => {
 
 /** TODO: Move to components */
 .codemenu-topbar {
-  background: var(--theme-background-2);
-  border-bottom: 1px solid var(--theme-border-color);
+  background: var(--scalar-api-reference-theme-background-2);
+  border-bottom: 1px solid var(--scalar-api-reference-border-color);
   padding: 0 7px 0 12px;
-  /* prettier-ignore */
-  border-radius: var(--theme-radius) var(--theme-radius) 0 0;
+  border-radius: var(--scalar-api-reference-theme-radius) var(--scalar-api-reference-theme-radius) 0 0;
 }
 .codemenu {
   display: flex;

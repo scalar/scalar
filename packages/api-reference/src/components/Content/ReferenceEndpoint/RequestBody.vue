@@ -106,7 +106,7 @@ defineProps<{ requestBody?: RequestBody }>()
 .parameter-type,
 .parameter-required {
   color: var(--scalar-api-reference-theme-color-3);
-  font-weight: var(--themesemi);
+  font-weight: var(--scalar-api-reference-theme-semibold);
   margin-right: 6px;
   position: relative;
 }
