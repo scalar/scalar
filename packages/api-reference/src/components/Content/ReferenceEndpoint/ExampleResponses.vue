@@ -1,9 +1,7 @@
 <script lang="ts" setup>
-import { json } from '@codemirror/lang-json'
 import { useClipboard } from '@scalar/use-clipboard'
-import { useCodeMirror } from '@scalar/use-codemirror'
-import { EditorView } from 'codemirror'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
+import { CodeMirror } from '@scalar/api-client'
 
 import type { TransformedOperation } from '../../../types'
 import {
@@ -45,18 +43,9 @@ const currentResponseJsonBody = computed(() => {
   return currentResponse.value?.content?.['application/json']?.body
 })
 
-const { codeMirrorRef, setCodeMirrorContent } = useCodeMirror({
-  content: currentResponseJsonBody.value,
-  extensions: [json(), EditorView.editable.of(false)],
-})
-
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index
 }
-
-watch(selectedResponseIndex, () => {
-  setCodeMirrorContent(currentResponseJsonBody.value ?? '')
-})
 </script>
 <template>
   <Card>
@@ -82,9 +71,7 @@ watch(selectedResponseIndex, () => {
       </template>
     </CardTabHeader>
     <CardContent muted>
-      <div
-        v-show="currentResponseJsonBody"
-        ref="codeMirrorRef" />
+      <CodeMirror v-show="currentResponseJsonBody" read-only :languages="['json']" :content="currentResponseJsonBody" />
       <div
         v-if="!currentResponseJsonBody"
         class="scalar-api-reference__empty-state">

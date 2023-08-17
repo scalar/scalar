@@ -40,56 +40,9 @@ const {
   setItem,
 } = useTemplateStore()
 
-// TODO: Add PHP
-// const syntaxHighlighting: Record<
-//   Exclude<TargetId, 'php'> | 'axios',
-//   LanguageSupport | StreamLanguage<any>
-// > = {
-//   c: StreamLanguage.define(c),
-//   clojure: StreamLanguage.define(clojure),
-//   csharp: StreamLanguage.define(csharp),
-//   go: StreamLanguage.define(go),
-//   http: StreamLanguage.define(http),
-//   java: java(),
-//   javascript: javascript(),
-//   kotlin: StreamLanguage.define(kotlin),
-//   node: javascript(),
-//   objc: StreamLanguage.define(objectiveC),
-//   ocaml: StreamLanguage.define(oCaml),
-//   powershell: StreamLanguage.define(powerShell),
-//   python: python(),
-//   r: StreamLanguage.define(r),
-//   ruby: StreamLanguage.define(ruby),
-//   shell: StreamLanguage.define(shell),
-//   swift: StreamLanguage.define(swift),
-//   axios: javascript(),
-// }
-
-// const editorExtensions = computed(() => {
-//   const extensions = [lineNumbers(), EditorView.editable.of(false)]
-
-//   if (
-//     Object.hasOwnProperty.call(
-//       syntaxHighlighting,
-//       templateState.preferredLanguage,
-//     )
-//   ) {
-//     // @ts-ignore
-//     extensions.push(syntaxHighlighting[templateState.preferredLanguage])
-//   }
-
-//   return extensions
-// })
 const CodeMirrorLanguages = computed(() => {
   return [templateState.preferredLanguage]
 })
-
-// const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
-//   useCodeMirror({
-//     content: '',
-//     extensions: editorExtensions.value,
-//     forceDarkMode: true,
-//   })
 
 const { parameterMap } = useOperation(props)
 
@@ -131,14 +84,11 @@ async function generateSnippet() {
 onMounted(async () => {
   const initialSnippet = await generateSnippet()
   CodeMirrorValue.value = initialSnippet
-  // setCodeMirrorContent(initialSnippet)
   watch(
     () => templateState.preferredLanguage,
     async () => {
       const output = await generateSnippet()
       CodeMirrorValue.value = output
-      // setCodeMirrorContent(output)
-      // reconfigureCodeMirror(editorExtensions.value)
     },
   )
 })

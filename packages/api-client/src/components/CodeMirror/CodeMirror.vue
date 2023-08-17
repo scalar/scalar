@@ -31,7 +31,7 @@ import { shell } from '@codemirror/legacy-modes/mode/shell'
 import { swift } from '@codemirror/legacy-modes/mode/swift'
 
 // TODO: Add 'php' and 'laravel'
-const syntaxHighlighting: Record<Language, LanguageSupport | StreamLanguage<any>> = {
+const syntaxHighlighting: Partial<Record<Language, LanguageSupport | StreamLanguage<any>>> = {
   axios: javascript(),
   c: StreamLanguage.define(c),
   clojure: StreamLanguage.define(clojure),
@@ -72,6 +72,7 @@ type Language = 'axios'
   | 'ruby'
   | 'shell'
   | 'swift'
+  | 'php'
 
 const props = defineProps<{
   content?: string
@@ -106,9 +107,9 @@ const getCodeMirrorExtensions = () => {
   // Syntax highlighting
   if (props.languages) {
     props.languages
-      .filter(language => syntaxHighlighting[language])
+      .filter(language => typeof syntaxHighlighting[language] !== 'undefined')
       .forEach((language) => {
-          extensions.push(syntaxHighlighting[language])
+          extensions.push(syntaxHighlighting[language] as Extension)
       })
   }
 
