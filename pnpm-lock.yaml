@@ -35,9 +35,6 @@ importers:
       eslint-plugin-promise:
         specifier: ^6.0.0
         version: 6.0.0(eslint@8.47.0)
-      vitest:
-        specifier: ^0.34.1
-        version: 0.34.1
 
   packages/api-client:
     dependencies:
