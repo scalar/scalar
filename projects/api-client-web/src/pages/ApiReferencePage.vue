@@ -3,5 +3,5 @@ import { ApiReference } from '@scalar/api-reference'
 </script>
 
 <template>
-  <ApiReference />
+  <ApiReference :is-editable="true" />
 </template>

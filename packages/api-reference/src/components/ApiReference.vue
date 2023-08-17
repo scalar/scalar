@@ -151,56 +151,6 @@ const breadCrumbs = computed(() => {
 <style src="../assets/css/variables.css"></style>
 
 <style>
-/** TODO: Move variables to main code base */
-.scalar-api-client,
-#headlessui-portal-root {
-  --scalar-api-client-post-color: var(--theme-post-color);
-  /* prettier-ignore */
-  --scalar-api-client-post-background: var(--theme-post-background);
-  /* prettier-ignore */
-  --scalar-api-client-delete-color: var(--theme-delete-color);
-  /* prettier-ignore */
-  --scalar-api-client-delete-background: var(--theme-delete-background);
-  /* prettier-ignore */
-  --scalar-api-client-patch-color: var(--theme-patch-color);
-  /* prettier-ignore */
-  --scalar-api-client-patch-background: var(--theme-patch-background);
-  --scalar-api-client-get-color: var(--theme-get-color);
-  /* prettier-ignore */
-  --scalar-api-client-get-background: var(--theme-get-background);
-  --scalar-api-client-put-color: var(--theme-put-color);
-  /* prettier-ignore */
-  --scalar-api-client-put-background: var(--theme-put-background);
-  --scalar-api-client-rounded: var(--theme-radius);
-  /* prettier-ignore */
-  --scalar-api-client-background-secondary: var(--theme-background-2);
-  --scalar-api-client-color-3: var(--theme-color-3);
-  --scalar-api-client-border: var(--theme-border);
-  --scalar-api-client-font-sans: var(--theme-font);
-  --scalar-api-client-font-mono: var(--theme-font-code);
-  --scalar-api-client-font-bold: var(--theme-bold);
-  --scalar-api-client-theme-color-1: var(--theme-color-1);
-  --scalar-api-client-theme-color-2: var(--theme-color-2);
-  /* prettier-ignore */
-  --scalar-api-client-theme-shadow-2: var(--theme-shadow-2);
-  --scalar-api-client-text-sm: var(--theme-small);
-  --scalar-api-client-text-lg: var(--large);
-  --scalar-api-client-text-base: var(--normal);
-  --scalar-api-client-fill: var(--fill);
-  --scalar-api-client-color2: var(--color2);
-  --scalar-api-client-bg3: var(--bg3);
-  --scalar-api-client-gradient: var(--gradient);
-  /* prettier-ignore */
-  --scalar-api-client-background-primary: var(--theme-background-1);
-  /* prettier-ignore */
-  --scalar-api-client-border-color: var(--theme-border-color);
-  /* prettier-ignore */
-  --scalar-api-client-background-3: var(--theme-background-3);
-  --scalar-api-client-font-semibold: var(--theme-semibold);
-  --scalar-api-client-text-xs: var(--theme-micro);
-}
-</style>
-<style>
 /** TODO: Move to components */
 .codemenu-topbar {
   background: var(--theme-background-2);
