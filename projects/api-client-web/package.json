@@ -5,6 +5,8 @@
   "scripts": {
     "build": "vue-tsc && vite build",
     "dev": "vite",
+    "lint": "eslint \"src/**/*.{js,vue}\"",
+    "lint:fix": "eslint \"src/**/*.{js,vue}\" --fix",
     "preview": "vite preview"
   },
   "type": "module",
@@ -14,6 +16,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",
+    "eslint": "^8.47.0",
+    "eslint-plugin-vue": "^9.17.0",
     "typescript": "5.0.4",
     "vite": "4.4.8",
     "vue-tsc": "1.8.8"
