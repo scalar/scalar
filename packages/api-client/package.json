@@ -17,10 +17,11 @@
     "types:check": "vue-tsc --noEmit --skipLibCheck"
   },
   "type": "module",
-  "main": "dist/index.js",
   "files": [
     "dist"
   ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "@codemirror/lang-javascript": "6.1.9",
     "@codemirror/lang-json": "6.0.1",
