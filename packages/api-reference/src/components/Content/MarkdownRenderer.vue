@@ -76,6 +76,14 @@ watch(
   margin: 12px 0;
 }
 
+.markdown :deep(ul) {
+  list-style: disc;
+}
+
+.markdown :deep(ol) {
+  list-style: decimal;
+}
+
 .markdown :deep(ul.contains-task-list) {
   list-style: none;
   padding-left: 0;
