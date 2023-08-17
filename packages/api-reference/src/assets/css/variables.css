@@ -27,8 +27,8 @@
   --scalar-api-reference-theme-small: 12px;
   --scalar-api-reference-app-header-height: 100px;
   --scalar-api-reference-col-width-1: 300px;
-  --scalar-api-reference-col-width-2: 50%;
-  --scalar-api-reference-col-width-3: 50%;
+  --scalar-api-reference-col-width-2: calc(50% - 150px);
+  --scalar-api-reference-col-width-3: calc(50% - 150px);
   --scalar-api-reference-document-height: 100vh;
   --scalar-api-reference-font-color: #000;
   --scalar-api-reference-full-height: 100%;
