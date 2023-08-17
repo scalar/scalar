@@ -152,6 +152,21 @@ const breadCrumbs = computed(() => {
 <style src="../assets/css/variables.css"></style>
 
 <style>
+/** Utilities, how do we deal with them? */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.gap-1 {
+  gap: 12px;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
