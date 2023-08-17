@@ -268,7 +268,7 @@ const availableLanguages = computed(() => {
 .language-select {
   position: relative;
   padding-right: 9px;
-  border-right: 1px solid var(--scalar-api-reference-theme-border-color);
+  border-right: 1px solid var(--scalar-api-reference-border-color);
 }
 .language-select select {
   border: none;
@@ -334,7 +334,7 @@ const availableLanguages = computed(() => {
   appearance: none;
   outline: none;
   border: none;
-  border-radius: var(--scalar-api-reference-theme-radius-lg);
+  border-radius: var(--scalar-api-reference-rounded-lg);
   height: 35px;
   display: flex;
   justify-content: center;

@@ -5,8 +5,8 @@
 </template>
 <style scoped>
 .card {
-  border-radius: var(--scalar-api-reference-theme-radius-lg);
+  border-radius: var(--scalar-api-reference-rounded-lg);
   overflow: hidden;
-  border: 1px solid var(--scalar-api-reference-theme-border-color);
+  border: 1px solid var(--scalar-api-reference-border-color);
 }
 </style>

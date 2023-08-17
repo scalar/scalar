@@ -30,7 +30,7 @@ defineProps<{ requestBody?: RequestBody }>()
   margin-top: 6px;
 }
 .parameter .parameter-child {
-  border: var(--scalar-api-reference-theme-border);
+  border: var(--scalar-api-reference-border);
   border-radius: 20px;
   margin-top: 12px;
   width: fit-content;
@@ -85,7 +85,7 @@ defineProps<{ requestBody?: RequestBody }>()
   transform: rotate(45deg);
 }
 .parameter-child__open > .parameter-child-trigger {
-  border-bottom: var(--scalar-api-reference-theme-border);
+  border-bottom: var(--scalar-api-reference-border);
 }
 
 .parameter {
@@ -93,13 +93,13 @@ defineProps<{ requestBody?: RequestBody }>()
   font-size: var(--scalar-api-reference-theme-small);
 }
 .parameter li {
-  border-top: var(--scalar-api-reference-theme-border);
+  border-top: var(--scalar-api-reference-border);
   padding: 12px 0;
 }
 .parameter-name {
   font-weight: 500;
   margin-right: 6px;
-  font-family: var(--scalar-api-reference-theme-font-code);
+  font-family: var(--scalar-api-reference-font-mono);
   font-size: 13px;
   color: var(--scalar-api-reference-theme-color-1);
 }

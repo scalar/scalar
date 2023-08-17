@@ -151,6 +151,17 @@ const breadCrumbs = computed(() => {
 <style src="../assets/css/variables.css"></style>
 
 <style>
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+
 /** TODO: Move to components */
 .codemenu-topbar {
   background: var(--theme-background-2);
@@ -189,7 +200,7 @@ const breadCrumbs = computed(() => {
   position: relative;
   margin-left: -4px;
   margin-right: -4px;
-  border-radius: var(--scalar-api-reference-theme-radius);
+  border-radius: var(--scalar-api-reference-rounded);
   text-transform: uppercase;
 }
 .codemenu-item-key:hover {
@@ -251,14 +262,14 @@ const breadCrumbs = computed(() => {
   display: inline-block;
   text-align: right;
   line-height: 1.55;
-  font-family: var(--scalar-api-reference-theme-font-code);
+  font-family: var(--scalar-api-reference-font-mono);
   font-size: var(--scalar-api-reference-theme-mini);
   cursor: pointer;
 }
 .languages .example-item-endpoints {
   background: var(--scalar-api-reference-theme-background-2);
   width: 100%;
-  border-top: var(--scalar-api-reference-theme-border);
+  border-top: var(--scalar-api-reference-border);
 }
 .endpoint-response p {
   margin-top: 6px;
@@ -272,7 +283,7 @@ const breadCrumbs = computed(() => {
   min-width: auto;
 }
 .endpoint-response {
-  border-top: var(--scalar-api-reference-theme-border);
+  border-top: var(--scalar-api-reference-border);
   padding: 12px 0;
   font-size: var(--scalar-api-reference-theme-small);
 }
@@ -308,7 +319,7 @@ const breadCrumbs = computed(() => {
 }
 
 .reference:not(:last-of-type) {
-  border-bottom: var(--scalar-api-reference-theme-border);
+  border-bottom: var(--scalar-api-reference-border);
 }
 
 .reference-container {
@@ -322,7 +333,7 @@ const breadCrumbs = computed(() => {
 }
 
 .reference-container + .reference-container {
-  border-top: var(--scalar-api-reference-theme-border);
+  border-top: var(--scalar-api-reference-border);
 }
 
 .reference-container .copy,
@@ -400,8 +411,8 @@ const breadCrumbs = computed(() => {
   --col-width-3: var(--scalar-api-reference-theme-toc-width);
 
   /* Redifine theme border at the document level so it's not pulled off the body */
-  --theme-border: var(--scalar-api-reference-theme-border-width) solid
-    var(--scalar-api-reference-theme-border-color);
+  --theme-border: var(--scalar-api-reference-border-width) solid
+    var(--scalar-api-reference-border-color);
 
   display: grid;
 
@@ -471,7 +482,7 @@ const breadCrumbs = computed(() => {
 .layout-aside-left {
   position: relative;
   grid-area: sidebar;
-  border-right: var(--scalar-api-reference-theme-border);
+  border-right: var(--scalar-api-reference-border);
 }
 
 .layout-aside-right {
@@ -602,7 +613,7 @@ const breadCrumbs = computed(() => {
     position: sticky;
     top: 0;
     height: var(--scalar-api-reference-theme-header-height);
-    border-bottom: var(--scalar-api-reference-theme-border);
+    border-bottom: var(--scalar-api-reference-border);
 
     width: 100%;
     z-index: 10;
@@ -620,7 +631,7 @@ const breadCrumbs = computed(() => {
     /* Offset by 2px to fill screen and compensate for gap */
     height: calc(var(--scalar-api-reference-document-height) + 2px);
 
-    border-top: var(--scalar-api-reference-theme-border);
+    border-top: var(--scalar-api-reference-border);
     display: flex;
     flex-direction: column;
   }

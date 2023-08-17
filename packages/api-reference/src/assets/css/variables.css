@@ -1,26 +1,30 @@
 .scalar-api-reference,
 #headlessui-portal-root,
 .dark-mode {
-  --scalar-api-reference-font-sans: sans-serif;
-  --scalar-api-reference-font-mono: mono;
+  /** Fonts */
+  --scalar-api-reference-font-sans: system-ui, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --scalar-api-reference-font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono",
+    "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace",
+    "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
 
   --scalar-api-reference-sidebar-border-color: #000;
   --scalar-api-reference-theme-background-1: #fff;
-  --scalar-api-reference-theme-background-2: #ccc;
-  --scalar-api-reference-theme-border-color: #000;
-  --scalar-api-reference-theme-border: 1px solid
-    var(--scalar-api-reference-theme-border-color);
+  --scalar-api-reference-theme-background-2: #fafafa;
+  --scalar-api-reference-border-color: #d4d4d4;
+  --scalar-api-reference-border: 1px solid
+    var(--scalar-api-reference-border-color);
   --scalar-api-reference-theme-button-1-color: #fff;
   --scalar-api-reference-theme-button-1-hover: #ccc;
   --scalar-api-reference-theme-button-1: red;
   --scalar-api-reference-theme-color-1: #000;
-  --scalar-api-reference-theme-color-2: #ccc;
+  --scalar-api-reference-theme-color-2: #a3a3a3;
   --scalar-api-reference-theme-color-3: #666;
   --scalar-api-reference-theme-color-ghost: #eee;
   --scalar-api-reference-theme-error-color: red;
   --scalar-api-reference-theme-font-size-4: 16px;
   --scalar-api-reference-theme-header-height: 0;
-  --scalar-api-reference-theme-radius: 4px;
+  --scalar-api-reference-rounded: 4px;
   --scalar-api-reference-theme-semibold: 600;
   --scalar-api-reference-theme-shadow-1: 0 0 4px rgba(0, 0, 0, 0.1);
   --scalar-api-reference-theme-sidebar-width: 300px;
@@ -39,10 +43,9 @@
   --scalar-api-reference-sidebar-item-hover-background: var(#ccc);
   --scalar-api-reference-theme-background-3: #ccc;
   --scalar-api-reference-theme-bold: 700;
-  --scalar-api-reference-theme-border-width: 1px;
+  --scalar-api-reference-border-width: 1px;
   --scalar-api-reference-theme-color-accent: blue;
   --scalar-api-reference-theme-delete-color: red;
-  --scalar-api-reference-theme-font-code: mono;
   --scalar-api-reference-theme-get-color: green;
   --scalar-api-reference-theme-heading-2: 24px;
   --scalar-api-reference-theme-heading-4: 16px;
@@ -52,7 +55,7 @@
   --scalar-api-reference-theme-patch-color: orange;
   --scalar-api-reference-theme-post-color: blue;
   --scalar-api-reference-theme-put-color: purple;
-  --scalar-api-reference-theme-radius-lg: 8px;
+  --scalar-api-reference-rounded-lg: 8px;
   --scalar-api-reference-theme-regular: 14px;
   --scalar-api-reference-theme-toc-width: 300px;
   --scalar-api-reference-theme-post-color: blue;
@@ -72,8 +75,8 @@
   --scalar-api-reference-sidebar-border-color: var(--theme-border-color);
   --scalar-api-reference-theme-background-1: var(--theme-background-1);
   --scalar-api-reference-theme-background-2: var(--theme-background-2);
-  --scalar-api-reference-theme-border-color: var(--theme-border-color);
-  --scalar-api-reference-theme-border: var(--theme-border);
+  --scalar-api-reference-border-color: var(--theme-border-color);
+  --scalar-api-reference-border: var(--theme-border);
   --scalar-api-reference-theme-button-1-color: var(--theme-button-1-color);
   --scalar-api-reference-theme-button-1-hover: var(--theme-button-1-hover);
   --scalar-api-reference-theme-button-1: var(--theme-button-1);
@@ -84,7 +87,7 @@
   --scalar-api-reference-theme-error-color: var(--theme-error-color);
   --scalar-api-reference-theme-font-size-4: var(--theme-font-size-4);
   --scalar-api-reference-theme-header-height: var(--theme-header-height);
-  --scalar-api-reference-theme-radius: var(--theme-radius);
+  --scalar-api-reference-rounded: var(--theme-radius);
   --scalar-api-reference-theme-semibold: var(--theme-semibold);
   --scalar-api-reference-theme-shadow-1: var(--theme-shadow-1);
   --scalar-api-reference-theme-sidebar-width: var(--theme-sidebar-width);
@@ -105,10 +108,10 @@
   );
   --scalar-api-reference-theme-background-3: var(--theme-background-3);
   --scalar-api-reference-theme-bold: var(--theme-bold);
-  --scalar-api-reference-theme-border-width: var(--theme-border-width);
+  --scalar-api-reference-border-width: var(--theme-border-width);
   --scalar-api-reference-theme-color-accent: var(--theme-color-accent);
   --scalar-api-reference-theme-delete-color: var(--theme-delete-color);
-  --scalar-api-reference-theme-font-code: var(--theme-font-code);
+  --scalar-api-reference-font-mono: var(--theme-font-code);
   --scalar-api-reference-theme-get-color: var(--theme-get-color);
   --scalar-api-reference-theme-heading-2: var(--theme-heading-2);
   --scalar-api-reference-theme-heading-4: var(--theme-heading-4);
@@ -118,7 +121,7 @@
   --scalar-api-reference-theme-patch-color: var(--theme-patch-color);
   --scalar-api-reference-theme-post-color: var(--theme-post-color);
   --scalar-api-reference-theme-put-color: var(--theme-put-color);
-  --scalar-api-reference-theme-radius-lg: var(--theme-radius-lg);
+  --scalar-api-reference-rounded-lg: var(--theme-radius-lg);
   --scalar-api-reference-theme-regular: var(--theme-regular);
   --scalar-api-reference-theme-toc-width: var(--theme-toc-width);
   --scalar-api-reference-theme-post-color: var(--theme-post-color);

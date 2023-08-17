@@ -134,7 +134,7 @@ const {
   position: relative;
   cursor: pointer;
   /* prettier-ignore */
-  border-radius: 0 var(--scalar-api-reference-theme-radius) var(--scalar-api-reference-theme-radius) 0;
+  border-radius: 0 var(--scalar-api-reference-rounded) var(--scalar-api-reference-rounded) 0;
   flex: 1;
   padding-right: 12px;
   user-select: none;

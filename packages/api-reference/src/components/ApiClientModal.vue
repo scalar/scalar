@@ -62,7 +62,7 @@ const proxyUrl = import.meta.env.VITE_CLIENT_PROXY
   overflow: hidden;
   pointer-events: all;
   background: var(--scalar-api-reference-theme-background-1) !important;
-  border-radius: var(--scalar-api-reference-theme-radius);
+  border-radius: var(--scalar-api-reference-rounded);
   box-shadow: var(--scalar-api-reference-theme-shadow-1);
   height: 100%;
   overflow: hidden;
@@ -85,7 +85,7 @@ const proxyUrl = import.meta.env.VITE_CLIENT_PROXY
   background-color: var(--scalar-api-reference-theme-background-1);
   z-index: 10;
   position: sticky;
-  border-bottom: var(--scalar-api-reference-theme-border);
+  border-bottom: var(--scalar-api-reference-border);
   top: 0;
 }
 
@@ -108,7 +108,7 @@ TODO: Markup is missing
 .scalar-api-client__close__icon {
   width: 28px;
   height: 28px;
-  border-radius: var(--scalar-api-reference-theme-radius);
+  border-radius: var(--scalar-api-reference-rounded);
   margin-right: 12px;
   display: flex;
   justify-content: center;
@@ -179,6 +179,6 @@ TODO: Markup is missing
   display: flex;
   flex-direction: column;
   width: var(--scalar-api-reference-theme-sidebar-width);
-  border-right: 1px solid var(--scalar-api-reference-theme-border-color);
+  border-right: 1px solid var(--scalar-api-reference-border-color);
 }
 </style>

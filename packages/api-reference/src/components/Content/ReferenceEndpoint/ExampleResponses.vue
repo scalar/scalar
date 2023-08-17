@@ -124,7 +124,7 @@ watch(selectedResponseIndex, () => {
   font-size: var(--scalar-api-reference-theme-mini);
 }
 .scalar-api-reference__empty-state {
-  border: 1px dashed var(--scalar-api-reference-theme-border-color);
+  border: 1px dashed var(--scalar-api-reference-border-color);
   width: 100%;
   text-align: center;
   font-size: var(--scalar-api-reference-theme-mini);

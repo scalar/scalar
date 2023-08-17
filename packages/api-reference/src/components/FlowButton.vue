@@ -53,7 +53,7 @@ export { useLoadButtonState }
   -webkit-appearance: none;
   height: 40px;
   padding: 0px 24px;
-  border-radius: var(--scalar-api-reference-theme-radius);
+  border-radius: var(--scalar-api-reference-rounded);
   color: var(--scalar-api-reference-theme-button-1-color);
   font-size: var(--scalar-api-reference-theme-font-size-4);
   font-weight: 500;
@@ -90,7 +90,7 @@ export { useLoadButtonState }
   background: var(--scalar-api-reference-theme-background-1);
   color: var(--scalar-api-reference-theme-color-1);
   padding: 11px 23px;
-  border: var(--scalar-api-reference-theme-border);
+  border: var(--scalar-api-reference-border);
   box-shadow: rgba(0, 0, 0, 0.09) 0px 1px 4px;
 }
 .flow-button-outlined:hover,

@@ -115,7 +115,7 @@ const standardLibrary = computed(() => {
 .loading {
   background: var(--scalar-api-reference-theme-background-2);
   animation: loading-skeleton 2s infinite alternate;
-  border-radius: var(--scalar-api-reference-theme-radius);
+  border-radius: var(--scalar-api-reference-rounded);
 }
 .heading.loading {
   width: 80%;

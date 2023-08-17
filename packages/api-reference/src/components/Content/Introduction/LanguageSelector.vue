@@ -215,7 +215,7 @@ const getIconByLanguageKey = (languageKey: TargetId) => {
 }
 .code-languages-icon__shell {
   background: #000;
-  box-shadow: 0 0 0 1px var(--scalar-api-reference-theme-border-color);
+  box-shadow: 0 0 0 1px var(--scalar-api-reference-border-color);
 }
 .code-languages-icon__ruby {
   background: #d91404;

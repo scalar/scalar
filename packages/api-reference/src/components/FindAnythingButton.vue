@@ -27,11 +27,9 @@ import FlowIcon from './Icon/FlowIcon.vue'
   padding: 0 12px;
 
   color: var(--scalar-api-reference-theme-color-3);
-  border: none;
   outline: none;
-  border-radius: var(--scalar-api-reference-theme-radius);
-  /* prettier-ignore */
-  box-shadow: 0 0 0 1px var(--scalar-api-reference-sidebar-border-color, var(--scalar-api-reference-theme-border-color));
+  border-radius: var(--scalar-api-reference-rounded);
+  border: var(--scalar-api-reference-border);
   /* prettier-ignore */
   background: var(--scalar-api-reference-sidebar-search-background, var(--scalar-api-reference-theme-background-1));
   cursor: pointer;

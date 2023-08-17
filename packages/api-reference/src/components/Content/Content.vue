@@ -93,7 +93,7 @@ onMounted(() => {
   background: var(--scalar-api-reference-theme-background-1);
   appearance: none;
   border: none;
-  border: 1px solid var(--scalar-api-reference-theme-border-color);
+  border: 1px solid var(--scalar-api-reference-border-color);
   margin: auto;
   padding: 8px 12px;
   border-radius: 30px;
@@ -117,7 +117,7 @@ onMounted(() => {
   margin-left: 3px;
 }
 .show-more:active {
-  box-shadow: 0 0 0 1px var(--scalar-api-reference-theme-border-color);
+  box-shadow: 0 0 0 1px var(--scalar-api-reference-border-color);
 }
 @media (max-width: 1165px) {
   .show-more {

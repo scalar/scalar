@@ -94,9 +94,9 @@ watch(
 }
 
 .markdown :deep(code) {
-  font-family: var(--scalar-api-reference-theme-font-code);
+  font-family: var(--scalar-api-reference-font-mono);
   background-color: var(--scalar-api-reference-theme-background-2);
-  box-shadow: 0 0 0 1px var(--scalar-api-reference-theme-border-color);
+  box-shadow: 0 0 0 1px var(--scalar-api-reference-border-color);
   font-size: var(--scalar-api-reference-theme-mini);
   border-radius: 2px;
   padding: 0 3px;
@@ -114,7 +114,7 @@ watch(
 }
 
 .markdown :deep(blockquote) {
-  border-left: 3px solid var(--scalar-api-reference-theme-border-color);
+  border-left: 3px solid var(--scalar-api-reference-border-color);
   padding-left: 12px;
 }
 
@@ -125,8 +125,8 @@ watch(
   width: 100%;
   margin: 0;
   overflow: hidden;
-  box-shadow: 0 0 0 1px var(--scalar-api-reference-theme-border-color);
-  border-radius: var(--scalar-api-reference-theme-radius);
+  box-shadow: 0 0 0 1px var(--scalar-api-reference-border-color);
+  border-radius: var(--scalar-api-reference-rounded);
 }
 
 .markdown :deep(td),
@@ -137,8 +137,8 @@ watch(
   box-sizing: border-box;
   position: relative;
   word-break: break-all;
-  border-right: var(--scalar-api-reference-theme-border);
-  border-bottom: var(--scalar-api-reference-theme-border);
+  border-right: var(--scalar-api-reference-border);
+  border-bottom: var(--scalar-api-reference-border);
 }
 
 .markdown :deep(td > *),

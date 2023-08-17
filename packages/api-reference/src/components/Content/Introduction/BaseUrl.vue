@@ -26,7 +26,7 @@ const { copyToClipboard } = useClipboard()
   font-size: var(--scalar-api-reference-theme-mini);
   cursor: pointer;
   display: flex;
-  font-family: var(--scalar-api-reference-theme-font-code);
+  font-family: var(--scalar-api-reference-font-mono);
   flex-direction: column;
 }
 </style>
