@@ -192,4 +192,3 @@ watch(props, () => {
   color: var(--scalar-api-client-color);
 }
 </style>
-./extensions/variables

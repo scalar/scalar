@@ -19,7 +19,7 @@
   "type": "module",
   "main": "dist/index.js",
   "dependencies": {
-    "@codemirror/lang-java": "github:codemirror/lang-java",
+    "@codemirror/lang-java": "6.0.1",
     "@codemirror/lang-javascript": "6.1.9",
     "@codemirror/lang-json": "6.0.1",
     "@codemirror/lang-python": "6.1.3",
