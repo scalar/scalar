@@ -26,13 +26,13 @@ export default defineConfig({
     port: 5050,
   },
   resolve: {
-    alias: [
-      {
-        // Resolve the uncompiled source code for all @scalar packages
-        // @scalar/* -> packages/*/
-        find: /^@scalar\/(.*)$/,
-        replacement: path.resolve(__dirname, '../../packages/$1/src/index.ts'),
-      },
-    ],
+    // alias: [
+    //   {
+    //     // Resolve the uncompiled source code for all @scalar packages
+    //     // @scalar/* -> packages/*/
+    //     find: /^@scalar\/(.*)$/,
+    //     replacement: path.resolve(__dirname, '../../packages/$1/src/index.ts'),
+    //   },
+    // ],
   },
 })
