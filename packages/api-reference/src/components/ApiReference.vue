@@ -9,7 +9,10 @@ import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
 import Sidebar from './Sidebar.vue'
 
-const props = defineProps<ReferenceProps>()
+const props = withDefaults(defineProps<ReferenceProps>(), {
+  showSidebar: true,
+  isEditable: false,
+})
 
 /**
  * The editor component has heavy dependencies (process), let's lazy load it.

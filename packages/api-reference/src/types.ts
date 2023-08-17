@@ -2,8 +2,8 @@ export type ReferenceProps = {
   documentName?: string
   token?: string
   username?: string
-  isEditable: boolean
-  showSidebar: boolean
+  isEditable?: boolean
+  showSidebar?: boolean
   footerBelowSidebar?: boolean
 }
 

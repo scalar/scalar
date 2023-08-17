@@ -1,7 +1,70 @@
 .scalar-api-reference,
 #headlessui-portal-root,
 .dark-mode {
-  /** Fonts */
+  --scalar-api-reference-font-sans: sans-serif;
+  --scalar-api-reference-font-mono: mono;
+
+  --scalar-api-reference-sidebar-border-color: #000;
+  --scalar-api-reference-theme-background-1: #fff;
+  --scalar-api-reference-theme-background-2: #ccc;
+  --scalar-api-reference-theme-border-color: #000;
+  --scalar-api-reference-theme-border: 1px solid
+    var(--scalar-api-reference-theme-border-color);
+  --scalar-api-reference-theme-button-1-color: #fff;
+  --scalar-api-reference-theme-button-1-hover: #ccc;
+  --scalar-api-reference-theme-button-1: red;
+  --scalar-api-reference-theme-color-1: #000;
+  --scalar-api-reference-theme-color-2: #ccc;
+  --scalar-api-reference-theme-color-3: #666;
+  --scalar-api-reference-theme-color-ghost: #eee;
+  --scalar-api-reference-theme-error-color: red;
+  --scalar-api-reference-theme-font-size-4: 16px;
+  --scalar-api-reference-theme-header-height: 100px;
+  --scalar-api-reference-theme-radius: 4px;
+  --scalar-api-reference-theme-semibold: 600;
+  --scalar-api-reference-theme-shadow-1: 0 0 4px rgba(0, 0, 0, 0.1);
+  --scalar-api-reference-theme-sidebar-width: 300px;
+  --scalar-api-reference-theme-small: 12px;
+  --scalar-api-reference-app-header-height: 100px;
+  --scalar-api-reference-col-width-1: 300px;
+  --scalar-api-reference-col-width-2: 50%;
+  --scalar-api-reference-col-width-3: 50%;
+  --scalar-api-reference-document-height: 100vh;
+  --scalar-api-reference-font-color: #000;
+  --scalar-api-reference-full-height: 100%;
+  --scalar-api-reference-sidebar-background-1: white;
+  --scalar-api-reference-sidebar-color-1: #000;
+  --scalar-api-reference-sidebar-color-2: #ccc;
+  --scalar-api-reference-sidebar-color-active: blue;
+  --scalar-api-reference-sidebar-item-hover-background: var(#ccc);
+  --scalar-api-reference-theme-background-3: #ccc;
+  --scalar-api-reference-theme-bold: 700;
+  --scalar-api-reference-theme-border-width: 1px;
+  --scalar-api-reference-theme-color-accent: blue;
+  --scalar-api-reference-theme-delete-color: red;
+  --scalar-api-reference-theme-font-code: mono;
+  --scalar-api-reference-theme-get-color: green;
+  --scalar-api-reference-theme-heading-2: 24px;
+  --scalar-api-reference-theme-heading-4: 16px;
+  --scalar-api-reference-theme-micro: 10px;
+  --scalar-api-reference-theme-mini: 12px;
+  --scalar-api-reference-theme-paragraph: 16px;
+  --scalar-api-reference-theme-patch-color: orange;
+  --scalar-api-reference-theme-post-color: blue;
+  --scalar-api-reference-theme-put-color: purple;
+  --scalar-api-reference-theme-radius-lg: 8px;
+  --scalar-api-reference-theme-regular: 14px;
+  --scalar-api-reference-theme-toc-width: 300px;
+  --scalar-api-reference-theme-post-color: blue;
+  --scalar-api-reference-theme-patch-color: orange;
+  --scalar-api-reference-theme-delete-color: red;
+  --scalar-api-reference-theme-get-color: green;
+  --scalar-api-reference-theme-put-color: purple;
+}
+
+/* .scalar-api-reference,
+#headlessui-portal-root,
+.dark-mode {
   --scalar-api-reference-font-sans: var(--theme-font);
   --scalar-api-reference-font-mono: var(--theme-font-code);
 
@@ -36,7 +99,6 @@
   --scalar-api-reference-sidebar-color-1: var(--theme-color-1);
   --scalar-api-reference-sidebar-color-2: var(--theme-color-2);
   --scalar-api-reference-sidebar-color-active: var(--theme-color-accent);
-  /* prettier-ignore */
   --scalar-api-reference-sidebar-item-hover-background: var(--theme-background-2);
   --scalar-api-reference-theme-background-3: var(--theme-background-3);
   --scalar-api-reference-theme-bold: var(--theme-bold);
@@ -61,4 +123,4 @@
   --scalar-api-reference-theme-get-color: var(--theme-get-color);
   --scalar-api-reference-theme-delete-color: var(--theme-delete-color);
   --scalar-api-reference-theme-put-color: var(--theme-put-color);
-}
+} */
