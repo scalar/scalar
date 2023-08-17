@@ -10,8 +10,10 @@ export default defineConfig({
   resolve: {
     alias: [
       {
-        find: '@scalar/api-client',
-        replacement: path.resolve(__dirname, '../../packages/api-client/src/index.ts'),
+        // Resolve the uncompiled source code for all @scalar packages
+        // @scalar/* -> packages/*/
+        find: /^@scalar\/(.*)$/,
+        replacement: path.resolve(__dirname, '../../packages/$1/src/index.ts'),
       },
     ],
   },
