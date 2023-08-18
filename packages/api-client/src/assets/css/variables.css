@@ -1,9 +1,9 @@
 :root {
   /** Colors */
   --scalar-api-client-background-primary: #fff;
-  --scalar-api-client-background-secondary: #f1f3f5;
+  --scalar-api-client-background-secondary: #f6f6f6;
   --scalar-api-client-background-input: #fff;
-  --scalar-api-client-background-muted: #f8f9fa;
+  --scalar-api-client-background-muted: #e7e7e7;
   --scalar-api-client-border-color: #dee2e6;
   --scalar-api-client-fill-icon: #212529;
 
