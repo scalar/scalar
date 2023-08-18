@@ -19,5 +19,10 @@
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-n": "^15.0.0 || ^16.0.0 ",
     "eslint-plugin-promise": "^6.0.0"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@jsdevtools/ono@7.1.3": "patches/@jsdevtools__ono@7.1.3.patch"
+    }
   }
 }
