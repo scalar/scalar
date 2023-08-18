@@ -13,7 +13,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue'],
+      external: ['vue', 'xmldom', 'rehype-document', 'rehype-format', 'rehype-sanitize', 'rehype-stringify', 'remark-gfm', 'remark-parse', 'remark-rehype', 'remark-textr', 'typographic-base', 'unified'],
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'index.css') {

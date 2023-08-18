@@ -1,14 +1,14 @@
 <script setup lang="ts">
-// import rehypeDocument from 'rehype-document'
-// import rehypeFormat from 'rehype-format'
-// import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
-// import rehypeStringify from 'rehype-stringify'
-// import remarkGfm from 'remark-gfm'
-// import remarkParse from 'remark-parse'
-// import remarkRehype from 'remark-rehype'
-// import remarkTextr from 'remark-textr'
-// import typographicBase from 'typographic-base'
-// import { unified } from 'unified'
+import rehypeDocument from 'rehype-document'
+import rehypeFormat from 'rehype-format'
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
+import rehypeStringify from 'rehype-stringify'
+import remarkGfm from 'remark-gfm'
+import remarkParse from 'remark-parse'
+import remarkRehype from 'remark-rehype'
+import remarkTextr from 'remark-textr'
+import typographicBase from 'typographic-base'
+import { unified } from 'unified'
 import { ref, watch } from 'vue'
 
 const props = defineProps<{ value: string }>()
@@ -18,25 +18,24 @@ const html = ref<string>('')
 watch(
   () => props.value,
   () => {
-    // unified()
-    //   // TODO: They break SSR. 🤔
-    //   // .use(remarkParse)
-    //   // .use(remarkGfm)
-    //   .use(remarkRehype)
-    //   .use(remarkTextr, { plugins: [typographicBase] })
-    //   .use(rehypeDocument)
-    //   .use(rehypeFormat)
-    //   .use(rehypeSanitize, {
-    //     ...defaultSchema,
-    //     tagNames: defaultSchema.tagNames?.filter(
-    //       (tag) => !['img'].includes(tag),
-    //     ),
-    //   })
-    //   .use(rehypeStringify)
-    //   .process(props.value)
-    //   .then((result) => {
-    //     html.value = String(result)
-    //   })
+    unified()
+      .use(remarkParse)
+      .use(remarkGfm)
+      .use(remarkRehype)
+      .use(remarkTextr, { plugins: [typographicBase] })
+      .use(rehypeDocument)
+      .use(rehypeFormat)
+      .use(rehypeSanitize, {
+        ...defaultSchema,
+        tagNames: defaultSchema.tagNames?.filter(
+          (tag) => !['img'].includes(tag),
+        ),
+      })
+      .use(rehypeStringify)
+      .process(props.value)
+      .then((result) => {
+        html.value = String(result)
+      })
   },
   { immediate: true },
 )

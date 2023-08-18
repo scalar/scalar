@@ -16,7 +16,7 @@ const attrsToObject = (m: NamedNodeMap) =>
  */
 const Renderer: FunctionalComponent<RendererProps> = async ({ raw }) => {
   // Use a DOMParser library if it's not in the browser
-  const Parser = DOMParser ?? (await import('xmldom')).DOMParser
+  const Parser = typeof DOMParser === 'undefined' ? (await import('xmldom')).DOMParser : DOMParser
 
   const parser = new Parser()
   const parsed = parser.parseFromString(raw, 'image/svg+xml')
