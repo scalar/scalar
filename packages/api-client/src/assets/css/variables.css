@@ -1,5 +1,4 @@
-.scalar-api-client,
-#headlessui-portal-root {
+:root {
   /** Font sizes */
   --scalar-api-client-text-xs: 12px;
   --scalar-api-client-text-sm: 14px;
@@ -17,11 +16,11 @@
   --scalar-api-client-rounded: 4px;
 
   /** Fonts */
-  --scalar-api-client-font-sans: system-ui, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-  --scalar-api-client-font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono',
-    'Segoe UI Mono', 'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace',
-    'Source Code Pro', 'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
+  --scalar-api-client-font-sans: system-ui, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --scalar-api-client-font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono",
+    "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace",
+    "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
 
   /** Font weights */
   --scalar-api-client-font-semibold: 600;
