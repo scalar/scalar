@@ -17,7 +17,18 @@
     "types:check": "vue-tsc --noEmit --skipLibCheck"
   },
   "type": "module",
-  "main": "dist/index.js",
+  "files": ["dist"],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    },
+    "./style.css": {
+      "import": "./dist/style.css"
+    }
+  },
+  "types": "dist/index.d.ts",
   "dependencies": {
     "@codemirror/lang-json": "6.0.1",
     "@codemirror/language": "6.8.0",

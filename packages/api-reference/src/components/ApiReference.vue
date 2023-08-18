@@ -8,6 +8,7 @@ import type { ReferenceProps, Spec } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
 import Sidebar from './Sidebar.vue'
+import '@scalar/swagger-editor/style.css'
 
 const props = withDefaults(defineProps<ReferenceProps>(), {
   showSidebar: true,
