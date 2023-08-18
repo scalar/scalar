@@ -1,16 +1,7 @@
 <script lang="ts" setup>
-import { json } from '@codemirror/lang-json'
-import { type Extension } from '@codemirror/state'
-import {
-  EditorView,
-  type ViewUpdate,
-  lineNumbers as lineNumbersExtension,
-} from '@codemirror/view'
-import { useCodeMirror } from '@scalar/use-codemirror'
-import { watch } from 'vue'
-import { variables } from './extensions/variables'
 import { java } from '@codemirror/lang-java'
 import { javascript } from '@codemirror/lang-javascript'
+import { json } from '@codemirror/lang-json'
 import { python } from '@codemirror/lang-python'
 import { type LanguageSupport } from '@codemirror/language'
 import { StreamLanguage } from '@codemirror/language'
@@ -29,9 +20,21 @@ import { r } from '@codemirror/legacy-modes/mode/r'
 import { ruby } from '@codemirror/legacy-modes/mode/ruby'
 import { shell } from '@codemirror/legacy-modes/mode/shell'
 import { swift } from '@codemirror/legacy-modes/mode/swift'
+import { type Extension } from '@codemirror/state'
+import {
+  EditorView,
+  type ViewUpdate,
+  lineNumbers as lineNumbersExtension,
+} from '@codemirror/view'
+import { useCodeMirror } from '@scalar/use-codemirror'
+import { watch } from 'vue'
+
+import { variables } from './extensions/variables'
 
 // TODO: Add 'php' and 'laravel'
-const syntaxHighlighting: Partial<Record<Language, LanguageSupport | StreamLanguage<any>>> = {
+const syntaxHighlighting: Partial<
+  Record<Language, LanguageSupport | StreamLanguage<any>>
+> = {
   axios: javascript(),
   c: StreamLanguage.define(c),
   clojure: StreamLanguage.define(clojure),
@@ -53,7 +56,8 @@ const syntaxHighlighting: Partial<Record<Language, LanguageSupport | StreamLangu
   swift: StreamLanguage.define(swift),
 }
 
-type Language = 'axios'
+type Language =
+  | 'axios'
   | 'c'
   | 'clojure'
   | 'csharp'
@@ -107,9 +111,9 @@ const getCodeMirrorExtensions = () => {
   // Syntax highlighting
   if (props.languages) {
     props.languages
-      .filter(language => typeof syntaxHighlighting[language] !== 'undefined')
+      .filter((language) => typeof syntaxHighlighting[language] !== 'undefined')
       .forEach((language) => {
-          extensions.push(syntaxHighlighting[language] as Extension)
+        extensions.push(syntaxHighlighting[language] as Extension)
       })
   }
 
@@ -137,11 +141,12 @@ const getCodeMirrorExtensions = () => {
   return extensions
 }
 
-const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } = useCodeMirror({
-  content: props.content ?? '',
-  extensions: getCodeMirrorExtensions(),
-  withoutTheme: props.withoutTheme,
-})
+const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
+  useCodeMirror({
+    content: props.content ?? '',
+    extensions: getCodeMirrorExtensions(),
+    withoutTheme: props.withoutTheme,
+  })
 
 watch(props, () => {
   setCodeMirrorContent(props.content ?? '')

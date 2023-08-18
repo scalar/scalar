@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { CodeMirror } from '@scalar/api-client'
 import { useClipboard } from '@scalar/use-clipboard'
 import { computed, ref } from 'vue'
-import { CodeMirror } from '@scalar/api-client'
 
 import type { TransformedOperation } from '../../../types'
 import {
@@ -71,7 +71,11 @@ const changeTab = (index: number) => {
       </template>
     </CardTabHeader>
     <CardContent muted>
-      <CodeMirror v-show="currentResponseJsonBody" read-only :languages="['json']" :content="currentResponseJsonBody" />
+      <CodeMirror
+        v-show="currentResponseJsonBody"
+        read-only
+        :languages="['json']"
+        :content="currentResponseJsonBody" />
       <div
         v-if="!currentResponseJsonBody"
         class="scalar-api-reference__empty-state">

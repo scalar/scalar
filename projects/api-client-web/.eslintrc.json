@@ -1,27 +1,23 @@
 {
-    "env": {
-        "browser": true,
-        "es2021": true
-    },
-    "root": true,
-    "parser": "vue-eslint-parser",
-    "parserOptions": {
-      "parser": "@typescript-eslint/parser"
-    },
-    "plugins": [
-      "@typescript-eslint"
-    ],
-    "extends": [
-      "plugin:vue/vue3-recommended",
-      "eslint:recommended",
-      "plugin:@typescript-eslint/eslint-recommended",
-      "plugin:@typescript-eslint/recommended"
-    ],
-    "rules": {
-        "@typescript-eslint/ban-ts-comment": "warn",
-        "indent": ["error", 2],
-        "object-curly-spacing": ["error", "always", { "objectsInObjects": false }]
-    }
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "root": true,
+  "parser": "vue-eslint-parser",
+  "parserOptions": {
+    "parser": "@typescript-eslint/parser"
+  },
+  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "plugin:vue/vue3-recommended",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    "@typescript-eslint/ban-ts-comment": "warn",
+    "indent": ["error", 2],
+    "object-curly-spacing": ["error", "always", { "objectsInObjects": false }]
+  }
 }
-
-

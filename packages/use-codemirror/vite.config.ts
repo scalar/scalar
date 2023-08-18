@@ -22,6 +22,6 @@ export default defineConfig({
         '@uiw/codemirror-themes',
         'codemirror',
       ],
-    }
+    },
   },
 })

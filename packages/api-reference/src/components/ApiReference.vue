@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
+import '@scalar/swagger-editor/style.css'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, onMounted, reactive, ref } from 'vue'
 
@@ -8,7 +9,6 @@ import type { ReferenceProps, Spec } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
 import Sidebar from './Sidebar.vue'
-import '@scalar/swagger-editor/style.css'
 
 const props = withDefaults(defineProps<ReferenceProps>(), {
   showSidebar: true,
@@ -174,7 +174,7 @@ const breadCrumbs = computed(() => {
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0,0,0,0);
+  clip: rect(0, 0, 0, 0);
   border: 0;
 }
 
@@ -183,7 +183,8 @@ const breadCrumbs = computed(() => {
   background: var(--scalar-api-reference-theme-background-2);
   border-bottom: 1px solid var(--scalar-api-reference-border-color);
   padding: 0 7px 0 12px;
-  border-radius: var(--scalar-api-reference-theme-radius) var(--scalar-api-reference-theme-radius) 0 0;
+  border-radius: var(--scalar-api-reference-theme-radius)
+    var(--scalar-api-reference-theme-radius) 0 0;
 }
 .codemenu {
   display: flex;

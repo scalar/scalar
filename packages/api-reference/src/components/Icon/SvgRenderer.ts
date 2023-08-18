@@ -9,9 +9,10 @@ const attrsToObject = (m: NamedNodeMap) =>
   Object.fromEntries(Array.from(m).map((t) => [t.name, t.value]))
 
 // Use a DOMParser library if it's not in the browser
-const Parser = typeof DOMParser === 'undefined'
-  ? (await import('xmldom')).DOMParser
-  : DOMParser
+const Parser =
+  typeof DOMParser === 'undefined'
+    ? (await import('xmldom')).DOMParser
+    : DOMParser
 
 /**
  * Utility component to convert a raw SVG string to a Vue vnode.

@@ -128,6 +128,7 @@ export const useModalState = () =>
   font-size: var(--scalar-api-client-theme-font-size-4);
   text-align: left;
   font-weight: 600;
-  border-radius: var(--scalar-api-client-rounded) var(--scalar-api-client-rounded) 0 0;
+  border-radius: var(--scalar-api-client-rounded)
+    var(--scalar-api-client-rounded) 0 0;
 }
 </style>

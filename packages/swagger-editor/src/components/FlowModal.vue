@@ -123,6 +123,7 @@ export const useModalState = () =>
   font-size: var(--scalar-api-reference-theme-font-size-4);
   text-align: left;
   font-weight: 600;
-  border-radius: var(--scalar-api-reference-theme-radius) var(--scalar-api-reference-theme-radius) 0 0;
+  border-radius: var(--scalar-api-reference-theme-radius)
+    var(--scalar-api-reference-theme-radius) 0 0;
 }
 </style>

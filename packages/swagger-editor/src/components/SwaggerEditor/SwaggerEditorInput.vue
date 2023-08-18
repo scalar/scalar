@@ -83,7 +83,8 @@ defineExpose({
 .cm-editor .cm-scroller {
   background: var(--scalar-api-reference-theme-background-2);
 }
-.cm-editor .cm-activeLine, .cm-editor {
+.cm-editor .cm-activeLine,
+.cm-editor {
   background-color: transparent !important;
 }
 

@@ -57,10 +57,10 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   margin-top: -3px;
   justify-content: space-between;
 }
-.scalar-api-client__item__content  .cm-s-default {
-    border: var(--scalar-api-client-border);
-    border-radius: var(--scalar-api-client-rounded);
-  }
+.scalar-api-client__item__content .cm-s-default {
+  border: var(--scalar-api-client-border);
+  border-radius: var(--scalar-api-client-rounded);
+}
 .scalar-api-client__item__content .scalar-api-client__item__content--code {
   width: 100%;
   max-height: calc(100vh - 200px);

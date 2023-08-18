@@ -13,7 +13,21 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', '@codemirror/lang-java', '@codemirror/lang-javascript', '@codemirror/lang-json', '@codemirror/lang-python', '@codemirror/language', '@codemirror/legacy-modes', '@codemirror/state', '@codemirror/view', '@scalar/use-codemirror', '@uiw/codemirror-theme-duotone', '@uiw/codemirror-themes', 'codemirror'],
+      external: [
+        'vue',
+        '@codemirror/lang-java',
+        '@codemirror/lang-javascript',
+        '@codemirror/lang-json',
+        '@codemirror/lang-python',
+        '@codemirror/language',
+        '@codemirror/legacy-modes',
+        '@codemirror/state',
+        '@codemirror/view',
+        '@scalar/use-codemirror',
+        '@uiw/codemirror-theme-duotone',
+        '@uiw/codemirror-themes',
+        'codemirror',
+      ],
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'index.css') {
