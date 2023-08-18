@@ -1,8 +1,9 @@
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
+import topLevelAwait from "vite-plugin-top-level-await"
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), topLevelAwait()],
   build: {
     cssCodeSplit: true,
     minify: false,
