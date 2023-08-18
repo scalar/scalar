@@ -1,7 +1,7 @@
 # Scalar API Reference
 
 [![Test](https://github.com/a-numbered-company/api-reference/actions/workflows/test.yml/badge.svg)](https://github.com/a-numbered-company/api-reference/actions/workflows/test.yml)
-[![Discord](https://img.shields.io/discord/1135330207960678410)](https://discord.gg/mw6FQRPh)
+[![Discord](https://img.shields.io/discord/1135330207960678410?style=plastic)](https://discord.gg/mw6FQRPh)
 
 Generate interactive API documentations from Swagger files
 
