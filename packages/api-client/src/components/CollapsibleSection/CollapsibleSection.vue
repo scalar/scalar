@@ -90,7 +90,7 @@ defineProps<{
 }
 
 .scalar-api-client__item .scalar-api-client__item__title {
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
   font-size: var(--scalar-api-client-text-sm);
   font-weight: var(--scalar-api-client-font-bold);
   user-select: none;
@@ -110,7 +110,7 @@ defineProps<{
 .scalar-api-client__item .scalar-api-client__toggle__icon {
   width: 10px;
   margin-right: 6px;
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
 }
 
 .scalar-api-client__item__options {
@@ -118,12 +118,12 @@ defineProps<{
 }
 
 .scalar-api-client__item__options span {
-  background: var(--scalar-api-client-background-3);
+  background: var(--scalar-api-client-background-muted);
   padding: 2px 6px;
   border-radius: 3px;
   font-size: 12px;
   pointer-events: none;
-  color: var(--scalar-api-client-theme-color-2);
+  color: var(--scalar-api-client-text-color-secondary);
   border: var(--scalar-api-client-border);
   display: flex;
   align-items: center;

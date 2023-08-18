@@ -5,7 +5,7 @@ import topLevelAwait from "vite-plugin-top-level-await"
 export default defineConfig({
   plugins: [vue(), topLevelAwait()],
   build: {
-    cssCodeSplit: true,
+    cssCodeSplit: false,
     minify: false,
     lib: {
       entry: ['src/index.ts', 'src/assets/css/variables.css'],

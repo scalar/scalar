@@ -147,7 +147,7 @@ useKeyboardEvent({
   padding: 12px 12px 0 12px;
   display: flex;
   font-size: var(--scalar-api-client-text-sm);
-  color: var(--scalar-api-client-theme-color-2);
+  color: var(--scalar-api-client-text-color-secondary);
   font-weight: var(--scalar-api-client-font-bold);
 }
 
@@ -158,7 +158,7 @@ useKeyboardEvent({
 }
 
 .scalar-api-client__mobile-navigation--active {
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
 }
 
 .scalar-api-client__mobile-navigation--active:hover {
@@ -189,7 +189,7 @@ useKeyboardEvent({
 }
 .scalar-api-client__main__content label {
   font-size: var(--scalar-api-client-text-sm);
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
   font-weight: var(--scalar-api-client-font-bold);
   display: flex;
   align-items: center;
@@ -212,7 +212,7 @@ useKeyboardEvent({
 }
 
 .meta-item svg {
-  fill: var(--scalar-api-client-fill);
+  fill: var(--scalar-api-client-fill-icon);
   height: 14px;
   width: 14px;
   margin-right: 6px;
@@ -225,7 +225,7 @@ useKeyboardEvent({
   white-space: nowrap;
   font-weight: var(--scalar-api-client-font-bold);
   font-size: 12px;
-  color: var(--scalar-api-client-color-3);
+  color: var(--scalar-api-client-text-color-muted);
   padding: 3px 0;
 }
 
@@ -272,7 +272,7 @@ useKeyboardEvent({
 .types-item:hover {
   box-shadow: 0 0 0 1px var(--scalar-api-client-border-color);
   background: var(--scalar-api-client-gradient);
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
   cursor: pointer;
 }
 

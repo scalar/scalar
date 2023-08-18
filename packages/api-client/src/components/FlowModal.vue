@@ -86,7 +86,7 @@ export const useModalState = () =>
   position: relative;
   background: var(--scalar-api-client-theme-background-2);
   border-radius: var(--scalar-api-client-rounded);
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
   width: 100%;
   text-align: left;
   line-height: 1.4;
@@ -124,7 +124,7 @@ export const useModalState = () =>
 }
 .modal-header {
   padding: 12px 24px;
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
   font-size: var(--scalar-api-client-theme-font-size-4);
   text-align: left;
   font-weight: 600;

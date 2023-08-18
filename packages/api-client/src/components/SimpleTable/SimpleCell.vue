@@ -29,7 +29,7 @@ withDefaults(
   border-right: var(--scalar-api-client-border);
   position: relative;
   padding: 0.75em;
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
   white-space: nowrap;
 }
 

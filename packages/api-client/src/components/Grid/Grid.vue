@@ -145,7 +145,7 @@ const showDescription = ref(false)
 }
 .table-row-drag svg {
   width: 6px;
-  fill: var(--scalar-api-client-color-3);
+  fill: var(--scalar-api-client-text-color-muted);
 }
 .table-row-drag .table-row-drag-add {
   width: 8px;
@@ -158,7 +158,7 @@ const showDescription = ref(false)
 .table-row-item-menu {
   position: absolute;
   right: 12px;
-  background: var(--scalar-api-client-background-3);
+  background: var(--scalar-api-client-background-muted);
   border: var(--scalar-api-client-border);
   width: 24px;
   height: 24px;
@@ -178,7 +178,7 @@ const showDescription = ref(false)
 .table-row-item-menu svg {
   height: 12px;
   width: initial;
-  fill: var(--scalar-api-client-color-3);
+  fill: var(--scalar-api-client-text-color-muted);
 }
 .table-row-item input {
   border: none;
@@ -187,7 +187,7 @@ const showDescription = ref(false)
   padding: 9px;
   width: 100%;
   background: var(--scalar-api-client-background-input);
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
   font-size: 12px;
 }
 .table-row-item input[disabled] {
@@ -203,7 +203,7 @@ const showDescription = ref(false)
   display: block;
   padding: 9px;
   font-weight: var(--scalar-api-client-font-bold);
-  color: var(--scalar-api-client-color-3);
+  color: var(--scalar-api-client-text-color-muted);
   font-size: 12px;
 }
 .table-row-meta {
@@ -226,11 +226,11 @@ const showDescription = ref(false)
   width: 13px;
   height: 13px;
   margin: 0 1px;
-  color: var(--scalar-api-client-color-3);
+  color: var(--scalar-api-client-text-color-muted);
   cursor: pointer;
 }
 .table-row-meta svg:hover {
-  color: var(--scalar-api-client-theme-color-2);
+  color: var(--scalar-api-client-text-color-secondary);
 }
 .meta-check {
   display: flex;
@@ -265,7 +265,7 @@ const showDescription = ref(false)
   display: none;
   width: 5px;
   height: 8px;
-  border: solid var(--scalar-api-client-theme-color-1);
+  border: solid var(--scalar-api-client-text-color-primary);
   border-width: 0 1.5px 1.5px 0;
   transform: rotate(45deg) translate3d(0, -1px, 0);
 }
@@ -311,7 +311,7 @@ const showDescription = ref(false)
 .navtable-item {
   display: flex;
   position: relative;
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
   border-top: var(--scalar-api-client-border);
   font-weight: var(--scalar-api-client-font-semibold);
 }
@@ -322,7 +322,7 @@ const showDescription = ref(false)
   border-left: var(--scalar-api-client-border);
 }
 .navtable-item-action {
-  color: var(--scalar-api-client-theme-color-2);
+  color: var(--scalar-api-client-text-color-secondary);
   font-size: 12px;
   font-weight: var(--scalar-api-client-font-bold);
   background: var(--scalar-api-client-bg3);
@@ -341,7 +341,7 @@ const showDescription = ref(false)
   position: relative;
 }
 .navtable-item-action:hover {
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
   background: var(--scalar-api-client-gradient);
   box-shadow: 0 0 0 1px var(--scalar-api-client-border-color);
 }
@@ -361,7 +361,7 @@ const showDescription = ref(false)
   border: none;
   appearance: none;
   background: transparent;
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
 }
 .navtable-item-add:hover {
   background: var(--scalar-api-client-background-secondary);
@@ -420,7 +420,7 @@ const showDescription = ref(false)
   outline: none;
   appearance: none;
   font-size: 12px;
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
   background: transparent;
   width: 100%;
 }
@@ -441,12 +441,12 @@ const showDescription = ref(false)
   top: 0;
   position: relative;
   cursor: pointer;
-  color: var(--scalar-api-client-theme-color-2);
+  color: var(--scalar-api-client-text-color-secondary);
 }
 .navtable-item-select svg {
   position: absolute;
   right: 6px;
-  color: var(--scalar-api-client-fill);
+  color: var(--scalar-api-client-fill-icon);
   width: 6px;
   top: 12px;
   pointer-events: none;
@@ -454,11 +454,11 @@ const showDescription = ref(false)
 .navtable-item .option {
   padding: 12px 6px;
   font-size: 12px;
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
   width: 100%;
 }
 .navtable-item label {
-  color: var(--scalar-api-client-color-3);
+  color: var(--scalar-api-client-text-color-muted);
   font-size: 12px;
   font-weight: var(--scalar-api-client-font-bold);
   text-transform: uppercase;

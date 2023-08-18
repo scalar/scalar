@@ -145,20 +145,20 @@ const fixErrors = async () => {
   right: 12px;
 }
 .scalar-copilot {
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
   width: 100%;
   border-radius: var(--scalar-api-client-rounded);
   border: var(--scalar-api-client-border);
 }
 .scalar-copilot--inactive {
   border: 1px solid transparent;
-  background: var(--scalar-api-client-background-3);
+  background: var(--scalar-api-client-background-muted);
 }
 .scalar-copilot__header {
   padding: 7px 7px 7px 9px;
   min-height: 32.5px;
   display: flex;
-  color: var(--scalar-api-client-color-3);
+  color: var(--scalar-api-client-text-color-muted);
   font-weight: var(--scalar-api-client-font-bold);
   align-items: center;
   justify-content: space-between;
@@ -230,7 +230,7 @@ const fixErrors = async () => {
 .scalar-copilot__header-button--loading {
   background: transparent;
   font-size: 0px;
-  color: var(--scalar-api-client-color-3);
+  color: var(--scalar-api-client-text-color-muted);
 }
 .scalar-copilot__header-button--working {
   font-size: 0px;
@@ -238,8 +238,8 @@ const fixErrors = async () => {
 .scalar-copilot__header-button--working:before,
 .scalar-copilot__header-button--loading:before {
   content: '';
-  border: 1px solid var(--scalar-api-client-color-3);
-  border-top: 1px solid var(--scalar-api-client-theme-color-1);
+  border: 1px solid var(--scalar-api-client-text-color-muted);
+  border-top: 1px solid var(--scalar-api-client-text-color-primary);
   animation: urlloader 0.45s linear infinite;
   background: transparent;
   width: 14px;
@@ -273,14 +273,14 @@ const fixErrors = async () => {
 .scalar-copilot__header-button--success:after {
   content: 'Success';
   font-size: 12px;
-  color: var(--scalar-api-client-theme-color-2);
+  color: var(--scalar-api-client-text-color-secondary);
 }
 .scalar-copilot__header-button--success:before {
   content: '';
   display: block;
   width: 5px;
   height: 8px;
-  border: solid var(--scalar-api-client-theme-color-2);
+  border: solid var(--scalar-api-client-text-color-secondary);
   margin-right: 9px;
   top: 3px;
   position: relative;
@@ -312,7 +312,7 @@ const fixErrors = async () => {
   top: 5px;
   left: -2px;
   transform: rotate(315deg);
-  box-shadow: 1px 1px 0 var(--scalar-api-client-color-3);
+  box-shadow: 1px 1px 0 var(--scalar-api-client-text-color-muted);
   z-index: 10;
 }
 .scalar-copilot__item__toggle-button:after {
@@ -326,7 +326,7 @@ const fixErrors = async () => {
   top: -4px;
 }
 .scalar-copilot__item__toggle-button:hover {
-  box-shadow: 1px 1px 0 var(--scalar-api-client-theme-color-1);
+  box-shadow: 1px 1px 0 var(--scalar-api-client-text-color-primary);
 }
 .scalar-copilot__suggestion--open .scalar-copilot__item__toggle-button {
   transform: rotate(45deg);
@@ -340,7 +340,7 @@ const fixErrors = async () => {
 }
 .scalar-copilot__item__toggle:hover:after {
   content: '';
-  background: var(--scalar-api-client-background-3);
+  background: var(--scalar-api-client-background-muted);
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -374,7 +374,7 @@ const fixErrors = async () => {
   transition: opacity 0.15s ease-in-out;
   white-space: nowrap;
   &:hover {
-    color: var(--scalar-api-client-theme-color-1);
+    color: var(--scalar-api-client-text-color-primary);
   }
 }
 

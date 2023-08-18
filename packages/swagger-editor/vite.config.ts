@@ -4,7 +4,7 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [vue()],
   build: {
-    cssCodeSplit: true,
+    cssCodeSplit: false,
     minify: false,
     lib: {
       entry: 'src/index.ts',

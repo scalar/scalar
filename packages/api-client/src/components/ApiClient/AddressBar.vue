@@ -215,7 +215,7 @@ const onChange = () => {
   display: flex;
   align-items: center;
   background: var(--scalar-api-client-background-secondary);
-  color: var(--scalar-api-client-color-3);
+  color: var(--scalar-api-client-text-color-muted);
   appearance: none;
   -webkit-appearance: none;
   padding: 0 12px;
@@ -244,7 +244,7 @@ const onChange = () => {
   font-style: normal;
   flex-shrink: 0;
   display: inline-block;
-  color: var(--scalar-api-client-color-3);
+  color: var(--scalar-api-client-text-color-muted);
   background: var(--scalar-api-client-color);
 }
 .meta-request-break {
@@ -254,7 +254,7 @@ const onChange = () => {
   appearance: none;
   -webkit-appearance: none;
   background: transparent;
-  color: var(--scalar-api-client-theme-color-2);
+  color: var(--scalar-api-client-text-color-secondary);
   display: flex;
   align-items: center;
   border-radius: var(--scalar-api-client-rounded);
@@ -323,7 +323,7 @@ const onChange = () => {
 .scalar-api-client__history-toggle {
   padding: 0 9px;
   line-height: 30px;
-  color: var(--scalar-api-client-color-3);
+  color: var(--scalar-api-client-text-color-muted);
   font-size: var(--scalar-api-client-text-xs);
   letter-spacing: 0.125px;
   font-weight: var(--scalar-api-client-font-semibold);
@@ -344,22 +344,21 @@ const onChange = () => {
   height: 13px;
   width: 13px;
   margin-right: 6px;
-  color: var(--scalar-api-client-color-3);
+  color: var(--scalar-api-client-text-color-muted);
 }
 .scalar-api-client__address-bar-close {
-  fill: var(--scalar-api-client-color-3);
+  fill: var(--scalar-api-client-text-color-muted);
   margin-left: 12px;
   height: 24px;
 }
 .scalar-api-client__address-bar-close:hover {
   cursor: pointer;
-  fill: var(--scalar-api-client-theme-color-1);
+  fill: var(--scalar-api-client-text-color-primary);
 }
-.scalar-api-client__address-bar-content {
+.scalar-api-client__address-bar__content {
   width: 640px;
   height: 100%;
-  background: --scalar-api-client-background-primary;
-  box-shadow: var(--scalar-api-client-theme-shadow-2);
+  background: var(--scalar-api-client-background-primary);
   position: fixed;
   top: 0;
   right: 0;
@@ -397,11 +396,11 @@ const onChange = () => {
   display: none;
 }
 .navigation-back {
-  stroke: var(--scalar-api-client-theme-color-2);
+  stroke: var(--scalar-api-client-text-color-secondary);
   cursor: pointer;
 }
 .navigation-back:hover {
-  stroke: var(--scalar-api-client-theme-color-1);
+  stroke: var(--scalar-api-client-text-color-primary);
 }
 .scalar-api-client__address-bar__close {
   width: 100%;
@@ -421,7 +420,7 @@ const onChange = () => {
   border: none;
   outline: none;
   font-size: 12px;
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
   width: 100%;
   display: block;
   overflow: hidden;
@@ -435,11 +434,11 @@ const onChange = () => {
   font-size: 11px;
   margin-right: 6px;
   font-weight: var(--scalar-api-client-font-bold);
-  color: var(--scalar-api-client-color-3);
+  color: var(--scalar-api-client-text-color-muted);
 }
 .navtable-item-time {
   font-size: 12px;
-  color: var(--scalar-api-client-theme-color-1);
+  color: var(--scalar-api-client-text-color-primary);
   text-transform: capitalize;
   padding: 0 9px;
 }

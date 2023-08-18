@@ -55,7 +55,7 @@ button {
 a[href]:focus-visible,
 button:focus-visible,
 [tabindex]:focus-visible {
-  outline: 1px dashed var(--scalar-api-client-theme-color-2);
+  outline: 1px dashed var(--scalar-api-client-text-color-secondary);
   outline-offset: 2px;
 }
 
