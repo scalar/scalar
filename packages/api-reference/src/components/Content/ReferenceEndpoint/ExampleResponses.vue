@@ -19,7 +19,7 @@ const { copyToClipboard } = useClipboard()
 
 // Bring the status codes in the right order.
 const orderedStatusCodes = computed(() => {
-  return Object.keys(props.operation.responses).sort((x) => {
+  return Object.keys(props?.operation?.responses ?? {}).sort((x) => {
     if (x === 'default') {
       return -1
     }
@@ -36,7 +36,7 @@ const currentResponse = computed(() => {
   const currentStatusCode =
     orderedStatusCodes.value[selectedResponseIndex.value]
 
-  return props.operation.responses[currentStatusCode]
+  return props.operation.responses?.[currentStatusCode]
 })
 
 const currentResponseJsonBody = computed(() => {
@@ -48,7 +48,7 @@ const changeTab = (index: number) => {
 }
 </script>
 <template>
-  <Card>
+  <Card v-if="orderedStatusCodes.length">
     <CardTabHeader
       muted
       @change="changeTab">
@@ -83,7 +83,7 @@ const changeTab = (index: number) => {
       </div>
     </CardContent>
     <CardFooter
-      v-if="currentResponse.description"
+      v-if="currentResponse?.description"
       muted>
       <div class="description">
         {{ currentResponse.description }}

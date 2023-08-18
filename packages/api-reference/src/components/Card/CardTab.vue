@@ -28,7 +28,7 @@ import { Tab } from '@headlessui/vue'
   color: var(--scalar-api-reference-theme-color-1);
   text-decoration: underline;
   text-underline-offset: calc(
-    var(--scalar-api-reference-theme-font-size-4) - 2px
+    var(--scalar-api-reference-theme-font-size-4) - 1px
   );
 }
 </style>
