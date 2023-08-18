@@ -112,9 +112,11 @@ const onChange = () => {
           @change="onChange" />
       </div>
       <button
-        class="scalar-api-client__url-submit"
-        :class="[{ 'scalar-api-client__url-submit--loading': loading }]"
-        type="button"
+        class="scalar-api-client__send-request-button"
+        :class="[
+          { 'scalar-api-client__send-request-button--loading': loading },
+        ]"
+        type="submit"
         @click="send">
         <svg
           fill="none"
@@ -260,7 +262,7 @@ const onChange = () => {
   border-radius: var(--scalar-api-client-rounded);
   height: 100%;
 }
-.scalar-api-client__url-submit {
+.scalar-api-client__send-request-button[type='submit'] {
   font-size: var(--scalar-api-client-text-xs);
   letter-spacing: 0.25px;
   line-height: 30px;
@@ -281,22 +283,22 @@ const onChange = () => {
   display: flex;
   align-items: center;
 }
-.scalar-api-client__url-submit svg {
+.scalar-api-client__send-request-button svg {
   width: 12px;
   height: 12px;
   margin-right: 6px;
 }
-.scalar-api-client__url-submit--loading {
+.scalar-api-client__send-request-button--loading {
   font-size: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 127px;
 }
-.scalar-api-client__url-submit--loading svg {
+.scalar-api-client__send-request-button--loading svg {
   display: none;
 }
-.scalar-api-client__url-submit--loading:before {
+.scalar-api-client__send-request-button--loading:before {
   content: '';
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-top: 1px solid white;
@@ -308,7 +310,7 @@ const onChange = () => {
   margin-right: 9px;
   border-radius: 50%;
 }
-.scalar-api-client__url-submit--loading:after {
+.scalar-api-client__send-request-button--loading:after {
   content: 'Loading';
   font-size: 12px;
 }
@@ -444,15 +446,15 @@ const onChange = () => {
 }
 @media screen and (max-width: 720px) {
   .scalar-api-client__history-toggle span,
-  .scalar-api-client__url-submit span {
+  .scalar-api-client__send-request-button span {
     display: none;
   }
   .scalar-api-client__history-toggle svg,
-  .scalar-api-client__url-submit svg {
+  .scalar-api-client__send-request-button svg {
     margin-right: 0;
   }
   .scalar-api-client__history-toggle,
-  .scalar-api-client__url-submit {
+  .scalar-api-client__send-request-button {
     height: 31.5px;
     width: 31.5px;
   }
