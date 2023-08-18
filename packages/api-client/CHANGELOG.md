@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.1.8
+
+### Patch Changes
+
+- remove hardcoded colors
+
 ## 0.1.7
 
 ### Patch Changes
