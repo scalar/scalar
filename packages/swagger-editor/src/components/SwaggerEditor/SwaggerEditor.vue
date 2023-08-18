@@ -4,10 +4,10 @@ import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-import CodeEditorHeader from './CodeEditorHeader.vue'
-import CodeEditorInput from './CodeEditorInput.vue'
-import CodeEditorNotification from './CodeEditorNotification.vue'
-import CodeEditorStatusBar from './CodeEditorStatusBar.vue'
+import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
+import SwaggerEditorInput from './SwaggerEditorInput.vue'
+import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
+import SwaggerEditorStatusBar from './SwaggerEditorStatusBar.vue'
 
 defineProps<{
   documentName?: string
@@ -52,7 +52,7 @@ const importHandler = (value: string) => {
   codeMirrorReference.value?.setCodeMirrorContent(value)
 }
 
-const codeMirrorReference = ref<typeof CodeEditorInput | null>(null)
+const codeMirrorReference = ref<typeof SwaggerEditorInput | null>(null)
 
 const formattedError = computed(() => {
   // Handle YAMLExceptions
@@ -66,20 +66,20 @@ const formattedError = computed(() => {
 </script>
 <template>
   <div class="code-editor">
-    <CodeEditorHeader @import="importHandler" />
-    <CodeEditorNotification v-if="formattedError">
+    <SwaggerEditorHeader @import="importHandler" />
+    <SwaggerEditorNotification v-if="formattedError">
       {{ formattedError }}
-    </CodeEditorNotification>
-    <CodeEditorInput
+    </SwaggerEditorNotification>
+    <SwaggerEditorInput
       ref="codeMirrorReference"
       :documentName="documentName"
       :token="token"
       :username="username"
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
-    <CodeEditorStatusBar v-if="documentName">
+    <SwaggerEditorStatusBar v-if="documentName">
       {{ awarenessStates }} user{{ awarenessStates === 1 ? '' : 's' }} online
-    </CodeEditorStatusBar>
+    </SwaggerEditorStatusBar>
   </div>
 </template>
 
