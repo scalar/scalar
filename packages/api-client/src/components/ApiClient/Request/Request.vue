@@ -91,7 +91,8 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   border: none;
   outline: none;
   font-size: 12px;
-  background: var(--scalar-api-client-color);
+  background: var(--scalar-api-client-color) !important;
+  text-align: center;
   font-weight: var(--scalar-api-client-font-bold);
   padding: 12px;
   text-transform: uppercase;

@@ -186,7 +186,6 @@ const showDescription = ref(false)
   outline: none;
   padding: 9px;
   width: 100%;
-  background: var(--scalar-api-client-background-input);
   color: var(--scalar-api-client-text-color-primary);
   font-size: 12px;
 }
