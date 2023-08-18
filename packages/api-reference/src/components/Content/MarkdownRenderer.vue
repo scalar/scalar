@@ -19,8 +19,9 @@ watch(
   () => props.value,
   () => {
     unified()
-      .use(remarkParse)
-      .use(remarkGfm)
+      // TODO: They break SSR. 🤔
+      // .use(remarkParse)
+      // .use(remarkGfm)
       .use(remarkRehype)
       .use(remarkTextr, { plugins: [typographicBase] })
       .use(rehypeDocument)
