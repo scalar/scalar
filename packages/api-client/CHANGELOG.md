@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.1.5
+
+### Patch Changes
+
+- style: improve default style
+
 ## 0.1.4
 
 ### Patch Changes
