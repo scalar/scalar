@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
-import '@scalar/swagger-editor/style.css'
+// import '@scalar/swagger-editor/style.css'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, onMounted, reactive, ref } from 'vue'
 

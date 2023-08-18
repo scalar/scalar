@@ -107,7 +107,7 @@ const importExampleFile = () => {
 </template>
 <style>
 .code-editor-header {
-  padding: 12px !important;
+  padding: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
