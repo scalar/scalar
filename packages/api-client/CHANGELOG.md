@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 0.1.4
+
+### Patch Changes
+
+- fix: externalize dependencies
+- Updated dependencies
+  - @scalar/use-codemirror@0.1.4
+  - @scalar/use-keyboard-event@0.1.4
+
 ## 0.1.3
 
 ### Patch Changes

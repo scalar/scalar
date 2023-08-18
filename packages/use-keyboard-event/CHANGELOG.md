@@ -1,5 +1,11 @@
 # @scalar/use-keyboard-event
 
+## 0.1.4
+
+### Patch Changes
+
+- fix: externalize dependencies
+
 ## 0.1.3
 
 ### Patch Changes

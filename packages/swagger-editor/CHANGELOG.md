@@ -1,5 +1,13 @@
 # @scalar/swagger-editor
 
+## 0.1.4
+
+### Patch Changes
+
+- fix: externalize dependencies
+- Updated dependencies
+  - @scalar/swagger-parser@0.1.4
+
 ## 0.1.3
 
 ### Patch Changes

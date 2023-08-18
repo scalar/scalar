@@ -1,6 +1,6 @@
 {
   "name": "@scalar/api-client",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "author": "Scalar",
   "license": "UNLICENSED",
   "engines": {
@@ -17,7 +17,9 @@
     "types:check": "vue-tsc --noEmit --skipLibCheck"
   },
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "exports": {

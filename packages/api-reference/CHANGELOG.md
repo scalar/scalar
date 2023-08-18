@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 0.1.5
+
+### Patch Changes
+
+- fix: externalize dependencies
+- Updated dependencies
+  - @scalar/api-client@0.1.4
+  - @scalar/swagger-editor@0.1.4
+  - @scalar/use-clipboard@0.1.4
+  - @scalar/use-tooltip@0.1.4
+
 ## 0.1.4
 
 ### Patch Changes

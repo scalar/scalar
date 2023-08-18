@@ -1,5 +1,15 @@
 # @scalar/api-client-web
 
+## 0.0.5
+
+### Patch Changes
+
+- fix: externalize dependencies
+- Updated dependencies
+  - @scalar/api-client@0.1.4
+  - @scalar/api-reference@0.1.5
+  - @scalar/swagger-editor@0.1.4
+
 ## 0.0.4
 
 ### Patch Changes
