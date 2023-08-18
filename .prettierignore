@@ -1,0 +1,15 @@
+**/.git
+**/.svn
+**/.hg
+**/node_modules
+**/dist/**
+
+/venv/
+**/venv
+/.venv/
+**/.venv
+
+pnpm-lock.yaml
+.changeset/
+
+fixtures

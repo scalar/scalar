@@ -1,0 +1,13 @@
+module.exports = {
+  plugins: [require('@trivago/prettier-plugin-sort-imports')],
+  trailingComma: 'all',
+  quoteProps: 'consistent',
+  tabWidth: 2,
+  semi: false,
+  singleQuote: true,
+  singleAttributePerLine: true,
+  bracketSameLine: true,
+  importOrder: ['^@lib/(.*)$', '^@guide/(.*)$', '^@/(.*)$', '^[./]'],
+  importOrderSeparation: true,
+  importOrderSortSpecifiers: true,
+}
