@@ -19,7 +19,7 @@ const { copyToClipboard } = useClipboard()
 
 // Bring the status codes in the right order.
 const orderedStatusCodes = computed(() => {
-  return Object.keys(props.operation.information.responses).sort((x) => {
+  return Object.keys(props.operation.responses).sort((x) => {
     if (x === 'default') {
       return -1
     }
