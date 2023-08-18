@@ -12,5 +12,16 @@ export default defineConfig({
       fileName: 'index',
       formats: ['es'],
     },
+    rollupOptions: {
+      external: [
+        '@codemirror/lang-javascript',
+        '@codemirror/lang-json',
+        '@codemirror/state',
+        '@codemirror/view',
+        '@uiw/codemirror-theme-duotone',
+        '@uiw/codemirror-themes',
+        'codemirror',
+      ],
+    }
   },
 })
