@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.1.7
+
+### Patch Changes
+
+- fix variables and missing styles
+
 ## 0.1.6
 
 ### Patch Changes

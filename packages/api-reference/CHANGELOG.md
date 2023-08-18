@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 0.1.9
+
+### Patch Changes
+
+- fix variables and missing styles
+- Updated dependencies
+  - @scalar/api-client@0.1.7
+
 ## 0.1.8
 
 ### Patch Changes
