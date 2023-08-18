@@ -1,5 +1,13 @@
 # @scalar/swagger-editor
 
+## 0.1.6
+
+### Patch Changes
+
+- fix: issues with empty responses, minor styling issues
+- Updated dependencies
+  - @scalar/swagger-parser@0.1.6
+
 ## 0.1.5
 
 ### Patch Changes
