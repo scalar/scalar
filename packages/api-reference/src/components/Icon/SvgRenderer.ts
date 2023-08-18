@@ -1,10 +1,5 @@
 import { type FunctionalComponent, type SVGAttributes, h } from 'vue'
 
-// Use a DOMParser library if it's not in the browser
-const Parser = import.meta.env.SSR
-  ? (await import('xmldom')).DOMParser
-  : DOMParser
-
 type RendererProps = {
   raw: string
   // All other attributes
@@ -19,7 +14,10 @@ const attrsToObject = (m: NamedNodeMap) =>
  * @param {string} raw A raw string containing an SVG element.
  * @returns An SVG vnode or `undefined` if unparsable.
  */
-const Renderer: FunctionalComponent<RendererProps> = ({ raw }) => {
+const Renderer: FunctionalComponent<RendererProps> = async ({ raw }) => {
+  // Use a DOMParser library if it's not in the browser
+  const Parser = DOMParser ?? (await import('xmldom')).DOMParser
+
   const parser = new Parser()
   const parsed = parser.parseFromString(raw, 'image/svg+xml')
   if (parsed.getElementsByTagName('parsererror').length) return undefined
