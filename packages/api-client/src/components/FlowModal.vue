@@ -75,7 +75,7 @@ export const useModalState = () =>
   animation: modal-fade 0.2s forwards;
 }
 .modal-body {
-  padding: 18px;
+  padding: 24px 12px 18px 24px;
   max-height: calc(100vh - 240px);
   background: var(--scalar-api-client-background-primary);
   border-radius: var(--scalar-api-client-rounded);

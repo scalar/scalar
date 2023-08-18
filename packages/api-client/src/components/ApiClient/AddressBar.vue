@@ -278,8 +278,6 @@ const onChange = () => {
     var(--scalar-api-client-rounded) 0;
   background: var(--scalar-api-client-color);
   /**  #087f5b */
-  border: 1px solid
-    color-mix(in srgb, black 15%, var(--scalar-api-client-color));
   display: flex;
   align-items: center;
 }

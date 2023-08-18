@@ -208,9 +208,9 @@ const {
 .active_page.sidebar-heading,
 .marc_active .sidebar-heading {
   /* prettier-ignore */
-  background: var(--sidebar-item-active-background, var(--scalar-api-reference-theme-background-3)) !important;
+  background: var(--sidebar-item-active-background, var(--theme-background-accent)) !important;
   /* prettier-ignore */
-  color: var(--scalar-api-reference-sidebar-color-active, var(--scalar-api-reference-theme-color-accent)) !important;
+  color: var(--scalar-api-reference-sidebar-color-active, var(--theme-background-accent)) !important;
 }
 .sidebar-group-item {
   position: relative;

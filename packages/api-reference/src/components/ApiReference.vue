@@ -308,7 +308,7 @@ const breadCrumbs = computed(() => {
   margin-top: 12px;
 }
 
-.endpoint-title {
+.reference .endpoint-title {
   display: flex;
   margin-bottom: 12px;
   margin-top: 24px;
@@ -364,7 +364,7 @@ const breadCrumbs = computed(() => {
 
 .example {
   padding-top: 48px;
-  top: 0;
+  top: 12px;
   height: fit-content;
   position: sticky;
 }
@@ -374,11 +374,6 @@ const breadCrumbs = computed(() => {
   text-decoration: underline;
 }
 
-.references,
-.references-narrow {
-  height: 100vh;
-  overflow-y: auto;
-}
 
 /* ----------------------------------------------------- */
 /* Responsive styles for narrow reference container (900px) */

@@ -146,6 +146,7 @@ watch(
   margin-bottom: 0;
 }
 .markdown.parameter-description :deep(p) {
+  margin-top: 4px;
   font-size: var(--scalar-api-reference-theme-small);
   color: var(--scalar-api-reference-theme-color-2);
   line-height: initial;
