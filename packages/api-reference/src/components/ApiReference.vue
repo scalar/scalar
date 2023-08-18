@@ -338,7 +338,7 @@ const breadCrumbs = computed(() => {
   border-bottom: var(--scalar-api-reference-border);
 }
 
-.reference-container {
+.reference .reference-container {
   position: relative;
   display: flex;
   gap: 48px;

@@ -21,9 +21,7 @@ defineProps<{
       <ExampleRequest
         :operation="operation"
         :server="server" />
-    </div>
-    <div class="example">
-      <ExampleResponses :operation="operation" />
+      <ExampleResponses style="margin-top: 12px" :operation="operation" />
     </div>
   </div>
 </template>
