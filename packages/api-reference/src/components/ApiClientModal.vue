@@ -6,7 +6,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { type Spec } from '../types'
 import { default as Sidebar } from './Sidebar.vue'
 
-defineProps<{ spec: Spec }>()
+defineProps<{ spec: Spec, overloadShow?: boolean }>()
 
 const { hideApiClient, state } = useApiClientStore()
 
@@ -16,7 +16,7 @@ const proxyUrl = import.meta.env.VITE_CLIENT_PROXY
 </script>
 <template>
   <div
-    v-if="state.showApiClient"
+    v-if="state.showApiClient || overloadShow"
     class="api-client-drawer">
     <div class="scalar-api-client__overlay">
       <div class="scalar-api-client__container">
