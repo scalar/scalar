@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 0.1.12
+
+### Patch Changes
+
+- add force show to client
+- Updated dependencies
+  - @scalar/api-client@0.1.10
+
 ## 0.1.11
 
 ### Patch Changes
