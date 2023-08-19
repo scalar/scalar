@@ -14,6 +14,9 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
 
 const proxyUrl = import.meta.env.VITE_CLIENT_PROXY
 </script>
+<script lang="ts">
+export { useApiClientStore } from '@scalar/api-client'
+</script>
 <template>
   <div
     v-if="state.showApiClient || overloadShow"
