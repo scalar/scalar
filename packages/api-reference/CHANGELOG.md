@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 0.1.14
+
+### Patch Changes
+
+- add useClientStore export
+- Updated dependencies
+  - @scalar/api-client@0.1.12
+
 ## 0.1.13
 
 ### Patch Changes
