@@ -253,19 +253,19 @@ const breadCrumbs = computed(() => {
   overflow: hidden;
 }
 .endpoint .post {
-  color: var(--scalar-api-reference-theme-post-color);
+  color: var(--theme-post-color);
 }
 .endpoint .patch {
-  color: var(--scalar-api-reference-theme-patch-color);
+  color: var(--theme-patch-color);
 }
 .endpoint .get {
-  color: var(--scalar-api-reference-theme-get-color);
+  color: var(--theme-get-color);
 }
 .endpoint .delete {
-  color: var(--scalar-api-reference-theme-delete-color);
+  color: var(--theme-delete-color);
 }
 .endpoint .put {
-  color: var(--scalar-api-reference-theme-put-color);
+  color: var(--theme-put-color);
 }
 .endpoint .post,
 .endpoint .get,
@@ -290,7 +290,7 @@ const breadCrumbs = computed(() => {
 }
 .endpoint-response p {
   margin-top: 6px;
-  font-size: var(--scalar-api-reference-theme-small);
+  font-size: var(--theme-small);
   min-height: auto;
   line-height: 17px;
 }
@@ -302,7 +302,7 @@ const breadCrumbs = computed(() => {
 .endpoint-response {
   border-top: 1px solid var(--theme-border-color);
   padding: 12px 0;
-  font-size: var(--scalar-api-reference-theme-small);
+  font-size: var(--theme-small);
 }
 
 .tag-description {
@@ -315,7 +315,7 @@ const breadCrumbs = computed(() => {
   margin-top: 24px;
 }
 .copy .title {
-  font-size: var(--scalar-api-reference-theme-heading-4);
+  font-size: var(--theme-heading-4);
   font-weight: var(--theme-semibold);
   color: var(--theme-color-1);
   line-height: 1.45;
@@ -397,7 +397,7 @@ const breadCrumbs = computed(() => {
 }
 
 .editor-heading h1 {
-  font-size: var(--font-size, var(--scalar-api-reference-theme-heading-2));
+  font-size: var(--font-size, var(--theme-heading-2));
   font-weight: var(--font-weight, var(--theme-bold));
   /* prettier-ignore */
   color: var(--theme-color-1);
@@ -427,10 +427,6 @@ const breadCrumbs = computed(() => {
   --col-width-1: var(--scalar-api-reference-theme-sidebar-width);
   --col-width-2: auto;
   --col-width-3: var(--scalar-api-reference-theme-toc-width);
-
-  /* Redifine theme border at the document level so it's not pulled off the body */
-  --theme-border: var(--scalar-api-reference-border-width) solid
-    var(--theme-border-color);
 
   display: grid;
 

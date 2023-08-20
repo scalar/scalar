@@ -90,7 +90,7 @@ defineProps<{ requestBody?: RequestBody }>()
 
 .parameter {
   list-style: none;
-  font-size: var(--scalar-api-reference-theme-small);
+  font-size: var(--theme-small);
 }
 .parameter li {
   border-top: 1px solid var(--theme-border-color);

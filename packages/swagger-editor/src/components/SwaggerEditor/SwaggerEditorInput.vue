@@ -58,7 +58,7 @@ defineExpose({
 }
 
 .code-editor-input .cm-editor .cm-activeLine {
-  background-color: var(--scalar-api-reference-theme-background-3) !important;
+  background-color: var(--theme-background-3) !important;
 }
 
 .code-editor-input .cm-yLineSelection {
@@ -183,7 +183,7 @@ defineExpose({
   border-color: transparent !important;
 }
 .cm-matchingBracket {
-  background: var(--scalar-api-reference-theme-background-3) !important;
+  background: var(--theme-background-3) !important;
 }
 .cm-editor .cm-gutters {
   font-size: var(--theme-micro);
@@ -214,7 +214,7 @@ defineExpose({
   padding-left: 0 !important;
 }
 .ͼ1 .cm-foldPlaceholder {
-  background-color: var(--scalar-api-reference-theme-background-3);
+  background-color: var(--theme-background-3);
   border: 1px solid var(--theme-border-color);
   color: var(--theme-color-3);
 }

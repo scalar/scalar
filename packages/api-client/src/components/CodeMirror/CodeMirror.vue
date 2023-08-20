@@ -174,7 +174,7 @@ watch(props, () => {
 }
 
 .scalar-api-client__codemirror.ͼw {
-  background-color: var(--scalar-api-client-background-input);
+  background-color: var(--theme-background-1);
 }
 
 .scalar-api-client__codemirror--read-only.ͼw {

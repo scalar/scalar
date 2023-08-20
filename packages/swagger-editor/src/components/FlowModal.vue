@@ -120,7 +120,7 @@ export const useModalState = () =>
 .modal-header {
   padding: 12px 24px;
   color: var(--theme-color-1);
-  font-size: var(--scalar-api-reference-theme-font-size-4);
+  font-size: var(--theme-small);
   text-align: left;
   font-weight: 600;
   border-radius: var(--scalar-api-reference-theme-radius)

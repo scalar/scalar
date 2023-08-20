@@ -213,14 +213,14 @@ export default {
 .helper-text {
   margin-top: 6px;
   font-size: 13px;
-  color: var(--scalar-api-reference-theme-error-color);
+  color: var(--theme-error-color);
   display: flex;
   align-items: center;
 }
 .helper-text:before {
   content: '!';
   border-radius: 50%;
-  background: var(--scalar-api-reference-theme-error-color);
+  background: var(--theme-error-color);
   color: white;
   font-weight: 900;
   width: 15px;
@@ -235,16 +235,16 @@ export default {
   display: none;
 }
 .flow-input-wrapper--error {
-  border-color: var(--scalar-api-reference-theme-error-color);
+  border-color: var(--theme-error-color);
 }
 .flow-input-wrapper--error .flow-label {
-  color: var(--scalar-api-reference-theme-error-color);
+  color: var(--theme-error-color);
 }
 .flow-input-wrapper--warn {
-  border-color: var(--scalar-api-reference-theme-error-color);
+  border-color: var(--theme-error-color);
 }
 .flow-input-wrapper--warn .flow-label {
-  color: var(--scalar-api-reference-theme-error-color);
+  color: var(--theme-error-color);
 }
 .flow-input-wrapper--focus .flow-label,
 .flow-input:not(:placeholder-shown) + .flow-label {
@@ -260,7 +260,7 @@ export default {
   padding-right: 12px;
   width: 28px;
   cursor: pointer;
-  color: var(--scalar-api-reference-theme-color-ghost);
+  color: var(--theme-color-ghost);
 }
 .icon-slot:hover {
   color: var(--theme-color-1);

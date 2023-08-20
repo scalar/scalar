@@ -16,11 +16,11 @@ import { Tab } from '@headlessui/vue'
 .tab {
   background: none;
   border: none;
-  font-size: var(--scalar-api-reference-theme-font-size-4);
+  font-size: var(--theme-small);
   font-family: var(--theme-font);
   color: var(--theme-color-2);
   font-weight: var(--theme-semibold);
-  line-height: calc(var(--scalar-api-reference-theme-font-size-4) + 2px);
+  line-height: calc(var(--theme-small) + 2px);
   cursor: pointer;
 }
 
@@ -28,7 +28,7 @@ import { Tab } from '@headlessui/vue'
   color: var(--theme-color-1);
   text-decoration: underline;
   text-underline-offset: calc(
-    var(--scalar-api-reference-theme-font-size-4) - 1px
+    var(--theme-small) - 1px
   );
 }
 </style>

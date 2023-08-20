@@ -62,10 +62,10 @@ watch(
 }
 
 .markdown :deep(p) {
-  font-size: var(--font-size, var(--scalar-api-reference-theme-paragraph));
+  font-size: var(--font-size, var(--theme-paragraph));
   /* prettier-ignore */
   color: var(--theme-color-1);
-  font-weight: var(--font-weight, var(--scalar-api-reference-theme-regular));
+  font-weight: var(--font-weight, var(--theme-small));
   line-height: 1.5;
 }
 
@@ -147,7 +147,7 @@ watch(
 }
 .markdown.parameter-description :deep(p) {
   margin-top: 4px;
-  font-size: var(--scalar-api-reference-theme-small);
+  font-size: var(--theme-small);
   color: var(--theme-color-2);
   line-height: initial;
 }

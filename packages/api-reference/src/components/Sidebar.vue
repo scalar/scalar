@@ -92,7 +92,7 @@ const {
 .sidebar {
   --theme-sidebar-indent-base: 6px;
   /* prettier-ignore */
-  background: var(--scalar-api-reference-sidebar-background-1, var(--theme-background-1));
+  background: var(--sidebar-background-1, var(--theme-background-1));
 }
 
 /* ----------------------------------------------------- */
@@ -104,7 +104,7 @@ const {
   display: flex;
   flex-direction: column;
   /* prettier-ignore */
-  background: var(--scalar-api-reference-sidebar-background-1, var(--theme-background-1));
+  background: var(--sidebar-background-1, var(--theme-background-1));
   --sidebar-level: 0;
 }
 
@@ -123,7 +123,7 @@ const {
   gap: 6px;
 
   /* prettier-ignore */
-  color: var(--scalar-api-reference-sidebar-color-2, var(--theme-color-2));
+  color: var(--sidebar-color-2, var(--theme-color-2));
   font-size: var(--theme-micro);
   font-weight: var(--theme-semibold);
   word-break: break-word;
@@ -199,9 +199,9 @@ const {
 
 .sidebar-heading:hover {
   /* prettier-ignore */
-  color: var(--scalar-api-reference-sidebar-color-1, var(--theme-color-1));
+  color: var(--sidebar-color-1, var(--theme-color-1));
   /* prettier-ignore */
-  background: var(--scalar-api-reference-sidebar-item-hover-background, var(--scalar-api-reference-theme-background-3));
+  background: var(--sidebar-item-hover-background, var(--theme-background-2));
 }
 
 .active_page.sidebar-heading:hover,
@@ -210,7 +210,7 @@ const {
   /* prettier-ignore */
   background: var(--sidebar-item-active-background, var(--theme-background-accent)) !important;
   /* prettier-ignore */
-  color: var(--scalar-api-reference-sidebar-color-active, var(--theme-background-accent)) !important;
+  color: var(--theme-color-accent, var(--theme-background-accent)) !important;
 }
 .sidebar-group-item {
   position: relative;
@@ -219,11 +219,11 @@ const {
 /* Change font colors and weights for nested items */
 .sidebar-indent-nested .sidebar-heading {
   /* prettier-ignore */
-  color: var(--scalar-api-reference-sidebar-color-1, var(--theme-color-1));
+  color: var(--sidebar-color-1, var(--theme-color-1));
 }
 .sidebar-indent-nested .sidebar-indent-nested .sidebar-heading {
   /* prettier-ignore */
-  color: var(--scalar-api-reference-sidebar-color-2, var(--theme-color-2));
+  color: var(--sidebar-color-2, var(--theme-color-2));
 }
 .sidebar-indent-nested > div:has(.active_page) .sidebar-heading {
   font-weight: var(--theme-bold);
@@ -244,7 +244,7 @@ const {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-size: var(--scalar-api-reference-theme-small);
+  font-size: var(--theme-small);
   font-weight: var(--theme-semibold);
 }
 

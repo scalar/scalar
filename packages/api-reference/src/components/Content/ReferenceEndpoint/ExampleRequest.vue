@@ -181,19 +181,19 @@ const availableLanguages = computed(() => {
 </template>
 <style scoped>
 .request-method--post {
-  color: var(--scalar-api-reference-theme-post-color);
+  color: var(--theme-post-color);
 }
 .request-method--patch {
-  color: var(--scalar-api-reference-theme-patch-color);
+  color: var(--theme-patch-color);
 }
 .request-method--get {
-  color: var(--scalar-api-reference-theme-get-color);
+  color: var(--theme-get-color);
 }
 .request-method--delete {
-  color: var(--scalar-api-reference-theme-delete-color);
+  color: var(--theme-delete-color);
 }
 .request-method--put {
-  color: var(--scalar-api-reference-theme-put-color);
+  color: var(--theme-put-color);
 }
 .request-path {
   margin-left: 6px;
@@ -214,8 +214,8 @@ const availableLanguages = computed(() => {
   border: none;
   outline: none;
   cursor: pointer;
-  background: var(--scalar-api-reference-theme-background-3);
-  box-shadow: -2px 0 0 0 var(--scalar-api-reference-theme-background-3);
+  background: var(--theme-background-3);
+  box-shadow: -2px 0 0 0 var(--theme-background-3);
   z-index: 2;
   position: absolute;
   top: 0;
@@ -274,7 +274,7 @@ const availableLanguages = computed(() => {
   appearance: none;
   outline: none;
   border: none;
-  border-radius: var(--theme-radius-lg-lg);
+  border-radius: var(--theme-radius-lg);
   height: 35px;
   display: flex;
   justify-content: center;
@@ -284,11 +284,11 @@ const availableLanguages = computed(() => {
   font-size: var(--theme-micro);
   text-transform: uppercase;
   border: 1px solid currentColor;
-  background: var(--scalar-api-reference-theme-button-1);
-  color: var(--scalar-api-reference-theme-button-1-color);
+  background: var(--theme-button-1);
+  color: var(--theme-button-1-color);
 }
 .show-api-client-button:hover {
-  background: var(--scalar-api-reference-theme-button-1-hover);
+  background: var(--theme-button-1-hover);
 }
 .show-api-client-button svg {
   height: 12px;

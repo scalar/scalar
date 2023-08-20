@@ -1,45 +1,12 @@
 :root {
-  /** Fonts */
-  /* button stuff */
-  --scalar-api-reference-theme-button-1-color: #fff;
-  --scalar-api-reference-theme-button-1-hover: #ccc;
-  /*  */
-  --scalar-api-reference-theme-button-1: red;
-  --scalar-api-reference-theme-color-ghost: #eee;
-  --scalar-api-reference-theme-error-color: red;
-  --scalar-api-reference-theme-font-size-4: 14px;
+  /* ?? layout stuff */
   --scalar-api-reference-theme-header-height: 0;
-  --scalar-api-reference-theme-shadow-1: 0 0 4px rgba(0, 0, 0, 0.1);
   --scalar-api-reference-theme-sidebar-width: 300px;
-  --scalar-api-reference-theme-small: 14px;
+  --scalar-api-reference-theme-toc-width: 300px;
   --scalar-api-reference-app-header-height: 100px;
   --scalar-api-reference-col-width-1: 300px;
   --scalar-api-reference-col-width-2: calc(50% - 150px);
   --scalar-api-reference-col-width-3: calc(50% - 150px);
   --scalar-api-reference-document-height: 100vh;
   --scalar-api-reference-full-height: 100%;
-  --scalar-api-reference-sidebar-background-1: white;
-  --scalar-api-reference-sidebar-color-1: #000;
-  --scalar-api-reference-sidebar-color-2: #ccc;
-  --scalar-api-reference-sidebar-color-active: blue;
-  --scalar-api-reference-sidebar-item-hover-background: var(#ccc);
-  --scalar-api-reference-theme-background-3: #ccc;
-  --scalar-api-reference-border-width: 1px;
-  --scalar-api-reference-theme-color-accent: blue;
-  --scalar-api-reference-theme-delete-color: red;
-  --scalar-api-reference-theme-get-color: green;
-  --scalar-api-reference-theme-heading-2: 24px;
-  --scalar-api-reference-theme-heading-4: 16px;
-  --scalar-api-reference-theme-paragraph: 16px;
-  --scalar-api-reference-theme-patch-color: orange;
-  --scalar-api-reference-theme-post-color: blue;
-  --scalar-api-reference-theme-put-color: purple;
-  --theme-radius-lg-lg: 8px;
-  --scalar-api-reference-theme-regular: 14px;
-  --scalar-api-reference-theme-toc-width: 300px;
-  --scalar-api-reference-theme-post-color: blue;
-  --scalar-api-reference-theme-patch-color: orange;
-  --scalar-api-reference-theme-delete-color: red;
-  --scalar-api-reference-theme-get-color: green;
-  --scalar-api-reference-theme-put-color: purple;
 }

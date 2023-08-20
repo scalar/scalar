@@ -67,7 +67,7 @@ export { useApiClientStore } from '@scalar/api-client'
   pointer-events: all;
   background: var(--theme-background-1) !important;
   border-radius: var(--theme-radius-lg);
-  box-shadow: var(--scalar-api-reference-theme-shadow-1);
+  box-shadow: var(--theme-shadow-1);
   height: 100%;
   overflow: hidden;
   display: flex;

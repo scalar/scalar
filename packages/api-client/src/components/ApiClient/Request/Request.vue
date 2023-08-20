@@ -106,24 +106,6 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 .scalar-collapsible-section-flex {
   width: 100%;
 }
-.scalar-collapsible-section-option {
-  font-size: var(--theme-small);
-  font-weight: var(--theme-bold);
-  color: var(--scalar-api-client-color2);
-  background: var(--scalar-api-client-bg3);
-  border-radius: 30px;
-  display: inline-block;
-  padding: 8px 12px;
-  cursor: pointer;
-  margin: 0 4px 8px;
-  user-select: none;
-}
-.scalar-collapsible-section-option:hover {
-  box-shadow: 0 0 0 1px var(--theme-border-color);
-  background: var(--scalar-api-client-gradient);
-  color: var(--theme-color-1);
-}
-
 .input {
   background: var(--theme-background-2);
   border: 1px solid var(--theme-border-color);

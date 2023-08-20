@@ -99,7 +99,7 @@ onMounted(() => {
   border-radius: 30px;
   color: var(--theme-color-1);
   font-weight: var(--theme-semibold);
-  font-size: var(--scalar-api-reference-theme-font-size-4);
+  font-size: var(--theme-small);
   display: flex;
   align-items: center;
   justify-content: center;

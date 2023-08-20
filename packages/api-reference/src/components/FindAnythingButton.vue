@@ -37,7 +37,7 @@ import FlowIcon from './Icon/FlowIcon.vue'
 }
 
 .sidebar-search-input {
-  font-size: var(--scalar-api-reference-theme-small);
+  font-size: var(--theme-small);
   font-weight: var(--theme-semibold);
   line-height: 31px;
 

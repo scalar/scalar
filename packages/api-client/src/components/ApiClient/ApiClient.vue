@@ -205,13 +205,13 @@ useKeyboardEvent({
 
 .meta {
   display: flex;
-  font-size: var(--scalar-api-client-text-base);
-  font-weight: var(--scalar-api-client-text-base);
+  font-size: var(--theme-font-size-2);
+  font-weight: var(--theme-font-size-2);
   color: var(--scalar-api-client-color2);
 }
 
 .meta-item svg {
-  fill: var(--scalar-api-client-fill-icon);
+  fill: var(--theme-color-ghost);
   height: 14px;
   width: 14px;
   margin-right: 6px;
@@ -257,24 +257,6 @@ useKeyboardEvent({
   margin-top: 12px;
   font-size: 24px;
 }
-
-.types-item {
-  font-weight: var(--theme-bold);
-  font-size: var(--scalar-api-client-text-lg);
-  color: var(--scalar-api-client-color2);
-  background: var(--scalar-api-client-bg3);
-  padding: 9px 18px;
-  margin: 6px;
-  border-radius: 30px;
-}
-
-.types-item:hover {
-  box-shadow: 0 0 0 1px var(--theme-border-color);
-  background: var(--scalar-api-client-gradient);
-  color: var(--theme-color-1);
-  cursor: pointer;
-}
-
 .scalar-api-client__empty-state {
   border: 1px dashed var(--theme-border-color);
   width: 100%;

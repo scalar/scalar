@@ -126,8 +126,8 @@ function handleToggleOpen() {
 }
 .sidebar-heading:has(~ .action-menu:hover) {
   /* prettier-ignore */
-  color: var(--scalar-api-reference-sidebar-color-1, var(--theme-color-1));
+  color: var(--sidebar-color-1, var(--theme-color-1));
   /* prettier-ignore */
-  background: var(--scalar-api-reference-sidebar-item-hover-background, var(--scalar-api-reference-theme-background-3));
+  background: var(--sidebar-item-hover-background, var(--theme-background-2));
 }
 </style>

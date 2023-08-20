@@ -138,7 +138,7 @@ const standardLibrary = computed(() => {
     background: var(--theme-background-2);
   }
   to {
-    background: var(--scalar-api-reference-theme-background-3);
+    background: var(--theme-background-3);
   }
 }
 </style>

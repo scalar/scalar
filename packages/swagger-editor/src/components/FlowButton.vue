@@ -54,11 +54,11 @@ export { useLoadButtonState }
   height: 40px;
   padding: 0px 24px;
   border-radius: var(--scalar-api-reference-theme-radius);
-  color: var(--scalar-api-reference-theme-button-1-color);
-  font-size: var(--scalar-api-reference-theme-font-size-4);
+  color: var(--theme-button-1-color);
+  font-size: var(--theme-small);
   font-weight: 500;
   cursor: pointer;
-  background: var(--scalar-api-reference-theme-button-1);
+  background: var(--theme-button-1);
   border: none;
   width: 100%;
   box-shadow: rgba(0, 0, 0, 0.09) 0px 1px 4px;
@@ -66,11 +66,11 @@ export { useLoadButtonState }
 
 .flow-button:hover,
 .flow-button:focus-visible {
-  background: var(--scalar-api-reference-theme-button-1-hover);
+  background: var(--theme-button-1-hover);
 }
 .flow-button:active {
   box-shadow: none;
-  background: var(--scalar-api-reference-theme-button-1);
+  background: var(--theme-button-1);
 }
 .flow-button[disabled] {
   background: var(--theme-background-2);
@@ -145,7 +145,7 @@ export { useLoadButtonState }
 }
 .flow-button-text[disabled] {
   background: transparent;
-  color: var(--scalar-api-reference-theme-color-ghost);
+  color: var(--theme-color-ghost);
   cursor: unset;
   box-shadow: none;
 }
@@ -153,14 +153,14 @@ export { useLoadButtonState }
 /* ----------------------------------------------------- */
 
 .flow-button--delete {
-  background: var(--scalar-api-reference-theme-error-color);
+  background: var(--theme-error-color);
   color: white;
 }
 .flow-button--delete:active {
-  background: var(--scalar-api-reference-theme-error-color);
+  background: var(--theme-error-color);
 }
 .flow-button--delete:hover {
-  background: var(--scalar-api-reference-theme-error-color);
+  background: var(--theme-error-color);
   opacity: 0.86;
 }
 

@@ -227,7 +227,7 @@ const getIconByLanguageKey = (languageKey: TargetId) => {
   background: #306998;
 }
 .code-languages-icon__more {
-  background: var(--scalar-api-reference-theme-background-3);
+  background: var(--theme-background-3);
 }
 .code-languages-icon__node {
   background: #83cd29;

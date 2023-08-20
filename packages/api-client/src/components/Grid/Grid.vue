@@ -252,7 +252,7 @@ const showDescription = ref(false)
 .meta-checkmark {
   height: 15px;
   width: 15px;
-  background: var(--scalar-api-client-background-input);
+  background: var(--theme-background-1);
   border-radius: 3px;
   display: flex;
   align-items: center;
@@ -445,7 +445,7 @@ const showDescription = ref(false)
 .navtable-item-select svg {
   position: absolute;
   right: 6px;
-  color: var(--scalar-api-client-fill-icon);
+  color: var(--theme-color-ghost);
   width: 6px;
   top: 12px;
   pointer-events: none;

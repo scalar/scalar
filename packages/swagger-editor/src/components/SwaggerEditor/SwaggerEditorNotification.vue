@@ -13,7 +13,7 @@
 }
 
 .code-editor-notification--error {
-  background: var(--scalar-api-reference-theme-error-color);
+  background: var(--theme-error-color);
   color: white;
 }
 </style>
