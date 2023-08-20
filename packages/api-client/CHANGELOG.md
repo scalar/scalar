@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.1.13
+
+### Patch Changes
+
+- fix: use scalar fonts
+
 ## 0.1.12
 
 ### Patch Changes
