@@ -93,6 +93,6 @@ const formattedError = computed(() => {
   display: flex;
   flex-direction: column;
   overflow: auto;
-  border-right: var(--scalar-api-reference-border);
+  border-right: 1px solid var(--theme-border-color);
 }
 </style>

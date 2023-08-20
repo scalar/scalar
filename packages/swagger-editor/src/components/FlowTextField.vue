@@ -131,16 +131,16 @@ export default {
 }
 .flow-input-wrapper {
   border-radius: var(--scalar-api-reference-theme-radius);
-  border: var(--scalar-api-reference-border);
+  border: 1px solid var(--theme-border-color);
   position: relative;
   display: flex;
   align-items: center;
 }
 .flow-input-wrapper--focus {
-  border-color: var(--scalar-api-reference-theme-color-3);
+  border-color: var(--theme-color-3);
 }
 .flow-input-wrapper--focus:has(button:active) {
-  border: var(--scalar-api-reference-border) !important;
+  border: 1px solid var(--theme-border-color) !important;
 }
 .flow-input__multiline {
   min-height: 77px;
@@ -155,10 +155,10 @@ export default {
   width: fit-content;
   background: transparent;
   font-size: var(--scalar-api-reference-theme-font-size-3);
-  background-color: var(--scalar-api-reference-theme-background-1);
+  background-color: var(--theme-background-1);
   border-radius: var(--scalar-api-reference-theme-radius);
-  color: var(--scalar-api-reference-theme-color-3);
-  box-shadow: 0 0 2px 2px var(--scalar-api-reference-theme-background-1);
+  color: var(--theme-color-3);
+  box-shadow: 0 0 2px 2px var(--theme-background-1);
   transition: transform 0.2s ease-in-out;
   transform-origin: top left;
   z-index: 10;
@@ -170,7 +170,7 @@ export default {
   -webkit-appearance: none;
   font-size: var(--scalar-api-reference-theme-font-size-3);
   border: none;
-  color: var(--scalar-api-reference-theme-color-1);
+  color: var(--theme-color-1);
   padding: 12px;
   width: 100%;
   background: transparent;
@@ -182,7 +182,7 @@ export default {
   opacity: 0;
 }
 .flow-input::placeholder {
-  color: var(--scalar-api-reference-theme-color-3);
+  color: var(--theme-color-3);
 }
 .flow-input:not(:placeholder-shown),
 .flow-input-wrapper--focus .flow-input {
@@ -190,10 +190,10 @@ export default {
   transition: opacity 0.2s ease-in-out 0.15s;
 }
 .flow-input-wrapper--focus .flow-label {
-  color: var(--scalar-api-reference-theme-color-1);
+  color: var(--theme-color-1);
 }
 .flow-input::selection {
-  color: var(--scalar-api-reference-theme-color-1);
+  color: var(--theme-color-1);
   background: rgba(255, 165, 88, 0.35);
 }
 .flow-input:-webkit-autofill,
@@ -205,9 +205,9 @@ export default {
 .flow-input:focus-within:-webkit-autofill:focus,
 .flow-input:focus-within:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0px 1000px
-    var(--scalar-api-reference-theme-background-1) inset !important;
-  -webkit-text-fill-color: var(--scalar-api-reference-theme-color-1);
-  color: var(--scalar-api-reference-theme-color-1);
+    var(--theme-background-1) inset !important;
+  -webkit-text-fill-color: var(--theme-color-1);
+  color: var(--theme-color-1);
   border-radius: var(--scalar-api-reference-theme-radius);
 }
 .helper-text {
@@ -252,7 +252,7 @@ export default {
   transform-origin: top left;
 }
 .flow-input-wrapper--focus:has(button:active) .flow-label {
-  color: var(--scalar-api-reference-theme-color-3) !important;
+  color: var(--theme-color-3) !important;
 }
 .icon-slot:not(:empty) {
   display: flex;
@@ -263,6 +263,6 @@ export default {
   color: var(--scalar-api-reference-theme-color-ghost);
 }
 .icon-slot:hover {
-  color: var(--scalar-api-reference-theme-color-1);
+  color: var(--theme-color-1);
 }
 </style>

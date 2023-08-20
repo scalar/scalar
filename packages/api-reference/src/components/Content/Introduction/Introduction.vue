@@ -98,8 +98,8 @@ const standardLibrary = computed(() => {
             class="font-mono"
             muted
             style="
-              font-size: var(--scalar-api-reference-theme-mini);
-              color: var(--scalar-api-reference-theme-color-2);
+              font-size: var(--theme-micro);
+              color: var(--theme-color-2);
             ">
             {{ getLanguageTitleByKey(state.preferredLanguage) }}
             {{ standardLibrary }}
@@ -114,9 +114,9 @@ const standardLibrary = computed(() => {
   margin-top: 0px !important;
 }
 .loading {
-  background: var(--scalar-api-reference-theme-background-2);
+  background: var(--theme-background-2);
   animation: loading-skeleton 2s infinite alternate;
-  border-radius: var(--scalar-api-reference-rounded);
+  border-radius: var(--theme-radius-lg);
 }
 .heading.loading {
   width: 80%;
@@ -135,7 +135,7 @@ const standardLibrary = computed(() => {
 }
 @keyframes loading-skeleton {
   from {
-    background: var(--scalar-api-reference-theme-background-2);
+    background: var(--theme-background-2);
   }
   to {
     background: var(--scalar-api-reference-theme-background-3);

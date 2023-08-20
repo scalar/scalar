@@ -95,17 +95,18 @@ useKeyboardEvent({
   </div>
 </template>
 
-<style src="../../assets/css/variables.css"></style>
+<!-- <style src="../../assets/css/variables.css"></style> -->
+<style src="../../../../theme/theme.css"></style>
 
 <style>
 .scalar-api-client {
-  background: var(--scalar-api-client-background-primary);
+  background: var(--theme-background-1);
   position: relative;
   height: 100%;
   overflow: hidden !important;
   display: flex;
   flex-direction: column;
-  font-family: var(--scalar-api-client-font-sans);
+  font-family: var(--theme-font);
 }
 @media screen and (max-width: 1000px) {
   .scalar-api-client {
@@ -113,40 +114,40 @@ useKeyboardEvent({
   }
 }
 .scalar-api-client pre {
-  font-family: var(--scalar-api-client-font-mono);
+  font-family: var(--theme-font-code);
 }
 
 .scalar-api-client--post {
-  --scalar-api-client-color: var(--scalar-api-client-post-color);
-  --scalar-api-client-background: var(--scalar-api-client-post-background);
+  --scalar-api-client-color: var(--theme-post-color);
+  --scalar-api-client-background: var(--theme-post-background);
 }
 
 .scalar-api-client--delete {
-  --scalar-api-client-color: var(--scalar-api-client-delete-color);
-  --scalar-api-client-background: var(--scalar-api-client-delete-background);
+  --scalar-api-client-color: var(--theme-delete-color);
+  --scalar-api-client-background: var(--theme-delete-background);
 }
 
 .scalar-api-client--patch {
-  --scalar-api-client-color: var(--scalar-api-client-patch-color);
-  --scalar-api-client-background: var(--scalar-api-client-patch-background);
+  --scalar-api-client-color: var(--theme-patch-color);
+  --scalar-api-client-background: var(--theme-patch-background);
 }
 
 .scalar-api-client--get {
-  --scalar-api-client-color: var(--scalar-api-client-get-color);
-  --scalar-api-client-background: var(--scalar-api-client-get-background);
+  --scalar-api-client-color: var(--theme-get-color);
+  --scalar-api-client-background: var(--theme-get-background);
 }
 
 .scalar-api-client--put {
-  --scalar-api-client-color: var(--scalar-api-client-put-color);
-  --scalar-api-client-background: var(--scalar-api-client-put-background);
+  --scalar-api-client-color: var(--theme-put-color);
+  --scalar-api-client-background: var(--theme-put-background);
 }
 
 .scalar-api-client__mobile-navigation {
   padding: 12px 12px 0 12px;
   display: flex;
-  font-size: var(--scalar-api-client-text-sm);
-  color: var(--scalar-api-client-text-color-secondary);
-  font-weight: var(--scalar-api-client-font-bold);
+  font-size: var(--theme-small);
+  color: var(--theme-color-2);
+  font-weight: var(--theme-bold);
 }
 
 .scalar-api-client__mobile-navigation__toggle {
@@ -156,7 +157,7 @@ useKeyboardEvent({
 }
 
 .scalar-api-client__mobile-navigation--active {
-  color: var(--scalar-api-client-text-color-primary);
+  color: var(--theme-color-1);
 }
 
 .scalar-api-client__mobile-navigation--active:hover {
@@ -167,8 +168,8 @@ useKeyboardEvent({
   display: flex;
   height: 100%;
   min-height: 0;
-  background: var(--scalar-api-client-background-primary);
-  border-top: var(--scalar-api-client-border);
+  background: var(--theme-background-1);
+  border-top: 1px solid var(--theme-border-color);
 }
 
 @media screen and (max-width: 820px) {
@@ -180,15 +181,15 @@ useKeyboardEvent({
 /** TODO: Consider to make a Column component */
 .scalar-api-client__main__content {
   padding: 12px;
-  background: var(--scalar-api-client-background-primary);
+  background: var(--theme-background-1);
   top: 0;
   position: sticky;
   z-index: 100;
 }
 .scalar-api-client__main__content label {
-  font-size: var(--scalar-api-client-text-sm);
-  color: var(--scalar-api-client-text-color-primary);
-  font-weight: var(--scalar-api-client-font-bold);
+  font-size: var(--theme-small);
+  color: var(--theme-color-1);
+  font-weight: var(--theme-bold);
   display: flex;
   align-items: center;
 }
@@ -221,9 +222,9 @@ useKeyboardEvent({
   align-items: center;
   margin-right: 12px;
   white-space: nowrap;
-  font-weight: var(--scalar-api-client-font-bold);
+  font-weight: var(--theme-bold);
   font-size: 12px;
-  color: var(--scalar-api-client-text-color-muted);
+  color: var(--theme-color-disabled);
   padding: 3px 0;
 }
 
@@ -258,7 +259,7 @@ useKeyboardEvent({
 }
 
 .types-item {
-  font-weight: var(--scalar-api-client-font-bold);
+  font-weight: var(--theme-bold);
   font-size: var(--scalar-api-client-text-lg);
   color: var(--scalar-api-client-color2);
   background: var(--scalar-api-client-bg3);
@@ -268,17 +269,17 @@ useKeyboardEvent({
 }
 
 .types-item:hover {
-  box-shadow: 0 0 0 1px var(--scalar-api-client-border-color);
+  box-shadow: 0 0 0 1px var(--theme-border-color);
   background: var(--scalar-api-client-gradient);
-  color: var(--scalar-api-client-text-color-primary);
+  color: var(--theme-color-1);
   cursor: pointer;
 }
 
 .scalar-api-client__empty-state {
-  border: 1px dashed var(--scalar-api-client-border-color);
+  border: 1px dashed var(--theme-border-color);
   width: 100%;
   text-align: center;
-  font-size: var(--scalar-api-client-text-sm);
+  font-size: var(--theme-small);
   padding: 20px;
 }
 </style>

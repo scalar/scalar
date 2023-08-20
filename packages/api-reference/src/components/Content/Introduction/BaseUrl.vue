@@ -22,11 +22,11 @@ const { copyToClipboard } = useClipboard()
 </template>
 <style scoped>
 .base-url {
-  color: var(--scalar-api-reference-theme-color-2);
-  font-size: var(--scalar-api-reference-theme-mini);
+  color: var(--theme-color-2);
+  font-size: var(--theme-micro);
   cursor: pointer;
   display: flex;
-  font-family: var(--scalar-api-reference-font-mono);
+  font-family: var(--theme-font-code);
   flex-direction: column;
 }
 </style>

@@ -92,7 +92,7 @@ const {
 .sidebar {
   --theme-sidebar-indent-base: 6px;
   /* prettier-ignore */
-  background: var(--scalar-api-reference-sidebar-background-1, var(--scalar-api-reference-theme-background-1));
+  background: var(--scalar-api-reference-sidebar-background-1, var(--theme-background-1));
 }
 
 /* ----------------------------------------------------- */
@@ -104,7 +104,7 @@ const {
   display: flex;
   flex-direction: column;
   /* prettier-ignore */
-  background: var(--scalar-api-reference-sidebar-background-1, var(--scalar-api-reference-theme-background-1));
+  background: var(--scalar-api-reference-sidebar-background-1, var(--theme-background-1));
   --sidebar-level: 0;
 }
 
@@ -123,9 +123,9 @@ const {
   gap: 6px;
 
   /* prettier-ignore */
-  color: var(--scalar-api-reference-sidebar-color-2, var(--scalar-api-reference-theme-color-2));
-  font-size: var(--scalar-api-reference-theme-mini);
-  font-weight: var(--scalar-api-reference-theme-semibold);
+  color: var(--scalar-api-reference-sidebar-color-2, var(--theme-color-2));
+  font-size: var(--theme-micro);
+  font-weight: var(--theme-semibold);
   word-break: break-word;
   line-height: 1.385;
   display: flex;
@@ -134,7 +134,7 @@ const {
   position: relative;
   cursor: pointer;
   /* prettier-ignore */
-  border-radius: 0 var(--scalar-api-reference-rounded) var(--scalar-api-reference-rounded) 0;
+  border-radius: 0 var(--theme-radius-lg) var(--theme-radius-lg) 0;
   flex: 1;
   padding-right: 12px;
   user-select: none;
@@ -199,7 +199,7 @@ const {
 
 .sidebar-heading:hover {
   /* prettier-ignore */
-  color: var(--scalar-api-reference-sidebar-color-1, var(--scalar-api-reference-theme-color-1));
+  color: var(--scalar-api-reference-sidebar-color-1, var(--theme-color-1));
   /* prettier-ignore */
   background: var(--scalar-api-reference-sidebar-item-hover-background, var(--scalar-api-reference-theme-background-3));
 }
@@ -219,14 +219,14 @@ const {
 /* Change font colors and weights for nested items */
 .sidebar-indent-nested .sidebar-heading {
   /* prettier-ignore */
-  color: var(--scalar-api-reference-sidebar-color-1, var(--scalar-api-reference-theme-color-1));
+  color: var(--scalar-api-reference-sidebar-color-1, var(--theme-color-1));
 }
 .sidebar-indent-nested .sidebar-indent-nested .sidebar-heading {
   /* prettier-ignore */
-  color: var(--scalar-api-reference-sidebar-color-2, var(--scalar-api-reference-theme-color-2));
+  color: var(--scalar-api-reference-sidebar-color-2, var(--theme-color-2));
 }
 .sidebar-indent-nested > div:has(.active_page) .sidebar-heading {
-  font-weight: var(--scalar-api-reference-theme-bold);
+  font-weight: var(--theme-bold);
 }
 
 .sidebar-mobile-header {
@@ -245,7 +245,7 @@ const {
   white-space: nowrap;
   text-overflow: ellipsis;
   font-size: var(--scalar-api-reference-theme-small);
-  font-weight: var(--scalar-api-reference-theme-semibold);
+  font-weight: var(--theme-semibold);
 }
 
 .sidebar-mobile-actions {
@@ -276,7 +276,7 @@ const {
   .header-item-link.header-item-active,
   .sidebar-section,
   .sidebar-heading {
-    font-size: var(--scalar-api-reference-theme-mini);
+    font-size: var(--theme-micro);
   }
 }
 </style>

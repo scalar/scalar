@@ -5,10 +5,10 @@
 </template>
 <style>
 .simple-row {
-  border-top: var(--scalar-api-client-border);
+  border-top: 1px solid var(--theme-border-color);
 }
 
 .simple-row:last-of-type {
-  border-bottom: var(--scalar-api-client-border);
+  border-bottom: 1px solid var(--theme-border-color);
 }
 </style>

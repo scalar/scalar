@@ -26,19 +26,19 @@ import FlowIcon from './Icon/FlowIcon.vue'
   margin: 12px var(--margin-x) 6px var(--margin-x);
   padding: 0 12px;
 
-  color: var(--scalar-api-reference-theme-color-3);
+  color: var(--theme-color-3);
   outline: none;
-  border-radius: var(--scalar-api-reference-rounded);
-  border: var(--scalar-api-reference-border);
+  border-radius: var(--theme-radius-lg);
+  border: 1px solid var(--theme-border-color);
   /* prettier-ignore */
-  background: var(--scalar-api-reference-sidebar-search-background, var(--scalar-api-reference-theme-background-1));
+  background: var(--scalar-api-reference-sidebar-search-background, var(--theme-background-1));
   cursor: pointer;
   appearance: none;
 }
 
 .sidebar-search-input {
   font-size: var(--scalar-api-reference-theme-small);
-  font-weight: var(--scalar-api-reference-theme-semibold);
+  font-weight: var(--theme-semibold);
   line-height: 31px;
 
   user-select: none;

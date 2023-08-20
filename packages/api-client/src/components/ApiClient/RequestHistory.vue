@@ -47,8 +47,8 @@ const { requestHistoryOrder } = useApiClientRequestStore()
   width: 100%;
   background-image: linear-gradient(
     0deg,
-    var(--scalar-api-client-border-color) 1px,
-    --scalar-api-client-background-primary 1px
+    var(--theme-border-color) 1px,
+    --theme-background-1 1px
   );
   background-size: 31px 31px;
   background-position: center 1px;
@@ -97,18 +97,18 @@ const { requestHistoryOrder } = useApiClientRequestStore()
   transform: rotate(45deg) translate3d(-0.5px, -1px, 0);
 }
 .radio.post {
-  background: var(--scalar-api-client-post-color);
+  background: var(--theme-post-color);
 }
 .radio.delete {
-  background: var(--scalar-api-client-delete-color);
+  background: var(--theme-delete-color);
 }
 .radio.patch {
-  background: var(--scalar-api-client-patch-color);
+  background: var(--theme-patch-color);
 }
 .radio.get {
-  background: var(--scalar-api-client-get-color);
+  background: var(--theme-get-color);
 }
 .radio.put {
-  background: var(--scalar-api-client-put-color);
+  background: var(--theme-put-color);
 }
 </style>

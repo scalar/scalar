@@ -64,7 +64,7 @@ watch(
 .markdown :deep(p) {
   font-size: var(--font-size, var(--scalar-api-reference-theme-paragraph));
   /* prettier-ignore */
-  color: var(--scalar-api-reference-font-color, var(--scalar-api-reference-theme-color-1));
+  color: var(--theme-color-1);
   font-weight: var(--font-weight, var(--scalar-api-reference-theme-regular));
   line-height: 1.5;
 }
@@ -94,10 +94,10 @@ watch(
 }
 
 .markdown :deep(code) {
-  font-family: var(--scalar-api-reference-font-mono);
-  background-color: var(--scalar-api-reference-theme-background-2);
-  box-shadow: 0 0 0 1px var(--scalar-api-reference-border-color);
-  font-size: var(--scalar-api-reference-theme-mini);
+  font-family: var(--theme-font-code);
+  background-color: var(--theme-background-2);
+  box-shadow: 0 0 0 1px var(--theme-border-color);
+  font-size: var(--theme-micro);
   border-radius: 2px;
   padding: 0 3px;
 }
@@ -114,7 +114,7 @@ watch(
 }
 
 .markdown :deep(blockquote) {
-  border-left: 3px solid var(--scalar-api-reference-border-color);
+  border-left: 3px solid var(--theme-border-color);
   padding-left: 12px;
 }
 
@@ -125,8 +125,8 @@ watch(
   width: 100%;
   margin: 0;
   overflow: hidden;
-  box-shadow: 0 0 0 1px var(--scalar-api-reference-border-color);
-  border-radius: var(--scalar-api-reference-rounded);
+  box-shadow: 0 0 0 1px var(--theme-border-color);
+  border-radius: var(--theme-radius-lg);
 }
 
 .markdown :deep(td),
@@ -137,8 +137,8 @@ watch(
   box-sizing: border-box;
   position: relative;
   word-break: break-all;
-  border-right: var(--scalar-api-reference-border);
-  border-bottom: var(--scalar-api-reference-border);
+  border-right: 1px solid var(--theme-border-color);
+  border-bottom: 1px solid var(--theme-border-color);
 }
 
 .markdown :deep(td > *),
@@ -148,7 +148,7 @@ watch(
 .markdown.parameter-description :deep(p) {
   margin-top: 4px;
   font-size: var(--scalar-api-reference-theme-small);
-  color: var(--scalar-api-reference-theme-color-2);
+  color: var(--theme-color-2);
   line-height: initial;
 }
 .markdown :deep(td:first-of-type),
@@ -169,6 +169,6 @@ watch(
   font-weight: bold !important;
   text-align: left;
   border-left-color: transparent;
-  background: var(--scalar-api-reference-theme-background-2);
+  background: var(--theme-background-2);
 }
 </style>

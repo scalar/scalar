@@ -189,19 +189,19 @@ const onChange = () => {
   display: flex;
   align-items: center;
   position: relative;
-  background: var(--scalar-api-client-background-primary);
+  background: var(--theme-background-1);
 }
 .scalar-api-client__url-form {
   display: flex;
   width: 100%;
   align-items: stretch;
-  border-radius: var(--scalar-api-client-rounded);
+  border-radius: var(--theme-radius-lg);
 }
 .scalar-api-client__field {
-  border: var(--scalar-api-client-border);
+  border: 1px solid var(--theme-border-color);
   border-right: 0;
-  border-radius: var(--scalar-api-client-rounded) 0 0
-    var(--scalar-api-client-rounded);
+  border-radius: var(--theme-radius-lg) 0 0
+    var(--theme-radius-lg);
   display: flex;
   align-items: stretch;
   width: 100%;
@@ -216,18 +216,18 @@ const onChange = () => {
 .scalar-api-client__request-type {
   display: flex;
   align-items: center;
-  background: var(--scalar-api-client-background-secondary);
-  color: var(--scalar-api-client-text-color-muted);
+  background: var(--theme-background-2);
+  color: var(--theme-color-disabled);
   appearance: none;
   -webkit-appearance: none;
   padding: 0 12px;
-  border-right: var(--scalar-api-client-border);
-  border-radius: var(--scalar-api-client-rounded) 0 0
-    var(--scalar-api-client-rounded);
+  border-right: 1px solid var(--theme-border-color);
+  border-radius: var(--theme-radius-lg) 0 0
+    var(--theme-radius-lg);
   position: relative;
 }
 .scalar-api-client__request-type span {
-  font-family: var(--scalar-api-client-font-mono);
+  font-family: var(--theme-font-code);
   font-size: 500;
   font-size: 12px;
   text-transform: uppercase;
@@ -246,7 +246,7 @@ const onChange = () => {
   font-style: normal;
   flex-shrink: 0;
   display: inline-block;
-  color: var(--scalar-api-client-text-color-muted);
+  color: var(--theme-color-disabled);
   background: var(--scalar-api-client-color);
 }
 .meta-request-break {
@@ -256,17 +256,17 @@ const onChange = () => {
   appearance: none;
   -webkit-appearance: none;
   background: transparent;
-  color: var(--scalar-api-client-text-color-secondary);
+  color: var(--theme-color-2);
   display: flex;
   align-items: center;
-  border-radius: var(--scalar-api-client-rounded);
+  border-radius: var(--theme-radius-lg);
   height: 100%;
 }
 .scalar-api-client__send-request-button[type='submit'] {
-  font-size: var(--scalar-api-client-text-xs);
+  font-size: var(--theme-micro);
   letter-spacing: 0.25px;
   line-height: 30px;
-  font-weight: var(--scalar-api-client-font-semibold);
+  font-weight: var(--theme-semibold);
   color: white;
   border: none;
   white-space: nowrap;
@@ -274,8 +274,8 @@ const onChange = () => {
   text-transform: uppercase;
   cursor: pointer;
   outline: none;
-  border-radius: 0 var(--scalar-api-client-rounded)
-    var(--scalar-api-client-rounded) 0;
+  border-radius: 0 var(--theme-radius-lg)
+    var(--theme-radius-lg) 0;
   background: var(--scalar-api-client-color);
   /**  #087f5b */
   display: flex;
@@ -323,42 +323,42 @@ const onChange = () => {
 .scalar-api-client__history-toggle {
   padding: 0 9px;
   line-height: 30px;
-  color: var(--scalar-api-client-text-color-muted);
-  font-size: var(--scalar-api-client-text-xs);
+  color: var(--theme-color-disabled);
+  font-size: var(--theme-micro);
   letter-spacing: 0.125px;
-  font-weight: var(--scalar-api-client-font-semibold);
+  font-weight: var(--theme-semibold);
   text-transform: uppercase;
   height: 100%;
   display: flex;
   align-items: center;
   cursor: pointer;
   white-space: nowrap;
-  border: var(--scalar-api-client-border);
+  border: 1px solid var(--theme-border-color);
   margin-left: 12px;
-  border-radius: var(--scalar-api-client-rounded);
+  border-radius: var(--theme-radius-lg);
 }
 .scalar-api-client__history-toggle:hover {
-  background: var(--scalar-api-client-background-secondary);
+  background: var(--theme-background-2);
 }
 .scalar-api-client__history-toggle svg {
   height: 13px;
   width: 13px;
   margin-right: 6px;
-  color: var(--scalar-api-client-text-color-muted);
+  color: var(--theme-color-disabled);
 }
 .scalar-api-client__address-bar-close {
-  fill: var(--scalar-api-client-text-color-muted);
+  fill: var(--theme-color-disabled);
   margin-left: 12px;
   height: 24px;
 }
 .scalar-api-client__address-bar-close:hover {
   cursor: pointer;
-  fill: var(--scalar-api-client-text-color-primary);
+  fill: var(--theme-color-1);
 }
 .scalar-api-client__address-bar__content {
   width: 640px;
   height: 100%;
-  background: var(--scalar-api-client-background-primary);
+  background: var(--theme-background-1);
   position: fixed;
   top: 0;
   right: 0;
@@ -389,18 +389,18 @@ const onChange = () => {
   cursor: pointer;
 }
 .scalar-api-client__address-bar .navtable-item__active {
-  background: var(--scalar-api-client-background-secondary);
+  background: var(--theme-background-2);
   cursor: default;
 }
 .scalar-api-client__address-bar .navtable-item__active .radio:before {
   display: none;
 }
 .navigation-back {
-  stroke: var(--scalar-api-client-text-color-secondary);
+  stroke: var(--theme-color-2);
   cursor: pointer;
 }
 .navigation-back:hover {
-  stroke: var(--scalar-api-client-text-color-primary);
+  stroke: var(--theme-color-1);
 }
 .scalar-api-client__address-bar__close {
   width: 100%;
@@ -420,7 +420,7 @@ const onChange = () => {
   border: none;
   outline: none;
   font-size: 12px;
-  color: var(--scalar-api-client-text-color-primary);
+  color: var(--theme-color-1);
   width: 100%;
   display: block;
   overflow: hidden;
@@ -430,15 +430,15 @@ const onChange = () => {
 .navtable-item-request span em {
   text-transform: uppercase;
   font-style: normal;
-  font-family: var(--scalar-api-client-font-mono);
+  font-family: var(--theme-font-code);
   font-size: 11px;
   margin-right: 6px;
-  font-weight: var(--scalar-api-client-font-bold);
-  color: var(--scalar-api-client-text-color-muted);
+  font-weight: var(--theme-bold);
+  color: var(--theme-color-disabled);
 }
 .navtable-item-time {
   font-size: 12px;
-  color: var(--scalar-api-client-text-color-primary);
+  color: var(--theme-color-1);
   text-transform: capitalize;
   padding: 0 9px;
 }

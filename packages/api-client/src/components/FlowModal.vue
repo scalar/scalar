@@ -77,16 +77,16 @@ export const useModalState = () =>
 .modal-body {
   padding: 24px 12px 18px 24px;
   max-height: calc(100vh - 240px);
-  background: var(--scalar-api-client-background-primary);
-  border-radius: var(--scalar-api-client-rounded);
-  font-family: var(--scalar-api-client-font-sans);
+  background: var(--theme-background-1);
+  border-radius: var(--theme-radius-lg);
+  font-family: var(--theme-font);
 }
 .modal {
   margin: 80px auto 0;
   position: relative;
   background: var(--scalar-api-client-theme-background-2);
-  border-radius: var(--scalar-api-client-rounded);
-  color: var(--scalar-api-client-text-color-primary);
+  border-radius: var(--theme-radius-lg);
+  color: var(--theme-color-1);
   width: 100%;
   text-align: left;
   line-height: 1.4;
@@ -124,11 +124,11 @@ export const useModalState = () =>
 }
 .modal-header {
   padding: 12px 24px;
-  color: var(--scalar-api-client-text-color-primary);
+  color: var(--theme-color-1);
   font-size: var(--scalar-api-client-theme-font-size-4);
   text-align: left;
   font-weight: 600;
-  border-radius: var(--scalar-api-client-rounded)
-    var(--scalar-api-client-rounded) 0 0;
+  border-radius: var(--theme-radius-lg)
+    var(--theme-radius-lg) 0 0;
 }
 </style>

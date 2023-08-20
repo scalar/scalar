@@ -89,7 +89,7 @@ onMounted(() => {
 <style scoped>
 .endpoints {
   overflow: auto;
-  background: var(--scalar-api-reference-theme-background-2);
+  background: var(--theme-background-2);
 }
 .endpoints span + span {
   text-align: left;

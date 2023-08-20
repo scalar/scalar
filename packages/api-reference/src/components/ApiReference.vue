@@ -149,7 +149,8 @@ const breadCrumbs = computed(() => {
   </div>
 </template>
 
-<style src="../assets/css/variables.css"></style>
+<!-- <style src="../assets/css/variables.css"></style> -->
+<style src="../../../theme/theme.css"></style>
 
 <style>
 /** Utilities, how do we deal with them? */
@@ -180,8 +181,8 @@ const breadCrumbs = computed(() => {
 
 /** TODO: Move to components */
 .codemenu-topbar {
-  background: var(--scalar-api-reference-theme-background-2);
-  border-bottom: 1px solid var(--scalar-api-reference-border-color);
+  background: var(--theme-background-2);
+  border-bottom: 1px solid var(--theme-border-color);
   padding: 0 7px 0 12px;
   border-radius: var(--scalar-api-reference-theme-radius)
     var(--scalar-api-reference-theme-radius) 0 0;
@@ -204,19 +205,19 @@ const breadCrumbs = computed(() => {
   align-items: center;
 }
 .codemenu-item-key {
-  font-size: var(--scalar-api-reference-theme-mini);
-  color: var(--scalar-api-reference-theme-color-3);
+  font-size: var(--theme-micro);
+  color: var(--theme-color-3);
   padding: 6px 4px;
   cursor: pointer;
   user-select: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: var(--scalar-api-reference-theme-semibold);
+  font-weight: var(--theme-semibold);
   position: relative;
   margin-left: -4px;
   margin-right: -4px;
-  border-radius: var(--scalar-api-reference-rounded);
+  border-radius: var(--theme-radius-lg);
   text-transform: uppercase;
 }
 .codemenu-item-key:hover {
@@ -224,7 +225,7 @@ const breadCrumbs = computed(() => {
 }
 .codemenu-item:first-of-type:last-of-type .codemenu-item-key,
 .codemenu-item__active .codemenu-item-key {
-  color: var(--scalar-api-reference-theme-color-1);
+  color: var(--theme-color-1);
 }
 .codemenu-item:first-of-type:last-of-type:after,
 .codemenu-item__active:after {
@@ -233,7 +234,7 @@ const breadCrumbs = computed(() => {
   height: 1px;
   position: absolute;
   bottom: -4px;
-  background: var(--scalar-api-reference-theme-color-1);
+  background: var(--theme-color-1);
 }
 
 .codemenu-item__disabled {
@@ -273,19 +274,19 @@ const breadCrumbs = computed(() => {
   white-space: nowrap;
 }
 .endpoint span {
-  color: var(--scalar-api-reference-theme-color-2);
+  color: var(--theme-color-2);
   min-width: 62px;
   display: inline-block;
   text-align: right;
   line-height: 1.55;
-  font-family: var(--scalar-api-reference-font-mono);
-  font-size: var(--scalar-api-reference-theme-mini);
+  font-family: var(--theme-font-code);
+  font-size: var(--theme-micro);
   cursor: pointer;
 }
 .languages .example-item-endpoints {
-  background: var(--scalar-api-reference-theme-background-2);
+  background: var(--theme-background-2);
   width: 100%;
-  border-top: var(--scalar-api-reference-border);
+  border-top: 1px solid var(--theme-border-color);
 }
 .endpoint-response p {
   margin-top: 6px;
@@ -299,7 +300,7 @@ const breadCrumbs = computed(() => {
   min-width: auto;
 }
 .endpoint-response {
-  border-top: var(--scalar-api-reference-border);
+  border-top: 1px solid var(--theme-border-color);
   padding: 12px 0;
   font-size: var(--scalar-api-reference-theme-small);
 }
@@ -315,8 +316,8 @@ const breadCrumbs = computed(() => {
 }
 .copy .title {
   font-size: var(--scalar-api-reference-theme-heading-4);
-  font-weight: var(--scalar-api-reference-theme-semibold);
-  color: var(--scalar-api-reference-theme-color-1);
+  font-weight: var(--theme-semibold);
+  color: var(--theme-color-1);
   line-height: 1.45;
 }
 .endpoint-response__headers {
@@ -335,7 +336,7 @@ const breadCrumbs = computed(() => {
 }
 
 .reference:not(:last-of-type) {
-  border-bottom: var(--scalar-api-reference-border);
+  border-bottom: 1px solid var(--theme-border-color);
 }
 
 .reference .reference-container {
@@ -349,7 +350,7 @@ const breadCrumbs = computed(() => {
 }
 
 .reference-container + .reference-container {
-  border-top: var(--scalar-api-reference-border);
+  border-top: 1px solid var(--theme-border-color);
 }
 
 .reference-container .copy,
@@ -370,7 +371,7 @@ const breadCrumbs = computed(() => {
 }
 
 .copy .tag-description a {
-  color: var(--scalar-api-reference-theme-color-1);
+  color: var(--theme-color-1);
   text-decoration: underline;
 }
 
@@ -397,9 +398,9 @@ const breadCrumbs = computed(() => {
 
 .editor-heading h1 {
   font-size: var(--font-size, var(--scalar-api-reference-theme-heading-2));
-  font-weight: var(--font-weight, var(--scalar-api-reference-theme-bold));
+  font-weight: var(--font-weight, var(--theme-bold));
   /* prettier-ignore */
-  color: var(--scalar-api-reference-font-color, var(--scalar-api-reference-theme-color-1));
+  color: var(--theme-color-1);
   line-height: 1.45;
 }
 
@@ -429,7 +430,7 @@ const breadCrumbs = computed(() => {
 
   /* Redifine theme border at the document level so it's not pulled off the body */
   --theme-border: var(--scalar-api-reference-border-width) solid
-    var(--scalar-api-reference-border-color);
+    var(--theme-border-color);
 
   display: grid;
 
@@ -480,7 +481,7 @@ const breadCrumbs = computed(() => {
 .layout-content {
   grid-area: content;
   min-width: 0;
-  background: var(--scalar-api-reference-theme-background-1);
+  background: var(--theme-background-1);
 }
 
 /* Measures the visible viewport of the editor */
@@ -499,13 +500,13 @@ const breadCrumbs = computed(() => {
 .layout-aside-left {
   position: relative;
   grid-area: sidebar;
-  border-right: var(--scalar-api-reference-border);
+  border-right: 1px solid var(--theme-border-color);
 }
 
 .layout-aside-right {
   position: relative;
   grid-area: aside;
-  background: var(--scalar-api-reference-theme-background-1);
+  background: var(--theme-background-1);
 }
 
 .layout-aside-content {
@@ -630,7 +631,7 @@ const breadCrumbs = computed(() => {
     position: sticky;
     top: 0;
     height: var(--scalar-api-reference-theme-header-height);
-    border-bottom: var(--scalar-api-reference-border);
+    border-bottom: 1px solid var(--theme-border-color);
 
     width: 100%;
     z-index: 10;
@@ -648,7 +649,7 @@ const breadCrumbs = computed(() => {
     /* Offset by 2px to fill screen and compensate for gap */
     height: calc(var(--scalar-api-reference-document-height) + 2px);
 
-    border-top: var(--scalar-api-reference-border);
+    border-top: 1px solid var(--theme-border-color);
     display: flex;
     flex-direction: column;
   }

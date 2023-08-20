@@ -104,7 +104,7 @@ const responseData = computed(() => {
 <style>
 .scalar-api-client__main__right {
   width: 50%;
-  padding: 0 12px 12px 12px;
+  padding: 0 0 12px 12px;
 }
 @media screen and (max-width: 820px) {
   .scalar-api-client__main__right {

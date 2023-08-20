@@ -12,7 +12,7 @@ defineProps<{ href: string }>()
 <style scoped>
 a {
   text-decoration: underline;
-  text-decoration-color: var(--scalar-api-client-border-color);
+  text-decoration-color: var(--theme-border-color);
   text-underline-offset: 2px;
   cursor: help;
 }

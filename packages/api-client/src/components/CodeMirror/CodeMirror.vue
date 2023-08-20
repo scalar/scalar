@@ -178,12 +178,12 @@ watch(props, () => {
 }
 
 .scalar-api-client__codemirror--read-only.ͼw {
-  background-color: var(--scalar-api-client-background-secondary);
+  background-color: var(--theme-background-2);
 }
 
 /** URL input */
 .scalar-api-client__url-input {
-  font-weight: var(--scalar-api-client-font-semibold);
+  font-weight: var(--theme-semibold);
 }
 
 .scalar-api-client__url-input .cm-scroller {

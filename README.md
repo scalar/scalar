@@ -59,7 +59,7 @@ Overwrite our CSS variables. We won’t judge.
 
 ```
 :root {
-  --scalar-api-reference-font-sans: 'Comic Sans MS', 'Comic Sans', cursive;
+  --theme-font: 'Comic Sans MS', 'Comic Sans', cursive;
 }
 ```
 

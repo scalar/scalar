@@ -53,7 +53,7 @@ export { useLoadButtonState }
   -webkit-appearance: none;
   height: 40px;
   padding: 0px 24px;
-  border-radius: var(--scalar-api-reference-rounded);
+  border-radius: var(--theme-radius-lg);
   color: var(--scalar-api-reference-theme-button-1-color);
   font-size: var(--scalar-api-reference-theme-font-size-4);
   font-weight: 500;
@@ -73,8 +73,8 @@ export { useLoadButtonState }
   background: var(--scalar-api-reference-theme-button-1);
 }
 .flow-button[disabled] {
-  background: var(--scalar-api-reference-theme-background-2);
-  color: var(--scalar-api-reference-theme-color-3);
+  background: var(--theme-background-2);
+  color: var(--theme-color-3);
   cursor: unset;
   box-shadow: none;
 }
@@ -87,22 +87,22 @@ export { useLoadButtonState }
 
 /* ----------------------------------------------------- */
 .flow-button-outlined {
-  background: var(--scalar-api-reference-theme-background-1);
-  color: var(--scalar-api-reference-theme-color-1);
+  background: var(--theme-background-1);
+  color: var(--theme-color-1);
   padding: 11px 23px;
-  border: var(--scalar-api-reference-border);
+  border: 1px solid var(--theme-border-color);
   box-shadow: rgba(0, 0, 0, 0.09) 0px 1px 4px;
 }
 .flow-button-outlined:hover,
 .flow-button-outlined:focus-visible {
-  background: var(--scalar-api-reference-theme-background-2);
+  background: var(--theme-background-2);
 }
 .flow-button-outlined:active {
-  background: var(--scalar-api-reference-theme-background-2);
+  background: var(--theme-background-2);
 }
 .flow-button-outlined[disabled] {
-  background: var(--scalar-api-reference-theme-background-2);
-  color: var(--scalar-api-reference-theme-color-3);
+  background: var(--theme-background-2);
+  color: var(--theme-color-3);
   cursor: unset;
   box-shadow: none;
 }
@@ -111,19 +111,19 @@ export { useLoadButtonState }
 .flow-button-clear {
   background: transparent;
   box-shadow: none;
-  color: var(--scalar-api-reference-theme-color-3);
+  color: var(--theme-color-3);
 }
 .flow-button-clear:active {
   background: transparent;
 }
 .flow-button-clear:hover,
 .flow-button-clear:focus-visible {
-  background: var(--scalar-api-reference-theme-background-2);
+  background: var(--theme-background-2);
   box-shadow: none;
 }
 .flow-button-clear[disabled] {
-  background: var(--scalar-api-reference-theme-background-2);
-  color: var(--scalar-api-reference-theme-color-3);
+  background: var(--theme-background-2);
+  color: var(--theme-color-3);
   cursor: unset;
   box-shadow: none;
 }
@@ -132,14 +132,14 @@ export { useLoadButtonState }
 .flow-button-text {
   background: transparent;
   box-shadow: none;
-  color: var(--scalar-api-reference-theme-color-3);
+  color: var(--theme-color-3);
 }
 .flow-button-text:active {
   background: transparent;
 }
 .flow-button-text:hover,
 .flow-button-text:focus-visible {
-  color: var(--scalar-api-reference-theme-color-2);
+  color: var(--theme-color-2);
   background: transparent;
   box-shadow: none;
 }

@@ -100,26 +100,26 @@ const changeTab = (index: number) => {
   outline: none;
   background: transparent;
   cursor: pointer;
-  color: var(--scalar-api-reference-theme-color-3);
+  color: var(--theme-color-3);
   border: none;
 }
 .code-copy:hover {
-  color: var(--scalar-api-reference-theme-color-1);
+  color: var(--theme-color-1);
 }
 .code-copy svg {
   width: 13px;
   height: 13px;
 }
 .description {
-  font-weight: var(--scalar-api-reference-theme-semibold);
-  font-size: var(--scalar-api-reference-theme-mini);
+  font-weight: var(--theme-semibold);
+  font-size: var(--theme-micro);
 }
 .scalar-api-reference__empty-state {
-  border: 1px dashed var(--scalar-api-reference-border-color);
+  border: 1px dashed var(--theme-border-color);
   width: 100%;
   text-align: center;
-  font-size: var(--scalar-api-reference-theme-mini);
+  font-size: var(--theme-micro);
   padding: 20px;
-  color: var(--scalar-api-reference-theme-color-2);
+  color: var(--theme-color-2);
 }
 </style>

@@ -17,15 +17,15 @@ import { Tab } from '@headlessui/vue'
   background: none;
   border: none;
   font-size: var(--scalar-api-reference-theme-font-size-4);
-  font-family: var(--scalar-api-reference-font-sans);
-  color: var(--scalar-api-reference-theme-color-2);
-  font-weight: var(--scalar-api-reference-theme-semibold);
+  font-family: var(--theme-font);
+  color: var(--theme-color-2);
+  font-weight: var(--theme-semibold);
   line-height: calc(var(--scalar-api-reference-theme-font-size-4) + 2px);
   cursor: pointer;
 }
 
 .tab-selected {
-  color: var(--scalar-api-reference-theme-color-1);
+  color: var(--theme-color-1);
   text-decoration: underline;
   text-underline-offset: calc(
     var(--scalar-api-reference-theme-font-size-4) - 1px

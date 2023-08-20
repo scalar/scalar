@@ -65,8 +65,8 @@ export { useApiClientStore } from '@scalar/api-client'
   opacity: 1;
   overflow: hidden;
   pointer-events: all;
-  background: var(--scalar-api-reference-theme-background-1) !important;
-  border-radius: var(--scalar-api-reference-rounded);
+  background: var(--theme-background-1) !important;
+  border-radius: var(--theme-radius-lg);
   box-shadow: var(--scalar-api-reference-theme-shadow-1);
   height: 100%;
   overflow: hidden;
@@ -86,10 +86,10 @@ export { useApiClientStore } from '@scalar/api-client'
   align-items: center;
   padding: 11px 12px;
   height: var(--scalar-api-reference-theme-header-height);
-  background-color: var(--scalar-api-reference-theme-background-1);
+  background-color: var(--theme-background-1);
   z-index: 10;
   position: sticky;
-  border-bottom: var(--scalar-api-reference-border);
+  border-bottom: 1px solid var(--theme-border-color);
   top: 0;
 }
 
@@ -101,8 +101,8 @@ export { useApiClientStore } from '@scalar/api-client'
   align-items: center;
   background: transparent;
   font-size: 14px;
-  color: var(--scalar-api-reference-theme-color-1);
-  font-weight: var(--scalar-api-reference-theme-semibold);
+  color: var(--theme-color-1);
+  font-weight: var(--theme-semibold);
 }
 .scalar-api-client__close:hover {
   cursor: pointer;
@@ -112,15 +112,15 @@ TODO: Markup is missing
 .scalar-api-client__close__icon {
   width: 28px;
   height: 28px;
-  border-radius: var(--scalar-api-reference-rounded);
+  border-radius: var(--theme-radius-lg);
   margin-right: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--scalar-api-reference-theme-color-2);
+  color: var(--theme-color-2);
 }
 .scalar-api-client__close__icon:hover {
-  background: var(--scalar-api-reference-theme-background-2);
+  background: var(--theme-background-2);
 }
 .scalar-api-client__close__icon svg {
   width: 12px;
@@ -128,7 +128,7 @@ TODO: Markup is missing
   transform: rotate(180deg);
 } */
 .api-client-drawer {
-  background: var(--scalar-api-reference-theme-background-1);
+  background: var(--theme-background-1);
   height: calc(100vh - 58px);
   width: calc(100vw - 8px);
   border-radius: 12px;
@@ -183,6 +183,6 @@ TODO: Markup is missing
   display: flex;
   flex-direction: column;
   width: var(--scalar-api-reference-theme-sidebar-width);
-  border-right: 1px solid var(--scalar-api-reference-border-color);
+  border-right: 1px solid var(--theme-border-color);
 }
 </style>

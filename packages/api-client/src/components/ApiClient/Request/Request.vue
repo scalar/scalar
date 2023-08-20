@@ -39,8 +39,8 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 <style>
 .scalar-api-client__main__left {
   width: 50%;
-  border-right: var(--scalar-api-client-border);
-  padding: 0 12px 12px 12px;
+  border-right: 1px solid var(--theme-border-color);
+  padding: 0 0 12px 12px;
 }
 @media screen and (max-width: 820px) {
   .scalar-api-client__main__left {
@@ -52,14 +52,14 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   flex-flow: wrap;
   padding: 0 12px 12px;
   border-radius: 3px;
-  color: var(--scalar-api-client-text-color-muted);
+  color: var(--theme-color-disabled);
   font-size: 12px;
   margin-top: -3px;
   justify-content: space-between;
 }
 .scalar-api-client__item__content .cm-s-default {
-  border: var(--scalar-api-client-border);
-  border-radius: var(--scalar-api-client-rounded);
+  border: 1px solid var(--theme-border-color);
+  border-radius: var(--theme-radius-lg);
 }
 .scalar-api-client__item__content .scalar-api-client__item__content--code {
   width: 100%;
@@ -67,7 +67,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   overflow: auto;
 }
 .scalar-api-client__item__content .cm-scroller {
-  border: var(--scalar-api-client-border);
+  border: 1px solid var(--theme-border-color);
   border-radius: 3px;
 }
 .scalar-api-client__item__content .cm-editor {
@@ -83,7 +83,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   font-size: 11px;
 }
 .scalar-api-client__item__content .cm-editor .cm-line {
-  color: var(--scalar-api-client-text-color-primary);
+  color: var(--theme-color-1);
 }
 .scalar-api-client__item__content-button {
   width: 100%;
@@ -93,10 +93,10 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   font-size: 12px;
   background: var(--scalar-api-client-color) !important;
   text-align: center;
-  font-weight: var(--scalar-api-client-font-bold);
+  font-weight: var(--theme-bold);
   padding: 12px;
   text-transform: uppercase;
-  border-radius: var(--scalar-api-client-rounded);
+  border-radius: var(--theme-radius-lg);
   color: white;
   cursor: pointer;
 }
@@ -107,8 +107,8 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   width: 100%;
 }
 .scalar-collapsible-section-option {
-  font-size: var(--scalar-api-client-text-sm);
-  font-weight: var(--scalar-api-client-font-bold);
+  font-size: var(--theme-small);
+  font-weight: var(--theme-bold);
   color: var(--scalar-api-client-color2);
   background: var(--scalar-api-client-bg3);
   border-radius: 30px;
@@ -119,14 +119,14 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   user-select: none;
 }
 .scalar-collapsible-section-option:hover {
-  box-shadow: 0 0 0 1px var(--scalar-api-client-border-color);
+  box-shadow: 0 0 0 1px var(--theme-border-color);
   background: var(--scalar-api-client-gradient);
-  color: var(--scalar-api-client-text-color-primary);
+  color: var(--theme-color-1);
 }
 
 .input {
-  background: var(--scalar-api-client-background-secondary);
-  border: var(--scalar-api-client-border);
+  background: var(--theme-background-2);
+  border: 1px solid var(--theme-border-color);
   border-radius: 3px;
   position: relative;
   width: 100%;
@@ -137,7 +137,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   width: calc(50% - 3px);
 }
 .input:focus-within {
-  background: var(--scalar-api-client-background-muted);
+  background: var(--theme-background-3);
 }
 .input label,
 .input input {
@@ -145,7 +145,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   border: 0;
   outline: none;
   font-size: 12px;
-  color: var(--scalar-api-client-text-color-primary);
+  color: var(--theme-color-1);
   width: 100%;
   background: transparent;
   appearance: none;
@@ -154,7 +154,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 }
 .input label {
   position: absolute;
-  color: var(--scalar-api-client-text-color-secondary);
+  color: var(--theme-color-2);
 }
 .input input {
   opacity: 0;
@@ -170,38 +170,38 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 .input:focus-within label {
   font-size: 10px;
   top: -6px;
-  color: var(--scalar-api-client-text-color-primary);
+  color: var(--theme-color-1);
 }
 .input input:not(:placeholder-shown) + label {
-  color: var(--scalar-api-client-text-color-secondary);
+  color: var(--theme-color-2);
 }
 .select {
-  background: --scalar-api-client-background-primary;
-  border-radius: var(--scalar-api-client-rounded);
+  background: --theme-background-1;
+  border-radius: var(--theme-radius-lg);
   font-size: 12px;
-  border: var(--scalar-api-client-border);
+  border: 1px solid var(--theme-border-color);
   width: 100%;
   position: relative;
   margin-bottom: 6px;
 }
 .select:focus-within {
-  background: var(--scalar-api-client-background-muted);
+  background: var(--theme-background-3);
 }
 .select:hover {
-  background: var(--scalar-api-client-background-muted);
+  background: var(--theme-background-3);
 }
 .select svg {
   position: absolute;
   right: 12px;
   pointer-events: none;
-  color: var(--scalar-api-client-text-color-secondary);
+  color: var(--theme-color-2);
   width: 6px;
   top: 10px;
 }
 .select label {
   display: block;
   font-size: 10px;
-  color: var(--scalar-api-client-text-color-secondary);
+  color: var(--theme-color-2);
   position: absolute;
   left: 12px;
   top: 6px;
@@ -212,7 +212,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   border: none;
   -webkit-appearance: none;
   font-size: 12px;
-  color: var(--scalar-api-client-text-color-primary);
+  color: var(--theme-color-1);
   appearance: none;
   width: 100%;
   padding: 18px 12px 6px 12px;
@@ -227,14 +227,14 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   cursor: pointer;
   align-items: center;
   font-size: 12px;
-  border: var(--scalar-api-client-border);
+  border: 1px solid var(--theme-border-color);
   border-radius: 3px;
   padding: 10px 12px;
   user-select: none;
   width: 100%;
 }
 .check p {
-  color: var(--scalar-api-client-text-color-secondary);
+  color: var(--theme-color-2);
 }
 .check input {
   position: absolute;
@@ -247,7 +247,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 .checkmark {
   height: 15px;
   width: 15px;
-  background: var(--scalar-api-client-background-muted);
+  background: var(--theme-background-3);
   margin-right: 10px;
   border-radius: 3px;
   display: flex;
@@ -257,14 +257,14 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 }
 
 .check input:checked ~ p {
-  color: var(--scalar-api-client-text-color-primary);
+  color: var(--theme-color-1);
 }
 .check .checkmark:after {
   content: '';
   display: none;
   width: 5px;
   height: 8px;
-  border: solid var(--scalar-api-client-text-color-muted);
+  border: solid var(--theme-color-disabled);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg) translate3d(0, -1px, 0);
 }
@@ -279,10 +279,10 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   border: none;
   appearance: none;
   -webkit-appearance: none;
-  color: var(--scalar-api-client-text-color-muted);
-  border-radius: var(--scalar-api-client-rounded);
-  font-size: var(--scalar-api-client-text-xs);
-  font-weight: var(--scalar-api-client-font-bold);
+  color: var(--theme-color-disabled);
+  border-radius: var(--theme-radius-lg);
+  font-size: var(--theme-micro);
+  font-weight: var(--theme-bold);
   width: 100%;
   background: transparent;
 }

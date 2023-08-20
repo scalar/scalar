@@ -26,10 +26,10 @@ withDefaults(
 </template>
 <style>
 .simple-cell {
-  border-right: var(--scalar-api-client-border);
+  border-right: 1px solid var(--theme-border-color);
   position: relative;
   padding: 0.75em;
-  color: var(--scalar-api-client-text-color-primary);
+  color: var(--theme-color-1);
   white-space: nowrap;
 }
 
@@ -42,6 +42,6 @@ withDefaults(
 }
 
 .simple-cell.strong {
-  font-weight: var(--scalar-api-client-font-semibold);
+  font-weight: var(--theme-semibold);
 }
 </style>

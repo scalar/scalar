@@ -197,7 +197,7 @@ const availableLanguages = computed(() => {
 }
 .request-path {
   margin-left: 6px;
-  color: var(--scalar-api-reference-theme-color-2);
+  color: var(--theme-color-2);
   white-space: nowrap;
   overflow: hidden;
   cursor: default;
@@ -208,7 +208,7 @@ const availableLanguages = computed(() => {
 .language-select {
   position: relative;
   padding-right: 9px;
-  border-right: 1px solid var(--scalar-api-reference-border-color);
+  border-right: 1px solid var(--theme-border-color);
 }
 .language-select select {
   border: none;
@@ -227,8 +227,8 @@ const availableLanguages = computed(() => {
 }
 .language-select span {
   font-size: 12px;
-  color: var(--scalar-api-reference-theme-color-3);
-  font-weight: var(--scalar-api-reference-theme-semibold);
+  color: var(--theme-color-3);
+  font-weight: var(--theme-semibold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -243,7 +243,7 @@ const availableLanguages = computed(() => {
   box-shadow: 1px 1px 0 currentColor;
 }
 .language-select span:hover {
-  background: var(--scalar-api-reference-theme-background-2);
+  background: var(--theme-background-2);
 }
 
 .copy-button {
@@ -253,14 +253,14 @@ const availableLanguages = computed(() => {
   background: transparent;
   display: flex;
   cursor: pointer;
-  color: var(--scalar-api-reference-theme-color-3);
+  color: var(--theme-color-3);
   margin-left: 6px;
   border: none;
   border-radius: 3px;
 }
 
 .copy-button:hover {
-  color: var(--scalar-api-reference-theme-color-1);
+  color: var(--theme-color-1);
 }
 
 .copy-button svg {
@@ -274,14 +274,14 @@ const availableLanguages = computed(() => {
   appearance: none;
   outline: none;
   border: none;
-  border-radius: var(--scalar-api-reference-rounded-lg);
+  border-radius: var(--theme-radius-lg-lg);
   height: 35px;
   display: flex;
   justify-content: center;
   cursor: pointer;
   align-items: center;
-  font-weight: var(--scalar-api-reference-theme-bold);
-  font-size: var(--scalar-api-reference-theme-micro);
+  font-weight: var(--theme-bold);
+  font-size: var(--theme-micro);
   text-transform: uppercase;
   border: 1px solid currentColor;
   background: var(--scalar-api-reference-theme-button-1);
@@ -297,9 +297,9 @@ const availableLanguages = computed(() => {
 }
 
 .request-method {
-  font-family: var(--scalar-api-reference-font-mono);
+  font-family: var(--theme-font-code);
 }
 .request-path {
-  font-family: var(--scalar-api-reference-font-mono);
+  font-family: var(--theme-font-code);
 }
 </style>

@@ -45,9 +45,9 @@ defineProps<{
 
 <style>
 .scalar-api-client__item {
-  border-radius: var(--scalar-api-client-rounded);
+  border-radius: var(--theme-radius-lg);
   margin-bottom: 6px;
-  background: var(--scalar-api-client-background-secondary);
+  background: var(--theme-background-2);
   box-shadow: var(--shadow1);
   position: relative;
 }
@@ -61,7 +61,7 @@ defineProps<{
 }
 
 .scalar-api-client__item--open {
-  background: var(--scalar-api-client-background-secondary);
+  background: var(--theme-background-2);
 }
 
 .scalar-api-client__item--open:focus-within {
@@ -90,9 +90,9 @@ defineProps<{
 }
 
 .scalar-api-client__item .scalar-api-client__item__title {
-  color: var(--scalar-api-client-text-color-primary);
-  font-size: var(--scalar-api-client-text-sm);
-  font-weight: var(--scalar-api-client-font-bold);
+  color: var(--theme-color-1);
+  font-size: var(--theme-small);
+  font-weight: var(--theme-bold);
   user-select: none;
   flex: 1;
 }
@@ -110,7 +110,7 @@ defineProps<{
 .scalar-api-client__item .scalar-api-client__toggle__icon {
   width: 10px;
   margin-right: 6px;
-  color: var(--scalar-api-client-text-color-primary);
+  color: var(--theme-color-1);
 }
 
 .scalar-api-client__item__options {
@@ -118,13 +118,13 @@ defineProps<{
 }
 
 .scalar-api-client__item__options span {
-  background: var(--scalar-api-client-background-muted);
+  background: var(--theme-background-3);
   padding: 2px 6px;
   border-radius: 3px;
   font-size: 12px;
   pointer-events: none;
-  color: var(--scalar-api-client-text-color-secondary);
-  border: var(--scalar-api-client-border);
+  color: var(--theme-color-2);
+  border: 1px solid var(--theme-border-color);
   display: flex;
   align-items: center;
   justify-content: center;
