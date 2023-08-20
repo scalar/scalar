@@ -17,8 +17,8 @@
   --scalar-api-client-font-mono: 'JetBrains Mono';
 
   /** Font weights */
-  --scalar-api-client-font-semibold: 600;
-  --scalar-api-client-font-bold: 700;
+  --scalar-api-client-font-semibold: 500;
+  --scalar-api-client-font-bold: 600;
 
   /** Font colors */
   --scalar-api-client-text-color-primary: #343a40;

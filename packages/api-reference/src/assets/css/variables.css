@@ -21,7 +21,7 @@
   --scalar-api-reference-theme-font-size-4: 14px;
   --scalar-api-reference-theme-header-height: 0;
   --scalar-api-reference-rounded: 4px;
-  --scalar-api-reference-theme-semibold: 600;
+  --scalar-api-reference-theme-semibold: 500;
   --scalar-api-reference-theme-shadow-1: 0 0 4px rgba(0, 0, 0, 0.1);
   --scalar-api-reference-theme-sidebar-width: 300px;
   --scalar-api-reference-theme-small: 12px;
@@ -38,7 +38,7 @@
   --scalar-api-reference-sidebar-color-active: blue;
   --scalar-api-reference-sidebar-item-hover-background: var(#ccc);
   --scalar-api-reference-theme-background-3: #ccc;
-  --scalar-api-reference-theme-bold: 700;
+  --scalar-api-reference-theme-bold: 600;
   --scalar-api-reference-border-width: 1px;
   --scalar-api-reference-theme-color-accent: blue;
   --scalar-api-reference-theme-delete-color: red;
