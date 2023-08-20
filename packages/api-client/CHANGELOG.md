@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.1.14
+
+### Patch Changes
+
+- update font weights
+
 ## 0.1.13
 
 ### Patch Changes

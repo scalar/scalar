@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 0.1.16
+
+### Patch Changes
+
+- update font weights
+- Updated dependencies
+  - @scalar/api-client@0.1.14
+
 ## 0.1.15
 
 ### Patch Changes
