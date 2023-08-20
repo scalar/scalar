@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.1.15
+
+### Patch Changes
+
+- fix: mismatched variables
+
 ## 0.1.14
 
 ### Patch Changes

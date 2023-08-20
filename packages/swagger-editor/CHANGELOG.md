@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.1.7
+
+### Patch Changes
+
+- fix: mismatched variables
+
 ## 0.1.6
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 0.1.17
+
+### Patch Changes
+
+- fix: mismatched variables
+- Updated dependencies
+  - @scalar/api-client@0.1.15
+  - @scalar/swagger-editor@0.1.7
+
 ## 0.1.16
 
 ### Patch Changes
