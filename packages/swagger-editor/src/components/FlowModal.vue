@@ -77,13 +77,13 @@ export const useModalState = () =>
   padding: 12px 12px 18px 24px;
   max-height: calc(100vh - 240px);
   background: var(--theme-background-1);
-  border-radius: var(--scalar-api-reference-theme-radius-xl);
+  border-radius: var(--theme-radius-xl);
 }
 .modal {
   margin: 80px auto 0;
   position: relative;
   background: var(--theme-background-2);
-  border-radius: var(--scalar-api-reference-theme-radius);
+  border-radius: var(--theme-radius);
   color: var(--theme-color-1);
   width: 100%;
   text-align: left;
@@ -123,7 +123,7 @@ export const useModalState = () =>
   font-size: var(--theme-small);
   text-align: left;
   font-weight: 600;
-  border-radius: var(--scalar-api-reference-theme-radius)
-    var(--scalar-api-reference-theme-radius) 0 0;
+  border-radius: var(--theme-radius)
+    var(--theme-radius) 0 0;
 }
 </style>

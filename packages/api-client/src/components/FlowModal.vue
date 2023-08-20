@@ -84,7 +84,7 @@ export const useModalState = () =>
 .modal {
   margin: 80px auto 0;
   position: relative;
-  background: var(--scalar-api-client-theme-background-2);
+  background: var(--theme-background-2);
   border-radius: var(--theme-radius-lg);
   color: var(--theme-color-1);
   width: 100%;

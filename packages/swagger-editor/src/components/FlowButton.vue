@@ -53,7 +53,7 @@ export { useLoadButtonState }
   -webkit-appearance: none;
   height: 40px;
   padding: 0px 24px;
-  border-radius: var(--scalar-api-reference-theme-radius);
+  border-radius: var(--theme-radius);
   color: var(--theme-button-1-color);
   font-size: var(--theme-small);
   font-weight: 500;

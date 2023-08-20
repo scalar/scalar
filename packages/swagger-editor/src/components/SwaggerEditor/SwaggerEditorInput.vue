@@ -197,7 +197,7 @@ defineExpose({
 }
 .simplecode .cm-editor .cm-scroller {
   background: var(--theme-background-2);
-  border-radius: var(--scalar-api-reference-theme-radius);
+  border-radius: var(--theme-radius);
 }
 
 .simplecode .cm-editor .cm-gutters {

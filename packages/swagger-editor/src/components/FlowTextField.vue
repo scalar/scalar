@@ -130,7 +130,7 @@ export default {
   position: relative;
 }
 .flow-input-wrapper {
-  border-radius: var(--scalar-api-reference-theme-radius);
+  border-radius: var(--theme-radius);
   border: 1px solid var(--theme-border-color);
   position: relative;
   display: flex;
@@ -154,9 +154,9 @@ export default {
   margin: 12px 9px;
   width: fit-content;
   background: transparent;
-  font-size: var(--scalar-api-reference-theme-font-size-3);
+  font-size: var(--theme-font-size-3);
   background-color: var(--theme-background-1);
-  border-radius: var(--scalar-api-reference-theme-radius);
+  border-radius: var(--theme-radius);
   color: var(--theme-color-3);
   box-shadow: 0 0 2px 2px var(--theme-background-1);
   transition: transform 0.2s ease-in-out;
@@ -168,7 +168,7 @@ export default {
   outline: none;
   appearance: none;
   -webkit-appearance: none;
-  font-size: var(--scalar-api-reference-theme-font-size-3);
+  font-size: var(--theme-font-size-3);
   border: none;
   color: var(--theme-color-1);
   padding: 12px;
@@ -208,7 +208,7 @@ export default {
     var(--theme-background-1) inset !important;
   -webkit-text-fill-color: var(--theme-color-1);
   color: var(--theme-color-1);
-  border-radius: var(--scalar-api-reference-theme-radius);
+  border-radius: var(--theme-radius);
 }
 .helper-text {
   margin-top: 6px;
