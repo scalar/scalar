@@ -130,6 +130,7 @@ const breadCrumbs = computed(() => {
       v-show="showCodeEditor"
       class="layout-content">
       <LazyLoadedCodeEditor
+        :hocusPocusUrl="hocusPocusUrl"
         :documentName="documentName"
         :token="token"
         :username="username"
