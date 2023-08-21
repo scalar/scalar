@@ -80,12 +80,11 @@ const transformResult = (result: OpenAPI.Document<object>): SwaggerSpec => {
     Object.keys(result.paths[path]).forEach((requestMethod) => {
       // @ts-ignore
       const operation = result.paths[path][requestMethod]
-
       // Transform the operation
       const newOperation = {
         httpVerb: requestMethod,
         path,
-        operationId: operation.operationId || '',
+        operationId: operation.operationId || path || '',
         name: operation.summary || '',
         description: operation.description || '',
         responses: getExampleResponses(operation.responses),
