@@ -2,7 +2,7 @@ interface Window {
   process: any
 }
 
-if (window) {
+if (typeof window !== 'undefined') {
   window.process = window.process || {
     platform: 'browser',
     browser: true,
