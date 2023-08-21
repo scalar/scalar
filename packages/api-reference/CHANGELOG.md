@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 0.1.24
+
+### Patch Changes
+
+- add slots to modal
+
 ## 0.1.23
 
 ### Patch Changes

@@ -54,6 +54,7 @@ defineProps<{
 
 .scalar-api-client__item button {
   background-color: transparent;
+  text-align: left;
 }
 
 .scalar-api-client__item:hover {
