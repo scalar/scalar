@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.1.8
+
+### Patch Changes
+
+- add fallback for operation id
+
 ## 0.1.7
 
 ### Patch Changes
