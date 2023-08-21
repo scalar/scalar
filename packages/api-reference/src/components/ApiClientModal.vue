@@ -6,7 +6,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { type Spec } from '../types'
 import { default as Sidebar } from './Sidebar.vue'
 
-defineProps<{ spec: Spec, overloadShow?: boolean }>()
+defineProps<{ spec: Spec, overloadShow?: boolean, tabMode?: boolean, activeTab?: string }>()
 
 const { hideApiClient, state } = useApiClientStore()
 
@@ -23,6 +23,7 @@ export { useApiClientStore } from '@scalar/api-client'
     class="api-client-drawer">
     <div class="scalar-api-client__overlay">
       <div class="scalar-api-client__container">
+        <slot name="header" />
         <!-- <div class="scalar-api-client__navigation">
           <button
             class="scalar-api-client__close"
@@ -32,9 +33,21 @@ export { useApiClientStore } from '@scalar/api-client'
           </button>
         </div> -->
         <div class="scalar-api-client-height flex flex-row">
-          <Sidebar
-            v-show="!isMobile"
-            :spec="spec" />
+          <template v-if="tabMode">
+            <template v-if="activeTab === 'sidebar'">
+              <Sidebar
+                v-show="!isMobile"
+                :spec="spec" />
+            </template>
+            <template v-else>
+              <slot name="active-tab"></slot>
+            </template>
+          </template>
+          <template v-else>
+            <Sidebar
+              v-show="!isMobile"
+              :spec="spec" />
+          </template>
           <ApiClient
             :proxyUrl="proxyUrl"
             @escapeKeyPress="hideApiClient" />

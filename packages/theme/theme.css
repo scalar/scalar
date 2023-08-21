@@ -47,6 +47,17 @@
   
     --theme-font-medium: 500;
     --theme-font-bold: 700;
+    
+    /* let's clean these up please :) */
+    --scalar-api-reference-theme-header-height: 0;
+    --scalar-api-reference-theme-sidebar-width: 250px;
+    --scalar-api-reference-theme-toc-width: 250px;
+    --scalar-api-reference-app-header-height: 100px;
+    --scalar-api-reference-col-width-1: 250px;
+    --scalar-api-reference-col-width-2: calc(50% - 150px);
+    --scalar-api-reference-col-width-3: calc(50% - 150px);
+    --scalar-api-reference-document-height: 100vh;
+    --scalar-api-reference-full-height: 100%;
   }
   
   @media (max-width: 460px) {
