@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.1.9
+
+### Patch Changes
+
+- fix: add window polyfill wrapper
+
 ## 0.1.8
 
 ### Patch Changes
