@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.1.10
+
+### Patch Changes
+
+- fix: add proper type check on window
+
 ## 0.1.9
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @scalar/swagger-editor
 
+## 0.1.12
+
+### Patch Changes
+
+- Updated dependencies
+  - @scalar/swagger-parser@0.1.10
+
 ## 0.1.11
 
 ### Patch Changes
