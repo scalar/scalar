@@ -79,7 +79,7 @@ defineExpose({
 }
 .cm-editor .cm-content *,
 .cm-editor .cm-content {
-  font-size: var(--theme-micro);
+  font-size: var(--theme-mini);
   line-height: 1.44;
 }
 .cm-editor .cm-scroller {

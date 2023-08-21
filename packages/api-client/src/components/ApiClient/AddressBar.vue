@@ -263,7 +263,7 @@ const onChange = () => {
   height: 100%;
 }
 .scalar-api-client__send-request-button[type='submit'] {
-  font-size: var(--theme-micro);
+  font-size: var(--theme-mini);
   letter-spacing: 0.25px;
   line-height: 30px;
   font-weight: var(--theme-semibold);
@@ -324,7 +324,7 @@ const onChange = () => {
   padding: 0 9px;
   line-height: 30px;
   color: var(--theme-color-disabled);
-  font-size: var(--theme-micro);
+  font-size: var(--theme-mini);
   letter-spacing: 0.125px;
   font-weight: var(--theme-semibold);
   text-transform: uppercase;

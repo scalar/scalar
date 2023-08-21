@@ -124,7 +124,7 @@ const {
 
   /* prettier-ignore */
   color: var(--sidebar-color-2, var(--theme-color-2));
-  font-size: var(--theme-micro);
+  font-size: var(--theme-mini);
   font-weight: var(--theme-semibold);
   word-break: break-word;
   line-height: 1.385;

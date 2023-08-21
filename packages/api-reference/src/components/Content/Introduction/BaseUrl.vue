@@ -23,7 +23,7 @@ const { copyToClipboard } = useClipboard()
 <style scoped>
 .base-url {
   color: var(--theme-color-2);
-  font-size: var(--theme-micro);
+  font-size: var(--theme-mini);
   cursor: pointer;
   display: flex;
   font-family: var(--theme-font-code);

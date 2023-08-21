@@ -98,7 +98,7 @@ const standardLibrary = computed(() => {
             class="font-mono"
             muted
             style="
-              font-size: var(--theme-micro);
+              font-size: var(--theme-mini);
               color: var(--theme-color-2);
             ">
             {{ getLanguageTitleByKey(state.preferredLanguage) }}

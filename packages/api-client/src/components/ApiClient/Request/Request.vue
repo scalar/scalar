@@ -263,7 +263,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   -webkit-appearance: none;
   color: var(--theme-color-disabled);
   border-radius: var(--theme-radius-lg);
-  font-size: var(--theme-micro);
+  font-size: var(--theme-mini);
   font-weight: var(--theme-bold);
   width: 100%;
   background: transparent;

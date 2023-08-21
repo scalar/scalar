@@ -281,7 +281,7 @@ const breadCrumbs = computed(() => {
   text-align: right;
   line-height: 1.55;
   font-family: var(--theme-font-code);
-  font-size: var(--theme-micro);
+  font-size: var(--theme-mini);
   cursor: pointer;
 }
 .languages .example-item-endpoints {
