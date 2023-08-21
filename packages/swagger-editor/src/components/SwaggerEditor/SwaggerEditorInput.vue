@@ -8,6 +8,7 @@ const props = defineProps<{
   documentName?: string
   token?: string
   username?: string
+  hocusPocusUrl?: string
 }>()
 
 const emit = defineEmits<{
@@ -22,6 +23,7 @@ const { codeMirrorRef, setCodeMirrorContent } = useCodeMirrorForSwaggerFiles({
   documentName: documentNameRef,
   token: tokenRef,
   username: props.username,
+  hocusPocusUrl: props.hocusPocusUrl,
   onUpdate: (value) => emit('contentUpdate', value),
   onAwarenessUpdate: (states) => emit('awarenessUpdate', states),
 })

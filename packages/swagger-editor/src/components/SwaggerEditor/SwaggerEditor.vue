@@ -13,6 +13,7 @@ defineProps<{
   documentName?: string
   token?: string
   username?: string
+  hocusPocusUrl?: string
 }>()
 
 const emit = defineEmits<{
@@ -75,6 +76,7 @@ const formattedError = computed(() => {
       :documentName="documentName"
       :token="token"
       :username="username"
+      :hocusPocusUrl="hocusPocusUrl"
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
     <SwaggerEditorStatusBar v-if="documentName">

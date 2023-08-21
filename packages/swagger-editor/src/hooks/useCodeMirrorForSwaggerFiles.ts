@@ -25,6 +25,7 @@ type UseCodeMirrorForSwaggerFilesParameters = {
   documentName?: Ref<string | undefined>
   token?: Ref<string | undefined>
   username?: string
+  hocusPocusUrl?: string
   onUpdate?: (content: string) => void
   onAwarenessUpdate?: (states: StatesArray) => void
   /**
@@ -40,6 +41,7 @@ export const useCodeMirrorForSwaggerFiles = ({
   onUpdate,
   onAwarenessUpdate,
   forceDarkMode,
+  hocusPocusUrl,
 }: UseCodeMirrorForSwaggerFilesParameters) => {
   const codeMirror = ref<EditorView | null>(null)
   const codeMirrorRef = ref<HTMLDivElement | null>(null)
@@ -114,11 +116,19 @@ export const useCodeMirrorForSwaggerFiles = ({
           mountCodeMirror()
           return
         }
+        if (!hocusPocusUrl) {
+          console.debug(
+            `[useHocusPocus] ❌ Missing hocusPocusUrl`,
+          )
+          return
+        }
+        const ydoc = new Y.Doc()
 
         provider = new HocuspocusProvider({
-          url: import.meta.env.VITE_HOCUS_POCUS as string,
+          url: hocusPocusUrl,
           token: token?.value,
           name: documentName.value,
+          document: ydoc,
         })
 
         // Authenticated
