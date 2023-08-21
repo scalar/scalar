@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.1.17
+
+### Patch Changes
+
+- fix incorrect font sizes
+
 ## 0.1.16
 
 ### Patch Changes

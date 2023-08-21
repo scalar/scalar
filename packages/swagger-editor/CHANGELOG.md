@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.1.9
+
+### Patch Changes
+
+- fix incorrect font sizes
+
 ## 0.1.8
 
 ### Patch Changes

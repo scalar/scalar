@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 0.1.20
+
+### Patch Changes
+
+- fix incorrect font sizes
+- Updated dependencies
+  - @scalar/api-client@0.1.17
+  - @scalar/swagger-editor@0.1.9
+
 ## 0.1.19
 
 ### Patch Changes
