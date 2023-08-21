@@ -1,5 +1,13 @@
 # @scalar/swagger-editor
 
+## 0.1.8
+
+### Patch Changes
+
+- css variable fixes and hocuspocusurl prop
+- Updated dependencies
+  - @scalar/swagger-parser@0.1.7
+
 ## 0.1.7
 
 ### Patch Changes

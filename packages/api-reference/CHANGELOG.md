@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 0.1.18
+
+### Patch Changes
+
+- css variable fixes and hocuspocusurl prop
+- Updated dependencies
+  - @scalar/api-client@0.1.16
+  - @scalar/swagger-editor@0.1.8
+
 ## 0.1.17
 
 ### Patch Changes

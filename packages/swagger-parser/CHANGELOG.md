@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.1.7
+
+### Patch Changes
+
+- css variable fixes and hocuspocusurl prop
+
 ## 0.1.6
 
 ### Patch Changes

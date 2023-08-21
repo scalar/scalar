@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.1.16
+
+### Patch Changes
+
+- css variable fixes and hocuspocusurl prop
+
 ## 0.1.15
 
 ### Patch Changes

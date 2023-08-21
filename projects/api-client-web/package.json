@@ -1,6 +1,6 @@
 {
   "name": "@scalar/api-client-web",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "private": true,
   "scripts": {
     "build": "vue-tsc && vite build",
