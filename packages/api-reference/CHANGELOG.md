@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 0.1.26
+
+### Patch Changes
+
+- fix: add server null check
+
 ## 0.1.25
 
 ### Patch Changes

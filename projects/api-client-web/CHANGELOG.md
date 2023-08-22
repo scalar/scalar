@@ -1,5 +1,12 @@
 # @scalar/api-client-web
 
+## 0.0.26
+
+### Patch Changes
+
+- Updated dependencies
+  - @scalar/api-reference@0.1.26
+
 ## 0.0.25
 
 ### Patch Changes
