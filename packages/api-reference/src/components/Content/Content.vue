@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useResizeObserver } from '@vueuse/core'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import { useTemplateStore } from '../../stores/template'
 import type { Spec } from '../../types'
@@ -9,6 +9,8 @@ import Introduction from './Introduction'
 import ReferenceEndpoint from './ReferenceEndpoint'
 import ReferenceTag from './ReferenceTag.vue'
 import Spinner from './Spinner.vue'
+
+import { useRefOnMount } from '../../hooks/useRefOnMount'
 
 const props = defineProps<{ ready: boolean; spec: Spec }>()
 
@@ -28,6 +30,23 @@ onMounted(() => {
     setCollapsedSidebarItem(props.spec.tags[0].name, true)
   }
 })
+
+const fallBackServer = useRefOnMount(() => {
+  return {
+    url: window.location.origin
+  }
+})
+
+const localServers = computed(() => {
+  if (props.spec.servers.length > 0) {
+    return props.spec.servers
+  } else if (fallBackServer.value) {
+    return [fallBackServer.value]
+  } else {
+    return [{ url: '' }]
+  }
+})
+
 </script>
 <template>
   <div
@@ -38,7 +57,7 @@ onMounted(() => {
     <template v-if="ready">
       <Introduction
         :info="spec.info"
-        :servers="spec.servers" />
+        :servers="localServers" />
       <template
         v-for="(tag, index) in spec.tags"
         :key="tag.id">
@@ -67,7 +86,7 @@ onMounted(() => {
               :key="operation.operationId"
               :operation="operation"
               :parentTag="tag"
-              :server="spec.servers?.[0]" />
+              :server="localServers[0]" />
           </template>
         </div>
       </template>
