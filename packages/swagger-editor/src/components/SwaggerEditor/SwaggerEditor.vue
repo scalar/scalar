@@ -87,10 +87,8 @@ const formattedError = computed(() => {
 
 <style scoped>
 .code-editor {
-  flex: 1 1 0%;
   min-width: 0;
   min-height: 0;
-  height: 100vh;
 
   display: flex;
   flex-direction: column;
