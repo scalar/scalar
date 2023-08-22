@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 0.1.25
+
+### Patch Changes
+
+- fix empty servers edge case
+
 ## 0.1.24
 
 ### Patch Changes
