@@ -51,7 +51,7 @@ const importExampleFile = () => {
     <div>
       <span class="active-mode"><i>Swagger </i>Editor</span>
     </div>
-    <div>
+    <div class="code-editor-header-buttons">
       <button
         type="button"
         @click="importExampleFile">
@@ -113,6 +113,13 @@ const importExampleFile = () => {
   justify-content: space-between;
 }
 
+.code-editor-header-buttons {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: nowrap;
+}
+
 .code-editor-header span {
   font-size: 13px;
   color: var(--theme-color-3);
@@ -144,6 +151,11 @@ const importExampleFile = () => {
   border: 1px solid var(--theme-border-color);
   font-size: 12px;
   color: var(--theme-color-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
   margin-left: 9px;
   font-weight: 500;
 }
