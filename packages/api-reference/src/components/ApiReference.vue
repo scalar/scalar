@@ -477,6 +477,7 @@ const breadCrumbs = computed(() => {
   grid-area: content;
   min-width: 0;
   background: var(--theme-background-1);
+  display: flex;
 }
 
 /* Measures the visible viewport of the editor */
