@@ -38,7 +38,7 @@ const fallBackServer = useRefOnMount(() => {
 })
 
 const localServers = computed(() => {
-  if (props.spec.servers.length > 0) {
+  if (props.spec.servers && props.spec.servers.length > 0) {
     return props.spec.servers
   } else if (fallBackServer.value) {
     return [fallBackServer.value]
