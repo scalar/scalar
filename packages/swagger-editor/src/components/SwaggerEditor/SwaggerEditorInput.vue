@@ -188,7 +188,7 @@ defineExpose({
   background: var(--theme-background-3) !important;
 }
 .cm-editor .cm-gutters {
-  font-size: var(--theme-micro);
+  font-size: var(--theme-mini);
   color: var(--theme-color-3);
   line-height: 1.44;
   background: var(--theme-background-2);
