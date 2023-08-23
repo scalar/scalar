@@ -1,169 +1,169 @@
 /* fonts */
 :root {
-    --app-header-height: 50px;
-    --theme-border-width: 1px;
-    --theme-radius: 3px;
-    --theme-radius-lg: 6px;
-    --theme-radius-xl: 8px;
-  
-    --theme-header-height: 50px;
-    --theme-sidebar-width: 250px;
-    --theme-toc-width: 250px;
-  
-    /* TYPOGRAPHY ------------------------------------ */
-    --theme-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-      Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    --theme-font-code: 'JetBrains Mono';
-  
-    /** Font sizes for rendered text content (editor styles or static content) */
-    --theme-heading-1: 40px; /* Editor Page heading */
-    --theme-page-description: 24px;
-    --theme-heading-2: 24px; /* Editor section headings */
-    --theme-heading-3: 20px;
-    --theme-heading-4: 16px;
-    --theme-heading-5: 16px;
-    --theme-heading-6: 16px;
-  
-    --theme-paragraph: 16px;
-    --theme-small: 14px;
-    --theme-mini: 13px;
-    --theme-micro: 12px;
-    --theme-bold: 600;
-    --theme-semibold: 500;
-    --theme-regular: 400;
-  
-    /* Font sizes for interactive applications (not rendered text content) */
-    --theme-font-size-1: 24px;
-    --theme-font-size-2: 16px;
-    --theme-font-size-3: 14px;
-    --theme-font-size-4: 13px;
-    --theme-font-size-5: 12px;
-  
-    --theme-line-height-1: 32px;
-    --theme-line-height-2: 24px;
-    --theme-line-height-3: 20px;
-    --theme-line-height-4: 18px;
-    --theme-line-height-5: 16px;
-  
-    --theme-font-medium: 500;
-    --theme-font-bold: 700;
-    
-    /* let's clean these up please :) */
-    --scalar-api-reference-theme-header-height: 0;
-    --scalar-api-reference-theme-sidebar-width: 250px;
-    --scalar-api-reference-theme-toc-width: 250px;
-    --scalar-api-reference-app-header-height: 100px;
-    --scalar-api-reference-col-width-1: 250px;
-    --scalar-api-reference-col-width-2: calc(50% - 150px);
-    --scalar-api-reference-col-width-3: calc(50% - 150px);
-    --scalar-api-reference-document-height: 100vh;
-    --scalar-api-reference-full-height: 100%;
+  --app-header-height: 50px;
+  --theme-border-width: 1px;
+  --theme-radius: 3px;
+  --theme-radius-lg: 6px;
+  --theme-radius-xl: 8px;
+
+  --theme-header-height: 50px;
+  --theme-sidebar-width: 250px;
+  --theme-toc-width: 250px;
+
+  /* TYPOGRAPHY ------------------------------------ */
+  --theme-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --theme-font-code: 'JetBrains Mono';
+
+  /** Font sizes for rendered text content (editor styles or static content) */
+  --theme-heading-1: 40px; /* Editor Page heading */
+  --theme-page-description: 24px;
+  --theme-heading-2: 24px; /* Editor section headings */
+  --theme-heading-3: 20px;
+  --theme-heading-4: 16px;
+  --theme-heading-5: 16px;
+  --theme-heading-6: 16px;
+
+  --theme-paragraph: 16px;
+  --theme-small: 14px;
+  --theme-mini: 13px;
+  --theme-micro: 12px;
+  --theme-bold: 600;
+  --theme-semibold: 500;
+  --theme-regular: 400;
+
+  /* Font sizes for interactive applications (not rendered text content) */
+  --theme-font-size-1: 24px;
+  --theme-font-size-2: 16px;
+  --theme-font-size-3: 14px;
+  --theme-font-size-4: 13px;
+  --theme-font-size-5: 12px;
+
+  --theme-line-height-1: 32px;
+  --theme-line-height-2: 24px;
+  --theme-line-height-3: 20px;
+  --theme-line-height-4: 18px;
+  --theme-line-height-5: 16px;
+
+  --theme-font-medium: 500;
+  --theme-font-bold: 700;
+
+  /* let's clean these up please :) */
+  --scalar-api-reference-theme-header-height: 0;
+  --scalar-api-reference-theme-sidebar-width: 250px;
+  --scalar-api-reference-theme-toc-width: 250px;
+  --scalar-api-reference-app-header-height: 100px;
+  --scalar-api-reference-col-width-1: 250px;
+  --scalar-api-reference-col-width-2: calc(50% - 150px);
+  --scalar-api-reference-col-width-3: calc(50% - 150px);
+  --scalar-api-reference-document-height: 100vh;
+  --scalar-api-reference-full-height: 100%;
+}
+
+@media (max-width: 460px) {
+  :root {
+    --theme-font-size-1: 22px;
+    --theme-font-size-2: 14px;
+    --theme-font-size-3: 12px;
   }
-  
-  @media (max-width: 460px) {
-    :root {
-      --theme-font-size-1: 22px;
-      --theme-font-size-2: 14px;
-      --theme-font-size-3: 12px;
-    }
+}
+
+@media (max-width: 720px) {
+  :root {
+    --theme-heading-1: 24px;
+    --theme-page-description: 20px;
   }
-  
-  @media (max-width: 720px) {
-    :root {
-      --theme-heading-1: 24px;
-      --theme-page-description: 20px;
-    }
-  }
+}
 .light-mode {
-    color-scheme: light;
-    --theme-color-1: #2a2f45;
-    --theme-color-2: #757575;
-    --theme-color-3: #8e8e8e;
-    --theme-color-disabled: #b4b1b1;
-    --theme-color-ghost: #a7a7a7;
-    --theme-color-accent: #0099ff;
-    --theme-background-1: #fff;
-    --theme-background-2: #f6f6f6;
-    --theme-background-3: #e7e7e7;
-    --theme-background-4: rgba(0, 0, 0, 0.06);
-    --theme-background-accent: #8ab4f81f;
-  
-    --theme-border-color: rgba(0, 0, 0, 0.1);
-    --theme-scrollbar-color: rgba(0, 0, 0, 0.18);
-    --theme-scrollbar-color-active: rgba(0, 0, 0, 0.36);
-    --theme-lifted-brightness: 1;
-    --theme-backdrop-brightness: 1;
-  
-    --theme-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
-    --theme-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px,
-      rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 1px;
-  
-    --theme-button-1: rgb(49 53 56);
-    --theme-button-1-color: #fff;
-    --theme-button-1-hover: rgb(28 31 33);
-  
-    --theme-error-color: #ae262f;
-    --theme-warning-color: #d89c6a;
-    --theme-success-color: #26ae42;
-  
-    /* REST API Client Colors */
-    --theme-post-color: #00a67d;
-    --theme-post-background: #00a67d1a;
-    --theme-delete-color: #ef0006;
-    --theme-delete-background: #ef00061a;
-    --theme-patch-color: #b2b062;
-    --theme-patch-background: #ffe6001a;
-    --theme-get-color: #0082d0;
-    --theme-get-background: #0082d01a;
-    --theme-put-color: #f3830e;
-    --theme-put-background: #f3830e1a;
-  
-    /* Misc Scalar Branding */
-    --scalar-brand: #faf6e9;
+  color-scheme: light;
+  --theme-color-1: #2a2f45;
+  --theme-color-2: #757575;
+  --theme-color-3: #8e8e8e;
+  --theme-color-disabled: #b4b1b1;
+  --theme-color-ghost: #a7a7a7;
+  --theme-color-accent: #0099ff;
+  --theme-background-1: #fff;
+  --theme-background-2: #f6f6f6;
+  --theme-background-3: #e7e7e7;
+  --theme-background-4: rgba(0, 0, 0, 0.06);
+  --theme-background-accent: #8ab4f81f;
+
+  --theme-border-color: rgba(0, 0, 0, 0.1);
+  --theme-scrollbar-color: rgba(0, 0, 0, 0.18);
+  --theme-scrollbar-color-active: rgba(0, 0, 0, 0.36);
+  --theme-lifted-brightness: 1;
+  --theme-backdrop-brightness: 1;
+
+  --theme-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
+  --theme-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px,
+    rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 1px;
+
+  --theme-button-1: rgb(49 53 56);
+  --theme-button-1-color: #fff;
+  --theme-button-1-hover: rgb(28 31 33);
+
+  --theme-error-color: #ae262f;
+  --theme-warning-color: #d89c6a;
+  --theme-success-color: #26ae42;
+
+  /* REST API Client Colors */
+  --theme-post-color: #00a67d;
+  --theme-post-background: #00a67d1a;
+  --theme-delete-color: #ef0006;
+  --theme-delete-background: #ef00061a;
+  --theme-patch-color: #b2b062;
+  --theme-patch-background: #ffe6001a;
+  --theme-get-color: #0082d0;
+  --theme-get-background: #0082d01a;
+  --theme-put-color: #f3830e;
+  --theme-put-background: #f3830e1a;
+
+  /* Misc Scalar Branding */
+  --scalar-brand: #faf6e9;
 }
 .dark-mode {
-    color-scheme: dark;
-    --theme-color-1: rgba(255, 255, 255, 0.9);
-    --theme-color-2: rgba(255, 255, 255, 0.62);
-    --theme-color-3: rgba(255, 255, 255, 0.44);
-    --theme-color-disabled: rgba(255, 255, 255, 0.34);
-    --theme-color-ghost: rgba(255, 255, 255, 0.26);
-    --theme-color-accent: #8ab4f8;
-    --theme-background-1: #1a1a1a;
-    --theme-background-2: #252525;
-    --theme-background-3: #323232;
-    --theme-background-4: rgba(255, 255, 255, 0.06);
-    --theme-background-accent: #8ab4f81f;
-  
-    --theme-border-color: rgba(255, 255, 255, 0.1);
-    --theme-scrollbar-color: rgba(255, 255, 255, 0.24);
-    --theme-scrollbar-color-active: rgba(255, 255, 255, 0.48);
-    --theme-lifted-brightness: 1.45;
-    --theme-backdrop-brightness: 0.5;
-  
-    --theme-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
-    --theme-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px,
-      rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px rgba(255, 255, 255, 0.1);
-  
-    --theme-button-1: #f6f6f6;
-    --theme-button-1-color: #000;
-    --theme-button-1-hover: #e7e7e7;
-  
-    --theme-error-color: #ff0011;
-    --theme-success-color: #26ae42;
-  
-    /* REST API Client Colors */
-    --theme-post-color: #7ee787;
-    --theme-post-background: #7ee78714;
-    --theme-delete-color: #e77e7e;
-    --theme-delete-background: #e77e7e24;
-    --theme-patch-color: #b2b062;
-    --theme-patch-background: #b2b06229;
-    --theme-get-color: #79c0ff;
-    --theme-get-background: #79c0ff21;
-    --theme-put-color: #e9950c;
-    --theme-put-background: #e9950c21;
-  
-    /* Misc Scalar Branding */
-    --scalar-brand: #8b7256;
+  color-scheme: dark;
+  --theme-color-1: rgba(255, 255, 255, 0.9);
+  --theme-color-2: rgba(255, 255, 255, 0.62);
+  --theme-color-3: rgba(255, 255, 255, 0.44);
+  --theme-color-disabled: rgba(255, 255, 255, 0.34);
+  --theme-color-ghost: rgba(255, 255, 255, 0.26);
+  --theme-color-accent: #8ab4f8;
+  --theme-background-1: #1a1a1a;
+  --theme-background-2: #252525;
+  --theme-background-3: #323232;
+  --theme-background-4: rgba(255, 255, 255, 0.06);
+  --theme-background-accent: #8ab4f81f;
+
+  --theme-border-color: rgba(255, 255, 255, 0.1);
+  --theme-scrollbar-color: rgba(255, 255, 255, 0.24);
+  --theme-scrollbar-color-active: rgba(255, 255, 255, 0.48);
+  --theme-lifted-brightness: 1.45;
+  --theme-backdrop-brightness: 0.5;
+
+  --theme-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
+  --theme-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px,
+    rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+  --theme-button-1: #f6f6f6;
+  --theme-button-1-color: #000;
+  --theme-button-1-hover: #e7e7e7;
+
+  --theme-error-color: #ff0011;
+  --theme-success-color: #26ae42;
+
+  /* REST API Client Colors */
+  --theme-post-color: #7ee787;
+  --theme-post-background: #7ee78714;
+  --theme-delete-color: #e77e7e;
+  --theme-delete-background: #e77e7e24;
+  --theme-patch-color: #b2b062;
+  --theme-patch-background: #b2b06229;
+  --theme-get-color: #79c0ff;
+  --theme-get-background: #79c0ff21;
+  --theme-put-color: #e9950c;
+  --theme-put-background: #e9950c21;
+
+  /* Misc Scalar Branding */
+  --scalar-brand: #8b7256;
 }

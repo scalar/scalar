@@ -7,11 +7,11 @@ Generate interactive API documentations from Swagger files
 
 ## Features
 
-* Uses Swagger/OpenAPI spec files
-* Request examples for a ton of languages + frameworks
-* Has an integrated API client
-* Edit your Swagger files with a live preview
-* Doesn’t look like it’s 2011
+- Uses Swagger/OpenAPI spec files
+- Request examples for a ton of languages + frameworks
+- Has an integrated API client
+- Edit your Swagger files with a live preview
+- Doesn’t look like it’s 2011
 
 ## Getting Started
 
@@ -20,6 +20,7 @@ Generate interactive API documentations from Swagger files
 TBD 🚧
 
 ### With Vue.js
+
 ```bash
 npm install @scalar/api-reference
 ```
@@ -122,5 +123,3 @@ Build, test and bump versions:
 
 Actually publish the packages (requires access to @scalar on npm):
 `$ pnpm -r publish`
-
-

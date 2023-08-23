@@ -109,8 +109,7 @@ const showDescription = ref(false)
   position: relative;
 }
 .table-row__add {
-  border-radius: 0 0 var(--theme-radius-lg)
-    var(--theme-radius-lg);
+  border-radius: 0 0 var(--theme-radius-lg) var(--theme-radius-lg);
   border-bottom: none;
 }
 .table-row.required-parameter .table-row-item:nth-of-type(2):after {
@@ -132,8 +131,7 @@ const showDescription = ref(false)
   border-bottom: none;
 }
 .table-row__active {
-  border-radius: 0 0 var(--theme-radius-lg)
-    var(--theme-radius-lg);
+  border-radius: 0 0 var(--theme-radius-lg) var(--theme-radius-lg);
 }
 .table-row-drag {
   width: 20px;
