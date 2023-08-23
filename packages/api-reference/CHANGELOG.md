@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 0.1.27
+
+### Patch Changes
+
+- fix sidebar height issue
+- Updated dependencies
+  - @scalar/api-client@0.1.18
+  - @scalar/swagger-editor@0.1.13
+
 ## 0.1.26
 
 ### Patch Changes

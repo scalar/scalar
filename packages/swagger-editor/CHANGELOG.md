@@ -1,5 +1,13 @@
 # @scalar/swagger-editor
 
+## 0.1.13
+
+### Patch Changes
+
+- fix sidebar height issue
+- Updated dependencies
+  - @scalar/swagger-parser@0.1.11
+
 ## 0.1.12
 
 ### Patch Changes

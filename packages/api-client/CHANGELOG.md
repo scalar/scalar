@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.1.18
+
+### Patch Changes
+
+- fix sidebar height issue
+
 ## 0.1.17
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.1.11
+
+### Patch Changes
+
+- fix sidebar height issue
+
 ## 0.1.10
 
 ### Patch Changes
