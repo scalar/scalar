@@ -200,8 +200,7 @@ const onChange = () => {
 .scalar-api-client__field {
   border: 1px solid var(--theme-border-color);
   border-right: 0;
-  border-radius: var(--theme-radius-lg) 0 0
-    var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg) 0 0 var(--theme-radius-lg);
   display: flex;
   align-items: stretch;
   width: 100%;
@@ -222,8 +221,7 @@ const onChange = () => {
   -webkit-appearance: none;
   padding: 0 12px;
   border-right: 1px solid var(--theme-border-color);
-  border-radius: var(--theme-radius-lg) 0 0
-    var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg) 0 0 var(--theme-radius-lg);
   position: relative;
 }
 .scalar-api-client__request-type span {
@@ -274,8 +272,7 @@ const onChange = () => {
   text-transform: uppercase;
   cursor: pointer;
   outline: none;
-  border-radius: 0 var(--theme-radius-lg)
-    var(--theme-radius-lg) 0;
+  border-radius: 0 var(--theme-radius-lg) var(--theme-radius-lg) 0;
   background: var(--scalar-api-client-color);
   /**  #087f5b */
   display: flex;

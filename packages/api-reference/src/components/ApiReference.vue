@@ -185,8 +185,7 @@ const breadCrumbs = computed(() => {
   background: var(--theme-background-2);
   border-bottom: 1px solid var(--theme-border-color);
   padding: 0 7px 0 12px;
-  border-radius: var(--theme-radius)
-    var(--theme-radius) 0 0;
+  border-radius: var(--theme-radius) var(--theme-radius) 0 0;
 }
 .codemenu {
   display: flex;
@@ -375,7 +374,6 @@ const breadCrumbs = computed(() => {
   color: var(--theme-color-1);
   text-decoration: underline;
 }
-
 
 /* ----------------------------------------------------- */
 /* Responsive styles for narrow reference container (900px) */

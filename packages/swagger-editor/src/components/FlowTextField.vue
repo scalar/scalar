@@ -204,8 +204,7 @@ export default {
 .flow-input:focus-within:-webkit-autofill:hover,
 .flow-input:focus-within:-webkit-autofill:focus,
 .flow-input:focus-within:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0px 1000px
-    var(--theme-background-1) inset !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--theme-background-1) inset !important;
   -webkit-text-fill-color: var(--theme-color-1);
   color: var(--theme-color-1);
   border-radius: var(--theme-radius);

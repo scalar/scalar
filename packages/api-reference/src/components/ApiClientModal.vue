@@ -6,7 +6,12 @@ import { useMediaQuery } from '@vueuse/core'
 import { type Spec } from '../types'
 import { default as Sidebar } from './Sidebar.vue'
 
-defineProps<{ spec: Spec, overloadShow?: boolean, tabMode?: boolean, activeTab?: string }>()
+defineProps<{
+  spec: Spec
+  overloadShow?: boolean
+  tabMode?: boolean
+  activeTab?: string
+}>()
 
 const { hideApiClient, state } = useApiClientStore()
 

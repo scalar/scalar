@@ -2,6 +2,7 @@
 import { useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 
+import { useRefOnMount } from '../../hooks/useRefOnMount'
 import { useTemplateStore } from '../../stores/template'
 import type { Spec } from '../../types'
 import { FlowIcon } from '../Icon'
@@ -9,8 +10,6 @@ import Introduction from './Introduction'
 import ReferenceEndpoint from './ReferenceEndpoint'
 import ReferenceTag from './ReferenceTag.vue'
 import Spinner from './Spinner.vue'
-
-import { useRefOnMount } from '../../hooks/useRefOnMount'
 
 const props = defineProps<{ ready: boolean; spec: Spec }>()
 
@@ -33,7 +32,7 @@ onMounted(() => {
 
 const fallBackServer = useRefOnMount(() => {
   return {
-    url: window.location.origin
+    url: window.location.origin,
   }
 })
 
@@ -46,7 +45,6 @@ const localServers = computed(() => {
     return [{ url: '' }]
   }
 })
-
 </script>
 <template>
   <div

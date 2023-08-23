@@ -97,10 +97,7 @@ const standardLibrary = computed(() => {
           <CardFooter
             class="font-mono"
             muted
-            style="
-              font-size: var(--theme-mini);
-              color: var(--theme-color-2);
-            ">
+            style="font-size: var(--theme-mini); color: var(--theme-color-2)">
             {{ getLanguageTitleByKey(state.preferredLanguage) }}
             {{ standardLibrary }}
           </CardFooter>

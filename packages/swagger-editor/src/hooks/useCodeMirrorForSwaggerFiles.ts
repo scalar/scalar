@@ -117,9 +117,7 @@ export const useCodeMirrorForSwaggerFiles = ({
           return
         }
         if (!hocusPocusUrl) {
-          console.debug(
-            `[useHocusPocus] ❌ Missing hocusPocusUrl`,
-          )
+          console.debug(`[useHocusPocus] ❌ Missing hocusPocusUrl`)
           return
         }
         const ydoc = new Y.Doc()
