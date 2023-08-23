@@ -1,16 +1,13 @@
 <script lang="ts" setup>
-import { StatesArray } from '@hocuspocus/provider';
-import { SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser';
-import { useDebounceFn } from '@vueuse/core';
-import { computed, ref } from 'vue';
-import { useOperation } from '@scalar/api-client';
+import { type StatesArray } from '@hocuspocus/provider'
+import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
+import { useDebounceFn } from '@vueuse/core'
+import { computed, ref } from 'vue'
 
-import SwaggerEditorHeader from './SwaggerEditorHeader.vue';
-import SwaggerEditorInput from './SwaggerEditorInput.vue';
-import SwaggerEditorNotification from './SwaggerEditorNotification.vue';
-import SwaggerEditorStatusBar from './SwaggerEditorStatusBar.vue';
-
-import FlowModal, { useModalState } from '../FlowModal.vue'
+import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
+import SwaggerEditorInput from './SwaggerEditorInput.vue'
+import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
+import SwaggerEditorStatusBar from './SwaggerEditorStatusBar.vue'
 
 defineProps<{
   documentName?: string
@@ -20,24 +17,25 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'awarenessUpdate', states: StatesArray): void;
-  (e: 'contentUpdate', value: string): void;
-  (e: 'specUpdate', spec: SwaggerSpec): void;
-  (e: 'import', value: string): void;
-}>();
+  (e: 'awarenessUpdate', states: StatesArray): void
+  (e: 'contentUpdate', value: string): void
+  (e: 'specUpdate', spec: SwaggerSpec): void
+  (e: 'import', value: string): void
+}>()
 
-const parserError = ref<string>('');
+const parserError = ref<string>('')
 
-const handleSpecUpdate = useDebounceFn((value: string) => {
+const handleSpecUpdate = useDebounceFn((value) => {
   parseSwaggerFile(value)
     .then((spec: SwaggerSpec) => {
-      parserError.value = '';
-      emit('specUpdate', spec);
+      parserError.value = ''
+
+      emit('specUpdate', spec)
     })
-    .catch((error: Error) => {
-      parserError.value = error.toString();
+    .catch((error) => {
+      parserError.value = error.toString()
     })
-});
+})
 
 const handleContentUpdate = (value: string) => {
   emit('contentUpdate', value)
@@ -69,21 +67,22 @@ const formattedError = computed(() => {
 </script>
 <template>
   <div class="code-editor">
-  <SwaggerEditorHeader @import="importHandler" />
-  <SwaggerEditorNotification v-if="formattedError">
-    {{ formattedError }}
-  </SwaggerEditorNotification>
-  <SwaggerEditorInput
-    ref="codeMirrorReference"
-    :documentName="documentName"
-    :token="token"
-    :username="username"
-    @awarenessUpdate="handleAwarenessUpdate"
-    @contentUpdate="handleContentUpdate" />
-  <SwaggerEditorStatusBar v-if="documentName">
-    {{ awarenessStates }} user{{ awarenessStates === 1 ? '' : 's' }} online
-  </SwaggerEditorStatusBar>
-</div>
+    <SwaggerEditorHeader @import="importHandler" />
+    <SwaggerEditorNotification v-if="formattedError">
+      {{ formattedError }}
+    </SwaggerEditorNotification>
+    <SwaggerEditorInput
+      ref="codeMirrorReference"
+      :documentName="documentName"
+      :token="token"
+      :username="username"
+      :hocusPocusUrl="hocusPocusUrl"
+      @awarenessUpdate="handleAwarenessUpdate"
+      @contentUpdate="handleContentUpdate" />
+    <SwaggerEditorStatusBar v-if="documentName">
+      {{ awarenessStates }} user{{ awarenessStates === 1 ? '' : 's' }} online
+    </SwaggerEditorStatusBar>
+  </div>
 </template>
 
 <style scoped>
@@ -96,5 +95,4 @@ const formattedError = computed(() => {
   overflow: auto;
   border-right: 1px solid var(--theme-border-color);
 }
-
 </style>
