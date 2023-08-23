@@ -5,14 +5,12 @@ import FlowModal, { useModalState } from './FlowModal.vue';
 import { useTemplateStore } from '../stores/template';
 import { useOperation } from '@scalar/api-client';
 import Fuse from 'fuse.js';
-
-// Importing the helper functions
-import { formatProperty, recursiveLogger, extractRequestBody } from '../helpers/specHelpers';
+import { extractRequestBody } from '../helpers/specHelpers';
 
 const props = defineProps<{ spec: Spec }>();
 const reactiveSpec = toRef(props, 'spec');
 const modalState = useModalState();
-interface FuseData {
+type FuseData  = {
   title: string;
   description: string;
   body: string | string[];
@@ -21,23 +19,23 @@ interface FuseData {
   httpVerb?: string;
 }
 
-interface HyperlinkClickValue {
+type HyperlinkClickValue = {
   operation: string;
   tag: string;
 }
 
-let data: FuseData[] = [];
-const result = ref<Fuse.FuseResult<FuseData>[]>([]);
-const text = ref<string>('');
+let fuseDataArray: FuseData[] = [];
+const fuseSearchResults = ref<Fuse.FuseResult<FuseData>[]>([]);
+const searchText = ref<string>('');
 
-const fuse = new Fuse(data, {
+const fuse = new Fuse(fuseDataArray, {
   keys: ['title', 'description', 'body']
 });
 
 const { state, setItem, setCollapsedSidebarItem } = useTemplateStore();
 
 const fuseSearch = (): void => {
-  result.value = fuse.search(text.value);
+  fuseSearchResults.value = fuse.search(searchText.value);
 };
 
 watch(() => state.showSearch, () => {
@@ -54,7 +52,7 @@ watch(() => modalState.open, () => {
   }
 });
 
-const handleHyperLinkClick = (value: HyperlinkClickValue): void => {
+function handleHyperLinkClick(value: HyperlinkClickValue): void {
   const { operation, tag } = value;
   setCollapsedSidebarItem(tag, true);
 
@@ -62,17 +60,17 @@ const handleHyperLinkClick = (value: HyperlinkClickValue): void => {
   const elementId = `endpoint/${operation}`;
   const element = document.getElementById(elementId);
   element?.scrollIntoView();
-};
+}
 
 watch(reactiveSpec.value, () =>  {
-  data = [];
+  fuseDataArray = [];
   props.spec.tags.forEach(tag => {
     const payload = {
       title: tag.name,
       description: tag.description,
       body: "",
     };
-    data.push(payload);
+    fuseDataArray.push(payload);
 
     if (tag.operations) {
       tag.operations.forEach(operation => {
@@ -88,12 +86,12 @@ watch(reactiveSpec.value, () =>  {
           httpVerb: operation.httpVerb,
         };
 
-        data.push(payload);
+        fuseDataArray.push(payload);
       });
     }
   });
 
-  fuse.setCollection(data);
+  fuse.setCollection(fuseDataArray);
 });
 </script>
 <template>
@@ -101,10 +99,10 @@ watch(reactiveSpec.value, () =>  {
         :state="modalState"
         title="Search">
         <div>
-          <input placeholder="Search Here..." class="ref-search-input" v-model="text" @input="fuseSearch" type="text">
+          <input placeholder="Search Here..." class="ref-search-input" v-model="searchText" @input="fuseSearch" type="text">
         </div>
         <div>
-            <button v-for="entry in result" :key="entry.refIndex" class="item-entry" @click="handleHyperLinkClick(entry.item)">
+            <button v-for="entry in fuseSearchResults" :key="entry.refIndex" class="item-entry" @click="handleHyperLinkClick(entry.item)">
               <div class="item-entry-heading">
                 <span>{{ entry.item.title }}</span>
                 <i class="item-entry-verb" :class="entry.item.httpVerb">{{ entry.item.httpVerb }}</i>

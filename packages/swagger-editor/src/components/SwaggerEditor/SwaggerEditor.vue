@@ -4,7 +4,6 @@ import { SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser';
 import { useDebounceFn } from '@vueuse/core';
 import { computed, ref } from 'vue';
 import { useOperation } from '@scalar/api-client';
-import Fuse from 'fuse.js';
 
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue';
 import SwaggerEditorInput from './SwaggerEditorInput.vue';

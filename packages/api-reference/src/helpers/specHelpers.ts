@@ -1,6 +1,16 @@
 import type { Spec, Operation, ContentSchema } from '../types';
 
-const formatProperty = (key: string, obj: any): string => {
+type PropertyObject = {
+  required?: string[];
+  properties: {
+    [key: string]: {
+      type: string;
+      description?: string;
+    };
+  };
+}
+
+function formatProperty(key: string, obj: PropertyObject): string {
   let output = key;
   const isRequired = obj.required && obj.required.includes(key);
   output += isRequired ? ' REQUIRED ' : ' optional ';
@@ -11,9 +21,9 @@ const formatProperty = (key: string, obj: any): string => {
   }
 
   return output;
-};
+}
 
-const recursiveLogger = (obj: ContentSchema): string[] => {
+function recursiveLogger(obj: ContentSchema): string[] {
   const results: string[] = ['Body'];
 
   Object.keys(obj.schema.properties).forEach((key) => {
@@ -28,9 +38,9 @@ const recursiveLogger = (obj: ContentSchema): string[] => {
   });
 
   return results;
-};
+}
 
-const extractRequestBody = (operation: Operation): string[] | boolean => {
+function extractRequestBody(operation: Operation): string[] | boolean {
   try {
     const body = operation?.information?.requestBody?.content['application/json'];
     if (!body) throw new Error("Body not found");
@@ -38,6 +48,6 @@ const extractRequestBody = (operation: Operation): string[] | boolean => {
   } catch (error) {
     return false;
   }
-};
+}
 
 export { formatProperty, recursiveLogger, extractRequestBody };

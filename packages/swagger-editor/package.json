@@ -43,7 +43,6 @@
     "@uiw/codemirror-theme-duotone": "4.21.3",
     "@vueuse/core": "10.1.2",
     "codemirror": "6.0.1",
-    "fuse.js": "^6.6.2",
     "nanoid": "4.0.2",
     "y-codemirror.next": "0.3.2",
     "yjs": "13.6.7"
