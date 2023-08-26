@@ -1,4 +1,4 @@
-import type { Spec, Operation, ContentSchema } from '../types';
+import type { Operation, ContentSchema } from '../types';
 
 type PropertyObject = {
   required?: string[];
