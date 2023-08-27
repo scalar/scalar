@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 0.1.28
+
+### Patch Changes
+
+- add: language selector supersede classes
+
 ## 0.1.27
 
 ### Patch Changes
