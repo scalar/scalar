@@ -131,9 +131,13 @@ const getIconByLanguageKey = (languageKey: TargetId) => {
         'code-languages__active': state.preferredLanguage === language.key,
       }"
       @click="() => selectLanguage(language.key)">
-      <Icon
-        :class="`code-languages-icon code-languages-icon__${language.key}`"
-        :src="getIconByLanguageKey(language.key)" />
+      <div
+        class="code-languages-background"
+        :class="`code-languages-icon__${language.key}`">
+        <Icon
+          class="code-languages-icon"
+          :src="getIconByLanguageKey(language.key)" />
+      </div>
       <span>{{ language.title }}</span>
     </div>
 
@@ -158,19 +162,21 @@ const getIconByLanguageKey = (languageKey: TargetId) => {
           {{ target.title }}
         </option>
       </select>
-      <svg
-        class="code-languages-icon code-languages-icon__more"
-        height="50"
-        viewBox="0 0 50 50"
-        width="50"
-        xmlns="http://www.w3.org/2000/svg">
-        <g
-          fill="currentColor"
-          fill-rule="nonzero">
-          <path
-            d="M10.71 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0M21.13 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0M31.55 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0" />
-        </g>
-      </svg>
+      <div class="code-languages-background code-languages-icon__more">
+        <svg
+          class="code-languages-icon code-languages-icon__more"
+          height="50"
+          viewBox="0 0 50 50"
+          width="50"
+          xmlns="http://www.w3.org/2000/svg">
+          <g
+            fill="currentColor"
+            fill-rule="nonzero">
+            <path
+              d="M10.71 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0M21.13 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0M31.55 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0" />
+          </g>
+        </svg>
+      </div>
       <span>More</span>
     </div>
   </div>
@@ -206,16 +212,31 @@ const getIconByLanguageKey = (languageKey: TargetId) => {
   width: 100%;
   max-height: 48px;
   aspect-ratio: 1;
-  border-radius: 12px;
   padding: 7px;
   display: flex;
   align-items: center;
-  color: #fff;
   justify-content: center;
+  position: relative;
+  color: var(--theme-code-language-color-supersede, #fff);
+}
+.code-languages-background {
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--theme-code-languages-border-color);
+}
+.code-languages-background:before {
+  content: '';
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background: var(--theme-code-languages-background-supersede);
 }
 .code-languages-icon__shell {
   background: #000;
-  box-shadow: 0 0 0 1px var(--theme-border-color);
 }
 .code-languages-icon__ruby {
   background: #d91404;
@@ -319,6 +340,7 @@ const getIconByLanguageKey = (languageKey: TargetId) => {
   top: 0;
   left: 0;
   cursor: pointer;
+  z-index: 1;
 }
 .code-languages__select span {
   position: relative;
