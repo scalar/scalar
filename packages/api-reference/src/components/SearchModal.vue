@@ -1,81 +1,88 @@
 <script setup lang="ts">
-import { watch, ref, toRefs, toRef }  from 'vue';
-import type { Spec, Operation } from '../types';
-import FlowModal, { useModalState } from './FlowModal.vue';
-import { useTemplateStore } from '../stores/template';
-import { useOperation } from '@scalar/api-client';
-import Fuse from 'fuse.js';
-import { extractRequestBody } from '../helpers/specHelpers';
+import { useOperation } from '@scalar/api-client'
+import Fuse from 'fuse.js'
+import { ref, toRef, toRefs, watch } from 'vue'
 
-const props = defineProps<{ spec: Spec }>();
-const reactiveSpec = toRef(props, 'spec');
-const modalState = useModalState();
-type FuseData  = {
-  title: string;
-  description: string;
-  body: string | string[];
-  tag?: string;
-  operation?: string;
-  httpVerb?: string;
+import { extractRequestBody } from '../helpers/specHelpers'
+import { useTemplateStore } from '../stores/template'
+import type { Operation, Spec } from '../types'
+import FlowModal, { useModalState } from './FlowModal.vue'
+
+const props = defineProps<{ spec: Spec }>()
+const reactiveSpec = toRef(props, 'spec')
+const modalState = useModalState()
+type FuseData = {
+  title: string
+  description: string
+  body: string | string[]
+  tag?: string
+  operation?: string
+  httpVerb?: string
 }
 
 type HyperlinkClickValue = {
-  operation: string;
-  tag: string;
+  operation: string
+  tag: string
 }
 
-let fuseDataArray: FuseData[] = [];
-const fuseSearchResults = ref<Fuse.FuseResult<FuseData>[]>([]);
-const searchText = ref<string>('');
+let fuseDataArray: FuseData[] = []
+const fuseSearchResults = ref<Fuse.FuseResult<FuseData>[]>([])
+const searchText = ref<string>('')
 
 const fuse = new Fuse(fuseDataArray, {
-  keys: ['title', 'description', 'body']
-});
+  keys: ['title', 'description', 'body'],
+})
 
-const { state, setItem, setCollapsedSidebarItem } = useTemplateStore();
+const { state, setItem, setCollapsedSidebarItem } = useTemplateStore()
 
 const fuseSearch = (): void => {
-  fuseSearchResults.value = fuse.search(searchText.value);
-};
-
-watch(() => state.showSearch, () => {
-  if (state.showSearch) {
-    modalState.show();
-  } else {
-    modalState.hide();
-  }
-});
-
-watch(() => modalState.open, () => {
-  if (!modalState.open) {
-    setItem('showSearch', false);
-  }
-});
-
-function handleHyperLinkClick(value: HyperlinkClickValue): void {
-  const { operation, tag } = value;
-  setCollapsedSidebarItem(tag, true);
-
-  modalState.hide();
-  const elementId = `endpoint/${operation}`;
-  const element = document.getElementById(elementId);
-  element?.scrollIntoView();
+  fuseSearchResults.value = fuse.search(searchText.value)
 }
 
-watch(reactiveSpec.value, () =>  {
-  fuseDataArray = [];
-  props.spec.tags.forEach(tag => {
+watch(
+  () => state.showSearch,
+  () => {
+    if (state.showSearch) {
+      modalState.show()
+    } else {
+      modalState.hide()
+    }
+  },
+)
+
+watch(
+  () => modalState.open,
+  () => {
+    if (!modalState.open) {
+      setItem('showSearch', false)
+    }
+  },
+)
+
+function handleHyperLinkClick(value: HyperlinkClickValue): void {
+  const { operation, tag } = value
+  setCollapsedSidebarItem(tag, true)
+
+  modalState.hide()
+  const elementId = `endpoint/${operation}`
+  const element = document.getElementById(elementId)
+  element?.scrollIntoView()
+}
+
+watch(reactiveSpec.value, () => {
+  fuseDataArray = []
+  props.spec.tags.forEach((tag) => {
     const payload = {
       title: tag.name,
       description: tag.description,
-      body: "",
-    };
-    fuseDataArray.push(payload);
+      body: '',
+    }
+    fuseDataArray.push(payload)
 
     if (tag.operations) {
-      tag.operations.forEach(operation => {
-        const { parameterMap } = useOperation({ operation });
-        let bodyData = extractRequestBody(operation) || parameterMap.value;
+      tag.operations.forEach((operation) => {
+        const { parameterMap } = useOperation({ operation })
+        let bodyData = extractRequestBody(operation) || parameterMap.value
 
         const payload = {
           title: operation.name,
@@ -84,33 +91,46 @@ watch(reactiveSpec.value, () =>  {
           tag: tag.name,
           operation: operation.operationId,
           httpVerb: operation.httpVerb,
-        };
+        }
 
-        fuseDataArray.push(payload);
-      });
+        fuseDataArray.push(payload)
+      })
     }
-  });
+  })
 
-  fuse.setCollection(fuseDataArray);
-});
+  fuse.setCollection(fuseDataArray)
+})
 </script>
 <template>
-    <FlowModal
-        :state="modalState"
-        title="Search">
-        <div>
-          <input placeholder="Search Here..." class="ref-search-input" v-model="searchText" @input="fuseSearch" type="text">
+  <FlowModal
+    :state="modalState"
+    title="Search">
+    <div>
+      <input
+        placeholder="Search Here..."
+        class="ref-search-input"
+        v-model="searchText"
+        @input="fuseSearch"
+        type="text" />
+    </div>
+    <div>
+      <button
+        v-for="entry in fuseSearchResults"
+        :key="entry.refIndex"
+        class="item-entry"
+        @click="handleHyperLinkClick(entry.item)">
+        <div class="item-entry-heading">
+          <span>{{ entry.item.title }}</span>
+          <i
+            class="item-entry-verb"
+            :class="entry.item.httpVerb"
+            >{{ entry.item.httpVerb }}</i
+          >
         </div>
-        <div>
-            <button v-for="entry in fuseSearchResults" :key="entry.refIndex" class="item-entry" @click="handleHyperLinkClick(entry.item)">
-              <div class="item-entry-heading">
-                <span>{{ entry.item.title }}</span>
-                <i class="item-entry-verb" :class="entry.item.httpVerb">{{ entry.item.httpVerb }}</i>
-              </div>
-              <em>{{entry.item.operation}}</em>
-            </button>
-      </div>
-    </FlowModal>
+        <em>{{ entry.item.operation }}</em>
+      </button>
+    </div>
+  </FlowModal>
 </template>
 <style scoped>
 .post {
@@ -157,7 +177,7 @@ watch(reactiveSpec.value, () =>  {
   width: 100%;
   font-size: var(--theme-font-size-3);
   text-align: left;
-  border-bottom: 1px solid var(--theme-border-color)
+  border-bottom: 1px solid var(--theme-border-color);
 }
 .item-entry:hover {
   background: var(--theme-background-2);
@@ -176,7 +196,7 @@ watch(reactiveSpec.value, () =>  {
 .item-entry em {
   display: none;
   font-size: var(--theme-font-size-4);
-  color: var(--theme-color-3)
+  color: var(--theme-color-3);
 }
 .item-entry:hover em {
   display: block;

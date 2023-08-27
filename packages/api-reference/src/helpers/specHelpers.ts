@@ -1,53 +1,58 @@
-import type { Operation, ContentSchema } from '../types';
+import type { ContentSchema, Operation } from '../types'
 
 type PropertyObject = {
-  required?: string[];
+  required?: string[]
   properties: {
     [key: string]: {
-      type: string;
-      description?: string;
-    };
-  };
+      type: string
+      description?: string
+    }
+  }
 }
 
 function formatProperty(key: string, obj: PropertyObject): string {
-  let output = key;
-  const isRequired = obj.required && obj.required.includes(key);
-  output += isRequired ? ' REQUIRED ' : ' optional ';
-  output += obj.properties[key].type;
+  let output = key
+  const isRequired = obj.required && obj.required.includes(key)
+  output += isRequired ? ' REQUIRED ' : ' optional '
+  output += obj.properties[key].type
 
   if (obj.properties[key].description) {
-    output += ' ' + obj.properties[key].description;
+    output += ' ' + obj.properties[key].description
   }
 
-  return output;
+  return output
 }
 
 function recursiveLogger(obj: ContentSchema): string[] {
-  const results: string[] = ['Body'];
+  const results: string[] = ['Body']
 
   Object.keys(obj.schema.properties).forEach((key) => {
-    results.push(formatProperty(key, obj));
+    results.push(formatProperty(key, obj))
 
-    const isNestedObject = obj.schema.properties[key].type === 'object' && obj.schema.properties[key].properties;
+    const isNestedObject =
+      obj.schema.properties[key].type === 'object' &&
+      obj.schema.properties[key].properties
     if (isNestedObject) {
       Object.keys(obj.schema.properties[key].properties).forEach((subKey) => {
-        results.push(`${subKey} ${obj.schema.properties[key].properties[subKey].type}`);
-      });
+        results.push(
+          `${subKey} ${obj.schema.properties[key].properties[subKey].type}`,
+        )
+      })
     }
-  });
+  })
 
-  return results;
+  return results
 }
 
 function extractRequestBody(operation: Operation): string[] | boolean {
   try {
-    const body = operation?.information?.requestBody?.content['application/json'];
-    if (!body) throw new Error("Body not found");
-    return recursiveLogger(body);
+    const body =
+      operation?.information?.requestBody?.content['application/json']
+    if (!body) throw new Error('Body not found')
+    return recursiveLogger(body)
   } catch (error) {
-    return false;
+    return false
   }
 }
 
-export { formatProperty, recursiveLogger, extractRequestBody };
+export { formatProperty, recursiveLogger, extractRequestBody }

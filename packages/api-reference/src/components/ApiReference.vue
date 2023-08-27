@@ -8,8 +8,8 @@ import { useTemplateStore } from '../stores/template'
 import type { ReferenceProps, Spec } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
-import Sidebar from './Sidebar.vue'
 import SearchModal from './SearchModal.vue'
+import Sidebar from './Sidebar.vue'
 
 const props = withDefaults(defineProps<ReferenceProps>(), {
   showSidebar: true,
