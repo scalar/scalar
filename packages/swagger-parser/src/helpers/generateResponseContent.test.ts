@@ -147,6 +147,18 @@ describe('generateResponseContent', () => {
     ).toMatchObject([])
   })
 
+  it('uses array example values', () => {
+    expect(
+      generateResponseContent({
+        type: 'array',
+        example: ['foobar'],
+        items: {
+          type: 'string',
+        },
+      }),
+    ).toMatchObject(['foobar'])
+  })
+
   it('converts a whole schema to an example response', () => {
     const schema = {
       required: ['name', 'photoUrls'],

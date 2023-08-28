@@ -3,6 +3,10 @@
  */
 export const generateResponseContent = (schema: Record<string, any>) => {
   if (schema.type === 'array') {
+    if (schema.example !== undefined) {
+      return schema.example
+    }
+
     return []
   }
 
