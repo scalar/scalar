@@ -31,7 +31,7 @@ const {
   requestHistory,
   requestHistoryOrder,
   readOnly,
-  // setActiveRequest,
+  setActiveRequest,
 } = useApiClientRequestStore()
 
 const historyModal = useModalState()
@@ -87,9 +87,12 @@ useKeyboardEvent({
   handler: send,
 })
 
-const onChange = () => {
-  // const onChange = (value: string) => {
-  // setActiveRequest({ ...activeRequest, url: value })
+const onChange = (value: string) => {
+  if (activeRequest.url === value) {
+    return
+  }
+
+  setActiveRequest({ ...activeRequest, url: value })
 }
 </script>
 

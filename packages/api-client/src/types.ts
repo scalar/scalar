@@ -50,7 +50,7 @@ export type FormDataItem = BaseParameter
 
 /** Complete request state for a client request */
 export type ClientRequestConfig = {
-  id: string
+  id?: string
   name: string
   url: string
   /** HTTP Request Method */
