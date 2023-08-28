@@ -21,6 +21,7 @@ import { ruby } from '@codemirror/legacy-modes/mode/ruby'
 import { shell } from '@codemirror/legacy-modes/mode/shell'
 import { swift } from '@codemirror/legacy-modes/mode/swift'
 import { type Extension } from '@codemirror/state'
+import { keymap } from '@codemirror/view'
 import {
   EditorView,
   type ViewUpdate,
@@ -78,14 +79,20 @@ type Language =
   | 'swift'
   | 'php'
 
-const props = defineProps<{
-  content?: string
-  readOnly?: boolean
-  languages?: Language[]
-  withVariables?: boolean
-  lineNumbers?: boolean
-  withoutTheme?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    content?: string
+    readOnly?: boolean
+    languages?: Language[]
+    withVariables?: boolean
+    lineNumbers?: boolean
+    withoutTheme?: boolean
+    disableEnter?: boolean
+  }>(),
+  {
+    disableEnter: false,
+  },
+)
 
 const emit = defineEmits<{
   (e: 'change', value: string): void
@@ -125,6 +132,32 @@ const getCodeMirrorExtensions = () => {
   // Highlight variables
   if (props.withVariables) {
     extensions.push(variables())
+  }
+
+  if (props.disableEnter) {
+    extensions.push(
+      keymap.of([
+        {
+          key: 'Enter',
+          run: () => {
+            return true
+          },
+        },
+        {
+          key: 'Ctrl-Enter',
+          mac: 'Cmd-Enter',
+          run: () => {
+            return true
+          },
+        },
+        {
+          key: 'Shift-Enter',
+          run: () => {
+            return true
+          },
+        },
+      ]),
+    )
   }
 
   // Listen to updates
