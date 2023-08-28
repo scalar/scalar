@@ -152,6 +152,9 @@ importers:
       '@scalar/swagger-editor':
         specifier: workspace:*
         version: link:../swagger-editor
+      '@scalar/swagger-parser':
+        specifier: workspace:*
+        version: link:../swagger-parser
       '@scalar/use-clipboard':
         specifier: workspace:*
         version: link:../use-clipboard
@@ -228,6 +231,12 @@ importers:
       vite:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
+      vite-plugin-css-injected-by-js:
+        specifier: ^3.3.0
+        version: 3.3.0(vite@4.4.8)
+      vite-plugin-node-polyfills:
+        specifier: ^0.11.2
+        version: 0.11.2(vite@4.4.8)
       vite-plugin-top-level-await:
         specifier: ^1.3.1
         version: 1.3.1(vite@4.4.8)
@@ -7103,6 +7112,14 @@ packages:
       - sugarss
       - supports-color
       - terser
+    dev: true
+
+  /vite-plugin-css-injected-by-js@3.3.0(vite@4.4.8):
+    resolution: {integrity: sha512-xG+jyHNCmUqi/TXp6q88wTJGeAOrNLSyUUTp4qEQ9QZLGcHWQQsCsSSKa59rPMQr8sOzfzmWDd8enGqfH/dBew==}
+    peerDependencies:
+      vite: '>2.0.0-0'
+    dependencies:
+      vite: 4.4.8(@types/node@20.3.1)
     dev: true
 
   /vite-plugin-node-polyfills@0.11.2(vite@4.4.8):

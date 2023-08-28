@@ -1,0 +1,929 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Core",
+    "description": "services for ApiDocs",
+    "version": "0.0.1"
+  },
+  "components": { "schemas": {} },
+  "paths": {
+    "/login/google/callback": {
+      "get": {
+        "tags": ["auth"],
+        "responses": { "200": { "description": "Default Response" } }
+      }
+    },
+    "/login/github/callback": {
+      "get": {
+        "tags": ["auth"],
+        "responses": { "200": { "description": "Default Response" } }
+      }
+    },
+    "/login/google": {
+      "get": {
+        "tags": ["auth"],
+        "responses": { "200": { "description": "Default Response" } }
+      }
+    },
+    "/login/github": {
+      "get": {
+        "tags": ["auth"],
+        "responses": { "200": { "description": "Default Response" } }
+      }
+    },
+    "/socket": {
+      "get": {
+        "tags": ["socket"],
+        "responses": { "200": { "description": "Default Response" } }
+      }
+    },
+    "/login/email": {
+      "post": {
+        "tags": ["auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string" }
+                },
+                "required": ["email", "password"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "refreshToken": { "type": "string" },
+                    "accessToken": { "type": "string" }
+                  },
+                  "required": ["refreshToken", "accessToken"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login/email-signup": {
+      "post": {
+        "tags": ["auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "minLength": 8 }
+                },
+                "required": ["email", "password"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "refreshToken": { "type": "string" },
+                    "accessToken": { "type": "string" }
+                  },
+                  "required": ["refreshToken", "accessToken"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login/refresh": {
+      "post": {
+        "tags": ["auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refreshToken": { "type": "string" },
+                  "teamUid": { "type": "string" }
+                },
+                "required": ["refreshToken"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "refreshToken": { "type": "string" },
+                    "accessToken": { "type": "string" }
+                  },
+                  "required": ["refreshToken", "accessToken"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login/request-password-reset": {
+      "post": {
+        "tags": ["auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "clientId": { "type": "string" }
+                },
+                "required": ["email", "clientId"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": { "200": { "description": "Default Response" } }
+      }
+    },
+    "/login/reset-password": {
+      "post": {
+        "tags": ["auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "clientId": { "type": "string" },
+                  "resetToken": { "type": "string" },
+                  "password": { "type": "string" }
+                },
+                "required": ["clientId", "resetToken", "password"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "refreshToken": { "type": "string" },
+                    "accessToken": { "type": "string" }
+                  },
+                  "required": ["refreshToken", "accessToken"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/db": {
+      "post": {
+        "tags": ["auth"],
+        "description": "Get an access token that will allow yjs document access to a select collection path",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "collectionPath": { "type": "string" },
+                  "docId": { "type": "string" },
+                  "yjsIdPath": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                },
+                "required": ["collectionPath", "docId", "yjsIdPath"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "refreshToken": { "type": "string" },
+                    "accessToken": { "type": "string" }
+                  },
+                  "required": ["refreshToken", "accessToken"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/db/refresh": {
+      "post": {
+        "tags": ["auth"],
+        "description": "Issue a new short lived access token for a given yjs doc",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "refreshToken": { "type": "string" } },
+                "required": ["refreshToken"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "accessToken": { "type": "string" } },
+                  "required": ["accessToken"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/database/get-one": {
+      "post": {
+        "tags": ["database"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "collectionPath": { "type": "string" },
+                  "query": {
+                    "type": "object",
+                    "additionalProperties": { "type": "string" }
+                  }
+                },
+                "required": ["collectionPath", "query"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {}
+      }
+    },
+    "/database/get-many": {
+      "post": {
+        "tags": ["database"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "collectionPath": { "type": "string" },
+                  "query": {
+                    "type": "object",
+                    "additionalProperties": { "type": "string" }
+                  }
+                },
+                "required": ["collectionPath", "query"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {}
+      }
+    },
+    "/database/add-one": {
+      "post": {
+        "tags": ["database"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "collectionPath": { "type": "string" },
+                  "data": { "type": "object", "additionalProperties": {} }
+                },
+                "required": ["collectionPath", "data"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {}
+      }
+    },
+    "/database/add-many": {
+      "post": {
+        "tags": ["database"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "collectionPath": { "type": "string" },
+                  "data": {
+                    "type": "array",
+                    "items": { "type": "object", "additionalProperties": {} }
+                  }
+                },
+                "required": ["collectionPath", "data"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {}
+      }
+    },
+    "/database/update-one": {
+      "post": {
+        "tags": ["database"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "collectionPath": { "type": "string" },
+                  "data": { "type": "object", "additionalProperties": {} },
+                  "query": {
+                    "type": "object",
+                    "additionalProperties": { "type": "string" }
+                  }
+                },
+                "required": ["collectionPath", "data", "query"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {}
+      }
+    },
+    "/database/delete-one": {
+      "post": {
+        "tags": ["database"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "collectionPath": { "type": "string" },
+                  "query": {
+                    "type": "object",
+                    "additionalProperties": { "type": "string" }
+                  }
+                },
+                "required": ["collectionPath", "query"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {}
+      }
+    },
+    "/database/delete-many": {
+      "post": {
+        "tags": ["database"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "collectionPath": { "type": "string" },
+                  "query": {
+                    "type": "object",
+                    "additionalProperties": { "type": "string" }
+                  }
+                },
+                "required": ["collectionPath", "query"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {}
+      }
+    },
+    "/database/drop-collection": {
+      "post": {
+        "tags": ["database"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "collectionPath": { "type": "string" } },
+                "required": ["collectionPath"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {}
+      }
+    },
+    "/database/batch-write": {
+      "post": {
+        "tags": ["database"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "actions": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": { "type": "string", "enum": ["addOne"] },
+                            "collectionPath": { "type": "string" },
+                            "query": {
+                              "type": "object",
+                              "additionalProperties": { "type": "string" }
+                            },
+                            "data": {
+                              "type": "object",
+                              "additionalProperties": {}
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "collectionPath",
+                            "query",
+                            "data"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": { "type": "string", "enum": ["addMany"] },
+                            "collectionPath": { "type": "string" },
+                            "query": {
+                              "type": "object",
+                              "additionalProperties": { "type": "string" }
+                            },
+                            "data": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "additionalProperties": {}
+                              }
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "collectionPath",
+                            "query",
+                            "data"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": { "type": "string", "enum": ["updateOne"] },
+                            "collectionPath": { "type": "string" },
+                            "query": {
+                              "type": "object",
+                              "additionalProperties": { "type": "string" }
+                            },
+                            "data": {
+                              "type": "object",
+                              "additionalProperties": {}
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "collectionPath",
+                            "query",
+                            "data"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": ["deleteOne", "deleteMany"]
+                            },
+                            "collectionPath": { "type": "string" },
+                            "query": {
+                              "type": "object",
+                              "additionalProperties": { "type": "string" }
+                            }
+                          },
+                          "required": ["type", "collectionPath", "query"],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": ["dropCollection"]
+                            },
+                            "collectionPath": { "type": "string" }
+                          },
+                          "required": ["type", "collectionPath"],
+                          "additionalProperties": false
+                        }
+                      ]
+                    }
+                  }
+                },
+                "required": ["actions"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {}
+      }
+    },
+    "/team/create": {
+      "post": {
+        "tags": ["team"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "project": {
+                    "type": "object",
+                    "properties": {
+                      "uid": { "type": "string", "minLength": 5 },
+                      "name": { "type": "string" },
+                      "activeTemplateId": { "type": "string", "default": "" },
+                      "activeThemeId": { "type": "string", "default": "" },
+                      "activeVersionId": { "type": "string", "default": "" },
+                      "createdAt": { "type": "integer", "minimum": 0 },
+                      "updatedAt": { "type": "integer", "minimum": 0 },
+                      "logo": {
+                        "type": "object",
+                        "properties": {
+                          "darkMode": { "type": "string" },
+                          "lightMode": { "type": "string" }
+                        },
+                        "required": ["darkMode", "lightMode"],
+                        "additionalProperties": false
+                      },
+                      "website": {
+                        "type": "object",
+                        "properties": {
+                          "lastDeployed": { "type": "integer", "minimum": 0 },
+                          "subdomainPrefix": { "type": "string" },
+                          "customUrl": { "type": "string" },
+                          "title": { "type": "string" },
+                          "description": { "type": "string" },
+                          "favicon": { "type": "string" },
+                          "ogImage": { "type": "string" }
+                        },
+                        "required": [
+                          "lastDeployed",
+                          "subdomainPrefix",
+                          "customUrl"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "typesenseId": { "type": "number" }
+                    },
+                    "required": [
+                      "uid",
+                      "name",
+                      "createdAt",
+                      "updatedAt",
+                      "logo",
+                      "website"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "teamInfo": {
+                    "type": "object",
+                    "properties": { "name": { "type": "string" } },
+                    "required": ["name"],
+                    "additionalProperties": false
+                  }
+                },
+                "required": ["teamInfo"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "refreshToken": { "type": "string" },
+                    "accessToken": { "type": "string" }
+                  },
+                  "required": ["refreshToken", "accessToken"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/team/invite": {
+      "post": {
+        "tags": ["team"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email" }
+                },
+                "required": ["email"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": { "200": { "description": "Default Response" } }
+      }
+    },
+    "/team/accept-invite": {
+      "get": {
+        "tags": ["team"],
+        "parameters": [
+          {
+            "schema": { "type": "string" },
+            "in": "query",
+            "name": "token",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": { "schema": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "/team/rename": {
+      "post": {
+        "tags": ["team"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "name": { "type": "string" } },
+                "required": ["name"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": { "200": { "description": "Default Response" } }
+      }
+    },
+    "/team/leave": {
+      "get": {
+        "tags": ["team"],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "refreshToken": { "type": "string" },
+                    "accessToken": { "type": "string" }
+                  },
+                  "required": ["refreshToken", "accessToken"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/team": {
+      "delete": {
+        "tags": ["team"],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "type": "null" } } }
+        },
+        "responses": { "200": { "description": "Default Response" } }
+      }
+    },
+    "/team/delete-member": {
+      "post": {
+        "tags": ["team"],
+        "description": "Remove a user from the team",
+        "responses": { "200": { "description": "Default Response" } }
+      }
+    },
+    "/feedback": {
+      "post": {
+        "tags": ["utility"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "feedback": { "type": "string", "minLength": 5 }
+                },
+                "required": ["email", "feedback"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": { "200": { "description": "Default Response" } }
+      }
+    },
+    "/payment/start": { "get": { "tags": ["payment"], "responses": {} } },
+    "/payment/edit": { "get": { "tags": ["payment"], "responses": {} } },
+    "/stripe": {
+      "post": {
+        "tags": ["payment"],
+        "description": "Stripe webhook handling",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "type": "object", "additionalProperties": {} }
+            }
+          }
+        },
+        "responses": { "200": { "description": "Default Response" } }
+      }
+    },
+    "/publish": {
+      "post": {
+        "tags": ["publish"],
+        "description": "Deploys a set of versions to a subdomain or custom domain",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "projectID": { "type": "string" },
+                  "versions": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["projectID", "versions"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": { "200": { "description": "Default Response" } }
+      }
+    },
+    "/publish/dns-check": {
+      "post": {
+        "tags": ["publish"],
+        "description": "Validates the DNS records for a specified subdomain",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "domain": { "type": "string" },
+                  "isScalarSubdomain": { "type": "boolean" }
+                },
+                "required": ["domain"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "invalidRecords": { "type": "boolean" } },
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/publish/deploy-check": {
+      "get": {
+        "tags": ["publish"],
+        "description": "Verifies a specific site is deployed and SSL certificates can be issued for it. ",
+        "parameters": [
+          {
+            "schema": { "type": "string" },
+            "in": "query",
+            "name": "domain",
+            "required": true
+          }
+        ],
+        "responses": { "200": { "description": "Default Response" } }
+      }
+    },
+    "/ping": {
+      "get": { "responses": { "200": { "description": "Default Response" } } }
+    },
+    "/ping-auth": {
+      "get": { "responses": { "200": { "description": "Default Response" } } }
+    }
+  },
+  "tags": [
+    { "name": "database", "description": "Database access endpoints" },
+    { "name": "auth", "description": "Authorization flows" },
+    { "name": "socket", "description": "Websocket connection endpoint" }
+  ]
+}

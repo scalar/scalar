@@ -9,7 +9,8 @@
     "format:check": "pnpm prettier --check .",
     "test": "pnpm -r test",
     "build": "pnpm -r build",
-    "bump": "pnpm run build && CI=true pnpm run test && pnpm changeset version && pnpm install"
+    "bump": "pnpm run build && CI=true pnpm run test && pnpm changeset version && pnpm install",
+    "build:cdn": "pnpm --filter api-reference build:cdn"
   },
   "devDependencies": {
     "@babel/runtime": "^7.22.10",

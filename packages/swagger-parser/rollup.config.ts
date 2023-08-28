@@ -11,7 +11,6 @@ const config: RollupOptions = {
     dir: 'dist',
     format: 'esm',
   },
-  external: ['@apidevtools/swagger-parser', 'js-yaml'],
   plugins: [
     del({ targets: 'dist/*' }),
     typescript(),

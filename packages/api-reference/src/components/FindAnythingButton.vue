@@ -26,7 +26,7 @@ import FlowIcon from './Icon/FlowIcon.vue'
   margin: 12px var(--margin-x) 6px var(--margin-x);
   padding: 0 12px;
 
-  color: var(--theme-color-3);
+  color: var(--sidebar-color-2, var(--theme-color-2));
   outline: none;
   border-radius: var(--theme-radius-lg);
   border: 1px solid var(--theme-border-color);
