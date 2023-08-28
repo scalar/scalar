@@ -1,2 +1,2 @@
 // export { useCopilot } from './useCopilot'
-export { useOperation } from './useOperation'
+export { useOperation, type ParamMap } from './useOperation'

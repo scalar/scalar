@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useOperation } from '@scalar/api-client'
+import { type ParamMap, useOperation } from '@scalar/api-client'
 import Fuse from 'fuse.js'
 import { ref, toRef, toRefs, watch } from 'vue'
 
@@ -14,7 +14,7 @@ const modalState = useModalState()
 type FuseData = {
   title: string
   description: string
-  body: string | string[]
+  body?: string | string[] | ParamMap
   tag?: string
   operation?: string
   httpVerb?: string
@@ -59,8 +59,13 @@ watch(
   },
 )
 
-function handleHyperLinkClick(value: HyperlinkClickValue): void {
-  const { operation, tag } = value
+function handleHyperLinkClick(
+  operation: string | undefined,
+  tag: string | undefined,
+): void {
+  if (!operation || !tag) {
+    return
+  }
   setCollapsedSidebarItem(tag, true)
 
   modalState.hide()
@@ -83,14 +88,21 @@ watch(reactiveSpec.value, () => {
       tag.operations.forEach((operation) => {
         const { parameterMap } = useOperation({ operation })
         let bodyData = extractRequestBody(operation) || parameterMap.value
+        let body = null
+        if (typeof bodyData !== 'boolean') {
+          body = bodyData
+        }
 
-        const payload = {
+        const payload: FuseData = {
           title: operation.name,
           description: operation.description,
-          body: bodyData,
           tag: tag.name,
           operation: operation.operationId,
           httpVerb: operation.httpVerb,
+        }
+
+        if (body) {
+          payload.body = body
         }
 
         fuseDataArray.push(payload)
@@ -118,7 +130,7 @@ watch(reactiveSpec.value, () => {
         v-for="entry in fuseSearchResults"
         :key="entry.refIndex"
         class="item-entry"
-        @click="handleHyperLinkClick(entry.item)">
+        @click="handleHyperLinkClick(entry.item.operation, entry.item.tag)">
         <div class="item-entry-heading">
           <span>{{ entry.item.title }}</span>
           <i
