@@ -15,11 +15,7 @@ export const getExampleResponses = (responses: Record<string, any>) => {
     if (jsonResponseSchema !== undefined) {
       // Actually generate the example response content.
       exampleResponses[responseCode].content['application/json'].body =
-        JSON.stringify(
-          generateResponseContent(jsonResponseSchema.properties),
-          null,
-          2,
-        )
+        JSON.stringify(generateResponseContent(jsonResponseSchema), null, 2)
     }
   })
 

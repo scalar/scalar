@@ -1,15 +1,19 @@
 /**
  * This function takes a properties object and generates an example response content.
  */
-export const generateResponseContent = (properties: Record<string, any>) => {
-  const response: Record<string, any> = {}
+export const generateResponseContent = (schema: Record<string, any>) => {
+  if (schema.type === 'array') {
+    return []
+  }
 
-  if (typeof properties !== 'object') {
+  const response: Record<string, any> | any[] = {}
+
+  if (typeof schema.properties !== 'object') {
     return response
   }
 
-  Object.keys(properties).forEach((name: string) => {
-    const property = properties[name]
+  Object.keys(schema.properties).forEach((name: string) => {
+    const property = schema.properties[name]
 
     // example: 'Dogs'
     if (property.example !== undefined) {
@@ -25,14 +29,14 @@ export const generateResponseContent = (properties: Record<string, any>) => {
 
     // properties: { … }
     if (property.properties !== undefined) {
-      response[name] = generateResponseContent(property.properties)
+      response[name] = generateResponseContent(property)
 
       return
     }
 
     // items: { properties: { … } }
     if (property.items?.properties !== undefined) {
-      const children = generateResponseContent(property.items.properties)
+      const children = generateResponseContent(property.items)
 
       if (property?.type === 'array') {
         response[name] = [children]
