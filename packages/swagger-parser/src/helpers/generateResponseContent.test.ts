@@ -5,8 +5,10 @@ describe('generateResponseContent', () => {
   it('sets example values', () => {
     expect(
       generateResponseContent({
-        id: {
-          example: 10,
+        properties: {
+          id: {
+            example: 10,
+          },
         },
       }),
     ).toMatchObject({
@@ -17,8 +19,10 @@ describe('generateResponseContent', () => {
   it('takes the first enum as example', () => {
     expect(
       generateResponseContent({
-        status: {
-          enum: ['available', 'pending', 'sold'],
+        properties: {
+          status: {
+            enum: ['available', 'pending', 'sold'],
+          },
         },
       }),
     ).toMatchObject({
@@ -29,14 +33,16 @@ describe('generateResponseContent', () => {
   it('goes through properties recursively with objects', () => {
     expect(
       generateResponseContent({
-        category: {
-          type: 'object',
-          properties: {
-            id: {
-              example: 1,
-            },
-            name: {
-              example: 'Dogs',
+        properties: {
+          category: {
+            type: 'object',
+            properties: {
+              id: {
+                example: 1,
+              },
+              name: {
+                example: 'Dogs',
+              },
             },
           },
         },
@@ -52,12 +58,14 @@ describe('generateResponseContent', () => {
   it('goes through properties recursively with arrays', () => {
     expect(
       generateResponseContent({
-        tags: {
-          type: 'array',
-          items: {
-            properties: {
-              id: {
-                example: 1,
+        properties: {
+          tags: {
+            type: 'array',
+            items: {
+              properties: {
+                id: {
+                  example: 1,
+                },
               },
             },
           },
@@ -75,8 +83,10 @@ describe('generateResponseContent', () => {
   it('uses empty quotes as a fallback for arrays', () => {
     expect(
       generateResponseContent({
-        title: {
-          type: 'array',
+        properties: {
+          title: {
+            type: 'array',
+          },
         },
       }),
     ).toMatchObject({
@@ -87,8 +97,10 @@ describe('generateResponseContent', () => {
   it('uses empty quotes as a fallback for strings', () => {
     expect(
       generateResponseContent({
-        title: {
-          type: 'string',
+        properties: {
+          title: {
+            type: 'string',
+          },
         },
       }),
     ).toMatchObject({
@@ -99,8 +111,10 @@ describe('generateResponseContent', () => {
   it('uses true as a fallback for booleans', () => {
     expect(
       generateResponseContent({
-        public: {
-          type: 'boolean',
+        properties: {
+          public: {
+            type: 'boolean',
+          },
         },
       }),
     ).toMatchObject({
@@ -111,13 +125,38 @@ describe('generateResponseContent', () => {
   it('uses 1 as a fallback for integers', () => {
     expect(
       generateResponseContent({
-        id: {
-          type: 'integer',
+        properties: {
+          id: {
+            type: 'integer',
+          },
         },
       }),
     ).toMatchObject({
       id: 1,
     })
+  })
+
+  it('returns an array if the schema type is array', () => {
+    expect(
+      generateResponseContent({
+        type: 'array',
+        items: {
+          type: 'string',
+        },
+      }),
+    ).toMatchObject([])
+  })
+
+  it('uses array example values', () => {
+    expect(
+      generateResponseContent({
+        type: 'array',
+        example: ['foobar'],
+        items: {
+          type: 'string',
+        },
+      }),
+    ).toMatchObject(['foobar'])
   })
 
   it('converts a whole schema to an example response', () => {
@@ -195,7 +234,7 @@ describe('generateResponseContent', () => {
       },
     }
 
-    expect(generateResponseContent(schema.properties)).toMatchObject({
+    expect(generateResponseContent(schema)).toMatchObject({
       id: 10,
       name: 'doggie',
       category: {
