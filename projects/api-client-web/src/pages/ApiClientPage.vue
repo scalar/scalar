@@ -10,5 +10,5 @@ readOnly.value = false
 </script>
 
 <template>
-  <ApiClient proxy-url="http://localhost:4800" />
+  <ApiClient proxy-url="http://localhost:5051" />
 </template>
