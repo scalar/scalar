@@ -13,6 +13,7 @@ type RendererProps = {
 const attrsToObject = (m: NamedNodeMap) =>
   Object.fromEntries(Array.from(m).map((t) => [t.name, t.value]))
 
+// Can be the native DOMParser, or xmldom's DOMParser
 type DOMParserType = {
   new (): DOMParser
   prototype: DOMParser
@@ -24,12 +25,15 @@ type DOMParserType = {
  * @param {string} raw A raw string containing an SVG element.
  * @returns An SVG vnode or `undefined` if unparsable.
  */
-const Renderer =
+const getRendererComponent =
   (Parser: DOMParserType): FunctionalComponent<RendererProps> =>
   ({ raw }) => {
     const parser = new Parser()
     const parsed = parser.parseFromString(raw, 'image/svg+xml')
-    if (parsed.getElementsByTagName('parsererror').length) return undefined
+
+    if (parsed.getElementsByTagName('parsererror').length) {
+      return undefined
+    }
 
     const svg = parsed.documentElement
     const attrs = attrsToObject(svg.attributes)
@@ -40,13 +44,6 @@ const Renderer =
     return h('svg', { ...rest, innerHTML: svg.innerHTML })
   }
 
-Renderer.props = {
-  raw: {
-    type: String,
-    required: true,
-  },
-}
-
 export default defineAsyncComponent(async () => {
   // Use a DOMParser library if it's not in the browser
   const Parser =
@@ -54,5 +51,16 @@ export default defineAsyncComponent(async () => {
       ? (await import('xmldom')).DOMParser
       : DOMParser
 
-  return Renderer(Parser)
+  // Get the actual component, pass the DOMParser
+  const Renderer = getRendererComponent(Parser)
+
+  // Add props to it
+  Renderer.props = {
+    raw: {
+      type: String,
+      required: true,
+    },
+  }
+
+  return Renderer
 })
