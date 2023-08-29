@@ -15,7 +15,8 @@
     "test": "vitest",
     "types:build": "vue-tsc -p tsconfig.build.json",
     "types:check": "vue-tsc --noEmit --skipLibCheck",
-    "build:cdn": "vite build -c cdn.vite.config.ts"
+    "build:cdn": "vite build -c vite.cdn.config.ts",
+    "preview:cdn": "vite preview -c vite.cdn.config.ts"
   },
   "type": "module",
   "files": [
