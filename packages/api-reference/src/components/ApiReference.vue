@@ -153,7 +153,21 @@ const breadCrumbs = computed(() => {
 <!-- <style src="../assets/css/variables.css"></style> -->
 <style src="../../../theme/theme.css"></style>
 
-<style>
+<style lang="postcss">
+/** CSS Normalize */
+.scalar-api-reference {
+  @import 'node_modules/modern-normalize/modern-normalize.css';
+
+  ul,
+  ol {
+    padding: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
 /** Utilities, how do we deal with them? */
 .flex {
   display: flex;

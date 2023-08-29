@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// TODO: This file is basically a duplicate of ApiReference.vue with just some minor changes.
+// Let’s find a way to share the code between the two components.
 import { useApiClientStore } from '@scalar/api-client'
 import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
@@ -207,7 +209,21 @@ const breadCrumbs = computed(() => {
 <!-- <style src="../assets/css/variables.css"></style> -->
 <style src="../../../theme/theme.css"></style>
 
-<style>
+<style lang="postcss">
+/** CSS Normalize */
+.scalar-api-reference {
+  @import 'node_modules/modern-normalize/modern-normalize.css';
+
+  ul,
+  ol {
+    padding: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
 /** Utilities, how do we deal with them? */
 .flex {
   display: flex;
