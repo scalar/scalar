@@ -82,26 +82,58 @@ const handleSpecUpdate = async (newSpec) => {
 // }
 // xhr.send()
 
-// fetch('http://petstore.swagger.io/v2/swagger.json')
-fetch('../scalar.json')
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-    return response.json()
-  })
-  .then((data) => {
-    parseSwaggerFile(data)
-      .then((spec: SwaggerSpec) => {
-        handleSpecUpdate(spec)
-      })
-      .catch((error) => {
-        console.log(error.toString())
-      })
-  })
-  .catch((error) => {
-    console.log('There was a problem with the fetch operation:', error.message)
-  })
+;(() => {
+  const specUrlElement = document.querySelector('div[data-spec-url]')
+
+  if (!specUrlElement) {
+    console.error(
+      'Could not find an element providing an OpenAPI/Swagger spec URL. Try adding it like this: %c<div data-spec-url="https://scalar.com/swagger.json"></div>',
+      'font-family: monospace;',
+    )
+
+    return
+  }
+
+  const specUrl = specUrlElement.getAttribute('data-spec-url')
+
+  console.info(
+    'Found an element providing an OpenAPI/Swagger spec URL:',
+    specUrl,
+  )
+
+  if (specUrl === null || specUrl.length === 0) {
+    console.error(
+      'This doesn’t seem to be a valid OpenAPI/Swagger spec URL:',
+      specUrl,
+    )
+
+    return
+  }
+
+  fetch(specUrl)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('The provided OpenAPI/Swagger spec URL is invalid.')
+      }
+
+      return response.json()
+    })
+    .then((data) => {
+      parseSwaggerFile(data)
+        .then((spec: SwaggerSpec) => {
+          handleSpecUpdate(spec)
+        })
+        .catch((error) => {
+          console.log(error.toString())
+        })
+    })
+    .catch((error) => {
+      console.log(
+        'Could not fetch the OpenAPI/Swagger Spec file:',
+        error.message,
+      )
+    })
+})()
 
 onMounted(() => {
   document.querySelector('#tippy')?.scrollTo({

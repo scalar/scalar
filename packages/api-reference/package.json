@@ -47,6 +47,7 @@
     "codemirror": "6.0.1",
     "httpsnippet-lite": "3.0.5",
     "js-yaml": "4.1.0",
+    "modern-normalize": "^2.0.0",
     "nanoid": "4.0.2",
     "rehype-document": "6.1.0",
     "rehype-format": "4.0.1",

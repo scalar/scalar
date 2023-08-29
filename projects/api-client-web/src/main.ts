@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import ApiClientPage from './pages/ApiClientPage.vue'
 import ApiReferencePage from './pages/ApiReferencePage.vue'
+import StandaloneApiReferencePage from './pages/StandaloneApiReferencePage.vue'
 import StartPage from './pages/StartPage.vue'
 import SwaggerEditorPage from './pages/SwaggerEditorPage.vue'
 import './style.css'
@@ -15,6 +16,11 @@ const routes = [
     path: '/api-reference',
     name: 'api-reference',
     component: ApiReferencePage,
+  },
+  {
+    path: '/standalone-api-reference',
+    name: 'standalone-api-reference',
+    component: StandaloneApiReferencePage,
   },
   {
     path: '/swagger-editor',
