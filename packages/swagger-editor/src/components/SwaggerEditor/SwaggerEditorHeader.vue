@@ -17,7 +17,6 @@ const { files, open, reset } = useFileDialog({
 })
 
 const swaggerURLModalState = useModalState()
-const syncGitModal = useModalState()
 const swaggerUrl = ref('')
 
 async function fetchURL() {
@@ -67,23 +66,8 @@ const importExampleFile = () => {
         @click="swaggerURLModalState.show">
         <i>Import </i>URL
       </button>
-      <button
-        type="button"
-        @click="syncGitModal.show">
-        <i>Sync With </i>Git
-      </button>
     </div>
   </div>
-  <FlowModal
-    :state="syncGitModal"
-    title="Sync with Git">
-    <div class="flex-col gap-1">
-      <h1>coming soon!</h1>
-      <FlowButton
-        label="Close"
-        @click="syncGitModal.hide()" />
-    </div>
-  </FlowModal>
   <FlowModal
     :state="swaggerURLModalState"
     title="Import Swagger from URL">
