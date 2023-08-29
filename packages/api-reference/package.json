@@ -16,7 +16,7 @@
     "types:build": "vue-tsc -p tsconfig.build.json",
     "types:check": "vue-tsc --noEmit --skipLibCheck",
     "build:cdn": "vite build -c vite.cdn.config.ts",
-    "preview:cdn": "vite preview -c vite.cdn.config.ts"
+    "preview:cdn": "http-server"
   },
   "type": "module",
   "files": [
@@ -62,6 +62,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",
+    "http-server": "^14.1.1",
     "tsc-alias": "1.8.6",
     "vite": "4.4.8",
     "vite-plugin-css-injected-by-js": "^3.3.0",
