@@ -2,7 +2,7 @@
   "name": "@scalar/swagger-editor",
   "version": "0.1.13",
   "author": "Scalar",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": {
     "node": ">=18"
   },

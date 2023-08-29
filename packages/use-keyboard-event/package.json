@@ -2,7 +2,7 @@
   "name": "@scalar/use-keyboard-event",
   "version": "0.1.4",
   "author": "Scalar",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": {
     "node": ">=18"
   },
