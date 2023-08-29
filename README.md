@@ -111,7 +111,7 @@ Build all packages:
 
 ## License
 
-TBD 🤔
+The source code in this repository is licensed under [MIT](https://github.com/scalar/api-reference/blob/main/LICENSE).
 
 ## Publishing new versions (requires access to @scalar on npm)
 
