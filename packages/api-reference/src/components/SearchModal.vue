@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type ParamMap, useOperation } from '@scalar/api-client'
 import Fuse from 'fuse.js'
-import { ref, toRef, toRefs, watch } from 'vue'
+import { nextTick, ref, toRef, toRefs, watch } from 'vue'
 
 import { extractRequestBody } from '../helpers/specHelpers'
 import { useTemplateStore } from '../stores/template'
@@ -59,16 +59,19 @@ watch(
   },
 )
 
-function handleHyperLinkClick(
+async function handleHyperLinkClick(
   operation: string | undefined,
   tag: string | undefined,
-): void {
+) {
   if (!operation || !tag) {
     return
   }
   setCollapsedSidebarItem(tag, true)
 
   modalState.hide()
+
+  await nextTick()
+
   const elementId = `endpoint/${operation}`
   const element = document.getElementById(elementId)
   element?.scrollIntoView()
@@ -92,7 +95,6 @@ watch(reactiveSpec.value, () => {
         if (typeof bodyData !== 'boolean') {
           body = bodyData
         }
-
         const payload: FuseData = {
           title: operation.name,
           description: operation.description,
