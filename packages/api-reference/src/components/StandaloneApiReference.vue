@@ -1,8 +1,10 @@
 <script setup lang="ts">
+// TODO: This file is basically a duplicate of ApiReference.vue with just some minor changes.
+// Let’s find a way to share the code between the two components.
 import { useApiClientStore } from '@scalar/api-client'
-// import '@scalar/swagger-editor/style.css'
+import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, defineAsyncComponent, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceProps, Spec } from '../types'
@@ -10,17 +12,12 @@ import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
 import Sidebar from './Sidebar.vue'
 
+const ready = ref(false)
+
 const props = withDefaults(defineProps<ReferenceProps>(), {
   showSidebar: true,
   isEditable: false,
 })
-
-/**
- * The editor component has heavy dependencies (process), let's lazy load it.
- */
-const LazyLoadedCodeEditor = defineAsyncComponent(() =>
-  import('@scalar/swagger-editor').then((module) => module.CodeEditor),
-)
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
 const isMobile = useMediaQuery('(max-width: 1000px)')
@@ -59,14 +56,86 @@ const spec = reactive<Spec>({
 })
 
 // @ts-ignore
-const handleSpecUpdate = (newSpec) => {
+const handleSpecUpdate = async (newSpec) => {
   Object.assign(spec, newSpec)
 
   if (!state.activeSidebar) {
     toggleCollapsedSidebarItem(spec.tags[0].name)
     setActiveSidebar(spec.tags[0].operations[0].operationId)
   }
+  await nextTick()
+  ready.value = true
 }
+
+// var xhr = new XMLHttpRequest()
+// xhr.open('GET', 'http://petstore.swagger.io/v2/swagger.json', true)
+// xhr.onreadystatechange = function () {
+//   // If the request completed successfully, handle the response
+//   if (xhr.readyState == 4 && xhr.status == 200) {
+//     var jsonResponse = JSON.parse(xhr.responseText)
+//     parseSwaggerFile(jsonResponse)
+//       .then((spec: SwaggerSpec) => {
+//         handleSpecUpdate(spec)
+//       })
+//       .catch((error) => {
+//         console.log(error.toString())
+//       })
+//   }
+// }
+// xhr.send()
+
+;(() => {
+  const specUrlElement = document.querySelector('div[data-spec-url]')
+
+  if (!specUrlElement) {
+    console.error(
+      'Could not find an element providing an OpenAPI/Swagger spec URL. Try adding it like this: %c<div data-spec-url="https://scalar.com/swagger.json"></div>',
+      'font-family: monospace;',
+    )
+
+    return
+  }
+
+  const specUrl = specUrlElement.getAttribute('data-spec-url')
+
+  console.info(
+    'Found an element providing an OpenAPI/Swagger spec URL:',
+    specUrl,
+  )
+
+  if (specUrl === null || specUrl.length === 0) {
+    console.error(
+      'This doesn’t seem to be a valid OpenAPI/Swagger spec URL:',
+      specUrl,
+    )
+
+    return
+  }
+
+  fetch(specUrl)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('The provided OpenAPI/Swagger spec URL is invalid.')
+      }
+
+      return response.json()
+    })
+    .then((data) => {
+      parseSwaggerFile(data)
+        .then((spec: SwaggerSpec) => {
+          handleSpecUpdate(spec)
+        })
+        .catch((error) => {
+          console.log(error.toString())
+        })
+    })
+    .catch((error) => {
+      console.log(
+        'Could not fetch the OpenAPI/Swagger Spec file:',
+        error.message,
+      )
+    })
+})()
 
 onMounted(() => {
   document.querySelector('#tippy')?.scrollTo({
@@ -76,10 +145,6 @@ onMounted(() => {
 })
 
 const showAside = computed(() => isLargeScreen.value || !props.isEditable)
-
-const showCodeEditor = computed(() => {
-  return props.isEditable
-})
 
 // Navigational breadcrumb text from reference info
 const breadCrumbs = computed(() => {
@@ -95,9 +160,11 @@ const breadCrumbs = computed(() => {
 <template>
   <div
     ref="documentEl"
+    v-if="ready"
     :class="[
       'scalar-api-reference',
       'document',
+      'light-mode',
       'layout-swagger-editor',
       { 'footer-below-sidebar': footerBelowSidebar, 'preview': !isEditable },
     ]"
@@ -125,23 +192,12 @@ const breadCrumbs = computed(() => {
         <Sidebar :spec="spec"> </Sidebar>
       </div>
     </aside>
-    <!-- Swagger file editing -->
-    <div
-      v-show="showCodeEditor"
-      class="layout-content">
-      <LazyLoadedCodeEditor
-        :hocusPocusUrl="hocusPocusUrl"
-        :documentName="documentName"
-        :token="token"
-        :username="username"
-        @specUpdate="handleSpecUpdate" />
-    </div>
     <!-- Rendered reference -->
     <div
       v-if="showAside"
       class="layout-aside-right">
       <Content
-        :ready="true"
+        :ready="ready"
         :spec="spec" />
     </div>
     <slot name="footer"></slot>
@@ -449,9 +505,9 @@ const breadCrumbs = computed(() => {
     auto;
 
   grid-template-columns:
-    var(--scalar-api-reference-col-width-1)
-    var(--scalar-api-reference-col-width-2)
-    var(--scalar-api-reference-col-width-3);
+    var(--col-width-1)
+    var(--col-width-2)
+    var(--col-width-3);
 
   grid-template-areas:
     'header header header'
@@ -491,7 +547,6 @@ const breadCrumbs = computed(() => {
   grid-area: content;
   min-width: 0;
   background: var(--theme-background-1);
-  display: flex;
 }
 
 /* Measures the visible viewport of the editor */
@@ -562,9 +617,9 @@ const breadCrumbs = computed(() => {
     auto;
 
   grid-template-columns:
-    var(--scalar-api-reference-col-width-1)
-    var(--scalar-api-reference-col-width-2)
-    var(--scalar-api-reference-col-width-3);
+    var(--col-width-1)
+    var(--col-width-2)
+    var(--col-width-3);
 
   grid-template-areas:
     'header header header'
@@ -581,7 +636,7 @@ const breadCrumbs = computed(() => {
 .document.preview {
   --col-width-2: calc(100% - (var(--scalar-api-reference-theme-sidebar-width)));
   --col-width-3: calc(100% - (var(--scalar-api-reference-theme-sidebar-width)));
-
+  max-height: 100vh;
   grid-template-areas:
     'header header'
     'sidebar aside'

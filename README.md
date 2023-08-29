@@ -17,7 +17,23 @@ Generate interactive API documentations from Swagger files
 
 ### From a CDN
 
-TBD 🚧
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>API Reference</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <!-- Add your own OpenAPI/Swagger spec file URL here: -->
+    <div data-spec-url="https://example.com/swagger.json" />
+    <script src="https://cdn.scalar.com/api-reference.standalone.js"></script>
+  </body>
+</html>
+```
 
 ### With Vue.js
 
@@ -28,12 +44,17 @@ npm install @scalar/api-reference
 ```vue
 <script setup lang="ts">
 import { ApiReference } from '@scalar/api-reference'
-import '@scalar/api-reference/style.css'
 </script>
 
 <template>
   <ApiReference />
 </template>
+```
+
+You pass props to configure the API reference:
+
+```vue
+<ApiReference :is-editable="true" :show-sidebar="false" />
 ```
 
 ## Using the CLI
@@ -46,30 +67,18 @@ Wait, this is open source and you can do whatever you want. But if you want to a
 
 ## Advanced: Styling
 
-### 1) Default style
-
 Use our default style and you’re done.
 
 ```js
 import '@scalar/api-reference/style.css'
 ```
 
-### 2) Variables
-
-Overwrite our CSS variables. We won’t judge.
+Or: Overwrite our CSS variables. We won’t judge.
 
 ```
 :root {
   --theme-font: 'Comic Sans MS', 'Comic Sans', cursive;
 }
-```
-
-### 3) Bring your own CSS
-
-Just don’t import our CSS.
-
-```js
-// import '@scalar/api-reference/style.css'
 ```
 
 ## Community
@@ -112,14 +121,3 @@ Build all packages:
 ## License
 
 The source code in this repository is licensed under [MIT](https://github.com/scalar/api-reference/blob/main/LICENSE).
-
-## Publishing new versions (requires access to @scalar on npm)
-
-Prepare the changelog for new versions:
-`$ pnpm changeset`
-
-Build, test and bump versions:
-`$ pnpm bump`
-
-Actually publish the packages (requires access to @scalar on npm):
-`$ pnpm -r publish`

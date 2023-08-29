@@ -1,12 +1,15 @@
 import vue from '@vitejs/plugin-vue'
-import path from 'path'
 import { defineConfig } from 'vite'
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
-// https://vitejs.dev/config/
 export default defineConfig({
+  optimizeDeps: {
+    include: ['@scalar/swagger-parser'],
+  },
   plugins: [
     vue(),
+    cssInjectedByJsPlugin(),
     nodePolyfills({
       // To exclude specific polyfills, add them to this list.
       exclude: [
@@ -22,18 +25,17 @@ export default defineConfig({
       protocolImports: true,
     }),
   ],
-  server: {
-    port: 5050,
-  },
-  resolve: {
-    alias: [
-      {
-        // Resolve the uncompiled source code for all @scalar packages
-        // @scalar/* -> packages/*/
-        // (not @scalar/*/style.css)
-        find: /^@scalar\/([^/]+)$/,
-        replacement: path.resolve(__dirname, '../../packages/$1/src/index.ts'),
-      },
-    ],
+  build: {
+    commonjsOptions: {
+      include: [/@scalar\/swagger-editor/, /node_modules/],
+    },
+    cssCodeSplit: false,
+    minify: false,
+    lib: {
+      entry: ['src/standalone.ts'],
+      name: '@scalar/api-reference',
+      fileName: 'api-reference.standalone',
+      formats: ['umd'],
+    },
   },
 })
