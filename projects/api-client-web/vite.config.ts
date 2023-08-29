@@ -2,13 +2,11 @@ import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { defineConfig } from 'vite'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import topLevelAwait from 'vite-plugin-top-level-await'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
-    topLevelAwait(),
     nodePolyfills({
       // To exclude specific polyfills, add them to this list.
       exclude: [

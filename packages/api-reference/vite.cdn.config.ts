@@ -2,7 +2,6 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import topLevelAwait from 'vite-plugin-top-level-await'
 
 export default defineConfig({
   optimizeDeps: {
@@ -10,7 +9,6 @@ export default defineConfig({
   },
   plugins: [
     vue(),
-    topLevelAwait(),
     cssInjectedByJsPlugin(),
     nodePolyfills({
       // To exclude specific polyfills, add them to this list.
@@ -37,7 +35,7 @@ export default defineConfig({
       entry: ['src/cdn.ts'],
       name: '@scalar/api-reference',
       fileName: 'scalar-api-reference',
-      formats: ['es'],
+      formats: ['umd'],
     },
   },
 })
