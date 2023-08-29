@@ -21,6 +21,7 @@
     "eslint-config-standard-with-typescript": "^37.0.0",
     "eslint-plugin-prettier": "4.2.1",
     "eslint": "^8.47.0",
+    "lefthook": "1.4.2",
     "prettier": "2.8.8"
   },
   "pnpm": {

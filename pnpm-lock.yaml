@@ -40,6 +40,9 @@ importers:
       eslint-plugin-prettier:
         specifier: 4.2.1
         version: 4.2.1(eslint-config-prettier@8.8.0)(eslint@8.47.0)(prettier@2.8.8)
+      lefthook:
+        specifier: 1.4.2
+        version: 1.4.2
       prettier:
         specifier: 2.8.8
         version: 2.8.8
@@ -4641,6 +4644,85 @@ packages:
   /kleur@4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
+
+  /lefthook-darwin-arm64@1.4.2:
+    resolution: {integrity: sha512-1tyNoHbjIuGa3xWWoMwaX5cF3EjRYCZSomMDPiHnIom1dxa/p3nSaF0thJSnQRlXNddsisH+t6vWOmccgukCWA==}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lefthook-darwin-x64@1.4.2:
+    resolution: {integrity: sha512-+CcLTMvNTOdP2E7qHnAiSn1xtNeMLbhykyJOe/7Dd5beAv4BZ94ZnuoH74RIgyBALeZxpUeOdwJNI3Nc8Pg6+A==}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lefthook-freebsd-arm64@1.4.2:
+    resolution: {integrity: sha512-uT0PR66ZEMzaFco+eTn/3jYzf47vt0UQM6u5eWPdYoUQTbYavvpsecyGw6YyhIaIYVOwbK8Gaf2YVJMvZFEyLA==}
+    cpu: [arm64]
+    os: [freebsd]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lefthook-freebsd-x64@1.4.2:
+    resolution: {integrity: sha512-4FaBXxenytECD1R3qM/VTVSqp7E3mlKBtm5dDVGXNMBIsTXiEP/qkuk3nteIUnhgjQv0Ma23V0v7KTmNlo1oXA==}
+    cpu: [x64]
+    os: [freebsd]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lefthook-linux-arm64@1.4.2:
+    resolution: {integrity: sha512-RzI1j6LPW1y4dqrVSBv/B/Sipa9Bp9LP0TB9BRB0CmxIqerFe90x9wVp3vAAkodGHv/B7Xa5f1OAibwkSbtTkw==}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lefthook-linux-x64@1.4.2:
+    resolution: {integrity: sha512-huBfLsIPVfdU0jPnGCvJ4e39JdkXKsbb0Dr+fzAhLNhcg6Touo6y/pwDbW5zfeN2hu0EdhzT0p0a28FGsV9dEQ==}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lefthook-windows-arm64@1.4.2:
+    resolution: {integrity: sha512-vzx6jbyLkAncE7UB3IB9HJqoFFZpGaxnp6zVimvDDOUSAOLKgbF+jJHgXlX8j6kzs/rZAoYmA0oR48dpUcUNQw==}
+    cpu: [arm64]
+    os: [win32]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lefthook-windows-x64@1.4.2:
+    resolution: {integrity: sha512-sXTlvUITYzBIpNwlQO6Oa8nIB9GV4cUPmf6wdyPn1dv/1qa1+0ROgeROJzLYj2v+NtiJ2aIHTjaOXiBeoZCISA==}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lefthook@1.4.2:
+    resolution: {integrity: sha512-T7fvI7WXEZGUcaeuLckAzL5EURi6x5fkoBYjeiJ1u2ix2/A4Xjlca/lGQzgrqVWyCaHKeW5QkhR2tXwiubuLlw==}
+    hasBin: true
+    requiresBuild: true
+    optionalDependencies:
+      lefthook-darwin-arm64: 1.4.2
+      lefthook-darwin-x64: 1.4.2
+      lefthook-freebsd-arm64: 1.4.2
+      lefthook-freebsd-x64: 1.4.2
+      lefthook-linux-arm64: 1.4.2
+      lefthook-linux-x64: 1.4.2
+      lefthook-windows-arm64: 1.4.2
+      lefthook-windows-x64: 1.4.2
+    dev: true
 
   /levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
