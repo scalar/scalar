@@ -32,7 +32,7 @@ export default defineConfig({
     cssCodeSplit: false,
     minify: false,
     lib: {
-      entry: ['src/cdn.ts'],
+      entry: ['src/standalone.ts'],
       name: '@scalar/api-reference',
       fileName: 'api-reference.standalone',
       formats: ['umd'],
