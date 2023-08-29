@@ -2,7 +2,7 @@
   "name": "@scalar/api-client",
   "version": "0.1.18",
   "author": "Scalar",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": {
     "node": ">=18"
   },
