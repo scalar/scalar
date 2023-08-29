@@ -26,5 +26,7 @@ jobs:
         run: pnpm format:check
       - name: Build
         run: pnpm build
+      - name: Build (CDN version)
+        run: pnpm build:cdn
       - name: Run tests
         run: pnpm test
