@@ -34,7 +34,7 @@ export default defineConfig({
     lib: {
       entry: ['src/cdn.ts'],
       name: '@scalar/api-reference',
-      fileName: 'scalar-api-reference',
+      fileName: 'api-reference.standalone',
       formats: ['umd'],
     },
   },
