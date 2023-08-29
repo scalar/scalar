@@ -34,8 +34,13 @@ export default defineConfig({
     lib: {
       entry: ['src/standalone.ts'],
       name: '@scalar/api-reference',
-      fileName: 'api-reference.standalone',
+      fileName: 'standalone',
       formats: ['umd'],
+    },
+    rollupOptions: {
+      output: {
+        entryFileNames: 'api-reference.[name].js',
+      },
     },
   },
 })
