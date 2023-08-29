@@ -13,31 +13,32 @@ type RendererProps = {
 const attrsToObject = (m: NamedNodeMap) =>
   Object.fromEntries(Array.from(m).map((t) => [t.name, t.value]))
 
+type DOMParserType = {
+  new (): DOMParser
+  prototype: DOMParser
+}
+
 /**
  * Utility component to convert a raw SVG string to a Vue vnode.
  *
  * @param {string} raw A raw string containing an SVG element.
  * @returns An SVG vnode or `undefined` if unparsable.
  */
-const Renderer: FunctionalComponent<RendererProps> = async ({ raw }) => {
-  // Use a DOMParser library if it's not in the browser
-  const Parser =
-    typeof DOMParser === 'undefined'
-      ? (await import('xmldom')).DOMParser
-      : DOMParser
+const Renderer =
+  (Parser: DOMParserType): FunctionalComponent<RendererProps> =>
+  ({ raw }) => {
+    const parser = new Parser()
+    const parsed = parser.parseFromString(raw, 'image/svg+xml')
+    if (parsed.getElementsByTagName('parsererror').length) return undefined
 
-  const parser = new Parser()
-  const parsed = parser.parseFromString(raw, 'image/svg+xml')
-  if (parsed.getElementsByTagName('parsererror').length) return undefined
+    const svg = parsed.documentElement
+    const attrs = attrsToObject(svg.attributes)
 
-  const svg = parsed.documentElement
-  const attrs = attrsToObject(svg.attributes)
+    // Strip width and height attributes
+    const { width, height, ...rest } = attrs
 
-  // Strip width and height attributes
-  const { width, height, ...rest } = attrs
-
-  return h('svg', { ...rest, innerHTML: svg.innerHTML })
-}
+    return h('svg', { ...rest, innerHTML: svg.innerHTML })
+  }
 
 Renderer.props = {
   raw: {
@@ -46,4 +47,12 @@ Renderer.props = {
   },
 }
 
-export default Renderer
+export default defineAsyncComponent(async () => {
+  // Use a DOMParser library if it's not in the browser
+  const Parser =
+    typeof DOMParser === 'undefined'
+      ? (await import('xmldom')).DOMParser
+      : DOMParser
+
+  return Renderer(Parser)
+})
