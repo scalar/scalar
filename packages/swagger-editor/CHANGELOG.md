@@ -1,5 +1,13 @@
 # @scalar/swagger-editor
 
+## 0.1.14
+
+### Patch Changes
+
+- feat: add a standalone version
+- Updated dependencies
+  - @scalar/swagger-parser@0.1.12
+
 ## 0.1.13
 
 ### Patch Changes

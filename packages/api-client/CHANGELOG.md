@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.1.19
+
+### Patch Changes
+
+- feat: add a standalone version
+
 ## 0.1.18
 
 ### Patch Changes

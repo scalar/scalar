@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.1.12
+
+### Patch Changes
+
+- feat: add a standalone version
+
 ## 0.1.11
 
 ### Patch Changes

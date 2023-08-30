@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 0.1.29
+
+### Patch Changes
+
+- feat: add a standalone version
+- Updated dependencies
+  - @scalar/api-client@0.1.19
+  - @scalar/swagger-editor@0.1.14
+  - @scalar/swagger-parser@0.1.12
+
 ## 0.1.28
 
 ### Patch Changes
