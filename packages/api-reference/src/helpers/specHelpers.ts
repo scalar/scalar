@@ -15,7 +15,6 @@ function formatProperty(key: string, obj: PropertyObject): string {
   const isRequired = obj.required && obj.required.includes(key)
   output += isRequired ? ' REQUIRED ' : ' optional '
 
-
   // Check existence before accessing
   if (obj.properties[key]) {
     output += obj.properties[key].type
