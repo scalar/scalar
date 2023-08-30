@@ -18,6 +18,7 @@ export class ApiClientProxy {
     this.app.post('/', async (req, res) => {
       if (req.method === 'POST') {
         console.log(`${req.body.method} ${req.body.url}`)
+
         const isGetOrHeadRequest = ['get', 'head'].includes(
           req.body.method.toLowerCase(),
         )

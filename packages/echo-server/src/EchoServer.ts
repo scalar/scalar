@@ -2,7 +2,7 @@ import cors from 'cors'
 import express from 'express'
 
 export class EchoServer {
-  app = express()
+  public app = express()
 
   constructor() {
     this.app.use(
@@ -29,6 +29,6 @@ export class EchoServer {
   }
 
   listen(port: number | string, callback?: () => void) {
-    this.app.listen(port, callback)
+    return this.app.listen(port, callback)
   }
 }
