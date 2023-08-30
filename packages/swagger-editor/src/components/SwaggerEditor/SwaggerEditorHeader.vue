@@ -41,20 +41,18 @@ watch(files, () => {
   }
 })
 
-const importExampleFile = () => {
+const useExample = () => {
   emit('import', JSON.stringify(spec, null, 2))
 }
 </script>
 <template>
   <div class="code-editor-header">
-    <div>
-      <span class="active-mode"><i>Swagger </i>Editor</span>
-    </div>
+    <div class="code-editor-title"><i>Swagger </i>Editor</div>
     <div class="code-editor-header-buttons">
       <button
         type="button"
-        @click="importExampleFile">
-        <i>Import </i>Example<i> File</i>
+        @click="useExample">
+        <i>Use </i>Example
       </button>
       <button
         type="button"
@@ -91,7 +89,7 @@ const importExampleFile = () => {
 </template>
 <style>
 .code-editor-header {
-  padding: 12px;
+  padding: 0 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -102,6 +100,7 @@ const importExampleFile = () => {
   min-width: 0;
   display: flex;
   flex-wrap: nowrap;
+  justify-content: end;
 }
 
 .code-editor-header span {
@@ -113,18 +112,14 @@ const importExampleFile = () => {
   cursor: pointer;
 }
 
-.code-editor-header span.active-mode {
+.code-editor-title {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--theme-color-1);
+  font-weight: var(--theme-semibold);
+  font-size: 13px;
   color: var(--theme-color-1);
-}
-
-.code-editor-header span.active-mode:after {
-  content: '';
-  position: absolute;
-  bottom: -18px;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: var(--theme-color-1);
+  margin-bottom: -1px;
+  position: relative;
 }
 
 .code-editor-header button {
@@ -149,16 +144,13 @@ const importExampleFile = () => {
   border-color: currentColor;
 }
 @media (max-width: 580px) {
-  .active-mode i,
+  .code-editor-title i,
   .code-editor-header button i {
     display: none;
   }
   .code-editor-header button {
     padding: 4px 8px;
     margin-left: 6px;
-  }
-  .code-editor-header span.active-mode:after {
-    bottom: -16px;
   }
 }
 </style>
