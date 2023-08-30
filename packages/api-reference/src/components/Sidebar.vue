@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { generateRequest, useApiClientRequestStore } from '@scalar/api-client'
 import { useApiClientStore, useOperation } from '@scalar/api-client'
+import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
 
 import { useTemplateStore } from '../stores/template'
@@ -42,6 +43,12 @@ const {
   toggleCollapsedSidebarItem,
   setCollapsedSidebarItem,
 } = useTemplateStore()
+
+useKeyboardEvent({
+  keyList: ['k'],
+  withCtrlCmd: true,
+  handler: () => setTemplateItem('showSearch', !templateState.showSearch),
+})
 </script>
 <template>
   <div class="sidebar">
