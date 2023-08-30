@@ -15,7 +15,7 @@ describe('EchoServer', () => {
     new Promise((resolve) => {
       const port = startNewEchoServer()
 
-      fetch(`http://localhost:${port}/foobar`).then(async (response) => {
+      fetch(`http://localhost:${port}`).then(async (response) => {
         expect(await response.json()).toMatchObject({
           headers: {
             'host': `localhost:${port}`,
@@ -36,7 +36,7 @@ describe('EchoServer', () => {
     new Promise((resolve) => {
       const port = startNewEchoServer()
 
-      fetch(`http://localhost:${port}/foobar`).then(async (response) => {
+      fetch(`http://localhost:${port}`).then(async (response) => {
         expect(await response.json()).toMatchObject({
           method: 'GET',
         })
@@ -62,24 +62,22 @@ describe('EchoServer', () => {
     new Promise((resolve) => {
       const port = startNewEchoServer()
 
-      fetch(`http://localhost:${port}/foobar?foo=bar`).then(
-        async (response) => {
-          expect(await response.json()).toMatchObject({
-            query: {
-              foo: 'bar',
-            },
-          })
+      fetch(`http://localhost:${port}?foo=bar`).then(async (response) => {
+        expect(await response.json()).toMatchObject({
+          query: {
+            foo: 'bar',
+          },
+        })
 
-          resolve(null)
-        },
-      )
+        resolve(null)
+      })
     }))
 
   it('returns the JSON body', () =>
     new Promise((resolve) => {
       const port = startNewEchoServer()
 
-      fetch(`http://localhost:${port}/foobar`, {
+      fetch(`http://localhost:${port}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,7 +98,7 @@ describe('EchoServer', () => {
     new Promise((resolve) => {
       const port = startNewEchoServer()
 
-      fetch(`http://localhost:${port}/foobar`, {
+      fetch(`http://localhost:${port}`, {
         method: 'POST',
         headers: {
           cookie: 'foo=bar;',
