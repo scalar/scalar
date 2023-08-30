@@ -166,7 +166,9 @@ useKeyboardEvent({
         class="item-entry"
         :class="{ 'item-entry--active': index === selectedSearchResult }"
         @click="openSearchResult(entry)">
-        <div class="item-entry-title">
+        <div
+          class="item-entry-title"
+          v-if="entry.item.title || entry.item.operationId">
           {{ entry.item.title || entry.item.operationId }}
         </div>
         <div class="item-entry-request">
@@ -216,6 +218,9 @@ useKeyboardEvent({
   font-size: var(--theme-font-size-3);
   text-align: left;
   border-radius: var(--theme-radius);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 .item-entry--active {
   background: var(--theme-background-2);
@@ -232,7 +237,6 @@ useKeyboardEvent({
 .item-entry-request {
   display: flex;
   gap: 3px;
-  margin-top: 3px;
   font-family: var(--theme-font-code);
 }
 .item-entry-http-verb {
