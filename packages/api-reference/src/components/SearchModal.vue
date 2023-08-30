@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { type ParamMap, useOperation } from '@scalar/api-client'
+import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import Fuse from 'fuse.js'
 import { nextTick, ref, toRef, watch } from 'vue'
 
@@ -11,6 +12,7 @@ import FlowModal, { useModalState } from './FlowModal.vue'
 const props = defineProps<{ spec: Spec }>()
 const reactiveSpec = toRef(props, 'spec')
 const modalState = useModalState()
+
 type FuseData = {
   title: string
   operationId?: string
@@ -22,7 +24,8 @@ type FuseData = {
 }
 
 let fuseDataArray: FuseData[] = []
-const fuseSearchResults = ref<Fuse.FuseResult<FuseData>[]>([])
+const searchResults = ref<Fuse.FuseResult<FuseData>[]>([])
+const selectedSearchResult = ref<number>(0)
 const searchText = ref<string>('')
 
 const fuse = new Fuse(fuseDataArray, {
@@ -32,7 +35,8 @@ const fuse = new Fuse(fuseDataArray, {
 const { state, setItem, setCollapsedSidebarItem } = useTemplateStore()
 
 const fuseSearch = (): void => {
-  fuseSearchResults.value = fuse.search(searchText.value)
+  selectedSearchResult.value = 0
+  searchResults.value = fuse.search(searchText.value)
 }
 
 watch(
@@ -40,7 +44,8 @@ watch(
   () => {
     if (state.showSearch) {
       searchText.value = ''
-      fuseSearchResults.value = []
+      selectedSearchResult.value = 0
+      searchResults.value = []
       modalState.show()
     } else {
       modalState.hide()
@@ -57,13 +62,14 @@ watch(
   },
 )
 
-async function handleHyperLinkClick(
-  operation: string | undefined,
-  tag: string | undefined,
-) {
+async function openSearchResult(entry: Fuse.FuseResult<FuseData>) {
+  const operation = entry.item.operationId
+  const tag = entry.item.tag
+
   if (!operation || !tag) {
     return
   }
+
   setCollapsedSidebarItem(tag, true)
 
   modalState.hide()
@@ -113,6 +119,35 @@ watch(reactiveSpec.value, () => {
 
   fuse.setCollection(fuseDataArray)
 })
+
+useKeyboardEvent({
+  keyList: ['enter'],
+  handler: () => {
+    openSearchResult(searchResults.value[selectedSearchResult.value])
+  },
+})
+
+useKeyboardEvent({
+  keyList: ['ArrowDown'],
+  handler: () => {
+    if (selectedSearchResult.value < searchResults.value.length - 1) {
+      selectedSearchResult.value++
+    } else {
+      selectedSearchResult.value = 0
+    }
+  },
+})
+
+useKeyboardEvent({
+  keyList: ['ArrowUp'],
+  handler: () => {
+    if (selectedSearchResult.value > 0) {
+      selectedSearchResult.value--
+    } else {
+      selectedSearchResult.value = searchResults.value.length - 1
+    }
+  },
+})
 </script>
 <template>
   <FlowModal :state="modalState">
@@ -126,10 +161,11 @@ watch(reactiveSpec.value, () => {
     </div>
     <div>
       <button
-        v-for="entry in fuseSearchResults"
+        v-for="(entry, index) in searchResults"
         :key="entry.refIndex"
         class="item-entry"
-        @click="handleHyperLinkClick(entry.item.operationId, entry.item.tag)">
+        :class="{ 'item-entry--active': index === selectedSearchResult }"
+        @click="openSearchResult(entry)">
         <div class="item-entry-title">
           {{ entry.item.title || entry.item.operationId }}
         </div>
@@ -180,6 +216,10 @@ watch(reactiveSpec.value, () => {
   font-size: var(--theme-font-size-3);
   text-align: left;
   border-radius: var(--theme-radius);
+}
+.item-entry--active {
+  background: var(--theme-background-2);
+  box-shadow: 0 0 0 1px var(--theme-background-2);
 }
 .item-entry:hover {
   background: var(--theme-background-2);
