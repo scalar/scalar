@@ -40,6 +40,7 @@
     "@scalar/swagger-parser": "workspace:*",
     "@scalar/use-clipboard": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
+    "@scalar/use-keyboard-event": "workspace:*",
     "@types/js-yaml": "4.0.5",
     "@types/nunjucks": "3.2.2",
     "@types/xmldom": "0.1.31",
