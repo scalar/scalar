@@ -2,7 +2,7 @@
   "name": "@scalar/api-client-proxy",
   "version": "0.1.0",
   "author": "Scalar",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": {
     "node": ">=18"
   },
