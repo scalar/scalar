@@ -95,4 +95,23 @@ describe('EchoServer', () => {
         resolve(null)
       })
     }))
+
+  it('returns the cookies', () =>
+    new Promise((resolve) => {
+      const port = startNewEchoServer()
+
+      fetch(`http://localhost:${port}/foobar`, {
+        method: 'POST',
+        headers: {
+          cookie: 'foo=bar;',
+        },
+        credentials: 'include',
+      }).then(async (response) => {
+        expect((await response.json()).cookies).toMatchObject({
+          foo: 'bar',
+        })
+
+        resolve(null)
+      })
+    }))
 })

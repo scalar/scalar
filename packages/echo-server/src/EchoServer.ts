@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 
@@ -11,6 +12,7 @@ export class EchoServer {
       }),
     )
 
+    this.app.use(cookieParser())
     this.app.use(express.json())
     this.app.disable('x-powered-by')
 
@@ -24,6 +26,7 @@ export class EchoServer {
         path: req.path,
         query: req.query,
         body: req.body,
+        cookies: req.cookies,
       })
     })
   }
