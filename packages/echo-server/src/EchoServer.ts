@@ -22,11 +22,11 @@ export class EchoServer {
 
       res.send({
         headers: req.headers,
+        cookies: req.cookies,
         method: req.method,
         path: req.path,
         query: req.query,
         body: req.body,
-        cookies: req.cookies,
       })
     })
   }
