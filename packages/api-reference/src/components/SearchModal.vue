@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { type ParamMap, useOperation } from '@scalar/api-client'
 import Fuse from 'fuse.js'
-import { nextTick, ref, toRef, toRefs, watch } from 'vue'
+import { nextTick, ref, toRef, watch } from 'vue'
 
 import { extractRequestBody } from '../helpers/specHelpers'
 import { useTemplateStore } from '../stores/template'
-import type { Operation, Spec } from '../types'
+import type { Spec } from '../types'
 import FlowModal, { useModalState } from './FlowModal.vue'
 
 const props = defineProps<{ spec: Spec }>()
@@ -13,16 +13,12 @@ const reactiveSpec = toRef(props, 'spec')
 const modalState = useModalState()
 type FuseData = {
   title: string
+  operationId?: string
   description: string
   body?: string | string[] | ParamMap
-  tag?: string
-  operation?: string
   httpVerb?: string
-}
-
-type HyperlinkClickValue = {
-  operation: string
-  tag: string
+  path?: string
+  tag?: string
 }
 
 let fuseDataArray: FuseData[] = []
@@ -43,6 +39,8 @@ watch(
   () => state.showSearch,
   () => {
     if (state.showSearch) {
+      searchText.value = ''
+      fuseSearchResults.value = []
       modalState.show()
     } else {
       modalState.hide()
@@ -97,10 +95,11 @@ watch(reactiveSpec.value, () => {
         }
         const payload: FuseData = {
           title: operation.name,
+          operationId: operation.operationId,
           description: operation.description,
-          tag: tag.name,
-          operation: operation.operationId,
           httpVerb: operation.httpVerb,
+          path: operation.path,
+          tag: tag.name,
         }
 
         if (body) {
@@ -116,12 +115,10 @@ watch(reactiveSpec.value, () => {
 })
 </script>
 <template>
-  <FlowModal
-    :state="modalState"
-    title="Search">
+  <FlowModal :state="modalState">
     <div>
       <input
-        placeholder="Search Here..."
+        placeholder="Search …"
         class="ref-search-input"
         v-model="searchText"
         @input="fuseSearch"
@@ -133,35 +130,25 @@ watch(reactiveSpec.value, () => {
         :key="entry.refIndex"
         class="item-entry"
         @click="handleHyperLinkClick(entry.item.operation, entry.item.tag)">
-        <div class="item-entry-heading">
-          <span>{{ entry.item.title }}</span>
-          <i
-            class="item-entry-verb"
-            :class="entry.item.httpVerb"
-            >{{ entry.item.httpVerb }}</i
-          >
+        <div class="item-entry-title">
+          {{ entry.item.title }}
         </div>
-        <em>{{ entry.item.operation }}</em>
+        <div class="item-entry-request">
+          <div
+            class="item-entry-http-verb"
+            :class="`item-entry-http-verb--${entry.item.httpVerb}`">
+            {{ entry.item.httpVerb }}
+          </div>
+          <div class="item-entry-path">
+            {{ entry.item.path }}
+          </div>
+        </div>
       </button>
     </div>
   </FlowModal>
 </template>
 <style scoped>
-.post {
-  color: var(--theme-post-color);
-}
-.patch {
-  color: var(--theme-patch-color);
-}
-.get {
-  color: var(--theme-get-color);
-}
-.delete {
-  color: var(--theme-delete-color);
-}
-.put {
-  color: var(--theme-put-color);
-}
+/** Input */
 .ref-search-input {
   width: 100%;
   background: transparent;
@@ -182,47 +169,51 @@ watch(reactiveSpec.value, () => {
   font-family: var(--theme-font);
   font-weight: var(--theme-regular);
 }
+/** Results */
 .item-entry {
   appearance: none;
   background: transparent;
   border: none;
   outline: none;
-  padding: 6px 0;
+  padding: 6px 12px;
   width: 100%;
   font-size: var(--theme-font-size-3);
   text-align: left;
-  border-bottom: 1px solid var(--theme-border-color);
+  border-radius: var(--theme-radius);
 }
 .item-entry:hover {
   background: var(--theme-background-2);
-  border-radius: var(--theme-radius);
-  border-bottom-color: transparent;
   box-shadow: 0 0 0 1px var(--theme-background-2);
-  width: calc(100% + 12px);
-  padding: 6px;
-  position: relative;
-  left: -6px;
-  z-index: 10;
 }
-.item-entry:has(+ .item-entry:hover) {
-  border-bottom-color: transparent;
+
+.item-entry-title {
+  font-weight: var(--theme-semibold);
 }
-.item-entry em {
-  display: none;
-  font-size: var(--theme-font-size-4);
-  color: var(--theme-color-3);
-}
-.item-entry:hover em {
-  display: block;
-}
-.item-entry-verb {
-  font-family: var(--theme-font-code);
-  min-width: 100px;
-  display: inline-block;
-  text-align: right;
-}
-.item-entry-heading {
+.item-entry-request {
   display: flex;
-  justify-content: space-between;
+  gap: 3px;
+  margin-top: 3px;
+  font-family: var(--theme-font-code);
+}
+.item-entry-http-verb {
+  text-transform: uppercase;
+}
+.item-entry-http-verb--post {
+  color: var(--theme-post-color);
+}
+.item-entry-http-verb--patch {
+  color: var(--theme-patch-color);
+}
+.item-entry-http-verb--get {
+  color: var(--theme-get-color);
+}
+.item-entry-http-verb--delete {
+  color: var(--theme-delete-color);
+}
+.item-entry-http-verb--put {
+  color: var(--theme-put-color);
+}
+.item-entry-path {
+  color: var(--theme-color-3);
 }
 </style>
