@@ -1,5 +1,12 @@
 # @scalar/swagger-parser
 
+## 0.1.13
+
+### Patch Changes
+
+- add offline search and ui improvements
+- add offline search, improve ui
+
 ## 0.1.12
 
 ### Patch Changes

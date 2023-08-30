@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 0.1.20
+
+### Patch Changes
+
+- add offline search and ui improvements
+- add offline search, improve ui
+
 ## 0.1.19
 
 ### Patch Changes

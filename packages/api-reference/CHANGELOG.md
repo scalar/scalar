@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 0.1.30
+
+### Patch Changes
+
+- add offline search and ui improvements
+- add offline search, improve ui
+- Updated dependencies
+- Updated dependencies
+  - @scalar/api-client@0.1.20
+  - @scalar/swagger-editor@0.1.15
+  - @scalar/swagger-parser@0.1.13
+
 ## 0.1.29
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/swagger-editor
 
+## 0.1.15
+
+### Patch Changes
+
+- add offline search and ui improvements
+- add offline search, improve ui
+- Updated dependencies
+- Updated dependencies
+  - @scalar/swagger-parser@0.1.13
+
 ## 0.1.14
 
 ### Patch Changes
