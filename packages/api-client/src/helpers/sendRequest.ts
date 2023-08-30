@@ -51,7 +51,7 @@ export async function sendRequest(
     ? {
         method: 'POST',
         url: proxyUrl,
-        data: requestOptions,
+        data: JSON.stringify(requestOptions),
       }
     : {
         method: requestOptions.method,
