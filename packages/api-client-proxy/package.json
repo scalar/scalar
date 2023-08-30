@@ -7,7 +7,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet",
+    "dev": "nodemon --exec \"vite-node src/listen.ts\" --ext ts --quiet",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest"
