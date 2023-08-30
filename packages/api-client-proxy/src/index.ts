@@ -12,6 +12,7 @@ app.use(
 )
 
 app.use(express.json())
+app.disable('x-powered-by')
 
 // Post request to / are proxied to the target url.
 app.post('/', async (req, res) => {
