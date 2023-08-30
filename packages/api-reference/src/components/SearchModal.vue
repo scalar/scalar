@@ -129,9 +129,9 @@ watch(reactiveSpec.value, () => {
         v-for="entry in fuseSearchResults"
         :key="entry.refIndex"
         class="item-entry"
-        @click="handleHyperLinkClick(entry.item.operation, entry.item.tag)">
+        @click="handleHyperLinkClick(entry.item.operationId, entry.item.tag)">
         <div class="item-entry-title">
-          {{ entry.item.title }}
+          {{ entry.item.title || entry.item.operationId }}
         </div>
         <div class="item-entry-request">
           <div
