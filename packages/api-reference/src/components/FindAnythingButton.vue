@@ -8,11 +8,17 @@ import FlowIcon from './Icon/FlowIcon.vue'
     <FlowIcon
       class="search-icon"
       icon="Search" />
-    <span
-      class="sidebar-search-input"
-      type="text">
-      Find Anything
-    </span>
+    <div class="sidebar-search-input">
+      <span
+        class="sidebar-search-placeholder"
+        type="text">
+        Search
+      </span>
+      <span class="sidebar-search-shortcut">
+        <span class="sidebar-search-key">⌘</span>
+        <span class="sidebar-search-key">k</span>
+      </span>
+    </div>
   </button>
 </template>
 <style scoped>
@@ -24,7 +30,7 @@ import FlowIcon from './Icon/FlowIcon.vue'
   --margin-x: 12px;
   width: calc(100% - 2 * var(--margin-x));
   margin: 12px var(--margin-x) 6px var(--margin-x);
-  padding: 0 12px;
+  padding: 0 3px 0 12px;
 
   color: var(--sidebar-color-2, var(--theme-color-2));
   outline: none;
@@ -39,12 +45,25 @@ import FlowIcon from './Icon/FlowIcon.vue'
 .sidebar-search-input {
   font-size: var(--theme-small);
   font-weight: var(--theme-semibold);
-  line-height: 31px;
+  height: 31px;
 
   user-select: none;
   z-index: 10;
   position: relative;
-  display: block;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+.sidebar-search-shortcut {
+  text-transform: uppercase;
+}
+.sidebar-search-key {
+  background-color: var(--theme-background-2);
+  padding: 3px 5px;
+  margin: 2px;
+  border-radius: var(--theme-radius);
+  color: var(--theme-color-3);
 }
 
 .search-icon {
