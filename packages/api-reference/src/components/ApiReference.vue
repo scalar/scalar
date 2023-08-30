@@ -8,6 +8,7 @@ import { useTemplateStore } from '../stores/template'
 import type { ReferenceProps, Spec } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
+import SearchModal from './SearchModal.vue'
 import Sidebar from './Sidebar.vue'
 
 const props = withDefaults(defineProps<ReferenceProps>(), {
@@ -102,6 +103,9 @@ const breadCrumbs = computed(() => {
       { 'footer-below-sidebar': footerBelowSidebar, 'preview': !isEditable },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
+    <slot name="search-modal">
+      <SearchModal :spec="spec" />
+    </slot>
     <!-- Desktop header -->
     <div
       v-if="!isMobile"
