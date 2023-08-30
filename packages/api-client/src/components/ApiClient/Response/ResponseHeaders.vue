@@ -15,6 +15,16 @@ const getDocumentationUrlForHttpHeader = (headerName: string) => {
     return header.name.toLowerCase() === headerName.toLowerCase()
   })?.url
 }
+
+// Make the first letter and all letters after a - uppercase
+const formatHeaderName = (headerName: string) => {
+  return headerName
+    .split('-')
+    .map((word) => {
+      return word.charAt(0).toUpperCase() + word.slice(1)
+    })
+    .join('-')
+}
 </script>
 <template>
   <CollapsibleSection title="Headers">
@@ -30,7 +40,7 @@ const getDocumentationUrlForHttpHeader = (headerName: string) => {
           :href="getDocumentationUrlForHttpHeader(header.name)"
           :strong="true"
           :wrap="false">
-          {{ header.name }}
+          {{ formatHeaderName(header.name) }}
         </SimpleCell>
         <SimpleCell>{{ header.value }}</SimpleCell>
       </SimpleRow>
