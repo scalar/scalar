@@ -51,7 +51,7 @@ export async function sendRequest(
     ? {
         method: 'POST',
         url: proxyUrl,
-        data: JSON.stringify(requestOptions),
+        data: requestOptions,
       }
     : {
         method: requestOptions.method,
@@ -63,6 +63,7 @@ export async function sendRequest(
   console.info(`${requestOptions.method} ${requestOptions.url}`)
 
   const response: (ClientResponse & { error: false }) | { error: true } =
+    // @ts-ignore
     await axios(config)
       .then((res) => ({
         ...res.data,
