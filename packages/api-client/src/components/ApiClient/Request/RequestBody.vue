@@ -1,13 +1,25 @@
 <script setup lang="ts">
+import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
 import { CodeMirror } from '../../CodeMirror'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
+
+const { activeRequest, setActiveRequest } = useApiClientRequestStore()
 
 defineProps<{
   body?: string
   formData?: any[]
   requestBody?: any
 }>()
+
+const updateActiveRequest = (value: string) => {
+  if (activeRequest.body !== value) {
+    setActiveRequest({
+      ...activeRequest,
+      body: value,
+    })
+  }
+}
 </script>
 <template>
   <CollapsibleSection title="Body">
@@ -20,16 +32,9 @@ defineProps<{
     </template>
     <CodeMirror
       v-else
-      :content="
-        requestBody?.content?.active.examples.default
-          ? JSON.stringify(
-              requestBody?.content?.active.examples.default,
-              null,
-              2,
-            )
-          : '{}'
-      "
+      :content="activeRequest.body"
       :languages="['json']"
-      :lineNumbers="true" />
+      :lineNumbers="true"
+      @change="updateActiveRequest" />
   </CollapsibleSection>
 </template>

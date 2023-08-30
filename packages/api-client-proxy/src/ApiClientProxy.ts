@@ -18,6 +18,9 @@ export class ApiClientProxy {
     this.app.post('/', async (req, res) => {
       if (req.method === 'POST') {
         console.log(`${req.body.method} ${req.body.url}`)
+        const isGetOrHeadRequest = ['get', 'head'].includes(
+          req.body.method.toLowerCase(),
+        )
 
         // Default options are marked with *
         try {
@@ -36,7 +39,11 @@ export class ApiClientProxy {
             // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
             referrerPolicy: 'no-referrer',
             // body data type must match "Content-Type" header
-            body: req.body.data ? JSON.stringify(req.body.data) : null,
+            body: isGetOrHeadRequest
+              ? null
+              : req.body.data
+              ? JSON.stringify(req.body.data)
+              : null,
           })
 
           const headers = {}

@@ -44,7 +44,7 @@ export async function sendRequest(
     url: renderedURL,
     auth,
     headers: axiosHeaders,
-    data: null,
+    data: request.body,
   }
 
   const config = proxy

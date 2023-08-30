@@ -19,9 +19,10 @@ export class EchoServer {
       console.log(`${req.method} ${req.path}`)
 
       res.send({
-        path: req.path,
-        method: req.method,
         headers: req.headers,
+        method: req.method,
+        path: req.path,
+        query: req.query,
         body: req.body,
       })
     })
