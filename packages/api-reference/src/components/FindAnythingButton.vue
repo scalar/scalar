@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { isMacOS } from '@scalar/use-tooltip'
+
 import FlowIcon from './Icon/FlowIcon.vue'
 </script>
 <template>
@@ -15,7 +17,7 @@ import FlowIcon from './Icon/FlowIcon.vue'
         Search
       </span>
       <span class="sidebar-search-shortcut">
-        <span class="sidebar-search-key">⌘</span>
+        <span class="sidebar-search-key">{{ isMacOS() ? '⌘' : '⌃' }}</span>
         <span class="sidebar-search-key">k</span>
       </span>
     </div>
