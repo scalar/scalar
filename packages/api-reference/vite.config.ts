@@ -3,6 +3,9 @@ import { defineConfig } from 'vite'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 export default defineConfig({
+  define: {
+    'process.env.NODE_ENV': '"production"',
+  },
   plugins: [
     vue(),
     nodePolyfills({
@@ -14,7 +17,7 @@ export default defineConfig({
       globals: {
         Buffer: true, // can also be 'build', 'dev', or false
         global: true,
-        process: false,
+        process: true,
       },
       // Whether to polyfill `node:` protocol imports.
       protocolImports: true,
