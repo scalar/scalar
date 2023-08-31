@@ -26,6 +26,7 @@ export default defineConfig({
     }),
   ],
   build: {
+    outDir: 'cdn',
     commonjsOptions: {
       include: [/@scalar\/swagger-editor/, /node_modules/],
     },
