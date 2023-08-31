@@ -8,5 +8,11 @@ export default defineConfig({
       fileName: 'index',
       formats: ['es'],
     },
+    rollupOptions: {
+      /**
+       * Make sure to also externalize any dependencies that you do not want to bundle into your library
+       */
+      external: ['@apidevtools/swagger-parser', 'js-yaml'],
+    },
   },
 })
