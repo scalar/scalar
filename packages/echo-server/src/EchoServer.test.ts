@@ -6,8 +6,7 @@ const startNewEchoServer = (): number => {
   const server = new EchoServer()
   const instance = server.listen(0)
 
-  // @ts-ignore
-  return instance.address().port
+  return Number(instance.address().port)
 }
 
 describe('EchoServer', () => {
