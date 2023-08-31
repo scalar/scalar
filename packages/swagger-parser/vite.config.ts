@@ -8,5 +8,8 @@ export default defineConfig({
       fileName: 'index',
       formats: ['es'],
     },
+    rollupOptions: {
+      external: ['@apidevtools/swagger-parser', 'js-yaml'],
+    },
   },
 })
