@@ -1,5 +1,13 @@
 # @scalar/swagger-editor
 
+## 0.1.16
+
+### Patch Changes
+
+- fix: Node polyfill issues (process undefined)
+- Updated dependencies
+  - @scalar/swagger-parser@0.1.14
+
 ## 0.1.15
 
 ### Patch Changes

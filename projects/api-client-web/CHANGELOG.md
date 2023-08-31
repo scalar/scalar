@@ -1,5 +1,14 @@
 # @scalar/api-client-web
 
+## 0.0.31
+
+### Patch Changes
+
+- Updated dependencies
+  - @scalar/api-client@0.1.21
+  - @scalar/api-reference@0.1.31
+  - @scalar/swagger-editor@0.1.16
+
 ## 0.0.30
 
 ### Patch Changes

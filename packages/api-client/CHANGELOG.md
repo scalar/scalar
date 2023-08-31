@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.1.21
+
+### Patch Changes
+
+- fix: Node polyfill issues (process undefined)
+
 ## 0.1.20
 
 ### Patch Changes

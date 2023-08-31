@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 0.1.31
+
+### Patch Changes
+
+- fix: Node polyfill issues (process undefined)
+- Updated dependencies
+  - @scalar/api-client@0.1.21
+  - @scalar/swagger-editor@0.1.16
+  - @scalar/swagger-parser@0.1.14
+
 ## 0.1.30
 
 ### Patch Changes
