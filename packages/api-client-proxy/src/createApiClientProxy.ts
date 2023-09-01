@@ -21,6 +21,11 @@ export const createApiClientProxy = () => {
       const isGetOrHeadRequest = ['get', 'head'].includes(
         req.body.method.toLowerCase(),
       )
+      const body = isGetOrHeadRequest
+        ? null
+        : req.body.data
+        ? JSON.stringify(req.body.data)
+        : null
 
       // Default options are marked with *
       try {
@@ -39,11 +44,7 @@ export const createApiClientProxy = () => {
           // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
           referrerPolicy: 'no-referrer',
           // body data type must match "Content-Type" header
-          body: isGetOrHeadRequest
-            ? null
-            : req.body.data
-            ? JSON.stringify(req.body.data)
-            : null,
+          body,
         })
 
         const headers = {}
@@ -81,7 +82,7 @@ export const createApiClientProxy = () => {
   })
 
   const listen = (port: number | string, callback?: () => void) => {
-    app.listen(port, callback)
+    return app.listen(port, callback)
   }
 
   return {

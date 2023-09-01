@@ -159,12 +159,18 @@ importers:
         specifier: ^16.3.1
         version: 16.3.1
     devDependencies:
+      '@scalar/api-client-proxy':
+        specifier: workspace:*
+        version: 'link:'
       express:
         specifier: ^4.18.2
         version: 4.18.2
       nodemon:
         specifier: ^3.0.1
         version: 3.0.1
+      vite:
+        specifier: 4.4.8
+        version: 4.4.8(@types/node@20.3.1)
       vite-node:
         specifier: ^0.34.3
         version: 0.34.3
