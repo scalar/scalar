@@ -1,18 +1,18 @@
 import { describe, expect, it } from 'vitest'
 
-import { EchoServer } from './EchoServer'
+import { createEchoServer } from './createEchoServer'
 
-const startNewEchoServer = (): number => {
-  const server = new EchoServer()
-  const instance = server.listen(0)
+const createEchoServerOnAnyPort = (): number => {
+  const { listen } = createEchoServer()
+  const instance = listen(0)
 
   return Number(instance.address().port)
 }
 
-describe('EchoServer', () => {
+describe('createEchoServer', () => {
   it('returns the headers', () =>
     new Promise((resolve) => {
-      const port = startNewEchoServer()
+      const port = createEchoServerOnAnyPort()
 
       fetch(`http://localhost:${port}`).then(async (response) => {
         expect(await response.json()).toMatchObject({
@@ -33,7 +33,7 @@ describe('EchoServer', () => {
 
   it('returns the method', () =>
     new Promise((resolve) => {
-      const port = startNewEchoServer()
+      const port = createEchoServerOnAnyPort()
 
       fetch(`http://localhost:${port}`).then(async (response) => {
         expect(await response.json()).toMatchObject({
@@ -46,7 +46,7 @@ describe('EchoServer', () => {
 
   it('returns the path', () =>
     new Promise((resolve) => {
-      const port = startNewEchoServer()
+      const port = createEchoServerOnAnyPort()
 
       fetch(`http://localhost:${port}/foobar`).then(async (response) => {
         expect(await response.json()).toMatchObject({
@@ -59,7 +59,7 @@ describe('EchoServer', () => {
 
   it('returns the query parameters', () =>
     new Promise((resolve) => {
-      const port = startNewEchoServer()
+      const port = createEchoServerOnAnyPort()
 
       fetch(`http://localhost:${port}?foo=bar`).then(async (response) => {
         expect(await response.json()).toMatchObject({
@@ -74,7 +74,7 @@ describe('EchoServer', () => {
 
   it('returns the JSON body', () =>
     new Promise((resolve) => {
-      const port = startNewEchoServer()
+      const port = createEchoServerOnAnyPort()
 
       fetch(`http://localhost:${port}`, {
         method: 'POST',
@@ -95,7 +95,7 @@ describe('EchoServer', () => {
 
   it('returns the cookies', () =>
     new Promise((resolve) => {
-      const port = startNewEchoServer()
+      const port = createEchoServerOnAnyPort()
 
       fetch(`http://localhost:${port}`, {
         method: 'POST',

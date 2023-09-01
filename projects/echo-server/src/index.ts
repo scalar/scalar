@@ -1,11 +1,11 @@
-import { EchoServer } from '@scalar/echo-server'
+import { createEchoServer } from '@scalar/echo-server'
 import 'dotenv/config'
 
 const port = process.env.PORT || 5052
 
-const server = new EchoServer()
+const { listen } = createEchoServer()
 
-server.listen(port, () => {
+listen(port, () => {
   console.log('')
   console.log(`🔁 Echo Server listening on http://localhost:${port}`)
   console.log('')

@@ -1,1 +1,1 @@
-export * from './EchoServer'
+export * from './createEchoServer'
