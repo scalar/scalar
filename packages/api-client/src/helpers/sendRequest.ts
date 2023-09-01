@@ -5,7 +5,6 @@ import nunjucks from 'nunjucks'
 import type {
   ClientRequestConfig,
   ClientResponse,
-  Header,
   RequestResult,
 } from '../types'
 import { mapFromArray } from './mapFromArray'
@@ -17,6 +16,10 @@ const templateEngine = nunjucks.configure({
   },
 })
 
+const defaultHeaders = {
+  'User-Agent': 'Scalar API Client',
+}
+
 /**
  * Send a request via the proxy
  */
@@ -27,11 +30,10 @@ export async function sendRequest(
   // Format complete URL
   const method = request.type.toUpperCase()
   const fullUrl = `${request.url}${request.path}`
-  const headers: Record<string, string | number> = mapFromArray(
-    request.headers,
-    'name',
-    'value',
-  )
+  const headers: Record<string, string | number> = {
+    ...defaultHeaders,
+    ...mapFromArray(request.headers, 'name', 'value'),
+  }
   /** TODO: Make dynamic */
   const auth = {
     type: 'none',
