@@ -26,6 +26,7 @@ type UseCodeMirrorForSwaggerFilesParameters = {
   token?: Ref<string | undefined>
   username?: string
   hocusPocusUrl?: string
+  value?: string
   onUpdate?: (content: string) => void
   onAwarenessUpdate?: (states: StatesArray) => void
   /**
@@ -38,6 +39,7 @@ export const useCodeMirrorForSwaggerFiles = ({
   documentName,
   token,
   username,
+  value,
   onUpdate,
   onAwarenessUpdate,
   forceDarkMode,
@@ -45,7 +47,7 @@ export const useCodeMirrorForSwaggerFiles = ({
 }: UseCodeMirrorForSwaggerFilesParameters) => {
   const codeMirror = ref<EditorView | null>(null)
   const codeMirrorRef = ref<HTMLDivElement | null>(null)
-  const currentContent = ref<string>('')
+  const currentContent = ref<string>(value ?? '')
 
   let provider: HocuspocusProvider | null = null
 

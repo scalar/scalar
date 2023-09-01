@@ -2,18 +2,19 @@
 import { type StatesArray } from '@hocuspocus/provider'
 import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
 import { useDebounceFn } from '@vueuse/core'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
 import SwaggerEditorStatusBar from './SwaggerEditorStatusBar.vue'
 
-defineProps<{
+const props = defineProps<{
   documentName?: string
   token?: string
   username?: string
   hocusPocusUrl?: string
+  value?: string
 }>()
 
 const emit = defineEmits<{
@@ -64,6 +65,17 @@ const formattedError = computed(() => {
 
   return parserError.value
 })
+
+watch(
+  () => props.value,
+  async () => {
+    if (props.value) {
+      await nextTick()
+      importHandler(props.value)
+    }
+  },
+  { immediate: true },
+)
 </script>
 <template>
   <div class="code-editor">

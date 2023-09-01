@@ -6,6 +6,7 @@ export type ReferenceProps = {
   isEditable?: boolean
   showSidebar?: boolean
   footerBelowSidebar?: boolean
+  spec?: string
 }
 
 export type Security = {
