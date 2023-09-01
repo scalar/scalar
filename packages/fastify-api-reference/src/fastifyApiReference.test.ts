@@ -92,4 +92,26 @@ describe('fastifyApiReference', () => {
         })
       })
     }))
+
+  it('has the correct content type', () =>
+    new Promise((resolve) => {
+      const fastify = Fastify({
+        logger: false,
+      })
+
+      fastify.register(fastifyApiReference, {
+        prefix: '/api-reference',
+        apiReference: {
+          specUrl: '/scalar.json',
+        },
+      })
+
+      fastify.listen({ port: 0 }, function (err, address) {
+        fetch(`${address}/api-reference`).then(async (response) => {
+          expect(response.headers.has('content-type')).toBe(true)
+          expect(response.headers.get('content-type')).toContain('text/html')
+          resolve(null)
+        })
+      })
+    }))
 })

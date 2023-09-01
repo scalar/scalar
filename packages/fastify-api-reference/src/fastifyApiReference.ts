@@ -31,7 +31,13 @@ export default (
   done: (err?: Error) => void,
 ) => {
   fastify.get('/', (_, reply) => {
-    reply.send(getHtmlMarkup(options?.apiReference))
+    const html = getHtmlMarkup(options?.apiReference)
+
+    reply.headers({
+      'Content-Type': 'text/html; charset=utf-8',
+    })
+
+    reply.send(html)
   })
 
   done()
