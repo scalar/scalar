@@ -6,7 +6,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet"
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/api-client-proxy --watch ./"
   },
   "type": "module",
   "dependencies": {
