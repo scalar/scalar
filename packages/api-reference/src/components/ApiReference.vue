@@ -203,16 +203,9 @@ const breadCrumbs = computed(() => {
 <style lang="postcss">
 /** CSS Normalize */
 .scalar-api-reference {
-  @import 'node_modules/modern-normalize/modern-normalize.css';
+  @nested-import 'modern-normalize/modern-normalize.css';
+}
 
-  ul,
-  ol {
-    padding: 0;
-  }
-
-  p {
-    margin: 0;
-  }
 /* ?? layout stuff */
 :root {
   --scalar-api-reference-theme-header-height: 0;
