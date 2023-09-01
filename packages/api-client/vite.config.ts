@@ -7,9 +7,8 @@ export default defineConfig({
     cssCodeSplit: false,
     minify: false,
     lib: {
-      entry: ['src/index.ts', 'src/assets/css/variables.css'],
+      entry: ['src/index.ts'],
       name: '@scalar/api-client',
-      fileName: 'index',
       formats: ['es'],
     },
     rollupOptions: {
@@ -28,15 +27,6 @@ export default defineConfig({
         '@uiw/codemirror-themes',
         'codemirror',
       ],
-      output: {
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'index.css') {
-            return 'style.css'
-          }
-
-          return assetInfo.name ?? 'default'
-        },
-      },
     },
   },
 })
