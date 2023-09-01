@@ -1,12 +1,10 @@
-import { ApiClientProxy } from '@scalar/api-client-proxy'
+import { createApiClientProxy } from '@scalar/api-client-proxy'
 import 'dotenv/config'
 
 const port = process.env.PORT || 5051
 
-const server = new ApiClientProxy()
+const { listen } = createApiClientProxy()
 
-server.listen(port, () => {
-  console.log('')
+listen(port, () => {
   console.log(`🥤 API Client Proxy listening on http://localhost:${port}`)
-  console.log('')
 })

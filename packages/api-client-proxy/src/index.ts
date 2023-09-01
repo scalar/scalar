@@ -1,1 +1,1 @@
-export * from './ApiClientProxy'
+export * from './createApiClientProxy'

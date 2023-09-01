@@ -1,6 +1,6 @@
 # Scalar Echo Server
 
-The Scalar Echo Server is an Express server, which replies with the request data. Works well with our API client.
+The Scalar Echo Server is an Express server, which replies with the request data. Works well with the Scalar API Client.
 
 ## Installation
 
