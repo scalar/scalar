@@ -95,6 +95,7 @@ This repository contains all our open source projects and there’s definitely m
 │   ├── api-client (@scalar/api-client)
 │   ├── api-reference (@scalar/api-reference)
 │   ├── cli (@scalar/cli)
+│   ├── fastify-api-reference (@scalar/fastify-api-reference)
 │   ├── swagger-editor (@scalar/swagger-editor)
 │   ├── swagger-parser (@scalar/swagger-parser)
 │   ├── use-clipboard (@scalar/use-clipboard)
