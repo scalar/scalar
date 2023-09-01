@@ -2,7 +2,14 @@
 import { useApiClientStore } from '@scalar/api-client'
 // import '@scalar/swagger-editor/style.css'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, defineAsyncComponent, onMounted, reactive, ref } from 'vue'
+import {
+  computed,
+  defineAsyncComponent,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+} from 'vue'
 
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceProps, Spec } from '../types'
@@ -22,6 +29,40 @@ const props = withDefaults(defineProps<ReferenceProps>(), {
 const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
   import('@scalar/swagger-editor').then((module) => module.SwaggerEditor),
 )
+
+const specRef = ref<string>(props.spec ?? '')
+watch(
+  () => props.spec,
+  () => {
+    if (props.spec) {
+      specRef.value = props.spec
+    }
+  },
+)
+
+const fetchSpecUrl = () => {
+  if (props.specUrl === undefined || props.specUrl.length === 0) {
+    return
+  }
+
+  fetch(props.specUrl)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('The provided OpenAPI/Swagger spec URL is invalid.')
+      }
+
+      return response.text()
+    })
+    .then((data) => {
+      specRef.value = data
+    })
+    .catch((error) => {
+      console.log(
+        'Could not fetch the OpenAPI/Swagger Spec file:',
+        error.message,
+      )
+    })
+}
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
 const isMobile = useMediaQuery('(max-width: 1000px)')
@@ -74,6 +115,8 @@ onMounted(() => {
     top: 0,
     left: 0,
   })
+
+  fetchSpecUrl()
 })
 
 const showAside = computed(() => isLargeScreen.value || !props.isEditable)
@@ -137,7 +180,7 @@ const breadCrumbs = computed(() => {
         :hocusPocusUrl="hocusPocusUrl"
         :documentName="documentName"
         :token="token"
-        :value="spec"
+        :value="specRef"
         :username="username"
         @specUpdate="handleSpecUpdate" />
     </div>

@@ -7,6 +7,7 @@ export type ReferenceProps = {
   showSidebar?: boolean
   footerBelowSidebar?: boolean
   spec?: string
+  specUrl?: string
 }
 
 export type Security = {
