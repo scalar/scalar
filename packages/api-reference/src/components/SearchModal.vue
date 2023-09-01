@@ -2,7 +2,7 @@
 import { type ParamMap, useOperation } from '@scalar/api-client'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import Fuse from 'fuse.js'
-import { nextTick, ref, toRef, watch } from 'vue'
+import { computed, nextTick, ref, toRef, watch } from 'vue'
 
 import { extractRequestBody } from '../helpers/specHelpers'
 import { useTemplateStore } from '../stores/template'
@@ -63,30 +63,31 @@ watch(
 )
 
 async function openSearchResult(entry: Fuse.FuseResult<FuseData>) {
-  const operation = entry.item.operationId
   const tag = entry.item.tag
+  const operation = entry.item.operationId
 
-  if (!operation || !tag) {
+  if (!tag) {
     return
   }
 
   setCollapsedSidebarItem(tag, true)
 
   modalState.hide()
-
   await nextTick()
 
-  const elementId = `endpoint/${operation}`
+  const elementId = operation ? `endpoint/${operation}` : `tag/${tag}`
   const element = document.getElementById(elementId)
   element?.scrollIntoView()
 }
 
 watch(reactiveSpec.value, () => {
   fuseDataArray = []
+
   props.spec.tags.forEach((tag) => {
     const payload = {
       title: tag.name,
       description: tag.description,
+      tag: tag.name,
       body: '',
     }
     fuseDataArray.push(payload)
@@ -148,6 +149,20 @@ useKeyboardEvent({
     }
   },
 })
+
+const searchResultsWithPlaceholderResults = computed(
+  (): Fuse.FuseResult<FuseData>[] => {
+    if (searchText.value.length === 0) {
+      return fuseDataArray.map((item) => {
+        return {
+          item: item,
+        } as Fuse.FuseResult<FuseData>
+      })
+    }
+
+    return searchResults.value
+  },
+)
 </script>
 <template>
   <FlowModal :state="modalState">
@@ -159,19 +174,23 @@ useKeyboardEvent({
         @input="fuseSearch"
         type="text" />
     </div>
-    <div>
+    <div v-if="searchResultsWithPlaceholderResults.length">
       <button
-        v-for="(entry, index) in searchResults"
+        v-for="(entry, index) in searchResultsWithPlaceholderResults"
         :key="entry.refIndex"
         class="item-entry"
-        :class="{ 'item-entry--active': index === selectedSearchResult }"
+        :class="{
+          'item-entry--active': index === selectedSearchResult,
+        }"
         @click="openSearchResult(entry)">
         <div
           class="item-entry-title"
           v-if="entry.item.title || entry.item.operationId">
           {{ entry.item.title || entry.item.operationId }}
         </div>
-        <div class="item-entry-request">
+        <div
+          class="item-entry-request"
+          v-if="entry.item.httpVerb || entry.item.path">
           <div
             class="item-entry-http-verb"
             :class="`item-entry-http-verb--${entry.item.httpVerb}`">
@@ -180,6 +199,9 @@ useKeyboardEvent({
           <div class="item-entry-path">
             {{ entry.item.path }}
           </div>
+        </div>
+        <div v-else>
+          {{ entry.item.description }}
         </div>
       </button>
     </div>
