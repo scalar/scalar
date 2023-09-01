@@ -7,7 +7,6 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "nodemon --exec \"vite-node src/listen.ts\" --ext ts --quiet",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest"
@@ -32,8 +31,7 @@
   },
   "dependencies": {
     "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1"
+    "cors": "^2.8.5"
   },
   "peerDependencies": {
     "@types/cors": "^2.8.13",

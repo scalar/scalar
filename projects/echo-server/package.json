@@ -1,0 +1,21 @@
+{
+  "name": "@scalar-org/echo-server",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet"
+  },
+  "type": "module",
+  "dependencies": {
+    "@scalar/echo-server": "workspace:*",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "vite-node": "^0.34.3",
+    "vite": "4.4.8"
+  }
+}

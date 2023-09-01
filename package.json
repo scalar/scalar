@@ -2,7 +2,7 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "dev": "concurrently --prefix-colors auto -n demo,proxy,echo \"pnpm --filter web dev\" \"pnpm --filter api-client-proxy dev\" \"pnpm --filter echo-server dev\"",
+    "dev": "concurrently --prefix-colors auto -n demo,proxy,echo \"pnpm --filter web dev\" \"pnpm --filter api-client-proxy dev\" \"pnpm --filter @scalar-org/echo-server dev\"",
     "lint": "pnpm -r lint:check",
     "lint:fix": "pnpm -r lint:fix",
     "format": "pnpm prettier --write .",
