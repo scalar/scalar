@@ -2,7 +2,7 @@ import '@scalar/api-client/style.css'
 import { createApp } from 'vue'
 
 import '../../theme/scrollbar.css'
-import StandaloneApiReference from './components/StandaloneApiReference.vue'
+import ApiReference from './components/ApiReference.vue'
 
 if (!document.querySelector('[data-spec-url]')) {
   console.error(
@@ -10,5 +10,10 @@ if (!document.querySelector('[data-spec-url]')) {
     'font-family: monospace;',
   )
 } else {
-  createApp(StandaloneApiReference).mount('[data-spec-url]')
+  createApp(ApiReference, {
+    specUrl:
+      document
+        .querySelector('[data-spec-url]')
+        ?.getAttribute('data-spec-url') || '',
+  }).mount('[data-spec-url]')
 }
