@@ -591,6 +591,28 @@ importers:
         specifier: 1.8.8
         version: 1.8.8(typescript@5.0.4)
 
+  projects/fastify-api-reference:
+    dependencies:
+      '@scalar/fastify-api-reference':
+        specifier: workspace:*
+        version: link:../../packages/fastify-api-reference
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
+      fastify:
+        specifier: ^4.22.1
+        version: 4.22.1
+    devDependencies:
+      nodemon:
+        specifier: ^3.0.1
+        version: 3.0.1
+      vite:
+        specifier: 4.4.8
+        version: 4.4.8(@types/node@20.3.1)
+      vite-node:
+        specifier: ^0.34.3
+        version: 0.34.3
+
 packages:
 
   /@aashutoshrathi/word-wrap@1.2.6:
@@ -3080,6 +3102,11 @@ packages:
     resolution: {integrity: sha512-IGBwjF7tNk3cwypFNH/7bfzBcgSCbaMOD3GsaY1AU/JRrnHnYgEM0+9kQt52iZxjNsjBtJYtao146V+f8jFZNw==}
     engines: {node: '>=10'}
     dev: true
+
+  /dotenv@16.3.1:
+    resolution: {integrity: sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==}
+    engines: {node: '>=12'}
+    dev: false
 
   /eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}

@@ -1,0 +1,22 @@
+{
+  "name": "@scalar-org/fastify-api-reference",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/fastify-api-reference --watch ./"
+  },
+  "type": "module",
+  "dependencies": {
+    "@scalar/fastify-api-reference": "workspace:*",
+    "dotenv": "^16.3.1",
+    "fastify": "^4.22.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "vite": "4.4.8",
+    "vite-node": "^0.34.3"
+  }
+}
