@@ -19,8 +19,8 @@ const props = withDefaults(defineProps<ReferenceProps>(), {
 /**
  * The editor component has heavy dependencies (process), let's lazy load it.
  */
-const LazyLoadedCodeEditor = defineAsyncComponent(() =>
-  import('@scalar/swagger-editor').then((module) => module.CodeEditor),
+const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
+  import('@scalar/swagger-editor').then((module) => module.SwaggerEditor),
 )
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
@@ -37,7 +37,7 @@ const { toggleCollapsedSidebarItem } = useTemplateStore()
 const { state, setActiveSidebar } = useApiClientStore()
 
 // Handle content updates
-const spec = reactive<Spec>({
+const transformedSpec = reactive<Spec>({
   info: {
     title: '',
     description: '',
@@ -61,11 +61,11 @@ const spec = reactive<Spec>({
 
 // @ts-ignore
 const handleSpecUpdate = (newSpec) => {
-  Object.assign(spec, newSpec)
+  Object.assign(transformedSpec, newSpec)
 
   if (!state.activeSidebar) {
-    toggleCollapsedSidebarItem(spec.tags[0].name)
-    setActiveSidebar(spec.tags[0].operations[0].operationId)
+    toggleCollapsedSidebarItem(transformedSpec.tags[0].name)
+    setActiveSidebar(transformedSpec.tags[0].operations[0].operationId)
   }
 }
 
@@ -84,7 +84,7 @@ const showCodeEditor = computed(() => {
 
 // Navigational breadcrumb text from reference info
 const breadCrumbs = computed(() => {
-  const operations = spec.tags
+  const operations = transformedSpec.tags
     .map((t) => t.operations.flatMap((o) => ({ ...o, tag: t.name })))
     .flat()
 
@@ -104,7 +104,7 @@ const breadCrumbs = computed(() => {
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
     <slot name="search-modal">
-      <SearchModal :spec="spec" />
+      <SearchModal :spec="transformedSpec" />
     </slot>
     <!-- Desktop header -->
     <div
@@ -126,17 +126,18 @@ const breadCrumbs = computed(() => {
         <slot
           v-if="isMobile"
           name="header" />
-        <Sidebar :spec="spec"> </Sidebar>
+        <Sidebar :spec="transformedSpec"> </Sidebar>
       </div>
     </aside>
     <!-- Swagger file editing -->
     <div
       v-show="showCodeEditor"
       class="layout-content">
-      <LazyLoadedCodeEditor
+      <LazyLoadedSwaggerEditor
         :hocusPocusUrl="hocusPocusUrl"
         :documentName="documentName"
         :token="token"
+        :value="spec"
         :username="username"
         @specUpdate="handleSpecUpdate" />
     </div>
@@ -146,11 +147,11 @@ const breadCrumbs = computed(() => {
       class="layout-aside-right">
       <Content
         :ready="true"
-        :spec="spec" />
+        :spec="transformedSpec" />
     </div>
     <slot name="footer"></slot>
     <!-- REST API Client Overlay -->
-    <ApiClientModal :spec="spec" />
+    <ApiClientModal :spec="transformedSpec" />
   </div>
 </template>
 
