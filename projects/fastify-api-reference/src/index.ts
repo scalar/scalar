@@ -1,8 +1,5 @@
 import fastifyApiReference from '@scalar/fastify-api-reference'
-import 'dotenv/config'
 import Fastify from 'fastify'
-
-const port = process.env.PORT || 5053
 
 const fastify = Fastify({
   logger: false,
@@ -19,6 +16,6 @@ fastify.register(fastifyApiReference, {
   },
 })
 
-fastify.listen({ port: Number(port) }, function (err, address) {
+fastify.listen({ port: 0 }, function (err, address) {
   console.log(`⚡️ Fastify Plugin running on ${address}/api-reference`)
 })
