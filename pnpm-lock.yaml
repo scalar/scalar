@@ -604,7 +604,7 @@ importers:
         specifier: 1.8.8
         version: 1.8.8(typescript@5.2.2)
 
-  projects/api-client-web:
+  projects/web:
     dependencies:
       '@scalar/api-client':
         specifier: workspace:*
