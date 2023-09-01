@@ -25,25 +25,29 @@ export async function sendRequest(
   proxyUrl: string,
 ): Promise<RequestResult | null> {
   // Format complete URL
-  const fullUrl = `${request.url}${request.path}`
   const method = request.type.toUpperCase()
-  const headers: Header[] = []
+  const fullUrl = `${request.url}${request.path}`
+  const headers: Record<string, string | number> = mapFromArray(
+    request.headers,
+    'name',
+    'value',
+  )
+  /** TODO: Make dynamic */
   const auth = {
     type: 'none',
   }
   const variables = mapFromArray(request.parameters, 'name', 'value')
-
   const renderedURL = templateEngine.renderString(fullUrl, variables)
+  /** TODO: Make dynamic */
   const proxy = true
 
   const startTime = Date.now()
 
-  const axiosHeaders = headers as unknown as AxiosRequestHeaders
   const requestOptions = {
     method,
     url: renderedURL,
     auth,
-    headers: axiosHeaders,
+    headers,
     data: request.body,
   }
 
