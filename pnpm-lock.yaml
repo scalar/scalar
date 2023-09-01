@@ -601,6 +601,25 @@ importers:
         specifier: 1.8.8
         version: 1.8.8(typescript@5.2.2)
 
+  projects/api-client-proxy:
+    dependencies:
+      '@scalar/api-client-proxy':
+        specifier: workspace:*
+        version: link:../../packages/api-client-proxy
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
+    devDependencies:
+      nodemon:
+        specifier: ^3.0.1
+        version: 3.0.1
+      vite:
+        specifier: 4.4.8
+        version: 4.4.8(@types/node@20.3.1)
+      vite-node:
+        specifier: ^0.34.3
+        version: 0.34.3
+
   projects/echo-server:
     dependencies:
       '@scalar/echo-server':

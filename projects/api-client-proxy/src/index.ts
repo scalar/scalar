@@ -1,6 +1,5 @@
+import { ApiClientProxy } from '@scalar/api-client-proxy'
 import 'dotenv/config'
-
-import { ApiClientProxy } from './ApiClientProxy'
 
 const port = process.env.PORT || 5051
 
