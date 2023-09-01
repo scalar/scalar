@@ -26,9 +26,8 @@ export default defineConfig({
   build: {
     cssCodeSplit: false,
     lib: {
-      entry: ['src/index.ts', 'src/assets/css/variables.css'],
+      entry: ['src/index.ts'],
       name: '@scalar/api-reference',
-      fileName: 'index',
       formats: ['es'],
     },
     rollupOptions: {
@@ -47,15 +46,6 @@ export default defineConfig({
         'unified',
         '@scalar/swagger-editor',
       ],
-      output: {
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'index.css') {
-            return 'style.css'
-          }
-
-          return assetInfo.name ?? 'default'
-        },
-      },
     },
   },
 })
