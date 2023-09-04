@@ -1,9 +1,9 @@
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
-import express from 'express'
+import Express from 'express'
 
 export const createEchoServer = () => {
-  const app = express()
+  const app = Express()
 
   app.use(
     cors({
@@ -12,7 +12,7 @@ export const createEchoServer = () => {
   )
 
   app.use(cookieParser())
-  app.use(express.json())
+  app.use(Express.json())
   app.disable('x-powered-by')
 
   // Post request to / are proxied to the target url.
@@ -34,7 +34,7 @@ export const createEchoServer = () => {
   }
 
   return {
-    app,
-    listen,
+    app: app as Express.Express,
+    listen: listen as (port: number | string, callback?: () => void) => void,
   }
 }
