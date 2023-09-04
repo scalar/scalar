@@ -1,8 +1,15 @@
-name: Test
+name: CI
+
 on:
   push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
-  test:
+  setup:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -20,13 +27,28 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
+
+  lint:
+    needs: setup
+    runs-on: ubuntu-20.04
+    steps:
       - name: Lint
         run: pnpm lint
       - name: Check code style
         run: pnpm format:check
+
+  build:
+    needs: setup
+    runs-on: ubuntu-20.04
+    steps:
       - name: Build
         run: pnpm build
       - name: Build (CDN version)
         run: pnpm build:cdn
+
+  test:
+    needs: setup
+    runs-on: ubuntu-20.04
+    steps:
       - name: Run tests
         run: pnpm test
