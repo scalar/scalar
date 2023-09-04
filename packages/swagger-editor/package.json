@@ -25,9 +25,6 @@
   "exports": {
     ".": {
       "import": "./dist/index.js"
-    },
-    "./style.css": {
-      "import": "./dist/style.css"
     }
   },
   "types": "dist/index.d.ts",

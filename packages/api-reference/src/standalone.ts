@@ -1,4 +1,3 @@
-import '@scalar/api-client/style.css'
 import { createApp } from 'vue'
 
 import '../../theme/scrollbar.css'
