@@ -100,7 +100,7 @@ const useExample = () => {
   min-width: 0;
   display: flex;
   flex-wrap: nowrap;
-  justify-content: end;
+  justify-content: flex-end;
 }
 
 .code-editor-header span {
