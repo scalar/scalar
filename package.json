@@ -2,7 +2,7 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "dev": "pnpm --filter api-client-web dev",
+    "dev": "concurrently --prefix-colors auto -n demo,proxy,echo \"pnpm --filter @scalar-org/web dev\" \"pnpm --filter @scalar-org/api-client-proxy dev\" \"pnpm --filter @scalar-org/echo-server dev\"",
     "lint": "pnpm -r lint:check",
     "lint:fix": "pnpm -r lint:fix",
     "format": "pnpm prettier --write .",
@@ -16,9 +16,10 @@
   "devDependencies": {
     "@babel/runtime": "^7.22.10",
     "@changesets/cli": "^2.26.2",
+    "@trivago/prettier-plugin-sort-imports": "4.1.1",
     "@typescript-eslint/eslint-plugin": "^5.52.0",
     "@typescript-eslint/parser": "^6.4.0",
-    "@trivago/prettier-plugin-sort-imports": "4.1.1",
+    "concurrently": "^8.2.1",
     "eslint-config-prettier": "8.8.0",
     "eslint-config-standard-with-typescript": "^37.0.0",
     "eslint-plugin-prettier": "4.2.1",

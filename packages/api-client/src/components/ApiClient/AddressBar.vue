@@ -88,7 +88,7 @@ useKeyboardEvent({
 })
 
 const onChange = (value: string) => {
-  if (activeRequest.url === value) {
+  if (activeRequest.url + activeRequest.path === value) {
     return
   }
 

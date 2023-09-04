@@ -1,0 +1,50 @@
+# Scalar Echo Server
+
+The Scalar Echo Server is an Express server, which replies with the request data. Works well with the Scalar API Client.
+
+## Installation
+
+```bash
+npm install @scalar/echo-server
+```
+
+## Usage
+
+Create a new Node.js project and run the following code to run your own instance:
+
+```ts
+import { createEchoServer } from '@scalar/echo-server'
+
+const { listen } = createEchoServer()
+
+listen(5052, () => {
+  console.log(`🔁 Echo Server listening on http://localhost:5052`)
+})
+```
+
+## Example
+
+No matter which route you hit, the response contains all the request data and looks like that:
+
+```json
+{
+  "headers": {
+    "host": "localhost:5052",
+    "connection": "keep-alive",
+    "accept": "*/*",
+    "accept-language": "*",
+    "sec-fetch-mode": "no-cors",
+    "user-agent": "undici",
+    "cache-control": "max-age=0",
+    "accept-encoding": "gzip, deflate",
+    "content-length": "0"
+  },
+  "cookies": {},
+  "method": "GET",
+  "path": "/foo",
+  "query": {
+    "foo": "bar"
+  },
+  "body": {}
+}
+```

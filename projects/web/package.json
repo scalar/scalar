@@ -1,5 +1,5 @@
 {
-  "name": "@scalar/api-client-web",
+  "name": "@scalar-org/web",
   "version": "0.0.31",
   "private": true,
   "scripts": {
