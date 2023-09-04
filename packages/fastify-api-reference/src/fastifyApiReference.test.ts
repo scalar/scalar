@@ -48,6 +48,37 @@ describe('fastifyApiReference', () => {
       })
     }))
 
+  it.only('has the spec', () =>
+    new Promise((resolve) => {
+      const spec = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Example',
+        },
+        paths: {},
+      }
+
+      const fastify = Fastify({
+        logger: false,
+      })
+
+      fastify.register(fastifyApiReference, {
+        prefix: '/api-reference',
+        apiReference: {
+          spec,
+        },
+      })
+
+      fastify.listen({ port: 0 }, function (err, address) {
+        fetch(`${address}/api-reference`).then(async (response) => {
+          expect(await response.text()).toContain(
+            'data-spec="' + JSON.stringify(spec) + '"',
+          )
+          resolve(null)
+        })
+      })
+    }))
+
   it('has the default title', () =>
     new Promise((resolve) => {
       const fastify = Fastify({
