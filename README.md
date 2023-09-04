@@ -67,13 +67,7 @@ Wait, this is open source and you can do whatever you want. But if you want to a
 
 ## Advanced: Styling
 
-Use our default style and you’re done.
-
-```js
-import '@scalar/api-reference/style.css'
-```
-
-Or: Overwrite our CSS variables. We won’t judge.
+Overwrite our CSS variables. We won’t judge.
 
 ```
 :root {
@@ -83,7 +77,7 @@ Or: Overwrite our CSS variables. We won’t judge.
 
 ## Community
 
-We’re API nerds. You too? Let’s chat on Discord: https://discord.gg/mw6FQRPh
+We are API nerds. You too? Let’s chat on Discord: https://discord.gg/mw6FQRPh
 
 ## Other packages
 
