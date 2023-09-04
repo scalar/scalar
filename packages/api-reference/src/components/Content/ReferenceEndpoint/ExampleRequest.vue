@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { CodeMirror } from '@scalar/api-client'
 import {
+  CodeMirror,
   generateRequest,
   useApiClientRequestStore,
   useApiClientStore,
+  useOperation,
 } from '@scalar/api-client'
-import { useOperation } from '@scalar/api-client'
 import { useClipboard } from '@scalar/use-clipboard'
 import {
   HTTPSnippet,
