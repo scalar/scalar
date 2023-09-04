@@ -48,7 +48,7 @@ describe('fastifyApiReference', () => {
       })
     }))
 
-  it.only('has the spec', () =>
+  it('has the spec', () =>
     new Promise((resolve) => {
       const spec = {
         openapi: '3.1.0',
