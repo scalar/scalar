@@ -83,6 +83,14 @@ async function openSearchResult(entry: Fuse.FuseResult<FuseData>) {
 watch(reactiveSpec.value, () => {
   fuseDataArray = []
 
+  if (!props.spec.tags.length) {
+    fuse.setCollection([])
+    return
+  }
+
+  console.log('FOOBAR', props.spec.tags.length)
+
+  // TODO: We need to go through the operations, not the tags. Spec files can have zero tags.
   props.spec.tags.forEach((tag) => {
     const tagData = {
       title: tag.name,

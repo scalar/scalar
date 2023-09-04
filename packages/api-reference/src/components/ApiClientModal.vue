@@ -2,7 +2,6 @@
 import { ApiClient, useApiClientStore } from '@scalar/api-client'
 import { useMediaQuery } from '@vueuse/core'
 
-// import '@scalar/api-client/style.css'
 import { type Spec } from '../types'
 import { default as Sidebar } from './Sidebar.vue'
 
