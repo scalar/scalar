@@ -13,6 +13,13 @@ fastify.register(fastifyApiReference, {
   prefix: '/api-reference',
   apiReference: {
     specUrl: '/scalar.json',
+    // spec: {
+    //   openapi: '3.1.0',
+    //   info: {
+    //     title: 'Example',
+    //   },
+    //   paths: {},
+    // },
   },
 })
 
