@@ -1,4 +1,4 @@
-import axios, { type AxiosRequestHeaders } from 'axios'
+import axios from 'axios'
 import { nanoid } from 'nanoid'
 import nunjucks from 'nunjucks'
 

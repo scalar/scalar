@@ -1,4 +1,4 @@
-interface Window {
+type Window = {
   process: any
 }
 

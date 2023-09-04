@@ -3,8 +3,7 @@ import { java } from '@codemirror/lang-java'
 import { javascript } from '@codemirror/lang-javascript'
 import { json } from '@codemirror/lang-json'
 import { python } from '@codemirror/lang-python'
-import { type LanguageSupport } from '@codemirror/language'
-import { StreamLanguage } from '@codemirror/language'
+import { type LanguageSupport, StreamLanguage } from '@codemirror/language'
 import {
   c,
   csharp,
@@ -21,16 +20,35 @@ import { ruby } from '@codemirror/legacy-modes/mode/ruby'
 import { shell } from '@codemirror/legacy-modes/mode/shell'
 import { swift } from '@codemirror/legacy-modes/mode/swift'
 import { type Extension } from '@codemirror/state'
-import { keymap } from '@codemirror/view'
 import {
   EditorView,
   type ViewUpdate,
+  keymap,
   lineNumbers as lineNumbersExtension,
 } from '@codemirror/view'
 import { useCodeMirror } from '@scalar/use-codemirror'
 import { watch } from 'vue'
 
 import { variables } from './extensions/variables'
+
+const props = withDefaults(
+  defineProps<{
+    content?: string
+    readOnly?: boolean
+    languages?: Language[]
+    withVariables?: boolean
+    lineNumbers?: boolean
+    withoutTheme?: boolean
+    disableEnter?: boolean
+  }>(),
+  {
+    disableEnter: false,
+  },
+)
+
+const emit = defineEmits<{
+  (e: 'change', value: string): void
+}>()
 
 // TODO: Add 'php' and 'laravel'
 const syntaxHighlighting: Partial<
@@ -78,25 +96,6 @@ type Language =
   | 'shell'
   | 'swift'
   | 'php'
-
-const props = withDefaults(
-  defineProps<{
-    content?: string
-    readOnly?: boolean
-    languages?: Language[]
-    withVariables?: boolean
-    lineNumbers?: boolean
-    withoutTheme?: boolean
-    disableEnter?: boolean
-  }>(),
-  {
-    disableEnter: false,
-  },
-)
-
-const emit = defineEmits<{
-  (e: 'change', value: string): void
-}>()
 
 // CSS Class
 const classes = ['scalar-api-client__codemirror']

@@ -109,8 +109,8 @@ const onChange = (value: string) => {
         <CodeMirror
           class="scalar-api-client__url-input"
           :content="formattedUrl"
-          :readOnly="readOnly"
           :disableEnter="true"
+          :readOnly="readOnly"
           :withVariables="true"
           :withoutTheme="true"
           @change="onChange" />

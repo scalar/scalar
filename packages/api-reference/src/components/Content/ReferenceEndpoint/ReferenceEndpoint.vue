@@ -22,8 +22,8 @@ defineProps<{
         :operation="operation"
         :server="server" />
       <ExampleResponses
-        style="margin-top: 12px"
-        :operation="operation" />
+        :operation="operation"
+        style="margin-top: 12px" />
     </div>
   </div>
 </template>

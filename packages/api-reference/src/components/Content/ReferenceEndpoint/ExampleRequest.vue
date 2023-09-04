@@ -163,10 +163,10 @@ const availableLanguages = computed(() => {
       frameless>
       <!-- @vue-ignore -->
       <CodeMirror
-        :readOnly="true"
+        :content="CodeMirrorValue"
         :languages="CodeMirrorLanguages"
         :lineNumbers="true"
-        :content="CodeMirrorValue" />
+        :readOnly="true" />
     </CardContent>
     <CardFooter muted>
       <button

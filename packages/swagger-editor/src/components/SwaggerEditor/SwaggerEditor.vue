@@ -86,9 +86,9 @@ watch(
     <SwaggerEditorInput
       ref="codeMirrorReference"
       :documentName="documentName"
+      :hocusPocusUrl="hocusPocusUrl"
       :token="token"
       :username="username"
-      :hocusPocusUrl="hocusPocusUrl"
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
     <SwaggerEditorStatusBar v-if="documentName">

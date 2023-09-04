@@ -1,4 +1,4 @@
-import { FastifyInstance, RegisterOptions } from 'fastify'
+import { type FastifyInstance, type RegisterOptions } from 'fastify'
 
 export type FastifyApiReferenceOptions = {
   title?: string
