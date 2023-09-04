@@ -1,0 +1,40 @@
+{
+  "name": "@scalar/fastify-api-reference",
+  "version": "0.1.0",
+  "author": "Scalar",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "test": "vitest",
+    "types:build": "tsc -p tsconfig.build.json",
+    "types:check": "tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "fastify": "^4.22.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "tsc-alias": "1.8.6",
+    "typescript": "^5.2.2",
+    "vite": "4.4.8",
+    "vite-node": "^0.34.3",
+    "vitest": "0.34.1"
+  }
+}
