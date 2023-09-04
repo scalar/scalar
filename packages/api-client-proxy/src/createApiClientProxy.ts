@@ -1,8 +1,8 @@
 import cors from 'cors'
-import express from 'express'
+import Express from 'express'
 
 export const createApiClientProxy = () => {
-  const app = express()
+  const app = Express()
 
   app.use(
     cors({
@@ -10,7 +10,7 @@ export const createApiClientProxy = () => {
     }),
   )
 
-  app.use(express.json())
+  app.use(Express.json())
   app.disable('x-powered-by')
 
   // Post request to / are proxied to the target url.
@@ -47,7 +47,7 @@ export const createApiClientProxy = () => {
           body,
         })
 
-        const headers = {}
+        const headers: Record<string, string> = {}
 
         const proxyHeaders = [...response.headers]
         proxyHeaders.forEach(([key, value]) => {
@@ -86,7 +86,7 @@ export const createApiClientProxy = () => {
   }
 
   return {
-    app,
-    listen,
+    app: app as Express.Express,
+    listen: listen as (port: number | string, callback?: () => void) => void,
   }
 }
