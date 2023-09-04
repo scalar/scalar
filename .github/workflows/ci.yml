@@ -9,27 +9,7 @@ on:
       - main
 
 jobs:
-  setup:
-    runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        node-version: [18]
-
-    steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
-
   lint:
-    needs: setup
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -53,7 +33,7 @@ jobs:
         run: pnpm format:check
 
   build:
-    needs: setup
+    needs: lint
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -71,13 +51,13 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Build
+      - name: Build (packages)
         run: pnpm build
       - name: Build (CDN version)
         run: pnpm build:cdn
 
   test:
-    needs: setup
+    needs: lint
     runs-on: ubuntu-20.04
     strategy:
       matrix:
