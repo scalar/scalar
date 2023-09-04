@@ -1,5 +1,6 @@
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 export default defineConfig({
@@ -8,6 +9,7 @@ export default defineConfig({
   },
   plugins: [
     vue(),
+    cssInjectedByJsPlugin(),
     nodePolyfills({
       // To exclude specific polyfills, add them to this list.
       exclude: [
