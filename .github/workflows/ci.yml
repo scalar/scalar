@@ -31,7 +31,22 @@ jobs:
   lint:
     needs: setup
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [18]
+
     steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
       - name: Lint
         run: pnpm lint
       - name: Check code style
@@ -40,7 +55,22 @@ jobs:
   build:
     needs: setup
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [18]
+
     steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
       - name: Build
         run: pnpm build
       - name: Build (CDN version)
@@ -49,6 +79,21 @@ jobs:
   test:
     needs: setup
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [18]
+
     steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
       - name: Run tests
         run: pnpm test
