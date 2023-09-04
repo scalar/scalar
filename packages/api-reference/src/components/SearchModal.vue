@@ -201,7 +201,7 @@ const searchResultsWithPlaceholderResults = computed(
             {{ entry.item.path }}
           </div>
         </div>
-        <div v-else>
+        <div v-else-if="entry.item.description">
           {{ entry.item.description }}
         </div>
       </button>
