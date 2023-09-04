@@ -1,3 +1,4 @@
+// Prettier is configured to prefere types about interfaces, which is good. But not in that case.
 // @prettier-ignore
 interface Window {
   process: any
