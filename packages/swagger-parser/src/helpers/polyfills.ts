@@ -1,4 +1,5 @@
-type Window = {
+// @prettier-ignore
+interface Window {
   process: any
 }
 
