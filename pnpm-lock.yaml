@@ -146,6 +146,9 @@ importers:
       vite:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
+      vite-plugin-css-injected-by-js:
+        specifier: ^3.3.0
+        version: 3.3.0(vite@4.4.8)
       vitest:
         specifier: 0.34.1
         version: 0.34.1
@@ -424,6 +427,9 @@ importers:
       vite:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
+      vite-plugin-css-injected-by-js:
+        specifier: ^3.3.0
+        version: 3.3.0(vite@4.4.8)
       vitest:
         specifier: 0.34.1
         version: 0.34.1
@@ -521,10 +527,10 @@ importers:
         version: 3.2.2
       '@uiw/codemirror-theme-duotone':
         specifier: 4.21.3
-        version: 4.21.3(@codemirror/language@6.9.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)
+        version: 4.21.3(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)
       '@uiw/codemirror-themes':
         specifier: 4.21.3
-        version: 4.21.3(@codemirror/language@6.9.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)
+        version: 4.21.3(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)
       '@vueuse/core':
         specifier: 10.1.2
         version: 10.1.2(vue@3.3.4)
@@ -1160,17 +1166,6 @@ packages:
       style-mod: 4.0.3
     dev: false
 
-  /@codemirror/language@6.9.0:
-    resolution: {integrity: sha512-nFu311/0ne/qGuGCL3oKuktBgzVOaxCHZPZv1tLSZkNjPYxxvkjSbzno3MlErG2tgw1Yw1yF8BxMCegeMXqpiw==}
-    dependencies:
-      '@codemirror/state': 6.2.1
-      '@codemirror/view': 6.16.0
-      '@lezer/common': 1.0.4
-      '@lezer/highlight': 1.1.6
-      '@lezer/lr': 1.3.10
-      style-mod: 4.1.0
-    dev: false
-
   /@codemirror/legacy-modes@6.3.3:
     resolution: {integrity: sha512-X0Z48odJ0KIoh/HY8Ltz75/4tDYc9msQf1E/2trlxFaFFhgjpVHjZ/BCXe1Lk7s4Gd67LL/CeEEHNI+xHOiESg==}
     dependencies:
@@ -1605,12 +1600,6 @@ packages:
     dependencies:
       '@lezer/highlight': 1.1.6
       '@lezer/lr': 1.3.9
-    dev: false
-
-  /@lezer/lr@1.3.10:
-    resolution: {integrity: sha512-BZfVvf7Re5BIwJHlZXbJn9L8lus5EonxQghyn+ih8Wl36XMFBPTXC0KM0IdUtj9w/diPHsKlXVgL+AlX2jYJ0Q==}
-    dependencies:
-      '@lezer/common': 1.0.4
     dev: false
 
   /@lezer/lr@1.3.9:
@@ -2221,16 +2210,6 @@ packages:
       - '@codemirror/view'
     dev: false
 
-  /@uiw/codemirror-theme-duotone@4.21.3(@codemirror/language@6.9.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0):
-    resolution: {integrity: sha512-pl1lQ50bBf39QKcTGHUUd0mS+qYrU/MjAkjlZx7R2aTcPfZPhGX9OQjaJTvtiA77PwY6JK7Uj9mt1dya5rolOg==}
-    dependencies:
-      '@uiw/codemirror-themes': 4.21.3(@codemirror/language@6.9.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)
-    transitivePeerDependencies:
-      - '@codemirror/language'
-      - '@codemirror/state'
-      - '@codemirror/view'
-    dev: false
-
   /@uiw/codemirror-themes@4.21.3(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0):
     resolution: {integrity: sha512-gB7jUP1SqAkvwOGt0hTpyw7xHMJkgDu5ODy+1qPHMU27IT425+GXJAHPKLHBuRL2+InnWJPMz9JXVrrJU32lLg==}
     peerDependencies:
@@ -2239,18 +2218,6 @@ packages:
       '@codemirror/view': '>=6.0.0'
     dependencies:
       '@codemirror/language': 6.8.0
-      '@codemirror/state': 6.2.1
-      '@codemirror/view': 6.16.0
-    dev: false
-
-  /@uiw/codemirror-themes@4.21.3(@codemirror/language@6.9.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0):
-    resolution: {integrity: sha512-gB7jUP1SqAkvwOGt0hTpyw7xHMJkgDu5ODy+1qPHMU27IT425+GXJAHPKLHBuRL2+InnWJPMz9JXVrrJU32lLg==}
-    peerDependencies:
-      '@codemirror/language': '>=6.0.0'
-      '@codemirror/state': '>=6.0.0'
-      '@codemirror/view': '>=6.0.0'
-    dependencies:
-      '@codemirror/language': 6.9.0
       '@codemirror/state': 6.2.1
       '@codemirror/view': 6.16.0
     dev: false
@@ -7382,10 +7349,6 @@ packages:
 
   /style-mod@4.0.3:
     resolution: {integrity: sha512-78Jv8kYJdjbvRwwijtCevYADfsI0lGzYJe4mMFdceO8l75DFFDoqBhR1jVDicDRRaX4//g1u9wKeo+ztc2h1Rw==}
-    dev: false
-
-  /style-mod@4.1.0:
-    resolution: {integrity: sha512-Ca5ib8HrFn+f+0n4N4ScTIA9iTOQ7MaGS1ylHcoVqW9J7w2w8PzN6g9gKmTYgGEBH8e120+RCmhpje6jC5uGWA==}
     dev: false
 
   /sucrase@3.34.0:
