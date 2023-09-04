@@ -84,23 +84,23 @@ watch(reactiveSpec.value, () => {
   fuseDataArray = []
 
   props.spec.tags.forEach((tag) => {
-    const payload = {
+    const tagData = {
       title: tag.name,
       description: tag.description,
       tag: tag.name,
       body: '',
     }
-    fuseDataArray.push(payload)
+    fuseDataArray.push(tagData)
 
     if (tag.operations) {
       tag.operations.forEach((operation) => {
         const { parameterMap } = useOperation({ operation })
-        let bodyData = extractRequestBody(operation) || parameterMap.value
+        const bodyData = extractRequestBody(operation) || parameterMap.value
         let body = null
         if (typeof bodyData !== 'boolean') {
           body = bodyData
         }
-        const payload: FuseData = {
+        const operationData: FuseData = {
           title: operation.name,
           operationId: operation.operationId,
           description: operation.description,
@@ -110,10 +110,10 @@ watch(reactiveSpec.value, () => {
         }
 
         if (body) {
-          payload.body = body
+          operationData.body = body
         }
 
-        fuseDataArray.push(payload)
+        fuseDataArray.push(operationData)
       })
     }
   })
@@ -168,11 +168,11 @@ const searchResultsWithPlaceholderResults = computed(
   <FlowModal :state="modalState">
     <div>
       <input
-        placeholder="Search …"
-        class="ref-search-input"
         v-model="searchText"
-        @input="fuseSearch"
-        type="text" />
+        class="ref-search-input"
+        placeholder="Search …"
+        type="text"
+        @input="fuseSearch" />
     </div>
     <div v-if="searchResultsWithPlaceholderResults.length">
       <button
@@ -182,15 +182,16 @@ const searchResultsWithPlaceholderResults = computed(
         :class="{
           'item-entry--active': index === selectedSearchResult,
         }"
+        type="submit"
         @click="openSearchResult(entry)">
         <div
-          class="item-entry-title"
-          v-if="entry.item.title || entry.item.operationId">
+          v-if="entry.item.title || entry.item.operationId"
+          class="item-entry-title">
           {{ entry.item.title || entry.item.operationId }}
         </div>
         <div
-          class="item-entry-request"
-          v-if="entry.item.httpVerb || entry.item.path">
+          v-if="entry.item.httpVerb || entry.item.path"
+          class="item-entry-request">
           <div
             class="item-entry-http-verb"
             :class="`item-entry-http-verb--${entry.item.httpVerb}`">

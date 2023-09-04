@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { useApiClientStore } from '@scalar/api-client'
-import { type Operation, useOperation } from '@scalar/api-client'
+import {
+  type Operation,
+  useApiClientStore,
+  useOperation,
+} from '@scalar/api-client'
 import { useIntersectionObserver } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 

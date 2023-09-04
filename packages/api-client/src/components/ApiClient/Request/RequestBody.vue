@@ -4,13 +4,12 @@ import { CodeMirror } from '../../CodeMirror'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
-const { activeRequest, setActiveRequest } = useApiClientRequestStore()
-
 defineProps<{
   body?: string
   formData?: any[]
-  requestBody?: any
 }>()
+
+const { activeRequest, setActiveRequest } = useApiClientRequestStore()
 
 const updateActiveRequest = (value: string) => {
   if (activeRequest.body !== value) {

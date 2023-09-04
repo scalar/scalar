@@ -73,9 +73,9 @@ const changeTab = (index: number) => {
     <CardContent muted>
       <CodeMirror
         v-show="currentResponseJsonBody"
-        read-only
+        :content="currentResponseJsonBody"
         :languages="['json']"
-        :content="currentResponseJsonBody" />
+        readOnly />
       <div
         v-if="!currentResponseJsonBody"
         class="scalar-api-reference__empty-state">

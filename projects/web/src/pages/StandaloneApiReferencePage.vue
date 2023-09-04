@@ -4,6 +4,6 @@ import { ApiReference } from '@scalar/api-reference'
 
 <template>
   <ApiReference
-    :is-editable="true"
-    spec-url="/scalar.json" />
+    :isEditable="true"
+    specUrl="/scalar.json" />
 </template>

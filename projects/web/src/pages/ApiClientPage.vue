@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ApiClient } from '@scalar/api-client'
-import { useApiClientRequestStore } from '@scalar/api-client'
+import { ApiClient, useApiClientRequestStore } from '@scalar/api-client'
 import { watch } from 'vue'
 
 const { readOnly, activeRequest, setActiveRequest } = useApiClientRequestStore()
@@ -25,5 +24,5 @@ if (activeRequestFromStorage) {
 </script>
 
 <template>
-  <ApiClient proxy-url="http://localhost:5051" />
+  <ApiClient proxyUrl="http://localhost:5051" />
 </template>

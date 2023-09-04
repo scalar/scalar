@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { CodeMirror } from '@scalar/api-client'
 import {
+  CodeMirror,
   generateRequest,
   useApiClientRequestStore,
   useApiClientStore,
+  useOperation,
 } from '@scalar/api-client'
-import { useOperation } from '@scalar/api-client'
 import { useClipboard } from '@scalar/use-clipboard'
 import {
   HTTPSnippet,
@@ -163,10 +163,10 @@ const availableLanguages = computed(() => {
       frameless>
       <!-- @vue-ignore -->
       <CodeMirror
-        :readOnly="true"
+        :content="CodeMirrorValue"
         :languages="CodeMirrorLanguages"
         :lineNumbers="true"
-        :content="CodeMirrorValue" />
+        :readOnly="true" />
     </CardContent>
     <CardFooter muted>
       <button

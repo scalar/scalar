@@ -185,19 +185,19 @@ export const useCodeMirrorForSwaggerFiles = ({
     )
   })
 
-  const setCodeMirrorContent = (value: string) => {
+  const setCodeMirrorContent = (newValue: string) => {
     if (!codeMirror.value) return
 
     codeMirror.value.dispatch({
       changes: {
         from: 0,
         to: codeMirror.value.state.doc.length,
-        insert: value,
+        insert: newValue,
       },
       selection: {
         anchor: Math.min(
           codeMirror.value.state.selection.main.anchor,
-          value.length,
+          newValue.length,
         ),
       },
     })

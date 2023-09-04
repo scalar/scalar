@@ -5,6 +5,7 @@ module.exports = {
   },
   parserOptions: {
     ecmaVersion: 2022,
+    project: ['../../tsconfig.json'],
   },
   extends: [
     'eslint:recommended',
@@ -21,6 +22,8 @@ module.exports = {
     'api-reference/packages/swagger-parser/**',
     '**/dist-publish/**',
     '**/.vite-ssg-temp/**',
+    '**/vite.config.ts',
+    '**/cdn/**',
   ],
   rules: {
     // ---------------------------------------------------------------------------
