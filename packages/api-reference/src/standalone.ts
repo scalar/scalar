@@ -12,10 +12,6 @@ if (!specUrlElement && !specElement) {
     'font-family: monospace;',
   )
 } else {
-  console.log(
-    'foo',
-    JSON.parse(specElement.getAttribute('data-spec') as string),
-  )
   const properties = specElement
     ? {
         spec: specElement.getAttribute('data-spec'),
