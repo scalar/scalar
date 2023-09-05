@@ -75,6 +75,8 @@ Overwrite our CSS variables. We won’t judge.
 }
 ```
 
+You can [see all variables here](https://github.com/scalar/api-reference/blob/main/packages/theme/theme.css).
+
 ## Community
 
 We are API nerds. You too? Let’s chat on Discord: https://discord.gg/mw6FQRPh
