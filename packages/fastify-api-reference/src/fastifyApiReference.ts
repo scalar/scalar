@@ -9,7 +9,7 @@ export type FastifyApiReferenceOptions = {
 const getHtmlMarkup = (options: FastifyApiReferenceOptions) => {
   const htmlTag = options.specUrl
     ? `<div data-spec-url="${options.specUrl}" />`
-    : `<div data-spec="${JSON.stringify(options.spec)}" />`
+    : `<div data-spec='${JSON.stringify(options.spec)}' />`
 
   return `
 <!DOCTYPE html>

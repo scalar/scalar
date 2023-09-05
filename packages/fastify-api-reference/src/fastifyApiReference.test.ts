@@ -72,7 +72,7 @@ describe('fastifyApiReference', () => {
       fastify.listen({ port: 0 }, function (err, address) {
         fetch(`${address}/api-reference`).then(async (response) => {
           expect(await response.text()).toContain(
-            'data-spec="' + JSON.stringify(spec) + '"',
+            `data-spec='${JSON.stringify(spec)}'`,
           )
           resolve(null)
         })

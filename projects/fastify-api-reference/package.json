@@ -10,6 +10,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@fastify/swagger": "^8.9.0",
     "@scalar/fastify-api-reference": "workspace:*",
     "fastify": "^4.22.1"
   },
