@@ -399,18 +399,6 @@ importers:
 
   packages/swagger-editor:
     dependencies:
-      '@codemirror/lang-json':
-        specifier: 6.0.1
-        version: 6.0.1
-      '@codemirror/language':
-        specifier: 6.8.0
-        version: 6.8.0
-      '@codemirror/legacy-modes':
-        specifier: 6.3.3
-        version: 6.3.3
-      '@codemirror/view':
-        specifier: 6.16.0
-        version: 6.16.0
       '@headlessui/vue':
         specifier: 1.7.14
         version: 1.7.14(vue@3.3.4)
@@ -423,15 +411,9 @@ importers:
       '@scalar/swagger-parser':
         specifier: workspace:*
         version: link:../swagger-parser
-      '@uiw/codemirror-theme-duotone':
-        specifier: 4.21.3
-        version: 4.21.3(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)
       '@vueuse/core':
         specifier: 10.1.2
         version: 10.1.2(vue@3.3.4)
-      codemirror:
-        specifier: 6.0.1
-        version: 6.0.1(@lezer/common@1.0.4)
       nanoid:
         specifier: 4.0.2
         version: 4.0.2
