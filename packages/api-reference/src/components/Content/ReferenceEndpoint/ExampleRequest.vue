@@ -177,9 +177,9 @@ const availableLanguages = computed(() => {
       <CodeMirror
         :content="CodeMirrorValue"
         :languages="CodeMirrorLanguages"
-        line-numbers
+        lineNumbers
         :force-dark-mode="true"
-        read-only />
+        readOnly />
     </CardContent>
     <CardFooter muted>
       <button

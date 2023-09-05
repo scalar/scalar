@@ -14,7 +14,7 @@ withDefaults(defineProps<{ active: boolean; data: any }>(), {
       v-if="active"
       :content="data"
       :languages="['json']"
-      read-only />
+      readOnly />
     <div
       v-else
       class="scalar-api-client__empty-state">

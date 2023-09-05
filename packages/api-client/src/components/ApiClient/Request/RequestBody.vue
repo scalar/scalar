@@ -34,7 +34,7 @@ const updateActiveRequest = (value: string) => {
       v-else
       :content="activeRequest.body"
       :languages="['json']"
-      line-numbers
+      lineNumbers
       @change="updateActiveRequest" />
   </CollapsibleSection>
 </template>

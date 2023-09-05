@@ -110,7 +110,7 @@ const onChange = (value: string) => {
           class="scalar-api-client__url-input"
           :content="formattedUrl"
           :disableEnter="true"
-          :read-only="readOnly"
+          :readOnly="readOnly"
           :withVariables="true"
           :withoutTheme="true"
           @change="onChange" />
