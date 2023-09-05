@@ -57,6 +57,7 @@
     "@scalar/swagger-editor": "workspace:*",
     "@scalar/swagger-parser": "workspace:*",
     "@scalar/use-clipboard": "workspace:*",
+    "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-keyboard-event": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",

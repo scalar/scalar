@@ -219,6 +219,9 @@ importers:
       '@scalar/use-clipboard':
         specifier: workspace:*
         version: link:../use-clipboard
+      '@scalar/use-codemirror':
+        specifier: workspace:*
+        version: link:../use-codemirror
       '@scalar/use-keyboard-event':
         specifier: workspace:*
         version: link:../use-keyboard-event
