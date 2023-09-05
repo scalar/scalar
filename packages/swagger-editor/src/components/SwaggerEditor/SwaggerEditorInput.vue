@@ -25,7 +25,7 @@ defineExpose({
   },
 })
 
-const codeMirrorRef = ref<CodeMirror | null>(null)
+const codeMirrorRef = ref<typeof CodeMirror | null>(null)
 
 // const documentNameRef = toRef(props, 'documentName')
 // const tokenRef = toRef(props, 'token')
@@ -44,7 +44,7 @@ const codeMirrorRef = ref<CodeMirror | null>(null)
   <div class="code-editor-input">
     <CodeMirror
       ref="codeMirrorRef"
-      :languages="['json', 'yaml']"
+      :languages="['json']"
       lineNumbers
       @change="(value: string) => $emit('contentUpdate', value)" />
   </div>
