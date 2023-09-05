@@ -71,6 +71,6 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 })
 
 // Start the server
-fastify.listen({ port: 64100 }, function (err, address) {
+fastify.listen({ port: 5053 }, function (err, address) {
   console.log(`⚡️ Fastify Plugin running on ${address}/api-reference`)
 })
