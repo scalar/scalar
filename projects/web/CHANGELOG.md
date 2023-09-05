@@ -1,5 +1,18 @@
 # @scalar/api-client-web
 
+## 0.1.0
+
+### Minor Changes
+
+- a ton of fixes, new fastify plugin
+
+### Patch Changes
+
+- Updated dependencies
+  - @scalar/api-client@0.2.0
+  - @scalar/api-reference@0.2.0
+  - @scalar/swagger-editor@0.2.0
+
 ## 0.0.31
 
 ### Patch Changes

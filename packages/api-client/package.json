@@ -1,6 +1,6 @@
 {
   "name": "@scalar/api-client",
-  "version": "0.1.21",
+  "version": "0.2.0",
   "author": "Scalar",
   "license": "MIT",
   "engines": {

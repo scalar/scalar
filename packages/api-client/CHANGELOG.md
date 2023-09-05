@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 0.2.0
+
+### Minor Changes
+
+- a ton of fixes, new fastify plugin
+
+### Patch Changes
+
+- Updated dependencies
+  - @scalar/use-codemirror@0.2.0
+  - @scalar/use-keyboard-event@0.2.0
+
 ## 0.1.21
 
 ### Patch Changes

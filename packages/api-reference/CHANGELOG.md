@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 0.2.0
+
+### Minor Changes
+
+- a ton of fixes, new fastify plugin
+
+### Patch Changes
+
+- Updated dependencies
+  - @scalar/api-client@0.2.0
+  - @scalar/swagger-editor@0.2.0
+  - @scalar/swagger-parser@0.2.0
+  - @scalar/use-clipboard@0.2.0
+  - @scalar/use-keyboard-event@0.2.0
+  - @scalar/use-tooltip@0.2.0
+
 ## 0.1.31
 
 ### Patch Changes

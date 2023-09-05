@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.2.0
+
+### Minor Changes
+
+- a ton of fixes, new fastify plugin
+
 ## 0.1.14
 
 ### Patch Changes

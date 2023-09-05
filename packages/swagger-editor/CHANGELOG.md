@@ -1,5 +1,16 @@
 # @scalar/swagger-editor
 
+## 0.2.0
+
+### Minor Changes
+
+- a ton of fixes, new fastify plugin
+
+### Patch Changes
+
+- Updated dependencies
+  - @scalar/swagger-parser@0.2.0
+
 ## 0.1.16
 
 ### Patch Changes
