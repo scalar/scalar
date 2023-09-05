@@ -26,9 +26,9 @@ import {
   keymap,
   lineNumbers as lineNumbersExtension,
 } from '@codemirror/view'
-import { useCodeMirror } from '@scalar/use-codemirror'
 import { watch } from 'vue'
 
+import { useCodeMirror } from '../../hooks'
 import { variables } from './extensions/variables'
 
 const props = withDefaults(
