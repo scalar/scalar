@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {
-  CodeMirror,
   generateRequest,
   useApiClientRequestStore,
   useApiClientStore,
   useOperation,
 } from '@scalar/api-client'
 import { useClipboard } from '@scalar/use-clipboard'
+import { CodeMirror } from '@scalar/use-codemirror'
 import {
   HTTPSnippet,
   type HarRequest,
@@ -177,9 +177,9 @@ const availableLanguages = computed(() => {
       <CodeMirror
         :content="CodeMirrorValue"
         :languages="CodeMirrorLanguages"
-        :lineNumbers="true"
+        line-numbers
         :force-dark-mode="true"
-        :readOnly="true" />
+        read-only />
     </CardContent>
     <CardFooter muted>
       <button

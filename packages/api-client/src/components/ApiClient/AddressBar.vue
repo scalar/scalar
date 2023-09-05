@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { CodeMirror } from '@scalar/use-codemirror'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
 import TimeAgo from 'javascript-time-ago'
@@ -7,7 +8,6 @@ import { computed, ref } from 'vue'
 
 import { sendRequest } from '../../helpers/sendRequest'
 import { useApiClientRequestStore } from '../../stores/apiClientRequestStore'
-import { CodeMirror } from '../CodeMirror'
 import FlowModal, { useModalState } from '../FlowModal.vue'
 import RequestHistory from './RequestHistory.vue'
 
@@ -110,7 +110,7 @@ const onChange = (value: string) => {
           class="scalar-api-client__url-input"
           :content="formattedUrl"
           :disableEnter="true"
-          :readOnly="readOnly"
+          :read-only="readOnly"
           :withVariables="true"
           :withoutTheme="true"
           @change="onChange" />

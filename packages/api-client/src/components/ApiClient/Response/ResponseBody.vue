@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { CodeMirror } from '../../CodeMirror'
+import { CodeMirror } from '@scalar/use-codemirror'
+
 import { CollapsibleSection } from '../../CollapsibleSection'
 
 withDefaults(defineProps<{ active: boolean; data: any }>(), {
@@ -13,7 +14,7 @@ withDefaults(defineProps<{ active: boolean; data: any }>(), {
       v-if="active"
       :content="data"
       :languages="['json']"
-      :readOnly="true" />
+      read-only />
     <div
       v-else
       class="scalar-api-client__empty-state">

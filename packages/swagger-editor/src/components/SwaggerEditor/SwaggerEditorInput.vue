@@ -26,7 +26,6 @@ const { codeMirrorRef, setCodeMirrorContent } = useCodeMirrorForSwaggerFiles({
   hocusPocusUrl: props.hocusPocusUrl,
   onUpdate: (value) => emit('contentUpdate', value),
   onAwarenessUpdate: (states) => emit('awarenessUpdate', states),
-  forceLightMode: true,
 })
 
 defineExpose({
