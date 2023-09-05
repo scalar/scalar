@@ -37,9 +37,13 @@ Generate interactive API documentations from Swagger files
 
 ### With Vue.js
 
+The API Reference is built in Vue.js. If you’re working in Vue.js, too, you can directly use our Vue components. Just install them:
+
 ```bash
 npm install @scalar/api-reference
 ```
+
+And import the `ApiReference` component to your app:
 
 ```vue
 <script setup lang="ts">
@@ -51,10 +55,41 @@ import { ApiReference } from '@scalar/api-reference'
 </template>
 ```
 
-You pass props to configure the API reference:
+You can pass props to customize the API reference:
+
+#### isEditable?: boolean
+Whether the Swagger editor should be shown.
 
 ```vue
-<ApiReference :is-editable="true" :show-sidebar="false" />
+<ApiReference :isEditable="true" />
+```
+
+#### showSidebar?: boolean
+Whether the sidebar should be shown.
+
+```vue
+<ApiReference :showSidebar="true" />
+```
+
+#### footerBelowSidebar?: boolean
+Whether the footer should below the content or below the content *and* the sidebar.
+
+```vue
+<ApiReference :footerBelowSidebar="true" />
+```
+
+#### spec?: string
+Directly pass an OpenAPI/Swagger spec.
+
+```vue
+<ApiReference :spec="{ … }" />
+```
+
+#### specUrl?: string
+Pass the URL of a spec file (JSON or Yaml).
+
+```vue
+<ApiReference specUrl="/swagger.json" />
 ```
 
 ## Using the CLI
