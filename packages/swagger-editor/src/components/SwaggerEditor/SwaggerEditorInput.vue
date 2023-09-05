@@ -2,8 +2,6 @@
 import { CodeMirror } from '@scalar/use-codemirror'
 import { ref } from 'vue'
 
-const codeMirrorRef = ref<CodeMirror | null>(null)
-
 // import { type StatesArray } from '@hocuspocus/provider'
 // import { toRef } from 'vue'
 
@@ -16,10 +14,18 @@ const codeMirrorRef = ref<CodeMirror | null>(null)
 //   hocusPocusUrl?: string
 // }>()
 
-const emit = defineEmits<{
+defineEmits<{
   // (e: 'awarenessUpdate', states: StatesArray): void
   (e: 'contentUpdate', value: string): void
 }>()
+
+defineExpose({
+  setCodeMirrorContent: (value: string) => {
+    codeMirrorRef.value?.setCodeMirrorContent(value)
+  },
+})
+
+const codeMirrorRef = ref<CodeMirror | null>(null)
 
 // const documentNameRef = toRef(props, 'documentName')
 // const tokenRef = toRef(props, 'token')
@@ -32,20 +38,14 @@ const emit = defineEmits<{
 //   onUpdate: (value) => emit('contentUpdate', value),
 //   onAwarenessUpdate: (states) => emit('awarenessUpdate', states),
 // })
-
-defineExpose({
-  setCodeMirrorContent: (value: string) => {
-    codeMirrorRef.value?.setCodeMirrorContent(value)
-  },
-})
 </script>
 
 <template>
   <div class="code-editor-input">
     <CodeMirror
-      lineNumbers
       ref="codeMirrorRef"
       :languages="['json', 'yaml']"
+      lineNumbers
       @change="(value: string) => $emit('contentUpdate', value)" />
   </div>
 </template>

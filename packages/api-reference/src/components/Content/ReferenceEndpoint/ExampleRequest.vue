@@ -176,9 +176,9 @@ const availableLanguages = computed(() => {
       <!-- @vue-ignore -->
       <CodeMirror
         :content="CodeMirrorValue"
+        :forceDarkMode="true"
         :languages="CodeMirrorLanguages"
         lineNumbers
-        :force-dark-mode="true"
         readOnly />
     </CardContent>
     <CardFooter muted>
