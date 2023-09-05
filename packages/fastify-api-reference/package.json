@@ -22,7 +22,8 @@
   "module": "./dist/index.js",
   "exports": {
     ".": {
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
     }
   },
   "types": "dist/index.d.ts",
