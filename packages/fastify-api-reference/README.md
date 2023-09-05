@@ -10,14 +10,9 @@ npm install @scalar/fastify-api-reference
 
 ## Usage
 
-If you have a OpenAPI/Swagger file somewhere, you can pass an URL to the plugin:
+If you have a OpenAPI/Swagger file already, you can pass an URL to the plugin:
 
 ```ts
-// Serve a Swagger file (optional)
-fastify.get('/swagger.json', async (request, reply) => {
-  reply.send(await import('./swagger.json'))
-})
-
 // Render an API reference for a given OpenAPI/Swagger spec URL
 fastify.register(require('@scalar/fastify-api-reference'), {
   prefix: '/api-reference',
@@ -28,7 +23,7 @@ fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
-With the @fastify/swagger you can even generate your Swagger file on the fly:
+With the [@fastify/swagger](https://github.com/fastify/fastify-swagger) you can even generate your Swagger spec from the registered routes and directly pass it to the plugin:
 
 ```ts
 await fastify.register(require('@scalar/fastify-api-reference'), {
