@@ -1,4 +1,3 @@
-// import fastifyApiReference from '@scalar/fastify-api-reference'
 import Fastify from 'fastify'
 
 // Init Fastify
