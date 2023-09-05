@@ -51,6 +51,7 @@
     "@hocuspocus/common": "2.3.1",
     "@hocuspocus/provider": "2.3.1",
     "@scalar/swagger-parser": "workspace:*",
+    "@scalar/use-codemirror": "workspace:*",
     "@vueuse/core": "10.1.2",
     "nanoid": "4.0.2",
     "y-codemirror.next": "0.3.2",
