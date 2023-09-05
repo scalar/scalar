@@ -187,6 +187,10 @@ watch(props, () => {
   setCodeMirrorContent(props.content ?? '')
   reconfigureCodeMirror(getCodeMirrorExtensions())
 })
+
+defineExpose({
+  setCodeMirrorContent,
+})
 </script>
 
 <template>

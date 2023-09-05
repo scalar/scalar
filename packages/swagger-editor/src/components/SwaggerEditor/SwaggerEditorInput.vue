@@ -1,42 +1,52 @@
 <script setup lang="ts">
-import { type StatesArray } from '@hocuspocus/provider'
-import { toRef } from 'vue'
+import { CodeMirror } from '@scalar/use-codemirror'
+import { ref } from 'vue'
 
-import { useCodeMirrorForSwaggerFiles } from '../../hooks/useCodeMirrorForSwaggerFiles'
+const codeMirrorRef = ref<CodeMirror | null>(null)
 
-const props = defineProps<{
-  documentName?: string
-  token?: string
-  username?: string
-  hocusPocusUrl?: string
-}>()
+// import { type StatesArray } from '@hocuspocus/provider'
+// import { toRef } from 'vue'
+
+// import { useCodeMirrorForSwaggerFiles } from '../../hooks/useCodeMirrorForSwaggerFiles'
+
+// const props = defineProps<{
+//   documentName?: string
+//   token?: string
+//   username?: string
+//   hocusPocusUrl?: string
+// }>()
 
 const emit = defineEmits<{
-  (e: 'awarenessUpdate', states: StatesArray): void
+  // (e: 'awarenessUpdate', states: StatesArray): void
   (e: 'contentUpdate', value: string): void
 }>()
 
-const documentNameRef = toRef(props, 'documentName')
-const tokenRef = toRef(props, 'token')
+// const documentNameRef = toRef(props, 'documentName')
+// const tokenRef = toRef(props, 'token')
 
-const { codeMirrorRef, setCodeMirrorContent } = useCodeMirrorForSwaggerFiles({
-  documentName: documentNameRef,
-  token: tokenRef,
-  username: props.username,
-  hocusPocusUrl: props.hocusPocusUrl,
-  onUpdate: (value) => emit('contentUpdate', value),
-  onAwarenessUpdate: (states) => emit('awarenessUpdate', states),
-})
+// useCodeMirrorForSwaggerFiles({
+//   documentName: documentNameRef,
+//   token: tokenRef,
+//   username: props.username,
+//   hocusPocusUrl: props.hocusPocusUrl,
+//   onUpdate: (value) => emit('contentUpdate', value),
+//   onAwarenessUpdate: (states) => emit('awarenessUpdate', states),
+// })
 
 defineExpose({
-  setCodeMirrorContent,
+  setCodeMirrorContent: (value: string) => {
+    codeMirrorRef.value?.setCodeMirrorContent(value)
+  },
 })
 </script>
 
 <template>
-  <div
-    ref="codeMirrorRef"
-    class="code-editor-input" />
+  <div class="code-editor-input">
+    <CodeMirror
+      lineNumbers
+      ref="codeMirrorRef"
+      @change="(value: string) => $emit('contentUpdate', value)" />
+  </div>
 </template>
 
 <style>
