@@ -298,9 +298,6 @@ importers:
       postcss:
         specifier: ^8.4.28
         version: 8.4.28
-      postcss-nested-import:
-        specifier: ^1.2.0
-        version: 1.2.0(postcss@8.4.28)
       tsc-alias:
         specifier: 1.8.6
         version: 1.8.6
@@ -3404,17 +3401,6 @@ packages:
       ms: 2.0.0
     dev: false
 
-  /debug@3.2.7:
-    resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
-    dependencies:
-      ms: 2.1.3
-    dev: true
-
   /debug@3.2.7(supports-color@5.5.0):
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
     peerDependencies:
@@ -6473,7 +6459,7 @@ packages:
     engines: {node: '>= 0.12.0'}
     dependencies:
       async: 2.6.4
-      debug: 3.2.7
+      debug: 3.2.7(supports-color@5.5.0)
       mkdirp: 0.5.6
     transitivePeerDependencies:
       - supports-color
@@ -6516,16 +6502,6 @@ packages:
       lilconfig: 2.1.0
       postcss: 8.4.28
       yaml: 2.3.1
-    dev: true
-
-  /postcss-nested-import@1.2.0(postcss@8.4.28):
-    resolution: {integrity: sha512-2Ews+SNvyfgGSmPsbUQBR++9lYQsT0mtj/T1Td4fM4wnOHB0fetD4mX/uKlz+o48vNS2LH71dCcyzfWftNXVaQ==}
-    engines: {node: '>=12.0'}
-    peerDependencies:
-      postcss: ^8.3.0
-    dependencies:
-      postcss: 8.4.28
-      resolve: 1.22.4
     dev: true
 
   /postcss-nested@6.0.1(postcss@8.4.28):
