@@ -58,6 +58,7 @@ import { ApiReference } from '@scalar/api-reference'
 You can pass props to customize the API reference:
 
 #### isEditable?: boolean
+
 Whether the Swagger editor should be shown.
 
 ```vue
@@ -65,6 +66,7 @@ Whether the Swagger editor should be shown.
 ```
 
 #### showSidebar?: boolean
+
 Whether the sidebar should be shown.
 
 ```vue
@@ -72,13 +74,15 @@ Whether the sidebar should be shown.
 ```
 
 #### footerBelowSidebar?: boolean
-Whether the footer should below the content or below the content *and* the sidebar.
+
+Whether the footer should below the content or below the content _and_ the sidebar.
 
 ```vue
 <ApiReference :footerBelowSidebar="true" />
 ```
 
 #### spec?: string
+
 Directly pass an OpenAPI/Swagger spec.
 
 ```vue
@@ -86,6 +90,7 @@ Directly pass an OpenAPI/Swagger spec.
 ```
 
 #### specUrl?: string
+
 Pass the URL of a spec file (JSON or Yaml).
 
 ```vue
