@@ -40,9 +40,11 @@ const props = withDefaults(
     lineNumbers?: boolean
     withoutTheme?: boolean
     disableEnter?: boolean
+    forceDarkMode?: boolean
   }>(),
   {
     disableEnter: false,
+    forceDarkMode: false,
   },
 )
 
@@ -178,6 +180,7 @@ const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
     content: props.content ?? '',
     extensions: getCodeMirrorExtensions(),
     withoutTheme: props.withoutTheme,
+    forceDarkMode: props.forceDarkMode,
   })
 
 watch(props, () => {
@@ -203,28 +206,30 @@ watch(props, () => {
 .scalar-api-client__codemirror {
   flex-grow: 1;
   max-width: 100%;
+
+  font-size: var(--theme-small);
 }
 
-.scalar-api-client__codemirror.ͼw {
+/* .scalar-api-client__codemirror.ͼw {
   background-color: var(--theme-background-1);
 }
 
 .scalar-api-client__codemirror--read-only.ͼw {
   background-color: var(--theme-background-2);
-}
+} */
 
 /** URL input */
 .scalar-api-client__url-input {
   font-weight: var(--theme-semibold);
 }
 
-.scalar-api-client__url-input .cm-scroller {
+/* .scalar-api-client__url-input .cm-scroller {
   padding-left: 6px;
 }
 
 .scalar-api-client__url-input .ͼ1 .cm-scroller {
   align-items: center !important;
-}
+} */
 
 .scalar-api-client__variable {
   color: var(--scalar-api-client-color);

@@ -178,6 +178,7 @@ const availableLanguages = computed(() => {
         :content="CodeMirrorValue"
         :languages="CodeMirrorLanguages"
         :lineNumbers="true"
+        :force-dark-mode="true"
         :readOnly="true" />
     </CardContent>
     <CardFooter muted>

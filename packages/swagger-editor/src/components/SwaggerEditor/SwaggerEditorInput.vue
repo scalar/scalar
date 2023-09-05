@@ -26,6 +26,7 @@ const { codeMirrorRef, setCodeMirrorContent } = useCodeMirrorForSwaggerFiles({
   hocusPocusUrl: props.hocusPocusUrl,
   onUpdate: (value) => emit('contentUpdate', value),
   onAwarenessUpdate: (states) => emit('awarenessUpdate', states),
+  forceLightMode: true,
 })
 
 defineExpose({
@@ -40,6 +41,11 @@ defineExpose({
 </template>
 
 <style>
+.code-editor-input {
+  border-top: 1px solid var(--theme-border-color);
+}
+
+/*
 .code-editor-input {
   height: 100%;
   overflow: hidden;
@@ -219,5 +225,5 @@ defineExpose({
   background-color: var(--theme-background-3);
   border: 1px solid var(--theme-border-color);
   color: var(--theme-color-3);
-}
+} */
 </style>

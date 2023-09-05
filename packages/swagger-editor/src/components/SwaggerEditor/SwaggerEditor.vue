@@ -107,5 +107,7 @@ watch(
   flex-direction: column;
   overflow: auto;
   border-right: 1px solid var(--theme-border-color);
+
+  font-size: var(--theme-small);
 }
 </style>

@@ -8,18 +8,41 @@ import {
   type StatesArray,
   type onAwarenessUpdateParameters,
 } from '@hocuspocus/provider'
-import { duotoneDark, duotoneLight } from '@uiw/codemirror-theme-duotone'
+import {
+  duotoneDarkInit,
+  duotoneLightInit,
+} from '@uiw/codemirror-theme-duotone'
 import { basicSetup } from 'codemirror'
 import { type Ref, computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { yCollab as CodeMirrorYjsBinding } from 'y-codemirror.next'
 import * as Y from 'yjs'
 
-import { useDarkModeState } from '../hooks/useDarkModeState'
+// import { useDarkModeState } from '../hooks/useDarkModeState'
+
+const duotoneLight = duotoneLightInit({
+  settings: {
+    background: 'var(--theme-background-2)',
+    gutterBackground: 'var(--theme-background-2)',
+    gutterForeground: 'var(--theme-color-2)',
+    foreground: 'var(--theme-color-1)',
+    fontFamily: 'var(--theme-font-code)',
+  },
+})
+
+const duotoneDark = duotoneDarkInit({
+  settings: {
+    background: 'var(--theme-background-1)',
+    gutterBackground: 'var(--theme-background-2)',
+    gutterForeground: 'var(--theme-color-2)',
+    foreground: 'var(--theme-color-1)',
+    fontFamily: 'var(--theme-font-code)',
+  },
+})
 
 const getRandomElement = (list: any) =>
   list[Math.floor(Math.random() * list.length)]
 
-const { isDark } = useDarkModeState()
+// const { isDark } = useDarkModeState()
 
 type UseCodeMirrorForSwaggerFilesParameters = {
   documentName?: Ref<string | undefined>
@@ -33,6 +56,10 @@ type UseCodeMirrorForSwaggerFilesParameters = {
    * Always use dark mode.
    */
   forceDarkMode?: boolean
+  /**
+   * Always use light mode.
+   */
+  forceLightMode?: boolean
 }
 
 export const useCodeMirrorForSwaggerFiles = ({
@@ -43,6 +70,7 @@ export const useCodeMirrorForSwaggerFiles = ({
   onUpdate,
   onAwarenessUpdate,
   forceDarkMode,
+  forceLightMode,
   hocusPocusUrl,
 }: UseCodeMirrorForSwaggerFilesParameters) => {
   const codeMirror = ref<EditorView | null>(null)
@@ -56,7 +84,7 @@ export const useCodeMirrorForSwaggerFiles = ({
     try {
       JSON.parse(currentContent.value)
       return true
-    } catch (e) {
+    } catch {
       return false
     }
   })
@@ -72,10 +100,24 @@ export const useCodeMirrorForSwaggerFiles = ({
     if (!codeMirrorRef?.value) return
 
     // Initialize CodeMirror
-    const selectedTheme = isDark.value ? duotoneDark : duotoneLight
+    const getCurrentTheme = () => {
+      if (forceDarkMode) {
+        return duotoneDark
+      }
+
+      if (forceLightMode) {
+        return duotoneLight
+      }
+
+      // if (isDark.value) {
+      //   return duotoneDark
+      // }
+
+      return duotoneLight
+    }
+
     const extensions = [
-      EditorView.theme({}, { dark: forceDarkMode ? false : isDark.value }),
-      forceDarkMode ? duotoneLight : selectedTheme,
+      getCurrentTheme(),
       EditorView.updateListener.of((v: ViewUpdate) => {
         if (v.docChanged) {
           const content = v.state.doc.toString()
