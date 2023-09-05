@@ -45,6 +45,7 @@ defineExpose({
     <CodeMirror
       lineNumbers
       ref="codeMirrorRef"
+      :languages="['json', 'yaml']"
       @change="(value: string) => $emit('contentUpdate', value)" />
   </div>
 </template>
