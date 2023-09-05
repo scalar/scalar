@@ -52,8 +52,6 @@
     "@scalar/default-theme": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-keyboard-event": "workspace:*",
-    "@uiw/codemirror-theme-duotone": "4.21.3",
-    "@uiw/codemirror-themes": "4.21.3",
     "@vueuse/core": "10.1.2",
     "axios": "1.4.0",
     "javascript-time-ago": "2.5.9",
@@ -73,6 +71,6 @@
   },
   "peerDependencies": {
     "vue": "3.3.4",
-    "@types/nunjucks": "3.2.3"
+    "@types/nunjucks": "3.2.2"
   }
 }

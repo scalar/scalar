@@ -61,7 +61,6 @@
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
     "@vueuse/core": "10.1.2",
-    "codemirror": "6.0.1",
     "fuse.js": "^6.6.2",
     "httpsnippet-lite": "3.0.5",
     "js-yaml": "4.1.0",
