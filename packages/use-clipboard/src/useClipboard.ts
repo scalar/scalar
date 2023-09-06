@@ -1,4 +1,4 @@
-import { useToasts } from './FlowToast'
+import { useToasts } from '@scalar/use-toasts'
 
 const { addToast } = useToasts()
 

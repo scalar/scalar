@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
-import { FlowToastContainer } from '@scalar/use-clipboard'
+import { FlowToastContainer } from '@scalar/use-toasts'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
   computed,
