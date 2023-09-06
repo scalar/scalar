@@ -95,7 +95,6 @@ useKeyboardEvent({
   </div>
 </template>
 
-<!-- <style src="../../assets/css/variables.css"></style> -->
 <style src="../../../../theme/theme.css"></style>
 
 <style>

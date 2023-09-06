@@ -20,7 +20,9 @@ if (!specUrlElement && !specElement) {
         specUrl: specUrlElement?.getAttribute('data-spec-url') ?? '',
       }
 
-  createApp(ApiReference, properties).mount(
-    specElement ? '[data-spec]' : '[data-spec-url]',
-  )
+  document.querySelector('body')?.classList.add('light-mode')
+
+  const container = specElement ? '[data-spec]' : '[data-spec-url]'
+
+  createApp(ApiReference, properties).mount(container)
 }

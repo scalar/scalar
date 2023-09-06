@@ -14,7 +14,6 @@
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/swagger-editor": "workspace:*",
-    "reset-css": "^5.0.2",
     "vue": "3.3.4",
     "vue-router": "^4.2.4"
   },

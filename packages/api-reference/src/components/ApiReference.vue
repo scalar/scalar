@@ -202,9 +202,44 @@ const breadCrumbs = computed(() => {
 <style src="../../../theme/theme.css"></style>
 
 <style lang="postcss">
-/** CSS Normalize */
+/** CSS Reset */
 .scalar-api-reference {
-  @nested-import 'modern-normalize/modern-normalize.css';
+  p {
+    margin: 0;
+  }
+
+  i {
+    font-style: normal;
+  }
+
+  ul,
+  ol {
+    margin: 0;
+    padding: 0;
+  }
+
+  /** Add some more things which are normally applied to `html`. */
+  font-family: var(--theme-font);
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
+
+  /** Make sure box-sizing is set properly. */
+  box-sizing: border-box;
+
+  *,
+  *:before,
+  *:after {
+    box-sizing: inherit;
+  }
+
+  /** Smooth text rendering */
+  * {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
 /* ?? layout stuff */

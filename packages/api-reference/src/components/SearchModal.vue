@@ -88,8 +88,6 @@ watch(reactiveSpec.value, () => {
     return
   }
 
-  console.log('FOOBAR', props.spec.tags.length)
-
   // TODO: We need to go through the operations, not the tags. Spec files can have zero tags.
   props.spec.tags.forEach((tag) => {
     const tagData = {

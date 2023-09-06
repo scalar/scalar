@@ -301,9 +301,6 @@ importers:
       postcss:
         specifier: ^8.4.28
         version: 8.4.28
-      postcss-nested-import:
-        specifier: ^1.2.0
-        version: 1.2.0(postcss@8.4.28)
       tsc-alias:
         specifier: 1.8.6
         version: 1.8.6
@@ -745,9 +742,6 @@ importers:
       '@scalar/swagger-editor':
         specifier: workspace:*
         version: link:../../packages/swagger-editor
-      reset-css:
-        specifier: ^5.0.2
-        version: 5.0.2
       vue:
         specifier: 3.3.4
         version: 3.3.4
@@ -6544,16 +6538,6 @@ packages:
       yaml: 2.3.1
     dev: true
 
-  /postcss-nested-import@1.2.0(postcss@8.4.28):
-    resolution: {integrity: sha512-2Ews+SNvyfgGSmPsbUQBR++9lYQsT0mtj/T1Td4fM4wnOHB0fetD4mX/uKlz+o48vNS2LH71dCcyzfWftNXVaQ==}
-    engines: {node: '>=12.0'}
-    peerDependencies:
-      postcss: ^8.3.0
-    dependencies:
-      postcss: 8.4.28
-      resolve: 1.22.4
-    dev: true
-
   /postcss-nested@6.0.1(postcss@8.4.28):
     resolution: {integrity: sha512-mEp4xPMi5bSWiMbsgoPfcP74lsWLHkQbZc3sY+jWYd65CUwXrUaTp0fmNpa01ZcETKlIgUdFN/MpS2xZtqL9dQ==}
     engines: {node: '>=12.0'}
@@ -6952,10 +6936,6 @@ packages:
   /requires-port@1.0.0:
     resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
     dev: true
-
-  /reset-css@5.0.2:
-    resolution: {integrity: sha512-YtgUGSq5z5W0NPSjsBW7ys7rtWa8P8AiE7S6Fg3d1TQCPpAodgYyLuZYlU0AOsLtprk/fC9ormHN/0pAavVIDw==}
-    dev: false
 
   /resolve-from@4.0.0:
     resolution: {integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==}
