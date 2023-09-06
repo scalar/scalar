@@ -13,6 +13,7 @@ export const getExampleResponses = (responses: Record<string, any>) => {
 
     // If the response has a JSON schema, generate an example response.
     if (jsonResponseSchema !== undefined) {
+      exampleResponses[responseCode].headers = responses[responseCode].headers
       // Actually generate the example response content.
       exampleResponses[responseCode].content['application/json'].body =
         JSON.stringify(generateResponseContent(jsonResponseSchema), null, 2)

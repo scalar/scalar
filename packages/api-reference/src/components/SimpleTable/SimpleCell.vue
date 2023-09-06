@@ -26,9 +26,8 @@ withDefaults(
 </template>
 <style scoped>
 .simple-cell {
-  border-right: 1px solid var(--theme-border-color);
   position: relative;
-  padding: 0.75em;
+  padding: 0.25em 0.5em;
   color: var(--theme-color-1);
   white-space: nowrap;
 }

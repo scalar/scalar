@@ -3,7 +3,7 @@
     <slot />
   </tr>
 </template>
-<style>
+<style scoped>
 .simple-row {
   border-top: 1px solid var(--theme-border-color);
 }
