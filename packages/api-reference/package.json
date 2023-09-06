@@ -26,7 +26,7 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "exports": {
-    "production": {
+    "default": {
       "import": "./dist/index.js"
     },
     "development": {

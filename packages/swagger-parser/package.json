@@ -22,7 +22,7 @@
     "dist"
   ],
   "exports": {
-    "production": {
+    "default": {
       "import": "./dist/index.js"
     },
     "development": {

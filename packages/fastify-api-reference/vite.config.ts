@@ -19,7 +19,7 @@ export default defineConfig({
         // @scalar/* -> packages/*/
         // (not @scalar/*/style.css)
         find: /^@scalar\/([^/]+)$/,
-        replacement: path.resolve(__dirname, '../../packages/$1/src/index.ts'),
+        replacement: path.resolve(__dirname, '../$1/src/index.ts'),
       },
     ],
   },
