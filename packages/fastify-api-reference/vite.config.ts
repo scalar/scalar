@@ -6,7 +6,7 @@ export default defineConfig({
       entry: 'src/index.ts',
       name: '@scalar/fastify-api-reference',
       fileName: 'index',
-      formats: ['es'],
+      formats: ['es', 'cjs'],
     },
   },
 })
