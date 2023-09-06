@@ -93,8 +93,8 @@ const formatHeaderName = (headerName: string) => {
       </template>
     </CardTabHeader>
     <CardContent
-      muted
-      v-if="currentResponse.headers">
+      v-if="currentResponse.headers"
+      muted>
       <SimpleTable>
         <SimpleRow>
           <SimpleHeader>Header</SimpleHeader>
@@ -104,8 +104,8 @@ const formatHeaderName = (headerName: string) => {
           v-for="(data, header) in currentResponse.headers"
           :key="header">
           <SimpleCell
-            :strong="true"
             :href="getDocumentationUrlForHttpHeader(header)"
+            :strong="true"
             :wrap="false">
             {{ formatHeaderName(header) }}
           </SimpleCell>
