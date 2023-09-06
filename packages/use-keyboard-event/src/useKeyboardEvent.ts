@@ -18,6 +18,7 @@ export function useKeyboardEvent({
   withCtrlCmd = false,
   withAlt = false,
   ignoreInputElements = false,
+  active = () => true,
 }: {
   keyList: KeyboardEvent['key'][]
   withShift?: boolean
@@ -27,6 +28,7 @@ export function useKeyboardEvent({
   handler: (e: KeyboardEvent) => void
   type?: 'keydown' | 'keyup'
   ignoreInputElements?: boolean
+  active?: () => boolean
 }) {
   /** Element or global event */
   const targetEl = computed(() => element?.value || 'document')
@@ -51,7 +53,9 @@ export function useKeyboardEvent({
       // Check whether or not to ignore inputs
       (!ignoreInputElements || !isInput) &&
       // Check for key match
-      keys.includes(event.key.toLocaleLowerCase())
+      keys.includes(event.key.toLocaleLowerCase()) &&
+      // Check if it’s currently active
+      active()
     ) {
       event.preventDefault()
       handler(event)
