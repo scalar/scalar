@@ -1,4 +1,4 @@
-export { default as httpHeaders } from './httpHeaders'
+export { httpHeaders, type HttpHeader } from './httpHeaders'
 export {
   default as httpStatusCodes,
   type HttpStatusCode,
