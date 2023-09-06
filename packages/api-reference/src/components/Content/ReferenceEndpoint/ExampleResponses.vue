@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { CodeMirror } from '@scalar/api-client'
+import { CodeMirror, type HttpHeader, httpHeaders } from '@scalar/api-client'
 import { useClipboard } from '@scalar/use-clipboard'
 import { computed, ref } from 'vue'
 
@@ -12,6 +12,12 @@ import {
   CardTabHeader,
 } from '../../Card'
 import { Icon } from '../../Icon'
+import {
+  SimpleCell,
+  SimpleHeader,
+  SimpleRow,
+  SimpleTable,
+} from '../../SimpleTable'
 
 const props = defineProps<{ operation: TransformedOperation }>()
 
@@ -46,6 +52,22 @@ const currentResponseJsonBody = computed(() => {
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index
 }
+
+const getDocumentationUrlForHttpHeader = (headerName: string) => {
+  return httpHeaders.find((header: HttpHeader) => {
+    return header.name.toLowerCase() === headerName.toLowerCase()
+  })?.url
+}
+
+// Make the first letter and all letters after a - uppercase
+const formatHeaderName = (headerName: string) => {
+  return headerName
+    .split('-')
+    .map((word) => {
+      return word.charAt(0).toUpperCase() + word.slice(1)
+    })
+    .join('-')
+}
 </script>
 <template>
   <Card v-if="orderedStatusCodes.length">
@@ -70,6 +92,27 @@ const changeTab = (index: number) => {
         </button>
       </template>
     </CardTabHeader>
+    <CardContent
+      muted
+      v-if="currentResponse.headers">
+      <SimpleTable>
+        <SimpleRow>
+          <SimpleHeader>Header</SimpleHeader>
+          <SimpleHeader>Description</SimpleHeader>
+        </SimpleRow>
+        <SimpleRow
+          v-for="(data, header) in currentResponse.headers"
+          :key="header">
+          <SimpleCell
+            :strong="true"
+            :href="getDocumentationUrlForHttpHeader(header)"
+            :wrap="false">
+            {{ formatHeaderName(header) }}
+          </SimpleCell>
+          <SimpleCell>{{ data.description }}</SimpleCell>
+        </SimpleRow>
+      </SimpleTable>
+    </CardContent>
     <CardContent muted>
       <CodeMirror
         v-show="currentResponseJsonBody"
