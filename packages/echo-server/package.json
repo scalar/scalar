@@ -16,14 +16,14 @@
   },
   "type": "module",
   "files": [
+    "src",
     "dist"
   ],
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "exports": {
-    ".": {
-      "import": "./dist/index.js"
-    }
+    "development": "./src/index.ts",
+    "import": "./dist/index.js"
   },
   "types": "dist/index.d.ts",
   "dependencies": {

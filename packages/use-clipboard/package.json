@@ -18,9 +18,15 @@
   },
   "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "files": [
+    "src",
     "dist"
   ],
+  "exports": {
+    "development": "./src/index.ts",
+    "import": "./dist/index.js"
+  },
   "dependencies": {
     "nanoid": "4.0.2",
     "@scalar/use-toasts": "workspace:*"

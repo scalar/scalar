@@ -18,9 +18,15 @@
   },
   "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "files": [
+    "src",
     "dist"
   ],
+  "exports": {
+    "development": "./src/index.ts",
+    "import": "./dist/index.js"
+  },
   "dependencies": {
     "@codemirror/lang-javascript": "6.1.9",
     "@codemirror/lang-json": "6.0.1",
