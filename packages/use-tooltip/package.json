@@ -24,12 +24,8 @@
     "dist"
   ],
   "exports": {
-    "default": {
-      "import": "./dist/index.js"
-    },
-    "development": {
-      "import": "./src/index.ts"
-    }
+    "development": "./src/index.ts",
+    "import": "./dist/index.js"
   },
   "dependencies": {
     "tippy.js": "6.3.7"

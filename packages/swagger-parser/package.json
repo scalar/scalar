@@ -22,12 +22,8 @@
     "dist"
   ],
   "exports": {
-    "default": {
-      "import": "./dist/index.js"
-    },
-    "development": {
-      "import": "./src/index.ts"
-    }
+    "development": "./src/index.ts",
+    "import": "./dist/index.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
