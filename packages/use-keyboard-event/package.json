@@ -18,9 +18,19 @@
   },
   "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "files": [
+    "src",
     "dist"
   ],
+  "exports": {
+    "production": {
+      "import": "./dist/index.js"
+    },
+    "development": {
+      "import": "./src/index.ts"
+    }
+  },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",
     "tsc-alias": "1.8.6",

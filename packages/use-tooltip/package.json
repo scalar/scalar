@@ -18,9 +18,19 @@
   },
   "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "files": [
+    "src",
     "dist"
   ],
+  "exports": {
+    "production": {
+      "import": "./dist/index.js"
+    },
+    "development": {
+      "import": "./src/index.ts"
+    }
+  },
   "dependencies": {
     "tippy.js": "6.3.7"
   },

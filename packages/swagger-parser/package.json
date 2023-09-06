@@ -18,8 +18,17 @@
   "type": "module",
   "main": "./dist/index.js",
   "files": [
+    "src",
     "dist"
   ],
+  "exports": {
+    "production": {
+      "import": "./dist/index.js"
+    },
+    "development": {
+      "import": "./src/index.ts"
+    }
+  },
   "types": "./dist/index.d.ts",
   "dependencies": {
     "@apidevtools/swagger-parser": "10.1.0",

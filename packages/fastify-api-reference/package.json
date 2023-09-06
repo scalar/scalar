@@ -16,14 +16,19 @@
   },
   "type": "module",
   "files": [
+    "src",
     "dist"
   ],
-  "main": "./dist/index.js",
+  "main": "./dist/index.umd.cjs",
   "module": "./dist/index.js",
   "exports": {
-    ".": {
+    "production": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.umd.cjs"
+    },
+    "development": {
+      "import": "./src/index.ts",
+      "require": "./src/index.ts"
     }
   },
   "types": "dist/index.d.ts",
