@@ -1,3 +1,4 @@
+import fastifyApiReference from '@scalar/fastify-api-reference'
 import Fastify from 'fastify'
 
 // Init Fastify
@@ -58,7 +59,7 @@ fastify.put(
 )
 
 // Add the plugin
-await fastify.register(require('@scalar/fastify-api-reference'), {
+await fastify.register(fastifyApiReference, {
   prefix: '/api-reference',
   apiReference: {
     // Pass the generated Swagger spec:

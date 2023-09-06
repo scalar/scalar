@@ -22,13 +22,12 @@
   "main": "./dist/index.umd.cjs",
   "module": "./dist/index.js",
   "exports": {
-    "production": {
+    "node": {
       "import": "./dist/index.js",
       "require": "./dist/index.umd.cjs"
     },
     "development": {
-      "import": "./src/index.ts",
-      "require": "./src/index.ts"
+      "import": "./src/index.ts"
     }
   },
   "types": "dist/index.d.ts",
