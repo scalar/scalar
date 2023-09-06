@@ -139,6 +139,7 @@ This repository contains all our open source projects and there’s definitely m
 │   ├── use-clipboard (@scalar/use-clipboard)
 │   ├── use-codemirror (@scalar/use-codemirror)
 │   ├── use-keyboard-event (@scalar/use-keyboard-event)
+│   ├── use-toasts (@scalar/use-toasts)
 │   └── use-tooltip (@scalar/use-tooltip)
 └── projects
     └── api-client-web (web app)
