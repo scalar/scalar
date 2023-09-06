@@ -47,22 +47,34 @@ const CodeMirrorLanguages = computed(() => {
 const { parameterMap } = useOperation(props)
 
 async function generateSnippet() {
+  let path = props.operation.path
+
+  // Replace all variables of the format {something} with the uppercase variable name without the brackets
+  const pathVariables = path.match(/{(.*?)}/g)
+
+  if (pathVariables) {
+    pathVariables.forEach((variable) => {
+      const variableName = variable.replace(/{|}/g, '')
+      path = path.replace(variable, variableName.toUpperCase())
+    })
+  }
+
   if (templateState.preferredLanguage === 'axios') {
     return generateAxiosCodeFromRequest({
       method: props.operation.httpVerb.toUpperCase(),
-      url: `${props.server.url}${props.operation.path}`,
+      url: `${props.server.url}${path}`,
     })
   } else if (templateState.preferredLanguage === 'laravel') {
     return generateLaravelCodeFromRequest({
       method: props.operation.httpVerb.toUpperCase(),
-      url: `${props.server.url}${props.operation.path}`,
+      url: `${props.server.url}${path}`,
     })
   }
 
   try {
     const snippet = new HTTPSnippet({
       method: props.operation.httpVerb.toUpperCase(),
-      url: `${props.server.url}${props.operation.path}`,
+      url: `${props.server.url}${path}`,
     } as HarRequest)
     const output = (await snippet.convert(
       templateState.preferredLanguage as TargetId,
@@ -71,7 +83,7 @@ async function generateSnippet() {
   } catch {
     const snippet = new HTTPSnippet({
       method: props.operation.httpVerb.toUpperCase(),
-      url: `${window.location.origin}${props.operation.path}`,
+      url: `${window.location.origin}${path}`,
     } as HarRequest)
     const output = (await snippet.convert(
       templateState.preferredLanguage as TargetId,
