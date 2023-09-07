@@ -38,7 +38,6 @@ const codeMirrorRef = ref<typeof CodeMirror | null>(null)
 .code-editor-input {
   height: 100%;
   overflow: hidden;
-  border-top: 1px solid var(--theme-border-color);
   background: var(--theme-background-2);
 }
 
