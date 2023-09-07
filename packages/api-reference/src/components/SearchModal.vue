@@ -27,6 +27,7 @@ let fuseDataArray: FuseData[] = []
 const searchResults = ref<Fuse.FuseResult<FuseData>[]>([])
 const selectedSearchResult = ref<number>(0)
 const searchText = ref<string>('')
+const searchModalRef = ref<HTMLElement | null>(null)
 
 const fuse = new Fuse(fuseDataArray, {
   keys: ['title', 'description', 'body'],
@@ -128,16 +129,25 @@ watch(reactiveSpec.value, () => {
 })
 
 useKeyboardEvent({
+  element: searchModalRef,
   keyList: ['enter'],
+  active: () => modalState.open,
   handler: () => {
-    openSearchResult(searchResults.value[selectedSearchResult.value])
+    openSearchResult(
+      searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
+    )
   },
 })
 
 useKeyboardEvent({
+  element: searchModalRef,
   keyList: ['ArrowDown'],
+  active: () => modalState.open,
   handler: () => {
-    if (selectedSearchResult.value < searchResults.value.length - 1) {
+    if (
+      selectedSearchResult.value <
+      searchResultsWithPlaceholderResults.value.length - 1
+    ) {
       selectedSearchResult.value++
     } else {
       selectedSearchResult.value = 0
@@ -146,12 +156,15 @@ useKeyboardEvent({
 })
 
 useKeyboardEvent({
+  element: searchModalRef,
   keyList: ['ArrowUp'],
+  active: () => modalState.open,
   handler: () => {
     if (selectedSearchResult.value > 0) {
       selectedSearchResult.value--
     } else {
-      selectedSearchResult.value = searchResults.value.length - 1
+      selectedSearchResult.value =
+        searchResultsWithPlaceholderResults.value.length - 1
     }
   },
 })
@@ -172,7 +185,7 @@ const searchResultsWithPlaceholderResults = computed(
 </script>
 <template>
   <FlowModal :state="modalState">
-    <div>
+    <div ref="searchModalRef">
       <input
         v-model="searchText"
         class="ref-search-input"

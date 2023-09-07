@@ -1,4 +1,4 @@
-import { type Ref, computed, onMounted, watchEffect } from 'vue'
+import { type Ref, computed, onMounted, watch } from 'vue'
 
 /**
  * Add global or pseudo-global keyboard event handlers
@@ -18,6 +18,7 @@ export function useKeyboardEvent({
   withCtrlCmd = false,
   withAlt = false,
   ignoreInputElements = false,
+  active = () => true,
 }: {
   keyList: KeyboardEvent['key'][]
   withShift?: boolean
@@ -27,6 +28,7 @@ export function useKeyboardEvent({
   handler: (e: KeyboardEvent) => void
   type?: 'keydown' | 'keyup'
   ignoreInputElements?: boolean
+  active?: () => boolean
 }) {
   /** Element or global event */
   const targetEl = computed(() => element?.value || 'document')
@@ -51,7 +53,9 @@ export function useKeyboardEvent({
       // Check whether or not to ignore inputs
       (!ignoreInputElements || !isInput) &&
       // Check for key match
-      keys.includes(event.key.toLocaleLowerCase())
+      keys.includes(event.key.toLocaleLowerCase()) &&
+      // Check if it’s currently active
+      active()
     ) {
       event.preventDefault()
       handler(event)
@@ -60,14 +64,22 @@ export function useKeyboardEvent({
 
   // Nested hook required to manage the undefined document in SSG build
   onMounted(() => {
-    watchEffect(() => {
-      const target = targetEl.value === 'document' ? document : targetEl.value
+    watch(
+      targetEl,
+      (value, prevValue) => {
+        const prevTarget = prevValue === 'document' ? document : prevValue
 
-      target.removeEventListener(type, eventHandler)
-      if (target) {
-        target.addEventListener(type, eventHandler)
-      }
-    })
+        if (prevTarget) {
+          prevTarget.removeEventListener(type, eventHandler)
+        }
+
+        const target = value === 'document' ? document : value
+        if (target) {
+          target.addEventListener(type, eventHandler)
+        }
+      },
+      { immediate: true },
+    )
   })
 
   const keyboardShortcut = {
