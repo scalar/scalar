@@ -35,6 +35,12 @@ Generate interactive API documentations from Swagger files
 </html>
 ```
 
+You can also use the following syntax to directly pass an OpenAPI spec:
+
+```html
+<div data-spec="{ … }" />
+```
+
 ### With Vue.js
 
 The API Reference is built in Vue.js. If you’re working in Vue.js, too, you can directly use our Vue components. Just install them:
