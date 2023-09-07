@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 0.2.1
+
+### Patch Changes
+
+- 41b06cb: fix: scope search modal keyboard events
+- Updated dependencies [41b06cb]
+  - @scalar/use-keyboard-event@0.2.1
+  - @scalar/api-client@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes

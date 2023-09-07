@@ -1,5 +1,11 @@
 # @scalar/use-keyboard-event
 
+## 0.2.1
+
+### Patch Changes
+
+- 41b06cb: fix: scope search modal keyboard events
+
 ## 0.2.0
 
 ### Minor Changes
