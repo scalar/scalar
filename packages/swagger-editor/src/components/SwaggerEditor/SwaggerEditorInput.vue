@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { useSwaggerEditor } from '@scalar/swagger-editor'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { ref } from 'vue'
+
+import { useSwaggerEditor } from '../../hooks'
 
 defineEmits<{
   (e: 'contentUpdate', value: string): void
