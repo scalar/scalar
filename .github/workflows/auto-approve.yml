@@ -1,0 +1,16 @@
+name: Auto approve
+
+on: pull_request_target
+
+jobs:
+  auto-approve:
+    runs-on: ubuntu-20.04
+    permissions:
+      pull-requests: write
+
+    if: github.actor == 'github-actions'
+
+    steps:
+      - uses: hmarr/auto-approve-action@v3
+        with:
+          review-message: 'Automatically approved PR. ✅'
