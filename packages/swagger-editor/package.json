@@ -48,8 +48,6 @@
   "types": "dist/index.d.ts",
   "dependencies": {
     "@headlessui/vue": "1.7.14",
-    "@hocuspocus/common": "2.3.1",
-    "@hocuspocus/provider": "2.3.1",
     "@scalar/swagger-parser": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@vueuse/core": "10.1.2",
