@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: ['CI']
+    branches: [main]
+    types:
+      - completed
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build (packages)
+        run: pnpm build
+      - name: Create Release Pull Request or Publish to npm
+        uses: changesets/action@v1
+        with:
+          # The pull request title.
+          title: 'chore: release'
+          # The command to update version, edit CHANGELOG, read and delete changesets.
+          version: 'pnpm run bump'
+          # The commit message to use.
+          commit: 'chore: version packages'
+          # The command to use to build and publish packages
+          publish: 'pnpm -r publish'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
