@@ -33,6 +33,7 @@ import { variables } from './extensions/variables'
 
 const props = withDefaults(
   defineProps<{
+    extensions?: Extension[]
     content?: string
     readOnly?: boolean
     languages?: Language[]
@@ -110,6 +111,13 @@ const getCodeMirrorExtensions = () => {
   const extensions: Extension[] = []
 
   extensions.push(EditorView.editorAttributes.of({ class: classes.join(' ') }))
+
+  // Custom extensions
+  if (props.extensions) {
+    props.extensions.forEach((extension) => {
+      extensions.push(extension)
+    })
+  }
 
   // Read only
   if (props.readOnly) {
