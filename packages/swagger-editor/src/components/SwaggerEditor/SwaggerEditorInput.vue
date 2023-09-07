@@ -3,11 +3,11 @@ import { useSwaggerEditor } from '@scalar/swagger-editor'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { ref } from 'vue'
 
-const { extensions } = useSwaggerEditor()
-
 defineEmits<{
   (e: 'contentUpdate', value: string): void
 }>()
+
+const { extensions } = useSwaggerEditor()
 
 defineExpose({
   setCodeMirrorContent: (value: string) => {
