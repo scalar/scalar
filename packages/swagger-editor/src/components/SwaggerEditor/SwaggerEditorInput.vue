@@ -5,20 +5,7 @@ import { ref } from 'vue'
 
 const { extensions } = useSwaggerEditor()
 
-// import { type StatesArray } from '@hocuspocus/provider'
-// import { toRef } from 'vue'
-
-// import { useCodeMirrorForSwaggerFiles } from '../../hooks/useCodeMirrorForSwaggerFiles'
-
-// const props = defineProps<{
-//   documentName?: string
-//   token?: string
-//   username?: string
-//   hocusPocusUrl?: string
-// }>()
-
 defineEmits<{
-  // (e: 'awarenessUpdate', states: StatesArray): void
   (e: 'contentUpdate', value: string): void
 }>()
 
@@ -29,18 +16,6 @@ defineExpose({
 })
 
 const codeMirrorRef = ref<typeof CodeMirror | null>(null)
-
-// const documentNameRef = toRef(props, 'documentName')
-// const tokenRef = toRef(props, 'token')
-
-// useCodeMirrorForSwaggerFiles({
-//   documentName: documentNameRef,
-//   token: tokenRef,
-//   username: props.username,
-//   hocusPocusUrl: props.hocusPocusUrl,
-//   onUpdate: (value) => emit('contentUpdate', value),
-//   onAwarenessUpdate: (states) => emit('awarenessUpdate', states),
-// })
 </script>
 
 <template>
