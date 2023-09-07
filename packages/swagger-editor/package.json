@@ -50,6 +50,7 @@
     "@headlessui/vue": "1.7.14",
     "@scalar/swagger-parser": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
+    "@codemirror/state": "6.2.1",
     "@vueuse/core": "10.1.2",
     "nanoid": "4.0.2",
     "y-codemirror.next": "0.3.2",
