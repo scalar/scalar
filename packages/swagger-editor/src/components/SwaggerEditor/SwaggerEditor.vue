@@ -77,7 +77,7 @@ watch(
     <SwaggerEditorInput
       ref="codeMirrorReference"
       @contentUpdate="handleContentUpdate" />
-    <SwaggerEditorStatusBar>
+    <SwaggerEditorStatusBar v-if="statusText">
       {{ statusText }}
     </SwaggerEditorStatusBar>
   </div>
