@@ -9,7 +9,7 @@
     "format:check": "pnpm prettier --check .",
     "test": "pnpm -r test",
     "build": "pnpm -r build",
-    "bump": "pnpm install && pnpm run build && CI=true pnpm run test && pnpm changeset version",
+    "bump": "CI=true pnpm run test && pnpm changeset version",
     "build:cdn": "pnpm --filter api-reference build:cdn",
     "preview:cdn": "pnpm --filter api-reference preview:cdn"
   },
