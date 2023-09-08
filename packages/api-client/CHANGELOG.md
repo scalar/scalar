@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.3.1
+
+### Patch Changes
+
+- 0f345e4: fix: import CSS file from component, makes sure the CSS is included in the build
+
 ## 0.3.0
 
 ### Minor Changes
