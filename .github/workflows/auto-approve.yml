@@ -8,8 +8,8 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      # Output github.actor
-      - run: echo ${{ github.actor }}
+      # Output PR author?
+      - run: echo ${{ github.event.pull_request.user.login }}
       # - uses: hmarr/auto-approve-action@v3
       #   with:
       #     review-message: 'Automatically approved PR. ✅'
