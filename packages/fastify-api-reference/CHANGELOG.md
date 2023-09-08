@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 0.3.1
+
+### Patch Changes
+
+- 53d9bae: fix: make fastify an external dependency
+
 ## 0.3.0
 
 ### Minor Changes
