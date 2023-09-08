@@ -7,10 +7,9 @@ jobs:
     runs-on: ubuntu-20.04
     permissions:
       pull-requests: write
-
-    if: github.actor == 'github-actions[bot]'
-
     steps:
-      - uses: hmarr/auto-approve-action@v3
-        with:
-          review-message: 'Automatically approved PR. ✅'
+      # Output github.actor
+      - run: echo ${{ github.actor }}
+      # - uses: hmarr/auto-approve-action@v3
+      #   with:
+      #     review-message: 'Automatically approved PR. ✅'
