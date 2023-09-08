@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
+import '@scalar/default-theme/scrollbar.css'
+import '@scalar/default-theme/theme.css'
 import { FlowToastContainer } from '@scalar/use-toasts'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
