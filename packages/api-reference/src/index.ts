@@ -1,5 +1,3 @@
-import '../../theme/scrollbar.css'
-
 export {
   default as ApiClientModal,
   useApiClientStore,
