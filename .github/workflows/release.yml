@@ -47,13 +47,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Slack Notification
-        if: steps.changesets.outputs.published == 'true'
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_USERNAME: GitHub Actions
           SLACK_ICON_EMOJI: ':white_check_mark:'
           SLACK_TITLE: Release
           SLACK_MSG_AUTHOR: ${{ github.event.commits[0].author.name }}
-          SLACK_MESSAGE: ${{ steps.changesets.outputs.publishedPackages }}
+          SLACK_MESSAGE: ${{join(steps.changesets.outputs.*, '\n')}}
           SLACK_FOOTER: null
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
