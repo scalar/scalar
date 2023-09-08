@@ -95,6 +95,8 @@ useKeyboardEvent({
   </div>
 </template>
 
+<style src="../../../../theme/scollbar.css"></style>
+
 <style src="../../../../theme/theme.css"></style>
 
 <style>

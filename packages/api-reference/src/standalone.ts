@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 
-import '../../theme/scrollbar.css'
 import ApiReference from './components/ApiReference.vue'
 
 const specElement = document.querySelector('[data-spec]')
