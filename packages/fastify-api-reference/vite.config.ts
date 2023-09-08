@@ -9,6 +9,9 @@ export default defineConfig({
       fileName: 'index',
       formats: ['es', 'umd'],
     },
+    rollupOptions: {
+      external: ['fastify'],
+    },
   },
   resolve: {
     alias: [
