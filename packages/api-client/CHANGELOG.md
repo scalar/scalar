@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 0.3.0
+
+### Minor Changes
+
+- b0f5221: manually releasing all packages to make sure the lastest version is on npm
+
+### Patch Changes
+
+- Updated dependencies [b0f5221]
+  - @scalar/use-codemirror@0.3.0
+  - @scalar/use-keyboard-event@0.3.0
+
 ## 0.2.1
 
 ### Patch Changes

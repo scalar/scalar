@@ -1,5 +1,18 @@
 # @scalar/api-client-web
 
+## 0.2.0
+
+### Minor Changes
+
+- b0f5221: manually releasing all packages to make sure the lastest version is on npm
+
+### Patch Changes
+
+- Updated dependencies [b0f5221]
+  - @scalar/api-client@0.3.0
+  - @scalar/api-reference@0.3.0
+  - @scalar/swagger-editor@0.3.0
+
 ## 0.1.1
 
 ### Patch Changes
