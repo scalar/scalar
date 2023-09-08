@@ -4,9 +4,7 @@
   "author": "Scalar",
   "license": "MIT",
   "scripts": {
-    "build": "vite build",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix"
+    "build": "vite build"
   },
   "files": [
     "src"
