@@ -91,6 +91,9 @@ importers:
       '@lezer/highlight':
         specifier: 1.1.6
         version: 1.1.6
+      '@scalar/default-theme':
+        specifier: workspace:*
+        version: link:../default-theme
       '@scalar/use-codemirror':
         specifier: workspace:*
         version: link:../use-codemirror
@@ -204,6 +207,9 @@ importers:
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../api-client
+      '@scalar/default-theme':
+        specifier: workspace:*
+        version: link:../default-theme
       '@scalar/swagger-editor':
         specifier: workspace:*
         version: link:../swagger-editor
@@ -319,6 +325,15 @@ importers:
       vue-tsc:
         specifier: 1.8.8
         version: 1.8.8(typescript@5.2.2)
+
+  packages/default-theme:
+    devDependencies:
+      vite:
+        specifier: 4.4.8
+        version: 4.4.8(@types/node@20.3.1)
+      vitest:
+        specifier: 0.34.1
+        version: 0.34.1
 
   packages/echo-server:
     dependencies:
