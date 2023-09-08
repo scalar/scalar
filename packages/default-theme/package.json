@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "author": "Scalar",
   "license": "MIT",
-  "scripts": {
-    "build": "vite build"
-  },
+  "scripts": {},
   "files": [
     "src"
   ],
