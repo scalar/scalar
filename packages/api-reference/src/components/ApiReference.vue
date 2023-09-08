@@ -199,7 +199,7 @@ const breadCrumbs = computed(() => {
   </div>
 </template>
 
-<style src="../../../theme/scrollbar.css"></style>
+<style src="../../../theme/scrollbars.css"></style>
 
 <style src="../../../theme/theme.css"></style>
 
