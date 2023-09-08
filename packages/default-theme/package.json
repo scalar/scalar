@@ -1,0 +1,23 @@
+{
+  "name": "@scalar/default-theme",
+  "version": "0.1.0",
+  "author": "Scalar",
+  "license": "MIT",
+  "scripts": {
+    "build": "vite build",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix"
+  },
+  "files": [
+    "src"
+  ],
+  "exports": {
+    "./theme.css": "./src/theme.css",
+    "./scrollbar.css": "./src/scrollbar.css"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vite": "4.4.8",
+    "vitest": "0.34.1"
+  }
+}

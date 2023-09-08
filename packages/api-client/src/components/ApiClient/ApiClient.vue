@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
+import '@scalar/default-theme/theme.css'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
 import { ref } from 'vue'
@@ -94,10 +95,6 @@ useKeyboardEvent({
     </div>
   </div>
 </template>
-
-<style src="../../../../theme/scrollbars.css"></style>
-
-<style src="../../../../theme/theme.css"></style>
 
 <style>
 .scalar-api-client {

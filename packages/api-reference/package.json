@@ -37,6 +37,7 @@
     "@scalar/swagger-editor": "workspace:*",
     "@scalar/swagger-parser": "workspace:*",
     "@scalar/use-clipboard": "workspace:*",
+    "@scalar/default-theme": "workspace:*",
     "@scalar/use-keyboard-event": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
     "@types/js-yaml": "4.0.5",

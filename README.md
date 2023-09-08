@@ -121,7 +121,7 @@ Overwrite our CSS variables. We won’t judge.
 }
 ```
 
-You can [see all variables here](https://github.com/scalar/api-reference/blob/main/packages/theme/theme.css).
+You can [see all variables here](https://github.com/scalar/api-reference/blob/main/packages/default-theme/src/theme.css).
 
 ## Community
 

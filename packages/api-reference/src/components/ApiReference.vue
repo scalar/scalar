@@ -199,10 +199,6 @@ const breadCrumbs = computed(() => {
   </div>
 </template>
 
-<style src="../../../theme/scrollbars.css"></style>
-
-<style src="../../../theme/theme.css"></style>
-
 <style lang="postcss">
 /** CSS Reset */
 .scalar-api-reference {
