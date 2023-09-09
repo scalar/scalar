@@ -101,8 +101,8 @@ importers:
         specifier: workspace:*
         version: link:../use-keyboard-event
       '@types/nunjucks':
-        specifier: 3.2.2
-        version: 3.2.2
+        specifier: 3.2.3
+        version: 3.2.3
       '@uiw/codemirror-theme-duotone':
         specifier: 4.21.3
         version: 4.21.3(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)
@@ -232,8 +232,8 @@ importers:
         specifier: 4.0.5
         version: 4.0.5
       '@types/nunjucks':
-        specifier: 3.2.2
-        version: 3.2.2
+        specifier: 3.2.3
+        version: 3.2.3
       '@types/xmldom':
         specifier: 0.1.31
         version: 0.1.31
@@ -556,8 +556,8 @@ importers:
         specifier: 1.1.6
         version: 1.1.6
       '@types/nunjucks':
-        specifier: 3.2.2
-        version: 3.2.2
+        specifier: 3.2.3
+        version: 3.2.3
       '@uiw/codemirror-theme-duotone':
         specifier: 4.21.3
         version: 4.21.3(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)
@@ -1923,8 +1923,8 @@ packages:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
     dev: true
 
-  /@types/nunjucks@3.2.2:
-    resolution: {integrity: sha512-qarGBZOVxv1pF6BxQHwYHYYxim/TCm3aXF8BUt/kyF/+xi/DXMoj1Bhw3hXVBl2Yov+w47reDldm0iXXFZTotA==}
+  /@types/nunjucks@3.2.3:
+    resolution: {integrity: sha512-+lFIql0nbWSftazQ27cOYvSLC92SsfjxrU0I/Iys7hoxrBkN8OF+wmxxzx3bLFyFrLgDZ9lUckGcwldE4SfDQA==}
     dev: false
 
   /@types/parse5@6.0.3:
