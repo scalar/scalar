@@ -59,6 +59,7 @@ export type TransformedOperation = Operation & {
           schema: {
             type: string
             format?: string
+            example?: string
           }
         }
       >

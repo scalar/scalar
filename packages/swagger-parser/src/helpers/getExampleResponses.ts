@@ -7,12 +7,22 @@ export const getExampleResponses = (responses: Record<string, any>) => {
     // Let’s copy the raw information to a new property and apply the transformations there.
     exampleResponses[responseCode] = responses[responseCode]
 
-    // If has example, us it.
+    // If has a single example, us it.
     const jsonResponseExample =
       responses[responseCode]?.content?.['application/json']?.example
     if (jsonResponseExample !== undefined) {
-      exampleResponses[responseCode].content['application/json'].body =
+      exampleResponses[responseCode].content['application/json'].example =
         JSON.stringify(jsonResponseExample, null, 2)
+
+      return
+    }
+
+    // If has multiple examples, us them all.
+    const jsonResponseExamples =
+      responses[responseCode]?.content?.['application/json']?.examples
+    if (jsonResponseExamples !== undefined) {
+      exampleResponses[responseCode].content['application/json'].examples =
+        JSON.stringify(jsonResponseExamples, null, 2)
 
       return
     }
@@ -25,7 +35,7 @@ export const getExampleResponses = (responses: Record<string, any>) => {
     if (jsonResponseSchema !== undefined) {
       exampleResponses[responseCode].headers = responses[responseCode].headers
       // Actually generate the example response content.
-      exampleResponses[responseCode].content['application/json'].body =
+      exampleResponses[responseCode].content['application/json'].example =
         JSON.stringify(generateResponseContent(jsonResponseSchema), null, 2)
     }
   })
