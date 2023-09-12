@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 0.3.3
+
+### Patch Changes
+
+- 6420305b: fix: only require nunjucks where it’s needed
+- Updated dependencies [6420305b]
+  - @scalar/use-codemirror@0.3.1
+
 ## 0.3.2
 
 ### Patch Changes
