@@ -48,7 +48,6 @@
   "types": "dist/index.d.ts",
   "dependencies": {
     "@headlessui/vue": "1.7.14",
-    "@lezer/highlight": "1.1.6",
     "@scalar/default-theme": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-keyboard-event": "workspace:*",
