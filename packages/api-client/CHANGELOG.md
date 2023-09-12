@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 0.4.0
+
+### Minor Changes
+
+- 5057e213: make npm packages public :-)
+
+### Patch Changes
+
+- Updated dependencies [5057e213]
+  - @scalar/default-theme@0.2.0
+  - @scalar/use-codemirror@0.4.0
+  - @scalar/use-keyboard-event@0.4.0
+
 ## 0.3.4
 
 ### Patch Changes
