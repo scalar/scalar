@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { type HttpHeader, httpHeaders } from '@scalar/api-client'
 import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
@@ -46,8 +47,19 @@ const currentResponse = computed(() => {
   return props.operation.responses?.[currentStatusCode]
 })
 
-const currentResponseJsonBody = computed(() => {
-  return currentResponse.value?.content?.['application/json']?.body
+const currentResponseExamples = computed(() => {
+  const examples =
+    currentResponse.value?.content?.['application/json']?.examples
+
+  if (examples) {
+    return JSON.parse(examples)
+  }
+
+  return false
+})
+
+const currentResponseExample = computed(() => {
+  return currentResponse.value?.content?.['application/json']?.example
 })
 
 const changeTab = (index: number) => {
@@ -108,10 +120,10 @@ const headersHaveSchema = computed(() => {
 
       <template #actions>
         <button
-          v-if="currentResponseJsonBody"
+          v-if="currentResponseExample"
           class="code-copy"
           type="button"
-          @click="() => copyToClipboard(currentResponseJsonBody)">
+          @click="() => copyToClipboard(currentResponseExample)">
           <Icon
             src="solid/interface-copy-clipboard"
             width="10px" />
@@ -139,7 +151,6 @@ const headersHaveSchema = computed(() => {
           <SimpleCell v-if="headersHaveDescription">{{ data }}</SimpleCell>
           <SimpleCell v-if="headersHaveSchema">
             <span v-if="data.schema.example">
-              Example:
               <code class="schema-example">{{ data.schema.example }}</code>
             </span>
             <code
@@ -155,16 +166,48 @@ const headersHaveSchema = computed(() => {
       </SimpleTable>
     </CardContent>
     <CardContent muted>
-      <CodeMirror
-        v-show="currentResponseJsonBody"
-        :content="currentResponseJsonBody"
-        :languages="['json']"
-        readOnly />
-      <div
-        v-if="!currentResponseJsonBody"
-        class="scalar-api-reference__empty-state">
-        No Body
-      </div>
+      <template v-if="currentResponseExamples">
+        <TabGroup vertical>
+          <TabList>
+            <Tab
+              v-for="exampleId in Object.keys(currentResponseExamples)"
+              :key="exampleId"
+              class="example-response-tab"
+              >{{
+                currentResponseExamples[exampleId].summary ?? exampleId
+              }}</Tab
+            >
+          </TabList>
+          <TabPanels>
+            <TabPanel
+              v-for="exampleId in Object.keys(currentResponseExamples)"
+              :key="exampleId">
+              <CodeMirror
+                :content="
+                  JSON.stringify(
+                    currentResponseExamples[exampleId].value,
+                    null,
+                    2,
+                  )
+                "
+                :languages="['json']"
+                readOnly />
+            </TabPanel>
+          </TabPanels>
+        </TabGroup>
+      </template>
+      <template v-else>
+        <CodeMirror
+          v-show="currentResponseExample"
+          :content="currentResponseExample"
+          :languages="['json']"
+          readOnly />
+        <div
+          v-if="!currentResponseExample"
+          class="scalar-api-reference__empty-state">
+          No Body
+        </div>
+      </template>
     </CardContent>
     <CardFooter
       v-if="currentResponse?.description"
@@ -220,9 +263,10 @@ const headersHaveSchema = computed(() => {
   font-size: var(--theme-micro);
   color: var(--theme-color-2);
   font-weight: var(--theme-semibold);
-  background: var(--theme-background-3);
-  padding: 2px 4px;
-  border-radius: 4px;
-  margin-right: 4px;
+}
+
+.example-response-tab {
+  display: block;
+  margin: 6px;
 }
 </style>
