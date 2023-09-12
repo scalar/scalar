@@ -52,7 +52,6 @@
     "@scalar/default-theme": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-keyboard-event": "workspace:*",
-    "@scalar/use-codemirror": "workspace:*",
     "@vueuse/core": "10.1.2",
     "axios": "1.4.0",
     "javascript-time-ago": "2.5.9",
