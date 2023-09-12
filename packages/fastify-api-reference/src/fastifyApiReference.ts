@@ -1,4 +1,4 @@
-import { FastifyPluginCallback, type RegisterOptions } from 'fastify'
+import { type FastifyPluginCallback, type RegisterOptions } from 'fastify'
 
 type ApiReferenceOptions = {
   title?: string
@@ -6,9 +6,9 @@ type ApiReferenceOptions = {
   spec?: Record<string, any>
 }
 
-export interface FastifyApiReferenceOptions extends RegisterOptions {
+export type FastifyApiReferenceOptions = {
   apiReference: ApiReferenceOptions
-}
+} & RegisterOptions
 
 const getHtmlMarkup = (options: ApiReferenceOptions) => {
   const htmlTag = options.specUrl
@@ -44,12 +44,11 @@ const fastifyApiReference: FastifyPluginCallback<FastifyApiReferenceOptions> = (
       '[@scalar/fastify-api-reference] You didn’t provide a spec or specUrl. Please provide one of these options.',
     )
     done()
-    return
   }
 
-  fastify.addHook('onSend', (request, reply, payload, done) => {
+  fastify.addHook('onSend', (request, reply, payload, next) => {
     reply.header('Content-Type', 'text/html; charset=utf-8')
-    done()
+    next()
   })
 
   fastify.get('/', (_, reply) => {
