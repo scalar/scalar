@@ -7,6 +7,16 @@ export const getExampleResponses = (responses: Record<string, any>) => {
     // Let’s copy the raw information to a new property and apply the transformations there.
     exampleResponses[responseCode] = responses[responseCode]
 
+    // If has example, us it.
+    const jsonResponseExample =
+      responses[responseCode]?.content?.['application/json']?.example
+    if (jsonResponseExample !== undefined) {
+      exampleResponses[responseCode].content['application/json'].body =
+        JSON.stringify(jsonResponseExample, null, 2)
+
+      return
+    }
+
     // Let’s see if there’s schema for JSON responses defined …
     const jsonResponseSchema =
       responses[responseCode]?.content?.['application/json']?.schema
