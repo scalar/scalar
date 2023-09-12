@@ -6,9 +6,9 @@ type ApiReferenceOptions = {
   spec?: Record<string, any>
 }
 
-export type FastifyApiReferenceOptions = {
+export type FastifyApiReferenceOptions = Partial<RegisterOptions> & {
   apiReference: ApiReferenceOptions
-} & RegisterOptions
+}
 
 const getHtmlMarkup = (options: ApiReferenceOptions) => {
   const htmlTag = options.specUrl
