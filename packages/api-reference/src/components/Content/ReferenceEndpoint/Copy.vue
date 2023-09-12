@@ -9,6 +9,7 @@ import { computed, onMounted, ref } from 'vue'
 
 import { useTemplateStore } from '../../../stores/template'
 import type { Tag } from '../../../types'
+import MarkdownRenderer from '../MarkdownRenderer.vue'
 import Parameters from './Parameters.vue'
 import RequestBody from './RequestBody.vue'
 
@@ -72,7 +73,7 @@ onMounted(() => {
     </div>
     <div>
       <p class="tag-description">
-        {{ operation.description }}
+        <MarkdownRenderer :value="operation.description" />
       </p>
     </div>
     <Parameters
