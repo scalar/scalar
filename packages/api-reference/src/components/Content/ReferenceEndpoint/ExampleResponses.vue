@@ -69,6 +69,31 @@ const formatHeaderName = (headerName: string) => {
     })
     .join('-')
 }
+
+const mapFromObject = (object: Record<string, any>) => {
+  return Object.keys(object).map((key) => {
+    return {
+      key,
+      value: object[key],
+    }
+  })
+}
+
+const headersHaveDescription = computed(() => {
+  const headers = mapFromObject(currentResponse.value.headers)
+
+  return headers.some((header: any) => {
+    return header.value.description
+  })
+})
+
+const headersHaveSchema = computed(() => {
+  const headers = mapFromObject(currentResponse.value.headers)
+
+  return headers.some((header: any) => {
+    return header.value.schema
+  })
+})
 </script>
 <template>
   <Card v-if="orderedStatusCodes.length">
@@ -99,7 +124,8 @@ const formatHeaderName = (headerName: string) => {
       <SimpleTable>
         <SimpleRow>
           <SimpleHeader>Header</SimpleHeader>
-          <SimpleHeader>Description</SimpleHeader>
+          <SimpleHeader v-if="headersHaveDescription">Description</SimpleHeader>
+          <SimpleHeader v-if="headersHaveSchema">Schema</SimpleHeader>
         </SimpleRow>
         <SimpleRow
           v-for="(data, header) in currentResponse.headers"
@@ -110,7 +136,21 @@ const formatHeaderName = (headerName: string) => {
             :wrap="false">
             {{ formatHeaderName(header) }}
           </SimpleCell>
-          <SimpleCell>{{ data.description }}</SimpleCell>
+          <SimpleCell v-if="headersHaveDescription">{{ data }}</SimpleCell>
+          <SimpleCell v-if="headersHaveSchema">
+            <span v-if="data.schema.example">
+              Example:
+              <code class="schema-example">{{ data.schema.example }}</code>
+            </span>
+            <code
+              class="schema-type"
+              v-else-if="data.schema.type">
+              {{ data.schema.type }}
+            </code>
+            <code v-else>
+              {{ data.schema }}
+            </code>
+          </SimpleCell>
         </SimpleRow>
       </SimpleTable>
     </CardContent>
@@ -165,5 +205,24 @@ const formatHeaderName = (headerName: string) => {
   font-size: var(--theme-micro);
   padding: 20px;
   color: var(--theme-color-2);
+}
+
+.schema-type {
+  font-size: var(--theme-micro);
+  color: var(--theme-color-2);
+  font-weight: var(--theme-semibold);
+  background: var(--theme-background-3);
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin-right: 4px;
+}
+.schema-example {
+  font-size: var(--theme-micro);
+  color: var(--theme-color-2);
+  font-weight: var(--theme-semibold);
+  background: var(--theme-background-3);
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin-right: 4px;
 }
 </style>
