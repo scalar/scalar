@@ -34,7 +34,6 @@
     "@codemirror/view": "6.16.0",
     "@headlessui/vue": "1.7.14",
     "@lezer/highlight": "1.1.6",
-    "@types/nunjucks": "3.2.2",
     "@uiw/codemirror-theme-duotone": "4.21.3",
     "@uiw/codemirror-themes": "4.21.3",
     "@vueuse/core": "10.1.2",
@@ -42,7 +41,6 @@
     "codemirror": "6.0.1",
     "javascript-time-ago": "2.5.9",
     "nanoid": "4.0.2",
-    "nunjucks": "3.2.4",
     "pretty-bytes": "6.1.0",
     "pretty-ms": "8.0.0",
     "tippy.js": "6.3.7"
