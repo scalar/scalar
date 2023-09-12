@@ -1,5 +1,18 @@
 # @scalar/api-client-web
 
+## 0.3.0
+
+### Minor Changes
+
+- 5057e213: make npm packages public :-)
+
+### Patch Changes
+
+- Updated dependencies [5057e213]
+  - @scalar/api-client@0.4.0
+  - @scalar/api-reference@0.4.0
+  - @scalar/swagger-editor@0.4.0
+
 ## 0.2.4
 
 ### Patch Changes
