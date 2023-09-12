@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 0.3.2
+
+### Patch Changes
+
+- 237e28b0: fix: ESM support for fastify api reference package
+
 ## 0.3.1
 
 ### Patch Changes
