@@ -42,7 +42,7 @@ jobs:
           # The commit message to use.
           commit: 'chore: version packages'
           # The command to use to build and publish packages
-          publish: 'pnpm -r publish'
+          publish: 'pnpm -r publish --access public'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
