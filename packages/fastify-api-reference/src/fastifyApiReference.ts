@@ -1,12 +1,16 @@
-import { type FastifyInstance, type RegisterOptions } from 'fastify'
+import { type FastifyPluginCallback, type RegisterOptions } from 'fastify'
 
-export type FastifyApiReferenceOptions = {
+type ApiReferenceOptions = {
   title?: string
   specUrl?: string
   spec?: Record<string, any>
 }
 
-const getHtmlMarkup = (options: FastifyApiReferenceOptions) => {
+export type FastifyApiReferenceOptions = {
+  apiReference: ApiReferenceOptions
+} & RegisterOptions
+
+const getHtmlMarkup = (options: ApiReferenceOptions) => {
   const htmlTag = options.specUrl
     ? `<div data-spec-url="${options.specUrl}" />`
     : `<div data-spec='${JSON.stringify(options.spec)}' />`
@@ -30,31 +34,30 @@ const getHtmlMarkup = (options: FastifyApiReferenceOptions) => {
 `
 }
 
-export default (
-  fastify: FastifyInstance,
-  options: RegisterOptions & {
-    apiReference: FastifyApiReferenceOptions
-  },
-  done: (err?: Error) => void,
+const fastifyApiReference: FastifyPluginCallback<FastifyApiReferenceOptions> = (
+  fastify,
+  options,
+  done,
 ) => {
   if (!options.apiReference.spec && !options.apiReference.specUrl) {
     console.warn(
       '[@scalar/fastify-api-reference] You didn’t provide a spec or specUrl. Please provide one of these options.',
     )
-
     done()
-    return
   }
+
+  fastify.addHook('onSend', (request, reply, payload, next) => {
+    reply.header('Content-Type', 'text/html; charset=utf-8')
+    next()
+  })
 
   fastify.get('/', (_, reply) => {
     const html = getHtmlMarkup(options?.apiReference)
-
-    reply.headers({
-      'Content-Type': 'text/html; charset=utf-8',
-    })
 
     reply.send(html)
   })
 
   done()
 }
+
+export default fastifyApiReference
