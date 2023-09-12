@@ -1,34 +1,12 @@
 import { type Extension, StateEffect } from '@codemirror/state'
 import { type EditorViewConfig } from '@codemirror/view'
-import {
-  duotoneDarkInit,
-  duotoneLightInit,
-} from '@uiw/codemirror-theme-duotone'
 import { EditorView } from 'codemirror'
 import { type Ref, ref, watch } from 'vue'
 
+import { darkTheme, lightTheme } from '../themes'
+
 /** TODO: This is a static value, make it work with a dynamic parameter. */
 const isDark = ref(false)
-
-const duotoneLight = duotoneLightInit({
-  settings: {
-    background: 'var(--theme-background-2)',
-    gutterBackground: 'var(--theme-background-2)',
-    gutterForeground: 'var(--theme-color-2)',
-    foreground: 'var(--theme-color-1)',
-    fontFamily: 'var(--theme-font-code)',
-  },
-})
-
-const duotoneDark = duotoneDarkInit({
-  settings: {
-    background: 'var(--theme-background-2)',
-    gutterBackground: 'var(--theme-background-2)',
-    gutterForeground: 'var(--theme-color-2)',
-    foreground: 'var(--theme-color-1)',
-    fontFamily: 'var(--theme-font-code)',
-  },
-})
 
 type UseCodeMirrorParameters = {
   /**
@@ -98,18 +76,18 @@ export const useCodeMirror = (
     }
 
     if (forceDarkMode) {
-      return duotoneDark
+      return darkTheme
     }
 
     if (forceLightMode) {
-      return duotoneLight
+      return lightTheme
     }
 
     if (isDark.value) {
-      return duotoneDark
+      return darkTheme
     }
 
-    return duotoneLight
+    return lightTheme
   }
 
   // Extend the given extension list with a dark/light theme.
