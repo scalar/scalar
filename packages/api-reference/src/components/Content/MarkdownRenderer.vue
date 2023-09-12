@@ -149,7 +149,7 @@ watch(
   margin-top: 4px;
   font-size: var(--theme-small);
   color: var(--theme-color-2);
-  line-height: initial;
+  line-height: 1.4;
 }
 .markdown :deep(td:first-of-type),
 .markdown :deep(th:first-of-type) {
