@@ -61,6 +61,7 @@ watch(
 .markdown :deep(h6) {
   font-size: var(--font-size);
   margin: 12px 0 6px;
+  font-weight: var(--theme-bold);
 }
 
 .markdown :deep(p) {
@@ -125,7 +126,7 @@ watch(
   border-collapse: collapse;
   table-layout: fixed;
   width: 100%;
-  margin: 0;
+  margin: 1em 0;
   overflow: hidden;
   box-shadow: 0 0 0 1px var(--theme-border-color);
   border-radius: var(--theme-radius-lg);
