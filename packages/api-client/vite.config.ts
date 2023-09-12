@@ -28,6 +28,7 @@ export default defineConfig({
         '@uiw/codemirror-theme-duotone',
         '@uiw/codemirror-themes',
         'codemirror',
+        'nunjucks',
       ],
     },
   },
