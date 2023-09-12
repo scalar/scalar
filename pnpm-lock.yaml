@@ -125,8 +125,8 @@ importers:
         specifier: 4.0.2
         version: 4.0.2
       nunjucks:
-        specifier: 3.2.4
-        version: 3.2.4
+        specifier: 3.2.3
+        version: 3.2.3
       pretty-bytes:
         specifier: 6.1.0
         version: 6.1.0
@@ -231,9 +231,6 @@ importers:
       '@types/js-yaml':
         specifier: 4.0.5
         version: 4.0.5
-      '@types/nunjucks':
-        specifier: 3.2.3
-        version: 3.2.3
       '@types/xmldom':
         specifier: 0.1.31
         version: 0.1.31
@@ -555,9 +552,6 @@ importers:
       '@lezer/highlight':
         specifier: 1.1.6
         version: 1.1.6
-      '@types/nunjucks':
-        specifier: 3.2.3
-        version: 3.2.3
       '@uiw/codemirror-theme-duotone':
         specifier: 4.21.3
         version: 4.21.3(@codemirror/language@6.8.0)(@codemirror/state@6.2.1)(@codemirror/view@6.16.0)
@@ -579,9 +573,6 @@ importers:
       nanoid:
         specifier: 4.0.2
         version: 4.0.2
-      nunjucks:
-        specifier: 3.2.4
-        version: 3.2.4
       pretty-bytes:
         specifier: 6.1.0
         version: 6.1.0
@@ -6141,8 +6132,8 @@ packages:
       boolbase: 1.0.0
     dev: true
 
-  /nunjucks@3.2.4:
-    resolution: {integrity: sha512-26XRV6BhkgK0VOxfbU5cQI+ICFUtMLixv1noZn1tGU38kQH5A5nmmbk/O45xdyBhD1esk47nKrY0mvQpZIhRjQ==}
+  /nunjucks@3.2.3:
+    resolution: {integrity: sha512-psb6xjLj47+fE76JdZwskvwG4MYsQKXUtMsPh6U0YMvmyjRtKRFcxnlXGWglNybtNTNVmGdp94K62/+NjF5FDQ==}
     engines: {node: '>= 6.9.0'}
     hasBin: true
     peerDependencies:

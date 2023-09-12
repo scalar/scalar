@@ -40,9 +40,6 @@
     "@scalar/use-keyboard-event": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
-    "@types/js-yaml": "4.0.5",
-    "@types/nunjucks": "3.2.3",
-    "@types/xmldom": "0.1.31",
     "@vueuse/core": "10.1.2",
     "codemirror": "6.0.1",
     "fuse.js": "^6.6.2",
@@ -75,6 +72,8 @@
     "vue-tsc": "1.8.8"
   },
   "peerDependencies": {
-    "vue": "3.3.4"
+    "vue": "3.3.4",
+    "@types/js-yaml": "4.0.5",
+    "@types/xmldom": "0.1.31"
   }
 }
