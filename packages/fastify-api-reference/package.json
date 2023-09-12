@@ -10,7 +10,7 @@
     "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "test": "vitest",
+    "test": "pnpm build && vitest",
     "types:build": "tsc -p tsconfig.build.json",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
