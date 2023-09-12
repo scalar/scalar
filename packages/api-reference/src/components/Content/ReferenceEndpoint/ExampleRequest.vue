@@ -55,26 +55,39 @@ async function generateSnippet() {
   if (pathVariables) {
     pathVariables.forEach((variable) => {
       const variableName = variable.replace(/{|}/g, '')
-      path = path.replace(variable, variableName.toUpperCase())
+      path = path.replace(variable, `__${variableName.toUpperCase()}__`)
+    })
+  }
+
+  let url = props.server.url
+
+  // Replace all variables of the format {something} with the uppercase variable name without the brackets
+  const urlVariables = url.match(/{{(.*?)}}/g)
+
+  if (urlVariables) {
+    console.log(urlVariables)
+    urlVariables.forEach((variable) => {
+      const variableName = variable.replace(/{|}/g, '')
+      url = url.replace(variable, `__${variableName}__`)
     })
   }
 
   if (templateState.preferredLanguage === 'axios') {
     return generateAxiosCodeFromRequest({
       method: props.operation.httpVerb.toUpperCase(),
-      url: `${props.server.url}${path}`,
+      url: `${url}${path}`,
     })
   } else if (templateState.preferredLanguage === 'laravel') {
     return generateLaravelCodeFromRequest({
       method: props.operation.httpVerb.toUpperCase(),
-      url: `${props.server.url}${path}`,
+      url: `${url}${path}`,
     })
   }
 
   try {
     const snippet = new HTTPSnippet({
       method: props.operation.httpVerb.toUpperCase(),
-      url: `${props.server.url}${path}`,
+      url: `${url}${path}`,
     } as HarRequest)
     const output = (await snippet.convert(
       templateState.preferredLanguage as TargetId,
