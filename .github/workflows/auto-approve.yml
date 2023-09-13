@@ -1,9 +1,7 @@
+# https://github.com/marketplace/actions/auto-approve
 name: Auto approve
 
-on:
-  pull_request:
-    branches:
-      - main
+on: pull_request_target
 
 jobs:
   auto-approve:
@@ -11,10 +9,10 @@ jobs:
     permissions:
       pull-requests: write
 
-    if: github.event.pull_request.user.login == 'github-actions[bot]'
-
     steps:
+      - run: echo "github.actor ${{ github.actor }}"
+      - run: echo "github.event.pull_request.user.login ${{ github.event.pull_request.user.login }}"
       - uses: hmarr/auto-approve-action@v3
+        if: github.actor == 'github-actions[bot]' || github.event.pull_request.user.login == 'github-actions[bot]'
         with:
-          review-message: 'Automatically approved PR. ✅'
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
