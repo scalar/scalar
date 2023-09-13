@@ -7,7 +7,7 @@
     "express"
   ],
   "version": "0.4.0",
-  "author": "Scalar",
+  "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "repository": {
     "type": "git",
