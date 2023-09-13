@@ -26,8 +26,8 @@ const selectedExample = ref(examples[0])
     <Listbox v-model="selectedExample">
       <ListboxButton
         id="listbox-button"
-        class="listbox-button"
-        ><div class="listbox-button-content">
+        class="listbox-button">
+        <div class="listbox-button-content">
           <div class="listbox-button-label">
             {{ selectedExample.value.summary ?? selectedExample.key }}
           </div>
@@ -35,8 +35,9 @@ const selectedExample = ref(examples[0])
             <Icon
               class="icon"
               src="line/arrow-chevron-down" />
-          </div></div
-      ></ListboxButton>
+          </div>
+        </div>
+      </ListboxButton>
 
       <ListboxOptions class="listbox-options">
         <ListboxOption
