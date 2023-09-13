@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { computed, ref } from 'vue'
@@ -14,6 +13,7 @@ import {
 } from '../../../Card'
 import { Icon } from '../../../Icon'
 import Headers from './Headers.vue'
+import SelectExample from './SelectExample.vue'
 
 const props = defineProps<{ operation: TransformedOperation }>()
 
@@ -90,34 +90,7 @@ const changeTab = (index: number) => {
     </CardContent>
     <CardContent muted>
       <template v-if="currentResponseExamples">
-        <TabGroup vertical>
-          <TabList>
-            <Tab
-              v-for="exampleId in Object.keys(currentResponseExamples)"
-              :key="exampleId"
-              class="example-response-tab"
-              >{{
-                currentResponseExamples[exampleId].summary ?? exampleId
-              }}</Tab
-            >
-          </TabList>
-          <TabPanels>
-            <TabPanel
-              v-for="exampleId in Object.keys(currentResponseExamples)"
-              :key="exampleId">
-              <CodeMirror
-                :content="
-                  JSON.stringify(
-                    currentResponseExamples[exampleId].value,
-                    null,
-                    2,
-                  )
-                "
-                :languages="['json']"
-                readOnly />
-            </TabPanel>
-          </TabPanels>
-        </TabGroup>
+        <SelectExample :examples="currentResponseExamples" />
       </template>
       <template v-else>
         <CodeMirror
