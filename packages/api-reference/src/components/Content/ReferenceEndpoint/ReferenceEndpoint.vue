@@ -2,7 +2,7 @@
 import type { Server, Tag, TransformedOperation } from '../../../types'
 import Copy from './Copy.vue'
 import ExampleRequest from './ExampleRequest.vue'
-import ExampleResponses from './ExampleResponses.vue'
+import { ExampleResponses } from './ExampleResponses'
 
 defineProps<{
   operation: TransformedOperation
