@@ -48,21 +48,23 @@ export type Operation = {
   information: Information
 }
 
+export type ExampleResponseHeaders = Record<
+  string,
+  {
+    description: string
+    schema: {
+      type: string
+      format?: string
+      example?: string
+    }
+  }
+>
+
 export type TransformedOperation = Operation & {
   responses: Record<
     string,
     Response & {
-      headers: Record<
-        string,
-        {
-          description: string
-          schema: {
-            type: string
-            format?: string
-            example?: string
-          }
-        }
-      >
+      headers: ExampleResponseHeaders
     }
   >
 }
