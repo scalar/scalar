@@ -22,6 +22,7 @@ import { SwaggerEditor } from '@scalar/swagger-editor'
   <SwaggerEditor value="{ … }" />
 </template>
 ```
+
 ## Custom CodeMirror extensions
 
 You can pass custom CodeMirror extensions:
@@ -46,5 +47,3 @@ const { bindStatusText } = useSwaggerEditor()
 
 bindStatusText('Hello :-)')
 ```
-
-
