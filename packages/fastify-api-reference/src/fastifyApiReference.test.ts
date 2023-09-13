@@ -1,7 +1,7 @@
 import Fastify from 'fastify'
 import { describe, expect, it } from 'vitest'
 
-import fastifyApiReference from './fastifyApiReference'
+import fastifyApiReference from './index'
 
 describe('fastifyApiReference', () => {
   it('returns 200 OK', () =>
