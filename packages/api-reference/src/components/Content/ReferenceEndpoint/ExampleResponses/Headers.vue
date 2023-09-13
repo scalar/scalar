@@ -2,6 +2,7 @@
 import { type HttpHeader, httpHeaders } from '@scalar/api-client'
 import { computed } from 'vue'
 
+import { mapFromObject } from '../../../../helpers'
 import type { ExampleResponseHeaders } from '../../../../types'
 import {
   SimpleCell,
@@ -28,15 +29,6 @@ const formatHeaderName = (headerName: string) => {
       return word.charAt(0).toUpperCase() + word.slice(1)
     })
     .join('-')
-}
-
-const mapFromObject = (object: Record<string, any>) => {
-  return Object.keys(object).map((key) => {
-    return {
-      key,
-      value: object[key],
-    }
-  })
 }
 
 const headersHaveDescription = computed(() => {
