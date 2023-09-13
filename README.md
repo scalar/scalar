@@ -1,6 +1,7 @@
 # Scalar API Reference
 
 [![CI](https://github.com/a-numbered-company/api-reference/actions/workflows/ci.yml/badge.svg)](https://github.com/a-numbered-company/api-reference/actions/workflows/ci.yml)
+[![Release](https://github.com/a-numbered-company/api-reference/actions/workflows/release.yml/badge.svg)](https://github.com/a-numbered-company/api-reference/actions/workflows/release.yml)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/mw6FQRPh)
 
 Generate interactive API documentations from Swagger files
@@ -131,25 +132,20 @@ We are API nerds. You too? Let’s chat on Discord: https://discord.gg/mw6FQRPh
 
 This repository contains all our open source projects and there’s definitely more to discover.
 
-```
-.
-├── packages
-│   ├── api-client (@scalar/api-client)
-│   ├── api-client-proxy (@scalar/api-client-proxy)
-│   ├── api-reference (@scalar/api-reference)
-│   ├── cli (@scalar/cli)
-│   ├── fastify-api-reference (@scalar/fastify-api-reference)
-│   ├── echo-server (@scalar/echo-server)
-│   ├── swagger-editor (@scalar/swagger-editor)
-│   ├── swagger-parser (@scalar/swagger-parser)
-│   ├── use-clipboard (@scalar/use-clipboard)
-│   ├── use-codemirror (@scalar/use-codemirror)
-│   ├── use-keyboard-event (@scalar/use-keyboard-event)
-│   ├── use-toasts (@scalar/use-toasts)
-│   └── use-tooltip (@scalar/use-tooltip)
-└── projects
-    └── api-client-web (web app)
-```
+| Package                                                | Description                                           |
+| ------------------------------------------------------ | ----------------------------------------------------- |
+| [@scalar/api-client](api-client)                       | the open source API testing client                    |
+| [@scalar/api-client-proxy](api-client-proxy)           | an api request proxy based on express                 |
+| [@scalar/api-reference](api-reference)                 | generate beautiful API references                     |
+| [@scalar/echo-server](echo-server)                     | an express server which replies with the request data |
+| [@scalar/fastify-api-reference](fastify-api-reference) | a fastify plugin to render API references             |
+| [@scalar/swagger-editor](swagger-editor)               | an editor tailored to write OpenAPI spec              |
+| [@scalar/swagger-parser](swagger-parser)               | parse OpenAPI specs                                   |
+| [@scalar/use-clipboard](use-clipboard)                 | tiny Vue wrapper around the clipboard API             |
+| [@scalar/use-codemirror](use-codemirror)               | CodeMirror for Vue                                    |
+| [@scalar/use-keyboard-event](use-keyboard-event)       | keyboard shortcuts for Vue                            |
+| [@scalar/use-toasts](use-toasts)                       | display toasts in Vue                                 |
+| [@scalar/use-tooltip](use-tooltip)                     | tooltips in Vue                                       |
 
 ## Contributing
 
