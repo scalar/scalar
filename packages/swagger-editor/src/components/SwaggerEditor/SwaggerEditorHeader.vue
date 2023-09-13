@@ -93,6 +93,7 @@ const useExample = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 1px solid var(--theme-border-color);
 }
 
 .code-editor-header-buttons {

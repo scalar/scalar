@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { CodeMirror, type HttpHeader, httpHeaders } from '@scalar/api-client'
+import { type HttpHeader, httpHeaders } from '@scalar/api-client'
 import { useClipboard } from '@scalar/use-clipboard'
+import { CodeMirror } from '@scalar/use-codemirror'
 import { computed, ref } from 'vue'
 
 import type { TransformedOperation } from '../../../types'

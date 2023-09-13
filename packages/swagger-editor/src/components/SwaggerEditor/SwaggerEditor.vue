@@ -1,30 +1,27 @@
 <script lang="ts" setup>
-import { type StatesArray } from '@hocuspocus/provider'
 import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
 
+import { useSwaggerEditor } from '../../hooks'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
 import SwaggerEditorStatusBar from './SwaggerEditorStatusBar.vue'
 
 const props = defineProps<{
-  documentName?: string
-  token?: string
-  username?: string
-  hocusPocusUrl?: string
   value?: string
 }>()
 
 const emit = defineEmits<{
-  (e: 'awarenessUpdate', states: StatesArray): void
   (e: 'contentUpdate', value: string): void
   (e: 'specUpdate', spec: SwaggerSpec): void
   (e: 'import', value: string): void
 }>()
 
 const parserError = ref<string>('')
+
+const { statusText } = useSwaggerEditor()
 
 const handleSpecUpdate = useDebounceFn((value) => {
   parseSwaggerFile(value)
@@ -41,12 +38,6 @@ const handleSpecUpdate = useDebounceFn((value) => {
 const handleContentUpdate = (value: string) => {
   emit('contentUpdate', value)
   handleSpecUpdate(value)
-}
-
-// Keep track of the present users
-const awarenessStates = ref<number>(0)
-const handleAwarenessUpdate = (states: StatesArray) => {
-  awarenessStates.value = states.length
 }
 
 // Import new content
@@ -85,14 +76,9 @@ watch(
     </SwaggerEditorNotification>
     <SwaggerEditorInput
       ref="codeMirrorReference"
-      :documentName="documentName"
-      :hocusPocusUrl="hocusPocusUrl"
-      :token="token"
-      :username="username"
-      @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
-    <SwaggerEditorStatusBar v-if="documentName">
-      {{ awarenessStates }} user{{ awarenessStates === 1 ? '' : 's' }} online
+    <SwaggerEditorStatusBar v-if="statusText">
+      {{ statusText }}
     </SwaggerEditorStatusBar>
   </div>
 </template>
@@ -107,5 +93,7 @@ watch(
   flex-direction: column;
   overflow: auto;
   border-right: 1px solid var(--theme-border-color);
+
+  font-size: var(--theme-small);
 }
 </style>

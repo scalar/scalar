@@ -1,1 +1,2 @@
-export * from './useCodeMirror'
+export { CodeMirror } from './components/CodeMirror'
+export * from './hooks/useCodeMirror'

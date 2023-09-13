@@ -1,5 +1,4 @@
 export { ApiClient } from './components/ApiClient'
-export { CodeMirror } from './components/CodeMirror'
 
 export * from './helpers'
 export * from './hooks'

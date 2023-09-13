@@ -15,8 +15,12 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
+        '@codemirror/lang-java',
         '@codemirror/lang-javascript',
         '@codemirror/lang-json',
+        '@codemirror/lang-python',
+        '@codemirror/language',
+        '@codemirror/legacy-modes',
         '@codemirror/state',
         '@codemirror/view',
         '@uiw/codemirror-theme-duotone',

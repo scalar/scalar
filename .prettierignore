@@ -11,5 +11,6 @@
 
 pnpm-lock.yaml
 .changeset/
+cdn
 
 fixtures

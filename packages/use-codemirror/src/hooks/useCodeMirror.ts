@@ -1,8 +1,9 @@
 import { type Extension, StateEffect } from '@codemirror/state'
 import { type EditorViewConfig } from '@codemirror/view'
-import { duotoneDark, duotoneLight } from '@uiw/codemirror-theme-duotone'
 import { EditorView } from 'codemirror'
 import { type Ref, ref, watch } from 'vue'
+
+import { darkTheme, lightTheme } from '../themes'
 
 /** TODO: This is a static value, make it work with a dynamic parameter. */
 const isDark = ref(false)
@@ -17,9 +18,13 @@ type UseCodeMirrorParameters = {
    */
   content?: string
   /**
-   * Inverse the dark mode.
+   * Force the dark mode.
    */
   forceDarkMode?: boolean
+  /**
+   * Force the light mode.
+   */
+  forceLightMode?: boolean
   /**
    * Whether to load a theme.
    */
@@ -36,7 +41,8 @@ export const useCodeMirror = (
   reconfigureCodeMirror: (newExtensions: Extension[]) => void
   restartCodeMirror: (newExtensions: Extension[]) => void
 } => {
-  const { extensions, content, forceDarkMode, withoutTheme } = parameters
+  const { extensions, content, forceDarkMode, forceLightMode, withoutTheme } =
+    parameters
   const value = ref(content ?? '')
   const codeMirrorRef = ref<HTMLDivElement | null>(null)
   const codeMirror = ref<EditorView | null>(null)
@@ -64,19 +70,32 @@ export const useCodeMirror = (
     }
   }
 
+  const getCurrentTheme = () => {
+    if (withoutTheme) {
+      return null
+    }
+
+    if (forceDarkMode) {
+      return darkTheme
+    }
+
+    if (forceLightMode) {
+      return lightTheme
+    }
+
+    if (isDark.value) {
+      return darkTheme
+    }
+
+    return lightTheme
+  }
+
   // Extend the given extension list with a dark/light theme.
   const addDefaultExtensions = (newExtensions: Extension[] = []) => {
-    const theme = withoutTheme
-      ? null
-      : forceDarkMode
-      ? duotoneLight
-      : isDark.value
-      ? duotoneDark
-      : duotoneLight
     // Themes
     const defaultExtensions: Extension[] = [
       EditorView.theme({}, { dark: forceDarkMode ? false : isDark.value }),
-      theme,
+      getCurrentTheme(),
     ].filter((extension) => extension !== null) as Extension[]
 
     return [...defaultExtensions, newExtensions]
