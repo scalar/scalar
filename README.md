@@ -132,20 +132,20 @@ We are API nerds. You too? Let’s chat on Discord: https://discord.gg/mw6FQRPh
 
 This repository contains all our open source projects and there’s definitely more to discover.
 
-| Package                                                | Description                                           |
-| ------------------------------------------------------ | ----------------------------------------------------- |
-| [@scalar/api-client](api-client)                       | the open source API testing client                    |
-| [@scalar/api-client-proxy](api-client-proxy)           | an api request proxy based on express                 |
-| [@scalar/api-reference](api-reference)                 | generate beautiful API references                     |
-| [@scalar/echo-server](echo-server)                     | an express server which replies with the request data |
-| [@scalar/fastify-api-reference](fastify-api-reference) | a fastify plugin to render API references             |
-| [@scalar/swagger-editor](swagger-editor)               | an editor tailored to write OpenAPI spec              |
-| [@scalar/swagger-parser](swagger-parser)               | parse OpenAPI specs                                   |
-| [@scalar/use-clipboard](use-clipboard)                 | tiny Vue wrapper around the clipboard API             |
-| [@scalar/use-codemirror](use-codemirror)               | CodeMirror for Vue                                    |
-| [@scalar/use-keyboard-event](use-keyboard-event)       | keyboard shortcuts for Vue                            |
-| [@scalar/use-toasts](use-toasts)                       | display toasts in Vue                                 |
-| [@scalar/use-tooltip](use-tooltip)                     | tooltips in Vue                                       |
+| Package                                                                                                    | Description                                           |
+| ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| [@scalar/api-client](https://github.com/scalar/scalar/tree/main/packages/api-client)                       | the open source API testing client                    |
+| [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy)           | an api request proxy based on express                 |
+| [@scalar/api-reference](https://github.com/scalar/scalar/tree/main/packages/api-reference)                 | generate beautiful API references                     |
+| [@scalar/echo-server](https://github.com/scalar/scalar/tree/main/packages/echo-server)                     | an express server which replies with the request data |
+| [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference) | a fastify plugin to render API references             |
+| [@scalar/swagger-editor](https://github.com/scalar/scalar/tree/main/packages/swagger-editor)               | an editor tailored to write OpenAPI spec              |
+| [@scalar/swagger-parser](https://github.com/scalar/scalar/tree/main/packages/swagger-parser)               | parse OpenAPI specs                                   |
+| [@scalar/use-clipboard](https://github.com/scalar/scalar/tree/main/packages/use-clipboard)                 | tiny Vue wrapper around the clipboard API             |
+| [@scalar/use-codemirror](https://github.com/scalar/scalar/tree/main/packages/use-codemirror)               | CodeMirror for Vue                                    |
+| [@scalar/use-keyboard-event](https://github.com/scalar/scalar/tree/main/packages/use-keyboard-event)       | keyboard shortcuts for Vue                            |
+| [@scalar/use-toasts](https://github.com/scalar/scalar/tree/main/packages/use-toasts)                       | display toasts in Vue                                 |
+| [@scalar/use-tooltip](https://github.com/scalar/scalar/tree/main/packages/use-tooltip)                     | tooltips in Vue                                       |
 
 ## Contributing
 
