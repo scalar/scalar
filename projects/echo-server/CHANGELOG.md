@@ -1,5 +1,13 @@
 # @scalar-org/echo-server
 
+## 0.4.1
+
+### Patch Changes
+
+- Updated dependencies [10498d9d]
+- Updated dependencies [494083a0]
+  - @scalar/echo-server@0.4.1
+
 ## 0.4.0
 
 ### Minor Changes

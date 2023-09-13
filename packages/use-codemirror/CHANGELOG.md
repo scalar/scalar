@@ -1,5 +1,17 @@
 # @scalar/use-codemirror
 
+## 0.5.0
+
+### Minor Changes
+
+- 0902d82c: \* refactor: add the CodeMirror component to @scalar/use-codemirror, use it everywhere
+  - feat: allow to pass forceDarkMode to the CodeMirror component
+
+### Patch Changes
+
+- 10498d9d: chore: add README
+- 494083a0: add more information to the package.json
+
 ## 0.4.0
 
 ### Minor Changes
