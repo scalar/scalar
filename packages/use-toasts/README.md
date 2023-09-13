@@ -24,7 +24,6 @@ import { FlowToastContainer } from '@scalar/use-toasts'
 </template>
 ```
 
-
 ```vue
 // ChildComponent.vue
 <script setup>

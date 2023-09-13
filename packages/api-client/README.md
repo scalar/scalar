@@ -26,6 +26,7 @@ import { ApiClient } from '@scalar/api-client'
 ## Props
 
 ### proxyUrl?: string
+
 Pass an URL of [a request proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy) to avoid CORS issues.
 
 ## Composable
@@ -59,4 +60,3 @@ setActiveRequest({
   path: '/foobar'
 })
 ```
-
