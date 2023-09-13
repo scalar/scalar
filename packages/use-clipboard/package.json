@@ -1,6 +1,13 @@
 {
   "name": "@scalar/use-clipboard",
   "description": "tiny wrapper around the clipboard API",
+  "keywords": [
+    "vue",
+    "vue3",
+    "composable",
+    "clipboard",
+    "copy"
+  ],
   "version": "0.4.0",
   "author": "Scalar",
   "license": "MIT",

@@ -1,6 +1,13 @@
 {
   "name": "@scalar/fastify-api-reference",
   "description": "a fastify plugin to render an API reference from an automatically generated OpenAPI spec",
+  "keywords": [
+    "fastify",
+    "openapi",
+    "swagger",
+    "api",
+    "documentation"
+  ],
   "version": "0.4.0",
   "author": "Scalar",
   "license": "MIT",

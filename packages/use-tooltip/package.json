@@ -1,5 +1,12 @@
 {
   "name": "@scalar/use-tooltip",
+  "description": "use tooltips with Vue",
+  "keywords": [
+    "vue",
+    "vue3",
+    "tootltips",
+    "composable"
+  ],
   "version": "0.4.0",
   "author": "Scalar",
   "license": "MIT",

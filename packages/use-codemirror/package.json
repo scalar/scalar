@@ -1,6 +1,12 @@
 {
   "name": "@scalar/use-codemirror",
   "description": "CodeMirror for Vue",
+  "keywords": [
+    "vue",
+    "vue3",
+    "composable",
+    "codemirror"
+  ],
   "version": "0.4.0",
   "author": "Scalar",
   "license": "MIT",

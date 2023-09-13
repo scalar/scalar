@@ -1,6 +1,11 @@
 {
   "name": "@scalar/swagger-parser",
   "description": "parse OpenAPI specs",
+  "keywords": [
+    "openapi",
+    "swagger",
+    "parser"
+  ],
   "version": "0.4.0",
   "author": "Scalar",
   "license": "MIT",

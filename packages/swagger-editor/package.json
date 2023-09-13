@@ -1,6 +1,14 @@
 {
   "name": "@scalar/swagger-editor",
   "description": "an editor which is tailored to write OpenAPI spec",
+  "keywords": [
+    "openapi",
+    "swagger",
+    "editor",
+    "api",
+    "openapi",
+    "spec"
+  ],
   "version": "0.4.0",
   "author": "Scalar",
   "license": "MIT",

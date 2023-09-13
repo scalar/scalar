@@ -1,7 +1,15 @@
 {
   "name": "@scalar/api-client",
-  "version": "0.4.0",
   "description": "the open source API testing client",
+  "keywords": [
+    "api",
+    "client",
+    "testing",
+    "rest",
+    "graphql",
+    "postman alternative"
+  ],
+  "version": "0.4.0",
   "author": "Scalar",
   "license": "MIT",
   "engines": {
