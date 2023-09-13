@@ -1,5 +1,6 @@
 {
   "name": "@scalar/default-theme",
+  "description": "the default CSS variables for all Scalar packages",
   "version": "0.2.0",
   "author": "Scalar",
   "license": "MIT",

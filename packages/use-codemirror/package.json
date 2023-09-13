@@ -1,5 +1,6 @@
 {
   "name": "@scalar/use-codemirror",
+  "description": "CodeMirror for Vue",
   "version": "0.4.0",
   "author": "Scalar",
   "license": "MIT",

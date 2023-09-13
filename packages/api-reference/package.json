@@ -1,5 +1,6 @@
 {
   "name": "@scalar/api-reference",
+  "description": "generate beautiful API references from OpenAPI specs",
   "version": "0.4.0",
   "author": "Scalar",
   "license": "MIT",
