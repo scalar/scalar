@@ -1,7 +1,22 @@
 {
   "name": "@scalar/api-client-proxy",
+  "description": "an api request proxy based on express",
+  "keywords": [
+    "api",
+    "proxy",
+    "express"
+  ],
   "version": "0.4.0",
-  "author": "Scalar",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/api-client-proxy"
+  },
+  "bugs": {
+    "url": "https://github.com/scalar/scalar/issues/new"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=18"

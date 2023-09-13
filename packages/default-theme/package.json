@@ -1,7 +1,22 @@
 {
   "name": "@scalar/default-theme",
+  "description": "the default CSS variables for all Scalar packages",
+  "keywords": [
+    "scalar",
+    "css",
+    "css-variables"
+  ],
   "version": "0.2.0",
-  "author": "Scalar",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/default-theme"
+  },
+  "bugs": {
+    "url": "https://github.com/scalar/scalar/issues/new"
+  },
   "license": "MIT",
   "scripts": {},
   "files": [

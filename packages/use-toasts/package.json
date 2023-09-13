@@ -1,7 +1,24 @@
 {
   "name": "@scalar/use-toasts",
+  "description": "display toasts in Vue",
+  "keywords": [
+    "vue",
+    "vue3",
+    "composable",
+    "toast",
+    "notifcation"
+  ],
   "version": "0.4.0",
-  "author": "Scalar",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/use-toasts"
+  },
+  "bugs": {
+    "url": "https://github.com/scalar/scalar/issues/new"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=18"

@@ -1,7 +1,22 @@
 {
   "name": "@scalar/swagger-parser",
+  "description": "parse OpenAPI specs",
+  "keywords": [
+    "openapi",
+    "swagger",
+    "parser"
+  ],
   "version": "0.4.0",
-  "author": "Scalar",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/swagger-parser"
+  },
+  "bugs": {
+    "url": "https://github.com/scalar/scalar/issues/new"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=18"
