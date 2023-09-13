@@ -18,8 +18,15 @@ const selectedExample = ref(examples[0])
 </script>
 <template>
   <div class="example-switcher">
+    <label
+      class="listbox-label"
+      for="listbox-button"
+      >Select Example</label
+    >
     <Listbox v-model="selectedExample">
-      <ListboxButton class="listbox-button"
+      <ListboxButton
+        id="listbox-button"
+        class="listbox-button"
         ><div class="listbox-button-content">
           <div class="listbox-button-label">
             {{ selectedExample.value.summary ?? selectedExample.key }}
@@ -54,6 +61,14 @@ const selectedExample = ref(examples[0])
   gap: 6px;
   flex-direction: column;
 }
+
+.listbox-label {
+  font-size: var(--theme-mini);
+  font-weight: var(--theme-semibold);
+  margin: 0 4px;
+  color: var(--theme-color-2);
+}
+
 .listbox-button {
   border: 1px solid var(--theme-border-color);
   background: var(--theme-background-1);
@@ -61,6 +76,7 @@ const selectedExample = ref(examples[0])
   border-radius: var(--theme-radius);
   text-align: left;
   display: block;
+  font-size: var(--theme-mini);
 }
 
 .listbox-button-content {
