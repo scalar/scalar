@@ -20,9 +20,9 @@ const selectedExample = ref(examples[0])
   <div class="example-switcher">
     <label
       class="listbox-label"
-      for="listbox-button"
-      >Select Example</label
-    >
+      for="listbox-button">
+      Select Example
+    </label>
     <Listbox v-model="selectedExample">
       <ListboxButton
         id="listbox-button"

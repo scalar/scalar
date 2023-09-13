@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { generateRequest, useApiClientRequestStore } from '@scalar/api-client'
-import { useApiClientStore, useOperation } from '@scalar/api-client'
+import {
+  generateRequest,
+  useApiClientRequestStore,
+  useApiClientStore,
+  useOperation,
+} from '@scalar/api-client'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
 
