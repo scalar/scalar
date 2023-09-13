@@ -1,5 +1,12 @@
 # @scalar/echo-server
 
+## 0.4.1
+
+### Patch Changes
+
+- 10498d9d: chore: add README
+- 494083a0: add more information to the package.json
+
 ## 0.4.0
 
 ### Minor Changes

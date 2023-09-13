@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 0.4.1
+
+### Patch Changes
+
+- f029be41: fix: custom TypeScript type for the fastify plugin
+- 10498d9d: chore: add README
+- 494083a0: add more information to the package.json
+
 ## 0.4.0
 
 ### Minor Changes

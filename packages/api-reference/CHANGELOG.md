@@ -1,5 +1,30 @@
 # @scalar/api-reference
 
+## 0.5.0
+
+### Minor Changes
+
+- 0902d82c: \* refactor: add the CodeMirror component to @scalar/use-codemirror, use it everywhere
+  - feat: allow to pass forceDarkMode to the CodeMirror component
+
+### Patch Changes
+
+- 10498d9d: chore: add README
+- 494083a0: add more information to the package.json
+- Updated dependencies [0902d82c]
+- Updated dependencies [0902d82c]
+- Updated dependencies [10498d9d]
+- Updated dependencies [494083a0]
+  - @scalar/swagger-editor@0.5.0
+  - @scalar/use-codemirror@0.5.0
+  - @scalar/api-client@0.5.0
+  - @scalar/use-keyboard-event@0.4.1
+  - @scalar/swagger-parser@0.4.1
+  - @scalar/default-theme@0.2.1
+  - @scalar/use-clipboard@0.4.1
+  - @scalar/use-tooltip@0.4.1
+  - @scalar/use-toasts@0.4.1
+
 ## 0.4.0
 
 ### Minor Changes

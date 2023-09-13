@@ -1,5 +1,23 @@
 # @scalar/swagger-editor
 
+## 0.5.0
+
+### Minor Changes
+
+- 0902d82c: \* feat: register custom CodeMirror extensions
+  - feat: configure a status text to show in the Swagger editor
+  - clean up: remove custom CSS to overwrite the CodeMirror themes
+
+### Patch Changes
+
+- 10498d9d: chore: add README
+- 494083a0: add more information to the package.json
+- Updated dependencies [0902d82c]
+- Updated dependencies [10498d9d]
+- Updated dependencies [494083a0]
+  - @scalar/use-codemirror@0.5.0
+  - @scalar/swagger-parser@0.4.1
+
 ## 0.4.0
 
 ### Minor Changes
