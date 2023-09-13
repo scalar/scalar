@@ -25,7 +25,7 @@ describe('getExampleResponses', () => {
       200: {
         content: {
           'application/json': {
-            body: JSON.stringify(
+            example: JSON.stringify(
               {
                 id: 10,
               },

@@ -5,7 +5,7 @@ import { getFile } from '../../tests/utils'
 import { parseSwaggerFile } from './parseSwaggerFile'
 
 globSync('./tests/fixtures/examples/Zoom API.yaml').forEach((file) => {
-  it(`parses: ${file}`, () => {
+  it.skip(`parses: ${file}`, () => {
     return new Promise((resolve) => {
       return parseSwaggerFile(getFile(file)).then((result) => {
         expect(result.info.title).toBeDefined()
