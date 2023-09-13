@@ -30,6 +30,7 @@ withDefaults(
   padding: 0.25em 0.5em;
   color: var(--theme-color-1);
   white-space: nowrap;
+  vertical-align: top;
 }
 
 .simple-cell:last-of-type {
