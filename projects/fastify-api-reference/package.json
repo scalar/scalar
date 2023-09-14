@@ -6,7 +6,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/fastify-api-reference --watch ./"
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/fastify-api-reference --watch ./",
+    "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
   "dependencies": {
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
+    "typescript": "^5.2.2",
     "vite": "4.4.8",
     "vite-node": "^0.34.3"
   }
