@@ -1,5 +1,12 @@
 # @scalar/fastify-api-reference
 
+## 0.4.2
+
+### Patch Changes
+
+- d51aebe5: chore: remove source files from packages
+- 478b200c: fix: types
+
 ## 0.4.1
 
 ### Patch Changes

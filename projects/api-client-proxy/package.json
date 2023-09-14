@@ -1,6 +1,6 @@
 {
   "name": "@scalar-org/api-client-proxy",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "private": true,
   "engines": {
     "node": ">=18"
