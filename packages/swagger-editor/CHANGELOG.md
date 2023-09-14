@@ -1,5 +1,14 @@
 # @scalar/swagger-editor
 
+## 0.5.2
+
+### Patch Changes
+
+- d51aebe5: chore: remove source files from packages
+- Updated dependencies [d51aebe5]
+  - @scalar/swagger-parser@0.4.3
+  - @scalar/use-codemirror@0.5.1
+
 ## 0.5.1
 
 ### Patch Changes

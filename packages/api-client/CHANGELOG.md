@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 0.5.2
+
+### Patch Changes
+
+- d51aebe5: chore: remove source files from packages
+- Updated dependencies [d51aebe5]
+  - @scalar/use-keyboard-event@0.4.2
+  - @scalar/use-codemirror@0.5.1
+
 ## 0.5.1
 
 ### Patch Changes

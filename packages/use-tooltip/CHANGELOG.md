@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 0.4.2
+
+### Patch Changes
+
+- d51aebe5: chore: remove source files from packages
+
 ## 0.4.1
 
 ### Patch Changes

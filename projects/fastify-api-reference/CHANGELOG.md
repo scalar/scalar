@@ -1,5 +1,13 @@
 # @scalar-org/fastify-api-reference
 
+## 0.4.2
+
+### Patch Changes
+
+- Updated dependencies [d51aebe5]
+- Updated dependencies [478b200c]
+  - @scalar/fastify-api-reference@0.4.2
+
 ## 0.4.1
 
 ### Patch Changes
