@@ -14,7 +14,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', '@scalar/use-codemirror', 'nunjucks'],
+      external: ['vue', '@scalar/use-codemirror'],
     },
   },
   resolve: {
