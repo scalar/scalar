@@ -57,6 +57,7 @@ export type ClientRequestConfig = {
   type: string
   /** Request path */
   path: string
+  /** TODO: Rename to variables? */
   /** Path parameters */
   parameters?: BaseParameter[]
   /** Query parameters */
