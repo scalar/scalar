@@ -1,0 +1,66 @@
+{
+  "name": "@scalar/api-reference-standalone",
+  "description": "generate beautiful API references from OpenAPI specs",
+  "keywords": [
+    "vue",
+    "vue3",
+    "swagger",
+    "openapi",
+    "spec",
+    "reference",
+    "documentation",
+    "component"
+  ],
+  "version": "0.1.0",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/api-reference-standalone"
+  },
+  "bugs": {
+    "url": "https://github.com/scalar/scalar/issues/new"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "dev": "vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "test": "vitest",
+    "types:build": "vue-tsc -p tsconfig.build.json",
+    "types:check": "vue-tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "exports": {
+    "development": "./src/index.ts",
+    "require": "./dist/index.umd.cjs",
+    "import": "./dist/index.js"
+  },
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "4.2.3",
+    "vite": "4.4.8",
+    "vite-plugin-css-injected-by-js": "^3.3.0",
+    "vite-plugin-node-polyfills": "^0.11.2",
+    "vitest": "0.34.1",
+    "vue-tsc": "1.8.8"
+  },
+  "peerDependencies": {
+    "vue": "3.3.4"
+  }
+}
