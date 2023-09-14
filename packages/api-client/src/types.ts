@@ -51,20 +51,20 @@ export type FormDataItem = BaseParameter
 /** Complete request state for a client request */
 export type ClientRequestConfig = {
   id?: string
-  name: string
+  name?: string
   url: string
   /** HTTP Request Method */
   type: string
   /** Request path */
   path: string
   /** Path parameters */
-  parameters: BaseParameter[]
+  parameters?: BaseParameter[]
   /** Query parameters */
-  query: Query[]
+  query?: Query[]
   /** Request headers */
-  headers: Header[]
+  headers?: Header[]
   /** Content type matched body */
-  body: string
+  body?: string
   /** Optional form data body */
   formData?: FormDataItem[]
 }
@@ -93,7 +93,7 @@ export type SendRequestConfig = Partial<ClientRequestConfig> &
   Required<Pick<ClientRequestConfig, 'url'>>
 
 export type RequestResult = {
-  request: SendRequestConfig
+  request: ClientRequestConfig
   response: ClientResponse
   responseId: string
   sentTime: number

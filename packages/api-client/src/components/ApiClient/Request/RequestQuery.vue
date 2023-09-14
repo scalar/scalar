@@ -3,11 +3,11 @@ import type { Query } from '../../../types'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
-defineProps<{ queries: Query[] }>()
+defineProps<{ queries?: Query[] }>()
 </script>
 <template>
   <CollapsibleSection title="Query Parameters">
-    <template v-if="queries.length === 0">
+    <template v-if="!queries || queries.length === 0">
       <div class="scalar-api-client__empty-state">No Query Parameters</div>
     </template>
     <template v-else>
