@@ -1,6 +1,5 @@
 import { type FastifyInstance } from 'fastify'
 import { type FastifyPluginAsync, type FastifyPluginOptions } from 'fastify'
-import fp from 'fastify-plugin'
 
 export type ApiReferencePlugin = {
   apiReference: ApiReferenceOptions
@@ -59,6 +58,4 @@ const fastifyApiReferencePlugin: FastifyPluginAsync<
   })
 }
 
-const fastifyApiReference = fp(fastifyApiReferencePlugin)
-
-export default fastifyApiReference
+export default fastifyApiReferencePlugin
