@@ -1,5 +1,8 @@
-import { type FastifyInstance } from 'fastify'
-import { type FastifyPluginAsync, type FastifyPluginOptions } from 'fastify'
+import {
+  type FastifyInstance,
+  type FastifyPluginCallback,
+  type FastifyPluginOptions,
+} from 'fastify'
 
 export type ApiReferencePlugin = {
   apiReference: ApiReferenceOptions
@@ -35,9 +38,10 @@ const getHtmlMarkup = (options: ApiReferenceOptions) => {
 `
 }
 
-const fastifyApiReferencePlugin: FastifyPluginAsync<
-  ApiReferencePlugin
-> = async (fastify: FastifyInstance, options: FastifyPluginOptions) => {
+const fastifyApiReferencePlugin: FastifyPluginCallback<ApiReferencePlugin> = (
+  fastify: FastifyInstance,
+  options: FastifyPluginOptions,
+) => {
   if (!options.apiReference.spec && !options.apiReference.specUrl) {
     console.warn(
       '[@scalar/fastify-api-reference] You didn’t provide a spec or specUrl. Please provide one of these options.',
