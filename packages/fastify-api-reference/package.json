@@ -39,7 +39,6 @@
   "main": "./dist/index.umd.cjs",
   "module": "./dist/index.js",
   "exports": {
-    "development": "./src/index.ts",
     "require": "./dist/index.umd.cjs",
     "import": "./dist/index.js"
   },
