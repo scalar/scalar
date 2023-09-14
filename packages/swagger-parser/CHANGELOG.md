@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.4.2
+
+### Patch Changes
+
+- 4165b251: feat: improve rendering of complex swagger files
+
 ## 0.4.1
 
 ### Patch Changes
