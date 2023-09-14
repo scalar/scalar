@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { nanoid } from 'nanoid'
-import nunjucks from 'nunjucks'
 
 import type {
   ClientRequestConfig,
@@ -8,13 +7,6 @@ import type {
   RequestResult,
 } from '../types'
 import { mapFromArray } from './mapFromArray'
-
-const templateEngine = nunjucks.configure({
-  tags: {
-    variableStart: '{',
-    variableEnd: '}',
-  },
-})
 
 const defaultHeaders = {
   'User-Agent': 'Scalar API Client',
@@ -39,7 +31,8 @@ export async function sendRequest(
     type: 'none',
   }
   const variables = mapFromArray(request.parameters, 'name', 'value')
-  const renderedURL = templateEngine.renderString(fullUrl, variables)
+  // TODO: Render variables in URL
+  const renderedURL = fullUrl
   /** TODO: Make dynamic */
   const proxy = true
 

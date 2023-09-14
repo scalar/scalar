@@ -55,7 +55,6 @@
     "axios": "1.4.0",
     "javascript-time-ago": "2.5.9",
     "nanoid": "4.0.2",
-    "nunjucks": "3.2.3",
     "pretty-bytes": "6.1.0",
     "pretty-ms": "8.0.0",
     "tippy.js": "6.3.7"
@@ -69,7 +68,6 @@
     "vue-tsc": "1.8.8"
   },
   "peerDependencies": {
-    "vue": "3.3.4",
-    "@types/nunjucks": "3.2.2"
+    "vue": "3.3.4"
   }
 }
