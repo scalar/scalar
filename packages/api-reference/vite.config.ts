@@ -1,8 +1,8 @@
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   define: {
@@ -63,5 +63,11 @@ export default defineConfig({
         replacement: path.resolve(__dirname, '../$1/src/index.ts'),
       },
     ],
+  },
+  test: {
+    coverage: {
+      enabled: true,
+      reporter: 'text',
+    },
   },
 })

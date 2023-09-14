@@ -53,6 +53,7 @@
     "tsc-alias": "1.8.6",
     "vite": "4.4.8",
     "vitest": "0.34.1",
+    "@vitest/coverage-v8": "^0.34.4",
     "vue-tsc": "1.8.8"
   },
   "peerDependencies": {

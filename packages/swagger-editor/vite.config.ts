@@ -1,7 +1,7 @@
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   plugins: [vue(), cssInjectedByJsPlugin()],
@@ -39,5 +39,11 @@ export default defineConfig({
         replacement: path.resolve(__dirname, '../$1/src/index.ts'),
       },
     ],
+  },
+  test: {
+    coverage: {
+      enabled: true,
+      reporter: 'text',
+    },
   },
 })
