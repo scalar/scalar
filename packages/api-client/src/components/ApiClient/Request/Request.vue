@@ -25,7 +25,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
     </div>
     <div>
       <RequestAuth />
-      <RequestVariables :paths="activeRequest.parameters" />
+      <RequestVariables :variables="activeRequest.parameters" />
       <RequestQuery :queries="activeRequest.query" />
       <RequestHeaders :headers="activeRequest.headers" />
       <RequestBody
