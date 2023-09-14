@@ -33,7 +33,6 @@
   "type": "module",
   "main": "./dist/index.js",
   "files": [
-    "src",
     "dist"
   ],
   "exports": {

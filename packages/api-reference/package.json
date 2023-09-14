@@ -40,7 +40,6 @@
   },
   "type": "module",
   "files": [
-    "src",
     "dist"
   ],
   "main": "./dist/index.js",
