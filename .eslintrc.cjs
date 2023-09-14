@@ -5,7 +5,7 @@ module.exports = {
   },
   parserOptions: {
     ecmaVersion: 2022,
-    project: ['../../tsconfig.json'],
+    project: ['./tsconfig.json'],
   },
   extends: [
     'eslint:recommended',
@@ -23,6 +23,7 @@ module.exports = {
     '**/dist-publish/**',
     '**/.vite-ssg-temp/**',
     '**/vite.config.ts',
+    '**/vite.cdn.config.ts',
     '**/cdn/**',
   ],
   rules: {
