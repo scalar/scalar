@@ -45,7 +45,8 @@
   },
   "types": "dist/index.d.ts",
   "dependencies": {
-    "fastify": "^4.22.1"
+    "fastify": "^4.22.1",
+    "fastify-plugin": "^4.5.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",

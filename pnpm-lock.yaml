@@ -341,6 +341,9 @@ importers:
       fastify:
         specifier: ^4.22.1
         version: 4.22.1
+      fastify-plugin:
+        specifier: ^4.5.1
+        version: 4.5.1
     devDependencies:
       nodemon:
         specifier: ^3.0.1
@@ -694,6 +697,9 @@ importers:
       nodemon:
         specifier: ^3.0.1
         version: 3.0.1
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
       vite:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
