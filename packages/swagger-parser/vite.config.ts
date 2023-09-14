@@ -1,5 +1,5 @@
 import path from 'path'
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   build: {
@@ -28,5 +28,11 @@ export default defineConfig({
         replacement: path.resolve(__dirname, '../$1/src/index.ts'),
       },
     ],
+  },
+  test: {
+    coverage: {
+      enabled: true,
+      reporter: 'text',
+    },
   },
 })
