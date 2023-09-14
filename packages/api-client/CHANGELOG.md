@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.5.1
+
+### Patch Changes
+
+- e49cdc3a: chore: remove nunjucks as a dependency
+
 ## 0.5.0
 
 ### Minor Changes

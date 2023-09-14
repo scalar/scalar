@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 0.5.1
+
+### Patch Changes
+
+- 4165b251: feat: improve rendering of complex swagger files
+- Updated dependencies [e49cdc3a]
+- Updated dependencies [4165b251]
+  - @scalar/api-client@0.5.1
+  - @scalar/swagger-parser@0.4.2
+  - @scalar/swagger-editor@0.5.1
+
 ## 0.5.0
 
 ### Minor Changes
