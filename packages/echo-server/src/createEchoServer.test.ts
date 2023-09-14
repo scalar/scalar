@@ -6,6 +6,7 @@ const createEchoServerOnAnyPort = (): number => {
   const { listen } = createEchoServer()
   const instance = listen(0)
 
+  // @ts-ignore
   return Number(instance.address().port)
 }
 

@@ -89,8 +89,11 @@ export type ClientResponse = {
   duration: number
 }
 
+export type SendRequestConfig = Partial<ClientRequestConfig> &
+  Required<Pick<ClientRequestConfig, 'url'>>
+
 export type RequestResult = {
-  request: ClientRequestConfig
+  request: SendRequestConfig
   response: ClientResponse
   responseId: string
   sentTime: number

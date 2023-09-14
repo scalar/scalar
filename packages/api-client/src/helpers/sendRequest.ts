@@ -1,12 +1,15 @@
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 
-import type {
-  ClientRequestConfig,
-  ClientResponse,
-  RequestResult,
-} from '../types'
-import { mapFromArray } from './mapFromArray'
+import type { ClientResponse, RequestResult, SendRequestConfig } from '../types'
+import {
+  concatenateUrlAndPath,
+  mapFromArray,
+  normalizePath,
+  normalizeRequestMethod,
+  normalizeUrl,
+  replaceVariables,
+} from './'
 
 const defaultHeaders = {
   'User-Agent': 'Scalar API Client',
@@ -16,25 +19,26 @@ const defaultHeaders = {
  * Send a request via the proxy
  */
 export async function sendRequest(
-  request: ClientRequestConfig,
-  proxyUrl: string,
+  request: SendRequestConfig,
+  proxyUrl?: string,
 ): Promise<RequestResult | null> {
-  // Format complete URL
-  const method = request.type.toUpperCase()
-  const fullUrl = `${request.url}${request.path}`
+  const method = normalizeRequestMethod(request.type)
   const headers: Record<string, string | number> = {
     ...defaultHeaders,
-    ...mapFromArray(request.headers, 'name', 'value'),
+    ...mapFromArray(request.headers ?? [], 'name', 'value'),
   }
+  const url = normalizeUrl(request.url)
+  const path = normalizePath(request.path)
+  const urlWithPath = concatenateUrlAndPath(url, path)
+  const renderedURL = replaceVariables(
+    urlWithPath,
+    mapFromArray(request.parameters ?? [], 'name', 'value'),
+  )
+
   /** TODO: Make dynamic */
   const auth = {
     type: 'none',
   }
-  const variables = mapFromArray(request.parameters, 'name', 'value')
-  // TODO: Render variables in URL
-  const renderedURL = fullUrl
-  /** TODO: Make dynamic */
-  const proxy = true
 
   const startTime = Date.now()
 
@@ -46,7 +50,7 @@ export async function sendRequest(
     data: request.body,
   }
 
-  const config = proxy
+  const config = proxyUrl
     ? {
         method: 'POST',
         url: proxyUrl,
@@ -64,17 +68,22 @@ export async function sendRequest(
   const response: (ClientResponse & { error: false }) | { error: true } =
     // @ts-ignore
     await axios(config)
-      .then((res) => ({
-        ...res.data,
-        error: false,
-      }))
-      .catch((err) => ({
-        error: true,
-        ...err?.response,
-      }))
+      .then((res) => {
+        return {
+          ...res.data,
+          error: false,
+        }
+      })
+      .catch((err) => {
+        return {
+          error: true,
+          ...err?.response,
+        }
+      })
 
-  return !response.error
-    ? {
+  return response.error
+    ? null
+    : {
         sentTime: Date.now(),
         request,
         response: {
@@ -83,5 +92,4 @@ export async function sendRequest(
         },
         responseId: nanoid(),
       }
-    : null
 }
