@@ -1,7 +1,10 @@
 # https://github.com/marketplace/actions/auto-approve
 name: Auto approve
 
-on: pull_request_target
+on:
+  pull_request:
+    branches:
+      - main
 
 jobs:
   auto-approve:
