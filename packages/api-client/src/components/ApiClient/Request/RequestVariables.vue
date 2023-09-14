@@ -3,11 +3,11 @@ import type { BaseParameter } from '../../../types'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
-defineProps<{ paths: BaseParameter[] }>()
+defineProps<{ paths?: BaseParameter[] }>()
 </script>
 <template>
   <CollapsibleSection title="Variables">
-    <template v-if="paths.length === 0">
+    <template v-if="!paths || paths.length === 0">
       <div class="scalar-api-client__empty-state">No variables</div>
     </template>
     <template v-else>

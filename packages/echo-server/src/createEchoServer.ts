@@ -1,6 +1,7 @@
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import Express from 'express'
+import { type Server } from 'http'
 
 export const createEchoServer = () => {
   const app = Express()
@@ -29,12 +30,12 @@ export const createEchoServer = () => {
     })
   })
 
-  const listen = (port: number | string, callback?: () => void) => {
+  const listen = (port: number | string, callback?: () => void): Server => {
     return app.listen(port, callback)
   }
 
   return {
     app: app as Express.Express,
-    listen: listen as (port: number | string, callback?: () => void) => void,
+    listen: listen as (port: number | string, callback?: () => void) => Server,
   }
 }

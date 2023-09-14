@@ -2,11 +2,11 @@
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
-defineProps<{ headers: any[] }>()
+defineProps<{ headers?: any[] }>()
 </script>
 <template>
   <CollapsibleSection title="Headers">
-    <template v-if="headers.length === 0">
+    <template v-if="!headers || headers.length === 0">
       <div class="scalar-api-client__empty-state">No Headers</div>
     </template>
     <template v-else>

@@ -1,7 +1,12 @@
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 
-import type { ClientResponse, RequestResult, SendRequestConfig } from '../types'
+import type {
+  ClientRequestConfig,
+  ClientResponse,
+  RequestResult,
+  SendRequestConfig,
+} from '../types'
 import {
   concatenateUrlAndPath,
   mapFromArray,
@@ -85,7 +90,12 @@ export async function sendRequest(
     ? null
     : {
         sentTime: Date.now(),
-        request,
+        request: {
+          ...request,
+          type: method,
+          url,
+          path,
+        },
         response: {
           ...response,
           duration: Date.now() - startTime,
