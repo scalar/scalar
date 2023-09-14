@@ -15,7 +15,7 @@ npm install @scalar/use-codemirror
 
 ```vue
 <script setup>
-import { CodeMirror } from '../CodeMirror'
+import { CodeMirror } from '@scalar/use-codemirror'
 </script>
 
 <CodeMirror
