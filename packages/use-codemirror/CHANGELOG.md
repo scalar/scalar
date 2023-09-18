@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.5.3
+
+### Patch Changes
+
+- 068669b6: fix: unwrap extensions list
+
 ## 0.5.2
 
 ### Patch Changes
