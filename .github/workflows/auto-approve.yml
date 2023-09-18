@@ -15,7 +15,8 @@ jobs:
     steps:
       - run: echo "github.actor ${{ github.actor }}"
       - run: echo "github.event.pull_request.user.login ${{ github.event.pull_request.user.login }}"
+      - run: echo "github.ref ${{ github.ref }}"
       - uses: hmarr/auto-approve-action@v3
-        if: github.actor == 'github-actions[bot]' || github.event.pull_request.user.login == 'github-actions[bot]'
+        if: github.actor == 'hanspagel' && github.ref == 'refs/heads/changeset-release/main'
         with:
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
