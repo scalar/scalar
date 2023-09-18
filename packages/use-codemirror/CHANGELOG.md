@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.5.2
+
+### Patch Changes
+
+- ac492d94: fix: restart CodeMirror when custom extensions are added/removed
+
 ## 0.5.1
 
 ### Patch Changes
