@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.5.3
+
+### Patch Changes
+
+- a0a1590f: feat: make list of global extensions reactive
+
 ## 0.5.2
 
 ### Patch Changes
