@@ -19,5 +19,3 @@ jobs:
         run: echo "$GITHUB_CONTEXT"
       - uses: hmarr/auto-approve-action@v3
         if: github.actor == 'hanspagel' && github.head_ref == 'changeset-release/main'
-        with:
-          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
