@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 0.5.5
+
+### Patch Changes
+
+- Updated dependencies [068669b6]
+  - @scalar/use-codemirror@0.5.3
+  - @scalar/api-client@0.5.4
+  - @scalar/swagger-editor@0.5.5
+
 ## 0.5.4
 
 ### Patch Changes

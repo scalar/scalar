@@ -26,7 +26,7 @@ import {
   keymap,
   lineNumbers as lineNumbersExtension,
 } from '@codemirror/view'
-import { watch } from 'vue'
+import { toRaw, watch } from 'vue'
 
 import { useCodeMirror } from '../../hooks'
 import { variables } from './extensions/variables'
@@ -115,7 +115,7 @@ const getCodeMirrorExtensions = () => {
   // Custom extensions
   if (props.extensions) {
     props.extensions.forEach((extension) => {
-      extensions.push(extension)
+      extensions.push(toRaw(extension))
     })
   }
 

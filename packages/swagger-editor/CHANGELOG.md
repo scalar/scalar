@@ -1,5 +1,12 @@
 # @scalar/swagger-editor
 
+## 0.5.5
+
+### Patch Changes
+
+- Updated dependencies [068669b6]
+  - @scalar/use-codemirror@0.5.3
+
 ## 0.5.4
 
 ### Patch Changes
