@@ -183,18 +183,30 @@ const getCodeMirrorExtensions = () => {
   return extensions
 }
 
-const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
-  useCodeMirror({
-    content: props.content ?? '',
-    extensions: getCodeMirrorExtensions(),
-    withoutTheme: props.withoutTheme,
-    forceDarkMode: props.forceDarkMode,
-  })
+const {
+  codeMirrorRef,
+  setCodeMirrorContent,
+  reconfigureCodeMirror,
+  restartCodeMirror,
+} = useCodeMirror({
+  content: props.content ?? '',
+  extensions: getCodeMirrorExtensions(),
+  withoutTheme: props.withoutTheme,
+  forceDarkMode: props.forceDarkMode,
+})
 
 watch(props, () => {
   setCodeMirrorContent(props.content ?? '')
   reconfigureCodeMirror(getCodeMirrorExtensions())
 })
+
+// If the passed extensions change, destroy and remount CodeMirror.
+watch(
+  () => props.extensions,
+  () => {
+    restartCodeMirror(getCodeMirrorExtensions())
+  },
+)
 
 defineExpose({
   setCodeMirrorContent,
