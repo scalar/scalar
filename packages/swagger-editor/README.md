@@ -33,7 +33,13 @@ import { useSwaggerEditor } from '@scalar/swagger-editor'
 
 const { registerExtension } = useSwaggerEditor()
 
-registerExtension(lineNumbers())
+registerExtension('lineNumbers', lineNumbers())
+```
+
+You can unregister the extension, too:
+
+```ts
+registerExtension('lineNumbers')
 ```
 
 ## Show the status bar

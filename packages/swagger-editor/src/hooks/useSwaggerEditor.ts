@@ -1,13 +1,29 @@
 import { type Extension } from '@codemirror/state'
-import { type Ref, ref, watch } from 'vue'
+import { type Ref, computed, reactive, ref, watch } from 'vue'
 
-const globalExtensions: Extension[] = []
+const globalExtensions = reactive<{
+  values: { key: string; extension: any }[]
+}>({ values: [] })
+
 const globalStatusText = ref<string>('')
 
 export const useSwaggerEditor = () => {
-  const registerExtension = (extension: Extension) => {
-    globalExtensions.push(extension)
+  const unregisterExtension = (key: string) => {
+    globalExtensions.values = globalExtensions.values.filter(
+      (extension) => extension.key !== key,
+    )
   }
+
+  const registerExtension = (key: string, extension: Extension) => {
+    unregisterExtension(key)
+    globalExtensions.values.push({ key, extension })
+  }
+
+  const extensions = computed(() => {
+    return globalExtensions.values.map(
+      (item: { extension: Extension }) => item.extension,
+    )
+  })
 
   const bindStatusText = (statusText: Ref<string> | string) => {
     if (typeof statusText === 'string') {
@@ -23,8 +39,9 @@ export const useSwaggerEditor = () => {
 
   return {
     registerExtension,
+    unregisterExtension,
     bindStatusText,
-    extensions: globalExtensions,
+    extensions,
     statusText: globalStatusText,
   }
 }
