@@ -13,9 +13,10 @@ jobs:
       pull-requests: write
 
     steps:
-      - run: echo "github.actor ${{ github.actor }}"
-      - run: echo "github.event.pull_request.user.login ${{ github.event.pull_request.user.login }}"
-      - run: echo "github.ref ${{ github.ref }}"
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
       - uses: hmarr/auto-approve-action@v3
         if: github.actor == 'hanspagel' && github.ref == 'refs/heads/changeset-release/main'
         with:
