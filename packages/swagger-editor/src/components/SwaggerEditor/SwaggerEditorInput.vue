@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { type Extension } from '@codemirror/state'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { ref, watch } from 'vue'
+import { yCollab as yCodeMirror } from 'y-codemirror.next'
+import * as Y from 'yjs'
 
 import { useSwaggerEditor } from '../../hooks'
 import { type SwaggerEditorInputProps } from '../../types'
@@ -23,13 +26,16 @@ defineExpose({
   },
 })
 
-const provider = ref<HocuspocusProvider | null>(null)
+let provider: HocuspocusProvider | null = null
+
+const yCodeMirrorExtension = ref<any | null>(null)
 
 watch(
   props,
   () => {
-    if (provider.value) {
-      provider.value.destroy()
+    if (provider) {
+      provider.destroy()
+      yCodeMirrorExtension.value = null
     }
 
     if (!props.hocuspocusConfiguration) {
@@ -39,7 +45,7 @@ watch(
     const { username, ...HocuspocusProviderConfiguration } =
       props.hocuspocusConfiguration
 
-    provider.value = new HocuspocusProvider({
+    provider = new HocuspocusProvider({
       ...HocuspocusProviderConfiguration,
       onAuthenticated() {
         console.log(
@@ -58,7 +64,7 @@ watch(
       },
     })
 
-    provider.value?.on('authenticated', () => {
+    provider?.on('authenticated', () => {
       // Pick a random color for the cursor
       const cursorColor = getRandomElement([
         '#958DF1',
@@ -71,11 +77,18 @@ watch(
       ])
 
       // Collaborative user settings
-      provider.value?.setAwarenessField('user', {
+      provider?.setAwarenessField('user', {
         name: username || 'guest',
         color: cursorColor,
         colorLight: cursorColor,
       })
+    })
+
+    const ytext = provider.document.getText('codemirror')
+    const undoManager = new Y.UndoManager(ytext)
+
+    yCodeMirrorExtension.value = yCodeMirror(ytext, provider.awareness, {
+      undoManager,
     })
   },
   { immediate: true },
@@ -86,9 +99,12 @@ const codeMirrorRef = ref<typeof CodeMirror | null>(null)
 
 <template>
   <div class="code-editor-input">
+    hocuspocusConfiguration: {{ props.hocuspocusConfiguration }}
     <CodeMirror
       ref="codeMirrorRef"
-      :extensions="extensions"
+      :extensions="
+        [...extensions, yCodeMirrorExtension].filter((extension) => extensions)
+      "
       :languages="['json']"
       lineNumbers
       @change="(value: string) => $emit('contentUpdate', value)" />
