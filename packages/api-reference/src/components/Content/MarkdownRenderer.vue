@@ -3,7 +3,7 @@ import rehypeDocument from 'rehype-document'
 import rehypeFormat from 'rehype-format'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import rehypeStringify from 'rehype-stringify'
-import remarkBreaks from 'remark-breaks'
+// import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
@@ -21,7 +21,8 @@ watch(
   () => {
     unified()
       .use(remarkParse)
-      .use(remarkBreaks)
+      // todo: investigate why these breaks get added to all paragraphs
+      // .use(remarkBreaks)
       .use(remarkGfm)
       .use(remarkRehype)
       .use(remarkTextr, { plugins: [typographicBase] })
