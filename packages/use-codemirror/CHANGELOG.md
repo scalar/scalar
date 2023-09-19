@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.5.4
+
+### Patch Changes
+
+- 81336114: add yjs support
+
 ## 0.5.3
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 0.5.6
+
+### Patch Changes
+
+- 81336114: add yjs support
+- Updated dependencies [81336114]
+  - @scalar/swagger-editor@0.5.6
+  - @scalar/use-codemirror@0.5.4
+  - @scalar/api-client@0.5.5
+
 ## 0.5.5
 
 ### Patch Changes
