@@ -1,9 +1,12 @@
+import { type HocuspocusConfigurationProp } from '@scalar/swagger-editor'
+
 export type ReferenceProps = {
   isEditable?: boolean
   showSidebar?: boolean
   footerBelowSidebar?: boolean
   spec?: string
   specUrl?: string
+  hocuspocusConfiguration?: HocuspocusConfigurationProp
 }
 
 export type Security = {

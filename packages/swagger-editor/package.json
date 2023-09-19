@@ -45,10 +45,11 @@
   },
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@codemirror/state": "6.2.1",
     "@headlessui/vue": "1.7.14",
+    "@hocuspocus/provider": "^2.5.0",
     "@scalar/swagger-parser": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
-    "@codemirror/state": "6.2.1",
     "@vueuse/core": "10.1.2",
     "nanoid": "4.0.2",
     "y-codemirror.next": "0.3.2",
@@ -56,11 +57,11 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.2.3",
+    "@vitest/coverage-v8": "^0.34.4",
     "tsc-alias": "1.8.6",
     "vite": "4.4.8",
     "vite-plugin-css-injected-by-js": "^3.3.0",
     "vitest": "0.34.1",
-    "@vitest/coverage-v8": "^0.34.4",
     "vue-tsc": "1.8.8"
   },
   "peerDependencies": {

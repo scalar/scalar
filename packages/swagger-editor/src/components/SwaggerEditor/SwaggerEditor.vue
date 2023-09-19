@@ -4,14 +4,13 @@ import { useDebounceFn } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
 
 import { useSwaggerEditor } from '../../hooks'
+import { type SwaggerEditorProps } from '../../types'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
 import SwaggerEditorStatusBar from './SwaggerEditorStatusBar.vue'
 
-const props = defineProps<{
-  value?: string
-}>()
+const props = defineProps<SwaggerEditorProps>()
 
 const emit = defineEmits<{
   (e: 'contentUpdate', value: string): void
@@ -76,6 +75,7 @@ watch(
     </SwaggerEditorNotification>
     <SwaggerEditorInput
       ref="codeMirrorReference"
+      :hocuspocusConfiguration="hocuspocusConfiguration"
       @contentUpdate="handleContentUpdate" />
     <SwaggerEditorStatusBar v-if="statusText">
       {{ statusText }}
