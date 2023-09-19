@@ -223,6 +223,7 @@ defineExpose({
 /** Basics */
 .scalar-api-client__codemirror__wrapper {
   width: 100%;
+  height: 100%;
   display: flex;
   align-items: stretch;
 }

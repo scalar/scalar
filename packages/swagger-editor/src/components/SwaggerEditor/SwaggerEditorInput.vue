@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { type Extension } from '@codemirror/state'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { ref, watch } from 'vue'
@@ -99,7 +98,6 @@ const codeMirrorRef = ref<typeof CodeMirror | null>(null)
 
 <template>
   <div class="code-editor-input">
-    hocuspocusConfiguration: {{ props.hocuspocusConfiguration }}
     <CodeMirror
       ref="codeMirrorRef"
       :extensions="
