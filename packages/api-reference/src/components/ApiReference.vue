@@ -180,6 +180,7 @@ const breadCrumbs = computed(() => {
       v-show="showCodeEditor"
       class="layout-content">
       <LazyLoadedSwaggerEditor
+        :hocuspocusConfiguration="hocuspocusConfiguration"
         :value="specRef"
         @specUpdate="handleSpecUpdate" />
     </div>
