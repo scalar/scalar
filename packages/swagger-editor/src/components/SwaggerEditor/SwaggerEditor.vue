@@ -3,7 +3,6 @@ import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
 
-import { useSwaggerEditor } from '../../hooks'
 import { type SwaggerEditorProps } from '../../types'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
@@ -19,8 +18,6 @@ const emit = defineEmits<{
 }>()
 
 const parserError = ref<string>('')
-
-const { statusText } = useSwaggerEditor()
 
 const handleSpecUpdate = useDebounceFn((value) => {
   parseSwaggerFile(value)
@@ -77,9 +74,7 @@ watch(
       ref="codeMirrorReference"
       :hocuspocusConfiguration="hocuspocusConfiguration"
       @contentUpdate="handleContentUpdate" />
-    <SwaggerEditorStatusBar v-if="statusText">
-      {{ statusText }}
-    </SwaggerEditorStatusBar>
+    <SwaggerEditorStatusBar>editing</SwaggerEditorStatusBar>
   </div>
 </template>
 
