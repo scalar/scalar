@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { HocuspocusProvider } from '@hocuspocus/provider'
+import { HocuspocusProvider, type StatesArray } from '@hocuspocus/provider'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { ref, watch } from 'vue'
 import { yCollab as yjsCodeMirrorBinding } from 'y-codemirror.next'
@@ -9,8 +9,9 @@ import { type SwaggerEditorInputProps } from '../../types'
 
 const props = defineProps<SwaggerEditorInputProps>()
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'contentUpdate', value: string): void
+  (e: 'awarenessUpdate', states: StatesArray): void
 }>()
 
 const getRandomElement = (list: any) =>
@@ -55,8 +56,8 @@ watch(
           props.hocuspocusConfiguration,
         )
       },
-      onStatus({ status }: { status: string }) {
-        console.log('[SwaggerEditor] onStatus', status)
+      onAwarenessUpdate({ states }) {
+        emit('awarenessUpdate', states)
       },
     })
 
