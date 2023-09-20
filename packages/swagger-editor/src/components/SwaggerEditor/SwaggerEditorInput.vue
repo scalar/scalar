@@ -97,7 +97,7 @@ const codeMirrorRef = ref<typeof CodeMirror | null>(null)
 </script>
 
 <template>
-  <div class="code-editor-input">
+  <div class="swagger-editor-input">
     <CodeMirror
       ref="codeMirrorRef"
       :extensions="yCodeMirrorExtension ? [yCodeMirrorExtension] : []"
@@ -108,7 +108,7 @@ const codeMirrorRef = ref<typeof CodeMirror | null>(null)
 </template>
 
 <style>
-.code-editor-input {
+.swagger-editor-input {
   height: 100%;
   overflow: hidden;
   background: var(--theme-background-2);
