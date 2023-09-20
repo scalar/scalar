@@ -26,7 +26,8 @@ export default defineConfig({
     }),
   ],
   build: {
-    outDir: 'cdn',
+    emptyOutDir: false,
+    outDir: 'dist/browser',
     commonjsOptions: {
       include: [/@scalar\/swagger-editor/, /node_modules/],
     },
@@ -35,13 +36,7 @@ export default defineConfig({
     lib: {
       entry: ['src/standalone.ts'],
       name: '@scalar/api-reference',
-      fileName: 'standalone',
       formats: ['umd'],
-    },
-    rollupOptions: {
-      output: {
-        entryFileNames: 'api-reference.[name].js',
-      },
     },
   },
   test: {
