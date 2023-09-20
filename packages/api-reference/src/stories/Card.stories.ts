@@ -1,7 +1,7 @@
 import '@scalar/default-theme/theme.css'
 import type { Meta, StoryObj } from '@storybook/vue3'
 
-import { Card, CardContent, CardHeader } from '../components/Card'
+import { Card, CardContent, CardFooter, CardHeader } from '../components/Card'
 
 const meta: Meta<typeof Card> = {
   title: 'Example/Card',
@@ -13,19 +13,14 @@ export default meta
 
 type Story = StoryObj<typeof Card>
 
-/*
- *👇 Render functions are a framework specific feature to allow you control on how the component renders.
- * See https://storybook.js.org/docs/vue/api/csf
- * to learn how to use render functions.
- */
 export const Primary: Story = {
-  render: (args, { argTypes }) => ({
+  render: () => ({
     components: {
       Card,
       CardHeader,
       CardContent,
+      CardFooter,
     },
-    props: Object.keys(argTypes),
     template: `
       <div class="light-mode">
         <Card v-bind="$props">
@@ -33,11 +28,22 @@ export const Primary: Story = {
             Test
           </CardHeader>
           <CardContent>
-            Example Content
+            Default
           </CardContent>
+          <CardContent muted>
+            Muted
+          </CardContent>
+          <CardContent frameless>
+            Frameless
+          </CardContent>
+          <CardContent borderless>
+            Borderless
+          </CardContent>
+          <CardFooter>
+            Footer
+          </CardFooter>
         </Card>
       </div>
     `,
   }),
-  args: {},
 }
