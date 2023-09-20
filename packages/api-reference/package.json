@@ -36,7 +36,9 @@
     "types:build": "vue-tsc -p tsconfig.build.json",
     "types:check": "vue-tsc --noEmit --skipLibCheck",
     "build:cdn": "vite build -c vite.cdn.config.ts",
-    "preview:cdn": "http-server"
+    "preview:cdn": "http-server",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "type": "module",
   "files": [
@@ -80,20 +82,30 @@
     "xmldom": "0.6.0"
   },
   "devDependencies": {
+    "@storybook/addon-essentials": "^7.4.2",
+    "@storybook/addon-interactions": "^7.4.2",
+    "@storybook/addon-links": "^7.4.2",
+    "@storybook/blocks": "^7.4.2",
+    "@storybook/testing-library": "^0.2.1",
+    "@storybook/vue3": "^7.4.2",
+    "@storybook/vue3-vite": "^7.4.2",
     "@vitejs/plugin-vue": "4.2.3",
+    "@vitest/coverage-v8": "^0.34.4",
     "http-server": "^14.1.1",
     "postcss": "^8.4.28",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "storybook": "^7.4.2",
     "tsc-alias": "1.8.6",
     "vite": "4.4.8",
     "vite-plugin-css-injected-by-js": "^3.3.0",
     "vite-plugin-node-polyfills": "^0.11.2",
     "vitest": "0.34.1",
-    "@vitest/coverage-v8": "^0.34.4",
     "vue-tsc": "1.8.8"
   },
   "peerDependencies": {
-    "vue": "3.3.4",
     "@types/js-yaml": "4.0.5",
-    "@types/xmldom": "0.1.31"
+    "@types/xmldom": "0.1.31",
+    "vue": "3.3.4"
   }
 }
