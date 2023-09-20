@@ -12,13 +12,15 @@ export enum NavState {
   Reference = 'Reference',
 }
 
+export type SelectedClient = { targetKey: TargetId; clientKey: string }
+
 type TemplateState = {
   isDark: boolean
   showSideBar: boolean
   showSearch: boolean
   activeNavState: NavState
   collapsedSidebarItems: Partial<Record<string, boolean>>
-  preferredLanguage: TargetId | 'axios' | 'laravel'
+  preferredLanguage: SelectedClient
 }
 
 const defaultTemplateState = (): TemplateState => ({
@@ -27,7 +29,10 @@ const defaultTemplateState = (): TemplateState => ({
   showSideBar: true,
   activeNavState: NavState.Guide,
   collapsedSidebarItems: {},
-  preferredLanguage: 'shell',
+  preferredLanguage: {
+    targetKey: 'shell',
+    clientKey: 'curl',
+  },
 })
 
 const state = reactive<TemplateState>(defaultTemplateState())
