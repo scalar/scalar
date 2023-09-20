@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { type StatesArray } from '@hocuspocus/provider'
 import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
@@ -17,6 +18,8 @@ const emit = defineEmits<{
   (e: 'import', value: string): void
 }>()
 
+const awarenessStates = ref<StatesArray>([])
+
 const parserError = ref<string>('')
 
 const handleSpecUpdate = useDebounceFn((value) => {
@@ -34,6 +37,10 @@ const handleSpecUpdate = useDebounceFn((value) => {
 const handleContentUpdate = (value: string) => {
   emit('contentUpdate', value)
   handleSpecUpdate(value)
+}
+
+const handleAwarenessUpdate = (states: StatesArray) => {
+  awarenessStates.value = states
 }
 
 // Import new content
@@ -73,8 +80,14 @@ watch(
     <SwaggerEditorInput
       ref="codeMirrorReference"
       :hocuspocusConfiguration="hocuspocusConfiguration"
+      @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
-    <SwaggerEditorStatusBar>editing</SwaggerEditorStatusBar>
+    <SwaggerEditorStatusBar v-if="awarenessStates.length">
+      {{ awarenessStates.length }} user{{
+        awarenessStates.length === 1 ? '' : 's'
+      }}
+      online
+    </SwaggerEditorStatusBar>
   </div>
 </template>
 
