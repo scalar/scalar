@@ -138,7 +138,7 @@ const showItemInClient = () => {
                     clientKey: client.key,
                   })
                 ">
-                {{ client.title }} ({{ client.key }})
+                {{ client.title }}
               </option>
             </optgroup>
           </select>
