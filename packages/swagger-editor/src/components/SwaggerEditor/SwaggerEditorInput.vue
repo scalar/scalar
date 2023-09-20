@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { CodeMirror } from '@scalar/use-codemirror'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { yCollab as yCodeMirror } from 'y-codemirror.next'
 import * as Y from 'yjs'
 
@@ -94,15 +94,19 @@ watch(
 )
 
 const codeMirrorRef = ref<typeof CodeMirror | null>(null)
+
+const additionalExtensions = computed(() => {
+  return [...extensions.value, yCodeMirrorExtension.value].filter(
+    (extension) => extension,
+  )
+})
 </script>
 
 <template>
   <div class="code-editor-input">
     <CodeMirror
       ref="codeMirrorRef"
-      :extensions="
-        [...extensions, yCodeMirrorExtension].filter((extension) => extensions)
-      "
+      :extensions="additionalExtensions"
       :languages="['json']"
       lineNumbers
       @change="(value: string) => $emit('contentUpdate', value)" />
