@@ -12,29 +12,27 @@ const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
 const selectLanguage = (selectedClient: SelectedClient) => {
   setItem('selectedClient', selectedClient)
 
-  // Check if selected language is featured already (icon + text)
-  const preferedLanguageIsIncluded = !!featuredLanguages.value.filter(
-    (preferedLanguage) => {
-      return toRaw(preferedLanguage) === toRaw(state.selectedClient)
-    },
-  ).length
+  // Check if selected client is featured already (icon + text)
+  const selectedClientIsIncluded = !!featuredClients.value.filter((item) => {
+    return isSelectedClient(item)
+  }).length
 
-  // Exit early if the language is already featured
-  if (preferedLanguageIsIncluded) {
+  // Exit early if the client is already featured
+  if (selectedClientIsIncluded) {
     return
   }
 
-  // Remove first item and add the preferred language to the end of the list
-  featuredLanguages.value = [
-    ...featuredLanguages.value.slice(1),
+  // Remove first item and add the preferred client to the end of the list
+  featuredClients.value = [
+    ...featuredClients.value.slice(1),
     state.selectedClient,
   ]
 }
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
 
-// Show popular languages with an icon, not just in a select.
-const featuredLanguages = ref<SelectedClient[]>(
+// Show popular clients with an icon, not just in a select.
+const featuredClients = ref<SelectedClient[]>(
   isMobile.value
     ? // Mobile
       [
@@ -88,12 +86,12 @@ const featuredLanguages = ref<SelectedClient[]>(
  * Icons have longer names to appear in icon searches, e.g. "javascript-js" instead of just "javascript". This function
  * maps the language key to the icon name.
  */
-const getIconByLanguageKey = (languageKey: TargetId) => {
-  const languageKeyMap: Partial<Record<TargetId, string>> = {
+const getIconByLanguageKey = (targetKey: TargetId) => {
+  const targetKeyMap: Partial<Record<TargetId, string>> = {
     javascript: 'javascript-js',
   }
 
-  const icon = languageKeyMap[languageKey] ?? languageKey
+  const icon = targetKeyMap[targetKey] ?? targetKey
 
   return `brand/programming-language-${icon}`
 }
@@ -108,21 +106,21 @@ const isSelectedClient = (language: SelectedClient) => {
 <template>
   <div class="client-libraries-content">
     <div
-      v-for="language in featuredLanguages"
-      :key="language.clientKey"
+      v-for="client in featuredClients"
+      :key="client.clientKey"
       class="code-languages rendered-code-sdks"
       :class="{
-        'code-languages__active': isSelectedClient(language),
+        'code-languages__active': isSelectedClient(client),
       }"
-      @click="() => selectLanguage(language)">
+      @click="() => selectLanguage(client)">
       <div
         class="code-languages-background"
-        :class="`code-languages-icon__${language.targetKey}`">
+        :class="`code-languages-icon__${client.targetKey}`">
         <Icon
           class="code-languages-icon"
-          :src="getIconByLanguageKey(language.targetKey)" />
+          :src="getIconByLanguageKey(client.targetKey)" />
       </div>
-      <span>{{ getTargetTitle(language) }}</span>
+      <span>{{ getTargetTitle(client) }}</span>
     </div>
 
     <div class="code-languages code-languages__select">

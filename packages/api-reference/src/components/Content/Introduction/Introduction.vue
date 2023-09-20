@@ -4,7 +4,7 @@ import type { Info, Server } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import BaseUrl from './BaseUrl.vue'
-import LanguageSelector from './LanguageSelector.vue'
+import ClientSelector from './ClientSelector.vue'
 
 defineProps<{
   info: Info
@@ -54,7 +54,7 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
         <Card>
           <CardHeader>Client Libraries</CardHeader>
           <CardContent frameless>
-            <LanguageSelector />
+            <ClientSelector />
           </CardContent>
           <CardFooter
             class="font-mono"
