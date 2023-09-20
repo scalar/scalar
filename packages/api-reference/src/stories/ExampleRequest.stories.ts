@@ -18,12 +18,17 @@ type Story = StoryObj<typeof ExampleRequest>
  * to learn how to use render functions.
  */
 export const Primary: Story = {
-  render: (args, { argTypes }) => ({
+  render: (args) => ({
     components: { ExampleRequest },
-    props: Object.keys(argTypes),
-    template: '<ExampleRequest v-bind="$props" />',
+    setup() {
+      return { args }
+    },
+    template: '<ExampleRequest v-bind="args" />',
   }),
   args: {
+    server: {
+      url: 'https://example.com',
+    },
     operation: {
       httpVerb: 'put',
       path: '/pet',
