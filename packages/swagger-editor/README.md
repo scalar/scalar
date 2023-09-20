@@ -22,34 +22,3 @@ import { SwaggerEditor } from '@scalar/swagger-editor'
   <SwaggerEditor value="{ … }" />
 </template>
 ```
-
-## Custom CodeMirror extensions
-
-You can pass custom CodeMirror extensions:
-
-```ts
-import { lineNumbers } from '@codemirror/view'
-import { useSwaggerEditor } from '@scalar/swagger-editor'
-
-const { registerExtension } = useSwaggerEditor()
-
-registerExtension('lineNumbers', lineNumbers())
-```
-
-You can unregister the extension, too:
-
-```ts
-registerExtension('lineNumbers')
-```
-
-## Show the status bar
-
-You can pass a text (or a Vue.js ref) to the Swagger Editor to show and fill the status bar:
-
-```ts
-import { useSwaggerEditor } from '@scalar/swagger-editor'
-
-const { bindStatusText } = useSwaggerEditor()
-
-bindStatusText('Hello :-)')
-```

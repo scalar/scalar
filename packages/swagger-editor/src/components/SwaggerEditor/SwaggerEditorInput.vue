@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import { CodeMirror } from '@scalar/use-codemirror'
-import { computed, ref, watch } from 'vue'
-import { yCollab as yCodeMirror } from 'y-codemirror.next'
+import { ref, watch } from 'vue'
+import { yCollab as yjsCodeMirrorBinding } from 'y-codemirror.next'
 import * as Y from 'yjs'
 
-import { useSwaggerEditor } from '../../hooks'
 import { type SwaggerEditorInputProps } from '../../types'
 
 const props = defineProps<SwaggerEditorInputProps>()
@@ -16,8 +15,6 @@ defineEmits<{
 
 const getRandomElement = (list: any) =>
   list[Math.floor(Math.random() * list.length)]
-
-const { extensions } = useSwaggerEditor()
 
 defineExpose({
   setCodeMirrorContent: (value: string) => {
@@ -86,27 +83,23 @@ watch(
     const ytext = provider.document.getText('codemirror')
     const undoManager = new Y.UndoManager(ytext)
 
-    yCodeMirrorExtension.value = yCodeMirror(ytext, provider.awareness, {
-      undoManager,
-    })
+    yCodeMirrorExtension.value = yjsCodeMirrorBinding(
+      ytext,
+      provider.awareness,
+      { undoManager },
+    )
   },
   { immediate: true },
 )
 
 const codeMirrorRef = ref<typeof CodeMirror | null>(null)
-
-const additionalExtensions = computed(() => {
-  return [...extensions.value, yCodeMirrorExtension.value].filter(
-    (extension) => extension,
-  )
-})
 </script>
 
 <template>
   <div class="code-editor-input">
     <CodeMirror
       ref="codeMirrorRef"
-      :extensions="additionalExtensions"
+      :extensions="yCodeMirrorExtension ? [yCodeMirrorExtension] : []"
       :languages="['json']"
       lineNumbers
       @change="(value: string) => $emit('contentUpdate', value)" />
