@@ -13,6 +13,9 @@ post-checkout:
 
 pre-commit:
   commands:
+    package_format:
+      glob: 'pnpm-lock.yaml'
+      run: pnpm format:packages; git add \*package.json pnpm-lock.yaml; echo PACKAGE FILES FORMATTED
     prettier:
       glob: '*.{js,ts,jsx,tsx,vue,md,json,css,scss,html,yml,yaml}'
       run: 'pnpm prettier --write {staged_files} && git add {staged_files}'
