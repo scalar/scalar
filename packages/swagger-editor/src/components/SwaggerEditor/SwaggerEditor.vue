@@ -91,7 +91,7 @@ watch(
   </div>
 </template>
 
-<style scoped>
+<style>
 /** CSS Reset */
 .swagger-editor {
   p {
@@ -131,7 +131,9 @@ watch(
     -moz-osx-font-smoothing: grayscale;
   }
 }
+</style>
 
+<style scoped>
 .swagger-editor {
   min-width: 0;
   min-height: 0;
