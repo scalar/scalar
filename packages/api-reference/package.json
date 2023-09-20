@@ -27,7 +27,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "build": "vite build && vite build -c vite.cdn.config.ts && pnpm types:build && tsc-alias -p tsconfig.build.json",
     "dev": "vite",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
@@ -47,6 +47,7 @@
   "exports": {
     "import": "./dist/index.js"
   },
+  "browser": "./dist/browser/standalone.umd.cjs",
   "types": "dist/index.d.ts",
   "dependencies": {
     "@headlessui/vue": "1.7.14",
