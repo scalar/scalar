@@ -14,7 +14,7 @@ import {
 } from 'httpsnippet-lite'
 import { computed, ref, watch } from 'vue'
 
-import { type SelectedClient, useTemplateStore } from '../../../stores/template'
+import { useTemplateStore } from '../../../stores/template'
 import type { Operation, Server } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import { Icon } from '../../Icon'
@@ -24,10 +24,10 @@ const CodeMirrorValue = ref<string>('')
 const { copyToClipboard } = useClipboard()
 const { setActiveRequest } = useApiClientRequestStore()
 const { toggleApiClient } = useApiClientStore()
-const { state, setItem } = useTemplateStore()
+const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
 
 const CodeMirrorLanguages = computed(() => {
-  return [state.preferredLanguage.targetKey]
+  return [state.selectedClient.targetKey]
 })
 
 const { parameterMap } = useOperation(props)
@@ -64,8 +64,8 @@ const generateSnippet = async () => {
     } as HarRequest)
 
     return (await snippet.convert(
-      state.preferredLanguage.targetKey,
-      state.preferredLanguage.clientKey,
+      state.selectedClient.targetKey,
+      state.selectedClient.clientKey,
     )) as string
   } catch {
     const snippet = new HTTPSnippet({
@@ -74,15 +74,15 @@ const generateSnippet = async () => {
     } as HarRequest)
 
     return (await snippet.convert(
-      state.preferredLanguage.targetKey,
-      state.preferredLanguage.clientKey,
+      state.selectedClient.targetKey,
+      state.selectedClient.clientKey,
     )) as string
   }
 }
 
 // Update snippet when a different client is selected
 watch(
-  () => state.preferredLanguage,
+  () => state.selectedClient,
   async () => {
     CodeMirrorValue.value = await generateSnippet()
   },
@@ -94,17 +94,6 @@ watch(
 // Copy snippet to clipboard
 const copyExampleRequest = async () => {
   copyToClipboard(CodeMirrorValue.value)
-}
-
-// Gets the client title from availableTargets()
-// { targetKey: 'shell', clientKey: 'curl' } -> 'cURL'
-const getClientTitle = (client: SelectedClient) => {
-  return (
-    availableTargets()
-      .find((target) => target.key === client.targetKey)
-      ?.clients.find((item) => item.key === client.clientKey)?.title ??
-    client.clientKey
-  )
 }
 
 // Open API Client
@@ -128,11 +117,14 @@ const showItemInClient = () => {
 
       <template #actions>
         <div class="language-select">
-          <span>{{ getClientTitle(state.preferredLanguage) }}</span>
+          <span>
+            {{ getTargetTitle(state.selectedClient) }}
+            {{ getClientTitle(state.selectedClient) }}
+          </span>
           <select
             class="language-select"
-            :value="state.preferredLanguage"
-            @input="event => setItem('preferredLanguage', JSON.parse((event.target as HTMLSelectElement).value))">
+            :value="JSON.stringify(state.selectedClient)"
+            @input="event => setItem('selectedClient', JSON.parse((event.target as HTMLSelectElement).value))">
             <optgroup
               v-for="target in availableTargets()"
               :key="target.key"
@@ -146,7 +138,7 @@ const showItemInClient = () => {
                     clientKey: client.key,
                   })
                 ">
-                {{ client.title }}
+                {{ client.title }} ({{ client.key }})
               </option>
             </optgroup>
           </select>
