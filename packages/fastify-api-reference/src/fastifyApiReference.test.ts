@@ -1,5 +1,5 @@
 import Fastify from 'fastify'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import fastifyApiReference from './index'
 
@@ -141,6 +141,29 @@ describe('fastifyApiReference', () => {
         fetch(`${address}/api-reference`).then(async (response) => {
           expect(response.headers.has('content-type')).toBe(true)
           expect(response.headers.get('content-type')).toContain('text/html')
+          resolve(null)
+        })
+      })
+    }))
+
+  it('warns when nothing is passed', () =>
+    new Promise((resolve) => {
+      const consoleMock = vi
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined)
+
+      const fastify = Fastify({
+        logger: false,
+      })
+
+      fastify.register(fastifyApiReference, {
+        prefix: '/api-reference',
+        apiReference: {},
+      })
+
+      fastify.listen({ port: 0 }, function (err, address) {
+        fetch(`${address}/api-reference`).then(async () => {
+          expect(consoleMock).toHaveBeenCalledOnce()
           resolve(null)
         })
       })
