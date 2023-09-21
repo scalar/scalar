@@ -1,11 +1,43 @@
 <script lang="ts" setup>
 import { CodeMirror } from '@scalar/use-codemirror'
+import contentType from 'content-type'
+import { computed } from 'vue'
 
+import type { CodeMirrorLanguage } from '../../../types'
 import { CollapsibleSection } from '../../CollapsibleSection'
 
-withDefaults(defineProps<{ active: boolean; data: any }>(), {
-  active: false,
-  data: null,
+const props = withDefaults(
+  defineProps<{
+    active: boolean
+    data: any
+    headers: Record<string, string>[]
+  }>(),
+  {
+    active: false,
+    data: null,
+  },
+)
+
+const codeMirrorLanguages = computed((): CodeMirrorLanguage[] => {
+  const contentTypeHeader = props.headers.find(
+    (header) => header.name.toLowerCase() === 'content-type',
+  )
+
+  if (!contentTypeHeader) {
+    return []
+  }
+
+  const type = contentType.parse(contentTypeHeader?.value).type
+
+  if (type === 'application/json') {
+    return ['json']
+  }
+
+  if (type === 'text/html') {
+    return ['html']
+  }
+
+  return []
 })
 </script>
 <template>
@@ -13,7 +45,7 @@ withDefaults(defineProps<{ active: boolean; data: any }>(), {
     <CodeMirror
       v-if="active"
       :content="data"
-      :languages="['json']"
+      :languages="codeMirrorLanguages"
       readOnly />
     <div
       v-else

@@ -5,6 +5,7 @@
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
+    "@codemirror/lang-html": "6.4.6",
     "@codemirror/lang-java": "6.0.1",
     "@codemirror/lang-javascript": "6.2.1",
     "@codemirror/lang-json": "6.0.1",

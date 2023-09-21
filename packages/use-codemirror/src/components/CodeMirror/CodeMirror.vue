@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { html } from '@codemirror/lang-html'
 import { java } from '@codemirror/lang-java'
 import { javascript } from '@codemirror/lang-javascript'
 import { json } from '@codemirror/lang-json'
@@ -29,6 +30,7 @@ import {
 import { toRaw, watch } from 'vue'
 
 import { useCodeMirror } from '../../hooks'
+import type { CodeMirrorLanguage } from '../../types'
 import { variables } from './extensions/variables'
 
 const props = withDefaults(
@@ -36,7 +38,7 @@ const props = withDefaults(
     extensions?: Extension[]
     content?: string
     readOnly?: boolean
-    languages?: Language[]
+    languages?: CodeMirrorLanguage[]
     withVariables?: boolean
     lineNumbers?: boolean
     withoutTheme?: boolean
@@ -55,7 +57,7 @@ const emit = defineEmits<{
 
 // TODO: Add 'php' and 'laravel'
 const syntaxHighlighting: Partial<
-  Record<Language, LanguageSupport | StreamLanguage<any>>
+  Record<CodeMirrorLanguage, LanguageSupport | StreamLanguage<any>>
 > = {
   axios: javascript(),
   c: StreamLanguage.define(c),
@@ -63,6 +65,7 @@ const syntaxHighlighting: Partial<
   csharp: StreamLanguage.define(csharp),
   go: StreamLanguage.define(go),
   http: StreamLanguage.define(http),
+  html: html(),
   java: java(),
   javascript: javascript(),
   json: json(),
@@ -77,28 +80,6 @@ const syntaxHighlighting: Partial<
   shell: StreamLanguage.define(shell),
   swift: StreamLanguage.define(swift),
 }
-
-type Language =
-  | 'axios'
-  | 'c'
-  | 'clojure'
-  | 'csharp'
-  | 'go'
-  | 'http'
-  | 'java'
-  | 'javascript'
-  | 'json'
-  | 'kotlin'
-  | 'node'
-  | 'objc'
-  | 'ocaml'
-  | 'powershell'
-  | 'python'
-  | 'r'
-  | 'ruby'
-  | 'shell'
-  | 'swift'
-  | 'php'
 
 // CSS Class
 const classes = ['scalar-api-client__codemirror']
