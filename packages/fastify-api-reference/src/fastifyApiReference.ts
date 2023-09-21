@@ -11,13 +11,17 @@ export type ApiReferencePlugin = {
 export type ApiReferenceOptions = {
   title?: string
   specUrl?: string
-  spec?: Record<string, any>
+  spec?: Record<string, any> | (() => Record<string, any>)
 }
 
 const getHtmlMarkup = (options: ApiReferenceOptions) => {
   const htmlTag = options.specUrl
     ? `<div data-spec-url="${options.specUrl}" />`
-    : `<div data-spec='${JSON.stringify(options.spec)}' />`
+    : typeof options.spec === 'object'
+    ? `<div data-spec='${JSON.stringify(options.spec)}' />`
+    : options.spec
+    ? `<div data-spec='${JSON.stringify(options.spec())}' />`
+    : ''
 
   return `
 <!DOCTYPE html>
@@ -57,7 +61,7 @@ const fastifyApiReferencePlugin: FastifyPluginAsync<
     next()
   })
 
-  fastify.get('/', (_, reply) => {
+  fastify.get('/', async (_, reply) => {
     const html = getHtmlMarkup(options?.apiReference)
 
     reply.send(html)
