@@ -64,7 +64,7 @@ await fastify.register(fastifyApiReference, {
   apiReference: {
     // Pass the generated Swagger spec:
     // @ts-ignore
-    spec: fastify.swagger(),
+    spec: () => fastify.swagger(),
     // Or pass the URL to the spec:
     // specUrl: '/scalar.json',
   },

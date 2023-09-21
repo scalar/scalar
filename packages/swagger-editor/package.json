@@ -6,23 +6,23 @@
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
     "@codemirror/state": "6.2.1",
-    "@headlessui/vue": "1.7.14",
+    "@headlessui/vue": "1.7.16",
     "@hocuspocus/provider": "2.5.0",
     "@scalar/swagger-parser": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
-    "@vueuse/core": "10.1.2",
-    "nanoid": "4.0.2",
+    "@vueuse/core": "10.4.1",
+    "nanoid": "5.0.1",
     "y-codemirror.next": "0.3.2",
-    "yjs": "13.6.7"
+    "yjs": "13.6.8"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.2.3",
+    "@vitejs/plugin-vue": "4.3.4",
     "@vitest/coverage-v8": "0.34.4",
-    "tsc-alias": "1.8.6",
-    "vite": "4.4.8",
+    "tsc-alias": "1.8.8",
+    "vite": "4.4.9",
     "vite-plugin-css-injected-by-js": "3.3.0",
-    "vitest": "0.34.1",
-    "vue-tsc": "1.8.8"
+    "vitest": "0.34.4",
+    "vue-tsc": "1.8.13"
   },
   "engines": {
     "node": ">=18"
