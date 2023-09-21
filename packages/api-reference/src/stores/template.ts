@@ -12,13 +12,15 @@ export enum NavState {
   Reference = 'Reference',
 }
 
+export type SelectedClient = { targetKey: TargetId; clientKey: string }
+
 type TemplateState = {
   isDark: boolean
   showSideBar: boolean
   showSearch: boolean
   activeNavState: NavState
   collapsedSidebarItems: Partial<Record<string, boolean>>
-  preferredLanguage: TargetId | 'axios' | 'laravel'
+  selectedClient: SelectedClient
 }
 
 const defaultTemplateState = (): TemplateState => ({
@@ -27,7 +29,10 @@ const defaultTemplateState = (): TemplateState => ({
   showSideBar: true,
   activeNavState: NavState.Guide,
   collapsedSidebarItems: {},
-  preferredLanguage: 'shell',
+  selectedClient: {
+    targetKey: 'shell',
+    clientKey: 'curl',
+  },
 })
 
 const state = reactive<TemplateState>(defaultTemplateState())
@@ -44,15 +49,24 @@ function setCollapsedSidebarItem(key: string, value: boolean) {
   state.collapsedSidebarItems[key] = value
 }
 
-// getLanguageTitleByKey('javascript') => 'JavaScript'
-function getLanguageTitleByKey(language: TargetId | 'axios' | 'laravel') {
-  if (language === 'axios') {
-    return 'JavaScript (Axios)'
-  } else if (language === 'laravel') {
-    return 'PHP (Laravel)'
-  }
+// Gets the client title from availableTargets()
+// { targetKey: 'shell', clientKey: 'curl' } -> 'Shell'
+function getTargetTitle(client: SelectedClient) {
+  return (
+    availableTargets().find((target) => target.key === client.targetKey)
+      ?.title ?? client.targetKey
+  )
+}
 
-  return availableTargets().find((target) => language === target.key)?.title
+// Gets the client title from availableTargets()
+// { targetKey: 'shell', clientKey: 'curl' } -> 'cURL'
+function getClientTitle(client: SelectedClient) {
+  return (
+    availableTargets()
+      .find((target) => target.key === client.targetKey)
+      ?.clients.find((item) => item.key === client.clientKey)?.title ??
+    client.clientKey
+  )
 }
 
 export const useTemplateStore = () => ({
@@ -62,5 +76,6 @@ export const useTemplateStore = () => ({
   toggleItem: toggleItemFactory(state),
   toggleCollapsedSidebarItem,
   setCollapsedSidebarItem,
-  getLanguageTitleByKey,
+  getClientTitle,
+  getTargetTitle,
 })

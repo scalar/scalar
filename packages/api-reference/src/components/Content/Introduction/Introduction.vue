@@ -1,55 +1,17 @@
 <script setup lang="ts">
-import { type TargetId } from 'httpsnippet-lite'
-import { computed } from 'vue'
-
 import { useTemplateStore } from '../../../stores/template'
 import type { Info, Server } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import BaseUrl from './BaseUrl.vue'
-import LanguageSelector from './LanguageSelector.vue'
+import ClientSelector from './ClientSelector.vue'
 
 defineProps<{
   info: Info
   servers: Server[]
 }>()
 
-const { state, getLanguageTitleByKey } = useTemplateStore()
-
-// TODO: Doesn’t work … why?
-// type TargetIdWithoutHttp = Exclude<TargetId, 'http'>
-type TargetIdWithoutHttp = TargetId
-
-const standardLibrary = computed(() => {
-  const standardLibraries: Record<
-    TargetIdWithoutHttp | 'axios' | 'laravel',
-    string
-  > = {
-    shell: 'Curl',
-    ruby: 'Net::HTTP',
-    node: 'HTTPS',
-    php: 'cURL',
-    python: 'http.client',
-    c: 'libcurl',
-    clojure: 'clj-http',
-    csharp: 'RestClient',
-    go: 'net/http',
-    java: 'Unirest',
-    javascript: 'XMLHttpRequest',
-    kotlin: 'OkHttp',
-    objc: 'NSURLSession',
-    ocaml: 'Cohttp',
-    powershell: 'Invoke-WebRequest',
-    r: 'httr',
-    swift: 'NSURLSession',
-    // TODO: Remove, but fix `TargetIdWithoutHttp` first
-    http: '',
-    laravel: '',
-    axios: '',
-  }
-
-  return standardLibraries[state.preferredLanguage] ?? ''
-})
+const { state, getClientTitle, getTargetTitle } = useTemplateStore()
 </script>
 
 <template>
@@ -92,14 +54,14 @@ const standardLibrary = computed(() => {
         <Card>
           <CardHeader>Client Libraries</CardHeader>
           <CardContent frameless>
-            <LanguageSelector />
+            <ClientSelector />
           </CardContent>
           <CardFooter
             class="font-mono"
             muted
             style="font-size: var(--theme-mini); color: var(--theme-color-2)">
-            {{ getLanguageTitleByKey(state.preferredLanguage) }}
-            {{ standardLibrary }}
+            {{ getTargetTitle(state.selectedClient) }}
+            {{ getClientTitle(state.selectedClient) }}
           </CardFooter>
         </Card>
       </div>

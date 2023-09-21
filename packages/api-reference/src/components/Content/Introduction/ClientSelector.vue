@@ -1,108 +1,83 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
 import { type TargetId, availableTargets } from 'httpsnippet-lite'
-import { ref } from 'vue'
+import { ref, toRaw } from 'vue'
 
-import { useTemplateStore } from '../../../stores/template'
+import { type SelectedClient, useTemplateStore } from '../../../stores/template'
 import { Icon } from '../../Icon'
 
-type Language = {
-  title: string | undefined
-  key: Exclude<TargetId, 'http'>
-}
-
 // Use the template store to keep it accessible globally
-const { state, setItem, getLanguageTitleByKey } = useTemplateStore()
+const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
 
-// Check if the given language key is a valid target.
-const isValidTargetId = (language: TargetId) =>
-  availableTargets()
-    .map((target) => target.key)
-    .includes(language)
+const selectLanguage = (selectedClient: SelectedClient) => {
+  setItem('selectedClient', selectedClient)
 
-const defaultLanguage = isValidTargetId(state.preferredLanguage as TargetId)
-  ? state.preferredLanguage
-  : 'shell'
+  // Check if selected client is featured already (icon + text)
+  const selectedClientIsIncluded = !!featuredClients.value.filter((item) => {
+    return isSelectedClient(item)
+  }).length
 
-// Overwrite default setting for preferred language
-setItem('preferredLanguage', defaultLanguage)
-
-const selectLanguage = (language: TargetId) => {
-  setItem('preferredLanguage', language)
-
-  // Check if selected language is featured already (icon + text)
-  const preferedLanguageIsIncluded = !!featuredLanguages.value.filter(
-    (preferedLanguage) => {
-      return preferedLanguage.key === state.preferredLanguage
-    },
-  ).length
-
-  // Exit early if the language is already featured
-  if (preferedLanguageIsIncluded) {
+  // Exit early if the client is already featured
+  if (selectedClientIsIncluded) {
     return
   }
 
-  // Remove first item and add the preferred language to the end of the list
-  featuredLanguages.value = [
-    // @ts-ignore
-    ...featuredLanguages.value.slice(1),
-    {
-      title: getLanguageTitleByKey(language),
-      // @ts-ignore
-      key: language,
-    },
+  // Remove first item and add the preferred client to the end of the list
+  featuredClients.value = [
+    ...featuredClients.value.slice(1),
+    state.selectedClient,
   ]
 }
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
 
-// Show popular languages with an icon, not just in a select.
-const featuredLanguages = ref<Language[]>(
+// Show popular clients with an icon, not just in a select.
+const featuredClients = ref<SelectedClient[]>(
   isMobile.value
     ? // Mobile
       [
         {
-          title: 'Shell',
-          key: 'shell',
+          targetKey: 'shell',
+          clientKey: 'curl',
         },
         {
-          title: 'Ruby',
-          key: 'ruby',
+          targetKey: 'ruby',
+          clientKey: 'native',
         },
         {
-          title: 'Node',
-          key: 'node',
+          targetKey: 'node',
+          clientKey: 'fetch',
         },
         {
-          title: 'Python',
-          key: 'python',
+          targetKey: 'python',
+          clientKey: 'python3',
         },
       ]
     : // Desktop
       [
         {
-          title: 'Shell',
-          key: 'shell',
+          targetKey: 'shell',
+          clientKey: 'curl',
         },
         {
-          title: 'Ruby',
-          key: 'ruby',
+          targetKey: 'ruby',
+          clientKey: 'native',
         },
         {
-          title: 'Node',
-          key: 'node',
+          targetKey: 'node',
+          clientKey: 'fetch',
         },
         {
-          title: 'PHP',
-          key: 'php',
+          targetKey: 'php',
+          clientKey: 'guzzle',
         },
         {
-          title: 'Python',
-          key: 'python',
+          targetKey: 'python',
+          clientKey: 'python3',
         },
         {
-          title: 'C',
-          key: 'c',
+          targetKey: 'c',
+          clientKey: 'libcurl',
         },
       ],
 )
@@ -111,57 +86,71 @@ const featuredLanguages = ref<Language[]>(
  * Icons have longer names to appear in icon searches, e.g. "javascript-js" instead of just "javascript". This function
  * maps the language key to the icon name.
  */
-const getIconByLanguageKey = (languageKey: TargetId) => {
-  const languageKeyMap: Partial<Record<TargetId, string>> = {
+const getIconByLanguageKey = (targetKey: TargetId) => {
+  const targetKeyMap: Partial<Record<TargetId, string>> = {
     javascript: 'javascript-js',
   }
 
-  const icon = languageKeyMap[languageKey] ?? languageKey
+  const icon = targetKeyMap[targetKey] ?? targetKey
 
   return `brand/programming-language-${icon}`
+}
+
+const isSelectedClient = (language: SelectedClient) => {
+  return (
+    language.targetKey === state.selectedClient.targetKey &&
+    language.clientKey === state.selectedClient.clientKey
+  )
 }
 </script>
 <template>
   <div class="client-libraries-content">
     <div
-      v-for="language in featuredLanguages"
-      :key="language.key"
+      v-for="client in featuredClients"
+      :key="client.clientKey"
       class="code-languages rendered-code-sdks"
       :class="{
-        'code-languages__active': state.preferredLanguage === language.key,
+        'code-languages__active': isSelectedClient(client),
       }"
-      @click="() => selectLanguage(language.key)">
+      @click="() => selectLanguage(client)">
       <div
         class="code-languages-background"
-        :class="`code-languages-icon__${language.key}`">
+        :class="`code-languages-icon__${client.targetKey}`">
         <Icon
           class="code-languages-icon"
-          :src="getIconByLanguageKey(language.key)" />
+          :src="getIconByLanguageKey(client.targetKey)" />
       </div>
-      <span>{{ language.title }}</span>
+      <span>{{ getTargetTitle(client) }}</span>
     </div>
 
     <div class="code-languages code-languages__select">
       <select
-        :value="state.preferredLanguage"
-        @input="
-          selectLanguage(($event.target as HTMLSelectElement).value as TargetId)
-        ">
-        <option disabled>Select language:</option>
-        <option
-          v-for="target in availableTargets()
-            .filter((target) => target.key !== 'http')
-            .filter(
-              (target) =>
-                !featuredLanguages.find(
-                  (language) => language.key === target.key,
-                ),
-            )"
+        class="language-select"
+        :value="JSON.stringify(state.selectedClient)"
+        @input="event => setItem('selectedClient', JSON.parse((event.target as HTMLSelectElement).value))">
+        <optgroup
+          v-for="target in availableTargets()"
           :key="target.key"
-          :value="target.key">
-          {{ target.title }}
-        </option>
+          :label="target.title">
+          <option
+            v-for="client in target.clients"
+            :key="client.key"
+            :value="
+              JSON.stringify({
+                targetKey: target.key,
+                clientKey: client.key,
+              })
+            ">
+            {{
+              getClientTitle({
+                targetKey: target.key,
+                clientKey: client.key,
+              })
+            }}
+          </option>
+        </optgroup>
       </select>
+
       <div class="code-languages-background code-languages-icon__more">
         <svg
           class="code-languages-icon code-languages-icon__more"

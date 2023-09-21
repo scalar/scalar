@@ -10,46 +10,32 @@ import { CodeMirror } from '@scalar/use-codemirror'
 import {
   HTTPSnippet,
   type HarRequest,
-  type TargetId,
   availableTargets,
 } from 'httpsnippet-lite'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
-import {
-  generateAxiosCodeFromRequest,
-  generateLaravelCodeFromRequest,
-} from '../../../helpers'
 import { useTemplateStore } from '../../../stores/template'
 import type { Operation, Server } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import { Icon } from '../../Icon'
 
 const props = defineProps<{ operation: Operation; server: Server }>()
-
 const CodeMirrorValue = ref<string>('')
-
 const { copyToClipboard } = useClipboard()
-
 const { setActiveRequest } = useApiClientRequestStore()
-
 const { toggleApiClient } = useApiClientStore()
-
-const {
-  state: templateState,
-  getLanguageTitleByKey,
-  setItem,
-} = useTemplateStore()
+const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
 
 const CodeMirrorLanguages = computed(() => {
-  return [templateState.preferredLanguage]
+  return [state.selectedClient.targetKey]
 })
 
 const { parameterMap } = useOperation(props)
 
-async function generateSnippet() {
+const generateSnippet = async () => {
+  // Replace all variables of the format {something} with the uppercase variable name without the brackets
   let path = props.operation.path
 
-  // Replace all variables of the format {something} with the uppercase variable name without the brackets
   const pathVariables = path.match(/{(.*?)}/g)
 
   if (pathVariables) {
@@ -59,70 +45,59 @@ async function generateSnippet() {
     })
   }
 
+  // Replace all variables of the format {something} with the uppercase variable name without the brackets
   let url = props.server.url
 
-  // Replace all variables of the format {something} with the uppercase variable name without the brackets
   const urlVariables = url.match(/{{(.*?)}}/g)
-
   if (urlVariables) {
-    console.log(urlVariables)
     urlVariables.forEach((variable) => {
       const variableName = variable.replace(/{|}/g, '')
       url = url.replace(variable, `__${variableName}__`)
     })
   }
 
-  if (templateState.preferredLanguage === 'axios') {
-    return generateAxiosCodeFromRequest({
-      method: props.operation.httpVerb.toUpperCase(),
-      url: `${url}${path}`,
-    })
-  } else if (templateState.preferredLanguage === 'laravel') {
-    return generateLaravelCodeFromRequest({
-      method: props.operation.httpVerb.toUpperCase(),
-      url: `${url}${path}`,
-    })
-  }
-
+  // Actually generate the snippet
   try {
     const snippet = new HTTPSnippet({
       method: props.operation.httpVerb.toUpperCase(),
       url: `${url}${path}`,
     } as HarRequest)
-    const output = (await snippet.convert(
-      templateState.preferredLanguage as TargetId,
+
+    return (await snippet.convert(
+      state.selectedClient.targetKey,
+      state.selectedClient.clientKey,
     )) as string
-    return output
   } catch {
     const snippet = new HTTPSnippet({
       method: props.operation.httpVerb.toUpperCase(),
       url: `${window.location.origin}${path}`,
     } as HarRequest)
-    const output = (await snippet.convert(
-      templateState.preferredLanguage as TargetId,
-    )) as string
 
-    return output
+    return (await snippet.convert(
+      state.selectedClient.targetKey,
+      state.selectedClient.clientKey,
+    )) as string
   }
 }
 
-onMounted(async () => {
-  const initialSnippet = await generateSnippet()
-  CodeMirrorValue.value = initialSnippet
-  watch(
-    () => templateState.preferredLanguage,
-    async () => {
-      const output = await generateSnippet()
-      CodeMirrorValue.value = output
-    },
-  )
-})
+// Update snippet when a different client is selected
+watch(
+  () => state.selectedClient,
+  async () => {
+    CodeMirrorValue.value = await generateSnippet()
+  },
+  {
+    immediate: true,
+  },
+)
 
+// Copy snippet to clipboard
 const copyExampleRequest = async () => {
   copyToClipboard(CodeMirrorValue.value)
 }
 
-function showItemInClient() {
+// Open API Client
+const showItemInClient = () => {
   const item = generateRequest(
     props.operation,
     parameterMap.value,
@@ -131,21 +106,6 @@ function showItemInClient() {
   setActiveRequest(item)
   toggleApiClient()
 }
-
-// Store selected languages in LocalStorage
-const localStorageKey = 'preferredLanguage'
-const selectLanguage = (language: TargetId) => {
-  setItem('preferredLanguage', language)
-  localStorage.setItem(localStorageKey, language)
-}
-
-const availableLanguages = computed(() => {
-  return [
-    ...availableTargets().filter((target) => target.key !== 'http'),
-    { key: 'axios', title: 'JavaScript (Axios)' },
-    { key: 'laravel', title: 'PHP (Laravel)' },
-  ].sort((a, b) => a.title.localeCompare(b.title))
-})
 </script>
 <template>
   <Card class="dark-mode">
@@ -157,19 +117,30 @@ const availableLanguages = computed(() => {
 
       <template #actions>
         <div class="language-select">
-          <span>{{
-            getLanguageTitleByKey(templateState.preferredLanguage)
-          }}</span>
+          <span>
+            {{ getTargetTitle(state.selectedClient) }}
+            {{ getClientTitle(state.selectedClient) }}
+          </span>
           <select
             class="language-select"
-            :value="templateState.preferredLanguage"
-            @input="event => selectLanguage((event.target as HTMLSelectElement).value as TargetId)">
-            <option
-              v-for="lang in availableLanguages"
-              :key="lang.key"
-              :value="lang.key">
-              {{ lang.title }}
-            </option>
+            :value="JSON.stringify(state.selectedClient)"
+            @input="event => setItem('selectedClient', JSON.parse((event.target as HTMLSelectElement).value))">
+            <optgroup
+              v-for="target in availableTargets()"
+              :key="target.key"
+              :label="target.title">
+              <option
+                v-for="client in target.clients"
+                :key="client.key"
+                :value="
+                  JSON.stringify({
+                    targetKey: target.key,
+                    clientKey: client.key,
+                  })
+                ">
+                {{ client.title }}
+              </option>
+            </optgroup>
           </select>
         </div>
 
