@@ -50,6 +50,7 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "peerDependencies": {
+    "@types/content-type": "1.1.6",
     "vue": "3.3.4"
   },
   "repository": {

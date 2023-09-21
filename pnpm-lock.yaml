@@ -72,6 +72,9 @@ importers:
       '@scalar/use-keyboard-event':
         specifier: workspace:*
         version: link:../use-keyboard-event
+      '@types/content-type':
+        specifier: 1.1.6
+        version: 1.1.6
       '@vueuse/core':
         specifier: 10.4.1
         version: 10.4.1(vue@3.3.4)
@@ -4729,6 +4732,10 @@ packages:
     resolution: {integrity: sha512-P63Zd/JUGq+PdrM1lv0Wv5SBYeA2+CORvbrXbngriYY0jzLUWfQMQQxOhjONEz/wlHOAxOdY7CY65rgQdTjq2w==}
     dependencies:
       '@types/node': 20.6.3
+
+  /@types/content-type@1.1.6:
+    resolution: {integrity: sha512-WFHg/KFLCdUQl3m27WSQu0NEaLzoHGmgZHlsSYr0Y0iIvItMcBq7opZc6AGXPXqf+btIM6vTBJyLvuDAihB+zQ==}
+    dev: false
 
   /@types/cookie-parser@1.4.3:
     resolution: {integrity: sha512-CqSKwFwefj4PzZ5n/iwad/bow2hTCh0FlNAeWLtQM3JA/NX/iYagIpWG2cf1bQKQ2c9gU2log5VUCrn7LDOs0w==}

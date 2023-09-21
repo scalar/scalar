@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { CodeMirror } from '@scalar/use-codemirror'
+import { CodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
 import contentType from 'content-type'
 import { computed } from 'vue'
 
-import type { CodeMirrorLanguage } from '../../../types'
 import { CollapsibleSection } from '../../CollapsibleSection'
 
 const props = withDefaults(
