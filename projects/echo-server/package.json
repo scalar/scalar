@@ -1,6 +1,6 @@
 {
   "name": "@scalar-org/echo-server",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "dependencies": {
     "@scalar/echo-server": "workspace:*",
     "dotenv": "16.3.1"

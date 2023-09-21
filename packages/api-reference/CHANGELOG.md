@@ -1,5 +1,29 @@
 # @scalar/api-reference
 
+## 0.6.0
+
+### Minor Changes
+
+- 87fda5af: chore: update dependencies
+
+### Patch Changes
+
+- ef080a26: chore: format package.json
+- 9d925e1c: feat: add browser build to the package
+- 2cfc8786: feat: add a ton more clients to render example requests
+- Updated dependencies [ef080a26]
+- Updated dependencies [87fda5af]
+- Updated dependencies [45645710]
+  - @scalar/use-keyboard-event@0.5.0
+  - @scalar/swagger-editor@0.6.0
+  - @scalar/swagger-parser@0.5.0
+  - @scalar/use-codemirror@0.6.0
+  - @scalar/default-theme@0.3.0
+  - @scalar/use-clipboard@0.5.0
+  - @scalar/use-tooltip@0.5.0
+  - @scalar/api-client@0.6.0
+  - @scalar/use-toasts@0.5.0
+
 ## 0.5.6
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@scalar-org/fastify-api-reference",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "dependencies": {
     "@fastify/swagger": "8.10.1",
     "@scalar/fastify-api-reference": "workspace:*",

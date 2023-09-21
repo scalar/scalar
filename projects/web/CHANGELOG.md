@@ -1,5 +1,23 @@
 # @scalar/api-client-web
 
+## 0.4.0
+
+### Minor Changes
+
+- 87fda5af: chore: update dependencies
+
+### Patch Changes
+
+- ef080a26: chore: format package.json
+- Updated dependencies [ef080a26]
+- Updated dependencies [87fda5af]
+- Updated dependencies [9d925e1c]
+- Updated dependencies [45645710]
+- Updated dependencies [2cfc8786]
+  - @scalar/swagger-editor@0.6.0
+  - @scalar/api-reference@0.6.0
+  - @scalar/api-client@0.6.0
+
 ## 0.3.7
 
 ### Patch Changes

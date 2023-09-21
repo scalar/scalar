@@ -1,5 +1,20 @@
 # @scalar/api-client
 
+## 0.6.0
+
+### Minor Changes
+
+- 87fda5af: chore: update dependencies
+
+### Patch Changes
+
+- ef080a26: chore: format package.json
+- Updated dependencies [ef080a26]
+- Updated dependencies [87fda5af]
+  - @scalar/use-keyboard-event@0.5.0
+  - @scalar/use-codemirror@0.6.0
+  - @scalar/default-theme@0.3.0
+
 ## 0.5.5
 
 ### Patch Changes
