@@ -1,5 +1,22 @@
 # @scalar/swagger-editor
 
+## 0.6.0
+
+### Minor Changes
+
+- 87fda5af: chore: update dependencies
+
+### Patch Changes
+
+- ef080a26: chore: format package.json
+- 45645710: feat: show number of connected users
+  fix: typo, use API reference without Yjs
+  chore: remove useSwaggerEditor, no more global state
+- Updated dependencies [ef080a26]
+- Updated dependencies [87fda5af]
+  - @scalar/swagger-parser@0.5.0
+  - @scalar/use-codemirror@0.6.0
+
 ## 0.5.6
 
 ### Patch Changes

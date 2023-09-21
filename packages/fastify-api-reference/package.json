@@ -1,7 +1,7 @@
 {
   "name": "@scalar/fastify-api-reference",
   "description": "a fastify plugin to render an API reference from an automatically generated OpenAPI spec",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {

@@ -1,7 +1,7 @@
 {
   "name": "@scalar/echo-server",
   "description": "an express server which replies with the request data",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {

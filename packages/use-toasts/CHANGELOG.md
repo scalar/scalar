@@ -1,5 +1,15 @@
 # @scalar/use-toasts
 
+## 0.5.0
+
+### Minor Changes
+
+- 87fda5af: chore: update dependencies
+
+### Patch Changes
+
+- ef080a26: chore: format package.json
+
 ## 0.4.1
 
 ### Patch Changes

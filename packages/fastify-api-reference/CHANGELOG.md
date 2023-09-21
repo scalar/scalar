@@ -1,5 +1,17 @@
 # @scalar/fastify-api-reference
 
+## 0.5.0
+
+### Minor Changes
+
+- 87fda5af: chore: update dependencies
+
+### Patch Changes
+
+- ef080a26: chore: format package.json
+- 87fda5af: feat: optionally pass a callback to the spec option
+- 26f96c50: fix: types (again)
+
 ## 0.4.2
 
 ### Patch Changes
