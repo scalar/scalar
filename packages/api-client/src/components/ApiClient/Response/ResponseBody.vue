@@ -61,7 +61,7 @@ const codeMirrorLanguages = computed((): CodeMirrorLanguage[] | null => {
           No Preview Available ({{ mediaType }})
         </template>
         <template v-else>
-          Can’t render a preview. The Content-Type header missing or unknown.
+          Can’t render a preview. The Content-Type header is missing or unknown.
         </template>
       </div>
     </template>
