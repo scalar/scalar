@@ -18,35 +18,53 @@ const props = withDefaults(
   },
 )
 
-const codeMirrorLanguages = computed((): CodeMirrorLanguage[] => {
+const mediaType = computed(() => {
   const contentTypeHeader = props.headers.find(
     (header) => header.name.toLowerCase() === 'content-type',
   )
 
   if (!contentTypeHeader) {
-    return []
+    return null
   }
 
-  const type = contentType.parse(contentTypeHeader?.value).type
+  try {
+    return contentType.parse('foobar').type
+  } catch {
+    return null
+  }
+})
 
-  if (type === 'application/json') {
+const codeMirrorLanguages = computed((): CodeMirrorLanguage[] | null => {
+  if (mediaType.value === 'application/json') {
     return ['json']
   }
 
-  if (type === 'text/html') {
+  if (mediaType.value === 'text/html') {
     return ['html']
   }
 
-  return []
+  return null
 })
 </script>
 <template>
   <CollapsibleSection title="Body">
-    <CodeMirror
-      v-if="active"
-      :content="data"
-      :languages="codeMirrorLanguages"
-      readOnly />
+    <template v-if="active">
+      <CodeMirror
+        v-if="codeMirrorLanguages"
+        :content="data"
+        :languages="codeMirrorLanguages"
+        readOnly />
+      <div
+        v-else
+        class="scalar-api-client__empty-state">
+        <template v-if="mediaType">
+          No Preview Available ({{ mediaType }})
+        </template>
+        <template v-else>
+          Can’t render a preview. The Content-Type header missing or unknown.
+        </template>
+      </div>
+    </template>
     <div
       v-else
       class="scalar-api-client__empty-state">
