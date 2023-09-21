@@ -14,40 +14,40 @@ importers:
   .:
     devDependencies:
       '@babel/runtime':
-        specifier: ^7.22.10
+        specifier: 7.22.10
         version: 7.22.10
       '@changesets/cli':
-        specifier: ^2.26.2
+        specifier: 2.26.2
         version: 2.26.2
       '@trivago/prettier-plugin-sort-imports':
         specifier: 4.1.1
         version: 4.1.1(prettier@2.8.8)
       '@typescript-eslint/eslint-plugin':
-        specifier: ^5.52.0
+        specifier: 5.52.0
         version: 5.52.0(@typescript-eslint/parser@6.4.0)(eslint@8.47.0)(typescript@5.2.2)
       '@typescript-eslint/parser':
-        specifier: ^6.4.0
+        specifier: 6.4.0
         version: 6.4.0(eslint@8.47.0)(typescript@5.2.2)
       '@vue/eslint-config-typescript':
-        specifier: ^11.0.3
+        specifier: 11.0.3
         version: 11.0.3(eslint-plugin-vue@9.17.0)(eslint@8.47.0)(typescript@5.2.2)
       concurrently:
-        specifier: ^8.2.1
+        specifier: 8.2.1
         version: 8.2.1
       eslint:
-        specifier: ^8.47.0
+        specifier: 8.47.0
         version: 8.47.0
       eslint-config-prettier:
         specifier: 8.8.0
         version: 8.8.0(eslint@8.47.0)
       eslint-config-standard-with-typescript:
-        specifier: ^37.0.0
+        specifier: 37.0.0
         version: 37.0.0(@typescript-eslint/eslint-plugin@5.52.0)(eslint-plugin-import@2.28.1)(eslint-plugin-n@16.0.2)(eslint-plugin-promise@6.1.1)(eslint@8.47.0)(typescript@5.2.2)
       eslint-plugin-prettier:
         specifier: 4.2.1
         version: 4.2.1(eslint-config-prettier@8.8.0)(eslint@8.47.0)(prettier@2.8.8)
       eslint-plugin-vue:
-        specifier: ^9.17.0
+        specifier: 9.17.0
         version: 9.17.0(eslint@8.47.0)
       lefthook:
         specifier: 1.4.2
@@ -56,7 +56,7 @@ importers:
         specifier: 2.8.8
         version: 2.8.8
       syncpack:
-        specifier: ^11.2.1
+        specifier: 11.2.1
         version: 11.2.1
       vue-eslint-parser:
         specifier: 9.3.1
@@ -108,7 +108,7 @@ importers:
         specifier: 4.2.3
         version: 4.2.3(vite@4.4.8)(vue@3.3.4)
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
+        specifier: 0.34.4
         version: 0.34.4(vitest@0.34.1)
       tsc-alias:
         specifier: 1.8.6
@@ -117,7 +117,7 @@ importers:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
       vite-plugin-css-injected-by-js:
-        specifier: ^3.3.0
+        specifier: 3.3.0
         version: 3.3.0(vite@4.4.8)
       vitest:
         specifier: 0.34.1
@@ -129,29 +129,29 @@ importers:
   packages/api-client-proxy:
     dependencies:
       '@types/cors':
-        specifier: ^2.8.13
+        specifier: 2.8.13
         version: 2.8.13
       '@types/express':
-        specifier: ^4.17.17
+        specifier: 4.17.17
         version: 4.17.17
       cors:
-        specifier: ^2.8.5
+        specifier: 2.8.5
         version: 2.8.5
       dotenv:
-        specifier: ^16.3.1
+        specifier: 16.3.1
         version: 16.3.1
       express:
-        specifier: ^4.18.2
+        specifier: 4.18.2
         version: 4.18.2
     devDependencies:
       '@scalar/echo-server':
         specifier: workspace:*
         version: link:../echo-server
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
+        specifier: 0.34.4
         version: 0.34.4(vitest@0.34.1)
       nodemon:
-        specifier: ^3.0.1
+        specifier: 3.0.1
         version: 3.0.1
       tsc-alias:
         specifier: 1.8.6
@@ -163,7 +163,7 @@ importers:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
       vite-node:
-        specifier: ^0.34.3
+        specifier: 0.34.3
         version: 0.34.3
       vitest:
         specifier: 0.34.1
@@ -211,7 +211,7 @@ importers:
         specifier: 10.1.2
         version: 10.1.2(vue@3.3.4)
       fuse.js:
-        specifier: ^6.6.2
+        specifier: 6.6.2
         version: 6.6.2
       httpsnippet-lite:
         specifier: 3.0.5
@@ -220,13 +220,13 @@ importers:
         specifier: 4.1.0
         version: 4.1.0
       modern-normalize:
-        specifier: ^2.0.0
+        specifier: 2.0.0
         version: 2.0.0
       nanoid:
         specifier: 4.0.2
         version: 4.0.2
       postcss-nested:
-        specifier: ^6.0.1
+        specifier: 6.0.1
         version: 6.0.1(postcss@8.4.28)
       rehype-document:
         specifier: 6.1.0
@@ -241,7 +241,7 @@ importers:
         specifier: 9.0.3
         version: 9.0.3
       remark-breaks:
-        specifier: ^3.0.3
+        specifier: 3.0.3
         version: 3.0.3
       remark-gfm:
         specifier: 3.0.1
@@ -269,46 +269,46 @@ importers:
         version: 0.6.0
     devDependencies:
       '@storybook/addon-essentials':
-        specifier: ^7.4.2
+        specifier: 7.4.2
         version: 7.4.2(react-dom@18.2.0)(react@18.2.0)
       '@storybook/addon-interactions':
-        specifier: ^7.4.2
+        specifier: 7.4.2
         version: 7.4.2(react-dom@18.2.0)(react@18.2.0)
       '@storybook/addon-links':
-        specifier: ^7.4.2
+        specifier: 7.4.2
         version: 7.4.2(react-dom@18.2.0)(react@18.2.0)
       '@storybook/blocks':
-        specifier: ^7.4.2
+        specifier: 7.4.2
         version: 7.4.2(react-dom@18.2.0)(react@18.2.0)
       '@storybook/testing-library':
-        specifier: ^0.2.1
+        specifier: 0.2.1
         version: 0.2.1
       '@storybook/vue3':
-        specifier: ^7.4.2
+        specifier: 7.4.2
         version: 7.4.2(@vue/compiler-core@3.3.4)(vue@3.3.4)
       '@storybook/vue3-vite':
-        specifier: ^7.4.2
+        specifier: 7.4.2
         version: 7.4.2(@vue/compiler-core@3.3.4)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(vite@4.4.8)(vue@3.3.4)
       '@vitejs/plugin-vue':
         specifier: 4.2.3
         version: 4.2.3(vite@4.4.8)(vue@3.3.4)
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
+        specifier: 0.34.4
         version: 0.34.4(vitest@0.34.1)
       http-server:
-        specifier: ^14.1.1
+        specifier: 14.1.1
         version: 14.1.1
       postcss:
-        specifier: ^8.4.28
+        specifier: 8.4.28
         version: 8.4.28
       react:
-        specifier: ^18.2.0
+        specifier: 18.2.0
         version: 18.2.0
       react-dom:
-        specifier: ^18.2.0
+        specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
       storybook:
-        specifier: ^7.4.2
+        specifier: 7.4.2
         version: 7.4.2
       tsc-alias:
         specifier: 1.8.6
@@ -317,10 +317,10 @@ importers:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
       vite-plugin-css-injected-by-js:
-        specifier: ^3.3.0
+        specifier: 3.3.0
         version: 3.3.0(vite@4.4.8)
       vite-plugin-node-polyfills:
-        specifier: ^0.11.2
+        specifier: 0.11.2
         version: 0.11.2(vite@4.4.8)
       vitest:
         specifier: 0.34.1
@@ -332,7 +332,7 @@ importers:
   packages/default-theme:
     devDependencies:
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
+        specifier: 0.34.4
         version: 0.34.4(vitest@0.34.1)
       vite:
         specifier: 4.4.8
@@ -344,29 +344,29 @@ importers:
   packages/echo-server:
     dependencies:
       '@types/cookie-parser':
-        specifier: ^1.4.3
+        specifier: 1.4.3
         version: 1.4.3
       '@types/cors':
-        specifier: ^2.8.13
+        specifier: 2.8.13
         version: 2.8.13
       '@types/express':
-        specifier: ^4.17.17
+        specifier: 4.17.17
         version: 4.17.17
       cookie-parser:
-        specifier: ^1.4.6
+        specifier: 1.4.6
         version: 1.4.6
       cors:
-        specifier: ^2.8.5
+        specifier: 2.8.5
         version: 2.8.5
       express:
-        specifier: ^4.18.2
+        specifier: 4.18.2
         version: 4.18.2
     devDependencies:
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
+        specifier: 0.34.4
         version: 0.34.4(vitest@0.34.1)
       nodemon:
-        specifier: ^3.0.1
+        specifier: 3.0.1
         version: 3.0.1
       tsc-alias:
         specifier: 1.8.6
@@ -378,7 +378,7 @@ importers:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
       vite-node:
-        specifier: ^0.34.3
+        specifier: 0.34.3
         version: 0.34.3
       vitest:
         specifier: 0.34.1
@@ -387,14 +387,14 @@ importers:
   packages/fastify-api-reference:
     dependencies:
       fastify:
-        specifier: ^4.22.1
+        specifier: 4.22.1
         version: 4.22.1
     devDependencies:
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
+        specifier: 0.34.4
         version: 0.34.4(vitest@0.34.1)
       nodemon:
-        specifier: ^3.0.1
+        specifier: 3.0.1
         version: 3.0.1
       tsc-alias:
         specifier: 1.8.6
@@ -406,7 +406,7 @@ importers:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
       vite-node:
-        specifier: ^0.34.3
+        specifier: 0.34.3
         version: 0.34.3
       vitest:
         specifier: 0.34.1
@@ -421,7 +421,7 @@ importers:
         specifier: 1.7.14
         version: 1.7.14(vue@3.3.4)
       '@hocuspocus/provider':
-        specifier: ^2.5.0
+        specifier: 2.5.0
         version: 2.5.0(y-protocols@1.0.6)(yjs@13.6.7)
       '@scalar/swagger-parser':
         specifier: workspace:*
@@ -449,7 +449,7 @@ importers:
         specifier: 4.2.3
         version: 4.2.3(vite@4.4.8)(vue@3.3.4)
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
+        specifier: 0.34.4
         version: 0.34.4(vitest@0.34.1)
       tsc-alias:
         specifier: 1.8.6
@@ -458,7 +458,7 @@ importers:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
       vite-plugin-css-injected-by-js:
-        specifier: ^3.3.0
+        specifier: 3.3.0
         version: 3.3.0(vite@4.4.8)
       vitest:
         specifier: 0.34.1
@@ -486,7 +486,7 @@ importers:
         specifier: 4.2.3
         version: 4.2.3(vite@4.4.8)(vue@3.3.4)
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
+        specifier: 0.34.4
         version: 0.34.4(vitest@0.34.1)
       glob:
         specifier: 10.3.3
@@ -498,7 +498,7 @@ importers:
         specifier: 1.8.6
         version: 1.8.6
       tslib:
-        specifier: ^2.6.1
+        specifier: 2.6.1
         version: 2.6.1
       typescript:
         specifier: '*'
@@ -526,7 +526,7 @@ importers:
         specifier: 4.2.3
         version: 4.2.3(vite@4.4.8)(vue@3.3.4)
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
+        specifier: 0.34.4
         version: 0.34.4(vitest@0.34.1)
       tsc-alias:
         specifier: 1.8.6
@@ -544,7 +544,7 @@ importers:
   packages/use-codemirror:
     dependencies:
       '@codemirror/lang-java':
-        specifier: ^6.0.1
+        specifier: 6.0.1
         version: 6.0.1
       '@codemirror/lang-javascript':
         specifier: 6.2.1
@@ -617,7 +617,7 @@ importers:
         specifier: 4.2.3
         version: 4.2.3(vite@4.4.8)(vue@3.3.4)
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
+        specifier: 0.34.4
         version: 0.34.4(vitest@0.34.1)
       tsc-alias:
         specifier: 1.8.6
@@ -642,7 +642,7 @@ importers:
         specifier: 4.2.3
         version: 4.2.3(vite@4.4.8)(vue@3.3.4)
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
+        specifier: 0.34.4
         version: 0.34.4(vitest@0.34.1)
       tsc-alias:
         specifier: 1.8.6
@@ -670,7 +670,7 @@ importers:
         specifier: 4.2.3
         version: 4.2.3(vite@4.4.8)(vue@3.3.4)
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
+        specifier: 0.34.4
         version: 0.34.4(vitest@0.34.1)
       tsc-alias:
         specifier: 1.8.6
@@ -679,7 +679,7 @@ importers:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
       vite-plugin-css-injected-by-js:
-        specifier: ^3.3.0
+        specifier: 3.3.0
         version: 3.3.0(vite@4.4.8)
       vitest:
         specifier: 0.34.1
@@ -701,7 +701,7 @@ importers:
         specifier: 4.2.3
         version: 4.2.3(vite@4.4.8)(vue@3.3.4)
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
+        specifier: 0.34.4
         version: 0.34.4(vitest@0.34.1)
       tsc-alias:
         specifier: 1.8.6
@@ -722,17 +722,17 @@ importers:
         specifier: workspace:*
         version: link:../../packages/api-client-proxy
       dotenv:
-        specifier: ^16.3.1
+        specifier: 16.3.1
         version: 16.3.1
     devDependencies:
       nodemon:
-        specifier: ^3.0.1
+        specifier: 3.0.1
         version: 3.0.1
       vite:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
       vite-node:
-        specifier: ^0.34.3
+        specifier: 0.34.3
         version: 0.34.3
 
   projects/echo-server:
@@ -741,33 +741,33 @@ importers:
         specifier: workspace:*
         version: link:../../packages/echo-server
       dotenv:
-        specifier: ^16.3.1
+        specifier: 16.3.1
         version: 16.3.1
     devDependencies:
       nodemon:
-        specifier: ^3.0.1
+        specifier: 3.0.1
         version: 3.0.1
       vite:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
       vite-node:
-        specifier: ^0.34.3
+        specifier: 0.34.3
         version: 0.34.3
 
   projects/fastify-api-reference:
     dependencies:
       '@fastify/swagger':
-        specifier: ^8.9.0
+        specifier: 8.9.0
         version: 8.9.0
       '@scalar/fastify-api-reference':
         specifier: workspace:*
         version: link:../../packages/fastify-api-reference
       fastify:
-        specifier: ^4.22.1
+        specifier: 4.22.1
         version: 4.22.1
     devDependencies:
       nodemon:
-        specifier: ^3.0.1
+        specifier: 3.0.1
         version: 3.0.1
       typescript:
         specifier: '*'
@@ -776,7 +776,7 @@ importers:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
       vite-node:
-        specifier: ^0.34.3
+        specifier: 0.34.3
         version: 0.34.3
 
   projects/web:
@@ -794,26 +794,26 @@ importers:
         specifier: 3.3.4
         version: 3.3.4
       vue-router:
-        specifier: ^4.2.4
+        specifier: 4.2.4
         version: 4.2.4(vue@3.3.4)
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: 4.2.3
         version: 4.2.3(vite@4.4.8)(vue@3.3.4)
       autoprefixer:
-        specifier: ^10.4.15
+        specifier: 10.4.15
         version: 10.4.15(postcss@8.4.28)
       eslint:
-        specifier: ^8.47.0
+        specifier: 8.47.0
         version: 8.47.0
       eslint-plugin-vue:
-        specifier: ^9.17.0
+        specifier: 9.17.0
         version: 9.17.0(eslint@8.47.0)
       postcss:
-        specifier: ^8.4.28
+        specifier: 8.4.28
         version: 8.4.28
       tailwindcss:
-        specifier: ^3.3.3
+        specifier: 3.3.3
         version: 3.3.3
       typescript:
         specifier: '*'
@@ -822,7 +822,7 @@ importers:
         specifier: 4.4.8
         version: 4.4.8(@types/node@20.3.1)
       vite-plugin-node-polyfills:
-        specifier: ^0.11.2
+        specifier: 0.11.2
         version: 0.11.2(vite@4.4.8)
       vue-tsc:
         specifier: 1.8.8
@@ -983,7 +983,7 @@ packages:
     dependencies:
       '@babel/core': 7.22.20
       '@babel/helper-annotate-as-pure': 7.22.5
-      '@babel/helper-environment-visitor': 7.22.5
+      '@babel/helper-environment-visitor': 7.22.20
       '@babel/helper-function-name': 7.22.5
       '@babel/helper-member-expression-to-functions': 7.22.15
       '@babel/helper-optimise-call-expression': 7.22.5
@@ -1120,7 +1120,7 @@ packages:
     resolution: {integrity: sha512-tK14r66JZKiC43p8Ki33yLBVJKlQDFoA8GYN67lWCDCqoL6EMMSuM9b+Iff2jHaM/RRFYl7K+iiru7hbRqNx8Q==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.22.10
+      '@babel/types': 7.22.19
     dev: true
 
   /@babel/helper-split-export-declaration@7.22.6:
@@ -1485,7 +1485,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.22.20
-      '@babel/helper-environment-visitor': 7.22.5
+      '@babel/helper-environment-visitor': 7.22.20
       '@babel/helper-plugin-utils': 7.22.5
       '@babel/helper-remap-async-to-generator': 7.22.20(@babel/core@7.22.20)
       '@babel/plugin-syntax-async-generators': 7.8.4(@babel/core@7.22.20)
@@ -1555,7 +1555,7 @@ packages:
       '@babel/core': 7.22.20
       '@babel/helper-annotate-as-pure': 7.22.5
       '@babel/helper-compilation-targets': 7.22.15
-      '@babel/helper-environment-visitor': 7.22.5
+      '@babel/helper-environment-visitor': 7.22.20
       '@babel/helper-function-name': 7.22.5
       '@babel/helper-optimise-call-expression': 7.22.5
       '@babel/helper-plugin-utils': 7.22.5
@@ -1572,7 +1572,7 @@ packages:
     dependencies:
       '@babel/core': 7.22.20
       '@babel/helper-plugin-utils': 7.22.5
-      '@babel/template': 7.22.5
+      '@babel/template': 7.22.15
     dev: true
 
   /@babel/plugin-transform-destructuring@7.22.15(@babel/core@7.22.20):
@@ -1747,7 +1747,7 @@ packages:
       '@babel/helper-hoist-variables': 7.22.5
       '@babel/helper-module-transforms': 7.22.20(@babel/core@7.22.20)
       '@babel/helper-plugin-utils': 7.22.5
-      '@babel/helper-validator-identifier': 7.22.5
+      '@babel/helper-validator-identifier': 7.22.20
     dev: true
 
   /@babel/plugin-transform-modules-umd@7.22.5(@babel/core@7.22.20):
@@ -2318,7 +2318,7 @@ packages:
       '@types/semver': 7.5.0
       ansi-colors: 4.1.3
       chalk: 2.4.2
-      enquirer: 2.3.6
+      enquirer: 2.4.1
       external-editor: 3.1.0
       fs-extra: 7.0.1
       human-id: 1.0.2
@@ -2811,11 +2811,6 @@ packages:
       eslint-visitor-keys: 3.4.3
     dev: true
 
-  /@eslint-community/regexpp@4.6.2:
-    resolution: {integrity: sha512-pPTNuaAG3QMH+buKyBIGJs3g/S5y0caxw0ygM3YyE6yJFySwiGGSzA+mM3KJ8QQvzeLh3blwgSonkFjgQdxzMw==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
-    dev: true
-
   /@eslint-community/regexpp@4.8.0:
     resolution: {integrity: sha512-JylOEEzDiOryeUnFbQz+oViCXS0KsvR1mvHkoMiu5+UiBvy+RYX7tzlIIIEstF/gVa2tj9AQXk3dgnxv6KxhFg==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
@@ -2921,7 +2916,7 @@ packages:
   /@hocuspocus/common@2.5.0:
     resolution: {integrity: sha512-TpnQAb1Rtff1trwURFWaUEYZwqykaIGo6NNnMr6ZISdDZFWNHMAMUmy7dwJDS9ECnEtcjXhpPxXeLV+MVQXVnw==}
     dependencies:
-      lib0: 0.2.82
+      lib0: 0.2.85
     dev: false
 
   /@hocuspocus/provider@2.5.0(y-protocols@1.0.6)(yjs@13.6.7):
@@ -2932,7 +2927,7 @@ packages:
     dependencies:
       '@hocuspocus/common': 2.5.0
       '@lifeomic/attempt': 3.0.3
-      lib0: 0.2.82
+      lib0: 0.2.85
       ws: 7.5.9
       y-protocols: 1.0.6(yjs@13.6.7)
       yjs: 13.6.7
@@ -4201,7 +4196,7 @@ packages:
     dependencies:
       '@babel/core': 7.22.20
       '@babel/preset-env': 7.22.20(@babel/core@7.22.20)
-      '@babel/types': 7.22.10
+      '@babel/types': 7.22.19
       '@ndelangen/get-tarball': 3.0.9
       '@storybook/codemod': 7.4.2
       '@storybook/core-common': 7.4.2
@@ -4258,7 +4253,7 @@ packages:
     dependencies:
       '@babel/core': 7.22.20
       '@babel/preset-env': 7.22.20(@babel/core@7.22.20)
-      '@babel/types': 7.22.10
+      '@babel/types': 7.22.19
       '@storybook/csf': 0.1.1
       '@storybook/csf-tools': 7.4.2
       '@storybook/node-logger': 7.4.2
@@ -4406,9 +4401,9 @@ packages:
     resolution: {integrity: sha512-5AvF2YRcYHIqQqskb3R8JvsmSWnNwkP0CGmP8Zq7zIfK/C+npKb/onv5YQlbSgh+2UrVxVdIDLc9AepBeXC3uQ==}
     dependencies:
       '@babel/generator': 7.22.15
-      '@babel/parser': 7.22.10
+      '@babel/parser': 7.22.16
       '@babel/traverse': 7.22.20
-      '@babel/types': 7.22.10
+      '@babel/types': 7.22.19
       '@storybook/csf': 0.1.1
       '@storybook/types': 7.4.2
       fs-extra: 11.1.1
@@ -4646,7 +4641,7 @@ packages:
     resolution: {integrity: sha512-fB0R+fa3AUqbLHWyxXa2kGVtf1Fe1ZZFr0Zp6AIbIAzXb2mKbEXl+PCQNUOaq5lbTab5tfctfXRNsWXxa2f7Aw==}
     engines: {node: '>=14'}
     dependencies:
-      '@babel/code-frame': 7.22.10
+      '@babel/code-frame': 7.22.13
       '@babel/runtime': 7.22.10
       '@types/aria-query': 5.0.1
       aria-query: 5.1.3
@@ -4692,8 +4687,8 @@ packages:
   /@types/babel__core@7.20.2:
     resolution: {integrity: sha512-pNpr1T1xLUc2l3xJKuPtsEky3ybxN3m4fJkknfIpTCTfIZCDW57oAg+EfCgIIp2rvCe0Wn++/FfodDS4YXxBwA==}
     dependencies:
-      '@babel/parser': 7.22.10
-      '@babel/types': 7.22.10
+      '@babel/parser': 7.22.16
+      '@babel/types': 7.22.19
       '@types/babel__generator': 7.6.5
       '@types/babel__template': 7.4.2
       '@types/babel__traverse': 7.20.2
@@ -4702,20 +4697,20 @@ packages:
   /@types/babel__generator@7.6.5:
     resolution: {integrity: sha512-h9yIuWbJKdOPLJTbmSpPzkF67e659PbQDba7ifWm5BJ8xTv+sDmS7rFmywkWOvXedGTivCdeGSIIX8WLcRTz8w==}
     dependencies:
-      '@babel/types': 7.22.10
+      '@babel/types': 7.22.19
     dev: true
 
   /@types/babel__template@7.4.2:
     resolution: {integrity: sha512-/AVzPICMhMOMYoSx9MoKpGDKdBRsIXMNByh1PXSZoa+v6ZoLa8xxtsT/uLQ/NJm0XVAWl/BvId4MlDeXJaeIZQ==}
     dependencies:
-      '@babel/parser': 7.22.10
-      '@babel/types': 7.22.10
+      '@babel/parser': 7.22.16
+      '@babel/types': 7.22.19
     dev: true
 
   /@types/babel__traverse@7.20.2:
     resolution: {integrity: sha512-ojlGK1Hsfce93J0+kn3H5R73elidKUaZonirN33GSmgTUMpzI/MIFfSpF3haANe3G1bEBS9/9/QEqwTzwqFsKw==}
     dependencies:
-      '@babel/types': 7.22.10
+      '@babel/types': 7.22.19
     dev: true
 
   /@types/body-parser@1.19.2:
@@ -5022,7 +5017,7 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@eslint-community/regexpp': 4.6.2
+      '@eslint-community/regexpp': 4.8.0
       '@typescript-eslint/parser': 5.62.0(eslint@8.47.0)(typescript@5.2.2)
       '@typescript-eslint/scope-manager': 5.62.0
       '@typescript-eslint/type-utils': 5.62.0(eslint@8.47.0)(typescript@5.2.2)
@@ -6013,7 +6008,7 @@ packages:
     resolution: {integrity: sha512-GAwkz0AihzY5bkwIY5QDR+LvsRQgB/B+1foMPvi0FZPMl5fjD7ICiznUiBdLYMH1QYe6vqu4gWYytZOccLouFw==}
     engines: {node: '>= 10.0.0'}
     dependencies:
-      '@babel/types': 7.22.10
+      '@babel/types': 7.22.19
     dev: true
 
   /bail@2.0.2:
@@ -6594,8 +6589,8 @@ packages:
   /constantinople@4.0.1:
     resolution: {integrity: sha512-vCrqcSIq4//Gx74TXXCGnHpulY1dskqLTFGDmhrGxzeXL8lF8kvXv6mpNWlJj1uD4DW23D4ljAqbY4RRaaUZIw==}
     dependencies:
-      '@babel/parser': 7.22.10
-      '@babel/types': 7.22.10
+      '@babel/parser': 7.22.16
+      '@babel/types': 7.22.19
     dev: true
 
   /constants-browserify@1.0.0:
@@ -7095,13 +7090,6 @@ packages:
       once: 1.4.0
     dev: true
 
-  /enquirer@2.3.6:
-    resolution: {integrity: sha512-yjNnPr315/FjS4zIsUxYguYUPP2e1NK4d7E7ZOLiyYCcbFBiTMyID+2wvm2w6+pZ/odMA7cRkjhsPbltwBOrLg==}
-    engines: {node: '>=8.6'}
-    dependencies:
-      ansi-colors: 4.1.3
-    dev: true
-
   /enquirer@2.4.1:
     resolution: {integrity: sha512-rRqJg/6gd538VHvR3PSrdRBb/1Vy2YfzHqzvbhGIQpDRKIa4FgV/54b5Q1xYSxOOwKvjXweS26E0Q+nAMwp2pQ==}
     engines: {node: '>=8.6'}
@@ -7515,7 +7503,7 @@ packages:
     hasBin: true
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0(eslint@8.47.0)
-      '@eslint-community/regexpp': 4.6.2
+      '@eslint-community/regexpp': 4.8.0
       '@eslint/eslintrc': 2.1.2
       '@eslint/js': 8.47.0
       '@humanwhocodes/config-array': 0.11.10
@@ -8968,7 +8956,7 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       '@babel/core': 7.22.20
-      '@babel/parser': 7.22.10
+      '@babel/parser': 7.22.16
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.0
       semver: 6.3.1
@@ -9121,7 +9109,7 @@ packages:
       '@babel/preset-env': ^7.1.6
     dependencies:
       '@babel/core': 7.22.20
-      '@babel/parser': 7.22.10
+      '@babel/parser': 7.22.16
       '@babel/plugin-proposal-class-properties': 7.18.6(@babel/core@7.22.20)
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.18.6(@babel/core@7.22.20)
       '@babel/plugin-proposal-optional-chaining': 7.21.0(@babel/core@7.22.20)
@@ -13270,8 +13258,8 @@ packages:
   /vue-docgen-api@4.74.1(vue@3.3.4):
     resolution: {integrity: sha512-RvTMT+5tf4aeAOBXGSzRSQCx+92J+AlqJF6kpXHuzivkULpocDMnqWzT08oE5pzAJYrRxRM5geOsaIPnS/NZ5A==}
     dependencies:
-      '@babel/parser': 7.22.10
-      '@babel/types': 7.22.10
+      '@babel/parser': 7.22.16
+      '@babel/types': 7.22.19
       '@vue/compiler-dom': 3.3.4
       '@vue/compiler-sfc': 3.3.4
       ast-types: 0.16.1
@@ -13478,8 +13466,8 @@ packages:
     resolution: {integrity: sha512-RNGKj82nUPg3g5ygxkQl0R937xLyho1J24ItRCBTr/m1YnZkzJy1hUiHUJrc/VlsDQzsCnInEGSg3bci0Lmd4w==}
     engines: {node: '>= 10.0.0'}
     dependencies:
-      '@babel/parser': 7.22.10
-      '@babel/types': 7.22.10
+      '@babel/parser': 7.22.16
+      '@babel/types': 7.22.19
       assert-never: 1.2.1
       babel-walk: 3.0.0-canary-5
     dev: true
