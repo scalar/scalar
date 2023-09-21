@@ -1,24 +1,24 @@
 {
   "name": "@scalar-org/fastify-api-reference",
   "version": "0.4.2",
-  "private": true,
+  "dependencies": {
+    "@fastify/swagger": "8.9.0",
+    "@scalar/fastify-api-reference": "workspace:*",
+    "fastify": "4.22.1"
+  },
+  "devDependencies": {
+    "nodemon": "3.0.1",
+    "typescript": "*",
+    "vite": "4.4.8",
+    "vite-node": "0.34.3"
+  },
   "engines": {
     "node": ">=18"
   },
+  "private": true,
   "scripts": {
     "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/fastify-api-reference --watch ./",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
-  "type": "module",
-  "dependencies": {
-    "@fastify/swagger": "^8.9.0",
-    "@scalar/fastify-api-reference": "workspace:*",
-    "fastify": "^4.22.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1",
-    "typescript": "^5.2.2",
-    "vite": "4.4.8",
-    "vite-node": "^0.34.3"
-  }
+  "type": "module"
 }

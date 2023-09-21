@@ -1,39 +1,41 @@
 {
   "name": "root",
-  "private": true,
-  "scripts": {
-    "dev": "concurrently --prefix-colors auto -n demo,proxy,echo,fastify-api-reference \"pnpm --filter @scalar-org/web dev\" \"pnpm --filter @scalar-org/api-client-proxy dev\" \"pnpm --filter @scalar-org/echo-server dev\" \"pnpm --filter @scalar-org/fastify-api-reference dev\"",
-    "lint": "pnpm -r lint:check",
-    "lint:fix": "pnpm -r lint:fix",
-    "format": "pnpm prettier --write .",
-    "format:check": "pnpm prettier --check .",
-    "test": "pnpm -r test",
-    "build": "pnpm -r build",
-    "build:packages": "pnpm --filter './packages/**' build",
-    "bump": "CI=true pnpm run test && pnpm changeset version",
-    "build:cdn": "pnpm --filter api-reference build:cdn",
-    "preview:cdn": "pnpm --filter api-reference preview:cdn"
-  },
   "devDependencies": {
-    "@babel/runtime": "^7.22.10",
-    "@changesets/cli": "^2.26.2",
+    "@babel/runtime": "7.22.10",
+    "@changesets/cli": "2.26.2",
     "@trivago/prettier-plugin-sort-imports": "4.1.1",
-    "@typescript-eslint/eslint-plugin": "^5.52.0",
-    "@typescript-eslint/parser": "^6.4.0",
-    "concurrently": "^8.2.1",
-    "@vue/eslint-config-typescript": "^11.0.3",
-    "eslint": "^8.47.0",
+    "@typescript-eslint/eslint-plugin": "5.52.0",
+    "@typescript-eslint/parser": "6.4.0",
+    "@vue/eslint-config-typescript": "11.0.3",
+    "concurrently": "8.2.1",
+    "eslint": "8.47.0",
     "eslint-config-prettier": "8.8.0",
-    "eslint-config-standard-with-typescript": "^37.0.0",
+    "eslint-config-standard-with-typescript": "37.0.0",
     "eslint-plugin-prettier": "4.2.1",
+    "eslint-plugin-vue": "9.17.0",
     "lefthook": "1.4.2",
     "prettier": "2.8.8",
-    "eslint-plugin-vue": "9.14.1",
+    "syncpack": "11.2.1",
     "vue-eslint-parser": "9.3.1"
   },
   "pnpm": {
     "patchedDependencies": {
       "@jsdevtools/ono@7.1.3": "patches/@jsdevtools__ono@7.1.3.patch"
     }
+  },
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r build",
+    "build:cdn": "pnpm --filter api-reference build:cdn",
+    "build:packages": "pnpm --filter './packages/**' build",
+    "bump": "CI=true pnpm run test && pnpm changeset version",
+    "dev": "concurrently --prefix-colors auto -n demo,proxy,echo,fastify-api-reference \"pnpm --filter @scalar-org/web dev\" \"pnpm --filter @scalar-org/api-client-proxy dev\" \"pnpm --filter @scalar-org/echo-server dev\" \"pnpm --filter @scalar-org/fastify-api-reference dev\"",
+    "format": "pnpm prettier --write .",
+    "format:check": "pnpm prettier --check .",
+    "format:packages": "pnpm syncpack fix-mismatches || true && pnpm syncpack set-semver-ranges && pnpm syncpack format && pnpm install -r",
+    "lint": "pnpm -r lint:check",
+    "lint:fix": "pnpm -r lint:fix",
+    "preview:cdn": "pnpm --filter api-reference preview:cdn",
+    "test": "pnpm -r test"
   }
 }

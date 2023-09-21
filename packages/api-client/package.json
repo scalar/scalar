@@ -1,49 +1,9 @@
 {
   "name": "@scalar/api-client",
   "description": "the open source API testing client",
-  "keywords": [
-    "api",
-    "client",
-    "testing",
-    "rest",
-    "graphql",
-    "postman alternative"
-  ],
   "version": "0.5.5",
   "author": "Scalar (https://github.com/scalar)",
-  "homepage": "https://github.com/scalar/scalar",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/api-client"
-  },
-  "bugs": {
-    "url": "https://github.com/scalar/scalar/issues/new"
-  },
-  "license": "MIT",
-  "engines": {
-    "node": ">=18"
-  },
-  "scripts": {
-    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "dev": "vite",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "preview": "vite preview",
-    "test": "vitest",
-    "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck"
-  },
-  "type": "module",
-  "files": [
-    "dist"
-  ],
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "exports": {
-    "import": "./dist/index.js"
-  },
-  "types": "dist/index.d.ts",
+  "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
     "@headlessui/vue": "1.7.14",
     "@scalar/default-theme": "workspace:*",
@@ -60,14 +20,52 @@
   "devDependencies": {
     "@scalar/echo-server": "workspace:*",
     "@vitejs/plugin-vue": "4.2.3",
-    "vitest": "0.34.1",
-    "@vitest/coverage-v8": "^0.34.4",
+    "@vitest/coverage-v8": "0.34.4",
     "tsc-alias": "1.8.6",
     "vite": "4.4.8",
-    "vite-plugin-css-injected-by-js": "^3.3.0",
+    "vite-plugin-css-injected-by-js": "3.3.0",
+    "vitest": "0.34.1",
     "vue-tsc": "1.8.8"
   },
+  "engines": {
+    "node": ">=18"
+  },
+  "exports": {
+    "import": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/scalar/scalar",
+  "keywords": [
+    "api",
+    "client",
+    "graphql",
+    "postman alternative",
+    "rest",
+    "testing"
+  ],
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "peerDependencies": {
     "vue": "3.3.4"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/api-client"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "dev": "vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "test": "vitest",
+    "types:build": "vue-tsc -p tsconfig.build.json",
+    "types:check": "vue-tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts"
 }

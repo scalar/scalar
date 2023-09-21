@@ -1,56 +1,10 @@
 {
   "name": "@scalar/api-reference",
   "description": "generate beautiful API references from OpenAPI specs",
-  "keywords": [
-    "vue",
-    "vue3",
-    "swagger",
-    "openapi",
-    "spec",
-    "reference",
-    "documentation",
-    "component"
-  ],
   "version": "0.5.6",
   "author": "Scalar (https://github.com/scalar)",
-  "homepage": "https://github.com/scalar/scalar",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/api-reference"
-  },
-  "bugs": {
-    "url": "https://github.com/scalar/scalar/issues/new"
-  },
-  "license": "MIT",
-  "engines": {
-    "node": ">=18"
-  },
-  "scripts": {
-    "build": "vite build && vite build -c vite.cdn.config.ts && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "dev": "vite",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "preview": "vite preview",
-    "test": "vitest",
-    "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck",
-    "build:cdn": "vite build -c vite.cdn.config.ts",
-    "preview:cdn": "http-server",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
-  },
-  "type": "module",
-  "files": [
-    "dist"
-  ],
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "exports": {
-    "import": "./dist/index.js"
-  },
   "browser": "./dist/browser/standalone.umd.cjs",
-  "types": "dist/index.d.ts",
+  "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
     "@headlessui/vue": "1.7.14",
     "@scalar/api-client": "workspace:*",
@@ -63,17 +17,17 @@
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
     "@vueuse/core": "10.1.2",
-    "fuse.js": "^6.6.2",
+    "fuse.js": "6.6.2",
     "httpsnippet-lite": "3.0.5",
     "js-yaml": "4.1.0",
-    "modern-normalize": "^2.0.0",
+    "modern-normalize": "2.0.0",
     "nanoid": "4.0.2",
-    "postcss-nested": "^6.0.1",
+    "postcss-nested": "6.0.1",
     "rehype-document": "6.1.0",
     "rehype-format": "4.0.1",
     "rehype-sanitize": "5.0.1",
     "rehype-stringify": "9.0.3",
-    "remark-breaks": "^3.0.3",
+    "remark-breaks": "3.0.3",
     "remark-gfm": "3.0.1",
     "remark-parse": "10.0.2",
     "remark-rehype": "10.1.0",
@@ -83,30 +37,74 @@
     "xmldom": "0.6.0"
   },
   "devDependencies": {
-    "@storybook/addon-essentials": "^7.4.2",
-    "@storybook/addon-interactions": "^7.4.2",
-    "@storybook/addon-links": "^7.4.2",
-    "@storybook/blocks": "^7.4.2",
-    "@storybook/testing-library": "^0.2.1",
-    "@storybook/vue3": "^7.4.2",
-    "@storybook/vue3-vite": "^7.4.2",
+    "@storybook/addon-essentials": "7.4.2",
+    "@storybook/addon-interactions": "7.4.2",
+    "@storybook/addon-links": "7.4.2",
+    "@storybook/blocks": "7.4.2",
+    "@storybook/testing-library": "0.2.1",
+    "@storybook/vue3": "7.4.2",
+    "@storybook/vue3-vite": "7.4.2",
     "@vitejs/plugin-vue": "4.2.3",
-    "@vitest/coverage-v8": "^0.34.4",
-    "http-server": "^14.1.1",
-    "postcss": "^8.4.28",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "storybook": "^7.4.2",
+    "@vitest/coverage-v8": "0.34.4",
+    "http-server": "14.1.1",
+    "postcss": "8.4.28",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "storybook": "7.4.2",
     "tsc-alias": "1.8.6",
     "vite": "4.4.8",
-    "vite-plugin-css-injected-by-js": "^3.3.0",
-    "vite-plugin-node-polyfills": "^0.11.2",
+    "vite-plugin-css-injected-by-js": "3.3.0",
+    "vite-plugin-node-polyfills": "0.11.2",
     "vitest": "0.34.1",
     "vue-tsc": "1.8.8"
   },
+  "engines": {
+    "node": ">=18"
+  },
+  "exports": {
+    "import": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/scalar/scalar",
+  "keywords": [
+    "component",
+    "documentation",
+    "openapi",
+    "reference",
+    "spec",
+    "swagger",
+    "vue",
+    "vue3"
+  ],
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "peerDependencies": {
     "@types/js-yaml": "4.0.5",
     "@types/xmldom": "0.1.31",
     "vue": "3.3.4"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/api-reference"
+  },
+  "scripts": {
+    "build": "vite build && vite build -c vite.cdn.config.ts && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "build-storybook": "storybook build",
+    "build:cdn": "vite build -c vite.cdn.config.ts",
+    "dev": "vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "preview:cdn": "http-server",
+    "storybook": "storybook dev -p 6006",
+    "test": "vitest",
+    "types:build": "vue-tsc -p tsconfig.build.json",
+    "types:check": "vue-tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts"
 }

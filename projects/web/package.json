@@ -1,6 +1,25 @@
 {
   "name": "@scalar-org/web",
   "version": "0.3.7",
+  "dependencies": {
+    "@scalar/api-client": "workspace:*",
+    "@scalar/api-reference": "workspace:*",
+    "@scalar/swagger-editor": "workspace:*",
+    "vue": "3.3.4",
+    "vue-router": "4.2.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "4.2.3",
+    "autoprefixer": "10.4.15",
+    "eslint": "8.47.0",
+    "eslint-plugin-vue": "9.17.0",
+    "postcss": "8.4.28",
+    "tailwindcss": "3.3.3",
+    "typescript": "*",
+    "vite": "4.4.8",
+    "vite-plugin-node-polyfills": "0.11.2",
+    "vue-tsc": "1.8.8"
+  },
   "private": true,
   "scripts": {
     "build": "vue-tsc && vite build",
@@ -9,24 +28,5 @@
     "lint:fix": "eslint \"src/**/*.{js,vue}\" --fix",
     "preview": "vite preview"
   },
-  "type": "module",
-  "dependencies": {
-    "@scalar/api-client": "workspace:*",
-    "@scalar/api-reference": "workspace:*",
-    "@scalar/swagger-editor": "workspace:*",
-    "vue": "3.3.4",
-    "vue-router": "^4.2.4"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-vue": "4.2.3",
-    "autoprefixer": "^10.4.15",
-    "eslint": "^8.47.0",
-    "eslint-plugin-vue": "^9.17.0",
-    "postcss": "^8.4.28",
-    "tailwindcss": "^3.3.3",
-    "typescript": "5.0.4",
-    "vite": "4.4.8",
-    "vite-plugin-node-polyfills": "^0.11.2",
-    "vue-tsc": "1.8.8"
-  }
+  "type": "module"
 }
