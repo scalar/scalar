@@ -28,7 +28,7 @@ const mediaType = computed(() => {
   }
 
   try {
-    return contentType.parse('foobar').type
+    return contentType.parse(contentTypeHeader.value).type
   } catch {
     return null
   }
