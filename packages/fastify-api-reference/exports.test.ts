@@ -9,14 +9,14 @@ describe('exports', () => {
       })
 
       fastify.register(import('./dist/index.js'), {
-        routePrefix: '/api-reference',
+        routePrefix: '/foobar',
         apiReference: {
           specUrl: '/scalar.json',
         },
       })
 
       fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/api-reference`).then((response) => {
+        fetch(`${address}/foobar`).then((response) => {
           expect(response.status).toBe(200)
           resolve(null)
         })
@@ -31,14 +31,14 @@ describe('exports', () => {
 
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       fastify.register(require('./dist/index.umd.cjs'), {
-        routePrefix: '/api-reference',
+        routePrefix: '/foobar',
         apiReference: {
           specUrl: '/scalar.json',
         },
       })
 
       fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/api-reference`).then((response) => {
+        fetch(`${address}/foobar`).then((response) => {
           expect(response.status).toBe(200)
           resolve(null)
         })
