@@ -81,13 +81,8 @@ const responseData = computed(() => {
     <div>
       <ResponseBody
         :active="!!activeResponse"
-        :data="responseData" />
-      <!-- <CollapsibleSection title="Co Pilot">
-        <Copilot />
-        <template v-if="responseHeaders.length === 0">
-          <pre>No headers</pre>
-        </template>
-      </CollapsibleSection> -->
+        :data="responseData"
+        :headers="responseHeaders" />
       <ResponseHeaders :headers="responseHeaders" />
       <CollapsibleSection title="Cookies">
         <SimpleGrid

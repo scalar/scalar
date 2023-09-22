@@ -11,6 +11,7 @@
     "@scalar/use-keyboard-event": "workspace:*",
     "@vueuse/core": "10.4.1",
     "axios": "1.5.0",
+    "content-type": "1.0.5",
     "javascript-time-ago": "2.5.9",
     "nanoid": "5.0.1",
     "pretty-bytes": "6.1.1",
@@ -49,6 +50,7 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "peerDependencies": {
+    "@types/content-type": "1.1.6",
     "vue": "3.3.4"
   },
   "repository": {
