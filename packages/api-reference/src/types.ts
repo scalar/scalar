@@ -6,6 +6,7 @@ export type ReferenceProps = {
   footerBelowSidebar?: boolean
   spec?: string
   specUrl?: string
+  specResult?: Record<any, any>
   hocuspocusConfiguration?: HocuspocusConfigurationProp
 }
 

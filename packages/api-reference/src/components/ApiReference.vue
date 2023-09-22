@@ -112,6 +112,16 @@ const handleSpecUpdate = (newSpec) => {
   }
 }
 
+watch(
+  () => props.specResult,
+  (newSpec) => {
+    if (newSpec) {
+      handleSpecUpdate(newSpec)
+    }
+  },
+  { immediate: true },
+)
+
 onMounted(() => {
   document.querySelector('#tippy')?.scrollTo({
     top: 0,
@@ -124,7 +134,7 @@ onMounted(() => {
 const showAside = computed(() => isLargeScreen.value || !props.isEditable)
 
 const showCodeEditor = computed(() => {
-  return props.isEditable
+  return !props.specResult && props.isEditable
 })
 
 // Navigational breadcrumb text from reference info
