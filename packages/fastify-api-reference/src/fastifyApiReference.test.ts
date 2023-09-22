@@ -11,14 +11,14 @@ describe('fastifyApiReference', () => {
       })
 
       fastify.register(fastifyApiReference, {
-        prefix: '/api-reference',
+        routePrefix: '/reference',
         apiReference: {
           specUrl: '/scalar.json',
         },
       })
 
       fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/api-reference`).then((response) => {
+        fetch(`${address}/reference`).then((response) => {
           expect(response.status).toBe(200)
           resolve(null)
         })
@@ -32,14 +32,14 @@ describe('fastifyApiReference', () => {
       })
 
       fastify.register(fastifyApiReference, {
-        prefix: '/api-reference',
+        routePrefix: '/reference',
         apiReference: {
           specUrl: '/scalar.json',
         },
       })
 
       fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/api-reference`).then(async (response) => {
+        fetch(`${address}/reference`).then(async (response) => {
           expect(await response.text()).toContain(
             'data-spec-url="/scalar.json"',
           )
@@ -63,14 +63,14 @@ describe('fastifyApiReference', () => {
       })
 
       fastify.register(fastifyApiReference, {
-        prefix: '/api-reference',
+        routePrefix: '/reference',
         apiReference: {
           spec,
         },
       })
 
       fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/api-reference`).then(async (response) => {
+        fetch(`${address}/reference`).then(async (response) => {
           expect(await response.text()).toContain(
             `data-spec='${JSON.stringify(spec)}'`,
           )
@@ -86,14 +86,14 @@ describe('fastifyApiReference', () => {
       })
 
       fastify.register(fastifyApiReference, {
-        prefix: '/api-reference',
+        routePrefix: '/reference',
         apiReference: {
           specUrl: '/scalar.json',
         },
       })
 
       fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/api-reference`).then(async (response) => {
+        fetch(`${address}/reference`).then(async (response) => {
           expect(await response.text()).toContain(
             '<title>API Reference</title>',
           )
@@ -109,7 +109,7 @@ describe('fastifyApiReference', () => {
       })
 
       fastify.register(fastifyApiReference, {
-        prefix: '/api-reference',
+        routePrefix: '/reference',
         apiReference: {
           title: 'Foobar',
           specUrl: '/scalar.json',
@@ -117,7 +117,7 @@ describe('fastifyApiReference', () => {
       })
 
       fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/api-reference`).then(async (response) => {
+        fetch(`${address}/reference`).then(async (response) => {
           expect(await response.text()).toContain('<title>Foobar</title>')
           resolve(null)
         })
@@ -131,14 +131,14 @@ describe('fastifyApiReference', () => {
       })
 
       fastify.register(fastifyApiReference, {
-        prefix: '/api-reference',
+        routePrefix: '/reference',
         apiReference: {
           specUrl: '/scalar.json',
         },
       })
 
       fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/api-reference`).then(async (response) => {
+        fetch(`${address}/reference`).then(async (response) => {
           expect(response.headers.has('content-type')).toBe(true)
           expect(response.headers.get('content-type')).toContain('text/html')
           resolve(null)
@@ -157,12 +157,12 @@ describe('fastifyApiReference', () => {
       })
 
       fastify.register(fastifyApiReference, {
-        prefix: '/api-reference',
+        routePrefix: '/reference',
         apiReference: {},
       })
 
       fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/api-reference`).then(async () => {
+        fetch(`${address}/reference`).then(async () => {
           expect(consoleMock).toHaveBeenCalledOnce()
           resolve(null)
         })

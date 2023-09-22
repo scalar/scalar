@@ -11,7 +11,7 @@ describe('esm base support', () => {
       })
 
       fastify.register(fastifyApiReference, {
-        prefix: '/api-reference',
+        routePrefix: '/api-reference',
         apiReference: {
           specUrl: '/scalar.json',
         },
