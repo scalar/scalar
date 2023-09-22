@@ -93,8 +93,8 @@
   },
   "scripts": {
     "build": "pnpm build:default && pnpm build:cdn && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "build:default": "vite build",
     "build:cdn": "vite build -c vite.cdn.config.ts",
+    "build:default": "vite build",
     "build:storybook": "storybook build",
     "dev": "vite",
     "lint:check": "eslint .",

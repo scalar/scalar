@@ -385,6 +385,9 @@ importers:
       fastify:
         specifier: 4.23.2
         version: 4.23.2
+      fastify-plugin:
+        specifier: 4.5.1
+        version: 4.5.1
     devDependencies:
       '@vitest/coverage-v8':
         specifier: 0.34.4
