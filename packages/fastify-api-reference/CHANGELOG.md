@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 0.6.0
+
+### Minor Changes
+
+- 3333a2fb: refactor: new fastify plugin, rename prefix to routePrefix
+
 ## 0.5.0
 
 ### Minor Changes
