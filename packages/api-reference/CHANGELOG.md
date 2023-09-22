@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 0.6.1
+
+### Patch Changes
+
+- 5a5e760f: fix: use .js as file extension for the browser build
+
 ## 0.6.0
 
 ### Minor Changes
