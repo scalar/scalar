@@ -38,6 +38,11 @@ export default defineConfig({
       name: '@scalar/api-reference',
       formats: ['umd'],
     },
+    rollupOptions: {
+      output: {
+        entryFileNames: '[name].js',
+      },
+    },
   },
   test: {
     coverage: {
