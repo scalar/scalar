@@ -46,9 +46,9 @@ const useExample = () => {
 }
 </script>
 <template>
-  <div class="code-editor-header">
-    <div class="code-editor-title"><i>Swagger </i>Editor</div>
-    <div class="code-editor-header-buttons">
+  <div class="swagger-editor-header">
+    <div class="swagger-editor-title"><i>Swagger </i>Editor</div>
+    <div class="swagger-editor-header-buttons">
       <button
         type="button"
         @click="useExample">
@@ -88,7 +88,7 @@ const useExample = () => {
   </FlowModal>
 </template>
 <style>
-.code-editor-header {
+.swagger-editor-header {
   padding: 0 12px;
   display: flex;
   align-items: center;
@@ -96,7 +96,7 @@ const useExample = () => {
   border-bottom: 1px solid var(--theme-border-color);
 }
 
-.code-editor-header-buttons {
+.swagger-editor-header-buttons {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -104,7 +104,7 @@ const useExample = () => {
   justify-content: flex-end;
 }
 
-.code-editor-header span {
+.swagger-editor-header span {
   font-size: 13px;
   color: var(--theme-color-3);
   font-weight: 600;
@@ -113,7 +113,7 @@ const useExample = () => {
   cursor: pointer;
 }
 
-.code-editor-title {
+.swagger-editor-title {
   padding: 14px 0;
   border-bottom: 1px solid var(--theme-color-1);
   font-weight: var(--theme-semibold);
@@ -123,7 +123,7 @@ const useExample = () => {
   position: relative;
 }
 
-.code-editor-header button {
+.swagger-editor-header button {
   border-radius: 30px;
   padding: 6px 9px;
   background: transparent;
@@ -139,17 +139,17 @@ const useExample = () => {
   margin-left: 9px;
   font-weight: 500;
 }
-.code-editor-header button:hover {
+.swagger-editor-header button:hover {
   cursor: pointer;
   color: var(--theme-color-1);
   border-color: currentColor;
 }
 @media (max-width: 580px) {
-  .code-editor-title i,
-  .code-editor-header button i {
+  .swagger-editor-title i,
+  .swagger-editor-header button i {
     display: none;
   }
-  .code-editor-header button {
+  .swagger-editor-header button {
     padding: 4px 8px;
     margin-left: 6px;
   }
