@@ -29,7 +29,7 @@
     "build:cdn": "pnpm --filter api-reference build:cdn",
     "build:packages": "pnpm --filter './packages/**' build",
     "bump": "CI=true pnpm run test && pnpm changeset version",
-    "dev": "concurrently --prefix-colors auto -n demo,proxy,echo,fastify-api-reference \"pnpm --filter @scalar-org/web dev\" \"pnpm --filter @scalar-org/api-client-proxy dev\" \"pnpm --filter @scalar-org/echo-server dev\" \"pnpm --filter @scalar-org/fastify-api-reference dev\"",
+    "dev": "./scripts/dev.sh",
     "format": "pnpm prettier --write .",
     "format:check": "pnpm prettier --check .",
     "format:packages": "pnpm syncpack fix-mismatches || true && pnpm syncpack set-semver-ranges && pnpm syncpack format && pnpm install -r",
