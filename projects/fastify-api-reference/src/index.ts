@@ -1,3 +1,4 @@
+import '@fastify/swagger'
 import fastifyApiReference from '@scalar/fastify-api-reference'
 import Fastify from 'fastify'
 
@@ -7,6 +8,7 @@ const fastify = Fastify({
 })
 
 // Register Swagger
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 await fastify.register(require('@fastify/swagger'), {
   swagger: {
     info: {
@@ -55,15 +57,14 @@ fastify.put(
       },
     },
   },
-  (req, reply) => {},
+  () => {},
 )
 
 // Add the plugin
 await fastify.register(fastifyApiReference, {
-  prefix: '/api-reference',
+  routePrefix: '/reference',
+  // Pass the generated Swagger spec:
   apiReference: {
-    // Pass the generated Swagger spec:
-    // @ts-ignore
     spec: () => fastify.swagger(),
     // Or pass the URL to the spec:
     // specUrl: '/scalar.json',
@@ -72,5 +73,5 @@ await fastify.register(fastifyApiReference, {
 
 // Start the server
 fastify.listen({ port: 5053 }, function (err, address) {
-  console.log(`⚡️ Fastify Plugin running on ${address}/api-reference`)
+  console.log(`⚡️ Fastify Plugin running on ${address}/reference`)
 })
