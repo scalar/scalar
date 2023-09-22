@@ -104,6 +104,27 @@ Pass the URL of a spec file (JSON or Yaml).
 <ApiReference specUrl="/swagger.json" />
 ```
 
+## With React
+
+The API Reference package is written in Vue. That shouldn’t stop you from using it in React, though. You can use [veaury](https://github.com/devilwjp/veaury) to load the `<APIReference />` component in React:
+
+```ts
+import { ApiReference as VueComponent } from '@scalar/api-reference'
+import { applyVueInReact } from 'veaury'
+
+const ApiReference = applyVueInReact(VueComponent)
+
+function App() {
+  return (
+    <>
+      <ApiReference isEditable={true} />
+    </>
+  )
+}
+
+export default App
+```
+
 ## Using the CLI
 
 TBD 👀
