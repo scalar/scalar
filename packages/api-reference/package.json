@@ -92,9 +92,10 @@
     "directory": "packages/api-reference"
   },
   "scripts": {
-    "build": "vite build && vite build -c vite.cdn.config.ts && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "build-storybook": "storybook build",
+    "build": "pnpm build:default && pnpm build:cdn && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "build:default": "vite build",
     "build:cdn": "vite build -c vite.cdn.config.ts",
+    "build:storybook": "storybook build",
     "dev": "vite",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
