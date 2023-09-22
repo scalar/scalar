@@ -3,10 +3,8 @@
   "include": ["src"],
   "exclude": ["dist", "test", "vite.config.ts", "**/*.test.ts"],
   "compilerOptions": {
-    "skipLibCheck": true,
+    "outDir": "dist/",
     "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "outDir": "dist/"
+    "declarationMap": true
   }
 }
