@@ -72,12 +72,14 @@ export const useModalState = () =>
   padding: 20px;
   opacity: 0;
   animation: modal-fade 0.2s forwards;
+  font-family: var(--theme-font);
 }
 .modal-body {
   padding: 12px 12px 18px 24px;
   max-height: calc(100vh - 240px);
   background: var(--theme-background-1);
   border-radius: var(--theme-radius-xl);
+  margin: 0;
 }
 .modal {
   margin: 80px auto 0;
@@ -124,5 +126,6 @@ export const useModalState = () =>
   text-align: left;
   font-weight: 600;
   border-radius: var(--theme-radius) var(--theme-radius) 0 0;
+  margin: 0;
 }
 </style>
