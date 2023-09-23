@@ -102,6 +102,14 @@ const isSelectedClient = (language: SelectedClient) => {
     language.clientKey === state.selectedClient.clientKey
   )
 }
+
+function checkIfClientIsFeatured(client: SelectedClient) {
+  return featuredClients.value.some((item) => {
+    return (
+      item.targetKey === client.targetKey && item.clientKey === client.clientKey
+    )
+  })
+}
 </script>
 <template>
   <div class="client-libraries-content">
@@ -123,7 +131,13 @@ const isSelectedClient = (language: SelectedClient) => {
       <span>{{ getTargetTitle(client) }}</span>
     </div>
 
-    <div class="code-languages code-languages__select">
+    <div
+      class="code-languages code-languages__select"
+      :class="{
+        'code-languages__active':
+          state.selectedClient &&
+          !checkIfClientIsFeatured(state.selectedClient),
+      }">
       <select
         class="language-select"
         :value="JSON.stringify(state.selectedClient)"
@@ -152,19 +166,34 @@ const isSelectedClient = (language: SelectedClient) => {
       </select>
 
       <div class="code-languages-background code-languages-icon__more">
-        <svg
-          class="code-languages-icon code-languages-icon__more"
-          height="50"
-          viewBox="0 0 50 50"
-          width="50"
-          xmlns="http://www.w3.org/2000/svg">
-          <g
-            fill="currentColor"
-            fill-rule="nonzero">
-            <path
-              d="M10.71 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0M21.13 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0M31.55 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0" />
-          </g>
-        </svg>
+        <template
+          v-if="
+            state.selectedClient &&
+            !checkIfClientIsFeatured(state.selectedClient)
+          ">
+          <div
+            class="code-languages-background"
+            :class="`code-languages-icon__${state.selectedClient.targetKey}`">
+            <Icon
+              class="code-languages-icon"
+              :src="getIconByLanguageKey(state.selectedClient.targetKey)" />
+          </div>
+        </template>
+        <template v-else>
+          <svg
+            class="code-languages-icon code-languages-icon__more"
+            height="50"
+            viewBox="0 0 50 50"
+            width="50"
+            xmlns="http://www.w3.org/2000/svg">
+            <g
+              fill="currentColor"
+              fill-rule="nonzero">
+              <path
+                d="M10.71 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0M21.13 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0M31.55 25.3a3.87 3.87 0 1 0 7.74 0 3.87 3.87 0 0 0-7.74 0" />
+            </g>
+          </svg>
+        </template>
       </div>
       <span>More</span>
     </div>
