@@ -169,6 +169,7 @@ export default {
   appearance: none;
   -webkit-appearance: none;
   font-size: var(--theme-font-size-3);
+  font-family: var(--theme-font);
   border: none;
   color: var(--theme-color-1);
   padding: 12px;
@@ -178,11 +179,19 @@ export default {
   transition: opacity 0.15s ease-in-out;
   resize: none;
 }
+
 .flow-input:has(+ .flow-label) {
   opacity: 0;
 }
 .flow-input::placeholder {
   color: var(--theme-color-3);
+}
+.flow-input::-webkit-input-placeholder,
+.flow-input:-ms-input-placeholder,
+.flow-input::placeholder {
+  color: var(--theme-color-3);
+  font-family: var(--theme-font);
+  font-weight: var(--theme-semibold);
 }
 .flow-input:not(:placeholder-shown),
 .flow-input-wrapper--focus .flow-input {
