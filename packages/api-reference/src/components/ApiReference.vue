@@ -272,7 +272,16 @@ const breadCrumbs = computed(() => {
   min-height: 0;
   flex-direction: column;
 }
+.flex-mobile {
+  display: flex;
+  min-width: 0;
+}
 
+@media (max-width: 500px) {
+  .flex-mobile {
+    flex-direction: column;
+  }
+}
 .gap-1 {
   gap: 12px;
 }
