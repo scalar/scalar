@@ -114,6 +114,7 @@ useKeyboardEvent({
   height: 100%;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid var(--sidebar-border-color, var(--theme-border-color));
   /* prettier-ignore */
   background: var(--sidebar-background-1, var(--theme-background-1));
   --sidebar-level: 0;

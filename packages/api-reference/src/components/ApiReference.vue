@@ -169,7 +169,7 @@ const breadCrumbs = computed(() => {
       <slot name="header"></slot>
     </div>
     <!-- Sidebar wrapper -->
-    <aside class="layout-aside-left sidebar">
+    <aside class="layout-aside-left">
       <!-- Mobile header content -->
       <slot
         v-if="isMobile"
@@ -252,10 +252,10 @@ const breadCrumbs = computed(() => {
 /* ?? layout stuff */
 :root {
   --scalar-api-reference-theme-header-height: 0;
-  --scalar-api-reference-theme-sidebar-width: 300px;
+  --scalar-api-reference-theme-sidebar-width: 250px;
   --scalar-api-reference-theme-toc-width: 300px;
   --scalar-api-reference-app-header-height: 100px;
-  --scalar-api-reference-col-width-1: 300px;
+  --scalar-api-reference-col-width-1: 250px;
   --scalar-api-reference-col-width-2: calc(50% - 150px);
   --scalar-api-reference-col-width-3: calc(50% - 150px);
   --scalar-api-reference-document-height: 100vh;
@@ -604,7 +604,6 @@ const breadCrumbs = computed(() => {
 .layout-aside-left {
   position: relative;
   grid-area: sidebar;
-  border-right: 1px solid var(--theme-border-color);
 }
 
 .layout-aside-right {

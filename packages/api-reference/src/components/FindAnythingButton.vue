@@ -17,8 +17,7 @@ import FlowIcon from './Icon/FlowIcon.vue'
         Search
       </span>
       <span class="sidebar-search-shortcut">
-        <span class="sidebar-search-key">{{ isMacOS() ? '⌘' : '⌃' }}</span>
-        <span class="sidebar-search-key">k</span>
+        <span class="sidebar-search-key">{{ isMacOS() ? '⌘' : '⌃' }}k</span>
       </span>
     </div>
   </button>
@@ -36,7 +35,7 @@ import FlowIcon from './Icon/FlowIcon.vue'
 
   color: var(--sidebar-color-2, var(--theme-color-2));
   outline: none;
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--theme-radius);
   border: 1px solid var(--theme-border-color);
   /* prettier-ignore */
   background: var(--scalar-api-reference-sidebar-search-background, var(--theme-background-1));
@@ -45,7 +44,7 @@ import FlowIcon from './Icon/FlowIcon.vue'
 }
 
 .sidebar-search-input {
-  font-size: var(--theme-small);
+  font-size: var(--theme-mini);
   font-weight: var(--theme-semibold);
   height: 31px;
 
