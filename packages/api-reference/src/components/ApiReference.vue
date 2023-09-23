@@ -635,7 +635,7 @@ const breadCrumbs = computed(() => {
   /* --theme-header-height: 50px; */
   /* --scalar-api-reference-theme-sidebar-width: 200px; */
   /* --theme-toc-width: 200px; */
-
+  max-height: 100vh;
   --document-height: calc(
     var(--scalar-api-reference-full-height) -
       var(--scalar-api-reference-theme-header-height)
