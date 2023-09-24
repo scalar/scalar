@@ -73,8 +73,8 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
   margin-top: 0px !important;
 }
 .loading {
-  background: var(--theme-background-2);
-  animation: loading-skeleton 2s infinite alternate;
+  background: var(--theme-background-3);
+  animation: loading-skeleton 1.5s infinite alternate;
   border-radius: var(--theme-radius-lg);
 }
 .heading.loading {
@@ -94,10 +94,10 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
 }
 @keyframes loading-skeleton {
   from {
-    background: var(--theme-background-2);
+    opacity: 1;
   }
   to {
-    background: var(--theme-background-3);
+    opacity: 0.33;
   }
 }
 </style>
