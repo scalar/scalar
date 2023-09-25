@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= options.apiReference.title || 'API Reference' %></title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <% if (options.apiReference?.specUrl) { %>
+      <div data-spec-url="<%= options.apiReference?.specUrl %>" />
+    <% } else if (typeof options.apiReference?.spec === 'object') { %>
+      <div data-spec='<%= JSON.stringify(options.apiReference?.spec) %>' />
+    <% } else if (options.apiReference?.spec) { %>
+      <div data-spec='<%= JSON.stringify(options.apiReference?.spec()) %>' />
+    <% } %>
+
+    <script src="https://www.unpkg.com/@scalar/api-reference"></script>
+  </body>
+</html>
