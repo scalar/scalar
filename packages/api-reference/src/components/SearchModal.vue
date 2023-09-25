@@ -235,19 +235,19 @@ const searchResultsWithPlaceholderResults = computed(
   padding: 12px;
   font-size: 13px;
   outline: none;
-  border: 1px solid var(--theme-border-color);
-  border-radius: var(--theme-radius);
-  color: var(--theme-color-1);
-  font-weight: var(--theme-semibold);
-  font-size: var(--theme-font-size-3);
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   appearance: none;
   margin-bottom: 12px;
 }
 .ref-search-input::-webkit-input-placeholder,
 .ref-search-input::placeholder {
-  color: var(--theme-color-3);
-  font-family: var(--theme-font);
-  font-weight: var(--theme-regular);
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-family: var(--theme-font, var(--default-theme-font));
+  font-weight: var(--theme-regular, var(--default-theme-regular));
 }
 /** Results */
 .item-entry {
@@ -257,49 +257,51 @@ const searchResultsWithPlaceholderResults = computed(
   outline: none;
   padding: 6px 12px;
   width: 100%;
-  font-size: var(--theme-font-size-3);
+  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   text-align: left;
-  border-radius: var(--theme-radius);
+  border-radius: var(--theme-radius, var(--default-theme-radius));
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 .item-entry--active {
-  background: var(--theme-background-2);
-  box-shadow: 0 0 0 1px var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  box-shadow: 0 0 0 1px
+    var(--theme-background-2, var(--default-theme-background-2));
 }
 .item-entry:hover {
-  background: var(--theme-background-2);
-  box-shadow: 0 0 0 1px var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  box-shadow: 0 0 0 1px
+    var(--theme-background-2, var(--default-theme-background-2));
 }
 
 .item-entry-title {
-  font-weight: var(--theme-semibold);
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 .item-entry-request {
   display: flex;
   gap: 3px;
-  font-family: var(--theme-font-code);
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 .item-entry-http-verb {
   text-transform: uppercase;
 }
 .item-entry-http-verb--post {
-  color: var(--theme-post-color);
+  color: var(--theme-post-color, var(--default-theme-post-color));
 }
 .item-entry-http-verb--patch {
-  color: var(--theme-patch-color);
+  color: var(--theme-patch-color, var(--default-theme-patch-color));
 }
 .item-entry-http-verb--get {
-  color: var(--theme-get-color);
+  color: var(--theme-get-color, var(--default-theme-get-color));
 }
 .item-entry-http-verb--delete {
-  color: var(--theme-delete-color);
+  color: var(--theme-delete-color, var(--default-theme-delete-color));
 }
 .item-entry-http-verb--put {
-  color: var(--theme-put-color);
+  color: var(--theme-put-color, var(--default-theme-put-color));
 }
 .item-entry-path {
-  color: var(--theme-color-3);
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
 </style>

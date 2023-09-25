@@ -109,7 +109,7 @@ watch(
   }
 
   /** Add some more things which are normally applied to `html`. */
-  font-family: var(--theme-font);
+  font-family: var(--theme-font, var(--default-theme-font));
   line-height: 1.15;
   -webkit-text-size-adjust: 100%;
   -moz-tab-size: 4;
@@ -142,8 +142,9 @@ watch(
   flex: 1;
   flex-direction: column;
   overflow: auto;
-  border-right: 1px solid var(--theme-border-color);
+  border-right: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 
-  font-size: var(--theme-small);
+  font-size: var(--theme-small, var(--default-theme-small));
 }
 </style>

@@ -93,7 +93,8 @@ const useExample = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--theme-border-color);
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 .swagger-editor-header-buttons {
@@ -106,7 +107,7 @@ const useExample = () => {
 
 .swagger-editor-header span {
   font-size: 13px;
-  color: var(--theme-color-3);
+  color: var(--theme-color-3, var(--default-theme-color-3));
   font-weight: 600;
   margin-right: 12px;
   position: relative;
@@ -115,10 +116,10 @@ const useExample = () => {
 
 .swagger-editor-title {
   padding: 14px 0;
-  border-bottom: 1px solid var(--theme-color-1);
-  font-weight: var(--theme-semibold);
+  border-bottom: 1px solid var(--theme-color-1, var(--default-theme-color-1));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: 13px;
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
   margin-bottom: -1px;
   position: relative;
 }
@@ -128,9 +129,9 @@ const useExample = () => {
   padding: 6px 9px;
   background: transparent;
   appearance: none;
-  border: 1px solid var(--theme-border-color);
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   font-size: 12px;
-  color: var(--theme-color-3);
+  color: var(--theme-color-3, var(--default-theme-color-3));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -141,7 +142,7 @@ const useExample = () => {
 }
 .swagger-editor-header button:hover {
   cursor: pointer;
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
   border-color: currentColor;
 }
 @media (max-width: 580px) {

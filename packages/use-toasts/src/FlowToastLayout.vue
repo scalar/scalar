@@ -34,9 +34,9 @@ defineProps<{
   pointer-events: initial;
 
   padding: 18px;
-  background: var(--theme-background-1);
-  border-radius: var(--theme-radius-lg);
-  font-size: var(--theme-font-size-3);
+  background: var(--theme-background-1, var(--default-theme-background-1));
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   display: grid;
   grid-template-columns: auto 1fr auto;
   grid-template-areas:
@@ -50,7 +50,7 @@ defineProps<{
 
 .toast-title {
   grid-area: title;
-  font-weight: var(--theme-font-medium);
+  font-weight: var(--theme-font-medium, var(--default-theme-font-medium));
   display: flex;
   align-items: center;
 }
@@ -58,7 +58,7 @@ defineProps<{
   grid-area: description;
   margin-top: 5px;
   line-height: 1.45;
-  color: var(--theme-color-2);
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 .toast-icon {
   grid-area: icon;
@@ -66,7 +66,7 @@ defineProps<{
   align-items: center;
   justify-content: center;
   margin-right: 10px;
-  color: var(--theme-color-2);
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 .toast-icon > :deep(*) {
   width: 14px;
@@ -78,11 +78,11 @@ defineProps<{
   width: 16px;
   height: 16px;
   display: flex;
-  color: var(--theme-color-ghost);
+  color: var(--theme-color-ghost, var(--default-theme-color-ghost));
 }
 
 .toast-error .toast-icon,
 .toast-error .toast-title {
-  color: var(--theme-error-color);
+  color: var(--theme-error-color, var(--default-theme-error-color));
 }
 </style>

@@ -111,6 +111,6 @@ const codeMirrorRef = ref<typeof CodeMirror | null>(null)
 .swagger-editor-input {
   height: 100%;
   overflow: hidden;
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 </style>

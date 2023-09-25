@@ -28,7 +28,7 @@ withDefaults(
 .simple-cell {
   position: relative;
   padding: 0.25em 0.5em;
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
   white-space: nowrap;
   vertical-align: top;
 }
@@ -42,6 +42,6 @@ withDefaults(
 }
 
 .simple-cell.strong {
-  font-weight: var(--theme-semibold);
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 </style>

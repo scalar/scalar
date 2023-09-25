@@ -1,169 +1,169 @@
 :root {
-  --app-header-height: 50px;
-  --theme-border-width: 1px;
-  --theme-radius: 3px;
-  --theme-radius-lg: 6px;
-  --theme-radius-xl: 8px;
+  --default-app-header-height: 50px;
+  --default-theme-border-width: 1px;
+  --default-theme-radius: 3px;
+  --default-theme-radius-lg: 6px;
+  --default-theme-radius-xl: 8px;
 
-  --theme-header-height: 50px;
-  --theme-sidebar-width: 250px;
-  --theme-toc-width: 250px;
+  --default-theme-header-height: 50px;
+  --default-theme-sidebar-width: 250px;
+  --default-theme-toc-width: 250px;
 
   /* TYPOGRAPHY ------------------------------------ */
-  --theme-font: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-  --theme-font-code: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono',
+  --default-theme-font: system-ui, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  --default-theme-font-code: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono',
     'Droid Sans Mono', 'Source Code Pro', monospace;
 
   /** Font sizes for rendered text content (editor styles or static content) */
-  --theme-heading-1: 40px; /* Editor Page heading */
-  --theme-page-description: 24px;
-  --theme-heading-2: 24px; /* Editor section headings */
-  --theme-heading-3: 20px;
-  --theme-heading-4: 16px;
-  --theme-heading-5: 16px;
-  --theme-heading-6: 16px;
+  --default-theme-heading-1: 40px; /* Editor Page heading */
+  --default-theme-page-description: 24px;
+  --default-theme-heading-2: 24px; /* Editor section headings */
+  --default-theme-heading-3: 20px;
+  --default-theme-heading-4: 16px;
+  --default-theme-heading-5: 16px;
+  --default-theme-heading-6: 16px;
 
-  --theme-paragraph: 16px;
-  --theme-small: 14px;
-  --theme-mini: 13px;
-  --theme-micro: 12px;
-  --theme-bold: 600;
-  --theme-semibold: 500;
-  --theme-regular: 400;
+  --default-theme-paragraph: 16px;
+  --default-theme-small: 14px;
+  --default-theme-mini: 13px;
+  --default-theme-micro: 12px;
+  --default-theme-bold: 600;
+  --default-theme-semibold: 500;
+  --default-theme-regular: 400;
 
   /* Font sizes for interactive applications (not rendered text content) */
-  --theme-font-size-1: 24px;
-  --theme-font-size-2: 16px;
-  --theme-font-size-3: 14px;
-  --theme-font-size-4: 13px;
-  --theme-font-size-5: 12px;
+  --default-theme-font-size-1: 24px;
+  --default-theme-font-size-2: 16px;
+  --default-theme-font-size-3: 14px;
+  --default-theme-font-size-4: 13px;
+  --default-theme-font-size-5: 12px;
 
-  --theme-line-height-1: 32px;
-  --theme-line-height-2: 24px;
-  --theme-line-height-3: 20px;
-  --theme-line-height-4: 18px;
-  --theme-line-height-5: 16px;
+  --default-theme-line-height-1: 32px;
+  --default-theme-line-height-2: 24px;
+  --default-theme-line-height-3: 20px;
+  --default-theme-line-height-4: 18px;
+  --default-theme-line-height-5: 16px;
 
-  --theme-font-medium: 500;
-  --theme-font-bold: 700;
+  --default-theme-font-medium: 500;
+  --default-theme-font-bold: 700;
 
   /* let's clean these up please :) */
-  --scalar-api-reference-theme-header-height: 0;
-  --scalar-api-reference-theme-sidebar-width: 250px;
-  --scalar-api-reference-theme-toc-width: 250px;
-  --scalar-api-reference-app-header-height: 100px;
-  --scalar-api-reference-col-width-1: 250px;
-  --scalar-api-reference-col-width-2: calc(50% - 150px);
-  --scalar-api-reference-col-width-3: calc(50% - 150px);
-  --scalar-api-reference-document-height: 100vh;
-  --scalar-api-reference-full-height: 100%;
+  --default-scalar-api-reference-theme-header-height: 0;
+  --default-scalar-api-reference-theme-sidebar-width: 250px;
+  --default-scalar-api-reference-theme-toc-width: 250px;
+  --default-scalar-api-reference-app-header-height: 100px;
+  --default-scalar-api-reference-col-width-1: 250px;
+  --default-scalar-api-reference-col-width-2: calc(50% - 150px);
+  --default-scalar-api-reference-col-width-3: calc(50% - 150px);
+  --default-scalar-api-reference-document-height: 100vh;
+  --default-scalar-api-reference-full-height: 100%;
 }
 
 @media (max-width: 460px) {
   :root {
-    --theme-font-size-1: 22px;
-    --theme-font-size-2: 14px;
-    --theme-font-size-3: 12px;
+    --default-theme-font-size-1: 22px;
+    --default-theme-font-size-2: 14px;
+    --default-theme-font-size-3: 12px;
   }
 }
 
 @media (max-width: 720px) {
   :root {
-    --theme-heading-1: 24px;
-    --theme-page-description: 20px;
+    --default-theme-heading-1: 24px;
+    --default-theme-page-description: 20px;
   }
 }
 .light-mode {
   color-scheme: light;
-  --theme-color-1: #2a2f45;
-  --theme-color-2: #757575;
-  --theme-color-3: #8e8e8e;
-  --theme-color-disabled: #b4b1b1;
-  --theme-color-ghost: #a7a7a7;
-  --theme-color-accent: #0099ff;
-  --theme-background-1: #fff;
-  --theme-background-2: #f6f6f6;
-  --theme-background-3: #e7e7e7;
-  --theme-background-4: rgba(0, 0, 0, 0.06);
-  --theme-background-accent: #8ab4f81f;
+  --default-theme-color-1: #2a2f45;
+  --default-theme-color-2: #757575;
+  --default-theme-color-3: #8e8e8e;
+  --default-theme-color-disabled: #b4b1b1;
+  --default-theme-color-ghost: #a7a7a7;
+  --default-theme-color-accent: #0099ff;
+  --default-theme-background-1: #fff;
+  --default-theme-background-2: #f6f6f6;
+  --default-theme-background-3: #e7e7e7;
+  --default-theme-background-4: rgba(0, 0, 0, 0.06);
+  --default-theme-background-accent: #8ab4f81f;
 
-  --theme-border-color: rgba(0, 0, 0, 0.1);
-  --theme-scrollbar-color: rgba(0, 0, 0, 0.18);
-  --theme-scrollbar-color-active: rgba(0, 0, 0, 0.36);
-  --theme-lifted-brightness: 1;
-  --theme-backdrop-brightness: 1;
+  --default-theme-border-color: rgba(0, 0, 0, 0.1);
+  --default-theme-scrollbar-color: rgba(0, 0, 0, 0.18);
+  --default-theme-scrollbar-color-active: rgba(0, 0, 0, 0.36);
+  --default-theme-lifted-brightness: 1;
+  --default-theme-backdrop-brightness: 1;
 
-  --theme-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
-  --theme-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px,
+  --default-theme-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
+  --default-theme-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px,
     rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 1px;
 
-  --theme-button-1: rgb(49 53 56);
-  --theme-button-1-color: #fff;
-  --theme-button-1-hover: rgb(28 31 33);
+  --default-theme-button-1: rgb(49 53 56);
+  --default-theme-button-1-color: #fff;
+  --default-theme-button-1-hover: rgb(28 31 33);
 
-  --theme-error-color: #ae262f;
-  --theme-warning-color: #d89c6a;
-  --theme-success-color: #26ae42;
+  --default-theme-error-color: #ae262f;
+  --default-theme-warning-color: #d89c6a;
+  --default-theme-success-color: #26ae42;
 
   /* REST API Client Colors */
-  --theme-post-color: #00a67d;
-  --theme-post-background: #00a67d1a;
-  --theme-delete-color: #ef0006;
-  --theme-delete-background: #ef00061a;
-  --theme-patch-color: #b2b062;
-  --theme-patch-background: #ffe6001a;
-  --theme-get-color: #0082d0;
-  --theme-get-background: #0082d01a;
-  --theme-put-color: #f3830e;
-  --theme-put-background: #f3830e1a;
+  --default-theme-post-color: #00a67d;
+  --default-theme-post-background: #00a67d1a;
+  --default-theme-delete-color: #ef0006;
+  --default-theme-delete-background: #ef00061a;
+  --default-theme-patch-color: #b2b062;
+  --default-theme-patch-background: #ffe6001a;
+  --default-theme-get-color: #0082d0;
+  --default-theme-get-background: #0082d01a;
+  --default-theme-put-color: #f3830e;
+  --default-theme-put-background: #f3830e1a;
 
   /* Misc Scalar Branding */
-  --scalar-brand: #faf6e9;
+  --default-scalar-brand: #faf6e9;
 }
 .dark-mode {
   color-scheme: dark;
-  --theme-color-1: rgba(255, 255, 255, 0.9);
-  --theme-color-2: rgba(255, 255, 255, 0.62);
-  --theme-color-3: rgba(255, 255, 255, 0.44);
-  --theme-color-disabled: rgba(255, 255, 255, 0.34);
-  --theme-color-ghost: rgba(255, 255, 255, 0.26);
-  --theme-color-accent: #8ab4f8;
-  --theme-background-1: #1a1a1a;
-  --theme-background-2: #252525;
-  --theme-background-3: #323232;
-  --theme-background-4: rgba(255, 255, 255, 0.06);
-  --theme-background-accent: #8ab4f81f;
+  --default-theme-color-1: rgba(255, 255, 255, 0.9);
+  --default-theme-color-2: rgba(255, 255, 255, 0.62);
+  --default-theme-color-3: rgba(255, 255, 255, 0.44);
+  --default-theme-color-disabled: rgba(255, 255, 255, 0.34);
+  --default-theme-color-ghost: rgba(255, 255, 255, 0.26);
+  --default-theme-color-accent: #8ab4f8;
+  --default-theme-background-1: #1a1a1a;
+  --default-theme-background-2: #252525;
+  --default-theme-background-3: #323232;
+  --default-theme-background-4: rgba(255, 255, 255, 0.06);
+  --default-theme-background-accent: #8ab4f81f;
 
-  --theme-border-color: rgba(255, 255, 255, 0.1);
-  --theme-scrollbar-color: rgba(255, 255, 255, 0.24);
-  --theme-scrollbar-color-active: rgba(255, 255, 255, 0.48);
-  --theme-lifted-brightness: 1.45;
-  --theme-backdrop-brightness: 0.5;
+  --default-theme-border-color: rgba(255, 255, 255, 0.1);
+  --default-theme-scrollbar-color: rgba(255, 255, 255, 0.24);
+  --default-theme-scrollbar-color-active: rgba(255, 255, 255, 0.48);
+  --default-theme-lifted-brightness: 1.45;
+  --default-theme-backdrop-brightness: 0.5;
 
-  --theme-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
-  --theme-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px,
+  --default-theme-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
+  --default-theme-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px,
     rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px rgba(255, 255, 255, 0.1);
 
-  --theme-button-1: #f6f6f6;
-  --theme-button-1-color: #000;
-  --theme-button-1-hover: #e7e7e7;
+  --default-theme-button-1: #f6f6f6;
+  --default-theme-button-1-color: #000;
+  --default-theme-button-1-hover: #e7e7e7;
 
-  --theme-error-color: #ff0011;
-  --theme-success-color: #26ae42;
+  --default-theme-error-color: #ff0011;
+  --default-theme-success-color: #26ae42;
 
   /* REST API Client Colors */
-  --theme-post-color: #7ee787;
-  --theme-post-background: #7ee78714;
-  --theme-delete-color: #e77e7e;
-  --theme-delete-background: #e77e7e24;
-  --theme-patch-color: #b2b062;
-  --theme-patch-background: #b2b06229;
-  --theme-get-color: #79c0ff;
-  --theme-get-background: #79c0ff21;
-  --theme-put-color: #e9950c;
-  --theme-put-background: #e9950c21;
+  --default-theme-post-color: #7ee787;
+  --default-theme-post-background: #7ee78714;
+  --default-theme-delete-color: #e77e7e;
+  --default-theme-delete-background: #e77e7e24;
+  --default-theme-patch-color: #b2b062;
+  --default-theme-patch-background: #b2b06229;
+  --default-theme-get-color: #79c0ff;
+  --default-theme-get-background: #79c0ff21;
+  --default-theme-put-color: #e9950c;
+  --default-theme-put-background: #e9950c21;
 
   /* Misc Scalar Branding */
-  --scalar-brand: #8b7256;
+  --default-scalar-brand: #8b7256;
 }

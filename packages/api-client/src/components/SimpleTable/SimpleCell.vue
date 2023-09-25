@@ -26,10 +26,11 @@ withDefaults(
 </template>
 <style scoped>
 .simple-cell {
-  border-right: 1px solid var(--theme-border-color);
+  border-right: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
   position: relative;
   padding: 0.75em;
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
   white-space: nowrap;
 }
 
@@ -42,6 +43,6 @@ withDefaults(
 }
 
 .simple-cell.strong {
-  font-weight: var(--theme-semibold);
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 </style>

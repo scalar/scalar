@@ -193,18 +193,19 @@ const onChange = (value: string) => {
   display: flex;
   align-items: center;
   position: relative;
-  background: var(--theme-background-1);
+  background: var(--theme-background-1, var(--default-theme-background-1));
 }
 .scalar-api-client__url-form {
   display: flex;
   width: 100%;
   align-items: stretch;
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
 .scalar-api-client__field {
-  border: 1px solid var(--theme-border-color);
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-right: 0;
-  border-radius: var(--theme-radius-lg) 0 0 var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg)) 0 0
+    var(--theme-radius-lg, var(--default-theme-radius-lg));
   display: flex;
   align-items: stretch;
   width: 100%;
@@ -219,17 +220,19 @@ const onChange = (value: string) => {
 .scalar-api-client__request-type {
   display: flex;
   align-items: center;
-  background: var(--theme-background-2);
-  color: var(--theme-color-disabled);
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
   appearance: none;
   -webkit-appearance: none;
   padding: 0 12px;
-  border-right: 1px solid var(--theme-border-color);
-  border-radius: var(--theme-radius-lg) 0 0 var(--theme-radius-lg);
+  border-right: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg)) 0 0
+    var(--theme-radius-lg, var(--default-theme-radius-lg));
   position: relative;
 }
 .scalar-api-client__request-type span {
-  font-family: var(--theme-font-code);
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
   font-size: 500;
   font-size: 12px;
   text-transform: uppercase;
@@ -248,8 +251,11 @@ const onChange = (value: string) => {
   font-style: normal;
   flex-shrink: 0;
   display: inline-block;
-  color: var(--theme-color-disabled);
-  background: var(--scalar-api-client-color);
+  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  background: var(
+    --scalar-api-client-color,
+    var(--default-scalar-api-client-color)
+  );
 }
 .meta-request-break {
   margin: 0 5px;
@@ -258,17 +264,17 @@ const onChange = (value: string) => {
   appearance: none;
   -webkit-appearance: none;
   background: transparent;
-  color: var(--theme-color-2);
+  color: var(--theme-color-2, var(--default-theme-color-2));
   display: flex;
   align-items: center;
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   height: 100%;
 }
 .scalar-api-client__send-request-button[type='submit'] {
-  font-size: var(--theme-mini);
+  font-size: var(--theme-mini, var(--default-theme-mini));
   letter-spacing: 0.25px;
   line-height: 30px;
-  font-weight: var(--theme-semibold);
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   color: white;
   border: none;
   white-space: nowrap;
@@ -276,8 +282,12 @@ const onChange = (value: string) => {
   text-transform: uppercase;
   cursor: pointer;
   outline: none;
-  border-radius: 0 var(--theme-radius-lg) var(--theme-radius-lg) 0;
-  background: var(--scalar-api-client-color);
+  border-radius: 0 var(--theme-radius-lg, var(--default-theme-radius-lg))
+    var(--theme-radius-lg, var(--default-theme-radius-lg)) 0;
+  background: var(
+    --scalar-api-client-color,
+    var(--default-scalar-api-client-color)
+  );
   /**  #087f5b */
   display: flex;
   align-items: center;
@@ -324,42 +334,42 @@ const onChange = (value: string) => {
 .scalar-api-client__history-toggle {
   padding: 0 9px;
   line-height: 30px;
-  color: var(--theme-color-disabled);
-  font-size: var(--theme-mini);
+  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  font-size: var(--theme-mini, var(--default-theme-mini));
   letter-spacing: 0.125px;
-  font-weight: var(--theme-semibold);
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   text-transform: uppercase;
   height: 100%;
   display: flex;
   align-items: center;
   cursor: pointer;
   white-space: nowrap;
-  border: 1px solid var(--theme-border-color);
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   margin-left: 12px;
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
 .scalar-api-client__history-toggle:hover {
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .scalar-api-client__history-toggle svg {
   height: 13px;
   width: 13px;
   margin-right: 6px;
-  color: var(--theme-color-disabled);
+  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
 }
 .scalar-api-client__address-bar-close {
-  fill: var(--theme-color-disabled);
+  fill: var(--theme-color-disabled, var(--default-theme-color-disabled));
   margin-left: 12px;
   height: 24px;
 }
 .scalar-api-client__address-bar-close:hover {
   cursor: pointer;
-  fill: var(--theme-color-1);
+  fill: var(--theme-color-1, var(--default-theme-color-1));
 }
 .scalar-api-client__address-bar__content {
   width: 640px;
   height: 100%;
-  background: var(--theme-background-1);
+  background: var(--theme-background-1, var(--default-theme-background-1));
   position: fixed;
   top: 0;
   right: 0;
@@ -390,18 +400,18 @@ const onChange = (value: string) => {
   cursor: pointer;
 }
 .scalar-api-client__address-bar .navtable-item__active {
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
   cursor: default;
 }
 .scalar-api-client__address-bar .navtable-item__active .radio:before {
   display: none;
 }
 .navigation-back {
-  stroke: var(--theme-color-2);
+  stroke: var(--theme-color-2, var(--default-theme-color-2));
   cursor: pointer;
 }
 .navigation-back:hover {
-  stroke: var(--theme-color-1);
+  stroke: var(--theme-color-1, var(--default-theme-color-1));
 }
 .scalar-api-client__address-bar__close {
   width: 100%;
@@ -421,7 +431,7 @@ const onChange = (value: string) => {
   border: none;
   outline: none;
   font-size: 12px;
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
   width: 100%;
   display: block;
   overflow: hidden;
@@ -431,15 +441,15 @@ const onChange = (value: string) => {
 .navtable-item-request span em {
   text-transform: uppercase;
   font-style: normal;
-  font-family: var(--theme-font-code);
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
   font-size: 11px;
   margin-right: 6px;
-  font-weight: var(--theme-bold);
-  color: var(--theme-color-disabled);
+  font-weight: var(--theme-bold, var(--default-theme-bold));
+  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
 }
 .navtable-item-time {
   font-size: 12px;
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
   text-transform: capitalize;
   padding: 0 9px;
 }

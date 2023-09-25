@@ -45,10 +45,10 @@ defineProps<{
 
 <style>
 .scalar-api-client__item {
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   margin-bottom: 6px;
-  background: var(--theme-background-2);
-  box-shadow: var(--shadow1);
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  box-shadow: var(--shadow1, var(--default-shadow1));
   position: relative;
 }
 
@@ -62,11 +62,11 @@ defineProps<{
 }
 
 .scalar-api-client__item--open {
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 
 .scalar-api-client__item--open:focus-within {
-  box-shadow: var(--shadow1);
+  box-shadow: var(--shadow1, var(--default-shadow1));
 }
 
 .scalar-api-client__item--open .scalar-api-client__item__content {
@@ -94,9 +94,9 @@ defineProps<{
 }
 
 .scalar-api-client__item .scalar-api-client__item__title {
-  color: var(--theme-color-1);
-  font-size: var(--theme-small);
-  font-weight: var(--theme-bold);
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-size: var(--theme-small, var(--default-theme-small));
+  font-weight: var(--theme-bold, var(--default-theme-bold));
   user-select: none;
   flex: 1;
 }
@@ -114,7 +114,7 @@ defineProps<{
 .scalar-api-client__item .scalar-api-client__toggle__icon {
   width: 10px;
   margin-right: 6px;
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 
 .scalar-api-client__item__options {
@@ -122,13 +122,13 @@ defineProps<{
 }
 
 .scalar-api-client__item__options span {
-  background: var(--theme-background-3);
+  background: var(--theme-background-3, var(--default-theme-background-3));
   padding: 2px 6px;
   border-radius: 3px;
   font-size: 12px;
   pointer-events: none;
-  color: var(--theme-color-2);
-  border: 1px solid var(--theme-border-color);
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   display: flex;
   align-items: center;
   justify-content: center;

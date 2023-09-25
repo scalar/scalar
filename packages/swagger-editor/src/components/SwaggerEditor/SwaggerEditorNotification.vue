@@ -6,14 +6,15 @@
 </template>
 <style>
 .swagger-editor-notification {
-  color: var(--theme-color-3);
+  color: var(--theme-color-3, var(--default-theme-color-3));
   padding: 6px 8px;
-  font-size: var(--theme-font-size-5);
-  border-top: 1px solid var(--theme-border-color);
+  font-size: var(--theme-font-size-5, var(--default-theme-font-size-5));
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 .swagger-editor-notification--error {
-  background: var(--theme-error-color);
+  background: var(--theme-error-color, var(--default-theme-error-color));
   color: white;
 }
 </style>

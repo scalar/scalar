@@ -99,13 +99,13 @@ useKeyboardEvent({
 
 <style>
 .scalar-api-client {
-  background: var(--theme-background-1);
+  background: var(--theme-background-1, var(--default-theme-background-1));
   position: relative;
   height: 100%;
   overflow: hidden !important;
   display: flex;
   flex-direction: column;
-  font-family: var(--theme-font);
+  font-family: var(--theme-font, var(--default-theme-font));
 }
 @media screen and (max-width: 1000px) {
   .scalar-api-client {
@@ -113,40 +113,70 @@ useKeyboardEvent({
   }
 }
 .scalar-api-client pre {
-  font-family: var(--theme-font-code);
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 
 .scalar-api-client--post {
-  --scalar-api-client-color: var(--theme-post-color);
-  --scalar-api-client-background: var(--theme-post-background);
+  --default-scalar-api-client-color: var(
+    --theme-post-color,
+    var(--default-theme-post-color)
+  );
+  --default-scalar-api-client-background: var(
+    --theme-post-background,
+    var(--default-theme-post-background)
+  );
 }
 
 .scalar-api-client--delete {
-  --scalar-api-client-color: var(--theme-delete-color);
-  --scalar-api-client-background: var(--theme-delete-background);
+  --default-scalar-api-client-color: var(
+    --theme-delete-color,
+    var(--default-theme-delete-color)
+  );
+  --default-scalar-api-client-background: var(
+    --theme-delete-background,
+    var(--default-theme-delete-background)
+  );
 }
 
 .scalar-api-client--patch {
-  --scalar-api-client-color: var(--theme-patch-color);
-  --scalar-api-client-background: var(--theme-patch-background);
+  --default-scalar-api-client-color: var(
+    --theme-patch-color,
+    var(--default-theme-patch-color)
+  );
+  --default-scalar-api-client-background: var(
+    --theme-patch-background,
+    var(--default-theme-patch-background)
+  );
 }
 
 .scalar-api-client--get {
-  --scalar-api-client-color: var(--theme-get-color);
-  --scalar-api-client-background: var(--theme-get-background);
+  --default-scalar-api-client-color: var(
+    --theme-get-color,
+    var(--default-theme-get-color)
+  );
+  --default-scalar-api-client-background: var(
+    --theme-get-background,
+    var(--default-theme-get-background)
+  );
 }
 
 .scalar-api-client--put {
-  --scalar-api-client-color: var(--theme-put-color);
-  --scalar-api-client-background: var(--theme-put-background);
+  --default-scalar-api-client-color: var(
+    --theme-put-color,
+    var(--default-theme-put-color)
+  );
+  --default-scalar-api-client-background: var(
+    --theme-put-background,
+    var(--default-theme-put-background)
+  );
 }
 
 .scalar-api-client__mobile-navigation {
   padding: 12px 12px 0 12px;
   display: flex;
-  font-size: var(--theme-small);
-  color: var(--theme-color-2);
-  font-weight: var(--theme-bold);
+  font-size: var(--theme-small, var(--default-theme-small));
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  font-weight: var(--theme-bold, var(--default-theme-bold));
 }
 
 .scalar-api-client__mobile-navigation__toggle {
@@ -156,7 +186,7 @@ useKeyboardEvent({
 }
 
 .scalar-api-client__mobile-navigation--active {
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 
 .scalar-api-client__mobile-navigation--active:hover {
@@ -167,8 +197,9 @@ useKeyboardEvent({
   display: flex;
   height: 100%;
   min-height: 0;
-  background: var(--theme-background-1);
-  border-top: 1px solid var(--theme-border-color);
+  background: var(--theme-background-1, var(--default-theme-background-1));
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 @media screen and (max-width: 820px) {
@@ -180,15 +211,15 @@ useKeyboardEvent({
 /** TODO: Consider to make a Column component */
 .scalar-api-client__main__content {
   padding: 12px;
-  background: var(--theme-background-1);
+  background: var(--theme-background-1, var(--default-theme-background-1));
   top: 0;
   position: sticky;
   z-index: 100;
 }
 .scalar-api-client__main__content label {
-  font-size: var(--theme-small);
-  color: var(--theme-color-1);
-  font-weight: var(--theme-bold);
+  font-size: var(--theme-small, var(--default-theme-small));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-weight: var(--theme-bold, var(--default-theme-bold));
   display: flex;
   align-items: center;
 }
@@ -204,13 +235,16 @@ useKeyboardEvent({
 
 .meta {
   display: flex;
-  font-size: var(--theme-font-size-2);
-  font-weight: var(--theme-font-size-2);
-  color: var(--scalar-api-client-color2);
+  font-size: var(--theme-font-size-2, var(--default-theme-font-size-2));
+  font-weight: var(--theme-font-size-2, var(--default-theme-font-size-2));
+  color: var(
+    --scalar-api-client-color2,
+    var(--default-scalar-api-client-color2)
+  );
 }
 
 .meta-item svg {
-  fill: var(--theme-color-ghost);
+  fill: var(--theme-color-ghost, var(--default-theme-color-ghost));
   height: 14px;
   width: 14px;
   margin-right: 6px;
@@ -221,9 +255,9 @@ useKeyboardEvent({
   align-items: center;
   margin-right: 12px;
   white-space: nowrap;
-  font-weight: var(--theme-bold);
+  font-weight: var(--theme-bold, var(--default-theme-bold));
   font-size: 12px;
-  color: var(--theme-color-disabled);
+  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
   padding: 3px 0;
 }
 
@@ -257,10 +291,11 @@ useKeyboardEvent({
   font-size: 24px;
 }
 .scalar-api-client__empty-state {
-  border: 1px dashed var(--theme-border-color);
+  border: 1px dashed
+    var(--theme-border-color, var(--default-theme-border-color));
   width: 100%;
   text-align: center;
-  font-size: var(--theme-small);
+  font-size: var(--theme-small, var(--default-theme-small));
   padding: 20px;
 }
 </style>

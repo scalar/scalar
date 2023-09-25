@@ -5,10 +5,12 @@
 </template>
 <style scoped>
 .simple-row {
-  border-top: 1px solid var(--theme-border-color);
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 .simple-row:last-of-type {
-  border-bottom: 1px solid var(--theme-border-color);
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 </style>

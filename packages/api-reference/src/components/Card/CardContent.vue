@@ -27,7 +27,8 @@ withDefaults(
 .card-content {
   overflow: auto;
   padding: 10px 12px;
-  border-bottom: 1px solid var(--theme-border-color);
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 .card-content:last-of-type,
@@ -36,7 +37,7 @@ withDefaults(
 }
 
 .card--muted {
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 
 .card--frameless {

@@ -145,24 +145,24 @@ const fixErrors = async () => {
   right: 12px;
 }
 .scalar-copilot {
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
   width: 100%;
-  border-radius: var(--theme-radius-lg);
-  border: 1px solid var(--theme-border-color);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
 }
 .scalar-copilot--inactive {
   border: 1px solid transparent;
-  background: var(--theme-background-3);
+  background: var(--theme-background-3, var(--default-theme-background-3));
 }
 .scalar-copilot__header {
   padding: 7px 7px 7px 9px;
   min-height: 32.5px;
   display: flex;
-  color: var(--theme-color-disabled);
-  font-weight: var(--theme-bold);
+  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  font-weight: var(--theme-bold, var(--default-theme-bold));
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--theme-border-color);
+  border-bottom: 1px solid var(--theme-border-color, var(--default-theme-border-color));
 }
 .scalar-copilot__header span {
   display: flex;
@@ -178,7 +178,7 @@ const fixErrors = async () => {
   display: flex;
 }
 .scalar-copilot__item:not(:last-of-type) {
-  border-bottom: 1px solid var(--theme-border-color);
+  border-bottom: 1px solid var(--theme-border-color, var(--default-theme-border-color));
 }
 .scalar-copilot__suggestion {
   position: relative;
@@ -200,7 +200,7 @@ const fixErrors = async () => {
   left: 0;
   width: 100%;
   height: 9px;
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .scalar-copilot__suggestion--open .scalar-copilot__suggestion__content {
   max-height: initial;
@@ -208,7 +208,7 @@ const fixErrors = async () => {
   display: block;
 }
 .scalar-copilot__item-check {
-  border-left: 1px solid var(--theme-border-color);
+  border-left: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   width: 32.5px;
   flex-shrink: 0;
   display: flex;
@@ -216,8 +216,8 @@ const fixErrors = async () => {
   justify-content: center;
 }
 .scalar-copilot__header-button {
-  background: var(--scalar-api-client-color);
-  border-radius: var(--theme-radius-lg);
+  background: var(--scalar-api-client-color, var(--default-scalar-api-client-color));
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   cursor: pointer;
   flex-shrink: 0;
   display: flex;
@@ -230,7 +230,7 @@ const fixErrors = async () => {
 .scalar-copilot__header-button--loading {
   background: transparent;
   font-size: 0px;
-  color: var(--theme-color-disabled);
+  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
 }
 .scalar-copilot__header-button--working {
   font-size: 0px;
@@ -238,8 +238,8 @@ const fixErrors = async () => {
 .scalar-copilot__header-button--working:before,
 .scalar-copilot__header-button--loading:before {
   content: '';
-  border: 1px solid var(--theme-color-disabled);
-  border-top: 1px solid var(--theme-color-1);
+  border: 1px solid var(--theme-color-disabled, var(--default-theme-color-disabled));
+  border-top: 1px solid var(--theme-color-1, var(--default-theme-color-1));
   animation: urlloader 0.45s linear infinite;
   background: transparent;
   width: 14px;
@@ -273,14 +273,14 @@ const fixErrors = async () => {
 .scalar-copilot__header-button--success:after {
   content: 'Success';
   font-size: 12px;
-  color: var(--theme-color-2);
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 .scalar-copilot__header-button--success:before {
   content: '';
   display: block;
   width: 5px;
   height: 8px;
-  border: solid var(--theme-color-2);
+  border: solid var(--theme-color-2, var(--default-theme-color-2));
   margin-right: 9px;
   top: 3px;
   position: relative;
@@ -312,7 +312,7 @@ const fixErrors = async () => {
   top: 5px;
   left: -2px;
   transform: rotate(315deg);
-  box-shadow: 1px 1px 0 var(--theme-color-disabled);
+  box-shadow: 1px 1px 0 var(--theme-color-disabled, var(--default-theme-color-disabled));
   z-index: 10;
 }
 .scalar-copilot__item__toggle-button:after {
@@ -326,7 +326,7 @@ const fixErrors = async () => {
   top: -4px;
 }
 .scalar-copilot__item__toggle-button:hover {
-  box-shadow: 1px 1px 0 var(--theme-color-1);
+  box-shadow: 1px 1px 0 var(--theme-color-1, var(--default-theme-color-1));
 }
 .scalar-copilot__suggestion--open .scalar-copilot__item__toggle-button {
   transform: rotate(45deg);
@@ -340,7 +340,7 @@ const fixErrors = async () => {
 }
 .scalar-copilot__item__toggle:hover:after {
   content: '';
-  background: var(--theme-background-3);
+  background: var(--theme-background-3, var(--default-theme-background-3));
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -361,12 +361,12 @@ const fixErrors = async () => {
 
 .scalar-copilot__toggle-button {
   appearance: none;
-  color: var(--scalar-api-client-color2);
-  font-size: var(--theme-small);
-  background: var(--scalar-api-client-gradient);
-  border-radius: var(--theme-radius-lg);
-  border: 1px solid var(--theme-border-color);
-  font-weight: var(--theme-bold);
+  color: var(--scalar-api-client-color2, var(--default-scalar-api-client-color2));
+  font-size: var(--theme-small, var(--default-theme-small));
+  background: var(--scalar-api-client-gradient, var(--default-scalar-api-client-gradient));
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  font-weight: var(--theme-bold, var(--default-theme-bold));
   max-height: 25px;
   padding: 4px 8px;
   outline: none;
@@ -374,7 +374,7 @@ const fixErrors = async () => {
   transition: opacity 0.15s ease-in-out;
   white-space: nowrap;
   &:hover {
-    color: var(--theme-color-1);
+    color: var(--theme-color-1, var(--default-theme-color-1));
   }
 }
 

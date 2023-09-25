@@ -101,9 +101,9 @@ useKeyboardEvent({
 
 <style>
 .sidebar {
-  --theme-sidebar-indent-base: 6px;
+  --default-theme-sidebar-indent-base: 6px;
   /* prettier-ignore */
-  background: var(--sidebar-background-1, var(--theme-background-1));
+  background: var(--sidebar-background-1, var(--default-sidebar-background-1), var(--theme-background-1, var(--default-theme-background-1)));
 }
 
 /* ----------------------------------------------------- */
@@ -114,10 +114,15 @@ useKeyboardEvent({
   height: 100%;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--sidebar-border-color, var(--theme-border-color));
+  border-right: 1px solid
+    var(
+      --sidebar-border-color,
+      var(--default-sidebar-border-color),
+      var(--theme-border-color, var(--default-theme-border-color))
+    );
   /* prettier-ignore */
-  background: var(--sidebar-background-1, var(--theme-background-1));
-  --sidebar-level: 0;
+  background: var(--sidebar-background-1, var(--default-sidebar-background-1), var(--theme-background-1, var(--default-theme-background-1)));
+  --default-sidebar-level: 0;
 }
 
 .pages {
@@ -135,9 +140,9 @@ useKeyboardEvent({
   gap: 6px;
 
   /* prettier-ignore */
-  color: var(--sidebar-color-2, var(--theme-color-2));
-  font-size: var(--theme-mini);
-  font-weight: var(--theme-semibold);
+  color: var(--sidebar-color-2, var(--default-sidebar-color-2), var(--theme-color-2, var(--default-theme-color-2)));
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   word-break: break-word;
   line-height: 1.385;
   display: flex;
@@ -146,7 +151,7 @@ useKeyboardEvent({
   position: relative;
   cursor: pointer;
   /* prettier-ignore */
-  border-radius: 0 var(--theme-radius-lg) var(--theme-radius-lg) 0;
+  border-radius: 0 var(--theme-radius-lg, var(--default-theme-radius-lg)) var(--theme-radius-lg, var(--default-theme-radius-lg)) 0;
   flex: 1;
   padding-right: 12px;
   user-select: none;
@@ -172,13 +177,13 @@ useKeyboardEvent({
 /* We indent each level of nesting further */
 .sidebar-indent-nested .sidebar-heading {
   /* prettier-ignore */
-  padding-left: calc((var(--sidebar-level) * var(--theme-sidebar-indent-base)) + 24px) !important;
+  padding-left: calc((var(--sidebar-level, var(--default-sidebar-level)) * var(--theme-sidebar-indent-base, var(--default-theme-sidebar-indent-base))) + 24px) !important;
 }
 
 /* Collapse/expand icons must also be offset */
 .sidebar-indent-nested .sidebar-heading .toggle-nested-icon {
   /* prettier-ignore */
-  left: calc((var(--sidebar-level) * var(--theme-sidebar-indent-base)) + 2px) !important;
+  left: calc((var(--sidebar-level, var(--default-sidebar-level)) * var(--theme-sidebar-indent-base, var(--default-theme-sidebar-indent-base))) + 2px) !important;
 }
 
 .sidebar-heading-link {
@@ -211,18 +216,18 @@ useKeyboardEvent({
 
 .sidebar-heading:hover {
   /* prettier-ignore */
-  color: var(--sidebar-color-1, var(--theme-color-1));
+  color: var(--sidebar-color-1, var(--default-sidebar-color-1), var(--theme-color-1, var(--default-theme-color-1)));
   /* prettier-ignore */
-  background: var(--sidebar-item-hover-background, var(--theme-background-2));
+  background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background), var(--theme-background-2, var(--default-theme-background-2)));
 }
 
 .active_page.sidebar-heading:hover,
 .active_page.sidebar-heading,
 .marc_active .sidebar-heading {
   /* prettier-ignore */
-  background: var(--sidebar-item-active-background, var(--theme-background-accent)) !important;
+  background: var(--sidebar-item-active-background, var(--default-sidebar-item-active-background), var(--theme-background-accent, var(--default-theme-background-accent))) !important;
   /* prettier-ignore */
-  color: var(--theme-color-accent, var(--theme-background-accent)) !important;
+  color: var(--theme-color-accent, var(--default-theme-color-accent), var(--theme-background-accent, var(--default-theme-background-accent))) !important;
 }
 .sidebar-group-item {
   position: relative;
@@ -231,14 +236,14 @@ useKeyboardEvent({
 /* Change font colors and weights for nested items */
 .sidebar-indent-nested .sidebar-heading {
   /* prettier-ignore */
-  color: var(--sidebar-color-1, var(--theme-color-1));
+  color: var(--sidebar-color-1, var(--default-sidebar-color-1), var(--theme-color-1, var(--default-theme-color-1)));
 }
 .sidebar-indent-nested .sidebar-indent-nested .sidebar-heading {
   /* prettier-ignore */
-  color: var(--sidebar-color-2, var(--theme-color-2));
+  color: var(--sidebar-color-2, var(--default-sidebar-color-2), var(--theme-color-2, var(--default-theme-color-2)));
 }
 .sidebar-indent-nested > div:has(.active_page) .sidebar-heading {
-  font-weight: var(--theme-bold);
+  font-weight: var(--theme-bold, var(--default-theme-bold));
 }
 
 .sidebar-mobile-header {
@@ -256,8 +261,8 @@ useKeyboardEvent({
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-size: var(--theme-small);
-  font-weight: var(--theme-semibold);
+  font-size: var(--theme-small, var(--default-theme-small));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 
 .sidebar-mobile-actions {
@@ -288,7 +293,7 @@ useKeyboardEvent({
   .header-item-link.header-item-active,
   .sidebar-section,
   .sidebar-heading {
-    font-size: var(--theme-micro);
+    font-size: var(--theme-micro, var(--default-theme-micro));
   }
 }
 </style>

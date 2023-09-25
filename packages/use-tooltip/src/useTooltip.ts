@@ -94,7 +94,7 @@ export function keyboardShortcutTooltip(keys: string, title?: string) {
   const formattedKeys = formattedKeyboardShortcuts(keys)
 
   const itemStyle = css`
-    border: 1px solid var(--background-2);
+    border: 1px solid var(--background-2, var(--default-background-2));
     padding: 2px;
     display: inline-block;
     background: rgba(255, 255, 255, 0.2);

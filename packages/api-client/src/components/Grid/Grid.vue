@@ -98,18 +98,20 @@ const showDescription = ref(false)
 </template>
 <style>
 .table {
-  border: 1px solid var(--theme-border-color);
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   background: transparent;
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   width: 100%;
 }
 .table-row {
-  border-bottom: 1px solid var(--theme-border-color);
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
   display: flex;
   position: relative;
 }
 .table-row__add {
-  border-radius: 0 0 var(--theme-radius-lg) var(--theme-radius-lg);
+  border-radius: 0 0 var(--theme-radius-lg, var(--default-theme-radius-lg))
+    var(--theme-radius-lg, var(--default-theme-radius-lg));
   border-bottom: none;
 }
 .table-row.required-parameter .table-row-item:nth-of-type(2):after {
@@ -118,10 +120,11 @@ const showDescription = ref(false)
   top: 4px;
   right: 0;
   padding: 5px 9px 5px 6px;
-  font-weight: var(--theme-semibold);
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: 12px;
-  background: var(--theme-background-2);
-  box-shadow: -2px 0 4px var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  box-shadow: -2px 0 4px
+    var(--theme-background-2, var(--default-theme-background-2));
 }
 .table-row.required-parameter
   .table-row-item:nth-of-type(2):focus-within:after {
@@ -131,38 +134,41 @@ const showDescription = ref(false)
   border-bottom: none;
 }
 .table-row__active {
-  border-radius: 0 0 var(--theme-radius-lg) var(--theme-radius-lg);
+  border-radius: 0 0 var(--theme-radius-lg, var(--default-theme-radius-lg))
+    var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
 .table-row-drag {
   width: 20px;
   flex-shrink: 0;
-  border-right: 1px solid var(--theme-border-color);
+  border-right: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
   align-items: center;
   justify-content: center;
   display: none;
 }
 .table-row-drag svg {
   width: 6px;
-  fill: var(--theme-color-disabled);
+  fill: var(--theme-color-disabled, var(--default-theme-color-disabled));
 }
 .table-row-drag .table-row-drag-add {
   width: 8px;
 }
 .table-row-item {
   width: 100%;
-  border-right: 1px solid var(--theme-border-color);
+  border-right: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
   position: relative;
 }
 .table-row-item-menu {
   position: absolute;
   right: 12px;
-  background: var(--theme-background-3);
-  border: 1px solid var(--theme-border-color);
+  background: var(--theme-background-3, var(--default-theme-background-3));
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   width: 24px;
   height: 24px;
   top: 50%;
   transform: translate3d(0, -50%, 0);
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -176,7 +182,7 @@ const showDescription = ref(false)
 .table-row-item-menu svg {
   height: 12px;
   width: initial;
-  fill: var(--theme-color-disabled);
+  fill: var(--theme-color-disabled, var(--default-theme-color-disabled));
 }
 .table-row-item input {
   border: none;
@@ -184,23 +190,23 @@ const showDescription = ref(false)
   outline: none;
   padding: 9px;
   width: 100%;
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
   font-size: 12px;
 }
 .table-row-item input[disabled] {
   background: transparent;
-  font-family: var(--theme-font-code);
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 .table-row-item input:focus {
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .table-row-item label {
   background: transparent;
   text-transform: uppercase;
   display: block;
   padding: 9px;
-  font-weight: var(--theme-bold);
-  color: var(--theme-color-disabled);
+  font-weight: var(--theme-bold, var(--default-theme-bold));
+  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
   font-size: 12px;
 }
 .table-row-meta {
@@ -216,18 +222,18 @@ const showDescription = ref(false)
 .table-row-meta-check {
   width: 18px;
   height: 18px;
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   background: rgba(47, 177, 228, 0.1);
 }
 .table-row-meta svg {
   width: 13px;
   height: 13px;
   margin: 0 1px;
-  color: var(--theme-color-disabled);
+  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
   cursor: pointer;
 }
 .table-row-meta svg:hover {
-  color: var(--theme-color-2);
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 .meta-check {
   display: flex;
@@ -235,7 +241,7 @@ const showDescription = ref(false)
   cursor: pointer;
   align-items: center;
   font-size: 12px;
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   user-select: none;
   margin: 0 1px;
   transition: all 0.15s ease-in-out;
@@ -250,7 +256,7 @@ const showDescription = ref(false)
 .meta-checkmark {
   height: 15px;
   width: 15px;
-  background: var(--theme-background-1);
+  background: var(--theme-background-1, var(--default-theme-background-1));
   border-radius: 3px;
   display: flex;
   align-items: center;
@@ -262,7 +268,7 @@ const showDescription = ref(false)
   display: none;
   width: 5px;
   height: 8px;
-  border: solid var(--theme-color-1);
+  border: solid var(--theme-color-1, var(--default-theme-color-1));
   border-width: 0 1.5px 1.5px 0;
   transform: rotate(45deg) translate3d(0, -1px, 0);
 }
@@ -297,7 +303,10 @@ const showDescription = ref(false)
   background-color: black;
 }
 .navtable-follow * {
-  font-family: var(--theme-font-code) !important;
+  font-family: var(
+    --theme-font-code,
+    var(--default-theme-font-code)
+  ) !important;
 }
 .navtable-table {
   position: relative;
@@ -308,21 +317,26 @@ const showDescription = ref(false)
 .navtable-item {
   display: flex;
   position: relative;
-  color: var(--theme-color-1);
-  border-top: 1px solid var(--theme-border-color);
-  font-weight: var(--theme-semibold);
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 .navtable-item > div {
   word-wrap: break-word;
 }
 .navtable-item > div:not(:first-child) {
-  border-left: 1px solid var(--theme-border-color);
+  border-left: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 .navtable-item-action {
-  color: var(--theme-color-2);
+  color: var(--theme-color-2, var(--default-theme-color-2));
   font-size: 12px;
-  font-weight: var(--theme-bold);
-  background: var(--scalar-api-client-bg3);
+  font-weight: var(--theme-bold, var(--default-theme-bold));
+  background: var(
+    --scalar-api-client-bg3,
+    var(--default-scalar-api-client-bg3)
+  );
   border: none;
   border-radius: 30px;
   appearance: none;
@@ -338,12 +352,16 @@ const showDescription = ref(false)
   position: relative;
 }
 .navtable-item-action:hover {
-  color: var(--theme-color-1);
-  background: var(--scalar-api-client-gradient);
-  box-shadow: 0 0 0 1px var(--theme-border-color);
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  background: var(
+    --scalar-api-client-gradient,
+    var(--default-scalar-api-client-gradient)
+  );
+  box-shadow: 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 .navtable-item-action:focus {
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .navtable-item:hover,
 .navtable-item:focus-within .navtable-item-action {
@@ -353,15 +371,15 @@ const showDescription = ref(false)
   display: flex;
   align-items: center;
   padding: 9px;
-  font-weight: var(--theme-bold);
+  font-weight: var(--theme-bold, var(--default-theme-bold));
   outline: none;
   border: none;
   appearance: none;
   background: transparent;
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .navtable-item-add:hover {
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
   cursor: pointer;
 }
 .navtable-item-25 {
@@ -388,7 +406,7 @@ const showDescription = ref(false)
   align-items: center;
 }
 .navtable-item-75:focus-within {
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .navtable-item-40 {
   width: 40%;
@@ -406,7 +424,7 @@ const showDescription = ref(false)
   align-items: center;
 }
 .navtable-item-50:focus-within {
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .navtable-item p {
   padding: 9px;
@@ -417,12 +435,12 @@ const showDescription = ref(false)
   outline: none;
   appearance: none;
   font-size: 12px;
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
   background: transparent;
   width: 100%;
 }
 .navtable-item input:focus {
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .navtable-item-select {
   position: relative;
@@ -438,12 +456,12 @@ const showDescription = ref(false)
   top: 0;
   position: relative;
   cursor: pointer;
-  color: var(--theme-color-2);
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 .navtable-item-select svg {
   position: absolute;
   right: 6px;
-  color: var(--theme-color-ghost);
+  color: var(--theme-color-ghost, var(--default-theme-color-ghost));
   width: 6px;
   top: 12px;
   pointer-events: none;
@@ -451,13 +469,13 @@ const showDescription = ref(false)
 .navtable-item .option {
   padding: 12px 6px;
   font-size: 12px;
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
   width: 100%;
 }
 .navtable-item label {
-  color: var(--theme-color-disabled);
+  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
   font-size: 12px;
-  font-weight: var(--theme-bold);
+  font-weight: var(--theme-bold, var(--default-theme-bold));
   text-transform: uppercase;
   padding: 9px;
   display: block;
@@ -484,7 +502,7 @@ const showDescription = ref(false)
   height: 12px;
   border-radius: 50%;
   margin-right: 4px;
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .scalar-api-client__status--2xx:before {
   background: green;
