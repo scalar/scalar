@@ -88,6 +88,9 @@ defineProps<{
   justify-content: space-between;
   position: relative;
   width: 100%;
+  appearance: none;
+  outline: 0;
+  border: none;
 }
 
 .scalar-api-client__item .scalar-api-client__item__title {
