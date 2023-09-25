@@ -31,7 +31,7 @@ Generate interactive API documentations from Swagger files
   <body>
     <!-- Add your own OpenAPI/Swagger spec file URL here: -->
     <div data-spec-url="https://example.com/swagger.json" />
-    <script src="https://cdn.scalar.com/api-reference.standalone.js"></script>
+    <script src="https://www.unpkg.com/@scalar/api-reference"></script>
   </body>
 </html>
 ```
