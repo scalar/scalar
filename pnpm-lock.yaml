@@ -452,6 +452,9 @@ importers:
       '@scalar/swagger-parser':
         specifier: workspace:*
         version: link:../swagger-parser
+      '@scalar/themes':
+        specifier: workspace:*
+        version: link:../themes
       '@scalar/use-codemirror':
         specifier: workspace:*
         version: link:../use-codemirror
