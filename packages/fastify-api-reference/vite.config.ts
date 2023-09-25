@@ -1,7 +1,18 @@
 import path from 'path'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
+  plugins: [
+    viteStaticCopy({
+      targets: [
+        {
+          src: './src/templates/',
+          dest: './',
+        },
+      ],
+    }),
+  ],
   build: {
     lib: {
       entry: 'src/index.ts',

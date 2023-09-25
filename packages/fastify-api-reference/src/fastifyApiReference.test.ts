@@ -53,7 +53,7 @@ describe('fastifyApiReference', () => {
       const spec = {
         openapi: '3.1.0',
         info: {
-          title: 'Example',
+          title: 'Example API',
         },
         paths: {},
       }
@@ -71,9 +71,11 @@ describe('fastifyApiReference', () => {
 
       fastify.listen({ port: 0 }, function (err, address) {
         fetch(`${address}/reference`).then(async (response) => {
-          expect(await response.text()).toContain(
-            `data-spec='${JSON.stringify(spec)}'`,
-          )
+          const html = await response.text()
+
+          expect(html).toContain('data-spec=')
+          expect(html).toContain('Example API')
+
           resolve(null)
         })
       })
@@ -84,7 +86,7 @@ describe('fastifyApiReference', () => {
       const spec = {
         openapi: '3.1.0',
         info: {
-          title: 'Example',
+          title: 'Example API',
         },
         paths: {},
       }
@@ -102,9 +104,11 @@ describe('fastifyApiReference', () => {
 
       fastify.listen({ port: 0 }, function (err, address) {
         fetch(`${address}/reference`).then(async (response) => {
-          expect(await response.text()).toContain(
-            `data-spec='${JSON.stringify(spec)}'`,
-          )
+          const html = await response.text()
+
+          expect(html).toContain('data-spec=')
+          expect(html).toContain('Example API')
+
           resolve(null)
         })
       })

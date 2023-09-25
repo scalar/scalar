@@ -14,6 +14,7 @@
     "typescript": "5.2.2",
     "vite": "4.4.9",
     "vite-node": "0.34.4",
+    "vite-plugin-static-copy": "0.17.0",
     "vitest": "0.34.4"
   },
   "engines": {
