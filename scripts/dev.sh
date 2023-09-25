@@ -4,6 +4,7 @@ pnpm concurrently \
     --prefix none \
     " \
         pnpm \
+            --workspace-concurrency=100 \
             --filter @scalar-org/web \
             --filter @scalar-org/react \
             --filter @scalar-org/api-client-proxy \
