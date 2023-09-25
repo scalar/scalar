@@ -93,7 +93,8 @@ watch(
 
 <style>
 /** CSS Reset */
-.swagger-editor {
+.swagger-editor,
+#headlessui-portal-root {
   p {
     margin: 0;
   }
