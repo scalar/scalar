@@ -11,6 +11,7 @@
   },
   "exports": {
     "./default.css": "./src/default.css",
+    "./moon.css": "./src/moon.css",
     "./scrollbar.css": "./src/scrollbar.css"
   },
   "files": [
