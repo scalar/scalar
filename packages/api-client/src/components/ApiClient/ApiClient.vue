@@ -98,7 +98,8 @@ useKeyboardEvent({
 </template>
 
 <style>
-.scalar-api-client {
+.scalar-api-client,
+#headlessui-portal-root {
   background: var(--theme-background-1, var(--default-theme-background-1));
   position: relative;
   height: 100%;

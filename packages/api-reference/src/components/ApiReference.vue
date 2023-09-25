@@ -210,7 +210,8 @@ const breadCrumbs = computed(() => {
 
 <style lang="postcss">
 /** CSS Reset */
-.scalar-api-reference {
+.scalar-api-reference,
+#headlessui-portal-root {
   p {
     margin: 0;
   }
