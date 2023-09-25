@@ -1,0 +1,109 @@
+.light-mode {
+  color-scheme: light;
+  --default-theme-color-1: #24293c;
+  --default-theme-color-2: #4a5166;
+  --default-theme-color-3: #888c9a;
+  --default-theme-color-accent: #0099ff;
+  --default-theme-background-1: #fff;
+  --default-theme-background-2: #f6f6f6;
+  --default-theme-background-3: #e7e7e7;
+  --default-theme-background-accent: #5369d20f;
+  --default-theme-border-color: rgba(0, 0, 0, 0.1);
+  --default-theme-scrollbar-color: rgba(0, 0, 0, 0.18);
+  --default-theme-scrollbar-color-active: rgba(0, 0, 0, 0.36);
+  --default-theme-lifted-brightness: 1;
+  --default-theme-backdrop-brightness: 1;
+
+  --default-theme-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
+  --default-theme-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px,
+    rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, var(--theme-border-color) 0px 0 0 1px;
+
+  --default-theme-button-1: rgb(49 53 56);
+  --default-theme-button-1-color: #fff;
+  --default-theme-button-1-hover: rgb(28 31 33);
+
+  --default-theme-error-color: #ae262f;
+  --default-theme-warning-color: #d89c6a;
+  --default-theme-success-color: #26ae42;
+}
+
+.dark-mode {
+  color-scheme: dark;
+  --default-theme-color-1: rgba(255, 255, 255, 0.9);
+  --default-theme-color-2: rgba(255, 255, 255, 0.62);
+  --default-theme-color-3: rgba(255, 255, 255, 0.44);
+  --default-theme-color-disabled: rgba(255, 255, 255, 0.34);
+  --default-theme-color-ghost: rgba(255, 255, 255, 0.26);
+  --default-theme-color-accent: #8ab4f8;
+  --default-theme-background-1: #1a1a1a;
+  --default-theme-background-2: #252525;
+  --default-theme-background-3: #323232;
+  --default-theme-background-4: rgba(255, 255, 255, 0.06);
+  --default-theme-background-accent: #8ab4f81f;
+
+  --default-theme-border-color: rgba(255, 255, 255, 0.1);
+  --default-theme-scrollbar-color: rgba(255, 255, 255, 0.24);
+  --default-theme-scrollbar-color-active: rgba(255, 255, 255, 0.48);
+  --default-theme-lifted-brightness: 1.45;
+  --default-theme-backdrop-brightness: 0.5;
+
+  --default-theme-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
+  --default-theme-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px,
+    rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+  --default-theme-button-1: #f6f6f6;
+  --default-theme-button-1-color: #000;
+  --default-theme-button-1-hover: #e7e7e7;
+
+  --default-theme-error-color: #ff0011;
+  --default-theme-success-color: #26ae42;
+
+  /* REST API Client */
+  --default-theme-code-languages-background-supersede: transparent;
+}
+
+/* Sidebar */
+.light-mode .t-doc__sidebar {
+  --default-sidebar-background-1: var(--theme-background-2);
+  --default-sidebar-item-hover-background: var(--theme-background-3);
+  --default-sidebar-item-active-background: var(--theme-background-accent);
+  --default-sidebar-border-color: var(--theme-background-3);
+  --default-sidebar-color-1: var(--theme-color-1);
+  --default-sidebar-color-2: var(--theme-color-2);
+  --default-sidebar-color-active: var(--theme-color-accent);
+  --default-sidebar-search-background: var(--theme-background-3);
+  --default-sidebar-search-border: var(--theme-background-3);
+  --default-sidebar-search--color: var(--theme-color-3);
+}
+
+.dark-mode .sidebar {
+  --default-sidebar-background-1: var(--theme-background-2);
+  --default-sidebar-item-hover-background: var(--theme-background-3);
+  --default-sidebar-item-active-background: var(--theme-background-accent);
+  --default-sidebar-border-color: var(--theme-background-2);
+  --default-sidebar-color-1: var(--theme-color-1);
+  --default-sidebar-color-2: var(--theme-color-2);
+  --default-sidebar-color-active: var(--theme-color-accent);
+  --default-sidebar-search-background: var(--theme-background-3);
+  --default-sidebar-search-border: var(--theme-background-3);
+  --default-sidebar-search--color: var(--theme-color-3);
+}
+
+/* Document header */
+.light-mode .t-doc__header {
+  --default-header-background-1: #000;
+  --default-header-border-color: #000;
+  --default-header-color-1: #fff;
+  --default-header-color-2: rgba(255, 255, 255, 0.66);
+  --default-header-background-toggle: var(--theme-color-3);
+  --default-header-call-to-action-color: var(--theme-color-accent);
+}
+
+.dark-mode .t-doc__header {
+  --default-header-background-1: var(--theme-background-3);
+  --default-header-border-color: var(--header-background-1);
+  --default-header-color-1: var(--theme-color-1);
+  --default-header-color-2: var(--theme-color-2);
+  --default-header-background-toggle: var(--theme-color-3);
+  --default-header-call-to-action-color: var(--theme-color-accent);
+}

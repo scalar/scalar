@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
+import '@scalar/themes/base.css'
 import '@scalar/themes/default.css'
 import '@scalar/themes/scrollbar.css'
 import { FlowToastContainer } from '@scalar/use-toasts'
