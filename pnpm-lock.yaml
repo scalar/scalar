@@ -63,9 +63,9 @@ importers:
       '@headlessui/vue':
         specifier: 1.7.16
         version: 1.7.16(vue@3.3.4)
-      '@scalar/default-theme':
+      '@scalar/themes':
         specifier: workspace:*
-        version: link:../default-theme
+        version: link:../themes
       '@scalar/use-codemirror':
         specifier: workspace:*
         version: link:../use-codemirror
@@ -182,15 +182,15 @@ importers:
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../api-client
-      '@scalar/default-theme':
-        specifier: workspace:*
-        version: link:../default-theme
       '@scalar/swagger-editor':
         specifier: workspace:*
         version: link:../swagger-editor
       '@scalar/swagger-parser':
         specifier: workspace:*
         version: link:../swagger-parser
+      '@scalar/themes':
+        specifier: workspace:*
+        version: link:../themes
       '@scalar/use-clipboard':
         specifier: workspace:*
         version: link:../use-clipboard
@@ -336,18 +336,6 @@ importers:
       vue-tsc:
         specifier: 1.8.13
         version: 1.8.13(typescript@5.2.2)
-
-  packages/default-theme:
-    devDependencies:
-      '@vitest/coverage-v8':
-        specifier: 0.34.4
-        version: 0.34.4(vitest@0.34.4)
-      vite:
-        specifier: 4.4.9
-        version: 4.4.9(@types/node@20.6.3)
-      vitest:
-        specifier: 0.34.4
-        version: 0.34.4
 
   packages/echo-server:
     dependencies:
@@ -544,6 +532,18 @@ importers:
       typescript:
         specifier: 5.2.2
         version: 5.2.2
+      vite:
+        specifier: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
+      vitest:
+        specifier: 0.34.4
+        version: 0.34.4
+
+  packages/themes:
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: 0.34.4
+        version: 0.34.4(vitest@0.34.4)
       vite:
         specifier: 4.4.9
         version: 4.4.9(@types/node@20.6.3)

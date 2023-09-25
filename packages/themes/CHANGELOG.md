@@ -1,4 +1,4 @@
-# @scalar/default-theme
+# @scalar/themes
 
 ## 0.3.1
 
@@ -34,4 +34,4 @@
 
 ### Patch Changes
 
-- de4ff38: feat: add a new @scalar/default-theme package to import the variables and custom scrollbar CSS
+- de4ff38: feat: add a new @scalar/themes package to import the variables and custom scrollbar CSS

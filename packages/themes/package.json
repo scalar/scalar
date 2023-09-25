@@ -1,5 +1,5 @@
 {
-  "name": "@scalar/default-theme",
+  "name": "@scalar/themes",
   "description": "the default CSS variables for all Scalar packages",
   "version": "0.3.1",
   "author": "Scalar (https://github.com/scalar)",
@@ -10,7 +10,7 @@
     "vitest": "0.34.4"
   },
   "exports": {
-    "./theme.css": "./src/theme.css",
+    "./default.css": "./src/default.css",
     "./scrollbar.css": "./src/scrollbar.css"
   },
   "files": [
