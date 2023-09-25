@@ -123,42 +123,43 @@ const changeTab = (index: number) => {
   outline: none;
   background: transparent;
   cursor: pointer;
-  color: var(--theme-color-3);
+  color: var(--theme-color-3, var(--default-theme-color-3));
   border: none;
 }
 .code-copy:hover {
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .code-copy svg {
   width: 13px;
   height: 13px;
 }
 .description {
-  font-weight: var(--theme-semibold);
-  font-size: var(--theme-micro);
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--theme-micro, var(--default-theme-micro));
 }
 .scalar-api-reference__empty-state {
-  border: 1px dashed var(--theme-border-color);
+  border: 1px dashed
+    var(--theme-border-color, var(--default-theme-border-color));
   width: 100%;
   text-align: center;
-  font-size: var(--theme-micro);
+  font-size: var(--theme-micro, var(--default-theme-micro));
   padding: 20px;
-  color: var(--theme-color-2);
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 
 .schema-type {
-  font-size: var(--theme-micro);
-  color: var(--theme-color-2);
-  font-weight: var(--theme-semibold);
-  background: var(--theme-background-3);
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  background: var(--theme-background-3, var(--default-theme-background-3));
   padding: 2px 4px;
   border-radius: 4px;
   margin-right: 4px;
 }
 .schema-example {
-  font-size: var(--theme-micro);
-  color: var(--theme-color-2);
-  font-weight: var(--theme-semibold);
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 
 .example-response-tab {

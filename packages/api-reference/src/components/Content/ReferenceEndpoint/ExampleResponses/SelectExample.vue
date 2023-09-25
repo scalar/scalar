@@ -64,20 +64,20 @@ const selectedExample = ref(examples[0])
 }
 
 .listbox-label {
-  font-size: var(--theme-mini);
-  font-weight: var(--theme-semibold);
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   margin: 0 4px;
-  color: var(--theme-color-2);
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 
 .listbox-button {
-  border: 1px solid var(--theme-border-color);
-  background: var(--theme-background-1);
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  background: var(--theme-background-1, var(--default-theme-background-1));
   padding: 6px 12px;
-  border-radius: var(--theme-radius);
+  border-radius: var(--theme-radius, var(--default-theme-radius));
   text-align: left;
   display: block;
-  font-size: var(--theme-mini);
+  font-size: var(--theme-mini, var(--default-theme-mini));
 }
 
 .listbox-button-content {
@@ -93,11 +93,11 @@ const selectedExample = ref(examples[0])
 }
 
 .listbox-options {
-  background: var(--theme-background-1);
+  background: var(--theme-background-1, var(--default-theme-background-1));
   padding: 6px 6px;
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   margin-top: 4px;
-  box-shadow: var(--theme-shadow-2);
+  box-shadow: var(--theme-shadow-2, var(--default-theme-shadow-2));
   position: absolute;
   margin: 0 1px;
   transform: translateY(-50%);
@@ -107,23 +107,23 @@ const selectedExample = ref(examples[0])
 .listbox-option {
   padding: 6px 12px;
   cursor: pointer;
-  color: var(--theme-color-1);
-  border-radius: var(--theme-radius);
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
   margin: 2px 0;
 }
 
 .listbox-option[data-headlessui-state='selected'] {
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 
 .listbox-option:hover {
-  background: var(--theme-background-2);
-  color: var(--theme-color-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 
 .icon {
   width: 13px;
   height: 13px;
-  color: var(--theme-color-3);
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
 </style>

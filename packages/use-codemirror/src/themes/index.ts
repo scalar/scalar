@@ -4,16 +4,17 @@ import { createTheme } from '@uiw/codemirror-themes'
 export const lightTheme = createTheme({
   theme: 'light',
   settings: {
-    background: 'var(--theme-background-2)',
-    foreground: 'var(--theme-color-1)',
+    background: 'var(--theme-background-2, var(--default-theme-background-2))',
+    foreground: 'var(--theme-color-1, var(--default-theme-color-1))',
     caret: '#93abdc',
     selection: '#e3dcce',
     selectionMatch: '#e3dcce',
-    gutterBackground: 'var(--theme-background-2)',
-    gutterForeground: 'var(--theme-color-2)',
+    gutterBackground:
+      'var(--theme-background-2, var(--default-theme-background-2))',
+    gutterForeground: 'var(--theme-color-2, var(--default-theme-color-2))',
     gutterBorder: 'transparent',
     lineHighlight: '#EFEFEF',
-    fontFamily: 'var(--theme-font-code)',
+    fontFamily: 'var(--theme-font-code, var(--default-theme-font-code))',
   },
   styles: [
     { tag: [t.standard(t.tagName), t.tagName], color: '#116329' },
@@ -43,14 +44,15 @@ export const lightTheme = createTheme({
 export const darkTheme = createTheme({
   theme: 'dark',
   settings: {
-    background: 'var(--theme-background-2)',
-    foreground: 'var(--theme-color-1)',
+    background: 'var(--theme-background-2, var(--default-theme-background-2))',
+    foreground: 'var(--theme-color-1, var(--default-theme-color-1))',
     caret: '#ffad5c',
     selection: 'rgba(255, 255, 255, 0.1)',
-    gutterBackground: 'var(--theme-background-2)',
-    gutterForeground: 'var(--theme-color-2)',
+    gutterBackground:
+      'var(--theme-background-2, var(--default-theme-background-2))',
+    gutterForeground: 'var(--theme-color-2, var(--default-theme-color-2))',
     lineHighlight: '#36334280',
-    fontFamily: 'var(--theme-font-code)',
+    fontFamily: 'var(--theme-font-code, var(--default-theme-font-code))',
   },
   styles: [
     { tag: [t.standard(t.tagName), t.tagName], color: '#7ee787' },

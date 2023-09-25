@@ -67,7 +67,13 @@ export { useApiClientStore } from '@scalar/api-client'
 
 <style scoped>
 .scalar-api-client__container .scalar-api-client {
-  width: calc(100% - var(--scalar-api-reference-theme-sidebar-width));
+  width: calc(
+    100% -
+      var(
+        --scalar-api-reference-theme-sidebar-width,
+        var(--default-scalar-api-reference-theme-sidebar-width)
+      )
+  );
 }
 
 .scalar-api-client__container {
@@ -82,9 +88,12 @@ export { useApiClientStore } from '@scalar/api-client'
   opacity: 1;
   overflow: hidden;
   pointer-events: all;
-  background: var(--theme-background-1) !important;
-  border-radius: var(--theme-radius-lg);
-  box-shadow: var(--theme-shadow-1);
+  background: var(
+    --theme-background-1,
+    var(--default-theme-background-1)
+  ) !important;
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  box-shadow: var(--theme-shadow-1, var(--default-theme-shadow-1));
   height: 100%;
   overflow: hidden;
   display: flex;
@@ -102,11 +111,18 @@ export { useApiClientStore } from '@scalar/api-client'
   display: flex;
   align-items: center;
   padding: 11px 12px;
-  height: var(--scalar-api-reference-theme-header-height);
-  background-color: var(--theme-background-1);
+  height: var(
+    --scalar-api-reference-theme-header-height,
+    var(--default-scalar-api-reference-theme-header-height)
+  );
+  background-color: var(
+    --theme-background-1,
+    var(--default-theme-background-1)
+  );
   z-index: 10;
   position: sticky;
-  border-bottom: 1px solid var(--theme-border-color);
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
   top: 0;
 }
 
@@ -118,8 +134,8 @@ export { useApiClientStore } from '@scalar/api-client'
   align-items: center;
   background: transparent;
   font-size: 14px;
-  color: var(--theme-color-1);
-  font-weight: var(--theme-semibold);
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 .scalar-api-client__close:hover {
   cursor: pointer;
@@ -129,15 +145,15 @@ TODO: Markup is missing
 .scalar-api-client__close__icon {
   width: 28px;
   height: 28px;
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   margin-right: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--theme-color-2);
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 .scalar-api-client__close__icon:hover {
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .scalar-api-client__close__icon svg {
   width: 12px;
@@ -145,7 +161,7 @@ TODO: Markup is missing
   transform: rotate(180deg);
 } */
 .api-client-drawer {
-  background: var(--theme-background-1);
+  background: var(--theme-background-1, var(--default-theme-background-1));
   height: calc(100vh - 58px);
   width: calc(100vw - 8px);
   border-radius: 12px;
@@ -199,7 +215,11 @@ TODO: Markup is missing
   height: 100%;
   display: flex;
   flex-direction: column;
-  width: var(--scalar-api-reference-theme-sidebar-width);
-  border-right: 1px solid var(--theme-border-color);
+  width: var(
+    --scalar-api-reference-theme-sidebar-width,
+    var(--default-scalar-api-reference-theme-sidebar-width)
+  );
+  border-right: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 </style>

@@ -56,11 +56,13 @@ const isCustom = (t: Toast): t is CustomToast => {
 <style scoped>
 .toast {
   pointer-events: initial;
-  filter: brightness(var(--theme-lifted-brightness));
+  filter: brightness(
+    var(--theme-lifted-brightness, var(--default-theme-lifted-brightness))
+  );
 
-  background: var(--theme-background-1);
-  border-radius: var(--theme-radius-lg);
-  box-shadow: var(--theme-shadow-2);
+  background: var(--theme-background-1, var(--default-theme-background-1));
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  box-shadow: var(--theme-shadow-2, var(--default-theme-shadow-2));
 
   width: 380px;
 }

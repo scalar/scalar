@@ -130,17 +130,17 @@ export default {
   position: relative;
 }
 .flow-input-wrapper {
-  border-radius: var(--theme-radius);
-  border: 1px solid var(--theme-border-color);
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   position: relative;
   display: flex;
   align-items: center;
 }
 .flow-input-wrapper--focus {
-  border-color: var(--theme-color-3);
+  border-color: var(--theme-color-3, var(--default-theme-color-3));
 }
 .flow-input-wrapper--focus:has(button:active) {
-  border: 1px solid var(--theme-border-color) !important;
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color)) !important;
 }
 .flow-input__multiline {
   min-height: 77px;
@@ -154,11 +154,15 @@ export default {
   margin: 12px 9px;
   width: fit-content;
   background: transparent;
-  font-size: var(--theme-font-size-3);
-  background-color: var(--theme-background-1);
-  border-radius: var(--theme-radius);
-  color: var(--theme-color-3);
-  box-shadow: 0 0 2px 2px var(--theme-background-1);
+  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
+  background-color: var(
+    --theme-background-1,
+    var(--default-theme-background-1)
+  );
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  box-shadow: 0 0 2px 2px
+    var(--theme-background-1, var(--default-theme-background-1));
   transition: transform 0.2s ease-in-out;
   transform-origin: top left;
   z-index: 10;
@@ -168,10 +172,10 @@ export default {
   outline: none;
   appearance: none;
   -webkit-appearance: none;
-  font-size: var(--theme-font-size-3);
-  font-family: var(--theme-font);
+  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
+  font-family: var(--theme-font, var(--default-theme-font));
   border: none;
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
   padding: 12px;
   width: 100%;
   background: transparent;
@@ -184,14 +188,14 @@ export default {
   opacity: 0;
 }
 .flow-input::placeholder {
-  color: var(--theme-color-3);
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
 .flow-input::-webkit-input-placeholder,
 .flow-input:-ms-input-placeholder,
 .flow-input::placeholder {
-  color: var(--theme-color-3);
-  font-family: var(--theme-font);
-  font-weight: var(--theme-semibold);
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-family: var(--theme-font, var(--default-theme-font));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 .flow-input:not(:placeholder-shown),
 .flow-input-wrapper--focus .flow-input {
@@ -199,10 +203,10 @@ export default {
   transition: opacity 0.2s ease-in-out 0.15s;
 }
 .flow-input-wrapper--focus .flow-label {
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .flow-input::selection {
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
   background: rgba(255, 165, 88, 0.35);
 }
 .flow-input:-webkit-autofill,
@@ -213,22 +217,23 @@ export default {
 .flow-input:focus-within:-webkit-autofill:hover,
 .flow-input:focus-within:-webkit-autofill:focus,
 .flow-input:focus-within:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0px 1000px var(--theme-background-1) inset !important;
-  -webkit-text-fill-color: var(--theme-color-1);
-  color: var(--theme-color-1);
-  border-radius: var(--theme-radius);
+  -webkit-box-shadow: 0 0 0px 1000px
+    var(--theme-background-1, var(--default-theme-background-1)) inset !important;
+  -webkit-text-fill-color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
 }
 .helper-text {
   margin-top: 6px;
   font-size: 13px;
-  color: var(--theme-error-color);
+  color: var(--theme-error-color, var(--default-theme-error-color));
   display: flex;
   align-items: center;
 }
 .helper-text:before {
   content: '!';
   border-radius: 50%;
-  background: var(--theme-error-color);
+  background: var(--theme-error-color, var(--default-theme-error-color));
   color: white;
   font-weight: 900;
   width: 15px;
@@ -243,16 +248,16 @@ export default {
   display: none;
 }
 .flow-input-wrapper--error {
-  border-color: var(--theme-error-color);
+  border-color: var(--theme-error-color, var(--default-theme-error-color));
 }
 .flow-input-wrapper--error .flow-label {
-  color: var(--theme-error-color);
+  color: var(--theme-error-color, var(--default-theme-error-color));
 }
 .flow-input-wrapper--warn {
-  border-color: var(--theme-error-color);
+  border-color: var(--theme-error-color, var(--default-theme-error-color));
 }
 .flow-input-wrapper--warn .flow-label {
-  color: var(--theme-error-color);
+  color: var(--theme-error-color, var(--default-theme-error-color));
 }
 .flow-input-wrapper--focus .flow-label,
 .flow-input:not(:placeholder-shown) + .flow-label {
@@ -260,7 +265,7 @@ export default {
   transform-origin: top left;
 }
 .flow-input-wrapper--focus:has(button:active) .flow-label {
-  color: var(--theme-color-3) !important;
+  color: var(--theme-color-3, var(--default-theme-color-3)) !important;
 }
 .icon-slot:not(:empty) {
   display: flex;
@@ -268,9 +273,9 @@ export default {
   padding-right: 12px;
   width: 28px;
   cursor: pointer;
-  color: var(--theme-color-ghost);
+  color: var(--theme-color-ghost, var(--default-theme-color-ghost));
 }
 .icon-slot:hover {
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 </style>

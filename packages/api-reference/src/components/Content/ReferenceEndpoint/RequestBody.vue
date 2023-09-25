@@ -30,7 +30,7 @@ defineProps<{ requestBody?: RequestBody }>()
   margin-top: 6px;
 }
 .parameter .parameter-child {
-  border: 1px solid var(--theme-border-color);
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-radius: 20px;
   margin-top: 12px;
   width: fit-content;
@@ -42,8 +42,8 @@ defineProps<{ requestBody?: RequestBody }>()
   padding: 6px 12px;
   cursor: pointer;
   font-weight: 500;
-  color: var(--theme-color-3);
-  font-size: var(--theme-micro);
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-size: var(--theme-micro, var(--default-theme-micro));
   display: flex;
   align-items: center;
   user-select: none;
@@ -52,7 +52,7 @@ defineProps<{ requestBody?: RequestBody }>()
   display: none;
 }
 .parameter-child-trigger:hover {
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .parameter-child-trigger > span:before {
   content: 'Show ';
@@ -85,35 +85,37 @@ defineProps<{ requestBody?: RequestBody }>()
   transform: rotate(45deg);
 }
 .parameter-child__open > .parameter-child-trigger {
-  border-bottom: 1px solid var(--theme-border-color);
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 .parameter {
   list-style: none;
-  font-size: var(--theme-small);
+  font-size: var(--theme-small, var(--default-theme-small));
 }
 .parameter li {
-  border-top: 1px solid var(--theme-border-color);
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
   padding: 12px 0;
 }
 .parameter-name {
   font-weight: 500;
   margin-right: 6px;
-  font-family: var(--theme-font-code);
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
   font-size: 13px;
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .parameter-type,
 .parameter-required {
-  color: var(--theme-color-3);
-  font-weight: var(--theme-semibold);
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   margin-right: 6px;
   position: relative;
 }
 .marc_required {
   text-transform: uppercase;
   font-size: 11px;
-  font-weight: var(--theme-bold);
+  font-weight: var(--theme-bold, var(--default-theme-bold));
   color: #ffb040;
 }
 .parameter-options {

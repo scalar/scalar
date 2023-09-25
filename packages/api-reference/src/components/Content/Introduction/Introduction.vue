@@ -59,7 +59,10 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
           <CardFooter
             class="font-mono"
             muted
-            style="font-size: var(--theme-mini); color: var(--theme-color-2)">
+            style="
+              font-size: var(--theme-mini, var(--default-theme-mini));
+              color: var(--theme-color-2, var(--default-theme-color-2));
+            ">
             {{ getTargetTitle(state.selectedClient) }}
             {{ getClientTitle(state.selectedClient) }}
           </CardFooter>
@@ -73,9 +76,9 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
   margin-top: 0px !important;
 }
 .loading {
-  background: var(--theme-background-3);
+  background: var(--theme-background-3, var(--default-theme-background-3));
   animation: loading-skeleton 1.5s infinite alternate;
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
 .heading.loading {
   width: 80%;

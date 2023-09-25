@@ -60,16 +60,24 @@ watch(
 .markdown :deep(h4),
 .markdown :deep(h5),
 .markdown :deep(h6) {
-  font-size: var(--font-size);
+  font-size: var(--font-size, var(--default-font-size));
   margin: 12px 0 6px;
-  font-weight: var(--theme-bold);
+  font-weight: var(--theme-bold, var(--default-theme-bold));
 }
 
 .markdown :deep(p) {
-  font-size: var(--font-size, var(--theme-paragraph));
+  font-size: var(
+    --font-size,
+    var(--default-font-size),
+    var(--theme-paragraph, var(--default-theme-paragraph))
+  );
   /* prettier-ignore */
-  color: var(--theme-color-1);
-  font-weight: var(--font-weight, var(--theme-small));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-weight: var(
+    --font-weight,
+    var(--default-font-weight),
+    var(--theme-small, var(--default-theme-small))
+  );
   line-height: 1.5;
 }
 
@@ -98,10 +106,14 @@ watch(
 }
 
 .markdown :deep(code) {
-  font-family: var(--theme-font-code);
-  background-color: var(--theme-background-2);
-  box-shadow: 0 0 0 1px var(--theme-border-color);
-  font-size: var(--theme-micro);
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  background-color: var(
+    --theme-background-2,
+    var(--default-theme-background-2)
+  );
+  box-shadow: 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
+  font-size: var(--theme-micro, var(--default-theme-micro));
   border-radius: 2px;
   padding: 0 3px;
 }
@@ -118,7 +130,8 @@ watch(
 }
 
 .markdown :deep(blockquote) {
-  border-left: 3px solid var(--theme-border-color);
+  border-left: 3px solid
+    var(--theme-border-color, var(--default-theme-border-color));
   padding-left: 12px;
 }
 
@@ -129,8 +142,9 @@ watch(
   width: 100%;
   margin: 1em 0;
   overflow: hidden;
-  box-shadow: 0 0 0 1px var(--theme-border-color);
-  border-radius: var(--theme-radius-lg);
+  box-shadow: 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
 
 .markdown :deep(td),
@@ -141,8 +155,10 @@ watch(
   box-sizing: border-box;
   position: relative;
   word-break: break-all;
-  border-right: 1px solid var(--theme-border-color);
-  border-bottom: 1px solid var(--theme-border-color);
+  border-right: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 .markdown :deep(td > *),
@@ -151,8 +167,8 @@ watch(
 }
 .markdown.parameter-description :deep(p) {
   margin-top: 4px;
-  font-size: var(--theme-small);
-  color: var(--theme-color-2);
+  font-size: var(--theme-small, var(--default-theme-small));
+  color: var(--theme-color-2, var(--default-theme-color-2));
   line-height: 1.4;
 }
 .markdown :deep(td:first-of-type),
@@ -173,6 +189,6 @@ watch(
   font-weight: bold !important;
   text-align: left;
   border-left-color: transparent;
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 </style>

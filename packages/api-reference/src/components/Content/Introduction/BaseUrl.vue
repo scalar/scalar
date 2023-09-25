@@ -34,16 +34,16 @@ const formattedServerUrl = computed(() => {
 
 <style>
 .base-url-variable {
-  color: var(--theme-color-disabled);
+  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
 }
 </style>
 
 <style scoped>
 .base-url {
-  color: var(--theme-color-2);
-  font-size: var(--theme-mini);
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  font-size: var(--theme-mini, var(--default-theme-mini));
   cursor: pointer;
-  font-family: var(--theme-font-code);
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
   flex-direction: column;
 }
 </style>

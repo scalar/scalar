@@ -77,16 +77,16 @@ export const useModalState = () =>
 .modal-body {
   padding: 24px 12px 18px 24px;
   max-height: calc(100vh - 240px);
-  background: var(--theme-background-1);
-  border-radius: var(--theme-radius-lg);
-  font-family: var(--theme-font);
+  background: var(--theme-background-1, var(--default-theme-background-1));
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  font-family: var(--theme-font, var(--default-theme-font));
 }
 .modal {
   margin: 80px auto 0;
   position: relative;
-  background: var(--theme-background-2);
-  border-radius: var(--theme-radius-lg);
-  color: var(--theme-color-1);
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  color: var(--theme-color-1, var(--default-theme-color-1));
   width: 100%;
   text-align: left;
   line-height: 1.4;
@@ -124,10 +124,11 @@ export const useModalState = () =>
 }
 .modal-header {
   padding: 12px 24px;
-  color: var(--theme-color-1);
-  font-size: var(--theme-font-size-4);
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
   text-align: left;
   font-weight: 600;
-  border-radius: var(--theme-radius-lg) var(--theme-radius-lg) 0 0;
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg))
+    var(--theme-radius-lg, var(--default-theme-radius-lg)) 0 0;
 }
 </style>

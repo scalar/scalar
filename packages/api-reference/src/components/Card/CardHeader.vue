@@ -15,9 +15,9 @@ import CardContent from './CardContent.vue'
 </template>
 <style scoped>
 .card-header {
-  font-weight: var(--theme-semibold);
-  font-size: var(--theme-mini);
-  color: var(--theme-color-3);
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
 
 .card-header-title {

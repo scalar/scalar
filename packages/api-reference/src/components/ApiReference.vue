@@ -226,7 +226,7 @@ const breadCrumbs = computed(() => {
   }
 
   /** Add some more things which are normally applied to `html`. */
-  font-family: var(--theme-font);
+  font-family: var(--theme-font, var(--default-theme-font));
   line-height: 1.15;
   -webkit-text-size-adjust: 100%;
   -moz-tab-size: 4;
@@ -251,15 +251,15 @@ const breadCrumbs = computed(() => {
 
 /* ?? layout stuff */
 :root {
-  --scalar-api-reference-theme-header-height: 0;
-  --scalar-api-reference-theme-sidebar-width: 250px;
-  --scalar-api-reference-theme-toc-width: 300px;
-  --scalar-api-reference-app-header-height: 100px;
-  --scalar-api-reference-col-width-1: 250px;
-  --scalar-api-reference-col-width-2: calc(50% - 150px);
-  --scalar-api-reference-col-width-3: calc(50% - 150px);
-  --scalar-api-reference-document-height: 100vh;
-  --scalar-api-reference-full-height: 100%;
+  --default-scalar-api-reference-theme-header-height: 0;
+  --default-scalar-api-reference-theme-sidebar-width: 250px;
+  --default-scalar-api-reference-theme-toc-width: 300px;
+  --default-scalar-api-reference-app-header-height: 100px;
+  --default-scalar-api-reference-col-width-1: 250px;
+  --default-scalar-api-reference-col-width-2: calc(50% - 150px);
+  --default-scalar-api-reference-col-width-3: calc(50% - 150px);
+  --default-scalar-api-reference-document-height: 100vh;
+  --default-scalar-api-reference-full-height: 100%;
 }
 
 /** Utilities, how do we deal with them? */
@@ -299,10 +299,12 @@ const breadCrumbs = computed(() => {
 
 /** TODO: Move to components */
 .codemenu-topbar {
-  background: var(--theme-background-2);
-  border-bottom: 1px solid var(--theme-border-color);
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
   padding: 0 7px 0 12px;
-  border-radius: var(--theme-radius) var(--theme-radius) 0 0;
+  border-radius: var(--theme-radius, var(--default-theme-radius))
+    var(--theme-radius, var(--default-theme-radius)) 0 0;
 }
 .codemenu {
   display: flex;
@@ -322,27 +324,30 @@ const breadCrumbs = computed(() => {
   align-items: center;
 }
 .codemenu-item-key {
-  font-size: var(--theme-micro);
-  color: var(--theme-color-3);
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  color: var(--theme-color-3, var(--default-theme-color-3));
   padding: 6px 4px;
   cursor: pointer;
   user-select: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: var(--theme-semibold);
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   position: relative;
   margin-left: -4px;
   margin-right: -4px;
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   text-transform: uppercase;
 }
 .codemenu-item-key:hover {
-  background: var(--scalar-api-reference-theme-background-3);
+  background: var(
+    --scalar-api-reference-theme-background-3,
+    var(--default-scalar-api-reference-theme-background-3)
+  );
 }
 .codemenu-item:first-of-type:last-of-type .codemenu-item-key,
 .codemenu-item__active .codemenu-item-key {
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .codemenu-item:first-of-type:last-of-type:after,
 .codemenu-item__active:after {
@@ -351,7 +356,7 @@ const breadCrumbs = computed(() => {
   height: 1px;
   position: absolute;
   bottom: -4px;
-  background: var(--theme-color-1);
+  background: var(--theme-color-1, var(--default-theme-color-1));
 }
 
 .codemenu-item__disabled {
@@ -370,19 +375,19 @@ const breadCrumbs = computed(() => {
   overflow: hidden;
 }
 .endpoint .post {
-  color: var(--theme-post-color);
+  color: var(--theme-post-color, var(--default-theme-post-color));
 }
 .endpoint .patch {
-  color: var(--theme-patch-color);
+  color: var(--theme-patch-color, var(--default-theme-patch-color));
 }
 .endpoint .get {
-  color: var(--theme-get-color);
+  color: var(--theme-get-color, var(--default-theme-get-color));
 }
 .endpoint .delete {
-  color: var(--theme-delete-color);
+  color: var(--theme-delete-color, var(--default-theme-delete-color));
 }
 .endpoint .put {
-  color: var(--theme-put-color);
+  color: var(--theme-put-color, var(--default-theme-put-color));
 }
 .endpoint .post,
 .endpoint .get,
@@ -391,23 +396,24 @@ const breadCrumbs = computed(() => {
   white-space: nowrap;
 }
 .endpoint span {
-  color: var(--theme-color-2);
+  color: var(--theme-color-2, var(--default-theme-color-2));
   min-width: 62px;
   display: inline-block;
   text-align: right;
   line-height: 1.55;
-  font-family: var(--theme-font-code);
-  font-size: var(--theme-mini);
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  font-size: var(--theme-mini, var(--default-theme-mini));
   cursor: pointer;
 }
 .languages .example-item-endpoints {
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
   width: 100%;
-  border-top: 1px solid var(--theme-border-color);
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 .endpoint-response p {
   margin-top: 6px;
-  font-size: var(--theme-small);
+  font-size: var(--theme-small, var(--default-theme-small));
   min-height: auto;
   line-height: 17px;
 }
@@ -417,9 +423,10 @@ const breadCrumbs = computed(() => {
   min-width: auto;
 }
 .endpoint-response {
-  border-top: 1px solid var(--theme-border-color);
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
   padding: 12px 0;
-  font-size: var(--theme-small);
+  font-size: var(--theme-small, var(--default-theme-small));
 }
 
 .tag-description {
@@ -432,9 +439,9 @@ const breadCrumbs = computed(() => {
   margin-top: 24px;
 }
 .copy .title {
-  font-size: var(--theme-heading-4);
-  font-weight: var(--theme-semibold);
-  color: var(--theme-color-1);
+  font-size: var(--theme-heading-4, var(--default-theme-heading-4));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  color: var(--theme-color-1, var(--default-theme-color-1));
   line-height: 1.45;
 }
 .endpoint-response__headers {
@@ -453,7 +460,8 @@ const breadCrumbs = computed(() => {
 }
 
 .reference:not(:last-of-type) {
-  border-bottom: 1px solid var(--theme-border-color);
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 .reference .reference-container {
@@ -467,7 +475,8 @@ const breadCrumbs = computed(() => {
 }
 
 .reference-container + .reference-container {
-  border-top: 1px solid var(--theme-border-color);
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 .reference-container .copy,
@@ -488,7 +497,7 @@ const breadCrumbs = computed(() => {
 }
 
 .copy .tag-description a {
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
   text-decoration: underline;
 }
 
@@ -513,10 +522,18 @@ const breadCrumbs = computed(() => {
 }
 
 .editor-heading h1 {
-  font-size: var(--font-size, var(--theme-heading-2));
-  font-weight: var(--font-weight, var(--theme-bold));
+  font-size: var(
+    --font-size,
+    var(--default-font-size),
+    var(--theme-heading-2, var(--default-theme-heading-2))
+  );
+  font-weight: var(
+    --font-weight,
+    var(--default-font-weight),
+    var(--theme-bold, var(--default-theme-bold))
+  );
   /* prettier-ignore */
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
   line-height: 1.45;
 }
 
@@ -530,31 +547,59 @@ const breadCrumbs = computed(() => {
   overflow-x: hidden;
 
   /* Fallback to 100vh if the element height is not specified */
-  --full-height: var(--scalar-api-reference-full-height, 100vh);
+  --default-full-height: var(
+    --scalar-api-reference-full-height,
+    var(--default-scalar-api-reference-full-height),
+    100vh
+  );
   /* --theme-header-height: 50px; */
   /* --scalar-api-reference-theme-sidebar-width: 200px; */
   /* --theme-toc-width: 200px; */
 
-  --document-height: calc(
-    var(--scalar-api-reference-full-height) -
-      var(--scalar-api-reference-theme-header-height)
+  --default-document-height: calc(
+    var(
+        --scalar-api-reference-full-height,
+        var(--default-scalar-api-reference-full-height)
+      ) -
+      var(
+        --scalar-api-reference-theme-header-height,
+        var(--default-scalar-api-reference-theme-header-height)
+      )
   );
 
-  --col-width-1: var(--scalar-api-reference-theme-sidebar-width);
-  --col-width-2: auto;
-  --col-width-3: var(--scalar-api-reference-theme-toc-width);
+  --default-col-width-1: var(
+    --scalar-api-reference-theme-sidebar-width,
+    var(--default-scalar-api-reference-theme-sidebar-width)
+  );
+  --default-col-width-2: auto;
+  --default-col-width-3: var(
+    --scalar-api-reference-theme-toc-width,
+    var(--default-scalar-api-reference-theme-toc-width)
+  );
 
   display: grid;
 
   grid-template-rows:
-    var(--scalar-api-reference-theme-header-height)
+    var(
+      --scalar-api-reference-theme-header-height,
+      var(--default-scalar-api-reference-theme-header-height)
+    )
     auto
     auto;
 
   grid-template-columns:
-    var(--scalar-api-reference-col-width-1)
-    var(--scalar-api-reference-col-width-2)
-    var(--scalar-api-reference-col-width-3);
+    var(
+      --scalar-api-reference-col-width-1,
+      var(--default-scalar-api-reference-col-width-1)
+    )
+    var(
+      --scalar-api-reference-col-width-2,
+      var(--default-scalar-api-reference-col-width-2)
+    )
+    var(
+      --scalar-api-reference-col-width-3,
+      var(--default-scalar-api-reference-col-width-3)
+    );
 
   grid-template-areas:
     'header header header'
@@ -563,11 +608,11 @@ const breadCrumbs = computed(() => {
 }
 
 .document.hide-aside-left {
-  --col-width-1: 0;
+  --default-col-width-1: 0;
 }
 
 .document.hide-aside-right {
-  --col-width-3: 0;
+  --default-col-width-3: 0;
 }
 .document.hide-aside-left .layout-aside-left .layout-aside-content,
 .document.hide-aside-right .layout-aside-right .layout-aside-content {
@@ -593,18 +638,30 @@ const breadCrumbs = computed(() => {
 .layout-content {
   grid-area: content;
   min-width: 0;
-  background: var(--theme-background-1);
+  background: var(--theme-background-1, var(--default-theme-background-1));
   display: flex;
 }
 
 /* Measures the visible viewport of the editor */
 .layout-content-viewport {
   position: fixed;
-  left: var(--scalar-api-reference-theme-sidebar-width);
-  right: var(--scalar-api-reference-theme-toc-width);
+  left: var(
+    --scalar-api-reference-theme-sidebar-width,
+    var(--default-scalar-api-reference-theme-sidebar-width)
+  );
+  right: var(
+    --scalar-api-reference-theme-toc-width,
+    var(--default-scalar-api-reference-theme-toc-width)
+  );
   top: calc(
-    var(--scalar-api-reference-app-header-height) +
-      var(--scalar-api-reference-theme-header-height)
+    var(
+        --scalar-api-reference-app-header-height,
+        var(--default-scalar-api-reference-app-header-height)
+      ) +
+      var(
+        --scalar-api-reference-theme-header-height,
+        var(--default-scalar-api-reference-theme-header-height)
+      )
   );
   bottom: 0;
   pointer-events: none;
@@ -618,13 +675,19 @@ const breadCrumbs = computed(() => {
 .layout-aside-right {
   position: relative;
   grid-area: aside;
-  background: var(--theme-background-1);
+  background: var(--theme-background-1, var(--default-theme-background-1));
 }
 
 .layout-aside-content {
   position: sticky;
-  top: var(--scalar-api-reference-theme-header-height);
-  height: var(--scalar-api-reference-document-height);
+  top: var(
+    --scalar-api-reference-theme-header-height,
+    var(--default-scalar-api-reference-theme-header-height)
+  );
+  height: var(
+    --scalar-api-reference-document-height,
+    var(--default-scalar-api-reference-document-height)
+  );
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -639,34 +702,71 @@ const breadCrumbs = computed(() => {
 
 .document.layout-swagger-editor {
   /* Fallback to 100vh if the element height is not specified */
-  --full-height: var(--scalar-api-reference-full-height, 100vh);
+  --default-full-height: var(
+    --scalar-api-reference-full-height,
+    var(--default-scalar-api-reference-full-height),
+    100vh
+  );
   /* --theme-header-height: 50px; */
   /* --scalar-api-reference-theme-sidebar-width: 200px; */
   /* --theme-toc-width: 200px; */
   max-height: 100vh;
-  --document-height: calc(
-    var(--scalar-api-reference-full-height) -
-      var(--scalar-api-reference-theme-header-height)
+  --default-document-height: calc(
+    var(
+        --scalar-api-reference-full-height,
+        var(--default-scalar-api-reference-full-height)
+      ) -
+      var(
+        --scalar-api-reference-theme-header-height,
+        var(--default-scalar-api-reference-theme-header-height)
+      )
   );
 
-  --col-width-1: var(--scalar-api-reference-theme-sidebar-width);
-  --col-width-2: calc(
-    50% - (var(--scalar-api-reference-theme-sidebar-width) / 2)
+  --default-col-width-1: var(
+    --scalar-api-reference-theme-sidebar-width,
+    var(--default-scalar-api-reference-theme-sidebar-width)
   );
-  --col-width-3: calc(
-    50% - (var(--scalar-api-reference-theme-sidebar-width) / 2)
+  --default-col-width-2: calc(
+    50% -
+      (
+        var(
+            --scalar-api-reference-theme-sidebar-width,
+            var(--default-scalar-api-reference-theme-sidebar-width)
+          ) / 2
+      )
+  );
+  --default-col-width-3: calc(
+    50% -
+      (
+        var(
+            --scalar-api-reference-theme-sidebar-width,
+            var(--default-scalar-api-reference-theme-sidebar-width)
+          ) / 2
+      )
   );
 
   display: grid;
 
   grid-template-rows:
-    var(--scalar-api-reference-theme-header-height)
+    var(
+      --scalar-api-reference-theme-header-height,
+      var(--default-scalar-api-reference-theme-header-height)
+    )
     auto;
 
   grid-template-columns:
-    var(--scalar-api-reference-col-width-1)
-    var(--scalar-api-reference-col-width-2)
-    var(--scalar-api-reference-col-width-3);
+    var(
+      --scalar-api-reference-col-width-1,
+      var(--default-scalar-api-reference-col-width-1)
+    )
+    var(
+      --scalar-api-reference-col-width-2,
+      var(--default-scalar-api-reference-col-width-2)
+    )
+    var(
+      --scalar-api-reference-col-width-3,
+      var(--default-scalar-api-reference-col-width-3)
+    );
 
   grid-template-areas:
     'header header header'
@@ -676,13 +776,35 @@ const breadCrumbs = computed(() => {
 
 .document.layout-swagger-editor .layout-content {
   position: sticky;
-  top: var(--scalar-api-reference-theme-header-height);
-  height: var(--scalar-api-reference-document-height);
+  top: var(
+    --scalar-api-reference-theme-header-height,
+    var(--default-scalar-api-reference-theme-header-height)
+  );
+  height: var(
+    --scalar-api-reference-document-height,
+    var(--default-scalar-api-reference-document-height)
+  );
 }
 
 .document.preview {
-  --col-width-2: calc(100% - (var(--scalar-api-reference-theme-sidebar-width)));
-  --col-width-3: calc(100% - (var(--scalar-api-reference-theme-sidebar-width)));
+  --default-col-width-2: calc(
+    100% -
+      (
+        var(
+          --scalar-api-reference-theme-sidebar-width,
+          var(--default-scalar-api-reference-theme-sidebar-width)
+        )
+      )
+  );
+  --default-col-width-3: calc(
+    100% -
+      (
+        var(
+          --scalar-api-reference-theme-sidebar-width,
+          var(--default-scalar-api-reference-theme-sidebar-width)
+        )
+      )
+  );
 
   grid-template-areas:
     'header header'
@@ -698,9 +820,9 @@ const breadCrumbs = computed(() => {
 }
 
 .document.layout-swagger-editor.hide-aside-left {
-  --col-width-1: 0;
-  --col-width-2: 50%;
-  --col-width-3: 50%;
+  --default-col-width-1: 0;
+  --default-col-width-2: 50%;
+  --default-col-width-3: 50%;
 }
 
 /* ----------------------------------------------------- */
@@ -708,8 +830,8 @@ const breadCrumbs = computed(() => {
 
 @media (max-width: 1150px) {
   .document.layout-swagger-editor {
-    --col-width-3: 0;
-    --col-width-2: auto;
+    --default-col-width-3: 0;
+    --default-col-width-2: auto;
   }
 }
 
@@ -718,7 +840,10 @@ const breadCrumbs = computed(() => {
   .document.layout-swagger-editor {
     /** Content area heights are restricted using just the template row defs */
     grid-template-rows:
-      var(--scalar-api-reference-theme-header-height)
+      var(
+        --scalar-api-reference-theme-header-height,
+        var(--default-scalar-api-reference-theme-header-height)
+      )
       auto
       auto
       auto;
@@ -742,8 +867,12 @@ const breadCrumbs = computed(() => {
   .layout-aside-left {
     position: sticky;
     top: 0;
-    height: var(--scalar-api-reference-theme-header-height);
-    border-bottom: 1px solid var(--theme-border-color);
+    height: var(
+      --scalar-api-reference-theme-header-height,
+      var(--default-scalar-api-reference-theme-header-height)
+    );
+    border-bottom: 1px solid
+      var(--theme-border-color, var(--default-theme-border-color));
 
     width: 100%;
     z-index: 10;
@@ -759,9 +888,15 @@ const breadCrumbs = computed(() => {
     width: 100%;
 
     /* Offset by 2px to fill screen and compensate for gap */
-    height: calc(var(--scalar-api-reference-document-height) + 2px);
+    height: calc(
+      var(
+          --scalar-api-reference-document-height,
+          var(--default-scalar-api-reference-document-height)
+        ) + 2px
+    );
 
-    border-top: 1px solid var(--theme-border-color);
+    border-top: 1px solid
+      var(--theme-border-color, var(--default-theme-border-color));
     display: flex;
     flex-direction: column;
   }

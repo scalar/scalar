@@ -235,13 +235,20 @@ function checkIfClientIsFeatured(client: SelectedClient) {
   align-items: center;
   justify-content: center;
   position: relative;
-  color: var(--theme-code-language-color-supersede, #fff);
+  color: var(
+    --theme-code-language-color-supersede,
+    var(--default-theme-code-language-color-supersede, #fff)
+  );
 }
 .code-languages-background {
   border-radius: 12px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 0 0 1px var(--theme-code-languages-border-color);
+  box-shadow: 0 0 0 1px
+    var(
+      --theme-code-languages-border-color,
+      var(--default-theme-code-languages-border-color)
+    );
 }
 .code-languages-background:before {
   content: '';
@@ -251,7 +258,10 @@ function checkIfClientIsFeatured(client: SelectedClient) {
   top: 0;
   left: 0;
   pointer-events: none;
-  background: var(--theme-code-languages-background-supersede);
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(--default-theme-code-languages-background-supersede)
+  );
 }
 .code-languages-icon__shell {
   background: #000;
@@ -266,7 +276,7 @@ function checkIfClientIsFeatured(client: SelectedClient) {
   background: #306998;
 }
 .code-languages-icon__more {
-  background: var(--theme-background-3);
+  background: var(--theme-background-3, var(--default-theme-background-3));
 }
 .code-languages-icon__node {
   background: #83cd29;
@@ -332,7 +342,7 @@ function checkIfClientIsFeatured(client: SelectedClient) {
   bottom: 0;
   height: 2px;
   width: 100%;
-  background: var(--theme-color-1);
+  background: var(--theme-color-1, var(--default-theme-color-1));
 }
 @keyframes codeloader {
   0% {
@@ -344,11 +354,11 @@ function checkIfClientIsFeatured(client: SelectedClient) {
 }
 .code-languages span {
   margin-top: 3px;
-  color: var(--theme-color-2);
-  font-size: var(--theme-micro);
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  font-size: var(--theme-micro, var(--default-theme-micro));
 }
 .code-languages__active span {
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .code-languages__select select {
   opacity: 0;
@@ -369,7 +379,7 @@ function checkIfClientIsFeatured(client: SelectedClient) {
   content: '';
   width: 8px;
   height: 8px;
-  background: var(--theme-background-1);
+  background: var(--theme-background-1, var(--default-theme-background-1));
   box-shadow: 1px 1px 0 currentColor;
   display: block;
   transform: rotate(45deg);

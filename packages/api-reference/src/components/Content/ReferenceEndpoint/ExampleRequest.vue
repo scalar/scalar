@@ -178,23 +178,23 @@ const showItemInClient = () => {
 </template>
 <style scoped>
 .request-method--post {
-  color: var(--theme-post-color);
+  color: var(--theme-post-color, var(--default-theme-post-color));
 }
 .request-method--patch {
-  color: var(--theme-patch-color);
+  color: var(--theme-patch-color, var(--default-theme-patch-color));
 }
 .request-method--get {
-  color: var(--theme-get-color);
+  color: var(--theme-get-color, var(--default-theme-get-color));
 }
 .request-method--delete {
-  color: var(--theme-delete-color);
+  color: var(--theme-delete-color, var(--default-theme-delete-color));
 }
 .request-method--put {
-  color: var(--theme-put-color);
+  color: var(--theme-put-color, var(--default-theme-put-color));
 }
 .request-path {
   margin-left: 6px;
-  color: var(--theme-color-2);
+  color: var(--theme-color-2, var(--default-theme-color-2));
   white-space: nowrap;
   overflow: hidden;
   cursor: default;
@@ -205,14 +205,16 @@ const showItemInClient = () => {
 .language-select {
   position: relative;
   padding-right: 9px;
-  border-right: 1px solid var(--theme-border-color);
+  border-right: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 .language-select select {
   border: none;
   outline: none;
   cursor: pointer;
-  background: var(--theme-background-3);
-  box-shadow: -2px 0 0 0 var(--theme-background-3);
+  background: var(--theme-background-3, var(--default-theme-background-3));
+  box-shadow: -2px 0 0 0
+    var(--theme-background-3, var(--default-theme-background-3));
   z-index: 2;
   position: absolute;
   top: 0;
@@ -224,8 +226,8 @@ const showItemInClient = () => {
 }
 .language-select span {
   font-size: 12px;
-  color: var(--theme-color-3);
-  font-weight: var(--theme-semibold);
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -240,7 +242,7 @@ const showItemInClient = () => {
   box-shadow: 1px 1px 0 currentColor;
 }
 .language-select span:hover {
-  background: var(--theme-background-2);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 
 .copy-button {
@@ -250,14 +252,14 @@ const showItemInClient = () => {
   background: transparent;
   display: flex;
   cursor: pointer;
-  color: var(--theme-color-3);
+  color: var(--theme-color-3, var(--default-theme-color-3));
   margin-left: 6px;
   border: none;
   border-radius: 3px;
 }
 
 .copy-button:hover {
-  color: var(--theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 
 .copy-button svg {
@@ -271,21 +273,21 @@ const showItemInClient = () => {
   appearance: none;
   outline: none;
   border: none;
-  border-radius: var(--theme-radius-lg);
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   height: 35px;
   display: flex;
   justify-content: center;
   cursor: pointer;
   align-items: center;
-  font-weight: var(--theme-bold);
-  font-size: var(--theme-micro);
+  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-size: var(--theme-micro, var(--default-theme-micro));
   text-transform: uppercase;
   border: 1px solid currentColor;
-  background: var(--theme-button-1);
-  color: var(--theme-button-1-color);
+  background: var(--theme-button-1, var(--default-theme-button-1));
+  color: var(--theme-button-1-color, var(--default-theme-button-1-color));
 }
 .show-api-client-button:hover {
-  background: var(--theme-button-1-hover);
+  background: var(--theme-button-1-hover, var(--default-theme-button-1-hover));
 }
 .show-api-client-button svg {
   height: 12px;
@@ -294,9 +296,9 @@ const showItemInClient = () => {
 }
 
 .request-method {
-  font-family: var(--theme-font-code);
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 .request-path {
-  font-family: var(--theme-font-code);
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 </style>

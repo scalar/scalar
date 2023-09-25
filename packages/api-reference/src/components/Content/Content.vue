@@ -99,24 +99,30 @@ const localServers = computed(() => {
 <style scoped>
 .render-loading {
   height: calc(
-    var(--scalar-api-reference-full-height) -
-      var(--scalar-api-reference-theme-header-height)
+    var(
+        --scalar-api-reference-full-height,
+        var(--default-scalar-api-reference-full-height)
+      ) -
+      var(
+        --scalar-api-reference-theme-header-height,
+        var(--default-scalar-api-reference-theme-header-height)
+      )
   );
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .show-more {
-  background: var(--theme-background-1);
+  background: var(--theme-background-1, var(--default-theme-background-1));
   appearance: none;
   border: none;
-  border: 1px solid var(--theme-border-color);
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   margin: auto;
   padding: 8px 12px;
   border-radius: 30px;
-  color: var(--theme-color-1);
-  font-weight: var(--theme-semibold);
-  font-size: var(--theme-small);
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--theme-small, var(--default-theme-small));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -125,7 +131,7 @@ const localServers = computed(() => {
   position: relative;
 }
 .show-more:hover {
-  color: var(--theme-color-2);
+  color: var(--theme-color-2, var(--default-theme-color-2));
   cursor: pointer;
 }
 .show-more-icon {
@@ -134,7 +140,8 @@ const localServers = computed(() => {
   margin-left: 3px;
 }
 .show-more:active {
-  box-shadow: 0 0 0 1px var(--theme-border-color);
+  box-shadow: 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 @media (max-width: 1165px) {
   .show-more {
