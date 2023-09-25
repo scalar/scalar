@@ -143,7 +143,14 @@ Overwrite our CSS variables. We won’t judge.
 }
 ```
 
-You can [see all variables here](https://github.com/scalar/api-reference/blob/main/packages/default-theme/src/theme.css).
+We’re using the `default-` prefix for our variables to not overwrite your variables. You can [use all variables without a prefix](https://github.com/scalar/api-reference/blob/main/packages/default-theme/src/theme.css).
+
+```css
+/* ✅ Good */
+--theme-font: 'Comic Sans MS', 'Comic Sans', cursive;
+/* ❌ Bad */
+--default-theme-font: 'Comic Sans MS', 'Comic Sans', cursive;
+```
 
 ## Community
 
