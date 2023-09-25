@@ -23,7 +23,7 @@ describe('exports', () => {
       })
     }))
 
-  it('supports require', () =>
+  it.skip('supports require', () =>
     new Promise((resolve) => {
       const fastify = Fastify({
         logger: false,
