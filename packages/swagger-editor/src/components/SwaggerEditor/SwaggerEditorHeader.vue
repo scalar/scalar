@@ -419,7 +419,8 @@ const showIntegrations = ref(true)
   position: absolute;
   right: 24px;
   top: -20px;
-  box-shadow: 1px 1px 0 var(--theme-border-color, var(--default-theme-color-1));
+  box-shadow: 1px 1px 0
+    var(--theme-border-color, var(--default-theme-border-color));
   background: white;
 }
 </style>
