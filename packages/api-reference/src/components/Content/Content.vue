@@ -143,6 +143,10 @@ const localServers = computed(() => {
   box-shadow: 0 0 0 1px
     var(--theme-border-color, var(--default-theme-border-color));
 }
+.references-narrow .show-more {
+  margin-top: -24px;
+  margin-bottom: 24px;
+}
 @media (max-width: 1165px) {
   .show-more {
     margin-top: -24px;
