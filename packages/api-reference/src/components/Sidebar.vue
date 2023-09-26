@@ -102,8 +102,6 @@ useKeyboardEvent({
 <style>
 .sidebar {
   --default-theme-sidebar-indent-base: 6px;
-  /* prettier-ignore */
-  background: var(--sidebar-background-1, var(--default-sidebar-background-1), var(--theme-background-1, var(--default-theme-background-1)));
 }
 
 /* ----------------------------------------------------- */
@@ -123,7 +121,7 @@ useKeyboardEvent({
       )
     );
   /* prettier-ignore */
-  background: var(--sidebar-background-1, var(--default-sidebar-background-1), var(--theme-background-1, var(--default-theme-background-1)));
+  background: var(--sidebar-background-1, var(--default-sidebar-background-1, var(--theme-background-1, var(--default-theme-background-1))));
   --default-sidebar-level: 0;
 }
 

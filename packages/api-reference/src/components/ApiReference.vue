@@ -177,7 +177,7 @@ const breadCrumbs = computed(() => {
         name="mobile-header" />
       <!-- Primary sidebar content -->
       <div
-        v-if="showSidebar"
+        v-if="showSidebar && (!isMobile || $slots.header)"
         class="layout-aside-content">
         <slot
           v-if="isMobile"
