@@ -10,13 +10,14 @@ defineProps<{
   overloadShow?: boolean
   tabMode?: boolean
   activeTab?: string
+  proxyUrl?: string
 }>()
 
 const { hideApiClient, state } = useApiClientStore()
 
-const isMobile = useMediaQuery('(max-width: 1000px)')
+const proxyUrlEnvVariable = import.meta.env.VITE_CLIENT_PROXY
 
-const proxyUrl = import.meta.env.VITE_CLIENT_PROXY
+const isMobile = useMediaQuery('(max-width: 1000px)')
 </script>
 <script lang="ts">
 export { useApiClientStore } from '@scalar/api-client'
@@ -53,7 +54,8 @@ export { useApiClientStore } from '@scalar/api-client'
               :spec="spec" />
           </template>
           <ApiClient
-            :proxyUrl="proxyUrl"
+            :proxyUrl="proxyUrl || proxyUrlEnvVariable"
+            readOnly
             @escapeKeyPress="hideApiClient" />
         </div>
       </div>

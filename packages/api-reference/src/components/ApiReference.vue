@@ -204,7 +204,9 @@ const breadCrumbs = computed(() => {
     </div>
     <slot name="footer"></slot>
     <!-- REST API Client Overlay -->
-    <ApiClientModal :spec="transformedSpec" />
+    <ApiClientModal
+      :proxyUrl="proxyUrl"
+      :spec="transformedSpec" />
   </div>
 </template>
 

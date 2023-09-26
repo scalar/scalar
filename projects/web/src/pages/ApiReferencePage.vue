@@ -5,7 +5,10 @@ import { ApiReference } from '@scalar/api-reference'
 </script>
 
 <template>
-  <ApiReference isEditable />
+  <ApiReference
+    isEditable
+    proxyUrl="http://localhost:5051" />
+  <!-- <ApiReference isEditable /> -->
   <!-- <ApiReference :specUrl="/swagger.json" /> -->
   <!-- <ApiReference :spec="{ … }" /> -->
   <!-- <ApiReference :specResult="specResult" /> -->
