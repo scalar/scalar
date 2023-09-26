@@ -7,6 +7,7 @@ export type ReferenceProps = {
   spec?: string
   specUrl?: string
   specResult?: Record<any, any>
+  proxyUrl?: string
   hocuspocusConfiguration?: HocuspocusConfigurationProp
 }
 

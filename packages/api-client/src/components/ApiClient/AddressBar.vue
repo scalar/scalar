@@ -12,7 +12,7 @@ import FlowModal, { useModalState } from '../FlowModal.vue'
 import RequestHistory from './RequestHistory.vue'
 
 const props = defineProps<{
-  proxyUrl: string
+  proxyUrl?: string
 }>()
 
 const emits = defineEmits<{
