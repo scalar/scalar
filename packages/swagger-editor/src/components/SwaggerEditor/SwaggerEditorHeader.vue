@@ -72,7 +72,10 @@ const showIntegrations = ref(true)
         </svg>
       </div>
       <div class="swagger-editor-integrations-list">
-        <div class="swagger-editor-integrations-item">
+        <a
+          class="swagger-editor-integrations-item"
+          href="https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference#readme"
+          target="_blank">
           <svg
             height="16"
             viewBox="0 0 19 16"
@@ -84,8 +87,11 @@ const showIntegrations = ref(true)
               fill-rule="nonzero" />
           </svg>
           <span>Fastify</span>
-        </div>
-        <div class="swagger-editor-integrations-item">
+        </a>
+        <a
+          class="swagger-editor-integrations-item"
+          href="https://github.com/scalar/scalar/tree/main#from-a-cdn"
+          target="_blank">
           <svg
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg">
@@ -102,8 +108,11 @@ const showIntegrations = ref(true)
             </g>
           </svg>
           <span>CDN</span>
-        </div>
-        <div class="swagger-editor-integrations-item">
+        </a>
+        <a
+          class="swagger-editor-integrations-item"
+          href="https://github.com/scalar/scalar/tree/main#with-vuejs"
+          target="_blank">
           <svg
             height="170"
             viewBox="0 0 196.3 170"
@@ -119,8 +128,11 @@ const showIntegrations = ref(true)
             </g>
           </svg>
           <span>Vue</span>
-        </div>
-        <div class="swagger-editor-integrations-item">
+        </a>
+        <a
+          class="swagger-editor-integrations-item"
+          href="https://github.com/scalar/scalar/tree/main#with-react"
+          target="_blank">
           <svg
             height="23.3"
             viewBox="0 0 22 23.3"
@@ -157,7 +169,7 @@ const showIntegrations = ref(true)
             </g>
           </svg>
           <span>React</span>
-        </div>
+        </a>
         <div class="swagger-editor-integrations-item">
           <svg
             height="62"
@@ -173,12 +185,12 @@ const showIntegrations = ref(true)
         </div>
       </div>
     </div>
-    <div class="swagger-editor-title swagger-editor-title-active">
+    <div class="swagger-editor-title">
       <div class="swagger-editor-title-type"><i>Swagger </i>Editor</div>
     </div>
-    <div class="swagger-editor-title">
+    <!-- <div class="swagger-editor-title swagger-editor-title-active">
       <div class="swagger-editor-title-type"><i>AI </i>Writer</div>
-    </div>
+    </div> -->
     <div
       class="swagger-editor-header-buttons"
       :class="{ 'swagger-editor-header-buttons__active': showIntegrations }">
@@ -361,6 +373,7 @@ const showIntegrations = ref(true)
   cursor: pointer;
   color: var(--theme-color-1, var(--default-theme-color-1));
   z-index: 10;
+  text-decoration: none;
 }
 .swagger-editor-integrations-item:hover {
   background: var(--theme-background-2, var(--default-theme-background-2));
