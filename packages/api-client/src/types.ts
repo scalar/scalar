@@ -87,6 +87,7 @@ export type ClientResponse = {
   statusCode: number
   statusText: string
   data: string
+  query: Record<string, any>
   duration: number
 }
 

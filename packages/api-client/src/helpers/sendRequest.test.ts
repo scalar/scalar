@@ -47,4 +47,45 @@ describe('sendRequest', () => {
       path: '/example',
     })
   })
+
+  it('sends query parameters', async () => {
+    const { port } = createEchoServerOnAnyPort()
+
+    const request = {
+      url: `http://127.0.0.1:${port}`,
+      query: [
+        {
+          name: 'foo',
+          value: 'bar',
+        },
+      ],
+    }
+
+    const result = await sendRequest(request)
+
+    expect(result?.response?.query).toContain({
+      foo: 'bar',
+    })
+  })
+
+  it.todo('merges query parameters', async () => {
+    const { port } = createEchoServerOnAnyPort()
+
+    const request = {
+      url: `http://127.0.0.1:${port}?example=parameter`,
+      query: [
+        {
+          name: 'foo',
+          value: 'bar',
+        },
+      ],
+    }
+
+    const result = await sendRequest(request)
+
+    expect(result?.response?.query).toContain({
+      example: 'parameter',
+      foo: 'bar',
+    })
+  })
 })

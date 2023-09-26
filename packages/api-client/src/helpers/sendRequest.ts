@@ -27,10 +27,19 @@ export async function sendRequest(
   const url = normalizeUrl(request.url)
   const path = normalizePath(request.path)
   const urlWithPath = concatenateUrlAndPath(url, path)
-  const renderedURL = replaceVariables(
+  const renderedUrl = replaceVariables(
     urlWithPath,
     mapFromArray(request.parameters ?? [], 'name', 'value'),
   )
+  // TODO: No type-casting
+  const queryString = new URLSearchParams(
+    mapFromArray(request.query ?? [], 'name', 'value') as Record<
+      string,
+      string
+    >,
+  ).toString()
+
+  const completeUrl = `${renderedUrl}${queryString ? '?' + queryString : ''}`
 
   /** TODO: Make dynamic */
   const auth = {
@@ -41,7 +50,7 @@ export async function sendRequest(
 
   const requestOptions = {
     method,
-    url: renderedURL,
+    url: completeUrl,
     auth,
     headers,
     data: request.body,
