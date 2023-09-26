@@ -1,12 +1,7 @@
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 
-import type {
-  ClientRequestConfig,
-  ClientResponse,
-  RequestResult,
-  SendRequestConfig,
-} from '../types'
+import type { ClientResponse, RequestResult, SendRequestConfig } from '../types'
 import {
   concatenateUrlAndPath,
   mapFromArray,
@@ -16,10 +11,6 @@ import {
   replaceVariables,
 } from './'
 
-const defaultHeaders = {
-  'User-Agent': 'Scalar API Client',
-}
-
 /**
  * Send a request via the proxy
  */
@@ -28,10 +19,11 @@ export async function sendRequest(
   proxyUrl?: string,
 ): Promise<RequestResult | null> {
   const method = normalizeRequestMethod(request.type)
-  const headers: Record<string, string | number> = {
-    ...defaultHeaders,
-    ...mapFromArray(request.headers ?? [], 'name', 'value'),
-  }
+  const headers: Record<string, string | number> = mapFromArray(
+    request.headers ?? [],
+    'name',
+    'value',
+  )
   const url = normalizeUrl(request.url)
   const path = normalizePath(request.path)
   const urlWithPath = concatenateUrlAndPath(url, path)
