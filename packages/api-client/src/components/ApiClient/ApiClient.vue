@@ -4,22 +4,28 @@ import '@scalar/default-theme/scrollbar.css'
 import '@scalar/default-theme/theme.css'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import { useApiClientRequestStore } from '../../stores'
 import AdressBar from './AddressBar.vue'
 import { Request } from './Request'
 import { Response } from './Response'
 
-defineProps<{
-  proxyUrl: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    proxyUrl?: string
+    readOnly?: boolean
+  }>(),
+  {
+    readOnly: false,
+  },
+)
 
 const emit = defineEmits<{
   (e: 'escapeKeyPress'): void
 }>()
 
-const { activeRequest } = useApiClientRequestStore()
+const { activeRequest, readOnly: stateReadOnly } = useApiClientRequestStore()
 
 const isSmallScreen = useMediaQuery('(max-width: 820px)')
 
@@ -33,6 +39,14 @@ const Tabs = {
 function changeTab(index: number) {
   selectedTab.value = index
 }
+
+watch(
+  () => props.readOnly,
+  () => {
+    stateReadOnly.value = props.readOnly
+  },
+  { immediate: true },
+)
 
 useKeyboardEvent({
   keyList: ['escape'],
