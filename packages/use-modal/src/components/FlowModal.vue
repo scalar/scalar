@@ -5,7 +5,8 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@headlessui/vue'
-import { reactive } from 'vue'
+
+import { type ModalState } from '../hooks'
 
 withDefaults(
   defineProps<{
@@ -19,20 +20,6 @@ withDefaults(
     variant: 'normal',
   },
 )
-</script>
-<script lang="ts">
-export type ModalState = ReturnType<typeof useModalState>
-
-export const useModalState = () =>
-  reactive({
-    open: false,
-    show() {
-      this.open = true
-    },
-    hide() {
-      this.open = false
-    },
-  })
 </script>
 <template>
   <Dialog

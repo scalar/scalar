@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { FlowModal, useModal } from '@scalar/use-modal'
 import { useFileDialog } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
 import spec from '../../petstorev3.json'
 import FlowButton from '../FlowButton.vue'
-import FlowModal, { useModalState } from '../FlowModal.vue'
 import FlowTextField from '../FlowTextField.vue'
 
 const emit = defineEmits<{
@@ -16,7 +16,7 @@ const { files, open, reset } = useFileDialog({
   accept: '.json,.yaml,.yml',
 })
 
-const swaggerURLModalState = useModalState()
+const swaggerURLModalState = useModal()
 const swaggerUrl = ref('')
 
 async function fetchURL() {

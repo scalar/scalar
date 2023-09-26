@@ -10,6 +10,7 @@
     "@hocuspocus/provider": "2.5.0",
     "@scalar/swagger-parser": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
+    "@scalar/use-modal": "workspace:*",
     "@vueuse/core": "10.4.1",
     "nanoid": "5.0.1",
     "y-codemirror.next": "0.3.2",
