@@ -257,8 +257,8 @@ const breadCrumbs = computed(() => {
   --default-scalar-api-reference-theme-toc-width: 300px;
   --default-scalar-api-reference-app-header-height: 100px;
   --default-scalar-api-reference-col-width-1: 250px;
-  --default-scalar-api-reference-col-width-2: calc(50% - 150px);
-  --default-scalar-api-reference-col-width-3: calc(50% - 150px);
+  --default-scalar-api-reference-col-width-2: calc(50% - 125px);
+  --default-scalar-api-reference-col-width-3: calc(50% - 125px);
   --default-scalar-api-reference-document-height: 100vh;
   --default-scalar-api-reference-full-height: 100%;
 }
