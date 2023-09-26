@@ -259,12 +259,20 @@ const showIntegrations = ref(true)
   justify-content: flex-end;
 }
 
+.swagger-editor-header span {
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-weight: 600;
+  margin-right: 12px;
+  position: relative;
+  cursor: pointer;
+}
+
 .swagger-editor-title {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   color: var(--theme-color-1, var(--default-theme-color-1));
   font-size: var(--theme-mini, var(--default-theme-mini));
-  font-size: 13px;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -303,9 +311,15 @@ const showIntegrations = ref(true)
 .swagger-editor-title-buttons button {
   background: transparent;
   appearance: none;
+<<<<<<< HEAD
   outline: none;
   border: none;
   color: var(--theme-color-2, var(--default-theme-color-2));
+=======
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  color: var(--theme-color-3, var(--default-theme-color-3));
+>>>>>>> 4f7b2bf5 (chore: replace font sizes with variables)
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -225,7 +225,7 @@ export default {
 }
 .helper-text {
   margin-top: 6px;
-  font-size: 13px;
+  font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-error-color, var(--default-theme-error-color));
   display: flex;
   align-items: center;
@@ -242,7 +242,7 @@ export default {
   display: block;
   margin-right: 6px;
   text-align: center;
-  font-size: 11px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
 }
 .helper-text:empty {
   display: none;

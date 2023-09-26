@@ -102,7 +102,7 @@ defineProps<{ requestBody?: RequestBody }>()
   font-weight: 500;
   margin-right: 6px;
   font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: 13px;
+  font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .parameter-type,
@@ -114,7 +114,7 @@ defineProps<{ requestBody?: RequestBody }>()
 }
 .marc_required {
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   font-weight: var(--theme-bold, var(--default-theme-bold));
   color: #ffb040;
 }

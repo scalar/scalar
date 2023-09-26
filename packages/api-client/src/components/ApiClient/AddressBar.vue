@@ -234,7 +234,7 @@ const onChange = (value: string) => {
 .scalar-api-client__request-type span {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   font-size: 500;
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   text-transform: uppercase;
 }
 .scalar-api-client__request-type svg {
@@ -321,7 +321,7 @@ const onChange = (value: string) => {
 }
 .scalar-api-client__send-request-button--loading:after {
   content: 'Loading';
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
 }
 @keyframes urlloader {
   0% {
@@ -430,7 +430,7 @@ const onChange = (value: string) => {
   padding: 8px 9px 8px 0;
   border: none;
   outline: none;
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color-1, var(--default-theme-color-1));
   width: 100%;
   display: block;
@@ -442,13 +442,13 @@ const onChange = (value: string) => {
   text-transform: uppercase;
   font-style: normal;
   font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: 11px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   margin-right: 6px;
   font-weight: var(--theme-bold, var(--default-theme-bold));
   color: var(--theme-color-disabled, var(--default-theme-color-disabled));
 }
 .navtable-item-time {
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color-1, var(--default-theme-color-1));
   text-transform: capitalize;
   padding: 0 9px;

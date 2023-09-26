@@ -233,7 +233,7 @@ const searchResultsWithPlaceholderResults = computed(
   width: 100%;
   background: transparent;
   padding: 12px;
-  font-size: 13px;
+  font-size: var(--theme-mini, var(--default-theme-mini));
   outline: none;
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-radius: var(--theme-radius, var(--default-theme-radius));

@@ -125,7 +125,7 @@ defineProps<{
   background: var(--theme-background-3, var(--default-theme-background-3));
   padding: 2px 6px;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   pointer-events: none;
   color: var(--theme-color-2, var(--default-theme-color-2));
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));

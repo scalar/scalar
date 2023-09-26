@@ -54,7 +54,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   padding: 0 12px 12px;
   border-radius: 3px;
   color: var(--theme-color-disabled, var(--default-theme-color-disabled));
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   margin-top: -3px;
   justify-content: space-between;
 }
@@ -81,7 +81,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   background: transparent;
 }
 .scalar-api-client__item__content .cm-editor * {
-  font-size: 11px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
 }
 .scalar-api-client__item__content .cm-editor .cm-line {
   color: var(--theme-color-1, var(--default-theme-color-1));
@@ -91,7 +91,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   appearance: none;
   border: none;
   outline: none;
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   background: var(
     --scalar-api-client-color,
     var(--default-scalar-api-client-color)
@@ -130,7 +130,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   padding: 12px;
   border: 0;
   outline: none;
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color-1, var(--default-theme-color-1));
   width: 100%;
   background: transparent;
@@ -164,7 +164,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 .select {
   background: --theme-background-1;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   width: 100%;
   position: relative;
@@ -197,7 +197,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   outline: none;
   border: none;
   -webkit-appearance: none;
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color-1, var(--default-theme-color-1));
   appearance: none;
   width: 100%;
@@ -212,7 +212,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   position: relative;
   cursor: pointer;
   align-items: center;
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-radius: 3px;
   padding: 10px 12px;
