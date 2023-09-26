@@ -525,13 +525,14 @@ const breadCrumbs = computed(() => {
 .editor-heading h1 {
   font-size: var(
     --font-size,
-    var(--default-font-size),
-    var(--theme-heading-2, var(--default-theme-heading-2))
+    var(
+      --default-font-size,
+      var(--theme-heading-2, var(--default-theme-heading-2))
+    )
   );
   font-weight: var(
     --font-weight,
-    var(--default-font-weight),
-    var(--theme-bold, var(--default-theme-bold))
+    var(--default-font-weight, var(--theme-bold, var(--default-theme-bold)))
   );
   /* prettier-ignore */
   color: var(--theme-color-1, var(--default-theme-color-1));
@@ -550,8 +551,7 @@ const breadCrumbs = computed(() => {
   /* Fallback to 100vh if the element height is not specified */
   --default-full-height: var(
     --scalar-api-reference-full-height,
-    var(--default-scalar-api-reference-full-height),
-    100vh
+    var(--default-scalar-api-reference-full-height, 100vh)
   );
   /* --theme-header-height: 50px; */
   /* --scalar-api-reference-theme-sidebar-width: 200px; */
