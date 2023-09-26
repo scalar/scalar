@@ -72,6 +72,9 @@ importers:
       '@scalar/use-keyboard-event':
         specifier: workspace:*
         version: link:../use-keyboard-event
+      '@scalar/use-modal':
+        specifier: workspace:*
+        version: link:../use-modal
       '@types/content-type':
         specifier: 1.1.6
         version: 1.1.6
@@ -197,6 +200,9 @@ importers:
       '@scalar/use-keyboard-event':
         specifier: workspace:*
         version: link:../use-keyboard-event
+      '@scalar/use-modal':
+        specifier: workspace:*
+        version: link:../use-modal
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
@@ -461,6 +467,9 @@ importers:
       '@scalar/use-codemirror':
         specifier: workspace:*
         version: link:../use-codemirror
+      '@scalar/use-modal':
+        specifier: workspace:*
+        version: link:../use-modal
       '@vueuse/core':
         specifier: 10.4.1
         version: 10.4.1(vue@3.3.4)
@@ -669,6 +678,34 @@ importers:
 
   packages/use-keyboard-event:
     dependencies:
+      vue:
+        specifier: 3.3.4
+        version: 3.3.4
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: 4.3.4
+        version: 4.3.4(vite@4.4.9)(vue@3.3.4)
+      '@vitest/coverage-v8':
+        specifier: 0.34.4
+        version: 0.34.4(vitest@0.34.4)
+      tsc-alias:
+        specifier: 1.8.8
+        version: 1.8.8
+      vite:
+        specifier: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
+      vitest:
+        specifier: 0.34.4
+        version: 0.34.4
+      vue-tsc:
+        specifier: 1.8.13
+        version: 1.8.13(typescript@5.2.2)
+
+  packages/use-modal:
+    dependencies:
+      '@headlessui/vue':
+        specifier: 1.7.16
+        version: 1.7.16(vue@3.3.4)
       vue:
         specifier: 3.3.4
         version: 3.3.4
@@ -1029,7 +1066,7 @@ packages:
     resolution: {integrity: sha512-oLcVCTeIFadUoArDTwpluncplrYBmTCCZZgXCbgNGvOBBiSDDK3eWO4b/+eOTli5tKv1lg+a5/NAXg+nTcei1w==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.17.0
+      '@babel/types': 7.22.19
       jsesc: 2.5.2
       source-map: 0.5.7
     dev: true
@@ -2284,7 +2321,7 @@ packages:
       '@babel/helper-hoist-variables': 7.22.5
       '@babel/helper-split-export-declaration': 7.22.6
       '@babel/parser': 7.22.16
-      '@babel/types': 7.17.0
+      '@babel/types': 7.22.19
       debug: 4.3.4
       globals: 11.12.0
     transitivePeerDependencies:
@@ -5011,7 +5048,7 @@ packages:
   /@types/node-fetch@2.6.5:
     resolution: {integrity: sha512-OZsUlr2nxvkqUFLSaY2ZbA+P1q22q+KrlxWOn/38RX+u5kTkYL2mTujEpzUhGkS+K/QCYp9oagfXG39XOzyySg==}
     dependencies:
-      '@types/node': 16.18.53
+      '@types/node': 20.6.3
       form-data: 4.0.0
     dev: true
 

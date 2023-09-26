@@ -14,6 +14,7 @@
     "@scalar/use-clipboard": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-keyboard-event": "workspace:*",
+    "@scalar/use-modal": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
     "@vueuse/core": "10.4.1",

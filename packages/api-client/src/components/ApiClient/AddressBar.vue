@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { CodeMirror } from '@scalar/use-codemirror'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
+import { FlowModal, useModal } from '@scalar/use-modal'
 import { useMediaQuery } from '@vueuse/core'
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
@@ -8,7 +9,6 @@ import { computed, ref } from 'vue'
 
 import { sendRequest } from '../../helpers/sendRequest'
 import { useApiClientRequestStore } from '../../stores/apiClientRequestStore'
-import FlowModal, { useModalState } from '../FlowModal.vue'
 import RequestHistory from './RequestHistory.vue'
 
 const props = defineProps<{
@@ -34,7 +34,7 @@ const {
   setActiveRequest,
 } = useApiClientRequestStore()
 
-const historyModal = useModalState()
+const historyModal = useModal()
 
 // https://petstore3.swagger.io/api/v3
 const url = computed(() => activeRequest.url)
