@@ -117,8 +117,10 @@ useKeyboardEvent({
   border-right: 1px solid
     var(
       --sidebar-border-color,
-      var(--default-sidebar-border-color),
-      var(--theme-border-color, var(--default-theme-border-color))
+      var(
+        --default-sidebar-border-color,
+        var(--theme-border-color, var(--default-theme-border-color))
+      )
     );
   /* prettier-ignore */
   background: var(--sidebar-background-1, var(--default-sidebar-background-1), var(--theme-background-1, var(--default-theme-background-1)));
