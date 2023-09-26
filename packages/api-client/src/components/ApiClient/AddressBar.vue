@@ -98,6 +98,9 @@ const onChange = (value: string) => {
 
 <template>
   <div
+    v-if="loading"
+    class="loader"></div>
+  <div
     class="scalar-api-client__address-bar"
     :class="{ 'scalar-api-client__address-bar__on': showHistory }">
     <div class="scalar-api-client__url-form">
@@ -109,17 +112,14 @@ const onChange = (value: string) => {
         <CodeMirror
           class="scalar-api-client__url-input"
           :content="formattedUrl"
-          :disableEnter="true"
+          disableEnter
           :readOnly="readOnly"
-          :withVariables="true"
-          :withoutTheme="true"
+          withoutTheme
+          withVariables
           @change="onChange" />
       </div>
       <button
         class="scalar-api-client__send-request-button"
-        :class="[
-          { 'scalar-api-client__send-request-button--loading': loading },
-        ]"
         type="submit"
         @click="send">
         <svg
@@ -187,6 +187,26 @@ const onChange = (value: string) => {
   </div>
 </template>
 <style>
+.loader {
+  position: absolute;
+  z-index: 3;
+  height: 2px;
+  background: var(
+    --scalar-api-client-color,
+    var(--default-scalar-api-client-color)
+  );
+  animation: loading 5s cubic-bezier(0, 0.5, 0.25, 1);
+}
+
+@keyframes loading {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
 .scalar-api-client__address-bar {
   width: 100%;
   padding: 12px 12px 10px 12px;
@@ -297,40 +317,7 @@ const onChange = (value: string) => {
   height: 12px;
   margin-right: 6px;
 }
-.scalar-api-client__send-request-button--loading {
-  font-size: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 127px;
-}
-.scalar-api-client__send-request-button--loading svg {
-  display: none;
-}
-.scalar-api-client__send-request-button--loading:before {
-  content: '';
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-top: 1px solid white;
-  animation: urlloader 0.45s linear infinite;
-  background: transparent;
-  width: 14px;
-  height: 14px;
-  margin-left: 0;
-  margin-right: 9px;
-  border-radius: 50%;
-}
-.scalar-api-client__send-request-button--loading:after {
-  content: 'Loading';
-  font-size: var(--theme-micro, var(--default-theme-micro));
-}
-@keyframes urlloader {
-  0% {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(1turn);
-  }
-}
+
 .scalar-api-client__history-toggle {
   padding: 0 9px;
   line-height: 30px;
