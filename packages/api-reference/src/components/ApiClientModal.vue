@@ -139,7 +139,7 @@ export { useApiClientStore } from '@scalar/api-client'
   display: flex;
   align-items: center;
   background: transparent;
-  font-size: 14px;
+  font-size: var(--theme-small, var(--default-theme-small));
   color: var(--theme-color-1, var(--default-theme-color-1));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }

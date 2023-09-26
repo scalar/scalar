@@ -121,7 +121,7 @@ const showDescription = ref(false)
   right: 0;
   padding: 5px 9px 5px 6px;
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   background: var(--theme-background-2, var(--default-theme-background-2));
   box-shadow: -2px 0 4px
     var(--theme-background-2, var(--default-theme-background-2));
@@ -191,7 +191,7 @@ const showDescription = ref(false)
   padding: 9px;
   width: 100%;
   color: var(--theme-color-1, var(--default-theme-color-1));
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
 }
 .table-row-item input[disabled] {
   background: transparent;
@@ -207,7 +207,7 @@ const showDescription = ref(false)
   padding: 9px;
   font-weight: var(--theme-bold, var(--default-theme-bold));
   color: var(--theme-color-disabled, var(--default-theme-color-disabled));
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
 }
 .table-row-meta {
   overflow: hidden;
@@ -240,7 +240,7 @@ const showDescription = ref(false)
   position: relative;
   cursor: pointer;
   align-items: center;
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   user-select: none;
   margin: 0 1px;
@@ -331,7 +331,7 @@ const showDescription = ref(false)
 }
 .navtable-item-action {
   color: var(--theme-color-2, var(--default-theme-color-2));
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   font-weight: var(--theme-bold, var(--default-theme-bold));
   background: var(
     --scalar-api-client-bg3,
@@ -384,20 +384,20 @@ const showDescription = ref(false)
 }
 .navtable-item-25 {
   width: 25%;
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   display: flex;
   align-items: center;
 }
 .navtable-item-33 {
   width: 33.33333%;
   display: flex;
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   align-items: center;
 }
 .navtable-item-66 {
   width: 66.6666%;
   display: flex;
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   align-items: center;
 }
 .navtable-item-75 {
@@ -434,7 +434,7 @@ const showDescription = ref(false)
   border: none;
   outline: none;
   appearance: none;
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color-1, var(--default-theme-color-1));
   background: transparent;
   width: 100%;
@@ -449,7 +449,7 @@ const showDescription = ref(false)
   background: transparent;
   outline: none;
   border: none;
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   appearance: none;
   width: 100%;
   padding: 12px 6px;
@@ -468,13 +468,13 @@ const showDescription = ref(false)
 }
 .navtable-item .option {
   padding: 12px 6px;
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color-1, var(--default-theme-color-1));
   width: 100%;
 }
 .navtable-item label {
   color: var(--theme-color-disabled, var(--default-theme-color-disabled));
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   font-weight: var(--theme-bold, var(--default-theme-bold));
   text-transform: uppercase;
   padding: 9px;
@@ -485,7 +485,7 @@ const showDescription = ref(false)
   padding: 0 9px;
 }
 .navtable-item-response span {
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   display: flex;
   align-items: center;
   margin-right: 6px;

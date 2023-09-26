@@ -259,11 +259,11 @@ const fixErrors = async () => {
 }
 .scalar-copilot__header-button--working:after {
   content: 'Working';
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
 }
 .scalar-copilot__header-button--loading:after {
   content: 'Loading';
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
 }
 .scalar-copilot__header-button--success {
   font-size: 0;
@@ -272,7 +272,7 @@ const fixErrors = async () => {
 }
 .scalar-copilot__header-button--success:after {
   content: 'Success';
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color-2, var(--default-theme-color-2));
 }
 .scalar-copilot__header-button--success:before {

@@ -225,7 +225,7 @@ const showItemInClient = () => {
   appearance: none;
 }
 .language-select span {
-  font-size: 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color-3, var(--default-theme-color-3));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   display: flex;
