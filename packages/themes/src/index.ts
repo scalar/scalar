@@ -23,7 +23,7 @@ export type ThemeId =
 /**
  * List of available theme presets.
  */
-export const presets: Record<ThemeId, string> = {
+export const presets: Record<Exclude<ThemeId, 'none'>, string> = {
   alternate: alternateTheme,
   default: defaultTheme,
   moon: moonTheme,
@@ -40,5 +40,9 @@ export const availableThemes = Object.keys(presets) as ThemeId[]
  * Get the theme CSS for a given theme ID.
  */
 export const getThemeById = (themeId: ThemeId = 'default') => {
+  if (themeId === 'none') {
+    return ''
+  }
+
   return presets[themeId] ?? defaultTheme
 }
