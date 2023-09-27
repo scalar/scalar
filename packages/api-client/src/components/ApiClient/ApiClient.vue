@@ -63,24 +63,22 @@ useKeyboardEvent({
             <Tab
               v-slot="{ selected }"
               class="scalar-api-client__mobile-navigation__toggle">
-              <button
+              <span
                 :class="{
                   'scalar-api-client__mobile-navigation--active': selected,
-                }"
-                type="button">
+                }">
                 Request
-              </button>
+              </span>
             </Tab>
             <Tab
               v-slot="{ selected }"
               class="scalar-api-client__mobile-navigation__toggle">
-              <button
+              <span
                 :class="{
                   'scalar-api-client__mobile-navigation--active': selected,
-                }"
-                type="button">
+                }">
                 Response
-              </button>
+              </span>
             </Tab>
           </TabList>
           <TabPanels>
@@ -182,6 +180,13 @@ useKeyboardEvent({
 
 .scalar-api-client__mobile-navigation__toggle {
   appearance: none;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: var(--theme-font-size-3);
+  color: var(--theme-color-2);
+  font-weight: var(--theme-bold);
+  padding: 0;
   margin-right: 9px;
   cursor: pointer;
 }
@@ -236,6 +241,7 @@ useKeyboardEvent({
 
 .meta {
   display: flex;
+  margin-top: 3px;
   font-size: var(--theme-font-size-2, var(--default-theme-font-size-2));
   font-weight: var(--theme-font-size-2, var(--default-theme-font-size-2));
   color: var(
@@ -257,13 +263,11 @@ useKeyboardEvent({
   margin-right: 12px;
   white-space: nowrap;
   font-weight: var(--theme-bold, var(--default-theme-bold));
-  font-size: 12px;
+  font-size: var(--theme-small, var(--default-theme-small));
   color: var(--theme-color-disabled, var(--default-theme-color-disabled));
-  padding: 3px 0;
 }
 
 .meta-item__input {
-  padding: 3px 0;
   background: transparent;
   width: 100%;
   margin-right: 0;
