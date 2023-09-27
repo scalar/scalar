@@ -548,6 +548,11 @@ const breadCrumbs = computed(() => {
   overflow-y: auto;
   overflow-x: hidden;
 
+  background-color: var(
+    --theme-background-1,
+    var(--default-theme-background-1)
+  );
+
   /* Fallback to 100vh if the element height is not specified */
   --default-full-height: var(
     --scalar-api-reference-full-height,
