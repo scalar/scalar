@@ -16,6 +16,6 @@
       <div data-spec='<%= JSON.stringify(options.apiReference?.spec()) %>' />
     <% } %>
 
-    <script src="https://www.unpkg.com/@scalar/api-reference"></script>
+    <script type="module" src="<%= options.routePrefix %>/fastify-api-reference.js"></script>
   </body>
 </html>

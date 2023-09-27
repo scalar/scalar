@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 patchedDependencies:
   '@jsdevtools/ono@7.1.3':
     hash: gqumdw6qlspa2xjg2gstxyzvca
@@ -327,7 +323,7 @@ importers:
         version: 3.3.0(vite@4.4.9)
       vite-plugin-node-polyfills:
         specifier: 0.14.1
-        version: 0.14.1(vite@4.4.9)
+        version: 0.14.1(rollup@3.29.2)(vite@4.4.9)
       vitest:
         specifier: 0.34.4
         version: 0.34.4
@@ -392,6 +388,9 @@ importers:
 
   packages/fastify-api-reference:
     dependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../api-reference
       '@types/ejs':
         specifier: 3.1.3
         version: 3.1.3
@@ -404,7 +403,13 @@ importers:
       fastify-plugin:
         specifier: 4.5.1
         version: 4.5.1
+      vue:
+        specifier: 3.3.4
+        version: 3.3.4
     devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: 4.3.4
+        version: 4.3.4(vite@4.4.9)(vue@3.3.4)
       '@vitest/coverage-v8':
         specifier: 0.34.4
         version: 0.34.4(vitest@0.34.4)
@@ -423,6 +428,15 @@ importers:
       vite-node:
         specifier: 0.34.4
         version: 0.34.4(@types/node@20.6.3)
+      vite-plugin-css-injected-by-js:
+        specifier: 3.3.0
+        version: 3.3.0(vite@4.4.9)
+      vite-plugin-node-polyfills:
+        specifier: 0.14.1
+        version: 0.14.1(rollup@3.29.2)(vite@4.4.9)
+      vite-plugin-singlefile:
+        specifier: 0.13.5
+        version: 0.13.5(rollup@3.29.2)(vite@4.4.9)
       vite-plugin-static-copy:
         specifier: 0.17.0
         version: 0.17.0(vite@4.4.9)
@@ -865,7 +879,7 @@ importers:
         version: 4.4.9(@types/node@20.6.3)
       vite-plugin-node-polyfills:
         specifier: 0.14.1
-        version: 0.14.1(vite@4.4.9)
+        version: 0.14.1(rollup@3.29.2)(vite@4.4.9)
 
   projects/web:
     dependencies:
@@ -911,7 +925,7 @@ importers:
         version: 4.4.9(@types/node@20.6.3)
       vite-plugin-node-polyfills:
         specifier: 0.14.1
-        version: 0.14.1(vite@4.4.9)
+        version: 0.14.1(rollup@3.29.2)(vite@4.4.9)
       vue-tsc:
         specifier: 1.8.13
         version: 1.8.13(typescript@5.2.2)
@@ -1208,7 +1222,6 @@ packages:
   /@babel/helper-string-parser@7.22.5:
     resolution: {integrity: sha512-mM4COjgZox8U+JcXQwPijIZLElkgEpO5rsERVDJTc2qfCDfERyob6k5WegS14SX18IIjv+XD+GrqNumY5JRCDw==}
     engines: {node: '>=6.9.0'}
-    dev: true
 
   /@babel/helper-validator-identifier@7.22.20:
     resolution: {integrity: sha512-Y4OZ+ytlatR8AI+8KZfKuL5urKp7qey08ha31L8b3BwewJAoJamTzyvxPR/5D+KkdJCGPq/+8TukHBlY10FX9A==}
@@ -1253,7 +1266,7 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
     dependencies:
-      '@babel/types': 7.17.0
+      '@babel/types': 7.22.19
 
   /@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression@7.22.15(@babel/core@7.22.20):
     resolution: {integrity: sha512-FB9iYlz7rURmRJyXRKEnalYPPdn87H5no108cyuQQyMwlpJ2SJtpIUBI27kdTin956pz+LPypkPVPUTlxOmrsg==}
@@ -2302,6 +2315,7 @@ packages:
     dependencies:
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
+    dev: true
 
   /@babel/types@7.22.19:
     resolution: {integrity: sha512-P7LAw/LbojPzkgp5oznjE6tQEIWbp4PkkfrZDINTro9zgBRtI324/EYsiSI7lhPbpIQ+DCeR2NNmMWANGGfZsg==}
@@ -2310,7 +2324,6 @@ packages:
       '@babel/helper-string-parser': 7.22.5
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
-    dev: true
 
   /@bcoe/v8-coverage@0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
@@ -3821,7 +3834,7 @@ packages:
       '@babel/runtime': 7.22.15
     dev: true
 
-  /@rollup/plugin-inject@5.0.3:
+  /@rollup/plugin-inject@5.0.3(rollup@3.29.2):
     resolution: {integrity: sha512-411QlbL+z2yXpRWFXSmw/teQRMkXcAAC8aYTemc15gwJRpvEVDQwoe+N/HTFD8RFG8+88Bme9DK2V9CVm7hJdA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -3830,12 +3843,13 @@ packages:
       rollup:
         optional: true
     dependencies:
-      '@rollup/pluginutils': 5.0.4
+      '@rollup/pluginutils': 5.0.4(rollup@3.29.2)
       estree-walker: 2.0.2
       magic-string: 0.27.0
+      rollup: 3.29.2
     dev: true
 
-  /@rollup/pluginutils@5.0.4:
+  /@rollup/pluginutils@5.0.4(rollup@3.29.2):
     resolution: {integrity: sha512-0KJnIoRI8A+a1dqOYLxH8vBf8bphDmty5QvIm2hqm7oFCFYKCAZWWd2hXgMibaPsNDhI0AtpYfQZJG47pt/k4g==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -3847,6 +3861,7 @@ packages:
       '@types/estree': 1.0.1
       estree-walker: 2.0.2
       picomatch: 2.3.1
+      rollup: 3.29.2
     dev: true
 
   /@sinclair/typebox@0.27.8:
@@ -4733,7 +4748,7 @@ packages:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.3.4
-      vue-component-type-helpers: 1.8.13
+      vue-component-type-helpers: 1.8.15
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -13449,18 +13464,30 @@ packages:
       vite: 4.4.9(@types/node@20.6.3)
     dev: true
 
-  /vite-plugin-node-polyfills@0.14.1(vite@4.4.9):
+  /vite-plugin-node-polyfills@0.14.1(rollup@3.29.2)(vite@4.4.9):
     resolution: {integrity: sha512-S5ofYUkXea/d94AHzDwiTA7Pv/yEwzagnjgVEuBZdy7E72GBfK17qpljAlyK3CD+CRcDzAwwl/4bEjKdvZmTGQ==}
     peerDependencies:
       vite: ^2.0.0 || ^3.0.0 || ^4.0.0
     dependencies:
-      '@rollup/plugin-inject': 5.0.3
+      '@rollup/plugin-inject': 5.0.3(rollup@3.29.2)
       buffer-polyfill: /buffer@6.0.3
       node-stdlib-browser: 1.2.0
       process: 0.11.10
       vite: 4.4.9(@types/node@20.6.3)
     transitivePeerDependencies:
       - rollup
+    dev: true
+
+  /vite-plugin-singlefile@0.13.5(rollup@3.29.2)(vite@4.4.9):
+    resolution: {integrity: sha512-y/aRGh8qHmw2f1IhaI/C6PJAaov47ESYDvUv1am1YHMhpY+19B5k5Odp8P+tgs+zhfvak6QB1ykrALQErEAo7g==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    peerDependencies:
+      rollup: '>=2.79.0'
+      vite: '>=3.2.0'
+    dependencies:
+      micromatch: 4.0.5
+      rollup: 3.29.2
+      vite: 4.4.9(@types/node@20.6.3)
     dev: true
 
   /vite-plugin-static-copy@0.17.0(vite@4.4.9):
@@ -13586,8 +13613,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /vue-component-type-helpers@1.8.13:
-    resolution: {integrity: sha512-zbCQviVRexZ7NF2kizQq5LicG5QGXPHPALKE3t59f5q2FwaG9GKtdhhIV4rw4LDUm9RkvGAP8TSXlXcBWY8rFQ==}
+  /vue-component-type-helpers@1.8.15:
+    resolution: {integrity: sha512-RKiPRKW4BdwgmQ9vaNkHYKAThdTbgU4TOphVyyzqxRwsOJOoRIrb+vB49XLvs5CKPNrvxMXZMwPe5FyJCqFWyg==}
     dev: true
 
   /vue-demi@0.14.6(vue@3.3.4):
@@ -14045,3 +14072,7 @@ packages:
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: false
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
