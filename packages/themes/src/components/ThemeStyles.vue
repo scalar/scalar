@@ -1,11 +1,10 @@
 <script lang="ts" setup>
-import '@scalar/themes/base.css'
-import '@scalar/themes/scrollbar.css'
-
+import '../base.css'
 import { type ThemeId, getThemeById } from '../index'
+import '../scrollbar.css'
 
 defineProps<{
-  id: ThemeId
+  id?: ThemeId
 }>()
 </script>
 <template>

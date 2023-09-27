@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
-import '@scalar/themes/base.css'
-import '@scalar/themes/presets/default.css'
-import '@scalar/themes/scrollbar.css'
+import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
 import { ref, watch } from 'vue'
@@ -16,6 +14,7 @@ const props = withDefaults(
   defineProps<{
     proxyUrl?: string
     readOnly?: boolean
+    theme?: ThemeId
   }>(),
   {
     readOnly: false,
@@ -56,6 +55,7 @@ useKeyboardEvent({
 </script>
 
 <template>
+  <ThemeStyles :id="theme" />
   <div
     class="scalar-api-client"
     :class="`scalar-api-client--${activeRequest.type.toLowerCase() || 'get'}`"

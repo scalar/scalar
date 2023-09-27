@@ -1,4 +1,5 @@
 import { type HocuspocusConfigurationProp } from '@scalar/swagger-editor'
+import { type ThemeId } from '@scalar/themes'
 
 export type ReferenceProps = {
   isEditable?: boolean
@@ -9,7 +10,7 @@ export type ReferenceProps = {
   specResult?: Record<any, any>
   proxyUrl?: string
   hocuspocusConfiguration?: HocuspocusConfigurationProp
-  theme?: 'alternate' | 'default' | 'moon' | 'purple' | 'solarized'
+  theme?: ThemeId
 }
 
 export type Security = {

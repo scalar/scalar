@@ -560,6 +560,9 @@ importers:
       vite:
         specifier: 4.4.9
         version: 4.4.9(@types/node@20.6.3)
+      vite-plugin-css-injected-by-js:
+        specifier: 3.3.0
+        version: 3.3.0(vite@4.4.9)
       vite-plugin-static-copy:
         specifier: 0.17.0
         version: 0.17.0(vite@4.4.9)
