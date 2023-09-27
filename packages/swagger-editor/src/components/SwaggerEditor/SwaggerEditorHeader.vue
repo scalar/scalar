@@ -311,15 +311,11 @@ const showIntegrations = ref(true)
 .swagger-editor-title-buttons button {
   background: transparent;
   appearance: none;
-<<<<<<< HEAD
   outline: none;
   border: none;
-  color: var(--theme-color-2, var(--default-theme-color-2));
-=======
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color-3, var(--default-theme-color-3));
->>>>>>> 4f7b2bf5 (chore: replace font sizes with variables)
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
