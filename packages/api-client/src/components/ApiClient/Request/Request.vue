@@ -267,9 +267,11 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   -webkit-appearance: none;
   color: var(--theme-color-disabled, var(--default-theme-color-disabled));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-size: var(--theme-small, var(--default-theme-small));
   font-weight: var(--theme-bold, var(--default-theme-bold));
+  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
   width: 100%;
+  padding: 0;
   background: transparent;
 }
 </style>

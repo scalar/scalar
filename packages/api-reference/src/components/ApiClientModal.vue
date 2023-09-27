@@ -75,7 +75,11 @@ export { useApiClientStore } from '@scalar/api-client'
       )
   );
 }
-
+@media screen and (max-width: 1000px) {
+  .scalar-api-client__container .scalar-api-client {
+    width: 100%;
+  }
+}
 .scalar-api-client__container {
   position: absolute;
   right: 0;
