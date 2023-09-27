@@ -1,6 +1,7 @@
 import ejs from 'ejs'
 import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
+import fs from 'fs'
 import path from 'path'
 
 export type ApiReferenceOptions = {
@@ -29,12 +30,9 @@ const fastifyApiReference: FastifyPluginAsync<ApiReferenceOptions> = async (
     return
   }
 
-  fastify.addHook('onSend', (request, reply, payload, next) => {
-    reply.header('Content-Type', 'text/html; charset=utf-8')
-    next()
-  })
-
   fastify.get(options.routePrefix ?? '/', async (_, reply) => {
+    reply.header('Content-Type', 'text/html; charset=utf-8')
+
     const html = await ejs.renderFile(
       path.resolve(`${__dirname}/templates/index.ejs`),
       {
@@ -44,6 +42,22 @@ const fastifyApiReference: FastifyPluginAsync<ApiReferenceOptions> = async (
 
     reply.send(html)
   })
+
+  console.log((options.routePrefix ?? '/') + '/fastify-api-reference.js')
+
+  fastify.get(
+    (options.routePrefix ?? '/') + '/fastify-api-reference.js',
+    async (_, reply) => {
+      reply.header('Content-Type', 'application/javascript; charset=utf-8')
+
+      const content = fs.readFileSync(
+        path.resolve(`${__dirname}/../dist/templates/fastify-api-reference.js`),
+        'utf8',
+      )
+
+      reply.send(content)
+    },
+  )
 }
 
 export default fp(fastifyApiReference)
