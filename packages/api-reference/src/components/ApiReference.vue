@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
-import '@scalar/themes/base.css'
-import alternateTheme from '@scalar/themes/presets/alternate.css'
-import defaultTheme from '@scalar/themes/presets/default.css'
-import moonTheme from '@scalar/themes/presets/moon.css'
-import purpleTheme from '@scalar/themes/presets/purple.css'
-import solarizedTheme from '@scalar/themes/presets/solarized.css'
-import '@scalar/themes/scrollbar.css'
+import { ThemeCss } from '@scalar/themes'
 import { FlowToastContainer } from '@scalar/use-toasts'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
@@ -153,17 +147,9 @@ const breadCrumbs = computed(() => {
 
   return op ? `${op.tag.toUpperCase()} / ${op.name}` : 'None'
 })
-
-const presets = {
-  alternate: alternateTheme,
-  default: defaultTheme,
-  moon: moonTheme,
-  purple: purpleTheme,
-  solarized: solarizedTheme,
-}
 </script>
 <template>
-  <component :is="'style'">{{ presets[theme] ?? defaultTheme }}</component>
+  <ThemeCss :id="theme" />
   <FlowToastContainer />
   <div
     ref="documentEl"

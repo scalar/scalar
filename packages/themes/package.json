@@ -5,21 +5,26 @@
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "devDependencies": {
+    "@vitejs/plugin-vue": "4.3.4",
     "@vitest/coverage-v8": "0.34.4",
+    "tsc-alias": "1.8.8",
     "vite": "4.4.9",
-    "vitest": "0.34.4"
+    "vite-plugin-static-copy": "0.17.0",
+    "vitest": "0.34.4",
+    "vue-tsc": "1.8.13"
   },
   "exports": {
-    "./base.css": "./src/base.css",
-    "./scrollbar.css": "./src/scrollbar.css",
-    "./presets/alternate.css": "./src/presets/alternate.css",
-    "./presets/default.css": "./src/presets/default.css",
-    "./presets/moon.css": "./src/presets/moon.css",
-    "./presets/purple.css": "./src/presets/purple.css",
-    "./presets/solarized.css": "./src/presets/solarized.css"
+    ".": "./dist/index.js",
+    "./base.css": "./dist/base.css",
+    "./scrollbar.css": "./dist/scrollbar.css",
+    "./presets/alternate.css": "./dist/presets/alternate.css",
+    "./presets/default.css": "./dist/presets/default.css",
+    "./presets/moon.css": "./dist/presets/moon.css",
+    "./presets/purple.css": "./dist/presets/purple.css",
+    "./presets/solarized.css": "./dist/presets/solarized.css"
   },
   "files": [
-    "src"
+    "dist"
   ],
   "homepage": "https://github.com/scalar/scalar",
   "keywords": [
@@ -28,9 +33,19 @@
     "scalar"
   ],
   "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "peerDependencies": {
+    "vue": "3.3.4"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/scalar/scalar.git",
     "directory": "packages/default-theme"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "types:build": "vue-tsc -p tsconfig.build.json",
+    "types:check": "vue-tsc --noEmit --skipLibCheck"
   }
 }
