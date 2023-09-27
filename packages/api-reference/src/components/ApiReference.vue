@@ -403,7 +403,7 @@ const breadCrumbs = computed(() => {
   text-align: right;
   line-height: 1.55;
   font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-size: var(--theme-small, var(--default-theme-small));
   cursor: pointer;
 }
 .languages .example-item-endpoints {

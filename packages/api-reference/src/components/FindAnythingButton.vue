@@ -36,8 +36,10 @@ import FlowIcon from './Icon/FlowIcon.vue'
 
   color: var(
     --sidebar-color-2,
-    var(--default-sidebar-color-2),
-    var(--theme-color-2, var(--default-theme-color-2))
+    var(
+      --default-sidebar-color-2,
+      var(--theme-color-2, var(--default-theme-color-2))
+    )
   );
   outline: none;
   border-radius: var(--theme-radius, var(--default-theme-radius));

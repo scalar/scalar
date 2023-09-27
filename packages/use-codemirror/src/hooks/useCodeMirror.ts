@@ -1,5 +1,7 @@
+import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { type Extension, StateEffect } from '@codemirror/state'
 import { type EditorViewConfig } from '@codemirror/view'
+import { tags } from '@lezer/highlight'
 import { EditorView } from 'codemirror'
 import { type Ref, ref, watch } from 'vue'
 
@@ -71,6 +73,7 @@ export const useCodeMirror = (
   }
 
   const getCurrentTheme = () => {
+    // return null
     if (withoutTheme) {
       return null
     }
@@ -94,7 +97,17 @@ export const useCodeMirror = (
   const addDefaultExtensions = (newExtensions: Extension[] = []) => {
     // Themes
     const defaultExtensions: Extension[] = [
-      EditorView.theme({}, { dark: forceDarkMode ? false : isDark.value }),
+      EditorView.theme(
+        {
+          '.cm-line': {
+            lineHeight: '20px',
+          },
+          '.cm-gutterElement': {
+            lineHeight: '20px',
+          },
+        },
+        { dark: forceDarkMode ? false : isDark.value },
+      ),
       getCurrentTheme(),
     ].filter((extension) => extension !== null) as Extension[]
 

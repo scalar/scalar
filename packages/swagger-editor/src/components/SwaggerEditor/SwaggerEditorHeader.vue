@@ -185,7 +185,7 @@ const showIntegrations = ref(true)
         </div>
       </div>
     </div>
-    <div class="swagger-editor-title">
+    <div class="swagger-editor-title swagger-editor-title-active">
       <div class="swagger-editor-title-type"><i>Swagger </i>Editor</div>
     </div>
     <!-- <div class="swagger-editor-title swagger-editor-title-active">
