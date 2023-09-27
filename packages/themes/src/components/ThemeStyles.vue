@@ -4,7 +4,7 @@ import { type ThemeId, getThemeById } from '../index'
 import '../scrollbar.css'
 
 defineProps<{
-  id?: ThemeId | 'none'
+  id?: ThemeId
 }>()
 </script>
 <template>

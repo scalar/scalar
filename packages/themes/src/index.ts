@@ -12,7 +12,13 @@ export { default as ThemeStyles } from './components/ThemeStyles.vue'
 /**
  * Available theme IDs as a type.
  */
-export type ThemeId = 'alternate' | 'default' | 'moon' | 'purple' | 'solarized'
+export type ThemeId =
+  | 'alternate'
+  | 'default'
+  | 'moon'
+  | 'purple'
+  | 'solarized'
+  | 'none'
 
 /**
  * List of available theme presets.
