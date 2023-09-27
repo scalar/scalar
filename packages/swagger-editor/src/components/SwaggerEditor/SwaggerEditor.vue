@@ -2,7 +2,7 @@
 import { type StatesArray } from '@hocuspocus/provider'
 import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
 import '@scalar/themes/base.css'
-import '@scalar/themes/default.css'
+import '@scalar/themes/presets/default.css'
 import '@scalar/themes/scrollbar.css'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'

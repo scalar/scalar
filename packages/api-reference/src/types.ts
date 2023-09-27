@@ -9,6 +9,7 @@ export type ReferenceProps = {
   specResult?: Record<any, any>
   proxyUrl?: string
   hocuspocusConfiguration?: HocuspocusConfigurationProp
+  theme?: 'alternate' | 'default' | 'moon' | 'purple' | 'solarized'
 }
 
 export type Security = {

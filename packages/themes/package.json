@@ -10,13 +10,13 @@
     "vitest": "0.34.4"
   },
   "exports": {
-    "./alternate.css": "./src/alternate.css",
     "./base.css": "./src/base.css",
-    "./default.css": "./src/default.css",
-    "./moon.css": "./src/moon.css",
-    "./purple.css": "./src/purple.css",
     "./scrollbar.css": "./src/scrollbar.css",
-    "./solarized.css": "./src/solarized.css"
+    "./presets/alternate.css": "./src/presets/alternate.css",
+    "./presets/default.css": "./src/presets/default.css",
+    "./presets/moon.css": "./src/presets/moon.css",
+    "./presets/purple.css": "./src/presets/purple.css",
+    "./presets/solarized.css": "./src/presets/solarized.css"
   },
   "files": [
     "src"

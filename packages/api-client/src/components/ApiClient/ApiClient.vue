@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import '@scalar/themes/base.css'
-import '@scalar/themes/default.css'
+import '@scalar/themes/presets/default.css'
 import '@scalar/themes/scrollbar.css'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
