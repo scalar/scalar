@@ -54,6 +54,7 @@ export { useApiClientStore } from '@scalar/api-client'
           <ApiClient
             :proxyUrl="proxyUrl"
             readOnly
+            theme="none"
             @escapeKeyPress="hideApiClient" />
         </div>
       </div>

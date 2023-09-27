@@ -4,9 +4,13 @@ import { type ThemeId, getThemeById } from '../index'
 import '../scrollbar.css'
 
 defineProps<{
-  id?: ThemeId
+  id?: ThemeId | 'none'
 }>()
 </script>
 <template>
-  <component :is="'style'">{{ getThemeById(id) }}</component>
+  <component
+    :is="'style'"
+    v-if="id !== 'none'">
+    {{ getThemeById(id) }}
+  </component>
 </template>

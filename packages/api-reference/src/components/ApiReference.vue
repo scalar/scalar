@@ -192,6 +192,7 @@ const breadCrumbs = computed(() => {
       class="layout-content">
       <LazyLoadedSwaggerEditor
         :hocuspocusConfiguration="hocuspocusConfiguration"
+        theme="none"
         :value="specRef"
         @specUpdate="handleSpecUpdate" />
     </div>
