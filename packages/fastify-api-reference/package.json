@@ -58,7 +58,7 @@
     "build:template": "vite build -c vite.template.config.ts",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "test": "pnpm build && vitest",
+    "test": "vitest",
     "types:build": "tsc -p tsconfig.build.json",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
