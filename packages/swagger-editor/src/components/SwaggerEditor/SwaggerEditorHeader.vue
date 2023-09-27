@@ -421,6 +421,9 @@ const showIntegrations = ref(true)
   top: -20px;
   box-shadow: 1px 1px 0
     var(--theme-border-color, var(--default-theme-border-color));
-  background: white;
+  background-color: var(
+    --theme-background-1,
+    var(--default-theme-background-1)
+  );
 }
 </style>
