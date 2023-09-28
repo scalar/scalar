@@ -15,8 +15,6 @@ defineProps<{
 
 const { hideApiClient, state } = useApiClientStore()
 
-const proxyUrlEnvVariable = import.meta.env.VITE_CLIENT_PROXY
-
 const isMobile = useMediaQuery('(max-width: 1000px)')
 </script>
 <script lang="ts">
@@ -54,7 +52,7 @@ export { useApiClientStore } from '@scalar/api-client'
               :spec="spec" />
           </template>
           <ApiClient
-            :proxyUrl="proxyUrl || proxyUrlEnvVariable"
+            :proxyUrl="proxyUrl"
             readOnly
             @escapeKeyPress="hideApiClient" />
         </div>
