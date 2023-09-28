@@ -1,5 +1,18 @@
 # @scalar/swagger-editor
 
+## 0.6.1
+
+### Patch Changes
+
+- b184bdf2: codemirror themeing and other theme fixes
+- 8751c874: Fix background color not being applied below rendered references
+- addd9fa2: feat: use `default` prefix for all CSS variables
+- 2006aa43: fix: add CSS reset
+- Updated dependencies [b184bdf2]
+- Updated dependencies [3b1fec80]
+- Updated dependencies [addd9fa2]
+  - @scalar/use-codemirror@0.7.0
+
 ## 0.6.0
 
 ### Minor Changes

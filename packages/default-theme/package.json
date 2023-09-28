@@ -1,7 +1,7 @@
 {
   "name": "@scalar/default-theme",
   "description": "the default CSS variables for all Scalar packages",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "devDependencies": {

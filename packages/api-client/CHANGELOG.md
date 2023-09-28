@@ -1,5 +1,27 @@
 # @scalar/api-client
 
+## 0.7.0
+
+### Minor Changes
+
+- 3b1fec80: feat: show response body preview for json and html, add html syntax highlighting, no preview for unknown content
+
+### Patch Changes
+
+- 6caceb45: - feat: send query parameters
+  - feat: add a readOnly prop to the <APIClient /> component
+  - fix: removed broken button loading state, replaced with boring loader animation
+  - fix: z-index issue with API client, search and the request history
+  - refactor: replace font sizes with variables, fix some minor font size issues
+  - remove default User-Agent header (browser doesn’t like setting the User-Agent header)
+  - chore: moved FlowModal to its own package
+- addd9fa2: feat: use `default` prefix for all CSS variables
+- Updated dependencies [b184bdf2]
+- Updated dependencies [3b1fec80]
+- Updated dependencies [addd9fa2]
+  - @scalar/use-codemirror@0.7.0
+  - @scalar/default-theme@0.3.1
+
 ## 0.6.0
 
 ### Minor Changes

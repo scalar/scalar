@@ -1,7 +1,7 @@
 {
   "name": "@scalar/use-clipboard",
   "description": "tiny wrapper around the clipboard API",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
