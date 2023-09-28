@@ -215,7 +215,6 @@ const showItemInClient = () => {
   background: var(--theme-background-3, var(--default-theme-background-3));
   box-shadow: -2px 0 0 0
     var(--theme-background-3, var(--default-theme-background-3));
-  z-index: 2;
   position: absolute;
   top: 0;
   left: 0;
