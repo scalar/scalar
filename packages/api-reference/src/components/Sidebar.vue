@@ -216,18 +216,16 @@ useKeyboardEvent({
 
 .sidebar-heading:hover {
   /* prettier-ignore */
-  color: var(--sidebar-color-1, var(--default-sidebar-color-1), var(--theme-color-1, var(--default-theme-color-1)));
-  /* prettier-ignore */
-  background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background), var(--theme-background-2, var(--default-theme-background-2)));
+  background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background, var(--theme-background-2, var(--default-theme-background-2))));
 }
 
 .active_page.sidebar-heading:hover,
 .active_page.sidebar-heading,
 .marc_active .sidebar-heading {
   /* prettier-ignore */
-  background: var(--sidebar-item-active-background, var(--default-sidebar-item-active-background), var(--theme-background-accent, var(--default-theme-background-accent))) !important;
+  background: var(--sidebar-item-active-background, var(--default-sidebar-item-active-background, var(--theme-background-accent, var(--default-theme-background-accent)))) !important;
   /* prettier-ignore */
-  color: var(--theme-color-accent, var(--default-theme-color-accent), var(--theme-background-accent, var(--default-theme-background-accent))) !important;
+  color: var(--sidebar-color-accent, var(--default-sidebar-color-accent, var(--theme-color-accent, var(--default-theme-color-accent)))) !important;
 }
 .sidebar-group-item {
   position: relative;
@@ -236,11 +234,11 @@ useKeyboardEvent({
 /* Change font colors and weights for nested items */
 .sidebar-indent-nested .sidebar-heading {
   /* prettier-ignore */
-  color: var(--sidebar-color-1, var(--default-sidebar-color-1), var(--theme-color-1, var(--default-theme-color-1)));
+  color: var(--sidebar-color-1, var(--default-sidebar-color-1, var(--theme-color-1, var(--default-theme-color-1))));
 }
 .sidebar-indent-nested .sidebar-indent-nested .sidebar-heading {
   /* prettier-ignore */
-  color: var(--sidebar-color-2, var(--default-sidebar-color-2), var(--theme-color-2, var(--default-theme-color-2)));
+  color: var(--sidebar-color-2, var(--default-sidebar-color-2, var(--theme-color-2, var(--default-theme-color-2))));
 }
 .sidebar-indent-nested > div:has(.active_page) .sidebar-heading {
   font-weight: var(--theme-bold, var(--default-theme-bold));

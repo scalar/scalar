@@ -22,6 +22,8 @@ import { Tab } from '@headlessui/vue'
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   line-height: calc(var(--theme-micro, var(--default-theme-micro)) + 2px);
   cursor: pointer;
+  padding: 0;
+  margin-right: 3px;
 }
 
 .tab-selected {

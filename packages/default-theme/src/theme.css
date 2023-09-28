@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900');
+@import url('https://fonts.googleapis.com/css?family=JetBrains%20Mono');
+
 :root {
   --default-app-header-height: 50px;
   --default-theme-border-width: 1px;
@@ -10,10 +13,9 @@
   --default-theme-toc-width: 250px;
 
   /* TYPOGRAPHY ------------------------------------ */
-  --default-theme-font: system-ui, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-  --default-theme-font-code: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono',
-    'Droid Sans Mono', 'Source Code Pro', monospace;
+  --default-theme-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --default-theme-font-code: 'JetBrains Mono';
 
   /** Font sizes for rendered text content (editor styles or static content) */
   --default-theme-heading-1: 40px; /* Editor Page heading */
