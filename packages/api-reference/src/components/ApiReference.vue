@@ -795,7 +795,7 @@ const breadCrumbs = computed(() => {
 }
 
 .document.preview {
-  --default-col-width-2: calc(
+  --default-scalar-api-reference-col-width-2: calc(
     100% -
       (
         var(
@@ -804,7 +804,7 @@ const breadCrumbs = computed(() => {
         )
       )
   );
-  --default-col-width-3: calc(
+  --default-scalar-api-reference-col-width-3: calc(
     100% -
       (
         var(
