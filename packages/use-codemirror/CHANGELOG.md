@@ -1,5 +1,16 @@
 # @scalar/use-codemirror
 
+## 0.7.0
+
+### Minor Changes
+
+- 3b1fec80: feat: show response body preview for json and html, add html syntax highlighting, no preview for unknown content
+
+### Patch Changes
+
+- b184bdf2: codemirror themeing and other theme fixes
+- addd9fa2: feat: use `default` prefix for all CSS variables
+
 ## 0.6.0
 
 ### Minor Changes

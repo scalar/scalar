@@ -1,5 +1,12 @@
 # @scalar/default-theme
 
+## 0.3.1
+
+### Patch Changes
+
+- b184bdf2: codemirror themeing and other theme fixes
+- addd9fa2: feat: use `default` prefix for all CSS variables
+
 ## 0.3.0
 
 ### Minor Changes

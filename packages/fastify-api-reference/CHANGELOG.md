@@ -1,5 +1,17 @@
 # @scalar/fastify-api-reference
 
+## 0.6.1
+
+### Patch Changes
+
+- fdca56a9: feat: bundle JS with the plugin
+- 33e32a86: refactor: use templating engine
+- Updated dependencies [b184bdf2]
+- Updated dependencies [e9861139]
+- Updated dependencies [8751c874]
+- Updated dependencies [addd9fa2]
+  - @scalar/api-reference@0.6.2
+
 ## 0.6.0
 
 ### Minor Changes

@@ -1,5 +1,27 @@
 # @scalar/api-reference
 
+## 0.6.2
+
+### Patch Changes
+
+- b184bdf2: codemirror themeing and other theme fixes
+- e9861139: feat: pass an already parsed OpenAPI spec to the ApiReference component
+- 8751c874: Fix background color not being applied below rendered references
+- addd9fa2: feat: use `default` prefix for all CSS variables
+- Updated dependencies [b184bdf2]
+- Updated dependencies [6caceb45]
+- Updated dependencies [8751c874]
+- Updated dependencies [3b1fec80]
+- Updated dependencies [addd9fa2]
+- Updated dependencies [2006aa43]
+  - @scalar/swagger-editor@0.6.1
+  - @scalar/use-codemirror@0.7.0
+  - @scalar/default-theme@0.3.1
+  - @scalar/api-client@0.7.0
+  - @scalar/use-tooltip@0.5.1
+  - @scalar/use-toasts@0.5.1
+  - @scalar/use-clipboard@0.5.1
+
 ## 0.6.1
 
 ### Patch Changes

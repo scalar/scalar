@@ -1,6 +1,6 @@
 {
   "name": "@scalar-org/web",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "dependencies": {
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",

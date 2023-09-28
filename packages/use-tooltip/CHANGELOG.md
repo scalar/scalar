@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 0.5.1
+
+### Patch Changes
+
+- addd9fa2: feat: use `default` prefix for all CSS variables
+
 ## 0.5.0
 
 ### Minor Changes
