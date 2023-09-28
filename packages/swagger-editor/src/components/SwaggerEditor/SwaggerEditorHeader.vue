@@ -313,7 +313,6 @@ const showIntegrations = ref(true)
   appearance: none;
   outline: none;
   border: none;
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color-3, var(--default-theme-color-3));
   white-space: nowrap;
