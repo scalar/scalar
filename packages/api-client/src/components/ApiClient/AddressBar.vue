@@ -7,7 +7,7 @@ import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { computed, ref } from 'vue'
 
-import { sendRequest } from '../../helpers/sendRequest'
+import { sendRequest, validRequestMethods } from '../../helpers'
 import { useApiClientRequestStore } from '../../stores/apiClientRequestStore'
 import RequestHistory from './RequestHistory.vue'
 
@@ -100,6 +100,12 @@ const onChange = (value: string) => {
 
   setActiveRequest({ ...activeRequest, url: value })
 }
+
+const changeRequestMethod = (requestMethod?: string) => {
+  if (requestMethod) {
+    setActiveRequest({ ...activeRequest, type: requestMethod })
+  }
+}
 </script>
 
 <template>
@@ -111,9 +117,22 @@ const onChange = (value: string) => {
     :class="{ 'scalar-api-client__address-bar__on': showHistory }">
     <div class="scalar-api-client__url-form">
       <div class="scalar-api-client__field">
-        <div class="scalar-api-client__request-type">
-          <i :class="requestType.toLowerCase()" />
-          <span>{{ requestType }}</span>
+        <div class="request-method-select">
+          <span class="scalar-api-client__request-type">
+            <i :class="requestType.toLowerCase()" />
+            <span>{{ requestType }}</span>
+          </span>
+          <select
+            :disabled="readOnly"
+            :value="requestType.toLowerCase()"
+            @input="(event) => changeRequestMethod((event.target as HTMLSelectElement).value)">
+            <option
+              v-for="requestMethod in validRequestMethods"
+              :key="requestMethod"
+              :value="requestMethod.toLocaleLowerCase()">
+              {{ requestMethod }}
+            </option>
+          </select>
         </div>
         <CodeMirror
           class="scalar-api-client__url-input"
@@ -463,5 +482,30 @@ const onChange = (value: string) => {
   .scalar-api-client__send-request-button svg {
     margin-right: 0;
   }
+}
+
+.request-method-select {
+  position: relative;
+  display: flex;
+}
+
+.request-method-select select {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  background: var(--theme-background-3, var(--default-theme-background-3));
+  box-shadow: -2px 0 0 0
+    var(--theme-background-3, var(--default-theme-background-3));
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  appearance: none;
+}
+
+.request-method-select select[disabled] {
+  pointer-events: none;
 }
 </style>
