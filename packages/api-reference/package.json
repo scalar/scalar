@@ -94,8 +94,8 @@
   },
   "scripts": {
     "build": "pnpm build:default && pnpm build:standalone && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "build:standalone": "vite build -c vite.standalone.config.ts",
     "build:default": "vite build",
+    "build:standalone": "vite build -c vite.standalone.config.ts",
     "build:storybook": "storybook build",
     "dev": "vite",
     "dev:standalone": "vite -c vite.standalone.config.ts",

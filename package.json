@@ -26,8 +26,8 @@
   "private": true,
   "scripts": {
     "build": "pnpm -r build",
-    "build:standalone": "pnpm --filter api-reference build:standalone",
     "build:packages": "pnpm --filter './packages/**' build",
+    "build:standalone": "pnpm --filter api-reference build:standalone",
     "bump": "CI=true pnpm run test && pnpm changeset version",
     "dev": "./scripts/dev.sh",
     "format": "pnpm prettier --write .",
