@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import fastifyApiReference from './index'
 
 describe('fastifyApiReference', () => {
-  it('returns 200 OK', () =>
+  it('returns 200 OK for the HTML', () =>
     new Promise((resolve) => {
       const fastify = Fastify({
         logger: false,
@@ -22,6 +22,29 @@ describe('fastifyApiReference', () => {
           expect(response.status).toBe(200)
           resolve(null)
         })
+      })
+    }))
+
+  it('returns 200 OK for the JS file', () =>
+    new Promise((resolve) => {
+      const fastify = Fastify({
+        logger: false,
+      })
+
+      fastify.register(fastifyApiReference, {
+        routePrefix: '/reference',
+        apiReference: {
+          specUrl: '/scalar.json',
+        },
+      })
+
+      fastify.listen({ port: 0 }, function (err, address) {
+        fetch(`${address}/reference/fastify-api-reference.js`).then(
+          (response) => {
+            expect(response.status).toBe(200)
+            resolve(null)
+          },
+        )
       })
     }))
 
