@@ -25,6 +25,29 @@ describe('fastifyApiReference', () => {
       })
     }))
 
+  it('has the JS url', () =>
+    new Promise((resolve) => {
+      const fastify = Fastify({
+        logger: false,
+      })
+
+      fastify.register(fastifyApiReference, {
+        routePrefix: '/reference',
+        apiReference: {
+          specUrl: '/scalar.json',
+        },
+      })
+
+      fastify.listen({ port: 0 }, function (err, address) {
+        fetch(`${address}/reference`).then(async (response) => {
+          expect(await response.text()).toContain(
+            '<script type="module" src="/reference/fastify-api-reference.js"></script>',
+          )
+          resolve(null)
+        })
+      })
+    }))
+
   it('returns 200 OK for the JS file', () =>
     new Promise((resolve) => {
       const fastify = Fastify({
