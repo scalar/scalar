@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 0.6.3
+
+### Patch Changes
+
+- 5288e2ce: fix: node shims for the fastify plugin
+
 ## 0.6.2
 
 ### Patch Changes
