@@ -34,7 +34,7 @@ const fastifyApiReference: FastifyPluginAsync<ApiReferenceOptions> = async (
     reply.header('Content-Type', 'text/html; charset=utf-8')
 
     const html = await ejs.renderFile(
-      path.resolve(`${__dirname}/templates/index.ejs`),
+      path.resolve(`${__dirname}/../dist/templates/index.ejs`),
       {
         options,
       },
@@ -42,8 +42,6 @@ const fastifyApiReference: FastifyPluginAsync<ApiReferenceOptions> = async (
 
     reply.send(html)
   })
-
-  console.log((options.routePrefix ?? '/') + '/fastify-api-reference.js')
 
   fastify.get(
     (options.routePrefix ?? '/') + '/fastify-api-reference.js',
