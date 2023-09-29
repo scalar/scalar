@@ -32,7 +32,8 @@
     "require": "./dist/index.cjs"
   },
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "homepage": "https://github.com/scalar/scalar",
   "keywords": [
