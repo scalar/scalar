@@ -30,7 +30,9 @@ Generate interactive API documentations from Swagger files
   </head>
   <body>
     <!-- Add your own OpenAPI/Swagger spec file URL here: -->
-    <div data-spec-url="https://example.com/swagger.json" />
+    <script
+      id="api-reference"
+      data-url="https://example.com/swagger.json"></script>
     <script src="https://www.unpkg.com/@scalar/api-reference"></script>
   </body>
 </html>
@@ -39,7 +41,11 @@ Generate interactive API documentations from Swagger files
 You can also use the following syntax to directly pass an OpenAPI spec:
 
 ```html
-<div data-spec="{ … }" />
+<script
+  id="api-reference"
+  type="application/json">
+  { … }
+</script>
 ```
 
 ### With Vue.js

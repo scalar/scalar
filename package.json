@@ -26,7 +26,7 @@
   "private": true,
   "scripts": {
     "build": "pnpm -r build",
-    "build:cdn": "pnpm --filter api-reference build:cdn",
+    "build:standalone": "pnpm --filter api-reference build:standalone",
     "build:packages": "pnpm --filter './packages/**' build",
     "bump": "CI=true pnpm run test && pnpm changeset version",
     "dev": "./scripts/dev.sh",
@@ -35,7 +35,7 @@
     "format:packages": "pnpm syncpack fix-mismatches || true && pnpm syncpack set-semver-ranges && pnpm syncpack format && pnpm install -r",
     "lint": "pnpm -r lint:check",
     "lint:fix": "pnpm -r lint:fix",
-    "preview:cdn": "pnpm --filter api-reference preview:cdn",
+    "preview:standalone": "pnpm --filter api-reference preview:standalone",
     "test": "pnpm -r test"
   }
 }

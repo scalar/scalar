@@ -23,7 +23,7 @@ module.exports = {
     '**/dist-publish/**',
     '**/.vite-ssg-temp/**',
     '**/vite.config.ts',
-    '**/vite.cdn.config.ts',
+    '**/vite.standalone.config.ts',
     '**/cdn/**',
   ],
   rules: {
