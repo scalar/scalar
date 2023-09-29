@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 0.7.1
+
+### Patch Changes
+
+- 75a69ba7: feat: add `theme` prop and improve theme support
+- 75a69ba7: refactor: rename @scalar/default-theme to @scalar/themes, add more themes
+- Updated dependencies [75a69ba7]
+- Updated dependencies [75a69ba7]
+  - @scalar/themes@0.3.2
+
 ## 0.7.0
 
 ### Minor Changes

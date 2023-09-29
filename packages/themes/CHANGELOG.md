@@ -1,5 +1,12 @@
 # @scalar/themes
 
+## 0.3.2
+
+### Patch Changes
+
+- 75a69ba7: feat: add `theme` prop and improve theme support
+- 75a69ba7: refactor: rename @scalar/default-theme to @scalar/themes, add more themes
+
 ## 0.3.1
 
 ### Patch Changes

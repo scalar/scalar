@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 0.6.3
+
+### Patch Changes
+
+- 75a69ba7: feat: add `theme` prop and improve theme support
+- effc1f31: feat: add new HTML API based on script tags
+  chore: deprecate old div based HTML API
+- 75a69ba7: refactor: rename @scalar/default-theme to @scalar/themes, add more themes
+- b03a09c7: chore: remove Vite env proxy variable
+- 11270915: fix: use higher z-index values
+- Updated dependencies [75a69ba7]
+- Updated dependencies [d6a10e1f]
+- Updated dependencies [75a69ba7]
+  - @scalar/swagger-editor@0.6.2
+  - @scalar/api-client@0.7.1
+  - @scalar/themes@0.3.2
+
 ## 0.6.2
 
 ### Patch Changes
