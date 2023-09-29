@@ -98,6 +98,7 @@
     "build:default": "vite build",
     "build:storybook": "storybook build",
     "dev": "vite",
+    "dev:cdn": "vite -c vite.cdn.config.ts",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
