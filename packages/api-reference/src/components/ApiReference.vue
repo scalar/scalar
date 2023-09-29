@@ -519,7 +519,7 @@ const breadCrumbs = computed(() => {
 .references-narrow .reference-container {
   flex-direction: column;
   gap: 24px;
-  padding: 48px 0;
+  padding: 60px 0;
 }
 
 .references-narrow .example {
@@ -541,6 +541,7 @@ const breadCrumbs = computed(() => {
   /* prettier-ignore */
   color: var(--theme-color-1, var(--default-theme-color-1));
   line-height: 1.45;
+  margin-top: 0;
 }
 
 /** Layout */

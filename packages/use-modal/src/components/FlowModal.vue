@@ -115,6 +115,7 @@ withDefaults(
   font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
   text-align: left;
   font-weight: 600;
+  margin: 0;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg))
     var(--theme-radius-lg, var(--default-theme-radius-lg)) 0 0;
 }

@@ -5,7 +5,8 @@ import { ThemeStyles } from '@scalar/themes'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
 
-import { type SwaggerEditorProps } from '../../types'
+import { type EditorHeaderTabs, type SwaggerEditorProps } from '../../types'
+import GettingStarted from './GettingStarted.vue'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
@@ -71,25 +72,34 @@ watch(
   },
   { immediate: true },
 )
+
+const activeTab = ref<EditorHeaderTabs>('Getting Started')
 </script>
 <template>
   <ThemeStyles :id="theme" />
   <div class="swagger-editor">
-    <SwaggerEditorHeader @import="importHandler" />
-    <SwaggerEditorNotification v-if="formattedError">
+    <SwaggerEditorHeader
+      :activeTab="activeTab"
+      @import="importHandler"
+      @updateActiveTab="activeTab = $event" />
+    <SwaggerEditorNotification
+      v-if="activeTab === 'Swagger Editor' && formattedError">
       {{ formattedError }}
     </SwaggerEditorNotification>
     <SwaggerEditorInput
+      v-show="activeTab === 'Swagger Editor'"
       ref="codeMirrorReference"
       :hocuspocusConfiguration="hocuspocusConfiguration"
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
-    <SwaggerEditorStatusBar v-if="awarenessStates.length">
+    <SwaggerEditorStatusBar
+      v-if="activeTab === 'Swagger Editor' && awarenessStates.length">
       {{ awarenessStates.length }} user{{
         awarenessStates.length === 1 ? '' : 's'
       }}
       online
     </SwaggerEditorStatusBar>
+    <GettingStarted v-show="activeTab === 'Getting Started'" />
   </div>
 </template>
 
@@ -147,7 +157,6 @@ watch(
   overflow: auto;
   border-right: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
-
   font-size: var(--theme-small, var(--default-theme-small));
 }
 </style>
