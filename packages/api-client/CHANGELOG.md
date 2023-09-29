@@ -35,7 +35,7 @@
 - Updated dependencies [87fda5af]
   - @scalar/use-keyboard-event@0.5.0
   - @scalar/use-codemirror@0.6.0
-  - @scalar/default-theme@0.3.0
+  - @scalar/themes@0.3.0
 
 ## 0.5.5
 
@@ -89,7 +89,7 @@
 - Updated dependencies [494083a0]
   - @scalar/use-codemirror@0.5.0
   - @scalar/use-keyboard-event@0.4.1
-  - @scalar/default-theme@0.2.1
+  - @scalar/themes@0.2.1
 
 ## 0.4.0
 
@@ -100,7 +100,7 @@
 ### Patch Changes
 
 - Updated dependencies [5057e213]
-  - @scalar/default-theme@0.2.0
+  - @scalar/themes@0.2.0
   - @scalar/use-codemirror@0.4.0
   - @scalar/use-keyboard-event@0.4.0
 
@@ -122,9 +122,9 @@
 
 ### Patch Changes
 
-- de4ff38: feat: add a new @scalar/default-theme package to import the variables and custom scrollbar CSS
+- de4ff38: feat: add a new @scalar/themes package to import the variables and custom scrollbar CSS
 - Updated dependencies [de4ff38]
-  - @scalar/default-theme@0.1.1
+  - @scalar/themes@0.1.1
 
 ## 0.3.1
 

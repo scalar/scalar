@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
-import '@scalar/default-theme/scrollbar.css'
-import '@scalar/default-theme/theme.css'
+import { ThemeStyles } from '@scalar/themes'
 import { FlowToastContainer } from '@scalar/use-toasts'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
@@ -23,6 +22,7 @@ import Sidebar from './Sidebar.vue'
 const props = withDefaults(defineProps<ReferenceProps>(), {
   showSidebar: true,
   isEditable: false,
+  theme: 'default',
 })
 
 /**
@@ -149,6 +149,7 @@ const breadCrumbs = computed(() => {
 })
 </script>
 <template>
+  <ThemeStyles :id="theme" />
   <FlowToastContainer />
   <div
     ref="documentEl"
@@ -191,6 +192,7 @@ const breadCrumbs = computed(() => {
       class="layout-content">
       <LazyLoadedSwaggerEditor
         :hocuspocusConfiguration="hocuspocusConfiguration"
+        theme="none"
         :value="specRef"
         @specUpdate="handleSpecUpdate" />
     </div>

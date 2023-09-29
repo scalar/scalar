@@ -125,13 +125,18 @@ function App() {
 export default App
 ```
 
-## Using the CLI
-
-TBD 👀
-
 ## Using our amazing service
 
 Wait, this is open source and you can do whatever you want. But if you want to add a nice, customizable guide, collaborate with your team and have everything served through a CDN, visit us on [scalar.com](https://scalar.com).
+
+## Themes
+
+You don’t like the color scheme? We’ve prepared some themes for you:
+
+```vue
+/* theme?: 'alternate' | 'default' | 'moon' | 'purple' | 'solarized' */
+<ApiReference theme="moon" />
+```
 
 ## Advanced: Styling
 

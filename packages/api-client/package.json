@@ -6,7 +6,7 @@
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
     "@headlessui/vue": "1.7.16",
-    "@scalar/default-theme": "workspace:*",
+    "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-keyboard-event": "workspace:*",
     "@scalar/use-modal": "workspace:*",

@@ -8,7 +8,7 @@ import { ApiReference } from '@scalar/api-reference'
   <ApiReference
     isEditable
     proxyUrl="http://localhost:5051" />
-  <!-- <ApiReference isEditable /> -->
+  <!-- <ApiReference isEditable theme="moon" /> -->
   <!-- <ApiReference :specUrl="/swagger.json" /> -->
   <!-- <ApiReference :spec="{ … }" /> -->
   <!-- <ApiReference :specResult="specResult" /> -->

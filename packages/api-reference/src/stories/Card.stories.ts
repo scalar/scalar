@@ -1,4 +1,4 @@
-import '@scalar/default-theme/theme.css'
+import '@scalar/themes/default.css'
 import type { Meta, StoryObj } from '@storybook/vue3'
 
 import { Card, CardContent, CardFooter, CardHeader } from '../components/Card'

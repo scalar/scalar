@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { type StatesArray } from '@hocuspocus/provider'
 import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
+import { ThemeStyles } from '@scalar/themes'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
 
@@ -72,6 +73,7 @@ watch(
 )
 </script>
 <template>
+  <ThemeStyles :id="theme" />
   <div class="swagger-editor">
     <SwaggerEditorHeader @import="importHandler" />
     <SwaggerEditorNotification v-if="formattedError">

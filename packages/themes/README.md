@@ -8,11 +8,11 @@
 ## Installation
 
 ```bash
-npm install @scalar/default-theme
+npm install @scalar/themes
 ```
 
 ## Usage
 
 ```js
-import '@scalar/default-theme/theme.css'
+import '@scalar/themes/default.css'
 ```

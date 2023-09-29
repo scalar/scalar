@@ -42,3 +42,9 @@ import { ApiReference } from '@scalar/api-reference'
 ```vue
 <ApiReference specUrl="/swagger.json" />
 ```
+
+### theme?: 'alternate' | 'default' | 'moon' | 'purple' | 'solarized'
+
+```vue
+<ApiReference theme="moon" />
+```
