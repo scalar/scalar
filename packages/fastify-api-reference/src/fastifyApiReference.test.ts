@@ -40,9 +40,7 @@ describe('fastifyApiReference', () => {
 
       fastify.listen({ port: 0 }, function (err, address) {
         fetch(`${address}/reference`).then(async (response) => {
-          expect(await response.text()).toContain(
-            'data-spec-url="/scalar.json"',
-          )
+          expect(await response.text()).toContain('data-url="/scalar.json"')
           resolve(null)
         })
       })
@@ -73,7 +71,6 @@ describe('fastifyApiReference', () => {
         fetch(`${address}/reference`).then(async (response) => {
           const html = await response.text()
 
-          expect(html).toContain('data-spec=')
           expect(html).toContain('Example API')
 
           resolve(null)
@@ -106,7 +103,6 @@ describe('fastifyApiReference', () => {
         fetch(`${address}/reference`).then(async (response) => {
           const html = await response.text()
 
-          expect(html).toContain('data-spec=')
           expect(html).toContain('Example API')
 
           resolve(null)
