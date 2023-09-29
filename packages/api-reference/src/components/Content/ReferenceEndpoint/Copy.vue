@@ -68,7 +68,7 @@ onMounted(() => {
       <h1
         ref="refHeader"
         class="heading">
-        {{ operation.name }}
+        {{ operation.name || operation.path }}
       </h1>
     </div>
     <div>
