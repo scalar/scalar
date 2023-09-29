@@ -6,9 +6,9 @@ import { useRefOnMount } from '../../hooks/useRefOnMount'
 import { useTemplateStore } from '../../stores/template'
 import type { Spec } from '../../types'
 import { FlowIcon } from '../Icon'
+import EndpointsOverview from './EndpointsOverview.vue'
 import Introduction from './Introduction'
 import ReferenceEndpoint from './ReferenceEndpoint'
-import ReferenceTag from './ReferenceTag.vue'
 import Spinner from './Spinner.vue'
 
 const props = defineProps<{ ready: boolean; spec: Spec }>()
@@ -59,8 +59,10 @@ const localServers = computed(() => {
       <template
         v-for="(tag, index) in spec.tags"
         :key="tag.id">
-        <div class="reference">
-          <ReferenceTag
+        <div
+          v-if="tag.operations.length > 0"
+          class="reference">
+          <EndpointsOverview
             :index="index"
             :tag="tag" />
           <button
