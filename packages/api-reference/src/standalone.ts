@@ -37,7 +37,7 @@ const getSpec = () => {
     const specFromScriptTag = specScriptTag.innerHTML
 
     if (specFromScriptTag) {
-      return specFromScriptTag
+      return specFromScriptTag.trim()
     }
   }
 
@@ -70,17 +70,23 @@ if (!specUrlElement && !specElement && !specScriptTag) {
         specUrl: getSpecUrl(),
       }
 
-  console.log(properties)
-
   document.querySelector('body')?.classList.add('light-mode')
 
-  const container = specScriptTag
-    ? '#api-reference'
-    : specElement
-    ? '[data-spec]'
-    : specUrlElement
-    ? '[data-spec-url]'
-    : 'body'
+  // If it’s a script tag, we can’t mount the Vue.js app inside that tag.
+  // We need to add a new container div before the script tag.
+  if (specScriptTag) {
+    const container = document.createElement('div')
 
-  createApp(ApiReference, properties).mount(container)
+    specScriptTag?.parentNode?.insertBefore(container, specScriptTag)
+
+    createApp(ApiReference, properties).mount(container)
+  } else {
+    const container = specElement
+      ? '[data-spec]'
+      : specUrlElement
+      ? '[data-spec-url]'
+      : 'body'
+
+    createApp(ApiReference, properties).mount(container)
+  }
 }
