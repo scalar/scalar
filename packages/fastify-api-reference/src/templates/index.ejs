@@ -9,11 +9,15 @@
   </head>
   <body>
     <% if (options.apiReference?.specUrl) { %>
-      <div data-spec-url="<%= options.apiReference?.specUrl %>" />
+      <script id="api-reference" data-url="<%= options.apiReference?.specUrl %>"></script>
     <% } else if (typeof options.apiReference?.spec === 'object') { %>
-      <div data-spec='<%= JSON.stringify(options.apiReference?.spec) %>' />
+      <script id="api-reference" type="application/json">
+        <%= JSON.stringify(options.apiReference?.spec) %>
+      </script>
     <% } else if (options.apiReference?.spec) { %>
-      <div data-spec='<%= JSON.stringify(options.apiReference?.spec()) %>' />
+      <script id="api-reference" type="application/json">
+        <%= JSON.stringify(options.apiReference?.spec()) %>
+      </script>
     <% } %>
 
     <script type="module" src="<%= options.routePrefix %>/fastify-api-reference.js"></script>
