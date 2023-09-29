@@ -288,6 +288,7 @@ import { ref } from 'vue'
   margin-top: 0;
   line-height: 1.45;
   font-weight: var(--theme-bold, var(--default-theme-bold));
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .start-p {
   margin-top: 12px;
@@ -300,6 +301,7 @@ import { ref } from 'vue'
 }
 .start-h2 {
   padding-bottom: 9px;
+  color: var(--theme-color-1, var(--default-theme-color-1));
   font-size: var(--theme-mini, var(--default-theme-mini));
   font-weight: var(--theme-font-semibold, var(--default-theme-semibold));
 }
