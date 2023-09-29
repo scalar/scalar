@@ -25,7 +25,8 @@
     "./presets/solarized.css": "./dist/presets/solarized.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "homepage": "https://github.com/scalar/scalar",
   "keywords": [
