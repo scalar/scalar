@@ -1,7 +1,11 @@
 import path from 'path'
 import { defineConfig } from 'vitest/config'
 
+import { nodeExternals } from './src/vite-plugins'
+import { nodeShims } from './src/vite-plugins'
+
 export default defineConfig({
+  plugins: [nodeShims(), nodeExternals()],
   build: {
     lib: {
       entry: 'src/index.ts',
