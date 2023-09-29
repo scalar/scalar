@@ -28,7 +28,8 @@
     "node": ">=18"
   },
   "exports": {
-    "import": "./dist/index.js"
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
   },
   "files": [
     "dist"
@@ -42,6 +43,7 @@
     "swagger"
   ],
   "license": "MIT",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "peerDependencies": {
     "@types/ejs": "3.1.3",
