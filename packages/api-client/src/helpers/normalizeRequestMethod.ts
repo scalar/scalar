@@ -1,15 +1,16 @@
 const defaultRequestMethod = 'GET'
 
-const validRequestMethods = [
+// TODO: Support all request methods
+export const validRequestMethods = [
   'GET',
   'POST',
   'PUT',
-  'HEAD',
+  // 'HEAD',
   'DELETE',
   'PATCH',
-  'OPTIONS',
-  'CONNECT',
-  'TRACE',
+  // 'OPTIONS',
+  // 'CONNECT',
+  // 'TRACE',
 ]
 
 /**
