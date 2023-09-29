@@ -420,6 +420,9 @@ importers:
       rollup-plugin-node-externals:
         specifier: 6.1.1
         version: 6.1.1(rollup@3.29.2)
+      tsc-alias:
+        specifier: 1.8.8
+        version: 1.8.8
       typescript:
         specifier: 5.2.2
         version: 5.2.2
