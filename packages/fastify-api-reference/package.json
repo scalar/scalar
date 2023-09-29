@@ -28,7 +28,8 @@
     "node": ">=18"
   },
   "exports": {
-    "import": "./dist/index.js"
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
   },
   "files": [
     "dist"
@@ -42,7 +43,7 @@
     "swagger"
   ],
   "license": "MIT",
-  "main": "./dist/index.umd.cjs",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "peerDependencies": {
     "@types/ejs": "3.1.3",
@@ -56,7 +57,7 @@
     "directory": "packages/fastify-api-reference"
   },
   "scripts": {
-    "build": "vite build && pnpm run build:template && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "build": "vite build && pnpm run build:template && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "build:template": "vite build -c vite.template.config.ts",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",

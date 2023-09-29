@@ -23,14 +23,14 @@ describe('exports', () => {
       })
     }))
 
-  it.skip('supports require', () =>
+  it('supports require', () =>
     new Promise((resolve) => {
       const fastify = Fastify({
         logger: false,
       })
 
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      fastify.register(require('./dist/index.umd.cjs'), {
+      fastify.register(require('./dist/index.cjs'), {
         routePrefix: '/foobar',
         apiReference: {
           specUrl: '/scalar.json',

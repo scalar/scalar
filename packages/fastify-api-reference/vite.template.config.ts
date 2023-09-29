@@ -35,7 +35,6 @@ export default defineConfig({
     }),
   ],
   build: {
-    // emptyOutDir: false,
     outDir: './dist/templates',
     lib: {
       entry: 'src/templates/render.ts',

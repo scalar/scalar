@@ -1,10 +1,20 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src"],
-  "exclude": ["dist", "test", "vite.config.ts", "**/*.test.ts"],
   "compilerOptions": {
     "outDir": "dist/",
     "declaration": true,
-    "declarationMap": true
-  }
+    "declarationMap": true,
+    "emitDeclarationOnly": true
+  },
+  "include": ["src/index.ts"],
+  "exclude": [
+    "dist",
+    "test",
+    "vite.config.ts",
+    "vite.*.config.ts",
+    "**/*.test.ts",
+    "*.test.ts",
+    "vite-plugins/**/*",
+    "templates/**/*"
+  ]
 }

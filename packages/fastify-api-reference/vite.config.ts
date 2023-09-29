@@ -7,11 +7,13 @@ import { nodeShims } from './src/vite-plugins'
 export default defineConfig({
   plugins: [nodeShims(), nodeExternals()],
   build: {
+    // If minify is enabled, the nodeShims extension doesn’t work.
+    minify: false,
     lib: {
       entry: 'src/index.ts',
       name: '@scalar/fastify-api-reference',
       fileName: 'index',
-      formats: ['es'],
+      formats: ['es', 'cjs'],
     },
     rollupOptions: {
       external: ['fastify'],
