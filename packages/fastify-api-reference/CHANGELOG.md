@@ -1,5 +1,19 @@
 # @scalar/fastify-api-reference
 
+## 0.6.2
+
+### Patch Changes
+
+- 64daacf3: chore: improve Node.js build
+- effc1f31: feat: add new HTML API based on script tags
+  chore: deprecate old div based HTML API
+- Updated dependencies [75a69ba7]
+- Updated dependencies [effc1f31]
+- Updated dependencies [75a69ba7]
+- Updated dependencies [b03a09c7]
+- Updated dependencies [11270915]
+  - @scalar/api-reference@0.6.3
+
 ## 0.6.1
 
 ### Patch Changes

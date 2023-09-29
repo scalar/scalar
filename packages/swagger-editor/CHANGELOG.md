@@ -1,5 +1,15 @@
 # @scalar/swagger-editor
 
+## 0.6.2
+
+### Patch Changes
+
+- 75a69ba7: feat: add `theme` prop and improve theme support
+- d6a10e1f: fix: no border for the buttons
+- Updated dependencies [75a69ba7]
+- Updated dependencies [75a69ba7]
+  - @scalar/themes@0.3.2
+
 ## 0.6.1
 
 ### Patch Changes
