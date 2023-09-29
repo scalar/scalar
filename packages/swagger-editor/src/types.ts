@@ -16,3 +16,5 @@ export type HocuspocusConfigurationProp = {
   token?: string
   username?: string
 }
+
+export type EditorHeaderTabs = 'Getting Started' | 'Swagger Editor'
