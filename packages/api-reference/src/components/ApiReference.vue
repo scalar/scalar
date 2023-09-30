@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
-import { ThemeStyles } from '@scalar/themes'
+import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { FlowToastContainer } from '@scalar/use-toasts'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
@@ -24,6 +24,10 @@ const props = withDefaults(defineProps<ReferenceProps>(), {
   isEditable: false,
   theme: 'default',
 })
+
+defineEmits<{
+  (e: 'changeTheme', value: ThemeId): void
+}>()
 
 /**
  * The editor component has heavy dependencies (process), let's lazy load it.
@@ -192,8 +196,9 @@ const breadCrumbs = computed(() => {
       class="layout-content">
       <LazyLoadedSwaggerEditor
         :hocuspocusConfiguration="hocuspocusConfiguration"
-        theme="none"
+        :theme="theme"
         :value="specRef"
+        @changeTheme="$emit('changeTheme', $event)"
         @specUpdate="handleSpecUpdate" />
     </div>
     <!-- Rendered reference -->

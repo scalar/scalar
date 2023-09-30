@@ -961,6 +961,9 @@ importers:
       '@scalar/swagger-editor':
         specifier: workspace:*
         version: link:../../packages/swagger-editor
+      '@scalar/themes':
+        specifier: workspace:^
+        version: link:../../packages/themes
       vue:
         specifier: 3.3.4
         version: 3.3.4
