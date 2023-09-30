@@ -58,11 +58,7 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
           </CardContent>
           <CardFooter
             class="font-mono"
-            muted
-            style="
-              font-size: var(--theme-mini, var(--default-theme-mini));
-              color: var(--theme-color-2, var(--default-theme-color-2));
-            ">
+            muted>
             {{ getTargetTitle(state.selectedClient) }}
             {{ getClientTitle(state.selectedClient) }}
           </CardFooter>
@@ -102,5 +98,10 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
   to {
     opacity: 0.33;
   }
+}
+.font-mono {
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  font-size: var(--theme-small, var(--default-theme-small));
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 </style>

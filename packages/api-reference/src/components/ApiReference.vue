@@ -174,7 +174,7 @@ const breadCrumbs = computed(() => {
       <slot name="header"></slot>
     </div>
     <!-- Sidebar wrapper -->
-    <aside class="layout-aside-left">
+    <aside class="layout-aside-left t-doc__sidebar">
       <!-- Mobile header content -->
       <slot
         v-if="isMobile"
@@ -453,6 +453,7 @@ const breadCrumbs = computed(() => {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   color: var(--theme-color-1, var(--default-theme-color-1));
   line-height: 1.45;
+  margin: 0;
 }
 .endpoint-response__headers {
   padding-bottom: 0;
@@ -513,6 +514,9 @@ const breadCrumbs = computed(() => {
 
 /* ----------------------------------------------------- */
 /* Responsive styles for narrow reference container (900px) */
+.references-narrow {
+  min-height: 100vh;
+}
 .references-narrow .reference {
   padding: 0 30px;
 }
@@ -686,6 +690,12 @@ const breadCrumbs = computed(() => {
 .layout-aside-left {
   position: relative;
   grid-area: sidebar;
+  position: sticky;
+  top: var(
+    --scalar-api-reference-theme-header-height,
+    var(--default-scalar-api-reference-theme-header-height)
+  );
+  height: calc(var(--full-height) - var(--theme-header-height, 0px));
 }
 
 .layout-aside-right {
@@ -695,15 +705,13 @@ const breadCrumbs = computed(() => {
 }
 
 .layout-aside-content {
-  position: sticky;
-  top: var(
+  /* position: sticky; */
+  /* top: var(
     --scalar-api-reference-theme-header-height,
     var(--default-scalar-api-reference-theme-header-height)
-  );
-  height: var(
-    --scalar-api-reference-document-height,
-    var(--default-scalar-api-reference-document-height)
-  );
+  ); */
+  /* height: calc(var(--full-height) - var(--theme-header-height, 0px)); */
+  height: calc(var(--full-height) - var(--theme-header-height, 0px));
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -796,10 +804,7 @@ const breadCrumbs = computed(() => {
     --scalar-api-reference-theme-header-height,
     var(--default-scalar-api-reference-theme-header-height)
   );
-  height: var(
-    --scalar-api-reference-document-height,
-    var(--default-scalar-api-reference-document-height)
-  );
+  height: calc(var(--full-height) - var(--theme-header-height, 0px));
 }
 
 .document.preview {

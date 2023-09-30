@@ -33,7 +33,13 @@ import FlowIcon from './Icon/FlowIcon.vue'
   margin: 12px var(--margin-x, var(--default-margin-x)) 6px
     var(--margin-x, var(--default-margin-x));
   padding: 0 3px 0 12px;
-
+  background: var(
+    --sidebar-search-background,
+    var(
+      --default-sidebar-search-background,
+      var(--theme-background-1, var(--default-theme-background-1))
+    )
+  );
   color: var(
     --sidebar-color-2,
     var(
@@ -43,9 +49,9 @@ import FlowIcon from './Icon/FlowIcon.vue'
   );
   outline: none;
   border-radius: var(--theme-radius, var(--default-theme-radius));
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  box-shadow: 0 0 0 1px
+    var(--sidebar-border-color, var(--default-theme-border-color));
   /* prettier-ignore */
-  background: var(--scalar-api-reference-sidebar-search-background, var(--default-scalar-api-reference-sidebar-search-background), var(--theme-background-1, var(--default-theme-background-1)));
   cursor: pointer;
   appearance: none;
 }

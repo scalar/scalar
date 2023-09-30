@@ -44,6 +44,6 @@ const formattedServerUrl = computed(() => {
   font-size: var(--theme-small, var(--default-theme-small));
   cursor: pointer;
   font-family: var(--theme-font-code, var(--default-theme-font-code));
-  flex-direction: column;
+  display: flex;
 }
 </style>

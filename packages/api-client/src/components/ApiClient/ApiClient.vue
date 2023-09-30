@@ -121,6 +121,9 @@ useKeyboardEvent({
   flex-direction: column;
   font-family: var(--theme-font, var(--default-theme-font));
 }
+.scalar-api-client {
+  flex: 1;
+}
 @media screen and (max-width: 1000px) {
   .scalar-api-client {
     width: 100%;
