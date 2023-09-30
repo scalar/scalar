@@ -60,7 +60,7 @@ const localServers = computed(() => {
         v-for="(tag, index) in spec.tags"
         :key="tag.id">
         <div
-          v-if="tag.operations.length > 0"
+          v-if="tag.operations && tag.operations.length > 0"
           class="reference">
           <EndpointsOverview
             :index="index"

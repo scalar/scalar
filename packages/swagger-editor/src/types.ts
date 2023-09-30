@@ -18,3 +18,5 @@ export type HocuspocusConfigurationProp = {
 }
 
 export type EditorHeaderTabs = 'Getting Started' | 'Swagger Editor'
+
+export type GettingStartedExamples = 'Petstore' | 'Tableau' | 'CoinMarketCap'

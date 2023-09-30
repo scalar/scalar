@@ -1,11 +1,18 @@
 <script lang="ts" setup>
 import { type StatesArray } from '@hocuspocus/provider'
 import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
-import { ThemeStyles } from '@scalar/themes'
+import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
 
-import { type EditorHeaderTabs, type SwaggerEditorProps } from '../../types'
+import coinmarketcap from '../../coinmarketcapv3.json'
+import petstore from '../../petstorev3.json'
+import tableau from '../../tableauv3.json'
+import {
+  type EditorHeaderTabs,
+  type GettingStartedExamples,
+  type SwaggerEditorProps,
+} from '../../types'
 import GettingStarted from './GettingStarted.vue'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
@@ -18,6 +25,7 @@ const emit = defineEmits<{
   (e: 'contentUpdate', value: string): void
   (e: 'specUpdate', spec: SwaggerSpec): void
   (e: 'import', value: string): void
+  (e: 'changeTheme', value: ThemeId): void
 }>()
 
 const awarenessStates = ref<StatesArray>([])
@@ -62,6 +70,16 @@ const formattedError = computed(() => {
   return parserError.value
 })
 
+function handleChangeExample(example: GettingStartedExamples) {
+  if (example === 'Petstore') {
+    importHandler(JSON.stringify(petstore, null, 2))
+  } else if (example === 'CoinMarketCap') {
+    importHandler(JSON.stringify(coinmarketcap, null, 2))
+  } else if (example === 'Tableau') {
+    importHandler(JSON.stringify(tableau, null, 2))
+  }
+}
+
 watch(
   () => props.value,
   async () => {
@@ -99,7 +117,12 @@ const activeTab = ref<EditorHeaderTabs>('Getting Started')
       }}
       online
     </SwaggerEditorStatusBar>
-    <GettingStarted v-show="activeTab === 'Getting Started'" />
+    <GettingStarted
+      v-show="activeTab === 'Getting Started'"
+      :theme="!theme || theme === 'none' ? 'default' : theme"
+      @changeExample="handleChangeExample"
+      @changeTheme="emit('changeTheme', $event)"
+      @openEditor="activeTab = 'Swagger Editor'" />
   </div>
 </template>
 

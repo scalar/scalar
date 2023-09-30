@@ -1,5 +1,30 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { type ThemeId } from '@scalar/themes'
+import { ref, watch } from 'vue'
+
+import { type GettingStartedExamples } from '../../types'
+
+defineProps<{
+  theme: ThemeId
+}>()
+
+const emits = defineEmits<{
+  (e: 'changeTheme', value: ThemeId): void
+  (e: 'openEditor'): void
+  (e: 'changeExample', value: GettingStartedExamples): void
+}>()
+
+const themeIds: ThemeId[] = [
+  'default',
+  'alternate',
+  'moon',
+  'purple',
+  'solarized',
+]
+
+const activeExample = ref<GettingStartedExamples>('Petstore')
+
+watch(activeExample, () => emits('changeExample', activeExample.value))
 </script>
 <template>
   <div class="start custom-scroll">
@@ -11,7 +36,9 @@ import { ref } from 'vue'
     </p>
     <div class="start-section">
       <div class="start-h2">Quick Start</div>
-      <div class="start-item">
+      <div
+        class="start-item"
+        @click="$emit('openEditor')">
         <svg
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg">
@@ -24,7 +51,9 @@ import { ref } from 'vue'
         </svg>
         Import URL
       </div>
-      <div class="start-item">
+      <div
+        class="start-item"
+        @click="$emit('openEditor')">
         <svg
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg">
@@ -42,7 +71,9 @@ import { ref } from 'vue'
         </svg>
         Upload Swagger File
       </div>
-      <div class="start-item">
+      <div
+        class="start-item"
+        @click="$emit('openEditor')">
         <svg
           viewBox="0 0 12 16"
           width="10"
@@ -54,7 +85,9 @@ import { ref } from 'vue'
         </svg>
         Paste in Swagger Editor
       </div>
-      <div class="start-item">
+      <div
+        class="start-item"
+        @click="$emit('openEditor')">
         <svg
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg">
@@ -75,7 +108,10 @@ import { ref } from 'vue'
     </div>
     <div class="start-section">
       <div class="start-h2">Swagger Editor Examples</div>
-      <div class="start-item start-item-active">
+      <div
+        class="start-item"
+        :class="{ 'start-item-active': activeExample === 'Petstore' }"
+        @click="activeExample = 'Petstore'">
         <svg
           baseProfile="tiny"
           fill="currentColor"
@@ -90,7 +126,10 @@ import { ref } from 'vue'
         </svg>
         Petstore
       </div>
-      <div class="start-item">
+      <div
+        class="start-item"
+        :class="{ 'start-item-active': activeExample === 'Tableau' }"
+        @click="activeExample = 'Tableau'">
         <svg
           height="2478.8"
           viewBox="0 0 2500 2478.8"
@@ -124,9 +163,12 @@ import { ref } from 'vue'
               fill-rule="nonzero" />
           </g>
         </svg>
-        Tableu
+        Tableau
       </div>
-      <div class="start-item">
+      <div
+        class="start-item"
+        :class="{ 'start-item-active': activeExample === 'CoinMarketCap' }"
+        @click="activeExample = 'CoinMarketCap'">
         <svg
           height="586"
           viewBox="0 0 577.5 586"
@@ -137,7 +179,7 @@ import { ref } from 'vue'
             fill="currentColor"
             fill-rule="nonzero" />
         </svg>
-        Coinmarketcap
+        CoinMarketCap
       </div>
     </div>
     <div class="start-section">
@@ -260,20 +302,16 @@ import { ref } from 'vue'
     </div>
     <div class="start-section">
       <div class="start-h2">Fully Themeable</div>
-      <div class="start-item start-item-active">
-        <i class="start-item-color start-item-color-default"></i> Default
-      </div>
-      <div class="start-item">
-        <i class="start-item-color start-item-color-alternate"></i> Alternate
-      </div>
-      <div class="start-item">
-        <i class="start-item-color start-item-color-purple"></i> Purple
-      </div>
-      <div class="start-item">
-        <i class="start-item-color start-item-color-solarized"></i> Solarized
-      </div>
-      <div class="start-item">
-        <i class="start-item-color start-item-color-moon"></i> Moon
+      <div
+        v-for="themeId in themeIds"
+        :key="themeId"
+        class="start-item"
+        :class="{ 'start-item-active': themeId === theme }"
+        @click="$emit('changeTheme', themeId)">
+        <i
+          class="start-item-color"
+          :class="`start-item-color-${themeId}`"></i>
+        {{ themeId.toLocaleUpperCase() }}
       </div>
     </div>
   </div>
