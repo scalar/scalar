@@ -225,7 +225,7 @@ useKeyboardEvent({
   /* prettier-ignore */
   background: var(--sidebar-item-active-background, var(--default-sidebar-item-active-background, var(--theme-background-accent, var(--default-theme-background-accent)))) !important;
   /* prettier-ignore */
-  color: var(--sidebar-color-accent, var(--default-sidebar-color-accent, var(--theme-color-accent, var(--default-theme-color-accent)))) !important;
+  color: var(--sidebar-color-active, var(--default-sidebar-color-active, var(--theme-color-accent, var(--default-theme-color-accent)))) !important;
 }
 .sidebar-group-item {
   position: relative;

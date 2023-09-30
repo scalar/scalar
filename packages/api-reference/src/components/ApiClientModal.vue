@@ -224,6 +224,10 @@ TODO: Markup is missing
     --scalar-api-reference-theme-sidebar-width,
     var(--default-scalar-api-reference-theme-sidebar-width)
   );
+  max-width: var(
+    --scalar-api-reference-theme-sidebar-width,
+    var(--default-scalar-api-reference-theme-sidebar-width)
+  );
   border-right: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
