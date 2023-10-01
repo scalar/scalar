@@ -40,7 +40,6 @@ const handleSpecUpdate = useDebounceFn((value) => {
       emit('specUpdate', spec)
     })
     .catch((error) => {
-      console.log('here', value)
       parserError.value = error.toString()
     })
 })
