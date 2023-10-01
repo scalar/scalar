@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.6.4
+
+### Patch Changes
+
+- 5363374d: fix broken renderer for swagger editor
+
 ## 0.6.3
 
 ### Patch Changes

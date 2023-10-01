@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 0.6.5
+
+### Patch Changes
+
+- Updated dependencies [5363374d]
+  - @scalar/swagger-editor@0.6.4
+
 ## 0.6.4
 
 ### Patch Changes
