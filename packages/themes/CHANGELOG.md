@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.3.3
+
+### Patch Changes
+
+- 048555c6: feat: add CHANGELOG.md to the package
+
 ## 0.3.2
 
 ### Patch Changes

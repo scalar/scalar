@@ -1,5 +1,16 @@
 # @scalar/fastify-api-reference
 
+## 0.6.4
+
+### Patch Changes
+
+- 048555c6: feat: add CHANGELOG.md to the package
+- Updated dependencies [449305f4]
+- Updated dependencies [3e912c75]
+- Updated dependencies [048555c6]
+- Updated dependencies [df62875a]
+  - @scalar/api-reference@0.6.4
+
 ## 0.6.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/echo-server
 
+## 0.5.1
+
+### Patch Changes
+
+- 048555c6: feat: add CHANGELOG.md to the package
+
 ## 0.5.0
 
 ### Minor Changes
