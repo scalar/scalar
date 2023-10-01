@@ -54,6 +54,7 @@ import FlowIcon from './Icon/FlowIcon.vue'
   /* prettier-ignore */
   cursor: pointer;
   appearance: none;
+  border: none;
 }
 
 .sidebar-search-input {
