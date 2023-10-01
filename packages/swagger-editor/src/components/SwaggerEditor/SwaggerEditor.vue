@@ -40,6 +40,7 @@ const handleSpecUpdate = useDebounceFn((value) => {
       emit('specUpdate', spec)
     })
     .catch((error) => {
+      console.log('here', value)
       parserError.value = error.toString()
     })
 })
@@ -105,7 +106,7 @@ const activeTab = ref<EditorHeaderTabs>('Getting Started')
       {{ formattedError }}
     </SwaggerEditorNotification>
     <SwaggerEditorInput
-      v-show="activeTab === 'Swagger Editor'"
+      v-if="activeTab === 'Swagger Editor'"
       ref="codeMirrorReference"
       :hocuspocusConfiguration="hocuspocusConfiguration"
       @awarenessUpdate="handleAwarenessUpdate"
