@@ -1,7 +1,7 @@
 {
   "name": "@scalar/swagger-editor",
   "description": "an editor which is tailored to write OpenAPI spec",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {

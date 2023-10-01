@@ -1,5 +1,13 @@
 # @scalar/use-clipboard
 
+## 0.5.2
+
+### Patch Changes
+
+- 048555c6: feat: add CHANGELOG.md to the package
+- Updated dependencies [048555c6]
+  - @scalar/use-toasts@0.5.2
+
 ## 0.5.1
 
 ### Patch Changes

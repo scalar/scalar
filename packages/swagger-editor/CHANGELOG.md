@@ -1,5 +1,20 @@
 # @scalar/swagger-editor
 
+## 0.6.3
+
+### Patch Changes
+
+- 449305f4: marketing content section
+- 3e912c75: getting started page design
+- 048555c6: feat: add CHANGELOG.md to the package
+- Updated dependencies [449305f4]
+- Updated dependencies [3e912c75]
+- Updated dependencies [048555c6]
+  - @scalar/use-modal@0.1.1
+  - @scalar/swagger-parser@0.5.1
+  - @scalar/use-codemirror@0.7.1
+  - @scalar/themes@0.3.3
+
 ## 0.6.2
 
 ### Patch Changes

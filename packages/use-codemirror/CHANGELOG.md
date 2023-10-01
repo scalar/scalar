@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.1
+
+### Patch Changes
+
+- 048555c6: feat: add CHANGELOG.md to the package
+
 ## 0.7.0
 
 ### Minor Changes
