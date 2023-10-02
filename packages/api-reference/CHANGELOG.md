@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 0.6.6
+
+### Patch Changes
+
+- 8823d7a1: cleanup ui
+- Updated dependencies [8823d7a1]
+  - @scalar/use-codemirror@0.7.2
+  - @scalar/api-client@0.7.3
+  - @scalar/swagger-editor@0.6.5
+
 ## 0.6.5
 
 ### Patch Changes
