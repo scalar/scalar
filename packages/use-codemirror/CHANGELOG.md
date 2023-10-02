@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.3
+
+### Patch Changes
+
+- 58af0623: fix missing index ts
+
 ## 0.7.2
 
 ### Patch Changes
