@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.3.4
+
+### Patch Changes
+
+- cd5f2685: codemirror colors + font fixes throughout app
+
 ## 0.3.3
 
 ### Patch Changes

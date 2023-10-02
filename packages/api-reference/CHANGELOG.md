@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 0.6.7
+
+### Patch Changes
+
+- cd5f2685: codemirror colors + font fixes throughout app
+- Updated dependencies [cd5f2685]
+  - @scalar/swagger-editor@0.6.6
+  - @scalar/api-client@0.7.4
+  - @scalar/use-toasts@0.5.3
+  - @scalar/themes@0.3.4
+  - @scalar/use-clipboard@0.5.3
+
 ## 0.6.6
 
 ### Patch Changes

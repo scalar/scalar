@@ -1,5 +1,13 @@
 # @scalar/swagger-editor
 
+## 0.6.6
+
+### Patch Changes
+
+- cd5f2685: codemirror colors + font fixes throughout app
+- Updated dependencies [cd5f2685]
+  - @scalar/themes@0.3.4
+
 ## 0.6.5
 
 ### Patch Changes
