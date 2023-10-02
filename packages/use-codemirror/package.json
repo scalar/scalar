@@ -1,7 +1,7 @@
 {
   "name": "@scalar/use-codemirror",
   "description": "CodeMirror for Vue",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
