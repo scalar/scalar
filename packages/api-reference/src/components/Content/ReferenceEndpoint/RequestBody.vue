@@ -72,7 +72,7 @@ defineProps<{ requestBody?: RequestBody }>()
   border-top: none;
 }
 .parameter .parameter li {
-  padding: 12px;
+  padding: 10px 12px;
 }
 .parameter-child__open > .parameter {
   display: block;
@@ -112,10 +112,16 @@ defineProps<{ requestBody?: RequestBody }>()
   margin-right: 6px;
   position: relative;
 }
-.marc_required {
+.parameter-description {
+  margin-top: 3px;
+  font-size: var(--theme-small, var(--default-theme-small));
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  line-height: 1.4;
+}
+.parameter__required {
   text-transform: uppercase;
   font-size: var(--theme-micro, var(--default-theme-micro));
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   color: #ffb040;
 }
 .parameter-options {

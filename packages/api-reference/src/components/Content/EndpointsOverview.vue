@@ -90,6 +90,7 @@ onMounted(() => {
 .endpoints {
   overflow: auto;
   background: var(--theme-background-2, var(--default-theme-background-2));
+  padding: 10px 12px;
 }
 .endpoints span + span {
   text-align: left;

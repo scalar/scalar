@@ -10,7 +10,7 @@ defineProps<{ parameter: Parameters }>()
     <span
       v-if="parameter.required !== undefined"
       class="parameter-required"
-      :class="parameter.required ? 'marc_required' : ''">
+      :class="parameter.required ? 'parameter__required' : ''">
       {{ parameter.required ? 'required' : 'optional' }}
     </span>
     <span

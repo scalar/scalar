@@ -103,5 +103,6 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
   color: var(--theme-color-2, var(--default-theme-color-2));
   font-size: var(--theme-small, var(--default-theme-small));
   font-family: var(--theme-font-code, var(--default-theme-font-code));
+  padding: 10px 12px;
 }
 </style>

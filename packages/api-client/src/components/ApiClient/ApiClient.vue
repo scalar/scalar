@@ -203,7 +203,7 @@ useKeyboardEvent({
   background: transparent;
   font-size: var(--theme-font-size-3);
   color: var(--theme-color-2);
-  font-weight: var(--theme-bold);
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   padding: 0;
   margin-right: 9px;
   cursor: pointer;
@@ -243,7 +243,7 @@ useKeyboardEvent({
 .scalar-api-client__main__content label {
   font-size: var(--theme-small, var(--default-theme-small));
   color: var(--theme-color-1, var(--default-theme-color-1));
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   display: flex;
   align-items: center;
 }
@@ -280,7 +280,7 @@ useKeyboardEvent({
   align-items: center;
   margin-right: 12px;
   white-space: nowrap;
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-small, var(--default-theme-small));
   color: var(--theme-color-disabled, var(--default-theme-color-disabled));
 }

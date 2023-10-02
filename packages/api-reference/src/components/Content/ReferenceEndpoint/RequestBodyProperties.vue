@@ -15,7 +15,7 @@ const open = ref(true)
     <span class="parameter-name">{{ name }}</span>
     <span
       class="parameter-required"
-      :class="required?.includes(name) ? 'marc_required' : ''">
+      :class="required?.includes(name) ? 'parameter__required' : ''">
       {{ required?.includes(name) ? 'required' : 'optional' }}
     </span>
     <span class="parameter-type">{{ contentProperties[name].type }}</span>

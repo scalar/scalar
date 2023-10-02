@@ -2,11 +2,13 @@
 withDefaults(
   defineProps<{
     muted?: boolean
+    contrast?: boolean
     frameless?: boolean
     borderless?: boolean
   }>(),
   {
     muted: false,
+    contrast: false,
     frameless: false,
     borderless: false,
   },
@@ -17,6 +19,7 @@ withDefaults(
     :class="{
       'card-content': true,
       'card--muted': muted,
+      'card--contrast': contrast,
       'card--frameless': frameless,
       'card--borderless': borderless,
     }">
@@ -26,7 +29,6 @@ withDefaults(
 <style scoped>
 .card-content {
   overflow: auto;
-  padding: 10px 12px;
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
@@ -39,7 +41,9 @@ withDefaults(
 .card--muted {
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
-
+.card--contrast {
+  background: var(--theme-background-3, var(--default-theme-background-3));
+}
 .card--frameless {
   padding: 0;
 }
