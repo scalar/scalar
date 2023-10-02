@@ -224,8 +224,8 @@ const onChange = (value: string) => {
 .scalar-api-client__field {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-right: 0;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg)) 0 0
-    var(--theme-radius-lg, var(--default-theme-radius-lg));
+  border-radius: var(--theme-radius, var(--default-theme-radius)) 0 0
+    var(--theme-radius, var(--default-theme-radius));
   display: flex;
   align-items: stretch;
   width: 100%;
@@ -241,14 +241,14 @@ const onChange = (value: string) => {
   display: flex;
   align-items: center;
   background: var(--theme-background-2, var(--default-theme-background-2));
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  color: var(--theme-color-3, var(--default-theme-color-3));
   appearance: none;
   -webkit-appearance: none;
   padding: 0 12px;
   border-right: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg)) 0 0
-    var(--theme-radius-lg, var(--default-theme-radius-lg));
+  border-radius: var(--theme-radius, var(--default-theme-radius)) 0 0
+    var(--theme-radius, var(--default-theme-radius));
   position: relative;
 }
 .scalar-api-client__request-type span {
@@ -287,7 +287,7 @@ const onChange = (value: string) => {
   color: var(--theme-color-2, var(--default-theme-color-2));
   display: flex;
   align-items: center;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
   height: 100%;
 }
 .scalar-api-client__send-request-button[type='submit'] {
@@ -301,8 +301,9 @@ const onChange = (value: string) => {
   text-transform: uppercase;
   cursor: pointer;
   outline: none;
-  border-radius: 0 var(--theme-radius-lg, var(--default-theme-radius-lg))
-    var(--theme-radius-lg, var(--default-theme-radius-lg)) 0;
+  font-family: (--theme-font, var(--default-theme-font));
+  border-radius: 0 var(--theme-radius, var(--default-theme-radius))
+    var(--theme-radius, var(--default-theme-radius)) 0;
   background: var(
     --scalar-api-client-color,
     var(--default-scalar-api-client-color)

@@ -179,19 +179,19 @@ const showItemInClient = () => {
 </template>
 <style scoped>
 .request-method--post {
-  color: var(--theme-post-color, var(--default-theme-post-color));
+  color: var(--theme-color-green, var(--default-theme-color-green));
 }
 .request-method--patch {
-  color: var(--theme-patch-color, var(--default-theme-patch-color));
+  color: var(--theme-color-yellow, var(--default-theme-color-yellow));
 }
 .request-method--get {
-  color: var(--theme-get-color, var(--default-theme-get-color));
+  color: var(--theme-color-blue, var(--default-theme-color-blue));
 }
 .request-method--delete {
-  color: var(--theme-delete-color, var(--default-theme-delete-color));
+  color: var(--theme-color-red, var(--default-theme-color-red));
 }
 .request-method--put {
-  color: var(--theme-put-color, var(--default-theme-put-color));
+  color: var(--theme-color-orange, var(--default-theme-color-orange));
 }
 .request-path {
   margin-left: 6px;
@@ -286,6 +286,7 @@ const showItemInClient = () => {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color-1, var(--default-color-1));
+  font-family: var(--theme-font, var(--default-theme-font));
 }
 .show-api-client-button svg {
   height: 12px;
@@ -293,19 +294,19 @@ const showItemInClient = () => {
   margin-left: 9px;
 }
 .show-api-client-button--post {
-  background: var(--theme-post-color, var(--default-theme-post-color));
+  background: var(--theme-color-green, var(--default-theme-color-green));
 }
 .show-api-client-button--patch {
-  background: var(--theme-patch-color, var(--default-theme-patch-color));
+  background: var(--theme-color-yellow, var(--default-theme-color-yellow));
 }
 .show-api-client-button--get {
-  background: var(--theme-get-color, var(--default-theme-get-color));
+  background: var(--theme-color-blue, var(--default-theme-color-blue));
 }
 .show-api-client-button--delete {
-  background: var(--theme-delete-color, var(--default-theme-delete-color));
+  background: var(--theme-color-red, var(--default-theme-color-red));
 }
 .show-api-client-button--put {
-  background: var(--theme-put-color, var(--default-theme-put-color));
+  background: var(--theme-color-orange, var(--default-theme-color-orange));
 }
 .request-method {
   font-family: var(--theme-font-code, var(--default-theme-font-code));

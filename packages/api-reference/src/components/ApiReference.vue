@@ -385,19 +385,19 @@ const breadCrumbs = computed(() => {
   overflow: hidden;
 }
 .endpoint .post {
-  color: var(--theme-post-color, var(--default-theme-post-color));
+  color: var(--theme-color-green, var(--default-theme-color-green));
 }
 .endpoint .patch {
-  color: var(--theme-patch-color, var(--default-theme-patch-color));
+  color: var(--theme-color-yellow, var(--default-theme-color-yellow));
 }
 .endpoint .get {
-  color: var(--theme-get-color, var(--default-theme-get-color));
+  color: var(--theme-color-blue, var(--default-theme-color-blue));
 }
 .endpoint .delete {
-  color: var(--theme-delete-color, var(--default-theme-delete-color));
+  color: var(--theme-color-red, var(--default-theme-color-red));
 }
 .endpoint .put {
-  color: var(--theme-put-color, var(--default-theme-put-color));
+  color: var(--theme-color-orange, var(--default-theme-color-orange));
 }
 .endpoint .post,
 .endpoint .get,

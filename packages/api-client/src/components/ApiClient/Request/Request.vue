@@ -97,13 +97,14 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
     var(--default-scalar-api-client-color)
   ) !important;
   text-align: center;
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-family: var(--theme-font, var(--default-theme-font));
   padding: 12px;
   text-transform: uppercase;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
   color: white;
   cursor: pointer;
-  text-align: center;
+  text-align: center !important;
 }
 .scalar-api-client__item__content__split {
   justify-content: space-between;
@@ -114,7 +115,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 .input {
   background: var(--theme-background-2, var(--default-theme-background-2));
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  border-radius: 3px;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
   position: relative;
   width: 100%;
   text-align: left;
@@ -124,7 +125,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   width: calc(50% - 3px);
 }
 .input:focus-within {
-  background: var(--theme-background-3, var(--default-theme-background-3));
+  background: var(--theme-background-1, var(--default-theme-background-1));
 }
 .input label,
 .input input {
@@ -222,6 +223,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 }
 .check p {
   color: var(--theme-color-2, var(--default-theme-color-2));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 .check input {
   position: absolute;
@@ -234,7 +236,9 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 .checkmark {
   height: 15px;
   width: 15px;
-  background: var(--theme-background-3, var(--default-theme-background-3));
+  background: var(--theme-background-1, var(--default-theme-background-1));
+  box-shadow: 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
   margin-right: 10px;
   border-radius: 3px;
   display: flex;
@@ -251,8 +255,8 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   display: none;
   width: 5px;
   height: 8px;
-  border: solid var(--theme-color-disabled, var(--default-theme-color-disabled));
-  border-width: 0 2px 2px 0;
+  border: solid var(--theme-color-1, var(--default-theme-color-1));
+  border-width: 0 1.5px 1.5px 0;
   transform: rotate(45deg) translate3d(0, -1px, 0);
 }
 .check input:checked ~ .checkmark:after {
@@ -274,5 +278,14 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   width: 100%;
   padding: 0;
   background: transparent;
+  font-family: var(--theme-font, var(--default-theme-font));
+}
+.scalar-api-client__request-name::-webkit-input-placeholder,
+.scalar-api-client__request-name:-ms-input-placeholder,
+.scalar-api-client__request-name::placeholder {
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-family: var(--theme-font, var(--default-theme-font));
+  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
 }
 </style>

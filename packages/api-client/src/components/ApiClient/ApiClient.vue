@@ -135,8 +135,8 @@ useKeyboardEvent({
 
 .scalar-api-client--post {
   --default-scalar-api-client-color: var(
-    --theme-post-color,
-    var(--default-theme-post-color)
+    --theme-color-green,
+    var(--default-theme-color-green)
   );
   --default-scalar-api-client-background: var(
     --theme-post-background,
@@ -146,8 +146,8 @@ useKeyboardEvent({
 
 .scalar-api-client--delete {
   --default-scalar-api-client-color: var(
-    --theme-delete-color,
-    var(--default-theme-delete-color)
+    --theme-color-red,
+    var(--default-theme-color-red)
   );
   --default-scalar-api-client-background: var(
     --theme-delete-background,
@@ -157,8 +157,8 @@ useKeyboardEvent({
 
 .scalar-api-client--patch {
   --default-scalar-api-client-color: var(
-    --theme-patch-color,
-    var(--default-theme-patch-color)
+    --theme-color-yellow,
+    var(--default-theme-color-yellow)
   );
   --default-scalar-api-client-background: var(
     --theme-patch-background,
@@ -168,8 +168,8 @@ useKeyboardEvent({
 
 .scalar-api-client--get {
   --default-scalar-api-client-color: var(
-    --theme-get-color,
-    var(--default-theme-get-color)
+    --theme-color-blue,
+    var(--default-theme-color-blue)
   );
   --default-scalar-api-client-background: var(
     --theme-get-background,
@@ -179,8 +179,8 @@ useKeyboardEvent({
 
 .scalar-api-client--put {
   --default-scalar-api-client-color: var(
-    --theme-put-color,
-    var(--default-theme-put-color)
+    --theme-color-orange,
+    var(--default-theme-color-orange)
   );
   --default-scalar-api-client-background: var(
     --theme-put-background,
@@ -201,9 +201,10 @@ useKeyboardEvent({
   border: none;
   outline: none;
   background: transparent;
-  font-size: var(--theme-font-size-3);
+  font-size: var(--theme-font-size-2);
   color: var(--theme-color-2);
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-family: var(--theme-font, var(--default-theme-font));
   padding: 0;
   margin-right: 9px;
   cursor: pointer;
@@ -283,6 +284,7 @@ useKeyboardEvent({
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-small, var(--default-theme-small));
   color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  min-height: 17px;
 }
 
 .meta-item__input {
@@ -318,6 +320,7 @@ useKeyboardEvent({
     var(--theme-border-color, var(--default-theme-border-color));
   width: 100%;
   text-align: center;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
   font-size: var(--theme-small, var(--default-theme-small));
   padding: 20px;
 }

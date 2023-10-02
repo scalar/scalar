@@ -113,7 +113,7 @@ defineProps<{ requestBody?: RequestBody }>()
   position: relative;
 }
 .parameter-description {
-  margin-top: 3px;
+  margin-top: 3px !important;
   font-size: var(--theme-small, var(--default-theme-small));
   color: var(--theme-color-2, var(--default-theme-color-2));
   line-height: 1.4;
@@ -122,7 +122,7 @@ defineProps<{ requestBody?: RequestBody }>()
   text-transform: uppercase;
   font-size: var(--theme-micro, var(--default-theme-micro));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: #ffb040;
+  color: var(--theme-color-orange, var(--default-theme-color-orange));
 }
 .parameter-options {
   position: relative;
