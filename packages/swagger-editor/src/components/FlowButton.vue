@@ -153,14 +153,14 @@ export { useLoadButtonState }
 /* ----------------------------------------------------- */
 
 .flow-button--delete {
-  background: var(--theme-error-color, var(--default-theme-error-color));
+  background: var(--theme-error-color, var(--default-theme-color-red));
   color: white;
 }
 .flow-button--delete:active {
-  background: var(--theme-error-color, var(--default-theme-error-color));
+  background: var(--theme-error-color, var(--default-theme-color-red));
 }
 .flow-button--delete:hover {
-  background: var(--theme-error-color, var(--default-theme-error-color));
+  background: var(--theme-error-color, var(--default-theme-color-red));
   opacity: 0.86;
 }
 

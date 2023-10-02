@@ -83,6 +83,6 @@ defineProps<{
 
 .toast-error .toast-icon,
 .toast-error .toast-title {
-  color: var(--theme-error-color, var(--default-theme-error-color));
+  color: var(--theme-error-color, var(--default-theme-color-red));
 }
 </style>

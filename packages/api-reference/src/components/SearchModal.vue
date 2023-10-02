@@ -287,19 +287,19 @@ const searchResultsWithPlaceholderResults = computed(
   text-transform: uppercase;
 }
 .item-entry-http-verb--post {
-  color: var(--theme-post-color, var(--default-theme-post-color));
+  color: var(--theme-color-green, var(--default-theme-color-green));
 }
 .item-entry-http-verb--patch {
-  color: var(--theme-patch-color, var(--default-theme-patch-color));
+  color: var(--theme-color-yellow, var(--default-theme-color-yellow));
 }
 .item-entry-http-verb--get {
-  color: var(--theme-get-color, var(--default-theme-get-color));
+  color: var(--theme-color-blue, var(--default-theme-color-blue));
 }
 .item-entry-http-verb--delete {
-  color: var(--theme-delete-color, var(--default-theme-delete-color));
+  color: var(--theme-color-red, var(--default-theme-color-red));
 }
 .item-entry-http-verb--put {
-  color: var(--theme-put-color, var(--default-theme-put-color));
+  color: var(--theme-color-orange, var(--default-theme-color-orange));
 }
 .item-entry-path {
   color: var(--theme-color-3, var(--default-theme-color-3));

@@ -14,7 +14,7 @@
 }
 
 .swagger-editor-notification--error {
-  background: var(--theme-error-color, var(--default-theme-error-color));
+  background: var(--theme-error-color, var(--default-theme-color-red));
   color: white;
 }
 </style>

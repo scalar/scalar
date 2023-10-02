@@ -161,14 +161,13 @@ const showDescription = ref(false)
 }
 .table-row-item-menu {
   position: absolute;
-  right: 12px;
-  background: var(--theme-background-3, var(--default-theme-background-3));
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  right: 6px;
+  background: var(--theme-background-2, var(--default-theme-background-2));
   width: 24px;
   height: 24px;
   top: 50%;
   transform: translate3d(0, -50%, 0);
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -184,6 +183,9 @@ const showDescription = ref(false)
   width: initial;
   fill: var(--theme-color-disabled, var(--default-theme-color-disabled));
 }
+.table-row-item-menu:hover svg {
+  fill: var(--theme-color-1, var(--default-theme-color-1));
+}
 .table-row-item input {
   border: none;
   appearance: none;
@@ -194,13 +196,14 @@ const showDescription = ref(false)
   color: var(--theme-color-1, var(--default-theme-color-1));
   font-size: var(--theme-micro, var(--default-theme-micro));
   background: transparent;
+  font-family: var(--theme-font, var(--default-theme-font));
 }
 .table-row-item input[disabled] {
   background: transparent;
   font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 .table-row-item input:focus {
-  background: var(--theme-background-3, var(--default-theme-background-3));
+  background: var(--theme-background-1, var(--default-theme-background-1));
 }
 .table-row-item label {
   background: transparent;
@@ -259,6 +262,8 @@ const showDescription = ref(false)
   height: 15px;
   width: 15px;
   background: var(--theme-background-1, var(--default-theme-background-1));
+  box-shadow: 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
   border-radius: 3px;
   display: flex;
   align-items: center;

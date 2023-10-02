@@ -22,9 +22,9 @@
   --default-theme-button-1-color: #fff;
   --default-theme-button-1-hover: rgb(28 31 33);
 
-  --default-theme-error-color: #ae262f;
-  --default-theme-warning-color: #d89c6a;
-  --default-theme-success-color: #26ae42;
+  --default-theme-color-red: #ae262f;
+  --default-theme-color-orange: #d89c6a;
+  --default-theme-color-green: #26ae42;
 }
 
 .dark-mode {
@@ -55,8 +55,8 @@
   --default-theme-button-1-color: #000;
   --default-theme-button-1-hover: #e7e7e7;
 
-  --default-theme-error-color: #ff0011;
-  --default-theme-success-color: #26ae42;
+  --default-theme-color-red: #ff0011;
+  --default-theme-color-green: #26ae42;
 
   /* REST API Client */
   --default-theme-code-languages-background-supersede: transparent;

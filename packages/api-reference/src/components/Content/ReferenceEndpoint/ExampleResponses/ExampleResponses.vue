@@ -137,6 +137,7 @@ const changeTab = (index: number) => {
 .description {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-micro, var(--default-theme-micro));
+  color: var(--theme-color--1, var(--default-theme-color-1));
   padding: 10px 12px;
   min-height: 35px;
   display: flex;

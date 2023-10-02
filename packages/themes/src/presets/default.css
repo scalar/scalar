@@ -26,21 +26,13 @@
   --default-theme-button-1-color: #fff;
   --default-theme-button-1-hover: rgb(28 31 33);
 
-  --default-theme-error-color: #ae262f;
-  --default-theme-warning-color: #d89c6a;
-  --default-theme-success-color: #26ae42;
-
   /* REST API Client Colors */
-  --default-theme-post-color: #00a67d;
-  --default-theme-post-background: #00a67d1a;
-  --default-theme-delete-color: #ef0006;
-  --default-theme-delete-background: #ef00061a;
-  --default-theme-patch-color: #b2b062;
-  --default-theme-patch-background: #ffe6001a;
-  --default-theme-get-color: #0082d0;
-  --default-theme-get-background: #0082d01a;
-  --default-theme-put-color: #f3830e;
-  --default-theme-put-background: #f3830e1a;
+  --default-theme-color-green: #069061;
+  --default-theme-color-red: #ef0006;
+  --default-theme-color-yellow: #edbe20;
+  --default-theme-color-blue: #0082d0;
+  --default-theme-color-orange: #fb892c;
+  --default-theme-color-purple: #5203d1;
 
   /* Misc Scalar Branding */
   --default-scalar-brand: #faf6e9;
@@ -73,20 +65,13 @@
   --default-theme-button-1-color: #000;
   --default-theme-button-1-hover: #e7e7e7;
 
-  --default-theme-error-color: #ff0011;
-  --default-theme-success-color: #26ae42;
-
   /* REST API Client Colors */
-  --default-theme-post-color: #7ee787;
-  --default-theme-post-background: #7ee78714;
-  --default-theme-delete-color: #e77e7e;
-  --default-theme-delete-background: #e77e7e24;
-  --default-theme-patch-color: #b2b062;
-  --default-theme-patch-background: #b2b06229;
-  --default-theme-get-color: #79c0ff;
-  --default-theme-get-background: #79c0ff21;
-  --default-theme-put-color: #e9950c;
-  --default-theme-put-background: #e9950c21;
+  --default-theme-color-green: #2ba179;
+  --default-theme-color-red: #e77e7e;
+  --default-theme-color-yellow: #fcd245;
+  --default-theme-color-blue: #2695d7;
+  --default-theme-color-orange: #fc9b4b;
+  --default-theme-color-purple: #864fdf;
 
   /* Misc Scalar Branding */
   --default-scalar-brand: #8b7256;

@@ -226,14 +226,14 @@ export default {
 .helper-text {
   margin-top: 6px;
   font-size: var(--theme-mini, var(--default-theme-mini));
-  color: var(--theme-error-color, var(--default-theme-error-color));
+  color: var(--theme-error-color, var(--default-theme-color-red));
   display: flex;
   align-items: center;
 }
 .helper-text:before {
   content: '!';
   border-radius: 50%;
-  background: var(--theme-error-color, var(--default-theme-error-color));
+  background: var(--theme-error-color, var(--default-theme-color-red));
   color: white;
   font-weight: 900;
   width: 15px;
@@ -248,16 +248,16 @@ export default {
   display: none;
 }
 .flow-input-wrapper--error {
-  border-color: var(--theme-error-color, var(--default-theme-error-color));
+  border-color: var(--theme-error-color, var(--default-theme-color-red));
 }
 .flow-input-wrapper--error .flow-label {
-  color: var(--theme-error-color, var(--default-theme-error-color));
+  color: var(--theme-error-color, var(--default-theme-color-red));
 }
 .flow-input-wrapper--warn {
-  border-color: var(--theme-error-color, var(--default-theme-error-color));
+  border-color: var(--theme-error-color, var(--default-theme-color-red));
 }
 .flow-input-wrapper--warn .flow-label {
-  color: var(--theme-error-color, var(--default-theme-error-color));
+  color: var(--theme-error-color, var(--default-theme-color-red));
 }
 .flow-input-wrapper--focus .flow-label,
 .flow-input:not(:placeholder-shown) + .flow-label {

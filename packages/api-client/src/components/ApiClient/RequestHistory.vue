@@ -97,18 +97,18 @@ const { requestHistoryOrder } = useApiClientRequestStore()
   transform: rotate(45deg) translate3d(-0.5px, -1px, 0);
 }
 .radio.post {
-  background: var(--theme-post-color, var(--default-theme-post-color));
+  background: var(--theme-color-green, var(--default-theme-color-green));
 }
 .radio.delete {
-  background: var(--theme-delete-color, var(--default-theme-delete-color));
+  background: var(--theme-color-red, var(--default-theme-color-red));
 }
 .radio.patch {
-  background: var(--theme-patch-color, var(--default-theme-patch-color));
+  background: var(--theme-color-yellow, var(--default-theme-color-yellow));
 }
 .radio.get {
-  background: var(--theme-get-color, var(--default-theme-get-color));
+  background: var(--theme-color-blue, var(--default-theme-color-blue));
 }
 .radio.put {
-  background: var(--theme-put-color, var(--default-theme-put-color));
+  background: var(--theme-color-orange, var(--default-theme-color-orange));
 }
 </style>
