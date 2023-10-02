@@ -165,13 +165,14 @@ const showItemInClient = () => {
         lineNumbers
         readOnly />
     </CardContent>
-    <CardFooter muted>
+    <CardFooter contrast>
       <button
         class="show-api-client-button"
+        :class="`show-api-client-button--${operation.httpVerb}`"
         type="button"
         @click="showItemInClient">
+        Test Request
         <Icon src="solid/mail-send-email-paper-airplane" />
-        Test {{ operation.httpVerb }} Request in Client
       </button>
     </CardFooter>
   </Card>
@@ -255,6 +256,7 @@ const showItemInClient = () => {
   margin-left: 6px;
   border: none;
   border-radius: 3px;
+  padding: 0;
 }
 
 .copy-button:hover {
@@ -267,33 +269,44 @@ const showItemInClient = () => {
 }
 
 .show-api-client-button {
-  width: 100%;
   display: block;
   appearance: none;
   outline: none;
   border: none;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  height: 35px;
+  padding: 6px;
+  margin-left: auto;
+  height: 23px;
+  margin: 6px 6px 6px auto;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  text-transform: uppercase;
   display: flex;
   justify-content: center;
   cursor: pointer;
   align-items: center;
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-micro, var(--default-theme-micro));
-  text-transform: uppercase;
-  border: 1px solid currentColor;
-  background: var(--theme-button-1, var(--default-theme-button-1));
-  color: var(--theme-button-1-color, var(--default-theme-button-1-color));
-}
-.show-api-client-button:hover {
-  background: var(--theme-button-1-hover, var(--default-theme-button-1-hover));
+  color: var(--theme-color-1, var(--default-color-1));
 }
 .show-api-client-button svg {
   height: 12px;
   width: auto;
-  margin-right: 6px;
+  margin-left: 9px;
 }
-
+.show-api-client-button--post {
+  background: var(--theme-post-color, var(--default-theme-post-color));
+}
+.show-api-client-button--patch {
+  background: var(--theme-patch-color, var(--default-theme-patch-color));
+}
+.show-api-client-button--get {
+  background: var(--theme-get-color, var(--default-theme-get-color));
+}
+.show-api-client-button--delete {
+  background: var(--theme-delete-color, var(--default-theme-delete-color));
+}
+.show-api-client-button--put {
+  background: var(--theme-put-color, var(--default-theme-put-color));
+}
 .request-method {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
 }

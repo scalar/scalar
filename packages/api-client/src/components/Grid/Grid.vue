@@ -190,22 +190,24 @@ const showDescription = ref(false)
   outline: none;
   padding: 9px;
   width: 100%;
+  min-height: 100%;
   color: var(--theme-color-1, var(--default-theme-color-1));
   font-size: var(--theme-micro, var(--default-theme-micro));
+  background: transparent;
 }
 .table-row-item input[disabled] {
   background: transparent;
   font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 .table-row-item input:focus {
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--theme-background-3, var(--default-theme-background-3));
 }
 .table-row-item label {
   background: transparent;
   text-transform: uppercase;
   display: block;
   padding: 9px;
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   color: var(--theme-color-disabled, var(--default-theme-color-disabled));
   font-size: var(--theme-micro, var(--default-theme-micro));
 }

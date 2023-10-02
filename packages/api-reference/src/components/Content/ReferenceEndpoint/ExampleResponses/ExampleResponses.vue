@@ -125,6 +125,7 @@ const changeTab = (index: number) => {
   cursor: pointer;
   color: var(--theme-color-3, var(--default-theme-color-3));
   border: none;
+  padding: 0;
 }
 .code-copy:hover {
   color: var(--theme-color-1, var(--default-theme-color-1));
@@ -136,14 +137,23 @@ const changeTab = (index: number) => {
 .description {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-micro, var(--default-theme-micro));
+  padding: 10px 12px;
+  min-height: 35px;
+  display: flex;
+  align-items: center;
 }
 .scalar-api-reference__empty-state {
   border: 1px dashed
     var(--theme-border-color, var(--default-theme-border-color));
-  width: 100%;
+  width: calc(100% - 24px);
+  margin: 10px 12px;
   text-align: center;
   font-size: var(--theme-micro, var(--default-theme-micro));
-  padding: 20px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   color: var(--theme-color-2, var(--default-theme-color-2));
 }
 

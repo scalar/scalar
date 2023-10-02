@@ -28,6 +28,7 @@ import CardContent from './CardContent.vue'
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 10px 12px;
 }
 
 .card-header-actions {

@@ -103,6 +103,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   color: white;
   cursor: pointer;
+  text-align: center;
 }
 .scalar-api-client__item__content__split {
   justify-content: space-between;
@@ -268,7 +269,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   color: var(--theme-color-disabled, var(--default-theme-color-disabled));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   font-size: var(--theme-small, var(--default-theme-small));
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   color: var(--theme-color-disabled, var(--default-theme-color-disabled));
   width: 100%;
   padding: 0;

@@ -205,6 +205,9 @@ defineExpose({
 .scalar-api-client__codemirror__wrapper {
   width: 100%;
   height: 100%;
+  padding-top: 4px;
+  min-height: 76px;
+  background: var(--theme-background-2, var(--default-theme-background-2));
   display: flex;
   align-items: stretch;
 }
@@ -227,6 +230,8 @@ defineExpose({
 /** URL input */
 .scalar-api-client__url-input {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  min-height: auto;
+  padding-top: 0;
 }
 
 /* .scalar-api-client__url-input .cm-scroller {
@@ -239,5 +244,8 @@ defineExpose({
 
 .scalar-api-client__variable {
   color: var(--scalar-api-client-color, var(--default-scalar-api-client-color));
+}
+.cm-focused {
+  outline: none !important;
 }
 </style>
