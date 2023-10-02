@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.5.3
+
+### Patch Changes
+
+- cd5f2685: codemirror colors + font fixes throughout app
+
 ## 0.5.2
 
 ### Patch Changes

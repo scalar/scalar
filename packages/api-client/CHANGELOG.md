@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 0.7.4
+
+### Patch Changes
+
+- cd5f2685: codemirror colors + font fixes throughout app
+- Updated dependencies [cd5f2685]
+  - @scalar/themes@0.3.4
+
 ## 0.7.3
 
 ### Patch Changes
