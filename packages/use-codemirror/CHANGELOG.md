@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.2
+
+### Patch Changes
+
+- 8823d7a1: cleanup ui
+
 ## 0.7.1
 
 ### Patch Changes
