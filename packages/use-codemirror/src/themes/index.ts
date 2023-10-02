@@ -17,14 +17,17 @@ export const lightTheme = createTheme({
     fontFamily: 'var(--theme-font-code, var(--default-theme-font-code))',
   },
   styles: [
-    { tag: [t.standard(t.tagName), t.tagName], color: '#EDBE20' },
+    {
+      tag: [t.standard(t.tagName), t.tagName],
+      color: 'var(--theme-color-yellow, var(--default-theme-color-yellow))',
+    },
     {
       tag: [t.comment],
       color: 'var(--theme-color-3, var(--default-theme-color-3))',
     },
     {
       tag: [t.className],
-      color: '#FB892C',
+      color: 'var(--theme-color-orange, var(--default-theme-color-orange))',
     },
     {
       tag: [t.variableName, t.propertyName, t.attributeName],
@@ -36,15 +39,15 @@ export const lightTheme = createTheme({
     },
     {
       tag: [t.keyword, t.typeName, t.typeOperator],
-      color: '#069061',
+      color: 'var(--theme-color-green, var(--default-theme-color-green))',
     },
     {
       tag: [t.string],
-      color: '#0082D0',
+      color: 'var(--theme-color-blue, var(--default-theme-color-blue))',
     },
     {
       tag: [t.bracket, t.number, t.regexp, t.meta],
-      color: '#5203D1',
+      color: 'var(--theme-color-purple, var(--default-theme-color-purple))',
     },
     { tag: [t.name, t.quote], color: '#22863a' },
     { tag: [t.heading], color: '#24292e', fontWeight: 'bold' },
@@ -77,14 +80,17 @@ export const darkTheme = createTheme({
     fontFamily: 'var(--theme-font-code, var(--default-theme-font-code))',
   },
   styles: [
-    { tag: [t.standard(t.tagName), t.tagName], color: '#FCD245' },
+    {
+      tag: [t.standard(t.tagName), t.tagName],
+      color: 'var(--theme-color-yellow, var(--default-theme-color-yellow))',
+    },
     {
       tag: [t.comment],
       color: 'var(--theme-color-3, var(--default-theme-color-3))',
     },
     {
       tag: [t.className],
-      color: '#FC9B4B',
+      color: 'var(--theme-color-orange, var(--default-theme-color-orange))',
     },
     {
       tag: [t.variableName, t.propertyName, t.attributeName],
@@ -96,15 +102,15 @@ export const darkTheme = createTheme({
     },
     {
       tag: [t.keyword, t.typeName, t.typeOperator],
-      color: '#2BA179',
+      color: 'var(--theme-color-green, var(--default-theme-color-green))',
     },
     {
       tag: [t.string],
-      color: '#2695D7',
+      color: 'var(--theme-color-blue, var(--default-theme-color-blue))',
     },
     {
       tag: [t.bracket, t.number, t.regexp, t.meta],
-      color: '#864FDF',
+      color: 'var(--theme-color-purple, var(--default-theme-color-purple))',
     },
     { tag: [t.name, t.quote], color: '#22863a' },
     { tag: [t.heading], color: '#24292e', fontWeight: 'bold' },
