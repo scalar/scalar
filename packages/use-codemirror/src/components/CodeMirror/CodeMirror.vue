@@ -208,6 +208,7 @@ defineExpose({
   padding-top: 4px;
   min-height: 76px;
   background: var(--theme-background-2, var(--default-theme-background-2));
+  color: var(--theme-color-1, var(--default-theme-color-1));
   display: flex;
   align-items: stretch;
 }
