@@ -53,8 +53,12 @@
   --default-theme-button-1-color: #000;
   --default-theme-button-1-hover: #e7e7e7;
 
-  --default-theme-color-red: #ff0011;
-  --default-theme-color-green: #26ae42;
+  --default-theme-color-green: #00b648;
+  --default-theme-color-red: #dc1b19;
+  --default-theme-color-yellow: #ffc90d;
+  --default-theme-color-blue: #4eb3ec;
+  --default-theme-color-orange: #ff8d4d;
+  --default-theme-color-purple: #b191f9;
 }
 
 /* Sidebar */

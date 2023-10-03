@@ -511,7 +511,9 @@ const breadCrumbs = computed(() => {
   color: var(--theme-color-1, var(--default-theme-color-1));
   text-decoration: underline;
 }
-
+.copy ul {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
 /* ----------------------------------------------------- */
 /* Responsive styles for narrow reference container (900px) */
 .references-narrow {
