@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 0.6.9
+
+### Patch Changes
+
+- 4985562c: polish codemirror theme colors
+- Updated dependencies [4985562c]
+  - @scalar/use-codemirror@0.7.4
+  - @scalar/themes@0.3.5
+  - @scalar/api-client@0.7.6
+  - @scalar/swagger-editor@0.6.8
+
 ## 0.6.8
 
 ### Patch Changes

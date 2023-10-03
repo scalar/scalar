@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.3.5
+
+### Patch Changes
+
+- 4985562c: polish codemirror theme colors
+
 ## 0.3.4
 
 ### Patch Changes
