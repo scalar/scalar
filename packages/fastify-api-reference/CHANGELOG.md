@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 0.6.9
+
+### Patch Changes
+
+- 386b2941: fix: remove body margin from the fastify template
+- Updated dependencies [4985562c]
+  - @scalar/api-reference@0.6.9
+
 ## 0.6.8
 
 ### Patch Changes
