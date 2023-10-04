@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.3.7
+
+### Patch Changes
+
+- 1d02c811: fix: use ?inline imports for CSS files
+
 ## 0.3.6
 
 ### Patch Changes
