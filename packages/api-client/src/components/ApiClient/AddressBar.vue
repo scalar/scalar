@@ -114,7 +114,9 @@ const changeRequestMethod = (requestMethod?: string) => {
     <div class="scalar-api-client__url-form">
       <div class="scalar-api-client__field">
         <div class="request-method-select">
-          <span class="scalar-api-client__request-type">
+          <span
+            class="scalar-api-client__request-type"
+            :class="{ 'scalar-api-client__request-type--disabled': readOnly }">
             <i :class="requestType.toLowerCase()" />
             <span>{{ requestType }}</span>
           </span>
@@ -277,7 +279,21 @@ const changeRequestMethod = (requestMethod?: string) => {
   font-size: 500;
   font-size: var(--theme-micro, var(--default-theme-micro));
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
 }
+
+.scalar-api-client__request-type:not(.scalar-api-client__request-type--disabled)
+  span:after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  transform: rotate(45deg) translate3d(-2px, -2px, 0);
+  display: block;
+  margin-left: 6px;
+  box-shadow: 1px 1px 0 currentColor;
+}
+
 .scalar-api-client__request-type svg {
   margin-left: 6px;
   width: 8px;
