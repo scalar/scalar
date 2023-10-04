@@ -100,6 +100,7 @@ const codeMirrorRef = ref<typeof CodeMirror | null>(null)
   <div class="swagger-editor-input">
     <CodeMirror
       ref="codeMirrorRef"
+      :content="value"
       :extensions="yCodeMirrorExtension ? [yCodeMirrorExtension] : []"
       :languages="['json']"
       lineNumbers
