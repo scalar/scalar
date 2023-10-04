@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.1.2
+
+### Patch Changes
+
+- b76f4d1e: Reference search + some app hover states
+
 ## 0.1.1
 
 ### Patch Changes

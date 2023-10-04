@@ -1,5 +1,15 @@
 # @scalar/swagger-editor
 
+## 0.6.9
+
+### Patch Changes
+
+- b76f4d1e: Reference search + some app hover states
+- Updated dependencies [b76f4d1e]
+  - @scalar/use-codemirror@0.7.5
+  - @scalar/use-modal@0.1.2
+  - @scalar/themes@0.3.6
+
 ## 0.6.8
 
 ### Patch Changes
