@@ -17,15 +17,19 @@
 
   --default-theme-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
   --default-theme-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px,
-    rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, var(--theme-border-color) 0px 0 0 1px;
+    rgba(0, 0, 0, 0.08) 0px 3px 8px 0px,
+    var(--default-theme-border-color) 0px 0 0 1px;
 
   --default-theme-button-1: rgb(49 53 56);
   --default-theme-button-1-color: #fff;
   --default-theme-button-1-hover: rgb(28 31 33);
 
-  --default-theme-color-red: #ae262f;
-  --default-theme-color-orange: #d89c6a;
-  --default-theme-color-green: #26ae42;
+  --default-theme-color-red: #b91c1c;
+  --default-theme-color-orange: #a16207;
+  --default-theme-color-green: #047857;
+  --default-theme-color-blue: #1d4ed8;
+  --default-theme-color-orange: #c2410c;
+  --default-theme-color-purple: #6d28d9;
 }
 
 .dark-mode {
@@ -63,27 +67,31 @@
 
 /* Sidebar */
 .light-mode .t-doc__sidebar {
-  --default-sidebar-background-1: var(--theme-background-1);
-  --default-sidebar-item-hover-background: var(--theme-background-2);
-  --default-sidebar-item-active-background: var(--theme-background-accent);
-  --default-sidebar-border-color: var(--theme-border-color);
-  --default-sidebar-color-1: var(--theme-color-1);
-  --default-sidebar-color-2: var(--theme-color-2);
-  --default-sidebar-color-active: var(--sidebar-background-1);
+  --default-sidebar-background-1: var(--default-theme-background-1);
+  --default-sidebar-item-hover-background: var(--default-theme-background-2);
+  --default-sidebar-item-active-background: var(
+    --default-theme-background-accent
+  );
+  --default-sidebar-border-color: var(--default-theme-border-color);
+  --default-sidebar-color-1: var(--default-theme-color-1);
+  --default-sidebar-color-2: var(--default-theme-color-2);
+  --default-sidebar-color-active: var(--default-sidebar-background-1);
   --default-sidebar-search-background: transparent;
-  --default-sidebar-search-border: var(--sidebar-search-background);
-  --default-sidebar-search--color: var(--theme-color-3);
+  --default-sidebar-search-border: var(--default-sidebar-search-background);
+  --default-sidebar-search--color: var(--default-theme-color-3);
 }
 
 .dark-mode .sidebar {
-  --default-sidebar-background-1: var(--theme-background-1);
-  --default-sidebar-item-hover-background: var(--theme-background-2);
-  --default-sidebar-item-active-background: var(--theme-background-accent);
-  --default-sidebar-border-color: var(--theme-border-color);
-  --default-sidebar-color-1: var(--theme-color-1);
-  --default-sidebar-color-2: var(--theme-color-2);
-  --default-sidebar-color-active: var(--sidebar-background-1);
-  --default-sidebar-search-background: var(--theme-background-2);
-  --default-sidebar-search-border: var(--sidebar-search-background);
-  --default-sidebar-search--color: var(--theme-color-3);
+  --default-sidebar-background-1: var(--default-theme-background-1);
+  --default-sidebar-item-hover-background: var(--default-theme-background-2);
+  --default-sidebar-item-active-background: var(
+    --default-theme-background-accent
+  );
+  --default-sidebar-border-color: var(--default-theme-border-color);
+  --default-sidebar-color-1: var(--default-theme-color-1);
+  --default-sidebar-color-2: var(--default-theme-color-2);
+  --default-sidebar-color-active: var(--default-sidebar-background-1);
+  --default-sidebar-search-background: var(--default-theme-background-2);
+  --default-sidebar-search-border: var(--default-sidebar-search-background);
+  --default-sidebar-search--color: var(--default-theme-color-3);
 }

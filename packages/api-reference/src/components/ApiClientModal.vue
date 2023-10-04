@@ -49,9 +49,11 @@ export { useApiClientStore } from '@scalar/api-client'
             </template>
           </template>
           <template v-else>
-            <Sidebar
-              v-show="!isMobile"
-              :spec="spec" />
+            <div class="t-doc__sidebar">
+              <Sidebar
+                v-show="!isMobile"
+                :spec="spec" />
+            </div>
           </template>
           <ApiClient
             :proxyUrl="proxyUrl"
@@ -171,7 +173,7 @@ TODO: Markup is missing
   position: fixed;
   bottom: 4px;
   left: 4px;
-  z-index: 1010;
+  z-index: 100;
   opacity: 0;
   animation: apiclientfadein 0.35s forwards;
 }
@@ -193,7 +195,7 @@ TODO: Markup is missing
   height: 100vh;
   background: rgba(0, 0, 0, 0.44);
   transition: all 0.3s ease-in-out;
-  z-index: 1000;
+  z-index: 99;
   cursor: pointer;
   animation: drawerexitfadein 0.35s forwards;
 }

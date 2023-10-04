@@ -187,16 +187,6 @@ export default {
 .flow-input:has(+ .flow-label) {
   opacity: 0;
 }
-.flow-input::placeholder {
-  color: var(--theme-color-3, var(--default-theme-color-3));
-}
-.flow-input::-webkit-input-placeholder,
-.flow-input:-ms-input-placeholder,
-.flow-input::placeholder {
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  font-family: var(--theme-font, var(--default-theme-font));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-}
 .flow-input:not(:placeholder-shown),
 .flow-input-wrapper--focus .flow-input {
   opacity: 1;
