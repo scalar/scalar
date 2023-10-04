@@ -63,14 +63,10 @@ fastify.put(
 // Add the plugin
 await fastify.register(fastifyApiReference, {
   routePrefix: '/reference',
-  // If @fastify/swagger is registered, it’s picking up the spec automatically.
-  // But you can pass a spec manually, too:
-
   // apiReference: {
-  //   // Just a spec:
+  //   spec: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
   //   spec: () => fastify.swagger(),
-  //   // Or the URL to a spec:
-  //   // specUrl: '/scalar.json',
+  //   specUrl: '/scalar.json',
   // },
 })
 
