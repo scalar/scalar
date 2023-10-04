@@ -232,6 +232,9 @@ const showItemInClient = () => {
   align-items: center;
   justify-content: center;
 }
+.language-select:hover span {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
 .language-select span:after {
   content: '';
   width: 7px;
@@ -289,6 +292,7 @@ const showItemInClient = () => {
   font-family: var(--theme-font, var(--default-theme-font));
   position: relative;
   cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 .show-api-client-button span,
 .show-api-client-button svg {
@@ -319,26 +323,18 @@ const showItemInClient = () => {
 }
 .show-api-client-button--post {
   background: var(--theme-color-green, var(--default-theme-color-green));
-  box-shadow: 0 0 0 1px
-    var(--theme-color-green, var(--default-theme-color-green));
 }
 .show-api-client-button--patch {
   background: var(--theme-color-yellow, var(--default-theme-color-yellow));
-  box-shadow: 0 0 0 1px
-    var(--theme-color-yellow, var(--default-theme-color-yellow));
 }
 .show-api-client-button--get {
   background: var(--theme-color-blue, var(--default-theme-color-blue));
-  box-shadow: 0 0 0 1px var(--theme-color-blue, var(--default-theme-color-blue));
 }
 .show-api-client-button--delete {
   background: var(--theme-color-red, var(--default-theme-color-red));
-  box-shadow: 0 0 0 1px var(--theme-color-red, var(--default-theme-color-red));
 }
 .show-api-client-button--put {
   background: var(--theme-color-orange, var(--default-theme-color-orange));
-  box-shadow: 0 0 0 1px
-    var(--theme-color-orange, var(--default-theme-color-orange));
 }
 .request-method {
   font-family: var(--theme-font-code, var(--default-theme-font-code));

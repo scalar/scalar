@@ -71,7 +71,7 @@
   --default-sidebar-background-1: var(--theme-background-2);
   --default-sidebar-item-hover-background: var(--theme-background-3);
   --default-sidebar-item-active-background: var(--theme-background-accent);
-  --default-sidebar-border-color: var(--theme-background-3);
+  --default-sidebar-border-color: transparent;
   --default-sidebar-color-1: var(--theme-color-1);
   --default-sidebar-color-2: var(--theme-color-2);
   --default-sidebar-color-active: var(--theme-color-accent);

@@ -8,7 +8,9 @@ import { Tab } from '@headlessui/vue'
     <button
       :class="{ 'tab': true, 'tab-selected': selected }"
       type="button">
-      <slot />
+      <span>
+        <slot />
+      </span>
     </button>
   </Tab>
 </template>
@@ -25,8 +27,27 @@ import { Tab } from '@headlessui/vue'
   padding: 0;
   margin-right: 3px;
   text-transform: uppercase;
+  position: relative;
 }
-
+.tab:before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  left: -6px;
+  top: -6px;
+  width: calc(100% + 12px);
+  height: calc(100% + 12px);
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  background: var(--theme-background-3, var(--default-theme-background-3));
+  opacity: 0;
+}
+.tab:hover:before {
+  opacity: 1;
+}
+.tab span {
+  z-index: 1;
+  position: relative;
+}
 .tab-selected {
   color: var(--theme-color-1, var(--default-theme-color-1));
   text-decoration: underline;

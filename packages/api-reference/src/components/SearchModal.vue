@@ -185,7 +185,9 @@ const searchResultsWithPlaceholderResults = computed(
 </script>
 <template>
   <FlowModal :state="modalState">
-    <div ref="searchModalRef">
+    <div
+      ref="searchModalRef"
+      class="ref-search-container">
       <input
         v-model="searchText"
         class="ref-search-input"
@@ -193,7 +195,9 @@ const searchResultsWithPlaceholderResults = computed(
         type="text"
         @input="fuseSearch" />
     </div>
-    <div v-if="searchResultsWithPlaceholderResults.length">
+    <div
+      v-if="searchResultsWithPlaceholderResults.length"
+      class="ref-search-list custom-scroll">
       <button
         v-for="(entry, index) in searchResultsWithPlaceholderResults"
         :key="entry.refIndex"
@@ -202,7 +206,9 @@ const searchResultsWithPlaceholderResults = computed(
           'item-entry--active': index === selectedSearchResult,
         }"
         type="submit"
-        @click="openSearchResult(entry)">
+        @click="openSearchResult(entry)"
+        @focus="selectedSearchResult = index"
+        @mouseover="selectedSearchResult = index">
         <div
           v-if="entry.item.title || entry.item.operationId"
           class="item-entry-title">
@@ -210,7 +216,7 @@ const searchResultsWithPlaceholderResults = computed(
         </div>
         <div
           v-if="entry.item.httpVerb || entry.item.path"
-          class="item-entry-request">
+          class="item-entry-subtitle">
           <div
             class="item-entry-http-verb"
             :class="`item-entry-http-verb--${entry.item.httpVerb}`">
@@ -220,10 +226,16 @@ const searchResultsWithPlaceholderResults = computed(
             {{ entry.item.path }}
           </div>
         </div>
-        <div v-else-if="entry.item.description">
+        <div
+          v-else-if="entry.item.description"
+          class="item-entry-subtitle">
           {{ entry.item.description }}
         </div>
       </button>
+    </div>
+    <div class="ref-search-meta">
+      <span>↑↓ Navigate</span>
+      <span>⏎ Select</span>
     </div>
   </FlowModal>
 </template>
@@ -233,15 +245,15 @@ const searchResultsWithPlaceholderResults = computed(
   width: 100%;
   background: transparent;
   padding: 12px;
-  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
   outline: none;
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-radius: var(--theme-radius, var(--default-theme-radius));
   color: var(--theme-color-1, var(--default-theme-color-1));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
+  font-family: var(--theme-font, var(--default-theme-font));
   appearance: none;
-  margin-bottom: 12px;
 }
 .ref-search-input::-webkit-input-placeholder,
 .ref-search-input::placeholder {
@@ -255,32 +267,37 @@ const searchResultsWithPlaceholderResults = computed(
   background: transparent;
   border: none;
   outline: none;
-  padding: 6px 12px;
+  padding: 9px 12px;
   width: 100%;
-  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
+  color: var(--theme-color-3, var(--default-theme-color-3));
   text-align: left;
   border-radius: var(--theme-radius, var(--default-theme-radius));
   display: flex;
+  justify-content: center;
   flex-direction: column;
-  gap: 6px;
+  gap: 3px;
+  font-family: var(--theme-font);
+  min-height: 31px;
+}
+.ref-search-list {
+  padding: 0 0 12px 12px;
+}
+.ref-search-container {
+  padding: 12px;
 }
 .item-entry--active {
   background: var(--theme-background-2, var(--default-theme-background-2));
-  box-shadow: 0 0 0 1px
-    var(--theme-background-2, var(--default-theme-background-2));
+  cursor: pointer;
 }
-.item-entry:hover {
-  background: var(--theme-background-2, var(--default-theme-background-2));
-  box-shadow: 0 0 0 1px
-    var(--theme-background-2, var(--default-theme-background-2));
-}
-
 .item-entry-title {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
 }
-.item-entry-request {
+.item-entry-subtitle {
   display: flex;
   gap: 3px;
+  font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
   font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 .item-entry-http-verb {
@@ -303,5 +320,20 @@ const searchResultsWithPlaceholderResults = computed(
 }
 .item-entry-path {
   color: var(--theme-color-3, var(--default-theme-color-3));
+}
+.item-entry-subtitle {
+  display: none;
+}
+.item-entry--active .item-entry-subtitle {
+  display: flex;
+}
+.ref-search-meta {
+  background: var(--default-theme-background-3, var(--theme-background-3));
+  padding: 6px 12px;
+  font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  display: flex;
+  gap: 12px;
 }
 </style>

@@ -165,7 +165,9 @@ const breadCrumbs = computed(() => {
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
     <slot name="search-modal">
-      <SearchModal :spec="transformedSpec" />
+      <SearchModal
+        :spec="transformedSpec"
+        variant="search" />
     </slot>
     <!-- Desktop header -->
     <div
@@ -406,7 +408,7 @@ const breadCrumbs = computed(() => {
   white-space: nowrap;
 }
 .endpoint span {
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  color: var(--theme-color-1, var(--default-theme-color-1));
   min-width: 62px;
   display: inline-block;
   text-align: right;

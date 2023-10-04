@@ -100,7 +100,7 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
   }
 }
 .font-mono {
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  color: var(--theme-color-1, var(--default-theme-color-1));
   font-size: var(--theme-small, var(--default-theme-small));
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   padding: 10px 12px;
