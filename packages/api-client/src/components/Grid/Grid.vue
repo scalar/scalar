@@ -64,7 +64,7 @@ const showDescription = ref(false)
           :value="dataObject[item].value"
           @update="value => $emit('updateValue', item, value)" /> -->
         <!-- <input :ref="`value_${item}`" :value="dataObject[item].value" @input="$emit('updateValue', item, $event.target.value)" type="text"> -->
-        <div class="table-row-item-menu">
+        <!-- <div class="table-row-item-menu">
           <svg
             height="16"
             viewBox="0 0 4 16"
@@ -74,7 +74,7 @@ const showDescription = ref(false)
               d="M2 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2C.9 6 0 6.9 0 8s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
               fill-rule="nonzero" />
           </svg>
-        </div>
+        </div> -->
       </div>
       <div
         v-show="showDescription"
@@ -203,7 +203,7 @@ const showDescription = ref(false)
   font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 .table-row-item input:focus {
-  background: var(--theme-background-1, var(--default-theme-background-1));
+  box-shadow: 0 0 0 1px var(--theme-color-1, var(--default-theme-color-1));
 }
 .table-row-item label {
   background: transparent;

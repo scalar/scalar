@@ -125,7 +125,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   width: calc(50% - 3px);
 }
 .input:focus-within {
-  background: var(--theme-background-1, var(--default-theme-background-1));
+  border-color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .input label,
 .input input {
@@ -219,6 +219,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   border-radius: 3px;
   padding: 10px 12px;
   user-select: none;
+  min-height: 38px;
   width: 100%;
 }
 .check p {

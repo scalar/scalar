@@ -38,9 +38,11 @@ export { useApiClientStore } from '@scalar/api-client'
         <div class="scalar-api-client-height flex flex-row">
           <template v-if="tabMode">
             <template v-if="activeTab === 'sidebar'">
-              <Sidebar
-                v-show="!isMobile"
-                :spec="spec" />
+              <div class="t-doc__sidebar">
+                <Sidebar
+                  v-show="!isMobile"
+                  :spec="spec" />
+              </div>
             </template>
             <template v-else>
               <slot name="active-tab"></slot>
@@ -229,6 +231,12 @@ TODO: Markup is missing
     var(--default-scalar-api-reference-theme-sidebar-width)
   );
   border-right: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+    var(
+      --sidebar-border-color,
+      var(
+        --default-sidebar-border-color,
+        var(--theme-border-color, var(--default-theme-border-color))
+      )
+    );
 }
 </style>

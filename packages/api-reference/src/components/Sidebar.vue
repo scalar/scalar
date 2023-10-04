@@ -151,7 +151,7 @@ useKeyboardEvent({
   position: relative;
   cursor: pointer;
   /* prettier-ignore */
-  border-radius: 0 var(--theme-radius-lg, var(--default-theme-radius-lg)) var(--theme-radius-lg, var(--default-theme-radius-lg)) 0;
+  border-radius: 0 var(--theme-radius, var(--default-theme-radius)) var(--theme-radius, var(--default-theme-radius)) 0;
   flex: 1;
   padding-right: 12px;
   user-select: none;

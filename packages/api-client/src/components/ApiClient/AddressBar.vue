@@ -224,11 +224,14 @@ const onChange = (value: string) => {
 .scalar-api-client__field {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-right: 0;
+  background: var(--theme-background-2, var(--default-theme-background-2));
   border-radius: var(--theme-radius, var(--default-theme-radius)) 0 0
     var(--theme-radius, var(--default-theme-radius));
   display: flex;
   align-items: stretch;
   width: 100%;
+  overflow: hidden;
+  min-height: 31px;
 }
 .scalar-api-client__address-bar-data {
   width: 100%;
@@ -240,15 +243,12 @@ const onChange = (value: string) => {
 .scalar-api-client__request-type {
   display: flex;
   align-items: center;
-  background: var(--theme-background-2, var(--default-theme-background-2));
   color: var(--theme-color-3, var(--default-theme-color-3));
   appearance: none;
   -webkit-appearance: none;
   padding: 0 12px;
   border-right: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
-  border-radius: var(--theme-radius, var(--default-theme-radius)) 0 0
-    var(--theme-radius, var(--default-theme-radius));
   position: relative;
 }
 .scalar-api-client__request-type span {
