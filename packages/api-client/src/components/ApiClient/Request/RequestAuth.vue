@@ -23,18 +23,22 @@ const authDropdownItems = [
   {
     text: 'Basic Auth',
     type: 'basic',
+    disabled: false,
   },
   {
     text: 'OAuth 2.0',
     type: 'oauthTwo',
+    disabled: true,
   },
   {
     text: 'Bearer Token',
     type: 'bearer',
+    disabled: false,
   },
   {
     text: 'None',
     type: 'none',
+    disabled: false,
   },
 ]
 </script>
@@ -62,6 +66,7 @@ const authDropdownItems = [
           <option
             v-for="option in authDropdownItems"
             :key="option.type"
+            :disabled="option.disabled"
             :value="option.type">
             {{ option.text }}
           </option>
