@@ -39,6 +39,14 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
+Actually, we’re picking it up automatically, so this would be enough:
+
+```ts
+await fastify.register(require('@scalar/fastify-api-reference'), {
+  routePrefix: '/reference',
+})
+```
+
 Or, if you just have a static OpenAPI spec, you can directly pass it, too:
 
 ```ts
