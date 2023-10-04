@@ -101,7 +101,7 @@ watch(
 )
 
 const activeTab = ref<EditorHeaderTabs>(
-  props.intitialTabState ?? 'Getting Started',
+  props.initialTabState ?? 'Getting Started',
 )
 </script>
 <template>

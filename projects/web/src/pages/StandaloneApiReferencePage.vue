@@ -4,6 +4,7 @@ import { ApiReference } from '@scalar/api-reference'
 
 <template>
   <ApiReference
+    :initialTabState="'Swagger Editor'"
     :isEditable="true"
     specUrl="/scalar.json" />
 </template>

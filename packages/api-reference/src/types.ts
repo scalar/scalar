@@ -1,4 +1,7 @@
-import { type HocuspocusConfigurationProp } from '@scalar/swagger-editor'
+import {
+  type EditorHeaderTabs,
+  type HocuspocusConfigurationProp,
+} from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
 
 export type ReferenceProps = {
@@ -11,6 +14,7 @@ export type ReferenceProps = {
   proxyUrl?: string
   hocuspocusConfiguration?: HocuspocusConfigurationProp
   theme?: ThemeId
+  initialTabState?: EditorHeaderTabs
 }
 
 export type Security = {
