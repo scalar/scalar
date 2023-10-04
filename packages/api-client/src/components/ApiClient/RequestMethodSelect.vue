@@ -87,10 +87,6 @@ defineEmits<{
   box-shadow: 1px 1px 0 currentColor;
 }
 
-.request-method svg {
-  margin-left: 6px;
-  width: 8px;
-}
 .request-method i {
   width: 10px;
   height: 10px;
