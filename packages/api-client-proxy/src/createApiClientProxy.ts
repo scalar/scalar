@@ -33,7 +33,7 @@ export const createApiClientProxy = () => {
           // *GET, POST, PUT, DELETE, etc.
           method: req.body.method,
           // no-cors, *cors, same-origin
-          mode: 'no-cors',
+          mode: 'cors',
           // *default, no-cache, reload, force-cache, only-if-cached
           cache: 'no-cache',
           // include, *same-origin, omit
