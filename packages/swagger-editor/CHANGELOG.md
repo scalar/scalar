@@ -1,5 +1,12 @@
 # @scalar/swagger-editor
 
+## 0.6.11
+
+### Patch Changes
+
+- 727d7f47: make swagger editor tab state controllable via prop
+- 727d7f47: add initial tab state prop to swagger editor
+
 ## 0.6.10
 
 ### Patch Changes

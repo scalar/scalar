@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 0.6.13
+
+### Patch Changes
+
+- 727d7f47: make swagger editor tab state controllable via prop
+- Updated dependencies [727d7f47]
+- Updated dependencies [727d7f47]
+  - @scalar/swagger-editor@0.6.11
+
 ## 0.6.12
 
 ### Patch Changes
