@@ -90,6 +90,10 @@ useKeyboardEvent({
 // TODO we need to not update the active request with these computed properties
 // we get an infinite loop
 const onChange = (value: string) => {
+  if (readOnly.value) {
+    return
+  }
+
   if (activeRequest.url + activeRequest.path === value) {
     return
   }
@@ -118,7 +122,7 @@ const onChange = (value: string) => {
           :readOnly="readOnly"
           withoutTheme
           withVariables
-          @change="readOnly ? () => {} : onChange" />
+          @change="onChange" />
       </div>
       <button
         class="scalar-api-client__send-request-button"
