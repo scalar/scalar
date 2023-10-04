@@ -76,3 +76,32 @@
   /* Misc Scalar Branding */
   --default-scalar-brand: #8b7256;
 }
+.light-mode .t-doc__sidebar {
+  --default-sidebar-background-1: var(--default-theme-background-1);
+  --default-sidebar-item-hover-background: var(--default-theme-background-2);
+  --default-sidebar-item-active-background: var(
+    --default-theme-background-accent
+  );
+  --default-sidebar-border-color: var(--default-theme-border-color);
+  --default-sidebar-color-1: var(--default-theme-color-1);
+  --default-sidebar-color-2: var(--default-theme-color-2);
+  --default-sidebar-color-active: var(--default-theme-color-accent);
+  --default-sidebar-search-background: transparent;
+  --default-sidebar-search-border: var(--default-theme-border-color);
+  --default-sidebar-search--color: var(--default-theme-color-3);
+}
+
+.dark-mode .sidebar {
+  --default-sidebar-background-1: var(--default-theme-background-1);
+  --default-sidebar-item-hover-background: var(--default-theme-background-2);
+  --default-sidebar-item-active-background: var(
+    --default-theme-background-accent
+  );
+  --default-sidebar-border-color: var(--default-theme-border-color);
+  --default-sidebar-color-1: var(--default-theme-color-1);
+  --default-sidebar-color-2: var(--default-theme-color-2);
+  --default-sidebar-color-active: var(--default-theme-color-accent);
+  --default-sidebar-search-background: transparent;
+  --default-sidebar-search-border: var(--default-theme-border-color);
+  --default-sidebar-search--color: var(--default-theme-color-3);
+}

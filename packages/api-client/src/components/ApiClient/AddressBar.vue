@@ -257,7 +257,43 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   display: flex;
   margin-top: 5px;
 }
-
+.scalar-api-client__request-type {
+  display: flex;
+  align-items: center;
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0 12px;
+  border-right: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+  position: relative;
+}
+.scalar-api-client__request-type span {
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  font-size: 500;
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  text-transform: uppercase;
+}
+.scalar-api-client__request-type svg {
+  margin-left: 6px;
+  width: 8px;
+}
+.scalar-api-client__request-type i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  text-align: center;
+  line-height: 18px;
+  font-style: normal;
+  flex-shrink: 0;
+  display: inline-block;
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  background: var(
+    --scalar-api-client-color,
+    var(--default-scalar-api-client-color)
+  );
+}
 .meta-request-break {
   margin: 0 5px;
 }
@@ -309,7 +345,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
 .scalar-api-client__history-toggle {
   padding: 0 9px;
   line-height: 30px;
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  color: var(--theme-color-3, var(--default-theme-color-3));
   font-size: var(--theme-mini, var(--default-theme-mini));
   letter-spacing: 0.125px;
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
@@ -330,10 +366,10 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   height: 13px;
   width: 13px;
   margin-right: 6px;
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
 .scalar-api-client__address-bar-close {
-  fill: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  fill: var(--theme-color-3, var(--default-theme-color-3));
   margin-left: 12px;
   height: 24px;
 }
@@ -420,7 +456,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   font-size: var(--theme-micro, var(--default-theme-micro));
   margin-right: 6px;
   font-weight: var(--theme-bold, var(--default-theme-bold));
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
 .navtable-item-time {
   font-size: var(--theme-micro, var(--default-theme-micro));

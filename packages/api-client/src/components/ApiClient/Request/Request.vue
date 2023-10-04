@@ -53,7 +53,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   flex-flow: wrap;
   padding: 0 12px 12px;
   border-radius: 3px;
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  color: var(--theme-color-3, var(--default-theme-color-3));
   font-size: var(--theme-micro, var(--default-theme-micro));
   margin-top: -3px;
   justify-content: space-between;
@@ -271,22 +271,23 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   border: none;
   appearance: none;
   -webkit-appearance: none;
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  color: var(--theme-color-3, var(--default-theme-color-3));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   font-size: var(--theme-small, var(--default-theme-small));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  color: var(--theme-color-3, var(--default-theme-color-3));
   width: 100%;
   padding: 0;
   background: transparent;
   font-family: var(--theme-font, var(--default-theme-font));
 }
-.scalar-api-client__request-name::-webkit-input-placeholder,
-.scalar-api-client__request-name:-ms-input-placeholder,
-.scalar-api-client__request-name::placeholder {
-  color: var(--theme-color-3, var(--default-theme-color-3));
+.scalar-api-client__request-name::-webkit-input-placeholder {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-family: var(--theme-font, var(--default-theme-font));
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+}
+.scalar-api-client__request-name:-ms-input-placeholder {
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+}
+.scalar-api-client__request-name::placeholder {
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 </style>

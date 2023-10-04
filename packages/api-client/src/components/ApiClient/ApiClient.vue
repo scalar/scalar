@@ -283,7 +283,7 @@ useKeyboardEvent({
   white-space: nowrap;
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-small, var(--default-theme-small));
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  color: var(--theme-color-3, var(--default-theme-color-3));
   min-height: 17px;
 }
 

@@ -260,6 +260,21 @@ const breadCrumbs = computed(() => {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  input::placeholder {
+    color: var(--theme-color-3, var(--default-theme-color-3));
+    font-family: var(--theme-font, var(--default-theme-font));
+    color: var(--theme-color-3, var(--default-theme-color-3));
+  }
+  input:-ms-input-placeholder {
+    color: var(--theme-color-3, var(--default-theme-color-3));
+    font-family: var(--theme-font, var(--default-theme-font));
+    color: var(--theme-color-3, var(--default-theme-color-3));
+  }
+  input::-webkit-input-placeholder {
+    color: var(--theme-color-3, var(--default-theme-color-3));
+    font-family: var(--theme-font, var(--default-theme-font));
+    color: var(--theme-color-3, var(--default-theme-color-3));
+  }
 }
 
 /* ?? layout stuff */

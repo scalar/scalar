@@ -148,7 +148,7 @@ const showDescription = ref(false)
 }
 .table-row-drag svg {
   width: 6px;
-  fill: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  fill: var(--theme-color-3, var(--default-theme-color-3));
 }
 .table-row-drag .table-row-drag-add {
   width: 8px;
@@ -181,7 +181,7 @@ const showDescription = ref(false)
 .table-row-item-menu svg {
   height: 12px;
   width: initial;
-  fill: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  fill: var(--theme-color-3, var(--default-theme-color-3));
 }
 .table-row-item-menu:hover svg {
   fill: var(--theme-color-1, var(--default-theme-color-1));
@@ -211,7 +211,7 @@ const showDescription = ref(false)
   display: block;
   padding: 9px;
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  color: var(--theme-color-3, var(--default-theme-color-3));
   font-size: var(--theme-micro, var(--default-theme-micro));
 }
 .table-row-meta {
@@ -234,7 +234,7 @@ const showDescription = ref(false)
   width: 13px;
   height: 13px;
   margin: 0 1px;
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  color: var(--theme-color-3, var(--default-theme-color-3));
   cursor: pointer;
 }
 .table-row-meta svg:hover {
@@ -480,7 +480,7 @@ const showDescription = ref(false)
   width: 100%;
 }
 .navtable-item label {
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  color: var(--theme-color-3, var(--default-theme-color-3));
   font-size: var(--theme-micro, var(--default-theme-micro));
   font-weight: var(--theme-bold, var(--default-theme-bold));
   text-transform: uppercase;

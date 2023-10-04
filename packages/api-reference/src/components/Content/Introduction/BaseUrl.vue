@@ -34,7 +34,7 @@ const formattedServerUrl = computed(() => {
 
 <style>
 .base-url-variable {
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
 </style>
 

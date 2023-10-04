@@ -113,7 +113,7 @@ defineProps<{
   width: calc(100% - 12px);
   height: calc(100% - 12px);
   display: block;
-  background: var(--default-theme-background-3);
+  background: var(--theme-background-3, var(--default-theme-background-3));
   z-index: 0;
   opacity: 0;
   border-radius: var(--default-theme-radius);

@@ -255,11 +255,8 @@ const searchResultsWithPlaceholderResults = computed(
   font-family: var(--theme-font, var(--default-theme-font));
   appearance: none;
 }
-.ref-search-input::-webkit-input-placeholder,
-.ref-search-input::placeholder {
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  font-family: var(--theme-font, var(--default-theme-font));
-  font-weight: var(--theme-regular, var(--default-theme-regular));
+.ref-search-input:focus {
+  border-color: var(--theme-color-1, var(--default-theme-color-1));
 }
 /** Results */
 .item-entry {
