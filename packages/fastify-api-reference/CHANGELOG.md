@@ -1,5 +1,12 @@
 # @scalar/fastify-api-reference
 
+## 0.6.12
+
+### Patch Changes
+
+- a5eed542: feat: detect @fastify/swagger and load fastify.swagger() automatically
+  - @scalar/api-reference@0.6.12
+
 ## 0.6.11
 
 ### Patch Changes

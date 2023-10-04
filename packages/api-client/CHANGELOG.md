@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 0.7.9
+
+### Patch Changes
+
+- 4b4bc4d7: fix: update the URL
+- 30d54d16: feat: make request method selectable
+- 48df28ef: feat: disable send button if URL is empty
+- Updated dependencies [1d02c811]
+  - @scalar/themes@0.3.7
+
 ## 0.7.8
 
 ### Patch Changes

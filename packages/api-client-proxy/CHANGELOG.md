@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.2
+
+### Patch Changes
+
+- 1d22839d: fix: use cors mode for the API proxy
+
 ## 0.5.1
 
 ### Patch Changes

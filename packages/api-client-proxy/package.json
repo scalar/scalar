@@ -1,7 +1,7 @@
 {
   "name": "@scalar/api-client-proxy",
   "description": "an api request proxy based on express",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
