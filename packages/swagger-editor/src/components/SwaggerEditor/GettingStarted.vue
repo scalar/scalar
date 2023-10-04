@@ -22,9 +22,13 @@ const themeIds: ThemeId[] = [
   'solarized',
 ]
 
-const activeExample = ref<GettingStartedExamples>('Petstore')
+const activeExample = ref<GettingStartedExamples | null>(null)
 
-watch(activeExample, () => emits('changeExample', activeExample.value))
+watch(activeExample, () => {
+  if (activeExample.value) {
+    emits('changeExample', activeExample.value)
+  }
+})
 </script>
 <template>
   <div class="start custom-scroll">
@@ -103,7 +107,7 @@ watch(activeExample, () => emits('changeExample', activeExample.value))
               fill="currentColor"></path>
           </g>
         </svg>
-        Integrate via Github
+        Integrate via GitHub
       </div>
     </div>
     <div class="start-section">
