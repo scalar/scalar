@@ -1,8 +1,8 @@
-import alternateTheme from './presets/alternate.css'
-import defaultTheme from './presets/default.css'
-import moonTheme from './presets/moon.css'
-import purpleTheme from './presets/purple.css'
-import solarizedTheme from './presets/solarized.css'
+import alternateTheme from './presets/alternate.css?inline'
+import defaultTheme from './presets/default.css?inline'
+import moonTheme from './presets/moon.css?inline'
+import purpleTheme from './presets/purple.css?inline'
+import solarizedTheme from './presets/solarized.css?inline'
 
 /**
  * A component to insert the theme styles.
