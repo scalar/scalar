@@ -81,7 +81,11 @@ import FlowIcon from './Icon/FlowIcon.vue'
   padding: 3px 5px;
   margin: 2px;
   border-radius: var(--theme-radius, var(--default-theme-radius));
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  color: var(
+    --sidebar-color-2,
+    var(--default-sidebar-color-2),
+    var(--theme-color-2, var(--default-theme-color-2))
+  );
 }
 
 .search-icon {

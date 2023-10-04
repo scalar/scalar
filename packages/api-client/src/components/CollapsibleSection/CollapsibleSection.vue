@@ -135,7 +135,7 @@ defineProps<{
 }
 
 .scalar-api-client__item__options span {
-  background: var(--theme-background-3, var(--default-theme-background-3));
+  background: transparent;
   padding: 2px 6px;
   border-radius: 3px;
   font-size: var(--theme-micro, var(--default-theme-micro));
@@ -146,7 +146,10 @@ defineProps<{
   align-items: center;
   justify-content: center;
 }
-
+.scalar-api-client__item__options:hover span {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  border-color: currentColor;
+}
 .scalar-api-client__item__options span svg {
   width: 9px;
   height: 9px;
