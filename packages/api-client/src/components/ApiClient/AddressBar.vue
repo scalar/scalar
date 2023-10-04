@@ -7,9 +7,10 @@ import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { computed, ref } from 'vue'
 
-import { sendRequest, validRequestMethods } from '../../helpers'
+import { sendRequest } from '../../helpers'
 import { useApiClientRequestStore } from '../../stores/apiClientRequestStore'
 import RequestHistory from './RequestHistory.vue'
+import RequestMethodSelect from './RequestMethodSelect.vue'
 
 const props = defineProps<{
   proxyUrl?: string
@@ -101,9 +102,12 @@ const onChange = (value: string) => {
   setActiveRequest({ ...activeRequest, url: value })
 }
 
-const changeRequestMethod = (requestMethod?: string) => {
+const handleRequestMethodChanged = (requestMethod?: string) => {
   if (requestMethod) {
-    setActiveRequest({ ...activeRequest, type: requestMethod })
+    setActiveRequest({
+      ...activeRequest,
+      type: requestMethod.toLocaleLowerCase(),
+    })
   }
 }
 </script>
@@ -117,25 +121,10 @@ const changeRequestMethod = (requestMethod?: string) => {
     :class="{ 'scalar-api-client__address-bar__on': showHistory }">
     <div class="scalar-api-client__url-form">
       <div class="scalar-api-client__field">
-        <div class="request-method-select">
-          <span
-            class="scalar-api-client__request-type"
-            :class="{ 'scalar-api-client__request-type--disabled': readOnly }">
-            <i :class="requestType.toLowerCase()" />
-            <span>{{ requestType }}</span>
-          </span>
-          <select
-            :disabled="readOnly"
-            :value="requestType.toLowerCase()"
-            @input="(event) => changeRequestMethod((event.target as HTMLSelectElement).value)">
-            <option
-              v-for="requestMethod in validRequestMethods"
-              :key="requestMethod"
-              :value="requestMethod.toLocaleLowerCase()">
-              {{ requestMethod }}
-            </option>
-          </select>
-        </div>
+        <RequestMethodSelect
+          :readOnly="readOnly"
+          :requestMethod="requestType"
+          @change="handleRequestMethodChanged" />
         <CodeMirror
           class="scalar-api-client__url-input"
           :content="formattedUrl"
@@ -214,7 +203,7 @@ const changeRequestMethod = (requestMethod?: string) => {
     </div>
   </div>
 </template>
-<style>
+<style scoped>
 .loader {
   position: absolute;
   z-index: 3;
@@ -268,57 +257,7 @@ const changeRequestMethod = (requestMethod?: string) => {
   display: flex;
   margin-top: 5px;
 }
-.scalar-api-client__request-type {
-  display: flex;
-  align-items: center;
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  appearance: none;
-  -webkit-appearance: none;
-  padding: 0 12px;
-  border-right: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-  position: relative;
-}
-.scalar-api-client__request-type span {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: 500;
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-}
 
-.scalar-api-client__request-type:not(.scalar-api-client__request-type--disabled)
-  span:after {
-  content: '';
-  width: 7px;
-  height: 7px;
-  transform: rotate(45deg) translate3d(-2px, -2px, 0);
-  display: block;
-  margin-left: 6px;
-  box-shadow: 1px 1px 0 currentColor;
-}
-
-.scalar-api-client__request-type svg {
-  margin-left: 6px;
-  width: 8px;
-}
-.scalar-api-client__request-type i {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 6px;
-  text-align: center;
-  line-height: 18px;
-  font-style: normal;
-  flex-shrink: 0;
-  display: inline-block;
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
-  background: var(
-    --scalar-api-client-color,
-    var(--default-scalar-api-client-color)
-  );
-}
 .meta-request-break {
   margin: 0 5px;
 }
@@ -498,30 +437,5 @@ const changeRequestMethod = (requestMethod?: string) => {
   .scalar-api-client__send-request-button svg {
     margin-right: 0;
   }
-}
-
-.request-method-select {
-  position: relative;
-  display: flex;
-}
-
-.request-method-select select {
-  border: none;
-  outline: none;
-  cursor: pointer;
-  background: var(--theme-background-3, var(--default-theme-background-3));
-  box-shadow: -2px 0 0 0
-    var(--theme-background-3, var(--default-theme-background-3));
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  appearance: none;
-}
-
-.request-method-select select[disabled] {
-  pointer-events: none;
 }
 </style>
