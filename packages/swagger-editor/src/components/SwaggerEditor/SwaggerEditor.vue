@@ -100,7 +100,9 @@ watch(
   { immediate: true },
 )
 
-const activeTab = ref<EditorHeaderTabs>('Getting Started')
+const activeTab = ref<EditorHeaderTabs>(
+  props.intitialTabState ?? 'Getting Started',
+)
 </script>
 <template>
   <ThemeStyles :id="theme" />

@@ -4,6 +4,7 @@ export type SwaggerEditorProps = {
   value?: string
   hocuspocusConfiguration?: HocuspocusConfigurationProp
   theme?: ThemeId
+  intitialTabState?: EditorHeaderTabs
 }
 
 export type SwaggerEditorInputProps = {
