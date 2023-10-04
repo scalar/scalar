@@ -28,6 +28,8 @@ const emit = defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
 }>()
 
+const currentExample = ref<string | null>(null)
+
 const awarenessStates = ref<StatesArray>([])
 
 const parserError = ref<string>('')
@@ -71,13 +73,20 @@ const formattedError = computed(() => {
 })
 
 function handleChangeExample(example: GettingStartedExamples) {
+  let spec = ''
+
   if (example === 'Petstore') {
-    importHandler(JSON.stringify(petstore, null, 2))
+    spec = JSON.stringify(petstore, null, 2)
   } else if (example === 'CoinMarketCap') {
-    importHandler(JSON.stringify(coinmarketcap, null, 2))
+    spec = JSON.stringify(coinmarketcap, null, 2)
   } else if (example === 'Tableau') {
-    importHandler(JSON.stringify(tableau, null, 2))
+    spec = JSON.stringify(tableau, null, 2)
+  } else {
+    return
   }
+
+  handleSpecUpdate(spec)
+  currentExample.value = spec
 }
 
 watch(
@@ -108,6 +117,7 @@ const activeTab = ref<EditorHeaderTabs>('Getting Started')
       v-if="activeTab === 'Swagger Editor'"
       ref="codeMirrorReference"
       :hocuspocusConfiguration="hocuspocusConfiguration"
+      :value="currentExample ?? undefined"
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
     <SwaggerEditorStatusBar

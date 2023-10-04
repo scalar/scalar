@@ -7,6 +7,7 @@ export type SwaggerEditorProps = {
 }
 
 export type SwaggerEditorInputProps = {
+  value?: string
   hocuspocusConfiguration?: HocuspocusConfigurationProp
 }
 
