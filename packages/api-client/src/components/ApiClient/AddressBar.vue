@@ -90,6 +90,10 @@ useKeyboardEvent({
 // TODO we need to not update the active request with these computed properties
 // we get an infinite loop
 const onChange = (value: string) => {
+  if (readOnly.value) {
+    return
+  }
+
   if (activeRequest.url + activeRequest.path === value) {
     return
   }
@@ -118,10 +122,11 @@ const onChange = (value: string) => {
           :readOnly="readOnly"
           withoutTheme
           withVariables
-          @change="readOnly ? () => {} : onChange" />
+          @change="onChange" />
       </div>
       <button
         class="scalar-api-client__send-request-button"
+        :disabled="!formattedUrl.trim().length"
         type="submit"
         @click="send">
         <svg
@@ -318,6 +323,13 @@ const onChange = (value: string) => {
   width: 12px;
   height: 12px;
   margin-right: 6px;
+}
+
+.scalar-api-client__send-request-button[disabled] {
+  pointer-events: none;
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  background: var(--theme-background-3, var(--default-theme-background-3));
+  border: 1px solid var(--default-theme-border-color);
 }
 
 .scalar-api-client__history-toggle {
