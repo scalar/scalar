@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.3.6
+
+### Patch Changes
+
+- b76f4d1e: Reference search + some app hover states
+
 ## 0.3.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.5
+
+### Patch Changes
+
+- b76f4d1e: Reference search + some app hover states
+
 ## 0.7.4
 
 ### Patch Changes

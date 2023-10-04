@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 0.6.11
+
+### Patch Changes
+
+- b76f4d1e: Reference search + some app hover states
+- Updated dependencies [b76f4d1e]
+  - @scalar/swagger-editor@0.6.9
+  - @scalar/use-codemirror@0.7.5
+  - @scalar/api-client@0.7.8
+  - @scalar/use-modal@0.1.2
+  - @scalar/themes@0.3.6
+
 ## 0.6.10
 
 ### Patch Changes
