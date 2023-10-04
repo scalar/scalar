@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 0.6.14
+
+### Patch Changes
+
+- 46142c0a: reference theme fixes
+- Updated dependencies [46142c0a]
+  - @scalar/swagger-editor@0.6.12
+  - @scalar/api-client@0.7.10
+  - @scalar/themes@0.3.8
+
 ## 0.6.13
 
 ### Patch Changes

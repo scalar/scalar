@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.3.8
+
+### Patch Changes
+
+- 46142c0a: reference theme fixes
+
 ## 0.3.7
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 0.7.10
+
+### Patch Changes
+
+- 46142c0a: reference theme fixes
+- Updated dependencies [46142c0a]
+  - @scalar/themes@0.3.8
+
 ## 0.7.9
 
 ### Patch Changes

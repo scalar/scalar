@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 0.6.14
+
+### Patch Changes
+
+- 3cbfbe0d: fix: hide fastify plugin routes from the Swagger spec
+- Updated dependencies [46142c0a]
+  - @scalar/api-reference@0.6.14
+
 ## 0.6.13
 
 ### Patch Changes
