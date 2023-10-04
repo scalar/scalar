@@ -3,7 +3,7 @@ import { type StatesArray } from '@hocuspocus/provider'
 import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { useDebounceFn } from '@vueuse/core'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 import coinmarketcap from '../../coinmarketcapv3.json'
 import petstore from '../../petstorev3.json'
