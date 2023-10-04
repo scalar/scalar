@@ -8,7 +8,7 @@ defineProps<{ variables?: BaseParameter[] }>()
 <template>
   <CollapsibleSection title="Variables">
     <template v-if="!variables || variables.length === 0">
-      <div class="scalar-api-client__empty-state">No variables</div>
+      <div class="scalar-api-client__empty-state">No Variables</div>
     </template>
     <template v-else>
       <Grid :items="variables" />
