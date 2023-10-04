@@ -63,12 +63,15 @@ fastify.put(
 // Add the plugin
 await fastify.register(fastifyApiReference, {
   routePrefix: '/reference',
-  // Pass the generated Swagger spec:
-  apiReference: {
-    spec: () => fastify.swagger(),
-    // Or pass the URL to the spec:
-    // specUrl: '/scalar.json',
-  },
+  // If @fastify/swagger is registered, it’s picking up the spec automatically.
+  // But you can pass a spec manually, too:
+
+  // apiReference: {
+  //   // Just a spec:
+  //   spec: () => fastify.swagger(),
+  //   // Or the URL to a spec:
+  //   // specUrl: '/scalar.json',
+  // },
 })
 
 // Start the server
