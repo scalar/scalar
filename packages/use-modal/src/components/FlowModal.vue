@@ -14,7 +14,7 @@ withDefaults(
     title?: string
     bodyClass?: string
     maxWidth?: string
-    variant?: 'small' | 'normal' | 'large'
+    variant?: 'small' | 'normal' | 'large' | 'search'
   }>(),
   {
     variant: 'normal',
@@ -32,6 +32,7 @@ withDefaults(
           'modal-content-large': variant === 'large',
           'modal-content-normal': variant === 'normal',
           'modal-content-small': variant === 'small',
+          'modal-content-search': variant === 'search',
         }"
         :style="{ maxWidth }">
         <DialogTitle
@@ -118,5 +119,15 @@ withDefaults(
   margin: 0;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg))
     var(--theme-radius-lg, var(--default-theme-radius-lg)) 0 0;
+}
+.modal-content-search {
+  max-width: 540px;
+}
+.modal-content-search .modal-body {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 440px;
 }
 </style>

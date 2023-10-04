@@ -87,6 +87,8 @@ useKeyboardEvent({
   handler: send,
 })
 
+// TODO we need to not update the active request with these computed properties
+// we get an infinite loop
 const onChange = (value: string) => {
   if (activeRequest.url + activeRequest.path === value) {
     return
@@ -116,7 +118,7 @@ const onChange = (value: string) => {
           :readOnly="readOnly"
           withoutTheme
           withVariables
-          @change="onChange" />
+          @change="readOnly ? () => {} : onChange" />
       </div>
       <button
         class="scalar-api-client__send-request-button"
@@ -449,11 +451,5 @@ const onChange = (value: string) => {
   .scalar-api-client__send-request-button svg {
     margin-right: 0;
   }
-  .scalar-api-client__history-toggle,
-  .scalar-api-client__send-request-button {
-    height: 31.5px;
-    width: 31.5px;
-  }
 }
 </style>
-../../../../use-keyboard-event/src

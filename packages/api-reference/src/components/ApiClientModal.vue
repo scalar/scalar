@@ -107,12 +107,6 @@ export { useApiClientStore } from '@scalar/api-client'
   flex-direction: column;
 }
 
-@media screen and (max-width: 1265px) {
-  .scalar-api-client__container {
-    width: 100vw !important;
-  }
-}
-
 .scalar-api-client__navigation {
   width: 100%;
   display: flex;
