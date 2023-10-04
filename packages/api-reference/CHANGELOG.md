@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 0.6.10
+
+### Patch Changes
+
+- 07b99141: api client in refs touch ups
+- Updated dependencies [07b99141]
+  - @scalar/api-client@0.7.7
+
 ## 0.6.9
 
 ### Patch Changes
