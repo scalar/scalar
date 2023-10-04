@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.7.7
+
+### Patch Changes
+
+- 07b99141: api client in refs touch ups
+
 ## 0.7.6
 
 ### Patch Changes
