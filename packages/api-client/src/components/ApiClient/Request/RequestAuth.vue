@@ -132,34 +132,34 @@ const authDropdownItems = [
           <input
             v-model="authState.oauthTwo.generatedToken"
             autocomplete="off"
-            placeholder="Generated Token"
+            placeholder="Token"
             spellcheck="false"
             type="text" />
-          <label for="Consumer Key">Generated Token</label>
+          <label for="Consumer Key">Token</label>
         </div>
         <div class="input">
           <input
             v-model="authState.oauthTwo.discoveryURL"
             autocomplete="off"
-            placeholder="Discovery URL"
+            placeholder="https://example.com/.well-known/openid-configuration"
             spellcheck="false"
             type="text" />
-          <label for="Consumer Key">OIDC Discovery URL</label>
+          <label for="Consumer Key">OpenID Connect Discovery URL</label>
         </div>
         <div class="input">
           <input
             v-model="authState.oauthTwo.authURL"
             autocomplete="off"
-            placeholder="Auth URL"
+            placeholder="https://example.com/oauth2/authorize"
             spellcheck="false"
             type="text" />
-          <label for="Consumer Key">Auth URL</label>
+          <label for="Consumer Key">Authorization URL</label>
         </div>
         <div class="input">
           <input
             v-model="authState.oauthTwo.accessTokenURL"
             autocomplete="off"
-            placeholder="Access Token URL"
+            placeholder="https://example.com/oauth2/token"
             spellcheck="false"
             type="text" />
           <label for="Consumer Key">Access Token URL</label>
@@ -168,7 +168,7 @@ const authDropdownItems = [
           <input
             v-model="authState.oauthTwo.clientID"
             autocomplete="off"
-            placeholder="Client ID"
+            placeholder="123"
             spellcheck="false"
             type="text" />
           <label for="Consumer Key">Client ID</label>
@@ -177,7 +177,7 @@ const authDropdownItems = [
           <input
             v-model="authState.oauthTwo.clientSecret"
             autocomplete="off"
-            placeholder="Client Secret"
+            placeholder="secret"
             spellcheck="false"
             type="text" />
           <label for="Consumer Key">Client Secret</label>
@@ -186,7 +186,7 @@ const authDropdownItems = [
           <input
             v-model="authState.oauthTwo.scope"
             autocomplete="off"
-            placeholder="Scope"
+            placeholder="profile"
             spellcheck="false"
             type="text" />
           <label for="Consumer Key">Scope</label>
