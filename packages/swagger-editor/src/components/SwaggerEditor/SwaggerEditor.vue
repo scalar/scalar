@@ -35,6 +35,11 @@ const awarenessStates = ref<StatesArray>([])
 const parserError = ref<string>('')
 
 const handleSpecUpdate = useDebounceFn((value) => {
+  // Store content in local storage
+  if (!props.hocuspocusConfiguration) {
+    localStorage.setItem('swagger-editor-content', value)
+  }
+
   parseSwaggerFile(value)
     .then((spec: SwaggerSpec) => {
       parserError.value = ''
@@ -50,6 +55,20 @@ const handleContentUpdate = (value: string) => {
   emit('contentUpdate', value)
   handleSpecUpdate(value)
 }
+
+onMounted(async () => {
+  if (props.hocuspocusConfiguration || !props.value) {
+    return
+  }
+
+  const previousContent = localStorage.getItem('swagger-editor-content')
+  if (!previousContent) {
+    return
+  }
+
+  await nextTick()
+  importHandler(previousContent)
+})
 
 const handleAwarenessUpdate = (states: StatesArray) => {
   awarenessStates.value = states
