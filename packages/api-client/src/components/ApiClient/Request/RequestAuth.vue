@@ -2,9 +2,7 @@
 import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
 import { CollapsibleSection } from '../../CollapsibleSection'
 
-const store = useApiClientRequestStore()
-
-const { authState } = store
+const { activeRequest } = useApiClientRequestStore()
 
 const authTypeFriendlyString: { [key: string]: string } = {
   basic: 'Basic Auth',
@@ -20,6 +18,16 @@ const authDropdownItems = [
     text: 'Basic Auth',
     type: 'basic',
     disabled: false,
+  },
+  {
+    text: 'Digest Auth',
+    type: 'digest',
+    disabled: true,
+  },
+  {
+    text: 'OAuth',
+    type: 'oauthOne',
+    disabled: true,
   },
   {
     text: 'OAuth 2.0',
@@ -43,7 +51,7 @@ const authDropdownItems = [
     <template #options>
       <div>
         <span>
-          {{ authTypeFriendlyString[authState.type] }}
+          {{ authTypeFriendlyString[activeRequest.authentication.type] }}
           <svg
             height="18"
             viewBox="0 0 10 18"
@@ -56,7 +64,7 @@ const authDropdownItems = [
           </svg>
         </span>
         <select
-          v-model="authState.type"
+          v-model="activeRequest.authentication.type"
           @click.prevent>
           <option
             v-for="option in authDropdownItems"
@@ -69,14 +77,14 @@ const authDropdownItems = [
       </div>
     </template>
 
-    <template v-if="authState.type === 'none'">
+    <template v-if="activeRequest.authentication.type === 'none'">
       <div class="scalar-api-client__empty-state">No Authentication</div>
     </template>
     <template v-else>
-      <template v-if="authState.type === 'basic'">
+      <template v-if="activeRequest.authentication.type === 'basic'">
         <div class="input input__half">
           <input
-            v-model="authState.basic.username"
+            v-model="activeRequest.authentication.basic.username"
             autocomplete="off"
             placeholder="Username"
             spellcheck="false"
@@ -85,7 +93,7 @@ const authDropdownItems = [
         </div>
         <div class="input input__half">
           <input
-            v-model="authState.basic.password"
+            v-model="activeRequest.authentication.basic.password"
             autocomplete="off"
             placeholder="Username"
             spellcheck="false"
@@ -94,16 +102,16 @@ const authDropdownItems = [
         </div>
         <label class="check">
           <input
-            v-model="authState.basic.active"
+            v-model="activeRequest.authentication.basic.active"
             type="checkbox" />
           <span class="checkmark" />
           <p>Enabled</p>
         </label>
       </template>
-      <template v-else-if="authState.type === 'digest'">
+      <template v-else-if="activeRequest.authentication.type === 'digest'">
         <div class="input input__half">
           <input
-            v-model="authState.digest.username"
+            v-model="activeRequest.authentication.digest.username"
             autocomplete="off"
             placeholder="Username"
             spellcheck="false"
@@ -112,7 +120,7 @@ const authDropdownItems = [
         </div>
         <div class="input input__half">
           <input
-            v-model="authState.digest.password"
+            v-model="activeRequest.authentication.digest.password"
             autocomplete="off"
             placeholder="Password"
             spellcheck="false"
@@ -121,16 +129,16 @@ const authDropdownItems = [
         </div>
         <label class="check">
           <input
-            v-model="authState.digest.active"
+            v-model="activeRequest.authentication.digest.active"
             type="checkbox" />
           <span class="checkmark" />
           <p>Enabled</p>
         </label>
       </template>
-      <template v-else-if="authState.type === 'oauthTwo'">
+      <template v-else-if="activeRequest.authentication.type === 'oauthTwo'">
         <div class="input">
           <input
-            v-model="authState.oauthTwo.generatedToken"
+            v-model="activeRequest.authentication.oauthTwo.generatedToken"
             autocomplete="off"
             placeholder="Token"
             spellcheck="false"
@@ -139,7 +147,7 @@ const authDropdownItems = [
         </div>
         <div class="input">
           <input
-            v-model="authState.oauthTwo.discoveryURL"
+            v-model="activeRequest.authentication.oauthTwo.discoveryURL"
             autocomplete="off"
             placeholder="https://example.com/.well-known/openid-configuration"
             spellcheck="false"
@@ -148,7 +156,7 @@ const authDropdownItems = [
         </div>
         <div class="input">
           <input
-            v-model="authState.oauthTwo.authURL"
+            v-model="activeRequest.authentication.oauthTwo.authURL"
             autocomplete="off"
             placeholder="https://example.com/oauth2/authorize"
             spellcheck="false"
@@ -157,7 +165,7 @@ const authDropdownItems = [
         </div>
         <div class="input">
           <input
-            v-model="authState.oauthTwo.accessTokenURL"
+            v-model="activeRequest.authentication.oauthTwo.accessTokenURL"
             autocomplete="off"
             placeholder="https://example.com/oauth2/token"
             spellcheck="false"
@@ -166,7 +174,7 @@ const authDropdownItems = [
         </div>
         <div class="input input__half">
           <input
-            v-model="authState.oauthTwo.clientID"
+            v-model="activeRequest.authentication.oauthTwo.clientID"
             autocomplete="off"
             placeholder="123"
             spellcheck="false"
@@ -175,7 +183,7 @@ const authDropdownItems = [
         </div>
         <div class="input input__half">
           <input
-            v-model="authState.oauthTwo.clientSecret"
+            v-model="activeRequest.authentication.oauthTwo.clientSecret"
             autocomplete="off"
             placeholder="secret"
             spellcheck="false"
@@ -184,7 +192,7 @@ const authDropdownItems = [
         </div>
         <div class="input">
           <input
-            v-model="authState.oauthTwo.scope"
+            v-model="activeRequest.authentication.oauthTwo.scope"
             autocomplete="off"
             placeholder="profile"
             spellcheck="false"
@@ -198,10 +206,10 @@ const authDropdownItems = [
           Generate Token
         </button>
       </template>
-      <template v-else-if="authState.type === 'bearer'">
+      <template v-else-if="activeRequest.authentication.type === 'bearer'">
         <div class="input">
           <input
-            v-model="authState.bearer.token"
+            v-model="activeRequest.authentication.bearer.token"
             autocomplete="off"
             placeholder="Username"
             spellcheck="false"
@@ -210,7 +218,7 @@ const authDropdownItems = [
         </div>
         <label class="check">
           <input
-            v-model="authState.bearer.active"
+            v-model="activeRequest.authentication.bearer.active"
             type="checkbox" />
           <span class="checkmark" />
           <p>Enabled</p>

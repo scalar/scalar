@@ -1,27 +1,28 @@
-import type { AuthState, ClientRequestConfig } from '../types'
+import type { ClientRequestConfig } from '../types'
 
-export const prepareClientRequestConfig = (configuration: {
-  request: ClientRequestConfig
-  authState: AuthState
-}) => {
-  const { authState, request } = configuration
+export const prepareClientRequestConfig = (
+  originalRequest: ClientRequestConfig,
+) => {
+  const request = { ...originalRequest }
 
-  if (authState.type === 'basic' && authState.basic.active) {
+  const { authentication } = request
+
+  if (authentication.type === 'basic' && authentication.basic.active) {
     request.headers = [
       ...(request.headers ?? []),
       {
         name: 'Authorization',
         value: `Basic ${btoa(
-          `${authState.basic.username}:${authState.basic.password}`,
+          `${authentication.basic.username}:${authentication.basic.password}`,
         )}`,
       },
     ]
-  } else if (authState.type === 'bearer' && authState.bearer.active) {
+  } else if (authentication.type === 'bearer' && authentication.bearer.active) {
     request.headers = [
       ...(request.headers ?? []),
       {
         name: 'Authorization',
-        value: `Bearer ${authState.bearer.token}`,
+        value: `Bearer ${authentication.bearer.token}`,
       },
     ]
   }

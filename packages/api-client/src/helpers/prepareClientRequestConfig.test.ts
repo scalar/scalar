@@ -1,4 +1,3 @@
-import { createEchoServer } from '@scalar/echo-server'
 import { describe, expect, it } from 'vitest'
 
 import { prepareClientRequestConfig } from './prepareClientRequestConfig'
@@ -34,12 +33,10 @@ const defaultAuthState = {
 describe('prepareClientRequestConfig', () => {
   it('adds basic auth', async () => {
     const clientRequestConfig = prepareClientRequestConfig({
-      request: {
-        type: 'GET',
-        url: 'https://example.com',
-        path: '/',
-      },
-      authState: {
+      type: 'GET',
+      url: 'https://example.com',
+      path: '/',
+      authentication: {
         ...defaultAuthState,
         type: 'basic',
         basic: {
@@ -64,12 +61,10 @@ describe('prepareClientRequestConfig', () => {
 
   it('doesn’t add basic auth if it’s disabled', async () => {
     const clientRequestConfig = prepareClientRequestConfig({
-      request: {
-        type: 'GET',
-        url: 'https://example.com',
-        path: '/',
-      },
-      authState: {
+      type: 'GET',
+      url: 'https://example.com',
+      path: '/',
+      authentication: {
         ...defaultAuthState,
         type: 'basic',
         basic: {
@@ -94,12 +89,10 @@ describe('prepareClientRequestConfig', () => {
 
   it('adds a bearer token header', async () => {
     const clientRequestConfig = prepareClientRequestConfig({
-      request: {
-        type: 'GET',
-        url: 'https://example.com',
-        path: '/',
-      },
-      authState: {
+      type: 'GET',
+      url: 'https://example.com',
+      path: '/',
+      authentication: {
         ...defaultAuthState,
         type: 'bearer',
         bearer: {
@@ -121,12 +114,10 @@ describe('prepareClientRequestConfig', () => {
 
   it('doesn’t add a bearer token if it’s disabled', async () => {
     const clientRequestConfig = prepareClientRequestConfig({
-      request: {
-        type: 'GET',
-        url: 'https://example.com',
-        path: '/',
-      },
-      authState: {
+      type: 'GET',
+      url: 'https://example.com',
+      path: '/',
+      authentication: {
         ...defaultAuthState,
         type: 'bearer',
         bearer: {

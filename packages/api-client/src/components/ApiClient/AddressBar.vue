@@ -33,7 +33,6 @@ const {
   requestHistoryOrder,
   readOnly,
   setActiveRequest,
-  authState,
 } = useApiClientRequestStore()
 
 const historyModal = useModal()
@@ -66,10 +65,7 @@ const formattedUrl = computed(() => {
 })
 
 async function send() {
-  const clientRequestConfig = prepareClientRequestConfig({
-    request: { ...activeRequest },
-    authState,
-  })
+  const clientRequestConfig = prepareClientRequestConfig(activeRequest)
   loading.value = true
   emits('onSend')
   const result = await sendRequest(clientRequestConfig, props.proxyUrl)

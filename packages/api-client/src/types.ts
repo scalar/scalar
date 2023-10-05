@@ -68,6 +68,8 @@ export type ClientRequestConfig = {
   body?: string
   /** Optional form data body */
   formData?: FormDataItem[]
+  /** Optional authentication configuration */
+  authentication: AuthState
 }
 
 /** Formatted request for the proxy server */
