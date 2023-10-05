@@ -76,7 +76,7 @@ const authDropdownItems = [
       <template v-if="authState.type === 'basic'">
         <div class="input input__half">
           <input
-            v-model="authState.basic.userName"
+            v-model="authState.basic.username"
             autocomplete="off"
             placeholder="Username"
             spellcheck="false"
@@ -103,7 +103,7 @@ const authDropdownItems = [
       <template v-else-if="authState.type === 'digest'">
         <div class="input input__half">
           <input
-            v-model="authState.digest.userName"
+            v-model="authState.digest.username"
             autocomplete="off"
             placeholder="Username"
             spellcheck="false"

@@ -6,7 +6,7 @@ import { prepareClientRequestConfig } from './prepareClientRequestConfig'
 const defaultAuthState = {
   type: 'none',
   basic: {
-    userName: '',
+    username: '',
     password: '',
     active: true,
   },
@@ -25,7 +25,7 @@ const defaultAuthState = {
     active: true,
   },
   digest: {
-    userName: '',
+    username: '',
     password: '',
     active: true,
   },
@@ -43,7 +43,7 @@ describe('prepareClientRequestConfig', () => {
         ...defaultAuthState,
         type: 'basic',
         basic: {
-          userName: 'foo',
+          username: 'foo',
           password: 'bar',
           active: true,
         },
@@ -73,7 +73,7 @@ describe('prepareClientRequestConfig', () => {
         ...defaultAuthState,
         type: 'basic',
         basic: {
-          userName: 'foo',
+          username: 'foo',
           password: 'bar',
           active: false,
         },

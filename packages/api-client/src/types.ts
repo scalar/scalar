@@ -1,5 +1,5 @@
 export type BasicAuth = {
-  userName: string
+  username: string
   password: string
   active: boolean
 }
@@ -21,7 +21,7 @@ export type Bearer = {
 }
 
 export type Digest = {
-  userName: string
+  username: string
   password: string
   active: boolean
 }

@@ -7,7 +7,7 @@ import type { AuthState, ClientRequestConfig, RequestResult } from '../types'
 export const createEmptyAuthState = (): AuthState => ({
   type: 'none',
   basic: {
-    userName: '',
+    username: '',
     password: '',
     active: true,
   },
@@ -26,7 +26,7 @@ export const createEmptyAuthState = (): AuthState => ({
     active: true,
   },
   digest: {
-    userName: '',
+    username: '',
     password: '',
     active: true,
   },

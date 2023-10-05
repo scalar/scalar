@@ -6,18 +6,13 @@ export const prepareClientRequestConfig = (configuration: {
 }) => {
   const { authState, request } = configuration
 
-  console.log(
-    'basic auth',
-    authState.type === 'basic' && authState.basic.active,
-  )
-
   if (authState.type === 'basic' && authState.basic.active) {
     request.headers = [
       ...(request.headers ?? []),
       {
         name: 'Authorization',
         value: `Basic ${btoa(
-          `${authState.basic.userName}:${authState.basic.password}`,
+          `${authState.basic.username}:${authState.basic.password}`,
         )}`,
       },
     ]
