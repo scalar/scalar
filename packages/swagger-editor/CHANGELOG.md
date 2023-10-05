@@ -1,5 +1,12 @@
 # @scalar/swagger-editor
 
+## 0.6.13
+
+### Patch Changes
+
+- Updated dependencies [7b6c21e5]
+  - @scalar/use-modal@0.1.3
+
 ## 0.6.12
 
 ### Patch Changes

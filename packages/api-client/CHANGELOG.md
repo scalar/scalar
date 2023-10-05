@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 0.7.11
+
+### Patch Changes
+
+- 7b6c21e5: request history ui and some other small type changes
+- Updated dependencies [7b6c21e5]
+  - @scalar/use-modal@0.1.3
+
 ## 0.7.10
 
 ### Patch Changes

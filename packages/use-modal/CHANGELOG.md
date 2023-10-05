@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.1.3
+
+### Patch Changes
+
+- 7b6c21e5: request history ui and some other small type changes
+
 ## 0.1.2
 
 ### Patch Changes
