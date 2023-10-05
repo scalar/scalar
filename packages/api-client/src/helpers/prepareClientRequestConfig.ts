@@ -16,9 +16,9 @@ export const prepareClientRequestConfig = (configuration: {
       ...(request.headers ?? []),
       {
         name: 'Authorization',
-        value: `Basic ${Buffer.from(
+        value: `Basic ${btoa(
           `${authState.basic.userName}:${authState.basic.password}`,
-        ).toString('base64')}`,
+        )}`,
       },
     ]
   } else if (authState.type === 'bearer' && authState.bearer.active) {
