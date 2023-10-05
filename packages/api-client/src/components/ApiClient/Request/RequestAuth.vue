@@ -32,7 +32,7 @@ const authDropdownItems = [
   {
     text: 'OAuth 2.0',
     type: 'oauthTwo',
-    disabled: true,
+    disabled: false,
   },
   {
     text: 'Bearer Token',
