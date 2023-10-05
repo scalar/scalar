@@ -7,7 +7,7 @@ import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { computed, ref } from 'vue'
 
-import { sendRequest } from '../../helpers'
+import { prepareClientRequestConfig, sendRequest } from '../../helpers'
 import { useApiClientRequestStore } from '../../stores/apiClientRequestStore'
 import RequestHistory from './RequestHistory.vue'
 import RequestMethodSelect from './RequestMethodSelect.vue'
@@ -33,6 +33,7 @@ const {
   requestHistoryOrder,
   readOnly,
   setActiveRequest,
+  authState,
 } = useApiClientRequestStore()
 
 const historyModal = useModal()
@@ -65,9 +66,13 @@ const formattedUrl = computed(() => {
 })
 
 async function send() {
+  const clientRequestConfig = prepareClientRequestConfig({
+    request: { ...activeRequest },
+    authState,
+  })
   loading.value = true
   emits('onSend')
-  const result = await sendRequest(activeRequest, props.proxyUrl)
+  const result = await sendRequest(clientRequestConfig, props.proxyUrl)
 
   if (result) {
     addRequestToHistory(result)

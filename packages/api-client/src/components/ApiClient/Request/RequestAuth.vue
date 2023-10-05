@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
 import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
 import { CollapsibleSection } from '../../CollapsibleSection'
 
 const store = useApiClientRequestStore()
 
 const { authState } = store
-
-const show = ref(true)
 
 const authTypeFriendlyString: { [key: string]: string } = {
   basic: 'Basic Auth',
@@ -23,18 +19,22 @@ const authDropdownItems = [
   {
     text: 'Basic Auth',
     type: 'basic',
+    disabled: false,
   },
   {
     text: 'OAuth 2.0',
     type: 'oauthTwo',
+    disabled: true,
   },
   {
     text: 'Bearer Token',
     type: 'bearer',
+    disabled: false,
   },
   {
     text: 'None',
     type: 'none',
+    disabled: false,
   },
 ]
 </script>
@@ -56,12 +56,12 @@ const authDropdownItems = [
           </svg>
         </span>
         <select
-          v-show="show"
           v-model="authState.type"
           @click.prevent>
           <option
             v-for="option in authDropdownItems"
             :key="option.type"
+            :disabled="option.disabled"
             :value="option.type">
             {{ option.text }}
           </option>
@@ -76,7 +76,7 @@ const authDropdownItems = [
       <template v-if="authState.type === 'basic'">
         <div class="input input__half">
           <input
-            v-model="authState.basic.userName"
+            v-model="authState.basic.username"
             autocomplete="off"
             placeholder="Username"
             spellcheck="false"
@@ -103,7 +103,7 @@ const authDropdownItems = [
       <template v-else-if="authState.type === 'digest'">
         <div class="input input__half">
           <input
-            v-model="authState.digest.userName"
+            v-model="authState.digest.username"
             autocomplete="off"
             placeholder="Username"
             spellcheck="false"
