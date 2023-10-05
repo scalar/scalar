@@ -1,10 +1,10 @@
-import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import Express from 'express'
 import { type Server } from 'http'
 
 import OAuth2Routes from './routes/oauth2'
+import OpenIdConnectDiscoveryRoute from './routes/openIdConnectDiscovery'
 
 export const createEchoServer = () => {
   const app = Express()
@@ -15,12 +15,12 @@ export const createEchoServer = () => {
     }),
   )
 
-  app.use(bodyParser())
   app.use(cookieParser())
   app.use(Express.json())
   app.disable('x-powered-by')
 
-  app.use('/', OAuth2Routes)
+  app.use('/', OpenIdConnectDiscoveryRoute)
+  app.use('/oauth2', OAuth2Routes)
 
   // Listen to all kinds of requests
   app.all('/*', async (req, res) => {
