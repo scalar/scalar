@@ -57,7 +57,7 @@ const handleContentUpdate = (value: string) => {
 }
 
 onMounted(async () => {
-  if (props.hocuspocusConfiguration || !props.value) {
+  if (props.hocuspocusConfiguration || props.value) {
     return
   }
 
