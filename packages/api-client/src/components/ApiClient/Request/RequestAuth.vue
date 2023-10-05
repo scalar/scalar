@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
 import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
 import { CollapsibleSection } from '../../CollapsibleSection'
 
 const store = useApiClientRequestStore()
 
 const { authState } = store
-
-const show = ref(true)
 
 const authTypeFriendlyString: { [key: string]: string } = {
   basic: 'Basic Auth',
@@ -60,7 +56,6 @@ const authDropdownItems = [
           </svg>
         </span>
         <select
-          v-show="show"
           v-model="authState.type"
           @click.prevent>
           <option
