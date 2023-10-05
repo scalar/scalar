@@ -45,15 +45,17 @@ const { requestHistoryOrder } = useApiClientRequestStore()
 .navtable-mock {
   background-repeat: repeat;
   width: 100%;
-  background-image: linear-gradient(
-    0deg,
-    var(--theme-border-color, var(--default-theme-border-color)) 1px,
-    --theme-background-1 1px
-  );
   background-size: 31px 31px;
   background-position: center 1px;
   flex: 1;
   position: relative;
+  z-index: 0;
+  background: repeating-linear-gradient(
+    var(--default-theme-background-1),
+    var(--default-theme-background-1) 28.8px,
+    var(--default-theme-border-color) 28.8px,
+    var(--default-theme-border-color) 29.8px
+  );
 }
 .navtable-mock .navtable-item {
   position: absolute;
@@ -62,17 +64,17 @@ const { requestHistoryOrder } = useApiClientRequestStore()
   left: 0;
   top: 0;
   background: transparent;
-  border-top: none;
+  box-shadow: none;
 }
 
 .radio {
-  height: 16px;
-  width: 16px;
+  height: 10px;
+  width: 10px;
   background: transparent;
   border: var(--border, var(--default-border));
   flex-shrink: 0;
   margin-right: 6px;
-  margin-left: 4px;
+  margin-left: 0;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -88,13 +90,14 @@ const { requestHistoryOrder } = useApiClientRequestStore()
   height: 100%;
   cursor: pointer;
 }
-.navtable-item__active .radio:after {
-  content: '';
-  width: 5px;
-  height: 8px;
-  border: solid white;
-  border-width: 0 1.5px 1.5px 0;
-  transform: rotate(45deg) translate3d(-0.5px, -1px, 0);
+.navtable-item__active {
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  box-shadow: 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color)) !important;
+}
+.navtable-item__active + .navtable-item {
+  /* box-shadow: none; */
 }
 .radio.post {
   background: var(--theme-color-green, var(--default-theme-color-green));
@@ -110,5 +113,25 @@ const { requestHistoryOrder } = useApiClientRequestStore()
 }
 .radio.put {
   background: var(--theme-color-orange, var(--default-theme-color-orange));
+}
+.navtable-item-request span {
+  border: none;
+  outline: none;
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  width: 100%;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.navtable-item-request span em {
+  text-transform: uppercase;
+  font-style: normal;
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  margin-right: 6px;
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
 </style>

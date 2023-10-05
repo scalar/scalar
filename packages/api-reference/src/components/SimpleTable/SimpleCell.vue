@@ -27,7 +27,7 @@ withDefaults(
 <style scoped>
 .simple-cell {
   position: relative;
-  padding: 0.25em 0.5em;
+  padding: 6px 9px;
   color: var(--theme-color-1, var(--default-theme-color-1));
   white-space: nowrap;
   vertical-align: top;

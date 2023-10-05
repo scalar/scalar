@@ -136,12 +136,11 @@ defineProps<{
 
 .scalar-api-client__item__options span {
   background: transparent;
-  padding: 2px 6px;
+  padding: 2px 0;
   border-radius: 3px;
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-size: var(--theme-small, var(--default-theme-small));
   pointer-events: none;
   color: var(--theme-color-2, var(--default-theme-color-2));
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -151,8 +150,8 @@ defineProps<{
   border-color: currentColor;
 }
 .scalar-api-client__item__options span svg {
-  width: 9px;
-  height: 9px;
+  width: 11px;
+  height: 11px;
   margin-left: 3px;
 }
 
@@ -164,5 +163,8 @@ defineProps<{
   height: 100%;
   opacity: 0;
   cursor: pointer;
+}
+.scalar-api-client__item__content .scalar-api-client__codemirror__wrapper {
+  padding-top: 0;
 }
 </style>

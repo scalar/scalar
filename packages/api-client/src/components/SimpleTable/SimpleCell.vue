@@ -29,7 +29,7 @@ withDefaults(
   border-right: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
   position: relative;
-  padding: 0.75em;
+  padding: 6px 9px;
   color: var(--theme-color-1, var(--default-theme-color-1));
   white-space: nowrap;
 }
