@@ -58,6 +58,9 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   margin-top: -3px;
   justify-content: space-between;
 }
+.scalar-api-client__item__content .scalar-api-client__codemirror__wrapper {
+  min-height: 63px;
+}
 .scalar-api-client__item__content .cm-s-default {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
@@ -272,7 +275,6 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   appearance: none;
   -webkit-appearance: none;
   color: var(--theme-color-3, var(--default-theme-color-3));
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   font-size: var(--theme-small, var(--default-theme-small));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   color: var(--theme-color-3, var(--default-theme-color-3));

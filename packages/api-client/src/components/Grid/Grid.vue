@@ -100,7 +100,7 @@ const showDescription = ref(false)
 .table {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   background: transparent;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
   width: 100%;
 }
 .table-row {
@@ -320,12 +320,18 @@ const showDescription = ref(false)
   display: flex;
   flex-direction: column;
   min-height: 381px;
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+}
+.navtable-radios {
+  z-index: 1;
 }
 .navtable-item {
   display: flex;
   position: relative;
   color: var(--theme-color-1, var(--default-theme-color-1));
-  border-top: 1px solid
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  box-shadow: 0 1px 0
     var(--theme-border-color, var(--default-theme-border-color));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
@@ -419,11 +425,13 @@ const showDescription = ref(false)
   width: 40%;
   display: flex;
   align-items: center;
+  padding: 6px 9px;
 }
 .navtable-item-20 {
   width: 20%;
   display: flex;
   align-items: center;
+  padding: 6px 9px;
 }
 .navtable-item-50 {
   width: 50%;
@@ -482,9 +490,8 @@ const showDescription = ref(false)
 .navtable-item label {
   color: var(--theme-color-3, var(--default-theme-color-3));
   font-size: var(--theme-micro, var(--default-theme-micro));
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   text-transform: uppercase;
-  padding: 9px;
   display: block;
   width: 100%;
 }
@@ -495,8 +502,8 @@ const showDescription = ref(false)
   font-size: var(--theme-micro, var(--default-theme-micro));
   display: flex;
   align-items: center;
-  margin-right: 6px;
-  min-width: 50px;
+  margin-right: 9px;
+  min-width: 40px;
 }
 .scalar-api-client__status--1xx:before,
 .scalar-api-client__status--2xx:before,
@@ -505,20 +512,20 @@ const showDescription = ref(false)
 .scalar-api-client__status--5xx:before,
 .scalar-api-client__status--6xx:before {
   content: '';
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   margin-right: 4px;
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .scalar-api-client__status--2xx:before {
-  background: green;
+  background: var(--theme-color-green, var(--default-theme-color-green));
 }
 .scalar-api-client__status--3xx:before {
-  background: orange;
+  background: var(--theme-color-orange, var(--default-theme-color-orange));
 }
 .scalar-api-client__status--4xx:before {
-  background: red;
+  background: var(--theme-color-red, var(--default-theme-color-red));
 }
 .navtable-item-response span:empty {
   display: none;

@@ -164,7 +164,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
       <FlowModal
         :state="historyModal"
         title="Request History"
-        variant="large">
+        variant="history">
         <RequestHistory
           :showHistory="showHistory"
           @toggle="showHistory = !showHistory" />
@@ -346,7 +346,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   padding: 0 9px;
   line-height: 30px;
   color: var(--theme-color-3, var(--default-theme-color-3));
-  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-size: var(--theme-micro, var(--default-theme-micro));
   letter-spacing: 0.125px;
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   text-transform: uppercase;
@@ -357,7 +357,8 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   white-space: nowrap;
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   margin-left: 12px;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  user-select: none;
 }
 .scalar-api-client__history-toggle:hover {
   background: var(--theme-background-2, var(--default-theme-background-2));
@@ -436,27 +437,6 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   opacity: 0;
   transition: all 0.1s ease-in-out;
   z-index: 1000;
-}
-.navtable-item-request span {
-  padding: 8px 9px 8px 0;
-  border: none;
-  outline: none;
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  width: 100%;
-  display: block;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.navtable-item-request span em {
-  text-transform: uppercase;
-  font-style: normal;
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  margin-right: 6px;
-  font-weight: var(--theme-bold, var(--default-theme-bold));
-  color: var(--theme-color-3, var(--default-theme-color-3));
 }
 .navtable-item-time {
   font-size: var(--theme-micro, var(--default-theme-micro));

@@ -14,7 +14,7 @@ withDefaults(
     title?: string
     bodyClass?: string
     maxWidth?: string
-    variant?: 'small' | 'normal' | 'large' | 'search'
+    variant?: 'small' | 'normal' | 'large' | 'search' | 'history'
   }>(),
   {
     variant: 'normal',
@@ -33,6 +33,7 @@ withDefaults(
           'modal-content-normal': variant === 'normal',
           'modal-content-small': variant === 'small',
           'modal-content-search': variant === 'search',
+          'modal-content-history': variant === 'history',
         }"
         :style="{ maxWidth }">
         <DialogTitle
@@ -84,6 +85,10 @@ withDefaults(
   display: flex;
   flex-direction: column;
 }
+.modal-content-history {
+  background: var(--theme-background-1, var(--default-theme-background-1));
+}
+.modal-content-history,
 .modal-content-large {
   max-width: 800px;
 }
@@ -119,6 +124,13 @@ withDefaults(
   margin: 0;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg))
     var(--theme-radius-lg, var(--default-theme-radius-lg)) 0 0;
+}
+.modal-content-history .modal-header {
+  padding-bottom: 0;
+  padding-top: 24px;
+}
+.modal-content-history .modal-body {
+  padding-top: 12px;
 }
 .modal-content-search {
   max-width: 540px;
