@@ -49,8 +49,6 @@ export const prepareClientRequestConfig = (configuration: {
     request.body = JSON.parse(request.body)
   }
 
-  console.log(request)
-
   return {
     ...request,
   }
