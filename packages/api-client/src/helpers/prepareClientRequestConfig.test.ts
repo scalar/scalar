@@ -145,4 +145,22 @@ describe('prepareClientRequestConfig', () => {
       ],
     })
   })
+
+  it('sends body as JSON', async () => {
+    const clientRequestConfig = prepareClientRequestConfig({
+      request: {
+        type: 'GET',
+        url: 'https://example.com',
+        path: '/',
+        body: '{ "foo": "bar"}',
+      },
+      authState: { ...defaultAuthState },
+    })
+
+    expect(clientRequestConfig).toMatchObject({
+      body: {
+        foo: 'bar',
+      },
+    })
+  })
 })
