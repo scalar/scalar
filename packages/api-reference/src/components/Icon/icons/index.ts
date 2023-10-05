@@ -46,6 +46,7 @@ export type Icon =
   | 'Hide'
   | 'Key'
   | 'Leave'
+  | 'LightDarkModeToggle'
   | 'LightMode'
   | 'Link'
   | 'Lock'
