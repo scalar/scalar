@@ -9,8 +9,8 @@ router.get('/.well-known/openid-configuration', (req, res) => {
 
   res.json({
     issuer: `${url}/`,
-    authorization_endpoint: `${url}/authorize`,
-    token_endpoint: `${url}/token`,
+    authorization_endpoint: `${url}/oauth2/authorize`,
+    token_endpoint: `${url}/oauth2/token`,
     scopes_supported: ['*'],
   })
 })

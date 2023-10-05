@@ -11,22 +11,21 @@ const OAuthServerInstance = new OAuthServer({
   allowExtendedTokenAttributes: true,
 })
 
-const router = Express.Router()
+const router = Express.Router() as Express.Router
 
 router.get('/', (req, res, next) => {
   res.send('OK')
-  next()
 })
 
-router.post(
+router.get(
   '/authorize',
   (req, res, next) => {
-    console.log('Initial User Authentication')
-    const { username, password } = req.body
-    if (username === 'username' && password === 'password') {
-      req.body.user = { user: 1 }
-      return next()
-    }
+    // console.log('Initial User Authentication')
+    // const { username, password } = req.body
+    // if (username === 'username' && password === 'password') {
+    //   req.body.user = { user: 1 }
+    //   return next()
+    // }
     const params = [
       // Send params back down
       'client_id',
@@ -42,7 +41,7 @@ router.post(
   (req, res, next) => {
     // sends us to our redirect with an authorization code in our url
     console.log('Authorization')
-    return next()
+    // return next()
   },
   OAuthServerInstance.authorize({
     authenticateHandler: {
@@ -61,7 +60,6 @@ router.post(
   '/token',
   (req, res, next) => {
     console.log('Token')
-    next()
   },
   OAuthServerInstance.token({
     requireClientAuthentication: {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { tokenRequestUrl } from '../../../helpers'
 import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
 import { CollapsibleSection } from '../../CollapsibleSection'
 
@@ -45,6 +46,20 @@ const authDropdownItems = [
     disabled: false,
   },
 ]
+
+const generateOauthTwoToken = async () => {
+  const url = await tokenRequestUrl({
+    oidcDiscoveryUrl: activeRequest.authentication.oauthTwo.discoveryURL,
+    grantType: 'code',
+    authUrl: activeRequest.authentication.oauthTwo.authURL,
+    accessTokenUrl: activeRequest.authentication.oauthTwo.accessTokenURL,
+    clientId: activeRequest.authentication.oauthTwo.clientID,
+    clientSecret: activeRequest.authentication.oauthTwo.clientSecret,
+    scope: activeRequest.authentication.oauthTwo.scope,
+  })
+
+  console.log('[generateOauthTwoToken]', url)
+}
 </script>
 <template>
   <CollapsibleSection title="Authentication">
@@ -199,10 +214,10 @@ const authDropdownItems = [
             type="text" />
           <label for="Consumer Key">Scope</label>
         </div>
-        <!--  @click="generateOauthTwoToken" -->
         <button
           class="scalar-api-client__item__content-button"
-          type="button">
+          type="button"
+          @click="generateOauthTwoToken">
           Generate Token
         </button>
       </template>

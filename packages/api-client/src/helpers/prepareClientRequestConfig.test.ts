@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { prepareClientRequestConfig } from './prepareClientRequestConfig'
 
-const defaultAuthState = {
+const defaultAuthentication = {
   type: 'none',
   basic: {
     username: '',
@@ -37,7 +37,7 @@ describe('prepareClientRequestConfig', () => {
       url: 'https://example.com',
       path: '/',
       authentication: {
-        ...defaultAuthState,
+        ...defaultAuthentication,
         type: 'basic',
         basic: {
           username: 'foo',
@@ -65,7 +65,7 @@ describe('prepareClientRequestConfig', () => {
       url: 'https://example.com',
       path: '/',
       authentication: {
-        ...defaultAuthState,
+        ...defaultAuthentication,
         type: 'basic',
         basic: {
           username: 'foo',
@@ -93,7 +93,7 @@ describe('prepareClientRequestConfig', () => {
       url: 'https://example.com',
       path: '/',
       authentication: {
-        ...defaultAuthState,
+        ...defaultAuthentication,
         type: 'bearer',
         bearer: {
           token: '123',
@@ -118,7 +118,7 @@ describe('prepareClientRequestConfig', () => {
       url: 'https://example.com',
       path: '/',
       authentication: {
-        ...defaultAuthState,
+        ...defaultAuthentication,
         type: 'bearer',
         bearer: {
           token: '123',
