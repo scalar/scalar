@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 0.6.15
+
+### Patch Changes
+
+- 7b6c21e5: request history ui and some other small type changes
+- Updated dependencies [7b6c21e5]
+  - @scalar/api-client@0.7.11
+  - @scalar/use-modal@0.1.3
+  - @scalar/swagger-editor@0.6.13
+
 ## 0.6.14
 
 ### Patch Changes
