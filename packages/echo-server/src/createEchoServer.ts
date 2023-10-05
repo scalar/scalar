@@ -20,6 +20,12 @@ export const createEchoServer = () => {
   app.all('/*', async (req, res) => {
     console.log(`${req.method} ${req.path}`)
 
+    if (req.cookies) {
+      Object.keys(req.cookies).forEach((key) => {
+        res.cookie(key, req.cookies[key], { path: '/' })
+      })
+    }
+
     res.send({
       headers: req.headers,
       cookies: req.cookies,

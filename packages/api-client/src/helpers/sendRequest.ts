@@ -1,5 +1,7 @@
 import axios from 'axios'
+import { wrapper } from 'axios-cookiejar-support'
 import { nanoid } from 'nanoid'
+import { CookieJar } from 'tough-cookie'
 
 import type { ClientResponse, RequestResult, SendRequestConfig } from '../types'
 import {
@@ -10,6 +12,9 @@ import {
   normalizeUrl,
   replaceVariables,
 } from './'
+
+const jar = new CookieJar()
+const client = wrapper(axios.create({ jar }))
 
 /**
  * Send a request via the proxy
@@ -73,8 +78,10 @@ export async function sendRequest(
 
   const response: (ClientResponse & { error: false }) | { error: true } =
     // @ts-ignore
-    await axios(config)
+    await client(config)
       .then((res) => {
+        console.log(res.config.jar.toJSON().cookies)
+
         return {
           ...res.data,
           error: false,

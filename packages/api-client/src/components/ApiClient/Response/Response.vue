@@ -2,10 +2,8 @@
 import { computed } from 'vue'
 
 import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
-import { CollapsibleSection } from '../../CollapsibleSection'
-// import Copilot from './Copilot.vue'
-import { SimpleGrid } from '../../Grid'
 import ResponseBody from './ResponseBody.vue'
+import ResponseCookies from './ResponseCookies.vue'
 import ResponseHeaders from './ResponseHeaders.vue'
 import ResponseMetaInformation from './ResponseMetaInformation.vue'
 
@@ -84,14 +82,7 @@ const responseData = computed(() => {
         :data="responseData"
         :headers="responseHeaders" />
       <ResponseHeaders :headers="responseHeaders" />
-      <CollapsibleSection title="Cookies">
-        <SimpleGrid
-          v-show="responseCookies.length > 0"
-          :items="responseCookies" />
-        <template v-if="responseCookies.length === 0">
-          <div class="scalar-api-client__empty-state">No Cookies</div>
-        </template>
-      </CollapsibleSection>
+      <ResponseCookies :cookies="responseCookies" />
       <div class="scalar-api-client__main__scroll-container" />
     </div>
   </div>
