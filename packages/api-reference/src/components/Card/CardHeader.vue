@@ -34,8 +34,4 @@ import CardContent from './CardContent.vue'
   width: 100%;
   display: flex;
 }
-.card-header-actions {
-  display: flex;
-  align-items: center;
-}
 </style>
