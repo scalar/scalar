@@ -30,6 +30,11 @@
   --default-theme-color-blue: #1d4ed8;
   --default-theme-color-orange: #c2410c;
   --default-theme-color-purple: #6d28d9;
+
+  --default-theme-code-languages-background-supersede: var(
+    --default-theme-background-3
+  );
+  --default-theme-code-language-color-supersede: var(--default-theme-color-1);
 }
 
 .dark-mode {
@@ -63,6 +68,11 @@
   --default-theme-color-blue: #4eb3ec;
   --default-theme-color-orange: #ff8d4d;
   --default-theme-color-purple: #b191f9;
+
+  --default-theme-code-languages-background-supersede: var(
+    --default-theme-background-3
+  );
+  --default-theme-code-language-color-supersede: var(--default-theme-color-1);
 }
 
 /* Sidebar */
