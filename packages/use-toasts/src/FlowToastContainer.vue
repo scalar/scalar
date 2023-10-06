@@ -20,7 +20,6 @@ const { toasts } = useToasts()
   height: 100vh;
   position: fixed;
   z-index: 10000;
-
   pointer-events: none;
 
   display: flex;

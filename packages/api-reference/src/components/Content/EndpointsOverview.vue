@@ -91,6 +91,12 @@ onMounted(() => {
   overflow: auto;
   background: var(--theme-background-2, var(--default-theme-background-2));
   padding: 10px 12px;
+  max-height: calc(100vh - 300px);
+}
+@media (max-width: 580px) {
+  .endpoints {
+    max-height: calc(100vh - 150px);
+  }
 }
 .endpoints span + span {
   text-align: left;

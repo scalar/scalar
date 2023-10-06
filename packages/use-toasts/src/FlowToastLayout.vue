@@ -37,6 +37,7 @@ defineProps<{
   background: var(--theme-background-1, var(--default-theme-background-1));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
+  color: var(--theme-color-1, var(--default-theme-color-1));
   display: grid;
   grid-template-columns: auto 1fr auto;
   grid-template-areas:
@@ -50,7 +51,7 @@ defineProps<{
 
 .toast-title {
   grid-area: title;
-  font-weight: var(--theme-font-medium, var(--default-theme-font-medium));
+  font-weight: var(--theme-font-semibold, var(--default-theme-font-semibold));
   display: flex;
   align-items: center;
 }
