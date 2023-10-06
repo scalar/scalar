@@ -28,6 +28,7 @@ import { Tab } from '@headlessui/vue'
   margin-right: 3px;
   text-transform: uppercase;
   position: relative;
+  line-height: 1.35;
 }
 .tab:before {
   content: '';
