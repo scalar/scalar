@@ -34,9 +34,13 @@ watch(activeExample, () => {
   <div class="start custom-scroll">
     <h1 class="start-h1">Swagger Editor</h1>
     <p class="start-p">
-      This is a sample Pet Store Server based on the OpenAPI 3.0 specification.
-      You can find out more about Swagger at http://swagger.io. In the third
-      iteration of the pet store
+      Welcome to the Scalar API References + Swagger Editor, a Free &
+      Open-Source tool that takes your Swagger/OAS file and generates Beautiful
+      API references.
+    </p>
+    <p class="start-p">
+      Below you can quickly get started by importing your file, going through
+      examples & also checking out our pre-made themes ✨
     </p>
     <div class="start-section">
       <div class="start-h2">Quick Start</div>
@@ -318,19 +322,39 @@ watch(activeExample, () => {
         {{ themeId.toLocaleUpperCase() }}
       </div>
     </div>
+    <p class="start-h1">Features</p>
+    <ul class="start-ul">
+      <li>A deeply integrated Rest API Client (Also Free & Open-Source)</li>
+      <li>Fully integrated Search (Using fuse.js)</li>
+      <li>
+        All CSS variables are editable so you can easily add your own typography
+        & color palettes.
+      </li>
+      <li>Free hosting with an https://apidocumentation.com subdomain</li>
+      <li>
+        Integrations with Vue.js, React, a CDN, Fastify and soon to be many more
+      </li>
+      <li>Support for OpenAPI 3.1, OpenAPI 3.0, and Swagger 2.0</li>
+      <li>Code samples to show off your API in most popular languages</li>
+    </ul>
   </div>
 </template>
 <style scoped>
 .start {
-  padding: 0 18px 24px 30px;
+  padding: 30px 18px 24px 30px;
+  display: flex;
+  flex-flow: wrap;
 }
 .start-h1 {
   font-size: var(--theme-heading-2, var(--default-theme-heading-2));
-  margin-bottom: 24px;
   margin-top: 0;
   line-height: 1.45;
+  margin-bottom: 0;
   font-weight: var(--theme-bold, var(--default-theme-bold));
   color: var(--theme-color-1, var(--default-theme-color-1));
+}
+.start-h1:not(:first-of-type) {
+  margin-top: 24px;
 }
 .start-p {
   margin-top: 12px;
@@ -338,8 +362,19 @@ watch(activeExample, () => {
   color: var(--theme-color-1, var(--default-theme-color-1));
   line-height: 1.5;
 }
+.start-ul {
+  margin-top: 6px;
+  font-size: var(--theme-paragraph, var(--default-theme-paragraph));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  line-height: 1.5;
+  padding-left: 24px;
+}
+.start-ul li {
+  margin: 6px 0;
+}
 .start-section {
   padding: 24px 0 0;
+  width: 50%;
 }
 .start-h2 {
   padding-bottom: 9px;
@@ -362,7 +397,7 @@ watch(activeExample, () => {
   cursor: pointer;
   border-radius: var(--theme-radius, var(--default-theme-radius));
   margin-bottom: 2px;
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  /* background: var(--theme-background-2, var(--default-theme-background-2)); */
   color: var(--theme-color-2, var(--default-theme-color-2));
   z-index: 10;
   text-decoration: none;
@@ -370,7 +405,7 @@ watch(activeExample, () => {
   padding: 0 9px;
 }
 .start-link-item:hover {
-  background: var(--theme-background-3, var(--default-theme-background-3));
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .start-link-item svg {
   height: 14px;

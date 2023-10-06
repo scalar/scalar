@@ -78,36 +78,11 @@ const useExample = () => {
       <button
         type="button"
         @click="() => open()">
-        <svg
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg">
-          <g>
-            <path
-              d="M24 2.2A2.21 2.21 0 0 0 21.8 0h-4.41a1.23 1.23 0 1 0 0 2.45h3.91a.25.25 0 0 1 .25.25v18.6a.25.25 0 0 1-.25.25h-3.91a1.23 1.23 0 1 0 0 2.45h4.41a2.21 2.21 0 0 0 2.2-2.2Z"
-              fill="currentColor"></path>
-            <path
-              d="M0 2.2v19.6A2.21 2.21 0 0 0 2.2 24h4.41a1.23 1.23 0 1 0 0-2.45H2.7a.25.25 0 0 1-.25-.25V2.7a.25.25 0 0 1 .25-.25h3.91a1.23 1.23 0 1 0 0-2.45H2.2A2.21 2.21 0 0 0 0 2.2Z"
-              fill="currentColor"></path>
-            <path
-              d="M16.9 13a1 1 0 0 0 .74-1.62l-4.9-5.64a1 1 0 0 0-1.48 0l-4.9 5.64A1 1 0 0 0 7.1 13h3.18a.25.25 0 0 1 .25.25v5.49a1.47 1.47 0 0 0 2.94 0v-5.51a.25.25 0 0 1 .25-.25Z"
-              fill="currentColor"></path>
-          </g>
-        </svg>
         Upload File
       </button>
       <button
         type="button"
         @click="swaggerURLModalState.show">
-        <svg
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg">
-          <g fill="currentColor">
-            <path
-              d="M10.5 18.4 7.7 21a2.9 2.9 0 0 1-4 0l-.8-.9a2.8 2.8 0 0 1-.8-2 2.7 2.7 0 0 1 .8-2l5.8-5.8a2.8 2.8 0 0 1 4 0l.8 1A1 1 0 1 0 15 10l-.9-.9a4.8 4.8 0 0 0-6.7 0L1.5 15a4.8 4.8 0 0 0 0 6.8l.9.9a4.8 4.8 0 0 0 6.7 0l2.8-2.8a1 1 0 0 0 0-1.4 1 1 0 0 0-1.4 0Z"></path>
-            <path
-              d="m22.5 2.4-.9-1a4.8 4.8 0 0 0-6.7 0l-2.9 3a1 1 0 1 0 1.4 1.4l3-3a2.8 2.8 0 0 1 3.9 0l.9 1a2.7 2.7 0 0 1 .8 2 2.8 2.8 0 0 1-.8 2l-5.8 5.8a2.8 2.8 0 0 1-2 .8 2.8 2.8 0 0 1-2-.8 1 1 0 0 0-1.4 1.3 4.8 4.8 0 0 0 3.4 1.4 4.8 4.8 0 0 0 3.4-1.4l5.8-5.8a4.8 4.8 0 0 0 0-6.7Z"></path>
-          </g>
-        </svg>
         Paste URL
       </button>
       <button
@@ -140,11 +115,13 @@ const useExample = () => {
 </template>
 <style>
 .swagger-editor-header {
-  padding: 12px;
+  padding: 11px 12px 0 12px;
   display: flex;
   align-items: center;
   flex-flow: wrap;
   position: relative;
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 .swagger-editor-header span {
@@ -158,24 +135,30 @@ const useExample = () => {
 
 .swagger-editor-title {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  border-radius: var(--theme-radius, var(--default-theme-radius))
+    var(--theme-radius, var(--default-theme-radius)) 0 0;
+  color: var(--theme-color-2, var(--default-theme-color-2));
   font-size: var(--theme-mini, var(--default-theme-mini));
   display: flex;
   align-items: center;
   cursor: pointer;
   position: relative;
 }
-.swagger-editor-title:hover {
-  background: var(--theme-background-3, var(--default-theme-background-3));
-}
-.swagger-editor-title + .swagger-editor-title {
-  margin-left: 6px;
+.swagger-editor-title:hover:after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc(100% - 6px);
+  height: calc(100% - 6px);
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .swagger-editor-type {
   padding: 9px;
   user-select: none;
   position: relative;
+  z-index: 1;
 }
 .swagger-editor-buttons {
   display: flex;
@@ -184,22 +167,25 @@ const useExample = () => {
   height: 35px;
   min-height: 35px;
   align-items: center;
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--theme-background-1, var(--default-theme-background-1));
 }
 .swagger-editor-active {
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  /* use layered box shadow so opaque border overlap doesn't show  */
+  box-shadow: 0 1px 0 0px
+      var(--theme-background-1, var(--default-theme-background-1)),
+    0px 0 0 1px var(--theme-border-color, var(--default-theme-border-color)),
+    0 0 0 1px var(--theme-background-1, var(--default-theme-background-1));
   cursor: default;
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .swagger-editor-buttons button {
   background: transparent;
   appearance: none;
   outline: none;
   border: none;
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  color: var(--theme-color-1, var(--default-theme-color-1));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -224,7 +210,7 @@ const useExample = () => {
 .swagger-editor-buttons button:hover {
   cursor: pointer;
   border-color: currentColor;
-  background: var(--theme-background-3, var(--default-theme-background-3));
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
 @media (max-width: 580px) {
   .swagger-editor-title i,

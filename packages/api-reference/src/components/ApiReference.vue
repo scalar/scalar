@@ -550,7 +550,7 @@ const breadCrumbs = computed(() => {
 .references-narrow .reference-container {
   flex-direction: column;
   gap: 24px;
-  padding: 60px 0;
+  padding: 50px 0;
 }
 
 .references-narrow .example {
@@ -683,7 +683,14 @@ const breadCrumbs = computed(() => {
   background: var(--theme-background-1, var(--default-theme-background-1));
   display: flex;
 }
-
+/* add extra padding to top of edit made to match the getting started module */
+.layout-content
+  ~ .layout-aside-right
+  .references-narrow
+  .reference:first-of-type
+  .reference-container {
+  padding-top: 75px;
+}
 /* Measures the visible viewport of the editor */
 .layout-content-viewport {
   position: fixed;
