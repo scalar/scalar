@@ -198,6 +198,7 @@ const showItemInClient = () => {
   color: var(--theme-color-2, var(--default-theme-color-2));
   overflow: hidden;
   cursor: default;
+  word-wrap: break-word;
   text-transform: none !important;
   flex: 1;
 }
