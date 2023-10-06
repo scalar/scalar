@@ -49,6 +49,11 @@ Generate interactive API documentations from Swagger files
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
   </head>
   <body>
     <!-- Add your own OpenAPI/Swagger spec file URL here: -->
@@ -90,75 +95,7 @@ import { ApiReference } from '@scalar/api-reference'
 </template>
 ```
 
-You can pass props to customize the API reference:
-
-#### isEditable?: boolean
-
-Whether the Swagger editor should be shown.
-
-```vue
-<ApiReference :isEditable="true" />
-```
-
-#### spec?: string
-
-Directly pass an OpenAPI/Swagger spec.
-
-```vue
-<ApiReference :spec="{ … }" />
-```
-
-#### specUrl?: string
-
-Pass the URL of a spec file (JSON or Yaml).
-
-```vue
-<ApiReference specUrl="/swagger.json" />
-```
-
-#### transformedSpec?: string
-
-You can preprocess specs with `@scalar/swagger-parser` and directly pass the result.
-
-```vue
-<ApiReference :specResult="{ … }" />
-```
-
-#### proxyUrl?: string
-
-Making requests to other domains is restricted in the browser and requires [CORS headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). It’s recommended to use a proxy to send requests to other origins.
-
-```vue
-<ApiReference proxyUrl="https://proxy.example.com" />
-```
-
-ℹ️ You can use [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy) to host your own proxy.
-
-#### initialTabState?: string
-
-You can decide which tab should be active by default:
-
-```vue
-<ApiReference initialTabState="Getting Started" />
-<!-- or -->
-<ApiReference initialTabState="Swagger Editor" />
-```
-
-#### showSidebar?: boolean
-
-Whether the sidebar should be shown.
-
-```vue
-<ApiReference :showSidebar="true" />
-```
-
-#### footerBelowSidebar?: boolean
-
-Whether the footer should below the content or below the content _and_ the sidebar.
-
-```vue
-<ApiReference :footerBelowSidebar="true" />
-```
+You can [pass props to customize the API reference](https://github.com/scalar/scalar/tree/main/packages/api-reference).
 
 ## With React
 
@@ -183,7 +120,7 @@ export default App
 
 ## Using our amazing service
 
-Wait, this is open source and you can do whatever you want. But if you want to add a nice, customizable guide, collaborate with your team and have everything served through a CDN, visit us on [scalar.com](https://scalar.com).
+Wait, this is open source and you can do whatever you want. But if you want to add a nice, customizable guide, collaborate with your team and have everything served through a CDN, create an account on [scalar.com](https://scalar.com).
 
 ## Themes
 
