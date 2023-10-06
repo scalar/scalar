@@ -191,7 +191,7 @@ const formattedPath = computed(() => {
 </template>
 <style>
 .request-path-variable {
-  color: var(--default-theme-color-1);
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 </style>
 <style scoped>
