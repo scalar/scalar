@@ -308,7 +308,7 @@ watch(activeExample, () => {
         </div>
       </div>
     </div>
-    <div class="start-section">
+    <div class="start-section start-section-color">
       <div class="start-h2">Fully Themeable</div>
       <div
         v-for="themeId in themeIds"
@@ -319,7 +319,7 @@ watch(activeExample, () => {
         <i
           class="start-item-color"
           :class="`start-item-color-${themeId}`"></i>
-        {{ themeId.toLocaleUpperCase() }}
+        {{ themeId.toLocaleLowerCase() }}
       </div>
     </div>
     <p class="start-h1">Features</p>
@@ -368,9 +368,11 @@ watch(activeExample, () => {
   color: var(--theme-color-1, var(--default-theme-color-1));
   line-height: 1.5;
   padding-left: 24px;
+  list-style: initial;
 }
 .start-ul li {
   margin: 6px 0;
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .start-section {
   padding: 24px 0 0;
@@ -484,5 +486,8 @@ watch(activeExample, () => {
 }
 .dark-mode .start-item-color-default {
   background: #1a1a1a;
+}
+.start-section-color .start-item {
+  text-transform: capitalize;
 }
 </style>

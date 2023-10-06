@@ -10,6 +10,7 @@ import { useMediaQuery } from '@vueuse/core'
 
 import { useTemplateStore } from '../stores/template'
 import type { Operation, Spec } from '../types'
+import DarkModeToggle from './DarkModeToggle.vue'
 import FindAnythingButton from './FindAnythingButton.vue'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
@@ -96,6 +97,7 @@ useKeyboardEvent({
         </template>
       </SidebarGroup>
     </div>
+    <DarkModeToggle />
   </div>
 </template>
 

@@ -16,7 +16,6 @@ import { useTemplateStore } from '../stores/template'
 import type { ReferenceProps, Spec } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
-import DarkModeToggle from './DarkModeToggle.vue'
 import SearchModal from './SearchModal.vue'
 import Sidebar from './Sidebar.vue'
 
@@ -191,7 +190,6 @@ const breadCrumbs = computed(() => {
           v-if="isMobile"
           name="header" />
         <Sidebar :spec="transformedSpec"></Sidebar>
-        <DarkModeToggle />
       </div>
     </aside>
     <!-- Swagger file editing -->
@@ -740,6 +738,13 @@ const breadCrumbs = computed(() => {
     var(--default-scalar-api-reference-theme-header-height)
   ); */
   /* height: calc(var(--full-height) - var(--theme-header-height, 0px)); */
+  background: var(
+    --sidebar-background-1,
+    var(
+      --default-sidebar-background-1,
+      var(--theme-background-1, var(--default-theme-background-1))
+    )
+  );
   height: calc(var(--full-height) - var(--theme-header-height, 0px));
   overflow-y: auto;
   display: flex;
