@@ -4,8 +4,10 @@ import CardContent from './CardContent.vue'
 <template>
   <CardContent class="card-header">
     <div class="card-header-slots">
-      <div class="card-header-slot">
+      <div class="card-header-slot card-header-title">
         <slot />
+      </div>
+      <div class="card-header-slot card-header-actions">
         <slot name="actions" />
       </div>
     </div>
@@ -18,20 +20,19 @@ import CardContent from './CardContent.vue'
   color: var(--theme-color-3, var(--default-theme-color-3));
 }
 
-.card-header-title {
-  text-transform: uppercase;
-  display: flex;
-}
-
 .card-header-slots {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 9px 12px;
+  margin: 9px 12px;
   line-height: 1.35;
 }
-.card-header-slot {
-  width: 100%;
+
+.card-header-title {
+  text-transform: uppercase;
+  word-break: break-all;
+}
+
+.card-header-actions {
   display: flex;
 }
 </style>
