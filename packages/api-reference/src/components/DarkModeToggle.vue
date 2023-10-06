@@ -28,9 +28,9 @@ watchEffect(() => {
     <a
       class="darklight-reference-promo"
       href="https://www.scalar.com"
-      target="_blank"
-      >Powered by scalar.com</a
-    >
+      target="_blank">
+      Powered by scalar.com
+    </a>
   </div>
 </template>
 <style scoped>
