@@ -51,6 +51,9 @@ watch(
 </template>
 
 <style scoped>
+.markdown {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
 .markdown :deep(*) {
   margin-top: 12px;
 }

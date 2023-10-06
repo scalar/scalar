@@ -122,7 +122,6 @@ const showItemInClient = () => {
             {{ getClientTitle(state.selectedClient) }}
           </span>
           <select
-            class="language-select"
             :value="JSON.stringify(state.selectedClient)"
             @input="event => setItem('selectedClient', JSON.parse((event.target as HTMLSelectElement).value))">
             <optgroup
@@ -196,16 +195,17 @@ const showItemInClient = () => {
 .request-path {
   margin-left: 6px;
   color: var(--theme-color-2, var(--default-theme-color-2));
-  white-space: nowrap;
   overflow: hidden;
   cursor: default;
-  text-overflow: ellipsis;
   text-transform: none !important;
+  flex: 1;
 }
 
 .language-select {
   position: relative;
   padding-right: 9px;
+  height: fit-content;
+  padding-left: 12px;
   border-right: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
@@ -228,6 +228,7 @@ const showItemInClient = () => {
   font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-color-2, var(--default-theme-color-2));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -338,6 +339,7 @@ const showItemInClient = () => {
 }
 .request-method {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
+  text-transform: uppercase;
 }
 .request-path {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
