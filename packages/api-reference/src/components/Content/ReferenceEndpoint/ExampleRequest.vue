@@ -114,43 +114,44 @@ const showItemInClient = () => {
         {{ operation.httpVerb }}
       </span>
       <span class="request-path">{{ operation.path }}</span>
-
       <template #actions>
-        <div class="language-select">
-          <span>
-            {{ getTargetTitle(state.selectedClient) }}
-            {{ getClientTitle(state.selectedClient) }}
-          </span>
-          <select
-            :value="JSON.stringify(state.selectedClient)"
-            @input="event => setItem('selectedClient', JSON.parse((event.target as HTMLSelectElement).value))">
-            <optgroup
-              v-for="target in availableTargets()"
-              :key="target.key"
-              :label="target.title">
-              <option
-                v-for="client in target.clients"
-                :key="client.key"
-                :value="
-                  JSON.stringify({
-                    targetKey: target.key,
-                    clientKey: client.key,
-                  })
-                ">
-                {{ client.title }}
-              </option>
-            </optgroup>
-          </select>
-        </div>
+        <div class="card-header-actions">
+          <div class="language-select">
+            <span>
+              {{ getTargetTitle(state.selectedClient) }}
+              {{ getClientTitle(state.selectedClient) }}
+            </span>
+            <select
+              :value="JSON.stringify(state.selectedClient)"
+              @input="event => setItem('selectedClient', JSON.parse((event.target as HTMLSelectElement).value))">
+              <optgroup
+                v-for="target in availableTargets()"
+                :key="target.key"
+                :label="target.title">
+                <option
+                  v-for="client in target.clients"
+                  :key="client.key"
+                  :value="
+                    JSON.stringify({
+                      targetKey: target.key,
+                      clientKey: client.key,
+                    })
+                  ">
+                  {{ client.title }}
+                </option>
+              </optgroup>
+            </select>
+          </div>
 
-        <button
-          class="copy-button"
-          type="button"
-          @click="copyExampleRequest">
-          <Icon
-            src="solid/interface-copy-clipboard"
-            width="10px" />
-        </button>
+          <button
+            class="copy-button"
+            type="button"
+            @click="copyExampleRequest">
+            <Icon
+              src="solid/interface-copy-clipboard"
+              width="10px" />
+          </button>
+        </div>
       </template>
     </CardHeader>
     <CardContent
@@ -265,14 +266,6 @@ const showItemInClient = () => {
   align-items: center;
   height: fit-content;
 }
-/* ghost character to make height match sibling height since we can't wrap them both in flex*/
-.copy-button:after {
-  content: '*';
-  width: 0px;
-  overflow: hidden;
-  color: transparent;
-  font-size: (--theme-mini, var(--default-theme-mini));
-}
 .copy-button:hover {
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
@@ -353,5 +346,9 @@ const showItemInClient = () => {
 }
 .request-path {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
+}
+.card-header-actions {
+  display: flex;
+  align-items: center;
 }
 </style>
