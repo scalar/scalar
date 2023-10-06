@@ -14,6 +14,28 @@ Generate interactive API documentations from Swagger files
 - Edit your Swagger files with a live preview
 - Doesn’t look like it’s 2011
 
+## Table of Contents
+
+- [Getting Started](#getting-started)
+  - [From a CDN](#from-a-cdn)
+  - [With Vue.js](#with-vuejs)
+    - [isEditable?: boolean](#iseditable-boolean)
+    - [spec?: string](#spec-string)
+    - [specUrl?: string](#specurl-string)
+    - [transformedSpec?: string](#transformedspec-string)
+    - [proxyUrl?: string](#proxyurl-string)
+    - [initialTabState?: string](#initialtabstate-string)
+    - [showSidebar?: boolean](#showsidebar-boolean)
+    - [footerBelowSidebar?: boolean](#footerbelowsidebar-boolean)
+- [With React](#with-react)
+- [Using our amazing service](#using-our-amazing-service)
+- [Themes](#themes)
+- [Advanced: Styling](#advanced-styling)
+- [Community](#community)
+- [Other packages](#other-packages)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Getting Started
 
 ### From a CDN
@@ -78,22 +100,6 @@ Whether the Swagger editor should be shown.
 <ApiReference :isEditable="true" />
 ```
 
-#### showSidebar?: boolean
-
-Whether the sidebar should be shown.
-
-```vue
-<ApiReference :showSidebar="true" />
-```
-
-#### footerBelowSidebar?: boolean
-
-Whether the footer should below the content or below the content _and_ the sidebar.
-
-```vue
-<ApiReference :footerBelowSidebar="true" />
-```
-
 #### spec?: string
 
 Directly pass an OpenAPI/Swagger spec.
@@ -108,6 +114,50 @@ Pass the URL of a spec file (JSON or Yaml).
 
 ```vue
 <ApiReference specUrl="/swagger.json" />
+```
+
+#### transformedSpec?: string
+
+You can preprocess specs with `@scalar/swagger-parser` and directly pass the result.
+
+```vue
+<ApiReference :specResult="{ … }" />
+```
+
+#### proxyUrl?: string
+
+Making requests to other domains is restricted in the browser and requires [CORS headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). It’s recommended to use a proxy to send requests to other origins.
+
+```vue
+<ApiReference proxyUrl="https://proxy.example.com" />
+```
+
+ℹ️ You can use [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy) to host your own proxy.
+
+#### initialTabState?: string
+
+You can decide which tab should be active by default:
+
+```vue
+<ApiReference initialTabState="Getting Started" />
+<!-- or -->
+<ApiReference initialTabState="Swagger Editor" />
+```
+
+#### showSidebar?: boolean
+
+Whether the sidebar should be shown.
+
+```vue
+<ApiReference :showSidebar="true" />
+```
+
+#### footerBelowSidebar?: boolean
+
+Whether the footer should below the content or below the content _and_ the sidebar.
+
+```vue
+<ApiReference :footerBelowSidebar="true" />
 ```
 
 ## With React
@@ -143,6 +193,8 @@ You don’t like the color scheme? We’ve prepared some themes for you:
 /* theme?: 'alternate' | 'default' | 'moon' | 'purple' | 'solarized' */
 <ApiReference theme="moon" />
 ```
+
+ℹ️ The `default` theme is … the default theme. If you want to make sure no theme is applied, pass `none`.
 
 ## Advanced: Styling
 
