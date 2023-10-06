@@ -106,14 +106,28 @@ const showItemInClient = () => {
   setActiveRequest(item)
   toggleApiClient()
 }
+
+const formattedPath = computed(() => {
+  return (
+    props.operation.path
+      // Remove HTML tags
+      .replace(/(<([^>]+)>)/gi, '')
+      // Wrap a span around all variables
+      .replace(/{([^}]+)}/g, '<span class="request-path-variable">{$1}</span>')
+  )
+})
 </script>
 <template>
   <Card class="dark-mode">
     <CardHeader muted>
-      <span :class="`request-method request-method--${operation.httpVerb}`">
-        {{ operation.httpVerb }}
-      </span>
-      <span class="request-path">{{ operation.path }}</span>
+      <div class="request">
+        <span :class="`request-method request-method--${operation.httpVerb}`">
+          {{ operation.httpVerb }}
+        </span>
+        <span
+          class="request-path"
+          v-html="formattedPath" />
+      </div>
       <template #actions>
         <div class="language-select">
           <span>
@@ -175,6 +189,11 @@ const showItemInClient = () => {
     </CardFooter>
   </Card>
 </template>
+<style>
+.request-path-variable {
+  color: var(--default-theme-color-1);
+}
+</style>
 <style scoped>
 .request {
   display: flex;
