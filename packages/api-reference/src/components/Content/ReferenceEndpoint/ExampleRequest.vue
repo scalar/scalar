@@ -261,8 +261,18 @@ const showItemInClient = () => {
   border: none;
   border-radius: 3px;
   padding: 0;
+  display: flex;
+  align-items: center;
+  height: fit-content;
 }
-
+/* ghost character to make height match sibling height since we can't wrap them both in flex*/
+.copy-button:after {
+  content: '*';
+  width: 0px;
+  overflow: hidden;
+  color: transparent;
+  font-size: (--theme-mini, var(--default-theme-mini));
+}
 .copy-button:hover {
   color: var(--theme-color-1, var(--default-theme-color-1));
 }

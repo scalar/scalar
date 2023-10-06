@@ -27,7 +27,8 @@ import CardContent from './CardContent.vue'
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 10px 12px;
+  padding: 9px 12px;
+  line-height: 1.35;
 }
 .card-header-slot {
   width: 100%;
