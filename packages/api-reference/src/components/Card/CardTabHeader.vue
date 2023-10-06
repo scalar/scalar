@@ -28,5 +28,6 @@ const changeTab = (index: number) => {
   display: flex;
   gap: 6px;
   position: relative;
+  flex: 1;
 }
 </style>
