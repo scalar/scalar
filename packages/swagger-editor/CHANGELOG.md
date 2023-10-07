@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.6.16
+
+### Patch Changes
+
+- 3805e649: remove hover on active header tab
+
 ## 0.6.15
 
 ### Patch Changes
