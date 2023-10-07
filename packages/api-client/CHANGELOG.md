@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 0.7.12
+
+### Patch Changes
+
+- 30aee7d1: feat: detect JSON in the body and automatically add a JSON content-type header to the request
+- 24deb723: feat: add basic authentication and bearer authentication
+
 ## 0.7.11
 
 ### Patch Changes
