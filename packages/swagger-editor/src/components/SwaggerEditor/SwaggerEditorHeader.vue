@@ -144,7 +144,7 @@ const useExample = () => {
   cursor: pointer;
   position: relative;
 }
-.swagger-editor-title:hover:after {
+.swagger-editor-title:hover:not(.swagger-editor-active):after {
   content: '';
   position: absolute;
   top: 3px;
