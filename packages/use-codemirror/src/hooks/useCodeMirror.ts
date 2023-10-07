@@ -1,7 +1,6 @@
-import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
 import { type Extension, StateEffect } from '@codemirror/state'
 import { type EditorViewConfig } from '@codemirror/view'
-import { tags } from '@lezer/highlight'
+import { type KeyBinding, keymap } from '@codemirror/view'
 import { EditorView } from 'codemirror'
 import { type Ref, ref, watch } from 'vue'
 
@@ -95,6 +94,20 @@ export const useCodeMirror = (
 
   // Extend the given extension list with a dark/light theme.
   const addDefaultExtensions = (newExtensions: Extension[] = []) => {
+    // sometimes codemirror only selects what's in view
+    // so we double up the keybinding to make sure it selects everything
+    const selectAllKeyBinding: KeyBinding = {
+      key: 'Mod-a',
+      run: (view) => {
+        // Select the entire content
+        view.dispatch({
+          selection: { anchor: 0, head: view.state.doc.length },
+          scrollIntoView: false,
+        })
+        return true
+      },
+    }
+
     // Themes
     const defaultExtensions: Extension[] = [
       EditorView.theme(
@@ -108,6 +121,7 @@ export const useCodeMirror = (
         },
         { dark: forceDarkMode ? false : isDark.value },
       ),
+      keymap.of([selectAllKeyBinding]),
       getCurrentTheme(),
     ].filter((extension) => extension !== null) as Extension[]
 
