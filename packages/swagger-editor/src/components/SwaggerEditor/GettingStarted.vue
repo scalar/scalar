@@ -352,6 +352,7 @@ watch(activeExample, () => {
   margin-bottom: 0;
   font-weight: var(--theme-bold, var(--default-theme-bold));
   color: var(--theme-color-1, var(--default-theme-color-1));
+  width: 100%;
 }
 .start-h1:not(:first-of-type) {
   margin-top: 24px;
@@ -377,6 +378,7 @@ watch(activeExample, () => {
 .start-section {
   padding: 24px 0 0;
   width: 50%;
+  min-width: 180px;
 }
 .start-h2 {
   padding-bottom: 9px;

@@ -142,18 +142,17 @@ useKeyboardEvent({
   gap: 6px;
 
   /* prettier-ignore */
-  color: var(--sidebar-color-2, var(--default-sidebar-color-2), var(--theme-color-2, var(--default-theme-color-2)));
+  color: var(--sidebar-color-2, var(--default-theme-color-2, var(--theme-color-2, var(--default-theme-color-2))));
   font-size: var(--theme-mini, var(--default-theme-mini));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   word-break: break-word;
   line-height: 1.385;
-  display: flex;
   align-items: center;
   max-width: 100%;
   position: relative;
   cursor: pointer;
-  /* prettier-ignore */
-  border-radius: 0 var(--theme-radius, var(--default-theme-radius)) var(--theme-radius, var(--default-theme-radius)) 0;
+  border-radius: 0 var(--theme-radius, var(--default-theme-radius))
+    var(--theme-radius, var(--default-theme-radius)) 0;
   flex: 1;
   padding-right: 12px;
   user-select: none;
@@ -163,9 +162,8 @@ useKeyboardEvent({
 .toggle-nested-icon {
   border: none;
   position: absolute !important;
-  left: 2px;
-  top: 50%;
-  transform: translateY(-50%);
+  color: currentColor;
+  top: 4px;
   color: currentColor;
 }
 
