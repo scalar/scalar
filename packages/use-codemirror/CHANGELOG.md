@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.6
+
+### Patch Changes
+
+- be239745: fix: select all not working in api docs swagger editor
+
 ## 0.7.5
 
 ### Patch Changes
