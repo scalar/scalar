@@ -1,5 +1,12 @@
 # @scalar/swagger-editor
 
+## 0.6.14
+
+### Patch Changes
+
+- 99744358: feat: cache swagger editor content in local storage
+- 3dd2574d: sidebar toggle not flex aligned + fix folder colors
+
 ## 0.6.13
 
 ### Patch Changes

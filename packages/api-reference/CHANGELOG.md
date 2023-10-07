@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 0.6.16
+
+### Patch Changes
+
+- 0f87c35d: feat: add dark mode toggle 👀
+- 3dd2574d: sidebar toggle not flex aligned + fix folder colors
+- Updated dependencies [30aee7d1]
+- Updated dependencies [99744358]
+- Updated dependencies [24deb723]
+- Updated dependencies [3dd2574d]
+  - @scalar/api-client@0.7.12
+  - @scalar/swagger-editor@0.6.14
+
 ## 0.6.15
 
 ### Patch Changes
