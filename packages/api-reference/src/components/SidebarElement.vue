@@ -65,7 +65,11 @@ function handleToggleOpen() {
   <li class="sidebar-group-item">
     <div
       class="sidebar-heading"
-      :class="{ active_page: isActive }"
+      :class="{
+        'sidebar-group-item__folder':
+          hasChildren || item.type === ElementType.Folder,
+        'active_page': isActive,
+      }"
       @click="handleClick">
       <!-- If children are detected then show the nesting icon -->
       <FlowIconButton

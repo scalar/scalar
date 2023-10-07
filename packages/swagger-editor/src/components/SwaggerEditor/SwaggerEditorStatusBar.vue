@@ -7,7 +7,6 @@
   color: var(--theme-color-3, var(--default-theme-color-3));
   padding: 6px 8px;
   font-size: var(--theme-font-size-5, var(--default-theme-font-size-5));
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+  background: var(--theme-background-3, var(--default-theme-background-3));
 }
 </style>
