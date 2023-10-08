@@ -569,6 +569,7 @@ const breadCrumbs = computed(() => {
   );
   /* prettier-ignore */
   color: var(--theme-color-1, var(--default-theme-color-1));
+  word-wrap: break-word;
   line-height: 1.45;
   margin-top: 0;
 }

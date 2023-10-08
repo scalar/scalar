@@ -53,6 +53,7 @@ watch(
 <style scoped>
 .markdown {
   color: var(--theme-color-1, var(--default-theme-color-1));
+  word-wrap: break-word;
 }
 .markdown :deep(*) {
   margin-top: 12px;

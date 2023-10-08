@@ -70,6 +70,7 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
 <style scoped>
 .heading {
   margin-top: 0px !important;
+  word-wrap: break-word;
 }
 .loading {
   background: var(--theme-background-3, var(--default-theme-background-3));
