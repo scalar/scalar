@@ -33,7 +33,9 @@ withDefaults(
   color: var(--theme-color-1, var(--default-theme-color-1));
   white-space: nowrap;
 }
-
+.simple-cell a {
+  color: var(--theme-color-1, var(--default-theme-color-1)) !important;
+}
 .simple-cell:last-of-type {
   border-right: none;
 }
