@@ -67,6 +67,7 @@
 /* Sidebar */
 .light-mode .t-doc__sidebar {
   --default-sidebar-background-1: var(--default-theme-background-1);
+  --default-sidebar-item-hover-color: currentColor;
   --default-sidebar-item-hover-background: var(--default-theme-background-2);
   --default-sidebar-item-active-background: var(
     --default-theme-background-accent
@@ -82,6 +83,7 @@
 
 .dark-mode .sidebar {
   --default-sidebar-background-1: var(--default-theme-background-1);
+  --default-sidebar-item-hover-color: currentColor;
   --default-sidebar-item-hover-background: var(--default-theme-background-2);
   --default-sidebar-item-active-background: var(
     --default-theme-background-accent
