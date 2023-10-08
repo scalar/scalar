@@ -94,6 +94,7 @@ onMounted(() => {
 <style scoped>
 .heading {
   margin-top: 0px !important;
+  word-wrap: break-word;
 }
 .tag-description {
   margin-top: 12px;
