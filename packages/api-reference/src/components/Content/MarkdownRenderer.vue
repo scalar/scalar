@@ -108,7 +108,16 @@ watch(
 .markdown :deep(li) {
   margin: 6px 0;
 }
-
+.markdown :deep(a) {
+  color: var(
+    --theme-color-accent,
+    var(--default-theme-color-accent)
+  ) !important;
+  text-decoration: none !important;
+}
+.markdown :deep(a:hover) {
+  text-decoration: underline !important;
+}
 .markdown :deep(code) {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   background-color: var(
