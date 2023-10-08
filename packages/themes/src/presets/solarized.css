@@ -77,7 +77,7 @@
   --default-sidebar-color-2: var(--default-theme-color-2);
   --default-sidebar-color-active: var(--default-theme-color-accent);
   --default-sidebar-search-background: var(--default-theme-background-2);
-  --default-sidebar-search-border: var(--sidebar-search-background);
+  --default-sidebar-search-border-color: var(--sidebar-search-background);
   --default-sidebar-search--color: var(--default-theme-color-3);
 }
 
@@ -93,6 +93,6 @@
   --default-sidebar-color-2: var(--default-theme-color-2);
   --default-sidebar-color-active: var(--default-sidebar-color-1);
   --default-sidebar-search-background: var(--default-theme-background-2);
-  --default-sidebar-search-border: var(--sidebar-search-background);
+  --default-sidebar-search-border-color: var(--sidebar-search-background);
   --default-sidebar-search--color: var(--default-theme-color-3);
 }

@@ -51,9 +51,9 @@ import FlowIcon from './Icon/FlowIcon.vue'
   border-radius: var(--theme-radius, var(--default-theme-radius));
   box-shadow: 0 0 0 1px
     var(
-      --sidebar-search-border,
+      --sidebar-search-border-color,
       var(
-        --default-sidebar-search-border,
+        --default-sidebar-search-border-color,
         var(--theme-border-color, var(--default-theme-border-color))
       )
     );

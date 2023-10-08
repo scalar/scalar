@@ -87,8 +87,10 @@
   --default-sidebar-color-1: var(--default-theme-color-1);
   --default-sidebar-color-2: var(--default-theme-color-2);
   --default-sidebar-color-active: var(--default-sidebar-background-1);
-  --default-sidebar-search-background: transparent;
-  --default-sidebar-search-border: var(--default-sidebar-search-background);
+  --default-sidebar-search-background: var(--default-theme-background-3);
+  --default-sidebar-search-border-color: var(
+    --default-sidebar-search-background
+  );
   --default-sidebar-search--color: var(--default-theme-color-3);
 }
 
@@ -103,7 +105,9 @@
   --default-sidebar-color-1: var(--default-theme-color-1);
   --default-sidebar-color-2: var(--default-theme-color-2);
   --default-sidebar-color-active: var(--default-sidebar-background-1);
-  --default-sidebar-search-background: var(--default-theme-background-2);
-  --default-sidebar-search-border: var(--default-sidebar-search-background);
+  --default-sidebar-search-background: var(--default-theme-background-3);
+  --default-sidebar-search-border-color: var(
+    --default-sidebar-search-background
+  );
   --default-sidebar-search--color: var(--default-theme-color-3);
 }
