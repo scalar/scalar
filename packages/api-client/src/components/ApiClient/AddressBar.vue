@@ -244,7 +244,8 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
 .scalar-api-client__field {
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  box-shadow: 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
   border-right: 0;
   background: var(--theme-background-2, var(--default-theme-background-2));
   border-radius: var(--theme-radius, var(--default-theme-radius)) 0 0
@@ -330,6 +331,8 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
     --scalar-api-client-color,
     var(--default-scalar-api-client-color)
   );
+  box-shadow: 0 0 0 1px
+    var(--scalar-api-client-color, var(--default-scalar-api-client-color));
   /**  #087f5b */
   display: flex;
   align-items: center;
