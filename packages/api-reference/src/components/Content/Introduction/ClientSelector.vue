@@ -243,7 +243,6 @@ function checkIfClientIsFeatured(client: SelectedClient) {
 .code-languages-background {
   border-radius: 12px;
   position: relative;
-  overflow: hidden;
   box-shadow: 0 0 0 1px
     var(
       --theme-code-languages-border-color,
@@ -252,12 +251,13 @@ function checkIfClientIsFeatured(client: SelectedClient) {
 }
 .code-languages-background:before {
   content: '';
-  width: 100%;
-  height: 100%;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
   position: absolute;
-  top: 0;
-  left: 0;
+  top: -1px;
+  left: -1px;
   pointer-events: none;
+  border-radius: 12px;
   background: var(
     --theme-code-languages-background-supersede,
     var(--default-theme-code-languages-background-supersede)
