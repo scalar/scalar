@@ -293,7 +293,7 @@ watch(activeExample, () => {
           </svg>
           <span>React</span>
         </a>
-        <div class="start-link-item">
+        <!-- <div class="start-link-item">
           <svg
             height="62"
             viewBox="0 0 99.9 62"
@@ -305,7 +305,7 @@ watch(activeExample, () => {
               fill-rule="nonzero" />
           </svg>
           <span>Express</span>
-        </div>
+        </div> -->
       </div>
     </div>
     <div class="start-section start-section-color">
