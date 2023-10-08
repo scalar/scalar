@@ -99,13 +99,7 @@ watchEffect(() => {
   );
 }
 .darklight-reference-promo:hover {
-  color: var(
-    --sidebar-color-active,
-    var(
-      --default-sidebar-color-active,
-      var(--theme-color-accent, var(--default-theme-color-accent))
-    )
-  ) !important;
+  text-decoration: underline;
 }
 </style>
 ../hooks/useDarkModeState
