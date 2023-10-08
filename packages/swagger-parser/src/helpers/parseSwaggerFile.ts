@@ -1,6 +1,6 @@
 import SwaggerParser from '@apidevtools/swagger-parser'
 import yaml from 'js-yaml'
-import { type OpenAPI } from 'openapi-types'
+import { type OpenAPI, type OpenAPIV2, type OpenAPIV3 } from 'openapi-types'
 
 import { getExampleResponses } from './getExampleResponses'
 
@@ -96,16 +96,31 @@ const transformResult = (result: OpenAPI.Document<object>): SwaggerSpec => {
       // If there are no tags, we’ll create a default one.
       if (!operation.tags || operation.tags.length === 0) {
         // Create the default tag.
-        result.tags?.push({
-          name: 'default',
-          description: '',
-          // @ts-ignore
-          operations: [],
-        })
+        if (
+          !result.tags?.find(
+            (tag: OpenAPIV2.TagObject | OpenAPIV3.TagObject) =>
+              tag.name === 'default',
+          )
+        ) {
+          result.tags?.push({
+            name: 'default',
+            description: '',
+            // @ts-ignore
+            operations: [],
+          })
+        }
 
-        // Add the new operation to the default tag.
-        // @ts-ignore
-        result.tags[0]?.operations.push(newOperation)
+        // find the index of the default tag
+        const indexOfDefaultTag = result.tags?.findIndex(
+          (tag: OpenAPIV2.TagObject | OpenAPIV3.TagObject) =>
+            tag.name === 'default',
+        )
+
+        if (indexOfDefaultTag && indexOfDefaultTag >= 0) {
+          // Add the new operation to the default tag.
+          // @ts-ignore
+          result.tags[indexOfDefaultTag]?.operations.push(newOperation)
+        }
       }
       // If the operation has tags, loop through them.
       else {
