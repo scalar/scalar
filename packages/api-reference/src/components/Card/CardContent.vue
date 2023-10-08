@@ -32,7 +32,9 @@ withDefaults(
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
-
+.card-content :deep(.simple-table .simple-header) {
+  display: none;
+}
 .card-content:last-of-type,
 .card-content.card--borderless {
   border-bottom: none;
