@@ -50,7 +50,13 @@ import FlowIcon from './Icon/FlowIcon.vue'
   outline: none;
   border-radius: var(--theme-radius, var(--default-theme-radius));
   box-shadow: 0 0 0 1px
-    var(--sidebar-border-color, var(--default-theme-border-color));
+    var(
+      --sidebar-search-border,
+      var(
+        --default-sidebar-search-border,
+        var(--theme-border-color, var(--default-theme-border-color))
+      )
+    );
   /* prettier-ignore */
   cursor: pointer;
   appearance: none;
