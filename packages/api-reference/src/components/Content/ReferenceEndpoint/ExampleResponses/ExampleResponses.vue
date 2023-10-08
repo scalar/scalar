@@ -3,6 +3,7 @@ import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { computed, ref } from 'vue'
 
+import { mapFromObject } from '../../../../helpers'
 import type { TransformedOperation } from '../../../../types'
 import {
   Card,
@@ -83,28 +84,52 @@ const changeTab = (index: number) => {
         </button>
       </template>
     </CardTabHeader>
-    <CardContent
-      v-if="currentResponse.headers"
-      muted>
-      <Headers :headers="currentResponse.headers" />
-    </CardContent>
-    <CardContent muted>
-      <template v-if="currentResponseExamples">
-        <SelectExample :examples="currentResponseExamples" />
-      </template>
-      <template v-else>
-        <CodeMirror
-          v-show="currentResponseExample"
-          :content="currentResponseExample"
-          :languages="['json']"
-          readOnly />
-        <div
-          v-if="!currentResponseExample"
-          class="scalar-api-reference__empty-state">
-          No Body
-        </div>
-      </template>
-    </CardContent>
+    <div class="card-container custom-scroll">
+      <!-- Commenting out until we re-organize cause of height issues -->
+      <!-- <CardContent
+        v-if="currentResponse.headers"
+        muted>
+        <Headers :headers="currentResponse.headers" />
+      </CardContent> -->
+      <CardContent muted>
+        <template
+          v-if="
+            currentResponseExamples &&
+            Object.keys(currentResponseExamples).length > 1
+          ">
+          {{ currentResponseExamples.length }}
+          <SelectExample :examples="currentResponseExamples" />
+        </template>
+        <template
+          v-else-if="
+            currentResponseExamples &&
+            Object.keys(currentResponseExamples).length === 1
+          ">
+          <CodeMirror
+            :content="
+              JSON.stringify(
+                mapFromObject(currentResponseExamples)[0].value.value,
+                null,
+                2,
+              )
+            "
+            :languages="['json']"
+            readOnly />
+        </template>
+        <template v-else>
+          <CodeMirror
+            v-show="currentResponseExample"
+            :content="currentResponseExample"
+            :languages="['json']"
+            readOnly />
+          <div
+            v-if="!currentResponseExample"
+            class="scalar-api-reference__empty-state">
+            No Body
+          </div>
+        </template>
+      </CardContent>
+    </div>
     <CardFooter
       v-if="currentResponse?.description"
       muted>
@@ -142,6 +167,8 @@ const changeTab = (index: number) => {
   min-height: 35px;
   display: flex;
   align-items: center;
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 .scalar-api-reference__empty-state {
   border: 1px dashed
@@ -176,5 +203,12 @@ const changeTab = (index: number) => {
 .example-response-tab {
   display: block;
   margin: 6px;
+}
+.card-container {
+  max-height: calc(100vh - 300px);
+  background: var(--theme-background-2, var(--default-theme-background-2));
+}
+.card-container :deep(.cm-scroller) {
+  overflow: hidden;
 }
 </style>
