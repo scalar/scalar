@@ -218,14 +218,14 @@ useKeyboardEvent({
   /* prettier-ignore */
   background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background, var(--theme-background-2, var(--default-theme-background-2))));
 }
-
-.active_page.sidebar-heading:hover,
-.active_page.sidebar-heading,
-.marc_active .sidebar-heading {
-  /* prettier-ignore */
-  background: var(--sidebar-item-active-background, var(--default-sidebar-item-active-background, var(--theme-background-accent, var(--default-theme-background-accent)))) !important;
-  /* prettier-ignore */
-  color: var(--sidebar-color-active, var(--default-sidebar-color-active, var(--theme-color-accent, var(--default-theme-color-accent)))) !important;
+.sidebar-heading:hover p {
+  color: var(
+    --sidebar-item-hover-color,
+    var(
+      --default-sidebar-item-hover-color,
+      var(--theme-color-accent, var(--default-theme-color-accent))
+    )
+  );
 }
 .sidebar-group-item {
   position: relative;
@@ -239,9 +239,6 @@ useKeyboardEvent({
 .sidebar-indent-nested .sidebar-indent-nested .sidebar-heading {
   /* prettier-ignore */
   color: var(--sidebar-color-2, var(--default-sidebar-color-2, var(--theme-color-2, var(--default-theme-color-2))));
-}
-.sidebar-indent-nested > div:has(.active_page) .sidebar-heading {
-  font-weight: var(--theme-bold, var(--default-theme-bold));
 }
 
 .sidebar-mobile-header {
@@ -276,7 +273,16 @@ useKeyboardEvent({
   height: 16px;
   width: 16px;
 }
-
+.active_page.sidebar-heading:hover,
+.active_page.sidebar-heading {
+  /* prettier-ignore */
+  background: var(--sidebar-item-active-background, var(--default-sidebar-item-active-background, var(--theme-background-accent, var(--default-theme-background-accent)))) !important;
+}
+.active_page.sidebar-heading p,
+.active_page.sidebar-heading:hover p {
+  /* prettier-ignore */
+  color: var(--sidebar-color-active, var(--default-sidebar-color-active, var(--theme-color-accent, var(--default-theme-color-accent)))) !important;
+}
 @media (max-width: 1000px) {
   .sidebar {
     min-height: 0;
