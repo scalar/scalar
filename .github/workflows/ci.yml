@@ -51,6 +51,8 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
+      - name: Check types
+        run: pnpm types:check
       - name: Build (packages)
         run: pnpm build:packages
       - name: Run tests

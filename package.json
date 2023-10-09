@@ -36,6 +36,7 @@
     "lint": "pnpm -r lint:check",
     "lint:fix": "pnpm -r lint:fix",
     "preview:standalone": "pnpm --filter api-reference preview:standalone",
-    "test": "pnpm -r test"
+    "test": "pnpm -r test",
+    "types:check": "pnpm -r types:check"
   }
 }
