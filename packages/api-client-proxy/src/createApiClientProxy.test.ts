@@ -1,19 +1,21 @@
-import { createApiClientProxy } from '@scalar/api-client-proxy'
 import { createEchoServer } from '@scalar/echo-server'
+import { type AddressInfo } from 'node:net'
 import { describe, expect, it } from 'vitest'
+
+import { createApiClientProxy } from './createApiClientProxy'
 
 const createEchoServerOnAnyPort = (): number => {
   const { listen } = createEchoServer()
   const instance = listen(0)
 
-  return Number(instance.address().port)
+  return Number((instance.address() as AddressInfo).port)
 }
 
 const createApiClientProxyOnAnyPort = (): number => {
   const { listen } = createApiClientProxy()
   const instance = listen(0)
 
-  return Number(instance.address().port)
+  return Number((instance.address() as AddressInfo).port)
 }
 
 describe('createApiClientProxy', () => {
