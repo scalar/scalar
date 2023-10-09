@@ -44,4 +44,9 @@ describe('getExampleResponses', () => {
       },
     })
   })
+
+  it('isn’t complaining if there are no example responses', () => {
+    expect(getExampleResponses()).toBeUndefined()
+    expect(getExampleResponses(null)).toBeUndefined()
+  })
 })
