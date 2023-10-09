@@ -1,9 +1,9 @@
-import { createEchoServer } from '@scalar/echo-server'
 import { describe, expect, it } from 'vitest'
 
+import { type AuthState } from '../types'
 import { prepareClientRequestConfig } from './prepareClientRequestConfig'
 
-const defaultAuthState = {
+const defaultAuthState: AuthState = {
   type: 'none',
   basic: {
     username: '',

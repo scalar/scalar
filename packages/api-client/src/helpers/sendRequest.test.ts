@@ -1,18 +1,19 @@
 import { createEchoServer } from '@scalar/echo-server'
+import { type AddressInfo } from 'node:net'
 import { describe, expect, it } from 'vitest'
 
 import { sendRequest } from './sendRequest'
 
-const createEchoServerOnAnyPort = (): { address: string; port: number } => {
+const createEchoServerOnAnyPort = (): number => {
   const { listen } = createEchoServer()
   const instance = listen(0)
 
-  return instance.address()
+  return Number((instance.address() as AddressInfo).port)
 }
 
 describe('sendRequest', () => {
   it('sends requests', async () => {
-    const { port } = createEchoServerOnAnyPort()
+    const port = createEchoServerOnAnyPort()
 
     const request = {
       url: `http://127.0.0.1:${port}`,
@@ -27,7 +28,7 @@ describe('sendRequest', () => {
   })
 
   it('replaces variables', async () => {
-    const { port } = createEchoServerOnAnyPort()
+    const port = createEchoServerOnAnyPort()
 
     const request = {
       url: `http://127.0.0.1:${port}`,
@@ -49,7 +50,7 @@ describe('sendRequest', () => {
   })
 
   it('sends query parameters', async () => {
-    const { port } = createEchoServerOnAnyPort()
+    const port = createEchoServerOnAnyPort()
 
     const request = {
       url: `http://127.0.0.1:${port}`,
@@ -69,7 +70,7 @@ describe('sendRequest', () => {
   })
 
   it.todo('merges query parameters', async () => {
-    const { port } = createEchoServerOnAnyPort()
+    const port = createEchoServerOnAnyPort()
 
     const request = {
       url: `http://127.0.0.1:${port}?example=parameter`,
