@@ -363,7 +363,8 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   align-items: center;
   cursor: pointer;
   white-space: nowrap;
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  box-shadow: 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
   margin-left: 12px;
   border-radius: var(--theme-radius, var(--default-theme-radius));
   user-select: none;
