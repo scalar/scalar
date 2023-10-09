@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 0.6.20
+
+### Patch Changes
+
+- 37353dd1: feat: add `data-proxy-url` to the HTML API
+- Updated dependencies [37353dd1]
+  - @scalar/api-reference@0.6.20
+
 ## 0.6.19
 
 ### Patch Changes

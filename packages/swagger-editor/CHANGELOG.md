@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.6.18
+
+### Patch Changes
+
+- a7f776ba: fix: restore content from local storage
+
 ## 0.6.17
 
 ### Patch Changes
