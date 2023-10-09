@@ -220,10 +220,13 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   font-size: var(--theme-micro, var(--default-theme-micro));
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-radius: 3px;
-  padding: 10px 12px;
+  padding: 11px 12px;
   user-select: none;
   min-height: 38px;
   width: 100%;
+}
+.check:focus-within {
+  border-color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .check p {
   color: var(--theme-color-2, var(--default-theme-color-2));
