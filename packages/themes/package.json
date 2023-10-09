@@ -48,7 +48,7 @@
   "scripts": {
     "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
     "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
+    "types:check": "vue-tsc --noEmit --skipLibCheck"
   },
   "type": "module"
 }
