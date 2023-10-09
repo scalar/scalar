@@ -1,6 +1,10 @@
 import { generateResponseContent } from './generateResponseContent'
 
-export const getExampleResponses = (responses: Record<string, any>) => {
+export const getExampleResponses = (responses?: Record<string, any> | null) => {
+  if (!responses) {
+    return
+  }
+
   const exampleResponses: Record<string, any> = {}
 
   Object.keys(responses).forEach((responseCode) => {
