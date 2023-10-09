@@ -163,7 +163,7 @@ const useExample = () => {
 .swagger-editor-buttons {
   display: flex;
   justify-content: space-between;
-  padding: 0 12px 0 18px;
+  padding: 0 12px 0 21px;
   height: 35px;
   min-height: 35px;
   align-items: center;
