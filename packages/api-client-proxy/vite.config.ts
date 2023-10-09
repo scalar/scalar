@@ -3,9 +3,6 @@ import { defineConfig } from 'vitest/config'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  define: {
-    __VERSION__: process.env.npm_package_version,
-  },
   build: {
     lib: {
       entry: 'src/index.ts',

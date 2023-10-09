@@ -1,6 +1,8 @@
 import cors from 'cors'
 import Express from 'express'
 
+import { version } from '../package.json'
+
 export const createApiClientProxy = () => {
   const app = Express()
 
@@ -89,6 +91,6 @@ export const createApiClientProxy = () => {
     app: app as Express.Express,
     listen: listen as (port: number | string, callback?: () => void) => void,
     /** Current proxy version */
-    version: __VERSION__,
+    version,
   }
 }
