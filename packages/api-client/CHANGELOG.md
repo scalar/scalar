@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 0.7.14
+
+### Patch Changes
+
+- eb0c3201: Lot's of small things + bigger temp fix for the multi content cards
+- Updated dependencies [eb0c3201]
+  - @scalar/themes@0.3.9
+
 ## 0.7.13
 
 ### Patch Changes

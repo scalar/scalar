@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 0.6.19
+
+### Patch Changes
+
+- eb0c3201: Lot's of small things + bigger temp fix for the multi content cards
+- Updated dependencies [eb0c3201]
+  - @scalar/swagger-editor@0.6.17
+  - @scalar/api-client@0.7.14
+  - @scalar/themes@0.3.9
+
 ## 0.6.18
 
 ### Patch Changes

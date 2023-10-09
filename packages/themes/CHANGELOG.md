@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.3.9
+
+### Patch Changes
+
+- eb0c3201: Lot's of small things + bigger temp fix for the multi content cards
+
 ## 0.3.8
 
 ### Patch Changes
