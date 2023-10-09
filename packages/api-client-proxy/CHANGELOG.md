@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.3
+
+### Patch Changes
+
+- 8a47ee7f: feat: expose proxy version to developers
+
 ## 0.5.2
 
 ### Patch Changes
