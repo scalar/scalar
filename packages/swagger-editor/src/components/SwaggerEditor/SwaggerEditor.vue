@@ -66,8 +66,7 @@ onMounted(async () => {
     return
   }
 
-  await nextTick()
-  importHandler(previousContent)
+  currentExample.value = previousContent
 })
 
 const handleAwarenessUpdate = (states: StatesArray) => {
