@@ -67,7 +67,11 @@ Making requests to other domains is restricted in the browser and requires [CORS
 <ApiReference proxyUrl="https://proxy.example.com" />
 ```
 
-ℹ️ You can use [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy) to host your own proxy.
+ℹ️ You can use [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy) to host your own proxy or you can just use ours:
+
+```vue
+<ApiReference proxyUrl="https://api.scalar.com/request-proxy" />
+```
 
 #### initialTabState?: string
 
