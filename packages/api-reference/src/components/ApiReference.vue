@@ -927,8 +927,6 @@ const breadCrumbs = computed(() => {
       --scalar-api-reference-theme-header-height,
       var(--default-scalar-api-reference-theme-header-height)
     );
-    border-bottom: 1px solid
-      var(--theme-border-color, var(--default-theme-border-color));
 
     width: 100%;
     z-index: 10;

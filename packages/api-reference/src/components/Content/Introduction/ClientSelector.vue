@@ -181,7 +181,7 @@ function checkIfClientIsFeatured(client: SelectedClient) {
         </template>
         <template v-else>
           <svg
-            class="code-languages-icon code-languages-icon__more"
+            class="code-languages-icon"
             height="50"
             viewBox="0 0 50 50"
             width="50"

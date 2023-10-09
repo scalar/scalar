@@ -52,8 +52,10 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
         </Card>
 
         <Card>
-          <CardHeader>Client Libraries</CardHeader>
-          <CardContent frameless>
+          <CardHeader transparent>Client Libraries</CardHeader>
+          <CardContent
+            frameless
+            transparent>
             <ClientSelector />
           </CardContent>
           <CardFooter
