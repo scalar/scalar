@@ -212,11 +212,6 @@ defineExpose({
   display: flex;
   align-items: stretch;
 }
-@media screen and (max-width: 720px) {
-  .scalar-api-client__codemirror__wrapper {
-    width: calc(100% - 50px);
-  }
-}
 .scalar-api-client__codemirror {
   flex-grow: 1;
   max-width: 100%;
