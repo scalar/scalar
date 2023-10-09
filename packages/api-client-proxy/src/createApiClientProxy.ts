@@ -88,5 +88,7 @@ export const createApiClientProxy = () => {
   return {
     app: app as Express.Express,
     listen: listen as (port: number | string, callback?: () => void) => void,
+    /** Current proxy version */
+    version: __VERSION__,
   }
 }

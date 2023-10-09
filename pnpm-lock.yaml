@@ -156,6 +156,9 @@ importers:
       '@scalar/echo-server':
         specifier: workspace:*
         version: link:../echo-server
+      '@types/node':
+        specifier: 20.6.3
+        version: 20.6.3
       '@vitest/coverage-v8':
         specifier: 0.34.4
         version: 0.34.4(vitest@0.34.4)
@@ -4820,7 +4823,7 @@ packages:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.3.4
-      vue-component-type-helpers: 1.8.15
+      vue-component-type-helpers: 1.8.18
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -4936,7 +4939,7 @@ packages:
   /@types/cors@2.8.13:
     resolution: {integrity: sha512-RG8AStHlUiV5ysZQKq97copd2UmVYw3/pRMLefISZ3S1hK104Cwm7iLQ3fTKx+lsUH2CE8FlLaYeEA2LSeqYUA==}
     dependencies:
-      '@types/node': 20.3.1
+      '@types/node': 20.6.3
     dev: false
 
   /@types/cross-spawn@6.0.3:
@@ -5094,10 +5097,6 @@ packages:
   /@types/node@16.18.53:
     resolution: {integrity: sha512-vVmHeo4tpF8zsknALU90Hh24VueYdu45ZlXzYWFbom61YR4avJqTFDC3QlWzjuTdAv6/3xHaxiO9NrtVZXrkmw==}
     dev: true
-
-  /@types/node@20.3.1:
-    resolution: {integrity: sha512-EhcH/wvidPy1WeML3TtYFGR83UzjxeWRen9V402T8aUGYsCHOmfoisV3ZSg03gAFIbLq8TnWOJ0f4cALtnSEUg==}
-    dev: false
 
   /@types/node@20.6.3:
     resolution: {integrity: sha512-HksnYH4Ljr4VQgEy2lTStbCKv/P590tmPe5HqOnv9Gprffgv5WXAY+Y5Gqniu0GGqeTCUdBnzC3QSrzPkBkAMA==}
@@ -13694,8 +13693,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /vue-component-type-helpers@1.8.15:
-    resolution: {integrity: sha512-RKiPRKW4BdwgmQ9vaNkHYKAThdTbgU4TOphVyyzqxRwsOJOoRIrb+vB49XLvs5CKPNrvxMXZMwPe5FyJCqFWyg==}
+  /vue-component-type-helpers@1.8.18:
+    resolution: {integrity: sha512-SklLIg782E5Ff0qdE68AUrRBhT2YGW97edBewNEjCWCw+RSETcGOjA8m1/6T68CXkymWBSk+KDpPXqIGthqCDg==}
     dev: true
 
   /vue-demi@0.14.6(vue@3.3.4):
