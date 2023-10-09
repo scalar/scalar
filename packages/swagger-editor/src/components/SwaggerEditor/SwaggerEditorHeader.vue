@@ -67,7 +67,7 @@ const useExample = () => {
         'swagger-editor-active': activeTab === 'Swagger Editor',
       }"
       @click="emit('updateActiveTab', 'Swagger Editor')">
-      <div class="swagger-editor-type"><i>Swagger </i>Editor</div>
+      <div class="swagger-editor-type">Swagger Editor</div>
     </div>
   </div>
   <div
@@ -211,16 +211,6 @@ const useExample = () => {
   cursor: pointer;
   border-color: currentColor;
   background: var(--theme-background-2, var(--default-theme-background-2));
-}
-@media (max-width: 580px) {
-  .swagger-editor-title i,
-  .swagger-editor-header button i {
-    display: none;
-  }
-  .swagger-editor-header button {
-    padding: 4px 8px;
-    margin-left: 6px;
-  }
 }
 .swagger-editor-heading {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
