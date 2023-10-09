@@ -216,4 +216,10 @@ const activeTab = ref<EditorHeaderTabs>(
       var(--theme-border-color, var(--default-theme-border-color)),
     -1px 0 0 0 var(--theme-background-1, var(--default-theme-background-1));
 }
+@media screen and (max-width: 1000px) {
+  .swagger-editor {
+    border-right: none;
+    box-shadow: none;
+  }
+}
 </style>
