@@ -73,7 +73,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck"
+    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
   },
   "type": "module"
 }
