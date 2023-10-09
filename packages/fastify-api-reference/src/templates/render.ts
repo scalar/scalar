@@ -27,7 +27,7 @@ const getSpecUrl = () => {
     }
   }
 
-  return null
+  return undefined
 }
 
 const getSpec = () => {
@@ -52,7 +52,20 @@ const getSpec = () => {
     }
   }
 
-  return null
+  return undefined
+}
+
+const getProxyUrl = () => {
+  // <script id="api-reference" data-proxy-url="https://api.scalar.com/request-proxy">…</script>
+  if (specScriptTag) {
+    const proxyUrl = specScriptTag.getAttribute('data-proxy-url')
+
+    if (proxyUrl) {
+      return proxyUrl.trim()
+    }
+  }
+
+  return undefined
 }
 
 if (!specUrlElement && !specElement && !specScriptTag) {
@@ -61,7 +74,7 @@ if (!specUrlElement && !specElement && !specScriptTag) {
     'font-family: monospace;',
   )
 } else {
-  const properties = getSpec()
+  const specOrSpecUrl = getSpec()
     ? {
         spec: getSpec(),
       }
@@ -73,19 +86,20 @@ if (!specUrlElement && !specElement && !specScriptTag) {
 
   // If it’s a script tag, we can’t mount the Vue.js app inside that tag.
   // We need to add a new container div before the script tag.
+  let container: HTMLElement | string | null = null
   if (specScriptTag) {
-    const container = document.createElement('div')
-
+    container = document.createElement('div')
     specScriptTag?.parentNode?.insertBefore(container, specScriptTag)
-
-    createApp(ApiReference, properties).mount(container)
   } else {
-    const container = specElement
+    container = specElement
       ? '[data-spec]'
       : specUrlElement
       ? '[data-spec-url]'
       : 'body'
-
-    createApp(ApiReference, properties).mount(container)
   }
+
+  createApp(ApiReference, {
+    ...specOrSpecUrl,
+    proxyUrl: getProxyUrl(),
+  }).mount(container)
 }

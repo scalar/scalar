@@ -75,6 +75,17 @@ You can also use the following syntax to directly pass an OpenAPI spec:
 </script>
 ```
 
+If you’d like to add a request proxy for the API client (to avoid CORS issues):
+
+```html
+<script
+  id="api-reference"
+  type="application/json"
+  data-proxy-url="https://api.scalar.com/request-proxy">
+  { … }
+</script>
+```
+
 ### With Vue.js
 
 The API Reference is built in Vue.js. If you’re working in Vue.js, too, you can directly use our Vue components. Just install them:
