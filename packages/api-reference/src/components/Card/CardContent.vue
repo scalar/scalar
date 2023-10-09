@@ -4,12 +4,14 @@ withDefaults(
     muted?: boolean
     contrast?: boolean
     frameless?: boolean
+    transparent?: boolean
     borderless?: boolean
   }>(),
   {
     muted: false,
     contrast: false,
     frameless: false,
+    transparent: false,
     borderless: false,
   },
 )
@@ -21,6 +23,7 @@ withDefaults(
       'card--muted': muted,
       'card--contrast': contrast,
       'card--frameless': frameless,
+      'card--transparent': transparent,
       'card--borderless': borderless,
     }">
     <slot />
@@ -48,5 +51,8 @@ withDefaults(
 }
 .card--frameless {
   padding: 0;
+}
+.card--transparent {
+  background: var(--theme-background-1, var(--default-theme-background-1));
 }
 </style>
