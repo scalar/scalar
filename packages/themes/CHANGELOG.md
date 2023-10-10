@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.4.0
+
+### Minor Changes
+
+- fd38deb0: Add mobile menu and breadcrumbs
+
 ## 0.3.11
 
 ### Patch Changes

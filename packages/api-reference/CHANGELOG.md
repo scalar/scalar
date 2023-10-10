@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 0.7.0
+
+### Minor Changes
+
+- fd38deb0: Add mobile menu and breadcrumbs
+
+### Patch Changes
+
+- Updated dependencies [fd38deb0]
+  - @scalar/themes@0.4.0
+  - @scalar/api-client@0.7.17
+  - @scalar/swagger-editor@0.6.21
+
 ## 0.6.23
 
 ### Patch Changes
