@@ -159,12 +159,12 @@ const showCodeEditor = computed(() => {
 // Navigational breadcrumb text from reference info
 const breadCrumbs = computed(() => {
   const operations = transformedSpec.tags
-    .map((t) => t.operations.flatMap((o) => ({ ...o, tag: t.name })))
+    .map((t) => (t.operations || []).flatMap((o) => ({ ...o, tag: t.name })))
     .flat()
 
   const op = operations.find((o) => o.operationId === state.activeSidebar)
 
-  return op ? `${op.tag.toUpperCase()} / ${op.name}` : 'None'
+  return op ? `${op.tag.toUpperCase()} / ${op.name}` : ''
 })
 </script>
 <template>
