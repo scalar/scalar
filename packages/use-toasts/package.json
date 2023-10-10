@@ -1,7 +1,7 @@
 {
   "name": "@scalar/use-toasts",
   "description": "display toasts in Vue",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {

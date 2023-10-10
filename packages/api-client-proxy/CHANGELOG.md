@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.5
+
+### Patch Changes
+
+- af4ec8d3: update discord links
+
 ## 0.5.4
 
 ### Patch Changes

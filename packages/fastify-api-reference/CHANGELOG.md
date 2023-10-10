@@ -1,5 +1,18 @@
 # @scalar/fastify-api-reference
 
+## 0.6.23
+
+### Patch Changes
+
+- af4ec8d3: update discord links
+- 749f2f3f: fix: initial swagger editor content is parsed
+- Updated dependencies [af4ec8d3]
+- Updated dependencies [e643b56e]
+- Updated dependencies [c6ac9ff4]
+- Updated dependencies [749f2f3f]
+- Updated dependencies [91b09499]
+  - @scalar/api-reference@0.6.23
+
 ## 0.6.22
 
 ### Patch Changes

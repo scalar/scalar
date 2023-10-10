@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.3.11
+
+### Patch Changes
+
+- af4ec8d3: update discord links
+
 ## 0.3.10
 
 ### Patch Changes
