@@ -2,4 +2,4 @@
 '@scalar/api-reference': patch
 ---
 
-export searchmodal component
+feat: export SearchModal component
