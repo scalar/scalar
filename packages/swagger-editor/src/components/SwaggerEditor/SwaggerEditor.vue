@@ -112,7 +112,7 @@ watch(
   async () => {
     if (props.value) {
       await nextTick()
-      importHandler(props.value)
+      handleContentUpdate(props.value)
     }
   },
   { immediate: true },
@@ -137,7 +137,7 @@ const activeTab = ref<EditorHeaderTabs>(
       v-if="activeTab === 'Swagger Editor'"
       ref="codeMirrorReference"
       :hocuspocusConfiguration="hocuspocusConfiguration"
-      :value="currentExample ?? undefined"
+      :value="currentExample ?? props.value ?? ''"
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
     <SwaggerEditorStatusBar
