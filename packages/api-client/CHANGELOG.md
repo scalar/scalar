@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 0.7.17
+
+### Patch Changes
+
+- Updated dependencies [fd38deb0]
+  - @scalar/themes@0.4.0
+
 ## 0.7.16
 
 ### Patch Changes
