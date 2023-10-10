@@ -15,7 +15,7 @@ const {
       :label="templateState.showMobileDrawer ? 'Close Menu' : 'Open Menu'"
       width="20px"
       @click="() => toggleTemplateItem('showMobileDrawer')" />
-    <span class="references-mobile-breadcrumbs"><slot />PET / Fix this</span>
+    <span class="references-mobile-breadcrumbs"><slot /></span>
 
     <FlowIconButton
       icon="Search"
