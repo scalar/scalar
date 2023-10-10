@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 0.6.22
+
+### Patch Changes
+
+- d4789991: fix: populate search fuse data immediately
+
 ## 0.6.21
 
 ### Patch Changes
