@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 0.7.15
+
+### Patch Changes
+
+- 33604a1b: chore: fix types
+- 1cbcabd7: lots of amazing fixes from when we missed last patch
+- Updated dependencies [1cbcabd7]
+  - @scalar/use-keyboard-event@0.5.2
+  - @scalar/use-codemirror@0.7.7
+  - @scalar/use-modal@0.1.4
+  - @scalar/themes@0.3.10
+
 ## 0.7.14
 
 ### Patch Changes

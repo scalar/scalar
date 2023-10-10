@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.1.4
+
+### Patch Changes
+
+- 1cbcabd7: lots of amazing fixes from when we missed last patch
+
 ## 0.1.3
 
 ### Patch Changes
