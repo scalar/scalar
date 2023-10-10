@@ -170,7 +170,11 @@ const breadCrumbs = computed(() => {
     .map((t) => (t.operations || []).flatMap((o) => ({ ...o, tag: t.name })))
     .flat()
 
-  const op = operations.find((o) => o.operationId === state.activeSidebar)
+  const op = operations.find((o) => {
+    return `${o.httpVerb}-${o.operationId}` === state.activeSidebar
+  })
+
+  console.log(op, operations, state.activeSidebar)
 
   return op ? `${op.tag.toUpperCase()} / ${op.name}` : ''
 })
@@ -211,8 +215,13 @@ const breadCrumbs = computed(() => {
         </MobileHeader>
       </slot>
       <!-- Primary sidebar content -->
+      <!-- Sorry for the terrible v-if - this is so we only manage the menu state if theres no external mobile header being injected to manage it otherwise -->
       <div
-        v-if="isMobile ? showSidebar && showMobileDrawer : showSidebar"
+        v-if="
+          isMobile && !$slots['mobile-header']
+            ? showSidebar && showMobileDrawer
+            : showSidebar
+        "
         class="layout-aside-content">
         <slot
           v-if="isMobile"
@@ -780,15 +789,13 @@ const breadCrumbs = computed(() => {
     var(--default-scalar-api-reference-theme-header-height)
   ); */
   /* height: calc(var(--full-height) - var(--scalar-api-reference-theme-header-height)); */
+  height: 100%;
   background: var(
     --sidebar-background-1,
     var(
       --default-sidebar-background-1,
       var(--theme-background-1, var(--default-theme-background-1))
     )
-  );
-  height: calc(
-    var(--full-height) - var(--scalar-api-reference-theme-header-height)
   );
   overflow-y: auto;
   display: flex;
