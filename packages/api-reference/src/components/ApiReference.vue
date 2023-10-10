@@ -37,6 +37,7 @@ const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
 )
 
 const specRef = ref<string>(props.spec ?? '')
+
 watch(
   () => props.spec,
   () => {
@@ -44,6 +45,7 @@ watch(
       specRef.value = props.spec
     }
   },
+  { immediate: true },
 )
 
 const fetchSpecUrl = () => {
