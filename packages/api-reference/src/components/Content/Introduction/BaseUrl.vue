@@ -2,11 +2,10 @@
 import { useClipboard } from '@scalar/use-clipboard'
 import { computed } from 'vue'
 
+import { type Server } from '../../../types'
+
 const props = defineProps<{
-  server?: {
-    url: string
-    description?: string
-  }
+  server?: Server
 }>()
 
 const { copyToClipboard } = useClipboard()

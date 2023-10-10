@@ -106,9 +106,14 @@ const transformedSpec = reactive<Spec>({
   tags: [],
 })
 
-// @ts-ignore
-const handleSpecUpdate = (newSpec) => {
-  Object.assign(transformedSpec, newSpec)
+// TODO: proper types
+const handleSpecUpdate = (newSpec: any) => {
+  Object.assign(transformedSpec, {
+    // Some specs don’t have servers or tags, make sure they are defined
+    servers: [],
+    tags: [],
+    ...newSpec,
+  })
 
   if (!state.activeSidebar) {
     toggleCollapsedSidebarItem(transformedSpec.tags[0].name)
