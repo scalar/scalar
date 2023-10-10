@@ -31,10 +31,12 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
           </template>
           <!-- @vue-ignore -->
           <template
-            v-for="index in [...Array(8).keys()]"
-            v-else
-            :key="index">
-            <span class="loading" />
+            v-if="!info.title && !info.description && !info?.operations">
+            <template
+              v-for="index in [...Array(8).keys()]"
+              :key="index">
+              <span class="loading" />
+            </template>
           </template>
         </p>
       </div>
