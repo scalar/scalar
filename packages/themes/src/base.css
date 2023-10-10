@@ -2,7 +2,6 @@
 @import url('https://fonts.googleapis.com/css?family=JetBrains%20Mono');
 
 :root {
-  --default-app-header-height: 50px;
   --default-theme-border-width: 1px;
   --default-theme-radius: 3px;
   --default-theme-radius-lg: 6px;
@@ -49,17 +48,6 @@
 
   --default-theme-font-medium: 500;
   --default-theme-font-bold: 700;
-
-  /* let's clean these up please :) */
-  --default-scalar-api-reference-theme-header-height: 0px;
-  --default-scalar-api-reference-theme-sidebar-width: 250px;
-  --default-scalar-api-reference-theme-toc-width: 250px;
-  --default-scalar-api-reference-app-header-height: 100px;
-  --default-scalar-api-reference-col-width-1: 250px;
-  --default-scalar-api-reference-col-width-2: calc(50% - 125px);
-  --default-scalar-api-reference-col-width-3: calc(50% - 125px);
-  --default-scalar-api-reference-document-height: 100vh;
-  --default-scalar-api-reference-full-height: 100%;
 }
 
 @media (max-width: 460px) {
