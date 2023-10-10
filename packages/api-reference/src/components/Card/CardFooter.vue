@@ -8,7 +8,6 @@ import CardContent from './CardContent.vue'
 </template>
 <style scoped>
 .card-footer {
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+  flex-shrink: 0;
 }
 </style>

@@ -168,6 +168,7 @@ const formattedPath = computed(() => {
     </CardHeader>
     <CardContent
       borderless
+      class="custom-scroll"
       frameless>
       <!-- @vue-ignore -->
       <CodeMirror
@@ -177,7 +178,9 @@ const formattedPath = computed(() => {
         lineNumbers
         readOnly />
     </CardContent>
-    <CardFooter contrast>
+    <CardFooter
+      class="card-footer"
+      contrast>
       <button
         class="show-api-client-button"
         :class="`show-api-client-button--${operation.httpVerb}`"
@@ -290,6 +293,14 @@ const formattedPath = computed(() => {
   align-items: center;
   height: fit-content;
 }
+/* Can't use flex align center on parent (card-header-actions) so have to match sibling font size vertically align*/
+.copy-button:after {
+  content: '.';
+  color: transparent;
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  line-height: 1.35;
+  width: 0px;
+}
 .copy-button:hover {
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
@@ -373,6 +384,5 @@ const formattedPath = computed(() => {
 }
 .card-header-actions {
   display: flex;
-  align-items: center;
 }
 </style>

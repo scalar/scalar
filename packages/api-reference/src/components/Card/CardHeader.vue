@@ -18,8 +18,8 @@ import CardContent from './CardContent.vue'
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-color-3, var(--default-theme-color-3));
+  flex-shrink: 0;
 }
-
 .card-header-slots {
   display: flex;
   justify-content: space-between;

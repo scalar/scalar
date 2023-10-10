@@ -10,5 +10,8 @@
   overflow: hidden;
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   background: var(--theme-background-2, var(--default-theme-background-2));
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 220px);
 }
 </style>
