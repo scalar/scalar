@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 0.5.4
+
+### Patch Changes
+
+- af4ec8d3: update discord links
+
 ## 0.5.3
 
 ### Patch Changes

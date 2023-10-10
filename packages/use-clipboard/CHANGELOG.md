@@ -1,5 +1,13 @@
 # @scalar/use-clipboard
 
+## 0.5.5
+
+### Patch Changes
+
+- af4ec8d3: update discord links
+- Updated dependencies [af4ec8d3]
+  - @scalar/use-toasts@0.5.5
+
 ## 0.5.4
 
 ### Patch Changes

@@ -1,5 +1,26 @@
 # @scalar/api-reference
 
+## 0.6.23
+
+### Patch Changes
+
+- af4ec8d3: update discord links
+- e643b56e: Fix incorrectly named css variables
+- c6ac9ff4: fix search modal reactivity
+- 749f2f3f: fix: initial swagger editor content is parsed
+- 91b09499: Fix breadcrums throwing error for specs without operations in tags
+- Updated dependencies [af4ec8d3]
+- Updated dependencies [749f2f3f]
+  - @scalar/use-keyboard-event@0.5.3
+  - @scalar/swagger-editor@0.6.20
+  - @scalar/swagger-parser@0.5.3
+  - @scalar/use-codemirror@0.7.8
+  - @scalar/use-clipboard@0.5.5
+  - @scalar/use-tooltip@0.5.4
+  - @scalar/api-client@0.7.16
+  - @scalar/use-toasts@0.5.5
+  - @scalar/themes@0.3.11
+
 ## 0.6.22
 
 ### Patch Changes

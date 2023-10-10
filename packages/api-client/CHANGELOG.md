@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 0.7.16
+
+### Patch Changes
+
+- af4ec8d3: update discord links
+- Updated dependencies [af4ec8d3]
+  - @scalar/use-keyboard-event@0.5.3
+  - @scalar/use-codemirror@0.7.8
+  - @scalar/themes@0.3.11
+
 ## 0.7.15
 
 ### Patch Changes

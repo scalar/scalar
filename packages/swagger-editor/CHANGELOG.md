@@ -1,5 +1,16 @@
 # @scalar/swagger-editor
 
+## 0.6.20
+
+### Patch Changes
+
+- af4ec8d3: update discord links
+- 749f2f3f: fix: initial swagger editor content is parsed
+- Updated dependencies [af4ec8d3]
+  - @scalar/swagger-parser@0.5.3
+  - @scalar/use-codemirror@0.7.8
+  - @scalar/themes@0.3.11
+
 ## 0.6.19
 
 ### Patch Changes
