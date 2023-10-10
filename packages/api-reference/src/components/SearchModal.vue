@@ -83,53 +83,56 @@ async function openSearchResult(entry: Fuse.FuseResult<FuseData>) {
   const element = document.getElementById(elementId)
   element?.scrollIntoView()
 }
+watch(
+  reactiveSpec,
+  () => {
+    fuseDataArray = []
 
-watch(reactiveSpec.value, () => {
-  fuseDataArray = []
-
-  if (!props.spec.tags.length) {
-    fuse.setCollection([])
-    return
-  }
-
-  // TODO: We need to go through the operations, not the tags. Spec files can have zero tags.
-  props.spec.tags.forEach((tag) => {
-    const tagData = {
-      title: tag.name,
-      description: tag.description,
-      tag: tag.name,
-      body: '',
+    if (!props.spec.tags.length) {
+      fuse.setCollection([])
+      return
     }
-    fuseDataArray.push(tagData)
 
-    if (tag.operations) {
-      tag.operations.forEach((operation) => {
-        const { parameterMap } = useOperation({ operation })
-        const bodyData = extractRequestBody(operation) || parameterMap.value
-        let body = null
-        if (typeof bodyData !== 'boolean') {
-          body = bodyData
-        }
-        const operationData: FuseData = {
-          title: operation.name,
-          operationId: operation.operationId,
-          description: operation.description,
-          httpVerb: operation.httpVerb,
-          path: operation.path,
-          tag: tag.name,
-        }
+    // TODO: We need to go through the operations, not the tags. Spec files can have zero tags.
+    props.spec.tags.forEach((tag) => {
+      const tagData = {
+        title: tag.name,
+        description: tag.description,
+        tag: tag.name,
+        body: '',
+      }
+      fuseDataArray.push(tagData)
 
-        if (body) {
-          operationData.body = body
-        }
+      if (tag.operations) {
+        tag.operations.forEach((operation) => {
+          const { parameterMap } = useOperation({ operation })
+          const bodyData = extractRequestBody(operation) || parameterMap.value
+          let body = null
+          if (typeof bodyData !== 'boolean') {
+            body = bodyData
+          }
+          const operationData: FuseData = {
+            title: operation.name,
+            operationId: operation.operationId,
+            description: operation.description,
+            httpVerb: operation.httpVerb,
+            path: operation.path,
+            tag: tag.name,
+          }
 
-        fuseDataArray.push(operationData)
-      })
-    }
-  })
+          if (body) {
+            operationData.body = body
+          }
 
-  fuse.setCollection(fuseDataArray)
-})
+          fuseDataArray.push(operationData)
+        })
+      }
+    })
+
+    fuse.setCollection(fuseDataArray)
+  },
+  { immediate: true },
+)
 
 useKeyboardEvent({
   element: searchModalRef,
