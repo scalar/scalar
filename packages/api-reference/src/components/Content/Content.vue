@@ -83,7 +83,7 @@ const localServers = computed(() => {
             v-if="index === 0 || templateState.collapsedSidebarItems[tag.name]">
             <ReferenceEndpoint
               v-for="operation in tag.operations"
-              :key="operation.operationId"
+              :key="`${operation.httpVerb}-${operation.operationId}`"
               :operation="operation"
               :parentTag="tag"
               :server="localServers[0]" />

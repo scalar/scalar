@@ -12,7 +12,7 @@ defineProps<{
 </script>
 <template>
   <div
-    :id="`endpoint/${operation.operationId}`"
+    :id="`endpoint/${operation.httpVerb}-${operation.operationId}`"
     class="reference-container">
     <Copy
       :operation="operation"

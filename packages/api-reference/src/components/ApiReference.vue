@@ -117,7 +117,8 @@ const handleSpecUpdate = (newSpec: any) => {
 
   if (!state.activeSidebar) {
     toggleCollapsedSidebarItem(transformedSpec.tags[0].name)
-    setActiveSidebar(transformedSpec.tags[0].operations[0].operationId)
+    const { httpVerb, operationId } = transformedSpec.tags[0].operations[0]
+    setActiveSidebar(`${httpVerb}-${operationId}`)
   }
 }
 

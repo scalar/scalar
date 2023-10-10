@@ -66,6 +66,7 @@ watch(
 async function openSearchResult(entry: Fuse.FuseResult<FuseData>) {
   const tag = entry.item.tag
   const operation = entry.item.operationId
+  const httpVerb = entry.item.httpVerb
 
   if (!tag) {
     return
@@ -76,7 +77,9 @@ async function openSearchResult(entry: Fuse.FuseResult<FuseData>) {
   modalState.hide()
   await nextTick()
 
-  const elementId = operation ? `endpoint/${operation}` : `tag/${tag}`
+  const elementId = operation
+    ? `endpoint/${httpVerb}-${operation}`
+    : `tag/${tag}`
   const element = document.getElementById(elementId)
   element?.scrollIntoView()
 }
