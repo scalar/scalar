@@ -53,10 +53,14 @@ export const generateResponseContent = (schema: Record<string, any>) => {
 
     // Set an example value based on the type
     const exampleValues: Record<string, any> = {
+      // TODO: Need to check the schema and add a default value
       array: [],
       string: '',
       boolean: true,
       integer: 1,
+      number: 0,
+      // TODO: Need to check the schema and add a default value
+      object: {},
     }
 
     if (exampleValues[property.type] !== undefined) {

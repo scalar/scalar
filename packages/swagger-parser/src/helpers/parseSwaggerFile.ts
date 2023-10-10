@@ -116,7 +116,9 @@ const transformResult = (result: OpenAPI.Document<object>): SwaggerSpec => {
             tag.name === 'default',
         )
 
-        if (indexOfDefaultTag && indexOfDefaultTag >= 0) {
+        // Add the new operation to the default tag.
+        // @ts-ignore
+        if (indexOfDefaultTag >= 0) {
           // Add the new operation to the default tag.
           // @ts-ignore
           result.tags[indexOfDefaultTag]?.operations.push(newOperation)
