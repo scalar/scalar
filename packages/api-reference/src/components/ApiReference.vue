@@ -627,12 +627,12 @@ const breadCrumbs = computed(() => {
       )
   );
 
-  --default-col-width-1: var(
+  --default-scalar-api-reference-col-width-1: var(
     --scalar-api-reference-theme-sidebar-width,
     var(--default-scalar-api-reference-theme-sidebar-width)
   );
-  --default-col-width-2: auto;
-  --default-col-width-3: var(
+  --default-scalar-api-reference-col-width-2: auto;
+  --default-scalar-api-reference-col-width-3: var(
     --scalar-api-reference-theme-toc-width,
     var(--default-scalar-api-reference-theme-toc-width)
   );
@@ -668,11 +668,11 @@ const breadCrumbs = computed(() => {
 }
 
 .document.hide-aside-left {
-  --default-col-width-1: 0;
+  --default-scalar-api-reference-col-width-1: 0;
 }
 
 .document.hide-aside-right {
-  --default-col-width-3: 0;
+  --default-scalar-api-reference-col-width-3: 0;
 }
 .document.hide-aside-left .layout-aside-left .layout-aside-content,
 .document.hide-aside-right .layout-aside-right .layout-aside-content {
@@ -800,11 +800,11 @@ const breadCrumbs = computed(() => {
       )
   );
 
-  --default-col-width-1: var(
+  --default-scalar-api-reference-col-width-1: var(
     --scalar-api-reference-theme-sidebar-width,
     var(--default-scalar-api-reference-theme-sidebar-width)
   );
-  --default-col-width-2: calc(
+  --default-scalar-api-reference-col-width-2: calc(
     50% -
       (
         var(
@@ -813,7 +813,7 @@ const breadCrumbs = computed(() => {
           ) / 2
       )
   );
-  --default-col-width-3: calc(
+  --default-scalar-api-reference-col-width-3: calc(
     50% -
       (
         var(
@@ -895,9 +895,9 @@ const breadCrumbs = computed(() => {
 }
 
 .document.layout-swagger-editor.hide-aside-left {
-  --default-col-width-1: 0;
-  --default-col-width-2: 50%;
-  --default-col-width-3: 50%;
+  --default-scalar-api-reference-col-width-1: 0;
+  --default-scalar-api-reference-col-width-2: 50%;
+  --default-scalar-api-reference-col-width-3: 50%;
 }
 
 /* ----------------------------------------------------- */
@@ -905,8 +905,8 @@ const breadCrumbs = computed(() => {
 
 @media (max-width: 1150px) {
   .document.layout-swagger-editor {
-    --default-col-width-3: 0;
-    --default-col-width-2: auto;
+    --default-scalar-api-reference-col-width-3: 0;
+    --default-scalar-api-reference-col-width-2: auto;
   }
 }
 
