@@ -16,6 +16,7 @@ import { useTemplateStore } from '../stores/template'
 import type { ReferenceProps, Spec } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
+import MobileHeader from './MobileHeader.vue'
 import SearchModal from './SearchModal.vue'
 import Sidebar from './Sidebar.vue'
 
@@ -84,6 +85,11 @@ useResizeObserver(documentEl, (entries) => {
 
 const { toggleCollapsedSidebarItem } = useTemplateStore()
 const { state, setActiveSidebar } = useApiClientStore()
+
+const showMobileDrawer = computed(() => {
+  const { state: s } = useTemplateStore()
+  return s.showMobileDrawer
+})
 
 // Handle content updates
 const transformedSpec = reactive<Spec>({
@@ -198,15 +204,20 @@ const breadCrumbs = computed(() => {
       <slot
         v-if="isMobile"
         :label="breadCrumbs"
-        name="mobile-header" />
+        name="mobile-header">
+        <!-- Fallback mobile header -->
+        <MobileHeader>
+          {{ breadCrumbs }}
+        </MobileHeader>
+      </slot>
       <!-- Primary sidebar content -->
       <div
-        v-if="showSidebar && (!isMobile || $slots.header)"
+        v-if="isMobile ? showSidebar && showMobileDrawer : showSidebar"
         class="layout-aside-content">
         <slot
           v-if="isMobile"
           name="header" />
-        <Sidebar :spec="transformedSpec"></Sidebar>
+        <Sidebar :spec="transformedSpec" />
       </div>
     </aside>
     <!-- Swagger file editing -->
@@ -296,7 +307,7 @@ const breadCrumbs = computed(() => {
 
 /* ?? layout stuff */
 :root {
-  --default-scalar-api-reference-theme-header-height: 0;
+  --default-scalar-api-reference-theme-header-height: 0px;
   --default-scalar-api-reference-theme-sidebar-width: 250px;
   --default-scalar-api-reference-theme-toc-width: 300px;
   --default-scalar-api-reference-app-header-height: 100px;
@@ -305,6 +316,12 @@ const breadCrumbs = computed(() => {
   --default-scalar-api-reference-col-width-3: calc(50% - 125px);
   --default-scalar-api-reference-document-height: 100vh;
   --default-scalar-api-reference-full-height: 100%;
+}
+
+@media (max-width: 1000px) {
+  :root {
+    --default-scalar-api-reference-theme-header-height: 50px;
+  }
 }
 
 /** Utilities, how do we deal with them? */
@@ -614,9 +631,6 @@ const breadCrumbs = computed(() => {
     --scalar-api-reference-full-height,
     var(--default-scalar-api-reference-full-height, 100vh)
   );
-  /* --theme-header-height: 50px; */
-  /* --scalar-api-reference-theme-sidebar-width: 200px; */
-  /* --theme-toc-width: 200px; */
 
   --default-document-height: calc(
     var(
@@ -637,6 +651,10 @@ const breadCrumbs = computed(() => {
   --default-scalar-api-reference-col-width-3: var(
     --scalar-api-reference-theme-toc-width,
     var(--default-scalar-api-reference-theme-toc-width)
+  );
+  --scalar-api-reference-theme-header-height: var(
+    --theme-header-height,
+    var(--default-scalar-api-reference-theme-header-height)
   );
 
   display: grid;
@@ -744,7 +762,9 @@ const breadCrumbs = computed(() => {
     --scalar-api-reference-theme-header-height,
     var(--default-scalar-api-reference-theme-header-height)
   );
-  height: calc(var(--full-height) - var(--theme-header-height, 0px));
+  height: calc(
+    var(--full-height) - var(--scalar-api-reference-theme-header-height)
+  );
 }
 
 .layout-aside-right {
@@ -759,7 +779,7 @@ const breadCrumbs = computed(() => {
     --scalar-api-reference-theme-header-height,
     var(--default-scalar-api-reference-theme-header-height)
   ); */
-  /* height: calc(var(--full-height) - var(--theme-header-height, 0px)); */
+  /* height: calc(var(--full-height) - var(--scalar-api-reference-theme-header-height)); */
   background: var(
     --sidebar-background-1,
     var(
@@ -767,7 +787,9 @@ const breadCrumbs = computed(() => {
       var(--theme-background-1, var(--default-theme-background-1))
     )
   );
-  height: calc(var(--full-height) - var(--theme-header-height, 0px));
+  height: calc(
+    var(--full-height) - var(--scalar-api-reference-theme-header-height)
+  );
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -787,7 +809,7 @@ const breadCrumbs = computed(() => {
     var(--default-scalar-api-reference-full-height),
     100vh
   );
-  /* --theme-header-height: 50px; */
+  /* --scalar-api-reference-theme-header-height: 50px; */
   /* --scalar-api-reference-theme-sidebar-width: 200px; */
   /* --theme-toc-width: 200px; */
   max-height: 100vh;
@@ -860,7 +882,9 @@ const breadCrumbs = computed(() => {
     --scalar-api-reference-theme-header-height,
     var(--default-scalar-api-reference-theme-header-height)
   );
-  height: calc(var(--full-height) - var(--theme-header-height, 0px));
+  height: calc(
+    var(--full-height) - var(--scalar-api-reference-theme-header-height)
+  );
 }
 
 .document.preview {
@@ -952,7 +976,7 @@ const breadCrumbs = computed(() => {
       var(
           --scalar-api-reference-document-height,
           var(--default-scalar-api-reference-document-height)
-        ) + 2px
+        ) - var(--scalar-api-reference-theme-header-height) + 2px
     );
 
     border-top: 1px solid
