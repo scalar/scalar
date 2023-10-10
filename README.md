@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/a-numbered-company/api-reference/actions/workflows/ci.yml/badge.svg)](https://github.com/a-numbered-company/api-reference/actions/workflows/ci.yml)
 [![Release](https://github.com/a-numbered-company/api-reference/actions/workflows/release.yml/badge.svg)](https://github.com/a-numbered-company/api-reference/actions/workflows/release.yml)
-[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/mw6FQRPh)
+[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.com/invite/Ve683JXN)
 
 Generate interactive API documentations from Swagger files
 
@@ -167,7 +167,7 @@ We’re using the `default-` prefix for our variables to not overwrite your vari
 
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: https://discord.gg/mw6FQRPh
+We are API nerds. You too? Let’s chat on Discord: https://discord.com/invite/Ve683JXN
 
 ## Other packages
 
