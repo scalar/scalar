@@ -895,22 +895,7 @@ const breadCrumbs = computed(() => {
   .document,
   .document.layout-swagger-editor {
     /** Content area heights are restricted using just the template row defs */
-    grid-template-rows:
-      var(
-        --scalar-api-reference-theme-header-height,
-        var(--default-scalar-api-reference-theme-header-height)
-      )
-      auto
-      auto
-      auto;
-
-    grid-template-columns: 100%;
-
-    grid-template-areas:
-      'sidebar'
-      'content'
-      'aside'
-      'footer';
+    display: block;
   }
 
   .layout-aside-left,
