@@ -58,6 +58,11 @@ useKeyboardEvent({
   withCtrlCmd: true,
   handler: () => setTemplateItem('showSearch', !templateState.showSearch),
 })
+
+const moreThanOneDefaultTag = (tag: Tag) =>
+  props.spec?.tags?.length !== 1 ||
+  tag?.name !== 'default' ||
+  tag?.description !== ''
 </script>
 <template>
   <div class="sidebar">
@@ -68,7 +73,7 @@ useKeyboardEvent({
       <SidebarGroup :level="0">
         <template v-for="tag in spec.tags">
           <SidebarElement
-            v-if="tag.operations?.length > 0"
+            v-if="moreThanOneDefaultTag(tag) && tag.operations?.length > 0"
             :key="tag.name"
             :hasChildren="true"
             :isActive="false"
@@ -101,6 +106,26 @@ useKeyboardEvent({
                 " />
             </SidebarGroup>
           </SidebarElement>
+          <template v-else>
+            <SidebarElement
+              v-for="operation in tag.operations"
+              :key="`${operation.httpVerb}-${operation.operationId}`"
+              :isActive="
+                state.activeSidebar ===
+                `${operation.httpVerb}-${operation.operationId}`
+              "
+              :item="{
+                uid: '',
+                title: operation.name || operation.path,
+                type: 'Page',
+              }"
+              @select="
+                () => {
+                  setCollapsedSidebarItem(tag.name, true)
+                  scrollToEndpoint(operation)
+                }
+              " />
+          </template>
         </template>
       </SidebarGroup>
     </div>
