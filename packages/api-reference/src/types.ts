@@ -154,6 +154,7 @@ export type ExternalDocs = {
 
 export type Server = {
   url: string
+  description?: string
 }
 
 export type Spec = {
