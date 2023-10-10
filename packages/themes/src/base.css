@@ -51,7 +51,7 @@
   --default-theme-font-bold: 700;
 
   /* let's clean these up please :) */
-  --default-scalar-api-reference-theme-header-height: 0;
+  --default-scalar-api-reference-theme-header-height: 0px;
   --default-scalar-api-reference-theme-sidebar-width: 250px;
   --default-scalar-api-reference-theme-toc-width: 250px;
   --default-scalar-api-reference-app-header-height: 100px;

@@ -16,7 +16,7 @@ export type SelectedClient = { targetKey: TargetId; clientKey: string }
 
 type TemplateState = {
   isDark: boolean
-  showSideBar: boolean
+  showMobileDrawer: boolean
   showSearch: boolean
   activeNavState: NavState
   collapsedSidebarItems: Partial<Record<string, boolean>>
@@ -26,7 +26,7 @@ type TemplateState = {
 const defaultTemplateState = (): TemplateState => ({
   isDark: false,
   showSearch: false,
-  showSideBar: true,
+  showMobileDrawer: false,
   activeNavState: NavState.Guide,
   collapsedSidebarItems: {},
   selectedClient: {
