@@ -132,6 +132,7 @@ const changeTab = (index: number) => {
     </div>
     <CardFooter
       v-if="currentResponse?.description"
+      class="card-footer"
       muted>
       <div class="description">
         {{ currentResponse.description }}
@@ -143,6 +144,8 @@ const changeTab = (index: number) => {
 <style scoped>
 .code-copy {
   display: flex;
+  align-items: center;
+  justify-content: center;
   appearance: none;
   -webkit-appearance: none;
   outline: none;
@@ -205,7 +208,6 @@ const changeTab = (index: number) => {
   margin: 6px;
 }
 .card-container {
-  max-height: calc(100vh - 300px);
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .card-container :deep(.cm-scroller) {

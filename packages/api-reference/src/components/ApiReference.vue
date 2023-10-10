@@ -523,6 +523,10 @@ const breadCrumbs = computed(() => {
   top: 12px;
   height: fit-content;
   position: sticky;
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .copy .tag-description a {

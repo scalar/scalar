@@ -146,6 +146,7 @@ watch(
   border-left: 3px solid
     var(--theme-border-color, var(--default-theme-border-color));
   padding-left: 12px;
+  margin: 0;
 }
 
 .markdown :deep(table) {

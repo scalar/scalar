@@ -63,7 +63,7 @@ const isCustom = (t: Toast): t is CustomToast => {
   background: var(--theme-background-1, var(--default-theme-background-1));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   box-shadow: var(--theme-shadow-2, var(--default-theme-shadow-2));
-
+  font-family: var(--theme-font, var(--default-theme-font));
   width: 380px;
 }
 </style>

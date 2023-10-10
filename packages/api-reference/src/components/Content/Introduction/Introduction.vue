@@ -59,7 +59,7 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
             <ClientSelector />
           </CardContent>
           <CardFooter
-            class="font-mono"
+            class="font-mono card-footer"
             muted>
             {{ getTargetTitle(state.selectedClient) }}
             {{ getClientTitle(state.selectedClient) }}
