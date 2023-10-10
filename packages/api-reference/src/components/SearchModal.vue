@@ -84,7 +84,7 @@ async function openSearchResult(entry: Fuse.FuseResult<FuseData>) {
   element?.scrollIntoView()
 }
 watch(
-  reactiveSpec,
+  reactiveSpec.value,
   () => {
     fuseDataArray = []
 
