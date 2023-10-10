@@ -116,9 +116,18 @@ const handleSpecUpdate = (newSpec: any) => {
   })
 
   if (!state.activeSidebar) {
-    toggleCollapsedSidebarItem(transformedSpec.tags[0].name)
-    const { httpVerb, operationId } = transformedSpec.tags[0].operations[0]
-    setActiveSidebar(`${httpVerb}-${operationId}`)
+    const firstTag = transformedSpec.tags[0]
+
+    if (firstTag) {
+      toggleCollapsedSidebarItem(firstTag.name)
+    }
+
+    const firstOperation = transformedSpec.tags[0]?.operations?.[0]
+
+    if (firstOperation) {
+      const { httpVerb, operationId } = firstOperation
+      setActiveSidebar(`${httpVerb}-${operationId}`)
+    }
   }
 }
 
