@@ -12,6 +12,6 @@
   background: var(--theme-background-2, var(--default-theme-background-2));
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 220px);
+  max-height: calc(100vh - 310px);
 }
 </style>
