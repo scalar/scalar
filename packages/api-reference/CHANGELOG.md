@@ -1,5 +1,27 @@
 # @scalar/api-reference
 
+## 0.6.21
+
+### Patch Changes
+
+- ea110ca0: feat: export SearchModal component
+- 1cbcabd7: lots of amazing fixes from when we missed last patch
+- 9d22b4ca: fix: make the base urls reactive
+- 437c4b01: amazing sprint fixes
+- Updated dependencies [33604a1b]
+- Updated dependencies [1cbcabd7]
+- Updated dependencies [d7b12610]
+  - @scalar/swagger-parser@0.5.2
+  - @scalar/api-client@0.7.15
+  - @scalar/use-keyboard-event@0.5.2
+  - @scalar/swagger-editor@0.6.19
+  - @scalar/use-codemirror@0.7.7
+  - @scalar/use-clipboard@0.5.4
+  - @scalar/use-tooltip@0.5.3
+  - @scalar/use-toasts@0.5.4
+  - @scalar/use-modal@0.1.4
+  - @scalar/themes@0.3.10
+
 ## 0.6.20
 
 ### Patch Changes

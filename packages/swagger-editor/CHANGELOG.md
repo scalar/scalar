@@ -1,5 +1,18 @@
 # @scalar/swagger-editor
 
+## 0.6.19
+
+### Patch Changes
+
+- 1cbcabd7: lots of amazing fixes from when we missed last patch
+- Updated dependencies [33604a1b]
+- Updated dependencies [1cbcabd7]
+- Updated dependencies [d7b12610]
+  - @scalar/swagger-parser@0.5.2
+  - @scalar/use-codemirror@0.7.7
+  - @scalar/use-modal@0.1.4
+  - @scalar/themes@0.3.10
+
 ## 0.6.18
 
 ### Patch Changes

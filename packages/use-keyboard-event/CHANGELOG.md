@@ -1,5 +1,11 @@
 # @scalar/use-keyboard-event
 
+## 0.5.2
+
+### Patch Changes
+
+- 1cbcabd7: lots of amazing fixes from when we missed last patch
+
 ## 0.5.1
 
 ### Patch Changes

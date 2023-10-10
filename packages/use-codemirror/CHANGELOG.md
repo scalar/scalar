@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.7
+
+### Patch Changes
+
+- 1cbcabd7: lots of amazing fixes from when we missed last patch
+
 ## 0.7.6
 
 ### Patch Changes

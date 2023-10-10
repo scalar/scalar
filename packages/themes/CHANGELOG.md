@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.3.10
+
+### Patch Changes
+
+- 1cbcabd7: lots of amazing fixes from when we missed last patch
+
 ## 0.3.9
 
 ### Patch Changes

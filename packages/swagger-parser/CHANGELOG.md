@@ -1,5 +1,13 @@
 # @scalar/swagger-parser
 
+## 0.5.2
+
+### Patch Changes
+
+- 33604a1b: chore: fix types
+- 1cbcabd7: lots of amazing fixes from when we missed last patch
+- d7b12610: fix: handle specs without example responses
+
 ## 0.5.1
 
 ### Patch Changes

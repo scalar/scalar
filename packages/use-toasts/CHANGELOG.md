@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.5.4
+
+### Patch Changes
+
+- 1cbcabd7: lots of amazing fixes from when we missed last patch
+
 ## 0.5.3
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 {
   "name": "@scalar/use-keyboard-event",
   "description": "keyboard shortcuts for Vue",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "devDependencies": {
