@@ -9,7 +9,7 @@ const {
 } = useTemplateStore()
 </script>
 <template>
-  <div class="references-mobile-header">
+  <div class="references-mobile-header t-doc__header">
     <FlowIconButton
       :icon="templateState.showMobileDrawer ? 'Close' : 'Menu'"
       :label="templateState.showMobileDrawer ? 'Close Menu' : 'Open Menu'"
@@ -39,9 +39,9 @@ const {
 .references-mobile-breadcrumbs {
   flex: 1;
   min-width: 0;
-  font-size: var(--theme-small);
-  font-weight: var(--theme-semibold);
-  color: var(--header-color-1);
+  font-size: var(--theme-small, var(--default-theme-small));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  color: var(--theme-color-1, var(--default-theme-color-1));
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
