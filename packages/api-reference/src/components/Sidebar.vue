@@ -7,6 +7,7 @@ import {
 } from '@scalar/api-client'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
+import { nextTick } from 'vue'
 
 import { useTemplateStore } from '../stores/template'
 import type { Operation, Spec } from '../types'
@@ -32,12 +33,15 @@ function showItemInClient(operation: Operation) {
   toggleApiClient(item, true)
 }
 
-const scrollToEndpoint = (item: Operation) => {
-  setActiveSidebar(item.operationId)
+async function scrollToEndpoint(item: Operation) {
   if (state.showApiClient) {
     showItemInClient(item)
   }
-  document.getElementById(`endpoint/${item.operationId}`)?.scrollIntoView()
+  document
+    .getElementById(`endpoint/${item.httpVerb}-${item.operationId}`)
+    ?.scrollIntoView()
+  await nextTick()
+  setActiveSidebar(`${item.httpVerb}-${item.operationId}`)
 }
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
@@ -79,8 +83,11 @@ useKeyboardEvent({
             <SidebarGroup :level="0">
               <SidebarElement
                 v-for="operation in tag.operations"
-                :key="operation.operationId"
-                :isActive="state.activeSidebar === operation.operationId"
+                :key="`${operation.httpVerb}-${operation.operationId}`"
+                :isActive="
+                  state.activeSidebar ===
+                  `${operation.httpVerb}-${operation.operationId}`
+                "
                 :item="{
                   uid: '',
                   title: operation.name || operation.path,

@@ -50,7 +50,8 @@ onMounted(() => {
           props.parentTag.name
         }/${encodeURI(slug)}`
         window.history.replaceState({}, '', newUrl)
-        setActiveSidebar(props.operation.operationId)
+        const { httpVerb, operationId } = props.operation
+        setActiveSidebar(`${httpVerb}-${operationId}`)
         setCollapsedSidebarItem(props.parentTag.name, true)
       }
     },

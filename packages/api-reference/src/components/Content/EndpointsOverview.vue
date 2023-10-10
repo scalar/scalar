@@ -16,9 +16,11 @@ const { setActiveSidebar } = useApiClientStore()
 
 const scrollToEndpoint = async (item: Operation) => {
   setCollapsedSidebarItem(props.tag.name, true)
+  document
+    .getElementById(`endpoint/${item.httpVerb}-${item.operationId}`)
+    ?.scrollIntoView()
   await nextTick()
-  setActiveSidebar(item.operationId)
-  document.getElementById(`endpoint/${item.operationId}`)?.scrollIntoView()
+  setActiveSidebar(`${item.httpVerb}-${item.operationId}`)
 }
 
 onMounted(() => {
@@ -74,7 +76,7 @@ onMounted(() => {
           <div class="endpoints custom-scroll">
             <a
               v-for="child in tag.operations"
-              :key="child.operationId"
+              :key="`${child.httpVerb}-${child.operationId}`"
               class="endpoint"
               @click="scrollToEndpoint(child)">
               <span :class="child.httpVerb">{{ child.httpVerb }}</span>
