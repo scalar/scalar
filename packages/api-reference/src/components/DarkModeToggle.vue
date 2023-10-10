@@ -1,14 +1,17 @@
 <script lang="ts" setup>
-import { watchEffect } from 'vue'
+import { onMounted, watchEffect } from 'vue'
 
 import { useDarkModeState } from '../hooks/useDarkModeState'
 import { FlowIcon } from './Icon'
 
 const { toggleDarkMode, isDark } = useDarkModeState()
 
-watchEffect(() => {
-  document.body.classList.toggle('dark-mode', isDark.value)
-  document.body.classList.toggle('light-mode', !isDark.value)
+// todo move to refs so ssg doesnt break
+onMounted(() => {
+  watchEffect(() => {
+    document.body.classList.toggle('dark-mode', isDark.value)
+    document.body.classList.toggle('light-mode', !isDark.value)
+  })
 })
 </script>
 <template>
