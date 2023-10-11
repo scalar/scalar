@@ -37,7 +37,7 @@ export const fetchSpecFromUrl = async (
   // Without proxy
   else {
     console.warn(
-      '[fetchSpecFromUrl] Trying to fetch the spec file without a proxy. The CORS headers have to bet set properly, otherwise the request will fail.',
+      '[fetchSpecFromUrl] Trying to fetch the spec file without a proxy. The CORS headers have to be set properly, otherwise the request will fail.',
     )
     const response = await fetch(url)
     const json = await response.json()
