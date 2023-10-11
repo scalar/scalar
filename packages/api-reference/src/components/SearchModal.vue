@@ -210,31 +210,31 @@ const searchResultsWithPlaceholderResults = computed(
         class="item-entry"
         :class="{
           'item-entry--active': index === selectedSearchResult,
+          'item-entry--tag': !entry.item.httpVerb,
         }"
         type="submit"
         @click="openSearchResult(entry)"
         @focus="selectedSearchResult = index"
         @mouseover="selectedSearchResult = index">
         <div
+          class="item-entry-http-verb"
+          :class="`item-entry-http-verb--${entry.item.httpVerb}`">
+          {{ entry.item.httpVerb }}
+        </div>
+        <div
           v-if="entry.item.title || entry.item.operationId"
           class="item-entry-title">
           {{ entry.item.title || entry.item.operationId }}
         </div>
+
         <div
           v-if="entry.item.httpVerb || entry.item.path"
-          class="item-entry-subtitle">
-          <div
-            class="item-entry-http-verb"
-            :class="`item-entry-http-verb--${entry.item.httpVerb}`">
-            {{ entry.item.httpVerb }}
-          </div>
-          <div class="item-entry-path">
-            {{ entry.item.path }}
-          </div>
+          class="item-entry-path">
+          {{ entry.item.path }}
         </div>
         <div
           v-else-if="entry.item.description"
-          class="item-entry-subtitle">
+          class="item-entry-description">
           {{ entry.item.description }}
         </div>
       </button>
@@ -276,11 +276,14 @@ const searchResultsWithPlaceholderResults = computed(
   text-align: left;
   border-radius: var(--theme-radius, var(--default-theme-radius));
   display: flex;
-  justify-content: center;
-  flex-direction: column;
-  gap: 3px;
+  align-items: center;
   font-family: var(--theme-font);
   min-height: 31px;
+  display: flex;
+  gap: 6px;
+}
+.item-entry-http-verb:empty {
+  display: none;
 }
 .ref-search-list {
   padding: 0 0 12px 12px;
@@ -292,19 +295,42 @@ const searchResultsWithPlaceholderResults = computed(
   background: var(--theme-background-2, var(--default-theme-background-2));
   cursor: pointer;
 }
+
+/** If it’s a tag, let’s put a dash between the tag name and the description and set the margin to the gap size. */
+.item-entry--tag .item-entry-description::before {
+  content: '–';
+  margin-right: 6px;
+}
+.item-entry-description,
 .item-entry-title {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   color: var(--theme-color-1, var(--default-theme-color-1));
   font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
+  white-space: nowrap;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+.item-entry-title {
+  min-width: fit-content;
+}
+.item-entry-http-verb,
 .item-entry-subtitle {
   display: flex;
-  gap: 3px;
   font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
   font-family: var(--theme-font-code, var(--default-theme-font-code));
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .item-entry-http-verb {
   text-transform: uppercase;
+  min-width: 45px;
+  position: relative;
+  /* optically center since all characters  above baseline*/
+  top: 0.5px;
 }
 .item-entry-http-verb--post {
   color: var(--theme-color-green, var(--default-theme-color-green));
@@ -318,17 +344,23 @@ const searchResultsWithPlaceholderResults = computed(
 .item-entry-http-verb--delete {
   color: var(--theme-color-red, var(--default-theme-color-red));
 }
+.item-entry-http-verb--delete {
+  font-size: 0;
+}
+.item-entry-http-verb--delete:after {
+  content: 'DEL';
+  font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
+}
 .item-entry-http-verb--put {
   color: var(--theme-color-orange, var(--default-theme-color-orange));
 }
 .item-entry-path {
   color: var(--theme-color-3, var(--default-theme-color-3));
-}
-.item-entry-subtitle {
-  display: none;
-}
-.item-entry--active .item-entry-subtitle {
-  display: flex;
+  font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .ref-search-meta {
   background: var(--default-theme-background-3, var(--theme-background-3));
