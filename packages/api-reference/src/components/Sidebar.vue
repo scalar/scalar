@@ -94,7 +94,7 @@ watch(
           :key="heading"
           :item="{
             uid: '',
-            title: heading.value,
+            title: heading.value.toUpperCase(),
             type: 'Page',
           }" />
 
