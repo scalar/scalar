@@ -56,7 +56,7 @@ watch(
   word-wrap: break-word;
 }
 .markdown :deep(*) {
-  margin-top: 12px;
+  margin: 12px 0;
 }
 .markdown :deep(h1),
 .markdown :deep(h2),

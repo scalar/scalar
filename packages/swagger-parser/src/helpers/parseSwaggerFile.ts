@@ -2,8 +2,6 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import yaml from 'js-yaml'
 import { type OpenAPI, type OpenAPIV2, type OpenAPIV3 } from 'openapi-types'
 
-import { getExampleResponses } from './getExampleResponses'
-
 export type SwaggerSpec = {
   info: {
     title: string
@@ -87,7 +85,6 @@ const transformResult = (result: OpenAPI.Document<object>): SwaggerSpec => {
         operationId: operation.operationId || path || '',
         name: operation.summary || '',
         description: operation.description || '',
-        responses: getExampleResponses(operation.responses),
         information: {
           ...operation,
         },
