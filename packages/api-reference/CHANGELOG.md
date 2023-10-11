@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 0.7.1
+
+### Patch Changes
+
+- 3c2bc6a9: style: update the search modal style
+
 ## 0.7.0
 
 ### Minor Changes

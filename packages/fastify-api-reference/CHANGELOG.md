@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 0.6.25
+
+### Patch Changes
+
+- 3c2bc6a9: style: update the search modal style
+- Updated dependencies [3c2bc6a9]
+  - @scalar/api-reference@0.7.1
+
 ## 0.6.24
 
 ### Patch Changes
