@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.6
+
+### Patch Changes
+
+- 357a174d: feat: add errors for missing payload
+
 ## 0.5.5
 
 ### Patch Changes

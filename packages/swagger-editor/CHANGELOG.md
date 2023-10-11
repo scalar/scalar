@@ -1,5 +1,14 @@
 # @scalar/swagger-editor
 
+## 0.6.22
+
+### Patch Changes
+
+- 357a174d: feat: fix import URL, use proxy to fetch files
+- 357a174d: feat: click on import url or upload file in getting started opens the modal/dialog now
+- Updated dependencies [fd6cf1bb]
+  - @scalar/swagger-parser@0.5.4
+
 ## 0.6.21
 
 ### Patch Changes
