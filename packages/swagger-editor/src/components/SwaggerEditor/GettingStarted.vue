@@ -42,6 +42,14 @@ watch(activeExample, () => {
       Below you can quickly get started by importing your file, going through
       examples & also checking out our pre-made themes ✨
     </p>
+    <div class="start-p">
+      <a
+        class="start-a"
+        href="https://www.producthunt.com/posts/scalar-api-references-swagger-editor?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-scalar&#0045;api&#0045;references&#0045;swagger&#0045;editor"
+        target="_blank"
+        >We're live on Producthunt, come chat with us!</a
+      >
+    </div>
     <div class="start-section">
       <div class="start-h2">Quick Start</div>
       <div
@@ -362,6 +370,7 @@ watch(activeExample, () => {
   font-size: var(--theme-paragraph, var(--default-theme-paragraph));
   color: var(--theme-color-1, var(--default-theme-color-1));
   line-height: 1.5;
+  width: 100%;
 }
 .start-ul {
   margin-top: 6px;
@@ -491,5 +500,18 @@ watch(activeExample, () => {
 }
 .start-section-color .start-item {
   text-transform: capitalize;
+}
+.start-cta {
+  width: 100%;
+  margin-top: 12px;
+}
+.start-a {
+  color: var(
+    --theme-color-accent,
+    var(--default-theme-color-accent)
+  ) !important;
+}
+.start-a:hover {
+  text-decoration: underline;
 }
 </style>
