@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 0.7.2
+
+### Patch Changes
+
+- fd6cf1bb: fix: too much recursion
+- 357a174d: feat: fix import URL, use proxy to fetch files
+- Updated dependencies [fd6cf1bb]
+- Updated dependencies [357a174d]
+- Updated dependencies [357a174d]
+  - @scalar/swagger-parser@0.5.4
+  - @scalar/swagger-editor@0.6.22
+
 ## 0.7.1
 
 ### Patch Changes

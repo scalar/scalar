@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.5.4
+
+### Patch Changes
+
+- fd6cf1bb: fix: too much recursion
+
 ## 0.5.3
 
 ### Patch Changes
