@@ -65,7 +65,7 @@ watch(
 .markdown :deep(h5),
 .markdown :deep(h6) {
   font-size: var(--font-size, var(--default-font-size));
-  margin: 12px 0 6px;
+  margin: 24px 0 6px;
   font-weight: var(--theme-bold, var(--default-theme-bold));
 }
 
@@ -134,10 +134,11 @@ watch(
 .markdown :deep(pre code) {
   display: block;
   white-space: pre;
-  padding: 3px;
+  padding: 12px;
+  line-height: 1.5;
   margin: 12px 0;
   -webkit-overflow-scrolling: touch;
-  overflow-x: scroll;
+  overflow-x: auto;
   max-width: 100%;
   min-width: 100px;
 }
