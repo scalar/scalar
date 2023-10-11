@@ -19,10 +19,32 @@ export const createApiClientProxy = () => {
   // Post request to / are proxied to the target url.
   app.post('/', async (req, res) => {
     if (req.method === 'POST') {
-      console.log(`${req.body.method} ${req.body.url}`)
+      if (req.body.method === undefined || req.body.method.trim() === '') {
+        res.status(400)
+        res.json({
+          error: 'MissingMethod',
+          message:
+            'Could not find a valid request method. Try adding a JSON object with a `method` to your request.',
+        })
+
+        return
+      }
+
+      if (req.body.url === undefined || req.body.url.trim() === '') {
+        res.status(400)
+        res.json({
+          error: 'MissingUrl',
+          message:
+            'Could not find an URL. Try adding a JSON object with an `url` to your request.',
+        })
+
+        return
+      }
+
+      console.log(`${req.body.method.trim()} ${req.body.url.trim()}`)
 
       const isGetOrHeadRequest = ['get', 'head'].includes(
-        req.body.method.toLowerCase(),
+        req.body.method.trim().toLowerCase(),
       )
       const body = isGetOrHeadRequest
         ? null
@@ -32,9 +54,9 @@ export const createApiClientProxy = () => {
 
       // Default options are marked with *
       try {
-        const response = await fetch(req.body.url, {
+        const response = await fetch(req.body.url.trim(), {
           // *GET, POST, PUT, DELETE, etc.
-          method: req.body.method,
+          method: req.body.method.trim(),
           // no-cors, *cors, same-origin
           mode: 'cors',
           // *default, no-cache, reload, force-cache, only-if-cached

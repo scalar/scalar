@@ -5,6 +5,12 @@ export type SwaggerEditorProps = {
   hocuspocusConfiguration?: HocuspocusConfigurationProp
   theme?: ThemeId
   initialTabState?: EditorHeaderTabs
+  proxyUrl?: string
+}
+
+export type SwaggerEditorHeaderProps = {
+  activeTab: EditorHeaderTabs
+  proxyUrl?: string
 }
 
 export type SwaggerEditorInputProps = {

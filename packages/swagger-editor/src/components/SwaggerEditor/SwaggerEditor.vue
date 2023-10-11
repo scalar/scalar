@@ -141,6 +141,7 @@ const handleOpenSwaggerEditor = (action?: OpenSwaggerEditorActions) => {
     <SwaggerEditorHeader
       ref="swaggerEditorHeaderRef"
       :activeTab="activeTab"
+      :proxyUrl="proxyUrl"
       @import="importHandler"
       @updateActiveTab="activeTab = $event" />
     <SwaggerEditorNotification

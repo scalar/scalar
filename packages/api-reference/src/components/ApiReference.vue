@@ -236,6 +236,7 @@ const breadCrumbs = computed(() => {
       <LazyLoadedSwaggerEditor
         :hocuspocusConfiguration="hocuspocusConfiguration"
         :initialTabState="initialTabState"
+        :proxyUrl="proxyUrl"
         :theme="theme"
         :value="specRef"
         @changeTheme="$emit('changeTheme', $event)"
