@@ -10,7 +10,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { nextTick } from 'vue'
 
 import { useTemplateStore } from '../stores/template'
-import type { Operation, Spec } from '../types'
+import type { Operation, Spec, Tag } from '../types'
 import DarkModeToggle from './DarkModeToggle.vue'
 import FindAnythingButton from './FindAnythingButton.vue'
 import SidebarElement from './SidebarElement.vue'
