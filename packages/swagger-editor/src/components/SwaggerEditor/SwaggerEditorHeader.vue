@@ -4,13 +4,15 @@ import { useFileDialog } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
 import spec from '../../petstorev3.json'
-import { type EditorHeaderTabs } from '../../types'
+import {
+  type EditorHeaderTabs,
+  type SwaggerEditorHeaderProps,
+} from '../../types'
 import FlowButton from '../FlowButton.vue'
 import FlowTextField from '../FlowTextField.vue'
+import { fetchSpecFromUrl } from './fetchSpecFromUrl'
 
-defineProps<{
-  activeTab: EditorHeaderTabs
-}>()
+const props = defineProps<SwaggerEditorHeaderProps>()
 
 const emit = defineEmits<{
   (e: 'import', value: string): void
@@ -22,14 +24,31 @@ const { files, open, reset } = useFileDialog({
   accept: '.json,.yaml,.yml',
 })
 
-const swaggerURLModalState = useModal()
-const swaggerUrl = ref('')
+const importUrlModal = useModal()
+const importUrlError = ref<string | null>(null)
 
-async function fetchURL() {
-  const response = await fetch(swaggerUrl.value)
-  const data = await response.json()
-  emit('import', JSON.stringify(data, null, 4))
-  swaggerURLModalState.hide()
+defineExpose({
+  importUrlModal,
+  openFileDialog: open,
+})
+
+const specUrl = ref('')
+
+const handleImportUrl = () => {
+  importUrlError.value = ''
+
+  fetchSpecFromUrl(specUrl.value, {
+    proxyUrl: props.proxyUrl,
+  })
+    .then(async (content) => {
+      console.log('content', content)
+      emit('import', content)
+      importUrlModal.hide()
+    })
+    .catch((error) => {
+      console.error('[importUrl]', error)
+      importUrlError.value = error
+    })
 }
 
 watch(files, () => {
@@ -82,8 +101,8 @@ const useExample = () => {
       </button>
       <button
         type="button"
-        @click="swaggerURLModalState.show">
-        Paste URL
+        @click="importUrlModal.show">
+        Import URL
       </button>
       <button
         type="button"
@@ -93,22 +112,23 @@ const useExample = () => {
     </div>
   </div>
   <FlowModal
-    :state="swaggerURLModalState"
+    :state="importUrlModal"
     title="Import Swagger from URL">
     <div class="flex-col gap-1">
       <FlowTextField
-        v-model="swaggerUrl"
+        v-model="specUrl"
         autofocus
         label="URL"
         placeholder="https://scalar.com/swagger.json" />
+      {{ importUrlError }}
       <div class="flex-mobile gap-1">
         <FlowButton
           label="Cancel"
           variant="outlined"
-          @click="swaggerURLModalState.hide()" />
+          @click="importUrlModal.hide()" />
         <FlowButton
           label="Import"
-          @click="fetchURL" />
+          @click="handleImportUrl" />
       </div>
     </div>
   </FlowModal>

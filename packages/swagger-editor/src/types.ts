@@ -5,6 +5,12 @@ export type SwaggerEditorProps = {
   hocuspocusConfiguration?: HocuspocusConfigurationProp
   theme?: ThemeId
   initialTabState?: EditorHeaderTabs
+  proxyUrl?: string
+}
+
+export type SwaggerEditorHeaderProps = {
+  activeTab: EditorHeaderTabs
+  proxyUrl?: string
 }
 
 export type SwaggerEditorInputProps = {
@@ -22,3 +28,5 @@ export type HocuspocusConfigurationProp = {
 export type EditorHeaderTabs = 'Getting Started' | 'Swagger Editor'
 
 export type GettingStartedExamples = 'Petstore' | 'Tableau' | 'CoinMarketCap'
+
+export type OpenSwaggerEditorActions = 'importUrl' | 'uploadFile'

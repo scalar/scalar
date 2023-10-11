@@ -10,7 +10,7 @@ defineProps<{
 
 const emits = defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
-  (e: 'openEditor'): void
+  (e: 'openSwaggerEditor', action?: 'importUrl' | 'uploadFile'): void
   (e: 'changeExample', value: GettingStartedExamples): void
 }>()
 
@@ -54,7 +54,7 @@ watch(activeExample, () => {
       <div class="start-h2">Quick Start</div>
       <div
         class="start-item"
-        @click="$emit('openEditor')">
+        @click="$emit('openSwaggerEditor', 'importUrl')">
         <svg
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg">
@@ -69,7 +69,7 @@ watch(activeExample, () => {
       </div>
       <div
         class="start-item"
-        @click="$emit('openEditor')">
+        @click="$emit('openSwaggerEditor', 'uploadFile')">
         <svg
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg">
@@ -89,7 +89,7 @@ watch(activeExample, () => {
       </div>
       <div
         class="start-item"
-        @click="$emit('openEditor')">
+        @click="$emit('openSwaggerEditor')">
         <svg
           viewBox="0 0 12 16"
           width="10"
@@ -103,7 +103,7 @@ watch(activeExample, () => {
       </div>
       <div
         class="start-item"
-        @click="$emit('openEditor')">
+        @click="$emit('openSwaggerEditor')">
         <svg
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg">
