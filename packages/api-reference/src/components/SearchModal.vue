@@ -210,6 +210,7 @@ const searchResultsWithPlaceholderResults = computed(
         class="item-entry"
         :class="{
           'item-entry--active': index === selectedSearchResult,
+          'item-entry--tag': !entry.item.httpVerb,
         }"
         type="submit"
         @click="openSearchResult(entry)"
@@ -234,7 +235,7 @@ const searchResultsWithPlaceholderResults = computed(
         <div
           v-else-if="entry.item.description"
           class="item-entry-description">
-          - {{ entry.item.description }}
+          {{ entry.item.description }}
         </div>
       </button>
     </div>
@@ -293,6 +294,12 @@ const searchResultsWithPlaceholderResults = computed(
 .item-entry--active {
   background: var(--theme-background-2, var(--default-theme-background-2));
   cursor: pointer;
+}
+
+/** If it’s a tag, let’s put a dash between the tag name and the description and set the margin to the gap size. */
+.item-entry--tag .item-entry-description::before {
+  content: '–';
+  margin-right: 6px;
 }
 .item-entry-description,
 .item-entry-title {
