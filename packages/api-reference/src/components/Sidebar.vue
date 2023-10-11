@@ -7,8 +7,9 @@ import {
 } from '@scalar/api-client'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
-import { nextTick } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 
+import { getHeadingsFromMarkdown } from '../helpers'
 import { useTemplateStore } from '../stores/template'
 import type { Operation, Spec, Tag } from '../types'
 import DarkModeToggle from './DarkModeToggle.vue'
@@ -63,6 +64,23 @@ const moreThanOneDefaultTag = (tag: Tag) =>
   props.spec?.tags?.length !== 1 ||
   tag?.name !== 'default' ||
   tag?.description !== ''
+
+const headings = ref<any[]>([])
+
+watch(
+  () => props?.spec?.info?.description,
+  async () => {
+    const description = props?.spec?.info?.description
+
+    if (!description) {
+      return []
+    }
+
+    headings.value = (await getHeadingsFromMarkdown(description)).filter(
+      (heading) => heading.depth === 1,
+    )
+  },
+)
 </script>
 <template>
   <div class="sidebar">
@@ -71,6 +89,15 @@ const moreThanOneDefaultTag = (tag: Tag) =>
       @click="setTemplateItem('showSearch', true)" />
     <div class="pages custom-scroll custom-scroll-self-contain-overflow">
       <SidebarGroup :level="0">
+        <SidebarElement
+          v-for="heading in headings"
+          :key="heading"
+          :item="{
+            uid: '',
+            title: heading.value,
+            type: 'Page',
+          }" />
+
         <template v-for="tag in spec.tags">
           <SidebarElement
             v-if="moreThanOneDefaultTag(tag) && tag.operations?.length > 0"
