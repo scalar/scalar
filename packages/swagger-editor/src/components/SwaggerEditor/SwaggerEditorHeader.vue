@@ -22,14 +22,20 @@ const { files, open, reset } = useFileDialog({
   accept: '.json,.yaml,.yml',
 })
 
-const swaggerURLModalState = useModal()
+const importUrlModal = useModal()
+
+defineExpose({
+  importUrlModal,
+  openFileDialog: open,
+})
+
 const swaggerUrl = ref('')
 
 async function fetchURL() {
   const response = await fetch(swaggerUrl.value)
   const data = await response.json()
   emit('import', JSON.stringify(data, null, 4))
-  swaggerURLModalState.hide()
+  importUrlModal.hide()
 }
 
 watch(files, () => {
@@ -82,8 +88,8 @@ const useExample = () => {
       </button>
       <button
         type="button"
-        @click="swaggerURLModalState.show">
-        Paste URL
+        @click="importUrlModal.show">
+        Import URL
       </button>
       <button
         type="button"
@@ -93,7 +99,7 @@ const useExample = () => {
     </div>
   </div>
   <FlowModal
-    :state="swaggerURLModalState"
+    :state="importUrlModal"
     title="Import Swagger from URL">
     <div class="flex-col gap-1">
       <FlowTextField
@@ -105,7 +111,7 @@ const useExample = () => {
         <FlowButton
           label="Cancel"
           variant="outlined"
-          @click="swaggerURLModalState.hide()" />
+          @click="importUrlModal.hide()" />
         <FlowButton
           label="Import"
           @click="fetchURL" />

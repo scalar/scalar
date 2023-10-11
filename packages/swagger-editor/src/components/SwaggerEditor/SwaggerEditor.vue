@@ -11,6 +11,7 @@ import tableau from '../../tableauv3.json'
 import {
   type EditorHeaderTabs,
   type GettingStartedExamples,
+  type OpenSwaggerEditorActions,
   type SwaggerEditorProps,
 } from '../../types'
 import GettingStarted from './GettingStarted.vue'
@@ -27,6 +28,8 @@ const emit = defineEmits<{
   (e: 'import', value: string): void
   (e: 'changeTheme', value: ThemeId): void
 }>()
+
+const swaggerEditorHeaderRef = ref<typeof SwaggerEditorHeader | null>(null)
 
 const currentExample = ref<string | null>(null)
 
@@ -121,11 +124,22 @@ watch(
 const activeTab = ref<EditorHeaderTabs>(
   props.initialTabState ?? 'Getting Started',
 )
+
+const handleOpenSwaggerEditor = (action?: OpenSwaggerEditorActions) => {
+  activeTab.value = 'Swagger Editor'
+
+  if (action === 'importUrl') {
+    swaggerEditorHeaderRef?.value?.importUrlModal?.show()
+  } else if (action === 'uploadFile') {
+    swaggerEditorHeaderRef?.value?.openFileDialog()
+  }
+}
 </script>
 <template>
   <ThemeStyles :id="theme" />
   <div class="swagger-editor">
     <SwaggerEditorHeader
+      ref="swaggerEditorHeaderRef"
       :activeTab="activeTab"
       @import="importHandler"
       @updateActiveTab="activeTab = $event" />
@@ -152,7 +166,7 @@ const activeTab = ref<EditorHeaderTabs>(
       :theme="!theme || theme === 'none' ? 'default' : theme"
       @changeExample="handleChangeExample"
       @changeTheme="emit('changeTheme', $event)"
-      @openEditor="activeTab = 'Swagger Editor'" />
+      @openSwaggerEditor="handleOpenSwaggerEditor" />
   </div>
 </template>
 
