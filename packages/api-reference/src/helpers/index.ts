@@ -1,4 +1,5 @@
 export { generateResponseContent } from './generateResponseContent'
+export { getHeadingsFromMarkdown } from './getHeadingsFromMarkdown'
 export { mapFromObject } from './mapFromObject'
 export { objectMerge } from './objectMerge'
 export { transformToJson } from './transformToJson'

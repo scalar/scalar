@@ -18,7 +18,7 @@ const html = ref<string>('')
 
 watch(
   () => props.value,
-  () => {
+  async () => {
     unified()
       .use(remarkParse)
       // todo: investigate why these breaks get added to all paragraphs
