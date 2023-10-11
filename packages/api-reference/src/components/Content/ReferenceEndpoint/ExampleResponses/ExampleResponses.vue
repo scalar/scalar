@@ -3,7 +3,7 @@ import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { computed, ref } from 'vue'
 
-import { mapFromObject } from '../../../../helpers'
+import { generateResponseContent, mapFromObject } from '../../../../helpers'
 import type { TransformedOperation } from '../../../../types'
 import {
   Card,
@@ -13,22 +13,39 @@ import {
   CardTabHeader,
 } from '../../../Card'
 import { Icon } from '../../../Icon'
-import Headers from './Headers.vue'
+import MarkdownRenderer from '../../MarkdownRenderer.vue'
+// import Headers from './Headers.vue'
 import SelectExample from './SelectExample.vue'
 
+/**
+ * TODO: copyToClipboard isn’t using the right content if there are multiple examples
+ */
+
 const props = defineProps<{ operation: TransformedOperation }>()
+
+const prettyPrintJson = (value: string) => {
+  try {
+    return JSON.stringify(value, null, 2)
+  } catch {
+    console.log('Error parsing JSON', value)
+
+    return value
+  }
+}
 
 const { copyToClipboard } = useClipboard()
 
 // Bring the status codes in the right order.
 const orderedStatusCodes = computed(() => {
-  return Object.keys(props?.operation?.responses ?? {}).sort((x) => {
-    if (x === 'default') {
-      return -1
-    }
+  return Object.keys(props?.operation?.information?.responses ?? {}).sort(
+    (x) => {
+      if (x === 'default') {
+        return -1
+      }
 
-    return 0
-  })
+      return 0
+    },
+  )
 })
 
 // Keep track of the current selected tab
@@ -39,22 +56,26 @@ const currentResponse = computed(() => {
   const currentStatusCode =
     orderedStatusCodes.value[selectedResponseIndex.value]
 
-  return props.operation.responses?.[currentStatusCode]
+  return props.operation.information?.responses[currentStatusCode]
 })
 
 const currentResponseExamples = computed(() => {
-  const examples =
-    currentResponse.value?.content?.['application/json']?.examples
-
-  if (examples) {
-    return JSON.parse(examples)
-  }
-
-  return false
+  return currentResponse.value?.content?.['application/json']?.examples
 })
 
 const currentResponseExample = computed(() => {
-  return currentResponse.value?.content?.['application/json']?.example
+  const example = currentResponse.value?.content?.['application/json']?.example
+
+  if (example) {
+    return prettyPrintJson(example)
+  }
+
+  const schema = currentResponse.value?.content?.['application/json']?.schema
+  if (schema) {
+    return prettyPrintJson(generateResponseContent(schema))
+  }
+
+  return ''
 })
 
 const changeTab = (index: number) => {
@@ -107,10 +128,8 @@ const changeTab = (index: number) => {
           ">
           <CodeMirror
             :content="
-              JSON.stringify(
+              prettyPrintJson(
                 mapFromObject(currentResponseExamples)[0].value.value,
-                null,
-                2,
               )
             "
             :languages="['json']"
@@ -135,13 +154,18 @@ const changeTab = (index: number) => {
       class="card-footer"
       muted>
       <div class="description">
-        {{ currentResponse.description }}
+        <MarkdownRenderer
+          class="markdown"
+          :value="currentResponse.description" />
       </div>
     </CardFooter>
   </Card>
 </template>
 
 <style scoped>
+.markdown :deep(*) {
+  margin: 0;
+}
 .code-copy {
   display: flex;
   align-items: center;

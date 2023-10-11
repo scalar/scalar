@@ -60,6 +60,7 @@ const selectedExample = ref(examples[0])
 .example-switcher {
   display: flex;
   gap: 6px;
+  margin: 12px 6px;
   flex-direction: column;
 }
 
