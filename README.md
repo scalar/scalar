@@ -4,7 +4,7 @@
 [![Release](https://github.com/a-numbered-company/api-reference/actions/workflows/release.yml/badge.svg)](https://github.com/a-numbered-company/api-reference/actions/workflows/release.yml)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.com/invite/Ve683JXN)
 
-Generate interactive API documentations from Swagger files
+Generate interactive API documentations from Swagger files. [Try our Demo](https://docs.scalar.com/swagger-editor)
 
 ![github](https://github.com/scalar/scalar/assets/6201407/d8beb5e1-bf64-4589-8cb0-992ba79215a8)
 
