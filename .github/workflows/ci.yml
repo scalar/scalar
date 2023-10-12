@@ -32,6 +32,8 @@ jobs:
       - name: Turborepo cache
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
       - name: Build
-        run: pnpm turbo lint:fix build test
+        run: pnpm turbo build
       - name: Check types
         run: pnpm types:check
+      - name: Run tests
+        run: pnpm test
