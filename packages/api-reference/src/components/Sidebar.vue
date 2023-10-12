@@ -45,6 +45,12 @@ async function scrollToEndpoint(item: Operation) {
   setActiveSidebar(`${item.httpVerb}-${item.operationId}`)
 }
 
+async function scrollToHeading(slug: string) {
+  document.getElementById(`user-content-${slug}`)?.scrollIntoView()
+  await nextTick()
+  setActiveSidebar(slug)
+}
+
 const isMobile = useMediaQuery('(max-width: 1000px)')
 
 const {
@@ -96,7 +102,14 @@ watch(
             uid: '',
             title: heading.value.toUpperCase(),
             type: 'Page',
-          }" />
+          }"
+          @select="
+            () => {
+              if (heading.slug) {
+                scrollToHeading(heading.slug)
+              }
+            }
+          " />
 
         <template v-for="tag in spec.tags">
           <SidebarElement

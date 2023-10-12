@@ -230,6 +230,9 @@ importers:
       fuse.js:
         specifier: 6.6.2
         version: 6.6.2
+      github-slugger:
+        specifier: 2.0.0
+        version: 2.0.0
       httpsnippet-lite:
         specifier: 3.0.5
         version: 3.0.5
@@ -254,6 +257,9 @@ importers:
       rehype-sanitize:
         specifier: 6.0.0
         version: 6.0.0
+      rehype-slug-custom-id:
+        specifier: 1.1.0
+        version: 1.1.0
       rehype-stringify:
         specifier: 10.0.0
         version: 10.0.0
@@ -5008,6 +5014,12 @@ packages:
     resolution: {integrity: sha512-T232/TneofqK30AD1LRrrf8KnjLvzrjWDp7eWST5KoiSzrBfRsLrWDPk4STQPW4NZG6v2MltnduBVmakbZOBIQ==}
     dev: false
 
+  /@types/hast@2.3.6:
+    resolution: {integrity: sha512-47rJE80oqPmFdVDCD7IheXBrVdwuBgsYwoczFvKmwfo2Mzsnt+V9OONsYauFmICb6lQPpCuXYJWejBNs4pDJRg==}
+    dependencies:
+      '@types/unist': 2.0.8
+    dev: false
+
   /@types/hast@3.0.1:
     resolution: {integrity: sha512-hs/iBJx2aydugBQx5ETV3ZgeSS0oIreQrFJ4bjBl0XvM4wAmDjFEALY7p0rTSLt2eL+ibjRAAs9dTPiCLtmbqQ==}
     dependencies:
@@ -8374,7 +8386,10 @@ packages:
 
   /github-slugger@1.5.0:
     resolution: {integrity: sha512-wIh+gKBI9Nshz2o46B0B3f5k/W+WI9ZAv6y5Dn5WJ5SK1t0TnDimB4WE5rmTD05ZAIn8HALCZVmCsvj0w0v0lw==}
-    dev: true
+
+  /github-slugger@2.0.0:
+    resolution: {integrity: sha512-IaOQ9puYtjrkq7Y0Ygl9KDZnrf/aiUJYUpVf89y8kyaxbRG7Y1SrX/jaumrv81vc61+kiMempujsM3Yw7w5qcw==}
+    dev: false
 
   /glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
@@ -8587,10 +8602,20 @@ packages:
       web-namespaces: 2.0.1
     dev: false
 
+  /hast-util-has-property@2.0.1:
+    resolution: {integrity: sha512-X2+RwZIMTMKpXUzlotatPzWj8bspCymtXH3cfG3iQKV+wPF53Vgaqxi/eLqGck0wKq1kS9nvoB1wchbCPEL8sg==}
+    dev: false
+
   /hast-util-has-property@3.0.0:
     resolution: {integrity: sha512-MNilsvEKLFpV604hwfhVStK0usFY/QmM5zX16bo7EjnAEGofr5YyI37kzopBlZJkHD4t887i+q/C8/tr5Q94cA==}
     dependencies:
       '@types/hast': 3.0.1
+    dev: false
+
+  /hast-util-heading-rank@2.1.1:
+    resolution: {integrity: sha512-iAuRp+ESgJoRFJbSyaqsfvJDY6zzmFoEnL1gtz1+U8gKtGGj1p0CVlysuUAUjq95qlZESHINLThwJzNGmgGZxA==}
+    dependencies:
+      '@types/hast': 2.3.6
     dev: false
 
   /hast-util-is-body-ok-link@3.0.0:
@@ -8674,6 +8699,12 @@ packages:
       space-separated-tokens: 2.0.2
       web-namespaces: 2.0.1
       zwitch: 2.0.4
+    dev: false
+
+  /hast-util-to-string@2.0.0:
+    resolution: {integrity: sha512-02AQ3vLhuH3FisaMM+i/9sm4OXGSq1UhOOCpTLLQtHdL3tZt7qil69r8M8iDkZYyC0HCFylcYoP+8IO7ddta1A==}
+    dependencies:
+      '@types/hast': 2.3.6
     dev: false
 
   /hast-util-whitespace@3.0.0:
@@ -9704,7 +9735,6 @@ packages:
 
   /lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
-    dev: true
 
   /log-symbols@4.1.0:
     resolution: {integrity: sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg==}
@@ -11853,6 +11883,19 @@ packages:
     dependencies:
       '@types/hast': 3.0.1
       hast-util-sanitize: 5.0.0
+    dev: false
+
+  /rehype-slug-custom-id@1.1.0:
+    resolution: {integrity: sha512-lLdTHGd7u5bOXRDnD78/VHrVZsG63nN6lZUuQgcuupGt1+v+uDW7pCeQS0cvptRcZPYzg8B+0bf8sUiMBKsjZw==}
+    dependencies:
+      '@types/hast': 2.3.6
+      github-slugger: 1.5.0
+      hast-util-has-property: 2.0.1
+      hast-util-heading-rank: 2.1.1
+      hast-util-to-string: 2.0.0
+      lodash: 4.17.21
+      unified: 10.1.2
+      unist-util-visit: 4.1.2
     dev: false
 
   /rehype-stringify@10.0.0:
