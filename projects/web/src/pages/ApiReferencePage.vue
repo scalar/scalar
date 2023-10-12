@@ -5,11 +5,6 @@ import {
 } from '@scalar/api-reference'
 import { reactive } from 'vue'
 
-// import { type ThemeId } from '@scalar/themes'
-// import { ref } from 'vue'
-
-// const activeTheme = ref<ThemeId>('default')
-
 /**
  * Let’s imagine how the configuration could look like.
  */

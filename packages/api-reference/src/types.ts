@@ -45,7 +45,7 @@ export type ReferenceConfiguration = {
   showSidebar?: boolean
   footerBelowSidebar?: boolean
   hocuspocusConfiguration?: HocuspocusConfigurationProp
-  doNotPromoteScalar: boolean
+  doNotPromoteScalar?: boolean
 }
 
 export type Security = {
