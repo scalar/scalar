@@ -150,22 +150,28 @@ onMounted(() => {
   fetchSpecUrl()
 })
 
-const showRendered = computed(() => isLargeScreen.value || !props.isEditable)
+const showRendered = computed(
+  () => isLargeScreen.value || !props.configuration?.isEditable,
+)
 
 const showCodeEditor = computed(() => {
-  return !props.specResult && props.isEditable
+  return (
+    !props.configuration?.spec?.preparsedContent &&
+    props.configuration?.isEditable
+  )
 })
 </script>
 <template>
-  <ThemeStyles :id="theme" />
+  {{ configuration }}
+  <ThemeStyles :id="configuration?.theme" />
   <FlowToastContainer />
   <div
     ref="documentEl"
     class="scalar-api-reference references-layout"
     :class="[
       {
-        'references-footer-below': footerBelowSidebar,
-        'references-editable': isEditable,
+        'references-footer-below': configuration?.footerBelowSidebar,
+        'references-editable': configuration?.isEditable,
       },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
@@ -215,7 +221,7 @@ const showCodeEditor = computed(() => {
         :hocuspocusConfiguration="hocuspocusConfiguration"
         :initialTabState="initialTabState"
         :proxyUrl="proxyUrl"
-        :theme="theme"
+        :theme="configuration?.theme"
         :value="specRef"
         @changeTheme="$emit('changeTheme', $event)"
         @specUpdate="handleSpecUpdate" />
@@ -233,7 +239,7 @@ const showCodeEditor = computed(() => {
     </template>
     <!-- REST API Client Overlay -->
     <ApiClientModal
-      :proxyUrl="proxyUrl"
+      :proxyUrl="configuration?.proxy"
       :spec="transformedSpec" />
   </div>
 </template>
