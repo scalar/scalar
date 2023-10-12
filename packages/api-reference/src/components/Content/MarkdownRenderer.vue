@@ -2,6 +2,7 @@
 import rehypeDocument from 'rehype-document'
 import rehypeFormat from 'rehype-format'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
+import remarkHeadingId from 'rehype-slug-custom-id'
 import rehypeStringify from 'rehype-stringify'
 // import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
@@ -25,6 +26,8 @@ watch(
       // .use(remarkBreaks)
       .use(remarkGfm)
       .use(remarkRehype)
+      // @ts-ignore
+      .use(remarkHeadingId)
       .use(remarkTextr, { plugins: [typographicBase] })
       .use(rehypeDocument)
       .use(rehypeFormat)
