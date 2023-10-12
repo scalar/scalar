@@ -201,7 +201,7 @@ const changeTab = (index: number) => {
   border: 1px dashed
     var(--theme-border-color, var(--default-theme-border-color));
   width: calc(100% - 24px);
-  margin: 10px 12px;
+  margin: 10px 0 10px 12px;
   text-align: center;
   font-size: var(--theme-micro, var(--default-theme-micro));
   min-height: 56px;
@@ -211,7 +211,6 @@ const changeTab = (index: number) => {
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   color: var(--theme-color-2, var(--default-theme-color-2));
 }
-
 .schema-type {
   font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color-2, var(--default-theme-color-2));

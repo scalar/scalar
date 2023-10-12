@@ -1,24 +1,60 @@
 <script setup lang="ts">
+import { useApiClientRequestStore } from '../../../stores'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
 defineProps<{ headers?: any[] }>()
+
+const { activeRequest } = useApiClientRequestStore()
+
+function handleDeleteIndex(index: number) {
+  activeRequest.headers?.splice(index, 1)
+}
+
+function addAnotherHandler() {
+  activeRequest.headers?.push({ name: '', value: '' })
+}
 </script>
 <template>
   <CollapsibleSection title="Headers">
     <template v-if="!headers || headers.length === 0">
-      <div class="scalar-api-client__empty-state">No Headers</div>
+      <div class="scalar-api-client__empty-state">
+        <button
+          class="scalar-api-client-add"
+          type="button"
+          @click="addAnotherHandler">
+          Add Headers
+        </button>
+      </div>
     </template>
     <template v-else>
-      <Grid :items="headers" />
-      <!-- @addAnother="addQuery"
-          @deleteItem="deleteQuery"
-          @toggleDescription="toggleDescription"
-          @toggleVisibility="(key, value) => updateQuery(key, 'active', value)"
-          @updateDescription="(key, value) => updateQuery(key, 'description', value)"
-          @updateKey="(key, value) => updateQuery(key, 'key', value)"
-          @updateOrder="updateQueryOrder"
-          @updateValue="(key, value) => updateQuery(key, 'value', value)" -->
+      <Grid
+        addLabel="Header"
+        :items="headers"
+        @addAnother="addAnotherHandler"
+        @deleteIndex="handleDeleteIndex" />
     </template>
   </CollapsibleSection>
 </template>
+<style>
+.scalar-api-client-add {
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  padding: 6px;
+  width: fit-content;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  cursor: pointer;
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  margin: 0 6px;
+  font-family: var(--theme-font);
+  background: var(
+    --theme-background-3,
+    var(--default-theme-background-3)
+  ) !important;
+  appearance: none;
+}
+.scalar-api-client-add:hover {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
+</style>

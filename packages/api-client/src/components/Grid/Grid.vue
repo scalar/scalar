@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-defineProps<{ items: any[] }>()
+defineProps<{ items: any[]; addLabel?: string }>()
+
+defineEmits<{
+  (event: 'deleteIndex', value: number): void
+  (event: 'addAnother'): void
+}>()
 
 const showDescription = ref(false)
 </script>
@@ -35,14 +40,14 @@ const showDescription = ref(false)
       </div>
     </div>
     <div
-      v-for="item in items"
+      v-for="(item, index) in items"
       :key="item.id"
       class="table-row"
       :class="item.customClass">
       <div class="table-row-item">
         <input
-          disabled
-          :value="item.name" />
+          v-model="item.name"
+          placeholder="key" />
         <!-- <MultilineEditor
           :elID="`key_${item}`"
           :focus="newlyAdded === `key_${item}` ? true : false"
@@ -90,10 +95,59 @@ const showDescription = ref(false)
           <input type="checkbox" />
           <span class="meta-checkmark" />
         </label>
-        <!-- @click="$emit('deleteItem', item)">
-          <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"  -->
+        <button
+          class="meta-delete"
+          type="button">
+          <svg
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+            @click="$emit('deleteIndex', index)">
+            <polyline points="3 6 5 6 21 6" />
+            <path
+              d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            <line
+              x1="10"
+              x2="10"
+              y1="11"
+              y2="17" />
+            <line
+              x1="14"
+              x2="14"
+              y1="11"
+              y2="17" />
+          </svg>
+        </button>
       </div>
     </div>
+    <button
+      v-if="addLabel"
+      class="meta-add"
+      type="button"
+      @click="$emit('addAnother')">
+      <svg
+        class="flow-icon"
+        data-v-aa4fbd2d=""
+        height="100%"
+        viewBox="0 0 48 48"
+        xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M24 1.714v44.572M1.714 24h44.572"
+          fill="none"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="3.429"
+          xmlns="http://www.w3.org/2000/svg"></path>
+      </svg>
+      {{ addLabel }}
+    </button>
   </div>
 </template>
 <style>
@@ -221,7 +275,7 @@ const showDescription = ref(false)
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
+  width: 45px;
   user-select: none;
 }
 .table-row-meta-check {
@@ -269,6 +323,9 @@ const showDescription = ref(false)
   align-items: center;
   justify-content: center;
   position: relative;
+}
+.meta-check:focus-within .meta-checkmark {
+  box-shadow: 0 0 0 1px var(--theme-color-1, var(--default-theme-color-1));
 }
 .meta-check .meta-checkmark:after {
   content: '';
@@ -539,5 +596,60 @@ const showDescription = ref(false)
 }
 .simpletable.navtable .navtable-table {
   height: fit-content;
+}
+.meta-delete {
+  position: absolute;
+  border-radius: 50%;
+  height: 28px;
+  right: -18px;
+  width: 18px;
+  padding: 0;
+  appearance: none;
+  outline: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  opacity: 0;
+}
+.meta-delete svg {
+  margin: 0 0 0 2px;
+  width: 14px;
+  height: 14px;
+}
+.meta-delete:hover svg,
+.meta-delete:focus svg {
+  color: var(--theme-color-red, var(--default-theme-color-red));
+}
+.table-row:focus-within .meta-delete,
+.table-row:hover .meta-delete {
+  opacity: 1;
+}
+.meta-add {
+  border: none;
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  appearance: none;
+  padding: 9px;
+  width: 100%;
+  appearance: none;
+  outline: none;
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-family: var(--theme-font, var(--default-theme-font));
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.meta-add svg {
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+}
+.meta-add:hover,
+.meta-add:focus {
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 </style>

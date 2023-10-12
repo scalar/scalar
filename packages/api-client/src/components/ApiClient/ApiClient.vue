@@ -322,6 +322,9 @@ useKeyboardEvent({
   text-align: center;
   border-radius: var(--theme-radius, var(--default-theme-radius));
   font-size: var(--theme-small, var(--default-theme-small));
-  padding: 20px;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
