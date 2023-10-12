@@ -158,7 +158,9 @@ watch(
               @select="
                 () => {
                   setCollapsedSidebarItem(tag.name, true)
-                  scrollToEndpoint(operation)
+                  scrollToId(
+                    `endpoint/${operation.httpVerb}-${operation.operationId}`,
+                  )
                 }
               " />
           </template>
