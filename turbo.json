@@ -1,10 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
+    "lint:fix": {},
     "build": {
       "outputs": ["dist/**"],
       "dependsOn": ["^build"]
     },
-    "lint": {}
+    "types:check": {},
+    "test": {
+      "dependsOn": ["^build"]
+    }
   }
 }
