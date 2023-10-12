@@ -4,7 +4,7 @@ import { computed, onMounted, ref } from 'vue'
 
 import { useRefOnMount } from '../../hooks/useRefOnMount'
 import { useTemplateStore } from '../../stores/template'
-import type { Spec } from '../../types'
+import type { Spec, Tag } from '../../types'
 import { FlowIcon } from '../Icon'
 import EndpointsOverview from './EndpointsOverview.vue'
 import Introduction from './Introduction'
@@ -45,6 +45,11 @@ const localServers = computed(() => {
     return [{ url: '' }]
   }
 })
+
+const moreThanOneDefaultTag = (tag: Tag) =>
+  props.spec?.tags?.length !== 1 ||
+  tag?.name !== 'default' ||
+  tag?.description !== ''
 </script>
 <template>
   <div
@@ -63,6 +68,7 @@ const localServers = computed(() => {
           v-if="tag.operations && tag.operations.length > 0"
           class="reference">
           <EndpointsOverview
+            v-if="moreThanOneDefaultTag(tag)"
             :index="index"
             :tag="tag" />
           <button

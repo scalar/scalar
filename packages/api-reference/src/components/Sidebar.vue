@@ -10,7 +10,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { nextTick } from 'vue'
 
 import { useTemplateStore } from '../stores/template'
-import type { Operation, Spec } from '../types'
+import type { Operation, Spec, Tag } from '../types'
 import DarkModeToggle from './DarkModeToggle.vue'
 import FindAnythingButton from './FindAnythingButton.vue'
 import SidebarElement from './SidebarElement.vue'
@@ -58,6 +58,11 @@ useKeyboardEvent({
   withCtrlCmd: true,
   handler: () => setTemplateItem('showSearch', !templateState.showSearch),
 })
+
+const moreThanOneDefaultTag = (tag: Tag) =>
+  props.spec?.tags?.length !== 1 ||
+  tag?.name !== 'default' ||
+  tag?.description !== ''
 </script>
 <template>
   <div class="sidebar">
@@ -68,7 +73,7 @@ useKeyboardEvent({
       <SidebarGroup :level="0">
         <template v-for="tag in spec.tags">
           <SidebarElement
-            v-if="tag.operations?.length > 0"
+            v-if="moreThanOneDefaultTag(tag) && tag.operations?.length > 0"
             :key="tag.name"
             :hasChildren="true"
             :isActive="false"
@@ -101,6 +106,27 @@ useKeyboardEvent({
                 " />
             </SidebarGroup>
           </SidebarElement>
+          <template v-else>
+            <SidebarElement
+              v-for="operation in tag.operations"
+              :key="`${operation.httpVerb}-${operation.operationId}`"
+              class="sidebar-group-item--without-parent"
+              :isActive="
+                state.activeSidebar ===
+                `${operation.httpVerb}-${operation.operationId}`
+              "
+              :item="{
+                uid: '',
+                title: operation.name || operation.path,
+                type: 'Page',
+              }"
+              @select="
+                () => {
+                  setCollapsedSidebarItem(tag.name, true)
+                  scrollToEndpoint(operation)
+                }
+              " />
+          </template>
         </template>
       </SidebarGroup>
     </div>
@@ -236,6 +262,12 @@ useKeyboardEvent({
 }
 .sidebar-group-item {
   position: relative;
+}
+
+.sidebar-group-item--without-parent .sidebar-heading {
+  margin-left: 12px;
+  padding-left: 12px !important;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
 }
 
 /* Change font colors and weights for nested items */
