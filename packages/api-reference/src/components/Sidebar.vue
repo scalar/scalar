@@ -110,6 +110,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
             <SidebarElement
               v-for="operation in tag.operations"
               :key="`${operation.httpVerb}-${operation.operationId}`"
+              class="sidebar-group-item--without-parent"
               :isActive="
                 state.activeSidebar ===
                 `${operation.httpVerb}-${operation.operationId}`
@@ -261,6 +262,12 @@ const moreThanOneDefaultTag = (tag: Tag) =>
 }
 .sidebar-group-item {
   position: relative;
+}
+
+.sidebar-group-item--without-parent .sidebar-heading {
+  margin-left: 12px;
+  padding-left: 12px !important;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
 }
 
 /* Change font colors and weights for nested items */
