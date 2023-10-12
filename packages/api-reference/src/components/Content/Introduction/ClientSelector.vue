@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
 import { type TargetId, availableTargets } from 'httpsnippet-lite'
-import { ref, toRaw } from 'vue'
+import { ref } from 'vue'
 
 import { type SelectedClient, useTemplateStore } from '../../../stores/template'
 import { Icon } from '../../Icon'

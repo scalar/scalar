@@ -5,6 +5,32 @@ import { ref } from 'vue'
 
 const activeTheme = ref<ThemeId>('default')
 
+/**
+ * Let’s imagine how the configuration could look like.
+ */
+//  const exampleConfiguration = {
+//   theme: 'purple',
+//   spec: {
+//     content: fastify.swagger(),
+//   },
+//   proxy: 'https://api.scalar.com/request-proxy',
+//   isEditable: true,
+//   tabs: {
+//     enabled: true,
+//     initialContent: 'Getting Started',
+//   },
+//   showSidebar: true,
+//   footerBelowSidebar: true,
+//   doNotPromoteScalar: true,
+// }
+
+/**
+ * Usage:
+ * ```vue
+ * <ApiReference :config="exampleConfiguration" />
+ * ```
+ */
+
 // import specResult from '../fixtures/specResult.json'
 </script>
 

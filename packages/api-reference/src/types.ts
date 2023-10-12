@@ -6,16 +6,46 @@ import { type ThemeId } from '@scalar/themes'
 import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 
 export type ReferenceProps = {
+  /** @deprecated */
   isEditable?: boolean
+  /** @deprecated */
+  showSidebar?: boolean
+  /** @deprecated */
+  footerBelowSidebar?: boolean
+  /** @deprecated */
+  spec?: string
+  /** @deprecated */
+  specUrl?: string
+  /** @deprecated */
+  specResult?: Record<any, any>
+  /** @deprecated */
+  proxyUrl?: string
+  /** @deprecated */
+  hocuspocusConfiguration?: HocuspocusConfigurationProp
+  /** @deprecated */
+  theme?: ThemeId
+  /** @deprecated */
+  initialTabState?: EditorHeaderTabs
+  configuration?: ReferenceConfiguration
+}
+
+export type ReferenceConfiguration = {
+  theme?: ThemeId
+  spec?: {
+    url?: string
+    content?: string
+    preparsedContent?: Record<any, any>
+  }
+  proxy?: string
+  isEditable?: boolean
+  tabs?: {
+    enabled?: boolean
+    initialTabState?: EditorHeaderTabs
+  }
   showSidebar?: boolean
   footerBelowSidebar?: boolean
-  spec?: string
-  specUrl?: string
-  specResult?: Record<any, any>
-  proxyUrl?: string
   hocuspocusConfiguration?: HocuspocusConfigurationProp
-  theme?: ThemeId
-  initialTabState?: EditorHeaderTabs
+  doNotPromoteScalar: boolean
 }
 
 export type Security = {

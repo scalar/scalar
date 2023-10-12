@@ -21,6 +21,7 @@ import MobileHeader from './MobileHeader.vue'
 import SearchModal from './SearchModal.vue'
 import Sidebar from './Sidebar.vue'
 
+// eslint-disable-next-line vue/no-unused-properties
 const props = withDefaults(defineProps<ReferenceProps>(), {
   showSidebar: true,
   isEditable: false,
