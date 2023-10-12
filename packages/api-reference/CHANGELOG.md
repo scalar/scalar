@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 0.7.4
+
+### Patch Changes
+
+- 51029c1d: add interactive params, headers and variables
+- Updated dependencies [51029c1d]
+  - @scalar/api-client@0.7.18
+
 ## 0.7.3
 
 ### Patch Changes
