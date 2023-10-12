@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 0.7.3
+
+### Patch Changes
+
+- 99936ab8: feat: add markdown headings to the sidebar
+- 08e8f637: style: improve markdown code blocks
+
 ## 0.7.2
 
 ### Patch Changes
