@@ -34,21 +34,10 @@ function showItemInClient(operation: Operation) {
   toggleApiClient(item, true)
 }
 
-async function scrollToEndpoint(item: Operation) {
-  if (state.showApiClient) {
-    showItemInClient(item)
-  }
-  document
-    .getElementById(`endpoint/${item.httpVerb}-${item.operationId}`)
-    ?.scrollIntoView()
+async function scrollToId(id: string) {
+  document.getElementById(id)?.scrollIntoView()
   await nextTick()
-  setActiveSidebar(`${item.httpVerb}-${item.operationId}`)
-}
-
-async function scrollToHeading(slug: string) {
-  document.getElementById(`user-content-${slug}`)?.scrollIntoView()
-  await nextTick()
-  setActiveSidebar(slug)
+  setActiveSidebar(id)
 }
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
@@ -98,15 +87,16 @@ watch(
         <SidebarElement
           v-for="heading in headings"
           :key="heading"
+          :isActive="state.activeSidebar === `user-content-${heading.slug}`"
           :item="{
-            uid: '',
+            uid: 'user-content-authentication',
             title: heading.value.toUpperCase(),
             type: 'Page',
           }"
           @select="
             () => {
               if (heading.slug) {
-                scrollToHeading(heading.slug)
+                scrollToId(`user-content-${heading.slug}`)
               }
             }
           " />
@@ -140,8 +130,13 @@ watch(
                 }"
                 @select="
                   () => {
+                    if (state.showApiClient) {
+                      showItemInClient(operation)
+                    }
                     setCollapsedSidebarItem(tag.name, true)
-                    scrollToEndpoint(operation)
+                    scrollToId(
+                      `endpoint/${operation.httpVerb}-${operation.operationId}`,
+                    )
                   }
                 " />
             </SidebarGroup>
