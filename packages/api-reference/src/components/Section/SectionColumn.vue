@@ -7,5 +7,6 @@
 <style scoped>
 .section-column {
   flex: 1;
+  min-width: 0;
 }
 </style>
