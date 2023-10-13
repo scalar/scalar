@@ -7,7 +7,7 @@ import {
 } from '@scalar/api-client'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
-import { nextTick, ref, watch } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 
 import { getHeadingsFromMarkdown } from '../helpers'
 import { useTemplateStore } from '../stores/template'
