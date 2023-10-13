@@ -96,11 +96,11 @@ useKeyboardEvent({
               </span>
             </Tab>
           </TabList>
-          <TabPanels>
-            <TabPanel>
+          <TabPanels as="template">
+            <TabPanel as="template">
               <Request />
             </TabPanel>
-            <TabPanel>
+            <TabPanel as="template">
               <Response />
             </TabPanel>
           </TabPanels>
@@ -123,6 +123,7 @@ useKeyboardEvent({
 }
 .scalar-api-client {
   flex: 1;
+  max-height: 100vh;
 }
 @media screen and (max-width: 1000px) {
   .scalar-api-client {
@@ -229,7 +230,7 @@ useKeyboardEvent({
 
 @media screen and (max-width: 820px) {
   .scalar-api-client__main {
-    display: block;
+    flex-direction: column;
   }
 }
 
@@ -250,7 +251,7 @@ useKeyboardEvent({
 }
 @media screen and (max-width: 820px) {
   .scalar-api-client__main__content {
-    padding: 0 0 12px 0;
+    padding: 3px 0 12px 0;
   }
 
   .scalar-api-client__main__content label {
@@ -260,7 +261,6 @@ useKeyboardEvent({
 
 .meta {
   display: flex;
-  margin-top: 3px;
   font-size: var(--theme-font-size-2, var(--default-theme-font-size-2));
   font-weight: var(--theme-font-size-2, var(--default-theme-font-size-2));
   color: var(
