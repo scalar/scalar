@@ -20,6 +20,7 @@ onMounted(() => {
       }
 
       console.log('isIntersecting', props.id)
+
       if (isIntersecting) {
         const newUrl = `${window.location.origin}${window.location.pathname}#${props.id}`
         window.history.replaceState({}, '', newUrl)
