@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import type { Server, Tag, TransformedOperation } from '../../../types'
+import {
+  Section,
+  SectionColumn,
+  SectionContainer,
+  SectionContent,
+  SectionHeader,
+} from '../../Section'
 import Copy from './Copy.vue'
 import ExampleRequest from './ExampleRequest.vue'
 import { ExampleResponses } from './ExampleResponses'
@@ -11,19 +18,24 @@ defineProps<{
 }>()
 </script>
 <template>
-  <div
-    :id="`endpoint/${operation.httpVerb}-${operation.operationId}`"
-    class="reference-container">
-    <Copy
-      :operation="operation"
-      :parentTag="parentTag" />
-    <div class="example">
-      <ExampleRequest
-        :operation="operation"
-        :server="server" />
-      <ExampleResponses
-        :operation="operation"
-        style="margin-top: 12px" />
-    </div>
-  </div>
+  <Section :id="`endpoint/${operation.httpVerb}-${operation.operationId}`">
+    <SectionHeader>
+      {{ operation.name || operation.path }}
+    </SectionHeader>
+    <SectionContent withColumns>
+      <SectionColumn>
+        <Copy
+          :operation="operation"
+          :parentTag="parentTag" />
+      </SectionColumn>
+      <SectionColumn>
+        <ExampleRequest
+          :operation="operation"
+          :server="server" />
+        <ExampleResponses
+          :operation="operation"
+          style="margin-top: 12px" />
+      </SectionColumn>
+    </SectionContent>
+  </Section>
 </template>

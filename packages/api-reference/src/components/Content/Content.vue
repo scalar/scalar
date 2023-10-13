@@ -7,6 +7,13 @@ import { useRefOnMount } from '../../hooks/useRefOnMount'
 import { useTemplateStore } from '../../stores/template'
 import type { Spec, Tag } from '../../types'
 import { FlowIcon } from '../Icon'
+import {
+  Section,
+  SectionColumn,
+  SectionContainer,
+  SectionContent,
+  SectionHeader,
+} from '../Section'
 import EndpointsOverview from './EndpointsOverview.vue'
 import Introduction from './Introduction'
 import Models from './Models.vue'
@@ -66,9 +73,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
       <template
         v-for="(tag, index) in spec.tags"
         :key="tag.id">
-        <div
-          v-if="tag.operations && tag.operations.length > 0"
-          class="reference">
+        <SectionContainer v-if="tag.operations && tag.operations.length > 0">
           <EndpointsOverview
             v-if="moreThanOneDefaultTag(tag)"
             :index="index"
@@ -96,7 +101,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
               :parentTag="tag"
               :server="localServers[0]" />
           </template>
-        </div>
+        </SectionContainer>
       </template>
       <template v-if="hasModels(spec)">
         <Models :components="spec.components" />
