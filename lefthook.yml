@@ -20,4 +20,5 @@ pre-commit:
       glob: '*.{js,ts,jsx,tsx,vue,md,json,css,scss,html,yml,yaml}'
       run: 'pnpm prettier --write {staged_files} && git add {staged_files}'
     eslint:
-      run: 'pnpm lint:fix && git add {staged_files}'
+      glob: '*.{js,ts,jsx,tsx,vue}'
+      run: 'pnpm eslint {staged_files} --fix && git add {staged_files}'
