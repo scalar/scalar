@@ -97,7 +97,8 @@ const showDescription = ref(false)
         </label>
         <button
           class="meta-delete"
-          type="button">
+          type="button"
+          @click="$emit('deleteIndex', index)">
           <svg
             fill="none"
             height="10"
