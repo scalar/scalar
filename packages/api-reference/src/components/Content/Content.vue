@@ -7,13 +7,7 @@ import { useRefOnMount } from '../../hooks/useRefOnMount'
 import { useTemplateStore } from '../../stores/template'
 import type { Spec, Tag } from '../../types'
 import { FlowIcon } from '../Icon'
-import {
-  Section,
-  SectionColumn,
-  SectionContainer,
-  SectionContent,
-  SectionHeader,
-} from '../Section'
+import { SectionContainer } from '../Section'
 import EndpointsOverview from './EndpointsOverview.vue'
 import Introduction from './Introduction'
 import Models from './Models.vue'

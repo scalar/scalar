@@ -1,47 +1,19 @@
 <script setup lang="ts">
-import { useApiClientStore } from '@scalar/api-client'
-import { useIntersectionObserver } from '@vueuse/core'
-import { onMounted, ref } from 'vue'
+import IntersectionObserver from '../IntersectionObserver.vue'
 
-const props = defineProps<{
+defineProps<{
   id?: string
 }>()
-
-const { setSidebarIdVisibility } = useApiClientStore()
-
-const sectionRef = ref<HTMLElement>()
-
-onMounted(() => {
-  useIntersectionObserver(
-    sectionRef,
-    ([{ isIntersecting }]) => {
-      if (!props.id) {
-        return
-      }
-
-      setSidebarIdVisibility(props.id, isIntersecting)
-
-      if (isIntersecting) {
-        const newUrl = `${window.location.origin}${window.location.pathname}#${props.id}`
-
-        window.history.replaceState({}, '', newUrl)
-      }
-    },
-    {
-      rootMargin: '0px 0px 50% 0px',
-      threshold: 0.1,
-    },
-  )
-})
 </script>
 
 <template>
-  <section
-    :id="id"
-    ref="sectionRef"
-    class="section">
-    <slot />
-  </section>
+  <IntersectionObserver :id="id">
+    <section
+      ref="sectionRef"
+      class="section">
+      <slot />
+    </section>
+  </IntersectionObserver>
 </template>
 
 <style scoped>
