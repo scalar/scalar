@@ -71,11 +71,17 @@ watch(
       return []
     }
 
-    headings.value = (await getHeadingsFromMarkdown(description)).filter(
-      (heading) => heading.depth === 1,
-    )
+    headings.value = await updateHeadings(description)
   },
 )
+
+const updateHeadings = async (description: string) => {
+  const newHeadings = await getHeadingsFromMarkdown(description)
+
+  const lowestDepth = Math.min(...newHeadings.map((heading) => heading.depth))
+
+  return newHeadings.filter((heading) => heading.depth === lowestDepth)
+}
 </script>
 <template>
   <div class="sidebar">
