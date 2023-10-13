@@ -4,11 +4,13 @@ import remarkParse from 'remark-parse'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 
-export type Headings = {
+export type Heading = {
   depth: number
   value: string
   slug?: string
 }[]
+
+export type Headings = Heading[]
 
 const processor = unified()
   .use(remarkParse)

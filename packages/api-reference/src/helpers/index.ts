@@ -1,4 +1,5 @@
 export * from './generateResponseContent'
+export * from './getHeadingId'
 export * from './getHeadingsFromMarkdown'
 export * from './getModelSectionId'
 export * from './getOperationSectionId'

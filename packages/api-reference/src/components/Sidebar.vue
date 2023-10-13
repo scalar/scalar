@@ -10,6 +10,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { nextTick, ref, watch } from 'vue'
 
 import {
+  getHeadingId,
   getHeadingsFromMarkdown,
   getModelSectionId,
   getOperationSectionId,
@@ -100,7 +101,7 @@ const updateHeadings = async (description: string) => {
         <SidebarElement
           v-for="heading in headings"
           :key="heading"
-          :isActive="state.activeSidebar === `user-content-${heading.slug}`"
+          :isActive="state.activeSidebar === getHeadingId(heading)"
           :item="{
             uid: '',
             title: heading.value.toUpperCase(),
@@ -109,7 +110,7 @@ const updateHeadings = async (description: string) => {
           @select="
             () => {
               if (heading.slug) {
-                scrollToId(`user-content-${heading.slug}`)
+                scrollToId(getHeadingId(heading))
               }
             }
           " />
@@ -118,7 +119,7 @@ const updateHeadings = async (description: string) => {
         <template v-for="tag in spec.tags">
           <SidebarElement
             v-if="moreThanOneDefaultTag(tag) && tag.operations?.length > 0"
-            :key="tag.name"
+            :key="getTagSectionId(tag)"
             :hasChildren="true"
             :isActive="state.activeSidebar === getTagSectionId(tag)"
             :item="{
@@ -132,7 +133,7 @@ const updateHeadings = async (description: string) => {
             <SidebarGroup :level="0">
               <SidebarElement
                 v-for="operation in tag.operations"
-                :key="`${operation.httpVerb}-${operation.operationId}`"
+                :key="getOperationSectionId(operation)"
                 :isActive="
                   state.activeSidebar === getOperationSectionId(operation)
                 "
@@ -155,7 +156,7 @@ const updateHeadings = async (description: string) => {
           <template v-else>
             <SidebarElement
               v-for="operation in tag.operations"
-              :key="`${operation.httpVerb}-${operation.operationId}`"
+              :key="getOperationSectionId(operation)"
               class="sidebar-group-item--without-parent"
               :isActive="
                 state.activeSidebar === getOperationSectionId(operation)
