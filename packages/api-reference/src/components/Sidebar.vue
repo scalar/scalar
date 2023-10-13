@@ -96,7 +96,7 @@ type SidebarEntry = {
 
 const items = computed((): SidebarEntry[] => {
   // Introduction
-  const headingEntries = headings.value.map((heading) => {
+  const headingEntries: SidebarEntry[] = headings.value.map((heading) => {
     return {
       id: getHeadingId(heading),
       title: heading.value.toUpperCase(),
@@ -107,7 +107,7 @@ const items = computed((): SidebarEntry[] => {
   // Tags & Operations
   const firstTag = props?.spec?.tags?.[0]
 
-  const operationEntries =
+  const operationEntries: SidebarEntry[] =
     firstTag &&
     moreThanOneDefaultTag(firstTag) &&
     firstTag.operations?.length > 0
@@ -134,7 +134,7 @@ const items = computed((): SidebarEntry[] => {
         })
 
   // Models
-  const modelEntries = [
+  const modelEntries: SidebarEntry[] = [
     {
       id: 'models',
       title: 'MODELS',
