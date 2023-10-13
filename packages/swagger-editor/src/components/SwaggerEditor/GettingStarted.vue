@@ -42,14 +42,6 @@ watch(activeExample, () => {
       Below you can quickly get started by importing your file, going through
       examples & also checking out our pre-made themes ✨
     </p>
-    <div class="start-p">
-      <a
-        class="start-a"
-        href="https://www.producthunt.com/posts/scalar-api-references-swagger-editor?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-scalar&#0045;api&#0045;references&#0045;swagger&#0045;editor"
-        target="_blank">
-        We’re live on Producthunt, come chat with us!
-      </a>
-    </div>
     <div class="start-section">
       <div class="start-h2">Quick Start</div>
       <div
