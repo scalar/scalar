@@ -2,6 +2,7 @@
 import { useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 
+import { hasModels } from '../../helpers'
 import { useRefOnMount } from '../../hooks/useRefOnMount'
 import { useTemplateStore } from '../../stores/template'
 import type { Spec, Tag } from '../../types'
@@ -97,11 +98,8 @@ const moreThanOneDefaultTag = (tag: Tag) =>
           </template>
         </div>
       </template>
-      <template v-if="spec.components">
+      <template v-if="hasModels(spec)">
         <Models :components="spec.components" />
-      </template>
-      <template v-if="spec.definitions">
-        <Models :components="spec.definitions" />
       </template>
     </template>
     <div

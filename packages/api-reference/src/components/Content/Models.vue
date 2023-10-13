@@ -1,14 +1,40 @@
 <script setup lang="ts">
-import { type Components, type Definitions } from '../../types'
+import { computed } from 'vue'
 
-defineProps<{
-  definitions?: Definitions
+import { mapFromObject } from '../../helpers'
+import { type Components } from '../../types'
+import { Card, CardContent, CardHeader } from '../Card'
+import {
+  Section,
+  SectionContainer,
+  SectionContent,
+  SectionHeader,
+} from '../Section'
+
+const props = defineProps<{
   components?: Components
 }>()
+
+const models = computed(() => mapFromObject(props.components?.schemas))
 </script>
 <template>
-  <div>
-    <div v-if="definitions">{{ definitions }}</div>
-    <div v-if="components">{{ components }}</div>
-  </div>
+  <SectionContainer
+    v-if="components"
+    id="models">
+    <Section
+      v-for="model in models"
+      :key="model.key">
+      <SectionHeader>
+        {{ model.key }}
+      </SectionHeader>
+      <SectionContent>
+        <Card>
+          <CardHeader>Schema</CardHeader>
+          <CardContent>
+            <pre><code>{{ model.value }}</code></pre>
+          </CardContent>
+        </Card>
+      </SectionContent>
+    </Section>
+  </SectionContainer>
 </template>
