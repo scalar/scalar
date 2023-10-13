@@ -324,7 +324,6 @@ const breadCrumbs = computed(() => {
   --default-scalar-api-reference-col-width-1: 250px;
   --default-scalar-api-reference-col-width-2: calc(50% - 125px);
   --default-scalar-api-reference-col-width-3: calc(50% - 125px);
-  --default-scalar-api-reference-document-height: 100vh;
   --default-scalar-api-reference-full-height: 100%;
 }
 
@@ -981,10 +980,8 @@ const breadCrumbs = computed(() => {
 
     /* Offset by 2px to fill screen and compensate for gap */
     height: calc(
-      var(
-          --scalar-api-reference-document-height,
-          var(--default-scalar-api-reference-document-height)
-        ) - var(--scalar-api-reference-theme-header-height) + 2px
+      var(--full-height, 100vh) -
+        var(--scalar-api-reference-theme-header-height) + 2px
     );
 
     border-top: 1px solid
