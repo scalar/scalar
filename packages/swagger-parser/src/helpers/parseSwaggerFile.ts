@@ -1,6 +1,11 @@
 import SwaggerParser from '@apidevtools/swagger-parser'
 import yaml from 'js-yaml'
-import { type OpenAPI, type OpenAPIV2, type OpenAPIV3 } from 'openapi-types'
+import {
+  type OpenAPI,
+  type OpenAPIV2,
+  type OpenAPIV3,
+  type OpenAPIV3_1,
+} from 'openapi-types'
 
 export type SwaggerSpec = {
   info: {
@@ -17,6 +22,8 @@ export type SwaggerSpec = {
     }
   }
   tags: SwaggerTag[]
+  components?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
+  definitions?: OpenAPIV2.DefinitionsObject
 }
 
 export type SwaggerTag = {

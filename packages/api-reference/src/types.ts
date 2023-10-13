@@ -3,6 +3,7 @@ import {
   type HocuspocusConfigurationProp,
 } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
+import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 
 export type ReferenceProps = {
   isEditable?: boolean
@@ -157,9 +158,17 @@ export type Server = {
   description?: string
 }
 
+export type Components =
+  | OpenAPIV3.ComponentsObject
+  | OpenAPIV3_1.ComponentsObject
+
+export type Definitions = OpenAPIV2.DefinitionsObject
+
 export type Spec = {
   tags: Tag[]
   info: Info
   externalDocs: ExternalDocs
   servers: Server[]
+  components?: Components
+  definitions?: Definitions
 }

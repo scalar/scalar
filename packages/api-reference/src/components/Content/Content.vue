@@ -8,6 +8,7 @@ import type { Spec, Tag } from '../../types'
 import { FlowIcon } from '../Icon'
 import EndpointsOverview from './EndpointsOverview.vue'
 import Introduction from './Introduction'
+import Models from './Models.vue'
 import ReferenceEndpoint from './ReferenceEndpoint'
 import Spinner from './Spinner.vue'
 
@@ -95,6 +96,12 @@ const moreThanOneDefaultTag = (tag: Tag) =>
               :server="localServers[0]" />
           </template>
         </div>
+      </template>
+      <template v-if="spec.components">
+        <Models :components="spec.components" />
+      </template>
+      <template v-if="spec.definitions">
+        <Models :components="spec.definitions" />
       </template>
     </template>
     <div
