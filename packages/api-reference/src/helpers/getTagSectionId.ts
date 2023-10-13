@@ -6,5 +6,5 @@ export const getTagSectionId = (tag: Tag) => {
   const slugger = new GithubSlugger()
   const slug = slugger.slug(tag.name)
 
-  return `tag-${slug}`
+  return `tag//${slug}`
 }
