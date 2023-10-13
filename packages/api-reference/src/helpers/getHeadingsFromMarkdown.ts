@@ -8,7 +8,7 @@ export type Heading = {
   depth: number
   value: string
   slug?: string
-}[]
+}
 
 export type Headings = Heading[]
 

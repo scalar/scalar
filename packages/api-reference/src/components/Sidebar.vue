@@ -7,7 +7,7 @@ import {
 } from '@scalar/api-client'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
-import { nextTick, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 import {
   getHeadingId,
@@ -16,6 +16,7 @@ import {
   getOperationSectionId,
   getTagSectionId,
   hasModels,
+  scrollToId,
 } from '../helpers'
 import { useTemplateStore } from '../stores/template'
 import type { Operation, Spec, Tag } from '../types'
@@ -26,7 +27,7 @@ import SidebarGroup from './SidebarGroup.vue'
 
 const props = defineProps<{ spec: Spec }>()
 
-const { state, setActiveSidebar, toggleApiClient } = useApiClientStore()
+const { state, toggleApiClient } = useApiClientStore()
 
 const { setActiveRequest } = useApiClientRequestStore()
 
@@ -39,12 +40,6 @@ function showItemInClient(operation: Operation) {
   )
   setActiveRequest(item)
   toggleApiClient(item, true)
-}
-
-async function scrollToId(id: string) {
-  document.getElementById(id)?.scrollIntoView()
-  await nextTick()
-  setActiveSidebar(id)
 }
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
