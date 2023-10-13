@@ -25,6 +25,13 @@ defineProps<{ requestBody?: RequestBody }>()
   </div>
 </template>
 
+<style scoped>
+.title {
+  margin-bottom: 12px !important;
+  margin-top: 24px !important;
+}
+</style>
+
 <style>
 .parameter p {
   margin-top: 6px;

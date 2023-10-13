@@ -21,3 +21,10 @@ defineProps<{ parameters?: Parameters[]; title: string }>()
     </ul>
   </div>
 </template>
+
+<style scoped>
+.title {
+  margin-bottom: 12px !important;
+  margin-top: 12px !important;
+}
+</style>

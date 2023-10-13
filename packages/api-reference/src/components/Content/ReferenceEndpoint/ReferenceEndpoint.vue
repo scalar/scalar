@@ -15,7 +15,6 @@ import { ExampleResponses } from './ExampleResponses'
 defineProps<{
   operation: TransformedOperation
   server: Server
-  parentTag: Tag
 }>()
 </script>
 <template>
@@ -26,9 +25,7 @@ defineProps<{
     <SectionContent>
       <SectionColumns>
         <SectionColumn>
-          <Copy
-            :operation="operation"
-            :parentTag="parentTag" />
+          <Copy :operation="operation" />
         </SectionColumn>
         <SectionColumn>
           <ExampleRequest
