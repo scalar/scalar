@@ -28,14 +28,23 @@ defineProps<{
           <Copy :operation="operation" />
         </SectionColumn>
         <SectionColumn>
-          <ExampleRequest
-            :operation="operation"
-            :server="server" />
-          <ExampleResponses
-            :operation="operation"
-            style="margin-top: 12px" />
+          <div class="examples">
+            <ExampleRequest
+              :operation="operation"
+              :server="server" />
+            <ExampleResponses
+              :operation="operation"
+              style="margin-top: 12px" />
+          </div>
         </SectionColumn>
       </SectionColumns>
     </SectionContent>
   </Section>
 </template>
+
+<style scoped>
+.examples {
+  position: sticky;
+  top: 24px;
+}
+</style>
