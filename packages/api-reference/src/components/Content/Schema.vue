@@ -5,7 +5,6 @@ import Schema from './Schema.vue'
 defineProps<{ value: Record<string, any> }>()
 </script>
 <template>
-  {{ value }}
   type: {{ value.type }}
   <table v-if="value.properties">
     <tr

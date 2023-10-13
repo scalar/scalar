@@ -9,7 +9,12 @@ import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
 import { nextTick, ref, watch } from 'vue'
 
-import { getHeadingsFromMarkdown, hasModels } from '../helpers'
+import {
+  getHeadingsFromMarkdown,
+  getModelSectionId,
+  getOperationSectionId,
+  hasModels,
+} from '../helpers'
 import { useTemplateStore } from '../stores/template'
 import type { Operation, Spec, Tag } from '../types'
 import DarkModeToggle from './DarkModeToggle.vue'
@@ -85,6 +90,7 @@ const updateHeadings = async (description: string) => {
 </script>
 <template>
   <div class="sidebar">
+    {{ state.activeSidebar }}
     <FindAnythingButton
       v-if="!isMobile"
       @click="setTemplateItem('showSearch', true)" />
@@ -96,7 +102,7 @@ const updateHeadings = async (description: string) => {
           :key="heading"
           :isActive="state.activeSidebar === `user-content-${heading.slug}`"
           :item="{
-            uid: 'user-content-authentication',
+            uid: '',
             title: heading.value.toUpperCase(),
             type: 'Page',
           }"
@@ -142,9 +148,7 @@ const updateHeadings = async (description: string) => {
                       showItemInClient(operation)
                     }
                     setCollapsedSidebarItem(tag.name, true)
-                    scrollToId(
-                      `endpoint/${operation.httpVerb}-${operation.operationId}`,
-                    )
+                    scrollToId(getOperationSectionId(operation))
                   }
                 " />
             </SidebarGroup>
@@ -166,25 +170,47 @@ const updateHeadings = async (description: string) => {
               @select="
                 () => {
                   setCollapsedSidebarItem(tag.name, true)
-                  scrollToId(
-                    `endpoint/${operation.httpVerb}-${operation.operationId}`,
-                  )
+                  scrollToId(getOperationSectionId(operation))
                 }
               " />
           </template>
         </template>
 
         <!-- Models -->
-        <SidebarElement
-          v-if="hasModels(spec)"
-          class="sidebar-group-item"
-          :isActive="state.activeSidebar === 'models'"
-          :item="{
-            uid: '',
-            title: 'Models'.toUpperCase(),
-            type: 'Page',
-          }"
-          @select="() => scrollToId('models')" />
+        <template v-if="hasModels(spec)">
+          <SidebarElement
+            :hasChildren="true"
+            :isActive="state.activeSidebar === 'models'"
+            :item="{
+              uid: '',
+              title: 'Models'.toUpperCase(),
+              type: 'Folder',
+            }"
+            :open="templateState.collapsedSidebarItems['models']"
+            @toggleOpen="
+              () => {
+                if (!templateState.collapsedSidebarItems['models']) {
+                  scrollToId('models')
+                }
+
+                toggleCollapsedSidebarItem('models')
+              }
+            ">
+            <SidebarGroup :level="0">
+              <SidebarElement
+                v-for="name in Object.keys(spec.components?.schemas ?? {})"
+                :key="name"
+                class="sidebar-group-item"
+                :isActive="state.activeSidebar === getModelSectionId(name)"
+                :item="{
+                  uid: '',
+                  title: name.toUpperCase(),
+                  type: 'Page',
+                }"
+                @select="() => scrollToId('models')" />
+            </SidebarGroup>
+          </SidebarElement>
+        </template>
       </SidebarGroup>
     </div>
     <DarkModeToggle />
