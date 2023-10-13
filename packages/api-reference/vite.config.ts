@@ -46,6 +46,7 @@ export default defineConfig({
         'remark-parse',
         'remark-rehype',
         'remark-textr',
+        'remark-stringify',
         'typographic-base',
         'unified',
         '@scalar/swagger-editor',

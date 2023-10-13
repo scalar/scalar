@@ -4,18 +4,16 @@ import remarkParse from 'remark-parse'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 
-const slugger = new GithubSlugger()
-
-const processor = unified()
-  .use(remarkParse)
-  .use(remarkStringify)
-  .use(remarkHeadings)
-
 export type Headings = {
   depth: number
   value: string
   slug?: string
 }[]
+
+const processor = unified()
+  .use(remarkParse)
+  .use(remarkStringify)
+  .use(remarkHeadings)
 
 export const getHeadingsFromMarkdown = async (
   input: string,
@@ -24,6 +22,8 @@ export const getHeadingsFromMarkdown = async (
 
   return withSlugs(headings as Headings)
 }
+
+const slugger = new GithubSlugger()
 
 const withSlugs = (headings: Headings): Headings =>
   headings.map((heading) => {

@@ -62,20 +62,18 @@ const moreThanOneDefaultTag = (tag: Tag) =>
 
 const headings = ref<any[]>([])
 
-onMounted(() => {
-  watch(
-    () => props?.spec?.info?.description,
-    async () => {
-      const description = props?.spec?.info?.description
+watch(
+  () => props?.spec?.info?.description,
+  async () => {
+    const description = props?.spec?.info?.description
 
-      if (!description) {
-        return []
-      }
+    if (!description) {
+      return []
+    }
 
-      headings.value = await updateHeadings(description)
-    },
-  )
-})
+    headings.value = await updateHeadings(description)
+  },
+)
 
 const updateHeadings = async (description: string) => {
   const newHeadings = await getHeadingsFromMarkdown(description)
