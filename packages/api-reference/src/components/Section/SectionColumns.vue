@@ -8,5 +8,6 @@
 .section-columns {
   display: flex;
   gap: 48px;
+  flex-wrap: wrap;
 }
 </style>
