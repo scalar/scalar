@@ -1,25 +1,14 @@
 <script setup lang="ts">
-import {
-  type Operation,
-  useApiClientStore,
-  useOperation,
-} from '@scalar/api-client'
-import { useIntersectionObserver } from '@vueuse/core'
-import { computed, onMounted, ref } from 'vue'
+import { type Operation, useOperation } from '@scalar/api-client'
+import { computed } from 'vue'
 
-import { useTemplateStore } from '../../../stores/template'
-import type { Tag } from '../../../types'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import Parameters from './Parameters.vue'
 import RequestBody from './RequestBody.vue'
 
-const props = defineProps<{ operation: Operation; parentTag: Tag }>()
-
-const { setActiveSidebar } = useApiClientStore()
+const props = defineProps<{ operation: Operation }>()
 
 const { parameterMap } = useOperation(props)
-
-const { setCollapsedSidebarItem } = useTemplateStore()
 
 const responseArray = computed(() => {
   const { responses } = props.operation.information
@@ -37,48 +26,10 @@ const responseArray = computed(() => {
 
   return res
 })
-
-const refHeader = ref<HTMLElement>()
-
-onMounted(() => {
-  const root = document.getElementById('tippy')
-
-  useIntersectionObserver(
-    refHeader,
-    ([{ isIntersecting }]) => {
-      if (isIntersecting) {
-        const slug = props.operation.name.toLowerCase().split(' ').join('-')
-        const newUrl = `${window.location.origin}${window.location.pathname}#${
-          props.parentTag.name
-        }/${encodeURI(slug)}`
-        window.history.replaceState({}, '', newUrl)
-        const { httpVerb, operationId } = props.operation
-        setActiveSidebar(`${httpVerb}-${operationId}`)
-        setCollapsedSidebarItem(props.parentTag.name, true)
-      }
-    },
-    {
-      root,
-      rootMargin: '0px 0px 0px 0px', // Trigger when the header touches the top of the viewport
-      threshold: 0,
-    },
-  )
-})
 </script>
 <template>
   <div class="copy">
-    <div class="editor-heading">
-      <h1
-        ref="refHeader"
-        class="heading">
-        {{ operation.name || operation.path }}
-      </h1>
-    </div>
-    <div>
-      <p class="tag-description">
-        <MarkdownRenderer :value="operation.description" />
-      </p>
-    </div>
+    <MarkdownRenderer :value="operation.description" />
     <Parameters
       :parameters="parameterMap.path"
       title="Path Parameters" />
@@ -94,12 +45,3 @@ onMounted(() => {
       title="Responses" />
   </div>
 </template>
-<style scoped>
-.heading {
-  margin-top: 0px !important;
-  word-wrap: break-word;
-}
-.tag-description {
-  margin-top: 12px;
-}
-</style>

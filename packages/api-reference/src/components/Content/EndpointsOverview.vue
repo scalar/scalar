@@ -6,6 +6,12 @@ import { nextTick, onMounted, ref } from 'vue'
 import { useTemplateStore } from '../../stores/template'
 import type { Operation, Tag } from '../../types'
 import { Card, CardContent, CardHeader } from '../Card'
+import {
+  Section,
+  SectionColumn,
+  SectionContent,
+  SectionHeader,
+} from '../Section'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
 const props = defineProps<{ tag: Tag; index: number }>()
@@ -49,44 +55,35 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    :id="`tag/${tag.name}`"
-    class="reference-container"
-    :data-section-id="tag.name">
-    <div class="copy">
-      <div class="editor-heading">
-        <h1
-          ref="tagHeader"
-          class="heading">
-          {{ tag.name }}
-        </h1>
-      </div>
-      <div
-        v-if="tag.description"
-        class="tag-description">
+  <Section>
+    <SectionHeader>
+      {{ tag.name }}
+    </SectionHeader>
+    <SectionContent withColumns>
+      <SectionColumn>
         <MarkdownRenderer :value="tag.description" />
-      </div>
-    </div>
-    <div
-      v-if="tag.operations?.length > 0"
-      class="example">
-      <Card>
-        <CardHeader muted>Endpoints</CardHeader>
-        <CardContent muted>
-          <div class="endpoints custom-scroll">
-            <a
-              v-for="child in tag.operations"
-              :key="`${child.httpVerb}-${child.operationId}`"
-              class="endpoint"
-              @click="scrollToEndpoint(child)">
-              <span :class="child.httpVerb">{{ child.httpVerb }}</span>
-              <span>{{ child.path }}</span>
-            </a>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  </div>
+      </SectionColumn>
+      <SectionColumn>
+        <template v-if="tag.operations?.length > 0">
+          <Card>
+            <CardHeader muted>Endpoints</CardHeader>
+            <CardContent muted>
+              <div class="endpoints custom-scroll">
+                <a
+                  v-for="child in tag.operations"
+                  :key="`${child.httpVerb}-${child.operationId}`"
+                  class="endpoint"
+                  @click="scrollToEndpoint(child)">
+                  <span :class="child.httpVerb">{{ child.httpVerb }}</span>
+                  <span>{{ child.path }}</span>
+                </a>
+              </div>
+            </CardContent>
+          </Card>
+        </template>
+      </SectionColumn>
+    </SectionContent>
+  </Section>
 </template>
 <style scoped>
 .endpoints {
