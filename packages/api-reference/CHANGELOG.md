@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 0.7.5
+
+### Patch Changes
+
+- fd875bc7: feat: show headings with a higher depth in the sidebar
+- 28cce042: fix: externalize markdown plugins to not break SSG
+- Updated dependencies [28cce042]
+  - @scalar/api-client@0.7.19
+
 ## 0.7.4
 
 ### Patch Changes
