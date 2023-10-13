@@ -7,7 +7,7 @@ import {
 } from '@scalar/api-client'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import {
   getHeadingId,
@@ -86,6 +86,87 @@ const updateHeadings = async (description: string) => {
 }
 
 const isVisible = (id: string) => state.sidebarIdVisibility[id] ?? false
+
+type SidebarEntry = {
+  id: string
+  title: string
+  type: 'Page' | 'Folder'
+  children?: SidebarEntry[]
+}
+
+const items = computed((): SidebarEntry[] => {
+  // Introduction
+  const headingEntries = headings.value.map((heading) => {
+    return {
+      id: getHeadingId(heading),
+      title: heading.value.toUpperCase(),
+      type: 'Page',
+    }
+  })
+
+  // Tags & Operations
+  const firstTag = props?.spec?.tags?.[0]
+
+  const operationEntries =
+    firstTag &&
+    moreThanOneDefaultTag(firstTag) &&
+    firstTag.operations?.length > 0
+      ? props.spec.tags.map((tag) => {
+          return {
+            id: getTagSectionId(tag),
+            title: tag.name.toUpperCase(),
+            type: 'Folder',
+            children: tag.operations.map((operation) => {
+              return {
+                id: getOperationSectionId(operation),
+                title: operation.name || operation.path,
+                type: 'Page',
+              }
+            }),
+          }
+        })
+      : firstTag?.operations.map((operation) => {
+          return {
+            id: getOperationSectionId(operation),
+            title: operation.name || operation.path,
+            type: 'Page',
+          }
+        })
+
+  // Models
+  const modelEntries = [
+    {
+      id: 'models',
+      title: 'MODELS',
+      type: 'Folder',
+      children: Object.keys(props.spec.components?.schemas ?? {}).map(
+        (name) => {
+          return {
+            id: getModelSectionId(name),
+            title: name,
+            type: 'Page',
+          }
+        },
+      ),
+    },
+  ]
+
+  return [...headingEntries, ...(operationEntries ?? []), ...modelEntries]
+})
+
+const activeSidebarItemId = computed(() => {
+  const flattenedItems = items.value.reduce((acc, item) => {
+    acc.push(item)
+
+    if (item.children) {
+      acc.push(...item.children)
+    }
+
+    return acc
+  }, [] as SidebarEntry[])
+
+  return flattenedItems.find((item) => isVisible(item.id))?.id ?? null
+})
 </script>
 <template>
   <div class="sidebar">
@@ -94,119 +175,44 @@ const isVisible = (id: string) => state.sidebarIdVisibility[id] ?? false
       @click="setTemplateItem('showSearch', true)" />
     <div class="pages custom-scroll custom-scroll-self-contain-overflow">
       <SidebarGroup :level="0">
-        <!-- Introduction -->
         <SidebarElement
-          v-for="heading in headings"
-          :key="heading"
-          :isActive="isVisible(getHeadingId(heading))"
+          v-for="item in items"
+          :key="item.id"
+          :isActive="activeSidebarItemId === item.id"
           :item="{
             uid: '',
-            title: heading.value.toUpperCase(),
-            type: 'Page',
+            title: item.title,
+            type: item.type,
           }"
+          :open="item.type === 'Folder' ? true : false"
           @select="
             () => {
-              if (heading.slug) {
-                scrollToId(getHeadingId(heading))
+              if (item.id) {
+                scrollToId(item.id)
               }
             }
-          " />
-
-        <!-- Tags -->
-        <template v-for="tag in spec.tags">
-          <SidebarElement
-            v-if="moreThanOneDefaultTag(tag) && tag.operations?.length > 0"
-            :key="getTagSectionId(tag)"
-            :hasChildren="true"
-            :isActive="isVisible(getTagSectionId(tag))"
-            :item="{
-              uid: '',
-              title: tag.name.toUpperCase(),
-              type: 'Folder',
-            }"
-            :open="templateState.collapsedSidebarItems[tag.name]"
-            @select="() => toggleCollapsedSidebarItem(tag.name)"
-            @toggleOpen="toggleCollapsedSidebarItem(tag.name)">
+          ">
+          <template v-if="item.children && item.children?.length > 0">
             <SidebarGroup :level="0">
               <SidebarElement
-                v-for="operation in tag.operations"
-                :key="getOperationSectionId(operation)"
-                :isActive="isVisible(getOperationSectionId(operation))"
+                v-for="child in item.children"
+                :key="child.id"
+                :isActive="activeSidebarItemId === child.id"
                 :item="{
                   uid: '',
-                  title: operation.name || operation.path,
-                  type: 'Page',
+                  title: child.title,
+                  type: child.type,
                 }"
                 @select="
                   () => {
-                    if (state.showApiClient) {
-                      showItemInClient(operation)
+                    if (child.id) {
+                      scrollToId(child.id)
                     }
-                    setCollapsedSidebarItem(tag.name, true)
-                    scrollToId(getOperationSectionId(operation))
                   }
                 " />
             </SidebarGroup>
-          </SidebarElement>
-          <template v-else>
-            <SidebarElement
-              v-for="operation in tag.operations"
-              :key="getOperationSectionId(operation)"
-              class="sidebar-group-item--without-parent"
-              :isActive="isVisible(getOperationSectionId(operation))"
-              :item="{
-                uid: '',
-                title: operation.name || operation.path,
-                type: 'Page',
-              }"
-              @select="
-                () => {
-                  setCollapsedSidebarItem(tag.name, true)
-                  scrollToId(getOperationSectionId(operation))
-                }
-              " />
           </template>
-        </template>
-
-        <!-- Models -->
-        <template v-if="hasModels(spec)">
-          <SidebarElement
-            :hasChildren="true"
-            :isActive="isVisible('models')"
-            :item="{
-              uid: '',
-              title: 'Models'.toUpperCase(),
-              type: 'Folder',
-            }"
-            :open="templateState.collapsedSidebarItems['models']"
-            @toggleOpen="
-              () => {
-                if (!templateState.collapsedSidebarItems['models']) {
-                  scrollToId('models')
-                }
-
-                toggleCollapsedSidebarItem('models')
-              }
-            ">
-            <SidebarGroup :level="0">
-              <SidebarElement
-                v-for="name in Object.keys(spec.components?.schemas ?? {})"
-                :key="name"
-                class="sidebar-group-item"
-                :isActive="isVisible(getModelSectionId(name))"
-                :item="{
-                  uid: '',
-                  title: name,
-                  type: 'Page',
-                }"
-                @select="
-                  () => {
-                    scrollToId(getModelSectionId(name))
-                  }
-                " />
-            </SidebarGroup>
-          </SidebarElement>
-        </template>
+        </SidebarElement>
       </SidebarGroup>
     </div>
     <DarkModeToggle />
