@@ -23,7 +23,22 @@ function addAnotherHandler() {
           class="scalar-api-client-add"
           type="button"
           @click="addAnotherHandler">
-          Add Headers
+          <svg
+            class="flow-icon"
+            data-v-aa4fbd2d=""
+            height="100%"
+            viewBox="0 0 48 48"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M24 1.714v44.572M1.714 24h44.572"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="3.429"
+              xmlns="http://www.w3.org/2000/svg"></path>
+          </svg>
+          Headers
         </button>
       </div>
     </template>
@@ -53,6 +68,13 @@ function addAnotherHandler() {
     var(--default-theme-background-3)
   ) !important;
   appearance: none;
+  display: flex;
+  align-items: center;
+}
+.scalar-api-client-add svg {
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
 }
 .scalar-api-client-add:hover {
   color: var(--theme-color-1, var(--default-theme-color-1));

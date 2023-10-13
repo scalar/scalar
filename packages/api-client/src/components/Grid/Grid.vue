@@ -100,28 +100,22 @@ const showDescription = ref(false)
           type="button">
           <svg
             fill="none"
-            height="24"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            viewBox="0 0 24 24"
-            width="24"
-            xmlns="http://www.w3.org/2000/svg"
-            @click="$emit('deleteIndex', index)">
-            <polyline points="3 6 5 6 21 6" />
+            height="10"
+            viewBox="-0.5 -0.5 10 10"
+            width="10"
+            xmlns="http://www.w3.org/2000/svg">
             <path
-              d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-            <line
-              x1="10"
-              x2="10"
-              y1="11"
-              y2="17" />
-            <line
-              x1="14"
-              x2="14"
-              y1="11"
-              y2="17" />
+              d="m8.55 0.45 -8.1 8.1"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"></path>
+            <path
+              d="m0.45 0.45 8.1 8.1"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.5"></path>
           </svg>
         </button>
       </div>
@@ -265,7 +259,7 @@ const showDescription = ref(false)
   display: block;
   padding: 9px;
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  color: var(--theme-color-2, var(--default-theme-color-2));
   font-size: var(--theme-micro, var(--default-theme-micro));
 }
 .table-row-meta {
@@ -275,7 +269,7 @@ const showDescription = ref(false)
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 45px;
+  width: 51px;
   user-select: none;
 }
 .table-row-meta-check {
@@ -313,9 +307,8 @@ const showDescription = ref(false)
   width: 0;
 }
 .meta-checkmark {
-  height: 15px;
-  width: 15px;
-  background: var(--theme-background-1, var(--default-theme-background-1));
+  height: 17px;
+  width: 17px;
   box-shadow: 0 0 0 1px
     var(--theme-border-color, var(--default-theme-border-color));
   border-radius: 3px;
@@ -323,6 +316,9 @@ const showDescription = ref(false)
   align-items: center;
   justify-content: center;
   position: relative;
+}
+.meta-checkmark:hover {
+  background: var(--theme-background-3, var(--default-theme-background-3));
 }
 .meta-check:focus-within .meta-checkmark {
   box-shadow: 0 0 0 1px var(--theme-color-1, var(--default-theme-color-1));
@@ -338,6 +334,9 @@ const showDescription = ref(false)
 }
 .meta-check input:checked ~ .meta-checkmark:after {
   display: block;
+}
+.meta-check input:checked ~ .meta-checkmark:hover {
+  background: transparent;
 }
 </style>
 <style>
@@ -599,32 +598,44 @@ const showDescription = ref(false)
 }
 .meta-delete {
   position: absolute;
-  border-radius: 50%;
-  height: 28px;
-  right: -18px;
-  width: 18px;
-  padding: 0;
-  appearance: none;
+  right: -9px;
+  background: var(
+    --theme-background-2,
+    var(--default-theme-background-2)
+  ) !important;
+  height: 20px;
+  width: 20px;
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  box-shadow: var(--default-theme-shadow-1);
   outline: none;
-  border: none;
+  border-radius: 50%;
+  opacity: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
-  opacity: 0;
 }
 .meta-delete svg {
-  margin: 0 0 0 2px;
-  width: 14px;
-  height: 14px;
+  width: 11px;
+  height: 11px;
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
-.meta-delete:hover svg,
-.meta-delete:focus svg {
+.meta-delete:hover svg {
   color: var(--theme-color-red, var(--default-theme-color-red));
 }
-.table-row:focus-within .meta-delete,
+.meta-delete:focus svg {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
+.meta-delete:focus {
+  border-color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
 .table-row:hover .meta-delete {
   opacity: 1;
+}
+@media (pointer: coarse) {
+  .table-row:hover .meta-delete {
+    opacity: 1;
+  }
 }
 .meta-add {
   border: none;

@@ -51,7 +51,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 }
 .scalar-api-client__item__content {
   flex-flow: wrap;
-  padding: 6px 18px 18px;
+  padding: 6px 12px 12px;
   border-radius: 3px;
   color: var(--theme-color-3, var(--default-theme-color-3));
   font-size: var(--theme-micro, var(--default-theme-micro));
