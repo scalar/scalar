@@ -1,5 +1,14 @@
 # @scalar/fastify-api-reference
 
+## 0.6.29
+
+### Patch Changes
+
+- 28cce042: fix: externalize markdown plugins to not break SSG
+- Updated dependencies [fd875bc7]
+- Updated dependencies [28cce042]
+  - @scalar/api-reference@0.7.5
+
 ## 0.6.28
 
 ### Patch Changes

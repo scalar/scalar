@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.7.19
+
+### Patch Changes
+
+- 28cce042: fix: externalize markdown plugins to not break SSG
+
 ## 0.7.18
 
 ### Patch Changes
