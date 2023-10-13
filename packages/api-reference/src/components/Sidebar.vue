@@ -7,7 +7,7 @@ import {
 } from '@scalar/api-client'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
-import { nextTick, ref, watch } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 
 import { getHeadingsFromMarkdown } from '../helpers'
 import { useTemplateStore } from '../stores/template'
@@ -62,18 +62,20 @@ const moreThanOneDefaultTag = (tag: Tag) =>
 
 const headings = ref<any[]>([])
 
-watch(
-  () => props?.spec?.info?.description,
-  async () => {
-    const description = props?.spec?.info?.description
+onMounted(() => {
+  watch(
+    () => props?.spec?.info?.description,
+    async () => {
+      const description = props?.spec?.info?.description
 
-    if (!description) {
-      return []
-    }
+      if (!description) {
+        return []
+      }
 
-    headings.value = await updateHeadings(description)
-  },
-)
+      headings.value = await updateHeadings(description)
+    },
+  )
+})
 
 const updateHeadings = async (description: string) => {
   const newHeadings = await getHeadingsFromMarkdown(description)
