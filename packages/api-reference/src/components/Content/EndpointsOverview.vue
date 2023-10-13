@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { getTagSectionId } from '../../helpers'
+import {
+  getOperationSectionId,
+  getTagSectionId,
+  scrollToId,
+} from '../../helpers'
 import type { Tag } from '../../types'
 import { Card, CardContent, CardHeader } from '../Card'
 import {
@@ -31,12 +35,14 @@ defineProps<{ tag: Tag }>()
               <CardContent muted>
                 <div class="endpoints custom-scroll">
                   <a
-                    v-for="child in tag.operations"
-                    :key="`${child.httpVerb}-${child.operationId}`"
+                    v-for="operation in tag.operations"
+                    :key="getOperationSectionId(operation)"
                     class="endpoint"
-                    @click="scrollToEndpoint(child)">
-                    <span :class="child.httpVerb">{{ child.httpVerb }}</span>
-                    <span>{{ child.path }}</span>
+                    @click="scrollToId(getOperationSectionId(operation))">
+                    <span :class="operation.httpVerb">{{
+                      operation.httpVerb
+                    }}</span>
+                    <span>{{ operation.path }}</span>
                   </a>
                 </div>
               </CardContent>
