@@ -165,8 +165,8 @@ TODO: Markup is missing
 } */
 .api-client-drawer {
   background: var(--theme-background-1, var(--default-theme-background-1));
-  height: calc(100vh - 58px);
-  width: calc(100vw - 8px);
+  height: calc(100% - 58px);
+  width: calc(100% - 8px);
   border-radius: 12px;
   overflow: hidden;
   visibility: visible;
