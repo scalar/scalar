@@ -13,6 +13,7 @@ import {
   getHeadingsFromMarkdown,
   getModelSectionId,
   getOperationSectionId,
+  getTagSectionId,
   hasModels,
 } from '../helpers'
 import { useTemplateStore } from '../stores/template'
@@ -90,7 +91,6 @@ const updateHeadings = async (description: string) => {
 </script>
 <template>
   <div class="sidebar">
-    {{ state.activeSidebar }}
     <FindAnythingButton
       v-if="!isMobile"
       @click="setTemplateItem('showSearch', true)" />
@@ -120,7 +120,7 @@ const updateHeadings = async (description: string) => {
             v-if="moreThanOneDefaultTag(tag) && tag.operations?.length > 0"
             :key="tag.name"
             :hasChildren="true"
-            :isActive="false"
+            :isActive="state.activeSidebar === getTagSectionId(tag)"
             :item="{
               uid: '',
               title: tag.name.toUpperCase(),
@@ -134,8 +134,7 @@ const updateHeadings = async (description: string) => {
                 v-for="operation in tag.operations"
                 :key="`${operation.httpVerb}-${operation.operationId}`"
                 :isActive="
-                  state.activeSidebar ===
-                  `${operation.httpVerb}-${operation.operationId}`
+                  state.activeSidebar === getOperationSectionId(operation)
                 "
                 :item="{
                   uid: '',
@@ -159,8 +158,7 @@ const updateHeadings = async (description: string) => {
               :key="`${operation.httpVerb}-${operation.operationId}`"
               class="sidebar-group-item--without-parent"
               :isActive="
-                state.activeSidebar ===
-                `${operation.httpVerb}-${operation.operationId}`
+                state.activeSidebar === getOperationSectionId(operation)
               "
               :item="{
                 uid: '',
@@ -204,10 +202,14 @@ const updateHeadings = async (description: string) => {
                 :isActive="state.activeSidebar === getModelSectionId(name)"
                 :item="{
                   uid: '',
-                  title: name.toUpperCase(),
+                  title: name,
                   type: 'Page',
                 }"
-                @select="() => scrollToId('models')" />
+                @select="
+                  () => {
+                    scrollToId(getModelSectionId(name))
+                  }
+                " />
             </SidebarGroup>
           </SidebarElement>
         </template>

@@ -4,6 +4,7 @@ import type { Server, Tag, TransformedOperation } from '../../../types'
 import {
   Section,
   SectionColumn,
+  SectionColumns,
   SectionContent,
   SectionHeader,
 } from '../../Section'
@@ -22,20 +23,22 @@ defineProps<{
     <SectionHeader>
       {{ operation.name || operation.path }}
     </SectionHeader>
-    <SectionContent withColumns>
-      <SectionColumn>
-        <Copy
-          :operation="operation"
-          :parentTag="parentTag" />
-      </SectionColumn>
-      <SectionColumn>
-        <ExampleRequest
-          :operation="operation"
-          :server="server" />
-        <ExampleResponses
-          :operation="operation"
-          style="margin-top: 12px" />
-      </SectionColumn>
+    <SectionContent>
+      <SectionColumns>
+        <SectionColumn>
+          <Copy
+            :operation="operation"
+            :parentTag="parentTag" />
+        </SectionColumn>
+        <SectionColumn>
+          <ExampleRequest
+            :operation="operation"
+            :server="server" />
+          <ExampleResponses
+            :operation="operation"
+            style="margin-top: 12px" />
+        </SectionColumn>
+      </SectionColumns>
     </SectionContent>
   </Section>
 </template>

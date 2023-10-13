@@ -1,13 +1,14 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ loading?: boolean }>(), {
+withDefaults(defineProps<{ loading?: boolean; tight?: boolean }>(), {
   loading: false,
+  tight: false,
 })
 </script>
 
 <template>
   <h1
     class="section-header"
-    :class="{ loading }">
+    :class="{ loading, tight }">
     <slot v-if="!loading" />
     <template v-else></template>
   </h1>
@@ -48,7 +49,11 @@ withDefaults(defineProps<{ loading?: boolean }>(), {
   color: var(--theme-color-1, var(--default-theme-color-1));
   word-wrap: break-word;
   line-height: 1.45;
-  margin-top: 0;
+  margin-bottom: 24px;
+}
+
+.section-header.tight {
+  margin-bottom: 6px;
 }
 
 .section-header.loading {

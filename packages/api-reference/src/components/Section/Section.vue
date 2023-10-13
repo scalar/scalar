@@ -1,60 +1,26 @@
 <script setup lang="ts">
-import {
-  type Operation,
-  useApiClientStore,
-  useOperation,
-} from '@scalar/api-client'
+import { useApiClientStore } from '@scalar/api-client'
 import { useIntersectionObserver } from '@vueuse/core'
-import { computed, onMounted, ref } from 'vue'
-
-// import { useTemplateStore } from '../../../stores/template'
-// import type { Tag } from '../../../types'
+import { onMounted, ref } from 'vue'
 
 const props = defineProps<{
   id?: string
 }>()
 
-// import MarkdownRenderer from '../MarkdownRenderer.vue'
-// import Parameters from './Parameters.vue'
-// import RequestBody from './RequestBody.vue'
-
-// const props = defineProps<{ operation: Operation; parentTag: Tag }>()
-
 const { setActiveSidebar } = useApiClientStore()
-
-// const { parameterMap } = useOperation(props)
-
-// const { setCollapsedSidebarItem } = useTemplateStore()
-
-// const responseArray = computed(() => {
-//   const { responses } = props.operation.information
-
-//   const res: { name: string; description: string }[] = []
-
-//   Object.keys(responses).forEach((statusCode: string) => {
-//     res.push({
-//       name: statusCode,
-//       description: responses[statusCode].description,
-//     })
-//   })
-
-//   return res
-// })
 
 const sectionRef = ref<HTMLElement>()
 
 onMounted(() => {
-  const root = document.getElementById('tippy')
-
-  if (!props.id) {
-    return
-  }
-
   useIntersectionObserver(
     sectionRef,
     ([{ isIntersecting }]) => {
+      if (!props.id) {
+        return
+      }
+
+      console.log('isIntersecting', props.id)
       if (isIntersecting) {
-        console.log('isIntersecting', props.id)
         const newUrl = `${window.location.origin}${window.location.pathname}#${props.id}`
         window.history.replaceState({}, '', newUrl)
         setActiveSidebar(props.id)
@@ -62,17 +28,16 @@ onMounted(() => {
       }
     },
     {
-      root,
-      rootMargin: '0px 0px 0px 0px', // Trigger when the header touches the top of the viewport
-      threshold: 0,
+      rootMargin: '0px 0px 50% 0px', // Trigger when the header touches the top of the viewport
+      threshold: 0.5,
     },
   )
 })
 </script>
 
 <template>
-  SECTION ID: {{ id }}
   <section
+    :id="id"
     ref="sectionRef"
     class="section">
     <slot />

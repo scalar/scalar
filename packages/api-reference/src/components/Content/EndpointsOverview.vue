@@ -4,11 +4,12 @@
 // import { nextTick, onMounted, ref } from 'vue'
 // import { useTemplateStore } from '../../stores/template'
 import { getTagSectionId } from '../../helpers'
-import type { Operation, Tag } from '../../types'
+import type { Tag } from '../../types'
 import { Card, CardContent, CardHeader } from '../Card'
 import {
   Section,
   SectionColumn,
+  SectionColumns,
   SectionContent,
   SectionHeader,
 } from '../Section'
@@ -59,29 +60,31 @@ defineProps<{ tag: Tag }>()
     <SectionHeader>
       {{ tag.name }}
     </SectionHeader>
-    <SectionContent withColumns>
-      <SectionColumn>
-        <MarkdownRenderer :value="tag.description" />
-      </SectionColumn>
-      <SectionColumn>
-        <template v-if="tag.operations?.length > 0">
-          <Card>
-            <CardHeader muted>Endpoints</CardHeader>
-            <CardContent muted>
-              <div class="endpoints custom-scroll">
-                <a
-                  v-for="child in tag.operations"
-                  :key="`${child.httpVerb}-${child.operationId}`"
-                  class="endpoint"
-                  @click="scrollToEndpoint(child)">
-                  <span :class="child.httpVerb">{{ child.httpVerb }}</span>
-                  <span>{{ child.path }}</span>
-                </a>
-              </div>
-            </CardContent>
-          </Card>
-        </template>
-      </SectionColumn>
+    <SectionContent>
+      <SectionColumns>
+        <SectionColumn>
+          <MarkdownRenderer :value="tag.description" />
+        </SectionColumn>
+        <SectionColumn>
+          <template v-if="tag.operations?.length > 0">
+            <Card>
+              <CardHeader muted>Endpoints</CardHeader>
+              <CardContent muted>
+                <div class="endpoints custom-scroll">
+                  <a
+                    v-for="child in tag.operations"
+                    :key="`${child.httpVerb}-${child.operationId}`"
+                    class="endpoint"
+                    @click="scrollToEndpoint(child)">
+                    <span :class="child.httpVerb">{{ child.httpVerb }}</span>
+                    <span>{{ child.path }}</span>
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+          </template>
+        </SectionColumn>
+      </SectionColumns>
     </SectionContent>
   </Section>
 </template>
