@@ -29,7 +29,9 @@ const responseArray = computed(() => {
 </script>
 <template>
   <div class="copy">
-    <MarkdownRenderer :value="operation.description" />
+    <div class="description">
+      <MarkdownRenderer :value="operation.description" />
+    </div>
     <Parameters
       :parameters="parameterMap.path"
       title="Path Parameters" />
@@ -45,3 +47,9 @@ const responseArray = computed(() => {
       title="Responses" />
   </div>
 </template>
+
+<style scoped>
+.description {
+  margin-bottom: 24px;
+}
+</style>
