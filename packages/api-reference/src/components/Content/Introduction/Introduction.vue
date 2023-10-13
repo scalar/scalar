@@ -2,6 +2,13 @@
 import { useTemplateStore } from '../../../stores/template'
 import type { Info, Server } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
+import {
+  Section,
+  SectionColumn,
+  SectionContainer,
+  SectionContent,
+  SectionHeader,
+} from '../../Section'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import BaseUrl from './BaseUrl.vue'
 import ClientSelector from './ClientSelector.vue'
@@ -15,61 +22,48 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
 </script>
 
 <template>
-  <div class="reference">
-    <div class="reference-container">
-      <div class="copy">
-        <div class="editor-heading">
-          <h1
-            class="heading"
-            :class="{ loading: !info.title }">
-            {{ info.title || '&nbsp;' }}
-          </h1>
-        </div>
-        <p class="tag-description">
-          <template v-if="info.description">
-            <MarkdownRenderer :value="info.description" />
-          </template>
-          <!-- @vue-ignore -->
-          <template
-            v-if="!info.title && !info.description && !info?.operations">
-            <template
-              v-for="index in [...Array(8).keys()]"
-              :key="index">
-              <span class="loading" />
-            </template>
-          </template>
-        </p>
-      </div>
-      <div class="example flex-col gap-1">
-        <Card v-if="servers.length > 0">
-          <CardHeader muted>
-            Base URL{{ servers?.length > 1 ? 's' : '' }}
-          </CardHeader>
-          <CardContent
-            v-for="server in servers"
-            :key="server.url"
-            muted>
-            <BaseUrl :server="server" />
-          </CardContent>
-        </Card>
+  <SectionContainer>
+    <Section>
+      <SectionHeader :loading="!info.title">
+        {{ info.title }}
+      </SectionHeader>
+      <SectionContent
+        :loading="!info.description"
+        withColumns>
+        <SectionColumn>
+          <MarkdownRenderer :value="info.description" />
+        </SectionColumn>
+        <SectionColumn>
+          <Card v-if="servers.length > 0">
+            <CardHeader muted>
+              Base URL{{ servers?.length > 1 ? 's' : '' }}
+            </CardHeader>
+            <CardContent
+              v-for="server in servers"
+              :key="server.url"
+              muted>
+              <BaseUrl :server="server" />
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader transparent>Client Libraries</CardHeader>
-          <CardContent
-            frameless
-            transparent>
-            <ClientSelector />
-          </CardContent>
-          <CardFooter
-            class="font-mono card-footer"
-            muted>
-            {{ getTargetTitle(state.selectedClient) }}
-            {{ getClientTitle(state.selectedClient) }}
-          </CardFooter>
-        </Card>
-      </div>
-    </div>
-  </div>
+          <Card>
+            <CardHeader transparent>Client Libraries</CardHeader>
+            <CardContent
+              frameless
+              transparent>
+              <ClientSelector />
+            </CardContent>
+            <CardFooter
+              class="font-mono card-footer"
+              muted>
+              {{ getTargetTitle(state.selectedClient) }}
+              {{ getClientTitle(state.selectedClient) }}
+            </CardFooter>
+          </Card>
+        </SectionColumn>
+      </SectionContent>
+    </Section>
+  </SectionContainer>
 </template>
 <style scoped>
 .heading {
@@ -96,14 +90,7 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
 .tag-description .loading:last-of-type {
   width: 40%;
 }
-@keyframes loading-skeleton {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0.33;
-  }
-}
+
 .font-mono {
   color: var(--theme-color-1, var(--default-theme-color-1));
   font-size: var(--theme-small, var(--default-theme-small));

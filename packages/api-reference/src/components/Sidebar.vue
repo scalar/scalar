@@ -7,9 +7,9 @@ import {
 } from '@scalar/api-client'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 
-import { getHeadingsFromMarkdown } from '../helpers'
+import { getHeadingsFromMarkdown, hasModels } from '../helpers'
 import { useTemplateStore } from '../stores/template'
 import type { Operation, Spec, Tag } from '../types'
 import DarkModeToggle from './DarkModeToggle.vue'
@@ -90,6 +90,7 @@ const updateHeadings = async (description: string) => {
       @click="setTemplateItem('showSearch', true)" />
     <div class="pages custom-scroll custom-scroll-self-contain-overflow">
       <SidebarGroup :level="0">
+        <!-- Introduction -->
         <SidebarElement
           v-for="heading in headings"
           :key="heading"
@@ -107,6 +108,7 @@ const updateHeadings = async (description: string) => {
             }
           " />
 
+        <!-- Tags -->
         <template v-for="tag in spec.tags">
           <SidebarElement
             v-if="moreThanOneDefaultTag(tag) && tag.operations?.length > 0"
@@ -171,6 +173,18 @@ const updateHeadings = async (description: string) => {
               " />
           </template>
         </template>
+
+        <!-- Models -->
+        <SidebarElement
+          v-if="hasModels(spec)"
+          class="sidebar-group-item"
+          :isActive="state.activeSidebar === 'models'"
+          :item="{
+            uid: '',
+            title: 'Models'.toUpperCase(),
+            type: 'Page',
+          }"
+          @select="() => scrollToId('models')" />
       </SidebarGroup>
     </div>
     <DarkModeToggle />

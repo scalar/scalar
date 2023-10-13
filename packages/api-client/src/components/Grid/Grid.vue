@@ -40,7 +40,7 @@ const showDescription = ref(false)
       </div>
     </div>
     <div
-      v-for="(item, index) in items"
+      v-for="item in items"
       :key="item.id"
       class="table-row"
       :class="item.customClass">
