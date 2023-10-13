@@ -76,7 +76,6 @@ const moreThanOneDefaultTag = (tag: Tag) =>
         <SectionContainer v-if="tag.operations && tag.operations.length > 0">
           <EndpointsOverview
             v-if="moreThanOneDefaultTag(tag)"
-            :index="index"
             :tag="tag" />
           <button
             v-if="

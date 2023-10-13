@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useApiClientStore } from '@scalar/api-client'
-import { useIntersectionObserver } from '@vueuse/core'
-import { nextTick, onMounted, ref } from 'vue'
-
-import { useTemplateStore } from '../../stores/template'
+// import { useApiClientStore } from '@scalar/api-client'
+// import { useIntersectionObserver } from '@vueuse/core'
+// import { nextTick, onMounted, ref } from 'vue'
+// import { useTemplateStore } from '../../stores/template'
+import { getTagSectionId } from '../../helpers'
 import type { Operation, Tag } from '../../types'
 import { Card, CardContent, CardHeader } from '../Card'
 import {
@@ -14,48 +14,48 @@ import {
 } from '../Section'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
-const props = defineProps<{ tag: Tag; index: number }>()
+defineProps<{ tag: Tag }>()
 
-const { setCollapsedSidebarItem } = useTemplateStore()
+// const { setCollapsedSidebarItem } = useTemplateStore()
 
-const { setActiveSidebar } = useApiClientStore()
+// const { setActiveSidebar } = useApiClientStore()
 
-const scrollToEndpoint = async (item: Operation) => {
-  setCollapsedSidebarItem(props.tag.name, true)
-  document
-    .getElementById(`endpoint/${item.httpVerb}-${item.operationId}`)
-    ?.scrollIntoView()
-  await nextTick()
-  setActiveSidebar(`${item.httpVerb}-${item.operationId}`)
-}
+// const scrollToEndpoint = async (item: Operation) => {
+//   setCollapsedSidebarItem(props.tag.name, true)
+//   document
+//     .getElementById(`endpoint/${item.httpVerb}-${item.operationId}`)
+//     ?.scrollIntoView()
+//   await nextTick()
+//   setActiveSidebar(`${item.httpVerb}-${item.operationId}`)
+// }
 
-onMounted(() => {
-  const root = document.getElementById('tippy')
+// onMounted(() => {
+//   const root = document.getElementById('tippy')
 
-  const tagHeader = ref<HTMLElement>()
+//   const tagHeader = ref<HTMLElement>()
 
-  useIntersectionObserver(
-    tagHeader,
-    ([{ isIntersecting }]) => {
-      if (isIntersecting) {
-        if (props.index === 0) {
-          const newUrl = `${window.location.origin}${window.location.pathname}`
-          window.history.replaceState({}, '', newUrl)
-          setCollapsedSidebarItem(props.tag.name, true)
-        }
-      }
-    },
-    {
-      rootMargin: '0px 0px 0px 0px', // Trigger when the header touches the top of the viewport
-      threshold: 0,
-      root,
-    },
-  )
-})
+//   useIntersectionObserver(
+//     tagHeader,
+//     ([{ isIntersecting }]) => {
+//       if (isIntersecting) {
+//         if (props.index === 0) {
+//           const newUrl = `${window.location.origin}${window.location.pathname}`
+//           window.history.replaceState({}, '', newUrl)
+//           setCollapsedSidebarItem(props.tag.name, true)
+//         }
+//       }
+//     },
+//     {
+//       rootMargin: '0px 0px 0px 0px', // Trigger when the header touches the top of the viewport
+//       threshold: 0,
+//       root,
+//     },
+//   )
+// })
 </script>
 
 <template>
-  <Section>
+  <Section :id="getTagSectionId(tag)">
     <SectionHeader>
       {{ tag.name }}
     </SectionHeader>

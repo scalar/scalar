@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { getOperationSectionId } from '../../../helpers'
 import type { Server, Tag, TransformedOperation } from '../../../types'
 import {
   Section,
   SectionColumn,
-  SectionContainer,
   SectionContent,
   SectionHeader,
 } from '../../Section'
@@ -18,7 +18,7 @@ defineProps<{
 }>()
 </script>
 <template>
-  <Section :id="`endpoint/${operation.httpVerb}-${operation.operationId}`">
+  <Section :id="getOperationSectionId(operation)">
     <SectionHeader>
       {{ operation.name || operation.path }}
     </SectionHeader>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { getModelSectionId } from '../../helpers'
 import { type Components } from '../../types'
-import { Card, CardContent, CardHeader } from '../Card'
 import {
   Section,
   SectionContainer,
@@ -9,7 +9,7 @@ import {
 } from '../Section'
 import Schema from './Schema.vue'
 
-const props = defineProps<{
+defineProps<{
   components?: Components
 }>()
 </script>
@@ -19,13 +19,16 @@ const props = defineProps<{
     id="models">
     <Section
       v-for="name in Object.keys(components?.schemas ?? {})"
+      :id="getModelSectionId(name)"
       :key="name">
-      <SectionHeader>
-        {{ name }}
-      </SectionHeader>
-      <SectionContent>
-        <Schema :value="components?.schemas?.[name]" />
-      </SectionContent>
+      <template v-if="components?.schemas?.[name]">
+        <SectionHeader>
+          {{ name }}
+        </SectionHeader>
+        <SectionContent>
+          <Schema :value="components?.schemas?.[name]" />
+        </SectionContent>
+      </template>
     </Section>
   </SectionContainer>
 </template>
