@@ -5,6 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import {
   Section,
   SectionColumn,
+  SectionColumns,
   SectionContainer,
   SectionContent,
   SectionHeader,
@@ -24,45 +25,47 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
 <template>
   <SectionContainer>
     <Section>
-      <SectionHeader :loading="!info.title">
+      <SectionHeader
+        :loading="!info.title"
+        tight>
         {{ info.title }}
       </SectionHeader>
-      <SectionContent
-        :loading="!info.description"
-        withColumns>
-        <SectionColumn>
-          <MarkdownRenderer :value="info.description" />
-        </SectionColumn>
-        <SectionColumn>
-          <div class="flex-col gap-1">
-            <Card v-if="servers.length > 0">
-              <CardHeader muted>
-                Base URL{{ servers?.length > 1 ? 's' : '' }}
-              </CardHeader>
-              <CardContent
-                v-for="server in servers"
-                :key="server.url"
-                muted>
-                <BaseUrl :server="server" />
-              </CardContent>
-            </Card>
+      <SectionContent :loading="!info.description">
+        <SectionColumns>
+          <SectionColumn>
+            <MarkdownRenderer :value="info.description" />
+          </SectionColumn>
+          <SectionColumn>
+            <div class="flex-col gap-1">
+              <Card v-if="servers.length > 0">
+                <CardHeader muted>
+                  Base URL{{ servers?.length > 1 ? 's' : '' }}
+                </CardHeader>
+                <CardContent
+                  v-for="server in servers"
+                  :key="server.url"
+                  muted>
+                  <BaseUrl :server="server" />
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader transparent>Client Libraries</CardHeader>
-              <CardContent
-                frameless
-                transparent>
-                <ClientSelector />
-              </CardContent>
-              <CardFooter
-                class="font-mono card-footer"
-                muted>
-                {{ getTargetTitle(state.selectedClient) }}
-                {{ getClientTitle(state.selectedClient) }}
-              </CardFooter>
-            </Card>
-          </div>
-        </SectionColumn>
+              <Card>
+                <CardHeader transparent>Client Libraries</CardHeader>
+                <CardContent
+                  frameless
+                  transparent>
+                  <ClientSelector />
+                </CardContent>
+                <CardFooter
+                  class="font-mono card-footer"
+                  muted>
+                  {{ getTargetTitle(state.selectedClient) }}
+                  {{ getClientTitle(state.selectedClient) }}
+                </CardFooter>
+              </Card>
+            </div>
+          </SectionColumn>
+        </SectionColumns>
       </SectionContent>
     </Section>
   </SectionContainer>

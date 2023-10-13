@@ -2,19 +2,15 @@
 withDefaults(
   defineProps<{
     loading?: boolean
-    withColumns?: boolean
   }>(),
   {
     loading: false,
-    withColumns: false,
   },
 )
 </script>
 
 <template>
-  <div
-    class="section-content"
-    :class="{ 'section-content--with-columns': withColumns && !loading }">
+  <div class="section-content">
     <slot v-if="!loading" />
     <template v-else>
       <template
@@ -28,11 +24,6 @@ withDefaults(
 
 <style scoped>
 .section-content {
-}
-
-.section-content--with-columns {
-  display: flex;
-  gap: 48px;
 }
 
 .references-narrow .section-content--with-columns {
