@@ -19,18 +19,16 @@ onMounted(() => {
         return
       }
 
-      console.log('isIntersecting', props.id)
-
       if (isIntersecting) {
         const newUrl = `${window.location.origin}${window.location.pathname}#${props.id}`
         window.history.replaceState({}, '', newUrl)
+
         setActiveSidebar(props.id)
-        // setCollapsedSidebarItem(props.parentTag.name, true)
       }
     },
     {
       rootMargin: '0px 0px 50% 0px', // Trigger when the header touches the top of the viewport
-      threshold: 0.5,
+      threshold: 0,
     },
   )
 })
