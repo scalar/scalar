@@ -34,32 +34,34 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
           <MarkdownRenderer :value="info.description" />
         </SectionColumn>
         <SectionColumn>
-          <Card v-if="servers.length > 0">
-            <CardHeader muted>
-              Base URL{{ servers?.length > 1 ? 's' : '' }}
-            </CardHeader>
-            <CardContent
-              v-for="server in servers"
-              :key="server.url"
-              muted>
-              <BaseUrl :server="server" />
-            </CardContent>
-          </Card>
+          <div class="flex-col gap-1">
+            <Card v-if="servers.length > 0">
+              <CardHeader muted>
+                Base URL{{ servers?.length > 1 ? 's' : '' }}
+              </CardHeader>
+              <CardContent
+                v-for="server in servers"
+                :key="server.url"
+                muted>
+                <BaseUrl :server="server" />
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader transparent>Client Libraries</CardHeader>
-            <CardContent
-              frameless
-              transparent>
-              <ClientSelector />
-            </CardContent>
-            <CardFooter
-              class="font-mono card-footer"
-              muted>
-              {{ getTargetTitle(state.selectedClient) }}
-              {{ getClientTitle(state.selectedClient) }}
-            </CardFooter>
-          </Card>
+            <Card>
+              <CardHeader transparent>Client Libraries</CardHeader>
+              <CardContent
+                frameless
+                transparent>
+                <ClientSelector />
+              </CardContent>
+              <CardFooter
+                class="font-mono card-footer"
+                muted>
+                {{ getTargetTitle(state.selectedClient) }}
+                {{ getClientTitle(state.selectedClient) }}
+              </CardFooter>
+            </Card>
+          </div>
         </SectionColumn>
       </SectionContent>
     </Section>
