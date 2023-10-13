@@ -55,17 +55,12 @@ defineProps<{
   background-color: transparent;
   text-align: left;
 }
-
 .scalar-api-client__item:hover {
   cursor: pointer;
 }
 
 .scalar-api-client__item--open {
   background: var(--theme-background-2, var(--default-theme-background-2));
-}
-
-.scalar-api-client__item--open:focus-within {
-  box-shadow: var(--shadow1, var(--default-shadow1));
 }
 
 .scalar-api-client__item--open .scalar-api-client__item__content {
@@ -124,7 +119,7 @@ defineProps<{
 .scalar-api-client__item .scalar-api-client__toggle__icon {
   width: 10px;
   margin-right: 6px;
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--theme-color-3, var(--default-theme-color-3));
   z-index: 1;
   position: relative;
 }

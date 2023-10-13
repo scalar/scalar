@@ -276,7 +276,6 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
 }
 .scalar-api-client__request-type span {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: 500;
   font-size: var(--theme-micro, var(--default-theme-micro));
   text-transform: uppercase;
 }
@@ -333,14 +332,31 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   );
   box-shadow: 0 0 0 1px
     var(--scalar-api-client-color, var(--default-scalar-api-client-color));
+  position: relative;
   /**  #087f5b */
   display: flex;
   align-items: center;
+}
+.scalar-api-client__send-request-button:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  cursor: pointer;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2));
+}
+.scalar-api-client__send-request-button:hover:before {
+  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1));
 }
 .scalar-api-client__send-request-button svg {
   width: 12px;
   height: 12px;
   margin-right: 6px;
+  position: relative;
 }
 
 .scalar-api-client__send-request-button[disabled] {
@@ -452,6 +468,9 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   color: var(--theme-color-1, var(--default-theme-color-1));
   text-transform: capitalize;
   padding: 0 9px;
+}
+.scalar-api-client__send-request-button span {
+  position: relative;
 }
 @media screen and (max-width: 720px) {
   .scalar-api-client__history-toggle span,
