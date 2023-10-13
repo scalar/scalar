@@ -101,9 +101,9 @@ const moreThanOneDefaultTag = (tag: Tag) =>
           </template>
         </SectionContainer>
       </template>
-      <template v-if="hasModels(spec)">
+      <!-- <template v-if="hasModels(spec)">
         <Models :components="spec.components" />
-      </template>
+      </template> -->
     </template>
     <div
       v-else
