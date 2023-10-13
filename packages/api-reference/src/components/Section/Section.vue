@@ -7,12 +7,11 @@ defineProps<{
 </script>
 
 <template>
-  <IntersectionObserver :id="id">
-    <section
-      ref="sectionRef"
-      class="section">
-      <slot />
-    </section>
+  <IntersectionObserver
+    is="section"
+    :id="id"
+    class="section">
+    <slot />
   </IntersectionObserver>
 </template>
 
