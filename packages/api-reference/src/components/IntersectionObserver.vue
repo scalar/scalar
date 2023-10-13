@@ -5,6 +5,7 @@ import { onMounted, ref } from 'vue'
 
 const props = defineProps<{
   id?: string
+  is?: string
 }>()
 
 const { setSidebarIdVisibility } = useApiClientStore()
@@ -34,10 +35,10 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div
+  <component
+    :is="is ?? 'div'"
     :id="id"
-    ref="intersectionObserverRef"
-    class="intersection-observer">
+    ref="intersectionObserverRef">
     <slot />
-  </div>
+  </component>
 </template>

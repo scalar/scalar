@@ -3,6 +3,8 @@ import { getModelSectionId } from '../../helpers'
 import { type Components } from '../../types'
 import {
   Section,
+  SectionColumn,
+  SectionColumns,
   SectionContainer,
   SectionContent,
   SectionHeader,
@@ -26,7 +28,12 @@ defineProps<{
           {{ name }}
         </SectionHeader>
         <SectionContent>
-          <Schema :value="components?.schemas?.[name]" />
+          <SectionColumns>
+            <SectionColumn>
+              <Schema :value="components?.schemas?.[name]" />
+            </SectionColumn>
+            <SectionColumn></SectionColumn>
+          </SectionColumns>
         </SectionContent>
       </template>
     </Section>
