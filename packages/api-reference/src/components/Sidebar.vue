@@ -175,7 +175,7 @@ const updateHeadings = async (description: string) => {
         </template>
 
         <!-- Models -->
-        <template v-if="hasModels(spec)">
+        <!-- <template v-if="hasModels(spec)">
           <SidebarElement
             :hasChildren="true"
             :isActive="state.activeSidebar === 'models'"
@@ -212,7 +212,7 @@ const updateHeadings = async (description: string) => {
                 " />
             </SidebarGroup>
           </SidebarElement>
-        </template>
+        </template> -->
       </SidebarGroup>
     </div>
     <DarkModeToggle />
