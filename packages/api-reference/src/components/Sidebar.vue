@@ -84,6 +84,8 @@ const updateHeadings = async (description: string) => {
 
   return newHeadings.filter((heading) => heading.depth === lowestDepth)
 }
+
+const isVisible = (id: string) => state.sidebarIdVisibility[id] ?? false
 </script>
 <template>
   <div class="sidebar">
@@ -96,7 +98,7 @@ const updateHeadings = async (description: string) => {
         <SidebarElement
           v-for="heading in headings"
           :key="heading"
-          :isActive="state.activeSidebar === getHeadingId(heading)"
+          :isActive="isVisible(getHeadingId(heading))"
           :item="{
             uid: '',
             title: heading.value.toUpperCase(),
@@ -116,7 +118,7 @@ const updateHeadings = async (description: string) => {
             v-if="moreThanOneDefaultTag(tag) && tag.operations?.length > 0"
             :key="getTagSectionId(tag)"
             :hasChildren="true"
-            :isActive="state.activeSidebar === getTagSectionId(tag)"
+            :isActive="isVisible(getTagSectionId(tag))"
             :item="{
               uid: '',
               title: tag.name.toUpperCase(),
@@ -129,9 +131,7 @@ const updateHeadings = async (description: string) => {
               <SidebarElement
                 v-for="operation in tag.operations"
                 :key="getOperationSectionId(operation)"
-                :isActive="
-                  state.activeSidebar === getOperationSectionId(operation)
-                "
+                :isActive="isVisible(getOperationSectionId(operation))"
                 :item="{
                   uid: '',
                   title: operation.name || operation.path,
@@ -153,9 +153,7 @@ const updateHeadings = async (description: string) => {
               v-for="operation in tag.operations"
               :key="getOperationSectionId(operation)"
               class="sidebar-group-item--without-parent"
-              :isActive="
-                state.activeSidebar === getOperationSectionId(operation)
-              "
+              :isActive="isVisible(getOperationSectionId(operation))"
               :item="{
                 uid: '',
                 title: operation.name || operation.path,
@@ -171,10 +169,10 @@ const updateHeadings = async (description: string) => {
         </template>
 
         <!-- Models -->
-        <!-- <template v-if="hasModels(spec)">
+        <template v-if="hasModels(spec)">
           <SidebarElement
             :hasChildren="true"
-            :isActive="state.activeSidebar === 'models'"
+            :isActive="isVisible('models')"
             :item="{
               uid: '',
               title: 'Models'.toUpperCase(),
@@ -195,7 +193,7 @@ const updateHeadings = async (description: string) => {
                 v-for="name in Object.keys(spec.components?.schemas ?? {})"
                 :key="name"
                 class="sidebar-group-item"
-                :isActive="state.activeSidebar === getModelSectionId(name)"
+                :isActive="isVisible(getModelSectionId(name))"
                 :item="{
                   uid: '',
                   title: name,
@@ -208,7 +206,7 @@ const updateHeadings = async (description: string) => {
                 " />
             </SidebarGroup>
           </SidebarElement>
-        </template> -->
+        </template>
       </SidebarGroup>
     </div>
     <DarkModeToggle />

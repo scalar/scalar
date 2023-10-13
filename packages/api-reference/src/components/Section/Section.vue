@@ -7,7 +7,7 @@ const props = defineProps<{
   id?: string
 }>()
 
-const { setActiveSidebar } = useApiClientStore()
+const { setSidebarIdVisibility } = useApiClientStore()
 
 const sectionRef = ref<HTMLElement>()
 
@@ -19,12 +19,12 @@ onMounted(() => {
         return
       }
 
+      setSidebarIdVisibility(props.id, isIntersecting)
+
       if (isIntersecting) {
         const newUrl = `${window.location.origin}${window.location.pathname}#${props.id}`
 
         window.history.replaceState({}, '', newUrl)
-
-        setActiveSidebar(props.id)
       }
     },
     {
