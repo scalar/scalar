@@ -15,10 +15,14 @@ export const preflight = (value: AnyObject) => {
     0,
   )
 
+  const numberOfModels =
+    Object.keys(value?.components?.schemas ?? {}).length ?? 0
+
   return {
     hasTitle,
     hasDescription,
     numberOfTags,
     numberOfOperations,
+    numberOfModels,
   }
 }

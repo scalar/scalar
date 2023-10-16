@@ -15,10 +15,14 @@ export const analyze = (spec: SwaggerSpec) => {
     0,
   )
 
+  const numberOfModels =
+    Object.keys(spec?.components?.schemas ?? {}).length ?? 0
+
   return {
     hasTitle,
     hasDescription,
     numberOfTags,
     numberOfOperations,
+    numberOfModels,
   }
 }

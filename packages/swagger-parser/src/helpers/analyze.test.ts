@@ -140,4 +140,35 @@ describe('analyze', () => {
       numberOfOperations: 2,
     })
   })
+
+  it('counts models', async () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: {},
+      paths: {},
+      components: {
+        schemas: {
+          success: {
+            required: ['data'],
+            properties: {
+              links: {
+                description: 'Link members related to the primary data.',
+              },
+              included: {
+                description:
+                  'To reduce the number of HTTP requests, servers **MAY** allow responses that include related resources along with the requested primary resources. Such responses are called "compound documents".',
+                type: 'array',
+              },
+            },
+            type: 'object',
+            additionalProperties: false,
+          },
+        },
+      },
+    }
+
+    expect(analyze(await parse(spec))).toMatchObject({
+      numberOfModels: 1,
+    })
+  })
 })
