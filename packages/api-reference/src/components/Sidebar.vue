@@ -125,7 +125,9 @@ const items = computed((): SidebarEntry[] => {
                 title: operation.name || operation.path,
                 type: 'Page',
                 select: () => {
-                  showItemInClient(operation)
+                  if (state.showApiClient) {
+                    showItemInClient(operation)
+                  }
                 },
               }
             }),
@@ -137,7 +139,9 @@ const items = computed((): SidebarEntry[] => {
             title: operation.name || operation.path,
             type: 'Page',
             select: () => {
-              showItemInClient(operation)
+              if (state.showApiClient) {
+                showItemInClient(operation)
+              }
             },
           }
         })
