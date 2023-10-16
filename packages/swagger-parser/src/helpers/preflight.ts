@@ -10,8 +10,8 @@ export const preflight = (value: AnyObject) => {
 
   const numberOfTags = value.tags?.length ?? 0
 
-  const numberOfOperations = value.tags.reduce(
-    (acc: number, tag: any) => acc + (tag.operations?.length ?? 0),
+  const numberOfOperations = Object.keys(value.paths).reduce(
+    (sum, path) => sum + Object.keys(value.paths[path]).length,
     0,
   )
 
