@@ -3,7 +3,7 @@ import type { AnyObject } from '../types'
 /**
  * This function analyzes a spec without parsing it. The values are inaccurate, but it’s much faster.
  */
-export const preflight = async (value: AnyObject) => {
+export const preflight = (value: AnyObject) => {
   const hasTitle = value.info?.title !== undefined
 
   const hasDescription = value.info?.description !== undefined
