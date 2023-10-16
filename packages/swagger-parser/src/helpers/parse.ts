@@ -2,40 +2,9 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import yaml from 'js-yaml'
 import { type OpenAPI, type OpenAPIV2, type OpenAPIV3 } from 'openapi-types'
 
-export type SwaggerSpec = {
-  info: {
-    title: string
-    description?: string
-    version: string
-    termsOfService: string
-    contact: {
-      email: string
-    }
-    license: {
-      name: string
-      url: string
-    }
-  }
-  tags: SwaggerTag[]
-}
+import type { AnyObject, AnyStringOrObject, SwaggerSpec } from '../types'
 
-export type SwaggerTag = {
-  name: string
-  description?: string
-  operations: SwaggerOperation[]
-}
-
-// TODO: types
-export type SwaggerOperation = any
-
-type AnyObject = Record<string, any>
-
-export const parse = (
-  /**
-   * A JSON string or an object containg a Swagger spec.
-   */
-  value: string | AnyObject,
-): Promise<SwaggerSpec> => {
+export const parse = (value: AnyStringOrObject): Promise<SwaggerSpec> => {
   return new Promise((resolve, reject) => {
     try {
       const data = parseJsonOrYaml(value) as OpenAPI.Document<object>
