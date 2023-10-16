@@ -12,6 +12,7 @@ import {
   watch,
 } from 'vue'
 
+import { getTagSectionId } from '../helpers'
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceProps, Spec } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
@@ -127,7 +128,7 @@ const handleSpecUpdate = (newSpec: any) => {
     const firstTag = transformedSpec.tags[0]
 
     if (firstTag) {
-      toggleCollapsedSidebarItem(firstTag.name)
+      toggleCollapsedSidebarItem(getTagSectionId(firstTag))
     }
 
     const firstOperation = transformedSpec.tags[0]?.operations?.[0]
