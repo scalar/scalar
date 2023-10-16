@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { type StatesArray } from '@hocuspocus/provider'
-import { type SwaggerSpec, parseSwaggerFile } from '@scalar/swagger-parser'
+import { type SwaggerSpec, parse } from '@scalar/swagger-parser'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
@@ -43,7 +43,7 @@ const handleSpecUpdate = useDebounceFn((value) => {
     localStorage.setItem('swagger-editor-content', value)
   }
 
-  parseSwaggerFile(value)
+  parse(value)
     .then((spec: SwaggerSpec) => {
       parserError.value = ''
 
