@@ -89,7 +89,6 @@
   "module": "./dist/index.js",
   "peerDependencies": {
     "@types/js-yaml": "4.0.6",
-    "@types/xmldom": "0.1.31",
     "vue": "3.3.4"
   },
   "repository": {

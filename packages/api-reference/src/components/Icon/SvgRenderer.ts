@@ -48,7 +48,7 @@ export default defineAsyncComponent(async () => {
   // Use a DOMParser library if it's not in the browser
   const Parser =
     typeof DOMParser === 'undefined'
-      ? (await import('xmldom')).DOMParser
+      ? (await import('@xmldom/xmldom')).DOMParser
       : DOMParser
 
   // Get the actual component, pass the DOMParser
