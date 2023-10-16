@@ -14,9 +14,9 @@ npm install @scalar/swagger-parser
 ## Usage
 
 ```js
-import { parseSwaggerFile } from '@scalar/swagger-parser'
+import { parse } from '@scalar/swagger-parser'
 
-parseSwaggerFile(value)
+parse(value)
   .then((spec) => {
     console.log(spec)
   })
