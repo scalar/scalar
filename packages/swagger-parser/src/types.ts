@@ -1,3 +1,5 @@
+import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
+
 export type SwaggerSpec = {
   info: {
     title: string
@@ -12,9 +14,8 @@ export type SwaggerSpec = {
       url: string
     }
   }
-  components?: {
-    schemas?: Record<string, any>
-  }
+  components?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
+  definitions?: OpenAPIV2.DefinitionsObject
   tags: SwaggerTag[]
 }
 

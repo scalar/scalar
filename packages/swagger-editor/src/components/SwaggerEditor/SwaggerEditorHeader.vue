@@ -41,7 +41,6 @@ const handleImportUrl = () => {
     proxyUrl: props.proxyUrl,
   })
     .then(async (content) => {
-      console.log('content', content)
       emit('import', content)
       importUrlModal.hide()
     })
