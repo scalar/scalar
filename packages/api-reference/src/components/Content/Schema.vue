@@ -38,22 +38,21 @@ withDefaults(
             required
           </div>
           <div
-            v-else
-            class="optional">
-            optional
-          </div>
-          <div
             v-if="value.properties[property].type"
             class="property-type">
-            {{ value.properties[property].type }}
+            <template v-if="value.properties[property].type !== 'object'">
+              {{ value.properties[property].type }}
+            </template>
             <template v-if="value.properties[property].format">
-              / {{ value.properties[property].format }}
+              &middot; {{ value.properties[property].format }}
             </template>
           </div>
           <div
             v-if="value.properties[property].example"
-            class="example-value">
-            <code>Example: {{ value.properties[property].example }}</code>
+            class="property-example">
+            <code class="property-example-value"
+              >example: {{ value.properties[property].example }}</code
+            >
           </div>
         </div>
         <div
@@ -98,8 +97,8 @@ withDefaults(
 
 .property-information {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: end;
+  gap: 16px;
 }
 
 .property:not(:last-of-type) {
@@ -109,9 +108,6 @@ withDefaults(
 .property-name {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
-.required {
-  text-transform: uppercase;
-}
 
 .required,
 .optional {
@@ -120,6 +116,15 @@ withDefaults(
     --default-theme-font-size-5,
     var(--default-default-theme-font-size-5)
   );
+}
+
+.required {
+  text-transform: uppercase;
+  color: var(--theme-color-orange, var(--default-theme-color-orange));
+}
+
+.property-type {
+  /* font-family: var(--theme-font-code, var(--default-theme-font-code)); */
 }
 
 .properties {
@@ -136,9 +141,13 @@ withDefaults(
   padding: 12px 12px;
 }
 
-code {
+.property-example {
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
+}
+.property-example-value {
+  padding: 12px 12px;
   background: var(--theme-background-4, var(--default-theme-background-4));
-  padding: 2px 3px;
+  padding: 2px 5px;
   border-radius: var(--theme-radius, var(--default-theme-radius));
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   font-size: var(
