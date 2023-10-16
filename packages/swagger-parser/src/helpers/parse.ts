@@ -2,6 +2,7 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import yaml from 'js-yaml'
 import { type OpenAPI, type OpenAPIV2, type OpenAPIV3 } from 'openapi-types'
 
+import { validRequestMethods } from '../fixtures'
 import type { AnyObject, AnyStringOrObject, SwaggerSpec } from '../types'
 
 export const parse = (value: AnyStringOrObject): Promise<SwaggerSpec> => {
@@ -44,20 +45,9 @@ const transformResult = (result: OpenAPI.Document<object>): SwaggerSpec => {
    */
   Object.keys(result.paths).forEach((path: string) => {
     // @ts-ignore
-    const requestMethods = Object.keys(result.paths[path]).filter((key) => {
-      // TODO: Replace with a global constant
-      return [
-        'GET',
-        'POST',
-        'PUT',
-        'HEAD',
-        'DELETE',
-        'PATCH',
-        'OPTIONS',
-        'CONNECT',
-        'TRACE',
-      ].includes(key.toUpperCase())
-    })
+    const requestMethods = Object.keys(result.paths[path]).filter((key) =>
+      validRequestMethods.includes(key.toUpperCase()),
+    )
 
     requestMethods.forEach((requestMethod) => {
       // @ts-ignore

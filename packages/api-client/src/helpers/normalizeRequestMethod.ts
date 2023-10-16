@@ -1,17 +1,6 @@
-const defaultRequestMethod = 'GET'
+import { validRequestMethods } from '../fixtures'
 
-// TODO: Support all request methods
-export const validRequestMethods = [
-  'GET',
-  'POST',
-  'PUT',
-  // 'HEAD',
-  'DELETE',
-  'PATCH',
-  // 'OPTIONS',
-  // 'CONNECT',
-  // 'TRACE',
-]
+const defaultRequestMethod = 'GET'
 
 /**
  * Get a normalized request method (e.g. GET, POST, etc.)
