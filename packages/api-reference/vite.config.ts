@@ -37,7 +37,7 @@ export default defineConfig({
     rollupOptions: {
       external: [
         'vue',
-        'xmldom',
+        '@xmldom/xmldom',
         'rehype-document',
         'rehype-format',
         'rehype-sanitize',
