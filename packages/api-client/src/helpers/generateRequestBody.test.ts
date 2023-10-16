@@ -80,7 +80,7 @@ describe('generateResponseContent', () => {
     })
   })
 
-  it('uses empty quotes as a fallback for arrays', () => {
+  it('uses an array as a fallback for arrays', () => {
     expect(
       generateRequestBody({
         properties: {
