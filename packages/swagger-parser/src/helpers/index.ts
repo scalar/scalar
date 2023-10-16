@@ -1,3 +1,4 @@
 import './polyfills'
 
-export * from './parseSwaggerFile'
+export * from './parse'
+export * from './analyze'

@@ -3,14 +3,14 @@ import { describe, expect, it } from 'vitest'
 
 import SwaggerExampleJson from '../../tests/fixtures/swagger.json'
 import { getFile } from '../../tests/utils'
-import { parseSwaggerFile } from './parseSwaggerFile'
+import { parse } from './parse'
 
-describe('parseSwaggerFile', () => {
+describe('parse', () => {
   it('complains if the JSON isn’t valid', () =>
     new Promise((resolve) => {
       const invalidJson = '{"foo": "bar}'
 
-      parseSwaggerFile(invalidJson).catch((error) => {
+      parse(invalidJson).catch((error) => {
         expect(error.message).toContain('JSON')
         resolve(null)
       })
@@ -18,7 +18,7 @@ describe('parseSwaggerFile', () => {
 
   it('successfully parses the Swagger petstore example as JSON', () =>
     new Promise((resolve) => {
-      parseSwaggerFile(JSON.stringify(SwaggerExampleJson)).then((result) => {
+      parse(JSON.stringify(SwaggerExampleJson)).then((result) => {
         expect(result.info.title).toBe('Swagger Petstore - OpenAPI 3.0')
         expect(result.info.version).toBe('1.0.11')
         expect(result.info.description).toBeDefined()
@@ -33,7 +33,7 @@ describe('parseSwaggerFile', () => {
 
   it('successfully parses the Swagger petstore example as object', () =>
     new Promise((resolve) => {
-      parseSwaggerFile(SwaggerExampleJson).then((result) => {
+      parse(SwaggerExampleJson).then((result) => {
         expect(result.info.title).toBe('Swagger Petstore - OpenAPI 3.0')
 
         resolve(null)
@@ -42,7 +42,7 @@ describe('parseSwaggerFile', () => {
 
   it('finds all tags', () =>
     new Promise((resolve) => {
-      parseSwaggerFile(SwaggerExampleJson).then((result) => {
+      parse(SwaggerExampleJson).then((result) => {
         expect(result.tags.length).toBe(3)
         expect(result.tags[0].name).toBe('pet')
         expect(result.tags[1].name).toBe('store')
@@ -56,7 +56,7 @@ describe('parseSwaggerFile', () => {
     new Promise((resolve) => {
       const swaggerYaml = getFile('./tests/fixtures/swagger.yaml')
 
-      parseSwaggerFile(swaggerYaml).then((result) => {
+      parse(swaggerYaml).then((result) => {
         expect(result.info.title).toBe('Sample API')
         expect(result.info.version).toBe('0.1.9')
 
@@ -69,7 +69,7 @@ describe('parseSwaggerFile', () => {
       const invalidSwaggerYaml = `openapi: 3.0.0
 info`
 
-      parseSwaggerFile(invalidSwaggerYaml).catch((error) => {
+      parse(invalidSwaggerYaml).catch((error) => {
         expect(error.toString()).toMatch('YAMLException')
         resolve(null)
       })
@@ -78,7 +78,7 @@ info`
   globSync('./tests/fixtures/examples/*.yaml').forEach((file) => {
     it(`parses: ${file}`, () => {
       return new Promise((resolve) => {
-        return parseSwaggerFile(getFile(file)).then((result) => {
+        return parse(getFile(file)).then((result) => {
           expect(result.info.title).toBeDefined()
 
           resolve(null)
