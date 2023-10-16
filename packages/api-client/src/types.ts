@@ -130,12 +130,14 @@ export type ContentProperties = {
   }
 }
 
+export type ContentSchemaSchema = {
+  type: string
+  required: string[]
+  properties: ContentProperties
+}
+
 export type ContentSchema = {
-  schema: {
-    type: string
-    required: string[]
-    properties: ContentProperties
-  }
+  schema: ContentSchemaSchema
 }
 
 export type ContentType =
