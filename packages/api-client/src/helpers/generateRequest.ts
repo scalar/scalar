@@ -20,7 +20,7 @@ export function generateRequest(
     query: generateParameters(parameterMap.query),
     headers: generateParameters(parameterMap.header),
     url: server.url,
-    body: getRequestBody(operation.information.requestBody),
+    body: getRequestBody(operation?.information?.requestBody),
   }
 
   return item
