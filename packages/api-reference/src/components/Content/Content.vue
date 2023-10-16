@@ -2,7 +2,7 @@
 import { useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 
-import { hasModels } from '../../helpers'
+import { getTagSectionId, hasModels } from '../../helpers'
 import { useRefOnMount } from '../../hooks/useRefOnMount'
 import { useTemplateStore } from '../../stores/template'
 import type { Spec, Tag } from '../../types'
@@ -74,19 +74,22 @@ const moreThanOneDefaultTag = (tag: Tag) =>
           <button
             v-if="
               index !== 0 &&
-              !templateState.collapsedSidebarItems[tag.name] &&
+              !templateState.collapsedSidebarItems[getTagSectionId(tag)] &&
               tag.operations?.length > 1
             "
             class="show-more"
             type="button"
-            @click="setCollapsedSidebarItem(tag.name, true)">
+            @click="setCollapsedSidebarItem(getTagSectionId(tag), true)">
             Show More
             <FlowIcon
               class="show-more-icon"
               icon="ChevronDown" />
           </button>
           <template
-            v-if="index === 0 || templateState.collapsedSidebarItems[tag.name]">
+            v-if="
+              index === 0 ||
+              templateState.collapsedSidebarItems[getTagSectionId(tag)]
+            ">
             <ReferenceEndpoint
               v-for="operation in tag.operations"
               :key="`${operation.httpVerb}-${operation.operationId}`"

@@ -184,14 +184,15 @@ const activeSidebarItemId = computed(() => {
             title: item.title,
             type: item.type,
           }"
-          :open="item.type === 'Folder' ? true : false"
+          :open="templateState.collapsedSidebarItems[item.id] ?? false"
           @select="
             () => {
               if (item.id) {
                 scrollToId(item.id)
               }
             }
-          ">
+          "
+          @toggleOpen="() => toggleCollapsedSidebarItem(item.id)">
           <template v-if="item.children && item.children?.length > 0">
             <SidebarGroup :level="0">
               <SidebarElement
