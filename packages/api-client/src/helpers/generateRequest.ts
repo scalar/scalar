@@ -1,6 +1,7 @@
 import { type ParamMap } from '../hooks/useOperation'
 import type { ClientRequestConfig, Operation, Server } from '../types'
 import { generateParameters } from './generateParameters'
+import { getRequestBody } from './generateRequestBody'
 
 /**
  * Generate parameters for the request
@@ -19,7 +20,7 @@ export function generateRequest(
     query: generateParameters(parameterMap.query),
     headers: generateParameters(parameterMap.header),
     url: server.url,
-    body: '',
+    body: getRequestBody(operation.information.requestBody),
   }
 
   return item
