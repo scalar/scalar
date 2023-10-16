@@ -1,4 +1,4 @@
-import { parseSwaggerFile } from 'src/helpers/parse'
+import { parse } from 'src/helpers/parse'
 import { describe, expect, it } from 'vitest'
 
 import { analyze } from './analyze'
@@ -7,7 +7,7 @@ describe('analyze', () => {
   it('detects the title', async () => {
     const spec = { openapi: '3.1.0', info: { title: 'Example' }, paths: {} }
 
-    expect(analyze(await parseSwaggerFile(spec))).toMatchObject({
+    expect(analyze(await parse(spec))).toMatchObject({
       hasTitle: true,
     })
   })
@@ -15,7 +15,7 @@ describe('analyze', () => {
   it('detects a missing title', async () => {
     const spec = { openapi: '3.1.0', info: {}, paths: {} }
 
-    expect(analyze(await parseSwaggerFile(spec))).toMatchObject({
+    expect(analyze(await parse(spec))).toMatchObject({
       hasTitle: false,
     })
   })
@@ -27,7 +27,7 @@ describe('analyze', () => {
       paths: {},
     }
 
-    expect(analyze(await parseSwaggerFile(spec))).toMatchObject({
+    expect(analyze(await parse(spec))).toMatchObject({
       hasDescription: true,
     })
   })
@@ -35,7 +35,7 @@ describe('analyze', () => {
   it('detects a missing title', async () => {
     const spec = { openapi: '3.1.0', info: {}, paths: {} }
 
-    expect(analyze(await parseSwaggerFile(spec))).toMatchObject({
+    expect(analyze(await parse(spec))).toMatchObject({
       hasDescription: false,
     })
   })
@@ -55,7 +55,7 @@ describe('analyze', () => {
       ],
     }
 
-    expect(analyze(await parseSwaggerFile(spec))).toMatchObject({
+    expect(analyze(await parse(spec))).toMatchObject({
       numberOfTags: 2,
     })
   })
@@ -73,7 +73,7 @@ describe('analyze', () => {
       },
     }
 
-    expect(analyze(await parseSwaggerFile(spec))).toMatchObject({
+    expect(analyze(await parse(spec))).toMatchObject({
       numberOfTags: 1,
     })
   })
@@ -96,7 +96,7 @@ describe('analyze', () => {
       },
     }
 
-    expect(analyze(await parseSwaggerFile(spec))).toMatchObject({
+    expect(analyze(await parse(spec))).toMatchObject({
       numberOfTags: 2,
     })
   })
@@ -119,7 +119,7 @@ describe('analyze', () => {
       },
     }
 
-    expect(analyze(await parseSwaggerFile(spec))).toMatchObject({
+    expect(analyze(await parse(spec))).toMatchObject({
       numberOfTags: 1,
     })
   })
@@ -136,7 +136,7 @@ describe('analyze', () => {
       },
     }
 
-    expect(analyze(await parseSwaggerFile(spec))).toMatchObject({
+    expect(analyze(await parse(spec))).toMatchObject({
       numberOfOperations: 2,
     })
   })
