@@ -1,5 +1,3 @@
-<script setup lang="ts"></script>
-
 <template>
   <div class="section-column"><slot /></div>
 </template>
