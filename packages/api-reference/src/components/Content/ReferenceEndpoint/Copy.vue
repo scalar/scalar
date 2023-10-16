@@ -26,12 +26,14 @@ const responseArray = computed(() => {
 
   const res: { name: string; description: string }[] = []
 
-  Object.keys(responses).forEach((statusCode: string) => {
-    res.push({
-      name: statusCode,
-      description: responses[statusCode].description,
+  if (responses) {
+    Object.keys(responses).forEach((statusCode: string) => {
+      res.push({
+        name: statusCode,
+        description: responses[statusCode].description,
+      })
     })
-  })
+  }
 
   return res
 })
