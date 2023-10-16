@@ -44,7 +44,22 @@ const transformResult = (result: OpenAPI.Document<object>): SwaggerSpec => {
    */
   Object.keys(result.paths).forEach((path: string) => {
     // @ts-ignore
-    Object.keys(result.paths[path]).forEach((requestMethod) => {
+    const requestMethods = Object.keys(result.paths[path]).filter((key) => {
+      // TODO: Replace with a global constant
+      return [
+        'GET',
+        'POST',
+        'PUT',
+        'HEAD',
+        'DELETE',
+        'PATCH',
+        'OPTIONS',
+        'CONNECT',
+        'TRACE',
+      ].includes(key.toUpperCase())
+    })
+
+    requestMethods.forEach((requestMethod) => {
       // @ts-ignore
       const operation = result.paths[path][requestMethod]
       // Transform the operation
