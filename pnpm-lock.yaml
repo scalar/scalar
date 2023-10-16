@@ -1,5 +1,6 @@
 lockfileVersion: '6.0'
 
+<<<<<<< HEAD
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
@@ -7,6 +8,8 @@ settings:
 overrides:
   '@apidevtools/json-schema-ref-parser': 9.0.7
 
+=======
+>>>>>>> 13e9af59 (wip: add models to api refs)
 patchedDependencies:
   '@jsdevtools/ono@7.1.3':
     hash: gqumdw6qlspa2xjg2gstxyzvca
@@ -14290,3 +14293,7 @@ packages:
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: false
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
