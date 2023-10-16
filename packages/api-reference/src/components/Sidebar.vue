@@ -125,7 +125,6 @@ const items = computed((): SidebarEntry[] => {
                 title: operation.name || operation.path,
                 type: 'Page',
                 select: () => {
-                  console.log('select')
                   showItemInClient(operation)
                 },
               }
@@ -138,7 +137,6 @@ const items = computed((): SidebarEntry[] => {
             title: operation.name || operation.path,
             type: 'Page',
             select: () => {
-              console.log('select')
               showItemInClient(operation)
             },
           }
