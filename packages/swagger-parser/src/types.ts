@@ -12,6 +12,9 @@ export type SwaggerSpec = {
       url: string
     }
   }
+  components?: {
+    schemas?: Record<string, any>
+  }
   tags: SwaggerTag[]
 }
 
