@@ -33,12 +33,15 @@ const { setActiveRequest } = useApiClientRequestStore()
 
 function showItemInClient(operation: Operation) {
   const { parameterMap } = useOperation({ operation })
+
   const item = generateRequest(
     operation,
     parameterMap.value,
     props.spec.servers[0],
   )
+
   setActiveRequest(item)
+
   toggleApiClient(item, true)
 }
 
@@ -91,6 +94,7 @@ type SidebarEntry = {
   title: string
   type: 'Page' | 'Folder'
   children?: SidebarEntry[]
+  select?: () => void
 }
 
 const items = computed((): SidebarEntry[] => {
@@ -120,6 +124,10 @@ const items = computed((): SidebarEntry[] => {
                 id: getOperationSectionId(operation),
                 title: operation.name || operation.path,
                 type: 'Page',
+                select: () => {
+                  console.log('select')
+                  showItemInClient(operation)
+                },
               }
             }),
           }
@@ -129,6 +137,10 @@ const items = computed((): SidebarEntry[] => {
             id: getOperationSectionId(operation),
             title: operation.name || operation.path,
             type: 'Page',
+            select: () => {
+              console.log('select')
+              showItemInClient(operation)
+            },
           }
         })
 
@@ -191,6 +203,10 @@ const activeSidebarItemId = computed(() => {
               if (item.id) {
                 scrollToId(item.id)
               }
+
+              if (item.select) {
+                item.select()
+              }
             }
           "
           @toggleOpen="() => toggleCollapsedSidebarItem(item.id)">
@@ -209,6 +225,10 @@ const activeSidebarItemId = computed(() => {
                   () => {
                     if (child.id) {
                       scrollToId(child.id)
+                    }
+
+                    if (child.select) {
+                      child.select()
                     }
                   }
                 " />
