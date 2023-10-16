@@ -95,11 +95,9 @@ info`
    */
   it('doesn’t hang with large files', () =>
     new Promise((resolve) => {
-      return parseSwaggerFile(JSON.stringify(ShopwareExampleJson)).then(
-        (result) => {
-          expect(result.info.title).toBe('Shopware Admin API')
-          resolve(null)
-        },
-      )
+      return parse(JSON.stringify(ShopwareExampleJson)).then((result) => {
+        expect(result.info.title).toBe('Shopware Admin API')
+        resolve(null)
+      })
     }))
 })
