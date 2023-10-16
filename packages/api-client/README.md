@@ -3,7 +3,7 @@
 ![Version](https://img.shields.io/npm/v/%40scalar/api-client)
 ![Downloads](https://img.shields.io/npm/dm/%40scalar/api-client)
 ![License](https://img.shields.io/npm/l/%40scalar%2Fapi-client)
-[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.com/invite/Ve683JXN)
+[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/8HeZcRGPFS)
 
 ## Installation
 

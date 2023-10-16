@@ -167,7 +167,7 @@ We’re using the `default-` prefix for our variables to not overwrite your vari
 
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: https://discord.com/invite/Ve683JXN
+We are API nerds. You too? Let’s chat on Discord: https://discord.gg/8HeZcRGPFS
 
 ## Other packages
 
