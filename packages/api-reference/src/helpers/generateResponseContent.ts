@@ -1,7 +1,15 @@
 /**
  * This function takes a properties object and generates an example response content.
  */
-export const generateResponseContent = (schema: Record<string, any>) => {
+export const generateResponseContent = (
+  schema: Record<string, any>,
+  level: number = 0,
+) => {
+  // Break an infinite loop
+  if (level > 10) {
+    return null
+  }
+
   if (schema.type === 'array') {
     if (schema.example !== undefined) {
       return schema.example
@@ -33,14 +41,14 @@ export const generateResponseContent = (schema: Record<string, any>) => {
 
     // properties: { … }
     if (property.properties !== undefined) {
-      response[name] = generateResponseContent(property)
+      response[name] = generateResponseContent(property, level + 1)
 
       return
     }
 
     // items: { properties: { … } }
     if (property.items?.properties !== undefined) {
-      const children = generateResponseContent(property.items)
+      const children = generateResponseContent(property.items, level + 1)
 
       if (property?.type === 'array') {
         response[name] = [children]
