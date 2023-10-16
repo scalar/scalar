@@ -1,5 +1,25 @@
 # @scalar/api-reference
 
+## 0.7.6
+
+### Patch Changes
+
+- d87566fd: refactor: new section components, new sidebar
+- 43628366: Fix overflow and scrolling issues for API client
+- 6131fa72: chore: update README
+- dd8df965: feat: add requestbody to api client if json schema available
+- 52534317: Fix references not respecting height on mobile Safari
+- Updated dependencies [db7f5f57]
+- Updated dependencies [d87566fd]
+- Updated dependencies [8be53df2]
+- Updated dependencies [4eaee866]
+- Updated dependencies [43628366]
+- Updated dependencies [06b46553]
+- Updated dependencies [dd8df965]
+  - @scalar/swagger-parser@0.5.5
+  - @scalar/swagger-editor@0.6.23
+  - @scalar/api-client@0.7.20
+
 ## 0.7.5
 
 ### Patch Changes
