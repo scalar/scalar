@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { validRequestMethods } from '../../helpers'
-
 withDefaults(defineProps<{ requestMethod: string; readOnly?: boolean }>(), {
   readOnly: true,
 })
@@ -8,6 +6,19 @@ withDefaults(defineProps<{ requestMethod: string; readOnly?: boolean }>(), {
 defineEmits<{
   (e: 'change', value: string): void
 }>()
+
+// TODO: Support all request methods
+const supportedRequestMethods = [
+  'GET',
+  'POST',
+  'PUT',
+  // 'HEAD',
+  'DELETE',
+  'PATCH',
+  // 'OPTIONS',
+  // 'CONNECT',
+  // 'TRACE',
+]
 </script>
 <template>
   <div class="request-method-select">
@@ -22,7 +33,7 @@ defineEmits<{
       :value="requestMethod.toLowerCase()"
       @input="(event) => $emit('change', (event.target as HTMLSelectElement).value)">
       <option
-        v-for="validRequestMethod in validRequestMethods"
+        v-for="validRequestMethod in supportedRequestMethods"
         :key="validRequestMethod"
         :value="validRequestMethod.toLocaleLowerCase()">
         {{ validRequestMethod }}

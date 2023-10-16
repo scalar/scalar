@@ -1,6 +1,3 @@
-export { httpHeaders, type HttpHeader } from './httpHeaders'
-export {
-  default as httpStatusCodes,
-  type HttpStatusCode,
-  type HttpStatusCodes,
-} from './httpStatusCodes'
+export * from './httpHeaders'
+export * from './httpRequestMethods'
+export * from './httpStatusCodes'
