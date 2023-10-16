@@ -3,6 +3,7 @@ import { type Operation, useOperation } from '@scalar/api-client'
 import { computed } from 'vue'
 
 import MarkdownRenderer from '../MarkdownRenderer.vue'
+import Schema from '../Schema.vue'
 import Parameters from './Parameters.vue'
 import RequestBody from './RequestBody.vue'
 
@@ -41,6 +42,11 @@ const responseArray = computed(() => {
     <Parameters
       :parameters="parameterMap.header"
       title="Headers" />
+    <!-- <div class="title">Body</div>
+    <Schema
+      :value="
+        operation.information?.requestBody?.content['application/json']?.schema
+      " /> -->
     <RequestBody :requestBody="operation.information?.requestBody" />
     <Parameters
       :parameters="responseArray"

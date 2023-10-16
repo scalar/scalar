@@ -4,7 +4,7 @@ import Schema from './Schema.vue'
 
 withDefaults(
   defineProps<{
-    value: Record<string, any>
+    value?: Record<string, any>
     level?: number
   }>(),
   {
@@ -15,7 +15,7 @@ withDefaults(
 <template>
   <div class="schema">
     <div
-      v-if="value.properties"
+      v-if="value?.properties"
       class="properties">
       <div class="type">
         <span class="type-icon">
@@ -50,10 +50,15 @@ withDefaults(
           <div
             v-if="value.properties[property].example"
             class="property-example">
-            <code class="property-example-value"
-              >example: {{ value.properties[property].example }}</code
-            >
+            <code class="property-example-value">
+              example: {{ value.properties[property].example }}
+            </code>
           </div>
+        </div>
+        <div
+          v-if="value.properties[property].description"
+          class="property-description">
+          {{ value.properties[property].description }}
         </div>
         <div
           v-if="value.properties[property].properties"
@@ -82,8 +87,9 @@ withDefaults(
   color: var(--theme-color-2, var(--default-theme-color-2));
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   font-weight: var(--theme-bold, var(--default-theme-bold));
-  padding: 6px 0 12px;
   text-transform: uppercase;
+  background: var(--theme-background-4, var(--default-theme-background-4));
+  padding: 10px 12px;
 }
 
 .type-icon {
@@ -99,6 +105,11 @@ withDefaults(
   display: flex;
   align-items: end;
   gap: 16px;
+}
+
+.property-description {
+  margin-top: 12px;
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 
 .property:not(:last-of-type) {
@@ -124,19 +135,16 @@ withDefaults(
 }
 
 .property-type {
-  /* font-family: var(--theme-font-code, var(--default-theme-font-code)); */
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 
 .properties {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   margin: 16px 0 0;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  overflow: hidden;
 }
 
-.type {
-  padding: 12px;
-  background: var(--theme-background-4, var(--default-theme-background-4));
-}
 .property {
   padding: 12px 12px;
 }
