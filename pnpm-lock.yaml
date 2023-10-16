@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@apidevtools/json-schema-ref-parser': 9.0.7
+
 patchedDependencies:
   '@jsdevtools/ono@7.1.3':
     hash: gqumdw6qlspa2xjg2gstxyzvca
@@ -1037,8 +1040,8 @@ packages:
       '@jridgewell/trace-mapping': 0.3.19
     dev: true
 
-  /@apidevtools/json-schema-ref-parser@9.0.6:
-    resolution: {integrity: sha512-M3YgsLjI0lZxvrpeGVk9Ap032W6TPQkH6pRAZz81Ac3WUNF79VQooAFnp8umjvVzUmD93NkogxEwbSce7qMsUg==}
+  /@apidevtools/json-schema-ref-parser@9.0.7:
+    resolution: {integrity: sha512-QdwOGF1+eeyFh+17v2Tz626WX0nucd1iKOm6JUTUvCZdbolblCOOQCxGrQPY0f7jEhn36PiAWqZnsC2r5vmUWg==}
     dependencies:
       '@jsdevtools/ono': 7.1.3(patch_hash=gqumdw6qlspa2xjg2gstxyzvca)
       call-me-maybe: 1.0.2
@@ -1059,7 +1062,7 @@ packages:
     peerDependencies:
       openapi-types: '>=7'
     dependencies:
-      '@apidevtools/json-schema-ref-parser': 9.0.6
+      '@apidevtools/json-schema-ref-parser': 9.0.7
       '@apidevtools/openapi-schemas': 2.1.0
       '@apidevtools/swagger-methods': 3.0.2
       '@jsdevtools/ono': 7.1.3(patch_hash=gqumdw6qlspa2xjg2gstxyzvca)

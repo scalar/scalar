@@ -1,6 +1,7 @@
 import { globSync } from 'glob'
 import { describe, expect, it } from 'vitest'
 
+import ShopwareExampleJson from '../../tests/fixtures/shopware.json'
 import SwaggerExampleJson from '../../tests/fixtures/swagger.json'
 import { getFile } from '../../tests/utils'
 import { parse } from './parse'
@@ -86,4 +87,17 @@ info`
       })
     })
   })
+
+  /**
+   * This file used to hang with @apidevtools/json-schema-ref-parser above 9.0.7
+   *
+   * https://github.com/APIDevTools/swagger-parser/issues/221
+   */
+  it('doesn’t hang with large files', () =>
+    new Promise((resolve) => {
+      return parse(JSON.stringify(ShopwareExampleJson)).then((result) => {
+        expect(result.info.title).toBe('Shopware Admin API')
+        resolve(null)
+      })
+    }))
 })
