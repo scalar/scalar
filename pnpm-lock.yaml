@@ -229,8 +229,8 @@ importers:
         specifier: 10.4.1
         version: 10.4.1(vue@3.3.4)
       '@xmldom/xmldom':
-        specifier: 0.8.1
-        version: 0.8.1
+        specifier: 0.8.4
+        version: 0.8.4
       fuse.js:
         specifier: 6.6.2
         version: 6.6.2
@@ -5660,8 +5660,8 @@ packages:
       - vue
     dev: false
 
-  /@xmldom/xmldom@0.8.1:
-    resolution: {integrity: sha512-4wOae+5N2RZ+CZXd9ZKwkaDi55IxrSTOjHpxTvQQ4fomtOJmqVxbmICA9jE1jvnqNhpfgz8cnfFagG86wV/xLQ==}
+  /@xmldom/xmldom@0.8.4:
+    resolution: {integrity: sha512-JIsjTbWBWJHb2t1D4UNZIJ6ohlRYCdoGzeHSzTorMH2zOq3UKlSBzFBMBdFK3xnUD/ANHw/SUzl/vx0z0JrqRw==}
     engines: {node: '>=10.0.0'}
     dev: false
 
