@@ -19,6 +19,7 @@
     "@scalar/use-tooltip": "workspace:*",
     "@vcarl/remark-headings": "0.1.0",
     "@vueuse/core": "10.4.1",
+    "@xmldom/xmldom": "0.8.1",
     "fuse.js": "6.6.2",
     "github-slugger": "2.0.0",
     "httpsnippet-lite": "3.0.5",
@@ -38,8 +39,7 @@
     "remark-stringify": "11.0.0",
     "remark-textr": "6.0.0",
     "typographic-base": "1.0.4",
-    "unified": "11.0.3",
-    "xmldom": "0.6.0"
+    "unified": "11.0.3"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "7.4.3",

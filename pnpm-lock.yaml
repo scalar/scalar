@@ -127,7 +127,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vite-plugin-css-injected-by-js:
         specifier: 3.3.0
         version: 3.3.0(vite@4.4.9)
@@ -231,6 +231,9 @@ importers:
       '@vueuse/core':
         specifier: 10.4.1
         version: 10.4.1(vue@3.3.4)
+      '@xmldom/xmldom':
+        specifier: 0.8.1
+        version: 0.8.1
       fuse.js:
         specifier: 6.6.2
         version: 6.6.2
@@ -294,9 +297,6 @@ importers:
       vue:
         specifier: 3.3.4
         version: 3.3.4
-      xmldom:
-        specifier: 0.6.0
-        version: 0.6.0
     devDependencies:
       '@storybook/addon-essentials':
         specifier: 7.4.3
@@ -345,7 +345,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vite-plugin-css-injected-by-js:
         specifier: 3.3.0
         version: 3.3.0(vite@4.4.9)
@@ -394,10 +394,10 @@ importers:
         version: 5.2.2
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vite-node:
         specifier: 0.34.4
-        version: 0.34.4
+        version: 0.34.4(@types/node@20.6.3)
       vitest:
         specifier: 0.34.4
         version: 0.34.4
@@ -446,10 +446,10 @@ importers:
         version: 5.2.2
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vite-node:
         specifier: 0.34.4
-        version: 0.34.4
+        version: 0.34.4(@types/node@20.6.3)
       vite-plugin-css-injected-by-js:
         specifier: 3.3.0
         version: 3.3.0(vite@4.4.9)
@@ -516,7 +516,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vite-plugin-css-injected-by-js:
         specifier: 3.3.0
         version: 3.3.0(vite@4.4.9)
@@ -587,7 +587,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vite-plugin-css-injected-by-js:
         specifier: 3.3.0
         version: 3.3.0(vite@4.4.9)
@@ -624,7 +624,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vitest:
         specifier: 0.34.4
         version: 0.34.4
@@ -718,7 +718,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vitest:
         specifier: 0.34.4
         version: 0.34.4
@@ -743,7 +743,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vitest:
         specifier: 0.34.4
         version: 0.34.4
@@ -771,7 +771,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vitest:
         specifier: 0.34.4
         version: 0.34.4
@@ -799,7 +799,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vite-plugin-css-injected-by-js:
         specifier: 3.3.0
         version: 3.3.0(vite@4.4.9)
@@ -830,7 +830,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vitest:
         specifier: 0.34.4
         version: 0.34.4
@@ -852,10 +852,10 @@ importers:
         version: 3.0.1
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vite-node:
         specifier: 0.34.4
-        version: 0.34.4
+        version: 0.34.4(@types/node@20.6.3)
 
   projects/echo-server:
     dependencies:
@@ -871,10 +871,10 @@ importers:
         version: 3.0.1
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vite-node:
         specifier: 0.34.4
-        version: 0.34.4
+        version: 0.34.4(@types/node@20.6.3)
 
   projects/fastify-api-reference:
     dependencies:
@@ -896,10 +896,10 @@ importers:
         version: 5.2.2
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vite-node:
         specifier: 0.34.4
-        version: 0.34.4
+        version: 0.34.4(@types/node@20.6.3)
 
   projects/react:
     dependencies:
@@ -963,7 +963,7 @@ importers:
         version: 5.2.2
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vite-plugin-node-polyfills:
         specifier: 0.14.1
         version: 0.14.1(rollup@3.29.2)(vite@4.4.9)
@@ -1012,7 +1012,7 @@ importers:
         version: 5.2.2
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
       vite-plugin-node-polyfills:
         specifier: 0.14.1
         version: 0.14.1(rollup@3.29.2)(vite@4.4.9)
@@ -4380,7 +4380,7 @@ packages:
       remark-slug: 6.1.0
       rollup: 3.29.2
       typescript: 5.2.2
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.6.3)
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -4807,7 +4807,7 @@ packages:
       magic-string: 0.30.3
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.6.3)
       vue-docgen-api: 4.74.1(vue@3.3.4)
     transitivePeerDependencies:
       - '@preact/preset-vite'
@@ -5384,7 +5384,7 @@ packages:
       '@babel/plugin-transform-react-jsx-self': 7.22.5(@babel/core@7.22.20)
       '@babel/plugin-transform-react-jsx-source': 7.22.5(@babel/core@7.22.20)
       react-refresh: 0.14.0
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.6.3)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -5399,7 +5399,7 @@ packages:
       '@babel/core': 7.22.20
       '@babel/plugin-transform-typescript': 7.22.15(@babel/core@7.22.20)
       '@vue/babel-plugin-jsx': 1.1.5(@babel/core@7.22.20)
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.6.3)
       vue: 3.3.4
     transitivePeerDependencies:
       - supports-color
@@ -5412,7 +5412,7 @@ packages:
       vite: ^4.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.6.3)
       vue: 3.3.4
     dev: true
 
@@ -5665,6 +5665,11 @@ packages:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
+    dev: false
+
+  /@xmldom/xmldom@0.8.1:
+    resolution: {integrity: sha512-4wOae+5N2RZ+CZXd9ZKwkaDi55IxrSTOjHpxTvQQ4fomtOJmqVxbmICA9jE1jvnqNhpfgz8cnfFagG86wV/xLQ==}
+    engines: {node: '>=10.0.0'}
     dev: false
 
   /@yarnpkg/esbuild-plugin-pnp@3.0.0-rc.15(esbuild@0.18.20):
@@ -13656,28 +13661,6 @@ packages:
       vfile-message: 4.0.2
     dev: false
 
-  /vite-node@0.34.4:
-    resolution: {integrity: sha512-ho8HtiLc+nsmbwZMw8SlghESEE3KxJNp04F/jPUCLVvaURwt0d+r9LxEqCX5hvrrOQ0GSyxbYr5ZfRYhQ0yVKQ==}
-    engines: {node: '>=v14.18.0'}
-    hasBin: true
-    dependencies:
-      cac: 6.7.14
-      debug: 4.3.4
-      mlly: 1.4.2
-      pathe: 1.1.1
-      picocolors: 1.0.0
-      vite: 4.4.9
-    transitivePeerDependencies:
-      - '@types/node'
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-    dev: true
-
   /vite-node@0.34.4(@types/node@20.6.3):
     resolution: {integrity: sha512-ho8HtiLc+nsmbwZMw8SlghESEE3KxJNp04F/jPUCLVvaURwt0d+r9LxEqCX5hvrrOQ0GSyxbYr5ZfRYhQ0yVKQ==}
     engines: {node: '>=v14.18.0'}
@@ -13705,7 +13688,7 @@ packages:
     peerDependencies:
       vite: '>2.0.0-0'
     dependencies:
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.6.3)
     dev: true
 
   /vite-plugin-node-polyfills@0.14.1(rollup@3.29.2)(vite@4.4.9):
@@ -13717,7 +13700,7 @@ packages:
       buffer-polyfill: /buffer@6.0.3
       node-stdlib-browser: 1.2.0
       process: 0.11.10
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.6.3)
     transitivePeerDependencies:
       - rollup
     dev: true
@@ -13731,7 +13714,7 @@ packages:
     dependencies:
       micromatch: 4.0.5
       rollup: 3.29.2
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.6.3)
     dev: true
 
   /vite-plugin-static-copy@0.17.0(vite@4.4.9):
@@ -13744,42 +13727,7 @@ packages:
       fast-glob: 3.3.1
       fs-extra: 11.1.1
       picocolors: 1.0.0
-      vite: 4.4.9
-    dev: true
-
-  /vite@4.4.9:
-    resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': '>= 14'
-      less: '*'
-      lightningcss: ^1.21.0
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      esbuild: 0.18.20
-      postcss: 8.4.30
-      rollup: 3.29.2
-    optionalDependencies:
-      fsevents: 2.3.3
+      vite: 4.4.9(@types/node@20.6.3)
     dev: true
 
   /vite@4.4.9(@types/node@20.6.3):
@@ -13812,7 +13760,7 @@ packages:
     dependencies:
       '@types/node': 20.6.3
       esbuild: 0.18.20
-      postcss: 8.4.31
+      postcss: 8.4.30
       rollup: 3.29.2
     optionalDependencies:
       fsevents: 2.3.3
@@ -14223,11 +14171,6 @@ packages:
     resolution: {integrity: sha512-ICP2e+jsHvAj2E2lIHxa5tjXRlKDJo4IdvPvCXbXQGdzSfmSpNVyIKMvoZHjDY9DP0zV17iI85o90vRFXNccRw==}
     engines: {node: '>=12'}
     dev: true
-
-  /xmldom@0.6.0:
-    resolution: {integrity: sha512-iAcin401y58LckRZ0TkI4k0VSM1Qg0KGSc3i8rU+xrxe19A/BN1zHyVSJY7uoutVlaTSzYyk/v5AmkewAP7jtg==}
-    engines: {node: '>=10.0.0'}
-    dev: false
 
   /xtend@4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
