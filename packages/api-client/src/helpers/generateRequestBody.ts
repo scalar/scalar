@@ -3,7 +3,7 @@ import type { RequestBody } from '../types'
 /**
  * This function takes a properties object and generates an example requestBody.
  */
-export function getRequestBody(requestBody: RequestBody) {
+export function getRequestBody(requestBody?: RequestBody) {
   if (!requestBody?.content['application/json']?.schema) return '{}'
 
   const body = generateRequestBody(
