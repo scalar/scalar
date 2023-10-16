@@ -52,7 +52,7 @@
     "@vitejs/plugin-vue": "4.3.4",
     "@vitest/coverage-v8": "0.34.4",
     "http-server": "14.1.1",
-    "postcss": "8.4.30",
+    "postcss": "8.4.31",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "storybook": "7.4.3",
