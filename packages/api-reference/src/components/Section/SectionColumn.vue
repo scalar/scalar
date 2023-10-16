@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <section class="section-column"><slot /></section>
+  <div class="section-column"><slot /></div>
 </template>
 
 <style scoped>
