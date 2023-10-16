@@ -222,9 +222,6 @@ importers:
       '@types/js-yaml':
         specifier: 4.0.6
         version: 4.0.6
-      '@types/xmldom':
-        specifier: 0.1.31
-        version: 0.1.31
       '@vcarl/remark-headings':
         specifier: 0.1.0
         version: 0.1.0
@@ -5188,10 +5185,6 @@ packages:
 
   /@types/web-bluetooth@0.0.17:
     resolution: {integrity: sha512-4p9vcSmxAayx72yn70joFoL44c9MO/0+iVEBIQXe3v2h2SiAsEIo/G5v6ObFWvNKRFjbrVadNf9LqEEZeQPzdA==}
-    dev: false
-
-  /@types/xmldom@0.1.31:
-    resolution: {integrity: sha512-bVy7s0nvaR5D1mT1a8ZkByHWNOGb6Vn4yi5TWhEdmyKlAG+08SA7Md6+jH+tYmMLueAwNeWvHHpeKrr6S4c4BA==}
     dev: false
 
   /@types/yargs-parser@21.0.0:
