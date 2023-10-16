@@ -30,7 +30,7 @@ export type SwaggerOperation = any
 
 type AnyObject = Record<string, any>
 
-export const parseSwaggerFile = (
+export const parse = (
   /**
    * A JSON string or an object containg a Swagger spec.
    */
@@ -180,3 +180,6 @@ export const parseJsonOrYaml = (value: string | AnyObject): AnyObject => {
 
   return value as AnyObject
 }
+
+/** @deprecated */
+export const parseSwaggerFile = parse
