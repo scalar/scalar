@@ -48,7 +48,6 @@ const {
   state: templateState,
   setItem: setTemplateItem,
   toggleCollapsedSidebarItem,
-  setCollapsedSidebarItem,
 } = useTemplateStore()
 
 useKeyboardEvent({
@@ -134,22 +133,24 @@ const items = computed((): SidebarEntry[] => {
         })
 
   // Models
-  const modelEntries: SidebarEntry[] = [
-    {
-      id: 'models',
-      title: 'MODELS',
-      type: 'Folder',
-      children: Object.keys(props.spec.components?.schemas ?? {}).map(
-        (name) => {
-          return {
-            id: getModelSectionId(name),
-            title: name,
-            type: 'Page',
-          }
+  const modelEntries: SidebarEntry[] = hasModels(props.spec)
+    ? [
+        {
+          id: 'models',
+          title: 'MODELS',
+          type: 'Folder',
+          children: Object.keys(props.spec.components?.schemas ?? {}).map(
+            (name) => {
+              return {
+                id: getModelSectionId(name),
+                title: name,
+                type: 'Page',
+              }
+            },
+          ),
         },
-      ),
-    },
-  ]
+      ]
+    : []
 
   return [...headingEntries, ...(operationEntries ?? []), ...modelEntries]
 })
