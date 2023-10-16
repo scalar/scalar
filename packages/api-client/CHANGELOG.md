@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 0.7.20
+
+### Patch Changes
+
+- d87566fd: refactor: new section components, new sidebar
+- 43628366: Fix overflow and scrolling issues for API client
+- dd8df965: feat: add requestbody to api client if json schema available
+
 ## 0.7.19
 
 ### Patch Changes

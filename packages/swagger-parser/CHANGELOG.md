@@ -1,5 +1,15 @@
 # @scalar/swagger-parser
 
+## 0.5.5
+
+### Patch Changes
+
+- db7f5f57: feat: add analyze helper to get stats for Swagger/OpenAPI specs
+- d87566fd: refactor: new section components, new sidebar
+- 8be53df2: fix: avoid timeouts with large files, downgrade @apidevtools/json-schema-ref-parser
+- 4eaee866: feat: add preflight helper function to quickly analyze specs without parsing them
+- 06b46553: refactor: rename parseSwaggerFile to just parse
+
 ## 0.5.4
 
 ### Patch Changes

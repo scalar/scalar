@@ -1,5 +1,17 @@
 # @scalar/swagger-editor
 
+## 0.6.23
+
+### Patch Changes
+
+- d87566fd: refactor: new section components, new sidebar
+- Updated dependencies [db7f5f57]
+- Updated dependencies [d87566fd]
+- Updated dependencies [8be53df2]
+- Updated dependencies [4eaee866]
+- Updated dependencies [06b46553]
+  - @scalar/swagger-parser@0.5.5
+
 ## 0.6.22
 
 ### Patch Changes
