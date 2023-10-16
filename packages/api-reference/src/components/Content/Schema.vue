@@ -1,10 +1,16 @@
 <script lang="ts" setup>
 // TODO: value.xml isn’t rendered yet
-import { DialogOverlay } from '@headlessui/vue'
-
 import Schema from './Schema.vue'
 
-defineProps<{ value: Record<string, any> }>()
+withDefaults(
+  defineProps<{
+    value: Record<string, any>
+    level?: number
+  }>(),
+  {
+    level: 0,
+  },
+)
 </script>
 <template>
   <div class="schema">
@@ -53,7 +59,10 @@ defineProps<{ value: Record<string, any> }>()
         <div
           v-if="value.properties[property].properties"
           class="children">
-          <Schema :value="value.properties[property]" />
+          <Schema
+            v-if="level < 3"
+            :level="level + 1"
+            :value="value.properties[property]" />
         </div>
         <!-- TODO: .items for array -->
       </div>
@@ -63,6 +72,8 @@ defineProps<{ value: Record<string, any> }>()
 
 <style scoped>
 .schema {
+  max-width: 600px;
+  width: 100%;
   font-size: var(--default-theme-font-size-3, var(--default-theme-font-size-3));
   color: var(--theme-color-1, var(--default-theme-color-1));
 }

@@ -28,12 +28,7 @@ defineProps<{
           {{ name }}
         </SectionHeader>
         <SectionContent>
-          <SectionColumns>
-            <SectionColumn>
-              <Schema :value="components?.schemas?.[name]" />
-            </SectionColumn>
-            <SectionColumn></SectionColumn>
-          </SectionColumns>
+          <Schema :value="components?.schemas?.[name]" />
         </SectionContent>
       </template>
     </Section>
