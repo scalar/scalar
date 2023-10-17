@@ -59,27 +59,23 @@ const currentResponse = computed(() => {
   return props.operation.information?.responses[currentStatusCode]
 })
 
-const currentResponseExamples = computed(() => {
-  return currentResponse.value?.content?.['application/json']?.examples
-})
-
-const currentResponseExample = computed(() => {
-  const example = currentResponse.value?.content?.['application/json']?.example
-
-  if (example) {
-    return prettyPrintJson(example)
-  }
-
-  const schema = currentResponse.value?.content?.['application/json']?.schema
-  if (schema) {
-    return prettyPrintJson(generateResponseContent(schema))
-  }
-
-  return ''
-})
+const currentJsonResponse = computed(
+  () => currentResponse.value.content?.['application/json'],
+)
 
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index
+}
+
+const rules = ['oneOf', 'anyOf', 'not']
+
+const mergeAllObjects = (items: Record<any, any>[]): any => {
+  return items.reduce((acc, object) => {
+    return {
+      ...acc,
+      ...object,
+    }
+  }, {})
 }
 </script>
 <template>
@@ -95,10 +91,10 @@ const changeTab = (index: number) => {
 
       <template #actions>
         <button
-          v-if="currentResponseExample"
+          v-if="currentJsonResponse?.example"
           class="code-copy"
           type="button"
-          @click="() => copyToClipboard(currentResponseExample)">
+          @click="() => copyToClipboard(currentJsonResponse?.example)">
           <Icon
             src="solid/interface-copy-clipboard"
             width="10px" />
@@ -113,36 +109,109 @@ const changeTab = (index: number) => {
         <Headers :headers="currentResponse.headers" />
       </CardContent> -->
       <CardContent muted>
+        <!-- Multiple examples -->
         <template
           v-if="
-            currentResponseExamples &&
-            Object.keys(currentResponseExamples).length > 1
+            currentJsonResponse?.examples &&
+            Object.keys(currentJsonResponse?.examples).length > 1
           ">
-          {{ currentResponseExamples.length }}
-          <SelectExample :examples="currentResponseExamples" />
+          <SelectExample :examples="currentJsonResponse?.examples" />
         </template>
+        <!-- An array, but just one example -->
         <template
           v-else-if="
-            currentResponseExamples &&
-            Object.keys(currentResponseExamples).length === 1
+            currentJsonResponse?.examples &&
+            Object.keys(currentJsonResponse?.examples).length === 1
           ">
           <CodeMirror
             :content="
               prettyPrintJson(
-                mapFromObject(currentResponseExamples)[0].value.value,
+                mapFromObject(currentJsonResponse?.examples)[0].value.value,
               )
             "
             :languages="['json']"
             readOnly />
         </template>
+        <!-- Single example -->
         <template v-else>
-          <CodeMirror
-            v-show="currentResponseExample"
-            :content="currentResponseExample"
-            :languages="['json']"
-            readOnly />
+          <div v-if="currentJsonResponse?.example">
+            <CodeMirror
+              :content="currentJsonResponse?.example"
+              :languages="['json']"
+              readOnly />
+          </div>
+          <div v-if="currentJsonResponse?.schema">
+            <!-- Single Schema -->
+            <CodeMirror
+              v-if="currentJsonResponse?.schema.type"
+              :content="
+                prettyPrintJson(
+                  generateResponseContent(currentJsonResponse?.schema),
+                )
+              "
+              :languages="['json']"
+              readOnly />
+            <!-- oneOf, anyOf … -->
+            <template
+              v-for="rule in rules"
+              :key="rule">
+              <div
+                v-if="
+                  currentJsonResponse?.schema[rule] &&
+                  currentJsonResponse?.schema[rule].length > 1
+                "
+                class="rule">
+                <div class="rule-title">
+                  {{ rule }}
+                </div>
+                <ol class="rule-items">
+                  <li
+                    v-for="(example, index) in currentJsonResponse?.schema[
+                      rule
+                    ]"
+                    :key="index"
+                    class="rule-item">
+                    <CodeMirror
+                      :content="
+                        prettyPrintJson(generateResponseContent(example))
+                      "
+                      :languages="['json']"
+                      readOnly />
+                  </li>
+                </ol>
+              </div>
+              <CodeMirror
+                v-else-if="
+                  currentJsonResponse?.schema[rule] &&
+                  currentJsonResponse?.schema[rule].length === 1
+                "
+                :content="
+                  prettyPrintJson(
+                    generateResponseContent(
+                      currentJsonResponse?.schema[rule][0],
+                    ),
+                  )
+                "
+                :languages="['json']"
+                readOnly />
+            </template>
+            <!-- allOf-->
+            <CodeMirror
+              v-if="currentJsonResponse?.schema['allOf']"
+              :content="
+                prettyPrintJson(
+                  mergeAllObjects(
+                    currentJsonResponse?.schema['allOf'].map((schema: any) =>
+                      generateResponseContent(schema),
+                    ),
+                  ),
+                )
+              "
+              :languages="['json']"
+              readOnly />
+          </div>
           <div
-            v-if="!currentResponseExample"
+            v-if="!currentJsonResponse?.example && !currentJsonResponse?.schema"
             class="scalar-api-reference__empty-state">
             No Body
           </div>
@@ -235,5 +304,51 @@ const changeTab = (index: number) => {
 }
 .card-container :deep(.cm-scroller) {
   overflow: hidden;
+}
+
+.rule-title {
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  display: inline-block;
+  margin: 12px 0 6px;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+}
+
+.rule {
+  margin: 0 12px 0;
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+}
+
+.rule-items {
+  counter-reset: list-number;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-left: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+  padding: 12px 0 12px;
+}
+.rule-item {
+  counter-increment: list-number;
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  overflow: hidden;
+  margin-left: 24px;
+}
+.rule-item:before {
+  /* content: counter(list-number); */
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border-top: 0;
+  border-right: 0;
+  content: ' ';
+  display: block;
+  width: 24px;
+  height: 6px;
+  border-radius: 0 0 0 var(--theme-radius-lg, var(--default-theme-radius-lg));
+  margin-top: 6px;
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  transform: translateX(-25px);
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  position: absolute;
 }
 </style>
