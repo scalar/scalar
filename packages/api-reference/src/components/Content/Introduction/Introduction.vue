@@ -30,7 +30,7 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
         tight>
         {{ info.title }}
       </SectionHeader>
-      <SectionContent :loading="!info.description">
+      <SectionContent :loading="!info.description && !info.title">
         <SectionColumns>
           <SectionColumn>
             <MarkdownRenderer :value="info.description" />
