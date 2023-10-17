@@ -45,14 +45,14 @@ const authDropdownItems = [
         <span>
           {{ authTypeFriendlyString[authState.type] }}
           <svg
-            height="18"
-            viewBox="0 0 10 18"
-            width="10"
+            fill="none"
+            height="100%"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg">
             <path
-              d="M5 2.83L8.17 6l1.41-1.41L5 0 .41 4.59 1.83 6 5 2.83zm0 12.34L1.83 12 .42 13.41 5 18l4.59-4.59L8.17 12 5 15.17z"
-              fill="currentColor"
-              fill-rule="nonzero" />
+              d="m19.5 10-7.5 7.5-7.5-7.5"
+              xmlns="http://www.w3.org/2000/svg"></path>
           </svg>
         </span>
         <select

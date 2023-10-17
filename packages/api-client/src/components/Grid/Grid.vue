@@ -376,21 +376,26 @@ const showDescription = ref(false)
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 381px;
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+  min-height: 389px;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
 }
 .navtable-radios {
   z-index: 1;
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 .navtable-item {
   display: flex;
   position: relative;
   color: var(--theme-color-1, var(--default-theme-color-1));
   font-size: var(--theme-micro, var(--default-theme-micro));
-  box-shadow: 0 1px 0
+  border-top: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
+}
+.navtable-item:first-of-type {
+  border-top: none;
 }
 .navtable-item > div {
   word-wrap: break-word;
@@ -482,13 +487,13 @@ const showDescription = ref(false)
   width: 40%;
   display: flex;
   align-items: center;
-  padding: 6px 9px;
+  padding: 9px;
 }
 .navtable-item-20 {
   width: 20%;
   display: flex;
   align-items: center;
-  padding: 6px 9px;
+  padding: 9px;
 }
 .navtable-item-50 {
   width: 50%;
@@ -611,6 +616,7 @@ const showDescription = ref(false)
   outline: none;
   border-radius: 50%;
   opacity: 0;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;

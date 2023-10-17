@@ -312,6 +312,7 @@ const formattedPath = computed(() => {
   cursor: pointer;
   color: var(--theme-color-3, var(--default-theme-color-3));
   margin-left: 6px;
+  margin-right: 12px;
   border: none;
   border-radius: 3px;
   padding: 0;
@@ -410,5 +411,13 @@ const formattedPath = computed(() => {
 }
 .card-header-actions {
   display: flex;
+}
+@media screen and (max-width: 400px) {
+  .language-select {
+    position: absolute;
+    bottom: 9px;
+    left: 0;
+    border-right: none;
+  }
 }
 </style>

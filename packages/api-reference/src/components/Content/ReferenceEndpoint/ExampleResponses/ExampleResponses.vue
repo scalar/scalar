@@ -248,6 +248,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
   color: var(--theme-color-3, var(--default-theme-color-3));
   border: none;
   padding: 0;
+  margin-right: 12px;
 }
 .code-copy:hover {
   color: var(--theme-color-1, var(--default-theme-color-1));
@@ -268,9 +269,6 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
     var(--theme-border-color, var(--default-theme-border-color));
 }
 .scalar-api-reference__empty-state {
-  border: 1px dashed
-    var(--theme-border-color, var(--default-theme-border-color));
-  width: calc(100% - 24px);
   margin: 10px 0 10px 12px;
   text-align: center;
   font-size: var(--theme-micro, var(--default-theme-micro));

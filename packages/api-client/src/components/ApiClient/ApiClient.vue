@@ -236,7 +236,7 @@ useKeyboardEvent({
 
 /** TODO: Consider to make a Column component */
 .scalar-api-client__main__content {
-  padding: 12px;
+  padding: 12px 6px;
   background: var(--theme-background-1, var(--default-theme-background-1));
   top: 0;
   position: sticky;
@@ -261,6 +261,7 @@ useKeyboardEvent({
 
 .meta {
   display: flex;
+  margin-top: 3px;
   font-size: var(--theme-font-size-2, var(--default-theme-font-size-2));
   font-weight: var(--theme-font-size-2, var(--default-theme-font-size-2));
   color: var(

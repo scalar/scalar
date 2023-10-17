@@ -50,11 +50,13 @@ const { requestHistoryOrder } = useApiClientRequestStore()
   flex: 1;
   position: relative;
   z-index: 0;
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
   background: repeating-linear-gradient(
     var(--default-theme-background-1),
-    var(--default-theme-background-1) 28.8px,
-    var(--default-theme-border-color) 28.8px,
-    var(--default-theme-border-color) 29.8px
+    var(--default-theme-background-1) 34.8px,
+    var(--default-theme-border-color) 34.8px,
+    var(--default-theme-border-color) 35.8px
   );
 }
 .navtable-mock .navtable-item {
@@ -90,11 +92,15 @@ const { requestHistoryOrder } = useApiClientRequestStore()
   height: 100%;
   cursor: pointer;
 }
-.navtable-item__active {
-  background: var(--theme-background-2, var(--default-theme-background-2));
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  box-shadow: 0 0 0 1px
-    var(--theme-border-color, var(--default-theme-border-color)) !important;
+.navtable-item__active:before {
+  content: '';
+  display: block;
+  box-shadow: 0 0 0 1px var(--theme-color-1, var(--default-theme-color-1)) !important;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
 }
 .navtable-item__active + .navtable-item {
   /* box-shadow: none; */

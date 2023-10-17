@@ -244,8 +244,6 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
 .scalar-api-client__field {
-  box-shadow: 0 0 0 1px
-    var(--theme-border-color, var(--default-theme-border-color));
   border-right: 0;
   background: var(--theme-background-2, var(--default-theme-background-2));
   border-radius: var(--theme-radius, var(--default-theme-radius)) 0 0
@@ -319,7 +317,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   color: white;
   border: none;
   white-space: nowrap;
-  padding: 0 10px;
+  padding: 0 12px;
   text-transform: uppercase;
   cursor: pointer;
   outline: none;
@@ -330,20 +328,20 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
     --scalar-api-client-color,
     var(--default-scalar-api-client-color)
   );
-  box-shadow: 0 0 0 1px
-    var(--scalar-api-client-color, var(--default-scalar-api-client-color));
   position: relative;
   /**  #087f5b */
   display: flex;
   align-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 .scalar-api-client__send-request-button:before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: -5%;
+  left: -5%;
+  width: 110%;
+  height: 110%;
   pointer-events: none;
   cursor: pointer;
   border-radius: var(--theme-radius, var(--default-theme-radius));
@@ -355,6 +353,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
 .scalar-api-client__send-request-button svg {
   width: 12px;
   height: 12px;
+  flex-shrink: 0;
   margin-right: 6px;
   position: relative;
 }
@@ -367,7 +366,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
 }
 
 .scalar-api-client__history-toggle {
-  padding: 0 9px;
+  padding: 0 12px;
   line-height: 30px;
   color: var(--theme-color-3, var(--default-theme-color-3));
   font-size: var(--theme-micro, var(--default-theme-micro));
