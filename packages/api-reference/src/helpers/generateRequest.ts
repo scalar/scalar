@@ -1,6 +1,7 @@
-import type { ClientRequestConfig, Operation, Server } from '@scalar/api-client'
+import type { ClientRequestConfig } from '@scalar/api-client'
 
 import { type ParamMap } from '../hooks'
+import type { Operation, Server } from '../types'
 import { generateParameters } from './generateParameters'
 import { generateResponseContent } from './generateResponseContent'
 
