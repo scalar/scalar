@@ -106,14 +106,6 @@ export type Schema = {
   type: string
 }
 
-export type Parameters = {
-  description?: string
-  in?: string
-  name: string
-  required?: boolean
-  schema?: Schema
-}
-
 export type Security = {
   api_key?: any[]
   petstore_auth?: string[]
@@ -161,28 +153,4 @@ export type RequestBody = {
 export type Response = {
   description: string
   content: any
-}
-
-export type Information = {
-  description: string
-  operationId: string
-  parameters: Parameters[]
-  responses: Record<string, Response>
-  security: Security[]
-  requestBody: RequestBody
-  summary: string
-  tags: string[]
-}
-
-export type Operation = {
-  httpVerb: string
-  path: string
-  operationId: string
-  name: string
-  description: string
-  information: Information
-}
-
-export type Server = {
-  url: string
 }
