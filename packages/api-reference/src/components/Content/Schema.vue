@@ -18,11 +18,18 @@ withDefaults(
       v-if="value?.properties"
       class="properties">
       <div class="type">
-        <span class="type-icon">
+        <span
+          class="type-icon"
+          :title="value.type">
           <template v-if="value.type === 'object'"> {} </template>
           <template v-if="value.type === 'array'"> [] </template>
         </span>
-        {{ value.type }}
+        <template v-if="value?.xml?.name">
+          &lt;{{ value?.xml?.name }} /&gt;
+        </template>
+        <template v-else>
+          {{ value.type }}
+        </template>
       </div>
       <div
         v-for="property in Object.keys(value.properties)"
