@@ -31,7 +31,5 @@ jobs:
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
       - name: Check code style
         run: pnpm format:check
-      - name: Build
-        run: pnpm turbo build
-      - name: Check types & run tests
-        run: pnpm turbo types:check test
+      - name: Build & check types & run tests
+        run: pnpm turbo build types:check test
