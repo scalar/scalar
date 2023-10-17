@@ -63,10 +63,6 @@ function addAnotherHandler() {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   margin: 0 6px;
   font-family: var(--theme-font);
-  background: var(
-    --theme-background-3,
-    var(--default-theme-background-3)
-  ) !important;
   appearance: none;
   display: flex;
   align-items: center;

@@ -281,6 +281,7 @@ const searchResultsWithPlaceholderResults = computed(
   min-height: 31px;
   display: flex;
   gap: 6px;
+  overflow: hidden;
 }
 .item-entry-http-verb:empty {
   display: none;

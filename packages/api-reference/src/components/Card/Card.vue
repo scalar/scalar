@@ -13,5 +13,6 @@
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 310px);
+  position: relative;
 }
 </style>

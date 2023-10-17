@@ -41,17 +41,18 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   width: 50%;
   border-right: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
-  padding: 0 0 12px 12px;
+  padding: 0 6px 12px 18px;
 }
 @media screen and (max-width: 820px) {
   .scalar-api-client__main__left {
     width: 100%;
     border-right: none;
+    padding: 0 0 12px 12px;
   }
 }
 .scalar-api-client__item__content {
   flex-flow: wrap;
-  padding: 6px 12px 12px;
+  padding: 3px 6px 6px 6px;
   border-radius: 3px;
   color: var(--theme-color-3, var(--default-theme-color-3));
   font-size: var(--theme-micro, var(--default-theme-micro));
@@ -220,10 +221,13 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   font-size: var(--theme-micro, var(--default-theme-micro));
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-radius: 3px;
-  padding: 11px 12px;
+  padding: 10px 12px;
   user-select: none;
   min-height: 38px;
   width: 100%;
+}
+.checkmark:hover {
+  background: var(--theme-background-3, var(--default-theme-background-3));
 }
 .check:focus-within {
   border-color: var(--theme-color-1, var(--default-theme-color-1));
@@ -241,9 +245,8 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 }
 
 .checkmark {
-  height: 15px;
-  width: 15px;
-  background: var(--theme-background-1, var(--default-theme-background-1));
+  height: 17px;
+  width: 17px;
   box-shadow: 0 0 0 1px
     var(--theme-border-color, var(--default-theme-border-color));
   margin-right: 10px;

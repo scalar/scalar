@@ -8,9 +8,7 @@
   border-top: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
-
-.simple-row:last-of-type {
-  border-bottom: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+.simple-row:first-of-type {
+  border-top: none;
 }
 </style>

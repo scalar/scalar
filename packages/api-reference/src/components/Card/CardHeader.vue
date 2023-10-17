@@ -23,7 +23,7 @@ import CardContent from './CardContent.vue'
 .card-header-slots {
   display: flex;
   justify-content: space-between;
-  margin: 9px 12px;
+  margin: 9px 0 9px 12px;
   line-height: 1.35;
 }
 

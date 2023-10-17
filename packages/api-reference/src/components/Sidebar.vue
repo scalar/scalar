@@ -411,12 +411,33 @@ const activeSidebarItemId = computed(() => {
   gap: 4px;
   height: 24px;
   align-items: center;
-  padding: 0 4px;
+  padding-left: 4px;
 }
 
 .sidebar-mobile-actions .sidebar-mobile-darkmode-toggle {
-  height: 16px;
-  width: 16px;
+  height: 24px;
+  width: 24px;
+  margin-top: 0;
+}
+.sidebar-mobile-actions .sidebar-mobile-darkmode-toggle .darklight {
+  height: 24px;
+  width: 24px;
+  font-size: 0;
+  padding: 0;
+  margin-top: 0;
+  border-top: 0;
+  text-indent: 0;
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sidebar-mobile-actions .sidebar-mobile-darkmode-toggle svg {
+  width: 15px;
+  height: 15px;
+}
+.sidebar-mobile-actions .darklight-reference-promo {
+  display: none;
 }
 .active_page.sidebar-heading:hover,
 .active_page.sidebar-heading {

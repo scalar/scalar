@@ -47,7 +47,6 @@ defineProps<{
 .scalar-api-client__item {
   border-radius: var(--theme-radius, var(--default-theme-radius));
   margin-bottom: 6px;
-  background: var(--theme-background-2, var(--default-theme-background-2));
   position: relative;
 }
 
@@ -58,7 +57,18 @@ defineProps<{
 .scalar-api-client__item:hover {
   cursor: pointer;
 }
-
+.scalar-api-client__toggle:after {
+  content: '';
+  position: absolute;
+  bottom: -6.5px;
+  width: 100%;
+  height: 6px;
+  left: 0;
+}
+.scalar-api-client__item--open .scalar-api-client__toggle:after {
+  display: none;
+}
+.scalar-api-client__item:hover,
 .scalar-api-client__item--open {
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
@@ -75,7 +85,7 @@ defineProps<{
   transform: rotate(90deg);
 }
 .scalar-api-client__toggle {
-  padding: 6px 12px;
+  padding: 6px;
   min-height: 37px;
   display: flex;
   align-items: center;
@@ -99,29 +109,15 @@ defineProps<{
   position: relative;
   z-index: 1;
 }
-
-.scalar-api-client__toggle:after {
-  content: '';
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  width: calc(100% - 12px);
-  height: calc(100% - 12px);
-  display: block;
-  background: var(--theme-background-3, var(--default-theme-background-3));
-  z-index: 0;
-  opacity: 0;
-  border-radius: var(--default-theme-radius);
-}
-.scalar-api-client__toggle:hover:after {
-  opacity: 1;
-}
 .scalar-api-client__item .scalar-api-client__toggle__icon {
   width: 10px;
   margin-right: 6px;
   color: var(--theme-color-3, var(--default-theme-color-3));
   z-index: 1;
   position: relative;
+}
+.scalar-api-client__toggle:hover .scalar-api-client__toggle__icon {
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 
 .scalar-api-client__item__options {
@@ -145,8 +141,8 @@ defineProps<{
   border-color: currentColor;
 }
 .scalar-api-client__item__options span svg {
-  width: 11px;
-  height: 11px;
+  width: 15px;
+  height: 15px;
   margin-left: 3px;
 }
 
