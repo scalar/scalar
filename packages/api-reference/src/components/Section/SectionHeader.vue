@@ -34,6 +34,8 @@ withDefaults(defineProps<{ loading?: boolean; tight?: boolean }>(), {
   color: var(--theme-color-1, var(--default-theme-color-1));
   word-wrap: break-word;
   line-height: 1.45;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .section-header.tight {

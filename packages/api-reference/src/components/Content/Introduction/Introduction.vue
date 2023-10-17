@@ -26,17 +26,17 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
   <SectionContainer>
     <Section>
       <SectionContent :loading="!info.description && !info.title">
-        <SectionHeader
-          :loading="!info.title"
-          tight>
-          {{ info.title }}
-        </SectionHeader>
         <SectionColumns>
           <SectionColumn>
+            <SectionHeader
+              :loading="!info.title"
+              tight>
+              {{ info.title }}
+            </SectionHeader>
             <MarkdownRenderer :value="info.description" />
           </SectionColumn>
           <SectionColumn>
-            <div class="flex-col gap-1">
+            <div class="sticky-cards flex-col gap-1">
               <Card v-if="servers.length > 0">
                 <CardHeader muted>
                   Base URL{{ servers?.length > 1 ? 's' : '' }}
@@ -101,5 +101,9 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
   font-size: var(--theme-small, var(--default-theme-small));
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   padding: 10px 12px;
+}
+.sticky-cards {
+  position: sticky;
+  top: 24px;
 }
 </style>

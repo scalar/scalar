@@ -21,7 +21,15 @@ withDefaults(defineProps<{ lines?: number }>(), {
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   min-height: 1.6em;
   margin: 0.6em 0;
-  max-width: 60%;
+  max-width: 100%;
+}
+.loading:first-of-type {
+  min-height: 3em;
+  margin-bottom: 24px;
+  margin-top: 0;
+}
+.loading:last-of-type {
+  width: 60%;
 }
 
 .loading.single-line {

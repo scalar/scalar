@@ -444,6 +444,8 @@ const activeSidebarItemId = computed(() => {
   /* prettier-ignore */
   background: var(--sidebar-item-active-background, var(--default-sidebar-item-active-background, var(--theme-background-accent, var(--default-theme-background-accent)))) !important;
 }
+.active_page.sidebar-heading svg,
+.active_page.sidebar-heading:hover svg,
 .active_page.sidebar-heading p,
 .active_page.sidebar-heading:hover p {
   /* prettier-ignore */

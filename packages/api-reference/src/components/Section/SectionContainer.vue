@@ -10,7 +10,7 @@
 }
 
 .references-narrow .section-container {
-  padding: 0 30px !important;
+  padding: 0;
 }
 
 .section-container:not(:last-of-type) {

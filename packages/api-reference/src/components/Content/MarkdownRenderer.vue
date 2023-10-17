@@ -86,6 +86,7 @@ watch(
     var(--theme-small, var(--default-theme-small))
   );
   line-height: 1.5;
+  margin-bottom: 0;
 }
 
 .markdown :deep(ul),
