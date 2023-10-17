@@ -12,5 +12,6 @@
 
 .references-narrow .section-columns {
   flex-direction: column;
+  gap: 24px;
 }
 </style>

@@ -25,6 +25,9 @@ defineProps<{
   margin: auto;
   padding: 90px 0;
 }
+.references-narrow .section {
+  padding: 48px 24px;
+}
 .section:not(:last-of-type) {
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));

@@ -12,7 +12,7 @@
   background: var(--theme-background-2, var(--default-theme-background-2));
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 310px);
+  max-height: calc(50vh - 30px);
   position: relative;
 }
 </style>
