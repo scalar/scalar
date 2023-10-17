@@ -57,11 +57,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       <div
         v-if="name"
         class="property-name">
-        {{ name
-        }}<span
-          v-if="required"
-          class="required"
-          v-text="'*'" />
+        {{ name }}
       </div>
       <div
         v-if="required"
@@ -194,13 +190,14 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 .property-information {
   display: flex;
   align-items: end;
-  gap: 16px;
+  gap: 9px;
 }
 
 .property-description {
-  margin-top: 12px;
+  margin-top: 4px;
   color: var(--theme-color-2, var(--default-theme-color-2));
-  line-height: 1.6;
+  line-height: 1.4;
+  font-size: var(--theme-small, var(--default-theme-small));
 }
 
 .property-rule {
@@ -215,6 +212,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 .property-name {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
+  font-size: var(--theme-mini, var(--default-theme-mini));
 }
 
 .required,
@@ -244,7 +242,10 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 .property-example-value {
   padding: 12px 12px;
-  background: var(--theme-background-4, var(--default-theme-background-4));
+  box-shadow: 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
   padding: 2px 5px;
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   font-size: var(
@@ -271,7 +272,8 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   color: var(--theme-color-3, var(--default-theme-color-3));
 }
 .property-enum-values {
-  margin-top: 12px;
+  margin-top: 8px;
+  list-style: none;
 }
 
 .property-read-only {
