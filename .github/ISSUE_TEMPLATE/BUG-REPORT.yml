@@ -1,7 +1,7 @@
 name: 🐛 Bug Report
-description: If you've already asked for help with a problem and confirmed something is broken, create a bug report.
-title: "[Bug]: - <title>"
-labels: ["bug", "triage"]
+description: If you’ve already asked for help with a problem and confirmed something is broken, create a bug report.
+title: 'Bug: '
+labels: ['bug', 'triage']
 
 body:
   - type: markdown
@@ -27,12 +27,12 @@ body:
   - type: textarea
     id: reprod
     attributes:
-      label: "Reproduction steps"
+      label: 'Reproduction steps'
       description: Please enter an explicit description of your issue
       value: |
-        1. Go to '...'
-        2. Click on '....'
-        3. Scroll down to '....'
+        1. Go to …
+        2. Click on …
+        3. Scroll down to …
         4. See error
       render: bash
     validations:
@@ -51,7 +51,9 @@ body:
       label: What browsers are you seeing the problem on?
       multiple: true
       options:
-        - Firefox
         - Chrome
-        - Safari
+        - Safari (iOS)
+        - Safari (macOS)
+        - Firefox
         - Microsoft Edge
+        - Other
