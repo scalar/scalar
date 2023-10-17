@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -31,5 +31,9 @@ jobs:
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
       - name: Check code style
         run: pnpm format:check
-      - name: Build & check types & run tests
-        run: pnpm turbo build types:check test
+      - name: Build
+        run: pnpm turbo build
+      - name: Check types
+        run: pnpm turbo types:check
+      - name: Run tests
+        run: pnpm turbo test
