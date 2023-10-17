@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { type ParamMap, useOperation } from '@scalar/api-client'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { FlowModal, useModal } from '@scalar/use-modal'
 import Fuse from 'fuse.js'
 import { computed, nextTick, ref, toRef, watch } from 'vue'
 
 import { extractRequestBody } from '../helpers/specHelpers'
+import { type ParamMap, useOperation } from '../hooks'
 import { useTemplateStore } from '../stores/template'
 import type { Spec } from '../types'
 

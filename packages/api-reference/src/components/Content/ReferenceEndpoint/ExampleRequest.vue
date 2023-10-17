@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import {
-  generateRequest,
-  useApiClientRequestStore,
-  useApiClientStore,
-  useOperation,
-} from '@scalar/api-client'
+import { useApiClientRequestStore, useApiClientStore } from '@scalar/api-client'
 import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
 import {
@@ -14,7 +9,8 @@ import {
 } from 'httpsnippet-lite'
 import { computed, ref, watch } from 'vue'
 
-import { generateResponseContent } from '../../../helpers'
+import { generateRequest, generateResponseContent } from '../../../helpers'
+import { useOperation } from '../../../hooks'
 import { useTemplateStore } from '../../../stores/template'
 import type { Operation, Server } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'

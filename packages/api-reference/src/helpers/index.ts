@@ -1,3 +1,4 @@
+export * from './generateRequest'
 export * from './generateResponseContent'
 export * from './getHeadingId'
 export * from './getHeadingsFromMarkdown'

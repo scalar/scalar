@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { type Operation, useOperation } from '@scalar/api-client'
 import { computed } from 'vue'
 
+import { useOperation } from '../../../hooks'
+import type { Operation } from '../../../types'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
-import Schema from '../Schema.vue'
+// import Schema from '../Schema.vue'
 import Parameters from './Parameters.vue'
 import RequestBody from './RequestBody.vue'
 
