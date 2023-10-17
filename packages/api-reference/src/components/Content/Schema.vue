@@ -69,7 +69,11 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         class="property">
         <div class="property-information">
           <div class="property-name">
-            {{ property }}
+            {{ property
+            }}<span
+              v-if="value?.required?.includes(property)"
+              class="required"
+              v-text="'*'" />
           </div>
           <div
             v-if="value?.required?.includes(property)"
@@ -135,7 +139,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
           {{ value.properties[property].description }}
         </div>
         <div
-          v-if="generatePropertyDescription(value.properties[property])"
+          v-else-if="generatePropertyDescription(value.properties[property])"
           class="property-description">
           {{ generatePropertyDescription(value.properties[property]) }}
         </div>
