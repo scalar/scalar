@@ -14,6 +14,7 @@ import {
 } from 'httpsnippet-lite'
 import { computed, ref, watch } from 'vue'
 
+import { generateResponseContent } from '../../../helpers'
 import { useTemplateStore } from '../../../stores/template'
 import type { Operation, Server } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
@@ -45,6 +46,31 @@ const generateSnippet = async () => {
     })
   }
 
+  // Get all the information about the request body
+  const jsonRequest =
+    props.operation.information.requestBody.content['application/json']
+
+  // Headers
+  const headers = []
+
+  if (jsonRequest) {
+    headers.push({
+      name: 'Content-Type',
+      value: 'application/json',
+    })
+  }
+
+  // Prepare the data, if there’s any
+  const schema = jsonRequest?.schema
+  const requestBody = schema ? generateResponseContent(schema) : null
+
+  const postData = requestBody
+    ? {
+        mimeType: 'application/json',
+        text: JSON.stringify(requestBody, null, 2),
+      }
+    : null
+
   // Replace all variables of the format {something} with the uppercase variable name without the brackets
   let url = props.server.url
 
@@ -61,6 +87,8 @@ const generateSnippet = async () => {
     const snippet = new HTTPSnippet({
       method: props.operation.httpVerb.toUpperCase(),
       url: `${url}${path}`,
+      headers,
+      postData,
     } as HarRequest)
 
     return (await snippet.convert(
@@ -71,6 +99,8 @@ const generateSnippet = async () => {
     const snippet = new HTTPSnippet({
       method: props.operation.httpVerb.toUpperCase(),
       url: `${window.location.origin}${path}`,
+      headers,
+      postData,
     } as HarRequest)
 
     return (await snippet.convert(
