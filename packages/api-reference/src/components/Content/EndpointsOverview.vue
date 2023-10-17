@@ -20,10 +20,10 @@ defineProps<{ tag: Tag }>()
 
 <template>
   <Section :id="getTagSectionId(tag)">
-    <SectionHeader>
-      {{ tag.name }}
-    </SectionHeader>
     <SectionContent>
+      <SectionHeader>
+        {{ tag.name }}
+      </SectionHeader>
       <SectionColumns>
         <SectionColumn>
           <MarkdownRenderer :value="tag.description" />

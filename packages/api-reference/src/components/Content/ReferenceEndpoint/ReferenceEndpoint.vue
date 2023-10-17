@@ -19,10 +19,10 @@ defineProps<{
 </script>
 <template>
   <Section :id="getOperationSectionId(operation)">
-    <SectionHeader>
-      {{ operation.name || operation.path }}
-    </SectionHeader>
     <SectionContent>
+      <SectionHeader>
+        {{ operation.name || operation.path }}
+      </SectionHeader>
       <SectionColumns>
         <SectionColumn>
           <Copy :operation="operation" />
