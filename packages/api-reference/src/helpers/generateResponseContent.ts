@@ -33,6 +33,12 @@ export const generateResponseContent = (
       return
     }
 
+    // default: 400
+    if (property.default !== undefined) {
+      response[name] = property.default
+      return
+    }
+
     // enum: [ 'available', 'pending', 'sold' ]
     if (property.enum !== undefined) {
       response[name] = property.enum[0]

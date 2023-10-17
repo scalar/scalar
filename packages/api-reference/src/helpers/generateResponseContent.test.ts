@@ -159,6 +159,27 @@ describe('generateResponseContent', () => {
     ).toMatchObject(['foobar'])
   })
 
+  it.only('uses the default value', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        statusCode: {
+          type: 'number',
+          default: 400,
+        },
+        errorCode: {
+          type: 'string',
+          default: 'BAD_REQUEST_EXCEPTION',
+        },
+      },
+    }
+
+    expect(generateResponseContent(schema)).toMatchObject({
+      statusCode: 400,
+      errorCode: 'BAD_REQUEST_EXCEPTION',
+    })
+  })
+
   it('converts a whole schema to an example response', () => {
     const schema = {
       required: ['name', 'photoUrls'],
