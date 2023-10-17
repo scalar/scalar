@@ -134,7 +134,16 @@ const transformResult = (result: OpenAPI.Document<object>): SwaggerSpec => {
     })
   })
 
-  return result as unknown as SwaggerSpec
+  const returnedResult = result as unknown as SwaggerSpec
+
+  return removeTagsWithoutOperations(returnedResult)
+}
+
+const removeTagsWithoutOperations = (spec: SwaggerSpec) => {
+  return {
+    ...spec,
+    tags: spec.tags?.filter((tag) => tag.operations?.length > 0),
+  }
 }
 
 export const parseJsonOrYaml = (value: string | AnyObject): AnyObject => {
