@@ -11,7 +11,7 @@ const activeTheme = ref<ThemeId>('default')
 <template>
   <ApiReference
     :initialTabState="'Swagger Editor'"
-    :isEditable="true"
+    :isEditable="false"
     proxyUrl="http://localhost:5051"
     :theme="activeTheme"
     @changeTheme="activeTheme = $event" />

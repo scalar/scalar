@@ -45,17 +45,12 @@ const models = computed(() => {
       :id="getModelSectionId(name)"
       :key="name">
       <template v-if="components?.schemas?.[name]">
-        <SectionHeader>
-          {{ name }}
-        </SectionHeader>
         <SectionContent>
+          <SectionHeader>
+            {{ name }}
+          </SectionHeader>
           <!-- Schema -->
-          <div class="section-columns">
-            <!-- <div class="section-column"></div> -->
-            <div class="section-column">
-              <Schema :value="components?.schemas?.[name]" />
-            </div>
-          </div>
+          <Schema :value="components?.schemas?.[name]" />
           <!-- Show More Button -->
           <ShowMoreButton
             v-if="!showAllModels && index === models.length - 1"
@@ -65,17 +60,3 @@ const models = computed(() => {
     </Section>
   </SectionContainer>
 </template>
-<style>
-.section-columns {
-  display: flex;
-  gap: 48px;
-}
-
-.references-narrow .section-columns {
-  flex-direction: column;
-}
-.section-column {
-  flex: 1;
-  min-width: 0;
-}
-</style>
