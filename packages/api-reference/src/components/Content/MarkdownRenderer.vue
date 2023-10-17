@@ -9,8 +9,6 @@ import rehypeStringify from 'rehype-stringify'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
-import remarkTextr from 'remark-textr'
-import typographicBase from 'typographic-base'
 import { unified } from 'unified'
 import { ref, watch } from 'vue'
 
@@ -29,7 +27,6 @@ watch(
       .use(remarkRehype)
       // @ts-ignore
       .use(remarkHeadingId)
-      .use(remarkTextr, { plugins: [typographicBase] })
       .use(rehypeDocument)
       .use(rehypeFormat)
       .use(rehypeSanitize, {

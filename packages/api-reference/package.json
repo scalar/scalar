@@ -39,8 +39,6 @@
     "remark-parse": "11.0.0",
     "remark-rehype": "11.0.0",
     "remark-stringify": "11.0.0",
-    "remark-textr": "6.0.0",
-    "typographic-base": "1.0.4",
     "unified": "11.0.3"
   },
   "devDependencies": {
