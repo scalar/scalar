@@ -33,7 +33,5 @@ jobs:
         run: pnpm format:check
       - name: Build
         run: pnpm turbo build
-      - name: Check types
-        run: pnpm turbo types:check
-      - name: Run tests
-        run: pnpm turbo test
+      - name: Check types & run tests
+        run: pnpm turbo types:check test
