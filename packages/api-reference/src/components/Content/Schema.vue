@@ -57,14 +57,13 @@ withDefaults(
   background-color: red;
 }
 .schema {
-  max-width: 600px;
   width: 100%;
   font-size: var(--default-theme-font-size-3, var(--default-theme-font-size-3));
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
 
 .type {
-  font-size: var(--default-theme-font-size-4, var(--default-theme-font-size-4));
+  font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color-2, var(--default-theme-color-2));
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   font-weight: var(--theme-bold, var(--default-theme-bold));
@@ -75,13 +74,16 @@ withDefaults(
 
 .type-icon {
   color: var(--theme-color-1, var(--default-theme-color-1));
-  font-size: var(--default-theme-font-size-3, var(--default-theme-font-size-3));
+  font-size: var(--theme-micro, var(--default-theme-micro));
 }
 
 .properties {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  margin: 16px 0 0;
+  margin: 24px 0 0;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   overflow: hidden;
+}
+.properties .properties {
+  margin-top: 12px;
 }
 </style>
