@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 0.7.8
+
+### Patch Changes
+
+- ab348cb5: Mobile improvements and layout fixes + consitency improvements
+- 211ed1c7: polish up the models
+- ca2689b6: feat: add example request body to example request generator
+- ae247253: refactor: move generateRequest helpers to @scalar/api-reference
+- 5896b08d: fix: add missing null check to jsonRequest requestBody
+- Updated dependencies [ab348cb5]
+- Updated dependencies [aa24dbe6]
+- Updated dependencies [ae247253]
+  - @scalar/api-client@0.7.21
+  - @scalar/use-codemirror@0.7.9
+  - @scalar/swagger-editor@0.6.24
+
 ## 0.7.7
 
 ### Patch Changes
