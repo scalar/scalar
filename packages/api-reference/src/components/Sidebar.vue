@@ -119,7 +119,7 @@ const items = computed((): SidebarEntry[] => {
             id: getTagSectionId(tag),
             title: tag.name.toUpperCase(),
             type: 'Folder',
-            children: tag.operations.map((operation) => {
+            children: tag.operations?.map((operation) => {
               return {
                 id: getOperationSectionId(operation),
                 title: operation.name || operation.path,
