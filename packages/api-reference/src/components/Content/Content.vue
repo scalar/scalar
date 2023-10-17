@@ -88,7 +88,8 @@ const moreThanOneDefaultTag = (tag: Tag) =>
           <template
             v-if="
               index === 0 ||
-              templateState.collapsedSidebarItems[getTagSectionId(tag)]
+              templateState.collapsedSidebarItems[getTagSectionId(tag)] ||
+              tag.operations?.length === 1
             ">
             <ReferenceEndpoint
               v-for="operation in tag.operations"
