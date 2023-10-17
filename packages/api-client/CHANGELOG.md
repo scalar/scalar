@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 0.7.21
+
+### Patch Changes
+
+- ab348cb5: Mobile improvements and layout fixes + consitency improvements
+- aa24dbe6: fix: api client reset CSS
+- ae247253: refactor: move generateRequest helpers to @scalar/api-reference
+- Updated dependencies [aa24dbe6]
+  - @scalar/use-codemirror@0.7.9
+
 ## 0.7.20
 
 ### Patch Changes

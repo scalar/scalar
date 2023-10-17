@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.9
+
+### Patch Changes
+
+- aa24dbe6: fix: api client reset CSS
+
 ## 0.7.8
 
 ### Patch Changes
