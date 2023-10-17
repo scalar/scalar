@@ -1,7 +1,5 @@
 export * from './concatenateUrlAndPath'
 export * from './createPlaceholderRequest'
-export * from './generateParameters'
-export * from './generateRequest'
 export * from './mapFromArray'
 export * from './normalizePath'
 export * from './normalizeRequestMethod'

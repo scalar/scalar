@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import {
-  generateRequest,
-  useApiClientRequestStore,
-  useApiClientStore,
-  useOperation,
-} from '@scalar/api-client'
+import { useApiClientRequestStore, useApiClientStore } from '@scalar/api-client'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
 import {
+  generateRequest,
   getHeadingId,
   getHeadingsFromMarkdown,
   getModelSectionId,
@@ -18,6 +14,7 @@ import {
   hasModels,
   scrollToId,
 } from '../helpers'
+import { useOperation } from '../hooks'
 import { useTemplateStore } from '../stores/template'
 import type { Operation, Spec, Tag } from '../types'
 import DarkModeToggle from './DarkModeToggle.vue'

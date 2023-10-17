@@ -1,4 +1,4 @@
-import type { BaseParameter, Parameters } from '../types'
+import type { BaseParameter, Parameters } from '@scalar/api-client/src/types'
 
 /**
  * Generate parameters for the request from the parameters in the swagger file
