@@ -44,7 +44,13 @@ describe('analyze', () => {
     const spec = {
       openapi: '3.1.0',
       info: {},
-      paths: {},
+      paths: {
+        '/example': {
+          get: {
+            tags: ['foo', 'bar'],
+          },
+        },
+      },
       tags: [
         {
           name: 'foo',
@@ -90,7 +96,7 @@ describe('analyze', () => {
       paths: {
         '/example': {
           get: {
-            tags: ['bar'],
+            tags: ['bar', 'foo'],
           },
         },
       },
