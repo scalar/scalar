@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 0.7.7
+
+### Patch Changes
+
+- 0495c0f9: feat: show models ("schemas") in the reference
+- 528df9d1: feat: add support for oneOf, anyOf, allOf, not schema rules
+- 8915c5cf: fix: add null check to tag operations in sidebar
+- d755d34e: fix: default show endpoint when tags have one endpoint
+- a161c962: fix: better deal with empty descriptions
+- 7e7ea175: feat: use default value in schemas for example responses
+
 ## 0.7.6
 
 ### Patch Changes
