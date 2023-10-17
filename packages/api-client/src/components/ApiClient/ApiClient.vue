@@ -120,6 +120,15 @@ useKeyboardEvent({
   display: flex;
   flex-direction: column;
   font-family: var(--theme-font, var(--default-theme-font));
+
+  /** Make sure box-sizing is set properly. */
+  box-sizing: border-box;
+
+  *,
+  *:before,
+  *:after {
+    box-sizing: inherit;
+  }
 }
 .scalar-api-client {
   flex: 1;

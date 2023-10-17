@@ -219,14 +219,6 @@ defineExpose({
   font-size: var(--theme-small, var(--default-theme-small));
 }
 
-/* .scalar-api-client__codemirror.ͼw {
-  background-color: var(--theme-background-1, var(--default-theme-background-1));
-}
-
-.scalar-api-client__codemirror--read-only.ͼw {
-  background-color: var(--theme-background-2, var(--default-theme-background-2));
-} */
-
 /** URL input */
 .scalar-api-client__url-input {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
@@ -234,13 +226,9 @@ defineExpose({
   padding-top: 0;
 }
 
-/* .scalar-api-client__url-input .cm-scroller {
-  padding-left: 6px;
-}
-
 .scalar-api-client__url-input .ͼ1 .cm-scroller {
   align-items: center !important;
-} */
+}
 
 .scalar-api-client__variable {
   color: var(--scalar-api-client-color, var(--default-scalar-api-client-color));
