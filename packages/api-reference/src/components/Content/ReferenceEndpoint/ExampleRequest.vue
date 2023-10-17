@@ -44,7 +44,8 @@ const generateSnippet = async () => {
 
   // Get all the information about the request body
   const jsonRequest =
-    props.operation.information.requestBody.content['application/json']
+    props.operation.information?.requestBody?.content['application/json'] ||
+    null
 
   // Headers
   const headers = []
