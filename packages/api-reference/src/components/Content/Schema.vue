@@ -35,7 +35,11 @@ withDefaults(
         :key="property"
         :level="level"
         :name="property"
-        :required="value.required?.includes(property)"
+        :required="
+          value.required &&
+          value.required.length &&
+          value.required.includes(property)
+        "
         :value="value.properties[property]" />
     </div>
     <div
