@@ -150,7 +150,7 @@ const items = computed((): SidebarEntry[] => {
   const modelEntries: SidebarEntry[] = hasModels(props.spec)
     ? [
         {
-          id: 'models',
+          id: getModelSectionId(),
           title: 'MODELS',
           type: 'Folder',
           children: Object.keys(props.spec.components?.schemas ?? {}).map(
