@@ -151,14 +151,15 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
               "
               :languages="['json']"
               readOnly />
-            <!-- oneOf, anyOf … -->
+            <!-- oneOf, anyOf, not … -->
             <template
               v-for="rule in rules"
               :key="rule">
               <div
                 v-if="
                   currentJsonResponse?.schema[rule] &&
-                  currentJsonResponse?.schema[rule].length > 1
+                  (currentJsonResponse?.schema[rule].length > 1 ||
+                    rule === 'not')
                 "
                 class="rule">
                 <div class="rule-title">
