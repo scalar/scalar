@@ -13,7 +13,7 @@ import typographicBase from 'typographic-base'
 import { unified } from 'unified'
 import { ref, watch } from 'vue'
 
-const props = defineProps<{ value: string }>()
+const props = defineProps<{ value?: string }>()
 
 const html = ref<string>('')
 
