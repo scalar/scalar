@@ -159,7 +159,7 @@ describe('generateResponseContent', () => {
     ).toMatchObject(['foobar'])
   })
 
-  it.only('uses the default value', () => {
+  it('uses the default value', () => {
     const schema = {
       type: 'object',
       properties: {
