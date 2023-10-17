@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import rehypeDocument from 'rehype-document'
 import rehypeFormat from 'rehype-format'
+import rehypeHighlight from 'rehype-highlight'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import remarkHeadingId from 'rehype-slug-custom-id'
 import rehypeStringify from 'rehype-stringify'
@@ -36,6 +37,9 @@ watch(
         tagNames: defaultSchema.tagNames?.filter(
           (tag) => !['img'].includes(tag),
         ),
+      })
+      .use(rehypeHighlight, {
+        detect: true,
       })
       .use(rehypeStringify)
       .process(props.value)
@@ -209,5 +213,82 @@ watch(
   text-align: left;
   border-left-color: transparent;
   background: var(--theme-background-2, var(--default-theme-background-2));
+}
+</style>
+
+<style>
+.markdown {
+  pre code.hljs {
+    display: block;
+    overflow-x: auto;
+    padding: 1em;
+  }
+  code.hljs {
+    padding: 3px 5px;
+  }
+  .hljs {
+    background: #474949;
+    color: #d1d9e1;
+  }
+  .hljs-comment,
+  .hljs-quote {
+    color: #969896;
+    font-style: italic;
+  }
+  .hljs-addition,
+  .hljs-keyword,
+  .hljs-literal,
+  .hljs-selector-tag,
+  .hljs-type {
+    color: #c9c;
+  }
+  .hljs-number,
+  .hljs-selector-attr,
+  .hljs-selector-pseudo {
+    color: #f99157;
+  }
+  .hljs-doctag,
+  .hljs-regexp,
+  .hljs-string {
+    color: #8abeb7;
+  }
+  .hljs-built_in,
+  .hljs-name,
+  .hljs-section,
+  .hljs-title {
+    color: #b5bd68;
+  }
+  .hljs-class .hljs-title,
+  .hljs-selector-id,
+  .hljs-template-variable,
+  .hljs-title.class_,
+  .hljs-variable {
+    color: #fc6;
+  }
+  .hljs-name,
+  .hljs-section,
+  .hljs-strong {
+    font-weight: 700;
+  }
+  .hljs-bullet,
+  .hljs-link,
+  .hljs-meta,
+  .hljs-subst,
+  .hljs-symbol {
+    color: #f99157;
+  }
+  .hljs-deletion {
+    color: #dc322f;
+  }
+  .hljs-formula {
+    background: #eee8d5;
+  }
+  .hljs-attr,
+  .hljs-attribute {
+    color: #81a2be;
+  }
+  .hljs-emphasis {
+    font-style: italic;
+  }
 }
 </style>
