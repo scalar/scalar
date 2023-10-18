@@ -67,7 +67,7 @@ const handleHttpBearerTokenInput = (event: Event) => {
       <div>
         <div class="input">
           <label :for="value.name">
-            Token {{ value.in.charAt(0).toUpperCase() + value.in.slice(1) }}
+            {{ value.in.charAt(0).toUpperCase() + value.in.slice(1) }} API Key
           </label>
           <input
             autocomplete="off"

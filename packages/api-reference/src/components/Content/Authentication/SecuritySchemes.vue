@@ -43,12 +43,14 @@ const handleAuthenticationTypeInput = (event: Event) => {
             </template>
             <template
               v-else-if="
-                value[key].type === 'http' && value[key].scheme === 'bearer'
+                value[key].type === 'http' &&
+                value[key].scheme &&
+                value[key].scheme === 'bearer'
               ">
               Bearer Authentication
             </template>
             <template v-else>
-              Not supported yet: {{ value[key].type }}
+              Not yet supported: {{ value[key].type }}
             </template>
           </option>
         </template>
