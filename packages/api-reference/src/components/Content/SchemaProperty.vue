@@ -189,7 +189,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
 .property-information {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   gap: 9px;
 }
 
