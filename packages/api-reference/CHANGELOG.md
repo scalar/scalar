@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 0.7.10
+
+### Patch Changes
+
+- c1cb507d: fix: search modal not scrolling to proper endpoints
+- d1fcd043: ensure endpoint parent tag is open before trying to scroll
+
 ## 0.7.9
 
 ### Patch Changes
