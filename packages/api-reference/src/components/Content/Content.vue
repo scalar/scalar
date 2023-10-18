@@ -12,6 +12,7 @@ import EndpointsOverview from './EndpointsOverview.vue'
 import Introduction from './Introduction'
 import Models from './Models.vue'
 import ReferenceEndpoint from './ReferenceEndpoint'
+import { SecuritySchemes } from './SecuritySchemes'
 import Spinner from './Spinner.vue'
 
 const props = defineProps<{ ready: boolean; spec: Spec }>()
@@ -64,6 +65,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
       <Introduction
         :info="spec.info"
         :servers="localServers" />
+      <SecuritySchemes :spec="spec" />
       <template
         v-for="(tag, index) in spec.tags"
         :key="tag.id">
