@@ -1,17 +1,28 @@
 <script setup lang="ts">
-import { CodeMirror } from '@scalar/use-codemirror'
+import { computed } from 'vue'
 
 import { hasSecuritySchemes } from '../../../helpers'
 import { useGlobalStore } from '../../../stores'
 import { type Spec } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
-import MarkdownRenderer from '../MarkdownRenderer.vue'
 import SecurityScheme from './SecurityScheme.vue'
 import SecuritySchemeSelector from './SecuritySchemeSelector.vue'
 
-defineProps<{ spec?: Spec }>()
+const props = defineProps<{ spec?: Spec }>()
 
 const { authentication } = useGlobalStore()
+
+const showSecurityScheme = computed(() => {
+  if (!authentication.securitySchemeKey) {
+    return false
+  }
+
+  const scheme =
+    props.spec?.components?.securitySchemes?.[authentication.securitySchemeKey]
+
+  // @ts-ignore
+  return !!scheme.type
+})
 </script>
 
 <template>
@@ -25,14 +36,10 @@ const { authentication } = useGlobalStore()
         </div>
       </template>
     </CardHeader>
-    <CardContent
-      v-if="
-        authentication.securitySchemeKey &&
-        !!spec?.components?.securitySchemes?.[authentication.securitySchemeKey]
-          .type
-      ">
+    <CardContent v-if="showSecurityScheme">
       <div class="scheme">
         <SecurityScheme
+          v-if="authentication.securitySchemeKey"
           :value="
             spec?.components?.securitySchemes?.[
               authentication.securitySchemeKey
@@ -40,20 +47,6 @@ const { authentication } = useGlobalStore()
           " />
       </div>
     </CardContent>
-    <!-- <CardContent>
-            <CodeMirror
-              v-if="true"
-              :content="JSON.stringify(authentication, null, 2)"
-              :languages="['json']"
-              readOnly />
-          </CardContent>
-          <CardContent>
-            <CodeMirror
-              v-if="true"
-              :content="JSON.stringify(authentication, null, 2)"
-              :languages="['json']"
-              readOnly />
-          </CardContent> -->
   </Card>
 </template>
 
