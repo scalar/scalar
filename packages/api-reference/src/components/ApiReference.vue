@@ -159,7 +159,7 @@ onMounted(() => {
   fetchSpecUrl()
 })
 
-const showAside = computed(() => isLargeScreen.value || !props.isEditable)
+const showRendered = computed(() => isLargeScreen.value || !props.isEditable)
 
 const showCodeEditor = computed(() => {
   return !props.specResult && props.isEditable
@@ -185,9 +185,8 @@ const breadCrumbs = computed(() => {
     ref="documentEl"
     :class="[
       'scalar-api-reference',
-      'document',
       'layout-swagger-editor',
-      { 'footer-below-sidebar': footerBelowSidebar, 'preview': !isEditable },
+      { 'layout-footer-below': footerBelowSidebar, 'preview': !isEditable },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
     <slot name="search-modal">
@@ -242,14 +241,14 @@ const breadCrumbs = computed(() => {
         @specUpdate="handleSpecUpdate" />
     </div>
     <!-- Rendered reference -->
-    <div
-      v-if="showAside"
-      class="layout-aside-right">
-      <Content
-        :ready="true"
-        :spec="transformedSpec" />
-    </div>
-    <slot name="footer"></slot>
+    <template v-if="showRendered">
+      <div class="layout-aside-right">
+        <Content
+          :ready="true"
+          :spec="transformedSpec" />
+      </div>
+      <slot name="footer" />
+    </template>
     <!-- REST API Client Overlay -->
     <ApiClientModal
       :proxyUrl="proxyUrl"
@@ -317,12 +316,9 @@ const breadCrumbs = computed(() => {
 /* ?? layout stuff */
 :root {
   --default-scalar-api-reference-theme-header-height: 0px;
-  --default-scalar-api-reference-theme-sidebar-width: 250px;
+  --scalar-api-reference-theme-sidebar-width: 250px;
   --default-scalar-api-reference-theme-toc-width: 300px;
   --default-scalar-api-reference-app-header-height: 100px;
-  --default-scalar-api-reference-col-width-1: 250px;
-  --default-scalar-api-reference-col-width-2: calc(50% - 125px);
-  --default-scalar-api-reference-col-width-3: calc(50% - 125px);
 }
 
 @media (max-width: 1000px) {
@@ -623,12 +619,22 @@ const breadCrumbs = computed(() => {
 /* ----------------------------------------------------- */
 /* Document Layouts */
 
-.document {
+.scalar-api-reference {
+  /* Try to fill the container */
+  height: 100dvh;
+  max-height: 100%;
+  width: 100dvw;
+  max-width: 100%;
   flex: 1;
+
+  /* Scroll vertically */
   overflow-y: auto;
   overflow-x: hidden;
 
-  /* Fallback to viewport part, should be overridden in the style attribute */
+  /* 
+  Calculated by a resize observer and set in the style attribute
+  Falls back to the viewport height
+  */
   --full-height: 100dvh;
 
   background-color: var(
@@ -643,66 +649,13 @@ const breadCrumbs = computed(() => {
         var(--default-scalar-api-reference-theme-header-height)
       )
   );
-
-  --default-scalar-api-reference-col-width-1: var(
-    --scalar-api-reference-theme-sidebar-width,
-    var(--default-scalar-api-reference-theme-sidebar-width)
-  );
-  --default-scalar-api-reference-col-width-2: auto;
-  --default-scalar-api-reference-col-width-3: var(
-    --scalar-api-reference-theme-toc-width,
-    var(--default-scalar-api-reference-theme-toc-width)
-  );
   --scalar-api-reference-theme-header-height: var(
     --theme-header-height,
     var(--default-scalar-api-reference-theme-header-height)
   );
-
-  display: grid;
-
-  grid-template-rows:
-    var(
-      --scalar-api-reference-theme-header-height,
-      var(--default-scalar-api-reference-theme-header-height)
-    )
-    auto
-    auto;
-
-  grid-template-columns:
-    var(
-      --scalar-api-reference-col-width-1,
-      var(--default-scalar-api-reference-col-width-1)
-    )
-    var(
-      --scalar-api-reference-col-width-2,
-      var(--default-scalar-api-reference-col-width-2)
-    )
-    var(
-      --scalar-api-reference-col-width-3,
-      var(--default-scalar-api-reference-col-width-3)
-    );
-
-  grid-template-areas:
-    'header header header'
-    'sidebar content aside'
-    'sidebar footer footer';
 }
 
-.document.hide-aside-left {
-  --default-scalar-api-reference-col-width-1: 0;
-}
-
-.document.hide-aside-right {
-  --default-scalar-api-reference-col-width-3: 0;
-}
-.document.hide-aside-left .layout-aside-left .layout-aside-content,
-.document.hide-aside-right .layout-aside-right .layout-aside-content {
-  border-right-color: transparent;
-  border-left-color: transparent;
-  display: none;
-}
-
-.document.footer-below-sidebar {
+.layout-footer-below {
   grid-template-areas:
     'header header header'
     'sidebar content aside'
@@ -771,6 +724,7 @@ const breadCrumbs = computed(() => {
 .layout-aside-right {
   position: relative;
   grid-area: aside;
+  min-width: 0;
   background: var(--theme-background-1, var(--default-theme-background-1));
 }
 
@@ -795,36 +749,12 @@ const breadCrumbs = computed(() => {
 /* ----------------------------------------------------- */
 /* Document layout modified for references */
 
-.document.layout-swagger-editor {
-  max-height: 100vh;
+.layout-swagger-editor {
   --default-document-height: calc(
     var(--full-height) -
       var(
         --scalar-api-reference-theme-header-height,
         var(--default-scalar-api-reference-theme-header-height)
-      )
-  );
-
-  --default-scalar-api-reference-col-width-1: var(
-    --scalar-api-reference-theme-sidebar-width,
-    var(--default-scalar-api-reference-theme-sidebar-width)
-  );
-  --default-scalar-api-reference-col-width-2: calc(
-    50% -
-      (
-        var(
-            --scalar-api-reference-theme-sidebar-width,
-            var(--default-scalar-api-reference-theme-sidebar-width)
-          ) / 2
-      )
-  );
-  --default-scalar-api-reference-col-width-3: calc(
-    50% -
-      (
-        var(
-            --scalar-api-reference-theme-sidebar-width,
-            var(--default-scalar-api-reference-theme-sidebar-width)
-          ) / 2
       )
   );
 
@@ -838,18 +768,8 @@ const breadCrumbs = computed(() => {
     auto;
 
   grid-template-columns:
-    var(
-      --scalar-api-reference-col-width-1,
-      var(--default-scalar-api-reference-col-width-1)
-    )
-    var(
-      --scalar-api-reference-col-width-2,
-      var(--default-scalar-api-reference-col-width-2)
-    )
-    var(
-      --scalar-api-reference-col-width-3,
-      var(--default-scalar-api-reference-col-width-3)
-    );
+    var(--scalar-api-reference-theme-sidebar-width)
+    1fr 1fr;
 
   grid-template-areas:
     'header header header'
@@ -857,7 +777,7 @@ const breadCrumbs = computed(() => {
     'sidebar content footer';
 }
 
-.document.layout-swagger-editor .layout-content {
+.layout-swagger-editor .layout-content {
   position: sticky;
   top: var(
     --scalar-api-reference-theme-header-height,
@@ -868,60 +788,55 @@ const breadCrumbs = computed(() => {
   );
 }
 
-.document.preview {
-  --default-scalar-api-reference-col-width-2: calc(
-    100% -
-      (
-        var(
-          --scalar-api-reference-theme-sidebar-width,
-          var(--default-scalar-api-reference-theme-sidebar-width)
-        )
-      )
-  );
-  --default-scalar-api-reference-col-width-3: calc(
-    100% -
-      (
-        var(
-          --scalar-api-reference-theme-sidebar-width,
-          var(--default-scalar-api-reference-theme-sidebar-width)
-        )
-      )
-  );
-
+.layout-swagger-editor.preview {
+  grid-template-columns:
+    var(--scalar-api-reference-theme-sidebar-width)
+    1fr;
   grid-template-areas:
     'header header'
     'sidebar aside'
     'sidebar footer';
 }
 
-.document.layout-swagger-editor.footer-below-sidebar.preview {
+.layout-footer-below.preview {
   grid-template-areas:
     'header header'
     'sidebar aside'
     'footer footer';
 }
 
-.document.layout-swagger-editor.hide-aside-left {
-  --default-scalar-api-reference-col-width-1: 0;
-  --default-scalar-api-reference-col-width-2: 50%;
-  --default-scalar-api-reference-col-width-3: 50%;
-}
-
 /* ----------------------------------------------------- */
 /* Responsive styles */
 
 @media (max-width: 1150px) {
-  .document.layout-swagger-editor {
-    --default-scalar-api-reference-col-width-3: 0;
-    --default-scalar-api-reference-col-width-2: auto;
+  /* Hide rendered view for tablets */
+  .layout-swagger-editor {
+    grid-template-columns:
+      var(--scalar-api-reference-theme-sidebar-width)
+      1fr 0px;
   }
 }
 
 @media (max-width: 1000px) {
-  .document,
-  .document.layout-swagger-editor {
-    /** Content area heights are restricted using just the template row defs */
-    display: block;
+  /* Stack view on mobile */
+  .layout-swagger-editor {
+    grid-template-columns: auto;
+    grid-template-rows:
+      var(
+        --scalar-api-reference-theme-header-height,
+        var(--default-scalar-api-reference-theme-header-height)
+      )
+      1fr auto;
+    grid-template-areas:
+      'sidebar'
+      'content';
+  }
+  .layout-swagger-editor.preview {
+    grid-template-columns: auto;
+    grid-template-areas:
+      'sidebar'
+      'aside'
+      'footer';
   }
 
   .layout-aside-left,
