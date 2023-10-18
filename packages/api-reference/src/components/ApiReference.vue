@@ -175,8 +175,6 @@ const breadCrumbs = computed(() => {
     return `${o.httpVerb}-${o.operationId}` === state.activeSidebar
   })
 
-  console.log(op, operations, state.activeSidebar)
-
   return op ? `${op.tag.toUpperCase()} / ${op.name}` : ''
 })
 </script>
