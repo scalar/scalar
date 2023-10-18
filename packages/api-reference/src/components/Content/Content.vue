@@ -112,13 +112,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
 </template>
 <style scoped>
 .render-loading {
-  height: calc(
-    var(--full-height) -
-      var(
-        --scalar-api-reference-theme-header-height,
-        var(--default-scalar-api-reference-theme-header-height)
-      )
-  );
+  height: calc(var(--full-height) - var(--refs-header-height));
   display: flex;
   align-items: center;
   justify-content: center;

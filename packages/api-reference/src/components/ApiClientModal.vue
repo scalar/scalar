@@ -72,13 +72,7 @@ export { useApiClientStore } from '@scalar/api-client'
 
 <style scoped>
 .scalar-api-client__container .scalar-api-client {
-  width: calc(
-    100% -
-      var(
-        --scalar-api-reference-theme-sidebar-width,
-        var(--default-scalar-api-reference-theme-sidebar-width)
-      )
-  );
+  width: calc(100% - var(--refs-sidebar-width));
 }
 @media screen and (max-width: 1000px) {
   .scalar-api-client__container .scalar-api-client {
@@ -114,10 +108,7 @@ export { useApiClientStore } from '@scalar/api-client'
   display: flex;
   align-items: center;
   padding: 11px 12px;
-  height: var(
-    --scalar-api-reference-theme-header-height,
-    var(--default-scalar-api-reference-theme-header-height)
-  );
+  height: var(--refs-header-height);
   background-color: var(
     --theme-background-1,
     var(--default-theme-background-1)
@@ -218,14 +209,8 @@ TODO: Markup is missing
   height: 100%;
   display: flex;
   flex-direction: column;
-  width: var(
-    --scalar-api-reference-theme-sidebar-width,
-    var(--default-scalar-api-reference-theme-sidebar-width)
-  );
-  max-width: var(
-    --scalar-api-reference-theme-sidebar-width,
-    var(--default-scalar-api-reference-theme-sidebar-width)
-  );
+  width: var(--refs-sidebar-width);
+  max-width: var(--refs-sidebar-width);
   border-right: 1px solid
     var(
       --sidebar-border-color,

@@ -313,17 +313,16 @@ const breadCrumbs = computed(() => {
   }
 }
 
-/* ?? layout stuff */
+/* Configurable Layout Variables */
 :root {
-  --default-scalar-api-reference-theme-header-height: 0px;
-  --scalar-api-reference-theme-sidebar-width: 250px;
-  --default-scalar-api-reference-theme-toc-width: 300px;
-  --default-scalar-api-reference-app-header-height: 100px;
+  --refs-sidebar-width: var(--theme-sidebar-width, 250px);
+  --refs-header-height: var(--theme-header-height, 0px);
 }
 
 @media (max-width: 1000px) {
   :root {
-    --default-scalar-api-reference-theme-header-height: 50px;
+    /* By default add a header on mobile for the navigation */
+    --refs-header-height: var(--theme-header-height, 50px);
   }
 }
 
@@ -517,104 +516,6 @@ const breadCrumbs = computed(() => {
   border-top: none;
 }
 
-/* ----------------------------------------------------- */
-
-.reference {
-  position: relative;
-  padding: 0 60px;
-  width: 100%;
-}
-
-.reference:not(:last-of-type) {
-  border-bottom: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-}
-
-.reference .reference-container {
-  position: relative;
-  display: flex;
-  gap: 48px;
-
-  max-width: 1120px;
-  margin: auto;
-  padding: 90px 0;
-}
-
-.reference-container + .reference-container {
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-}
-
-.reference-container .copy,
-.reference-container .example {
-  flex: 1;
-  min-width: 0;
-}
-
-.response .cm-editor {
-  max-height: calc(50vh - 90px);
-}
-
-.example {
-  padding-top: 48px;
-  top: 12px;
-  height: fit-content;
-  position: sticky;
-  max-height: calc(100vh - 96px);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.copy .tag-description a {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  text-decoration: underline;
-}
-.copy ul {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-}
-/* ----------------------------------------------------- */
-/* Responsive styles for narrow reference container (900px) */
-.references-narrow {
-  min-height: 100vh;
-}
-.references-narrow .reference {
-  padding: 0 30px;
-}
-@media screen and (max-width: 1000px) {
-  .references-narrow .reference {
-    padding: 0 24px;
-  }
-}
-.references-narrow .reference-container {
-  flex-direction: column;
-  gap: 24px;
-  padding: 50px 0;
-}
-
-.references-narrow .example {
-  padding-top: 0;
-}
-
-.editor-heading h1 {
-  font-size: var(
-    --font-size,
-    var(
-      --default-font-size,
-      var(--theme-heading-2, var(--default-theme-heading-2))
-    )
-  );
-  font-weight: var(
-    --font-weight,
-    var(--default-font-weight, var(--theme-bold, var(--default-theme-bold)))
-  );
-  /* prettier-ignore */
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  word-wrap: break-word;
-  line-height: 1.45;
-  margin-top: 0;
-}
-
 /** Layout */
 /* ----------------------------------------------------- */
 /* Document Layouts */
@@ -631,7 +532,7 @@ const breadCrumbs = computed(() => {
   overflow-y: auto;
   overflow-x: hidden;
 
-  /* 
+  /*
   Calculated by a resize observer and set in the style attribute
   Falls back to the viewport height
   */
@@ -640,18 +541,6 @@ const breadCrumbs = computed(() => {
   background-color: var(
     --theme-background-1,
     var(--default-theme-background-1)
-  );
-
-  --default-document-height: calc(
-    var(--full-height) -
-      var(
-        --scalar-api-reference-theme-header-height,
-        var(--default-scalar-api-reference-theme-header-height)
-      )
-  );
-  --scalar-api-reference-theme-header-height: var(
-    --theme-header-height,
-    var(--default-scalar-api-reference-theme-header-height)
   );
 }
 
@@ -683,42 +572,13 @@ const breadCrumbs = computed(() => {
   .reference-container {
   padding-top: 75px;
 }
-/* Measures the visible viewport of the editor */
-.layout-content-viewport {
-  position: fixed;
-  left: var(
-    --scalar-api-reference-theme-sidebar-width,
-    var(--default-scalar-api-reference-theme-sidebar-width)
-  );
-  right: var(
-    --scalar-api-reference-theme-toc-width,
-    var(--default-scalar-api-reference-theme-toc-width)
-  );
-  top: calc(
-    var(
-        --scalar-api-reference-app-header-height,
-        var(--default-scalar-api-reference-app-header-height)
-      ) +
-      var(
-        --scalar-api-reference-theme-header-height,
-        var(--default-scalar-api-reference-theme-header-height)
-      )
-  );
-  bottom: 0;
-  pointer-events: none;
-}
 
 .layout-aside-left {
   position: relative;
   grid-area: sidebar;
   position: sticky;
-  top: var(
-    --scalar-api-reference-theme-header-height,
-    var(--default-scalar-api-reference-theme-header-height)
-  );
-  height: calc(
-    var(--full-height) - var(--scalar-api-reference-theme-header-height)
-  );
+  top: var(--refs-header-height);
+  height: calc(var(--full-height) - var(--refs-header-height));
 }
 
 .layout-aside-right {
@@ -750,26 +610,13 @@ const breadCrumbs = computed(() => {
 /* Document layout modified for references */
 
 .layout-swagger-editor {
-  --default-document-height: calc(
-    var(--full-height) -
-      var(
-        --scalar-api-reference-theme-header-height,
-        var(--default-scalar-api-reference-theme-header-height)
-      )
-  );
-
   display: grid;
 
   grid-template-rows:
-    var(
-      --scalar-api-reference-theme-header-height,
-      var(--default-scalar-api-reference-theme-header-height)
-    )
+    var(--refs-header-height)
     auto;
 
-  grid-template-columns:
-    var(--scalar-api-reference-theme-sidebar-width)
-    1fr 1fr;
+  grid-template-columns: var(--refs-sidebar-width) 1fr 1fr;
 
   grid-template-areas:
     'header header header'
@@ -779,19 +626,12 @@ const breadCrumbs = computed(() => {
 
 .layout-swagger-editor .layout-content {
   position: sticky;
-  top: var(
-    --scalar-api-reference-theme-header-height,
-    var(--default-scalar-api-reference-theme-header-height)
-  );
-  height: calc(
-    var(--full-height) - var(--scalar-api-reference-theme-header-height)
-  );
+  top: var(--refs-header-height);
+  height: calc(var(--full-height) - var(--refs-header-height));
 }
 
 .layout-swagger-editor.preview {
-  grid-template-columns:
-    var(--scalar-api-reference-theme-sidebar-width)
-    1fr;
+  grid-template-columns: var(--refs-sidebar-width) 1fr;
   grid-template-areas:
     'header header'
     'sidebar aside'
@@ -811,9 +651,7 @@ const breadCrumbs = computed(() => {
 @media (max-width: 1150px) {
   /* Hide rendered view for tablets */
   .layout-swagger-editor {
-    grid-template-columns:
-      var(--scalar-api-reference-theme-sidebar-width)
-      1fr 0px;
+    grid-template-columns: var(--refs-sidebar-width) 1fr 0px;
   }
 }
 
@@ -821,12 +659,7 @@ const breadCrumbs = computed(() => {
   /* Stack view on mobile */
   .layout-swagger-editor {
     grid-template-columns: auto;
-    grid-template-rows:
-      var(
-        --scalar-api-reference-theme-header-height,
-        var(--default-scalar-api-reference-theme-header-height)
-      )
-      1fr auto;
+    grid-template-rows: var(--refs-header-height) 1fr auto;
     grid-template-areas:
       'sidebar'
       'content';
@@ -849,10 +682,7 @@ const breadCrumbs = computed(() => {
   .layout-aside-left {
     position: sticky;
     top: 0;
-    height: var(
-      --scalar-api-reference-theme-header-height,
-      var(--default-scalar-api-reference-theme-header-height)
-    );
+    height: var(--refs-header-height);
 
     width: 100%;
     z-index: 10;
@@ -868,9 +698,7 @@ const breadCrumbs = computed(() => {
     width: 100%;
 
     /* Offset by 2px to fill screen and compensate for gap */
-    height: calc(
-      var(--full-height) - var(--scalar-api-reference-theme-header-height) + 2px
-    );
+    height: calc(var(--full-height) - var(--refs-header-height) + 2px);
 
     border-top: 1px solid
       var(--theme-border-color, var(--default-theme-border-color));
