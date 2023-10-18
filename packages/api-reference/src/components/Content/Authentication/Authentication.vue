@@ -9,6 +9,7 @@ import {
   SectionContent,
   SectionHeader,
 } from '../../Section'
+import SecuritySchemes from './SecuritySchemes.vue'
 
 defineProps<{ spec?: Spec }>()
 </script>
@@ -20,10 +21,13 @@ defineProps<{ spec?: Spec }>()
       id="authentication">
       <SectionContent>
         <SectionHeader>Authentication</SectionHeader>
+
         <CodeMirror
+          v-if="false"
           :content="JSON.stringify(spec?.components?.securitySchemes, null, 2)"
           :languages="['json']"
           readOnly />
+        <SecuritySchemes :value="spec?.components?.securitySchemes" />
       </SectionContent>
     </Section>
   </SectionContainer>
