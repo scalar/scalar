@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import rehypeDocument from 'rehype-document'
 import rehypeFormat from 'rehype-format'
+import rehypeHighlight from 'rehype-highlight'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import remarkHeadingId from 'rehype-slug-custom-id'
 import rehypeStringify from 'rehype-stringify'
@@ -8,8 +9,6 @@ import rehypeStringify from 'rehype-stringify'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
-import remarkTextr from 'remark-textr'
-import typographicBase from 'typographic-base'
 import { unified } from 'unified'
 import { ref, watch } from 'vue'
 
@@ -28,7 +27,6 @@ watch(
       .use(remarkRehype)
       // @ts-ignore
       .use(remarkHeadingId)
-      .use(remarkTextr, { plugins: [typographicBase] })
       .use(rehypeDocument)
       .use(rehypeFormat)
       .use(rehypeSanitize, {
@@ -36,6 +34,9 @@ watch(
         tagNames: defaultSchema.tagNames?.filter(
           (tag) => !['img'].includes(tag),
         ),
+      })
+      .use(rehypeHighlight, {
+        detect: true,
       })
       .use(rehypeStringify)
       .process(props.value)
@@ -209,5 +210,82 @@ watch(
   text-align: left;
   border-left-color: transparent;
   background: var(--theme-background-2, var(--default-theme-background-2));
+}
+</style>
+
+<style lang="postcss">
+.markdown {
+  pre code.hljs {
+    display: block;
+    overflow-x: auto;
+    padding: 1em;
+  }
+  code.hljs {
+    padding: 3px 5px;
+  }
+  .hljs {
+    background: var(--theme-background-4, var(--default-theme-background-4));
+    color: var(--theme-color-1, var(--default-theme-color-1));
+  }
+  .hljs-comment,
+  .hljs-quote {
+    color: var(--theme-color-3, var(--default-theme-color-3));
+    font-style: italic;
+  }
+  .hljs-addition,
+  .hljs-keyword,
+  .hljs-literal,
+  .hljs-selector-tag,
+  .hljs-type {
+    color: var(--theme-color-green, var(--default-theme-color-green));
+  }
+  .hljs-number,
+  .hljs-selector-attr,
+  .hljs-selector-pseudo {
+    color: var(--theme-color-orange, var(--default-theme-color-orange));
+  }
+  .hljs-doctag,
+  .hljs-regexp,
+  .hljs-string {
+    color: var(--theme-color-blue, var(--default-theme-color-blue));
+  }
+  .hljs-built_in,
+  .hljs-name,
+  .hljs-section,
+  .hljs-title {
+    color: var(--theme-color-1, var(--default-theme-color-1));
+  }
+  .hljs-class .hljs-title,
+  .hljs-selector-id,
+  .hljs-template-variable,
+  .hljs-title.class_,
+  .hljs-variable {
+    color: var(--theme-color-1, var(--default-theme-color-1));
+  }
+  .hljs-name,
+  .hljs-section,
+  .hljs-strong {
+    font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  }
+  .hljs-bullet,
+  .hljs-link,
+  .hljs-meta,
+  .hljs-subst,
+  .hljs-symbol {
+    color: var(--theme-color-blue, var(--default-theme-color-blue));
+  }
+  .hljs-deletion {
+    color: var(--theme-color-red, var(--default-theme-color-red));
+  }
+  .hljs-formula {
+    background: var(--theme-color-1, var(--default-theme-color-1));
+  }
+  .hljs-attr,
+  .hljs-attribute {
+    color: var(--theme-color-1, var(--default-theme-color-1));
+  }
+  .hljs-emphasis {
+    font-style: italic;
+  }
 }
 </style>

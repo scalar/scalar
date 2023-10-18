@@ -30,6 +30,7 @@
     "postcss-nested": "6.0.1",
     "rehype-document": "7.0.1",
     "rehype-format": "5.0.0",
+    "rehype-highlight": "7.0.0",
     "rehype-sanitize": "6.0.0",
     "rehype-slug-custom-id": "1.1.0",
     "rehype-stringify": "10.0.0",
@@ -38,8 +39,6 @@
     "remark-parse": "11.0.0",
     "remark-rehype": "11.0.0",
     "remark-stringify": "11.0.0",
-    "remark-textr": "6.0.0",
-    "typographic-base": "1.0.4",
     "unified": "11.0.3"
   },
   "devDependencies": {
