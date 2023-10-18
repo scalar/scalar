@@ -169,14 +169,8 @@ export type Spec = {
   definitions?: Definitions
 }
 
-export type AuthenticationType =
-  | 'none'
-  | 'http.basic'
-  | 'http.bearer'
-  | 'apiKey'
-
 export type AuthenticationState = {
-  type: AuthenticationType
+  securitySchemeKey: string | null
   http: {
     basic: {
       username: string

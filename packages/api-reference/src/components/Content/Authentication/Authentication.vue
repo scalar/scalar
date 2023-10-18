@@ -18,14 +18,12 @@ const { authentication } = useGlobalStore()
 </script>
 
 <template>
-  <SectionContainer>
-    <Section
-      v-if="hasSecuritySchemes(spec)"
-      id="authentication">
+  <SectionContainer v-if="hasSecuritySchemes(spec)">
+    <Section id="authentication">
       <SectionContent>
         <SectionHeader>Authentication</SectionHeader>
         <SecuritySchemes :value="spec?.components?.securitySchemes" />
-        <div v-if="false">
+        <div v-if="true">
           Configuration
           <CodeMirror
             :content="
@@ -34,7 +32,7 @@ const { authentication } = useGlobalStore()
             :languages="['json']"
             readOnly />
         </div>
-        <div v-if="false">
+        <div v-if="true">
           State
           <CodeMirror
             v-if="true"

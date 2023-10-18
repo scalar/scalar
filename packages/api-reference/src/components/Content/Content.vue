@@ -97,7 +97,8 @@ const moreThanOneDefaultTag = (tag: Tag) =>
               v-for="operation in tag.operations"
               :key="`${operation.httpVerb}-${operation.operationId}`"
               :operation="operation"
-              :server="localServers[0]" />
+              :server="localServers[0]"
+              :spec="spec" />
           </template>
         </SectionContainer>
       </template>

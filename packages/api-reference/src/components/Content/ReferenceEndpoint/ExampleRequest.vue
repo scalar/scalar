@@ -12,11 +12,15 @@ import { computed, ref, watch } from 'vue'
 import { generateRequest, generateResponseContent } from '../../../helpers'
 import { useOperation } from '../../../hooks'
 import { useTemplateStore } from '../../../stores/template'
-import type { Operation, Server } from '../../../types'
+import type { Operation, Server, Spec } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import { Icon } from '../../Icon'
 
-const props = defineProps<{ operation: Operation; server: Server }>()
+const props = defineProps<{
+  operation: Operation
+  server: Server
+  spec: Spec
+}>()
 const CodeMirrorValue = ref<string>('')
 const { copyToClipboard } = useClipboard()
 const { setActiveRequest } = useApiClientRequestStore()
@@ -129,6 +133,7 @@ const showItemInClient = () => {
     props.operation,
     parameterMap.value,
     props.server,
+    props.spec,
   )
   setActiveRequest(item)
   toggleApiClient()

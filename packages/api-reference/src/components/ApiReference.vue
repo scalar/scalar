@@ -112,6 +112,10 @@ const transformedSpec = reactive<Spec>({
     url: '',
   },
   servers: [],
+  components: {
+    schemas: {},
+    securitySchemes: {},
+  },
   tags: [],
 })
 

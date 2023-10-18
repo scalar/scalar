@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
+import { onMounted } from 'vue'
 
 import { useGlobalStore } from '../../../stores'
 import { type AuthenticationType } from '../../../types'
 import SecurityScheme from './SecurityScheme.vue'
 
-defineProps<{
+const props = defineProps<{
   value: Record<
     string,
     | OpenAPIV2.SecuritySchemeObject
@@ -17,9 +18,17 @@ const { authentication, setAuthentication } = useGlobalStore()
 
 const handleAuthenticationTypeInput = (event: Event) => {
   setAuthentication({
-    type: (event.target as HTMLSelectElement).value as AuthenticationType,
+    securitySchemeKey: (event.target as HTMLSelectElement)
+      .value as AuthenticationType,
   })
 }
+
+onMounted(() => {
+  // Set the authentication type to the first security scheme
+  setAuthentication({
+    securitySchemeKey: Object.keys(props.value)[0] ?? null,
+  })
+})
 </script>
 <template>
   <div class="security-schemes">
@@ -30,7 +39,7 @@ const handleAuthenticationTypeInput = (event: Event) => {
         <template
           v-for="key in Object.keys(value)"
           :key="key">
-          <option :value="key">
+          <option :value="key ?? null">
             <template v-if="!value[key].type">No Authentication</template>
             <template v-else-if="value[key].type === 'apiKey'">
               API Key
@@ -56,7 +65,9 @@ const handleAuthenticationTypeInput = (event: Event) => {
         </template>
       </select>
     </div>
-    <SecurityScheme :value="value[authentication.type]" />
+    <SecurityScheme
+      v-if="authentication.securitySchemeKey"
+      :value="value[authentication.securitySchemeKey]" />
   </div>
 </template>
 

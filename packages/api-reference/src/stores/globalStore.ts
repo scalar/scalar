@@ -3,6 +3,7 @@ import { reactive } from 'vue'
 import type { AuthenticationState } from '../types'
 
 export const createEmptyAuthenticationState = (): AuthenticationState => ({
+  securitySchemeKey: null,
   type: 'none',
   http: {
     basic: {
@@ -20,10 +21,10 @@ export const createEmptyAuthenticationState = (): AuthenticationState => ({
 
 const authentication = reactive(createEmptyAuthenticationState())
 
-const setAuthentication = (auth: Partial<AuthenticationState>) => {
+const setAuthentication = (newState: Partial<AuthenticationState>) => {
   Object.assign(authentication, {
     ...authentication,
-    ...auth,
+    ...newState,
   })
 }
 

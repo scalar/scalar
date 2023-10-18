@@ -4,7 +4,7 @@ import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 import { useGlobalStore } from '../../../stores'
 
 defineProps<{
-  value:
+  value?:
     | OpenAPIV2.SecuritySchemeObject
     | OpenAPIV3.SecuritySchemeObject
     | OpenAPIV3_1.SecuritySchemeObject
@@ -58,7 +58,9 @@ const handleHttpBearerTokenInput = (event: Event) => {
 }
 </script>
 <template>
-  <div class="security-scheme">
+  <div
+    v-if="value"
+    class="security-scheme">
     <div v-if="!value.type"></div>
     <div v-else-if="value.type === 'apiKey'">
       <div v-if="value.description">
