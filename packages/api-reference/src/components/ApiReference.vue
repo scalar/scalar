@@ -255,7 +255,186 @@ const breadCrumbs = computed(() => {
       :spec="transformedSpec" />
   </div>
 </template>
+<style scoped>
+.scalar-api-reference {
+  /* Try to fill the container */
+  height: 100dvh;
+  max-height: 100%;
+  width: 100dvw;
+  max-width: 100%;
+  flex: 1;
 
+  /* Scroll vertically */
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /*
+  Calculated by a resize observer and set in the style attribute
+  Falls back to the viewport height
+  */
+  --full-height: 100dvh;
+
+  background-color: var(
+    --theme-background-1,
+    var(--default-theme-background-1)
+  );
+}
+
+.layout-footer-below {
+  grid-template-areas:
+    'header header header'
+    'sidebar content aside'
+    'footer footer footer';
+}
+
+.layout-header {
+  grid-area: header;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.layout-content {
+  grid-area: content;
+  min-width: 0;
+  background: var(--theme-background-1, var(--default-theme-background-1));
+  display: flex;
+}
+
+.layout-aside-left {
+  position: relative;
+  grid-area: sidebar;
+  position: sticky;
+  top: var(--refs-header-height);
+  height: calc(var(--full-height) - var(--refs-header-height));
+}
+
+.layout-aside-right {
+  position: relative;
+  grid-area: aside;
+  min-width: 0;
+  background: var(--theme-background-1, var(--default-theme-background-1));
+}
+
+.layout-aside-content {
+  height: 100%;
+  background: var(
+    --sidebar-background-1,
+    var(
+      --default-sidebar-background-1,
+      var(--theme-background-1, var(--default-theme-background-1))
+    )
+  );
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-footer {
+  grid-area: footer;
+}
+
+/* ----------------------------------------------------- */
+/* Document layout modified for references */
+
+.layout-swagger-editor {
+  display: grid;
+
+  grid-template-rows:
+    var(--refs-header-height)
+    auto;
+
+  grid-template-columns: var(--refs-sidebar-width) 1fr 1fr;
+
+  grid-template-areas:
+    'header header header'
+    'sidebar content aside'
+    'sidebar content footer';
+}
+
+.layout-swagger-editor .layout-content {
+  position: sticky;
+  top: var(--refs-header-height);
+  height: calc(var(--full-height) - var(--refs-header-height));
+}
+
+.layout-swagger-editor.preview {
+  grid-template-columns: var(--refs-sidebar-width) 1fr;
+  grid-template-areas:
+    'header header'
+    'sidebar aside'
+    'sidebar footer';
+}
+
+.layout-footer-below.preview {
+  grid-template-areas:
+    'header header'
+    'sidebar aside'
+    'footer footer';
+}
+
+/* ----------------------------------------------------- */
+/* Responsive styles */
+
+@media (max-width: 1150px) {
+  /* Hide rendered view for tablets */
+  .layout-swagger-editor {
+    grid-template-columns: var(--refs-sidebar-width) 1fr 0px;
+  }
+}
+
+@media (max-width: 1000px) {
+  /* Stack view on mobile */
+  .layout-swagger-editor {
+    grid-template-columns: auto;
+    grid-template-rows: var(--refs-header-height) 1fr auto;
+    grid-template-areas:
+      'sidebar'
+      'content';
+  }
+  .layout-swagger-editor.preview {
+    grid-template-columns: auto;
+    grid-template-areas:
+      'sidebar'
+      'aside'
+      'footer';
+  }
+
+  .layout-aside-left,
+  .layout-aside-right,
+  .layout-aside-content {
+    position: static;
+    max-height: unset;
+  }
+
+  .layout-aside-left {
+    position: sticky;
+    top: 0;
+    height: var(--refs-header-height);
+
+    width: 100%;
+    z-index: 10;
+    border-right: none;
+  }
+
+  .layout-aside-left .layout-aside-content {
+    position: absolute;
+
+    /* Offset by 1px to avoid gap */
+    top: calc(100% - 1px);
+    left: 0;
+    width: 100%;
+
+    /* Offset by 2px to fill screen and compensate for gap */
+    height: calc(var(--full-height) - var(--refs-header-height) + 2px);
+
+    border-top: 1px solid
+      var(--theme-border-color, var(--default-theme-border-color));
+    display: flex;
+    flex-direction: column;
+  }
+}
+</style>
 <style lang="postcss">
 /** CSS Reset */
 .scalar-api-reference,
@@ -299,17 +478,14 @@ const breadCrumbs = computed(() => {
   input::placeholder {
     color: var(--theme-color-3, var(--default-theme-color-3));
     font-family: var(--theme-font, var(--default-theme-font));
-    color: var(--theme-color-3, var(--default-theme-color-3));
   }
   input:-ms-input-placeholder {
     color: var(--theme-color-3, var(--default-theme-color-3));
     font-family: var(--theme-font, var(--default-theme-font));
-    color: var(--theme-color-3, var(--default-theme-color-3));
   }
   input::-webkit-input-placeholder {
     color: var(--theme-color-3, var(--default-theme-color-3));
     font-family: var(--theme-font, var(--default-theme-font));
-    color: var(--theme-color-3, var(--default-theme-color-3));
   }
 }
 
@@ -514,196 +690,5 @@ const breadCrumbs = computed(() => {
 }
 .endpoint-response__headers + .endpoint-response {
   border-top: none;
-}
-
-/** Layout */
-/* ----------------------------------------------------- */
-/* Document Layouts */
-
-.scalar-api-reference {
-  /* Try to fill the container */
-  height: 100dvh;
-  max-height: 100%;
-  width: 100dvw;
-  max-width: 100%;
-  flex: 1;
-
-  /* Scroll vertically */
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  /*
-  Calculated by a resize observer and set in the style attribute
-  Falls back to the viewport height
-  */
-  --full-height: 100dvh;
-
-  background-color: var(
-    --theme-background-1,
-    var(--default-theme-background-1)
-  );
-}
-
-.layout-footer-below {
-  grid-template-areas:
-    'header header header'
-    'sidebar content aside'
-    'footer footer footer';
-}
-
-.layout-header {
-  grid-area: header;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.layout-content {
-  grid-area: content;
-  min-width: 0;
-  background: var(--theme-background-1, var(--default-theme-background-1));
-  display: flex;
-}
-/* add extra padding to top of edit made to match the getting started module */
-.layout-content
-  ~ .layout-aside-right
-  .references-narrow
-  .reference:first-of-type
-  .reference-container {
-  padding-top: 75px;
-}
-
-.layout-aside-left {
-  position: relative;
-  grid-area: sidebar;
-  position: sticky;
-  top: var(--refs-header-height);
-  height: calc(var(--full-height) - var(--refs-header-height));
-}
-
-.layout-aside-right {
-  position: relative;
-  grid-area: aside;
-  min-width: 0;
-  background: var(--theme-background-1, var(--default-theme-background-1));
-}
-
-.layout-aside-content {
-  height: 100%;
-  background: var(
-    --sidebar-background-1,
-    var(
-      --default-sidebar-background-1,
-      var(--theme-background-1, var(--default-theme-background-1))
-    )
-  );
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.layout-footer {
-  grid-area: footer;
-}
-
-/* ----------------------------------------------------- */
-/* Document layout modified for references */
-
-.layout-swagger-editor {
-  display: grid;
-
-  grid-template-rows:
-    var(--refs-header-height)
-    auto;
-
-  grid-template-columns: var(--refs-sidebar-width) 1fr 1fr;
-
-  grid-template-areas:
-    'header header header'
-    'sidebar content aside'
-    'sidebar content footer';
-}
-
-.layout-swagger-editor .layout-content {
-  position: sticky;
-  top: var(--refs-header-height);
-  height: calc(var(--full-height) - var(--refs-header-height));
-}
-
-.layout-swagger-editor.preview {
-  grid-template-columns: var(--refs-sidebar-width) 1fr;
-  grid-template-areas:
-    'header header'
-    'sidebar aside'
-    'sidebar footer';
-}
-
-.layout-footer-below.preview {
-  grid-template-areas:
-    'header header'
-    'sidebar aside'
-    'footer footer';
-}
-
-/* ----------------------------------------------------- */
-/* Responsive styles */
-
-@media (max-width: 1150px) {
-  /* Hide rendered view for tablets */
-  .layout-swagger-editor {
-    grid-template-columns: var(--refs-sidebar-width) 1fr 0px;
-  }
-}
-
-@media (max-width: 1000px) {
-  /* Stack view on mobile */
-  .layout-swagger-editor {
-    grid-template-columns: auto;
-    grid-template-rows: var(--refs-header-height) 1fr auto;
-    grid-template-areas:
-      'sidebar'
-      'content';
-  }
-  .layout-swagger-editor.preview {
-    grid-template-columns: auto;
-    grid-template-areas:
-      'sidebar'
-      'aside'
-      'footer';
-  }
-
-  .layout-aside-left,
-  .layout-aside-right,
-  .layout-aside-content {
-    position: static;
-    max-height: unset;
-  }
-
-  .layout-aside-left {
-    position: sticky;
-    top: 0;
-    height: var(--refs-header-height);
-
-    width: 100%;
-    z-index: 10;
-    border-right: none;
-  }
-
-  .layout-aside-left .layout-aside-content {
-    position: absolute;
-
-    /* Offset by 1px to avoid gap */
-    top: calc(100% - 1px);
-    left: 0;
-    width: 100%;
-
-    /* Offset by 2px to fill screen and compensate for gap */
-    height: calc(var(--full-height) - var(--refs-header-height) + 2px);
-
-    border-top: 1px solid
-      var(--theme-border-color, var(--default-theme-border-color));
-    display: flex;
-    flex-direction: column;
-  }
 }
 </style>
