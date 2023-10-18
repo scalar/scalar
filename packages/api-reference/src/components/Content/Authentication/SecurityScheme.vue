@@ -5,10 +5,7 @@ import { useGlobalStore } from '../../../stores'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 
 defineProps<{
-  value?:
-    | OpenAPIV2.SecuritySchemeObject
-    | OpenAPIV3.SecuritySchemeObject
-    | OpenAPIV3_1.SecuritySchemeObject
+  value?: any
 }>()
 
 const { authentication, setAuthentication } = useGlobalStore()
@@ -62,11 +59,11 @@ const handleHttpBearerTokenInput = (event: Event) => {
   <div
     v-if="value"
     class="security-scheme">
-    <div
+    <!-- <div
       v-if="value.description"
       class="description">
       <MarkdownRenderer :value="value.description" />
-    </div>
+    </div> -->
     <div v-if="!value.type"></div>
     <div v-else-if="value.type === 'apiKey'">
       <div>
@@ -131,7 +128,6 @@ const handleHttpBearerTokenInput = (event: Event) => {
 
 <style scoped>
 .security-scheme {
-  margin-bottom: 24px;
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
 

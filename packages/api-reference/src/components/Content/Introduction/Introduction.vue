@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useTemplateStore } from '../../../stores/template'
-import type { Info, Server } from '../../../types'
+import type { Info, Server, Spec } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import {
   Section,
@@ -10,6 +10,7 @@ import {
   SectionContent,
   SectionHeader,
 } from '../../Section'
+import { Authentication } from '../Authentication'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import BaseUrl from './BaseUrl.vue'
 import ClientSelector from './ClientSelector.vue'
@@ -17,6 +18,7 @@ import ClientSelector from './ClientSelector.vue'
 defineProps<{
   info: Info
   servers: Server[]
+  spec: Spec
 }>()
 
 const { state, getClientTitle, getTargetTitle } = useTemplateStore()
@@ -48,6 +50,8 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
                   <BaseUrl :server="server" />
                 </CardContent>
               </Card>
+
+              <Authentication :spec="spec" />
 
               <Card>
                 <CardHeader transparent>Client Libraries</CardHeader>

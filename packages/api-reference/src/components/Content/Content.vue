@@ -64,8 +64,8 @@ const moreThanOneDefaultTag = (tag: Tag) =>
     <template v-if="ready">
       <Introduction
         :info="spec.info"
-        :servers="localServers" />
-      <Authentication :spec="spec" />
+        :servers="localServers"
+        :spec="spec" />
       <template
         v-for="(tag, index) in spec.tags"
         :key="tag.id">

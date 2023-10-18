@@ -12,7 +12,6 @@ import {
   getOperationSectionId,
   getTagSectionId,
   hasModels,
-  hasSecuritySchemes,
   scrollToId,
 } from '../helpers'
 import { useOperation } from '../hooks'
@@ -106,17 +105,6 @@ const items = computed((): SidebarEntry[] => {
     }
   })
 
-  // Authentication
-  const authenticationEntries: SidebarEntry[] = hasSecuritySchemes(props.spec)
-    ? [
-        {
-          id: 'authentication',
-          title: 'AUTHENTICATION',
-          type: 'Page',
-        },
-      ]
-    : []
-
   // Tags & Operations
   const firstTag = props?.spec?.tags?.[0]
 
@@ -176,12 +164,7 @@ const items = computed((): SidebarEntry[] => {
       ]
     : []
 
-  return [
-    ...headingEntries,
-    ...authenticationEntries,
-    ...(operationEntries ?? []),
-    ...modelEntries,
-  ]
+  return [...headingEntries, ...(operationEntries ?? []), ...modelEntries]
 })
 
 const activeSidebarItemId = computed(() => {

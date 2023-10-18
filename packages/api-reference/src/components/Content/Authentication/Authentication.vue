@@ -4,14 +4,10 @@ import { CodeMirror } from '@scalar/use-codemirror'
 import { hasSecuritySchemes } from '../../../helpers'
 import { useGlobalStore } from '../../../stores'
 import { type Spec } from '../../../types'
-import {
-  Section,
-  SectionContainer,
-  SectionContent,
-  SectionHeader,
-} from '../../Section'
+import { Card, CardContent, CardHeader } from '../../Card'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
-import SecuritySchemes from './SecuritySchemes.vue'
+import SecurityScheme from './SecurityScheme.vue'
+import SecuritySchemeSelector from './SecuritySchemeSelector.vue'
 
 defineProps<{ spec?: Spec }>()
 
@@ -19,29 +15,54 @@ const { authentication } = useGlobalStore()
 </script>
 
 <template>
-  <SectionContainer v-if="hasSecuritySchemes(spec)">
-    <Section id="authentication">
-      <SectionContent>
-        <SectionHeader>Authentication</SectionHeader>
-        <SecuritySchemes :value="spec?.components?.securitySchemes" />
-        <div v-if="true">
-          <MarkdownRenderer value="# Configuration" />
-          <CodeMirror
-            :content="
-              JSON.stringify(spec?.components?.securitySchemes, null, 2)
-            "
-            :languages="['json']"
-            readOnly />
+  <Card v-if="hasSecuritySchemes(spec)">
+    <CardHeader>
+      Authentication
+      <template #actions>
+        <div class="selector">
+          <SecuritySchemeSelector
+            :value="spec?.components?.securitySchemes"></SecuritySchemeSelector>
         </div>
-        <div v-if="true">
-          <MarkdownRenderer value="# State" />
-          <CodeMirror
-            v-if="true"
-            :content="JSON.stringify(authentication, null, 2)"
-            :languages="['json']"
-            readOnly />
-        </div>
-      </SectionContent>
-    </Section>
-  </SectionContainer>
+      </template>
+    </CardHeader>
+    <CardContent
+      v-if="
+        authentication.securitySchemeKey &&
+        !!spec?.components?.securitySchemes?.[authentication.securitySchemeKey]
+          .type
+      ">
+      <div class="scheme">
+        <SecurityScheme
+          :value="
+            spec?.components?.securitySchemes?.[
+              authentication.securitySchemeKey
+            ]
+          " />
+      </div>
+    </CardContent>
+    <!-- <CardContent>
+            <CodeMirror
+              v-if="true"
+              :content="JSON.stringify(authentication, null, 2)"
+              :languages="['json']"
+              readOnly />
+          </CardContent>
+          <CardContent>
+            <CodeMirror
+              v-if="true"
+              :content="JSON.stringify(authentication, null, 2)"
+              :languages="['json']"
+              readOnly />
+          </CardContent> -->
+  </Card>
 </template>
+
+<style scoped>
+.scheme {
+  padding: 12px 12px 10px;
+}
+
+.selector {
+  margin-right: 12px;
+}
+</style>
