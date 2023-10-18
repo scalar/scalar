@@ -168,3 +168,25 @@ export type Spec = {
   components?: Components
   definitions?: Definitions
 }
+
+export type AuthenticationType =
+  | 'none'
+  | 'http.basic'
+  | 'http.bearer'
+  | 'apiKey'
+
+export type AuthenticationState = {
+  type: AuthenticationType
+  http: {
+    basic: {
+      username: string
+      password: string
+    }
+    bearer: {
+      token: string
+    }
+  }
+  apiKey: {
+    token: string
+  }
+}

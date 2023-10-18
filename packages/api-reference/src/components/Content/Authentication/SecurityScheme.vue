@@ -1,20 +1,66 @@
 <script lang="ts" setup>
 import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 
+import { useGlobalStore } from '../../../stores'
+
 defineProps<{
   value:
     | OpenAPIV2.SecuritySchemeObject
     | OpenAPIV3.SecuritySchemeObject
     | OpenAPIV3_1.SecuritySchemeObject
 }>()
+
+const { authentication, setAuthentication } = useGlobalStore()
+
+const handleApiKeyTokenInput = (event: Event) => {
+  setAuthentication({
+    apiKey: {
+      ...authentication.apiKey,
+      token: (event.target as HTMLInputElement).value,
+    },
+  })
+}
+
+const handleHttpBasicUsernameInput = (event: Event) => {
+  setAuthentication({
+    http: {
+      ...authentication.http,
+      basic: {
+        ...authentication.http.basic,
+        username: (event.target as HTMLInputElement).value,
+      },
+    },
+  })
+}
+
+const handleHttpBasicPasswordInput = (event: Event) => {
+  setAuthentication({
+    http: {
+      ...authentication.http,
+      basic: {
+        ...authentication.http.basic,
+        password: (event.target as HTMLInputElement).value,
+      },
+    },
+  })
+}
+
+const handleHttpBearerTokenInput = (event: Event) => {
+  setAuthentication({
+    http: {
+      ...authentication.http,
+      bearer: {
+        ...authentication.http.bearer,
+        token: (event.target as HTMLInputElement).value,
+      },
+    },
+  })
+}
 </script>
 <template>
   <div class="security-scheme">
-    <div v-if="!value.type">
-      <h3 class="security-scheme-title">No Authentication</h3>
-    </div>
+    <div v-if="!value.type"></div>
     <div v-else-if="value.type === 'apiKey'">
-      <h3 class="security-scheme-title">API Key</h3>
       <div v-if="value.description">
         {{ value.description }}
       </div>
@@ -27,20 +73,23 @@ defineProps<{
             autocomplete="off"
             placeholder="Token"
             spellcheck="false"
-            type="text" />
+            type="text"
+            :value="authentication.apiKey.token"
+            @input="handleApiKeyTokenInput" />
         </div>
       </div>
     </div>
     <div v-else-if="value.type === 'http'">
       <div v-if="value.scheme === 'basic'">
-        <h3 class="security-scheme-title">Basic Auth</h3>
         <div class="input">
           <label for="username">Username</label>
           <input
             autocomplete="off"
             placeholder="Username"
             spellcheck="false"
-            type="text" />
+            type="text"
+            :value="authentication.http.basic.username"
+            @input="handleHttpBasicUsernameInput" />
         </div>
         <div class="input">
           <label for="password">Password</label>
@@ -48,18 +97,21 @@ defineProps<{
             autocomplete="off"
             placeholder="Username"
             spellcheck="false"
-            type="password" />
+            type="password"
+            :value="authentication.http.basic.password"
+            @input="handleHttpBasicPasswordInput" />
         </div>
       </div>
       <div v-else-if="value.scheme === 'bearer'">
-        <h3 class="security-scheme-title">Bearer Token</h3>
         <div class="input">
           <label for="token">Token</label>
           <input
             autocomplete="off"
             placeholder="Token"
             spellcheck="false"
-            type="text" />
+            type="text"
+            :value="authentication.http.bearer.token"
+            @input="handleHttpBearerTokenInput" />
         </div>
       </div>
     </div>
