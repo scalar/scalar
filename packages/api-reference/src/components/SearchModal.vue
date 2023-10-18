@@ -4,10 +4,11 @@ import { FlowModal, useModal } from '@scalar/use-modal'
 import Fuse from 'fuse.js'
 import { computed, nextTick, ref, toRef, watch } from 'vue'
 
+import { getOperationSectionId, getTagSectionId, scrollToId } from '../helpers'
 import { extractRequestBody } from '../helpers/specHelpers'
 import { type ParamMap, useOperation } from '../hooks'
 import { useTemplateStore } from '../stores/template'
-import type { Spec } from '../types'
+import type { Spec, Tag, TransformedOperation } from '../types'
 
 const props = defineProps<{ spec: Spec }>()
 const reactiveSpec = toRef(props, 'spec')
@@ -65,23 +66,24 @@ watch(
 
 async function openSearchResult(entry: Fuse.FuseResult<FuseData>) {
   const tag = entry.item.tag
-  const operation = entry.item.operationId
+  const path = entry.item.path
   const httpVerb = entry.item.httpVerb
 
   if (!tag) {
     return
   }
+  const searchTag: Tag = {
+    name: tag,
+    description: '',
+    operations: [],
+  }
 
-  setCollapsedSidebarItem(tag, true)
+  setCollapsedSidebarItem(getTagSectionId(searchTag), true)
 
   modalState.hide()
   await nextTick()
 
-  const elementId = operation
-    ? `endpoint/${httpVerb}-${operation}`
-    : `tag/${tag}`
-  const element = document.getElementById(elementId)
-  element?.scrollIntoView()
+  scrollToId(`operation//[${httpVerb}]${path}`)
 }
 watch(
   reactiveSpec.value,
