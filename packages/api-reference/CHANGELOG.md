@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 0.7.9
+
+### Patch Changes
+
+- 45ac0aaa: fix missing property description
+
 ## 0.7.8
 
 ### Patch Changes
