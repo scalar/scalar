@@ -22,7 +22,7 @@ const open = ref(true)
     <p
       v-if="contentProperties[name].description"
       class="parameter-description">
-      description
+      {{ contentProperties[name].description }}
     </p>
     <div
       v-if="Object.keys(contentProperties[name].properties || {}).length > 0"
