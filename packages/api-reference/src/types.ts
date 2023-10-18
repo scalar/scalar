@@ -165,7 +165,14 @@ export type Spec = {
   info: Info
   externalDocs: ExternalDocs
   servers: Server[]
-  components?: Components
+  components?: Omit<Components, 'securitySchemes'> & {
+    securitySchemes: Record<
+      string,
+      | OpenAPIV2.SecuritySchemeObject
+      | OpenAPIV3.SecuritySchemeObject
+      | OpenAPIV3_1.SecuritySchemeObject
+    >
+  }
   definitions?: Definitions
 }
 

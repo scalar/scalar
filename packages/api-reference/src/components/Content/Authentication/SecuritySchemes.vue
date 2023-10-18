@@ -3,7 +3,6 @@ import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 import { onMounted } from 'vue'
 
 import { useGlobalStore } from '../../../stores'
-import { type AuthenticationType } from '../../../types'
 import SecurityScheme from './SecurityScheme.vue'
 
 const props = defineProps<{
@@ -18,8 +17,7 @@ const { authentication, setAuthentication } = useGlobalStore()
 
 const handleAuthenticationTypeInput = (event: Event) => {
   setAuthentication({
-    securitySchemeKey: (event.target as HTMLSelectElement)
-      .value as AuthenticationType,
+    securitySchemeKey: (event.target as HTMLSelectElement).value,
   })
 }
 
@@ -35,7 +33,7 @@ onMounted(() => {
     <div class="security-schemes-selector">
       <select
         @input="handleAuthenticationTypeInput"
-        @value="authentication.type">
+        @value="authentication.securitySchemeKey">
         <template
           v-for="key in Object.keys(value)"
           :key="key">
@@ -46,15 +44,14 @@ onMounted(() => {
             </template>
             <template
               v-else-if="
-                value[key].type === 'http' && value[key].scheme === 'basic'
+                (value[key].type === 'http' && value[key].scheme === 'basic') ||
+                value[key].type === 'basic'
               ">
               Basic Authentication
             </template>
             <template
               v-else-if="
-                value[key].type === 'http' &&
-                value[key].scheme &&
-                value[key].scheme === 'bearer'
+                value[key].type === 'http' && value[key].scheme === 'bearer'
               ">
               Bearer Authentication
             </template>

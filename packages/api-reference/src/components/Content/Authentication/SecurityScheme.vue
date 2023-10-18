@@ -81,8 +81,8 @@ const handleHttpBearerTokenInput = (event: Event) => {
         </div>
       </div>
     </div>
-    <div v-else-if="value.type === 'http'">
-      <div v-if="value.scheme === 'basic'">
+    <div v-else-if="value.type === 'http' || value.type === 'basic'">
+      <div v-if="value.type === 'basic' || value.scheme === 'basic'">
         <div class="input">
           <label for="username">Username</label>
           <input

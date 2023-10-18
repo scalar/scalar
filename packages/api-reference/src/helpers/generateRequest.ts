@@ -26,6 +26,9 @@ export function generateRequest(
   // Headers
   let headers = generateParameters(parameterMap.header)
 
+  // Query
+  const query = generateParameters(parameterMap.query)
+
   // Body
   if (body) {
     headers = headers.filter(
@@ -39,52 +42,66 @@ export function generateRequest(
   }
 
   // Authentication
-  // TODO: Prefill AuthState, not the headers?
+  // TODO: Prefill AuthState, not the headers
   if (authentication.securitySchemeKey) {
     const securityScheme =
       spec?.components?.securitySchemes?.[authentication.securitySchemeKey]
 
     if (securityScheme) {
+      // API Key
       if (securityScheme.type === 'apiKey') {
+        // Header
         if (securityScheme.in === 'header') {
-          console.log({ securityScheme })
           headers.push({
             name: securityScheme.name,
             value: authentication.apiKey.token,
           })
         }
-        // TODO: Query
-        // TODO: Cookie
+        // Cookie
+        else if (securityScheme.in === 'cookie') {
+          // TODO: Should we add a dedicated cookie section?
+          headers.push({
+            name: 'Cookie',
+            value: `${securityScheme.name}=${authentication.apiKey.token}`,
+          })
+        }
+        // Query
+        else if (securityScheme.in === 'query') {
+          query.push({
+            name: securityScheme.name,
+            value: authentication.apiKey.token,
+          })
+        }
       }
-      // TODO: HTTP Basic
-      // TODO: HTTP Bearer
-      if (securityScheme.scheme === 'basic') {
-        headers.push({
-          name: 'Authorization',
-          value: `Basic ${Buffer.from(
-            `${authentication.http.basic.username}:${authentication.http.basic.password}`,
-          ).toString('base64')}`,
-        })
+      // HTTP Header Auth
+      else if (
+        securityScheme.type === 'http' ||
+        securityScheme.type === 'basic'
+      ) {
+        // Basic Auth
+        if (
+          securityScheme.type === 'basic' ||
+          securityScheme.scheme === 'basic'
+        ) {
+          headers.push({
+            name: 'Authorization',
+            value: `Basic ${Buffer.from(
+              `${authentication.http.basic.username}:${authentication.http.basic.password}`,
+            ).toString('base64')}`,
+          })
+        }
+        // Bearer Auth
+        else if (securityScheme.scheme === 'bearer') {
+          headers.push({
+            name: 'Authorization',
+            value: `Bearer ${authentication.http.bearer.token}`,
+          })
+        }
       }
+      // TODO: oauth2
+      // TODO: openIdConnect
     }
   }
-  // if (server.security) {
-  //   const security = server.security[0]
-  //   const scheme = Object.keys(security)[0]
-  //   const scopes = security[scheme]
-
-  //   if (scheme === 'basic') {
-  //     headers.push({
-  //       name: 'Authorization',
-  //       value: `Basic ${Buffer.from('username:password').toString('base64')}`,
-  //     })
-  //   } else if (scheme === 'bearer') {
-  //     headers.push({
-  //       name: 'Authorization',
-  //       value: `Bearer ${scopes.join(' ')}`,
-  //     })
-  //   }
-  // }
 
   const item = {
     id: operation.operationId,
@@ -92,7 +109,7 @@ export function generateRequest(
     type: operation.httpVerb,
     path: operation.path,
     parameters: generateParameters(parameterMap.path),
-    query: generateParameters(parameterMap.query),
+    query,
     headers,
     url: server.url,
     body,
