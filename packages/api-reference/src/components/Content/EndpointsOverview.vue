@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { nextTick } from 'vue'
+
 import {
   getOperationSectionId,
   getTagSectionId,
   scrollToId,
 } from '../../helpers'
-import type { Tag } from '../../types'
+import { useTemplateStore } from '../../stores/template'
+import type { Tag, TransformedOperation } from '../../types'
 import { Card, CardContent, CardHeader } from '../Card'
 import {
   Section,
@@ -15,9 +18,19 @@ import {
 } from '../Section'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
-defineProps<{ tag: Tag }>()
-</script>
+const props = defineProps<{ tag: Tag }>()
 
+const { setCollapsedSidebarItem } = useTemplateStore()
+
+// We need to make sure the endpoint tag is open before
+// we try to scroll to it
+// we wait for next render after we open the tag
+async function scrollHandler(operation: TransformedOperation) {
+  setCollapsedSidebarItem(getTagSectionId(props.tag), true)
+  await nextTick()
+  scrollToId(getOperationSectionId(operation))
+}
+</script>
 <template>
   <Section :id="getTagSectionId(tag)">
     <SectionContent>
@@ -38,7 +51,7 @@ defineProps<{ tag: Tag }>()
                     v-for="operation in tag.operations"
                     :key="getOperationSectionId(operation)"
                     class="endpoint"
-                    @click="scrollToId(getOperationSectionId(operation))">
+                    @click="scrollHandler(operation)">
                     <span :class="operation.httpVerb">{{
                       operation.httpVerb
                     }}</span>
