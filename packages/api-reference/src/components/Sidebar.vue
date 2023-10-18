@@ -179,17 +179,48 @@ const activeSidebarItemId = computed(() => {
 
   return flattenedItems.find((item) => isVisible(item.id))?.id ?? null
 })
+
+// This offset determines how far down the sidebar the items scroll
+const SCROLL_OFFSET = -160
+const scrollerEl = ref<HTMLElement | null>(null)
+
+// Watch for the active item changing so we can scroll the sidebar
+watch(activeSidebarItemId, (activeId) => {
+  const el = document.getElementById(`active-sidebar-element-id-${activeId!}`)
+  if (!el || !scrollerEl.value) return
+
+  let top = SCROLL_OFFSET
+
+  // Since the elements are mostly nested, we need to do some offset calculations
+  if (el.getAttribute('data-sidebar-position') === 'heading') {
+    top +=
+      el.offsetTop +
+      (el.getElementsByClassName('sidebar-heading')?.[0] as HTMLElement)
+        .offsetHeight
+  } else {
+    top +=
+      el.offsetTop +
+      (el.parentElement?.offsetTop ?? 0) +
+      (el.parentElement?.parentElement?.offsetTop ?? 0)
+  }
+
+  scrollerEl.value?.scrollTo({ top, behavior: 'smooth' })
+})
 </script>
 <template>
   <div class="sidebar">
     <FindAnythingButton
       v-if="!isMobile"
       @click="setTemplateItem('showSearch', true)" />
-    <div class="pages custom-scroll custom-scroll-self-contain-overflow">
+    <div
+      ref="scrollerEl"
+      class="pages custom-scroll custom-scroll-self-contain-overflow">
       <SidebarGroup :level="0">
         <SidebarElement
           v-for="item in items"
+          :id="`active-sidebar-element-id-${item.id}`"
           :key="item.id"
+          data-sidebar-position="heading"
           :isActive="activeSidebarItemId === item.id"
           :item="{
             uid: '',
@@ -213,6 +244,7 @@ const activeSidebarItemId = computed(() => {
             <SidebarGroup :level="0">
               <SidebarElement
                 v-for="child in item.children"
+                :id="`active-sidebar-element-id-${child.id}`"
                 :key="child.id"
                 :isActive="activeSidebarItemId === child.id"
                 :item="{
