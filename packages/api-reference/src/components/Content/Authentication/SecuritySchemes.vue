@@ -71,7 +71,7 @@ onMounted(() => {
 <style scoped>
 .security-schemes {
   display: flex;
-  gap: 24px;
+  gap: 12px;
   flex-direction: column;
 }
 </style>

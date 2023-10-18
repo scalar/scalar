@@ -10,6 +10,7 @@ import {
   SectionContent,
   SectionHeader,
 } from '../../Section'
+import MarkdownRenderer from '../MarkdownRenderer.vue'
 import SecuritySchemes from './SecuritySchemes.vue'
 
 defineProps<{ spec?: Spec }>()
@@ -24,7 +25,7 @@ const { authentication } = useGlobalStore()
         <SectionHeader>Authentication</SectionHeader>
         <SecuritySchemes :value="spec?.components?.securitySchemes" />
         <div v-if="true">
-          Configuration
+          <MarkdownRenderer value="# Configuration" />
           <CodeMirror
             :content="
               JSON.stringify(spec?.components?.securitySchemes, null, 2)
@@ -33,7 +34,7 @@ const { authentication } = useGlobalStore()
             readOnly />
         </div>
         <div v-if="true">
-          State
+          <MarkdownRenderer value="# State" />
           <CodeMirror
             v-if="true"
             :content="JSON.stringify(authentication, null, 2)"

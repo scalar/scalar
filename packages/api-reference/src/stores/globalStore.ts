@@ -4,7 +4,6 @@ import type { AuthenticationState } from '../types'
 
 export const createEmptyAuthenticationState = (): AuthenticationState => ({
   securitySchemeKey: null,
-  type: 'none',
   http: {
     basic: {
       username: '',

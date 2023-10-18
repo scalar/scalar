@@ -2,6 +2,7 @@
 import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 
 import { useGlobalStore } from '../../../stores'
+import MarkdownRenderer from '../MarkdownRenderer.vue'
 
 defineProps<{
   value?:
@@ -61,11 +62,13 @@ const handleHttpBearerTokenInput = (event: Event) => {
   <div
     v-if="value"
     class="security-scheme">
+    <div
+      v-if="value.description"
+      class="description">
+      <MarkdownRenderer :value="value.description" />
+    </div>
     <div v-if="!value.type"></div>
     <div v-else-if="value.type === 'apiKey'">
-      <div v-if="value.description">
-        {{ value.description }}
-      </div>
       <div>
         <div class="input">
           <label :for="value.name">
@@ -132,8 +135,7 @@ const handleHttpBearerTokenInput = (event: Event) => {
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
 
-.security-scheme-title {
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+.description {
   margin-bottom: 12px;
 }
 
