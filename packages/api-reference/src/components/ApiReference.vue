@@ -325,7 +325,6 @@ const breadCrumbs = computed(() => {
   --default-scalar-api-reference-col-width-1: 250px;
   --default-scalar-api-reference-col-width-2: calc(50% - 125px);
   --default-scalar-api-reference-col-width-3: calc(50% - 125px);
-  --default-scalar-api-reference-full-height: 100%;
 }
 
 @media (max-width: 1000px) {
@@ -631,22 +630,16 @@ const breadCrumbs = computed(() => {
   overflow-y: auto;
   overflow-x: hidden;
 
+  /* Fallback to viewport part, should be overridden in the style attribute */
+  --full-height: 100dvh;
+
   background-color: var(
     --theme-background-1,
     var(--default-theme-background-1)
   );
 
-  /* Fallback to 100vh if the element height is not specified */
-  --default-full-height: var(
-    --scalar-api-reference-full-height,
-    var(--default-scalar-api-reference-full-height, 100vh)
-  );
-
   --default-document-height: calc(
-    var(
-        --scalar-api-reference-full-height,
-        var(--default-scalar-api-reference-full-height)
-      ) -
+    var(--full-height) -
       var(
         --scalar-api-reference-theme-header-height,
         var(--default-scalar-api-reference-theme-header-height)
@@ -784,12 +777,6 @@ const breadCrumbs = computed(() => {
 }
 
 .layout-aside-content {
-  /* position: sticky; */
-  /* top: var(
-    --scalar-api-reference-theme-header-height,
-    var(--default-scalar-api-reference-theme-header-height)
-  ); */
-  /* height: calc(var(--full-height) - var(--scalar-api-reference-theme-header-height)); */
   height: 100%;
   background: var(
     --sidebar-background-1,
@@ -811,21 +798,9 @@ const breadCrumbs = computed(() => {
 /* Document layout modified for references */
 
 .document.layout-swagger-editor {
-  /* Fallback to 100vh if the element height is not specified */
-  --default-full-height: var(
-    --scalar-api-reference-full-height,
-    var(--default-scalar-api-reference-full-height),
-    100vh
-  );
-  /* --scalar-api-reference-theme-header-height: 50px; */
-  /* --scalar-api-reference-theme-sidebar-width: 200px; */
-  /* --theme-toc-width: 200px; */
   max-height: 100vh;
   --default-document-height: calc(
-    var(
-        --scalar-api-reference-full-height,
-        var(--default-scalar-api-reference-full-height)
-      ) -
+    var(--full-height) -
       var(
         --scalar-api-reference-theme-header-height,
         var(--default-scalar-api-reference-theme-header-height)
@@ -981,8 +956,7 @@ const breadCrumbs = computed(() => {
 
     /* Offset by 2px to fill screen and compensate for gap */
     height: calc(
-      var(--full-height, 100vh) -
-        var(--scalar-api-reference-theme-header-height) + 2px
+      var(--full-height) - var(--scalar-api-reference-theme-header-height) + 2px
     );
 
     border-top: 1px solid

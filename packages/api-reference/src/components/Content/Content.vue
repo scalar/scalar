@@ -113,10 +113,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
 <style scoped>
 .render-loading {
   height: calc(
-    var(
-        --scalar-api-reference-full-height,
-        var(--default-scalar-api-reference-full-height)
-      ) -
+    var(--full-height) -
       var(
         --scalar-api-reference-theme-header-height,
         var(--default-scalar-api-reference-theme-header-height)
