@@ -224,12 +224,12 @@ watch(
     padding: 3px 5px;
   }
   .hljs {
-    background: var(--default-theme-background-4);
-    color: var(--default-theme-color-1);
+    background: var(--theme-background-4, var(--default-theme-background-4));
+    color: var(--theme-color-1, var(--default-theme-color-1));
   }
   .hljs-comment,
   .hljs-quote {
-    color: var(--default-theme-color-3);
+    color: var(--theme-color-3, var(--default-theme-color-3));
     font-style: italic;
   }
   .hljs-addition,
@@ -237,52 +237,52 @@ watch(
   .hljs-literal,
   .hljs-selector-tag,
   .hljs-type {
-    color: var(--default-theme-color-green);
+    color: var(--theme-color-green, var(--default-theme-color-green));
   }
   .hljs-number,
   .hljs-selector-attr,
   .hljs-selector-pseudo {
-    color: var(--default-theme-color-orange);
+    color: var(--theme-color-orange, var(--default-theme-color-orange));
   }
   .hljs-doctag,
   .hljs-regexp,
   .hljs-string {
-    color: var(--default-theme-color-blue);
+    color: var(--theme-color-blue, var(--default-theme-color-blue));
   }
   .hljs-built_in,
   .hljs-name,
   .hljs-section,
   .hljs-title {
-    color: var(--default-theme-color-1);
+    color: var(--theme-color-1, var(--default-theme-color-1));
   }
   .hljs-class .hljs-title,
   .hljs-selector-id,
   .hljs-template-variable,
   .hljs-title.class_,
   .hljs-variable {
-    color: var(--default-theme-color-1);
+    color: var(--theme-color-1, var(--default-theme-color-1));
   }
   .hljs-name,
   .hljs-section,
   .hljs-strong {
-    font-weight: var(--default-theme-semibold);
+    font-weight: var(--theme-semibold, var(--default-theme-semibold));
   }
   .hljs-bullet,
   .hljs-link,
   .hljs-meta,
   .hljs-subst,
   .hljs-symbol {
-    color: var(--default-theme-color-blue);
+    color: var(--theme-color-blue, var(--default-theme-color-blue));
   }
   .hljs-deletion {
-    color: var(--default-theme-color-red);
+    color: var(--theme-color-red, var(--default-theme-color-red));
   }
   .hljs-formula {
-    background: var(--default-theme-color-1);
+    background: var(--theme-color-1, var(--default-theme-color-1));
   }
   .hljs-attr,
   .hljs-attribute {
-    color: var(--default-theme-color-1);
+    color: var(--theme-color-1, var(--default-theme-color-1));
   }
   .hljs-emphasis {
     font-style: italic;
