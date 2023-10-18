@@ -1,18 +1,14 @@
 <script lang="ts" setup>
-import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 import { onMounted } from 'vue'
 
 import { useGlobalStore } from '../../../stores'
 import SecurityScheme from './SecurityScheme.vue'
 
 const props = defineProps<{
-  value: Record<
-    string,
-    | OpenAPIV2.SecuritySchemeObject
-    | OpenAPIV3.SecuritySchemeObject
-    | OpenAPIV3_1.SecuritySchemeObject
-  >
+  // TODO: Add type
+  value: any
 }>()
+
 const { authentication, setAuthentication } = useGlobalStore()
 
 const handleAuthenticationTypeInput = (event: Event) => {
@@ -27,6 +23,16 @@ onMounted(() => {
     securitySchemeKey: Object.keys(props.value)[0] ?? null,
   })
 })
+
+const isNone = (item: any) => !item.type
+
+const isApiKey = (item: any) => item.type === 'apiKey'
+
+const isHttpBasic = (item: any) =>
+  (item.type === 'http' && item.scheme === 'basic') || item.type === 'basic'
+
+const isHttpBearer = (item: any) =>
+  item.type === 'http' && item.scheme === 'bearer'
 </script>
 <template>
   <div class="security-schemes">
@@ -51,21 +57,12 @@ onMounted(() => {
           v-for="key in Object.keys(value)"
           :key="key">
           <option :value="key ?? null">
-            <template v-if="!value[key].type">No Authentication</template>
-            <template v-else-if="value[key].type === 'apiKey'">
-              API Key
-            </template>
-            <template
-              v-else-if="
-                (value[key].type === 'http' && value[key].scheme === 'basic') ||
-                value[key].type === 'basic'
-              ">
+            <template v-if="isNone(value[key])">No Authentication</template>
+            <template v-else-if="isApiKey(value[key])"> API Key </template>
+            <template v-else-if="isHttpBasic(value[key])">
               Basic Authentication
             </template>
-            <template
-              v-else-if="
-                value[key].type === 'http' && value[key].scheme === 'bearer'
-              ">
+            <template v-else-if="isHttpBearer(value[key])">
               Bearer Authentication
             </template>
             <template v-else>

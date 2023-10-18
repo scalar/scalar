@@ -1,4 +1,5 @@
 import type { ClientRequestConfig } from '@scalar/api-client'
+import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 
 import { type ParamMap } from '../hooks'
 import { useGlobalStore } from '../stores'
@@ -44,8 +45,13 @@ export function generateRequest(
   // Authentication
   // TODO: Prefill AuthState, not the headers
   if (authentication.securitySchemeKey) {
-    const securityScheme =
-      spec?.components?.securitySchemes?.[authentication.securitySchemeKey]
+    // We’re using a parsed Swagger file here, so let’s get rid of the `ReferenceObject` type
+    const securityScheme = spec?.components?.securitySchemes?.[
+      authentication.securitySchemeKey
+    ] as
+      | OpenAPIV2.SecuritySchemeObject
+      | OpenAPIV3.SecuritySchemeObject
+      | OpenAPIV3_1.SecuritySchemeObject
 
     if (securityScheme) {
       // API Key
