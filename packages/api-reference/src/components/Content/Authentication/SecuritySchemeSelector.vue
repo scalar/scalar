@@ -41,6 +41,8 @@ const isHttpBasic = (item: any) =>
 const isHttpBearer = (item: any) =>
   item.type === 'http' && item.scheme === 'bearer'
 
+const isOAuth2 = (item: any) => item.type === 'oAuth2'
+
 const getLabelForScheme = (item: any) => {
   if (isNone(item)) {
     return 'No Authentication'
@@ -50,9 +52,11 @@ const getLabelForScheme = (item: any) => {
     return 'Basic Authentication'
   } else if (isHttpBearer(item)) {
     return 'Bearer Authentication'
+  } else if (isOAuth2(item)) {
+    return 'OAuth 2.0'
   }
 
-  return `Not yet supported: ${item.type}`
+  return `${item.type} (not yet supported)`
 }
 </script>
 <template>

@@ -121,7 +121,7 @@ const handleHttpBearerTokenInput = (event: Event) => {
       v-else
       class="work-in-progress">
       <h3 class="work-in-progress-title">Work in Progress</h3>
-      <p>The given security scheme ({{ value.type }}) is not yet supported.</p>
+      <p>The given security scheme ({{ value.type }}) is not supported.</p>
     </div>
   </div>
 </template>
@@ -140,6 +140,7 @@ const handleHttpBearerTokenInput = (event: Event) => {
   border: 1px solid var(--theme-color-orange, var(--default-theme-color-orange));
   padding: 24px;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  font-size: var(--theme-mini, var(--default-theme-mini));
 }
 
 .work-in-progress-title {
