@@ -40,7 +40,7 @@ export type ReferenceConfiguration = {
   isEditable?: boolean
   tabs?: {
     enabled?: boolean
-    initialTabState?: EditorHeaderTabs
+    initialContent?: EditorHeaderTabs
   }
   showSidebar?: boolean
   footerBelowSidebar?: boolean
