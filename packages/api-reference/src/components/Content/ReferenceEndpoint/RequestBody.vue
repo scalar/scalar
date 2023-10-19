@@ -134,6 +134,13 @@ defineProps<{ requestBody?: RequestBody }>()
 .parameter-options {
   position: relative;
 }
+.copy .title {
+  font-size: var(--theme-heading-4, var(--default-theme-heading-4));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  line-height: 1.45;
+  margin: 0;
+}
 .copy .parameter-description:empty {
   display: none;
 }
