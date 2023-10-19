@@ -183,10 +183,12 @@ const breadCrumbs = computed(() => {
   <FlowToastContainer />
   <div
     ref="documentEl"
+    class="scalar-api-reference references-layout"
     :class="[
-      'scalar-api-reference',
-      'layout-swagger-editor',
-      { 'layout-footer-below': footerBelowSidebar, 'preview': !isEditable },
+      {
+        'references-footer-below': footerBelowSidebar,
+        'preview': !isEditable,
+      },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
     <slot name="search-modal">
@@ -197,11 +199,11 @@ const breadCrumbs = computed(() => {
     <!-- Desktop header -->
     <div
       v-if="!isMobile"
-      class="layout-header">
+      class="references-header">
       <slot name="header"></slot>
     </div>
-    <!-- Sidebar wrapper -->
-    <aside class="layout-aside-left t-doc__sidebar">
+    <!-- Navigation (sidebar) wrapper -->
+    <aside class="references-navigation t-doc__sidebar">
       <!-- Mobile header content -->
       <slot
         v-if="isMobile"
@@ -212,7 +214,7 @@ const breadCrumbs = computed(() => {
           {{ breadCrumbs }}
         </MobileHeader>
       </slot>
-      <!-- Primary sidebar content -->
+      <!-- Navigation tree / Table of Contents -->
       <!-- Sorry for the terrible v-if - this is so we only manage the menu state if theres no external mobile header being injected to manage it otherwise -->
       <div
         v-if="
@@ -220,7 +222,7 @@ const breadCrumbs = computed(() => {
             ? showSidebar && showMobileDrawer
             : showSidebar
         "
-        class="layout-aside-content">
+        class="references-navigation-list">
         <slot
           v-if="isMobile"
           name="header" />
@@ -230,7 +232,7 @@ const breadCrumbs = computed(() => {
     <!-- Swagger file editing -->
     <div
       v-show="showCodeEditor"
-      class="layout-content">
+      class="references-editor">
       <LazyLoadedSwaggerEditor
         :hocuspocusConfiguration="hocuspocusConfiguration"
         :initialTabState="initialTabState"
@@ -242,12 +244,14 @@ const breadCrumbs = computed(() => {
     </div>
     <!-- Rendered reference -->
     <template v-if="showRendered">
-      <div class="layout-aside-right">
+      <div class="references-rendered">
         <Content
           :ready="true"
           :spec="transformedSpec" />
       </div>
-      <slot name="footer" />
+      <div class="references-footer">
+        <slot name="footer" />
+      </div>
     </template>
     <!-- REST API Client Overlay -->
     <ApiClientModal
@@ -256,7 +260,22 @@ const breadCrumbs = computed(() => {
   </div>
 </template>
 <style scoped>
+/* Configurable Layout Variables */
 .scalar-api-reference {
+  --refs-sidebar-width: var(--theme-sidebar-width, 250px);
+  --refs-header-height: var(--theme-header-height, 0px);
+}
+
+@media (max-width: 1000px) {
+  .scalar-api-reference {
+    /* By default add a header on mobile for the navigation */
+    --refs-header-height: var(--theme-header-height, 50px);
+  }
+}
+
+/* ----------------------------------------------------- */
+/* References Layout */
+.references-layout {
   /* Try to fill the container */
   height: 100dvh;
   max-height: 100%;
@@ -274,34 +293,45 @@ const breadCrumbs = computed(() => {
   */
   --full-height: 100dvh;
 
-  background-color: var(
-    --theme-background-1,
-    var(--default-theme-background-1)
-  );
+  /* Grid layout */
+  display: grid;
+
+  grid-template-rows:
+    var(--refs-header-height)
+    auto;
+
+  grid-template-columns: var(--refs-sidebar-width) 1fr 1fr;
+
+  grid-template-areas:
+    'header header header'
+    'sidebar content aside'
+    'sidebar content footer';
+
+  background: var(--theme-background-1, var(--default-theme-background-1));
 }
 
-.layout-footer-below {
+.references-footer-below {
   grid-template-areas:
     'header header header'
     'sidebar content aside'
     'footer footer footer';
 }
 
-.layout-header {
+.references-header {
   grid-area: header;
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
-.layout-content {
+.references-editor {
   grid-area: content;
   min-width: 0;
   background: var(--theme-background-1, var(--default-theme-background-1));
   display: flex;
 }
 
-.layout-aside-left {
+.references-navigation {
   position: relative;
   grid-area: sidebar;
   position: sticky;
@@ -309,14 +339,14 @@ const breadCrumbs = computed(() => {
   height: calc(var(--full-height) - var(--refs-header-height));
 }
 
-.layout-aside-right {
+.references-rendered {
   position: relative;
   grid-area: aside;
   min-width: 0;
   background: var(--theme-background-1, var(--default-theme-background-1));
 }
 
-.layout-aside-content {
+.references-navigation-list {
   height: 100%;
   background: var(
     --sidebar-background-1,
@@ -330,35 +360,18 @@ const breadCrumbs = computed(() => {
   flex-direction: column;
 }
 
-.layout-footer {
+.references-footer {
   grid-area: footer;
 }
 
-/* ----------------------------------------------------- */
-/* Document layout modified for references */
-
-.layout-swagger-editor {
-  display: grid;
-
-  grid-template-rows:
-    var(--refs-header-height)
-    auto;
-
-  grid-template-columns: var(--refs-sidebar-width) 1fr 1fr;
-
-  grid-template-areas:
-    'header header header'
-    'sidebar content aside'
-    'sidebar content footer';
-}
-
-.layout-swagger-editor .layout-content {
+/* Fix the editor in the middle while allowing the rest of the view to scroll */
+.references-layout .references-editor {
   position: sticky;
   top: var(--refs-header-height);
   height: calc(var(--full-height) - var(--refs-header-height));
 }
 
-.layout-swagger-editor.preview {
+.references-layout.preview {
   grid-template-columns: var(--refs-sidebar-width) 1fr;
   grid-template-areas:
     'header header'
@@ -366,7 +379,7 @@ const breadCrumbs = computed(() => {
     'sidebar footer';
 }
 
-.layout-footer-below.preview {
+.references-footer-below.preview {
   grid-template-areas:
     'header header'
     'sidebar aside'
@@ -374,25 +387,25 @@ const breadCrumbs = computed(() => {
 }
 
 /* ----------------------------------------------------- */
-/* Responsive styles */
+/* Responsive / Mobile Layout */
 
 @media (max-width: 1150px) {
   /* Hide rendered view for tablets */
-  .layout-swagger-editor {
+  .references-layout {
     grid-template-columns: var(--refs-sidebar-width) 1fr 0px;
   }
 }
 
 @media (max-width: 1000px) {
   /* Stack view on mobile */
-  .layout-swagger-editor {
+  .references-layout {
     grid-template-columns: auto;
     grid-template-rows: var(--refs-header-height) 1fr auto;
     grid-template-areas:
       'sidebar'
       'content';
   }
-  .layout-swagger-editor.preview {
+  .references-layout.preview {
     grid-template-columns: auto;
     grid-template-areas:
       'sidebar'
@@ -400,14 +413,13 @@ const breadCrumbs = computed(() => {
       'footer';
   }
 
-  .layout-aside-left,
-  .layout-aside-right,
-  .layout-aside-content {
+  .references-navigation,
+  .references-rendered {
     position: static;
     max-height: unset;
   }
 
-  .layout-aside-left {
+  .references-navigation {
     position: sticky;
     top: 0;
     height: var(--refs-header-height);
@@ -417,7 +429,7 @@ const breadCrumbs = computed(() => {
     border-right: none;
   }
 
-  .layout-aside-left .layout-aside-content {
+  .references-navigation-list {
     position: absolute;
 
     /* Offset by 1px to avoid gap */
@@ -487,208 +499,195 @@ const breadCrumbs = computed(() => {
     color: var(--theme-color-3, var(--default-theme-color-3));
     font-family: var(--theme-font, var(--default-theme-font));
   }
-}
 
-/* Configurable Layout Variables */
-:root {
-  --refs-sidebar-width: var(--theme-sidebar-width, 250px);
-  --refs-header-height: var(--theme-header-height, 0px);
-}
-
-@media (max-width: 1000px) {
-  :root {
-    /* By default add a header on mobile for the navigation */
-    --refs-header-height: var(--theme-header-height, 50px);
+  /** Utilities, how do we deal with them? */
+  .flex {
+    display: flex;
   }
-}
 
-/** Utilities, how do we deal with them? */
-.flex {
-  display: flex;
-}
-
-.flex-col {
-  display: flex;
-  min-height: 0;
-  flex-direction: column;
-}
-.flex-mobile {
-  display: flex;
-  min-width: 0;
-}
-
-@media (max-width: 500px) {
-  .flex-mobile {
+  .flex-col {
+    display: flex;
+    min-height: 0;
     flex-direction: column;
   }
-}
-.gap-1 {
-  gap: 12px;
-}
+  .flex-mobile {
+    display: flex;
+    min-width: 0;
+  }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
+  @media (max-width: 500px) {
+    .flex-mobile {
+      flex-direction: column;
+    }
+  }
+  .gap-1 {
+    gap: 12px;
+  }
 
-/** TODO: Move to components */
-.codemenu-topbar {
-  background: var(--theme-background-2, var(--default-theme-background-2));
-  border-bottom: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-  padding: 0 7px 0 12px;
-  border-radius: var(--theme-radius, var(--default-theme-radius))
-    var(--theme-radius, var(--default-theme-radius)) 0 0;
-}
-.codemenu {
-  display: flex;
-  position: relative;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 35px;
-}
-.codemenu-tabs {
-  display: flex;
-  position: relative;
-  column-gap: 6px;
-}
-.codemenu-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.codemenu-item-key {
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  padding: 6px 4px;
-  cursor: pointer;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  position: relative;
-  margin-left: -4px;
-  margin-right: -4px;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  text-transform: uppercase;
-}
-.codemenu-item-key:hover {
-  background: var(
-    --scalar-api-reference-theme-background-3,
-    var(--default-scalar-api-reference-theme-background-3)
-  );
-}
-.codemenu-item:first-of-type:last-of-type .codemenu-item-key,
-.codemenu-item__active .codemenu-item-key {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-}
-.codemenu-item:first-of-type:last-of-type:after,
-.codemenu-item__active:after {
-  content: '';
-  width: 100%;
-  height: 1px;
-  position: absolute;
-  bottom: -4px;
-  background: var(--theme-color-1, var(--default-theme-color-1));
-}
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
 
-.codemenu-item__disabled {
-  pointer-events: none;
-}
-.endpoint {
-  display: flex;
-  white-space: nowrap;
-  cursor: pointer;
-}
-.endpoint span:first-of-type {
-  text-transform: uppercase;
-}
+  /** TODO: Move to components */
+  .codemenu-topbar {
+    background: var(--theme-background-2, var(--default-theme-background-2));
+    border-bottom: 1px solid
+      var(--theme-border-color, var(--default-theme-border-color));
+    padding: 0 7px 0 12px;
+    border-radius: var(--theme-radius, var(--default-theme-radius))
+      var(--theme-radius, var(--default-theme-radius)) 0 0;
+  }
+  .codemenu {
+    display: flex;
+    position: relative;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 35px;
+  }
+  .codemenu-tabs {
+    display: flex;
+    position: relative;
+    column-gap: 6px;
+  }
+  .codemenu-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .codemenu-item-key {
+    font-size: var(--theme-micro, var(--default-theme-micro));
+    color: var(--theme-color-3, var(--default-theme-color-3));
+    padding: 6px 4px;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--theme-semibold, var(--default-theme-semibold));
+    position: relative;
+    margin-left: -4px;
+    margin-right: -4px;
+    border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+    text-transform: uppercase;
+  }
+  .codemenu-item-key:hover {
+    background: var(
+      --scalar-api-reference-theme-background-3,
+      var(--default-scalar-api-reference-theme-background-3)
+    );
+  }
+  .codemenu-item:first-of-type:last-of-type .codemenu-item-key,
+  .codemenu-item__active .codemenu-item-key {
+    color: var(--theme-color-1, var(--default-theme-color-1));
+  }
+  .codemenu-item:first-of-type:last-of-type:after,
+  .codemenu-item__active:after {
+    content: '';
+    width: 100%;
+    height: 1px;
+    position: absolute;
+    bottom: -4px;
+    background: var(--theme-color-1, var(--default-theme-color-1));
+  }
 
-.codemenu .endpoint {
-  overflow: hidden;
-}
-.endpoint .post {
-  color: var(--theme-color-green, var(--default-theme-color-green));
-}
-.endpoint .patch {
-  color: var(--theme-color-yellow, var(--default-theme-color-yellow));
-}
-.endpoint .get {
-  color: var(--theme-color-blue, var(--default-theme-color-blue));
-}
-.endpoint .delete {
-  color: var(--theme-color-red, var(--default-theme-color-red));
-}
-.endpoint .put {
-  color: var(--theme-color-orange, var(--default-theme-color-orange));
-}
-.endpoint .post,
-.endpoint .get,
-.endpoint .delete,
-.endpoint .put {
-  white-space: nowrap;
-}
-.endpoint span {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  min-width: 62px;
-  display: inline-block;
-  text-align: right;
-  line-height: 1.55;
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: var(--theme-small, var(--default-theme-small));
-  cursor: pointer;
-}
-.languages .example-item-endpoints {
-  background: var(--theme-background-2, var(--default-theme-background-2));
-  width: 100%;
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-}
-.endpoint-response p {
-  margin-top: 6px;
-  font-size: var(--theme-small, var(--default-theme-small));
-  min-height: auto;
-  line-height: 17px;
-}
+  .codemenu-item__disabled {
+    pointer-events: none;
+  }
+  .endpoint {
+    display: flex;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .endpoint span:first-of-type {
+    text-transform: uppercase;
+  }
 
-.codemenu .endpoint span {
-  text-align: left;
-  min-width: auto;
-}
-.endpoint-response {
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-  padding: 12px 0;
-  font-size: var(--theme-small, var(--default-theme-small));
-}
+  .codemenu .endpoint {
+    overflow: hidden;
+  }
+  .endpoint .post {
+    color: var(--theme-color-green, var(--default-theme-color-green));
+  }
+  .endpoint .patch {
+    color: var(--theme-color-yellow, var(--default-theme-color-yellow));
+  }
+  .endpoint .get {
+    color: var(--theme-color-blue, var(--default-theme-color-blue));
+  }
+  .endpoint .delete {
+    color: var(--theme-color-red, var(--default-theme-color-red));
+  }
+  .endpoint .put {
+    color: var(--theme-color-orange, var(--default-theme-color-orange));
+  }
+  .endpoint .post,
+  .endpoint .get,
+  .endpoint .delete,
+  .endpoint .put {
+    white-space: nowrap;
+  }
+  .endpoint span {
+    color: var(--theme-color-1, var(--default-theme-color-1));
+    min-width: 62px;
+    display: inline-block;
+    text-align: right;
+    line-height: 1.55;
+    font-family: var(--theme-font-code, var(--default-theme-font-code));
+    font-size: var(--theme-small, var(--default-theme-small));
+    cursor: pointer;
+  }
+  .languages .example-item-endpoints {
+    background: var(--theme-background-2, var(--default-theme-background-2));
+    width: 100%;
+    border-top: 1px solid
+      var(--theme-border-color, var(--default-theme-border-color));
+  }
+  .endpoint-response p {
+    margin-top: 6px;
+    font-size: var(--theme-small, var(--default-theme-small));
+    min-height: auto;
+    line-height: 17px;
+  }
 
-.tag-description {
-  margin-top: 12px;
-}
+  .codemenu .endpoint span {
+    text-align: left;
+    min-width: auto;
+  }
+  .endpoint-response {
+    border-top: 1px solid
+      var(--theme-border-color, var(--default-theme-border-color));
+    padding: 12px 0;
+    font-size: var(--theme-small, var(--default-theme-small));
+  }
 
-.reference .endpoint-title {
-  display: flex;
-  margin-bottom: 12px;
-  margin-top: 24px;
-}
-.copy .title {
-  font-size: var(--theme-heading-4, var(--default-theme-heading-4));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  line-height: 1.45;
-  margin: 0;
-}
-.endpoint-response__headers {
-  padding-bottom: 0;
-}
-.endpoint-response__headers + .endpoint-response {
-  border-top: none;
+  .tag-description {
+    margin-top: 12px;
+  }
+
+  .reference .endpoint-title {
+    display: flex;
+    margin-bottom: 12px;
+    margin-top: 24px;
+  }
+  .copy .title {
+    font-size: var(--theme-heading-4, var(--default-theme-heading-4));
+    font-weight: var(--theme-semibold, var(--default-theme-semibold));
+    color: var(--theme-color-1, var(--default-theme-color-1));
+    line-height: 1.45;
+    margin: 0;
+  }
+  .endpoint-response__headers {
+    padding-bottom: 0;
+  }
+  .endpoint-response__headers + .endpoint-response {
+    border-top: none;
+  }
 }
 </style>
