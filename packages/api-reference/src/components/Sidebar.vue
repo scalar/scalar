@@ -183,16 +183,17 @@ const activeSidebarItemId = computed(() => {
 // This offset determines how far down the sidebar the items scroll
 const SCROLL_OFFSET = -160
 const scrollerEl = ref<HTMLElement | null>(null)
+const sidebarRefs = ref<{ [key: string]: HTMLElement }>({})
 
 // Watch for the active item changing so we can scroll the sidebar
 watch(activeSidebarItemId, (activeId) => {
-  const el = document.getElementById(`active-sidebar-element-id-${activeId!}`)
+  const el = sidebarRefs.value[activeId!]
   if (!el || !scrollerEl.value) return
 
   let top = SCROLL_OFFSET
 
   // Since the elements are mostly nested, we need to do some offset calculations
-  if (el.getAttribute('data-sidebar-position') === 'heading') {
+  if (el.getAttribute('data-sidebar-type') === 'heading') {
     top +=
       el.offsetTop +
       (el.getElementsByClassName('sidebar-heading')?.[0] as HTMLElement)
@@ -206,6 +207,12 @@ watch(activeSidebarItemId, (activeId) => {
 
   scrollerEl.value?.scrollTo({ top, behavior: 'smooth' })
 })
+
+type SidebarElementType = InstanceType<typeof SidebarElement>
+const setRef = (el: SidebarElementType, id: string) => {
+  if (!el?.el) return
+  sidebarRefs.value[id] = el.el
+}
 </script>
 <template>
   <div class="sidebar">
@@ -218,9 +225,9 @@ watch(activeSidebarItemId, (activeId) => {
       <SidebarGroup :level="0">
         <SidebarElement
           v-for="item in items"
-          :id="`active-sidebar-element-id-${item.id}`"
           :key="item.id"
-          data-sidebar-position="heading"
+          :ref="(el) => setRef(el as SidebarElementType, item.id)"
+          data-sidebar-type="heading"
           :isActive="activeSidebarItemId === item.id"
           :item="{
             uid: '',
@@ -244,8 +251,8 @@ watch(activeSidebarItemId, (activeId) => {
             <SidebarGroup :level="0">
               <SidebarElement
                 v-for="child in item.children"
-                :id="`active-sidebar-element-id-${child.id}`"
                 :key="child.id"
+                :ref="(el) => setRef(el as SidebarElementType, child.id)"
                 :isActive="activeSidebarItemId === child.id"
                 :item="{
                   uid: '',
