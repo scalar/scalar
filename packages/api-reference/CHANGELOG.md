@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 0.7.11
+
+### Patch Changes
+
+- 1f064818: added scrolling to the sidebar on highlight
+- 1bd5fb80: feat: add syntax highlighting to the markdown renderer
+
 ## 0.7.10
 
 ### Patch Changes
