@@ -304,8 +304,8 @@ const breadCrumbs = computed(() => {
 
   grid-template-areas:
     'header header header'
-    'sidebar content aside'
-    'sidebar content footer';
+    'navigation editor rendered'
+    'navigation editor footer';
 
   background: var(--theme-background-1, var(--default-theme-background-1));
 }
@@ -313,7 +313,7 @@ const breadCrumbs = computed(() => {
 .references-footer-below {
   grid-template-areas:
     'header header header'
-    'sidebar content aside'
+    'navigation editor rendered'
     'footer footer footer';
 }
 
@@ -325,7 +325,7 @@ const breadCrumbs = computed(() => {
 }
 
 .references-editor {
-  grid-area: content;
+  grid-area: editor;
   min-width: 0;
   background: var(--theme-background-1, var(--default-theme-background-1));
   display: flex;
@@ -333,7 +333,7 @@ const breadCrumbs = computed(() => {
 
 .references-navigation {
   position: relative;
-  grid-area: sidebar;
+  grid-area: navigation;
   position: sticky;
   top: var(--refs-header-height);
   height: calc(var(--full-height) - var(--refs-header-height));
@@ -341,7 +341,7 @@ const breadCrumbs = computed(() => {
 
 .references-rendered {
   position: relative;
-  grid-area: aside;
+  grid-area: rendered;
   min-width: 0;
   background: var(--theme-background-1, var(--default-theme-background-1));
 }
@@ -375,14 +375,14 @@ const breadCrumbs = computed(() => {
   grid-template-columns: var(--refs-sidebar-width) 1fr;
   grid-template-areas:
     'header header'
-    'sidebar aside'
-    'sidebar footer';
+    'navigation rendered'
+    'navigation footer';
 }
 
 .references-footer-below.preview {
   grid-template-areas:
     'header header'
-    'sidebar aside'
+    'navigation rendered'
     'footer footer';
 }
 
@@ -402,14 +402,14 @@ const breadCrumbs = computed(() => {
     grid-template-columns: auto;
     grid-template-rows: var(--refs-header-height) 1fr auto;
     grid-template-areas:
-      'sidebar'
-      'content';
+      'navigation'
+      'editor';
   }
   .references-layout.preview {
     grid-template-columns: auto;
     grid-template-areas:
-      'sidebar'
-      'aside'
+      'navigation'
+      'rendered'
       'footer';
   }
 
