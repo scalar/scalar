@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import FlowIconButton from '../components/FlowIconButton.vue'
 import { FlowIcon, Icon } from './Icon'
@@ -60,9 +60,15 @@ function handleToggleOpen() {
 
   emit('toggleOpen')
 }
+
+// Ensure we expose the root element
+const el = ref<HTMLElement | null>(null)
+defineExpose({ el })
 </script>
 <template>
-  <li class="sidebar-group-item">
+  <li
+    ref="el"
+    class="sidebar-group-item">
     <div
       class="sidebar-heading"
       :class="{
