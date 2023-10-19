@@ -187,7 +187,7 @@ const breadCrumbs = computed(() => {
     :class="[
       {
         'references-footer-below': footerBelowSidebar,
-        'preview': !isEditable,
+        'references-editable': isEditable,
       },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
@@ -300,21 +300,13 @@ const breadCrumbs = computed(() => {
     var(--refs-header-height)
     auto;
 
-  grid-template-columns: var(--refs-sidebar-width) 1fr 1fr;
-
+  grid-template-columns: var(--refs-sidebar-width) 1fr;
   grid-template-areas:
-    'header header header'
-    'navigation editor rendered'
-    'navigation editor footer';
+    'header header'
+    'navigation rendered'
+    'navigation footer';
 
   background: var(--theme-background-1, var(--default-theme-background-1));
-}
-
-.references-footer-below {
-  grid-template-areas:
-    'header header header'
-    'navigation editor rendered'
-    'footer footer footer';
 }
 
 .references-header {
@@ -360,10 +352,6 @@ const breadCrumbs = computed(() => {
   flex-direction: column;
 }
 
-.references-footer {
-  grid-area: footer;
-}
-
 /* Fix the editor in the middle while allowing the rest of the view to scroll */
 .references-layout .references-editor {
   position: sticky;
@@ -371,21 +359,33 @@ const breadCrumbs = computed(() => {
   height: calc(var(--full-height) - var(--refs-header-height));
 }
 
-.references-layout.preview {
-  grid-template-columns: var(--refs-sidebar-width) 1fr;
+.references-editable {
+  grid-template-columns: var(--refs-sidebar-width) 1fr 1fr;
+
   grid-template-areas:
-    'header header'
-    'navigation rendered'
-    'navigation footer';
+    'header header header'
+    'navigation editor rendered'
+    'navigation editor footer';
 }
 
-.references-footer-below.preview {
-  grid-template-areas:
-    'header header'
-    'navigation rendered'
-    'footer footer';
+/* Footer */
+.references-footer {
+  grid-area: footer;
 }
-
+@media (min-width: 1001px) {
+  .references-footer-below {
+    grid-template-areas:
+      'header header'
+      'navigation rendered'
+      'footer footer';
+  }
+  .references-footer-below.references-editable {
+    grid-template-areas:
+      'header header header'
+      'navigation editor rendered'
+      'footer footer footer';
+  }
+}
 /* ----------------------------------------------------- */
 /* Responsive / Mobile Layout */
 
@@ -401,16 +401,16 @@ const breadCrumbs = computed(() => {
   .references-layout {
     grid-template-columns: auto;
     grid-template-rows: var(--refs-header-height) 1fr auto;
-    grid-template-areas:
-      'navigation'
-      'editor';
-  }
-  .references-layout.preview {
-    grid-template-columns: auto;
+
     grid-template-areas:
       'navigation'
       'rendered'
       'footer';
+  }
+  .references-editable {
+    grid-template-areas:
+      'navigation'
+      'editor';
   }
 
   .references-navigation,
