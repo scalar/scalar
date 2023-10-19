@@ -46,7 +46,7 @@ defineProps<{
   align-items: center;
   position: relative;
 
-  width: 380px;
+  width: 100%;
 }
 
 .toast-title {
