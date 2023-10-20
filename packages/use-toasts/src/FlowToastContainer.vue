@@ -16,10 +16,12 @@ const { toasts } = useToasts()
 </template>
 <style scoped>
 .toast-container {
-  width: 100vw;
-  height: 100vh;
+  width: 100dvw;
+  height: 100svh;
   position: fixed;
-  z-index: 10000;
+  bottom: 0;
+  z-index: 1000000;
+
   pointer-events: none;
 
   display: flex;
@@ -30,6 +32,13 @@ const { toasts } = useToasts()
 
   padding: 48px;
 }
+@media screen and (max-width: 600px) {
+  /* Less padding for toasts on mobile */
+  .toast-container {
+    padding: 24px;
+  }
+}
+
 .toasts-move,
 .toasts-enter-active,
 .toasts-leave-active {

@@ -159,7 +159,7 @@ onMounted(() => {
   fetchSpecUrl()
 })
 
-const showAside = computed(() => isLargeScreen.value || !props.isEditable)
+const showRendered = computed(() => isLargeScreen.value || !props.isEditable)
 
 const showCodeEditor = computed(() => {
   return !props.specResult && props.isEditable
@@ -175,8 +175,6 @@ const breadCrumbs = computed(() => {
     return `${o.httpVerb}-${o.operationId}` === state.activeSidebar
   })
 
-  console.log(op, operations, state.activeSidebar)
-
   return op ? `${op.tag.toUpperCase()} / ${op.name}` : ''
 })
 </script>
@@ -185,11 +183,12 @@ const breadCrumbs = computed(() => {
   <FlowToastContainer />
   <div
     ref="documentEl"
+    class="scalar-api-reference references-layout"
     :class="[
-      'scalar-api-reference',
-      'document',
-      'layout-swagger-editor',
-      { 'footer-below-sidebar': footerBelowSidebar, 'preview': !isEditable },
+      {
+        'references-footer-below': footerBelowSidebar,
+        'references-editable': isEditable,
+      },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
     <slot name="search-modal">
@@ -200,11 +199,11 @@ const breadCrumbs = computed(() => {
     <!-- Desktop header -->
     <div
       v-if="!isMobile"
-      class="layout-header">
+      class="references-header">
       <slot name="header"></slot>
     </div>
-    <!-- Sidebar wrapper -->
-    <aside class="layout-aside-left t-doc__sidebar">
+    <!-- Navigation (sidebar) wrapper -->
+    <aside class="references-navigation t-doc__sidebar">
       <!-- Mobile header content -->
       <slot
         v-if="isMobile"
@@ -215,7 +214,7 @@ const breadCrumbs = computed(() => {
           {{ breadCrumbs }}
         </MobileHeader>
       </slot>
-      <!-- Primary sidebar content -->
+      <!-- Navigation tree / Table of Contents -->
       <!-- Sorry for the terrible v-if - this is so we only manage the menu state if theres no external mobile header being injected to manage it otherwise -->
       <div
         v-if="
@@ -223,7 +222,7 @@ const breadCrumbs = computed(() => {
             ? showSidebar && showMobileDrawer
             : showSidebar
         "
-        class="layout-aside-content">
+        class="references-navigation-list">
         <slot
           v-if="isMobile"
           name="header" />
@@ -233,7 +232,7 @@ const breadCrumbs = computed(() => {
     <!-- Swagger file editing -->
     <div
       v-show="showCodeEditor"
-      class="layout-content">
+      class="references-editor">
       <LazyLoadedSwaggerEditor
         :hocuspocusConfiguration="hocuspocusConfiguration"
         :initialTabState="initialTabState"
@@ -244,21 +243,210 @@ const breadCrumbs = computed(() => {
         @specUpdate="handleSpecUpdate" />
     </div>
     <!-- Rendered reference -->
-    <div
-      v-if="showAside"
-      class="layout-aside-right">
-      <Content
-        :ready="true"
-        :spec="transformedSpec" />
-    </div>
-    <slot name="footer"></slot>
+    <template v-if="showRendered">
+      <div class="references-rendered">
+        <Content
+          :ready="true"
+          :spec="transformedSpec" />
+      </div>
+      <div class="references-footer">
+        <slot name="footer" />
+      </div>
+    </template>
     <!-- REST API Client Overlay -->
     <ApiClientModal
       :proxyUrl="proxyUrl"
       :spec="transformedSpec" />
   </div>
 </template>
+<style scoped>
+/* Configurable Layout Variables */
+.scalar-api-reference {
+  --refs-sidebar-width: var(--theme-sidebar-width, 250px);
+  --refs-header-height: var(--theme-header-height, 0px);
+}
 
+@media (max-width: 1000px) {
+  .scalar-api-reference {
+    /* By default add a header on mobile for the navigation */
+    --refs-header-height: var(--theme-header-height, 50px);
+  }
+}
+
+/* ----------------------------------------------------- */
+/* References Layout */
+.references-layout {
+  /* Try to fill the container */
+  height: 100dvh;
+  max-height: 100%;
+  width: 100dvw;
+  max-width: 100%;
+  flex: 1;
+
+  /* Scroll vertically */
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /*
+  Calculated by a resize observer and set in the style attribute
+  Falls back to the viewport height
+  */
+  --full-height: 100dvh;
+
+  /* Grid layout */
+  display: grid;
+
+  grid-template-rows:
+    var(--refs-header-height)
+    auto;
+
+  grid-template-columns: var(--refs-sidebar-width) 1fr;
+  grid-template-areas:
+    'header header'
+    'navigation rendered'
+    'navigation footer';
+
+  background: var(--theme-background-1, var(--default-theme-background-1));
+}
+
+.references-header {
+  grid-area: header;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.references-editor {
+  grid-area: editor;
+  min-width: 0;
+  background: var(--theme-background-1, var(--default-theme-background-1));
+  display: flex;
+}
+
+.references-navigation {
+  position: relative;
+  grid-area: navigation;
+  position: sticky;
+  top: var(--refs-header-height);
+  height: calc(var(--full-height) - var(--refs-header-height));
+}
+
+.references-rendered {
+  position: relative;
+  grid-area: rendered;
+  min-width: 0;
+  background: var(--theme-background-1, var(--default-theme-background-1));
+}
+
+.references-navigation-list {
+  height: 100%;
+  background: var(
+    --sidebar-background-1,
+    var(
+      --default-sidebar-background-1,
+      var(--theme-background-1, var(--default-theme-background-1))
+    )
+  );
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fix the editor in the middle while allowing the rest of the view to scroll */
+.references-layout .references-editor {
+  position: sticky;
+  top: var(--refs-header-height);
+  height: calc(var(--full-height) - var(--refs-header-height));
+}
+
+.references-editable {
+  grid-template-columns: var(--refs-sidebar-width) 1fr 1fr;
+
+  grid-template-areas:
+    'header header header'
+    'navigation editor rendered'
+    'navigation editor footer';
+}
+
+/* Footer */
+.references-footer {
+  grid-area: footer;
+}
+@media (min-width: 1001px) {
+  .references-footer-below {
+    grid-template-areas:
+      'header header'
+      'navigation rendered'
+      'footer footer';
+  }
+  .references-footer-below.references-editable {
+    grid-template-areas:
+      'header header header'
+      'navigation editor rendered'
+      'footer footer footer';
+  }
+}
+/* ----------------------------------------------------- */
+/* Responsive / Mobile Layout */
+
+@media (max-width: 1150px) {
+  /* Hide rendered view for tablets */
+  .references-layout {
+    grid-template-columns: var(--refs-sidebar-width) 1fr 0px;
+  }
+}
+
+@media (max-width: 1000px) {
+  /* Stack view on mobile */
+  .references-layout {
+    grid-template-columns: auto;
+    grid-template-rows: var(--refs-header-height) 1fr auto;
+
+    grid-template-areas:
+      'navigation'
+      'rendered'
+      'footer';
+  }
+  .references-editable {
+    grid-template-areas:
+      'navigation'
+      'editor';
+  }
+
+  .references-navigation,
+  .references-rendered {
+    position: static;
+    max-height: unset;
+  }
+
+  .references-navigation {
+    position: sticky;
+    top: 0;
+    height: var(--refs-header-height);
+
+    width: 100%;
+    z-index: 10;
+    border-right: none;
+  }
+
+  .references-navigation-list {
+    position: absolute;
+
+    /* Offset by 1px to avoid gap */
+    top: calc(100% - 1px);
+    left: 0;
+    width: 100%;
+
+    /* Offset by 2px to fill screen and compensate for gap */
+    height: calc(var(--full-height) - var(--refs-header-height) + 2px);
+
+    border-top: 1px solid
+      var(--theme-border-color, var(--default-theme-border-color));
+    display: flex;
+    flex-direction: column;
+  }
+}
+</style>
 <style lang="postcss">
 /** CSS Reset */
 .scalar-api-reference,
@@ -302,693 +490,49 @@ const breadCrumbs = computed(() => {
   input::placeholder {
     color: var(--theme-color-3, var(--default-theme-color-3));
     font-family: var(--theme-font, var(--default-theme-font));
-    color: var(--theme-color-3, var(--default-theme-color-3));
   }
   input:-ms-input-placeholder {
     color: var(--theme-color-3, var(--default-theme-color-3));
     font-family: var(--theme-font, var(--default-theme-font));
-    color: var(--theme-color-3, var(--default-theme-color-3));
   }
   input::-webkit-input-placeholder {
     color: var(--theme-color-3, var(--default-theme-color-3));
     font-family: var(--theme-font, var(--default-theme-font));
-    color: var(--theme-color-3, var(--default-theme-color-3));
-  }
-}
-
-/* ?? layout stuff */
-:root {
-  --default-scalar-api-reference-theme-header-height: 0px;
-  --default-scalar-api-reference-theme-sidebar-width: 250px;
-  --default-scalar-api-reference-theme-toc-width: 300px;
-  --default-scalar-api-reference-app-header-height: 100px;
-  --default-scalar-api-reference-col-width-1: 250px;
-  --default-scalar-api-reference-col-width-2: calc(50% - 125px);
-  --default-scalar-api-reference-col-width-3: calc(50% - 125px);
-  --default-scalar-api-reference-full-height: 100%;
-}
-
-@media (max-width: 1000px) {
-  :root {
-    --default-scalar-api-reference-theme-header-height: 50px;
-  }
-}
-
-/** Utilities, how do we deal with them? */
-.flex {
-  display: flex;
-}
-
-.flex-col {
-  display: flex;
-  min-height: 0;
-  flex-direction: column;
-}
-.flex-mobile {
-  display: flex;
-  min-width: 0;
-}
-
-@media (max-width: 500px) {
-  .flex-mobile {
-    flex-direction: column;
-  }
-}
-.gap-1 {
-  gap: 12px;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-
-/** TODO: Move to components */
-.codemenu-topbar {
-  background: var(--theme-background-2, var(--default-theme-background-2));
-  border-bottom: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-  padding: 0 7px 0 12px;
-  border-radius: var(--theme-radius, var(--default-theme-radius))
-    var(--theme-radius, var(--default-theme-radius)) 0 0;
-}
-.codemenu {
-  display: flex;
-  position: relative;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 35px;
-}
-.codemenu-tabs {
-  display: flex;
-  position: relative;
-  column-gap: 6px;
-}
-.codemenu-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.codemenu-item-key {
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  padding: 6px 4px;
-  cursor: pointer;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  position: relative;
-  margin-left: -4px;
-  margin-right: -4px;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  text-transform: uppercase;
-}
-.codemenu-item-key:hover {
-  background: var(
-    --scalar-api-reference-theme-background-3,
-    var(--default-scalar-api-reference-theme-background-3)
-  );
-}
-.codemenu-item:first-of-type:last-of-type .codemenu-item-key,
-.codemenu-item__active .codemenu-item-key {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-}
-.codemenu-item:first-of-type:last-of-type:after,
-.codemenu-item__active:after {
-  content: '';
-  width: 100%;
-  height: 1px;
-  position: absolute;
-  bottom: -4px;
-  background: var(--theme-color-1, var(--default-theme-color-1));
-}
-
-.codemenu-item__disabled {
-  pointer-events: none;
-}
-.endpoint {
-  display: flex;
-  white-space: nowrap;
-  cursor: pointer;
-}
-.endpoint span:first-of-type {
-  text-transform: uppercase;
-}
-
-.codemenu .endpoint {
-  overflow: hidden;
-}
-.endpoint .post {
-  color: var(--theme-color-green, var(--default-theme-color-green));
-}
-.endpoint .patch {
-  color: var(--theme-color-yellow, var(--default-theme-color-yellow));
-}
-.endpoint .get {
-  color: var(--theme-color-blue, var(--default-theme-color-blue));
-}
-.endpoint .delete {
-  color: var(--theme-color-red, var(--default-theme-color-red));
-}
-.endpoint .put {
-  color: var(--theme-color-orange, var(--default-theme-color-orange));
-}
-.endpoint .post,
-.endpoint .get,
-.endpoint .delete,
-.endpoint .put {
-  white-space: nowrap;
-}
-.endpoint span {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  min-width: 62px;
-  display: inline-block;
-  text-align: right;
-  line-height: 1.55;
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: var(--theme-small, var(--default-theme-small));
-  cursor: pointer;
-}
-.languages .example-item-endpoints {
-  background: var(--theme-background-2, var(--default-theme-background-2));
-  width: 100%;
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-}
-.endpoint-response p {
-  margin-top: 6px;
-  font-size: var(--theme-small, var(--default-theme-small));
-  min-height: auto;
-  line-height: 17px;
-}
-
-.codemenu .endpoint span {
-  text-align: left;
-  min-width: auto;
-}
-.endpoint-response {
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-  padding: 12px 0;
-  font-size: var(--theme-small, var(--default-theme-small));
-}
-
-.tag-description {
-  margin-top: 12px;
-}
-
-.reference .endpoint-title {
-  display: flex;
-  margin-bottom: 12px;
-  margin-top: 24px;
-}
-.copy .title {
-  font-size: var(--theme-heading-4, var(--default-theme-heading-4));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  line-height: 1.45;
-  margin: 0;
-}
-.endpoint-response__headers {
-  padding-bottom: 0;
-}
-.endpoint-response__headers + .endpoint-response {
-  border-top: none;
-}
-
-/* ----------------------------------------------------- */
-
-.reference {
-  position: relative;
-  padding: 0 60px;
-  width: 100%;
-}
-
-.reference:not(:last-of-type) {
-  border-bottom: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-}
-
-.reference .reference-container {
-  position: relative;
-  display: flex;
-  gap: 48px;
-
-  max-width: 1120px;
-  margin: auto;
-  padding: 90px 0;
-}
-
-.reference-container + .reference-container {
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-}
-
-.reference-container .copy,
-.reference-container .example {
-  flex: 1;
-  min-width: 0;
-}
-
-.response .cm-editor {
-  max-height: calc(50vh - 90px);
-}
-
-.example {
-  padding-top: 48px;
-  top: 12px;
-  height: fit-content;
-  position: sticky;
-  max-height: calc(100vh - 96px);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.copy .tag-description a {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  text-decoration: underline;
-}
-.copy ul {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-}
-/* ----------------------------------------------------- */
-/* Responsive styles for narrow reference container (900px) */
-.references-narrow {
-  min-height: 100vh;
-}
-.references-narrow .reference {
-  padding: 0 30px;
-}
-@media screen and (max-width: 1000px) {
-  .references-narrow .reference {
-    padding: 0 24px;
-  }
-}
-.references-narrow .reference-container {
-  flex-direction: column;
-  gap: 24px;
-  padding: 50px 0;
-}
-
-.references-narrow .example {
-  padding-top: 0;
-}
-
-.editor-heading h1 {
-  font-size: var(
-    --font-size,
-    var(
-      --default-font-size,
-      var(--theme-heading-2, var(--default-theme-heading-2))
-    )
-  );
-  font-weight: var(
-    --font-weight,
-    var(--default-font-weight, var(--theme-bold, var(--default-theme-bold)))
-  );
-  /* prettier-ignore */
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  word-wrap: break-word;
-  line-height: 1.45;
-  margin-top: 0;
-}
-
-/** Layout */
-/* ----------------------------------------------------- */
-/* Document Layouts */
-
-.document {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  background-color: var(
-    --theme-background-1,
-    var(--default-theme-background-1)
-  );
-
-  /* Fallback to 100vh if the element height is not specified */
-  --default-full-height: var(
-    --scalar-api-reference-full-height,
-    var(--default-scalar-api-reference-full-height, 100vh)
-  );
-
-  --default-document-height: calc(
-    var(
-        --scalar-api-reference-full-height,
-        var(--default-scalar-api-reference-full-height)
-      ) -
-      var(
-        --scalar-api-reference-theme-header-height,
-        var(--default-scalar-api-reference-theme-header-height)
-      )
-  );
-
-  --default-scalar-api-reference-col-width-1: var(
-    --scalar-api-reference-theme-sidebar-width,
-    var(--default-scalar-api-reference-theme-sidebar-width)
-  );
-  --default-scalar-api-reference-col-width-2: auto;
-  --default-scalar-api-reference-col-width-3: var(
-    --scalar-api-reference-theme-toc-width,
-    var(--default-scalar-api-reference-theme-toc-width)
-  );
-  --scalar-api-reference-theme-header-height: var(
-    --theme-header-height,
-    var(--default-scalar-api-reference-theme-header-height)
-  );
-
-  display: grid;
-
-  grid-template-rows:
-    var(
-      --scalar-api-reference-theme-header-height,
-      var(--default-scalar-api-reference-theme-header-height)
-    )
-    auto
-    auto;
-
-  grid-template-columns:
-    var(
-      --scalar-api-reference-col-width-1,
-      var(--default-scalar-api-reference-col-width-1)
-    )
-    var(
-      --scalar-api-reference-col-width-2,
-      var(--default-scalar-api-reference-col-width-2)
-    )
-    var(
-      --scalar-api-reference-col-width-3,
-      var(--default-scalar-api-reference-col-width-3)
-    );
-
-  grid-template-areas:
-    'header header header'
-    'sidebar content aside'
-    'sidebar footer footer';
-}
-
-.document.hide-aside-left {
-  --default-scalar-api-reference-col-width-1: 0;
-}
-
-.document.hide-aside-right {
-  --default-scalar-api-reference-col-width-3: 0;
-}
-.document.hide-aside-left .layout-aside-left .layout-aside-content,
-.document.hide-aside-right .layout-aside-right .layout-aside-content {
-  border-right-color: transparent;
-  border-left-color: transparent;
-  display: none;
-}
-
-.document.footer-below-sidebar {
-  grid-template-areas:
-    'header header header'
-    'sidebar content aside'
-    'footer footer footer';
-}
-
-.layout-header {
-  grid-area: header;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.layout-content {
-  grid-area: content;
-  min-width: 0;
-  background: var(--theme-background-1, var(--default-theme-background-1));
-  display: flex;
-}
-/* add extra padding to top of edit made to match the getting started module */
-.layout-content
-  ~ .layout-aside-right
-  .references-narrow
-  .reference:first-of-type
-  .reference-container {
-  padding-top: 75px;
-}
-/* Measures the visible viewport of the editor */
-.layout-content-viewport {
-  position: fixed;
-  left: var(
-    --scalar-api-reference-theme-sidebar-width,
-    var(--default-scalar-api-reference-theme-sidebar-width)
-  );
-  right: var(
-    --scalar-api-reference-theme-toc-width,
-    var(--default-scalar-api-reference-theme-toc-width)
-  );
-  top: calc(
-    var(
-        --scalar-api-reference-app-header-height,
-        var(--default-scalar-api-reference-app-header-height)
-      ) +
-      var(
-        --scalar-api-reference-theme-header-height,
-        var(--default-scalar-api-reference-theme-header-height)
-      )
-  );
-  bottom: 0;
-  pointer-events: none;
-}
-
-.layout-aside-left {
-  position: relative;
-  grid-area: sidebar;
-  position: sticky;
-  top: var(
-    --scalar-api-reference-theme-header-height,
-    var(--default-scalar-api-reference-theme-header-height)
-  );
-  height: calc(
-    var(--full-height) - var(--scalar-api-reference-theme-header-height)
-  );
-}
-
-.layout-aside-right {
-  position: relative;
-  grid-area: aside;
-  background: var(--theme-background-1, var(--default-theme-background-1));
-}
-
-.layout-aside-content {
-  /* position: sticky; */
-  /* top: var(
-    --scalar-api-reference-theme-header-height,
-    var(--default-scalar-api-reference-theme-header-height)
-  ); */
-  /* height: calc(var(--full-height) - var(--scalar-api-reference-theme-header-height)); */
-  height: 100%;
-  background: var(
-    --sidebar-background-1,
-    var(
-      --default-sidebar-background-1,
-      var(--theme-background-1, var(--default-theme-background-1))
-    )
-  );
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.layout-footer {
-  grid-area: footer;
-}
-
-/* ----------------------------------------------------- */
-/* Document layout modified for references */
-
-.document.layout-swagger-editor {
-  /* Fallback to 100vh if the element height is not specified */
-  --default-full-height: var(
-    --scalar-api-reference-full-height,
-    var(--default-scalar-api-reference-full-height),
-    100vh
-  );
-  /* --scalar-api-reference-theme-header-height: 50px; */
-  /* --scalar-api-reference-theme-sidebar-width: 200px; */
-  /* --theme-toc-width: 200px; */
-  max-height: 100vh;
-  --default-document-height: calc(
-    var(
-        --scalar-api-reference-full-height,
-        var(--default-scalar-api-reference-full-height)
-      ) -
-      var(
-        --scalar-api-reference-theme-header-height,
-        var(--default-scalar-api-reference-theme-header-height)
-      )
-  );
-
-  --default-scalar-api-reference-col-width-1: var(
-    --scalar-api-reference-theme-sidebar-width,
-    var(--default-scalar-api-reference-theme-sidebar-width)
-  );
-  --default-scalar-api-reference-col-width-2: calc(
-    50% -
-      (
-        var(
-            --scalar-api-reference-theme-sidebar-width,
-            var(--default-scalar-api-reference-theme-sidebar-width)
-          ) / 2
-      )
-  );
-  --default-scalar-api-reference-col-width-3: calc(
-    50% -
-      (
-        var(
-            --scalar-api-reference-theme-sidebar-width,
-            var(--default-scalar-api-reference-theme-sidebar-width)
-          ) / 2
-      )
-  );
-
-  display: grid;
-
-  grid-template-rows:
-    var(
-      --scalar-api-reference-theme-header-height,
-      var(--default-scalar-api-reference-theme-header-height)
-    )
-    auto;
-
-  grid-template-columns:
-    var(
-      --scalar-api-reference-col-width-1,
-      var(--default-scalar-api-reference-col-width-1)
-    )
-    var(
-      --scalar-api-reference-col-width-2,
-      var(--default-scalar-api-reference-col-width-2)
-    )
-    var(
-      --scalar-api-reference-col-width-3,
-      var(--default-scalar-api-reference-col-width-3)
-    );
-
-  grid-template-areas:
-    'header header header'
-    'sidebar content aside'
-    'sidebar content footer';
-}
-
-.document.layout-swagger-editor .layout-content {
-  position: sticky;
-  top: var(
-    --scalar-api-reference-theme-header-height,
-    var(--default-scalar-api-reference-theme-header-height)
-  );
-  height: calc(
-    var(--full-height) - var(--scalar-api-reference-theme-header-height)
-  );
-}
-
-.document.preview {
-  --default-scalar-api-reference-col-width-2: calc(
-    100% -
-      (
-        var(
-          --scalar-api-reference-theme-sidebar-width,
-          var(--default-scalar-api-reference-theme-sidebar-width)
-        )
-      )
-  );
-  --default-scalar-api-reference-col-width-3: calc(
-    100% -
-      (
-        var(
-          --scalar-api-reference-theme-sidebar-width,
-          var(--default-scalar-api-reference-theme-sidebar-width)
-        )
-      )
-  );
-
-  grid-template-areas:
-    'header header'
-    'sidebar aside'
-    'sidebar footer';
-}
-
-.document.layout-swagger-editor.footer-below-sidebar.preview {
-  grid-template-areas:
-    'header header'
-    'sidebar aside'
-    'footer footer';
-}
-
-.document.layout-swagger-editor.hide-aside-left {
-  --default-scalar-api-reference-col-width-1: 0;
-  --default-scalar-api-reference-col-width-2: 50%;
-  --default-scalar-api-reference-col-width-3: 50%;
-}
-
-/* ----------------------------------------------------- */
-/* Responsive styles */
-
-@media (max-width: 1150px) {
-  .document.layout-swagger-editor {
-    --default-scalar-api-reference-col-width-3: 0;
-    --default-scalar-api-reference-col-width-2: auto;
-  }
-}
-
-@media (max-width: 1000px) {
-  .document,
-  .document.layout-swagger-editor {
-    /** Content area heights are restricted using just the template row defs */
-    display: block;
   }
 
-  .layout-aside-left,
-  .layout-aside-right,
-  .layout-aside-content {
-    position: static;
-    max-height: unset;
-  }
-
-  .layout-aside-left {
-    position: sticky;
-    top: 0;
-    height: var(
-      --scalar-api-reference-theme-header-height,
-      var(--default-scalar-api-reference-theme-header-height)
-    );
-
-    width: 100%;
-    z-index: 10;
-    border-right: none;
-  }
-
-  .layout-aside-left .layout-aside-content {
-    position: absolute;
-
-    /* Offset by 1px to avoid gap */
-    top: calc(100% - 1px);
-    left: 0;
-    width: 100%;
-
-    /* Offset by 2px to fill screen and compensate for gap */
-    height: calc(
-      var(--full-height, 100vh) -
-        var(--scalar-api-reference-theme-header-height) + 2px
-    );
-
-    border-top: 1px solid
-      var(--theme-border-color, var(--default-theme-border-color));
+  /** Utilities, how do we deal with them? */
+  .flex {
     display: flex;
+  }
+
+  .flex-col {
+    display: flex;
+    min-height: 0;
     flex-direction: column;
+  }
+  .flex-mobile {
+    display: flex;
+    min-width: 0;
+  }
+
+  @media (max-width: 500px) {
+    .flex-mobile {
+      flex-direction: column;
+    }
+  }
+  .gap-1 {
+    gap: 12px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
   }
 }
 </style>

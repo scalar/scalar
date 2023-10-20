@@ -83,18 +83,6 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
 .heading.loading {
   width: 80%;
 }
-.tag-description .loading {
-  height: 20px;
-  margin-bottom: 4px;
-  width: 100%;
-  display: inline-block;
-}
-.tag-description .loading:first-of-type {
-  margin-top: 12px;
-}
-.tag-description .loading:last-of-type {
-  width: 40%;
-}
 
 .font-mono {
   color: var(--theme-color-1, var(--default-theme-color-1));

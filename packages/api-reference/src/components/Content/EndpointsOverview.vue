@@ -82,4 +82,44 @@ async function scrollHandler(operation: TransformedOperation) {
   margin-left: 12px;
   text-transform: initial;
 }
+
+.endpoint {
+  display: flex;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.endpoint span:first-of-type {
+  text-transform: uppercase;
+}
+.endpoint .post {
+  color: var(--theme-color-green, var(--default-theme-color-green));
+}
+.endpoint .patch {
+  color: var(--theme-color-yellow, var(--default-theme-color-yellow));
+}
+.endpoint .get {
+  color: var(--theme-color-blue, var(--default-theme-color-blue));
+}
+.endpoint .delete {
+  color: var(--theme-color-red, var(--default-theme-color-red));
+}
+.endpoint .put {
+  color: var(--theme-color-orange, var(--default-theme-color-orange));
+}
+.endpoint .post,
+.endpoint .get,
+.endpoint .delete,
+.endpoint .put {
+  white-space: nowrap;
+}
+.endpoint span {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  min-width: 62px;
+  display: inline-block;
+  text-align: right;
+  line-height: 1.55;
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  font-size: var(--theme-small, var(--default-theme-small));
+  cursor: pointer;
+}
 </style>
