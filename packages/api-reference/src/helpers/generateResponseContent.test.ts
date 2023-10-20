@@ -210,6 +210,37 @@ describe('generateResponseContent', () => {
     })
   })
 
+  it('uses 0 as the default for a number', () => {
+    expect(
+      generateResponseContent({
+        type: 'object',
+        properties: {
+          statusCode: {
+            type: 'number',
+          },
+        },
+      }),
+    ).toMatchObject({
+      statusCode: 0,
+    })
+  })
+
+  it('uses min as the default for a number', () => {
+    expect(
+      generateResponseContent({
+        type: 'object',
+        properties: {
+          statusCode: {
+            type: 'number',
+            min: 200,
+          },
+        },
+      }),
+    ).toMatchObject({
+      statusCode: 200,
+    })
+  })
+
   it('converts a whole schema to an example response', () => {
     const schema = {
       required: ['name', 'photoUrls'],
