@@ -59,6 +59,9 @@ const responseData = computed(() => {
   if (value && isJsonString(value)) {
     return JSON.stringify(JSON.parse(value), null, 2)
   }
+  if (value && !isJsonString(value)) {
+    return JSON.stringify(value, null, 2)
+  }
 
   return value
 })

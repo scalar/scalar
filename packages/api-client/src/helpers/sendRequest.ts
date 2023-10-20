@@ -76,7 +76,8 @@ export async function sendRequest(
     await axios(config)
       .then((res) => {
         return {
-          ...res.data,
+          ...(proxyUrl ? res.data : res),
+          ...(!proxyUrl && { statusCode: res.status }),
           error: false,
         }
       })
