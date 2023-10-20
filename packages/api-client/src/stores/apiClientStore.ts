@@ -7,7 +7,7 @@ type State = {
   activeApiClientEndpointId: string
   activeItem: any
   snippetType: string
-  activeSidebar: string
+  activeBreadcrumb: string
   sidebarIdVisibility: SidebarIdVisibility
 }
 
@@ -17,7 +17,7 @@ function defaultState(): State {
     activeApiClientEndpointId: '',
     activeItem: {},
     snippetType: 'javascript',
-    activeSidebar: '',
+    activeBreadcrumb: '',
     sidebarIdVisibility: {},
   }
 }
@@ -47,8 +47,8 @@ function setSnippetType(type: string) {
   state.snippetType = type
 }
 
-function setActiveSidebar(item: string) {
-  state.activeSidebar = item
+function setBreadcrumb(item: string) {
+  state.activeBreadcrumb = item
 }
 
 function setSidebarIdVisibility(id: string, visible: boolean) {
@@ -60,7 +60,7 @@ export const useApiClientStore = () => ({
   toggleApiClient,
   setActiveApiClientEndpointId,
   setSnippetType,
-  setActiveSidebar,
+  setBreadcrumb,
   setSidebarIdVisibility,
   hideApiClient,
 })

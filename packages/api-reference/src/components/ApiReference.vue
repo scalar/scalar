@@ -85,7 +85,7 @@ useResizeObserver(documentEl, (entries) => {
 })
 
 const { toggleCollapsedSidebarItem } = useTemplateStore()
-const { state, setActiveSidebar } = useApiClientStore()
+const { state } = useApiClientStore()
 
 const showMobileDrawer = computed(() => {
   const { state: s } = useTemplateStore()
@@ -124,19 +124,9 @@ const handleSpecUpdate = (newSpec: any) => {
     ...newSpec,
   })
 
-  if (!state.activeSidebar) {
-    const firstTag = transformedSpec.tags[0]
-
-    if (firstTag) {
-      toggleCollapsedSidebarItem(getTagSectionId(firstTag))
-    }
-
-    const firstOperation = transformedSpec.tags[0]?.operations?.[0]
-
-    if (firstOperation) {
-      const { httpVerb, operationId } = firstOperation
-      setActiveSidebar(`${httpVerb}-${operationId}`)
-    }
+  const firstTag = transformedSpec.tags[0]
+  if (firstTag) {
+    toggleCollapsedSidebarItem(getTagSectionId(firstTag))
   }
 }
 
@@ -163,19 +153,6 @@ const showRendered = computed(() => isLargeScreen.value || !props.isEditable)
 
 const showCodeEditor = computed(() => {
   return !props.specResult && props.isEditable
-})
-
-// Navigational breadcrumb text from reference info
-const breadCrumbs = computed(() => {
-  const operations = transformedSpec.tags
-    .map((t) => (t.operations || []).flatMap((o) => ({ ...o, tag: t.name })))
-    .flat()
-
-  const op = operations.find((o) => {
-    return `${o.httpVerb}-${o.operationId}` === state.activeSidebar
-  })
-
-  return op ? `${op.tag.toUpperCase()} / ${op.name}` : ''
 })
 </script>
 <template>
@@ -207,11 +184,11 @@ const breadCrumbs = computed(() => {
       <!-- Mobile header content -->
       <slot
         v-if="isMobile"
-        :label="breadCrumbs"
+        :label="state.activeBreadcrumb"
         name="mobile-header">
         <!-- Fallback mobile header -->
         <MobileHeader>
-          {{ breadCrumbs }}
+          {{ state.activeBreadcrumb }}
         </MobileHeader>
       </slot>
       <!-- Navigation tree / Table of Contents -->
