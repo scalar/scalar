@@ -47,7 +47,7 @@ const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
 const specRef = ref<string>(currentConfiguration.value.spec?.content ?? '')
 
 watch(
-  () => currentConfiguration.value.spec?.content,
+  currentConfiguration,
   () => {
     if (currentConfiguration.value.spec?.content) {
       specRef.value = currentConfiguration.value.spec?.content

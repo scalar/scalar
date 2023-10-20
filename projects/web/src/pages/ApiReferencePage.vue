@@ -5,32 +5,6 @@ import {
 } from '@scalar/api-reference'
 import { reactive } from 'vue'
 
-/**
- * Let’s imagine how the configuration could look like.
- */
-//  const exampleConfiguration = {
-//   theme: 'purple',
-//   spec: {
-//     content: fastify.swagger(),
-//   },
-//   proxy: 'https://api.scalar.com/request-proxy',
-//   isEditable: true,
-//   tabs: {
-//     enabled: true,
-//     initialContent: 'Getting Started',
-//   },
-//   showSidebar: true,
-//   footerBelowSidebar: true,
-//   doNotPromoteScalar: true,
-// }
-
-/**
- * Usage:
- * ```vue
- * <ApiReference :config="exampleConfiguration" />
- * ```
- */
-
 const configuration = reactive<ReferenceConfiguration>({
   theme: 'default',
   proxy: 'http://localhost:5051',
@@ -39,12 +13,11 @@ const configuration = reactive<ReferenceConfiguration>({
     initialContent: 'Swagger Editor',
   },
 })
-
 // import specResult from '../fixtures/specResult.json'
 </script>
 
 <template>
-  <div>
+  <!-- <div>
     <input
       v-model="configuration.isEditable"
       type="checkbox" />
@@ -56,18 +29,8 @@ const configuration = reactive<ReferenceConfiguration>({
       <option value="purple">Purple</option>
       <option value="moon">Moon</option>
     </select>
-  </div>
+  </div> -->
   <ApiReference
     :configuration="configuration"
     @changeTheme="(theme) => (configuration.theme = theme)" />
-  <!-- <ApiReference
-    :initialTabState="'Swagger Editor'"
-    :isEditable="true"
-    proxyUrl="http://localhost:5051"
-    :theme="activeTheme"
-    @changeTheme="activeTheme = $event" /> -->
-  <!-- <ApiReference isEditable theme="moon" /> -->
-  <!-- <ApiReference :specUrl="/swagger.json" /> -->
-  <!-- <ApiReference :spec="{ … }" /> -->
-  <!-- <ApiReference :specResult="specResult" /> -->
 </template>

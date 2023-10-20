@@ -10,22 +10,35 @@ export type ReferenceProps = {
 }
 
 export type ReferenceConfiguration = {
+  /** A string to use one of the color presets */
   theme?: ThemeId
+  /** The Swagger/OpenAPI spec to render */
   spec?: {
+    /** URL to a Swagger/OpenAPI file */
     url?: string
+    /** Swagger/Open API spec */
     content?: string
+    /** The result of @scalar/swagger-parser */
     preparsedContent?: Record<any, any>
   }
+  /** URL to a request proxy for the API client */
   proxy?: string
+  /** Whether the spec input should show */
   isEditable?: boolean
+  /** The tabs (only visible when isEditable: true) */
   tabs?: {
-    enabled?: boolean
+    /** Disabled tabs completely */
+    // enabled?: boolean
+    /** The initial tab to show */
     initialContent?: EditorHeaderTabs
   }
+  /** Whether to show the sidebar */
   showSidebar?: boolean
+  /** Whether to make the footer full-width (include below the sidebar) */
   footerBelowSidebar?: boolean
+  /** Remove the Scalar branding :( */
+  // doNotPromoteScalar?: boolean
   hocuspocusConfiguration?: HocuspocusConfigurationProp
-  doNotPromoteScalar?: boolean
 }
 
 export type Security = {
