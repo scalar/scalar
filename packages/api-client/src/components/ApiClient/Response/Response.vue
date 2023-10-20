@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, toRaw } from 'vue'
 
 import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
 import { CollapsibleSection } from '../../CollapsibleSection'
@@ -38,7 +38,7 @@ const responseCookies = computed(() => {
 })
 
 // Check if string is JSON
-const isJsonString = (value?: string) => {
+const isJsonString = (value?: any) => {
   if (typeof value !== 'string') {
     return false
   }
@@ -56,8 +56,11 @@ const isJsonString = (value?: string) => {
 const responseData = computed(() => {
   const value = activeResponse.value?.data
 
+  // Format JSON
   if (value && isJsonString(value)) {
-    return JSON.stringify(JSON.parse(value), null, 2)
+    return JSON.stringify(JSON.parse(value as string), null, 2)
+  } else if (value && typeof toRaw(value) === 'object') {
+    return JSON.stringify(value, null, 2)
   }
   if (value && !isJsonString(value)) {
     return JSON.stringify(value, null, 2)

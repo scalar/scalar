@@ -86,7 +86,7 @@ export type ClientResponse = {
   headers: Record<string, string>
   statusCode: number
   statusText: string
-  data: string
+  data: string | Record<string, any>
   query: Record<string, any>
   duration: number
 }
