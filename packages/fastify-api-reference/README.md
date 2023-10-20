@@ -23,7 +23,9 @@ fastify.register(require('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
   apiReference: {
     title: 'Our API Reference',
-    specUrl: '/swagger.json',
+    spec: {
+      url: '/swagger.json',
+    },
   },
 })
 ```

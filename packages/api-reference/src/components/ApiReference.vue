@@ -45,10 +45,12 @@ const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
 )
 
 const getSpecContent = (
-  value: string | (() => Record<string, any>) | undefined,
+  value: string | Record<string, any> | (() => Record<string, any>) | undefined,
 ) =>
   typeof value === 'string'
     ? value
+    : typeof value === 'object'
+    ? JSON.stringify(value)
     : typeof value === 'function'
     ? JSON.stringify(value())
     : ''

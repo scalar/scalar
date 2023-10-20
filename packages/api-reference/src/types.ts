@@ -17,7 +17,7 @@ export type ReferenceConfiguration = {
     /** URL to a Swagger/OpenAPI file */
     url?: string
     /** Swagger/Open API spec */
-    content?: string | (() => Record<string, any>)
+    content?: string | Record<string, any> | (() => Record<string, any>)
     /** The result of @scalar/swagger-parser */
     preparsedContent?: Record<any, any>
   }

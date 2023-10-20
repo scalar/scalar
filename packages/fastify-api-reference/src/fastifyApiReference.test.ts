@@ -13,7 +13,7 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          specUrl: '/scalar.json',
+          spec: { url: '/scalar.json' },
         },
       })
 
@@ -34,7 +34,7 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          specUrl: '/scalar.json',
+          spec: { url: '/scalar.json' },
         },
       })
 
@@ -57,7 +57,7 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          specUrl: '/scalar.json',
+          spec: { url: '/scalar.json' },
         },
       })
 
@@ -80,7 +80,7 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          specUrl: '/scalar.json',
+          spec: { url: '/scalar.json' },
         },
       })
 
@@ -109,7 +109,9 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          spec,
+          spec: {
+            content: spec,
+          },
         },
       })
 
@@ -141,7 +143,7 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          spec: () => spec,
+          spec: { content: () => spec },
         },
       })
 
@@ -165,7 +167,7 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          specUrl: '/scalar.json',
+          spec: { url: '/scalar.json' },
         },
       })
 
@@ -188,8 +190,8 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          title: 'Foobar',
-          specUrl: '/scalar.json',
+          pageTitle: 'Foobar',
+          spec: { url: '/scalar.json' },
         },
       })
 
@@ -210,7 +212,7 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          specUrl: '/scalar.json',
+          spec: { url: '/scalar.json' },
         },
       })
 
