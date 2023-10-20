@@ -21,7 +21,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(result?.response).toContain({
+    expect(result?.response.data).toContain({
       method: 'GET',
       path: '/',
     })
@@ -43,7 +43,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(result?.response).toContain({
+    expect(result?.response.data).toContain({
       method: 'GET',
       path: '/example',
     })
@@ -64,7 +64,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(result?.response?.query).toContain({
+    expect(result?.response.data.query).toContain({
       foo: 'bar',
     })
   })
