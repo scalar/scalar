@@ -14,23 +14,28 @@ import {
 
 import { getTagSectionId } from '../helpers'
 import { useTemplateStore } from '../stores/template'
-import type { ReferenceProps, Spec } from '../types'
+import type { ReferenceConfiguration, ReferenceProps, Spec } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
 import MobileHeader from './MobileHeader.vue'
 import SearchModal from './SearchModal.vue'
 import Sidebar from './Sidebar.vue'
 
-// eslint-disable-next-line vue/no-unused-properties
-const props = withDefaults(defineProps<ReferenceProps>(), {
-  showSidebar: true,
-  isEditable: false,
-  theme: 'default',
-})
+const props = defineProps<ReferenceProps>()
 
 defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
 }>()
+
+/** Merge the default configuration with the given configuration. */
+const currentConfiguration = computed((): ReferenceConfiguration => {
+  return {
+    showSidebar: true,
+    isEditable: false,
+    theme: 'default',
+    ...props.configuration,
+  }
+})
 
 /**
  * The editor component has heavy dependencies (process), let's lazy load it.
@@ -39,24 +44,27 @@ const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
   import('@scalar/swagger-editor').then((module) => module.SwaggerEditor),
 )
 
-const specRef = ref<string>(props.spec ?? '')
+const specRef = ref<string>(currentConfiguration.value.spec?.content ?? '')
 
 watch(
-  () => props.spec,
+  () => currentConfiguration.value.spec?.content,
   () => {
-    if (props.spec) {
-      specRef.value = props.spec
+    if (currentConfiguration.value.spec?.content) {
+      specRef.value = currentConfiguration.value.spec?.content
     }
   },
   { immediate: true },
 )
 
 const fetchSpecUrl = () => {
-  if (props.specUrl === undefined || props.specUrl.length === 0) {
+  if (
+    currentConfiguration.value.spec?.url === undefined ||
+    currentConfiguration.value.spec?.url.length === 0
+  ) {
     return
   }
 
-  fetch(props.specUrl)
+  fetch(currentConfiguration.value.spec?.url)
     .then((response) => {
       if (!response.ok) {
         throw new Error('The provided OpenAPI/Swagger spec URL is invalid.')
@@ -132,7 +140,7 @@ const handleSpecUpdate = (newSpec: any) => {
 }
 
 watch(
-  () => props.specResult,
+  () => currentConfiguration.value.spec?.preparsedContent,
   (newSpec) => {
     if (newSpec) {
       handleSpecUpdate(newSpec)
@@ -151,27 +159,42 @@ onMounted(() => {
 })
 
 const showRendered = computed(
-  () => isLargeScreen.value || !props.configuration?.isEditable,
+  () => isLargeScreen.value || !currentConfiguration.value?.isEditable,
 )
 
 const showCodeEditor = computed(() => {
   return (
-    !props.configuration?.spec?.preparsedContent &&
-    props.configuration?.isEditable
+    !currentConfiguration.value.spec?.preparsedContent &&
+    currentConfiguration.value?.isEditable
   )
+})
+
+// Navigational breadcrumb text from reference info
+const breadCrumbs = computed(() => {
+  const operations = transformedSpec.tags
+    .map((t) => (t.operations || []).flatMap((o) => ({ ...o, tag: t.name })))
+    .flat()
+
+  const op = operations.find((o) => {
+    return `${o.httpVerb}-${o.operationId}` === state.activeSidebar
+  })
+
+  console.log(op, operations, state.activeSidebar)
+
+  return op ? `${op.tag.toUpperCase()} / ${op.name}` : ''
 })
 </script>
 <template>
-  {{ configuration }}
-  <ThemeStyles :id="configuration?.theme" />
+  {{ currentConfiguration }}
+  <ThemeStyles :id="currentConfiguration?.theme" />
   <FlowToastContainer />
   <div
     ref="documentEl"
     class="scalar-api-reference references-layout"
     :class="[
       {
-        'references-footer-below': configuration?.footerBelowSidebar,
-        'references-editable': configuration?.isEditable,
+        'references-footer-below': currentConfiguration?.footerBelowSidebar,
+        'references-editable': currentConfiguration?.isEditable,
       },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
@@ -203,8 +226,8 @@ const showCodeEditor = computed(() => {
       <div
         v-if="
           isMobile && !$slots['mobile-header']
-            ? showSidebar && showMobileDrawer
-            : showSidebar
+            ? currentConfiguration.showSidebar && showMobileDrawer
+            : currentConfiguration.showSidebar
         "
         class="references-navigation-list">
         <slot
@@ -218,10 +241,10 @@ const showCodeEditor = computed(() => {
       v-show="showCodeEditor"
       class="references-editor">
       <LazyLoadedSwaggerEditor
-        :hocuspocusConfiguration="hocuspocusConfiguration"
-        :initialTabState="initialTabState"
-        :proxyUrl="proxyUrl"
-        :theme="configuration?.theme"
+        :hocuspocusConfiguration="currentConfiguration?.hocuspocusConfiguration"
+        :initialTabState="currentConfiguration?.tabs?.initialContent"
+        :proxyUrl="currentConfiguration?.proxy"
+        :theme="currentConfiguration?.theme"
         :value="specRef"
         @changeTheme="$emit('changeTheme', $event)"
         @specUpdate="handleSpecUpdate" />
@@ -239,7 +262,7 @@ const showCodeEditor = computed(() => {
     </template>
     <!-- REST API Client Overlay -->
     <ApiClientModal
-      :proxyUrl="configuration?.proxy"
+      :proxyUrl="currentConfiguration?.proxy"
       :spec="transformedSpec" />
   </div>
 </template>
