@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 0.8.0
+
+### Minor Changes
+
+- 2eba4010: Refactor and simplify API references layout
+
+### Patch Changes
+
+- 9d352b13: fix: make the sidebar work with tags without operations
+- b71c4db7: feat: example objects in arrays for example responses
+- 01109c6f: feat: use min value as the default for generated example responses
+- Updated dependencies [df74d017]
+- Updated dependencies [75d12f56]
+- Updated dependencies [2eba4010]
+  - @scalar/api-client@0.7.22
+  - @scalar/use-toasts@0.5.6
+  - @scalar/use-clipboard@0.5.6
+
 ## 0.7.11
 
 ### Patch Changes
