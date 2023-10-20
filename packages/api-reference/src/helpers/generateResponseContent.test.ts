@@ -159,6 +159,36 @@ describe('generateResponseContent', () => {
     ).toMatchObject(['foobar'])
   })
 
+  it('uses specified object as array default', () => {
+    expect(
+      generateResponseContent({
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            foo: {
+              type: 'number',
+            },
+            bar: {
+              type: 'string',
+            },
+          },
+          required: [
+            {
+              foo: 0,
+              bar: '',
+            },
+          ],
+        },
+      }),
+    ).toMatchObject([
+      {
+        foo: 0,
+        bar: '',
+      },
+    ])
+  })
+
   it('uses the default value', () => {
     const schema = {
       type: 'object',

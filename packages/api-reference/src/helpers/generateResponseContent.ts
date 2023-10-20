@@ -15,6 +15,10 @@ export const generateResponseContent = (
       return schema.example
     }
 
+    if (schema.items.type === 'object') {
+      return [generateResponseContent(schema.items, level + 1)]
+    }
+
     return []
   }
 
