@@ -4,6 +4,23 @@ import { createApp } from 'vue'
 const specScriptTag = document.querySelector('#api-reference')
 const specElement = document.querySelector('[data-spec]')
 const specUrlElement = document.querySelector('[data-spec-url]')
+const configurationScriptElement = document.querySelector(
+  '#api-reference[data-configuration]',
+)
+
+const getConfiguration = () => {
+  // <script data-configuration="{ … }" />
+  if (configurationScriptElement) {
+    const configurationFromElement =
+      configurationScriptElement.getAttribute('data-configuration')
+
+    if (configurationFromElement) {
+      return JSON.parse(configurationFromElement)
+    }
+  }
+
+  return {}
+}
 
 const getSpecUrl = () => {
   // <script id="api-reference" data-url="/scalar.json" />
@@ -99,6 +116,10 @@ if (!specUrlElement && !specElement && !specScriptTag) {
   }
 
   createApp(ApiReference, {
-    configuration: { spec: { ...specOrSpecUrl }, proxy: getProxyUrl() },
+    configuration: {
+      ...getConfiguration(),
+      spec: { ...specOrSpecUrl },
+      proxy: getProxyUrl(),
+    },
   }).mount(container)
 }

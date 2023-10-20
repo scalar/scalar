@@ -14,13 +14,13 @@
   </head>
   <body>
     <% if (options.apiReference?.spec?.url) { %>
-      <script id="api-reference" data-url="<%= options.apiReference?.spec?.url %>"></script>
+      <script id="api-reference" data-configuration='<%- JSON.stringify(options.apiReference ?? {}) %>' data-url="<%= options.apiReference?.spec?.url %>"></script>
     <% } else if (typeof options.apiReference?.spec?.content === 'object') { %>
-      <script id="api-reference" type="application/json">
+      <script id="api-reference" data-configuration='<%- JSON.stringify(options.apiReference ?? {}) %>' type="application/json">
         <%- JSON.stringify(options.apiReference?.spec?.content) %>
       </script>
     <% } else if (options.apiReference?.spec?.content) { %>
-      <script id="api-reference" type="application/json">
+      <script id="api-reference" data-configuration='<%- JSON.stringify(options.apiReference ?? {}) %>' type="application/json">
         <%- JSON.stringify(options.apiReference?.spec.content()) %>
       </script>
     <% } %>
