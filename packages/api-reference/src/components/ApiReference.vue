@@ -44,13 +44,24 @@ const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
   import('@scalar/swagger-editor').then((module) => module.SwaggerEditor),
 )
 
-const specRef = ref<string>(currentConfiguration.value.spec?.content ?? '')
+const getSpecContent = (
+  value: string | (() => Record<string, any>) | undefined,
+) =>
+  typeof value === 'string'
+    ? value
+    : typeof value === 'function'
+    ? JSON.stringify(value())
+    : ''
+
+const specRef = ref<string>(
+  getSpecContent(currentConfiguration.value.spec?.content),
+)
 
 watch(
   currentConfiguration,
   () => {
     if (currentConfiguration.value.spec?.content) {
-      specRef.value = currentConfiguration.value.spec?.content
+      specRef.value = getSpecContent(currentConfiguration.value.spec?.content)
     }
   },
   { immediate: true },
