@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 0.7.22
+
+### Patch Changes
+
+- df74d017: fix: read response body from non-proxied requests
+- 75d12f56: fix: don’t overwrite the address on small screens
+
 ## 0.7.21
 
 ### Patch Changes
