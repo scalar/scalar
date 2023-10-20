@@ -64,7 +64,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(result?.response.data.query).toContain({
+    expect((result?.response.data as Record<string, any>).query).toContain({
       foo: 'bar',
     })
   })
