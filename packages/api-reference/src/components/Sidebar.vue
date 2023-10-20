@@ -111,7 +111,7 @@ const items = computed((): SidebarEntry[] => {
     firstTag &&
     moreThanOneDefaultTag(firstTag) &&
     firstTag.operations?.length > 0
-      ? props.spec.tags.map((tag) => {
+      ? props.spec.tags?.map((tag) => {
           return {
             id: getTagSectionId(tag),
             title: tag.name.toUpperCase(),
@@ -130,7 +130,7 @@ const items = computed((): SidebarEntry[] => {
             }),
           }
         })
-      : firstTag?.operations.map((operation) => {
+      : firstTag?.operations?.map((operation) => {
           return {
             id: getOperationSectionId(operation),
             title: operation.name || operation.path,
