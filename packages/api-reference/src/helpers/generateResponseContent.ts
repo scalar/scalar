@@ -72,7 +72,7 @@ export const generateResponseContent = (
       string: '',
       boolean: true,
       integer: 1,
-      number: 0,
+      number: property.min ?? 0,
       // TODO: Need to check the schema and add a default value
       object: {},
     }
