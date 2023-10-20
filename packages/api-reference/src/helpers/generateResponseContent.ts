@@ -4,7 +4,7 @@
 export const generateResponseContent = (
   schema: Record<string, any>,
   level: number = 0,
-) => {
+): any => {
   // Break an infinite loop
   if (level > 10) {
     return null
