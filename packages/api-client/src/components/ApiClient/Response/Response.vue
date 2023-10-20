@@ -62,6 +62,9 @@ const responseData = computed(() => {
   } else if (value && typeof toRaw(value) === 'object') {
     return JSON.stringify(value, null, 2)
   }
+  if (value && !isJsonString(value)) {
+    return JSON.stringify(value, null, 2)
+  }
 
   return value
 })

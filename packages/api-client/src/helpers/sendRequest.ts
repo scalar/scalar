@@ -77,7 +77,7 @@ export async function sendRequest(
       .then((res) => {
         return {
           ...(proxyUrl ? res.data : res),
-          ...(!proxyUrl ? { statusCode: res.status } : {}),
+          ...(!proxyUrl && { statusCode: res.status }),
           error: false,
         }
       })
