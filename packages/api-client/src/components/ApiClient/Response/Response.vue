@@ -38,7 +38,7 @@ const responseCookies = computed(() => {
 })
 
 // Check if string is JSON
-const isJsonString = (value?: string) => {
+const isJsonString = (value?: any) => {
   if (typeof value !== 'string') {
     return false
   }
@@ -58,7 +58,7 @@ const responseData = computed(() => {
 
   // Format JSON
   if (value && isJsonString(value)) {
-    return JSON.stringify(JSON.parse(value), null, 2)
+    return JSON.stringify(JSON.parse(value as string), null, 2)
   } else if (value && typeof toRaw(value) === 'object') {
     return JSON.stringify(value, null, 2)
   }
