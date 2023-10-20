@@ -2,7 +2,7 @@
 import { CodeMirror } from '@scalar/use-codemirror'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { FlowModal, useModal } from '@scalar/use-modal'
-import { useMediaQuery } from '@vueuse/core'
+// import { useMediaQuery } from '@vueuse/core'
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { computed, ref } from 'vue'
@@ -45,24 +45,23 @@ const requestType = computed(() => activeRequest.type)
 // /pet/{petId}
 const requestPath = computed(() => activeRequest.path)
 // true|false
-const isSmallScreen = useMediaQuery('(max-width: 820px)')
+// const isSmallScreen = useMediaQuery('(max-width: 820px)')
 
+// TODO: This should probably be a CodeMirror plugin? It doesn’t work to just replace the URL.
 // https://petstore3.swagger.io/api/v3/pet/{petId} -> /api/v3/pet/{petId}
-function getShortUrl(longURL: string): string {
-  try {
-    const urlObject = new URL(longURL)
-    const { pathname } = urlObject
+// function getShortUrl(longURL: string): string {
+//   try {
+//     const urlObject = new URL(longURL)
+//     const { pathname } = urlObject
 
-    return pathname
-  } catch {
-    return longURL
-  }
-}
+//     return pathname
+//   } catch {
+//     return longURL
+//   }
+// }
 
 const formattedUrl = computed(() => {
-  const fullUrl = `${url.value}${requestPath.value}`
-
-  return isSmallScreen.value ? `...${getShortUrl(fullUrl)}` : fullUrl
+  return `${url.value}${requestPath.value}`
 })
 
 async function send() {
@@ -358,6 +357,20 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   position: relative;
 }
 
+.scalar-api-client__send-request-button span {
+  position: relative;
+}
+@media screen and (max-width: 720px) {
+  .scalar-api-client__history-toggle span,
+  .scalar-api-client__send-request-button span {
+    display: none;
+  }
+  .scalar-api-client__history-toggle svg,
+  .scalar-api-client__send-request-button svg {
+    margin-right: 0;
+  }
+}
+
 .scalar-api-client__send-request-button[disabled] {
   pointer-events: none;
   color: var(--theme-color-2, var(--default-theme-color-2));
@@ -467,18 +480,5 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   color: var(--theme-color-1, var(--default-theme-color-1));
   text-transform: capitalize;
   padding: 0 9px;
-}
-.scalar-api-client__send-request-button span {
-  position: relative;
-}
-@media screen and (max-width: 720px) {
-  .scalar-api-client__history-toggle span,
-  .scalar-api-client__send-request-button span {
-    display: none;
-  }
-  .scalar-api-client__history-toggle svg,
-  .scalar-api-client__send-request-button svg {
-    margin-right: 0;
-  }
 }
 </style>
