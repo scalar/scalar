@@ -185,7 +185,6 @@ const breadCrumbs = computed(() => {
 })
 </script>
 <template>
-  {{ currentConfiguration }}
   <ThemeStyles :id="currentConfiguration?.theme" />
   <FlowToastContainer />
   <div

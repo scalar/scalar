@@ -76,10 +76,10 @@ if (!specUrlElement && !specElement && !specScriptTag) {
 } else {
   const specOrSpecUrl = getSpec()
     ? {
-        spec: getSpec(),
+        content: getSpec(),
       }
     : {
-        specUrl: getSpecUrl(),
+        url: getSpecUrl(),
       }
 
   document.querySelector('body')?.classList.add('light-mode')
@@ -99,7 +99,6 @@ if (!specUrlElement && !specElement && !specScriptTag) {
   }
 
   createApp(ApiReference, {
-    ...specOrSpecUrl,
-    proxyUrl: getProxyUrl(),
+    configuration: { spec: { ...specOrSpecUrl }, proxy: getProxyUrl() },
   }).mount(container)
 }
