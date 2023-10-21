@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 0.8.1
+
+### Patch Changes
+
+- 7ed5c61a: fix: add target blank to markdown links
+
 ## 0.8.0
 
 ### Minor Changes
