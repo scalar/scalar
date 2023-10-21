@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import rehypeDocument from 'rehype-document'
+import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
@@ -38,6 +39,7 @@ watch(
       .use(rehypeHighlight, {
         detect: true,
       })
+      .use(rehypeExternalLinks, { target: '_blank' })
       .use(rehypeStringify)
       .process(props.value)
       .then((result) => {
