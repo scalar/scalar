@@ -69,7 +69,13 @@ const setActiveResponse = (historyID: string) => {
   activeRequestId.value = historyID
   const { request }: { request: ClientRequestConfig } =
     requestHistory[historyID]
-  Object.assign(activeRequest, request)
+
+  // we need to ensure body is a string again
+  // for codemirror
+  const req = JSON.parse(JSON.stringify(request))
+  req.body = JSON.stringify(request.body, null, 2)
+
+  Object.assign(activeRequest, req)
 }
 
 // Get the currently active response
