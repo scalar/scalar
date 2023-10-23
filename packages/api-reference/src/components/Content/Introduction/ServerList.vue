@@ -37,6 +37,24 @@ watch(
     immediate: true,
   },
 )
+
+const handleInput = (name: string, event: Event) => {
+  const newValue = (event.target as HTMLSelectElement).value
+  const newVariables = [...server.variables]
+  const index = newVariables.findIndex((variable) => variable.name === name)
+
+  newVariables[index].value = newValue
+
+  setServer({
+    variables: newVariables,
+  })
+}
+
+const getValue = (name: string) => {
+  const index = server.variables.findIndex((variable) => variable.name === name)
+
+  return server.variables[index].value ?? ''
+}
 </script>
 
 <template>
@@ -89,7 +107,8 @@ watch(
           <template v-if="variable.enum">
             <select
               :id="`variable-${name}`"
-              :value="variable.default ?? ''">
+              :value="getValue(name)"
+              @input="(event) => handleInput(name, event)">
               <option
                 v-for="enumValue in variable.enum"
                 :key="enumValue"
@@ -108,7 +127,8 @@ watch(
               placeholder="value"
               spellcheck="false"
               type="text"
-              :value="variable.default ?? ''" />
+              :value="getValue(name)"
+              @input="(event) => handleInput(name, event)" />
           </template>
         </div>
       </div>
