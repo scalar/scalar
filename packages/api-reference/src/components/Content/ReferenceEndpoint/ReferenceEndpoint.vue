@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getOperationSectionId } from '../../../helpers'
-import type { Server, Spec, TransformedOperation } from '../../../types'
+import type { Server, Spec, Tag, TransformedOperation } from '../../../types'
 import {
   Section,
   SectionColumn,
@@ -16,11 +16,12 @@ defineProps<{
   operation: TransformedOperation
   server: Server
   spec: Spec
+  tag: Tag
 }>()
 </script>
 <template>
   <Section
-    :id="getOperationSectionId(operation)"
+    :id="getOperationSectionId(operation, tag)"
     :label="operation.name || operation.path">
     <SectionContent>
       <SectionColumns>

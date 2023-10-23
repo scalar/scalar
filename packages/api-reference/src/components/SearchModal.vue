@@ -22,6 +22,7 @@ type FuseData = {
   httpVerb?: string
   path?: string
   tag?: string
+  operation?: TransformedOperation
 }
 
 let fuseDataArray: FuseData[] = []
@@ -66,8 +67,6 @@ watch(
 
 async function openSearchResult(entry: Fuse.FuseResult<FuseData>) {
   const tag = entry.item.tag
-  const path = entry.item.path
-  const httpVerb = entry.item.httpVerb
 
   if (!tag) {
     return
@@ -83,7 +82,11 @@ async function openSearchResult(entry: Fuse.FuseResult<FuseData>) {
   modalState.hide()
   await nextTick()
 
-  scrollToId(`operation//[${httpVerb}]${path}`)
+  if (entry.item.operation) {
+    scrollToId(getOperationSectionId(entry.item.operation, searchTag))
+  } else {
+    scrollToId(getTagSectionId(searchTag))
+  }
 }
 watch(
   reactiveSpec.value,
@@ -120,6 +123,7 @@ watch(
             httpVerb: operation.httpVerb,
             path: operation.path,
             tag: tag.name,
+            operation,
           }
 
           if (body) {

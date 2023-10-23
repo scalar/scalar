@@ -98,7 +98,8 @@ const moreThanOneDefaultTag = (tag: Tag) =>
               :key="`${operation.httpVerb}-${operation.operationId}`"
               :operation="operation"
               :server="localServers[0]"
-              :spec="spec" />
+              :spec="spec"
+              :tag="tag" />
           </template>
         </SectionContainer>
       </template>
