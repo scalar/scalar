@@ -21,7 +21,10 @@ import MobileHeader from './MobileHeader.vue'
 import SearchModal from './SearchModal.vue'
 import Sidebar from './Sidebar.vue'
 
-const props = defineProps<ReferenceProps>()
+const props = withDefaults(defineProps<ReferenceProps>(), {
+  showSidebar: undefined,
+  isEditable: undefined,
+})
 
 defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
