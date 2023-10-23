@@ -79,6 +79,69 @@ const handleHttpBearerTokenInput = (event: Event) => {
           :value="authentication.apiKey.token"
           @input="handleApiKeyTokenInput" />
       </div>
+      <div class="input">
+        <label> testsssr </label>
+        <input
+          autocomplete="off"
+          placeholder="Token"
+          spellcheck="false"
+          type="text"
+          value="yooo" />
+      </div>
+      <div class="input">
+        <label> testsssr </label>
+        <input
+          autocomplete="off"
+          placeholder="Token"
+          spellcheck="false"
+          type="text"
+          value="yooo" />
+      </div>
+      <div class="input">
+        <label> testsssr </label>
+        <input
+          autocomplete="off"
+          placeholder="Token"
+          spellcheck="false"
+          type="text"
+          value="yooo" />
+      </div>
+      <div class="input">
+        <label> testsssr </label>
+        <input
+          autocomplete="off"
+          placeholder="Token"
+          spellcheck="false"
+          type="text"
+          value="yooo" />
+      </div>
+      <div class="input">
+        <label> testsssr </label>
+        <input
+          autocomplete="off"
+          placeholder="Token"
+          spellcheck="false"
+          type="text"
+          value="yooo" />
+      </div>
+      <div class="input">
+        <label> testsssr </label>
+        <input
+          autocomplete="off"
+          placeholder="Token"
+          spellcheck="false"
+          type="text"
+          value="yooo" />
+      </div>
+      <div class="input">
+        <label> testsssr </label>
+        <input
+          autocomplete="off"
+          placeholder="Token"
+          spellcheck="false"
+          type="text"
+          value="yooo" />
+      </div>
     </div>
     <div v-else-if="value.type === 'http' || value.type === 'basic'">
       <div v-if="value.type === 'basic' || value.scheme === 'basic'">
@@ -130,24 +193,79 @@ const handleHttpBearerTokenInput = (event: Event) => {
 
 <style scoped>
 .security-scheme {
+  margin: 9px;
   color: var(--theme-color-1, var(--default-theme-color-1));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  position: relative;
+  box-shadow: 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
 }
-
+.security-scheme :deep(.input:nth-of-type(3) ~ .input) {
+  height: 0px;
+  opacity: 0;
+}
+.security-scheme :deep(.input:nth-of-type(3):not(:last-child):before) {
+  content: 'Show More...';
+  white-space: nowrap;
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  pointer-events: none;
+  position: absolute;
+  padding: 9px;
+}
+.security-scheme :deep(.input:hover:before) {
+  color: var(--theme-color-1, var(--default-theme-color-1)) !important;
+}
+.security-scheme:focus-within
+  :deep(.input:nth-of-type(3):not(:last-child):before) {
+  display: none;
+}
+.security-scheme:not(:focus-within)
+  :deep(.input:nth-of-type(3):not(:last-child)) {
+  box-shadow: none !important;
+}
+.security-scheme :deep(.input:nth-of-type(3):not(:last-child) input),
+.security-scheme :deep(.input:nth-of-type(3):not(:last-child) label) {
+  opacity: 0;
+}
+.security-scheme:focus-within :deep(.input:nth-of-type(3) input),
+.security-scheme:focus-within :deep(.input:nth-of-type(3) label),
+.security-scheme:focus-within :deep(.input:nth-of-type(3) ~ .input) {
+  opacity: 1;
+  height: fit-content;
+  transition: opacity 0.3s ease-in-out;
+}
 .description {
   margin-bottom: 12px;
 }
 
 .work-in-progress {
-  color: var(--theme-color-orange, var(--default-theme-color-orange));
-  border: 1px solid var(--theme-color-orange, var(--default-theme-color-orange));
-  padding: 24px;
-  margin: 12px;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  padding: 9px;
+  margin-bottom: 3px;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
   font-size: var(--theme-mini, var(--default-theme-mini));
+  display: flex;
+  box-shadow: 0 0 0 1px
+    var(--theme-color-yellow, var(--default-theme-color-yellow));
+  position: relative;
 }
-
+.work-in-progress:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--theme-color-yellow, var(--default-theme-color-yellow));
+  opacity: 0.1;
+}
 .work-in-progress-title {
-  font-weight: var(--theme-bold, var(--default-theme-bold));
-  margin-bottom: 12px;
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-right: 6px;
 }
 </style>

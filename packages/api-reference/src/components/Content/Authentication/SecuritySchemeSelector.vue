@@ -61,6 +61,13 @@ const getLabelForScheme = (item: any) => {
 </script>
 <template>
   <div class="security-scheme-selector">
+    <span>
+      {{
+        authentication.securitySchemeKey
+          ? getLabelForScheme(value[authentication.securitySchemeKey])
+          : ''
+      }}
+    </span>
     <svg
       fill="none"
       height="100%"
@@ -71,13 +78,6 @@ const getLabelForScheme = (item: any) => {
         d="m19.5 10-7.5 7.5-7.5-7.5"
         xmlns="http://www.w3.org/2000/svg"></path>
     </svg>
-    <span>
-      {{
-        authentication.securitySchemeKey
-          ? getLabelForScheme(value[authentication.securitySchemeKey])
-          : ''
-      }}
-    </span>
     <select
       @input="handleAuthenticationTypeInput"
       @value="authentication.securitySchemeKey">
@@ -101,10 +101,13 @@ const getLabelForScheme = (item: any) => {
   display: flex;
   align-items: center;
   gap: 4px;
+  cursor: pointer;
 }
-
+.security-scheme-selector:hover {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
 .security-scheme-selector span {
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-size: var(--theme-mini, var(--default-theme-mini));
 }
 .security-scheme-selector select {
   opacity: 0;
@@ -113,9 +116,11 @@ const getLabelForScheme = (item: any) => {
   bottom: 0;
   left: 0;
   right: 0;
+  cursor: pointer;
 }
 
 .security-scheme-selector svg {
   width: 12px;
+  stroke: currentColor;
 }
 </style>
