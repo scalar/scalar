@@ -23,7 +23,6 @@ describe('createEchoServer', () => {
             'accept': '*/*',
             'accept-language': '*',
             'sec-fetch-mode': 'cors',
-            'user-agent': 'undici',
             'accept-encoding': 'gzip, deflate',
           },
         })

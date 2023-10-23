@@ -35,6 +35,7 @@ function showItemInClient(operation: Operation) {
     operation,
     parameterMap.value,
     props.spec.servers[0],
+    props.spec,
   )
 
   setActiveRequest(item)

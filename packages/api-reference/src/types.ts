@@ -18,10 +18,6 @@ export type ReferenceProps = {
   initialTabState?: EditorHeaderTabs
 }
 
-export type Security = {
-  api_key?: any[]
-  petstore_auth?: string[]
-}
 export type Schema = {
   format: string
   type: string
@@ -45,7 +41,7 @@ export type Information = {
   operationId: string
   parameters: Parameters[]
   responses: Record<string, Response>
-  security: Security[]
+  security: OpenAPIV3.SecurityRequirementObject[]
   requestBody: RequestBody
   summary: string
   tags: string[]
@@ -171,4 +167,20 @@ export type Spec = {
   servers: Server[]
   components?: Components
   definitions?: Definitions
+}
+
+export type AuthenticationState = {
+  securitySchemeKey: string | null
+  http: {
+    basic: {
+      username: string
+      password: string
+    }
+    bearer: {
+      token: string
+    }
+  }
+  apiKey: {
+    token: string
+  }
 }

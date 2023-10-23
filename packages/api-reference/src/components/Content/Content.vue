@@ -8,6 +8,7 @@ import { useTemplateStore } from '../../stores/template'
 import type { Spec, Tag } from '../../types'
 import { FlowIcon } from '../Icon'
 import { SectionContainer } from '../Section'
+import { Authentication } from './Authentication'
 import EndpointsOverview from './EndpointsOverview.vue'
 import Introduction from './Introduction'
 import Models from './Models.vue'
@@ -63,7 +64,8 @@ const moreThanOneDefaultTag = (tag: Tag) =>
     <template v-if="ready">
       <Introduction
         :info="spec.info"
-        :servers="localServers" />
+        :servers="localServers"
+        :spec="spec" />
       <template
         v-for="(tag, index) in spec.tags"
         :key="tag.id">
@@ -95,7 +97,8 @@ const moreThanOneDefaultTag = (tag: Tag) =>
               v-for="operation in tag.operations"
               :key="`${operation.httpVerb}-${operation.operationId}`"
               :operation="operation"
-              :server="localServers[0]" />
+              :server="localServers[0]"
+              :spec="spec" />
           </template>
         </SectionContainer>
       </template>
@@ -159,3 +162,4 @@ const moreThanOneDefaultTag = (tag: Tag) =>
   }
 }
 </style>
+./Authentication
