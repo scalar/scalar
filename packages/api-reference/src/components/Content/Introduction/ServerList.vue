@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 
-import { type Server as ServerType } from '../../../types'
+import { type Server } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
-import Server from './Server.vue'
+import ServerItem from './ServerItem.vue'
 
 defineProps<{
-  value: ServerType[]
+  value: Server[]
 }>()
 
 const selectedServerIndex = ref<number>(0)
@@ -23,11 +23,13 @@ const selectedServerIndex = ref<number>(0)
         <MarkdownRenderer :value="value[selectedServerIndex].description" />
       </div>
     </CardContent>
+    <!-- Single URL -->
     <CardContent
       v-if="value.length === 1"
       muted>
-      <Server :value="value[selectedServerIndex]" />
+      <ServerItem :value="value[selectedServerIndex]" />
     </CardContent>
+    <!-- Multiple URLs -->
     <CardContent
       v-if="value.length > 1"
       muted>
@@ -43,9 +45,10 @@ const selectedServerIndex = ref<number>(0)
           </option>
         </select>
 
-        <Server :value="value[selectedServerIndex]" />
+        <ServerItem :value="value[selectedServerIndex]" />
       </div>
     </CardContent>
+    <!-- Variables -->
     <CardContent v-if="value[selectedServerIndex].variables">
       <div
         v-for="(variable, name) in value[selectedServerIndex].variables"

@@ -14,7 +14,7 @@ import { Authentication } from '../Authentication'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import ClientSelector from './ClientSelector.vue'
 import DownloadSpec from './DownloadSpec.vue'
-import Servers from './Servers.vue'
+import ServerList from './ServerList.vue'
 
 defineProps<{
   info: Info
@@ -43,7 +43,7 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
           </SectionColumn>
           <SectionColumn>
             <div class="sticky-cards flex-col gap-1">
-              <Servers :value="servers" />
+              <ServerList :value="servers" />
 
               <Authentication :spec="parsedSpec" />
 
