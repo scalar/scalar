@@ -26,7 +26,7 @@ defineProps<{
     <SectionContent>
       <SectionColumns>
         <SectionColumn>
-          <SectionHeader>
+          <SectionHeader :level="3">
             {{ operation.name || operation.path }}
           </SectionHeader>
           <Copy :operation="operation" />
