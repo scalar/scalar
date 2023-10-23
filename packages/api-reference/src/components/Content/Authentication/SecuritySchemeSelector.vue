@@ -96,7 +96,6 @@ const getLabelForScheme = (item: any) => {
 .security-scheme-selector {
   position: relative;
   display: flex;
-  background: var(--theme-background-2, var(--default-theme-background-2));
   border-radius: var(--theme-radius, var(--default-theme-radius));
   color: var(--theme-color-2, var(--default-theme-color-2));
   display: flex;

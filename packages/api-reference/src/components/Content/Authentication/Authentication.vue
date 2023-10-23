@@ -27,7 +27,7 @@ const showSecurityScheme = computed(() => {
 
 <template>
   <Card v-if="hasSecuritySchemes(spec)">
-    <CardHeader>
+    <CardHeader transparent>
       Authentication
       <template #actions>
         <div class="selector">
@@ -36,7 +36,9 @@ const showSecurityScheme = computed(() => {
         </div>
       </template>
     </CardHeader>
-    <CardContent v-if="showSecurityScheme">
+    <CardContent
+      v-if="showSecurityScheme"
+      transparent>
       <div class="scheme">
         <SecurityScheme
           v-if="authentication.securitySchemeKey"
@@ -52,7 +54,7 @@ const showSecurityScheme = computed(() => {
 
 <style scoped>
 .scheme {
-  padding: 12px 12px 10px;
+  padding: 12px;
 }
 
 .selector {
