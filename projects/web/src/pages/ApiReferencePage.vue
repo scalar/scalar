@@ -33,6 +33,5 @@ const configuration = reactive<ReferenceConfiguration>({
   </div> -->
   <ApiReference
     :configuration="configuration"
-    specUrl="/swagger.json"
     @changeTheme="(theme: ThemeId) => (configuration.theme = theme)" />
 </template>

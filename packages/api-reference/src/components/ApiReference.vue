@@ -42,6 +42,22 @@ function merge(source: Record<any, any>, target: Record<any, any>) {
 
 /** Merge the default configuration with the given configuration. */
 const currentConfiguration = computed((): ReferenceConfiguration => {
+  if (
+    props.spec ||
+    props.specUrl ||
+    props.specResult ||
+    props.proxyUrl ||
+    props.theme ||
+    props.initialTabState ||
+    props.showSidebar ||
+    props.isEditable ||
+    props.hocuspocusConfiguration
+  ) {
+    console.warn(
+      '[ApiReference] The <ApiReference /> component now accepts a single `configuration` prop. Please update your code.',
+    )
+  }
+
   return merge(props.configuration ?? {}, {
     spec: {
       content: props.spec ?? undefined,
