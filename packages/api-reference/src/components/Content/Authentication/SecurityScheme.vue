@@ -79,69 +79,6 @@ const handleHttpBearerTokenInput = (event: Event) => {
           :value="authentication.apiKey.token"
           @input="handleApiKeyTokenInput" />
       </div>
-      <div class="input">
-        <label> testsssr </label>
-        <input
-          autocomplete="off"
-          placeholder="Token"
-          spellcheck="false"
-          type="text"
-          value="yooo" />
-      </div>
-      <div class="input">
-        <label> testsssr </label>
-        <input
-          autocomplete="off"
-          placeholder="Token"
-          spellcheck="false"
-          type="text"
-          value="yooo" />
-      </div>
-      <div class="input">
-        <label> testsssr </label>
-        <input
-          autocomplete="off"
-          placeholder="Token"
-          spellcheck="false"
-          type="text"
-          value="yooo" />
-      </div>
-      <div class="input">
-        <label> testsssr </label>
-        <input
-          autocomplete="off"
-          placeholder="Token"
-          spellcheck="false"
-          type="text"
-          value="yooo" />
-      </div>
-      <div class="input">
-        <label> testsssr </label>
-        <input
-          autocomplete="off"
-          placeholder="Token"
-          spellcheck="false"
-          type="text"
-          value="yooo" />
-      </div>
-      <div class="input">
-        <label> testsssr </label>
-        <input
-          autocomplete="off"
-          placeholder="Token"
-          spellcheck="false"
-          type="text"
-          value="yooo" />
-      </div>
-      <div class="input">
-        <label> testsssr </label>
-        <input
-          autocomplete="off"
-          placeholder="Token"
-          spellcheck="false"
-          type="text"
-          value="yooo" />
-      </div>
     </div>
     <div v-else-if="value.type === 'http' || value.type === 'basic'">
       <div v-if="value.type === 'basic' || value.scheme === 'basic'">
@@ -243,9 +180,8 @@ const handleHttpBearerTokenInput = (event: Event) => {
 .work-in-progress {
   color: var(--theme-color-1, var(--default-theme-color-1));
   padding: 9px;
-  margin-bottom: 3px;
   border-radius: var(--theme-radius, var(--default-theme-radius));
-  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-size: var(--theme-micro, var(--default-theme-micro));
   display: flex;
   box-shadow: 0 0 0 1px
     var(--theme-color-yellow, var(--default-theme-color-yellow));
@@ -263,7 +199,7 @@ const handleHttpBearerTokenInput = (event: Event) => {
 }
 .work-in-progress-title {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-size: var(--theme-micro, var(--default-theme-micro));
   margin-top: 0;
   margin-bottom: 0;
   margin-right: 6px;

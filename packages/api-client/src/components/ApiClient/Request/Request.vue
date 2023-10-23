@@ -146,7 +146,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
     var(--theme-border-color, var(--default-theme-border-color));
 }
 .input:focus-within {
-  box-shadow: 0 0 0 1px var(--theme-color-1, var(--default-theme-color-1));
+  box-shadow: 0 0 0 1px var(--theme-color-1, var(--default-theme-color-1)) !important;
   z-index: 10;
 }
 .input:first-of-type {
@@ -157,6 +157,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   border-radius: var(--theme-radius, var(--default-theme-radius));
 }
 .input:last-child {
+  box-shadow: none;
   border-radius: 0 0 var(--theme-radius, var(--default-theme-radius))
     var(--theme-radius, var(--default-theme-radius));
 }
