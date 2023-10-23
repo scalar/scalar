@@ -141,6 +141,7 @@ const handleHttpBearerTokenInput = (event: Event) => {
   color: var(--theme-color-orange, var(--default-theme-color-orange));
   border: 1px solid var(--theme-color-orange, var(--default-theme-color-orange));
   padding: 24px;
+  margin: 12px;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   font-size: var(--theme-mini, var(--default-theme-mini));
 }

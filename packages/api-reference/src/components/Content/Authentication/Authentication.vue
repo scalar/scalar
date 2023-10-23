@@ -39,24 +39,16 @@ const showSecurityScheme = computed(() => {
     <CardContent
       v-if="showSecurityScheme"
       transparent>
-      <div class="scheme">
-        <SecurityScheme
-          v-if="authentication.securitySchemeKey"
-          :value="
-            spec?.components?.securitySchemes?.[
-              authentication.securitySchemeKey
-            ]
-          " />
-      </div>
+      <SecurityScheme
+        v-if="authentication.securitySchemeKey"
+        :value="
+          spec?.components?.securitySchemes?.[authentication.securitySchemeKey]
+        " />
     </CardContent>
   </Card>
 </template>
 
 <style scoped>
-.scheme {
-  padding: 12px;
-}
-
 .selector {
   margin-right: 12px;
 }
