@@ -66,26 +66,26 @@ const handleHttpBearerTokenInput = (event: Event) => {
     </div> -->
     <div v-if="!value.type"></div>
     <div v-else-if="value.type === 'apiKey'">
-      <div>
-        <div class="input">
-          <label :for="value.name">
-            {{ value.in.charAt(0).toUpperCase() + value.in.slice(1) }} API Key
-          </label>
-          <input
-            autocomplete="off"
-            placeholder="Token"
-            spellcheck="false"
-            type="text"
-            :value="authentication.apiKey.token"
-            @input="handleApiKeyTokenInput" />
-        </div>
+      <div class="input">
+        <label :for="`security-scheme-${value.name}`">
+          {{ value.in.charAt(0).toUpperCase() + value.in.slice(1) }} API Key
+        </label>
+        <input
+          :id="`security-scheme-${value.name}`"
+          autocomplete="off"
+          placeholder="Token"
+          spellcheck="false"
+          type="text"
+          :value="authentication.apiKey.token"
+          @input="handleApiKeyTokenInput" />
       </div>
     </div>
     <div v-else-if="value.type === 'http' || value.type === 'basic'">
       <div v-if="value.type === 'basic' || value.scheme === 'basic'">
         <div class="input">
-          <label for="username">Username</label>
+          <label for="http.basic.username">Username</label>
           <input
+            id="http.basic.username"
             autocomplete="off"
             placeholder="Username"
             spellcheck="false"
@@ -94,10 +94,11 @@ const handleHttpBearerTokenInput = (event: Event) => {
             @input="handleHttpBasicUsernameInput" />
         </div>
         <div class="input">
-          <label for="password">Password</label>
+          <label for="http.basic.password">Password</label>
           <input
+            id="http.basic.password"
             autocomplete="off"
-            placeholder="Username"
+            placeholder="Password"
             spellcheck="false"
             type="password"
             :value="authentication.http.basic.password"
@@ -106,8 +107,9 @@ const handleHttpBearerTokenInput = (event: Event) => {
       </div>
       <div v-else-if="value.scheme === 'bearer'">
         <div class="input">
-          <label for="token">Token</label>
+          <label for="http.bearer.token">Token</label>
           <input
+            id="http.bearer.token"
             autocomplete="off"
             placeholder="Token"
             spellcheck="false"
