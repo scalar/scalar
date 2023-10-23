@@ -52,7 +52,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 }
 .scalar-api-client__item__content {
   flex-flow: wrap;
-  padding: 3px 6px 6px 6px;
+  padding: 3px 9px 9px 9px;
   border-radius: 3px;
   color: var(--theme-color-3, var(--default-theme-color-3));
   font-size: var(--theme-micro, var(--default-theme-micro));
@@ -91,7 +91,6 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .scalar-api-client__item__content-button {
-  width: 100%;
   appearance: none;
   border: none;
   outline: none;
@@ -103,12 +102,33 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   text-align: center;
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-family: var(--theme-font, var(--default-theme-font));
-  padding: 12px;
+  padding: 6px;
+  width: fit-content;
+  margin: 3px 3px 3px auto;
   text-transform: uppercase;
   border-radius: var(--theme-radius, var(--default-theme-radius));
   color: white;
   cursor: pointer;
   text-align: center !important;
+  position: relative;
+}
+.scalar-api-client__item__content-button span {
+  position: relative;
+}
+.scalar-api-client__item__content-button:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  cursor: pointer;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2));
+}
+.scalar-api-client__item__content-button:hover:before {
+  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1));
 }
 .scalar-api-client__item__content__split {
   justify-content: space-between;
@@ -117,23 +137,49 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   width: 100%;
 }
 .input {
-  background: var(--theme-background-2, var(--default-theme-background-2));
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+  background: transparent;
   position: relative;
   width: 100%;
   text-align: left;
-  margin-bottom: 6px;
-}
-.input__half {
-  width: calc(50% - 3px);
+  display: flex;
+  box-shadow: 0 1px 0
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 .input:focus-within {
-  border-color: var(--theme-color-1, var(--default-theme-color-1));
+  box-shadow: 0 0 0 1px var(--theme-color-1, var(--default-theme-color-1));
+  z-index: 10;
+}
+.input:first-of-type {
+  border-radius: var(--theme-radius, var(--default-theme-radius))
+    var(--theme-radius, var(--default-theme-radius)) 0 0;
+}
+.input__half:first-of-type {
+  border-radius: var(--theme-radius, var(--default-theme-radius)) 0 0 0;
+}
+.input__half:nth-of-type(2) {
+  border-radius: 0 var(--theme-radius, var(--default-theme-radius)) 0 0;
+}
+.authentication-form {
+  box-shadow: 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  width: 100%;
+  display: flex;
+  flex-flow: wrap;
+}
+.input__half {
+  width: 50%;
+}
+.input__half + .input__half {
+  border-left: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+}
+.input__half:focus-within {
+  border-color: transparent;
 }
 .input label,
 .input input {
-  padding: 12px;
+  padding: 9px;
   border: 0;
   outline: none;
   font-size: var(--theme-micro, var(--default-theme-micro));
@@ -145,24 +191,20 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   left: 0;
 }
 .input label {
-  position: absolute;
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  width: fit-content;
+  padding-right: 0;
+  white-space: nowrap;
+  cursor: text;
 }
 .input input {
   opacity: 0;
   position: relative;
   z-index: 99;
-  padding: 18px 12px 6px 12px;
 }
 .input input:not(:placeholder-shown),
 .input:focus-within input {
   opacity: 1;
-}
-.input input:not(:placeholder-shown) + label,
-.input:focus-within label {
-  font-size: 10px;
-  top: -6px;
-  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .input input:not(:placeholder-shown) + label {
   color: var(--theme-color-2, var(--default-theme-color-2));
@@ -184,7 +226,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 }
 .select svg {
   position: absolute;
-  right: 12px;
+  right: 9px;
   pointer-events: none;
   color: var(--theme-color-2, var(--default-theme-color-2));
   width: 6px;
@@ -195,7 +237,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   font-size: 10px;
   color: var(--theme-color-2, var(--default-theme-color-2));
   position: absolute;
-  left: 12px;
+  left: 9px;
   top: 6px;
 }
 .select select {
@@ -207,7 +249,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   color: var(--theme-color-1, var(--default-theme-color-1));
   appearance: none;
   width: 100%;
-  padding: 18px 12px 6px 12px;
+  padding: 14px 9px 4px 9px;
   top: 0;
   position: relative;
   cursor: pointer;
@@ -219,12 +261,15 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   cursor: pointer;
   align-items: center;
   font-size: var(--theme-micro, var(--default-theme-micro));
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  border-radius: 3px;
-  padding: 10px 12px;
+  padding: 6px 9px;
+  border-radius: 0 0 var(--theme-radius, var(--default-theme-radius))
+    var(--theme-radius, var(--default-theme-radius));
   user-select: none;
-  min-height: 38px;
   width: 100%;
+  outline: none;
+}
+.check:focus-within {
+  box-shadow: 0 0 0 1px var(--theme-color-1, var(--default-theme-color-1));
 }
 .checkmark:hover {
   background: var(--theme-background-3, var(--default-theme-background-3));
@@ -233,8 +278,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   border-color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .check p {
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
 .check input {
   position: absolute;
@@ -247,8 +291,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
 .checkmark {
   height: 17px;
   width: 17px;
-  box-shadow: 0 0 0 1px
-    var(--theme-border-color, var(--default-theme-border-color));
+  background: var(--theme-background-3, var(--default-theme-background-3));
   margin-right: 10px;
   border-radius: 3px;
   display: flex;

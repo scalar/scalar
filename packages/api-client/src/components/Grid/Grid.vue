@@ -310,8 +310,7 @@ const showDescription = ref(false)
 .meta-checkmark {
   height: 17px;
   width: 17px;
-  box-shadow: 0 0 0 1px
-    var(--theme-border-color, var(--default-theme-border-color));
+  background: var(--theme-background-3, var(--default-theme-background-3));
   border-radius: 3px;
   display: flex;
   align-items: center;
@@ -606,20 +605,20 @@ const showDescription = ref(false)
   position: absolute;
   right: -9px;
   background: var(
-    --theme-background-2,
-    var(--default-theme-background-2)
+    --theme-background-3,
+    var(--default-theme-background-3)
   ) !important;
   height: 20px;
   width: 20px;
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  box-shadow: var(--default-theme-shadow-1);
+  border: none;
   outline: none;
   border-radius: 50%;
   opacity: 0;
-  padding: 4px;
+  padding: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 .meta-delete svg {
   width: 11px;

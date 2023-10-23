@@ -215,7 +215,7 @@ defineExpose({
 .scalar-api-client__codemirror {
   flex-grow: 1;
   max-width: 100%;
-
+  cursor: text;
   font-size: var(--theme-small, var(--default-theme-small));
 }
 
