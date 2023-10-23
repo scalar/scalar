@@ -29,6 +29,7 @@ export default defineConfig({
         '@lezer/lr',
         '@uiw/codemirror-themes',
         'codemirror',
+        'vue',
       ],
     },
   },
