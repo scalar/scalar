@@ -104,6 +104,25 @@ describe('generateResponseContent', () => {
         },
       }),
     ).toMatchObject({
+      title: '',
+    })
+  })
+
+  it('uses empty quotes as a fallback for strings', () => {
+    expect(
+      generateResponseContent(
+        {
+          properties: {
+            title: {
+              type: 'string',
+            },
+          },
+        },
+        {
+          emptyString: '…',
+        },
+      ),
+    ).toMatchObject({
       title: '…',
     })
   })
@@ -176,7 +195,7 @@ describe('generateResponseContent', () => {
           required: [
             {
               foo: 0,
-              bar: '…',
+              bar: '',
             },
           ],
         },
@@ -184,7 +203,7 @@ describe('generateResponseContent', () => {
     ).toMatchObject([
       {
         foo: 0,
-        bar: '…',
+        bar: '',
       },
     ])
   })
@@ -327,7 +346,7 @@ describe('generateResponseContent', () => {
       tags: [
         {
           id: 1,
-          name: '…',
+          name: '',
         },
       ],
       status: 'available',

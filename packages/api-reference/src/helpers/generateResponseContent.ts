@@ -3,6 +3,13 @@
  */
 export const generateResponseContent = (
   schema: Record<string, any>,
+  options?: {
+    /**
+     * The fallback string for empty string values.
+     * @default ''
+     **/
+    emptyString: string
+  },
   level: number = 0,
 ): any => {
   // Break an infinite loop
@@ -16,7 +23,7 @@ export const generateResponseContent = (
     }
 
     if (schema.items.type === 'object') {
-      return [generateResponseContent(schema.items, level + 1)]
+      return [generateResponseContent(schema.items, options, level + 1)]
     }
 
     return []
@@ -51,14 +58,18 @@ export const generateResponseContent = (
 
     // properties: { … }
     if (property.properties !== undefined) {
-      response[name] = generateResponseContent(property, level + 1)
+      response[name] = generateResponseContent(property, options, level + 1)
 
       return
     }
 
     // items: { properties: { … } }
     if (property.items?.properties !== undefined) {
-      const children = generateResponseContent(property.items, level + 1)
+      const children = generateResponseContent(
+        property.items,
+        options,
+        level + 1,
+      )
 
       if (property?.type === 'array') {
         response[name] = [children]
@@ -73,7 +84,7 @@ export const generateResponseContent = (
     const exampleValues: Record<string, any> = {
       // TODO: Need to check the schema and add a default value
       array: [],
-      string: '…',
+      string: options?.emptyString ?? '',
       boolean: true,
       integer: 1,
       number: property.min ?? 0,

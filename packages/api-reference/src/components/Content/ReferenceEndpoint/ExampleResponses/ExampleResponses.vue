@@ -146,7 +146,13 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
               v-if="currentJsonResponse?.schema.type"
               :content="
                 prettyPrintJson(
-                  generateResponseContent(currentJsonResponse?.schema),
+                  generateResponseContent(
+                    currentJsonResponse?.schema,
+
+                    {
+                      emptyString: '…',
+                    },
+                  ),
                 )
               "
               :languages="['json']"
@@ -174,7 +180,11 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                     class="rule-item">
                     <CodeMirror
                       :content="
-                        prettyPrintJson(generateResponseContent(example))
+                        prettyPrintJson(
+                          generateResponseContent(example, {
+                            emptyString: '…',
+                          }),
+                        )
                       "
                       :languages="['json']"
                       readOnly />
@@ -190,6 +200,9 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                   prettyPrintJson(
                     generateResponseContent(
                       currentJsonResponse?.schema[rule][0],
+                      {
+                        emptyString: '…',
+                      },
                     ),
                   )
                 "
@@ -203,7 +216,9 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                 prettyPrintJson(
                   mergeAllObjects(
                     currentJsonResponse?.schema['allOf'].map((schema: any) =>
-                      generateResponseContent(schema),
+                      generateResponseContent(schema, {
+                        emptyString: '…',
+                      }),
                     ),
                   ),
                 )
