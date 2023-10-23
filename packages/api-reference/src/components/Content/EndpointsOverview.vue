@@ -38,7 +38,7 @@ async function scrollHandler(operation: TransformedOperation) {
     <SectionContent>
       <SectionColumns>
         <SectionColumn>
-          <SectionHeader>
+          <SectionHeader :level="2">
             {{ tag.name }}
           </SectionHeader>
           <MarkdownRenderer :value="tag.description" />

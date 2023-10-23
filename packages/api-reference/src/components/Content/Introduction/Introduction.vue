@@ -31,6 +31,7 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
         <SectionColumns>
           <SectionColumn>
             <SectionHeader
+              :level="1"
               :loading="!info.title"
               tight>
               {{ info.title }}

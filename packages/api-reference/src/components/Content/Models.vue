@@ -45,7 +45,7 @@ const models = computed(() => {
       :label="name">
       <template v-if="components?.schemas?.[name]">
         <SectionContent>
-          <SectionHeader>
+          <SectionHeader :level="2">
             {{ name }}
           </SectionHeader>
           <!-- Schema -->
