@@ -7,6 +7,25 @@ import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 
 export type ReferenceProps = {
   configuration?: ReferenceConfiguration
+} & {
+  /** @deprecated Use the `configuration` prop instead. */
+  spec?: string
+  /** @deprecated Use the `configuration` prop instead. */
+  specUrl?: string
+  /** @deprecated Use the `configuration` prop instead. */
+  specResult?: Record<any, any>
+  /** @deprecated Use the `configuration` prop instead. */
+  proxyUrl?: string
+  /** @deprecated Use the `configuration` prop instead. */
+  theme?: ThemeId
+  /** @deprecated Use the `configuration` prop instead. */
+  initialTabState?: EditorHeaderTabs
+  /** @deprecated Use the `configuration` prop instead. */
+  showSidebar?: boolean
+  /** @deprecated Use the `configuration` prop instead. */
+  isEditable?: boolean
+  /** @deprecated Use the `configuration` prop instead. */
+  hocuspocusConfiguration?: HocuspocusConfigurationProp
 }
 
 export type ReferenceConfiguration = {

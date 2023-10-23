@@ -3,6 +3,7 @@ import {
   ApiReference,
   type ReferenceConfiguration,
 } from '@scalar/api-reference'
+import { type ThemeId } from '@scalar/themes'
 import { reactive } from 'vue'
 
 const configuration = reactive<ReferenceConfiguration>({
@@ -32,5 +33,6 @@ const configuration = reactive<ReferenceConfiguration>({
   </div> -->
   <ApiReference
     :configuration="configuration"
-    @changeTheme="(theme) => (configuration.theme = theme)" />
+    specUrl="/swagger.json"
+    @changeTheme="(theme: ThemeId) => (configuration.theme = theme)" />
 </template>

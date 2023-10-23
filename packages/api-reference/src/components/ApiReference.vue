@@ -27,14 +27,36 @@ defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
 }>()
 
+/** Deep merge for objects */
+function merge(source: Record<any, any>, target: Record<any, any>) {
+  for (const [key, val] of Object.entries(source)) {
+    if (val !== null && typeof val === `object`) {
+      target[key] ??= new val.__proto__.constructor()
+      merge(val, target[key])
+    } else {
+      target[key] = val
+    }
+  }
+  return target // we're replacing in-situ, so this is more for chaining than anything else
+}
+
 /** Merge the default configuration with the given configuration. */
 const currentConfiguration = computed((): ReferenceConfiguration => {
-  return {
-    showSidebar: true,
-    isEditable: false,
-    theme: 'default',
-    ...props.configuration,
-  }
+  return merge(props.configuration ?? {}, {
+    spec: {
+      content: props.spec ?? undefined,
+      url: props.specUrl ?? undefined,
+      preparsedContent: props.specResult ?? undefined,
+    },
+    proxy: props.proxyUrl ?? undefined,
+    theme: props.theme ?? 'default',
+    tabs: {
+      initialContent: props.initialTabState ?? 'Getting Started',
+    },
+    showSidebar: props.showSidebar ?? true,
+    isEditable: props.isEditable ?? false,
+    hocuspocusConfiguration: props.hocuspocusConfiguration ?? undefined,
+  })
 })
 
 /**
@@ -181,23 +203,9 @@ const showCodeEditor = computed(() => {
     currentConfiguration.value?.isEditable
   )
 })
-
-// Navigational breadcrumb text from reference info
-const breadCrumbs = computed(() => {
-  const operations = transformedSpec.tags
-    .map((t) => (t.operations || []).flatMap((o) => ({ ...o, tag: t.name })))
-    .flat()
-
-  const op = operations.find((o) => {
-    return `${o.httpVerb}-${o.operationId}` === state.activeSidebar
-  })
-
-  console.log(op, operations, state.activeSidebar)
-
-  return op ? `${op.tag.toUpperCase()} / ${op.name}` : ''
-})
 </script>
 <template>
+  {{ currentConfiguration }}
   <ThemeStyles :id="currentConfiguration?.theme" />
   <FlowToastContainer />
   <div
