@@ -73,7 +73,7 @@ export const generateResponseContent = (
     const exampleValues: Record<string, any> = {
       // TODO: Need to check the schema and add a default value
       array: [],
-      string: '',
+      string: '…',
       boolean: true,
       integer: 1,
       number: property.min ?? 0,

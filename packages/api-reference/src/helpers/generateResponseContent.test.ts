@@ -104,7 +104,7 @@ describe('generateResponseContent', () => {
         },
       }),
     ).toMatchObject({
-      title: '',
+      title: '…',
     })
   })
 
@@ -176,7 +176,7 @@ describe('generateResponseContent', () => {
           required: [
             {
               foo: 0,
-              bar: '',
+              bar: '…',
             },
           ],
         },
@@ -184,7 +184,7 @@ describe('generateResponseContent', () => {
     ).toMatchObject([
       {
         foo: 0,
-        bar: '',
+        bar: '…',
       },
     ])
   })
@@ -327,7 +327,7 @@ describe('generateResponseContent', () => {
       tags: [
         {
           id: 1,
-          name: '',
+          name: '…',
         },
       ],
       status: 'available',
