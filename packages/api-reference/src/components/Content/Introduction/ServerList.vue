@@ -114,7 +114,7 @@ const getValue = (name: string) => {
         :key="name">
         <div class="input">
           <label :for="`variable-${name}`">
-            <code>{{ `\{${name}\}` }}</code>
+            <code>{{ name }}</code>
           </label>
           <template v-if="variable.enum">
             <select
