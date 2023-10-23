@@ -37,13 +37,12 @@ const models = computed(() => {
 })
 </script>
 <template>
-  <SectionContainer
-    v-if="components"
-    :id="getModelSectionId()">
+  <SectionContainer v-if="components">
     <Section
       v-for="(name, index) in models"
       :id="getModelSectionId(name)"
-      :key="name">
+      :key="name"
+      :label="name">
       <template v-if="components?.schemas?.[name]">
         <SectionContent>
           <SectionHeader>

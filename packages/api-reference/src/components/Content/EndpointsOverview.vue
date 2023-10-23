@@ -32,7 +32,9 @@ async function scrollHandler(operation: TransformedOperation) {
 }
 </script>
 <template>
-  <Section :id="getTagSectionId(tag)">
+  <Section
+    :id="getTagSectionId(tag)"
+    :label="tag.name.toUpperCase()">
     <SectionContent>
       <SectionColumns>
         <SectionColumn>

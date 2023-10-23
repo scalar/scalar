@@ -8,6 +8,10 @@ const props = defineProps<{
   is?: string
 }>()
 
+const emit = defineEmits<{
+  (e: 'intersecting'): void
+}>()
+
 const { setSidebarIdVisibility } = useApiClientStore()
 const intersectionObserverRef = ref<HTMLElement>()
 
@@ -22,8 +26,8 @@ onMounted(() => {
       setSidebarIdVisibility(props.id, isIntersecting)
 
       if (isIntersecting) {
+        emit('intersecting')
         const newUrl = `${window.location.origin}${window.location.pathname}#${props.id}`
-
         window.history.replaceState({}, '', newUrl)
       }
     },

@@ -1,16 +1,26 @@
 <script setup lang="ts">
+import { useApiClientStore } from '@scalar/api-client'
+
 import IntersectionObserver from '../IntersectionObserver.vue'
 
-defineProps<{
+const props = defineProps<{
   id?: string
+  label?: string
 }>()
-</script>
 
+const { setBreadcrumb } = useApiClientStore()
+
+function handleScroll() {
+  if (!props.label) return
+  setBreadcrumb(props.label)
+}
+</script>
 <template>
   <IntersectionObserver
     is="section"
     :id="id"
-    class="section">
+    class="section"
+    @intersecting="handleScroll">
     <slot />
   </IntersectionObserver>
 </template>
