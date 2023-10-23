@@ -3,7 +3,7 @@ import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { computed, ref } from 'vue'
 
-import { generateResponseContent, mapFromObject } from '../../../../helpers'
+import { getExampleFromSchema, mapFromObject } from '../../../../helpers'
 import type { TransformedOperation } from '../../../../types'
 import {
   Card,
@@ -146,7 +146,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
               v-if="currentJsonResponse?.schema.type"
               :content="
                 prettyPrintJson(
-                  generateResponseContent(
+                  getExampleFromSchema(
                     currentJsonResponse?.schema,
 
                     {
@@ -181,7 +181,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                     <CodeMirror
                       :content="
                         prettyPrintJson(
-                          generateResponseContent(example, {
+                          getExampleFromSchema(example, {
                             emptyString: '…',
                           }),
                         )
@@ -198,12 +198,9 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                 "
                 :content="
                   prettyPrintJson(
-                    generateResponseContent(
-                      currentJsonResponse?.schema[rule][0],
-                      {
-                        emptyString: '…',
-                      },
-                    ),
+                    getExampleFromSchema(currentJsonResponse?.schema[rule][0], {
+                      emptyString: '…',
+                    }),
                   )
                 "
                 :languages="['json']"
@@ -216,7 +213,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                 prettyPrintJson(
                   mergeAllObjects(
                     currentJsonResponse?.schema['allOf'].map((schema: any) =>
-                      generateResponseContent(schema, {
+                      getExampleFromSchema(schema, {
                         emptyString: '…',
                       }),
                     ),

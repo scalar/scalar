@@ -3,7 +3,7 @@ import type { ClientRequestConfig } from '@scalar/api-client'
 import { type ParamMap } from '../hooks'
 import type { Operation, Server } from '../types'
 import { generateParameters } from './generateParameters'
-import { generateResponseContent } from './generateResponseContent'
+import { getExampleFromSchema } from './getExampleFromSchema'
 
 /**
  * Generate parameters for the request
@@ -16,7 +16,7 @@ export function generateRequest(
   const schema =
     operation?.information.requestBody?.content['application/json']?.schema
   const body = schema
-    ? JSON.stringify(generateResponseContent(schema), null, 2)
+    ? JSON.stringify(getExampleFromSchema(schema), null, 2)
     : undefined
 
   let headers = generateParameters(parameterMap.header)

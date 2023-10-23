@@ -1,10 +1,10 @@
-import { generateResponseContent } from 'src/helpers/generateResponseContent'
+import { getExampleFromSchema } from 'src/helpers/getExampleFromSchema'
 import { describe, expect, it } from 'vitest'
 
-describe('generateResponseContent', () => {
+describe('getExampleFromSchema', () => {
   it('sets example values', () => {
     expect(
-      generateResponseContent({
+      getExampleFromSchema({
         properties: {
           id: {
             example: 10,
@@ -18,7 +18,7 @@ describe('generateResponseContent', () => {
 
   it('takes the first enum as example', () => {
     expect(
-      generateResponseContent({
+      getExampleFromSchema({
         properties: {
           status: {
             enum: ['available', 'pending', 'sold'],
@@ -32,7 +32,7 @@ describe('generateResponseContent', () => {
 
   it('goes through properties recursively with objects', () => {
     expect(
-      generateResponseContent({
+      getExampleFromSchema({
         properties: {
           category: {
             type: 'object',
@@ -57,7 +57,7 @@ describe('generateResponseContent', () => {
 
   it('goes through properties recursively with arrays', () => {
     expect(
-      generateResponseContent({
+      getExampleFromSchema({
         properties: {
           tags: {
             type: 'array',
@@ -82,7 +82,7 @@ describe('generateResponseContent', () => {
 
   it('uses empty quotes as a fallback for arrays', () => {
     expect(
-      generateResponseContent({
+      getExampleFromSchema({
         properties: {
           title: {
             type: 'array',
@@ -96,7 +96,7 @@ describe('generateResponseContent', () => {
 
   it('uses empty quotes as a fallback for strings', () => {
     expect(
-      generateResponseContent({
+      getExampleFromSchema({
         properties: {
           title: {
             type: 'string',
@@ -110,7 +110,7 @@ describe('generateResponseContent', () => {
 
   it('uses empty quotes as a fallback for strings', () => {
     expect(
-      generateResponseContent(
+      getExampleFromSchema(
         {
           properties: {
             title: {
@@ -129,7 +129,7 @@ describe('generateResponseContent', () => {
 
   it('uses true as a fallback for booleans', () => {
     expect(
-      generateResponseContent({
+      getExampleFromSchema({
         properties: {
           public: {
             type: 'boolean',
@@ -143,7 +143,7 @@ describe('generateResponseContent', () => {
 
   it('uses 1 as a fallback for integers', () => {
     expect(
-      generateResponseContent({
+      getExampleFromSchema({
         properties: {
           id: {
             type: 'integer',
@@ -157,7 +157,7 @@ describe('generateResponseContent', () => {
 
   it('returns an array if the schema type is array', () => {
     expect(
-      generateResponseContent({
+      getExampleFromSchema({
         type: 'array',
         items: {
           type: 'string',
@@ -168,7 +168,7 @@ describe('generateResponseContent', () => {
 
   it('uses array example values', () => {
     expect(
-      generateResponseContent({
+      getExampleFromSchema({
         type: 'array',
         example: ['foobar'],
         items: {
@@ -180,7 +180,7 @@ describe('generateResponseContent', () => {
 
   it('uses specified object as array default', () => {
     expect(
-      generateResponseContent({
+      getExampleFromSchema({
         type: 'array',
         items: {
           type: 'object',
@@ -223,7 +223,7 @@ describe('generateResponseContent', () => {
       },
     }
 
-    expect(generateResponseContent(schema)).toMatchObject({
+    expect(getExampleFromSchema(schema)).toMatchObject({
       statusCode: 400,
       errorCode: 'BAD_REQUEST_EXCEPTION',
     })
@@ -231,7 +231,7 @@ describe('generateResponseContent', () => {
 
   it('uses 0 as the default for a number', () => {
     expect(
-      generateResponseContent({
+      getExampleFromSchema({
         type: 'object',
         properties: {
           statusCode: {
@@ -246,7 +246,7 @@ describe('generateResponseContent', () => {
 
   it('uses min as the default for a number', () => {
     expect(
-      generateResponseContent({
+      getExampleFromSchema({
         type: 'object',
         properties: {
           statusCode: {
@@ -335,7 +335,7 @@ describe('generateResponseContent', () => {
       },
     }
 
-    expect(generateResponseContent(schema)).toMatchObject({
+    expect(getExampleFromSchema(schema)).toMatchObject({
       id: 10,
       name: 'doggie',
       category: {
