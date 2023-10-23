@@ -17,6 +17,20 @@ const selectedServerIndex = ref<number>(0)
   <Card v-if="value.length > 0">
     <CardHeader muted>Base URL</CardHeader>
     <CardContent muted>
+      <div
+        v-if="value[selectedServerIndex].description"
+        class="variable-description">
+        <MarkdownRenderer :value="value[selectedServerIndex].description" />
+      </div>
+    </CardContent>
+    <CardContent
+      v-if="value.length === 1"
+      muted>
+      <Server :value="value[selectedServerIndex]" />
+    </CardContent>
+    <CardContent
+      v-if="value.length > 1"
+      muted>
       <div class="server-selector">
         <select
           :value="selectedServerIndex"
@@ -38,7 +52,7 @@ const selectedServerIndex = ref<number>(0)
         :key="name">
         <div class="input">
           <label :for="`variable-${name}`">
-            {{ `\{\{ ${name} \}\}` }}
+            {{ `\{${name}\}` }}
           </label>
           <template v-if="variable.enum">
             <select
@@ -51,22 +65,20 @@ const selectedServerIndex = ref<number>(0)
                 {{ enumValue }}
               </option>
             </select>
+            <div class="input-value">
+              {{ variable.default }}
+            </div>
           </template>
           <template v-else>
             <input
               :id="`variable-${name}`"
               autocomplete="off"
-              placeholder="Generated Token"
+              placeholder="value"
               spellcheck="false"
               type="text"
               :value="variable.default ?? ''" />
           </template>
         </div>
-        <!-- <div
-          v-if="variable.description"
-          class="variable-description">
-          <MarkdownRenderer :value="variable.description" />
-        </div> -->
       </div>
     </CardContent>
   </Card>
@@ -87,7 +99,27 @@ const selectedServerIndex = ref<number>(0)
   top: 0;
 }
 
-.input-select {
-  display: flex;
+.input select {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+}
+
+.input-value {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  padding: 9px;
+}
+
+.variable-description {
+  padding: 6px 12px;
+  font-size: var(--theme-small, var(--default-theme-small));
+}
+
+.input {
+  align-items: center;
 }
 </style>

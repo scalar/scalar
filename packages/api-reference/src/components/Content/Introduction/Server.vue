@@ -16,8 +16,8 @@ const formattedServerUrl = computed(() => {
 
   /* Replace all variables (example: {{ baseurl }} with an HTML tag) */
   return urlWithoutHtml.replace(
-    /{{\s*([\w.-]+)\s*}}/g,
-    '<span class="base-url-variable">{{ $1 }}</span>',
+    /{\s*([\w.-]+)\s*}/g,
+    '<span class="base-url-variable">{$1}</span>',
   )
 })
 </script>
