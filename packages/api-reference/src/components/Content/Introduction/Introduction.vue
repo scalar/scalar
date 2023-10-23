@@ -12,9 +12,9 @@ import {
 } from '../../Section'
 import { Authentication } from '../Authentication'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
-import BaseUrl from './BaseUrl.vue'
 import ClientSelector from './ClientSelector.vue'
 import DownloadSpec from './DownloadSpec.vue'
+import Servers from './Servers.vue'
 
 defineProps<{
   info: Info
@@ -43,17 +43,9 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
           </SectionColumn>
           <SectionColumn>
             <div class="sticky-cards flex-col gap-1">
-              <Card v-if="servers.length > 0">
-                <CardHeader muted>
-                  Base URL{{ servers?.length > 1 ? 's' : '' }}
-                </CardHeader>
-                <CardContent
-                  v-for="server in servers"
-                  :key="server.url"
-                  muted>
-                  <BaseUrl :server="server" />
-                </CardContent>
-              </Card>
+              <Servers :value="servers" />
+
+              <Authentication :spec="parsedSpec" />
 
               <Card>
                 <CardHeader transparent>Client Libraries</CardHeader>

@@ -5,13 +5,13 @@ import { computed } from 'vue'
 import { type Server } from '../../../types'
 
 const props = defineProps<{
-  server?: Server
+  value?: Server
 }>()
 
 const { copyToClipboard } = useClipboard()
 
 const formattedServerUrl = computed(() => {
-  const url = props.server?.url ?? ''
+  const url = props.value?.url ?? ''
   const urlWithoutHtml = url.replace(/(<([^>]+)>)/gi, '')
 
   /* Replace all variables (example: {{ baseurl }} with an HTML tag) */
@@ -22,11 +22,11 @@ const formattedServerUrl = computed(() => {
 })
 </script>
 <template>
-  <template v-if="server">
+  <template v-if="value">
     <a
       class="base-url"
-      :title="server.description"
-      @click="copyToClipboard(server.url)"
+      :title="value.description"
+      @click="copyToClipboard(value.url)"
       v-html="formattedServerUrl" />
   </template>
 </template>

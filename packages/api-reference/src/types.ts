@@ -197,6 +197,14 @@ export type ExternalDocs = {
 export type Server = {
   url: string
   description?: string
+  variables?: Record<
+    string,
+    {
+      default?: string | number
+      description?: string
+      enum?: (string | number)[]
+    }
+  >
 }
 
 export type Components =
