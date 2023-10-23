@@ -73,149 +73,162 @@ const authDropdownItems = [
       <div class="scalar-api-client__empty-state">No Authentication</div>
     </template>
     <template v-else>
-      <template v-if="authState.type === 'basic'">
-        <div class="input input__half">
-          <input
-            v-model="authState.basic.username"
-            autocomplete="off"
-            placeholder="Username"
-            spellcheck="false"
-            type="text" />
-          <label for="Username">Username</label>
-        </div>
-        <div class="input input__half">
-          <input
-            v-model="authState.basic.password"
-            autocomplete="off"
-            placeholder="Username"
-            spellcheck="false"
-            type="password" />
-          <label for="Password">Password</label>
-        </div>
-        <label class="check">
-          <input
-            v-model="authState.basic.active"
-            type="checkbox" />
-          <span class="checkmark" />
-          <p>Enabled</p>
-        </label>
-      </template>
-      <template v-else-if="authState.type === 'digest'">
-        <div class="input input__half">
-          <input
-            v-model="authState.digest.username"
-            autocomplete="off"
-            placeholder="Username"
-            spellcheck="false"
-            type="text" />
-          <label for="Username">Username</label>
-        </div>
-        <div class="input input__half">
-          <input
-            v-model="authState.digest.password"
-            autocomplete="off"
-            placeholder="Password"
-            spellcheck="false"
-            type="password" />
-          <label for="Password">Password</label>
-        </div>
-        <label class="check">
-          <input
-            v-model="authState.digest.active"
-            type="checkbox" />
-          <span class="checkmark" />
-          <p>Enabled</p>
-        </label>
-      </template>
-      <template v-else-if="authState.type === 'oauthTwo'">
-        <div class="input">
-          <input
-            v-model="authState.oauthTwo.generatedToken"
-            autocomplete="off"
-            placeholder="Generated Token"
-            spellcheck="false"
-            type="text" />
-          <label for="Consumer Key">Generated Token</label>
-        </div>
-        <div class="input">
-          <input
-            v-model="authState.oauthTwo.discoveryURL"
-            autocomplete="off"
-            placeholder="Discovery URL"
-            spellcheck="false"
-            type="text" />
-          <label for="Consumer Key">OIDC Discovery URL</label>
-        </div>
-        <div class="input">
-          <input
-            v-model="authState.oauthTwo.authURL"
-            autocomplete="off"
-            placeholder="Auth URL"
-            spellcheck="false"
-            type="text" />
-          <label for="Consumer Key">Auth URL</label>
-        </div>
-        <div class="input">
-          <input
-            v-model="authState.oauthTwo.accessTokenURL"
-            autocomplete="off"
-            placeholder="Access Token URL"
-            spellcheck="false"
-            type="text" />
-          <label for="Consumer Key">Access Token URL</label>
-        </div>
-        <div class="input input__half">
-          <input
-            v-model="authState.oauthTwo.clientID"
-            autocomplete="off"
-            placeholder="Client ID"
-            spellcheck="false"
-            type="text" />
-          <label for="Consumer Key">Client ID</label>
-        </div>
-        <div class="input input__half">
-          <input
-            v-model="authState.oauthTwo.clientSecret"
-            autocomplete="off"
-            placeholder="Client Secret"
-            spellcheck="false"
-            type="text" />
-          <label for="Consumer Key">Client Secret</label>
-        </div>
-        <div class="input">
-          <input
-            v-model="authState.oauthTwo.scope"
-            autocomplete="off"
-            placeholder="Scope"
-            spellcheck="false"
-            type="text" />
-          <label for="Consumer Key">Scope</label>
-        </div>
-        <!--  @click="generateOauthTwoToken" -->
-        <button
-          class="scalar-api-client__item__content-button"
-          type="button">
-          Generate Token
-        </button>
-      </template>
-      <template v-else-if="authState.type === 'bearer'">
-        <div class="input">
-          <input
-            v-model="authState.bearer.token"
-            autocomplete="off"
-            placeholder="Username"
-            spellcheck="false"
-            type="text" />
-          <label for="Username">Token</label>
-        </div>
-        <label class="check">
-          <input
-            v-model="authState.bearer.active"
-            type="checkbox" />
-          <span class="checkmark" />
-          <p>Enabled</p>
-        </label>
-      </template>
+      <div class="authentication-form">
+        <template v-if="authState.type === 'basic'">
+          <div class="input input__half">
+            <label for="username">Username</label>
+            <input
+              id="username"
+              v-model="authState.basic.username"
+              autocomplete="off"
+              placeholder="Username"
+              spellcheck="false"
+              type="text" />
+          </div>
+          <div class="input input__half">
+            <label for="password">Password</label>
+            <input
+              id="password"
+              v-model="authState.basic.password"
+              autocomplete="off"
+              placeholder="Password"
+              spellcheck="false"
+              type="password" />
+          </div>
+          <label class="check">
+            <input
+              v-model="authState.basic.active"
+              type="checkbox" />
+            <span class="checkmark" />
+            <p>Enabled</p>
+          </label>
+        </template>
+        <template v-else-if="authState.type === 'digest'">
+          <div class="input input__half">
+            <label for="username">Username</label>
+            <input
+              id="username"
+              v-model="authState.digest.username"
+              autocomplete="off"
+              placeholder="Username"
+              spellcheck="false"
+              type="text" />
+          </div>
+          <div class="input input__half">
+            <label for="password">Password</label>
+            <input
+              id="password"
+              v-model="authState.digest.password"
+              autocomplete="off"
+              placeholder="Password"
+              spellcheck="false"
+              type="password" />
+          </div>
+          <label class="check">
+            <input
+              v-model="authState.digest.active"
+              type="checkbox" />
+            <span class="checkmark" />
+            <p>Enabled</p>
+          </label>
+        </template>
+        <template v-else-if="authState.type === 'oauthTwo'">
+          <div class="input">
+            <label for="generatedtoken">Generated Token</label>
+            <input
+              id="generatedtoken"
+              v-model="authState.oauthTwo.generatedToken"
+              autocomplete="off"
+              placeholder="Generated Token"
+              spellcheck="false"
+              type="text" />
+          </div>
+          <div class="input">
+            <label for="discoveryurl">OIDC Discovery URL</label>
+            <input
+              id="discoveryurl"
+              v-model="authState.oauthTwo.discoveryURL"
+              autocomplete="off"
+              placeholder="Discovery URL"
+              spellcheck="false"
+              type="text" />
+          </div>
+          <div class="input">
+            <label for="authurl">Auth URL</label>
+            <input
+              id="authurl"
+              v-model="authState.oauthTwo.authURL"
+              autocomplete="off"
+              placeholder="Auth URL"
+              spellcheck="false"
+              type="text" />
+          </div>
+          <div class="input">
+            <label for="accesstoken">Access Token URL</label>
+            <input
+              id="accesstoken"
+              v-model="authState.oauthTwo.accessTokenURL"
+              autocomplete="off"
+              placeholder="Access Token URL"
+              spellcheck="false"
+              type="text" />
+          </div>
+          <div class="input input__half">
+            <label for="clientid">Client ID</label>
+            <input
+              id="clientid"
+              v-model="authState.oauthTwo.clientID"
+              autocomplete="off"
+              placeholder="Client ID"
+              spellcheck="false"
+              type="text" />
+          </div>
+          <div class="input input__half">
+            <label for="clientsecret">Client Secret</label>
+            <input
+              id="clientsecret"
+              v-model="authState.oauthTwo.clientSecret"
+              autocomplete="off"
+              placeholder="Client Secret"
+              spellcheck="false"
+              type="text" />
+          </div>
+          <div class="input">
+            <label for="scope">Scope</label>
+            <input
+              id="scope"
+              v-model="authState.oauthTwo.scope"
+              autocomplete="off"
+              placeholder="Scope"
+              spellcheck="false"
+              type="text" />
+          </div>
+          <!--  @click="generateOauthTwoToken" -->
+          <button
+            class="scalar-api-client__item__content-button"
+            type="button">
+            <span>Generate Token</span>
+          </button>
+        </template>
+        <template v-else-if="authState.type === 'bearer'">
+          <div class="input">
+            <label for="Username">Token</label>
+            <input
+              v-model="authState.bearer.token"
+              autocomplete="off"
+              placeholder="Username"
+              spellcheck="false"
+              type="text" />
+          </div>
+          <label class="check">
+            <input
+              v-model="authState.bearer.active"
+              type="checkbox" />
+            <span class="checkmark" />
+            <p>Enabled</p>
+          </label>
+        </template>
+      </div>
     </template>
   </CollapsibleSection>
 </template>

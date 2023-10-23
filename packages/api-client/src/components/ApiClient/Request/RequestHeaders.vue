@@ -60,8 +60,8 @@ function addAnotherHandler() {
   cursor: pointer;
   font-size: var(--theme-micro, var(--default-theme-micro));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   margin: 0 6px;
+  border: none;
   font-family: var(--theme-font);
   appearance: none;
   display: flex;
@@ -74,5 +74,8 @@ function addAnotherHandler() {
 }
 .scalar-api-client-add:hover {
   color: var(--theme-color-1, var(--default-theme-color-1));
+}
+.scalar-api-client-add:focus-within {
+  background: var(--theme-background-3, var(--default-theme-background-3));
 }
 </style>
