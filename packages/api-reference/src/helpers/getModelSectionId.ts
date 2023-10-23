@@ -8,5 +8,5 @@ export const getModelSectionId = (name?: string) => {
   const slugger = new GithubSlugger()
   const slug = slugger.slug(name)
 
-  return `model//${slug}`
+  return `model/${slug}`
 }

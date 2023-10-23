@@ -28,7 +28,7 @@ const { setCollapsedSidebarItem } = useTemplateStore()
 async function scrollHandler(operation: TransformedOperation) {
   setCollapsedSidebarItem(getTagSectionId(props.tag), true)
   await nextTick()
-  scrollToId(getOperationSectionId(operation))
+  scrollToId(getOperationSectionId(operation, props.tag))
 }
 </script>
 <template>
@@ -51,7 +51,7 @@ async function scrollHandler(operation: TransformedOperation) {
                 <div class="endpoints custom-scroll">
                   <a
                     v-for="operation in tag.operations"
-                    :key="getOperationSectionId(operation)"
+                    :key="getOperationSectionId(operation, tag)"
                     class="endpoint"
                     @click="scrollHandler(operation)">
                     <span :class="operation.httpVerb">{{

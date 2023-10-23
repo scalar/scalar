@@ -4,11 +4,11 @@ import { FlowModal, useModal } from '@scalar/use-modal'
 import Fuse from 'fuse.js'
 import { computed, nextTick, ref, toRef, watch } from 'vue'
 
-import { getOperationSectionId, getTagSectionId, scrollToId } from '../helpers'
+import { getTagSectionId, scrollToId } from '../helpers'
 import { extractRequestBody } from '../helpers/specHelpers'
 import { type ParamMap, useOperation } from '../hooks'
 import { useTemplateStore } from '../stores/template'
-import type { Spec, Tag, TransformedOperation } from '../types'
+import type { Spec, Tag } from '../types'
 
 const props = defineProps<{ spec: Spec }>()
 const reactiveSpec = toRef(props, 'spec')
