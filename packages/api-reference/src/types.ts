@@ -237,3 +237,10 @@ export type AuthenticationState = {
     token: string
   }
 }
+
+export type ServerState = {
+  selectedServer: null | number
+  variables: {
+    [key: string]: string | number
+  }[]
+}

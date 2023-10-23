@@ -40,10 +40,10 @@ const formattedServerUrl = computed(() => {
 <style scoped>
 .base-url {
   color: var(--theme-color-1, var(--default-theme-color-1));
-  font-size: var(--theme-small, var(--default-theme-small));
   cursor: pointer;
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   display: flex;
   padding: 10px 12px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
 }
 </style>

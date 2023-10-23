@@ -1,21 +1,50 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
+import { useGlobalStore } from '../../../stores'
 import { type Server } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import ServerItem from './ServerItem.vue'
 
-defineProps<{
+const props = defineProps<{
   value: Server[]
 }>()
 
+const { server, setServer } = useGlobalStore()
 const selectedServerIndex = ref<number>(0)
+
+watch(
+  selectedServerIndex,
+  () => {
+    const variables = props.value[selectedServerIndex.value]?.variables
+
+    const prefilledVariables = variables
+      ? Object.keys(variables).map((name) => {
+          return {
+            name: name,
+            value: variables[name].default ?? '',
+          }
+        })
+      : []
+
+    setServer({
+      selectedServer: selectedServerIndex.value,
+      variables: prefilledVariables,
+    })
+  },
+  {
+    immediate: true,
+  },
+)
 </script>
 
 <template>
   <Card v-if="value.length > 0">
     <CardHeader muted>Base URL</CardHeader>
+    <!-- <CardContent>
+      {{ server }}
+    </CardContent> -->
     <CardContent muted>
       <div
         v-if="value[selectedServerIndex].description"
@@ -38,10 +67,10 @@ const selectedServerIndex = ref<number>(0)
           :value="selectedServerIndex"
           @input="(event) => (selectedServerIndex = parseInt((event.target as HTMLSelectElement).value, 10))">
           <option
-            v-for="(server, index) in value"
+            v-for="(serverOption, index) in value"
             :key="index"
             :value="index">
-            {{ server.url }}
+            {{ serverOption.url }}
           </option>
         </select>
 
@@ -55,7 +84,7 @@ const selectedServerIndex = ref<number>(0)
         :key="name">
         <div class="input">
           <label :for="`variable-${name}`">
-            {{ `\{${name}\}` }}
+            <code>{{ `\{${name}\}` }}</code>
           </label>
           <template v-if="variable.enum">
             <select
