@@ -63,36 +63,48 @@ const getValue = (name: string) => {
     <!-- <CardContent>
       {{ server }}
     </CardContent> -->
-    <CardContent muted>
-      <div
-        v-if="value[selectedServerIndex].description"
-        class="variable-description">
-        <MarkdownRenderer :value="value[selectedServerIndex].description" />
-      </div>
-    </CardContent>
     <!-- Single URL -->
     <CardContent
       v-if="value.length === 1"
       muted>
-      <ServerItem :value="value[selectedServerIndex]" />
+      <div class="server-item">
+        <ServerItem
+          :value="value[selectedServerIndex]"
+          :variables="server.variables" />
+      </div>
     </CardContent>
     <!-- Multiple URLs -->
     <CardContent
       v-if="value.length > 1"
       muted>
-      <div class="server-selector">
-        <select
-          :value="selectedServerIndex"
-          @input="(event) => (selectedServerIndex = parseInt((event.target as HTMLSelectElement).value, 10))">
-          <option
-            v-for="(serverOption, index) in value"
-            :key="index"
-            :value="index">
-            {{ serverOption.url }}
-          </option>
-        </select>
+      <div class="server-item">
+        <div class="server-selector">
+          <select
+            :value="selectedServerIndex"
+            @input="(event) => (selectedServerIndex = parseInt((event.target as HTMLSelectElement).value, 10))">
+            <option
+              v-for="(serverOption, index) in value"
+              :key="index"
+              :value="index">
+              {{ serverOption.url }}
+            </option>
+          </select>
 
-        <ServerItem :value="value[selectedServerIndex]" />
+          <ServerItem
+            :value="value[selectedServerIndex]"
+            :variables="server.variables" />
+
+          <svg
+            fill="none"
+            height="100%"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="m19.5 10-7.5 7.5-7.5-7.5"
+              xmlns="http://www.w3.org/2000/svg"></path>
+          </svg>
+        </div>
       </div>
     </CardContent>
     <!-- Variables -->
@@ -133,13 +145,27 @@ const getValue = (name: string) => {
         </div>
       </div>
     </CardContent>
+    <!-- Description -->
+    <CardContent
+      v-if="value[selectedServerIndex].description"
+      muted>
+      <div class="variable-description">
+        <MarkdownRenderer :value="value[selectedServerIndex].description" />
+      </div>
+    </CardContent>
   </Card>
 </template>
 
 <style scoped>
+.server-item {
+  padding: 0 12px;
+}
 .server-selector {
   position: relative;
-  outline: 1px solid red;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 
 .server-selector select {
@@ -149,6 +175,10 @@ const getValue = (name: string) => {
   right: 0;
   opacity: 0;
   top: 0;
+}
+
+.server-selector svg {
+  width: 12px;
 }
 
 .input select {

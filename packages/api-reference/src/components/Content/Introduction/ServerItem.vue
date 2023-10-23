@@ -2,23 +2,32 @@
 import { useClipboard } from '@scalar/use-clipboard'
 import { computed } from 'vue'
 
-import { type Server } from '../../../types'
+import type { Server, ServerStateVariable } from '../../../types'
 
 const props = defineProps<{
   value?: Server
+  variables?: ServerStateVariable[]
 }>()
 
 const { copyToClipboard } = useClipboard()
 
 const formattedServerUrl = computed(() => {
   const url = props.value?.url ?? ''
+
+  /* Remove HTML */
   const urlWithoutHtml = url.replace(/(<([^>]+)>)/gi, '')
 
   /* Replace all variables (example: {{ baseurl }} with an HTML tag) */
-  return urlWithoutHtml.replace(
-    /{\s*([\w.-]+)\s*}/g,
-    '<span class="base-url-variable">{$1}</span>',
-  )
+  const regex = /{\s*([\w.-]+)\s*}/g
+
+  /* Loop through all matches and replace the match with the variable value */
+  return urlWithoutHtml.replace(regex, (_, p1: string) => {
+    const variable = props.variables?.find(
+      (currentVariable: ServerStateVariable) => currentVariable.name === p1,
+    )
+
+    return `<span class="base-url-variable">${variable?.value ?? ''}</span>`
+  })
 })
 </script>
 <template>
@@ -33,17 +42,17 @@ const formattedServerUrl = computed(() => {
 
 <style>
 .base-url-variable {
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 </style>
 
 <style scoped>
 .base-url {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--theme-color-2, var(--default-theme-color-2));
   cursor: pointer;
   font-family: var(--theme-font-code, var(--default-theme-font-code));
-  display: flex;
-  padding: 10px 12px;
+  display: inline-block;
+  padding: 10px 0;
   font-size: var(--theme-micro, var(--default-theme-micro));
 }
 </style>

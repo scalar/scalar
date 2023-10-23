@@ -1,4 +1,4 @@
-import { type Ref, reactive, toRaw } from 'vue'
+import { reactive } from 'vue'
 
 import type { AuthenticationState, ServerState } from '../types'
 

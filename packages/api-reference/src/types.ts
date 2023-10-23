@@ -238,9 +238,11 @@ export type AuthenticationState = {
   }
 }
 
+export type ServerStateVariable = {
+  [key: string]: string | number
+}
+
 export type ServerState = {
   selectedServer: null | number
-  variables: {
-    [key: string]: string | number
-  }[]
+  variables: ServerStateVariable[]
 }
