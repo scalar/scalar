@@ -21,7 +21,7 @@ const showSecurityScheme = computed(() => {
     props.spec?.components?.securitySchemes?.[authentication.securitySchemeKey]
 
   // @ts-ignore
-  return !!scheme.type
+  return !!scheme?.type
 })
 </script>
 
