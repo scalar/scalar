@@ -29,38 +29,40 @@ import { ApiReference } from '@scalar/api-reference'
 
 You can even [mount the component in React](https://github.com/scalar/scalar/blob/main/projects/react/src/App.tsx).
 
-## Props
+## Configuration
+
+There’s an configuration object, which can use on all platforms. In Vue.js you’re using it like this:
 
 #### isEditable?: boolean
 
 Whether the Swagger editor should be shown.
 
 ```vue
-<ApiReference :isEditable="true" />
+<ApiReference :configuration="{ isEditable: true }" />
 ```
 
-#### spec?: string
+#### spec.content?: string
 
 Directly pass an OpenAPI/Swagger spec.
 
 ```vue
-<ApiReference :spec="{ … }" />
+<ApiReference :configuration="{ spec: { content: '{ … }' } }" />
 ```
 
-#### specUrl?: string
+#### spec.url?: string
 
 Pass the URL of a spec file (JSON or Yaml).
 
 ```vue
-<ApiReference specUrl="/swagger.json" />
+<ApiReference :configuration="{ spec: { url: '/swagger.json' } }" />
 ```
 
-#### transformedSpec?: string
+#### spec.preparsedContent?: string
 
 You can preprocess specs with `@scalar/swagger-parser` and directly pass the result.
 
 ```vue
-<ApiReference :specResult="{ … }" />
+<ApiReference :configuration="{ spec: { preparsedContent : '{ … }' } } />
 ```
 
 #### proxyUrl?: string
@@ -68,23 +70,25 @@ You can preprocess specs with `@scalar/swagger-parser` and directly pass the res
 Making requests to other domains is restricted in the browser and requires [CORS headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). It’s recommended to use a proxy to send requests to other origins.
 
 ```vue
-<ApiReference proxyUrl="https://proxy.example.com" />
+<ApiReference :configuration="{ proxy: 'https://proxy.example.com' }" />
 ```
 
 ℹ️ You can use [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy) to host your own proxy or you can just use ours:
 
 ```vue
-<ApiReference proxyUrl="https://api.scalar.com/request-proxy" />
+<ApiReference
+  :configuration="{ proxy: 'https://api.scalar.com/request-proxy' }" />
 ```
 
-#### initialTabState?: string
+#### initialContent?: string
 
 You can decide which tab should be active by default:
 
 ```vue
-<ApiReference initialTabState="Getting Started" />
+<ApiReference
+  :initialTabState="{ tabs: { initialContent: 'Getting Started' } }" />
 <!-- or -->
-<ApiReference initialTabState="Swagger Editor" />
+<ApiReference :configuration="{ tabs: { initialContent: 'Swagger Editor' } }" />
 ```
 
 #### showSidebar?: boolean
@@ -92,7 +96,7 @@ You can decide which tab should be active by default:
 Whether the sidebar should be shown.
 
 ```vue
-<ApiReference :showSidebar="true" />
+<ApiReference :configuration="{ showSidebar: true} />
 ```
 
 #### footerBelowSidebar?: boolean
@@ -100,5 +104,5 @@ Whether the sidebar should be shown.
 Whether the footer should below the content or below the content _and_ the sidebar.
 
 ```vue
-<ApiReference :footerBelowSidebar="true" />
+<ApiReference :configuration="{ footerBelowSidebar: true} />
 ```

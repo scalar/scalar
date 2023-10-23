@@ -8,7 +8,7 @@ function App() {
     <>
       {/* Explanation: https://github.com/devilwjp/veaury#typescript-jsx-types-conflict-caused-by-vue-and-react-at-the-same-time
       // @ts-ignore */}
-      <ApiReference isEditable={true} />
+      <ApiReference configuration={{ isEditable: true }} />
     </>
   )
 }

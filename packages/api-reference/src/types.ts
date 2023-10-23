@@ -6,16 +6,58 @@ import { type ThemeId } from '@scalar/themes'
 import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 
 export type ReferenceProps = {
-  isEditable?: boolean
-  showSidebar?: boolean
-  footerBelowSidebar?: boolean
+  configuration?: ReferenceConfiguration
+} & {
+  /** @deprecated Use the `configuration` prop instead. */
   spec?: string
+  /** @deprecated Use the `configuration` prop instead. */
   specUrl?: string
+  /** @deprecated Use the `configuration` prop instead. */
   specResult?: Record<any, any>
+  /** @deprecated Use the `configuration` prop instead. */
   proxyUrl?: string
-  hocuspocusConfiguration?: HocuspocusConfigurationProp
+  /** @deprecated Use the `configuration` prop instead. */
   theme?: ThemeId
+  /** @deprecated Use the `configuration` prop instead. */
   initialTabState?: EditorHeaderTabs
+  /** @deprecated Use the `configuration` prop instead. */
+  showSidebar?: boolean
+  /** @deprecated Use the `configuration` prop instead. */
+  isEditable?: boolean
+  /** @deprecated Use the `configuration` prop instead. */
+  hocuspocusConfiguration?: HocuspocusConfigurationProp
+}
+
+export type ReferenceConfiguration = {
+  /** A string to use one of the color presets */
+  theme?: ThemeId
+  /** The Swagger/OpenAPI spec to render */
+  spec?: {
+    /** URL to a Swagger/OpenAPI file */
+    url?: string
+    /** Swagger/Open API spec */
+    content?: string | Record<string, any> | (() => Record<string, any>)
+    /** The result of @scalar/swagger-parser */
+    preparsedContent?: Record<any, any>
+  }
+  /** URL to a request proxy for the API client */
+  proxy?: string
+  /** Whether the spec input should show */
+  isEditable?: boolean
+  /** The tabs (only visible when isEditable: true) */
+  tabs?: {
+    /** Disabled tabs completely */
+    // enabled?: boolean
+    /** The initial tab to show */
+    initialContent?: EditorHeaderTabs
+  }
+  /** Whether to show the sidebar */
+  showSidebar?: boolean
+  /** Whether to make the footer full-width (include below the sidebar) */
+  footerBelowSidebar?: boolean
+  /** Remove the Scalar branding :( */
+  // doNotPromoteScalar?: boolean
+  hocuspocusConfiguration?: HocuspocusConfigurationProp
 }
 
 export type Schema = {

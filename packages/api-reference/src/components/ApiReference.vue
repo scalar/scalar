@@ -14,22 +14,66 @@ import {
 
 import { getTagSectionId } from '../helpers'
 import { useTemplateStore } from '../stores/template'
-import type { ReferenceProps, Spec } from '../types'
+import type { ReferenceConfiguration, ReferenceProps, Spec } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
 import MobileHeader from './MobileHeader.vue'
 import SearchModal from './SearchModal.vue'
 import Sidebar from './Sidebar.vue'
 
-const props = withDefaults(defineProps<ReferenceProps>(), {
-  showSidebar: true,
-  isEditable: false,
-  theme: 'default',
-})
+const props = defineProps<ReferenceProps>()
 
 defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
 }>()
+
+/** Deep merge for objects */
+function merge(source: Record<any, any>, target: Record<any, any>) {
+  for (const [key, val] of Object.entries(source)) {
+    if (val !== null && typeof val === `object`) {
+      target[key] ??= new val.__proto__.constructor()
+      merge(val, target[key])
+    } else {
+      target[key] = val
+    }
+  }
+  return target // we're replacing in-situ, so this is more for chaining than anything else
+}
+
+/** Merge the default configuration with the given configuration. */
+const currentConfiguration = computed((): ReferenceConfiguration => {
+  if (
+    props.spec ||
+    props.specUrl ||
+    props.specResult ||
+    props.proxyUrl ||
+    props.theme ||
+    props.initialTabState ||
+    props.showSidebar ||
+    props.isEditable ||
+    props.hocuspocusConfiguration
+  ) {
+    console.warn(
+      '[ApiReference] The <ApiReference /> component now accepts a single `configuration` prop. Please update your code.',
+    )
+  }
+
+  return merge(props.configuration ?? {}, {
+    spec: {
+      content: props.spec ?? undefined,
+      url: props.specUrl ?? undefined,
+      preparsedContent: props.specResult ?? undefined,
+    },
+    proxy: props.proxyUrl ?? undefined,
+    theme: props.theme ?? 'default',
+    tabs: {
+      initialContent: props.initialTabState ?? 'Getting Started',
+    },
+    showSidebar: props.showSidebar ?? true,
+    isEditable: props.isEditable ?? false,
+    hocuspocusConfiguration: props.hocuspocusConfiguration ?? undefined,
+  })
+})
 
 /**
  * The editor component has heavy dependencies (process), let's lazy load it.
@@ -38,24 +82,40 @@ const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
   import('@scalar/swagger-editor').then((module) => module.SwaggerEditor),
 )
 
-const specRef = ref<string>(props.spec ?? '')
+const getSpecContent = (
+  value: string | Record<string, any> | (() => Record<string, any>) | undefined,
+) =>
+  typeof value === 'string'
+    ? value
+    : typeof value === 'object'
+    ? JSON.stringify(value)
+    : typeof value === 'function'
+    ? JSON.stringify(value())
+    : ''
+
+const specRef = ref<string>(
+  getSpecContent(currentConfiguration.value.spec?.content),
+)
 
 watch(
-  () => props.spec,
+  currentConfiguration,
   () => {
-    if (props.spec) {
-      specRef.value = props.spec
+    if (currentConfiguration.value.spec?.content) {
+      specRef.value = getSpecContent(currentConfiguration.value.spec?.content)
     }
   },
   { immediate: true },
 )
 
 const fetchSpecUrl = () => {
-  if (props.specUrl === undefined || props.specUrl.length === 0) {
+  if (
+    currentConfiguration.value.spec?.url === undefined ||
+    currentConfiguration.value.spec?.url.length === 0
+  ) {
     return
   }
 
-  fetch(props.specUrl)
+  fetch(currentConfiguration.value.spec?.url)
     .then((response) => {
       if (!response.ok) {
         throw new Error('The provided OpenAPI/Swagger spec URL is invalid.')
@@ -135,7 +195,7 @@ const handleSpecUpdate = (newSpec: any) => {
 }
 
 watch(
-  () => props.specResult,
+  () => currentConfiguration.value.spec?.preparsedContent,
   (newSpec) => {
     if (newSpec) {
       handleSpecUpdate(newSpec)
@@ -153,22 +213,28 @@ onMounted(() => {
   fetchSpecUrl()
 })
 
-const showRendered = computed(() => isLargeScreen.value || !props.isEditable)
+const showRendered = computed(
+  () => isLargeScreen.value || !currentConfiguration.value?.isEditable,
+)
 
 const showCodeEditor = computed(() => {
-  return !props.specResult && props.isEditable
+  return (
+    !currentConfiguration.value.spec?.preparsedContent &&
+    currentConfiguration.value?.isEditable
+  )
 })
 </script>
 <template>
-  <ThemeStyles :id="theme" />
+  {{ currentConfiguration }}
+  <ThemeStyles :id="currentConfiguration?.theme" />
   <FlowToastContainer />
   <div
     ref="documentEl"
     class="scalar-api-reference references-layout"
     :class="[
       {
-        'references-footer-below': footerBelowSidebar,
-        'references-editable': isEditable,
+        'references-footer-below': currentConfiguration?.footerBelowSidebar,
+        'references-editable': currentConfiguration?.isEditable,
       },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
@@ -200,8 +266,8 @@ const showCodeEditor = computed(() => {
       <div
         v-if="
           isMobile && !$slots['mobile-header']
-            ? showSidebar && showMobileDrawer
-            : showSidebar
+            ? currentConfiguration.showSidebar && showMobileDrawer
+            : currentConfiguration.showSidebar
         "
         class="references-navigation-list">
         <slot
@@ -215,10 +281,10 @@ const showCodeEditor = computed(() => {
       v-show="showCodeEditor"
       class="references-editor">
       <LazyLoadedSwaggerEditor
-        :hocuspocusConfiguration="hocuspocusConfiguration"
-        :initialTabState="initialTabState"
-        :proxyUrl="proxyUrl"
-        :theme="theme"
+        :hocuspocusConfiguration="currentConfiguration?.hocuspocusConfiguration"
+        :initialTabState="currentConfiguration?.tabs?.initialContent"
+        :proxyUrl="currentConfiguration?.proxy"
+        :theme="currentConfiguration?.theme"
         :value="specRef"
         @changeTheme="$emit('changeTheme', $event)"
         @specUpdate="handleSpecUpdate" />
@@ -236,7 +302,7 @@ const showCodeEditor = computed(() => {
     </template>
     <!-- REST API Client Overlay -->
     <ApiClientModal
-      :proxyUrl="proxyUrl"
+      :proxyUrl="currentConfiguration?.proxy"
       :spec="transformedSpec" />
   </div>
 </template>

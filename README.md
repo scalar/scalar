@@ -21,15 +21,8 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
 - [Getting Started](#getting-started)
   - [From a CDN](#from-a-cdn)
   - [With Vue.js](#with-vuejs)
-    - [isEditable?: boolean](#iseditable-boolean)
-    - [spec?: string](#spec-string)
-    - [specUrl?: string](#specurl-string)
-    - [transformedSpec?: string](#transformedspec-string)
-    - [proxyUrl?: string](#proxyurl-string)
-    - [initialTabState?: string](#initialtabstate-string)
-    - [showSidebar?: boolean](#showsidebar-boolean)
-    - [footerBelowSidebar?: boolean](#footerbelowsidebar-boolean)
-- [With React](#with-react)
+  - [With React](#with-react)
+  - [With Fastify](#with-fastify)
 - [Using our amazing service](#using-our-amazing-service)
 - [Themes](#themes)
 - [Advanced: Styling](#advanced-styling)
@@ -110,7 +103,7 @@ import { ApiReference } from '@scalar/api-reference'
 
 You can [pass props to customize the API reference](https://github.com/scalar/scalar/tree/main/packages/api-reference).
 
-## With React
+### With React
 
 The API Reference package is written in Vue. That shouldn’t stop you from using it in React, though. You can use [veaury](https://github.com/devilwjp/veaury) to load the `<APIReference />` component in React:
 
@@ -123,12 +116,33 @@ const ApiReference = applyVueInReact(VueComponent)
 function App() {
   return (
     <>
-      <ApiReference isEditable={true} />
+      <ApiReference configuration={{ isEditable: true }} />
     </>
   )
 }
 
 export default App
+```
+
+### With Fastify
+
+Our fastify plugin makes it so easy to render a reference, there’s no excuse to not have a documentation for your API.
+
+```ts
+await fastify.register(require('@scalar/fastify-api-reference'), {
+  routePrefix: '/reference',
+  apiReference: {
+    spec: () => fastify.swagger(),
+  },
+})
+```
+
+Actually, it’s executing the `fastify.swagger()` call by default (if available). So that’s all ou need to add:
+
+```ts
+await fastify.register(require('@scalar/fastify-api-reference'), {
+  routePrefix: '/reference',
+})
 ```
 
 ## Using our amazing service
@@ -141,7 +155,7 @@ You don’t like the color scheme? We’ve prepared some themes for you:
 
 ```vue
 /* theme?: 'alternate' | 'default' | 'moon' | 'purple' | 'solarized' */
-<ApiReference theme="moon" />
+<ApiReference :configuration="{ theme: 'moon' }" />
 ```
 
 ℹ️ The `default` theme is … the default theme. If you want to make sure no theme is applied, pass `none`.

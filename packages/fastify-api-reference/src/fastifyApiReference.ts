@@ -1,3 +1,4 @@
+import { type ReferenceConfiguration } from '@scalar/api-reference'
 import ejs from 'ejs'
 import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
@@ -11,10 +12,8 @@ export type ApiReferenceOptions = {
    * @default '/'
    */
   routePrefix: string
-  apiReference?: {
-    specUrl?: string
-    spec?: Record<string, any> | (() => Record<string, any>)
-    title?: string
+  apiReference?: ReferenceConfiguration & {
+    pageTitle?: string
   }
 }
 
@@ -31,12 +30,12 @@ const fastifyApiReference: FastifyPluginAsync<ApiReferenceOptions> = async (
   const hasSwaggerPlugin = fastify.hasPlugin('@fastify/swagger')
 
   if (
-    !options.apiReference?.spec &&
-    !options.apiReference?.specUrl &&
+    !options.apiReference?.spec?.content &&
+    !options.apiReference?.spec?.url &&
     !hasSwaggerPlugin
   ) {
     console.warn(
-      '[@scalar/fastify-api-reference] You didn’t provide a spec or specUrl and @fastify/swagger could not be find either. Please provide one of these options.',
+      '[@scalar/fastify-api-reference] You didn’t provide a spec.content or spec.url and @fastify/swagger could not be find either. Please provide one of these options.',
     )
 
     return
@@ -54,8 +53,8 @@ const fastifyApiReference: FastifyPluginAsync<ApiReferenceOptions> = async (
       let mergedOptions = options
 
       if (
-        !options.apiReference?.spec &&
-        !options.apiReference?.specUrl &&
+        !options.apiReference?.spec?.content &&
+        !options.apiReference?.spec?.url &&
         hasSwaggerPlugin
       ) {
         mergedOptions = {
@@ -63,7 +62,7 @@ const fastifyApiReference: FastifyPluginAsync<ApiReferenceOptions> = async (
           apiReference: {
             ...options.apiReference,
             // @ts-ignore
-            spec: () => fastify.swagger(),
+            spec: { content: () => fastify.swagger() },
           },
         }
       }

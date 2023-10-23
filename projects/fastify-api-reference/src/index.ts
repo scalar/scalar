@@ -63,11 +63,14 @@ fastify.put(
 // Add the plugin
 await fastify.register(fastifyApiReference, {
   routePrefix: '/reference',
-  // apiReference: {
-  //   spec: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
-  //   spec: () => fastify.swagger(),
-  //   specUrl: '/scalar.json',
-  // },
+  apiReference: {
+    theme: 'moon',
+    spec: {
+      // content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
+      // content: () => fastify.swagger(),
+      // url: '/scalar.json',
+    },
+  },
 })
 
 // Start the server

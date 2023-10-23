@@ -23,7 +23,9 @@ fastify.register(require('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
   apiReference: {
     title: 'Our API Reference',
-    specUrl: '/swagger.json',
+    spec: {
+      url: '/swagger.json',
+    },
   },
 })
 ```
@@ -34,7 +36,9 @@ With the [@fastify/swagger](https://github.com/fastify/fastify-swagger) you can 
 await fastify.register(require('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
   apiReference: {
-    spec: () => fastify.swagger(),
+    spec: {
+      content: () => fastify.swagger(),
+    },
   },
 })
 ```
@@ -53,7 +57,11 @@ Or, if you just have a static OpenAPI spec, you can directly pass it, too:
 await fastify.register(require('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
   apiReference: {
-    spec: { … },
+    spec: {
+      content: { … }
+    },
   },
 })
 ```
+
+The fastify plugin takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/packages/api-reference#props) in the core package README.
