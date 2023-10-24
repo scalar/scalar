@@ -31,7 +31,7 @@ You can even [mount the component in React](https://github.com/scalar/scalar/blo
 
 ## Configuration
 
-There’s an configuration object, which can use on all platforms. In Vue.js you’re using it like this:
+There's a configuration object that can be used on all platforms. In Vue.js, you use it like this:
 
 #### isEditable?: boolean
 
@@ -101,8 +101,7 @@ Whether the sidebar should be shown.
 
 #### footerBelowSidebar?: boolean
 
-Whether the footer should below the content or below the content _and_ the sidebar.
-
+Whether the footer should be below the content or below both the content _and_ the sidebar.
 ```vue
 <ApiReference :configuration="{ footerBelowSidebar: true} />
 ```
