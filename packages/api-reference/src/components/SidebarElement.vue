@@ -96,8 +96,13 @@ defineExpose({ el })
           :src="item.icon.src" />
         <p>{{ item.title }}</p>
         <div
+          v-if="item.httpVerb"
           class="sidebar-heading-type"
-          :class="`sidebar-heading-type--${item.httpVerb}`"></div>
+          :class="[
+            item.httpVerb ? `sidebar-heading-type--${item.httpVerb}` : '',
+          ]">
+          {{ item.httpVerb }}
+        </div>
       </a>
       <FlowIcon
         v-if="item?.type === ElementType.Link"
@@ -152,7 +157,6 @@ defineExpose({ el })
   top: 3.5px;
   margin-left: 2px;
   border-radius: 30px;
-  font-size: 8px;
   flex-shrink: 0;
   color: var(
     --sidebar-background-1,
@@ -161,6 +165,7 @@ defineExpose({ el })
       var(--theme-background-1, var(--default-theme-background-1))
     )
   );
+  font-size: 0px;
   font-weight: bold;
   text-align: center;
   position: relative;
@@ -187,8 +192,8 @@ defineExpose({ el })
 .sidebar-group-item__folder .sidebar-heading-type {
   display: none;
 }
-.sidebar-heading-type--undefined {
-  display: none;
+.sidebar-heading-type:before {
+  font-size: 8px;
 }
 .sidebar-heading-type--post {
   background: var(--theme-color-green, var(--default-theme-color-green));
