@@ -13,6 +13,7 @@ const props = defineProps<{
     icon?: {
       src: string
     }
+    httpVerb?: string
   }
   isActive?: boolean
   hasChildren?: boolean
@@ -94,6 +95,9 @@ defineExpose({ el })
           class="sidebar-icon"
           :src="item.icon.src" />
         <p>{{ item.title }}</p>
+        <div
+          class="sidebar-heading-type"
+          :class="`sidebar-heading-type--${item.httpVerb}`"></div>
       </a>
       <FlowIcon
         v-if="item?.type === ElementType.Link"
@@ -139,5 +143,81 @@ defineExpose({ el })
   color: var(--sidebar-color-1, var(--default-sidebar-color-1), var(--theme-color-1, var(--default-theme-color-1)));
   /* prettier-ignore */
   background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background), var(--theme-background-2, var(--default-theme-background-2)));
+}
+
+.sidebar-heading-type {
+  width: 28px;
+  height: 12px;
+  line-height: 13px;
+  top: 3.5px;
+  margin-left: 2px;
+  border-radius: 30px;
+  font-size: 8px;
+  flex-shrink: 0;
+  color: var(
+    --sidebar-background-1,
+    var(
+      --default-sidebar-background-1,
+      var(--theme-background-1, var(--default-theme-background-1))
+    )
+  );
+  font-weight: bold;
+  text-align: center;
+  position: relative;
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
+}
+.active_page .sidebar-heading-type {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px
+    var(
+      --sidebar-color-active,
+      var(
+        --default-sidebar-color-active,
+        var(--theme-color-accent, var(--default-theme-color-accent))
+      )
+    );
+  color: var(
+    --sidebar-color-active,
+    var(
+      --default-sidebar-color-active,
+      var(--theme-color-accent, var(--default-theme-color-accent))
+    )
+  ) !important;
+}
+.sidebar-group-item__folder .sidebar-heading-type {
+  display: none;
+}
+.sidebar-heading-type--undefined {
+  display: none;
+}
+.sidebar-heading-type--post {
+  background: var(--theme-color-green, var(--default-theme-color-green));
+}
+.sidebar-heading-type--post:before {
+  content: 'POST';
+}
+.sidebar-heading-type--delete {
+  background: var(--theme-color-red, var(--default-theme-color-red));
+}
+.sidebar-heading-type--delete:before {
+  content: 'DEL';
+}
+.sidebar-heading-type--patch {
+  background: var(--theme-color-yellow, var(--default-theme-color-yellow));
+}
+.sidebar-heading-type--patch:before {
+  content: 'PATCH';
+}
+.sidebar-heading-type--get {
+  background: var(--theme-color-blue, var(--default-theme-color-blue));
+}
+.sidebar-heading-type--get:before {
+  content: 'GET';
+}
+.sidebar-heading-type--put {
+  background: var(--theme-color-orange, var(--default-theme-color-orange));
+}
+.sidebar-heading-type--put:before {
+  content: 'PUT';
 }
 </style>
