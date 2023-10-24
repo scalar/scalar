@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 0.8.2
+
+### Patch Changes
+
+- 3b042270: fix: active state for operations with multiple tags
+- 4685f391: feat: introducing the new universal configuration object
+- 8ac1ad69: chore: use different heading levels
+- 28191084: feat: add security schemes to the reference
+- e01134d4: style: use horizontal ellipsis to indicate strings in example responses
+- Updated dependencies [64f8a018]
+- Updated dependencies [ce04794a]
+- Updated dependencies [7c3091c6]
+  - @scalar/use-codemirror@0.7.10
+  - @scalar/api-client@0.7.23
+  - @scalar/swagger-editor@0.6.25
+
 ## 0.8.1
 
 ### Patch Changes

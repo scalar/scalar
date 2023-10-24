@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 0.7.23
+
+### Patch Changes
+
+- 64f8a018: fix: make inputs consistent
+- ce04794a: fix: issue where browser froze with JSON being passed into codemirror body
+- Updated dependencies [64f8a018]
+- Updated dependencies [7c3091c6]
+  - @scalar/use-codemirror@0.7.10
+
 ## 0.7.22
 
 ### Patch Changes

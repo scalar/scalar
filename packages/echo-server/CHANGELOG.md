@@ -1,5 +1,11 @@
 # @scalar/echo-server
 
+## 0.5.3
+
+### Patch Changes
+
+- 28191084: feat: parse authorization http header
+
 ## 0.5.2
 
 ### Patch Changes
