@@ -1,5 +1,6 @@
 export * from './concatenateUrlAndPath'
 export * from './createPlaceholderRequest'
+export * from './isJsonString'
 export * from './mapFromArray'
 export * from './normalizePath'
 export * from './normalizeRequestMethod'

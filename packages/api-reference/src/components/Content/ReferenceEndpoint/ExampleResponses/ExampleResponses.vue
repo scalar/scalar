@@ -3,7 +3,11 @@ import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { computed, ref } from 'vue'
 
-import { getExampleFromSchema, mapFromObject } from '../../../../helpers'
+import {
+  getExampleFromSchema,
+  mapFromObject,
+  prettyPrintJson,
+} from '../../../../helpers'
 import type { TransformedOperation } from '../../../../types'
 import {
   Card,
@@ -22,16 +26,6 @@ import SelectExample from './SelectExample.vue'
  */
 
 const props = defineProps<{ operation: TransformedOperation }>()
-
-const prettyPrintJson = (value: string) => {
-  try {
-    return JSON.stringify(value, null, 2)
-  } catch {
-    console.log('Error parsing JSON', value)
-
-    return value
-  }
-}
 
 const { copyToClipboard } = useClipboard()
 

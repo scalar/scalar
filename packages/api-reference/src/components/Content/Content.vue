@@ -8,14 +8,18 @@ import { useTemplateStore } from '../../stores/template'
 import type { Spec, Tag } from '../../types'
 import { FlowIcon } from '../Icon'
 import { SectionContainer } from '../Section'
-import { Authentication } from './Authentication'
 import EndpointsOverview from './EndpointsOverview.vue'
 import Introduction from './Introduction'
 import Models from './Models.vue'
 import ReferenceEndpoint from './ReferenceEndpoint'
+import SpecDownload from './SpecDownload.vue'
 import Spinner from './Spinner.vue'
 
-const props = defineProps<{ ready: boolean; spec: Spec }>()
+const props = defineProps<{
+  ready: boolean
+  parsedSpec: Spec
+  spec: string
+}>()
 
 const referenceEl = ref<HTMLElement | null>(null)
 
@@ -29,8 +33,8 @@ useResizeObserver(
 const { state: templateState, setCollapsedSidebarItem } = useTemplateStore()
 
 onMounted(() => {
-  if (props.spec.tags.length > 0) {
-    setCollapsedSidebarItem(props.spec.tags[0].name, true)
+  if (props.parsedSpec.tags.length > 0) {
+    setCollapsedSidebarItem(props.parsedSpec.tags[0].name, true)
   }
 })
 
@@ -41,8 +45,8 @@ const fallBackServer = useRefOnMount(() => {
 })
 
 const localServers = computed(() => {
-  if (props.spec.servers && props.spec.servers.length > 0) {
-    return props.spec.servers
+  if (props.parsedSpec.servers && props.parsedSpec.servers.length > 0) {
+    return props.parsedSpec.servers
   } else if (fallBackServer.value) {
     return [fallBackServer.value]
   } else {
@@ -51,7 +55,7 @@ const localServers = computed(() => {
 })
 
 const moreThanOneDefaultTag = (tag: Tag) =>
-  props.spec?.tags?.length !== 1 ||
+  props.parsedSpec?.tags?.length !== 1 ||
   tag?.name !== 'default' ||
   tag?.description !== ''
 </script>
@@ -63,11 +67,11 @@ const moreThanOneDefaultTag = (tag: Tag) =>
     }">
     <template v-if="ready">
       <Introduction
-        :info="spec.info"
+        :info="parsedSpec.info"
         :servers="localServers"
-        :spec="spec" />
+        :spec="parsedSpec" />
       <template
-        v-for="(tag, index) in spec.tags"
+        v-for="(tag, index) in parsedSpec.tags"
         :key="tag.id">
         <SectionContainer v-if="tag.operations && tag.operations.length > 0">
           <EndpointsOverview
@@ -98,13 +102,16 @@ const moreThanOneDefaultTag = (tag: Tag) =>
               :key="`${operation.httpVerb}-${operation.operationId}`"
               :operation="operation"
               :server="localServers[0]"
-              :spec="spec"
+              :spec="parsedSpec"
               :tag="tag" />
           </template>
         </SectionContainer>
       </template>
-      <template v-if="hasModels(spec)">
-        <Models :components="spec.components" />
+      <template v-if="hasModels(parsedSpec)">
+        <Models :components="parsedSpec.components" />
+      </template>
+      <template v-if="spec">
+        <SpecDownload :value="spec" />
       </template>
     </template>
     <div
@@ -163,4 +170,3 @@ const moreThanOneDefaultTag = (tag: Tag) =>
   }
 }
 </style>
-./Authentication

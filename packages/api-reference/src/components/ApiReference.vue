@@ -106,6 +106,11 @@ const specRef = ref<string>(
   getSpecContent(currentConfiguration.value.spec?.content),
 )
 
+// Let’s keep a copy, just to have the content ready to download.
+const originalSpecRef = ref<string>(
+  getSpecContent(currentConfiguration.value.spec?.content),
+)
+
 watch(
   currentConfiguration,
   () => {
@@ -162,7 +167,7 @@ const showMobileDrawer = computed(() => {
 })
 
 // Handle content updates
-const transformedSpec = reactive<Spec>({
+const parsedSpec = reactive<Spec>({
   info: {
     title: '',
     description: '',
@@ -190,14 +195,16 @@ const transformedSpec = reactive<Spec>({
 
 // TODO: proper types
 const handleSpecUpdate = (newSpec: any) => {
-  Object.assign(transformedSpec, {
+  Object.assign(parsedSpec, {
     // Some specs don’t have servers or tags, make sure they are defined
     servers: [],
     tags: [],
     ...newSpec,
   })
 
-  const firstTag = transformedSpec.tags[0]
+  originalSpecRef.value = JSON.stringify(newSpec)
+
+  const firstTag = parsedSpec.tags[0]
   if (firstTag) {
     toggleCollapsedSidebarItem(getTagSectionId(firstTag))
   }
@@ -256,7 +263,7 @@ function handleAIWriter(
     :style="{ '--full-height': `${elementHeight}px` }">
     <slot name="search-modal">
       <SearchModal
-        :spec="transformedSpec"
+        :spec="parsedSpec"
         variant="search" />
     </slot>
     <!-- Desktop header -->
@@ -289,7 +296,7 @@ function handleAIWriter(
         <slot
           v-if="isMobile"
           name="header" />
-        <Sidebar :spec="transformedSpec" />
+        <Sidebar :spec="parsedSpec" />
       </div>
     </aside>
     <!-- Swagger file editing -->
@@ -311,8 +318,9 @@ function handleAIWriter(
     <template v-if="showRendered">
       <div class="references-rendered">
         <Content
+          :parsedSpec="parsedSpec"
           :ready="true"
-          :spec="transformedSpec" />
+          :spec="originalSpecRef" />
       </div>
       <div class="references-footer">
         <slot name="footer" />
@@ -321,7 +329,7 @@ function handleAIWriter(
     <!-- REST API Client Overlay -->
     <ApiClientModal
       :proxyUrl="currentConfiguration?.proxy"
-      :spec="transformedSpec" />
+      :spec="parsedSpec" />
   </div>
 </template>
 <style scoped>
