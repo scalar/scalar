@@ -2,11 +2,12 @@
 import { useClipboard } from '@scalar/use-clipboard'
 import { computed } from 'vue'
 
-import type { Server, ServerStateVariable } from '../../../types'
+import { replaceVariables } from '../../../helpers'
+import type { Server, Variable } from '../../../types'
 
 const props = defineProps<{
   value?: Server
-  variables?: ServerStateVariable[]
+  variables?: Variable[]
 }>()
 
 const { copyToClipboard } = useClipboard()
@@ -17,13 +18,9 @@ const formattedServerUrl = computed(() => {
   /* Remove HTML */
   const urlWithoutHtml = url.replace(/(<([^>]+)>)/gi, '')
 
-  /* Replace all variables (example: {{ baseurl }} with an HTML tag) */
-  const regex = /{\s*([\w.-]+)\s*}/g
-
-  /* Loop through all matches and replace the match with the variable value */
-  return urlWithoutHtml.replace(regex, (_, p1: string) => {
+  return replaceVariables(urlWithoutHtml, (match: string) => {
     const variable = props.variables?.find(
-      (currentVariable: ServerStateVariable) => currentVariable.name === p1,
+      (currentVariable: Variable) => currentVariable.name === match,
     )
 
     return `<span class="base-url-variable">${variable?.value ?? ''}</span>`

@@ -1,4 +1,5 @@
 import type { Server, ServerState } from '../types'
+import { replaceVariables } from './replaceVariables'
 
 export function getUrlFromServerState({
   state,
@@ -7,14 +8,10 @@ export function getUrlFromServerState({
   state: ServerState
   servers: Server[]
 }) {
-  if (state.selectedServer === null) {
-    // TODO: Just pick the first server then?
-    return servers[0].url ?? ''
-  }
+  const url =
+    state.selectedServer === null
+      ? servers[0].url ?? ''
+      : servers[state.selectedServer].url
 
-  const url = servers[state.selectedServer].url
-
-  // TODO: Replace variables
-
-  return url
+  return replaceVariables(url, state.variables)
 }

@@ -57,7 +57,12 @@ const generateSnippet = async () => {
 
 // Update snippet when a different client is selected
 watch(
-  () => state.selectedClient,
+  [
+    () => state.selectedClient,
+    () => props.spec.servers,
+    () => serverState.selectedServer,
+    () => serverState.variables,
+  ],
   async () => {
     CodeMirrorValue.value = await generateSnippet()
   },
