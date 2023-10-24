@@ -29,10 +29,12 @@ const setAuthentication = (newState: Partial<AuthenticationState>) => {
   })
 }
 
-const server = reactive<ServerState>({
+export const createEmptyServerState = (): ServerState => ({
   selectedServer: null,
   variables: [],
 })
+
+const server = reactive<ServerState>(createEmptyServerState())
 
 const setServer = (newState: Partial<ServerState>) => {
   Object.assign(server, {

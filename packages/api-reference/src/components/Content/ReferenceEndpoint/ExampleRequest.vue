@@ -2,22 +2,23 @@
 import { useApiClientRequestStore, useApiClientStore } from '@scalar/api-client'
 import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
-import {
-  HTTPSnippet,
-  type HarRequest,
-  availableTargets,
-} from 'httpsnippet-lite'
+import { HTTPSnippet, availableTargets } from 'httpsnippet-lite'
 import { computed, ref, watch } from 'vue'
 
-import { generateRequest, getExampleFromSchema } from '../../../helpers'
+import {
+  generateRequest,
+  getHarRequest,
+  getUrlFromServerState,
+} from '../../../helpers'
 import { useOperation } from '../../../hooks'
+import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
-import type { Operation, Server, Spec } from '../../../types'
+import type { Server, Spec, TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import { Icon } from '../../Icon'
 
 const props = defineProps<{
-  operation: Operation
+  operation: TransformedOperation
   server: Server
   spec: Spec
 }>()
@@ -27,88 +28,31 @@ const { setActiveRequest } = useApiClientRequestStore()
 const { toggleApiClient } = useApiClientStore()
 const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
 
+const { server: serverState } = useGlobalStore()
+
 const CodeMirrorLanguages = computed(() => {
   return [state.selectedClient.targetKey]
 })
 
 const { parameterMap } = useOperation(props)
 
+// TODO: We should watch the dependencies and regenerate the snippet when something changes
 const generateSnippet = async () => {
-  // Replace all variables of the format {something} with the uppercase variable name without the brackets
-  let path = props.operation.path
-
-  const pathVariables = path.match(/{(.*?)}/g)
-
-  if (pathVariables) {
-    pathVariables.forEach((variable) => {
-      const variableName = variable.replace(/{|}/g, '')
-      path = path.replace(variable, `__${variableName.toUpperCase()}__`)
-    })
-  }
-
-  // Get all the information about the request body
-  const jsonRequest =
-    props.operation.information?.requestBody?.content['application/json'] ||
-    null
-
-  // Headers
-  const headers = []
-
-  if (jsonRequest) {
-    headers.push({
-      name: 'Content-Type',
-      value: 'application/json',
-    })
-  }
-
-  // Prepare the data, if there’s any
-  const schema = jsonRequest?.schema
-  const requestBody = schema ? getExampleFromSchema(schema) : null
-
-  const postData = requestBody
-    ? {
-        mimeType: 'application/json',
-        text: JSON.stringify(requestBody, null, 2),
-      }
-    : null
-
-  // Replace all variables of the format {something} with the uppercase variable name without the brackets
-  let url = props.server.url
-
-  const urlVariables = url.match(/{{(.*?)}}/g)
-  if (urlVariables) {
-    urlVariables.forEach((variable) => {
-      const variableName = variable.replace(/{|}/g, '')
-      url = url.replace(variable, `__${variableName}__`)
-    })
-  }
+  const request = getHarRequest({
+    url: getUrlFromServerState({
+      state: serverState,
+      servers: props.spec.servers,
+    }),
+    operation: props.operation,
+  })
 
   // Actually generate the snippet
-  try {
-    const snippet = new HTTPSnippet({
-      method: props.operation.httpVerb.toUpperCase(),
-      url: `${url}${path}`,
-      headers,
-      postData,
-    } as HarRequest)
+  const snippet = new HTTPSnippet(request)
 
-    return (await snippet.convert(
-      state.selectedClient.targetKey,
-      state.selectedClient.clientKey,
-    )) as string
-  } catch {
-    const snippet = new HTTPSnippet({
-      method: props.operation.httpVerb.toUpperCase(),
-      url: `${window.location.origin}${path}`,
-      headers,
-      postData,
-    } as HarRequest)
-
-    return (await snippet.convert(
-      state.selectedClient.targetKey,
-      state.selectedClient.clientKey,
-    )) as string
-  }
+  return (await snippet.convert(
+    state.selectedClient.targetKey,
+    state.selectedClient.clientKey,
+  )) as string
 }
 
 // Update snippet when a different client is selected
