@@ -3,7 +3,7 @@ import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { computed, ref } from 'vue'
 
-import { generateResponseContent, mapFromObject } from '../../../../helpers'
+import { getExampleFromSchema, mapFromObject } from '../../../../helpers'
 import type { TransformedOperation } from '../../../../types'
 import {
   Card,
@@ -146,7 +146,13 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
               v-if="currentJsonResponse?.schema.type"
               :content="
                 prettyPrintJson(
-                  generateResponseContent(currentJsonResponse?.schema),
+                  getExampleFromSchema(
+                    currentJsonResponse?.schema,
+
+                    {
+                      emptyString: '…',
+                    },
+                  ),
                 )
               "
               :languages="['json']"
@@ -174,7 +180,11 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                     class="rule-item">
                     <CodeMirror
                       :content="
-                        prettyPrintJson(generateResponseContent(example))
+                        prettyPrintJson(
+                          getExampleFromSchema(example, {
+                            emptyString: '…',
+                          }),
+                        )
                       "
                       :languages="['json']"
                       readOnly />
@@ -188,9 +198,9 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                 "
                 :content="
                   prettyPrintJson(
-                    generateResponseContent(
-                      currentJsonResponse?.schema[rule][0],
-                    ),
+                    getExampleFromSchema(currentJsonResponse?.schema[rule][0], {
+                      emptyString: '…',
+                    }),
                   )
                 "
                 :languages="['json']"
@@ -203,7 +213,9 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                 prettyPrintJson(
                   mergeAllObjects(
                     currentJsonResponse?.schema['allOf'].map((schema: any) =>
-                      generateResponseContent(schema),
+                      getExampleFromSchema(schema, {
+                        emptyString: '…',
+                      }),
                     ),
                   ),
                 )

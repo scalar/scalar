@@ -1,5 +1,5 @@
 export * from './generateRequest'
-export * from './generateResponseContent'
+export * from './getExampleFromSchema'
 export * from './getHeadingId'
 export * from './getHeadingsFromMarkdown'
 export * from './getModelSectionId'

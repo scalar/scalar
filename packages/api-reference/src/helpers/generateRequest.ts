@@ -5,7 +5,7 @@ import { type ParamMap } from '../hooks'
 import { useGlobalStore } from '../stores'
 import type { Operation, Server, Spec } from '../types'
 import { generateParameters } from './generateParameters'
-import { generateResponseContent } from './generateResponseContent'
+import { getExampleFromSchema } from './getExampleFromSchema'
 
 const { authentication } = useGlobalStore()
 
@@ -21,7 +21,7 @@ export function generateRequest(
   const schema =
     operation?.information.requestBody?.content['application/json']?.schema
   const body = schema
-    ? JSON.stringify(generateResponseContent(schema), null, 2)
+    ? JSON.stringify(getExampleFromSchema(schema), null, 2)
     : undefined
 
   // Headers

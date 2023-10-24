@@ -9,7 +9,7 @@ import {
 } from 'httpsnippet-lite'
 import { computed, ref, watch } from 'vue'
 
-import { generateRequest, generateResponseContent } from '../../../helpers'
+import { generateRequest, getExampleFromSchema } from '../../../helpers'
 import { useOperation } from '../../../hooks'
 import { useTemplateStore } from '../../../stores/template'
 import type { Operation, Server, Spec } from '../../../types'
@@ -63,7 +63,7 @@ const generateSnippet = async () => {
 
   // Prepare the data, if there’s any
   const schema = jsonRequest?.schema
-  const requestBody = schema ? generateResponseContent(schema) : null
+  const requestBody = schema ? getExampleFromSchema(schema) : null
 
   const postData = requestBody
     ? {
