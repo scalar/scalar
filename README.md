@@ -137,7 +137,7 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
-Actually, it’s executing the `fastify.swagger()` call by default (if available). So that’s all ou need to add:
+Actually, it’s executing the `fastify.swagger()` call by default (if available). So that’s all you need to add:
 
 ```ts
 await fastify.register(require('@scalar/fastify-api-reference'), {
