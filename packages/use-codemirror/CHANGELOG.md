@@ -1,5 +1,12 @@
 # @scalar/use-codemirror
 
+## 0.7.10
+
+### Patch Changes
+
+- 64f8a018: fix: make inputs consistent
+- 7c3091c6: fix: externalize all deps
+
 ## 0.7.9
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # @scalar/fastify-api-reference
 
+## 0.6.38
+
+### Patch Changes
+
+- 4685f391: feat: use new universal configuration object
+- 4685f391: feat: introducing the new universal configuration object
+- Updated dependencies [3b042270]
+- Updated dependencies [4685f391]
+- Updated dependencies [8ac1ad69]
+- Updated dependencies [28191084]
+- Updated dependencies [e01134d4]
+  - @scalar/api-reference@0.8.2
+
 ## 0.6.37
 
 ### Patch Changes
