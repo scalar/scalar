@@ -664,9 +664,6 @@ importers:
       '@codemirror/view':
         specifier: 6.20.0
         version: 6.20.0
-      '@headlessui/vue':
-        specifier: 1.7.16
-        version: 1.7.16(vue@3.3.4)
       '@lezer/common':
         specifier: 1.1.0
         version: 1.1.0
@@ -676,36 +673,12 @@ importers:
       '@lezer/lr':
         specifier: 1.3.11
         version: 1.3.11
-      '@uiw/codemirror-theme-duotone':
-        specifier: 4.21.16
-        version: 4.21.16(@codemirror/language@6.9.1)(@codemirror/state@6.2.1)(@codemirror/view@6.20.0)
       '@uiw/codemirror-themes':
         specifier: 4.21.16
         version: 4.21.16(@codemirror/language@6.9.1)(@codemirror/state@6.2.1)(@codemirror/view@6.20.0)
-      '@vueuse/core':
-        specifier: 10.4.1
-        version: 10.4.1(vue@3.3.4)
-      axios:
-        specifier: 1.5.0
-        version: 1.5.0
       codemirror:
         specifier: 6.0.1
         version: 6.0.1(@lezer/common@1.1.0)
-      javascript-time-ago:
-        specifier: 2.5.9
-        version: 2.5.9
-      nanoid:
-        specifier: 5.0.1
-        version: 5.0.1
-      pretty-bytes:
-        specifier: 6.1.1
-        version: 6.1.1
-      pretty-ms:
-        specifier: 8.0.0
-        version: 8.0.0
-      tippy.js:
-        specifier: 6.3.7
-        version: 6.3.7
       vue:
         specifier: 3.3.4
         version: 3.3.4
@@ -4841,7 +4814,7 @@ packages:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.3.4
-      vue-component-type-helpers: 1.8.19
+      vue-component-type-helpers: 1.8.20
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -5339,16 +5312,6 @@ packages:
       '@typescript-eslint/types': 6.7.2
       eslint-visitor-keys: 3.4.3
     dev: true
-
-  /@uiw/codemirror-theme-duotone@4.21.16(@codemirror/language@6.9.1)(@codemirror/state@6.2.1)(@codemirror/view@6.20.0):
-    resolution: {integrity: sha512-vdJqA8FT5h8aUtTDojKS5D+dO2zt7MxcViuq04U2BfX28lb6VG0fQBSWk2jbzZ0tzLVUowVbhp/U6EdSkY4XrQ==}
-    dependencies:
-      '@uiw/codemirror-themes': 4.21.16(@codemirror/language@6.9.1)(@codemirror/state@6.2.1)(@codemirror/view@6.20.0)
-    transitivePeerDependencies:
-      - '@codemirror/language'
-      - '@codemirror/state'
-      - '@codemirror/view'
-    dev: false
 
   /@uiw/codemirror-themes@4.21.16(@codemirror/language@6.9.1)(@codemirror/state@6.2.1)(@codemirror/view@6.20.0):
     resolution: {integrity: sha512-lLfeaYU+6hCN9E/bwtlhCU+HW5vtYPh6IURrDI8XLx29IvezyW3xXSP7yHMnJeDNvi6rj+Ypna0XMbRTyZlUXg==}
@@ -13799,8 +13762,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /vue-component-type-helpers@1.8.19:
-    resolution: {integrity: sha512-1OANGSZK4pzHF4uc86usWi+o5Y0zgoDtqWkPg6Am6ot+jHSAmpOah59V/4N82So5xRgivgCxGgK09lBy1XNUfQ==}
+  /vue-component-type-helpers@1.8.20:
+    resolution: {integrity: sha512-eaAOlvn+mkv9jX54w9BDdM8/kLhh5FFFGB9niuypE6StBGKSBA8/XbkbsVIfaBnRdFtdVxD2BC/PmWlpWl+WvA==}
     dev: true
 
   /vue-demi@0.14.6(vue@3.3.4):

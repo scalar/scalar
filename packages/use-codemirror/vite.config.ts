@@ -15,6 +15,7 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
+        '@codemirror/lang-html',
         '@codemirror/lang-java',
         '@codemirror/lang-javascript',
         '@codemirror/lang-json',
@@ -23,9 +24,12 @@ export default defineConfig({
         '@codemirror/legacy-modes',
         '@codemirror/state',
         '@codemirror/view',
-        '@uiw/codemirror-theme-duotone',
+        '@lezer/common',
+        '@lezer/highlight',
+        '@lezer/lr',
         '@uiw/codemirror-themes',
         'codemirror',
+        'vue',
       ],
     },
   },
