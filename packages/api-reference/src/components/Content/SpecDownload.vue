@@ -29,7 +29,6 @@ function getFilename(spec: string) {
     <Section>
       <SectionContent>
         <div class="download">
-          <div class="download-text">Download the Spec</div>
           <div class="download-cta">
             <a
               :download="getFilename(value)"
@@ -43,8 +42,4 @@ function getFilename(spec: string) {
   </SectionContainer>
 </template>
 
-<style scoped>
-.download {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-}
-</style>
+<style scoped></style>

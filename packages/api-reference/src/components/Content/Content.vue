@@ -110,9 +110,9 @@ const moreThanOneDefaultTag = (tag: Tag) =>
       <template v-if="hasModels(parsedSpec)">
         <Models :components="parsedSpec.components" />
       </template>
-      <template v-if="spec">
+      <!-- <template v-if="spec">
         <SpecDownload :value="spec" />
-      </template>
+      </template> -->
     </template>
     <div
       v-else
