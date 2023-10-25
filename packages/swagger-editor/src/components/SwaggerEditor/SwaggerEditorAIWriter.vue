@@ -154,6 +154,7 @@ async function handleCreatePage() {
   color: var(--theme-color-1, var(--default-theme-color-1));
   font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   padding: 9px;
+  border: none;
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
