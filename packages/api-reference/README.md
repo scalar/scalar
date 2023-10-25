@@ -102,6 +102,7 @@ Whether the sidebar should be shown.
 #### footerBelowSidebar?: boolean
 
 Whether the footer should be below the content or below both the content _and_ the sidebar.
+
 ```vue
 <ApiReference :configuration="{ footerBelowSidebar: true} />
 ```
