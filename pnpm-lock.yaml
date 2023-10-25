@@ -498,6 +498,39 @@ importers:
       nanoid:
         specifier: 5.0.1
         version: 5.0.1
+      rehype-document:
+        specifier: 7.0.1
+        version: 7.0.1
+      rehype-external-links:
+        specifier: 3.0.0
+        version: 3.0.0
+      rehype-format:
+        specifier: 5.0.0
+        version: 5.0.0
+      rehype-highlight:
+        specifier: 7.0.0
+        version: 7.0.0
+      rehype-sanitize:
+        specifier: 6.0.0
+        version: 6.0.0
+      rehype-slug-custom-id:
+        specifier: 1.1.0
+        version: 1.1.0
+      rehype-stringify:
+        specifier: 10.0.0
+        version: 10.0.0
+      remark-gfm:
+        specifier: 4.0.0
+        version: 4.0.0
+      remark-parse:
+        specifier: 11.0.0
+        version: 11.0.0
+      remark-rehype:
+        specifier: 11.0.0
+        version: 11.0.0
+      unified:
+        specifier: 11.0.3
+        version: 11.0.3
       vue:
         specifier: 3.3.4
         version: 3.3.4
@@ -4814,7 +4847,7 @@ packages:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.3.4
-      vue-component-type-helpers: 1.8.20
+      vue-component-type-helpers: 1.8.21
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -13762,8 +13795,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /vue-component-type-helpers@1.8.20:
-    resolution: {integrity: sha512-eaAOlvn+mkv9jX54w9BDdM8/kLhh5FFFGB9niuypE6StBGKSBA8/XbkbsVIfaBnRdFtdVxD2BC/PmWlpWl+WvA==}
+  /vue-component-type-helpers@1.8.21:
+    resolution: {integrity: sha512-XL37QbmiqqbKrAFHPxqryMXpNgO0KMKd5bIo7LO9QABPMNEysd8xmYRIjwZhh0t2abveXjAJ//ZcAzwdxp/S3Q==}
     dev: true
 
   /vue-demi@0.14.6(vue@3.3.4):

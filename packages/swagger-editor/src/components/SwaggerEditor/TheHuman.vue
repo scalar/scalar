@@ -80,9 +80,10 @@
 }
 .make-it-pop p {
   margin-top: 3px;
-  font-size: var(--theme-paragraph, var(--default-theme-paragraph));
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  line-height: 1.5;
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  line-height: 1.4;
   width: 100%;
 }
 .human i:nth-of-type(1) {

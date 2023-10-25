@@ -8,6 +8,7 @@ import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 export type ReferenceProps = {
   configuration?: ReferenceConfiguration
 } & {
+  aiWriterMarkdown?: string
   /** @deprecated Use the `configuration` prop instead. */
   spec?: string
   /** @deprecated Use the `configuration` prop instead. */

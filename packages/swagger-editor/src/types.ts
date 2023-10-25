@@ -1,6 +1,7 @@
 import { type ThemeId } from '@scalar/themes'
 
 export type SwaggerEditorProps = {
+  aiWriterMarkdown?: string
   value?: string
   hocuspocusConfiguration?: HocuspocusConfigurationProp
   theme?: ThemeId

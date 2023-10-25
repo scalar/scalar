@@ -26,9 +26,14 @@ const props = withDefaults(defineProps<ReferenceProps>(), {
   isEditable: undefined,
 })
 
-defineEmits<{
+const emits = defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
-  (e: 'startAIWriter', value: string[]): void
+  (
+    e: 'startAIWriter',
+    value: string[],
+    swaggerData: string,
+    swaggerType: 'json' | 'yaml',
+  ): void
 }>()
 
 /** Deep merge for objects */
@@ -227,6 +232,14 @@ const showCodeEditor = computed(() => {
     currentConfiguration.value?.isEditable
   )
 })
+
+function handleAIWriter(
+  value: string[],
+  swaggerData: string,
+  swaggerType: 'json' | 'yaml',
+) {
+  emits('startAIWriter', value, swaggerData, swaggerType)
+}
 </script>
 <template>
   <ThemeStyles :id="currentConfiguration?.theme" />
@@ -284,6 +297,7 @@ const showCodeEditor = computed(() => {
       v-show="showCodeEditor"
       class="references-editor">
       <LazyLoadedSwaggerEditor
+        :aiWriterMarkdown="aiWriterMarkdown"
         :hocuspocusConfiguration="currentConfiguration?.hocuspocusConfiguration"
         :initialTabState="currentConfiguration?.tabs?.initialContent"
         :proxyUrl="currentConfiguration?.proxy"
@@ -291,7 +305,7 @@ const showCodeEditor = computed(() => {
         :value="specRef"
         @changeTheme="$emit('changeTheme', $event)"
         @specUpdate="handleSpecUpdate"
-        @startAIWriter="$emit('startAIWriter', $event)" />
+        @startAIWriter="handleAIWriter" />
     </div>
     <!-- Rendered reference -->
     <template v-if="showRendered">
