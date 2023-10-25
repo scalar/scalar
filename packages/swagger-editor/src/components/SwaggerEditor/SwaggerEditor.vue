@@ -15,6 +15,7 @@ import {
   type SwaggerEditorProps,
 } from '../../types'
 import GettingStarted from './GettingStarted.vue'
+import SwaggerEditorAIWriter from './SwaggerEditorAIWriter.vue'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
@@ -27,6 +28,12 @@ const emit = defineEmits<{
   (e: 'specUpdate', spec: SwaggerSpec): void
   (e: 'import', value: string): void
   (e: 'changeTheme', value: ThemeId): void
+  (
+    e: 'startAIWriter',
+    value: string[],
+    swaggerData: string,
+    swaggerType: 'json' | 'yaml',
+  ): void
 }>()
 
 const swaggerEditorHeaderRef = ref<typeof SwaggerEditorHeader | null>(null)
@@ -54,7 +61,10 @@ const handleSpecUpdate = useDebounceFn((value) => {
     })
 })
 
+const rawContent = ref('')
+
 const handleContentUpdate = (value: string) => {
+  rawContent.value = value
   emit('contentUpdate', value)
   handleSpecUpdate(value)
 }
@@ -108,6 +118,7 @@ function handleChangeExample(example: GettingStartedExamples) {
 
   handleSpecUpdate(spec)
   currentExample.value = spec
+  rawContent.value = spec
 }
 
 watch(
@@ -134,6 +145,27 @@ const handleOpenSwaggerEditor = (action?: OpenSwaggerEditorActions) => {
     swaggerEditorHeaderRef?.value?.openFileDialog()
   }
 }
+
+const isJsonString = (value?: any) => {
+  if (typeof value !== 'string') {
+    return false
+  }
+
+  try {
+    JSON.parse(value)
+  } catch {
+    return false
+  }
+
+  return true
+}
+
+function handleAIWriter(queries: string[]) {
+  console.log(rawContent.value)
+  const content = rawContent.value ?? currentExample.value ?? props.value ?? ''
+  const specType = isJsonString(content) ? 'json' : 'yaml'
+  emit('startAIWriter', queries, content, specType)
+}
 </script>
 <template>
   <ThemeStyles :id="theme" />
@@ -155,6 +187,10 @@ const handleOpenSwaggerEditor = (action?: OpenSwaggerEditorActions) => {
       :value="currentExample ?? props.value ?? ''"
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
+    <SwaggerEditorAIWriter
+      v-if="activeTab === 'AI Writer'"
+      :aiWriterMarkdown="aiWriterMarkdown ?? ''"
+      @startAIWriter="handleAIWriter" />
     <SwaggerEditorStatusBar
       v-if="activeTab === 'Swagger Editor' && awarenessStates.length">
       {{ awarenessStates.length }} user{{

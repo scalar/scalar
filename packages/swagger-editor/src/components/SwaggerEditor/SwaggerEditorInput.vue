@@ -17,15 +17,15 @@ const emit = defineEmits<{
 const getRandomElement = (list: any) =>
   list[Math.floor(Math.random() * list.length)]
 
+let provider: HocuspocusProvider | null = null
+
+const yCodeMirrorExtension = ref<any | null>(null)
+
 defineExpose({
   setCodeMirrorContent: (value: string) => {
     codeMirrorRef.value?.setCodeMirrorContent(value)
   },
 })
-
-let provider: HocuspocusProvider | null = null
-
-const yCodeMirrorExtension = ref<any | null>(null)
 
 watch(
   props,
