@@ -15,6 +15,7 @@ import {
   type SwaggerEditorProps,
 } from '../../types'
 import GettingStarted from './GettingStarted.vue'
+import SwaggerEditorAIWriter from './SwaggerEditorAIWriter.vue'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
@@ -27,6 +28,7 @@ const emit = defineEmits<{
   (e: 'specUpdate', spec: SwaggerSpec): void
   (e: 'import', value: string): void
   (e: 'changeTheme', value: ThemeId): void
+  (e: 'startAIWriter', value: string[]): void
 }>()
 
 const swaggerEditorHeaderRef = ref<typeof SwaggerEditorHeader | null>(null)
@@ -155,6 +157,10 @@ const handleOpenSwaggerEditor = (action?: OpenSwaggerEditorActions) => {
       :value="currentExample ?? props.value ?? ''"
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
+    <SwaggerEditorAIWriter
+      v-if="activeTab === 'AI Writer'"
+      :content="''"
+      @startAIWriter="$emit('startAIWriter', $event)" />
     <SwaggerEditorStatusBar
       v-if="activeTab === 'Swagger Editor' && awarenessStates.length">
       {{ awarenessStates.length }} user{{

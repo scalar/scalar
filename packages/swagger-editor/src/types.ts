@@ -25,7 +25,10 @@ export type HocuspocusConfigurationProp = {
   username?: string
 }
 
-export type EditorHeaderTabs = 'Getting Started' | 'Swagger Editor'
+export type EditorHeaderTabs =
+  | 'Getting Started'
+  | 'Swagger Editor'
+  | 'AI Writer'
 
 export type GettingStartedExamples = 'Petstore' | 'Tableau' | 'CoinMarketCap'
 

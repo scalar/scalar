@@ -87,6 +87,14 @@ const useExample = () => {
       @click="emit('updateActiveTab', 'Swagger Editor')">
       <div class="swagger-editor-type">Swagger Editor</div>
     </div>
+    <div
+      class="swagger-editor-title"
+      :class="{
+        'swagger-editor-active': activeTab === 'AI Writer',
+      }"
+      @click="emit('updateActiveTab', 'AI Writer')">
+      <div class="swagger-editor-type">✨ AI Writer</div>
+    </div>
   </div>
   <div
     v-show="activeTab === 'Swagger Editor'"
