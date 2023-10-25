@@ -40,8 +40,6 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
           </SectionColumn>
           <SectionColumn>
             <div class="sticky-cards flex-col gap-1">
-              <Authentication :spec="spec" />
-
               <Card v-if="servers.length > 0">
                 <CardHeader muted>
                   Base URL{{ servers?.length > 1 ? 's' : '' }}
@@ -68,6 +66,7 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
                   {{ getClientTitle(state.selectedClient) }}
                 </CardFooter>
               </Card>
+              <Authentication :spec="spec" />
             </div>
           </SectionColumn>
         </SectionColumns>
