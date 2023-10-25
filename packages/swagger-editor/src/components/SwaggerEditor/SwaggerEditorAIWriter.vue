@@ -61,45 +61,51 @@ async function handleCreatePage() {
 </script>
 <template>
   <div class="swagger-ai-writer gap-1 flex-col">
-    <TheHuman>
-      <template #title>
-        <h1>AI Writer</h1>
-      </template>
-      <template #description>
-        Swagger ai writer makes it easy to write high quality documentation,
-        take it for a spin to try it out today!
-      </template>
-    </TheHuman>
-    <FlowTextField
-      v-model="title"
-      autofocus
-      label="Title"
-      placeholder="Getting Started" />
-    <div class="ai-content ai-content__show">
-      <input
-        v-for="(step, index) in state.steps"
-        :key="index"
-        ref="itemRefs"
-        class="ai-content-input"
-        placeholder="i.e How to Create a User"
-        type="text"
-        :value="step"
-        @input="state.setStep(index, ($event.target as HTMLInputElement).value)"
-        @keydown.delete="step === '' ? state.spliceStep(index) : () => {}"
-        @keydown.enter="nextStep?.focus()" />
-      <input
-        ref="nextStep"
-        v-model="extraStep"
-        class="ai-content-input"
-        placeholder="i.e How to Create a User"
-        type="text"
-        @input="extraStepHandler" />
-      <span> AI Section Prompts <i> (Optional)</i> </span>
+    <div class="swagger-ai-writer-inputs">
+      <TheHuman>
+        <template #title>
+          <h1>AI Writer</h1>
+        </template>
+        <template #description>
+          Swagger ai writer makes it easy to write high quality documentation,
+          take it for a spin to try it out today!
+        </template>
+      </TheHuman>
+      <div class="swagger-ai-writer-inputs-container">
+        <FlowTextField
+          v-model="title"
+          autofocus
+          label="Title"
+          placeholder="Getting Started" />
+        <div class="ai-content ai-content__show">
+          <input
+            v-for="(step, index) in state.steps"
+            :key="index"
+            ref="itemRefs"
+            class="ai-content-input"
+            placeholder="i.e How to Create a User"
+            type="text"
+            :value="step"
+            @input="
+              state.setStep(index, ($event.target as HTMLInputElement).value)
+            "
+            @keydown.delete="step === '' ? state.spliceStep(index) : () => {}"
+            @keydown.enter="nextStep?.focus()" />
+          <input
+            ref="nextStep"
+            v-model="extraStep"
+            class="ai-content-input"
+            placeholder="i.e How to Create a User"
+            type="text"
+            @input="extraStepHandler" />
+          <span> AI Section Prompts <i> (Optional)</i> </span>
+        </div>
+        <FlowButton
+          label="Generate Content"
+          :loaderState="loadingState"
+          @click="sendContentCreationRequest" />
+      </div>
     </div>
-    <FlowButton
-      label="Generate Content"
-      :loaderState="loadingState"
-      @click="sendContentCreationRequest" />
 
     <div v-html="output"></div>
 
@@ -127,16 +133,32 @@ async function handleCreatePage() {
   display: flex;
   flex-direction: column;
   position: relative;
-  border-radius: var(--theme-radius);
-  border: var(--theme-border);
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  input::placeholder {
+    color: var(--theme-color-3, var(--default-theme-color-3));
+    font-family: var(--theme-font, var(--default-theme-font));
+  }
+  input:-ms-input-placeholder {
+    color: var(--theme-color-3, var(--default-theme-color-3));
+    font-family: var(--theme-font, var(--default-theme-font));
+  }
+  input::-webkit-input-placeholder {
+    color: var(--theme-color-3, var(--default-theme-color-3));
+    font-family: var(--theme-font, var(--default-theme-font));
+  }
   span {
-    font-size: var(--theme-font-size-3);
-    color: var(--theme-color-3);
+    font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
+    color: var(--theme-color-3, var(--default-theme-color-3));
     display: flex;
     align-items: center;
     position: absolute;
-    background: var(--theme-background-1) !important;
-    box-shadow: 0 0 2px 2px var(--theme-background-1) !important;
+    background: var(
+      --theme-background-2,
+      var(--default-theme-background-2)
+    ) !important;
+    box-shadow: 0 0 2px 2px
+      var(--theme-background-2, var(--default-theme-background-2)) !important;
     margin: 12px 6px;
     padding: 0 6px;
     transition: transform 0.2s ease-in-out, font-size 0.2s ease-in-out;
@@ -155,10 +177,11 @@ async function handleCreatePage() {
     appearance: none;
     outline: none;
     background: transparent;
-    color: var(--theme-color-1);
-    font-size: var(--theme-font-size-3);
+    color: var(--theme-color-1, var(--default-theme-color-1));
+    font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
     padding: 11px 12px;
-    border-bottom: var(--theme-border);
+    border-bottom: 1px solid
+      var(--theme-border-color, var(--default-theme-border-color));
     &:last-of-type {
       border-bottom: none;
     }
@@ -166,13 +189,13 @@ async function handleCreatePage() {
       border-top: none;
     }
     &::placeholder {
-      color: var(--theme-color-3);
+      color: var(--theme-color-3, var(--deafult-theme-color-3));
     }
     &:focus-within ~ span,
     &:not(:placeholder-shown) ~ span {
       transform: translate3d(0, -20px, 0) scale(0.75);
       transform-origin: top left;
-      color: var(--theme-color-1);
+      color: var(--theme-color-1, var(--default-theme-color-1));
     }
     &:first-of-type:placeholder-shown {
       opacity: 0;
@@ -180,10 +203,32 @@ async function handleCreatePage() {
     &:first-of-type:focus {
       opacity: 1;
     }
+    &:focus {
+      box-shadow: 0 0 0 1px var(--theme-color-1, var(--default-theme-color-1));
+    }
+    &:first-of-type {
+      border-radius: var(--theme-radius, var(--default-theme-radius))
+        var(--theme-radius, var(--default-theme-radius)) 0 0;
+    }
+    &:last-of-type {
+      border-radius: 0 0 var(--theme-radius, var(--default-theme-radius))
+        var(--theme-radius, var(--default-theme-radius));
+    }
   }
-  &:focus-within,
-  &:focus-within .ai-content-input {
-    border-color: var(--theme-color-3);
-  }
+}
+.swagger-ai-writer-inputs {
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+}
+.swagger-ai-writer-inputs-container :deep(.flow-label) {
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  box-shadow: 0 0 2px 2px
+    var(--theme-background-2, var(--default-theme-background-2));
+}
+.swagger-ai-writer-inputs-container {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup lang="ts"></script>
 <template>
-  <div class="make-it-pop texture">
+  <div class="make-it-pop">
     <b><slot name="title" /></b>
     <p>
       <slot name="description" />
@@ -48,7 +48,7 @@
 .human i {
   width: 100%;
   height: 1px;
-  background: #4c4316;
+  background: var(--theme-color-3, var(--default-theme-color-3));
   display: block;
   position: relative;
   transform: translate3d(100%, 0, 0);
@@ -63,20 +63,27 @@
   }
 }
 .make-it-pop {
-  background: var(--scalar-brand);
-  border-radius: var(--theme-radius);
   overflow: hidden;
   position: relative;
   padding: 12px 60px 12px 12px;
   min-height: 80px;
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .make-it-pop b {
-  font-weight: var(--theme-semibold);
-  font-size: var(--theme-font-size-3);
+  font-size: var(--theme-heading-2, var(--default-theme-heading-2));
+  margin-top: 0;
+  line-height: 1.45;
+  margin-bottom: 0;
+  font-weight: var(--theme-bold, var(--default-theme-bold));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  width: 100%;
 }
 .make-it-pop p {
-  font-size: var(--theme-font-size-3);
   margin-top: 3px;
+  font-size: var(--theme-paragraph, var(--default-theme-paragraph));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  line-height: 1.5;
+  width: 100%;
 }
 .human i:nth-of-type(1) {
   left: 30px;
@@ -157,19 +164,5 @@
 .human i:nth-of-type(20) {
   left: 30px;
   animation-delay: 1.05s;
-}
-.texture:after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIj4KICAgIDxmaWx0ZXIgaWQ9Im5vaXNlIiB4PSIwIiB5PSIwIj4KICAgICAgPGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNjUiIG51bU9jdGF2ZXM9IjMiIHN0aXRjaFRpbGVzPSJzdGl0Y2giLz4KICAgICAgPGZlQmxlbmQgbW9kZT0ic2NyZWVuIi8+CiAgICA8L2ZpbHRlcj4KICAgIDxyZWN0IHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIiBmaWx0ZXI9InVybCgjbm9pc2UpIiBvcGFjaXR5PSIwLjUiLz4KPC9zdmc+);
-  opacity: 40%;
-  pointer-events: none;
-}
-.dark-mode .texture:after {
-  opacity: 0.2;
 }
 </style>
