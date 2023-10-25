@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 0.8.3
+
+### Patch Changes
+
+- d5fccba9: add ai writer to swagger editor
+- Updated dependencies [d5fccba9]
+  - @scalar/swagger-editor@0.6.26
+
 ## 0.8.2
 
 ### Patch Changes

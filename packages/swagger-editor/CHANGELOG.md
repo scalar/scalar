@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.6.26
+
+### Patch Changes
+
+- d5fccba9: add ai writer to swagger editor
+
 ## 0.6.25
 
 ### Patch Changes
