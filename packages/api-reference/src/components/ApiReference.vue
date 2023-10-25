@@ -28,6 +28,7 @@ const props = withDefaults(defineProps<ReferenceProps>(), {
 
 defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
+  (e: 'startAIWriter', value: string[]): void
 }>()
 
 /** Deep merge for objects */
@@ -289,7 +290,8 @@ const showCodeEditor = computed(() => {
         :theme="currentConfiguration?.theme"
         :value="specRef"
         @changeTheme="$emit('changeTheme', $event)"
-        @specUpdate="handleSpecUpdate" />
+        @specUpdate="handleSpecUpdate"
+        @startAIWriter="$emit('startAIWriter', $event)" />
     </div>
     <!-- Rendered reference -->
     <template v-if="showRendered">
