@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 <template>
   <div class="make-it-pop">
-    <b><slot name="title" /></b>
+    <slot name="title" />
     <p>
       <slot name="description" />
     </p>
@@ -69,7 +69,7 @@
   min-height: 80px;
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
-.make-it-pop b {
+.make-it-pop :deep(h1) {
   font-size: var(--theme-heading-2, var(--default-theme-heading-2));
   margin-top: 0;
   line-height: 1.45;
