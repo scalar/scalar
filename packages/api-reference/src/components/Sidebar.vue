@@ -93,6 +93,7 @@ type SidebarEntry = {
   type: 'Page' | 'Folder'
   children?: SidebarEntry[]
   select?: () => void
+  httpVerb?: string
 }
 
 const items = computed((): SidebarEntry[] => {
@@ -122,6 +123,7 @@ const items = computed((): SidebarEntry[] => {
                 id: getOperationSectionId(operation, tag),
                 title: operation.name || operation.path,
                 type: 'Page',
+                httpVerb: operation.httpVerb,
                 select: () => {
                   if (state.showApiClient) {
                     showItemInClient(operation)
@@ -136,6 +138,7 @@ const items = computed((): SidebarEntry[] => {
             id: getOperationSectionId(operation, firstTag),
             title: operation.name || operation.path,
             type: 'Page',
+            httpVerb: operation.httpVerb,
             select: () => {
               if (state.showApiClient) {
                 showItemInClient(operation)
@@ -234,6 +237,7 @@ const setRef = (el: SidebarElementType, id: string) => {
             uid: '',
             title: item.title,
             type: item.type,
+            httpVerb: item.httpVerb,
           }"
           :open="templateState.collapsedSidebarItems[item.id] ?? false"
           @select="
@@ -259,6 +263,7 @@ const setRef = (el: SidebarElementType, id: string) => {
                   uid: '',
                   title: child.title,
                   type: child.type,
+                  httpVerb: child.httpVerb,
                 }"
                 @select="
                   () => {
@@ -369,7 +374,8 @@ const setRef = (el: SidebarElementType, id: string) => {
   padding-right: 12px;
   padding: 6px 0;
   display: flex;
-  align-items: center;
+  flex: 1;
+  justify-content: space-between;
 }
 
 /* Sidebar link icon */
