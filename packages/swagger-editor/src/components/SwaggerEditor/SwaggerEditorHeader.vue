@@ -174,7 +174,7 @@ const useExample = () => {
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .swagger-editor-type {
-  padding: 9px;
+  padding: 9px 12px;
   user-select: none;
   position: relative;
   z-index: 1;
@@ -182,7 +182,7 @@ const useExample = () => {
 .swagger-editor-buttons {
   display: flex;
   justify-content: space-between;
-  padding: 0 12px 0 21px;
+  padding: 0 6px 0 12px;
   height: 35px;
   min-height: 35px;
   align-items: center;
