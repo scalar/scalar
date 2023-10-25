@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.6.27
+
+### Patch Changes
+
+- a73ee9d8: fix typography on editor headings
+
 ## 0.6.26
 
 ### Patch Changes
