@@ -8,7 +8,8 @@ import { computed, ref, watch } from 'vue'
 import {
   generateRequest,
   getHarRequest,
-  getRequestFromAuthenticationState,
+  getRequestFromAuthentication,
+  getRequestFromOperation,
   getUrlFromServerState,
 } from '../../../helpers'
 import { useOperation } from '../../../hooks'
@@ -39,11 +40,14 @@ const CodeMirrorLanguages = computed(() => {
 const { parameterMap } = useOperation(props)
 
 const generateSnippet = async () => {
-  const request = getHarRequest({
-    url: getUrlFromServerState(serverState),
-    operation: props.operation,
-    ...getRequestFromAuthenticationState(authenticationState),
-  })
+  // Generate a request object
+  const request = getHarRequest(
+    {
+      url: getUrlFromServerState(serverState),
+    },
+    getRequestFromOperation(props.operation),
+    getRequestFromAuthentication(authenticationState),
+  )
 
   // Actually generate the snippet
   try {
@@ -53,8 +57,8 @@ const generateSnippet = async () => {
       state.selectedClient.targetKey,
       state.selectedClient.clientKey,
     )) as string
-  } catch {
-    return ''
+  } catch (error) {
+    return error
   }
 }
 

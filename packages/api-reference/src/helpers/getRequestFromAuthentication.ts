@@ -3,7 +3,7 @@ import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 
 import type { AuthenticationState } from '../types'
 
-export function getRequestFromAuthenticationState(
+export function getRequestFromAuthentication(
   authentication: AuthenticationState,
 ): Partial<HarRequest> {
   const headers = []
@@ -11,16 +11,10 @@ export function getRequestFromAuthenticationState(
   const cookies = []
 
   // Authentication
-  // TODO: Prefill AuthState, not the headers
   if (authentication.securitySchemeKey) {
     // We’re using a parsed Swagger file here, so let’s get rid of the `ReferenceObject` type
-    // @ts-ignore
-    const securityScheme = authentication.securitySchemes?.[
-      authentication.securitySchemeKey
-    ] as
-      | OpenAPIV2.SecuritySchemeObject
-      | OpenAPIV3.SecuritySchemeObject
-      | OpenAPIV3_1.SecuritySchemeObject
+    const securityScheme =
+      authentication.securitySchemes?.[authentication.securitySchemeKey]
 
     if (securityScheme) {
       // API Key
@@ -41,7 +35,7 @@ export function getRequestFromAuthenticationState(
           })
         }
         // Query
-        else if (securityScheme.in === 'queryString') {
+        else if (securityScheme.in === 'query') {
           queryString.push({
             name: securityScheme.name,
             value: authentication.apiKey.token,

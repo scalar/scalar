@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { replaceVariables } from './'
+import { replaceVariables } from './replaceVariables'
 
 describe('replaceVariables', () => {
   it('replaces variables', async () => {

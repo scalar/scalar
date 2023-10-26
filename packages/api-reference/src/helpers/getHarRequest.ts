@@ -6,77 +6,58 @@ import { mapFromObject } from '../helpers'
 import type { Cookie, Header, Query, TransformedOperation } from '../types'
 import { getExampleFromSchema } from './getExampleFromSchema'
 
-export const getHarRequest = ({
-  url,
-  operation,
-  headers,
-  queryString,
-  cookies,
-}: {
-  url: string
-  operation: TransformedOperation
-  headers?: Header[]
-  queryString?: Query[]
-  cookies?: Cookie[]
-}): HarRequest => {
-  // Replace all variables of the format {something} with the uppercase variable name without the brackets
-  let path = operation.path
+export type HarRequestWithPath = HarRequest & {
+  path?: string
+}
 
-  const pathVariables = path.match(/{(.*?)}/g)
-
-  if (pathVariables) {
-    pathVariables.forEach((variable) => {
-      const variableName = variable.replace(/{|}/g, '')
-      path = path.replace(variable, `__${variableName.toUpperCase()}__`)
-    })
+export const getHarRequest = (
+  ...requests: Partial<HarRequestWithPath>[]
+): HarRequest => {
+  let newHarRequest: HarRequestWithPath = {
+    httpVersion: '1.1',
+    method: 'GET',
+    url: '',
+    headers: [] as Header[],
+    headersSize: -1,
+    queryString: [],
+    cookies: [],
+    bodySize: -1,
   }
 
-  // Get all the information about the request body
-  const jsonRequest =
-    operation.information?.requestBody?.content['application/json'] || null
-
-  // Headers
-  let allHeaders = []
-
-  if (jsonRequest) {
-    allHeaders.push({
-      name: 'Content-Type',
-      value: 'application/json',
-    })
-  }
-
-  // Prepare the data, if there’s any
-  const schema = jsonRequest?.schema
-  const requestBody = schema ? getExampleFromSchema(schema) : null
-
-  const postData = requestBody
-    ? {
-        mimeType: 'application/json',
-        text: JSON.stringify(requestBody, null, 2),
-      }
-    : undefined
+  // Merge all the requests
+  requests.forEach((request: Partial<HarRequestWithPath>) => {
+    newHarRequest = {
+      ...newHarRequest,
+      ...request,
+      headers: [...newHarRequest.headers, ...(request.headers ?? [])],
+      queryString: [
+        ...newHarRequest.queryString,
+        ...(request.queryString ?? []),
+      ],
+      cookies: [...newHarRequest.cookies, ...(request.cookies ?? [])],
+    }
+  })
 
   // We’re working with { name: …, value … }, Axios is working with { name: value }. We need to transform the data with mapFromArray and mapFromObject.
-  allHeaders = [...allHeaders, ...(headers ?? [])]
-  const normalizedHeaders = mapFromObject(
-    AxiosHeaders.from(mapFromArray(allHeaders, 'name', 'value')).normalize(
-      true,
-    ),
+  newHarRequest.headers = mapFromObject(
+    AxiosHeaders.from(
+      mapFromArray(newHarRequest.headers as Header[], 'name', 'value'),
+    ).normalize(true),
     'name',
   ) as {
     name: string
     value: string
   }[]
 
-  return {
-    method: operation.httpVerb.toUpperCase(),
-    url: `${url}${path}`,
-    headers: normalizedHeaders,
-    queryString: queryString ?? [],
-    cookies: cookies ?? [],
-    httpVersion: '1.1',
-    headersSize: -1,
-    bodySize: -1,
-    postData,
+  // Path doesn’t exist in HAR, let’s concat the path and the URL
+  const { path, ...result } = newHarRequest
+
+  if (path) {
+    return {
+      ...result,
+      url: `${newHarRequest.url}${path}`,
+    }
   }
+
+  return result
 }

@@ -225,9 +225,9 @@ export type Spec = {
 export type AuthenticationState = {
   securitySchemeKey: string | null
   securitySchemes?:
-    | OpenAPIV2.SecuritySchemeObject
-    | OpenAPIV3.SecuritySchemeObject
-    | OpenAPIV3_1.SecuritySchemeObject
+    | Record<string, OpenAPIV2.SecuritySchemeObject>
+    | Record<string, OpenAPIV3.SecuritySchemeObject>
+    | Record<string, OpenAPIV3_1.SecuritySchemeObject>
   http: {
     basic: {
       username: string
