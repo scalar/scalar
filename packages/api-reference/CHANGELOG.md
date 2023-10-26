@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 0.8.7
+
+### Patch Changes
+
+- db24e103: hotfix: import spec from url
+- Updated dependencies [db24e103]
+  - @scalar/swagger-editor@0.6.29
+
 ## 0.8.6
 
 ### Patch Changes

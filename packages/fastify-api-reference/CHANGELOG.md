@@ -1,5 +1,12 @@
 # @scalar/fastify-api-reference
 
+## 0.6.43
+
+### Patch Changes
+
+- Updated dependencies [db24e103]
+  - @scalar/api-reference@0.8.7
+
 ## 0.6.42
 
 ### Patch Changes
