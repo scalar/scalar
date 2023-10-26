@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 0.8.8
+
+### Patch Changes
+
+- 8e2e4e5a: fix markdown collisions + prefix the card name
+- Updated dependencies [8e2e4e5a]
+  - @scalar/swagger-editor@0.6.30
+  - @scalar/api-client@0.7.25
+
 ## 0.8.7
 
 ### Patch Changes

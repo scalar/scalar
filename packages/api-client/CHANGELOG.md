@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.7.25
+
+### Patch Changes
+
+- 8e2e4e5a: fix markdown collisions + prefix the card name
+
 ## 0.7.24
 
 ### Patch Changes
