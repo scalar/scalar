@@ -66,10 +66,14 @@ const moreThanOneDefaultTag = (tag: Tag) =>
     }">
     <template v-if="ready">
       <Introduction
+        v-if="rawSpec.length > 0"
         :info="parsedSpec.info"
         :parsedSpec="parsedSpec"
         :rawSpec="rawSpec"
         :servers="localServers" />
+      <slot
+        v-else
+        name="empty" />
       <template
         v-for="(tag, index) in parsedSpec.tags"
         :key="tag.id">
