@@ -296,7 +296,7 @@ function handleAIWriter(
     </aside>
     <!-- Swagger file editing -->
     <div
-      v-if="showSwaggerEditor"
+      v-show="showSwaggerEditor"
       class="references-editor">
       <LazyLoadedSwaggerEditor
         :aiWriterMarkdown="aiWriterMarkdown"
