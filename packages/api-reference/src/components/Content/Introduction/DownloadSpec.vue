@@ -27,7 +27,9 @@ function getFilePath(content: string) {
 }
 </script>
 <template>
-  <div class="download">
+  <div
+    v-if="value"
+    class="download">
     <div class="download-cta">
       <a
         :download="getFilename(value)"
