@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.6.30
+
+### Patch Changes
+
+- 8e2e4e5a: fix markdown collisions + prefix the card name
+
 ## 0.6.29
 
 ### Patch Changes
