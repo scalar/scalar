@@ -1,7 +1,7 @@
 {
   "name": "@scalar/fastify-api-reference",
   "description": "a fastify plugin to render an API reference from a Swagger spec",
-  "version": "0.6.40",
+  "version": "0.6.41",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {

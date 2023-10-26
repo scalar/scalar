@@ -1,7 +1,7 @@
 {
   "name": "@scalar/api-reference",
   "description": "generate beautiful API references from OpenAPI specs",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "author": "Scalar (https://github.com/scalar)",
   "browser": "./dist/browser/standalone.js",
   "bugs": "https://github.com/scalar/scalar/issues/new",

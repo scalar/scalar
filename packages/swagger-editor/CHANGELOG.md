@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.6.28
+
+### Patch Changes
+
+- 2f0b2f01: refactor: improve the data flow between the reference and the swagger editor
+
 ## 0.6.27
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 0.8.5
+
+### Patch Changes
+
+- 2f0b2f01: fix: add deprecated footerBelowSidebar again (use configuration object instead)
+- 2f0b2f01: feat: add download spec button
+- 2f0b2f01: refactor: improve the data flow between the reference and the swagger editor
+- 2f0b2f01: refactor: move json helpers to separate files
+- Updated dependencies [2f0b2f01]
+- Updated dependencies [2f0b2f01]
+  - @scalar/swagger-editor@0.6.28
+  - @scalar/api-client@0.7.24
+
 ## 0.8.4
 
 ### Patch Changes
