@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 0.8.6
+
+### Patch Changes
+
+- c75b13b1: hotfix: load the swagger editor even if it’s not used
+
 ## 0.8.5
 
 ### Patch Changes
