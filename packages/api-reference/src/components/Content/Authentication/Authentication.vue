@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 
 import { hasSecuritySchemes } from '../../../helpers'
 import { useGlobalStore } from '../../../stores'
@@ -10,7 +10,7 @@ import SecuritySchemeSelector from './SecuritySchemeSelector.vue'
 
 const props = defineProps<{ spec?: Spec }>()
 
-const { authentication } = useGlobalStore()
+const { authentication, setAuthentication } = useGlobalStore()
 
 const showSecurityScheme = computed(() => {
   if (!authentication.securitySchemeKey) {
@@ -23,6 +23,18 @@ const showSecurityScheme = computed(() => {
   // @ts-ignore
   return !!scheme?.type
 })
+
+// Keep a copy of the security schemes in the global authentication state
+watch(
+  () => props.spec?.components?.securitySchemes,
+  () => {
+    setAuthentication({
+      // @ts-ignore
+      securitySchemes: props.spec?.components?.securitySchemes,
+    })
+  },
+  { deep: true, immediate: true },
+)
 </script>
 
 <template>

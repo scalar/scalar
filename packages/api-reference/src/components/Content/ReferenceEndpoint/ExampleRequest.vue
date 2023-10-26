@@ -8,6 +8,7 @@ import { computed, ref, watch } from 'vue'
 import {
   generateRequest,
   getHarRequest,
+  getRequestDataFromAuthenticationState,
   getUrlFromServerState,
 } from '../../../helpers'
 import { useOperation } from '../../../hooks'
@@ -28,7 +29,8 @@ const { setActiveRequest } = useApiClientRequestStore()
 const { toggleApiClient } = useApiClientStore()
 const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
 
-const { server: serverState } = useGlobalStore()
+const { server: serverState, authentication: authenticationState } =
+  useGlobalStore()
 
 const CodeMirrorLanguages = computed(() => {
   return [state.selectedClient.targetKey]
@@ -37,18 +39,26 @@ const CodeMirrorLanguages = computed(() => {
 const { parameterMap } = useOperation(props)
 
 const generateSnippet = async () => {
+  const additionalRequestdata =
+    getRequestDataFromAuthenticationState(authenticationState)
+
   const request = getHarRequest({
     url: getUrlFromServerState(serverState),
+    additionalHeaders: additionalRequestdata.headers,
     operation: props.operation,
   })
 
   // Actually generate the snippet
-  const snippet = new HTTPSnippet(request)
+  try {
+    const snippet = new HTTPSnippet(request)
 
-  return (await snippet.convert(
-    state.selectedClient.targetKey,
-    state.selectedClient.clientKey,
-  )) as string
+    return (await snippet.convert(
+      state.selectedClient.targetKey,
+      state.selectedClient.clientKey,
+    )) as string
+  } catch {
+    return ''
+  }
 }
 
 watch(
@@ -56,16 +66,15 @@ watch(
     // Update snippet when a different client is selected
     () => state.selectedClient,
     // … or the global server state changed
-    () => serverState.selectedServer,
-    // … or the server list changed
-    () => serverState.servers,
-    // … or the variables changed
-    () => serverState.variables,
+    () => serverState,
+    // … or the global authentication state changed
+    () => authenticationState,
   ],
   async () => {
     CodeMirrorValue.value = await generateSnippet()
   },
   {
+    deep: true,
     immediate: true,
   },
 )

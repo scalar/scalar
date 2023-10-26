@@ -1,9 +1,7 @@
 import { type HarRequest } from 'httpsnippet-lite'
 
-import type { TransformedOperation } from '../types'
+import type { Header, TransformedOperation } from '../types'
 import { getExampleFromSchema } from './getExampleFromSchema'
-
-export type Header = { name: string; value: string }
 
 export const getHarRequest = ({
   url,
