@@ -8,7 +8,7 @@ import type { Cookie, HarRequestWithPath, Header, Query } from '../types'
 export const getHarRequest = (
   ...requests: Partial<HarRequestWithPath>[]
 ): HarRequest => {
-  let newHarRequest: HarRequestWithPath = {
+  let mergedRequests: HarRequestWithPath = {
     httpVersion: '1.1',
     method: 'GET',
     url: '',
@@ -22,22 +22,22 @@ export const getHarRequest = (
 
   // Merge all the requests
   requests.forEach((request: Partial<HarRequestWithPath>) => {
-    newHarRequest = {
-      ...newHarRequest,
+    mergedRequests = {
+      ...mergedRequests,
       ...request,
-      headers: [...newHarRequest.headers, ...(request.headers ?? [])],
+      headers: [...mergedRequests.headers, ...(request.headers ?? [])],
       queryString: [
-        ...newHarRequest.queryString,
+        ...mergedRequests.queryString,
         ...(request.queryString ?? []),
       ],
-      cookies: [...newHarRequest.cookies, ...(request.cookies ?? [])],
+      cookies: [...mergedRequests.cookies, ...(request.cookies ?? [])],
     }
   })
 
   // We’re working with { name: …, value … }, Axios is working with { name: value }. We need to transform the data with mapFromArray and mapFromObject.
-  newHarRequest.headers = mapFromObject(
+  mergedRequests.headers = mapFromObject(
     AxiosHeaders.from(
-      mapFromArray(newHarRequest.headers as Header[], 'name', 'value'),
+      mapFromArray(mergedRequests.headers as Header[], 'name', 'value'),
     ).normalize(true),
     'name',
   ) as {
@@ -46,12 +46,12 @@ export const getHarRequest = (
   }[]
 
   // Path doesn’t exist in HAR, let’s concat the path and the URL
-  const { path, ...result } = newHarRequest
+  const { path, ...result } = mergedRequests
 
   if (path) {
     return {
       ...result,
-      url: `${newHarRequest.url}${path}`,
+      url: `${mergedRequests.url}${path}`,
     }
   }
 
