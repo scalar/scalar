@@ -39,13 +39,10 @@ const CodeMirrorLanguages = computed(() => {
 const { parameterMap } = useOperation(props)
 
 const generateSnippet = async () => {
-  const additionalRequestdata =
-    getRequestDataFromAuthenticationState(authenticationState)
-
   const request = getHarRequest({
     url: getUrlFromServerState(serverState),
-    additionalHeaders: additionalRequestdata.headers,
     operation: props.operation,
+    ...getRequestDataFromAuthenticationState(authenticationState),
   })
 
   // Actually generate the snippet

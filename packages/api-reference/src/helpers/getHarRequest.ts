@@ -1,16 +1,20 @@
-import { type HarRequest } from 'httpsnippet-lite'
+import type { HarRequest } from 'httpsnippet-lite'
 
-import type { Header, TransformedOperation } from '../types'
+import type { Cookie, Header, Query, TransformedOperation } from '../types'
 import { getExampleFromSchema } from './getExampleFromSchema'
 
 export const getHarRequest = ({
   url,
   operation,
-  additionalHeaders,
+  headers,
+  queryString,
+  cookies,
 }: {
   url: string
   operation: TransformedOperation
-  additionalHeaders?: Header[]
+  headers?: Header[]
+  queryString?: Query[]
+  cookies?: Cookie[]
 }): HarRequest => {
   // Replace all variables of the format {something} with the uppercase variable name without the brackets
   let path = operation.path
@@ -29,32 +33,36 @@ export const getHarRequest = ({
     operation.information?.requestBody?.content['application/json'] || null
 
   // Headers
-  let headers = []
+  let allHeaders = []
 
   if (jsonRequest) {
-    headers.push({
+    allHeaders.push({
       name: 'Content-Type',
       value: 'application/json',
     })
   }
 
-  headers = [...headers, ...(additionalHeaders ?? [])]
+  allHeaders = [...allHeaders, ...(headers ?? [])]
 
   // Prepare the data, if there’s any
-  const schema = jsonRequest?.schema
-  const requestBody = schema ? getExampleFromSchema(schema) : null
+  // const schema = jsonRequest?.schema
+  // const requestBody = schema ? getExampleFromSchema(schema) : null
 
-  const postData = requestBody
-    ? {
-        mimeType: 'application/json',
-        text: JSON.stringify(requestBody, null, 2),
-      }
-    : null
+  // const postData = requestBody
+  //   ? {
+  //       mimeType: 'application/json',
+  //       text: JSON.stringify(requestBody, null, 2),
+  //     }
+  //   : null
 
   return {
     method: operation.httpVerb.toUpperCase(),
     url: `${url}${path}`,
-    headers,
-    // postData,
+    headers: allHeaders,
+    queryString: queryString ?? [],
+    cookies: cookies ?? [],
+    httpVersion: '1.1',
+    headersSize: -1,
+    bodySize: -1,
   }
 }

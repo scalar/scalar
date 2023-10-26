@@ -6,15 +6,13 @@ import { getUrlFromServerState } from './getUrlFromServerState'
 describe('getUrlFromServerState', () => {
   it('gets an URL', () => {
     const request = getUrlFromServerState({
-      state: {
-        ...createEmptyServerState(),
-        selectedServer: 0,
-      },
+      ...createEmptyServerState(),
       servers: [
         {
           url: 'https://example.com',
         },
       ],
+      selectedServer: 0,
     })
 
     expect(request).toMatchObject('https://example.com')
@@ -22,19 +20,17 @@ describe('getUrlFromServerState', () => {
 
   it('replaces variables', () => {
     const request = getUrlFromServerState({
-      state: {
-        ...createEmptyServerState(),
-        selectedServer: 0,
-        variables: [
-          {
-            name: 'example_variable',
-            value: 'unicorn',
-          },
-        ],
-      },
+      ...createEmptyServerState(),
+      selectedServer: 0,
       servers: [
         {
           url: 'https://{example_variable}.fantasy',
+        },
+      ],
+      variables: [
+        {
+          name: 'example_variable',
+          value: 'unicorn',
         },
       ],
     })

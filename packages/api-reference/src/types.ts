@@ -252,4 +252,17 @@ export type ServerState = {
   variables: Variable[]
 }
 
-export type Header = { name: string; value: string }
+export type Header = {
+  name: string
+  value: string
+}
+
+export type Query = {
+  name: string
+  value: string
+}
+
+export type Cookie = {
+  name: string
+  value: string
+}

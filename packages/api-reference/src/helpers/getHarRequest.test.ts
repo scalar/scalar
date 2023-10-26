@@ -1,22 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  createEmptyAuthenticationState,
-  createEmptyServerState,
-} from '../stores/globalStore'
-import type { Server, ServerState, TransformedOperation } from '../types'
+import type { TransformedOperation } from '../types'
 import { getHarRequest } from './getHarRequest'
-
-// const getUrlFromServerState = ({ serverState, servers }: { serverState: ServerState, servers: Server[]}) => ({
-
-// })
-
-// getUrlFromServerState({
-//     serverState: {
-//         ...createEmptyServerState(),
-//         selectedServer: 0,
-//     }
-//   })
 
 describe('getHarRequest', () => {
   it('transforms a basic operation', () => {
@@ -29,8 +14,8 @@ describe('getHarRequest', () => {
     })
 
     expect(request).toMatchObject({
-      url: 'https://example.com/foobar',
       method: 'GET',
+      url: 'https://example.com/foobar',
       headers: [],
     })
   })
@@ -38,7 +23,7 @@ describe('getHarRequest', () => {
   it('adds headers', () => {
     const request = getHarRequest({
       url: 'https://example.com',
-      additionalHeaders: [
+      headers: [
         {
           name: 'Authorization',
           value: 'Bearer 123',
@@ -51,12 +36,39 @@ describe('getHarRequest', () => {
     })
 
     expect(request).toMatchObject({
-      url: 'https://example.com/foobar',
       method: 'GET',
+      url: 'https://example.com/foobar',
       headers: [
         {
           name: 'Authorization',
           value: 'Bearer 123',
+        },
+      ],
+    })
+  })
+
+  it('adds query parameters', () => {
+    const request = getHarRequest({
+      url: 'https://example.com',
+      query: [
+        {
+          name: 'api_key',
+          value: '123',
+        },
+      ],
+      operation: {
+        httpVerb: 'GET',
+        path: '/foobar',
+      } as TransformedOperation,
+    })
+
+    expect(request).toMatchObject({
+      method: 'GET',
+      url: 'https://example.com/foobar',
+      queryString: [
+        {
+          name: 'api_key',
+          value: '123',
         },
       ],
     })

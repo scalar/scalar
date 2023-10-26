@@ -1,13 +1,14 @@
-import type { Query } from '@scalar/api-client'
+import { type HarRequest } from 'httpsnippet-lite'
 import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 
-import type { AuthenticationState, Header } from '../types'
+import type { AuthenticationState } from '../types'
 
 export function getRequestDataFromAuthenticationState(
   authentication: AuthenticationState,
-): { headers: Header[]; query: Query[] } {
+): Partial<HarRequest> {
   const headers = []
-  const query = []
+  const queryString = []
+  const cookies = []
 
   // Authentication
   // TODO: Prefill AuthState, not the headers
@@ -34,14 +35,14 @@ export function getRequestDataFromAuthenticationState(
         // Cookie
         else if (securityScheme.in === 'cookie') {
           // TODO: Should we add a dedicated cookie section?
-          headers.push({
-            name: 'Cookie',
-            value: `${securityScheme.name}=${authentication.apiKey.token}`,
+          cookies.push({
+            name: securityScheme.name,
+            value: authentication.apiKey.token,
           })
         }
         // Query
-        else if (securityScheme.in === 'query') {
-          query.push({
+        else if (securityScheme.in === 'queryString') {
+          queryString.push({
             name: securityScheme.name,
             value: authentication.apiKey.token,
           })
@@ -77,5 +78,5 @@ export function getRequestDataFromAuthenticationState(
     }
   }
 
-  return { headers, query }
+  return { headers, queryString, cookies }
 }
