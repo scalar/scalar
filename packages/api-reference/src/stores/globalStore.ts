@@ -31,6 +31,7 @@ const setAuthentication = (newState: Partial<AuthenticationState>) => {
 
 export const createEmptyServerState = (): ServerState => ({
   selectedServer: null,
+  servers: [],
   variables: [],
 })
 

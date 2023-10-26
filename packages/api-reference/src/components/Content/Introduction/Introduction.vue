@@ -45,8 +45,6 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
             <div class="sticky-cards flex-col gap-1">
               <ServerList :value="servers" />
 
-              <Authentication :spec="parsedSpec" />
-
               <Card>
                 <CardHeader transparent>Client Libraries</CardHeader>
                 <CardContent
@@ -61,10 +59,10 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
                   {{ getClientTitle(state.selectedClient) }}
                 </CardFooter>
               </Card>
+
               <Authentication :parsedSpec="parsedSpec" />
             </div>
           </SectionColumn>
-        </SectionColumns>
       </SectionContent>
     </Section>
   </SectionContainer>

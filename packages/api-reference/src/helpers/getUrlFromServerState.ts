@@ -1,17 +1,11 @@
-import type { Server, ServerState } from '../types'
+import type { ServerState } from '../types'
 import { replaceVariables } from './replaceVariables'
 
-export function getUrlFromServerState({
-  state,
-  servers,
-}: {
-  state: ServerState
-  servers: Server[]
-}) {
+export function getUrlFromServerState(state: ServerState) {
   const url =
     state.selectedServer === null
-      ? servers[0].url ?? ''
-      : servers[state.selectedServer].url
+      ? state.servers[0].url ?? ''
+      : state.servers[state.selectedServer].url
 
   return replaceVariables(url, state.variables)
 }

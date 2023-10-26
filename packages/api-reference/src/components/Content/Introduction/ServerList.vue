@@ -30,11 +30,21 @@ watch(
 
     setServer({
       selectedServer: selectedServerIndex.value,
+      servers: props.value,
       variables: prefilledVariables,
     })
   },
   {
     immediate: true,
+  },
+)
+
+watch(
+  () => props.value,
+  () => {
+    setServer({
+      servers: props.value,
+    })
   },
 )
 

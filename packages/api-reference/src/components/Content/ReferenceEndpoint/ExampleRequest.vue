@@ -19,8 +19,8 @@ import { Icon } from '../../Icon'
 
 const props = defineProps<{
   operation: TransformedOperation
-  server: Server
   spec: Spec
+  server: Server
 }>()
 const CodeMirrorValue = ref<string>('')
 const { copyToClipboard } = useClipboard()
@@ -36,13 +36,9 @@ const CodeMirrorLanguages = computed(() => {
 
 const { parameterMap } = useOperation(props)
 
-// TODO: We should watch the dependencies and regenerate the snippet when something changes
 const generateSnippet = async () => {
   const request = getHarRequest({
-    url: getUrlFromServerState({
-      state: serverState,
-      servers: props.spec.servers,
-    }),
+    url: getUrlFromServerState(serverState),
     operation: props.operation,
   })
 
@@ -55,12 +51,15 @@ const generateSnippet = async () => {
   )) as string
 }
 
-// Update snippet when a different client is selected
 watch(
   [
+    // Update snippet when a different client is selected
     () => state.selectedClient,
-    () => props.spec.servers,
+    // … or the global server state changed
     () => serverState.selectedServer,
+    // … or the server list changed
+    () => serverState.servers,
+    // … or the variables changed
     () => serverState.variables,
   ],
   async () => {
@@ -70,11 +69,6 @@ watch(
     immediate: true,
   },
 )
-
-// Copy snippet to clipboard
-const copyExampleRequest = async () => {
-  copyToClipboard(CodeMirrorValue.value)
-}
 
 // Open API Client
 const showItemInClient = () => {
@@ -140,7 +134,7 @@ const formattedPath = computed(() => {
         <button
           class="copy-button"
           type="button"
-          @click="copyExampleRequest">
+          @click="copyToClipboard(CodeMirrorValue)">
           <Icon
             src="solid/interface-copy-clipboard"
             width="10px" />

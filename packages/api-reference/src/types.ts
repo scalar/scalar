@@ -244,5 +244,6 @@ export type Variable = {
 
 export type ServerState = {
   selectedServer: null | number
+  servers: Server[]
   variables: Variable[]
 }
