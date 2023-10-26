@@ -31,7 +31,7 @@ You can even [mount the component in React](https://github.com/scalar/scalar/blo
 
 ## Configuration
 
-There's a configuration object that can be used on all platforms. In Vue.js, you use it like this:
+There’s a configuration object that can be used on all platforms. In Vue.js, you use it like this:
 
 #### isEditable?: boolean
 
