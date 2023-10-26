@@ -31,7 +31,7 @@ const setSecuritySchemeKey = (key: string) => {
   emits('input', key)
 }
 
-const isNone = (item: any) => !item.type
+const isNone = (item: any) => !item?.type
 
 const isApiKey = (item: any) => item.type === 'apiKey'
 
