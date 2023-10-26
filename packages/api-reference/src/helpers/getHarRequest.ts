@@ -3,12 +3,7 @@ import { AxiosHeaders } from 'axios'
 import type { HarRequest } from 'httpsnippet-lite'
 
 import { mapFromObject } from '../helpers'
-import type { Cookie, Header, Query, TransformedOperation } from '../types'
-import { getExampleFromSchema } from './getExampleFromSchema'
-
-export type HarRequestWithPath = HarRequest & {
-  path?: string
-}
+import type { Cookie, HarRequestWithPath, Header, Query } from '../types'
 
 export const getHarRequest = (
   ...requests: Partial<HarRequestWithPath>[]
@@ -17,10 +12,11 @@ export const getHarRequest = (
     httpVersion: '1.1',
     method: 'GET',
     url: '',
+    path: '',
     headers: [] as Header[],
     headersSize: -1,
-    queryString: [],
-    cookies: [],
+    queryString: [] as Query[],
+    cookies: [] as Cookie[],
     bodySize: -1,
   }
 

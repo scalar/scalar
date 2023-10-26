@@ -1,15 +1,9 @@
-import type { HarRequest } from 'httpsnippet-lite'
-
-import type { TransformedOperation } from '../types'
+import type { HarRequestWithPath, TransformedOperation } from '../types'
 import { getExampleFromSchema } from './getExampleFromSchema'
 
 export const getRequestFromOperation = (
   operation: TransformedOperation,
-): Partial<
-  HarRequest & {
-    path: string
-  }
-> => {
+): Partial<HarRequestWithPath> => {
   // Replace all variables of the format {something} with the uppercase variable name without the brackets
   let path = operation.path
 

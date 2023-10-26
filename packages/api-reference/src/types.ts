@@ -3,6 +3,7 @@ import {
   type HocuspocusConfigurationProp,
 } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
+import type { HarRequest } from 'httpsnippet-lite'
 import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 
 export type ReferenceProps = {
@@ -265,4 +266,8 @@ export type Query = {
 export type Cookie = {
   name: string
   value: string
+}
+
+export type HarRequestWithPath = HarRequest & {
+  path: string
 }

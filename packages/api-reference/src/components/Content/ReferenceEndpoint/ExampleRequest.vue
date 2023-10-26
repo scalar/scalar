@@ -39,7 +39,7 @@ const CodeMirrorLanguages = computed(() => {
 
 const { parameterMap } = useOperation(props)
 
-const generateSnippet = async () => {
+const generateSnippet = async (): Promise<string> => {
   // Generate a request object
   const request = getHarRequest(
     {
@@ -57,8 +57,8 @@ const generateSnippet = async () => {
       state.selectedClient.targetKey,
       state.selectedClient.clientKey,
     )) as string
-  } catch (error) {
-    return error
+  } catch {
+    return ''
   }
 }
 
