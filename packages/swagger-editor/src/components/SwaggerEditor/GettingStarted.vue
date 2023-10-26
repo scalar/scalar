@@ -108,7 +108,7 @@ watch(activeExample, () => {
                 fill="currentColor"></path>
             </g>
           </svg>
-          Github
+          GitHub
         </div>
       </div>
       <div class="start-section">
