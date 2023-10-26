@@ -211,7 +211,7 @@ const formattedPath = computed(() => {
         readOnly />
     </CardContent>
     <CardFooter
-      class="card-footer"
+      class="scalar-card-footer"
       contrast>
       <button
         class="show-api-client-button"
@@ -326,7 +326,7 @@ const formattedPath = computed(() => {
   align-items: center;
   height: fit-content;
 }
-/* Can't use flex align center on parent (card-header-actions) so have to match sibling font size vertically align*/
+/* Can't use flex align center on parent (scalar-card-header-actions) so have to match sibling font size vertically align*/
 .copy-button:after {
   content: '.';
   color: transparent;
@@ -364,6 +364,7 @@ const formattedPath = computed(() => {
   font-family: var(--theme-font, var(--default-theme-font));
   position: relative;
   cursor: pointer;
+  box-sizing: border-box;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 .show-api-client-button span,
@@ -415,7 +416,7 @@ const formattedPath = computed(() => {
 .request-path {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
-.card-header-actions {
+.scalar-card-header-actions {
   display: flex;
 }
 @media screen and (max-width: 400px) {

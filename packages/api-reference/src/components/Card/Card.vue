@@ -1,10 +1,11 @@
 <template>
-  <div class="card">
+  <div class="scalar-card">
     <slot />
   </div>
 </template>
 <style scoped>
-.card {
+.scalar-card {
+  all: unset;
   font-family: var(--theme-font, var(--default-theme-font));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   overflow: hidden;

@@ -5,6 +5,8 @@
 </template>
 <style scoped>
 .simple-row {
+  all: unset;
+  display: table-row;
   box-shadow: 0 -1px var(--theme-border-color, var(--default-theme-border-color));
 }
 .simple-row:first-of-type {
