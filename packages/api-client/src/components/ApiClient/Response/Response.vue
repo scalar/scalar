@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, toRaw } from 'vue'
 
+import { isJsonString } from '../../../helpers'
 import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
 import { CollapsibleSection } from '../../CollapsibleSection'
 // import Copilot from './Copilot.vue'
@@ -36,21 +37,6 @@ const responseCookies = computed(() => {
     ? Object.keys(cookies).map((key) => ({ name: key, value: cookies[key] }))
     : []
 })
-
-// Check if string is JSON
-const isJsonString = (value?: any) => {
-  if (typeof value !== 'string') {
-    return false
-  }
-
-  try {
-    JSON.parse(value)
-  } catch {
-    return false
-  }
-
-  return true
-}
 
 // Pretty print JSON
 const responseData = computed(() => {

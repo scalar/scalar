@@ -25,7 +25,7 @@ const props = defineProps<SwaggerEditorProps>()
 
 const emit = defineEmits<{
   (e: 'contentUpdate', value: string): void
-  (e: 'specUpdate', spec: SwaggerSpec): void
+  (e: 'parsedSpecUpdate', spec: SwaggerSpec): void
   (e: 'import', value: string): void
   (e: 'changeTheme', value: ThemeId): void
   (
@@ -54,7 +54,7 @@ const handleSpecUpdate = useDebounceFn((value) => {
     .then((spec: SwaggerSpec) => {
       parserError.value = ''
 
-      emit('specUpdate', spec)
+      emit('parsedSpecUpdate', spec)
     })
     .catch((error) => {
       parserError.value = error.toString()
@@ -161,7 +161,6 @@ const isJsonString = (value?: any) => {
 }
 
 function handleAIWriter(queries: string[]) {
-  console.log(rawContent.value)
   const content = rawContent.value ?? currentExample.value ?? props.value ?? ''
   const specType = isJsonString(content) ? 'json' : 'yaml'
   emit('startAIWriter', queries, content, specType)

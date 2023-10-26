@@ -14,11 +14,13 @@ import { Authentication } from '../Authentication'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import BaseUrl from './BaseUrl.vue'
 import ClientSelector from './ClientSelector.vue'
+import DownloadSpec from './DownloadSpec.vue'
 
 defineProps<{
   info: Info
   servers: Server[]
-  spec: Spec
+  parsedSpec: Spec
+  rawSpec: string
 }>()
 
 const { state, getClientTitle, getTargetTitle } = useTemplateStore()
@@ -36,6 +38,7 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
               tight>
               {{ info.title }}
             </SectionHeader>
+            <DownloadSpec :value="rawSpec" />
             <MarkdownRenderer :value="info.description" />
           </SectionColumn>
           <SectionColumn>
@@ -66,7 +69,7 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
                   {{ getClientTitle(state.selectedClient) }}
                 </CardFooter>
               </Card>
-              <Authentication :spec="spec" />
+              <Authentication :parsedSpec="parsedSpec" />
             </div>
           </SectionColumn>
         </SectionColumns>
