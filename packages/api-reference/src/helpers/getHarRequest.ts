@@ -45,6 +45,17 @@ export const getHarRequest = ({
     })
   }
 
+  // Prepare the data, if there’s any
+  const schema = jsonRequest?.schema
+  const requestBody = schema ? getExampleFromSchema(schema) : null
+
+  const postData = requestBody
+    ? {
+        mimeType: 'application/json',
+        text: JSON.stringify(requestBody, null, 2),
+      }
+    : undefined
+
   // We’re working with { name: …, value … }, Axios is working with { name: value }. We need to transform the data with mapFromArray and mapFromObject.
   allHeaders = [...allHeaders, ...(headers ?? [])]
   const normalizedHeaders = mapFromObject(
@@ -57,17 +68,6 @@ export const getHarRequest = ({
     value: string
   }[]
 
-  // Prepare the data, if there’s any
-  // const schema = jsonRequest?.schema
-  // const requestBody = schema ? getExampleFromSchema(schema) : null
-
-  // const postData = requestBody
-  //   ? {
-  //       mimeType: 'application/json',
-  //       text: JSON.stringify(requestBody, null, 2),
-  //     }
-  //   : null
-
   return {
     method: operation.httpVerb.toUpperCase(),
     url: `${url}${path}`,
@@ -77,5 +77,6 @@ export const getHarRequest = ({
     httpVersion: '1.1',
     headersSize: -1,
     bodySize: -1,
+    postData,
   }
 }
