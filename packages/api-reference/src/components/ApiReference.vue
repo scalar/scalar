@@ -24,6 +24,7 @@ import Sidebar from './Sidebar.vue'
 const props = withDefaults(defineProps<ReferenceProps>(), {
   showSidebar: undefined,
   isEditable: undefined,
+  footerBelowSidebar: undefined,
 })
 
 const emits = defineEmits<{
