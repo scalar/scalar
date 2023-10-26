@@ -1,3 +1,4 @@
+export * from './deepMerge'
 export * from './generateRequest'
 export * from './getExampleFromSchema'
 export * from './getHeadingId'

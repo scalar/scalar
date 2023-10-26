@@ -12,7 +12,7 @@ import {
   watch,
 } from 'vue'
 
-import { getTagSectionId } from '../helpers'
+import { deepMerge, getTagSectionId } from '../helpers'
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceConfiguration, ReferenceProps, Spec } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
@@ -36,19 +36,6 @@ const emits = defineEmits<{
   ): void
 }>()
 
-/** Deep merge for objects */
-function merge(source: Record<any, any>, target: Record<any, any>) {
-  for (const [key, val] of Object.entries(source)) {
-    if (val !== null && typeof val === `object`) {
-      target[key] ??= new val.__proto__.constructor()
-      merge(val, target[key])
-    } else {
-      target[key] = val
-    }
-  }
-  return target // we're replacing in-situ, so this is more for chaining than anything else
-}
-
 /** Merge the default configuration with the given configuration. */
 const currentConfiguration = computed((): ReferenceConfiguration => {
   if (
@@ -67,7 +54,7 @@ const currentConfiguration = computed((): ReferenceConfiguration => {
     )
   }
 
-  return merge(props.configuration ?? {}, {
+  return deepMerge(props.configuration ?? {}, {
     spec: {
       content: props.spec ?? undefined,
       url: props.specUrl ?? undefined,
