@@ -3,7 +3,7 @@ import { type StatesArray } from '@hocuspocus/provider'
 import { type SwaggerSpec, parse } from '@scalar/swagger-parser'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { useDebounceFn } from '@vueuse/core'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import coinmarketcap from '../../coinmarketcapv3.json'
 import petstore from '../../petstorev3.json'
@@ -64,6 +64,10 @@ const handleSpecUpdate = useDebounceFn((value) => {
 const rawContent = ref('')
 
 const handleContentUpdate = (value: string) => {
+  if (value === rawContent.value) {
+    return
+  }
+
   rawContent.value = value
   emit('contentUpdate', value)
   handleSpecUpdate(value)
@@ -125,7 +129,6 @@ watch(
   () => props.value,
   async () => {
     if (props.value) {
-      await nextTick()
       handleContentUpdate(props.value)
     }
   },

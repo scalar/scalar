@@ -150,7 +150,7 @@ useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height
 })
 
-const { toggleCollapsedSidebarItem } = useTemplateStore()
+const { setCollapsedSidebarItem } = useTemplateStore()
 const { state } = useApiClientStore()
 
 const showMobileDrawer = computed(() => {
@@ -197,7 +197,7 @@ const handleParsedSpecUpdate = (newSpec: any) => {
   const firstTag = parsedSpec.tags[0]
 
   if (firstTag) {
-    toggleCollapsedSidebarItem(getTagSectionId(firstTag))
+    setCollapsedSidebarItem(getTagSectionId(firstTag), true)
   }
 }
 
@@ -304,7 +304,7 @@ function handleAIWriter(
         :initialTabState="currentConfiguration?.tabs?.initialContent"
         :proxyUrl="currentConfiguration?.proxy"
         :theme="currentConfiguration?.theme"
-        :value="parsedSpecRef"
+        :value="rawSpecRef"
         @changeTheme="$emit('changeTheme', $event)"
         @contentUpdate="handleContentUpdate"
         @parsedSpecUpdate="handleParsedSpecUpdate"
