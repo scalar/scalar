@@ -50,7 +50,7 @@ describe('getHarRequest', () => {
   it('adds query parameters', () => {
     const request = getHarRequest({
       url: 'https://example.com',
-      query: [
+      queryString: [
         {
           name: 'api_key',
           value: '123',
