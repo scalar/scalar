@@ -46,6 +46,7 @@ const currentConfiguration = computed((): ReferenceConfiguration => {
     props.theme ||
     props.initialTabState ||
     props.showSidebar ||
+    props.footerBelowSidebar ||
     props.isEditable ||
     props.hocuspocusConfiguration
   ) {
@@ -67,6 +68,7 @@ const currentConfiguration = computed((): ReferenceConfiguration => {
     },
     showSidebar: props.showSidebar ?? true,
     isEditable: props.isEditable ?? false,
+    footerBelowSidebar: props.footerBelowSidebar ?? false,
     hocuspocusConfiguration: props.hocuspocusConfiguration ?? undefined,
   })
 })
