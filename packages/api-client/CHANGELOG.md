@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.7.24
+
+### Patch Changes
+
+- 2f0b2f01: refactor: move json helpers to separate files
+
 ## 0.7.23
 
 ### Patch Changes
