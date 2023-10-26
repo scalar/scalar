@@ -3,7 +3,7 @@ import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 
 import type { AuthenticationState } from '../types'
 
-export function getRequestDataFromAuthenticationState(
+export function getRequestFromAuthenticationState(
   authentication: AuthenticationState,
 ): Partial<HarRequest> {
   const headers = []

@@ -8,7 +8,7 @@ import { computed, ref, watch } from 'vue'
 import {
   generateRequest,
   getHarRequest,
-  getRequestDataFromAuthenticationState,
+  getRequestFromAuthenticationState,
   getUrlFromServerState,
 } from '../../../helpers'
 import { useOperation } from '../../../hooks'
@@ -42,7 +42,7 @@ const generateSnippet = async () => {
   const request = getHarRequest({
     url: getUrlFromServerState(serverState),
     operation: props.operation,
-    ...getRequestDataFromAuthenticationState(authenticationState),
+    ...getRequestFromAuthenticationState(authenticationState),
   })
 
   // Actually generate the snippet

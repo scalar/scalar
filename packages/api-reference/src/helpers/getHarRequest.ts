@@ -1,5 +1,8 @@
+import { mapFromArray } from '@scalar/api-client'
+import { AxiosHeaders } from 'axios'
 import type { HarRequest } from 'httpsnippet-lite'
 
+import { mapFromObject } from '../helpers'
 import type { Cookie, Header, Query, TransformedOperation } from '../types'
 import { getExampleFromSchema } from './getExampleFromSchema'
 
@@ -42,7 +45,17 @@ export const getHarRequest = ({
     })
   }
 
+  // We’re working with { name: …, value … }, Axios is working with { name: value }. We need to transform the data with mapFromArray and mapFromObject.
   allHeaders = [...allHeaders, ...(headers ?? [])]
+  const normalizedHeaders = mapFromObject(
+    AxiosHeaders.from(mapFromArray(allHeaders, 'name', 'value')).normalize(
+      true,
+    ),
+    'name',
+  ) as {
+    name: string
+    value: string
+  }[]
 
   // Prepare the data, if there’s any
   // const schema = jsonRequest?.schema
@@ -58,7 +71,7 @@ export const getHarRequest = ({
   return {
     method: operation.httpVerb.toUpperCase(),
     url: `${url}${path}`,
-    headers: allHeaders,
+    headers: normalizedHeaders,
     queryString: queryString ?? [],
     cookies: cookies ?? [],
     httpVersion: '1.1',

@@ -73,4 +73,62 @@ describe('getHarRequest', () => {
       ],
     })
   })
+
+  it('normalizes headers', () => {
+    const request = getHarRequest({
+      url: 'https://example.com',
+      operation: {
+        httpVerb: 'GET',
+        path: '/foobar',
+      } as TransformedOperation,
+      headers: [
+        {
+          name: 'CoNtEnT-tYpE',
+          value: 'application/json',
+        },
+      ],
+    })
+
+    expect(request).toMatchObject({
+      method: 'GET',
+      url: 'https://example.com/foobar',
+      headers: [
+        {
+          name: 'Content-Type',
+          value: 'application/json',
+        },
+      ],
+    })
+  })
+
+  it('removes duplicate headers', () => {
+    const request = getHarRequest({
+      url: 'https://example.com',
+      operation: {
+        httpVerb: 'GET',
+        path: '/foobar',
+      } as TransformedOperation,
+      headers: [
+        {
+          name: 'Content-Type',
+          value: 'application/json',
+        },
+        {
+          name: 'Content-Type',
+          value: 'text/html',
+        },
+      ],
+    })
+
+    expect(request).toMatchObject({
+      method: 'GET',
+      url: 'https://example.com/foobar',
+      headers: [
+        {
+          name: 'Content-Type',
+          value: 'text/html',
+        },
+      ],
+    })
+  })
 })
