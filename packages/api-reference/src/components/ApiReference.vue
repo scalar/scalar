@@ -91,12 +91,12 @@ const getSpecContent = (
     ? JSON.stringify(value())
     : ''
 
-const specRef = ref<string>(
-  getSpecContent(currentConfiguration.value.spec?.content),
+const parsedSpecRef = ref<string>(
+  getSpecContent(currentConfiguration.value.spec?.preparsedContent),
 )
 
 // Let’s keep a copy, just to have the content ready to download.
-const originalSpecRef = ref<string>(
+const rawSpecRef = ref<string>(
   getSpecContent(currentConfiguration.value.spec?.content),
 )
 
@@ -104,13 +104,15 @@ watch(
   currentConfiguration,
   () => {
     if (currentConfiguration.value.spec?.content) {
-      specRef.value = getSpecContent(currentConfiguration.value.spec?.content)
+      parsedSpecRef.value = getSpecContent(
+        currentConfiguration.value.spec?.content,
+      )
     }
   },
   { immediate: true },
 )
 
-const fetchSpecUrl = () => {
+const fetchSpecFromUrl = () => {
   if (
     currentConfiguration.value.spec?.url === undefined ||
     currentConfiguration.value.spec?.url.length === 0
@@ -127,7 +129,7 @@ const fetchSpecUrl = () => {
       return response.text()
     })
     .then((data) => {
-      specRef.value = data
+      rawSpecRef.value = data
     })
     .catch((error) => {
       console.log(
@@ -182,8 +184,8 @@ const parsedSpec = reactive<Spec>({
   tags: [],
 })
 
-// TODO: proper types
-const handleSpecUpdate = (newSpec: any) => {
+// TODO: proper types for the parsed spec
+const handleParsedSpecUpdate = (newSpec: any) => {
   Object.assign(parsedSpec, {
     // Some specs don’t have servers or tags, make sure they are defined
     servers: [],
@@ -191,19 +193,22 @@ const handleSpecUpdate = (newSpec: any) => {
     ...newSpec,
   })
 
-  originalSpecRef.value = JSON.stringify(newSpec)
-
   const firstTag = parsedSpec.tags[0]
+
   if (firstTag) {
     toggleCollapsedSidebarItem(getTagSectionId(firstTag))
   }
+}
+
+function handleContentUpdate(newContent: string) {
+  rawSpecRef.value = newContent
 }
 
 watch(
   () => currentConfiguration.value.spec?.preparsedContent,
   (newSpec) => {
     if (newSpec) {
-      handleSpecUpdate(newSpec)
+      handleParsedSpecUpdate(newSpec)
     }
   },
   { immediate: true },
@@ -215,14 +220,14 @@ onMounted(() => {
     left: 0,
   })
 
-  fetchSpecUrl()
+  fetchSpecFromUrl()
 })
 
-const showRendered = computed(
+const showRenderedContent = computed(
   () => isLargeScreen.value || !currentConfiguration.value?.isEditable,
 )
 
-const showCodeEditor = computed(() => {
+const showSwaggerEditor = computed(() => {
   return (
     !currentConfiguration.value.spec?.preparsedContent &&
     currentConfiguration.value?.isEditable
@@ -246,7 +251,7 @@ function handleAIWriter(
     :class="[
       {
         'references-footer-below': currentConfiguration?.footerBelowSidebar,
-        'references-editable': currentConfiguration?.isEditable,
+        'references-editable': showSwaggerEditor,
       },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
@@ -290,7 +295,7 @@ function handleAIWriter(
     </aside>
     <!-- Swagger file editing -->
     <div
-      v-show="showCodeEditor"
+      v-show="showSwaggerEditor"
       class="references-editor">
       <LazyLoadedSwaggerEditor
         :aiWriterMarkdown="aiWriterMarkdown"
@@ -298,18 +303,19 @@ function handleAIWriter(
         :initialTabState="currentConfiguration?.tabs?.initialContent"
         :proxyUrl="currentConfiguration?.proxy"
         :theme="currentConfiguration?.theme"
-        :value="specRef"
+        :value="parsedSpecRef"
         @changeTheme="$emit('changeTheme', $event)"
-        @specUpdate="handleSpecUpdate"
+        @contentUpdate="handleContentUpdate"
+        @parsedSpecUpdate="handleParsedSpecUpdate"
         @startAIWriter="handleAIWriter" />
     </div>
     <!-- Rendered reference -->
-    <template v-if="showRendered">
+    <template v-if="showRenderedContent">
       <div class="references-rendered">
         <Content
           :parsedSpec="parsedSpec"
-          :ready="true"
-          :spec="originalSpecRef" />
+          :rawSpec="rawSpecRef"
+          :ready="true" />
       </div>
       <div class="references-footer">
         <slot name="footer" />

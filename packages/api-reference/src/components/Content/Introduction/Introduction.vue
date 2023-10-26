@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { isJsonString, prettyPrintJson } from '../../../helpers'
 import { useTemplateStore } from '../../../stores/template'
 import type { Info, Server, Spec } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
@@ -15,38 +14,16 @@ import { Authentication } from '../Authentication'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import BaseUrl from './BaseUrl.vue'
 import ClientSelector from './ClientSelector.vue'
+import DownloadSpec from './DownloadSpec.vue'
 
-const props = defineProps<{
+defineProps<{
   info: Info
   servers: Server[]
-  spec: Spec
+  parsedSpec: Spec
+  rawSpec: string
 }>()
 
 const { state, getClientTitle, getTargetTitle } = useTemplateStore()
-
-/* Generate a download URL for the spec */
-function inlineDownloadUrl() {
-  const spec = JSON.stringify(props.spec)
-  const blob = isJsonString(spec)
-    ? new Blob([prettyPrintJson(spec)], {
-        type: 'application/json',
-      })
-    : new Blob([spec], {
-        type: 'application/x-yaml',
-      })
-
-  return URL.createObjectURL(blob)
-}
-
-/* Generate a filename for the spec */
-function getFilename() {
-  const spec = JSON.stringify(props.spec)
-  return isJsonString(spec) ? 'spec.json' : 'spec.yaml'
-}
-
-function getFilePath() {
-  return `${window.location.origin}/${getFilename()}`
-}
 </script>
 
 <template>
@@ -61,15 +38,7 @@ function getFilePath() {
               tight>
               {{ info.title }}
             </SectionHeader>
-            <div class="download">
-              <div class="download-cta">
-                <a
-                  :download="getFilename()"
-                  :href="inlineDownloadUrl()">
-                  {{ getFilePath() }}
-                </a>
-              </div>
-            </div>
+            <DownloadSpec :value="rawSpec" />
             <MarkdownRenderer :value="info.description" />
           </SectionColumn>
           <SectionColumn>
@@ -100,7 +69,7 @@ function getFilePath() {
                   {{ getClientTitle(state.selectedClient) }}
                 </CardFooter>
               </Card>
-              <Authentication :spec="spec" />
+              <Authentication :parsedSpec="parsedSpec" />
             </div>
           </SectionColumn>
         </SectionColumns>
@@ -131,16 +100,5 @@ function getFilePath() {
 .sticky-cards {
   position: sticky;
   top: 24px;
-}
-.download-cta {
-  margin-bottom: 24px;
-}
-.download-cta a {
-  color: var(--theme-color-accent, var(--default-theme-color-accent));
-  text-decoration: none;
-  font-size: var(--theme-paragraph, var(--default-theme-paragraph));
-}
-.download-cta a:hover {
-  text-decoration: underline;
 }
 </style>

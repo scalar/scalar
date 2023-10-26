@@ -12,13 +12,12 @@ import EndpointsOverview from './EndpointsOverview.vue'
 import Introduction from './Introduction'
 import Models from './Models.vue'
 import ReferenceEndpoint from './ReferenceEndpoint'
-import SpecDownload from './SpecDownload.vue'
 import Spinner from './Spinner.vue'
 
 const props = defineProps<{
   ready: boolean
   parsedSpec: Spec
-  spec: string
+  rawSpec: string
 }>()
 
 const referenceEl = ref<HTMLElement | null>(null)
@@ -68,8 +67,9 @@ const moreThanOneDefaultTag = (tag: Tag) =>
     <template v-if="ready">
       <Introduction
         :info="parsedSpec.info"
-        :servers="localServers"
-        :spec="parsedSpec" />
+        :parsedSpec="parsedSpec"
+        :rawSpec="rawSpec"
+        :servers="localServers" />
       <template
         v-for="(tag, index) in parsedSpec.tags"
         :key="tag.id">
@@ -110,9 +110,6 @@ const moreThanOneDefaultTag = (tag: Tag) =>
       <template v-if="hasModels(parsedSpec)">
         <Models :components="parsedSpec.components" />
       </template>
-      <!-- <template v-if="spec">
-        <SpecDownload :value="spec" />
-      </template> -->
     </template>
     <div
       v-else

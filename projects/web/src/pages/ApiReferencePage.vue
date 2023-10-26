@@ -6,15 +6,19 @@ import {
 import { type ThemeId } from '@scalar/themes'
 import { reactive } from 'vue'
 
+// import preparsedContent from '../fixtures/specResult.json'
+
 const configuration = reactive<ReferenceConfiguration>({
   theme: 'default',
   proxy: 'http://localhost:5051',
   isEditable: true,
+  // spec: {
+  //   preparsedContent,
+  // },
   tabs: {
     initialContent: 'Swagger Editor',
   },
 })
-// import specResult from '../fixtures/specResult.json'
 </script>
 
 <template>
