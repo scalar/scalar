@@ -56,4 +56,3 @@ const getContentLength = (response: ClientResponse) => {
     </div>
   </div>
 </template>
-../../stores/requestStore
