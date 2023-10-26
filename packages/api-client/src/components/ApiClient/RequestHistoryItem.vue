@@ -4,15 +4,14 @@ import en from 'javascript-time-ago/locale/en'
 import prettyBytes from 'pretty-bytes'
 import prettyMilliseconds from 'pretty-ms'
 
-import { useApiClientRequestStore } from '../../stores/apiClientRequestStore'
+import { useRequestStore } from '../../stores/requestStore'
 import { type ClientResponse } from '../../types'
 
 defineProps<{ history: string }>()
 TimeAgo.addLocale(en)
 const timeAgo = new TimeAgo('en-US')
 
-const { requestHistory, activeRequestId, setActiveResponse } =
-  useApiClientRequestStore()
+const { requestHistory, activeRequestId, setActiveResponse } = useRequestStore()
 
 const getContentLength = (response: ClientResponse) => {
   if (response?.headers?.['X-API-Client-Content-Length']) {
@@ -57,3 +56,4 @@ const getContentLength = (response: ClientResponse) => {
     </div>
   </div>
 </template>
+../../stores/requestStore

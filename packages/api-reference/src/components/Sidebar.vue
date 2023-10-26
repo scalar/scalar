@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useApiClientRequestStore, useApiClientStore } from '@scalar/api-client'
+import { useApiClientStore, useRequestStore } from '@scalar/api-client'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
@@ -26,7 +26,7 @@ const props = defineProps<{ spec: Spec }>()
 
 const { state, toggleApiClient } = useApiClientStore()
 
-const { setActiveRequest } = useApiClientRequestStore()
+const { setActiveRequest } = useRequestStore()
 
 function showItemInClient(operation: Operation) {
   const { parameterMap } = useOperation({ operation })

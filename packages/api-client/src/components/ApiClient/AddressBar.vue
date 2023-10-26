@@ -8,7 +8,7 @@ import en from 'javascript-time-ago/locale/en'
 import { computed, ref } from 'vue'
 
 import { prepareClientRequestConfig, sendRequest } from '../../helpers'
-import { useApiClientRequestStore } from '../../stores/apiClientRequestStore'
+import { useRequestStore } from '../../stores/requestStore'
 import RequestHistory from './RequestHistory.vue'
 import RequestMethodSelect from './RequestMethodSelect.vue'
 
@@ -34,7 +34,7 @@ const {
   readOnly,
   setActiveRequest,
   authState,
-} = useApiClientRequestStore()
+} = useRequestStore()
 
 const historyModal = useModal()
 
@@ -482,3 +482,4 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   padding: 0 9px;
 }
 </style>
+../../stores/requestStore

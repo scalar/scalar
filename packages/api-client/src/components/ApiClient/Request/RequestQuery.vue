@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useApiClientRequestStore } from '../../../stores'
+import { useRequestStore } from '../../../stores'
 import type { Query } from '../../../types'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
 defineProps<{ queries?: Query[] }>()
 
-const { activeRequest } = useApiClientRequestStore()
+const { activeRequest } = useRequestStore()
 
 function handleDeleteIndex(index: number) {
   activeRequest.query?.splice(index, 1)

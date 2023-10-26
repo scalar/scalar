@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useApiClientRequestStore, useApiClientStore } from '@scalar/api-client'
+import { useApiClientStore, useRequestStore } from '@scalar/api-client'
 import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { HTTPSnippet, availableTargets } from 'httpsnippet-lite'
@@ -26,7 +26,7 @@ const props = defineProps<{
 }>()
 const CodeMirrorValue = ref<string>('')
 const { copyToClipboard } = useClipboard()
-const { setActiveRequest } = useApiClientRequestStore()
+const { setActiveRequest } = useRequestStore()
 const { toggleApiClient } = useApiClientStore()
 const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
 

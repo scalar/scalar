@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useApiClientRequestStore } from '../../../stores'
+import { useRequestStore } from '../../../stores'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
 defineProps<{ headers?: any[] }>()
 
-const { activeRequest } = useApiClientRequestStore()
+const { activeRequest } = useRequestStore()
 
 function handleDeleteIndex(index: number) {
   activeRequest.headers?.splice(index, 1)

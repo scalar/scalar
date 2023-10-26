@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
+import { useRequestStore } from '../../../stores/requestStore'
 import RequestAuth from './RequestAuth.vue'
 import RequestBody from './RequestBody.vue'
 import RequestHeaders from './RequestHeaders.vue'
 import RequestQuery from './RequestQuery.vue'
 import RequestVariables from './RequestVariables.vue'
 
-const { activeRequest, readOnly } = useApiClientRequestStore()
+const { activeRequest, readOnly } = useRequestStore()
 </script>
 <template>
   <div class="scalar-api-client__main__left custom-scroll">
@@ -346,3 +346,4 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 </style>
+../../../stores/requestStore

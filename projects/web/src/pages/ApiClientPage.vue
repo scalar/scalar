@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ApiClient, useApiClientRequestStore } from '@scalar/api-client'
+import { ApiClient, useRequestStore } from '@scalar/api-client'
 import { watch } from 'vue'
 
-const { activeRequest, setActiveRequest } = useApiClientRequestStore()
+const { activeRequest, setActiveRequest } = useRequestStore()
 
 // Store active request in local storage
 watch(activeRequest, () => {

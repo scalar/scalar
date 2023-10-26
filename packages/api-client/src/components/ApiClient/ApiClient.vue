@@ -5,7 +5,7 @@ import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
-import { useApiClientRequestStore } from '../../stores'
+import { useRequestStore } from '../../stores'
 import AdressBar from './AddressBar.vue'
 import { Request } from './Request'
 import { Response } from './Response'
@@ -25,7 +25,7 @@ const emit = defineEmits<{
   (e: 'escapeKeyPress'): void
 }>()
 
-const { activeRequest, readOnly: stateReadOnly } = useApiClientRequestStore()
+const { activeRequest, readOnly: stateReadOnly } = useRequestStore()
 
 const isSmallScreen = useMediaQuery('(max-width: 820px)')
 
