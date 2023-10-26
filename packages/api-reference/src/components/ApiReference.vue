@@ -330,7 +330,6 @@ function handleAIWriter(
   --refs-sidebar-width: var(--theme-sidebar-width, 250px);
   --refs-header-height: var(--theme-header-height, 0px);
 }
-
 @media (max-width: 1000px) {
   .scalar-api-reference {
     /* By default add a header on mobile for the navigation */

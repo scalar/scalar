@@ -376,6 +376,7 @@ const setRef = (el: SidebarElementType, id: string) => {
   display: flex;
   flex: 1;
   justify-content: space-between;
+  align-items: flex-start !important;
 }
 
 /* Sidebar link icon */

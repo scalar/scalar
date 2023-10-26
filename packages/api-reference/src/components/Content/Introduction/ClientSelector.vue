@@ -205,6 +205,7 @@ function checkIfClientIsFeatured(client: SelectedClient) {
   justify-content: center;
   gap: 6px;
   padding: 0 12px;
+  overflow: hidden;
 }
 .code-languages {
   display: flex;
@@ -235,6 +236,7 @@ function checkIfClientIsFeatured(client: SelectedClient) {
   align-items: center;
   justify-content: center;
   position: relative;
+  box-sizing: border-box;
   color: var(
     --theme-code-language-color-supersede,
     var(--default-theme-code-language-color-supersede, #fff)

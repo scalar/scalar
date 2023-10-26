@@ -6,6 +6,7 @@
 
 <style scoped>
 .simple-table {
+  all: unset;
   display: table;
   width: 100%;
   border-spacing: 0;

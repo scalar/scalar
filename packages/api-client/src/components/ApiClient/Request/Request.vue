@@ -58,6 +58,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   font-size: var(--theme-micro, var(--default-theme-micro));
   margin-top: -3px;
   justify-content: space-between;
+  overflow: auto;
 }
 .scalar-api-client__item__content .scalar-api-client__codemirror__wrapper {
   min-height: 63px;

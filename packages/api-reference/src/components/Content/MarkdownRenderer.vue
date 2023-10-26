@@ -60,9 +60,13 @@ watch(
 .markdown {
   color: var(--theme-color-1, var(--default-theme-color-1));
   word-wrap: break-word;
+  all: unset;
 }
 .markdown :deep(*) {
+  all: unset;
   margin: 12px 0;
+  font-family: var(--theme-font, var(--default-theme-font));
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .markdown :deep(h1),
 .markdown :deep(h2),
@@ -73,8 +77,12 @@ watch(
   font-size: var(--font-size, var(--default-font-size));
   margin: 24px 0 6px;
   font-weight: var(--theme-bold, var(--default-theme-bold));
+  display: block;
 }
-
+.markdown :deep(b),
+.markdown :deep(strong) {
+  font-weight: var(--theme-bold, var(--default-theme-bold));
+}
 .markdown :deep(p) {
   font-size: var(
     --font-size,
@@ -90,6 +98,7 @@ watch(
   );
   line-height: 1.5;
   margin-bottom: 0;
+  display: block;
 }
 
 .markdown :deep(ul),
@@ -97,6 +106,7 @@ watch(
   padding-left: 24px;
   line-height: 1.5;
   margin: 12px 0;
+  display: block;
 }
 
 .markdown :deep(ul) {
@@ -114,6 +124,7 @@ watch(
 
 .markdown :deep(li) {
   margin: 6px 0;
+  display: list-item;
 }
 .markdown :deep(a) {
   color: var(
@@ -121,6 +132,7 @@ watch(
     var(--default-theme-color-accent)
   ) !important;
   text-decoration: none !important;
+  cursor: pointer;
 }
 .markdown :deep(a:hover) {
   text-decoration: underline !important;
@@ -155,9 +167,11 @@ watch(
     var(--theme-border-color, var(--default-theme-border-color));
   padding-left: 12px;
   margin: 0;
+  display: block;
 }
 
 .markdown :deep(table) {
+  display: table;
   position: relative;
   border-collapse: collapse;
   table-layout: fixed;
@@ -168,11 +182,26 @@ watch(
     var(--theme-border-color, var(--default-theme-border-color));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
+.markdown :deep(tbody) {
+  display: table-row-group;
+  vertical-align: middle;
+}
+.markdown :deep(thead) {
+  display: table-header-group;
+  vertical-align: middle;
+}
 
+.markdown :deep(tr) {
+  display: table-row;
+  border-color: inherit;
+  vertical-align: inherit;
+}
 .markdown :deep(td),
 .markdown :deep(th) {
+  display: table-cell;
+  vertical-align: inherit;
   min-width: 1em;
-  padding: 6px;
+  padding: 6px 9px;
   vertical-align: top;
   box-sizing: border-box;
   position: relative;
@@ -208,7 +237,7 @@ watch(
 }
 
 .markdown :deep(th) {
-  font-weight: bold !important;
+  font-weight: var(--theme-semibold, var(--default-theme-semibold)) !important;
   text-align: left;
   border-left-color: transparent;
   background: var(--theme-background-2, var(--default-theme-background-2));
@@ -221,6 +250,13 @@ watch(
     display: block;
     overflow-x: auto;
     padding: 1em;
+  }
+  pre * {
+    font-size: var(--theme-small, var(--default-theme-small)) !important;
+    font-family: var(
+      --theme-font-code,
+      var(--default-theme-font-code)
+    ) !important;
   }
   code.hljs {
     padding: 3px 5px;

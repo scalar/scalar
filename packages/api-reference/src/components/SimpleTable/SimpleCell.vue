@@ -26,8 +26,10 @@ withDefaults(
 </template>
 <style scoped>
 .simple-cell {
+  all: unset;
+  display: table-cell;
   position: relative;
-  padding: 6px 9px;
+  padding: 9px !important;
   color: var(--theme-color-1, var(--default-theme-color-1));
   white-space: nowrap;
   vertical-align: top;

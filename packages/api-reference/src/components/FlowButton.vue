@@ -55,8 +55,8 @@ export { useLoadButtonState }
   padding: 0px 24px;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   color: var(--theme-button-1-color, var(--default-theme-button-1-color));
-  font-size: var(--theme-small, var(--default-theme-small));
-  font-weight: 500;
+  font-size: var(--theme-font-size-4, var(--default--theme-font-size-4));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   cursor: pointer;
   background: var(--theme-button-1, var(--default-theme-button-1));
   border: none;

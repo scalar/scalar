@@ -96,14 +96,15 @@ watch(
   padding-left: 24px;
   line-height: 1.5;
   margin: 12px 0;
+  display: block;
 }
 
 .markdown :deep(ul) {
-  list-style: disc;
+  list-style-type: disc;
 }
 
 .markdown :deep(ol) {
-  list-style: decimal;
+  list-style-type: decimal;
 }
 
 .markdown :deep(ul.contains-task-list) {

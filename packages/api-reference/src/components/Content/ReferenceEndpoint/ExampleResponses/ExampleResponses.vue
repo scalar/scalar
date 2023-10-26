@@ -101,7 +101,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
         </button>
       </template>
     </CardTabHeader>
-    <div class="card-container custom-scroll">
+    <div class="scalar-card-container custom-scroll">
       <!-- Commenting out until we re-organize cause of height issues -->
       <!-- <CardContent
         v-if="currentResponse.headers"
@@ -233,7 +233,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
     </div>
     <CardFooter
       v-if="currentResponse?.description"
-      class="card-footer"
+      class="scalar-card-footer"
       muted>
       <div class="description">
         <MarkdownRenderer
@@ -277,6 +277,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
   min-height: 35px;
   display: flex;
   align-items: center;
+  box-sizing: border-box;
   border-top: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
@@ -310,10 +311,10 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
   display: block;
   margin: 6px;
 }
-.card-container {
+.scalar-card-container {
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
-.card-container :deep(.cm-scroller) {
+.scalar-card-container :deep(.cm-scroller) {
   overflow: hidden;
 }
 

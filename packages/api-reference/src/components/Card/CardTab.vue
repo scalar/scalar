@@ -23,6 +23,7 @@ import { Tab } from '@headlessui/vue'
   color: var(--theme-color-2, var(--default-theme-color-2));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   line-height: calc(var(--theme-mini, var(--default-theme-mini)) + 2px);
+  white-space: nowrap;
   cursor: pointer;
   padding: 0;
   margin-right: 3px;

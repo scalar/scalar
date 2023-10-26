@@ -26,10 +26,12 @@ withDefaults(
 </template>
 <style scoped>
 .simple-cell {
+  all: unset;
+  display: table-cell;
   border-right: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
   position: relative;
-  padding: 9px;
+  padding: 9px !important;
   color: var(--theme-color-1, var(--default-theme-color-1));
   white-space: nowrap;
 }

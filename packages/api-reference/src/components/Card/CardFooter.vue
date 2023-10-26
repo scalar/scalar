@@ -7,7 +7,7 @@ import CardContent from './CardContent.vue'
   </CardContent>
 </template>
 <style scoped>
-.card-footer {
+.scalar-card-footer {
   flex-shrink: 0;
 }
 </style>

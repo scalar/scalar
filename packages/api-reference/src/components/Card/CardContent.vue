@@ -19,40 +19,40 @@ withDefaults(
 <template>
   <div
     :class="{
-      'card-content': true,
-      'card--muted': muted,
-      'card--contrast': contrast,
-      'card--frameless': frameless,
-      'card--transparent': transparent,
-      'card--borderless': borderless,
+      'scalar-card-content': true,
+      'scalar-card--muted': muted,
+      'scalar-card--contrast': contrast,
+      'scalar-card--frameless': frameless,
+      'scalar-card--transparent': transparent,
+      'scalar-card--borderless': borderless,
     }">
     <slot />
   </div>
 </template>
 <style scoped>
-.card-content {
+.scalar-card-content {
   overflow: auto;
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
-.card-content :deep(.simple-table .simple-header) {
+.scalar-card-content :deep(.simple-table .simple-header) {
   display: none;
 }
-.card-content:last-of-type,
-.card-content.card--borderless {
+.scalar-card-content:last-of-type,
+.scalar-card-content.scalar-card--borderless {
   border-bottom: none;
 }
 
-.card--muted {
+.scalar-card--muted {
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
-.card--contrast {
+.scalar-card--contrast {
   background: var(--theme-background-3, var(--default-theme-background-3));
 }
-.card--frameless {
+.scalar-card--frameless {
   padding: 0;
 }
-.card--transparent {
+.scalar-card--transparent {
   background: var(--theme-background-1, var(--default-theme-background-1));
 }
 </style>
