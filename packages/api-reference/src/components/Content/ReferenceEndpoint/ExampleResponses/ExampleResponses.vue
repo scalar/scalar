@@ -130,7 +130,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
         <template v-else>
           <div v-if="currentJsonResponse?.example">
             <CodeMirror
-              :content="currentJsonResponse?.example"
+              :content="prettyPrintJson(currentJsonResponse?.example)"
               :languages="['json']"
               readOnly />
           </div>
