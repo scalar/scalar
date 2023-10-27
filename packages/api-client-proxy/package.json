@@ -24,7 +24,7 @@
     "node": ">=18"
   },
   "exports": {
-    "import": "./dist/index.js"
+    "import": "./dist/src/index.js"
   },
   "files": [
     "dist",
@@ -37,8 +37,8 @@
     "proxy"
   ],
   "license": "MIT",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
+  "main": "./dist/src/index.js",
+  "module": "./dist/src/index.js",
   "peerDependencies": {
     "@types/cors": "2.8.13",
     "@types/express": "4.17.17"
@@ -57,5 +57,5 @@
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
-  "types": "dist/index.d.ts"
+  "types": "dist/src/index.d.ts"
 }
