@@ -112,7 +112,7 @@ describe('sendRequest', () => {
     })
   })
 
-  it.only('merges cookies', async () => {
+  it('merges cookies', async () => {
     const port = createEchoServerOnAnyPort()
 
     const request = {
