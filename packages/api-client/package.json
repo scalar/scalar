@@ -20,6 +20,7 @@
     "tippy.js": "6.3.7"
   },
   "devDependencies": {
+    "@scalar/api-client-proxy": "workspace:*",
     "@scalar/echo-server": "workspace:*",
     "@vitejs/plugin-vue": "4.3.4",
     "@vitest/coverage-v8": "0.34.4",

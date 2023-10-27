@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosProxyConfig, type AxiosRequestConfig } from 'axios'
 import { nanoid } from 'nanoid'
 
 import type {
@@ -82,7 +82,7 @@ export async function sendRequest(
       .join('; ')
   }
 
-  const requestOptions = {
+  const requestConfig = {
     method,
     url: completeUrl,
     auth,
@@ -90,35 +90,48 @@ export async function sendRequest(
     data: request.body,
   }
 
-  const config = proxyUrl
+  const axiosRequestConfig: AxiosRequestConfig = proxyUrl
     ? {
         method: 'POST',
         url: proxyUrl,
-        data: requestOptions,
+        data: requestConfig,
       }
     : {
-        method: requestOptions.method,
-        url: requestOptions.url,
-        headers: requestOptions.headers,
-        data: requestOptions.data,
+        method: requestConfig.method,
+        url: requestConfig.url,
+        headers: requestConfig.headers,
+        data: requestConfig.data,
       }
 
-  console.info(`${requestOptions.method} ${requestOptions.url}`)
+  if (proxyUrl) {
+    console.info(`${requestConfig.method} ${proxyUrl} → ${requestConfig.url}`)
+  } else {
+    console.info(`${requestConfig.method} ${requestConfig.url}`)
+  }
 
   const response: (ClientResponse & { error: false }) | { error: true } =
-    // @ts-ignore
-    await axios(config)
-      .then((res) => {
+    await axios(axiosRequestConfig)
+      .then((result) => {
+        // With proxy
+        if (proxyUrl) {
+          return {
+            ...result.data,
+            error: false,
+          }
+        }
+
+        // Without proxy
         return {
-          ...(proxyUrl ? res.data : res),
-          ...(!proxyUrl && { statusCode: res.status }),
+          ...result,
+          statusCode: result.status,
+          data: JSON.stringify(result.data),
           error: false,
         }
       })
-      .catch((err) => {
+      .catch((error) => {
         return {
           error: true,
-          ...err?.response,
+          ...error?.response,
         }
       })
 
