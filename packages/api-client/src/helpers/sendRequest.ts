@@ -1,7 +1,12 @@
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 
-import type { ClientResponse, RequestResult, SendRequestConfig } from '../types'
+import type {
+  ClientResponse,
+  Query,
+  RequestResult,
+  SendRequestConfig,
+} from '../types'
 import {
   concatenateUrlAndPath,
   mapFromArray,
@@ -26,17 +31,37 @@ export async function sendRequest(
   )
   const url = normalizeUrl(request.url)
   const path = normalizePath(request.path)
-  const urlWithPath = concatenateUrlAndPath(url, path)
+  const [urlWithPath, ...urlQueryString] = concatenateUrlAndPath(
+    url,
+    path,
+  ).split('?')
+
   const renderedUrl = replaceVariables(
     urlWithPath,
     mapFromArray(request.parameters ?? [], 'name', 'value'),
   )
-  // TODO: No type-casting
+
+  // Get query string from urlWithPath ("https://example.com?foo=bar")
+  // and merge it with query parameters from the request
+
+  const queryStringsFromUrl: Query[] = []
+
+  urlQueryString.forEach((queryString) => {
+    new URLSearchParams(queryString ?? '').forEach((value, name) => {
+      queryStringsFromUrl.push({
+        name,
+        value,
+      })
+    })
+  })
+
   const queryString = new URLSearchParams(
-    mapFromArray(request.query ?? [], 'name', 'value') as Record<
-      string,
-      string
-    >,
+    // TODO: No type-casting
+    mapFromArray(
+      [...(request.query ?? []), ...queryStringsFromUrl],
+      'name',
+      'value',
+    ) as Record<string, string>,
   ).toString()
 
   const completeUrl = `${renderedUrl}${queryString ? '?' + queryString : ''}`

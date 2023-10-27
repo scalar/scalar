@@ -69,7 +69,7 @@ describe('sendRequest', () => {
     })
   })
 
-  it.todo('merges query parameters', async () => {
+  it('merges query parameters', async () => {
     const port = createEchoServerOnAnyPort()
 
     const request = {
@@ -84,9 +84,11 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(result?.response?.query).toContain({
-      example: 'parameter',
-      foo: 'bar',
+    expect(result?.response.data).toMatchObject({
+      query: {
+        example: 'parameter',
+        foo: 'bar',
+      },
     })
   })
 })
