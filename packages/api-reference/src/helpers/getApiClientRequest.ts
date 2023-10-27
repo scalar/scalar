@@ -10,7 +10,6 @@ import {
   getRequestFromAuthentication,
   getRequestFromOperation,
   getUrlFromServerState,
-  getVariableNames,
 } from './'
 
 /**
@@ -40,9 +39,9 @@ export function getApiClientRequest({
     name: operation.name,
     type: request.method,
     path: requestFromOperation.path ?? '',
-    parameters: getVariableNames(operation.path).map((variableName) => {
+    parameters: (operation.information.parameters ?? []).map((parameter) => {
       return {
-        name: variableName,
+        name: parameter.name,
         value: '',
       }
     }),
