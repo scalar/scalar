@@ -48,6 +48,15 @@ export async function sendRequest(
 
   const startTime = Date.now()
 
+  // Add cookies to the headers
+  if (request.cookies) {
+    const cookies = mapFromArray(request.cookies, 'name', 'value')
+
+    headers.Cookie = Object.keys(cookies)
+      .map((key) => `${key}=${cookies[key]}`)
+      .join('; ')
+  }
+
   const requestOptions = {
     method,
     url: completeUrl,
