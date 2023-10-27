@@ -120,9 +120,8 @@ function handleChangeExample(example: GettingStartedExamples) {
     return
   }
 
-  handleSpecUpdate(spec)
   currentExample.value = spec
-  rawContent.value = spec
+  importHandler(spec)
 }
 
 watch(
