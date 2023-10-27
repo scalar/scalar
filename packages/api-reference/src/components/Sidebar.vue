@@ -5,7 +5,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
 import {
-  generateRequest,
+  getApiClientRequest,
   getHeadingId,
   getHeadingsFromMarkdown,
   getModelSectionId,
@@ -14,9 +14,9 @@ import {
   hasModels,
   scrollToId,
 } from '../helpers'
-import { useOperation } from '../hooks'
+import { useGlobalStore } from '../stores'
 import { useTemplateStore } from '../stores/template'
-import type { Operation, Spec, Tag } from '../types'
+import type { Spec, Tag, TransformedOperation } from '../types'
 import DarkModeToggle from './DarkModeToggle.vue'
 import FindAnythingButton from './FindAnythingButton.vue'
 import SidebarElement from './SidebarElement.vue'
@@ -24,21 +24,21 @@ import SidebarGroup from './SidebarGroup.vue'
 
 const props = defineProps<{ spec: Spec }>()
 
+const { server: serverState, authentication: authenticationState } =
+  useGlobalStore()
+
 const { state, toggleApiClient } = useApiClientStore()
 
 const { setActiveRequest } = useRequestStore()
 
-function showItemInClient(operation: Operation) {
-  const { parameterMap } = useOperation({ operation })
-
-  const item = generateRequest(
-    operation,
-    parameterMap.value,
-    props.spec.servers[0],
-    props.spec,
+function showItemInClient(operation: TransformedOperation) {
+  setActiveRequest(
+    getApiClientRequest({
+      serverState: serverState,
+      authenticationState: authenticationState,
+      operation: operation,
+    }),
   )
-
-  setActiveRequest(item)
 
   toggleApiClient(item, true)
 }

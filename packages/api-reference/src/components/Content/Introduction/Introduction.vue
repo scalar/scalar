@@ -60,9 +60,10 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
                 </CardFooter>
               </Card>
 
-              <Authentication :parsedSpec="parsedSpec" />
+              <Authentication :spec="parsedSpec" />
             </div>
           </SectionColumn>
+        </SectionColumns>
       </SectionContent>
     </Section>
   </SectionContainer>
