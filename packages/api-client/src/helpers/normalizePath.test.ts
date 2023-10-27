@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { normalizePath } from './'
+import { normalizePath } from './normalizePath'
 
 describe('normalizePath', () => {
   it('keeps a path as is', async () => {

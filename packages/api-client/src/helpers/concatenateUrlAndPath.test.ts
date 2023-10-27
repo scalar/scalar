@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { concatenateUrlAndPath } from './'
+import { concatenateUrlAndPath } from './concatenateUrlAndPath'
 
 describe('concatenateUrlAndPath', () => {
   it('trims a slash from the URL', async () => {
