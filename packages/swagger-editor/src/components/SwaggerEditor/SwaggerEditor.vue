@@ -168,6 +168,11 @@ function handleAIWriter(queries: string[]) {
   const specType = isJsonString(content) ? 'json' : 'yaml'
   emit('startAIWriter', queries, content, specType)
 }
+
+defineExpose({
+  handleOpenSwaggerEditor,
+  handleChangeExample,
+})
 </script>
 <template>
   <ThemeStyles :id="theme" />

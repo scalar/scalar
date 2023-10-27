@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
-import { SwaggerEditorGettingStarted } from '@scalar/swagger-editor'
+import {
+  type SwaggerEditor,
+  SwaggerEditorGettingStarted,
+} from '@scalar/swagger-editor'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { FlowToastContainer } from '@scalar/use-toasts'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
@@ -37,6 +40,8 @@ const emits = defineEmits<{
     swaggerType: 'json' | 'yaml',
   ): void
 }>()
+
+const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
 
 /** Merge the default configuration with the given configuration. */
 const currentConfiguration = computed((): ReferenceConfiguration => {
@@ -302,6 +307,7 @@ function handleAIWriter(
       v-show="showSwaggerEditor"
       class="references-editor">
       <LazyLoadedSwaggerEditor
+        ref="swaggerEditorRef"
         :aiWriterMarkdown="aiWriterMarkdown"
         :hocuspocusConfiguration="currentConfiguration?.hocuspocusConfiguration"
         :initialTabState="currentConfiguration?.tabs?.initialContent"
@@ -323,7 +329,9 @@ function handleAIWriter(
           <template #empty-state>
             <SwaggerEditorGettingStarted
               :theme="currentConfiguration?.theme || 'default'"
-              @changeTheme="$emit('changeTheme', $event)" />
+              @changeExample="swaggerEditorRef?.handleChangeExample"
+              @changeTheme="$emit('changeTheme', $event)"
+              @openSwaggerEditor="swaggerEditorRef?.handleOpenSwaggerEditor" />
           </template>
         </Content>
       </div>
