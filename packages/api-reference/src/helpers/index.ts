@@ -1,5 +1,4 @@
 export * from './deepMerge'
-export * from './generateRequest'
 export * from './getApiClientRequest'
 export * from './getExampleFromSchema'
 export * from './getHarRequest'

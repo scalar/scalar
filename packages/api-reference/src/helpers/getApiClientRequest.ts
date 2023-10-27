@@ -40,7 +40,6 @@ export function getApiClientRequest({
     name: operation.name,
     type: request.method,
     path: requestFromOperation.path ?? '',
-    // TODO: Check where the parameters are coming from
     parameters: getVariableNames(operation.path).map((variableName) => {
       return {
         name: variableName,
