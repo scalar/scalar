@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.7.26
+
+### Patch Changes
+
+- 9c7a5722: feat: add a dedicated cookie panel
+
 ## 0.7.25
 
 ### Patch Changes
