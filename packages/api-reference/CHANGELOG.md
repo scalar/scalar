@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 0.8.10
+
+### Patch Changes
+
+- 8c15df74: remove extra borders + fix spacing when only 1 server child
+
 ## 0.8.9
 
 ### Patch Changes
