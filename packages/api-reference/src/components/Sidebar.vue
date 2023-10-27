@@ -32,15 +32,15 @@ const { state, toggleApiClient } = useApiClientStore()
 const { setActiveRequest } = useRequestStore()
 
 function showItemInClient(operation: TransformedOperation) {
-  setActiveRequest(
-    getApiClientRequest({
-      serverState: serverState,
-      authenticationState: authenticationState,
-      operation: operation,
-    }),
-  )
+  const request = getApiClientRequest({
+    serverState: serverState,
+    authenticationState: authenticationState,
+    operation: operation,
+  })
 
-  toggleApiClient(item, true)
+  setActiveRequest(request)
+
+  toggleApiClient(request, true)
 }
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
