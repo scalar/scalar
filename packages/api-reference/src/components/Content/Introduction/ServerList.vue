@@ -83,38 +83,38 @@ const getValue = (name: string) => {
           :variables="server.variables" />
       </div>
     </CardContent>
-    <CardContent class="scalar-card-serverlist">
+    <CardContent
+      v-if="value.length > 1"
+      class="scalar-card-serverlist">
       <div class="scalar-card-serverlist-container">
         <!-- Multiple URLs -->
-        <div v-if="value.length > 1">
-          <div class="server-item">
-            <div class="server-selector">
-              <select
-                :value="selectedServerIndex"
-                @input="(event) => (selectedServerIndex = parseInt((event.target as HTMLSelectElement).value, 10))">
-                <option
-                  v-for="(serverOption, index) in value"
-                  :key="index"
-                  :value="index">
-                  {{ serverOption.url }}
-                </option>
-              </select>
+        <div class="server-item">
+          <div class="server-selector">
+            <select
+              :value="selectedServerIndex"
+              @input="(event) => (selectedServerIndex = parseInt((event.target as HTMLSelectElement).value, 10))">
+              <option
+                v-for="(serverOption, index) in value"
+                :key="index"
+                :value="index">
+                {{ serverOption.url }}
+              </option>
+            </select>
 
-              <ServerItem
-                :value="value[selectedServerIndex]"
-                :variables="server.variables" />
+            <ServerItem
+              :value="value[selectedServerIndex]"
+              :variables="server.variables" />
 
-              <svg
-                fill="none"
-                height="100%"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="m19.5 10-7.5 7.5-7.5-7.5"
-                  xmlns="http://www.w3.org/2000/svg"></path>
-              </svg>
-            </div>
+            <svg
+              fill="none"
+              height="100%"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="m19.5 10-7.5 7.5-7.5-7.5"
+                xmlns="http://www.w3.org/2000/svg"></path>
+            </svg>
           </div>
         </div>
         <!-- Variables -->
@@ -170,6 +170,11 @@ const getValue = (name: string) => {
 <style scoped>
 .server-item {
   padding: 0 9px;
+}
+.server-item .base-url:first-child:last-child {
+  padding: 11px 3px;
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .server-selector {
   position: relative;
