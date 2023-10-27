@@ -216,6 +216,9 @@ watch(
 .markdown :deep(th > *) {
   margin-bottom: 0;
 }
+.markdown :deep(th:empty) {
+  display: none;
+}
 .markdown.parameter-description :deep(p) {
   margin-top: 4px;
   font-size: var(--theme-small, var(--default-theme-small));
