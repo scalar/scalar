@@ -83,75 +83,76 @@ const getValue = (name: string) => {
           :variables="server.variables" />
       </div>
     </CardContent>
-    <!-- Multiple URLs -->
-    <CardContent
-      v-if="value.length > 1"
-      muted>
-      <div class="server-item">
-        <div class="server-selector">
-          <select
-            :value="selectedServerIndex"
-            @input="(event) => (selectedServerIndex = parseInt((event.target as HTMLSelectElement).value, 10))">
-            <option
-              v-for="(serverOption, index) in value"
-              :key="index"
-              :value="index">
-              {{ serverOption.url }}
-            </option>
-          </select>
+    <CardContent class="scalar-card-serverlist">
+      <div class="scalar-card-serverlist-container">
+        <!-- Multiple URLs -->
+        <div v-if="value.length > 1">
+          <div class="server-item">
+            <div class="server-selector">
+              <select
+                :value="selectedServerIndex"
+                @input="(event) => (selectedServerIndex = parseInt((event.target as HTMLSelectElement).value, 10))">
+                <option
+                  v-for="(serverOption, index) in value"
+                  :key="index"
+                  :value="index">
+                  {{ serverOption.url }}
+                </option>
+              </select>
 
-          <ServerItem
-            :value="value[selectedServerIndex]"
-            :variables="server.variables" />
+              <ServerItem
+                :value="value[selectedServerIndex]"
+                :variables="server.variables" />
 
-          <svg
-            fill="none"
-            height="100%"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="m19.5 10-7.5 7.5-7.5-7.5"
-              xmlns="http://www.w3.org/2000/svg"></path>
-          </svg>
-        </div>
-      </div>
-    </CardContent>
-    <!-- Variables -->
-    <CardContent v-if="value[selectedServerIndex].variables">
-      <div
-        v-for="(variable, name) in value[selectedServerIndex].variables"
-        :key="name">
-        <div class="input">
-          <label :for="`variable-${name}`">
-            <code>{{ name }}</code>
-          </label>
-          <template v-if="variable.enum">
-            <select
-              :id="`variable-${name}`"
-              :value="getValue(name)"
-              @input="(event) => handleInput(name, event)">
-              <option
-                v-for="enumValue in variable.enum"
-                :key="enumValue"
-                :value="enumValue">
-                {{ enumValue }}
-              </option>
-            </select>
-            <div class="input-value">
-              {{ variable.default }}
+              <svg
+                fill="none"
+                height="100%"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="m19.5 10-7.5 7.5-7.5-7.5"
+                  xmlns="http://www.w3.org/2000/svg"></path>
+              </svg>
             </div>
-          </template>
-          <template v-else>
-            <input
-              :id="`variable-${name}`"
-              autocomplete="off"
-              placeholder="value"
-              spellcheck="false"
-              type="text"
-              :value="getValue(name)"
-              @input="(event) => handleInput(name, event)" />
-          </template>
+          </div>
+        </div>
+        <!-- Variables -->
+        <div v-if="value[selectedServerIndex].variables">
+          <div
+            v-for="(variable, name) in value[selectedServerIndex].variables"
+            :key="name"
+            class="input">
+            <label :for="`variable-${name}`">
+              <code>{{ name }}</code>
+            </label>
+            <template v-if="variable.enum">
+              <select
+                :id="`variable-${name}`"
+                :value="getValue(name)"
+                @input="(event) => handleInput(name, event)">
+                <option
+                  v-for="enumValue in variable.enum"
+                  :key="enumValue"
+                  :value="enumValue">
+                  {{ enumValue }}
+                </option>
+              </select>
+              <div class="input-value">
+                {{ variable.default }}
+              </div>
+            </template>
+            <template v-else>
+              <input
+                :id="`variable-${name}`"
+                autocomplete="off"
+                placeholder="value"
+                spellcheck="false"
+                type="text"
+                :value="getValue(name)"
+                @input="(event) => handleInput(name, event)" />
+            </template>
+          </div>
         </div>
       </div>
     </CardContent>
@@ -168,7 +169,7 @@ const getValue = (name: string) => {
 
 <style scoped>
 .server-item {
-  padding: 0 12px;
+  padding: 0 9px;
 }
 .server-selector {
   position: relative;
@@ -210,8 +211,30 @@ const getValue = (name: string) => {
   padding: 6px 12px;
   font-size: var(--theme-small, var(--default-theme-small));
 }
-
+.variable-description :deep(.markdown) {
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  color: var(--theme-color--1, var(--default-theme-color-1));
+  padding: 4px 0;
+  display: block;
+}
+.variable-description :deep(.markdown > *:first-child) {
+  margin-top: 0;
+}
 .input {
   align-items: center;
+}
+.scalar-card-serverlist {
+  padding: 9px;
+}
+.scalar-card-serverlist-container {
+  box-shadow: 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+}
+.scalar-card-serverlist-container .input:first-of-type {
+  border-radius: 0;
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 </style>
