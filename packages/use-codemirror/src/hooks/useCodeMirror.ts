@@ -1,6 +1,9 @@
 import { type Extension, StateEffect } from '@codemirror/state'
-import { type EditorViewConfig } from '@codemirror/view'
-import { type KeyBinding, keymap } from '@codemirror/view'
+import {
+  type EditorViewConfig,
+  type KeyBinding,
+  keymap,
+} from '@codemirror/view'
 import { EditorView } from 'codemirror'
 import { type Ref, ref, watch } from 'vue'
 

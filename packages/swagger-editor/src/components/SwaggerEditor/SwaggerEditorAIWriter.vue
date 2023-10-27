@@ -10,7 +10,6 @@ const emits = defineEmits<{
   (event: 'startAIWriter', value: string[]): void
 }>()
 const loadingState = useLoadButtonState()
-const title = ref('')
 
 const useAIContentWriterState = () =>
   reactive({

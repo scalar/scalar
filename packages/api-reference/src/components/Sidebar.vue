@@ -73,7 +73,7 @@ watch(
       return []
     }
 
-    headings.value = await updateHeadings(description)
+    return (headings.value = await updateHeadings(description))
   },
 )
 
