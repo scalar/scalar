@@ -2,6 +2,7 @@
 import { useRequestStore } from '../../../stores/requestStore'
 import RequestAuth from './RequestAuth.vue'
 import RequestBody from './RequestBody.vue'
+import RequestCookies from './RequestCookies.vue'
 import RequestHeaders from './RequestHeaders.vue'
 import RequestQuery from './RequestQuery.vue'
 import RequestVariables from './RequestVariables.vue'
@@ -24,10 +25,11 @@ const { activeRequest, readOnly } = useRequestStore()
       </div>
     </div>
     <div>
-      <RequestAuth />
       <RequestVariables :variables="activeRequest.parameters" />
-      <RequestQuery :queries="activeRequest.query" />
+      <RequestAuth />
+      <RequestCookies :cookies="activeRequest.cookies" />
       <RequestHeaders :headers="activeRequest.headers" />
+      <RequestQuery :queries="activeRequest.query" />
       <RequestBody
         :body="activeRequest.body"
         :formData="activeRequest.formData"

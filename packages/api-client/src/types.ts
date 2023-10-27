@@ -46,6 +46,8 @@ export type Header = BaseParameter
 
 export type Query = BaseParameter
 
+export type Cookie = BaseParameter
+
 export type FormDataItem = BaseParameter
 
 /** Complete request state for a client request */
@@ -62,6 +64,8 @@ export type ClientRequestConfig = {
   parameters?: BaseParameter[]
   /** Query parameters */
   query?: Query[]
+  /** Cookies */
+  cookies?: Cookie[]
   /** Request headers */
   headers?: Header[]
   /** Content type matched body */
