@@ -107,6 +107,14 @@ const rawSpecRef = ref<string>(
   getSpecContent(currentConfiguration.value.spec?.content),
 )
 
+watch(rawSpecRef, () => {
+  console.log(rawSpecRef.value)
+})
+
+watch(parsedSpecRef, () => {
+  console.log(parsedSpecRef.value)
+})
+
 watch(
   currentConfiguration,
   () => {
@@ -326,7 +334,9 @@ function handleAIWriter(
           :parsedSpec="parsedSpec"
           :rawSpec="rawSpecRef"
           :ready="true">
-          <template #empty-state>
+          <template
+            v-if="currentConfiguration?.isEditable"
+            #empty-state>
             <SwaggerEditorGettingStarted
               :theme="currentConfiguration?.theme || 'default'"
               @changeExample="swaggerEditorRef?.handleChangeExample"

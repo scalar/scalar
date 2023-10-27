@@ -3,7 +3,7 @@ import { type StatesArray } from '@hocuspocus/provider'
 import { type SwaggerSpec, parse } from '@scalar/swagger-parser'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { useDebounceFn } from '@vueuse/core'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 import coinmarketcap from '../../coinmarketcapv3.json'
 import petstore from '../../petstorev3.json'
@@ -37,8 +37,6 @@ const emit = defineEmits<{
 }>()
 
 const swaggerEditorHeaderRef = ref<typeof SwaggerEditorHeader | null>(null)
-
-const currentExample = ref<string | null>(null)
 
 const awarenessStates = ref<StatesArray>([])
 
@@ -82,8 +80,6 @@ onMounted(async () => {
   if (!previousContent) {
     return
   }
-
-  currentExample.value = previousContent
 })
 
 const handleAwarenessUpdate = (states: StatesArray) => {
@@ -107,7 +103,7 @@ const formattedError = computed(() => {
   return parserError.value
 })
 
-function handleChangeExample(example: GettingStartedExamples) {
+async function handleChangeExample(example: GettingStartedExamples) {
   let spec = ''
 
   if (example === 'Petstore') {
@@ -120,7 +116,8 @@ function handleChangeExample(example: GettingStartedExamples) {
     return
   }
 
-  currentExample.value = spec
+  activeTab.value = 'Swagger Editor'
+  await nextTick()
   importHandler(spec)
 }
 
@@ -163,7 +160,7 @@ const isJsonString = (value?: any) => {
 }
 
 function handleAIWriter(queries: string[]) {
-  const content = rawContent.value ?? currentExample.value ?? props.value ?? ''
+  const content = rawContent.value ?? props.value ?? ''
   const specType = isJsonString(content) ? 'json' : 'yaml'
   emit('startAIWriter', queries, content, specType)
 }
@@ -190,7 +187,7 @@ defineExpose({
       v-if="activeTab === 'Swagger Editor'"
       ref="codeMirrorReference"
       :hocuspocusConfiguration="hocuspocusConfiguration"
-      :value="currentExample ?? props.value ?? ''"
+      :value="props.value ?? ''"
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
     <SwaggerEditorAIWriter
