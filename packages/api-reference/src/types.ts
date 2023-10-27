@@ -3,6 +3,7 @@ import {
   type HocuspocusConfigurationProp,
 } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
+import type { HarRequest } from 'httpsnippet-lite'
 import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 
 export type ReferenceProps = {
@@ -197,6 +198,14 @@ export type ExternalDocs = {
 export type Server = {
   url: string
   description?: string
+  variables?: Record<
+    string,
+    {
+      default?: string | number
+      description?: string
+      enum?: (string | number)[]
+    }
+  >
 }
 
 export type Components =
@@ -216,6 +225,10 @@ export type Spec = {
 
 export type AuthenticationState = {
   securitySchemeKey: string | null
+  securitySchemes?:
+    | Record<string, OpenAPIV2.SecuritySchemeObject>
+    | Record<string, OpenAPIV3.SecuritySchemeObject>
+    | Record<string, OpenAPIV3_1.SecuritySchemeObject>
   http: {
     basic: {
       username: string
@@ -228,4 +241,33 @@ export type AuthenticationState = {
   apiKey: {
     token: string
   }
+}
+
+export type Variable = {
+  [key: string]: string | number
+}
+
+export type ServerState = {
+  selectedServer: null | number
+  servers: Server[]
+  variables: Variable[]
+}
+
+export type Header = {
+  name: string
+  value: string
+}
+
+export type Query = {
+  name: string
+  value: string
+}
+
+export type Cookie = {
+  name: string
+  value: string
+}
+
+export type HarRequestWithPath = HarRequest & {
+  path: string
 }

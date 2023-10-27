@@ -1,143 +1,100 @@
 <script setup lang="ts">
-import { useApiClientRequestStore, useApiClientStore } from '@scalar/api-client'
+import { useApiClientStore, useRequestStore } from '@scalar/api-client'
 import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
-import {
-  HTTPSnippet,
-  type HarRequest,
-  availableTargets,
-} from 'httpsnippet-lite'
+import { HTTPSnippet, availableTargets } from 'httpsnippet-lite'
 import { computed, ref, watch } from 'vue'
 
-import { generateRequest, getExampleFromSchema } from '../../../helpers'
-import { useOperation } from '../../../hooks'
+import {
+  getApiClientRequest,
+  getHarRequest,
+  getRequestFromAuthentication,
+  getRequestFromOperation,
+  getUrlFromServerState,
+} from '../../../helpers'
+import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
-import type { Operation, Server, Spec } from '../../../types'
+import type { TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import { Icon } from '../../Icon'
 
 const props = defineProps<{
-  operation: Operation
-  server: Server
-  spec: Spec
+  operation: TransformedOperation
 }>()
 const CodeMirrorValue = ref<string>('')
 const { copyToClipboard } = useClipboard()
-const { setActiveRequest } = useApiClientRequestStore()
+const { setActiveRequest } = useRequestStore()
 const { toggleApiClient } = useApiClientStore()
 const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
+
+const { server: serverState, authentication: authenticationState } =
+  useGlobalStore()
 
 const CodeMirrorLanguages = computed(() => {
   return [state.selectedClient.targetKey]
 })
 
-const { parameterMap } = useOperation(props)
-
-const generateSnippet = async () => {
-  // Replace all variables of the format {something} with the uppercase variable name without the brackets
-  let path = props.operation.path
-
-  const pathVariables = path.match(/{(.*?)}/g)
-
-  if (pathVariables) {
-    pathVariables.forEach((variable) => {
-      const variableName = variable.replace(/{|}/g, '')
-      path = path.replace(variable, `__${variableName.toUpperCase()}__`)
-    })
-  }
-
-  // Get all the information about the request body
-  const jsonRequest =
-    props.operation.information?.requestBody?.content['application/json'] ||
-    null
-
-  // Headers
-  const headers = []
-
-  if (jsonRequest) {
-    headers.push({
-      name: 'Content-Type',
-      value: 'application/json',
-    })
-  }
-
-  // Prepare the data, if there’s any
-  const schema = jsonRequest?.schema
-  const requestBody = schema ? getExampleFromSchema(schema) : null
-
-  const postData = requestBody
-    ? {
-        mimeType: 'application/json',
-        text: JSON.stringify(requestBody, null, 2),
-      }
-    : null
-
-  // Replace all variables of the format {something} with the uppercase variable name without the brackets
-  let url = props.server.url
-
-  const urlVariables = url.match(/{{(.*?)}}/g)
-  if (urlVariables) {
-    urlVariables.forEach((variable) => {
-      const variableName = variable.replace(/{|}/g, '')
-      url = url.replace(variable, `__${variableName}__`)
-    })
-  }
+const generateSnippet = async (): Promise<string> => {
+  // Generate a request object
+  const request = getHarRequest(
+    {
+      url: getUrlFromServerState(serverState),
+    },
+    getRequestFromOperation(props.operation, {
+      replaceVariables: true,
+    }),
+    getRequestFromAuthentication(authenticationState),
+  )
 
   // Actually generate the snippet
   try {
-    const snippet = new HTTPSnippet({
-      method: props.operation.httpVerb.toUpperCase(),
-      url: `${url}${path}`,
-      headers,
-      postData,
-    } as HarRequest)
+    const snippet = new HTTPSnippet(request)
 
     return (await snippet.convert(
       state.selectedClient.targetKey,
       state.selectedClient.clientKey,
     )) as string
   } catch {
-    const snippet = new HTTPSnippet({
-      method: props.operation.httpVerb.toUpperCase(),
-      url: `${window.location.origin}${path}`,
-      headers,
-      postData,
-    } as HarRequest)
-
-    return (await snippet.convert(
-      state.selectedClient.targetKey,
-      state.selectedClient.clientKey,
-    )) as string
+    return ''
   }
 }
 
-// Update snippet when a different client is selected
 watch(
-  () => state.selectedClient,
+  [
+    // Update snippet when a different client is selected
+    () => state.selectedClient,
+    // … or the global server state changed
+    () => serverState,
+    // … or the global authentication state changed
+    () => authenticationState,
+  ],
   async () => {
     CodeMirrorValue.value = await generateSnippet()
   },
   {
+    deep: true,
     immediate: true,
   },
 )
 
-// Copy snippet to clipboard
-const copyExampleRequest = async () => {
-  copyToClipboard(CodeMirrorValue.value)
-}
-
 // Open API Client
 const showItemInClient = () => {
-  const item = generateRequest(
-    props.operation,
-    parameterMap.value,
-    props.server,
-    props.spec,
-  )
-  setActiveRequest(item)
+  const apiClientRequest = getApiClientRequest({
+    serverState: serverState,
+    authenticationState: authenticationState,
+    operation: props.operation,
+  })
+  setActiveRequest(apiClientRequest)
   toggleApiClient()
 }
+
+const foo = computed(() => {
+  return getApiClientRequest({
+    serverState: serverState,
+    authenticationState: authenticationState,
+    operation: props.operation,
+  })
+})
 
 const formattedPath = computed(() => {
   return (
@@ -191,7 +148,7 @@ const formattedPath = computed(() => {
         <button
           class="copy-button"
           type="button"
-          @click="copyExampleRequest">
+          @click="copyToClipboard(CodeMirrorValue)">
           <Icon
             src="solid/interface-copy-clipboard"
             width="10px" />

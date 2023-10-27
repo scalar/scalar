@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { normalizeRequestMethod } from './'
+import { normalizeRequestMethod } from './normalizeRequestMethod'
 
 describe('normalizeRequestMethod', () => {
   it('returns a valid request method', async () => {

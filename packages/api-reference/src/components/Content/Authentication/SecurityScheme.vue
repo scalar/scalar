@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
-
 import { useGlobalStore } from '../../../stores'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 

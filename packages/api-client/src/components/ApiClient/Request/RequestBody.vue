@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CodeMirror } from '@scalar/use-codemirror'
 
-import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
+import { useRequestStore } from '../../../stores/requestStore'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
@@ -10,7 +10,7 @@ defineProps<{
   formData?: any[]
 }>()
 
-const { activeRequest, setActiveRequest } = useApiClientRequestStore()
+const { activeRequest, setActiveRequest } = useRequestStore()
 
 const updateActiveRequest = (value: string) => {
   if (activeRequest.body !== value) {

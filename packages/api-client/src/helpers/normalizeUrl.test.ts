@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { normalizeUrl } from './'
+import { normalizeUrl } from './normalizeUrl'
 
 describe('normalizeUrl', () => {
   it('keeps URLs as is', async () => {
@@ -21,5 +21,10 @@ describe('normalizeUrl', () => {
 
   it('trims whitespace', async () => {
     expect(normalizeUrl('http://example.com ')).toBe('http://example.com')
+  })
+
+  it('ignores other types', async () => {
+    // @ts-expect-error
+    expect(normalizeUrl({})).toBe('')
   })
 })

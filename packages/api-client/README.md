@@ -31,12 +31,12 @@ Pass an URL of [a request proxy](https://github.com/scalar/scalar/tree/main/pack
 
 ## Composable
 
-You can use `useApiClientRequestStore()` to interact with the API client.
+You can use `useRequestStore()` to interact with the API client.
 
 ### readOnly
 
 ```js
-const { readOnly } = useApiClientRequestStore()
+const { readOnly } = useRequestStore()
 
 readOnly.value = false
 ```
@@ -44,7 +44,7 @@ readOnly.value = false
 ### activeRequest
 
 ```js
-const { activeRequest } = useApiClientRequestStore()
+const { activeRequest } = useRequestStore()
 
 console.log(activeRequest)
 ```
@@ -52,7 +52,7 @@ console.log(activeRequest)
 ### setActiveRequest
 
 ```js
-const { setActiveRequest } = useApiClientRequestStore()
+const { setActiveRequest } = useRequestStore()
 
 setActiveRequest({
   url: 'https://echo.scalar.com'

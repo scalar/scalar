@@ -95,7 +95,7 @@ const setActiveRequest = (request: ClientRequestConfig) => {
 // Whether the request is in read mode or edit mode
 const readOnly = ref(true)
 
-export const useApiClientRequestStore = () => ({
+export const useRequestStore = () => ({
   authState,
   readOnly,
   activeRequest,

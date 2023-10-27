@@ -1,6 +1,6 @@
 import { reactive } from 'vue'
 
-import type { AuthenticationState } from '../types'
+import type { AuthenticationState, ServerState } from '../types'
 
 export const createEmptyAuthenticationState = (): AuthenticationState => ({
   securitySchemeKey: null,
@@ -18,7 +18,9 @@ export const createEmptyAuthenticationState = (): AuthenticationState => ({
   },
 })
 
-const authentication = reactive(createEmptyAuthenticationState())
+const authentication = reactive<AuthenticationState>(
+  createEmptyAuthenticationState(),
+)
 
 const setAuthentication = (newState: Partial<AuthenticationState>) => {
   Object.assign(authentication, {
@@ -27,7 +29,24 @@ const setAuthentication = (newState: Partial<AuthenticationState>) => {
   })
 }
 
+export const createEmptyServerState = (): ServerState => ({
+  selectedServer: null,
+  servers: [],
+  variables: [],
+})
+
+const server = reactive<ServerState>(createEmptyServerState())
+
+const setServer = (newState: Partial<ServerState>) => {
+  Object.assign(server, {
+    ...server,
+    ...newState,
+  })
+}
+
 export const useGlobalStore = () => ({
   authentication,
   setAuthentication,
+  server,
+  setServer,
 })

@@ -89,4 +89,53 @@ describe('sendRequest', () => {
       foo: 'bar',
     })
   })
+
+  it('adds cookies as headers', async () => {
+    const port = createEchoServerOnAnyPort()
+
+    const request = {
+      url: `http://127.0.0.1:${port}`,
+      cookies: [
+        {
+          name: 'foo',
+          value: 'bar',
+        },
+      ],
+    }
+
+    const result = await sendRequest(request)
+
+    expect(result?.response?.data).toMatchObject({
+      cookies: {
+        foo: 'bar',
+      },
+    })
+  })
+
+  it('merges cookies', async () => {
+    const port = createEchoServerOnAnyPort()
+
+    const request = {
+      url: `http://127.0.0.1:${port}`,
+      cookies: [
+        {
+          name: 'foo',
+          value: 'bar',
+        },
+        {
+          name: 'another',
+          value: 'cookie',
+        },
+      ],
+    }
+
+    const result = await sendRequest(request)
+
+    expect(result?.response?.data).toMatchObject({
+      cookies: {
+        foo: 'bar',
+        another: 'cookie',
+      },
+    })
+  })
 })

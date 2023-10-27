@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useApiClientRequestStore } from '../../stores/apiClientRequestStore'
+import { useRequestStore } from '../../stores/requestStore'
 import RequestHistoryItem from './RequestHistoryItem.vue'
 
 defineEmits<{
   (e: 'toggle'): void
 }>()
 
-const { requestHistoryOrder } = useApiClientRequestStore()
+const { requestHistoryOrder } = useRequestStore()
 </script>
 <template>
   <div class="navigation-content-item">
@@ -141,3 +141,4 @@ const { requestHistoryOrder } = useApiClientRequestStore()
   color: var(--theme-color-3, var(--default-theme-color-3));
 }
 </style>
+../../stores/requestStore

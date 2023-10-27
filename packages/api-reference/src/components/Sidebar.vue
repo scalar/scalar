@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useApiClientRequestStore, useApiClientStore } from '@scalar/api-client'
+import { useApiClientStore, useRequestStore } from '@scalar/api-client'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
 import {
-  generateRequest,
+  getApiClientRequest,
   getHeadingId,
   getHeadingsFromMarkdown,
   getModelSectionId,
@@ -14,9 +14,9 @@ import {
   hasModels,
   scrollToId,
 } from '../helpers'
-import { useOperation } from '../hooks'
+import { useGlobalStore } from '../stores'
 import { useTemplateStore } from '../stores/template'
-import type { Operation, Spec, Tag } from '../types'
+import type { Spec, Tag, TransformedOperation } from '../types'
 import DarkModeToggle from './DarkModeToggle.vue'
 import FindAnythingButton from './FindAnythingButton.vue'
 import SidebarElement from './SidebarElement.vue'
@@ -24,23 +24,23 @@ import SidebarGroup from './SidebarGroup.vue'
 
 const props = defineProps<{ spec: Spec }>()
 
+const { server: serverState, authentication: authenticationState } =
+  useGlobalStore()
+
 const { state, toggleApiClient } = useApiClientStore()
 
-const { setActiveRequest } = useApiClientRequestStore()
+const { setActiveRequest } = useRequestStore()
 
-function showItemInClient(operation: Operation) {
-  const { parameterMap } = useOperation({ operation })
+function showItemInClient(operation: TransformedOperation) {
+  const request = getApiClientRequest({
+    serverState: serverState,
+    authenticationState: authenticationState,
+    operation: operation,
+  })
 
-  const item = generateRequest(
-    operation,
-    parameterMap.value,
-    props.spec.servers[0],
-    props.spec,
-  )
+  setActiveRequest(request)
 
-  setActiveRequest(item)
-
-  toggleApiClient(item, true)
+  toggleApiClient(request, true)
 }
 
 const isMobile = useMediaQuery('(max-width: 1000px)')

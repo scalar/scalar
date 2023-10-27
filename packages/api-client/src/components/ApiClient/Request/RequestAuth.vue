@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
+import { useRequestStore } from '../../../stores/requestStore'
 import { CollapsibleSection } from '../../CollapsibleSection'
 
-const store = useApiClientRequestStore()
+const store = useRequestStore()
 
 const { authState } = store
 

@@ -2,7 +2,7 @@
 import { computed, toRaw } from 'vue'
 
 import { isJsonString } from '../../../helpers'
-import { useApiClientRequestStore } from '../../../stores/apiClientRequestStore'
+import { useRequestStore } from '../../../stores/requestStore'
 import { CollapsibleSection } from '../../CollapsibleSection'
 // import Copilot from './Copilot.vue'
 import { SimpleGrid } from '../../Grid'
@@ -10,7 +10,7 @@ import ResponseBody from './ResponseBody.vue'
 import ResponseHeaders from './ResponseHeaders.vue'
 import ResponseMetaInformation from './ResponseMetaInformation.vue'
 
-const { activeResponse, activeRequestId } = useApiClientRequestStore()
+const { activeResponse, activeRequestId } = useRequestStore()
 
 // Headers
 const responseHeaders = computed(() => {
