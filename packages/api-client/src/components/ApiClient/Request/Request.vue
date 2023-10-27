@@ -61,6 +61,7 @@ const { activeRequest, readOnly } = useApiClientRequestStore()
   overflow: auto;
 }
 .scalar-api-client__item__content .scalar-api-client__codemirror__wrapper {
+  width: 100%;
   min-height: 63px;
 }
 .scalar-api-client__item__content .cm-s-default {
