@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 0.8.9
+
+### Patch Changes
+
+- 9c7a5722: feat: make the server selectable
+  feat: add inputs for server variables
+  feat: pass configured server environment to example requests
+  feat: pass configured server environment to the api client
+  refactor: new helpers to generate the request data for the example request and the client
+- a5df4a5b: fix: don’t show generated example responses if there’s an example
+- Updated dependencies [9c7a5722]
+  - @scalar/api-client@0.7.26
+
 ## 0.8.8
 
 ### Patch Changes
