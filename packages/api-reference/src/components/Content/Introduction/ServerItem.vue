@@ -23,7 +23,9 @@ const formattedServerUrl = computed(() => {
       (currentVariable: Variable) => currentVariable.name === match,
     )
 
-    return `<span class="base-url-variable">${variable?.value ?? ''}</span>`
+    return `<span class="base-url-variable">${
+      (variable?.value ?? '') !== '' ? variable?.value : `{${match}}`
+    }</span>`
   })
 })
 </script>
