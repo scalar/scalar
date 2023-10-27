@@ -14,8 +14,8 @@ import {
   type OpenSwaggerEditorActions,
   type SwaggerEditorProps,
 } from '../../types'
-import GettingStarted from './GettingStarted.vue'
 import SwaggerEditorAIWriter from './SwaggerEditorAIWriter.vue'
+import SwaggerEditorGettingStarted from './SwaggerEditorGettingStarted.vue'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
@@ -200,7 +200,7 @@ function handleAIWriter(queries: string[]) {
       }}
       online
     </SwaggerEditorStatusBar>
-    <GettingStarted
+    <SwaggerEditorGettingStarted
       v-show="activeTab === 'Getting Started'"
       :theme="!theme || theme === 'none' ? 'default' : theme"
       @changeExample="handleChangeExample"

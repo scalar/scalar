@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
+import { SwaggerEditorGettingStarted } from '@scalar/swagger-editor'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { FlowToastContainer } from '@scalar/use-toasts'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
@@ -318,7 +319,13 @@ function handleAIWriter(
         <Content
           :parsedSpec="parsedSpec"
           :rawSpec="rawSpecRef"
-          :ready="true" />
+          :ready="true">
+          <template #empty-state>
+            <SwaggerEditorGettingStarted
+              :theme="currentConfiguration?.theme || 'default'"
+              @changeTheme="$emit('changeTheme', $event)" />
+          </template>
+        </Content>
       </div>
       <div class="references-footer">
         <slot name="footer" />

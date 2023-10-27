@@ -73,7 +73,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
         :servers="localServers" />
       <slot
         v-else
-        name="empty" />
+        name="empty-state" />
       <template
         v-for="(tag, index) in parsedSpec.tags"
         :key="tag.id">
