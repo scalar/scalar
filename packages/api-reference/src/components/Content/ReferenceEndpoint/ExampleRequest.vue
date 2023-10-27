@@ -6,23 +6,20 @@ import { HTTPSnippet, availableTargets } from 'httpsnippet-lite'
 import { computed, ref, watch } from 'vue'
 
 import {
-  generateRequest,
+  getApiClientRequest,
   getHarRequest,
   getRequestFromAuthentication,
   getRequestFromOperation,
   getUrlFromServerState,
 } from '../../../helpers'
-import { useOperation } from '../../../hooks'
 import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
-import type { Server, Spec, TransformedOperation } from '../../../types'
+import type { TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import { Icon } from '../../Icon'
 
 const props = defineProps<{
   operation: TransformedOperation
-  spec: Spec
-  server: Server
 }>()
 const CodeMirrorValue = ref<string>('')
 const { copyToClipboard } = useClipboard()
@@ -37,15 +34,15 @@ const CodeMirrorLanguages = computed(() => {
   return [state.selectedClient.targetKey]
 })
 
-const { parameterMap } = useOperation(props)
-
 const generateSnippet = async (): Promise<string> => {
   // Generate a request object
   const request = getHarRequest(
     {
       url: getUrlFromServerState(serverState),
     },
-    getRequestFromOperation(props.operation),
+    getRequestFromOperation(props.operation, {
+      replaceVariables: true,
+    }),
     getRequestFromAuthentication(authenticationState),
   )
 
@@ -82,15 +79,22 @@ watch(
 
 // Open API Client
 const showItemInClient = () => {
-  const item = generateRequest(
-    props.operation,
-    parameterMap.value,
-    props.server,
-    props.spec,
-  )
-  setActiveRequest(item)
+  const apiClientRequest = getApiClientRequest({
+    serverState: serverState,
+    authenticationState: authenticationState,
+    operation: props.operation,
+  })
+  setActiveRequest(apiClientRequest)
   toggleApiClient()
 }
+
+const foo = computed(() => {
+  return getApiClientRequest({
+    serverState: serverState,
+    authenticationState: authenticationState,
+    operation: props.operation,
+  })
+})
 
 const formattedPath = computed(() => {
   return (

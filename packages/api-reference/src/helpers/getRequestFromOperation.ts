@@ -3,17 +3,22 @@ import { getExampleFromSchema } from './getExampleFromSchema'
 
 export const getRequestFromOperation = (
   operation: TransformedOperation,
+  options?: {
+    replaceVariables?: boolean
+  },
 ): Partial<HarRequestWithPath> => {
   // Replace all variables of the format {something} with the uppercase variable name without the brackets
   let path = operation.path
 
-  const pathVariables = path.match(/{(.*?)}/g)
+  if (options?.replaceVariables === true) {
+    const pathVariables = path.match(/{(.*?)}/g)
 
-  if (pathVariables) {
-    pathVariables.forEach((variable) => {
-      const variableName = variable.replace(/{|}/g, '')
-      path = path.replace(variable, `__${variableName.toUpperCase()}__`)
-    })
+    if (pathVariables) {
+      pathVariables.forEach((variable) => {
+        const variableName = variable.replace(/{|}/g, '')
+        path = path.replace(variable, `__${variableName.toUpperCase()}__`)
+      })
+    }
   }
 
   // Get all the information about the request body
@@ -43,6 +48,7 @@ export const getRequestFromOperation = (
   return {
     method: operation.httpVerb.toUpperCase(),
     path,
+    headers: allHeaders,
     postData,
   }
 }

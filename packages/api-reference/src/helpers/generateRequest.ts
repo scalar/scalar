@@ -6,6 +6,7 @@ import { useGlobalStore } from '../stores'
 import type { Operation, Server, Spec } from '../types'
 import { generateParameters } from './generateParameters'
 import { getExampleFromSchema } from './getExampleFromSchema'
+import { getVariableNames } from './getVariableNames'
 
 const { authentication } = useGlobalStore()
 
@@ -114,7 +115,7 @@ export function generateRequest(
     name: operation.name,
     type: operation.httpVerb,
     path: operation.path,
-    parameters: generateParameters(parameterMap.path),
+    parameters: getVariableNames(operation.path),
     query,
     headers,
     url: server.url,
