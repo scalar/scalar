@@ -162,7 +162,7 @@ You don’t like the color scheme? We’ve prepared some themes for you:
 
 ## Advanced: Styling
 
-Overwrite our CSS variables. We won’t judge.
+Overwrite our CSS variables. We won’t judge. 
 
 ```
 :root {
@@ -177,6 +177,67 @@ We’re using the `default-` prefix for our variables to not overwrite your vari
 --theme-font: 'Comic Sans MS', 'Comic Sans', cursive;
 /* ❌ Bad (with `default` prefix) */
 --default-theme-font: 'Comic Sans MS', 'Comic Sans', cursive;
+```
+
+Overwrite our night mode and day mode variables to build your own themes. Here are some of the basic variables to get you started:
+
+![basic-scalar-variables](https://github.com/scalar/scalar/assets/6201407/63524321-66d2-44d0-8509-3db7e045a315)
+
+```
+.light-mode {
+  --theme-color-1: #121212;
+  --theme-color-2: rgba(0, 0, 0, 0.6);
+  --theme-color-3: rgba(0, 0, 0, 0.4);
+  --theme-color-accent: #0a85d1;
+  --theme-background-1: #fff;
+  --theme-background-2: #f6f5f4;
+  --theme-background-3: #f1ede9;
+  --theme-background-accent: #5369d20f;
+  --theme-border-color: rgba(0, 0, 0, 0.08);
+}
+.dark-mode {
+  --theme-color-1: rgba(255, 255, 255, 0.81);
+  --theme-color-2: rgba(255, 255, 255, 0.443);
+  --theme-color-3: rgba(255, 255, 255, 0.282);
+  --theme-color-accent: #8ab4f8;
+  --theme-background-1: #202020;
+  --theme-background-2: #272727;
+  --theme-background-3: #333333;
+  --theme-background-accent: #8ab4f81f;
+}
+```
+
+Or get more advanced by styling our sidebar!
+
+![scalar-sidebar-variables](https://github.com/scalar/scalar/assets/6201407/2c363cbc-f06f-4ad3-b44f-05cee8c95a8b)
+
+```
+.light-mode .sidebar {
+  --sidebar-background-1: var(--theme-background-1);
+  --sidebar-item-hover-color: currentColor;
+  --sidebar-item-hover-background: var(--theme-background-2);
+  --sidebar-item-active-background: var(--theme-background-2);
+  --sidebar-border-color: var(--theme-border-color);
+  --sidebar-color-1: var(--theme-color-1);
+  --sidebar-color-2: var(--theme-color-2);
+  --sidebar-color-active: var(--theme-color-2);
+  --sidebar-search-background: var(--theme-background-2);
+  --sidebar-search-border-color: var(--theme-border-color);
+  --sidebar-search--color: var(--theme-color-3);
+}
+.dark-mode .sidebar {
+  --sidebar-background-1: var(--theme-background-1);
+  --sidebar-item-hover-color: currentColor;
+  --sidebar-item-hover-background: var(--theme-background-2);
+  --sidebar-item-active-background: var(--theme-background-2);
+  --sidebar-border-color: var(--theme-border-color);
+  --sidebar-color-1: var(--theme-color-1);
+  --sidebar-color-2: var(--theme-color-2);
+  --sidebar-color-active: var(--theme-color-2);
+  --sidebar-search-background: var(--theme-background-2);
+  --sidebar-search-border-color: var(--theme-border-color);
+  --sidebar-search--color: var(--theme-color-3);
+}
 ```
 
 ## Community
