@@ -162,7 +162,7 @@ You don’t like the color scheme? We’ve prepared some themes for you:
 
 ## Advanced: Styling
 
-Overwrite our CSS variables. We won’t judge. 
+Overwrite our CSS variables. We won’t judge.
 
 ```
 :root {
