@@ -106,3 +106,11 @@ Whether the footer should be below the content or below both the content _and_ t
 ```vue
 <ApiReference :configuration="{ footerBelowSidebar: true} />
 ```
+
+#### searchHotKey?: string
+
+Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
+
+```vue
+<ApiReference :configuration="{ footerBelowSidebar: true} />
+```

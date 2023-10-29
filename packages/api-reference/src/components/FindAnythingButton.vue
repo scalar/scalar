@@ -2,6 +2,10 @@
 import { isMacOS } from '@scalar/use-tooltip'
 
 import FlowIcon from './Icon/FlowIcon.vue'
+
+withDefaults(defineProps<{ searchHotKey?: string }>(), {
+  searchHotKey: 'k',
+})
 </script>
 <template>
   <button
@@ -17,7 +21,9 @@ import FlowIcon from './Icon/FlowIcon.vue'
         Search
       </span>
       <span class="sidebar-search-shortcut">
-        <span class="sidebar-search-key">{{ isMacOS() ? '⌘' : '⌃' }}k</span>
+        <span class="sidebar-search-key">
+          {{ isMacOS() ? '⌘' : '⌃' }}{{ searchHotKey }}
+        </span>
       </span>
     </div>
   </button>

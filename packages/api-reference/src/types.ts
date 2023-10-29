@@ -62,6 +62,8 @@ export type ReferenceConfiguration = {
   /** Remove the Scalar branding :( */
   // doNotPromoteScalar?: boolean
   hocuspocusConfiguration?: HocuspocusConfigurationProp
+  /** Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
+  searchHotKey?: string
 }
 
 export type Schema = {

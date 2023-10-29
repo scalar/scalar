@@ -22,7 +22,12 @@ import FindAnythingButton from './FindAnythingButton.vue'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
 
-const props = defineProps<{ spec: Spec }>()
+const props = withDefaults(
+  defineProps<{ spec: Spec; searchHotKey?: string }>(),
+  {
+    searchHotKey: 'k',
+  },
+)
 
 const { server: serverState, authentication: authenticationState } =
   useGlobalStore()
@@ -52,7 +57,7 @@ const {
 } = useTemplateStore()
 
 useKeyboardEvent({
-  keyList: ['k'],
+  keyList: [props.searchHotKey],
   withCtrlCmd: true,
   handler: () => setTemplateItem('showSearch', !templateState.showSearch),
 })
@@ -222,6 +227,7 @@ const setRef = (el: SidebarElementType, id: string) => {
   <div class="sidebar">
     <FindAnythingButton
       v-if="!isMobile"
+      :searchHotKey="searchHotKey"
       @click="setTemplateItem('showSearch', true)" />
     <div
       ref="scrollerEl"
