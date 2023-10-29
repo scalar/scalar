@@ -260,6 +260,11 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   display: flex;
   margin-top: 5px;
 }
+
+.scalar-api-client__url-input {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
+
 .scalar-api-client__request-type {
   display: flex;
   align-items: center;
