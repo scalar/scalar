@@ -17,6 +17,7 @@ import {
 } from 'vue'
 
 import { deepMerge, getTagSectionId } from '../helpers'
+import { useSpec } from '../hooks'
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceConfiguration, ReferenceProps, Spec } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
@@ -80,6 +81,14 @@ const currentConfiguration = computed((): ReferenceConfiguration => {
   })
 })
 
+const specConfiguration = computed(() => {
+  return currentConfiguration.value.spec
+})
+
+const { rawSpecRef: foobar } = useSpec({
+  configuration: specConfiguration,
+})
+
 /**
  * The editor component has heavy dependencies (process), let's lazy load it.
  */
@@ -106,14 +115,6 @@ const parsedSpecRef = ref<string>(
 const rawSpecRef = ref<string>(
   getSpecContent(currentConfiguration.value.spec?.content),
 )
-
-watch(rawSpecRef, () => {
-  console.log(rawSpecRef.value)
-})
-
-watch(parsedSpecRef, () => {
-  console.log(parsedSpecRef.value)
-})
 
 watch(
   currentConfiguration,
@@ -258,6 +259,7 @@ function handleAIWriter(
 }
 </script>
 <template>
+  foobar: {{ foobar }}
   <ThemeStyles :id="currentConfiguration?.theme" />
   <FlowToastContainer />
   <div

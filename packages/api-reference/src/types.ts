@@ -32,18 +32,20 @@ export type ReferenceProps = {
   hocuspocusConfiguration?: HocuspocusConfigurationProp
 }
 
+export type SpecConfiguration = {
+  /** URL to a Swagger/OpenAPI file */
+  url?: string
+  /** Swagger/Open API spec */
+  content?: string | Record<string, any> | (() => Record<string, any>)
+  /** The result of @scalar/swagger-parser */
+  preparsedContent?: Record<any, any>
+}
+
 export type ReferenceConfiguration = {
   /** A string to use one of the color presets */
   theme?: ThemeId
   /** The Swagger/OpenAPI spec to render */
-  spec?: {
-    /** URL to a Swagger/OpenAPI file */
-    url?: string
-    /** Swagger/Open API spec */
-    content?: string | Record<string, any> | (() => Record<string, any>)
-    /** The result of @scalar/swagger-parser */
-    preparsedContent?: Record<any, any>
-  }
+  spec?: SpecConfiguration
   /** URL to a request proxy for the API client */
   proxy?: string
   /** Whether the spec input should show */
