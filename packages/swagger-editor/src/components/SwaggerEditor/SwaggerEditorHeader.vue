@@ -74,18 +74,18 @@ const useExample = () => {
     <div
       class="swagger-editor-title"
       :class="{
-        'swagger-editor-active': activeTab === 'Getting Started',
-      }"
-      @click="emit('updateActiveTab', 'Getting Started')">
-      <div class="swagger-editor-type">Getting Started</div>
-    </div>
-    <div
-      class="swagger-editor-title"
-      :class="{
         'swagger-editor-active': activeTab === 'Swagger Editor',
       }"
       @click="emit('updateActiveTab', 'Swagger Editor')">
       <div class="swagger-editor-type">Swagger Editor</div>
+    </div>
+    <div
+      class="swagger-editor-title"
+      :class="{
+        'swagger-editor-active': activeTab === 'Getting Started',
+      }"
+      @click="emit('updateActiveTab', 'Getting Started')">
+      <div class="swagger-editor-type">Getting Started</div>
     </div>
     <div
       class="swagger-editor-title"
@@ -111,11 +111,11 @@ const useExample = () => {
         @click="importUrlModal.show">
         Import URL
       </button>
-      <button
+      <!-- <button
         type="button"
         @click="useExample">
         Example
-      </button>
+      </button> -->
     </div>
   </div>
   <FlowModal
@@ -191,8 +191,8 @@ const useExample = () => {
   display: flex;
   justify-content: space-between;
   padding: 0 6px 0 12px;
-  height: 35px;
-  min-height: 35px;
+  height: 44px;
+  min-height: 44px;
   align-items: center;
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
@@ -218,7 +218,7 @@ const useExample = () => {
   text-overflow: ellipsis;
   flex-shrink: 1;
   min-width: 0;
-  padding: 4px 6px;
+  padding: 9px;
   border-radius: var(--theme-radius, var(--default-theme-radius));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));

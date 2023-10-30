@@ -114,7 +114,7 @@ async function handleCreatePage() {
 </template>
 <style scoped>
 .swagger-ai-writer {
-  padding: 30px;
+  padding: 24px;
 }
 .swagger-ai-writer :deep(.aiwriter span i) {
   display: none;

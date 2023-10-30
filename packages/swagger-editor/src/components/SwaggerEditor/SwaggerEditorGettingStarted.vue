@@ -3,6 +3,7 @@ import { type ThemeId } from '@scalar/themes'
 import { ref, watch } from 'vue'
 
 import { type GettingStartedExamples } from '../../types'
+import FlowButton from '../FlowButton.vue'
 
 defineProps<{
   theme: ThemeId
@@ -38,81 +39,18 @@ watch(activeExample, () => {
       Open-Source tool that takes your Swagger/OAS file and generates Beautiful
       API references.
     </p>
+    <div class="start-cta flex flex-row gap-1">
+      <FlowButton
+        label="Test Petstore"
+        @click="activeExample = 'Petstore'" />
+      <FlowButton
+        label="Upload File"
+        variant="outlined"
+        @click="$emit('openSwaggerEditor', 'uploadFile')" />
+    </div>
     <div class="start-row">
       <div class="start-section">
-        <div class="start-h2">Quick Start</div>
-        <div
-          class="start-item"
-          @click="$emit('openSwaggerEditor', 'importUrl')">
-          <svg
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg">
-            <g fill="currentColor">
-              <path
-                d="M10.5 18.4 7.7 21a2.9 2.9 0 0 1-4 0l-.8-.9a2.8 2.8 0 0 1-.8-2 2.7 2.7 0 0 1 .8-2l5.8-5.8a2.8 2.8 0 0 1 4 0l.8 1A1 1 0 1 0 15 10l-.9-.9a4.8 4.8 0 0 0-6.7 0L1.5 15a4.8 4.8 0 0 0 0 6.8l.9.9a4.8 4.8 0 0 0 6.7 0l2.8-2.8a1 1 0 0 0 0-1.4 1 1 0 0 0-1.4 0Z" />
-              <path
-                d="m22.5 2.4-.9-1a4.8 4.8 0 0 0-6.7 0l-2.9 3a1 1 0 1 0 1.4 1.4l3-3a2.8 2.8 0 0 1 3.9 0l.9 1a2.7 2.7 0 0 1 .8 2 2.8 2.8 0 0 1-.8 2l-5.8 5.8a2.8 2.8 0 0 1-2 .8 2.8 2.8 0 0 1-2-.8 1 1 0 0 0-1.4 1.3 4.8 4.8 0 0 0 3.4 1.4 4.8 4.8 0 0 0 3.4-1.4l5.8-5.8a4.8 4.8 0 0 0 0-6.7Z" />
-            </g>
-          </svg>
-          URL
-        </div>
-        <div
-          class="start-item"
-          @click="$emit('openSwaggerEditor', 'uploadFile')">
-          <svg
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg">
-            <g>
-              <path
-                d="M24 2.2A2.21 2.21 0 0 0 21.8 0h-4.41a1.23 1.23 0 1 0 0 2.45h3.91a.25.25 0 0 1 .25.25v18.6a.25.25 0 0 1-.25.25h-3.91a1.23 1.23 0 1 0 0 2.45h4.41a2.21 2.21 0 0 0 2.2-2.2Z"
-                fill="currentColor"></path>
-              <path
-                d="M0 2.2v19.6A2.21 2.21 0 0 0 2.2 24h4.41a1.23 1.23 0 1 0 0-2.45H2.7a.25.25 0 0 1-.25-.25V2.7a.25.25 0 0 1 .25-.25h3.91a1.23 1.23 0 1 0 0-2.45H2.2A2.21 2.21 0 0 0 0 2.2Z"
-                fill="currentColor"></path>
-              <path
-                d="M16.9 13a1 1 0 0 0 .74-1.62l-4.9-5.64a1 1 0 0 0-1.48 0l-4.9 5.64A1 1 0 0 0 7.1 13h3.18a.25.25 0 0 1 .25.25v5.49a1.47 1.47 0 0 0 2.94 0v-5.51a.25.25 0 0 1 .25-.25Z"
-                fill="currentColor"></path>
-            </g>
-          </svg>
-          Upload
-        </div>
-        <div
-          class="start-item"
-          @click="$emit('openSwaggerEditor')">
-          <svg
-            viewBox="0 0 12 16"
-            width="10"
-            xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M4 5h4c1.7 0 2-1.3 2-3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4c0-1.1.9-2 2-2 0 1.7.3 3 2 3Zm0-3V1c0-.6.5-1 1-1h2c.5 0 1 .4 1 1v1.3c0 .6-.4.7-1 .7H5a1 1 0 0 1-1-1Z"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg" />
-          </svg>
-          Paste
-        </div>
-        <div
-          class="start-item"
-          @click="$emit('openSwaggerEditor')">
-          <svg
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg">
-            <g>
-              <path
-                d="M22.13 9.48c.52-1.06 2.21-5.1-.85-7.62a.54.54 0 0 0-.28-.11c-1.91 0-4.45 2.45-5.22 3.25A14.55 14.55 0 0 0 8.3 5C7.51 4.19 5 1.75 3.08 1.75a.51.51 0 0 0-.31.11C.12 4 .92 7.52 1.89 9.44a9.47 9.47 0 0 0-1.32 5.81c.26 3.31 3 7 6.49 7h9.88c3.51 0 6.23-3.69 6.48-7a9.32 9.32 0 0 0-1.29-5.77ZM16 19.75H8a3.5 3.5 0 0 1-3.5-3.5c0-5.91 4.12-3.53 7.5-3.53s7.5-2.44 7.5 3.53a3.5 3.5 0 0 1-3.5 3.5Z"
-                fill="currentColor"></path>
-              <path
-                d="M14.52 16.25a1 1.5 0 1 0 2 0 1 1.5 0 1 0-2 0"
-                fill="currentColor"></path>
-              <path
-                d="M7.52 16.25a1 1.5 0 1 0 2 0 1 1.5 0 1 0-2 0"
-                fill="currentColor"></path>
-            </g>
-          </svg>
-          GitHub
-        </div>
-      </div>
-      <div class="start-section">
-        <div class="start-h2">Examples</div>
+        <div class="start-h2">EXAMPLES</div>
         <div
           class="start-item"
           :class="{ 'start-item-active': activeExample === 'Petstore' }"
@@ -189,109 +127,108 @@ watch(activeExample, () => {
         <div class="start-item"></div>
       </div>
       <div class="start-section">
-        <div class="start-h2">Integrations</div>
-        <div class="swagger-editor-integrations">
-          <a
-            class="start-link-item"
-            href="https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference#readme"
-            target="_blank">
-            <svg
+        <div class="start-h2">INTEGRATIONS</div>
+        <a
+          class="start-item"
+          href="https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference#readme"
+          target="_blank">
+          <svg
+            fill="currentColor"
+            height="16"
+            viewBox="0 0 19 16"
+            width="19"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="m18.2 3.1.8-2V.9l-4.7 1.3C15.2 1 15 0 15 0s-2.5 1.6-4.3 1.5c-2 0-3.6.8-4 1-1.8 1.2-2.5 3.3-3.2 3.8L0 8.9 2.3 8l-2 2.5c.2.3 1.2 1.6 2.1 1.3l.4-.1 1.6.5-.7-1 .2-.2.9.3-.1-.8.9.3-.1-.8.3-.1 1-3.5 3.7-2.6-.3.7A4 4 0 0 1 8 7l-.6.2c-.5.5-.7.7-.8 2.5a2 2 0 0 1 1 0c1.6.4 2.2 2.3 1.7 2.9l-.7.6H8v.6h-.7v.5l-.2.2c-.7 0-1.4-.6-1.4-.6 0 .5.4 1.3.4 1.3s1.7 1.1 2.7.7c1-.4.7-2.3 2.8-3.2l3.3-.9.8-2.2-1.7.5v-2l2.5-.6.9-2.2-3.4.9v-2l4.2-1.1Z"
               fill="currentColor"
-              height="16"
-              viewBox="0 0 19 16"
-              width="19"
-              xmlns="http://www.w3.org/2000/svg">
+              fill-rule="nonzero" />
+          </svg>
+          <span>Fastify</span>
+        </a>
+        <a
+          class="start-item"
+          href="https://github.com/scalar/scalar/tree/main#from-a-cdn"
+          target="_blank">
+          <svg
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg">
+            <g>
               <path
-                d="m18.2 3.1.8-2V.9l-4.7 1.3C15.2 1 15 0 15 0s-2.5 1.6-4.3 1.5c-2 0-3.6.8-4 1-1.8 1.2-2.5 3.3-3.2 3.8L0 8.9 2.3 8l-2 2.5c.2.3 1.2 1.6 2.1 1.3l.4-.1 1.6.5-.7-1 .2-.2.9.3-.1-.8.9.3-.1-.8.3-.1 1-3.5 3.7-2.6-.3.7A4 4 0 0 1 8 7l-.6.2c-.5.5-.7.7-.8 2.5a2 2 0 0 1 1 0c1.6.4 2.2 2.3 1.7 2.9l-.7.6H8v.6h-.7v.5l-.2.2c-.7 0-1.4-.6-1.4-.6 0 .5.4 1.3.4 1.3s1.7 1.1 2.7.7c1-.4.7-2.3 2.8-3.2l3.3-.9.8-2.2-1.7.5v-2l2.5-.6.9-2.2-3.4.9v-2l4.2-1.1Z"
-                fill="currentColor"
-                fill-rule="nonzero" />
-            </svg>
-            <span>Fastify</span>
-          </a>
-          <a
-            class="start-link-item"
-            href="https://github.com/scalar/scalar/tree/main#from-a-cdn"
-            target="_blank">
-            <svg
+                d="M22.5 1.5h-21A1.5 1.5 0 0 0 0 3v3a1.5 1.5 0 0 0 1.5 1.5h21A1.5 1.5 0 0 0 24 6V3a1.5 1.5 0 0 0-1.5-1.5Zm-19.25 3A1.25 1.25 0 1 1 4.5 5.75 1.25 1.25 0 0 1 3.25 4.5ZM8.5 5.75A1.25 1.25 0 1 1 9.75 4.5 1.25 1.25 0 0 1 8.5 5.75Z"
+                fill="currentColor"></path>
+              <path
+                d="M22.5 9h-21A1.5 1.5 0 0 0 0 10.5v3A1.5 1.5 0 0 0 1.5 15h21a1.5 1.5 0 0 0 1.5-1.5v-3A1.5 1.5 0 0 0 22.5 9ZM3.25 12a1.25 1.25 0 1 1 1.25 1.25A1.25 1.25 0 0 1 3.25 12Zm5.25 1.25A1.25 1.25 0 1 1 9.75 12a1.25 1.25 0 0 1-1.25 1.25Z"
+                fill="currentColor"></path>
+              <path
+                d="M22.5 16.5h-21A1.5 1.5 0 0 0 0 18v3a1.5 1.5 0 0 0 1.5 1.5h21A1.5 1.5 0 0 0 24 21v-3a1.5 1.5 0 0 0-1.5-1.5Zm-19.25 3a1.25 1.25 0 1 1 1.25 1.25 1.25 1.25 0 0 1-1.25-1.25Zm5.25 1.25a1.25 1.25 0 1 1 1.25-1.25 1.25 1.25 0 0 1-1.25 1.25Z"
+                fill="currentColor"></path>
+            </g>
+          </svg>
+          <span>CDN</span>
+        </a>
+        <a
+          class="start-item"
+          href="https://github.com/scalar/scalar/tree/main#with-vuejs"
+          target="_blank">
+          <svg
+            height="170"
+            viewBox="0 0 196.3 170"
+            width="196.3"
+            xmlns="http://www.w3.org/2000/svg">
+            <g
               fill="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg">
-              <g>
-                <path
-                  d="M22.5 1.5h-21A1.5 1.5 0 0 0 0 3v3a1.5 1.5 0 0 0 1.5 1.5h21A1.5 1.5 0 0 0 24 6V3a1.5 1.5 0 0 0-1.5-1.5Zm-19.25 3A1.25 1.25 0 1 1 4.5 5.75 1.25 1.25 0 0 1 3.25 4.5ZM8.5 5.75A1.25 1.25 0 1 1 9.75 4.5 1.25 1.25 0 0 1 8.5 5.75Z"
-                  fill="currentColor"></path>
-                <path
-                  d="M22.5 9h-21A1.5 1.5 0 0 0 0 10.5v3A1.5 1.5 0 0 0 1.5 15h21a1.5 1.5 0 0 0 1.5-1.5v-3A1.5 1.5 0 0 0 22.5 9ZM3.25 12a1.25 1.25 0 1 1 1.25 1.25A1.25 1.25 0 0 1 3.25 12Zm5.25 1.25A1.25 1.25 0 1 1 9.75 12a1.25 1.25 0 0 1-1.25 1.25Z"
-                  fill="currentColor"></path>
-                <path
-                  d="M22.5 16.5h-21A1.5 1.5 0 0 0 0 18v3a1.5 1.5 0 0 0 1.5 1.5h21A1.5 1.5 0 0 0 24 21v-3a1.5 1.5 0 0 0-1.5-1.5Zm-19.25 3a1.25 1.25 0 1 1 1.25 1.25 1.25 1.25 0 0 1-1.25-1.25Zm5.25 1.25a1.25 1.25 0 1 1 1.25-1.25 1.25 1.25 0 0 1-1.25 1.25Z"
-                  fill="currentColor"></path>
-              </g>
-            </svg>
-            <span>CDN</span>
-          </a>
-          <a
-            class="start-link-item"
-            href="https://github.com/scalar/scalar/tree/main#with-vuejs"
-            target="_blank">
-            <svg
-              height="170"
-              viewBox="0 0 196.3 170"
-              width="196.3"
-              xmlns="http://www.w3.org/2000/svg">
-              <g
+              fill-rule="nonzero">
+              <polygon
+                points="39.23 0 0 0 2.9450761 5.1010782 98.16 170.02 196.32 0 157.06 0 98.16 102.01 42.175701 5.0991171" />
+              <polygon
+                points="75.5 2.009956e-14 0 2.009956e-14 2.94 5.1 78.44871 5.1 98.16 39.26 117.87937 5.1 193.38 5.1 196.325 0 120.82 7.8065636e-15 114.97322 2.009956e-14 98.16 29.037153 81.35 2.009956e-14" />
+            </g>
+          </svg>
+          <span>Vue</span>
+        </a>
+        <a
+          class="start-item"
+          href="https://github.com/scalar/scalar/tree/main#with-react"
+          target="_blank">
+          <svg
+            height="23.3"
+            viewBox="0 0 22 23.3"
+            width="22"
+            xmlns="http://www.w3.org/2000/svg">
+            <g
+              fill="none"
+              fill-rule="evenodd">
+              <circle
+                cx="11"
+                cy="11.6"
                 fill="currentColor"
-                fill-rule="nonzero">
-                <polygon
-                  points="39.23 0 0 0 2.9450761 5.1010782 98.16 170.02 196.32 0 157.06 0 98.16 102.01 42.175701 5.0991171" />
-                <polygon
-                  points="75.5 2.009956e-14 0 2.009956e-14 2.94 5.1 78.44871 5.1 98.16 39.26 117.87937 5.1 193.38 5.1 196.325 0 120.82 7.8065636e-15 114.97322 2.009956e-14 98.16 29.037153 81.35 2.009956e-14" />
-              </g>
-            </svg>
-            <span>Vue</span>
-          </a>
-          <a
-            class="start-link-item"
-            href="https://github.com/scalar/scalar/tree/main#with-react"
-            target="_blank">
-            <svg
-              height="23.3"
-              viewBox="0 0 22 23.3"
-              width="22"
-              xmlns="http://www.w3.org/2000/svg">
-              <g
-                fill="none"
-                fill-rule="evenodd">
-                <circle
+                fill-rule="nonzero"
+                r="2" />
+              <g stroke="currentColor">
+                <ellipse
                   cx="11"
                   cy="11.6"
-                  fill="currentColor"
-                  fill-rule="nonzero"
-                  r="2" />
-                <g stroke="currentColor">
-                  <ellipse
-                    cx="11"
-                    cy="11.6"
-                    rx="11"
-                    ry="4.2" />
-                  <ellipse
-                    cx="11"
-                    cy="11.6"
-                    rx="11"
-                    ry="4.2"
-                    transform="rotate(60 11 11.6)" />
-                  <ellipse
-                    cx="11"
-                    cy="11.6"
-                    rx="11"
-                    ry="4.2"
-                    transform="rotate(120 11 11.6)" />
-                </g>
+                  rx="11"
+                  ry="4.2" />
+                <ellipse
+                  cx="11"
+                  cy="11.6"
+                  rx="11"
+                  ry="4.2"
+                  transform="rotate(60 11 11.6)" />
+                <ellipse
+                  cx="11"
+                  cy="11.6"
+                  rx="11"
+                  ry="4.2"
+                  transform="rotate(120 11 11.6)" />
               </g>
-            </svg>
-            <span>React</span>
-          </a>
-          <!-- <div class="start-link-item">
+            </g>
+          </svg>
+          <span>React</span>
+        </a>
+        <!-- <div class="start-item">
             <svg
               height="62"
               viewBox="0 0 99.9 62"
@@ -304,29 +241,31 @@ watch(activeExample, () => {
             </svg>
             <span>Express</span>
           </div> -->
-        </div>
       </div>
-    </div>
-    <p class="start-h3">Themeing</p>
-    <p class="start-p">
-      All CSS variables are editable so you can easily add your own typography &
-      color palettes. Or Check out some of our prebuilt palettes below!
-    </p>
-    <div class="neato-grid">
-      <div
-        v-for="themeId in themeIds"
-        :key="themeId"
-        class="neato"
-        :class="{ 'neato-active': themeId === theme }"
-        @click="$emit('changeTheme', themeId)">
-        <i
-          class="start-item-color"
-          :class="`start-item-color-${themeId}`"></i>
-        {{ themeId.toLocaleLowerCase() }}
+      <div class="start-section start-section-colors">
+        <p class="start-h2">THEMING</p>
+        <div
+          v-for="themeId in themeIds"
+          :key="themeId"
+          class="start-item"
+          :class="{ 'start-item-active': themeId === theme }"
+          @click="$emit('changeTheme', themeId)">
+          <i
+            class="start-item-color"
+            :class="`start-item-color-${themeId}`"></i>
+          {{ themeId.toLocaleLowerCase() }}
+        </div>
+        <!-- <p class="start-item-copy">
+          Add your own typography & color palettes, or use some of our prebuilt
+          themes!
+        </p> -->
       </div>
     </div>
     <p class="start-h3">Features</p>
     <ul class="start-ul">
+      <li>
+        Add typography & color palettes, or use some of our prebuilt themes!
+      </li>
       <li>A deeply integrated Rest API Client (Also Free & Open-Source)</li>
       <li>Fully integrated Search (Using fuse.js)</li>
       <li>Free hosting with an https://apidocumentation.com subdomain</li>
@@ -337,10 +276,13 @@ watch(activeExample, () => {
 </template>
 <style scoped>
 .start {
-  padding: 24px 12px 24px 24px;
+  padding: 60px 12px 24px 24px;
   display: flex;
   flex-flow: wrap;
   justify-content: space-between;
+}
+.swagger-editor .start {
+  padding-top: 24px;
 }
 .start-h1 {
   font-size: var(--theme-heading-2, var(--default-theme-heading-2));
@@ -353,7 +295,7 @@ watch(activeExample, () => {
 }
 .start-h3 {
   font-size: var(--theme-heading-4, var(--default-theme-heading-4));
-  margin-top: 24px;
+  margin-top: 12px;
   line-height: 1.45;
   margin-bottom: 0;
   font-weight: var(--theme-bold, var(--default-theme-bold));
@@ -386,51 +328,27 @@ watch(activeExample, () => {
   margin-top: 0;
 }
 .start-section {
-  width: 33.33%;
+  width: 100%;
+  margin-bottom: 12px;
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  display: flex;
+  flex-flow: wrap;
 }
 .start-h2 {
   padding: 9px;
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  color: var(--theme-color-3, var(--default-theme-color-3));
   font-size: var(--theme-mini, var(--default-theme-mini));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  text-transform: uppercase;
-  background: var(--theme-background-2, var(--default-theme-background-2));
-}
-.swagger-editor-integrations {
   width: 100%;
-  position: relative;
-  user-select: none;
-}
-.start-link-item {
-  display: flex;
-  align-items: center;
-  font-size: var(--theme-mini, var(--default-theme-mini));
-  display: flex;
-  width: 100%;
-  cursor: pointer;
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  z-index: 10;
-  text-decoration: none;
-  padding: 9px;
-  border-top: 1px solid
+  border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
-.start-link-item:hover {
-  background: var(--theme-background-2, var(--default-theme-background-2));
+.start-h2 + .start-item {
+  border-radius: 0 0 0 var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
-.start-link-item svg {
-  height: 14px;
-  width: 14px;
-  margin-right: 6px;
-}
-.start-item-table {
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  padding: 2px;
-}
-.start-item-table .start-item:nth-of-type(1) {
-  border-top: none;
+.start-item:nth-of-type(5) {
+  border-radius: 0 0 var(--theme-radius-lg, var(--default-theme-radius-lg)) 0;
 }
 .start-item {
   padding: 9px;
@@ -441,7 +359,14 @@ watch(activeExample, () => {
   color: var(--theme-color-2, var(--default-theme-color-2));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-mini, var(--default-theme-mini));
-  border-top: 1px solid
+  width: 25%;
+  text-transform: capitalize;
+}
+.start-section-colors .start-item {
+  width: 20%;
+}
+.start-item:not(:last-of-type) {
+  border-right: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
 .start-item:empty {
@@ -468,32 +393,6 @@ watch(activeExample, () => {
   margin-top: 12px;
   gap: 12px;
   flex-flow: wrap;
-}
-.neato {
-  width: fit-content;
-  display: flex;
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  align-items: center;
-  padding: 9px;
-  flex: 1;
-  text-transform: capitalize;
-  cursor: pointer;
-  font-size: var(--theme-mini, var(--default-theme-mini));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  border-radius: var(--theme-radius-xl, var(--default-theme-radius-xl));
-}
-@media screen and (max-width: 1280px) {
-  .neato {
-    min-width: 150px;
-  }
-}
-.neato:hover {
-  background: var(--theme-background-2, var(--default-theme-background-2));
-}
-.neato-active {
-  border: 1px solid var(--theme-color-1, var(--default-theme-color-1));
-  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .start-item-color {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
@@ -556,11 +455,8 @@ watch(activeExample, () => {
     var(--theme-border-color, var(--default-theme-border-color));
 }
 .start-row {
-  display: flex;
   width: 100%;
-  margin-top: 24px;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  margin-top: 12px;
   overflow: hidden;
 }
 @media screen and (max-width: 600px) {
@@ -579,5 +475,22 @@ watch(activeExample, () => {
   .start-item:empty {
     display: none;
   }
+}
+.start-hero-copy {
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  padding: 12px;
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+}
+.start-p-small {
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+.start-cta {
+  margin-bottom: 12px;
+  width: fit-content;
+  white-space: nowrap;
 }
 </style>
