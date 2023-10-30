@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
+import {
+  type SwaggerEditor,
+  SwaggerEditorGettingStarted,
+} from '@scalar/swagger-editor'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { FlowToastContainer } from '@scalar/use-toasts'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
@@ -36,6 +40,8 @@ const emits = defineEmits<{
     swaggerType: 'json' | 'yaml',
   ): void
 }>()
+
+const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
 
 /** Merge the default configuration with the given configuration. */
 const currentConfiguration = computed((): ReferenceConfiguration => {
@@ -100,6 +106,14 @@ const parsedSpecRef = ref<string>(
 const rawSpecRef = ref<string>(
   getSpecContent(currentConfiguration.value.spec?.content),
 )
+
+watch(rawSpecRef, () => {
+  console.log(rawSpecRef.value)
+})
+
+watch(parsedSpecRef, () => {
+  console.log(parsedSpecRef.value)
+})
 
 watch(
   currentConfiguration,
@@ -301,6 +315,7 @@ function handleAIWriter(
       v-show="showSwaggerEditor"
       class="references-editor">
       <LazyLoadedSwaggerEditor
+        ref="swaggerEditorRef"
         :aiWriterMarkdown="aiWriterMarkdown"
         :hocuspocusConfiguration="currentConfiguration?.hocuspocusConfiguration"
         :initialTabState="currentConfiguration?.tabs?.initialContent"
@@ -318,7 +333,17 @@ function handleAIWriter(
         <Content
           :parsedSpec="parsedSpec"
           :rawSpec="rawSpecRef"
-          :ready="true" />
+          :ready="true">
+          <template
+            v-if="currentConfiguration?.isEditable"
+            #empty-state>
+            <SwaggerEditorGettingStarted
+              :theme="currentConfiguration?.theme || 'default'"
+              @changeExample="swaggerEditorRef?.handleChangeExample"
+              @changeTheme="$emit('changeTheme', $event)"
+              @openSwaggerEditor="swaggerEditorRef?.handleOpenSwaggerEditor" />
+          </template>
+        </Content>
       </div>
       <div class="references-footer">
         <slot name="footer" />

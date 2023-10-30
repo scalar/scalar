@@ -3,7 +3,7 @@ import { type StatesArray } from '@hocuspocus/provider'
 import { type SwaggerSpec, parse } from '@scalar/swagger-parser'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { useDebounceFn } from '@vueuse/core'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 import coinmarketcap from '../../coinmarketcapv3.json'
 import petstore from '../../petstorev3.json'
@@ -14,8 +14,8 @@ import {
   type OpenSwaggerEditorActions,
   type SwaggerEditorProps,
 } from '../../types'
-import GettingStarted from './GettingStarted.vue'
 import SwaggerEditorAIWriter from './SwaggerEditorAIWriter.vue'
+import SwaggerEditorGettingStarted from './SwaggerEditorGettingStarted.vue'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
@@ -37,8 +37,6 @@ const emit = defineEmits<{
 }>()
 
 const swaggerEditorHeaderRef = ref<typeof SwaggerEditorHeader | null>(null)
-
-const currentExample = ref<string | null>(null)
 
 const awarenessStates = ref<StatesArray>([])
 
@@ -82,8 +80,6 @@ onMounted(async () => {
   if (!previousContent) {
     return
   }
-
-  currentExample.value = previousContent
 })
 
 const handleAwarenessUpdate = (states: StatesArray) => {
@@ -107,7 +103,7 @@ const formattedError = computed(() => {
   return parserError.value
 })
 
-function handleChangeExample(example: GettingStartedExamples) {
+async function handleChangeExample(example: GettingStartedExamples) {
   let spec = ''
 
   if (example === 'Petstore') {
@@ -120,9 +116,9 @@ function handleChangeExample(example: GettingStartedExamples) {
     return
   }
 
-  handleSpecUpdate(spec)
-  currentExample.value = spec
-  rawContent.value = spec
+  activeTab.value = 'Swagger Editor'
+  await nextTick()
+  importHandler(spec)
 }
 
 watch(
@@ -164,10 +160,15 @@ const isJsonString = (value?: any) => {
 }
 
 function handleAIWriter(queries: string[]) {
-  const content = rawContent.value ?? currentExample.value ?? props.value ?? ''
+  const content = rawContent.value ?? props.value ?? ''
   const specType = isJsonString(content) ? 'json' : 'yaml'
   emit('startAIWriter', queries, content, specType)
 }
+
+defineExpose({
+  handleOpenSwaggerEditor,
+  handleChangeExample,
+})
 </script>
 <template>
   <ThemeStyles :id="theme" />
@@ -186,7 +187,7 @@ function handleAIWriter(queries: string[]) {
       v-if="activeTab === 'Swagger Editor'"
       ref="codeMirrorReference"
       :hocuspocusConfiguration="hocuspocusConfiguration"
-      :value="currentExample ?? props.value ?? ''"
+      :value="props.value ?? ''"
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
     <SwaggerEditorAIWriter
@@ -200,7 +201,7 @@ function handleAIWriter(queries: string[]) {
       }}
       online
     </SwaggerEditorStatusBar>
-    <GettingStarted
+    <SwaggerEditorGettingStarted
       v-show="activeTab === 'Getting Started'"
       :theme="!theme || theme === 'none' ? 'default' : theme"
       @changeExample="handleChangeExample"

@@ -114,4 +114,11 @@ const codeMirrorRef = ref<typeof CodeMirror | null>(null)
   overflow: hidden;
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
+.swagger-editor-input .cm-line:first-of-type:last-of-type:has(br):before {
+  content: 'Paste your Swagger file here...';
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  position: absolute;
+  display: block;
+  height: 23px;
+}
 </style>
