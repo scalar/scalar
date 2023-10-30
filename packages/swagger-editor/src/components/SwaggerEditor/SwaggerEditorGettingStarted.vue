@@ -386,14 +386,6 @@ watch(activeExample, () => {
   position: relative;
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
-.neato-grid {
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  margin-top: 12px;
-  gap: 12px;
-  flex-flow: wrap;
-}
 .start-item-color {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   margin-right: 6px;
@@ -459,23 +451,6 @@ watch(activeExample, () => {
   margin-top: 12px;
   overflow: hidden;
 }
-@media screen and (max-width: 600px) {
-  .start-row {
-    display: block;
-    border: none;
-    overflow: visible;
-  }
-  .start-section {
-    width: 100%;
-    border: 1px solid
-      var(--theme-border-color, var(--default-theme-border-color));
-    border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-    margin-bottom: 12px;
-  }
-  .start-item:empty {
-    display: none;
-  }
-}
 .start-hero-copy {
   background: var(--theme-background-2, var(--default-theme-background-2));
   padding: 12px;
@@ -492,5 +467,21 @@ watch(activeExample, () => {
   margin-bottom: 12px;
   width: fit-content;
   white-space: nowrap;
+}
+@media screen and (max-width: 600px) {
+  .start-section-colors .start-item,
+  .start-item {
+    width: 100%;
+    border-radius: 0 !important;
+    border-right: none !important;
+    border-top: 1px solid
+      var(--theme-border-color, var(--default-theme-border-color));
+  }
+  .start-item:empty {
+    display: none;
+  }
+  .start-h2 {
+    border-bottom: none;
+  }
 }
 </style>
