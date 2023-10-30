@@ -30,9 +30,7 @@ export const fetchSpecFromUrl = async (url: string, proxy: string) => {
       )
     }
 
-    // TODO: Deal with Yaml
-    const data = JSON.parse(payload.data)
-    return JSON.stringify(data, null, 2)
+    return jsonOrYaml(payload.data)
   }
   // Without proxy
   else {
@@ -41,8 +39,17 @@ export const fetchSpecFromUrl = async (url: string, proxy: string) => {
     )
     const response = await fetch(url)
 
-    // TODO: Deal with Yaml
-    const json = await response.json()
-    return JSON.stringify(json, null, 2)
+    return jsonOrYaml(await response.text())
+  }
+}
+
+function jsonOrYaml(value: string) {
+  try {
+    // JSON
+    const data = JSON.parse(value)
+    return JSON.stringify(data, null, 2)
+  } catch {
+    // Yaml
+    return value
   }
 }

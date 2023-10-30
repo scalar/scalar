@@ -21,7 +21,7 @@ const configuration = reactive<ReferenceConfiguration>({
     //   return { openapi: '3.1.0', info: { title: 'Example' }, paths: {} }
     // },
     // preparsedContent,
-    url: 'https://raw.githubusercontent.com/outline/openapi/main/spec3.json',
+    // url: 'https://raw.githubusercontent.com/outline/openapi/main/spec3.json',
     // url: 'https://raw.githubusercontent.com/testimio/public-openapi/TES-14404-mobile-applications/api.yaml',
   },
   tabs: {
