@@ -55,7 +55,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
     <script
       id="api-reference"
       data-url="https://example.com/swagger.json"></script>
-    <script src="https://www.unpkg.com/@scalar/api-reference"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
   </body>
 </html>
 ```
