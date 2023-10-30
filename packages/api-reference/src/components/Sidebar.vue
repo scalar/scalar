@@ -32,6 +32,26 @@ const props = withDefaults(
   },
 )
 
+const {
+  state: templateState,
+  setItem: setTemplateItem,
+  toggleCollapsedSidebarItem,
+  setCollapsedSidebarItem,
+} = useTemplateStore()
+
+// Open the first tag section by default
+watch(
+  props.parsedSpec,
+  () => {
+    const firstTag = props.parsedSpec.tags[0]
+
+    if (firstTag) {
+      setCollapsedSidebarItem(getTagSectionId(firstTag), true)
+    }
+  },
+  { immediate: true },
+)
+
 const { server: serverState, authentication: authenticationState } =
   useGlobalStore()
 
@@ -52,12 +72,6 @@ function showItemInClient(operation: TransformedOperation) {
 }
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
-
-const {
-  state: templateState,
-  setItem: setTemplateItem,
-  toggleCollapsedSidebarItem,
-} = useTemplateStore()
 
 useKeyboardEvent({
   keyList: [props.searchHotKey],
