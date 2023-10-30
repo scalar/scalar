@@ -13,6 +13,7 @@ import {
   type SwaggerEditorProps,
 } from '../../types'
 import SwaggerEditorAIWriter from './SwaggerEditorAIWriter.vue'
+import SwaggerEditorGettingStarted from './SwaggerEditorGettingStarted.vue'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
@@ -174,12 +175,12 @@ defineExpose({
       }}
       online
     </SwaggerEditorStatusBar>
-    <!-- <SwaggerEditorGettingStarted
+    <SwaggerEditorGettingStarted
       v-show="activeTab === 'Getting Started'"
       :theme="!theme || theme === 'none' ? 'default' : theme"
       @changeExample="handleChangeExample"
       @changeTheme="emit('changeTheme', $event)"
-      @openSwaggerEditor="handleOpenSwaggerEditor" /> -->
+      @openSwaggerEditor="handleOpenSwaggerEditor" />
   </div>
 </template>
 
