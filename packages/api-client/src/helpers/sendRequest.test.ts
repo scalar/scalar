@@ -149,6 +149,7 @@ describe('sendRequest', () => {
         another: 'cookie',
       },
     })
+  })
 
   it('sends requests through a proxy', async () => {
     const proxyPort = createApiClientProxyOnAnyPort()
@@ -165,4 +166,4 @@ describe('sendRequest', () => {
       path: '/',
     })
   })
-  })
+})
