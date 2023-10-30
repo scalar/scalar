@@ -23,7 +23,6 @@ const yCodeMirrorExtension = ref<any | null>(null)
 
 defineExpose({
   setCodeMirrorContent: (value: string) => {
-    console.log('setCodeMirrorContent')
     codeMirrorRef.value?.setCodeMirrorContent(value)
   },
 })
@@ -31,7 +30,6 @@ defineExpose({
 watch(
   () => props.hocuspocusConfiguration,
   () => {
-    console.log('hocuspocusConfiguration changed')
     if (provider) {
       provider.destroy()
       yCodeMirrorExtension.value = null

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { type StatesArray } from '@hocuspocus/provider'
-import { type SwaggerSpec, parse } from '@scalar/swagger-parser'
+// import { type SwaggerSpec, parse } from '@scalar/swagger-parser'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
-import { useDebounceFn } from '@vueuse/core'
+// import { useDebounceFn } from '@vueuse/core'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 import coinmarketcap from '../../coinmarketcapv3.json'
@@ -25,7 +25,7 @@ const props = defineProps<SwaggerEditorProps>()
 
 const emit = defineEmits<{
   (e: 'contentUpdate', value: string): void
-  (e: 'parsedSpecUpdate', spec: SwaggerSpec): void
+  // (e: 'parsedSpecUpdate', spec: SwaggerSpec): void
   (e: 'import', value: string): void
   (e: 'changeTheme', value: ThemeId): void
   (
@@ -42,22 +42,22 @@ const awarenessStates = ref<StatesArray>([])
 
 const parserError = ref<string>('')
 
-const handleSpecUpdate = useDebounceFn((value) => {
-  // Store content in local storage
-  if (!props.hocuspocusConfiguration) {
-    localStorage.setItem('swagger-editor-content', value)
-  }
+// const handleSpecUpdate = useDebounceFn((value) => {
+//   // Store content in local storage
+//   if (!props.hocuspocusConfiguration) {
+//     localStorage.setItem('swagger-editor-content', value)
+//   }
 
-  parse(value)
-    .then((spec: SwaggerSpec) => {
-      parserError.value = ''
+//   parse(value)
+//     .then((spec: SwaggerSpec) => {
+//       parserError.value = ''
 
-      emit('parsedSpecUpdate', spec)
-    })
-    .catch((error) => {
-      parserError.value = error.toString()
-    })
-})
+//       emit('parsedSpecUpdate', spec)
+//     })
+//     .catch((error) => {
+//       parserError.value = error.toString()
+//     })
+// })
 
 const rawContent = ref('')
 
@@ -86,9 +86,9 @@ const handleAwarenessUpdate = (states: StatesArray) => {
 }
 
 // Import new content
-const importHandler = (value: string) => {
-  codeMirrorReference.value?.setCodeMirrorContent(value)
-}
+// const importHandler = (value: string) => {
+//   codeMirrorReference.value?.setCodeMirrorContent(value)
+// }
 
 const codeMirrorReference = ref<typeof SwaggerEditorInput | null>(null)
 
@@ -117,7 +117,7 @@ async function handleChangeExample(example: GettingStartedExamples) {
 
   activeTab.value = 'Swagger Editor'
   await nextTick()
-  importHandler(spec)
+  handleContentUpdate(spec)
 }
 
 watch(
@@ -131,7 +131,7 @@ watch(
 )
 
 const activeTab = ref<EditorHeaderTabs>(
-  props.initialTabState ?? 'Getting Started',
+  props.initialTabState ?? 'Swagger Editor',
 )
 
 const handleOpenSwaggerEditor = (action?: OpenSwaggerEditorActions) => {
@@ -176,7 +176,7 @@ defineExpose({
       ref="swaggerEditorHeaderRef"
       :activeTab="activeTab"
       :proxyUrl="proxyUrl"
-      @import="importHandler"
+      @import="handleContentUpdate"
       @updateActiveTab="activeTab = $event" />
     <SwaggerEditorNotification
       v-if="activeTab === 'Swagger Editor' && formattedError">
@@ -200,12 +200,12 @@ defineExpose({
       }}
       online
     </SwaggerEditorStatusBar>
-    <SwaggerEditorGettingStarted
+    <!-- <SwaggerEditorGettingStarted
       v-show="activeTab === 'Getting Started'"
       :theme="!theme || theme === 'none' ? 'default' : theme"
       @changeExample="handleChangeExample"
       @changeTheme="emit('changeTheme', $event)"
-      @openSwaggerEditor="handleOpenSwaggerEditor" />
+      @openSwaggerEditor="handleOpenSwaggerEditor" /> -->
   </div>
 </template>
 

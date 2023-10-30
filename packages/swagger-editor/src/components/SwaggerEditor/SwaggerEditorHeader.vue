@@ -71,6 +71,14 @@ const useExample = () => {
 </script>
 <template>
   <div class="swagger-editor-header">
+    <!-- <div
+      class="swagger-editor-title"
+      :class="{
+        'swagger-editor-active': activeTab === 'Getting Started',
+      }"
+      @click="emit('updateActiveTab', 'Getting Started')">
+      <div class="swagger-editor-type">Getting Started</div>
+    </div> -->
     <div
       class="swagger-editor-title"
       :class="{

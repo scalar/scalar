@@ -2,12 +2,11 @@ import { type ComputedRef, type Ref, isRef, ref, watch } from 'vue'
 
 import type { SpecConfiguration } from '../types'
 
-// TODO: Trigger swagger parser
-// TODO: Deal with Preparsed content
-// TODO: Update CodeMirror when the config changed
-
 const rawSpecRef = ref('')
 
+/**
+ * Get the spec content from the provided configuration.
+ */
 const getSpecContent = async ({
   url,
   content,
@@ -33,6 +32,9 @@ const getSpecContent = async ({
   return ''
 }
 
+/**
+ * Fetch the spec from the provided URL.
+ */
 const fetchSpecFromUrl = async (url: string): Promise<string> => {
   return await new Promise((resolve, reject) => {
     fetch(url)
@@ -57,6 +59,9 @@ const fetchSpecFromUrl = async (url: string): Promise<string> => {
   })
 }
 
+/**
+ * Keep the raw spec content in a ref and update it when the configuration changes.
+ */
 export function useSpec({
   configuration,
 }: {
