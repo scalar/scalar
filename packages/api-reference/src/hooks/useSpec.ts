@@ -1,3 +1,4 @@
+import { fetchSpecFromUrl } from '@scalar/swagger-editor'
 import { type ComputedRef, type Ref, isRef, ref, watch } from 'vue'
 
 import type { SpecConfiguration } from '../types'
@@ -16,12 +17,12 @@ const rawSpecRef = ref('')
  * 4. If the content is a function, call it and get the content.
  * 5. Otherwise, return an empty string.
  */
-const getSpecContent = async ({
-  url,
-  content,
-}: SpecConfiguration): Promise<string> => {
+const getSpecContent = async (
+  { url, content }: SpecConfiguration,
+  proxy?: string,
+): Promise<string> => {
   if (url !== undefined && url.length > 0) {
-    return await fetchSpecFromUrl(url)
+    return await fetchSpecFromUrl(url, proxy)
   }
 
   if (typeof content === 'string') {
@@ -33,39 +34,15 @@ const getSpecContent = async ({
   }
 
   if (typeof content === 'function') {
-    return await getSpecContent({
-      content: content(),
-    })
+    return await getSpecContent(
+      {
+        content: content(),
+      },
+      proxy,
+    )
   }
 
   return ''
-}
-
-/**
- * Fetch the spec from the provided URL.
- */
-const fetchSpecFromUrl = async (url: string): Promise<string> => {
-  return await new Promise((resolve, reject) => {
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('The provided OpenAPI/Swagger spec URL is invalid.')
-        }
-
-        return response.text()
-      })
-      .then((data: string) => {
-        resolve(data)
-      })
-      .catch((error) => {
-        console.warn(
-          'Could not fetch the OpenAPI/Swagger Spec file:',
-          error.message,
-        )
-
-        reject(error)
-      })
-  })
 }
 
 /**
@@ -73,11 +50,13 @@ const fetchSpecFromUrl = async (url: string): Promise<string> => {
  */
 export function useSpec({
   configuration,
+  proxy,
 }: {
   configuration?:
     | SpecConfiguration
     | Ref<SpecConfiguration | undefined>
     | ComputedRef<SpecConfiguration | undefined>
+  proxy?: string
 }) {
   // Don’t do anything if the configuration is undefined
   if (configuration !== undefined) {
@@ -87,7 +66,7 @@ export function useSpec({
         configuration,
         async () => {
           if (configuration.value !== undefined) {
-            getSpecContent(configuration.value).then((value) => {
+            getSpecContent(configuration.value, proxy).then((value) => {
               setRawSpecRef(value)
             })
           }
@@ -100,7 +79,7 @@ export function useSpec({
     }
     // Get the content once
     else {
-      getSpecContent(configuration).then((value) => {
+      getSpecContent(configuration, proxy).then((value) => {
         setRawSpecRef(value)
       })
     }

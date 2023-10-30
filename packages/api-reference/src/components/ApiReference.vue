@@ -83,6 +83,7 @@ const specConfiguration = computed(() => {
 // Get the raw content
 const { rawSpecRef, setRawSpecRef } = useSpec({
   configuration: specConfiguration,
+  proxy: currentConfiguration.value.proxy,
 })
 
 // Parse the content

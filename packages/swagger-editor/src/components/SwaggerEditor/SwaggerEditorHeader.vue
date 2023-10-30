@@ -3,6 +3,7 @@ import { FlowModal, useModal } from '@scalar/use-modal'
 import { useFileDialog } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
+import { fetchSpecFromUrl } from '../../helpers'
 import spec from '../../petstorev3.json'
 import {
   type EditorHeaderTabs,
@@ -10,7 +11,6 @@ import {
 } from '../../types'
 import FlowButton from '../FlowButton.vue'
 import FlowTextField from '../FlowTextField.vue'
-import { fetchSpecFromUrl } from './fetchSpecFromUrl'
 
 const props = defineProps<SwaggerEditorHeaderProps>()
 
@@ -254,3 +254,4 @@ const useExample = () => {
   text-transform: uppercase;
 }
 </style>
+../../../../api-reference/src/helpers/fetchSpecFromUrl../../helpers/fetchSpecFromUrl
