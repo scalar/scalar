@@ -68,7 +68,6 @@ const handleContentUpdate = (value: string) => {
 
   rawContent.value = value
   emit('contentUpdate', value)
-  handleSpecUpdate(value)
 }
 
 onMounted(async () => {

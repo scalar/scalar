@@ -8,24 +8,25 @@ import type { SpecConfiguration } from '../types'
 
 const rawSpecRef = ref('')
 
-const getSpecContent = async (
-  configuration: SpecConfiguration,
-): Promise<string> => {
-  if (configuration.url !== undefined && configuration.url.length > 0) {
-    return await fetchSpecFromUrl(configuration.url)
+const getSpecContent = async ({
+  url,
+  content,
+}: SpecConfiguration): Promise<string> => {
+  if (url !== undefined && url.length > 0) {
+    return await fetchSpecFromUrl(url)
   }
 
-  if (typeof configuration.content === 'string') {
-    return configuration.content
+  if (typeof content === 'string') {
+    return content
   }
 
-  if (typeof configuration.content === 'object') {
-    return JSON.stringify(configuration.content)
+  if (typeof content === 'object') {
+    return JSON.stringify(content)
   }
 
-  if (typeof configuration.content === 'function') {
+  if (typeof content === 'function') {
     return await getSpecContent({
-      content: configuration.content(),
+      content: content(),
     })
   }
 
@@ -61,8 +62,8 @@ export function useSpec({
 }: {
   configuration?:
     | SpecConfiguration
-    | Ref<SpecConfiguration>
-    | ComputedRef<SpecConfiguration>
+    | Ref<SpecConfiguration | undefined>
+    | ComputedRef<SpecConfiguration | undefined>
 }) {
   // Don’t do anything if the configuration is undefined
   if (configuration !== undefined) {
@@ -71,9 +72,11 @@ export function useSpec({
       watch(
         configuration,
         async () => {
-          getSpecContent(configuration.value).then((value) => {
-            setRawSpecRef(value)
-          })
+          if (configuration.value !== undefined) {
+            getSpecContent(configuration.value).then((value) => {
+              setRawSpecRef(value)
+            })
+          }
         },
         {
           immediate: true,
@@ -90,6 +93,10 @@ export function useSpec({
   }
 
   function setRawSpecRef(value: string) {
+    if (value === rawSpecRef.value) {
+      return
+    }
+
     rawSpecRef.value = value
   }
 

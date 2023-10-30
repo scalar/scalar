@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { HocuspocusProvider, type StatesArray } from '@hocuspocus/provider'
 import { CodeMirror } from '@scalar/use-codemirror'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { yCollab as yjsCodeMirrorBinding } from 'y-codemirror.next'
 import * as Y from 'yjs'
 
@@ -23,13 +23,15 @@ const yCodeMirrorExtension = ref<any | null>(null)
 
 defineExpose({
   setCodeMirrorContent: (value: string) => {
+    console.log('setCodeMirrorContent')
     codeMirrorRef.value?.setCodeMirrorContent(value)
   },
 })
 
 watch(
-  props,
+  () => props.hocuspocusConfiguration,
   () => {
+    console.log('hocuspocusConfiguration changed')
     if (provider) {
       provider.destroy()
       yCodeMirrorExtension.value = null
@@ -90,10 +92,14 @@ watch(
       { undoManager },
     )
   },
-  { immediate: true },
+  { immediate: true, deep: true },
 )
 
 const codeMirrorRef = ref<typeof CodeMirror | null>(null)
+
+const codeMirrorExtensions = computed(() => {
+  return yCodeMirrorExtension.value ? [yCodeMirrorExtension] : []
+})
 </script>
 
 <template>
@@ -101,7 +107,7 @@ const codeMirrorRef = ref<typeof CodeMirror | null>(null)
     <CodeMirror
       ref="codeMirrorRef"
       :content="value"
-      :extensions="yCodeMirrorExtension ? [yCodeMirrorExtension] : []"
+      :extensions="codeMirrorExtensions"
       :languages="['json']"
       lineNumbers
       @change="(value: string) => $emit('contentUpdate', value)" />

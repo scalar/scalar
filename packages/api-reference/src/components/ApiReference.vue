@@ -85,7 +85,7 @@ const specConfiguration = computed(() => {
   return currentConfiguration.value.spec
 })
 
-const { rawSpecRef: foobar } = useSpec({
+const { rawSpecRef: newRawSpecRef, setRawSpecRef } = useSpec({
   configuration: specConfiguration,
 })
 
@@ -217,7 +217,7 @@ const handleParsedSpecUpdate = (newSpec: any) => {
 }
 
 function handleContentUpdate(newContent: string) {
-  rawSpecRef.value = newContent
+  setRawSpecRef(newContent)
 }
 
 watch(
@@ -259,7 +259,7 @@ function handleAIWriter(
 }
 </script>
 <template>
-  foobar: {{ foobar }}
+  newRawSpecRef: {{ newRawSpecRef }}
   <ThemeStyles :id="currentConfiguration?.theme" />
   <FlowToastContainer />
   <div
@@ -323,7 +323,7 @@ function handleAIWriter(
         :initialTabState="currentConfiguration?.tabs?.initialContent"
         :proxyUrl="currentConfiguration?.proxy"
         :theme="currentConfiguration?.theme"
-        :value="rawSpecRef"
+        :value="newRawSpecRef"
         @changeTheme="$emit('changeTheme', $event)"
         @contentUpdate="handleContentUpdate"
         @parsedSpecUpdate="handleParsedSpecUpdate"
