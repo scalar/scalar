@@ -4,7 +4,7 @@ import {
   type ReferenceConfiguration,
 } from '@scalar/api-reference'
 import { type ThemeId } from '@scalar/themes'
-import { reactive, ref, watch } from 'vue'
+import { reactive } from 'vue'
 
 // import preparsedContent from '../fixtures/specResult.json'
 

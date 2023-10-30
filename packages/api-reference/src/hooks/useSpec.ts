@@ -2,10 +2,19 @@ import { type ComputedRef, type Ref, isRef, ref, watch } from 'vue'
 
 import type { SpecConfiguration } from '../types'
 
+/**
+ * The raw (= including references) spec content.
+ */
 const rawSpecRef = ref('')
 
 /**
- * Get the spec content from the provided configuration.
+ * Get the spec content from the provided configuration:
+ *
+ * 1. If the URL is provided, fetch the spec from the URL.
+ * 2. If the content is a string, return it.
+ * 3. If the content is an object, stringify it.
+ * 4. If the content is a function, call it and get the content.
+ * 5. Otherwise, return an empty string.
  */
 const getSpecContent = async ({
   url,
@@ -54,7 +63,7 @@ const fetchSpecFromUrl = async (url: string): Promise<string> => {
           error.message,
         )
 
-        reject('')
+        reject(error)
       })
   })
 }

@@ -486,9 +486,6 @@ importers:
       '@hocuspocus/provider':
         specifier: 2.5.0
         version: 2.5.0(y-protocols@1.0.6)(yjs@13.6.8)
-      '@scalar/swagger-parser':
-        specifier: workspace:*
-        version: link:../swagger-parser
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes

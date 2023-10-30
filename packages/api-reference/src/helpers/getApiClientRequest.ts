@@ -48,7 +48,7 @@ export function getApiClientRequest({
     cookies: request.cookies,
     query: request.queryString,
     headers: request.headers,
-    url: getUrlFromServerState(serverState),
+    url: getUrlFromServerState(serverState) ?? '',
     body: request.postData?.text,
   }
 }

@@ -8,7 +8,6 @@
     "@codemirror/state": "6.2.1",
     "@headlessui/vue": "1.7.16",
     "@hocuspocus/provider": "2.5.0",
-    "@scalar/swagger-parser": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-modal": "workspace:*",
