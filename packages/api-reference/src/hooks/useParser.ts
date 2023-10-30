@@ -1,4 +1,5 @@
 import { parse } from '@scalar/swagger-parser'
+import { useDebounceFn } from '@vueuse/core'
 import { type ComputedRef, type Ref, isRef, reactive, ref, watch } from 'vue'
 
 import type { Spec } from '../types'
@@ -42,7 +43,11 @@ export function useParser({
   const errorRef = ref<string | null>(null)
 
   if (isRef(input)) {
-    watch(input, parseInput, { immediate: true })
+    watch(
+      input,
+      useDebounceFn((value) => parseInput(value)),
+      { immediate: true },
+    )
   } else {
     parseInput(input)
   }

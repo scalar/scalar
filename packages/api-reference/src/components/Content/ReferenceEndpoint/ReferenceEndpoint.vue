@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getOperationSectionId } from '../../../helpers'
-import type { Server, Spec, Tag, TransformedOperation } from '../../../types'
+import type { Tag, TransformedOperation } from '../../../types'
 import {
   Section,
   SectionColumn,

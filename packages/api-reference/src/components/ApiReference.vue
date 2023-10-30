@@ -7,16 +7,9 @@ import {
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { FlowToastContainer } from '@scalar/use-toasts'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
-import {
-  computed,
-  defineAsyncComponent,
-  onMounted,
-  reactive,
-  ref,
-  watch,
-} from 'vue'
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
 
-import { deepMerge, getTagSectionId } from '../helpers'
+import { deepMerge } from '../helpers'
 import { useParser, useSpec } from '../hooks'
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceConfiguration, ReferenceProps, Spec } from '../types'
@@ -42,9 +35,10 @@ const emits = defineEmits<{
   ): void
 }>()
 
+// Keep a ref to the Swagger editor
 const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
 
-/** Merge the default configuration with the given configuration. */
+// Merge the default configuration with the given configuration.
 const currentConfiguration = computed((): ReferenceConfiguration => {
   if (
     props.spec ||
@@ -126,34 +120,9 @@ useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height
 })
 
-// const { setCollapsedSidebarItem } = useTemplateStore()
 const { state } = useApiClientStore()
 
-const showMobileDrawer = computed(() => {
-  const { state: s } = useTemplateStore()
-  return s.showMobileDrawer
-})
-
-// TODO: proper types for the parsed spec
-// const handleParsedSpecUpdate = (newSpec: any) => {
-//   Object.assign(parsedSpec, {
-//     // Some specs don’t have servers or tags, make sure they are defined
-//     servers: [],
-//     tags: [],
-//     ...newSpec,
-//   })
-
-//   const firstTag = parsedSpec.tags[0]
-
-//   if (firstTag) {
-//     setCollapsedSidebarItem(getTagSectionId(firstTag), true)
-//   }
-// }
-
-function handleContentUpdate(newContent: string) {
-  setRawSpecRef(newContent)
-}
-
+// Scroll to top
 onMounted(() => {
   document.querySelector('#tippy')?.scrollTo({
     top: 0,
@@ -161,15 +130,24 @@ onMounted(() => {
   })
 })
 
-const showRenderedContent = computed(
-  () => isLargeScreen.value || !currentConfiguration.value?.isEditable,
-)
-
+// Whether to show the spec input
 const showSwaggerEditor = computed(() => {
   return (
     !currentConfiguration.value.spec?.preparsedContent &&
     currentConfiguration.value?.isEditable
   )
+})
+
+// Whether to show the result
+const showRenderedContent = computed(
+  () => isLargeScreen.value || !currentConfiguration.value?.isEditable,
+)
+
+// Show the mobile drawer
+const showMobileDrawer = computed(() => {
+  const { state: templateState } = useTemplateStore()
+
+  return templateState.showMobileDrawer
 })
 
 function handleAIWriter(
@@ -246,7 +224,7 @@ function handleAIWriter(
         :theme="currentConfiguration?.theme"
         :value="rawSpecRef"
         @changeTheme="$emit('changeTheme', $event)"
-        @contentUpdate="handleContentUpdate"
+        @contentUpdate="(newContent) => setRawSpecRef(newContent)"
         @startAIWriter="handleAIWriter" />
     </div>
     <!-- Rendered reference -->

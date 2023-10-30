@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import { type StatesArray } from '@hocuspocus/provider'
-// import { type SwaggerSpec, parse } from '@scalar/swagger-parser'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
-// import { useDebounceFn } from '@vueuse/core'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 import coinmarketcap from '../../coinmarketcapv3.json'
@@ -15,7 +13,6 @@ import {
   type SwaggerEditorProps,
 } from '../../types'
 import SwaggerEditorAIWriter from './SwaggerEditorAIWriter.vue'
-import SwaggerEditorGettingStarted from './SwaggerEditorGettingStarted.vue'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
@@ -25,7 +22,6 @@ const props = defineProps<SwaggerEditorProps>()
 
 const emit = defineEmits<{
   (e: 'contentUpdate', value: string): void
-  // (e: 'parsedSpecUpdate', spec: SwaggerSpec): void
   (e: 'import', value: string): void
   (e: 'changeTheme', value: ThemeId): void
   (
@@ -41,23 +37,6 @@ const swaggerEditorHeaderRef = ref<typeof SwaggerEditorHeader | null>(null)
 const awarenessStates = ref<StatesArray>([])
 
 const parserError = ref<string>('')
-
-// const handleSpecUpdate = useDebounceFn((value) => {
-//   // Store content in local storage
-//   if (!props.hocuspocusConfiguration) {
-//     localStorage.setItem('swagger-editor-content', value)
-//   }
-
-//   parse(value)
-//     .then((spec: SwaggerSpec) => {
-//       parserError.value = ''
-
-//       emit('parsedSpecUpdate', spec)
-//     })
-//     .catch((error) => {
-//       parserError.value = error.toString()
-//     })
-// })
 
 const rawContent = ref('')
 
@@ -84,11 +63,6 @@ onMounted(async () => {
 const handleAwarenessUpdate = (states: StatesArray) => {
   awarenessStates.value = states
 }
-
-// Import new content
-// const importHandler = (value: string) => {
-//   codeMirrorReference.value?.setCodeMirrorContent(value)
-// }
 
 const codeMirrorReference = ref<typeof SwaggerEditorInput | null>(null)
 
