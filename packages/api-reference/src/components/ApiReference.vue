@@ -291,7 +291,9 @@ function handleAIWriter(
         <slot
           v-if="isMobile"
           name="header" />
-        <Sidebar :spec="parsedSpec" />
+        <Sidebar
+          :searchHotKey="currentConfiguration.searchHotKey"
+          :spec="parsedSpec" />
       </div>
     </aside>
     <!-- Swagger file editing -->
