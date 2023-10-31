@@ -3,6 +3,12 @@ import { useTemplateStore } from '../stores/template'
 import DarkModeToggle from './DarkModeToggle.vue'
 import FlowIconButton from './FlowIconButton.vue'
 
+defineProps<{ isDarkMode: boolean }>()
+
+defineEmits<{
+  (e: 'toggleDarkMode'): void
+}>()
+
 const {
   state: templateState,
   setItem: setTemplateItem,
@@ -24,7 +30,10 @@ const {
         variant="clear"
         width="24px"
         @click="setTemplateItem('showSearch', true)" />
-      <DarkModeToggle class="sidebar-mobile-darkmode-toggle" />
+      <DarkModeToggle
+        class="sidebar-mobile-darkmode-toggle"
+        :isDarkMode="isDarkMode"
+        @toggleDarkMode="$emit('toggleDarkMode')" />
     </div>
   </div>
 </template>

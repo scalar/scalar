@@ -96,7 +96,9 @@ const showSwaggerEditor = computed(() => {
         :label="state.activeBreadcrumb"
         name="mobile-header">
         <!-- Fallback mobile header -->
-        <MobileHeader>
+        <MobileHeader
+          :isDarkMode="isDarkMode"
+          @toggleDarkMode="$emit('toggleDarkMode')">
           {{ state.activeBreadcrumb }}
         </MobileHeader>
       </slot>
