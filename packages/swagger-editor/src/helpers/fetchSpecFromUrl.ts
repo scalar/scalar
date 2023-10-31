@@ -1,7 +1,7 @@
 /**
  * Fetches a spec file from a given URL.
  */
-export const fetchSpecFromUrl = async (url: string, proxy: string) => {
+export const fetchSpecFromUrl = async (url: string, proxy?: string) => {
   // With Proxy
   if (proxy) {
     const response = proxy
