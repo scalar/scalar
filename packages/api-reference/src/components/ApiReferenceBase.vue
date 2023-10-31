@@ -17,8 +17,9 @@ import MobileHeader from './MobileHeader.vue'
 import SearchModal from './SearchModal.vue'
 import Sidebar from './Sidebar.vue'
 
-const { currentConfiguration } = defineProps<{
+const props = defineProps<{
   currentConfiguration: ReferenceConfiguration
+  hasEditor: boolean
   parsedSpec: Spec
   rawSpec: string
   swaggerEditorRef?: null | typeof SwaggerEditor
@@ -53,13 +54,14 @@ onMounted(() => {
 })
 
 const showRenderedContent = computed(
-  () => isLargeScreen.value || !currentConfiguration.isEditable,
+  () => isLargeScreen.value || !props.currentConfiguration.isEditable,
 )
 
 const showSwaggerEditor = computed(() => {
   return (
-    !currentConfiguration.spec?.preparsedContent &&
-    currentConfiguration?.isEditable
+    props.hasEditor &&
+    !props.currentConfiguration.spec?.preparsedContent &&
+    props.currentConfiguration?.isEditable
   )
 })
 </script>

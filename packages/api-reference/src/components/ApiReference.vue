@@ -2,7 +2,7 @@
 import { type SwaggerEditor } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
 import { useResizeObserver } from '@vueuse/core'
-import { computed, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, ref, watch } from 'vue'
 
 import { deepMerge } from '../helpers'
 import { useParser, useSpec } from '../hooks'
@@ -10,6 +10,7 @@ import type { ReferenceConfiguration, ReferenceProps, Spec } from '../types'
 import ApiReferenceBase from './ApiReferenceBase.vue'
 
 const props = withDefaults(defineProps<ReferenceProps>(), {
+  hasEditor: true,
   showSidebar: undefined,
   isEditable: undefined,
   footerBelowSidebar: undefined,
@@ -24,6 +25,13 @@ const emits = defineEmits<{
     swaggerType: 'json' | 'yaml',
   ): void
 }>()
+
+/**
+ * The editor component has heavy dependencies (process), let's lazy load it.
+ */
+const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
+  import('@scalar/swagger-editor').then((module) => module.SwaggerEditor),
+)
 
 /** Merge the default configuration with the given configuration. */
 const currentConfiguration = computed((): ReferenceConfiguration => {
@@ -112,6 +120,7 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
 <template>
   <ApiReferenceBase
     :currentConfiguration="currentConfiguration"
+    :hasEditor="hasEditor"
     :parsedSpec="parsedSpecRef"
     :rawSpec="rawSpecRef"
     :swaggerEditorRef="swaggerEditorRef"
@@ -125,14 +134,15 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
     <template #search-modal>
       <slot name="search-modal" />
     </template>
-    <template #editor>
-      <slot
+    <template
+      v-if="LazyLoadedSwaggerEditor"
+      #editor>
+      <LazyLoadedSwaggerEditor
         ref="swaggerEditorRef"
         :aiWriterMarkdown="aiWriterMarkdown"
         :error="errorRef"
         :hocuspocusConfiguration="currentConfiguration?.hocuspocusConfiguration"
         :initialTabState="currentConfiguration?.tabs?.initialContent"
-        name="editor"
         :proxyUrl="currentConfiguration?.proxy"
         :theme="currentConfiguration?.theme"
         :value="rawSpecRef"
