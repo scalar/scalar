@@ -190,6 +190,23 @@ TODO: Markup is missing
   cursor: pointer;
   animation: drawerexitfadein 0.35s forwards;
 }
+.api-client-drawer-exit:before {
+  content: '\00d7';
+  font-family: sans-serif;
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 30px;
+  font-weight: 100;
+  line-height: 50px;
+  right: 12px;
+  text-align: center;
+  color: white;
+  opacity: 0.6;
+}
+.api-client-drawer-exit:hover:before {
+  opacity: 1;
+}
 @keyframes drawerexitfadein {
   from {
     opacity: 0;
