@@ -4,7 +4,6 @@ import { useFileDialog } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
 import { fetchSpecFromUrl } from '../../helpers'
-import spec from '../../petstorev3.json'
 import {
   type EditorHeaderTabs,
   type SwaggerEditorHeaderProps,
@@ -37,9 +36,7 @@ const specUrl = ref('')
 const handleImportUrl = () => {
   importUrlError.value = ''
 
-  fetchSpecFromUrl(specUrl.value, {
-    proxyUrl: props.proxyUrl,
-  })
+  fetchSpecFromUrl(specUrl.value, props.proxyUrl)
     .then(async (content) => {
       emit('import', content)
       importUrlModal.hide()
@@ -64,10 +61,6 @@ watch(files, () => {
     reader.readAsText(file)
   }
 })
-
-const useExample = () => {
-  emit('import', JSON.stringify(spec, null, 2))
-}
 </script>
 <template>
   <div class="swagger-editor-header">
@@ -119,11 +112,6 @@ const useExample = () => {
         @click="importUrlModal.show">
         Import URL
       </button>
-      <!-- <button
-        type="button"
-        @click="useExample">
-        Example
-      </button> -->
     </div>
   </div>
   <FlowModal
