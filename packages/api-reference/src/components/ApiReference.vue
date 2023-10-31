@@ -9,10 +9,9 @@ import { deepMerge } from '../helpers'
 import { useParser, useSpec } from '../hooks'
 import { useDarkModeState } from '../hooks/useDarkModeState'
 import type { ReferenceConfiguration, ReferenceProps, Spec } from '../types'
-import ApiReferenceBase from './ApiReferenceBase.vue'
+import ApiReferenceLayout from './ApiReferenceLayout.vue'
 
 const props = withDefaults(defineProps<ReferenceProps>(), {
-  hasEditor: true,
   showSidebar: undefined,
   isEditable: undefined,
   footerBelowSidebar: undefined,
@@ -123,9 +122,8 @@ const { toggleDarkMode, isDark } = useDarkModeState()
 <template>
   <ThemeStyles :id="currentConfiguration?.theme" />
   <FlowToastContainer />
-  <ApiReferenceBase
+  <ApiReferenceLayout
     :currentConfiguration="currentConfiguration"
-    :hasEditor="hasEditor"
     :isDarkMode="isDark"
     :parsedSpec="parsedSpecRef"
     :rawSpec="rawSpecRef"
@@ -160,5 +158,5 @@ const { toggleDarkMode, isDark } = useDarkModeState()
     <template #footer>
       <slot name="footer" />
     </template>
-  </ApiReferenceBase>
+  </ApiReferenceLayout>
 </template>

@@ -18,7 +18,6 @@ import Sidebar from './Sidebar.vue'
 
 const props = defineProps<{
   currentConfiguration: ReferenceConfiguration
-  hasEditor: boolean
   isDarkMode: boolean
   parsedSpec: Spec
   rawSpec: string
@@ -60,7 +59,6 @@ const showRenderedContent = computed(
 
 const showSwaggerEditor = computed(() => {
   return (
-    props.hasEditor &&
     !props.currentConfiguration.spec?.preparsedContent &&
     props.currentConfiguration?.isEditable
   )
