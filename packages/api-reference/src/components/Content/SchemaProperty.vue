@@ -185,12 +185,14 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 <style scoped>
 .property {
   padding: 12px 0;
+  overflow: auto;
 }
 
 .property-information {
   display: flex;
   align-items: flex-end;
   gap: 9px;
+  white-space: nowrap;
 }
 
 .property-description {
