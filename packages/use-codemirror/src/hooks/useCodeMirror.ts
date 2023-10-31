@@ -145,11 +145,22 @@ export const useCodeMirror = (
   }
 
   const setCodeMirrorContent = (newValue: string) => {
+    // Check whether CodeMirror is mounted properly.
     if (!codeMirror.value) {
       return
     }
 
+    if (value.value === newValue) {
+      // No need to update the content ref
+      return
+    }
+
     value.value = newValue
+
+    if (codeMirror.value.state.doc.toString() === newValue) {
+      // No need to set the CodeMirror content
+      return
+    }
 
     codeMirror.value.dispatch({
       changes: {
