@@ -370,7 +370,7 @@ const searchResultsWithPlaceholderResults = computed(
   text-overflow: ellipsis;
 }
 .ref-search-meta {
-  background: var(--default-theme-background-3, var(--theme-background-3));
+  background: var(--theme-background-3, var(--default-theme-background-3));
   padding: 6px 12px;
   font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
   color: var(--theme-color-3, var(--default-theme-color-3));
