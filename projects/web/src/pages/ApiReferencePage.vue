@@ -4,7 +4,7 @@ import {
   type ReferenceConfiguration,
 } from '@scalar/api-reference'
 import { type ThemeId } from '@scalar/themes'
-import { reactive } from 'vue'
+import { defineAsyncComponent, reactive } from 'vue'
 
 import DevToolbar from '../components/DevToolbar.vue'
 import MockFooter from '../components/MockFooter.vue'
@@ -34,6 +34,12 @@ const configuration = reactive<ReferenceConfiguration>({
   // },
 })
 
+/**
+ * The editor component has heavy dependencies (process), let's lazy load it.
+ */
+const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
+  import('@scalar/swagger-editor').then((module) => module.SwaggerEditor),
+)
 // const spec = ref<string>(
 //   JSON.stringify({ openapi: '3.1.0', info: { title: 'Example' }, paths: {} }),
 // )
@@ -53,6 +59,7 @@ const configuration = reactive<ReferenceConfiguration>({
 //   // },
 // )
 </script>
+
 <template>
   <!-- <textarea
     v-model="spec"
@@ -74,6 +81,9 @@ const configuration = reactive<ReferenceConfiguration>({
     </template>
     <template #footer>
       <MockFooter />
+    </template>
+    <template #editor="slotProps">
+      <LazyLoadedSwaggerEditor v-bind="slotProps" />
     </template>
   </ApiReference>
 </template>
