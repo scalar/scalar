@@ -36,7 +36,7 @@ const emptySpec: Spec = {
 export function useParser({
   input,
 }: {
-  input: string | Ref<string> | ComputedRef<string>
+  input?: string | Ref<string> | ComputedRef<string>
 }) {
   const parsedSpecRef = reactive<Spec>({ ...emptySpec })
 
@@ -45,7 +45,9 @@ export function useParser({
   if (isRef(input)) {
     watch(
       input,
-      useDebounceFn((value) => parseInput(value)),
+      useDebounceFn((value) => {
+        parseInput(value)
+      }),
       { immediate: true },
     )
   } else {
@@ -63,23 +65,19 @@ export function useParser({
       return
     }
 
-    try {
-      parse(value)
-        .then((spec) => {
-          errorRef.value = null
+    parse(value)
+      .then((spec) => {
+        errorRef.value = null
 
-          Object.assign(parsedSpecRef, {
-            // Some specs don’t have servers or tags, make sure they are defined
-            servers: [],
-            ...spec,
-          })
+        Object.assign(parsedSpecRef, {
+          // Some specs don’t have servers or tags, make sure they are defined
+          servers: [],
+          ...spec,
         })
-        .catch((error) => {
-          errorRef.value = error.toString()
-        })
-    } catch (error) {
-      console.error(error)
-    }
+      })
+      .catch((error) => {
+        errorRef.value = error.toString()
+      })
   }
 
   function overwriteParsedSpecRef(value: Spec) {
