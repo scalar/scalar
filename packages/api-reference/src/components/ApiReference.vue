@@ -6,6 +6,7 @@ import { computed, defineAsyncComponent, ref, watch } from 'vue'
 
 import { deepMerge } from '../helpers'
 import { useParser, useSpec } from '../hooks'
+import { useDarkModeState } from '../hooks/useDarkModeState'
 import type { ReferenceConfiguration, ReferenceProps, Spec } from '../types'
 import ApiReferenceBase from './ApiReferenceBase.vue'
 
@@ -116,15 +117,18 @@ function handleAIWriter(
 }
 
 const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
+const { toggleDarkMode, isDark } = useDarkModeState()
 </script>
 <template>
   <ApiReferenceBase
     :currentConfiguration="currentConfiguration"
     :hasEditor="hasEditor"
+    :isDarkMode="isDark"
     :parsedSpec="parsedSpecRef"
     :rawSpec="rawSpecRef"
     :swaggerEditorRef="swaggerEditorRef"
-    @changeTheme="$emit('changeTheme', $event)">
+    @changeTheme="$emit('changeTheme', $event)"
+    @toggleDarkMode="toggleDarkMode">
     <template #header>
       <slot name="header" />
     </template>

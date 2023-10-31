@@ -20,6 +20,7 @@ import Sidebar from './Sidebar.vue'
 const props = defineProps<{
   currentConfiguration: ReferenceConfiguration
   hasEditor: boolean
+  isDarkMode: boolean
   parsedSpec: Spec
   rawSpec: string
   swaggerEditorRef?: null | typeof SwaggerEditor
@@ -27,6 +28,7 @@ const props = defineProps<{
 
 defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
+  (e: 'toggleDarkMode'): void
 }>()
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
@@ -114,8 +116,10 @@ const showSwaggerEditor = computed(() => {
           v-if="isMobile"
           name="header" />
         <Sidebar
+          :isDarkMode="isDarkMode"
           :searchHotKey="currentConfiguration.searchHotKey"
-          :spec="parsedSpec" />
+          :spec="parsedSpec"
+          @toggleDarkMode="$emit('toggleDarkMode')" />
       </div>
     </aside>
     <!-- Swagger file editing -->

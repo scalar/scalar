@@ -26,11 +26,15 @@ const props = withDefaults(
   defineProps<{
     parsedSpec: Spec
     searchHotKey?: string
+    isDarkMode: boolean
   }>(),
   {
     searchHotKey: 'k',
   },
 )
+defineEmits<{
+  (e: 'toggleDarkMode'): void
+}>()
 
 const {
   state: templateState,
@@ -304,7 +308,9 @@ const setRef = (el: SidebarElementType, id: string) => {
         </SidebarElement>
       </SidebarGroup>
     </div>
-    <DarkModeToggle />
+    <DarkModeToggle
+      :isDarkMode="isDarkMode"
+      @toggleDarkMode="$emit('toggleDarkMode')" />
   </div>
 </template>
 
