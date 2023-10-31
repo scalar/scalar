@@ -151,8 +151,10 @@ const showSwaggerEditor = computed(() => {
     </template>
     <!-- REST API Client Overlay -->
     <ApiClientModal
+      :isDarkMode="isDarkMode"
       :proxyUrl="currentConfiguration?.proxy"
-      :spec="parsedSpec" />
+      :spec="parsedSpec"
+      @toggleDarkMode="$emit('toggleDarkMode')" />
   </div>
 </template>
 <style scoped>

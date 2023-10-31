@@ -7,10 +7,15 @@ import { default as Sidebar } from './Sidebar.vue'
 
 defineProps<{
   parsedSpec: Spec
+  isDarkMode: boolean
   overloadShow?: boolean
   tabMode?: boolean
   activeTab?: string
   proxyUrl?: string
+}>()
+
+defineEmits<{
+  (e: 'toggleDarkMode'): void
 }>()
 
 const { hideApiClient, state } = useApiClientStore()
@@ -41,7 +46,9 @@ export { useApiClientStore } from '@scalar/api-client'
               <div class="t-doc__sidebar">
                 <Sidebar
                   v-show="!isMobile"
-                  :parsedSpec="parsedSpec" />
+                  :isDarkMode="isDarkMode"
+                  :parsedSpec="parsedSpec"
+                  @toggleDarkMode="$emit('toggleDarkMode')" />
               </div>
             </template>
             <template v-else>
@@ -52,7 +59,9 @@ export { useApiClientStore } from '@scalar/api-client'
             <div class="t-doc__sidebar">
               <Sidebar
                 v-show="!isMobile"
-                :parsedSpec="parsedSpec" />
+                :isDarkMode="isDarkMode"
+                :parsedSpec="parsedSpec"
+                @toggleDarkMode="$emit('toggleDarkMode')" />
             </div>
           </template>
           <ApiClient
