@@ -70,6 +70,7 @@ describe('useSpec', () => {
   }
 
   it('fetches JSON from an URL', async () => {
+    // @ts-ignore
     fetch.mockResolvedValue(
       createFetchResponse(
         '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
