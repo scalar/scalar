@@ -254,4 +254,3 @@ const useExample = () => {
   text-transform: uppercase;
 }
 </style>
-../../../../api-reference/src/helpers/fetchSpecFromUrl../../helpers/fetchSpecFromUrl
