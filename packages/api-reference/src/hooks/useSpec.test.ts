@@ -1,5 +1,6 @@
+import { type SpecConfiguration } from 'src/types'
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { computed, nextTick, reactive, ref, watch } from 'vue'
 
 import { useSpec } from './useSpec'
 
@@ -13,9 +14,19 @@ describe('useSpec', () => {
 
     await nextTick()
 
-    expect(rawSpecRef.value).toMatch(
+    expect(rawSpecRef.value).toBe(
       '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
     )
+  })
+
+  it('returns an empty string', async () => {
+    const { rawSpecRef } = useSpec({
+      configuration: {},
+    })
+
+    await nextTick()
+
+    expect(rawSpecRef.value).toBe('')
   })
 
   it('calls the content callback', async () => {
@@ -28,8 +39,9 @@ describe('useSpec', () => {
     })
 
     await nextTick()
+    await nextTick()
 
-    expect(rawSpecRef.value).toMatch(
+    expect(rawSpecRef.value).toBe(
       '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
     )
   })
@@ -43,7 +55,7 @@ describe('useSpec', () => {
 
     await nextTick()
 
-    expect(rawSpecRef.value).toMatch(
+    expect(rawSpecRef.value).toBe(
       '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
     )
   })
@@ -58,7 +70,7 @@ describe('useSpec', () => {
 
     await nextTick()
 
-    expect(rawSpecRef.value).toMatch(
+    expect(rawSpecRef.value).toBe(
       '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
     )
   })
@@ -85,10 +97,64 @@ describe('useSpec', () => {
 
     expect(fetch).toHaveBeenCalledWith('https://example.com/swagger.json')
 
-    // await nextTick()
+    await new Promise((resolve) => {
+      watch(rawSpecRef, (value) => {
+        expect(JSON.parse(value)).toMatchObject({
+          openapi: '3.1.0',
+          info: {
+            title: 'Example',
+          },
+          paths: {},
+        })
 
-    // expect(rawSpecRef.value).toMatch(
-    //   '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
-    // )
+        resolve(null)
+      })
+    })
+  })
+
+  it('uses a ref', async () => {
+    const configuration = reactive<SpecConfiguration>({
+      content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
+    })
+
+    const { rawSpecRef } = useSpec({
+      configuration,
+    })
+
+    await nextTick()
+
+    expect(rawSpecRef.value).toBe(
+      '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
+    )
+  })
+
+  it('reacts to ref changes', async () => {
+    const configurationRef = reactive<SpecConfiguration>({
+      content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
+    })
+
+    // Pass the configuration as a ComputedRef
+    const configuration = computed(() => {
+      return configurationRef
+    })
+
+    const { rawSpecRef } = useSpec({
+      configuration,
+    })
+
+    await nextTick()
+
+    expect(rawSpecRef.value).toBe(
+      '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
+    )
+
+    // Change the configuration …
+    Object.assign(configurationRef, {
+      content: '',
+    })
+
+    await nextTick()
+
+    expect(rawSpecRef.value).toBe('')
   })
 })
