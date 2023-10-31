@@ -53,10 +53,10 @@ const { requestHistoryOrder } = useRequestStore()
   border-top: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
   background: repeating-linear-gradient(
-    var(--default-theme-background-1),
-    var(--default-theme-background-1) 34.8px,
-    var(--default-theme-border-color) 34.8px,
-    var(--default-theme-border-color) 35.8px
+    var(--theme-background-1, var(--default-theme-background-1)),
+    var(--theme-background-1, var(--default-theme-background-1)) 34.8px,
+    var(--theme-border-color, var(--default-theme-border-color)) 34.8px,
+    var(--theme-border-color, var(--default-theme-border-color)) 35.8px
   );
 }
 .navtable-mock .navtable-item {
@@ -71,7 +71,9 @@ const { requestHistoryOrder } = useRequestStore()
 
 .radio {
   height: 10px;
+  max-width: 10px;
   width: 10px;
+  max-height: 10px;
   background: transparent;
   border: var(--border, var(--default-border));
   flex-shrink: 0;
@@ -82,6 +84,7 @@ const { requestHistoryOrder } = useRequestStore()
   align-items: center;
   justify-content: center;
   outline: none;
+  padding: 0;
 }
 .radio:before {
   content: '';
