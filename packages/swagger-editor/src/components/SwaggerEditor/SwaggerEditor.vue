@@ -66,11 +66,14 @@ const handleAwarenessUpdate = (states: StatesArray) => {
 const codeMirrorReference = ref<typeof SwaggerEditorInput | null>(null)
 
 const formattedError = computed(() => {
-  if (!props.error) {
+  // Check whether there‘s an error
+  if (props.error === undefined || props.error === null || props.error === '') {
     return ''
   }
 
+  // Work with strings and refs
   const error = isRef(props.error) ? props.error.value : props.error
+
   // Handle YAMLExceptions
   if (error.startsWith('YAMLException:')) {
     // Trim everything but the first line

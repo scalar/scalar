@@ -8,7 +8,7 @@ export type SwaggerEditorProps = {
   theme?: ThemeId
   initialTabState?: EditorHeaderTabs
   proxyUrl?: string
-  error?: string | Ref<string> | ComputedRef<string>
+  error?: string | Ref<string> | ComputedRef<string> | null
 }
 
 export type SwaggerEditorHeaderProps = {
