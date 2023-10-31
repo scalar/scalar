@@ -4,8 +4,7 @@ import {
   type SwaggerEditor,
   SwaggerEditorGettingStarted,
 } from '@scalar/swagger-editor'
-import { type ThemeId, ThemeStyles } from '@scalar/themes'
-import { FlowToastContainer } from '@scalar/use-toasts'
+import { type ThemeId } from '@scalar/themes'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 
@@ -68,8 +67,6 @@ const showSwaggerEditor = computed(() => {
 })
 </script>
 <template>
-  <ThemeStyles :id="currentConfiguration?.theme" />
-  <FlowToastContainer />
   <div
     ref="documentEl"
     class="scalar-api-reference references-layout"

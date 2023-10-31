@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { type SwaggerEditor } from '@scalar/swagger-editor'
-import { type ThemeId } from '@scalar/themes'
+import { type ThemeId, ThemeStyles } from '@scalar/themes'
+import { FlowToastContainer } from '@scalar/use-toasts'
 import { useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, ref, watch } from 'vue'
 
@@ -120,6 +121,8 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
 const { toggleDarkMode, isDark } = useDarkModeState()
 </script>
 <template>
+  <ThemeStyles :id="currentConfiguration?.theme" />
+  <FlowToastContainer />
   <ApiReferenceBase
     :currentConfiguration="currentConfiguration"
     :hasEditor="hasEditor"
