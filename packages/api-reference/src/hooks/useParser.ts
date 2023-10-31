@@ -38,7 +38,7 @@ export function useParser({
 }: {
   input: string | Ref<string> | ComputedRef<string>
 }) {
-  const parsedSpecRef = reactive<Spec>(emptySpec)
+  const parsedSpecRef = reactive<Spec>({ ...emptySpec })
 
   const errorRef = ref<string | null>(null)
 
@@ -54,6 +54,12 @@ export function useParser({
 
   async function parseInput(value?: string) {
     if (value === undefined) {
+      Object.assign(parsedSpecRef, { ...emptySpec })
+      return
+    }
+
+    if (value.length === 0) {
+      Object.assign(parsedSpecRef, { ...emptySpec })
       return
     }
 

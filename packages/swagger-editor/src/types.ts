@@ -1,4 +1,5 @@
 import { type ThemeId } from '@scalar/themes'
+import { type ComputedRef, type Ref } from 'vue'
 
 export type SwaggerEditorProps = {
   aiWriterMarkdown?: string
@@ -7,6 +8,7 @@ export type SwaggerEditorProps = {
   theme?: ThemeId
   initialTabState?: EditorHeaderTabs
   proxyUrl?: string
+  error?: string | Ref<string> | ComputedRef<string>
 }
 
 export type SwaggerEditorHeaderProps = {

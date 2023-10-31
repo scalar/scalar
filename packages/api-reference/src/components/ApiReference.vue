@@ -87,7 +87,7 @@ const { rawSpecRef, setRawSpecRef } = useSpec({
 })
 
 // Parse the content
-const { parsedSpecRef, overwriteParsedSpecRef } = useParser({
+const { parsedSpecRef, overwriteParsedSpecRef, errorRef } = useParser({
   input: rawSpecRef,
 })
 
@@ -219,6 +219,7 @@ function handleAIWriter(
       <LazyLoadedSwaggerEditor
         ref="swaggerEditorRef"
         :aiWriterMarkdown="aiWriterMarkdown"
+        :error="errorRef"
         :hocuspocusConfiguration="currentConfiguration?.hocuspocusConfiguration"
         :initialTabState="currentConfiguration?.tabs?.initialContent"
         :proxyUrl="currentConfiguration?.proxy"

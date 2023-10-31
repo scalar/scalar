@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { type StatesArray } from '@hocuspocus/provider'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, isRef, nextTick, onMounted, ref, watch } from 'vue'
 
 import coinmarketcap from '../../coinmarketcapv3.json'
 import petstore from '../../petstorev3.json'
@@ -37,8 +37,6 @@ const swaggerEditorHeaderRef = ref<typeof SwaggerEditorHeader | null>(null)
 
 const awarenessStates = ref<StatesArray>([])
 
-const parserError = ref<string>('')
-
 const rawContent = ref('')
 
 const handleContentUpdate = (value: string) => {
@@ -68,13 +66,18 @@ const handleAwarenessUpdate = (states: StatesArray) => {
 const codeMirrorReference = ref<typeof SwaggerEditorInput | null>(null)
 
 const formattedError = computed(() => {
-  // Handle YAMLExceptions
-  if (parserError.value?.startsWith('YAMLException:')) {
-    // Trim everything but the first line
-    return parserError.value.split('\n')[0]
+  if (!props.error) {
+    return ''
   }
 
-  return parserError.value
+  const error = isRef(props.error) ? props.error.value : props.error
+  // Handle YAMLExceptions
+  if (error.startsWith('YAMLException:')) {
+    // Trim everything but the first line
+    return error.split('\n')[0]
+  }
+
+  return error
 })
 
 async function handleChangeExample(example: GettingStartedExamples) {
