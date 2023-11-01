@@ -36,6 +36,7 @@ watch(
     }
 
     if (!props.hocuspocusConfiguration) {
+      console.log('no hocuspocus')
       return
     }
 
@@ -46,20 +47,30 @@ watch(
       ...HocuspocusProviderConfiguration,
       onAuthenticated() {
         console.log(
-          '[SwaggerEditor] ✅ onAuthentication',
-          props.hocuspocusConfiguration,
+          `[SwaggerEditor] ✅ onAuthentication (${HocuspocusProviderConfiguration?.name})`,
+        )
+      },
+      onConnect() {
+        console.log(
+          `[SwaggerEditor] 🟢 onConnect (${HocuspocusProviderConfiguration?.name})`,
         )
       },
       onAuthenticationFailed() {
         console.log(
-          '[SwaggerEditor] ❌ onAuthenticationFailed',
-          props.hocuspocusConfiguration,
+          `[SwaggerEditor] ❌ onAuthenticationFailed (${HocuspocusProviderConfiguration?.name})`,
+        )
+      },
+      onDisconnect() {
+        console.log(
+          `[SwaggerEditor] ⚪️ onDisconnect (${HocuspocusProviderConfiguration?.name})`,
         )
       },
       onAwarenessUpdate({ states }) {
         emit('awarenessUpdate', states)
       },
     })
+
+    window.hp = provider
 
     provider?.on('authenticated', () => {
       // Pick a random color for the cursor
@@ -102,6 +113,7 @@ const codeMirrorExtensions = computed(() => {
 
 <template>
   <div class="swagger-editor-input">
+    {{ hocuspocusConfiguration }}
     <CodeMirror
       ref="codeMirrorRef"
       :content="value"

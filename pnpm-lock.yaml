@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 overrides:
   '@apidevtools/json-schema-ref-parser': 9.0.7
 
@@ -867,12 +871,15 @@ importers:
 
   projects/backend:
     dependencies:
+      '@hocuspocus/extension-logger':
+        specifier: 2.5.0
+        version: 2.5.0(y-protocols@1.0.6)(yjs@13.6.8)
       '@hocuspocus/extension-sqlite':
-        specifier: 2.7.1
-        version: 2.7.1(y-protocols@1.0.6)(yjs@13.6.8)
+        specifier: 2.5.0
+        version: 2.5.0(y-protocols@1.0.6)(yjs@13.6.8)
       '@hocuspocus/server':
-        specifier: 2.7.1
-        version: 2.7.1(y-protocols@1.0.6)(yjs@13.6.8)
+        specifier: 2.5.0
+        version: 2.5.0(y-protocols@1.0.6)(yjs@13.6.8)
     devDependencies:
       nodemon:
         specifier: 3.0.1
@@ -3159,8 +3166,19 @@ packages:
       - y-protocols
     dev: false
 
-  /@hocuspocus/extension-sqlite@2.7.1(y-protocols@1.0.6)(yjs@13.6.8):
-    resolution: {integrity: sha512-L6oOOTAFuKiOJutUmbC/8HfHCPuLKxUFaTOkZkMtDftxLYqPcjPTthdfGM4aJlTEwfAd7peE6wMVTSTpdmRicw==}
+  /@hocuspocus/extension-logger@2.5.0(y-protocols@1.0.6)(yjs@13.6.8):
+    resolution: {integrity: sha512-RDn7MS723tpWmlM/90Ko70YY4PFyDJWZ4jBhrjYw9cVFEp3Y6gKnvIeXm3125x6GpZGQa8o+iSZqG+Dak5+xVg==}
+    dependencies:
+      '@hocuspocus/server': 2.5.0(y-protocols@1.0.6)(yjs@13.6.8)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - y-protocols
+      - yjs
+    dev: false
+
+  /@hocuspocus/extension-sqlite@2.5.0(y-protocols@1.0.6)(yjs@13.6.8):
+    resolution: {integrity: sha512-lzIPN5Gtog85GHMGVWgaf32UUASXWiyRFsQTG5xJPRSuuSCsxU5peLQzjqKUna7AgPqhBrHrKVgxNnc/A667Fg==}
     dependencies:
       '@hocuspocus/extension-database': 2.7.1(y-protocols@1.0.6)(yjs@13.6.8)
       kleur: 4.1.5
@@ -3185,6 +3203,25 @@ packages:
       '@lifeomic/attempt': 3.0.3
       lib0: 0.2.85
       ws: 7.5.9
+      y-protocols: 1.0.6(yjs@13.6.8)
+      yjs: 13.6.8
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: false
+
+  /@hocuspocus/server@2.5.0(y-protocols@1.0.6)(yjs@13.6.8):
+    resolution: {integrity: sha512-7oopepZIdkU2XxJouVZSdsFTg2VaqwfM1so87VEY+b7DER68BS+rVb8Eimz9WER9ZLLyg5DK+t797rnXJX/1cQ==}
+    peerDependencies:
+      y-protocols: ^1.0.5
+      yjs: ^13.6.4
+    dependencies:
+      '@hocuspocus/common': 2.7.1
+      async-lock: 1.4.0
+      kleur: 4.1.5
+      lib0: 0.2.85
+      uuid: 9.0.1
+      ws: 8.14.2
       y-protocols: 1.0.6(yjs@13.6.8)
       yjs: 13.6.8
     transitivePeerDependencies:
@@ -14725,7 +14762,3 @@ packages:
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: false
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false

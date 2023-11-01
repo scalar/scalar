@@ -2,8 +2,9 @@
   "name": "@scalar-org/fastify-api-reference",
   "version": "0.5.2",
   "dependencies": {
-    "@hocuspocus/extension-sqlite": "2.7.1",
-    "@hocuspocus/server": "2.7.1"
+    "@hocuspocus/extension-logger": "2.5.0",
+    "@hocuspocus/extension-sqlite": "2.5.0",
+    "@hocuspocus/server": "2.5.0"
   },
   "devDependencies": {
     "nodemon": "3.0.1",
