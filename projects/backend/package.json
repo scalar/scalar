@@ -1,5 +1,5 @@
 {
-  "name": "@scalar-org/fastify-api-reference",
+  "name": "@scalar-org/backend",
   "version": "0.5.2",
   "dependencies": {
     "@hocuspocus/extension-logger": "2.5.0",
