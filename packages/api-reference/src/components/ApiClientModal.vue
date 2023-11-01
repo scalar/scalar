@@ -134,26 +134,6 @@ export { useApiClientStore } from '@scalar/api-client'
 .scalar-api-client__close:hover {
   cursor: pointer;
 }
-/*
-TODO: Markup is missing
-.scalar-api-client__close__icon {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  margin-right: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--theme-color-2, var(--default-theme-color-2));
-}
-.scalar-api-client__close__icon:hover {
-  background: var(--theme-background-2, var(--default-theme-background-2));
-}
-.scalar-api-client__close__icon svg {
-  width: 12px;
-  height: 12px;
-  transform: rotate(180deg);
-} */
 .api-client-drawer {
   background: var(--theme-background-1, var(--default-theme-background-1));
   height: calc(100% - 58px);
@@ -167,6 +147,20 @@ TODO: Markup is missing
   z-index: 1001;
   opacity: 0;
   animation: apiclientfadein 0.35s forwards;
+}
+.api-client-drawer:before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 0;
+}
+.dark-mode .api-client-drawer:before {
+  background: #1a1a1a;
+}
+.light-mode .api-client-drawer:before {
+  background: #fff;
 }
 @keyframes apiclientfadein {
   from {

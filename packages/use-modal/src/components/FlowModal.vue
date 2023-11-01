@@ -69,6 +69,7 @@ withDefaults(
   background: var(--theme-background-1, var(--default-theme-background-1));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   font-family: var(--theme-font, var(--default-theme-font));
+  position: relative;
 }
 .modal {
   margin: 80px auto 0;
@@ -84,6 +85,21 @@ withDefaults(
   animation: modal-pop 0.15s 0.15s forwards;
   display: flex;
   flex-direction: column;
+}
+.modal:before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 0;
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+}
+.dark-mode .modal:before {
+  background: #1a1a1a;
+}
+.light-mode .modal:before {
+  background: #fff;
 }
 .modal-content-history {
   background: var(--theme-background-1, var(--default-theme-background-1));

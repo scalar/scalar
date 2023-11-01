@@ -485,9 +485,8 @@ const setRef = (el: SidebarElementType, id: string) => {
 }
 
 .sidebar-mobile-actions .sidebar-mobile-darkmode-toggle {
-  height: 24px;
-  width: 24px;
-  margin-top: 0;
+  width: auto;
+  margin: 0;
 }
 .sidebar-mobile-actions .sidebar-mobile-darkmode-toggle .darklight {
   height: 24px;
