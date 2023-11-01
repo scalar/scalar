@@ -1,0 +1,23 @@
+{
+  "name": "@scalar-org/fastify-api-reference",
+  "version": "0.5.2",
+  "dependencies": {
+    "@hocuspocus/extension-sqlite": "2.7.1",
+    "@hocuspocus/server": "2.7.1"
+  },
+  "devDependencies": {
+    "nodemon": "3.0.1",
+    "typescript": "5.2.2",
+    "vite": "4.4.9",
+    "vite-node": "0.34.4"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "private": true,
+  "scripts": {
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ./",
+    "types:check": "tsc --noEmit --skipLibCheck"
+  },
+  "type": "module"
+}
