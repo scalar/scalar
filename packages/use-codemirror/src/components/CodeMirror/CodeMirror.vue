@@ -35,6 +35,7 @@ import { variables } from './extensions/variables'
 
 const props = withDefaults(
   defineProps<{
+    name?: string
     extensions?: Extension[]
     content?: string
     readOnly?: boolean
@@ -164,19 +165,33 @@ const getCodeMirrorExtensions = () => {
   return extensions
 }
 
-const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
-  useCodeMirror({
-    content: props.content ?? '',
-    extensions: getCodeMirrorExtensions(),
-    withoutTheme: props.withoutTheme,
-    forceDarkMode: props.forceDarkMode,
-  })
+const {
+  codeMirrorRef,
+  setCodeMirrorContent,
+  reconfigureCodeMirror,
+  restartCodeMirror,
+} = useCodeMirror({
+  content: props.content ?? '',
+  extensions: getCodeMirrorExtensions(),
+  withoutTheme: props.withoutTheme,
+  forceDarkMode: props.forceDarkMode,
+})
 
 // Content changed. Updating CodeMirror …
 watch(
   () => props.content,
   () => {
-    setCodeMirrorContent(props.content ?? '')
+    if (props.content?.length) {
+      setCodeMirrorContent(props.content)
+    }
+  },
+)
+
+// Document changed. Restarting CodeMirror.
+watch(
+  () => props.name,
+  () => {
+    restartCodeMirror(getCodeMirrorExtensions())
   },
 )
 

@@ -28,7 +28,7 @@ const configuration = reactive<ReferenceConfiguration>({
     initialContent: 'Swagger Editor',
   },
   hocuspocusConfiguration: {
-    name: 'foo',
+    name: 'document-1',
     token: 'secret',
     url: 'ws://localhost:1234',
   },

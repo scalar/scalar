@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { HocuspocusProvider, type StatesArray } from '@hocuspocus/provider'
 import { CodeMirror } from '@scalar/use-codemirror'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { yCollab as yjsCodeMirrorBinding } from 'y-codemirror.next'
 import * as Y from 'yjs'
 
@@ -102,21 +102,17 @@ watch(
 )
 
 const codeMirrorRef = ref<typeof CodeMirror | null>(null)
-
-const codeMirrorExtensions = computed(() => {
-  return yCodeMirrorExtension.value ? [yCodeMirrorExtension] : []
-})
 </script>
 
 <template>
   <div class="swagger-editor-input">
-    {{ hocuspocusConfiguration }}
     <CodeMirror
       ref="codeMirrorRef"
       :content="value"
-      :extensions="codeMirrorExtensions"
+      :extensions="yCodeMirrorExtension ? [yCodeMirrorExtension] : []"
       :languages="['json']"
       lineNumbers
+      :name="hocuspocusConfiguration?.name"
       @change="(value: string) => $emit('contentUpdate', value)" />
   </div>
 </template>
