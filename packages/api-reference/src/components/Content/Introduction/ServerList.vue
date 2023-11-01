@@ -4,6 +4,7 @@ import { ref, watch } from 'vue'
 import { useGlobalStore } from '../../../stores'
 import { type Server } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
+import { FlowIcon } from '../../Icon'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import ServerItem from './ServerItem.vue'
 
@@ -105,16 +106,7 @@ const getValue = (name: string) => {
               :value="value[selectedServerIndex]"
               :variables="server.variables" />
 
-            <svg
-              fill="none"
-              height="100%"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="m19.5 10-7.5 7.5-7.5-7.5"
-                xmlns="http://www.w3.org/2000/svg"></path>
-            </svg>
+            <FlowIcon icon="ChevronDown" />
           </div>
         </div>
         <!-- Variables -->

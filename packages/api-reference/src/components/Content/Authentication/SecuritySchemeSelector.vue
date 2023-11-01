@@ -2,6 +2,7 @@
 import { onMounted } from 'vue'
 
 import { useGlobalStore } from '../../../stores'
+import { FlowIcon } from '../../Icon'
 
 const props = defineProps<{
   // TODO: Add type
@@ -68,16 +69,7 @@ const getLabelForScheme = (item: any) => {
           : ''
       }}
     </span>
-    <svg
-      fill="none"
-      height="100%"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="m19.5 10-7.5 7.5-7.5-7.5"
-        xmlns="http://www.w3.org/2000/svg"></path>
-    </svg>
+    <FlowIcon icon="ChevronDown" />
     <select
       @input="handleAuthenticationTypeInput"
       @value="authentication.securitySchemeKey">
