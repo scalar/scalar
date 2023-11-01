@@ -1,28 +1,33 @@
 <script lang="ts" setup>
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 
 import { useGlobalStore } from '../../../stores'
+import { FlowIcon } from '../../Icon'
 
 const props = defineProps<{
   // TODO: Add type
   value: any
 }>()
 
+// Emit updates
 const emits = defineEmits<{
   (event: 'input', key: string): void
 }>()
 
 const { authentication, setAuthentication } = useGlobalStore()
 
+// Update credentials in state
 const handleAuthenticationTypeInput = (event: Event) => {
   setSecuritySchemeKey((event.target as HTMLSelectElement).value)
 }
 
+// Use first security scheme as default
 onMounted(() => {
   // Set the authentication type to the first security scheme
   setSecuritySchemeKey(Object.keys(props.value)[0] ?? null)
 })
 
+// Update current security scheme key
 const setSecuritySchemeKey = (key: string) => {
   setAuthentication({
     securitySchemeKey: key,
@@ -43,6 +48,7 @@ const isHttpBearer = (item: any) =>
 
 const isOAuth2 = (item: any) => item.type === 'oAuth2'
 
+// Translate type to label
 const getLabelForScheme = (item: any) => {
   if (isNone(item)) {
     return 'No Authentication'
@@ -58,38 +64,40 @@ const getLabelForScheme = (item: any) => {
 
   return `${item.type} (not yet supported)`
 }
+
+// Alias
+const keys = computed(() => Object.keys(props.value))
 </script>
 <template>
-  <div class="security-scheme-selector">
-    <span>
-      {{
-        authentication.securitySchemeKey
-          ? getLabelForScheme(value[authentication.securitySchemeKey])
-          : ''
-      }}
-    </span>
-    <svg
-      fill="none"
-      height="100%"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="m19.5 10-7.5 7.5-7.5-7.5"
-        xmlns="http://www.w3.org/2000/svg"></path>
-    </svg>
-    <select
-      @input="handleAuthenticationTypeInput"
-      @value="authentication.securitySchemeKey">
-      <template
-        v-for="key in Object.keys(value)"
-        :key="key">
-        <option :value="key ?? null">
-          {{ getLabelForScheme(value[key]) }}
-        </option>
-      </template>
-    </select>
-  </div>
+  <!-- Single security scheme -->
+  <template v-if="keys.length === 1">
+    {{ getLabelForScheme(value[keys[0]]) }}
+  </template>
+
+  <!-- Multiple security schemes -->
+  <template v-else-if="keys.length > 1">
+    <div class="security-scheme-selector">
+      <span>
+        {{
+          authentication.securitySchemeKey
+            ? getLabelForScheme(value[authentication.securitySchemeKey])
+            : ''
+        }}
+      </span>
+      <FlowIcon icon="ChevronDown" />
+      <select
+        @input="handleAuthenticationTypeInput"
+        @value="authentication.securitySchemeKey">
+        <template
+          v-for="key in keys"
+          :key="key">
+          <option :value="key ?? null">
+            {{ getLabelForScheme(value[key]) }}
+          </option>
+        </template>
+      </select>
+    </div>
+  </template>
 </template>
 
 <style scoped>
