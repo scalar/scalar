@@ -36,7 +36,6 @@ watch(
     }
 
     if (!props.hocuspocusConfiguration) {
-      console.log('no hocuspocus')
       return
     }
 
@@ -69,8 +68,6 @@ watch(
         emit('awarenessUpdate', states)
       },
     })
-
-    window.hp = provider
 
     provider?.on('authenticated', () => {
       // Pick a random color for the cursor

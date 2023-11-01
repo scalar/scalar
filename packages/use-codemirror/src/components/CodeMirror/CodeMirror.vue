@@ -164,31 +164,19 @@ const getCodeMirrorExtensions = () => {
   return extensions
 }
 
-const {
-  codeMirrorRef,
-  setCodeMirrorContent,
-  reconfigureCodeMirror,
-  restartCodeMirror,
-} = useCodeMirror({
-  content: props.content ?? '',
-  extensions: getCodeMirrorExtensions(),
-  withoutTheme: props.withoutTheme,
-  forceDarkMode: props.forceDarkMode,
-})
+const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
+  useCodeMirror({
+    content: props.content ?? '',
+    extensions: getCodeMirrorExtensions(),
+    withoutTheme: props.withoutTheme,
+    forceDarkMode: props.forceDarkMode,
+  })
 
 // Content changed. Updating CodeMirror …
 watch(
   () => props.content,
   () => {
     setCodeMirrorContent(props.content ?? '')
-  },
-)
-
-// Extensions changed. Restarting CodeMirror …
-watch(
-  () => props.extensions,
-  () => {
-    restartCodeMirror(getCodeMirrorExtensions())
   },
 )
 
