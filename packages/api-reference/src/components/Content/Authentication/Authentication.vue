@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from '../../Card'
 import SecurityScheme from './SecurityScheme.vue'
 import SecuritySchemeSelector from './SecuritySchemeSelector.vue'
 
-const props = defineProps<{ spec?: Spec }>()
+const props = defineProps<{ parsedSpec?: Spec }>()
 
 const { authentication, setAuthentication } = useGlobalStore()
 
@@ -18,7 +18,9 @@ const showSecurityScheme = computed(() => {
   }
 
   const scheme =
-    props.spec?.components?.securitySchemes?.[authentication.securitySchemeKey]
+    props.parsedSpec?.components?.securitySchemes?.[
+      authentication.securitySchemeKey
+    ]
 
   // @ts-ignore
   return !!scheme?.type
@@ -26,11 +28,11 @@ const showSecurityScheme = computed(() => {
 
 // Keep a copy of the security schemes in the global authentication state
 watch(
-  () => props.spec?.components?.securitySchemes,
+  () => props.parsedSpec?.components?.securitySchemes,
   () => {
     setAuthentication({
       // @ts-ignore
-      securitySchemes: props.spec?.components?.securitySchemes,
+      securitySchemes: props.parsedSpec?.components?.securitySchemes,
     })
   },
   { deep: true, immediate: true },
@@ -38,13 +40,15 @@ watch(
 </script>
 
 <template>
-  <Card v-if="hasSecuritySchemes(spec)">
+  <Card v-if="hasSecuritySchemes(parsedSpec)">
     <CardHeader transparent>
       Authentication
       <template #actions>
         <div class="selector">
           <SecuritySchemeSelector
-            :value="spec?.components?.securitySchemes"></SecuritySchemeSelector>
+            :value="
+              parsedSpec?.components?.securitySchemes
+            "></SecuritySchemeSelector>
         </div>
       </template>
     </CardHeader>
@@ -54,7 +58,9 @@ watch(
       <SecurityScheme
         v-if="authentication.securitySchemeKey"
         :value="
-          spec?.components?.securitySchemes?.[authentication.securitySchemeKey]
+          parsedSpec?.components?.securitySchemes?.[
+            authentication.securitySchemeKey
+          ]
         " />
     </CardContent>
   </Card>

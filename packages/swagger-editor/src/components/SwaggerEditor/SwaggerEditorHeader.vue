@@ -3,14 +3,13 @@ import { FlowModal, useModal } from '@scalar/use-modal'
 import { useFileDialog } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
-import spec from '../../petstorev3.json'
+import { fetchSpecFromUrl } from '../../helpers'
 import {
   type EditorHeaderTabs,
   type SwaggerEditorHeaderProps,
 } from '../../types'
 import FlowButton from '../FlowButton.vue'
 import FlowTextField from '../FlowTextField.vue'
-import { fetchSpecFromUrl } from './fetchSpecFromUrl'
 
 const props = defineProps<SwaggerEditorHeaderProps>()
 
@@ -37,9 +36,7 @@ const specUrl = ref('')
 const handleImportUrl = () => {
   importUrlError.value = ''
 
-  fetchSpecFromUrl(specUrl.value, {
-    proxyUrl: props.proxyUrl,
-  })
+  fetchSpecFromUrl(specUrl.value, props.proxyUrl)
     .then(async (content) => {
       emit('import', content)
       importUrlModal.hide()
@@ -64,13 +61,17 @@ watch(files, () => {
     reader.readAsText(file)
   }
 })
-
-const useExample = () => {
-  emit('import', JSON.stringify(spec, null, 2))
-}
 </script>
 <template>
   <div class="swagger-editor-header">
+    <!-- <div
+      class="swagger-editor-title"
+      :class="{
+        'swagger-editor-active': activeTab === 'Getting Started',
+      }"
+      @click="emit('updateActiveTab', 'Getting Started')">
+      <div class="swagger-editor-type">Getting Started</div>
+    </div> -->
     <div
       class="swagger-editor-title"
       :class="{
@@ -111,11 +112,6 @@ const useExample = () => {
         @click="importUrlModal.show">
         Import URL
       </button>
-      <!-- <button
-        type="button"
-        @click="useExample">
-        Example
-      </button> -->
     </div>
   </div>
   <FlowModal

@@ -1,11 +1,11 @@
-export const fetchSpecFromUrl = async (
-  url: string,
-  { proxyUrl }: { proxyUrl?: string },
-) => {
+/**
+ * Fetches a spec file from a given URL.
+ */
+export const fetchSpecFromUrl = async (url: string, proxy?: string) => {
   // With Proxy
-  if (proxyUrl) {
-    const response = proxyUrl
-      ? await fetch(proxyUrl, {
+  if (proxy) {
+    const response = proxy
+      ? await fetch(proxy, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -30,9 +30,7 @@ export const fetchSpecFromUrl = async (
       )
     }
 
-    const data = JSON.parse(payload.data)
-
-    return JSON.stringify(data, null, 2)
+    return jsonOrYaml(payload.data)
   }
   // Without proxy
   else {
@@ -40,7 +38,18 @@ export const fetchSpecFromUrl = async (
       '[fetchSpecFromUrl] Trying to fetch the spec file without a proxy. The CORS headers have to be set properly, otherwise the request will fail.',
     )
     const response = await fetch(url)
-    const json = await response.json()
-    return JSON.stringify(json, null, 2)
+
+    return jsonOrYaml(await response.text())
+  }
+}
+
+function jsonOrYaml(value: string) {
+  try {
+    // JSON
+    const data = JSON.parse(value)
+    return JSON.stringify(data, null, 2)
+  } catch {
+    // Yaml
+    return value
   }
 }

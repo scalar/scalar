@@ -10,8 +10,8 @@ import { type ParamMap, useOperation } from '../hooks'
 import { useTemplateStore } from '../stores/template'
 import type { Spec, Tag, TransformedOperation } from '../types'
 
-const props = defineProps<{ spec: Spec }>()
-const reactiveSpec = toRef(props, 'spec')
+const props = defineProps<{ parsedSpec: Spec }>()
+const reactiveSpec = toRef(props, 'parsedSpec')
 const modalState = useModal()
 
 type FuseData = {
@@ -93,13 +93,13 @@ watch(
   () => {
     fuseDataArray = []
 
-    if (!props.spec.tags.length) {
+    if (!props.parsedSpec.tags.length) {
       fuse.setCollection([])
       return
     }
 
     // TODO: We need to go through the operations, not the tags. Spec files can have zero tags.
-    props.spec.tags.forEach((tag) => {
+    props.parsedSpec.tags.forEach((tag) => {
       const tagData = {
         title: tag.name,
         description: tag.description,

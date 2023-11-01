@@ -15,13 +15,45 @@ const configuration = reactive<ReferenceConfiguration>({
   // spec: {
   //   preparsedContent,
   // },
+  spec: {
+    // content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
+    // content: () => {
+    //   return { openapi: '3.1.0', info: { title: 'Example' }, paths: {} }
+    // },
+    // preparsedContent,
+    // url: 'https://raw.githubusercontent.com/outline/openapi/main/spec3.json',
+    // url: 'https://raw.githubusercontent.com/testimio/public-openapi/TES-14404-mobile-applications/api.yaml',
+  },
   tabs: {
     initialContent: 'Swagger Editor',
   },
 })
+
+// const spec = ref<string>(
+//   JSON.stringify({ openapi: '3.1.0', info: { title: 'Example' }, paths: {} }),
+// )
+
+// watch(
+//   spec,
+//   () => {
+//     Object.assign(configuration, {
+//       ...configuration,
+//       spec: {
+//         content: spec.value,
+//       },
+//     })
+//   },
+//   // {
+//   //   immediate: true,
+//   // },
+// )
 </script>
 
 <template>
+  <!-- <textarea
+    v-model="spec"
+    cols="30"
+    rows="10" /> -->
   <!-- <div>
     <input
       v-model="configuration.isEditable"

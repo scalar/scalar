@@ -23,10 +23,33 @@ import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
 
 const props = withDefaults(
-  defineProps<{ spec: Spec; searchHotKey?: string }>(),
+  defineProps<{
+    parsedSpec: Spec
+    searchHotKey?: string
+  }>(),
   {
     searchHotKey: 'k',
   },
+)
+
+const {
+  state: templateState,
+  setItem: setTemplateItem,
+  toggleCollapsedSidebarItem,
+  setCollapsedSidebarItem,
+} = useTemplateStore()
+
+// Open the first tag section by default
+watch(
+  props.parsedSpec,
+  () => {
+    const firstTag = props.parsedSpec.tags[0]
+
+    if (firstTag) {
+      setCollapsedSidebarItem(getTagSectionId(firstTag), true)
+    }
+  },
+  { immediate: true },
 )
 
 const { server: serverState, authentication: authenticationState } =
@@ -50,12 +73,6 @@ function showItemInClient(operation: TransformedOperation) {
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
 
-const {
-  state: templateState,
-  setItem: setTemplateItem,
-  toggleCollapsedSidebarItem,
-} = useTemplateStore()
-
 useKeyboardEvent({
   keyList: [props.searchHotKey],
   withCtrlCmd: true,
@@ -63,16 +80,16 @@ useKeyboardEvent({
 })
 
 const moreThanOneDefaultTag = (tag: Tag) =>
-  props.spec?.tags?.length !== 1 ||
+  props.parsedSpec?.tags?.length !== 1 ||
   tag?.name !== 'default' ||
   tag?.description !== ''
 
 const headings = ref<any[]>([])
 
 watch(
-  () => props?.spec?.info?.description,
+  () => props?.parsedSpec?.info?.description,
   async () => {
-    const description = props?.spec?.info?.description
+    const description = props?.parsedSpec?.info?.description
 
     if (!description) {
       return []
@@ -112,13 +129,13 @@ const items = computed((): SidebarEntry[] => {
   })
 
   // Tags & Operations
-  const firstTag = props?.spec?.tags?.[0]
+  const firstTag = props?.parsedSpec?.tags?.[0]
 
   const operationEntries: SidebarEntry[] =
     firstTag &&
     moreThanOneDefaultTag(firstTag) &&
     firstTag.operations?.length > 0
-      ? props.spec.tags?.map((tag) => {
+      ? props.parsedSpec.tags?.map((tag) => {
           return {
             id: getTagSectionId(tag),
             title: tag.name.toUpperCase(),
@@ -153,13 +170,13 @@ const items = computed((): SidebarEntry[] => {
         })
 
   // Models
-  const modelEntries: SidebarEntry[] = hasModels(props.spec)
+  const modelEntries: SidebarEntry[] = hasModels(props.parsedSpec)
     ? [
         {
           id: getModelSectionId(),
           title: 'MODELS',
           type: 'Folder',
-          children: Object.keys(props.spec.components?.schemas ?? {}).map(
+          children: Object.keys(props.parsedSpec.components?.schemas ?? {}).map(
             (name) => {
               return {
                 id: getModelSectionId(name),

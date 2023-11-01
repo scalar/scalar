@@ -1,4 +1,4 @@
-import axios, { AxiosProxyConfig, type AxiosRequestConfig } from 'axios'
+import axios, { type AxiosRequestConfig } from 'axios'
 import { nanoid } from 'nanoid'
 
 import type {

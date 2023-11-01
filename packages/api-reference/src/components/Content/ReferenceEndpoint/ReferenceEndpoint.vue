@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getOperationSectionId } from '../../../helpers'
-import type { Server, Spec, Tag, TransformedOperation } from '../../../types'
+import type { Tag, TransformedOperation } from '../../../types'
 import {
   Section,
   SectionColumn,
@@ -14,8 +14,6 @@ import { ExampleResponses } from './ExampleResponses'
 
 defineProps<{
   operation: TransformedOperation
-  server: Server
-  spec: Spec
   tag: Tag
 }>()
 </script>
@@ -33,10 +31,7 @@ defineProps<{
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
-            <ExampleRequest
-              :operation="operation"
-              :server="server"
-              :spec="spec" />
+            <ExampleRequest :operation="operation" />
             <ExampleResponses
               :operation="operation"
               style="margin-top: 12px" />

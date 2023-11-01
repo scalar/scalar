@@ -38,7 +38,7 @@ const generateSnippet = async (): Promise<string> => {
   // Generate a request object
   const request = getHarRequest(
     {
-      url: getUrlFromServerState(serverState),
+      url: getUrlFromServerState(serverState) ?? window.location.origin,
     },
     getRequestFromOperation(props.operation, {
       replaceVariables: true,
@@ -54,7 +54,7 @@ const generateSnippet = async (): Promise<string> => {
       state.selectedClient.targetKey,
       state.selectedClient.clientKey,
     )) as string
-  } catch {
+  } catch (e) {
     return ''
   }
 }

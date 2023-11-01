@@ -6,7 +6,7 @@ import { type Spec } from '../types'
 import { default as Sidebar } from './Sidebar.vue'
 
 defineProps<{
-  spec: Spec
+  parsedSpec: Spec
   overloadShow?: boolean
   tabMode?: boolean
   activeTab?: string
@@ -41,7 +41,7 @@ export { useApiClientStore } from '@scalar/api-client'
               <div class="t-doc__sidebar">
                 <Sidebar
                   v-show="!isMobile"
-                  :spec="spec" />
+                  :parsedSpec="parsedSpec" />
               </div>
             </template>
             <template v-else>
@@ -52,7 +52,7 @@ export { useApiClientStore } from '@scalar/api-client'
             <div class="t-doc__sidebar">
               <Sidebar
                 v-show="!isMobile"
-                :spec="spec" />
+                :parsedSpec="parsedSpec" />
             </div>
           </template>
           <ApiClient

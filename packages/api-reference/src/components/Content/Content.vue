@@ -66,7 +66,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
     }">
     <template v-if="ready">
       <Introduction
-        v-if="rawSpec.length > 0"
+        v-if="parsedSpec.info.title || parsedSpec.info.description"
         :info="parsedSpec.info"
         :parsedSpec="parsedSpec"
         :rawSpec="rawSpec"
@@ -106,7 +106,6 @@ const moreThanOneDefaultTag = (tag: Tag) =>
               :key="`${operation.httpVerb}-${operation.operationId}`"
               :operation="operation"
               :server="localServers[0]"
-              :spec="parsedSpec"
               :tag="tag" />
           </template>
         </SectionContainer>

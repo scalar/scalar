@@ -55,7 +55,7 @@ const emit = defineEmits<{
   (e: 'change', value: string): void
 }>()
 
-// TODO: Add 'php' and 'laravel'
+// TODO: Add 'php'
 const syntaxHighlighting: Partial<
   Record<CodeMirrorLanguage, LanguageSupport | StreamLanguage<any>>
 > = {
@@ -176,16 +176,35 @@ const {
   forceDarkMode: props.forceDarkMode,
 })
 
-watch(props, () => {
-  setCodeMirrorContent(props.content ?? '')
-  reconfigureCodeMirror(getCodeMirrorExtensions())
-})
+// Content changed. Updating CodeMirror …
+watch(
+  () => props.content,
+  () => {
+    setCodeMirrorContent(props.content ?? '')
+  },
+)
 
-// If the passed extensions change, destroy and remount CodeMirror.
+// Extensions changed. Restarting CodeMirror …
 watch(
   () => props.extensions,
   () => {
     restartCodeMirror(getCodeMirrorExtensions())
+  },
+)
+
+// Settings changed. Reconfiguring CodeMirror …
+watch(
+  [
+    () => props.disableEnter,
+    () => props.forceDarkMode,
+    () => props.languages,
+    () => props.lineNumbers,
+    () => props.readOnly,
+    () => props.withoutTheme,
+    () => props.withVariables,
+  ],
+  () => {
+    reconfigureCodeMirror(getCodeMirrorExtensions())
   },
 )
 

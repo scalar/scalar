@@ -7,16 +7,10 @@ import {
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { FlowToastContainer } from '@scalar/use-toasts'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
-import {
-  computed,
-  defineAsyncComponent,
-  onMounted,
-  reactive,
-  ref,
-  watch,
-} from 'vue'
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
 
-import { deepMerge, getTagSectionId } from '../helpers'
+import { deepMerge } from '../helpers'
+import { useParser, useSpec } from '../hooks'
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceConfiguration, ReferenceProps, Spec } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
@@ -41,9 +35,10 @@ const emits = defineEmits<{
   ): void
 }>()
 
+// Keep a ref to the Swagger editor
 const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
 
-/** Merge the default configuration with the given configuration. */
+// Merge the default configuration with the given configuration.
 const currentConfiguration = computed((): ReferenceConfiguration => {
   if (
     props.spec ||
@@ -80,79 +75,41 @@ const currentConfiguration = computed((): ReferenceConfiguration => {
   })
 })
 
+// Make it a ComputedRef
+const specConfiguration = computed(() => {
+  return currentConfiguration.value.spec
+})
+
+// Get the raw content
+const { rawSpecRef, setRawSpecRef } = useSpec({
+  configuration: specConfiguration,
+  proxy: currentConfiguration.value.proxy,
+})
+
+// Parse the content
+const { parsedSpecRef, overwriteParsedSpecRef, errorRef } = useParser({
+  input: rawSpecRef,
+})
+
+// Use preparsed content, if it’s passed
+watch(
+  () => currentConfiguration.value.spec?.preparsedContent,
+  (newContent) => {
+    if (newContent) {
+      overwriteParsedSpecRef(newContent as Spec)
+    }
+  },
+  {
+    immediate: true,
+  },
+)
+
 /**
  * The editor component has heavy dependencies (process), let's lazy load it.
  */
 const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
   import('@scalar/swagger-editor').then((module) => module.SwaggerEditor),
 )
-
-const getSpecContent = (
-  value: string | Record<string, any> | (() => Record<string, any>) | undefined,
-) =>
-  typeof value === 'string'
-    ? value
-    : typeof value === 'object'
-    ? JSON.stringify(value)
-    : typeof value === 'function'
-    ? JSON.stringify(value())
-    : ''
-
-const parsedSpecRef = ref<string>(
-  getSpecContent(currentConfiguration.value.spec?.preparsedContent),
-)
-
-// Let’s keep a copy, just to have the content ready to download.
-const rawSpecRef = ref<string>(
-  getSpecContent(currentConfiguration.value.spec?.content),
-)
-
-watch(rawSpecRef, () => {
-  console.log(rawSpecRef.value)
-})
-
-watch(parsedSpecRef, () => {
-  console.log(parsedSpecRef.value)
-})
-
-watch(
-  currentConfiguration,
-  () => {
-    if (currentConfiguration.value.spec?.content) {
-      parsedSpecRef.value = getSpecContent(
-        currentConfiguration.value.spec?.content,
-      )
-    }
-  },
-  { immediate: true },
-)
-
-const fetchSpecFromUrl = () => {
-  if (
-    currentConfiguration.value.spec?.url === undefined ||
-    currentConfiguration.value.spec?.url.length === 0
-  ) {
-    return
-  }
-
-  fetch(currentConfiguration.value.spec?.url)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('The provided OpenAPI/Swagger spec URL is invalid.')
-      }
-
-      return response.text()
-    })
-    .then((data) => {
-      rawSpecRef.value = data
-    })
-    .catch((error) => {
-      console.log(
-        'Could not fetch the OpenAPI/Swagger Spec file:',
-        error.message,
-      )
-    })
-}
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
 const isMobile = useMediaQuery('(max-width: 1000px)')
@@ -164,89 +121,34 @@ useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height
 })
 
-const { setCollapsedSidebarItem } = useTemplateStore()
 const { state } = useApiClientStore()
 
-const showMobileDrawer = computed(() => {
-  const { state: s } = useTemplateStore()
-  return s.showMobileDrawer
-})
-
-// Handle content updates
-const parsedSpec = reactive<Spec>({
-  info: {
-    title: '',
-    description: '',
-    termsOfService: '',
-    version: '',
-    license: {
-      name: '',
-      url: '',
-    },
-    contact: {
-      email: '',
-    },
-  },
-  externalDocs: {
-    description: '',
-    url: '',
-  },
-  servers: [],
-  components: {
-    schemas: {},
-    securitySchemes: {},
-  },
-  tags: [],
-})
-
-// TODO: proper types for the parsed spec
-const handleParsedSpecUpdate = (newSpec: any) => {
-  Object.assign(parsedSpec, {
-    // Some specs don’t have servers or tags, make sure they are defined
-    servers: [],
-    tags: [],
-    ...newSpec,
-  })
-
-  const firstTag = parsedSpec.tags[0]
-
-  if (firstTag) {
-    setCollapsedSidebarItem(getTagSectionId(firstTag), true)
-  }
-}
-
-function handleContentUpdate(newContent: string) {
-  rawSpecRef.value = newContent
-}
-
-watch(
-  () => currentConfiguration.value.spec?.preparsedContent,
-  (newSpec) => {
-    if (newSpec) {
-      handleParsedSpecUpdate(newSpec)
-    }
-  },
-  { immediate: true },
-)
-
+// Scroll to top
 onMounted(() => {
   document.querySelector('#tippy')?.scrollTo({
     top: 0,
     left: 0,
   })
-
-  fetchSpecFromUrl()
 })
 
-const showRenderedContent = computed(
-  () => isLargeScreen.value || !currentConfiguration.value?.isEditable,
-)
-
+// Whether to show the spec input
 const showSwaggerEditor = computed(() => {
   return (
     !currentConfiguration.value.spec?.preparsedContent &&
     currentConfiguration.value?.isEditable
   )
+})
+
+// Whether to show the result
+const showRenderedContent = computed(
+  () => isLargeScreen.value || !currentConfiguration.value?.isEditable,
+)
+
+// Show the mobile drawer
+const showMobileDrawer = computed(() => {
+  const { state: templateState } = useTemplateStore()
+
+  return templateState.showMobileDrawer
 })
 
 function handleAIWriter(
@@ -272,7 +174,7 @@ function handleAIWriter(
     :style="{ '--full-height': `${elementHeight}px` }">
     <slot name="search-modal">
       <SearchModal
-        :spec="parsedSpec"
+        :parsedSpec="parsedSpecRef"
         variant="search" />
     </slot>
     <!-- Desktop header -->
@@ -306,8 +208,8 @@ function handleAIWriter(
           v-if="isMobile"
           name="header" />
         <Sidebar
-          :searchHotKey="currentConfiguration.searchHotKey"
-          :spec="parsedSpec" />
+          :parsedSpec="parsedSpecRef"
+          :searchHotKey="currentConfiguration.searchHotKey" />
       </div>
     </aside>
     <!-- Swagger file editing -->
@@ -317,25 +219,25 @@ function handleAIWriter(
       <LazyLoadedSwaggerEditor
         ref="swaggerEditorRef"
         :aiWriterMarkdown="aiWriterMarkdown"
+        :error="errorRef"
         :hocuspocusConfiguration="currentConfiguration?.hocuspocusConfiguration"
         :initialTabState="currentConfiguration?.tabs?.initialContent"
         :proxyUrl="currentConfiguration?.proxy"
         :theme="currentConfiguration?.theme"
         :value="rawSpecRef"
         @changeTheme="$emit('changeTheme', $event)"
-        @contentUpdate="handleContentUpdate"
-        @parsedSpecUpdate="handleParsedSpecUpdate"
+        @contentUpdate="(newContent) => setRawSpecRef(newContent)"
         @startAIWriter="handleAIWriter" />
     </div>
     <!-- Rendered reference -->
     <template v-if="showRenderedContent">
       <div class="references-rendered">
         <Content
-          :parsedSpec="parsedSpec"
+          :parsedSpec="parsedSpecRef"
           :rawSpec="rawSpecRef"
           :ready="true">
           <template
-            v-if="currentConfiguration?.isEditable"
+            v-if="showSwaggerEditor"
             #empty-state>
             <SwaggerEditorGettingStarted
               :theme="currentConfiguration?.theme || 'default'"
@@ -351,8 +253,8 @@ function handleAIWriter(
     </template>
     <!-- REST API Client Overlay -->
     <ApiClientModal
-      :proxyUrl="currentConfiguration?.proxy"
-      :spec="parsedSpec" />
+      :parsedSpec="parsedSpecRef"
+      :proxyUrl="currentConfiguration?.proxy" />
   </div>
 </template>
 <style scoped>

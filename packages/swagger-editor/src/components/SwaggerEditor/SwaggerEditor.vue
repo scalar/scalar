@@ -1,9 +1,7 @@
 <script lang="ts" setup>
 import { type StatesArray } from '@hocuspocus/provider'
-import { type SwaggerSpec, parse } from '@scalar/swagger-parser'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
-import { useDebounceFn } from '@vueuse/core'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, isRef, nextTick, onMounted, ref, watch } from 'vue'
 
 import coinmarketcap from '../../coinmarketcapv3.json'
 import petstore from '../../petstorev3.json'
@@ -25,7 +23,6 @@ const props = defineProps<SwaggerEditorProps>()
 
 const emit = defineEmits<{
   (e: 'contentUpdate', value: string): void
-  (e: 'parsedSpecUpdate', spec: SwaggerSpec): void
   (e: 'import', value: string): void
   (e: 'changeTheme', value: ThemeId): void
   (
@@ -40,25 +37,6 @@ const swaggerEditorHeaderRef = ref<typeof SwaggerEditorHeader | null>(null)
 
 const awarenessStates = ref<StatesArray>([])
 
-const parserError = ref<string>('')
-
-const handleSpecUpdate = useDebounceFn((value) => {
-  // Store content in local storage
-  if (!props.hocuspocusConfiguration) {
-    localStorage.setItem('swagger-editor-content', value)
-  }
-
-  parse(value)
-    .then((spec: SwaggerSpec) => {
-      parserError.value = ''
-
-      emit('parsedSpecUpdate', spec)
-    })
-    .catch((error) => {
-      parserError.value = error.toString()
-    })
-})
-
 const rawContent = ref('')
 
 const handleContentUpdate = (value: string) => {
@@ -68,7 +46,6 @@ const handleContentUpdate = (value: string) => {
 
   rawContent.value = value
   emit('contentUpdate', value)
-  handleSpecUpdate(value)
 }
 
 onMounted(async () => {
@@ -86,21 +63,24 @@ const handleAwarenessUpdate = (states: StatesArray) => {
   awarenessStates.value = states
 }
 
-// Import new content
-const importHandler = (value: string) => {
-  codeMirrorReference.value?.setCodeMirrorContent(value)
-}
-
 const codeMirrorReference = ref<typeof SwaggerEditorInput | null>(null)
 
 const formattedError = computed(() => {
-  // Handle YAMLExceptions
-  if (parserError.value?.startsWith('YAMLException:')) {
-    // Trim everything but the first line
-    return parserError.value.split('\n')[0]
+  // Check whether there‘s an error
+  if (props.error === undefined || props.error === null || props.error === '') {
+    return ''
   }
 
-  return parserError.value
+  // Work with strings and refs
+  const error = isRef(props.error) ? props.error.value : props.error
+
+  // Handle YAMLExceptions
+  if (error.startsWith('YAMLException:')) {
+    // Trim everything but the first line
+    return error.split('\n')[0]
+  }
+
+  return error
 })
 
 async function handleChangeExample(example: GettingStartedExamples) {
@@ -118,7 +98,7 @@ async function handleChangeExample(example: GettingStartedExamples) {
 
   activeTab.value = 'Swagger Editor'
   await nextTick()
-  importHandler(spec)
+  handleContentUpdate(spec)
 }
 
 watch(
@@ -132,7 +112,7 @@ watch(
 )
 
 const activeTab = ref<EditorHeaderTabs>(
-  props.initialTabState ?? 'Getting Started',
+  props.initialTabState ?? 'Swagger Editor',
 )
 
 const handleOpenSwaggerEditor = (action?: OpenSwaggerEditorActions) => {
@@ -177,7 +157,7 @@ defineExpose({
       ref="swaggerEditorHeaderRef"
       :activeTab="activeTab"
       :proxyUrl="proxyUrl"
-      @import="importHandler"
+      @import="handleContentUpdate"
       @updateActiveTab="activeTab = $event" />
     <SwaggerEditorNotification
       v-if="activeTab === 'Swagger Editor' && formattedError">
