@@ -17,8 +17,7 @@
   },
   "private": true,
   "scripts": {
-    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ./",
-    "types:check": "tsc --noEmit --skipLibCheck"
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ./"
   },
   "type": "module"
 }
