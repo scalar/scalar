@@ -32,7 +32,12 @@ watch(
   <header
     v-if="showToolbar"
     class="references-dev-header">
-    <div class="references-dev-title">Dev Toolbar</div>
+    <a
+      class="references-dev-title"
+      href="/"
+      title="Back to homepage">
+      Dev Toolbar
+    </a>
     <div class="references-dev-options">
       <div>
         <input
