@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.1.5
+
+### Patch Changes
+
+- b0835a2: users not using themed css fallbacks
+
 ## 0.1.4
 
 ### Patch Changes

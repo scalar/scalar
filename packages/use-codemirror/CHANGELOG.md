@@ -1,5 +1,12 @@
 # @scalar/use-codemirror
 
+## 0.7.11
+
+### Patch Changes
+
+- 509db1e: refactor: move all api reference refs and watchers to hooks
+- a4f1b08: fix: switching documents with collaborative editing mode enabled
+
 ## 0.7.10
 
 ### Patch Changes
