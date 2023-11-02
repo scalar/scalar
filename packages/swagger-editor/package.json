@@ -7,7 +7,7 @@
   "dependencies": {
     "@codemirror/state": "6.2.1",
     "@headlessui/vue": "1.7.16",
-    "@hocuspocus/provider": "2.5.0",
+    "@hocuspocus/provider": "2.6.1",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-modal": "workspace:*",
@@ -59,7 +59,10 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "peerDependencies": {
-    "vue": "3.3.4"
+    "@codemirror/state": "6.2.1",
+    "@hocuspocus/provider": "2.6.1",
+    "vue": "3.3.4",
+    "yjs": "13.6.8"
   },
   "repository": {
     "type": "git",

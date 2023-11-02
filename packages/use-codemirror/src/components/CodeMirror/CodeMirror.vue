@@ -35,6 +35,7 @@ import { variables } from './extensions/variables'
 
 const props = withDefaults(
   defineProps<{
+    name?: string
     extensions?: Extension[]
     content?: string
     readOnly?: boolean
@@ -180,13 +181,15 @@ const {
 watch(
   () => props.content,
   () => {
-    setCodeMirrorContent(props.content ?? '')
+    if (props.content?.length) {
+      setCodeMirrorContent(props.content)
+    }
   },
 )
 
-// Extensions changed. Restarting CodeMirror …
+// Document changed. Restarting CodeMirror.
 watch(
-  () => props.extensions,
+  () => props.name,
   () => {
     restartCodeMirror(getCodeMirrorExtensions())
   },

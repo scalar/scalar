@@ -15,7 +15,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', '@scalar/swagger-parser', 'yjs', '@codemirror/state'],
+      external: ['vue', 'yjs', '@codemirror/state', '@hocuspocus/provider'],
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'index.css') {

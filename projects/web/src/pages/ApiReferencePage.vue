@@ -27,6 +27,11 @@ const configuration = reactive<ReferenceConfiguration>({
   tabs: {
     initialContent: 'Swagger Editor',
   },
+  // hocuspocusConfiguration: {
+  //   name: 'document-1',
+  //   token: 'secret',
+  //   url: 'ws://localhost:1234',
+  // },
 })
 
 // const spec = ref<string>(
@@ -53,6 +58,14 @@ const configuration = reactive<ReferenceConfiguration>({
     v-model="spec"
     cols="30"
     rows="10" /> -->
+  <!-- <select
+    @input="(event) => configuration.hocuspocusConfiguration ? configuration.hocuspocusConfiguration.name = (event.target as HTMLSelectElement).value : null"
+    @value="configuration.hocuspocusConfiguration?.name">
+    <option value="document-1">Document #1</option>
+    <option value="document-2">Document #2</option>
+    <option value="document-3">Document #3</option>
+  </select> -->
+
   <ApiReference
     :configuration="configuration"
     @changeTheme="(theme: ThemeId) => (configuration.theme = theme)">

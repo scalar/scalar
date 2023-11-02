@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { HocuspocusProvider, type StatesArray } from '@hocuspocus/provider'
 import { CodeMirror } from '@scalar/use-codemirror'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { yCollab as yjsCodeMirrorBinding } from 'y-codemirror.next'
 import * as Y from 'yjs'
 
@@ -46,14 +46,22 @@ watch(
       ...HocuspocusProviderConfiguration,
       onAuthenticated() {
         console.log(
-          '[SwaggerEditor] ✅ onAuthentication',
-          props.hocuspocusConfiguration,
+          `[SwaggerEditor] ✅ onAuthentication (${HocuspocusProviderConfiguration?.name})`,
+        )
+      },
+      onConnect() {
+        console.log(
+          `[SwaggerEditor] 🟢 onConnect (${HocuspocusProviderConfiguration?.name})`,
         )
       },
       onAuthenticationFailed() {
         console.log(
-          '[SwaggerEditor] ❌ onAuthenticationFailed',
-          props.hocuspocusConfiguration,
+          `[SwaggerEditor] ❌ onAuthenticationFailed (${HocuspocusProviderConfiguration?.name})`,
+        )
+      },
+      onDisconnect() {
+        console.log(
+          `[SwaggerEditor] ⚪️ onDisconnect (${HocuspocusProviderConfiguration?.name})`,
         )
       },
       onAwarenessUpdate({ states }) {
@@ -94,10 +102,6 @@ watch(
 )
 
 const codeMirrorRef = ref<typeof CodeMirror | null>(null)
-
-const codeMirrorExtensions = computed(() => {
-  return yCodeMirrorExtension.value ? [yCodeMirrorExtension] : []
-})
 </script>
 
 <template>
@@ -105,9 +109,10 @@ const codeMirrorExtensions = computed(() => {
     <CodeMirror
       ref="codeMirrorRef"
       :content="value"
-      :extensions="codeMirrorExtensions"
+      :extensions="yCodeMirrorExtension ? [yCodeMirrorExtension] : []"
       :languages="['json']"
       lineNumbers
+      :name="hocuspocusConfiguration?.name"
       @change="(value: string) => $emit('contentUpdate', value)" />
   </div>
 </template>
