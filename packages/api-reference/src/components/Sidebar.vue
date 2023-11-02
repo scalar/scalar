@@ -26,11 +26,15 @@ const props = withDefaults(
   defineProps<{
     parsedSpec: Spec
     searchHotKey?: string
+    isDarkMode: boolean
   }>(),
   {
     searchHotKey: 'k',
   },
 )
+defineEmits<{
+  (e: 'toggleDarkMode'): void
+}>()
 
 const {
   state: templateState,
@@ -43,7 +47,7 @@ const {
 watch(
   props.parsedSpec,
   () => {
-    const firstTag = props.parsedSpec.tags[0]
+    const firstTag = props.parsedSpec?.tags[0]
 
     if (firstTag) {
       setCollapsedSidebarItem(getTagSectionId(firstTag), true)
@@ -304,7 +308,9 @@ const setRef = (el: SidebarElementType, id: string) => {
         </SidebarElement>
       </SidebarGroup>
     </div>
-    <DarkModeToggle />
+    <DarkModeToggle
+      :isDarkMode="isDarkMode"
+      @toggleDarkMode="$emit('toggleDarkMode')" />
   </div>
 </template>
 

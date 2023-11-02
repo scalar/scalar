@@ -93,7 +93,7 @@ watch(
   () => {
     fuseDataArray = []
 
-    if (!props.parsedSpec.tags.length) {
+    if (!props.parsedSpec?.tags.length) {
       fuse.setCollection([])
       return
     }

@@ -33,26 +33,8 @@ const configuration = reactive<ReferenceConfiguration>({
   //   url: 'ws://localhost:1234',
   // },
 })
-
-// const spec = ref<string>(
-//   JSON.stringify({ openapi: '3.1.0', info: { title: 'Example' }, paths: {} }),
-// )
-
-// watch(
-//   spec,
-//   () => {
-//     Object.assign(configuration, {
-//       ...configuration,
-//       spec: {
-//         content: spec.value,
-//       },
-//     })
-//   },
-//   // {
-//   //   immediate: true,
-//   // },
-// )
 </script>
+
 <template>
   <!-- <textarea
     v-model="spec"

@@ -1,16 +1,19 @@
 <script lang="ts" setup>
 import { onMounted, watchEffect } from 'vue'
 
-import { useDarkModeState } from '../hooks/useDarkModeState'
 import { FlowIcon } from './Icon'
 
-const { toggleDarkMode, isDark } = useDarkModeState()
+const props = defineProps<{ isDarkMode: boolean }>()
+
+defineEmits<{
+  (e: 'toggleDarkMode'): void
+}>()
 
 // todo move to refs so ssg doesnt break
 onMounted(() => {
   watchEffect(() => {
-    document.body.classList.toggle('dark-mode', isDark.value)
-    document.body.classList.toggle('light-mode', !isDark.value)
+    document.body.classList.toggle('dark-mode', props.isDarkMode)
+    document.body.classList.toggle('light-mode', !props.isDarkMode)
   })
 })
 </script>
@@ -19,9 +22,9 @@ onMounted(() => {
     <button
       class="darklight"
       type="button"
-      @click="toggleDarkMode">
+      @click="$emit('toggleDarkMode')">
       <FlowIcon icon="LightDarkModeToggle" />
-      <template v-if="isDark">
+      <template v-if="isDarkMode">
         <span>Light Mode</span>
       </template>
       <template v-else>
