@@ -119,12 +119,25 @@ export type ExampleResponseHeaders = Record<
 >
 
 export type TransformedOperation = Operation & {
-  responses: Record<
-    string,
-    Response & {
-      headers: ExampleResponseHeaders
+  information: {
+    requestBody?: {
+      content?:
+        | Record<
+            'application/json',
+            {
+              schema?: any
+              examples?: any
+            }
+          >
+        | Record<
+            'application/x-www-form-urlencoded',
+            {
+              schema?: any
+              examples?: any
+            }
+          >
     }
-  >
+  }
 }
 
 export type Tag = {

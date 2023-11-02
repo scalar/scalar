@@ -36,6 +36,7 @@ export const getRequestFromOperation = (
   }
 
   // Prepare the data, if there’s any
+  // TODO: Add support for examples
   const schema = jsonRequest?.schema
   const requestBody = schema ? getExampleFromSchema(schema) : null
   const postData = requestBody
