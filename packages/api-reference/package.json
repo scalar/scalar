@@ -90,7 +90,22 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "peerDependencies": {
+    "@scalar/swagger-editor": "workspace:*",
     "@types/js-yaml": "4.0.6",
+    "@xmldom/xmldom": "0.8.4",
+    "rehype-document": "7.0.1",
+    "rehype-external-links": "3.0.0",
+    "rehype-format": "5.0.0",
+    "rehype-highlight": "7.0.0",
+    "rehype-sanitize": "6.0.0",
+    "rehype-slug-custom-id": "1.1.0",
+    "rehype-stringify": "10.0.0",
+    "remark-breaks": "3.0.3",
+    "remark-gfm": "4.0.0",
+    "remark-parse": "11.0.0",
+    "remark-rehype": "11.0.0",
+    "remark-stringify": "11.0.0",
+    "unified": "11.0.3",
     "vue": "3.3.4"
   },
   "repository": {
