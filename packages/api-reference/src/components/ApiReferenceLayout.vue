@@ -123,7 +123,9 @@ const showSwaggerEditor = computed(() => {
     <div
       v-show="showSwaggerEditor"
       class="references-editor">
-      <slot name="editor" />
+      <div class="references-editor-textarea">
+        <slot name="editor" />
+      </div>
     </div>
     <!-- Rendered reference -->
     <template v-if="showRenderedContent">
@@ -213,17 +215,13 @@ const showSwaggerEditor = computed(() => {
 
 .references-editor {
   grid-area: editor;
+  display: flex;
   min-width: 0;
   background: var(--theme-background-1, var(--default-theme-background-1));
-  display: flex;
 }
 
 .references-navigation {
-  position: relative;
   grid-area: navigation;
-  position: sticky;
-  top: var(--refs-header-height);
-  height: calc(var(--full-height) - var(--refs-header-height));
 }
 
 .references-rendered {
@@ -234,7 +232,9 @@ const showSwaggerEditor = computed(() => {
 }
 
 .references-navigation-list {
-  height: 100%;
+  position: sticky;
+  top: var(--refs-header-height);
+  height: calc(var(--full-height) - var(--refs-header-height));
   background: var(
     --sidebar-background-1,
     var(
@@ -248,10 +248,13 @@ const showSwaggerEditor = computed(() => {
 }
 
 /* Fix the editor in the middle while allowing the rest of the view to scroll */
-.references-layout .references-editor {
+.references-editor-textarea {
   position: sticky;
   top: var(--refs-header-height);
   height: calc(var(--full-height) - var(--refs-header-height));
+  display: flex;
+  min-width: 0;
+  flex: 1;
 }
 
 .references-editable {
