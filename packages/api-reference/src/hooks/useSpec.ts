@@ -20,7 +20,7 @@ const rawSpecRef = ref('')
 const getSpecContent = async (
   { url, content }: SpecConfiguration,
   proxy?: string,
-): Promise<string> => {
+): Promise<string | undefined> => {
   if (url !== undefined && url.length > 0) {
     return await fetchSpecFromUrl(url, proxy)
   }
@@ -42,7 +42,7 @@ const getSpecContent = async (
     )
   }
 
-  return ''
+  return undefined
 }
 
 /**
@@ -67,7 +67,9 @@ export function useSpec({
         async () => {
           if (configuration.value !== undefined) {
             getSpecContent(configuration.value, proxy).then((value) => {
-              setRawSpecRef(value)
+              if (value !== undefined) {
+                setRawSpecRef(value)
+              }
             })
           }
         },
@@ -80,7 +82,9 @@ export function useSpec({
     // Get the content once
     else {
       getSpecContent(configuration, proxy).then((value) => {
-        setRawSpecRef(value)
+        if (value !== undefined) {
+          setRawSpecRef(value)
+        }
       })
     }
   }

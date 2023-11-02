@@ -1,6 +1,6 @@
 import { type SpecConfiguration } from 'src/types'
 import { describe, expect, it, vi } from 'vitest'
-import { computed, nextTick, reactive, ref, watch } from 'vue'
+import { computed, nextTick, reactive, watch } from 'vue'
 
 import { useSpec } from './useSpec'
 
@@ -21,7 +21,9 @@ describe('useSpec', () => {
 
   it('returns an empty string', async () => {
     const { rawSpecRef } = useSpec({
-      configuration: {},
+      configuration: {
+        content: '',
+      },
     })
 
     await nextTick()
@@ -156,5 +158,38 @@ describe('useSpec', () => {
     await nextTick()
 
     expect(rawSpecRef.value).toBe('')
+  })
+
+  it('content isn’t overwritten if there’s nothing configured', async () => {
+    const configurationRef = reactive<SpecConfiguration>({
+      content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
+    })
+
+    // Pass the configuration as a ComputedRef
+    const configuration = computed(() => {
+      return configurationRef
+    })
+
+    const { rawSpecRef } = useSpec({
+      configuration,
+    })
+
+    await nextTick()
+
+    expect(rawSpecRef.value).toBe(
+      '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
+    )
+
+    // Change the configuration …
+    Object.assign(configurationRef, {
+      content: undefined,
+    })
+
+    await nextTick()
+
+    // … but the content shouldn’t be overwritten
+    expect(rawSpecRef.value).toBe(
+      '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
+    )
   })
 })
