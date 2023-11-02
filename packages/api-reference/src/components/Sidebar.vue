@@ -47,7 +47,7 @@ const {
 watch(
   props.parsedSpec,
   () => {
-    const firstTag = props.parsedSpec.tags[0]
+    const firstTag = props.parsedSpec?.tags[0]
 
     if (firstTag) {
       setCollapsedSidebarItem(getTagSectionId(firstTag), true)
