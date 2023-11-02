@@ -51,5 +51,11 @@ const configuration = reactive<ReferenceConfiguration>({
   <ApiReference
     :configuration="configuration"
     @changeTheme="(theme: ThemeId) => (configuration.theme = theme)">
+    <template #header>
+      <DevToolbar v-model="configuration" />
+    </template>
+    <template #footer>
+      <MockFooter />
+    </template>
   </ApiReference>
 </template>
