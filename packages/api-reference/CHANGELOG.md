@@ -1,5 +1,30 @@
 # @scalar/api-reference
 
+## 1.0.0
+
+### Minor Changes
+
+- 440815a: Add getting started to empty render area
+
+### Patch Changes
+
+- 94d2fe4: fix: don’t show a security scheme select when there is only one
+- b0835a2: users not using themed css fallbacks
+- c470db5: make --theme priority over --default-theme in misc places
+- 5243ae4: make search modal hotkey configurable
+- 509db1e: refactor: move all api reference refs and watchers to hooks
+- Updated dependencies [b0835a2]
+- Updated dependencies [440815a]
+- Updated dependencies [c470db5]
+- Updated dependencies [da431d9]
+- Updated dependencies [3c6f54f]
+- Updated dependencies [509db1e]
+- Updated dependencies [a4f1b08]
+  - @scalar/use-modal@0.1.5
+  - @scalar/swagger-editor@0.7.0
+  - @scalar/api-client@0.7.27
+  - @scalar/use-codemirror@0.7.11
+
 ## 0.8.10
 
 ### Patch Changes

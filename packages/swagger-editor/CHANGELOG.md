@@ -1,5 +1,21 @@
 # @scalar/swagger-editor
 
+## 0.7.0
+
+### Minor Changes
+
+- 440815a: Add getting started to empty render area
+
+### Patch Changes
+
+- 509db1e: refactor: move all api reference refs and watchers to hooks
+- a4f1b08: fix: switching documents with collaborative editing mode enabled
+- Updated dependencies [b0835a2]
+- Updated dependencies [509db1e]
+- Updated dependencies [a4f1b08]
+  - @scalar/use-modal@0.1.5
+  - @scalar/use-codemirror@0.7.11
+
 ## 0.6.30
 
 ### Patch Changes
