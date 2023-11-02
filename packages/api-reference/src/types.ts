@@ -225,6 +225,8 @@ export type Spec = {
   servers: Server[]
   components?: Components
   definitions?: Definitions
+  openapi?: string
+  swagger?: string
 }
 
 export type AuthenticationState = {

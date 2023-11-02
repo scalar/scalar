@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import { useTemplateStore } from '../../../stores/template'
 import type { Info, Server, Spec } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
@@ -16,7 +18,7 @@ import ClientSelector from './ClientSelector.vue'
 import DownloadSpec from './DownloadSpec.vue'
 import ServerList from './ServerList.vue'
 
-defineProps<{
+const props = defineProps<{
   info: Info
   servers: Server[]
   parsedSpec: Spec
@@ -24,6 +26,10 @@ defineProps<{
 }>()
 
 const { state, getClientTitle, getTargetTitle } = useTemplateStore()
+
+const specVersion = computed(() => {
+  return props.parsedSpec.openapi ?? props.parsedSpec.swagger ?? ''
+})
 </script>
 
 <template>
@@ -32,6 +38,12 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
       <SectionContent :loading="!info.description && !info.title">
         <SectionColumns>
           <SectionColumn>
+            <span class="section-version">{{ info.version }}</span>
+            <span
+              v-if="specVersion"
+              class="section-oas"
+              >OAS {{ specVersion }}</span
+            >
             <SectionHeader
               :level="1"
               :loading="!info.title"
@@ -91,5 +103,17 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
 .sticky-cards {
   position: sticky;
   top: 24px;
+}
+.section-version,
+.section-oas {
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  padding: 2px 6px;
+  border-radius: 12px;
+  margin-right: 4px;
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  margin-bottom: 3px;
+  display: inline-block;
 }
 </style>
