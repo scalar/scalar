@@ -42,7 +42,7 @@ const getSpecContent = async (
     )
   }
 
-  return ''
+  return undefined
 }
 
 /**
@@ -67,7 +67,9 @@ export function useSpec({
         async () => {
           if (configuration.value !== undefined) {
             getSpecContent(configuration.value, proxy).then((value) => {
-              setRawSpecRef(value)
+              if (value !== undefined) {
+                setRawSpecRef(value)
+              }
             })
           }
         },
@@ -80,7 +82,9 @@ export function useSpec({
     // Get the content once
     else {
       getSpecContent(configuration, proxy).then((value) => {
-        setRawSpecRef(value)
+        if (value !== undefined) {
+          setRawSpecRef(value)
+        }
       })
     }
   }
