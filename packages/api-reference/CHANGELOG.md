@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.0.1
+
+### Patch Changes
+
+- 68edf8c: feat: add oas version and spec version to title
+- e482ce0: fix: don’t overwrite the content if there is nothing configured
+- 6af9829: refactor: add a ApiReferenceLayout component to offer slots for everything
+- 6bdc65b: Exported ApiReferenceLayout as separate component
+
 ## 1.0.0
 
 ### Minor Changes
