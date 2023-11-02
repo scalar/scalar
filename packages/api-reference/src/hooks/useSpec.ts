@@ -20,7 +20,7 @@ const rawSpecRef = ref('')
 const getSpecContent = async (
   { url, content }: SpecConfiguration,
   proxy?: string,
-): Promise<string> => {
+): Promise<string | undefined> => {
   if (url !== undefined && url.length > 0) {
     return await fetchSpecFromUrl(url, proxy)
   }
