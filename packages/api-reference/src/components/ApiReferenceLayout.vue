@@ -77,7 +77,7 @@ const showSwaggerEditor = computed(() => {
     :style="{ '--full-height': `${elementHeight}px` }">
     <slot name="search-modal">
       <SearchModal
-        :spec="parsedSpec"
+        :parsedSpec="parsedSpec"
         variant="search" />
     </slot>
     <!-- Desktop header -->
@@ -114,8 +114,8 @@ const showSwaggerEditor = computed(() => {
           name="header" />
         <Sidebar
           :isDarkMode="isDarkMode"
+          :parsedSpec="parsedSpec"
           :searchHotKey="currentConfiguration.searchHotKey"
-          :spec="parsedSpec"
           @toggleDarkMode="$emit('toggleDarkMode')" />
       </div>
     </aside>
@@ -150,8 +150,8 @@ const showSwaggerEditor = computed(() => {
     <!-- REST API Client Overlay -->
     <ApiClientModal
       :isDarkMode="isDarkMode"
+      :parsedSpec="parsedSpec"
       :proxyUrl="currentConfiguration?.proxy"
-      :spec="parsedSpec"
       @toggleDarkMode="$emit('toggleDarkMode')" />
   </div>
 </template>
