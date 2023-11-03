@@ -1,10 +1,57 @@
 {
   "name": "@scalar/api-reference",
   "description": "generate beautiful API references from OpenAPI specs",
-  "version": "1.0.1",
+  "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
-  "browser": "./dist/browser/standalone.js",
+  "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new",
+  "keywords": [
+    "component",
+    "documentation",
+    "openapi",
+    "reference",
+    "spec",
+    "swagger",
+    "vue",
+    "vue3"
+  ],
+  "version": "1.0.1",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "pnpm build:default && pnpm build:standalone && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "build:default": "vite build",
+    "build:standalone": "vite build -c vite.standalone.config.ts",
+    "build:storybook": "storybook build",
+    "dev": "vite",
+    "dev:standalone": "vite -c vite.standalone.config.ts",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "preview:standalone": "http-server",
+    "storybook": "storybook dev -p 6006",
+    "test": "vitest",
+    "types:build": "vue-tsc -p tsconfig.build.json",
+    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "import": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "browser": "./dist/browser/standalone.js",
+  "module": "./dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/api-reference"
+  },
   "dependencies": {
     "@headlessui/vue": "1.7.16",
     "@scalar/api-client": "workspace:*",
@@ -65,30 +112,6 @@
     "vitest": "0.34.4",
     "vue-tsc": "1.8.13"
   },
-  "engines": {
-    "node": ">=18"
-  },
-  "exports": {
-    "import": "./dist/index.js"
-  },
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
-  "homepage": "https://github.com/scalar/scalar",
-  "keywords": [
-    "component",
-    "documentation",
-    "openapi",
-    "reference",
-    "spec",
-    "swagger",
-    "vue",
-    "vue3"
-  ],
-  "license": "MIT",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
   "peerDependencies": {
     "@scalar/swagger-editor": "workspace:*",
     "@types/js-yaml": "4.0.6",
@@ -108,27 +131,9 @@
     "unified": "11.0.3",
     "vue": "3.3.4"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/api-reference"
-  },
-  "scripts": {
-    "build": "pnpm build:default && pnpm build:standalone && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "build:default": "vite build",
-    "build:standalone": "vite build -c vite.standalone.config.ts",
-    "build:storybook": "storybook build",
-    "dev": "vite",
-    "dev:standalone": "vite -c vite.standalone.config.ts",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "preview": "vite preview",
-    "preview:standalone": "http-server",
-    "storybook": "storybook dev -p 6006",
-    "test": "vitest",
-    "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
-  },
-  "type": "module",
-  "types": "dist/index.d.ts"
+  "nx": {
+    "tags": [
+      "scope:package"
+    ]
+  }
 }

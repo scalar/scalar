@@ -1,6 +1,22 @@
 {
-  "name": "@scalar-org/web",
+  "name": "@scalar-examples/web",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new",
   "version": "0.4.2",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "vue-tsc && vite build",
+    "dev": "vite",
+    "lint": "eslint \"src/**/*.{js,vue}\"",
+    "lint:fix": "eslint \"src/**/*.{js,vue}\" --fix",
+    "preview": "vite preview"
+  },
+  "type": "module",
   "dependencies": {
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
@@ -21,13 +37,10 @@
     "vite-plugin-node-polyfills": "0.14.1",
     "vue-tsc": "1.8.13"
   },
-  "private": true,
-  "scripts": {
-    "build": "vue-tsc && vite build",
-    "dev": "vite",
-    "lint": "eslint \"src/**/*.{js,vue}\"",
-    "lint:fix": "eslint \"src/**/*.{js,vue}\" --fix",
-    "preview": "vite preview"
-  },
-  "type": "module"
+  "nx": {
+    "tags": [
+      "scope:examples",
+      "scope:package"
+    ]
+  }
 }

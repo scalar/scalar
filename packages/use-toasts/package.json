@@ -1,9 +1,42 @@
 {
   "name": "@scalar/use-toasts",
   "description": "display toasts in Vue",
-  "version": "0.5.6",
+  "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new",
+  "keywords": [
+    "composable",
+    "notifcation",
+    "toast",
+    "vue",
+    "vue3"
+  ],
+  "version": "0.5.6",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "dev": "vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "test": "vitest",
+    "types:build": "vue-tsc -p tsconfig.build.json",
+    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/use-toasts"
+  },
   "dependencies": {
     "nanoid": "5.0.1"
   },
@@ -16,40 +49,12 @@
     "vitest": "0.34.4",
     "vue-tsc": "1.8.13"
   },
-  "engines": {
-    "node": ">=18"
-  },
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
-  "homepage": "https://github.com/scalar/scalar",
-  "keywords": [
-    "composable",
-    "notifcation",
-    "toast",
-    "vue",
-    "vue3"
-  ],
-  "license": "MIT",
-  "main": "dist/index.js",
   "peerDependencies": {
     "vue": "3.3.4"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/use-toasts"
-  },
-  "scripts": {
-    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "dev": "vite",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "preview": "vite preview",
-    "test": "vitest",
-    "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
-  },
-  "type": "module"
+  "nx": {
+    "tags": [
+      "scope:package"
+    ]
+  }
 }

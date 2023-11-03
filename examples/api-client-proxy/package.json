@@ -1,6 +1,18 @@
 {
-  "name": "@scalar-org/api-client-proxy",
+  "name": "@scalar-examples/api-client-proxy",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new",
   "version": "0.5.0",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/api-client-proxy --watch ./"
+  },
+  "type": "module",
   "dependencies": {
     "@scalar/api-client-proxy": "workspace:*",
     "dotenv": "16.3.1"
@@ -10,12 +22,10 @@
     "vite": "4.4.9",
     "vite-node": "0.34.4"
   },
-  "engines": {
-    "node": ">=18"
-  },
-  "private": true,
-  "scripts": {
-    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/api-client-proxy --watch ./"
-  },
-  "type": "module"
+  "nx": {
+    "tags": [
+      "scope:examples",
+      "scope:package"
+    ]
+  }
 }

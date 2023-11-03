@@ -1,9 +1,48 @@
 {
   "name": "@scalar/api-client",
   "description": "the open source API testing client",
-  "version": "0.7.27",
+  "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new",
+  "keywords": [
+    "api",
+    "client",
+    "graphql",
+    "postman alternative",
+    "rest",
+    "testing"
+  ],
+  "version": "0.7.27",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "dev": "vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "test": "vitest",
+    "types:build": "vue-tsc -p tsconfig.build.json",
+    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "import": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "./dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/api-client"
+  },
   "dependencies": {
     "@headlessui/vue": "1.7.16",
     "@scalar/themes": "workspace:*",
@@ -30,47 +69,13 @@
     "vitest": "0.34.4",
     "vue-tsc": "1.8.13"
   },
-  "engines": {
-    "node": ">=18"
-  },
-  "exports": {
-    "import": "./dist/index.js"
-  },
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
-  "homepage": "https://github.com/scalar/scalar",
-  "keywords": [
-    "api",
-    "client",
-    "graphql",
-    "postman alternative",
-    "rest",
-    "testing"
-  ],
-  "license": "MIT",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
   "peerDependencies": {
     "@types/content-type": "1.1.6",
     "vue": "3.3.4"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/api-client"
-  },
-  "scripts": {
-    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "dev": "vite",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "preview": "vite preview",
-    "test": "vitest",
-    "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
-  },
-  "type": "module",
-  "types": "dist/index.d.ts"
+  "nx": {
+    "tags": [
+      "scope:package"
+    ]
+  }
 }

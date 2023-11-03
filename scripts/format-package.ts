@@ -18,10 +18,12 @@ type PackageType = 'examples' | 'packages'
 const restrictedKeys = [
   'name',
   'description',
+  'license',
+  'author',
+  'homepage',
+  'bugs',
   'keywords',
   'version',
-  'author',
-  'license',
   'private',
   'engines',
   'packageManager',
@@ -44,6 +46,9 @@ const sortKeys = ['dependencies', 'devDependencies', 'scripts']
 /** Provide hardcoded overrides for some fields */
 const overrides: Record<string, unknown> = {
   license: 'MIT',
+  author: 'Scalar (https://github.com/scalar)',
+  bugs: 'https://github.com/scalar/scalar/issues/new',
+  homepage: 'https://github.com/scalar/scalar',
 }
 
 /** Provide default values for some fields */
@@ -186,7 +191,7 @@ function validateNxConfig(
     nxEntry.tags.unshift('scope:package')
   }
 
-  if (packageType === 'examples' && !nxEntry.tags.includes('scope:service')) {
+  if (packageType === 'examples' && !nxEntry.tags.includes('scope:examples')) {
     nxEntry.tags.unshift('scope:examples')
   }
 }

@@ -5,11 +5,11 @@ pnpm concurrently \
     " \
         pnpm \
             --workspace-concurrency=100 \
-            --filter @scalar-org/web \
-            --filter @scalar-org/react \
-            --filter @scalar-org/api-client-proxy \
-            --filter @scalar-org/echo-server \
-            --filter @scalar-org/fastify-api-reference \
-            --filter @scalar-org/backend \
+            --filter @scalar-examples/web \
+            --filter @scalar-examples/react \
+            --filter @scalar-examples/api-client-proxy \
+            --filter @scalar-examples/echo-server \
+            --filter @scalar-examples/fastify-api-reference \
+            --filter @scalar-examples/backend \
             dev \
     "

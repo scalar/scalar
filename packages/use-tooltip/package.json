@@ -1,47 +1,19 @@
 {
   "name": "@scalar/use-tooltip",
   "description": "use tooltips with Vue",
-  "version": "0.5.4",
+  "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
-  "bugs": "https://github.com/scalar/scalar/issues/new",
-  "dependencies": {
-    "tippy.js": "6.3.7"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-vue": "4.3.4",
-    "@vitest/coverage-v8": "0.34.4",
-    "tsc-alias": "1.8.8",
-    "vite": "4.4.9",
-    "vitest": "0.34.4",
-    "vue-tsc": "1.8.13"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "exports": {
-    "import": "./dist/index.js"
-  },
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
   "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new",
   "keywords": [
     "composable",
     "tootltips",
     "vue",
     "vue3"
   ],
-  "license": "MIT",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "peerDependencies": {
-    "vue": "3.3.4"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/use-tooltip"
+  "version": "0.5.4",
+  "engines": {
+    "node": ">=18"
   },
   "scripts": {
     "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
@@ -53,5 +25,38 @@
     "types:build": "vue-tsc -p tsconfig.build.json",
     "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
   },
-  "type": "module"
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    "import": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/use-tooltip"
+  },
+  "dependencies": {
+    "tippy.js": "6.3.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "4.3.4",
+    "@vitest/coverage-v8": "0.34.4",
+    "tsc-alias": "1.8.8",
+    "vite": "4.4.9",
+    "vitest": "0.34.4",
+    "vue-tsc": "1.8.13"
+  },
+  "peerDependencies": {
+    "vue": "3.3.4"
+  },
+  "nx": {
+    "tags": [
+      "scope:package"
+    ]
+  }
 }
