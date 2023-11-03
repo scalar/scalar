@@ -28,6 +28,7 @@
     ]
   },
   "dependencies": {
+    "@vcarl/remark-headings": "0.1.0",
     "rehype-document": "7.0.1",
     "rehype-external-links": "3.0.0",
     "rehype-format": "5.0.0",
@@ -38,7 +39,12 @@
     "remark-gfm": "4.0.0",
     "remark-parse": "11.0.0",
     "remark-rehype": "11.0.0",
-    "unified": "11.0.3"
+    "remark-stringify": "^11.0.0",
+    "unified": "11.0.3",
+    "zod": "^3.22.4"
+  },
+  "peerDependencies": {
+    "zod": "3.0.0"
   },
   "devDependencies": {
     "vite": "4.4.9",

@@ -1,36 +1,13 @@
-import remarkHeadings from '@vcarl/remark-headings'
+import { findMarkdownHeadings } from '@scalar/use-markdown'
 import GithubSlugger from 'github-slugger'
-import remarkParse from 'remark-parse'
-import remarkStringify from 'remark-stringify'
-import { unified } from 'unified'
-
-export type Heading = {
-  depth: number
-  value: string
-  slug?: string
-}
-
-export type Headings = Heading[]
-
-const processor = unified()
-  .use(remarkParse)
-  .use(remarkStringify)
-  .use(remarkHeadings)
-
-export const getHeadingsFromMarkdown = async (
-  input: string,
-): Promise<Headings> => {
-  const { headings } = (await processor.process(input)).data
-
-  return withSlugs(headings as Headings)
-}
 
 const slugger = new GithubSlugger()
 
-const withSlugs = (headings: Headings): Headings =>
-  headings.map((heading) => {
-    return {
-      ...heading,
-      slug: slugger.slug(heading.value),
-    }
-  })
+export const getHeadingsFromMarkdown = async (input: string) => {
+  const headings = await findMarkdownHeadings(input)
+
+  return headings.map((h) => ({
+    ...h,
+    slug: slugger.slug(h.value),
+  }))
+}
