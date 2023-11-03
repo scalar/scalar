@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 overrides:
   '@apidevtools/json-schema-ref-parser': 9.0.7
 
@@ -30,6 +34,9 @@ importers:
       '@vue/eslint-config-typescript':
         specifier: 12.0.0
         version: 12.0.0(eslint-plugin-vue@9.17.0)(eslint@8.49.0)(typescript@5.2.2)
+      bun:
+        specifier: ^1.0.8
+        version: 1.0.8
       concurrently:
         specifier: 8.2.1
         version: 8.2.1
@@ -3537,6 +3544,54 @@ packages:
     dev: false
     optional: true
 
+  /@oven/bun-darwin-aarch64@1.0.8:
+    resolution: {integrity: sha512-/b+YMsdX3XhuheJiykJXsiiP7fndXSUQQb6aOxQDIVZavg6S1kbeEKDhtQ5+dotQomOpvf54PVqXSyuBWswUyQ==}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-darwin-x64-baseline@1.0.8:
+    resolution: {integrity: sha512-yP2+W6gOy+n9uKBIMH0RFRFwn+Sha6dS3kvGnrpeKSeDIvRoT99X7iuC8Tw4+gLsT4F5RUnmvIeFWW0DSCUUWw==}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-darwin-x64@1.0.8:
+    resolution: {integrity: sha512-cxKscJEWQdPhmLUzBM2eP3Xy5dPkUbNz0G7M88AB7ENljlNgY/5T5lgqI/QPS8GDjvE1FivGZpldCfmOywaCrQ==}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-linux-aarch64@1.0.8:
+    resolution: {integrity: sha512-OuYX+WS8rVztHIgqw8eRNDYlA/qj+TmnlhYiTvMt8RQ9dd7cozaFC8qUGHIBU3wmPyEg/l/+6a3NFs6zBKSeIw==}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-linux-x64-baseline@1.0.8:
+    resolution: {integrity: sha512-ss0UK2foomr6q6yRsClsZhD6Bb7r1zYx2euv27L1eR/JpiJfWJvq+1xfyo7ywLBp8aM44KyfcRtWJsCeEfrWbg==}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-linux-x64@1.0.8:
+    resolution: {integrity: sha512-A6aAWqKWXGb1BSpm9dcNlsbi+zCQWhPLxl3Yjmgvw7u7s4TTApSXpVHeQcJov4Ljm5dOk28+EL9uvLDKMBKXuA==}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
   /@pkgjs/parseargs@0.11.0:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
@@ -6578,6 +6633,21 @@ packages:
     resolution: {integrity: sha512-qwVpFEHNfhYJIzNRBvd2C1kyo6jz3ZSMPyyuR47OPdiKWlbYnZNyDWuyR175qDnAJLiCo5fBBqPb3RiXgWlkOQ==}
     dependencies:
       semver: 7.5.4
+    dev: true
+
+  /bun@1.0.8:
+    resolution: {integrity: sha512-NOnCAQTc2lGpcyttx9p3k0D4y/jYHy2E4cw322WrCbjZLwQ0wtliH4FYmaD+giv0FoGxoQ7Yzvttxub2O1a8Sw==}
+    cpu: [arm64, x64]
+    os: [darwin, linux]
+    hasBin: true
+    requiresBuild: true
+    optionalDependencies:
+      '@oven/bun-darwin-aarch64': 1.0.8
+      '@oven/bun-darwin-x64': 1.0.8
+      '@oven/bun-darwin-x64-baseline': 1.0.8
+      '@oven/bun-linux-aarch64': 1.0.8
+      '@oven/bun-linux-x64': 1.0.8
+      '@oven/bun-linux-x64-baseline': 1.0.8
     dev: true
 
   /bundle-name@3.0.0:
@@ -14752,7 +14822,3 @@ packages:
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: false
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false

@@ -1,6 +1,27 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ES2022"
+    "target": "ES2022" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+    "module": "ESNext" /* Specify what module code is generated. */,
+    "moduleResolution": "Node",
+    // Required for isolated module compilation (ESBuild)
+    "isolatedModules": true,
+    // Support proper ESM builds
+    "esModuleInterop": true,
+    // Ensure that casing is correct in imports.
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true
+  },
+  "types": ["vite/client"],
+  "exclude": ["dist", "node_modules", "**/dist", "**/node_modules"],
+  // Required for path rewrites
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  },
+  // Required for path aliasing
+  "tsc-alias": {
+    "resolveFullPaths": true
   }
 }
