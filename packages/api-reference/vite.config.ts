@@ -37,6 +37,7 @@ export default defineConfig({
     rollupOptions: {
       external: [
         '@hocuspocus/provider',
+        '@scalar/use-codemirror',
         '@scalar/swagger-editor',
         '@xmldom/xmldom',
         'rehype-document',

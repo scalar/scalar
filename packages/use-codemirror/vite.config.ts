@@ -2,35 +2,21 @@ import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { defineConfig } from 'vitest/config'
 
+import packageFile from './package.json'
+
 export default defineConfig({
   plugins: [vue()],
   build: {
     cssCodeSplit: false,
-    minify: false,
+    minify: true,
     lib: {
       entry: ['src/index.ts'],
-      name: '@scalar/use-codemirror',
+      name: packageFile.name,
       fileName: 'index',
       formats: ['es'],
     },
     rollupOptions: {
-      external: [
-        '@codemirror/lang-html',
-        '@codemirror/lang-java',
-        '@codemirror/lang-javascript',
-        '@codemirror/lang-json',
-        '@codemirror/lang-python',
-        '@codemirror/language',
-        '@codemirror/legacy-modes',
-        '@codemirror/state',
-        '@codemirror/view',
-        '@lezer/common',
-        '@lezer/highlight',
-        '@lezer/lr',
-        '@uiw/codemirror-themes',
-        'codemirror',
-        'vue',
-      ],
+      external: ['vue'],
     },
   },
 

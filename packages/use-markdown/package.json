@@ -1,0 +1,47 @@
+{
+  "name": "@scalar/use-markdown",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new",
+  "keywords": [],
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && pnpm types:build",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "test": "vitest",
+    "types:build": "tsc -p tsconfig.build.json",
+    "types:check": "tsc"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "nx": {
+    "tags": [
+      "scope:package"
+    ]
+  },
+  "dependencies": {
+    "rehype-document": "7.0.1",
+    "rehype-external-links": "3.0.0",
+    "rehype-format": "5.0.0",
+    "rehype-highlight": "7.0.0",
+    "rehype-sanitize": "6.0.0",
+    "rehype-slug-custom-id": "1.1.0",
+    "rehype-stringify": "10.0.0",
+    "remark-gfm": "4.0.0",
+    "remark-parse": "11.0.0",
+    "remark-rehype": "11.0.0",
+    "unified": "11.0.3"
+  },
+  "devDependencies": {
+    "vite": "4.4.9",
+    "vitest": "0.34.4"
+  }
+}
