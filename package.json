@@ -20,6 +20,7 @@
     "prettier": "2.8.8",
     "syncpack": "11.2.1",
     "turbo": "1.10.15",
+    "typescript": "5.2.2",
     "vue-eslint-parser": "9.3.1"
   },
   "pnpm": {
