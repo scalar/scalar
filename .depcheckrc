@@ -1,1 +1,1 @@
-ignores: ['eslint', '**/dist/**', 'babel-*']
+ignoreDirs: ['dist']

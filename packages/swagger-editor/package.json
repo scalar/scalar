@@ -44,8 +44,6 @@
     "directory": "packages/swagger-editor"
   },
   "dependencies": {
-    "@codemirror/state": "6.2.1",
-    "@headlessui/vue": "1.7.16",
     "@hocuspocus/provider": "2.6.1",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
@@ -58,7 +56,6 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.3.4",
-    "@vitest/coverage-v8": "0.34.4",
     "tsc-alias": "1.8.8",
     "vite": "4.4.9",
     "vite-plugin-css-injected-by-js": "3.3.0",
@@ -66,10 +63,10 @@
     "vue-tsc": "1.8.13"
   },
   "peerDependencies": {
-    "@codemirror/state": "6.2.1",
-    "@hocuspocus/provider": "2.6.1",
-    "vue": "3.3.4",
-    "yjs": "13.6.8"
+    "@hocuspocus/provider": "^2.5.0",
+    "vue": "^3.3.0",
+    "@vueuse/core": "^10.0.0",
+    "yjs": "^13.0.0"
   },
   "nx": {
     "tags": [
