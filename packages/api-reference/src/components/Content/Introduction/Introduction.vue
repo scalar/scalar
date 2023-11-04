@@ -41,9 +41,9 @@ const specVersion = computed(() => {
             <span class="section-version">{{ info.version }}</span>
             <span
               v-if="specVersion"
-              class="section-oas"
-              >OAS {{ specVersion }}</span
-            >
+              class="section-oas">
+              OAS {{ specVersion }}
+            </span>
             <SectionHeader
               :level="1"
               :loading="!info.title"
