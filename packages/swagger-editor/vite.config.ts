@@ -15,7 +15,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', 'yjs', '@hocuspocus/provider'],
+      external: ['vue', 'yjs', '@hocuspocus/provider', '@scalar/use-markdown'],
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'index.css') {

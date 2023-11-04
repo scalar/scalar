@@ -1,37 +1,43 @@
 <script setup lang="ts">
+import { RenderedReference, type Spec } from '@scalar/api-reference'
 import { parseSwaggerDescription } from '@scalar/use-markdown'
-import { computed, onMounted } from 'vue'
-
-import HelloWorld from './components/HelloWorld.vue'
-
-const b = computed(() => 10)
+import { onMounted, reactive } from 'vue'
 
 onMounted(() => {
-  // console.log(b.value)
   console.log(parseSwaggerDescription('# HI'))
+})
+
+const reactiveSpec = reactive<Spec>({
+  info: {
+    title: '',
+    description: '',
+    termsOfService: '',
+    version: '',
+    license: {
+      name: '',
+      url: '',
+    },
+    contact: {
+      email: '',
+    },
+  },
+  externalDocs: {
+    description: '',
+    url: '',
+  },
+  servers: [],
+  tags: [],
 })
 </script>
 
 <template>
   <div>
-    <a
-      href="https://vitejs.dev"
-      target="_blank">
-      <img
-        alt="Vite logo"
-        class="logo"
-        src="/vite.svg" />
-    </a>
-    <a
-      href="https://vuejs.org/"
-      target="_blank">
-      <img
-        alt="Vue logo"
-        class="logo vue"
-        src="./assets/vue.svg" />
-    </a>
+    <RenderedReference
+      class="references-rendered"
+      :parsedSpec="reactiveSpec"
+      :rawSpec="''"
+      :ready="true" />
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
 <style scoped>

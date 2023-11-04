@@ -96,6 +96,7 @@
   "peerDependencies": {
     "@scalar/swagger-editor": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
+    "@scalar/use-markdown": "workspace:*",
     "@types/js-yaml": "4.0.6",
     "@xmldom/xmldom": "0.8.4",
     "vue": "3.3.4"

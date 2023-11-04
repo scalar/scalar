@@ -63,6 +63,7 @@
     "vue-tsc": "1.8.13"
   },
   "peerDependencies": {
+    "@scalar/use-markdown": "workspace:*",
     "@hocuspocus/provider": "^2.5.0",
     "vue": "^3.3.0",
     "@vueuse/core": "^10.0.0",

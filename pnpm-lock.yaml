@@ -237,6 +237,9 @@ importers:
 
   examples/ssg-build:
     dependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../packages/api-reference
       '@scalar/use-markdown':
         specifier: workspace:*
         version: link:../../packages/use-markdown

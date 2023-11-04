@@ -39,6 +39,7 @@ export default defineConfig({
         '@hocuspocus/provider',
         '@scalar/use-codemirror',
         '@scalar/swagger-editor',
+        '@scalar/use-markdown',
         '@xmldom/xmldom',
         'vue',
         'yjs',

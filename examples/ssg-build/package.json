@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "vue": "^3.3.4",
+    "@scalar/api-reference": "workspace:*",
     "@scalar/use-markdown": "workspace:*"
   },
   "devDependencies": {
