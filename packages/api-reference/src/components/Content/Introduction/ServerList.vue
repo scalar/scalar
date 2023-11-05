@@ -215,8 +215,8 @@ const getValue = (name: string) => {
   padding: 4px 0;
   display: block;
 }
-.variable-description :deep(.markdown > *:first-child) {
-  margin-top: 0;
+.variable-description :deep(div > *:first-child) {
+  margin-top: 0 !important;
 }
 .input {
   align-items: center;

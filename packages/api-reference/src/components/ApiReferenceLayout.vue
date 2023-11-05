@@ -349,20 +349,9 @@ const showSwaggerEditor = computed(() => {
 /** CSS Reset */
 .scalar-api-reference,
 #headlessui-portal-root {
-  p {
-    margin: 0;
-  }
-
   i {
     font-style: normal;
   }
-
-  ul,
-  ol {
-    margin: 0;
-    padding: 0;
-  }
-
   /** Add some more things which are normally applied to `html`. */
   font-family: var(--theme-font, var(--default-theme-font));
   line-height: 1.15;

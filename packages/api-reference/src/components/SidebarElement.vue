@@ -173,7 +173,7 @@ defineExpose({ el })
 }
 .active_page .sidebar-heading-type {
   background: transparent;
-  box-shadow: inset 0 0 0 1px
+  box-shadow: 0 0 0 1px
     var(
       --sidebar-color-active,
       var(

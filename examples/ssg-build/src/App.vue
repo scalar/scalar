@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RenderedReference, type Spec } from '@scalar/api-reference'
+import { RenderedReference, Sidebar, type Spec } from '@scalar/api-reference'
 import { parseSwaggerDescription } from '@scalar/use-markdown'
 import { onMounted, reactive } from 'vue'
 
@@ -32,6 +32,10 @@ const reactiveSpec = reactive<Spec>({
 
 <template>
   <div>
+    <Sidebar
+      :isDarkMode="true"
+      :parsedSpec="reactiveSpec"
+      @toggleDarkMode="() => {}" />
     <RenderedReference
       class="references-rendered"
       :parsedSpec="reactiveSpec"

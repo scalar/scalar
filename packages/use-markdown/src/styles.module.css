@@ -117,7 +117,7 @@
   border-collapse: collapse;
   table-layout: fixed;
   width: 100%;
-  margin: 1em 0;
+  margin: 12px 0 1px !important;
   overflow: hidden;
   box-shadow: 0 0 0 1px
     var(--theme-border-color, var(--default-theme-border-color));
@@ -152,7 +152,6 @@
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
-
 .markdown td > *,
 .markdown th > * {
   margin-bottom: 0;

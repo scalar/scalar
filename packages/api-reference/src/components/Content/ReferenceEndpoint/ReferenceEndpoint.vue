@@ -45,6 +45,6 @@ defineProps<{
 <style scoped>
 .examples {
   position: sticky;
-  top: 24px;
+  top: 62px;
 }
 </style>

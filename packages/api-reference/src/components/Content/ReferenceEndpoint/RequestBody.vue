@@ -120,10 +120,21 @@ defineProps<{ requestBody?: RequestBody }>()
   position: relative;
 }
 .parameter-description {
-  margin-top: 3px !important;
+  all: unset;
+  display: block;
+  margin-top: 3px;
   font-size: var(--theme-small, var(--default-theme-small));
   color: var(--theme-color-2, var(--default-theme-color-2));
   line-height: 1.4;
+}
+.parameter-description * {
+  all: unset;
+  margin-top: 3px !important;
+  margin-bottom: 0 !important;
+}
+.parameter-description p {
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  margin-top: 3px;
 }
 .parameter__required {
   text-transform: uppercase;
