@@ -530,6 +530,9 @@ importers:
       '@vitejs/plugin-vue':
         specifier: 4.3.4
         version: 4.3.4(vite@4.4.9)(vue@3.3.4)
+      '@vitest/coverage-v8':
+        specifier: 0.34.4
+        version: 0.34.4(vitest@0.34.4)
       http-server:
         specifier: 14.1.1
         version: 14.1.1
