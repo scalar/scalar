@@ -52,7 +52,11 @@ const configuration = reactive<ReferenceConfiguration>({
     :configuration="configuration"
     @changeTheme="(theme: ThemeId) => (configuration.theme = theme)">
     <template #header>
-      <DevToolbar v-model="configuration" />
+      <DevToolbar
+        :modelValue="configuration"
+        @update:modelValue="
+          (newConfiguration) => Object.assign(configuration, newConfiguration)
+        " />
     </template>
     <template #footer>
       <MockFooter />
