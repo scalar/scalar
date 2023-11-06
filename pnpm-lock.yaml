@@ -518,6 +518,9 @@ importers:
       rehype-stringify:
         specifier: 10.0.0
         version: 10.0.0
+      remark-breaks:
+        specifier: 3.0.3
+        version: 3.0.3
       remark-gfm:
         specifier: 4.0.0
         version: 4.0.0
@@ -525,6 +528,9 @@ importers:
         specifier: 11.0.0
         version: 11.0.0
       remark-rehype:
+        specifier: 11.0.0
+        version: 11.0.0
+      remark-stringify:
         specifier: 11.0.0
         version: 11.0.0
       unified:

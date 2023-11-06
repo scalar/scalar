@@ -15,7 +15,26 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', 'yjs', '@codemirror/state', '@hocuspocus/provider'],
+      external: [
+        '@codemirror/state',
+        '@hocuspocus/provider',
+        '@scalar/swagger-editor',
+        '@xmldom/xmldom',
+        'rehype-document',
+        'rehype-external-links',
+        'rehype-format',
+        'rehype-highlight',
+        'rehype-sanitize',
+        'rehype-slug-custom-id',
+        'rehype-stringify',
+        'remark-gfm',
+        'remark-parse',
+        'remark-rehype',
+        'remark-stringify',
+        'unified',
+        'vue',
+        'yjs',
+      ],
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'index.css') {
