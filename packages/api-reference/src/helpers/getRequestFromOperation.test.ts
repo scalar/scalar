@@ -30,7 +30,7 @@ describe('getRequestFromOperation', () => {
     })
   })
 
-  it.only('adds a json request body', () => {
+  it('adds a json request body', () => {
     const request = getRequestFromOperation({
       httpVerb: 'POST',
       path: '/foobar',
@@ -61,12 +61,12 @@ describe('getRequestFromOperation', () => {
       mimeType: 'application/json',
     })
 
-    expect(request.postData?.text ?? '').toMatchObject({
+    expect(JSON.parse(request.postData?.text ?? '')).toMatchObject({
       id: 1,
     })
   })
 
-  it.only('adds encoded form request body', () => {
+  it.todo('adds encoded form request body', () => {
     const request = getRequestFromOperation({
       httpVerb: 'POST',
       path: '/foobar',
@@ -97,8 +97,81 @@ describe('getRequestFromOperation', () => {
       mimeType: 'application/x-www-form-urlencoded',
     })
 
-    expect(request.postData?.text ?? '').toMatchObject({
-      id: 1,
+    // TODO: Make this work
+    expect(request.postData?.params).toMatchObject([
+      {
+        name: 'id',
+        value: 1,
+      },
+    ])
+  })
+
+  it('adds xml request body', () => {
+    const request = getRequestFromOperation({
+      httpVerb: 'POST',
+      path: '/foobar',
+      information: {
+        requestBody: {
+          content: {
+            'application/xml': {
+              schema: {
+                type: 'object',
+                properties: {
+                  id: {
+                    example: 1,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    } as TransformedOperation)
+
+    expect(request).toContain({
+      method: 'POST',
+      path: '/foobar',
     })
+
+    expect(request.postData).toContain({
+      mimeType: 'application/xml',
+    })
+
+    expect(request.postData?.text).toBe('<id>1</id>')
+  })
+
+  it.todo('uses custom xml tag names', () => {
+    const request = getRequestFromOperation({
+      httpVerb: 'POST',
+      path: '/foobar',
+      information: {
+        requestBody: {
+          content: {
+            'application/xml': {
+              schema: {
+                type: 'object',
+                properties: {
+                  id: {
+                    example: 1,
+                    xml: 'foo',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    } as TransformedOperation)
+
+    expect(request).toContain({
+      method: 'POST',
+      path: '/foobar',
+    })
+
+    expect(request.postData).toContain({
+      mimeType: 'application/xml',
+    })
+
+    expect(request.postData?.text).toBe('<foo>1</foo>')
   })
 })

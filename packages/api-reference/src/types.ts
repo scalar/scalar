@@ -119,8 +119,9 @@ export type ExampleResponseHeaders = Record<
 >
 
 export type RequestBodyMimeTypes =
-  | 'application/x-www-form-urlencoded'
   | 'application/json'
+  | 'application/x-www-form-urlencoded'
+  | 'application/xml'
 
 export type TransformedOperation = Operation & {
   information: {

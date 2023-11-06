@@ -4,6 +4,7 @@ import type {
   TransformedOperation,
 } from '../types'
 import { getExampleFromSchema } from './getExampleFromSchema'
+import { json2xml } from './json2xml'
 
 export const getRequestFromOperation = (
   operation: TransformedOperation,
@@ -43,6 +44,8 @@ function getRequestBody(operation: TransformedOperation) {
   const mimeTypes: RequestBodyMimeTypes[] = [
     'application/json',
     'application/x-www-form-urlencoded',
+    // TODO: 'application/octet-stream',
+    'application/xml',
   ]
 
   // Find the first mime type that is supported
@@ -74,11 +77,38 @@ function getRequestBody(operation: TransformedOperation) {
     ? getExampleFromSchema(requestBodyObject?.schema)
     : null
 
+  if (mimeType === 'application/json') {
+    return {
+      headers,
+      postData: {
+        mimeType: mimeType,
+        text: JSON.stringify(example, null, 2),
+      },
+    }
+  }
+
+  if (mimeType === 'application/xml') {
+    return {
+      headers,
+      postData: {
+        mimeType: mimeType,
+        text: json2xml(example, '  '),
+      },
+    }
+  }
+
   return {
     headers,
     postData: {
       mimeType: mimeType,
-      text: example,
+      // TODO: We have an object, but how do we get that kind of array from the object?
+      // Don’t forget to include nested properties … :|
+      // params: [
+      //   {
+      //     name: 'foo',
+      //     value: 'bar',
+      //   },
+      // ],
     },
   }
 }
