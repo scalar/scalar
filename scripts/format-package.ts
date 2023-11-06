@@ -1,3 +1,7 @@
+/**
+ * This script formats package.json files in the project. It sorts keys and checks critical fields like
+ * licenses and private.
+ */
 import fs from 'fs/promises'
 import path from 'path'
 import { fileURLToPath } from 'url'
