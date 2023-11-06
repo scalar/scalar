@@ -230,7 +230,7 @@ describe('getRequestFromOperation', () => {
     })
 
     expect(request.postData).toContain({
-      mimeType: 'application/xml',
+      mimeType: 'application/octet-stream',
     })
 
     expect(request.postData?.text).toBe('BINARY')
