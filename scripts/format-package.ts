@@ -110,7 +110,7 @@ async function formatPackage(filepath: string) {
   })
 
   if (JSON.stringify(data) !== JSON.stringify(formattedData)) {
-    printColor('green', `Package file at ${filepath} was formatted`)
+    printColor('green', `[${formattedData.name}] package.json formatted`)
   }
 
   await fs
@@ -122,7 +122,7 @@ async function formatDirectoryPackageFiles(folder: PackageType) {
   const packages = await fs.readdir(__dirname + `/../${folder}`)
   await Promise.all(
     packages.map((dir) =>
-      formatPackage(__dirname + `/../${folder}/${dir}/package.json`, folder),
+      formatPackage(__dirname + `/../${folder}/${dir}/package.json`),
     ),
   )
 }
