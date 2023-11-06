@@ -55,6 +55,7 @@ const generateSnippet = async (): Promise<string> => {
       state.selectedClient.clientKey,
     )) as string
   } catch (e) {
+    console.error('[ExampleRequest]', e)
     return ''
   }
 }
