@@ -47,8 +47,8 @@
     "@hocuspocus/provider": "2.6.1",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
-    "@scalar/use-modal": "workspace:*",
     "@scalar/use-markdown": "workspace:*",
+    "@scalar/use-modal": "workspace:*",
     "@vueuse/core": "10.4.1",
     "nanoid": "5.0.1",
     "y-codemirror.next": "0.3.2",
@@ -56,6 +56,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.3.4",
+    "@vitest/coverage-v8": "0.34.4",
     "tsc-alias": "1.8.8",
     "vite": "4.4.9",
     "vite-plugin-css-injected-by-js": "3.3.0",
@@ -63,10 +64,10 @@
     "vue-tsc": "1.8.13"
   },
   "peerDependencies": {
-    "@scalar/use-markdown": "workspace:*",
     "@hocuspocus/provider": "^2.5.0",
-    "vue": "^3.3.0",
+    "@scalar/use-markdown": "workspace:*",
     "@vueuse/core": "^10.0.0",
+    "vue": "^3.3.0",
     "yjs": "^13.0.0"
   },
   "nx": {

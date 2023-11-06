@@ -704,6 +704,9 @@ importers:
       '@vitejs/plugin-vue':
         specifier: 4.3.4
         version: 4.3.4(vite@4.4.9)(vue@3.3.4)
+      '@vitest/coverage-v8':
+        specifier: 0.34.4
+        version: 0.34.4(vitest@0.34.4)
       tsc-alias:
         specifier: 1.8.8
         version: 1.8.8
@@ -962,6 +965,9 @@ importers:
         specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
+      '@vitest/coverage-v8':
+        specifier: 0.34.4
+        version: 0.34.4(vitest@0.34.4)
       vite:
         specifier: 4.4.9
         version: 4.4.9(@types/node@20.6.3)
@@ -5730,7 +5736,7 @@ packages:
       istanbul-reports: 3.1.6
       magic-string: 0.30.4
       picocolors: 1.0.0
-      std-env: 3.3.3
+      std-env: 3.4.3
       test-exclude: 6.0.0
       v8-to-istanbul: 9.1.0
       vitest: 0.34.4
@@ -13526,10 +13532,6 @@ packages:
   /statuses@2.0.1:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
     engines: {node: '>= 0.8'}
-
-  /std-env@3.3.3:
-    resolution: {integrity: sha512-Rz6yejtVyWnVjC1RFvNmYL10kgjC49EOghxWn0RFqlCHGFpQx+Xe7yW3I4ceK1SGrWIGMjD5Kbue8W/udkbMJg==}
-    dev: true
 
   /std-env@3.4.3:
     resolution: {integrity: sha512-f9aPhy8fYBuMN+sNfakZV18U39PbalgjXG3lLB9WkaYTxijru61wb57V9wxxNthXM5Sd88ETBWi29qLAsHO52Q==}

@@ -1,9 +1,16 @@
+import { URL, fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
 import packageFile from './package.json'
 
 export default defineConfig({
   plugins: [],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@test': fileURLToPath(new URL('./test', import.meta.url)),
+    },
+  },
   build: {
     minify: true,
     ssr: true,
