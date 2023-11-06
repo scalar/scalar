@@ -67,6 +67,9 @@ importers:
       typescript:
         specifier: 5.2.2
         version: 5.2.2
+      vite-node:
+        specifier: 0.34.4
+        version: 0.34.4(@types/node@20.6.3)
       vue-eslint-parser:
         specifier: 9.3.1
         version: 9.3.1(eslint@8.49.0)

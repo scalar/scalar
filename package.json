@@ -18,6 +18,7 @@
     "syncpack": "11.2.1",
     "turbo": "1.10.15",
     "typescript": "5.2.2",
+    "vite-node": "0.34.4",
     "vue-eslint-parser": "9.3.1"
   },
   "pnpm": {
@@ -41,6 +42,7 @@
     "lint": "pnpm -r lint:check",
     "lint:fix": "pnpm -r lint:fix",
     "preview:standalone": "pnpm --filter api-reference preview:standalone",
+    "script:package-files": "vite-node scripts/format-package.ts",
     "test": "pnpm -r test",
     "types:check": "pnpm -r types:check"
   }
