@@ -205,4 +205,34 @@ describe('getRequestFromOperation', () => {
 
     expect(request.postData?.text).toBe('<foo>1</foo>')
   })
+
+  it('sends binary data', () => {
+    const request = getRequestFromOperation({
+      httpVerb: 'POST',
+      path: '/foobar',
+      information: {
+        requestBody: {
+          content: {
+            'application/octet-stream': {
+              schema: {
+                type: 'string',
+                format: 'binary',
+              },
+            },
+          },
+        },
+      },
+    } as TransformedOperation)
+
+    expect(request).toContain({
+      method: 'POST',
+      path: '/foobar',
+    })
+
+    expect(request.postData).toContain({
+      mimeType: 'application/xml',
+    })
+
+    expect(request.postData?.text).toBe('BINARY')
+  })
 })

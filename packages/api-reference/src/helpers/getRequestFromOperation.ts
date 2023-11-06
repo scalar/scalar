@@ -44,7 +44,7 @@ function getRequestBody(operation: TransformedOperation) {
   const mimeTypes: RequestBodyMimeTypes[] = [
     'application/json',
     'application/x-www-form-urlencoded',
-    // TODO: 'application/octet-stream',
+    'application/octet-stream',
     'application/xml',
   ]
 
@@ -92,11 +92,22 @@ function getRequestBody(operation: TransformedOperation) {
   }
 
   if (mimeType === 'application/xml') {
+    console.log(json2xml(exampleFromSchema, '\t'))
     return {
       headers,
       postData: {
         mimeType: mimeType,
         text: example ?? json2xml(exampleFromSchema, '  '),
+      },
+    }
+  }
+
+  if (mimeType === 'application/octet-stream') {
+    return {
+      headers,
+      postData: {
+        mimeType: mimeType,
+        text: 'BINARY',
       },
     }
   }
