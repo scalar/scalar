@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.0.2
+
+### Patch Changes
+
+- a7e6c25: fix: externalize remark/rehype dependencies to fix SSG builds
+- 4253b4a: fix: move footer below sidebar and editor when toggled
+- Updated dependencies [a7e6c25]
+  - @scalar/swagger-editor@0.7.1
+
 ## 1.0.1
 
 ### Patch Changes

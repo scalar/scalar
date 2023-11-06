@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.7.1
+
+### Patch Changes
+
+- a7e6c25: fix: externalize remark/rehype dependencies to fix SSG builds
+
 ## 0.7.0
 
 ### Minor Changes
