@@ -171,7 +171,7 @@ describe('getRequestFromOperation', () => {
     expect(request.postData?.text).toBe('<id>1</id>')
   })
 
-  it.todo('uses custom xml tag names', () => {
+  it('uses custom xml tag names', () => {
     const request = getRequestFromOperation({
       httpVerb: 'POST',
       path: '/foobar',
@@ -184,7 +184,9 @@ describe('getRequestFromOperation', () => {
                 properties: {
                   id: {
                     example: 1,
-                    xml: 'foo',
+                    xml: {
+                      name: 'foo',
+                    },
                   },
                 },
               },

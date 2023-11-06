@@ -97,7 +97,9 @@ function getRequestBody(operation: TransformedOperation) {
   // XML
   if (mimeType === 'application/xml') {
     const exampleFromSchema = requestBodyObject?.schema
-      ? getExampleFromSchema(requestBodyObject?.schema)
+      ? getExampleFromSchema(requestBodyObject?.schema, {
+          xml: true,
+        })
       : null
 
     return {

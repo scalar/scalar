@@ -353,4 +353,24 @@ describe('getExampleFromSchema', () => {
       status: 'available',
     })
   })
+
+  it('outputs XML', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          properties: {
+            id: {
+              example: 1,
+              xml: {
+                name: 'foo',
+              },
+            },
+          },
+        },
+        { xml: true },
+      ),
+    ).toMatchObject({
+      foo: 1,
+    })
+  })
 })

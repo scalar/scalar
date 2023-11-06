@@ -8,7 +8,12 @@ export const getExampleFromSchema = (
      * The fallback string for empty string values.
      * @default ''
      **/
-    emptyString: string
+    emptyString?: string
+    /**
+     * Whether to use the XML tag names as keys
+     * @default false
+     */
+    xml?: boolean
   },
   level: number = 0,
 ): any => {
@@ -37,28 +42,33 @@ export const getExampleFromSchema = (
 
   Object.keys(schema.properties).forEach((name: string) => {
     const property = schema.properties[name]
+    const xmlTagName = options?.xml ? property.xml?.name : undefined
 
     // example: 'Dogs'
     if (property.example !== undefined) {
-      response[name] = property.example
+      response[xmlTagName ?? name] = property.example
       return
     }
 
     // default: 400
     if (property.default !== undefined) {
-      response[name] = property.default
+      response[xmlTagName ?? name] = property.default
       return
     }
 
     // enum: [ 'available', 'pending', 'sold' ]
     if (property.enum !== undefined) {
-      response[name] = property.enum[0]
+      response[xmlTagName ?? name] = property.enum[0]
       return
     }
 
     // properties: { … }
     if (property.properties !== undefined) {
-      response[name] = getExampleFromSchema(property, options, level + 1)
+      response[xmlTagName ?? name] = getExampleFromSchema(
+        property,
+        options,
+        level + 1,
+      )
 
       return
     }
@@ -68,9 +78,9 @@ export const getExampleFromSchema = (
       const children = getExampleFromSchema(property.items, options, level + 1)
 
       if (property?.type === 'array') {
-        response[name] = [children]
+        response[xmlTagName ?? name] = [children]
       } else {
-        response[name] = null
+        response[xmlTagName ?? name] = null
       }
 
       return
@@ -89,7 +99,7 @@ export const getExampleFromSchema = (
     }
 
     if (exampleValues[property.type] !== undefined) {
-      response[name] = exampleValues[property.type]
+      response[xmlTagName ?? name] = exampleValues[property.type]
       return
     }
 
@@ -99,7 +109,7 @@ export const getExampleFromSchema = (
     )
 
     // … and just return null for now.
-    response[name] = null
+    response[xmlTagName ?? name] = null
   })
 
   return response
