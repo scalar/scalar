@@ -1,0 +1,22 @@
+{
+  "name": "@scalar/ssg",
+  "version": "0.0.0",
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*",
+    "vue": "3.3.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "4.3.4",
+    "typescript": "5.2.2",
+    "vite": "4.4.9",
+    "vite-ssg": "0.23.4",
+    "vue-tsc": "1.8.13"
+  },
+  "private": true,
+  "scripts": {
+    "build": "vue-tsc && vite-ssg build",
+    "dev": "vite",
+    "preview": "vite preview"
+  },
+  "type": "module"
+}
