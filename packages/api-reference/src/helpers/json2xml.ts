@@ -5,39 +5,50 @@
 	Author:  Stefan Goessner/2006
 	Web:     http://goessner.net/
 */
-export function json2xml(o, tab) {
-  const toXml = function (v, name, ind) {
+export function json2xml(data: Record<string, any>, tab?: string) {
+  const toXml = function (value: any, key: string, indentation: string) {
     let xml = ''
-    if (v instanceof Array) {
-      for (let i = 0, n = v.length; i < n; i++)
-        xml += ind + toXml(v[i], name, ind + '\t') + '\n'
-    } else if (typeof v == 'object') {
+
+    if (value instanceof Array) {
+      for (let i = 0, n = value.length; i < n; i++) {
+        xml += indentation + toXml(value[i], key, indentation + '\t') + '\n'
+      }
+    } else if (typeof value == 'object') {
       let hasChild = false
-      xml += ind + '<' + name
-      for (const m in v) {
+      xml += indentation + '<' + key
+
+      for (const m in value) {
         if (m.charAt(0) == '@')
-          xml += ' ' + m.substr(1) + '="' + v[m].toString() + '"'
+          xml += ' ' + m.substr(1) + '="' + value[m].toString() + '"'
         else hasChild = true
       }
+
       xml += hasChild ? '>' : '/>'
+
       if (hasChild) {
-        for (const m in v) {
-          if (m == '#text') xml += v[m]
-          else if (m == '#cdata') xml += '<![CDATA[' + v[m] + ']]>'
-          else if (m.charAt(0) != '@') xml += toXml(v[m], m, ind + '\t')
+        for (const m in value) {
+          if (m == '#text') xml += value[m]
+          else if (m == '#cdata') xml += '<![CDATA[' + value[m] + ']]>'
+          else if (m.charAt(0) != '@')
+            xml += toXml(value[m], m, indentation + '\t')
         }
         xml +=
-          (xml.charAt(xml.length - 1) == '\n' ? ind : '') + '</' + name + '>'
+          (xml.charAt(xml.length - 1) == '\n' ? indentation : '') +
+          '</' +
+          key +
+          '>'
       }
     } else {
-      xml += ind + '<' + name + '>' + v.toString() + '</' + name + '>'
+      xml += indentation + '<' + key + '>' + value.toString() + '</' + key + '>'
     }
     return xml
   }
+
   let xml = ''
 
-  for (const m in o) {
-    xml += toXml(o[m], m, '')
+  // eslint-disable-next-line guard-for-in
+  for (const key in data) {
+    xml += toXml(data[key], key, '')
   }
 
   return tab ? xml.replace(/\t/g, tab) : xml.replace(/\t|\n/g, '')
