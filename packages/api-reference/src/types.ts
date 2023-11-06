@@ -118,24 +118,20 @@ export type ExampleResponseHeaders = Record<
   }
 >
 
+export type RequestBodyMimeTypes =
+  | 'application/x-www-form-urlencoded'
+  | 'application/json'
+
 export type TransformedOperation = Operation & {
   information: {
     requestBody?: {
-      content?:
-        | Record<
-            'application/json',
-            {
-              schema?: any
-              examples?: any
-            }
-          >
-        | Record<
-            'application/x-www-form-urlencoded',
-            {
-              schema?: any
-              examples?: any
-            }
-          >
+      content?: Record<
+        RequestBodyMimeTypes,
+        {
+          schema?: any
+          examples?: any
+        }
+      >
     }
   }
 }
