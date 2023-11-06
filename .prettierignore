@@ -14,3 +14,4 @@ pnpm-lock.yaml
 cdn
 
 fixtures
+.vite-ssg-temp
