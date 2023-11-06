@@ -88,7 +88,7 @@ const showItemInClient = () => {
   toggleApiClient()
 }
 
-const foo = computed(() => {
+computed(() => {
   return getApiClientRequest({
     serverState: serverState,
     authenticationState: authenticationState,
