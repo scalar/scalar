@@ -42,6 +42,8 @@ export const getRequestFromOperation = (
 function getRequestBody(operation: TransformedOperation) {
   // Define all supported mime types
   const mimeTypes: RequestBodyMimeTypes[] = [
+    // TODO: 'multipart/form-data',
+    // TODO: 'text/plain',
     'application/json',
     'application/x-www-form-urlencoded',
     'application/octet-stream',
@@ -77,11 +79,12 @@ function getRequestBody(operation: TransformedOperation) {
     ? requestBodyObject?.example
     : undefined
 
-  const exampleFromSchema = requestBodyObject?.schema
-    ? getExampleFromSchema(requestBodyObject?.schema)
-    : null
-
+  // JSON
   if (mimeType === 'application/json') {
+    const exampleFromSchema = requestBodyObject?.schema
+      ? getExampleFromSchema(requestBodyObject?.schema)
+      : null
+
     return {
       headers,
       postData: {
@@ -91,8 +94,12 @@ function getRequestBody(operation: TransformedOperation) {
     }
   }
 
+  // XML
   if (mimeType === 'application/xml') {
-    console.log(json2xml(exampleFromSchema, '\t'))
+    const exampleFromSchema = requestBodyObject?.schema
+      ? getExampleFromSchema(requestBodyObject?.schema)
+      : null
+
     return {
       headers,
       postData: {
@@ -102,6 +109,7 @@ function getRequestBody(operation: TransformedOperation) {
     }
   }
 
+  // Binary data
   if (mimeType === 'application/octet-stream') {
     return {
       headers,
@@ -112,18 +120,21 @@ function getRequestBody(operation: TransformedOperation) {
     }
   }
 
-  return {
-    headers,
-    postData: {
-      mimeType: mimeType,
-      // TODO: We have an object, but how do we get that kind of array from the object?
-      // Don’t forget to include nested properties … :|
-      // params: [
-      //   {
-      //     name: 'foo',
-      //     value: 'bar',
-      //   },
-      // ],
-    },
+  // URL encoded data
+  if (mimeType === 'application/x-www-form-urlencoded') {
+    return {
+      headers,
+      postData: {
+        mimeType: mimeType,
+        // TODO: We have an object, but how do we get that kind of array from the object?
+        // Don’t forget to include nested properties … :|
+        // params: [
+        //   {
+        //     name: 'foo',
+        //     value: 'bar',
+        //   },
+        // ],
+      },
+    }
   }
 }
