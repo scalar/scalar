@@ -1,10 +1,6 @@
-/*	This work is licensed under Creative Commons GNU LGPL License.
-
-	License: http://creativecommons.org/licenses/LGPL/2.1/
-   Version: 0.9
-	Author:  Stefan Goessner/2006
-	Web:     http://goessner.net/
-*/
+/**
+ * This function converts an object to XML.
+ */
 export function json2xml(data: Record<string, any>, tab?: string) {
   const toXml = function (value: any, key: string, indentation: string) {
     let xml = ''
