@@ -130,6 +130,7 @@ export type TransformedOperation = Operation & {
         RequestBodyMimeTypes,
         {
           schema?: any
+          example?: any
           examples?: any
         }
       >

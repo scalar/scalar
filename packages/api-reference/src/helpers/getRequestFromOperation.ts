@@ -73,7 +73,11 @@ function getRequestBody(operation: TransformedOperation) {
 
   // Get example from operation
   // TODO: Add support for given examples
-  const example = requestBodyObject?.schema
+  const example = requestBodyObject?.example
+    ? requestBodyObject?.example
+    : undefined
+
+  const exampleFromSchema = requestBodyObject?.schema
     ? getExampleFromSchema(requestBodyObject?.schema)
     : null
 
@@ -82,7 +86,7 @@ function getRequestBody(operation: TransformedOperation) {
       headers,
       postData: {
         mimeType: mimeType,
-        text: JSON.stringify(example, null, 2),
+        text: example ?? JSON.stringify(exampleFromSchema, null, 2),
       },
     }
   }
@@ -92,7 +96,7 @@ function getRequestBody(operation: TransformedOperation) {
       headers,
       postData: {
         mimeType: mimeType,
-        text: json2xml(example, '  '),
+        text: example ?? json2xml(exampleFromSchema, '  '),
       },
     }
   }

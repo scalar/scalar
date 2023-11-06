@@ -30,7 +30,7 @@ describe('getRequestFromOperation', () => {
     })
   })
 
-  it('adds a json request body', () => {
+  it('adds a json request body a schema', () => {
     const request = getRequestFromOperation({
       httpVerb: 'POST',
       path: '/foobar',
@@ -46,6 +46,37 @@ describe('getRequestFromOperation', () => {
                   },
                 },
               },
+            },
+          },
+        },
+      },
+    } as TransformedOperation)
+
+    expect(request).toContain({
+      method: 'POST',
+      path: '/foobar',
+    })
+
+    expect(request.postData).toContain({
+      mimeType: 'application/json',
+    })
+
+    expect(JSON.parse(request.postData?.text ?? '')).toMatchObject({
+      id: 1,
+    })
+  })
+
+  it('adds a json request body from a given example', () => {
+    const request = getRequestFromOperation({
+      httpVerb: 'POST',
+      path: '/foobar',
+      information: {
+        requestBody: {
+          content: {
+            'application/json': {
+              example: JSON.stringify({
+                id: 1,
+              }),
             },
           },
         },
