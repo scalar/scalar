@@ -161,7 +161,7 @@ function validatePackageScripts(
     printColor('yellow', `WARNING: No scripts detected for ${packageName}`)
     return
   }
-  const required = ['lint:fix', 'lint:check', 'types:check', 'format']
+  const required = ['lint:fix', 'lint:check', 'types:check']
 
   required.forEach((scriptName) => {
     const command = scripts[scriptName]
@@ -170,7 +170,7 @@ function validatePackageScripts(
     if (!command) {
       printColor(
         'yellow',
-        `Package file is missing the required script ${scriptName} in ${packageName}`,
+        `[${packageName}] package.json is missing a required script: ${scriptName}`,
       )
       return
     }
