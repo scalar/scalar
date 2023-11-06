@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 overrides:
   '@apidevtools/json-schema-ref-parser': 9.0.7
 
@@ -60,6 +64,9 @@ importers:
       turbo:
         specifier: 1.10.15
         version: 1.10.15
+      typescript:
+        specifier: 5.2.2
+        version: 5.2.2
       vue-eslint-parser:
         specifier: 9.3.1
         version: 9.3.1(eslint@8.49.0)
@@ -14752,7 +14759,3 @@ packages:
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: false
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
