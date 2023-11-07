@@ -61,7 +61,6 @@ const emit = defineEmits<{
 const syntaxHighlighting: Partial<
   Record<CodeMirrorLanguage, LanguageSupport | StreamLanguage<any>>
 > = {
-  axios: javascript(),
   c: StreamLanguage.define(c),
   clojure: StreamLanguage.define(clojure),
   csharp: StreamLanguage.define(csharp),
