@@ -20,7 +20,6 @@
     "vite-node": "0.34.4",
     "vite-plugin-css-injected-by-js": "3.3.0",
     "vite-plugin-node-polyfills": "0.14.1",
-    "vite-plugin-singlefile": "0.13.5",
     "vite-plugin-static-copy": "0.17.0",
     "vitest": "0.34.4"
   },

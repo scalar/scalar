@@ -1,6 +1,5 @@
-import { type SpecConfiguration } from 'src/types'
-import { describe, expect, it, vi } from 'vitest'
-import { computed, nextTick, reactive, ref, watch } from 'vue'
+import { describe, expect, it } from 'vitest'
+import { ref } from 'vue'
 
 import { useParser } from './useParser'
 

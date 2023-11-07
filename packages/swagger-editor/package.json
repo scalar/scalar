@@ -6,7 +6,6 @@
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
     "@codemirror/state": "6.2.1",
-    "@headlessui/vue": "1.7.16",
     "@hocuspocus/provider": "2.6.1",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",

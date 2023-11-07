@@ -1,5 +1,6 @@
-import { useModal } from 'src/hooks/useModal'
 import { describe, expect, it } from 'vitest'
+
+import { useModal } from './useModal'
 
 describe('useModal', () => {
   it('defaults to false', () => {
