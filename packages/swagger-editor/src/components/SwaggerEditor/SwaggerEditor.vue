@@ -110,7 +110,7 @@ defineExpose({
       {{ formattedError }}
     </SwaggerEditorNotification>
     <SwaggerEditorInput
-      v-if="activeTab === 'Swagger Editor'"
+      v-show="activeTab === 'Swagger Editor'"
       ref="codeMirrorReference"
       :hocuspocusConfiguration="hocuspocusConfiguration"
       :value="value"

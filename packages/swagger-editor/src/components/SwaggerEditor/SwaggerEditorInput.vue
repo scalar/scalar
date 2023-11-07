@@ -36,6 +36,9 @@ watch(
       yCodeMirrorExtension.value = null
     }
 
+    // Reset the content, before loading a new Y.js document
+    emit('contentUpdate', '')
+
     if (!props.hocuspocusConfiguration) {
       return
     }
