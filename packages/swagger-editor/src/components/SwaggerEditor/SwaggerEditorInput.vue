@@ -5,7 +5,7 @@ import { ref, watch } from 'vue'
 import { yCollab as yjsCodeMirrorBinding } from 'y-codemirror.next'
 import * as Y from 'yjs'
 
-import { isJsonString, isYamlString } from '../../helpers'
+import { isJsonString } from '../../helpers'
 import { type SwaggerEditorInputProps } from '../../types'
 
 const props = defineProps<SwaggerEditorInputProps>()
