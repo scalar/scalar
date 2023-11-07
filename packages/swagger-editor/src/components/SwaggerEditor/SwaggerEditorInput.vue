@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { HocuspocusProvider, type StatesArray } from '@hocuspocus/provider'
-import { CodeMirror } from '@scalar/use-codemirror'
+import { CodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
 import { ref, watch } from 'vue'
 import { yCollab as yjsCodeMirrorBinding } from 'y-codemirror.next'
 import * as Y from 'yjs'
 
+import { isJsonString } from '../../helpers'
 import { type SwaggerEditorInputProps } from '../../types'
 
 const props = defineProps<SwaggerEditorInputProps>()
@@ -102,6 +103,14 @@ watch(
 )
 
 const codeMirrorRef = ref<typeof CodeMirror | null>(null)
+
+function getSyntaxHighlighting(content?: string): CodeMirrorLanguage[] {
+  if (isJsonString(content)) {
+    return ['json']
+  }
+
+  return ['yaml']
+}
 </script>
 
 <template>
@@ -110,7 +119,7 @@ const codeMirrorRef = ref<typeof CodeMirror | null>(null)
       ref="codeMirrorRef"
       :content="value"
       :extensions="yCodeMirrorExtension ? [yCodeMirrorExtension] : []"
-      :languages="['json']"
+      :languages="getSyntaxHighlighting(value)"
       lineNumbers
       :name="hocuspocusConfiguration?.name"
       @change="(value: string) => $emit('contentUpdate', value)" />

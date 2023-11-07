@@ -20,6 +20,7 @@ import { r } from '@codemirror/legacy-modes/mode/r'
 import { ruby } from '@codemirror/legacy-modes/mode/ruby'
 import { shell } from '@codemirror/legacy-modes/mode/shell'
 import { swift } from '@codemirror/legacy-modes/mode/swift'
+import * as yamlMode from '@codemirror/legacy-modes/mode/yaml'
 import { type Extension } from '@codemirror/state'
 import {
   EditorView,
@@ -60,7 +61,6 @@ const emit = defineEmits<{
 const syntaxHighlighting: Partial<
   Record<CodeMirrorLanguage, LanguageSupport | StreamLanguage<any>>
 > = {
-  axios: javascript(),
   c: StreamLanguage.define(c),
   clojure: StreamLanguage.define(clojure),
   csharp: StreamLanguage.define(csharp),
@@ -80,6 +80,7 @@ const syntaxHighlighting: Partial<
   ruby: StreamLanguage.define(ruby),
   shell: StreamLanguage.define(shell),
   swift: StreamLanguage.define(swift),
+  yaml: StreamLanguage.define(yamlMode.yaml),
 }
 
 // CSS Class
