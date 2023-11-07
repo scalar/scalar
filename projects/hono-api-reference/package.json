@@ -1,0 +1,15 @@
+{
+  "name": "@scalar-org/hono-api-reference",
+  "dependencies": {
+    "@hono/node-server": "1.2.0",
+    "hono": "3.9.2"
+  },
+  "devDependencies": {
+    "nodemon": "3.0.1",
+    "vite-node": "0.34.4"
+  },
+  "private": true,
+  "scripts": {
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ./"
+  }
+}

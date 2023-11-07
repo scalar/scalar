@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 overrides:
   '@apidevtools/json-schema-ref-parser': 9.0.7
 
@@ -925,6 +921,22 @@ importers:
       vite:
         specifier: 4.4.9
         version: 4.4.9(@types/node@20.6.3)
+      vite-node:
+        specifier: 0.34.4
+        version: 0.34.4(@types/node@20.6.3)
+
+  projects/hono-api-reference:
+    dependencies:
+      '@hono/node-server':
+        specifier: 1.2.0
+        version: 1.2.0
+      hono:
+        specifier: 3.9.2
+        version: 3.9.2
+    devDependencies:
+      nodemon:
+        specifier: 3.0.1
+        version: 3.0.1
       vite-node:
         specifier: 0.34.4
         version: 0.34.4(@types/node@20.6.3)
@@ -3256,6 +3268,11 @@ packages:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+    dev: false
+
+  /@hono/node-server@1.2.0:
+    resolution: {integrity: sha512-aHT8lDMLpd7ioXJ1/057+h+oE/k7rCOWmjklYDsE0jE4CoNB9XzG4f8dRHvw4s5HJFocaYDiGgYM/V0kYbQ0ww==}
+    engines: {node: '>=18.0.0'}
     dev: false
 
   /@humanwhocodes/config-array@0.11.11:
@@ -7994,7 +8011,7 @@ packages:
       builtins: 5.0.1
       eslint: 8.49.0
       eslint-plugin-es-x: 7.2.0(eslint@8.49.0)
-      get-tsconfig: 4.7.0
+      get-tsconfig: 4.7.2
       ignore: 5.2.4
       is-core-module: 2.13.0
       minimatch: 3.1.2
@@ -8738,8 +8755,8 @@ packages:
       get-intrinsic: 1.2.1
     dev: true
 
-  /get-tsconfig@4.7.0:
-    resolution: {integrity: sha512-pmjiZ7xtB8URYm74PlGJozDNyhvsVLUcpBa8DZBG3bWHwaHa9bPiRpiSfovw+fjhwONSCWKRyk+JQHEGZmMrzw==}
+  /get-tsconfig@4.7.2:
+    resolution: {integrity: sha512-wuMsz4leaj5hbGgg4IvDU0bqJagpftG5l5cXIAvo8uZrqn0NJqwtfupTN00VnkQJPcIRrxYrm1Ue24btpCha2A==}
     dependencies:
       resolve-pkg-maps: 1.0.0
     dev: true
@@ -9126,6 +9143,11 @@ packages:
       minimalistic-assert: 1.0.1
       minimalistic-crypto-utils: 1.0.1
     dev: true
+
+  /hono@3.9.2:
+    resolution: {integrity: sha512-180NOiMadqU3lGmN6ajPDZvZPWus3a9mtVaAUR9uG0SImngBwRLA8vbnV0oUfUAgFT4nX55sGV9dVA06OuikHA==}
+    engines: {node: '>=16.0.0'}
+    dev: false
 
   /hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
@@ -15081,3 +15103,7 @@ packages:
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: false
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
