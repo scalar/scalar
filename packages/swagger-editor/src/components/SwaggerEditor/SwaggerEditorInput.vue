@@ -51,9 +51,11 @@ watch(
         )
       },
       onConnect() {
-        console.log(
-          `[SwaggerEditor] 🟢 onConnect (${HocuspocusProviderConfiguration?.name})`,
-        )
+        if (!HocuspocusProviderConfiguration.token) {
+          console.log(
+            `[SwaggerEditor] 🟢 onConnect (${HocuspocusProviderConfiguration?.name})`,
+          )
+        }
       },
       onAuthenticationFailed() {
         console.log(
