@@ -4,9 +4,6 @@ import { apiReference } from '@scalar/hono-api-reference'
 
 const app = new OpenAPIHono()
 
-// Return something on root
-app.get('/', (c) => c.text('OK'))
-
 // Example route
 app.openapi(
   createRoute({
@@ -43,7 +40,7 @@ app.doc('/swagger.json', {
 
 // Load the middleware
 app.get(
-  '/reference',
+  '/',
   apiReference({
     configuration: {
       spec: {
@@ -61,7 +58,7 @@ serve(
   },
   (address) => {
     console.log(
-      `🔥 Hono Middleware listening on http://localhost:${address.port}/reference`,
+      `🔥 Hono Middleware listening on http://localhost:${address.port}/`,
     )
   },
 )
