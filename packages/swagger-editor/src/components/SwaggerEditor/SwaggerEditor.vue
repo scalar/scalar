@@ -4,6 +4,7 @@ import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { computed, isRef, nextTick, onMounted, ref, watch } from 'vue'
 
 import coinmarketcap from '../../coinmarketcapv3.json'
+import { isJsonString } from '../../helpers'
 import petstore from '../../petstorev3.json'
 import tableau from '../../tableauv3.json'
 import {
@@ -123,20 +124,6 @@ const handleOpenSwaggerEditor = (action?: OpenSwaggerEditorActions) => {
   } else if (action === 'uploadFile') {
     swaggerEditorHeaderRef?.value?.openFileDialog()
   }
-}
-
-const isJsonString = (value?: any) => {
-  if (typeof value !== 'string') {
-    return false
-  }
-
-  try {
-    JSON.parse(value)
-  } catch {
-    return false
-  }
-
-  return true
 }
 
 function handleAIWriter(queries: string[]) {
