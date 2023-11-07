@@ -137,6 +137,7 @@ defineExpose({
     <SwaggerEditorGettingStarted
       v-show="activeTab === 'Getting Started'"
       :theme="!theme || theme === 'none' ? 'default' : theme"
+      :value="rawContent"
       @changeTheme="emit('changeTheme', $event)"
       @openSwaggerEditor="handleOpenSwaggerEditor"
       @updateContent="handleContentUpdate" />

@@ -140,6 +140,7 @@ const showSwaggerEditor = computed(() => {
             #empty-state>
             <SwaggerEditorGettingStarted
               :theme="currentConfiguration?.theme || 'default'"
+              :value="rawSpec"
               @changeTheme="$emit('changeTheme', $event)"
               @openSwaggerEditor="swaggerEditorRef?.handleOpenSwaggerEditor"
               @updateContent="$emit('updateContent', $event)" />

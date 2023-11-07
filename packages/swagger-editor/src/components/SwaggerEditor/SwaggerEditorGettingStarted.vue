@@ -8,8 +8,9 @@ import tableau from '../../tableauv3.json'
 import { type GettingStartedExamples } from '../../types'
 import FlowButton from '../FlowButton.vue'
 
-defineProps<{
+const props = defineProps<{
   theme: ThemeId
+  value?: string
 }>()
 
 const emits = defineEmits<{
@@ -28,25 +29,32 @@ const themeIds: ThemeId[] = [
 
 const example = ref<GettingStartedExamples | null>(null)
 
+// When the example id changes, update the content.
 watch(example, () => {
   if (!example.value) {
     return
   }
 
-  let content = ''
+  emits('updateContent', getContentForExample(example.value))
+})
 
-  if (example.value === 'Petstore') {
-    content = JSON.stringify(petstore, null, 2)
-  } else if (example.value === 'CoinMarketCap') {
-    content = JSON.stringify(coinmarketcap, null, 2)
-  } else if (example.value === 'Tableau') {
-    content = JSON.stringify(tableau, null, 2)
-  } else {
-    return
+// Compares the content with the content for the given example id
+function isActiveExample(exampleId: string) {
+  return getContentForExample(exampleId) === props.value
+}
+
+// Petstore -> { … }
+function getContentForExample(exampleId: string) {
+  if (exampleId === 'Petstore') {
+    return JSON.stringify(petstore, null, 2)
+  } else if (exampleId === 'CoinMarketCap') {
+    return JSON.stringify(coinmarketcap, null, 2)
+  } else if (exampleId === 'Tableau') {
+    return JSON.stringify(tableau, null, 2)
   }
 
-  emits('updateContent', content)
-})
+  return ''
+}
 </script>
 <template>
   <div class="start custom-scroll">
@@ -70,7 +78,7 @@ watch(example, () => {
         <div class="start-h2">EXAMPLES</div>
         <div
           class="start-item"
-          :class="{ 'start-item-active': example === 'Petstore' }"
+          :class="{ 'start-item-active': isActiveExample('Petstore') }"
           @click="example = 'Petstore'">
           <svg
             baseProfile="tiny"
@@ -88,7 +96,7 @@ watch(example, () => {
         </div>
         <div
           class="start-item"
-          :class="{ 'start-item-active': example === 'Tableau' }"
+          :class="{ 'start-item-active': isActiveExample('Tableau') }"
           @click="example = 'Tableau'">
           <svg
             height="2478.8"
@@ -127,7 +135,7 @@ watch(example, () => {
         </div>
         <div
           class="start-item"
-          :class="{ 'start-item-active': example === 'CoinMarketCap' }"
+          :class="{ 'start-item-active': isActiveExample('CoinMarketCap') }"
           @click="example = 'CoinMarketCap'">
           <svg
             height="586"
