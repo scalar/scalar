@@ -16,8 +16,7 @@
     "javascript-time-ago": "2.5.9",
     "nanoid": "5.0.1",
     "pretty-bytes": "6.1.1",
-    "pretty-ms": "8.0.0",
-    "tippy.js": "6.3.7"
+    "pretty-ms": "8.0.0"
   },
   "devDependencies": {
     "@scalar/api-client-proxy": "workspace:*",
