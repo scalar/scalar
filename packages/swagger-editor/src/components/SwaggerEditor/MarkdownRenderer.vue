@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import rehypeDocument from 'rehype-document'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
 import rehypeHighlight from 'rehype-highlight'
@@ -27,7 +26,6 @@ watch(
       .use(remarkRehype)
       // @ts-ignore
       .use(remarkHeadingId)
-      .use(rehypeDocument)
       .use(rehypeFormat)
       .use(rehypeSanitize, {
         ...defaultSchema,

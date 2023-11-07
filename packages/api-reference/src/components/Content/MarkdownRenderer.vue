@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import rehypeDocument from 'rehype-document'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import remarkHeadingId from 'rehype-slug-custom-id'
 import rehypeStringify from 'rehype-stringify'
-// import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
@@ -22,13 +20,10 @@ watch(
   async () => {
     unified()
       .use(remarkParse)
-      // todo: investigate why these breaks get added to all paragraphs
-      // .use(remarkBreaks)
       .use(remarkGfm)
       .use(remarkRehype)
       // @ts-ignore
       .use(remarkHeadingId)
-      .use(rehypeDocument)
       .use(rehypeFormat)
       .use(rehypeSanitize, {
         ...defaultSchema,
