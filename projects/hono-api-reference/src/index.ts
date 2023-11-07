@@ -1,10 +1,13 @@
 import { serve } from '@hono/node-server'
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { apiReference } from '@scalar/hono-api-reference'
 
 const app = new OpenAPIHono()
 
+// Return something on root
 app.get('/', (c) => c.text('OK'))
 
+// Example route
 app.openapi(
   createRoute({
     method: 'get',
@@ -29,6 +32,7 @@ app.openapi(
   },
 )
 
+// Create a Swagger file
 app.doc('/swagger.json', {
   info: {
     title: 'Example',
@@ -37,12 +41,27 @@ app.doc('/swagger.json', {
   openapi: '3.1.0',
 })
 
+// Load the middleware
+app.get(
+  '/reference',
+  apiReference({
+    configuration: {
+      spec: {
+        url: '/swagger.json',
+      },
+    },
+  }),
+)
+
+// Listen
 serve(
   {
     fetch: app.fetch,
     port: 5055,
   },
   (address) => {
-    console.log(`🔥 Hono listening on http://localhost:${address.port}`)
+    console.log(
+      `🔥 Hono Middleware listening on http://localhost:${address.port}/reference`,
+    )
   },
 )
