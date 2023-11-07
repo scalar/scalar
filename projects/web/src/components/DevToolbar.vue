@@ -72,26 +72,32 @@ watch(
     <div class="references-dev-options">
       <div>
         <input
+          :checked="configuration.isEditable"
           type="checkbox"
-          :value="configuration.isEditable"
           @input="
             (event) =>
               emit(
                 'update:modelValue',
-                getCompleteConfiguration((event.target as HTMLSelectElement).value),
+                getCompleteConfiguration({
+                  ...configuration,
+                  isEditable: (event.target as HTMLInputElement).checked
+                }),
               )
           " />
         isEditable
       </div>
       <div>
         <input
+          :checked="configuration.footerBelowSidebar"
           type="checkbox"
-          :value="configuration.footerBelowSidebar"
           @input="
             (event) =>
               emit(
                 'update:modelValue',
-                getCompleteConfiguration((event.target as HTMLSelectElement).value),
+                getCompleteConfiguration({
+                  ...configuration,
+                  footerBelowSidebar: (event.target as HTMLInputElement).checked
+                }),
               )
           " />
         footerBelowSidebar
@@ -104,7 +110,10 @@ watch(
             (event) =>
               emit(
                 'update:modelValue',
-                getCompleteConfiguration((event.target as HTMLSelectElement).value),
+                getCompleteConfiguration({
+                  ...configuration,
+                  theme: (event.target as HTMLInputElement).value
+                }),
               )
           ">
           <option
