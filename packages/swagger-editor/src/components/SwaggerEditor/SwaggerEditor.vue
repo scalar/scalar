@@ -1,15 +1,11 @@
 <script lang="ts" setup>
 import { type StatesArray } from '@hocuspocus/provider'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
-import { computed, isRef, nextTick, ref, watch } from 'vue'
+import { computed, isRef, ref, watch } from 'vue'
 
-import coinmarketcap from '../../coinmarketcapv3.json'
 import { isJsonString } from '../../helpers'
-import petstore from '../../petstorev3.json'
-import tableau from '../../tableauv3.json'
 import {
   type EditorHeaderTabs,
-  type GettingStartedExamples,
   type OpenSwaggerEditorActions,
   type SwaggerEditorProps,
 } from '../../types'
@@ -73,24 +69,6 @@ const formattedError = computed(() => {
   return error
 })
 
-async function handleChangeExample(example: GettingStartedExamples) {
-  let spec = ''
-
-  if (example === 'Petstore') {
-    spec = JSON.stringify(petstore, null, 2)
-  } else if (example === 'CoinMarketCap') {
-    spec = JSON.stringify(coinmarketcap, null, 2)
-  } else if (example === 'Tableau') {
-    spec = JSON.stringify(tableau, null, 2)
-  } else {
-    return
-  }
-
-  activeTab.value = 'Swagger Editor'
-  await nextTick()
-  handleContentUpdate(spec)
-}
-
 watch(
   () => props.value,
   async () => {
@@ -123,7 +101,6 @@ function handleAIWriter(queries: string[]) {
 
 defineExpose({
   handleOpenSwaggerEditor,
-  handleChangeExample,
 })
 </script>
 <template>
@@ -160,9 +137,9 @@ defineExpose({
     <SwaggerEditorGettingStarted
       v-show="activeTab === 'Getting Started'"
       :theme="!theme || theme === 'none' ? 'default' : theme"
-      @changeExample="handleChangeExample"
       @changeTheme="emit('changeTheme', $event)"
-      @openSwaggerEditor="handleOpenSwaggerEditor" />
+      @openSwaggerEditor="handleOpenSwaggerEditor"
+      @updateContent="handleContentUpdate" />
   </div>
 </template>
 

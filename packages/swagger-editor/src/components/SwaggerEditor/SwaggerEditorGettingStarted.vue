@@ -2,6 +2,9 @@
 import { type ThemeId } from '@scalar/themes'
 import { ref, watch } from 'vue'
 
+import coinmarketcap from '../../coinmarketcapv3.json'
+import petstore from '../../petstorev3.json'
+import tableau from '../../tableauv3.json'
 import { type GettingStartedExamples } from '../../types'
 import FlowButton from '../FlowButton.vue'
 
@@ -12,7 +15,7 @@ defineProps<{
 const emits = defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
   (e: 'openSwaggerEditor', action?: 'importUrl' | 'uploadFile'): void
-  (e: 'changeExample', value: GettingStartedExamples): void
+  (e: 'updateContent', value: string): void
 }>()
 
 const themeIds: ThemeId[] = [
@@ -23,12 +26,26 @@ const themeIds: ThemeId[] = [
   'solarized',
 ]
 
-const activeExample = ref<GettingStartedExamples | null>(null)
+const example = ref<GettingStartedExamples | null>(null)
 
-watch(activeExample, () => {
-  if (activeExample.value) {
-    emits('changeExample', activeExample.value)
+watch(example, () => {
+  if (!example.value) {
+    return
   }
+
+  let content = ''
+
+  if (example.value === 'Petstore') {
+    content = JSON.stringify(petstore, null, 2)
+  } else if (example.value === 'CoinMarketCap') {
+    content = JSON.stringify(coinmarketcap, null, 2)
+  } else if (example.value === 'Tableau') {
+    content = JSON.stringify(tableau, null, 2)
+  } else {
+    return
+  }
+
+  emits('updateContent', content)
 })
 </script>
 <template>
@@ -42,7 +59,7 @@ watch(activeExample, () => {
     <div class="start-cta flex flex-row gap-1">
       <FlowButton
         label="Test Petstore"
-        @click="activeExample = 'Petstore'" />
+        @click="example = 'Petstore'" />
       <FlowButton
         label="Upload File"
         variant="outlined"
@@ -53,8 +70,8 @@ watch(activeExample, () => {
         <div class="start-h2">EXAMPLES</div>
         <div
           class="start-item"
-          :class="{ 'start-item-active': activeExample === 'Petstore' }"
-          @click="activeExample = 'Petstore'">
+          :class="{ 'start-item-active': example === 'Petstore' }"
+          @click="example = 'Petstore'">
           <svg
             baseProfile="tiny"
             fill="currentColor"
@@ -71,8 +88,8 @@ watch(activeExample, () => {
         </div>
         <div
           class="start-item"
-          :class="{ 'start-item-active': activeExample === 'Tableau' }"
-          @click="activeExample = 'Tableau'">
+          :class="{ 'start-item-active': example === 'Tableau' }"
+          @click="example = 'Tableau'">
           <svg
             height="2478.8"
             viewBox="0 0 2500 2478.8"
@@ -110,8 +127,8 @@ watch(activeExample, () => {
         </div>
         <div
           class="start-item"
-          :class="{ 'start-item-active': activeExample === 'CoinMarketCap' }"
-          @click="activeExample = 'CoinMarketCap'">
+          :class="{ 'start-item-active': example === 'CoinMarketCap' }"
+          @click="example = 'CoinMarketCap'">
           <svg
             height="586"
             viewBox="0 0 577.5 586"
