@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { apiReference } from '../src'
+import { ApiReference } from '../src'
 
-describe('apiReference', () => {
+describe('ApiReference', () => {
   const url = 'https://petstore3.swagger.io/api/v3/openapi.json'
 
   it('renders the given spec URL', () => {
     expect(
-      apiReference({ configuration: { spec: { url } } }).toString(),
+      ApiReference({ configuration: { spec: { url } } }).toString(),
     ).toContain(`https://petstore3.swagger.io/api/v3/openapi.json`)
   })
 })
