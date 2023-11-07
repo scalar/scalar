@@ -62,6 +62,11 @@ watch(
           `[SwaggerEditor] ❌ onAuthenticationFailed (${HocuspocusProviderConfiguration?.name})`,
         )
       },
+      onSynced() {
+        console.log(
+          `[SwaggerEditor] 🔄 onSynced (${HocuspocusProviderConfiguration?.name})`,
+        )
+      },
       onDisconnect() {
         console.log(
           `[SwaggerEditor] ⚪️ onDisconnect (${HocuspocusProviderConfiguration?.name})`,
@@ -119,7 +124,7 @@ function getSyntaxHighlighting(content?: string): CodeMirrorLanguage[] {
   <div class="swagger-editor-input">
     <CodeMirror
       ref="codeMirrorRef"
-      :content="!props.hocuspocusConfiguration ? value : undefined"
+      :content="value"
       :extensions="yCodeMirrorExtension ? [yCodeMirrorExtension] : []"
       :languages="getSyntaxHighlighting(value)"
       lineNumbers

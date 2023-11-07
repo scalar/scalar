@@ -34,14 +34,7 @@ const swaggerEditorHeaderRef = ref<typeof SwaggerEditorHeader | null>(null)
 
 const awarenessStates = ref<StatesArray>([])
 
-const rawContent = ref('')
-
 const handleContentUpdate = (value: string) => {
-  if (value === rawContent.value) {
-    return
-  }
-
-  rawContent.value = value
   emit('contentUpdate', value)
 }
 
@@ -94,7 +87,7 @@ const handleOpenSwaggerEditor = (action?: OpenSwaggerEditorActions) => {
 }
 
 function handleAIWriter(queries: string[]) {
-  const content = rawContent.value ?? props.value ?? ''
+  const content = props.value ?? ''
   const specType = isJsonString(content) ? 'json' : 'yaml'
   emit('startAIWriter', queries, content, specType)
 }
@@ -120,7 +113,7 @@ defineExpose({
       v-if="activeTab === 'Swagger Editor'"
       ref="codeMirrorReference"
       :hocuspocusConfiguration="hocuspocusConfiguration"
-      :value="props.value ?? ''"
+      :value="value"
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
     <SwaggerEditorAIWriter
@@ -137,7 +130,7 @@ defineExpose({
     <SwaggerEditorGettingStarted
       v-show="activeTab === 'Getting Started'"
       :theme="!theme || theme === 'none' ? 'default' : theme"
-      :value="rawContent"
+      :value="value"
       @changeTheme="emit('changeTheme', $event)"
       @openSwaggerEditor="handleOpenSwaggerEditor"
       @updateContent="handleContentUpdate" />

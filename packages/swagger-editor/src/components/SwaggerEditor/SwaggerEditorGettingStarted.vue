@@ -39,7 +39,11 @@ watch(example, () => {
 })
 
 // Compares the content with the content for the given example id
-function isActiveExample(exampleId: string) {
+function isActiveExample(exampleId: string | null) {
+  if (exampleId === null) {
+    return false
+  }
+
   return getContentForExample(exampleId) === props.value
 }
 
@@ -55,6 +59,17 @@ function getContentForExample(exampleId: string) {
 
   return ''
 }
+
+watch(
+  () => props.value,
+  () => {
+    if (isActiveExample(example.value)) {
+      return
+    }
+
+    example.value = null
+  },
+)
 </script>
 <template>
   <div class="start custom-scroll">
