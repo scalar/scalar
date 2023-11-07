@@ -119,7 +119,7 @@ function getSyntaxHighlighting(content?: string): CodeMirrorLanguage[] {
   <div class="swagger-editor-input">
     <CodeMirror
       ref="codeMirrorRef"
-      :content="value"
+      :content="!props.hocuspocusConfiguration ? value : undefined"
       :extensions="yCodeMirrorExtension ? [yCodeMirrorExtension] : []"
       :languages="getSyntaxHighlighting(value)"
       lineNumbers
