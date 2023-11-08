@@ -1,29 +1,53 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computedAsync } from '@vueuse/core'
 
 import {
   getHeadingsFromMarkdown,
+  getLowestHeadingLevel,
   splitMarkdownInSections,
 } from '../../../helpers'
+import IntersectionObserver from '../../IntersectionObserver.vue'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 
 const props = defineProps<{
   value: string
 }>()
 
-const sections = computed(() => {
-  // TODO: Find highest heading level
-  return splitMarkdownInSections(props.value)
-})
+const sections = computedAsync(
+  async () => {
+    const allHeadings = await getHeadingsFromMarkdown(props.value)
+    // We only add one level to the sidebar. By default all h1, but if there are no h1, then h2 …
+    const lowestHeadingLevel = getLowestHeadingLevel(allHeadings)
 
-// TODO: This is async, how do we deal with this?
-// We need the heading ids to pass them to the IntersectionObserver
-// getHeadingsFromMarkdown(section)
+    return await Promise.all(
+      splitMarkdownInSections(props.value, lowestHeadingLevel).map(
+        async (content) => {
+          const headings = await getHeadingsFromMarkdown(content)
+
+          return {
+            id: headings[0]?.slug,
+            content,
+          }
+        },
+      ),
+    )
+  },
+  [], // initial state
+)
 </script>
 <template>
   <div
     v-for="(section, index) in sections"
     :key="index">
-    <MarkdownRenderer :value="section" />
+    <!-- With a Heading -->
+    <template v-if="section.id">
+      <IntersectionObserver :id="`user-content-${section.id}`">
+        <MarkdownRenderer :value="section.content" />
+      </IntersectionObserver>
+    </template>
+    <!-- Without a heading -->
+    <template v-else>
+      <MarkdownRenderer :value="section.content" />
+    </template>
   </div>
 </template>

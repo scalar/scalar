@@ -20,14 +20,14 @@ const processor = unified()
 export const getHeadingsFromMarkdown = async (
   input: string,
 ): Promise<Headings> => {
+  const slugger = new GithubSlugger()
+
   const { headings } = (await processor.process(input)).data
 
-  return withSlugs(headings as Headings)
+  return withSlugs(headings as Headings, slugger)
 }
 
-const slugger = new GithubSlugger()
-
-const withSlugs = (headings: Headings): Headings =>
+const withSlugs = (headings: Headings, slugger: GithubSlugger): Headings =>
   headings.map((heading) => {
     return {
       ...heading,
