@@ -6,8 +6,8 @@ describe('ApiReference', () => {
   const url = 'https://petstore3.swagger.io/api/v3/openapi.json'
 
   it('renders the given spec URL', () => {
-    expect(
-      ApiReference({ configuration: { spec: { url } } }).toString(),
-    ).toContain(`https://petstore3.swagger.io/api/v3/openapi.json`)
+    expect(ApiReference({ spec: { url } }).toString()).toContain(
+      `https://petstore3.swagger.io/api/v3/openapi.json`,
+    )
   })
 })
