@@ -150,7 +150,7 @@ export const apiReference =
               margin: 0;
             }
 
-            ${customThemeCSS}
+            ${options.theme ? null : customThemeCSS}
           </style>
         </head>
         <body>
