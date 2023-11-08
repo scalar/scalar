@@ -46,6 +46,7 @@ app.get(
       spec: {
         url: '/swagger.json',
       },
+      pageTitle: 'Hono API Reference Demo',
     },
   }),
 )
