@@ -8,10 +8,12 @@ const app = new OpenAPIHono()
 app.openapi(
   createRoute({
     method: 'get',
-    path: '/hello',
+    path: '/hello-world',
+    description: 'Respond a message',
+    tags: ['basic example'],
     responses: {
       200: {
-        description: 'Respond a message',
+        description: 'OK',
         content: {
           'application/json': {
             schema: z.object({
@@ -25,6 +27,133 @@ app.openapi(
   (c) => {
     return c.jsonT({
       message: 'hello',
+    })
+  },
+)
+
+app.openapi(
+  createRoute({
+    name: 'Get all posts',
+    method: 'get',
+    path: '/posts',
+    description: 'Returns all posts',
+    tags: ['posts'],
+    responses: {
+      200: {
+        description: 'OK',
+        content: {
+          'application/json': {
+            schema: z.object({
+              posts: z.array(
+                z.object({
+                  id: z.number().default(123),
+                  title: z.string(),
+                  body: z.string(),
+                }),
+              ),
+            }),
+          },
+        },
+      },
+    },
+  }),
+  (c) => {
+    return c.jsonT({
+      posts: [
+        {
+          id: 123,
+          title: 'My Blog Post',
+          body: 'I want to share something with you …',
+        },
+      ],
+    })
+  },
+)
+
+app.openapi(
+  createRoute({
+    name: 'Create post',
+    method: 'post',
+    path: '/posts',
+    description: 'Create a new post',
+    tags: ['posts'],
+    request: {
+      body: {
+        content: {
+          'application/json': {
+            schema: z.object({
+              title: z.string().default('My Blog Post'),
+              body: z.string().default('I want to share something with you …'),
+            }),
+          },
+        },
+      },
+    },
+    responses: {
+      200: {
+        description: 'OK',
+        content: {
+          'application/json': {
+            schema: z.object({
+              id: z.number().default(123),
+              title: z.string().default('My Blog Post'),
+              body: z.string().default('I want to share something with you …'),
+            }),
+          },
+        },
+      },
+    },
+  }),
+  (c) => {
+    return c.jsonT({
+      id: 123,
+      title: 'My Blog Post',
+      body: 'I want to share something with you …',
+    })
+  },
+)
+
+app.openapi(
+  createRoute({
+    name: 'Delete Post',
+    method: 'delete',
+    path: '/posts/{id}',
+    description: 'Delete a post',
+    tags: ['posts'],
+    request: {
+      params: z.object({
+        id: z.number().default(123),
+      }),
+    },
+    responses: {
+      200: {
+        description: 'OK',
+        content: {
+          'application/json': {
+            schema: z.object({
+              status: z.string().default('OK'),
+              message: z.string().default('Post deleted'),
+            }),
+          },
+        },
+      },
+      404: {
+        description: 'Not Found',
+        content: {
+          'application/json': {
+            schema: z.object({
+              status: z.string().default('ERROR'),
+              message: z.string().default('Post not found'),
+            }),
+          },
+        },
+      },
+    },
+  }),
+  (c) => {
+    return c.jsonT({
+      status: 'OK',
+      message: 'Post deleted',
     })
   },
 )
