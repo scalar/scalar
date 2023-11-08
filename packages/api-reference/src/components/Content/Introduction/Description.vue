@@ -2,6 +2,7 @@
 import { computedAsync } from '@vueuse/core'
 
 import {
+  getHeadingId,
   getHeadingsFromMarkdown,
   getLowestHeadingLevel,
   splitMarkdownInSections,
@@ -25,7 +26,7 @@ const sections = computedAsync(
           const headings = await getHeadingsFromMarkdown(content)
 
           return {
-            id: headings[0]?.slug,
+            heading: headings[0],
             content,
           }
         },
@@ -40,8 +41,8 @@ const sections = computedAsync(
     v-for="(section, index) in sections"
     :key="index">
     <!-- With a Heading -->
-    <template v-if="section.id">
-      <IntersectionObserver :id="`user-content-${section.id}`">
+    <template v-if="section.heading">
+      <IntersectionObserver :id="getHeadingId(section.heading)">
         <MarkdownRenderer :value="section.content" />
       </IntersectionObserver>
     </template>
