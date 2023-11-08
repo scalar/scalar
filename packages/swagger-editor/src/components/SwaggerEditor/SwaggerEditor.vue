@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { type StatesArray } from '@hocuspocus/provider'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
-import { computed, isRef, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, isRef, nextTick, ref, watch } from 'vue'
 
 import coinmarketcap from '../../coinmarketcapv3.json'
 import { isJsonString } from '../../helpers'
@@ -48,17 +48,6 @@ const handleContentUpdate = (value: string) => {
   rawContent.value = value
   emit('contentUpdate', value)
 }
-
-onMounted(async () => {
-  if (props.hocuspocusConfiguration || props.value) {
-    return
-  }
-
-  const previousContent = localStorage.getItem('swagger-editor-content')
-  if (!previousContent) {
-    return
-  }
-})
 
 const handleAwarenessUpdate = (states: StatesArray) => {
   awarenessStates.value = states
