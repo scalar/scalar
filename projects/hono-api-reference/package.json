@@ -11,6 +11,6 @@
   },
   "private": true,
   "scripts": {
-    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ./"
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/hono-api-reference --watch ./"
   }
 }
