@@ -2,10 +2,8 @@ import type { ReferenceConfiguration } from '@scalar/api-reference'
 import type { Env, MiddlewareHandler } from 'hono'
 import { html } from 'hono/html'
 
-export type ApiReferenceOptions = {
-  configuration: ReferenceConfiguration & {
-    pageTitle?: string
-  }
+export type ApiReferenceOptions = ReferenceConfiguration & {
+  pageTitle?: string
 }
 
 /**
@@ -124,7 +122,7 @@ export const ApiReference = (options: ApiReferenceOptions) => {
   return html`
     <script
       id="api-reference"
-      data-url="${options.configuration.spec?.url}"></script>
+      data-url="${options.spec?.url}"></script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
   `
 }
@@ -139,7 +137,7 @@ export const apiReference =
       <!DOCTYPE html>
       <html>
         <head>
-          <title>${options.configuration?.pageTitle ?? 'API Reference'}</title>
+          <title>${options?.pageTitle ?? 'API Reference'}</title>
           <meta charset="utf-8" />
           <meta
             name="viewport"

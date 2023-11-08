@@ -42,12 +42,10 @@ app.doc('/swagger.json', {
 app.get(
   '/',
   apiReference({
-    configuration: {
-      spec: {
-        url: '/swagger.json',
-      },
-      pageTitle: 'Hono API Reference Demo',
+    spec: {
+      url: '/swagger.json',
     },
+    pageTitle: 'Hono API Reference Demo',
   }),
 )
 
