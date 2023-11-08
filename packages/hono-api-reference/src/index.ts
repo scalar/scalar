@@ -1,5 +1,6 @@
 import type { ReferenceConfiguration } from '@scalar/api-reference'
 import type { Env, MiddlewareHandler } from 'hono'
+import { html } from 'hono/html'
 
 type ApiReferenceOptions = {
   configuration: ReferenceConfiguration & {
@@ -120,11 +121,11 @@ const customThemeCSS = `
  * The HTML to load the @scalar/api-reference package.
  */
 const ApiReference = (options: ApiReferenceOptions) => {
-  return `
-  <script
-    id="api-reference"
-    data-url="${options.configuration.spec?.url}"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+  return html`
+    <script
+      id="api-reference"
+      data-url="${options.configuration.spec?.url}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
   `
 }
 
