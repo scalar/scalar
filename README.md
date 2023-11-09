@@ -23,6 +23,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   - [With Vue.js](#with-vuejs)
   - [With React](#with-react)
   - [With Fastify](#with-fastify)
+  - [With Hono](#with-hono)
 - [Using our amazing service](#using-our-amazing-service)
 - [Themes](#themes)
 - [Advanced: Styling](#advanced-styling)
@@ -145,6 +146,23 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
+### With Hono
+
+Our Hono middleware makes it so easy to render a reference:
+
+```ts
+import { apiReference } from '@scalar/hono-api-reference'
+
+app.get(
+  '/reference',
+  apiReference({
+    spec: {
+      url: '/swagger.json',
+    },
+  }),
+)
+```
+
 ## Using our amazing service
 
 Wait, this is open source and you can do whatever you want. But if you want to add a nice, customizable guide, collaborate with your team and have everything served through a CDN, create an account on [scalar.com](https://scalar.com).
@@ -255,6 +273,7 @@ This repository contains all our open source projects and there’s definitely m
 | [@scalar/api-reference](https://github.com/scalar/scalar/tree/main/packages/api-reference)                 | generate beautiful API references                     |
 | [@scalar/echo-server](https://github.com/scalar/scalar/tree/main/packages/echo-server)                     | an express server which replies with the request data |
 | [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference) | a fastify plugin to render API references             |
+| [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)       | a hono middleware to render API references            |
 | [@scalar/swagger-editor](https://github.com/scalar/scalar/tree/main/packages/swagger-editor)               | an editor tailored to write OpenAPI spec              |
 | [@scalar/swagger-parser](https://github.com/scalar/scalar/tree/main/packages/swagger-parser)               | parse OpenAPI specs                                   |
 | [@scalar/use-clipboard](https://github.com/scalar/scalar/tree/main/packages/use-clipboard)                 | tiny Vue wrapper around the clipboard API             |
