@@ -13,6 +13,8 @@ import { Icon } from '../../../Icon'
 
 const props = defineProps<{ examples: Record<string, any> }>()
 
+// we never set the key properly, but i figured people might also have a key field
+// so i added a scalar exclusive field to fallback to that uses the key of the object
 const examples = mapFromObject(props.examples, 'scalarExampleName')
 const selectedExample = ref(examples[0])
 </script>
