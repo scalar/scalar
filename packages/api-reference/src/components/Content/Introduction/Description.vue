@@ -11,11 +11,15 @@ import IntersectionObserver from '../../IntersectionObserver.vue'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 
 const props = defineProps<{
-  value: string
+  value?: string
 }>()
 
 const sections = computedAsync(
   async () => {
+    if (!props.value) {
+      return []
+    }
+
     const allHeadings = await getHeadingsFromMarkdown(props.value)
     // We only add one level to the sidebar. By default all h1, but if there are no h1, then h2 …
     const lowestHeadingLevel = getLowestHeadingLevel(allHeadings)
@@ -37,18 +41,20 @@ const sections = computedAsync(
 )
 </script>
 <template>
-  <div
-    v-for="(section, index) in sections"
-    :key="index">
-    <!-- With a Heading -->
-    <template v-if="section.heading">
-      <IntersectionObserver :id="getHeadingId(section.heading)">
+  <template v-if="value">
+    <div
+      v-for="(section, index) in sections"
+      :key="index">
+      <!-- With a Heading -->
+      <template v-if="section.heading">
+        <IntersectionObserver :id="getHeadingId(section.heading)">
+          <MarkdownRenderer :value="section.content" />
+        </IntersectionObserver>
+      </template>
+      <!-- Without a heading -->
+      <template v-else>
         <MarkdownRenderer :value="section.content" />
-      </IntersectionObserver>
-    </template>
-    <!-- Without a heading -->
-    <template v-else>
-      <MarkdownRenderer :value="section.content" />
-    </template>
-  </div>
+      </template>
+    </div>
+  </template>
 </template>
