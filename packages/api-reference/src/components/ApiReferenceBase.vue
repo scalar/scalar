@@ -135,15 +135,10 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
     <template #header>
       <slot name="header" />
     </template>
-    <template #mobile-header>
-      <slot name="mobile-header" />
-    </template>
-    <template #sidebar-start>
-      <slot name="sidebar-start" />
-    </template>
-    <template #sidebar-end>
-      <slot name="sidebar-end" />
-    </template>
+    <template #sidebar-start><slot name="sidebar-start" /></template>
+    <template #sidebar-end><slot name="sidebar-end" /></template>
+    <template #content-start><slot name="content-start" /></template>
+    <template #content-end><slot name="content-end" /></template>
     <template
       v-if="LazyLoadedSwaggerEditor"
       #editor>
@@ -159,9 +154,6 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
         @changeTheme="$emit('changeTheme', $event)"
         @contentUpdate="(newContent: string) => setRawSpecRef(newContent)"
         @startAIWriter="handleAIWriter" />
-    </template>
-    <template #footer>
-      <slot name="footer" />
     </template>
   </ApiReferenceLayout>
 </template>

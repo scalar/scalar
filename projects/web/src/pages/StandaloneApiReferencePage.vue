@@ -21,23 +21,25 @@ const configuration = reactive<ReferenceConfiguration>({
 })
 </script>
 <template>
-  <DevToolbar
-    :modelValue="configuration"
-    @update:modelValue="
-      (newConfiguration) => Object.assign(configuration, newConfiguration)
-    " />
   <ApiReferenceBase :configuration="configuration">
+    <template #header>
+      <DevToolbar
+        :modelValue="configuration"
+        @update:modelValue="
+          (newConfiguration) => Object.assign(configuration, newConfiguration)
+        " />
+    </template>
     <template #sidebar-start>
       <SlotPlaceholder>sidebar-start</SlotPlaceholder>
     </template>
     <template #sidebar-end>
       <SlotPlaceholder>sidebar-end</SlotPlaceholder>
     </template>
-    <template #header>
-      <SlotPlaceholder>header</SlotPlaceholder>
+    <template #content-start>
+      <SlotPlaceholder>content-start</SlotPlaceholder>
     </template>
-    <template #footer>
-      <SlotPlaceholder>footer</SlotPlaceholder>
+    <template #content-end>
+      <SlotPlaceholder>content-end</SlotPlaceholder>
     </template>
   </ApiReferenceBase>
 </template>

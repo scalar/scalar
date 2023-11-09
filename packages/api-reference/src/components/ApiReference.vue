@@ -20,7 +20,5 @@ const { toggleDarkMode, isDark } = useDarkModeState()
         :isDarkMode="isDark"
         @toggleDarkMode="toggleDarkMode" />
     </template>
-    <template #header><slot name="header" /></template>
-    <template #footer><slot name="footer" /></template>
   </ApiReferenceBase>
 </template>

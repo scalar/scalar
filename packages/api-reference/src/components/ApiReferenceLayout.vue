@@ -29,7 +29,6 @@ defineEmits<{
 }>()
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
-const isMobile = useMediaQuery('(max-width: 1000px)')
 
 // Track the container height to control the sidebar height
 const elementHeight = ref(0)
@@ -79,14 +78,15 @@ const showSwaggerEditor = computed(() => {
       },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
+    <!-- Header -->
+    <div class="references-header">
+      <slot name="header" />
+    </div>
     <!-- Navigation (sidebar) wrapper -->
     <aside class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
       <!-- Sorry for the terrible v-if - this is so we only manage the menu state if theres no external mobile header being injected to manage it otherwise -->
       <div class="references-navigation-list">
-        <slot
-          v-if="isMobile"
-          name="header" />
         <Sidebar :parsedSpec="parsedSpec">
           <template #sidebar-start>
             <slot name="sidebar-start" />
@@ -108,9 +108,7 @@ const showSwaggerEditor = computed(() => {
     <!-- Rendered reference -->
     <template v-if="showRenderedContent">
       <div class="references-rendered">
-        <div class="references-header">
-          <slot name="header" />
-        </div>
+        <slot name="content-start" />
         <Content
           :parsedSpec="parsedSpec"
           :rawSpec="rawSpec"
@@ -126,9 +124,7 @@ const showSwaggerEditor = computed(() => {
               @updateContent="$emit('updateContent', $event)" />
           </template>
         </Content>
-        <div class="references-footer">
-          <slot name="footer" />
-        </div>
+        <slot name="content-end" />
       </div>
     </template>
     <!-- Search Overlay -->
@@ -170,15 +166,22 @@ const showSwaggerEditor = computed(() => {
 
   /* Grid layout */
   display: grid;
-
-  grid-template-rows: auto;
-
+  grid-template-rows: var(--refs-header-height) auto;
   grid-template-columns: var(--refs-sidebar-width) 1fr;
   grid-template-areas:
     'header header'
     'navigation rendered';
 
   background: var(--theme-background-1, var(--default-theme-background-1));
+}
+
+.references-header {
+  grid-area: header;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  height: var(--refs-header-height);
 }
 
 .references-editor {
@@ -246,45 +249,42 @@ const showSwaggerEditor = computed(() => {
   /* Stack view on mobile */
   .references-layout {
     grid-template-columns: auto;
-    grid-template-rows: auto;
+    grid-template-rows: var(--refs-header-height) 0px auto;
 
     grid-template-areas:
+      'header'
       'navigation'
-      'rendered'
-      'footer';
+      'rendered';
   }
   .references-editable {
     grid-template-areas:
+      'header'
       'navigation'
       'editor';
   }
 
-  .references-navigation,
   .references-rendered {
     position: static;
     max-height: unset;
   }
 
   .references-navigation {
-    position: sticky;
-    top: 0;
-    height: var(--refs-header-height);
-
-    width: 100%;
-    z-index: 10;
+    height: 0px;
     border-right: none;
   }
 
   .references-navigation-list {
-    position: absolute;
+    position: fixed;
 
     /* Offset by 1px to avoid gap */
-    top: calc(100% - 1px);
     left: 0;
+    bottom: 0;
     width: 100%;
 
+    z-index: 10;
+
     /* Offset by 2px to fill screen and compensate for gap */
-    height: calc(var(--full-height) - var(--refs-header-height) + 2px);
+    height: calc(var(--full-height) - var(--refs-header-height));
 
     border-top: 1px solid
       var(--theme-border-color, var(--default-theme-border-color));

@@ -43,16 +43,8 @@ const configuration = reactive<ReferenceConfiguration>({
     :configuration="configuration"
     @changeTheme="(theme: ThemeId) => (configuration.theme = theme)"
     @updateContent="handleUpdateContent">
-    <template #header>
-      <SlotPlaceholder>header</SlotPlaceholder>
-    </template>
     <template #footer>
       <SlotPlaceholder>footer</SlotPlaceholder>
     </template>
   </ApiReference>
 </template>
-<style>
-:root {
-  --theme-header-height: 50px;
-}
-</style>

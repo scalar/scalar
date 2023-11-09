@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { type ReferenceConfiguration } from '@scalar/api-reference'
+import {
+  type ReferenceConfiguration,
+  useDarkModeState,
+} from '@scalar/api-reference'
 import { availableThemes } from '@scalar/themes'
 import { computed, ref, watch } from 'vue'
 
@@ -58,6 +61,8 @@ watch(
   },
   { immediate: true },
 )
+
+const { isDark } = useDarkModeState()
 </script>
 <template>
   <header
@@ -88,7 +93,7 @@ watch(
       </div>
       <div>
         <input
-          :checked="configuration.footerBelowSidebar"
+          :checked="configuration.isDark"
           type="checkbox"
           @input="
             (event) =>
@@ -96,12 +101,18 @@ watch(
                 'update:modelValue',
                 getCompleteConfiguration({
                   ...configuration,
-                  footerBelowSidebar: (event.target as HTMLInputElement).checked
+                  isDark: (event.target as HTMLInputElement).checked
                 }),
               )
           " />
-        footerBelowSidebar
+        isDark
       </div>
+      <button
+        class="references-dev-hide-toolbar"
+        type="button"
+        @click="showToolbar = false">
+        Hide
+      </button>
       <div>
         Theme:
         <select
@@ -145,7 +156,6 @@ watch(
       </button>
     </div>
   </header>
-
   <button
     v-else
     class="references-dev-show-toolbar"
