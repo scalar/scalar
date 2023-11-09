@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { findVariables } from '@scalar/api-client'
 import { ref, watch } from 'vue'
 
 import { useGlobalStore } from '../../../stores'
@@ -7,6 +8,7 @@ import { Card, CardContent, CardHeader } from '../../Card'
 import { FlowIcon } from '../../Icon'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import ServerItem from './ServerItem.vue'
+import ServerVariables from './ServerVariables.vue'
 
 const props = defineProps<{
   value: Server[]
@@ -18,7 +20,7 @@ const selectedServerIndex = ref<number>(0)
 watch(
   selectedServerIndex,
   () => {
-    const variables = props.value[selectedServerIndex.value]?.variables
+    const variables = props.value[selectedServerIndex.value]?.variables ?? {}
 
     const prefilledVariables = variables
       ? Object.keys(variables).map((name) => {
@@ -29,8 +31,24 @@ watch(
         })
       : []
 
+    const foundVariables = findVariables(
+      props.value[selectedServerIndex.value]?.url,
+    )
+
+    foundVariables
+      .filter((variable: string) => !variables[variable])
+      .forEach((variable: string) => {
+        console.log('not found', variable)
+        console.log(variables, prefilledVariables)
+        prefilledVariables.push({
+          name: variable,
+          value: '',
+        })
+      })
+
     setServer({
       selectedServer: selectedServerIndex.value,
+      description: props.value[selectedServerIndex.value]?.description,
       servers: props.value,
       variables: prefilledVariables,
     })
@@ -48,24 +66,6 @@ watch(
     })
   },
 )
-
-const handleInput = (name: string, event: Event) => {
-  const newValue = (event.target as HTMLSelectElement).value
-  const newVariables = [...server.variables]
-  const index = newVariables.findIndex((variable) => variable.name === name)
-
-  newVariables[index].value = newValue
-
-  setServer({
-    variables: newVariables,
-  })
-}
-
-const getValue = (name: string) => {
-  const index = server.variables.findIndex((variable) => variable.name === name)
-
-  return server.variables[index].value ?? ''
-}
 </script>
 
 <template>
@@ -110,50 +110,15 @@ const getValue = (name: string) => {
           </div>
         </div>
         <!-- Variables -->
-        <div v-if="value[selectedServerIndex].variables">
-          <div
-            v-for="(variable, name) in value[selectedServerIndex].variables"
-            :key="name"
-            class="input">
-            <label :for="`variable-${name}`">
-              <code>{{ name }}</code>
-            </label>
-            <template v-if="variable.enum">
-              <select
-                :id="`variable-${name}`"
-                :value="getValue(name)"
-                @input="(event) => handleInput(name, event)">
-                <option
-                  v-for="enumValue in variable.enum"
-                  :key="enumValue"
-                  :value="enumValue">
-                  {{ enumValue }}
-                </option>
-              </select>
-              <div class="input-value">
-                {{ variable.default }}
-              </div>
-            </template>
-            <template v-else>
-              <input
-                :id="`variable-${name}`"
-                autocomplete="off"
-                placeholder="value"
-                spellcheck="false"
-                type="text"
-                :value="getValue(name)"
-                @input="(event) => handleInput(name, event)" />
-            </template>
-          </div>
-        </div>
+        <ServerVariables :value="server.variables" />
       </div>
     </CardContent>
     <!-- Description -->
     <CardContent
-      v-if="value[selectedServerIndex].description"
+      v-if="server.description"
       muted>
-      <div class="variable-description">
-        <MarkdownRenderer :value="value[selectedServerIndex].description" />
+      <div class="description">
+        <MarkdownRenderer :value="server.description" />
       </div>
     </CardContent>
   </Card>
@@ -162,6 +127,9 @@ const getValue = (name: string) => {
 <style scoped>
 .server-item {
   padding: 0 9px;
+}
+.scalar-card-serverlist {
+  padding: 9px;
 }
 .server-item .base-url:first-child:last-child {
   padding: 11px 3px;
@@ -174,6 +142,21 @@ const getValue = (name: string) => {
   align-items: center;
   gap: 2px;
   color: var(--theme-color-2, var(--default-theme-color-2));
+}
+
+.description {
+  padding: 6px 12px;
+  font-size: var(--theme-small, var(--default-theme-small));
+}
+.description :deep(.markdown) {
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  color: var(--theme-color--1, var(--default-theme-color-1));
+  padding: 4px 0;
+  display: block;
+}
+.description :deep(.markdown > *:first-child) {
+  margin-top: 0;
 }
 
 .server-selector select {
@@ -189,49 +172,10 @@ const getValue = (name: string) => {
   width: 12px;
 }
 
-.input select {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  opacity: 0;
-}
-
-.input-value {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  padding: 9px;
-}
-
-.variable-description {
-  padding: 6px 12px;
-  font-size: var(--theme-small, var(--default-theme-small));
-}
-.variable-description :deep(.markdown) {
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color--1, var(--default-theme-color-1));
-  padding: 4px 0;
-  display: block;
-}
-.variable-description :deep(.markdown > *:first-child) {
-  margin-top: 0;
-}
-.input {
-  align-items: center;
-}
-.scalar-card-serverlist {
-  padding: 9px;
-}
 .scalar-card-serverlist-container {
+  /* margin: 9px; */
   box-shadow: 0 0 0 1px
     var(--theme-border-color, var(--default-theme-border-color));
   border-radius: var(--theme-radius, var(--default-theme-radius));
-}
-.scalar-card-serverlist-container .input:first-of-type {
-  border-radius: 0;
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
 }
 </style>
