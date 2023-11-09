@@ -6,13 +6,13 @@ defineProps<{ requestBody?: RequestBody }>()
 </script>
 <template>
   <div
-    v-if="requestBody && requestBody.content['application/json']"
+    v-if="requestBody && requestBody.content?.['application/json']"
     class="body-container">
     <div class="endpoint-title">
       <h5 class="title">Body</h5>
     </div>
     <ul
-      v-if="requestBody.content['application/json']"
+      v-if="requestBody.content?.['application/json']"
       class="parameter">
       <RequestBodyProperties
         :contentProperties="
