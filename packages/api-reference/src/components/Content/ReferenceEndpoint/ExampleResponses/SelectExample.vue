@@ -13,7 +13,7 @@ import { Icon } from '../../../Icon'
 
 const props = defineProps<{ examples: Record<string, any> }>()
 
-const examples = mapFromObject(props.examples)
+const examples = mapFromObject(props.examples, 'scalarExampleName')
 const selectedExample = ref(examples[0])
 </script>
 <template>
@@ -29,7 +29,11 @@ const selectedExample = ref(examples[0])
         class="listbox-button">
         <div class="listbox-button-content">
           <div class="listbox-button-label">
-            {{ selectedExample.value.summary ?? selectedExample.key }}
+            {{
+              selectedExample.value.summary ??
+              selectedExample.key ??
+              selectedExample.scalarExampleName
+            }}
           </div>
           <div>
             <Icon
@@ -45,7 +49,9 @@ const selectedExample = ref(examples[0])
           :key="example.key"
           class="listbox-option"
           :value="example">
-          {{ example.value.summary ?? example.key }}
+          {{
+            example.value.summary ?? example.key ?? example.scalarExampleName
+          }}
         </ListboxOption>
       </ListboxOptions>
     </Listbox>
