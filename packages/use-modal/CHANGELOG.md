@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.1.6
+
+### Patch Changes
+
+- dab853a: chore: remove unused dependencies
+
 ## 0.1.5
 
 ### Patch Changes

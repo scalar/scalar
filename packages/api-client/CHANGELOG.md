@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 0.7.28
+
+### Patch Changes
+
+- dab853a: chore: remove unused dependencies
+- Updated dependencies [f4681d5]
+- Updated dependencies [dab853a]
+  - @scalar/use-codemirror@0.7.12
+  - @scalar/use-modal@0.1.6
+
 ## 0.7.27
 
 ### Patch Changes

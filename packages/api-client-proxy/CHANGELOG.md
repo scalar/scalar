@@ -1,5 +1,12 @@
 # @scalar/api-client-proxy
 
+## 0.5.7
+
+### Patch Changes
+
+- c818404: fix: export types again
+- dab853a: chore: remove unused dependencies
+
 ## 0.5.6
 
 ### Patch Changes

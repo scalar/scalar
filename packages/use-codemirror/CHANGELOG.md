@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.12
+
+### Patch Changes
+
+- f4681d5: feat: add yaml syntax highlighting
+
 ## 0.7.11
 
 ### Patch Changes

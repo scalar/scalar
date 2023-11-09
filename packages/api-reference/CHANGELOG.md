@@ -1,5 +1,25 @@
 # @scalar/api-reference
 
+## 1.0.3
+
+### Patch Changes
+
+- c92a3a3: fix: active state for the headings taken from the description
+- 57cea1a: fix: don’t show a version badge if no version is defined
+- dce99ae: fix: removed deleted icons from type definition
+- 009a720: fix: add missing http logo
+- 48118ba: feat: add updateContent event to the ApiReference component
+- dab853a: chore: remove unused dependencies
+- Updated dependencies [f4681d5]
+- Updated dependencies [c92a3a3]
+- Updated dependencies [48118ba]
+- Updated dependencies [dab853a]
+  - @scalar/swagger-editor@0.7.2
+  - @scalar/use-codemirror@0.7.12
+  - @scalar/swagger-parser@0.5.6
+  - @scalar/api-client@0.7.28
+  - @scalar/use-modal@0.1.6
+
 ## 1.0.2
 
 ### Patch Changes

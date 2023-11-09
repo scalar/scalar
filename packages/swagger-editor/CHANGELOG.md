@@ -1,5 +1,18 @@
 # @scalar/swagger-editor
 
+## 0.7.2
+
+### Patch Changes
+
+- f4681d5: feat: add yaml syntax highlighting
+- c92a3a3: chore: don’t add heading ids to the rendered Markdown
+- 48118ba: feat: add updateContent event to the ApiReference component
+- dab853a: chore: remove unused dependencies
+- Updated dependencies [f4681d5]
+- Updated dependencies [dab853a]
+  - @scalar/use-codemirror@0.7.12
+  - @scalar/use-modal@0.1.6
+
 ## 0.7.1
 
 ### Patch Changes
