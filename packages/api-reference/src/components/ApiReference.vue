@@ -17,8 +17,9 @@ const props = withDefaults(defineProps<ReferenceProps>(), {
   footerBelowSidebar: undefined,
 })
 
-const emits = defineEmits<{
+const emit = defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
+  (e: 'updateContent', value: string): void
   (
     e: 'startAIWriter',
     value: string[],
@@ -87,6 +88,10 @@ const { parsedSpecRef, overwriteParsedSpecRef, errorRef } = useParser({
   input: rawSpecRef,
 })
 
+watch(rawSpecRef, () => {
+  emit('updateContent', rawSpecRef.value)
+})
+
 // Use preparsed content, if it’s passed
 watch(
   () => currentConfiguration.value.spec?.preparsedContent,
@@ -113,7 +118,7 @@ function handleAIWriter(
   swaggerData: string,
   swaggerType: 'json' | 'yaml',
 ) {
-  emits('startAIWriter', value, swaggerData, swaggerType)
+  emit('startAIWriter', value, swaggerData, swaggerType)
 }
 
 const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
