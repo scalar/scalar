@@ -3,7 +3,7 @@ import { findVariables } from '@scalar/api-client'
 import { ref, watch } from 'vue'
 
 import { useGlobalStore } from '../../../stores'
-import { type Server } from '../../../types'
+import { type Server, type Variable } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
 import { FlowIcon } from '../../Icon'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
@@ -20,17 +20,19 @@ const selectedServerIndex = ref<number>(0)
 watch(
   selectedServerIndex,
   () => {
+    // Add configured variables
     const variables = props.value[selectedServerIndex.value]?.variables ?? {}
 
-    const prefilledVariables = variables
-      ? Object.keys(variables).map((name) => {
+    const prefilledVariables: Variable[] = variables
+      ? Object.keys(variables).map((name): Variable => {
           return {
             name: name,
-            value: variables[name].default ?? '',
+            value: variables[name].default?.toString() ?? '',
           }
         })
       : []
 
+    // Add variables found in the URL
     const foundVariables = findVariables(
       props.value[selectedServerIndex.value]?.url,
     )
@@ -38,8 +40,6 @@ watch(
     foundVariables
       .filter((variable: string) => !variables[variable])
       .forEach((variable: string) => {
-        console.log('not found', variable)
-        console.log(variables, prefilledVariables)
         prefilledVariables.push({
           name: variable,
           value: '',
@@ -71,27 +71,13 @@ watch(
 <template>
   <Card v-if="value.length > 0">
     <CardHeader muted>Base URL</CardHeader>
-    <!-- <CardContent>
-      {{ server }}
-    </CardContent> -->
-    <!-- Single URL -->
-    <CardContent
-      v-if="value.length === 1"
-      muted>
-      <div class="server-item">
-        <ServerItem
-          :value="value[selectedServerIndex]"
-          :variables="server.variables" />
-      </div>
-    </CardContent>
-    <CardContent
-      v-if="value.length > 1"
-      class="scalar-card-serverlist">
+    <CardContent class="scalar-card-serverlist">
       <div class="scalar-card-serverlist-container">
         <!-- Multiple URLs -->
         <div class="server-item">
           <div class="server-selector">
             <select
+              v-if="value.length > 1"
               :value="selectedServerIndex"
               @input="(event) => (selectedServerIndex = parseInt((event.target as HTMLSelectElement).value, 10))">
               <option
@@ -106,7 +92,9 @@ watch(
               :value="value[selectedServerIndex]"
               :variables="server.variables" />
 
-            <FlowIcon icon="ChevronDown" />
+            <FlowIcon
+              v-if="value.length > 1"
+              icon="ChevronDown" />
           </div>
         </div>
         <!-- Variables -->
@@ -130,11 +118,6 @@ watch(
 }
 .scalar-card-serverlist {
   padding: 9px;
-}
-.server-item .base-url:first-child:last-child {
-  padding: 11px 3px;
-  font-size: var(--theme-mini, var(--default-theme-mini));
-  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .server-selector {
   position: relative;
