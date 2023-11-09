@@ -20,12 +20,12 @@ defineProps<{
 <template>
   <Section
     :id="getOperationSectionId(operation, tag)"
-    :label="operation.name || operation.path">
+    :label="operation.name">
     <SectionContent>
       <SectionColumns>
         <SectionColumn>
           <SectionHeader :level="3">
-            {{ operation.name || operation.path }}
+            {{ operation.name }}
           </SectionHeader>
           <Copy :operation="operation" />
         </SectionColumn>

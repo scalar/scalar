@@ -147,7 +147,7 @@ const items = computed((): SidebarEntry[] => {
             children: tag.operations?.map((operation) => {
               return {
                 id: getOperationSectionId(operation, tag),
-                title: operation.name || operation.path,
+                title: operation.name,
                 type: 'Page',
                 httpVerb: operation.httpVerb,
                 select: () => {
@@ -162,7 +162,7 @@ const items = computed((): SidebarEntry[] => {
       : firstTag?.operations?.map((operation) => {
           return {
             id: getOperationSectionId(operation, firstTag),
-            title: operation.name || operation.path,
+            title: operation.name,
             type: 'Page',
             httpVerb: operation.httpVerb,
             select: () => {
