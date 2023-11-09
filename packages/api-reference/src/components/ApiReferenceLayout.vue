@@ -5,6 +5,7 @@ import {
   SwaggerEditorGettingStarted,
 } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
+import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 
@@ -12,6 +13,8 @@ import { useTemplateStore } from '../stores/template'
 import type { ReferenceConfiguration, Spec } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
+import DarkModeToggle from './DarkModeToggle.vue'
+import FindAnythingButton from './FindAnythingButton.vue'
 import MobileHeader from './MobileHeader.vue'
 import SearchModal from './SearchModal.vue'
 import Sidebar from './Sidebar.vue'
@@ -41,10 +44,16 @@ useResizeObserver(documentEl, (entries) => {
 })
 
 const { state } = useApiClientStore()
+const { state: templateState, setItem: setTemplateItem } = useTemplateStore()
 
-const showMobileDrawer = computed(() => {
-  const { state: s } = useTemplateStore()
-  return s.showMobileDrawer
+const searchHotKey = computed(
+  () => props.currentConfiguration.searchHotKey || 'k',
+)
+
+useKeyboardEvent({
+  keyList: [searchHotKey.value],
+  withCtrlCmd: true,
+  handler: () => setTemplateItem('showSearch', !templateState.showSearch),
 })
 
 onMounted(() => {
@@ -106,18 +115,26 @@ const showSwaggerEditor = computed(() => {
       <div
         v-if="
           isMobile && !$slots['mobile-header']
-            ? currentConfiguration.showSidebar && showMobileDrawer
+            ? currentConfiguration.showSidebar && templateState.showMobileDrawer
             : currentConfiguration.showSidebar
         "
         class="references-navigation-list">
         <slot
           v-if="isMobile"
           name="header" />
-        <Sidebar
-          :isDarkMode="isDarkMode"
-          :parsedSpec="parsedSpec"
-          :searchHotKey="currentConfiguration.searchHotKey"
-          @toggleDarkMode="$emit('toggleDarkMode')" />
+        <Sidebar :parsedSpec="parsedSpec">
+          <template #sidebar-start>
+            <FindAnythingButton
+              v-if="!isMobile"
+              :searchHotKey="searchHotKey"
+              @click="setTemplateItem('showSearch', true)" />
+          </template>
+          <template #sidebar-end>
+            <DarkModeToggle
+              :isDarkMode="isDarkMode"
+              @toggleDarkMode="$emit('toggleDarkMode')" />
+          </template>
+        </Sidebar>
       </div>
     </aside>
     <!-- Swagger file editing -->
