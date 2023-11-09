@@ -8,7 +8,7 @@ export default defineConfig({
       entry: 'src/index.ts',
       name: '@scalar/api-client-proxy',
       fileName: 'index',
-      formats: ['es'],
+      formats: ['es', 'cjs'],
     },
     rollupOptions: {
       external: ['express', 'cors', 'dotenv'],
