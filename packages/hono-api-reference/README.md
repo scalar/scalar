@@ -34,6 +34,24 @@ app.get(
 
 The Hono middleware takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/packages/api-reference#props) in the core package README.
 
+### Themes
+
+The middleware comes with a custom theme for Hono. You can use one of [the other predefined themes](https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts#L15) (`alternate`, `default`, `moon`, `purple`, `solarized`) or overwrite it with `none`. All themes come with a light and dark color scheme.
+
+```ts
+import { apiReference } from '@scalar/hono-api-reference'
+
+app.get(
+  '/reference',
+  apiReference({
+    theme: 'purple',
+    spec: {
+      url: '/swagger.json',
+    },
+  }),
+)
+```
+
 ### Custom page title
 
 There’s one additional option to set the page title:
