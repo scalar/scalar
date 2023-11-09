@@ -1,8 +1,8 @@
 # Scalar useClipboard()
 
-![Version](https://img.shields.io/npm/v/%40scalar/use-clipboard)
-![Downloads](https://img.shields.io/npm/dm/%40scalar/use-clipboard)
-![License](https://img.shields.io/npm/l/%40scalar%2Fuse-clipboard)
+[![Version](https://img.shields.io/npm/v/%40scalar/use-clipboard)](https://www.npmjs.com/package/@scalar/use-clipboard)
+[![Downloads](https://img.shields.io/npm/dm/%40scalar/use-clipboard)](https://www.npmjs.com/package/@scalar/use-clipboard)
+[![License](https://img.shields.io/npm/l/%40scalar%2Fuse-clipboard)](https://www.npmjs.com/package/@scalar/use-clipboard)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/8HeZcRGPFS)
 
 ## Installation
