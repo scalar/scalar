@@ -313,6 +313,7 @@ const setRef = (el: SidebarElementType, id: string) => {
 }
 
 .pages {
+  flex: 1;
   padding-top: 9px;
   padding-bottom: 9px;
 }
