@@ -1,23 +1,28 @@
+<script setup lang="ts">
+import StartPageLink from '../components/PageLink.vue'
+</script>
 <template>
   <div
-    class="flex flex-row gap-4 p-6 h-screen bg-gray-50 text-gray-600 items-center">
-    <router-link
-      class="basis-1/3 text-center border border-solid border-gray-300 hover:border-gray-400 flex flex-col justify-center rounded text-xl px-4 py-10"
-      :to="{ name: 'api-reference' }">
-      <h2 class="mb-4 font-bold">API Reference</h2>
-      <div>Interactive API documentations</div>
-    </router-link>
-    <router-link
-      class="basis-1/3 text-center border border-solid border-gray-300 hover:border-gray-400 flex flex-col justify-center rounded text-xl px-4 py-10"
-      :to="{ name: 'api-client' }">
-      <h2 class="mb-4 font-bold">API Client</h2>
-      <div class="">Your drop-in API Client</div>
-    </router-link>
-    <router-link
-      class="basis-1/3 text-center border border-solid border-gray-300 hover:border-gray-400 flex flex-col justify-center rounded text-xl px-4 py-10"
-      :to="{ name: 'swagger-editor' }">
-      <h2 class="mb-4 font-bold">Swagger Editor</h2>
-      <div>An editor for Swagger files</div>
-    </router-link>
+    class="flex items-center justify-center h-screen w-screen bg-gray-50 text-gray-600">
+    <div class="grid grid-cols-2 grid-rows-2 gap-4 p-6">
+      <StartPageLink to="api-reference">
+        <template #title>API Reference</template>
+        <template #description>Interactive API documentations</template>
+      </StartPageLink>
+      <StartPageLink to="standalone-api-reference">
+        <template #title>Standalone API Reference</template>
+        <template #description>
+          Interactive API documentation without only basic configuration
+        </template>
+      </StartPageLink>
+      <StartPageLink to="api-client">
+        <template #title>API Client</template>
+        <template #description>Your drop-in API Client</template>
+      </StartPageLink>
+      <StartPageLink to="swagger-editor">
+        <template #title>Swagger Editor</template>
+        <template #description>An editor for Swagger files</template>
+      </StartPageLink>
+    </div>
   </div>
 </template>

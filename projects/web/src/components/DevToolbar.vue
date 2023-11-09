@@ -161,7 +161,7 @@ watch(
   color: var(--default-theme-color-1);
 
   width: 100%;
-  height: var(--refs-header-height);
+  height: var(--theme-header-height);
 
   background: var(--default-theme-background-1);
   border-bottom: 1px solid var(--default-theme-border-color);

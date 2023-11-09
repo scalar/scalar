@@ -6,8 +6,7 @@ import {
 import { type ThemeId } from '@scalar/themes'
 import { reactive } from 'vue'
 
-import DevToolbar from '../components/DevToolbar.vue'
-import MockFooter from '../components/MockFooter.vue'
+import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 
 // import preparsedContent from '../fixtures/specResult.json'
 
@@ -45,14 +44,15 @@ const configuration = reactive<ReferenceConfiguration>({
     @changeTheme="(theme: ThemeId) => (configuration.theme = theme)"
     @updateContent="handleUpdateContent">
     <template #header>
-      <DevToolbar
-        :modelValue="configuration"
-        @update:modelValue="
-          (newConfiguration) => Object.assign(configuration, newConfiguration)
-        " />
+      <SlotPlaceholder>header</SlotPlaceholder>
     </template>
     <template #footer>
-      <MockFooter />
+      <SlotPlaceholder>footer</SlotPlaceholder>
     </template>
   </ApiReference>
 </template>
+<style>
+:root {
+  --theme-header-height: 50px;
+}
+</style>
