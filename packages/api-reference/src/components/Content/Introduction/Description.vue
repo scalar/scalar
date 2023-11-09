@@ -1,0 +1,54 @@
+<script setup lang="ts">
+import { computedAsync } from '@vueuse/core'
+
+import {
+  getHeadingId,
+  getHeadingsFromMarkdown,
+  getLowestHeadingLevel,
+  splitMarkdownInSections,
+} from '../../../helpers'
+import IntersectionObserver from '../../IntersectionObserver.vue'
+import MarkdownRenderer from '../MarkdownRenderer.vue'
+
+const props = defineProps<{
+  value: string
+}>()
+
+const sections = computedAsync(
+  async () => {
+    const allHeadings = await getHeadingsFromMarkdown(props.value)
+    // We only add one level to the sidebar. By default all h1, but if there are no h1, then h2 …
+    const lowestHeadingLevel = getLowestHeadingLevel(allHeadings)
+
+    return await Promise.all(
+      splitMarkdownInSections(props.value, lowestHeadingLevel).map(
+        async (content) => {
+          const headings = await getHeadingsFromMarkdown(content)
+
+          return {
+            heading: headings[0],
+            content,
+          }
+        },
+      ),
+    )
+  },
+  [], // initial state
+)
+</script>
+<template>
+  <div
+    v-for="(section, index) in sections"
+    :key="index">
+    <!-- With a Heading -->
+    <template v-if="section.heading">
+      <IntersectionObserver :id="getHeadingId(section.heading)">
+        <MarkdownRenderer :value="section.content" />
+      </IntersectionObserver>
+    </template>
+    <!-- Without a heading -->
+    <template v-else>
+      <MarkdownRenderer :value="section.content" />
+    </template>
+  </div>
+</template>

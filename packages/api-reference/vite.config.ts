@@ -39,7 +39,6 @@ export default defineConfig({
         '@hocuspocus/provider',
         '@scalar/swagger-editor',
         '@xmldom/xmldom',
-        'rehype-document',
         'rehype-external-links',
         'rehype-format',
         'rehype-highlight',

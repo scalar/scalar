@@ -8,6 +8,7 @@ import {
   getApiClientRequest,
   getHeadingId,
   getHeadingsFromMarkdown,
+  getLowestHeadingLevel,
   getModelSectionId,
   getOperationSectionId,
   getTagSectionId,
@@ -105,10 +106,9 @@ watch(
 
 const updateHeadings = async (description: string) => {
   const newHeadings = await getHeadingsFromMarkdown(description)
+  const lowestLevel = getLowestHeadingLevel(newHeadings)
 
-  const lowestDepth = Math.min(...newHeadings.map((heading) => heading.depth))
-
-  return newHeadings.filter((heading) => heading.depth === lowestDepth)
+  return newHeadings.filter((heading) => heading.depth === lowestLevel)
 }
 
 const isVisible = (id: string) => state.sidebarIdVisibility[id] ?? false

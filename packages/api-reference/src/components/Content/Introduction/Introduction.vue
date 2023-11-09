@@ -13,8 +13,8 @@ import {
   SectionHeader,
 } from '../../Section'
 import { Authentication } from '../Authentication'
-import MarkdownRenderer from '../MarkdownRenderer.vue'
 import ClientSelector from './ClientSelector.vue'
+import Description from './Description.vue'
 import DownloadSpec from './DownloadSpec.vue'
 import ServerList from './ServerList.vue'
 
@@ -55,7 +55,7 @@ const specVersion = computed(() => {
               {{ info.title }}
             </SectionHeader>
             <DownloadSpec :value="rawSpec" />
-            <MarkdownRenderer :value="info.description" />
+            <Description :value="info.description" />
           </SectionColumn>
           <SectionColumn>
             <div class="sticky-cards flex-col gap-1">
