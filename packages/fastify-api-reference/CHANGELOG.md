@@ -1,5 +1,18 @@
 # @scalar/fastify-api-reference
 
+## 0.6.50
+
+### Patch Changes
+
+- dab853a: chore: remove unused dependencies
+- Updated dependencies [c92a3a3]
+- Updated dependencies [57cea1a]
+- Updated dependencies [dce99ae]
+- Updated dependencies [009a720]
+- Updated dependencies [48118ba]
+- Updated dependencies [dab853a]
+  - @scalar/api-reference@1.0.3
+
 ## 0.6.49
 
 ### Patch Changes

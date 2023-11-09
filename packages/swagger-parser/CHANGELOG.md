@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.5.6
+
+### Patch Changes
+
+- dab853a: chore: remove unused dependencies
+
 ## 0.5.5
 
 ### Patch Changes
