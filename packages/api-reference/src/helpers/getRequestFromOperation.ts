@@ -23,7 +23,7 @@ export const getRequestFromOperation = (
 
   // Get all the information about the request body
   const jsonRequest =
-    operation.information?.requestBody?.content['application/json'] || null
+    operation.information?.requestBody?.content?.['application/json'] || null
 
   // Headers
   const allHeaders = []
