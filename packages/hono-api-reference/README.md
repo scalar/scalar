@@ -7,6 +7,8 @@
 
 This middleware provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger file with Hono.
 
+![Screenshot 2023-11-09 at 14 45 22](https://github.com/scalar/scalar/assets/1577992/b5e02deb-994f-4826-adba-92df971ce904)
+
 ## Installation
 
 ```bash
