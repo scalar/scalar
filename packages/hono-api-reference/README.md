@@ -1,8 +1,8 @@
 # Scalar Hono API Reference Plugin
 
-![Version](https://img.shields.io/npm/v/%40scalar/hono-api-reference)
-![Downloads](https://img.shields.io/npm/dm/%40scalar/hono-api-reference)
-![License](https://img.shields.io/npm/l/%40scalar%2Fhono-api-reference)
+[![Version](https://img.shields.io/npm/v/%40scalar/hono-api-reference)](https://www.npmjs.com/package/@scalar/hono-api-reference)
+[![Downloads](https://img.shields.io/npm/dm/%40scalar/hono-api-reference)](https://www.npmjs.com/package/@scalar/hono-api-reference)
+[![License](https://img.shields.io/npm/l/%40scalar%2Fhono-api-reference)](https://www.npmjs.com/package/@scalar/hono-api-reference)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/8HeZcRGPFS)
 
 This middleware provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger file with Hono.
