@@ -7,7 +7,7 @@ export default defineConfig({
       entry: 'src/index.ts',
       name: '@scalar/echo-server',
       fileName: 'index',
-      formats: ['es'],
+      formats: ['es', 'cjs'],
     },
     rollupOptions: {
       external: ['cookie-parser', 'cors', 'express'],

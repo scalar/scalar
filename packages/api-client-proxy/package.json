@@ -23,7 +23,8 @@
     "node": ">=18"
   },
   "exports": {
-    "import": "./dist/index.js"
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
   },
   "files": [
     "dist",
