@@ -53,9 +53,12 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   </head>
   <body>
     <!-- Add your own OpenAPI/Swagger spec file URL here: -->
+    <!-- Note: this includes our proxy, you can remove the following line if you do not need it -->
+    <!-- data-proxy-url="https://api.scalar.com/request-proxy" -->
     <script
       id="api-reference"
-      data-url="https://example.com/swagger.json"></script>
+      data-url="https://example.com/swagger.json"
+      data-proxy-url="https://api.scalar.com/request-proxy"></script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
   </body>
 </html>
@@ -260,7 +263,7 @@ Or get more advanced by styling our sidebar!
 
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: https://discord.gg/8HeZcRGPFS
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/8HeZcRGPFS>
 
 ## Other packages
 
