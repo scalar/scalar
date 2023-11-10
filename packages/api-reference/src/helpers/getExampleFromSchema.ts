@@ -22,6 +22,14 @@ export const getExampleFromSchema = (
     return null
   }
 
+  if (schema.type === 'string') {
+    if (schema.example !== undefined) {
+      return schema.example
+    }
+
+    return options?.emptyString ?? ''
+  }
+
   if (schema.type === 'array') {
     if (schema.example !== undefined) {
       return schema.example

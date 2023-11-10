@@ -261,6 +261,15 @@ describe('getExampleFromSchema', () => {
     })
   })
 
+  it('returns plaintext', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'string',
+        example: 'foobar',
+      }),
+    ).toEqual('foobar')
+  })
+
   it('converts a whole schema to an example response', () => {
     const schema = {
       required: ['name', 'photoUrls'],

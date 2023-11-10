@@ -120,9 +120,11 @@ export type ExampleResponseHeaders = Record<
 
 export type RequestBodyMimeTypes =
   | 'application/json'
-  | 'application/xml'
-  | 'application/x-www-form-urlencoded'
   | 'application/octet-stream'
+  | 'application/x-www-form-urlencoded'
+  | 'application/xml'
+  | 'multipart/form-data'
+  | 'text/plain'
 
 export type TransformedOperation = Operation & {
   information: {

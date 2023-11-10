@@ -42,12 +42,12 @@ export const getRequestFromOperation = (
 function getRequestBody(operation: TransformedOperation) {
   // Define all supported mime types
   const mimeTypes: RequestBodyMimeTypes[] = [
-    // TODO: 'multipart/form-data',
-    // TODO: 'text/plain',
     'application/json',
-    'application/x-www-form-urlencoded',
     'application/octet-stream',
+    'application/x-www-form-urlencoded',
     'application/xml',
+    'multipart/form-data',
+    'text/plain',
   ]
 
   // Find the first mime type that is supported
@@ -74,7 +74,6 @@ function getRequestBody(operation: TransformedOperation) {
   ]
 
   // Get example from operation
-  // TODO: Add support for given examples
   const example = requestBodyObject?.example
     ? requestBodyObject?.example
     : undefined
@@ -122,8 +121,43 @@ function getRequestBody(operation: TransformedOperation) {
     }
   }
 
+  // Plain text
+  if (mimeType === 'text/plain') {
+    const exampleFromSchema = requestBodyObject?.schema
+      ? getExampleFromSchema(requestBodyObject?.schema, {
+          xml: true,
+        })
+      : null
+
+    return {
+      headers,
+      postData: {
+        mimeType: mimeType,
+        text: example ?? exampleFromSchema ?? '',
+      },
+    }
+  }
+
   // URL encoded data
   if (mimeType === 'application/x-www-form-urlencoded') {
+    return {
+      headers,
+      postData: {
+        mimeType: mimeType,
+        // TODO: We have an object, but how do we get that kind of array from the object?
+        // Don’t forget to include nested properties … :|
+        // params: [
+        //   {
+        //     name: 'foo',
+        //     value: 'bar',
+        //   },
+        // ],
+      },
+    }
+  }
+
+  // URL encoded data
+  if (mimeType === 'multipart/form-data') {
     return {
       headers,
       postData: {
