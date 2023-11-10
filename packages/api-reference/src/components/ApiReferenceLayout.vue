@@ -83,9 +83,10 @@ const showSwaggerEditor = computed(() => {
       <slot name="header" />
     </div>
     <!-- Navigation (sidebar) wrapper -->
-    <aside class="references-navigation t-doc__sidebar">
+    <aside
+      v-show="currentConfiguration.showSidebar"
+      class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
-      <!-- Sorry for the terrible v-if - this is so we only manage the menu state if theres no external mobile header being injected to manage it otherwise -->
       <div class="references-navigation-list">
         <Sidebar :parsedSpec="parsedSpec">
           <template #sidebar-start>
@@ -263,6 +264,7 @@ const showSwaggerEditor = computed(() => {
       'editor';
   }
 
+  .references-navigation,
   .references-rendered {
     position: static;
     max-height: unset;
@@ -270,21 +272,18 @@ const showSwaggerEditor = computed(() => {
 
   .references-navigation {
     height: 0px;
-    border-right: none;
+    z-index: 10;
   }
 
   .references-navigation-list {
-    position: fixed;
+    position: absolute;
 
     /* Offset by 1px to avoid gap */
-    left: 0;
-    bottom: 0;
+    top: calc(var(--refs-header-height) - 1px);
+
+    /* Add a pixel to cover the bottom of the viewport */
+    height: calc(var(--full-height) - var(--refs-header-height) + 1px);
     width: 100%;
-
-    z-index: 10;
-
-    /* Offset by 2px to fill screen and compensate for gap */
-    height: calc(var(--full-height) - var(--refs-header-height));
 
     border-top: 1px solid
       var(--theme-border-color, var(--default-theme-border-color));
