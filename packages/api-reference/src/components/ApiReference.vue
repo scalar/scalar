@@ -134,7 +134,8 @@ const { toggleDarkMode, isDark } = useDarkModeState()
     :rawSpec="rawSpecRef"
     :swaggerEditorRef="swaggerEditorRef"
     @changeTheme="$emit('changeTheme', $event)"
-    @toggleDarkMode="toggleDarkMode">
+    @toggleDarkMode="toggleDarkMode"
+    @updateContent="(newContent: string) => setRawSpecRef(newContent)">
     <template #header>
       <slot name="header" />
     </template>

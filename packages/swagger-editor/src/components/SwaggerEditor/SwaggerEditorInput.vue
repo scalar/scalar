@@ -36,6 +36,9 @@ watch(
       yCodeMirrorExtension.value = null
     }
 
+    // Reset the content, before loading a new Y.js document
+    emit('contentUpdate', '')
+
     if (!props.hocuspocusConfiguration) {
       return
     }
@@ -51,13 +54,20 @@ watch(
         )
       },
       onConnect() {
-        console.log(
-          `[SwaggerEditor] 🟢 onConnect (${HocuspocusProviderConfiguration?.name})`,
-        )
+        if (!HocuspocusProviderConfiguration.token) {
+          console.log(
+            `[SwaggerEditor] 🟢 onConnect (${HocuspocusProviderConfiguration?.name})`,
+          )
+        }
       },
       onAuthenticationFailed() {
         console.log(
           `[SwaggerEditor] ❌ onAuthenticationFailed (${HocuspocusProviderConfiguration?.name})`,
+        )
+      },
+      onSynced() {
+        console.log(
+          `[SwaggerEditor] 🔄 onSynced (${HocuspocusProviderConfiguration?.name})`,
         )
       },
       onDisconnect() {

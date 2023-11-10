@@ -1,15 +1,11 @@
 <script lang="ts" setup>
 import { type StatesArray } from '@hocuspocus/provider'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
-import { computed, isRef, nextTick, ref, watch } from 'vue'
+import { computed, isRef, ref, watch } from 'vue'
 
-import coinmarketcap from '../../coinmarketcapv3.json'
 import { isJsonString } from '../../helpers'
-import petstore from '../../petstorev3.json'
-import tableau from '../../tableauv3.json'
 import {
   type EditorHeaderTabs,
-  type GettingStartedExamples,
   type OpenSwaggerEditorActions,
   type SwaggerEditorProps,
 } from '../../types'
@@ -38,14 +34,7 @@ const swaggerEditorHeaderRef = ref<typeof SwaggerEditorHeader | null>(null)
 
 const awarenessStates = ref<StatesArray>([])
 
-const rawContent = ref('')
-
 const handleContentUpdate = (value: string) => {
-  if (value === rawContent.value) {
-    return
-  }
-
-  rawContent.value = value
   emit('contentUpdate', value)
 }
 
@@ -73,24 +62,6 @@ const formattedError = computed(() => {
   return error
 })
 
-async function handleChangeExample(example: GettingStartedExamples) {
-  let spec = ''
-
-  if (example === 'Petstore') {
-    spec = JSON.stringify(petstore, null, 2)
-  } else if (example === 'CoinMarketCap') {
-    spec = JSON.stringify(coinmarketcap, null, 2)
-  } else if (example === 'Tableau') {
-    spec = JSON.stringify(tableau, null, 2)
-  } else {
-    return
-  }
-
-  activeTab.value = 'Swagger Editor'
-  await nextTick()
-  handleContentUpdate(spec)
-}
-
 watch(
   () => props.value,
   async () => {
@@ -116,14 +87,13 @@ const handleOpenSwaggerEditor = (action?: OpenSwaggerEditorActions) => {
 }
 
 function handleAIWriter(queries: string[]) {
-  const content = rawContent.value ?? props.value ?? ''
+  const content = props.value ?? ''
   const specType = isJsonString(content) ? 'json' : 'yaml'
   emit('startAIWriter', queries, content, specType)
 }
 
 defineExpose({
   handleOpenSwaggerEditor,
-  handleChangeExample,
 })
 </script>
 <template>
@@ -140,10 +110,10 @@ defineExpose({
       {{ formattedError }}
     </SwaggerEditorNotification>
     <SwaggerEditorInput
-      v-if="activeTab === 'Swagger Editor'"
+      v-show="activeTab === 'Swagger Editor'"
       ref="codeMirrorReference"
       :hocuspocusConfiguration="hocuspocusConfiguration"
-      :value="props.value ?? ''"
+      :value="value"
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
     <SwaggerEditorAIWriter
@@ -160,9 +130,10 @@ defineExpose({
     <SwaggerEditorGettingStarted
       v-show="activeTab === 'Getting Started'"
       :theme="!theme || theme === 'none' ? 'default' : theme"
-      @changeExample="handleChangeExample"
+      :value="value"
       @changeTheme="emit('changeTheme', $event)"
-      @openSwaggerEditor="handleOpenSwaggerEditor" />
+      @openSwaggerEditor="handleOpenSwaggerEditor"
+      @updateContent="handleContentUpdate" />
   </div>
 </template>
 

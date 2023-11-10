@@ -26,6 +26,7 @@ const props = defineProps<{
 
 defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
+  (e: 'updateContent', value: string): void
   (e: 'toggleDarkMode'): void
 }>()
 
@@ -139,9 +140,10 @@ const showSwaggerEditor = computed(() => {
             #empty-state>
             <SwaggerEditorGettingStarted
               :theme="currentConfiguration?.theme || 'default'"
-              @changeExample="swaggerEditorRef?.handleChangeExample"
+              :value="rawSpec"
               @changeTheme="$emit('changeTheme', $event)"
-              @openSwaggerEditor="swaggerEditorRef?.handleOpenSwaggerEditor" />
+              @openSwaggerEditor="swaggerEditorRef?.handleOpenSwaggerEditor"
+              @updateContent="$emit('updateContent', $event)" />
           </template>
         </Content>
       </div>

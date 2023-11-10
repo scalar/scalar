@@ -65,7 +65,9 @@ export function useParser({
       return
     }
 
-    parse(value)
+    const processedValue = value.trim()
+
+    parse(processedValue)
       .then((spec) => {
         errorRef.value = null
 
