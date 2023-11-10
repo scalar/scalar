@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.7.30
+
+### Patch Changes
+
+- 5da1fc6: security: update axios from 1.5.0 to 1.6.1
+
 ## 0.7.29
 
 ### Patch Changes
