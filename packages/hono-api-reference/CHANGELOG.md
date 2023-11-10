@@ -1,5 +1,11 @@
 # @scalar/hono-api-reference
 
+## 0.1.2
+
+### Patch Changes
+
+- d042714: chore: update hono api reference readme image
+
 ## 0.1.1
 
 ### Patch Changes
