@@ -93,18 +93,8 @@ const { isDark } = useDarkModeState()
       </div>
       <div>
         <input
-          :checked="configuration.isDark"
-          type="checkbox"
-          @input="
-            (event) =>
-              emit(
-                'update:modelValue',
-                getCompleteConfiguration({
-                  ...configuration,
-                  isDark: (event.target as HTMLInputElement).checked
-                }),
-              )
-          " />
+          :checked="isDark"
+          type="checkbox" />
         isDark
       </div>
       <button

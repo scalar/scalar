@@ -6,6 +6,8 @@ import ApiReferenceBase from './ApiReferenceBase.vue'
 import DarkModeToggle from './DarkModeToggle.vue'
 import SearchButton from './SearchButton.vue'
 
+// I don't know why this isn't picking up the v-bind but whatever
+// eslint-disable-next-line vue/no-unused-properties
 const props = defineProps<ReferenceProps>()
 
 const { toggleDarkMode, isDark } = useDarkModeState()
