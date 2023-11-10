@@ -382,4 +382,57 @@ describe('getExampleFromSchema', () => {
       foo: 1,
     })
   })
+
+  it.only('add XML wrappers where needed', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          properties: {
+            photoUrls: {
+              type: 'array',
+              xml: {
+                wrapped: true,
+              },
+              items: {
+                type: 'string',
+                example: 'https://example.com',
+                xml: {
+                  name: 'photoUrl',
+                },
+              },
+            },
+          },
+        },
+        { xml: true },
+      ),
+    ).toMatchObject({
+      photoUrls: {
+        photoUrl: ['https://example.com'],
+      },
+    })
+  })
+
+  it.only('doesn’t wrap items when not needed', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          properties: {
+            photoUrls: {
+              type: 'array',
+              items: {
+                type: 'string',
+                example: 'https://example.com',
+                xml: {
+                  name: 'photoUrl',
+                },
+              },
+            },
+          },
+        },
+        { xml: true },
+      ),
+    ).toMatchObject({
+      photoUrls: ['https://example.com'],
+    })
+  })
 })

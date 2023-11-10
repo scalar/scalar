@@ -95,9 +95,21 @@ export const getExampleFromSchema = (
     }
 
     // Set an example value based on the type
+    const itemsXmlTagName = property?.items?.xml?.name
+    const wrapItems = options?.xml && property.xml?.wrapped && itemsXmlTagName
+    const itemsExample = property.items
+      ? getExampleFromSchema(property.items, options, level + 1)
+      : []
+    const formattedItemsExample = !itemsExample
+      ? []
+      : Array.isArray(itemsExample)
+      ? itemsExample
+      : [itemsExample]
+
     const exampleValues: Record<string, any> = {
-      // TODO: Need to check the schema and add a default value
-      array: [],
+      array: wrapItems
+        ? { [itemsXmlTagName]: formattedItemsExample }
+        : formattedItemsExample,
       string: options?.emptyString ?? '',
       boolean: true,
       integer: 1,
