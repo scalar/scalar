@@ -9,7 +9,6 @@ This middleware provides an easy way to render a beautiful API reference based o
 
 ![hono-js](https://github.com/scalar/scalar/assets/6176314/6f5a2102-e377-4d4e-9cfb-a512f5e0a9ba)
 
-
 ## Installation
 
 ```bash
