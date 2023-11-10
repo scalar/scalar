@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.5.7
+
+### Patch Changes
+
+- 54098d7: chore: better fallbacks for the operation.name
+
 ## 0.5.6
 
 ### Patch Changes

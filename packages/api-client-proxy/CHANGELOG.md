@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.8
+
+### Patch Changes
+
+- 939dc73: fix: entry points
+
 ## 0.5.7
 
 ### Patch Changes
