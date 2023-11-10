@@ -16,7 +16,7 @@ import SearchModal from './SearchModal.vue'
 import Sidebar from './Sidebar.vue'
 
 const props = defineProps<{
-  currentConfiguration: ReferenceConfiguration
+  configuration: ReferenceConfiguration
   parsedSpec: Spec
   rawSpec: string
   swaggerEditorRef?: null | typeof SwaggerEditor
@@ -39,9 +39,7 @@ useResizeObserver(documentEl, (entries) => {
 
 const { state: templateState, setItem: setTemplateItem } = useTemplateStore()
 
-const searchHotKey = computed(
-  () => props.currentConfiguration.searchHotKey || 'k',
-)
+const searchHotKey = computed(() => props.configuration.searchHotKey || 'k')
 
 useKeyboardEvent({
   keyList: [searchHotKey.value],
@@ -57,13 +55,13 @@ onMounted(() => {
 })
 
 const showRenderedContent = computed(
-  () => isLargeScreen.value || !props.currentConfiguration.isEditable,
+  () => isLargeScreen.value || !props.configuration.isEditable,
 )
 
 const showSwaggerEditor = computed(() => {
   return (
-    !props.currentConfiguration.spec?.preparsedContent &&
-    props.currentConfiguration?.isEditable
+    !props.configuration.spec?.preparsedContent &&
+    props.configuration?.isEditable
   )
 })
 </script>
@@ -73,7 +71,7 @@ const showSwaggerEditor = computed(() => {
     class="scalar-api-reference references-layout"
     :class="[
       {
-        'references-footer-below': currentConfiguration?.footerBelowSidebar,
+        'references-footer-below': configuration?.footerBelowSidebar,
         'references-editable': showSwaggerEditor,
       },
     ]"
@@ -84,7 +82,7 @@ const showSwaggerEditor = computed(() => {
     </div>
     <!-- Navigation (sidebar) wrapper -->
     <aside
-      v-show="currentConfiguration.showSidebar"
+      v-show="configuration.showSidebar"
       class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
@@ -115,10 +113,10 @@ const showSwaggerEditor = computed(() => {
           :rawSpec="rawSpec"
           :ready="true">
           <template
-            v-if="currentConfiguration?.isEditable"
+            v-if="configuration?.isEditable"
             #empty-state>
             <SwaggerEditorGettingStarted
-              :theme="currentConfiguration?.theme || 'default'"
+              :theme="configuration?.theme || 'default'"
               :value="rawSpec"
               @changeTheme="$emit('changeTheme', $event)"
               @openSwaggerEditor="swaggerEditorRef?.handleOpenSwaggerEditor"
@@ -135,7 +133,7 @@ const showSwaggerEditor = computed(() => {
     <!-- REST API Client Overlay -->
     <ApiClientModal
       :parsedSpec="parsedSpec"
-      :proxyUrl="currentConfiguration?.proxy" />
+      :proxyUrl="configuration?.proxy" />
   </div>
 </template>
 <style scoped>

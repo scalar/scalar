@@ -7,14 +7,15 @@ import { computed, defineAsyncComponent, ref, watch } from 'vue'
 
 import { deepMerge } from '../helpers'
 import { useParser, useSpec } from '../hooks'
-import type { ReferenceConfiguration, ReferenceProps, Spec } from '../types'
+import {
+  DEFAULT_CONFIG,
+  type ReferenceConfiguration,
+  type ReferenceProps,
+  type Spec,
+} from '../types'
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
 
-const props = withDefaults(defineProps<ReferenceProps>(), {
-  showSidebar: undefined,
-  isEditable: undefined,
-  footerBelowSidebar: undefined,
-})
+const props = defineProps<ReferenceProps>()
 
 const emit = defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
@@ -35,41 +36,10 @@ const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
 )
 
 /** Merge the default configuration with the given configuration. */
-const currentConfiguration = computed((): ReferenceConfiguration => {
-  if (
-    props.spec ||
-    props.specUrl ||
-    props.specResult ||
-    props.proxyUrl ||
-    props.theme ||
-    props.initialTabState ||
-    props.showSidebar ||
-    props.footerBelowSidebar ||
-    props.isEditable ||
-    props.hocuspocusConfiguration
-  ) {
-    console.warn(
-      '[ApiReference] The <ApiReference /> component now accepts a single `configuration` prop. Please update your code.',
-    )
-  }
-
-  return deepMerge(props.configuration ?? {}, {
-    spec: {
-      content: props.spec ?? undefined,
-      url: props.specUrl ?? undefined,
-      preparsedContent: props.specResult ?? undefined,
-    },
-    proxy: props.proxyUrl ?? undefined,
-    theme: props.theme ?? 'default',
-    tabs: {
-      initialContent: props.initialTabState ?? 'Getting Started',
-    },
-    showSidebar: props.showSidebar ?? true,
-    isEditable: props.isEditable ?? false,
-    footerBelowSidebar: props.footerBelowSidebar ?? false,
-    hocuspocusConfiguration: props.hocuspocusConfiguration ?? undefined,
-  })
-})
+const currentConfiguration = computed(
+  (): ReferenceConfiguration =>
+    deepMerge(props.configuration ?? {}, DEFAULT_CONFIG),
+)
 
 // Make it a ComputedRef
 const specConfiguration = computed(() => {
@@ -126,7 +96,7 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
   <ThemeStyles :id="currentConfiguration?.theme" />
   <FlowToastContainer />
   <ApiReferenceLayout
-    :currentConfiguration="currentConfiguration"
+    :configuration="currentConfiguration"
     :parsedSpec="parsedSpecRef"
     :rawSpec="rawSpecRef"
     :swaggerEditorRef="swaggerEditorRef"
@@ -144,12 +114,12 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
       #editor>
       <LazyLoadedSwaggerEditor
         ref="swaggerEditorRef"
-        :aiWriterMarkdown="aiWriterMarkdown"
+        :aiWriterMarkdown="currentConfiguration.aiWriterMarkdown"
         :error="errorRef"
-        :hocuspocusConfiguration="currentConfiguration?.hocuspocusConfiguration"
-        :initialTabState="currentConfiguration?.tabs?.initialContent"
-        :proxyUrl="currentConfiguration?.proxy"
-        :theme="currentConfiguration?.theme"
+        :hocuspocusConfiguration="currentConfiguration.hocuspocusConfiguration"
+        :initialTabState="currentConfiguration.tabs?.initialContent"
+        :proxyUrl="currentConfiguration.proxy"
+        :theme="currentConfiguration.theme"
         :value="rawSpecRef"
         @changeTheme="$emit('changeTheme', $event)"
         @contentUpdate="(newContent: string) => setRawSpecRef(newContent)"

@@ -8,28 +8,6 @@ import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 
 export type ReferenceProps = {
   configuration?: ReferenceConfiguration
-  aiWriterMarkdown?: string
-} & {
-  /** @deprecated Use the `configuration` prop instead. */
-  spec?: string
-  /** @deprecated Use the `configuration` prop instead. */
-  specUrl?: string
-  /** @deprecated Use the `configuration` prop instead. */
-  specResult?: Record<any, any>
-  /** @deprecated Use the `configuration` prop instead. */
-  proxyUrl?: string
-  /** @deprecated Use the `configuration` prop instead. */
-  theme?: ThemeId
-  /** @deprecated Use the `configuration` prop instead. */
-  initialTabState?: EditorHeaderTabs
-  /** @deprecated Use the `configuration` prop instead. */
-  showSidebar?: boolean
-  /** @deprecated Use the `configuration` prop instead. */
-  footerBelowSidebar?: boolean
-  /** @deprecated Use the `configuration` prop instead. */
-  isEditable?: boolean
-  /** @deprecated Use the `configuration` prop instead. */
-  hocuspocusConfiguration?: HocuspocusConfigurationProp
 }
 
 export type SpecConfiguration = {
@@ -66,7 +44,27 @@ export type ReferenceConfiguration = {
   hocuspocusConfiguration?: HocuspocusConfigurationProp
   /** Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
   searchHotKey?: string
+  /** ??? */
+  aiWriterMarkdown?: string
 }
+
+/** Default reference configuration */
+export const DEFAULT_CONFIG: ReferenceConfiguration = {
+  spec: {
+    content: undefined,
+    url: undefined,
+    preparsedContent: undefined,
+  },
+  proxy: undefined,
+  theme: 'default',
+  tabs: {
+    initialContent: 'Getting Started',
+  },
+  showSidebar: true,
+  isEditable: false,
+  footerBelowSidebar: false,
+  hocuspocusConfiguration: undefined,
+} as const
 
 export type Schema = {
   format: string

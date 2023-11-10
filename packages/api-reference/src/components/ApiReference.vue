@@ -11,11 +11,8 @@ import SearchButton from './SearchButton.vue'
 
 // I don't know why this isn't picking up the v-bind but whatever
 // eslint-disable-next-line vue/no-unused-properties
-const props = withDefaults(defineProps<ReferenceProps>(), {
-  showSidebar: undefined,
-  isEditable: undefined,
-  footerBelowSidebar: undefined,
-})
+const props = defineProps<ReferenceProps>()
+
 const { state } = useTemplateStore()
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
@@ -28,7 +25,6 @@ const config = computed(() => {
   return { ...props.configuration, showSidebar }
 })
 
-// Can hopefully be removed once we remove the props API
 const otherProps = computed(() => {
   const { configuration, ...other } = props
   return other
