@@ -199,17 +199,19 @@ export type ExternalDocs = {
   url: string
 }
 
+export type ServerVariables = Record<
+  string,
+  {
+    default?: string | number
+    description?: string
+    enum?: (string | number)[]
+  }
+>
+
 export type Server = {
   url: string
   description?: string
-  variables?: Record<
-    string,
-    {
-      default?: string | number
-      description?: string
-      enum?: (string | number)[]
-    }
-  >
+  variables?: ServerVariables
 }
 
 export type Components =
@@ -250,11 +252,12 @@ export type AuthenticationState = {
 }
 
 export type Variable = {
-  [key: string]: string | number
+  [key: string]: string
 }
 
 export type ServerState = {
   selectedServer: null | number
+  description?: string
   servers: Server[]
   variables: Variable[]
 }
