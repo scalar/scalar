@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.7.29
+
+### Patch Changes
+
+- 7fb2302: chore: add findVariables helper
+
 ## 0.7.28
 
 ### Patch Changes

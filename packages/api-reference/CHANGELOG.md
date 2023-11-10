@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.0.4
+
+### Patch Changes
+
+- 7fb2302: feat: detect variables in URLs
+- 54098d7: chore: better fallbacks for the operation.name
+- dd06807: fix: optional chain for request bodies
+- 551aa7d: fix: mobile sidebar always open by default
+- 7fb2302: fix: show server variables for single URLs too
+- 3eff44f: fix: show description component only when a description is specified
+- f0dca6c: fix: add fallback if no summary or key is provided for examples
+- Updated dependencies [54098d7]
+- Updated dependencies [7fb2302]
+  - @scalar/swagger-parser@0.5.7
+  - @scalar/api-client@0.7.29
+
 ## 1.0.3
 
 ### Patch Changes

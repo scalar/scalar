@@ -1,7 +1,7 @@
 {
   "name": "@scalar/api-client",
   "description": "the open source API testing client",
-  "version": "0.7.28",
+  "version": "0.7.29",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
