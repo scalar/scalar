@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  type ReferenceConfiguration,
-  useDarkModeState,
-} from '@scalar/api-reference'
+import { type ReferenceConfiguration } from '@scalar/api-reference'
 import { availableThemes } from '@scalar/themes'
 import { computed, ref, watch } from 'vue'
 
@@ -61,8 +58,6 @@ watch(
   },
   { immediate: true },
 )
-
-const { isDark } = useDarkModeState()
 </script>
 <template>
   <header
@@ -90,12 +85,6 @@ const { isDark } = useDarkModeState()
               )
           " />
         isEditable
-      </div>
-      <div>
-        <input
-          :checked="isDark"
-          type="checkbox" />
-        isDark
       </div>
       <button
         class="references-dev-hide-toolbar"

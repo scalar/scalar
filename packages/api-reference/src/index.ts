@@ -10,5 +10,4 @@ export { default as RenderedReference } from './components/Content/Content.vue'
 export { default as DarkModeToggle } from './components/DarkModeToggle.vue'
 export { default as SearchModal } from './components/SearchModal.vue'
 
-export { useDarkModeState } from './hooks'
 export * from './types'
