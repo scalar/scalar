@@ -138,7 +138,9 @@ const { toggleDarkMode, isDark } = useDarkModeState()
     <template #header>
       <slot name="header" />
     </template>
-    <template #mobile-header>
+    <template
+      v-if="$slots['mobile-header']"
+      #mobile-header>
       <slot name="mobile-header" />
     </template>
     <template #search-modal>
