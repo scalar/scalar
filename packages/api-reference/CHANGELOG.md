@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.0.5
+
+### Patch Changes
+
+- ff81f70: refactor: move getting started example to GettingStarted component
+- 5da1fc6: security: update axios from 1.5.0 to 1.6.1
+- ff81f70: fix: don’t overwrite the CodeMirror content when collaborative editing is enabled
+- Updated dependencies [ff81f70]
+- Updated dependencies [5da1fc6]
+- Updated dependencies [ff81f70]
+  - @scalar/swagger-editor@0.7.3
+  - @scalar/api-client@0.7.30
+
 ## 1.0.4
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @scalar/swagger-editor
 
+## 0.7.3
+
+### Patch Changes
+
+- ff81f70: refactor: move getting started example to GettingStarted component
+- ff81f70: fix: don’t overwrite the CodeMirror content when collaborative editing is enabled
+
 ## 0.7.2
 
 ### Patch Changes
