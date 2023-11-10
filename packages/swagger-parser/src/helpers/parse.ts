@@ -52,12 +52,13 @@ const transformResult = (result: OpenAPI.Document<object>): SwaggerSpec => {
     requestMethods.forEach((requestMethod) => {
       // @ts-ignore
       const operation = result.paths[path][requestMethod]
+
       // Transform the operation
       const newOperation = {
         httpVerb: requestMethod,
         path,
         operationId: operation.operationId || path || '',
-        name: operation.summary || '',
+        name: operation.operationId || operation.summary || path || '',
         description: operation.description || '',
         information: {
           ...operation,

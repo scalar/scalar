@@ -228,13 +228,16 @@ const searchResultsWithPlaceholderResults = computed(
           {{ entry.item.httpVerb }}
         </div>
         <div
-          v-if="entry.item.title || entry.item.operationId"
+          v-if="entry.item.title"
           class="item-entry-title">
-          {{ entry.item.title || entry.item.operationId }}
+          {{ entry.item.title }}
         </div>
 
         <div
-          v-if="entry.item.httpVerb || entry.item.path"
+          v-if="
+            (entry.item.httpVerb || entry.item.path) &&
+            entry.item.path !== entry.item.title
+          "
           class="item-entry-path">
           {{ entry.item.path }}
         </div>
