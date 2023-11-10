@@ -383,7 +383,7 @@ describe('getExampleFromSchema', () => {
     })
   })
 
-  it.only('add XML wrappers where needed', () => {
+  it('add XML wrappers where needed', () => {
     expect(
       getExampleFromSchema(
         {
@@ -412,7 +412,7 @@ describe('getExampleFromSchema', () => {
     })
   })
 
-  it.only('doesn’t wrap items when not needed', () => {
+  it('doesn’t wrap items when not needed', () => {
     expect(
       getExampleFromSchema(
         {
