@@ -6,5 +6,5 @@ import { ApiReference } from '@scalar/api-reference'
   <ApiReference
     :initialTabState="'Swagger Editor'"
     :isEditable="true"
-    specUrl="/scalar.json" />
+    proxyUrl="https://api.scalar.com/request-proxy" />
 </template>
