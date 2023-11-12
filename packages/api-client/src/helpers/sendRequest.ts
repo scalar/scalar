@@ -109,46 +109,46 @@ export async function sendRequest(
     console.info(`${requestConfig.method} ${requestConfig.url}`)
   }
 
-  const response: (ClientResponse & { error: false }) | { error: true } =
-    await axios(axiosRequestConfig)
-      .then((result) => {
-        // With proxy
-        if (proxyUrl) {
-          return {
-            ...result.data,
-            error: false,
-          }
-        }
-
-        // Without proxy
+  const response: ClientResponse = await axios(axiosRequestConfig)
+    .then((result) => {
+      // With proxy
+      if (proxyUrl) {
         return {
-          ...result,
-          statusCode: result.status,
-          data: JSON.stringify(result.data),
+          ...result.data,
           error: false,
         }
-      })
-      .catch((error) => {
-        return {
-          error: true,
-          ...error?.response,
-        }
-      })
-
-  return response.error
-    ? null
-    : {
-        sentTime: Date.now(),
-        request: {
-          ...request,
-          type: method,
-          url,
-          path,
-        },
-        response: {
-          ...response,
-          duration: Date.now() - startTime,
-        },
-        responseId: nanoid(),
       }
+
+      // Without proxy
+      return {
+        ...result,
+        statusCode: result.status,
+        data: JSON.stringify(result.data),
+        error: false,
+      }
+    })
+    .catch((error) => {
+      const { response: errorResponse } = error
+
+      return {
+        ...errorResponse,
+        statusCode: errorResponse.status,
+        data: JSON.stringify(errorResponse.data),
+      }
+    })
+
+  return {
+    sentTime: Date.now(),
+    request: {
+      ...request,
+      type: method,
+      url,
+      path,
+    },
+    response: {
+      ...response,
+      duration: Date.now() - startTime,
+    },
+    responseId: nanoid(),
+  }
 }
