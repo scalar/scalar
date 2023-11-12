@@ -3,7 +3,7 @@ import {
   ApiReferenceBase,
   type ReferenceConfiguration,
 } from '@scalar/api-reference'
-import { reactive } from 'vue'
+import { computed, reactive } from 'vue'
 
 import DevToolbar from '../components/DevToolbar.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
@@ -19,15 +19,16 @@ const configuration = reactive<ReferenceConfiguration>({
     initialContent: 'Swagger Editor',
   },
 })
+
+const configProxy = computed({
+  get: () => configuration,
+  set: (v) => Object.assign(configuration, v),
+})
 </script>
 <template>
   <ApiReferenceBase :configuration="configuration">
     <template #header>
-      <DevToolbar
-        :modelValue="configuration"
-        @update:modelValue="
-          (newConfiguration) => Object.assign(configuration, newConfiguration)
-        " />
+      <DevToolbar v-model="configProxy" />
     </template>
     <template #sidebar-start>
       <SlotPlaceholder>sidebar-start</SlotPlaceholder>

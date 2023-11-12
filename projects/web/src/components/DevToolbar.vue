@@ -11,8 +11,17 @@ const emit = defineEmits<{
   (e: 'update:modelValue', v: ReferenceConfiguration): void
 }>()
 
-// Alias
-const configuration = computed(() => props.modelValue)
+/** Computed config proxy for v-model
+ * @see https://skirtles-code.github.io/vue-examples/patterns/computed-v-model.html#advanced-usage-proxying-objects */
+const configuration = computed(
+  () =>
+    new Proxy(props.modelValue, {
+      set(obj, key, value) {
+        emit('update:modelValue', { ...obj, [key]: value })
+        return true
+      },
+    }),
+)
 
 // The collaborative editing configuration is an object and not just true/false, that’s
 // why we’re keeping track of it separately.
@@ -72,40 +81,13 @@ watch(
     <div class="references-dev-options">
       <div>
         <input
-          :checked="configuration.isEditable"
-          type="checkbox"
-          @input="
-            (event) =>
-              emit(
-                'update:modelValue',
-                getCompleteConfiguration({
-                  ...configuration,
-                  isEditable: (event.target as HTMLInputElement).checked
-                }),
-              )
-          " />
+          v-model="configuration.isEditable"
+          type="checkbox" />
         isEditable
       </div>
-      <button
-        class="references-dev-hide-toolbar"
-        type="button"
-        @click="showToolbar = false">
-        Hide
-      </button>
       <div>
         Theme:
-        <select
-          :value="configuration.theme"
-          @input="
-            (event) =>
-              emit(
-                'update:modelValue',
-                getCompleteConfiguration({
-                  ...configuration,
-                  theme: (event.target as HTMLInputElement).value
-                }),
-              )
-          ">
+        <select v-model="configuration.theme">
           <option
             v-for="theme in availableThemes"
             :key="theme"
