@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.7.31
+
+### Patch Changes
+
+- ceb7952: fix: show non 200 responses when not using the proxy
+
 ## 0.7.30
 
 ### Patch Changes
