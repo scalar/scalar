@@ -5,6 +5,7 @@ import {
 import { type ThemeId } from '@scalar/themes'
 import type { HarRequest } from 'httpsnippet-lite'
 import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
+import { type DeepReadonly } from 'vue'
 
 export type ReferenceProps = {
   configuration?: ReferenceConfiguration
@@ -47,7 +48,7 @@ export type ReferenceConfiguration = {
 }
 
 /** Default reference configuration */
-export const DEFAULT_CONFIG: ReferenceConfiguration = {
+export const DEFAULT_CONFIG: DeepReadonly<ReferenceConfiguration> = {
   spec: {
     content: undefined,
     url: undefined,
@@ -61,7 +62,7 @@ export const DEFAULT_CONFIG: ReferenceConfiguration = {
   showSidebar: true,
   isEditable: false,
   hocuspocusConfiguration: undefined,
-} as const
+}
 
 export type Schema = {
   format: string
