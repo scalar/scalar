@@ -37,8 +37,6 @@ export type ReferenceConfiguration = {
   }
   /** Whether to show the sidebar */
   showSidebar?: boolean
-  /** Whether to make the footer full-width (include below the sidebar) */
-  footerBelowSidebar?: boolean
   /** Remove the Scalar branding :( */
   // doNotPromoteScalar?: boolean
   hocuspocusConfiguration?: HocuspocusConfigurationProp
@@ -62,7 +60,6 @@ export const DEFAULT_CONFIG: ReferenceConfiguration = {
   },
   showSidebar: true,
   isEditable: false,
-  footerBelowSidebar: false,
   hocuspocusConfiguration: undefined,
 } as const
 

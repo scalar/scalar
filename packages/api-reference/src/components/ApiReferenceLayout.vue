@@ -71,7 +71,6 @@ const showSwaggerEditor = computed(() => {
     class="scalar-api-reference references-layout"
     :class="[
       {
-        'references-footer-below': configuration?.footerBelowSidebar,
         'references-editable': showSwaggerEditor,
       },
     ]"
