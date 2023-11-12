@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.0.6
+
+### Patch Changes
+
+- 366b142: fix: ignore proxy when swagger spec is a path
+- e1dc955: fix: add fallback to name for models if no xml attribute passed
+- Updated dependencies [ceb7952]
+  - @scalar/api-client@0.7.31
+
 ## 1.0.5
 
 ### Patch Changes
