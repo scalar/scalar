@@ -5,6 +5,7 @@ withDefaults(
   defineProps<{
     value?: Record<string, any>
     level?: number
+    name?: string
   }>(),
   {
     level: 0,
@@ -25,6 +26,9 @@ withDefaults(
         </span>
         <template v-if="value?.xml?.name && value?.xml?.name !== '##default'">
           &lt;{{ value?.xml?.name }} /&gt;
+        </template>
+        <template v-else-if="name">
+          {{ name }}
         </template>
         <template v-else>
           {{ value.type }}

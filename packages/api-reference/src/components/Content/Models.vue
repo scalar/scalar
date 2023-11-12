@@ -49,7 +49,9 @@ const models = computed(() => {
             {{ name }}
           </SectionHeader>
           <!-- Schema -->
-          <Schema :value="components?.schemas?.[name]" />
+          <Schema
+            :name="name"
+            :value="components?.schemas?.[name]" />
           <!-- Show More Button -->
           <ShowMoreButton
             v-if="!showAllModels && index === models.length - 1"
