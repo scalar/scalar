@@ -45,6 +45,6 @@ defineProps<{
 <style scoped>
 .examples {
   position: sticky;
-  top: calc(var(--theme-header-height, 0px) + 24px);
+  top: calc(var(--refs-header-height) + 24px);
 }
 </style>
