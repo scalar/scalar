@@ -14,7 +14,7 @@
   display: flex;
   flex-direction: column;
   max-height: calc(
-    ((var(--full-height) - var(--theme-header-height, 0px)) - 60px) / 2
+    ((var(--full-height) - var(--refs-header-height)) - 60px) / 2
   );
   position: relative;
 }
