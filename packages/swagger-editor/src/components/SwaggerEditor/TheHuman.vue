@@ -40,7 +40,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  opacity: 0.4;
+  opacity: 0.7;
 }
 .dark-mode .human {
   opacity: 0.7;
@@ -65,7 +65,7 @@
 .make-it-pop {
   overflow: hidden;
   position: relative;
-  padding: 12px 60px 12px 12px;
+  padding: 24px 60px 12px 24px;
   min-height: 80px;
   color: var(--theme-color-1, var(--default-theme-color-1));
 }

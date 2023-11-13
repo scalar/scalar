@@ -201,8 +201,8 @@ async function handleCreatePage() {
   border-radius: var(--theme-radius, var(--default-theme-radius));
 }
 .swagger-ai-writer-inputs {
-  background: var(--theme-background-2, var(--default-theme-background-2));
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
 .swagger-ai-writer-inputs-container :deep(.flow-label) {
   background: var(--theme-background-2, var(--default-theme-background-2));
@@ -210,7 +210,7 @@ async function handleCreatePage() {
     var(--theme-background-2, var(--default-theme-background-2));
 }
 .swagger-ai-writer-inputs-container {
-  padding: 0 12px 12px 12px;
+  padding: 0 24px 24px 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
