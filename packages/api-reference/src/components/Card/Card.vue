@@ -13,7 +13,9 @@
   background: var(--theme-background-2, var(--default-theme-background-2));
   display: flex;
   flex-direction: column;
-  max-height: calc(50vh - 30px);
+  max-height: calc(
+    ((var(--full-height) - var(--refs-header-height)) - 60px) / 2
+  );
   position: relative;
 }
 </style>
