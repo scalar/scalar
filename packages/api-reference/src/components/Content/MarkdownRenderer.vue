@@ -52,7 +52,7 @@ watch(
 .markdown {
   color: var(--theme-color-1, var(--default-theme-color-1));
   all: unset;
-  word-break: break-all;
+  word-break: break-word;
 }
 .markdown :deep(*) {
   all: unset;
