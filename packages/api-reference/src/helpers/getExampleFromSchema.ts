@@ -8,13 +8,26 @@ export const getExampleFromSchema = (
      * The fallback string for empty string values.
      * @default ''
      **/
-    emptyString: string
+    emptyString?: string
+    /**
+     * Whether to use the XML tag names as keys
+     * @default false
+     */
+    xml?: boolean
   },
   level: number = 0,
 ): any => {
   // Break an infinite loop
   if (level > 10) {
     return null
+  }
+
+  if (schema.type === 'string') {
+    if (schema.example !== undefined) {
+      return schema.example
+    }
+
+    return options?.emptyString ?? ''
   }
 
   if (schema.type === 'array') {
@@ -37,28 +50,33 @@ export const getExampleFromSchema = (
 
   Object.keys(schema.properties).forEach((name: string) => {
     const property = schema.properties[name]
+    const xmlTagName = options?.xml ? property.xml?.name : undefined
 
     // example: 'Dogs'
     if (property.example !== undefined) {
-      response[name] = property.example
+      response[xmlTagName ?? name] = property.example
       return
     }
 
     // default: 400
     if (property.default !== undefined) {
-      response[name] = property.default
+      response[xmlTagName ?? name] = property.default
       return
     }
 
     // enum: [ 'available', 'pending', 'sold' ]
     if (property.enum !== undefined) {
-      response[name] = property.enum[0]
+      response[xmlTagName ?? name] = property.enum[0]
       return
     }
 
     // properties: { … }
     if (property.properties !== undefined) {
-      response[name] = getExampleFromSchema(property, options, level + 1)
+      response[xmlTagName ?? name] = getExampleFromSchema(
+        property,
+        options,
+        level + 1,
+      )
 
       return
     }
@@ -68,18 +86,30 @@ export const getExampleFromSchema = (
       const children = getExampleFromSchema(property.items, options, level + 1)
 
       if (property?.type === 'array') {
-        response[name] = [children]
+        response[xmlTagName ?? name] = [children]
       } else {
-        response[name] = null
+        response[xmlTagName ?? name] = null
       }
 
       return
     }
 
     // Set an example value based on the type
+    const itemsXmlTagName = property?.items?.xml?.name
+    const wrapItems = options?.xml && property.xml?.wrapped && itemsXmlTagName
+    const itemsExample = property.items
+      ? getExampleFromSchema(property.items, options, level + 1)
+      : []
+    const formattedItemsExample = !itemsExample
+      ? []
+      : Array.isArray(itemsExample)
+      ? itemsExample
+      : [itemsExample]
+
     const exampleValues: Record<string, any> = {
-      // TODO: Need to check the schema and add a default value
-      array: [],
+      array: wrapItems
+        ? { [itemsXmlTagName]: formattedItemsExample }
+        : formattedItemsExample,
       string: options?.emptyString ?? '',
       boolean: true,
       integer: 1,
@@ -89,7 +119,7 @@ export const getExampleFromSchema = (
     }
 
     if (exampleValues[property.type] !== undefined) {
-      response[name] = exampleValues[property.type]
+      response[xmlTagName ?? name] = exampleValues[property.type]
       return
     }
 
@@ -99,7 +129,7 @@ export const getExampleFromSchema = (
     )
 
     // … and just return null for now.
-    response[name] = null
+    response[xmlTagName ?? name] = null
   })
 
   return response

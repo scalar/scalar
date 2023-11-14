@@ -118,13 +118,27 @@ export type ExampleResponseHeaders = Record<
   }
 >
 
+export type RequestBodyMimeTypes =
+  | 'application/json'
+  | 'application/octet-stream'
+  | 'application/x-www-form-urlencoded'
+  | 'application/xml'
+  | 'multipart/form-data'
+  | 'text/plain'
+
 export type TransformedOperation = Operation & {
-  responses: Record<
-    string,
-    Response & {
-      headers: ExampleResponseHeaders
+  information: {
+    requestBody?: {
+      content?: Record<
+        RequestBodyMimeTypes,
+        {
+          schema?: any
+          example?: any
+          examples?: any
+        }
+      >
     }
-  >
+  }
 }
 
 export type Tag = {

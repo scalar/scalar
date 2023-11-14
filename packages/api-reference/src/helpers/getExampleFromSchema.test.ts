@@ -261,6 +261,15 @@ describe('getExampleFromSchema', () => {
     })
   })
 
+  it('returns plaintext', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'string',
+        example: 'foobar',
+      }),
+    ).toEqual('foobar')
+  })
+
   it('converts a whole schema to an example response', () => {
     const schema = {
       required: ['name', 'photoUrls'],
@@ -351,6 +360,79 @@ describe('getExampleFromSchema', () => {
         },
       ],
       status: 'available',
+    })
+  })
+
+  it('outputs XML', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          properties: {
+            id: {
+              example: 1,
+              xml: {
+                name: 'foo',
+              },
+            },
+          },
+        },
+        { xml: true },
+      ),
+    ).toMatchObject({
+      foo: 1,
+    })
+  })
+
+  it('add XML wrappers where needed', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          properties: {
+            photoUrls: {
+              type: 'array',
+              xml: {
+                wrapped: true,
+              },
+              items: {
+                type: 'string',
+                example: 'https://example.com',
+                xml: {
+                  name: 'photoUrl',
+                },
+              },
+            },
+          },
+        },
+        { xml: true },
+      ),
+    ).toMatchObject({
+      photoUrls: {
+        photoUrl: ['https://example.com'],
+      },
+    })
+  })
+
+  it('doesn’t wrap items when not needed', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          properties: {
+            photoUrls: {
+              type: 'array',
+              items: {
+                type: 'string',
+                example: 'https://example.com',
+                xml: {
+                  name: 'photoUrl',
+                },
+              },
+            },
+          },
+        },
+        { xml: true },
+      ),
+    ).toMatchObject({
+      photoUrls: ['https://example.com'],
     })
   })
 })
