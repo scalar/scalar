@@ -73,20 +73,34 @@ watch(
 </script>
 <template>
   <div class="start custom-scroll">
-    <h1 class="start-h1">Swagger Editor</h1>
-    <p class="start-p">
-      Welcome to the Scalar API References + Swagger Editor, a Free &
-      Open-Source tool that takes your Swagger/OAS file and generates Beautiful
-      API references.
-    </p>
-    <div class="start-cta flex flex-row gap-1">
-      <FlowButton
-        label="Test Petstore"
-        @click="example = 'Petstore'" />
-      <FlowButton
-        label="Upload File"
-        variant="outlined"
-        @click="$emit('openSwaggerEditor', 'uploadFile')" />
+    <div class="start-copy">
+      <div class="start-logo">
+        <svg
+          height="36"
+          viewBox="0 0 36 36"
+          width="36"
+          xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M18 0a18 18 0 1 1 0 36 18 18 0 0 1 0-36Zm11.2 6.5c-3.3-3.3-11.1-1-17.4 5.3-6.2 6.3-8.6 14-5.3 17.4 3.3 3.3 11 .9 17.3-5.4 6.3-6.2 8.7-14 5.4-17.3ZM17.6 12a6.3 6.3 0 1 1 0 12.7 6.3 6.3 0 0 1 0-12.7Z"
+            fill="currentColor"
+            fill-rule="evenodd" />
+        </svg>
+      </div>
+      <h1 class="start-h1">Swagger Editor</h1>
+      <p class="start-p">
+        Welcome to the Scalar API References + Swagger Editor, a Free &
+        Open-Source tool that takes your Swagger/OAS file and generates
+        Beautiful API references.
+      </p>
+      <div class="start-cta flex flex-row gap-1">
+        <FlowButton
+          label="Test Petstore"
+          @click="example = 'Petstore'" />
+        <FlowButton
+          label="Upload File"
+          variant="outlined"
+          @click="$emit('openSwaggerEditor', 'uploadFile')" />
+      </div>
     </div>
     <div class="start-row">
       <div class="start-section">
@@ -164,7 +178,6 @@ watch(
           </svg>
           CoinMarketCap
         </div>
-        <div class="start-item"></div>
       </div>
       <div class="start-section">
         <div class="start-h2">INTEGRATIONS</div>
@@ -301,22 +314,38 @@ watch(
         </p> -->
       </div>
     </div>
-    <p class="start-h3">Features</p>
+    <p class="start-h1">Features</p>
     <ul class="start-ul">
       <li>
-        Add typography & color palettes, or use some of our prebuilt themes!
+        <p class="start-h3">Customize</p>
+        Bring your typography & color palettes, or use our themes!
       </li>
-      <li>A deeply integrated Rest API Client (Also Free & Open-Source)</li>
-      <li>Fully integrated Search (Using fuse.js)</li>
-      <li>Free hosting with an https://apidocumentation.com subdomain</li>
-      <li>Support for OpenAPI 3.1, OpenAPI 3.0, and Swagger 2.0</li>
-      <li>Code samples to show off your API in most popular languages</li>
+      <li>
+        <p class="start-h3">Testing</p>
+        A deeply integrated Rest API Client (Also Free & Open-Source)
+      </li>
+      <li>
+        <p class="start-h3">Search</p>
+        Fully integrated Search (Using fuse.js)
+      </li>
+      <li>
+        <p class="start-h3">Hosting</p>
+        Free subdomain hosting on https://apidocumentation.com
+      </li>
+      <li>
+        <p class="start-h3">Openapi & Swagger</p>
+        Support for OpenAPI 3.1, OpenAPI 3.0, and Swagger 2.0
+      </li>
+      <li>
+        <p class="start-h3">Code Samples</p>
+        Code samples to show off your API in most popular languages
+      </li>
     </ul>
   </div>
 </template>
 <style scoped>
 .start {
-  padding: 60px 12px 24px 24px;
+  padding: 24px 12px 24px 24px;
   display: flex;
   flex-flow: wrap;
   justify-content: space-between;
@@ -332,12 +361,14 @@ watch(
   font-weight: var(--theme-bold, var(--default-theme-bold));
   color: var(--theme-color-1, var(--default-theme-color-1));
   width: 100%;
+  position: relative;
 }
 .start-h3 {
-  font-size: var(--theme-heading-4, var(--default-theme-heading-4));
-  margin-top: 12px;
+  font-size: var(--theme-paragraph, var(--default-theme-paragraph));
+  margin-top: 0;
+  margin-bottom: 6px;
+  display: block;
   line-height: 1.45;
-  margin-bottom: 0;
   font-weight: var(--theme-bold, var(--default-theme-bold));
   color: var(--theme-color-1, var(--default-theme-color-1));
   width: 100%;
@@ -347,7 +378,7 @@ watch(
 }
 .start-p {
   font-size: var(--theme-paragraph, var(--default-theme-paragraph));
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--theme-color-2, var(--default-theme-color-2));
   line-height: 1.5;
   width: 100%;
   margin-top: 12px;
@@ -355,14 +386,19 @@ watch(
 .start-ul {
   margin-top: 12px;
   font-size: var(--theme-paragraph, var(--default-theme-paragraph));
-  color: var(--theme-color-1, var(--default-theme-color-1));
   line-height: 1.5;
-  padding-left: 24px;
+  padding-left: 0;
   list-style: initial;
+  display: flex;
+  flex-flow: wrap;
+  gap: 24px;
 }
 .start-ul li {
-  margin: 6px 0;
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: calc(50% - 24px);
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 .start-ul li:first-of-type {
   margin-top: 0;
@@ -374,6 +410,10 @@ watch(
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   display: flex;
   flex-flow: wrap;
+  background: var(--theme-background-2, var(--default-theme-background-2));
+}
+.start-section:last-of-type {
+  margin-bottom: 48px;
 }
 .start-h2 {
   padding: 9px;
@@ -396,10 +436,10 @@ watch(
   align-items: center;
   user-select: none;
   cursor: pointer;
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  color: var(--theme-color-1, var(--default-theme-color-1));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-mini, var(--default-theme-mini));
-  width: 25%;
+  flex: 1;
   text-transform: capitalize;
 }
 .start-section-colors .start-item {
@@ -469,7 +509,8 @@ watch(
 }
 .start-cta {
   width: 100%;
-  margin-top: 12px;
+  margin-top: 24px;
+  margin-bottom: 0;
 }
 .start-a {
   color: var(
@@ -508,6 +549,54 @@ watch(
   width: fit-content;
   white-space: nowrap;
 }
+.start-copy {
+  padding: 76px 48px 48px 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+.start-logo {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  margin-bottom: 24px;
+  width: 72px;
+  aspect-ratio: 1;
+  position: relative;
+  box-shadow: var(--theme-shadow-2, var(--default-theme-shadow-2));
+  border-radius: 50%;
+}
+.start-logo:before {
+  content: '';
+  width: 300%;
+  aspect-ratio: 1;
+  left: -100%;
+  top: -100%;
+  position: absolute;
+  border-radius: 50%;
+  background-size: 24px 24px;
+  box-shadow: inset 0 0 50px
+      var(--theme-background-1, var(--default-theme-background-1)),
+    inset 0 0 50px var(--theme-background-1, var(--default-theme-background-1));
+  background-image: linear-gradient(
+      to right,
+      var(--theme-border-color, var(--default-theme-border-color)) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      var(--theme-border-color, var(--default-theme-border-color)) 1px,
+      transparent 1px
+    );
+}
+.start-logo svg {
+  width: 100%;
+  height: auto;
+  background: var(--theme-background-1, var(--default-theme-background-1));
+  padding: 3px;
+  border-radius: 50%;
+  position: relative;
+}
 @media screen and (max-width: 600px) {
   .start-section-colors .start-item,
   .start-item {
@@ -522,6 +611,12 @@ watch(
   }
   .start-h2 {
     border-bottom: none;
+  }
+  .start li {
+    width: 100%;
+  }
+  .start-copy {
+    padding: 48px 0 24px 0;
   }
 }
 </style>

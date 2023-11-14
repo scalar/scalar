@@ -4,7 +4,9 @@
 <style scoped>
 .refs-mock-footer {
   height: 100px;
-  border-top: 1px solid var(--default-theme-border-color);
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+  color: var(--theme-color-1, var(--default-theme-color-1));
   display: flex;
   align-items: center;
   justify-content: center;
