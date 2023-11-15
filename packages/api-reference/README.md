@@ -122,3 +122,21 @@ Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
 ```vue
 <ApiReference :configuration="{ searchHotKey: 'l'} />
 ```
+
+#### metaData?: object
+
+You can pass information to the config object to configure meta information out of the box.
+
+```vue
+<ApiReference :configuration="{
+  metaData: {
+        title: 'Page title',
+        description: 'My page page',
+        ogDescription: 'Still about my my page',
+        ogTitle: 'Page title',
+        ogImage: 'https://example.com/image.png',
+        twitterCard: 'summary_large_image',
+        //Add more...
+      }
+  } />
+```

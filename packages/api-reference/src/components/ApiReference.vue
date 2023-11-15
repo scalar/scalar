@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
+import { createHead, useSeoMeta } from 'unhead'
 import { computed, ref } from 'vue'
 
 import { type ReferenceProps, type SpecConfiguration } from '../types'
@@ -31,6 +32,12 @@ const otherProps = computed(() => {
   const { configuration, ...other } = props
   return other
 })
+
+if (config.value?.metaData) {
+  // Create a global head instance
+  createHead()
+  useSeoMeta(config.value.metaData)
+}
 </script>
 <template>
   <ApiReferenceBase

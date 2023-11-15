@@ -17,6 +17,7 @@
     "@scalar/use-modal": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
+    "@unhead/schema": "1.8.3",
     "@vcarl/remark-headings": "0.1.0",
     "@vueuse/core": "10.4.1",
     "@xmldom/xmldom": "0.8.4",
@@ -37,6 +38,7 @@
     "remark-parse": "11.0.0",
     "remark-rehype": "11.0.0",
     "remark-stringify": "11.0.0",
+    "unhead": "1.8.3",
     "unified": "11.0.3"
   },
   "devDependencies": {

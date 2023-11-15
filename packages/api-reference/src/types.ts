@@ -3,6 +3,7 @@ import {
   type HocuspocusConfigurationProp,
 } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
+import type { MetaFlatInput } from '@unhead/schema'
 import type { HarRequest } from 'httpsnippet-lite'
 import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 import { type DeepReadonly } from 'vue'
@@ -46,6 +47,8 @@ export type ReferenceConfiguration = {
   searchHotKey?: string
   /** ??? */
   aiWriterMarkdown?: string
+  /** For metadata */
+  metaData?: MetaFlatInput
 }
 
 /** Default reference configuration */
