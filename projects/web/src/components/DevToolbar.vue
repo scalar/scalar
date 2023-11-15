@@ -86,6 +86,12 @@ watch(
         isEditable
       </div>
       <div>
+        <input
+          v-model="configuration.showSidebar"
+          type="checkbox" />
+        showSidebar
+      </div>
+      <div>
         Theme:
         <select v-model="configuration.theme">
           <option

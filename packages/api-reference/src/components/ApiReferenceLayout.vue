@@ -10,7 +10,10 @@ import { computed, onMounted, ref } from 'vue'
 
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceConfiguration, Spec } from '../types'
-import { default as ApiClientModal } from './ApiClientModal.vue'
+import {
+  default as ApiClientModal,
+  useApiClientStore,
+} from './ApiClientModal.vue'
 import { Content } from './Content'
 import SearchModal from './SearchModal.vue'
 import Sidebar from './Sidebar.vue'
@@ -64,6 +67,8 @@ const showSwaggerEditor = computed(() => {
     props.configuration?.isEditable
   )
 })
+
+const { state } = useApiClientStore()
 </script>
 <template>
   <div
@@ -77,7 +82,9 @@ const showSwaggerEditor = computed(() => {
     :style="{ '--full-height': `${elementHeight}px` }">
     <!-- Header -->
     <div class="references-header">
-      <slot name="header" />
+      <slot
+        :breadcrumb="state.activeBreadcrumb"
+        name="header" />
     </div>
     <!-- Navigation (sidebar) wrapper -->
     <aside

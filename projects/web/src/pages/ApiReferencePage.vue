@@ -3,18 +3,19 @@ import {
   ApiReferenceBase,
   type ReferenceConfiguration,
 } from '@scalar/api-reference'
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
 import DevToolbar from '../components/DevToolbar.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
+
+const content = ref('')
 
 const configuration = reactive<ReferenceConfiguration>({
   theme: 'default',
   proxy: 'http://localhost:5051',
   isEditable: true,
-  spec: {
-    url: 'https://raw.githubusercontent.com/outline/openapi/main/spec3.json',
-  },
+  showSidebar: true,
+  spec: { content },
   tabs: {
     initialContent: 'Swagger Editor',
   },
@@ -26,7 +27,9 @@ const configProxy = computed({
 })
 </script>
 <template>
-  <ApiReferenceBase :configuration="configuration">
+  <ApiReferenceBase
+    :configuration="configuration"
+    @updateContent="(v) => (content = v)">
     <template #header>
       <DevToolbar v-model="configProxy" />
     </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
-import { type ReferenceProps } from 'src/types'
-import { computed } from 'vue'
+import { type ReferenceProps, type SpecConfiguration } from 'src/types'
+import { computed, ref } from 'vue'
 
 import { useTemplateStore } from '../stores/template'
 import ApiReferenceBase from './ApiReferenceBase.vue'
@@ -17,12 +17,18 @@ const { state } = useTemplateStore()
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
 
+const content = ref('')
+
 // Override the sidebar value for mobile to open and close the drawer
 const config = computed(() => {
   const showSidebar = isMobile.value
     ? state.showMobileDrawer
     : props.configuration?.showSidebar
-  return { ...props.configuration, showSidebar }
+  const spec: SpecConfiguration = props.configuration?.spec || {
+    content: content.value,
+  }
+  console.log(spec)
+  return { ...props.configuration, showSidebar, spec }
 })
 
 const otherProps = computed(() => {
@@ -33,7 +39,8 @@ const otherProps = computed(() => {
 <template>
   <ApiReferenceBase
     v-bind="otherProps"
-    :configuration="config">
+    :configuration="config"
+    @updateContent="content = $event">
     <template
       v-if="isMobile"
       #header>

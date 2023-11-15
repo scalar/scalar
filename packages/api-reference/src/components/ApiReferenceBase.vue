@@ -102,8 +102,10 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
     :swaggerEditorRef="swaggerEditorRef"
     @changeTheme="$emit('changeTheme', $event)"
     @updateContent="(newContent: string) => setRawSpecRef(newContent)">
-    <template #header>
-      <slot name="header" />
+    <template #header="attribs">
+      <slot
+        v-bind="attribs"
+        name="header" />
     </template>
     <template #sidebar-start><slot name="sidebar-start" /></template>
     <template #sidebar-end><slot name="sidebar-end" /></template>

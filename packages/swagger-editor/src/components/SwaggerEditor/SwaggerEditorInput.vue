@@ -30,7 +30,10 @@ defineExpose({
 
 watch(
   () => props.hocuspocusConfiguration,
-  () => {
+  (newConfig, oldConfig) => {
+    // Don't try to reload if it's the same config values
+    if (JSON.stringify(oldConfig) === JSON.stringify(newConfig)) return
+
     if (provider) {
       provider.destroy()
       yCodeMirrorExtension.value = null
