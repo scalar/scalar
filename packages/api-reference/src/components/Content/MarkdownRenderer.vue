@@ -51,8 +51,8 @@ watch(
 <style scoped>
 .markdown {
   color: var(--theme-color-1, var(--default-theme-color-1));
-  word-wrap: break-word;
   all: unset;
+  word-break: break-word;
 }
 .markdown :deep(*) {
   all: unset;
@@ -70,6 +70,7 @@ watch(
   margin: 24px 0 6px;
   font-weight: var(--theme-bold, var(--default-theme-bold));
   display: block;
+  line-height: 1.45;
 }
 .markdown :deep(b),
 .markdown :deep(strong) {
