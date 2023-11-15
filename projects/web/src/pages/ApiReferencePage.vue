@@ -45,5 +45,8 @@ const configProxy = computed({
     <template #content-end>
       <SlotPlaceholder>content-end</SlotPlaceholder>
     </template>
+    <template #footer>
+      <SlotPlaceholder>footer</SlotPlaceholder>
+    </template>
   </ApiReferenceBase>
 </template>
