@@ -6,7 +6,7 @@ import {
 import { type ThemeId } from '@scalar/themes'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUpdated, ref, watch } from 'vue'
 
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceConfiguration, Spec } from '../types'
@@ -50,11 +50,39 @@ useKeyboardEvent({
   handler: () => setTemplateItem('showSearch', !templateState.showSearch),
 })
 
-onMounted(() => {
-  document.querySelector('#tippy')?.scrollTo({
-    top: 0,
-    left: 0,
-  })
+// Scroll to hash if exists
+const initiallyScrolled = ref(false)
+const tagRegex = /#(tag\/[^/]*)/
+const { setCollapsedSidebarItem } = useTemplateStore()
+
+// Wait until we have a parsed spec
+watch(props.parsedSpec, async (val) => {
+  if (initiallyScrolled.value || !val?.info?.title) return
+  initiallyScrolled.value = true
+
+  // The original scroll to top from mounted
+  const hashId = document.location.hash
+  if (!hashId) {
+    console.log('original scroll')
+    document.querySelector('#tippy')?.scrollTo({
+      top: 0,
+      left: 0,
+    })
+  }
+
+  // Ensure we open the section
+  const match = hashId.match(tagRegex)
+  if (match && match.length > 1) {
+    setCollapsedSidebarItem(match[1], true)
+  }
+
+  // I tried to get this to work with nextTick but it would scroll half way above
+  // the section, I'm assuming this is due to the time for the section to render
+  // We can probably come up with something better but this works for now
+  setTimeout(() => {
+    const elem = document.getElementById(hashId.replace(/^#/, ''))
+    elem?.scrollIntoView()
+  }, 0)
 })
 
 const showRenderedContent = computed(
