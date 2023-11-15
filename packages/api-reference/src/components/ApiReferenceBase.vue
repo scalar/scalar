@@ -111,6 +111,7 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
     <template #sidebar-end><slot name="sidebar-end" /></template>
     <template #content-start><slot name="content-start" /></template>
     <template #content-end><slot name="content-end" /></template>
+    <template #footer><slot name="footer" /></template>
     <template
       v-if="LazyLoadedSwaggerEditor"
       #editor>

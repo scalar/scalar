@@ -131,6 +131,11 @@ const { state } = useApiClientStore()
         </Content>
         <slot name="content-end" />
       </div>
+      <div
+        v-if="$slots.footer"
+        class="references-footer">
+        <slot name="footer" />
+      </div>
     </template>
     <!-- Search Overlay -->
     <SearchModal
@@ -171,11 +176,12 @@ const { state } = useApiClientStore()
 
   /* Grid layout */
   display: grid;
-  grid-template-rows: var(--refs-header-height) auto;
+  grid-template-rows: var(--refs-header-height) repeat(2, auto);
   grid-template-columns: var(--refs-sidebar-width) 1fr;
   grid-template-areas:
     'header header'
-    'navigation rendered';
+    'navigation rendered'
+    'footer footer';
 
   background: var(--theme-background-1, var(--default-theme-background-1));
 }
@@ -238,7 +244,13 @@ const { state } = useApiClientStore()
 
   grid-template-areas:
     'header header header'
-    'navigation editor rendered';
+    'navigation editor rendered'
+    'footer footer footer';
+}
+
+/* Footer */
+.references-footer {
+  grid-area: footer;
 }
 /* ----------------------------------------------------- */
 /* Responsive / Mobile Layout */
@@ -254,12 +266,13 @@ const { state } = useApiClientStore()
   /* Stack view on mobile */
   .references-layout {
     grid-template-columns: auto;
-    grid-template-rows: var(--refs-header-height) 0px auto;
+    grid-template-rows: var(--refs-header-height) 0px auto auto;
 
     grid-template-areas:
       'header'
       'navigation'
-      'rendered';
+      'rendered'
+      'footer';
   }
   .references-editable {
     grid-template-areas:
