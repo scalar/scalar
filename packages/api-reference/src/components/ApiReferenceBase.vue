@@ -31,9 +31,11 @@ const emit = defineEmits<{
 /**
  * The editor component has heavy dependencies (process), let's lazy load it.
  */
-const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
-  import('@scalar/swagger-editor').then((module) => module.SwaggerEditor),
-)
+const LazyLoadedSwaggerEditor = props.configuration?.isEditable
+  ? defineAsyncComponent(() =>
+      import('@scalar/swagger-editor').then((module) => module.SwaggerEditor),
+    )
+  : false
 
 /** Merge the default configuration with the given configuration. */
 const currentConfiguration = computed(
