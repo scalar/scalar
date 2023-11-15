@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.1.0
+
+### Minor Changes
+
+- 77dce14: refactor(references)!: remove deprecated component props
+  refactor(references): extract references code into base component
+  feat(references): expose new props for references base component
+
+### Patch Changes
+
+- d3205e5: feat: support request bodies with other mime types than JSON
+- aa2a575: fix: cards overlapping header
+- Updated dependencies [801f1b5]
+  - @scalar/swagger-editor@0.7.4
+
 ## 1.0.6
 
 ### Patch Changes
