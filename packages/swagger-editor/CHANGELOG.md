@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.7.4
+
+### Patch Changes
+
+- 801f1b5: feat: improve getting started page
+
 ## 0.7.3
 
 ### Patch Changes
