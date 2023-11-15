@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { useApiClientStore, useRequestStore } from '@scalar/api-client'
-import { useKeyboardEvent } from '@scalar/use-keyboard-event'
-import { useMediaQuery } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
 import {
@@ -18,28 +16,15 @@ import {
 import { useGlobalStore } from '../stores'
 import { useTemplateStore } from '../stores/template'
 import type { Spec, Tag, TransformedOperation } from '../types'
-import DarkModeToggle from './DarkModeToggle.vue'
-import FindAnythingButton from './FindAnythingButton.vue'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
 
-const props = withDefaults(
-  defineProps<{
-    parsedSpec: Spec
-    searchHotKey?: string
-    isDarkMode: boolean
-  }>(),
-  {
-    searchHotKey: 'k',
-  },
-)
-defineEmits<{
-  (e: 'toggleDarkMode'): void
+const props = defineProps<{
+  parsedSpec: Spec
 }>()
 
 const {
   state: templateState,
-  setItem: setTemplateItem,
   toggleCollapsedSidebarItem,
   setCollapsedSidebarItem,
 } = useTemplateStore()
@@ -75,14 +60,6 @@ function showItemInClient(operation: TransformedOperation) {
 
   toggleApiClient(request, true)
 }
-
-const isMobile = useMediaQuery('(max-width: 1000px)')
-
-useKeyboardEvent({
-  keyList: [props.searchHotKey],
-  withCtrlCmd: true,
-  handler: () => setTemplateItem('showSearch', !templateState.showSearch),
-})
 
 const moreThanOneDefaultTag = (tag: Tag) =>
   props.parsedSpec?.tags?.length !== 1 ||
@@ -246,10 +223,7 @@ const setRef = (el: SidebarElementType, id: string) => {
 </script>
 <template>
   <div class="sidebar">
-    <FindAnythingButton
-      v-if="!isMobile"
-      :searchHotKey="searchHotKey"
-      @click="setTemplateItem('showSearch', true)" />
+    <slot name="sidebar-start" />
     <div
       ref="scrollerEl"
       class="pages custom-scroll custom-scroll-self-contain-overflow">
@@ -308,9 +282,7 @@ const setRef = (el: SidebarElementType, id: string) => {
         </SidebarElement>
       </SidebarGroup>
     </div>
-    <DarkModeToggle
-      :isDarkMode="isDarkMode"
-      @toggleDarkMode="$emit('toggleDarkMode')" />
+    <slot name="sidebar-end" />
   </div>
 </template>
 
@@ -341,6 +313,7 @@ const setRef = (el: SidebarElementType, id: string) => {
 }
 
 .pages {
+  flex: 1;
   padding-top: 9px;
   padding-bottom: 9px;
 }

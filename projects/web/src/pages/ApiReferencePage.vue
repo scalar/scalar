@@ -1,58 +1,49 @@
 <script setup lang="ts">
 import {
-  ApiReference,
+  ApiReferenceBase,
   type ReferenceConfiguration,
 } from '@scalar/api-reference'
-import { type ThemeId } from '@scalar/themes'
-import { reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
 import DevToolbar from '../components/DevToolbar.vue'
-import MockFooter from '../components/MockFooter.vue'
+import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 
-// import preparsedContent from '../fixtures/specResult.json'
-
-const handleUpdateContent = (content: string) => {
-  window.localStorage.setItem('api-reference-content', content)
-}
+const content = ref('')
 
 const configuration = reactive<ReferenceConfiguration>({
   theme: 'default',
   proxy: 'http://localhost:5051',
   isEditable: true,
-  spec: {
-    content: window.localStorage.getItem('api-reference-content') ?? undefined,
-    // content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
-    // content: () => {
-    //   return { openapi: '3.1.0', info: { title: 'Example' }, paths: {} }
-    // },
-    // preparsedContent,
-    // url: 'https://raw.githubusercontent.com/outline/openapi/main/spec3.json',
-    // url: 'https://raw.githubusercontent.com/testimio/public-openapi/TES-14404-mobile-applications/api.yaml',
-  },
+  showSidebar: true,
+  spec: { content },
   tabs: {
     initialContent: 'Swagger Editor',
   },
 })
-</script>
 
+const configProxy = computed({
+  get: () => configuration,
+  set: (v) => Object.assign(configuration, v),
+})
+</script>
 <template>
-  <!-- <textarea
-    v-model="spec"
-    cols="30"
-    rows="10" /> -->
-  <ApiReference
+  <ApiReferenceBase
     :configuration="configuration"
-    @changeTheme="(theme: ThemeId) => (configuration.theme = theme)"
-    @updateContent="handleUpdateContent">
+    @updateContent="(v) => (content = v)">
     <template #header>
-      <DevToolbar
-        :modelValue="configuration"
-        @update:modelValue="
-          (newConfiguration) => Object.assign(configuration, newConfiguration)
-        " />
+      <DevToolbar v-model="configProxy" />
     </template>
-    <template #footer>
-      <MockFooter />
+    <template #sidebar-start>
+      <SlotPlaceholder>sidebar-start</SlotPlaceholder>
     </template>
-  </ApiReference>
+    <template #sidebar-end>
+      <SlotPlaceholder>sidebar-end</SlotPlaceholder>
+    </template>
+    <template #content-start>
+      <SlotPlaceholder>content-start</SlotPlaceholder>
+    </template>
+    <template #content-end>
+      <SlotPlaceholder>content-end</SlotPlaceholder>
+    </template>
+  </ApiReferenceBase>
 </template>

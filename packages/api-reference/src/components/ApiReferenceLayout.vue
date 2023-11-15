@@ -1,24 +1,25 @@
 <script setup lang="ts">
-import { useApiClientStore } from '@scalar/api-client'
 import {
   type SwaggerEditor,
   SwaggerEditorGettingStarted,
 } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
+import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceConfiguration, Spec } from '../types'
-import { default as ApiClientModal } from './ApiClientModal.vue'
+import {
+  default as ApiClientModal,
+  useApiClientStore,
+} from './ApiClientModal.vue'
 import { Content } from './Content'
-import MobileHeader from './MobileHeader.vue'
 import SearchModal from './SearchModal.vue'
 import Sidebar from './Sidebar.vue'
 
 const props = defineProps<{
-  currentConfiguration: ReferenceConfiguration
-  isDarkMode: boolean
+  configuration: ReferenceConfiguration
   parsedSpec: Spec
   rawSpec: string
   swaggerEditorRef?: null | typeof SwaggerEditor
@@ -31,7 +32,6 @@ defineEmits<{
 }>()
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
-const isMobile = useMediaQuery('(max-width: 1000px)')
 
 // Track the container height to control the sidebar height
 const elementHeight = ref(0)
@@ -40,11 +40,14 @@ useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height
 })
 
-const { state } = useApiClientStore()
+const { state: templateState, setItem: setTemplateItem } = useTemplateStore()
 
-const showMobileDrawer = computed(() => {
-  const { state: s } = useTemplateStore()
-  return s.showMobileDrawer
+const searchHotKey = computed(() => props.configuration.searchHotKey || 'k')
+
+useKeyboardEvent({
+  keyList: [searchHotKey.value],
+  withCtrlCmd: true,
+  handler: () => setTemplateItem('showSearch', !templateState.showSearch),
 })
 
 onMounted(() => {
@@ -55,15 +58,17 @@ onMounted(() => {
 })
 
 const showRenderedContent = computed(
-  () => isLargeScreen.value || !props.currentConfiguration.isEditable,
+  () => isLargeScreen.value || !props.configuration.isEditable,
 )
 
 const showSwaggerEditor = computed(() => {
   return (
-    !props.currentConfiguration.spec?.preparsedContent &&
-    props.currentConfiguration?.isEditable
+    !props.configuration.spec?.preparsedContent &&
+    props.configuration?.isEditable
   )
 })
+
+const { state } = useApiClientStore()
 </script>
 <template>
   <div
@@ -71,53 +76,30 @@ const showSwaggerEditor = computed(() => {
     class="scalar-api-reference references-layout"
     :class="[
       {
-        'references-footer-below': currentConfiguration?.footerBelowSidebar,
         'references-editable': showSwaggerEditor,
       },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
-    <slot name="search-modal">
-      <SearchModal
-        :parsedSpec="parsedSpec"
-        variant="search" />
-    </slot>
-    <!-- Desktop header -->
-    <div
-      v-if="!isMobile"
-      class="references-header">
-      <slot name="header"></slot>
+    <!-- Header -->
+    <div class="references-header">
+      <slot
+        :breadcrumb="state.activeBreadcrumb"
+        name="header" />
     </div>
     <!-- Navigation (sidebar) wrapper -->
-    <aside class="references-navigation t-doc__sidebar">
-      <!-- Mobile header content -->
-      <slot
-        v-if="isMobile"
-        :label="state.activeBreadcrumb"
-        name="mobile-header">
-        <!-- Fallback mobile header -->
-        <MobileHeader
-          :isDarkMode="isDarkMode"
-          @toggleDarkMode="$emit('toggleDarkMode')">
-          {{ state.activeBreadcrumb }}
-        </MobileHeader>
-      </slot>
+    <aside
+      v-show="configuration.showSidebar"
+      class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
-      <!-- Sorry for the terrible v-if - this is so we only manage the menu state if theres no external mobile header being injected to manage it otherwise -->
-      <div
-        v-if="
-          isMobile && !$slots['mobile-header']
-            ? currentConfiguration.showSidebar && showMobileDrawer
-            : currentConfiguration.showSidebar
-        "
-        class="references-navigation-list">
-        <slot
-          v-if="isMobile"
-          name="header" />
-        <Sidebar
-          :isDarkMode="isDarkMode"
-          :parsedSpec="parsedSpec"
-          :searchHotKey="currentConfiguration.searchHotKey"
-          @toggleDarkMode="$emit('toggleDarkMode')" />
+      <div class="references-navigation-list">
+        <Sidebar :parsedSpec="parsedSpec">
+          <template #sidebar-start>
+            <slot name="sidebar-start" />
+          </template>
+          <template #sidebar-end>
+            <slot name="sidebar-end" />
+          </template>
+        </Sidebar>
       </div>
     </aside>
     <!-- Swagger file editing -->
@@ -131,32 +113,33 @@ const showSwaggerEditor = computed(() => {
     <!-- Rendered reference -->
     <template v-if="showRenderedContent">
       <div class="references-rendered">
+        <slot name="content-start" />
         <Content
           :parsedSpec="parsedSpec"
           :rawSpec="rawSpec"
           :ready="true">
           <template
-            v-if="currentConfiguration?.isEditable"
+            v-if="configuration?.isEditable"
             #empty-state>
             <SwaggerEditorGettingStarted
-              :theme="currentConfiguration?.theme || 'default'"
+              :theme="configuration?.theme || 'default'"
               :value="rawSpec"
               @changeTheme="$emit('changeTheme', $event)"
               @openSwaggerEditor="swaggerEditorRef?.handleOpenSwaggerEditor"
               @updateContent="$emit('updateContent', $event)" />
           </template>
         </Content>
-      </div>
-      <div class="references-footer">
-        <slot name="footer" />
+        <slot name="content-end" />
       </div>
     </template>
+    <!-- Search Overlay -->
+    <SearchModal
+      :parsedSpec="parsedSpec"
+      variant="search" />
     <!-- REST API Client Overlay -->
     <ApiClientModal
-      :isDarkMode="isDarkMode"
       :parsedSpec="parsedSpec"
-      :proxyUrl="currentConfiguration?.proxy"
-      @toggleDarkMode="$emit('toggleDarkMode')" />
+      :proxyUrl="configuration?.proxy" />
   </div>
 </template>
 <style scoped>
@@ -164,12 +147,6 @@ const showSwaggerEditor = computed(() => {
 .scalar-api-reference {
   --refs-sidebar-width: var(--theme-sidebar-width, 250px);
   --refs-header-height: var(--theme-header-height, 0px);
-}
-@media (max-width: 1000px) {
-  .scalar-api-reference {
-    /* By default add a header on mobile for the navigation */
-    --refs-header-height: var(--theme-header-height, 50px);
-  }
 }
 
 /* ----------------------------------------------------- */
@@ -194,16 +171,11 @@ const showSwaggerEditor = computed(() => {
 
   /* Grid layout */
   display: grid;
-
-  grid-template-rows:
-    var(--refs-header-height)
-    auto;
-
+  grid-template-rows: var(--refs-header-height) auto;
   grid-template-columns: var(--refs-sidebar-width) 1fr;
   grid-template-areas:
     'header header'
-    'navigation rendered'
-    'navigation footer';
+    'navigation rendered';
 
   background: var(--theme-background-1, var(--default-theme-background-1));
 }
@@ -213,6 +185,8 @@ const showSwaggerEditor = computed(() => {
   position: sticky;
   top: 0;
   z-index: 10;
+
+  height: var(--refs-header-height);
 }
 
 .references-editor {
@@ -264,27 +238,7 @@ const showSwaggerEditor = computed(() => {
 
   grid-template-areas:
     'header header header'
-    'navigation editor rendered'
-    'navigation editor footer';
-}
-
-/* Footer */
-.references-footer {
-  grid-area: footer;
-}
-@media (min-width: 1001px) {
-  .references-footer-below {
-    grid-template-areas:
-      'header header'
-      'navigation rendered'
-      'footer footer';
-  }
-  .references-footer-below.references-editable {
-    grid-template-areas:
-      'header header header'
-      'navigation editor rendered'
-      'footer footer footer';
-  }
+    'navigation editor rendered';
 }
 /* ----------------------------------------------------- */
 /* Responsive / Mobile Layout */
@@ -300,15 +254,16 @@ const showSwaggerEditor = computed(() => {
   /* Stack view on mobile */
   .references-layout {
     grid-template-columns: auto;
-    grid-template-rows: var(--refs-header-height) 1fr auto;
+    grid-template-rows: var(--refs-header-height) 0px auto;
 
     grid-template-areas:
+      'header'
       'navigation'
-      'rendered'
-      'footer';
+      'rendered';
   }
   .references-editable {
     grid-template-areas:
+      'header'
       'navigation'
       'editor';
   }
@@ -320,25 +275,19 @@ const showSwaggerEditor = computed(() => {
   }
 
   .references-navigation {
-    position: sticky;
-    top: 0;
-    height: var(--refs-header-height);
-
-    width: 100%;
+    height: 0px;
     z-index: 10;
-    border-right: none;
   }
 
   .references-navigation-list {
     position: absolute;
 
     /* Offset by 1px to avoid gap */
-    top: calc(100% - 1px);
-    left: 0;
-    width: 100%;
+    top: calc(var(--refs-header-height) - 1px);
 
-    /* Offset by 2px to fill screen and compensate for gap */
-    height: calc(var(--full-height) - var(--refs-header-height) + 2px);
+    /* Add a pixel to cover the bottom of the viewport */
+    height: calc(var(--full-height) - var(--refs-header-height) + 1px);
+    width: 100%;
 
     border-top: 1px solid
       var(--theme-border-color, var(--default-theme-border-color));

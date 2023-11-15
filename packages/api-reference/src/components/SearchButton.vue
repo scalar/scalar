@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { isMacOS } from '@scalar/use-tooltip'
 
+import { useTemplateStore } from '../stores/template'
 import FlowIcon from './Icon/FlowIcon.vue'
 
 withDefaults(defineProps<{ searchHotKey?: string }>(), {
   searchHotKey: 'k',
 })
+
+const { setItem } = useTemplateStore()
 </script>
 <template>
   <button
     class="sidebar-search"
-    type="button">
+    type="button"
+    @click="setItem('showSearch', true)">
     <FlowIcon
       class="search-icon"
       icon="Search" />

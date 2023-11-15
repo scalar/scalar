@@ -1,13 +1,10 @@
 <script setup lang="ts">
+import { useApiClientStore } from '@scalar/api-client'
+
 import { useTemplateStore } from '../stores/template'
-import DarkModeToggle from './DarkModeToggle.vue'
 import FlowIconButton from './FlowIconButton.vue'
 
-defineProps<{ isDarkMode: boolean }>()
-
-defineEmits<{
-  (e: 'toggleDarkMode'): void
-}>()
+const { state } = useApiClientStore()
 
 const {
   state: templateState,
@@ -22,7 +19,9 @@ const {
       :label="templateState.showMobileDrawer ? 'Close Menu' : 'Open Menu'"
       width="20px"
       @click="() => toggleTemplateItem('showMobileDrawer')" />
-    <span class="references-mobile-breadcrumbs"><slot /></span>
+    <span class="references-mobile-breadcrumbs">{{
+      state.activeBreadcrumb
+    }}</span>
     <div class="sidebar-mobile-actions">
       <FlowIconButton
         icon="Search"
@@ -30,10 +29,6 @@ const {
         variant="clear"
         width="24px"
         @click="setTemplateItem('showSearch', true)" />
-      <DarkModeToggle
-        class="sidebar-mobile-darkmode-toggle"
-        :isDarkMode="isDarkMode"
-        @toggleDarkMode="$emit('toggleDarkMode')" />
     </div>
   </div>
 </template>

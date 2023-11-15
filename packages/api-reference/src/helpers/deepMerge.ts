@@ -6,7 +6,7 @@ export function deepMerge(source: Record<any, any>, target: Record<any, any>) {
     if (val !== null && typeof val === `object`) {
       target[key] ??= new val.__proto__.constructor()
       deepMerge(val, target[key])
-    } else {
+    } else if (typeof val !== 'undefined') {
       target[key] = val
     }
   }

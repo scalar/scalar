@@ -45,4 +45,21 @@ describe('deepMerge', () => {
       },
     })
   })
+
+  it("doesn't merge undefined properties", async () => {
+    expect(
+      deepMerge(
+        {
+          bar: undefined,
+        },
+        {
+          foo: 'bar',
+          bar: 'foo',
+        },
+      ),
+    ).toMatchObject({
+      foo: 'bar',
+      bar: 'foo',
+    })
+  })
 })
