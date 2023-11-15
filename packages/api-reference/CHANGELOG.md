@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.1.1
+
+### Patch Changes
+
+- 5eb5dcf: refactor: bring back footer slot
+
 ## 1.1.0
 
 ### Minor Changes
