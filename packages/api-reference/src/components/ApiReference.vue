@@ -9,8 +9,6 @@ import DarkModeToggle from './DarkModeToggle.vue'
 import MobileHeader from './MobileHeader.vue'
 import SearchButton from './SearchButton.vue'
 
-// I don't know why this isn't picking up the v-bind but whatever
-// eslint-disable-next-line vue/no-unused-properties
 const props = defineProps<ReferenceProps>()
 
 const { state } = useTemplateStore()
@@ -27,7 +25,6 @@ const config = computed(() => {
   const spec: SpecConfiguration = props.configuration?.spec || {
     content: content.value,
   }
-  console.log(spec)
   return { ...props.configuration, showSidebar, spec }
 })
 

@@ -5,16 +5,16 @@ import StartPageLink from '../components/PageLink.vue'
   <div
     class="flex items-center justify-center h-screen w-screen bg-gray-50 text-gray-600">
     <div class="grid grid-cols-2 grid-rows-2 gap-4 p-6">
-      <StartPageLink to="api-reference">
-        <template #title>API Reference</template>
-        <template #description>
-          Customizable Interactive API documentations
-        </template>
-      </StartPageLink>
       <StartPageLink to="standalone-api-reference">
         <template #title>Standalone API Reference</template>
         <template #description>
           Interactive API documentation with pre-configured search
+        </template>
+      </StartPageLink>
+      <StartPageLink to="api-reference">
+        <template #title>API Reference</template>
+        <template #description>
+          Customizable Interactive API documentations
         </template>
       </StartPageLink>
       <StartPageLink to="api-client">
