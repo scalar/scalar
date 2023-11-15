@@ -63,7 +63,6 @@ watch(props.parsedSpec, async (val) => {
   // The original scroll to top from mounted
   const hashId = document.location.hash
   if (!hashId) {
-    console.log('original scroll')
     document.querySelector('#tippy')?.scrollTo({
       top: 0,
       left: 0,
