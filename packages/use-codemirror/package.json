@@ -21,12 +21,12 @@
     "codemirror": "6.0.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.3.4",
-    "@vitest/coverage-v8": "0.34.4",
+    "@vitejs/plugin-vue": "4.5.0",
+    "@vitest/coverage-v8": "0.34.6",
     "tsc-alias": "1.8.8",
-    "vite": "4.4.9",
-    "vitest": "0.34.4",
-    "vue-tsc": "1.8.13"
+    "vite": "5.0.0",
+    "vitest": "0.34.6",
+    "vue-tsc": "1.8.22"
   },
   "engines": {
     "node": ">=18"

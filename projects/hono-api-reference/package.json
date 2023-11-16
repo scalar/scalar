@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "nodemon": "3.0.1",
-    "vite-node": "0.34.4"
+    "vite-node": "0.34.6"
   },
   "private": true,
   "scripts": {

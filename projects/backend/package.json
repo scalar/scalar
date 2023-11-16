@@ -9,8 +9,8 @@
   "devDependencies": {
     "nodemon": "3.0.1",
     "typescript": "5.2.2",
-    "vite": "4.4.9",
-    "vite-node": "0.34.4"
+    "vite": "5.0.0",
+    "vite-node": "0.34.6"
   },
   "engines": {
     "node": ">=18"

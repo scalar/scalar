@@ -5,14 +5,14 @@
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.3.4",
-    "@vitest/coverage-v8": "0.34.4",
+    "@vitejs/plugin-vue": "4.5.0",
+    "@vitest/coverage-v8": "0.34.6",
     "tsc-alias": "1.8.8",
-    "vite": "4.4.9",
+    "vite": "5.0.0",
     "vite-plugin-css-injected-by-js": "3.3.0",
     "vite-plugin-static-copy": "0.17.0",
-    "vitest": "0.34.4",
-    "vue-tsc": "1.8.13"
+    "vitest": "0.34.6",
+    "vue-tsc": "1.8.22"
   },
   "exports": {
     ".": "./dist/index.js",

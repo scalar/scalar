@@ -18,7 +18,7 @@
     "syncpack": "11.2.1",
     "turbo": "1.10.15",
     "typescript": "5.2.2",
-    "vite-node": "0.34.4",
+    "vite-node": "0.34.6",
     "vue-eslint-parser": "9.3.1"
   },
   "pnpm": {
