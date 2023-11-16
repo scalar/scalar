@@ -1,7 +1,7 @@
 {
   "name": "@scalar/hono-api-reference",
   "description": "A middleware for using the Scalar API reference in Hono",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "dependencies": {
     "@scalar/api-reference": "workspace:*"
   },
