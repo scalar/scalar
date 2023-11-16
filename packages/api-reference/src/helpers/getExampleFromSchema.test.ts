@@ -435,4 +435,26 @@ describe('getExampleFromSchema', () => {
       photoUrls: ['https://example.com'],
     })
   })
+
+  it.only('doesn’t wrap items when not needed', () => {
+    expect(
+      getExampleFromSchema({
+        properties: {
+          firstname: {
+            oneOf: [
+              {
+                maxLength: 255,
+                type: 'string',
+              },
+              {
+                type: 'null',
+              },
+            ],
+          },
+        },
+      }),
+    ).toMatchObject({
+      firstname: '',
+    })
+  })
 })
