@@ -149,6 +149,8 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
+Read more: [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference)
+
 ### With Hono
 
 Our Hono middleware makes it so easy to render a reference:
@@ -165,6 +167,8 @@ app.get(
   }),
 )
 ```
+
+Read more: [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)
 
 ## Using our amazing service
 
