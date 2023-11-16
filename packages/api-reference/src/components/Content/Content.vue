@@ -46,7 +46,11 @@ const fallBackServer = useRefOnMount(() => {
 const localServers = computed(() => {
   if (props.parsedSpec.servers && props.parsedSpec.servers.length > 0) {
     return props.parsedSpec.servers
-  } else if (props.parsedSpec.host && props.parsedSpec.schemes.length) {
+  } else if (
+    props.parsedSpec.host &&
+    props.parsedSpec.schemes &&
+    props.parsedSpec.schemes.length > 0
+  ) {
     return [
       { url: `${props.parsedSpec.schemes[0]}://${props.parsedSpec.host}` },
     ]
