@@ -109,7 +109,9 @@ const formattedPath = computed(() => {
 })
 </script>
 <template>
-  <Card class="dark-mode">
+  <Card
+    v-if="CodeMirrorValue"
+    class="dark-mode">
     <CardHeader muted>
       <div class="request">
         <span :class="`request-method request-method--${operation.httpVerb}`">
