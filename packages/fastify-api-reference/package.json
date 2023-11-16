@@ -17,7 +17,7 @@
     "tsc-alias": "1.8.8",
     "typescript": "5.2.2",
     "vite": "4.4.9",
-    "vite-node": "0.34.4",
+    "vite-node": "0.34.6",
     "vite-plugin-css-injected-by-js": "3.3.0",
     "vite-plugin-node-polyfills": "0.14.1",
     "vite-plugin-static-copy": "0.17.0",

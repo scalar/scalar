@@ -15,7 +15,7 @@
     "tsc-alias": "1.8.8",
     "typescript": "5.2.2",
     "vite": "4.4.9",
-    "vite-node": "0.34.4",
+    "vite-node": "0.34.6",
     "vitest": "0.34.4"
   },
   "engines": {
