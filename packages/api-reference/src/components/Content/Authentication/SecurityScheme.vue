@@ -57,72 +57,74 @@ const handleHttpBearerTokenInput = (event: Event) => {
   <div
     v-if="value"
     class="security-scheme">
-    <!-- <div
+    <form>
+      <!-- <div
       v-if="value.description"
       class="description">
       <MarkdownRenderer :value="value.description" />
     </div> -->
-    <div v-if="!value.type"></div>
-    <div v-else-if="value.type === 'apiKey'">
-      <div class="input">
-        <label :for="`security-scheme-${value.name}`">
-          {{ value.in.charAt(0).toUpperCase() + value.in.slice(1) }} API Key
-        </label>
-        <input
-          :id="`security-scheme-${value.name}`"
-          autocomplete="off"
-          placeholder="Token"
-          spellcheck="false"
-          type="text"
-          :value="authentication.apiKey.token"
-          @input="handleApiKeyTokenInput" />
-      </div>
-    </div>
-    <div v-else-if="value.type === 'http' || value.type === 'basic'">
-      <div v-if="value.type === 'basic' || value.scheme === 'basic'">
+      <div v-if="!value.type"></div>
+      <div v-else-if="value.type === 'apiKey'">
         <div class="input">
-          <label for="http.basic.username">Username</label>
+          <label :for="`security-scheme-${value.name}`">
+            {{ value.in.charAt(0).toUpperCase() + value.in.slice(1) }} API Key
+          </label>
           <input
-            id="http.basic.username"
-            autocomplete="off"
-            placeholder="Username"
-            spellcheck="false"
-            type="text"
-            :value="authentication.http.basic.username"
-            @input="handleHttpBasicUsernameInput" />
-        </div>
-        <div class="input">
-          <label for="http.basic.password">Password</label>
-          <input
-            id="http.basic.password"
-            autocomplete="off"
-            placeholder="Password"
-            spellcheck="false"
-            type="password"
-            :value="authentication.http.basic.password"
-            @input="handleHttpBasicPasswordInput" />
-        </div>
-      </div>
-      <div v-else-if="value.scheme === 'bearer'">
-        <div class="input">
-          <label for="http.bearer.token">Token</label>
-          <input
-            id="http.bearer.token"
+            :id="`security-scheme-${value.name}`"
             autocomplete="off"
             placeholder="Token"
             spellcheck="false"
             type="text"
-            :value="authentication.http.bearer.token"
-            @input="handleHttpBearerTokenInput" />
+            :value="authentication.apiKey.token"
+            @input="handleApiKeyTokenInput" />
         </div>
       </div>
-    </div>
-    <div
-      v-else
-      class="work-in-progress">
-      <h3 class="work-in-progress-title">Work in Progress</h3>
-      <p>The given security scheme ({{ value.type }}) is not supported.</p>
-    </div>
+      <div v-else-if="value.type === 'http' || value.type === 'basic'">
+        <div v-if="value.type === 'basic' || value.scheme === 'basic'">
+          <div class="input">
+            <label for="http.basic.username">Username</label>
+            <input
+              id="http.basic.username"
+              autocomplete="off"
+              placeholder="Username"
+              spellcheck="false"
+              type="text"
+              :value="authentication.http.basic.username"
+              @input="handleHttpBasicUsernameInput" />
+          </div>
+          <div class="input">
+            <label for="http.basic.password">Password</label>
+            <input
+              id="http.basic.password"
+              autocomplete="off"
+              placeholder="Password"
+              spellcheck="false"
+              type="password"
+              :value="authentication.http.basic.password"
+              @input="handleHttpBasicPasswordInput" />
+          </div>
+        </div>
+        <div v-else-if="value.scheme === 'bearer'">
+          <div class="input">
+            <label for="http.bearer.token">Token</label>
+            <input
+              id="http.bearer.token"
+              autocomplete="off"
+              placeholder="Token"
+              spellcheck="false"
+              type="text"
+              :value="authentication.http.bearer.token"
+              @input="handleHttpBearerTokenInput" />
+          </div>
+        </div>
+      </div>
+      <div
+        v-else
+        class="work-in-progress">
+        <h3 class="work-in-progress-title">Work in Progress</h3>
+        <p>The given security scheme ({{ value.type }}) is not supported.</p>
+      </div>
+    </form>
   </div>
 </template>
 
