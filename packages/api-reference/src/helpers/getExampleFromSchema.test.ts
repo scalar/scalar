@@ -435,4 +435,77 @@ describe('getExampleFromSchema', () => {
       photoUrls: ['https://example.com'],
     })
   })
+
+  it('use the first item of oneOf', () => {
+    expect(
+      getExampleFromSchema({
+        properties: {
+          firstname: {
+            oneOf: [
+              {
+                maxLength: 255,
+                type: 'string',
+              },
+              {
+                type: 'null',
+              },
+            ],
+          },
+        },
+      }),
+    ).toMatchObject({
+      firstname: '',
+    })
+  })
+
+  it('works with allOf', () => {
+    expect(
+      getExampleFromSchema({
+        properties: {
+          firstname: {
+            allOf: [
+              {
+                maxLength: 255,
+                type: 'string',
+              },
+            ],
+          },
+        },
+      }),
+    ).toMatchObject({
+      firstname: '',
+    })
+  })
+
+  it('uses all schemas in allOf', () => {
+    expect(
+      getExampleFromSchema({
+        properties: {
+          post: {
+            allOf: [
+              {
+                properties: {
+                  id: {
+                    example: 10,
+                  },
+                },
+              },
+              {
+                properties: {
+                  title: {
+                    example: 'Foobar',
+                  },
+                },
+              },
+            ],
+          },
+        },
+      }),
+    ).toMatchObject({
+      post: {
+        id: 10,
+        title: 'Foobar',
+      },
+    })
+  })
 })

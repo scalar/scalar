@@ -123,6 +123,42 @@ export const getExampleFromSchema = (
       return
     }
 
+    // Check if property has the `oneOf` key
+    if (Array.isArray(property.oneOf)) {
+      // Get the first item from the `oneOf` array
+      const firstOneOfItem = property.oneOf[0]
+
+      // Return an example for the first item
+      if (exampleValues[firstOneOfItem.type] !== undefined) {
+        response[xmlTagName ?? name] = getExampleFromSchema(
+          firstOneOfItem,
+          options,
+          level + 1,
+        )
+        return
+      }
+    }
+
+    // Check if property has the `allOf` key
+    if (Array.isArray(property.allOf)) {
+      // Loop through all `allOf` schemas
+      property.allOf.forEach((allOfItem: Record<string, any>) => {
+        // Return an example from the schema
+        const newExample = getExampleFromSchema(allOfItem, options, level + 1)
+
+        // Merge or overwrite the example
+        response[xmlTagName ?? name] =
+          typeof newExample === 'object'
+            ? {
+                ...(response[xmlTagName ?? name] ?? {}),
+                ...newExample,
+              }
+            : newExample
+      })
+
+      return
+    }
+
     // Warn if the type is unknown …
     console.warn(
       `[getExampleFromSchema] Unknown property type "${property.type}" for property "${name}".`,
