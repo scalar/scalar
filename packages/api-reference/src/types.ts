@@ -47,7 +47,7 @@ export type ReferenceConfiguration = {
   searchHotKey?: string
   /** ??? */
   aiWriterMarkdown?: string
-  /** For metadata */
+  /** If used, passed data will be added to the HTML header. Read more: https://unhead.unjs.io/usage/composables/use-seo-meta */
   metaData?: MetaFlatInput
 }
 
