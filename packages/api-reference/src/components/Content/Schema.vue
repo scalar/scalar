@@ -71,7 +71,6 @@ withDefaults(
   color: var(--theme-color-2, var(--default-theme-color-2));
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   font-weight: var(--theme-bold, var(--default-theme-bold));
-  text-transform: uppercase;
   background: var(--theme-background-4, var(--default-theme-background-4));
   padding: 10px 12px;
 }
