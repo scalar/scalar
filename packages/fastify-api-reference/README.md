@@ -15,6 +15,14 @@ This plugin provides an easy way to render a beautiful API reference based on a 
 npm install @scalar/fastify-api-reference
 ```
 
+And then register it with Fastify:
+
+```ts
+await fastify.register(require('@scalar/fastify-api-reference'), {
+  routePrefix: '/reference',
+})
+```
+
 ## Usage
 
 If you have a OpenAPI/Swagger file already, you can pass an URL to the plugin:
