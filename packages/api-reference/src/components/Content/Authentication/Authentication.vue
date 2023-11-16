@@ -22,8 +22,7 @@ const showSecurityScheme = computed(() => {
       authentication.securitySchemeKey
     ]
 
-  // @ts-ignore
-  return !!scheme?.type
+  return typeof scheme !== 'undefined'
 })
 
 // Keep a copy of the security schemes in the global authentication state
