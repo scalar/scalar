@@ -233,6 +233,8 @@ export type Definitions = OpenAPIV2.DefinitionsObject
 export type Spec = {
   tags: Tag[]
   info: Info
+  host?: string
+  schemes?: string[]
   externalDocs: ExternalDocs
   servers: Server[]
   components?: Components
