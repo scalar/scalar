@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.1.2
+
+### Patch Changes
+
+- d062fd9: fix: deep linking in api references
+
 ## 1.1.1
 
 ### Patch Changes
