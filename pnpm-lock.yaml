@@ -92,7 +92,7 @@ importers:
         specifier: workspace:*
         version: link:../use-modal
       '@types/content-type':
-        specifier: 1.1.6
+        specifier: ^1.1.6
         version: 1.1.6
       '@vueuse/core':
         specifier: 10.4.1
@@ -116,7 +116,7 @@ importers:
         specifier: 8.0.0
         version: 8.0.0
       vue:
-        specifier: 3.3.4
+        specifier: ^3.3.4
         version: 3.3.4
     devDependencies:
       '@scalar/api-client-proxy':
@@ -150,10 +150,10 @@ importers:
   packages/api-client-proxy:
     dependencies:
       '@types/cors':
-        specifier: 2.8.13
+        specifier: ^2.8.13
         version: 2.8.13
       '@types/express':
-        specifier: 4.17.17
+        specifier: ^4.17.17
         version: 4.17.17
       cors:
         specifier: 2.8.5
@@ -226,7 +226,7 @@ importers:
         specifier: workspace:*
         version: link:../use-tooltip
       '@types/js-yaml':
-        specifier: 4.0.6
+        specifier: ^4.0.6
         version: 4.0.6
       '@vcarl/remark-headings':
         specifier: 0.1.0
@@ -292,7 +292,7 @@ importers:
         specifier: 11.0.3
         version: 11.0.3
       vue:
-        specifier: 3.3.4
+        specifier: ^3.3.4
         version: 3.3.4
     devDependencies:
       '@storybook/addon-essentials':
@@ -348,7 +348,7 @@ importers:
         version: 3.3.0(vite@4.4.9)
       vite-plugin-node-polyfills:
         specifier: 0.14.1
-        version: 0.14.1(vite@4.4.9)
+        version: 0.14.1(rollup@3.29.2)(vite@4.4.9)
       vitest:
         specifier: 0.34.4
         version: 0.34.4
@@ -359,13 +359,13 @@ importers:
   packages/echo-server:
     dependencies:
       '@types/cookie-parser':
-        specifier: 1.4.3
+        specifier: ^1.4.3
         version: 1.4.3
       '@types/cors':
-        specifier: 2.8.13
+        specifier: ^2.8.13
         version: 2.8.13
       '@types/express':
-        specifier: 4.17.17
+        specifier: ^4.17.17
         version: 4.17.17
       cookie-parser:
         specifier: 1.4.6
@@ -405,19 +405,19 @@ importers:
         specifier: workspace:*
         version: link:../api-reference
       '@types/ejs':
-        specifier: 3.1.3
+        specifier: ^3.1.3
         version: 3.1.3
       ejs:
         specifier: 3.1.9
         version: 3.1.9
       fastify:
-        specifier: 4.23.2
+        specifier: ^4.23.2
         version: 4.23.2
       fastify-plugin:
-        specifier: 4.5.1
+        specifier: ^4.5.1
         version: 4.5.1
       vue:
-        specifier: 3.3.4
+        specifier: ^3.3.4
         version: 3.3.4
     devDependencies:
       '@vitejs/plugin-vue':
@@ -530,13 +530,13 @@ importers:
         specifier: 11.0.0
         version: 11.0.0
       remark-stringify:
-        specifier: 11.0.0
+        specifier: ^11.0.0
         version: 11.0.0
       unified:
         specifier: 11.0.3
         version: 11.0.3
       vue:
-        specifier: 3.3.4
+        specifier: ^3.3.4
         version: 3.3.4
       y-codemirror.next:
         specifier: 0.3.2
@@ -610,7 +610,7 @@ importers:
   packages/themes:
     dependencies:
       vue:
-        specifier: 3.3.4
+        specifier: ^3.3.4
         version: 3.3.4
     devDependencies:
       '@vitejs/plugin-vue':
@@ -647,7 +647,7 @@ importers:
         specifier: 5.0.1
         version: 5.0.1
       vue:
-        specifier: 3.3.4
+        specifier: ^3.3.4
         version: 3.3.4
     devDependencies:
       '@vitejs/plugin-vue':
@@ -714,7 +714,7 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(@lezer/common@1.1.0)
       vue:
-        specifier: 3.3.4
+        specifier: ^3.3.4
         version: 3.3.4
     devDependencies:
       '@vitejs/plugin-vue':
@@ -739,7 +739,7 @@ importers:
   packages/use-keyboard-event:
     dependencies:
       vue:
-        specifier: 3.3.4
+        specifier: ^3.3.4
         version: 3.3.4
     devDependencies:
       '@vitejs/plugin-vue':
@@ -767,7 +767,7 @@ importers:
         specifier: 1.7.16
         version: 1.7.16(vue@3.3.4)
       vue:
-        specifier: 3.3.4
+        specifier: ^3.3.4
         version: 3.3.4
     devDependencies:
       '@vitejs/plugin-vue':
@@ -795,7 +795,7 @@ importers:
         specifier: 5.0.1
         version: 5.0.1
       vue:
-        specifier: 3.3.4
+        specifier: ^3.3.4
         version: 3.3.4
     devDependencies:
       '@vitejs/plugin-vue':
@@ -826,7 +826,7 @@ importers:
         specifier: 6.3.7
         version: 6.3.7
       vue:
-        specifier: 3.3.4
+        specifier: ^3.3.4
         version: 3.3.4
     devDependencies:
       '@vitejs/plugin-vue':
@@ -1190,7 +1190,7 @@ packages:
       '@babel/helper-compilation-targets': 7.22.15
       '@babel/helper-module-transforms': 7.22.20(@babel/core@7.22.20)
       '@babel/helpers': 7.22.15
-      '@babel/parser': 7.22.16
+      '@babel/parser': 7.23.3
       '@babel/template': 7.22.15
       '@babel/traverse': 7.22.20
       '@babel/types': 7.22.19
@@ -1445,6 +1445,7 @@ packages:
     hasBin: true
     dependencies:
       '@babel/types': 7.22.19
+    dev: true
 
   /@babel/parser@7.23.3:
     resolution: {integrity: sha512-uVsWNvlVsIninV2prNz/3lHCb+5CJ+e+IUBfbjToAHODtfGYLfCFuY4AU7TskI+dAKk+njsPiBjq1gKTvZOBaw==}
@@ -1452,7 +1453,6 @@ packages:
     hasBin: true
     dependencies:
       '@babel/types': 7.23.3
-    dev: true
 
   /@babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression@7.22.15(@babel/core@7.22.20):
     resolution: {integrity: sha512-FB9iYlz7rURmRJyXRKEnalYPPdn87H5no108cyuQQyMwlpJ2SJtpIUBI27kdTin956pz+LPypkPVPUTlxOmrsg==}
@@ -2455,7 +2455,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/code-frame': 7.22.13
-      '@babel/parser': 7.22.16
+      '@babel/parser': 7.23.3
       '@babel/types': 7.22.19
     dev: true
 
@@ -2487,7 +2487,7 @@ packages:
       '@babel/helper-function-name': 7.22.5
       '@babel/helper-hoist-variables': 7.22.5
       '@babel/helper-split-export-declaration': 7.22.6
-      '@babel/parser': 7.22.16
+      '@babel/parser': 7.23.3
       '@babel/types': 7.22.19
       debug: 4.3.4
       globals: 11.12.0
@@ -2510,6 +2510,7 @@ packages:
       '@babel/helper-string-parser': 7.22.5
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
+    dev: true
 
   /@babel/types@7.23.3:
     resolution: {integrity: sha512-OZnvoH2l8PK5eUvEcUyCt/sXgr/h+UWpVuBbOljwcrAgUl6lpchoQ++PHGyQy1AtYnVA6CEq3y5xeEI10brpXw==}
@@ -2518,7 +2519,6 @@ packages:
       '@babel/helper-string-parser': 7.22.5
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
-    dev: true
 
   /@bcoe/v8-coverage@0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
@@ -4179,20 +4179,6 @@ packages:
       '@babel/runtime': 7.22.15
     dev: true
 
-  /@rollup/plugin-inject@5.0.3:
-    resolution: {integrity: sha512-411QlbL+z2yXpRWFXSmw/teQRMkXcAAC8aYTemc15gwJRpvEVDQwoe+N/HTFD8RFG8+88Bme9DK2V9CVm7hJdA==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-    dependencies:
-      '@rollup/pluginutils': 5.0.4
-      estree-walker: 2.0.2
-      magic-string: 0.27.0
-    dev: true
-
   /@rollup/plugin-inject@5.0.3(rollup@3.29.2):
     resolution: {integrity: sha512-411QlbL+z2yXpRWFXSmw/teQRMkXcAAC8aYTemc15gwJRpvEVDQwoe+N/HTFD8RFG8+88Bme9DK2V9CVm7hJdA==}
     engines: {node: '>=14.0.0'}
@@ -4206,20 +4192,6 @@ packages:
       estree-walker: 2.0.2
       magic-string: 0.27.0
       rollup: 3.29.2
-    dev: true
-
-  /@rollup/pluginutils@5.0.4:
-    resolution: {integrity: sha512-0KJnIoRI8A+a1dqOYLxH8vBf8bphDmty5QvIm2hqm7oFCFYKCAZWWd2hXgMibaPsNDhI0AtpYfQZJG47pt/k4g==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-    dependencies:
-      '@types/estree': 1.0.1
-      estree-walker: 2.0.2
-      picomatch: 2.3.1
     dev: true
 
   /@rollup/pluginutils@5.0.4(rollup@3.29.2):
@@ -4891,7 +4863,7 @@ packages:
     resolution: {integrity: sha512-nkVakGx2kzou91lGcxnyFNiSEdnpx1a53lQTl/DLm0QpDbqQuu3ZbZWXZCpXV97t/6YPeCCnGLXodnI7PZyZBA==}
     dependencies:
       '@babel/generator': 7.22.15
-      '@babel/parser': 7.22.16
+      '@babel/parser': 7.23.3
       '@babel/traverse': 7.22.20
       '@babel/types': 7.22.19
       '@storybook/csf': 0.1.1
@@ -5189,7 +5161,7 @@ packages:
   /@types/babel__core@7.20.2:
     resolution: {integrity: sha512-pNpr1T1xLUc2l3xJKuPtsEky3ybxN3m4fJkknfIpTCTfIZCDW57oAg+EfCgIIp2rvCe0Wn++/FfodDS4YXxBwA==}
     dependencies:
-      '@babel/parser': 7.22.16
+      '@babel/parser': 7.23.3
       '@babel/types': 7.22.19
       '@types/babel__generator': 7.6.5
       '@types/babel__template': 7.4.2
@@ -5205,7 +5177,7 @@ packages:
   /@types/babel__template@7.4.2:
     resolution: {integrity: sha512-/AVzPICMhMOMYoSx9MoKpGDKdBRsIXMNByh1PXSZoa+v6ZoLa8xxtsT/uLQ/NJm0XVAWl/BvId4MlDeXJaeIZQ==}
     dependencies:
-      '@babel/parser': 7.22.16
+      '@babel/parser': 7.23.3
       '@babel/types': 7.22.19
     dev: true
 
@@ -5832,7 +5804,7 @@ packages:
   /@vue/compiler-core@3.3.4:
     resolution: {integrity: sha512-cquyDNvZ6jTbf/+x+AgM2Arrp6G4Dzbb0R64jiG804HRMfRiFXWI6kqUVqZ6ZR0bQhIoQjB4+2bhNtVwndW15g==}
     dependencies:
-      '@babel/parser': 7.22.16
+      '@babel/parser': 7.23.3
       '@vue/shared': 3.3.4
       estree-walker: 2.0.2
       source-map-js: 1.0.2
@@ -5855,7 +5827,7 @@ packages:
   /@vue/compiler-sfc@3.3.4:
     resolution: {integrity: sha512-6y/d8uw+5TkCuzBkgLS0v3lSM3hJDntFEiUORM11pQ/hKvkhSKZrXW6i69UyXlJQisJxuUEJKAWEqWbWsLeNKQ==}
     dependencies:
-      '@babel/parser': 7.22.16
+      '@babel/parser': 7.23.3
       '@vue/compiler-core': 3.3.4
       '@vue/compiler-dom': 3.3.4
       '@vue/compiler-ssr': 3.3.4
@@ -5909,7 +5881,7 @@ packages:
       '@volar/source-map': 1.10.1
       '@vue/compiler-dom': 3.3.4
       '@vue/reactivity': 3.3.4
-      '@vue/shared': 3.3.4
+      '@vue/shared': 3.3.8
       minimatch: 9.0.3
       muggle-string: 0.3.1
       typescript: 5.2.2
@@ -5919,7 +5891,7 @@ packages:
   /@vue/reactivity-transform@3.3.4:
     resolution: {integrity: sha512-MXgwjako4nu5WFLAjpBnCj/ieqcjE2aJBINUNQzkZQfzIZA4xn+0fV1tIYBJvvva3N3OvKGofRLvQIwEQPpaXw==}
     dependencies:
-      '@babel/parser': 7.22.16
+      '@babel/parser': 7.23.3
       '@vue/compiler-core': 3.3.4
       '@vue/shared': 3.3.4
       estree-walker: 2.0.2
@@ -6521,7 +6493,7 @@ packages:
     resolution: {integrity: sha512-GAwkz0AihzY5bkwIY5QDR+LvsRQgB/B+1foMPvi0FZPMl5fjD7ICiznUiBdLYMH1QYe6vqu4gWYytZOccLouFw==}
     engines: {node: '>= 10.0.0'}
     dependencies:
-      '@babel/types': 7.22.19
+      '@babel/types': 7.23.3
     dev: true
 
   /bail@2.0.2:
@@ -7172,7 +7144,7 @@ packages:
   /constantinople@4.0.1:
     resolution: {integrity: sha512-vCrqcSIq4//Gx74TXXCGnHpulY1dskqLTFGDmhrGxzeXL8lF8kvXv6mpNWlJj1uD4DW23D4ljAqbY4RRaaUZIw==}
     dependencies:
-      '@babel/parser': 7.22.16
+      '@babel/parser': 7.23.3
       '@babel/types': 7.22.19
     dev: true
 
@@ -7391,17 +7363,6 @@ packages:
         optional: true
     dependencies:
       ms: 2.0.0
-
-  /debug@3.2.7:
-    resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
-    dependencies:
-      ms: 2.1.3
-    dev: true
 
   /debug@3.2.7(supports-color@5.5.0):
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
@@ -9889,7 +9850,7 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       '@babel/core': 7.22.20
-      '@babel/parser': 7.22.16
+      '@babel/parser': 7.23.3
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.0
       semver: 6.3.1
@@ -10045,7 +10006,7 @@ packages:
       '@babel/preset-env': ^7.1.6
     dependencies:
       '@babel/core': 7.22.20
-      '@babel/parser': 7.22.16
+      '@babel/parser': 7.23.3
       '@babel/plugin-proposal-class-properties': 7.18.6(@babel/core@7.22.20)
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.18.6(@babel/core@7.22.20)
       '@babel/plugin-proposal-optional-chaining': 7.21.0(@babel/core@7.22.20)
@@ -11953,7 +11914,7 @@ packages:
     engines: {node: '>= 0.12.0'}
     dependencies:
       async: 2.6.4
-      debug: 3.2.7
+      debug: 3.2.7(supports-color@5.5.0)
       mkdirp: 0.5.6
     transitivePeerDependencies:
       - supports-color
@@ -14621,20 +14582,6 @@ packages:
       - rollup
     dev: true
 
-  /vite-plugin-node-polyfills@0.14.1(vite@4.4.9):
-    resolution: {integrity: sha512-S5ofYUkXea/d94AHzDwiTA7Pv/yEwzagnjgVEuBZdy7E72GBfK17qpljAlyK3CD+CRcDzAwwl/4bEjKdvZmTGQ==}
-    peerDependencies:
-      vite: ^2.0.0 || ^3.0.0 || ^4.0.0
-    dependencies:
-      '@rollup/plugin-inject': 5.0.3
-      buffer-polyfill: /buffer@6.0.3
-      node-stdlib-browser: 1.2.0
-      process: 0.11.10
-      vite: 4.4.9(@types/node@20.6.3)
-    transitivePeerDependencies:
-      - rollup
-    dev: true
-
   /vite-plugin-static-copy@0.17.0(vite@4.4.9):
     resolution: {integrity: sha512-2HpNbHfDt8SDy393AGXh9llHkc8FJMQkI8s3T5WsH3SWLMO+f5cFIyPErl4yGKU9Uh3Vaqsd4lHZYTf042fQ2A==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -15061,7 +15008,7 @@ packages:
     resolution: {integrity: sha512-RNGKj82nUPg3g5ygxkQl0R937xLyho1J24ItRCBTr/m1YnZkzJy1hUiHUJrc/VlsDQzsCnInEGSg3bci0Lmd4w==}
     engines: {node: '>= 10.0.0'}
     dependencies:
-      '@babel/parser': 7.22.16
+      '@babel/parser': 7.23.3
       '@babel/types': 7.22.19
       assert-never: 1.2.1
       babel-walk: 3.0.0-canary-5
