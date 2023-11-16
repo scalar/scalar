@@ -130,9 +130,33 @@ export const getExampleFromSchema = (
 
       // Return an example for the first item
       if (exampleValues[firstOneOfItem.type] !== undefined) {
-        response[xmlTagName ?? name] = exampleValues[firstOneOfItem.type]
+        response[xmlTagName ?? name] = getExampleFromSchema(
+          firstOneOfItem,
+          options,
+          level + 1,
+        )
         return
       }
+    }
+
+    // Check if property has the `allOf` key
+    if (Array.isArray(property.allOf)) {
+      // Loop through all `allOf` schemas
+      property.allOf.forEach((allOfItem: Record<string, any>) => {
+        // Return an example from the schema
+        const newExample = getExampleFromSchema(allOfItem, options, level + 1)
+
+        // Merge or overwrite the example
+        response[xmlTagName ?? name] =
+          typeof newExample === 'object'
+            ? {
+                ...(response[xmlTagName ?? name] ?? {}),
+                ...newExample,
+              }
+            : newExample
+      })
+
+      return
     }
 
     // Warn if the type is unknown …
