@@ -77,6 +77,7 @@ describe('useSpec', () => {
     )
   })
 
+  // @ts-ignore
   global.fetch = vi.fn()
 
   function createFetchResponse(data: string) {
