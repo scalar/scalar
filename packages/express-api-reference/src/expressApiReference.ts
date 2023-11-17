@@ -17,6 +17,7 @@ export const ApiReference = (options: ApiReferenceOptions) => {
   return `
     <script
       id="api-reference"
+      type="application/json"
       data-configuration="${JSON.stringify(options)
         .split('"')
         .join('&quot;')}">${

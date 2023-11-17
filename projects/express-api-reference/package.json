@@ -1,7 +1,7 @@
 {
   "name": "@scalar-org/express-api-reference",
   "dependencies": {
-    "@scalar/api-reference": "workspace:^",
+    "@scalar/express-api-reference": "workspace:^",
     "express": "4.18.2",
     "swagger-jsdoc": "6.2.8"
   },
@@ -17,6 +17,6 @@
   },
   "private": true,
   "scripts": {
-    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/hono-api-reference --watch ./"
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/express-api-reference --watch ./"
   }
 }

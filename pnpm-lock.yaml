@@ -399,6 +399,28 @@ importers:
         specifier: 0.34.4
         version: 0.34.4
 
+  packages/express-api-reference:
+    dependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../api-reference
+      '@types/express':
+        specifier: 4.17.21
+        version: 4.17.21
+      express:
+        specifier: 4.18.2
+        version: 4.18.2
+    devDependencies:
+      tsup:
+        specifier: 7.2.0
+        version: 7.2.0(typescript@5.2.2)
+      vite:
+        specifier: 4.4.9
+        version: 4.4.9(@types/node@20.6.3)
+      vitest:
+        specifier: 0.34.4
+        version: 0.34.4
+
   packages/fastify-api-reference:
     dependencies:
       '@scalar/api-reference':
@@ -913,9 +935,9 @@ importers:
 
   projects/express-api-reference:
     dependencies:
-      '@scalar/api-reference':
+      '@scalar/express-api-reference':
         specifier: workspace:^
-        version: link:../../packages/api-reference
+        version: link:../../packages/express-api-reference
       express:
         specifier: 4.18.2
         version: 4.18.2
