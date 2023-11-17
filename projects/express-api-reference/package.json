@@ -1,6 +1,7 @@
 {
   "name": "@scalar-org/express-api-reference",
   "dependencies": {
+    "@scalar/api-reference": "workspace:^",
     "express": "4.18.2",
     "swagger-jsdoc": "6.2.8"
   },

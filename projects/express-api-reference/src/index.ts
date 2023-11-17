@@ -1,12 +1,14 @@
 import Express from 'express'
 import swaggerJsdoc from 'swagger-jsdoc'
 
+import { apiReference } from './expressApiReference'
+
 // Initialize Express
 const app = Express()
 
 /**
  * @openapi
- * /:
+ * /foobar:
  *   get:
  *     description: Get a mysterious string.
  *     responses:
@@ -36,6 +38,15 @@ const OpenApiSpecification = swaggerJsdoc({
 app.get('/swagger.json', (req, res) => {
   res.json(OpenApiSpecification)
 })
+
+app.use(
+  '/',
+  apiReference({
+    spec: {
+      content: OpenApiSpecification,
+    },
+  }),
+)
 
 // Listen
 app.listen(5056, () => {

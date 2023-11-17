@@ -913,6 +913,9 @@ importers:
 
   projects/express-api-reference:
     dependencies:
+      '@scalar/api-reference':
+        specifier: workspace:^
+        version: link:../../packages/api-reference
       express:
         specifier: 4.18.2
         version: 4.18.2
