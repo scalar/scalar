@@ -28,7 +28,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "storybook dev -p 6006",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "build": "run-p types:check \"build-only {@}\" --",
     "test": "vitest",
     "build-only": "vite build",
     "types:check": "vue-tsc --noEmit  --composite false",

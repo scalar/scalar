@@ -4,5 +4,5 @@
     "declarationMap": true,
     "declaration": true
   },
-  "include": ["src/index.ts"]
+  "include": ["src"]
 }
