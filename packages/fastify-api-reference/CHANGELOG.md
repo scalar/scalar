@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 0.6.58
+
+### Patch Changes
+
+- c603e80: style: use a custom Fastify theme as the default
+
 ## 0.6.57
 
 ### Patch Changes

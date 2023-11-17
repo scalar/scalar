@@ -1,7 +1,7 @@
 {
   "name": "@scalar/express-api-reference",
   "description": "A middleware for using the Scalar API reference with Express",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "dependencies": {
     "@scalar/api-reference": "workspace:*"
   },
