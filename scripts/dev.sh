@@ -11,6 +11,7 @@ pnpm concurrently \
             --filter @scalar-org/echo-server \
             --filter @scalar-org/fastify-api-reference \
             --filter @scalar-org/hono-api-reference \
+            --filter @scalar-org/express-api-reference \
             --filter @scalar-org/backend \
             dev \
     "

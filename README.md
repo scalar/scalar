@@ -24,6 +24,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   - [With React](#with-react)
   - [With Fastify](#with-fastify)
   - [With Hono](#with-hono)
+  - [With Express](#with-express)
 - [Using our amazing service](#using-our-amazing-service)
 - [Themes](#themes)
 - [Advanced: Styling](#advanced-styling)
@@ -169,6 +170,25 @@ app.get(
 ```
 
 Read more: [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)
+
+### With Express
+
+Our Express middleware makes it so easy to render a reference:
+
+```ts
+import { apiReference } from '@scalar/express-api-reference'
+
+app.use(
+  '/reference',
+  apiReference({
+    spec: {
+      content: OpenApiSpecification,
+    },
+  }),
+)
+```
+
+Read more: [@scalar/express-api-reference](https://github.com/scalar/scalar/tree/main/packages/express-api-reference)
 
 ## Using our amazing service
 
