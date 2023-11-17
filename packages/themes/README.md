@@ -1,4 +1,4 @@
-# Scalar Default Theme
+# Scalar Themes
 
 [![Version](https://img.shields.io/npm/v/%40scalar/themes)](https://www.npmjs.com/package/@scalar/themes)
 [![Downloads](https://img.shields.io/npm/dm/%40scalar/themes)](https://www.npmjs.com/package/@scalar/themes)
@@ -11,8 +11,16 @@
 npm install @scalar/themes
 ```
 
-## Usage
+## Themes
 
-```js
-import '@scalar/themes/default.css'
-```
+The following themes are available:
+
+- `default` (which is the … default)
+- `alternate`
+- `moon`
+- `purple`
+- `solarized`
+
+And if you don’t want to load any theme:
+
+- `none`
