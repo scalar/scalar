@@ -1,7 +1,6 @@
 {
   "name": "root",
   "devDependencies": {
-    "@babel/runtime": "7.22.15",
     "@changesets/cli": "2.26.2",
     "@trivago/prettier-plugin-sort-imports": "4.2.0",
     "@typescript-eslint/eslint-plugin": "6.7.2",

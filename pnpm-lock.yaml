@@ -16,9 +16,6 @@ importers:
 
   .:
     devDependencies:
-      '@babel/runtime':
-        specifier: 7.22.15
-        version: 7.22.15
       '@changesets/cli':
         specifier: 2.26.2
         version: 2.26.2
