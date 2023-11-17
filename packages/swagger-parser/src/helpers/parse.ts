@@ -57,8 +57,8 @@ const transformResult = (result: OpenAPI.Document<object>): SwaggerSpec => {
       const newOperation = {
         httpVerb: requestMethod,
         path,
-        operationId: operation.operationId || path || '',
-        name: operation.operationId || operation.summary || path || '',
+        operationId: operation.operationId || path,
+        name: operation.summary || operation.operationId || path || '',
         description: operation.description || '',
         information: {
           ...operation,
