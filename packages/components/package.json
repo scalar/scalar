@@ -31,7 +31,7 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "test": "vitest",
     "build-only": "vite build",
-    "type-check": "vue-tsc --noEmit  --composite false",
+    "types:check": "vue-tsc --noEmit  --composite false",
     "typegen:icons": "ts-node ./src/scripts/typegen.ts",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",

@@ -1,7 +1,5 @@
 export const theme = {
   boxShadow: {
-    label:
-      '0 0 2px 2px var(--theme-background-1, var(--default-theme-background-1))',
     DEFAULT: 'var(--theme-shadow-1, var(--default-theme-shadow-1))',
     md: 'var(--theme-shadow-2, var(--default-theme-shadow-2))',
     sm: 'rgba(0, 0, 0, 0.09) 0px 1px 4px',

@@ -48,7 +48,7 @@ body.sb-show-main,
 #storybook-docs .sbdocs-preview {
   color: var(--default-theme-color-2);
   border-color: var(--default-theme-border-color);
-  background: var(--default-theme-background-1);
+  background: var(--default-theme-background-2);
 }
 #storybook-docs .sbdocs-preview > div:first-of-type:not(.docs-story) {
   background: var(--default-theme-background-3);

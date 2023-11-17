@@ -10,6 +10,8 @@ const props = withDefaults(
     modelValue: string
     placeholder?: string
     label?: string
+    /** This color creates a mask over the input outline and should be set to the background color behind the textField */
+    labelShadowColor?: string
     error?: boolean
     isMultiline?: boolean
     helperText?: string
@@ -21,6 +23,8 @@ const props = withDefaults(
   }>(),
   {
     emitOnBlur: true,
+    labelShadowColor:
+      'var(--theme-background-2, var(--default-theme-background-2))',
     disableTrim: false,
   },
 )
@@ -104,11 +108,15 @@ onMounted(() => {
         v-if="label"
         :class="
           cx(
-            'scalar-input-label pointer-events-none absolute left-0 top-0 mx-2 my-3 bg-transparent px-1 text-xs',
-            'shadow-label peer z-10 origin-top-left rounded bg-back-1 text-fore-3 transition-transform',
+            'scalar-input-label pointer-events-none absolute left-0 top-0 mx-2 my-3 px-1 text-xs',
+            'shadow-current peer z-10 origin-top-left rounded text-fore-3 transition-transform',
           )
         "
-        :for="uid">
+        :for="uid"
+        :style="{
+          'box-shadow': `0 0 4px 4px ${labelShadowColor}`,
+          'background-color': labelShadowColor,
+        }">
         {{ label }}
       </label>
       <component
@@ -131,14 +139,14 @@ onMounted(() => {
         @input="handleChange"
         @keyup.enter="handleSubmit" />
       <div
-        class="icon-slot !empty:flex !empty:items-center !empty:pr-3 !empty:w-7 cursor-pointer text-ghost hover:text-fore-1">
+        class="icon-slot cursor-pointer text-ghost hover:text-fore-1 !empty:flex !empty:w-7 !empty:items-center !empty:pr-3">
         <slot />
       </div>
     </div>
     <span
       :class="
         cx(
-          'helper-text before:font-black before:rounded-full mt-1.5 flex items-center text-xs text-error',
+          'helper-text mt-1.5 flex items-center text-xs text-error before:rounded-full before:font-black',
           'before:mr-1.5 before:block before:h-4 before:w-4 before:text-center before:text-xxs before:leading-4',
           `before:bg-error before:text-white before:content-['!'] empty:hidden`,
         )
