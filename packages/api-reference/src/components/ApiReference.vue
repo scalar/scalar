@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
-import { type ReferenceProps, type SpecConfiguration } from 'src/types'
 import { computed, ref } from 'vue'
 
 import { useTemplateStore } from '../stores/template'
+import { type ReferenceProps, type SpecConfiguration } from '../types'
 import ApiReferenceBase from './ApiReferenceBase.vue'
 import DarkModeToggle from './DarkModeToggle.vue'
 import MobileHeader from './MobileHeader.vue'

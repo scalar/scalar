@@ -3,7 +3,7 @@ import {
   ApiReferenceBase,
   type ReferenceConfiguration,
 } from '@scalar/api-reference'
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 
 import DevToolbar from '../components/DevToolbar.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
@@ -20,6 +20,16 @@ const configuration = reactive<ReferenceConfiguration>({
     initialContent: 'Swagger Editor',
   },
 })
+
+onMounted(() => {
+  content.value = window.localStorage?.getItem('api-reference-content') ?? ''
+})
+
+watch(
+  content,
+  () => window.localStorage?.setItem('api-reference-content', content.value),
+  { deep: true },
+)
 
 const configProxy = computed({
   get: () => configuration,

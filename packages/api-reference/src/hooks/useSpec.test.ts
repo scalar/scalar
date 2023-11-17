@@ -1,7 +1,7 @@
-import { type SpecConfiguration } from 'src/types'
 import { describe, expect, it, vi } from 'vitest'
 import { computed, nextTick, reactive, watch } from 'vue'
 
+import { type SpecConfiguration } from '../types'
 import { useSpec } from './useSpec'
 
 describe('useSpec', () => {

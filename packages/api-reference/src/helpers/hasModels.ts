@@ -1,4 +1,4 @@
-import { type Spec } from 'src/types'
+import { type Spec } from '../types'
 
 export const hasModels = (spec: Spec) => {
   if (Object.keys(spec?.components?.schemas ?? {}).length) {
