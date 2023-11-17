@@ -23,7 +23,7 @@ const OpenApiSpecification = swaggerJsdoc({
   definition: {
     openapi: '3.1.0',
     info: {
-      title: 'Example',
+      title: 'Express Example',
       description:
         'The `@scalar/express-api-reference` middleware renders a beautiful API reference based on your OpenAPI specification.',
       version: '1.0.0',
