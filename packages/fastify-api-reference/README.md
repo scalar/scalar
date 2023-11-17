@@ -75,3 +75,16 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 ```
 
 The fastify plugin takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/packages/api-reference#props) in the core package README.
+
+## Themes
+
+By default, we’re using a custom Fastify theme and it’s beautiful. But you can choose [one of our other themes](https://github.com/scalar/scalar/tree/main/packages/themes), too:
+
+```ts
+await fastify.register(require('@scalar/fastify-api-reference'), {
+  routePrefix: '/reference',
+  apiReference: {
+    theme: 'purple',
+  },
+})
+```

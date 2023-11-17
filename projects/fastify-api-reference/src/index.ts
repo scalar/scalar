@@ -64,7 +64,7 @@ fastify.put(
 await fastify.register(fastifyApiReference, {
   routePrefix: '/reference',
   apiReference: {
-    theme: 'moon',
+    // theme: 'moon',
     spec: {
       // content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
       // content: () => fastify.swagger(),
