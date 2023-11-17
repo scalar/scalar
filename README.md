@@ -24,6 +24,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   - [With React](#with-react)
   - [With Fastify](#with-fastify)
   - [With Hono](#with-hono)
+  - [With Express](#with-express)
 - [Using our amazing service](#using-our-amazing-service)
 - [Themes](#themes)
 - [Advanced: Styling](#advanced-styling)
