@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: var(--theme-font, var(--default-theme-font));
+  }
+}
+
+@layer utilities {
+  .row {
+    @apply flex flex-row;
+  }
+  .col {
+    @apply flex flex-col;
+  }
+}
