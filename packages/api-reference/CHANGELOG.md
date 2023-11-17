@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.1.3
+
+### Patch Changes
+
+- 75df2d2: feat: use bearer auth as the fallback for http auth
+- c97e8e6: chore: add form tag to auth credentials
+- 52c20e5: style: no text transform for model names
+- b1fe23c: feat: add support for oneOf in response schemas
+  feat: add support for allOf in response schemas
+- 1208a7f: feat: add support for Swagger 2.0 host and schemes configuration
+- Updated dependencies [3d6027c]
+  - @scalar/swagger-parser@0.5.8
+
 ## 1.1.2
 
 ### Patch Changes

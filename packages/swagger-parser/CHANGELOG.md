@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.5.8
+
+### Patch Changes
+
+- 3d6027c: chore: use the summary as the title, fall back to operationId, and then the path
+
 ## 0.5.7
 
 ### Patch Changes

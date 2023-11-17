@@ -1,5 +1,16 @@
 # @scalar/hono-api-reference
 
+## 0.1.8
+
+### Patch Changes
+
+- Updated dependencies [75df2d2]
+- Updated dependencies [c97e8e6]
+- Updated dependencies [52c20e5]
+- Updated dependencies [b1fe23c]
+- Updated dependencies [1208a7f]
+  - @scalar/api-reference@1.1.3
+
 ## 0.1.7
 
 ### Patch Changes
