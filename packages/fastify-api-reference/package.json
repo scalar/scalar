@@ -1,7 +1,7 @@
 {
   "name": "@scalar/fastify-api-reference",
   "description": "a fastify plugin to render an API reference from a Swagger spec",
-  "version": "0.6.56",
+  "version": "0.6.57",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
@@ -46,10 +46,10 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "peerDependencies": {
-    "@types/ejs": "3.1.3",
-    "fastify": "4.23.2",
-    "fastify-plugin": "4.5.1",
-    "vue": "3.3.4"
+    "@types/ejs": "^3.1.3",
+    "fastify": "^4.23.2",
+    "fastify-plugin": "^4.5.1",
+    "vue": "^3.3.4"
   },
   "repository": {
     "type": "git",

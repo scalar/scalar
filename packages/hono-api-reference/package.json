@@ -1,7 +1,7 @@
 {
   "name": "@scalar/hono-api-reference",
   "description": "A middleware for using the Scalar API reference in Hono",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "dependencies": {
     "@scalar/api-reference": "workspace:*"
   },
@@ -31,7 +31,7 @@
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "peerDependencies": {
-    "hono": "3.9.2"
+    "hono": "^3.9.2"
   },
   "private": false,
   "repository": {
