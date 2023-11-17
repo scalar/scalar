@@ -170,6 +170,25 @@ app.get(
 
 Read more: [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)
 
+### With Express
+
+Our Express middleware makes it so easy to render a reference:
+
+```ts
+import { apiReference } from '@scalar/express-api-reference'
+
+app.use(
+  '/reference',
+  apiReference({
+    spec: {
+      content: OpenApiSpecification,
+    },
+  }),
+)
+```
+
+Read more: [@scalar/express-api-reference](https://github.com/scalar/scalar/tree/main/packages/express-api-reference)
+
 ## Using our amazing service
 
 Wait, this is open source and you can do whatever you want. But if you want to add a nice, customizable guide, collaborate with your team and have everything served through a CDN, create an account on [scalar.com](https://scalar.com).

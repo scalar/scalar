@@ -15,19 +15,24 @@ npm install @scalar/express-api-reference
 
 ## Usage
 
-Set up [Zod OpenAPI Hono](https://hono.dev/guides/openapi) and pass the configured URL to the `apiReference` middleware:
+[Set up Express](https://expressjs.com/en/starter/hello-world.html) and pass an OpenAPI/Swagger spec to the `apiReference` middleware:
+
+> Wait, but how do we get the OpenApiSpecification? 🤔 There are multiple ways to generate an OpenAPI/Swagger file for Express. The most popular way is to use [`swagger-jsdoc`](https://github.com/Surnet/swagger-jsdoc).
 
 ```ts
 import { apiReference } from '@scalar/express-api-reference'
 
-app.use(
-  '/reference',
-  apiReference({
-    spec: {
-      content: OpenApiSpecification,
-    },
-  }),
-)
+const OpenApiSpecification =
+  /* … */
+
+  app.use(
+    '/reference',
+    apiReference({
+      spec: {
+        content: OpenApiSpecification,
+      },
+    }),
+  )
 ```
 
 The Express middleware takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/packages/api-reference#props) in the core package README.
