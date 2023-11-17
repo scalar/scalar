@@ -6,7 +6,7 @@ export type ApiReferenceOptions = ReferenceConfiguration
 /**
  * The custom theme CSS for the API Reference.
  *
- * TODO: Custom Express theme?
+ * TODO: Custom Express theme
  */
 export const customThemeCSS = ``
 
@@ -26,6 +26,9 @@ export const ApiReference = (options: ApiReferenceOptions) => {
   `
 }
 
+/**
+ * The HTML template to render the API Reference.
+ */
 export function apiReference(options: ReferenceConfiguration) {
   return (req: Request, res: Response) => {
     res.send(`
