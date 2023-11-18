@@ -47,7 +47,7 @@ withDefaults(
         :value="value.properties[property]" />
     </div>
     <div
-      v-else-if="value?.type"
+      v-else
       class="properties">
       <SchemaProperty
         :level="level"
