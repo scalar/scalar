@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.5.9
+
+### Patch Changes
+
+- a1575f2: chore: don’t use the operationId as a name fallback
+
 ## 0.5.8
 
 ### Patch Changes
