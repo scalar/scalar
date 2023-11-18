@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.1.4
+
+### Patch Changes
+
+- 752dcf3: feat: add support for models with top level anyOf, allOf, oneOf …
+- Updated dependencies [a1575f2]
+  - @scalar/swagger-parser@0.5.9
+
 ## 1.1.3
 
 ### Patch Changes
