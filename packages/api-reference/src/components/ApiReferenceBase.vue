@@ -20,6 +20,7 @@ const props = defineProps<ReferenceProps>()
 const emit = defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
   (e: 'updateContent', value: string): void
+  (e: 'closedSearchModal'): void
   (
     e: 'startAIWriter',
     value: string[],
@@ -101,6 +102,7 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
     :rawSpec="rawSpecRef"
     :swaggerEditorRef="swaggerEditorRef"
     @changeTheme="$emit('changeTheme', $event)"
+    @closedSearchModal="$emit('closedSearchModal')"
     @updateContent="(newContent: string) => setRawSpecRef(newContent)">
     <template #header="attribs">
       <slot

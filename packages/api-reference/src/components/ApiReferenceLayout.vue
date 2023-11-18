@@ -29,6 +29,7 @@ defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
   (e: 'updateContent', value: string): void
   (e: 'toggleDarkMode'): void
+  (e: 'closedSearchModal'): void
 }>()
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
@@ -96,6 +97,15 @@ const showSwaggerEditor = computed(() => {
 })
 
 const { state } = useApiClientStore()
+
+watch(
+  () => props.configuration.showSearchModal,
+  (val) => {
+    if (val !== undefined) {
+      setTemplateItem('showSearch', val)
+    }
+  },
+)
 </script>
 <template>
   <div
@@ -167,7 +177,8 @@ const { state } = useApiClientStore()
     <!-- Search Overlay -->
     <SearchModal
       :parsedSpec="parsedSpec"
-      variant="search" />
+      variant="search"
+      @closedSearchModal="$emit('closedSearchModal')" />
     <!-- REST API Client Overlay -->
     <ApiClientModal
       :parsedSpec="parsedSpec"

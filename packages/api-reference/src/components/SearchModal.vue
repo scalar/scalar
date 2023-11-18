@@ -11,6 +11,9 @@ import { useTemplateStore } from '../stores/template'
 import type { Spec, Tag, TransformedOperation } from '../types'
 
 const props = defineProps<{ parsedSpec: Spec }>()
+const emit = defineEmits<{
+  (e: 'closedSearchModal'): void
+}>()
 const reactiveSpec = toRef(props, 'parsedSpec')
 const modalState = useModal()
 
@@ -61,6 +64,7 @@ watch(
   () => {
     if (!modalState.open) {
       setItem('showSearch', false)
+      emit('closedSearchModal')
     }
   },
 )

@@ -43,6 +43,8 @@ export type ReferenceConfiguration = {
   hocuspocusConfiguration?: HocuspocusConfigurationProp
   /** Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
   searchHotKey?: string
+  /** Control the search modal, good use case is you want to use your own search */
+  showSearchModal?: boolean
   /** ??? */
   aiWriterMarkdown?: string
 }
@@ -61,6 +63,7 @@ export const DEFAULT_CONFIG: DeepReadonly<ReferenceConfiguration> = {
   },
   showSidebar: true,
   isEditable: false,
+  showSearchModal: undefined,
   hocuspocusConfiguration: undefined,
 }
 
