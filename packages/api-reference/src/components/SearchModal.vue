@@ -4,7 +4,12 @@ import { FlowModal, useModal } from '@scalar/use-modal'
 import Fuse from 'fuse.js'
 import { computed, nextTick, ref, toRef, watch } from 'vue'
 
-import { getOperationSectionId, getTagSectionId, scrollToId } from '../helpers'
+import {
+  getModelSectionId,
+  getOperationSectionId,
+  getTagSectionId,
+  scrollToId,
+} from '../helpers'
 import { extractRequestBody } from '../helpers/specHelpers'
 import { type ParamMap, useOperation } from '../hooks'
 import { useTemplateStore } from '../stores/template'
@@ -16,6 +21,7 @@ const modalState = useModal()
 
 type FuseData = {
   title: string
+  type: 'req' | 'model'
   operationId?: string
   description: string
   body?: string | string[] | ParamMap
@@ -82,8 +88,10 @@ async function openSearchResult(entry: Fuse.FuseResult<FuseData>) {
   modalState.hide()
   await nextTick()
 
-  if (entry.item.operation) {
+  if (entry.item.type === 'req' && entry.item.operation) {
     scrollToId(getOperationSectionId(entry.item.operation, searchTag))
+  } else if (entry.item.type === 'model') {
+    scrollToId(getModelSectionId(entry.item.tag))
   } else {
     scrollToId(getTagSectionId(searchTag))
   }
@@ -100,12 +108,14 @@ watch(
 
     // TODO: We need to go through the operations, not the tags. Spec files can have zero tags.
     props.parsedSpec.tags.forEach((tag) => {
-      const tagData = {
+      const tagData: FuseData = {
         title: tag.name,
         description: tag.description,
+        type: 'req',
         tag: tag.name,
         body: '',
       }
+
       fuseDataArray.push(tagData)
 
       if (tag.operations) {
@@ -116,7 +126,9 @@ watch(
           if (typeof bodyData !== 'boolean') {
             body = bodyData
           }
+
           const operationData: FuseData = {
+            type: 'req',
             title: operation.name,
             operationId: operation.operationId,
             description: operation.description,
@@ -134,6 +146,24 @@ watch(
         })
       }
     })
+
+    // Adding models as well
+    const schemas = props.parsedSpec.components?.schemas
+    const modelData: FuseData[] = []
+
+    if (schemas) {
+      Object.keys(schemas).forEach((k) => {
+        modelData.push({
+          type: 'model',
+          title: 'Model',
+          description: k,
+          tag: k,
+          body: '',
+        })
+      })
+
+      fuseDataArray = fuseDataArray.concat(modelData)
+    }
 
     fuse.setCollection(fuseDataArray)
   },
