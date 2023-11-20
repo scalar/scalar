@@ -6,11 +6,11 @@
     "vue": "3.3.4"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.3.4",
+    "@vitejs/plugin-vue": "4.4.0",
     "typescript": "5.2.2",
-    "vite": "4.4.9",
+    "vite": "4.4.11",
     "vite-ssg": "0.23.4",
-    "vue-tsc": "1.8.13"
+    "vue-tsc": "1.8.19"
   },
   "private": true,
   "scripts": {
