@@ -13,7 +13,7 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          spec: { url: '/petstore.json' },
+          spec: { url: '/swagger.json' },
         },
       })
 
@@ -34,7 +34,7 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          spec: { url: '/petstore.json' },
+          spec: { url: '/swagger.json' },
         },
       })
 
@@ -57,7 +57,7 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          spec: { url: '/petstore.json' },
+          spec: { url: '/swagger.json' },
         },
       })
 
@@ -80,13 +80,13 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          spec: { url: '/petstore.json' },
+          spec: { url: '/swagger.json' },
         },
       })
 
       fastify.listen({ port: 0 }, function (err, address) {
         fetch(`${address}/reference`).then(async (response) => {
-          expect(await response.text()).toContain('data-url="/petstore.json"')
+          expect(await response.text()).toContain('data-url="/swagger.json"')
           resolve(null)
         })
       })
@@ -167,7 +167,7 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          spec: { url: '/petstore.json' },
+          spec: { url: '/swagger.json' },
         },
       })
 
@@ -191,7 +191,7 @@ describe('fastifyApiReference', () => {
         routePrefix: '/reference',
         apiReference: {
           pageTitle: 'Foobar',
-          spec: { url: '/petstore.json' },
+          spec: { url: '/swagger.json' },
         },
       })
 
@@ -212,7 +212,7 @@ describe('fastifyApiReference', () => {
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
         apiReference: {
-          spec: { url: '/petstore.json' },
+          spec: { url: '/swagger.json' },
         },
       })
 
