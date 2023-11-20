@@ -19,5 +19,6 @@ pnpm concurrently \
         pnpm \
             --workspace-concurrency=100 \
             --filter @scalar/api-reference \
+            --filter @scalar/components \
             storybook \
     "

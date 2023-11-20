@@ -120,7 +120,7 @@
     "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
     "preview:standalone": "http-server",
-    "storybook": "storybook dev -p 6006",
+    "storybook": "storybook dev -p 6005",
     "test": "vitest",
     "types:build": "vue-tsc -p tsconfig.build.json",
     "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"

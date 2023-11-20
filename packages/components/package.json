@@ -78,7 +78,7 @@
   "scripts": {
     "build": "run-p types:check \"build-only {@}\" --",
     "build-only": "vite build",
-    "build-storybook": "storybook build",
+    "build:storybook": "storybook build",
     "dev": "storybook dev -p 6006",
     "format": "prettier --write src/",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
