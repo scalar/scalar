@@ -6,7 +6,7 @@ import {
 import { type ThemeId } from '@scalar/themes'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, nextTick, onMounted, onUpdated, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { useTemplateStore } from '../stores/template'
 import type { ReferenceConfiguration, Spec } from '../types'

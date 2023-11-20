@@ -173,4 +173,6 @@ function getRequestBody(operation: TransformedOperation) {
       },
     }
   }
+
+  return undefined
 }

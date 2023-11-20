@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useGlobalStore } from '../../../stores'
-import MarkdownRenderer from '../MarkdownRenderer.vue'
+
+// import MarkdownRenderer from '../MarkdownRenderer.vue'
 
 defineProps<{
   value?: any
