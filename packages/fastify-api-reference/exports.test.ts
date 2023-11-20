@@ -11,7 +11,7 @@ describe('exports', () => {
       fastify.register(import('./dist/index.js'), {
         routePrefix: '/foobar',
         apiReference: {
-          spec: { url: '/scalar.json' },
+          spec: { url: '/swagger.json' },
         },
       })
 
@@ -33,7 +33,7 @@ describe('exports', () => {
       fastify.register(require('./dist/index.cjs'), {
         routePrefix: '/foobar',
         apiReference: {
-          spec: { url: '/scalar.json' },
+          spec: { url: '/swagger.json' },
         },
       })
 
