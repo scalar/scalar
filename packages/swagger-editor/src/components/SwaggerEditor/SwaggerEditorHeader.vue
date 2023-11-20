@@ -73,6 +73,7 @@ watch(files, () => {
       <div class="swagger-editor-type">Getting Started</div>
     </div> -->
     <div
+      v-if="!availableTabs || availableTabs.includes('Swagger Editor')"
       class="swagger-editor-title"
       :class="{
         'swagger-editor-active': activeTab === 'Swagger Editor',
@@ -81,6 +82,7 @@ watch(files, () => {
       <div class="swagger-editor-type">Swagger Editor</div>
     </div>
     <div
+      v-if="!availableTabs || availableTabs.includes('Getting Started')"
       class="swagger-editor-title"
       :class="{
         'swagger-editor-active': activeTab === 'Getting Started',
@@ -89,6 +91,7 @@ watch(files, () => {
       <div class="swagger-editor-type">Getting Started</div>
     </div>
     <div
+      v-if="!availableTabs || availableTabs.includes('AI Writer')"
       class="swagger-editor-title"
       :class="{
         'swagger-editor-active': activeTab === 'AI Writer',
