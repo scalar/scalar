@@ -38,7 +38,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
 ### From a CDN
 
 ```html
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>API Reference</title>

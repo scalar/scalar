@@ -430,7 +430,8 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   z-index: 1000;
   transform: translate3d(640px, 0, 0);
   opacity: 0;
-  transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1),
+  transition:
+    transform 0.5s cubic-bezier(0.77, 0, 0.175, 1),
     opacity 0.01s ease-in-out 0.5s;
   pointer-events: none;
 }

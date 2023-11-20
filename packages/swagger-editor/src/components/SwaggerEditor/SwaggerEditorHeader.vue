@@ -196,8 +196,8 @@ watch(files, () => {
 }
 .swagger-editor-active {
   /* use layered box shadow so opaque border overlap doesn't show  */
-  box-shadow: 0 1px 0 0px
-      var(--theme-background-1, var(--default-theme-background-1)),
+  box-shadow:
+    0 1px 0 0px var(--theme-background-1, var(--default-theme-background-1)),
     0px 0 0 1px var(--theme-border-color, var(--default-theme-border-color)),
     0 0 0 1px var(--theme-background-1, var(--default-theme-background-1));
   cursor: default;

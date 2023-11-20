@@ -79,7 +79,13 @@ watch(
             <select
               v-if="value.length > 1"
               :value="selectedServerIndex"
-              @input="(event) => (selectedServerIndex = parseInt((event.target as HTMLSelectElement).value, 10))">
+              @input="
+                (event) =>
+                  (selectedServerIndex = parseInt(
+                    (event.target as HTMLSelectElement).value,
+                    10,
+                  ))
+              ">
               <option
                 v-for="(serverOption, index) in value"
                 :key="index"

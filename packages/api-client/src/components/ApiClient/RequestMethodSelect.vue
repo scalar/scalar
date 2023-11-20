@@ -31,7 +31,9 @@ const supportedRequestMethods = [
     <select
       :disabled="readOnly"
       :value="requestMethod.toLowerCase()"
-      @input="(event) => $emit('change', (event.target as HTMLSelectElement).value)">
+      @input="
+        (event) => $emit('change', (event.target as HTMLSelectElement).value)
+      ">
       <option
         v-for="validRequestMethod in supportedRequestMethods"
         :key="validRequestMethod"
