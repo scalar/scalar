@@ -17,8 +17,15 @@ export default defineConfig({
     rollupOptions: {
       external: [
         '@codemirror/state',
+        '@codemirror/view',
         '@hocuspocus/provider',
+        '@lezer/common',
+        '@lezer/javascript',
+        '@lezer/lr',
+        '@lezer/python',
         '@scalar/swagger-editor',
+        '@scalar/themes',
+        '@scalar/use-codemirror',
         '@xmldom/xmldom',
         'rehype-external-links',
         'rehype-format',
@@ -32,6 +39,7 @@ export default defineConfig({
         'remark-stringify',
         'unified',
         'vue',
+        'y-codemirror.next',
         'yjs',
       ],
       output: {
