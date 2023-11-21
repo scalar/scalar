@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getOperationSectionId } from '../../../helpers'
 import type { Tag, TransformedOperation } from '../../../types'
+import { Anchor } from '../../Anchor'
 import {
   Section,
   SectionColumn,
@@ -24,9 +25,11 @@ defineProps<{
     <SectionContent>
       <SectionColumns>
         <SectionColumn>
-          <SectionHeader :level="3">
-            {{ operation.name }}
-          </SectionHeader>
+          <Anchor :id="getOperationSectionId(operation, tag)">
+            <SectionHeader :level="3">
+              {{ operation.name }}
+            </SectionHeader>
+          </Anchor>
           <Copy :operation="operation" />
         </SectionColumn>
         <SectionColumn>
