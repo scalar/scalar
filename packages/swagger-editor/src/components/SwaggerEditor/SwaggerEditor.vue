@@ -102,6 +102,7 @@ defineExpose({
     <SwaggerEditorHeader
       ref="swaggerEditorHeaderRef"
       :activeTab="activeTab"
+      :availableTabs="availableTabs"
       :proxyUrl="proxyUrl"
       @import="handleContentUpdate"
       @updateActiveTab="activeTab = $event" />

@@ -88,8 +88,15 @@ You can decide which tab should be active by default:
 ```vue
 <ApiReference
   :initialTabState="{ tabs: { initialContent: 'Getting Started' } }" />
-<!-- or -->
-<ApiReference :configuration="{ tabs: { initialContent: 'Swagger Editor' } }" />
+```
+
+And you can define which tabs should be visible:
+
+```vue
+<ApiReference
+  :configuration="{
+    tabs: { available: ['Getting Started', 'Swagger Editor'] },
+  }" />
 ```
 
 #### showSidebar?: boolean

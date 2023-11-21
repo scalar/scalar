@@ -35,6 +35,7 @@ export type ReferenceConfiguration = {
     // enabled?: boolean
     /** The initial tab to show */
     initialContent?: EditorHeaderTabs
+    available?: EditorHeaderTabs[]
   }
   /** Whether to show the sidebar */
   showSidebar?: boolean

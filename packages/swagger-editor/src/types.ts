@@ -7,12 +7,14 @@ export type SwaggerEditorProps = {
   hocuspocusConfiguration?: HocuspocusConfigurationProp
   theme?: ThemeId
   initialTabState?: EditorHeaderTabs
+  availableTabs?: EditorHeaderTabs[]
   proxyUrl?: string
   error?: string | Ref<string> | ComputedRef<string> | null
 }
 
 export type SwaggerEditorHeaderProps = {
   activeTab: EditorHeaderTabs
+  availableTabs?: EditorHeaderTabs[]
   proxyUrl?: string
 }
 

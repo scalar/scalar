@@ -118,6 +118,7 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
       <LazyLoadedSwaggerEditor
         ref="swaggerEditorRef"
         :aiWriterMarkdown="currentConfiguration.aiWriterMarkdown"
+        :availableTabs="currentConfiguration.tabs?.available"
         :error="errorRef"
         :hocuspocusConfiguration="currentConfiguration.hocuspocusConfiguration"
         :initialTabState="currentConfiguration.tabs?.initialContent"

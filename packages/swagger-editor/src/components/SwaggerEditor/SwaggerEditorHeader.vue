@@ -63,57 +63,73 @@ watch(files, () => {
 })
 </script>
 <template>
-  <div class="swagger-editor-header">
-    <!-- <div
-      class="swagger-editor-title"
-      :class="{
-        'swagger-editor-active': activeTab === 'Getting Started',
-      }"
-      @click="emit('updateActiveTab', 'Getting Started')">
-      <div class="swagger-editor-type">Getting Started</div>
-    </div> -->
-    <div
-      class="swagger-editor-title"
-      :class="{
-        'swagger-editor-active': activeTab === 'Swagger Editor',
-      }"
-      @click="emit('updateActiveTab', 'Swagger Editor')">
-      <div class="swagger-editor-type">Swagger Editor</div>
-    </div>
-    <div
-      class="swagger-editor-title"
-      :class="{
-        'swagger-editor-active': activeTab === 'Getting Started',
-      }"
-      @click="emit('updateActiveTab', 'Getting Started')">
-      <div class="swagger-editor-type">Getting Started</div>
-    </div>
-    <div
-      class="swagger-editor-title"
-      :class="{
-        'swagger-editor-active': activeTab === 'AI Writer',
-      }"
-      @click="emit('updateActiveTab', 'AI Writer')">
-      <div class="swagger-editor-type">✨ AI Writer</div>
-    </div>
-  </div>
   <div
-    v-show="activeTab === 'Swagger Editor'"
-    class="swagger-editor-buttons">
-    <div class="swagger-editor-heading">Swagger File</div>
-    <div>
-      <button
-        type="button"
-        @click="() => open()">
-        Upload File
-      </button>
-      <button
-        type="button"
-        @click="importUrlModal.show">
-        Import URL
-      </button>
+    :class="{
+      'single-tab':
+        availableTabs?.length === 1 && availableTabs.includes('Swagger Editor'),
+    }">
+    <div class="swagger-editor-header">
+      <div
+        v-if="!availableTabs || availableTabs.includes('Swagger Editor')"
+        class="swagger-editor-title"
+        :class="{
+          'swagger-editor-active': activeTab === 'Swagger Editor',
+        }"
+        @click="emit('updateActiveTab', 'Swagger Editor')">
+        <div class="swagger-editor-type">Swagger Editor</div>
+      </div>
+      <div
+        v-if="!availableTabs || availableTabs.includes('Getting Started')"
+        class="swagger-editor-title"
+        :class="{
+          'swagger-editor-active': activeTab === 'Getting Started',
+        }"
+        @click="emit('updateActiveTab', 'Getting Started')">
+        <div class="swagger-editor-type">Getting Started</div>
+      </div>
+      <div
+        v-if="!availableTabs || availableTabs.includes('AI Writer')"
+        class="swagger-editor-title"
+        :class="{
+          'swagger-editor-active': activeTab === 'AI Writer',
+        }"
+        @click="emit('updateActiveTab', 'AI Writer')">
+        <div class="swagger-editor-type">✨ AI Writer</div>
+      </div>
+      <div class="single-tab-items">
+        <button
+          class="swagger-editor-title"
+          type="button"
+          @click="() => open()">
+          <div class="swagger-editor-type">Upload File</div>
+        </button>
+        <button
+          class="swagger-editor-title"
+          type="button"
+          @click="importUrlModal.show">
+          <div class="swagger-editor-type">Import URL</div>
+        </button>
+      </div>
+    </div>
+    <div
+      v-show="activeTab === 'Swagger Editor'"
+      class="swagger-editor-buttons">
+      <div class="swagger-editor-heading">Swagger File</div>
+      <div>
+        <button
+          type="button"
+          @click="() => open()">
+          Upload File
+        </button>
+        <button
+          type="button"
+          @click="importUrlModal.show">
+          Import URL
+        </button>
+      </div>
     </div>
   </div>
+
   <FlowModal
     :state="importUrlModal"
     title="Import Swagger from URL">
@@ -240,5 +256,25 @@ watch(files, () => {
   font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-color-3, var(--default-theme-color-3));
   text-transform: uppercase;
+}
+.single-tab .swagger-editor-buttons,
+.single-tab-items {
+  display: none;
+}
+.single-tab .single-tab-items {
+  display: flex;
+  margin-left: auto;
+}
+.single-tab .swagger-editor-active .swagger-editor-type {
+  box-shadow:
+    0 1px 0 0px var(--theme-background-2, var(--default-theme-background-2)),
+    0px 0 0 1px var(--theme-border-color, var(--default-theme-border-color)),
+    0 0 0 1px var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  border-radius: var(--theme-radius, var(--default-theme-radius))
+    var(--theme-radius, var(--default-theme-radius)) 0 0;
+}
+.single-tab .swagger-editor-header {
+  padding-right: 6px;
 }
 </style>
