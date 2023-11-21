@@ -1,4 +1,4 @@
-import { computed, reactive } from 'vue'
+import { computed, reactive, watch } from 'vue'
 
 import { deepMerge } from '../helpers'
 import {
@@ -11,7 +11,11 @@ import {
 /** Configuration */
 const currentConfiguration: ReferenceConfiguration = reactive({})
 
-const setConfiguration = (newConfiguration: ReferenceConfiguration) => {
+const setConfiguration = (newConfiguration?: ReferenceConfiguration) => {
+  if (!newConfiguration) {
+    return
+  }
+
   Object.assign(currentConfiguration, newConfiguration)
 }
 
@@ -65,11 +69,25 @@ const setServer = (newState: Partial<ServerState>) => {
   })
 }
 
-export const useGlobalStore = () => ({
-  setConfiguration,
-  configuration,
-  authentication,
-  setAuthentication,
-  server,
-  setServer,
-})
+export const useGlobalStore = (params?: {
+  configuration?: ReferenceConfiguration
+}) => {
+  if (params?.configuration) {
+    watch(
+      () => params.configuration,
+      (value) => {
+        setConfiguration(value)
+      },
+      { immediate: true, deep: true },
+    )
+  }
+
+  return {
+    setConfiguration,
+    configuration,
+    authentication,
+    setAuthentication,
+    server,
+    setServer,
+  }
+}

@@ -23,16 +23,10 @@ const emit = defineEmits<{
   ): void
 }>()
 
-const { configuration: currentConfiguration, setConfiguration } =
-  useGlobalStore()
-
-watch(
-  () => props.configuration,
-  (value) => {
-    setConfiguration(value)
-  },
-  { immediate: true, deep: true },
-)
+// Put the configuration in the global store
+const { configuration: currentConfiguration } = useGlobalStore({
+  configuration: props.configuration,
+})
 
 /**
  * The editor component has heavy dependencies (process), let's lazy load it.
