@@ -21,28 +21,26 @@ export const Primary: Story = {
       CardFooter,
     },
     template: `
-      <div class="light-mode">
-        <Card v-bind="$props">
-          <CardHeader>
-            Test
-          </CardHeader>
-          <CardContent>
-            Default
-          </CardContent>
-          <CardContent muted>
-            Muted
-          </CardContent>
-          <CardContent frameless>
-            Frameless
-          </CardContent>
-          <CardContent borderless>
-            Borderless
-          </CardContent>
-          <CardFooter>
-            Footer
-          </CardFooter>
-        </Card>
-      </div>
+      <Card v-bind="$props">
+        <CardHeader>
+          Test
+        </CardHeader>
+        <CardContent>
+          Default
+        </CardContent>
+        <CardContent muted>
+          Muted
+        </CardContent>
+        <CardContent frameless>
+          Frameless
+        </CardContent>
+        <CardContent borderless>
+          Borderless
+        </CardContent>
+        <CardFooter>
+          Footer
+        </CardFooter>
+      </Card>
     `,
   }),
 }

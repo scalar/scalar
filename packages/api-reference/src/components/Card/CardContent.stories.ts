@@ -21,11 +21,9 @@ export const Default: Story = {
       return { args }
     },
     template: `
-      <div class="light-mode">
         <CardContent v-bind="args">
           Example Content
         </CardContent>
-      </div>
     `,
   }),
   args: {},
@@ -40,11 +38,9 @@ export const Muted: Story = {
       return { args }
     },
     template: `
-      <div class="light-mode">
-        <CardContent v-bind="args">
-          Example Content
-        </CardContent>
-      </div>
+      <CardContent v-bind="args">
+        Example Content
+      </CardContent>
     `,
   }),
   args: {
@@ -61,11 +57,9 @@ export const Frameless: Story = {
       return { args }
     },
     template: `
-      <div class="light-mode">
-        <CardContent v-bind="args">
-          Example Content
-        </CardContent>
-      </div>
+      <CardContent v-bind="args">
+        Example Content
+      </CardContent>
     `,
   }),
   args: {
