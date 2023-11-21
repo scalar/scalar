@@ -1,5 +1,12 @@
 # @scalar/swagger-editor
 
+## 0.7.6
+
+### Patch Changes
+
+- 8e65ba9: fix: set codemirror peer dependency version
+- 36761e4: feat: make the available tabs configurable
+
 ## 0.7.5
 
 ### Patch Changes

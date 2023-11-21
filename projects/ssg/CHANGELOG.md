@@ -1,5 +1,12 @@
 # @scalar/ssg
 
+## 0.0.11
+
+### Patch Changes
+
+- Updated dependencies [36761e4]
+  - @scalar/api-reference@1.1.6
+
 ## 0.0.10
 
 ### Patch Changes

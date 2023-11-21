@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.1.6
+
+### Patch Changes
+
+- 36761e4: feat: make the available tabs configurable
+- Updated dependencies [8e65ba9]
+- Updated dependencies [36761e4]
+  - @scalar/swagger-editor@0.7.6
+
 ## 1.1.5
 
 ### Patch Changes
