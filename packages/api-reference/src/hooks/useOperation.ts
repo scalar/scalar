@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 
-import type { Operation, Parameters } from '../types'
+import type { Parameters, TransformedOperation } from '../types'
 
 export type ParamMap = {
   path: Parameters[]
@@ -9,7 +9,7 @@ export type ParamMap = {
 }
 
 export type OperationProps = {
-  operation: Operation
+  operation: TransformedOperation
 }
 
 /**

@@ -2,13 +2,13 @@
 import { computed } from 'vue'
 
 import { useOperation } from '../../../hooks'
-import type { Operation } from '../../../types'
+import type { TransformedOperation } from '../../../types'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 // import Schema from '../Schema.vue'
 import Parameters from './Parameters.vue'
 import RequestBody from './RequestBody.vue'
 
-const props = defineProps<{ operation: Operation }>()
+const props = defineProps<{ operation: TransformedOperation }>()
 
 const { parameterMap } = useOperation(props)
 
