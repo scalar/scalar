@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.1.5
+
+### Patch Changes
+
+- b8dc5a5: fix: show path parameters in the parameter tables
+- Updated dependencies [b6552df]
+- Updated dependencies [b8dc5a5]
+- Updated dependencies [04875a6]
+  - @scalar/swagger-editor@0.7.5
+  - @scalar/swagger-parser@0.5.10
+
 ## 1.1.4
 
 ### Patch Changes

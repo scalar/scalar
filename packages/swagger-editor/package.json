@@ -1,7 +1,7 @@
 {
   "name": "@scalar/swagger-editor",
   "description": "an editor which is tailored to write OpenAPI spec",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
@@ -74,7 +74,7 @@
     "yjs": "^13.6.8",
     "@scalar/themes": "0.0.0",
     "@scalar/use-codemirror": "0.0.0",
-    "y-codemirror.next": "0.0.0"
+    "y-codemirror.next": "0.3.2"
   },
   "repository": {
     "type": "git",

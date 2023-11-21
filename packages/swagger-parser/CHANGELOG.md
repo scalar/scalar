@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.5.10
+
+### Patch Changes
+
+- b8dc5a5: feat: add pathParameters to the result
+
 ## 0.5.9
 
 ### Patch Changes

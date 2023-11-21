@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 
-import type { Operation, Parameters } from '../types'
+import type { Parameters, TransformedOperation } from '../types'
 
 export type ParamMap = {
   path: Parameters[]
@@ -9,7 +9,7 @@ export type ParamMap = {
 }
 
 export type OperationProps = {
-  operation: Operation
+  operation: TransformedOperation
 }
 
 /**
@@ -23,6 +23,19 @@ export function useOperation(props: OperationProps) {
       query: [],
       header: [],
     }
+
+    if (props.operation.pathParameters) {
+      props.operation.pathParameters.forEach((parameter: Parameters) => {
+        if (parameter.in === 'path') {
+          map.path.push(parameter)
+        } else if (parameter.in === 'query') {
+          map.query.push(parameter)
+        } else if (parameter.in === 'header') {
+          map.header.push(parameter)
+        }
+      })
+    }
+
     if (parameters) {
       parameters.forEach((parameter: Parameters) => {
         if (parameter.in === 'path') {
@@ -34,6 +47,7 @@ export function useOperation(props: OperationProps) {
         }
       })
     }
+
     return map
   })
 

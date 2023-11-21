@@ -35,6 +35,7 @@ export type ReferenceConfiguration = {
     // enabled?: boolean
     /** The initial tab to show */
     initialContent?: EditorHeaderTabs
+    available?: EditorHeaderTabs[]
   }
   /** Whether to show the sidebar */
   showSidebar?: boolean
@@ -123,6 +124,7 @@ export type RequestBodyMimeTypes =
   | 'text/plain'
 
 export type TransformedOperation = Operation & {
+  pathParameters: Parameters[]
   information: {
     requestBody?: {
       content?: Record<
