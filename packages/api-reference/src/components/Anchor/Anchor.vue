@@ -48,11 +48,11 @@ const getUrlWithId = (id: string) => {
   top: 50%;
   transform: translateY(-50%);
 
-  height: 100%;
   padding: 0 6px;
 
   color: var(--theme-color-3, var(--default-theme-color-3));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: 0.8em;
 }
 
 .anchor-copy:hover,
