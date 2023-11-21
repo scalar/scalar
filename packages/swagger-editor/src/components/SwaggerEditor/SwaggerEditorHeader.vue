@@ -199,8 +199,6 @@ watch(files, () => {
   position: relative;
   z-index: 1;
 }
-.swagger-editor-type:first-of-type:last-of-type {
-}
 .swagger-editor-buttons {
   display: flex;
   justify-content: space-between;
@@ -268,8 +266,8 @@ watch(files, () => {
   margin-left: auto;
 }
 .single-tab .swagger-editor-active .swagger-editor-type {
-  box-shadow: 0 1px 0 0px
-      var(--theme-background-2, var(--default-theme-background-2)),
+  box-shadow:
+    0 1px 0 0px var(--theme-background-2, var(--default-theme-background-2)),
     0px 0 0 1px var(--theme-border-color, var(--default-theme-border-color)),
     0 0 0 1px var(--theme-background-2, var(--default-theme-background-2));
   background: var(--theme-background-2, var(--default-theme-background-2));
