@@ -199,11 +199,11 @@ export type License = {
 
 export type Info = {
   title: string
-  description: string
-  termsOfService: string
-  contact: Contact
-  license: License
-  version: string
+  description?: string
+  termsOfService?: string
+  contact?: Contact
+  license?: License
+  version?: string
 }
 
 export type ExternalDocs = {
