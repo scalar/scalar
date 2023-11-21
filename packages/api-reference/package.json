@@ -40,26 +40,28 @@
     "unified": "11.0.3"
   },
   "devDependencies": {
-    "@storybook/addon-essentials": "7.4.3",
-    "@storybook/addon-interactions": "7.4.3",
-    "@storybook/addon-links": "7.4.3",
-    "@storybook/blocks": "7.4.3",
-    "@storybook/testing-library": "0.2.1",
-    "@storybook/vue3": "7.4.3",
-    "@storybook/vue3-vite": "7.4.3",
-    "@vitejs/plugin-vue": "4.3.4",
+    "@etchteam/storybook-addon-css-variables-theme": "1.5.1",
+    "@storybook/addon-essentials": "7.5.2",
+    "@storybook/addon-interactions": "7.5.2",
+    "@storybook/addon-links": "7.5.2",
+    "@storybook/blocks": "7.5.2",
+    "@storybook/testing-library": "0.2.2",
+    "@storybook/vue3": "7.5.2",
+    "@storybook/vue3-vite": "7.5.2",
+    "@vitejs/plugin-vue": "4.4.0",
     "@vitest/coverage-v8": "0.34.4",
     "http-server": "14.1.1",
     "postcss": "8.4.31",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "storybook": "7.4.3",
+    "storybook": "7.5.2",
+    "storybook-dark-mode": "3.0.1",
     "tsc-alias": "1.8.8",
-    "vite": "4.4.9",
+    "vite": "4.4.11",
     "vite-plugin-css-injected-by-js": "3.3.0",
     "vite-plugin-node-polyfills": "0.14.1",
     "vitest": "0.34.4",
-    "vue-tsc": "1.8.13"
+    "vue-tsc": "1.8.19"
   },
   "engines": {
     "node": ">=18"
@@ -118,7 +120,7 @@
     "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
     "preview:standalone": "http-server",
-    "storybook": "storybook dev -p 6006",
+    "storybook": "storybook dev -p 6005",
     "test": "vitest",
     "types:build": "vue-tsc -p tsconfig.build.json",
     "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"

@@ -2,7 +2,7 @@
 // @ts-nocheck
 import type { Meta, StoryObj } from '@storybook/vue3'
 
-import { default as ExampleRequest } from '../components/Content/ReferenceEndpoint/ExampleRequest.vue'
+import { default as ExampleRequest } from './ExampleRequest.vue'
 
 const meta: Meta<typeof ExampleRequest> = {
   title: 'Example/ExampleRequest',

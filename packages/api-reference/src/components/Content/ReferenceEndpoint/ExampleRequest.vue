@@ -126,7 +126,13 @@ const formattedPath = computed(() => {
           </span>
           <select
             :value="JSON.stringify(state.selectedClient)"
-            @input="event => setItem('selectedClient', JSON.parse((event.target as HTMLSelectElement).value))">
+            @input="
+              (event) =>
+                setItem(
+                  'selectedClient',
+                  JSON.parse((event.target as HTMLSelectElement).value),
+                )
+            ">
             <optgroup
               v-for="target in availableTargets()"
               :key="target.key"

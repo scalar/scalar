@@ -14,4 +14,11 @@ pnpm concurrently \
             --filter @scalar-org/express-api-reference \
             --filter @scalar-org/backend \
             dev \
+    " \
+    " \
+        pnpm \
+            --workspace-concurrency=100 \
+            --filter @scalar/api-reference \
+            --filter @scalar/components \
+            storybook \
     "

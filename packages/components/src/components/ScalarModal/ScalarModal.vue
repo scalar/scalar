@@ -70,7 +70,7 @@ export const useModal = () =>
         :style="{ maxWidth }">
         <DialogTitle
           v-if="title"
-          class="scalar-modal-header m-0 rounded-lg px-6 py-3 text-left text-xs font-semiBold text-fore-1"
+          class="scalar-modal-header font-semiBold m-0 rounded-lg px-6 py-3 text-left text-xs text-fore-1"
           :class="{ 'pb-0 pt-6': variant === 'history' }">
           {{ title }}
         </DialogTitle>

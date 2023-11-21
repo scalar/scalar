@@ -575,8 +575,8 @@ watch(
   position: absolute;
   border-radius: 50%;
   background-size: 24px 24px;
-  box-shadow: inset 0 0 50px
-      var(--theme-background-1, var(--default-theme-background-1)),
+  box-shadow:
+    inset 0 0 50px var(--theme-background-1, var(--default-theme-background-1)),
     inset 0 0 50px var(--theme-background-1, var(--default-theme-background-1));
   background-image: linear-gradient(
       to right,

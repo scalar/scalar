@@ -9,19 +9,19 @@ const button = cva({
     variant: {
       solid: [
         'scalar-button-solid',
-        'hocus:bg-hover-btn-1 bg-back-btn-1 text-fore-btn-1 shadow-sm active:bg-back-btn-1 active:shadow-none',
+        'bg-back-btn-1 text-fore-btn-1 shadow-sm active:bg-back-btn-1 active:shadow-none hocus:bg-hover-btn-1',
       ].join(' '),
       outlined: [
         'scalar-button-outlined',
-        'active:bg-btn-1 hocus:bg-back-2 border border-border bg-transparent text-fore-1',
+        'active:bg-btn-1 border border-border bg-transparent text-fore-1 hocus:bg-back-2',
       ].join(' '),
       ghost: [
         'scalar-button-ghost',
-        'hocus:text-fore-2 bg-transparent text-fore-3 active:text-fore-2',
+        'bg-transparent text-fore-3 active:text-fore-2 hocus:text-fore-2',
       ].join(' '),
       danger: [
         'scalar-button-danger',
-        'hocus:brightness-90 bg-error text-white active:brightness-90',
+        'bg-error text-white active:brightness-90 hocus:brightness-90',
       ].join(' '),
     },
   },
@@ -73,8 +73,8 @@ withDefaults(defineProps<ButtonProps>(), {
 })
 
 const slots = useSlots()
-const label = computed(() =>
-  (slots.default?.()?.[0]?.children as string)?.trim(),
+const label = computed(
+  () => (slots.default?.()?.[0]?.children as string)?.trim(),
 )
 const isIconOnly = computed(() => Boolean(slots.icon && !slots.default))
 </script>

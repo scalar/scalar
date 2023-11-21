@@ -193,8 +193,8 @@ defineExpose({
     var(--theme-border-color, var(--default-theme-border-color));
   font-size: var(--theme-small, var(--default-theme-small));
   /*  layered box shadow dilenator in case themes don't have borders on their sidebar*/
-  box-shadow: -1px 0 0 0
-      var(--theme-border-color, var(--default-theme-border-color)),
+  box-shadow:
+    -1px 0 0 0 var(--theme-border-color, var(--default-theme-border-color)),
     -1px 0 0 0 var(--theme-background-1, var(--default-theme-background-1));
 }
 @media screen and (max-width: 1000px) {

@@ -162,7 +162,9 @@ export function useLoadingState() {
 }
 
 .circular-loader {
-  animation: rotate 0.7s linear infinite, fade-in 0.4s;
+  animation:
+    rotate 0.7s linear infinite,
+    fade-in 0.4s;
 
   transform-origin: center center;
   transform: scale(5);
