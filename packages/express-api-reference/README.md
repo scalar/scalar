@@ -35,6 +35,21 @@ const OpenApiSpecification =
   )
 ```
 
+If you’re serving an OpenAPI/Swagger file already, you can pass an URL, too:
+
+```ts
+import { apiReference } from '@scalar/express-api-reference'
+
+app.use(
+  '/reference',
+  apiReference({
+    spec: {
+      url: '/swagger.json',
+    },
+  }),
+)
+```
+
 The Express middleware takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/packages/api-reference#props) in the core package README.
 
 ### Themes
