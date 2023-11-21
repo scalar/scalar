@@ -74,7 +74,7 @@
     "yjs": "^13.6.8",
     "@scalar/themes": "0.0.0",
     "@scalar/use-codemirror": "0.0.0",
-    "y-codemirror.next": "0.0.0"
+    "y-codemirror.next": "0.3.2"
   },
   "repository": {
     "type": "git",
