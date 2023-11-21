@@ -63,7 +63,11 @@ watch(files, () => {
 })
 </script>
 <template>
-  <div :class="{ 'single-tab': availableTabs?.length === 1 && availableTabs.includes('Swagger Editor') }">
+  <div
+    :class="{
+      'single-tab':
+        availableTabs?.length === 1 && availableTabs.includes('Swagger Editor'),
+    }">
     <div class="swagger-editor-header">
       <div
         v-if="!availableTabs || availableTabs.includes('Swagger Editor')"
@@ -196,7 +200,6 @@ watch(files, () => {
   z-index: 1;
 }
 .swagger-editor-type:first-of-type:last-of-type {
-  
 }
 .swagger-editor-buttons {
   display: flex;
