@@ -1,5 +1,12 @@
 # @scalar/swagger-editor
 
+## 0.7.5
+
+### Patch Changes
+
+- b6552df: chore: externalize dependencies, optimize bundle size
+- 04875a6: fix: remove empty content update deleting rendered refs
+
 ## 0.7.4
 
 ### Patch Changes
