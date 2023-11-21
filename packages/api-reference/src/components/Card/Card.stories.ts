@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
-import { Card, CardContent, CardFooter, CardHeader } from '../components/Card'
+import { Card, CardContent, CardFooter, CardHeader } from '.'
 
 const meta: Meta<typeof Card> = {
   title: 'Example/Card',
