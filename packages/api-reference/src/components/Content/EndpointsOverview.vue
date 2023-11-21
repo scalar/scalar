@@ -39,11 +39,11 @@ async function scrollHandler(operation: TransformedOperation) {
     <SectionContent>
       <SectionColumns>
         <SectionColumn>
-          <Anchor :id="getTagSectionId(tag)">
-            <SectionHeader :level="2">
+          <SectionHeader :level="2">
+            <Anchor :id="getTagSectionId(tag)">
               {{ tag.name }}
-            </SectionHeader>
-          </Anchor>
+            </Anchor>
+          </SectionHeader>
           <MarkdownRenderer :value="tag.description" />
         </SectionColumn>
         <SectionColumn>

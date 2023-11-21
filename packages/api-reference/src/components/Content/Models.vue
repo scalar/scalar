@@ -46,11 +46,11 @@ const models = computed(() => {
       :label="name">
       <template v-if="components?.schemas?.[name]">
         <SectionContent>
-          <Anchor :id="getModelSectionId(name)">
-            <SectionHeader :level="2">
+          <SectionHeader :level="2">
+            <Anchor :id="getModelSectionId(name)">
               {{ name }}
-            </SectionHeader>
-          </Anchor>
+            </Anchor>
+          </SectionHeader>
           <!-- Schema -->
           <Schema
             :name="name"

@@ -25,11 +25,11 @@ defineProps<{
     <SectionContent>
       <SectionColumns>
         <SectionColumn>
-          <Anchor :id="getOperationSectionId(operation, tag)">
-            <SectionHeader :level="3">
+          <SectionHeader :level="3">
+            <Anchor :id="getOperationSectionId(operation, tag)">
               {{ operation.name }}
-            </SectionHeader>
-          </Anchor>
+            </Anchor>
+          </SectionHeader>
           <Copy :operation="operation" />
         </SectionColumn>
         <SectionColumn>

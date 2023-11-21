@@ -15,24 +15,52 @@ const getUrlWithId = (id: string) => {
   return url.toString()
 }
 </script>
-
 <template>
-  <div class="anchor">
-    <div class="anchor-content">
-      <slot />
-    </div>
-    <button
-      class="anchor-action"
-      type="button"
-      @click="copyToClipboard(getUrlWithId(id))">
-      🔗
-    </button>
-  </div>
+  <span class="label">
+    <slot />
+    <span class="anchor">
+      <!-- Position anchor to align the copy button to the last line of text  -->
+      <span>&ZeroWidthSpace;</span>
+      <button
+        class="anchor-copy"
+        type="button"
+        @click="copyToClipboard(getUrlWithId(id))">
+        #
+        <span class="sr-only">Copy link to "<slot />"</span>
+      </button>
+    </span>
+  </span>
 </template>
-
-<style>
+<style scoped>
+.label {
+  position: relative;
+  display: inline-block;
+}
 .anchor {
-  display: flex;
-  gap: 8px;
+  position: relative;
+  display: inline-block;
+  opacity: 0;
+}
+
+.anchor-copy {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+
+  height: 100%;
+  padding: 0 6px;
+
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+}
+
+.anchor-copy:hover,
+.anchor-copy:focus-visible {
+  color: var(--theme-color-2, var(--default-theme-color-2));
+}
+
+.label:hover .anchor {
+  opacity: 1;
 }
 </style>
