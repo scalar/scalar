@@ -38,15 +38,16 @@ const setSecuritySchemeKey = (key: string) => {
 
 const isNone = (item: any) => !item?.type
 
-const isApiKey = (item: any) => item.type === 'apiKey'
+const isApiKey = (item: any) => item.type.toLowerCase() === 'apikey'
 
 const isHttpBasic = (item: any) =>
-  (item.type === 'http' && item.scheme === 'basic') || item.type === 'basic'
+  (item.type === 'http' && item.scheme.toLowerCase() === 'basic') ||
+  item.type.toLowerCase() === 'basic'
 
 const isHttpBearer = (item: any) =>
-  item.type === 'http' && item.scheme === 'bearer'
+  item.type === 'http' && item.scheme.toLowerCase() === 'bearer'
 
-const isOAuth2 = (item: any) => item.type === 'oAuth2'
+const isOAuth2 = (item: any) => item.type.toLowerCase() === 'oauth2'
 
 // Translate type to label
 const getLabelForScheme = (item: any) => {

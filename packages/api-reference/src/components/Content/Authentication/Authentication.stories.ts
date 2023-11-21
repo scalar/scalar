@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { Meta, StoryObj } from '@storybook/vue3'
 
 import Authentication from './Authentication.vue'
@@ -28,10 +27,11 @@ export const Default: Story = {
   args: {
     parsedSpec: {
       openapi: '3.1.0',
+      tags: [],
+      servers: [],
       info: {
         title: 'Example',
       },
-      paths: {},
     },
   },
 }
@@ -41,10 +41,11 @@ export const NoAuthentication: Story = {
   args: {
     parsedSpec: {
       openapi: '3.1.0',
+      tags: [],
+      servers: [],
       info: {
         title: 'Example',
       },
-      paths: {},
       components: {
         securitySchemes: {
           none: {},
@@ -59,10 +60,11 @@ export const BasicAuthentication: Story = {
   args: {
     parsedSpec: {
       openapi: '3.1.0',
+      tags: [],
+      servers: [],
       info: {
         title: 'Example',
       },
-      paths: {},
       components: {
         securitySchemes: {
           basic: {
@@ -80,10 +82,11 @@ export const BearerAuthentication: Story = {
   args: {
     parsedSpec: {
       openapi: '3.1.0',
+      tags: [],
+      servers: [],
       info: {
         title: 'Example',
       },
-      paths: {},
       components: {
         securitySchemes: {
           http: {
@@ -103,10 +106,11 @@ export const ApiKey: Story = {
   args: {
     parsedSpec: {
       openapi: '3.1.0',
+      tags: [],
+      servers: [],
       info: {
         title: 'Example',
       },
-      paths: {},
       components: {
         securitySchemes: {
           api_key: {
@@ -125,16 +129,19 @@ export const OpenAuth: Story = {
   args: {
     parsedSpec: {
       openapi: '3.1.0',
+      tags: [],
+      servers: [],
       info: {
         title: 'Example',
       },
-      paths: {},
       components: {
         securitySchemes: {
           oauth: {
-            type: 'oAuth2',
-            name: 'api_key',
-            in: 'query',
+            type: 'oauth2',
+            flow: 'accessCode',
+            authorizationUrl: '',
+            tokenUrl: '',
+            scopes: [],
           },
         },
       },
@@ -147,10 +154,11 @@ export const MultipleMethods: Story = {
   args: {
     parsedSpec: {
       openapi: '3.1.0',
+      tags: [],
+      servers: [],
       info: {
         title: 'Example',
       },
-      paths: {},
       components: {
         securitySchemes: {
           none: {},
@@ -164,9 +172,11 @@ export const MultipleMethods: Story = {
             in: 'query',
           },
           oauth: {
-            type: 'oAuth2',
-            name: 'api_key',
-            in: 'query',
+            type: 'oauth2',
+            flow: 'accessCode',
+            authorizationUrl: '',
+            tokenUrl: '',
+            scopes: [],
           },
         },
       },

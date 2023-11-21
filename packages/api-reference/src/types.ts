@@ -227,8 +227,15 @@ export type Server = {
 }
 
 export type Components =
-  | OpenAPIV3.ComponentsObject
-  | OpenAPIV3_1.ComponentsObject
+  | (OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject)
+  | {
+      securitySchemes?: Record<
+        string,
+        | Record<string, never>
+        | OpenAPIV3.SecuritySchemeObject
+        | OpenAPIV2.SecuritySchemeObject
+      >
+    }
 
 export type Definitions = OpenAPIV2.DefinitionsObject
 
@@ -237,7 +244,7 @@ export type Spec = {
   info: Info
   host?: string
   schemes?: string[]
-  externalDocs: ExternalDocs
+  externalDocs?: ExternalDocs
   servers: Server[]
   components?: Components
   definitions?: Definitions
