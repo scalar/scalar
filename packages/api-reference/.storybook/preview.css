@@ -1,6 +1,7 @@
 body.sb-show-main,
 #storybook-docs .sbdocs-wrapper {
   background: var(--default-theme-background-1);
+  font-family: var(--theme-font, var(--default-theme-font));
 }
 
 #storybook-docs tbody {
