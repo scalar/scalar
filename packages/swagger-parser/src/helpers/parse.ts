@@ -63,6 +63,7 @@ const transformResult = (result: OpenAPI.Document<object>): SwaggerSpec => {
         information: {
           ...operation,
         },
+        pathParameters: result.paths?.[path]?.parameters,
       }
 
       // If there are no tags, we’ll create a default one.

@@ -123,6 +123,7 @@ export type RequestBodyMimeTypes =
   | 'text/plain'
 
 export type TransformedOperation = Operation & {
+  pathParameters: Parameters[]
   information: {
     requestBody?: {
       content?: Record<
