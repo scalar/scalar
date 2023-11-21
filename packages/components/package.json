@@ -61,15 +61,10 @@
     "./style.css": {
       "import": "./dist/style.css",
       "require": "./dist/style.css"
-    },
-    "./tailwind": {
-      "import": "./src/tailwind/index.ts",
-      "require": "./src/tailwind/index.ts"
     }
   },
   "files": [
-    "dist",
-    "src/tailwind"
+    "dist"
   ],
   "license": "MIT",
   "main": "./dist/index.umd.cjs",

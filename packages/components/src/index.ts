@@ -29,3 +29,5 @@ export {
   useModal,
   ScalarTextField,
 }
+
+export { extend, theme } from '@/tailwind'

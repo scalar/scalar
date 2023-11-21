@@ -22,8 +22,8 @@ export type LoadingState = ReturnType<typeof useLoadingState>
  */
 export function useLoadingState() {
   return reactive({
-    valid: false,
-    invalid: false,
+    isValid: false,
+    isInvalid: false,
     isLoading: false,
     startLoading() {
       this.isLoading = true
@@ -31,16 +31,16 @@ export function useLoadingState() {
     stopLoading() {
       this.isLoading = false
     },
-    isValid(time = 800) {
-      this.valid = true
+    validate(time = 800) {
+      this.isValid = true
       const diff = time - 300
       // Allow chaining after animation
       return new Promise((res) =>
         setTimeout(() => this.clear().then(() => res(true)), diff),
       )
     },
-    isInvalid(time = 1100) {
-      this.invalid = true
+    invalidate(time = 1100) {
+      this.isInvalid = true
       const diff = time - 300
       // Allow chaining after animation
       return new Promise((res) =>
@@ -48,8 +48,8 @@ export function useLoadingState() {
       )
     },
     clear(time = 300) {
-      this.valid = false
-      this.invalid = false
+      this.isValid = false
+      this.isInvalid = false
       this.isLoading = false
       // Allow chaining after animation
       return new Promise((res) => {
@@ -69,8 +69,8 @@ export function useLoadingState() {
     <svg
       class="svg-loader"
       :class="{
-        'icon-is-valid': loadingState.valid,
-        'icon-is-invalid': loadingState.invalid,
+        'icon-is-valid': loadingState.isValid,
+        'icon-is-invalid': loadingState.isInvalid,
       }"
       viewBox="0 0 100 100"
       xmlns="http://www.w3.org/2000/svg"
@@ -96,7 +96,7 @@ export function useLoadingState() {
         <circle
           class="loader-path"
           :class="{
-            'loader-path-off': loadingState.valid || loadingState.invalid,
+            'loader-path-off': loadingState.isValid || loadingState.isInvalid,
           }"
           cx="50"
           cy="50"
