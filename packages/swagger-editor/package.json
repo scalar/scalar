@@ -73,8 +73,8 @@
     "remark-stringify": "^11.0.0",
     "unified": "^11.0.3",
     "vue": "^3.3.4",
-    "y-codemirror.next": "^0.3.2",
-    "yjs": "^13.6.8"
+    "yjs": "^13.6.8",
+    "y-codemirror.next": "^0.3.2"
   },
   "repository": {
     "type": "git",

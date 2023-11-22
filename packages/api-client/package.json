@@ -26,8 +26,9 @@
     "tsc-alias": "1.8.8",
     "vite": "4.4.11",
     "vite-plugin-css-injected-by-js": "3.3.0",
-    "vitest": "0.34.4",
-    "vue-tsc": "1.8.19"
+    "vitest": "^0.34.4",
+    "vue-tsc": "^1.8.19",
+    "@scalar/use-codemirror": "^0.7.12"
   },
   "engines": {
     "node": ">=20"
