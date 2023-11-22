@@ -21,14 +21,14 @@
   "devDependencies": {
     "@scalar/api-client-proxy": "workspace:*",
     "@scalar/echo-server": "workspace:*",
+    "@scalar/use-codemirror": "0.7.12",
     "@vitejs/plugin-vue": "4.4.0",
     "@vitest/coverage-v8": "0.34.4",
     "tsc-alias": "1.8.8",
     "vite": "4.4.11",
     "vite-plugin-css-injected-by-js": "3.3.0",
-    "vitest": "^0.34.4",
-    "vue-tsc": "^1.8.19",
-    "@scalar/use-codemirror": "^0.7.12"
+    "vitest": "0.34.4",
+    "vue-tsc": "1.8.19"
   },
   "engines": {
     "node": ">=20"

@@ -91,6 +91,7 @@
   "module": "./dist/index.js",
   "peerDependencies": {
     "@scalar/swagger-editor": "workspace:*",
+    "@scalar/use-codemirror": "^0.7.12",
     "@types/js-yaml": "^4.0.6",
     "@xmldom/xmldom": "^0.8.4",
     "rehype-external-links": "^3.0.0",
@@ -104,8 +105,7 @@
     "remark-rehype": "^11.0.0",
     "remark-stringify": "^11.0.0",
     "unified": "^11.0.3",
-    "vue": "^3.3.4",
-    "@scalar/use-codemirror": "^0.7.12"
+    "vue": "^3.3.4"
   },
   "repository": {
     "type": "git",
