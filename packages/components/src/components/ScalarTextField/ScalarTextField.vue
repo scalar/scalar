@@ -164,6 +164,9 @@ onMounted(() => {
 .scalar-input-wrapper-focus .scalar-input-label {
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
+.scalar-input-wrapper-error .scalar-input-label {
+  color: var(--theme-color-error-color, var(--default-theme-color-red));
+}
 .scalar-input::selection {
   color: var(--theme-color-1, var(--default-theme-color-1));
   background: rgba(255, 165, 88, 0.35);
