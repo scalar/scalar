@@ -226,26 +226,27 @@ export type Server = {
   variables?: ServerVariables
 }
 
-export type Components =
-  | (OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject)
-  | {
-      securitySchemes?: Record<
-        string,
-        | Record<string, never>
-        | OpenAPIV3.SecuritySchemeObject
-        | OpenAPIV2.SecuritySchemeObject
-      >
-    }
+export type Components = Omit<
+  OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject,
+  'securitySchemes'
+> & {
+  securitySchemes?: Record<
+    string,
+    | Record<string, never>
+    | OpenAPIV3.SecuritySchemeObject
+    | OpenAPIV2.SecuritySchemeObject
+  >
+}
 
 export type Definitions = OpenAPIV2.DefinitionsObject
 
 export type Spec = {
-  tags: Tag[]
+  tags?: Tag[]
   info: Info
   host?: string
   schemes?: string[]
   externalDocs?: ExternalDocs
-  servers: Server[]
+  servers?: Server[]
   components?: Components
   definitions?: Definitions
   openapi?: string
