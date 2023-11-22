@@ -4,6 +4,7 @@ import { computed } from 'vue'
 import { getModelSectionId } from '../../helpers'
 import { useTemplateStore } from '../../stores/template'
 import { type Components } from '../../types'
+import { Anchor } from '../Anchor'
 import {
   Section,
   SectionContainer,
@@ -46,7 +47,9 @@ const models = computed(() => {
       <template v-if="components?.schemas?.[name]">
         <SectionContent>
           <SectionHeader :level="2">
-            {{ name }}
+            <Anchor :id="getModelSectionId(name)">
+              {{ name }}
+            </Anchor>
           </SectionHeader>
           <!-- Schema -->
           <Schema

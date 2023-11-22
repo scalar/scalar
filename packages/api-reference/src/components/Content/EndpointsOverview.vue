@@ -8,6 +8,7 @@ import {
 } from '../../helpers'
 import { useTemplateStore } from '../../stores/template'
 import type { Tag, TransformedOperation } from '../../types'
+import { Anchor } from '../Anchor'
 import { Card, CardContent, CardHeader } from '../Card'
 import {
   Section,
@@ -39,7 +40,9 @@ async function scrollHandler(operation: TransformedOperation) {
       <SectionColumns>
         <SectionColumn>
           <SectionHeader :level="2">
-            {{ tag.name }}
+            <Anchor :id="getTagSectionId(tag)">
+              {{ tag.name }}
+            </Anchor>
           </SectionHeader>
           <MarkdownRenderer :value="tag.description" />
         </SectionColumn>
