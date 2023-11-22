@@ -3,6 +3,8 @@ import path from 'path'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { defineConfig } from 'vitest/config'
 
+import pkg from './package.json'
+
 export default defineConfig({
   plugins: [vue(), cssInjectedByJsPlugin()],
   build: {
@@ -14,7 +16,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', '@scalar/use-codemirror'],
+      external: Object.keys(pkg.dependencies || {}),
     },
   },
   resolve: {

@@ -1,19 +1,20 @@
 {
   "name": "@scalar/use-tooltip",
   "description": "use tooltips with Vue",
-  "version": "0.5.4",
+  "version": "^0.5.4",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
-    "tippy.js": "6.3.7"
+    "tippy.js": "^6.3.7",
+    "vue": "^3.3.4"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.4.0",
-    "@vitest/coverage-v8": "0.34.4",
-    "tsc-alias": "1.8.8",
-    "vite": "4.4.11",
-    "vitest": "0.34.4",
-    "vue-tsc": "1.8.19"
+    "@vitejs/plugin-vue": "^4.4.0",
+    "@vitest/coverage-v8": "^0.34.4",
+    "tsc-alias": "^1.8.8",
+    "vite": "^4.4.11",
+    "vitest": "^0.34.4",
+    "vue-tsc": "^1.8.19"
   },
   "engines": {
     "node": ">=20"

@@ -2,6 +2,8 @@ import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { defineConfig } from 'vitest/config'
 
+import pkg from './package.json'
+
 export default defineConfig({
   plugins: [vue()],
   build: {
@@ -14,23 +16,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: [
-        '@codemirror/lang-html',
-        '@codemirror/lang-java',
-        '@codemirror/lang-javascript',
-        '@codemirror/lang-json',
-        '@codemirror/lang-python',
-        '@codemirror/language',
-        '@codemirror/legacy-modes',
-        '@codemirror/state',
-        '@codemirror/view',
-        '@lezer/common',
-        '@lezer/highlight',
-        '@lezer/lr',
-        '@uiw/codemirror-themes',
-        'codemirror',
-        'vue',
-      ],
+      external: Object.keys(pkg.dependencies || {}),
     },
   },
 

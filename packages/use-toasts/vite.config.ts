@@ -2,6 +2,8 @@ import vue from '@vitejs/plugin-vue'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { defineConfig } from 'vitest/config'
 
+import pkg from './package.json'
+
 export default defineConfig({
   plugins: [vue(), cssInjectedByJsPlugin()],
   build: {
@@ -14,7 +16,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue'],
+      external: Object.keys(pkg.dependencies || {}),
     },
   },
   test: {

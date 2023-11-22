@@ -1,6 +1,7 @@
 import path from 'path'
 import { defineConfig } from 'vitest/config'
 
+import pkg from './package.json'
 import { nodeExternals } from './src/vite-plugins'
 import { nodeShims } from './src/vite-plugins'
 
@@ -16,7 +17,7 @@ export default defineConfig({
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
-      external: ['fastify'],
+      external: Object.keys(pkg.dependencies || {}),
     },
   },
   resolve: {

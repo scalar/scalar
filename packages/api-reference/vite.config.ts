@@ -4,6 +4,8 @@ import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { defineConfig } from 'vitest/config'
 
+import pkg from './package.json'
+
 export default defineConfig({
   define: {
     'process.env.NODE_ENV': '"production"',
@@ -35,24 +37,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: [
-        '@hocuspocus/provider',
-        '@scalar/swagger-editor',
-        '@xmldom/xmldom',
-        'rehype-external-links',
-        'rehype-format',
-        'rehype-highlight',
-        'rehype-sanitize',
-        'rehype-slug-custom-id',
-        'rehype-stringify',
-        'remark-gfm',
-        'remark-parse',
-        'remark-rehype',
-        'remark-stringify',
-        'unified',
-        'vue',
-        'yjs',
-      ],
+      external: Object.keys(pkg.dependencies || {}),
     },
   },
   resolve: {

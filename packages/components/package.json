@@ -1,15 +1,15 @@
 {
   "name": "@scalar/components",
   "description": "Scalars component library",
-  "version": "0.0.1",
+  "version": "^0.0.1",
   "dependencies": {
-    "@headlessui/vue": "1.7.16",
-    "@vueuse/core": "10.4.1",
-    "@xmldom/xmldom": "0.8.4",
+    "@headlessui/vue": "^1.7.16",
+    "@vueuse/core": "^10.4.1",
+    "@xmldom/xmldom": "^0.8.4",
     "cva": "1.0.0-beta.1",
-    "nanoid": "5.0.1",
-    "tailwind-merge": "2.0.0",
-    "vue": "3.3.4"
+    "nanoid": "^5.0.1",
+    "tailwind-merge": "^2.0.0",
+    "vue": "^3.3.4"
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "1.5.1",

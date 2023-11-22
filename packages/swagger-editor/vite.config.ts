@@ -3,6 +3,8 @@ import path from 'path'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { defineConfig } from 'vitest/config'
 
+import pkg from './package.json'
+
 export default defineConfig({
   plugins: [vue(), cssInjectedByJsPlugin()],
   build: {
@@ -15,33 +17,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: [
-        '@codemirror/state',
-        '@codemirror/view',
-        '@hocuspocus/provider',
-        '@lezer/common',
-        '@lezer/javascript',
-        '@lezer/lr',
-        '@lezer/python',
-        '@scalar/swagger-editor',
-        '@scalar/themes',
-        '@scalar/use-codemirror',
-        '@xmldom/xmldom',
-        'rehype-external-links',
-        'rehype-format',
-        'rehype-highlight',
-        'rehype-sanitize',
-        'rehype-slug-custom-id',
-        'rehype-stringify',
-        'remark-gfm',
-        'remark-parse',
-        'remark-rehype',
-        'remark-stringify',
-        'unified',
-        'vue',
-        'y-codemirror.next',
-        'yjs',
-      ],
+      external: Object.keys(pkg.dependencies || {}),
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'index.css') {

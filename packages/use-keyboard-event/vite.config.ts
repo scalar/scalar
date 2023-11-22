@@ -2,6 +2,8 @@ import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { defineConfig } from 'vitest/config'
 
+import pkg from './package.json'
+
 export default defineConfig({
   plugins: [vue()],
   build: {
@@ -14,7 +16,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue'],
+      external: Object.keys(pkg.dependencies || {}),
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'index.css') {

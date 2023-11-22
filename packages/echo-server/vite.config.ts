@@ -1,6 +1,8 @@
 import path from 'path'
 import { defineConfig } from 'vitest/config'
 
+import pkg from './package.json'
+
 export default defineConfig({
   build: {
     lib: {
@@ -10,7 +12,7 @@ export default defineConfig({
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
-      external: ['cookie-parser', 'cors', 'express'],
+      external: Object.keys(pkg.dependencies || {}),
     },
   },
   resolve: {

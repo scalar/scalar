@@ -27,7 +27,7 @@
       "@jsdevtools/ono@7.1.3": "patches/@jsdevtools__ono@7.1.3.patch"
     },
     "overrides": {
-      "@apidevtools/json-schema-ref-parser": "9.0.7"
+      "@apidevtools/json-schema-ref-parser": "^9.0.7"
     }
   },
   "private": true,
@@ -39,7 +39,7 @@
     "dev": "./scripts/dev.sh",
     "format": "pnpm prettier --write .",
     "format:check": "pnpm prettier --check .",
-    "format:packages": "pnpm syncpack fix-mismatches || true && pnpm syncpack set-semver-ranges --types prod,dev && pnpm syncpack set-semver-ranges --types peer --semver-range ^ && pnpm syncpack format && pnpm install -r",
+    "format:packages": "pnpm syncpack fix-mismatches || true && pnpm syncpack set-semver-ranges --semver-range ^ && pnpm syncpack format && pnpm install -r",
     "lint": "pnpm -r lint:check",
     "lint:fix": "pnpm -r lint:fix",
     "preview:standalone": "pnpm --filter api-reference preview:standalone",

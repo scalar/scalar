@@ -1,22 +1,25 @@
 {
   "name": "@scalar/echo-server",
   "description": "an express server which replies with the request data",
-  "version": "0.5.3",
+  "version": "^0.5.3",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
-    "cookie-parser": "1.4.6",
-    "cors": "2.8.5",
-    "express": "4.18.2"
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "0.34.4",
-    "nodemon": "3.0.1",
-    "tsc-alias": "1.8.8",
-    "typescript": "5.2.2",
-    "vite": "4.4.11",
-    "vite-node": "0.34.4",
-    "vitest": "0.34.4"
+    "@types/cookie-parser": "^1.4.3",
+    "@types/cors": "^2.8.13",
+    "@types/express": "^4.17.21",
+    "@vitest/coverage-v8": "^0.34.4",
+    "nodemon": "^3.0.1",
+    "tsc-alias": "^1.8.8",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.11",
+    "vite-node": "^0.34.4",
+    "vitest": "^0.34.4"
   },
   "engines": {
     "node": ">=20"
@@ -38,11 +41,6 @@
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
-  "peerDependencies": {
-    "@types/cookie-parser": "^1.4.3",
-    "@types/cors": "^2.8.13",
-    "@types/express": "^4.17.21"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/scalar/scalar.git",
