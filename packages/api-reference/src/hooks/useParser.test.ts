@@ -8,8 +8,6 @@ describe('useParser', () => {
     const { parsedSpecRef } = useParser({
       input: JSON.stringify({
         openapi: '3.1.0',
-        tags: [],
-
         info: { title: 'Example' },
         paths: {},
       }),
@@ -25,8 +23,6 @@ describe('useParser', () => {
     const rawSpec = ref<string>(
       JSON.stringify({
         openapi: '3.1.0',
-        tags: [],
-
         info: { title: 'Example' },
         paths: {},
       }),
@@ -46,8 +42,6 @@ describe('useParser', () => {
     const rawSpec = ref<string>(
       JSON.stringify({
         openapi: '3.1.0',
-        tags: [],
-
         info: { title: 'Example' },
         paths: {},
       }),
@@ -64,8 +58,6 @@ describe('useParser', () => {
 
     rawSpec.value = JSON.stringify({
       openapi: '3.1.0',
-      tags: [],
-
       info: { title: 'Foobar' },
       paths: {},
     })

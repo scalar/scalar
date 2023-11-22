@@ -22,11 +22,11 @@ const emptySpec: Spec = {
     description: '',
     url: '',
   },
-  servers: [],
   components: {
     schemas: {},
     securitySchemes: {},
   },
+  servers: [],
   tags: [],
 }
 
@@ -72,7 +72,7 @@ export function useParser({
         errorRef.value = null
 
         Object.assign(parsedSpecRef, {
-          // Some specs don’t have servers or tags, make sure they are defined
+          // Some specs don’t have servers, make sure they are defined
           servers: [],
           ...spec,
         })

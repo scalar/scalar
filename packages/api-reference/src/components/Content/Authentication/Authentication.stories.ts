@@ -27,8 +27,6 @@ export const Default: Story = {
   args: {
     parsedSpec: {
       openapi: '3.1.0',
-      tags: [],
-      servers: [],
       info: {
         title: 'Example',
       },
@@ -41,8 +39,6 @@ export const NoAuthentication: Story = {
   args: {
     parsedSpec: {
       openapi: '3.1.0',
-      tags: [],
-      servers: [],
       info: {
         title: 'Example',
       },
@@ -60,8 +56,6 @@ export const BasicAuthentication: Story = {
   args: {
     parsedSpec: {
       openapi: '3.1.0',
-      tags: [],
-      servers: [],
       info: {
         title: 'Example',
       },
@@ -82,8 +76,6 @@ export const BearerAuthentication: Story = {
   args: {
     parsedSpec: {
       openapi: '3.1.0',
-      tags: [],
-      servers: [],
       info: {
         title: 'Example',
       },
@@ -106,8 +98,6 @@ export const ApiKey: Story = {
   args: {
     parsedSpec: {
       openapi: '3.1.0',
-      tags: [],
-      servers: [],
       info: {
         title: 'Example',
       },
@@ -129,8 +119,6 @@ export const OpenAuth: Story = {
   args: {
     parsedSpec: {
       openapi: '3.1.0',
-      tags: [],
-      servers: [],
       info: {
         title: 'Example',
       },
@@ -154,8 +142,6 @@ export const MultipleMethods: Story = {
   args: {
     parsedSpec: {
       openapi: '3.1.0',
-      tags: [],
-      servers: [],
       info: {
         title: 'Example',
       },
