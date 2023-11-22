@@ -199,11 +199,11 @@ export type License = {
 
 export type Info = {
   title: string
-  description: string
-  termsOfService: string
-  contact: Contact
-  license: License
-  version: string
+  description?: string
+  termsOfService?: string
+  contact?: Contact
+  license?: License
+  version?: string
 }
 
 export type ExternalDocs = {
@@ -226,19 +226,27 @@ export type Server = {
   variables?: ServerVariables
 }
 
-export type Components =
-  | OpenAPIV3.ComponentsObject
-  | OpenAPIV3_1.ComponentsObject
+export type Components = Omit<
+  OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject,
+  'securitySchemes'
+> & {
+  securitySchemes?: Record<
+    string,
+    | Record<string, never>
+    | OpenAPIV3.SecuritySchemeObject
+    | OpenAPIV2.SecuritySchemeObject
+  >
+}
 
 export type Definitions = OpenAPIV2.DefinitionsObject
 
 export type Spec = {
-  tags: Tag[]
+  tags?: Tag[]
   info: Info
   host?: string
   schemes?: string[]
-  externalDocs: ExternalDocs
-  servers: Server[]
+  externalDocs?: ExternalDocs
+  servers?: Server[]
   components?: Components
   definitions?: Definitions
   openapi?: string

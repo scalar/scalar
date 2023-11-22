@@ -32,7 +32,7 @@ useResizeObserver(
 const { state: templateState, setCollapsedSidebarItem } = useTemplateStore()
 
 onMounted(() => {
-  if (props.parsedSpec.tags.length > 0) {
+  if (props.parsedSpec.tags?.length) {
     setCollapsedSidebarItem(props.parsedSpec.tags[0].name, true)
   }
 })

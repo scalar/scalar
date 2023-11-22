@@ -33,7 +33,7 @@ const {
 watch(
   props.parsedSpec,
   () => {
-    const firstTag = props.parsedSpec?.tags[0]
+    const firstTag = props.parsedSpec.tags?.[0]
 
     if (firstTag) {
       setCollapsedSidebarItem(getTagSectionId(firstTag), true)
@@ -112,7 +112,7 @@ const items = computed((): SidebarEntry[] => {
   // Tags & Operations
   const firstTag = props?.parsedSpec?.tags?.[0]
 
-  const operationEntries: SidebarEntry[] =
+  const operationEntries: SidebarEntry[] | undefined =
     firstTag &&
     moreThanOneDefaultTag(firstTag) &&
     firstTag.operations?.length > 0
