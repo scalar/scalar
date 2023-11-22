@@ -19,6 +19,7 @@ const configuration = reactive<ReferenceConfiguration>({
   tabs: {
     initialContent: 'Swagger Editor',
   },
+  withApiClient: true,
 })
 
 onMounted(() => {

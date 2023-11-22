@@ -46,6 +46,12 @@ export type ReferenceConfiguration = {
   searchHotKey?: string
   /** ??? */
   aiWriterMarkdown?: string
+  /**
+   * Whether to include the interactive API client
+   *
+   * @default true
+   */
+  withApiClient?: boolean
 }
 
 /** Default reference configuration */
@@ -63,6 +69,7 @@ export const DEFAULT_CONFIG: DeepReadonly<ReferenceConfiguration> = {
   showSidebar: true,
   isEditable: false,
   hocuspocusConfiguration: undefined,
+  withApiClient: true,
 }
 
 export type Schema = {

@@ -122,3 +122,11 @@ Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
 ```vue
 <ApiReference :configuration="{ searchHotKey: 'l'} />
 ```
+
+#### withApiClient?: boolean
+
+I mean, our API client is really something special. It lets you play with the API inside your reference. But in some cases it’s just not a good fit. For those rare cases, you can disable the API client:
+
+```vue
+<ApiReference :configuration="{ withApiClient: false } />
+```
