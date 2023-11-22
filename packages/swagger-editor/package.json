@@ -72,8 +72,8 @@
     "unified": "^11.0.3",
     "vue": "^3.3.4",
     "yjs": "^13.6.8",
-    "@scalar/themes": "0.0.0",
-    "@scalar/use-codemirror": "0.0.0",
+    "@scalar/themes": "0.4.0",
+    "@scalar/use-codemirror": "0.7.12",
     "y-codemirror.next": "0.3.2"
   },
   "repository": {
