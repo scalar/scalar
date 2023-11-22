@@ -1,5 +1,11 @@
 # @scalar/ssg
 
+## 0.0.12
+
+### Patch Changes
+
+- @scalar/api-reference@1.1.7
+
 ## 0.0.11
 
 ### Patch Changes
