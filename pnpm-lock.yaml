@@ -657,7 +657,7 @@ importers:
         specifier: ^0.34.4
         version: 0.34.4(jsdom@22.1.0)
       vue:
-        specifier: ^3.2.16
+        specifier: ^3.3.4
         version: 3.3.4
 
   packages/hono-api-reference:
