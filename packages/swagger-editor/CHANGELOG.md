@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.7.7
+
+### Patch Changes
+
+- 1a2afb6: fix: set additional peer dependency versions
+
 ## 0.7.6
 
 ### Patch Changes
