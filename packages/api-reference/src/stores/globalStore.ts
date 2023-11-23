@@ -1,31 +1,7 @@
-import { computed, reactive, watch } from 'vue'
+import { reactive } from 'vue'
 
-import { deepMerge } from '../helpers'
-import {
-  type AuthenticationState,
-  DEFAULT_CONFIG,
-  type ReferenceConfiguration,
-  type ServerState,
-} from '../types'
+import type { AuthenticationState, ServerState } from '../types'
 
-/** Configuration */
-const currentConfiguration: ReferenceConfiguration = reactive({})
-
-const setConfiguration = (newConfiguration?: ReferenceConfiguration) => {
-  if (!newConfiguration) {
-    return
-  }
-
-  Object.assign(currentConfiguration, newConfiguration)
-}
-
-// Merge the default configuration with the given configuration.
-const configuration = computed(
-  (): ReferenceConfiguration =>
-    deepMerge(currentConfiguration ?? {}, { ...DEFAULT_CONFIG }),
-)
-
-/** Authentcation */
 export const createEmptyAuthenticationState = (): AuthenticationState => ({
   securitySchemeKey: null,
   http: {
@@ -69,25 +45,9 @@ const setServer = (newState: Partial<ServerState>) => {
   })
 }
 
-export const useGlobalStore = (params?: {
-  configuration?: ReferenceConfiguration
-}) => {
-  if (params?.configuration) {
-    watch(
-      () => params.configuration,
-      (value) => {
-        setConfiguration(value)
-      },
-      { immediate: true, deep: true },
-    )
-  }
-
-  return {
-    setConfiguration,
-    configuration,
-    authentication,
-    setAuthentication,
-    server,
-    setServer,
-  }
-}
+export const useGlobalStore = () => ({
+  authentication,
+  setAuthentication,
+  server,
+  setServer,
+})

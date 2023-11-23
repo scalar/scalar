@@ -27,7 +27,6 @@ const { copyToClipboard } = useClipboard()
 const { setActiveRequest } = useRequestStore()
 const { toggleApiClient } = useApiClientStore()
 const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
-const { configuration } = useGlobalStore()
 
 const { server: serverState, authentication: authenticationState } =
   useGlobalStore()
@@ -177,7 +176,6 @@ const formattedPath = computed(() => {
         readOnly />
     </CardContent>
     <CardFooter
-      v-if="configuration.withApiClient"
       class="scalar-card-footer"
       contrast>
       <button
