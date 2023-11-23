@@ -104,21 +104,6 @@ onMounted(() => {
 <template>
   <div class="scalar-input-container relative">
     <div :class="textField({ error, focus: isFocused })">
-      <label
-        v-if="label"
-        :class="
-          cx(
-            'scalar-input-label pointer-events-none absolute left-0 top-0 mx-2 my-3 px-1 text-xs',
-            'shadow-current peer z-10 origin-top-left rounded text-fore-3 transition-transform',
-          )
-        "
-        :for="uid"
-        :style="{
-          'box-shadow': `0 0 4px 4px ${labelShadowColor}`,
-          'background-color': labelShadowColor,
-        }">
-        {{ label }}
-      </label>
       <component
         :is="isMultiline ? 'textarea' : 'input'"
         :id="uid"
@@ -129,7 +114,7 @@ onMounted(() => {
           cx(
             { 'min-h-[77px]': isMultiline },
             'z-10 w-full resize-none appearance-none border-0 bg-transparent p-3 text-sm text-fore-1',
-            'outline-none transition-opacity peer-[]:opacity-0',
+            'outline-none transition-opacity',
           )
         "
         :placeholder="placeholder"
@@ -138,6 +123,21 @@ onMounted(() => {
         @focus="isFocused = true"
         @input="handleChange"
         @keyup.enter="handleSubmit" />
+      <label
+        v-if="label"
+        :class="
+          cx(
+            'scalar-input-label pointer-events-none absolute left-0 top-0 mx-2 my-3 px-1 text-xs',
+            'shadow-current z-10 origin-top-left rounded text-fore-3 transition-transform',
+          )
+        "
+        :for="uid"
+        :style="{
+          'box-shadow': `0 0 4px 4px ${labelShadowColor}`,
+          'background-color': labelShadowColor,
+        }">
+        {{ label }}
+      </label>
       <div
         class="icon-slot cursor-pointer text-ghost hover:text-fore-1 !empty:flex !empty:w-7 !empty:items-center !empty:pr-3">
         <slot />
@@ -164,9 +164,20 @@ onMounted(() => {
 .scalar-input-wrapper-focus .scalar-input-label {
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
+.scalar-input-wrapper-error .scalar-input-label {
+  color: var(--theme-color-error-color, var(--default-theme-color-red));
+}
 .scalar-input::selection {
   color: var(--theme-color-1, var(--default-theme-color-1));
   background: rgba(255, 165, 88, 0.35);
+}
+.scalar-input:has(+ .scalar-input-label) {
+  opacity: 0;
+}
+.scalar-input:not(:placeholder-shown),
+.scalar-input-wrapper-focus .scalar-input {
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out 0.15s;
 }
 .scalar-input:-webkit-autofill,
 .scalar-input:-webkit-autofill:hover,
@@ -181,6 +192,11 @@ onMounted(() => {
   -webkit-text-fill-color: var(--theme-color-1, var(--default-theme-color-1));
   color: var(--theme-color-1, var(--default-theme-color-1));
   border-radius: var(--theme-radius, var(--default-theme-radius));
+}
+.scalar-input-wrapper-focus .scalar-input-label,
+.scalar-input:not(:placeholder-shown) + .scalar-input-label {
+  transform: translate3d(0, -20px, 0) scale(0.8);
+  transform-origin: top left;
 }
 .scalar-input-wrapper-focus .scalar-input-label,
 .scalar-input:not(:placeholder-shown) + .scalar-input-label {

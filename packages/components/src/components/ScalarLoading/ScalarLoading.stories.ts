@@ -22,8 +22,8 @@ const meta = {
     template: `
       <div className="row gap-4 items-center">
         <ScalarLoading :loadingState="loadingState" />
-        <ScalarButton @click="loadingState.isValid()">Success</ScalarButton>
-        <ScalarButton variant="danger" @click="loadingState.isInvalid()">Error</ScalarButton>
+        <ScalarButton @click="loadingState.validate()">Success</ScalarButton>
+        <ScalarButton variant="danger" @click="loadingState.invalidate()">Error</ScalarButton>
         <ScalarButton variant="ghost" @click="loadingState.clear() && loadingState.startLoading()">Reset</ScalarButton>
       </div>
     `,

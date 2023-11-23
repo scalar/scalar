@@ -15,6 +15,7 @@ module.exports = {
     '@vue/typescript/recommended',
     '@vue/eslint-config-typescript',
     'prettier',
+    'plugin:storybook/recommended',
   ],
   plugins: ['@typescript-eslint', 'prettier'],
   ignorePatterns: [
