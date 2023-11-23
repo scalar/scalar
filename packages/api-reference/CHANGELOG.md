@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.2.0
+
+### Minor Changes
+
+- edb09a0: refactor: expose slot props for reference base component
+
+### Patch Changes
+
+- 678e383: fix: no authentication shouldn’t render an empty form
+- c51124f: feat: add anchors to headings
+
 ## 1.1.7
 
 ### Patch Changes
