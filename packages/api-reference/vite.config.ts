@@ -38,6 +38,10 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
+        '@hocuspocus/provider',
+        '@scalar/swagger-editor',
+        '@xmldom/xmldom',
+        '@scalar/use-markdown',
         'vue',
         ...Object.keys(pkg.dependencies || {}).filter(
           (item) => !item.startsWith('@scalar'),

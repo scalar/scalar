@@ -1,0 +1,54 @@
+{
+  "name": "@scalar/use-markdown",
+  "version": "1.0.0",
+  "author": "Scalar (https://github.com/scalar)",
+  "bugs": "https://github.com/scalar/scalar/issues/new",
+  "dependencies": {
+    "@vcarl/remark-headings": "0.1.0",
+    "rehype-document": "7.0.1",
+    "rehype-external-links": "3.0.0",
+    "rehype-format": "5.0.0",
+    "rehype-highlight": "7.0.0",
+    "rehype-sanitize": "6.0.0",
+    "rehype-slug-custom-id": "1.1.0",
+    "rehype-stringify": "10.0.0",
+    "remark-gfm": "4.0.0",
+    "remark-parse": "11.0.0",
+    "remark-rehype": "11.0.0",
+    "remark-stringify": "11.0.0",
+    "unified": "11.0.3",
+    "zod": "3.22.4"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "0.34.4",
+    "vite": "4.4.11",
+    "vitest": "0.34.4"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "homepage": "https://github.com/scalar/scalar",
+  "keywords": [],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "nx": {
+    "tags": [
+      "scope:package"
+    ]
+  },
+  "peerDependencies": {
+    "zod": "^3.22.4"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build",
+    "dev": "vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "test": "vitest",
+    "types:build": "tsc -p tsconfig.build.json",
+    "types:check": "tsc"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts"
+}

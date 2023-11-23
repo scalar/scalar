@@ -18,6 +18,18 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
+        '@codemirror/state',
+        '@codemirror/view',
+        '@hocuspocus/provider',
+        '@lezer/common',
+        '@lezer/javascript',
+        '@lezer/lr',
+        '@lezer/python',
+        '@scalar/swagger-editor',
+        '@scalar/themes',
+        '@scalar/use-codemirror',
+        '@scalar/use-markdown',
+        '@xmldom/xmldom',
         'vue',
         ...Object.keys(pkg.dependencies || {}).filter(
           (item) => !item.startsWith('@scalar'),

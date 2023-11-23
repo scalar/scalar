@@ -17,6 +17,8 @@
   "type": "module",
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
+    "@scalar/use-markdown": "workspace:*",
+    "@scalar/swagger-editor": "workspace:*",
     "vue": "^3.3.0"
   },
   "devDependencies": {

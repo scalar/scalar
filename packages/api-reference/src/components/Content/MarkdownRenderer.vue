@@ -1,13 +1,5 @@
 <script setup lang="ts">
-import rehypeExternalLinks from 'rehype-external-links'
-import rehypeFormat from 'rehype-format'
-import rehypeHighlight from 'rehype-highlight'
-import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
-import rehypeStringify from 'rehype-stringify'
-import remarkGfm from 'remark-gfm'
-import remarkParse from 'remark-parse'
-import remarkRehype from 'remark-rehype'
-import { unified } from 'unified'
+import { parseSwaggerDescription } from '@scalar/use-markdown'
 import { ref, watch } from 'vue'
 
 const props = defineProps<{ value?: string }>()
@@ -17,26 +9,9 @@ const html = ref<string>('')
 watch(
   () => props.value,
   async () => {
-    unified()
-      .use(remarkParse)
-      .use(remarkGfm)
-      .use(remarkRehype)
-      .use(rehypeFormat)
-      .use(rehypeSanitize, {
-        ...defaultSchema,
-        tagNames: defaultSchema.tagNames?.filter(
-          (tag) => !['img'].includes(tag),
-        ),
-      })
-      .use(rehypeHighlight, {
-        detect: true,
-      })
-      .use(rehypeExternalLinks, { target: '_blank' })
-      .use(rehypeStringify)
-      .process(props.value)
-      .then((result) => {
-        html.value = String(result)
-      })
+    parseSwaggerDescription(props.value).then((result) => {
+      html.value = String(result)
+    })
   },
   { immediate: true },
 )

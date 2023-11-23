@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RenderedReference, Sidebar, type Spec } from '@scalar/api-reference'
-import { reactive } from 'vue'
+import { parseSwaggerDescription } from '@scalar/use-markdown'
+import { onMounted, reactive } from 'vue'
 
 const reactiveSpec = reactive<Spec>({
   info: {
@@ -22,6 +23,10 @@ const reactiveSpec = reactive<Spec>({
   },
   servers: [],
   tags: [],
+})
+
+onMounted(() => {
+  console.log(parseSwaggerDescription('# HI'))
 })
 </script>
 
