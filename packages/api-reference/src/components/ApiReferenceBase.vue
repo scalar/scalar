@@ -102,16 +102,36 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
     :swaggerEditorRef="swaggerEditorRef"
     @changeTheme="$emit('changeTheme', $event)"
     @updateContent="(newContent: string) => setRawSpecRef(newContent)">
-    <template #header="attribs">
+    <template #header="scope">
       <slot
-        v-bind="attribs"
+        v-bind="scope"
         name="header" />
     </template>
-    <template #sidebar-start><slot name="sidebar-start" /></template>
-    <template #sidebar-end><slot name="sidebar-end" /></template>
-    <template #content-start><slot name="content-start" /></template>
-    <template #content-end><slot name="content-end" /></template>
-    <template #footer><slot name="footer" /></template>
+    <template #sidebar-start="scope">
+      <slot
+        name="sidebar-start"
+        v-bind="scope" />
+    </template>
+    <template #sidebar-end="scope">
+      <slot
+        name="sidebar-end"
+        v-bind="scope" />
+    </template>
+    <template #content-start="scope">
+      <slot
+        name="content-start"
+        v-bind="scope" />
+    </template>
+    <template #content-end="scope">
+      <slot
+        name="content-end"
+        v-bind="scope" />
+    </template>
+    <template #footer="scope">
+      <slot
+        name="footer"
+        v-bind="scope" />
+    </template>
     <template
       v-if="LazyLoadedSwaggerEditor"
       #editor>

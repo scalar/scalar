@@ -302,3 +302,8 @@ export type Cookie = {
 export type HarRequestWithPath = HarRequest & {
   path: string
 }
+
+export type ReferenceSlotProps = {
+  spec: Spec
+  breadcrumb: string
+}

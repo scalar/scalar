@@ -6,11 +6,8 @@ import FlowIconButton from './FlowIconButton.vue'
 
 const { state } = useApiClientStore()
 
-const {
-  state: templateState,
-  setItem: setTemplateItem,
-  toggleItem: toggleTemplateItem,
-} = useTemplateStore()
+const { state: templateState, toggleItem: toggleTemplateItem } =
+  useTemplateStore()
 </script>
 <template>
   <div class="references-mobile-header t-doc__header">
@@ -22,14 +19,7 @@ const {
     <span class="references-mobile-breadcrumbs">{{
       state.activeBreadcrumb
     }}</span>
-    <div class="sidebar-mobile-actions">
-      <FlowIconButton
-        icon="Search"
-        label="Search"
-        variant="clear"
-        width="24px"
-        @click="setTemplateItem('showSearch', true)" />
-    </div>
+    <div class="sidebar-mobile-actions"></div>
   </div>
 </template>
 <style scoped>

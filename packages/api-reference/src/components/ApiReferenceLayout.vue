@@ -4,18 +4,16 @@ import {
   SwaggerEditorGettingStarted,
 } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
-import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
 import { useTemplateStore } from '../stores/template'
-import type { ReferenceConfiguration, Spec } from '../types'
+import type { ReferenceConfiguration, ReferenceSlotProps, Spec } from '../types'
 import {
   default as ApiClientModal,
   useApiClientStore,
 } from './ApiClientModal.vue'
 import { Content } from './Content'
-import SearchModal from './SearchModal.vue'
 import Sidebar from './Sidebar.vue'
 
 const props = defineProps<{
@@ -38,16 +36,6 @@ const elementHeight = ref(0)
 const documentEl = ref<HTMLElement | null>(null)
 useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height
-})
-
-const { state: templateState, setItem: setTemplateItem } = useTemplateStore()
-
-const searchHotKey = computed(() => props.configuration.searchHotKey || 'k')
-
-useKeyboardEvent({
-  keyList: [searchHotKey.value],
-  withCtrlCmd: true,
-  handler: () => setTemplateItem('showSearch', !templateState.showSearch),
 })
 
 // Scroll to hash if exists
@@ -95,6 +83,12 @@ const showSwaggerEditor = computed(() => {
   )
 })
 
+/** This is passed into all of the slots so they have access to the references data */
+const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
+  breadcrumb: state.activeBreadcrumb,
+  spec: props.parsedSpec,
+}))
+
 const { state } = useApiClientStore()
 </script>
 <template>
@@ -110,7 +104,7 @@ const { state } = useApiClientStore()
     <!-- Header -->
     <div class="references-header">
       <slot
-        :breadcrumb="state.activeBreadcrumb"
+        v-bind="referenceSlotProps"
         name="header" />
     </div>
     <!-- Navigation (sidebar) wrapper -->
@@ -121,10 +115,14 @@ const { state } = useApiClientStore()
       <div class="references-navigation-list">
         <Sidebar :parsedSpec="parsedSpec">
           <template #sidebar-start>
-            <slot name="sidebar-start" />
+            <slot
+              v-bind="referenceSlotProps"
+              name="sidebar-start" />
           </template>
           <template #sidebar-end>
-            <slot name="sidebar-end" />
+            <slot
+              v-bind="referenceSlotProps"
+              name="sidebar-end" />
           </template>
         </Sidebar>
       </div>
@@ -134,13 +132,17 @@ const { state } = useApiClientStore()
       v-show="showSwaggerEditor"
       class="references-editor">
       <div class="references-editor-textarea">
-        <slot name="editor" />
+        <slot
+          v-bind="referenceSlotProps"
+          name="editor" />
       </div>
     </div>
     <!-- Rendered reference -->
     <template v-if="showRenderedContent">
       <div class="references-rendered">
-        <slot name="content-start" />
+        <slot
+          v-bind="referenceSlotProps"
+          name="content-start" />
         <Content
           :parsedSpec="parsedSpec"
           :rawSpec="rawSpec"
@@ -156,18 +158,18 @@ const { state } = useApiClientStore()
               @updateContent="$emit('updateContent', $event)" />
           </template>
         </Content>
-        <slot name="content-end" />
+        <slot
+          v-bind="referenceSlotProps"
+          name="content-end" />
       </div>
       <div
         v-if="$slots.footer"
         class="references-footer">
-        <slot name="footer" />
+        <slot
+          v-bind="referenceSlotProps"
+          name="footer" />
       </div>
     </template>
-    <!-- Search Overlay -->
-    <SearchModal
-      :parsedSpec="parsedSpec"
-      variant="search" />
     <!-- REST API Client Overlay -->
     <ApiClientModal
       :parsedSpec="parsedSpec"

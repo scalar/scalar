@@ -43,10 +43,10 @@ const otherProps = computed(() => {
       #header>
       <MobileHeader />
     </template>
-    <template
-      v-if="!isMobile"
-      #sidebar-start>
-      <SearchButton :searchHotKey="props.configuration?.searchHotKey" />
+    <template #sidebar-start="{ spec }">
+      <SearchButton
+        :searchHotKey="props.configuration?.searchHotKey"
+        :spec="spec" />
     </template>
     <template #sidebar-end>
       <DarkModeToggle />

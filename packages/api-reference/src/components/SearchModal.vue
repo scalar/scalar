@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
-import { FlowModal, useModal } from '@scalar/use-modal'
+import { FlowModal, type ModalState } from '@scalar/use-modal'
 import Fuse from 'fuse.js'
 import { computed, ref, toRef, watch } from 'vue'
 
@@ -11,12 +11,10 @@ import {
 } from '../helpers'
 import { extractRequestBody } from '../helpers/specHelpers'
 import { type ParamMap, useOperation } from '../hooks'
-import { useTemplateStore } from '../stores/template'
 import type { Spec, TransformedOperation } from '../types'
 
-const props = defineProps<{ parsedSpec: Spec }>()
+const props = defineProps<{ parsedSpec: Spec; modalState: ModalState }>()
 const reactiveSpec = toRef(props, 'parsedSpec')
-const modalState = useModal()
 
 type FuseData = {
   title: string
@@ -41,8 +39,6 @@ const fuse = new Fuse(fuseDataArray, {
   keys: ['title', 'description', 'body'],
 })
 
-const { state, setItem } = useTemplateStore()
-
 const fuseSearch = (): void => {
   selectedSearchResult.value = 0
   searchResults.value = fuse.search(searchText.value)
@@ -53,25 +49,12 @@ const selectedEntry = computed<Fuse.FuseResult<FuseData>>(
 )
 
 watch(
-  () => state.showSearch,
-  () => {
-    if (state.showSearch) {
-      searchText.value = ''
-      selectedSearchResult.value = 0
-      searchResults.value = []
-      modalState.show()
-    } else {
-      modalState.hide()
-    }
-  },
-)
-
-watch(
-  () => modalState.open,
-  () => {
-    if (!modalState.open) {
-      setItem('showSearch', false)
-    }
+  () => props.modalState.open,
+  (open) => {
+    if (!open) return
+    searchText.value = ''
+    selectedSearchResult.value = 0
+    searchResults.value = []
   },
 )
 
@@ -155,18 +138,18 @@ watch(
 useKeyboardEvent({
   element: searchModalRef,
   keyList: ['enter'],
-  active: () => modalState.open,
+  active: () => props.modalState.open,
   handler: () => {
     if (!window) return
     window.location.hash = selectedEntry.value.item.href
-    modalState.hide()
+    props.modalState.hide()
   },
 })
 
 useKeyboardEvent({
   element: searchModalRef,
   keyList: ['ArrowDown'],
-  active: () => modalState.open,
+  active: () => props.modalState.open,
   handler: () => {
     if (
       selectedSearchResult.value <
@@ -182,7 +165,7 @@ useKeyboardEvent({
 useKeyboardEvent({
   element: searchModalRef,
   keyList: ['ArrowUp'],
-  active: () => modalState.open,
+  active: () => props.modalState.open,
   handler: () => {
     if (selectedSearchResult.value > 0) {
       selectedSearchResult.value--

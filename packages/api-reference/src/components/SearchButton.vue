@@ -1,20 +1,35 @@
 <script setup lang="ts">
+import { useKeyboardEvent } from '@scalar/use-keyboard-event'
+import { useModal } from '@scalar/use-modal'
 import { isMacOS } from '@scalar/use-tooltip'
+import { type Spec } from 'src/types'
 
-import { useTemplateStore } from '../stores/template'
 import FlowIcon from './Icon/FlowIcon.vue'
+import SearchModal from './SearchModal.vue'
 
-withDefaults(defineProps<{ searchHotKey?: string }>(), {
-  searchHotKey: 'k',
+const props = withDefaults(
+  defineProps<{
+    spec: Spec
+    searchHotKey?: string
+  }>(),
+  {
+    searchHotKey: 'k',
+  },
+)
+
+const modalState = useModal()
+
+useKeyboardEvent({
+  keyList: [props.searchHotKey],
+  withCtrlCmd: true,
+  handler: () => (modalState.open ? modalState.hide() : modalState.show()),
 })
-
-const { setItem } = useTemplateStore()
 </script>
 <template>
   <button
     class="sidebar-search"
     type="button"
-    @click="setItem('showSearch', true)">
+    @click="modalState.show">
     <FlowIcon
       class="search-icon"
       icon="Search" />
@@ -31,6 +46,9 @@ const { setItem } = useTemplateStore()
       </span>
     </div>
   </button>
+  <SearchModal
+    :modalState="modalState"
+    :parsedSpec="spec" />
 </template>
 <style scoped>
 .sidebar-search {
