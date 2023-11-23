@@ -303,6 +303,15 @@ export type HarRequestWithPath = HarRequest & {
   path: string
 }
 
+export type ReferenceLayoutSlot =
+  | 'header'
+  | 'footer'
+  | 'editor'
+  | 'content-start'
+  | 'content-end'
+  | 'sidebar-start'
+  | 'sidebar-end'
+
 export type ReferenceSlotProps = {
   spec: Spec
   breadcrumb: string

@@ -8,7 +8,12 @@ import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
 import { useTemplateStore } from '../stores/template'
-import type { ReferenceConfiguration, ReferenceSlotProps, Spec } from '../types'
+import type {
+  ReferenceConfiguration,
+  ReferenceLayoutSlot,
+  ReferenceSlotProps,
+  Spec,
+} from '../types'
 import {
   default as ApiClientModal,
   useApiClientStore,
@@ -27,6 +32,10 @@ defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
   (e: 'updateContent', value: string): void
   (e: 'toggleDarkMode'): void
+}>()
+
+defineSlots<{
+  [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
 }>()
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
