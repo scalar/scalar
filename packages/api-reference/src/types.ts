@@ -75,6 +75,7 @@ export const DEFAULT_CONFIG: DeepReadonly<ReferenceConfiguration> = {
 export type Schema = {
   format: string
   type: string
+  default?: any
 }
 
 export type Parameters = {
