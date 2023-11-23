@@ -1,35 +1,29 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
 
-import { useTemplateStore } from '../stores/template'
 import FlowIconButton from './FlowIconButton.vue'
 
-const { state } = useApiClientStore()
+defineProps<{
+  open?: boolean
+}>()
 
-const {
-  state: templateState,
-  setItem: setTemplateItem,
-  toggleItem: toggleTemplateItem,
-} = useTemplateStore()
+defineEmits<{
+  (event: 'update:open', open: boolean): void
+}>()
+
+const { state } = useApiClientStore()
 </script>
 <template>
   <div class="references-mobile-header t-doc__header">
     <FlowIconButton
-      :icon="templateState.showMobileDrawer ? 'Close' : 'Menu'"
-      :label="templateState.showMobileDrawer ? 'Close Menu' : 'Open Menu'"
+      :icon="open ? 'Close' : 'Menu'"
+      :label="open ? 'Close Menu' : 'Open Menu'"
       width="20px"
-      @click="() => toggleTemplateItem('showMobileDrawer')" />
+      @click="$emit('update:open', !open)" />
     <span class="references-mobile-breadcrumbs">{{
       state.activeBreadcrumb
     }}</span>
-    <div class="sidebar-mobile-actions">
-      <FlowIconButton
-        icon="Search"
-        label="Search"
-        variant="clear"
-        width="24px"
-        @click="setTemplateItem('showSearch', true)" />
-    </div>
+    <div class="sidebar-mobile-actions"></div>
   </div>
 </template>
 <style scoped>

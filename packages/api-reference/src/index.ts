@@ -9,5 +9,6 @@ export { default as Sidebar } from './components/Sidebar.vue'
 export { default as RenderedReference } from './components/Content/Content.vue'
 export { default as DarkModeToggle } from './components/DarkModeToggle.vue'
 export { default as SearchModal } from './components/SearchModal.vue'
+export { default as SearchButton } from './components/SearchButton.vue'
 
 export * from './types'

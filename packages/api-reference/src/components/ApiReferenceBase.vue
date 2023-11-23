@@ -10,7 +10,9 @@ import { useParser, useSpec } from '../hooks'
 import {
   DEFAULT_CONFIG,
   type ReferenceConfiguration,
+  type ReferenceLayoutSlot,
   type ReferenceProps,
+  type ReferenceSlotProps,
   type Spec,
 } from '../types'
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
@@ -26,6 +28,12 @@ const emit = defineEmits<{
     swaggerData: string,
     swaggerType: 'json' | 'yaml',
   ): void
+}>()
+
+type ReferenceSlot = Exclude<ReferenceLayoutSlot, 'editor'>
+
+const slots = defineSlots<{
+  [x in ReferenceSlot]: (props: ReferenceSlotProps) => any
 }>()
 
 /**
@@ -102,16 +110,14 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
     :swaggerEditorRef="swaggerEditorRef"
     @changeTheme="$emit('changeTheme', $event)"
     @updateContent="(newContent: string) => setRawSpecRef(newContent)">
-    <template #header="attribs">
+    <!-- Passes up all the slots except `editor` with typed slot props -->
+    <template
+      v-for="(_, name) in slots"
+      #[name]="scope">
       <slot
-        v-bind="attribs"
-        name="header" />
+        :name="name"
+        v-bind="scope" />
     </template>
-    <template #sidebar-start><slot name="sidebar-start" /></template>
-    <template #sidebar-end><slot name="sidebar-end" /></template>
-    <template #content-start><slot name="content-start" /></template>
-    <template #content-end><slot name="content-end" /></template>
-    <template #footer><slot name="footer" /></template>
     <template
       v-if="LazyLoadedSwaggerEditor"
       #editor>

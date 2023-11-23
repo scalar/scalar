@@ -1,26 +1,24 @@
 <script setup lang="ts">
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
-import { FlowModal, useModal } from '@scalar/use-modal'
+import { FlowModal, type ModalState } from '@scalar/use-modal'
 import Fuse from 'fuse.js'
-import { computed, nextTick, ref, toRef, watch } from 'vue'
+import { computed, ref, toRef, watch } from 'vue'
 
 import {
   getModelSectionId,
   getOperationSectionId,
   getTagSectionId,
-  scrollToId,
 } from '../helpers'
 import { extractRequestBody } from '../helpers/specHelpers'
 import { type ParamMap, useOperation } from '../hooks'
-import { useTemplateStore } from '../stores/template'
-import type { Spec, Tag, TransformedOperation } from '../types'
+import type { Spec, TransformedOperation } from '../types'
 
-const props = defineProps<{ parsedSpec: Spec }>()
+const props = defineProps<{ parsedSpec: Spec; modalState: ModalState }>()
 const reactiveSpec = toRef(props, 'parsedSpec')
-const modalState = useModal()
 
 type FuseData = {
   title: string
+  href: string
   type: 'req' | 'model'
   operationId?: string
   description: string
@@ -41,61 +39,25 @@ const fuse = new Fuse(fuseDataArray, {
   keys: ['title', 'description', 'body'],
 })
 
-const { state, setItem, setCollapsedSidebarItem } = useTemplateStore()
-
 const fuseSearch = (): void => {
   selectedSearchResult.value = 0
   searchResults.value = fuse.search(searchText.value)
 }
 
-watch(
-  () => state.showSearch,
-  () => {
-    if (state.showSearch) {
-      searchText.value = ''
-      selectedSearchResult.value = 0
-      searchResults.value = []
-      modalState.show()
-    } else {
-      modalState.hide()
-    }
-  },
+const selectedEntry = computed<Fuse.FuseResult<FuseData>>(
+  () => searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
 )
 
 watch(
-  () => modalState.open,
-  () => {
-    if (!modalState.open) {
-      setItem('showSearch', false)
-    }
+  () => props.modalState.open,
+  (open) => {
+    if (!open) return
+    searchText.value = ''
+    selectedSearchResult.value = 0
+    searchResults.value = []
   },
 )
 
-async function openSearchResult(entry: Fuse.FuseResult<FuseData>) {
-  const tag = entry.item.tag
-
-  if (!tag) {
-    return
-  }
-  const searchTag: Tag = {
-    name: tag,
-    description: '',
-    operations: [],
-  }
-
-  setCollapsedSidebarItem(getTagSectionId(searchTag), true)
-
-  modalState.hide()
-  await nextTick()
-
-  if (entry.item.type === 'req' && entry.item.operation) {
-    scrollToId(getOperationSectionId(entry.item.operation, searchTag))
-  } else if (entry.item.type === 'model') {
-    scrollToId(getModelSectionId(entry.item.tag))
-  } else {
-    scrollToId(getTagSectionId(searchTag))
-  }
-}
 watch(
   reactiveSpec.value,
   () => {
@@ -110,6 +72,7 @@ watch(
     props.parsedSpec.tags.forEach((tag) => {
       const tagData: FuseData = {
         title: tag.name,
+        href: `#${getTagSectionId(tag)}`,
         description: tag.description,
         type: 'req',
         tag: tag.name,
@@ -130,6 +93,7 @@ watch(
           const operationData: FuseData = {
             type: 'req',
             title: operation.name,
+            href: `#${getOperationSectionId(operation, tag)}`,
             operationId: operation.operationId,
             description: operation.description,
             httpVerb: operation.httpVerb,
@@ -156,6 +120,7 @@ watch(
         modelData.push({
           type: 'model',
           title: 'Model',
+          href: `#${getModelSectionId(k)}`,
           description: k,
           tag: k,
           body: '',
@@ -173,18 +138,18 @@ watch(
 useKeyboardEvent({
   element: searchModalRef,
   keyList: ['enter'],
-  active: () => modalState.open,
+  active: () => props.modalState.open,
   handler: () => {
-    openSearchResult(
-      searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
-    )
+    if (!window) return
+    window.location.hash = selectedEntry.value.item.href
+    props.modalState.hide()
   },
 })
 
 useKeyboardEvent({
   element: searchModalRef,
   keyList: ['ArrowDown'],
-  active: () => modalState.open,
+  active: () => props.modalState.open,
   handler: () => {
     if (
       selectedSearchResult.value <
@@ -200,7 +165,7 @@ useKeyboardEvent({
 useKeyboardEvent({
   element: searchModalRef,
   keyList: ['ArrowUp'],
-  active: () => modalState.open,
+  active: () => props.modalState.open,
   handler: () => {
     if (selectedSearchResult.value > 0) {
       selectedSearchResult.value--
@@ -240,7 +205,7 @@ const searchResultsWithPlaceholderResults = computed(
     <div
       v-if="searchResultsWithPlaceholderResults.length"
       class="ref-search-list custom-scroll">
-      <button
+      <a
         v-for="(entry, index) in searchResultsWithPlaceholderResults"
         :key="entry.refIndex"
         class="item-entry"
@@ -248,8 +213,8 @@ const searchResultsWithPlaceholderResults = computed(
           'item-entry--active': index === selectedSearchResult,
           'item-entry--tag': !entry.item.httpVerb,
         }"
-        type="submit"
-        @click="openSearchResult(entry)"
+        :href="entry.item.href"
+        @click="modalState.hide"
         @focus="selectedSearchResult = index"
         @mouseover="selectedSearchResult = index">
         <div
@@ -276,7 +241,7 @@ const searchResultsWithPlaceholderResults = computed(
           class="item-entry-description">
           {{ entry.item.description }}
         </div>
-      </button>
+      </a>
     </div>
     <div class="ref-search-meta">
       <span>↑↓ Navigate</span>

@@ -2,7 +2,6 @@
 import { useMediaQuery } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-import { useTemplateStore } from '../stores/template'
 import { type ReferenceProps, type SpecConfiguration } from '../types'
 import ApiReferenceBase from './ApiReferenceBase.vue'
 import DarkModeToggle from './DarkModeToggle.vue'
@@ -11,7 +10,7 @@ import SearchButton from './SearchButton.vue'
 
 const props = defineProps<ReferenceProps>()
 
-const { state } = useTemplateStore()
+const showMobileDrawer = ref(false)
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
 
@@ -20,7 +19,7 @@ const content = ref('')
 // Override the sidebar value for mobile to open and close the drawer
 const config = computed(() => {
   const showSidebar = isMobile.value
-    ? state.showMobileDrawer
+    ? showMobileDrawer.value
     : props.configuration?.showSidebar
   const spec: SpecConfiguration = props.configuration?.spec || {
     content: content.value,
@@ -41,12 +40,12 @@ const otherProps = computed(() => {
     <template
       v-if="isMobile"
       #header>
-      <MobileHeader />
+      <MobileHeader v-model:open="showMobileDrawer" />
     </template>
-    <template
-      v-if="!isMobile"
-      #sidebar-start>
-      <SearchButton :searchHotKey="props.configuration?.searchHotKey" />
+    <template #sidebar-start="{ spec }">
+      <SearchButton
+        :searchHotKey="props.configuration?.searchHotKey"
+        :spec="spec" />
     </template>
     <template #sidebar-end>
       <DarkModeToggle />
