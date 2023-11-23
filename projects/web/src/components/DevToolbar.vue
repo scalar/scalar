@@ -92,12 +92,6 @@ watch(
         showSidebar
       </div>
       <div>
-        <input
-          v-model="configuration.withApiClient"
-          type="checkbox" />
-        withApiClient
-      </div>
-      <div>
         Theme:
         <select v-model="configuration.theme">
           <option

@@ -5,9 +5,14 @@ import { FlowToastContainer } from '@scalar/use-toasts'
 import { useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, ref, watch } from 'vue'
 
+import { deepMerge } from '../helpers'
 import { useParser, useSpec } from '../hooks'
-import { useGlobalStore } from '../stores/globalStore'
-import { type ReferenceProps, type Spec } from '../types'
+import {
+  DEFAULT_CONFIG,
+  type ReferenceConfiguration,
+  type ReferenceProps,
+  type Spec,
+} from '../types'
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
 
 const props = defineProps<ReferenceProps>()
@@ -23,16 +28,17 @@ const emit = defineEmits<{
   ): void
 }>()
 
-// Put the configuration in the global store
-const { configuration: currentConfiguration } = useGlobalStore({
-  configuration: props.configuration,
-})
-
 /**
  * The editor component has heavy dependencies (process), let's lazy load it.
  */
 const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
   import('@scalar/swagger-editor').then((module) => module.SwaggerEditor),
+)
+
+/** Merge the default configuration with the given configuration. */
+const currentConfiguration = computed(
+  (): ReferenceConfiguration =>
+    deepMerge(props.configuration ?? {}, { ...DEFAULT_CONFIG }),
 )
 
 // Make it a ComputedRef
