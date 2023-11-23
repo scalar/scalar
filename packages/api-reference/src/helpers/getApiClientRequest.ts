@@ -38,8 +38,6 @@ export function getApiClientRequest({
     ...operation.pathParameters,
   ]
 
-  console.log('o', operation)
-
   return {
     id: operation.operationId,
     name: operation.name,
