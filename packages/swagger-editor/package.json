@@ -1,9 +1,48 @@
 {
   "name": "@scalar/swagger-editor",
   "description": "an editor which is tailored to write OpenAPI spec",
-  "version": "0.7.7",
+  "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
-  "bugs": "https://github.com/scalar/scalar/issues/new",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "keywords": [
+    "api",
+    "editor",
+    "openapi",
+    "openapi",
+    "spec",
+    "swagger"
+  ],
+  "version": "0.7.7",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "dev": "vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "test": "vitest",
+    "types:build": "vue-tsc -p tsconfig.build.json",
+    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "import": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "./dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/swagger-editor"
+  },
   "dependencies": {
     "@codemirror/state": "^6.2.1",
     "@hocuspocus/provider": "^2.6.1",
@@ -35,49 +74,10 @@
     "vitest": "^0.34.4",
     "vue-tsc": "^1.8.19"
   },
-  "engines": {
-    "node": ">=20"
-  },
-  "exports": {
-    "import": "./dist/index.js"
-  },
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
-  "homepage": "https://github.com/scalar/scalar",
-  "keywords": [
-    "api",
-    "editor",
-    "openapi",
-    "openapi",
-    "spec",
-    "swagger"
-  ],
-  "license": "MIT",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
   "peerDependencies": {
     "unified": "11.0.3",
     "vue": "3.3.4",
     "y-codemirror.next": "0.3.2",
     "yjs": "13.6.8"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/swagger-editor"
-  },
-  "scripts": {
-    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "dev": "vite",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "preview": "vite preview",
-    "test": "vitest",
-    "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
-  },
-  "type": "module",
-  "types": "dist/index.d.ts"
+  }
 }

@@ -1,16 +1,21 @@
 {
   "name": "@scalar/hono-api-reference",
   "description": "A middleware for using the Scalar API reference in Hono",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "version": "0.1.15",
-  "dependencies": {
-    "@scalar/api-reference": "workspace:*"
+  "engines": {
+    "node": ">=20"
   },
-  "devDependencies": {
-    "hono": "^3.9.2",
-    "tsup": "^7.2.0",
-    "vite": "^4.4.11",
-    "vitest": "^0.34.4"
+  "scripts": {
+    "build": "tsup ./src/index.ts --format esm,cjs --dts",
+    "test": "vitest run"
   },
+  "type": "module",
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.cts",
   "exports": {
     ".": {
       "import": {
@@ -26,23 +31,22 @@
   "files": [
     "dist"
   ],
-  "homepage": "https://github.com/scalar/scalar",
-  "license": "MIT",
-  "main": "dist/index.cjs",
   "module": "dist/index.js",
-  "peerDependencies": {
-    "hono": "3.9.2"
-  },
-  "private": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/scalar/scalar.git",
     "directory": "packages/hono-api-reference"
   },
-  "scripts": {
-    "build": "tsup ./src/index.ts --format esm,cjs --dts",
-    "test": "vitest run"
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*"
   },
-  "type": "module",
-  "types": "dist/index.d.cts"
+  "devDependencies": {
+    "hono": "^3.9.2",
+    "tsup": "^7.2.0",
+    "vite": "^4.4.11",
+    "vitest": "^0.34.4"
+  },
+  "peerDependencies": {
+    "hono": "3.9.2"
+  }
 }
