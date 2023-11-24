@@ -33,8 +33,8 @@ const otherProps = computed(() => {
   return other
 })
 
+// Create the head tag if the configuration has meta data
 if (config.value?.metaData) {
-  // Create a global head instance
   createHead()
   useSeoMeta(config.value.metaData)
 }
