@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.4.2
+
+### Patch Changes
+
+- c3b215f: chore: no pinned peer dependency versions
+
 ## 0.4.1
 
 ### Patch Changes

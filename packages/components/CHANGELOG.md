@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.0.3
+
+### Patch Changes
+
+- c3b215f: chore: no pinned peer dependency versions
+
 ## 0.0.2
 
 ### Patch Changes

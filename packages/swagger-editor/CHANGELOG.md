@@ -1,5 +1,15 @@
 # @scalar/swagger-editor
 
+## 0.7.9
+
+### Patch Changes
+
+- c3b215f: chore: no pinned peer dependency versions
+- Updated dependencies [c3b215f]
+  - @scalar/use-codemirror@0.7.14
+  - @scalar/use-modal@0.1.8
+  - @scalar/themes@0.4.2
+
 ## 0.7.8
 
 ### Patch Changes

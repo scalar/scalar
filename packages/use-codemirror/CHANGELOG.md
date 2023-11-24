@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.14
+
+### Patch Changes
+
+- c3b215f: chore: no pinned peer dependency versions
+
 ## 0.7.13
 
 ### Patch Changes
