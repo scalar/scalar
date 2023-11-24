@@ -1,5 +1,5 @@
 {
-  "name": "@scalar/ssg",
+  "name": "@scalar-org/ssg",
   "version": "0.0.14",
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
