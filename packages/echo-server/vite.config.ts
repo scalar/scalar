@@ -12,7 +12,12 @@ export default defineConfig({
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
-      external: ['vue', ...Object.keys(pkg.dependencies || {})],
+      external: [
+        'vue',
+        ...Object.keys(pkg.dependencies || {}).filter(
+          (item) => !item.startsWith('@scalar'),
+        ),
+      ],
     },
   },
   resolve: {
