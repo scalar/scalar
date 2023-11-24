@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.2.1
+
+### Patch Changes
+
+- fa34e17: fix: set search modal variant
+- 9e6cc67: fix: don't handle search shortcut if component is deactivated
+
 ## 1.2.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@scalar/ssg",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
     "vue": "3.3.4"
