@@ -34,6 +34,7 @@ function handleScroll() {
   max-width: 1120px;
   margin: auto;
 
+  /* Extend by header height to line up scroll position */
   padding: calc(90px + var(--refs-header-height)) 0 90px 0;
   margin-top: calc(-1 * var(--refs-header-height));
 }
