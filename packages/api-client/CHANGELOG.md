@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 0.7.34
+
+### Patch Changes
+
+- 35dffe4: chore: include @scalar dependencies in the bundle
+- Updated dependencies [35dffe4]
+  - @scalar/use-keyboard-event@0.5.6
+  - @scalar/use-codemirror@0.7.15
+  - @scalar/use-modal@0.1.9
+
 ## 0.7.33
 
 ### Patch Changes

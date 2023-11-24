@@ -1,5 +1,12 @@
 # @scalar/swagger-parser
 
+## 0.5.12
+
+### Patch Changes
+
+- 35dffe4: chore: include @scalar dependencies in the bundle
+- 5c66be8: chore: replace imports pointing to src with relative paths
+
 ## 0.5.11
 
 ### Patch Changes

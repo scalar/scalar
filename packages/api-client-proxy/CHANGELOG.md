@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.10
+
+### Patch Changes
+
+- 35dffe4: chore: include @scalar dependencies in the bundle
+
 ## 0.5.9
 
 ### Patch Changes
