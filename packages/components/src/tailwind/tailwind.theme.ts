@@ -36,13 +36,6 @@ export const theme = {
     'ghost': 'var(--theme-color-ghost, var(--default-theme-color-ghost))',
     'transparent': 'transparent',
   },
-  fontSize: {
-    xxs: 'var(--theme-micro, var(--default-theme-micro, var(--theme-font-size-5, var(--default-theme-font-size-5))))',
-    xs: 'var(--theme-mini, var(--default-theme-mini, var(--theme-font-size-4, var(--default-theme-font-size-4))))',
-    sm: 'var(--theme-small, var(--default-theme-small, var(--theme-font-size-3, var(--default-theme-font-size-3))))',
-    base: 'var(--theme-paragraph, var(--default-theme-paragraph, var(--theme-font-size-2, var(--default-theme-font-size-2))))',
-    lg: 'var(--theme-font-size-1, var(--default-theme-font-size-1))',
-  },
 } as const
 
 export const extend = {
@@ -52,9 +45,16 @@ export const extend = {
     lg: 'var(--theme-radius-lg, var(--default-theme-radius-lg))',
     xl: 'var(--theme-radius-xl, var(--default-theme-radius-xl))',
   },
+  fontSize: {
+    xxs: 'var(--theme-micro, var(--default-theme-micro, var(--theme-font-size-5, var(--default-theme-font-size-5))))',
+    xs: 'var(--theme-mini, var(--default-theme-mini, var(--theme-font-size-4, var(--default-theme-font-size-4))))',
+    sm: 'var(--theme-small, var(--default-theme-small, var(--theme-font-size-3, var(--default-theme-font-size-3))))',
+    base: 'var(--theme-paragraph, var(--default-theme-paragraph, var(--theme-font-size-2, var(--default-theme-font-size-2))))',
+    lg: 'var(--theme-font-size-1, var(--default-theme-font-size-1))',
+  },
   fontWeight: {
     medium: 'var(--theme-font-medium, var(--default-theme-font-medium))',
-    bold: 'var(-theme-font-bold, var(--default-theme-font-bold))',
+    bold: 'var(--theme-font-bold, var(--default-theme-font-bold))',
   },
   maxWidth: {
     'screen-xs': '480px',
