@@ -1,5 +1,11 @@
 # @scalar/use-keyboard-event
 
+## 0.5.5
+
+### Patch Changes
+
+- c3b215f: chore: no pinned peer dependency versions
+
 ## 0.5.4
 
 ### Patch Changes

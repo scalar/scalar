@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.1.8
+
+### Patch Changes
+
+- c3b215f: chore: no pinned peer dependency versions
+
 ## 0.1.7
 
 ### Patch Changes

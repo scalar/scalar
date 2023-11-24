@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.2.4
+
+### Patch Changes
+
+- c3b215f: chore: no pinned peer dependency versions
+- Updated dependencies [c3b215f]
+  - @scalar/use-keyboard-event@0.5.5
+  - @scalar/swagger-editor@0.7.9
+  - @scalar/use-codemirror@0.7.14
+  - @scalar/use-tooltip@0.5.6
+  - @scalar/api-client@0.7.33
+  - @scalar/use-toasts@0.5.8
+  - @scalar/use-modal@0.1.8
+  - @scalar/themes@0.4.2
+  - @scalar/use-clipboard@0.5.8
+
 ## 1.2.3
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 0.6.67
+
+### Patch Changes
+
+- c3b215f: chore: no pinned peer dependency versions
+- Updated dependencies [c3b215f]
+  - @scalar/api-reference@1.2.4
+
 ## 0.6.66
 
 ### Patch Changes
