@@ -96,7 +96,7 @@ describe('useParser', () => {
     // Sleep for 10ms to wait for the parser to finish
     await new Promise((resolve) => setTimeout(resolve, 10))
 
-    expect(errorRef.value).toContain('Unexpected end of JSON')
+    expect(errorRef.value).toContain('SyntaxError')
   })
 
   it('overwrites the ref', async () => {

@@ -21,7 +21,7 @@
     "vitest": "0.34.4"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "exports": {
     "import": "./dist/index.js"
