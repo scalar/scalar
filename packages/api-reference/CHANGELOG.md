@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.2.5
+
+### Patch Changes
+
+- 35dffe4: chore: include @scalar dependencies in the bundle
+- 5c66be8: chore: replace imports pointing to src with relative paths
+- Updated dependencies [35dffe4]
+- Updated dependencies [5c66be8]
+  - @scalar/use-keyboard-event@0.5.6
+  - @scalar/swagger-editor@0.7.10
+  - @scalar/swagger-parser@0.5.12
+  - @scalar/use-codemirror@0.7.15
+  - @scalar/use-clipboard@0.5.9
+  - @scalar/use-tooltip@0.5.7
+  - @scalar/api-client@0.7.34
+  - @scalar/use-toasts@0.5.9
+  - @scalar/use-modal@0.1.9
+
 ## 1.2.4
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/swagger-editor
 
+## 0.7.10
+
+### Patch Changes
+
+- 35dffe4: chore: include @scalar dependencies in the bundle
+- Updated dependencies [35dffe4]
+  - @scalar/use-codemirror@0.7.15
+  - @scalar/use-modal@0.1.9
+
 ## 0.7.9
 
 ### Patch Changes

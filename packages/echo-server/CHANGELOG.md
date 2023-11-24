@@ -1,5 +1,11 @@
 # @scalar/echo-server
 
+## 0.5.5
+
+### Patch Changes
+
+- 35dffe4: chore: include @scalar dependencies in the bundle
+
 ## 0.5.4
 
 ### Patch Changes
