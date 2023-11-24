@@ -4,10 +4,7 @@ import { useFileDialog } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
 import { fetchSpecFromUrl } from '../../helpers'
-import {
-  type EditorHeaderTabs,
-  type SwaggerEditorHeaderProps,
-} from '../../types'
+import { type SwaggerEditorHeaderProps } from '../../types'
 import FlowButton from '../FlowButton.vue'
 import FlowTextField from '../FlowTextField.vue'
 
@@ -15,7 +12,6 @@ const props = defineProps<SwaggerEditorHeaderProps>()
 
 const emit = defineEmits<{
   (e: 'import', value: string): void
-  (e: 'updateActiveTab', value: EditorHeaderTabs): void
 }>()
 
 const { files, open, reset } = useFileDialog({
@@ -63,38 +59,14 @@ watch(files, () => {
 })
 </script>
 <template>
-  <div
-    :class="{
-      'single-tab':
-        availableTabs?.length === 1 && availableTabs.includes('Swagger Editor'),
-    }">
+  <div class="single-tab">
     <div class="swagger-editor-header">
       <div
-        v-if="!availableTabs || availableTabs.includes('Swagger Editor')"
         class="swagger-editor-title"
         :class="{
-          'swagger-editor-active': activeTab === 'Swagger Editor',
-        }"
-        @click="emit('updateActiveTab', 'Swagger Editor')">
+          'swagger-editor-active': 'Swagger Editor',
+        }">
         <div class="swagger-editor-type">Swagger Editor</div>
-      </div>
-      <div
-        v-if="!availableTabs || availableTabs.includes('Getting Started')"
-        class="swagger-editor-title"
-        :class="{
-          'swagger-editor-active': activeTab === 'Getting Started',
-        }"
-        @click="emit('updateActiveTab', 'Getting Started')">
-        <div class="swagger-editor-type">Getting Started</div>
-      </div>
-      <div
-        v-if="!availableTabs || availableTabs.includes('AI Writer')"
-        class="swagger-editor-title"
-        :class="{
-          'swagger-editor-active': activeTab === 'AI Writer',
-        }"
-        @click="emit('updateActiveTab', 'AI Writer')">
-        <div class="swagger-editor-type">✨ AI Writer</div>
       </div>
       <div class="single-tab-items">
         <button
@@ -111,9 +83,7 @@ watch(files, () => {
         </button>
       </div>
     </div>
-    <div
-      v-show="activeTab === 'Swagger Editor'"
-      class="swagger-editor-buttons">
+    <div class="swagger-editor-buttons">
       <div class="swagger-editor-heading">Swagger File</div>
       <div>
         <button

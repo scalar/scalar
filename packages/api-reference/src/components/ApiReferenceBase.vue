@@ -22,12 +22,7 @@ const props = defineProps<ReferenceProps>()
 const emit = defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
   (e: 'updateContent', value: string): void
-  (
-    e: 'startAIWriter',
-    value: string[],
-    swaggerData: string,
-    swaggerType: 'json' | 'yaml',
-  ): void
+  (value: string[], swaggerData: string, swaggerType: 'json' | 'yaml'): void
 }>()
 
 type ReferenceSlot = Exclude<ReferenceLayoutSlot, 'editor'>
@@ -89,15 +84,6 @@ useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height
 })
 
-// Handle content updates
-function handleAIWriter(
-  value: string[],
-  swaggerData: string,
-  swaggerType: 'json' | 'yaml',
-) {
-  emit('startAIWriter', value, swaggerData, swaggerType)
-}
-
 const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
 </script>
 <template>
@@ -123,17 +109,13 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
       #editor>
       <LazyLoadedSwaggerEditor
         ref="swaggerEditorRef"
-        :aiWriterMarkdown="currentConfiguration.aiWriterMarkdown"
-        :availableTabs="currentConfiguration.tabs?.available"
         :error="errorRef"
         :hocuspocusConfiguration="currentConfiguration.hocuspocusConfiguration"
-        :initialTabState="currentConfiguration.tabs?.initialContent"
         :proxyUrl="currentConfiguration.proxy"
         :theme="currentConfiguration.theme"
         :value="rawSpecRef"
         @changeTheme="$emit('changeTheme', $event)"
-        @contentUpdate="(newContent: string) => setRawSpecRef(newContent)"
-        @startAIWriter="handleAIWriter" />
+        @contentUpdate="(newContent: string) => setRawSpecRef(newContent)" />
     </template>
   </ApiReferenceLayout>
 </template>
