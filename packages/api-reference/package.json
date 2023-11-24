@@ -86,7 +86,7 @@
     "remark-rehype": "^11.0.0",
     "remark-stringify": "^11.0.0",
     "unhead": "^1.8.3",
-    "unified": "^11.0.3"
+    "unified": "^11.0.0"
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",
@@ -114,7 +114,7 @@
     "vue-tsc": "^1.8.19"
   },
   "peerDependencies": {
-    "unified": "11.0.3",
-    "vue": "3.3.4"
+    "unified": "^11.0.0",
+    "vue": "^3.3.0"
   }
 }

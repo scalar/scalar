@@ -221,7 +221,7 @@ importers:
         specifier: ^2.3.12
         version: 2.3.12(react-dom@18.2.0)(react@18.2.0)
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.0
         version: 3.3.4
     devDependencies:
       '@scalar/api-reference':
@@ -282,7 +282,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/api-reference
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.0
         version: 3.3.4
     devDependencies:
       '@vitejs/plugin-vue':
@@ -316,7 +316,7 @@ importers:
         specifier: workspace:^
         version: link:../../packages/themes
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.0
         version: 3.3.4
       vue-router:
         specifier: ^4.2.4
@@ -392,7 +392,7 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.0
         version: 3.3.4
     devDependencies:
       '@scalar/api-client-proxy':
@@ -571,10 +571,10 @@ importers:
         specifier: ^1.8.3
         version: 1.8.3
       unified:
-        specifier: ^11.0.3
+        specifier: ^11.0.0
         version: 11.0.3
       vue:
-        specifier: 3.3.4
+        specifier: ^3.3.0
         version: 3.3.4
     devDependencies:
       '@etchteam/storybook-addon-css-variables-theme':
@@ -668,7 +668,7 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.0
         version: 3.3.4
     devDependencies:
       '@etchteam/storybook-addon-css-variables-theme':
@@ -817,7 +817,7 @@ importers:
         specifier: workspace:*
         version: link:../api-reference
       express:
-        specifier: 4.18.2
+        specifier: ^4.18.2
         version: 4.18.2
     devDependencies:
       '@types/express':
@@ -842,10 +842,10 @@ importers:
         specifier: ^3.1.9
         version: 3.1.9
       fastify:
-        specifier: 4.23.2
+        specifier: ^4.0.0
         version: 4.23.2
       fastify-plugin:
-        specifier: 4.5.1
+        specifier: ^4.0.0
         version: 4.5.1
     devDependencies:
       '@types/ejs':
@@ -891,7 +891,7 @@ importers:
         specifier: ^0.34.4
         version: 0.34.4(jsdom@22.1.0)
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.0
         version: 3.3.4
 
   packages/hono-api-reference:
@@ -964,10 +964,10 @@ importers:
         specifier: ^11.0.0
         version: 11.0.0
       unified:
-        specifier: ^11.0.3
+        specifier: ^11.0.0
         version: 11.0.3
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.0
         version: 3.3.4
       y-codemirror.next:
         specifier: ^0.3.2
@@ -1041,7 +1041,7 @@ importers:
   packages/themes:
     dependencies:
       vue:
-        specifier: 3.3.4
+        specifier: ^3.3.0
         version: 3.3.4
     devDependencies:
       '@vitejs/plugin-vue':
@@ -1142,7 +1142,7 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(@lezer/common@1.1.0)
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.0
         version: 3.3.4
     devDependencies:
       '@vitejs/plugin-vue':
@@ -1182,7 +1182,7 @@ importers:
         specifier: ^0.34.4
         version: 0.34.4(jsdom@22.1.0)
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.0
         version: 3.3.4
       vue-tsc:
         specifier: ^1.8.19
@@ -1210,7 +1210,7 @@ importers:
         specifier: ^0.34.4
         version: 0.34.4(jsdom@22.1.0)
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.0
         version: 3.3.4
       vue-tsc:
         specifier: ^1.8.19
@@ -1241,7 +1241,7 @@ importers:
         specifier: ^0.34.4
         version: 0.34.4(jsdom@22.1.0)
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.0
         version: 3.3.4
       vue-tsc:
         specifier: ^1.8.19
@@ -1253,7 +1253,7 @@ importers:
         specifier: ^6.3.7
         version: 6.3.7
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.0
         version: 3.3.4
     devDependencies:
       '@vitejs/plugin-vue':
