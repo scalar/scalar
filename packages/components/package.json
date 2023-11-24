@@ -47,7 +47,7 @@
     "cva": "1.0.0-beta.1",
     "nanoid": "^5.0.1",
     "tailwind-merge": "^2.0.0",
-    "vue": "^3.3.4"
+    "vue": "^3.3.0"
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",

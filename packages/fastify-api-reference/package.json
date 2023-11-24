@@ -61,10 +61,10 @@
     "vite-plugin-node-polyfills": "^0.14.1",
     "vite-plugin-static-copy": "^0.17.0",
     "vitest": "^0.34.4",
-    "vue": "^3.3.4"
+    "vue": "^3.3.0"
   },
   "peerDependencies": {
-    "fastify": "4.23.2",
-    "fastify-plugin": "4.5.1"
+    "fastify": "^4.0.0",
+    "fastify-plugin": "^4.0.0"
   }
 }

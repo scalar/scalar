@@ -54,6 +54,6 @@
     "vue-tsc": "^1.8.19"
   },
   "peerDependencies": {
-    "vue": "^3.0.0"
+    "vue": "^3.3.0"
   }
 }

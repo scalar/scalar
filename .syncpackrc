@@ -7,7 +7,8 @@
       ],
       "dependencyTypes": [
         "prod",
-        "dev"
+        "dev",
+        "peer"
       ],
       "dependencies": [
         "**"

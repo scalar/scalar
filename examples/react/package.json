@@ -19,7 +19,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "veaury": "^2.3.12",
-    "vue": "^3.3.4"
+    "vue": "^3.3.0"
   },
   "devDependencies": {
     "@scalar/api-reference": "workspace:*",
