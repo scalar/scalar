@@ -33,10 +33,13 @@ function handleScroll() {
 
   max-width: 1120px;
   margin: auto;
-  padding: 90px 0;
+
+  /* Extend by header height to line up scroll position */
+  padding: calc(90px + var(--refs-header-height)) 0 90px 0;
+  margin-top: calc(-1 * var(--refs-header-height));
 }
 .references-narrow .section {
-  padding: 48px 24px;
+  padding: calc(48px + var(--refs-header-height)) 24px 48px 24px;
 }
 .section:not(:last-of-type) {
   border-bottom: 1px solid
