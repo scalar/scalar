@@ -33,16 +33,20 @@ export function getApiClientRequest({
   )
 
   const requestFromOperation = getRequestFromOperation(operation)
+  const parameters = [
+    ...operation.information.parameters,
+    ...operation.pathParameters,
+  ]
 
   return {
     id: operation.operationId,
     name: operation.name,
     type: request.method,
     path: requestFromOperation.path ?? '',
-    parameters: (operation.information.parameters ?? []).map((parameter) => {
+    parameters: parameters.map((parameter) => {
       return {
         name: parameter.name,
-        value: '',
+        value: parameter.schema?.default ?? '',
       }
     }),
     cookies: request.cookies,
