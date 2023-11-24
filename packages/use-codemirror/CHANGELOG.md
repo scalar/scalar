@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.13
+
+### Patch Changes
+
+- 55246e5: chore: rewrite all package.jsons (including their prod, dev and peer dependency requirements)
+
 ## 0.7.12
 
 ### Patch Changes

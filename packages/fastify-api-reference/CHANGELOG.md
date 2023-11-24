@@ -1,5 +1,14 @@
 # @scalar/fastify-api-reference
 
+## 0.6.66
+
+### Patch Changes
+
+- 55246e5: chore: rewrite all package.jsons (including their prod, dev and peer dependency requirements)
+- Updated dependencies [55246e5]
+- Updated dependencies [f2941f5]
+  - @scalar/api-reference@1.2.3
+
 ## 0.6.65
 
 ### Patch Changes

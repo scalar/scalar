@@ -1,5 +1,13 @@
 # @scalar/use-clipboard
 
+## 0.5.7
+
+### Patch Changes
+
+- 55246e5: chore: rewrite all package.jsons (including their prod, dev and peer dependency requirements)
+- Updated dependencies [55246e5]
+  - @scalar/use-toasts@0.5.7
+
 ## 0.5.6
 
 ### Patch Changes

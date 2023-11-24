@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 0.7.32
+
+### Patch Changes
+
+- 55246e5: chore: rewrite all package.jsons (including their prod, dev and peer dependency requirements)
+- Updated dependencies [55246e5]
+  - @scalar/use-keyboard-event@0.5.4
+  - @scalar/use-codemirror@0.7.13
+  - @scalar/use-modal@0.1.7
+  - @scalar/themes@0.4.1
+
 ## 0.7.31
 
 ### Patch Changes
