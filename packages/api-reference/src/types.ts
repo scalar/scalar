@@ -85,14 +85,14 @@ export type Response = {
 }
 
 export type Information = {
-  description: string
-  operationId: string
-  parameters: Parameters[]
-  responses: Record<string, Response>
-  security: OpenAPIV3.SecurityRequirementObject[]
-  requestBody: RequestBody
-  summary: string
-  tags: string[]
+  description?: string
+  operationId?: string | number
+  parameters?: Parameters[]
+  responses?: Record<string, Response>
+  security?: OpenAPIV3.SecurityRequirementObject[]
+  requestBody?: RequestBody
+  summary?: string
+  tags?: string[]
 }
 
 export type Operation = {
@@ -125,7 +125,7 @@ export type RequestBodyMimeTypes =
   | 'text/plain'
 
 export type TransformedOperation = Operation & {
-  pathParameters: Parameters[]
+  pathParameters?: Parameters[]
   information: {
     requestBody?: {
       content?: Record<
