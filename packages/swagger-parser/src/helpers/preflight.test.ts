@@ -1,6 +1,6 @@
-import { parse } from 'src/helpers/parse'
 import { describe, expect, it } from 'vitest'
 
+import { parse } from '../helpers/parse'
 import { preflight } from './preflight'
 
 describe('preflight', () => {

@@ -2,9 +2,9 @@
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useModal } from '@scalar/use-modal'
 import { isMacOS } from '@scalar/use-tooltip'
-import { type Spec } from 'src/types'
 
 import { useActive } from '../hooks/useActive'
+import { type Spec } from '../types'
 import FlowIcon from './Icon/FlowIcon.vue'
 import SearchModal from './SearchModal.vue'
 
