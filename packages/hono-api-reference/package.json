@@ -6,10 +6,10 @@
     "@scalar/api-reference": "workspace:*"
   },
   "devDependencies": {
-    "hono": "3.9.2",
-    "tsup": "7.2.0",
-    "vite": "4.4.11",
-    "vitest": "0.34.4"
+    "hono": "^3.9.2",
+    "tsup": "^7.2.0",
+    "vite": "^4.4.11",
+    "vitest": "^0.34.4"
   },
   "exports": {
     ".": {
@@ -31,7 +31,7 @@
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "peerDependencies": {
-    "hono": "^3.9.2"
+    "hono": "3.9.2"
   },
   "private": false,
   "repository": {

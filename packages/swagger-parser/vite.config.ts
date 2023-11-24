@@ -1,6 +1,8 @@
 import path from 'path'
 import { defineConfig } from 'vitest/config'
 
+import pkg from './package.json'
+
 export default defineConfig({
   build: {
     lib: {
@@ -13,7 +15,7 @@ export default defineConfig({
       /**
        * Make sure to also externalize any dependencies that you do not want to bundle into your library
        */
-      external: ['@apidevtools/swagger-parser', 'js-yaml'],
+      external: ['vue', ...Object.keys(pkg.dependencies || {})],
     },
   },
   resolve: {

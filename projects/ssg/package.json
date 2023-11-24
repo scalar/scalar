@@ -1,16 +1,16 @@
 {
   "name": "@scalar-org/ssg",
-  "version": "0.0.14",
+  "version": "0.1.0",
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
-    "vue": "3.3.4"
+    "vue": "^3.3.4"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.4.0",
-    "typescript": "5.2.2",
-    "vite": "4.4.11",
-    "vite-ssg": "0.23.4",
-    "vue-tsc": "1.8.19"
+    "@vitejs/plugin-vue": "^4.4.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.11",
+    "vite-ssg": "^0.23.4",
+    "vue-tsc": "^1.8.19"
   },
   "private": true,
   "scripts": {

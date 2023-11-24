@@ -2,15 +2,15 @@
   "name": "@scalar-org/fastify-api-reference",
   "version": "0.5.2",
   "dependencies": {
-    "@fastify/swagger": "8.10.1",
+    "@fastify/swagger": "^8.10.1",
     "@scalar/fastify-api-reference": "workspace:*",
-    "fastify": "4.23.2"
+    "fastify": "^4.23.2"
   },
   "devDependencies": {
-    "nodemon": "3.0.1",
-    "typescript": "5.2.2",
-    "vite": "4.4.11",
-    "vite-node": "0.34.4"
+    "nodemon": "^3.0.1",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.11",
+    "vite-node": "^0.34.4"
   },
   "engines": {
     "node": ">=20"

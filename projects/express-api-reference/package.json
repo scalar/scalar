@@ -2,18 +2,14 @@
   "name": "@scalar-org/express-api-reference",
   "dependencies": {
     "@scalar/express-api-reference": "workspace:^",
-    "express": "4.18.2",
-    "swagger-jsdoc": "6.2.8"
+    "express": "^4.18.2",
+    "swagger-jsdoc": "^6.2.8"
   },
   "devDependencies": {
-    "@types/express": "4.17.21",
-    "@types/swagger-jsdoc": "6.0.3",
-    "nodemon": "3.0.1",
-    "vite-node": "0.34.4"
-  },
-  "peerDependencies": {
     "@types/express": "^4.17.21",
-    "@types/swagger-jsdoc": "^6.0.3"
+    "@types/swagger-jsdoc": "^6.0.3",
+    "nodemon": "^3.0.1",
+    "vite-node": "^0.34.4"
   },
   "private": true,
   "scripts": {

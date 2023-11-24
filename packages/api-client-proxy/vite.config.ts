@@ -1,6 +1,8 @@
 import path from 'path'
 import { defineConfig } from 'vitest/config'
 
+import pkg from './package.json'
+
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
@@ -11,7 +13,7 @@ export default defineConfig({
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
-      external: ['express', 'cors', 'dotenv'],
+      external: ['vue', ...Object.keys(pkg.dependencies || {})],
     },
   },
   resolve: {
