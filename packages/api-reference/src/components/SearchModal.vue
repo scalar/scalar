@@ -191,7 +191,9 @@ const searchResultsWithPlaceholderResults = computed(
 )
 </script>
 <template>
-  <FlowModal :state="modalState">
+  <FlowModal
+    :state="modalState"
+    variant="search">
     <div
       ref="searchModalRef"
       class="ref-search-container">
