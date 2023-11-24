@@ -1,6 +1,6 @@
 {
   "name": "@scalar-org/api-client-proxy",
-  "version": "^0.5.0",
+  "version": "0.5.0",
   "dependencies": {
     "@scalar/api-client-proxy": "workspace:*",
     "dotenv": "^16.3.1"
