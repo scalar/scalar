@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.2.3
+
+### Patch Changes
+
+- 55246e5: chore: rewrite all package.jsons (including their prod, dev and peer dependency requirements)
+- f2941f5: feat: add `metaData` to the configuration to pass meta tags (title, opengraph data …)
+- Updated dependencies [55246e5]
+  - @scalar/use-keyboard-event@0.5.4
+  - @scalar/swagger-editor@0.7.8
+  - @scalar/swagger-parser@0.5.11
+  - @scalar/use-codemirror@0.7.13
+  - @scalar/use-clipboard@0.5.7
+  - @scalar/use-tooltip@0.5.5
+  - @scalar/api-client@0.7.32
+  - @scalar/use-toasts@0.5.7
+  - @scalar/use-modal@0.1.7
+  - @scalar/themes@0.4.1
+
 ## 1.2.2
 
 ### Patch Changes
