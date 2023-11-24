@@ -1,5 +1,5 @@
 {
-  "name": "@scalar-org/web",
+  "name": "@scalar-examples/web",
   "version": "0.4.2",
   "dependencies": {
     "@scalar/api-client": "workspace:*",

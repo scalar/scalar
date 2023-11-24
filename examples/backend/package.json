@@ -1,5 +1,5 @@
 {
-  "name": "@scalar-org/backend",
+  "name": "@scalar-examples/backend",
   "version": "0.5.2",
   "dependencies": {
     "@hocuspocus/extension-logger": "^2.6.1",
