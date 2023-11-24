@@ -26,7 +26,7 @@ export default defineConfig({
       },
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: Object.keys(pkg.dependencies || {}),
+      external: ['vue', ...Object.keys(pkg.dependencies || {})],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps

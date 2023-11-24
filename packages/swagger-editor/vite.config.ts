@@ -17,7 +17,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: Object.keys(pkg.dependencies || {}),
+      external: ['vue', ...Object.keys(pkg.dependencies || {})],
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'index.css') {

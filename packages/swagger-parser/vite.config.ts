@@ -15,7 +15,7 @@ export default defineConfig({
       /**
        * Make sure to also externalize any dependencies that you do not want to bundle into your library
        */
-      external: Object.keys(pkg.dependencies || {}),
+      external: ['vue', ...Object.keys(pkg.dependencies || {})],
     },
   },
   resolve: {

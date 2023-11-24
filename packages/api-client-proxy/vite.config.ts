@@ -13,7 +13,7 @@ export default defineConfig({
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
-      external: Object.keys(pkg.dependencies || {}),
+      external: ['vue', ...Object.keys(pkg.dependencies || {})],
     },
   },
   resolve: {
