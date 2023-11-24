@@ -1,7 +1,7 @@
 {
   "name": "@scalar/components",
   "description": "Scalars component library",
-  "version": "0.0.1",
+  "version": "^0.0.1",
   "dependencies": {
     "@headlessui/vue": "^1.7.16",
     "@vueuse/core": "^10.4.1",

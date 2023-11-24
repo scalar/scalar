@@ -1,6 +1,6 @@
 {
   "name": "@scalar-org/backend",
-  "version": "0.5.2",
+  "version": "^0.5.2",
   "dependencies": {
     "@hocuspocus/extension-logger": "^2.6.1",
     "@hocuspocus/extension-sqlite": "^2.6.1",

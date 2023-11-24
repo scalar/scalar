@@ -47,7 +47,7 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0(eslint-config-prettier@9.0.0)(eslint@8.49.0)(prettier@3.0.3)
       eslint-plugin-storybook:
-        specifier: 0.6.15
+        specifier: ^0.6.15
         version: 0.6.15(eslint@8.49.0)(typescript@5.2.2)
       eslint-plugin-vue:
         specifier: ^9.17.0
@@ -59,7 +59,7 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3
       prettier-plugin-tailwindcss:
-        specifier: 0.5.6
+        specifier: ^0.5.6
         version: 0.5.6(@trivago/prettier-plugin-sort-imports@4.2.0)(prettier@3.0.3)
       syncpack:
         specifier: ^11.2.1
@@ -228,15 +228,9 @@ importers:
       '@scalar/use-tooltip':
         specifier: workspace:*
         version: link:../use-tooltip
-<<<<<<< HEAD
-      '@types/js-yaml':
-        specifier: ^4.0.6
-        version: 4.0.6
       '@unhead/schema':
-        specifier: 1.8.3
+        specifier: ^1.8.3
         version: 1.8.3
-=======
->>>>>>> 8ec0ec98 (chore: refactor how we deal with dependencies)
       '@vcarl/remark-headings':
         specifier: ^0.1.0
         version: 0.1.0
@@ -298,7 +292,7 @@ importers:
         specifier: ^11.0.0
         version: 11.0.0
       unhead:
-        specifier: 1.8.3
+        specifier: ^1.8.3
         version: 1.8.3
       unified:
         specifier: ^11.0.3
@@ -404,12 +398,6 @@ importers:
       '@etchteam/storybook-addon-css-variables-theme':
         specifier: ^1.5.1
         version: 1.5.1(react-dom@18.2.0)(react@18.2.0)
-<<<<<<< HEAD
-=======
-      '@rushstack/eslint-patch':
-        specifier: ^1.3.3
-        version: 1.3.3
->>>>>>> 8ec0ec98 (chore: refactor how we deal with dependencies)
       '@scalar/themes':
         specifier: workspace:^
         version: link:../themes
@@ -446,15 +434,6 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^4.4.0
         version: 4.4.0(vite@4.4.11)(vue@3.3.4)
-<<<<<<< HEAD
-=======
-      '@vue/eslint-config-prettier':
-        specifier: ^8.0.0
-        version: 8.0.0(eslint@8.49.0)(prettier@3.0.3)
-      '@vue/eslint-config-typescript':
-        specifier: ^12.0.0
-        version: 12.0.0(eslint-plugin-vue@9.17.0)(eslint@8.49.0)(typescript@5.2.2)
->>>>>>> 8ec0ec98 (chore: refactor how we deal with dependencies)
       '@vue/test-utils':
         specifier: ^2.4.1
         version: 2.4.1(vue@3.3.4)
@@ -464,18 +443,6 @@ importers:
       autoprefixer:
         specifier: ^10.4.16
         version: 10.4.16(postcss@8.4.31)
-<<<<<<< HEAD
-=======
-      eslint:
-        specifier: ^8.49.0
-        version: 8.49.0
-      eslint-plugin-storybook:
-        specifier: ^0.6.15
-        version: 0.6.15(eslint@8.49.0)(typescript@5.2.2)
-      eslint-plugin-vue:
-        specifier: ^9.17.0
-        version: 9.17.0(eslint@8.49.0)
->>>>>>> 8ec0ec98 (chore: refactor how we deal with dependencies)
       jsdom:
         specifier: ^22.1.0
         version: 22.1.0
@@ -488,15 +455,6 @@ importers:
       postcss:
         specifier: ^8.4.31
         version: 8.4.31
-<<<<<<< HEAD
-=======
-      prettier:
-        specifier: ^3.0.3
-        version: 3.0.3
-      prettier-plugin-tailwindcss:
-        specifier: ^0.5.6
-        version: 0.5.6(@trivago/prettier-plugin-sort-imports@4.2.0)(prettier@3.0.3)
->>>>>>> 8ec0ec98 (chore: refactor how we deal with dependencies)
       react:
         specifier: ^18.2.0
         version: 18.2.0
