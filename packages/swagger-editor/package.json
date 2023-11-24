@@ -1,7 +1,7 @@
 {
   "name": "@scalar/swagger-editor",
   "description": "an editor which is tailored to write OpenAPI spec",
-  "version": "^0.7.7",
+  "version": "0.7.7",
   "author": "Scalar (https://github.com/scalar)",
   "bugs": "https://github.com/scalar/scalar/issues/new",
   "dependencies": {
@@ -58,10 +58,10 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "peerDependencies": {
-    "unified": "^11.0.3",
-    "vue": "^3.3.4",
-    "y-codemirror.next": "^0.3.2",
-    "yjs": "^13.6.8"
+    "unified": "11.0.3",
+    "vue": "3.3.4",
+    "y-codemirror.next": "0.3.2",
+    "yjs": "13.6.8"
   },
   "repository": {
     "type": "git",
