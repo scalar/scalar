@@ -34,8 +34,8 @@ export function getApiClientRequest({
 
   const requestFromOperation = getRequestFromOperation(operation)
   const parameters = [
-    ...operation.information.parameters,
-    ...operation.pathParameters,
+    ...(operation.information.parameters ?? []),
+    ...(operation.pathParameters ?? []),
   ]
 
   return {
