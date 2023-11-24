@@ -59,6 +59,8 @@
   "peerDependencies": {
     "@codemirror/state": "^6.2.1",
     "@hocuspocus/provider": "^2.6.1",
+    "@scalar/themes": "^0.4.0",
+    "@scalar/use-codemirror": "^0.7.12",
     "rehype-external-links": "^3.0.0",
     "rehype-format": "^5.0.0",
     "rehype-highlight": "^7.0.0",
@@ -71,10 +73,8 @@
     "remark-stringify": "^11.0.0",
     "unified": "^11.0.3",
     "vue": "^3.3.4",
-    "yjs": "^13.6.8",
-    "@scalar/themes": "0.4.0",
-    "@scalar/use-codemirror": "0.7.12",
-    "y-codemirror.next": "0.3.2"
+    "y-codemirror.next": "^0.3.2",
+    "yjs": "^13.6.8"
   },
   "repository": {
     "type": "git",
