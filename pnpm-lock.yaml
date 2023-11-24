@@ -501,6 +501,9 @@ importers:
       '@scalar/use-keyboard-event':
         specifier: workspace:*
         version: link:../use-keyboard-event
+      '@scalar/use-markdown':
+        specifier: workspace:*
+        version: link:../use-markdown
       '@scalar/use-modal':
         specifier: workspace:*
         version: link:../use-modal

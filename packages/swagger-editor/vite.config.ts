@@ -10,6 +10,7 @@ export default defineConfig({
   build: {
     cssCodeSplit: false,
     minify: false,
+    ssr: true,
     lib: {
       entry: 'src/index.ts',
       name: '@scalar/swagger-editor',

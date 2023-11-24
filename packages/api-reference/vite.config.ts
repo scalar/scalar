@@ -30,6 +30,7 @@ export default defineConfig({
   ],
   build: {
     emptyOutDir: true,
+    ssr: true,
     cssCodeSplit: false,
     lib: {
       entry: ['src/index.ts'],

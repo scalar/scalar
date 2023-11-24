@@ -60,6 +60,7 @@
     "@scalar/themes": "workspace:*",
     "@scalar/use-clipboard": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
+    "@scalar/use-markdown": "workspace:*",
     "@scalar/use-keyboard-event": "workspace:*",
     "@scalar/use-modal": "workspace:*",
     "@scalar/use-toasts": "workspace:*",

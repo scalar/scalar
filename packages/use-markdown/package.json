@@ -37,7 +37,7 @@
     ]
   },
   "peerDependencies": {
-    "zod": "^3.22.4"
+    "zod": "^3.0.0"
   },
   "scripts": {
     "build": "vite build && pnpm types:build",
