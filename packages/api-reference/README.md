@@ -28,7 +28,7 @@ import { ApiReference } from '@scalar/api-reference'
 </template>
 ```
 
-You can even [mount the component in React](https://github.com/scalar/scalar/blob/main/projects/react/src/App.tsx).
+You can even [mount the component in React](https://github.com/scalar/scalar/blob/main/examples/react/src/App.tsx).
 
 ## Configuration
 
