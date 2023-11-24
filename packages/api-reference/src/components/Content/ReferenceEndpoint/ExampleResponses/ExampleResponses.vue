@@ -50,11 +50,11 @@ const currentResponse = computed(() => {
   const currentStatusCode =
     orderedStatusCodes.value[selectedResponseIndex.value]
 
-  return props.operation.information?.responses[currentStatusCode]
+  return props.operation.information?.responses?.[currentStatusCode]
 })
 
 const currentJsonResponse = computed(
-  () => currentResponse.value.content?.['application/json'],
+  () => currentResponse.value?.content?.['application/json'],
 )
 
 const changeTab = (index: number) => {
