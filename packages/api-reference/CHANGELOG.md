@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.2.2
+
+### Patch Changes
+
+- 81490fb: feat: pass global parameters and parameters to the api client
+- 18bb6a4: fix: offset sections by header height for scrolling
+
 ## 1.2.1
 
 ### Patch Changes
