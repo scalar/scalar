@@ -1,9 +1,44 @@
 {
   "name": "@scalar/api-client-proxy",
   "description": "an api request proxy based on express",
-  "version": "0.5.8",
+  "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
-  "bugs": "https://github.com/scalar/scalar/issues/new",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "keywords": [
+    "api",
+    "express",
+    "proxy"
+  ],
+  "version": "0.5.8",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "test": "vitest",
+    "types:build": "tsc -p tsconfig.build.json",
+    "types:check": "tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "./dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/api-client-proxy"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2"
@@ -20,40 +55,5 @@
     "vite": "^4.4.11",
     "vite-node": "^0.34.4",
     "vitest": "^0.34.4"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "exports": {
-    "import": "./dist/index.js",
-    "require": "./dist/index.cjs"
-  },
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
-  "homepage": "https://github.com/scalar/scalar",
-  "keywords": [
-    "api",
-    "express",
-    "proxy"
-  ],
-  "license": "MIT",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/api-client-proxy"
-  },
-  "scripts": {
-    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "test": "vitest",
-    "types:build": "tsc -p tsconfig.build.json",
-    "types:check": "tsc --noEmit --skipLibCheck"
-  },
-  "type": "module",
-  "types": "dist/src/index.d.ts"
+  }
 }

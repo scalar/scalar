@@ -1,6 +1,18 @@
 {
   "name": "@scalar-examples/echo-server",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "version": "0.5.0",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/echo-server --watch ./"
+  },
+  "type": "module",
   "dependencies": {
     "@scalar/echo-server": "workspace:*",
     "dotenv": "^16.3.1"
@@ -9,13 +21,5 @@
     "nodemon": "^3.0.1",
     "vite": "^4.4.11",
     "vite-node": "^0.34.4"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "private": true,
-  "scripts": {
-    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/echo-server --watch ./"
-  },
-  "type": "module"
+  }
 }

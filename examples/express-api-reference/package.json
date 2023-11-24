@@ -1,5 +1,16 @@
 {
   "name": "@scalar-examples/express-api-reference",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/express-api-reference --watch ./"
+  },
   "dependencies": {
     "@scalar/express-api-reference": "workspace:^",
     "express": "^4.18.2",
@@ -10,9 +21,5 @@
     "@types/swagger-jsdoc": "^6.0.3",
     "nodemon": "^3.0.1",
     "vite-node": "^0.34.4"
-  },
-  "private": true,
-  "scripts": {
-    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/express-api-reference --watch ./"
   }
 }

@@ -39,11 +39,10 @@
     "dev": "./scripts/dev.sh",
     "format": "pnpm prettier --write .",
     "format:check": "pnpm prettier --check .",
-    "format:packages": "pnpm syncpack fix-mismatches || true && pnpm syncpack set-semver-ranges && pnpm syncpack format && pnpm install -r",
+    "format:packages": "pnpm syncpack fix-mismatches || true && pnpm syncpack set-semver-ranges && vite-node scripts/format-package.ts && pnpm install -r",
     "lint": "pnpm -r lint:check",
     "lint:fix": "pnpm -r lint:fix",
     "preview:standalone": "pnpm --filter api-reference preview:standalone",
-    "script:package-files": "vite-node scripts/format-package.ts",
     "test": "pnpm -r test",
     "types:check": "pnpm -r types:check"
   }

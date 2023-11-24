@@ -1,6 +1,19 @@
 {
   "name": "@scalar-examples/fastify-api-reference",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "version": "0.5.2",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/fastify-api-reference --watch ./",
+    "types:check": "tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
   "dependencies": {
     "@fastify/swagger": "^8.10.1",
     "@scalar/fastify-api-reference": "workspace:*",
@@ -11,14 +24,5 @@
     "typescript": "^5.2.2",
     "vite": "^4.4.11",
     "vite-node": "^0.34.4"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "private": true,
-  "scripts": {
-    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/fastify-api-reference --watch ./",
-    "types:check": "tsc --noEmit --skipLibCheck"
-  },
-  "type": "module"
+  }
 }
