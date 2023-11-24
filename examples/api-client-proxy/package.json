@@ -1,5 +1,5 @@
 {
-  "name": "@scalar-org/api-client-proxy",
+  "name": "@scalar-examples/api-client-proxy",
   "version": "0.5.0",
   "dependencies": {
     "@scalar/api-client-proxy": "workspace:*",

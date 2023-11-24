@@ -1,5 +1,5 @@
 {
-  "name": "@scalar-org/hono-api-reference",
+  "name": "@scalar-examples/hono-api-reference",
   "dependencies": {
     "@hono/node-server": "^1.2.0",
     "@hono/zod-openapi": "^0.8.3",

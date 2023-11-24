@@ -1,5 +1,5 @@
 {
-  "name": "@scalar-org/echo-server",
+  "name": "@scalar-examples/echo-server",
   "version": "0.5.0",
   "dependencies": {
     "@scalar/echo-server": "workspace:*",

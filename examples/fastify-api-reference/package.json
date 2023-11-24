@@ -1,5 +1,5 @@
 {
-  "name": "@scalar-org/fastify-api-reference",
+  "name": "@scalar-examples/fastify-api-reference",
   "version": "0.5.2",
   "dependencies": {
     "@fastify/swagger": "^8.10.1",

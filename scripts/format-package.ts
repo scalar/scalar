@@ -50,14 +50,14 @@ const sortKeys = ['dependencies', 'devDependencies', 'scripts']
 const overrides: Record<string, unknown> = {
   license: 'MIT',
   author: 'Scalar (https://github.com/scalar)',
-  bugs: 'https://github.com/scalar/scalar/issues/new',
+  bugs: 'https://github.com/scalar/scalar/issues/new/choose',
   homepage: 'https://github.com/scalar/scalar',
 }
 
 /** Provide default values for some fields */
 const fallbacks: Record<string, unknown> = {
   engines: {
-    node: '>=18',
+    node: '>=20',
   },
 }
 
