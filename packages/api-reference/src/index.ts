@@ -3,6 +3,7 @@ export {
   useApiClientStore,
 } from './components/ApiClientModal.vue'
 export { default as ApiReference } from './components/ApiReference.vue'
+export { default as ApiReferenceClassic } from './components/ApiReferenceClassic.vue'
 export { default as ApiReferenceLayout } from './components/ApiReferenceLayout.vue'
 export { default as ApiReferenceBase } from './components/ApiReferenceBase.vue'
 export { default as Sidebar } from './components/Sidebar.vue'
