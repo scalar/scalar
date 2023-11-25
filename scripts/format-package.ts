@@ -71,6 +71,12 @@ async function formatPackage(filepath: string) {
 
   const data = JSON.parse(file)
 
+  if (data.type !== 'module') {
+    printColor(
+      'brightRed',
+      `Package ${data.name} must be an ESM module with "type"="module"`,
+    )
+  }
   if (
     !data.name.startsWith('@scalar/') &&
     !data.name.startsWith('@scalar-examples/')

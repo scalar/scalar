@@ -1070,20 +1070,19 @@ importers:
         version: 1.8.22(typescript@5.2.2)
 
   packages/use-clipboard:
-    dependencies:
+    devDependencies:
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
-      nanoid:
-        specifier: ^5.0.1
-        version: 5.0.1
-    devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^4.4.0
         version: 4.4.0(vite@4.4.11)(vue@3.3.4)
       '@vitest/coverage-v8':
         specifier: ^0.34.4
         version: 0.34.4(vitest@0.34.4)
+      nanoid:
+        specifier: ^5.0.1
+        version: 5.0.1
       tsc-alias:
         specifier: ^1.8.8
         version: 1.8.8
@@ -1100,50 +1099,47 @@ importers:
   packages/use-codemirror:
     dependencies:
       '@codemirror/lang-html':
-        specifier: ^6.4.6
+        specifier: ^6.0.0
         version: 6.4.6
       '@codemirror/lang-java':
-        specifier: ^6.0.1
+        specifier: ^6.0.0
         version: 6.0.1
       '@codemirror/lang-javascript':
-        specifier: ^6.2.1
+        specifier: ^6.0.0
         version: 6.2.1
       '@codemirror/lang-json':
-        specifier: ^6.0.1
+        specifier: ^6.0.0
         version: 6.0.1
       '@codemirror/lang-python':
-        specifier: ^6.1.3
+        specifier: ^6.0.0
         version: 6.1.3(@codemirror/state@6.2.1)(@codemirror/view@6.20.0)(@lezer/common@1.1.0)
       '@codemirror/language':
-        specifier: ^6.9.1
+        specifier: ^6.0.0
         version: 6.9.1
       '@codemirror/legacy-modes':
-        specifier: ^6.3.3
+        specifier: ^6.0.0
         version: 6.3.3
       '@codemirror/state':
-        specifier: ^6.2.1
+        specifier: ^6.0.0
         version: 6.2.1
       '@codemirror/view':
-        specifier: ^6.20.0
+        specifier: ^6.0.0
         version: 6.20.0
       '@lezer/common':
         specifier: ^1.1.0
         version: 1.1.0
       '@lezer/highlight':
-        specifier: ^1.1.6
+        specifier: ^1.1.0
         version: 1.1.6
       '@lezer/lr':
-        specifier: ^1.3.11
+        specifier: ^1.3.0
         version: 1.3.11
       '@uiw/codemirror-themes':
-        specifier: ^4.21.16
+        specifier: ^4.21.0
         version: 4.21.16(@codemirror/language@6.9.1)(@codemirror/state@6.2.1)(@codemirror/view@6.20.0)
       codemirror:
-        specifier: ^6.0.1
+        specifier: ^6.0.0
         version: 6.0.1(@lezer/common@1.1.0)
-      vue:
-        specifier: ^3.3.0
-        version: 3.3.4
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^4.4.0
@@ -1160,6 +1156,9 @@ importers:
       vitest:
         specifier: ^0.34.4
         version: 0.34.4(jsdom@22.1.0)
+      vue:
+        specifier: ^3.3.0
+        version: 3.3.4
       vue-tsc:
         specifier: ^1.8.19
         version: 1.8.22(typescript@5.2.2)
@@ -1189,11 +1188,10 @@ importers:
         version: 1.8.22(typescript@5.2.2)
 
   packages/use-modal:
-    dependencies:
+    devDependencies:
       '@headlessui/vue':
         specifier: ^1.7.16
         version: 1.7.16(vue@3.3.4)
-    devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^4.4.0
         version: 4.4.0(vite@4.4.11)(vue@3.3.4)
@@ -1217,10 +1215,6 @@ importers:
         version: 1.8.22(typescript@5.2.2)
 
   packages/use-toasts:
-    dependencies:
-      nanoid:
-        specifier: ^5.0.1
-        version: 5.0.1
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^4.4.0
@@ -1228,6 +1222,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^0.34.4
         version: 0.34.4(vitest@0.34.4)
+      nanoid:
+        specifier: ^5.0.0
+        version: 5.0.1
       tsc-alias:
         specifier: ^1.8.8
         version: 1.8.8
@@ -1248,13 +1245,6 @@ importers:
         version: 1.8.22(typescript@5.2.2)
 
   packages/use-tooltip:
-    dependencies:
-      tippy.js:
-        specifier: ^6.3.7
-        version: 6.3.7
-      vue:
-        specifier: ^3.3.0
-        version: 3.3.4
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^4.4.0
@@ -1262,6 +1252,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^0.34.4
         version: 0.34.4(vitest@0.34.4)
+      tippy.js:
+        specifier: ^6.3.7
+        version: 6.3.7
       tsc-alias:
         specifier: ^1.8.8
         version: 1.8.8
@@ -1271,6 +1264,9 @@ importers:
       vitest:
         specifier: ^0.34.4
         version: 0.34.4(jsdom@22.1.0)
+      vue:
+        specifier: ^3.3.0
+        version: 3.3.4
       vue-tsc:
         specifier: ^1.8.19
         version: 1.8.22(typescript@5.2.2)
@@ -3410,7 +3406,6 @@ packages:
       vue: ^3.2.0
     dependencies:
       vue: 3.3.4
-    dev: false
 
   /@hocuspocus/common@2.7.1:
     resolution: {integrity: sha512-mnwBn7b2g23rUmYA1+X+FrIwU9aODmRMWe7ypQdjL/MgzlZWrwqFFr0b9u4AhBrwqRTg+L8KCp8SDkpkt2OTtQ==}
@@ -3896,7 +3891,7 @@ packages:
 
   /@popperjs/core@2.11.8:
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
-    dev: false
+    dev: true
 
   /@radix-ui/number@1.0.1:
     resolution: {integrity: sha512-T5gIdVO2mmPW3NNhjNgEP3cqMXjXL9UbO0BzWcXfvdBs+BohbQxvd/K5hSVKmn9/lbTdsQVKbUcP5WLCwvUbBg==}
@@ -11893,7 +11888,6 @@ packages:
     resolution: {integrity: sha512-vWeVtV5Cw68aML/QaZvqN/3QQXc6fBfIieAlu05m7FZW2Dgb+3f0xc0TTxuJW+7u30t7iSDTV/j3kVI0oJqIfQ==}
     engines: {node: ^18 || >=20}
     hasBin: true
-    dev: false
 
   /natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
@@ -14611,7 +14605,7 @@ packages:
     resolution: {integrity: sha512-E1d3oP2emgJ9dRQZdf3Kkn0qJgI6ZLpyS5z6ZkY1DF3kaQaBsGZsndEpHwx+eC+tYM41HaSNvNtLx8tU57FzTQ==}
     dependencies:
       '@popperjs/core': 2.11.8
-    dev: false
+    dev: true
 
   /titleize@3.0.0:
     resolution: {integrity: sha512-KxVu8EYHDPBdUYdKZdKtU2aj2XfEx9AfjXxE/Aj0vT06w2icA09Vus1rh6eSu1y01akYg6BjIK/hxyLJINoMLQ==}

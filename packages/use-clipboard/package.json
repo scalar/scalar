@@ -41,16 +41,19 @@
     "url": "https://github.com/scalar/scalar.git",
     "directory": "packages/use-clipboard"
   },
-  "dependencies": {
-    "@scalar/use-toasts": "workspace:*",
-    "nanoid": "^5.0.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.4.0",
     "@vitest/coverage-v8": "^0.34.4",
     "tsc-alias": "^1.8.8",
     "vite": "^4.4.11",
     "vitest": "^0.34.4",
-    "vue-tsc": "^1.8.19"
+    "vue-tsc": "^1.8.19",
+    "@scalar/use-toasts": "workspace:*",
+    "nanoid": "^5.0.1"
+  },
+  "peerDependencies": {
+    "@scalar/use-toasts": "workspace:*",
+    "nanoid": "^5.0.1"
   }
 }

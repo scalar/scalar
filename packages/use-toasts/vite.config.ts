@@ -11,17 +11,12 @@ export default defineConfig({
     minify: false,
     lib: {
       entry: ['src/index.ts'],
-      name: '@scalar/use-toasts',
+      name: pkg.name,
       fileName: 'index',
       formats: ['es'],
     },
     rollupOptions: {
-      external: [
-        'vue',
-        ...Object.keys(pkg.dependencies || {}).filter(
-          (item) => !item.startsWith('@scalar'),
-        ),
-      ],
+      external: ['vue', 'nanoid'],
     },
   },
   test: {

@@ -40,14 +40,15 @@
     "url": "https://github.com/scalar/scalar.git",
     "directory": "packages/use-keyboard-event"
   },
+  "dependencies": {},
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.4.0",
     "@vitest/coverage-v8": "^0.34.4",
     "tsc-alias": "^1.8.8",
     "vite": "^4.4.11",
     "vitest": "^0.34.4",
-    "vue": "^3.3.0",
-    "vue-tsc": "^1.8.19"
+    "vue-tsc": "^1.8.19",
+    "vue": "^3.3.0"
   },
   "peerDependencies": {
     "vue": "^3.3.0"
