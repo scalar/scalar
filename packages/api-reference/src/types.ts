@@ -47,9 +47,6 @@ export const DEFAULT_CONFIG: DeepReadonly<ReferenceConfiguration> = {
   },
   proxy: undefined,
   theme: 'default',
-  tabs: {
-    initialContent: 'Getting Started',
-  },
   showSidebar: true,
   isEditable: false,
   hocuspocusConfiguration: undefined,
