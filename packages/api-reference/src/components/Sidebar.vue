@@ -508,12 +508,4 @@ const setRef = (el: SidebarElementType, id: string) => {
     padding-top: 12px;
   }
 }
-
-@media (max-width: 500px) {
-  .header-item-link.header-item-active,
-  .sidebar-section,
-  .sidebar-heading {
-    font-size: var(--theme-micro, var(--default-theme-micro));
-  }
-}
 </style>
