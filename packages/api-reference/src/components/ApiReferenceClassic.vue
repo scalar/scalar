@@ -4,7 +4,7 @@ import { computed, ref } from 'vue'
 
 import { type ReferenceProps, type SpecConfiguration } from '../types'
 import ApiReferenceBase from './ApiReferenceBase.vue'
-import DarkModeToggle from './DarkModeToggle.vue'
+import ClassicHeader from './ClassicHeader.vue'
 import SearchButton from './SearchButton.vue'
 
 const props = defineProps<ReferenceProps>()
@@ -36,10 +36,11 @@ if (config.value?.metaData) {
     :configuration="config"
     @updateContent="content = $event">
     <template #content-start="{ spec }">
-      <SearchButton
-        :searchHotKey="props.configuration?.searchHotKey"
-        :spec="spec" />
-      <DarkModeToggle />
+      <ClassicHeader>
+        <SearchButton
+          :searchHotKey="props.configuration?.searchHotKey"
+          :spec="spec" />
+      </ClassicHeader>
     </template>
   </ApiReferenceBase>
 </template>

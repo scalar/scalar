@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 // State
 const isDark = ref<boolean>(false)
@@ -41,6 +41,12 @@ export function useDarkModeState() {
 
   // Set initial value
   isDark.value = getDarkModeState()
+
+  watch(isDark, (dark) => {
+    if (typeof document === 'undefined') return
+    document.body.classList.toggle('dark-mode', dark)
+    document.body.classList.toggle('light-mode', dark)
+  })
 
   return {
     isDark,
