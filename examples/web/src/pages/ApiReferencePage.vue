@@ -16,9 +16,6 @@ const configuration = reactive<ReferenceConfiguration>({
   isEditable: true,
   showSidebar: true,
   spec: { content },
-  tabs: {
-    initialContent: 'Swagger Editor',
-  },
 })
 
 onMounted(() => {

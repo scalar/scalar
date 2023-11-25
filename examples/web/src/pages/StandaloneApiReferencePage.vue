@@ -9,10 +9,6 @@ const configuration = reactive<ReferenceConfiguration>({
   theme: 'default',
   proxy: 'http://localhost:5051',
   isEditable: true,
-
-  tabs: {
-    initialContent: 'Swagger Editor',
-  },
 })
 </script>
 
