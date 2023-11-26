@@ -18,20 +18,23 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
 
 ## Table of Contents
 
-- [Getting Started](#getting-started)
-  - [From a CDN](#from-a-cdn)
-  - [With Vue.js](#with-vuejs)
-  - [With React](#with-react)
-  - [With Fastify](#with-fastify)
-  - [With Hono](#with-hono)
-  - [With Express](#with-express)
-- [Using our amazing service](#using-our-amazing-service)
-- [Themes](#themes)
-- [Advanced: Styling](#advanced-styling)
-- [Community](#community)
-- [Other packages](#other-packages)
-- [Contributing](#contributing)
-- [License](#license)
+- [Scalar API Reference](#scalar-api-reference)
+  - [Features](#features)
+  - [Table of Contents](#table-of-contents)
+  - [Getting Started](#getting-started)
+    - [From a CDN](#from-a-cdn)
+    - [With Vue.js](#with-vuejs)
+    - [With React](#with-react)
+    - [With Fastify](#with-fastify)
+    - [With Hono](#with-hono)
+    - [With Express](#with-express)
+  - [Using our amazing service](#using-our-amazing-service)
+  - [Themes](#themes)
+  - [Advanced: Styling](#advanced-styling)
+  - [Community](#community)
+  - [Other packages](#other-packages)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Getting Started
 
@@ -215,7 +218,7 @@ Overwrite our CSS variables. We won’t judge.
 }
 ```
 
-We’re using the `default-` prefix for our variables to not overwrite your variables. You can [use all variables without a prefix](https://github.com/scalar/api-reference/blob/main/packages/default-theme/src/theme.css).
+We’re using the `default-` prefix for our variables to not overwrite your variables. You can [use all variables without a prefix](https://github.com/scalar/api-reference/blob/main/packages/themes/src/base.css).
 
 ```css
 /* ✅ Good (without `default` prefix) */
