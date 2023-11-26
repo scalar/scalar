@@ -18,23 +18,20 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
 
 ## Table of Contents
 
-- [Scalar API Reference](#scalar-api-reference)
-  - [Features](#features)
-  - [Table of Contents](#table-of-contents)
-  - [Getting Started](#getting-started)
-    - [From a CDN](#from-a-cdn)
-    - [With Vue.js](#with-vuejs)
-    - [With React](#with-react)
-    - [With Fastify](#with-fastify)
-    - [With Hono](#with-hono)
-    - [With Express](#with-express)
-  - [Using our amazing service](#using-our-amazing-service)
-  - [Themes](#themes)
-  - [Advanced: Styling](#advanced-styling)
-  - [Community](#community)
-  - [Other packages](#other-packages)
-  - [Contributing](#contributing)
-  - [License](#license)
+- [Getting Started](#getting-started)
+  - [From a CDN](#from-a-cdn)
+  - [With Vue.js](#with-vuejs)
+  - [With React](#with-react)
+  - [With Fastify](#with-fastify)
+  - [With Hono](#with-hono)
+  - [With Express](#with-express)
+- [Using our amazing service](#using-our-amazing-service)
+- [Themes](#themes)
+- [Advanced: Styling](#advanced-styling)
+- [Community](#community)
+- [Other packages](#other-packages)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Getting Started
 
