@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.7.36
+
+### Patch Changes
+
+- bc23e62: fix: don’t trim / from the path, if it’s the only character
+
 ## 0.7.35
 
 ### Patch Changes

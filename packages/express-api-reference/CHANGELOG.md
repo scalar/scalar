@@ -1,5 +1,12 @@
 # @scalar/express-api-reference
 
+## 0.0.13
+
+### Patch Changes
+
+- 79cc6ba: feat: custom Express CSS
+  - @scalar/api-reference@1.2.7
+
 ## 0.0.12
 
 ### Patch Changes
