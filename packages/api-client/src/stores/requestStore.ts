@@ -88,6 +88,11 @@ const setActiveRequest = (request: ClientRequestConfig) => {
   Object.assign(activeRequest, request)
 }
 
+// Empty the active response
+const resetActiveResponse = () => {
+  activeRequestId.value = ''
+}
+
 /**
  * View state
  */
@@ -104,6 +109,7 @@ export const useRequestStore = () => ({
   requestHistoryOrder,
   activeRequestId,
   setActiveResponse,
+  resetActiveResponse,
   addRequestToHistory,
   setActiveRequest,
 })

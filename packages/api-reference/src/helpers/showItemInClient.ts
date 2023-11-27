@@ -9,7 +9,7 @@ const { server: serverState, authentication: authenticationState } =
 
 const { toggleApiClient } = useApiClientStore()
 
-const { setActiveRequest } = useRequestStore()
+const { setActiveRequest, resetActiveResponse } = useRequestStore()
 
 export function showItemInClient(operation: TransformedOperation) {
   const request = getApiClientRequest({
@@ -18,6 +18,7 @@ export function showItemInClient(operation: TransformedOperation) {
     operation: operation,
   })
 
+  resetActiveResponse()
   setActiveRequest(request)
 
   toggleApiClient(request, true)
