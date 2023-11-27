@@ -13,7 +13,7 @@
     "spec",
     "swagger"
   ],
-  "version": "0.7.10",
+  "version": "0.7.11",
   "engines": {
     "node": ">=20"
   },

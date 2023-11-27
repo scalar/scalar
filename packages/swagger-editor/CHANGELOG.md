@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.7.11
+
+### Patch Changes
+
+- 2251ea5: chore: remove tableau example
+
 ## 0.7.10
 
 ### Patch Changes
