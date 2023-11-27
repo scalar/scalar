@@ -130,10 +130,15 @@ export async function sendRequest(
     .catch((error) => {
       const { response: errorResponse } = error
 
+      // We add fallbacks where we set the code, status and header type so we can
+      // float all errors now to the user
       return {
+        headers: {
+          'content-type': 'application/json',
+        },
         ...errorResponse,
-        statusCode: errorResponse.status,
-        data: JSON.stringify(errorResponse.data),
+        statusCode: errorResponse?.status ?? 0,
+        data: JSON.stringify(errorResponse?.data ?? { error: error.code }),
       }
     })
 
