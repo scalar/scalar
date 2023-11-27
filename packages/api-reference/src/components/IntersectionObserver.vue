@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { useApiClientStore } from '@scalar/api-client'
 import { useIntersectionObserver } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
+
+import { useNavigation } from '../hooks'
 
 const props = defineProps<{
   id?: string
@@ -12,7 +13,7 @@ const emit = defineEmits<{
   (e: 'intersecting'): void
 }>()
 
-const { setSidebarIdVisibility } = useApiClientStore()
+const { setItemIdVisibility } = useNavigation()
 const intersectionObserverRef = ref<HTMLElement>()
 
 onMounted(() => {
@@ -23,7 +24,7 @@ onMounted(() => {
         return
       }
 
-      setSidebarIdVisibility(props.id, isIntersecting)
+      setItemIdVisibility(props.id, isIntersecting)
 
       if (isIntersecting) {
         emit('intersecting')

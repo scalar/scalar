@@ -1,14 +1,11 @@
 import { reactive, readonly } from 'vue'
 
-export type SidebarIdVisibility = Record<string, boolean>
-
 type State = {
   showApiClient: boolean
   activeApiClientEndpointId: string
   activeItem: any
   snippetType: string
   activeBreadcrumb: string
-  sidebarIdVisibility: SidebarIdVisibility
 }
 
 function defaultState(): State {
@@ -18,7 +15,6 @@ function defaultState(): State {
     activeItem: {},
     snippetType: 'javascript',
     activeBreadcrumb: '',
-    sidebarIdVisibility: {},
   }
 }
 
@@ -51,16 +47,12 @@ function setBreadcrumb(item: string) {
   state.activeBreadcrumb = item
 }
 
-function setSidebarIdVisibility(id: string, visible: boolean) {
-  state.sidebarIdVisibility[id] = visible
-}
-
 export const useApiClientStore = () => ({
   state: readonly(state),
   toggleApiClient,
   setActiveApiClientEndpointId,
   setSnippetType,
   setBreadcrumb,
-  setSidebarIdVisibility,
+
   hideApiClient,
 })

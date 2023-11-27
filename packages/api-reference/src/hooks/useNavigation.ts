@@ -1,5 +1,5 @@
 import { useApiClientStore } from '@scalar/api-client'
-import { computed, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 
 import {
   getHeadingId,
@@ -14,6 +14,14 @@ import {
 import { useTemplateStore } from '../stores/template'
 import type { Spec, Tag, TransformedOperation } from '../types'
 
+export type SidebarIdVisibility = Record<string, boolean>
+
+const sidebarIdVisibility = reactive<SidebarIdVisibility>({})
+
+function setItemIdVisibility(id: string, visible: boolean) {
+  sidebarIdVisibility[id] = visible
+}
+
 // Expand/collapse sidebar items
 const { setCollapsedSidebarItem } = useTemplateStore()
 
@@ -22,7 +30,7 @@ const { state } = useApiClientStore()
 const moreThanOneDefaultTag = (tags?: Tag[]) =>
   tags?.length !== 1 || tags[0].name !== 'default' || tags[0].description !== ''
 
-const isVisible = (id: string) => state.sidebarIdVisibility[id] ?? false
+const isVisible = (id: string) => sidebarIdVisibility[id] ?? false
 
 type SidebarEntry = {
   id: string
@@ -48,6 +56,20 @@ export function useNavigation(options?: { parsedSpec: Spec }) {
   if (options?.parsedSpec) {
     parsedSpec.value = options.parsedSpec
 
+    // Open the first tag section by default
+    watch(
+      parsedSpec,
+      () => {
+        const firstTag = parsedSpec.value?.tags?.[0]
+
+        if (firstTag) {
+          setCollapsedSidebarItem(getTagSectionId(firstTag), true)
+        }
+      },
+      { immediate: true, deep: true },
+    )
+
+    // Watch the spec description for headings
     watch(
       () => parsedSpec.value?.info?.description,
       async () => {
@@ -59,19 +81,6 @@ export function useNavigation(options?: { parsedSpec: Spec }) {
 
         return (headings.value = await updateHeadings(description))
       },
-    )
-
-    // Open the first tag section by default
-    watch(
-      parsedSpec,
-      () => {
-        const firstTag = parsedSpec.value?.tags?.[0]
-
-        if (firstTag) {
-          setCollapsedSidebarItem(getTagSectionId(firstTag), true)
-        }
-      },
-      { immediate: true },
     )
   }
 
@@ -175,5 +184,6 @@ export function useNavigation(options?: { parsedSpec: Spec }) {
   return {
     items,
     activeItemId,
+    setItemIdVisibility,
   }
 }
