@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.0.5
+
+### Patch Changes
+
+- e0354c9: style: moved some tailwind properties to extend for more options
+
 ## 0.0.4
 
 ### Patch Changes

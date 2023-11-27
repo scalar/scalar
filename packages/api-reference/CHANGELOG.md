@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.2.6
+
+### Patch Changes
+
+- ed7cc0d: fix: remove leaky header css
+- Updated dependencies [2251ea5]
+- Updated dependencies [fdaabfe]
+- Updated dependencies [fdaabfe]
+  - @scalar/swagger-editor@0.7.11
+  - @scalar/api-client@0.7.35
+
 ## 1.2.5
 
 ### Patch Changes

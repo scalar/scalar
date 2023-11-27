@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.11
+
+### Patch Changes
+
+- fdaabfe: fix: surface proxy internal service errors
+
 ## 0.5.10
 
 ### Patch Changes

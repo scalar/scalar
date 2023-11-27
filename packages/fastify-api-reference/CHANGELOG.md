@@ -1,5 +1,16 @@
 # @scalar/fastify-api-reference
 
+## 0.7.0
+
+### Minor Changes
+
+- 4fc4ba8: feat: add terser minification to fastify integration
+
+### Patch Changes
+
+- Updated dependencies [ed7cc0d]
+  - @scalar/api-reference@1.2.6
+
 ## 0.6.68
 
 ### Patch Changes

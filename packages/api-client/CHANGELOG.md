@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 0.7.35
+
+### Patch Changes
+
+- fdaabfe: fix: surface proxy internal service errors
+- fdaabfe: fix: catch axios errors and show them in the response
+
 ## 0.7.34
 
 ### Patch Changes
