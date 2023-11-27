@@ -3,8 +3,7 @@ import { useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 
 import { getTagSectionId, hasModels } from '../../helpers'
-import { useRefOnMount } from '../../hooks/useRefOnMount'
-import { useTemplateStore } from '../../stores/template'
+import { useNavigation, useRefOnMount } from '../../hooks'
 import type { Spec, Tag } from '../../types'
 import { FlowIcon } from '../Icon'
 import { SectionContainer } from '../Section'
@@ -20,6 +19,8 @@ const props = defineProps<{
   rawSpec: string
 }>()
 
+const { setCollapsedSidebarItem, collapsedSidebarItems } = useNavigation()
+
 const referenceEl = ref<HTMLElement | null>(null)
 
 const isNarrow = ref(true)
@@ -28,8 +29,6 @@ useResizeObserver(
   referenceEl,
   (entries) => (isNarrow.value = entries[0].contentRect.width < 900),
 )
-
-const { state: templateState, setCollapsedSidebarItem } = useTemplateStore()
 
 onMounted(() => {
   if (props.parsedSpec.tags?.length) {
@@ -92,7 +91,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
           <button
             v-if="
               index !== 0 &&
-              !templateState.collapsedSidebarItems[getTagSectionId(tag)] &&
+              !collapsedSidebarItems[getTagSectionId(tag)] &&
               tag.operations?.length > 1
             "
             class="show-more"
@@ -106,7 +105,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
           <template
             v-if="
               index === 0 ||
-              templateState.collapsedSidebarItems[getTagSectionId(tag)] ||
+              collapsedSidebarItems[getTagSectionId(tag)] ||
               tag.operations?.length === 1
             ">
             <ReferenceEndpoint

@@ -3,7 +3,6 @@ import { ref, watch } from 'vue'
 
 import { scrollToId } from '../helpers'
 import { useNavigation } from '../hooks'
-import { useTemplateStore } from '../stores/template'
 import type { Spec } from '../types'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
@@ -12,9 +11,12 @@ const props = defineProps<{
   parsedSpec: Spec
 }>()
 
-const { state: templateState, toggleCollapsedSidebarItem } = useTemplateStore()
-
-const { items, activeItemId } = useNavigation({
+const {
+  items,
+  activeItemId,
+  toggleCollapsedSidebarItem,
+  collapsedSidebarItems,
+} = useNavigation({
   parsedSpec: props.parsedSpec,
 })
 
@@ -71,7 +73,7 @@ const setRef = (el: SidebarElementType, id: string) => {
             type: item.type,
             httpVerb: item.httpVerb,
           }"
-          :open="templateState.collapsedSidebarItems[item.id] ?? false"
+          :open="collapsedSidebarItems[item.id] ?? false"
           @select="
             () => {
               if (item.id) {

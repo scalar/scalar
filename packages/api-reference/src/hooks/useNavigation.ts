@@ -11,7 +11,6 @@ import {
   hasModels,
   showItemInClient,
 } from '../helpers'
-import { useTemplateStore } from '../stores/template'
 import type { Spec, Tag, TransformedOperation } from '../types'
 
 export type SidebarEntry = {
@@ -37,15 +36,18 @@ function setItemIdVisibility(id: string, visible: boolean) {
 
 const isVisible = (id: string) => sidebarIdVisibility[id] ?? false
 
-// Expand/collapse sidebar items
-const { setCollapsedSidebarItem } = useTemplateStore()
+// Track which sidebar items are collapsed
+type CollapsedSidebarItems = Record<string, boolean>
 
-// Check whether the API client is visible
-const { state } = useApiClientStore()
+const collapsedSidebarItems = reactive<CollapsedSidebarItems>({})
 
-// Check whether there is more than one default tag
-const moreThanOneDefaultTag = (tags?: Tag[]) =>
-  tags?.length !== 1 || tags[0].name !== 'default' || tags[0].description !== ''
+function toggleCollapsedSidebarItem(key: string) {
+  collapsedSidebarItems[key] = !collapsedSidebarItems[key] ?? true
+}
+
+function setCollapsedSidebarItem(key: string, value: boolean) {
+  collapsedSidebarItems[key] = value
+}
 
 // Track headings in the spec description
 const headings = ref<any[]>([])
@@ -70,6 +72,15 @@ const items = computed((): SidebarEntry[] => {
 
   // Tags & Operations
   const firstTag = parsedSpec.value?.tags?.[0]
+
+  // Check whether there is more than one default tag
+  const moreThanOneDefaultTag = (tags?: Tag[]) =>
+    tags?.length !== 1 ||
+    tags[0].name !== 'default' ||
+    tags[0].description !== ''
+
+  // Check whether the API client is visible
+  const { state } = useApiClientStore()
 
   const operationEntries: SidebarEntry[] | undefined =
     firstTag &&
@@ -190,6 +201,10 @@ export function useNavigation(options?: { parsedSpec: Spec }) {
   return {
     items,
     activeItemId,
+    sidebarIdVisibility,
     setItemIdVisibility,
+    collapsedSidebarItems,
+    toggleCollapsedSidebarItem,
+    setCollapsedSidebarItem,
   }
 }
