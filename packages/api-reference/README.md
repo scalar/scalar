@@ -107,14 +107,6 @@ Whether the sidebar should be shown.
 <ApiReference :configuration="{ showSidebar: true} />
 ```
 
-#### footerBelowSidebar?: boolean
-
-Whether the footer should be below the content or below both the content _and_ the sidebar.
-
-```vue
-<ApiReference :configuration="{ footerBelowSidebar: true} />
-```
-
 #### searchHotKey?: string
 
 Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)

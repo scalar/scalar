@@ -5,6 +5,8 @@ import {
 } from '@scalar/api-reference'
 import { reactive } from 'vue'
 
+import SlotPlaceholder from '../components/SlotPlaceholder.vue'
+
 const configuration = reactive<ReferenceConfiguration>({
   theme: 'default',
   proxy: 'http://localhost:5051',
@@ -15,7 +17,8 @@ const configuration = reactive<ReferenceConfiguration>({
   },
 })
 </script>
-
 <template>
-  <ApiReference :configuration="configuration" />
+  <ApiReference :configuration="configuration">
+    <template #footer><SlotPlaceholder>footer</SlotPlaceholder></template>
+  </ApiReference>
 </template>
