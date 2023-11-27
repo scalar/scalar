@@ -147,4 +147,25 @@ describe('createApiClientProxy', () => {
         resolve(null)
       })
     }))
+
+  it('keeps a trailing slash', () =>
+    new Promise((resolve) => {
+      const echoServerPort = createEchoServerOnAnyPort()
+      const apiClientProxyPort = createApiClientProxyOnAnyPort()
+
+      fetch(`http://localhost:${apiClientProxyPort}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          method: 'POST',
+          url: `http://localhost:${echoServerPort}/v1/`,
+        }),
+      }).then(async (response) => {
+        expect(JSON.parse((await response.json()).data).path).toBe('/v1/')
+
+        resolve(null)
+      })
+    }))
 })

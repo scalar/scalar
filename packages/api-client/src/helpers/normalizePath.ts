@@ -8,7 +8,7 @@ export const normalizePath = (path?: string) => {
 
   let normalizedPath = path.trim()
 
-  if (normalizedPath.startsWith('/')) {
+  if (normalizedPath.length > 1 && normalizedPath.startsWith('/')) {
     normalizedPath = normalizedPath.slice(1)
   }
 

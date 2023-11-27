@@ -14,4 +14,8 @@ describe('normalizePath', () => {
   it('trims whitespace', async () => {
     expect(normalizePath('foobar ')).toBe('foobar')
   })
+
+  it('keeps a slash if its the single character', async () => {
+    expect(normalizePath('/')).toBe('/')
+  })
 })
