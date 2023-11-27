@@ -166,4 +166,19 @@ describe('sendRequest', () => {
       path: '/',
     })
   })
+
+  it('keeps the trailing slash', async () => {
+    const port = createEchoServerOnAnyPort()
+
+    const request = {
+      url: `http://127.0.0.1:${port}/v1/`,
+    }
+
+    const result = await sendRequest(request)
+
+    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+      method: 'GET',
+      path: '/v1/',
+    })
+  })
 })
