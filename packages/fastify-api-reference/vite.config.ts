@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [nodeShims(), nodeExternals()],
   build: {
     // If minify is enabled, the nodeShims extension doesn’t work.
-    minify: false,
+    minify: 'terser',
     lib: {
       entry: 'src/index.ts',
       name: '@scalar/fastify-api-reference',
