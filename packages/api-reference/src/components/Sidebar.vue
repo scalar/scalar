@@ -1,21 +1,10 @@
 <script setup lang="ts">
-import { useApiClientStore, useRequestStore } from '@scalar/api-client'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
-import {
-  getApiClientRequest,
-  getHeadingId,
-  getHeadingsFromMarkdown,
-  getLowestHeadingLevel,
-  getModelSectionId,
-  getOperationSectionId,
-  getTagSectionId,
-  hasModels,
-  scrollToId,
-} from '../helpers'
-import { useGlobalStore } from '../stores'
+import { scrollToId } from '../helpers'
+import { useNavigation } from '../hooks'
 import { useTemplateStore } from '../stores/template'
-import type { Spec, Tag, TransformedOperation } from '../types'
+import type { Spec } from '../types'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
 
@@ -23,168 +12,10 @@ const props = defineProps<{
   parsedSpec: Spec
 }>()
 
-const {
-  state: templateState,
-  toggleCollapsedSidebarItem,
-  setCollapsedSidebarItem,
-} = useTemplateStore()
+const { state: templateState, toggleCollapsedSidebarItem } = useTemplateStore()
 
-// Open the first tag section by default
-watch(
-  props.parsedSpec,
-  () => {
-    const firstTag = props.parsedSpec.tags?.[0]
-
-    if (firstTag) {
-      setCollapsedSidebarItem(getTagSectionId(firstTag), true)
-    }
-  },
-  { immediate: true },
-)
-
-const { server: serverState, authentication: authenticationState } =
-  useGlobalStore()
-
-const { state, toggleApiClient } = useApiClientStore()
-
-const { setActiveRequest } = useRequestStore()
-
-function showItemInClient(operation: TransformedOperation) {
-  const request = getApiClientRequest({
-    serverState: serverState,
-    authenticationState: authenticationState,
-    operation: operation,
-  })
-
-  setActiveRequest(request)
-
-  toggleApiClient(request, true)
-}
-
-const moreThanOneDefaultTag = (tag: Tag) =>
-  props.parsedSpec?.tags?.length !== 1 ||
-  tag?.name !== 'default' ||
-  tag?.description !== ''
-
-const headings = ref<any[]>([])
-
-watch(
-  () => props?.parsedSpec?.info?.description,
-  async () => {
-    const description = props?.parsedSpec?.info?.description
-
-    if (!description) {
-      return []
-    }
-
-    return (headings.value = await updateHeadings(description))
-  },
-)
-
-const updateHeadings = async (description: string) => {
-  const newHeadings = await getHeadingsFromMarkdown(description)
-  const lowestLevel = getLowestHeadingLevel(newHeadings)
-
-  return newHeadings.filter((heading) => heading.depth === lowestLevel)
-}
-
-const isVisible = (id: string) => state.sidebarIdVisibility[id] ?? false
-
-type SidebarEntry = {
-  id: string
-  title: string
-  type: 'Page' | 'Folder'
-  children?: SidebarEntry[]
-  select?: () => void
-  httpVerb?: string
-}
-
-const items = computed((): SidebarEntry[] => {
-  // Introduction
-  const headingEntries: SidebarEntry[] = headings.value.map((heading) => {
-    return {
-      id: getHeadingId(heading),
-      title: heading.value.toUpperCase(),
-      type: 'Page',
-    }
-  })
-
-  // Tags & Operations
-  const firstTag = props?.parsedSpec?.tags?.[0]
-
-  const operationEntries: SidebarEntry[] | undefined =
-    firstTag &&
-    moreThanOneDefaultTag(firstTag) &&
-    firstTag.operations?.length > 0
-      ? props.parsedSpec.tags?.map((tag) => {
-          return {
-            id: getTagSectionId(tag),
-            title: tag.name.toUpperCase(),
-            type: 'Folder',
-            children: tag.operations?.map((operation) => {
-              return {
-                id: getOperationSectionId(operation, tag),
-                title: operation.name,
-                type: 'Page',
-                httpVerb: operation.httpVerb,
-                select: () => {
-                  if (state.showApiClient) {
-                    showItemInClient(operation)
-                  }
-                },
-              }
-            }),
-          }
-        })
-      : firstTag?.operations?.map((operation) => {
-          return {
-            id: getOperationSectionId(operation, firstTag),
-            title: operation.name,
-            type: 'Page',
-            httpVerb: operation.httpVerb,
-            select: () => {
-              if (state.showApiClient) {
-                showItemInClient(operation)
-              }
-            },
-          }
-        })
-
-  // Models
-  const modelEntries: SidebarEntry[] = hasModels(props.parsedSpec)
-    ? [
-        {
-          id: getModelSectionId(),
-          title: 'MODELS',
-          type: 'Folder',
-          children: Object.keys(props.parsedSpec.components?.schemas ?? {}).map(
-            (name) => {
-              return {
-                id: getModelSectionId(name),
-                title: name,
-                type: 'Page',
-              }
-            },
-          ),
-        },
-      ]
-    : []
-
-  return [...headingEntries, ...(operationEntries ?? []), ...modelEntries]
-})
-
-const activeSidebarItemId = computed(() => {
-  const flattenedItems = items.value.reduce((acc, item) => {
-    acc.push(item)
-
-    if (item.children) {
-      acc.push(...item.children)
-    }
-
-    return acc
-  }, [] as SidebarEntry[])
-
-  return flattenedItems.find((item) => isVisible(item.id))?.id ?? null
+const { items, activeItemId } = useNavigation({
+  parsedSpec: props.parsedSpec,
 })
 
 // This offset determines how far down the sidebar the items scroll
@@ -193,7 +24,7 @@ const scrollerEl = ref<HTMLElement | null>(null)
 const sidebarRefs = ref<{ [key: string]: HTMLElement }>({})
 
 // Watch for the active item changing so we can scroll the sidebar
-watch(activeSidebarItemId, (activeId) => {
+watch(activeItemId, (activeId) => {
   const el = sidebarRefs.value[activeId!]
   if (!el || !scrollerEl.value) return
 
@@ -233,7 +64,7 @@ const setRef = (el: SidebarElementType, id: string) => {
           :key="item.id"
           :ref="(el) => setRef(el as SidebarElementType, item.id)"
           data-sidebar-type="heading"
-          :isActive="activeSidebarItemId === item.id"
+          :isActive="activeItemId === item.id"
           :item="{
             uid: '',
             title: item.title,
@@ -259,7 +90,7 @@ const setRef = (el: SidebarElementType, id: string) => {
                 v-for="child in item.children"
                 :key="child.id"
                 :ref="(el) => setRef(el as SidebarElementType, child.id)"
-                :isActive="activeSidebarItemId === child.id"
+                :isActive="activeItemId === child.id"
                 :item="{
                   uid: '',
                   title: child.title,
