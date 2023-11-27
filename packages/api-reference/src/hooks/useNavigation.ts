@@ -1,4 +1,4 @@
-import { useApiClientStore } from '@scalar/api-client'
+import { ApiClient, useApiClientStore } from '@scalar/api-client'
 import { computed, reactive, ref, watch } from 'vue'
 
 import {
@@ -20,6 +20,7 @@ export type SidebarEntry = {
   children?: SidebarEntry[]
   select?: () => void
   httpVerb?: string
+  show: boolean
 }
 
 // Track the parsed spec
@@ -61,12 +62,16 @@ const updateHeadings = async (description: string) => {
 
 // Create the list of sidebar items from the given spec
 const items = computed((): SidebarEntry[] => {
+  // Check whether the API client is visible
+  const { state } = useApiClientStore()
+
   // Introduction
   const headingEntries: SidebarEntry[] = headings.value.map((heading) => {
     return {
       id: getHeadingId(heading),
       title: heading.value.toUpperCase(),
       type: 'Page',
+      show: !state.showApiClient,
     }
   })
 
@@ -79,9 +84,6 @@ const items = computed((): SidebarEntry[] => {
     tags[0].name !== 'default' ||
     tags[0].description !== ''
 
-  // Check whether the API client is visible
-  const { state } = useApiClientStore()
-
   const operationEntries: SidebarEntry[] | undefined =
     firstTag &&
     moreThanOneDefaultTag(parsedSpec.value?.tags) &&
@@ -91,12 +93,14 @@ const items = computed((): SidebarEntry[] => {
             id: getTagSectionId(tag),
             title: tag.name.toUpperCase(),
             type: 'Folder',
+            show: true,
             children: tag.operations?.map((operation: TransformedOperation) => {
               return {
                 id: getOperationSectionId(operation, tag),
                 title: operation.name,
                 type: 'Page',
                 httpVerb: operation.httpVerb,
+                show: true,
                 select: () => {
                   if (state.showApiClient) {
                     showItemInClient(operation)
@@ -112,6 +116,7 @@ const items = computed((): SidebarEntry[] => {
             title: operation.name,
             type: 'Page',
             httpVerb: operation.httpVerb,
+            show: true,
             select: () => {
               if (state.showApiClient) {
                 showItemInClient(operation)
@@ -127,6 +132,7 @@ const items = computed((): SidebarEntry[] => {
           id: getModelSectionId(),
           title: 'MODELS',
           type: 'Folder',
+          show: !state.showApiClient,
           children: Object.keys(
             parsedSpec.value?.components?.schemas ?? {},
           ).map((name) => {
@@ -134,6 +140,7 @@ const items = computed((): SidebarEntry[] => {
               id: getModelSectionId(name),
               title: name,
               type: 'Page',
+              show: !state.showApiClient,
             }
           }),
         },

@@ -16,6 +16,7 @@ const {
   activeItemId,
   toggleCollapsedSidebarItem,
   collapsedSidebarItems,
+  sidebarIdVisibility,
 } = useNavigation({
   parsedSpec: props.parsedSpec,
 })
@@ -61,58 +62,64 @@ const setRef = (el: SidebarElementType, id: string) => {
       ref="scrollerEl"
       class="pages custom-scroll custom-scroll-self-contain-overflow">
       <SidebarGroup :level="0">
-        <SidebarElement
+        <template
           v-for="item in items"
-          :key="item.id"
-          :ref="(el) => setRef(el as SidebarElementType, item.id)"
-          data-sidebar-type="heading"
-          :isActive="activeItemId === item.id"
-          :item="{
-            uid: '',
-            title: item.title,
-            type: item.type,
-            httpVerb: item.httpVerb,
-          }"
-          :open="collapsedSidebarItems[item.id] ?? false"
-          @select="
-            () => {
-              if (item.id) {
-                scrollToId(item.id)
-              }
+          :key="item.id">
+          <SidebarElement
+            v-if="item.show"
+            :ref="(el) => setRef(el as SidebarElementType, item.id)"
+            data-sidebar-type="heading"
+            :isActive="activeItemId === item.id"
+            :item="{
+              uid: '',
+              title: item.title,
+              type: item.type,
+              httpVerb: item.httpVerb,
+            }"
+            :open="collapsedSidebarItems[item.id] ?? false"
+            @select="
+              () => {
+                if (item.id) {
+                  scrollToId(item.id)
+                }
 
-              if (item.select) {
-                item.select()
+                if (item.select) {
+                  item.select()
+                }
               }
-            }
-          "
-          @toggleOpen="() => toggleCollapsedSidebarItem(item.id)">
-          <template v-if="item.children && item.children?.length > 0">
-            <SidebarGroup :level="0">
-              <SidebarElement
-                v-for="child in item.children"
-                :key="child.id"
-                :ref="(el) => setRef(el as SidebarElementType, child.id)"
-                :isActive="activeItemId === child.id"
-                :item="{
-                  uid: '',
-                  title: child.title,
-                  type: child.type,
-                  httpVerb: child.httpVerb,
-                }"
-                @select="
-                  () => {
-                    if (child.id) {
-                      scrollToId(child.id)
-                    }
+            "
+            @toggleOpen="() => toggleCollapsedSidebarItem(item.id)">
+            <template v-if="item.children && item.children?.length > 0">
+              <SidebarGroup :level="0">
+                <template
+                  v-for="child in item.children"
+                  :key="child.id">
+                  <SidebarElement
+                    v-if="item.show"
+                    :ref="(el) => setRef(el as SidebarElementType, child.id)"
+                    :isActive="activeItemId === child.id"
+                    :item="{
+                      uid: '',
+                      title: child.title,
+                      type: child.type,
+                      httpVerb: child.httpVerb,
+                    }"
+                    @select="
+                      () => {
+                        if (child.id) {
+                          scrollToId(child.id)
+                        }
 
-                    if (child.select) {
-                      child.select()
-                    }
-                  }
-                " />
-            </SidebarGroup>
-          </template>
-        </SidebarElement>
+                        if (child.select) {
+                          child.select()
+                        }
+                      }
+                    " />
+                </template>
+              </SidebarGroup>
+            </template>
+          </SidebarElement>
+        </template>
       </SidebarGroup>
     </div>
     <slot name="sidebar-end" />
