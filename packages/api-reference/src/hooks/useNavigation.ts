@@ -184,6 +184,13 @@ export function useNavigation(options?: { parsedSpec: Spec }) {
     return flattenedItems.find((item) => isVisible(item.id))?.id ?? null
   })
 
+  watch(activeItemId, (id) => {
+    if (id) {
+      const newUrl = `${window.location.origin}${window.location.pathname}#${id}`
+      window.history.replaceState({}, '', newUrl)
+    }
+  })
+
   return {
     items,
     activeItemId,
