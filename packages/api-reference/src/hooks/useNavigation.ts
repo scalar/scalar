@@ -14,14 +14,13 @@ import {
 import { useTemplateStore } from '../stores/template'
 import type { Spec, Tag, TransformedOperation } from '../types'
 
+// Expand/collapse sidebar items
 const { setCollapsedSidebarItem } = useTemplateStore()
 
 const { state } = useApiClientStore()
 
-const moreThanOneDefaultTag = (tag: Tag) =>
-  parsedSpec.value?.tags?.length !== 1 ||
-  tag?.name !== 'default' ||
-  tag?.description !== ''
+const moreThanOneDefaultTag = (tags?: Tag[]) =>
+  tags?.length !== 1 || tags[0].name !== 'default' || tags[0].description !== ''
 
 const isVisible = (id: string) => state.sidebarIdVisibility[id] ?? false
 
@@ -91,7 +90,7 @@ export function useNavigation(options?: { parsedSpec: Spec }) {
 
     const operationEntries: SidebarEntry[] | undefined =
       firstTag &&
-      moreThanOneDefaultTag(firstTag) &&
+      moreThanOneDefaultTag(parsedSpec.value?.tags) &&
       firstTag.operations?.length > 0
         ? parsedSpec.value?.tags?.map((tag: Tag) => {
             return {
