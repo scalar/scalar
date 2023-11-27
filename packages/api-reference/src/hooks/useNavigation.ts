@@ -1,8 +1,7 @@
-import { useApiClientStore, useRequestStore } from '@scalar/api-client'
+import { useApiClientStore } from '@scalar/api-client'
 import { computed, ref, watch } from 'vue'
 
 import {
-  getApiClientRequest,
   getHeadingId,
   getHeadingsFromMarkdown,
   getLowestHeadingLevel,
@@ -10,31 +9,14 @@ import {
   getOperationSectionId,
   getTagSectionId,
   hasModels,
+  showItemInClient,
 } from '../helpers'
-import { useGlobalStore } from '../stores'
 import { useTemplateStore } from '../stores/template'
 import type { Spec, Tag, TransformedOperation } from '../types'
 
 const { setCollapsedSidebarItem } = useTemplateStore()
 
-const { server: serverState, authentication: authenticationState } =
-  useGlobalStore()
-
-const { state, toggleApiClient } = useApiClientStore()
-
-const { setActiveRequest } = useRequestStore()
-
-function showItemInClient(operation: TransformedOperation) {
-  const request = getApiClientRequest({
-    serverState: serverState,
-    authenticationState: authenticationState,
-    operation: operation,
-  })
-
-  setActiveRequest(request)
-
-  toggleApiClient(request, true)
-}
+const { state } = useApiClientStore()
 
 const moreThanOneDefaultTag = (tag: Tag) =>
   parsedSpec.value?.tags?.length !== 1 ||
