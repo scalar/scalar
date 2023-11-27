@@ -35,6 +35,6 @@ export type EditorHeaderTabs =
   | 'Swagger Editor'
   | 'AI Writer'
 
-export type GettingStartedExamples = 'Petstore' | 'Tableau' | 'CoinMarketCap'
+export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
 
 export type OpenSwaggerEditorActions = 'importUrl' | 'uploadFile'
