@@ -63,12 +63,13 @@ fastify.put(
 // Add the plugin
 await fastify.register(fastifyApiReference, {
   routePrefix: '/reference',
+  // customCss: `body { border: 10px solid red; }`,
   apiReference: {
     // theme: 'moon',
     spec: {
       // content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
       // content: () => fastify.swagger(),
-      // url: '/scalar.json',
+      url: '/scalar.json',
     },
   },
 })
