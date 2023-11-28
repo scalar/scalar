@@ -31,7 +31,7 @@ If you have a OpenAPI/Swagger file already, you can pass an URL to the plugin:
 // Render an API reference for a given OpenAPI/Swagger spec URL
 fastify.register(require('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
-  apiReference: {
+  configuration: {
     title: 'Our API Reference',
     spec: {
       url: '/swagger.json',
@@ -45,7 +45,7 @@ With the [@fastify/swagger](https://github.com/fastify/fastify-swagger) you can 
 ```ts
 await fastify.register(require('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
-  apiReference: {
+  configuration: {
     spec: {
       content: () => fastify.swagger(),
     },
@@ -66,7 +66,7 @@ Or, if you just have a static OpenAPI spec, you can directly pass it, too:
 ```ts
 await fastify.register(require('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
-  apiReference: {
+  configuration: {
     spec: {
       content: { … }
     },
@@ -83,7 +83,7 @@ By default, we’re using a custom Fastify theme and it’s beautiful. But you c
 ```ts
 await fastify.register(require('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
-  apiReference: {
+  configuration: {
     theme: 'purple',
   },
 })
