@@ -16,7 +16,7 @@ const getConfiguration = () => {
       configurationScriptElement.getAttribute('data-configuration')
 
     if (configurationFromElement) {
-      return JSON.parse(configurationFromElement)
+      return JSON.parse(configurationFromElement.split('&quot;').join('"'))
     }
   }
 
@@ -54,7 +54,7 @@ const getSpec = () => {
     const specFromScriptTag = specScriptTag.innerHTML
 
     if (specFromScriptTag) {
-      return specFromScriptTag.trim()
+      return JSON.parse(specFromScriptTag.trim())
     }
   }
 
