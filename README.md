@@ -322,6 +322,31 @@ Run the development server:
 Build all packages:
 `$ pnpm run build`
 
+We require a semantic PR title, e. g.:
+
+```
+docs: Add information about semantic commits
+^     ^
+|     |__ Subject
+|________ Prefix
+```
+
+Here are all the prefixes you need to know:
+
+| Prefix   | Description                                                                                                 |
+| -------- | ----------------------------------------------------------------------------------------------------------- |
+| feat     | A new feature                                                                                               |
+| fix      | A bug fix                                                                                                   |
+| docs     | Documentation only changes                                                                                  |
+| style    | Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)      |
+| refactor | A code change that neither fixes a bug nor adds a feature                                                   |
+| perf     | A code change that improves performance                                                                     |
+| test     | Adding missing tests or correcting existing tests                                                           |
+| build    | Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)         |
+| ci       | Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs) |
+| chore    | Other changes that don't modify src or test files                                                           |
+| revert   | Reverts a previous commit                                                                                   |
+
 ## License
 
 The source code in this repository is licensed under [MIT](https://github.com/scalar/api-reference/blob/main/LICENSE).
