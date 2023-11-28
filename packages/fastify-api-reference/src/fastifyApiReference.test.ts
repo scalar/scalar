@@ -12,7 +12,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {
+        configuration: {
           spec: { url: '/swagger.json' },
         },
       })
@@ -33,7 +33,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {
+        configuration: {
           spec: { url: '/swagger.json' },
         },
       })
@@ -56,7 +56,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {
+        configuration: {
           spec: { url: '/swagger.json' },
         },
       })
@@ -85,7 +85,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {
+        configuration: {
           spec: {
             content: spec,
           },
@@ -119,7 +119,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {
+        configuration: {
           spec: { content: () => spec },
         },
       })
@@ -143,7 +143,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {
+        configuration: {
           spec: { url: '/swagger.json' },
         },
       })
@@ -166,7 +166,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {
+        configuration: {
           spec: { url: '/swagger.json' },
         },
       })
@@ -192,7 +192,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {},
+        configuration: {},
       })
 
       fastify.listen({ port: 0 }, function (err, address) {
