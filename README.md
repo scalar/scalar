@@ -311,16 +311,7 @@ This repository contains all our open source projects and there’s definitely m
 
 ## Contributing
 
-Contributions are welcome. We’re using [pnpm](https://pnpm.io/).
-
-Install all dependencies:
-`$ pnpm install`
-
-Run the development server:
-`$ pnpm run dev`
-
-Build all packages:
-`$ pnpm run build`
+Contributions are welcome! Read [`CONTRIBUTING`](https://github.com/scalar/scalar/blob/main/CONTRIBUTING).
 
 ## License
 

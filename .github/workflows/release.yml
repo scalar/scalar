@@ -27,8 +27,10 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Build (packages)
-        run: pnpm build:packages
+      - name: Turborepo cache
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+      - name: Build
+        run: pnpm turbo build
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
@@ -44,3 +46,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Tag main
+        uses: tvdias/github-tagger@v0.0.1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          tag: main
+      - name: Pack packages for a pre-release on GitHub
+        if: steps.changesets.outputs.published == 'false'
+        run: cd packages/api-reference && pnpm pack --pack-destination ../../
+      - name: Create a pre-release on GitHub
+        if: steps.changesets.outputs.published == 'false'
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: 'README.md,scalar-*.tgz'
+          removeArtifacts: true
+          prerelease: true
+          allowUpdates: true
+          tag: main
