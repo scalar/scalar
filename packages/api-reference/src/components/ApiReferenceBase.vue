@@ -101,6 +101,11 @@ function handleAIWriter(
 const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
 </script>
 <template>
+  <component
+    :is="'style'"
+    v-if="currentConfiguration.customCss">
+    {{ currentConfiguration.customCss }}
+  </component>
   <ThemeStyles :id="currentConfiguration?.theme" />
   <FlowToastContainer />
   <ApiReferenceLayout
