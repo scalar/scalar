@@ -9,7 +9,7 @@ const configurationScriptElement = document.querySelector(
   '#api-reference[data-configuration]',
 )
 
-const getConfiguration = () => {
+const getConfiguration = (): Record<string, any> => {
   // <script data-configuration="{ … }" />
   if (configurationScriptElement) {
     const configurationFromElement =
@@ -48,7 +48,7 @@ const getSpecUrl = () => {
   return undefined
 }
 
-const getSpec = () => {
+const getSpec = (): Record<string, any> | undefined => {
   // <script id="api-reference" type="application/json">{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}</script>
   if (specScriptTag) {
     const specFromScriptTag = specScriptTag.innerHTML
@@ -66,7 +66,7 @@ const getSpec = () => {
     const specFromSpecElement = specElement.getAttribute('data-spec')
 
     if (specFromSpecElement) {
-      return specFromSpecElement
+      return JSON.parse(specFromSpecElement.trim())
     }
   }
 
