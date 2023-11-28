@@ -49,6 +49,8 @@ export type ReferenceConfiguration = {
   aiWriterMarkdown?: string
   /** If used, passed data will be added to the HTML header. Read more: https://unhead.unjs.io/usage/composables/use-seo-meta */
   metaData?: MetaFlatInput
+  /** Custom CSS to be added to the page */
+  customCss?: string
 }
 
 /** Default reference configuration */
