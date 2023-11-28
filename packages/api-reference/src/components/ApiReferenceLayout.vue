@@ -107,6 +107,7 @@ const { state } = useApiClientStore()
     :class="[
       {
         'references-editable': showSwaggerEditor,
+        'references-sidebar': configuration.showSidebar,
       },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
@@ -188,7 +189,7 @@ const { state } = useApiClientStore()
 <style scoped>
 /* Configurable Layout Variables */
 .scalar-api-reference {
-  --refs-sidebar-width: var(--theme-sidebar-width, 250px);
+  --refs-sidebar-width: var(--theme-sidebar-width, 0px);
   --refs-header-height: var(--theme-header-height, 0px);
 }
 
@@ -284,6 +285,11 @@ const { state } = useApiClientStore()
     'header header header'
     'navigation editor rendered'
     'footer footer footer';
+}
+
+.references-sidebar {
+  /* Set a default width if references are enabled */
+  --refs-sidebar-width: var(--theme-sidebar-width, 250px);
 }
 
 /* Footer */

@@ -41,6 +41,7 @@ if (config.value?.metaData) {
 </script>
 <template>
   <ApiReferenceBase
+    :class="{ 'scalar-api-references-standalone-mobile': isMobile }"
     v-bind="otherProps"
     :configuration="config"
     @updateContent="content = $event">
@@ -62,10 +63,8 @@ if (config.value?.metaData) {
   </ApiReferenceBase>
 </template>
 <style>
-@media (max-width: 1000px) {
-  :root {
-    /* By default add a header on mobile for the navigation */
-    --theme-header-height: 50px;
-  }
+.scalar-api-references-standalone-mobile {
+  /* By default add a header on mobile for the navigation */
+  --theme-header-height: 50px;
 }
 </style>

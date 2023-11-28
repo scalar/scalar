@@ -44,8 +44,3 @@ if (config.value?.metaData) {
     </template>
   </ApiReferenceBase>
 </template>
-<style>
-:root {
-  --theme-sidebar-width: 0;
-}
-</style>
