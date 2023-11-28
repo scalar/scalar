@@ -57,6 +57,8 @@ if (config.value?.metaData) {
     <template #sidebar-end>
       <DarkModeToggle />
     </template>
+    <!-- Expose the content end slot as a slot for the footer -->
+    <template #content-end><slot name="footer" /></template>
   </ApiReferenceBase>
 </template>
 <style>
