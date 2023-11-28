@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
-import { iconNames } from '../ScalarIcon/icons/iconNames'
+import { ICONS } from '../ScalarIcon/icons/icons'
 import ScalarIconButton from './ScalarIconButton.vue'
 
 const meta = {
   component: ScalarIconButton,
   tags: ['autodocs'],
   argTypes: {
-    icon: { control: 'select', options: iconNames },
+    icon: { control: 'select', options: ICONS },
     label: { control: 'string' },
     variant: {
       control: 'select',

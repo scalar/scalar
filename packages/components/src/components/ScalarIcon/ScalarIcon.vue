@@ -9,10 +9,10 @@ import { type Icon, getIcon } from './icons/'
  * This icon will expand to fit whatever container its in so make sure to constrain it
  */
 const props = defineProps<{
-  name: Icon
+  icon: Icon
 }>()
 
-const data = computed(() => getIcon(props.name))
+const data = computed(() => getIcon(props.icon))
 </script>
 
 <template>

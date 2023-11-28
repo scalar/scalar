@@ -20,7 +20,7 @@
     "lint:fix": "eslint .  --fix",
     "storybook": "storybook dev -p 6006",
     "test": "vitest",
-    "typegen:icons": "ts-node ./src/scripts/typegen.ts",
+    "typegen:icons": "node --no-warnings --loader ts-node/esm ./src/scripts/typegen.ts",
     "types:check": "vue-tsc --noEmit  --composite false"
   },
   "type": "module",

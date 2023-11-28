@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarIcon } from '@scalar/components'
 import { useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 
@@ -6,7 +7,6 @@ import { getTagSectionId, hasModels } from '../../helpers'
 import { useRefOnMount } from '../../hooks/useRefOnMount'
 import { useTemplateStore } from '../../stores/template'
 import type { Spec, Tag } from '../../types'
-import { FlowIcon } from '../Icon'
 import { SectionContainer } from '../Section'
 import EndpointsOverview from './EndpointsOverview.vue'
 import Introduction from './Introduction'
@@ -99,7 +99,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
             type="button"
             @click="setCollapsedSidebarItem(getTagSectionId(tag), true)">
             Show More
-            <FlowIcon
+            <ScalarIcon
               class="show-more-icon"
               icon="ChevronDown" />
           </button>

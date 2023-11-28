@@ -19,7 +19,7 @@ withDefaults(
     :title="label"
     :variant="variant">
     <template #icon>
-      <ScalarIcon :name="icon" />
+      <ScalarIcon :icon="icon" />
     </template>
   </ScalarButton>
 </template>

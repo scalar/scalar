@@ -1,8 +1,8 @@
 <script lang="ts" setup>
+import { ScalarIcon } from '@scalar/components'
 import { onMounted, watchEffect } from 'vue'
 
 import { useDarkModeState } from '../hooks/useDarkModeState'
-import { FlowIcon } from './Icon'
 
 const { toggleDarkMode, isDark } = useDarkModeState()
 
@@ -20,7 +20,7 @@ onMounted(() => {
       class="darklight"
       type="button"
       @click="toggleDarkMode">
-      <FlowIcon icon="LightDarkModeToggle" />
+      <ScalarIcon icon="LightDarkModeToggle" />
       <template v-if="isDark">
         <span>Light Mode</span>
       </template>

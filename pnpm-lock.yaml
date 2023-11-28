@@ -477,6 +477,9 @@ importers:
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../api-client
+      '@scalar/components':
+        specifier: workspace:*
+        version: link:../components
       '@scalar/swagger-editor':
         specifier: workspace:*
         version: link:../swagger-editor

@@ -5,7 +5,7 @@ import ScalarIcon from './ScalarIcon.vue'
 
 describe('ScalarButton', () => {
   it('renders properly', async () => {
-    const wrapper = mount(ScalarIcon, { props: { name: 'Logo' } })
+    const wrapper = mount(ScalarIcon, { props: { icon: 'Logo' } })
 
     // Wait for icon to load
     await flushPromises()

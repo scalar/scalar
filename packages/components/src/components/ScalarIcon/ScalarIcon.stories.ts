@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
 import ScalarIcon from './ScalarIcon.vue'
-import { iconNames } from './icons/iconNames'
+import { ICONS } from './icons/icons'
 
 const meta = {
   component: ScalarIcon,
   tags: ['autodocs'],
   argTypes: {
-    name: { control: 'select', options: iconNames },
+    icon: { control: 'select', options: ICONS },
   },
   parameters: {
     docs: {
@@ -30,5 +30,5 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Base: Story = {
-  args: { name: 'Logo' },
+  args: { icon: 'Logo' },
 }

@@ -1,4 +1,4 @@
-export const iconNames = [
+export const ICONS = [
   'Add',
   'CheckMark',
   'ChevronDown',
@@ -15,5 +15,5 @@ export const iconNames = [
   'LogoMarket',
   'LogoSwagger',
   'Menu',
-  'Search',
+  'Search'
 ]
