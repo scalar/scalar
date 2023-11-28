@@ -44,8 +44,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Create a Pre-Release on GitHub
+      - name: Pack packages for a pre-release on GitHub
+        if: steps.changesets.outputs.published == 'false'
+        run: cd packages/api-reference && pnpm pack --pack-destination ../../
+      - name: Create a pre-release on GitHub
         if: steps.changesets.outputs.published == 'false'
         uses: ncipollo/release-action@v1
         with:
-          artifacts: 'README.md'
+          artifacts: 'README.md,scalar-*.tgz'
