@@ -61,8 +61,8 @@ jobs:
         if: steps.changesets.outputs.published == 'false'
         uses: ncipollo/release-action@v1
         with:
-          name: 'Latest (Pre-Release)'
-          omitBody: true,
+          name: 'Latest'
+          omitBody: true
           artifacts: 'scalar-*.tgz'
           removeArtifacts: true
           prerelease: true
