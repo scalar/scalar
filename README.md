@@ -136,7 +136,7 @@ Our fastify plugin makes it so easy to render a reference, there’s no excuse t
 ```ts
 await fastify.register(require('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
-  apiReference: {
+  configuration: {
     spec: () => fastify.swagger(),
   },
 })
