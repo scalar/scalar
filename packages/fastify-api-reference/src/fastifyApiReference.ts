@@ -1,6 +1,8 @@
 import { type ReferenceConfiguration } from '@scalar/api-reference'
 import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
+import fs from 'fs'
+import path from 'path'
 
 export type FastifyApiReferenceOptions = {
   /**
@@ -119,7 +121,7 @@ export const javascript = (configuration: ReferenceConfiguration) => {
             : JSON.stringify(configuration.spec?.content)
           : ''
       }</script>
-    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+      <script src="/@scalar/fastify-api-reference/browser.js"></script>
   `
 }
 
@@ -207,6 +209,35 @@ const fastifyApiReference: FastifyPluginAsync<
       })
 
       reply.send(html)
+    },
+  })
+
+  fastify.route({
+    method: 'GET',
+    url: '/@scalar/fastify-api-reference/browser.js',
+    // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
+    // @ts-ignore
+    schema: schemaToHideRoute,
+    async handler(_, reply) {
+      reply.header('Content-Type', 'application/javascript; charset=utf-8')
+
+      // const content = fs.readFileSync(
+      //   path.resolve(`${__dirname}/../dist/templates/fastify-api-reference.js`),
+      //   'utf8',
+      // )
+
+      const packageName = '@scalar/api-reference'
+      const jsFilePath = 'dist/browser/standalone.js'
+      const filePath = path.join(
+        __dirname,
+        '../',
+        'node_modules',
+        packageName,
+        jsFilePath,
+      )
+      const fileContent = fs.readFileSync(filePath, 'utf8')
+
+      reply.send(fileContent)
     },
   })
 }
