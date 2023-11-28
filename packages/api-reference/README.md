@@ -107,6 +107,22 @@ Whether the sidebar should be shown.
 <ApiReference :configuration="{ showSidebar: true} />
 ```
 
+### customCss?: string
+
+You can pass custom CSS directly to the component. This is helpful for the integrations for Fastify, Express, Hono and others where you it’s easier to add CSS to the configuration.
+
+In Vue or React you’d probably use other ways to add custom CSS.
+
+```vue
+<script setup>
+const customCss = `* { font-family: "Comic Sans MS", cursive, sans-serif; }`
+</script>
+
+<template>
+  <ApiReference :configuration="{ customCss }" />
+</template>
+```
+
 #### searchHotKey?: string
 
 Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
