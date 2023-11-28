@@ -140,6 +140,7 @@ withDefaults(
   margin: 0;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg))
     var(--theme-radius-lg, var(--default-theme-radius-lg)) 0 0;
+  z-index: 1;
 }
 .modal-content-history .modal-header {
   padding-bottom: 0;

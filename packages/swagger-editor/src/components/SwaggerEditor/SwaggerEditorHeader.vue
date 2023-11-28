@@ -142,7 +142,7 @@ watch(files, () => {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   border-radius: var(--theme-radius, var(--default-theme-radius))
     var(--theme-radius, var(--default-theme-radius)) 0 0;
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  color: var(--theme-color-1, var(--default-theme-color-1));
   font-size: var(--theme-mini, var(--default-theme-mini));
   display: flex;
   align-items: center;
@@ -160,7 +160,7 @@ watch(files, () => {
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .swagger-editor-type {
-  padding: 9px 12px;
+  padding: 9px;
   user-select: none;
   position: relative;
   z-index: 1;
