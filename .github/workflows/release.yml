@@ -27,8 +27,10 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Build (packages)
-        run: pnpm build:packages
+      - name: Turborepo cache
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+      - name: Build
+        run: pnpm turbo build
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
