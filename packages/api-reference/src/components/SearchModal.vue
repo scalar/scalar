@@ -252,6 +252,9 @@ const searchResultsWithPlaceholderResults = computed(
   </FlowModal>
 </template>
 <style scoped>
+a {
+  text-decoration: none;
+}
 /** Input */
 .ref-search-input {
   width: 100%;
