@@ -51,9 +51,11 @@ if (config.value?.metaData) {
       <MobileHeader v-model:open="showMobileDrawer" />
     </template>
     <template #sidebar-start="{ spec }">
-      <SearchButton
-        :searchHotKey="props.configuration?.searchHotKey"
-        :spec="spec" />
+      <div class="scalar-api-references-standalone-search">
+        <SearchButton
+          :searchHotKey="props.configuration?.searchHotKey"
+          :spec="spec" />
+      </div>
     </template>
     <template #sidebar-end>
       <DarkModeToggle />
@@ -66,5 +68,12 @@ if (config.value?.metaData) {
 .scalar-api-references-standalone-mobile {
   /* By default add a header on mobile for the navigation */
   --theme-header-height: 50px;
+}
+</style>
+<style scoped>
+.scalar-api-references-standalone-search {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 12px 6px 12px;
 }
 </style>

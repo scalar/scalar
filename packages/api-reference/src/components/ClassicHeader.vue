@@ -18,9 +18,10 @@ import DarkModeIconToggle from './DarkModeIconToggle.vue'
 
   max-width: var(--refs-content-max-width);
   margin: auto;
+  padding: 12px 0;
 }
 .references-narrow .references-classic-header {
-  padding: 0 24px;
+  padding: 12px 24px;
 }
 .references-classic-header-container {
   padding: 0 60px;

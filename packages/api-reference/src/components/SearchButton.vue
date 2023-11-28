@@ -59,12 +59,9 @@ useKeyboardEvent({
   display: flex;
   align-items: center;
   position: relative;
-  /* Sub */
-  --default-margin-x: 12px;
-  width: calc(100% - 2 * var(--margin-x, var(--default-margin-x)));
-  margin: 12px var(--margin-x, var(--default-margin-x)) 6px
-    var(--margin-x, var(--default-margin-x));
   padding: 0 3px 0 12px;
+  min-width: 220px;
+  max-width: 100%;
   background: var(
     --sidebar-search-background,
     var(
