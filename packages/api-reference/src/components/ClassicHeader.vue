@@ -1,17 +1,11 @@
 <script setup lang="ts">
-import { useDarkModeState } from '../hooks'
-import FlowIcon from './Icon/FlowIcon.vue'
-
-const { toggleDarkMode } = useDarkModeState()
+import DarkModeIconToggle from './DarkModeIconToggle.vue'
 </script>
 <template>
   <div class="references-classic-header-container">
     <div class="references-classic-header">
       <slot />
-      <FlowIcon
-        class="references-classic-header-icon"
-        icon="LightDarkModeToggle"
-        @click="toggleDarkMode" />
+      <DarkModeIconToggle />
     </div>
   </div>
 </template>
