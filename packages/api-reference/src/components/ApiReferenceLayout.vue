@@ -150,13 +150,15 @@ const { state } = useApiClientStore()
     <!-- Rendered reference -->
     <template v-if="showRenderedContent">
       <div class="references-rendered">
-        <slot
-          v-bind="referenceSlotProps"
-          name="content-start" />
         <Content
           :parsedSpec="parsedSpec"
           :rawSpec="rawSpec"
           :ready="true">
+          <template #start>
+            <slot
+              v-bind="referenceSlotProps"
+              name="content-start" />
+          </template>
           <template
             v-if="configuration?.isEditable"
             #empty-state>
@@ -167,10 +169,12 @@ const { state } = useApiClientStore()
               @openSwaggerEditor="swaggerEditorRef?.handleOpenSwaggerEditor"
               @updateContent="$emit('updateContent', $event)" />
           </template>
+          <template #end>
+            <slot
+              v-bind="referenceSlotProps"
+              name="content-end" />
+          </template>
         </Content>
-        <slot
-          v-bind="referenceSlotProps"
-          name="content-end" />
       </div>
       <div
         v-if="$slots.footer"
@@ -191,6 +195,7 @@ const { state } = useApiClientStore()
 .scalar-api-reference {
   --refs-sidebar-width: var(--theme-sidebar-width, 0px);
   --refs-header-height: var(--theme-header-height, 0px);
+  --refs-content-max-width: var(--theme-content-max-width, 1120px);
 }
 
 /* ----------------------------------------------------- */

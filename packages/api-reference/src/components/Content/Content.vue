@@ -72,6 +72,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
     :class="{
       'references-narrow': isNarrow,
     }">
+    <slot name="start" />
     <template v-if="ready">
       <Introduction
         v-if="parsedSpec.info.title || parsedSpec.info.description"
@@ -127,6 +128,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
       class="render-loading">
       <Spinner />
     </div>
+    <slot name="end" />
   </div>
 </template>
 <style scoped>
