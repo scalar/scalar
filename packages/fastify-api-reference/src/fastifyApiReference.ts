@@ -177,7 +177,7 @@ const fastifyApiReference: FastifyPluginAsync<
     async handler(_, reply) {
       reply.header('Content-Type', 'text/html; charset=utf-8')
 
-      let { configuration } = options
+      const { configuration } = options
 
       // If nothing is passed, try to use @fastify/swagger
       if (
@@ -185,21 +185,18 @@ const fastifyApiReference: FastifyPluginAsync<
         !configuration?.spec?.url &&
         hasSwaggerPlugin
       ) {
-        configuration = {
-          ...configuration,
-          // @ts-ignore
-          spec: { content: () => fastify.swagger() },
+        configuration.spec = {
+          content: () => {
+            // @ts-ignore
+            return fastify.swagger()
+          },
         }
       }
 
       // Add the default CSS
-      // TODO: Enable when https://github.com/scalar/scalar/pull/581 is merged.
-      // if (!configuration.customCss && !configuration.theme) {
-      //   configuration = {
-      //     ...configuration,
-      //     customCss: defaultCss,
-      //   }
-      // }
+      if (!configuration.customCss && !configuration.theme) {
+        configuration.customCss = defaultCss
+      }
 
       const html = htmlDocument({
         // Original

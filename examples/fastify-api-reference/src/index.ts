@@ -65,11 +65,11 @@ await fastify.register(fastifyApiReference, {
   routePrefix: '/reference',
   configuration: {
     // theme: 'moon',
-    spec: {
-      // content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
-      // content: () => fastify.swagger(),
-      // url: '/scalar.json',
-    },
+    // spec: {
+    // content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
+    // content: () => fastify.swagger(),
+    // url: '/scalar.json',
+    // },
     // customCss: `body { border: 10px solid red; }`,
   },
 })
