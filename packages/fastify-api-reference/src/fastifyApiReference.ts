@@ -11,7 +11,7 @@ export type FastifyApiReferenceOptions = {
    * @default '/'
    */
   routePrefix: string
-  configuration: ReferenceConfiguration
+  configuration?: ReferenceConfiguration
 }
 
 // This Schema is used to hide the route from the documentation.
@@ -154,11 +154,13 @@ export function htmlDocument(configuration: ReferenceConfiguration) {
 const fastifyApiReference: FastifyPluginAsync<
   FastifyApiReferenceOptions
 > = async (fastify, options) => {
+  let { configuration } = options
   const hasSwaggerPlugin = fastify.hasPlugin('@fastify/swagger')
 
+  // If no spec is passed and @fastify/swagger isn’t loaded, show a warning.
   if (
-    !options.configuration?.spec?.content &&
-    !options.configuration?.spec?.url &&
+    !configuration?.spec?.content &&
+    !configuration?.spec?.url &&
     !hasSwaggerPlugin
   ) {
     console.warn(
@@ -168,6 +170,7 @@ const fastifyApiReference: FastifyPluginAsync<
     return
   }
 
+  // If no theme is passed, use the default theme.
   fastify.route({
     method: 'GET',
     url: options.routePrefix ?? '/',
@@ -177,33 +180,32 @@ const fastifyApiReference: FastifyPluginAsync<
     async handler(_, reply) {
       reply.header('Content-Type', 'text/html; charset=utf-8')
 
-      const { configuration } = options
-
       // If nothing is passed, try to use @fastify/swagger
       if (
         !configuration?.spec?.content &&
         !configuration?.spec?.url &&
         hasSwaggerPlugin
       ) {
-        configuration.spec = {
-          content: () => {
-            // @ts-ignore
-            return fastify.swagger()
+        configuration = {
+          ...configuration,
+          spec: {
+            content: () => {
+              // @ts-ignore
+              return fastify.swagger()
+            },
           },
         }
       }
 
       // Add the default CSS
-      if (!configuration.customCss && !configuration.theme) {
-        configuration.customCss = defaultCss
+      if (!configuration?.customCss && !configuration?.theme) {
+        configuration = {
+          ...configuration,
+          customCss: defaultCss,
+        }
       }
 
-      const html = htmlDocument({
-        // Original
-        ...options.configuration,
-        // Updated configuration
-        ...configuration,
-      })
+      const html = htmlDocument(configuration)
 
       reply.send(html)
     },
