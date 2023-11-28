@@ -46,6 +46,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Tag main
+        uses: tvdias/github-tagger@v0.0.1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          tag: main
       - name: Pack packages for a pre-release on GitHub
         if: steps.changesets.outputs.published == 'false'
         run: cd packages/api-reference && pnpm pack --pack-destination ../../
@@ -54,3 +59,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: 'README.md,scalar-*.tgz'
+          removeArtifacts: true
+          prerelease: true
+          allowUpdates: true
+          tag: main
