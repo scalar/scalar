@@ -161,6 +161,7 @@ export type ContentProperties = {
     format: string
     example: string
     required: string[]
+    enum?: string[]
     description?: string
     properties?: ContentProperties
   }
