@@ -1,5 +1,4 @@
 import vue from '@vitejs/plugin-vue'
-import path from 'path'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { defineConfig } from 'vitest/config'
@@ -44,19 +43,6 @@ export default defineConfig({
         ),
       ],
     },
-  },
-  resolve: {
-    alias: [
-      // Resolve the uncompiled source code for all @scalar packages
-      // It’s working with the alias, too. It’s just required to enable HMR.
-      {
-        // Resolve the uncompiled source code for all @scalar packages
-        // @scalar/* -> packages/*/
-        // (not @scalar/*/style.css)
-        find: /^@scalar\/([^/]+)$/,
-        replacement: path.resolve(__dirname, '../$1/src/index.ts'),
-      },
-    ],
   },
   test: {
     coverage: {

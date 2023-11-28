@@ -1,4 +1,3 @@
-import path from 'path'
 import veauryVitePlugins from 'veaury/vite/index.js'
 import { defineConfig } from 'vite'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
@@ -32,18 +31,5 @@ export default defineConfig({
   ],
   server: {
     port: 5054,
-  },
-  resolve: {
-    alias: [
-      // Resolve the uncompiled source code for all @scalar packages
-      // It’s working with the alias, too. It’s just required to enable HMR.
-      {
-        // Resolve the uncompiled source code for all @scalar packages
-        // @scalar/* -> packages/*/
-        // (not @scalar/*/style.css)
-        find: /^@scalar\/([^/]+)$/,
-        replacement: path.resolve(__dirname, '../../packages/$1/src/index.ts'),
-      },
-    ],
   },
 })
