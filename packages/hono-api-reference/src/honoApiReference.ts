@@ -122,10 +122,11 @@ export const ApiReference = (options: ApiReferenceOptions) => {
   return html`
     <script
       id="api-reference"
+      type="application/json"
       data-url="${options.spec?.url}"
-      data-configuration="${raw(
-        JSON.stringify(options).split('"').join('&quot;'),
-      )}"></script>
+      data-configuration="${JSON.stringify(options).split('"').join('&quot;')}">
+      ${options.spec?.content ? raw(JSON.stringify(options.spec?.content)) : ''}
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
   `
 }
