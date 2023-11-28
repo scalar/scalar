@@ -1,7 +1,4 @@
-import {
-  type EditorHeaderTabs,
-  type HocuspocusConfigurationProp,
-} from '@scalar/swagger-editor'
+import { type HocuspocusConfigurationProp } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
 import type { MetaFlatInput } from '@unhead/schema'
 import type { HarRequest } from 'httpsnippet-lite'
@@ -32,14 +29,6 @@ export type ReferenceConfiguration = {
   proxy?: string
   /** Whether the spec input should show */
   isEditable?: boolean
-  /** The tabs (only visible when isEditable: true) */
-  tabs?: {
-    /** Disabled tabs completely */
-    // enabled?: boolean
-    /** The initial tab to show */
-    initialContent?: EditorHeaderTabs
-    available?: EditorHeaderTabs[]
-  }
   /** Whether to show the sidebar */
   showSidebar?: boolean
   /** Remove the Scalar branding :( */
@@ -47,8 +36,6 @@ export type ReferenceConfiguration = {
   hocuspocusConfiguration?: HocuspocusConfigurationProp
   /** Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
   searchHotKey?: string
-  /** ??? */
-  aiWriterMarkdown?: string
   /** If used, passed data will be added to the HTML header. Read more: https://unhead.unjs.io/usage/composables/use-seo-meta */
   metaData?: MetaFlatInput
   /** Custom CSS to be added to the page */
@@ -64,9 +51,6 @@ export const DEFAULT_CONFIG: DeepReadonly<ReferenceConfiguration> = {
   },
   proxy: undefined,
   theme: 'default',
-  tabs: {
-    initialContent: 'Getting Started',
-  },
   showSidebar: true,
   isEditable: false,
   hocuspocusConfiguration: undefined,

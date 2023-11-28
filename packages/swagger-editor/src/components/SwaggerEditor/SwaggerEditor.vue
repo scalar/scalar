@@ -3,14 +3,10 @@ import { type StatesArray } from '@hocuspocus/provider'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { computed, isRef, ref, watch } from 'vue'
 
-import { isJsonString } from '../../helpers'
 import {
-  type EditorHeaderTabs,
   type OpenSwaggerEditorActions,
   type SwaggerEditorProps,
 } from '../../types'
-import SwaggerEditorAIWriter from './SwaggerEditorAIWriter.vue'
-import SwaggerEditorGettingStarted from './SwaggerEditorGettingStarted.vue'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
@@ -22,12 +18,6 @@ const emit = defineEmits<{
   (e: 'contentUpdate', value: string): void
   (e: 'import', value: string): void
   (e: 'changeTheme', value: ThemeId): void
-  (
-    e: 'startAIWriter',
-    value: string[],
-    swaggerData: string,
-    swaggerType: 'json' | 'yaml',
-  ): void
 }>()
 
 const swaggerEditorHeaderRef = ref<typeof SwaggerEditorHeader | null>(null)
@@ -72,24 +62,12 @@ watch(
   { immediate: true },
 )
 
-const activeTab = ref<EditorHeaderTabs>(
-  props.initialTabState ?? 'Swagger Editor',
-)
-
 const handleOpenSwaggerEditor = (action?: OpenSwaggerEditorActions) => {
-  activeTab.value = 'Swagger Editor'
-
   if (action === 'importUrl') {
     swaggerEditorHeaderRef?.value?.importUrlModal?.show()
   } else if (action === 'uploadFile') {
     swaggerEditorHeaderRef?.value?.openFileDialog()
   }
-}
-
-function handleAIWriter(queries: string[]) {
-  const content = props.value ?? ''
-  const specType = isJsonString(content) ? 'json' : 'yaml'
-  emit('startAIWriter', queries, content, specType)
 }
 
 defineExpose({
@@ -101,40 +79,23 @@ defineExpose({
   <div class="swagger-editor">
     <SwaggerEditorHeader
       ref="swaggerEditorHeaderRef"
-      :activeTab="activeTab"
-      :availableTabs="availableTabs"
       :proxyUrl="proxyUrl"
-      @import="handleContentUpdate"
-      @updateActiveTab="activeTab = $event" />
-    <SwaggerEditorNotification
-      v-if="activeTab === 'Swagger Editor' && formattedError">
+      @import="handleContentUpdate" />
+    <SwaggerEditorNotification v-if="formattedError">
       {{ formattedError }}
     </SwaggerEditorNotification>
     <SwaggerEditorInput
-      v-show="activeTab === 'Swagger Editor'"
       ref="codeMirrorReference"
       :hocuspocusConfiguration="hocuspocusConfiguration"
       :value="value"
       @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
-    <SwaggerEditorAIWriter
-      v-if="activeTab === 'AI Writer'"
-      :aiWriterMarkdown="aiWriterMarkdown ?? ''"
-      @startAIWriter="handleAIWriter" />
-    <SwaggerEditorStatusBar
-      v-if="activeTab === 'Swagger Editor' && awarenessStates.length">
+    <SwaggerEditorStatusBar v-if="awarenessStates.length">
       {{ awarenessStates.length }} user{{
         awarenessStates.length === 1 ? '' : 's'
       }}
       online
     </SwaggerEditorStatusBar>
-    <SwaggerEditorGettingStarted
-      v-show="activeTab === 'Getting Started'"
-      :theme="!theme || theme === 'none' ? 'default' : theme"
-      :value="value"
-      @changeTheme="emit('changeTheme', $event)"
-      @openSwaggerEditor="handleOpenSwaggerEditor"
-      @updateContent="handleContentUpdate" />
   </div>
 </template>
 
