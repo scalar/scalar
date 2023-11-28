@@ -9,11 +9,7 @@ export type FastifyApiReferenceOptions = {
    * @default '/'
    */
   routePrefix: string
-  /**
-   * Some custom CSS to add, overwrites the custom CSS from the Fastify theme.
-   */
-  customCss?: string
-  apiReference: ReferenceConfiguration
+  configuration: ReferenceConfiguration
 }
 
 // This Schema is used to hide the route from the documentation.
@@ -23,7 +19,7 @@ const schemaToHideRoute = {
 }
 
 /**
- * The custom theme CSS for the API Reference.
+ * The Fastify custom theme CSS
  */
 export const defaultCss = `
 :root {
@@ -109,18 +105,18 @@ export const defaultCss = `
 /**
  * The HTML to load the @scalar/api-reference JavaScript package.
  */
-export const javascript = (options: ReferenceConfiguration) => {
+export const javascript = (configuration: ReferenceConfiguration) => {
   return `
     <script
       id="api-reference"
       type="application/json"
-      data-configuration="${JSON.stringify(options)
+      data-configuration="${JSON.stringify(configuration)
         .split('"')
         .join('&quot;')}">${
-        options.spec?.content
-          ? typeof options.spec?.content === 'function'
-            ? JSON.stringify(options.spec?.content())
-            : JSON.stringify(options.spec?.content)
+        configuration.spec?.content
+          ? typeof configuration.spec?.content === 'function'
+            ? JSON.stringify(configuration.spec?.content())
+            : JSON.stringify(configuration.spec?.content)
           : ''
       }</script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
@@ -130,7 +126,7 @@ export const javascript = (options: ReferenceConfiguration) => {
 /**
  * The HTML template to render the API Reference.
  */
-export function htmlDocument(options: FastifyApiReferenceOptions) {
+export function htmlDocument(configuration: ReferenceConfiguration) {
   return `
 <!DOCTYPE html>
 <html>
@@ -144,18 +140,10 @@ export function htmlDocument(options: FastifyApiReferenceOptions) {
       body {
         margin: 0;
       }
-
-      ${
-        options.apiReference?.theme
-          ? null
-          : options.customCss
-          ? options.customCss
-          : defaultCss
-      }
     </style>
   </head>
   <body>
-    ${javascript(options.apiReference)}
+    ${javascript(configuration)}
   </body>
 </html>
 `
@@ -167,8 +155,8 @@ const fastifyApiReference: FastifyPluginAsync<
   const hasSwaggerPlugin = fastify.hasPlugin('@fastify/swagger')
 
   if (
-    !options.apiReference?.spec?.content &&
-    !options.apiReference?.spec?.url &&
+    !options.configuration?.spec?.content &&
+    !options.configuration?.spec?.url &&
     !hasSwaggerPlugin
   ) {
     console.warn(
@@ -187,24 +175,36 @@ const fastifyApiReference: FastifyPluginAsync<
     async handler(_, reply) {
       reply.header('Content-Type', 'text/html; charset=utf-8')
 
-      let mergedOptions = options
+      let { configuration } = options
 
+      // If nothing is passed, try to use @fastify/swagger
       if (
-        !options.apiReference?.spec?.content &&
-        !options.apiReference?.spec?.url &&
+        !configuration?.spec?.content &&
+        !configuration?.spec?.url &&
         hasSwaggerPlugin
       ) {
-        mergedOptions = {
-          ...options,
-          apiReference: {
-            ...options.apiReference,
-            // @ts-ignore
-            spec: { content: () => fastify.swagger() },
-          },
+        configuration = {
+          ...configuration,
+          // @ts-ignore
+          spec: { content: () => fastify.swagger() },
         }
       }
 
-      const html = htmlDocument(mergedOptions)
+      // Add the default CSS
+      // TODO: Enable when https://github.com/scalar/scalar/pull/581 is merged.
+      // if (!configuration.customCss && !configuration.theme) {
+      //   configuration = {
+      //     ...configuration,
+      //     customCss: defaultCss,
+      //   }
+      // }
+
+      const html = htmlDocument({
+        // Original
+        ...options.configuration,
+        // Updated configuration
+        ...configuration,
+      })
 
       reply.send(html)
     },
