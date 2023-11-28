@@ -116,7 +116,11 @@ export const ApiReference = (options: ApiReferenceOptions) => {
       data-configuration="${JSON.stringify(options)
         .split('"')
         .join('&quot;')}">${
-        options.spec?.content ? JSON.stringify(options.spec?.content) : ''
+        options.spec?.content
+          ? typeof options.spec?.content === 'function'
+            ? JSON.stringify(options.spec?.content())
+            : JSON.stringify(options.spec?.content)
+          : ''
       }</script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
   `
