@@ -8,6 +8,7 @@ import { computed, ref, watch } from 'vue'
 import {
   getApiClientRequest,
   getHarRequest,
+  getQueryParametersFromOperation,
   getRequestFromAuthentication,
   getRequestFromOperation,
   getUrlFromServerState,
@@ -80,13 +81,17 @@ watch(
 )
 
 // Open API Client
+// TODO: Use helper
 const showItemInClient = () => {
   const apiClientRequest = getApiClientRequest({
     serverState: serverState,
     authenticationState: authenticationState,
     operation: props.operation,
   })
-  setActiveRequest(apiClientRequest)
+  setActiveRequest({
+    ...apiClientRequest,
+    query: getQueryParametersFromOperation(props.operation),
+  })
   toggleApiClient()
 }
 
