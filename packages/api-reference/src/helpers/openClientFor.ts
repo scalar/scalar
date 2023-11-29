@@ -1,9 +1,6 @@
 import { useApiClientStore, useRequestStore } from '@scalar/api-client'
 
-import {
-  getApiClientRequest,
-  getQueryParametersFromOperation,
-} from '../helpers'
+import { getApiClientRequest } from '../helpers'
 import { useGlobalStore } from '../stores'
 import type { TransformedOperation } from '../types'
 
@@ -26,10 +23,7 @@ export function openClientFor(operation: TransformedOperation) {
   resetActiveResponse()
 
   // Set the new API client request
-  setActiveRequest({
-    ...request,
-    query: getQueryParametersFromOperation(operation, 'query'),
-  })
+  setActiveRequest(request)
 
   toggleApiClient(request, true)
 }

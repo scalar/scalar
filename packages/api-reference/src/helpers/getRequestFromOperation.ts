@@ -3,7 +3,7 @@ import type {
   RequestBodyMimeTypes,
   TransformedOperation,
 } from '../types'
-import { getExampleFromSchema } from './getExampleFromSchema'
+import { getExampleFromSchema, getQueryParametersFromOperation } from './'
 import { json2xml } from './json2xml'
 
 export const getRequestFromOperation = (
@@ -31,8 +31,13 @@ export const getRequestFromOperation = (
   return {
     method: operation.httpVerb.toUpperCase(),
     path,
-    headers: requestBody?.headers,
+    headers: [
+      ...getQueryParametersFromOperation(operation, 'header'),
+      ...(requestBody?.headers ?? []),
+    ],
     postData: requestBody?.postData,
+    queryString: getQueryParametersFromOperation(operation, 'query'),
+    cookies: getQueryParametersFromOperation(operation, 'cookie'),
   }
 }
 
