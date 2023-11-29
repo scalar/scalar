@@ -39,6 +39,7 @@ const configProxy = computed({
 <template>
   <ApiReferenceBase
     :configuration="configuration"
+    @changeTheme="configuration.theme = $event"
     @updateContent="(v) => (content = v)">
     <template #header>
       <DevToolbar v-model="configProxy" />
