@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.3.0
+
+### Minor Changes
+
+- 37b974c: feat: expose footer slot on standalone component
+
+### Patch Changes
+
+- b77d087: feat: add a customCss property to the configuration object
+
 ## 1.2.7
 
 ### Patch Changes
