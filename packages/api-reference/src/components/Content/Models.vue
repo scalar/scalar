@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 import { getModelSectionId } from '../../helpers'
-import { useTemplateStore } from '../../stores/template'
+import { useNavigation } from '../../hooks'
 import { type Components } from '../../types'
 import { Anchor } from '../Anchor'
 import {
@@ -18,12 +18,12 @@ const props = defineProps<{
   components?: Components
 }>()
 
-const { state: templateState } = useTemplateStore()
+const { collapsedSidebarItems } = useNavigation()
 
 const showAllModels = computed(
   () =>
     Object.keys(props.components?.schemas ?? {}).length <= 3 ||
-    templateState.collapsedSidebarItems[getModelSectionId()],
+    collapsedSidebarItems[getModelSectionId()],
 )
 
 const models = computed(() => {

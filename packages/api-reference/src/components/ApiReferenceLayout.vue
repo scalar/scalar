@@ -7,7 +7,7 @@ import { type ThemeId } from '@scalar/themes'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
-import { useTemplateStore } from '../stores/template'
+import { useNavigation } from '../hooks'
 import type {
   ReferenceConfiguration,
   ReferenceLayoutSlot,
@@ -50,7 +50,7 @@ useResizeObserver(documentEl, (entries) => {
 // Scroll to hash if exists
 const initiallyScrolled = ref(false)
 const tagRegex = /#(tag\/[^/]*)/
-const { setCollapsedSidebarItem } = useTemplateStore()
+const { setCollapsedSidebarItem } = useNavigation()
 
 // Wait until we have a parsed spec
 watch(props.parsedSpec, async (val) => {
