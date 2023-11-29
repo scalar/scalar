@@ -1,8 +1,8 @@
 import { type ReferenceConfiguration } from '@scalar/api-reference'
 import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
-import fs from 'fs'
-import path from 'path'
+
+import { getJavaScriptFile } from './utils'
 
 export type FastifyApiReferenceOptions = {
   /**
@@ -170,6 +170,9 @@ const fastifyApiReference: FastifyPluginAsync<
     return
   }
 
+  // Read the JavaScript file once.
+  const fileContent = getJavaScriptFile()
+
   // If no theme is passed, use the default theme.
   fastify.route({
     method: 'GET',
@@ -219,23 +222,6 @@ const fastifyApiReference: FastifyPluginAsync<
     schema: schemaToHideRoute,
     async handler(_, reply) {
       reply.header('Content-Type', 'application/javascript; charset=utf-8')
-
-      // const content = fs.readFileSync(
-      //   path.resolve(`${__dirname}/../dist/templates/fastify-api-reference.js`),
-      //   'utf8',
-      // )
-
-      const packageName = '@scalar/api-reference'
-      const jsFilePath = 'dist/browser/standalone.js'
-      const filePath = path.join(
-        __dirname,
-        '../',
-        'node_modules',
-        packageName,
-        jsFilePath,
-      )
-      const fileContent = fs.readFileSync(filePath, 'utf8')
-
       reply.send(fileContent)
     },
   })
