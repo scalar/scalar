@@ -107,7 +107,7 @@ defineExpose({ el })
       <ScalarIcon
         v-if="item?.type === ElementType.Link"
         class="link-icon"
-        name="ExternalLink"
+        icon="ExternalLink"
         width="16px" />
     </div>
     <slot v-if="open" />

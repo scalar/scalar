@@ -46,6 +46,7 @@
   "dependencies": {
     "@codemirror/state": "^6.2.1",
     "@hocuspocus/provider": "^2.6.1",
+    "@scalar/components": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-modal": "workspace:*",

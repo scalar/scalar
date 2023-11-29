@@ -930,6 +930,9 @@ importers:
       '@hocuspocus/provider':
         specifier: ^2.6.1
         version: 2.6.1(y-protocols@1.0.6)(yjs@13.6.8)
+      '@scalar/components':
+        specifier: workspace:*
+        version: link:../components
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
