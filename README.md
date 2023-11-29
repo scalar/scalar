@@ -310,10 +310,6 @@ This repository contains all our open source projects and there’s definitely m
 | [@scalar/use-toasts](https://github.com/scalar/scalar/tree/main/packages/use-toasts)                       | display toasts in Vue                                 |
 | [@scalar/use-tooltip](https://github.com/scalar/scalar/tree/main/packages/use-tooltip)                     | tooltips in Vue                                       |
 
-## Contributing
-
-Contributions are welcome! Read [`CONTRIBUTING`](https://github.com/scalar/scalar/blob/main/CONTRIBUTING).
-
 ## Contributors
 
 <!-- readme: collaborators,contributors -start -->
@@ -428,6 +424,8 @@ Contributions are welcome! Read [`CONTRIBUTING`](https://github.com/scalar/scala
     </td></tr>
 </table>
 <!-- readme: collaborators,contributors -end -->
+
+Contributions are welcome! Read [`CONTRIBUTING`](https://github.com/scalar/scalar/blob/main/CONTRIBUTING).
 
 ## License
 
