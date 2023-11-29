@@ -7,7 +7,7 @@ import type {
 } from '../types'
 import {
   getHarRequest,
-  getQueryParametersFromOperation,
+  getParametersFromOperation,
   getRequestFromAuthentication,
   getRequestFromOperation,
   getUrlFromServerState,
@@ -34,7 +34,7 @@ export function getApiClientRequest({
   )
 
   const requestFromOperation = getRequestFromOperation(operation)
-  const variables = getQueryParametersFromOperation(operation, 'path')
+  const variables = getParametersFromOperation(operation, 'path')
 
   return {
     id: operation.operationId,

@@ -5,7 +5,7 @@ import type { TransformedOperation } from '../types'
  *
  * Example: [ { name: 'foobar', value: '' } ]
  */
-export function getQueryParametersFromOperation(
+export function getParametersFromOperation(
   operation: TransformedOperation,
   where: 'query' | 'path' | 'header' | 'cookie',
 ): any {
