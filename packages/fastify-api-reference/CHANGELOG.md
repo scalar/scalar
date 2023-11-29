@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 0.7.3
+
+### Patch Changes
+
+- 2bfab93: fix: JS is missing
+
 ## 0.7.2
 
 ### Patch Changes
