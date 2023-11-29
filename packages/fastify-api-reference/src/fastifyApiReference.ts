@@ -220,11 +220,6 @@ const fastifyApiReference: FastifyPluginAsync<
     async handler(_, reply) {
       reply.header('Content-Type', 'application/javascript; charset=utf-8')
 
-      // const content = fs.readFileSync(
-      //   path.resolve(`${__dirname}/../dist/templates/fastify-api-reference.js`),
-      //   'utf8',
-      // )
-
       const packageName = '@scalar/api-reference'
       const jsFilePath = 'dist/browser/standalone.js'
       const filePath = path.join(
