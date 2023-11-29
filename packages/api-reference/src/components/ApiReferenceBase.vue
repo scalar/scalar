@@ -30,6 +30,10 @@ const emit = defineEmits<{
   ): void
 }>()
 
+defineOptions({
+  inheritAttrs: false,
+})
+
 type ReferenceSlot = Exclude<ReferenceLayoutSlot, 'editor'>
 
 const slots = defineSlots<{
@@ -109,6 +113,7 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
   <ThemeStyles :id="currentConfiguration?.theme" />
   <FlowToastContainer />
   <ApiReferenceLayout
+    v-bind="$attrs"
     :configuration="currentConfiguration"
     :parsedSpec="parsedSpecRef"
     :rawSpec="rawSpecRef"

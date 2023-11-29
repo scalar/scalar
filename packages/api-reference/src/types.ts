@@ -6,7 +6,7 @@ import { type ThemeId } from '@scalar/themes'
 import type { MetaFlatInput } from '@unhead/schema'
 import type { HarRequest } from 'httpsnippet-lite'
 import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
-import { type DeepReadonly } from 'vue'
+import { type DeepReadonly, type Slot } from 'vue'
 
 export type ReferenceProps = {
   configuration?: ReferenceConfiguration
@@ -24,6 +24,8 @@ export type SpecConfiguration = {
 export type ReferenceConfiguration = {
   /** A string to use one of the color presets */
   theme?: ThemeId
+  /** The layout to use for the references */
+  layout?: ReferenceLayoutType
   /** The Swagger/OpenAPI spec to render */
   spec?: SpecConfiguration
   /** URL to a request proxy for the API client */
@@ -310,6 +312,17 @@ export type HarRequestWithPath = HarRequest & {
   path: string
 }
 
+export type ReferenceLayoutType = 'modern' | 'classic'
+
+/** Slots required for standalone reference components */
+export type ReferenceSlot = 'footer'
+
+export type ReferenceSlots = {
+  // None of our slots should have any slot props
+  [x in ReferenceSlot]: Slot<Record<string, never>>
+}
+
+/** Slots required for reference base / layout component */
 export type ReferenceLayoutSlot =
   | 'header'
   | 'footer'
