@@ -32,7 +32,7 @@ const getSpecUrl = () => {
 
   // <script id="api-reference" data-url="/scalar.json" />
   if (specScriptTag) {
-    const urlFromScriptTag = specScriptTag.getAttribute('data-url')
+    const urlFromScriptTag = specScriptTag.getAttribute('data-url')?.trim()
 
     if (urlFromScriptTag) {
       return urlFromScriptTag
@@ -57,10 +57,10 @@ const getSpecUrl = () => {
 const getSpec = (): Record<string, any> | undefined => {
   // <script id="api-reference" type="application/json">{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}</script>
   if (specScriptTag) {
-    const specFromScriptTag = specScriptTag.innerHTML
+    const specFromScriptTag = specScriptTag.innerHTML?.trim()
 
     if (specFromScriptTag) {
-      return JSON.parse(specFromScriptTag.trim())
+      return JSON.parse(specFromScriptTag)
     }
   }
 
@@ -69,10 +69,10 @@ const getSpec = (): Record<string, any> | undefined => {
     console.warn(
       '[@scalar/api-reference] The [data-spec] HTML API is deprecated. Use the new <script id="api-reference" type="application/json">{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}</script> API instead.',
     )
-    const specFromSpecElement = specElement.getAttribute('data-spec')
+    const specFromSpecElement = specElement.getAttribute('data-spec')?.trim()
 
     if (specFromSpecElement) {
-      return JSON.parse(specFromSpecElement.trim())
+      return JSON.parse(specFromSpecElement)
     }
   }
 
