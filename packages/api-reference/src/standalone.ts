@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 
 import { default as ApiReference } from './components/ApiReference.vue'
+import { type ReferenceConfiguration } from './types'
 
 const specScriptTag = document.querySelector('#api-reference')
 const specElement = document.querySelector('[data-spec]')
@@ -9,7 +10,7 @@ const configurationScriptElement = document.querySelector(
   '#api-reference[data-configuration]',
 )
 
-const getConfiguration = (): Record<string, any> => {
+const getConfiguration = (): ReferenceConfiguration => {
   // <script data-configuration="{ … }" />
   if (configurationScriptElement) {
     const configurationFromElement =
