@@ -10,7 +10,7 @@ import {
   getRequestFromAuthentication,
   getRequestFromOperation,
   getUrlFromServerState,
-  openClientWith,
+  openClientFor,
 } from '../../../helpers'
 import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
@@ -169,7 +169,7 @@ const formattedPath = computed(() => {
         class="show-api-client-button"
         :class="`show-api-client-button--${operation.httpVerb}`"
         type="button"
-        @click="openClientWith(operation)">
+        @click="openClientFor(operation)">
         <span>Test Request</span>
         <Icon src="solid/mail-send-email-paper-airplane" />
       </button>

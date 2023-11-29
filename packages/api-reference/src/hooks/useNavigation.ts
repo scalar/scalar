@@ -9,7 +9,7 @@ import {
   getOperationSectionId,
   getTagSectionId,
   hasModels,
-  openClientWith,
+  openClientFor,
 } from '../helpers'
 import type { Spec, Tag, TransformedOperation } from '../types'
 
@@ -105,7 +105,7 @@ const items = computed((): SidebarEntry[] => {
                 show: true,
                 select: () => {
                   if (state.showApiClient) {
-                    openClientWith(operation)
+                    openClientFor(operation)
                   }
                 },
               }
@@ -122,7 +122,7 @@ const items = computed((): SidebarEntry[] => {
             show: true,
             select: () => {
               if (state.showApiClient) {
-                openClientWith(operation)
+                openClientFor(operation)
               }
             },
           }

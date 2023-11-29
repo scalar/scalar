@@ -14,7 +14,7 @@ const { toggleApiClient } = useApiClientStore()
 
 const { setActiveRequest, resetActiveResponse } = useRequestStore()
 
-export function openClientWith(operation: TransformedOperation) {
+export function openClientFor(operation: TransformedOperation) {
   // Get the HAR request object
   const request = getApiClientRequest({
     serverState: serverState,
@@ -28,7 +28,7 @@ export function openClientWith(operation: TransformedOperation) {
   // Set the new API client request
   setActiveRequest({
     ...request,
-    query: getQueryParametersFromOperation(operation),
+    query: getQueryParametersFromOperation(operation, 'query'),
   })
 
   toggleApiClient(request, true)
