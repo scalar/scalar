@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { ScalarButton, useLoadingState } from '@scalar/components'
 import { nextTick, reactive, ref } from 'vue'
 
-import FlowButton, { useLoadButtonState } from '../FlowButton.vue'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 import TheHuman from './TheHuman.vue'
 
@@ -9,7 +9,7 @@ defineProps<{ aiWriterMarkdown: string }>()
 const emits = defineEmits<{
   (event: 'startAIWriter', value: string[]): void
 }>()
-const loadingState = useLoadButtonState()
+const loadingState = useLoadingState()
 
 const useAIContentWriterState = () =>
   reactive({
@@ -96,7 +96,7 @@ async function handleCreatePage() {
             <span>Get started</span>
           </div>
         </div>
-        <FlowButton
+        <ScalarButton
           label="Generate Content"
           :loaderState="loadingState"
           @click="sendContentCreationRequest" />
@@ -105,7 +105,7 @@ async function handleCreatePage() {
 
     <MarkdownRenderer :value="aiWriterMarkdown" />
 
-    <FlowButton
+    <ScalarButton
       v-if="aiWriterMarkdown"
       label="Turn into API Docs"
       variant="outlined"

@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components'
 import { type ThemeId } from '@scalar/themes'
 import { ref, watch } from 'vue'
 
 import coinmarketcap from '../../coinmarketcapv3.json'
 import petstore from '../../petstorev3.json'
 import { type GettingStartedExamples } from '../../types'
-import FlowButton from '../FlowButton.vue'
 
 const props = defineProps<{
   theme: ThemeId
@@ -90,10 +90,10 @@ watch(
         Beautiful API references.
       </p>
       <div class="start-cta flex flex-row gap-1">
-        <FlowButton
+        <ScalarButton
           label="Test Petstore"
           @click="example = 'Petstore'" />
-        <FlowButton
+        <ScalarButton
           label="Upload File"
           variant="outlined"
           @click="$emit('openSwaggerEditor', 'uploadFile')" />
