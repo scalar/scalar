@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.7.37
+
+### Patch Changes
+
+- b65840b: refactor: keep track of the collapsed sidebar items in @scalar/api-reference
+
 ## 0.7.36
 
 ### Patch Changes
