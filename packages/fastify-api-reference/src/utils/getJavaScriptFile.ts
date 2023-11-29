@@ -5,17 +5,8 @@ import path from 'path'
  * Read the JavaScript file.
  */
 export function getJavaScriptFile() {
-  const packageName = '@scalar/api-reference'
-
-  const jsFilePath = 'dist/browser/standalone.js'
-
-  const filePath = path.join(
-    __dirname,
-    '../../',
-    'node_modules',
-    packageName,
-    jsFilePath,
+  return fs.readFileSync(
+    path.resolve(`${__dirname}/../../dist/js/standalone.js`),
+    'utf8',
   )
-
-  return fs.readFileSync(filePath, 'utf8')
 }
