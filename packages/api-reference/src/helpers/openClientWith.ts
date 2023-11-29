@@ -1,6 +1,9 @@
 import { useApiClientStore, useRequestStore } from '@scalar/api-client'
 
-import { getApiClientRequest } from '../helpers'
+import {
+  getApiClientRequest,
+  getQueryParametersFromOperation,
+} from '../helpers'
 import { useGlobalStore } from '../stores'
 import type { TransformedOperation } from '../types'
 
@@ -11,15 +14,22 @@ const { toggleApiClient } = useApiClientStore()
 
 const { setActiveRequest, resetActiveResponse } = useRequestStore()
 
-export function showItemInClient(operation: TransformedOperation) {
+export function openClientWith(operation: TransformedOperation) {
+  // Get the HAR request object
   const request = getApiClientRequest({
     serverState: serverState,
     authenticationState: authenticationState,
     operation: operation,
   })
 
+  // Reset the API client response
   resetActiveResponse()
-  setActiveRequest(request)
+
+  // Set the new API client request
+  setActiveRequest({
+    ...request,
+    query: getQueryParametersFromOperation(operation),
+  })
 
   toggleApiClient(request, true)
 }

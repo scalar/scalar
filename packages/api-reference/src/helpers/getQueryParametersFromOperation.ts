@@ -7,6 +7,7 @@ import type { TransformedOperation } from '../types'
  */
 export function getQueryParametersFromOperation(
   operation: TransformedOperation,
+  where: 'query' | 'path' | 'header' | 'cookie',
 ): any {
   const parameters = [
     ...(operation.information?.parameters || []),
@@ -14,9 +15,10 @@ export function getQueryParametersFromOperation(
   ]
 
   return parameters
-    .filter((parameter) => parameter.in === 'query')
+    .filter((parameter) => parameter.in === where)
     .map((parameter) => ({
       name: parameter.name,
+      // TODO: Can we prefill this?
       value: '',
     }))
 }
