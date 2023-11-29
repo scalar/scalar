@@ -175,6 +175,11 @@ app.get(
   apiReference({
     spec: {
       url: '/swagger.json',
+      // content: {
+      //   openapi: '3.1.0',
+      //   info: { title: 'Example' },
+      //   paths: {},
+      // },
     },
     pageTitle: 'Hono API Reference Demo',
   }),
