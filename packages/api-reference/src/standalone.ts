@@ -25,6 +25,11 @@ const getConfiguration = (): ReferenceConfiguration => {
 }
 
 const getSpecUrl = () => {
+  // Let’s first check if the user passed a spec URL in the configuration.
+  if (getConfiguration().spec?.url) {
+    return getConfiguration().spec?.url
+  }
+
   // <script id="api-reference" data-url="/scalar.json" />
   if (specScriptTag) {
     const urlFromScriptTag = specScriptTag.getAttribute('data-url')

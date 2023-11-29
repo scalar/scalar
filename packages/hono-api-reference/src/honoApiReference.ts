@@ -123,7 +123,6 @@ export const ApiReference = (options: ApiReferenceOptions) => {
     <script
       id="api-reference"
       type="application/json"
-      data-url="${options.spec?.url}"
       data-configuration="${JSON.stringify(options).split('"').join('&quot;')}">
       ${options.spec?.content ? raw(JSON.stringify(options.spec?.content)) : ''}
     </script>
