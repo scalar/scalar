@@ -1,5 +1,5 @@
 # https://github.com/marketplace/actions/auto-approve
-name: Auto approve
+name: Auto Approve
 
 on:
   pull_request:
