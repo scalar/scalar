@@ -313,6 +313,11 @@ This repository contains all our open source projects and there’s definitely m
 
 Contributions are welcome! Read [`CONTRIBUTING`](https://github.com/scalar/scalar/blob/main/CONTRIBUTING).
 
+## Contributors
+
+<!-- readme: collaborators,contributors -start -->
+<!-- readme: collaborators,contributors -end -->
+
 ## License
 
 The source code in this repository is licensed under [MIT](https://github.com/scalar/api-reference/blob/main/LICENSE).
