@@ -316,6 +316,116 @@ Contributions are welcome! Read [`CONTRIBUTING`](https://github.com/scalar/scala
 ## Contributors
 
 <!-- readme: collaborators,contributors -start -->
+<table>
+<tr>
+    <td align="center">
+        <a href="https://github.com/hanspagel">
+            <img src="https://avatars.githubusercontent.com/u/1577992?v=4" width="100;" alt="hanspagel"/>
+            <br />
+            <sub><b>hanspagel</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/tmastrom">
+            <img src="https://avatars.githubusercontent.com/u/36525329?v=4" width="100;" alt="tmastrom"/>
+            <br />
+            <sub><b>tmastrom</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/marclave">
+            <img src="https://avatars.githubusercontent.com/u/6176314?v=4" width="100;" alt="marclave"/>
+            <br />
+            <sub><b>marclave</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/hwkr">
+            <img src="https://avatars.githubusercontent.com/u/6374090?v=4" width="100;" alt="hwkr"/>
+            <br />
+            <sub><b>hwkr</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/cameronrohani">
+            <img src="https://avatars.githubusercontent.com/u/6201407?v=4" width="100;" alt="cameronrohani"/>
+            <br />
+            <sub><b>cameronrohani</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/amritk">
+            <img src="https://avatars.githubusercontent.com/u/2039539?v=4" width="100;" alt="amritk"/>
+            <br />
+            <sub><b>amritk</b></sub>
+        </a>
+    </td></tr>
+<tr>
+    <td align="center">
+        <a href="https://github.com/geoffgscott">
+            <img src="https://avatars.githubusercontent.com/u/59206100?v=4" width="100;" alt="geoffgscott"/>
+            <br />
+            <sub><b>geoffgscott</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/Mohib834">
+            <img src="https://avatars.githubusercontent.com/u/47316464?v=4" width="100;" alt="Mohib834"/>
+            <br />
+            <sub><b>Mohib834</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/ATREAY">
+            <img src="https://avatars.githubusercontent.com/u/66585295?v=4" width="100;" alt="ATREAY"/>
+            <br />
+            <sub><b>ATREAY</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/chrislearn">
+            <img src="https://avatars.githubusercontent.com/u/5874864?v=4" width="100;" alt="chrislearn"/>
+            <br />
+            <sub><b>chrislearn</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/danp">
+            <img src="https://avatars.githubusercontent.com/u/2182?v=4" width="100;" alt="danp"/>
+            <br />
+            <sub><b>danp</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/jonataw">
+            <img src="https://avatars.githubusercontent.com/u/29772763?v=4" width="100;" alt="jonataw"/>
+            <br />
+            <sub><b>jonataw</b></sub>
+        </a>
+    </td></tr>
+<tr>
+    <td align="center">
+        <a href="https://github.com/IHIutch">
+            <img src="https://avatars.githubusercontent.com/u/20825047?v=4" width="100;" alt="IHIutch"/>
+            <br />
+            <sub><b>IHIutch</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/Mason-Little">
+            <img src="https://avatars.githubusercontent.com/u/105008441?v=4" width="100;" alt="Mason-Little"/>
+            <br />
+            <sub><b>Mason-Little</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/FotieMConstant">
+            <img src="https://avatars.githubusercontent.com/u/42372656?v=4" width="100;" alt="FotieMConstant"/>
+            <br />
+            <sub><b>FotieMConstant</b></sub>
+        </a>
+    </td></tr>
+</table>
 <!-- readme: collaborators,contributors -end -->
 
 ## License
