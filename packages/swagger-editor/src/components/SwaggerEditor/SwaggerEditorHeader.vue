@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { FlowModal, useModal } from '@scalar/use-modal'
-import { useFileDialog } from '@vueuse/core'
+import { useFileDialog, useMediaQuery } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
 import { fetchSpecFromUrl } from '../../helpers'
@@ -14,6 +14,8 @@ const props = defineProps<SwaggerEditorHeaderProps>()
 const emit = defineEmits<{
   (e: 'import', value: string): void
 }>()
+
+const isMobile = useMediaQuery('(max-width: 1000px)')
 
 const { files, open, reset } = useFileDialog({
   multiple: false,
@@ -67,14 +69,12 @@ watch(files, () => {
       </div>
       <slot name="tab-items" />
       <div class="single-tab-items">
-        <HeaderTabButton
-          mobileTitle="Upload"
-          title="Upload File"
-          @click="() => open()" />
-        <HeaderTabButton
-          mobileTitle="URL"
-          title="Import URL"
-          @click="importUrlModal.show" />
+        <HeaderTabButton @click="() => open()">
+          Upload<span v-if="!isMobile">&nbsp;File</span>
+        </HeaderTabButton>
+        <HeaderTabButton @click="importUrlModal.show()">
+          <span v-if="!isMobile">Import&nbsp;</span>URL
+        </HeaderTabButton>
       </div>
     </div>
   </div>
@@ -110,15 +110,6 @@ watch(files, () => {
   position: relative;
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
-}
-
-.swagger-editor-header span {
-  font-size: var(--theme-mini, var(--default-theme-mini));
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  font-weight: 600;
-  margin-right: 12px;
-  position: relative;
-  cursor: pointer;
 }
 
 .swagger-editor-title {

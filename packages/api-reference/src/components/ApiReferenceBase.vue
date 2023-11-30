@@ -155,8 +155,9 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
         <template #tab-items>
           <HeaderTabButton
             v-if="isMobile"
-            title="Getting Started"
-            @click="handleGettingStarted" />
+            @click="handleGettingStarted">
+            Getting Started
+          </HeaderTabButton>
         </template>
       </LazyLoadedSwaggerEditor>
     </template>
