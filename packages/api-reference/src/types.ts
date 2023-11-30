@@ -40,6 +40,8 @@ export type ReferenceConfiguration = {
   metaData?: MetaFlatInput
   /** Custom CSS to be added to the page */
   customCss?: string
+  /** onSpecUpdate is fired on spec/swagger content change */
+  onSpecUpdate?: (spec: string) => void
 }
 
 /** Default reference configuration */
