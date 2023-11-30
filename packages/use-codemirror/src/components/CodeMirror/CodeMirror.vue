@@ -29,17 +29,8 @@ const emit = defineEmits<{
   (e: 'change', value: string): void
 }>()
 
-// CSS Class
-const classes = ['scalar-codemirror']
-
-if (props.readOnly) {
-  classes.push('scalar-codemirror--read-only')
-}
-
 const getCodeMirrorExtensions = () => {
   const extensions: Extension[] = []
-
-  extensions.push(EditorView.editorAttributes.of({ class: classes.join(' ') }))
 
   // Custom extensions
   if (props.extensions) {

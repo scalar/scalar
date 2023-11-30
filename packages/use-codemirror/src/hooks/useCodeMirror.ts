@@ -133,6 +133,9 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
 
     // Themes
     const defaultExtensions: Extension[] = [
+      // CSS Class
+      EditorView.editorAttributes.of({ class: 'scalar-codemirror' }),
+      // Theme
       EditorView.theme(
         {
           '.cm-line': {
