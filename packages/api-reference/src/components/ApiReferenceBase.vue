@@ -120,7 +120,7 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
     <GettingStarted
       :theme="configuration?.theme || 'default'"
       :value="rawSpecRef"
-      @changeTheme="handleCloseModal(() => $emit('changeTheme', $event))"
+      @changeTheme="$emit('changeTheme', $event)"
       @openSwaggerEditor="gettingStartedModal.hide()"
       @updateContent="handleCloseModal(() => $emit('updateContent', $event))" />
   </FlowModal>
