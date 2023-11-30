@@ -5,6 +5,7 @@ import App from './App.vue'
 import ApiClientPage from './pages/ApiClientPage.vue'
 import ApiReferencePage from './pages/ApiReferencePage.vue'
 import ClassicApiReferencePage from './pages/ClassicApiReferencePage.vue'
+import CollaborativeEditingPage from './pages/CollaborativeEditingPage.vue'
 import StandaloneApiReferencePage from './pages/StandaloneApiReferencePage.vue'
 import StartPage from './pages/StartPage.vue'
 import SwaggerEditorPage from './pages/SwaggerEditorPage.vue'
@@ -32,6 +33,11 @@ const routes = [
     path: '/swagger-editor',
     name: 'swagger-editor',
     component: SwaggerEditorPage,
+  },
+  {
+    path: '/collaborative-editing',
+    name: 'collaborative-editing',
+    component: CollaborativeEditingPage,
   },
 ]
 

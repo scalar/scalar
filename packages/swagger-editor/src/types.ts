@@ -1,4 +1,5 @@
 import { type ThemeId } from '@scalar/themes'
+import type { CodeMirrorExtension } from '@scalar/use-codemirror'
 import { type ComputedRef, type Ref } from 'vue'
 
 export type SwaggerEditorProps = {
@@ -14,6 +15,7 @@ export type SwaggerEditorHeaderProps = {
 
 export type SwaggerEditorInputProps = {
   value?: string
+  extensions?: CodeMirrorExtension[]
 }
 
 export type OpenSwaggerEditorActions = 'importUrl' | 'uploadFile'

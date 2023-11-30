@@ -35,6 +35,12 @@ import PageLink from '../components/PageLink.vue'
           born today.
         </template>
       </PageLink>
+      <PageLink to="collaborative-editing">
+        <template #title>Collaborative Editing</template>
+        <template #description>
+          Collaborate with others on your Swagger file in real-time.
+        </template>
+      </PageLink>
     </div>
     <h1>Packages</h1>
     <div class="page-links">
