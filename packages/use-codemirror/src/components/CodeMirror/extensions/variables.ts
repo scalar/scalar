@@ -12,7 +12,7 @@ const variableHighlighterDecoration = new MatchDecorator({
   decoration: () =>
     Decoration.mark({
       attributes: {
-        class: 'scalar-api-client__variable',
+        class: 'scalar-codemirror-variable',
       },
     }),
 })

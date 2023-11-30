@@ -62,7 +62,7 @@ const { activeRequest, readOnly } = useRequestStore()
   justify-content: space-between;
   overflow: auto;
 }
-.scalar-api-client__item__content .scalar-api-client__codemirror__wrapper {
+.scalar-api-client__item__content .scalar-codemirror-wrapper {
   width: 100%;
   min-height: 63px;
 }
