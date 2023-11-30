@@ -7,6 +7,10 @@ import Layouts from './Layouts/'
 
 const props = defineProps<ReferenceProps>()
 
+const emit = defineEmits<{
+  (e: 'updateContent', value: string): void
+}>()
+
 const content = ref('')
 
 // Create a local spec for caching the content if no spec is set
@@ -22,12 +26,19 @@ if (config.value?.metaData) {
   createHead()
   useSeoMeta(config.value.metaData)
 }
+
+function handleUpdateContent(value: string) {
+  content.value = value
+  if (props.configuration?.onSpecUpdate) {
+    props.configuration.onSpecUpdate(value)
+  }
+}
 </script>
 <template>
   <Component
     :is="Layouts[config.layout || 'modern']"
     :configuration="config"
-    @updateContent="content = $event">
+    @updateContent="handleUpdateContent">
     <template #footer><slot name="footer" /></template>
   </Component>
 </template>
