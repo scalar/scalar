@@ -18,7 +18,7 @@ type UseCodeMirrorParameters = {
    */
   extensions: Extension[]
   /**
-   * Prefill the content. Will be ignored when a provider is given.
+   * Prefill the content.
    */
   content?: string
   /**

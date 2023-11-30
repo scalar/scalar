@@ -136,7 +136,6 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
         :aiWriterMarkdown="currentConfiguration.aiWriterMarkdown"
         :availableTabs="currentConfiguration.tabs?.available"
         :error="errorRef"
-        :hocuspocusConfiguration="currentConfiguration.hocuspocusConfiguration"
         :initialTabState="currentConfiguration.tabs?.initialContent"
         :proxyUrl="currentConfiguration.proxy"
         :theme="currentConfiguration.theme"

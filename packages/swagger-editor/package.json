@@ -45,7 +45,6 @@
   },
   "dependencies": {
     "@codemirror/state": "^6.2.1",
-    "@hocuspocus/provider": "^2.6.1",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-modal": "workspace:*",
@@ -61,9 +60,7 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.0.0",
     "unified": "^11.0.0",
-    "vue": "^3.3.0",
-    "y-codemirror.next": "^0.3.2",
-    "yjs": "^13.6.8"
+    "vue": "^3.3.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.4.0",
@@ -76,8 +73,6 @@
   },
   "peerDependencies": {
     "unified": "^11.0.0",
-    "vue": "^3.3.0",
-    "y-codemirror.next": "^0.3.2",
-    "yjs": "^13.6.8"
+    "vue": "^3.3.0"
   }
 }

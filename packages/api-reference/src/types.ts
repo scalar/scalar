@@ -1,7 +1,4 @@
-import {
-  type EditorHeaderTabs,
-  type HocuspocusConfigurationProp,
-} from '@scalar/swagger-editor'
+import { type EditorHeaderTabs } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
 import type { MetaFlatInput } from '@unhead/schema'
 import type { HarRequest } from 'httpsnippet-lite'
@@ -44,7 +41,6 @@ export type ReferenceConfiguration = {
   showSidebar?: boolean
   /** Remove the Scalar branding :( */
   // doNotPromoteScalar?: boolean
-  hocuspocusConfiguration?: HocuspocusConfigurationProp
   /** Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
   searchHotKey?: string
   /** ??? */
@@ -69,7 +65,6 @@ export const DEFAULT_CONFIG: DeepReadonly<ReferenceConfiguration> = {
   },
   showSidebar: true,
   isEditable: false,
-  hocuspocusConfiguration: undefined,
 }
 
 export type Schema = {

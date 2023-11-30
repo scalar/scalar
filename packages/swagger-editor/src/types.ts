@@ -4,7 +4,6 @@ import { type ComputedRef, type Ref } from 'vue'
 export type SwaggerEditorProps = {
   aiWriterMarkdown?: string
   value?: string
-  hocuspocusConfiguration?: HocuspocusConfigurationProp
   theme?: ThemeId
   initialTabState?: EditorHeaderTabs
   availableTabs?: EditorHeaderTabs[]
@@ -20,15 +19,14 @@ export type SwaggerEditorHeaderProps = {
 
 export type SwaggerEditorInputProps = {
   value?: string
-  hocuspocusConfiguration?: HocuspocusConfigurationProp
 }
 
-export type HocuspocusConfigurationProp = {
-  url: string
-  name: string
-  token?: string
-  username?: string
-}
+export type EditorHeaderTabs =
+  | 'Getting Started'
+  | 'Swagger Editor'
+  | 'AI Writer'
+
+export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
 
 export type EditorHeaderTabs =
   | 'Getting Started'

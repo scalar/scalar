@@ -23,35 +23,6 @@ const configuration = computed(
     }),
 )
 
-// The collaborative editing configuration is an object and not just true/false, that’s
-// why we’re keeping track of it separately.
-const enableCollaborativeEditingRef = ref<boolean>(false)
-const collaborativeEditingDocumentRef = ref<string>('document-1')
-
-// This adds the collaborative editing configuration to the configuration object.
-function getCompleteConfiguration(v: any) {
-  if (enableCollaborativeEditingRef.value) {
-    return {
-      ...v,
-      hocuspocusConfiguration: {
-        name: collaborativeEditingDocumentRef.value,
-        token: 'secret',
-        url: 'ws://localhost:1234',
-      },
-    }
-  }
-
-  return {
-    ...v,
-    hocuspocusConfiguration: undefined,
-  }
-}
-
-// If one of the separate refs update, emit the new configuration
-watch([enableCollaborativeEditingRef, collaborativeEditingDocumentRef], () => {
-  emit('update:modelValue', getCompleteConfiguration(configuration.value))
-})
-
 const docStyle = document.documentElement.style
 
 // Toggle the toolbar visibility
@@ -100,19 +71,6 @@ watch(
             :value="theme">
             {{ theme }}
           </option>
-        </select>
-      </div>
-      <div>
-        <input
-          v-model="enableCollaborativeEditingRef"
-          type="checkbox" />
-        Collaborative Editing{{ enableCollaborativeEditingRef ? ':' : '' }}
-        <select
-          v-if="enableCollaborativeEditingRef"
-          v-model="collaborativeEditingDocumentRef">
-          <option value="document-1">Document #1</option>
-          <option value="document-2">Document #2</option>
-          <option value="document-3">Document #3</option>
         </select>
       </div>
       <button
