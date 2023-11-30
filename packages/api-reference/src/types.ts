@@ -1,4 +1,3 @@
-import { type HocuspocusConfigurationProp } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
 import type { MetaFlatInput } from '@unhead/schema'
 import type { HarRequest } from 'httpsnippet-lite'
@@ -33,7 +32,6 @@ export type ReferenceConfiguration = {
   showSidebar?: boolean
   /** Remove the Scalar branding :( */
   // doNotPromoteScalar?: boolean
-  hocuspocusConfiguration?: HocuspocusConfigurationProp
   /** Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
   searchHotKey?: string
   /** If used, passed data will be added to the HTML header. Read more: https://unhead.unjs.io/usage/composables/use-seo-meta */
@@ -55,7 +53,6 @@ export const DEFAULT_CONFIG: DeepReadonly<ReferenceConfiguration> = {
   theme: 'default',
   showSidebar: true,
   isEditable: false,
-  hocuspocusConfiguration: undefined,
 }
 
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'

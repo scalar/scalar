@@ -151,9 +151,6 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
         <LazyLoadedSwaggerEditor
           ref="swaggerEditorRef"
           :error="errorRef"
-          :hocuspocusConfiguration="
-            currentConfiguration.hocuspocusConfiguration
-          "
           :proxyUrl="currentConfiguration.proxy"
           :theme="currentConfiguration.theme"
           :value="rawSpecRef"

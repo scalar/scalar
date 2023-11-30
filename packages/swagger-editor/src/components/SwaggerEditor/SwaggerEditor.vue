@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { type StatesArray } from '@hocuspocus/provider'
 import '@scalar/components/style.css'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { computed, isRef, ref, watch } from 'vue'
@@ -12,7 +11,6 @@ import ResetStyles from '../ResetStyles.vue'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
-import SwaggerEditorStatusBar from './SwaggerEditorStatusBar.vue'
 
 const props = defineProps<SwaggerEditorProps>()
 
@@ -24,14 +22,8 @@ const emit = defineEmits<{
 
 const swaggerEditorHeaderRef = ref<typeof SwaggerEditorHeader | null>(null)
 
-const awarenessStates = ref<StatesArray>([])
-
 const handleContentUpdate = (value: string) => {
   emit('contentUpdate', value)
-}
-
-const handleAwarenessUpdate = (states: StatesArray) => {
-  awarenessStates.value = states
 }
 
 const codeMirrorReference = ref<typeof SwaggerEditorInput | null>(null)
@@ -93,16 +85,8 @@ defineExpose({
       </SwaggerEditorNotification>
       <SwaggerEditorInput
         ref="codeMirrorReference"
-        :hocuspocusConfiguration="hocuspocusConfiguration"
         :value="value"
-        @awarenessUpdate="handleAwarenessUpdate"
         @contentUpdate="handleContentUpdate" />
-      <SwaggerEditorStatusBar v-if="awarenessStates.length">
-        {{ awarenessStates.length }} user{{
-          awarenessStates.length === 1 ? '' : 's'
-        }}
-        online
-      </SwaggerEditorStatusBar>
     </div>
   </ResetStyles>
 </template>
