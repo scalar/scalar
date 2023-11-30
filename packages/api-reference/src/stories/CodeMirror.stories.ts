@@ -1,3 +1,4 @@
+import { EditorView } from '@codemirror/view'
 import { CodeMirror } from '@scalar/use-codemirror'
 import type { Meta, StoryObj } from '@storybook/vue3'
 
@@ -80,5 +81,13 @@ export const ForceDarkMode: Story = {
   args: {
     content: `const foo = 'bar';`,
     forceDarkMode: true,
+  },
+}
+
+export const ReadOnlyAsExtension: Story = {
+  ...Default,
+  args: {
+    content: `const foo = 'bar';`,
+    extensions: [EditorView.editable.of(false)],
   },
 }
