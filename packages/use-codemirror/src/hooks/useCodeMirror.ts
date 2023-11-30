@@ -38,6 +38,10 @@ type UseCodeMirrorParameters = {
    * Triggered when the content changes
    */
   onUpdate: (v: ViewUpdate) => void
+  /**
+   * For single-line instances, disable the enter key.
+   */
+  disableEnter?: boolean
 }
 
 export const useCodeMirror = (
@@ -50,6 +54,7 @@ export const useCodeMirror = (
   reconfigureCodeMirror: (newExtensions: Extension[]) => void
   restartCodeMirror: (newExtensions: Extension[]) => void
   onUpdate: (v: ViewUpdate) => void
+  disableEnter: boolean
 } => {
   const { extensions, content, forceDarkMode, forceLightMode, withoutTheme } =
     parameters
@@ -139,6 +144,30 @@ export const useCodeMirror = (
         parameters?.onUpdate(v)
       }),
       keymap.of([selectAllKeyBinding]),
+      // Disable Enter key
+      parameters.disableEnter
+        ? keymap.of([
+            {
+              key: 'Enter',
+              run: () => {
+                return true
+              },
+            },
+            {
+              key: 'Ctrl-Enter',
+              mac: 'Cmd-Enter',
+              run: () => {
+                return true
+              },
+            },
+            {
+              key: 'Shift-Enter',
+              run: () => {
+                return true
+              },
+            },
+          ])
+        : null,
       getCurrentTheme(),
     ].filter((extension) => extension !== null) as Extension[]
 

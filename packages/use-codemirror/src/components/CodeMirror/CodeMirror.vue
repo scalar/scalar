@@ -126,32 +126,6 @@ const getCodeMirrorExtensions = () => {
     extensions.push(variables())
   }
 
-  if (props.disableEnter) {
-    extensions.push(
-      keymap.of([
-        {
-          key: 'Enter',
-          run: () => {
-            return true
-          },
-        },
-        {
-          key: 'Ctrl-Enter',
-          mac: 'Cmd-Enter',
-          run: () => {
-            return true
-          },
-        },
-        {
-          key: 'Shift-Enter',
-          run: () => {
-            return true
-          },
-        },
-      ]),
-    )
-  }
-
   return extensions
 }
 
@@ -168,6 +142,7 @@ const {
   onUpdate: (v) => {
     emit('change', v.state.doc.toString())
   },
+  disableEnter: props.disableEnter,
 })
 
 // Content changed. Updating CodeMirror …
