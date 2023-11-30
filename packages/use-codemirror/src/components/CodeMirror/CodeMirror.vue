@@ -152,17 +152,6 @@ const getCodeMirrorExtensions = () => {
     )
   }
 
-  // Listen to updates
-  extensions.push(
-    EditorView.updateListener.of((v: ViewUpdate) => {
-      if (!v.docChanged) {
-        return
-      }
-
-      emit('change', v.state.doc.toString())
-    }),
-  )
-
   return extensions
 }
 
@@ -176,6 +165,9 @@ const {
   extensions: getCodeMirrorExtensions(),
   withoutTheme: props.withoutTheme,
   forceDarkMode: props.forceDarkMode,
+  onUpdate: (v) => {
+    emit('change', v.state.doc.toString())
+  },
 })
 
 // Content changed. Updating CodeMirror …
