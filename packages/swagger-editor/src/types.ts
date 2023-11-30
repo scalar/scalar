@@ -25,6 +25,4 @@ export type HocuspocusConfigurationProp = {
   username?: string
 }
 
-export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
-
 export type OpenSwaggerEditorActions = 'importUrl' | 'uploadFile'

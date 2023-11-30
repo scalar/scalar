@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { type SwaggerEditor } from '@scalar/swagger-editor'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
+import { FlowModal, useModal } from '@scalar/use-modal'
 import { FlowToastContainer } from '@scalar/use-toasts'
 import { useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, ref, watch } from 'vue'
@@ -16,6 +17,7 @@ import {
   type Spec,
 } from '../types'
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
+import GettingStarted from './GettingStarted.vue'
 
 const props = defineProps<ReferenceProps>()
 
@@ -89,6 +91,17 @@ useResizeObserver(documentEl, (entries) => {
 })
 
 const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
+
+const gettingStartedModal = useModal()
+
+function handleGettingStarted() {
+  gettingStartedModal.show()
+}
+
+function handleCloseModal(passThrough: () => void) {
+  gettingStartedModal.hide()
+  passThrough()
+}
 </script>
 <template>
   <component
@@ -98,6 +111,17 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
   </component>
   <ThemeStyles :id="currentConfiguration?.theme" />
   <FlowToastContainer />
+  <FlowModal
+    :state="gettingStartedModal"
+    title="Getting Started"
+    variant="history">
+    <GettingStarted
+      :theme="configuration?.theme || 'default'"
+      :value="rawSpecRef"
+      @changeTheme="handleCloseModal(() => $emit('changeTheme', $event))"
+      @openSwaggerEditor="gettingStartedModal.hide()"
+      @updateContent="handleCloseModal(() => $emit('updateContent', $event))" />
+  </FlowModal>
   <ApiReferenceLayout
     v-bind="$attrs"
     :configuration="currentConfiguration"
@@ -125,7 +149,15 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
         :theme="currentConfiguration.theme"
         :value="rawSpecRef"
         @changeTheme="$emit('changeTheme', $event)"
-        @contentUpdate="(newContent: string) => setRawSpecRef(newContent)" />
+        @contentUpdate="(newContent: string) => setRawSpecRef(newContent)">
+        <template #tab-items>
+          <button
+            type="button"
+            @click="handleGettingStarted">
+            Getting Started
+          </button>
+        </template>
+      </LazyLoadedSwaggerEditor>
     </template>
   </ApiReferenceLayout>
 </template>

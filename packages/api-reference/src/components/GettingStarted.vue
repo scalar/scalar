@@ -2,10 +2,10 @@
 import { type ThemeId } from '@scalar/themes'
 import { ref, watch } from 'vue'
 
-import coinmarketcap from '../../coinmarketcapv3.json'
-import petstore from '../../petstorev3.json'
-import { type GettingStartedExamples } from '../../types'
-import FlowButton from '../FlowButton.vue'
+import coinmarketcap from '../coinmarketcapv3.json'
+import petstore from '../petstorev3.json'
+import { type GettingStartedExamples } from '../types'
+import FlowButton from './FlowButton.vue'
 
 const props = defineProps<{
   theme: ThemeId

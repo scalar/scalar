@@ -56,6 +56,8 @@ export const DEFAULT_CONFIG: DeepReadonly<ReferenceConfiguration> = {
   hocuspocusConfiguration: undefined,
 }
 
+export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
+
 export type Schema = {
   format: string
   type: string

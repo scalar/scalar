@@ -80,7 +80,9 @@ defineExpose({
     <SwaggerEditorHeader
       ref="swaggerEditorHeaderRef"
       :proxyUrl="proxyUrl"
-      @import="handleContentUpdate" />
+      @import="handleContentUpdate">
+      <template #tab-items><slot name="tab-items" /></template>
+    </SwaggerEditorHeader>
     <SwaggerEditorNotification v-if="formattedError">
       {{ formattedError }}
     </SwaggerEditorNotification>

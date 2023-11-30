@@ -65,6 +65,7 @@ watch(files, () => {
         <div class="swagger-editor-type">Swagger Editor</div>
       </div>
       <div class="single-tab-items">
+        <slot name="tab-items" />
         <button
           class="swagger-editor-title"
           type="button"
