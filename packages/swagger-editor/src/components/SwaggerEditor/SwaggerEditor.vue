@@ -107,19 +107,11 @@ defineExpose({
       v-show="activeTab === 'Swagger Editor'"
       ref="codeMirrorReference"
       :value="value"
-      @awarenessUpdate="handleAwarenessUpdate"
       @contentUpdate="handleContentUpdate" />
     <SwaggerEditorAIWriter
       v-if="activeTab === 'AI Writer'"
       :aiWriterMarkdown="aiWriterMarkdown ?? ''"
       @startAIWriter="handleAIWriter" />
-    <SwaggerEditorStatusBar
-      v-if="activeTab === 'Swagger Editor' && awarenessStates.length">
-      {{ awarenessStates.length }} user{{
-        awarenessStates.length === 1 ? '' : 's'
-      }}
-      online
-    </SwaggerEditorStatusBar>
     <SwaggerEditorGettingStarted
       v-show="activeTab === 'Getting Started'"
       :theme="!theme || theme === 'none' ? 'default' : theme"
