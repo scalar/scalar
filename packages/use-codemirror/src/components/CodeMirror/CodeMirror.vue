@@ -11,7 +11,6 @@ import type { CodeMirrorLanguage } from '../../types'
 
 const props = withDefaults(
   defineProps<{
-    name?: string
     extensions?: Extension[]
     content?: string
     readOnly?: boolean
@@ -65,23 +64,19 @@ const getCodeMirrorExtensions = () => {
   return extensions
 }
 
-const {
-  codeMirrorRef,
-  setCodeMirrorContent,
-  reconfigureCodeMirror,
-  restartCodeMirror,
-} = useCodeMirror({
-  content: props.content ?? '',
-  extensions: getCodeMirrorExtensions(),
-  withoutTheme: props.withoutTheme,
-  forceDarkMode: props.forceDarkMode,
-  onUpdate: (v) => {
-    emit('change', v.state.doc.toString())
-  },
-  disableEnter: props.disableEnter,
-  withVariables: props.withVariables,
-  language: props.language ? props.language : props.languages?.[0],
-})
+const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
+  useCodeMirror({
+    content: props.content ?? '',
+    extensions: getCodeMirrorExtensions(),
+    withoutTheme: props.withoutTheme,
+    forceDarkMode: props.forceDarkMode,
+    onUpdate: (v) => {
+      emit('change', v.state.doc.toString())
+    },
+    disableEnter: props.disableEnter,
+    withVariables: props.withVariables,
+    language: props.language ? props.language : props.languages?.[0],
+  })
 
 // Content changed. Updating CodeMirror …
 watch(
@@ -90,14 +85,6 @@ watch(
     if (props.content?.length) {
       setCodeMirrorContent(props.content)
     }
-  },
-)
-
-// Document changed. Restarting CodeMirror.
-watch(
-  () => props.name,
-  () => {
-    restartCodeMirror(getCodeMirrorExtensions())
   },
 )
 
