@@ -24,15 +24,12 @@ import * as yamlMode from '@codemirror/legacy-modes/mode/yaml'
 import { type Extension } from '@codemirror/state'
 import {
   EditorView,
-  type ViewUpdate,
-  keymap,
   lineNumbers as lineNumbersExtension,
 } from '@codemirror/view'
 import { toRaw, watch } from 'vue'
 
 import { useCodeMirror } from '../../hooks'
 import type { CodeMirrorLanguage } from '../../types'
-import { variables } from './extensions/variables'
 
 const props = withDefaults(
   defineProps<{
@@ -121,11 +118,6 @@ const getCodeMirrorExtensions = () => {
     extensions.push(lineNumbersExtension())
   }
 
-  // Highlight variables
-  if (props.withVariables) {
-    extensions.push(variables())
-  }
-
   return extensions
 }
 
@@ -143,6 +135,7 @@ const {
     emit('change', v.state.doc.toString())
   },
   disableEnter: props.disableEnter,
+  withVariables: props.withVariables,
 })
 
 // Content changed. Updating CodeMirror …
