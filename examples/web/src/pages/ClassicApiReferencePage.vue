@@ -9,7 +9,7 @@ const configuration = reactive<ReferenceConfiguration>({
   theme: 'default',
   proxy: 'http://localhost:5051',
   isEditable: false,
-  // layout: 'classic',
+  layout: 'classic',
   spec: {
     url: 'https://petstore.swagger.io/v2/swagger.json',
   },
