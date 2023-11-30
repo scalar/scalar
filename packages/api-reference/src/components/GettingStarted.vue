@@ -2,10 +2,10 @@
 import { type ThemeId } from '@scalar/themes'
 import { ref, watch } from 'vue'
 
-import coinmarketcap from '../../coinmarketcapv3.json'
-import petstore from '../../petstorev3.json'
-import { type GettingStartedExamples } from '../../types'
-import FlowButton from '../FlowButton.vue'
+import coinmarketcap from '../coinmarketcapv3.json'
+import petstore from '../petstorev3.json'
+import { type GettingStartedExamples } from '../types'
+import FlowButton from './FlowButton.vue'
 
 const props = defineProps<{
   theme: ThemeId
@@ -307,6 +307,8 @@ watch(
   display: flex;
   flex-flow: wrap;
   justify-content: space-between;
+  position: relative;
+  z-index: 0;
 }
 .swagger-editor .start {
   padding-top: 24px;
@@ -470,15 +472,6 @@ watch(
   margin-top: 24px;
   margin-bottom: 0;
 }
-.start-a {
-  color: var(
-    --theme-color-accent,
-    var(--default-theme-color-accent)
-  ) !important;
-}
-.start-a:hover {
-  text-decoration: underline;
-}
 .start-section:nth-of-type(2) {
   border-left: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
@@ -531,6 +524,7 @@ watch(
   left: -100%;
   top: -100%;
   position: absolute;
+  z-index: -1;
   border-radius: 50%;
   background-size: 24px 24px;
   box-shadow:
@@ -559,8 +553,8 @@ watch(
   .start-section-colors .start-item,
   .start-item {
     width: 100%;
-    border-radius: 0 !important;
-    border-right: none !important;
+    border-radius: 0;
+    border-right: none;
     border-top: 1px solid
       var(--theme-border-color, var(--default-theme-border-color));
   }
@@ -575,6 +569,12 @@ watch(
   }
   .start-copy {
     padding: 48px 0 24px 0;
+  }
+}
+@media screen and (max-width: 1000px) {
+  .start {
+    padding: 0;
+    overflow: auto;
   }
 }
 </style>

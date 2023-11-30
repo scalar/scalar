@@ -81,24 +81,6 @@ Making requests to other domains is restricted in the browser and requires [CORS
   :configuration="{ proxy: 'https://api.scalar.com/request-proxy' }" />
 ```
 
-#### initialContent?: string
-
-You can decide which tab should be active by default:
-
-```vue
-<ApiReference
-  :initialTabState="{ tabs: { initialContent: 'Getting Started' } }" />
-```
-
-And you can define which tabs should be visible:
-
-```vue
-<ApiReference
-  :configuration="{
-    tabs: { available: ['Getting Started', 'Swagger Editor'] },
-  }" />
-```
-
 #### showSidebar?: boolean
 
 Whether the sidebar should be shown.
