@@ -3,6 +3,8 @@ export * from './helpers'
 export * from './hooks'
 export * from './types'
 
+export { default as HeaderTabButton } from './components/SwaggerEditor/HeaderTabButton.vue'
+
 /**
  * @deprecated Use `SwaggerEditor` instead.
  */

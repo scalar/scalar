@@ -7,6 +7,7 @@ import { fetchSpecFromUrl } from '../../helpers'
 import { type SwaggerEditorHeaderProps } from '../../types'
 import FlowButton from '../FlowButton.vue'
 import FlowTextField from '../FlowTextField.vue'
+import HeaderTabButton from './HeaderTabButton.vue'
 
 const props = defineProps<SwaggerEditorHeaderProps>()
 
@@ -62,37 +63,18 @@ watch(files, () => {
   <div class="single-tab">
     <div class="swagger-editor-header">
       <div class="swagger-editor-title swagger-editor-active">
-        <div class="swagger-editor-type">Swagger Editor</div>
+        <div class="swagger-editor-type"><i>Swagger</i> Editor</div>
       </div>
+      <slot name="tab-items" />
       <div class="single-tab-items">
-        <slot name="tab-items" />
-        <button
-          class="swagger-editor-title"
-          type="button"
-          @click="() => open()">
-          <div class="swagger-editor-type">Upload File</div>
-        </button>
-        <button
-          class="swagger-editor-title"
-          type="button"
-          @click="importUrlModal.show">
-          <div class="swagger-editor-type">Import URL</div>
-        </button>
-      </div>
-    </div>
-    <div class="swagger-editor-buttons">
-      <div class="swagger-editor-heading">Swagger File</div>
-      <div>
-        <button
-          type="button"
-          @click="() => open()">
-          Upload File
-        </button>
-        <button
-          type="button"
-          @click="importUrlModal.show">
-          Import URL
-        </button>
+        <HeaderTabButton
+          mobileTitle="Upload"
+          title="Upload File"
+          @click="() => open()" />
+        <HeaderTabButton
+          mobileTitle="URL"
+          title="Import URL"
+          @click="importUrlModal.show" />
       </div>
     </div>
   </div>
@@ -166,17 +148,6 @@ watch(files, () => {
   position: relative;
   z-index: 1;
 }
-.swagger-editor-buttons {
-  display: flex;
-  justify-content: space-between;
-  padding: 0 6px 0 12px;
-  height: 44px;
-  min-height: 44px;
-  align-items: center;
-  border-bottom: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-  background: var(--theme-background-1, var(--default-theme-background-1));
-}
 .swagger-editor-active {
   /* use layered box shadow so opaque border overlap doesn't show  */
   box-shadow:
@@ -230,7 +201,8 @@ watch(files, () => {
 }
 .single-tab .single-tab-items {
   display: flex;
-  margin-left: auto;
+  flex: 1;
+  justify-content: flex-end;
 }
 .single-tab .swagger-editor-active .swagger-editor-type {
   box-shadow:
@@ -243,5 +215,17 @@ watch(files, () => {
 }
 .single-tab .swagger-editor-header {
   padding-right: 6px;
+}
+.swagger-editor-title--mobile {
+  display: none;
+}
+@media screen and (max-width: 1000px) {
+  .swagger-editor-title--mobile {
+    display: flex;
+    margin-right: auto;
+  }
+  .swagger-editor-title i {
+    display: none;
+  }
 }
 </style>

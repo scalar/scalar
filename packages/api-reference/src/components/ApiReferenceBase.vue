@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { type SwaggerEditor } from '@scalar/swagger-editor'
+import { HeaderTabButton, type SwaggerEditor } from '@scalar/swagger-editor'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { FlowModal, useModal } from '@scalar/use-modal'
 import { FlowToastContainer } from '@scalar/use-toasts'
-import { useResizeObserver } from '@vueuse/core'
+import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, ref, watch } from 'vue'
 
 import { deepMerge } from '../helpers'
@@ -102,6 +102,8 @@ function handleCloseModal(passThrough: () => void) {
   gettingStartedModal.hide()
   passThrough()
 }
+
+const isMobile = useMediaQuery('(max-width: 1000px)')
 </script>
 <template>
   <component
@@ -113,7 +115,7 @@ function handleCloseModal(passThrough: () => void) {
   <FlowToastContainer />
   <FlowModal
     :state="gettingStartedModal"
-    title="Getting Started"
+    title=""
     variant="history">
     <GettingStarted
       :theme="configuration?.theme || 'default'"
@@ -151,11 +153,10 @@ function handleCloseModal(passThrough: () => void) {
         @changeTheme="$emit('changeTheme', $event)"
         @contentUpdate="(newContent: string) => setRawSpecRef(newContent)">
         <template #tab-items>
-          <button
-            type="button"
-            @click="handleGettingStarted">
-            Getting Started
-          </button>
+          <HeaderTabButton
+            v-if="isMobile"
+            title="Getting Started"
+            @click="handleGettingStarted" />
         </template>
       </LazyLoadedSwaggerEditor>
     </template>

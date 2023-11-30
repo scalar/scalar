@@ -577,4 +577,10 @@ watch(
     padding: 48px 0 24px 0;
   }
 }
+@media screen and (max-width: 1000px) {
+  .start {
+    padding: 0 !important;
+    overflow: auto !important;
+  }
+}
 </style>

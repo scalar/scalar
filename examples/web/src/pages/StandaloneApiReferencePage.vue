@@ -14,7 +14,9 @@ const configuration = reactive<ReferenceConfiguration>({
 })
 </script>
 <template>
-  <ApiReference :configuration="configuration">
+  <ApiReference
+    :configuration="configuration"
+    @changeTheme="configuration.theme = $event">
     <template #footer><SlotPlaceholder>footer</SlotPlaceholder></template>
   </ApiReference>
 </template>
