@@ -7,7 +7,7 @@ import {
   keymap,
   lineNumbers as lineNumbersExtension,
 } from '@codemirror/view'
-import { ref, toRaw, watch } from 'vue'
+import { type Ref, isRef, ref, toRaw, watch } from 'vue'
 
 import { darkTheme, lightTheme } from '../themes'
 import type { CodeMirrorLanguage } from '../types'
@@ -21,11 +21,11 @@ type UseCodeMirrorParameters = {
   /**
    * Some additional CodeMirror extensions.
    */
-  extensions: Extension[]
+  extensions?: Extension[]
   /**
    * Prefill the content.
    */
-  content?: string
+  content?: string | Ref<string>
   /**
    * Force the dark mode.
    */
@@ -76,6 +76,16 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
     mountCodeMirror()
   })
 
+  // Content changed. Updating CodeMirror …
+  watch(
+    () => content,
+    () => {
+      setCodeMirrorContent(
+        isRef(content) ? content.value : content ? content : '',
+      )
+    },
+  )
+
   // Initializes CodeMirror.
   const mountCodeMirror = () => {
     if (codeMirrorRef.value) {
@@ -85,8 +95,8 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
       }
 
       // Only set the content, when not in collaborative editing mode
-      if (content) {
-        configuration.doc = content
+      if ((isRef(content) && content.value) || content) {
+        configuration.doc = isRef(content) ? content.value : content
       }
 
       codeMirror.value = new EditorView(configuration)
