@@ -123,7 +123,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                 mapFromObject(currentJsonResponse?.examples)[0].value.value,
               )
             "
-            :languages="['json']"
+            language="json"
             readOnly />
         </template>
         <!-- Single example -->
@@ -131,7 +131,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
           <div v-if="currentJsonResponse?.example">
             <CodeMirror
               :content="prettyPrintJson(currentJsonResponse?.example)"
-              :languages="['json']"
+              language="json"
               readOnly />
           </div>
           <div v-else-if="currentJsonResponse?.schema">
@@ -149,7 +149,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                   ),
                 )
               "
-              :languages="['json']"
+              language="json"
               readOnly />
             <!-- oneOf, anyOf, not … -->
             <template
@@ -180,7 +180,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                           }),
                         )
                       "
-                      :languages="['json']"
+                      language="json"
                       readOnly />
                   </li>
                 </ol>
@@ -197,7 +197,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                     }),
                   )
                 "
-                :languages="['json']"
+                language="json"
                 readOnly />
             </template>
             <!-- allOf-->
@@ -214,7 +214,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                   ),
                 )
               "
-              :languages="['json']"
+              language="json"
               readOnly />
           </div>
           <div
