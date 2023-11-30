@@ -11,6 +11,10 @@ import StartPageLink from '../components/PageLink.vue'
           Interactive API documentation with pre-configured search
         </template>
       </StartPageLink>
+      <StartPageLink to="classic-api-reference">
+        <template #title>Classic API Reference</template>
+        <template #description>Classic API documentation with search</template>
+      </StartPageLink>
       <StartPageLink to="api-reference">
         <template #title>API Reference</template>
         <template #description>

@@ -1,5 +1,21 @@
 # @scalar/fastify-api-reference
 
+## 0.7.3
+
+### Patch Changes
+
+- 2bfab93: fix: JS is missing
+
+## 0.7.2
+
+### Patch Changes
+
+- 185a85d: breaking change: use `configuration` instead of `apiReference` to pass the configuration
+- 185a85d: refactor: use CDN version, remove pageTitle option (the API reference supports more attributes already)
+- Updated dependencies [37b974c]
+- Updated dependencies [b77d087]
+  - @scalar/api-reference@1.3.0
+
 ## 0.7.1
 
 ### Patch Changes

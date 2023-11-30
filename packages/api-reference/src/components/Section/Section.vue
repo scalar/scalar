@@ -31,7 +31,7 @@ function handleScroll() {
   display: flex;
   flex-direction: column;
 
-  max-width: 1120px;
+  max-width: var(--refs-content-max-width);
   margin: auto;
 
   /* Extend by header height to line up scroll position */

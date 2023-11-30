@@ -12,7 +12,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {
+        configuration: {
           spec: { url: '/swagger.json' },
         },
       })
@@ -33,7 +33,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {
+        configuration: {
           spec: { url: '/swagger.json' },
         },
       })
@@ -41,33 +41,10 @@ describe('fastifyApiReference', () => {
       fastify.listen({ port: 0 }, function (err, address) {
         fetch(`${address}/reference`).then(async (response) => {
           expect(await response.text()).toContain(
-            '<script type="module" src="/reference/fastify-api-reference.js"></script>',
+            '/@scalar/fastify-api-reference/browser.js',
           )
           resolve(null)
         })
-      })
-    }))
-
-  it('returns 200 OK for the JS file', () =>
-    new Promise((resolve) => {
-      const fastify = Fastify({
-        logger: false,
-      })
-
-      fastify.register(fastifyApiReference, {
-        routePrefix: '/reference',
-        apiReference: {
-          spec: { url: '/swagger.json' },
-        },
-      })
-
-      fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/reference/fastify-api-reference.js`).then(
-          (response) => {
-            expect(response.status).toBe(200)
-            resolve(null)
-          },
-        )
       })
     }))
 
@@ -79,14 +56,14 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {
+        configuration: {
           spec: { url: '/swagger.json' },
         },
       })
 
       fastify.listen({ port: 0 }, function (err, address) {
         fetch(`${address}/reference`).then(async (response) => {
-          expect(await response.text()).toContain('data-url="/swagger.json"')
+          expect(await response.text()).toContain('/swagger.json')
           resolve(null)
         })
       })
@@ -108,7 +85,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {
+        configuration: {
           spec: {
             content: spec,
           },
@@ -142,7 +119,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {
+        configuration: {
           spec: { content: () => spec },
         },
       })
@@ -166,7 +143,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {
+        configuration: {
           spec: { url: '/swagger.json' },
         },
       })
@@ -181,28 +158,6 @@ describe('fastifyApiReference', () => {
       })
     }))
 
-  it('has the custom title', () =>
-    new Promise((resolve) => {
-      const fastify = Fastify({
-        logger: false,
-      })
-
-      fastify.register(fastifyApiReference, {
-        routePrefix: '/reference',
-        apiReference: {
-          pageTitle: 'Foobar',
-          spec: { url: '/swagger.json' },
-        },
-      })
-
-      fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/reference`).then(async (response) => {
-          expect(await response.text()).toContain('<title>Foobar</title>')
-          resolve(null)
-        })
-      })
-    }))
-
   it('has the correct content type', () =>
     new Promise((resolve) => {
       const fastify = Fastify({
@@ -211,7 +166,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {
+        configuration: {
           spec: { url: '/swagger.json' },
         },
       })
@@ -237,7 +192,7 @@ describe('fastifyApiReference', () => {
 
       fastify.register(fastifyApiReference, {
         routePrefix: '/reference',
-        apiReference: {},
+        configuration: {},
       })
 
       fastify.listen({ port: 0 }, function (err, address) {

@@ -1,0 +1,19 @@
+name: Update Contributors in README
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-readme:
+    name: Update the README
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Update the list of contributors
+        uses: akhilmhdh/contributors-readme-action@v2.3.6
+        with:
+          use_username: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

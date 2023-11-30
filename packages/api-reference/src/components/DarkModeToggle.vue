@@ -1,18 +1,9 @@
 <script lang="ts" setup>
 import { ScalarIcon } from '@scalar/components'
-import { onMounted, watchEffect } from 'vue'
 
 import { useDarkModeState } from '../hooks/useDarkModeState'
 
 const { toggleDarkMode, isDark } = useDarkModeState()
-
-// todo move to refs so ssg doesn't break
-onMounted(() => {
-  watchEffect(() => {
-    document.body.classList.toggle('dark-mode', isDark.value)
-    document.body.classList.toggle('light-mode', !isDark.value)
-  })
-})
 </script>
 <template>
   <div class="darklight-reference">

@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 
 import { default as ApiReference } from './components/ApiReference.vue'
+import { type ReferenceConfiguration } from './types'
 
 const specScriptTag = document.querySelector('#api-reference')
 const specElement = document.querySelector('[data-spec]')
@@ -9,14 +10,14 @@ const configurationScriptElement = document.querySelector(
   '#api-reference[data-configuration]',
 )
 
-const getConfiguration = () => {
+const getConfiguration = (): ReferenceConfiguration => {
   // <script data-configuration="{ … }" />
   if (configurationScriptElement) {
     const configurationFromElement =
       configurationScriptElement.getAttribute('data-configuration')
 
     if (configurationFromElement) {
-      return JSON.parse(configurationFromElement)
+      return JSON.parse(configurationFromElement.split('&quot;').join('"'))
     }
   }
 
@@ -24,9 +25,14 @@ const getConfiguration = () => {
 }
 
 const getSpecUrl = () => {
+  // Let’s first check if the user passed a spec URL in the configuration.
+  if (getConfiguration().spec?.url) {
+    return getConfiguration().spec?.url
+  }
+
   // <script id="api-reference" data-url="/scalar.json" />
   if (specScriptTag) {
-    const urlFromScriptTag = specScriptTag.getAttribute('data-url')
+    const urlFromScriptTag = specScriptTag.getAttribute('data-url')?.trim()
 
     if (urlFromScriptTag) {
       return urlFromScriptTag
@@ -48,13 +54,13 @@ const getSpecUrl = () => {
   return undefined
 }
 
-const getSpec = () => {
+const getSpec = (): Record<string, any> | undefined => {
   // <script id="api-reference" type="application/json">{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}</script>
   if (specScriptTag) {
-    const specFromScriptTag = specScriptTag.innerHTML
+    const specFromScriptTag = specScriptTag.innerHTML?.trim()
 
     if (specFromScriptTag) {
-      return specFromScriptTag.trim()
+      return JSON.parse(specFromScriptTag)
     }
   }
 
@@ -63,10 +69,10 @@ const getSpec = () => {
     console.warn(
       '[@scalar/api-reference] The [data-spec] HTML API is deprecated. Use the new <script id="api-reference" type="application/json">{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}</script> API instead.',
     )
-    const specFromSpecElement = specElement.getAttribute('data-spec')
+    const specFromSpecElement = specElement.getAttribute('data-spec')?.trim()
 
     if (specFromSpecElement) {
-      return specFromSpecElement
+      return JSON.parse(specFromSpecElement)
     }
   }
 

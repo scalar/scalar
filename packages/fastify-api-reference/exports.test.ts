@@ -10,7 +10,7 @@ describe('exports', () => {
 
       fastify.register(import('./dist/index.js'), {
         routePrefix: '/foobar',
-        apiReference: {
+        configuration: {
           spec: { url: '/swagger.json' },
         },
       })
@@ -32,7 +32,7 @@ describe('exports', () => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       fastify.register(require('./dist/index.cjs'), {
         routePrefix: '/foobar',
-        apiReference: {
+        configuration: {
           spec: { url: '/swagger.json' },
         },
       })

@@ -17,14 +17,12 @@ export type SelectedClient = { targetKey: TargetId; clientKey: string }
 type TemplateState = {
   isDark: boolean
   activeNavState: NavState
-  collapsedSidebarItems: Partial<Record<string, boolean>>
   selectedClient: SelectedClient
 }
 
 const defaultTemplateState = (): TemplateState => ({
   isDark: false,
   activeNavState: NavState.Guide,
-  collapsedSidebarItems: {},
   selectedClient: {
     targetKey: 'shell',
     clientKey: 'curl',
@@ -35,14 +33,6 @@ const state = reactive<TemplateState>(defaultTemplateState())
 
 function resetState() {
   objectMerge(state, defaultTemplateState())
-}
-
-function toggleCollapsedSidebarItem(key: string) {
-  state.collapsedSidebarItems[key] = !state.collapsedSidebarItems[key] ?? true
-}
-
-function setCollapsedSidebarItem(key: string, value: boolean) {
-  state.collapsedSidebarItems[key] = value
 }
 
 // Gets the client title from availableTargets()
@@ -70,8 +60,6 @@ export const useTemplateStore = () => ({
   resetState,
   setItem: setItemFactory(state),
   toggleItem: toggleItemFactory(state),
-  toggleCollapsedSidebarItem,
-  setCollapsedSidebarItem,
   getClientTitle,
   getTargetTitle,
 })

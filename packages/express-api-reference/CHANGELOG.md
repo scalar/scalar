@@ -1,5 +1,14 @@
 # @scalar/express-api-reference
 
+## 0.0.14
+
+### Patch Changes
+
+- 185a85d: feat: add support for content callbacks
+- Updated dependencies [37b974c]
+- Updated dependencies [b77d087]
+  - @scalar/api-reference@1.3.0
+
 ## 0.0.13
 
 ### Patch Changes

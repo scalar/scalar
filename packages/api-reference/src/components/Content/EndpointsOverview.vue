@@ -6,7 +6,7 @@ import {
   getTagSectionId,
   scrollToId,
 } from '../../helpers'
-import { useTemplateStore } from '../../stores/template'
+import { useNavigation } from '../../hooks'
 import type { Tag, TransformedOperation } from '../../types'
 import { Anchor } from '../Anchor'
 import { Card, CardContent, CardHeader } from '../Card'
@@ -21,7 +21,7 @@ import MarkdownRenderer from './MarkdownRenderer.vue'
 
 const props = defineProps<{ tag: Tag }>()
 
-const { setCollapsedSidebarItem } = useTemplateStore()
+const { setCollapsedSidebarItem } = useNavigation()
 
 // We need to make sure the endpoint tag is open before
 // we try to scroll to it

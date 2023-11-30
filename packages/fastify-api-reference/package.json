@@ -12,13 +12,12 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.7.1",
+  "version": "0.7.3",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "build": "vite build && pnpm run build:template && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "build:template": "vite build -c vite.template.config.ts",
+    "build": "vite build && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
@@ -44,7 +43,6 @@
   },
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
-    "ejs": "^3.1.9",
     "terser": "^5.24.0"
   },
   "devDependencies": {

@@ -116,16 +116,24 @@ export const customThemeCSS = `
 `
 
 /**
- * The HTML to load the @scalar/api-reference package.
+ * The HTML to load the @scalar/api-reference JavaScript package.
  */
-export const ApiReference = (options: ApiReferenceOptions) => {
+export const javascript = (configuration: ReferenceConfiguration) => {
   return html`
     <script
       id="api-reference"
-      data-url="${options.spec?.url}"
-      data-configuration="${raw(
-        JSON.stringify(options).split('"').join('&quot;'),
-      )}"></script>
+      type="application/json"
+      data-configuration="${JSON.stringify(configuration)
+        .split('"')
+        .join('&quot;')}">
+      ${raw(
+        configuration.spec?.content
+          ? typeof configuration.spec?.content === 'function'
+            ? JSON.stringify(configuration.spec?.content())
+            : JSON.stringify(configuration.spec?.content)
+          : '',
+      )}
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
   `
 }
@@ -154,7 +162,7 @@ export const apiReference =
           </style>
         </head>
         <body>
-          ${ApiReference(options)}
+          ${javascript(options)}
         </body>
       </html>
     `)

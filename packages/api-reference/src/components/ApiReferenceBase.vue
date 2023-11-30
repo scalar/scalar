@@ -30,6 +30,10 @@ const emit = defineEmits<{
   ): void
 }>()
 
+defineOptions({
+  inheritAttrs: false,
+})
+
 type ReferenceSlot = Exclude<ReferenceLayoutSlot, 'editor'>
 
 const slots = defineSlots<{
@@ -101,9 +105,15 @@ function handleAIWriter(
 const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
 </script>
 <template>
+  <component
+    :is="'style'"
+    v-if="currentConfiguration.customCss">
+    {{ currentConfiguration.customCss }}
+  </component>
   <ThemeStyles :id="currentConfiguration?.theme" />
   <FlowToastContainer />
   <ApiReferenceLayout
+    v-bind="$attrs"
     :configuration="currentConfiguration"
     :parsedSpec="parsedSpecRef"
     :rawSpec="rawSpecRef"

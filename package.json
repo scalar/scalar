@@ -34,6 +34,7 @@
   "scripts": {
     "build": "pnpm -r build",
     "build:packages": "pnpm --filter './packages/**' build",
+    "pack:packages": "./scripts/pack.sh",
     "build:standalone": "pnpm --filter api-reference build:standalone",
     "bump": "CI=true pnpm run test && pnpm changeset version",
     "dev": "./scripts/dev.sh",
