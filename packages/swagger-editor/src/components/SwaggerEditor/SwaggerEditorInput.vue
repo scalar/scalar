@@ -19,12 +19,12 @@ defineExpose({
 
 const codeMirrorRef = ref<typeof CodeMirror | null>(null)
 
-function getSyntaxHighlighting(content?: string): CodeMirrorLanguage[] {
+function getSyntaxHighlighting(content?: string): CodeMirrorLanguage {
   if (isJsonString(content)) {
-    return ['json']
+    return 'json'
   }
 
-  return ['yaml']
+  return 'yaml'
 }
 </script>
 
@@ -33,7 +33,7 @@ function getSyntaxHighlighting(content?: string): CodeMirrorLanguage[] {
     <CodeMirror
       ref="codeMirrorRef"
       :content="value"
-      :languages="getSyntaxHighlighting(value)"
+      :language="getSyntaxHighlighting(value)"
       lineNumbers
       @change="(value: string) => $emit('contentUpdate', value)" />
   </div>

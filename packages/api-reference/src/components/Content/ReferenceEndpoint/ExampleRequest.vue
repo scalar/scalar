@@ -29,8 +29,8 @@ const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
 const { server: serverState, authentication: authenticationState } =
   useGlobalStore()
 
-const CodeMirrorLanguages = computed(() => {
-  return [state.selectedClient.targetKey]
+const CodeMirrorLanguage = computed(() => {
+  return state.selectedClient.targetKey
 })
 
 const generateSnippet = async (): Promise<string> => {
@@ -146,8 +146,7 @@ computed(() => {
       <!-- @vue-ignore -->
       <CodeMirror
         :content="CodeMirrorValue"
-        :forceDarkMode="true"
-        :languages="CodeMirrorLanguages"
+        :language="CodeMirrorLanguage"
         lineNumbers
         readOnly />
     </CardContent>

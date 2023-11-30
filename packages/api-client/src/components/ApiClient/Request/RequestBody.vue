@@ -33,7 +33,7 @@ const updateActiveRequest = (value: string) => {
     <CodeMirror
       v-else
       :content="activeRequest.body"
-      :languages="['json']"
+      language="json"
       lineNumbers
       @change="updateActiveRequest" />
   </CollapsibleSection>

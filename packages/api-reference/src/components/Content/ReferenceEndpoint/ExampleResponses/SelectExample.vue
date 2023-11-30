@@ -59,7 +59,7 @@ const selectedExample = ref(examples[0])
     </Listbox>
     <CodeMirror
       :content="JSON.stringify(selectedExample.value.value, null, 2)"
-      :languages="['json']"
+      language="json"
       readOnly />
   </div>
 </template>
