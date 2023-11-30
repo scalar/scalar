@@ -28,11 +28,4 @@ export type EditorHeaderTabs =
 
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
 
-export type EditorHeaderTabs =
-  | 'Getting Started'
-  | 'Swagger Editor'
-  | 'AI Writer'
-
-export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
-
 export type OpenSwaggerEditorActions = 'importUrl' | 'uploadFile'
