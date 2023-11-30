@@ -1,5 +1,16 @@
 # @scalar/hono-api-reference
 
+## 0.1.22
+
+### Patch Changes
+
+- 95fbc01: fix: hono middleware fails to read configuration.spec.content
+- Updated dependencies [b65840b]
+- Updated dependencies [95fbc01]
+- Updated dependencies [b65840b]
+- Updated dependencies [b974eeb]
+  - @scalar/api-reference@1.4.0
+
 ## 0.1.21
 
 ### Patch Changes

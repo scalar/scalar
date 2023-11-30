@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.4.0
+
+### Minor Changes
+
+- b974eeb: feat: swagger UI style layout
+
+### Patch Changes
+
+- b65840b: refactor: keep track of the collapsed sidebar items in @scalar/api-reference
+- 95fbc01: fix: hono middleware fails to read configuration.spec.content
+- b65840b: fix: URL doesn’t match the active sidebar item
+- Updated dependencies [b65840b]
+  - @scalar/api-client@0.7.37
+
 ## 1.3.0
 
 ### Minor Changes
