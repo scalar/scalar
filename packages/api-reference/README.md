@@ -148,3 +148,15 @@ You can pass information to the config object to configure meta information out 
       }
   } />
 ```
+
+#### onSpecUpdate?: (spec: string) => void
+
+You can listen to spec changes with onSpecUpdate that runs on spec/swagger content change
+
+```vue
+<ApiReference :configuration="{
+    onSpecUpdate: (value: string) => {
+      console.log('Content updated:', value)
+    }
+  } />
+```

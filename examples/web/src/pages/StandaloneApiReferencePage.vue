@@ -14,9 +14,6 @@ const configuration = reactive<ReferenceConfiguration>({
   tabs: {
     initialContent: 'Swagger Editor',
   },
-  onSpecUpdate: (value: string) => {
-    console.log('Content updated:', value)
-  },
 })
 </script>
 <template>
