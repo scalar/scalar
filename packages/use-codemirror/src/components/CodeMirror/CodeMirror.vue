@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import { type Extension } from '@codemirror/state'
-import {
-  EditorView,
-  lineNumbers as lineNumbersExtension,
-} from '@codemirror/view'
+import { EditorView } from '@codemirror/view'
 import { toRaw, watch } from 'vue'
 
 import { useCodeMirror } from '../../hooks'
@@ -51,11 +48,6 @@ const getCodeMirrorExtensions = () => {
     })
   }
 
-  // Line numbers
-  if (props.lineNumbers) {
-    extensions.push(lineNumbersExtension())
-  }
-
   return extensions
 }
 
@@ -72,6 +64,7 @@ const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
     withVariables: props.withVariables,
     language: props.language ? props.language : props.languages?.[0],
     readOnly: props.readOnly,
+    lineNumbers: props.lineNumbers,
   })
 
 // Content changed. Updating CodeMirror …

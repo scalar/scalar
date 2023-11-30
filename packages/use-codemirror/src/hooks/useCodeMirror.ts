@@ -1,11 +1,12 @@
 import { type Extension, StateEffect } from '@codemirror/state'
 import {
+  EditorView,
   type EditorViewConfig,
   type KeyBinding,
   type ViewUpdate,
   keymap,
+  lineNumbers as lineNumbersExtension,
 } from '@codemirror/view'
-import { EditorView } from 'codemirror'
 import { ref, watch } from 'vue'
 
 import { darkTheme, lightTheme } from '../themes'
@@ -57,6 +58,10 @@ type UseCodeMirrorParameters = {
    * Whether the editor is read-only
    */
   readOnly?: boolean
+  /**
+   * Whether to show line numbers
+   */
+  lineNumbers?: boolean
 }
 
 export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
@@ -148,6 +153,8 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
         : null,
       // Highlight variables
       parameters.withVariables ? variables() : null,
+      // Line numbers
+      parameters.lineNumbers ? lineNumbersExtension() : null,
       // Listen to updates
       EditorView.updateListener.of((v: ViewUpdate) => {
         if (!v.docChanged) {
