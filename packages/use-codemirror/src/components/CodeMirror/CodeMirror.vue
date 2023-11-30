@@ -44,16 +44,6 @@ const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
     extensions: props.extensions,
   })
 
-// Content changed. Updating CodeMirror …
-watch(
-  () => props.content,
-  () => {
-    if (props.content?.length) {
-      setCodeMirrorContent(props.content)
-    }
-  },
-)
-
 // Settings changed. Reconfiguring CodeMirror …
 watch(
   [
