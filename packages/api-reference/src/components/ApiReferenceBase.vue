@@ -49,8 +49,8 @@ const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
 
 /** Merge the default configuration with the given configuration. */
 const currentConfiguration = computed(
-  (): ReferenceConfiguration =>
-    deepMerge(props.configuration ?? {}, { ...DEFAULT_CONFIG }),
+  (): ReferenceConfiguration => props.configuration,
+  // deepMerge(props.configuration ?? {}, { ...DEFAULT_CONFIG }),
 )
 
 // Make it a ComputedRef
@@ -136,6 +136,7 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
         :aiWriterMarkdown="currentConfiguration.aiWriterMarkdown"
         :availableTabs="currentConfiguration.tabs?.available"
         :error="errorRef"
+        :extensions="currentConfiguration.codeMirrorExtensions"
         :initialTabState="currentConfiguration.tabs?.initialContent"
         :proxyUrl="currentConfiguration.proxy"
         :theme="currentConfiguration.theme"

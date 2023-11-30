@@ -33,6 +33,7 @@ function getSyntaxHighlighting(content?: string): CodeMirrorLanguage {
     <CodeMirror
       ref="codeMirrorRef"
       :content="value"
+      :extensions="extensions"
       :language="getSyntaxHighlighting(value)"
       lineNumbers
       @change="(value: string) => $emit('contentUpdate', value)" />

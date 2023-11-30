@@ -14,6 +14,8 @@ import type { CodeMirrorLanguage } from '../types'
 import { variables } from './extensions/variables'
 import { syntaxHighlighting } from './syntaxHighlighting'
 
+export type CodeMirrorExtension = Extension
+
 type UseCodeMirrorParameters = {
   /**
    * Some additional CodeMirror extensions.

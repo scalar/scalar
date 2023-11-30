@@ -13,7 +13,8 @@ import SwaggerEditorGettingStarted from './SwaggerEditorGettingStarted.vue'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
-import SwaggerEditorStatusBar from './SwaggerEditorStatusBar.vue'
+
+// import SwaggerEditorStatusBar from './SwaggerEditorStatusBar.vue'
 
 const props = defineProps<SwaggerEditorProps>()
 
@@ -106,6 +107,7 @@ defineExpose({
     <SwaggerEditorInput
       v-show="activeTab === 'Swagger Editor'"
       ref="codeMirrorReference"
+      :extensions="extensions"
       :value="value"
       @contentUpdate="handleContentUpdate" />
     <SwaggerEditorAIWriter

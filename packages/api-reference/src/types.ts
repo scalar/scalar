@@ -1,5 +1,6 @@
 import { type EditorHeaderTabs } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
+import type { CodeMirrorExtension } from '@scalar/use-codemirror'
 import type { MetaFlatInput } from '@unhead/schema'
 import type { HarRequest } from 'httpsnippet-lite'
 import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
@@ -49,6 +50,7 @@ export type ReferenceConfiguration = {
   metaData?: MetaFlatInput
   /** Custom CSS to be added to the page */
   customCss?: string
+  codeMirrorExtensions?: CodeMirrorExtension[]
 }
 
 /** Default reference configuration */

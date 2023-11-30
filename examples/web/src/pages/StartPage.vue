@@ -29,6 +29,10 @@ import StartPageLink from '../components/PageLink.vue'
         <template #title>Swagger Editor</template>
         <template #description>An editor for Swagger files</template>
       </StartPageLink>
+      <StartPageLink to="collaborative-editing">
+        <template #title>Collaborative Editing</template>
+        <template #description>WIP</template>
+      </StartPageLink>
     </div>
   </div>
 </template>
