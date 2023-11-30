@@ -2,6 +2,7 @@ import { type Extension, StateEffect } from '@codemirror/state'
 import {
   type EditorViewConfig,
   type KeyBinding,
+  type ViewUpdate,
   keymap,
 } from '@codemirror/view'
 import { EditorView } from 'codemirror'
@@ -33,6 +34,10 @@ type UseCodeMirrorParameters = {
    * Whether to load a theme.
    */
   withoutTheme?: boolean
+  /**
+   * Triggered when the content changes
+   */
+  onUpdate: (v: ViewUpdate) => void
 }
 
 export const useCodeMirror = (
@@ -44,6 +49,7 @@ export const useCodeMirror = (
   setCodeMirrorContent: (content: string) => void
   reconfigureCodeMirror: (newExtensions: Extension[]) => void
   restartCodeMirror: (newExtensions: Extension[]) => void
+  onUpdate: (v: ViewUpdate) => void
 } => {
   const { extensions, content, forceDarkMode, forceLightMode, withoutTheme } =
     parameters
@@ -124,6 +130,14 @@ export const useCodeMirror = (
         },
         { dark: forceDarkMode ? false : isDark.value },
       ),
+      // Listen to updates
+      EditorView.updateListener.of((v: ViewUpdate) => {
+        if (!v.docChanged) {
+          return
+        }
+
+        parameters?.onUpdate(v)
+      }),
       keymap.of([selectAllKeyBinding]),
       getCurrentTheme(),
     ].filter((extension) => extension !== null) as Extension[]
