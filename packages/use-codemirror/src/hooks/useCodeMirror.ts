@@ -53,7 +53,16 @@ type UseCodeMirrorParameters = {
   lineNumbers?: boolean
 }
 
-export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
+export const useCodeMirror = (
+  parameters: UseCodeMirrorParameters,
+): {
+  value: Ref<string>
+  codeMirrorRef: Ref<HTMLDivElement | null>
+  codeMirror: Ref<EditorView | null>
+  setCodeMirrorContent: (content: string) => void
+  reconfigureCodeMirror: (newExtensions: Extension[]) => void
+  restartCodeMirror: (newExtensions: Extension[]) => void
+} => {
   const { content, withoutTheme } = parameters
   const value = ref(content ?? '')
   const codeMirrorRef = ref<HTMLDivElement | null>(null)
