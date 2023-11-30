@@ -53,6 +53,10 @@ type UseCodeMirrorParameters = {
    * The language to use for syntax highlighting
    */
   language?: CodeMirrorLanguage
+  /**
+   * Whether the editor is read-only
+   */
+  readOnly?: boolean
 }
 
 export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
@@ -135,6 +139,8 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
         },
         { dark: forceDarkMode ? false : isDark.value },
       ),
+      // Read-only
+      EditorView.editable.of(parameters.readOnly ? false : true),
       // Syntax highlighting
       typeof parameters.language !== 'undefined' &&
       typeof syntaxHighlighting[parameters.language] !== 'undefined'

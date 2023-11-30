@@ -51,11 +51,6 @@ const getCodeMirrorExtensions = () => {
     })
   }
 
-  // Read only
-  if (props.readOnly) {
-    extensions.push(EditorView.editable.of(false))
-  }
-
   // Line numbers
   if (props.lineNumbers) {
     extensions.push(lineNumbersExtension())
@@ -76,6 +71,7 @@ const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
     disableEnter: props.disableEnter,
     withVariables: props.withVariables,
     language: props.language ? props.language : props.languages?.[0],
+    readOnly: props.readOnly,
   })
 
 // Content changed. Updating CodeMirror …
