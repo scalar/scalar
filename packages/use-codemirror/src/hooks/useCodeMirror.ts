@@ -6,9 +6,10 @@ import {
   keymap,
 } from '@codemirror/view'
 import { EditorView } from 'codemirror'
-import { type Ref, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 import { darkTheme, lightTheme } from '../themes'
+import { variables } from './extensions/variables'
 
 /** TODO: This is a static value, make it work with a dynamic parameter. */
 const isDark = ref(true)
@@ -42,20 +43,13 @@ type UseCodeMirrorParameters = {
    * For single-line instances, disable the enter key.
    */
   disableEnter?: boolean
+  /**
+   * Enable variable highlighting
+   */
+  withVariables?: boolean
 }
 
-export const useCodeMirror = (
-  parameters: UseCodeMirrorParameters,
-): {
-  value: Ref<string>
-  codeMirrorRef: Ref<HTMLDivElement | null>
-  codeMirror: Ref<EditorView | null>
-  setCodeMirrorContent: (content: string) => void
-  reconfigureCodeMirror: (newExtensions: Extension[]) => void
-  restartCodeMirror: (newExtensions: Extension[]) => void
-  onUpdate: (v: ViewUpdate) => void
-  disableEnter: boolean
-} => {
+export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
   const { extensions, content, forceDarkMode, forceLightMode, withoutTheme } =
     parameters
   const value = ref(content ?? '')
@@ -135,6 +129,8 @@ export const useCodeMirror = (
         },
         { dark: forceDarkMode ? false : isDark.value },
       ),
+      // Highlight variables
+      parameters.withVariables ? variables() : null,
       // Listen to updates
       EditorView.updateListener.of((v: ViewUpdate) => {
         if (!v.docChanged) {
