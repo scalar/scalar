@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { type Extension } from '@codemirror/state'
-import { EditorView } from '@codemirror/view'
-import { toRaw, watch } from 'vue'
+import { watch } from 'vue'
 
 import { useCodeMirror } from '../../hooks'
 import type { CodeMirrorLanguage } from '../../types'
@@ -29,23 +28,9 @@ const emit = defineEmits<{
   (e: 'change', value: string): void
 }>()
 
-const getCodeMirrorExtensions = () => {
-  const extensions: Extension[] = []
-
-  // Custom extensions
-  if (props.extensions) {
-    props.extensions.forEach((extension) => {
-      extensions.push(toRaw(extension))
-    })
-  }
-
-  return extensions
-}
-
 const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
   useCodeMirror({
     content: props.content ?? '',
-    extensions: getCodeMirrorExtensions(),
     withoutTheme: props.withoutTheme,
     forceDarkMode: props.forceDarkMode,
     onUpdate: (v) => {
@@ -56,6 +41,7 @@ const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
     language: props.language ? props.language : props.languages?.[0],
     readOnly: props.readOnly,
     lineNumbers: props.lineNumbers,
+    extensions: props.extensions,
   })
 
 // Content changed. Updating CodeMirror …

@@ -7,7 +7,7 @@ import {
   keymap,
   lineNumbers as lineNumbersExtension,
 } from '@codemirror/view'
-import { ref, watch } from 'vue'
+import { ref, toRaw, watch } from 'vue'
 
 import { darkTheme, lightTheme } from '../themes'
 import type { CodeMirrorLanguage } from '../types'
@@ -65,8 +65,7 @@ type UseCodeMirrorParameters = {
 }
 
 export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
-  const { extensions, content, forceDarkMode, forceLightMode, withoutTheme } =
-    parameters
+  const { content, forceDarkMode, forceLightMode, withoutTheme } = parameters
   const value = ref(content ?? '')
   const codeMirrorRef = ref<HTMLDivElement | null>(null)
   const codeMirror = ref<EditorView | null>(null)
@@ -74,15 +73,15 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
   // Unmounts CodeMirror if it’s mounted already, and mounts CodeMirror, if the given ref exists.
   watch(codeMirrorRef, () => {
     destroyCodeMirror()
-    mountCodeMirror(extensions)
+    mountCodeMirror()
   })
 
   // Initializes CodeMirror.
-  const mountCodeMirror = (withCustomExtensions: Extension[]) => {
+  const mountCodeMirror = () => {
     if (codeMirrorRef.value) {
       const configuration: EditorViewConfig = {
         parent: codeMirrorRef.value,
-        extensions: addDefaultExtensions(withCustomExtensions),
+        extensions: addDefaultExtensions(),
       }
 
       // Only set the content, when not in collaborative editing mode
@@ -133,6 +132,10 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
 
     // Themes
     const defaultExtensions: Extension[] = [
+      // Additional extensions
+      (parameters.extensions ?? []).map((extension) => {
+        return toRaw(extension)
+      }),
       // CSS Class
       EditorView.editorAttributes.of({ class: 'scalar-codemirror' }),
       // Theme
@@ -253,9 +256,9 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
     })
   }
 
-  const restartCodeMirror = (newExtensions: Extension[]) => {
+  const restartCodeMirror = () => {
     destroyCodeMirror()
-    mountCodeMirror(newExtensions)
+    mountCodeMirror()
   }
 
   return {
