@@ -155,7 +155,7 @@ defineProps<{
   opacity: 0;
   cursor: pointer;
 }
-.scalar-api-client__item__content .scalar-api-client__codemirror__wrapper {
+.scalar-api-client__item__content .scalar-codemirror-wrapper {
   padding-top: 0;
 }
 </style>

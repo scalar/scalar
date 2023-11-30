@@ -84,10 +84,10 @@ const syntaxHighlighting: Partial<
 }
 
 // CSS Class
-const classes = ['scalar-api-client__codemirror']
+const classes = ['scalar-codemirror']
 
 if (props.readOnly) {
-  classes.push('scalar-api-client__codemirror--read-only')
+  classes.push('scalar-codemirror--read-only')
 }
 
 const getCodeMirrorExtensions = () => {
@@ -220,12 +220,12 @@ defineExpose({
 <template>
   <div
     ref="codeMirrorRef"
-    class="scalar-api-client__codemirror__wrapper" />
+    class="scalar-codemirror-wrapper" />
 </template>
 
 <style>
 /** Basics */
-.scalar-api-client__codemirror__wrapper {
+.scalar-codemirror-wrapper {
   width: 100%;
   height: 100%;
   padding-top: 4px;
@@ -235,7 +235,7 @@ defineExpose({
   display: flex;
   align-items: stretch;
 }
-.scalar-api-client__codemirror {
+.scalar-codemirror {
   flex-grow: 1;
   max-width: 100%;
   cursor: text;
@@ -253,9 +253,10 @@ defineExpose({
   align-items: center !important;
 }
 
-.scalar-api-client__variable {
+.scalar-codemirror-variable {
   color: var(--scalar-api-client-color, var(--default-scalar-api-client-color));
 }
+
 .cm-focused {
   outline: none !important;
 }

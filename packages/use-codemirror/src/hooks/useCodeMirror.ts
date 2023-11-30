@@ -10,7 +10,7 @@ import { type Ref, ref, watch } from 'vue'
 import { darkTheme, lightTheme } from '../themes'
 
 /** TODO: This is a static value, make it work with a dynamic parameter. */
-const isDark = ref(false)
+const isDark = ref(true)
 
 type UseCodeMirrorParameters = {
   /**

@@ -74,3 +74,11 @@ export const WithVariables: Story = {
     withVariables: true,
   },
 }
+
+export const ForceDarkMode: Story = {
+  ...Default,
+  args: {
+    content: `const foo = 'bar';`,
+    forceDarkMode: true,
+  },
+}
