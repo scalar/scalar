@@ -1,64 +1,39 @@
 <script lang="ts" setup>
-import { type Extension } from '@codemirror/state'
-import { watch } from 'vue'
+import type { Extension } from '@codemirror/state'
 
 import { useCodeMirror } from '../../hooks'
 import type { CodeMirrorLanguage } from '../../types'
 
-const props = withDefaults(
-  defineProps<{
-    extensions?: Extension[]
-    content?: string
-    readOnly?: boolean
-    language?: CodeMirrorLanguage
-    languages?: CodeMirrorLanguage[]
-    withVariables?: boolean
-    lineNumbers?: boolean
-    withoutTheme?: boolean
-    disableEnter?: boolean
-    forceDarkMode?: boolean
-  }>(),
-  {
-    disableEnter: false,
-    forceDarkMode: false,
-  },
-)
+const props = defineProps<{
+  extensions?: Extension[]
+  content?: string
+  readOnly?: boolean
+  language?: CodeMirrorLanguage
+  withVariables?: boolean
+  lineNumbers?: boolean
+  withoutTheme?: boolean
+  disableEnter?: boolean
+  forceDarkMode?: boolean
+}>()
 
 const emit = defineEmits<{
   (e: 'change', value: string): void
 }>()
 
-const { codeMirrorRef, setCodeMirrorContent, reconfigureCodeMirror } =
-  useCodeMirror({
-    content: props.content ?? '',
-    withoutTheme: props.withoutTheme,
-    forceDarkMode: props.forceDarkMode,
-    onUpdate: (v) => {
-      emit('change', v.state.doc.toString())
-    },
-    disableEnter: props.disableEnter,
-    withVariables: props.withVariables,
-    language: props.language ? props.language : props.languages?.[0],
-    readOnly: props.readOnly,
-    lineNumbers: props.lineNumbers,
-    extensions: props.extensions,
-  })
-
-// Settings changed. Reconfiguring CodeMirror …
-watch(
-  [
-    () => props.disableEnter,
-    () => props.forceDarkMode,
-    () => props.languages,
-    () => props.lineNumbers,
-    () => props.readOnly,
-    () => props.withoutTheme,
-    () => props.withVariables,
-  ],
-  () => {
-    reconfigureCodeMirror(getCodeMirrorExtensions())
+const { codeMirrorRef, setCodeMirrorContent } = useCodeMirror({
+  extensions: props.extensions,
+  content: props.content,
+  readOnly: props.readOnly,
+  language: props.language,
+  withVariables: props.withVariables,
+  lineNumbers: props.lineNumbers,
+  withoutTheme: props.withoutTheme,
+  disableEnter: props.disableEnter,
+  forceDarkMode: props.forceDarkMode,
+  onUpdate: (v) => {
+    emit('change', v.state.doc.toString())
   },
-)
+})
 
 defineExpose({
   setCodeMirrorContent,
@@ -90,7 +65,16 @@ defineExpose({
   font-size: var(--theme-small, var(--default-theme-small));
 }
 
+.scalar-codemirror-variable {
+  color: var(--scalar-api-client-color, var(--default-scalar-api-client-color));
+}
+
+.cm-focused {
+  outline: none !important;
+}
+
 /** URL input */
+/** TODO: Move to the component where it’s used */
 .scalar-api-client__url-input {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   min-height: auto;
@@ -99,13 +83,5 @@ defineExpose({
 
 .scalar-api-client__url-input .ͼ1 .cm-scroller {
   align-items: center !important;
-}
-
-.scalar-codemirror-variable {
-  color: var(--scalar-api-client-color, var(--default-scalar-api-client-color));
-}
-
-.cm-focused {
-  outline: none !important;
 }
 </style>
