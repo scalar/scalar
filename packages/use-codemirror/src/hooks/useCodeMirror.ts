@@ -76,6 +76,22 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
     mountCodeMirror()
   })
 
+  // Settings changed. Reconfiguring CodeMirror …
+  watch(
+    [
+      () => parameters.disableEnter,
+      () => parameters.forceDarkMode,
+      () => parameters.language,
+      () => parameters.lineNumbers,
+      () => parameters.readOnly,
+      () => parameters.withoutTheme,
+      () => parameters.withVariables,
+    ],
+    () => {
+      reconfigureCodeMirror()
+    },
+  )
+
   // Content changed. Updating CodeMirror …
   watch(
     () => content,
@@ -211,10 +227,8 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
   }
 
   watch(isDark, () => {
-    const { extensions: configuredExtensions } = parameters
-
     if (!forceDarkMode) {
-      reconfigureCodeMirror(configuredExtensions)
+      reconfigureCodeMirror()
     }
   })
 
@@ -256,13 +270,13 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
     })
   }
 
-  const reconfigureCodeMirror = (newExtensions: Extension[]) => {
+  const reconfigureCodeMirror = () => {
     if (!codeMirror.value) {
       return
     }
 
     codeMirror.value.dispatch({
-      effects: StateEffect.reconfigure.of(addDefaultExtensions(newExtensions)),
+      effects: StateEffect.reconfigure.of(addDefaultExtensions()),
     })
   }
 
