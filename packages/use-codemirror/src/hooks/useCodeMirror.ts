@@ -9,7 +9,9 @@ import { EditorView } from 'codemirror'
 import { ref, watch } from 'vue'
 
 import { darkTheme, lightTheme } from '../themes'
+import type { CodeMirrorLanguage } from '../types'
 import { variables } from './extensions/variables'
+import { syntaxHighlighting } from './syntaxHighlighting'
 
 /** TODO: This is a static value, make it work with a dynamic parameter. */
 const isDark = ref(true)
@@ -47,6 +49,10 @@ type UseCodeMirrorParameters = {
    * Enable variable highlighting
    */
   withVariables?: boolean
+  /**
+   * The language to use for syntax highlighting
+   */
+  language?: CodeMirrorLanguage
 }
 
 export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
@@ -129,6 +135,11 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
         },
         { dark: forceDarkMode ? false : isDark.value },
       ),
+      // Syntax highlighting
+      typeof parameters.language !== 'undefined' &&
+      typeof syntaxHighlighting[parameters.language] !== 'undefined'
+        ? (syntaxHighlighting[parameters.language] as Extension)
+        : null,
       // Highlight variables
       parameters.withVariables ? variables() : null,
       // Listen to updates

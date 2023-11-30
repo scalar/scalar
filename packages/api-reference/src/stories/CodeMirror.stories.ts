@@ -30,7 +30,7 @@ export const WithJavaScriptCode: Story = {
   ...Default,
   args: {
     content: `const foo = 'bar';`,
-    languages: ['javascript'],
+    language: 'javascript',
   },
 }
 
@@ -38,7 +38,7 @@ export const WithJavaScriptCodeReadOnly: Story = {
   ...Default,
   args: {
     content: `const foo = 'bar';`,
-    languages: ['javascript'],
+    language: 'javascript',
     readOnly: true,
   },
 }
