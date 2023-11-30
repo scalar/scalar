@@ -24,7 +24,6 @@ const props = defineProps<ReferenceProps>()
 const emit = defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
   (e: 'updateContent', value: string): void
-  (value: string[], swaggerData: string, swaggerType: 'json' | 'yaml'): void
 }>()
 
 defineOptions({
