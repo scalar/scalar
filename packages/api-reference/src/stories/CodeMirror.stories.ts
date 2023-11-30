@@ -76,14 +76,6 @@ export const WithVariables: Story = {
   },
 }
 
-export const ForceDarkMode: Story = {
-  ...Default,
-  args: {
-    content: `const foo = 'bar';`,
-    forceDarkMode: true,
-  },
-}
-
 export const ReadOnlyAsExtension: Story = {
   ...Default,
   args: {

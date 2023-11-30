@@ -13,7 +13,6 @@ const props = defineProps<{
   lineNumbers?: boolean
   withoutTheme?: boolean
   disableEnter?: boolean
-  forceDarkMode?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -29,7 +28,6 @@ const { codeMirrorRef, setCodeMirrorContent } = useCodeMirror({
   lineNumbers: props.lineNumbers,
   withoutTheme: props.withoutTheme,
   disableEnter: props.disableEnter,
-  forceDarkMode: props.forceDarkMode,
   onUpdate: (v) => {
     emit('change', v.state.doc.toString())
   },

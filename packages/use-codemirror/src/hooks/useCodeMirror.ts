@@ -9,13 +9,10 @@ import {
 } from '@codemirror/view'
 import { type Ref, isRef, ref, toRaw, watch } from 'vue'
 
-import { darkTheme, lightTheme } from '../themes'
+import { defaultTheme } from '../themes'
 import type { CodeMirrorLanguage } from '../types'
 import { variables } from './extensions/variables'
 import { syntaxHighlighting } from './syntaxHighlighting'
-
-/** TODO: This is a static value, make it work with a dynamic parameter. */
-const isDark = ref(true)
 
 type UseCodeMirrorParameters = {
   /**
@@ -26,14 +23,6 @@ type UseCodeMirrorParameters = {
    * Prefill the content.
    */
   content?: string | Ref<string>
-  /**
-   * Force the dark mode.
-   */
-  forceDarkMode?: boolean
-  /**
-   * Force the light mode.
-   */
-  forceLightMode?: boolean
   /**
    * Whether to load a theme.
    */
@@ -65,7 +54,7 @@ type UseCodeMirrorParameters = {
 }
 
 export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
-  const { content, forceDarkMode, forceLightMode, withoutTheme } = parameters
+  const { content, withoutTheme } = parameters
   const value = ref(content ?? '')
   const codeMirrorRef = ref<HTMLDivElement | null>(null)
   const codeMirror = ref<EditorView | null>(null)
@@ -80,7 +69,6 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
   watch(
     [
       () => parameters.disableEnter,
-      () => parameters.forceDarkMode,
       () => parameters.language,
       () => parameters.lineNumbers,
       () => parameters.readOnly,
@@ -125,19 +113,7 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
       return null
     }
 
-    if (forceDarkMode) {
-      return darkTheme
-    }
-
-    if (forceLightMode) {
-      return lightTheme
-    }
-
-    if (isDark.value) {
-      return darkTheme
-    }
-
-    return lightTheme
+    return defaultTheme
   }
 
   // Extend the given extension list with a dark/light theme.
@@ -165,17 +141,14 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
       // CSS Class
       EditorView.editorAttributes.of({ class: 'scalar-codemirror' }),
       // Theme
-      EditorView.theme(
-        {
-          '.cm-line': {
-            lineHeight: '20px',
-          },
-          '.cm-gutterElement': {
-            lineHeight: '20px',
-          },
+      EditorView.theme({
+        '.cm-line': {
+          lineHeight: '20px',
         },
-        { dark: forceDarkMode ? false : isDark.value },
-      ),
+        '.cm-gutterElement': {
+          lineHeight: '20px',
+        },
+      }),
       // Read-only
       EditorView.editable.of(parameters.readOnly ? false : true),
       // Syntax highlighting
@@ -225,12 +198,6 @@ export const useCodeMirror = (parameters: UseCodeMirrorParameters) => {
 
     return [...defaultExtensions, newExtensions]
   }
-
-  watch(isDark, () => {
-    if (!forceDarkMode) {
-      reconfigureCodeMirror()
-    }
-  })
 
   // Removes CodeMirror.
   const destroyCodeMirror = () => {
