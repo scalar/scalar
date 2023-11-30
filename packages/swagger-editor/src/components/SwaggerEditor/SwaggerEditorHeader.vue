@@ -62,23 +62,20 @@ watch(files, () => {
 })
 </script>
 <template>
-  <div class="single-tab">
-    <div class="swagger-editor-header">
-      <div class="swagger-editor-title swagger-editor-active">
-        <div class="swagger-editor-type"><i>Swagger</i> Editor</div>
-      </div>
-      <slot name="tab-items" />
-      <div class="single-tab-items">
-        <HeaderTabButton @click="() => open()">
-          Upload<span v-if="!isMobile">&nbsp;File</span>
-        </HeaderTabButton>
-        <HeaderTabButton @click="importUrlModal.show()">
-          <span v-if="!isMobile">Import&nbsp;</span>URL
-        </HeaderTabButton>
-      </div>
+  <div class="swagger-editor-header">
+    <div class="swagger-editor-title">
+      <template v-if="!isMobile">Swagger&nbsp;</template>Editor
+    </div>
+    <slot name="tab-items" />
+    <div class="swagger-editor-actions">
+      <HeaderTabButton @click="() => open()">
+        Upload<span v-if="!isMobile">&nbsp;File</span>
+      </HeaderTabButton>
+      <HeaderTabButton @click="importUrlModal.show()">
+        <span v-if="!isMobile">Import&nbsp;</span>URL
+      </HeaderTabButton>
     </div>
   </div>
-
   <FlowModal
     :state="importUrlModal"
     title="Import Swagger from URL">
@@ -101,9 +98,9 @@ watch(files, () => {
     </div>
   </FlowModal>
 </template>
-<style>
+<style scoped>
 .swagger-editor-header {
-  padding: 11px 12px 0 12px;
+  padding: 11px 6px 0 12px;
   display: flex;
   align-items: center;
   flex-flow: wrap;
@@ -113,89 +110,16 @@ watch(files, () => {
 }
 
 .swagger-editor-title {
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  border-radius: var(--theme-radius, var(--default-theme-radius))
-    var(--theme-radius, var(--default-theme-radius)) 0 0;
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  font-size: var(--theme-mini, var(--default-theme-mini));
   display: flex;
   align-items: center;
-  cursor: pointer;
   position: relative;
-}
-.swagger-editor-title:hover:not(.swagger-editor-active):after {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: calc(100% - 6px);
-  height: calc(100% - 6px);
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  background: var(--theme-background-2, var(--default-theme-background-2));
-}
-.swagger-editor-type {
+
   padding: 9px;
-  user-select: none;
-  position: relative;
-  z-index: 1;
-}
-.swagger-editor-active {
-  /* use layered box shadow so opaque border overlap doesn't show  */
-  box-shadow:
-    0 1px 0 0px var(--theme-background-1, var(--default-theme-background-1)),
-    0px 0 0 1px var(--theme-border-color, var(--default-theme-border-color)),
-    0 0 0 1px var(--theme-background-1, var(--default-theme-background-1));
-  cursor: default;
-  color: var(--theme-color-1, var(--default-theme-color-1));
-}
-.swagger-editor-buttons button {
-  background: transparent;
-  appearance: none;
-  outline: none;
-  border: none;
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex-shrink: 1;
-  min-width: 0;
-  padding: 9px;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
-  user-select: none;
-  display: flex;
-  align-items: center;
-}
-.swagger-editor-buttons button svg {
-  width: 14px;
-  height: 14px;
-  margin-right: 6px;
-}
-.swagger-editor-buttons div {
-  display: flex;
-}
-.swagger-editor-buttons button:hover {
-  cursor: pointer;
-  border-color: currentColor;
-  background: var(--theme-background-2, var(--default-theme-background-2));
-}
-.swagger-editor-heading {
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  color: var(--theme-color-1, var(--default-theme-color-1));
   font-size: var(--theme-mini, var(--default-theme-mini));
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  text-transform: uppercase;
-}
-.single-tab .swagger-editor-buttons,
-.single-tab-items {
-  display: none;
-}
-.single-tab .single-tab-items {
-  display: flex;
-  flex: 1;
-  justify-content: flex-end;
-}
-.single-tab .swagger-editor-active .swagger-editor-type {
+
   box-shadow:
     0 1px 0 0px var(--theme-background-2, var(--default-theme-background-2)),
     0px 0 0 1px var(--theme-border-color, var(--default-theme-border-color)),
@@ -204,19 +128,15 @@ watch(files, () => {
   border-radius: var(--theme-radius, var(--default-theme-radius))
     var(--theme-radius, var(--default-theme-radius)) 0 0;
 }
-.single-tab .swagger-editor-header {
-  padding-right: 6px;
+.swagger-editor-heading {
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  text-transform: uppercase;
 }
-.swagger-editor-title--mobile {
-  display: none;
-}
-@media screen and (max-width: 1000px) {
-  .swagger-editor-title--mobile {
-    display: flex;
-    margin-right: auto;
-  }
-  .swagger-editor-title i {
-    display: none;
-  }
+.swagger-editor-actions {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
 }
 </style>
