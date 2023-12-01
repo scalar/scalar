@@ -150,8 +150,7 @@ const { state } = useApiClientStore()
       <div class="references-rendered">
         <Content
           :parsedSpec="parsedSpec"
-          :rawSpec="rawSpec"
-          :ready="true">
+          :rawSpec="rawSpec">
           <template #start>
             <slot
               v-bind="referenceSlotProps"

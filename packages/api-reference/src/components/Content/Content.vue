@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useResizeObserver } from '@vueuse/core'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import { hasModels } from '../../helpers'
 import { useNavigation, useRefOnMount } from '../../hooks'
@@ -12,7 +12,6 @@ import ReferenceTag from './ReferenceTag.vue'
 import Spinner from './Spinner.vue'
 
 const props = defineProps<{
-  ready: boolean
   parsedSpec: Spec
   rawSpec: string
 }>()
@@ -65,41 +64,34 @@ const localServers = computed(() => {
       'references-narrow': isNarrow,
     }">
     <slot name="start" />
-    <template v-if="ready">
-      <Introduction
-        v-if="parsedSpec.info.title || parsedSpec.info.description"
-        :info="parsedSpec.info"
-        :parsedSpec="parsedSpec"
-        :rawSpec="rawSpec"
-        :servers="localServers" />
-      <slot
-        v-else
-        name="empty-state" />
-      <template
-        v-for="(tag, index) in parsedSpec.tags"
-        :key="tag.id">
-        <ReferenceTag
-          v-if="tag.operations && tag.operations.length > 0"
-          :isFirst="index === 0"
-          :spec="parsedSpec"
-          :tag="tag">
-          <ReferenceEndpoint
-            v-for="operation in tag.operations"
-            :key="`${operation.httpVerb}-${operation.operationId}`"
-            :operation="operation"
-            :server="localServers[0]"
-            :tag="tag" />
-        </ReferenceTag>
-      </template>
-      <template v-if="hasModels(parsedSpec)">
-        <Models :components="parsedSpec.components" />
-      </template>
-    </template>
-    <div
+    <Introduction
+      v-if="parsedSpec.info.title || parsedSpec.info.description"
+      :info="parsedSpec.info"
+      :parsedSpec="parsedSpec"
+      :rawSpec="rawSpec"
+      :servers="localServers" />
+    <slot
       v-else
-      class="render-loading">
-      <Spinner />
-    </div>
+      name="empty-state" />
+    <template
+      v-for="(tag, index) in parsedSpec.tags"
+      :key="tag.id">
+      <ReferenceTag
+        v-if="tag.operations && tag.operations.length > 0"
+        :isFirst="index === 0"
+        :spec="parsedSpec"
+        :tag="tag">
+        <ReferenceEndpoint
+          v-for="operation in tag.operations"
+          :key="`${operation.httpVerb}-${operation.operationId}`"
+          :operation="operation"
+          :server="localServers[0]"
+          :tag="tag" />
+      </ReferenceTag>
+    </template>
+    <template v-if="hasModels(parsedSpec)">
+      <Models :components="parsedSpec.components" />
+    </template>
     <slot name="end" />
   </div>
 </template>
@@ -109,46 +101,5 @@ const localServers = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.show-more {
-  background: var(--theme-background-1, var(--default-theme-background-1));
-  appearance: none;
-  border: none;
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  margin: auto;
-  padding: 8px 12px;
-  border-radius: 30px;
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-size: var(--theme-small, var(--default-theme-small));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: -48px;
-  margin-bottom: 48px;
-  position: relative;
-}
-.show-more:hover {
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  cursor: pointer;
-}
-.show-more-icon {
-  width: 14px;
-  height: 14px;
-  margin-left: 3px;
-}
-.show-more:active {
-  box-shadow: 0 0 0 1px
-    var(--theme-border-color, var(--default-theme-border-color));
-}
-.references-narrow .show-more {
-  margin-top: -25px;
-  margin-bottom: 25px;
-}
-@media (max-width: 1165px) {
-  .show-more {
-    margin-top: -24px;
-    margin-bottom: 24px;
-  }
 }
 </style>
