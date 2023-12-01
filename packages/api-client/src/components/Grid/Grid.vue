@@ -43,7 +43,10 @@ const showDescription = ref(false)
       v-for="(item, index) in items"
       :key="item.id"
       class="table-row"
-      :class="item.customClass">
+      :class="{
+        'required-parameter': item.required,
+        [item.customClass]: !!item.customClass,
+      }">
       <div class="table-row-item">
         <input
           v-model="item.name"
@@ -95,8 +98,9 @@ const showDescription = ref(false)
       </div>
       <div class="table-row-meta">
         <label class="meta-check">
+          <!-- v-model="item.enabled" -->
           <input
-            v-model="item.required"
+            checked
             type="checkbox" />
           <span class="meta-checkmark" />
         </label>
