@@ -13,11 +13,9 @@ export function getParametersFromOperation(
   where: 'query' | 'path' | 'header' | 'cookie',
 ): BaseParameter {
   const parameters = [
-    ...(operation.information?.parameters || []),
     ...(operation.pathParameters || []),
+    ...(operation.information?.parameters || []),
   ]
-
-  console.log({ parameters })
 
   return parameters
     .filter((parameter) => parameter.in === where)

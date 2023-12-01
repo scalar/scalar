@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import type { TransformedOperation } from '../types'
 import { getParametersFromOperation } from './getParametersFromOperation'
 
 describe('getParametersFromOperation', () => {
@@ -8,9 +9,6 @@ describe('getParametersFromOperation', () => {
       {
         httpVerb: 'GET',
         path: '/foobar',
-        operationId: 'foobar',
-        name: 'foobar',
-        description: '',
         information: {
           parameters: [
             {
@@ -36,16 +34,12 @@ describe('getParametersFromOperation', () => {
       {
         httpVerb: 'GET',
         path: '/foobar',
-        operationId: 'foobar',
-        name: 'foobar',
-        description: '',
         pathParameters: [
           {
             in: 'query',
             name: 'api_key',
           },
         ],
-        information: {},
       },
       'query',
     )
@@ -86,12 +80,82 @@ describe('getParametersFromOperation', () => {
 
     expect(request).toMatchObject([
       {
-        name: 'bar',
+        name: 'foo',
         value: '',
       },
       {
-        name: 'foo',
+        name: 'bar',
         value: '',
+      },
+    ])
+  })
+
+  it('parameters with `required` and `description`', () => {
+    const request = getParametersFromOperation(
+      {
+        httpVerb: 'POST',
+        path: '/foobar',
+        pathParameters: [
+          {
+            name: 'api_token',
+            in: 'query',
+            description: 'Your API token',
+            required: true,
+          },
+        ],
+        information: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'query',
+              description: 'A Query Parameter',
+            },
+          ],
+        },
+      } as TransformedOperation,
+      'query',
+    )
+
+    expect(request).toStrictEqual([
+      {
+        name: 'api_token',
+        value: '',
+        description: 'Your API token',
+        required: true,
+      },
+      {
+        name: 'id',
+        value: '',
+        description: 'A Query Parameter',
+        required: false,
+      },
+    ])
+  })
+
+  it('parameters use example', () => {
+    const request = getParametersFromOperation(
+      {
+        httpVerb: 'POST',
+        path: '/foobar',
+        information: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'query',
+              example: 123,
+            },
+          ],
+        },
+      } as TransformedOperation,
+      'query',
+    )
+
+    expect(request).toStrictEqual([
+      {
+        name: 'id',
+        description: null,
+        value: 123,
+        required: false,
       },
     ])
   })
