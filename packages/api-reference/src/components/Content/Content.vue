@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useResizeObserver } from '@vueuse/core'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import { hasModels } from '../../helpers'
 import { useNavigation, useRefOnMount } from '../../hooks'
@@ -9,11 +9,12 @@ import Introduction from './Introduction'
 import Models from './Models.vue'
 import ReferenceEndpoint from './ReferenceEndpoint'
 import ReferenceTag from './ReferenceTag.vue'
-import Spinner from './Spinner.vue'
+import ReferenceTagAccordion from './ReferenceTagAccordion.vue'
 
 const props = defineProps<{
   parsedSpec: Spec
   rawSpec: string
+  layout?: 'default' | 'accordion'
 }>()
 
 const { setCollapsedSidebarItem } = useNavigation()
@@ -56,6 +57,10 @@ const localServers = computed(() => {
     return [{ url: '' }]
   }
 })
+
+const tagLayout = computed<typeof ReferenceTag>(() =>
+  props.layout === 'accordion' ? ReferenceTagAccordion : ReferenceTag,
+)
 </script>
 <template>
   <div
@@ -76,7 +81,8 @@ const localServers = computed(() => {
     <template
       v-for="(tag, index) in parsedSpec.tags"
       :key="tag.id">
-      <ReferenceTag
+      <Component
+        :is="tagLayout"
         v-if="tag.operations && tag.operations.length > 0"
         :isFirst="index === 0"
         :spec="parsedSpec"
@@ -87,7 +93,7 @@ const localServers = computed(() => {
           :operation="operation"
           :server="localServers[0]"
           :tag="tag" />
-      </ReferenceTag>
+      </Component>
     </template>
     <template v-if="hasModels(parsedSpec)">
       <Models :components="parsedSpec.components" />

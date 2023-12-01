@@ -27,6 +27,7 @@ const { setCollapsedSidebarItem } = useNavigation()
   appearance: none;
   border: none;
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  margin: auto;
   padding: 8px 12px;
   border-radius: 30px;
   color: var(--theme-color-1, var(--default-theme-color-1));
@@ -35,8 +36,9 @@ const { setCollapsedSidebarItem } = useNavigation()
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: -48px;
+  margin-bottom: 48px;
   position: relative;
-  margin: 48px auto;
 }
 .show-more:hover {
   color: var(--theme-color-2, var(--default-theme-color-2));
@@ -51,10 +53,14 @@ const { setCollapsedSidebarItem } = useNavigation()
   box-shadow: 0 0 0 1px
     var(--theme-border-color, var(--default-theme-border-color));
 }
-
+.references-narrow .show-more {
+  margin-top: -25px;
+  margin-bottom: 25px;
+}
 @media (max-width: 1165px) {
   .show-more {
-    margin: 24px auto;
+    margin-top: -24px;
+    margin-bottom: 24px;
   }
 }
 </style>

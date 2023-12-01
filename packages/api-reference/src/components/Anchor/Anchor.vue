@@ -26,7 +26,7 @@ const getUrlWithId = (id: string) => {
       <button
         class="anchor-copy"
         type="button"
-        @click="copyToClipboard(getUrlWithId(id))">
+        @click.stop="copyToClipboard(getUrlWithId(id))">
         #
         <ScreenReader>Copy link to "<slot />"</ScreenReader>
       </button>
