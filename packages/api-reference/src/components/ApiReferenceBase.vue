@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { type SwaggerEditor } from '@scalar/swagger-editor'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
+import { useCodeMirror } from '@scalar/use-codemirror'
 import { FlowToastContainer } from '@scalar/use-toasts'
 import { useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, ref, watch } from 'vue'
@@ -103,6 +104,12 @@ function handleAIWriter(
 }
 
 const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
+
+const { codeMirrorRef, setCodeMirrorRef } = useCodeMirror({
+  onUpdate: (v) => {
+    console.log('change', v.state.doc.toString())
+  },
+})
 </script>
 <template>
   <component
@@ -136,14 +143,15 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
         :aiWriterMarkdown="currentConfiguration.aiWriterMarkdown"
         :availableTabs="currentConfiguration.tabs?.available"
         :error="errorRef"
-        :extensions="currentConfiguration.codeMirrorExtensions"
         :initialTabState="currentConfiguration.tabs?.initialContent"
         :proxyUrl="currentConfiguration.proxy"
+        :setCodeMirrorRef="setCodeMirrorRef"
         :theme="currentConfiguration.theme"
         :value="rawSpecRef"
         @changeTheme="$emit('changeTheme', $event)"
         @contentUpdate="(newContent: string) => setRawSpecRef(newContent)"
-        @startAIWriter="handleAIWriter" />
+        @startAIWriter="handleAIWriter">
+      </LazyLoadedSwaggerEditor>
     </template>
   </ApiReferenceLayout>
 </template>

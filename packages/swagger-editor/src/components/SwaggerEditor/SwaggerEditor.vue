@@ -11,12 +11,11 @@ import {
 import SwaggerEditorAIWriter from './SwaggerEditorAIWriter.vue'
 import SwaggerEditorGettingStarted from './SwaggerEditorGettingStarted.vue'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
-import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
 
 // import SwaggerEditorStatusBar from './SwaggerEditorStatusBar.vue'
 
-const props = defineProps<SwaggerEditorProps>()
+const props = defineProps<Omit<SwaggerEditorProps, 'extensions'>>()
 
 const emit = defineEmits<{
   (e: 'contentUpdate', value: string): void
@@ -35,8 +34,6 @@ const swaggerEditorHeaderRef = ref<typeof SwaggerEditorHeader | null>(null)
 const handleContentUpdate = (value: string) => {
   emit('contentUpdate', value)
 }
-
-const codeMirrorReference = ref<typeof SwaggerEditorInput | null>(null)
 
 const formattedError = computed(() => {
   // Check whether there‘s an error
@@ -104,12 +101,16 @@ defineExpose({
       v-if="activeTab === 'Swagger Editor' && formattedError">
       {{ formattedError }}
     </SwaggerEditorNotification>
-    <SwaggerEditorInput
-      v-show="activeTab === 'Swagger Editor'"
-      ref="codeMirrorReference"
-      :extensions="extensions"
-      :value="value"
-      @contentUpdate="handleContentUpdate" />
+
+    <!-- Slotted swagger editor -->
+    <div v-show="activeTab === 'Swagger Editor'">
+      <slot name="swagger-editor">
+        <div
+          v-if="setCodeMirrorRef"
+          :ref="setCodeMirrorRef" />
+      </slot>
+    </div>
+
     <SwaggerEditorAIWriter
       v-if="activeTab === 'AI Writer'"
       :aiWriterMarkdown="aiWriterMarkdown ?? ''"

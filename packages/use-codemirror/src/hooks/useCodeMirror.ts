@@ -69,6 +69,7 @@ export const useCodeMirror = (
   const value = ref(content ?? '')
   const codeMirrorRef = ref<HTMLDivElement | null>(null)
   const codeMirror = ref<EditorView | null>(null)
+  const setCodeMirrorRef = (el: HTMLDivElement) => (codeMirrorRef.value = el)
 
   // Unmounts CodeMirror if it’s mounted already, and mounts CodeMirror, if the given ref exists.
   watch(codeMirrorRef, () => {
@@ -272,6 +273,10 @@ export const useCodeMirror = (
      * An empty reference used to mount CodeMirror when bound to the DOM.
      */
     codeMirrorRef,
+    /**
+     * Function for setting the CodeMirrorRef, pass this into SwaggerEditor
+     */
+    setCodeMirrorRef,
     /**
      * The CodeMirror instance.
      */
