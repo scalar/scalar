@@ -86,7 +86,6 @@ const showDescription = ref(false)
         class="table-row-item">
         <input
           v-model="item.description"
-          disabled
           placeholder="value" />
         <!-- <input
           :ref="`description_${item}`"
