@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Card, CardContent, CardHeader } from '@scalar/api-reference'
 import { RouterLink } from 'vue-router'
 
 defineProps<{
@@ -6,10 +7,26 @@ defineProps<{
 }>()
 </script>
 <template>
-  <RouterLink
-    class="text-center border border-solid border-gray-300 hover:border-gray-400 flex flex-col justify-center rounded text-xl px-4 py-10"
-    :to="{ name: to }">
-    <h2 class="mb-4 font-bold"><slot name="title" /></h2>
-    <div><slot name="description" /></div>
+  <RouterLink :to="{ name: to }">
+    <Card>
+      <CardHeader>
+        <slot name="title" />
+      </CardHeader>
+      <CardContent class="description">
+        <slot name="description" />
+      </CardContent>
+    </Card>
   </RouterLink>
 </template>
+
+<style scoped>
+a {
+  text-decoration: none;
+  color: var(--default-theme-color-1);
+}
+
+.description {
+  padding: 10px;
+  min-height: 75px;
+}
+</style>

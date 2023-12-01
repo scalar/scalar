@@ -1,34 +1,58 @@
 <script setup lang="ts">
-import StartPageLink from '../components/PageLink.vue'
+import { ThemeStyles } from '@scalar/themes'
+
+import PageLink from '../components/PageLink.vue'
 </script>
 <template>
-  <div
-    class="flex items-center justify-center h-screen w-screen bg-gray-50 text-gray-600">
-    <div class="grid grid-cols-2 grid-rows-2 gap-4 p-6">
-      <StartPageLink to="standalone-api-reference">
+  <ThemeStyles id="default" />
+  <div class="main light-mode">
+    <h1>Examples</h1>
+    <div class="page-links">
+      <PageLink to="standalone-api-reference">
         <template #title>Standalone API Reference</template>
         <template #description>
           Interactive API documentation with pre-configured search
         </template>
-      </StartPageLink>
-      <StartPageLink to="classic-api-reference">
+      </PageLink>
+      <PageLink to="classic-api-reference">
         <template #title>Classic API Reference</template>
-        <template #description>Classic API documentation with search</template>
-      </StartPageLink>
-      <StartPageLink to="api-reference">
+        <template #description>
+          Classic API documentation with search
+        </template>
+      </PageLink>
+      <PageLink to="api-reference">
         <template #title>API Reference</template>
         <template #description>
           Customizable Interactive API documentations
         </template>
-      </StartPageLink>
-      <StartPageLink to="api-client">
+      </PageLink>
+      <PageLink to="api-client">
         <template #title>API Client</template>
         <template #description>Your drop-in API Client</template>
-      </StartPageLink>
-      <StartPageLink to="swagger-editor">
+      </PageLink>
+      <PageLink to="swagger-editor">
         <template #title>Swagger Editor</template>
         <template #description>An editor for Swagger files</template>
-      </StartPageLink>
+      </PageLink>
     </div>
   </div>
 </template>
+
+<style scoped>
+.main {
+  margin: 2rem;
+  font-family: 'Inter', sans-serif;
+}
+
+h1 {
+  font-weight: normal;
+  margin-bottom: 2rem;
+}
+
+.page-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-gap: 1rem;
+  /** Make all PageLink elements same height */
+}
+</style>
