@@ -2,15 +2,13 @@
 import { useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 
-import { getTagSectionId, hasModels } from '../../helpers'
+import { hasModels } from '../../helpers'
 import { useNavigation, useRefOnMount } from '../../hooks'
-import type { Spec, Tag } from '../../types'
-import { FlowIcon } from '../Icon'
-import { SectionContainer } from '../Section'
-import EndpointsOverview from './EndpointsOverview.vue'
+import type { Spec } from '../../types'
 import Introduction from './Introduction'
 import Models from './Models.vue'
 import ReferenceEndpoint from './ReferenceEndpoint'
+import ReferenceTag from './ReferenceTag.vue'
 import Spinner from './Spinner.vue'
 
 const props = defineProps<{
@@ -19,7 +17,7 @@ const props = defineProps<{
   rawSpec: string
 }>()
 
-const { setCollapsedSidebarItem, collapsedSidebarItems } = useNavigation()
+const { setCollapsedSidebarItem } = useNavigation()
 
 const referenceEl = ref<HTMLElement | null>(null)
 
@@ -59,11 +57,6 @@ const localServers = computed(() => {
     return [{ url: '' }]
   }
 })
-
-const moreThanOneDefaultTag = (tag: Tag) =>
-  props.parsedSpec?.tags?.length !== 1 ||
-  tag?.name !== 'default' ||
-  tag?.description !== ''
 </script>
 <template>
   <div
@@ -85,38 +78,18 @@ const moreThanOneDefaultTag = (tag: Tag) =>
       <template
         v-for="(tag, index) in parsedSpec.tags"
         :key="tag.id">
-        <SectionContainer v-if="tag.operations && tag.operations.length > 0">
-          <EndpointsOverview
-            v-if="moreThanOneDefaultTag(tag)"
+        <ReferenceTag
+          v-if="tag.operations && tag.operations.length > 0"
+          :isFirst="index === 0"
+          :spec="parsedSpec"
+          :tag="tag">
+          <ReferenceEndpoint
+            v-for="operation in tag.operations"
+            :key="`${operation.httpVerb}-${operation.operationId}`"
+            :operation="operation"
+            :server="localServers[0]"
             :tag="tag" />
-          <button
-            v-if="
-              index !== 0 &&
-              !collapsedSidebarItems[getTagSectionId(tag)] &&
-              tag.operations?.length > 1
-            "
-            class="show-more"
-            type="button"
-            @click="setCollapsedSidebarItem(getTagSectionId(tag), true)">
-            Show More
-            <FlowIcon
-              class="show-more-icon"
-              icon="ChevronDown" />
-          </button>
-          <template
-            v-if="
-              index === 0 ||
-              collapsedSidebarItems[getTagSectionId(tag)] ||
-              tag.operations?.length === 1
-            ">
-            <ReferenceEndpoint
-              v-for="operation in tag.operations"
-              :key="`${operation.httpVerb}-${operation.operationId}`"
-              :operation="operation"
-              :server="localServers[0]"
-              :tag="tag" />
-          </template>
-        </SectionContainer>
+        </ReferenceTag>
       </template>
       <template v-if="hasModels(parsedSpec)">
         <Models :components="parsedSpec.components" />
