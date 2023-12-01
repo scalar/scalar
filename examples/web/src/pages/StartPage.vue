@@ -47,10 +47,10 @@ import PageLink from '../components/PageLink.vue'
       </PageLink>
       <PageLink to="api-client">
         <template #title>API Client</template>
-        <template #description
-          >Just the API client, and nothing else. Play with any API in your
-          browser.</template
-        >
+        <template #description>
+          Just the API client, and nothing else. Play with any API in your
+          browser.
+        </template>
       </PageLink>
       <PageLink to="swagger-editor">
         <template #title>Swagger Editor</template>
