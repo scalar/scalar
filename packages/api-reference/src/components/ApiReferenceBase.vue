@@ -18,6 +18,7 @@ import {
 } from '../types'
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
 import GettingStarted from './GettingStarted.vue'
+import GlobalStyles from './GlobalStyles.vue'
 
 const props = defineProps<ReferenceProps>()
 
@@ -123,42 +124,47 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
       @openSwaggerEditor="gettingStartedModal.hide()"
       @updateContent="handleCloseModal(() => $emit('updateContent', $event))" />
   </FlowModal>
-  <ApiReferenceLayout
-    v-bind="$attrs"
-    :configuration="currentConfiguration"
-    :parsedSpec="parsedSpecRef"
-    :rawSpec="rawSpecRef"
-    :swaggerEditorRef="swaggerEditorRef"
-    @changeTheme="$emit('changeTheme', $event)"
-    @updateContent="(newContent: string) => setRawSpecRef(newContent)">
-    <!-- Passes up all the slots except `editor` with typed slot props -->
-    <template
-      v-for="(_, name) in slots"
-      #[name]="scope">
-      <slot
-        :name="name"
-        v-bind="scope" />
-    </template>
-    <template
-      v-if="LazyLoadedSwaggerEditor"
-      #editor>
-      <LazyLoadedSwaggerEditor
-        ref="swaggerEditorRef"
-        :error="errorRef"
-        :hocuspocusConfiguration="currentConfiguration.hocuspocusConfiguration"
-        :proxyUrl="currentConfiguration.proxy"
-        :theme="currentConfiguration.theme"
-        :value="rawSpecRef"
-        @changeTheme="$emit('changeTheme', $event)"
-        @contentUpdate="(newContent: string) => setRawSpecRef(newContent)">
-        <template #tab-items>
-          <HeaderTabButton
-            v-if="isMobile"
-            @click="handleGettingStarted">
-            Getting Started
-          </HeaderTabButton>
-        </template>
-      </LazyLoadedSwaggerEditor>
-    </template>
-  </ApiReferenceLayout>
+  <GlobalStyles v-slot="{ styles }">
+    <ApiReferenceLayout
+      v-bind="$attrs"
+      :class="styles"
+      :configuration="currentConfiguration"
+      :parsedSpec="parsedSpecRef"
+      :rawSpec="rawSpecRef"
+      :swaggerEditorRef="swaggerEditorRef"
+      @changeTheme="$emit('changeTheme', $event)"
+      @updateContent="(newContent: string) => setRawSpecRef(newContent)">
+      <!-- Passes up all the slots except `editor` with typed slot props -->
+      <template
+        v-for="(_, name) in slots"
+        #[name]="scope">
+        <slot
+          :name="name"
+          v-bind="scope" />
+      </template>
+      <template
+        v-if="LazyLoadedSwaggerEditor"
+        #editor>
+        <LazyLoadedSwaggerEditor
+          ref="swaggerEditorRef"
+          :error="errorRef"
+          :hocuspocusConfiguration="
+            currentConfiguration.hocuspocusConfiguration
+          "
+          :proxyUrl="currentConfiguration.proxy"
+          :theme="currentConfiguration.theme"
+          :value="rawSpecRef"
+          @changeTheme="$emit('changeTheme', $event)"
+          @contentUpdate="(newContent: string) => setRawSpecRef(newContent)">
+          <template #tab-items>
+            <HeaderTabButton
+              v-if="isMobile"
+              @click="handleGettingStarted">
+              Getting Started
+            </HeaderTabButton>
+          </template>
+        </LazyLoadedSwaggerEditor>
+      </template>
+    </ApiReferenceLayout>
+  </GlobalStyles>
 </template>

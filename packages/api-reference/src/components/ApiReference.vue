@@ -3,7 +3,6 @@ import { createHead, useSeoMeta } from 'unhead'
 import { computed, ref } from 'vue'
 
 import { type ReferenceProps, type SpecConfiguration } from '../types'
-import GlobalStyles from './GlobalStyles.vue'
 import Layouts from './Layouts/'
 
 const props = defineProps<ReferenceProps>()
@@ -34,13 +33,10 @@ function handleUpdateContent(value: string) {
 }
 </script>
 <template>
-  <GlobalStyles v-slot="{ styles }">
-    <Component
-      :is="Layouts[config.layout || 'modern']"
-      :class="styles"
-      :configuration="config"
-      @updateContent="handleUpdateContent">
-      <template #footer><slot name="footer" /></template>
-    </Component>
-  </GlobalStyles>
+  <Component
+    :is="Layouts[config.layout || 'modern']"
+    :configuration="config"
+    @updateContent="handleUpdateContent">
+    <template #footer><slot name="footer" /></template>
+  </Component>
 </template>

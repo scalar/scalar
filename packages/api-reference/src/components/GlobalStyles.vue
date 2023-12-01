@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import { useCssModule } from 'vue'
+import { onMounted, useCssModule } from 'vue'
 
 const { reset } = useCssModule()
+
+// Add the reset to the headless UI root as well if there is one
+onMounted(() => {
+  if (!document.body) return
+  const el = document.getElementById('headlessui-portal-root')
+  el?.classList.add(reset)
+})
 </script>
 <template>
   <slot :styles="reset" />
