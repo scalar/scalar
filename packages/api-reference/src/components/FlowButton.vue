@@ -13,6 +13,7 @@ import FlowLoader, {
   type LoadingState,
   useLoaderState as useLoadButtonState,
 } from './FlowLoader.vue'
+import ScreenReader from './ScreenReader.vue'
 
 export type ButtonVariant = 'solid' | 'outlined' | 'clear' | 'text'
 export { useLoadButtonState }
@@ -34,7 +35,7 @@ export { useLoadButtonState }
       class="flow-button-decorator">
       <slot />
     </div>
-    <span :class="{ 'sr-only': icon }">{{ label }}</span>
+    <ScreenReader :if="icon">{{ label }}</ScreenReader>
     <div class="flow-button-loader">
       <FlowLoader
         v-if="loaderState"
