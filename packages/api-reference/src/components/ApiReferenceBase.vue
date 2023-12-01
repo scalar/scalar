@@ -150,8 +150,7 @@ const { codeMirrorRef, setCodeMirrorRef } = useCodeMirror({
         :value="rawSpecRef"
         @changeTheme="$emit('changeTheme', $event)"
         @contentUpdate="(newContent: string) => setRawSpecRef(newContent)"
-        @startAIWriter="handleAIWriter">
-      </LazyLoadedSwaggerEditor>
+        @startAIWriter="handleAIWriter" />
     </template>
   </ApiReferenceLayout>
 </template>
