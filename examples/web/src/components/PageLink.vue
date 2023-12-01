@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { Card, CardContent, CardHeader } from '@scalar/api-reference'
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@scalar/api-reference'
 import { RouterLink } from 'vue-router'
 
 defineProps<{
@@ -22,11 +27,13 @@ defineProps<{
 <style scoped>
 a {
   text-decoration: none;
-  color: var(--default-theme-color-1);
+  color: var(--default-theme-color-2);
 }
 
 .description {
   padding: 10px;
   min-height: 75px;
+  font-size: var(--default-theme-small);
+  line-height: 1.5;
 }
 </style>
