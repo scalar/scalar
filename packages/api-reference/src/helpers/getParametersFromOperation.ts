@@ -1,4 +1,7 @@
+import type { BaseParameter } from '@scalar/api-client'
+
 import type { TransformedOperation } from '../types'
+import { getExampleFromSchema } from './getExampleFromSchema'
 
 /**
  * Get the query parameters from an operation.
@@ -8,17 +11,24 @@ import type { TransformedOperation } from '../types'
 export function getParametersFromOperation(
   operation: TransformedOperation,
   where: 'query' | 'path' | 'header' | 'cookie',
-): any {
+): BaseParameter {
   const parameters = [
     ...(operation.information?.parameters || []),
     ...(operation.pathParameters || []),
   ]
 
+  console.log({ parameters })
+
   return parameters
     .filter((parameter) => parameter.in === where)
     .map((parameter) => ({
       name: parameter.name,
-      // TODO: Can we prefill this?
-      value: '',
+      description: parameter.description ?? null,
+      value: parameter.example
+        ? parameter.example
+        : parameter.schema
+        ? getExampleFromSchema(parameter.schema)
+        : '',
+      required: parameter.required ?? false,
     }))
 }

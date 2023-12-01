@@ -67,11 +67,20 @@ export type Schema = {
 }
 
 export type Parameters = {
-  description?: string
+  // Fixed Fields
+  name?: string
   in?: string
-  name: string
+  description?: string
   required?: boolean
+  deprecated?: boolean
+  allowEmptyValue?: boolean
+  // Other
+  style?: 'form' | 'simple'
+  explode?: boolean
+  allowReserved?: boolean
   schema?: Schema
+  example?: any
+  examples?: Map<string, any>
 }
 
 export type Response = {

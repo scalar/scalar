@@ -84,6 +84,10 @@ const showDescription = ref(false)
       <div
         v-show="showDescription"
         class="table-row-item">
+        <input
+          v-model="item.description"
+          disabled
+          placeholder="value" />
         <!-- <input
           :ref="`description_${item}`"
           type="text"
@@ -92,7 +96,9 @@ const showDescription = ref(false)
       </div>
       <div class="table-row-meta">
         <label class="meta-check">
-          <input type="checkbox" />
+          <input
+            v-model="item.required"
+            type="checkbox" />
           <span class="meta-checkmark" />
         </label>
         <button
