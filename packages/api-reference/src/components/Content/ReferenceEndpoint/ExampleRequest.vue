@@ -152,7 +152,7 @@ const formattedPath = computed(() => {
     </CardHeader>
     <CardContent
       borderless
-      class="custom-scroll"
+      class="request-editor-section custom-scroll"
       frameless>
       <!-- @vue-ignore -->
       <CodeMirror
@@ -378,5 +378,10 @@ const formattedPath = computed(() => {
     left: 0;
     border-right: none;
   }
+}
+
+.request-editor-section {
+  display: grid;
+  flex: 1;
 }
 </style>

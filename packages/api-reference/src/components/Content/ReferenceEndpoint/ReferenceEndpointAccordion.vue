@@ -30,10 +30,12 @@ defineProps<{
         </div>
       </h3>
     </template>
-    <template #description>
+    <template
+      v-if="operation.description"
+      #description>
       <MarkdownRenderer :value="operation.description" />
     </template>
-    <div>
+    <div class="endpoint-content">
       <Copy :operation="operation" />
       <ExampleResponses :operation="operation" />
       <ExampleRequest :operation="operation" />
@@ -95,5 +97,15 @@ defineProps<{
 .endpoint-label-name {
   color: var(--theme-color-3, var(--default-theme-color-3));
   font-size: var(--theme-micro, var(--default-theme-micro));
+}
+
+.endpoint-content {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.endpoint-content > * {
+  max-height: unset;
 }
 </style>
