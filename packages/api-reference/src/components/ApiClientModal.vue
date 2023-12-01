@@ -39,7 +39,7 @@ export { useApiClientStore } from '@scalar/api-client'
             <span>Back to Reference</span>
           </button>
         </div> -->
-        <div class="scalar-api-client-height flex flex-row">
+        <div class="scalar-api-client-height">
           <template v-if="tabMode">
             <template v-if="activeTab === 'sidebar'">
               <div class="t-doc__sidebar">
@@ -215,6 +215,7 @@ export { useApiClientStore } from '@scalar/api-client'
 }
 .scalar-api-client-height {
   height: 100%;
+  display: flex;
 }
 .scalar-api-client-height .sidebar {
   flex: 1 1 0%;
