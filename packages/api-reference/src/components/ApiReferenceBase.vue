@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { HeaderTabButton, type SwaggerEditor } from '@scalar/swagger-editor'
+import {
+  HeaderTabButton,
+  ResetStyles,
+  type SwaggerEditor,
+} from '@scalar/swagger-editor'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { FlowModal, useModal } from '@scalar/use-modal'
 import { FlowToastContainer } from '@scalar/use-toasts'
@@ -18,7 +22,6 @@ import {
 } from '../types'
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
 import GettingStarted from './GettingStarted.vue'
-import GlobalStyles from './GlobalStyles.vue'
 
 const props = defineProps<ReferenceProps>()
 
@@ -124,7 +127,7 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
       @openSwaggerEditor="gettingStartedModal.hide()"
       @updateContent="handleCloseModal(() => $emit('updateContent', $event))" />
   </FlowModal>
-  <GlobalStyles v-slot="{ styles }">
+  <ResetStyles v-slot="{ styles }">
     <ApiReferenceLayout
       v-bind="$attrs"
       :class="styles"
@@ -166,5 +169,5 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
         </LazyLoadedSwaggerEditor>
       </template>
     </ApiReferenceLayout>
-  </GlobalStyles>
+  </ResetStyles>
 </template>
