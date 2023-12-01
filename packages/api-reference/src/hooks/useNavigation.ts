@@ -21,6 +21,7 @@ export type SidebarEntry = {
   select?: () => void
   httpVerb?: string
   show: boolean
+  deprecated?: boolean
 }
 
 // Track the parsed spec
@@ -100,6 +101,7 @@ const items = computed((): SidebarEntry[] => {
                 title: operation.name,
                 type: 'Page',
                 httpVerb: operation.httpVerb,
+                deprecated: operation.information?.deprecated ?? false,
                 show: true,
                 select: () => {
                   if (state.showApiClient) {
@@ -116,6 +118,7 @@ const items = computed((): SidebarEntry[] => {
             title: operation.name,
             type: 'Page',
             httpVerb: operation.httpVerb,
+            deprecated: operation.information?.deprecated ?? false,
             show: true,
             select: () => {
               if (state.showApiClient) {
