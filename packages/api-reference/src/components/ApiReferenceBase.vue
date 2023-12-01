@@ -105,10 +105,10 @@ function handleAIWriter(
 
 const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
 
-const { codeMirrorRef, setCodeMirrorRef } = useCodeMirror({
-  onUpdate: (v) => {
-    console.log('change', v.state.doc.toString())
-  },
+const { setCodeMirrorRef } = useCodeMirror({
+  content: rawSpecRef,
+  lineNumbers: true,
+  onUpdate: (v) => setRawSpecRef(v.state.doc.toString()),
 })
 </script>
 <template>

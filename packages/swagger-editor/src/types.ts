@@ -4,7 +4,7 @@ import { type ComputedRef, type Ref } from 'vue'
 export type SwaggerEditorProps = {
   aiWriterMarkdown?: string
   value?: string
-  setCodeMirrorRef?: Ref<HTMLDivElement>
+  setCodeMirrorRef?: (elem: HTMLDivElement) => void
   theme?: ThemeId
   initialTabState?: EditorHeaderTabs
   availableTabs?: EditorHeaderTabs[]

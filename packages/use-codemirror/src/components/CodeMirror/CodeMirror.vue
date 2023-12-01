@@ -62,24 +62,10 @@ defineExpose({
   cursor: text;
   font-size: var(--theme-small, var(--default-theme-small));
 }
-
 .scalar-codemirror-variable {
   color: var(--scalar-api-client-color, var(--default-scalar-api-client-color));
 }
-
 .cm-focused {
   outline: none !important;
-}
-
-/** URL input */
-/** TODO: Move to the component where it’s used */
-.scalar-api-client__url-input {
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  min-height: auto;
-  padding-top: 0;
-}
-
-.scalar-api-client__url-input .ͼ1 .cm-scroller {
-  align-items: center !important;
 }
 </style>

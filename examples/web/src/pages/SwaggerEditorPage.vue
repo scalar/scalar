@@ -2,7 +2,7 @@
 import { SwaggerEditor } from '@scalar/swagger-editor'
 import { useCodeMirror } from '@scalar/use-codemirror'
 
-const { codeMirrorRef } = useCodeMirror({
+const { setCodeMirrorRef } = useCodeMirror({
   onUpdate: (v) => {
     console.log('change', v.state.doc.toString())
   },
@@ -10,7 +10,5 @@ const { codeMirrorRef } = useCodeMirror({
 </script>
 
 <template>
-  <SwaggerEditor>
-    <template #swagger-editor><div ref="codeMirrorRef" /></template>
-  </SwaggerEditor>
+  <SwaggerEditor :setCodeMirrorRef="setCodeMirrorRef" />
 </template>

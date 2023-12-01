@@ -1131,6 +1131,9 @@ importers:
       '@lezer/lr':
         specifier: ^1.3.0
         version: 1.3.11
+      '@scalar/api-client':
+        specifier: workspace:*
+        version: link:../api-client
       '@uiw/codemirror-themes':
         specifier: ^4.21.0
         version: 4.21.16(@codemirror/language@6.9.1)(@codemirror/state@6.2.1)(@codemirror/view@6.20.0)
