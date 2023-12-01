@@ -20,7 +20,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
   tag?.description !== ''
 </script>
 <template>
-  <SectionContainer>
+  <SectionContainer class="tag-section-container">
     <EndpointsOverview
       v-if="moreThanOneDefaultTag(tag)"
       :tag="tag" />
@@ -36,3 +36,9 @@ const moreThanOneDefaultTag = (tag: Tag) =>
     </template>
   </SectionContainer>
 </template>
+<style scoped>
+.tag-section-container {
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+}
+</style>

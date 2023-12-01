@@ -14,16 +14,30 @@ defineProps<{
 }>()
 </script>
 <template>
-  <SectionContainerAccordion>
+  <SectionContainerAccordion class="tag-section">
     <template #title>
-      <SectionHeader :level="2">
+      <SectionHeader
+        class="tag-name"
+        :level="2">
         <Anchor :id="getTagSectionId(tag)">
           {{ tag.name }}
         </Anchor>
       </SectionHeader>
-      <MarkdownRenderer :value="tag.description" />
+      <MarkdownRenderer
+        class="tag-description"
+        :value="tag.description" />
     </template>
     <slot />
   </SectionContainerAccordion>
 </template>
-<style scoped></style>
+<style scoped>
+.tag-section + .tag-section {
+  margin-top: 20px;
+}
+.tag-name {
+  text-transform: capitalize;
+}
+.tag-description {
+  margin-top: -12px;
+}
+</style>

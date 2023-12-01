@@ -25,8 +25,9 @@ import { FlowIcon } from '../Icon'
 <style scoped>
 .section-accordion {
   position: relative;
-  padding: 0 60px;
   width: 100%;
+  max-width: var(--refs-content-max-width);
+  margin: auto;
 }
 .section-accordion-button {
   width: 100%;
