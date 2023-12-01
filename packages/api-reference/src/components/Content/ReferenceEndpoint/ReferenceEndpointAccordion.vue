@@ -7,7 +7,6 @@ import {
   SectionColumn,
   SectionColumns,
   SectionContent,
-  SectionHeader,
 } from '../../Section'
 import Copy from './Copy.vue'
 import ExampleRequest from './ExampleRequest.vue'
@@ -21,11 +20,19 @@ defineProps<{
 <template>
   <SectionAccordion :id="getOperationSectionId(operation, tag)">
     <template #title>
-      <SectionHeader :level="3">
-        <Anchor :id="getOperationSectionId(operation, tag)">
-          {{ operation.name }}
-        </Anchor>
-      </SectionHeader>
+      <h3 class="endpoint-header">
+        <div class="endpoint-details">
+          <span class="endpoint-type">{{ operation.httpVerb }}</span>
+          <Anchor
+            :id="getOperationSectionId(operation, tag)"
+            class="endpoint-anchor">
+            <div class="endpoint-label">
+              <div class="endpoint-label-path">{{ operation.path }}</div>
+              <div class="endpoint-label-name">{{ operation.name }}</div>
+            </div>
+          </Anchor>
+        </div>
+      </h3>
     </template>
     <SectionContent>
       <SectionColumns>
@@ -33,12 +40,10 @@ defineProps<{
           <Copy :operation="operation" />
         </SectionColumn>
         <SectionColumn>
-          <div class="examples">
-            <ExampleRequest :operation="operation" />
-            <ExampleResponses
-              :operation="operation"
-              style="margin-top: 12px" />
-          </div>
+          <ExampleResponses :operation="operation" />
+        </SectionColumn>
+        <SectionColumn>
+          <ExampleRequest :operation="operation" />
         </SectionColumn>
       </SectionColumns>
     </SectionContent>
@@ -46,8 +51,58 @@ defineProps<{
 </template>
 
 <style scoped>
-.examples {
-  position: sticky;
-  top: calc(var(--refs-header-height) + 24px);
+.endpoint-header {
+  display: flex;
+  justify-content: space-between;
+}
+.endpoint-details {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.endpoint-type {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  width: 70px;
+  padding: 6px;
+
+  font-size: var(--theme-micro, var(--default-theme-micro));
+
+  text-transform: uppercase;
+  font-family: var(--default-theme-font-code);
+  background: var(--theme-background-3, var(--default-theme-background-3));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+}
+.endpoint-type::before {
+  display: inline-block;
+  content: '';
+  background: currentColor;
+  border-radius: 9999px;
+  width: 10px;
+  aspect-ratio: 1 /1;
+}
+
+.endpoint-anchor {
+  display: flex;
+  align-items: center;
+
+  font-size: 20px;
+}
+
+.endpoint-label {
+  display: flex;
+  gap: 9px;
+}
+
+.endpoint-label-path {
+  font-family: var(--default-theme-font-code);
+  font-size: var(--theme-mini, var(--default-theme-mini));
+}
+.endpoint-label-name {
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-size: var(--theme-micro, var(--default-theme-micro));
 }
 </style>
