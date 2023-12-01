@@ -22,11 +22,18 @@ defineProps<{
         class="section-accordion-chevron"
         :icon="open ? 'ChevronDown' : 'ChevronLeft'" />
     </DisclosureButton>
-    <DisclosurePanel class="section-accordion-content">
+    <DisclosurePanel>
       <IntersectionObserver
         :id="id"
-        class="section-accordion-content-card">
-        <slot />
+        class="section-accordion-content">
+        <div
+          v-if="$slots.description"
+          class="section-accordion-description">
+          <slot name="description" />
+        </div>
+        <div class="section-accordion-content-card">
+          <slot />
+        </div>
       </IntersectionObserver>
     </DisclosurePanel>
   </Disclosure>
@@ -60,7 +67,18 @@ defineProps<{
 .section-accordion-content {
   border-top: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
+
+.section-accordion-description {
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  color: var(--theme-color--1, var(--default-theme-color-1));
+  padding: 4px 6px;
+}
+
 .section-accordion-content-card {
   background: var(--theme-background-1, var(--default-theme-background-1));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));

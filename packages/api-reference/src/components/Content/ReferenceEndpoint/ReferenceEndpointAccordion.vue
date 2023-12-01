@@ -2,12 +2,8 @@
 import { getOperationSectionId } from '../../../helpers'
 import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
-import {
-  SectionAccordion,
-  SectionColumn,
-  SectionColumns,
-  SectionContent,
-} from '../../Section'
+import { SectionAccordion } from '../../Section'
+import MarkdownRenderer from '../MarkdownRenderer.vue'
 import Copy from './Copy.vue'
 import ExampleRequest from './ExampleRequest.vue'
 import { ExampleResponses } from './ExampleResponses'
@@ -34,19 +30,14 @@ defineProps<{
         </div>
       </h3>
     </template>
-    <SectionContent>
-      <SectionColumns>
-        <SectionColumn>
-          <Copy :operation="operation" />
-        </SectionColumn>
-        <SectionColumn>
-          <ExampleResponses :operation="operation" />
-        </SectionColumn>
-        <SectionColumn>
-          <ExampleRequest :operation="operation" />
-        </SectionColumn>
-      </SectionColumns>
-    </SectionContent>
+    <template #description>
+      <MarkdownRenderer :value="operation.description" />
+    </template>
+    <div>
+      <Copy :operation="operation" />
+      <ExampleResponses :operation="operation" />
+      <ExampleRequest :operation="operation" />
+    </div>
   </SectionAccordion>
 </template>
 

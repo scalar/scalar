@@ -32,7 +32,7 @@ import { FlowIcon } from '../Icon'
 .section-accordion-content {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px;
 
   padding-top: 24px;
 }

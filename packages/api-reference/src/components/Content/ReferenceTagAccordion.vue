@@ -36,7 +36,4 @@ defineProps<{
 .tag-name {
   text-transform: capitalize;
 }
-.tag-description {
-  margin-top: -12px;
-}
 </style>
