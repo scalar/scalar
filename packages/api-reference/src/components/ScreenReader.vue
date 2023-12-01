@@ -1,12 +1,17 @@
 <script setup lang="ts">
-defineProps<{
-  // eslint-disable-next-line vue/no-unused-properties
-  if?: boolean
-}>()
+withDefaults(
+  defineProps<{
+    // eslint-disable-next-line vue/no-unused-properties
+    if?: boolean
+  }>(),
+  {
+    if: true,
+  },
+)
 </script>
 <template>
   <span
-    v-if="$props.if ?? true"
+    v-if="$props.if"
     class="screenreader-only">
     <slot />
   </span>
