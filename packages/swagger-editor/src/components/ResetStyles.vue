@@ -64,5 +64,10 @@ onMounted(() => {
     color: var(--theme-color-3, var(--default-theme-color-3));
     font-family: var(--theme-font, var(--default-theme-font));
   }
+
+  button {
+    background: none;
+    border: none;
+  }
 }
 </style>
