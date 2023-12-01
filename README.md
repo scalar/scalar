@@ -22,6 +22,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
 
 - [Getting Started](#getting-started)
   - [From a CDN](#from-a-cdn)
+  - [Configuration](#configuration)
   - [With Vue.js](#with-vuejs)
   - [With React](#with-react)
   - [With Fastify](#with-fastify)
@@ -87,6 +88,23 @@ If you’d like to add a request proxy for the API client (to avoid CORS issues)
   { … }
 </script>
 ```
+
+### Configuration
+
+To customize the behavior of the API Reference, you can use the following configuration options:
+
+- `isEditable`: Whether the Swagger editor should be shown.
+- `spec.content`: Directly pass an OpenAPI/Swagger spec.
+- `spec.url`: Pass the URL of a spec file (JSON or YAML).
+- `spec.preparsedContent`: Preprocess specs with `@scalar/swagger-parser` and directly pass the result.
+- `proxyUrl`: Use a proxy to send requests to other origins.
+- `showSidebar`: Whether the sidebar should be shown.
+- `customCss`: Pass custom CSS directly to the component.
+- `searchHotKey`: Key used with CNTRL/CMD to open the search modal.
+- `metaData`: Configure meta information for the page.
+- `onSpecUpdate`: Listen to spec changes with a callback function.
+
+For detailed information on how to use these options, refer to the [Configuration Section](https://github.com/scalar/scalar/blob/main/packages/api-reference/README.md/#configuration).
 
 ### With Vue.js
 
