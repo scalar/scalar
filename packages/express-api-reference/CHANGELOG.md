@@ -1,5 +1,18 @@
 # @scalar/express-api-reference
 
+## 0.1.0
+
+### Minor Changes
+
+- f38bb61: chore: remove swagger editor tabs
+
+### Patch Changes
+
+- 349589a: feat: expose spec content updates
+- Updated dependencies [349589a]
+- Updated dependencies [f38bb61]
+  - @scalar/api-reference@1.5.0
+
 ## 0.0.15
 
 ### Patch Changes
