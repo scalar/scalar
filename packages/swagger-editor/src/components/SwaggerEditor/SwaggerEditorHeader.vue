@@ -79,22 +79,21 @@ watch(files, () => {
   <FlowModal
     :state="importUrlModal"
     title="Import Swagger from URL">
-    <div class="flex-col gap-1">
+    <div class="swagger-editor-modal-layout">
       <FlowTextField
         v-model="specUrl"
         autofocus
+        class="swagger-editor-modal-layout-input"
         label="URL"
         placeholder="https://scalar.com/swagger.json" />
       {{ importUrlError }}
-      <div class="flex-mobile gap-1">
-        <FlowButton
-          label="Cancel"
-          variant="outlined"
-          @click="importUrlModal.hide()" />
-        <FlowButton
-          label="Import"
-          @click="handleImportUrl" />
-      </div>
+      <FlowButton
+        label="Cancel"
+        variant="outlined"
+        @click="importUrlModal.hide()" />
+      <FlowButton
+        label="Import"
+        @click="handleImportUrl" />
     </div>
   </FlowModal>
 </template>
@@ -133,6 +132,20 @@ watch(files, () => {
   font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-color-3, var(--default-theme-color-3));
   text-transform: uppercase;
+}
+.swagger-editor-modal-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: auto;
+  gap: 12px;
+}
+.swagger-editor-modal-layout :first-child {
+  grid-column: 1 / -1;
+}
+@media (max-width: 500px) {
+  .swagger-editor-modal-layout {
+    grid-template-columns: auto;
+  }
 }
 .swagger-editor-actions {
   display: flex;

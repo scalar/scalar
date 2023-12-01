@@ -14,7 +14,8 @@ onMounted(() => {
   <slot :styles="reset" />
 </template>
 <style lang="postcss" module>
-.reset :global {
+/* Use :where to lower specificity to 0 */
+:where(.reset) :global {
   p {
     margin: 0;
   }
@@ -62,29 +63,6 @@ onMounted(() => {
   input::-webkit-input-placeholder {
     color: var(--theme-color-3, var(--default-theme-color-3));
     font-family: var(--theme-font, var(--default-theme-font));
-  }
-  /** Utilities, how do we deal with them? */
-  .flex {
-    display: flex;
-  }
-
-  .flex-col {
-    display: flex;
-    min-height: 0;
-    flex-direction: column;
-  }
-  .flex-mobile {
-    display: flex;
-    min-width: 0;
-  }
-
-  @media (max-width: 500px) {
-    .flex-mobile {
-      flex-direction: column;
-    }
-  }
-  .gap-1 {
-    gap: 12px;
   }
 
   .sr-only {

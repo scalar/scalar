@@ -55,7 +55,7 @@ async function handleCreatePage() {
 }
 </script>
 <template>
-  <div class="swagger-ai-writer gap-1 flex-col">
+  <div class="swagger-ai-writer">
     <div class="swagger-ai-writer-inputs">
       <TheHuman>
         <template #title>
@@ -114,6 +114,10 @@ async function handleCreatePage() {
 </template>
 <style scoped>
 .swagger-ai-writer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
   padding: 24px;
 }
 .swagger-ai-writer :deep(.aiwriter span i) {
