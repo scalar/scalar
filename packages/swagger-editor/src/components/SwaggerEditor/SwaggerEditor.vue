@@ -15,7 +15,7 @@ import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
 
 // import SwaggerEditorStatusBar from './SwaggerEditorStatusBar.vue'
 
-const props = defineProps<Omit<SwaggerEditorProps, 'extensions'>>()
+const props = defineProps<SwaggerEditorProps>()
 
 const emit = defineEmits<{
   (e: 'contentUpdate', value: string): void
