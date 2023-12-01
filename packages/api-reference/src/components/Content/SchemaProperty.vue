@@ -95,7 +95,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         v-for="rule in rules"
         :key="rule">
         <div
-          v-if="value?.[rule]"
+          v-if="value?.[rule] || value?.items?.[rule]"
           class="property-rule">
           {{ rule }}
         </div>
@@ -169,11 +169,22 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     <template
       v-for="rule in rules"
       :key="rule">
+      <!-- Property -->
       <div
         v-if="value?.[rule]"
         class="rule">
         <Schema
           v-for="(schema, index) in value[rule]"
+          :key="index"
+          :level="level + 1"
+          :value="schema" />
+      </div>
+      <!-- Arrays -->
+      <div
+        v-if="value?.items?.[rule]"
+        class="rule">
+        <Schema
+          v-for="(schema, index) in value.items[rule]"
           :key="index"
           :level="level + 1"
           :value="schema" />
@@ -203,6 +214,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 
 .property-rule {
+  display: inline-block;
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   background: var(--theme-color-orange, var(--default-theme-color-orange));
   padding: 0 6px;

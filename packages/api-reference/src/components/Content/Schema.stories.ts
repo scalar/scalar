@@ -80,7 +80,15 @@ const schema = {
       description: 'pet status in the store',
       enum: ['available', 'pending', 'sold'],
     },
+
+    tensor_data: {
+      type: 'array',
+      items: {
+        oneOf: [{ type: 'number' }, { type: 'string' }, { type: 'boolean' }],
+      },
+    },
   },
+
   xml: {
     name: 'pet',
   },
