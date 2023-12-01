@@ -68,7 +68,7 @@ export type Schema = {
 
 export type Parameters = {
   // Fixed Fields
-  name?: string
+  name: string
   in?: string
   description?: string
   required?: boolean

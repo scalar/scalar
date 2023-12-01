@@ -92,10 +92,10 @@ watch(
 
           const operationData: FuseData = {
             type: 'req',
-            title: operation.name,
+            title: operation.name ?? operation.path,
             href: `#${getOperationSectionId(operation, tag)}`,
             operationId: operation.operationId,
-            description: operation.description,
+            description: operation.description ?? '',
             httpVerb: operation.httpVerb,
             path: operation.path,
             tag: tag.name,

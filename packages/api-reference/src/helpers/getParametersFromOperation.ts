@@ -1,5 +1,3 @@
-import type { BaseParameter } from '@scalar/api-client'
-
 import type { TransformedOperation } from '../types'
 import { getExampleFromSchema } from './getExampleFromSchema'
 
@@ -11,7 +9,7 @@ import { getExampleFromSchema } from './getExampleFromSchema'
 export function getParametersFromOperation(
   operation: TransformedOperation,
   where: 'query' | 'path' | 'header' | 'cookie',
-): BaseParameter {
+) {
   const parameters = [
     ...(operation.pathParameters || []),
     ...(operation.information?.parameters || []),

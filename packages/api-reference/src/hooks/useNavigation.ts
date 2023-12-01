@@ -98,7 +98,7 @@ const items = computed((): SidebarEntry[] => {
             children: tag.operations?.map((operation: TransformedOperation) => {
               return {
                 id: getOperationSectionId(operation, tag),
-                title: operation.name,
+                title: operation.name ?? operation.path,
                 type: 'Page',
                 httpVerb: operation.httpVerb,
                 deprecated: operation.information?.deprecated ?? false,
@@ -115,7 +115,7 @@ const items = computed((): SidebarEntry[] => {
       : firstTag?.operations?.map((operation) => {
           return {
             id: getOperationSectionId(operation, firstTag),
-            title: operation.name,
+            title: operation.name ?? operation.path,
             type: 'Page',
             httpVerb: operation.httpVerb,
             deprecated: operation.information?.deprecated ?? false,
