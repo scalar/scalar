@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.2.0
+
+### Minor Changes
+
+- f38bb61: chore: remove swagger editor tabs
+
 ## 0.1.9
 
 ### Patch Changes

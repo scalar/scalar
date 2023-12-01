@@ -13,9 +13,6 @@ const configuration = reactive<ReferenceConfiguration>({
   spec: {
     url: 'https://petstore.swagger.io/v2/swagger.json',
   },
-  tabs: {
-    initialContent: 'Swagger Editor',
-  },
 })
 </script>
 <template>

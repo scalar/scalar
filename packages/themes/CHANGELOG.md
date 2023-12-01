@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.5.0
+
+### Minor Changes
+
+- f38bb61: chore: remove swagger editor tabs
+
 ## 0.4.2
 
 ### Patch Changes

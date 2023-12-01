@@ -27,7 +27,8 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   - [With Fastify](#with-fastify)
   - [With Hono](#with-hono)
   - [With Express](#with-express)
-- [Using our amazing service](#using-our-amazing-service)
+- [Hosted API Reference](#hosted-api-reference)
+- [Configuration](#configuration)
 - [Themes](#themes)
 - [Advanced: Styling](#advanced-styling)
 - [Community](#community)
@@ -192,9 +193,26 @@ app.use(
 
 Read more: [@scalar/express-api-reference](https://github.com/scalar/scalar/tree/main/packages/express-api-reference)
 
-## Using our amazing service
+## Hosted API Reference
 
 Wait, this is open source and you can do whatever you want. But if you want to add a nice, customizable guide, collaborate with your team and have everything served through a CDN, create an account on [scalar.com](https://scalar.com).
+
+## Configuration
+
+To customize the behavior of the API Reference, you can use the following configuration options:
+
+- `isEditable`: Whether the Swagger editor should be shown.
+- `spec.content`: Directly pass an OpenAPI/Swagger spec.
+- `spec.url`: Pass the URL of a spec file (JSON or YAML).
+- `spec.preparsedContent`: Preprocess specs with `@scalar/swagger-parser` and directly pass the result.
+- `proxyUrl`: Use a proxy to send requests to other origins.
+- `showSidebar`: Whether the sidebar should be shown.
+- `customCss`: Pass custom CSS directly to the component.
+- `searchHotKey`: Key used with CNTRL/CMD to open the search modal.
+- `metaData`: Configure meta information for the page.
+- `onSpecUpdate`: Listen to spec changes with a callback function.
+
+For detailed information on how to use these options, refer to the [Configuration Section](https://github.com/scalar/scalar/blob/main/packages/api-reference/README.md/#configuration).
 
 ## Themes
 
@@ -367,17 +385,17 @@ This repository contains all our open source projects and there’s definitely m
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/Mohib834">
-            <img src="https://avatars.githubusercontent.com/u/47316464?v=4" width="100;" alt="Mohib834"/>
-            <br />
-            <sub><b>Mohib834</b></sub>
-        </a>
-    </td>
-    <td align="center">
         <a href="https://github.com/ATREAY">
             <img src="https://avatars.githubusercontent.com/u/66585295?v=4" width="100;" alt="ATREAY"/>
             <br />
             <sub><b>ATREAY</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/Mohib834">
+            <img src="https://avatars.githubusercontent.com/u/47316464?v=4" width="100;" alt="Mohib834"/>
+            <br />
+            <sub><b>Mohib834</b></sub>
         </a>
     </td>
     <td align="center">

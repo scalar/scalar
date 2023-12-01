@@ -1,5 +1,35 @@
 # @scalar/api-reference
 
+## 1.5.0
+
+### Minor Changes
+
+- f38bb61: chore: remove swagger editor tabs
+
+### Patch Changes
+
+- 349589a: feat: expose spec content updates
+- Updated dependencies [349589a]
+- Updated dependencies [f38bb61]
+  - @scalar/api-client@0.8.0
+  - @scalar/swagger-editor@0.8.0
+  - @scalar/use-modal@0.2.0
+  - @scalar/themes@0.5.0
+
+## 1.4.0
+
+### Minor Changes
+
+- b974eeb: feat: swagger UI style layout
+
+### Patch Changes
+
+- b65840b: refactor: keep track of the collapsed sidebar items in @scalar/api-reference
+- 95fbc01: fix: hono middleware fails to read configuration.spec.content
+- b65840b: fix: URL doesn’t match the active sidebar item
+- Updated dependencies [b65840b]
+  - @scalar/api-client@0.7.37
+
 ## 1.3.0
 
 ### Minor Changes

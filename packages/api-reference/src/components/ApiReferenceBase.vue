@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { type SwaggerEditor } from '@scalar/swagger-editor'
+import { HeaderTabButton, type SwaggerEditor } from '@scalar/swagger-editor'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
+import { FlowModal, useModal } from '@scalar/use-modal'
 import { FlowToastContainer } from '@scalar/use-toasts'
-import { useResizeObserver } from '@vueuse/core'
+import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, ref, watch } from 'vue'
 
 import { deepMerge } from '../helpers'
@@ -16,18 +17,13 @@ import {
   type Spec,
 } from '../types'
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
+import GettingStarted from './GettingStarted.vue'
 
 const props = defineProps<ReferenceProps>()
 
 const emit = defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
   (e: 'updateContent', value: string): void
-  (
-    e: 'startAIWriter',
-    value: string[],
-    swaggerData: string,
-    swaggerType: 'json' | 'yaml',
-  ): void
 }>()
 
 defineOptions({
@@ -93,16 +89,20 @@ useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height
 })
 
-// Handle content updates
-function handleAIWriter(
-  value: string[],
-  swaggerData: string,
-  swaggerType: 'json' | 'yaml',
-) {
-  emit('startAIWriter', value, swaggerData, swaggerType)
+const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
+
+const gettingStartedModal = useModal()
+
+function handleGettingStarted() {
+  gettingStartedModal.show()
 }
 
-const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
+function handleCloseModal(passThrough: () => void) {
+  gettingStartedModal.hide()
+  passThrough()
+}
+
+const isMobile = useMediaQuery('(max-width: 1000px)')
 </script>
 <template>
   <component
@@ -112,6 +112,17 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
   </component>
   <ThemeStyles :id="currentConfiguration?.theme" />
   <FlowToastContainer />
+  <FlowModal
+    :state="gettingStartedModal"
+    title=""
+    variant="history">
+    <GettingStarted
+      :theme="configuration?.theme || 'default'"
+      :value="rawSpecRef"
+      @changeTheme="$emit('changeTheme', $event)"
+      @openSwaggerEditor="gettingStartedModal.hide()"
+      @updateContent="handleCloseModal(() => $emit('updateContent', $event))" />
+  </FlowModal>
   <ApiReferenceLayout
     v-bind="$attrs"
     :configuration="currentConfiguration"
@@ -133,17 +144,21 @@ const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
       #editor>
       <LazyLoadedSwaggerEditor
         ref="swaggerEditorRef"
-        :aiWriterMarkdown="currentConfiguration.aiWriterMarkdown"
-        :availableTabs="currentConfiguration.tabs?.available"
         :error="errorRef"
         :hocuspocusConfiguration="currentConfiguration.hocuspocusConfiguration"
-        :initialTabState="currentConfiguration.tabs?.initialContent"
         :proxyUrl="currentConfiguration.proxy"
         :theme="currentConfiguration.theme"
         :value="rawSpecRef"
         @changeTheme="$emit('changeTheme', $event)"
-        @contentUpdate="(newContent: string) => setRawSpecRef(newContent)"
-        @startAIWriter="handleAIWriter" />
+        @contentUpdate="(newContent: string) => setRawSpecRef(newContent)">
+        <template #tab-items>
+          <HeaderTabButton
+            v-if="isMobile"
+            @click="handleGettingStarted">
+            Getting Started
+          </HeaderTabButton>
+        </template>
+      </LazyLoadedSwaggerEditor>
     </template>
   </ApiReferenceLayout>
 </template>

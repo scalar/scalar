@@ -81,24 +81,6 @@ Making requests to other domains is restricted in the browser and requires [CORS
   :configuration="{ proxy: 'https://api.scalar.com/request-proxy' }" />
 ```
 
-#### initialContent?: string
-
-You can decide which tab should be active by default:
-
-```vue
-<ApiReference
-  :initialTabState="{ tabs: { initialContent: 'Getting Started' } }" />
-```
-
-And you can define which tabs should be visible:
-
-```vue
-<ApiReference
-  :configuration="{
-    tabs: { available: ['Getting Started', 'Swagger Editor'] },
-  }" />
-```
-
 #### showSidebar?: boolean
 
 Whether the sidebar should be shown.
@@ -146,5 +128,17 @@ You can pass information to the config object to configure meta information out 
         twitterCard: 'summary_large_image',
         //Add more...
       }
+  } />
+```
+
+#### onSpecUpdate?: (spec: string) => void
+
+You can listen to spec changes with onSpecUpdate that runs on spec/swagger content change
+
+```vue
+<ApiReference :configuration="{
+    onSpecUpdate: (value: string) => {
+      console.log('Content updated:', value)
+    }
   } />
 ```

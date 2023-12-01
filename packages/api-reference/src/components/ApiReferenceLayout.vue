@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  type SwaggerEditor,
-  SwaggerEditorGettingStarted,
-} from '@scalar/swagger-editor'
+import { type SwaggerEditor } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
@@ -19,6 +16,7 @@ import {
   useApiClientStore,
 } from './ApiClientModal.vue'
 import { Content } from './Content'
+import GettingStarted from './GettingStarted.vue'
 import Sidebar from './Sidebar.vue'
 
 const props = defineProps<{
@@ -162,7 +160,7 @@ const { state } = useApiClientStore()
           <template
             v-if="configuration?.isEditable"
             #empty-state>
-            <SwaggerEditorGettingStarted
+            <GettingStarted
               :theme="configuration?.theme || 'default'"
               :value="rawSpec"
               @changeTheme="$emit('changeTheme', $event)"
