@@ -114,7 +114,7 @@ export const ApiKey: Story = {
   },
 }
 
-export const OpenAuth: Story = {
+export const OpenAuth2: Story = {
   ...Default,
   args: {
     parsedSpec: {
@@ -126,10 +126,31 @@ export const OpenAuth: Story = {
         securitySchemes: {
           oauth: {
             type: 'oauth2',
-            flow: 'accessCode',
-            authorizationUrl: '',
-            tokenUrl: '',
-            scopes: [],
+
+            // OpenAPI 2/3?
+            // flow: 'accessCode',
+            // authorizationUrl: '',
+            // tokenUrl: '',
+            // scopes: [],
+
+            // OpenAPI 3.1
+            flows: {
+              implicit: {
+                authorizationUrl: 'https://example.com/api/oauth/dialog',
+                scopes: {
+                  'write:pets': 'modify pets in your account',
+                  'read:pets': 'read your pets',
+                },
+              },
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/api/oauth/dialog',
+                tokenUrl: 'https://example.com/api/oauth/token',
+                scopes: {
+                  'write:pets': 'modify pets in your account',
+                  'read:pets': 'read your pets',
+                },
+              },
+            },
           },
         },
       },

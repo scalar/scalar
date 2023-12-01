@@ -277,6 +277,10 @@ export type AuthenticationState = {
   apiKey: {
     token: string
   }
+  oAuth2: {
+    clientId: string
+    scopes: Record<string, boolean>
+  }
 }
 
 export type Variable = {

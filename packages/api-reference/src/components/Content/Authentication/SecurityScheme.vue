@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { a } from '@storybook/vue3/dist/render-ddbe18a8'
+
 import { useGlobalStore } from '../../../stores'
 
 // import MarkdownRenderer from '../MarkdownRenderer.vue'
@@ -52,6 +54,62 @@ const handleHttpBearerTokenInput = (event: Event) => {
       },
     },
   })
+}
+
+const handleOpenAuth2ClientIdInput = (event: Event) => {
+  setAuthentication({
+    oAuth2: {
+      ...authentication.oAuth2,
+      clientId: (event.target as HTMLInputElement).value,
+    },
+  })
+}
+
+const handleScopeInput = (scope: string) => {
+  setAuthentication({
+    oAuth2: {
+      ...authentication.oAuth2,
+      scopes: {
+        ...authentication.oAuth2.scopes,
+        [scope]: !authentication.oAuth2.scopes[scope],
+      },
+    },
+  })
+}
+
+const getOpenAuth2AuthorizationUrl = (flow: any) => {
+  // https://example.com/oauth/authorize?
+  //   response_type=token
+  //   &client_id=123
+  //   &redirect_uri=https%3A%2F%2Fexample.com%2Foauth2%2Fredirect
+  //   &scope=write%3Apets%20read%3Apets
+  //   &state=something-random
+
+  const scopes = Object.keys(flow.scopes)
+    .filter((scope) => authentication.oAuth2.scopes[scope])
+    .join(' ')
+
+  const url = new URL(flow.authorizationUrl)
+
+  url.searchParams.set('response_type', 'token')
+  url.searchParams.set('client_id', authentication.oAuth2.clientId)
+  url.searchParams.set('redirect_uri', window.location.href)
+  url.searchParams.set('scope', scopes)
+  // TODO: Generate random state string? Should we store that in the localStorage? 🤔
+  url.searchParams.set('state', 'something-random')
+
+  return url.toString()
+}
+
+const startAuthentication = (url: string) => {
+  const windowFeatures = 'left=100,top=100,width=800,height=600'
+  const handle = window.open(url, 'openAuth2Window', windowFeatures)
+
+  if (!handle) {
+    // The window wasn't allowed to open
+    // This is likely caused by built-in popup blockers.
+    // …
+  }
 }
 </script>
 <template>
@@ -118,6 +176,53 @@ const handleHttpBearerTokenInput = (event: Event) => {
               @input="handleHttpBearerTokenInput" />
           </div>
         </div>
+      </div>
+      <div v-else-if="value.type.toLowerCase() === 'oauth2'">
+        <template v-if="value.flows">
+          <div
+            v-for="flowKey in Object.keys(value.flows)"
+            :key="flowKey">
+            <div class="input">
+              <label for="oAuth2.clientId">Client ID</label>
+              <input
+                id="oAuth2.clientId"
+                autocomplete="off"
+                placeholder="Client ID"
+                spellcheck="false"
+                type="text"
+                :value="authentication.oAuth2.clientId"
+                @input="handleOpenAuth2ClientIdInput" />
+            </div>
+
+            <div class="input">
+              <label>Scopes</label>
+              <label
+                v-for="scope in Object.keys(value.flows[flowKey].scopes)"
+                :key="scope"
+                class="check">
+                <input
+                  :checked="authentication.oAuth2.scopes[scope] ?? false"
+                  type="checkbox"
+                  @input="() => handleScopeInput(scope)" />
+                <span class="checkmark" />
+                <code>{{ scope }}</code>
+              </label>
+            </div>
+
+            <button
+              type="button"
+              @click="
+                () =>
+                  startAuthentication(
+                    getOpenAuth2AuthorizationUrl(value.flows[flowKey]),
+                  )
+              ">
+              Authorize
+            </button>
+          </div>
+        </template>
+
+        <!-- {{ value }} -->
       </div>
       <div
         v-else

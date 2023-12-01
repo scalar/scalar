@@ -16,6 +16,10 @@ export const createEmptyAuthenticationState = (): AuthenticationState => ({
   apiKey: {
     token: '',
   },
+  oAuth2: {
+    clientId: '',
+    scopes: {},
+  },
 })
 
 const authentication = reactive<AuthenticationState>(
