@@ -82,7 +82,7 @@ h1 {
 
 .page-links {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, 350px);
   grid-gap: 1rem;
   /** Make all PageLink elements same height */
 }
