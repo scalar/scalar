@@ -3,11 +3,12 @@ import { createHead, useSeoMeta } from 'unhead'
 import { computed, ref } from 'vue'
 
 import { type ReferenceProps, type SpecConfiguration } from '../types'
+import GlobalStyles from './GlobalStyles.vue'
 import Layouts from './Layouts/'
 
 const props = defineProps<ReferenceProps>()
 
-const emit = defineEmits<{
+defineEmits<{
   (e: 'updateContent', value: string): void
 }>()
 
@@ -29,16 +30,17 @@ if (config.value?.metaData) {
 
 function handleUpdateContent(value: string) {
   content.value = value
-  if (props.configuration?.onSpecUpdate) {
-    props.configuration.onSpecUpdate(value)
-  }
+  props.configuration?.onSpecUpdate?.(value)
 }
 </script>
 <template>
-  <Component
-    :is="Layouts[config.layout || 'modern']"
-    :configuration="config"
-    @updateContent="handleUpdateContent">
-    <template #footer><slot name="footer" /></template>
-  </Component>
+  <GlobalStyles v-slot="{ styles }">
+    <Component
+      :is="Layouts[config.layout || 'modern']"
+      :class="styles"
+      :configuration="config"
+      @updateContent="handleUpdateContent">
+      <template #footer><slot name="footer" /></template>
+    </Component>
+  </GlobalStyles>
 </template>
