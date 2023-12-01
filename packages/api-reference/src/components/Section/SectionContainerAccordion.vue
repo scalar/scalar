@@ -17,7 +17,7 @@ import { FlowIcon } from '../Icon'
         <slot name="title" />
       </div>
     </DisclosureButton>
-    <DisclosurePanel>
+    <DisclosurePanel class="section-accordion-content">
       <slot />
     </DisclosurePanel>
   </Disclosure>
@@ -28,6 +28,13 @@ import { FlowIcon } from '../Icon'
   width: 100%;
   max-width: var(--refs-content-max-width);
   margin: auto;
+}
+.section-accordion-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  padding-top: 24px;
 }
 .section-accordion-button {
   width: 100%;

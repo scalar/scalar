@@ -3,8 +3,7 @@
 import { getTagSectionId } from '../../helpers'
 import { type Spec, type Tag } from '../../types'
 import { Anchor } from '../Anchor'
-import { SectionHeader } from '../Section'
-import SectionContainerAccordion from '../Section/SectionContainerAccordion.vue'
+import { SectionContainerAccordion, SectionHeader } from '../Section'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
 defineProps<{

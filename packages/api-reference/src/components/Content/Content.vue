@@ -8,6 +8,7 @@ import type { Spec } from '../../types'
 import Introduction from './Introduction'
 import Models from './Models.vue'
 import ReferenceEndpoint from './ReferenceEndpoint'
+import ReferenceEndpointAccordion from './ReferenceEndpoint/ReferenceEndpointAccordion.vue'
 import ReferenceTag from './ReferenceTag.vue'
 import ReferenceTagAccordion from './ReferenceTagAccordion.vue'
 
@@ -61,6 +62,9 @@ const localServers = computed(() => {
 const tagLayout = computed<typeof ReferenceTag>(() =>
   props.layout === 'accordion' ? ReferenceTagAccordion : ReferenceTag,
 )
+const endpointLayout = computed<typeof ReferenceEndpoint>(() =>
+  props.layout === 'accordion' ? ReferenceEndpointAccordion : ReferenceEndpoint,
+)
 </script>
 <template>
   <div
@@ -87,7 +91,8 @@ const tagLayout = computed<typeof ReferenceTag>(() =>
         :isFirst="index === 0"
         :spec="parsedSpec"
         :tag="tag">
-        <ReferenceEndpoint
+        <Component
+          :is="endpointLayout"
           v-for="operation in tag.operations"
           :key="`${operation.httpVerb}-${operation.operationId}`"
           :operation="operation"
