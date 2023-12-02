@@ -24,24 +24,26 @@ withDefaults(
   },
 )
 
-const modal = cva({
-  base: [
+const modal = cva(
+  [
     'scalar-modal',
     'col relative mx-auto mb-0 mt-20 w-full rounded-lg bg-back-2 text-left leading-snug text-fore-1 opacity-0',
   ].join(' '),
-  variants: {
-    size: {
-      xs: 'max-w-screen-xs',
-      sm: 'max-w-screen-sm',
-      md: 'max-w-screen-md',
-      lg: 'max-w-screen-lg',
-    },
-    variant: {
-      history: 'scalar-modal-history bg-back-1',
-      search: 'scalar-modal-search',
+  {
+    variants: {
+      size: {
+        xs: 'max-w-screen-xs',
+        sm: 'max-w-screen-sm',
+        md: 'max-w-screen-md',
+        lg: 'max-w-screen-lg',
+      },
+      variant: {
+        history: 'scalar-modal-history bg-back-1',
+        search: 'scalar-modal-search',
+      },
     },
   },
-})
+)
 
 type ModalVariants = VariantProps<typeof modal>
 </script>

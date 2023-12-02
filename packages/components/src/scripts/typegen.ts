@@ -19,7 +19,7 @@ fileNames.forEach((fileName, index) => {
 
   writeStr += `  '${icon}'${comma}\n`
 })
-writeStr += ']'
+writeStr += '] as const'
 
 writeFile(iconsFile, writeStr, (err) => {
   if (err) console.error(err)

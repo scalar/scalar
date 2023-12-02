@@ -85,7 +85,6 @@ defineExpose({ el })
         :icon="open ? 'ChevronDown' : 'ChevronRight'"
         label="Toggle group"
         variant="text"
-        width="20px"
         @click="handleToggleOpen" />
       <a
         class="flex-1 sidebar-heading-link"

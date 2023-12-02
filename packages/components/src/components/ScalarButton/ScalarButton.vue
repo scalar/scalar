@@ -1,43 +1,45 @@
 <script lang="ts">
-const button = cva({
-  base: 'scalar-button row items-center justify-center rounded font-medium',
-  variants: {
-    isDisabled: { true: 'bg-background-2 text-color-3 shadow-none' },
-    isFullWidth: { true: 'w-full' },
-    isIconOnly: { true: 'scalar-button-icon' },
-    size: { md: 'h-10 px-6 text-sm' },
-    variant: {
-      solid: [
-        'scalar-button-solid',
-        'bg-back-btn-1 text-fore-btn-1 shadow-sm active:bg-back-btn-1 active:shadow-none hocus:bg-hover-btn-1',
-      ].join(' '),
-      outlined: [
-        'scalar-button-outlined',
-        'active:bg-btn-1 border border-border bg-transparent text-fore-1 hocus:bg-back-2',
-      ].join(' '),
-      ghost: [
-        'scalar-button-ghost',
-        'bg-transparent text-fore-3 active:text-fore-2 hocus:text-fore-2',
-      ].join(' '),
-      danger: [
-        'scalar-button-danger',
-        'bg-error text-white active:brightness-90 hocus:brightness-90',
-      ].join(' '),
+const button = cva(
+  'scalar-button row items-center justify-center rounded font-medium',
+  {
+    variants: {
+      isDisabled: { true: 'bg-background-2 text-color-3 shadow-none' },
+      isFullWidth: { true: 'w-full' },
+      isIconOnly: { true: 'scalar-button-icon' },
+      size: { md: 'h-10 px-6 text-sm' },
+      variant: {
+        solid: [
+          'scalar-button-solid',
+          'bg-back-btn-1 text-fore-btn-1 shadow-sm active:bg-back-btn-1 active:shadow-none hocus:bg-hover-btn-1',
+        ].join(' '),
+        outlined: [
+          'scalar-button-outlined',
+          'active:bg-btn-1 border border-border bg-transparent text-fore-1 hocus:bg-back-2',
+        ].join(' '),
+        ghost: [
+          'scalar-button-ghost',
+          'bg-transparent text-fore-3 active:text-fore-2 hocus:text-fore-2',
+        ].join(' '),
+        danger: [
+          'scalar-button-danger',
+          'bg-error text-white active:brightness-90 hocus:brightness-90',
+        ].join(' '),
+      },
     },
+    compoundVariants: [
+      {
+        isDisabled: true,
+        variant: 'ghost',
+        class: 'bg-transparent text-ghost',
+      },
+      {
+        isIconOnly: true,
+        size: 'md',
+        class: 'h-10 w-10 p-2',
+      },
+    ],
   },
-  compoundVariants: [
-    {
-      isDisabled: true,
-      variant: 'ghost',
-      class: 'bg-transparent text-ghost',
-    },
-    {
-      isIconOnly: true,
-      size: 'md',
-      class: 'h-10 w-10 p-2',
-    },
-  ],
-})
+)
 
 type ButtonVariants = VariantProps<typeof button>
 
