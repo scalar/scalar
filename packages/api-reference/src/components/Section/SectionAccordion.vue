@@ -12,8 +12,7 @@ defineProps<{
   <Disclosure
     v-slot="{ open }"
     as="section"
-    class="section-accordion"
-    defaultOpen>
+    class="section-accordion">
     <DisclosureButton class="section-accordion-button">
       <div class="section-accordion-button-content">
         <slot name="title" />
