@@ -31,8 +31,8 @@ export default defineConfig({
         // Resolve the uncompiled source code for all @scalar packages
         // @scalar/* -> packages/*/
         // (not @scalar/*/style.css)
-        find: /^@scalar\/([^/]+)$/,
-        replacement: path.resolve(__dirname, '../$1/src/index.ts'),
+        find: /^@scalar\/(?!(components\/style\.css|components\b))(.+)/,
+        replacement: path.resolve(__dirname, '../$2/src/index.ts'),
       },
     ],
   },

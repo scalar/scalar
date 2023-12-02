@@ -91,12 +91,16 @@ watch(
       </p>
       <div class="start-cta flex flex-row gap-1">
         <ScalarButton
-          label="Test Petstore"
-          @click="example = 'Petstore'" />
+          isFullWidth
+          @click="example = 'Petstore'">
+          Test Petstore
+        </ScalarButton>
         <ScalarButton
-          label="Upload File"
+          isFullWidth
           variant="outlined"
-          @click="$emit('openSwaggerEditor', 'uploadFile')" />
+          @click="$emit('openSwaggerEditor', 'uploadFile')">
+          Upload File
+        </ScalarButton>
       </div>
     </div>
     <div class="start-row">
