@@ -88,6 +88,7 @@ export type Information = {
   requestBody?: RequestBody
   summary?: string
   tags?: string[]
+  deprecated?: boolean
 }
 
 export type Operation = {

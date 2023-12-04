@@ -3,6 +3,7 @@ import { computed } from 'vue'
 
 import { useTemplateStore } from '../../../stores/template'
 import type { Info, Server, Spec } from '../../../types'
+import { Badge } from '../../Badge'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import {
   Section,
@@ -38,16 +39,10 @@ const specVersion = computed(() => {
       <SectionContent :loading="!info.description && !info.title">
         <SectionColumns>
           <SectionColumn>
-            <span
-              v-if="info.version"
-              class="section-version">
+            <Badge v-if="info.version">
               {{ info.version }}
-            </span>
-            <span
-              v-if="specVersion"
-              class="section-oas">
-              OAS {{ specVersion }}
-            </span>
+            </Badge>
+            <Badge v-if="specVersion"> OAS {{ specVersion }} </Badge>
             <SectionHeader
               :level="1"
               :loading="!info.title"
@@ -58,7 +53,7 @@ const specVersion = computed(() => {
             <Description :value="info.description" />
           </SectionColumn>
           <SectionColumn>
-            <div class="sticky-cards flex-col gap-1">
+            <div class="sticky-cards">
               <ServerList :value="servers" />
 
               <Card>
@@ -105,19 +100,11 @@ const specVersion = computed(() => {
   padding: 10px 12px;
 }
 .sticky-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
   position: sticky;
   top: 24px;
-}
-.section-version,
-.section-oas {
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  background: var(--theme-background-2, var(--default-theme-background-2));
-  padding: 2px 6px;
-  border-radius: 12px;
-  margin-right: 4px;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  margin-bottom: 3px;
-  display: inline-block;
 }
 </style>

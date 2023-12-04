@@ -89,14 +89,12 @@ watch(
         Open-Source tool that takes your Swagger/OAS file and generates
         Beautiful API references.
       </p>
-      <div class="start-cta flex flex-row gap-1">
-        <ScalarButton
-          isFullWidth
-          @click="example = 'Petstore'">
-          Test Petstore
-        </ScalarButton>
-        <ScalarButton
-          isFullWidth
+      <div class="start-cta">
+        <FlowButton
+          label="Test Petstore"
+          @click="example = 'Petstore'" />
+        <FlowButton
+          label="Upload File"
           variant="outlined"
           @click="$emit('openSwaggerEditor', 'uploadFile')">
           Upload File
@@ -472,6 +470,8 @@ watch(
   text-transform: capitalize;
 }
 .start-cta {
+  display: flex;
+  gap: 12px;
   width: 100%;
   margin-top: 24px;
   margin-bottom: 0;

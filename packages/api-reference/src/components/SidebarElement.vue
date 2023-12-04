@@ -14,6 +14,7 @@ const props = defineProps<{
       src: string
     }
     httpVerb?: string
+    deprecated?: boolean
   }
   isActive?: boolean
   hasChildren?: boolean
@@ -76,6 +77,7 @@ defineExpose({ el })
         'sidebar-group-item__folder':
           hasChildren || item.type === ElementType.Folder,
         'active_page': isActive,
+        'deprecated': item.deprecated ?? false,
       }"
       @click="handleClick">
       <!-- If children are detected then show the nesting icon -->

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useClipboard } from '@scalar/use-clipboard'
 
+import ScreenReader from '../ScreenReader.vue'
+
 defineProps<{
   id: string
 }>()
@@ -26,7 +28,7 @@ const getUrlWithId = (id: string) => {
         type="button"
         @click="copyToClipboard(getUrlWithId(id))">
         #
-        <span class="sr-only">Copy link to "<slot />"</span>
+        <ScreenReader>Copy link to "<slot />"</ScreenReader>
       </button>
     </span>
   </span>

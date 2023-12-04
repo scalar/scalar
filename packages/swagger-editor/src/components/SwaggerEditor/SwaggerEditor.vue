@@ -8,6 +8,7 @@ import {
   type OpenSwaggerEditorActions,
   type SwaggerEditorProps,
 } from '../../types'
+import ResetStyles from '../ResetStyles.vue'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
 import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
@@ -77,74 +78,34 @@ defineExpose({
 </script>
 <template>
   <ThemeStyles :id="theme" />
-  <div class="swagger-editor">
-    <SwaggerEditorHeader
-      ref="swaggerEditorHeaderRef"
-      :proxyUrl="proxyUrl"
-      @import="handleContentUpdate">
-      <template #tab-items><slot name="tab-items" /></template>
-    </SwaggerEditorHeader>
-    <SwaggerEditorNotification v-if="formattedError">
-      {{ formattedError }}
-    </SwaggerEditorNotification>
-    <SwaggerEditorInput
-      ref="codeMirrorReference"
-      :hocuspocusConfiguration="hocuspocusConfiguration"
-      :value="value"
-      @awarenessUpdate="handleAwarenessUpdate"
-      @contentUpdate="handleContentUpdate" />
-    <SwaggerEditorStatusBar v-if="awarenessStates.length">
-      {{ awarenessStates.length }} user{{
-        awarenessStates.length === 1 ? '' : 's'
-      }}
-      online
-    </SwaggerEditorStatusBar>
-  </div>
+  <ResetStyles v-slot="{ styles }">
+    <div
+      class="swagger-editor"
+      :class="styles">
+      <SwaggerEditorHeader
+        ref="swaggerEditorHeaderRef"
+        :proxyUrl="proxyUrl"
+        @import="handleContentUpdate">
+        <template #tab-items><slot name="tab-items" /></template>
+      </SwaggerEditorHeader>
+      <SwaggerEditorNotification v-if="formattedError">
+        {{ formattedError }}
+      </SwaggerEditorNotification>
+      <SwaggerEditorInput
+        ref="codeMirrorReference"
+        :hocuspocusConfiguration="hocuspocusConfiguration"
+        :value="value"
+        @awarenessUpdate="handleAwarenessUpdate"
+        @contentUpdate="handleContentUpdate" />
+      <SwaggerEditorStatusBar v-if="awarenessStates.length">
+        {{ awarenessStates.length }} user{{
+          awarenessStates.length === 1 ? '' : 's'
+        }}
+        online
+      </SwaggerEditorStatusBar>
+    </div>
+  </ResetStyles>
 </template>
-
-<style>
-/** CSS Reset */
-.swagger-editor,
-#headlessui-portal-root {
-  p {
-    margin: 0;
-  }
-
-  i {
-    font-style: normal;
-  }
-
-  ul,
-  ol {
-    margin: 0;
-    padding: 0;
-  }
-
-  /** Add some more things which are normally applied to `html`. */
-  font-family: var(--theme-font, var(--default-theme-font));
-  line-height: 1.15;
-  -webkit-text-size-adjust: 100%;
-  -moz-tab-size: 4;
-  tab-size: 4;
-
-  /** Make sure box-sizing is set properly. */
-  box-sizing: border-box;
-
-  *,
-  *:before,
-  *:after {
-    box-sizing: inherit;
-  }
-
-  /** Smooth text rendering */
-  * {
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-}
-</style>
-
 <style scoped>
 .swagger-editor {
   min-width: 0;

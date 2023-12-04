@@ -2,6 +2,8 @@
 import { ScalarIcon } from '@scalar/components'
 
 import { useDarkModeState } from '../hooks/useDarkModeState'
+import { FlowIcon } from './Icon'
+import ScreenReader from './ScreenReader.vue'
 
 const { toggleDarkMode, isDark } = useDarkModeState()
 </script>
@@ -10,10 +12,10 @@ const { toggleDarkMode, isDark } = useDarkModeState()
     class="darklight"
     type="button"
     @click="toggleDarkMode">
-    <ScalarIcon :icon="isDark ? 'DarkMode' : 'LightMode'" />
-    <span class="sr-only">
+    <FlowIcon :icon="isDark ? 'DarkMode' : 'LightMode'" />
+    <ScreenReader>
       Switch to {{ isDark ? 'Light' : 'Dark' }} Mode
-    </span>
+    </ScreenReader>
   </button>
 </template>
 <style scoped>

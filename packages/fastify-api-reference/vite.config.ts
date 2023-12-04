@@ -26,11 +26,12 @@ export default defineConfig({
       entry: 'src/index.ts',
       name: '@scalar/fastify-api-reference',
       fileName: 'index',
-      formats: ['es', 'cjs'],
+      formats: ['es'],
     },
-    rollupOptions: {
-      external: Object.keys(pkg.dependencies || {}),
-    },
+    // We don’t have any production dependencies.
+    // rollupOptions: {
+    //   external: pkg.dependencies || {},
+    // },
   },
   resolve: {
     alias: [

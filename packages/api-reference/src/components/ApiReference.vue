@@ -7,7 +7,7 @@ import Layouts from './Layouts/'
 
 const props = defineProps<ReferenceProps>()
 
-const emit = defineEmits<{
+defineEmits<{
   (e: 'updateContent', value: string): void
 }>()
 
@@ -29,9 +29,7 @@ if (config.value?.metaData) {
 
 function handleUpdateContent(value: string) {
   content.value = value
-  if (props.configuration?.onSpecUpdate) {
-    props.configuration.onSpecUpdate(value)
-  }
+  props.configuration?.onSpecUpdate?.(value)
 }
 </script>
 <template>
