@@ -28,9 +28,10 @@ export default defineConfig({
       fileName: 'index',
       formats: ['es', 'cjs'],
     },
-    rollupOptions: {
-      external: Object.keys(pkg.dependencies || {}),
-    },
+    // We don’t have any production dependencies.
+    // rollupOptions: {
+    //   external: pkg.dependencies || {},
+    // },
   },
   resolve: {
     alias: [
