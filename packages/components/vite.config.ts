@@ -45,7 +45,7 @@ export default defineConfig({
   plugins: [
     vue(),
     // scopeTailwind(),
-    dts({ insertTypesEntry: true, tsconfigPath: 'tsconfig.build.json' }),
+    dts({ insertTypesEntry: true, rollupTypes: true }),
   ],
   resolve: {
     alias: {

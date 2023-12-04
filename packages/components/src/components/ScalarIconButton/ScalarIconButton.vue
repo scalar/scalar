@@ -6,19 +6,21 @@ import { cva } from '@/cva'
 import { type ButtonProps, ScalarButton } from '../ScalarButton'
 import { type Icon, ScalarIcon } from '../ScalarIcon'
 
+type IconButtonVariants = VariantProps<typeof iconButton>
+
 withDefaults(
   defineProps<{
     label: string
     icon: Icon
-    size?: IconButtonVariants['size']
     variant?: ButtonProps['variant']
+    size?: IconButtonVariants['size']
   }>(),
   {
     variant: 'ghost',
   },
 )
 
-const iconButton = cva('mt-d', {
+const iconButton = cva({
   variants: {
     size: {
       xs: 'h-3.5 w-3.5',
@@ -30,8 +32,6 @@ const iconButton = cva('mt-d', {
     size: 'md',
   },
 })
-
-type IconButtonVariants = VariantProps<typeof iconButton>
 </script>
 
 <template>

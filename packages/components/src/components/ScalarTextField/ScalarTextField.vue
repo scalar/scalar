@@ -33,17 +33,15 @@ const emit = defineEmits<{
   (e: 'update:modelValue', v: string): void
 }>()
 
-const textField = cva(
-  'scalar-input-wrapper relative flex items-center rounded border border-border',
-  {
-    variants: {
-      focus: {
-        true: 'scalar-input-wrapper-focus border-fore-3 has-actv-btn:border has-actv-btn:border-border',
-      },
-      error: { true: 'scalar-input-wrapper-error border-error' },
+const textField = cva({
+  base: 'scalar-input-wrapper relative flex items-center rounded border border-border',
+  variants: {
+    focus: {
+      true: 'scalar-input-wrapper-focus border-fore-3 has-actv-btn:border has-actv-btn:border-border',
     },
+    error: { true: 'scalar-input-wrapper-error border-error' },
   },
-)
+})
 
 const attrs = useAttrs()
 const uid = (attrs.id as string) || `id-${nanoid()}`

@@ -1,4 +1,3 @@
-import { cva } from 'class-variance-authority'
 import { defineConfig } from 'cva'
 import { extendTailwindMerge } from 'tailwind-merge'
 
@@ -16,11 +15,9 @@ const tw = extendTailwindMerge({})
 /**
  * CVA Config
  *
- * Currently there is a bug preventing us from using the new CVA, reverting back to the old one for now
- *
  * https://beta.cva.style/api-reference/#defineconfig
  */
-const { cx, compose } = defineConfig({
+const { cva, cx, compose } = defineConfig({
   hooks: {
     onComplete: (className) => tw(className),
   },

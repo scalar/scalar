@@ -7,6 +7,8 @@ import { cva } from '@/cva'
 import SvgRenderer from './SvgRenderer'
 import { type Icon, getIcon } from './icons/'
 
+type IconVariants = VariantProps<typeof iconProps>
+
 /**
  * Icon wrapper for all scalar icons
  */
@@ -15,7 +17,7 @@ const props = defineProps<{
   size?: IconVariants['size']
 }>()
 
-const iconProps = cva('', {
+const iconProps = cva({
   variants: {
     size: {
       xs: 'h-3 w-3',
@@ -26,8 +28,6 @@ const iconProps = cva('', {
     },
   },
 })
-
-type IconVariants = VariantProps<typeof iconProps>
 
 const data = computed(() => getIcon(props.icon))
 </script>
