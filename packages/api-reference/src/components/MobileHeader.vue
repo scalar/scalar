@@ -17,6 +17,7 @@ const { state } = useApiClientStore()
     <ScalarIconButton
       :icon="open ? 'Close' : 'Menu'"
       :label="open ? 'Close Menu' : 'Open Menu'"
+      size="md"
       @click="$emit('update:open', !open)" />
     <span class="references-mobile-breadcrumbs">{{
       state.activeBreadcrumb

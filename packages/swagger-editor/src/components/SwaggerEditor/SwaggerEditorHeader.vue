@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarTextField } from '@scalar/components'
-import { FlowModal, useModal } from '@scalar/use-modal'
+import {
+  ScalarButton,
+  ScalarModal,
+  ScalarTextField,
+  useModal,
+} from '@scalar/components'
 import { useFileDialog, useMediaQuery } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
@@ -75,26 +79,26 @@ watch(files, () => {
       </HeaderTabButton>
     </div>
   </div>
-  <FlowModal
+  <ScalarModal
     :state="importUrlModal"
     title="Import Swagger from URL">
     <div class="swagger-editor-modal-layout">
-      <FlowTextField
+      <ScalarTextField
         v-model="specUrl"
         autofocus
         class="swagger-editor-modal-layout-input"
         label="URL"
+        labelShadowColor="var(--theme-background-1, var(--default-theme-background-1))"
         placeholder="https://scalar.com/swagger.json" />
       {{ importUrlError }}
-      <FlowButton
-        label="Cancel"
+      <ScalarButton
         variant="outlined"
-        @click="importUrlModal.hide()" />
-      <FlowButton
-        label="Import"
-        @click="handleImportUrl" />
+        @click="importUrlModal.hide()">
+        Cancel
+      </ScalarButton>
+      <ScalarButton @click="handleImportUrl">Import</ScalarButton>
     </div>
-  </FlowModal>
+  </ScalarModal>
 </template>
 <style scoped>
 .swagger-editor-header {

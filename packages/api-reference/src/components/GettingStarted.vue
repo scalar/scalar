@@ -90,11 +90,13 @@ watch(
         Beautiful API references.
       </p>
       <div class="start-cta">
-        <FlowButton
-          label="Test Petstore"
-          @click="example = 'Petstore'" />
-        <FlowButton
-          label="Upload File"
+        <ScalarButton
+          isFullWidth
+          @click="example = 'Petstore'">
+          Test Petstore
+        </ScalarButton>
+        <ScalarButton
+          isFullWidth
           variant="outlined"
           @click="$emit('openSwaggerEditor', 'uploadFile')">
           Upload File

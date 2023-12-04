@@ -12,7 +12,7 @@ const button = cva({
       ].join(' '),
       outlined: [
         'scalar-button-outlined',
-        'active:bg-btn-1 border border-border bg-transparent text-fore-1 hocus:bg-back-2',
+        'active:bg-btn-1 border border-solid border-border bg-transparent text-fore-1 hocus:bg-back-2',
       ].join(' '),
       ghost: [
         'scalar-button-ghost',

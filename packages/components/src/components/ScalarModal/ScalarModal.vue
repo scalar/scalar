@@ -75,7 +75,7 @@ export const useModal = () =>
           {{ title }}
         </DialogTitle>
         <DialogDescription
-          class="scalar-modal-body relative max-h-[calc(100dvh-240px)] overflow-y-auto rounded-lg bg-back-1 py-6 pb-4 pt-3"
+          class="scalar-modal-body relative max-h-[calc(100dvh-240px)] overflow-y-auto rounded-lg bg-back-1 px-6 pb-4 pt-6"
           :class="
             cx(
               bodyClass,

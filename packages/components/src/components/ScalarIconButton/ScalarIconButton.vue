@@ -26,7 +26,7 @@ const iconButton = cva({
     size: {
       xs: 'h-3.5 w-3.5 p-0.5',
       sm: 'h-5 w-5 p-1',
-      md: 'h-10 w-10 p-1.5',
+      md: 'h-10 w-10 p-3',
     },
   },
   defaultVariants: {
