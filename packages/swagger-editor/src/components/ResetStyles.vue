@@ -65,6 +65,17 @@ onMounted(() => {
     font-family: var(--theme-font, var(--default-theme-font));
   }
 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: unset;
+    font-weight: unset;
+    font-style: unset;
+  }
+
   button {
     background: none;
     border: none;
