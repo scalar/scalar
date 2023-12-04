@@ -1,4 +1,4 @@
-import { type ReferenceConfiguration } from '@scalar/api-reference'
+import type { ReferenceConfiguration } from '@scalar/api-reference'
 import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
 
