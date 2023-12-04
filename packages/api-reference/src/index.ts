@@ -11,4 +11,6 @@ export { default as DarkModeToggle } from './components/DarkModeToggle.vue'
 export { default as SearchModal } from './components/SearchModal.vue'
 export { default as SearchButton } from './components/SearchButton.vue'
 
+export * from './components/Card'
+
 export * from './types'

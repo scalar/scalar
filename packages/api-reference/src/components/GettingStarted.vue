@@ -89,7 +89,7 @@ watch(
         Open-Source tool that takes your Swagger/OAS file and generates
         Beautiful API references.
       </p>
-      <div class="start-cta flex flex-row gap-1">
+      <div class="start-cta">
         <FlowButton
           label="Test Petstore"
           @click="example = 'Petstore'" />
@@ -468,6 +468,8 @@ watch(
   text-transform: capitalize;
 }
 .start-cta {
+  display: flex;
+  gap: 12px;
   width: 100%;
   margin-top: 24px;
   margin-bottom: 0;

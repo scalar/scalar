@@ -53,7 +53,7 @@ const specVersion = computed(() => {
             <Description :value="info.description" />
           </SectionColumn>
           <SectionColumn>
-            <div class="sticky-cards flex-col gap-1">
+            <div class="sticky-cards">
               <ServerList :value="servers" />
 
               <Card>
@@ -100,6 +100,10 @@ const specVersion = computed(() => {
   padding: 10px 12px;
 }
 .sticky-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
   position: sticky;
   top: 24px;
 }

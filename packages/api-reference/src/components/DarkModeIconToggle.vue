@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useDarkModeState } from '../hooks/useDarkModeState'
 import { FlowIcon } from './Icon'
+import ScreenReader from './ScreenReader.vue'
 
 const { toggleDarkMode, isDark } = useDarkModeState()
 </script>
@@ -10,9 +11,9 @@ const { toggleDarkMode, isDark } = useDarkModeState()
     type="button"
     @click="toggleDarkMode">
     <FlowIcon :icon="isDark ? 'DarkMode' : 'LightMode'" />
-    <span class="sr-only">
+    <ScreenReader>
       Switch to {{ isDark ? 'Light' : 'Dark' }} Mode
-    </span>
+    </ScreenReader>
   </button>
 </template>
 <style scoped>

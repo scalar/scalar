@@ -5,7 +5,6 @@ defineProps<{
   loaderState?: LoadingState
   variant?: ButtonVariant
   title?: string
-  icon?: boolean
 }>()
 </script>
 <script lang="ts">
@@ -25,7 +24,6 @@ export { useLoadButtonState }
       'flow-button-clear': !error && variant === 'clear',
       'flow-button-text': !error && variant === 'text',
       'flow-button--delete': error,
-      'flow-button-icon-only': icon,
     }"
     :title="title || label"
     type="button">
@@ -34,7 +32,7 @@ export { useLoadButtonState }
       class="flow-button-decorator">
       <slot />
     </div>
-    <span :class="{ 'sr-only': icon }">{{ label }}</span>
+    <span>{{ label }}</span>
     <div class="flow-button-loader">
       <FlowLoader
         v-if="loaderState"
@@ -77,12 +75,6 @@ export { useLoadButtonState }
   color: var(--theme-color-3, var(--default-theme-color-3));
   cursor: unset;
   box-shadow: none;
-}
-
-.flow-button.flow-button-icon-only {
-  width: 24px;
-  height: 24px;
-  padding: 0;
 }
 
 /* ----------------------------------------------------- */
@@ -177,8 +169,5 @@ export { useLoadButtonState }
   align-items: center;
   height: 14px;
   width: 14px;
-}
-.flow-button-icon-only .flow-button-decorator {
-  margin-right: 0;
 }
 </style>
