@@ -7,6 +7,7 @@ import {
   keymap,
   lineNumbers as lineNumbersExtension,
 } from '@codemirror/view'
+import { isJsonString } from '@scalar/api-client'
 import { type Ref, isRef, ref, toRaw, watch } from 'vue'
 
 import { defaultTheme } from '../themes'
@@ -60,6 +61,7 @@ export const useCodeMirror = (
 ): {
   value: Ref<string>
   codeMirrorRef: Ref<HTMLDivElement | null>
+  setCodeMirrorRef: (elem: HTMLDivElement) => void
   codeMirror: Ref<EditorView | null>
   setCodeMirrorContent: (content: string) => void
   reconfigureCodeMirror: (newExtensions: Extension[]) => void
@@ -69,6 +71,10 @@ export const useCodeMirror = (
   const value = ref(content ?? '')
   const codeMirrorRef = ref<HTMLDivElement | null>(null)
   const codeMirror = ref<EditorView | null>(null)
+  const setCodeMirrorRef = (el: HTMLDivElement) => (codeMirrorRef.value = el)
+
+  // Set default language from value
+  parameters.language ||= isJsonString() ? 'json' : 'yaml'
 
   // Unmounts CodeMirror if it’s mounted already, and mounts CodeMirror, if the given ref exists.
   watch(codeMirrorRef, () => {
@@ -272,6 +278,10 @@ export const useCodeMirror = (
      * An empty reference used to mount CodeMirror when bound to the DOM.
      */
     codeMirrorRef,
+    /**
+     * Function for setting the CodeMirrorRef, pass this into SwaggerEditor
+     */
+    setCodeMirrorRef,
     /**
      * The CodeMirror instance.
      */

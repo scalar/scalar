@@ -263,6 +263,12 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
 
 .scalar-api-client__url-input {
   color: var(--theme-color-1, var(--default-theme-color-1));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  min-height: auto;
+  padding-top: 0;
+}
+.scalar-api-client__url-input .ͼ1 .cm-scroller {
+  align-items: center !important;
 }
 
 .scalar-api-client__request-type {

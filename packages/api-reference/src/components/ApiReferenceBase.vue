@@ -5,6 +5,7 @@ import {
   type SwaggerEditor,
 } from '@scalar/swagger-editor'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
+import { useCodeMirror } from '@scalar/use-codemirror'
 import { FlowModal, useModal } from '@scalar/use-modal'
 import { FlowToastContainer } from '@scalar/use-toasts'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
@@ -93,8 +94,6 @@ useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height
 })
 
-const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
-
 const gettingStartedModal = useModal()
 
 function handleGettingStarted() {
@@ -107,6 +106,14 @@ function handleCloseModal(passThrough: () => void) {
 }
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
+
+const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
+
+const { setCodeMirrorRef } = useCodeMirror({
+  content: rawSpecRef,
+  lineNumbers: true,
+  onUpdate: (v) => setRawSpecRef(v.state.doc.toString()),
+})
 </script>
 <template>
   <component

@@ -9,7 +9,6 @@ import {
 } from '../../types'
 import ResetStyles from '../ResetStyles.vue'
 import SwaggerEditorHeader from './SwaggerEditorHeader.vue'
-import SwaggerEditorInput from './SwaggerEditorInput.vue'
 import SwaggerEditorNotification from './SwaggerEditorNotification.vue'
 
 const props = defineProps<SwaggerEditorProps>()
@@ -25,8 +24,6 @@ const swaggerEditorHeaderRef = ref<typeof SwaggerEditorHeader | null>(null)
 const handleContentUpdate = (value: string) => {
   emit('contentUpdate', value)
 }
-
-const codeMirrorReference = ref<typeof SwaggerEditorInput | null>(null)
 
 const formattedError = computed(() => {
   // Check whether there‘s an error
@@ -83,10 +80,14 @@ defineExpose({
       <SwaggerEditorNotification v-if="formattedError">
         {{ formattedError }}
       </SwaggerEditorNotification>
-      <SwaggerEditorInput
-        ref="codeMirrorReference"
-        :value="value"
-        @contentUpdate="handleContentUpdate" />
+      <div class="swagger-editor-input">
+        <slot name="swagger-editor">
+          <div
+            v-if="setCodeMirrorRef"
+            :ref="(el) => setCodeMirrorRef?.(el as HTMLDivElement)"
+            class="xd" />
+        </slot>
+      </div>
     </div>
   </ResetStyles>
 </template>
