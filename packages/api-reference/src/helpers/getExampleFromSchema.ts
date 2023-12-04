@@ -37,9 +37,6 @@ export const getExampleFromSchema = (
     return schema.enum[0]
   }
 
-  // XML
-  const xmlTagName = options?.xml ? schema.xml?.name : undefined
-
   // Object
   if (schema.type === 'object') {
     const response: Record<string, any> = {}
@@ -84,7 +81,7 @@ export const getExampleFromSchema = (
     return []
   }
 
-  const exampleValues = {
+  const exampleValues: Record<any, any> = {
     string: options?.emptyString ?? '',
     boolean: true,
     integer: schema.min ?? 1,
