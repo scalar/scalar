@@ -114,6 +114,8 @@ watch(files, () => {
   position: relative;
 
   padding: 9px;
+  /* Move down to cover the border below */
+  margin-bottom: -1px;
 
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   color: var(--theme-color-1, var(--default-theme-color-1));
