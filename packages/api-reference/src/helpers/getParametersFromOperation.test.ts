@@ -159,4 +159,37 @@ describe('getParametersFromOperation', () => {
       },
     ])
   })
+
+  it('path parameters', () => {
+    const request = getParametersFromOperation(
+      {
+        httpVerb: 'POST',
+        path: '/pet/{petId}',
+        information: {
+          parameters: [
+            {
+              name: 'petId',
+              in: 'path',
+              description: 'Pet id to delete',
+              required: true,
+              schema: {
+                type: 'integer',
+                format: 'int64',
+              },
+            },
+          ],
+        },
+      } as TransformedOperation,
+      'path',
+    )
+
+    expect(request).toStrictEqual([
+      {
+        name: 'petId',
+        description: 'Pet id to delete',
+        value: 1,
+        required: true,
+      },
+    ])
+  })
 })
