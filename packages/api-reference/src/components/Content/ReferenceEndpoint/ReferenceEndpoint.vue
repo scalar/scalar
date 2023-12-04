@@ -2,6 +2,7 @@
 import { getOperationSectionId } from '../../../helpers'
 import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
+import { Badge } from '../../Badge'
 import {
   Section,
   SectionColumn,
@@ -25,11 +26,14 @@ defineProps<{
     <SectionContent>
       <SectionColumns>
         <SectionColumn>
-          <SectionHeader :level="3">
-            <Anchor :id="getOperationSectionId(operation, tag)">
-              {{ operation.name }}
-            </Anchor>
-          </SectionHeader>
+          <Badge v-if="operation.information?.deprecated"> Deprecated </Badge>
+          <div :class="operation.information?.deprecated ? 'deprecated' : ''">
+            <SectionHeader :level="3">
+              <Anchor :id="getOperationSectionId(operation, tag)">
+                {{ operation.name }}
+              </Anchor>
+            </SectionHeader>
+          </div>
           <Copy :operation="operation" />
         </SectionColumn>
         <SectionColumn>
@@ -49,5 +53,9 @@ defineProps<{
 .examples {
   position: sticky;
   top: calc(var(--refs-header-height) + 24px);
+}
+
+.deprecated * {
+  text-decoration: line-through;
 }
 </style>

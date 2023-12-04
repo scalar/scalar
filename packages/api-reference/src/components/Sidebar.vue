@@ -75,6 +75,7 @@ const setRef = (el: SidebarElementType, id: string) => {
               title: item.title,
               type: item.type,
               httpVerb: item.httpVerb,
+              deprecated: item.deprecated ?? false,
             }"
             :open="collapsedSidebarItems[item.id] ?? false"
             @select="
@@ -103,6 +104,7 @@ const setRef = (el: SidebarElementType, id: string) => {
                       title: child.title,
                       type: child.type,
                       httpVerb: child.httpVerb,
+                      deprecated: child.deprecated ?? false,
                     }"
                     @select="
                       () => {
@@ -182,6 +184,10 @@ const setRef = (el: SidebarElementType, id: string) => {
   flex: 1;
   padding-right: 12px;
   user-select: none;
+}
+
+.sidebar-heading.deprecated p {
+  text-decoration: line-through;
 }
 
 /* Folder/page collapse icon */
