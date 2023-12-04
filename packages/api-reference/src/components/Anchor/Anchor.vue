@@ -50,6 +50,8 @@ const getUrlWithId = (id: string) => {
   top: 50%;
   transform: translateY(-50%);
 
+  cursor: pointer;
+
   padding: 0 6px;
 
   color: var(--theme-color-3, var(--default-theme-color-3));

@@ -39,14 +39,35 @@ defineProps<{
 </template>
 <style scoped>
 .section-accordion {
-  color: var(--theme-color-1);
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  display: flex;
+  flex-direction: column;
+
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  position: relative;
+  z-index: 0;
+}
+/* Use a pseudo elements so we can use CSS filters to lighten the background  */
+.section-accordion::before,
+.section-accordion::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+
+  pointer-events: none;
+
   border-radius: var(--theme-radius, var(--default-theme-radius));
+}
+.section-accordion::before {
+  background: var(--theme-background-1);
+}
+.section-accordion::before {
+  background: currentColor;
+  opacity: 0.1;
 }
 .section-accordion-button,
 .section-accordion-content {
   padding: 6px;
-  width: 100%;
 }
 
 .section-accordion-button {
@@ -58,9 +79,9 @@ defineProps<{
   min-width: 0;
 }
 .section-accordion-chevron {
-  margin-right: 6px;
+  margin-right: 4px;
   width: 24px;
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  cursor: pointer;
 }
 
 .section-accordion-content {

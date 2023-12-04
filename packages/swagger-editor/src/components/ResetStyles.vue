@@ -38,12 +38,10 @@ onMounted(() => {
   tab-size: 4;
 
   /** Make sure box-sizing is set properly. */
-  box-sizing: border-box;
-
   *,
   *:before,
   *:after {
-    box-sizing: inherit;
+    box-sizing: border-box;
   }
 
   /** Smooth text rendering */
@@ -77,8 +75,9 @@ onMounted(() => {
   }
 
   button {
-    background: none;
-    border: none;
+    all: unset;
+    display: revert;
+    cursor: revert;
   }
 }
 </style>

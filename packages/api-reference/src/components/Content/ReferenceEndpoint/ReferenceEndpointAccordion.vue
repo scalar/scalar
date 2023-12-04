@@ -14,7 +14,10 @@ defineProps<{
 }>()
 </script>
 <template>
-  <SectionAccordion :id="getOperationSectionId(operation, tag)">
+  <SectionAccordion
+    :id="getOperationSectionId(operation, tag)"
+    class="reference-endpoint"
+    :class="`reference-endpoint--${operation.httpVerb}`">
     <template #title>
       <h3 class="endpoint-header">
         <div class="endpoint-details">
@@ -44,6 +47,22 @@ defineProps<{
 </template>
 
 <style scoped>
+.reference-endpoint.reference-endpoint--post {
+  color: var(--theme-color-green, var(--default-theme-color-green));
+}
+.reference-endpoint.reference-endpoint--patch {
+  color: var(--theme-color-yellow, var(--default-theme-color-yellow));
+}
+.reference-endpoint.reference-endpoint--get {
+  color: var(--theme-color-blue, var(--default-theme-color-blue));
+}
+.reference-endpoint.reference-endpoint--delete {
+  color: var(--theme-color-red, var(--default-theme-color-red));
+}
+.reference-endpoint.reference-endpoint--put {
+  color: var(--theme-color-orange, var(--default-theme-color-orange));
+}
+
 .endpoint-header {
   display: flex;
   justify-content: space-between;
@@ -59,6 +78,9 @@ defineProps<{
   justify-content: center;
   gap: 6px;
 
+  position: relative;
+  z-index: 0;
+
   width: 70px;
   padding: 6px;
 
@@ -66,8 +88,6 @@ defineProps<{
 
   text-transform: uppercase;
   font-family: var(--default-theme-font-code);
-  background: var(--theme-background-3, var(--default-theme-background-3));
-  border-radius: var(--theme-radius, var(--default-theme-radius));
 }
 .endpoint-type::before {
   display: inline-block;
@@ -76,6 +96,17 @@ defineProps<{
   border-radius: 9999px;
   width: 10px;
   aspect-ratio: 1 /1;
+}
+.endpoint-type::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+
+  background: currentColor;
+  opacity: 0.2;
+
+  border-radius: var(--theme-radius, var(--default-theme-radius));
 }
 
 .endpoint-anchor {
@@ -87,7 +118,10 @@ defineProps<{
 
 .endpoint-label {
   display: flex;
+  align-items: baseline;
   gap: 9px;
+
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 
 .endpoint-label-path {
