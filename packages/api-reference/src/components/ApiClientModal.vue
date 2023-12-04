@@ -56,7 +56,15 @@ export { useApiClientStore } from '@scalar/api-client'
             <div class="t-doc__sidebar">
               <Sidebar
                 v-show="!isMobile"
-                :parsedSpec="parsedSpec" />
+                :parsedSpec="parsedSpec">
+                <!-- Pass up the sidebar slots -->
+                <template #sidebar-start>
+                  <slot name="sidebar-start" />
+                </template>
+                <template #sidebar-end>
+                  <slot name="sidebar-end" />
+                </template>
+              </Sidebar>
             </div>
           </template>
           <ApiClient
