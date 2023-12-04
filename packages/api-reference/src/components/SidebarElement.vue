@@ -81,10 +81,10 @@ defineExpose({ el })
       <!-- If children are detected then show the nesting icon -->
       <ScalarIconButton
         v-if="hasChildren || item.type === ElementType.Folder"
-        class="toggle-nested-icon"
+        buttonClass="toggle-nested-icon"
         :icon="open ? 'ChevronDown' : 'ChevronRight'"
         label="Toggle group"
-        variant="text"
+        size="sm"
         @click="handleToggleOpen" />
       <a
         class="flex-1 sidebar-heading-link"

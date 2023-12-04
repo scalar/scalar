@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { VariantProps } from 'cva'
 
-import { cva } from '@/cva'
+import { cva, cx } from '@/cva'
 
 import { type ButtonProps, ScalarButton } from '../ScalarButton'
 import { type Icon, ScalarIcon } from '../ScalarIcon'
@@ -10,6 +10,7 @@ type IconButtonVariants = VariantProps<typeof iconButton>
 
 withDefaults(
   defineProps<{
+    buttonClass?: string
     label: string
     icon: Icon
     variant?: ButtonProps['variant']
@@ -23,9 +24,9 @@ withDefaults(
 const iconButton = cva({
   variants: {
     size: {
-      xs: 'h-3.5 w-3.5',
-      sm: 'h-5 w-5',
-      md: 'h-10 w-10',
+      xs: 'h-3.5 w-3.5 p-0.5',
+      sm: 'h-5 w-5 p-1',
+      md: 'h-10 w-10 p-1.5',
     },
   },
   defaultVariants: {
@@ -36,7 +37,8 @@ const iconButton = cva({
 
 <template>
   <ScalarButton
-    :class="size"
+    :buttonClass="cx(iconButton({ size }), buttonClass)"
+    iconClass=""
     :title="label"
     :variant="variant">
     <template #icon>

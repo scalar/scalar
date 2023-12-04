@@ -189,7 +189,6 @@ const setRef = (el: SidebarElementType, id: string) => {
   border: none;
   position: absolute !important;
   color: currentColor;
-  top: 4px;
   color: currentColor;
 }
 

@@ -35,7 +35,7 @@ const data = computed(() => getIcon(props.icon))
 <template>
   <SvgRenderer
     v-if="data"
-    :class="size"
+    :class="iconProps({ size })"
     height="100%"
     :raw="data"
     width="100%" />
