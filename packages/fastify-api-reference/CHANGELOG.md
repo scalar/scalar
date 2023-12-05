@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 0.8.2
+
+### Patch Changes
+
+- aa699af: fix: common js build
+
 ## 0.8.1
 
 ### Patch Changes
