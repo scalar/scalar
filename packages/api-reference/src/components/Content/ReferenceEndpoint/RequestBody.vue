@@ -9,7 +9,7 @@ defineProps<{ requestBody?: RequestBody }>()
     v-if="requestBody && requestBody.content?.['application/json']"
     class="body-container">
     <div class="endpoint-title">
-      <h5 class="title">Body</h5>
+      <slot name="title" />
     </div>
     <ul
       v-if="requestBody.content?.['application/json']"
@@ -24,14 +24,6 @@ defineProps<{ requestBody?: RequestBody }>()
     </ul>
   </div>
 </template>
-
-<style scoped>
-.title {
-  margin-bottom: 12px !important;
-  margin-top: 24px !important;
-}
-</style>
-
 <style>
 .parameter p {
   margin-top: 6px;
@@ -133,15 +125,5 @@ defineProps<{ requestBody?: RequestBody }>()
 }
 .parameter-options {
   position: relative;
-}
-.copy .title {
-  font-size: var(--theme-heading-4, var(--default-theme-heading-4));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  line-height: 1.45;
-  margin: 0;
-}
-.copy .parameter-description:empty {
-  display: none;
 }
 </style>

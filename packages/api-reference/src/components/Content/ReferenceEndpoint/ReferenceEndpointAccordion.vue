@@ -4,7 +4,7 @@ import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { SectionAccordion } from '../../Section'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
-import EndpointDetails from './EndpointDetails.vue'
+import EndpointDetailsCard from './EndpointDetailsCard.vue'
 import ExampleRequest from './ExampleRequest.vue'
 import { ExampleResponses } from './ExampleResponses'
 
@@ -39,7 +39,7 @@ defineProps<{
       <MarkdownRenderer :value="operation.description" />
     </template>
     <div class="endpoint-content">
-      <EndpointDetails :operation="operation" />
+      <EndpointDetailsCard :operation="operation" />
       <ExampleResponses :operation="operation" />
       <ExampleRequest :operation="operation" />
     </div>
