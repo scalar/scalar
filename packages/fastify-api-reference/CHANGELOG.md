@@ -1,5 +1,12 @@
 # @scalar/fastify-api-reference
 
+## 0.8.3
+
+### Patch Changes
+
+- fc540bf: chore: make routePrefix optional
+- fc540bf: chore: use routePrefix for JavaScript file
+
 ## 0.8.2
 
 ### Patch Changes
