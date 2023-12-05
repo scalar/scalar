@@ -41,7 +41,7 @@ describe('fastifyApiReference', () => {
       fastify.listen({ port: 0 }, function (err, address) {
         fetch(`${address}/reference`).then(async (response) => {
           expect(await response.text()).toContain(
-            '/@scalar/fastify-api-reference/browser.js',
+            '/reference/@scalar/fastify-api-reference/js/browser.js',
           )
           resolve(null)
         })
