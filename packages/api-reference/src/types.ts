@@ -67,11 +67,20 @@ export type Schema = {
 }
 
 export type Parameters = {
-  description?: string
-  in?: string
+  // Fixed Fields
   name: string
+  in?: string
+  description?: string
   required?: boolean
+  deprecated?: boolean
+  allowEmptyValue?: boolean
+  // Other
+  style?: 'form' | 'simple'
+  explode?: boolean
+  allowReserved?: boolean
   schema?: Schema
+  example?: any
+  examples?: Map<string, any>
 }
 
 export type Response = {
@@ -94,10 +103,10 @@ export type Information = {
 export type Operation = {
   httpVerb: string
   path: string
-  operationId: string
-  name: string
-  description: string
-  information: Information
+  operationId?: string
+  name?: string
+  description?: string
+  information?: Information
 }
 
 export type ExampleResponseHeaders = Record<
@@ -122,7 +131,8 @@ export type RequestBodyMimeTypes =
 
 export type TransformedOperation = Operation & {
   pathParameters?: Parameters[]
-  information: {
+  // TODO: This overwrites was has been in information before? Let’s check if this is correct.
+  information?: {
     requestBody?: {
       content?: Record<
         RequestBodyMimeTypes,

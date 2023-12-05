@@ -185,7 +185,18 @@ const { state } = useApiClientStore()
     <!-- REST API Client Overlay -->
     <ApiClientModal
       :parsedSpec="parsedSpec"
-      :proxyUrl="configuration?.proxy" />
+      :proxyUrl="configuration?.proxy">
+      <template #sidebar-start>
+        <slot
+          v-bind="referenceSlotProps"
+          name="sidebar-start" />
+      </template>
+      <template #sidebar-end>
+        <slot
+          v-bind="referenceSlotProps"
+          name="sidebar-end" />
+      </template>
+    </ApiClientModal>
   </div>
 </template>
 <style scoped>

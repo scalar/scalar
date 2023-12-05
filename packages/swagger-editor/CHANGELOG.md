@@ -1,5 +1,12 @@
 # @scalar/swagger-editor
 
+## 0.8.1
+
+### Patch Changes
+
+- 98e01a2: fix: prevent css leakage from references reset
+- c04c2ea: fix: move swagger editor title down to cover border
+
 ## 0.8.0
 
 ### Minor Changes

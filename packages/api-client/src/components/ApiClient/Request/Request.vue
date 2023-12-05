@@ -25,7 +25,7 @@ const { activeRequest, readOnly } = useRequestStore()
       </div>
     </div>
     <div>
-      <RequestVariables :variables="activeRequest.parameters" />
+      <RequestVariables :variables="activeRequest.variables" />
       <RequestAuth />
       <RequestCookies :cookies="activeRequest.cookies" />
       <RequestHeaders :headers="activeRequest.headers" />

@@ -9,7 +9,7 @@ import {
   getOperationSectionId,
   getTagSectionId,
   hasModels,
-  showItemInClient,
+  openClientFor,
 } from '../helpers'
 import type { Spec, Tag, TransformedOperation } from '../types'
 
@@ -98,14 +98,14 @@ const items = computed((): SidebarEntry[] => {
             children: tag.operations?.map((operation: TransformedOperation) => {
               return {
                 id: getOperationSectionId(operation, tag),
-                title: operation.name,
+                title: operation.name ?? operation.path,
                 type: 'Page',
                 httpVerb: operation.httpVerb,
                 deprecated: operation.information?.deprecated ?? false,
                 show: true,
                 select: () => {
                   if (state.showApiClient) {
-                    showItemInClient(operation)
+                    openClientFor(operation)
                   }
                 },
               }
@@ -115,14 +115,14 @@ const items = computed((): SidebarEntry[] => {
       : firstTag?.operations?.map((operation) => {
           return {
             id: getOperationSectionId(operation, firstTag),
-            title: operation.name,
+            title: operation.name ?? operation.path,
             type: 'Page',
             httpVerb: operation.httpVerb,
             deprecated: operation.information?.deprecated ?? false,
             show: true,
             select: () => {
               if (state.showApiClient) {
-                showItemInClient(operation)
+                openClientFor(operation)
               }
             },
           }

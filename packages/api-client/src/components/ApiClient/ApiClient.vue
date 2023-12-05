@@ -6,7 +6,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
 import { useRequestStore } from '../../stores'
-import AdressBar from './AddressBar.vue'
+import AddressBar from './AddressBar.vue'
 import { Request } from './Request'
 import { Response } from './Response'
 
@@ -60,7 +60,7 @@ useKeyboardEvent({
     class="scalar-api-client"
     :class="`scalar-api-client--${activeRequest.type.toLowerCase() || 'get'}`"
     @keydown.esc="emit('escapeKeyPress')">
-    <AdressBar
+    <AddressBar
       :proxyUrl="proxyUrl"
       @onSend="changeTab(Tabs.Response)" />
     <div class="scalar-api-client__main">

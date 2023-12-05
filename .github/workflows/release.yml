@@ -46,25 +46,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Tag `latest` (as the pre-release)
-        id: tag
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: 'latest'
-          force_push_tag: true
-      - name: Pack packages for a pre-release on GitHub
-        id: pack
-        if: steps.changesets.outputs.published == 'false'
-        run: pnpm pack:packages
-      - name: Create a pre-release on GitHub
-        id: pre-release
-        if: steps.changesets.outputs.published == 'false'
-        uses: ncipollo/release-action@v1
-        with:
-          name: 'Latest'
-          omitBody: true
-          artifacts: 'scalar-*.tgz'
-          removeArtifacts: true
-          prerelease: true
-          allowUpdates: true
-          tag: latest

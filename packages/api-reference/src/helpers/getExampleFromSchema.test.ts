@@ -6,34 +6,39 @@ describe('getExampleFromSchema', () => {
   it('sets example values', () => {
     expect(
       getExampleFromSchema({
-        properties: {
-          id: {
-            example: 10,
-          },
-        },
+        example: 10,
       }),
-    ).toMatchObject({
-      id: 10,
-    })
+    ).toMatchObject(10)
   })
 
   it('takes the first enum as example', () => {
     expect(
       getExampleFromSchema({
-        properties: {
-          status: {
-            enum: ['available', 'pending', 'sold'],
-          },
-        },
+        enum: ['available', 'pending', 'sold'],
       }),
-    ).toMatchObject({
-      status: 'available',
-    })
+    ).toMatchObject('available')
+  })
+
+  it('uses empty quotes as a fallback for strings', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'string',
+      }),
+    ).toMatchObject('')
+  })
+
+  it('sets example values', () => {
+    expect(
+      getExampleFromSchema({
+        example: 10,
+      }),
+    ).toMatchObject(10)
   })
 
   it('goes through properties recursively with objects', () => {
     expect(
       getExampleFromSchema({
+        type: 'object',
         properties: {
           category: {
             type: 'object',
@@ -44,6 +49,14 @@ describe('getExampleFromSchema', () => {
               name: {
                 example: 'Dogs',
               },
+              attributes: {
+                type: 'object',
+                properties: {
+                  size: {
+                    enum: ['small', 'medium', 'large'],
+                  },
+                },
+              },
             },
           },
         },
@@ -52,6 +65,9 @@ describe('getExampleFromSchema', () => {
       category: {
         id: 1,
         name: 'Dogs',
+        attributes: {
+          size: 'small',
+        },
       },
     })
   })
@@ -59,10 +75,12 @@ describe('getExampleFromSchema', () => {
   it('goes through properties recursively with arrays', () => {
     expect(
       getExampleFromSchema({
+        type: 'object',
         properties: {
           tags: {
             type: 'array',
             items: {
+              type: 'object',
               properties: {
                 id: {
                   example: 1,
@@ -81,9 +99,10 @@ describe('getExampleFromSchema', () => {
     })
   })
 
-  it('uses empty quotes as a fallback for arrays', () => {
+  it('uses empty [] as a fallback for arrays', () => {
     expect(
       getExampleFromSchema({
+        type: 'object',
         properties: {
           title: {
             type: 'array',
@@ -95,74 +114,39 @@ describe('getExampleFromSchema', () => {
     })
   })
 
-  it('uses empty quotes as a fallback for strings', () => {
-    expect(
-      getExampleFromSchema({
-        properties: {
-          title: {
-            type: 'string',
-          },
-        },
-      }),
-    ).toMatchObject({
-      title: '',
-    })
-  })
-
-  it('uses empty quotes as a fallback for strings', () => {
+  it('uses given fallback for strings', () => {
     expect(
       getExampleFromSchema(
         {
-          properties: {
-            title: {
-              type: 'string',
-            },
-          },
+          type: 'string',
         },
         {
           emptyString: '…',
         },
       ),
-    ).toMatchObject({
-      title: '…',
-    })
+    ).toMatchObject('…')
   })
 
   it('uses true as a fallback for booleans', () => {
     expect(
       getExampleFromSchema({
-        properties: {
-          public: {
-            type: 'boolean',
-          },
-        },
+        type: 'boolean',
       }),
-    ).toMatchObject({
-      public: true,
-    })
+    ).toMatchObject(true)
   })
 
   it('uses 1 as a fallback for integers', () => {
     expect(
       getExampleFromSchema({
-        properties: {
-          id: {
-            type: 'integer',
-          },
-        },
+        type: 'integer',
       }),
-    ).toMatchObject({
-      id: 1,
-    })
+    ).toMatchObject(1)
   })
 
   it('returns an array if the schema type is array', () => {
     expect(
       getExampleFromSchema({
         type: 'array',
-        items: {
-          type: 'string',
-        },
       }),
     ).toMatchObject([])
   })
@@ -193,17 +177,11 @@ describe('getExampleFromSchema', () => {
               type: 'string',
             },
           },
-          required: [
-            {
-              foo: 0,
-              bar: '',
-            },
-          ],
         },
       }),
     ).toMatchObject([
       {
-        foo: 0,
+        foo: 1,
         bar: '',
       },
     ])
@@ -211,54 +189,28 @@ describe('getExampleFromSchema', () => {
 
   it('uses the default value', () => {
     const schema = {
-      type: 'object',
-      properties: {
-        statusCode: {
-          type: 'number',
-          default: 400,
-        },
-        errorCode: {
-          type: 'string',
-          default: 'BAD_REQUEST_EXCEPTION',
-        },
-      },
+      type: 'string',
+      default: 'BAD_REQUEST_EXCEPTION',
     }
 
-    expect(getExampleFromSchema(schema)).toMatchObject({
-      statusCode: 400,
-      errorCode: 'BAD_REQUEST_EXCEPTION',
-    })
+    expect(getExampleFromSchema(schema)).toMatchObject('BAD_REQUEST_EXCEPTION')
   })
 
-  it('uses 0 as the default for a number', () => {
+  it('uses 1 as the default for a number', () => {
     expect(
       getExampleFromSchema({
-        type: 'object',
-        properties: {
-          statusCode: {
-            type: 'number',
-          },
-        },
+        type: 'number',
       }),
-    ).toMatchObject({
-      statusCode: 0,
-    })
+    ).toMatchObject(1)
   })
 
   it('uses min as the default for a number', () => {
     expect(
       getExampleFromSchema({
-        type: 'object',
-        properties: {
-          statusCode: {
-            type: 'number',
-            min: 200,
-          },
-        },
+        type: 'number',
+        min: 200,
       }),
-    ).toMatchObject({
-      statusCode: 200,
-    })
+    ).toMatchObject(200)
   })
 
   it('returns plaintext', () => {
@@ -352,7 +304,7 @@ describe('getExampleFromSchema', () => {
         id: 1,
         name: 'Dogs',
       },
-      photoUrls: [],
+      photoUrls: [''],
       tags: [
         {
           id: 1,
@@ -367,6 +319,7 @@ describe('getExampleFromSchema', () => {
     expect(
       getExampleFromSchema(
         {
+          type: 'object',
           properties: {
             id: {
               example: 1,
@@ -387,6 +340,7 @@ describe('getExampleFromSchema', () => {
     expect(
       getExampleFromSchema(
         {
+          type: 'object',
           properties: {
             photoUrls: {
               type: 'array',
@@ -406,9 +360,7 @@ describe('getExampleFromSchema', () => {
         { xml: true },
       ),
     ).toMatchObject({
-      photoUrls: {
-        photoUrl: ['https://example.com'],
-      },
+      photoUrls: [{ photoUrl: 'https://example.com' }],
     })
   })
 
@@ -416,6 +368,7 @@ describe('getExampleFromSchema', () => {
     expect(
       getExampleFromSchema(
         {
+          type: 'object',
           properties: {
             photoUrls: {
               type: 'array',
@@ -439,73 +392,64 @@ describe('getExampleFromSchema', () => {
   it('use the first item of oneOf', () => {
     expect(
       getExampleFromSchema({
-        properties: {
-          firstname: {
-            oneOf: [
-              {
-                maxLength: 255,
-                type: 'string',
-              },
-              {
-                type: 'null',
-              },
-            ],
+        oneOf: [
+          {
+            maxLength: 255,
+            type: 'string',
           },
-        },
+          {
+            type: 'null',
+          },
+        ],
       }),
-    ).toMatchObject({
-      firstname: '',
-    })
+    ).toMatchObject('')
   })
 
   it('works with allOf', () => {
     expect(
       getExampleFromSchema({
-        properties: {
-          firstname: {
-            allOf: [
-              {
-                maxLength: 255,
-                type: 'string',
-              },
-            ],
+        allOf: [
+          {
+            type: 'string',
           },
-        },
+        ],
       }),
-    ).toMatchObject({
-      firstname: '',
-    })
+    ).toMatchObject('')
   })
 
   it('uses all schemas in allOf', () => {
     expect(
       getExampleFromSchema({
-        properties: {
-          post: {
-            allOf: [
-              {
-                properties: {
-                  id: {
-                    example: 10,
-                  },
-                },
+        allOf: [
+          {
+            type: 'object',
+            properties: {
+              id: {
+                example: 10,
               },
-              {
-                properties: {
-                  title: {
-                    example: 'Foobar',
-                  },
-                },
-              },
-            ],
+            },
           },
-        },
+          {
+            type: 'object',
+            properties: {
+              title: {
+                example: 'Foobar',
+              },
+            },
+          },
+        ],
       }),
     ).toMatchObject({
-      post: {
-        id: 10,
-        title: 'Foobar',
-      },
+      id: 10,
+      title: 'Foobar',
     })
+  })
+
+  it('returns null for unknown types', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'fantasy',
+      }),
+    ).toBe(null)
   })
 })

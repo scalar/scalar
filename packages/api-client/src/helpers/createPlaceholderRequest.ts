@@ -8,7 +8,7 @@ export const createPlaceholderRequest = (): ClientRequestConfig => ({
   url: '',
   type: 'GET',
   path: '',
-  parameters: [],
+  variables: [],
   headers: [],
   query: [],
   body: '',

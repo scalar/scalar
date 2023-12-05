@@ -13,7 +13,7 @@ const props = defineProps<{ operation: TransformedOperation }>()
 const { parameterMap } = useOperation(props)
 
 const responseArray = computed(() => {
-  const { responses } = props.operation.information
+  const responses = props.operation.information?.responses ?? {}
 
   const res: { name: string; description: string }[] = []
 
