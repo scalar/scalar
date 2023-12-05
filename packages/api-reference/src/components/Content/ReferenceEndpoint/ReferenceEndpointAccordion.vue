@@ -71,6 +71,9 @@ defineProps<{
   display: flex;
   align-items: center;
   gap: 12px;
+
+  min-width: 0;
+  flex-shrink: 1;
 }
 .endpoint-type {
   display: flex;
@@ -112,6 +115,8 @@ defineProps<{
 .endpoint-anchor {
   display: flex;
   align-items: center;
+  min-width: 0;
+  flex-shrink: 1;
 
   font-size: 20px;
 }
@@ -120,6 +125,9 @@ defineProps<{
   display: flex;
   align-items: baseline;
   gap: 9px;
+
+  min-width: 0;
+  flex-shrink: 1;
 
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
@@ -131,12 +139,20 @@ defineProps<{
 .endpoint-label-name {
   color: var(--theme-color-3, var(--default-theme-color-3));
   font-size: var(--theme-micro, var(--default-theme-micro));
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .endpoint-content {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
+}
+
+.references-narrow .endpoint-content {
+  grid-template-columns: 1fr;
 }
 
 .endpoint-content > * {

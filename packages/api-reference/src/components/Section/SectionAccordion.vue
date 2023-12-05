@@ -72,6 +72,7 @@ defineProps<{
 
 .section-accordion-button {
   display: flex;
+  gap: 20px;
 }
 
 .section-accordion-button-content {

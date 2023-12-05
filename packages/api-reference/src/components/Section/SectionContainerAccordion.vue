@@ -59,4 +59,7 @@ import { FlowIcon } from '../Icon'
   align-items: start;
   flex: 1;
 }
+.references-narrow .section-accordion {
+  padding: calc(48px + var(--refs-header-height)) 24px 48px 24px;
+}
 </style>
