@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { isJsonString } from '../../../helpers'
 
-defineProps<{ value: string }>()
+defineProps<{
+  value: string
+}>()
 
 /* Generate a download URL for the parsedSpec */
 function inlineDownloadUrl(content: string) {
@@ -20,11 +22,6 @@ function inlineDownloadUrl(content: string) {
 function getFilename(content: string) {
   return isJsonString(content) ? 'spec.json' : 'spec.yaml'
 }
-
-/* Prefix the filename with the current URL */
-function getFilePath(content: string) {
-  return `${window.location.origin}/${getFilename(content)}`
-}
 </script>
 <template>
   <div
@@ -34,7 +31,7 @@ function getFilePath(content: string) {
       <a
         :download="getFilename(value)"
         :href="inlineDownloadUrl(value)">
-        {{ getFilePath(value) }}
+        Download OpenAPI Spec
       </a>
     </div>
   </div>
