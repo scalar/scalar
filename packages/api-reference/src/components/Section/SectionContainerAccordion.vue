@@ -39,10 +39,19 @@ import { FlowIcon } from '../Icon'
 .section-accordion-button {
   width: 100%;
   display: flex;
+
+  cursor: pointer;
+
+  padding: 6px 0 12px 0;
+  margin: -6px 0 -12px 0;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+}
+.section-accordion-button:hover {
+  background: var(--theme-background-4, var(--default-theme-background-4));
 }
 .section-accordion-chevron {
   width: 32px;
-  padding: 10px 6px;
+  padding: 6px;
 }
 .section-accordion-title {
   display: flex;
