@@ -18,5 +18,5 @@ export const ICONS = [
   'LogoMarket',
   'LogoSwagger',
   'Menu',
-  'Search'
+  'Search',
 ] as const

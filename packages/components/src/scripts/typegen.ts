@@ -15,9 +15,7 @@ const fileNames = readdirSync(iconFolder).filter((fileName) =>
 let writeStr = 'export const ICONS = [\n'
 fileNames.forEach((fileName, index) => {
   const icon = fileName.replace(svgRegex, '')
-  const comma = index < fileNames.length - 1 ? ',' : ''
-
-  writeStr += `  '${icon}'${comma}\n`
+  writeStr += `  '${icon}',\n`
 })
 writeStr += '] as const'
 
