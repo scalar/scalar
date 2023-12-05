@@ -1,7 +1,6 @@
 import type { ReferenceConfiguration } from '@scalar/api-reference'
 import type { FastifyPluginAsync } from 'fastify'
 // @ts-ignore
-import fastifyHtml from 'fastify-html'
 import fp from 'fastify-plugin'
 
 import { getJavaScriptFile } from './utils'
@@ -161,7 +160,8 @@ const fastifyApiReference: FastifyPluginAsync<
 
   // Register fastify-html if it isn’t registered yet.
   if (!fastify.hasPlugin('fastify-html')) {
-    await fastify.register(fastifyHtml)
+    // @ts-ignore
+    await fastify.register(import('fastify-html'))
   }
 
   // If no spec is passed and @fastify/swagger isn’t loaded, show a warning.
