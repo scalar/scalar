@@ -1,7 +1,6 @@
 import type { ReferenceConfiguration } from '@scalar/api-reference'
 import type { FastifyPluginAsync } from 'fastify'
 // @ts-ignore
-import fastifyHtml from 'fastify-html'
 import fp from 'fastify-plugin'
 
 import { getJavaScriptFile } from './utils'
