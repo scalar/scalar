@@ -842,18 +842,9 @@ importers:
         specifier: ^4.0.0
         version: 4.5.1
     devDependencies:
-      '@rollup/plugin-terser':
-        specifier: ^0.4.4
-        version: 0.4.4(rollup@3.29.2)
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
-      '@types/ejs':
-        specifier: ^3.1.3
-        version: 3.1.3
-      '@vitejs/plugin-vue':
-        specifier: ^4.4.0
-        version: 4.4.0(vite@4.4.11)(vue@3.3.4)
       '@vitest/coverage-v8':
         specifier: ^0.34.4
         version: 0.34.4(vitest@0.34.4)
@@ -863,9 +854,6 @@ importers:
       magic-string:
         specifier: ^0.30.4
         version: 0.30.4
-      nodemon:
-        specifier: ^3.0.1
-        version: 3.0.1
       rollup-plugin-node-externals:
         specifier: ^6.1.1
         version: 6.1.1(rollup@3.29.2)
@@ -881,12 +869,6 @@ importers:
       vite:
         specifier: ^4.4.11
         version: 4.4.11(@types/node@20.6.3)(terser@5.24.0)
-      vite-node:
-        specifier: ^0.34.4
-        version: 0.34.4(@types/node@20.6.3)(terser@5.24.0)
-      vite-plugin-css-injected-by-js:
-        specifier: ^3.3.0
-        version: 3.3.0(vite@4.4.11)
       vite-plugin-node-polyfills:
         specifier: ^0.14.1
         version: 0.14.1(rollup@3.29.2)(vite@4.4.11)
@@ -4438,21 +4420,6 @@ packages:
       estree-walker: 2.0.2
       magic-string: 0.27.0
       rollup: 3.29.2
-    dev: true
-
-  /@rollup/plugin-terser@0.4.4(rollup@3.29.2):
-    resolution: {integrity: sha512-XHeJC5Bgvs8LfukDwWZp7yeqin6ns8RTl2B9avbejt6tZqsqvVoWI7ZTQrcNsfKEDWBTnTxM8nMDkO2IFFbd0A==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^2.0.0||^3.0.0||^4.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-    dependencies:
-      rollup: 3.29.2
-      serialize-javascript: 6.0.1
-      smob: 1.4.1
-      terser: 5.24.0
     dev: true
 
   /@rollup/pluginutils@5.0.5(rollup@3.29.2):
@@ -13870,12 +13837,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /serialize-javascript@6.0.1:
-    resolution: {integrity: sha512-owoXEFjWRllis8/M1Q+Cw5k8ZH40e3zhp/ovX+Xr/vi1qj6QesbyXXViFbpNvWvPNAD62SutwEXavefrLJWj7w==}
-    dependencies:
-      randombytes: 2.1.0
-    dev: true
-
   /serve-static@1.15.0:
     resolution: {integrity: sha512-XGuRDNjXUijsUL0vl6nSD7cwURuzEgglbOaFuZM9g3kwDXOWVTck0jLzjPzGD+TazWbboZYu52/9/XPdUgne9g==}
     engines: {node: '>= 0.8.0'}
@@ -14006,10 +13967,6 @@ packages:
       strip-ansi: 6.0.1
       wcwidth: 1.0.1
       yargs: 15.4.1
-    dev: true
-
-  /smob@1.4.1:
-    resolution: {integrity: sha512-9LK+E7Hv5R9u4g4C3p+jjLstaLe11MDsL21UpYaCNmapvMkYhqCV4A/f/3gyH8QjMyh6l68q9xC85vihY9ahMQ==}
     dev: true
 
   /socks-proxy-agent@6.2.1:
