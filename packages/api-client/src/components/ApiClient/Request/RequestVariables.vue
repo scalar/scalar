@@ -9,11 +9,11 @@ defineProps<{ variables?: BaseParameter[] }>()
 const { activeRequest } = useRequestStore()
 
 function handleDeleteIndex(index: number) {
-  activeRequest.parameters?.splice(index, 1)
+  activeRequest.variables?.splice(index, 1)
 }
 
 function addAnotherHandler() {
-  activeRequest.parameters?.push({ name: '', value: '' })
+  activeRequest.variables?.push({ name: '', value: '' })
 }
 </script>
 <template>

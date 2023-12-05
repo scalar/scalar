@@ -16,7 +16,6 @@ const {
   activeItemId,
   toggleCollapsedSidebarItem,
   collapsedSidebarItems,
-  sidebarIdVisibility,
 } = useNavigation({
   parsedSpec: props.parsedSpec,
 })

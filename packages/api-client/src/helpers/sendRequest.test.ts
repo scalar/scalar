@@ -41,7 +41,7 @@ describe('sendRequest', () => {
     const request = {
       url: `http://127.0.0.1:${port}`,
       path: '{path}',
-      parameters: [
+      variables: [
         {
           name: 'path',
           value: 'example',

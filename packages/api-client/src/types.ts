@@ -38,8 +38,10 @@ export type AuthState = {
 
 export type BaseParameter = {
   name: string
+  description?: string | null
   value: string | number
   customClass?: string
+  required?: boolean
 }
 
 export type Header = BaseParameter
@@ -59,9 +61,8 @@ export type ClientRequestConfig = {
   type: string
   /** Request path */
   path: string
-  /** TODO: Rename to variables? */
-  /** Path parameters */
-  parameters?: BaseParameter[]
+  /** Variables */
+  variables?: BaseParameter[]
   /** Query parameters */
   query?: Query[]
   /** Cookies */

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useApiClientStore, useRequestStore } from '@scalar/api-client'
 import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { HTTPSnippet, availableTargets } from 'httpsnippet-lite'
@@ -11,6 +10,7 @@ import {
   getRequestFromAuthentication,
   getRequestFromOperation,
   getUrlFromServerState,
+  openClientFor,
 } from '../../../helpers'
 import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
@@ -24,8 +24,6 @@ const props = defineProps<{
 
 const CodeMirrorValue = ref<string>('')
 const { copyToClipboard } = useClipboard()
-const { setActiveRequest } = useRequestStore()
-const { toggleApiClient } = useApiClientStore()
 const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
 
 const { server: serverState, authentication: authenticationState } =
@@ -78,17 +76,6 @@ watch(
     immediate: true,
   },
 )
-
-// Open API Client
-const showItemInClient = () => {
-  const apiClientRequest = getApiClientRequest({
-    serverState: serverState,
-    authenticationState: authenticationState,
-    operation: props.operation,
-  })
-  setActiveRequest(apiClientRequest)
-  toggleApiClient()
-}
 
 computed(() => {
   return getApiClientRequest({
@@ -182,7 +169,7 @@ const formattedPath = computed(() => {
         class="show-api-client-button"
         :class="`show-api-client-button--${operation.httpVerb}`"
         type="button"
-        @click="showItemInClient">
+        @click="openClientFor(operation)">
         <span>Test Request</span>
         <Icon src="solid/mail-send-email-paper-airplane" />
       </button>

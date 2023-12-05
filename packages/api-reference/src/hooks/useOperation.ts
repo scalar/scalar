@@ -17,7 +17,7 @@ export type OperationProps = {
  */
 export function useOperation(props: OperationProps) {
   const parameterMap = computed(() => {
-    const { parameters } = props.operation.information
+    const parameters = props.operation.information?.parameters ?? []
     const map: ParamMap = {
       path: [],
       query: [],
