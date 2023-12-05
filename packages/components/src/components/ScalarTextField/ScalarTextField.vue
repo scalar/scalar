@@ -34,7 +34,7 @@ const emit = defineEmits<{
 }>()
 
 const textField = cva({
-  base: 'scalar-input-wrapper relative flex items-center rounded border border-border',
+  base: 'scalar-input-wrapper relative flex items-center rounded border border-solid border-border',
   variants: {
     focus: {
       true: 'scalar-input-wrapper-focus border-fore-3 has-actv-btn:border has-actv-btn:border-border',

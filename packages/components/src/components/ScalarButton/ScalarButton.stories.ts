@@ -65,7 +65,7 @@ export const ButtonWithIcon: Story = {
     template: `
       <ScalarButton :variant="args.variant">
         <template #icon>
-          <ScalarIcon name="Logo"/>
+          <ScalarIcon icon="Logo"/>
         </template>
         Button
       </ScalarButton>
@@ -85,7 +85,7 @@ export const IconOnly: Story = {
     template: `
       <ScalarButton :variant="variant">
         <template #icon>
-          <ScalarIcon name="Logo"/>
+          <ScalarIcon icon="Logo"/>
         </template>
       </ScalarButton>
     `,

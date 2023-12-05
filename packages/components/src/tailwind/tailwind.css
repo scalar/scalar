@@ -2,9 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/** 
+ * Custom Scoped Reset - copied over from the tailwind reset 
+ * and applied directly to classes so it doesn't leak 
+ *
+ * @link https://tailwindcss.com/docs/preflight 
+ */
 @layer base {
-  html {
-    font-family: var(--theme-font, var(--default-theme-font));
+  /* select, */
+  /* optgroup, */
+  .scalar-modal,
+  .scalar-modal-body,
+  .scalar-icon,
+  .scalar-button,
+  .scalar-input {
+    box-sizing: border-box; /* 1 */
+    border-width: 0; /* 2 */
+    border-style: solid; /* 2 */
+    border-color: theme('borderColor.DEFAULT', currentColor); /* 2 */
+
+    font-family: inherit; /* 1 */
+    font-feature-settings: inherit; /* 1 */
+    font-variation-settings: inherit; /* 1 */
+    font-size: 100%; /* 1 */
+    font-weight: inherit; /* 1 */
+    line-height: inherit; /* 1 */
+    color: inherit; /* 1 */
+    margin: 0; /* 2 */
+    padding: 0; /* 3 */
   }
 }
 

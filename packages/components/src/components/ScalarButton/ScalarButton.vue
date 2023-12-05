@@ -1,8 +1,10 @@
 <script lang="ts">
 const button = cva({
-  base: 'scalar-button row items-center justify-center rounded font-medium',
+  base: 'scalar-button row cursor-pointer items-center justify-center rounded font-medium',
   variants: {
-    isDisabled: { true: 'bg-background-2 text-color-3 shadow-none' },
+    isDisabled: {
+      true: 'bg-background-2 text-color-3 cursor-not-allowed shadow-none',
+    },
     isFullWidth: { true: 'w-full' },
     size: { md: 'h-10 px-6 text-sm' },
     variant: {

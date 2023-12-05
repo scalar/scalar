@@ -5,6 +5,9 @@ import { extend, theme } from './src/tailwind'
 
 export default {
   content: ['./src/**/*.{vue,ts}'],
+  corePlugins: {
+    preflight: false,
+  },
   plugins: [
     plugin(({ addVariant }) => {
       addVariant('has-actv-btn', '&:has(button:active)')

@@ -2,7 +2,7 @@
 import { type VariantProps } from 'cva'
 import { computed } from 'vue'
 
-import { cva } from '@/cva'
+import { cva, cx } from '@/cva'
 
 import SvgRenderer from './SvgRenderer'
 import { type Icon, getIcon } from './icons/'
@@ -35,7 +35,7 @@ const data = computed(() => getIcon(props.icon))
 <template>
   <SvgRenderer
     v-if="data"
-    :class="iconProps({ size })"
+    :class="cx('scalar-icon', iconProps({ size }))"
     height="100%"
     :raw="data"
     width="100%" />
