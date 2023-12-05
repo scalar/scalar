@@ -5,14 +5,14 @@ import {
 } from '@scalar/api-reference'
 import { reactive } from 'vue'
 
+import content from '../fixtures/petstorev3.json'
+
 const configuration = reactive<ReferenceConfiguration>({
   theme: 'default',
   proxy: 'http://localhost:5051',
   isEditable: false,
   layout: 'classic',
-  spec: {
-    url: 'https://petstore3.swagger.io/api/v3/openapi.json',
-  },
+  spec: { content },
 })
 </script>
 <template>
