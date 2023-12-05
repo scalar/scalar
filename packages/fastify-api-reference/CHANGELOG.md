@@ -1,5 +1,14 @@
 # @scalar/fastify-api-reference
 
+## 0.8.1
+
+### Patch Changes
+
+- 11e2f6e: chore: move @scalar/api-reference and terser to devDepdencies
+- daa6928: chore: use fastify-html to send HTML
+- daa6928: chore: disable CommonJS build, don’t support require() anymore
+- 68fedd5: chore: use fastify logging facilities
+
 ## 0.8.0
 
 ### Minor Changes

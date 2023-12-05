@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.6.0
+
+### Minor Changes
+
+- c04c2ea: feat: show references sidebar slot content in api client sidebar
+
+### Patch Changes
+
+- 90ffeb5: refactor: extract layout type into component
+- 98e01a2: fix: prevent css leakage from references reset
+- 654333a: fix: oneOf rules for arrays are ignored
+- 84c0c77: chore: change Download OpenAPI Spec button text
+- 4e5d00e: style: visualize deprecated operations
+- Updated dependencies [98e01a2]
+- Updated dependencies [c04c2ea]
+  - @scalar/swagger-editor@0.8.1
+
 ## 1.5.0
 
 ### Minor Changes
