@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.8.1
+
+### Patch Changes
+
+- f87910d: feat: prefill path, header, cookie, query parameters from the spec
+
 ## 0.8.0
 
 ### Minor Changes
