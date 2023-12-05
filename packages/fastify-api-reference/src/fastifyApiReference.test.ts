@@ -25,6 +25,26 @@ describe('fastifyApiReference', () => {
       })
     }))
 
+  it('the routePrefix is optional', () =>
+    new Promise((resolve) => {
+      const fastify = Fastify({
+        logger: false,
+      })
+
+      fastify.register(fastifyApiReference, {
+        configuration: {
+          spec: { url: '/swagger.json' },
+        },
+      })
+
+      fastify.listen({ port: 0 }, function (err, address) {
+        fetch(`${address}/`).then((response) => {
+          expect(response.status).toBe(200)
+          resolve(null)
+        })
+      })
+    }))
+
   it('has the JS url', () =>
     new Promise((resolve) => {
       const fastify = Fastify({
@@ -41,7 +61,7 @@ describe('fastifyApiReference', () => {
       fastify.listen({ port: 0 }, function (err, address) {
         fetch(`${address}/reference`).then(async (response) => {
           expect(await response.text()).toContain(
-            '/@scalar/fastify-api-reference/browser.js',
+            '/reference/@scalar/fastify-api-reference/js/browser.js',
           )
           resolve(null)
         })
