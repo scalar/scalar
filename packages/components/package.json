@@ -80,7 +80,6 @@
     "typescript": "^5.2.2",
     "vite": "^4.4.11",
     "vite-plugin-dts": "^3.6.3",
-    "vite-plugin-scope-tailwind": "^1.1.6",
     "vitest": "^0.34.4",
     "vue-tsc": "^1.8.19"
   }
