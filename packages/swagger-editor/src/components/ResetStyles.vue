@@ -16,20 +16,6 @@ onMounted(() => {
 <style lang="postcss" module>
 /* Use :where to lower specificity to 0 */
 :where(.reset) :global {
-  p {
-    margin: 0;
-  }
-
-  i {
-    font-style: normal;
-  }
-
-  ul,
-  ol {
-    margin: 0;
-    padding: 0;
-  }
-
   /** Add some more things which are normally applied to `html`. */
   font-family: var(--theme-font, var(--default-theme-font));
   line-height: 1.15;
@@ -50,6 +36,31 @@ onMounted(() => {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  i,
+  p,
+  ol,
+  ul,
+  button {
+    margin: unset;
+    padding: unset;
+    color: unset;
+    font-weight: unset;
+    font-style: unset;
+  }
+
+  button {
+    border: unset;
+    background: unset;
+    appearance: unset;
+  }
+
   input::placeholder {
     color: var(--theme-color-3, var(--default-theme-color-3));
     font-family: var(--theme-font, var(--default-theme-font));
@@ -61,23 +72,6 @@ onMounted(() => {
   input::-webkit-input-placeholder {
     color: var(--theme-color-3, var(--default-theme-color-3));
     font-family: var(--theme-font, var(--default-theme-font));
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    margin: unset;
-    font-weight: unset;
-    font-style: unset;
-  }
-
-  button {
-    all: unset;
-    display: revert;
-    cursor: revert;
   }
 }
 </style>
