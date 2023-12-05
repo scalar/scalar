@@ -161,7 +161,8 @@ const fastifyApiReference: FastifyPluginAsync<
 
   // Register fastify-html if it isn’t registered yet.
   if (!fastify.hasPlugin('fastify-html')) {
-    await fastify.register(fastifyHtml)
+    // @ts-ignore
+    await fastify.register(import('fastify-html'))
   }
 
   // If no spec is passed and @fastify/swagger isn’t loaded, show a warning.
