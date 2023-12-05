@@ -9,9 +9,9 @@ export type FastifyApiReferenceOptions = {
   /**
    * Prefix for the registered route
    *
-   * @default '/'
+   * @default ''
    */
-  routePrefix: string
+  routePrefix?: string
   configuration?: ReferenceConfiguration
 }
 
@@ -20,6 +20,12 @@ export type FastifyApiReferenceOptions = {
 const schemaToHideRoute = {
   hide: true,
 }
+
+const getJavaScriptUrl = (routePrefix?: string) =>
+  `${routePrefix ?? ''}/@scalar/fastify-api-reference/js/browser.js`.replace(
+    /\/\//g,
+    '/',
+  )
 
 /**
  * The Fastify custom theme CSS
@@ -108,28 +114,32 @@ export const defaultCss = `
 /**
  * The HTML to load the @scalar/api-reference JavaScript package.
  */
-export const javascript = (configuration: ReferenceConfiguration) => {
+export const javascript = (options: FastifyApiReferenceOptions) => {
+  const { configuration } = options
+
+  console.log(options)
+
   return `
     <script
       id="api-reference"
       type="application/json"
-      data-configuration="${JSON.stringify(configuration)
+      data-configuration="${JSON.stringify(configuration ?? {})
         .split('"')
         .join('&quot;')}">${
-        configuration.spec?.content
-          ? typeof configuration.spec?.content === 'function'
-            ? JSON.stringify(configuration.spec?.content())
-            : JSON.stringify(configuration.spec?.content)
+        configuration?.spec?.content
+          ? typeof configuration?.spec?.content === 'function'
+            ? JSON.stringify(configuration?.spec?.content())
+            : JSON.stringify(configuration?.spec?.content)
           : ''
       }</script>
-      <script src="/@scalar/fastify-api-reference/browser.js"></script>
+      <script src="${getJavaScriptUrl(options.routePrefix)}"></script>
   `
 }
 
 /**
  * The HTML template to render the API Reference.
  */
-export function htmlDocument(configuration: ReferenceConfiguration) {
+export function htmlDocument(options: FastifyApiReferenceOptions) {
   return `
 <!DOCTYPE html>
 <html>
@@ -146,7 +156,7 @@ export function htmlDocument(configuration: ReferenceConfiguration) {
     </style>
   </head>
   <body>
-    ${javascript(configuration)}
+    ${javascript(options)}
   </body>
 </html>
 `
@@ -217,13 +227,16 @@ const fastifyApiReference: FastifyPluginAsync<
 
       // Render the HTML
       // @ts-ignore
-      return reply.html`${htmlDocument(configuration)}`
+      return reply.html`${htmlDocument({
+        ...options,
+        configuration,
+      })}`
     },
   })
 
   fastify.route({
     method: 'GET',
-    url: '/@scalar/fastify-api-reference/browser.js',
+    url: getJavaScriptUrl(options.routePrefix),
     // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
     // @ts-ignore
     schema: schemaToHideRoute,
