@@ -19,7 +19,7 @@ const tw = extendTailwindMerge({})
  */
 const { cva, cx, compose } = defineConfig({
   hooks: {
-    onComplete: (className) => tw(className),
+    onComplete: (className) => `${tw(className)} scalar-reset`,
   },
 })
 

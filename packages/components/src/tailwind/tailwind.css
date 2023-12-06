@@ -9,27 +9,21 @@
  * @link https://tailwindcss.com/docs/preflight 
  */
 @layer base {
-  /* select, */
-  /* optgroup, */
-  .scalar-modal,
-  .scalar-modal-body,
-  .scalar-icon,
-  .scalar-button,
-  .scalar-input {
-    box-sizing: border-box; /* 1 */
-    border-width: 0; /* 2 */
-    border-style: solid; /* 2 */
-    border-color: theme('borderColor.DEFAULT', currentColor); /* 2 */
+  .scalar-reset {
+    box-sizing: border-box;
+    border-width: unset;
+    border-style: unset;
+    border-color: theme('borderColor.DEFAULT', currentColor);
 
-    font-family: inherit; /* 1 */
-    font-feature-settings: inherit; /* 1 */
-    font-variation-settings: inherit; /* 1 */
-    font-size: 100%; /* 1 */
-    font-weight: inherit; /* 1 */
-    line-height: inherit; /* 1 */
-    color: inherit; /* 1 */
-    margin: 0; /* 2 */
-    padding: 0; /* 3 */
+    font-family: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    font-size: unset;
+    font-weight: inherit;
+    line-height: inherit;
+    color: inherit;
+    margin: unset;
+    padding: unset;
   }
 }
 
