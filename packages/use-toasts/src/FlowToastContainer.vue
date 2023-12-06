@@ -22,6 +22,8 @@ const { toasts } = useToasts()
   bottom: 0;
   z-index: 1000000;
 
+  box-sizing: border-box;
+
   pointer-events: none;
 
   display: flex;
