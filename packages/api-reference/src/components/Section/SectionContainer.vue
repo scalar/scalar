@@ -12,9 +12,4 @@
 .references-narrow .section-container {
   padding: 0;
 }
-
-.section-container:not(:last-of-type) {
-  border-bottom: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-}
 </style>

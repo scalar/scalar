@@ -149,9 +149,9 @@ const { state } = useApiClientStore()
     <template v-if="showRenderedContent">
       <div class="references-rendered">
         <Content
+          :layout="configuration.layout === 'classic' ? 'accordion' : 'default'"
           :parsedSpec="parsedSpec"
-          :rawSpec="rawSpec"
-          :ready="true">
+          :rawSpec="rawSpec">
           <template #start>
             <slot
               v-bind="referenceSlotProps"

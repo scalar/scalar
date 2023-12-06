@@ -60,6 +60,10 @@ watch(
   font-family: var(--theme-font, var(--default-theme-font));
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
+/* Don't add margin to the first block */
+.markdown :deep(:first-child) {
+  margin-top: 0;
+}
 .markdown :deep(h1),
 .markdown :deep(h2),
 .markdown :deep(h3),

@@ -26,7 +26,7 @@ const getUrlWithId = (id: string) => {
       <button
         class="anchor-copy"
         type="button"
-        @click="copyToClipboard(getUrlWithId(id))">
+        @click.stop="copyToClipboard(getUrlWithId(id))">
         #
         <ScreenReader>Copy link to "<slot />"</ScreenReader>
       </button>
@@ -49,6 +49,8 @@ const getUrlWithId = (id: string) => {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
+
+  cursor: pointer;
 
   padding: 0 6px;
 
