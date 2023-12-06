@@ -31,7 +31,7 @@ const isHovered = useElementHover(button)
           v-if="$slots.actions"
           class="section-accordion-button-actions">
           <slot
-            :active="isHovered"
+            :active="isHovered || open"
             name="actions" />
         </div>
         <FlowIcon
@@ -102,7 +102,7 @@ const isHovered = useElementHover(button)
 .section-accordion-button-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .section-accordion-chevron {

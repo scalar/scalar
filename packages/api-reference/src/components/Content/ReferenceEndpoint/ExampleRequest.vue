@@ -15,7 +15,7 @@ import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
 import type { TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
-import { Icon } from '../../Icon'
+import { FlowIcon } from '../../Icon'
 
 const props = defineProps<{
   operation: TransformedOperation
@@ -138,13 +138,12 @@ const formattedPath = computed(() => {
             </optgroup>
           </select>
         </div>
-
         <button
           class="copy-button"
           type="button"
           @click="copyToClipboard(CodeMirrorValue)">
-          <Icon
-            src="solid/interface-copy-clipboard"
+          <FlowIcon
+            icon="Clipboard"
             width="10px" />
         </button>
       </template>
