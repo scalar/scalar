@@ -47,6 +47,8 @@ onMounted(() => {
   p,
   ol,
   ul,
+  em,
+  strong,
   button {
     margin: unset;
     padding: unset;

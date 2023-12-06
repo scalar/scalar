@@ -9,6 +9,7 @@ import { Anchor } from '../../Anchor'
 import { SectionAccordion } from '../../Section'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import EndpointDetailsCard from './EndpointDetailsCard.vue'
+import EndpointPath from './EndpointPath.vue'
 import ExampleRequest from './ExampleRequest.vue'
 import { ExampleResponses } from './ExampleResponses'
 import TryRequestButton from './TryRequestButton.vue'
@@ -33,7 +34,9 @@ const { copyToClipboard } = useClipboard()
             :id="getOperationSectionId(operation, tag)"
             class="endpoint-anchor">
             <div class="endpoint-label">
-              <div class="endpoint-label-path">{{ operation.path }}</div>
+              <div class="endpoint-label-path">
+                <EndpointPath :path="operation.path" />
+              </div>
               <div class="endpoint-label-name">{{ operation.name }}</div>
             </div>
           </Anchor>
@@ -157,6 +160,9 @@ const { copyToClipboard } = useClipboard()
 .endpoint-label-path {
   font-family: var(--default-theme-font-code);
   font-size: var(--theme-mini, var(--default-theme-mini));
+}
+.endpoint-label-path :deep(em) {
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 .endpoint-label-name {
   color: var(--theme-color-3, var(--default-theme-color-3));

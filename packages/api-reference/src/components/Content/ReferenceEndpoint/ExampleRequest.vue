@@ -83,27 +83,17 @@ computed(() => {
     operation: props.operation,
   })
 })
-
-const formattedPath = computed(() => {
-  return (
-    props.operation.path
-      // Remove HTML tags
-      .replace(/(<([^>]+)>)/gi, '')
-      // Wrap a span around all variables
-      .replace(/{([^}]+)}/g, '<span class="request-path-variable">{$1}</span>')
-  )
-})
 </script>
 <template>
   <Card class="dark-mode">
     <CardHeader muted>
-      <div class="request">
-        <span :class="`request-method request-method--${operation.httpVerb}`">
+      <div class="request-header">
+        <span
+          class="request-method"
+          :class="`request-method--${operation.httpVerb}`">
           {{ operation.httpVerb }}
         </span>
-        <span
-          class="request-path"
-          v-html="formattedPath" />
+        <slot name="header" />
       </div>
       <template #actions>
         <div class="language-select">
@@ -168,18 +158,19 @@ const formattedPath = computed(() => {
     </CardFooter>
   </Card>
 </template>
-<style>
-.request-path-variable {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-}
-</style>
 <style scoped>
 .request {
   display: flex;
   flex-wrap: nowrap;
 }
+.request-header {
+  display: flex;
+  gap: 6px;
+  text-transform: initial;
+}
 .request-method {
-  white-space: nowrap;
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  text-transform: uppercase;
 }
 .request-method--post {
   color: var(--theme-color-green, var(--default-theme-color-green));
@@ -196,15 +187,6 @@ const formattedPath = computed(() => {
 .request-method--put {
   color: var(--theme-color-orange, var(--default-theme-color-orange));
 }
-.request-path {
-  margin-left: 6px;
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  overflow: hidden;
-  cursor: default;
-  word-wrap: break-word;
-  text-transform: none !important;
-}
-
 .language-select {
   position: relative;
   padding-right: 9px;
@@ -286,13 +268,7 @@ const formattedPath = computed(() => {
   width: 13px;
   height: 13px;
 }
-.request-method {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  text-transform: uppercase;
-}
-.request-path {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-}
+
 .scalar-card-header-actions {
   display: flex;
 }
