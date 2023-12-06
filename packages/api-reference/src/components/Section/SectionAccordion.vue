@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+import { ScalarIcon } from '@scalar/components'
 
-import { FlowIcon } from '../Icon'
 import IntersectionObserver from '../IntersectionObserver.vue'
 
 defineProps<{
@@ -20,7 +20,7 @@ defineProps<{
         <div class="section-accordion-button-content">
           <slot name="title" />
         </div>
-        <FlowIcon
+        <ScalarIcon
           class="section-accordion-chevron"
           :icon="open ? 'ChevronDown' : 'ChevronLeft'" />
       </DisclosureButton>

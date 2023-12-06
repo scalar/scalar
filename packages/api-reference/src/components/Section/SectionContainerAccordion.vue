@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-
-import { FlowIcon } from '../Icon'
+import { ScalarIcon } from '@scalar/components'
 </script>
 <template>
   <Disclosure
@@ -10,7 +9,7 @@ import { FlowIcon } from '../Icon'
     class="section-accordion"
     defaultOpen>
     <DisclosureButton class="section-accordion-button">
-      <FlowIcon
+      <ScalarIcon
         class="section-accordion-chevron"
         :icon="open ? 'ChevronDown' : 'ChevronRight'" />
       <div class="section-accordion-title">
