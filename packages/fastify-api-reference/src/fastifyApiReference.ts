@@ -117,8 +117,6 @@ export const defaultCss = `
 export const javascript = (options: FastifyApiReferenceOptions) => {
   const { configuration } = options
 
-  console.log(options)
-
   return `
     <script
       id="api-reference"
