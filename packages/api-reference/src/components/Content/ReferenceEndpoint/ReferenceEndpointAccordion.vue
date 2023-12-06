@@ -7,6 +7,7 @@ import MarkdownRenderer from '../MarkdownRenderer.vue'
 import EndpointDetailsCard from './EndpointDetailsCard.vue'
 import ExampleRequest from './ExampleRequest.vue'
 import { ExampleResponses } from './ExampleResponses'
+import TryRequestButton from './TryRequestButton.vue'
 
 defineProps<{
   operation: TransformedOperation
@@ -32,6 +33,9 @@ defineProps<{
           </Anchor>
         </div>
       </h3>
+    </template>
+    <template #actions>
+      <TryRequestButton :operation="operation" />
     </template>
     <template
       v-if="operation.description"

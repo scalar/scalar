@@ -10,7 +10,6 @@ import {
   getRequestFromAuthentication,
   getRequestFromOperation,
   getUrlFromServerState,
-  openClientFor,
 } from '../../../helpers'
 import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
@@ -163,16 +162,10 @@ const formattedPath = computed(() => {
         readOnly />
     </CardContent>
     <CardFooter
+      v-if="$slots.footer"
       class="scalar-card-footer"
       contrast>
-      <button
-        class="show-api-client-button"
-        :class="`show-api-client-button--${operation.httpVerb}`"
-        type="button"
-        @click="openClientFor(operation)">
-        <span>Test Request</span>
-        <Icon src="solid/mail-send-email-paper-airplane" />
-      </button>
+      <slot name="footer" />
     </CardFooter>
   </Card>
 </template>
@@ -294,73 +287,6 @@ const formattedPath = computed(() => {
   width: 13px;
   height: 13px;
 }
-
-.show-api-client-button {
-  display: block;
-  appearance: none;
-  outline: none;
-  border: none;
-  padding: 6px;
-  margin-left: auto;
-  height: 23px;
-  margin: 6px 6px 6px auto;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  text-transform: uppercase;
-  display: flex;
-  justify-content: center;
-  cursor: pointer;
-  align-items: center;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  color: var(--theme-background-2, var(--default-background-2));
-  font-family: var(--theme-font, var(--default-theme-font));
-  position: relative;
-  cursor: pointer;
-  box-sizing: border-box;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-}
-.show-api-client-button span,
-.show-api-client-button svg {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  z-index: 1;
-}
-.show-api-client-button:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  cursor: pointer;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-}
-.show-api-client-button:before {
-  background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2));
-}
-.show-api-client-button:hover:before {
-  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1));
-}
-.show-api-client-button svg {
-  height: 12px;
-  width: auto;
-  margin-left: 9px;
-}
-.show-api-client-button--post {
-  background: var(--theme-color-green, var(--default-theme-color-green));
-}
-.show-api-client-button--patch {
-  background: var(--theme-color-yellow, var(--default-theme-color-yellow));
-}
-.show-api-client-button--get {
-  background: var(--theme-color-blue, var(--default-theme-color-blue));
-}
-.show-api-client-button--delete {
-  background: var(--theme-color-red, var(--default-theme-color-red));
-}
-.show-api-client-button--put {
-  background: var(--theme-color-orange, var(--default-theme-color-orange));
-}
 .request-method {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   text-transform: uppercase;
@@ -371,15 +297,11 @@ const formattedPath = computed(() => {
 .scalar-card-header-actions {
   display: flex;
 }
-@media screen and (max-width: 400px) {
-  .language-select {
-    position: absolute;
-    bottom: 9px;
-    left: 0;
-    border-right: none;
-  }
+.scalar-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px;
 }
-
 .request-editor-section {
   display: grid;
   flex: 1;

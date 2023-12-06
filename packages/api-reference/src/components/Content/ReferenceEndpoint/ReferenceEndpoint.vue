@@ -13,6 +13,7 @@ import {
 import EndpointDetails from './EndpointDetails.vue'
 import ExampleRequest from './ExampleRequest.vue'
 import { ExampleResponses } from './ExampleResponses'
+import TryRequestButton from './TryRequestButton.vue'
 
 defineProps<{
   operation: TransformedOperation
@@ -38,7 +39,11 @@ defineProps<{
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
-            <ExampleRequest :operation="operation" />
+            <ExampleRequest :operation="operation">
+              <template #footer>
+                <TryRequestButton :operation="operation" />
+              </template>
+            </ExampleRequest>
             <ExampleResponses
               :operation="operation"
               style="margin-top: 12px" />
@@ -54,7 +59,6 @@ defineProps<{
   position: sticky;
   top: calc(var(--refs-header-height) + 24px);
 }
-
 .deprecated * {
   text-decoration: line-through;
 }

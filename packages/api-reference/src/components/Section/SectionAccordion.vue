@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+import { useElementHover } from '@vueuse/core'
+import { ref } from 'vue'
 
 import { FlowIcon } from '../Icon'
 import IntersectionObserver from '../IntersectionObserver.vue'
@@ -7,6 +9,9 @@ import IntersectionObserver from '../IntersectionObserver.vue'
 defineProps<{
   id?: string
 }>()
+
+const button = ref()
+const isHovered = useElementHover(button)
 </script>
 <template>
   <IntersectionObserver
@@ -16,9 +21,18 @@ defineProps<{
       v-slot="{ open }"
       as="section"
       class="section-accordion">
-      <DisclosureButton class="section-accordion-button">
+      <DisclosureButton
+        ref="button"
+        class="section-accordion-button">
         <div class="section-accordion-button-content">
           <slot name="title" />
+        </div>
+        <div
+          v-if="$slots.actions"
+          class="section-accordion-button-actions">
+          <slot
+            :active="isHovered"
+            name="actions" />
         </div>
         <FlowIcon
           class="section-accordion-chevron"
@@ -77,7 +91,8 @@ defineProps<{
 
 .section-accordion-button {
   display: flex;
-  gap: 20px;
+  align-items: center;
+  gap: 12px;
 }
 
 .section-accordion-button-content {
