@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Icon } from '../../../components/Icon'
+import { FlowIcon } from '../../../components/Icon'
 import { openClientFor } from '../../../helpers'
 import { type TransformedOperation } from '../../../types'
 
@@ -12,9 +12,9 @@ defineProps<{
     class="show-api-client-button"
     :class="`show-api-client-button--${operation.httpVerb}`"
     type="button"
-    @click="openClientFor(operation)">
+    @click.stop="openClientFor(operation)">
     <span>Test Request</span>
-    <Icon src="solid/mail-send-email-paper-airplane" />
+    <FlowIcon icon="PaperAirplane" />
   </button>
 </template>
 <style scoped>

@@ -31,4 +31,5 @@ export type Icon =
   | 'LogoMarket'
   | 'LogoSwagger'
   | 'Menu'
+  | 'PaperAirplane'
   | 'Search'

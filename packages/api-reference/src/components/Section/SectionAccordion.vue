@@ -99,10 +99,17 @@ const isHovered = useElementHover(button)
   flex: 1;
   min-width: 0;
 }
+.section-accordion-button-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .section-accordion-chevron {
   margin-right: 4px;
   width: 24px;
   cursor: pointer;
+  opacity: 0.6;
 }
 
 .section-accordion-content {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { FlowIcon } from '../../../components/Icon'
 import { getOperationSectionId } from '../../../helpers'
 import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
@@ -34,8 +35,14 @@ defineProps<{
         </div>
       </h3>
     </template>
-    <template #actions>
-      <TryRequestButton :operation="operation" />
+    <template #actions="{ active }">
+      <TryRequestButton
+        v-if="active"
+        :operation="operation" />
+      <FlowIcon
+        v-else
+        class="endpoint-try-hint"
+        icon="PaperAirplane" />
     </template>
     <template
       v-if="operation.description"
@@ -147,6 +154,13 @@ defineProps<{
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.endpoint-try-hint {
+  padding: 6px;
+  height: 24px;
+  aspect-ratio: 1 / 1;
+  opacity: 0.6;
 }
 
 .endpoint-content {
