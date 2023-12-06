@@ -306,6 +306,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
   margin: 6px;
 }
 .scalar-card-container {
+  flex: 1;
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .scalar-card-container :deep(.cm-scroller) {

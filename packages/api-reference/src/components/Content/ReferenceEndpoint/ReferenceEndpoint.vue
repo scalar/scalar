@@ -10,7 +10,7 @@ import {
   SectionContent,
   SectionHeader,
 } from '../../Section'
-import Copy from './Copy.vue'
+import EndpointDetails from './EndpointDetails.vue'
 import ExampleRequest from './ExampleRequest.vue'
 import { ExampleResponses } from './ExampleResponses'
 
@@ -34,7 +34,7 @@ defineProps<{
               </Anchor>
             </SectionHeader>
           </div>
-          <Copy :operation="operation" />
+          <EndpointDetails :operation="operation" />
         </SectionColumn>
         <SectionColumn>
           <div class="examples">

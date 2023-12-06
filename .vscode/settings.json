@@ -48,5 +48,6 @@
   ],
   "volar.completion.preferredAttrNameCase": "camel",
   "volar.completion.preferredTagNameCase": "pascal",
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "git.pullTags": false
 }

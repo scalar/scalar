@@ -1,4 +1,4 @@
-import { ApiClient, useApiClientStore } from '@scalar/api-client'
+import { useApiClientStore } from '@scalar/api-client'
 import { computed, reactive, ref, watch } from 'vue'
 
 import {
