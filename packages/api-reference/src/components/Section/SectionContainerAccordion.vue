@@ -27,6 +27,7 @@ import { FlowIcon } from '../Icon'
   position: relative;
   width: 100%;
   max-width: var(--refs-content-max-width);
+  padding: 0 60px;
   margin: auto;
 }
 .section-accordion-content {
