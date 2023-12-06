@@ -9,22 +9,22 @@ defineProps<{
 }>()
 </script>
 <template>
-  <Disclosure
-    v-slot="{ open }"
-    as="section"
-    class="section-accordion">
-    <DisclosureButton class="section-accordion-button">
-      <div class="section-accordion-button-content">
-        <slot name="title" />
-      </div>
-      <FlowIcon
-        class="section-accordion-chevron"
-        :icon="open ? 'ChevronDown' : 'ChevronLeft'" />
-    </DisclosureButton>
-    <DisclosurePanel>
-      <IntersectionObserver
-        :id="id"
-        class="section-accordion-content">
+  <IntersectionObserver
+    :id="id"
+    class="section-wrapper">
+    <Disclosure
+      v-slot="{ open }"
+      as="section"
+      class="section-accordion">
+      <DisclosureButton class="section-accordion-button">
+        <div class="section-accordion-button-content">
+          <slot name="title" />
+        </div>
+        <FlowIcon
+          class="section-accordion-chevron"
+          :icon="open ? 'ChevronDown' : 'ChevronLeft'" />
+      </DisclosureButton>
+      <DisclosurePanel class="section-accordion-content">
         <div
           v-if="$slots.description"
           class="section-accordion-description">
@@ -33,16 +33,21 @@ defineProps<{
         <div class="section-accordion-content-card">
           <slot />
         </div>
-      </IntersectionObserver>
-    </DisclosurePanel>
-  </Disclosure>
+      </DisclosurePanel>
+    </Disclosure>
+  </IntersectionObserver>
 </template>
 <style scoped>
+.section-wrapper {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+
+  padding-top: 12px;
+  margin-top: -12px;
+}
 .section-accordion {
   display: flex;
   flex-direction: column;
 
-  color: var(--theme-color-1, var(--default-theme-color-1));
   position: relative;
   z-index: 0;
 }
