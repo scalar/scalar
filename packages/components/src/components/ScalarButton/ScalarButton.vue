@@ -38,7 +38,6 @@ const button = cva({
 type ButtonVariants = VariantProps<typeof button>
 
 export type ButtonProps = {
-  buttonClass?: string
   iconClass?: string
   isDisabled?: boolean
   isFullWidth?: boolean
@@ -53,7 +52,7 @@ export type ButtonProps = {
 import { type VariantProps } from 'cva'
 import { cx, cva } from '@/cva'
 
-import { useSlots, computed } from 'vue'
+import { useSlots, computed, useAttrs } from 'vue'
 import { ScalarLoading, type LoadingState } from '../ScalarLoading'
 
 /**
@@ -76,10 +75,17 @@ const label = computed(
   () => (slots.default?.()?.[0]?.children as string)?.trim(),
 )
 const isIconOnly = computed(() => Boolean(slots.icon && !slots.default))
-</script>
 
+defineOptions({ inheritAttrs: false })
+
+const attrs = computed(() => {
+  const { class: className, ...rest } = useAttrs()
+  return { className: className || '', rest }
+})
+</script>
 <template>
   <button
+    v-bind="attrs.rest"
     :aria-disabled="isDisabled"
     :aria-label="label || title"
     :class="
@@ -91,7 +97,7 @@ const isIconOnly = computed(() => Boolean(slots.icon && !slots.default))
           variant,
         }),
         { 'pl-9 pr-3': loadingState },
-        buttonClass,
+        `${attrs.className}`,
       )
     "
     :title="title || label"

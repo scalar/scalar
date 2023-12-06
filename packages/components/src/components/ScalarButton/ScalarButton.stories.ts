@@ -56,6 +56,13 @@ export const LoadingFullWidth: Story = {
   }),
 }
 
+export const CustomTailwindClasses: Story = {
+  render: () => ({
+    components: { ScalarButton },
+    template: `<ScalarButton class="items-start font-normal px-9 py-1">I am a weird button</ScalarButton>`,
+  }),
+}
+
 export const ButtonWithIcon: Story = {
   render: (args) => ({
     components: { ScalarButton, ScalarIcon },
