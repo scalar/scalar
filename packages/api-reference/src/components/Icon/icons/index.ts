@@ -18,6 +18,7 @@ export type Icon =
   | 'ChevronLeft'
   | 'ChevronRight'
   | 'ChevronUp'
+  | 'Clipboard'
   | 'Close'
   | 'DarkMode'
   | 'Ellipses'
