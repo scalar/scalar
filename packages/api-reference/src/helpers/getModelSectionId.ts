@@ -1,6 +1,7 @@
 import GithubSlugger from 'github-slugger'
 
 export const getModelSectionId = (name?: string) => {
+  console.log({ model: name })
   if (!name) {
     return 'models'
   }
@@ -8,5 +9,5 @@ export const getModelSectionId = (name?: string) => {
   const slugger = new GithubSlugger()
   const slug = slugger.slug(name)
 
-  return `model/${slug}`
+  return new URLSearchParams({ model: slug }).toString()
 }

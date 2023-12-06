@@ -11,7 +11,7 @@ import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, ref, watch } from 'vue'
 
 import { deepMerge } from '../helpers'
-import { useNavigate, useParser, useSpec } from '../hooks'
+import { useParser, useSpec } from '../hooks'
 import {
   DEFAULT_CONFIG,
   type ReferenceConfiguration,
@@ -85,9 +85,6 @@ watch(
     immediate: true,
   },
 )
-
-const { navState } = useNavigate()
-console.log({ navState })
 
 // Track the container height to control the sidebar height
 const elementHeight = ref(0)

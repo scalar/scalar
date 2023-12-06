@@ -2,7 +2,6 @@
 import { createHead, useSeoMeta } from 'unhead'
 import { computed, ref } from 'vue'
 
-import { useNavigate } from '../hooks'
 import { type ReferenceProps, type SpecConfiguration } from '../types'
 import Layouts from './Layouts/'
 
@@ -27,9 +26,6 @@ if (config.value?.metaData) {
   createHead()
   useSeoMeta(config.value.metaData)
 }
-
-const { navState } = useNavigate()
-console.log(navState)
 
 function handleUpdateContent(value: string) {
   content.value = value
