@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.7.1
+
+### Patch Changes
+
+- 4423876: chore: make Axios the default client for Node.js
+- 4423876: chore: remove unirest and node-fetch from the client lists
+
 ## 1.7.0
 
 ### Minor Changes
