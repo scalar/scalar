@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.8.3
+
+### Patch Changes
+
+- f9bfa97: feat: add buttons to header for classic layout
+
 ## 0.8.2
 
 ### Patch Changes
