@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 
 import { scrollToId } from '../helpers'
-import { useNavigation } from '../hooks'
+import { useNavigate, useNavigation } from '../hooks'
 import type { Spec } from '../types'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
@@ -11,14 +11,12 @@ const props = defineProps<{
   parsedSpec: Spec
 }>()
 
-const {
-  items,
-  activeItemId,
-  toggleCollapsedSidebarItem,
-  collapsedSidebarItems,
-} = useNavigation({
-  parsedSpec: props.parsedSpec,
-})
+const { navState } = useNavigate()
+
+const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } =
+  useNavigation({
+    parsedSpec: props.parsedSpec,
+  })
 
 // This offset determines how far down the sidebar the items scroll
 const SCROLL_OFFSET = -160
@@ -26,8 +24,8 @@ const scrollerEl = ref<HTMLElement | null>(null)
 const sidebarRefs = ref<{ [key: string]: HTMLElement }>({})
 
 // Watch for the active item changing so we can scroll the sidebar
-watch(activeItemId, (activeId) => {
-  const el = sidebarRefs.value[activeId!]
+watch(navState, (state) => {
+  const el = sidebarRefs.value[state.id!]
   if (!el || !scrollerEl.value) return
 
   let top = SCROLL_OFFSET
@@ -68,7 +66,7 @@ const setRef = (el: SidebarElementType, id: string) => {
             v-if="item.show"
             :ref="(el) => setRef(el as SidebarElementType, item.id)"
             data-sidebar-type="heading"
-            :isActive="activeItemId === item.id"
+            :isActive="navState.id === item.id"
             :item="{
               uid: '',
               title: item.title,
@@ -97,7 +95,7 @@ const setRef = (el: SidebarElementType, id: string) => {
                   <SidebarElement
                     v-if="item.show"
                     :ref="(el) => setRef(el as SidebarElementType, child.id)"
-                    :isActive="activeItemId === child.id"
+                    :isActive="navState.id === child.id"
                     :item="{
                       uid: '',
                       title: child.title,

@@ -2,8 +2,6 @@
 import { useIntersectionObserver } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 
-import { useNavigation } from '../hooks'
-
 const props = defineProps<{
   id?: string
   is?: string
@@ -13,7 +11,6 @@ const emit = defineEmits<{
   (e: 'intersecting'): void
 }>()
 
-const { setItemIdVisibility } = useNavigation()
 const intersectionObserverRef = ref<HTMLElement>()
 
 onMounted(() => {
@@ -23,8 +20,6 @@ onMounted(() => {
       if (!props.id) {
         return
       }
-
-      setItemIdVisibility(props.id, isIntersecting)
 
       if (isIntersecting) {
         emit('intersecting')

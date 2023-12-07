@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useApiClientStore } from '@scalar/api-client'
-
+import { navigate } from '../../hooks'
 import IntersectionObserver from '../IntersectionObserver.vue'
 
 const props = defineProps<{
@@ -8,11 +7,9 @@ const props = defineProps<{
   label?: string
 }>()
 
-const { setBreadcrumb } = useApiClientStore()
-
 function handleScroll() {
   if (!props.label) return
-  setBreadcrumb(props.label)
+  navigate(props)
 }
 </script>
 <template>

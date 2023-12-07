@@ -1,31 +1,29 @@
+import { slug } from 'github-slugger'
+import { type Heading } from 'src/helpers'
 import { ref } from 'vue'
 
-type NavigateProps = {
-  method:
-    | 'GET'
-    | 'POST'
-    | 'PUT'
-    | 'PATCH'
-    | 'DELETE'
-    | 'HEAD'
-    | 'OPTIONS'
-    | 'TRACE'
+import type { Tag, TransformedOperation } from '../types'
+
+type NavState = {
+  id?: string
+  label?: string
 }
 
-const navState = ref({})
+const navState = ref<NavState>({})
 
-const navigate = ({ method }: NavigateProps) => {
-  const state = {
-    method,
-  }
-  console.log('lets set the path', state)
+export const navigate = (state: NavState) => {
+  navState.value = state
+  if (state.id)
+    window.history.replaceState(
+      {},
+      '',
+      `${window.location.origin}${window.location.pathname}#${state.id}`,
+    )
 }
 
 /**
- * Hook which both handles navigation, as well as provides
- * a reactive state of the current properties from the URL
- * Also hash is only readable by the client so keep that
- * in mind for SSR/SSG
+ * Hook which provides reactive navigation state which equates to the url hash
+ * Also hash is only readable by the client so keep that in mind for SSR
  */
 export const useNavigate = () => {
   if (window?.location?.hash) {
@@ -33,5 +31,43 @@ export const useNavigate = () => {
     console.log(window.location.hash)
   }
 
-  return { navigate, navState }
+  return { navState }
+}
+
+/**
+ * Co-located these methods in case we make changes
+ */
+export const getHeadingHash = (heading: Heading) => {
+  if (heading.slug) {
+    return new URLSearchParams({ description: heading.slug }).toString()
+  }
+
+  return ''
+}
+
+export const getModelHash = (name?: string) => {
+  if (!name) {
+    return 'models'
+  }
+
+  const model = slug(name)
+  return new URLSearchParams({ model }).toString()
+}
+
+export const getOperationHash = (
+  operation: TransformedOperation,
+  parentTag: Tag,
+) => {
+  const parentSlug = slug(parentTag.name)
+
+  return new URLSearchParams({
+    tag: parentSlug,
+    method: operation.httpVerb,
+    path: operation.path,
+  }).toString()
+}
+
+export const getTagHash = ({ name }: Tag) => {
+  const tag = slug(name)
+  return new URLSearchParams({ tag }).toString()
 }

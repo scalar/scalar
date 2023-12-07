@@ -2,8 +2,8 @@
 import { useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 
-import { getTagSectionId, hasModels } from '../../helpers'
-import { useNavigation, useRefOnMount } from '../../hooks'
+import { hasModels } from '../../helpers'
+import { getTagHash, useNavigation, useRefOnMount } from '../../hooks'
 import type { Spec, Tag } from '../../types'
 import { FlowIcon } from '../Icon'
 import { SectionContainer } from '../Section'
@@ -92,12 +92,12 @@ const moreThanOneDefaultTag = (tag: Tag) =>
           <button
             v-if="
               index !== 0 &&
-              !collapsedSidebarItems[getTagSectionId(tag)] &&
+              !collapsedSidebarItems[getTagHash(tag)] &&
               tag.operations?.length > 1
             "
             class="show-more"
             type="button"
-            @click="setCollapsedSidebarItem(getTagSectionId(tag), true)">
+            @click="setCollapsedSidebarItem(getTagHash(tag), true)">
             Show More
             <FlowIcon
               class="show-more-icon"
@@ -106,7 +106,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
           <template
             v-if="
               index === 0 ||
-              collapsedSidebarItems[getTagSectionId(tag)] ||
+              collapsedSidebarItems[getTagHash(tag)] ||
               tag.operations?.length === 1
             ">
             <ReferenceEndpoint

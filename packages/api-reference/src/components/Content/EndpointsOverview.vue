@@ -1,12 +1,8 @@
 <script setup lang="ts">
 import { nextTick } from 'vue'
 
-import {
-  getOperationSectionId,
-  getTagSectionId,
-  scrollToId,
-} from '../../helpers'
-import { useNavigation } from '../../hooks'
+import { scrollToId } from '../../helpers'
+import { getOperationHash, getTagHash, useNavigation } from '../../hooks'
 import type { Tag, TransformedOperation } from '../../types'
 import { Anchor } from '../Anchor'
 import { Card, CardContent, CardHeader } from '../Card'
@@ -27,20 +23,20 @@ const { setCollapsedSidebarItem } = useNavigation()
 // we try to scroll to it
 // we wait for next render after we open the tag
 async function scrollHandler(operation: TransformedOperation) {
-  setCollapsedSidebarItem(getTagSectionId(props.tag), true)
+  setCollapsedSidebarItem(getTagHash(props.tag), true)
   await nextTick()
-  scrollToId(getOperationSectionId(operation, props.tag))
+  scrollToId(getOperationHash(operation, props.tag))
 }
 </script>
 <template>
   <Section
-    :id="getTagSectionId(tag)"
+    :id="getTagHash(tag)"
     :label="tag.name.toUpperCase()">
     <SectionContent>
       <SectionColumns>
         <SectionColumn>
           <SectionHeader :level="2">
-            <Anchor :id="getTagSectionId(tag)">
+            <Anchor :id="getTagHash(tag)">
               {{ tag.name }}
             </Anchor>
           </SectionHeader>
@@ -54,7 +50,7 @@ async function scrollHandler(operation: TransformedOperation) {
                 <div class="endpoints custom-scroll">
                   <a
                     v-for="operation in tag.operations"
-                    :key="getOperationSectionId(operation, tag)"
+                    :key="getOperationHash(operation, tag)"
                     class="endpoint"
                     @click="scrollHandler(operation)">
                     <span :class="operation.httpVerb">{{

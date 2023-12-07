@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { getModelSectionId } from '../../helpers'
-import { useNavigation } from '../../hooks'
+import { getModelHash, useNavigation } from '../../hooks'
 import { type Components } from '../../types'
 import { Anchor } from '../Anchor'
 import {
@@ -23,7 +22,7 @@ const { collapsedSidebarItems } = useNavigation()
 const showAllModels = computed(
   () =>
     Object.keys(props.components?.schemas ?? {}).length <= 3 ||
-    collapsedSidebarItems[getModelSectionId()],
+    collapsedSidebarItems[getModelHash()],
 )
 
 const models = computed(() => {
@@ -41,13 +40,13 @@ const models = computed(() => {
   <SectionContainer v-if="components">
     <Section
       v-for="(name, index) in models"
-      :id="getModelSectionId(name)"
+      :id="getModelHash(name)"
       :key="name"
       :label="name">
       <template v-if="components?.schemas?.[name]">
         <SectionContent>
           <SectionHeader :level="2">
-            <Anchor :id="getModelSectionId(name)">
+            <Anchor :id="getModelHash(name)">
               {{ name }}
             </Anchor>
           </SectionHeader>
@@ -58,7 +57,7 @@ const models = computed(() => {
           <!-- Show More Button -->
           <ShowMoreButton
             v-if="!showAllModels && index === models.length - 1"
-            :id="getModelSectionId()" />
+            :id="getModelHash()" />
         </SectionContent>
       </template>
     </Section>

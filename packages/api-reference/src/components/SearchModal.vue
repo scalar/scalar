@@ -4,13 +4,14 @@ import { FlowModal, type ModalState } from '@scalar/use-modal'
 import Fuse from 'fuse.js'
 import { computed, ref, toRef, watch } from 'vue'
 
-import {
-  getModelSectionId,
-  getOperationSectionId,
-  getTagSectionId,
-} from '../helpers'
 import { extractRequestBody } from '../helpers/specHelpers'
-import { type ParamMap, useOperation } from '../hooks'
+import {
+  type ParamMap,
+  getModelHash,
+  getOperationHash,
+  getTagHash,
+  useOperation,
+} from '../hooks'
 import type { Spec, TransformedOperation } from '../types'
 
 const props = defineProps<{ parsedSpec: Spec; modalState: ModalState }>()
@@ -72,7 +73,7 @@ watch(
     props.parsedSpec.tags.forEach((tag) => {
       const tagData: FuseData = {
         title: tag.name,
-        href: `#${getTagSectionId(tag)}`,
+        href: `#${getTagHash(tag)}`,
         description: tag.description,
         type: 'req',
         tag: tag.name,
@@ -93,7 +94,7 @@ watch(
           const operationData: FuseData = {
             type: 'req',
             title: operation.name ?? operation.path,
-            href: `#${getOperationSectionId(operation, tag)}`,
+            href: `#${getOperationHash(operation, tag)}`,
             operationId: operation.operationId,
             description: operation.description ?? '',
             httpVerb: operation.httpVerb,
@@ -120,7 +121,7 @@ watch(
         modelData.push({
           type: 'model',
           title: 'Model',
-          href: `#${getModelSectionId(k)}`,
+          href: `#${getModelHash(k)}`,
           description: k,
           tag: k,
           body: '',
