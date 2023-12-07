@@ -33,7 +33,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
 - [Advanced: Styling](#advanced-styling)
 - [Community](#community)
 - [Other packages](#other-packages)
-- [Contributing](#contributing)
+- [Contributing](#contributors)
 - [License](#license)
 
 ## Getting Started
