@@ -54,7 +54,6 @@ const setRef = (el: SidebarElementType, id: string) => {
 </script>
 <template>
   <div class="sidebar">
-    {{ navState }}
     <slot name="sidebar-start" />
     <div
       ref="scrollerEl"
