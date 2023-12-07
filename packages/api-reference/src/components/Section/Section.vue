@@ -11,7 +11,6 @@ const { canIntersect, navigate } = useNavigate()
 
 function handleScroll() {
   if (!props.label || !canIntersect.value) return
-
   navigate(props, false)
 }
 </script>
