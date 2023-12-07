@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
+import { useElementHover } from '@vueuse/core'
+import { ref } from 'vue'
 
 import IntersectionObserver from '../IntersectionObserver.vue'
 
 defineProps<{
   id?: string
 }>()
+
+const button = ref()
+const isHovered = useElementHover(button)
 </script>
 <template>
   <IntersectionObserver
@@ -16,9 +21,18 @@ defineProps<{
       v-slot="{ open }"
       as="section"
       class="section-accordion">
-      <DisclosureButton class="section-accordion-button">
+      <DisclosureButton
+        ref="button"
+        class="section-accordion-button">
         <div class="section-accordion-button-content">
           <slot name="title" />
+        </div>
+        <div
+          v-if="$slots.actions"
+          class="section-accordion-button-actions">
+          <slot
+            :active="isHovered || open"
+            name="actions" />
         </div>
         <ScalarIcon
           class="section-accordion-chevron"
@@ -77,17 +91,25 @@ defineProps<{
 
 .section-accordion-button {
   display: flex;
-  gap: 20px;
+  align-items: center;
+  gap: 12px;
 }
 
 .section-accordion-button-content {
   flex: 1;
   min-width: 0;
 }
+.section-accordion-button-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .section-accordion-chevron {
   margin-right: 4px;
   width: 24px;
   cursor: pointer;
+  opacity: 0.6;
 }
 
 .section-accordion-content {

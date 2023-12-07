@@ -16,7 +16,7 @@ import {
   CardTab,
   CardTabHeader,
 } from '../../../Card'
-import { Icon } from '../../../Icon'
+import { FlowIcon } from '../../../Icon'
 import MarkdownRenderer from '../../MarkdownRenderer.vue'
 // import Headers from './Headers.vue'
 import SelectExample from './SelectExample.vue'
@@ -89,8 +89,8 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
           class="code-copy"
           type="button"
           @click="() => copyToClipboard(currentJsonResponse?.example)">
-          <Icon
-            src="solid/interface-copy-clipboard"
+          <FlowIcon
+            icon="Clipboard"
             width="10px" />
         </button>
       </template>

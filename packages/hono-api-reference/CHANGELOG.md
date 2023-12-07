@@ -1,5 +1,29 @@
 # @scalar/hono-api-reference
 
+## 0.2.5
+
+### Patch Changes
+
+- d45f5a5: fix: handle root path in request generation
+- Updated dependencies [f9bfa97]
+- Updated dependencies [d45f5a5]
+  - @scalar/api-reference@1.8.0
+
+## 0.2.4
+
+### Patch Changes
+
+- Updated dependencies [4423876]
+- Updated dependencies [4423876]
+  - @scalar/api-reference@1.7.1
+
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies [4f2fcc3]
+  - @scalar/api-reference@1.7.0
+
 ## 0.2.2
 
 ### Patch Changes

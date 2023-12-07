@@ -74,7 +74,7 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
-The fastify plugin takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/packages/api-reference#props) in the core package README.
+The fastify plugin takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/packages/api-reference#configuration) in the core package README.
 
 ## Themes
 

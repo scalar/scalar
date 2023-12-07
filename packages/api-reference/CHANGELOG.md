@@ -1,5 +1,37 @@
 # @scalar/api-reference
 
+## 1.8.0
+
+### Minor Changes
+
+- f9bfa97: feat: add buttons to header for classic layout
+
+### Patch Changes
+
+- d45f5a5: fix: handle root path in request generation
+- Updated dependencies [f9bfa97]
+  - @scalar/swagger-editor@0.8.3
+  - @scalar/use-toasts@0.5.10
+  - @scalar/use-clipboard@0.5.10
+
+## 1.7.1
+
+### Patch Changes
+
+- 4423876: chore: make Axios the default client for Node.js
+- 4423876: chore: remove unirest and node-fetch from the client lists
+
+## 1.7.0
+
+### Minor Changes
+
+- 4f2fcc3: feat: classic layout content
+
+### Patch Changes
+
+- Updated dependencies [4f2fcc3]
+  - @scalar/swagger-editor@0.8.2
+
 ## 1.6.1
 
 ### Patch Changes
