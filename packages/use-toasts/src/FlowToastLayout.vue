@@ -33,6 +33,8 @@ defineProps<{
 .toast-layout {
   pointer-events: initial;
 
+  box-sizing: border-box;
+
   padding: 18px;
   background: var(--theme-background-1, var(--default-theme-background-1));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));

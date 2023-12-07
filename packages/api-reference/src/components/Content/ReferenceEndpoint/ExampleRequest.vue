@@ -11,13 +11,12 @@ import {
   getRequestFromAuthentication,
   getRequestFromOperation,
   getUrlFromServerState,
-  openClientFor,
 } from '../../../helpers'
 import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
 import type { TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
-import { Icon } from '../../Icon'
+import { FlowIcon } from '../../Icon'
 
 const props = defineProps<{
   operation: TransformedOperation
@@ -85,27 +84,17 @@ computed(() => {
     operation: props.operation,
   })
 })
-
-const formattedPath = computed(() => {
-  return (
-    props.operation.path
-      // Remove HTML tags
-      .replace(/(<([^>]+)>)/gi, '')
-      // Wrap a span around all variables
-      .replace(/{([^}]+)}/g, '<span class="request-path-variable">{$1}</span>')
-  )
-})
 </script>
 <template>
   <Card class="dark-mode">
     <CardHeader muted>
-      <div class="request">
-        <span :class="`request-method request-method--${operation.httpVerb}`">
+      <div class="request-header">
+        <span
+          class="request-method"
+          :class="`request-method--${operation.httpVerb}`">
           {{ operation.httpVerb }}
         </span>
-        <span
-          class="request-path"
-          v-html="formattedPath" />
+        <slot name="header" />
       </div>
       <template #actions>
         <div class="language-select">
@@ -140,13 +129,12 @@ const formattedPath = computed(() => {
             </optgroup>
           </select>
         </div>
-
         <button
           class="copy-button"
           type="button"
           @click="copyToClipboard(CodeMirrorValue)">
-          <Icon
-            src="solid/interface-copy-clipboard"
+          <FlowIcon
+            icon="Clipboard"
             width="10px" />
         </button>
       </template>
@@ -164,31 +152,26 @@ const formattedPath = computed(() => {
         readOnly />
     </CardContent>
     <CardFooter
+      v-if="$slots.footer"
       class="scalar-card-footer"
       contrast>
-      <button
-        class="show-api-client-button"
-        :class="`show-api-client-button--${operation.httpVerb}`"
-        type="button"
-        @click="openClientFor(operation)">
-        <span>Test Request</span>
-        <Icon src="solid/mail-send-email-paper-airplane" />
-      </button>
+      <slot name="footer" />
     </CardFooter>
   </Card>
 </template>
-<style>
-.request-path-variable {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-}
-</style>
 <style scoped>
 .request {
   display: flex;
   flex-wrap: nowrap;
 }
+.request-header {
+  display: flex;
+  gap: 6px;
+  text-transform: initial;
+}
 .request-method {
-  white-space: nowrap;
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  text-transform: uppercase;
 }
 .request-method--post {
   color: var(--theme-color-green, var(--default-theme-color-green));
@@ -205,15 +188,6 @@ const formattedPath = computed(() => {
 .request-method--put {
   color: var(--theme-color-orange, var(--default-theme-color-orange));
 }
-.request-path {
-  margin-left: 6px;
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  overflow: hidden;
-  cursor: default;
-  word-wrap: break-word;
-  text-transform: none !important;
-}
-
 .language-select {
   position: relative;
   padding-right: 9px;
@@ -296,91 +270,14 @@ const formattedPath = computed(() => {
   height: 13px;
 }
 
-.show-api-client-button {
-  display: block;
-  appearance: none;
-  outline: none;
-  border: none;
-  padding: 6px;
-  margin-left: auto;
-  height: 23px;
-  margin: 6px 6px 6px auto;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  text-transform: uppercase;
-  display: flex;
-  justify-content: center;
-  cursor: pointer;
-  align-items: center;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  color: var(--theme-background-2, var(--default-background-2));
-  font-family: var(--theme-font, var(--default-theme-font));
-  position: relative;
-  cursor: pointer;
-  box-sizing: border-box;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-}
-.show-api-client-button span,
-.show-api-client-button svg {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  z-index: 1;
-}
-.show-api-client-button:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  cursor: pointer;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-}
-.show-api-client-button:before {
-  background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2));
-}
-.show-api-client-button:hover:before {
-  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1));
-}
-.show-api-client-button svg {
-  height: 12px;
-  width: auto;
-  margin-left: 9px;
-}
-.show-api-client-button--post {
-  background: var(--theme-color-green, var(--default-theme-color-green));
-}
-.show-api-client-button--patch {
-  background: var(--theme-color-yellow, var(--default-theme-color-yellow));
-}
-.show-api-client-button--get {
-  background: var(--theme-color-blue, var(--default-theme-color-blue));
-}
-.show-api-client-button--delete {
-  background: var(--theme-color-red, var(--default-theme-color-red));
-}
-.show-api-client-button--put {
-  background: var(--theme-color-orange, var(--default-theme-color-orange));
-}
-.request-method {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  text-transform: uppercase;
-}
-.request-path {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-}
 .scalar-card-header-actions {
   display: flex;
 }
-@media screen and (max-width: 400px) {
-  .language-select {
-    position: absolute;
-    bottom: 9px;
-    left: 0;
-    border-right: none;
-  }
+.scalar-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px;
 }
-
 .request-editor-section {
   display: grid;
   flex: 1;

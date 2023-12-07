@@ -1,17 +1,25 @@
 <script setup lang="ts">
+import { useClipboard } from '@scalar/use-clipboard'
+
+import FlowIconButton from '../../../components/FlowIconButton.vue'
+import { FlowIcon } from '../../../components/Icon'
 import { getOperationSectionId } from '../../../helpers'
 import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { SectionAccordion } from '../../Section'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import EndpointDetailsCard from './EndpointDetailsCard.vue'
+import EndpointPath from './EndpointPath.vue'
 import ExampleRequest from './ExampleRequest.vue'
 import { ExampleResponses } from './ExampleResponses'
+import TryRequestButton from './TryRequestButton.vue'
 
 defineProps<{
   operation: TransformedOperation
   tag: Tag
 }>()
+
+const { copyToClipboard } = useClipboard()
 </script>
 <template>
   <SectionAccordion
@@ -26,12 +34,29 @@ defineProps<{
             :id="getOperationSectionId(operation, tag)"
             class="endpoint-anchor">
             <div class="endpoint-label">
-              <div class="endpoint-label-path">{{ operation.path }}</div>
+              <div class="endpoint-label-path">
+                <EndpointPath :path="operation.path" />
+              </div>
               <div class="endpoint-label-name">{{ operation.name }}</div>
             </div>
           </Anchor>
         </div>
       </h3>
+    </template>
+    <template #actions="{ active }">
+      <TryRequestButton
+        v-if="active"
+        :operation="operation" />
+      <FlowIcon
+        v-else
+        class="endpoint-try-hint"
+        icon="PaperAirplane" />
+      <FlowIconButton
+        class="endpoint-copy"
+        icon="Clipboard"
+        label="Copy endpoint URL"
+        variant="text"
+        @click.stop="copyToClipboard(operation.path)" />
     </template>
     <template
       v-if="operation.description"
@@ -136,6 +161,9 @@ defineProps<{
   font-family: var(--default-theme-font-code);
   font-size: var(--theme-mini, var(--default-theme-mini));
 }
+.endpoint-label-path :deep(em) {
+  color: var(--theme-color-2, var(--default-theme-color-2));
+}
 .endpoint-label-name {
   color: var(--theme-color-3, var(--default-theme-color-3));
   font-size: var(--theme-micro, var(--default-theme-micro));
@@ -143,6 +171,25 @@ defineProps<{
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+
+.endpoint-try-hint {
+  padding: 6px;
+  height: 24px;
+  aspect-ratio: 1 / 1;
+  opacity: 0.6;
+}
+
+.endpoint-copy,
+.endpoint-copy:hover {
+  color: currentColor;
+}
+
+.endpoint-copy {
+  opacity: 0.6;
+}
+.endpoint-copy:hover {
+  opacity: 1;
 }
 
 .endpoint-content {
