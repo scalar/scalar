@@ -7,10 +7,12 @@ import type { Tag, TransformedOperation } from '../types'
 type NavState = {
   id?: string
   label?: string
-  canIntersect?: boolean
 }
 
-const navState = ref<NavState>({ canIntersect: true })
+// Enables the interesection observer
+const canIntersect = ref(true)
+
+const navState = ref<NavState>({})
 
 /**
  * Main navigation method for the side bar
@@ -24,10 +26,10 @@ export const navigate = async (state: NavState, shouldNavigate = true) => {
 
   // To avoid the intersection observer triggering a double navigate, we sleep for 100ms
   if (shouldNavigate) {
-    navState.value.canIntersect = false
+    canIntersect.value = false
     window.location.replace(`#${state.id}`)
     await sleep(100)
-    navState.value.canIntersect = true
+    canIntersect.value = true
   } else {
     window.history.replaceState({}, '', `#${state.id}`)
   }
@@ -39,10 +41,10 @@ export const navigate = async (state: NavState, shouldNavigate = true) => {
  */
 export const useNavigate = () => {
   if (window?.location?.hash) {
-    navState.value = { id: window.location.hash.replace(/^#/, '') }
+    navState.value.id = window.location.hash.replace(/^#/, '')
   }
 
-  return { navState }
+  return { canIntersect, navState }
 }
 
 /**
