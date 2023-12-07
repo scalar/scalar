@@ -6,7 +6,7 @@ import {
   getLowestHeadingLevel,
   splitMarkdownInSections,
 } from '../../../helpers'
-import { getHeadingId } from '../../../hooks'
+import { useNavigate } from '../../../hooks'
 import IntersectionObserver from '../../IntersectionObserver.vue'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 
@@ -39,6 +39,8 @@ const sections = computedAsync(
   },
   [], // initial state
 )
+
+const { getHeadingId } = useNavigate()
 </script>
 <template>
   <template v-if="value">

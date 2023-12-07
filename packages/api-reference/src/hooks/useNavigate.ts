@@ -11,7 +11,6 @@ type NavState = {
 
 // Enables the interesection observer
 const canIntersect = ref(true)
-
 const navState = ref<NavState>({})
 
 /**
@@ -20,7 +19,7 @@ const navState = ref<NavState>({})
  * @param shouldNavigate - determines whether or not to actually follow through with the navigation,
  *                         else just update the URL only
  */
-export const navigate = async (state: NavState, shouldNavigate = true) => {
+const navigate = async (state: NavState, shouldNavigate = true) => {
   navState.value = state
   if (!state.id) return
 
@@ -36,21 +35,9 @@ export const navigate = async (state: NavState, shouldNavigate = true) => {
 }
 
 /**
- * Hook which provides reactive navigation state which equates to the url hash
- * Also hash is only readable by the client so keep that in mind for SSR
+ * ID creation methods
  */
-export const useNavigate = () => {
-  if (window?.location?.hash) {
-    navState.value.id = window.location.hash.replace(/^#/, '')
-  }
-
-  return { canIntersect, navState }
-}
-
-/**
- * Co-located these methods in case we make changes
- */
-export const getHeadingId = (heading: Heading) => {
+const getHeadingId = (heading: Heading) => {
   if (heading.slug) {
     return new URLSearchParams({ description: heading.slug }).toString()
   }
@@ -58,7 +45,7 @@ export const getHeadingId = (heading: Heading) => {
   return ''
 }
 
-export const getModelId = (name?: string) => {
+const getModelId = (name?: string) => {
   if (!name) {
     return 'models'
   }
@@ -67,10 +54,7 @@ export const getModelId = (name?: string) => {
   return new URLSearchParams({ model }).toString()
 }
 
-export const getOperationId = (
-  operation: TransformedOperation,
-  parentTag: Tag,
-) => {
+const getOperationId = (operation: TransformedOperation, parentTag: Tag) => {
   const parentSlug = slug(parentTag.name)
 
   return decodeURIComponent(
@@ -82,7 +66,27 @@ export const getOperationId = (
   )
 }
 
-export const getTagId = ({ name }: Tag) => {
+const getTagId = ({ name }: Tag) => {
   const tag = slug(name)
   return new URLSearchParams({ tag }).toString()
+}
+
+/**
+ * Hook which provides reactive navigation state which equates to the url hash
+ * Also hash is only readable by the client so keep that in mind for SSR
+ */
+export const useNavigate = () => {
+  if (window?.location?.hash) {
+    navState.value.id = window.location.hash.replace(/^#/, '')
+  }
+
+  return {
+    canIntersect,
+    getModelId,
+    getHeadingId,
+    getOperationId,
+    getTagId,
+    navigate,
+    navState,
+  }
 }

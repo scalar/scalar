@@ -8,12 +8,7 @@ import {
   openClientFor,
 } from '../helpers'
 import type { Spec, Tag, TransformedOperation } from '../types'
-import {
-  getHeadingId,
-  getModelId,
-  getOperationId,
-  getTagId,
-} from './useNavigate'
+import { useNavigate } from './useNavigate'
 
 export type SidebarEntry = {
   id: string
@@ -25,6 +20,8 @@ export type SidebarEntry = {
   show: boolean
   deprecated?: boolean
 }
+
+const { getHeadingId, getModelId, getOperationId, getTagId } = useNavigate()
 
 // Track the parsed spec
 const parsedSpec = ref<Spec | undefined>(undefined)
@@ -57,10 +54,8 @@ const items = computed((): SidebarEntry[] => {
   // Check whether the API client is visible
   const { state } = useApiClientStore()
 
-
   // Introduction
   const headingEntries: SidebarEntry[] = headings.value.map((heading) => {
-  console.log('adss')
     return {
       id: getHeadingId(heading),
       title: heading.value.toUpperCase(),

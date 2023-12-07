@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { getModelId, useSidebar } from '../../hooks'
+import { useNavigate, useSidebar } from '../../hooks'
 import { type Components } from '../../types'
 import { Anchor } from '../Anchor'
 import {
@@ -18,6 +18,7 @@ const props = defineProps<{
 }>()
 
 const { collapsedSidebarItems } = useSidebar()
+const { getModelId } = useNavigate()
 
 const showAllModels = computed(
   () =>

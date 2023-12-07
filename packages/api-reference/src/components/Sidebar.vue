@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-import { navigate, useNavigate, useSidebar } from '../hooks'
+import { useNavigate, useSidebar } from '../hooks'
 import type { Spec } from '../types'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
@@ -10,7 +10,7 @@ const props = defineProps<{
   parsedSpec: Spec
 }>()
 
-const { navState } = useNavigate()
+const { navigate, navState } = useNavigate()
 
 const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } = useSidebar(
   {
@@ -54,6 +54,7 @@ const setRef = (el: SidebarElementType, id: string) => {
 </script>
 <template>
   <div class="sidebar">
+    {{ navState }}
     <slot name="sidebar-start" />
     <div
       ref="scrollerEl"
