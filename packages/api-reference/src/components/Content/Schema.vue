@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import SchemaHeading from './SchemaHeading.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
 withDefaults(
@@ -13,26 +14,14 @@ withDefaults(
 )
 </script>
 <template>
-  <div class="schema">
+  <div class="schema-card">
     <div
       v-if="value?.properties"
       class="properties">
-      <div class="type">
-        <span
-          class="type-icon"
-          :title="value.type">
-          <template v-if="value.type === 'object'"> {} </template>
-          <template v-if="value.type === 'array'"> [] </template>
-        </span>
-        <template v-if="value?.xml?.name && value?.xml?.name !== '##default'">
-          &lt;{{ value?.xml?.name }} /&gt;
-        </template>
-        <template v-else-if="name">
-          {{ name }}
-        </template>
-        <template v-else>
-          {{ value.type }}
-        </template>
+      <div class="schema-card-title">
+        <SchemaHeading
+          :name="name"
+          :value="value" />
       </div>
       <SchemaProperty
         v-for="property in Object.keys(value.properties)"
@@ -55,29 +44,26 @@ withDefaults(
     </div>
   </div>
 </template>
-
 <style scoped>
 .error {
   background-color: red;
 }
-.schema {
+.schema-card {
   width: 100%;
   font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
-
-.type {
-  font-size: var(--theme-micro, var(--default-theme-micro));
+.schema-card-title {
   color: var(--theme-color-2, var(--default-theme-color-2));
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
   font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-size: var(--theme-micro, var(--default-theme-micro));
   background: var(--theme-background-4, var(--default-theme-background-4));
   padding: 10px 12px;
 }
 
-.type-icon {
+/* Style the "icon" */
+.schema-card-title :deep(em) {
   color: var(--theme-color-1, var(--default-theme-color-1));
-  font-size: var(--theme-micro, var(--default-theme-micro));
 }
 
 .properties {

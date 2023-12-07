@@ -43,8 +43,8 @@ import { FlowIcon } from '../Icon'
 
   cursor: pointer;
 
-  padding: 6px 0 12px 0;
-  margin: -6px 0 -12px 0;
+  padding: 6px 0 6px 0;
+  margin: -6px 0 -6px 0;
   border-radius: var(--theme-radius, var(--default-theme-radius));
 }
 .section-accordion-button:hover {
