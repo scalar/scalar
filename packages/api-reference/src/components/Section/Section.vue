@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { navigate } from '../../hooks'
+import { navigate, useNavigate } from '../../hooks'
 import IntersectionObserver from '../IntersectionObserver.vue'
 
 const props = defineProps<{
@@ -7,9 +7,11 @@ const props = defineProps<{
   label?: string
 }>()
 
+const { navState } = useNavigate()
+
 function handleScroll() {
-  if (!props.label) return
-  navigate(props)
+  if (!props.label || !navState.value.canIntersect) return
+  navigate(props, false)
 }
 </script>
 <template>

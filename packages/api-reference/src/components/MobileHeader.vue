@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useApiClientStore } from '@scalar/api-client'
-
+import { useNavigate } from '../hooks'
 import FlowIconButton from './FlowIconButton.vue'
 
 defineProps<{
@@ -11,7 +10,7 @@ defineEmits<{
   (event: 'update:open', open: boolean): void
 }>()
 
-const { state } = useApiClientStore()
+const { navState } = useNavigate()
 </script>
 <template>
   <div class="references-mobile-header t-doc__header">
@@ -20,9 +19,7 @@ const { state } = useApiClientStore()
       :label="open ? 'Close Menu' : 'Open Menu'"
       width="20px"
       @click="$emit('update:open', !open)" />
-    <span class="references-mobile-breadcrumbs">{{
-      state.activeBreadcrumb
-    }}</span>
+    <span class="references-mobile-breadcrumbs">{{ navState.label }}</span>
     <div class="sidebar-mobile-actions"></div>
   </div>
 </template>

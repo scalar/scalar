@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-import { scrollToId } from '../helpers'
-import { useNavigate, useNavigation } from '../hooks'
+import { navigate, useNavigate, useSidebar } from '../hooks'
 import type { Spec } from '../types'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
@@ -13,10 +12,11 @@ const props = defineProps<{
 
 const { navState } = useNavigate()
 
-const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } =
-  useNavigation({
+const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } = useSidebar(
+  {
     parsedSpec: props.parsedSpec,
-  })
+  },
+)
 
 // This offset determines how far down the sidebar the items scroll
 const SCROLL_OFFSET = -160
@@ -78,7 +78,7 @@ const setRef = (el: SidebarElementType, id: string) => {
             @select="
               () => {
                 if (item.id) {
-                  scrollToId(item.id)
+                  navigate({ id: item.id, label: item.title })
                 }
 
                 if (item.select) {
@@ -106,7 +106,7 @@ const setRef = (el: SidebarElementType, id: string) => {
                     @select="
                       () => {
                         if (child.id) {
-                          scrollToId(child.id)
+                          navigate({ id: child.id, label: child.title })
                         }
 
                         if (child.select) {

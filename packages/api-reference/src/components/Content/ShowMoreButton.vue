@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useNavigation } from '../../hooks'
+import { useSidebar } from '../../hooks'
 import { FlowIcon } from '../Icon'
 
 defineProps<{
   id: string
 }>()
 
-const { setCollapsedSidebarItem } = useNavigation()
+const { setCollapsedSidebarItem } = useSidebar()
 </script>
 
 <template>

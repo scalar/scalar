@@ -3,7 +3,7 @@ import { useClipboard } from '@scalar/use-clipboard'
 
 import FlowIconButton from '../../../components/FlowIconButton.vue'
 import { FlowIcon } from '../../../components/Icon'
-import { getOperationHash } from '../../../hooks'
+import { getOperationId } from '../../../hooks'
 import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { SectionAccordion } from '../../Section'
@@ -23,7 +23,7 @@ const { copyToClipboard } = useClipboard()
 </script>
 <template>
   <SectionAccordion
-    :id="getOperationHash(operation, tag)"
+    :id="getOperationId(operation, tag)"
     class="reference-endpoint"
     :class="`reference-endpoint--${operation.httpVerb}`">
     <template #title>
@@ -31,7 +31,7 @@ const { copyToClipboard } = useClipboard()
         <div class="endpoint-details">
           <span class="endpoint-type">{{ operation.httpVerb }}</span>
           <Anchor
-            :id="getOperationHash(operation, tag)"
+            :id="getOperationId(operation, tag)"
             class="endpoint-anchor">
             <div class="endpoint-label">
               <div class="endpoint-label-path">

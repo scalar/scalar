@@ -6,7 +6,7 @@ import {
   getLowestHeadingLevel,
   splitMarkdownInSections,
 } from '../../../helpers'
-import { getHeadingHash } from '../../../hooks'
+import { getHeadingId } from '../../../hooks'
 import IntersectionObserver from '../../IntersectionObserver.vue'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 
@@ -47,7 +47,7 @@ const sections = computedAsync(
       :key="index">
       <!-- With a Heading -->
       <template v-if="section.heading">
-        <IntersectionObserver :id="getHeadingHash(section.heading)">
+        <IntersectionObserver :id="getHeadingId(section.heading)">
           <MarkdownRenderer :value="section.content" />
         </IntersectionObserver>
       </template>

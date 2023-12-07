@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-unused-properties -->
 <script setup lang="ts">
-import { getTagHash } from '../../hooks'
+import { getTagId } from '../../hooks'
 import { type Spec, type Tag } from '../../types'
 import { Anchor } from '../Anchor'
 import { SectionContainerAccordion, SectionHeader } from '../Section'
@@ -18,7 +18,7 @@ defineProps<{
       <SectionHeader
         class="tag-name"
         :level="2">
-        <Anchor :id="getTagHash(tag)">
+        <Anchor :id="getTagId(tag)">
           {{ tag.name }}
         </Anchor>
       </SectionHeader>

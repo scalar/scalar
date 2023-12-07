@@ -9,10 +9,10 @@ import {
 } from '../helpers'
 import type { Spec, Tag, TransformedOperation } from '../types'
 import {
-  getHeadingHash,
-  getModelHash,
-  getOperationHash,
-  getTagHash,
+  getHeadingId,
+  getModelId,
+  getOperationId,
+  getTagId,
 } from './useNavigate'
 
 export type SidebarEntry = {
@@ -57,10 +57,12 @@ const items = computed((): SidebarEntry[] => {
   // Check whether the API client is visible
   const { state } = useApiClientStore()
 
+
   // Introduction
   const headingEntries: SidebarEntry[] = headings.value.map((heading) => {
+  console.log('adss')
     return {
-      id: getHeadingHash(heading),
+      id: getHeadingId(heading),
       title: heading.value.toUpperCase(),
       type: 'Page',
       show: !state.showApiClient,
@@ -82,13 +84,13 @@ const items = computed((): SidebarEntry[] => {
     firstTag.operations?.length > 0
       ? parsedSpec.value?.tags?.map((tag: Tag) => {
           return {
-            id: getTagHash(tag),
+            id: getTagId(tag),
             title: tag.name.toUpperCase(),
             type: 'Folder',
             show: true,
             children: tag.operations?.map((operation: TransformedOperation) => {
               return {
-                id: getOperationHash(operation, tag),
+                id: getOperationId(operation, tag),
                 title: operation.name ?? operation.path,
                 type: 'Page',
                 httpVerb: operation.httpVerb,
@@ -105,7 +107,7 @@ const items = computed((): SidebarEntry[] => {
         })
       : firstTag?.operations?.map((operation) => {
           return {
-            id: getOperationHash(operation, firstTag),
+            id: getOperationId(operation, firstTag),
             title: operation.name ?? operation.path,
             type: 'Page',
             httpVerb: operation.httpVerb,
@@ -123,7 +125,7 @@ const items = computed((): SidebarEntry[] => {
   const modelEntries: SidebarEntry[] = hasModels(parsedSpec.value)
     ? [
         {
-          id: getModelHash(),
+          id: getModelId(),
           title: 'MODELS',
           type: 'Folder',
           show: !state.showApiClient,
@@ -131,7 +133,7 @@ const items = computed((): SidebarEntry[] => {
             parsedSpec.value?.components?.schemas ?? {},
           ).map((name) => {
             return {
-              id: getModelHash(name),
+              id: getModelId(name),
               title: name,
               type: 'Page',
               show: !state.showApiClient,
@@ -144,7 +146,7 @@ const items = computed((): SidebarEntry[] => {
   return [...headingEntries, ...(operationEntries ?? []), ...modelEntries]
 })
 
-export function useNavigation(options?: { parsedSpec: Spec }) {
+export function useSidebar(options?: { parsedSpec: Spec }) {
   if (options?.parsedSpec) {
     parsedSpec.value = options.parsedSpec
 
@@ -155,7 +157,7 @@ export function useNavigation(options?: { parsedSpec: Spec }) {
         const firstTag = parsedSpec.value?.tags?.[0]
 
         if (firstTag) {
-          setCollapsedSidebarItem(getTagHash(firstTag), true)
+          setCollapsedSidebarItem(getTagId(firstTag), true)
         }
       },
       { immediate: true, deep: true },

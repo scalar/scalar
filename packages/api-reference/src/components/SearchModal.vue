@@ -7,9 +7,9 @@ import { computed, ref, toRef, watch } from 'vue'
 import { extractRequestBody } from '../helpers/specHelpers'
 import {
   type ParamMap,
-  getModelHash,
-  getOperationHash,
-  getTagHash,
+  getModelId,
+  getOperationId,
+  getTagId,
   useOperation,
 } from '../hooks'
 import type { Spec, TransformedOperation } from '../types'
@@ -73,7 +73,7 @@ watch(
     props.parsedSpec.tags.forEach((tag) => {
       const tagData: FuseData = {
         title: tag.name,
-        href: `#${getTagHash(tag)}`,
+        href: `#${getTagId(tag)}`,
         description: tag.description,
         type: 'req',
         tag: tag.name,
@@ -94,7 +94,7 @@ watch(
           const operationData: FuseData = {
             type: 'req',
             title: operation.name ?? operation.path,
-            href: `#${getOperationHash(operation, tag)}`,
+            href: `#${getOperationId(operation, tag)}`,
             operationId: operation.operationId,
             description: operation.description ?? '',
             httpVerb: operation.httpVerb,
@@ -121,7 +121,7 @@ watch(
         modelData.push({
           type: 'model',
           title: 'Model',
-          href: `#${getModelHash(k)}`,
+          href: `#${getModelId(k)}`,
           description: k,
           tag: k,
           body: '',

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getOperationHash } from '../../../hooks'
+import { getOperationId } from '../../../hooks'
 import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { Badge } from '../../Badge'
@@ -23,7 +23,7 @@ defineProps<{
 </script>
 <template>
   <Section
-    :id="getOperationHash(operation, tag)"
+    :id="getOperationId(operation, tag)"
     :label="operation.name">
     <SectionContent>
       <SectionColumns>
@@ -31,7 +31,7 @@ defineProps<{
           <Badge v-if="operation.information?.deprecated"> Deprecated </Badge>
           <div :class="operation.information?.deprecated ? 'deprecated' : ''">
             <SectionHeader :level="3">
-              <Anchor :id="getOperationHash(operation, tag)">
+              <Anchor :id="getOperationId(operation, tag)">
                 {{ operation.name }}
               </Anchor>
             </SectionHeader>

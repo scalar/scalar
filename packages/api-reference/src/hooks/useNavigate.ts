@@ -1,25 +1,36 @@
 import { slug } from 'github-slugger'
-import { type Heading } from 'src/helpers'
 import { ref } from 'vue'
 
+import { type Heading, sleep } from '../helpers'
 import type { Tag, TransformedOperation } from '../types'
 
 type NavState = {
   id?: string
   label?: string
+  canIntersect?: boolean
 }
 
-const navState = ref<NavState>({})
+const navState = ref<NavState>({ canIntersect: true })
 
-export const navigate = (state: NavState) => {
-  console.log({ state })
+/**
+ * Main navigation method for the side bar
+ *
+ * @param shouldNavigate - determines whether or not to actually follow through with the navigation,
+ *                         else just update the URL only
+ */
+export const navigate = async (state: NavState, shouldNavigate = true) => {
   navState.value = state
-  if (state.id)
-    window.history.replaceState(
-      {},
-      '',
-      `${window.location.origin}${window.location.pathname}#${state.id}`,
-    )
+  if (!state.id) return
+
+  // To avoid the intersection observer triggering a double navigate, we sleep for 100ms
+  if (shouldNavigate) {
+    navState.value.canIntersect = false
+    window.location.replace(`#${state.id}`)
+    await sleep(100)
+    navState.value.canIntersect = true
+  } else {
+    window.history.replaceState({}, '', `#${state.id}`)
+  }
 }
 
 /**
@@ -28,8 +39,7 @@ export const navigate = (state: NavState) => {
  */
 export const useNavigate = () => {
   if (window?.location?.hash) {
-    // TODO set initial state from hash
-    console.log(window.location.hash)
+    navState.value = { id: window.location.hash.replace(/^#/, '') }
   }
 
   return { navState }
@@ -38,7 +48,7 @@ export const useNavigate = () => {
 /**
  * Co-located these methods in case we make changes
  */
-export const getHeadingHash = (heading: Heading) => {
+export const getHeadingId = (heading: Heading) => {
   if (heading.slug) {
     return new URLSearchParams({ description: heading.slug }).toString()
   }
@@ -46,7 +56,7 @@ export const getHeadingHash = (heading: Heading) => {
   return ''
 }
 
-export const getModelHash = (name?: string) => {
+export const getModelId = (name?: string) => {
   if (!name) {
     return 'models'
   }
@@ -55,20 +65,22 @@ export const getModelHash = (name?: string) => {
   return new URLSearchParams({ model }).toString()
 }
 
-export const getOperationHash = (
+export const getOperationId = (
   operation: TransformedOperation,
   parentTag: Tag,
 ) => {
   const parentSlug = slug(parentTag.name)
 
-  return new URLSearchParams({
-    tag: parentSlug,
-    method: operation.httpVerb,
-    path: operation.path,
-  }).toString()
+  return decodeURIComponent(
+    new URLSearchParams({
+      tag: parentSlug,
+      method: operation.httpVerb,
+      path: operation.path,
+    }).toString(),
+  )
 }
 
-export const getTagHash = ({ name }: Tag) => {
+export const getTagId = ({ name }: Tag) => {
   const tag = slug(name)
   return new URLSearchParams({ tag }).toString()
 }
