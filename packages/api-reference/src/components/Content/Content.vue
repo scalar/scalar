@@ -3,7 +3,7 @@ import { useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 
 import { hasModels } from '../../helpers'
-import { useSidebar, useRefOnMount } from '../../hooks'
+import { useRefOnMount, useSidebar } from '../../hooks'
 import type { Spec } from '../../types'
 import Introduction from './Introduction'
 import Models from './Models.vue'
