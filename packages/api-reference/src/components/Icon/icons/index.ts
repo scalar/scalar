@@ -18,6 +18,7 @@ export type Icon =
   | 'ChevronLeft'
   | 'ChevronRight'
   | 'ChevronUp'
+  | 'Clipboard'
   | 'Close'
   | 'DarkMode'
   | 'Ellipses'
@@ -31,4 +32,5 @@ export type Icon =
   | 'LogoMarket'
   | 'LogoSwagger'
   | 'Menu'
+  | 'PaperAirplane'
   | 'Search'

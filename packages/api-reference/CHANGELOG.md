@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.7.1
+
+### Patch Changes
+
+- 4423876: chore: make Axios the default client for Node.js
+- 4423876: chore: remove unirest and node-fetch from the client lists
+
+## 1.7.0
+
+### Minor Changes
+
+- 4f2fcc3: feat: classic layout content
+
+### Patch Changes
+
+- Updated dependencies [4f2fcc3]
+  - @scalar/swagger-editor@0.8.2
+
 ## 1.6.1
 
 ### Patch Changes

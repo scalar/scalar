@@ -106,6 +106,7 @@ const { state } = useApiClientStore()
       {
         'references-editable': showSwaggerEditor,
         'references-sidebar': configuration.showSidebar,
+        'references-classic': configuration.layout === 'classic',
       },
     ]"
     :style="{ '--full-height': `${elementHeight}px` }">
@@ -149,9 +150,9 @@ const { state } = useApiClientStore()
     <template v-if="showRenderedContent">
       <div class="references-rendered">
         <Content
+          :layout="configuration.layout === 'classic' ? 'accordion' : 'default'"
           :parsedSpec="parsedSpec"
-          :rawSpec="rawSpec"
-          :ready="true">
+          :rawSpec="rawSpec">
           <template #start>
             <slot
               v-bind="referenceSlotProps"
@@ -205,6 +206,11 @@ const { state } = useApiClientStore()
   --refs-sidebar-width: var(--theme-sidebar-width, 0px);
   --refs-header-height: var(--theme-header-height, 0px);
   --refs-content-max-width: var(--theme-content-max-width, 1120px);
+}
+
+.scalar-api-reference.references-classic {
+  /* Classic layout is wider */
+  --refs-content-max-width: var(--theme-content-max-width, 1420px);
 }
 
 /* ----------------------------------------------------- */

@@ -1,5 +1,17 @@
 # @scalar/fastify-api-reference
 
+## 0.8.5
+
+### Patch Changes
+
+- 756646e: chore: remove unirest and node-fetch from the client lists
+
+## 0.8.4
+
+### Patch Changes
+
+- 0c25c75: chore: remove console log from fastify package
+
 ## 0.8.3
 
 ### Patch Changes

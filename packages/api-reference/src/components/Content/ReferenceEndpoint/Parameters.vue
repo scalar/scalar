@@ -2,16 +2,14 @@
 import type { Parameters } from '../../../types'
 import ParameterItem from './ParameterItem.vue'
 
-defineProps<{ parameters?: Parameters[]; title: string }>()
+defineProps<{ parameters?: Parameters[] }>()
 </script>
 <template>
   <div
     v-if="parameters?.length"
     class="parameters-container">
     <div class="endpoint-title">
-      <h5 class="title">
-        {{ title }}
-      </h5>
+      <slot name="title" />
     </div>
     <ul class="parameter">
       <ParameterItem
@@ -21,10 +19,3 @@ defineProps<{ parameters?: Parameters[]; title: string }>()
     </ul>
   </div>
 </template>
-
-<style scoped>
-.title {
-  margin-bottom: 12px !important;
-  margin-top: 12px !important;
-}
-</style>

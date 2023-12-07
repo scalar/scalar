@@ -12,6 +12,7 @@ type NavState = {
 const navState = ref<NavState>({})
 
 export const navigate = (state: NavState) => {
+  console.log({ state })
   navState.value = state
   if (state.id)
     window.history.replaceState(
