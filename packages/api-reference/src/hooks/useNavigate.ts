@@ -76,7 +76,8 @@ const getTagId = ({ name }: Tag) => {
  * Also hash is only readable by the client so keep that in mind for SSR
  */
 export const useNavigate = () => {
-  if (window?.location?.hash) {
+  // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
+  if (typeof window !== 'undefined' && window?.location?.hash) {
     navState.value.id = window.location.hash.replace(/^#/, '')
   }
 
