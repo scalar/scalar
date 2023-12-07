@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.8.0
+
+### Minor Changes
+
+- f9bfa97: feat: add buttons to header for classic layout
+
+### Patch Changes
+
+- d45f5a5: fix: handle root path in request generation
+- Updated dependencies [f9bfa97]
+  - @scalar/swagger-editor@0.8.3
+  - @scalar/use-toasts@0.5.10
+  - @scalar/use-clipboard@0.5.10
+
 ## 1.7.1
 
 ### Patch Changes

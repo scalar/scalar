@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 0.8.6
+
+### Patch Changes
+
+- d45f5a5: fix: handle root path in request generation
+
 ## 0.8.5
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/express-api-reference
 
+## 0.1.5
+
+### Patch Changes
+
+- d45f5a5: fix: handle root path in request generation
+- Updated dependencies [f9bfa97]
+- Updated dependencies [d45f5a5]
+  - @scalar/api-reference@1.8.0
+
 ## 0.1.4
 
 ### Patch Changes

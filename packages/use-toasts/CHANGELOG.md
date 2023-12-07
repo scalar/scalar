@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.5.10
+
+### Patch Changes
+
+- f9bfa97: feat: add buttons to header for classic layout
+
 ## 0.5.9
 
 ### Patch Changes
