@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarIcon } from '@scalar/components'
 import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { HTTPSnippet, availableTargets } from 'httpsnippet-lite'
@@ -16,7 +17,6 @@ import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
 import type { TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
-import { FlowIcon } from '../../Icon'
 
 const props = defineProps<{
   operation: TransformedOperation
@@ -133,7 +133,7 @@ computed(() => {
           class="copy-button"
           type="button"
           @click="copyToClipboard(CodeMirrorValue)">
-          <FlowIcon
+          <ScalarIcon
             icon="Clipboard"
             width="10px" />
         </button>

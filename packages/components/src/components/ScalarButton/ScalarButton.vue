@@ -38,7 +38,6 @@ const button = cva({
 type ButtonVariants = VariantProps<typeof button>
 
 export type ButtonProps = {
-  iconClass?: string
   isDisabled?: boolean
   isFullWidth?: boolean
   loadingState?: LoadingState
@@ -66,7 +65,6 @@ withDefaults(defineProps<ButtonProps>(), {
   isDisabled: false,
   isFullWidth: false,
   size: 'md',
-  iconClass: 'h-4 w-4',
   variant: 'solid',
 })
 
@@ -104,7 +102,7 @@ const attrs = computed(() => {
     type="button">
     <div
       v-if="$slots.icon"
-      :class="cx({ 'mr-2': !isIconOnly }, iconClass)">
+      :class="cx({ 'mr-2': !isIconOnly }, 'h-4 w-4')">
       <slot name="icon" />
     </div>
     <slot />

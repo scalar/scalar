@@ -5,6 +5,7 @@ export const ICONS = [
   'ChevronLeft',
   'ChevronRight',
   'ChevronUp',
+  'Clipboard',
   'Close',
   'DarkMode',
   'Ellipses',
@@ -18,5 +19,6 @@ export const ICONS = [
   'LogoMarket',
   'LogoSwagger',
   'Menu',
+  'PaperAirplane',
   'Search',
 ] as const

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { FlowIcon } from '../../../components/Icon'
+import { ScalarIcon } from '@scalar/components'
+
 import { openClientFor } from '../../../helpers'
 import { type TransformedOperation } from '../../../types'
 
@@ -14,7 +15,7 @@ defineProps<{
     type="button"
     @click.stop="openClientFor(operation)">
     <span>Test Request</span>
-    <FlowIcon icon="PaperAirplane" />
+    <ScalarIcon icon="PaperAirplane" />
   </button>
 </template>
 <style scoped>
