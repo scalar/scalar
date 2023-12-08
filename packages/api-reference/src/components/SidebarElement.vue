@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref, toRefs, watch } from 'vue'
+import { ref } from 'vue'
 
 import FlowIconButton from '../components/FlowIconButton.vue'
-import { useNavigate } from '../hooks'
 import { Icon } from './Icon'
 
 const props = defineProps<{
   item: {
     id: string
     title: string
+    select?: () => void
     link?: string
     icon?: {
       src: string
@@ -22,19 +22,13 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'select'): void
   (e: 'toggleOpen'): void
 }>()
 
 function handleClick() {
   if (props.hasChildren) emit('toggleOpen')
+  props.item?.select?.()
 }
-
-const { navState } = useNavigate()
-const { isActive } = toRefs(props)
-watch(isActive, (active) => {
-  if (active) navState.label = props.item.title
-})
 
 // Ensure we expose the root element
 const el = ref<HTMLElement | null>(null)

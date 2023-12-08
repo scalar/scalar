@@ -1,17 +1,11 @@
 import { slug } from 'github-slugger'
-import { onMounted, reactive, ref } from 'vue'
+import { ref } from 'vue'
 
 import { type Heading } from '../helpers'
 import type { Tag, TransformedOperation } from '../types'
 
-type NavState = {
-  id?: string
-  label?: string
-}
-
-// Enables the interesection observer
-const canIntersect = ref(true)
-const navState = reactive<NavState>({})
+// Keeps track of the URL hash without the #
+const hash = ref('')
 
 /**
  * ID creation methods
@@ -50,27 +44,25 @@ const getTagId = ({ name }: Tag) => {
   return new URLSearchParams({ tag }).toString()
 }
 
+// Update the reactive hash state
+const updateHash = () => (hash.value = window.location.hash.replace(/^#/, ''))
+
 /**
- * Hook which provides reactive navigation state which equates to the url hash
+ * Hook which provides reactive hash state from the URL
  * Also hash is only readable by the client so keep that in mind for SSR
  */
-export const useNavigate = () => {
+export const useNavState = () => {
   // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
   if (typeof window !== 'undefined' && window?.location?.hash) {
-    navState.id = window.location.hash.replace(/^#/, '')
+    updateHash()
+    window.onhashchange = updateHash
   }
 
-  onMounted(() => {
-    window.onhashchange = () =>
-      (navState.id = window.location.hash.replace(/^#/, ''))
-  })
-
   return {
-    canIntersect,
+    hash,
     getModelId,
     getHeadingId,
     getOperationId,
     getTagId,
-    navState,
   }
 }

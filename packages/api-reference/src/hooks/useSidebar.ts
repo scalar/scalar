@@ -8,12 +8,11 @@ import {
   openClientFor,
 } from '../helpers'
 import type { Spec, Tag, TransformedOperation } from '../types'
-import { useNavigate } from './useNavigate'
+import { useNavState } from './useNavState'
 
 export type SidebarEntry = {
   id: string
   title: string
-  type: 'Page' | 'Folder'
   children?: SidebarEntry[]
   select?: () => void
   httpVerb?: string
@@ -21,7 +20,8 @@ export type SidebarEntry = {
   deprecated?: boolean
 }
 
-const { getHeadingId, getModelId, getOperationId, getTagId } = useNavigate()
+const { getHeadingId, getModelId, getOperationId, getTagId, hash } =
+  useNavState()
 
 // Track the parsed spec
 const parsedSpec = ref<Spec | undefined>(undefined)
@@ -50,9 +50,10 @@ const updateHeadings = async (description: string) => {
 }
 
 // Create the list of sidebar items from the given spec
-const items = computed((): SidebarEntry[] => {
+const items = computed(() => {
   // Check whether the API client is visible
   const { state } = useApiClientStore()
+  const titlesById: Record<string, string> = {}
 
   // Introduction
   const headingEntries: SidebarEntry[] = headings.value.map((heading) => {
@@ -81,13 +82,15 @@ const items = computed((): SidebarEntry[] => {
           return {
             id: getTagId(tag),
             title: tag.name.toUpperCase(),
-            type: 'Folder',
             show: true,
             children: tag.operations?.map((operation: TransformedOperation) => {
+              const id = getOperationId(operation, tag)
+              const title = operation.name ?? operation.path
+              titlesById[id] = title
+
               return {
-                id: getOperationId(operation, tag),
-                title: operation.name ?? operation.path,
-                type: 'Page',
+                id,
+                title,
                 httpVerb: operation.httpVerb,
                 deprecated: operation.information?.deprecated ?? false,
                 show: true,
@@ -101,10 +104,13 @@ const items = computed((): SidebarEntry[] => {
           }
         })
       : firstTag?.operations?.map((operation) => {
+          const id = getOperationId(operation, firstTag)
+          const title = operation.name ?? operation.path
+          titlesById[id] = title
+
           return {
-            id: getOperationId(operation, firstTag),
-            title: operation.name ?? operation.path,
-            type: 'Page',
+            id,
+            title,
             httpVerb: operation.httpVerb,
             deprecated: operation.information?.deprecated ?? false,
             show: true,
@@ -122,15 +128,16 @@ const items = computed((): SidebarEntry[] => {
         {
           id: getModelId(),
           title: 'MODELS',
-          type: 'Folder',
           show: !state.showApiClient,
           children: Object.keys(
             parsedSpec.value?.components?.schemas ?? {},
           ).map((name) => {
+            const id = getModelId(name)
+            titlesById[id] = name
+
             return {
-              id: getModelId(name),
+              id,
               title: name,
-              type: 'Page',
               show: !state.showApiClient,
             }
           }),
@@ -138,8 +145,13 @@ const items = computed((): SidebarEntry[] => {
       ]
     : []
 
-  return [...headingEntries, ...(operationEntries ?? []), ...modelEntries]
+  return {
+    entries: [...headingEntries, ...(operationEntries ?? []), ...modelEntries],
+    titles: titlesById,
+  }
 })
+
+const breadcrumb = computed(() => items.value?.titles?.[hash.value] ?? '')
 
 export function useSidebar(options?: { parsedSpec: Spec }) {
   if (options?.parsedSpec) {
@@ -174,6 +186,7 @@ export function useSidebar(options?: { parsedSpec: Spec }) {
   }
 
   return {
+    breadcrumb,
     items,
     collapsedSidebarItems,
     toggleCollapsedSidebarItem,

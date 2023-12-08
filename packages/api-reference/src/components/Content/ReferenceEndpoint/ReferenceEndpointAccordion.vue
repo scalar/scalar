@@ -3,7 +3,7 @@ import { useClipboard } from '@scalar/use-clipboard'
 
 import FlowIconButton from '../../../components/FlowIconButton.vue'
 import { FlowIcon } from '../../../components/Icon'
-import { useNavigate } from '../../../hooks'
+import { useNavState } from '../../../hooks'
 import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { SectionAccordion } from '../../Section'
@@ -20,7 +20,7 @@ defineProps<{
 }>()
 
 const { copyToClipboard } = useClipboard()
-const { getOperationId } = useNavigate()
+const { getOperationId } = useNavState()
 </script>
 <template>
   <SectionAccordion

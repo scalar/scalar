@@ -2,7 +2,7 @@
 import { nextTick } from 'vue'
 
 import { scrollToId } from '../../helpers'
-import { useNavigate, useSidebar } from '../../hooks'
+import { useNavState, useSidebar } from '../../hooks'
 import type { Tag, TransformedOperation } from '../../types'
 import { Anchor } from '../Anchor'
 import { Card, CardContent, CardHeader } from '../Card'
@@ -17,7 +17,7 @@ import MarkdownRenderer from './MarkdownRenderer.vue'
 
 const props = defineProps<{ tag: Tag }>()
 
-const { getOperationId, getTagId } = useNavigate()
+const { getOperationId, getTagId } = useNavState()
 const { setCollapsedSidebarItem } = useSidebar()
 
 // We need to make sure the endpoint tag is open before

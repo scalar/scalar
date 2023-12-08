@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useNavigate } from '../../../hooks'
+import { useNavState } from '../../../hooks'
 import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { Badge } from '../../Badge'
@@ -21,7 +21,7 @@ defineProps<{
   tag: Tag
 }>()
 
-const { getOperationId } = useNavigate()
+const { getOperationId } = useNavState()
 </script>
 <template>
   <Section

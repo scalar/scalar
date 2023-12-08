@@ -4,17 +4,14 @@ import { type ThemeId } from '@scalar/themes'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
-import { useNavigate, useSidebar } from '../hooks'
+import { useSidebar } from '../hooks'
 import type {
   ReferenceConfiguration,
   ReferenceLayoutSlot,
   ReferenceSlotProps,
   Spec,
 } from '../types'
-import {
-  default as ApiClientModal,
-  useApiClientStore,
-} from './ApiClientModal.vue'
+import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
 import GettingStarted from './GettingStarted.vue'
 import Sidebar from './Sidebar.vue'
@@ -48,7 +45,7 @@ useResizeObserver(documentEl, (entries) => {
 // Scroll to hash if exists
 const initiallyScrolled = ref(false)
 const tagRegex = /#(tag\/[^/]*)/
-const { setCollapsedSidebarItem } = useSidebar()
+const { breadcrumb, setCollapsedSidebarItem } = useSidebar()
 
 // Wait until we have a parsed spec
 watch(props.parsedSpec, async (val) => {
@@ -90,11 +87,9 @@ const showSwaggerEditor = computed(() => {
   )
 })
 
-const { navState } = useNavigate()
-
 /** This is passed into all of the slots so they have access to the references data */
 const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
-  breadcrumb: navState.label ?? '',
+  breadcrumb: breadcrumb.value,
   spec: props.parsedSpec,
 }))
 </script>

@@ -5,7 +5,7 @@ import Fuse from 'fuse.js'
 import { computed, ref, toRef, watch } from 'vue'
 
 import { extractRequestBody } from '../helpers/specHelpers'
-import { type ParamMap, useNavigate, useOperation } from '../hooks'
+import { type ParamMap, useNavState, useOperation } from '../hooks'
 import type { Spec, TransformedOperation } from '../types'
 
 const props = defineProps<{ parsedSpec: Spec; modalState: ModalState }>()
@@ -43,7 +43,7 @@ const selectedEntry = computed<Fuse.FuseResult<FuseData>>(
   () => searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
 )
 
-const { getModelId, getOperationId, getTagId } = useNavigate()
+const { getModelId, getOperationId, getTagId } = useNavState()
 
 watch(
   () => props.modalState.open,

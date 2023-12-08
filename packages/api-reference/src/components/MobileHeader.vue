@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useNavigate } from '../hooks'
+import { useSidebar } from '../hooks'
 import FlowIconButton from './FlowIconButton.vue'
 
 defineProps<{
@@ -10,7 +10,7 @@ defineEmits<{
   (event: 'update:open', open: boolean): void
 }>()
 
-const { navState } = useNavigate()
+const { breadcrumb } = useSidebar()
 </script>
 <template>
   <div class="references-mobile-header t-doc__header">
@@ -19,7 +19,7 @@ const { navState } = useNavigate()
       :label="open ? 'Close Menu' : 'Open Menu'"
       width="20px"
       @click="$emit('update:open', !open)" />
-    <span class="references-mobile-breadcrumbs">{{ navState.label }}</span>
+    <span class="references-mobile-breadcrumbs">{{ breadcrumb }}</span>
     <div class="sidebar-mobile-actions"></div>
   </div>
 </template>

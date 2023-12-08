@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useNavigate, useSidebar } from '../../hooks'
+import { useNavState, useSidebar } from '../../hooks'
 import { type Spec, type Tag } from '../../types'
 import SectionContainer from '../Section/SectionContainer.vue'
 import EndpointsOverview from './EndpointsOverview.vue'
@@ -12,7 +12,7 @@ const props = defineProps<{
 }>()
 
 const { collapsedSidebarItems } = useSidebar()
-const { getTagId } = useNavigate()
+const { getTagId } = useNavState()
 
 const moreThanOneDefaultTag = (tag: Tag) =>
   props.spec.tags?.length !== 1 ||

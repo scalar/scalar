@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-unused-properties -->
 <script setup lang="ts">
-import { useNavigate } from '../../hooks'
+import { useNavState } from '../../hooks'
 import { type Spec, type Tag } from '../../types'
 import { Anchor } from '../Anchor'
 import { SectionContainerAccordion, SectionHeader } from '../Section'
@@ -12,7 +12,7 @@ defineProps<{
   isFirst?: boolean
 }>()
 
-const { getTagId } = useNavigate()
+const { getTagId } = useNavState()
 </script>
 <template>
   <SectionContainerAccordion class="tag-section">
