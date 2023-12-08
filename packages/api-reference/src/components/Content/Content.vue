@@ -5,7 +5,10 @@ import { computed, onMounted, ref } from 'vue'
 import { hasModels } from '../../helpers'
 import { useNavigation, useRefOnMount } from '../../hooks'
 import type { Spec } from '../../types'
+import { Authentication } from './Authentication'
 import Introduction from './Introduction'
+import ClientList from './Introduction/ClientList.vue'
+import ServerList from './Introduction/ServerList.vue'
 import Models from './Models.vue'
 import ModelsAccordion from './ModelsAccordion.vue'
 import ReferenceEndpoint from './ReferenceEndpoint'
@@ -78,8 +81,13 @@ const endpointLayout = computed<typeof ReferenceEndpoint>(() =>
       v-if="parsedSpec.info.title || parsedSpec.info.description"
       :info="parsedSpec.info"
       :parsedSpec="parsedSpec"
-      :rawSpec="rawSpec"
-      :servers="localServers" />
+      :rawSpec="rawSpec">
+      <template #aside>
+        <ServerList :value="localServers" />
+        <ClientList />
+        <Authentication :parsedSpec="parsedSpec" />
+      </template>
+    </Introduction>
     <slot
       v-else
       name="empty-state" />
