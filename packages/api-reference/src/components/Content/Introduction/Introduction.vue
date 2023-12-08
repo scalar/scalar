@@ -26,7 +26,7 @@ const specVersion = computed(() => {
 </script>
 <template>
   <SectionContainer>
-    <Section>
+    <Section class="introduction-section">
       <SectionContent :loading="!info.description && !info.title">
         <SectionColumns>
           <SectionColumn>
@@ -50,6 +50,7 @@ const specVersion = computed(() => {
           </SectionColumn>
         </SectionColumns>
       </SectionContent>
+      <slot name="after" />
     </Section>
   </SectionContainer>
 </template>
@@ -66,10 +67,12 @@ const specVersion = computed(() => {
 .heading.loading {
   width: 80%;
 }
+.introduction-section {
+  gap: 48px;
+}
 .sticky-cards {
   display: flex;
   flex-direction: column;
-  gap: 12px;
 
   position: sticky;
   top: calc(var(--refs-header-height) + 24px);

@@ -69,6 +69,9 @@ const tagLayout = computed<typeof ReferenceTag>(() =>
 const endpointLayout = computed<typeof ReferenceEndpoint>(() =>
   props.layout === 'accordion' ? ReferenceEndpointAccordion : ReferenceEndpoint,
 )
+const introCardsSlot = computed(() =>
+  props.layout === 'accordion' ? 'after' : 'aside',
+)
 </script>
 <template>
   <div
@@ -82,10 +85,14 @@ const endpointLayout = computed<typeof ReferenceEndpoint>(() =>
       :info="parsedSpec.info"
       :parsedSpec="parsedSpec"
       :rawSpec="rawSpec">
-      <template #aside>
-        <ServerList :value="localServers" />
-        <ClientList />
-        <Authentication :parsedSpec="parsedSpec" />
+      <template #[introCardsSlot]>
+        <div
+          class="introduction-cards"
+          :class="{ 'introduction-cards-row': layout === 'accordion' }">
+          <ServerList :value="localServers" />
+          <ClientList />
+          <Authentication :parsedSpec="parsedSpec" />
+        </div>
       </template>
     </Introduction>
     <slot
@@ -126,5 +133,21 @@ const endpointLayout = computed<typeof ReferenceEndpoint>(() =>
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.introduction-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.introduction-cards-row {
+  flex-direction: row;
+  align-items: flex-start;
+}
+.introduction-cards-row > * {
+  flex: 1;
+}
+.references-narrow .introduction-cards-row {
+  flex-direction: column;
+  align-items: stretch;
 }
 </style>
