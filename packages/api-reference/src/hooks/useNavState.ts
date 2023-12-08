@@ -1,5 +1,5 @@
 import { slug } from 'github-slugger'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import { type Heading } from '../helpers'
 import type { Tag, TransformedOperation } from '../types'
@@ -50,12 +50,15 @@ const updateHash = () => (hash.value = window.location.hash.replace(/^#/, ''))
 /**
  * Hook which provides reactive hash state from the URL
  * Also hash is only readable by the client so keep that in mind for SSR
+ *
+ * @param hasLifecyle - we cannot use lifecycle hooks when called from another composable, this prevents that
  */
-export const useNavState = () => {
-  // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
-  if (typeof window !== 'undefined' && window?.location?.hash) {
-    updateHash()
-    window.onhashchange = updateHash
+export const useNavState = (hasLifecyle = true) => {
+  if (hasLifecyle) {
+    onMounted(() => {
+      updateHash()
+      window.onhashchange = updateHash
+    })
   }
 
   return {

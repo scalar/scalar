@@ -21,7 +21,7 @@ export type SidebarEntry = {
 }
 
 const { getHeadingId, getModelId, getOperationId, getTagId, hash } =
-  useNavState()
+  useNavState(false)
 
 // Track the parsed spec
 const parsedSpec = ref<Spec | undefined>(undefined)
