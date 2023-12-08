@@ -66,11 +66,11 @@ const setRef = (el: SidebarElementType, id: string) => {
             v-if="item.show"
             :ref="(el) => setRef(el as SidebarElementType, item.id)"
             data-sidebar-type="heading"
+            hasChildren
             :isActive="navState.id === item.id"
             :item="{
-              uid: '',
+              id: item.id,
               title: item.title,
-              type: item.type,
               httpVerb: item.httpVerb,
               deprecated: item.deprecated ?? false,
             }"
@@ -97,9 +97,8 @@ const setRef = (el: SidebarElementType, id: string) => {
                     :ref="(el) => setRef(el as SidebarElementType, child.id)"
                     :isActive="navState.id === child.id"
                     :item="{
-                      uid: '',
+                      id: child.id,
                       title: child.title,
-                      type: child.type,
                       httpVerb: child.httpVerb,
                       deprecated: child.deprecated ?? false,
                     }"
@@ -216,6 +215,8 @@ const setRef = (el: SidebarElementType, id: string) => {
 }
 
 .sidebar-heading-link {
+  text-decoration: none;
+  color: inherit;
   padding-right: 12px;
   padding: 6px 0;
   display: flex;

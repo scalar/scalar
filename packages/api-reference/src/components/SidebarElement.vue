@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 import FlowIconButton from '../components/FlowIconButton.vue'
-import { FlowIcon, Icon } from './Icon'
+import { Icon } from './Icon'
 
 const props = defineProps<{
   item: {
-    uid: string
+    id: string
     title: string
-    type: 'Page' | 'Folder' | 'Link'
     link?: string
     icon?: {
       src: string
@@ -26,40 +25,12 @@ const emit = defineEmits<{
   (e: 'toggleOpen'): void
 }>()
 
-enum ElementType {
-  Page = 'Page',
-  Folder = 'Folder',
-  Link = 'Link',
-}
-
-const linkProps = computed(() => {
-  const item = props.item
-  if (item.type === ElementType.Link) {
-    return {
-      href: item.link,
-      rel: 'noopener noreferrer',
-      target: '_blank',
-    }
-  }
-
-  return {}
-})
-
 function handleClick() {
-  if (props.item.type === ElementType.Link) return
-
-  if (props.item.type === ElementType.Folder) {
-    emit('toggleOpen')
-    return
-  }
-
-  emit('select')
+  if (props.hasChildren) return emit('toggleOpen')
+  // emit('select')
 }
 
 function handleToggleOpen() {
-  // Allow bubbled event to trigger folder open
-  if (props.item.type === ElementType.Folder) return
-
   emit('toggleOpen')
 }
 
@@ -74,15 +45,14 @@ defineExpose({ el })
     <div
       class="sidebar-heading"
       :class="{
-        'sidebar-group-item__folder':
-          hasChildren || item.type === ElementType.Folder,
+        'sidebar-group-item__folder': hasChildren,
         'active_page': isActive,
         'deprecated': item.deprecated ?? false,
       }"
       @click="handleClick">
       <!-- If children are detected then show the nesting icon -->
       <FlowIconButton
-        v-if="hasChildren || item.type === ElementType.Folder"
+        v-if="hasChildren"
         class="toggle-nested-icon"
         :icon="open ? 'ChevronDown' : 'ChevronRight'"
         label="Toggle group"
@@ -91,7 +61,7 @@ defineExpose({ el })
         @click="handleToggleOpen" />
       <a
         class="flex-1 sidebar-heading-link"
-        v-bind="linkProps">
+        :href="`#${item.id}`">
         <Icon
           v-if="item?.icon?.src"
           class="sidebar-icon"
@@ -106,11 +76,6 @@ defineExpose({ el })
           {{ item.httpVerb }}
         </div>
       </a>
-      <FlowIcon
-        v-if="item?.type === ElementType.Link"
-        class="link-icon"
-        icon="ExternalLink"
-        width="16px" />
     </div>
     <slot v-if="open" />
     <div
