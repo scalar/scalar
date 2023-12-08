@@ -131,6 +131,5 @@ const isHovered = useElementHover(button)
   background: var(--theme-background-1, var(--default-theme-background-1));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   box-shadow: var(--theme-shadow-2, var(--default-theme-shadow-2));
-  padding: 24px;
 }
 </style>
