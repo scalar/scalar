@@ -24,8 +24,8 @@ import PageLink from '../components/PageLink.vue'
       <PageLink to="standalone-api-reference">
         <template #title>Full API Reference</template>
         <template #description>
-          Interactive API documentation with pre-configured search and all the
-          bells and whistles.
+          Modern API documentation with pre-configured search and all the bells
+          and whistles.
         </template>
       </PageLink>
       <PageLink to="classic-api-reference">
@@ -33,6 +33,12 @@ import PageLink from '../components/PageLink.vue'
         <template #description>
           Classic API documentation with search. Looks like Swagger UI if it was
           born today.
+        </template>
+      </PageLink>
+      <PageLink to="editable-api-reference">
+        <template #title>Editable API Reference</template>
+        <template #description>
+          Interactive API documentation with real-time editing.
         </template>
       </PageLink>
     </div>

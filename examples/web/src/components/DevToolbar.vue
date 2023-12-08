@@ -103,6 +103,17 @@ watch(
         </select>
       </div>
       <div>
+        Layout:
+        <select v-model="configuration.layout">
+          <option
+            v-for="layout in ['modern', 'classic']"
+            :key="layout"
+            :value="layout">
+            {{ layout }}
+          </option>
+        </select>
+      </div>
+      <div>
         <input
           v-model="enableCollaborativeEditingRef"
           type="checkbox" />
