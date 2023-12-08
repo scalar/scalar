@@ -32,7 +32,9 @@ type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
 
-export const FullWidth: Story = { args: { isFullWidth: true } }
+export const FullWidth: Story = { args: { fullWidth: true } }
+
+export const Disabled: Story = { args: { disabled: true } }
 
 export const Loading: Story = {
   render: () => ({
@@ -41,7 +43,7 @@ export const Loading: Story = {
       const loadingState = useLoadingState()
       return { loadingState }
     },
-    template: `<ScalarButton @click="loadingState.startLoading()" :loadingState="loadingState">Click me</ScalarButton>`,
+    template: `<ScalarButton @click="loadingState.startLoading()" :loading="loadingState">Click me</ScalarButton>`,
   }),
 }
 
@@ -52,18 +54,11 @@ export const LoadingFullWidth: Story = {
       const loadingState = useLoadingState()
       return { loadingState }
     },
-    template: `<ScalarButton @click="loadingState.startLoading()" :loadingState="loadingState" isFullWidth>Click me</ScalarButton>`,
+    template: `<ScalarButton @click="loadingState.startLoading()" :loading="loadingState" isFullWidth>Click me</ScalarButton>`,
   }),
 }
 
-export const CustomTailwindClasses: Story = {
-  render: () => ({
-    components: { ScalarButton },
-    template: `<ScalarButton class="items-start font-normal px-9 py-1">I am a weird button</ScalarButton>`,
-  }),
-}
-
-export const ButtonWithIcon: Story = {
+export const WithIcon: Story = {
   render: (args) => ({
     components: { ScalarButton, ScalarIcon },
     setup() {
@@ -80,21 +75,9 @@ export const ButtonWithIcon: Story = {
   }),
 }
 
-export const IconOnly: Story = {
-  args: {
-    variant: 'ghost',
-  },
-  render: (args) => ({
-    components: { ScalarButton, ScalarIcon },
-    setup() {
-      return args
-    },
-    template: `
-      <ScalarButton :variant="variant">
-        <template #icon>
-          <ScalarIcon icon="Logo"/>
-        </template>
-      </ScalarButton>
-    `,
+export const CustomClasses: Story = {
+  render: () => ({
+    components: { ScalarButton },
+    template: `<ScalarButton class="items-start font-normal px-9 py-1">I am a weird button</ScalarButton>`,
   }),
 }

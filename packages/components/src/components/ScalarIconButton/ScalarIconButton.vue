@@ -3,46 +3,46 @@ import type { VariantProps } from 'cva'
 
 import { cva, cx } from '@/cva'
 
-import { type ButtonProps, ScalarButton } from '../ScalarButton'
+import { styles } from '../ScalarButton'
 import { type Icon, ScalarIcon } from '../ScalarIcon'
 
-type IconButtonVariants = VariantProps<typeof iconButton>
+type Variants = VariantProps<typeof variants>
 
 withDefaults(
   defineProps<{
-    buttonClass?: string
     label: string
     icon: Icon
-    variant?: ButtonProps['variant']
-    size?: IconButtonVariants['size']
+    disabled?: boolean
+    variant?: Variants['variant']
+    size?: Variants['size']
   }>(),
   {
     variant: 'ghost',
+    size: 'md',
   },
 )
 
-const iconButton = cva({
+const variants = cva({
+  base: 'scalar-icon-button grid aspect-square cursor-pointer rounded',
   variants: {
     size: {
       xs: 'h-3.5 w-3.5 p-0.5',
       sm: 'h-5 w-5 p-1',
       md: 'h-10 w-10 p-3',
     },
-  },
-  defaultVariants: {
-    size: 'md',
+    disabled: {
+      true: 'cursor-not-allowed shadow-none',
+    },
+    variant: styles,
   },
 })
 </script>
-
 <template>
-  <ScalarButton
-    :buttonClass="cx(iconButton({ size }), buttonClass)"
-    iconClass=""
-    :title="label"
-    :variant="variant">
-    <template #icon>
-      <ScalarIcon :icon="icon" />
-    </template>
-  </ScalarButton>
+  <button
+    :ariaDisabled="disabled || undefined"
+    :class="cx(variants({ size, variant, disabled }))"
+    type="button">
+    <ScalarIcon :icon="icon" />
+    <span class="sr-only">{{ label }}</span>
+  </button>
 </template>

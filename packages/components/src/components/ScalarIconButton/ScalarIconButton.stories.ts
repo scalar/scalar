@@ -30,3 +30,7 @@ type Story = StoryObj<typeof meta>
 export const Base: Story = {
   args: { icon: 'Logo', label: 'Logo button' },
 }
+
+export const Disabled: Story = {
+  args: { icon: 'Logo', label: 'Logo button', disabled: true },
+}
