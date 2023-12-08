@@ -1,7 +1,7 @@
 import { slug } from 'github-slugger'
-import { ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 
-import { type Heading, sleep } from '../helpers'
+import { type Heading } from '../helpers'
 import type { Tag, TransformedOperation } from '../types'
 
 type NavState = {
@@ -11,28 +11,7 @@ type NavState = {
 
 // Enables the interesection observer
 const canIntersect = ref(true)
-const navState = ref<NavState>({})
-
-/**
- * Main navigation method for the side bar
- *
- * @param shouldNavigate - determines whether or not to actually follow through with the navigation,
- *                         else just update the URL only
- */
-const navigate = async (state: NavState, shouldNavigate = true) => {
-  navState.value = state
-  if (!state.id) return
-
-  // To avoid the intersection observer triggering a double navigate, we sleep for 100ms
-  if (shouldNavigate) {
-    canIntersect.value = false
-    window.location.replace(`#${state.id}`)
-    await sleep(100)
-    canIntersect.value = true
-  } else {
-    window.history.replaceState({}, '', `#${state.id}`)
-  }
-}
+const navState = reactive<NavState>({})
 
 /**
  * ID creation methods
@@ -78,8 +57,13 @@ const getTagId = ({ name }: Tag) => {
 export const useNavigate = () => {
   // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
   if (typeof window !== 'undefined' && window?.location?.hash) {
-    navState.value.id = window.location.hash.replace(/^#/, '')
+    navState.id = window.location.hash.replace(/^#/, '')
   }
+
+  onMounted(() => {
+    window.onhashchange = () =>
+      (navState.id = window.location.hash.replace(/^#/, ''))
+  })
 
   return {
     canIntersect,
@@ -87,7 +71,6 @@ export const useNavigate = () => {
     getHeadingId,
     getOperationId,
     getTagId,
-    navigate,
     navState,
   }
 }

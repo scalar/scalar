@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, toRefs, watch } from 'vue'
 
 import FlowIconButton from '../components/FlowIconButton.vue'
+import { useNavigate } from '../hooks'
 import { Icon } from './Icon'
 
 const props = defineProps<{
@@ -26,13 +27,14 @@ const emit = defineEmits<{
 }>()
 
 function handleClick() {
-  if (props.hasChildren) return emit('toggleOpen')
-  // emit('select')
+  if (props.hasChildren) emit('toggleOpen')
 }
 
-function handleToggleOpen() {
-  emit('toggleOpen')
-}
+const { navState } = useNavigate()
+const { isActive } = toRefs(props)
+watch(isActive, (active) => {
+  if (active) navState.label = props.item.title
+})
 
 // Ensure we expose the root element
 const el = ref<HTMLElement | null>(null)
@@ -58,7 +60,7 @@ defineExpose({ el })
         label="Toggle group"
         variant="text"
         width="20px"
-        @click="handleToggleOpen" />
+        @click="handleClick" />
       <a
         class="flex-1 sidebar-heading-link"
         :href="`#${item.id}`">

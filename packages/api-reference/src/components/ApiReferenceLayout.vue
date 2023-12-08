@@ -94,7 +94,7 @@ const { navState } = useNavigate()
 
 /** This is passed into all of the slots so they have access to the references data */
 const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
-  breadcrumb: navState.value.label ?? '',
+  breadcrumb: navState.label ?? '',
   spec: props.parsedSpec,
 }))
 </script>

@@ -7,11 +7,11 @@ const props = defineProps<{
   label?: string
 }>()
 
-const { canIntersect, navigate } = useNavigate()
+const { canIntersect } = useNavigate()
 
 function handleScroll() {
   if (!props.label || !canIntersect.value) return
-  navigate(props, false)
+  // navigate(props, false)
 }
 </script>
 <template>
