@@ -244,6 +244,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 
 .property-type {
+  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   color: var(--theme-color-2, var(--default-theme-color-2));
 }
 

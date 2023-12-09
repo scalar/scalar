@@ -32,10 +32,13 @@ const { getTagId } = useNavState()
   </SectionContainerAccordion>
 </template>
 <style scoped>
-.tag-section + .tag-section {
-  margin-top: 20px;
+.tag-section {
+  margin-bottom: 48px;
 }
 .tag-name {
   text-transform: capitalize;
+}
+.tag-description {
+  padding-bottom: 4px;
 }
 </style>

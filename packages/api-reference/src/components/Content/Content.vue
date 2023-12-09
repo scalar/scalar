@@ -7,6 +7,7 @@ import { useRefOnMount } from '../../hooks'
 import type { Spec } from '../../types'
 import Introduction from './Introduction'
 import Models from './Models.vue'
+import ModelsAccordion from './ModelsAccordion.vue'
 import ReferenceEndpoint from './ReferenceEndpoint'
 import ReferenceEndpointAccordion from './ReferenceEndpoint/ReferenceEndpointAccordion.vue'
 import ReferenceTag from './ReferenceTag.vue'
@@ -92,7 +93,12 @@ const endpointLayout = computed<typeof ReferenceEndpoint>(() =>
       </Component>
     </template>
     <template v-if="hasModels(parsedSpec)">
-      <Models :components="parsedSpec.components" />
+      <ModelsAccordion
+        v-if="layout === 'accordion'"
+        :components="parsedSpec.components" />
+      <Models
+        v-else
+        :components="parsedSpec.components" />
     </template>
     <slot name="end" />
   </div>
