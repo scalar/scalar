@@ -1,5 +1,13 @@
 # @scalar/hono-api-reference
 
+## 0.2.7
+
+### Patch Changes
+
+- edb02e76: fix: windows select menu not updating on prefers color scheme
+- Updated dependencies [edb02e76]
+  - @scalar/api-reference@1.9.1
+
 ## 0.2.6
 
 ### Patch Changes

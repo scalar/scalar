@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 0.8.8
+
+### Patch Changes
+
+- edb02e76: fix: windows select menu not updating on prefers color scheme
+
 ## 0.8.7
 
 ### Patch Changes
