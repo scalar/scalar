@@ -2,7 +2,7 @@
 import { type OpenAPIV3 } from 'openapi-types'
 import { computed } from 'vue'
 
-import { getModelSectionId } from '../../helpers'
+import { useNavState } from '../../hooks'
 import { type Components } from '../../types'
 import { Anchor } from '../Anchor'
 import {
@@ -29,6 +29,8 @@ const models = computed<
     schema,
   }))
 })
+
+const { getModelId } = useNavState()
 </script>
 <template>
   <SectionContainerAccordion
@@ -39,12 +41,12 @@ const models = computed<
     </template>
     <SectionAccordion
       v-for="{ name, schema } in models"
-      :id="getModelSectionId(name)"
+      :id="getModelId(name)"
       :key="name"
       :label="name">
       <template #title>
         <Anchor
-          :id="getModelSectionId(name)"
+          :id="getModelId(name)"
           class="reference-models-anchor">
           <SchemaHeading
             class="reference-models-label"

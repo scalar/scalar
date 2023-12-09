@@ -4,6 +4,7 @@ import { useMediaQuery } from '@vueuse/core'
 
 import { type Spec } from '../types'
 import { default as Sidebar } from './Sidebar.vue'
+import { useNavState } from '../hooks'
 
 defineProps<{
   parsedSpec: Spec
@@ -18,6 +19,10 @@ defineEmits<{
 }>()
 
 const { hideApiClient, state } = useApiClientStore()
+
+const { hash } = useNavState()
+
+// Watch hash and set open client for with operation of current url OR do it from useNavState
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
 </script>

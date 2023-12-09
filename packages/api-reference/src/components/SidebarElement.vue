@@ -27,7 +27,6 @@ const emit = defineEmits<{
 
 function handleClick() {
   if (props.hasChildren) emit('toggleOpen')
-  props.item?.select?.()
 }
 
 // Ensure we expose the root element
@@ -57,7 +56,7 @@ defineExpose({ el })
         @click="handleClick" />
       <a
         class="flex-1 sidebar-heading-link"
-        :href="`#${item.id}`">
+        :href="props.hasChildren ? undefined : `#${item.id}`">
         <Icon
           v-if="item?.icon?.src"
           class="sidebar-icon"

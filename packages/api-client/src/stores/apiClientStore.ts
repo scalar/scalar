@@ -3,7 +3,6 @@ import { reactive, readonly } from 'vue'
 type State = {
   showApiClient: boolean
   activeApiClientEndpointId: string
-  activeItem: any
   snippetType: string
 }
 
@@ -11,22 +10,14 @@ function defaultState(): State {
   return {
     showApiClient: false,
     activeApiClientEndpointId: '',
-    activeItem: {},
     snippetType: 'javascript',
   }
 }
 
 const state = reactive<State>(defaultState())
 
-function toggleApiClient(item?: any, forceShow = false) {
-  if (forceShow) {
-    state.showApiClient = true
-  } else {
-    state.showApiClient = !state.showApiClient
-  }
-  if (item) {
-    state.activeItem = item
-  }
+function toggleApiClient(forceShow = false) {
+  state.showApiClient = forceShow || !state.showApiClient
 }
 
 function hideApiClient() {

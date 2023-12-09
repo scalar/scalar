@@ -5,7 +5,6 @@ import {
   getHeadingsFromMarkdown,
   getLowestHeadingLevel,
   hasModels,
-  openClientFor,
 } from '../helpers'
 import type { Spec, Tag, TransformedOperation } from '../types'
 import { useNavState } from './useNavState'
@@ -94,11 +93,6 @@ const items = computed(() => {
                 httpVerb: operation.httpVerb,
                 deprecated: operation.information?.deprecated ?? false,
                 show: true,
-                select: () => {
-                  if (state.showApiClient) {
-                    openClientFor(operation)
-                  }
-                },
               }
             }),
           }
@@ -114,11 +108,6 @@ const items = computed(() => {
             httpVerb: operation.httpVerb,
             deprecated: operation.information?.deprecated ?? false,
             show: true,
-            select: () => {
-              if (state.showApiClient) {
-                openClientFor(operation)
-              }
-            },
           }
         })
 
