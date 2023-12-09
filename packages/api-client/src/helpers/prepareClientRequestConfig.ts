@@ -29,14 +29,13 @@ export const prepareClientRequestConfig = (configuration: {
 
   // Check if request.body contains JSON
   if (request.body && isJsonString(request.body)) {
-    // Add Content-Type header
-    request.headers = [
-      ...(request.headers ?? []),
-      {
+    if (!request.headers?.some((header) => header.name === 'Content-Type')) {
+      // Add Content-Type header
+      request.headers?.push({
         name: 'Content-Type',
         value: `application/json; charset=utf-8`,
-      },
-    ]
+      })
+    }
 
     request.body = JSON.parse(request.body)
   }
