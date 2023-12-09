@@ -378,6 +378,9 @@ function checkIfClientIsFeatured(client: SelectedClient) {
   left: 0;
   cursor: pointer;
   z-index: 1;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .code-languages__select span {
   position: relative;

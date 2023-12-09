@@ -535,6 +535,8 @@ const showDescription = ref(false)
   outline: none;
   border: none;
   font-size: var(--theme-micro, var(--default-theme-micro));
+  -moz-appearance: none;
+  -webkit-appearance: none;
   appearance: none;
   width: 100%;
   padding: 12px 6px;

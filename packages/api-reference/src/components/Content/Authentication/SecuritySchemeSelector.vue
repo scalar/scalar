@@ -126,6 +126,9 @@ const keys = computed(() => Object.keys(props.value))
   left: 0;
   right: 0;
   cursor: pointer;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .security-scheme-selector svg {
