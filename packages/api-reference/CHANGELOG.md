@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.9.1
+
+### Patch Changes
+
+- edb02e76: fix: windows select menu not updating on prefers color scheme
+- Updated dependencies [edb02e76]
+  - @scalar/api-client@0.8.2
+
 ## 1.9.0
 
 ### Minor Changes
