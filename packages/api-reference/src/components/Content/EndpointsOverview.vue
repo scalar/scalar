@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { nextTick } from 'vue'
 
-import { scrollToId } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
 import type { Tag, TransformedOperation } from '../../types'
 import { Anchor } from '../Anchor'
@@ -26,7 +25,7 @@ const { setCollapsedSidebarItem } = useSidebar()
 async function scrollHandler(operation: TransformedOperation) {
   setCollapsedSidebarItem(getTagId(props.tag), true)
   await nextTick()
-  scrollToId(getOperationId(operation, props.tag))
+  window.location.href = `#${getOperationId(operation, props.tag)}`
 }
 </script>
 <template>

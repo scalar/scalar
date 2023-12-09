@@ -4,7 +4,7 @@ import { type ThemeId } from '@scalar/themes'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
-import { useSidebar } from '../hooks'
+import { useNavState, useSidebar } from '../hooks'
 import type {
   ReferenceConfiguration,
   ReferenceLayoutSlot,
@@ -44,17 +44,18 @@ useResizeObserver(documentEl, (entries) => {
 
 // Scroll to hash if exists
 const initiallyScrolled = ref(false)
-const tagRegex = /#(tag\/[^/]*)/
 const { breadcrumb, setCollapsedSidebarItem } = useSidebar()
+const { hash, getSectionId } = useNavState()
 
-// Wait until we have a parsed spec
+// Wait until we have a parsed spec then scroll to hash
 watch(props.parsedSpec, async (val) => {
   if (initiallyScrolled.value || !val?.info?.title) return
   initiallyScrolled.value = true
+  const sectionId = getSectionId()
+  const hashStr = hash.value
 
   // The original scroll to top from mounted
-  const hashId = document.location.hash
-  if (!hashId) {
+  if (!hash.value) {
     document.querySelector('#tippy')?.scrollTo({
       top: 0,
       left: 0,
@@ -62,17 +63,13 @@ watch(props.parsedSpec, async (val) => {
   }
 
   // Ensure we open the section
-  const match = hashId.match(tagRegex)
-  if (match && match.length > 1) {
-    setCollapsedSidebarItem(match[1], true)
-  }
+  if (sectionId) setCollapsedSidebarItem(sectionId, true)
 
   // I tried to get this to work with nextTick but it would scroll half way above
   // the section, I'm assuming this is due to the time for the section to render
   // We can probably come up with something better but this works for now
   setTimeout(() => {
-    const elem = document.getElementById(hashId.replace(/^#/, ''))
-    elem?.scrollIntoView()
+    document.getElementById(hashStr)?.scrollIntoView()
   }, 0)
 })
 

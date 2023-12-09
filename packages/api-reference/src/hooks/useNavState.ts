@@ -1,7 +1,7 @@
 import { slug } from 'github-slugger'
 import { onMounted, ref } from 'vue'
 
-import { type Heading } from '../helpers'
+import { type Heading, scrollToId } from '../helpers'
 import type { Tag, TransformedOperation } from '../types'
 
 // Keeps track of the URL hash without the #
@@ -44,6 +44,14 @@ const getTagId = ({ name }: Tag) => {
   return new URLSearchParams({ tag }).toString()
 }
 
+// Grabs the sectionId of the hash to open the section before scrolling
+const getSectionId = (hashStr = hash.value) => {
+  const tagId = hashStr.match(/(tag=[^&]+)/)?.[0]
+  const modelId = hashStr.includes('model=') ? 'models' : ''
+
+  return tagId ?? modelId
+}
+
 // Update the reactive hash state
 const updateHash = () => (hash.value = window.location.hash.replace(/^#/, ''))
 
@@ -57,7 +65,13 @@ export const useNavState = (hasLifecyle = true) => {
   if (hasLifecyle) {
     onMounted(() => {
       updateHash()
-      window.onhashchange = updateHash
+      window.onhashchange = () => {
+        updateHash()
+
+        // TODO: we should be able to remove this once we find the cause
+        // for some reason pressing back doesn't always scroll to the correct section
+        scrollToId(window.location.hash.replace(/^#/, ''))
+      }
     })
   }
 
@@ -66,6 +80,7 @@ export const useNavState = (hasLifecyle = true) => {
     getModelId,
     getHeadingId,
     getOperationId,
+    getSectionId,
     getTagId,
   }
 }
