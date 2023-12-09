@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.9.0
+
+### Minor Changes
+
+- c45ae5e8: feat: add accordion layout for schema models
+
+### Patch Changes
+
+- d7da3147: fix: remove duplicate slash in example and client
+
 ## 1.8.0
 
 ### Minor Changes

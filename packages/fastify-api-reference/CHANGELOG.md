@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 0.8.7
+
+### Patch Changes
+
+- d7da3147: fix: remove duplicate slash in example and client
+
 ## 0.8.6
 
 ### Patch Changes

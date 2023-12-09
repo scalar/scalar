@@ -1,5 +1,14 @@
 # @scalar/hono-api-reference
 
+## 0.2.6
+
+### Patch Changes
+
+- d7da3147: fix: remove duplicate slash in example and client
+- Updated dependencies [d7da3147]
+- Updated dependencies [c45ae5e8]
+  - @scalar/api-reference@1.9.0
+
 ## 0.2.5
 
 ### Patch Changes
