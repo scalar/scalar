@@ -21,7 +21,7 @@
   "devDependencies": {
     "nodemon": "^3.0.1",
     "typescript": "^5.2.2",
-    "vite": "^4.4.11",
+    "vite": "^4.4.12",
     "vite-node": "^0.34.4"
   }
 }
