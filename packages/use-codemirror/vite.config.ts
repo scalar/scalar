@@ -19,7 +19,6 @@ export default defineConfig({
       external: Object.keys(pkg.peerDependencies),
     },
   },
-
   test: {
     coverage: {
       enabled: true,

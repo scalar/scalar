@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ScalarIcon } from '@scalar/components'
 import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { computed, ref } from 'vue'
@@ -16,7 +17,6 @@ import {
   CardTab,
   CardTabHeader,
 } from '../../../Card'
-import { FlowIcon } from '../../../Icon'
 import MarkdownRenderer from '../../MarkdownRenderer.vue'
 // import Headers from './Headers.vue'
 import SelectExample from './SelectExample.vue'
@@ -89,7 +89,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
           class="code-copy"
           type="button"
           @click="() => copyToClipboard(currentJsonResponse?.example)">
-          <FlowIcon
+          <ScalarIcon
             icon="Clipboard"
             width="10px" />
         </button>

@@ -1,19 +1,24 @@
-export const iconNames = [
+export const ICONS = [
   'Add',
   'CheckMark',
   'ChevronDown',
   'ChevronLeft',
   'ChevronRight',
   'ChevronUp',
+  'Clipboard',
   'Close',
+  'DarkMode',
   'Ellipses',
+  'ExternalLink',
   'GitHub',
   'LightDarkModeToggle',
+  'LightMode',
   'Logo',
   'LogoAPI',
   'LogoClient',
   'LogoMarket',
   'LogoSwagger',
   'Menu',
+  'PaperAirplane',
   'Search',
-]
+] as const

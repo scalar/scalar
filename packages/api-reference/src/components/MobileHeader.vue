@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
-
-import FlowIconButton from './FlowIconButton.vue'
+import { ScalarIconButton } from '@scalar/components'
 
 defineProps<{
   open?: boolean
@@ -15,10 +14,10 @@ const { state } = useApiClientStore()
 </script>
 <template>
   <div class="references-mobile-header t-doc__header">
-    <FlowIconButton
+    <ScalarIconButton
       :icon="open ? 'Close' : 'Menu'"
       :label="open ? 'Close Menu' : 'Open Menu'"
-      width="20px"
+      size="md"
       @click="$emit('update:open', !open)" />
     <span class="references-mobile-breadcrumbs">{{
       state.activeBreadcrumb

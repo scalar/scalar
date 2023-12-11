@@ -11,6 +11,7 @@
     "module": "ESnext",
     "moduleDetection": "force",
     "moduleResolution": "Bundler",
+    "noEmit": true,
     "noUncheckedIndexedAccess": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,

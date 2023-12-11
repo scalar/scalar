@@ -55,6 +55,7 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.16",
     "@scalar/api-client": "workspace:*",
+    "@scalar/components": "workspace:*",
     "@scalar/swagger-editor": "workspace:*",
     "@scalar/swagger-parser": "workspace:*",
     "@scalar/themes": "workspace:*",

@@ -1,113 +1,60 @@
-<script lang="ts">
-const button = cva({
-  base: 'scalar-button row items-center justify-center rounded font-medium',
-  variants: {
-    isDisabled: { true: 'bg-background-2 text-color-3 shadow-none' },
-    isFullWidth: { true: 'w-full' },
-    isIconOnly: { true: 'scalar-button-icon' },
-    size: { md: 'h-10 px-6 text-sm' },
-    variant: {
-      solid: [
-        'scalar-button-solid',
-        'bg-back-btn-1 text-fore-btn-1 shadow-sm active:bg-back-btn-1 active:shadow-none hocus:bg-hover-btn-1',
-      ].join(' '),
-      outlined: [
-        'scalar-button-outlined',
-        'active:bg-btn-1 border border-border bg-transparent text-fore-1 hocus:bg-back-2',
-      ].join(' '),
-      ghost: [
-        'scalar-button-ghost',
-        'bg-transparent text-fore-3 active:text-fore-2 hocus:text-fore-2',
-      ].join(' '),
-      danger: [
-        'scalar-button-danger',
-        'bg-error text-white active:brightness-90 hocus:brightness-90',
-      ].join(' '),
-    },
-  },
-  compoundVariants: [
-    {
-      isDisabled: true,
-      variant: 'ghost',
-      class: 'bg-transparent text-ghost',
-    },
-    {
-      isIconOnly: true,
-      size: 'md',
-      class: 'h-10 w-10 p-2',
-    },
-  ],
-})
-
-type ButtonVariants = VariantProps<typeof button>
-
-export type ButtonProps = {
-  isDisabled?: boolean
-  isFullWidth?: boolean
-  loadingState?: LoadingState
-  size?: ButtonVariants['size']
-  variant?: ButtonVariants['variant']
-  title?: string
-}
-</script>
-
 <script setup lang="ts">
-import { type VariantProps } from 'cva'
-import { cx, cva } from '@/cva'
+import { computed, useAttrs } from 'vue'
 
-import { useSlots, computed } from 'vue'
-import { ScalarLoading, type LoadingState } from '../ScalarLoading'
+import { cx } from '@/cva'
+
+import { type LoadingState, ScalarLoading } from '../ScalarLoading'
+import { type Variants, variants } from './variants'
 
 /**
  * Scalar Button
- *
- * - Default slot must be text only as it becomes the [aria]-label
- * - If you pass an icon slot with no default slot it becomes an icon button
- * - You should also pass a title if you do this which gets added as the aria label
  */
-withDefaults(defineProps<ButtonProps>(), {
-  isDisabled: false,
-  isFullWidth: false,
-  size: 'md',
-  variant: 'solid',
-})
-
-const slots = useSlots()
-const label = computed(
-  () => (slots.default?.()?.[0]?.children as string)?.trim(),
+withDefaults(
+  defineProps<{
+    disabled?: boolean
+    fullWidth?: boolean
+    loading?: LoadingState
+    size?: Variants['size']
+    variant?: Variants['variant']
+  }>(),
+  {
+    fullWidth: false,
+    size: 'md',
+    variant: 'solid',
+  },
 )
-const isIconOnly = computed(() => Boolean(slots.icon && !slots.default))
-</script>
 
+defineOptions({ inheritAttrs: false })
+
+/* Extract the classes so they can be merged by `cx` */
+const attrs = computed(() => {
+  const { class: className, ...rest } = useAttrs()
+  return { className: className || '', rest }
+})
+</script>
 <template>
   <button
-    :aria-disabled="isDisabled"
-    :aria-label="label || title"
+    v-bind="attrs.rest"
+    :ariaDisabled="disabled || undefined"
     :class="
       cx(
-        button({
-          isFullWidth,
-          isIconOnly,
-          isDisabled,
-          size,
-          variant,
-        }),
-        { 'pl-9 pr-3': loadingState },
+        variants({ fullWidth, disabled, size, variant }),
+        { 'pl-9 pr-3': loading },
+        `${attrs.className}`,
       )
     "
-    :title="title || label"
     type="button">
     <div
       v-if="$slots.icon"
-      :class="cx({ 'mr-2': !isIconOnly }, 'h-4 w-4')">
+      class="mr-2 h-4 w-4">
       <slot name="icon" />
     </div>
     <slot />
     <div
-      v-if="loadingState"
+      v-if="loading"
       class="ml-2">
       <ScalarLoading
-        :loadingState="loadingState"
+        :loadingState="loading"
         size="20px" />
     </div>
   </button>

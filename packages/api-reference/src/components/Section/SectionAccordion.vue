@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+import { ScalarIcon } from '@scalar/components'
 import { useElementHover } from '@vueuse/core'
 import { ref } from 'vue'
 
-import { FlowIcon } from '../Icon'
 import IntersectionObserver from '../IntersectionObserver.vue'
 
 defineProps<{
@@ -34,7 +34,7 @@ const isHovered = useElementHover(button)
             :active="isHovered || open"
             name="actions" />
         </div>
-        <FlowIcon
+        <ScalarIcon
           class="section-accordion-chevron"
           :icon="open ? 'ChevronDown' : 'ChevronLeft'" />
       </DisclosureButton>

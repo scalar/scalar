@@ -1,4 +1,4 @@
-import type { iconNames } from './iconNames'
+import { type ICONS } from './icons'
 
 const icons = import.meta.glob('./*.svg', { as: 'raw', eager: true })
 
@@ -13,4 +13,4 @@ export const getIcon = (name: string) => {
   return icons[filename]
 }
 
-export type Icon = (typeof iconNames)[number]
+export type Icon = (typeof ICONS)[number]
