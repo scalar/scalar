@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.9.2
+
+### Patch Changes
+
+- 648e5a98: chore: don’t add optional parameters to the client
+
 ## 1.9.1
 
 ### Patch Changes
