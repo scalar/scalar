@@ -209,6 +209,8 @@ computed(() => {
   width: 100%;
   height: 100%;
   opacity: 0;
+  -moz-appearance: none;
+  -webkit-appearance: none;
   appearance: none;
 }
 .language-select span {

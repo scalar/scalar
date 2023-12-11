@@ -154,6 +154,9 @@ defineProps<{
   height: 100%;
   opacity: 0;
   cursor: pointer;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .scalar-api-client__item__content .scalar-api-client__codemirror__wrapper {
   padding-top: 0;

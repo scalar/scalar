@@ -72,6 +72,9 @@ const getValue = (name: string) => {
   right: 0;
   bottom: 0;
   opacity: 0;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .input-value {

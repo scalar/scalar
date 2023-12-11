@@ -155,6 +155,9 @@ watch(
   right: 0;
   opacity: 0;
   top: 0;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .server-selector svg {

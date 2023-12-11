@@ -195,6 +195,7 @@ const { copyToClipboard } = useClipboard()
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
+  padding: 24px;
 }
 
 .references-narrow .endpoint-content {
