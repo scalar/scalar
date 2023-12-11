@@ -14,6 +14,7 @@ describe('getParametersFromOperation', () => {
             {
               in: 'query',
               name: 'api_key',
+              required: true,
             },
           ],
         },
@@ -38,6 +39,7 @@ describe('getParametersFromOperation', () => {
           {
             in: 'query',
             name: 'api_key',
+            required: true,
           },
         ],
       },
@@ -64,6 +66,7 @@ describe('getParametersFromOperation', () => {
           {
             in: 'query',
             name: 'foo',
+            required: true,
           },
         ],
         information: {
@@ -71,6 +74,7 @@ describe('getParametersFromOperation', () => {
             {
               in: 'query',
               name: 'bar',
+              required: true,
             },
           ],
         },
@@ -123,12 +127,6 @@ describe('getParametersFromOperation', () => {
         description: 'Your API token',
         required: true,
       },
-      {
-        name: 'id',
-        value: '',
-        description: 'A Query Parameter',
-        required: false,
-      },
     ])
   })
 
@@ -143,6 +141,7 @@ describe('getParametersFromOperation', () => {
               name: 'id',
               in: 'query',
               example: 123,
+              required: true,
             },
           ],
         },
@@ -155,7 +154,7 @@ describe('getParametersFromOperation', () => {
         name: 'id',
         description: null,
         value: 123,
-        required: false,
+        required: true,
       },
     ])
   })
