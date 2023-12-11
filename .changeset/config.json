@@ -3,7 +3,9 @@
   "changelog": "@changesets/cli/changelog",
   "commit": ["@changesets/cli/commit", { "skipCI": false }],
   "fixed": [],
-  "linked": [],
+  "linked": [
+    ["@scalar/api-reference", "@scalar/fastify-api-reference"]
+  ],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
