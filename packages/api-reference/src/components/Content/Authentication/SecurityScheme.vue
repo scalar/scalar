@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { a } from '@storybook/vue3/dist/render-ddbe18a8'
-
 import { useGlobalStore } from '../../../stores'
 
 // import MarkdownRenderer from '../MarkdownRenderer.vue'
