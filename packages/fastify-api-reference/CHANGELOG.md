@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.9.2
+
+### Patch Changes
+
+- a639cb3e: chore: don’t pass optional parameters to the API client
+
 ## 0.8.8
 
 ### Patch Changes
