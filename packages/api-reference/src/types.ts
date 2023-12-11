@@ -232,16 +232,17 @@ export type Server = {
   variables?: ServerVariables
 }
 
+type SecurityScheme =
+  | Record<string, never> // Empty objects
+  | OpenAPIV2.SecuritySchemeObject
+  | OpenAPIV3.SecuritySchemeObject
+  | OpenAPIV3_1.SecuritySchemeObject
+
 export type Components = Omit<
   OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject,
   'securitySchemes'
 > & {
-  securitySchemes?: Record<
-    string,
-    | Record<string, never>
-    | OpenAPIV3.SecuritySchemeObject
-    | OpenAPIV2.SecuritySchemeObject
-  >
+  securitySchemes?: Record<string, SecurityScheme>
 }
 
 export type Definitions = OpenAPIV2.DefinitionsObject
@@ -261,10 +262,7 @@ export type Spec = {
 
 export type AuthenticationState = {
   securitySchemeKey: string | null
-  securitySchemes?:
-    | Record<string, OpenAPIV2.SecuritySchemeObject>
-    | Record<string, OpenAPIV3.SecuritySchemeObject>
-    | Record<string, OpenAPIV3_1.SecuritySchemeObject>
+  securitySchemes?: Record<string, SecurityScheme>
   http: {
     basic: {
       username: string
