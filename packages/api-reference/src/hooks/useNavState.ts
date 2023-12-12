@@ -24,15 +24,20 @@ const getModelId = (name?: string) => {
   }
 
   const modelSlug = slug(name)
-  return `model/${modelSlug}`
+  const encodedSlug = encodeURIComponent(modelSlug)
+  return `model/${encodedSlug}`
 }
 
 const getOperationId = (operation: TransformedOperation, parentTag: Tag) =>
-  `${getTagId(parentTag)}/[${operation.httpVerb}]${operation.path}`
+  `${getTagId(parentTag)}/${operation.operationId}/${operation.httpVerb}${
+    operation.path
+  }`
 
 const getTagId = ({ name }: Tag) => {
-  const tag = slug(name)
-  return `tag/${tag}`
+  const tagSlug = slug(name)
+  const encodedSlug = encodeURIComponent(tagSlug)
+
+  return `tag/${encodedSlug}`
 }
 
 // Grabs the sectionId of the hash to open the section before scrolling
