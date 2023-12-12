@@ -38,7 +38,7 @@ const getTagId = ({ name }: Tag) => {
 // Grabs the sectionId of the hash to open the section before scrolling
 const getSectionId = (hashStr = hash.value) => {
   const tagId = hashStr.match(/(tag\/[^/]+)/)?.[0]
-  const modelId = hashStr.includes('model=') ? 'models' : ''
+  const modelId = hashStr.includes('model/') ? 'models' : ''
 
   return tagId ?? modelId
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon, ScalarIconButton } from '@scalar/components'
+import { ScalarIconButton } from '@scalar/components'
 import { ref } from 'vue'
 
 import { Icon } from './Icon'
@@ -71,11 +71,6 @@ defineExpose({ el })
           {{ item.httpVerb }}
         </div>
       </a>
-      <ScalarIcon
-        v-if="hasChildren"
-        class="link-icon"
-        icon="ExternalLink"
-        width="16px" />
     </div>
     <slot v-if="open" />
     <div
