@@ -12,6 +12,7 @@ export function generateParameters(parameters: Parameters[]) {
       name: parameter.name,
       value: '',
       customClass: parameter.required ? 'required-parameter' : '',
+      enabled: true,
     }
     param.value = ''
     params.push(param)

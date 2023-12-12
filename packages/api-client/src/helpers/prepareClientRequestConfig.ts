@@ -23,6 +23,7 @@ export const prepareClientRequestConfig = (configuration: {
         value: `Basic ${btoa(
           `${authState.basic.username}:${authState.basic.password}`,
         )}`,
+        enabled: true,
       },
     ]
   } else if (authState.type === 'bearer' && authState.bearer.active) {
@@ -31,6 +32,7 @@ export const prepareClientRequestConfig = (configuration: {
       {
         name: 'Authorization',
         value: `Bearer ${authState.bearer.token}`,
+        enabled: true,
       },
     ]
   }
@@ -49,6 +51,7 @@ export const prepareClientRequestConfig = (configuration: {
         {
           name: 'Content-Type',
           value: `application/json; charset=utf-8`,
+          enabled: true,
         },
       ]
     }

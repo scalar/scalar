@@ -24,8 +24,9 @@ export async function sendRequest(
   proxyUrl?: string,
 ): Promise<RequestResult | null> {
   const method = normalizeRequestMethod(request.type)
+
   const headers: Record<string, string | number> = mapFromArray(
-    request.headers ?? [],
+    (request.headers ?? []).filter((header) => header.enabled),
     'name',
     'value',
   )
@@ -51,6 +52,7 @@ export async function sendRequest(
       queryStringsFromUrl.push({
         name,
         value,
+        enabled: true,
       })
     })
   })
@@ -58,7 +60,10 @@ export async function sendRequest(
   const queryString = new URLSearchParams(
     // TODO: No type-casting
     mapFromArray(
-      [...(request.query ?? []), ...queryStringsFromUrl],
+      [
+        ...(request.query ?? []).filter((query) => query.enabled),
+        ...queryStringsFromUrl,
+      ],
       'name',
       'value',
     ) as Record<string, string>,
@@ -75,7 +80,11 @@ export async function sendRequest(
 
   // Add cookies to the headers
   if (request.cookies) {
-    const cookies = mapFromArray(request.cookies, 'name', 'value')
+    const cookies = mapFromArray(
+      (request.cookies ?? []).filter((cookie) => cookie.enabled),
+      'name',
+      'value',
+    )
 
     headers.Cookie = Object.keys(cookies)
       .map((key) => `${key}=${cookies[key]}`)
@@ -134,7 +143,7 @@ export async function sendRequest(
       // float all errors now to the user
       return {
         headers: {
-          'content-type': 'application/json',
+          'content-type': 'application/json; charset=utf-8',
         },
         ...errorResponse,
         statusCode: errorResponse?.status ?? 0,
