@@ -15,7 +15,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.8.0",
+  "version": "1.9.2",
   "engines": {
     "node": ">=20"
   },
@@ -55,6 +55,7 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.16",
     "@scalar/api-client": "workspace:*",
+    "@scalar/components": "workspace:*",
     "@scalar/swagger-editor": "workspace:*",
     "@scalar/swagger-parser": "workspace:*",
     "@scalar/themes": "workspace:*",
@@ -107,7 +108,7 @@
     "storybook": "^7.5.2",
     "storybook-dark-mode": "^3.0.1",
     "tsc-alias": "^1.8.8",
-    "vite": "^4.4.11",
+    "vite": "^4.4.12",
     "vite-plugin-css-injected-by-js": "^3.3.0",
     "vite-plugin-node-polyfills": "^0.14.1",
     "vitest": "^0.34.4",

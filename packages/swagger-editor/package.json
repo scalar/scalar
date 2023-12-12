@@ -46,6 +46,7 @@
   "dependencies": {
     "@codemirror/state": "^6.2.1",
     "@hocuspocus/provider": "^2.6.1",
+    "@scalar/components": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-modal": "workspace:*",
@@ -69,7 +70,7 @@
     "@vitejs/plugin-vue": "^4.4.0",
     "@vitest/coverage-v8": "^0.34.4",
     "tsc-alias": "^1.8.8",
-    "vite": "^4.4.11",
+    "vite": "^4.4.12",
     "vite-plugin-css-injected-by-js": "^3.3.0",
     "vitest": "^0.34.4",
     "vue-tsc": "^1.8.19"

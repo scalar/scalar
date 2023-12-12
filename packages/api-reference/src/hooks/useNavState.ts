@@ -12,7 +12,7 @@ const hash = ref('')
  */
 const getHeadingId = (heading: Heading) => {
   if (heading.slug) {
-    return new URLSearchParams({ description: heading.slug }).toString()
+    return `description/${heading.slug}`
   }
 
   return ''
@@ -23,30 +23,21 @@ const getModelId = (name?: string) => {
     return 'models'
   }
 
-  const model = slug(name)
-  return new URLSearchParams({ model }).toString()
+  const modelSlug = slug(name)
+  return `model/${modelSlug}`
 }
 
-const getOperationId = (operation: TransformedOperation, parentTag: Tag) => {
-  const parentSlug = slug(parentTag.name)
-
-  return decodeURIComponent(
-    new URLSearchParams({
-      tag: parentSlug,
-      method: operation.httpVerb,
-      path: operation.path,
-    }).toString(),
-  )
-}
+const getOperationId = (operation: TransformedOperation, parentTag: Tag) =>
+  `${getTagId(parentTag)}/[${operation.httpVerb}]${operation.path}`
 
 const getTagId = ({ name }: Tag) => {
   const tag = slug(name)
-  return new URLSearchParams({ tag }).toString()
+  return `tag/${tag}`
 }
 
 // Grabs the sectionId of the hash to open the section before scrolling
 const getSectionId = (hashStr = hash.value) => {
-  const tagId = hashStr.match(/(tag=[^&]+)/)?.[0]
+  const tagId = hashStr.match(/(tag\/[^/]+)/)?.[0]
   const modelId = hashStr.includes('model=') ? 'models' : ''
 
   return tagId ?? modelId

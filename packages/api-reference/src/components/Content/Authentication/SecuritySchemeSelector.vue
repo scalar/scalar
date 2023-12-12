@@ -1,8 +1,8 @@
 <script lang="ts" setup>
+import { ScalarIcon } from '@scalar/components'
 import { computed, onMounted } from 'vue'
 
 import { useGlobalStore } from '../../../stores'
-import { FlowIcon } from '../../Icon'
 
 const props = defineProps<{
   // TODO: Add type
@@ -85,7 +85,7 @@ const keys = computed(() => Object.keys(props.value))
             : ''
         }}
       </span>
-      <FlowIcon icon="ChevronDown" />
+      <ScalarIcon icon="ChevronDown" />
       <select
         @input="handleAuthenticationTypeInput"
         @value="authentication.securitySchemeKey">
@@ -126,6 +126,9 @@ const keys = computed(() => Object.keys(props.value))
   left: 0;
   right: 0;
   cursor: pointer;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .security-scheme-selector svg {

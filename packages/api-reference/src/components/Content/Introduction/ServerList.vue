@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { findVariables } from '@scalar/api-client'
+import { ScalarIcon } from '@scalar/components'
 import { ref, watch } from 'vue'
 
 import { useGlobalStore } from '../../../stores'
 import { type Server, type Variable } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
-import { FlowIcon } from '../../Icon'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import ServerItem from './ServerItem.vue'
 import ServerVariables from './ServerVariables.vue'
@@ -98,7 +98,7 @@ watch(
               :value="value[selectedServerIndex]"
               :variables="server.variables" />
 
-            <FlowIcon
+            <ScalarIcon
               v-if="value.length > 1"
               icon="ChevronDown" />
           </div>
@@ -155,6 +155,9 @@ watch(
   right: 0;
   opacity: 0;
   top: 0;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .server-selector svg {

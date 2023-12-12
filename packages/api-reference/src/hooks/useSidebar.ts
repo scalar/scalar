@@ -60,7 +60,6 @@ const items = computed(() => {
     return {
       id: getHeadingId(heading),
       title: heading.value.toUpperCase(),
-      type: 'Page',
       show: !state.showApiClient,
     }
   })

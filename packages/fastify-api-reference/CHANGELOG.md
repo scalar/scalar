@@ -1,5 +1,23 @@
 # @scalar/fastify-api-reference
 
+## 1.9.2
+
+### Patch Changes
+
+- a639cb3e: chore: don’t pass optional parameters to the API client
+
+## 0.8.8
+
+### Patch Changes
+
+- edb02e76: fix: windows select menu not updating on prefers color scheme
+
+## 0.8.7
+
+### Patch Changes
+
+- d7da3147: fix: remove duplicate slash in example and client
+
 ## 0.8.6
 
 ### Patch Changes

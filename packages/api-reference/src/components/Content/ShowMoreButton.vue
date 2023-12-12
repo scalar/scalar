@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { ScalarIcon } from '@scalar/components'
+
 import { useSidebar } from '../../hooks'
-import { FlowIcon } from '../Icon'
 
 defineProps<{
   id: string
@@ -15,7 +16,7 @@ const { setCollapsedSidebarItem } = useSidebar()
     type="button"
     @click="setCollapsedSidebarItem(id, true)">
     Show More
-    <FlowIcon
+    <ScalarIcon
       class="show-more-icon"
       icon="ChevronDown" />
   </button>

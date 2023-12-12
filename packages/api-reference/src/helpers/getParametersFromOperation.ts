@@ -15,16 +15,22 @@ export function getParametersFromOperation(
     ...(operation.information?.parameters || []),
   ]
 
-  return parameters
-    .filter((parameter) => parameter.in === where)
-    .map((parameter) => ({
-      name: parameter.name,
-      description: parameter.description ?? null,
-      value: parameter.example
-        ? parameter.example
-        : parameter.schema
-        ? getExampleFromSchema(parameter.schema)
-        : '',
-      required: parameter.required ?? false,
-    }))
+  return (
+    parameters
+      // query, path, header, cookie?
+      .filter((parameter) => parameter.in === where)
+      // don’t add optional parameters
+      .filter((parameter) => parameter.required)
+      // transform them
+      .map((parameter) => ({
+        name: parameter.name,
+        description: parameter.description ?? null,
+        value: parameter.example
+          ? parameter.example
+          : parameter.schema
+          ? getExampleFromSchema(parameter.schema)
+          : '',
+        required: parameter.required ?? false,
+      }))
+  )
 }

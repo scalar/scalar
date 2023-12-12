@@ -1,9 +1,8 @@
 <script setup lang="ts">
+import { ScalarIcon, ScalarIconButton } from '@scalar/components'
 import { useClipboard } from '@scalar/use-clipboard'
 
-import FlowIconButton from '../../../components/FlowIconButton.vue'
-import { FlowIcon } from '../../../components/Icon'
-import { useNavState } from '../../../hooks'
+import { useNavState } from '../../../hooks/useNavState'
 import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { SectionAccordion } from '../../Section'
@@ -48,15 +47,15 @@ const { getOperationId } = useNavState()
       <TryRequestButton
         v-if="active"
         :operation="operation" />
-      <FlowIcon
+      <ScalarIcon
         v-else
         class="endpoint-try-hint"
         icon="PaperAirplane" />
-      <FlowIconButton
+      <ScalarIconButton
         class="endpoint-copy"
         icon="Clipboard"
         label="Copy endpoint URL"
-        variant="text"
+        variant="ghost"
         @click.stop="copyToClipboard(operation.path)" />
     </template>
     <template

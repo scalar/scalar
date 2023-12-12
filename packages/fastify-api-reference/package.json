@@ -12,7 +12,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.8.6",
+  "version": "1.9.2",
   "engines": {
     "node": ">=20"
   },
@@ -50,7 +50,7 @@
     "terser": "^5.24.0",
     "tsc-alias": "^1.8.8",
     "typescript": "^5.2.2",
-    "vite": "^4.4.11",
+    "vite": "^4.4.12",
     "vite-plugin-node-polyfills": "^0.14.1",
     "vite-plugin-static-copy": "^0.17.0",
     "vitest": "^0.34.4",

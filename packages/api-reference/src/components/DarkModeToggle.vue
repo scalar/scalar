@@ -1,6 +1,7 @@
 <script lang="ts" setup>
+import { ScalarIcon } from '@scalar/components'
+
 import { useDarkModeState } from '../hooks/useDarkModeState'
-import { FlowIcon } from './Icon'
 
 const { toggleDarkMode, isDark } = useDarkModeState()
 </script>
@@ -10,7 +11,7 @@ const { toggleDarkMode, isDark } = useDarkModeState()
       class="darklight"
       type="button"
       @click="toggleDarkMode">
-      <FlowIcon icon="LightDarkModeToggle" />
+      <ScalarIcon icon="LightDarkModeToggle" />
       <template v-if="isDark">
         <span>Light Mode</span>
       </template>

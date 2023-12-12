@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { ScalarIcon, ScalarIconButton } from '@scalar/components'
 import { ref } from 'vue'
 
-import FlowIconButton from '../components/FlowIconButton.vue'
 import { Icon } from './Icon'
 
 const props = defineProps<{
@@ -47,13 +47,12 @@ defineExpose({ el })
       }"
       @click="handleClick">
       <!-- If children are detected then show the nesting icon -->
-      <FlowIconButton
+      <ScalarIconButton
         v-if="hasChildren"
         class="toggle-nested-icon"
         :icon="open ? 'ChevronDown' : 'ChevronRight'"
         label="Toggle group"
-        variant="text"
-        width="20px"
+        size="sm"
         @click="handleClick" />
       <a
         class="flex-1 sidebar-heading-link"
@@ -72,6 +71,11 @@ defineExpose({ el })
           {{ item.httpVerb }}
         </div>
       </a>
+      <ScalarIcon
+        v-if="hasChildren"
+        class="link-icon"
+        icon="ExternalLink"
+        width="16px" />
     </div>
     <slot v-if="open" />
     <div

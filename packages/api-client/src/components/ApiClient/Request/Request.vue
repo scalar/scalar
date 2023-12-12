@@ -251,10 +251,11 @@ const { activeRequest, readOnly } = useRequestStore()
   background: transparent;
   outline: none;
   border: none;
+  -moz-appearance: none;
   -webkit-appearance: none;
+  appearance: none;
   font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color-1, var(--default-theme-color-1));
-  appearance: none;
   width: 100%;
   padding: 14px 9px 4px 9px;
   top: 0;

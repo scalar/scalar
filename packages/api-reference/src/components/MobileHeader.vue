@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { ScalarIconButton } from '@scalar/components'
+
 import { useSidebar } from '../hooks'
-import FlowIconButton from './FlowIconButton.vue'
 
 defineProps<{
   open?: boolean
@@ -14,10 +15,10 @@ const { breadcrumb } = useSidebar()
 </script>
 <template>
   <div class="references-mobile-header t-doc__header">
-    <FlowIconButton
+    <ScalarIconButton
       :icon="open ? 'Close' : 'Menu'"
       :label="open ? 'Close Menu' : 'Open Menu'"
-      width="20px"
+      size="md"
       @click="$emit('update:open', !open)" />
     <span class="references-mobile-breadcrumbs">{{ breadcrumb }}</span>
     <div class="sidebar-mobile-actions"></div>

@@ -1,8 +1,0 @@
-{
-  "extends": "@useless-developers/config/tsconfig/tsconfig.json",
-  "compilerOptions": {
-    "declarationMap": true,
-    "declaration": true
-  },
-  "include": ["src/index.ts", "src/components", "src/tailwind"]
-}

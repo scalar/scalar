@@ -1,5 +1,29 @@
 # @scalar/api-reference
 
+## 1.9.2
+
+### Patch Changes
+
+- 648e5a98: chore: don’t add optional parameters to the client
+
+## 1.9.1
+
+### Patch Changes
+
+- edb02e76: fix: windows select menu not updating on prefers color scheme
+- Updated dependencies [edb02e76]
+  - @scalar/api-client@0.8.2
+
+## 1.9.0
+
+### Minor Changes
+
+- c45ae5e8: feat: add accordion layout for schema models
+
+### Patch Changes
+
+- d7da3147: fix: remove duplicate slash in example and client
+
 ## 1.8.0
 
 ### Minor Changes
