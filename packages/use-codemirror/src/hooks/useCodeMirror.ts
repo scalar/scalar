@@ -7,9 +7,9 @@ import {
   keymap,
   lineNumbers as lineNumbersExtension,
 } from '@codemirror/view'
-import { isJsonString } from '@scalar/api-client'
 import { type Ref, isRef, ref, toRaw, watch } from 'vue'
 
+import { isJsonString } from '../helpers'
 import { defaultTheme } from '../themes'
 import type { CodeMirrorLanguage } from '../types'
 import { variables } from './extensions/variables'
