@@ -12,5 +12,4 @@
 
 - Removed activeBreadCrumb from api-client as its available in the slot
 - Centralized navigation logic
-- changed URL hash on sidebar navigation
-- use proper navigation instead of scrollIntoView
+- use proper anchor navigation instead of scrollIntoView
