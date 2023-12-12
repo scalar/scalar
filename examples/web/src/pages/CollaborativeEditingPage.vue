@@ -16,12 +16,6 @@ const configuration = reactive<ReferenceConfiguration>({
   isEditable: true,
   showSidebar: true,
   spec: { content },
-  tabs: {
-    initialContent: 'Swagger Editor',
-  },
-  codeMirrorExtensions: [
-    // TODO: Add y-codemirror.next here
-  ],
 })
 
 onMounted(() => {

@@ -50,7 +50,7 @@ const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
 
 /** Merge the default configuration with the given configuration. */
 const currentConfiguration = computed(
-  (): ReferenceConfiguration => props.configuration,
+  (): ReferenceConfiguration => props.configuration ?? {},
   // deepMerge(props.configuration ?? {}, { ...DEFAULT_CONFIG }),
 )
 
