@@ -41,6 +41,7 @@ watch(
   <Card v-if="hasSecuritySchemes(parsedSpec)">
     <CardHeader
       borderless
+      class="authentication-header"
       transparent>
       Authentication
       <template #actions>
@@ -54,6 +55,7 @@ watch(
     </CardHeader>
     <CardContent
       v-if="showSecurityScheme"
+      class="authentication-content"
       transparent>
       <SecurityScheme
         v-if="authentication.securitySchemeKey"
@@ -65,8 +67,10 @@ watch(
     </CardContent>
   </Card>
 </template>
-
 <style scoped>
+.authentication-content {
+  padding: 9px;
+}
 .selector {
   margin-right: 12px;
 }
