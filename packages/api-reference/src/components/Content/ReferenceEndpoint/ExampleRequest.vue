@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import { undici } from '@scalar/snippetz-plugin-undici'
+import { snippetz } from '@scalar/snippetz'
 import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { HTTPSnippet } from 'httpsnippet-lite'
@@ -49,9 +49,21 @@ const generateSnippet = async (): Promise<string> => {
   // Actually generate the snippet
   try {
     // Snippetz
-    if (state.selectedClient.clientKey === 'undici') {
-      // @ts-ignore
-      return undici(request).code
+    if (
+      snippetz().hasPlugin(
+        // @ts-ignore
+        state.selectedClient.targetKey,
+        state.selectedClient.clientKey,
+      )
+    ) {
+      return (
+        snippetz().print(
+          // @ts-ignore
+          state.selectedClient.targetKey,
+          state.selectedClient.clientKey,
+          request,
+        ) ?? ''
+      )
     }
 
     // httpsnippet-lite

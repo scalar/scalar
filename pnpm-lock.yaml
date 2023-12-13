@@ -480,9 +480,9 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
-      '@scalar/snippetz-plugin-undici':
-        specifier: ^0.1.1
-        version: 0.1.1
+      '@scalar/snippetz':
+        specifier: ^0.1.2
+        version: 0.1.2
       '@scalar/swagger-editor':
         specifier: workspace:*
         version: link:../swagger-editor
@@ -4813,14 +4813,23 @@ packages:
       string-argv: 0.3.2
     dev: true
 
-  /@scalar/snippetz-plugin-undici@0.1.1:
-    resolution: {integrity: sha512-2q9CSeYtP/yP7R0C7sAev1UHKCXSAcrYyguxHjwskFQ5pKWGKMgAvQRVkiQ06532JfJQ+HOQjTse2B3c2o1JYw==}
+  /@scalar/snippetz-core@0.1.0:
+    resolution: {integrity: sha512-oFi2Ax8qhypA9jUBmHjQYer9ubxGY8au0a1HQUeRud65uRVVemoAayIAOWd8ygHehSIAnmthBzUUQ7j148CzeQ==}
     dependencies:
-      '@scalar/snippetz': 0.1.1
+      '@types/har-format': 1.2.15
     dev: false
 
-  /@scalar/snippetz@0.1.1:
-    resolution: {integrity: sha512-fogVB2c5XF6bcAKkZFdot/gSie8/Reld4/YOEOPAqe0e4rn9YmvATDEjQYU9mGVCX2r0/f/zdZU1JKRS8RmBsA==}
+  /@scalar/snippetz-plugin-undici@0.1.2:
+    resolution: {integrity: sha512-VF1SSFUn9EvmTslKH7iGA+Sx15qCJe3eEcTo0Q8wuDTVdGZRwpJs1r1VTJmAMQn95r7oHd9C2W7Vn/GFqnfqDQ==}
+    dependencies:
+      '@scalar/snippetz-core': 0.1.0
+    dev: false
+
+  /@scalar/snippetz@0.1.2:
+    resolution: {integrity: sha512-vw/A7jHvYxJGdxXjDvXFhTo1nmaJ+jQE+jVhOhXhJSnBgnbbyUcyTY+wYaF4PxTzKbYpb3JyC7kkDjITVxgQUg==}
+    dependencies:
+      '@scalar/snippetz-core': 0.1.0
+      '@scalar/snippetz-plugin-undici': 0.1.2
     dev: false
 
   /@sinclair/typebox@0.27.8:
@@ -6151,6 +6160,10 @@ packages:
 
   /@types/har-format@1.2.11:
     resolution: {integrity: sha512-T232/TneofqK30AD1LRrrf8KnjLvzrjWDp7eWST5KoiSzrBfRsLrWDPk4STQPW4NZG6v2MltnduBVmakbZOBIQ==}
+    dev: false
+
+  /@types/har-format@1.2.15:
+    resolution: {integrity: sha512-RpQH4rXLuvTXKR0zqHq3go0RVXYv/YVqv4TnPH95VbwUxZdQlK1EtcMvQvMpDngHbt13Csh9Z4qT9AbkiQH5BA==}
     dev: false
 
   /@types/hast@2.3.6:
