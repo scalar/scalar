@@ -1,8 +1,14 @@
 <script lang="ts" setup>
 import CardContent from './CardContent.vue'
+import { type CardContentProps } from './types'
+
+// eslint-disable-next-line vue/no-unused-properties
+const props = defineProps<CardContentProps>()
 </script>
 <template>
-  <CardContent class="scalar-card-header">
+  <CardContent
+    v-bind="props"
+    class="scalar-card-header">
     <div class="scalar-card-header-slots">
       <div class="scalar-card-header-slot scalar-card-header-title">
         <slot />
@@ -18,12 +24,12 @@ import CardContent from './CardContent.vue'
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-color-3, var(--default-theme-color-3));
+  padding: 9px 0 9px 12px;
   flex-shrink: 0;
 }
 .scalar-card-header-slots {
   display: flex;
   justify-content: space-between;
-  margin: 9px 0 9px 12px;
   line-height: 1.35;
 }
 

@@ -1,25 +1,12 @@
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
-    muted?: boolean
-    contrast?: boolean
-    frameless?: boolean
-    transparent?: boolean
-    borderless?: boolean
-  }>(),
-  {
-    muted: false,
-    contrast: false,
-    frameless: false,
-    transparent: false,
-    borderless: false,
-  },
-)
+import { type CardContentProps } from './types'
+
+defineProps<CardContentProps>()
 </script>
 <template>
   <div
+    class="scalar-card-content"
     :class="{
-      'scalar-card-content': true,
       'scalar-card--muted': muted,
       'scalar-card--contrast': contrast,
       'scalar-card--frameless': frameless,
@@ -41,6 +28,10 @@ withDefaults(
 .scalar-card-content:last-of-type,
 .scalar-card-content.scalar-card--borderless {
   border-bottom: none;
+}
+
+.scalar-card-content.scalar-card--borderless {
+  padding-bottom: 0;
 }
 
 .scalar-card--muted {

@@ -7,7 +7,11 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
 </script>
 <template>
   <Card>
-    <CardHeader transparent>Client Libraries</CardHeader>
+    <CardHeader
+      borderless
+      transparent>
+      Client Libraries
+    </CardHeader>
     <CardContent
       frameless
       transparent>
