@@ -45,6 +45,7 @@ describe('sendRequest', () => {
         {
           name: 'path',
           value: 'example',
+          enabled: true,
         },
       ],
     }
@@ -66,6 +67,7 @@ describe('sendRequest', () => {
         {
           name: 'foo',
           value: 'bar',
+          enabled: true,
         },
       ],
     }
@@ -88,6 +90,7 @@ describe('sendRequest', () => {
         {
           name: 'foo',
           value: 'bar',
+          enabled: true,
         },
       ],
     }
@@ -111,6 +114,7 @@ describe('sendRequest', () => {
         {
           name: 'foo',
           value: 'bar',
+          enabled: true,
         },
       ],
     }
@@ -133,10 +137,12 @@ describe('sendRequest', () => {
         {
           name: 'foo',
           value: 'bar',
+          enabled: true,
         },
         {
           name: 'another',
           value: 'cookie',
+          enabled: true,
         },
       ],
     }
