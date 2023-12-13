@@ -39,7 +39,11 @@ export async function sendRequest(
 
   const renderedUrl = replaceVariables(
     urlWithPath,
-    mapFromArray(request.variables ?? [], 'name', 'value'),
+    mapFromArray(
+      (request.variables ?? []).filter((variable) => variable.enabled),
+      'name',
+      'value',
+    ),
   )
 
   // Get query string from urlWithPath ("https://example.com?foo=bar")
