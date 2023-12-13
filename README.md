@@ -399,6 +399,13 @@ This repository contains all our open source projects and there’s definitely m
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/mouhannad-sh">
+            <img src="https://avatars.githubusercontent.com/u/18495740?v=4" width="100;" alt="mouhannad-sh"/>
+            <br />
+            <sub><b>mouhannad-sh</b></sub>
+        </a>
+    </td>
+    <td align="center">
         <a href="https://github.com/chrislearn">
             <img src="https://avatars.githubusercontent.com/u/5874864?v=4" width="100;" alt="chrislearn"/>
             <br />
@@ -411,15 +418,15 @@ This repository contains all our open source projects and there’s definitely m
             <br />
             <sub><b>danp</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/jonataw">
             <img src="https://avatars.githubusercontent.com/u/29772763?v=4" width="100;" alt="jonataw"/>
             <br />
             <sub><b>jonataw</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/IHIutch">
             <img src="https://avatars.githubusercontent.com/u/20825047?v=4" width="100;" alt="IHIutch"/>
@@ -432,13 +439,6 @@ This repository contains all our open source projects and there’s definitely m
             <img src="https://avatars.githubusercontent.com/u/105008441?v=4" width="100;" alt="Mason-Little"/>
             <br />
             <sub><b>Mason-Little</b></sub>
-        </a>
-    </td>
-    <td align="center">
-        <a href="https://github.com/mouhannad-sh">
-            <img src="https://avatars.githubusercontent.com/u/18495740?v=4" width="100;" alt="mouhannad-sh"/>
-            <br />
-            <sub><b>mouhannad-sh</b></sub>
         </a>
     </td>
     <td align="center">
