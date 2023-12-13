@@ -212,6 +212,7 @@ describe('prepareClientRequestConfig', () => {
           {
             name: 'Content-Type',
             value: 'plain/text',
+            enabled: true,
           },
         ],
       },

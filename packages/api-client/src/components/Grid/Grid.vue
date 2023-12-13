@@ -98,8 +98,8 @@ const showDescription = ref(false)
       </div>
       <div class="table-row-meta">
         <label class="meta-check">
-          <!-- v-model="item.enabled" -->
           <input
+            v-model="item.enabled"
             checked
             type="checkbox" />
           <span class="meta-checkmark" />

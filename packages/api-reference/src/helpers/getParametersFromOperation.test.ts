@@ -126,6 +126,7 @@ describe('getParametersFromOperation', () => {
         value: '',
         description: 'Your API token',
         required: true,
+        enabled: true,
       },
     ])
   })
@@ -155,6 +156,7 @@ describe('getParametersFromOperation', () => {
         description: null,
         value: 123,
         required: true,
+        enabled: true,
       },
     ])
   })
@@ -188,6 +190,7 @@ describe('getParametersFromOperation', () => {
         description: 'Pet id to delete',
         value: 1,
         required: true,
+        enabled: true,
       },
     ])
   })

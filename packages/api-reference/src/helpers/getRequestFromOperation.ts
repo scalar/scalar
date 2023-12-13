@@ -1,5 +1,8 @@
 import type {
+  Cookie,
   HarRequestWithPath,
+  Header,
+  Query,
   RequestBodyMimeTypes,
   TransformedOperation,
 } from '../types'
@@ -34,10 +37,10 @@ export const getRequestFromOperation = (
     headers: [
       ...getParametersFromOperation(operation, 'header'),
       ...(requestBody?.headers ?? []),
-    ],
+    ] as Header[],
     postData: requestBody?.postData,
-    queryString: getParametersFromOperation(operation, 'query'),
-    cookies: getParametersFromOperation(operation, 'cookie'),
+    queryString: getParametersFromOperation(operation, 'query') as Query[],
+    cookies: getParametersFromOperation(operation, 'cookie') as Cookie[],
   }
 }
 
