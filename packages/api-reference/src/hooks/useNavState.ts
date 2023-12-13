@@ -29,9 +29,7 @@ const getModelId = (name?: string) => {
 }
 
 const getOperationId = (operation: TransformedOperation, parentTag: Tag) =>
-  `${getTagId(parentTag)}/${operation.operationId}/${operation.httpVerb}${
-    operation.path
-  }`
+  `${getTagId(parentTag)}/${operation.httpVerb}${operation.path}`
 
 const getTagId = ({ name }: Tag) => {
   const tagSlug = slug(name)
