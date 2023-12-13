@@ -66,7 +66,7 @@ const setRef = (el: SidebarElementType, id: string) => {
             v-if="item.show"
             :ref="(el) => setRef(el as SidebarElementType, item.id)"
             data-sidebar-type="heading"
-            hasChildren
+            :hasChildren="item.children && item.children.length > 0"
             :isActive="hash === item.id"
             :item="{
               id: item.id,
