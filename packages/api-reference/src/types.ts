@@ -64,6 +64,7 @@ export type Schema = {
   format: string
   type: string
   default?: any
+  description?: string
 }
 
 export type Parameters = {
