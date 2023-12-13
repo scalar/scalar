@@ -41,7 +41,9 @@ watch(
 
 <template>
   <Card v-if="hasSecuritySchemes(parsedSpec)">
-    <CardHeader transparent>
+    <CardHeader
+      borderless
+      transparent>
       Authentication
       <template #actions>
         <div class="selector">
