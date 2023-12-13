@@ -180,8 +180,9 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
           :value="schema" />
       </div>
       <!-- Arrays -->
+      <!-- TODO: remove level 3 temp fix when we get a real one for recursion -->
       <div
-        v-if="value?.items?.[rule]"
+        v-if="value?.items?.[rule] && level < 3"
         class="rule">
         <Schema
           v-for="(schema, index) in value.items[rule]"
