@@ -480,6 +480,9 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
+      '@scalar/snippetz-plugin-undici':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@scalar/swagger-editor':
         specifier: workspace:*
         version: link:../swagger-editor
@@ -4476,6 +4479,19 @@ packages:
       colors: 1.2.5
       string-argv: 0.3.2
     dev: true
+
+  /@scalar/snippetz-plugin-undici@0.1.0:
+    resolution: {integrity: sha512-1OT+W4D2LxRaNzjYdCoEahbXfOL+7tJDevvRLW89qG2HkWEMKWcaFWifCgjWVo6toyrQppZzY6QsPPctLEn12w==}
+    dependencies:
+      '@scalar/snippetz': 0.1.0
+      prettier: 3.1.1
+    dev: false
+
+  /@scalar/snippetz@0.1.0:
+    resolution: {integrity: sha512-8awirECJJpkbccyW0VAaT6OMepyKkaRWiv7I1UBcu5Pucj5Nmi/Q28eDiwaoTegyjAfPUYPiCuwRgyH4KgJOzg==}
+    dependencies:
+      prettier: 3.1.1
+    dev: false
 
   /@sinclair/typebox@0.27.8:
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
@@ -12819,6 +12835,12 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
     dev: true
+
+  /prettier@3.1.1:
+    resolution: {integrity: sha512-22UbSzg8luF4UuZtzgiUOfcGM8s4tjBv6dJRT7j275NXsy2jb4aJa4NNveul5x4eqlF1wuhuR2RElK71RvmVaw==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dev: false
 
   /pretty-bytes@6.1.1:
     resolution: {integrity: sha512-mQUvGU6aUFQ+rNvTIAcZuWGRT9a6f6Yrg9bHs4ImKF+HZCEK+plBvnAZYSIQztknZF2qnzNtr6F8s0+IuptdlQ==}

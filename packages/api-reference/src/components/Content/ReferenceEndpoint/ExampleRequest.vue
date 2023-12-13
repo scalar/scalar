@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
+import { undici } from '@scalar/snippetz-plugin-undici'
 import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
-import { HTTPSnippet, availableTargets } from 'httpsnippet-lite'
+import { HTTPSnippet } from 'httpsnippet-lite'
 import { computed, ref, watch } from 'vue'
 
 import {
-  filterClients,
   getApiClientRequest,
+  getAvailableTargets,
   getHarRequest,
   getRequestFromAuthentication,
   getRequestFromOperation,
@@ -47,8 +48,14 @@ const generateSnippet = async (): Promise<string> => {
 
   // Actually generate the snippet
   try {
-    const snippet = new HTTPSnippet(request)
+    // Snippetz
+    if (state.selectedClient.clientKey === 'undici') {
+      // @ts-ignore
+      return undici(request).code
+    }
 
+    // httpsnippet-lite
+    const snippet = new HTTPSnippet(request)
     return (await snippet.convert(
       state.selectedClient.targetKey,
       state.selectedClient.clientKey,
@@ -112,11 +119,11 @@ computed(() => {
                 )
             ">
             <optgroup
-              v-for="target in availableTargets()"
+              v-for="target in getAvailableTargets()"
               :key="target.key"
               :label="target.title">
               <option
-                v-for="client in target.clients.filter(filterClients)"
+                v-for="client in target.clients"
                 :key="client.key"
                 :value="
                   JSON.stringify({
