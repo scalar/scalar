@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
-import { type TargetId, availableTargets } from 'httpsnippet-lite'
+import { type TargetId } from 'httpsnippet-lite'
 import { ref } from 'vue'
 
-import { filterClients } from '../../../helpers'
+import { getAvailableTargets } from '../../../helpers'
 import { type SelectedClient, useTemplateStore } from '../../../stores/template'
 import { Icon } from '../../Icon'
 
@@ -47,7 +47,7 @@ const featuredClients = ref<SelectedClient[]>(
         },
         {
           targetKey: 'node',
-          clientKey: 'axios',
+          clientKey: 'undici',
         },
         {
           targetKey: 'python',
@@ -66,7 +66,7 @@ const featuredClients = ref<SelectedClient[]>(
         },
         {
           targetKey: 'node',
-          clientKey: 'axios',
+          clientKey: 'undici',
         },
         {
           targetKey: 'php',
@@ -150,11 +150,11 @@ function checkIfClientIsFeatured(client: SelectedClient) {
             )
         ">
         <optgroup
-          v-for="target in availableTargets()"
+          v-for="target in getAvailableTargets()"
           :key="target.key"
           :label="target.title">
           <option
-            v-for="client in target.clients.filter(filterClients)"
+            v-for="client in target.clients"
             :key="client.key"
             :value="
               JSON.stringify({

@@ -1,6 +1,6 @@
 export * from './deepMerge'
-export * from './filterClients'
 export * from './getApiClientRequest'
+export * from './getAvailableTargets'
 export * from './getExampleFromSchema'
 export * from './getHarRequest'
 export * from './getHeadingId'
