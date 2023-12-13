@@ -109,6 +109,8 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
 
 const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
 
+watch(rawSpecRef, (nc) => console.log(nc))
+
 const { setCodeMirrorRef } = useCodeMirror({
   content: rawSpecRef,
   lineNumbers: true,
@@ -159,6 +161,7 @@ const { setCodeMirrorRef } = useCodeMirror({
           ref="swaggerEditorRef"
           :error="errorRef"
           :proxyUrl="currentConfiguration.proxy"
+          :setCodeMirrorRef="setCodeMirrorRef"
           :theme="currentConfiguration.theme"
           :value="rawSpecRef"
           @changeTheme="$emit('changeTheme', $event)"
