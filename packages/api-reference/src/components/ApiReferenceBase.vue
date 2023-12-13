@@ -109,8 +109,6 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
 
 const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
 
-watch(rawSpecRef, (nc) => console.log(nc))
-
 const { setCodeMirrorRef } = useCodeMirror({
   content: rawSpecRef,
   lineNumbers: true,
