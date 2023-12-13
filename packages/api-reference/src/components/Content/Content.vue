@@ -5,7 +5,10 @@ import { computed, onMounted, ref } from 'vue'
 import { hasModels } from '../../helpers'
 import { useNavigation, useRefOnMount } from '../../hooks'
 import type { Spec } from '../../types'
+import { Authentication } from './Authentication'
 import Introduction from './Introduction'
+import ClientList from './Introduction/ClientList.vue'
+import ServerList from './Introduction/ServerList.vue'
 import Models from './Models.vue'
 import ModelsAccordion from './ModelsAccordion.vue'
 import ReferenceEndpoint from './ReferenceEndpoint'
@@ -66,6 +69,9 @@ const tagLayout = computed<typeof ReferenceTag>(() =>
 const endpointLayout = computed<typeof ReferenceEndpoint>(() =>
   props.layout === 'accordion' ? ReferenceEndpointAccordion : ReferenceEndpoint,
 )
+const introCardsSlot = computed(() =>
+  props.layout === 'accordion' ? 'after' : 'aside',
+)
 </script>
 <template>
   <div
@@ -78,8 +84,17 @@ const endpointLayout = computed<typeof ReferenceEndpoint>(() =>
       v-if="parsedSpec.info.title || parsedSpec.info.description"
       :info="parsedSpec.info"
       :parsedSpec="parsedSpec"
-      :rawSpec="rawSpec"
-      :servers="localServers" />
+      :rawSpec="rawSpec">
+      <template #[introCardsSlot]>
+        <div
+          class="introduction-cards"
+          :class="{ 'introduction-cards-row': layout === 'accordion' }">
+          <ServerList :value="localServers" />
+          <ClientList />
+          <Authentication :parsedSpec="parsedSpec" />
+        </div>
+      </template>
+    </Introduction>
     <slot
       v-else
       name="empty-state" />
@@ -118,5 +133,21 @@ const endpointLayout = computed<typeof ReferenceEndpoint>(() =>
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.introduction-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.introduction-cards-row {
+  flex-direction: row;
+  align-items: flex-start;
+}
+.introduction-cards-row > * {
+  flex: 1;
+}
+.references-narrow .introduction-cards-row {
+  flex-direction: column;
+  align-items: stretch;
 }
 </style>

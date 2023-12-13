@@ -15,6 +15,7 @@ const configuration = reactive<ReferenceConfiguration>({
   proxy: 'http://localhost:5051',
   isEditable: true,
   showSidebar: true,
+  layout: 'modern',
   spec: { content },
 })
 

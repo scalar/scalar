@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useMediaQuery } from '@vueuse/core'
+import { useResizeObserver } from '@vueuse/core'
 import { type TargetId } from 'httpsnippet-lite'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { getAvailableTargets } from '../../../helpers'
 import { type SelectedClient, useTemplateStore } from '../../../stores/template'
@@ -10,31 +10,17 @@ import { Icon } from '../../Icon'
 // Use the template store to keep it accessible globally
 const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
 
-const selectLanguage = (selectedClient: SelectedClient) => {
-  setItem('selectedClient', selectedClient)
+const isSmall = ref(false)
+const containerRef = ref<HTMLElement>()
 
-  // Check if selected client is featured already (icon + text)
-  const selectedClientIsIncluded = !!featuredClients.value.filter((item) => {
-    return isSelectedClient(item)
-  }).length
-
-  // Exit early if the client is already featured
-  if (selectedClientIsIncluded) {
-    return
-  }
-
-  // Remove first item and add the preferred client to the end of the list
-  featuredClients.value = [
-    ...featuredClients.value.slice(1),
-    state.selectedClient,
-  ]
-}
-
-const isMobile = useMediaQuery('(max-width: 1000px)')
+useResizeObserver(
+  containerRef,
+  (entries) => (isSmall.value = entries[0].contentRect.width < 400),
+)
 
 // Show popular clients with an icon, not just in a select.
-const featuredClients = ref<SelectedClient[]>(
-  isMobile.value
+const featuredClients = computed<SelectedClient[]>(() =>
+  isSmall.value
     ? // Mobile
       [
         {
@@ -113,7 +99,9 @@ function checkIfClientIsFeatured(client: SelectedClient) {
 }
 </script>
 <template>
-  <div class="client-libraries-content">
+  <div
+    ref="containerRef"
+    class="client-libraries-content">
     <div
       v-for="client in featuredClients"
       :key="client.clientKey"
@@ -121,7 +109,7 @@ function checkIfClientIsFeatured(client: SelectedClient) {
       :class="{
         'code-languages__active': isSelectedClient(client),
       }"
-      @click="() => selectLanguage(client)">
+      @click="() => setItem('selectedClient', client)">
       <div
         class="code-languages-background"
         :class="`code-languages-icon__${client.targetKey}`">
