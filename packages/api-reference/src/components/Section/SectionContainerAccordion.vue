@@ -3,30 +3,34 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 </script>
 <template>
-  <Disclosure
-    v-slot="{ open }"
-    as="div"
-    class="section-accordion"
-    defaultOpen>
-    <DisclosureButton class="section-accordion-button">
-      <ScalarIcon
-        class="section-accordion-chevron"
-        :icon="open ? 'ChevronDown' : 'ChevronRight'" />
-      <div class="section-accordion-title">
-        <slot name="title" />
-      </div>
-    </DisclosureButton>
-    <DisclosurePanel class="section-accordion-content">
-      <slot />
-    </DisclosurePanel>
-  </Disclosure>
+  <div class="section-accordion-wrapper">
+    <Disclosure
+      v-slot="{ open }"
+      as="div"
+      class="section-accordion"
+      defaultOpen>
+      <DisclosureButton class="section-accordion-button">
+        <ScalarIcon
+          class="section-accordion-chevron"
+          :icon="open ? 'ChevronDown' : 'ChevronRight'" />
+        <div class="section-accordion-title">
+          <slot name="title" />
+        </div>
+      </DisclosureButton>
+      <DisclosurePanel class="section-accordion-content">
+        <slot />
+      </DisclosurePanel>
+    </Disclosure>
+  </div>
 </template>
 <style scoped>
+.section-accordion-wrapper {
+  padding: 0 60px;
+}
 .section-accordion {
   position: relative;
   width: 100%;
   max-width: var(--refs-content-max-width);
-  padding: 0 60px;
   margin: auto;
 }
 .section-accordion-content {
@@ -59,7 +63,7 @@ import { ScalarIcon } from '@scalar/components'
   align-items: start;
   flex: 1;
 }
-.references-narrow .section-accordion {
+.references-narrow .section-accordion-wrapper {
   padding: calc(48px + var(--refs-header-height)) 24px 48px 24px;
 }
 </style>
