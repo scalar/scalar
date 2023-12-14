@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
+import { useNavState } from '../../hooks'
 import { type ReferenceProps, type ReferenceSlots } from '../../types'
 import ApiReferenceBase from '../ApiReferenceBase.vue'
 import DarkModeToggle from '../DarkModeToggle.vue'
@@ -15,6 +16,11 @@ const showMobileDrawer = ref(false)
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
 
+watch(isMobile, (n, o) => {
+  // Close the drawer when we go from desktop to mobile
+  if (n && !o) showMobileDrawer.value = false
+})
+
 // Override the sidebar value for mobile to open and close the drawer
 const config = computed(() => {
   const showSidebar = isMobile.value
@@ -22,6 +28,14 @@ const config = computed(() => {
     : props.configuration?.showSidebar
   return { ...props.configuration, showSidebar }
 })
+
+const { hash } = useNavState()
+
+// watch(hash, (n, o) => {
+//   if (n && n !== o) {
+//     showMobileDrawer.value = false
+//   }
+// })
 </script>
 <template>
   <ApiReferenceBase

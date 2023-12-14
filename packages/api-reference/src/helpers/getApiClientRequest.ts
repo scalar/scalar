@@ -42,9 +42,15 @@ export function getApiClientRequest({
     type: request.method,
     path: requestFromOperation.path ?? '',
     variables,
-    cookies: request.cookies,
-    query: request.queryString,
-    headers: request.headers,
+    cookies: request.cookies.map((cookie) => {
+      return { ...cookie, enabled: true }
+    }),
+    query: request.queryString.map((queryString) => {
+      return { ...queryString, enabled: true }
+    }),
+    headers: request.headers.map((header) => {
+      return { ...header, enabled: true }
+    }),
     url: getUrlFromServerState(serverState) ?? '',
     body: request.postData?.text,
   }

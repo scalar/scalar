@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { useTemplateStore } from '../../../stores/template'
-import type { Info, Server, Spec } from '../../../types'
+import type { Info, Spec } from '../../../types'
 import { Badge } from '../../Badge'
-import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import {
   Section,
   SectionColumn,
@@ -13,29 +11,22 @@ import {
   SectionContent,
   SectionHeader,
 } from '../../Section'
-import { Authentication } from '../Authentication'
-import ClientSelector from './ClientSelector.vue'
 import Description from './Description.vue'
 import DownloadSpec from './DownloadSpec.vue'
-import ServerList from './ServerList.vue'
 
 const props = defineProps<{
   info: Info
-  servers: Server[]
   parsedSpec: Spec
   rawSpec: string
 }>()
-
-const { state, getClientTitle, getTargetTitle } = useTemplateStore()
 
 const specVersion = computed(() => {
   return props.parsedSpec.openapi ?? props.parsedSpec.swagger ?? ''
 })
 </script>
-
 <template>
   <SectionContainer>
-    <Section>
+    <Section class="introduction-section">
       <SectionContent :loading="!info.description && !info.title">
         <SectionColumns>
           <SectionColumn>
@@ -52,30 +43,14 @@ const specVersion = computed(() => {
             <DownloadSpec :value="rawSpec" />
             <Description :value="info.description" />
           </SectionColumn>
-          <SectionColumn>
+          <SectionColumn v-if="$slots.aside">
             <div class="sticky-cards">
-              <ServerList :value="servers" />
-
-              <Card>
-                <CardHeader transparent>Client Libraries</CardHeader>
-                <CardContent
-                  frameless
-                  transparent>
-                  <ClientSelector />
-                </CardContent>
-                <CardFooter
-                  class="font-mono card-footer"
-                  muted>
-                  {{ getTargetTitle(state.selectedClient) }}
-                  {{ getClientTitle(state.selectedClient) }}
-                </CardFooter>
-              </Card>
-
-              <Authentication :parsedSpec="parsedSpec" />
+              <slot name="aside" />
             </div>
           </SectionColumn>
         </SectionColumns>
       </SectionContent>
+      <slot name="after" />
     </Section>
   </SectionContainer>
 </template>
@@ -92,19 +67,14 @@ const specVersion = computed(() => {
 .heading.loading {
   width: 80%;
 }
-
-.font-mono {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  font-size: var(--theme-small, var(--default-theme-small));
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  padding: 10px 12px;
+.introduction-section {
+  gap: 48px;
 }
 .sticky-cards {
   display: flex;
   flex-direction: column;
-  gap: 12px;
 
   position: sticky;
-  top: 24px;
+  top: calc(var(--refs-header-height) + 24px);
 }
 </style>

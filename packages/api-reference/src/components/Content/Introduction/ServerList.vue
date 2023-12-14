@@ -70,7 +70,11 @@ watch(
 
 <template>
   <Card v-if="value.length > 0">
-    <CardHeader muted>Base URL</CardHeader>
+    <CardHeader
+      borderless
+      muted>
+      Base URL
+    </CardHeader>
     <CardContent class="scalar-card-serverlist">
       <div class="scalar-card-serverlist-container">
         <!-- Multiple URLs -->

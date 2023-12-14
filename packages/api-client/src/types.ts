@@ -42,6 +42,7 @@ export type BaseParameter = {
   value: string | number
   customClass?: string
   required?: boolean
+  enabled: boolean
 }
 
 export type Header = BaseParameter

@@ -13,7 +13,7 @@ function handleDeleteIndex(index: number) {
 }
 
 function addAnotherHandler() {
-  activeRequest.query?.push({ name: '', value: '' })
+  activeRequest.query?.push({ name: '', value: '', enabled: true })
 }
 </script>
 <template>

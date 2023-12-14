@@ -12,7 +12,7 @@ function handleDeleteIndex(index: number) {
 }
 
 function addAnotherHandler() {
-  activeRequest.cookies?.push({ name: '', value: '' })
+  activeRequest.cookies?.push({ name: '', value: '', enabled: true })
 }
 </script>
 <template>

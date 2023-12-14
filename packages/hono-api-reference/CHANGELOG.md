@@ -1,5 +1,28 @@
 # @scalar/hono-api-reference
 
+## 0.2.10
+
+### Patch Changes
+
+- 01afd152: fix: sidebar on mobile doesnt close once changing active item
+- Updated dependencies [01afd152]
+  - @scalar/api-reference@1.10.1
+
+## 0.2.9
+
+### Patch Changes
+
+- 5efb80bb: feat: add undici example requests
+- a1319e8b: Switched internal component library to use ScalarComponents instead
+- Updated dependencies [5efb80bb]
+- Updated dependencies [8436e115]
+- Updated dependencies [5d6b539b]
+- Updated dependencies [c24583ba]
+- Updated dependencies [a1319e8b]
+- Updated dependencies [d1caa4ee]
+- Updated dependencies [f2a7a214]
+  - @scalar/api-reference@1.10.0
+
 ## 0.2.8
 
 ### Patch Changes

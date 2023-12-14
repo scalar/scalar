@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.1.0
+
+### Minor Changes
+
+- a1319e8b: Switched internal component library to use ScalarComponents instead
+
 ## 0.0.5
 
 ### Patch Changes

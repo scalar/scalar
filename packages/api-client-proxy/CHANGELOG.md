@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.12
+
+### Patch Changes
+
+- a1319e8b: Switched internal component library to use ScalarComponents instead
+
 ## 0.5.11
 
 ### Patch Changes

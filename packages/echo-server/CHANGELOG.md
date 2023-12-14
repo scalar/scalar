@@ -1,5 +1,11 @@
 # @scalar/echo-server
 
+## 0.5.6
+
+### Patch Changes
+
+- a1319e8b: Switched internal component library to use ScalarComponents instead
+
 ## 0.5.5
 
 ### Patch Changes

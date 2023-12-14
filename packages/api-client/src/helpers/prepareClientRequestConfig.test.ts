@@ -163,4 +163,67 @@ describe('prepareClientRequestConfig', () => {
       },
     })
   })
+
+  it('sends body as JSON', async () => {
+    const clientRequestConfig = prepareClientRequestConfig({
+      request: {
+        type: 'GET',
+        url: 'https://example.com',
+        path: '/',
+        body: '{ "foo": "bar"}',
+      },
+      authState: { ...defaultAuthState },
+    })
+
+    expect(clientRequestConfig).toMatchObject({
+      body: {
+        foo: 'bar',
+      },
+    })
+  })
+
+  it('adds a json header', async () => {
+    const clientRequestConfig = prepareClientRequestConfig({
+      request: {
+        type: 'GET',
+        url: 'https://example.com',
+        path: '/',
+        body: '{ "foo": "bar"}',
+      },
+      authState: { ...defaultAuthState },
+    })
+
+    expect(clientRequestConfig.headers).toMatchObject([
+      {
+        name: 'Content-Type',
+        value: 'application/json; charset=utf-8',
+      },
+    ])
+  })
+
+  it('keeps content-type headers', async () => {
+    const clientRequestConfig = prepareClientRequestConfig({
+      request: {
+        type: 'GET',
+        url: 'https://example.com',
+        path: '/',
+        body: '{ "foo": "bar"}',
+        headers: [
+          {
+            name: 'Content-Type',
+            value: 'plain/text',
+            enabled: true,
+          },
+        ],
+      },
+      authState: { ...defaultAuthState },
+    })
+
+    expect(clientRequestConfig.headers).toMatchObject([
+      {
+        name: 'Content-Type',
+        value: 'plain/text',
+      },
+    ])
+  })
 })

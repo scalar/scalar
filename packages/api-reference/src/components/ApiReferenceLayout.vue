@@ -215,6 +215,9 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   max-width: 100%;
   flex: 1;
 
+  /* For aligning the mobile nav */
+  position: relative;
+
   /* Scroll vertically */
   overflow-y: auto;
   overflow-x: hidden;

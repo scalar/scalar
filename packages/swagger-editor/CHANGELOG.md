@@ -1,5 +1,16 @@
 # @scalar/swagger-editor
 
+## 0.8.4
+
+### Patch Changes
+
+- a1319e8b: Switched internal component library to use ScalarComponents instead
+- Updated dependencies [a1319e8b]
+  - @scalar/components@0.1.0
+  - @scalar/use-codemirror@0.7.16
+  - @scalar/use-modal@0.2.1
+  - @scalar/themes@0.5.1
+
 ## 0.8.3
 
 ### Patch Changes
