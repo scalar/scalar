@@ -146,16 +146,10 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       v-if="value?.properties"
       class="children">
       <Schema
-        v-if="level < 3"
         :compact="compact"
         :level="level + 1"
-        :toggleVisibility="toggleVisibility"
+        :toggleVisibility="level >= 3 || toggleVisibility"
         :value="value" />
-      <div
-        v-else
-        class="too-deep">
-        …
-      </div>
     </div>
     <!-- Array of objects -->
     <template v-if="value?.items">
@@ -163,16 +157,10 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         v-if="['object'].includes(value.items.type)"
         class="children">
         <Schema
-          v-if="level < 3"
           :compact="compact"
           :level="level + 1"
-          :toggleVisibility="toggleVisibility"
+          :toggleVisibility="level >= 3 || toggleVisibility"
           :value="value.items" />
-        <div
-          v-else
-          class="too-deep">
-          …
-        </div>
       </div>
     </template>
     <!-- oneOf -->
@@ -188,7 +176,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
           :key="index"
           :compact="compact"
           :level="level + 1"
-          :toggleVisibility="toggleVisibility"
+          :toggleVisibility="level >= 3 || toggleVisibility"
           :value="schema" />
       </div>
       <!-- Arrays -->
@@ -201,7 +189,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
           :key="index"
           :compact="compact"
           :level="level + 1"
-          :toggleVisibility="toggleVisibility"
+          :toggleVisibility="level >= 3 || toggleVisibility"
           :value="schema" />
       </div>
     </template>
