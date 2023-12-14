@@ -7,11 +7,11 @@ const props = defineProps<{
   label?: string
 }>()
 
-const { getSectionId, hash } = useNavState()
+const { getSectionId, hash, isIntersectionEnabled } = useNavState()
 const { setCollapsedSidebarItem } = useSidebar()
 
 function handleScroll() {
-  if (!props.label) return
+  if (!props.label || !isIntersectionEnabled.value) return
 
   // We use replaceState so we don't trigger the url hash watcher and trigger a scroll
   // this is why we set the hash value directly

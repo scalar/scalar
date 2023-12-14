@@ -7,6 +7,9 @@ import type { Tag, TransformedOperation } from '../types'
 // Keeps track of the URL hash without the #
 const hash = ref('')
 
+// To disable the intersection observer on click
+const isIntersectionEnabled = ref(true)
+
 /**
  * ID creation methods
  */
@@ -76,5 +79,6 @@ export const useNavState = (hasLifecyle = true) => {
     getOperationId,
     getSectionId,
     getTagId,
+    isIntersectionEnabled,
   }
 }
