@@ -142,14 +142,6 @@ export const OpenAuth2: Story = {
                   'read:pets': 'read your pets',
                 },
               },
-              authorizationCode: {
-                authorizationUrl: 'https://example.com/api/oauth/dialog',
-                tokenUrl: 'https://example.com/api/oauth/token',
-                scopes: {
-                  'write:pets': 'modify pets in your account',
-                  'read:pets': 'read your pets',
-                },
-              },
             },
           },
         },

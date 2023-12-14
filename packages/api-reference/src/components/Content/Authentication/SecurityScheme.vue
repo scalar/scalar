@@ -1,6 +1,10 @@
 <script lang="ts" setup>
+import { ScalarIcon } from '@scalar/components'
+
 import { useGlobalStore } from '../../../stores'
 import CardForm from './CardForm.vue'
+import CardFormButton from './CardFormButton.vue'
+import CardFormGroup from './CardFormGroup.vue'
 import CardFormTextInput from './CardFormTextInput.vue'
 
 // import MarkdownRenderer from '../MarkdownRenderer.vue'
@@ -123,7 +127,7 @@ const startAuthentication = (url: string) => {
       {{ value.in.charAt(0).toUpperCase() + value.in.slice(1) }} API Key
     </CardFormTextInput>
     <template v-else-if="value.type === 'http' || value.type === 'basic'">
-      <template v-if="value.type === 'basic' || value.scheme === 'basic'">
+      <CardFormGroup v-if="value.type === 'basic' || value.scheme === 'basic'">
         <CardFormTextInput
           id="http.basic.username"
           placeholder="Username"
@@ -139,7 +143,7 @@ const startAuthentication = (url: string) => {
           @input="handleHttpBasicPasswordInput">
           Password
         </CardFormTextInput>
-      </template>
+      </CardFormGroup>
       <CardFormTextInput
         v-else-if="value.scheme === 'bearer'"
         id="http.bearer.token"
@@ -149,53 +153,40 @@ const startAuthentication = (url: string) => {
         Bearer Token
       </CardFormTextInput>
     </template>
-    <div v-else-if="value.type.toLowerCase() === 'oauth2'">
-      <template v-if="value.flows">
-        <div
-          v-for="flowKey in Object.keys(value.flows)"
-          :key="flowKey">
-          <div class="input">
-            <label for="oAuth2.clientId">Client ID</label>
-            <input
-              id="oAuth2.clientId"
-              autocomplete="off"
-              placeholder="Client ID"
-              spellcheck="false"
-              type="text"
-              :value="authentication.oAuth2.clientId"
-              @input="handleOpenAuth2ClientIdInput" />
-          </div>
+    <CardFormGroup
+      v-else-if="
+        value.type.toLowerCase() === 'oauth2' &&
+        value.flows &&
+        value.flows.implicit
+      ">
+      <CardFormTextInput
+        id="oAuth2.clientId"
+        placeholder="Token"
+        :value="authentication.oAuth2.clientId">
+        Client ID
+      </CardFormTextInput>
+      <CardFormButton>Scopes</CardFormButton>
+      <!-- <label
+          v-for="scope in Object.keys(value.flows.implicit.scopes)"
+          :key="scope"
+          class="check">
+          <input
+            :checked="authentication.oAuth2.scopes[scope] ?? false"
+            type="checkbox"
+            @input="() => handleScopeInput(scope)" />
+          <span class="checkmark" />
+          <code>{{ scope }}</code>
+        </label> -->
 
-          <div class="input">
-            <label>Scopes</label>
-            <label
-              v-for="scope in Object.keys(value.flows[flowKey].scopes)"
-              :key="scope"
-              class="check">
-              <input
-                :checked="authentication.oAuth2.scopes[scope] ?? false"
-                type="checkbox"
-                @input="() => handleScopeInput(scope)" />
-              <span class="checkmark" />
-              <code>{{ scope }}</code>
-            </label>
-          </div>
-
-          <button
-            class="input"
-            type="button"
-            @click="
-              () =>
-                startAuthentication(
-                  getOpenAuth2AuthorizationUrl(value.flows[flowKey]),
-                )
-            ">
-            Authorize
-          </button>
-        </div>
-      </template>
-
-      <!-- {{ value }} -->
-    </div>
+      <CardFormButton
+        @click="
+          () =>
+            startAuthentication(
+              getOpenAuth2AuthorizationUrl(value.flows.implicit),
+            )
+        ">
+        Authorize
+      </CardFormButton>
+    </CardFormGroup>
   </CardForm>
 </template>

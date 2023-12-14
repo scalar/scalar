@@ -5,8 +5,9 @@
 </template>
 <style scoped>
 .card-form {
-  color: var(--theme-color-1, var(--default-theme-color-1));
   --input-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  border-color: var(--theme-border-color, var(--default-theme-border-color));
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .card-form > :first-child {
   border-top-left-radius: var(--input-radius);
@@ -16,7 +17,7 @@
   border-bottom-left-radius: var(--input-radius);
   border-bottom-right-radius: var(--input-radius);
 }
-.card-form.card-form > :deep(* + *) {
+.card-form > :deep(* + *) {
   margin-top: -1px;
   border-top-color: transparent;
 }

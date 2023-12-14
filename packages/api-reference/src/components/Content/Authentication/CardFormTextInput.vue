@@ -1,6 +1,7 @@
 <script setup lang="ts">
 defineProps<{
   id: string
+  type?: string
 }>()
 
 defineOptions({
@@ -17,18 +18,19 @@ defineOptions({
       :id="id"
       autocomplete="off"
       spellcheck="false"
-      type="text" />
+      :type="type ?? 'text'" />
   </div>
 </template>
 <style scoped>
-.card-form-input {
+:where(.card-form-input) {
   background: transparent;
   position: relative;
   width: 100%;
   text-align: left;
   display: flex;
-  box-sizing: content-box;
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border-style: solid;
+  border-width: 1px;
+  border-color: inherit;
 }
 .card-form-input:focus-within {
   border-color: var(--theme-color-3, var(--default-theme-color-3));
