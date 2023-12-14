@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 0.8.3
+
+### Patch Changes
+
+- 5d6b539b: feat: toggle parameters to include/exclude them in/from the request
+- a1319e8b: Switched internal component library to use ScalarComponents instead
+- Updated dependencies [a1319e8b]
+  - @scalar/use-codemirror@0.7.16
+  - @scalar/use-modal@0.2.1
+  - @scalar/themes@0.5.1
+
 ## 0.8.2
 
 ### Patch Changes

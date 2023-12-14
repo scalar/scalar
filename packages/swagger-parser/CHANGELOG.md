@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.5.13
+
+### Patch Changes
+
+- a1319e8b: Switched internal component library to use ScalarComponents instead
+
 ## 0.5.12
 
 ### Patch Changes

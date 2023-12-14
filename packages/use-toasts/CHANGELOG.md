@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.5.11
+
+### Patch Changes
+
+- d1caa4ee: fix: self contain app and toast containers + size changing fix
+
 ## 0.5.10
 
 ### Patch Changes
