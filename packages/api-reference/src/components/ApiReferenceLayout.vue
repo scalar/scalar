@@ -224,7 +224,7 @@ const { state } = useApiClientStore()
   flex: 1;
 
   /* For aligning the mobile nav */
-  position: relative;
+  /* position: relative; */
 
   /* Scroll vertically */
   overflow-y: auto;
