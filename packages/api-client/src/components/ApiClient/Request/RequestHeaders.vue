@@ -12,6 +12,10 @@ function handleDeleteIndex(index: number) {
 }
 
 function addAnotherHandler() {
+  if (activeRequest.headers === undefined) {
+    activeRequest.headers = []
+  }
+
   activeRequest.headers?.push({ name: '', value: '', enabled: true })
 }
 </script>
