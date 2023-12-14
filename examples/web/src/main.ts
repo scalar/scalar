@@ -6,6 +6,7 @@ import ApiClientPage from './pages/ApiClientPage.vue'
 import ApiReferencePage from './pages/ApiReferencePage.vue'
 import ClassicApiReferencePage from './pages/ClassicApiReferencePage.vue'
 import EditableApiReferencePage from './pages/EditableApiReferencePage.vue'
+import EmbeddedApiReferencePage from './pages/EmbeddedApiReferencePage.vue'
 import StandaloneApiReferencePage from './pages/StandaloneApiReferencePage.vue'
 import StartPage from './pages/StartPage.vue'
 import SwaggerEditorPage from './pages/SwaggerEditorPage.vue'
@@ -28,6 +29,11 @@ const routes = [
     path: '/classic-api-reference',
     name: 'classic-api-reference',
     component: ClassicApiReferencePage,
+  },
+  {
+    path: '/embedded-api-reference',
+    name: 'embedded-api-reference',
+    component: EmbeddedApiReferencePage,
   },
   {
     path: '/editable-api-reference',

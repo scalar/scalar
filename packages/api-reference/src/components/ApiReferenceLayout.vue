@@ -223,9 +223,6 @@ const { state } = useApiClientStore()
   max-width: 100%;
   flex: 1;
 
-  /* For aligning the mobile nav */
-  /* position: relative; */
-
   /* Scroll vertically */
   overflow-y: auto;
   overflow-x: hidden;
@@ -341,6 +338,9 @@ const { state } = useApiClientStore()
       'rendered'
       'footer';
   }
+  .references-sidebar {
+    overflow-y: hidden;
+  }
   .references-editable {
     grid-template-areas:
       'header'
@@ -350,11 +350,16 @@ const { state } = useApiClientStore()
 
   .references-navigation,
   .references-rendered {
-    position: static;
     max-height: unset;
   }
 
+  .references-rendered {
+    position: static;
+  }
+
   .references-navigation {
+    position: sticky;
+    top: var(--refs-header-height);
     height: 0px;
     z-index: 10;
   }
@@ -363,7 +368,7 @@ const { state } = useApiClientStore()
     position: absolute;
 
     /* Offset by 1px to avoid gap */
-    top: calc(var(--refs-header-height) - 1px);
+    top: -1px;
 
     /* Add a pixel to cover the bottom of the viewport */
     height: calc(var(--full-height) - var(--refs-header-height) + 1px);
