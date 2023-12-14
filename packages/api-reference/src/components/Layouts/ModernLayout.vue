@@ -26,8 +26,8 @@ const config = computed(() => {
 
 const { activeItemId } = useNavigation()
 
-watch(activeItemId, () => {
-  if (activeItemId) {
+watch(activeItemId, (n, o) => {
+  if (n && n !== o) {
     showMobileDrawer.value = false
   }
 })
