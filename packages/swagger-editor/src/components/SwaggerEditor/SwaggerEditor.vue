@@ -91,6 +91,43 @@ defineExpose({
     </div>
   </ResetStyles>
 </template>
+<style>
+.swagger-editor-input {
+  height: 100%;
+  overflow: hidden;
+  background: var(--theme-background-2, var(--default-theme-background-2));
+}
+.swagger-editor-input .cm-line:first-of-type:last-of-type:has(br):before {
+  content: 'Paste your Swagger file here...';
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  position: absolute;
+  display: block;
+  height: 23px;
+}
+.swagger-editor-input > * {
+  background: red;
+  width: 100%;
+  height: 100%;
+  padding-top: 4px;
+  min-height: 76px;
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  display: flex;
+  align-items: stretch;
+}
+.scalar-codemirror {
+  flex-grow: 1;
+  max-width: 100%;
+  cursor: text;
+  font-size: var(--theme-small, var(--default-theme-small));
+}
+.scalar-codemirror-variable {
+  color: var(--scalar-api-client-color, var(--default-scalar-api-client-color));
+}
+.cm-focused {
+  outline: none !important;
+}
+</style>
 <style scoped>
 .swagger-editor {
   min-width: 0;

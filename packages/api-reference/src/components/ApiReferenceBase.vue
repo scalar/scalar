@@ -159,6 +159,7 @@ const { setCodeMirrorRef } = useCodeMirror({
           ref="swaggerEditorRef"
           :error="errorRef"
           :proxyUrl="currentConfiguration.proxy"
+          :setCodeMirrorRef="setCodeMirrorRef"
           :theme="currentConfiguration.theme"
           :value="rawSpecRef"
           @changeTheme="$emit('changeTheme', $event)"
