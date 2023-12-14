@@ -36,7 +36,7 @@ const isHovered = useElementHover(button)
         </div>
         <ScalarIcon
           class="section-accordion-chevron"
-          :icon="open ? 'ChevronDown' : 'ChevronLeft'" />
+          :icon="open ? 'ChevronDown' : 'ChevronRight'" />
       </DisclosureButton>
       <DisclosurePanel class="section-accordion-content">
         <div
@@ -66,8 +66,7 @@ const isHovered = useElementHover(button)
   z-index: 0;
 }
 /* Use a pseudo elements so we can use CSS filters to lighten the background  */
-.section-accordion::before,
-.section-accordion::after {
+.section-accordion::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -75,24 +74,20 @@ const isHovered = useElementHover(button)
 
   pointer-events: none;
 
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
 .section-accordion::before {
-  background: var(--theme-background-1);
+  background: var(--theme-background-2, var(--default-theme-background-2));
 }
-.section-accordion::before {
-  background: currentColor;
-  opacity: 0.1;
-}
-.section-accordion-button,
-.section-accordion-content {
+.section-accordion-button {
   padding: 6px;
 }
 
 .section-accordion-button {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
+  cursor: pointer;
 }
 
 .section-accordion-button-content {
@@ -103,33 +98,32 @@ const isHovered = useElementHover(button)
   display: flex;
   align-items: center;
   gap: 6px;
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
 
 .section-accordion-chevron {
   margin-right: 4px;
   width: 24px;
   cursor: pointer;
-  opacity: 0.6;
+  opacity: 1;
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
-
+.section-accordion-button:hover .section-accordion-chevron {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
 .section-accordion-content {
   border-top: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
   display: flex;
   flex-direction: column;
-  gap: 6px;
 }
 
 .section-accordion-description {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-color--1, var(--default-theme-color-1));
-  padding: 4px 6px;
-}
-
-.section-accordion-content-card {
-  background: var(--theme-background-1, var(--default-theme-background-1));
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  box-shadow: var(--theme-shadow-2, var(--default-theme-shadow-2));
+  padding: 10px 24px;
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 </style>

@@ -38,7 +38,7 @@ import { ScalarIcon } from '@scalar/components'
   flex-direction: column;
   gap: 12px;
 
-  padding-top: 24px;
+  padding-top: 12px;
 }
 .section-accordion-button {
   width: 100%;
@@ -50,18 +50,23 @@ import { ScalarIcon } from '@scalar/components'
   margin: -6px 0 -6px 0;
   border-radius: var(--theme-radius, var(--default-theme-radius));
 }
-.section-accordion-button:hover {
-  background: var(--theme-background-4, var(--default-theme-background-4));
-}
 .section-accordion-chevron {
-  width: 32px;
-  padding: 6px;
+  width: 24px;
+  position: absolute;
+  left: -24px;
+  height: auto;
+  top: 10px;
+  color: var(--theme-color-3, var(--default-theme-color-3));
+}
+.section-accordion-button:hover .section-accordion-chevron {
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .section-accordion-title {
   display: flex;
   flex-direction: column;
   align-items: start;
   flex: 1;
+  padding: 0 6px;
 }
 .references-narrow .section-accordion-wrapper {
   padding: calc(48px + var(--refs-header-height)) 24px 48px 24px;
