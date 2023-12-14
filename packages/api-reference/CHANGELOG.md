@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.10.1
+
+### Patch Changes
+
+- 01afd152: fix: sidebar on mobile doesnt close once changing active item
+
 ## 1.10.0
 
 ### Minor Changes
