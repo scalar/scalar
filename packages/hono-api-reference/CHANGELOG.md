@@ -1,5 +1,13 @@
 # @scalar/hono-api-reference
 
+## 0.2.11
+
+### Patch Changes
+
+- 70f33ea2: fix: references mobile menu position relative bug
+- Updated dependencies [70f33ea2]
+  - @scalar/api-reference@1.10.2
+
 ## 0.2.10
 
 ### Patch Changes
