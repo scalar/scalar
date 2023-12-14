@@ -18,4 +18,9 @@
   );
   position: relative;
 }
+
+.scalar-card-sticky {
+  position: sticky;
+  top: 24px;
+}
 </style>
