@@ -163,6 +163,9 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
               Getting Started
             </HeaderTabButton>
           </template>
+          <template #editor-input>
+            <slot name="editor-input" />
+          </template>
         </LazyLoadedSwaggerEditor>
       </template>
     </ApiReferenceLayout>
