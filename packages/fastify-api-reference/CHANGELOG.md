@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.10.2
+
+### Patch Changes
+
+- 70f33ea2: fix: references mobile menu position relative bug
+
 ## 1.10.1
 
 ### Patch Changes

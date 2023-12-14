@@ -44,7 +44,7 @@ async function scrollHandler(operation: TransformedOperation) {
         </SectionColumn>
         <SectionColumn>
           <template v-if="tag.operations?.length > 0">
-            <Card>
+            <Card class="scalar-card-sticky">
               <CardHeader muted>Endpoints</CardHeader>
               <CardContent muted>
                 <div class="endpoints custom-scroll">

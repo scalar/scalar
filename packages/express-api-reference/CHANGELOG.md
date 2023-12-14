@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.1.11
+
+### Patch Changes
+
+- 70f33ea2: fix: references mobile menu position relative bug
+- Updated dependencies [70f33ea2]
+  - @scalar/api-reference@1.10.2
+
 ## 0.1.10
 
 ### Patch Changes
