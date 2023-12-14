@@ -6,6 +6,7 @@ import CardForm from './CardForm.vue'
 import CardFormButton from './CardFormButton.vue'
 import CardFormGroup from './CardFormGroup.vue'
 import CardFormTextInput from './CardFormTextInput.vue'
+import SecuritySchemeScopes from './SecuritySchemeScopes.vue'
 
 // import MarkdownRenderer from '../MarkdownRenderer.vue'
 
@@ -162,22 +163,11 @@ const startAuthentication = (url: string) => {
       <CardFormTextInput
         id="oAuth2.clientId"
         placeholder="Token"
-        :value="authentication.oAuth2.clientId">
+        :value="authentication.oAuth2.clientId"
+        @input="handleOpenAuth2ClientIdInput">
         Client ID
       </CardFormTextInput>
-      <CardFormButton>Scopes</CardFormButton>
-      <!-- <label
-          v-for="scope in Object.keys(value.flows.implicit.scopes)"
-          :key="scope"
-          class="check">
-          <input
-            :checked="authentication.oAuth2.scopes[scope] ?? false"
-            type="checkbox"
-            @input="() => handleScopeInput(scope)" />
-          <span class="checkmark" />
-          <code>{{ scope }}</code>
-        </label> -->
-
+      <SecuritySchemeScopes :scopes="value.flows.implicit.scopes" />
       <CardFormButton
         @click="
           () =>
