@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.2.1
+
+### Patch Changes
+
+- a1319e8b: Switched internal component library to use ScalarComponents instead
+
 ## 0.2.0
 
 ### Minor Changes

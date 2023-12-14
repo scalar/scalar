@@ -1,5 +1,12 @@
 # @scalar/use-clipboard
 
+## 0.5.11
+
+### Patch Changes
+
+- Updated dependencies [d1caa4ee]
+  - @scalar/use-toasts@0.5.11
+
 ## 0.5.10
 
 ### Patch Changes

@@ -1,5 +1,32 @@
 # @scalar/api-reference
 
+## 1.10.0
+
+### Minor Changes
+
+- f2a7a214: feat: remove border from introduction card headings
+
+### Patch Changes
+
+- 5efb80bb: feat: add undici example requests
+- 8436e115: feat: classic introduction layout
+- 5d6b539b: feat: toggle parameters to include/exclude them in/from the request
+- c24583ba: feat: show schema description in parameter item
+- a1319e8b: Switched internal component library to use ScalarComponents instead
+- d1caa4ee: fix: self contain app and toast containers + size changing fix
+- Updated dependencies [5d6b539b]
+- Updated dependencies [a1319e8b]
+- Updated dependencies [d1caa4ee]
+  - @scalar/api-client@0.8.3
+  - @scalar/components@0.1.0
+  - @scalar/swagger-editor@0.8.4
+  - @scalar/swagger-parser@0.5.13
+  - @scalar/use-codemirror@0.7.16
+  - @scalar/use-modal@0.2.1
+  - @scalar/themes@0.5.1
+  - @scalar/use-toasts@0.5.11
+  - @scalar/use-clipboard@0.5.11
+
 ## 1.9.2
 
 ### Patch Changes

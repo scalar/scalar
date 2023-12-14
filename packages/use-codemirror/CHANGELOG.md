@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.16
+
+### Patch Changes
+
+- a1319e8b: Switched internal component library to use ScalarComponents instead
+
 ## 0.7.15
 
 ### Patch Changes

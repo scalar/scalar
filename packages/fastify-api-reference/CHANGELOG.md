@@ -1,5 +1,12 @@
 # @scalar/fastify-api-reference
 
+## 1.10.0
+
+### Patch Changes
+
+- 5efb80bb: feat: add undici example requests
+- a1319e8b: Switched internal component library to use ScalarComponents instead
+
 ## 1.9.2
 
 ### Patch Changes
