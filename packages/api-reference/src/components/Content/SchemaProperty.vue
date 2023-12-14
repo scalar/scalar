@@ -7,10 +7,14 @@ withDefaults(
     level?: number
     name?: string
     required?: boolean
+    compact?: boolean
+    toggleVisibility?: boolean
   }>(),
   {
     level: 0,
     required: false,
+    compact: false,
+    toggleVisibility: false,
   },
 )
 
@@ -52,7 +56,9 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 </script>
 
 <template>
-  <div class="property">
+  <div
+    class="property"
+    :class="`${compact ? 'property--compact' : ''} property--level-${level}`">
     <div class="property-information">
       <div
         v-if="name"
@@ -141,7 +147,9 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       class="children">
       <Schema
         v-if="level < 3"
+        :compact="compact"
         :level="level + 1"
+        :toggleVisibility="toggleVisibility"
         :value="value" />
       <div
         v-else
@@ -156,7 +164,9 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         class="children">
         <Schema
           v-if="level < 3"
+          :compact="compact"
           :level="level + 1"
+          :toggleVisibility="toggleVisibility"
           :value="value.items" />
         <div
           v-else
@@ -176,7 +186,9 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         <Schema
           v-for="(schema, index) in value[rule]"
           :key="index"
+          :compact="compact"
           :level="level + 1"
+          :toggleVisibility="toggleVisibility"
           :value="schema" />
       </div>
       <!-- Arrays -->
@@ -187,7 +199,9 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         <Schema
           v-for="(schema, index) in value.items[rule]"
           :key="index"
+          :compact="compact"
           :level="level + 1"
+          :toggleVisibility="toggleVisibility"
           :value="schema" />
       </div>
     </template>
@@ -196,13 +210,22 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
 <style scoped>
 .property {
-  padding: 12px 0;
+  padding: 10px;
   overflow: auto;
+}
+
+.property--compact:not(.property--level-0) {
+  padding: 8px;
+}
+
+.property--compact.property--level-0 {
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .property-information {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 9px;
   white-space: nowrap;
 }
@@ -249,10 +272,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   color: var(--theme-color-2, var(--default-theme-color-2));
 }
 
-.property {
-  padding: 12px 12px;
-}
-
 .property-example {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
@@ -281,6 +300,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
 .property-enum-value {
   padding: 3px 0;
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 .property-enum-value::before {
   content: '◼';
@@ -299,5 +319,9 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 .property-nullable {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   color: var(--theme-color-2, var(--default-theme-color-2));
+}
+
+.property--compact .property-example {
+  display: none;
 }
 </style>

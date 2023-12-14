@@ -216,12 +216,6 @@ watch(
 .markdown :deep(th:empty) {
   display: none;
 }
-.markdown.parameter-description :deep(p) {
-  margin-top: 4px;
-  font-size: var(--theme-small, var(--default-theme-small));
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  line-height: 1.4;
-}
 .markdown :deep(td:first-of-type),
 .markdown :deep(th:first-of-type) {
   border-left: none;

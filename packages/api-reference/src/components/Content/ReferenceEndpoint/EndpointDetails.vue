@@ -33,16 +33,3 @@ const { responses } = useResponses(props.operation)
     </Parameters>
   </div>
 </template>
-<style scoped>
-.endpoint-details :deep(.endpoint-title) {
-  font-size: var(--theme-heading-4, var(--default-theme-heading-4));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  line-height: 1.45;
-  margin-top: 12px;
-  margin-bottom: 12px;
-}
-.endpoint-description {
-  margin-bottom: 24px;
-}
-</style>
