@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.1.10
+
+### Patch Changes
+
+- 01afd152: fix: sidebar on mobile doesnt close once changing active item
+- Updated dependencies [01afd152]
+  - @scalar/api-reference@1.10.1
+
 ## 0.1.9
 
 ### Patch Changes
