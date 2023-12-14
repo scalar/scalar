@@ -7,55 +7,48 @@ defineProps<{ parameter: Parameters }>()
 </script>
 <template>
   <li class="parameter-item">
+    <div class="parameter-item-container">
+      <!-- Name -->
+      <span class="parameter-item-name">
+        {{ parameter.name }}
+      </span>
+
+      <!-- Optional -->
+      <template v-if="parameter.required === true">
+        <span class="parameter-item-required-optional parameter-item--required">
+          required
+        </span>
+      </template>
+      <!-- Maybe it’s cleaner to just show required, and not "optional". Makes it cleaner. -->
+      <!-- <template v-else>
+      <span class="parameter-item-required-optional parameter-item--optional">
+        optional
+      </span>
+    </template> -->
+
+      <!-- Type -->
+      <span
+        v-if="parameter.schema?.type"
+        class="parameter-item-type">
+        {{ parameter.schema?.type }}
+      </span>
+
+      <!-- Description -->
+      <MarkdownRenderer
+        v-if="parameter.description || parameter.schema?.description"
+        class="parameter-item-description"
+        :value="parameter.description || parameter.schema?.description" />
+    </div>
+
     <!-- Schema -->
     <template v-if="parameter.schema">
       <div class="parameter-schema">
         <Schema
           v-if="parameter.schema"
           compact
-          :level="0"
+          :level="1"
           toggleVisibility
-          :value="{
-            name: parameter.name,
-            description: parameter.description,
-            ...parameter.schema,
-          }" />
-      </div>
-    </template>
-
-    <template v-else>
-      <div class="parameter-item-container">
-        <!-- Name -->
-        <span class="parameter-item-name">
-          {{ parameter.name }}
-        </span>
-
-        <!-- Optional -->
-        <template v-if="parameter.required === true">
-          <span
-            class="parameter-item-required-optional parameter-item--required">
-            required
-          </span>
-        </template>
-        <!-- Maybe it’s cleaner to just show required, and not "optional". Makes it cleaner. -->
-        <!-- <template v-else>
-      <span class="parameter-item-required-optional parameter-item--optional">
-        optional
-      </span>
-    </template> -->
-
-        <!-- Type -->
-        <span
-          v-if="parameter.schema?.type"
-          class="parameter-item-type">
-          {{ parameter.schema?.type }}
-        </span>
-
-        <!-- Description -->
-        <MarkdownRenderer
-          v-if="parameter.description || parameter.schema?.description"
-          class="parameter-item-description"
-          :value="parameter.description || parameter.schema?.description" />
+          :value="parameter.schema" />
       </div>
     </template>
   </li>
@@ -65,10 +58,6 @@ defineProps<{ parameter: Parameters }>()
 .parameter-item {
   border-top: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
-}
-
-.parameter-item >>> .property {
-  padding-top: 0;
 }
 
 .parameter-item-container {
@@ -110,5 +99,9 @@ defineProps<{ parameter: Parameters }>()
   font-size: var(--theme-small, var(--default-theme-small));
   color: var(--theme-color-2, var(--default-theme-color-2));
   line-height: 1.4;
+}
+
+.parameter-schema {
+  padding-bottom: 12px;
 }
 </style>

@@ -135,7 +135,7 @@ const visible = ref<boolean>(false)
 }
 
 .schema-card--compact > .properties {
-  margin: 12px 0 0;
+  margin: 8px 0 0;
 }
 
 .schema-card--compact.schema-card--level-0 > .properties {
