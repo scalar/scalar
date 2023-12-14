@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { type ReferenceProps, type ReferenceSlots } from '../../types'
 import ApiReferenceBase from '../ApiReferenceBase.vue'
@@ -14,6 +14,11 @@ defineSlots<ReferenceSlots>()
 const showMobileDrawer = ref(false)
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
+
+watch(isMobile, (n, o) => {
+  // Close the drawer when we go from desktop to mobile
+  if (n && !o) showMobileDrawer.value = false
+})
 
 // Override the sidebar value for mobile to open and close the drawer
 const config = computed(() => {
