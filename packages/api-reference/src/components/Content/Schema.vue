@@ -7,19 +7,30 @@ import SchemaProperty from './SchemaProperty.vue'
 const props = withDefaults(
   defineProps<{
     value?: Record<string, any>
+    /** Track how deep we’ve gone */
     level?: number
+    /* Show as a heading */
     name?: string
+    /** A tighter layout with less borders and without a heading */
     compact?: boolean
+    /** Shows a toggle to hide/show children */
     toggleVisibility?: boolean
+    /** Even if toggleVisibility is true, the content will always be shown. But children still have the toggle. */
+    hideVisibilityToggle?: boolean
   }>(),
   {
     level: 0,
     compact: false,
     toggleVisibility: false,
+    hideVisibilityToggle: false,
   },
 )
 
 const shouldShowToggle = computed(() => {
+  if (props.hideVisibilityToggle) {
+    return false
+  }
+
   if (!props.toggleVisibility) {
     return false
   }
@@ -135,7 +146,7 @@ const visible = ref<boolean>(false)
 }
 
 .schema-card--compact > .properties {
-  margin: 8px 0 0;
+  margin: 12px 0 0;
 }
 
 .schema-card--compact.schema-card--level-0 > .properties {

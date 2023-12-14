@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Badge } from '../Badge'
 import Schema from './Schema.vue'
 
 withDefaults(
@@ -103,7 +104,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         <div
           v-if="value?.[rule] || value?.items?.[rule]"
           class="property-rule">
-          {{ rule }}
+          <Badge>{{ rule }}</Badge>
         </div>
       </template>
       <div
@@ -175,12 +176,12 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
           v-for="(schema, index) in value[rule]"
           :key="index"
           :compact="compact"
+          hideVisibilityToggle
           :level="level + 1"
           :toggleVisibility="level >= 3 || toggleVisibility"
           :value="schema" />
       </div>
       <!-- Arrays -->
-      <!-- TODO: remove level 3 temp fix when we get a real one for recursion -->
       <div
         v-if="value?.items?.[rule] && level < 3"
         class="rule">
@@ -223,13 +224,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   color: var(--theme-color-2, var(--default-theme-color-2));
   line-height: 1.4;
   font-size: var(--theme-small, var(--default-theme-small));
-}
-
-.property-rule {
-  display: inline-block;
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  background: var(--theme-color-orange, var(--default-theme-color-orange));
-  padding: 0 6px;
 }
 
 .property:not(:last-of-type) {
