@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.11.0
+
+### Minor Changes
+
+- 1972947f: chore: removed yjs and hocus pocus from swagger editor
+
 ## 1.10.2
 
 ### Patch Changes

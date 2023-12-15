@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.11.0
+
+### Minor Changes
+
+- 1972947f: chore: removed yjs and hocus pocus from swagger editor
+
+### Patch Changes
+
+- e99eb215: fix: align mobile navigation to header
+- cf30daa2: fix: add JSON.stringify to undici body
+- 4b28e96c: style: add position sticky to endpoints overview
+- Updated dependencies [1972947f]
+  - @scalar/swagger-editor@0.9.0
+
 ## 1.10.2
 
 ### Patch Changes
