@@ -36,9 +36,11 @@ defineOptions({
 
 type ReferenceSlot = Exclude<ReferenceLayoutSlot, 'editor'>
 
-const slots = defineSlots<{
-  [x in ReferenceSlot]: (props: ReferenceSlotProps) => any
-}>()
+const slots = defineSlots<
+  {
+    [x in ReferenceSlot]: (props: ReferenceSlotProps) => any
+  } & { 'editor-input': any } // TODO temp any while we see whats needed
+>()
 
 /**
  * The editor component has heavy dependencies (process), let's lazy load it.
