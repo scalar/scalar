@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.9.0
+
+### Minor Changes
+
+- 1972947f: chore: removed yjs and hocus pocus from swagger editor
+
 ## 0.8.4
 
 ### Patch Changes

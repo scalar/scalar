@@ -1,5 +1,19 @@
 # @scalar/express-api-reference
 
+## 0.2.0
+
+### Minor Changes
+
+- 1972947f: chore: removed yjs and hocus pocus from swagger editor
+
+### Patch Changes
+
+- Updated dependencies [e99eb215]
+- Updated dependencies [cf30daa2]
+- Updated dependencies [4b28e96c]
+- Updated dependencies [1972947f]
+  - @scalar/api-reference@1.11.0
+
 ## 0.1.11
 
 ### Patch Changes
