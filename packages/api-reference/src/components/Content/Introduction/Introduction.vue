@@ -30,10 +30,12 @@ const specVersion = computed(() => {
       <SectionContent :loading="!info.description && !info.title">
         <SectionColumns>
           <SectionColumn>
-            <Badge v-if="info.version">
-              {{ info.version }}
-            </Badge>
-            <Badge v-if="specVersion"> OAS {{ specVersion }} </Badge>
+            <div class="badges">
+              <Badge v-if="info.version">
+                {{ info.version }}
+              </Badge>
+              <Badge v-if="specVersion"> OAS {{ specVersion }}</Badge>
+            </div>
             <SectionHeader
               :level="1"
               :loading="!info.title"
@@ -63,6 +65,12 @@ const specVersion = computed(() => {
   background: var(--theme-background-3, var(--default-theme-background-3));
   animation: loading-skeleton 1.5s infinite alternate;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+}
+.badges {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 3px;
 }
 .heading.loading {
   width: 80%;

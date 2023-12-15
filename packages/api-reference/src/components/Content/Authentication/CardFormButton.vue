@@ -16,6 +16,7 @@ defineExpose({ el })
 <style scoped>
 :where(.card-form-button) {
   display: flex;
+  align-items: center;
   position: relative;
   background: transparent;
   cursor: pointer;

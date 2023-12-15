@@ -25,7 +25,11 @@ const iconProps = cva({
       md: 'h-4 w-4',
       lg: 'h-5 w-5',
       xl: 'h-6 w-6',
+      full: 'h-full w-full',
     },
+  },
+  defaultVariants: {
+    size: 'full',
   },
 })
 
@@ -36,7 +40,5 @@ const data = computed(() => getIcon(props.icon))
   <SvgRenderer
     v-if="data"
     :class="cx('scalar-icon', iconProps({ size }))"
-    height="100%"
-    :raw="data"
-    width="100%" />
+    :raw="data" />
 </template>

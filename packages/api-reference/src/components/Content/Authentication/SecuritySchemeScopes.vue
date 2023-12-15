@@ -6,9 +6,11 @@ import {
   ListboxOption,
   ListboxOptions,
 } from '@headlessui/vue'
+import { ScalarIcon } from '@scalar/components'
 import { ResetStyles } from '@scalar/swagger-editor'
 import { computed, ref } from 'vue'
 
+import { Badge } from '../../../components/Badge'
 import CardFormButton from './CardFormButton.vue'
 
 const props = defineProps<{
@@ -36,13 +38,23 @@ const model = computed({
 </script>
 <template>
   <Listbox
+    v-slot="{ open }"
     v-model="model"
     multiple>
     <div
       ref="trigger"
-      class="wrapper">
+      class="wrapper"
+      :class="{ 'wrapper-open': open }">
       <ListboxButton :as="CardFormButton">
-        Scopes ({{ model.length }})
+        <div class="scopes-label">
+          <ScalarIcon
+            :icon="open ? 'ChevronUp' : 'ChevronDown'"
+            size="sm" />
+          Scopes
+          <Badge class="scopes-label-badge">
+            {{ model.length }}<em>|</em>{{ Object.entries(scopes).length }}
+          </Badge>
+        </div>
       </ListboxButton>
     </div>
     <Teleport to="body">
@@ -80,6 +92,22 @@ const model = computed({
 :where(.wrapper) {
   display: grid;
   border-color: inherit;
+}
+.scopes-label {
+  display: inline-flex;
+  align-items: center;
+  height: 1em;
+  line-height: 1;
+  gap: 4px;
+}
+.scopes-label-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.scopes-label-badge em {
+  transform: rotate(10deg) translate(0, -0.9px);
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
 .floating {
   position: relative;
