@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from '@scalar/api-reference'
+import { Card, CardContent, CardHeader } from '@scalar/api-reference'
 import { RouterLink } from 'vue-router'
 
 defineProps<{

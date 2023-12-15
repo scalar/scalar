@@ -35,6 +35,12 @@ import PageLink from '../components/PageLink.vue'
           born today.
         </template>
       </PageLink>
+      <PageLink to="embedded-api-reference">
+        <template #title>Embedded API Reference</template>
+        <template #description>
+          API documentation within a pre-existing website.
+        </template>
+      </PageLink>
       <PageLink to="editable-api-reference">
         <template #title>Editable API Reference</template>
         <template #description>
@@ -88,8 +94,7 @@ h1 {
 
 .page-links {
   display: grid;
-  grid-template-columns: repeat(auto-fit, 350px);
+  grid-template-columns: repeat(auto-fit, 300px);
   grid-gap: 1rem;
-  /** Make all PageLink elements same height */
 }
 </style>
