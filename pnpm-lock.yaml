@@ -197,10 +197,10 @@ importers:
         version: 1.2.0
       '@hono/zod-openapi':
         specifier: ^0.8.3
-        version: 0.8.3(hono@3.9.2)(zod@3.22.4)
+        version: 0.8.3(hono@3.11.7)(zod@3.22.4)
       hono:
-        specifier: ^3.9.2
-        version: 3.9.2
+        specifier: ^3.11.7
+        version: 3.11.7
     devDependencies:
       nodemon:
         specifier: ^3.0.1
@@ -895,8 +895,8 @@ importers:
         version: link:../api-reference
     devDependencies:
       hono:
-        specifier: ^3.9.2
-        version: 3.9.2
+        specifier: ^3.11.7
+        version: 3.11.7
       tsup:
         specifier: ^7.2.0
         version: 7.2.0(typescript@5.2.2)
@@ -3817,7 +3817,7 @@ packages:
     engines: {node: '>=18.0.0'}
     dev: false
 
-  /@hono/zod-openapi@0.8.3(hono@3.9.2)(zod@3.22.4):
+  /@hono/zod-openapi@0.8.3(hono@3.11.7)(zod@3.22.4):
     resolution: {integrity: sha512-TwjSf63miIF3VBqNy4V6EOqZYdTQPeIQQ9Q2HjRWFYH9f2QtBFXziuqIg2Y76gNZ3WDal67NQXmbSErHiFR44g==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
@@ -3825,18 +3825,18 @@ packages:
       zod: 3.*
     dependencies:
       '@asteasolutions/zod-to-openapi': 5.5.0(zod@3.22.4)
-      '@hono/zod-validator': 0.1.11(hono@3.9.2)(zod@3.22.4)
-      hono: 3.9.2
+      '@hono/zod-validator': 0.1.11(hono@3.11.7)(zod@3.22.4)
+      hono: 3.11.7
       zod: 3.22.4
     dev: false
 
-  /@hono/zod-validator@0.1.11(hono@3.9.2)(zod@3.22.4):
+  /@hono/zod-validator@0.1.11(hono@3.11.7)(zod@3.22.4):
     resolution: {integrity: sha512-PQXeHUP0+36qpRt8yfeD7N2jbK3ETlGvSN6dMof/HwUC/APRokQRjpXZm4rrlG71Ft0aWE01+Bm4XejqPie5Uw==}
     peerDependencies:
       hono: '>=3.9.0'
       zod: ^3.19.1
     dependencies:
-      hono: 3.9.2
+      hono: 3.11.7
       zod: 3.22.4
     dev: false
 
@@ -10531,8 +10531,8 @@ packages:
       minimalistic-crypto-utils: 1.0.1
     dev: true
 
-  /hono@3.9.2:
-    resolution: {integrity: sha512-180NOiMadqU3lGmN6ajPDZvZPWus3a9mtVaAUR9uG0SImngBwRLA8vbnV0oUfUAgFT4nX55sGV9dVA06OuikHA==}
+  /hono@3.11.7:
+    resolution: {integrity: sha512-TcfAq7IdipF+9coxnuzYlSSBXbm9mTyWjjagLCv/2ampboNcKJdi+XCK5G48mHQtpI5+9Rj3J4FfcGgw9vzIww==}
     engines: {node: '>=16.0.0'}
 
   /hookable@5.5.3:
