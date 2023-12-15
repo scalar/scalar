@@ -201,6 +201,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 .property {
   padding: 10px;
   overflow: auto;
+  font-size: var(--theme-mini, var(--default-theme-mini));
 }
 
 .property--compact:not(.property--level-0) {
@@ -223,7 +224,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   margin-top: 4px;
   color: var(--theme-color-2, var(--default-theme-color-2));
   line-height: 1.4;
-  font-size: var(--theme-small, var(--default-theme-small));
 }
 
 .property:not(:last-of-type) {
@@ -232,16 +232,11 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 .property-name {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: var(--theme-mini, var(--default-theme-mini));
 }
 
 .required,
 .optional {
   color: var(--theme-color-2, var(--default-theme-color-2));
-  font-size: var(
-    --default-theme-font-size-5,
-    var(--default-default-theme-font-size-5)
-  );
 }
 
 .required {
