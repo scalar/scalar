@@ -3,6 +3,7 @@ import {
   HeaderTabButton,
   ResetStyles,
   type SwaggerEditor,
+  type SwaggerEditorInputProps,
 } from '@scalar/swagger-editor'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { FlowModal, useModal } from '@scalar/use-modal'
@@ -39,7 +40,7 @@ type ReferenceSlot = Exclude<ReferenceLayoutSlot, 'editor'>
 const slots = defineSlots<
   {
     [x in ReferenceSlot]: (props: ReferenceSlotProps) => any
-  } & { 'editor-input': any } // TODO temp any while we see whats needed
+  } & { 'editor-input': SwaggerEditorInputProps }
 >()
 
 /**
@@ -165,8 +166,10 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
               Getting Started
             </HeaderTabButton>
           </template>
-          <template #editor-input>
-            <slot name="editor-input" />
+          <template #editor-input="editorInputProps">
+            <slot
+              name="editor-input"
+              v-bind="editorInputProps" />
           </template>
         </LazyLoadedSwaggerEditor>
       </template>

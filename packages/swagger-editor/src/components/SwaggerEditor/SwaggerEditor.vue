@@ -83,7 +83,11 @@ defineExpose({
       <SwaggerEditorNotification v-if="formattedError">
         {{ formattedError }}
       </SwaggerEditorNotification>
-      <slot name="editor-input">
+      <slot
+        ref="codeMirrorReference"
+        name="editor-input"
+        :value="value"
+        @contentUpdate="handleContentUpdate">
         <SwaggerEditorInput
           ref="codeMirrorReference"
           :value="value"
