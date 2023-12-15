@@ -9,16 +9,13 @@ import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 import content from '../fixtures/petstorev3.json'
 
 const configuration = reactive<ReferenceConfiguration>({
-  theme: 'default',
   proxy: 'http://localhost:5051',
   isEditable: false,
   spec: { content },
 })
 </script>
 <template>
-  <ApiReference
-    :configuration="configuration"
-    @changeTheme="configuration.theme = $event">
+  <ApiReference :configuration="configuration">
     <template #footer><SlotPlaceholder>footer</SlotPlaceholder></template>
   </ApiReference>
 </template>

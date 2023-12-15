@@ -12,6 +12,10 @@ function handleDeleteIndex(index: number) {
 }
 
 function addAnotherHandler() {
+  if (activeRequest.cookies === undefined) {
+    activeRequest.cookies = []
+  }
+
   activeRequest.cookies?.push({ name: '', value: '', enabled: true })
 }
 </script>
