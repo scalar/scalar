@@ -33,17 +33,11 @@ function getCompleteConfiguration(v: any) {
   if (enableCollaborativeEditingRef.value) {
     return {
       ...v,
-      hocuspocusConfiguration: {
-        name: collaborativeEditingDocumentRef.value,
-        token: 'secret',
-        url: 'ws://localhost:1234',
-      },
     }
   }
 
   return {
     ...v,
-    hocuspocusConfiguration: undefined,
   }
 }
 

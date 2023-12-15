@@ -12,7 +12,6 @@ pnpm concurrently \
             --filter @scalar-examples/fastify-api-reference \
             --filter @scalar-examples/hono-api-reference \
             --filter @scalar-examples/express-api-reference \
-            --filter @scalar-examples/backend \
             dev \
     " \
     " \

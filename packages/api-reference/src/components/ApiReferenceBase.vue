@@ -3,6 +3,7 @@ import {
   HeaderTabButton,
   ResetStyles,
   type SwaggerEditor,
+  type SwaggerEditorInputProps,
 } from '@scalar/swagger-editor'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { FlowModal, useModal } from '@scalar/use-modal'
@@ -36,9 +37,11 @@ defineOptions({
 
 type ReferenceSlot = Exclude<ReferenceLayoutSlot, 'editor'>
 
-const slots = defineSlots<{
-  [x in ReferenceSlot]: (props: ReferenceSlotProps) => any
-}>()
+const slots = defineSlots<
+  {
+    [x in ReferenceSlot]: (props: ReferenceSlotProps) => any
+  } & { 'editor-input': SwaggerEditorInputProps }
+>()
 
 /**
  * The editor component has heavy dependencies (process), let's lazy load it.
@@ -151,9 +154,6 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
         <LazyLoadedSwaggerEditor
           ref="swaggerEditorRef"
           :error="errorRef"
-          :hocuspocusConfiguration="
-            currentConfiguration.hocuspocusConfiguration
-          "
           :proxyUrl="currentConfiguration.proxy"
           :theme="currentConfiguration.theme"
           :value="rawSpecRef"
@@ -165,6 +165,11 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
               @click="handleGettingStarted">
               Getting Started
             </HeaderTabButton>
+          </template>
+          <template #editor-input="editorInputProps">
+            <slot
+              name="editor-input"
+              v-bind="editorInputProps" />
           </template>
         </LazyLoadedSwaggerEditor>
       </template>
