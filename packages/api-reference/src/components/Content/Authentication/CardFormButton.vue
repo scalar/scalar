@@ -1,6 +1,13 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const el = ref<HTMLButtonElement>()
+
+defineExpose({ el })
+</script>
 <template>
   <button
+    ref="el"
     class="card-form-button"
     type="button">
     <slot />

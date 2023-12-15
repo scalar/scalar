@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { ScalarIcon } from '@scalar/components'
-
 import { useGlobalStore } from '../../../stores'
 import CardForm from './CardForm.vue'
 import CardFormButton from './CardFormButton.vue'

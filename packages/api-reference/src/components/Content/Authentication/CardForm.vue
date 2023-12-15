@@ -1,7 +1,7 @@
 <template>
-  <form class="card-form">
+  <div class="card-form">
     <slot />
-  </form>
+  </div>
 </template>
 <style scoped>
 .card-form {
