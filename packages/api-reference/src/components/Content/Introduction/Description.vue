@@ -40,7 +40,16 @@ const sections = computedAsync(
   [], // initial state
 )
 
-const { getHeadingId } = useNavState()
+const { getHeadingId, hash, isIntersectionEnabled } = useNavState()
+
+function handleScroll(headingId: string) {
+  if (!isIntersectionEnabled.value) return
+
+  // We use replaceState so we don't trigger the url hash watcher and trigger a scroll
+  // this is why we set the hash value directly
+  window.history.replaceState({}, '', `#${headingId}`)
+  hash.value = headingId ?? ''
+}
 </script>
 <template>
   <template v-if="value">
@@ -49,7 +58,9 @@ const { getHeadingId } = useNavState()
       :key="index">
       <!-- With a Heading -->
       <template v-if="section.heading">
-        <IntersectionObserver :id="getHeadingId(section.heading)">
+        <IntersectionObserver
+          :id="getHeadingId(section.heading)"
+          @intersecting="() => handleScroll(getHeadingId(section.heading))">
           <MarkdownRenderer :value="section.content" />
         </IntersectionObserver>
       </template>
