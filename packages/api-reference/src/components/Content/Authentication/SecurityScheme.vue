@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { computed } from 'vue'
+
 import { useGlobalStore } from '../../../stores'
 import CardForm from './CardForm.vue'
 import CardFormButton from './CardFormButton.vue'
@@ -68,18 +70,6 @@ const handleOpenAuth2ClientIdInput = (event: Event) => {
   })
 }
 
-const handleScopeInput = (scope: string) => {
-  setAuthentication({
-    oAuth2: {
-      ...authentication.oAuth2,
-      scopes: {
-        ...authentication.oAuth2.scopes,
-        [scope]: !authentication.oAuth2.scopes[scope],
-      },
-    },
-  })
-}
-
 const getOpenAuth2AuthorizationUrl = (flow: any) => {
   // https://example.com/oauth/authorize?
   //   response_type=token
@@ -88,9 +78,7 @@ const getOpenAuth2AuthorizationUrl = (flow: any) => {
   //   &scope=write%3Apets%20read%3Apets
   //   &state=something-random
 
-  const scopes = Object.keys(flow.scopes)
-    .filter((scope) => authentication.oAuth2.scopes[scope])
-    .join(' ')
+  const scopes = authentication.oAuth2.scopes.join(' ')
 
   const url = new URL(flow.authorizationUrl)
 
@@ -103,6 +91,12 @@ const getOpenAuth2AuthorizationUrl = (flow: any) => {
 
   return url.toString()
 }
+
+const oauth2SelectedScopes = computed<string[]>({
+  get: () => authentication.oAuth2.scopes,
+  set: (scopes) =>
+    setAuthentication({ oAuth2: { ...authentication.oAuth2, scopes } }),
+})
 
 const startAuthentication = (url: string) => {
   const windowFeatures = 'left=100,top=100,width=800,height=600'
@@ -165,7 +159,9 @@ const startAuthentication = (url: string) => {
         @input="handleOpenAuth2ClientIdInput">
         Client ID
       </CardFormTextInput>
-      <SecuritySchemeScopes :scopes="value.flows.implicit.scopes" />
+      <SecuritySchemeScopes
+        v-model:selected="oauth2SelectedScopes"
+        :scopes="value.flows.implicit.scopes" />
       <CardFormButton
         @click="
           () =>

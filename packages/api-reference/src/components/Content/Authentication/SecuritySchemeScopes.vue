@@ -6,34 +6,46 @@ import {
   ListboxOption,
   ListboxOptions,
 } from '@headlessui/vue'
-import { onMounted, ref } from 'vue'
+import { ResetStyles } from '@scalar/swagger-editor'
+import { computed, ref } from 'vue'
 
-import { ResetStyles } from '../../../../../swagger-editor/dist'
 import CardFormButton from './CardFormButton.vue'
 
-defineProps<{
+const props = defineProps<{
   scopes: { [scope: string]: string }
+  selected: string[]
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:selected', v: string[]): void
 }>()
 
 const trigger = ref()
 const dropdown = ref()
-
-onMounted(() => console.log(trigger.value))
 
 const { floatingStyles } = useFloating(trigger, dropdown, {
   placement: 'bottom-end',
   whileElementsMounted: autoUpdate,
   middleware: [offset(5), flip(), shift()],
 })
+
+const model = computed({
+  get: () => props.selected,
+  set: (v) => emit('update:selected', v),
+})
 </script>
 <template>
-  <Listbox multiple>
+  <Listbox
+    v-model="model"
+    multiple>
     <div
       ref="trigger"
       class="wrapper">
-      <ListboxButton :as="CardFormButton"> Scopes </ListboxButton>
+      <ListboxButton :as="CardFormButton">
+        Scopes ({{ model.length }})
+      </ListboxButton>
     </div>
-    <Teleport to="#app">
+    <Teleport to="body">
       <ResetStyles v-slot="{ styles: resetStyles }">
         <div
           ref="dropdown"
@@ -46,12 +58,12 @@ const { floatingStyles } = useFloating(trigger, dropdown, {
             <ListboxOption
               v-for="[key, description] in Object.entries(scopes)"
               :key="key"
-              v-slot="{ selected }"
+              v-slot="{ selected: s }"
               as="div"
               class="dropdown-item"
               :value="key">
               <input
-                :checked="selected"
+                :checked="s"
                 class="dropdown-item-check"
                 tabindex="-1"
                 type="checkbox" />

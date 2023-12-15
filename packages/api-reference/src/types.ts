@@ -277,7 +277,7 @@ export type AuthenticationState = {
   }
   oAuth2: {
     clientId: string
-    scopes: Record<string, boolean>
+    scopes: string[]
   }
 }
 
