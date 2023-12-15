@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 
 import { useGlobalStore } from '../../../stores'
+import type { SecurityScheme } from '../../../types'
 import CardForm from './CardForm.vue'
 import CardFormButton from './CardFormButton.vue'
 import CardFormGroup from './CardFormGroup.vue'
@@ -11,7 +12,7 @@ import SecuritySchemeScopes from './SecuritySchemeScopes.vue'
 // import MarkdownRenderer from '../MarkdownRenderer.vue'
 
 defineProps<{
-  value?: any
+  value?: SecurityScheme
 }>()
 
 const { authentication, setAuthentication } = useGlobalStore()
