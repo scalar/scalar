@@ -17,7 +17,7 @@ npm install @scalar/hono-api-reference
 
 ## Usage
 
-Set up [Zod OpenAPI Hono](https://hono.dev/guides/openapi) and pass the configured URL to the `apiReference` middleware:
+Set up [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi) and pass the configured URL to the `apiReference` middleware:
 
 ```ts
 import { apiReference } from '@scalar/hono-api-reference'
