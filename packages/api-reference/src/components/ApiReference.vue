@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { createHead, useSeoMeta } from 'unhead'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
-import { type ReferenceProps, type SpecConfiguration } from '../types'
+import { type ReferenceProps } from '../types'
 import Layouts from './Layouts/'
 
 const props = defineProps<ReferenceProps>()
@@ -13,18 +13,10 @@ defineEmits<{
 
 const content = ref('')
 
-// Create a local spec for caching the content if no spec is set
-const config = computed(() => {
-  const spec: SpecConfiguration = props.configuration?.spec || {
-    content: content.value,
-  }
-  return { ...props.configuration, spec }
-})
-
 // Create the head tag if the configuration has meta data
-if (config.value?.metaData) {
+if (props.configuration?.metaData) {
   createHead()
-  useSeoMeta(config.value.metaData)
+  useSeoMeta(props.configuration.metaData)
 }
 
 function handleUpdateContent(value: string) {
@@ -34,8 +26,8 @@ function handleUpdateContent(value: string) {
 </script>
 <template>
   <Component
-    :is="Layouts[config.layout || 'modern']"
-    :configuration="config"
+    :is="Layouts[configuration?.layout || 'modern']"
+    :configuration="configuration"
     @updateContent="handleUpdateContent">
     <template #footer><slot name="footer" /></template>
   </Component>
