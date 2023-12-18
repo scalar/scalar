@@ -48,6 +48,7 @@ const { responses } = useResponses(props.operation)
 .endpoint-details-card-item {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  padding: 4px 20px;
 }
 .endpoint-details-card :deep(.endpoint-title),
 .endpoint-details-card :deep(.parameter li) {
