@@ -54,7 +54,7 @@ export const LoadingFullWidth: Story = {
       const loadingState = useLoadingState()
       return { loadingState }
     },
-    template: `<ScalarButton @click="loadingState.startLoading()" :loading="loadingState" isFullWidth>Click me</ScalarButton>`,
+    template: `<ScalarButton @click="loadingState.startLoading()" :loading="loadingState" fullWidth>Click me</ScalarButton>`,
   }),
 }
 

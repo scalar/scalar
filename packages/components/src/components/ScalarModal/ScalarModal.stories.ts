@@ -34,8 +34,8 @@ export const Base: Story = {
         <div class="col gap-4 px-4">
           <div>You can put some nice content here, or even ask a nice question</div>
           <div class="col md:row gap-1">
-            <ScalarButton variant="ghost" @click="modalState.hide()" isFullWidth>Cancel</ScalarButton>
-            <ScalarButton @click="modalState.hide()" isFullWidth>Go ahead</ScalarButton>
+            <ScalarButton variant="ghost" @click="modalState.hide()" fullWidth>Cancel</ScalarButton>
+            <ScalarButton @click="modalState.hide()" fullWidth>Go ahead</ScalarButton>
           </div>
         </div>
       </ScalarModal>

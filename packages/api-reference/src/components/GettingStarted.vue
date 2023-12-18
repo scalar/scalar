@@ -91,12 +91,12 @@ watch(
       </p>
       <div class="start-cta">
         <ScalarButton
-          isFullWidth
+          fullWidth
           @click="example = 'Petstore'">
           Test Petstore
         </ScalarButton>
         <ScalarButton
-          isFullWidth
+          fullWidth
           variant="outlined"
           @click="$emit('openSwaggerEditor', 'uploadFile')">
           Upload File
