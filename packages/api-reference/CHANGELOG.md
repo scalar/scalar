@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.11.1
+
+### Patch Changes
+
+- 855a6713: fix: remove caching of configuration when updating spec as prop
+- 5f270ca4: chore: export stores and helpers
+- 6cbb5a65: refactor: use Schema component to render parameters and response body
+
 ## 1.11.0
 
 ### Minor Changes
