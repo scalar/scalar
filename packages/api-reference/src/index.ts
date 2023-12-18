@@ -13,4 +13,6 @@ export { default as SearchButton } from './components/SearchButton.vue'
 
 export * from './components/Card'
 
+export * from './stores'
+export * from './helpers'
 export * from './types'
