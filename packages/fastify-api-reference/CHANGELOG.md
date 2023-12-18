@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.11.1
+
+### Patch Changes
+
+- 855a6713: fix: remove caching of configuration when updating spec as prop
+
 ## 1.11.0
 
 ### Minor Changes

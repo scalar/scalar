@@ -1,5 +1,15 @@
 # @scalar/hono-api-reference
 
+## 0.3.1
+
+### Patch Changes
+
+- 855a6713: fix: remove caching of configuration when updating spec as prop
+- Updated dependencies [855a6713]
+- Updated dependencies [5f270ca4]
+- Updated dependencies [6cbb5a65]
+  - @scalar/api-reference@1.11.1
+
 ## 0.3.0
 
 ### Minor Changes
