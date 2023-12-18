@@ -1,6 +1,8 @@
 import { defineConfig } from 'cva'
 import { extendTailwindMerge } from 'tailwind-merge'
 
+import { prefix } from '../postcss.config'
+
 /**
  * Tailwind Merge Config
  *
@@ -10,11 +12,11 @@ import { extendTailwindMerge } from 'tailwind-merge'
  *
  * https://github.com/dcastil/tailwind-merge/blob/v2.0.0/docs/configuration.md#class-groups
  */
-const tw = extendTailwindMerge<'scalar-reset'>({
+const tw = extendTailwindMerge<typeof prefix>({
   extend: {
     classGroups: {
-      // Add scalar-reset as a custom set of classes to be deduped by tailwind-merge
-      'scalar-reset': ['scalar-reset'],
+      // Add the scalar class prefix as a custom class to be deduped by tailwind-merge
+      [prefix]: [prefix],
     },
   },
 })
@@ -26,7 +28,7 @@ const tw = extendTailwindMerge<'scalar-reset'>({
  */
 const { cva, cx, compose } = defineConfig({
   hooks: {
-    onComplete: (className) => `${tw(className, 'scalar-reset')}`,
+    onComplete: (className) => `${tw(className, prefix)}`,
   },
 })
 
