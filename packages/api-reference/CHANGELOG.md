@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.12.0
+
+### Minor Changes
+
+- 1c4f4c88: feat: classic layout polish
+
+### Patch Changes
+
+- 432d16fe: feat: add an OpenAuth2 interface
+- Updated dependencies [1c4f4c88]
+- Updated dependencies [2d7e3e6e]
+  - @scalar/components@0.2.0
+  - @scalar/swagger-editor@0.9.1
+
 ## 1.11.1
 
 ### Patch Changes
