@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { cx } from '@/cva'
 import { reactive } from 'vue'
 
 withDefaults(
@@ -65,7 +66,7 @@ export function useLoadingState() {
 <template>
   <div
     v-if="loadingState"
-    class="loader-wrapper">
+    :class="cx('loader-wrapper')">
     <svg
       class="svg-loader"
       :class="{

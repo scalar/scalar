@@ -71,6 +71,7 @@
     "npm-run-all2": "^6.1.1",
     "plugins": "^0.4.2",
     "postcss": "^8.4.31",
+    "postcss-prefix-selector": "^1.16.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "storybook": "^7.5.2",
