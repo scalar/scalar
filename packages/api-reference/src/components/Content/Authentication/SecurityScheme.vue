@@ -1,6 +1,8 @@
 <script lang="ts" setup>
+import { type OpenAPIV3 } from 'openapi-types'
 import { computed } from 'vue'
 
+import { Security } from '../../../../../api-client/dist'
 import { useGlobalStore } from '../../../stores'
 import type { SecurityScheme } from '../../../types'
 import CardForm from './CardForm.vue'
@@ -150,8 +152,8 @@ const startAuthentication = (url: string) => {
     <CardFormGroup
       v-else-if="
         value.type.toLowerCase() === 'oauth2' &&
-        value.flows &&
-        value.flows.implicit
+        (value as OpenAPIV3.OAuth2SecurityScheme).flows &&
+        (value as OpenAPIV3.OAuth2SecurityScheme).flows.implicit
       ">
       <CardFormTextInput
         id="oAuth2.clientId"
@@ -161,13 +163,20 @@ const startAuthentication = (url: string) => {
         Client ID
       </CardFormTextInput>
       <SecuritySchemeScopes
+        v-if="value !== undefined"
         v-model:selected="oauth2SelectedScopes"
-        :scopes="value.flows.implicit.scopes" />
+        :scopes="
+          //@ts-ignore
+          value.flows.implicit.scopes
+        " />
       <CardFormButton
         @click="
           () =>
             startAuthentication(
-              getOpenAuth2AuthorizationUrl(value.flows.implicit),
+              getOpenAuth2AuthorizationUrl(
+                //@ts-ignore
+                value?.flows.implicit,
+              ),
             )
         ">
         Authorize
