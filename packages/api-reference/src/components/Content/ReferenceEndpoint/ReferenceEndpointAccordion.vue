@@ -190,8 +190,8 @@ const { copyToClipboard } = useClipboard()
 .endpoint-content {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  padding: 24px;
+  gap: 9px;
+  padding: 9px;
 }
 
 .references-narrow .endpoint-content {
