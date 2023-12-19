@@ -25,9 +25,6 @@
   "pnpm": {
     "patchedDependencies": {
       "@jsdevtools/ono@7.1.3": "patches/@jsdevtools__ono@7.1.3.patch"
-    },
-    "overrides": {
-      "@apidevtools/json-schema-ref-parser": "9.0.7"
     }
   },
   "private": true,
