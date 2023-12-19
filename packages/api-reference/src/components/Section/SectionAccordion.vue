@@ -8,6 +8,7 @@ import IntersectionObserver from '../IntersectionObserver.vue'
 
 defineProps<{
   id?: string
+  transparent?: boolean
 }>()
 
 const button = ref()
@@ -20,7 +21,8 @@ const isHovered = useElementHover(button)
     <Disclosure
       v-slot="{ open }"
       as="section"
-      class="section-accordion">
+      class="section-accordion"
+      :class="{ 'section-accordion-transparent': transparent }">
       <DisclosureButton
         ref="button"
         class="section-accordion-button">
@@ -62,23 +64,15 @@ const isHovered = useElementHover(button)
   display: flex;
   flex-direction: column;
 
-  position: relative;
-  z-index: 0;
-}
-/* Use a pseudo elements so we can use CSS filters to lighten the background  */
-.section-accordion::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-
-  pointer-events: none;
-
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-}
-.section-accordion::before {
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
+
+.section-accordion-transparent {
+  background: transparent;
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+}
+
 .section-accordion-button {
   padding: 6px;
 }

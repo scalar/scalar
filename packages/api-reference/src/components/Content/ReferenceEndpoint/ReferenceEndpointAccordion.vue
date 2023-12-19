@@ -24,7 +24,8 @@ const { copyToClipboard } = useClipboard()
   <SectionAccordion
     :id="getOperationSectionId(operation, tag)"
     class="reference-endpoint"
-    :class="`reference-endpoint--${operation.httpVerb}`">
+    :class="`reference-endpoint--${operation.httpVerb}`"
+    transparent>
     <template #title>
       <h3 class="endpoint-header">
         <div class="endpoint-details">
@@ -72,10 +73,6 @@ const { copyToClipboard } = useClipboard()
 </template>
 
 <style scoped>
-.reference-endpoint :deep(.section-accordion::before) {
-  background: transparent;
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-}
 .reference-endpoint.reference-endpoint--post {
   color: var(--theme-color-green, var(--default-theme-color-green));
 }
