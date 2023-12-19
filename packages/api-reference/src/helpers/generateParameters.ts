@@ -11,7 +11,7 @@ export function generateParameters(parameters: Parameters[]) {
     const param: BaseParameter = {
       name: parameter.name,
       value: '',
-      customClass: parameter.required ? 'required-parameter' : '',
+      required: parameter.required,
       enabled: true,
     }
     param.value = ''

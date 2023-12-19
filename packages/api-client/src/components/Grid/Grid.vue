@@ -45,7 +45,6 @@ const showDescription = ref(false)
       class="table-row"
       :class="{
         'required-parameter': item.required,
-        [item.customClass]: !!item.customClass,
       }">
       <div class="table-row-item">
         <input
