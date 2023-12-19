@@ -29,6 +29,7 @@ const variants = cva({
       xs: 'h-3.5 w-3.5 p-0.5',
       sm: 'h-5 w-5 p-1',
       md: 'h-10 w-10 p-3',
+      full: 'h-full w-full',
     },
     disabled: {
       true: 'cursor-not-allowed shadow-none',

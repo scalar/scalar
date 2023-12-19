@@ -61,5 +61,6 @@ const { responses } = useResponses(props.operation)
   font-weight: var(--theme-bold, var(--default-theme-bold));
   font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-color-2, var(--default-theme-color-2));
+  line-height: 1.33;
 }
 </style>
