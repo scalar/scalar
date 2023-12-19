@@ -29,11 +29,6 @@ defineProps<CardContentProps>()
 .scalar-card-content.scalar-card--borderless {
   border-bottom: none;
 }
-
-.scalar-card-content.scalar-card--borderless {
-  padding-bottom: 0;
-}
-
 .scalar-card--muted {
   background: var(--theme-background-2, var(--default-theme-background-2));
 }

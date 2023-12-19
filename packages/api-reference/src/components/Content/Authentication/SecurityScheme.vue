@@ -1,10 +1,20 @@
 <script lang="ts" setup>
+import { type OpenAPIV3 } from 'openapi-types'
+import { computed } from 'vue'
+
+import { Security } from '../../../../../api-client/dist'
 import { useGlobalStore } from '../../../stores'
+import type { SecurityScheme } from '../../../types'
+import CardForm from './CardForm.vue'
+import CardFormButton from './CardFormButton.vue'
+import CardFormGroup from './CardFormGroup.vue'
+import CardFormTextInput from './CardFormTextInput.vue'
+import SecuritySchemeScopes from './SecuritySchemeScopes.vue'
 
 // import MarkdownRenderer from '../MarkdownRenderer.vue'
 
 defineProps<{
-  value?: any
+  value?: SecurityScheme
 }>()
 
 const { authentication, setAuthentication } = useGlobalStore()
@@ -53,156 +63,124 @@ const handleHttpBearerTokenInput = (event: Event) => {
     },
   })
 }
+
+const handleOpenAuth2ClientIdInput = (event: Event) => {
+  setAuthentication({
+    oAuth2: {
+      ...authentication.oAuth2,
+      clientId: (event.target as HTMLInputElement).value,
+    },
+  })
+}
+
+const getOpenAuth2AuthorizationUrl = (flow: any) => {
+  // https://example.com/oauth/authorize?
+  //   response_type=token
+  //   &client_id=123
+  //   &redirect_uri=https%3A%2F%2Fexample.com%2Foauth2%2Fredirect
+  //   &scope=write%3Apets%20read%3Apets
+  //   &state=something-random
+
+  const scopes = authentication.oAuth2.scopes.join(' ')
+
+  const url = new URL(flow.authorizationUrl)
+
+  url.searchParams.set('response_type', 'token')
+  url.searchParams.set('client_id', authentication.oAuth2.clientId)
+  url.searchParams.set('redirect_uri', window.location.href)
+  url.searchParams.set('scope', scopes)
+  // TODO: Generate random state string? Should we store that in the localStorage? 🤔
+  url.searchParams.set('state', 'something-random')
+
+  return url.toString()
+}
+
+const oauth2SelectedScopes = computed<string[]>({
+  get: () => authentication.oAuth2.scopes,
+  set: (scopes) =>
+    setAuthentication({ oAuth2: { ...authentication.oAuth2, scopes } }),
+})
+
+const startAuthentication = (url: string) => {
+  const windowFeatures = 'left=100,top=100,width=800,height=600'
+  const handle = window.open(url, 'openAuth2Window', windowFeatures)
+
+  if (!handle) {
+    // The window wasn't allowed to open
+    // This is likely caused by built-in popup blockers.
+    // …
+  }
+}
 </script>
 <template>
-  <div
-    v-if="value"
-    class="security-scheme">
-    <form>
-      <!-- <div
-      v-if="value.description"
-      class="description">
-      <MarkdownRenderer :value="value.description" />
-    </div> -->
-      <div v-if="!value.type"></div>
-      <div v-else-if="value.type === 'apiKey'">
-        <div class="input">
-          <label :for="`security-scheme-${value.name}`">
-            {{ value.in.charAt(0).toUpperCase() + value.in.slice(1) }} API Key
-          </label>
-          <input
-            :id="`security-scheme-${value.name}`"
-            autocomplete="off"
-            placeholder="Token"
-            spellcheck="false"
-            type="text"
-            :value="authentication.apiKey.token"
-            @input="handleApiKeyTokenInput" />
-        </div>
-      </div>
-      <div v-else-if="value.type === 'http' || value.type === 'basic'">
-        <div v-if="value.type === 'basic' || value.scheme === 'basic'">
-          <div class="input">
-            <label for="http.basic.username">Username</label>
-            <input
-              id="http.basic.username"
-              autocomplete="off"
-              placeholder="Username"
-              spellcheck="false"
-              type="text"
-              :value="authentication.http.basic.username"
-              @input="handleHttpBasicUsernameInput" />
-          </div>
-          <div class="input">
-            <label for="http.basic.password">Password</label>
-            <input
-              id="http.basic.password"
-              autocomplete="off"
-              placeholder="Password"
-              spellcheck="false"
-              type="password"
-              :value="authentication.http.basic.password"
-              @input="handleHttpBasicPasswordInput" />
-          </div>
-        </div>
-        <div v-else-if="value.scheme === 'bearer'">
-          <div class="input">
-            <label for="http.bearer.token">Token</label>
-            <input
-              id="http.bearer.token"
-              autocomplete="off"
-              placeholder="Token"
-              spellcheck="false"
-              type="text"
-              :value="authentication.http.bearer.token"
-              @input="handleHttpBearerTokenInput" />
-          </div>
-        </div>
-      </div>
-      <div
-        v-else
-        class="work-in-progress">
-        <h3 class="work-in-progress-title">Work in Progress</h3>
-        <p>The given security scheme ({{ value.type }}) is not supported.</p>
-      </div>
-    </form>
-  </div>
+  <CardForm v-if="value && value?.type">
+    <CardFormTextInput
+      v-if="value.type === 'apiKey'"
+      :id="`security-scheme-${value.name}`"
+      placeholder="Token"
+      :value="authentication.apiKey.token"
+      @input="handleApiKeyTokenInput">
+      {{ value.in.charAt(0).toUpperCase() + value.in.slice(1) }} API Key
+    </CardFormTextInput>
+    <template v-else-if="value.type === 'http' || value.type === 'basic'">
+      <CardFormGroup v-if="value.type === 'basic' || value.scheme === 'basic'">
+        <CardFormTextInput
+          id="http.basic.username"
+          placeholder="Username"
+          :value="authentication.http.basic.username"
+          @input="handleHttpBasicUsernameInput">
+          Username
+        </CardFormTextInput>
+        <CardFormTextInput
+          id="http.basic.password"
+          placeholder="Password"
+          type="password"
+          :value="authentication.http.basic.password"
+          @input="handleHttpBasicPasswordInput">
+          Password
+        </CardFormTextInput>
+      </CardFormGroup>
+      <CardFormTextInput
+        v-else-if="value.scheme === 'bearer'"
+        id="http.bearer.token"
+        placeholder="Token"
+        :value="authentication.http.bearer.token"
+        @input="handleHttpBearerTokenInput">
+        Bearer Token
+      </CardFormTextInput>
+    </template>
+    <CardFormGroup
+      v-else-if="
+        value.type.toLowerCase() === 'oauth2' &&
+        (value as OpenAPIV3.OAuth2SecurityScheme).flows &&
+        (value as OpenAPIV3.OAuth2SecurityScheme).flows.implicit
+      ">
+      <CardFormTextInput
+        id="oAuth2.clientId"
+        placeholder="Token"
+        :value="authentication.oAuth2.clientId"
+        @input="handleOpenAuth2ClientIdInput">
+        Client ID
+      </CardFormTextInput>
+      <SecuritySchemeScopes
+        v-if="value !== undefined"
+        v-model:selected="oauth2SelectedScopes"
+        :scopes="
+          //@ts-ignore
+          value.flows.implicit.scopes
+        " />
+      <CardFormButton
+        @click="
+          () =>
+            startAuthentication(
+              getOpenAuth2AuthorizationUrl(
+                //@ts-ignore
+                value?.flows.implicit,
+              ),
+            )
+        ">
+        Authorize
+      </CardFormButton>
+    </CardFormGroup>
+  </CardForm>
 </template>
-
-<style scoped>
-.security-scheme {
-  margin: 9px;
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  position: relative;
-  box-shadow: 0 0 0 1px
-    var(--theme-border-color, var(--default-theme-border-color));
-}
-.security-scheme :deep(.input:nth-of-type(3) ~ .input) {
-  height: 0px;
-  opacity: 0;
-}
-.security-scheme :deep(.input:nth-of-type(3):not(:last-child):before) {
-  content: 'Show More...';
-  white-space: nowrap;
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  pointer-events: none;
-  position: absolute;
-  padding: 9px;
-}
-.security-scheme :deep(.input:hover:before) {
-  color: var(--theme-color-1, var(--default-theme-color-1)) !important;
-}
-.security-scheme:focus-within
-  :deep(.input:nth-of-type(3):not(:last-child):before) {
-  display: none;
-}
-.security-scheme:not(:focus-within)
-  :deep(.input:nth-of-type(3):not(:last-child)) {
-  box-shadow: none !important;
-}
-.security-scheme :deep(.input:nth-of-type(3):not(:last-child) input),
-.security-scheme :deep(.input:nth-of-type(3):not(:last-child) label) {
-  opacity: 0;
-}
-.security-scheme:focus-within :deep(.input:nth-of-type(3) input),
-.security-scheme:focus-within :deep(.input:nth-of-type(3) label),
-.security-scheme:focus-within :deep(.input:nth-of-type(3) ~ .input) {
-  opacity: 1;
-  height: fit-content;
-  transition: opacity 0.3s ease-in-out;
-}
-.description {
-  margin-bottom: 12px;
-}
-
-.work-in-progress {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  padding: 9px;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  display: flex;
-  box-shadow: 0 0 0 1px
-    var(--theme-color-yellow, var(--default-theme-color-yellow));
-  position: relative;
-}
-.work-in-progress:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--theme-color-yellow, var(--default-theme-color-yellow));
-  opacity: 0.1;
-}
-.work-in-progress-title {
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-right: 6px;
-}
-</style>

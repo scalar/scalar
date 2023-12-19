@@ -47,6 +47,9 @@ onMounted(() => {
   p,
   ol,
   ul,
+  dl,
+  dd,
+  dt,
   em,
   strong,
   button {
