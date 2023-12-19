@@ -29,13 +29,13 @@ type FuseData = {
   operation?: TransformedOperation
 }
 
-let fuseDataArray: FuseData[] = []
+const fuseDataArray = ref<FuseData[]>([])
 const searchResults = ref<Fuse.FuseResult<FuseData>[]>([])
 const selectedSearchResult = ref<number>(0)
 const searchText = ref<string>('')
 const searchModalRef = ref<HTMLElement | null>(null)
 
-const fuse = new Fuse(fuseDataArray, {
+const fuse = new Fuse(fuseDataArray.value, {
   keys: ['title', 'description', 'body'],
 })
 
@@ -61,7 +61,7 @@ watch(
 watch(
   reactiveSpec.value,
   () => {
-    fuseDataArray = []
+    fuseDataArray.value = []
 
     if (!props.parsedSpec?.tags?.length) {
       fuse.setCollection([])
@@ -79,7 +79,7 @@ watch(
         body: '',
       }
 
-      fuseDataArray.push(tagData)
+      fuseDataArray.value.push(tagData)
 
       if (tag.operations) {
         tag.operations.forEach((operation) => {
@@ -106,7 +106,7 @@ watch(
             operationData.body = body
           }
 
-          fuseDataArray.push(operationData)
+          fuseDataArray.value.push(operationData)
         })
       }
     })
@@ -127,10 +127,10 @@ watch(
         })
       })
 
-      fuseDataArray = fuseDataArray.concat(modelData)
+      fuseDataArray.value = fuseDataArray.value.concat(modelData)
     }
 
-    fuse.setCollection(fuseDataArray)
+    fuse.setCollection(fuseDataArray.value)
   },
   { immediate: true },
 )
@@ -179,7 +179,7 @@ useKeyboardEvent({
 const searchResultsWithPlaceholderResults = computed(
   (): Fuse.FuseResult<FuseData>[] => {
     if (searchText.value.length === 0) {
-      return fuseDataArray.map((item) => {
+      return fuseDataArray.value.map((item) => {
         return {
           item: item,
         } as Fuse.FuseResult<FuseData>
