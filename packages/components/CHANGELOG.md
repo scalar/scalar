@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.2.0
+
+### Minor Changes
+
+- 1c4f4c88: feat: classic layout polish
+
+### Patch Changes
+
+- 2d7e3e6e: chore: prefix all CSS classes
+
 ## 0.1.0
 
 ### Minor Changes
