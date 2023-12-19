@@ -27,6 +27,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   - [With Fastify](#with-fastify)
   - [With Hono](#with-hono)
   - [With Express](#with-express)
+  - [With NestJS](#with-nestjs)
 - [Hosted API Reference](#hosted-api-reference)
 - [Configuration](#configuration)
 - [Themes](#themes)
@@ -193,6 +194,25 @@ app.use(
 
 Read more: [@scalar/express-api-reference](https://github.com/scalar/scalar/tree/main/packages/express-api-reference)
 
+### With NestJS
+
+Our NestJS middleware makes it so easy to render a reference:
+
+```ts
+import { apiReference } from '@scalar/nestjs-api-reference'
+
+app.use(
+  '/reference',
+  apiReference({
+    spec: {
+      url: '/swagger.json',
+    },
+  }),
+)
+```
+
+Read more: [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)
+
 ## Hosted API Reference
 
 Wait, this is open source and you can do whatever you want. But if you want to add a nice, customizable guide, collaborate with your team and have everything served through a CDN, create an account on [scalar.com](https://scalar.com).
@@ -315,12 +335,13 @@ This repository contains all our open source projects and there’s definitely m
 
 | Package                                                                                                    | Description                                           |
 | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy)           | an API request proxy based on express                 |
 | [@scalar/api-client](https://github.com/scalar/scalar/tree/main/packages/api-client)                       | the open source API testing client                    |
-| [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy)           | an api request proxy based on express                 |
 | [@scalar/api-reference](https://github.com/scalar/scalar/tree/main/packages/api-reference)                 | generate beautiful API references                     |
 | [@scalar/echo-server](https://github.com/scalar/scalar/tree/main/packages/echo-server)                     | an express server which replies with the request data |
 | [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference) | a fastify plugin to render API references             |
-| [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)       | a hono middleware to render API references            |
+| [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)       | a Hono middleware to render API references            |
+| [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)   | a NestJS middleware to render API references          |
 | [@scalar/swagger-editor](https://github.com/scalar/scalar/tree/main/packages/swagger-editor)               | an editor tailored to write OpenAPI spec              |
 | [@scalar/swagger-parser](https://github.com/scalar/scalar/tree/main/packages/swagger-parser)               | parse OpenAPI specs                                   |
 | [@scalar/use-clipboard](https://github.com/scalar/scalar/tree/main/packages/use-clipboard)                 | tiny Vue wrapper around the clipboard API             |
