@@ -82,7 +82,6 @@ const introCardsSlot = computed(() =>
     <slot name="start" />
     <Introduction
       v-if="parsedSpec.info.title || parsedSpec.info.description"
-      class="introduction-section-classic"
       :info="parsedSpec.info"
       :parsedSpec="parsedSpec"
       :rawSpec="rawSpec">
@@ -152,9 +151,5 @@ const introCardsSlot = computed(() =>
 .references-narrow .introduction-cards-row {
   flex-direction: column;
   align-items: stretch;
-}
-.introduction-section-classic :deep(.introduction-section) {
-  padding: 24px 0 72px;
-  gap: 24px;
 }
 </style>

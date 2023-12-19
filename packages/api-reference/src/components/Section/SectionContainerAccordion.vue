@@ -58,6 +58,7 @@ import { ScalarIcon } from '@scalar/components'
   top: 10px;
   color: var(--theme-color-3, var(--default-theme-color-3));
 }
+
 .section-accordion-button:hover .section-accordion-chevron {
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
@@ -68,7 +69,12 @@ import { ScalarIcon } from '@scalar/components'
   flex: 1;
   padding: 0 6px;
 }
+.references-narrow .section-accordion-chevron {
+  width: 16px;
+  left: -16px;
+  top: 14px;
+}
 .references-narrow .section-accordion-wrapper {
-  padding: calc(48px + var(--refs-header-height)) 24px 48px 24px;
+  padding: calc(var(--refs-header-height)) 24px 0 24px;
 }
 </style>
