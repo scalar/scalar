@@ -10,3 +10,31 @@ defineProps<{
     <slot />
   </ul>
 </template>
+<style scoped>
+.sidebar-group {
+  list-style: none;
+  width: 100%;
+}
+
+/* We indent each level of nesting further */
+.sidebar-indent-nested :deep(.sidebar-heading) {
+  /* prettier-ignore */
+  padding-left: calc((var(--sidebar-level, var(--default-sidebar-level)) * var(--theme-sidebar-indent-base, var(--default-theme-sidebar-indent-base))) + 24px) !important;
+}
+
+/* Collapse/expand icons must also be offset */
+.sidebar-indent-nested :deep(.sidebar-heading .toggle-nested-icon) {
+  /* prettier-ignore */
+  left: calc((var(--sidebar-level, var(--default-sidebar-level)) * var(--theme-sidebar-indent-base, var(--default-theme-sidebar-indent-base))) + 2px) !important;
+}
+
+/* Change font colors and weights for nested items */
+.sidebar-indent-nested :deep(.sidebar-heading) {
+  /* prettier-ignore */
+  color: var(--sidebar-color-1, var(--default-sidebar-color-1, var(--theme-color-1, var(--default-theme-color-1))));
+}
+.sidebar-indent-nested :deep(.sidebar-indent-nested .sidebar-heading) {
+  /* prettier-ignore */
+  color: var(--sidebar-color-2, var(--default-sidebar-color-2, var(--theme-color-2, var(--default-theme-color-2))));
+}
+</style>

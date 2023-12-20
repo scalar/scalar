@@ -89,7 +89,7 @@ defineExpose({ el })
         size="sm"
         @click="handleToggleOpen" />
       <a
-        class="flex-1 sidebar-heading-link"
+        class="sidebar-heading-link"
         v-bind="linkProps">
         <Icon
           v-if="item?.icon?.src"
@@ -120,6 +120,98 @@ defineExpose({ el })
   </li>
 </template>
 <style scoped>
+.sidebar-heading {
+  display: flex;
+  gap: 6px;
+
+  /* prettier-ignore */
+  color: var(--sidebar-color-2, var(--default-theme-color-2, var(--theme-color-2, var(--default-theme-color-2))));
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  word-break: break-word;
+  line-height: 1.385;
+  align-items: center;
+  max-width: 100%;
+  position: relative;
+  cursor: pointer;
+  border-radius: 0 var(--theme-radius, var(--default-theme-radius))
+    var(--theme-radius, var(--default-theme-radius)) 0;
+  flex: 1;
+  padding-right: 12px;
+  user-select: none;
+}
+.sidebar-heading.deprecated p {
+  text-decoration: line-through;
+}
+.sidebar-heading:hover {
+  /* prettier-ignore */
+  background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background, var(--theme-background-2, var(--default-theme-background-2))));
+}
+.sidebar-heading:hover p {
+  color: var(
+    --sidebar-item-hover-color,
+    var(
+      --default-sidebar-item-hover-color,
+      var(--theme-color-accent, var(--default-theme-color-accent))
+    )
+  );
+}
+
+.active_page.sidebar-heading:hover,
+.active_page.sidebar-heading {
+  /* prettier-ignore */
+  color: var(--sidebar-color-active, var(--default-sidebar-color-active, var(--theme-color-accent, var(--default-theme-color-accent)))) !important;
+  /* prettier-ignore */
+  background: var(--sidebar-item-active-background, var(--default-sidebar-item-active-background, var(--theme-background-accent, var(--default-theme-background-accent)))) !important;
+}
+.sidebar-heading-link {
+  padding-right: 12px;
+  padding: 6px 0;
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  align-items: flex-start !important;
+}
+
+/* Sidebar link icon */
+.link-icon {
+  position: relative;
+  left: 4px;
+}
+
+.sidebar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+
+  width: 13px;
+  height: 13px;
+}
+
+.sidebar-icon > svg {
+  width: 13px;
+  height: 13px;
+}
+
+.sidebar-group-item {
+  position: relative;
+}
+
+/* Folder/page collapse icon */
+.toggle-nested-icon {
+  border: none;
+  position: absolute !important;
+  color: currentColor;
+}
+
+.toggle-nested-icon:hover,
+.toggle-nested-icon:focus-visible {
+  color: currentColor;
+  filter: drop-shadow(0 0.125px 0 currentColor)
+    drop-shadow(0 -0.125px 0 currentColor);
+}
+
 .action-menu {
   position: absolute;
   top: 5px;
