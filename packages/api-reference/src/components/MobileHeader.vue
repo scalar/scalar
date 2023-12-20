@@ -22,7 +22,9 @@ const { state } = useApiClientStore()
     <span class="references-mobile-breadcrumbs">{{
       state.activeBreadcrumb
     }}</span>
-    <div class="sidebar-mobile-actions"></div>
+    <div class="references-mobile-header-actions">
+      <slot name="actions" />
+    </div>
   </div>
 </template>
 <style scoped>
@@ -47,5 +49,14 @@ const { state } = useApiClientStore()
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.references-mobile-header-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  height: 24px;
+  align-items: center;
+  padding-left: 4px;
 }
 </style>
