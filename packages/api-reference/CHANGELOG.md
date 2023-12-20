@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.12.1
+
+### Patch Changes
+
+- 54be5027: fix: make fuse data reactive
+- 6c4d608f: refactor: scope all sidebar styles
+
 ## 1.12.0
 
 ### Minor Changes
