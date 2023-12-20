@@ -29,11 +29,13 @@ defineProps<{
 }
 
 /* Change font colors and weights for nested items */
-.sidebar-indent-nested :deep(.sidebar-heading) {
+/* Needs :where to lower specificity */
+:where(.sidebar-indent-nested) :deep(.sidebar-heading) {
   /* prettier-ignore */
   color: var(--sidebar-color-1, var(--default-sidebar-color-1, var(--theme-color-1, var(--default-theme-color-1))));
 }
-.sidebar-indent-nested :deep(.sidebar-indent-nested .sidebar-heading) {
+:where(.sidebar-indent-nested)
+  :deep(:where(.sidebar-indent-nested) .sidebar-heading) {
   /* prettier-ignore */
   color: var(--sidebar-color-2, var(--default-sidebar-color-2, var(--theme-color-2, var(--default-theme-color-2))));
 }

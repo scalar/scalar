@@ -157,8 +157,8 @@ defineExpose({ el })
   );
 }
 
-.active_page.active_page.sidebar-heading:hover,
-.active_page.active_page.sidebar-heading {
+.active_page.sidebar-heading:hover,
+.active_page.sidebar-heading {
   /* prettier-ignore */
   color: var(--sidebar-color-active, var(--default-sidebar-color-active, var(--theme-color-accent, var(--default-theme-color-accent))));
   /* prettier-ignore */
