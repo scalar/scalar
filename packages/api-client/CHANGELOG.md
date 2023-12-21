@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.8.5
+
+### Patch Changes
+
+- bf29f8df: fix: add text/plain support
+
 ## 0.8.4
 
 ### Patch Changes

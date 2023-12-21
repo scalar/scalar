@@ -1,5 +1,13 @@
 # @scalar/hono-api-reference
 
+## 0.3.5
+
+### Patch Changes
+
+- bf29f8df: fix: add text/plain support
+- Updated dependencies [bf29f8df]
+  - @scalar/api-reference@1.12.3
+
 ## 0.3.4
 
 ### Patch Changes

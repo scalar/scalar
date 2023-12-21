@@ -1,5 +1,13 @@
 # @scalar/nestjs-api-reference
 
+## 0.1.3
+
+### Patch Changes
+
+- bf29f8df: fix: add text/plain support
+- Updated dependencies [bf29f8df]
+  - @scalar/api-reference@1.12.3
+
 ## 0.1.2
 
 ### Patch Changes
