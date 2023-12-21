@@ -1,5 +1,13 @@
 # @scalar/hono-api-reference
 
+## 0.3.4
+
+### Patch Changes
+
+- 0f9791b7: fix: add null check to cookies and proper withCredentials set on cookie addition
+- Updated dependencies [0f9791b7]
+  - @scalar/api-reference@1.12.2
+
 ## 0.3.3
 
 ### Patch Changes

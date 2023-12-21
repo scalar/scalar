@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.8.4
+
+### Patch Changes
+
+- 0f9791b7: fix: add null check to cookies and proper withCredentials set on cookie addition
+
 ## 0.8.3
 
 ### Patch Changes

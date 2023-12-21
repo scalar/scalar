@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.12.2
+
+### Patch Changes
+
+- 0f9791b7: fix: add null check to cookies and proper withCredentials set on cookie addition
+
 ## 1.11.1
 
 ### Patch Changes
