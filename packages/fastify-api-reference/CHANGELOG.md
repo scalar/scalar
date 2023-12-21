@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.12.3
+
+### Patch Changes
+
+- bf29f8df: fix: add text/plain support
+
 ## 1.12.2
 
 ### Patch Changes
