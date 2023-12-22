@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.12.6
+
+### Patch Changes
+
+- 87ed7f01: fix: markdown second level margin issue
+
 ## 1.12.5
 
 ### Patch Changes

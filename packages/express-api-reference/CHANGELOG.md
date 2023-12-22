@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.2.8
+
+### Patch Changes
+
+- 87ed7f01: fix: markdown second level margin issue
+- Updated dependencies [87ed7f01]
+  - @scalar/api-reference@1.12.6
+
 ## 0.2.7
 
 ### Patch Changes

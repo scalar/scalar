@@ -1,5 +1,13 @@
 # @scalar/nestjs-api-reference
 
+## 0.1.6
+
+### Patch Changes
+
+- 87ed7f01: fix: markdown second level margin issue
+- Updated dependencies [87ed7f01]
+  - @scalar/api-reference@1.12.6
+
 ## 0.1.5
 
 ### Patch Changes
