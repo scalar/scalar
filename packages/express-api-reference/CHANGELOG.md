@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.2.7
+
+### Patch Changes
+
+- 4513c725: feat: add intro flare for gradients
+- Updated dependencies [4513c725]
+  - @scalar/api-reference@1.12.5
+
 ## 0.2.6
 
 ### Patch Changes
