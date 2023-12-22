@@ -59,7 +59,9 @@ defineProps<{ parameter: Parameters }>()
   border-top: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
-
+.parameter-item:last-of-type .parameter-schema {
+  padding-bottom: 0;
+}
 .parameter-item-container {
   padding: 6px 0;
 }
@@ -102,6 +104,7 @@ defineProps<{ parameter: Parameters }>()
 }
 
 .parameter-schema {
-  padding-bottom: 12px;
+  padding-bottom: 9px;
+  margin-top: 3px;
 }
 </style>

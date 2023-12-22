@@ -33,3 +33,4 @@ const { responses } = useResponses(props.operation)
     </Parameters>
   </div>
 </template>
+<style scoped></style>

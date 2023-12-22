@@ -26,7 +26,9 @@ defineProps<{ requestBody?: RequestBody }>()
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   color: var(--theme-color-1, var(--default-theme-color-1));
   line-height: 1.45;
-  margin-top: 12px;
-  margin-bottom: 12px;
+  margin-top: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 </style>

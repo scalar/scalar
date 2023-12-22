@@ -203,7 +203,14 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   overflow: auto;
   font-size: var(--theme-mini, var(--default-theme-mini));
 }
-
+.property:last-of-type {
+  padding-bottom: 0;
+}
+.parameter-schema .property--compact:first-of-type,
+.property--compact .property--compact:first-of-type {
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+}
 .property--compact:not(.property--level-0) {
   padding: 8px;
 }
@@ -230,6 +237,11 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
+.children .property:first-of-type {
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+}
+
 .property-name {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
 }

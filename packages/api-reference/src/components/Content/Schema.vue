@@ -118,6 +118,7 @@ const visible = ref<boolean>(false)
 }
 .schema-card {
   width: 100%;
+  margin-top: 24px;
   font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
@@ -128,7 +129,9 @@ const visible = ref<boolean>(false)
   background: var(--theme-background-4, var(--default-theme-background-4));
   padding: 10px 12px;
 }
-
+.schema-card .property:last-of-type {
+  padding-bottom: 10px;
+}
 /* Style the "icon" */
 .schema-card-title :deep(em) {
   color: var(--theme-color-1, var(--default-theme-color-1));
@@ -136,7 +139,6 @@ const visible = ref<boolean>(false)
 
 .properties {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  margin: 24px 0 0;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   overflow: hidden;
 }
@@ -144,9 +146,11 @@ const visible = ref<boolean>(false)
 .properties .properties {
   margin-top: 12px;
 }
-
-.schema-card--compact > .properties {
-  margin: 12px 0 0;
+.schema-card--compact {
+  margin: 0;
+}
+.schema-card--compact .schema-card--compact > .properties {
+  margin: 9px 0 0;
 }
 
 .schema-card--compact.schema-card--level-0 > .properties {
@@ -161,6 +165,7 @@ const visible = ref<boolean>(false)
   display: flex;
   align-items: center;
   user-select: none;
+  font-family: var(--theme-font, var(--default-theme-font));
 }
 .schema-visibility-toggle:hover {
   color: var(--theme-color-1, var(--default-theme-color-1));
@@ -177,6 +182,7 @@ const visible = ref<boolean>(false)
 
 .properties--hidden {
   border-radius: 100px;
-  display: inline-block;
+  display: flex;
+  width: fit-content;
 }
 </style>

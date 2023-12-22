@@ -21,6 +21,9 @@ defineProps<{ parameters?: Parameters[] }>()
 </template>
 
 <style scoped>
+.parameters {
+  margin-top: 24px;
+}
 .parameters-title {
   font-size: var(--theme-heading-4, var(--default-theme-heading-4));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));

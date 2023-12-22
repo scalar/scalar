@@ -21,6 +21,6 @@
 
 .scalar-card-sticky {
   position: sticky;
-  top: 24px;
+  top: calc(var(--refs-header-height) + 24px);
 }
 </style>

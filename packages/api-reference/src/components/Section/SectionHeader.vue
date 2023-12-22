@@ -40,7 +40,7 @@ withDefaults(
   word-wrap: break-word;
   line-height: 1.45;
   margin-top: 0;
-  margin-bottom: 0;
+  margin-bottom: 12px;
 }
 
 .section-header.tight {
