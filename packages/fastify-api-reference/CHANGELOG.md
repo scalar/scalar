@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.12.5
+
+### Patch Changes
+
+- 4513c725: feat: add intro flare for gradients
+
 ## 1.12.4
 
 ### Patch Changes
