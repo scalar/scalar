@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.12.4
+
+### Patch Changes
+
+- 06f800cc: fix: regression ui bugs
+
 ## 1.12.3
 
 ### Patch Changes
