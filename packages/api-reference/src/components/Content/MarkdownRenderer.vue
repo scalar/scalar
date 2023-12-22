@@ -61,7 +61,7 @@ watch(
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
 /* Don't add margin to the first block */
-.markdown :deep(:first-child) {
+.markdown :deep(> :first-child) {
   margin-top: 0;
 }
 .markdown :deep(h1),
@@ -243,7 +243,7 @@ watch(
   pre code.hljs {
     display: block;
     overflow-x: auto;
-    padding: 1em;
+    padding: 12px;
   }
   pre * {
     font-size: var(--theme-small, var(--default-theme-small)) !important;
