@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.8.6
+
+### Patch Changes
+
+- 06f800cc: fix: regression ui bugs
+
 ## 0.8.5
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.2.6
+
+### Patch Changes
+
+- 06f800cc: fix: regression ui bugs
+- Updated dependencies [06f800cc]
+  - @scalar/api-reference@1.12.4
+
 ## 0.2.5
 
 ### Patch Changes

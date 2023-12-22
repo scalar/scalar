@@ -1,5 +1,13 @@
 # @scalar/nestjs-api-reference
 
+## 0.1.4
+
+### Patch Changes
+
+- 06f800cc: fix: regression ui bugs
+- Updated dependencies [06f800cc]
+  - @scalar/api-reference@1.12.4
+
 ## 0.1.3
 
 ### Patch Changes
