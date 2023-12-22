@@ -26,6 +26,7 @@ defineExpose({ el })
   padding: 9px;
   outline: none;
   white-space: nowrap;
+  font-family: var(--theme-font, var(--default-theme-font));
   font-size: var(--theme-micro, var(--default-theme-micro));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   color: var(--theme-color-1, var(--default-theme-color-1));

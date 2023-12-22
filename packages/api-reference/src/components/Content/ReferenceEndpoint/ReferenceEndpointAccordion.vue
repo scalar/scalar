@@ -96,6 +96,7 @@ const { copyToClipboard } = useClipboard()
 .endpoint-details {
   display: flex;
   align-items: center;
+  margin-top: 0;
   gap: 9px;
 
   min-width: 0;
