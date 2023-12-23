@@ -62,6 +62,7 @@ useKeyboardEvent({
   padding: 0 3px 0 12px;
   min-width: 220px;
   max-width: 100%;
+  font-family: var(--theme-font, var(--default-theme-font));
   background: var(
     --sidebar-search-background,
     var(
