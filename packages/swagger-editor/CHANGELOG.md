@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.9.2
+
+### Patch Changes
+
+- 0b66933d: fix: declare theme font for buttons and fix regressed font weight
+
 ## 0.9.1
 
 ### Patch Changes

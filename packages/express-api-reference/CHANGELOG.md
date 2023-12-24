@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.2.9
+
+### Patch Changes
+
+- 0b66933d: fix: declare theme font for buttons and fix regressed font weight
+- Updated dependencies [0b66933d]
+  - @scalar/api-reference@1.12.7
+
 ## 0.2.8
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.12.7
+
+### Patch Changes
+
+- 0b66933d: fix: declare theme font for buttons and fix regressed font weight
+- Updated dependencies [0b66933d]
+  - @scalar/swagger-editor@0.9.2
+
 ## 1.12.6
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.12.7
+
+### Patch Changes
+
+- 0b66933d: fix: declare theme font for buttons and fix regressed font weight
+
 ## 1.12.6
 
 ### Patch Changes
