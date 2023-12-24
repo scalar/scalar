@@ -13,6 +13,7 @@ import { computed, defineAsyncComponent, ref, watch } from 'vue'
 
 import { deepMerge } from '../helpers'
 import { useParser, useSpec } from '../hooks'
+import { useDarkModeState } from '../hooks/useDarkModeState'
 import {
   DEFAULT_CONFIG,
   type ReferenceConfiguration,
@@ -82,6 +83,21 @@ watch(
   (newContent) => {
     if (newContent) {
       overwriteParsedSpecRef(newContent as Spec)
+    }
+  },
+  {
+    immediate: true,
+  },
+)
+
+const { setDarkMode } = useDarkModeState()
+
+watch(
+  () => currentConfiguration.value.darkMode,
+  (newDarkMode) => {
+    console.log('here')
+    if (newDarkMode !== undefined) {
+      setDarkMode(newDarkMode)
     }
   },
   {

@@ -30,6 +30,8 @@ export type ReferenceConfiguration = {
   isEditable?: boolean
   /** Whether to show the sidebar */
   showSidebar?: boolean
+  /** Whether dark mode is on or off (light mode) */
+  darkMode?: boolean
   /** Remove the Scalar branding :( */
   // doNotPromoteScalar?: boolean
   /** Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */

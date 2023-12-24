@@ -226,6 +226,7 @@ To customize the behavior of the API Reference, you can use the following config
 - `spec.url`: Pass the URL of a spec file (JSON or YAML).
 - `spec.preparsedContent`: Preprocess specs with `@scalar/swagger-parser` and directly pass the result.
 - `proxyUrl`: Use a proxy to send requests to other origins.
+- `darkMode`: Set dark mode on or off (light mode)
 - `showSidebar`: Whether the sidebar should be shown.
 - `customCss`: Pass custom CSS directly to the component.
 - `searchHotKey`: Key used with CNTRL/CMD to open the search modal.
