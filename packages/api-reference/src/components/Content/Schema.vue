@@ -166,6 +166,7 @@ const visible = ref<boolean>(false)
   align-items: center;
   user-select: none;
   font-family: var(--theme-font, var(--default-theme-font));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 .schema-visibility-toggle:hover {
   color: var(--theme-color-1, var(--default-theme-color-1));

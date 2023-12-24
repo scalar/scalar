@@ -7,6 +7,7 @@
 </template>
 <style scoped>
 .swagger-editor-header-button {
+  font-family: var(--theme-font, var(--default-theme-font));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   border-radius: var(--theme-radius, var(--default-theme-radius))
     var(--theme-radius, var(--default-theme-radius)) 0 0;
