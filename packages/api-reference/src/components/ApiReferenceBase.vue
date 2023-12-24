@@ -95,7 +95,6 @@ const { setDarkMode } = useDarkModeState()
 watch(
   () => currentConfiguration.value.darkMode,
   (newDarkMode) => {
-    console.log('here')
     if (newDarkMode !== undefined) {
       setDarkMode(newDarkMode)
     }
