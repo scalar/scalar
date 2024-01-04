@@ -1,21 +1,39 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+
 import type { RequestBody } from '../../../types'
 import Schema from '../Schema.vue'
 
-defineProps<{ requestBody?: RequestBody }>()
+const prop = defineProps<{ requestBody?: RequestBody }>()
+const selectedContentType = ref(
+  prop?.requestBody?.content
+    ? Object.keys(prop?.requestBody?.content)[0]
+    : undefined,
+)
 </script>
 <template>
-  <div v-if="requestBody && requestBody.content?.['application/json']">
+  <div v-if="prop?.requestBody">
     <div class="request-body-title">
       <slot name="title" />
+      <select
+        v-if="prop?.requestBody"
+        v-model="selectedContentType"
+        style="display: block">
+        <option
+          v-for="(value, key) in prop.requestBody?.content"
+          :key="key"
+          :value="key">
+          {{ key }}
+        </option>
+      </select>
     </div>
     <div
-      v-if="requestBody.content?.['application/json']"
+      v-if="prop?.requestBody.content?.[selectedContentType]"
       class="request-body-schema">
       <Schema
         compact
         toggleVisibility
-        :value="requestBody.content['application/json'].schema" />
+        :value="prop?.requestBody.content[selectedContentType].schema" />
     </div>
   </div>
 </template>
