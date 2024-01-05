@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import type { RequestBody } from '../../../types'
+import type { ContentType, RequestBody } from '../../../types'
 import Schema from '../Schema.vue'
 
 const prop = defineProps<{ requestBody?: RequestBody }>()
-const selectedContentType = ref(
-  prop?.requestBody?.content
-    ? Object.keys(prop?.requestBody?.content)[0]
-    : undefined,
-)
+const selectedContentType = ref<ContentType>('application/json')
+if (prop.requestBody?.content) {
+  const keys = Object.keys(prop?.requestBody?.content)
+  if (keys.length > 0) {
+    selectedContentType.value = keys[0] as ContentType
+  }
+}
 </script>
 <template>
   <div v-if="prop?.requestBody">
