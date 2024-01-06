@@ -1,5 +1,13 @@
 # @scalar/nestjs-api-reference
 
+## 0.1.8
+
+### Patch Changes
+
+- 859977f8: feat: Add dynamic content type selection for request body
+- Updated dependencies [859977f8]
+  - @scalar/api-reference@1.12.8
+
 ## 0.1.7
 
 ### Patch Changes
