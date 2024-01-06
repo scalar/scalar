@@ -1,16 +1,22 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import type { ContentType, RequestBody } from '../../../types'
 import Schema from '../Schema.vue'
 
 const prop = defineProps<{ requestBody?: RequestBody }>()
 
+const contentTypes = computed(() => {
+  if (prop.requestBody?.content) {
+    return Object.keys(prop.requestBody.content)
+  }
+  return []
+})
+
 const selectedContentType = ref<ContentType>('application/json')
 if (prop.requestBody?.content) {
-  const keys = Object.keys(prop?.requestBody?.content)
-  if (keys.length > 0) {
-    selectedContentType.value = keys[0] as ContentType
+  if (contentTypes.value.length > 0) {
+    selectedContentType.value = contentTypes.value[0] as ContentType
   }
 }
 </script>
@@ -18,10 +24,12 @@ if (prop.requestBody?.content) {
   <div v-if="prop?.requestBody">
     <div class="request-body-title">
       <slot name="title" />
-      <div class="request-body-title-select">
+      <div
+        class="request-body-title-select"
+        :class="{ 'request-body-title-no-select': contentTypes.length <= 1 }">
         <span>{{ selectedContentType }}</span>
         <select
-          v-if="prop?.requestBody"
+          v-if="prop?.requestBody && contentTypes.length > 1"
           v-model="selectedContentType">
           <option
             v-for="(value, key) in prop.requestBody?.content"
@@ -64,6 +72,12 @@ if (prop.requestBody?.content) {
   font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   display: flex;
   align-items: center;
+}
+.request-body-title-no-select.request-body-title-select {
+  pointer-events: none;
+}
+.request-body-title-no-select.request-body-title-select:after {
+  display: none;
 }
 .request-body-title-select span {
   display: flex;
