@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.12.8
+
+### Patch Changes
+
+- 859977f8: feat: Add dynamic content type selection for request body
+
 ## 1.12.7
 
 ### Patch Changes
