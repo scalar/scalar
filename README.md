@@ -470,6 +470,13 @@ This repository contains all our open source projects and there’s definitely m
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/Chinlinlee">
+            <img src="https://avatars.githubusercontent.com/u/49154622?v=4" width="100;" alt="Chinlinlee"/>
+            <br />
+            <sub><b>Chinlinlee</b></sub>
+        </a>
+    </td>
+    <td align="center">
         <a href="https://github.com/FotieMConstant">
             <img src="https://avatars.githubusercontent.com/u/42372656?v=4" width="100;" alt="FotieMConstant"/>
             <br />
