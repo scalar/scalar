@@ -452,6 +452,54 @@
         ]
       }
     },
+    "/pet/{petId}/uploadImageForm": {
+      "post": {
+        "tags": ["pet"],
+        "summary": "uploads an image using form data",
+        "description": "",
+        "operationId": "uploadFileForm",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "petId": {
+                    "type": "string",
+                    "example": "1"
+                  },
+                  "additionalMetadata": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": ["petId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": ["write:pets", "read:pets"]
+          }
+        ]
+      }
+    },
     "/store/inventory": {
       "get": {
         "tags": ["store"],
