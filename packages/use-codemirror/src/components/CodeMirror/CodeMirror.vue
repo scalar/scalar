@@ -182,9 +182,7 @@ const {
 watch(
   () => props.content,
   () => {
-    if (props.content?.length) {
-      setCodeMirrorContent(props.content)
-    }
+    setCodeMirrorContent(props.content)
   },
 )
 

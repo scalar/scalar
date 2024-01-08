@@ -30,11 +30,12 @@ const updateActiveRequest = (value: string) => {
     <template v-else-if="formData && formData.length > 0">
       <Grid :items="formData" />
     </template>
-    <CodeMirror
-      v-else
-      :content="activeRequest.body"
-      :languages="['json']"
-      lineNumbers
-      @change="updateActiveRequest" />
+    <template v-else>
+      <CodeMirror
+        :content="activeRequest.body"
+        :languages="['json']"
+        lineNumbers
+        @change="updateActiveRequest" />
+    </template>
   </CollapsibleSection>
 </template>
