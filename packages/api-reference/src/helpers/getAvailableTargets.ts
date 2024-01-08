@@ -29,6 +29,19 @@ export function getAvailableTargets() {
       })
     }
 
+    // JS
+    if (target.key === 'javascript') {
+      target.default = 'fetch'
+
+      target.clients.unshift({
+        description:
+          'A browser-compatible implementation of the fetch() function.',
+        key: 'fetch',
+        link: 'https://nodejs.org/dist/latest/docs/api/globals.html#fetch',
+        title: 'fetch',
+      })
+    }
+
     return target
   })
 }
