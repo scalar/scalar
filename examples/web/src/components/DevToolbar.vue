@@ -97,6 +97,12 @@ watch(
         </select>
       </div>
       <div>
+        <input
+          v-model="configuration.darkMode"
+          type="checkbox" />
+        darkMode
+      </div>
+      <div>
         Layout:
         <select v-model="configuration.layout">
           <option
