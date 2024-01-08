@@ -1,5 +1,98 @@
 # @scalar/api-reference
 
+## 1.12.8
+
+### Patch Changes
+
+- 859977f8: feat: Add dynamic content type selection for request body
+
+## 1.12.7
+
+### Patch Changes
+
+- 0b66933d: fix: declare theme font for buttons and fix regressed font weight
+- Updated dependencies [0b66933d]
+  - @scalar/swagger-editor@0.9.2
+
+## 1.12.6
+
+### Patch Changes
+
+- 87ed7f01: fix: markdown second level margin issue
+
+## 1.12.5
+
+### Patch Changes
+
+- 4513c725: feat: add intro flare for gradients
+
+## 1.12.4
+
+### Patch Changes
+
+- 06f800cc: fix: regression ui bugs
+- Updated dependencies [06f800cc]
+  - @scalar/api-client@0.8.6
+
+## 1.12.3
+
+### Patch Changes
+
+- bf29f8df: fix: add text/plain support
+- Updated dependencies [bf29f8df]
+  - @scalar/api-client@0.8.5
+
+## 1.12.2
+
+### Patch Changes
+
+- 0f9791b7: fix: add null check to cookies and proper withCredentials set on cookie addition
+- Updated dependencies [0f9791b7]
+  - @scalar/api-client@0.8.4
+
+## 1.12.1
+
+### Patch Changes
+
+- 54be5027: fix: make fuse data reactive
+- 6c4d608f: refactor: scope all sidebar styles
+
+## 1.12.0
+
+### Minor Changes
+
+- 1c4f4c88: feat: classic layout polish
+
+### Patch Changes
+
+- 432d16fe: feat: add an OpenAuth2 interface
+- Updated dependencies [1c4f4c88]
+- Updated dependencies [2d7e3e6e]
+  - @scalar/components@0.2.0
+  - @scalar/swagger-editor@0.9.1
+
+## 1.11.1
+
+### Patch Changes
+
+- 855a6713: fix: remove caching of configuration when updating spec as prop
+- 5f270ca4: chore: export stores and helpers
+- 6cbb5a65: refactor: use Schema component to render parameters and response body
+
+## 1.11.0
+
+### Minor Changes
+
+- 1972947f: chore: removed yjs and hocus pocus from swagger editor
+
+### Patch Changes
+
+- e99eb215: fix: align mobile navigation to header
+- cf30daa2: fix: add JSON.stringify to undici body
+- 4b28e96c: style: add position sticky to endpoints overview
+- Updated dependencies [1972947f]
+  - @scalar/swagger-editor@0.9.0
+
 ## 1.10.2
 
 ### Patch Changes

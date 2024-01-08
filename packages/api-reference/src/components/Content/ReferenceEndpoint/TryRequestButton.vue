@@ -25,6 +25,7 @@ defineProps<{
   border: none;
   padding: 6px;
   height: 23px;
+  white-space: nowrap;
   border-radius: var(--theme-radius, var(--default-theme-radius));
   text-transform: uppercase;
   display: flex;

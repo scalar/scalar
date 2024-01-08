@@ -48,6 +48,7 @@ const { responses } = useResponses(props.operation)
 .endpoint-details-card-item {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  padding: 4px 20px;
 }
 .endpoint-details-card :deep(.endpoint-title),
 .endpoint-details-card :deep(.parameter li) {
@@ -60,5 +61,6 @@ const { responses } = useResponses(props.operation)
   font-weight: var(--theme-bold, var(--default-theme-bold));
   font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-color-2, var(--default-theme-color-2));
+  line-height: 1.33;
 }
 </style>

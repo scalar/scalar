@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Badge } from '../Badge'
 import Schema from './Schema.vue'
 
 withDefaults(
@@ -7,10 +8,14 @@ withDefaults(
     level?: number
     name?: string
     required?: boolean
+    compact?: boolean
+    toggleVisibility?: boolean
   }>(),
   {
     level: 0,
     required: false,
+    compact: false,
+    toggleVisibility: false,
   },
 )
 
@@ -52,7 +57,9 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 </script>
 
 <template>
-  <div class="property">
+  <div
+    class="property"
+    :class="`${compact ? 'property--compact' : ''} property--level-${level}`">
     <div class="property-information">
       <div
         v-if="name"
@@ -97,7 +104,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         <div
           v-if="value?.[rule] || value?.items?.[rule]"
           class="property-rule">
-          {{ rule }}
+          <Badge>{{ rule }}</Badge>
         </div>
       </template>
       <div
@@ -140,14 +147,10 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       v-if="value?.properties"
       class="children">
       <Schema
-        v-if="level < 3"
+        :compact="compact"
         :level="level + 1"
+        :toggleVisibility="level >= 3 || toggleVisibility"
         :value="value" />
-      <div
-        v-else
-        class="too-deep">
-        …
-      </div>
     </div>
     <!-- Array of objects -->
     <template v-if="value?.items">
@@ -155,14 +158,10 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         v-if="['object'].includes(value.items.type)"
         class="children">
         <Schema
-          v-if="level < 3"
+          :compact="compact"
           :level="level + 1"
+          :toggleVisibility="level >= 3 || toggleVisibility"
           :value="value.items" />
-        <div
-          v-else
-          class="too-deep">
-          …
-        </div>
       </div>
     </template>
     <!-- oneOf -->
@@ -176,18 +175,22 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         <Schema
           v-for="(schema, index) in value[rule]"
           :key="index"
+          :compact="compact"
+          hideVisibilityToggle
           :level="level + 1"
+          :toggleVisibility="level >= 3 || toggleVisibility"
           :value="schema" />
       </div>
       <!-- Arrays -->
-      <!-- TODO: remove level 3 temp fix when we get a real one for recursion -->
       <div
         v-if="value?.items?.[rule] && level < 3"
         class="rule">
         <Schema
           v-for="(schema, index) in value.items[rule]"
           :key="index"
+          :compact="compact"
           :level="level + 1"
+          :toggleVisibility="level >= 3 || toggleVisibility"
           :value="schema" />
       </div>
     </template>
@@ -196,13 +199,30 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
 <style scoped>
 .property {
-  padding: 12px 0;
+  padding: 10px;
   overflow: auto;
+  font-size: var(--theme-mini, var(--default-theme-mini));
+}
+.property:last-of-type {
+  padding-bottom: 0;
+}
+.parameter-schema .property--compact:first-of-type,
+.property--compact .property--compact:first-of-type {
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+}
+.property--compact:not(.property--level-0) {
+  padding: 8px;
+}
+
+.property--compact.property--level-0 {
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .property-information {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 9px;
   white-space: nowrap;
 }
@@ -211,32 +231,24 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   margin-top: 4px;
   color: var(--theme-color-2, var(--default-theme-color-2));
   line-height: 1.4;
-  font-size: var(--theme-small, var(--default-theme-small));
-}
-
-.property-rule {
-  display: inline-block;
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  background: var(--theme-color-orange, var(--default-theme-color-orange));
-  padding: 0 6px;
 }
 
 .property:not(:last-of-type) {
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
+.children .property:first-of-type {
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+}
+
 .property-name {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: var(--theme-mini, var(--default-theme-mini));
 }
 
 .required,
 .optional {
   color: var(--theme-color-2, var(--default-theme-color-2));
-  font-size: var(
-    --default-theme-font-size-5,
-    var(--default-default-theme-font-size-5)
-  );
 }
 
 .required {
@@ -247,10 +259,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 .property-type {
   font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   color: var(--theme-color-2, var(--default-theme-color-2));
-}
-
-.property {
-  padding: 12px 12px;
 }
 
 .property-example {
@@ -281,6 +289,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
 .property-enum-value {
   padding: 3px 0;
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 .property-enum-value::before {
   content: '◼';
@@ -299,5 +308,9 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 .property-nullable {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   color: var(--theme-color-2, var(--default-theme-color-2));
+}
+
+.property--compact .property-example {
+  display: none;
 }
 </style>

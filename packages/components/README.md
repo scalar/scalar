@@ -35,7 +35,7 @@ import { ScalarButton, ScalarTextField } from '@scalar/components'
       <ScalarTextField
         class="w-full"
         label="Email Address" />
-      <ScalarButton isFullWidth>Login</ScalarButton>
+      <ScalarButton fullWidth>Login</ScalarButton>
     </div>
   </main>
 </template>

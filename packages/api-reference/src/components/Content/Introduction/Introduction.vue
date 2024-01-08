@@ -26,14 +26,27 @@ const specVersion = computed(() => {
 </script>
 <template>
   <SectionContainer>
+    <!-- For adding gradients + animations to introduction of documents that :before / :after won't work for -->
+    <div class="section-flare">
+      <div class="section-flare-item"></div>
+      <div class="section-flare-item"></div>
+      <div class="section-flare-item"></div>
+      <div class="section-flare-item"></div>
+      <div class="section-flare-item"></div>
+      <div class="section-flare-item"></div>
+      <div class="section-flare-item"></div>
+      <div class="section-flare-item"></div>
+    </div>
     <Section class="introduction-section">
       <SectionContent :loading="!info.description && !info.title">
         <SectionColumns>
           <SectionColumn>
-            <Badge v-if="info.version">
-              {{ info.version }}
-            </Badge>
-            <Badge v-if="specVersion"> OAS {{ specVersion }} </Badge>
+            <div class="badges">
+              <Badge v-if="info.version">
+                {{ info.version }}
+              </Badge>
+              <Badge v-if="specVersion"> OAS {{ specVersion }}</Badge>
+            </div>
             <SectionHeader
               :level="1"
               :loading="!info.title"
@@ -64,6 +77,12 @@ const specVersion = computed(() => {
   animation: loading-skeleton 1.5s infinite alternate;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
+.badges {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 3px;
+}
 .heading.loading {
   width: 80%;
 }
@@ -76,5 +95,11 @@ const specVersion = computed(() => {
 
   position: sticky;
   top: calc(var(--refs-header-height) + 24px);
+}
+.section-flare {
+  position: absolute;
+  top: 0;
+  right: 0;
+  pointer-events: none;
 }
 </style>

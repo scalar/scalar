@@ -29,6 +29,7 @@ const { toggleDarkMode, isDark } = useDarkModeState()
 </template>
 <style scoped>
 .darklight {
+  font-family: var(--theme-font, var(--default-theme-font));
   border: none;
   border-top: 1px solid
     var(

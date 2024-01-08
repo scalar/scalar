@@ -37,7 +37,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
   </SectionContainer>
 </template>
 <style scoped>
-.tag-section-container {
+.section-container {
   border-top: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }

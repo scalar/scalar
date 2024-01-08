@@ -1,5 +1,101 @@
 # @scalar/express-api-reference
 
+## 0.2.10
+
+### Patch Changes
+
+- 859977f8: feat: Add dynamic content type selection for request body
+- Updated dependencies [859977f8]
+  - @scalar/api-reference@1.12.8
+
+## 0.2.9
+
+### Patch Changes
+
+- 0b66933d: fix: declare theme font for buttons and fix regressed font weight
+- Updated dependencies [0b66933d]
+  - @scalar/api-reference@1.12.7
+
+## 0.2.8
+
+### Patch Changes
+
+- 87ed7f01: fix: markdown second level margin issue
+- Updated dependencies [87ed7f01]
+  - @scalar/api-reference@1.12.6
+
+## 0.2.7
+
+### Patch Changes
+
+- 4513c725: feat: add intro flare for gradients
+- Updated dependencies [4513c725]
+  - @scalar/api-reference@1.12.5
+
+## 0.2.6
+
+### Patch Changes
+
+- 06f800cc: fix: regression ui bugs
+- Updated dependencies [06f800cc]
+  - @scalar/api-reference@1.12.4
+
+## 0.2.5
+
+### Patch Changes
+
+- bf29f8df: fix: add text/plain support
+- Updated dependencies [bf29f8df]
+  - @scalar/api-reference@1.12.3
+
+## 0.2.4
+
+### Patch Changes
+
+- 0f9791b7: fix: add null check to cookies and proper withCredentials set on cookie addition
+- Updated dependencies [0f9791b7]
+  - @scalar/api-reference@1.12.2
+
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies [54be5027]
+- Updated dependencies [6c4d608f]
+  - @scalar/api-reference@1.12.1
+
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies [1c4f4c88]
+- Updated dependencies [432d16fe]
+  - @scalar/api-reference@1.12.0
+
+## 0.2.1
+
+### Patch Changes
+
+- 855a6713: fix: remove caching of configuration when updating spec as prop
+- Updated dependencies [855a6713]
+- Updated dependencies [5f270ca4]
+- Updated dependencies [6cbb5a65]
+  - @scalar/api-reference@1.11.1
+
+## 0.2.0
+
+### Minor Changes
+
+- 1972947f: chore: removed yjs and hocus pocus from swagger editor
+
+### Patch Changes
+
+- Updated dependencies [e99eb215]
+- Updated dependencies [cf30daa2]
+- Updated dependencies [4b28e96c]
+- Updated dependencies [1972947f]
+  - @scalar/api-reference@1.11.0
+
 ## 0.1.11
 
 ### Patch Changes

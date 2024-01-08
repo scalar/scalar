@@ -83,7 +83,7 @@ export async function sendRequest(
   const startTime = Date.now()
 
   // Add cookies to the headers
-  if (request.cookies) {
+  if (request.cookies && request.cookies?.length > 0) {
     const cookies = mapFromArray(
       (request.cookies ?? []).filter((cookie) => cookie.enabled),
       'name',
@@ -115,6 +115,12 @@ export async function sendRequest(
         headers: requestConfig.headers,
         data: requestConfig.data,
       }
+
+  // if we have cookies, we need to pass withCredentials
+  // to properly set cookies in the browser
+  if (headers.cookies) {
+    axiosRequestConfig.withCredentials = true
+  }
 
   if (proxyUrl) {
     console.info(`${requestConfig.method} ${proxyUrl} → ${requestConfig.url}`)

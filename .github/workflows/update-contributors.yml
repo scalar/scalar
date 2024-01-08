@@ -1,9 +1,8 @@
 name: Update Contributors in README
 
 on:
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: '0 15 * * *'
 
 jobs:
   update-readme:

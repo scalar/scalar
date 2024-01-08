@@ -15,7 +15,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.10.2",
+  "version": "1.12.8",
   "engines": {
     "node": ">=20"
   },
@@ -53,6 +53,7 @@
     "directory": "packages/api-reference"
   },
   "dependencies": {
+    "@floating-ui/vue": "^1.0.2",
     "@headlessui/vue": "^1.7.16",
     "@scalar/api-client": "workspace:*",
     "@scalar/components": "workspace:*",

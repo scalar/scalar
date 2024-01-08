@@ -1,5 +1,25 @@
 # @scalar/swagger-editor
 
+## 0.9.2
+
+### Patch Changes
+
+- 0b66933d: fix: declare theme font for buttons and fix regressed font weight
+
+## 0.9.1
+
+### Patch Changes
+
+- Updated dependencies [1c4f4c88]
+- Updated dependencies [2d7e3e6e]
+  - @scalar/components@0.2.0
+
+## 0.9.0
+
+### Minor Changes
+
+- 1972947f: chore: removed yjs and hocus pocus from swagger editor
+
 ## 0.8.4
 
 ### Patch Changes

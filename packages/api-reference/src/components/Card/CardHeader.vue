@@ -27,6 +27,9 @@ const props = defineProps<CardContentProps>()
   padding: 9px 0 9px 12px;
   flex-shrink: 0;
 }
+.scalar-card-header.scalar-card--borderless + :deep(.scalar-card-content) {
+  margin-top: -9px;
+}
 .scalar-card-header-slots {
   display: flex;
   justify-content: space-between;

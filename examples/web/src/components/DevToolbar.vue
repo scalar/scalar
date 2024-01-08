@@ -33,17 +33,11 @@ function getCompleteConfiguration(v: any) {
   if (enableCollaborativeEditingRef.value) {
     return {
       ...v,
-      hocuspocusConfiguration: {
-        name: collaborativeEditingDocumentRef.value,
-        token: 'secret',
-        url: 'ws://localhost:1234',
-      },
     }
   }
 
   return {
     ...v,
-    hocuspocusConfiguration: undefined,
   }
 }
 
@@ -101,6 +95,12 @@ watch(
             {{ theme }}
           </option>
         </select>
+      </div>
+      <div>
+        <input
+          v-model="configuration.darkMode"
+          type="checkbox" />
+        darkMode
       </div>
       <div>
         Layout:

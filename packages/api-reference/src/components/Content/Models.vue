@@ -58,9 +58,15 @@ const models = computed(() => {
           <!-- Show More Button -->
           <ShowMoreButton
             v-if="!showAllModels && index === models.length - 1"
-            :id="getModelId()" />
+            :id="getModelId()"
+            class="something-special" />
         </SectionContent>
       </template>
     </Section>
   </SectionContainer>
 </template>
+<style scoped>
+.show-more {
+  margin-top: 24px;
+}
+</style>

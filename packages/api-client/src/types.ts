@@ -40,7 +40,6 @@ export type BaseParameter = {
   name: string
   description?: string | null
   value: string | number
-  customClass?: string
   required?: boolean
   enabled: boolean
 }

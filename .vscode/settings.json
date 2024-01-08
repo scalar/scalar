@@ -5,7 +5,6 @@
     "typescript",
     "typescriptreact"
   ],
-  "stylelint.validate": ["css", "scss", "vue"],
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
@@ -36,18 +35,21 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "javascript.preferences.importModuleSpecifier": "non-relative",
-  "cssVariables.lookupFiles": [
-    "packages/api-client/assets/css/variables.css",
-    "packages/api-reference/assets/css/variables.css"
-  ],
   "html-css-class-completion.CSSLanguages": ["css"],
   "cssPeek.peekToExclude": [
     "**/node_modules/**",
     "**/bower_components/**",
     "**/dist/**"
   ],
-  "volar.completion.preferredAttrNameCase": "camel",
-  "volar.completion.preferredTagNameCase": "pascal",
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "git.pullTags": false
+  "git.pullTags": false,
+  "vue.complete.casing.props": "camel",
+  "vue.complete.casing.tags": "pascal",
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ],
+  "tailwindCSS.experimental.configFile": {
+    "packages/components/tailwind.config.ts": "packages/components/**"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

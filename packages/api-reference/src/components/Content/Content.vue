@@ -132,7 +132,9 @@ const introCardsSlot = computed(() =>
 }
 .introduction-cards-row {
   flex-direction: row;
-  align-items: flex-start;
+  gap: 24px;
+  --default-theme-background-2: var(--default-theme-background-1);
+  --theme-background-2: var(--theme-background-1);
 }
 .introduction-cards-row > * {
   flex: 1;

@@ -25,7 +25,8 @@ const { getOperationId } = useNavState()
   <SectionAccordion
     :id="getOperationId(operation, tag)"
     class="reference-endpoint"
-    :class="`reference-endpoint--${operation.httpVerb}`">
+    :class="`reference-endpoint--${operation.httpVerb}`"
+    transparent>
     <template #title>
       <h3 class="endpoint-header">
         <div class="endpoint-details">
@@ -55,6 +56,7 @@ const { getOperationId } = useNavState()
         class="endpoint-copy"
         icon="Clipboard"
         label="Copy endpoint URL"
+        size="full"
         variant="ghost"
         @click.stop="copyToClipboard(operation.path)" />
     </template>
@@ -95,7 +97,8 @@ const { getOperationId } = useNavState()
 .endpoint-details {
   display: flex;
   align-items: center;
-  gap: 12px;
+  margin-top: 0;
+  gap: 9px;
 
   min-width: 0;
   flex-shrink: 1;
@@ -112,18 +115,11 @@ const { getOperationId } = useNavState()
   width: 70px;
   padding: 6px;
 
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-size: var(--theme-small, var(--default-theme-small));
 
   text-transform: uppercase;
-  font-family: var(--default-theme-font-code);
-}
-.endpoint-type::before {
-  display: inline-block;
-  content: '';
-  background: currentColor;
-  border-radius: 9999px;
-  width: 10px;
-  aspect-ratio: 1 /1;
+  font-weight: var(--default-theme-bold);
+  font-family: var(--default-theme-font);
 }
 .endpoint-type::after {
   content: '';
@@ -132,9 +128,9 @@ const { getOperationId } = useNavState()
   z-index: -1;
 
   background: currentColor;
-  opacity: 0.2;
+  opacity: 0.15;
 
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
 
 .endpoint-anchor {
@@ -165,8 +161,8 @@ const { getOperationId } = useNavState()
   color: var(--theme-color-2, var(--default-theme-color-2));
 }
 .endpoint-label-name {
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  font-size: var(--theme-small, var(--default-theme-small));
 
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -177,7 +173,7 @@ const { getOperationId } = useNavState()
   padding: 6px;
   height: 24px;
   aspect-ratio: 1 / 1;
-  opacity: 0.6;
+  opacity: 0.44;
 }
 
 .endpoint-copy,
@@ -186,7 +182,8 @@ const { getOperationId } = useNavState()
 }
 
 .endpoint-copy {
-  opacity: 0.6;
+  opacity: 0.44;
+  height: 14px;
 }
 .endpoint-copy:hover {
   opacity: 1;
@@ -195,8 +192,8 @@ const { getOperationId } = useNavState()
 .endpoint-content {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  padding: 24px;
+  gap: 9px;
+  padding: 9px;
 }
 
 .references-narrow .endpoint-content {

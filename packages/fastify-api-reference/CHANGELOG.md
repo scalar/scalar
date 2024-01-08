@@ -1,5 +1,59 @@
 # @scalar/fastify-api-reference
 
+## 1.12.8
+
+### Patch Changes
+
+- 859977f8: feat: Add dynamic content type selection for request body
+
+## 1.12.7
+
+### Patch Changes
+
+- 0b66933d: fix: declare theme font for buttons and fix regressed font weight
+
+## 1.12.6
+
+### Patch Changes
+
+- 87ed7f01: fix: markdown second level margin issue
+
+## 1.12.5
+
+### Patch Changes
+
+- 4513c725: feat: add intro flare for gradients
+
+## 1.12.4
+
+### Patch Changes
+
+- 06f800cc: fix: regression ui bugs
+
+## 1.12.3
+
+### Patch Changes
+
+- bf29f8df: fix: add text/plain support
+
+## 1.12.2
+
+### Patch Changes
+
+- 0f9791b7: fix: add null check to cookies and proper withCredentials set on cookie addition
+
+## 1.11.1
+
+### Patch Changes
+
+- 855a6713: fix: remove caching of configuration when updating spec as prop
+
+## 1.11.0
+
+### Minor Changes
+
+- 1972947f: chore: removed yjs and hocus pocus from swagger editor
+
 ## 1.10.2
 
 ### Patch Changes

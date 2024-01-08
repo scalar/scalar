@@ -1,129 +1,119 @@
 <script setup lang="ts">
-import type { RequestBody } from '../../../types'
-import RequestBodyProperties from './RequestBodyProperties.vue'
+import { computed, ref } from 'vue'
 
-defineProps<{ requestBody?: RequestBody }>()
+import type { ContentType, RequestBody } from '../../../types'
+import Schema from '../Schema.vue'
+
+const prop = defineProps<{ requestBody?: RequestBody }>()
+
+const contentTypes = computed(() => {
+  if (prop.requestBody?.content) {
+    return Object.keys(prop.requestBody.content)
+  }
+  return []
+})
+
+const selectedContentType = ref<ContentType>('application/json')
+if (prop.requestBody?.content) {
+  if (contentTypes.value.length > 0) {
+    selectedContentType.value = contentTypes.value[0] as ContentType
+  }
+}
 </script>
 <template>
-  <div
-    v-if="requestBody && requestBody.content?.['application/json']"
-    class="body-container">
-    <div class="endpoint-title">
+  <div v-if="prop?.requestBody">
+    <div class="request-body-title">
       <slot name="title" />
+      <div
+        class="request-body-title-select"
+        :class="{ 'request-body-title-no-select': contentTypes.length <= 1 }">
+        <span>{{ selectedContentType }}</span>
+        <select
+          v-if="prop?.requestBody && contentTypes.length > 1"
+          v-model="selectedContentType">
+          <option
+            v-for="(value, key) in prop.requestBody?.content"
+            :key="key"
+            :value="key">
+            {{ key }}
+          </option>
+        </select>
+      </div>
     </div>
-    <ul
-      v-if="requestBody.content?.['application/json']"
-      class="parameter">
-      <RequestBodyProperties
-        :contentProperties="
-          requestBody.content['application/json'].schema.properties || {}
-        "
-        :required="
-          requestBody.content['application/json'].schema.required || []
-        " />
-    </ul>
+    <div
+      v-if="prop?.requestBody.content?.[selectedContentType]"
+      class="request-body-schema">
+      <Schema
+        compact
+        toggleVisibility
+        :value="prop?.requestBody.content[selectedContentType].schema" />
+    </div>
   </div>
 </template>
-<style>
-.parameter p {
-  margin-top: 6px;
-}
-.parameter .parameter-child {
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  border-radius: 20px;
-  margin-top: 12px;
-  width: fit-content;
-}
-.parameter .parameter {
-  border: none !important;
-}
-.parameter-child-trigger {
-  padding: 6px 12px;
-  cursor: pointer;
-  font-weight: 500;
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  font-size: var(--theme-micro, var(--default-theme-micro));
+
+<style scoped>
+.request-body-title {
   display: flex;
   align-items: center;
-  user-select: none;
-}
-.parameter-child-trigger:has(+ .parameter li:first-of-type:last-of-type) {
-  display: none;
-}
-.parameter-child-trigger:hover {
+  font-size: var(--theme-heading-4, var(--default-theme-heading-4));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   color: var(--theme-color-1, var(--default-theme-color-1));
-}
-.parameter-child-trigger > span:before {
-  content: 'Show ';
-}
-.parameter-child__open > .parameter-child-trigger span:before {
-  content: 'Hide ';
-}
-.parameter-child-trigger svg {
-  height: 10px;
-  width: 10px;
-  margin-right: 6px;
-}
-.parameter-child__open .parameter-child-trigger svg {
-  transform: rotate(45deg);
-}
-.parameter .parameter li:first-of-type {
-  border-top: none;
-}
-.parameter .parameter li {
-  padding: 10px 12px;
-}
-.parameter-child__open > .parameter {
-  display: block;
-}
-.parameter .parameter-child__open {
-  width: 100%;
-  border-radius: 6px;
-}
-.parameter .parameter-child__open > svg {
-  transform: rotate(45deg);
-}
-.parameter-child__open > .parameter-child-trigger {
+  line-height: 1.45;
+  margin-top: 24px;
+  padding-bottom: 12px;
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
-
-.parameter {
-  list-style: none;
-  font-size: var(--theme-small, var(--default-theme-small));
+.request-body-title-select {
+  position: relative;
+  padding-left: 9px;
+  height: fit-content;
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
+  display: flex;
+  align-items: center;
 }
-.parameter li {
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-  padding: 12px 0;
+.request-body-title-no-select.request-body-title-select {
+  pointer-events: none;
 }
-.parameter-name {
-  font-weight: 500;
-  margin-right: 6px;
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: var(--theme-mini, var(--default-theme-mini));
+.request-body-title-no-select.request-body-title-select:after {
+  display: none;
+}
+.request-body-title-select span {
+  display: flex;
+  align-items: center;
+}
+.request-body-title-select:after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  transform: rotate(45deg) translate3d(-2px, -4px, 0);
+  display: block;
+  margin-left: 7px;
+  box-shadow: 1px 1px 0 currentColor;
+}
+.request-body-title-select select {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  background: var(--theme-background-3, var(--default-theme-background-3));
+  box-shadow: -2px 0 0 0
+    var(--theme-background-3, var(--default-theme-background-3));
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  appearance: none;
+}
+.request-body-title-select:hover {
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
-.parameter-type,
-.parameter-required {
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  margin-right: 6px;
-  position: relative;
-}
-.parameter-description {
-  margin-top: 3px !important;
-  font-size: var(--theme-small, var(--default-theme-small));
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  line-height: 1.4;
-}
-.parameter__required {
-  text-transform: uppercase;
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color-orange, var(--default-theme-color-orange));
-}
-.parameter-options {
-  position: relative;
+@media (max-width: 460px) {
+  .request-body-title-select {
+    margin-left: auto;
+    padding-right: 3px;
+  }
 }
 </style>

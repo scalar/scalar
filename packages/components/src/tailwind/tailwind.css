@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 /** 
- * Custom Scoped Reset - copied over from the tailwind reset 
- * and applied directly to classes so it doesn't leak 
+ * Custom Reset - copied over from the tailwind reset
+ * Auto-magically scoped by postcss (in postcss.config.js)
  *
  * @link https://tailwindcss.com/docs/preflight 
  */
 @layer base {
-  .scalar-reset {
+  * {
     box-sizing: border-box;
     border-width: unset;
     border-style: unset;

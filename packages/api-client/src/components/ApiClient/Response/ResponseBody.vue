@@ -42,6 +42,10 @@ const codeMirrorLanguages = computed((): CodeMirrorLanguage[] | null => {
     return ['html']
   }
 
+  if (mediaType.value === 'text/plain') {
+    return ['html']
+  }
+
   return null
 })
 </script>

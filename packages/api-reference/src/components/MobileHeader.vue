@@ -21,7 +21,9 @@ const { breadcrumb } = useSidebar()
       size="md"
       @click="$emit('update:open', !open)" />
     <span class="references-mobile-breadcrumbs">{{ breadcrumb }}</span>
-    <div class="sidebar-mobile-actions"></div>
+    <div class="references-mobile-header-actions">
+      <slot name="actions" />
+    </div>
   </div>
 </template>
 <style scoped>
@@ -46,5 +48,14 @@ const { breadcrumb } = useSidebar()
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.references-mobile-header-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  height: 24px;
+  align-items: center;
+  padding-left: 4px;
 }
 </style>

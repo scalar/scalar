@@ -64,7 +64,13 @@ export const useModal = () =>
     :open="state.open"
     @close="state.hide()">
     <div
-      class="scalar-modal-layout fixed left-0 top-0 z-[1001] h-[100dvh] w-[100dvw] bg-backdrop p-5 opacity-0">
+      :class="
+        cx(
+          'scalar-modal-layout fixed left-0 top-0',
+          'z-[1001] h-[100dvh] w-[100dvw]',
+          'bg-backdrop p-5 opacity-0',
+        )
+      ">
       <DialogPanel
         :class="modal({ size, variant })"
         :style="{ maxWidth }">
