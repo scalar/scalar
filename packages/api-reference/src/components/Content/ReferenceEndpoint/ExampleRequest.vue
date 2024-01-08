@@ -49,6 +49,15 @@ const generateSnippet = async (): Promise<string> => {
   // Actually generate the snippet
   try {
     // Snippetz
+    console.log(
+      state.selectedClient.targetKey,
+      state.selectedClient.clientKey,
+      snippetz().hasPlugin(
+        // @ts-ignore
+        state.selectedClient.targetKey,
+        state.selectedClient.clientKey,
+      ),
+    )
     if (
       snippetz().hasPlugin(
         // @ts-ignore
