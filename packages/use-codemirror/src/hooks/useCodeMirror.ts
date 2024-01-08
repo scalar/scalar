@@ -41,7 +41,7 @@ export const useCodeMirror = (
   value: Ref<string>
   codeMirrorRef: Ref<HTMLDivElement | null>
   codeMirror: Ref<EditorView | null>
-  setCodeMirrorContent: (content: string) => void
+  setCodeMirrorContent: (content?: string) => void
   reconfigureCodeMirror: (newExtensions: Extension[]) => void
   restartCodeMirror: (newExtensions: Extension[]) => void
 } => {
@@ -144,7 +144,7 @@ export const useCodeMirror = (
     codeMirror.value?.destroy()
   }
 
-  const setCodeMirrorContent = (newValue: string) => {
+  const setCodeMirrorContent = (newValue?: string) => {
     // Check whether CodeMirror is mounted properly.
     if (!codeMirror.value) {
       return
@@ -155,9 +155,9 @@ export const useCodeMirror = (
       return
     }
 
-    value.value = newValue
+    value.value = newValue ?? ''
 
-    if (codeMirror.value.state.doc.toString() === newValue) {
+    if (codeMirror.value.state.doc.toString() === value.value) {
       // No need to set the CodeMirror content
       return
     }
@@ -171,7 +171,7 @@ export const useCodeMirror = (
       selection: {
         anchor: Math.min(
           codeMirror.value.state.selection.main.anchor,
-          newValue.length,
+          value.value.length,
         ),
       },
     })
