@@ -406,17 +406,17 @@ This repository contains all our open source projects and there’s definitely m
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/ATREAY">
-            <img src="https://avatars.githubusercontent.com/u/66585295?v=4" width="100;" alt="ATREAY"/>
-            <br />
-            <sub><b>ATREAY</b></sub>
-        </a>
-    </td>
-    <td align="center">
         <a href="https://github.com/Mohib834">
             <img src="https://avatars.githubusercontent.com/u/47316464?v=4" width="100;" alt="Mohib834"/>
             <br />
             <sub><b>Mohib834</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/ATREAY">
+            <img src="https://avatars.githubusercontent.com/u/66585295?v=4" width="100;" alt="ATREAY"/>
+            <br />
+            <sub><b>ATREAY</b></sub>
         </a>
     </td>
     <td align="center">
