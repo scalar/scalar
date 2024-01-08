@@ -39,6 +39,13 @@ export function useDarkModeState() {
     }
   }
 
+  function setDarkMode(value: boolean) {
+    isDark.value = value
+    if (typeof window !== 'undefined') {
+      window?.localStorage?.setItem('isDark', JSON.stringify(isDark.value))
+    }
+  }
+
   // Set initial value
   isDark.value = getDarkModeState()
 
@@ -55,5 +62,6 @@ export function useDarkModeState() {
   return {
     isDark,
     toggleDarkMode,
+    setDarkMode,
   }
 }
