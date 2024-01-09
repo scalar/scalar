@@ -228,8 +228,8 @@ To customize the behavior of the API Reference, you can use the following config
 - `spec.preparsedContent`: Preprocess specs with `@scalar/swagger-parser` and directly pass the result.
 - `proxyUrl`: Use a proxy to send requests to other origins.
 - `darkMode`: Set dark mode on or off (light mode)
-- `layout`: The layout to use, either of `modern` or `classic` (see ([#layouts](#layouts))).
-- `theme`: The them to use (see ([#themes](#themes))).
+- `layout`: The layout to use, either of `modern` or `classic` (see [#layouts](#layouts)).
+- `theme`: The them to use (see [#themes](#themes)).
 - `showSidebar`: Whether the sidebar should be shown.
 - `customCss`: Pass custom CSS directly to the component.
 - `searchHotKey`: Key used with CNTRL/CMD to open the search modal.
@@ -243,7 +243,6 @@ For detailed information on how to use these options, refer to the [Configuratio
 We support two layouts at the moment, a `modern` layout (the default) and a Swagger UI inspired `classic` layout (we jazzed it up a bit though).
 
 ![layouts](https://github.com/scalar/scalar/assets/6374090/a28b89e0-8d3b-477f-a02f-bcf39f7830f0)
-
 
 ## Themes
 
