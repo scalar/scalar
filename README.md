@@ -242,6 +242,9 @@ For detailed information on how to use these options, refer to the [Configuratio
 
 We support two layouts at the moment, a `modern` layout (the default) and a Swagger UI inspired `classic` layout (we jazzed it up a bit though).
 
+![layouts](https://github.com/scalar/scalar/assets/6374090/a28b89e0-8d3b-477f-a02f-bcf39f7830f0)
+
+
 ## Themes
 
 You don’t like the color scheme? We’ve prepared some themes for you:
