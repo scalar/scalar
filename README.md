@@ -30,6 +30,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   - [With NestJS](#with-nestjs)
 - [Hosted API Reference](#hosted-api-reference)
 - [Configuration](#configuration)
+- [Layouts](#layouts)
 - [Themes](#themes)
 - [Advanced: Styling](#advanced-styling)
 - [Community](#community)
@@ -227,6 +228,8 @@ To customize the behavior of the API Reference, you can use the following config
 - `spec.preparsedContent`: Preprocess specs with `@scalar/swagger-parser` and directly pass the result.
 - `proxyUrl`: Use a proxy to send requests to other origins.
 - `darkMode`: Set dark mode on or off (light mode)
+- `layout`: The layout to use, either of `modern` or `classic` (see ([#layouts](#layouts))).
+- `theme`: The them to use (see ([#themes](#themes))).
 - `showSidebar`: Whether the sidebar should be shown.
 - `customCss`: Pass custom CSS directly to the component.
 - `searchHotKey`: Key used with CNTRL/CMD to open the search modal.
@@ -235,12 +238,16 @@ To customize the behavior of the API Reference, you can use the following config
 
 For detailed information on how to use these options, refer to the [Configuration Section](https://github.com/scalar/scalar/blob/main/packages/api-reference/README.md/#configuration).
 
+## Layouts
+
+We support two layouts at the moment, a `modern` layout (the default) and a Swagger UI inspired `classic` layout (we jazzed it up a bit though).
+
 ## Themes
 
 You don’t like the color scheme? We’ve prepared some themes for you:
 
 ```vue
-/* theme?: 'alternate' | 'default' | 'moon' | 'purple' | 'solarized' */
+/* theme?: 'alternate' | 'default' | 'moon' | 'purple' | 'solarized' | 'none' */
 <ApiReference :configuration="{ theme: 'moon' }" />
 ```
 
