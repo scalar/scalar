@@ -2,21 +2,17 @@ import { useApiClientStore } from '@scalar/api-client'
 import { computed, reactive, ref, watch } from 'vue'
 
 import {
-  getHeadingId,
   getHeadingsFromMarkdown,
   getLowestHeadingLevel,
-  getModelSectionId,
-  getOperationSectionId,
-  getTagSectionId,
   hasModels,
   openClientFor,
 } from '../helpers'
 import type { Spec, Tag, TransformedOperation } from '../types'
+import { useNavState } from './useNavState'
 
 export type SidebarEntry = {
   id: string
   title: string
-  type: 'Page' | 'Folder'
   children?: SidebarEntry[]
   select?: () => void
   httpVerb?: string
@@ -24,19 +20,11 @@ export type SidebarEntry = {
   deprecated?: boolean
 }
 
+const { getHeadingId, getModelId, getOperationId, getTagId, hash } =
+  useNavState(false)
+
 // Track the parsed spec
 const parsedSpec = ref<Spec | undefined>(undefined)
-
-// Track which sidebar items are visible
-type SidebarIdVisibility = Record<string, boolean>
-
-const sidebarIdVisibility = reactive<SidebarIdVisibility>({})
-
-function setItemIdVisibility(id: string, visible: boolean) {
-  sidebarIdVisibility[id] = visible
-}
-
-const isVisible = (id: string) => sidebarIdVisibility[id] ?? false
 
 // Track which sidebar items are collapsed
 type CollapsedSidebarItems = Record<string, boolean>
@@ -62,16 +50,16 @@ const updateHeadings = async (description: string) => {
 }
 
 // Create the list of sidebar items from the given spec
-const items = computed((): SidebarEntry[] => {
+const items = computed(() => {
   // Check whether the API client is visible
   const { state } = useApiClientStore()
+  const titlesById: Record<string, string> = {}
 
   // Introduction
   const headingEntries: SidebarEntry[] = headings.value.map((heading) => {
     return {
       id: getHeadingId(heading),
       title: heading.value.toUpperCase(),
-      type: 'Page',
       show: !state.showApiClient,
     }
   })
@@ -91,15 +79,17 @@ const items = computed((): SidebarEntry[] => {
     firstTag.operations?.length > 0
       ? parsedSpec.value?.tags?.map((tag: Tag) => {
           return {
-            id: getTagSectionId(tag),
+            id: getTagId(tag),
             title: tag.name.toUpperCase(),
-            type: 'Folder',
             show: true,
             children: tag.operations?.map((operation: TransformedOperation) => {
+              const id = getOperationId(operation, tag)
+              const title = operation.name ?? operation.path
+              titlesById[id] = title
+
               return {
-                id: getOperationSectionId(operation, tag),
-                title: operation.name ?? operation.path,
-                type: 'Page',
+                id,
+                title,
                 httpVerb: operation.httpVerb,
                 deprecated: operation.information?.deprecated ?? false,
                 show: true,
@@ -113,10 +103,13 @@ const items = computed((): SidebarEntry[] => {
           }
         })
       : firstTag?.operations?.map((operation) => {
+          const id = getOperationId(operation, firstTag)
+          const title = operation.name ?? operation.path
+          titlesById[id] = title
+
           return {
-            id: getOperationSectionId(operation, firstTag),
-            title: operation.name ?? operation.path,
-            type: 'Page',
+            id,
+            title,
             httpVerb: operation.httpVerb,
             deprecated: operation.information?.deprecated ?? false,
             show: true,
@@ -132,17 +125,18 @@ const items = computed((): SidebarEntry[] => {
   const modelEntries: SidebarEntry[] = hasModels(parsedSpec.value)
     ? [
         {
-          id: getModelSectionId(),
+          id: getModelId(),
           title: 'MODELS',
-          type: 'Folder',
           show: !state.showApiClient,
           children: Object.keys(
             parsedSpec.value?.components?.schemas ?? {},
           ).map((name) => {
+            const id = getModelId(name)
+            titlesById[id] = name
+
             return {
-              id: getModelSectionId(name),
+              id,
               title: name,
-              type: 'Page',
               show: !state.showApiClient,
             }
           }),
@@ -150,25 +144,15 @@ const items = computed((): SidebarEntry[] => {
       ]
     : []
 
-  return [...headingEntries, ...(operationEntries ?? []), ...modelEntries]
+  return {
+    entries: [...headingEntries, ...(operationEntries ?? []), ...modelEntries],
+    titles: titlesById,
+  }
 })
 
-// Track the active sidebar item
-const activeItemId = computed(() => {
-  const flattenedItems = items.value.reduce((acc, item) => {
-    acc.push(item)
+const breadcrumb = computed(() => items.value?.titles?.[hash.value] ?? '')
 
-    if (item.children) {
-      acc.push(...item.children)
-    }
-
-    return acc
-  }, [] as SidebarEntry[])
-
-  return flattenedItems.find((item) => isVisible(item.id))?.id ?? null
-})
-
-export function useNavigation(options?: { parsedSpec: Spec }) {
+export function useSidebar(options?: { parsedSpec: Spec }) {
   if (options?.parsedSpec) {
     parsedSpec.value = options.parsedSpec
 
@@ -179,7 +163,7 @@ export function useNavigation(options?: { parsedSpec: Spec }) {
         const firstTag = parsedSpec.value?.tags?.[0]
 
         if (firstTag) {
-          setCollapsedSidebarItem(getTagSectionId(firstTag), true)
+          setCollapsedSidebarItem(getTagId(firstTag), true)
         }
       },
       { immediate: true, deep: true },
@@ -198,21 +182,11 @@ export function useNavigation(options?: { parsedSpec: Spec }) {
         return (headings.value = await updateHeadings(description))
       },
     )
-
-    // Watch the active item and update the URL
-    watch(activeItemId, (id) => {
-      if (id) {
-        const newUrl = `${window.location.origin}${window.location.pathname}#${id}`
-        window.history.replaceState({}, '', newUrl)
-      }
-    })
   }
 
   return {
+    breadcrumb,
     items,
-    activeItemId,
-    sidebarIdVisibility,
-    setItemIdVisibility,
     collapsedSidebarItems,
     toggleCollapsedSidebarItem,
     setCollapsedSidebarItem,

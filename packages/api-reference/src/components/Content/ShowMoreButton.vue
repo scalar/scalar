@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
 
-import { useNavigation } from '../../hooks'
+import { useSidebar } from '../../hooks'
 
 defineProps<{
   id: string
 }>()
 
-const { setCollapsedSidebarItem } = useNavigation()
+const { setCollapsedSidebarItem } = useSidebar()
 </script>
 
 <template>

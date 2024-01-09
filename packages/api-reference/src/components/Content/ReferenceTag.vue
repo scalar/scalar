@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { getTagSectionId } from '../../helpers'
-import { useNavigation } from '../../hooks'
+import { useNavState, useSidebar } from '../../hooks'
 import { type Spec, type Tag } from '../../types'
 import SectionContainer from '../Section/SectionContainer.vue'
 import EndpointsOverview from './EndpointsOverview.vue'
@@ -12,7 +11,8 @@ const props = defineProps<{
   isFirst?: boolean
 }>()
 
-const { collapsedSidebarItems } = useNavigation()
+const { collapsedSidebarItems } = useSidebar()
+const { getTagId } = useNavState()
 
 const moreThanOneDefaultTag = (tag: Tag) =>
   props.spec.tags?.length !== 1 ||
@@ -27,10 +27,10 @@ const moreThanOneDefaultTag = (tag: Tag) =>
     <ShowMoreButton
       v-if="
         !isFirst &&
-        !collapsedSidebarItems[getTagSectionId(tag)] &&
+        !collapsedSidebarItems[getTagId(tag)] &&
         tag.operations?.length > 1
       "
-      :id="getTagSectionId(tag)" />
+      :id="getTagId(tag)" />
     <template v-else>
       <slot />
     </template>

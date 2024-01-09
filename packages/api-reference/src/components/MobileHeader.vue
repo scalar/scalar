@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { useApiClientStore } from '@scalar/api-client'
 import { ScalarIconButton } from '@scalar/components'
+
+import { useSidebar } from '../hooks'
 
 defineProps<{
   open?: boolean
@@ -10,7 +11,7 @@ defineEmits<{
   (event: 'update:open', open: boolean): void
 }>()
 
-const { state } = useApiClientStore()
+const { breadcrumb } = useSidebar()
 </script>
 <template>
   <div class="references-mobile-header t-doc__header">
@@ -19,9 +20,7 @@ const { state } = useApiClientStore()
       :label="open ? 'Close Menu' : 'Open Menu'"
       size="md"
       @click="$emit('update:open', !open)" />
-    <span class="references-mobile-breadcrumbs">{{
-      state.activeBreadcrumb
-    }}</span>
+    <span class="references-mobile-breadcrumbs">{{ breadcrumb }}</span>
     <div class="references-mobile-header-actions">
       <slot name="actions" />
     </div>

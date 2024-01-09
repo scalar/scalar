@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-import { scrollToId } from '../helpers'
-import { useNavigation } from '../hooks'
+import { useNavState, useSidebar } from '../hooks'
 import type { Spec } from '../types'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
@@ -11,14 +10,13 @@ const props = defineProps<{
   parsedSpec: Spec
 }>()
 
-const {
-  items,
-  activeItemId,
-  toggleCollapsedSidebarItem,
-  collapsedSidebarItems,
-} = useNavigation({
-  parsedSpec: props.parsedSpec,
-})
+const { hash } = useNavState()
+
+const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } = useSidebar(
+  {
+    parsedSpec: props.parsedSpec,
+  },
+)
 
 // This offset determines how far down the sidebar the items scroll
 const SCROLL_OFFSET = -160
@@ -26,8 +24,8 @@ const scrollerEl = ref<HTMLElement | null>(null)
 const sidebarRefs = ref<{ [key: string]: HTMLElement }>({})
 
 // Watch for the active item changing so we can scroll the sidebar
-watch(activeItemId, (activeId) => {
-  const el = sidebarRefs.value[activeId!]
+watch(hash, (id) => {
+  const el = sidebarRefs.value[id!]
   if (!el || !scrollerEl.value) return
 
   let top = SCROLL_OFFSET
@@ -62,32 +60,22 @@ const setRef = (el: SidebarElementType, id: string) => {
       class="sidebar-pages custom-scroll custom-scroll-self-contain-overflow">
       <SidebarGroup :level="0">
         <template
-          v-for="item in items"
+          v-for="item in items.entries"
           :key="item.id">
           <SidebarElement
             v-if="item.show"
             :ref="(el) => setRef(el as SidebarElementType, item.id)"
             data-sidebar-type="heading"
-            :isActive="activeItemId === item.id"
+            :hasChildren="item.children && item.children.length > 0"
+            :isActive="hash === item.id"
             :item="{
-              uid: '',
+              id: item.id,
               title: item.title,
-              type: item.type,
+              select: item.select,
               httpVerb: item.httpVerb,
               deprecated: item.deprecated ?? false,
             }"
             :open="collapsedSidebarItems[item.id] ?? false"
-            @select="
-              () => {
-                if (item.id) {
-                  scrollToId(item.id)
-                }
-
-                if (item.select) {
-                  item.select()
-                }
-              }
-            "
             @toggleOpen="() => toggleCollapsedSidebarItem(item.id)">
             <template v-if="item.children && item.children?.length > 0">
               <SidebarGroup :level="0">
@@ -97,25 +85,14 @@ const setRef = (el: SidebarElementType, id: string) => {
                   <SidebarElement
                     v-if="item.show"
                     :ref="(el) => setRef(el as SidebarElementType, child.id)"
-                    :isActive="activeItemId === child.id"
+                    :isActive="hash === child.id"
                     :item="{
-                      uid: '',
+                      id: child.id,
                       title: child.title,
-                      type: child.type,
+                      select: child.select,
                       httpVerb: child.httpVerb,
                       deprecated: child.deprecated ?? false,
-                    }"
-                    @select="
-                      () => {
-                        if (child.id) {
-                          scrollToId(child.id)
-                        }
-
-                        if (child.select) {
-                          child.select()
-                        }
-                      }
-                    " />
+                    }" />
                 </template>
               </SidebarGroup>
             </template>

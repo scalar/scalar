@@ -2,7 +2,7 @@
 import { ScalarIcon, ScalarIconButton } from '@scalar/components'
 import { useClipboard } from '@scalar/use-clipboard'
 
-import { getOperationSectionId } from '../../../helpers'
+import { useNavState } from '../../../hooks/useNavState'
 import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { SectionAccordion } from '../../Section'
@@ -19,10 +19,11 @@ defineProps<{
 }>()
 
 const { copyToClipboard } = useClipboard()
+const { getOperationId } = useNavState()
 </script>
 <template>
   <SectionAccordion
-    :id="getOperationSectionId(operation, tag)"
+    :id="getOperationId(operation, tag)"
     class="reference-endpoint"
     :class="`reference-endpoint--${operation.httpVerb}`"
     transparent>
@@ -31,7 +32,7 @@ const { copyToClipboard } = useClipboard()
         <div class="endpoint-details">
           <span class="endpoint-type">{{ operation.httpVerb }}</span>
           <Anchor
-            :id="getOperationSectionId(operation, tag)"
+            :id="getOperationId(operation, tag)"
             class="endpoint-anchor">
             <div class="endpoint-label">
               <div class="endpoint-label-path">

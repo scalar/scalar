@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-unused-properties -->
 <script setup lang="ts">
-import { getTagSectionId } from '../../helpers'
+import { useNavState } from '../../hooks'
 import { type Spec, type Tag } from '../../types'
 import { Anchor } from '../Anchor'
 import { SectionContainerAccordion, SectionHeader } from '../Section'
@@ -11,6 +11,8 @@ defineProps<{
   spec: Spec
   isFirst?: boolean
 }>()
+
+const { getTagId } = useNavState()
 </script>
 <template>
   <SectionContainerAccordion class="tag-section">
@@ -18,7 +20,7 @@ defineProps<{
       <SectionHeader
         class="tag-name"
         :level="2">
-        <Anchor :id="getTagSectionId(tag)">
+        <Anchor :id="getTagId(tag)">
           {{ tag.name }}
         </Anchor>
       </SectionHeader>
