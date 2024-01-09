@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type SwaggerEditor } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
-import { useMediaQuery, useResizeObserver } from '@vueuse/core'
+import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
 import { useNavState, useSidebar } from '../hooks'
@@ -84,6 +84,19 @@ const showSwaggerEditor = computed(() => {
   )
 })
 
+// To clear hash when scrolled to the top
+const debouncedScroll = useDebounceFn((value) => {
+  const scrollDistance = value.target.scrollTop ?? 0
+  if (scrollDistance < 50) {
+    window.history.replaceState(
+      {},
+      '',
+      window.location.pathname + window.location.search,
+    )
+    hash.value = ''
+  }
+})
+
 /** This is passed into all of the slots so they have access to the references data */
 const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   breadcrumb: breadcrumb.value,
@@ -101,7 +114,8 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
         'references-classic': configuration.layout === 'classic',
       },
     ]"
-    :style="{ '--full-height': `${elementHeight}px` }">
+    :style="{ '--full-height': `${elementHeight}px` }"
+    @scroll.passive="debouncedScroll">
     <!-- Header -->
     <div class="references-header">
       <slot
