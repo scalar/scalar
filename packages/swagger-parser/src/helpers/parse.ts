@@ -1,4 +1,4 @@
-import SwaggerParser from '@apidevtools/swagger-parser'
+import SwaggerParser from '@readme/openapi-parser'
 import yaml from 'js-yaml'
 import { type OpenAPI, type OpenAPIV2, type OpenAPIV3 } from 'openapi-types'
 

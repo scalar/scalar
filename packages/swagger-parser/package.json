@@ -39,7 +39,7 @@
     "directory": "packages/swagger-parser"
   },
   "dependencies": {
-    "@apidevtools/swagger-parser": "^10.1.0",
+    "@readme/openapi-parser": "^2.5.0",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
