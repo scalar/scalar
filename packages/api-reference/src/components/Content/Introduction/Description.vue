@@ -60,6 +60,7 @@ function handleScroll(headingId: string) {
       <template v-if="section.heading">
         <IntersectionObserver
           :id="getHeadingId(section.heading)"
+          class="introduction-description-heading"
           @intersecting="() => handleScroll(getHeadingId(section.heading))">
           <MarkdownRenderer :value="section.content" />
         </IntersectionObserver>
@@ -71,3 +72,9 @@ function handleScroll(headingId: string) {
     </div>
   </template>
 </template>
+
+<style scoped>
+.introduction-description-heading {
+  scroll-margin-top: 64px;
+}
+</style>
