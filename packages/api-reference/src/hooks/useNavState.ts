@@ -1,7 +1,7 @@
 import { slug } from 'github-slugger'
 import { onMounted, ref } from 'vue'
 
-import { type Heading, scrollToId } from '../helpers'
+import { type Heading, scrollToId, sleep } from '../helpers'
 import type { Tag, TransformedOperation } from '../types'
 
 // Keeps track of the URL hash without the #
@@ -56,18 +56,26 @@ const updateHash = () => (hash.value = window.location.hash.replace(/^#/, ''))
  * Hook which provides reactive hash state from the URL
  * Also hash is only readable by the client so keep that in mind for SSR
  *
+ * isIntersectionEnabled is a hack to prevent intersection observer from triggering
+ * when clicking on sidebar links or going backwards
+ *
+ *
  * @param hasLifecyle - we cannot use lifecycle hooks when called from another composable, this prevents that
  */
 export const useNavState = (hasLifecyle = true) => {
   if (hasLifecyle) {
     onMounted(() => {
       updateHash()
-      window.onhashchange = () => {
+      window.onhashchange = async () => {
+        isIntersectionEnabled.value = false
         updateHash()
 
         // TODO: we should be able to remove this once we find the cause
         // for some reason pressing back doesn't always scroll to the correct section
         scrollToId(window.location.hash.replace(/^#/, ''))
+
+        await sleep(100)
+        isIntersectionEnabled.value = true
       }
     })
   }

@@ -2,8 +2,6 @@
 import { ScalarIconButton } from '@scalar/components'
 import { ref } from 'vue'
 
-import { sleep } from '../helpers'
-import { useNavState } from '../hooks'
 import { Icon } from './Icon'
 
 const props = defineProps<{
@@ -27,16 +25,10 @@ const emit = defineEmits<{
   (e: 'toggleOpen'): void
 }>()
 
-const { isIntersectionEnabled } = useNavState()
-
 // We disable intersection observer on click
 const handleClick = async () => {
-  isIntersectionEnabled.value = false
   if (props.hasChildren) emit('toggleOpen')
   props.item?.select?.()
-
-  await sleep(100)
-  isIntersectionEnabled.value = true
 }
 
 // Ensure we expose the root element
