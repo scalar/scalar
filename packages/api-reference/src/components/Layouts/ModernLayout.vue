@@ -31,11 +31,11 @@ const config = computed(() => {
 
 const { hash } = useNavState()
 
-// watch(hash, (n, o) => {
-//   if (n && n !== o) {
-//     showMobileDrawer.value = false
-//   }
-// })
+watch(hash, (n, o) => {
+  if (n && n !== o) {
+    showMobileDrawer.value = false
+  }
+})
 </script>
 <template>
   <ApiReferenceBase
