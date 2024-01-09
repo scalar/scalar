@@ -52,14 +52,15 @@ const generateSnippet = async (): Promise<string> => {
     if (
       snippetz().hasPlugin(
         // @ts-ignore
-        state.selectedClient.targetKey,
+        state.selectedClient.targetKey.replace('javascript', 'js'),
+        // @ts-ignore
         state.selectedClient.clientKey,
       )
     ) {
       return (
         snippetz().print(
           // @ts-ignore
-          state.selectedClient.targetKey,
+          state.selectedClient.targetKey.replace('javascript', 'js'),
           state.selectedClient.clientKey,
           request,
         ) ?? ''

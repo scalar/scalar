@@ -553,8 +553,8 @@ importers:
         specifier: workspace:*
         version: link:../components
       '@scalar/snippetz':
-        specifier: ^0.1.3
-        version: 0.1.3
+        specifier: ^0.1.5
+        version: 0.1.5
       '@scalar/swagger-editor':
         specifier: workspace:*
         version: link:../swagger-editor
@@ -5173,23 +5173,37 @@ packages:
       string-argv: 0.3.2
     dev: true
 
-  /@scalar/snippetz-core@0.1.1:
-    resolution: {integrity: sha512-pSuSfLMBI+pyy0XlvGHeoQytD4MPfSH2RZexLwQJwo86tWCk0pm0XxVFk+ezsP/RmmIia328ZUbGvJ6uWt9Rmw==}
+  /@scalar/snippetz-core@0.1.3:
+    resolution: {integrity: sha512-pHRi23VhxMddKMo/2zEnaRcc1QUTEva5H2tryuq+tER7imGWf2O09IGexiV9vY/8jzYh0QVl/2dlJUmnF9Ww5w==}
     dependencies:
       '@types/har-format': 1.2.15
     dev: false
 
-  /@scalar/snippetz-plugin-node-undici@0.1.3:
-    resolution: {integrity: sha512-eHFkDfEi7NMt8qS6L6o1v77ufGHrG3o9Fp8nmamfTtHlbXKNP9Lub0lOf0Oavym0xwjpMtbD6NyNSEojla3cLQ==}
+  /@scalar/snippetz-plugin-js-fetch@0.1.0:
+    resolution: {integrity: sha512-lliZSIqtbZawm+XXmMXEpCcpIQprRwJXNUxLAvryB9AGm9qTu0dIfsvjJPjiTAfRew5+sgebNQ8cEF4esMnnlQ==}
     dependencies:
-      '@scalar/snippetz-core': 0.1.1
+      '@scalar/snippetz-core': 0.1.3
     dev: false
 
-  /@scalar/snippetz@0.1.3:
-    resolution: {integrity: sha512-pSFy223TDwYW/j65UacIyplXgCXcNYBngxWFQc41S/FsB8qmpxphoobC7xzlEvmz2OwgQjZRMCV3Tf15Abq1dw==}
+  /@scalar/snippetz-plugin-node-fetch@0.1.1:
+    resolution: {integrity: sha512-U6kqtQi1xAME8AWgJmEVAFA/uhcJ1RUNKtyVDjupd77LQu2FEOPwqI5dPSltxvnJdYrUjLhDcfIa8EO8uO43zw==}
     dependencies:
-      '@scalar/snippetz-core': 0.1.1
-      '@scalar/snippetz-plugin-node-undici': 0.1.3
+      '@scalar/snippetz-core': 0.1.3
+    dev: false
+
+  /@scalar/snippetz-plugin-node-undici@0.1.5:
+    resolution: {integrity: sha512-ctOvCK3/Ta7ibuZjhV85M/gBuKURpeqgkWQHDFJubTHgUhQZudn60N5MY3ZtjoLFY7z9DCC5UenNYINveCdKJw==}
+    dependencies:
+      '@scalar/snippetz-core': 0.1.3
+    dev: false
+
+  /@scalar/snippetz@0.1.5:
+    resolution: {integrity: sha512-jHU8/KOO9vKbQFhsruflKugekgAtDm5GIAKZCYN+XtzqQ3jPGAjzkEZMXXvRDS2YPtFSzH2vzfqNMLB+q2Zupw==}
+    dependencies:
+      '@scalar/snippetz-core': 0.1.3
+      '@scalar/snippetz-plugin-js-fetch': 0.1.0
+      '@scalar/snippetz-plugin-node-fetch': 0.1.1
+      '@scalar/snippetz-plugin-node-undici': 0.1.5
     dev: false
 
   /@sinclair/typebox@0.27.8:
@@ -6318,7 +6332,7 @@ packages:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.3.4
-      vue-component-type-helpers: 1.8.25
+      vue-component-type-helpers: 1.8.27
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -18285,8 +18299,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /vue-component-type-helpers@1.8.25:
-    resolution: {integrity: sha512-NCA6sekiJIMnMs4DdORxATXD+/NRkQpS32UC+I1KQJUasx+Z7MZUb3Y+MsKsFmX+PgyTYSteb73JW77AibaCCw==}
+  /vue-component-type-helpers@1.8.27:
+    resolution: {integrity: sha512-0vOfAtI67UjeO1G6UiX5Kd76CqaQ67wrRZiOe7UAb9Jm6GzlUr/fC7CV90XfwapJRjpCMaZFhv1V0ajWRmE9Dg==}
     dev: true
 
   /vue-component-type-helpers@1.8.4:
