@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.17
+
+### Patch Changes
+
+- c171c9d9: fix: request body doesn’t reset on navigating to a request without a body
+
 ## 0.7.16
 
 ### Patch Changes
