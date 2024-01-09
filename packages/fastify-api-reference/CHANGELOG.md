@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.12.9
+
+### Patch Changes
+
+- d5d55407: feat: expose dark mode light mode property in config
+
 ## 1.12.8
 
 ### Patch Changes
