@@ -301,7 +301,7 @@ computed(() => {
   padding: 6px;
 }
 .request-editor-section {
-  display: grid;
+  display: flex;
   flex: 1;
 }
 </style>
