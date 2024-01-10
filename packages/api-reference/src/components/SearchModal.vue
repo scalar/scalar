@@ -191,7 +191,6 @@ const tagRegex = /#(tag\/[^/]*)/
 const { setCollapsedSidebarItem } = useSidebar()
 
 // Ensure we open the section
-// #TODOAM refactor this in URL PR
 const onSearchResultClick = (entry: Fuse.FuseResult<FuseData>) => {
   let parentId = 'models'
   const tagMatch = entry.item.href.match(tagRegex)
