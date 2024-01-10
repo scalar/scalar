@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.12.9
+
+### Patch Changes
+
+- d5d55407: feat: expose dark mode light mode property in config
+- 7d502131: fix: add markdown rendering for body schema
+- 3e7c4cf7: feat: add fetch examples
+- Updated dependencies [c171c9d9]
+  - @scalar/use-codemirror@0.7.17
+  - @scalar/api-client@0.8.7
+  - @scalar/swagger-editor@0.9.3
+
 ## 1.12.8
 
 ### Patch Changes

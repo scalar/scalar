@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 0.8.7
+
+### Patch Changes
+
+- c171c9d9: fix: request body doesn’t reset on navigating to a request without a body
+- Updated dependencies [c171c9d9]
+  - @scalar/use-codemirror@0.7.17
+
 ## 0.8.6
 
 ### Patch Changes

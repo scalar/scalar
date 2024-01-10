@@ -1,5 +1,16 @@
 # @scalar/nestjs-api-reference
 
+## 0.1.9
+
+### Patch Changes
+
+- d5d55407: feat: expose dark mode light mode property in config
+- 7d502131: fix: add markdown rendering for body schema
+- Updated dependencies [d5d55407]
+- Updated dependencies [7d502131]
+- Updated dependencies [3e7c4cf7]
+  - @scalar/api-reference@1.12.9
+
 ## 0.1.8
 
 ### Patch Changes
