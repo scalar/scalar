@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { Badge } from '../Badge'
+import MarkdownRenderer from './MarkdownRenderer.vue'
 import Schema from './Schema.vue'
 
 withDefaults(
@@ -122,12 +123,12 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     <div
       v-if="value?.description"
       class="property-description">
-      {{ value.description }}
+      <MarkdownRenderer :value="value.description" />
     </div>
     <div
       v-else-if="generatePropertyDescription(value)"
       class="property-description">
-      {{ generatePropertyDescription(value) }}
+      <MarkdownRenderer :value="generatePropertyDescription(value) || ''" />
     </div>
     <!-- Enum -->
     <div

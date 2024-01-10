@@ -5,7 +5,7 @@ import Fuse from 'fuse.js'
 import { computed, ref, toRef, watch } from 'vue'
 
 import { extractRequestBody } from '../helpers/specHelpers'
-import { type ParamMap, useNavState, useOperation } from '../hooks'
+import { type ParamMap, useNavState, useOperation, useSidebar } from '../hooks'
 import type { Spec, TransformedOperation } from '../types'
 
 const props = defineProps<{ parsedSpec: Spec; modalState: ModalState }>()
@@ -186,6 +186,22 @@ const searchResultsWithPlaceholderResults = computed(
     return searchResults.value
   },
 )
+
+const tagRegex = /#(tag\/[^/]*)/
+const { setCollapsedSidebarItem } = useSidebar()
+
+// Ensure we open the section
+// #TODOAM refactor this in URL PR
+const onSearchResultClick = (entry: Fuse.FuseResult<FuseData>) => {
+  let parentId = 'models'
+  const tagMatch = entry.item.href.match(tagRegex)
+
+  if (tagMatch?.length && tagMatch.length > 1) {
+    parentId = tagMatch[1]
+  }
+  setCollapsedSidebarItem(parentId, true)
+  props.modalState.hide()
+}
 </script>
 <template>
   <FlowModal
@@ -213,7 +229,7 @@ const searchResultsWithPlaceholderResults = computed(
           'item-entry--tag': !entry.item.httpVerb,
         }"
         :href="entry.item.href"
-        @click="modalState.hide"
+        @click="onSearchResultClick(entry)"
         @focus="selectedSearchResult = index"
         @mouseover="selectedSearchResult = index">
         <div
