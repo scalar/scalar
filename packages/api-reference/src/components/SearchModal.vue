@@ -199,7 +199,7 @@ const onSearchResultClick = (entry: Fuse.FuseResult<FuseData>) => {
   let parentId = 'models'
   const tagMatch = entry.item.href.match(tagRegex)
 
-  if (tagMatch?.length && tagMatch.length > 0) {
+  if (tagMatch?.length) {
     parentId = tagMatch[1]
   }
   setCollapsedSidebarItem(parentId, true)
