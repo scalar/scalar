@@ -102,7 +102,7 @@ defineExpose({ el })
           :class="[
             item.httpVerb ? `sidebar-heading-type--${item.httpVerb}` : '',
           ]">
-          {{ item.httpVerb }}
+          {{ item.httpVerb === 'delete' ? 'del' : item.httpVerb }}
         </div>
       </a>
       <ScalarIcon
@@ -258,7 +258,8 @@ defineExpose({ el })
       var(--theme-background-1, var(--default-theme-background-1))
     )
   );
-  font-size: 0px;
+  text-transform: uppercase;
+  font-size: 8px;
   font-weight: bold;
   text-align: center;
   position: relative;
@@ -285,37 +286,19 @@ defineExpose({ el })
 .sidebar-group-item__folder .sidebar-heading-type {
   display: none;
 }
-.sidebar-heading-type:before {
-  font-size: 8px;
-}
 .sidebar-heading-type--post {
   background: var(--theme-color-green, var(--default-theme-color-green));
-}
-.sidebar-heading-type--post:before {
-  content: 'POST';
 }
 .sidebar-heading-type--delete {
   background: var(--theme-color-red, var(--default-theme-color-red));
 }
-.sidebar-heading-type--delete:before {
-  content: 'DEL';
-}
 .sidebar-heading-type--patch {
   background: var(--theme-color-yellow, var(--default-theme-color-yellow));
-}
-.sidebar-heading-type--patch:before {
-  content: 'PATCH';
 }
 .sidebar-heading-type--get {
   background: var(--theme-color-blue, var(--default-theme-color-blue));
 }
-.sidebar-heading-type--get:before {
-  content: 'GET';
-}
 .sidebar-heading-type--put {
   background: var(--theme-color-orange, var(--default-theme-color-orange));
-}
-.sidebar-heading-type--put:before {
-  content: 'PUT';
 }
 </style>
