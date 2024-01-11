@@ -9,22 +9,9 @@ export function useSnippetTargets() {
   const availableTargets = computed(() =>
     allTargets()
       .map((target) => {
-        // Remove fetch because we want a different one
-        target.clients = target.clients.filter(
-          (client) => client.key !== 'fetch',
-        )
-
         // Node.js
         if (target.key === 'node') {
           target.default = 'undici'
-
-          target.clients.unshift({
-            description:
-              'A browser-compatible implementation of the fetch() function.',
-            key: 'fetch',
-            link: 'https://nodejs.org/dist/latest/docs/api/globals.html#fetch',
-            title: 'fetch',
-          })
 
           target.clients.unshift({
             description:
@@ -32,19 +19,6 @@ export function useSnippetTargets() {
             key: 'undici',
             link: 'https://github.com/nodejs/undici',
             title: 'undici',
-          })
-        }
-
-        // JS
-        if (target.key === 'javascript') {
-          target.default = 'fetch'
-
-          target.clients.unshift({
-            description:
-              'A browser-compatible implementation of the fetch() function.',
-            key: 'fetch',
-            link: 'https://nodejs.org/dist/latest/docs/api/globals.html#fetch',
-            title: 'fetch',
           })
         }
 
