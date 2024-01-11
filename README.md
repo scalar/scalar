@@ -234,6 +234,7 @@ To customize the behavior of the API Reference, you can use the following config
 - `customCss`: Pass custom CSS directly to the component.
 - `searchHotKey`: Key used with CNTRL/CMD to open the search modal.
 - `metaData`: Configure meta information for the page.
+- `hiddenClients`: List of httpsnippet clients to hide from the clients menu, by default hides Unirest, pass `[]` to show all clients.
 - `onSpecUpdate`: Listen to spec changes with a callback function.
 
 For detailed information on how to use these options, refer to the [Configuration Section](https://github.com/scalar/scalar/blob/main/packages/api-reference/README.md/#configuration).
