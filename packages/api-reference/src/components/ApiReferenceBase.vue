@@ -12,7 +12,7 @@ import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, ref, watch } from 'vue'
 
 import { deepMerge } from '../helpers'
-import { useParser, useSpec } from '../hooks'
+import { useParser, useSnippetTargets, useSpec } from '../hooks'
 import { useDarkModeState } from '../hooks/useDarkModeState'
 import {
   DEFAULT_CONFIG,
@@ -91,17 +91,21 @@ watch(
 )
 
 const { setDarkMode } = useDarkModeState()
-
 watch(
   () => currentConfiguration.value.darkMode,
   (newDarkMode) => {
-    if (newDarkMode !== undefined) {
-      setDarkMode(newDarkMode)
-    }
+    if (newDarkMode !== undefined) setDarkMode(newDarkMode)
   },
-  {
-    immediate: true,
+  { immediate: true },
+)
+
+const { setExcludedClients } = useSnippetTargets()
+watch(
+  () => currentConfiguration.value.hiddenClients,
+  (hiddenClients) => {
+    if (typeof hiddenClients !== 'undefined') setExcludedClients(hiddenClients)
   },
+  { immediate: true },
 )
 
 // Track the container height to control the sidebar height

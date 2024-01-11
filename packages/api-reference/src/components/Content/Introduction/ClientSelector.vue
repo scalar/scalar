@@ -3,12 +3,14 @@ import { useResizeObserver } from '@vueuse/core'
 import { type TargetId } from 'httpsnippet-lite'
 import { computed, ref } from 'vue'
 
-import { getAvailableTargets } from '../../../helpers'
+import { useSnippetTargets } from '../../../hooks'
 import { type SelectedClient, useTemplateStore } from '../../../stores/template'
 import { Icon } from '../../Icon'
 
 // Use the template store to keep it accessible globally
 const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
+
+const { availableTargets } = useSnippetTargets()
 
 const isSmall = ref(false)
 const containerRef = ref<HTMLElement>()
@@ -138,7 +140,7 @@ function checkIfClientIsFeatured(client: SelectedClient) {
             )
         ">
         <optgroup
-          v-for="target in getAvailableTargets()"
+          v-for="target in availableTargets"
           :key="target.key"
           :label="target.title">
           <option

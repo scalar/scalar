@@ -32,12 +32,19 @@ export type ReferenceConfiguration = {
   showSidebar?: boolean
   /** Whether dark mode is on or off (light mode) */
   darkMode?: boolean
-  /** Remove the Scalar branding :( */
-  // doNotPromoteScalar?: boolean
   /** Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
   searchHotKey?: string
-  /** If used, passed data will be added to the HTML header. Read more: https://unhead.unjs.io/usage/composables/use-seo-meta */
+  /**
+   * If used, passed data will be added to the HTML header
+   * @see https://unhead.unjs.io/usage/composables/use-seo-meta
+   * */
   metaData?: MetaFlatInput
+  /**
+   * List of httpsnippet clients to hide from the clients menu
+   * By default hides Unirest, pass `[]` to show all clients
+   * @see https://github.com/Kong/httpsnippet/wiki/Targets
+   */
+  hiddenClients?: string[]
   /** Custom CSS to be added to the page */
   customCss?: string
   /** onSpecUpdate is fired on spec/swagger content change */
