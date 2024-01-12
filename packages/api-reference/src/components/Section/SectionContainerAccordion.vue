@@ -69,6 +69,9 @@ import { ScalarIcon } from '@scalar/components'
   flex: 1;
   padding: 0 6px;
 }
+.section-accordion-title :deep(.section-header) {
+  margin-bottom: 0;
+}
 .references-narrow .section-accordion-chevron {
   width: 16px;
   left: -16px;

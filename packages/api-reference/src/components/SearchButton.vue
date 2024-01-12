@@ -32,6 +32,7 @@ useKeyboardEvent({
 <template>
   <button
     class="sidebar-search"
+    :class="$attrs.class"
     type="button"
     @click="modalState.show">
     <ScalarIcon
@@ -60,7 +61,7 @@ useKeyboardEvent({
   align-items: center;
   position: relative;
   padding: 0 3px 0 12px;
-  min-width: 220px;
+  min-width: 224px;
   max-width: 100%;
   font-family: var(--theme-font, var(--default-theme-font));
   background: var(
