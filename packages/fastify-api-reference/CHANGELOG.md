@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.13.0
+
+### Patch Changes
+
+- 7582e82a: fix: classic layout stylings
+
 ## 1.12.9
 
 ### Patch Changes

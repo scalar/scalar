@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.8.8
+
+### Patch Changes
+
+- 0e0f34b3: fix: cleanup safari bugs
+
 ## 0.8.7
 
 ### Patch Changes

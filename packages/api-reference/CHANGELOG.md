@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.13.0
+
+### Minor Changes
+
+- 97cd84e9: feat: client ignore list
+
+### Patch Changes
+
+- 5dac9c51: fix: open section on search result click
+- 0e0f34b3: fix: cleanup safari bugs
+- 7582e82a: fix: classic layout stylings
+- Updated dependencies [0e0f34b3]
+  - @scalar/api-client@0.8.8
+
 ## 1.12.9
 
 ### Patch Changes
