@@ -38,6 +38,10 @@ function handleScroll() {
   padding: calc(90px + var(--refs-header-height)) 0 90px 0;
   margin-top: calc(-1 * var(--refs-header-height));
 }
+.references-classic .section {
+  padding: 48px 0;
+  gap: 24px;
+}
 .references-narrow .section {
   padding: calc(48px + var(--refs-header-height)) 24px 48px 24px;
 }

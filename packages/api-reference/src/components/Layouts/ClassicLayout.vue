@@ -17,6 +17,7 @@ const config = computed(() => ({ ...props.configuration, showSidebar: false }))
     <template #content-start="{ spec }">
       <ClassicHeader>
         <SearchButton
+          class="t-doc__sidebar"
           :searchHotKey="config.searchHotKey"
           :spec="spec" />
       </ClassicHeader>
