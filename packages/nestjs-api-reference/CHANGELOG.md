@@ -1,5 +1,16 @@
 # @scalar/nestjs-api-reference
 
+## 0.1.10
+
+### Patch Changes
+
+- 7582e82a: fix: classic layout stylings
+- Updated dependencies [5dac9c51]
+- Updated dependencies [0e0f34b3]
+- Updated dependencies [97cd84e9]
+- Updated dependencies [7582e82a]
+  - @scalar/api-reference@1.13.0
+
 ## 0.1.9
 
 ### Patch Changes
