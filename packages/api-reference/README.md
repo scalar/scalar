@@ -131,9 +131,9 @@ You can pass information to the config object to configure meta information out 
   } />
 ```
 
-#### metaData?: object
+#### hiddenClients?: array
 
-You can pass a list of [httpsnippet clients](https://github.com/Kong/httpsnippet/wiki/Targets) to hide from the clients menu.
+You can pass an array of [httpsnippet clients](https://github.com/Kong/httpsnippet/wiki/Targets) to hide from the clients menu.
 
 ```vue
 <ApiReference :configuration="{
