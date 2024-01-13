@@ -438,20 +438,27 @@ This repository contains all our open source projects and there’s definitely m
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/sigpwned">
+            <img src="https://avatars.githubusercontent.com/u/1236302?v=4" width="100;" alt="sigpwned"/>
+            <br />
+            <sub><b>sigpwned</b></sub>
+        </a>
+    </td>
+    <td align="center">
         <a href="https://github.com/chrislearn">
             <img src="https://avatars.githubusercontent.com/u/5874864?v=4" width="100;" alt="chrislearn"/>
             <br />
             <sub><b>chrislearn</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/danp">
             <img src="https://avatars.githubusercontent.com/u/2182?v=4" width="100;" alt="danp"/>
             <br />
             <sub><b>danp</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/jonataw">
             <img src="https://avatars.githubusercontent.com/u/29772763?v=4" width="100;" alt="jonataw"/>
@@ -486,7 +493,8 @@ This repository contains all our open source projects and there’s definitely m
             <br />
             <sub><b>Chinlinlee</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/FotieMConstant">
             <img src="https://avatars.githubusercontent.com/u/42372656?v=4" width="100;" alt="FotieMConstant"/>
