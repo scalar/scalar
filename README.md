@@ -63,8 +63,18 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
     <!-- data-proxy-url="https://api.scalar.com/request-proxy" -->
     <script
       id="api-reference"
-      data-url="https://example.com/swagger.json"
+      data-url="https://petstore3.swagger.io/api/v3/openapi.json"
       data-proxy-url="https://api.scalar.com/request-proxy"></script>
+    <!-- You can also set a full configuration object like this -->
+    <!-- easier for nested objects -->
+    <script>
+      var configuration = {
+        theme: 'purple',
+      }
+
+      var apiReference = document.getElementById('api-reference')
+      apiReference.dataset.configuration = JSON.stringify(configuration)
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
   </body>
 </html>
