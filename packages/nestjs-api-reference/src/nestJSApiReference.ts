@@ -1,5 +1,7 @@
 import type { ReferenceConfiguration } from '@scalar/api-reference'
 import type { Request, Response } from 'express'
+import { type FastifyRequest } from 'fastify'
+import { type ServerResponse } from 'http'
 
 export type ApiReferenceOptions = ReferenceConfiguration
 
@@ -99,32 +101,44 @@ export const ApiReference = (options: ApiReferenceOptions) => {
   `
 }
 
+const isExpressResponse = (res: any): res is Response => {
+  return typeof res.send === 'function'
+}
+
 /**
  * The HTML template to render the API Reference.
  */
 export function apiReference(options: ReferenceConfiguration) {
-  return (req: Request, res: Response) => {
-    res.send(`
-  <!DOCTYPE html>
-  <html>
-    <head>
-      <title>API Reference</title>
-      <meta charset="utf-8" />
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1" />
-      <style>
-        body {
-          margin: 0;
-        }
+  const content = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>API Reference</title>
+        <meta charset="utf-8" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1" />
+        <style>
+          body {
+            margin: 0;
+          }
+  
+          ${options.theme ? null : customThemeCSS}
+        </style>
+      </head>
+      <body>
+        ${ApiReference(options)}
+      </body>
+    </html>
+  `
 
-        ${options.theme ? null : customThemeCSS}
-      </style>
-    </head>
-    <body>
-      ${ApiReference(options)}
-    </body>
-  </html>
-`)
+  return (req: Request | FastifyRequest, res: Response | ServerResponse) => {
+    if (isExpressResponse(res)) {
+      res.send(content)
+    } else {
+      res.writeHead(200, { 'Content-Type': 'text/html' })
+      res.write(content)
+      res.end()
+    }
   }
 }
