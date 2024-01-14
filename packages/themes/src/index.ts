@@ -1,7 +1,12 @@
 import alternateTheme from './presets/alternate.css?inline'
+import bluePlanetTheme from './presets/bluePlanet.css?inline'
+import deepSpaceTheme from './presets/deepSpace.css?inline'
 import defaultTheme from './presets/default.css?inline'
+import keplerTheme from './presets/kepler.css?inline'
+import marsTheme from './presets/mars.css?inline'
 import moonTheme from './presets/moon.css?inline'
 import purpleTheme from './presets/purple.css?inline'
+import saturnTheme from './presets/saturn.css?inline'
 import solarizedTheme from './presets/solarized.css?inline'
 
 /**
@@ -18,6 +23,11 @@ export type ThemeId =
   | 'moon'
   | 'purple'
   | 'solarized'
+  | 'bluePlanet'
+  | 'deepSpace'
+  | 'saturn'
+  | 'kepler'
+  | 'mars'
   | 'none'
 
 /**
@@ -29,6 +39,11 @@ export const presets: Record<Exclude<ThemeId, 'none'>, string> = {
   moon: moonTheme,
   purple: purpleTheme,
   solarized: solarizedTheme,
+  bluePlanet: bluePlanetTheme,
+  deepSpace: deepSpaceTheme,
+  saturn: saturnTheme,
+  kepler: keplerTheme,
+  mars: marsTheme,
 }
 
 /**

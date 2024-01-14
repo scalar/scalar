@@ -24,6 +24,10 @@ const themeIds: ThemeId[] = [
   'moon',
   'purple',
   'solarized',
+  'bluePlanet',
+  'kepler',
+  'mars',
+  'deepSpace',
 ]
 
 const example = ref<GettingStartedExamples | null>(null)
