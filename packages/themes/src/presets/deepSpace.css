@@ -1,53 +1,47 @@
-:root {
-  --theme-font: 'Inter', var(--system-fonts);
-}
-.references-editor {
-  z-index: 1;
-}
 /* basic theme */
 .light-mode {
-  --theme-color-1: rgb(9, 9, 11);
-  --theme-color-2: rgb(113, 113, 122);
-  --theme-color-3: rgba(25, 25, 28, 0.5);
-  --theme-color-accent: var(--theme-color-1);
+  --default-theme-color-1: rgb(9, 9, 11);
+  --default-theme-color-2: rgb(113, 113, 122);
+  --default-theme-color-3: rgba(25, 25, 28, 0.5);
+  --default-theme-color-accent: var(--default-theme-color-1);
 
-  --theme-background-1: #fff;
-  --theme-background-2: #f4f4f5;
-  --theme-background-3: #e3e3e6;
-  --theme-background-accent: #8ab4f81f;
+  --default-theme-background-1: #fff;
+  --default-theme-background-2: #f4f4f5;
+  --default-theme-background-3: #e3e3e6;
+  --default-theme-background-accent: #8ab4f81f;
 
-  --theme-border-color: rgb(228, 228, 231);
-  --theme-code-language-color-supersede: var(--theme-color-1);
+  --default-theme-border-color: rgb(228, 228, 231);
+  --default-theme-code-language-color-supersede: var(--default-theme-color-1);
 }
 .dark-mode {
-  --theme-color-1: #fafafa;
-  --theme-color-2: rgb(161, 161, 170);
-  --theme-color-3: rgba(255, 255, 255, 0.533);
-  --theme-color-accent: var(--theme-color-1);
+  --default-theme-color-1: #fafafa;
+  --default-theme-color-2: rgb(161, 161, 170);
+  --default-theme-color-3: rgba(255, 255, 255, 0.533);
+  --default-theme-color-accent: var(--default-theme-color-1);
 
-  --theme-background-1: #09090b;
-  --theme-background-2: #18181b;
-  --theme-background-3: #2c2c30;
-  --theme-background-accent: #8ab4f81f;
+  --default-theme-background-1: #09090b;
+  --default-theme-background-2: #18181b;
+  --default-theme-background-3: #2c2c30;
+  --default-theme-background-accent: #8ab4f81f;
 
-  --theme-border-color: rgba(255, 255, 255, 0.12);
-  --theme-code-language-color-supersede: var(--theme-color-1);
+  --default-theme-border-color: rgba(255, 255, 255, 0.12);
+  --default-theme-code-language-color-supersede: var(--default-theme-color-1);
 }
 
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,
 .dark-mode .t-doc__sidebar {
-  --sidebar-background-1: var(--theme-background-1);
+  --sidebar-background-1: var(--default-theme-background-1);
   --sidebar-item-hover-color: currentColor;
-  --sidebar-item-hover-background: var(--theme-background-2);
-  --sidebar-item-active-background: var(--theme-background-3);
-  --sidebar-border-color: var(--theme-border-color);
-  --sidebar-color-1: var(--theme-color-1);
-  --sidebar-color-2: var(--theme-color-2);
-  --sidebar-color-active: var(--theme-color-accent);
+  --sidebar-item-hover-background: var(--default-theme-background-2);
+  --sidebar-item-active-background: var(--default-theme-background-3);
+  --sidebar-border-color: var(--default-theme-border-color);
+  --sidebar-color-1: var(--default-theme-color-1);
+  --sidebar-color-2: var(--default-theme-color-2);
+  --sidebar-color-active: var(--default-theme-color-accent);
   --sidebar-search-background: transparent;
-  --sidebar-search-border-color: var(--theme-border-color);
-  --sidebar-search--color: var(--theme-color-3);
+  --sidebar-search-border-color: var(--default-theme-border-color);
+  --sidebar-search--color: var(--default-theme-color-3);
 }
 .light-mode .t-doc__sidebar {
   --sidebar-item-active-background: #09090b;
@@ -55,34 +49,34 @@
 }
 /* advanced */
 .light-mode {
-  --theme-button-1: rgb(49 53 56);
-  --theme-button-1-color: #fff;
-  --theme-button-1-hover: rgb(28 31 33);
+  --default-theme-button-1: rgb(49 53 56);
+  --default-theme-button-1-color: #fff;
+  --default-theme-button-1-hover: rgb(28 31 33);
 
-  --theme-color-green: #069061;
-  --theme-color-red: #ef0006;
-  --theme-color-yellow: #edbe20;
-  --theme-color-blue: #0082d0;
-  --theme-color-orange: #fb892c;
-  --theme-color-purple: #5203d1;
+  --default-theme-color-green: #069061;
+  --default-theme-color-red: #ef0006;
+  --default-theme-color-yellow: #edbe20;
+  --default-theme-color-blue: #0082d0;
+  --default-theme-color-orange: #fb892c;
+  --default-theme-color-purple: #5203d1;
 
-  --theme-scrollbar-color: rgba(0, 0, 0, 0.18);
-  --theme-scrollbar-color-active: rgba(0, 0, 0, 0.36);
+  --default-theme-scrollbar-color: rgba(0, 0, 0, 0.18);
+  --default-theme-scrollbar-color-active: rgba(0, 0, 0, 0.36);
 }
 .dark-mode {
-  --theme-button-1: #f6f6f6;
-  --theme-button-1-color: #000;
-  --theme-button-1-hover: #e7e7e7;
+  --default-theme-button-1: #f6f6f6;
+  --default-theme-button-1-color: #000;
+  --default-theme-button-1-hover: #e7e7e7;
 
-  --theme-color-green: rgba(69, 255, 165, 0.823);
-  --theme-color-red: #ff8589;
-  --theme-color-yellow: #ffcc4d;
-  --theme-color-blue: #6bc1fe;
-  --theme-color-orange: #f98943;
-  --theme-color-purple: #b191f9;
+  --default-theme-color-green: rgba(69, 255, 165, 0.823);
+  --default-theme-color-red: #ff8589;
+  --default-theme-color-yellow: #ffcc4d;
+  --default-theme-color-blue: #6bc1fe;
+  --default-theme-color-orange: #f98943;
+  --default-theme-color-purple: #b191f9;
 
-  --theme-scrollbar-color: rgba(255, 255, 255, 0.24);
-  --theme-scrollbar-color-active: rgba(255, 255, 255, 0.48);
+  --default-theme-scrollbar-color: rgba(255, 255, 255, 0.24);
+  --default-theme-scrollbar-color-active: rgba(255, 255, 255, 0.48);
 }
 /* Custom theme */
 .dark-mode h2.t-editor__heading,
@@ -110,7 +104,7 @@
   animation-range: 0px 200px;
 }
 .examples .scalar-card-footer {
-  --theme-background-3: transparent;
+  --default-theme-background-3: transparent;
   padding-top: 0;
 }
 .show-api-client-button:before {
@@ -136,10 +130,10 @@
   }
 }
 .code-languages-background {
-  background: var(--theme-background-1) !important;
+  background: var(--default-theme-background-1) !important;
 }
 .code-languages-background:before {
-  box-shadow: inset 0 0 0 2px var(--theme-border-color);
+  box-shadow: inset 0 0 0 2px var(--default-theme-border-color);
   background: linear-gradient(
     to right top,
     rgb(211 225 249 / 12%),
@@ -156,7 +150,7 @@
   ) !important;
 }
 .code-languages__active .code-languages-background:before {
-  background: var(--theme-background-1) !important;
+  background: var(--default-theme-background-1) !important;
 }
 .sidebar-heading-type:after {
   content: '';
@@ -165,7 +159,11 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(9deg, var(--theme-background-1), transparent);
+  background: linear-gradient(
+    9deg,
+    var(--default-theme-background-1),
+    transparent
+  );
   border-radius: 30px;
   opacity: 0.3;
 }
