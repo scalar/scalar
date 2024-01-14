@@ -24,6 +24,7 @@ async function bootstrap() {
   app.use(
     '/reference',
     apiReference({
+      withFastify: true,
       spec: {
         content: document,
       },

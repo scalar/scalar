@@ -3,6 +3,10 @@ import type { Request, Response } from 'express'
 import { type FastifyRequest } from 'fastify'
 import { type ServerResponse } from 'http'
 
+export type NestJSReferenceConfiguration = ReferenceConfiguration & {
+  withFastify?: boolean
+}
+
 export type ApiReferenceOptions = ReferenceConfiguration
 
 /**
@@ -101,14 +105,10 @@ export const ApiReference = (options: ApiReferenceOptions) => {
   `
 }
 
-const isExpressResponse = (res: any): res is Response => {
-  return typeof res.send === 'function'
-}
-
 /**
  * The HTML template to render the API Reference.
  */
-export function apiReference(options: ReferenceConfiguration) {
+export function apiReference(options: NestJSReferenceConfiguration) {
   const content = `
     <!DOCTYPE html>
     <html>
@@ -132,13 +132,15 @@ export function apiReference(options: ReferenceConfiguration) {
     </html>
   `
 
-  return (req: Request | FastifyRequest, res: Response | ServerResponse) => {
-    if (isExpressResponse(res)) {
-      res.send(content)
-    } else {
+  if (options.withFastify) {
+    return (req: FastifyRequest, res: ServerResponse) => {
       res.writeHead(200, { 'Content-Type': 'text/html' })
       res.write(content)
       res.end()
     }
+  }
+
+  return (req: Request, res: Response) => {
+    res.send(content)
   }
 }
