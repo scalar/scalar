@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.2.13
+
+### Patch Changes
+
+- 20790661: feat: add space themes
+- Updated dependencies [20790661]
+  - @scalar/api-reference@1.13.1
+
 ## 0.2.12
 
 ### Patch Changes

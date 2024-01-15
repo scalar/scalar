@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.13.1
+
+### Patch Changes
+
+- 20790661: feat: add space themes
+
 ## 1.13.0
 
 ### Minor Changes

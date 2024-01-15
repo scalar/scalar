@@ -1,5 +1,13 @@
 # @scalar/nestjs-api-reference
 
+## 0.1.11
+
+### Patch Changes
+
+- 20790661: feat: add space themes
+- Updated dependencies [20790661]
+  - @scalar/api-reference@1.13.1
+
 ## 0.1.10
 
 ### Patch Changes
