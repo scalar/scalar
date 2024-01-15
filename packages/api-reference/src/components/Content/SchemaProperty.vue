@@ -93,6 +93,16 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         <template v-if="value.enum"> &middot; enum </template>
       </div>
       <div
+        v-if="value?.writeOnly"
+        class="write-only">
+        write-only
+      </div>
+      <div
+        v-else-if="value?.readOnly"
+        class="read-only">
+        read-only
+      </div>
+      <div
         v-if="value?.example !== undefined"
         class="property-example">
         <code class="property-example-value">
@@ -108,11 +118,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
           <Badge>{{ rule }}</Badge>
         </div>
       </template>
-      <div
-        v-if="value?.readOnly"
-        class="property-read-only">
-        read-only
-      </div>
       <div
         v-if="value?.readOnly"
         class="property-nullable">
@@ -251,6 +256,18 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 .required {
   text-transform: uppercase;
   color: var(--theme-color-orange, var(--default-theme-color-orange));
+}
+
+.read-only,
+.write-only {
+  background-color: var(
+    --theme-background-3,
+    var(--default-theme-background-3)
+  );
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  padding: 2px 5px;
+  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 
 .property-type {
