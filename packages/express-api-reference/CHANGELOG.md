@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.2.14
+
+### Patch Changes
+
+- 6d777194: feat: release themes
+- Updated dependencies [6d777194]
+  - @scalar/api-reference@1.13.2
+
 ## 0.2.13
 
 ### Patch Changes

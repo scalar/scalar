@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.13.2
+
+### Patch Changes
+
+- 6d777194: feat: release themes
+
 ## 1.13.1
 
 ### Patch Changes

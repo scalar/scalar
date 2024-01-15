@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 0.8.9
+
+### Patch Changes
+
+- 6d777194: feat: release themes
+- Updated dependencies [6d777194]
+  - @scalar/themes@0.5.2
+
 ## 0.8.8
 
 ### Patch Changes
