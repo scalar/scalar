@@ -534,8 +534,8 @@ importers:
         specifier: ^10.4.1
         version: 10.4.1(vue@3.3.4)
       axios:
-        specifier: ^1.6.1
-        version: 1.6.1
+        specifier: ^1.6.5
+        version: 1.6.5
       content-type:
         specifier: ^1.0.5
         version: 1.0.5
@@ -686,8 +686,8 @@ importers:
         specifier: ^0.8.4
         version: 0.8.4
       axios:
-        specifier: ^1.6.1
-        version: 1.6.1
+        specifier: ^1.6.5
+        version: 1.6.5
       fuse.js:
         specifier: ^6.6.2
         version: 6.6.2
@@ -8463,10 +8463,10 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /axios@1.6.1:
-    resolution: {integrity: sha512-vfBmhDpKafglh0EldBEbVuoe7DyAavGSLWhuSm5ZSEKQnHhBf0xAAwybbNH1IkrJNGnS/VG4I5yxig1pCEXE4g==}
+  /axios@1.6.5:
+    resolution: {integrity: sha512-Ii012v05KEVuUoFWmMW/UQv9aRIc3ZwkWDcM+h5Il8izZCtRVpDUfwpoFf7eOtajT3QiGR4yDUx7lPqHJULgbg==}
     dependencies:
-      follow-redirects: 1.15.3
+      follow-redirects: 1.15.4
       form-data: 4.0.0
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -11202,6 +11202,17 @@ packages:
     peerDependenciesMeta:
       debug:
         optional: true
+    dev: true
+
+  /follow-redirects@1.15.4:
+    resolution: {integrity: sha512-Cr4D/5wlrb0z9dgERpUL3LrmPKVDsETIJhaCMeDfuFYcqa5bldGV6wBsAN6X/vxlXQtFBMrXdXxdL8CbDTGniw==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: false
 
   /for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}

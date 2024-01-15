@@ -50,7 +50,7 @@
     "@scalar/use-keyboard-event": "workspace:*",
     "@scalar/use-modal": "workspace:*",
     "@vueuse/core": "^10.4.1",
-    "axios": "^1.6.1",
+    "axios": "^1.6.5",
     "content-type": "^1.0.5",
     "javascript-time-ago": "^2.5.9",
     "nanoid": "^5.0.1",
