@@ -57,6 +57,8 @@ const currentJsonResponse = computed(
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index
 }
+
+const showSchema = ref(false)
 </script>
 <template>
   <Card v-if="orderedStatusCodes.length">
@@ -79,6 +81,16 @@ const changeTab = (index: number) => {
             icon="Clipboard"
             width="10px" />
         </button>
+        <label
+          v-if="currentJsonResponse?.schema"
+          class="scalar-card-checkbox">
+          Show Schema
+          <input
+            v-model="showSchema"
+            class="scalar-card-checkbox-input"
+            type="checkbox" />
+          <span class="scalar-card-checkbox-checkmark"></span>
+        </label>
       </template>
     </CardTabHeader>
     <div class="scalar-card-container custom-scroll">
@@ -89,45 +101,18 @@ const changeTab = (index: number) => {
         <Headers :headers="currentResponse.headers" />
       </CardContent> -->
       <CardContent muted>
-        <!-- With Schema: Show Tabs -->
-        <div
-          v-if="currentJsonResponse?.schema"
-          class="schema-tabs">
-          <TabGroup>
-            <TabList class="tab-list">
-              <Tab
-                v-slot="{ selected }"
-                as="template">
-                <button
-                  class="tab"
-                  :class="{ 'tab--selected': selected }"
-                  type="button">
-                  Example response
-                </button>
-              </Tab>
-              <Tab
-                v-slot="{ selected }"
-                as="template">
-                <button
-                  class="tab"
-                  :class="{ 'tab--selected': selected }"
-                  type="button">
-                  Response schema
-                </button>
-              </Tab>
-            </TabList>
-            <TabPanels>
-              <TabPanel>
-                <ExampleResponse :response="currentJsonResponse" />
-              </TabPanel>
-              <TabPanel>
-                <RawSchema :response="currentJsonResponse" />
-              </TabPanel>
-            </TabPanels>
-          </TabGroup>
-        </div>
+        <template v-if="currentJsonResponse?.schema">
+          <RawSchema
+            v-if="showSchema"
+            :response="currentJsonResponse" />
+          <ExampleResponse
+            v-else
+            :response="currentJsonResponse" />
+        </template>
         <!-- Without Schema: Don’t show tabs -->
-        <ExampleResponse :response="currentJsonResponse" />
+        <ExampleResponse
+          v-else
+          :response="currentJsonResponse" />
       </CardContent>
     </div>
     <CardFooter
@@ -284,5 +269,78 @@ const changeTab = (index: number) => {
     --theme-background-2,
     var(--default-theme-background-2)
   );
+}
+.scalar-card-checkbox {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-right: 27px;
+  min-height: 17px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  width: fit-content;
+  white-space: nowrap;
+  margin-right: 9px;
+}
+.scalar-card-checkbox:hover {
+  color: var(--theme-color--1, var(--default-theme-color-1));
+}
+.scalar-card-checkbox .scalar-card-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.scalar-card-checkbox-checkmark {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 17px;
+  width: 17px;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  background-color: transparent;
+  background-color: var(
+    --theme-background-3,
+    var(--default-theme-background-3)
+  );
+  box-shadow: inset 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
+}
+.scalar-card-checkbox:has(.scalar-card-checkbox-input:checked) {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
+
+.scalar-card-checkbox
+  .scalar-card-checkbox-input:checked
+  ~ .scalar-card-checkbox-checkmark {
+  background-color: var(--theme-color-1, var(--default-theme-color-1));
+  box-shadow: none;
+}
+
+.scalar-card-checkbox-checkmark:after {
+  content: '';
+  position: absolute;
+  display: none;
+}
+
+.scalar-card-checkbox
+  .scalar-card-checkbox-input:checked
+  ~ .scalar-card-checkbox-checkmark:after {
+  display: block;
+}
+
+.scalar-card-checkbox .scalar-card-checkbox-checkmark:after {
+  left: 7px;
+  top: 3.5px;
+  width: 4px;
+  height: 9px;
+  border: solid var(--theme-background-1, var(--default-theme-background-1));
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
 }
 </style>
