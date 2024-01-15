@@ -269,7 +269,7 @@ computed(() => {
   cursor: pointer;
   color: var(--theme-color-3, var(--default-theme-color-3));
   margin-left: 6px;
-  margin-right: 12px;
+  margin-right: 10.5px;
   border: none;
   border-radius: 3px;
   padding: 0;
