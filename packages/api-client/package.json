@@ -13,7 +13,7 @@
     "rest",
     "testing"
   ],
-  "version": "0.8.9",
+  "version": "0.8.10",
   "engines": {
     "node": ">=20"
   },
