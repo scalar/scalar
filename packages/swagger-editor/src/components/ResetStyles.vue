@@ -64,6 +64,7 @@ onMounted(() => {
     border: unset;
     background: unset;
     appearance: unset;
+    font-family: var(--theme-font, var(--default-theme-font));
   }
 
   input::placeholder {
@@ -78,5 +79,9 @@ onMounted(() => {
     color: var(--theme-color-3, var(--default-theme-color-3));
     font-family: var(--theme-font, var(--default-theme-font));
   }
+}
+body.light-mode,
+body.dark-mode {
+  margin: 0;
 }
 </style>
