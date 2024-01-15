@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.13.4
+
+### Patch Changes
+
+- dae1010a: chore: update axios to 1.6.5
+- Updated dependencies [dae1010a]
+  - @scalar/api-client@0.8.10
+
 ## 1.13.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.8.10
+
+### Patch Changes
+
+- dae1010a: chore: update axios to 1.6.5
+
 ## 0.8.9
 
 ### Patch Changes
