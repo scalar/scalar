@@ -267,7 +267,7 @@ const changeTab = (index: number) => {
 }
 
 .schema-tabs .tab {
-  padding: 5px 6px;
+  padding: 5px 8px;
   font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-color-2, var(--default-theme-color-2));
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
