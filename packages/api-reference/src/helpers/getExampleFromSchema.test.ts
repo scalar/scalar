@@ -452,4 +452,78 @@ describe('getExampleFromSchema', () => {
       }),
     ).toBe(null)
   })
+
+  it('returns readOnly attributes by default', () => {
+    expect(
+      getExampleFromSchema({
+        example: 'foobar',
+        readOnly: true,
+      }),
+    ).toMatchObject('foobar')
+  })
+
+  it('returns readOnly attributes in read mode', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          example: 'foobar',
+          readOnly: true,
+        },
+        {
+          mode: 'read',
+        },
+      ),
+    ).toMatchObject('foobar')
+  })
+
+  it('doesn’t return readOnly attributes in write mode', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          example: 'foobar',
+          readOnly: true,
+        },
+        {
+          mode: 'write',
+        },
+      ),
+    ).toBe(undefined)
+  })
+
+  it('returns writeOnly attributes by default', () => {
+    expect(
+      getExampleFromSchema({
+        example: 'foobar',
+        writeOnly: true,
+      }),
+    ).toMatchObject('foobar')
+  })
+
+  it('returns writeOnly attributes in write mode', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          example: 'foobar',
+          writeOnly: true,
+        },
+        {
+          mode: 'write',
+        },
+      ),
+    ).toMatchObject('foobar')
+  })
+
+  it('doesn’t return writeOnly attributes in read mode', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          example: 'foobar',
+          writeOnly: true,
+        },
+        {
+          mode: 'read',
+        },
+      ),
+    ).toBe(undefined)
+  })
 })
