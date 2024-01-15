@@ -16,7 +16,26 @@ export const createEchoServer = () => {
   app.use(Express.json())
   app.disable('x-powered-by')
 
-  // Post request to / are proxied to the target url.
+  // Return zip files for all requests ending with .zip
+  app.all('/*.zip', async (req, res) => {
+    console.log(`${req.method} ${req.path}`)
+
+    const blob = new Blob(
+      [
+        new Uint8Array([
+          80, 75, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        ]).buffer,
+      ],
+      {
+        type: 'application/zip',
+      },
+    )
+
+    res.set('Content-Type', 'application/zip')
+    res.send(blob)
+  })
+
+  // All other requests just respond with a JSON containing all the request data
   app.all('/*', async (req, res) => {
     console.log(`${req.method} ${req.path}`)
 
