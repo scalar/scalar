@@ -24,6 +24,11 @@ const themeIds: ThemeId[] = [
   'moon',
   'purple',
   'solarized',
+  'bluePlanet',
+  'saturn',
+  'kepler',
+  'mars',
+  'deepSpace',
 ]
 
 const example = ref<GettingStartedExamples | null>(null)
@@ -265,9 +270,6 @@ watch(
           class="start-item"
           :class="{ 'start-item-active': themeId === theme }"
           @click="$emit('changeTheme', themeId)">
-          <i
-            class="start-item-color"
-            :class="`start-item-color-${themeId}`"></i>
           {{ themeId.toLocaleLowerCase() }}
         </div>
         <!-- <p class="start-item-copy">
@@ -388,12 +390,6 @@ watch(
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
-.start-h2 + .start-item {
-  border-radius: 0 0 0 var(--theme-radius-lg, var(--default-theme-radius-lg));
-}
-.start-item:nth-of-type(5) {
-  border-radius: 0 0 var(--theme-radius-lg, var(--default-theme-radius-lg)) 0;
-}
 .start-item {
   padding: 9px;
   display: flex;
@@ -407,11 +403,20 @@ watch(
   text-transform: capitalize;
 }
 .start-section-colors .start-item {
-  width: 20%;
+  min-width: 33.33%;
 }
 .start-item:not(:last-of-type) {
   border-right: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
+}
+.start-section-colors .start-item:not(:last-of-type) {
+  border-right: none;
+}
+.start-section-colors .start-item:not(:nth-of-type(3n)) {
+  border-right: 1px solid var(--default-theme-border-color);
+}
+.start-section-colors .start-item:nth-of-type(n + 4) {
+  border-top: 1px solid var(--default-theme-border-color);
 }
 .start-item:empty {
   pointer-events: none;
@@ -429,44 +434,6 @@ watch(
   z-index: 10;
   position: relative;
   color: var(--theme-color-1, var(--default-theme-color-1));
-}
-.start-item-color {
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  margin-right: 6px;
-  border-radius: 50%;
-  height: 13px;
-  width: 13px;
-  display: block;
-}
-.start-item-color-moon {
-  background: #cdc9b3;
-}
-.dark-mode .start-item-color-moon {
-  background: #646664;
-}
-.start-item-color-solarized {
-  background: #fdf6e3;
-}
-.dark-mode .start-item-color-solarized {
-  background: #004156;
-}
-.start-item-color-purple {
-  background: #f5f6fd;
-}
-.dark-mode .start-item-color-purple {
-  background: #4d547f;
-}
-.start-item-color-alternate {
-  background: #f6f6f6;
-}
-.dark-mode .start-item-color-alternate {
-  background: #4a4a4a;
-}
-.start-item-color-default {
-  background: #fff;
-}
-.dark-mode .start-item-color-default {
-  background: #343434;
 }
 .start-section-color .start-item {
   text-transform: capitalize;

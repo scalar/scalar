@@ -259,6 +259,7 @@ const { state } = useApiClientStore()
   display: flex;
   min-width: 0;
   background: var(--theme-background-1, var(--default-theme-background-1));
+  z-index: 1;
 }
 
 .references-navigation {
