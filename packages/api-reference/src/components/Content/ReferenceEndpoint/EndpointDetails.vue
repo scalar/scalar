@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
+import { getParametersFromOperation } from '../../../helpers'
 import { useOperation, useResponses } from '../../../hooks'
 import type { TransformedOperation } from '../../../types'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
@@ -24,6 +27,12 @@ const { responses } = useResponses(props.operation)
     </Parameters>
     <Parameters :parameters="parameterMap.header">
       <template #title>Headers</template>
+    </Parameters>
+    <Parameters :parameters="parameterMap.body">
+      <template #title>Body Parameters</template>
+    </Parameters>
+    <Parameters :parameters="parameterMap.formData">
+      <template #title>Form Data</template>
     </Parameters>
     <RequestBody :requestBody="operation.information?.requestBody">
       <template #title>Body</template>

@@ -6,6 +6,8 @@ export type ParamMap = {
   path: Parameters[]
   query: Parameters[]
   header: Parameters[]
+  body: Parameters[]
+  formData: Parameters[]
 }
 
 export type OperationProps = {
@@ -22,6 +24,8 @@ export function useOperation(props: OperationProps) {
       path: [],
       query: [],
       header: [],
+      body: [],
+      formData: [],
     }
 
     if (props.operation.pathParameters) {
@@ -32,6 +36,10 @@ export function useOperation(props: OperationProps) {
           map.query.push(parameter)
         } else if (parameter.in === 'header') {
           map.header.push(parameter)
+        } else if (parameter.in === 'body') {
+          map.body.push(parameter)
+        } else if (parameter.in === 'formData') {
+          map.formData.push(parameter)
         }
       })
     }
@@ -44,6 +52,10 @@ export function useOperation(props: OperationProps) {
           map.query.push(parameter)
         } else if (parameter.in === 'header') {
           map.header.push(parameter)
+        } else if (parameter.in === 'body') {
+          map.body.push(parameter)
+        } else if (parameter.in === 'formData') {
+          map.formData.push(parameter)
         }
       })
     }
