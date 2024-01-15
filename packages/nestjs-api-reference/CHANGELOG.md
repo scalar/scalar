@@ -1,5 +1,11 @@
 # @scalar/nestjs-api-reference
 
+## 0.1.13
+
+### Patch Changes
+
+- 153de346: feat: support fastify platform on nestjs
+
 ## 0.1.12
 
 ### Patch Changes
