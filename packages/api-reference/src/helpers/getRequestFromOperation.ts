@@ -1,3 +1,4 @@
+import { mergeAllObjects } from '../helpers'
 import type {
   Cookie,
   HarRequestWithPath,
@@ -63,6 +64,28 @@ function getRequestBody(operation: TransformedOperation) {
     (currentMimeType) =>
       !!operation.information?.requestBody?.content?.[currentMimeType],
   )
+
+  // TODO:
+  // * Don’t assume all body parameters are JSON
+  // * Don’t assume the content type
+  // * Add support for formData
+
+  const bodyParameters = getParametersFromOperation(operation, 'body', false)
+
+  if (bodyParameters.length > 0) {
+    const allBodyParameters = mergeAllObjects(
+      bodyParameters.map(
+        (parameter) => parameter.value as Record<string, any>[],
+      ),
+    )
+
+    return {
+      postData: {
+        mimeType: 'application/json',
+        text: JSON.stringify(allBodyParameters, null, 2),
+      },
+    }
+  }
 
   // If no mime type is supported, exit early
   if (!mimeType) {

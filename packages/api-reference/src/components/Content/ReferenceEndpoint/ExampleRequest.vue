@@ -12,6 +12,7 @@ import {
   getRequestFromAuthentication,
   getRequestFromOperation,
   getUrlFromServerState,
+  mergeAllObjects,
 } from '../../../helpers'
 import { useSnippetTargets } from '../../../hooks'
 import { useGlobalStore } from '../../../stores'

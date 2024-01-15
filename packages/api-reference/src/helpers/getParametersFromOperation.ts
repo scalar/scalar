@@ -14,6 +14,7 @@ import { getExampleFromSchema } from './getExampleFromSchema'
 export function getParametersFromOperation(
   operation: TransformedOperation,
   where: 'query' | 'header' | 'path' | 'cookie' | 'formData' | 'body',
+  requiredOnly: boolean = true,
 ): BaseParameter[] {
   const parameters = [
     ...(operation.pathParameters || []),
@@ -25,7 +26,9 @@ export function getParametersFromOperation(
       // query, path, header, cookie?
       .filter((parameter) => parameter.in === where)
       // don’t add optional parameters
-      .filter((parameter) => parameter.required)
+      .filter(
+        (parameter) => (requiredOnly && parameter.required) || !requiredOnly,
+      )
       // transform them
       .map((parameter) => ({
         name: parameter.name,
