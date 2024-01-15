@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.9.5
+
+### Patch Changes
+
+- 6cc43ab7: fix: reset body margin
+
 ## 0.9.4
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.13.3
+
+### Patch Changes
+
+- 87032eed: feat: show raw response schema
+- Updated dependencies [6cc43ab7]
+  - @scalar/swagger-editor@0.9.5
+
 ## 1.13.2
 
 ### Patch Changes
