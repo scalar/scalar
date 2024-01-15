@@ -1,5 +1,11 @@
 # @scalar/echo-server
 
+## 0.5.7
+
+### Patch Changes
+
+- b04e7e67: feat: return zip files for all requests to /\*.zip
+
 ## 0.5.6
 
 ### Patch Changes
