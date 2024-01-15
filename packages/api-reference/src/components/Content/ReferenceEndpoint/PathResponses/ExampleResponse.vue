@@ -137,8 +137,22 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
     </div>
     <div
       v-if="!response?.example && !response?.schema"
-      class="scalar-api-reference__empty-state">
+      class="empty-state">
       No Body
     </div>
   </template>
 </template>
+
+<style scoped>
+.empty-state {
+  margin: 10px 0 10px 12px;
+  text-align: center;
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  color: var(--theme-color-2, var(--default-theme-color-2));
+}
+</style>

@@ -13,7 +13,7 @@ import {
 import EndpointDetails from './EndpointDetails.vue'
 import EndpointPath from './EndpointPath.vue'
 import ExampleRequest from './ExampleRequest.vue'
-import { ResponseSchema } from './ResponseSchema'
+import { PathResponses } from './PathResponses'
 import TryRequestButton from './TryRequestButton.vue'
 
 defineProps<{
@@ -50,7 +50,7 @@ defineProps<{
                 <TryRequestButton :operation="operation" />
               </template>
             </ExampleRequest>
-            <ResponseSchema
+            <PathResponses
               :operation="operation"
               style="margin-top: 12px" />
           </div>

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import { useClipboard } from '@scalar/use-clipboard'
 import { computed, ref } from 'vue'
@@ -88,7 +89,44 @@ const changeTab = (index: number) => {
         <Headers :headers="currentResponse.headers" />
       </CardContent> -->
       <CardContent muted>
-        <!-- <RawSchema :response="currentJsonResponse" /> -->
+        <!-- With Schema: Show Tabs -->
+        <div
+          v-if="currentJsonResponse?.schema"
+          class="schema-tabs">
+          <TabGroup>
+            <TabList class="tab-list">
+              <Tab
+                v-slot="{ selected }"
+                as="template">
+                <button
+                  class="tab"
+                  :class="{ 'tab--selected': selected }"
+                  type="button">
+                  Example response
+                </button>
+              </Tab>
+              <Tab
+                v-slot="{ selected }"
+                as="template">
+                <button
+                  class="tab"
+                  :class="{ 'tab--selected': selected }"
+                  type="button">
+                  Response schema
+                </button>
+              </Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <ExampleResponse :response="currentJsonResponse" />
+              </TabPanel>
+              <TabPanel>
+                <RawSchema :response="currentJsonResponse" />
+              </TabPanel>
+            </TabPanels>
+          </TabGroup>
+        </div>
+        <!-- Without Schema: Don’t show tabs -->
         <ExampleResponse :response="currentJsonResponse" />
       </CardContent>
     </div>
@@ -141,17 +179,6 @@ const changeTab = (index: number) => {
   box-sizing: border-box;
   border-top: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
-}
-.scalar-api-reference__empty-state {
-  margin: 10px 0 10px 12px;
-  text-align: center;
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  min-height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 .schema-type {
   font-size: var(--theme-micro, var(--default-theme-micro));
@@ -224,5 +251,38 @@ const changeTab = (index: number) => {
   transform: translateX(-25px);
   color: var(--theme-color-1, var(--default-theme-color-1));
   position: absolute;
+}
+
+.schema-tabs {
+  margin-top: 12px;
+}
+
+.schema-tabs .tab-list {
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+  margin-left: 12px;
+  display: flex;
+  gap: 6px;
+  padding-left: 6px;
+}
+
+.schema-tabs .tab {
+  padding: 5px 6px;
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border-bottom: 1px solid transparent;
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg))
+    var(--theme-radius-lg, var(--default-theme-radius-lg)) 0 0;
+  position: relative;
+  bottom: -1px;
+}
+
+.schema-tabs .tab--selected {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  border-bottom-color: var(
+    --theme-background-2,
+    var(--default-theme-background-2)
+  );
 }
 </style>
