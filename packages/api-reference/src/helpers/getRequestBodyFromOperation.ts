@@ -1,6 +1,3 @@
-import { type Header } from '@scalar/api-client'
-
-import { mergeAllObjects } from '../helpers'
 import type { ContentType, TransformedOperation } from '../types'
 import {
   getExampleFromSchema,
