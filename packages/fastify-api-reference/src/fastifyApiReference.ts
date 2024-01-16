@@ -154,7 +154,7 @@ export function htmlDocument(options: FastifyApiReferenceOptions) {
     </style>
   </head>
   <body>
-    !${javascript(options)}
+    ${javascript(options)}
   </body>
 </html>
 `
