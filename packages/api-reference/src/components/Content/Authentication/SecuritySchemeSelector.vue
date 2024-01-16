@@ -50,7 +50,12 @@ const isHttpBearer = (item: any) =>
 const isOAuth2 = (item: any) => item.type.toLowerCase() === 'oauth2'
 
 // Translate type to label
-const getLabelForScheme = (item: any) => {
+const getLabelForScheme = (item: any, key: string) => {
+  return `${getAuthorizationTypeLabel(item)} “${key}”`
+}
+
+// Translate type to label
+const getAuthorizationTypeLabel = (item: any) => {
   if (isNone(item)) {
     return 'No Authentication'
   } else if (isApiKey(item)) {
@@ -72,7 +77,7 @@ const keys = computed(() => Object.keys(props.value))
 <template>
   <!-- Single security scheme -->
   <template v-if="keys.length === 1">
-    {{ getLabelForScheme(value[keys[0]]) }}
+    {{ getLabelForScheme(value[keys[0]], key) }}
   </template>
 
   <!-- Multiple security schemes -->
@@ -81,7 +86,10 @@ const keys = computed(() => Object.keys(props.value))
       <span>
         {{
           authentication.securitySchemeKey
-            ? getLabelForScheme(value[authentication.securitySchemeKey])
+            ? getLabelForScheme(
+                value[authentication.securitySchemeKey],
+                authentication.securitySchemeKey,
+              )
             : ''
         }}
       </span>
@@ -93,7 +101,7 @@ const keys = computed(() => Object.keys(props.value))
           v-for="key in keys"
           :key="key">
           <option :value="key ?? null">
-            {{ getLabelForScheme(value[key]) }}
+            {{ getLabelForScheme(value[key], key) }}
           </option>
         </template>
       </select>
