@@ -45,7 +45,11 @@ const localServers = computed(() => {
     props.parsedSpec.schemes.length > 0
   ) {
     return [
-      { url: `${props.parsedSpec.schemes[0]}://${props.parsedSpec.host}` },
+      {
+        url: `${props.parsedSpec.schemes[0]}://${props.parsedSpec.host}${
+          props.parsedSpec?.basePath ?? ''
+        }`,
+      },
     ]
   } else if (fallBackServer.value) {
     return [fallBackServer.value]
