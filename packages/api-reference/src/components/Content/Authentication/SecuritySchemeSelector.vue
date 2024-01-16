@@ -77,7 +77,7 @@ const keys = computed(() => Object.keys(props.value))
 <template>
   <!-- Single security scheme -->
   <template v-if="keys.length === 1">
-    {{ getLabelForScheme(value[keys[0]], key) }}
+    {{ getLabelForScheme(value[keys[0]], keys[0]) }}
   </template>
 
   <!-- Multiple security schemes -->
