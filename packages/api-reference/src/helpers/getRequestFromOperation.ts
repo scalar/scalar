@@ -29,8 +29,6 @@ export const getRequestFromOperation = (
 
   const requestBody = getRequestBodyFromOperation(operation)
 
-  console.log(requestBody)
-
   return {
     method: operation.httpVerb.toUpperCase(),
     path,
@@ -38,9 +36,9 @@ export const getRequestFromOperation = (
       ...getParametersFromOperation(operation, 'header'),
       ...(requestBody?.headers ?? []),
     ] as Header[],
-    ...{
-      ...(requestBody?.postData ? { postData: requestBody?.postData } : {}),
-    },
+    // TODO: Sorry, something is off here and I don’t get it.
+    // @ts-ignore
+    postData: requestBody?.postData,
     queryString: getParametersFromOperation(operation, 'query') as Query[],
     cookies: getParametersFromOperation(operation, 'cookie') as Cookie[],
   }

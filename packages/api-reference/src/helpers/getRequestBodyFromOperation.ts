@@ -1,3 +1,5 @@
+import { type Header } from '@scalar/api-client'
+
 import { mergeAllObjects } from '../helpers'
 import type { ContentType, TransformedOperation } from '../types'
 import {
@@ -85,7 +87,9 @@ export function getRequestBodyFromOperation(operation: TransformedOperation) {
 
   // If no mime type is supported, exit early
   if (!mimeType) {
-    return null
+    return {
+      postData: undefined,
+    }
   }
 
   // Get the request body object for the mime type
