@@ -36,7 +36,9 @@ export const getRequestFromOperation = (
       ...getParametersFromOperation(operation, 'header'),
       ...(requestBody?.headers ?? []),
     ] as Header[],
-    postData: requestBody?.postData,
+    ...{
+      ...(requestBody?.postData ?? {}),
+    },
     queryString: getParametersFromOperation(operation, 'query') as Query[],
     cookies: getParametersFromOperation(operation, 'cookie') as Cookie[],
   }
