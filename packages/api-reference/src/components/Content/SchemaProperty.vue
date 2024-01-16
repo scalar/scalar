@@ -207,11 +207,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 .property:last-of-type {
   padding-bottom: 0;
 }
-.parameter-schema .property--compact:first-of-type,
-.property--compact .property--compact:first-of-type {
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-}
+
 .property--compact:not(.property--level-0) {
   padding: 8px;
 }
