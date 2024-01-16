@@ -1,5 +1,21 @@
 # @scalar/api-client
 
+## 0.9.0
+
+### Minor Changes
+
+- 5ca138ee: - Removed activeBreadCrumb from api-client as its available in the slot
+  - Centralized navigation logic
+  - use proper anchor navigation instead of scrollIntoView, it will also be saved to history
+  - scrolling down will open the next section
+
+### Patch Changes
+
+- b8ce7fd5: feat: show body and formData parameters (Swagger 2.0)
+- Updated dependencies [5ca138ee]
+  - @scalar/use-modal@0.2.2
+  - @scalar/themes@0.5.3
+
 ## 0.8.10
 
 ### Patch Changes

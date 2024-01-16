@@ -1,5 +1,27 @@
 # @scalar/api-reference
 
+## 1.13.5
+
+### Patch Changes
+
+- 09a27371: feat: add headings from the description to the search
+- 629ebd81: fix: basePath (Swagger 2.0) is ignored
+- 5ca138ee: - Removed activeBreadCrumb from api-client as its available in the slot
+  - Centralized navigation logic
+  - use proper anchor navigation instead of scrollIntoView, it will also be saved to history
+  - scrolling down will open the next section
+- 5ca138ee: fix: open section on search result click
+- b8ce7fd5: feat: show body and formData parameters (Swagger 2.0)
+- Updated dependencies [5ca138ee]
+- Updated dependencies [b8ce7fd5]
+  - @scalar/api-client@0.9.0
+  - @scalar/swagger-editor@0.9.6
+  - @scalar/use-toasts@0.5.12
+  - @scalar/use-modal@0.2.2
+  - @scalar/themes@0.5.3
+  - @scalar/use-clipboard@0.5.12
+  - @scalar/components@0.2.1
+
 ## 1.13.4
 
 ### Patch Changes

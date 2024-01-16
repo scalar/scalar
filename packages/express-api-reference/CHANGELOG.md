@@ -1,5 +1,20 @@
 # @scalar/express-api-reference
 
+## 0.2.17
+
+### Patch Changes
+
+- 5ca138ee: - Removed activeBreadCrumb from api-client as its available in the slot
+  - Centralized navigation logic
+  - use proper anchor navigation instead of scrollIntoView, it will also be saved to history
+  - scrolling down will open the next section
+- Updated dependencies [09a27371]
+- Updated dependencies [629ebd81]
+- Updated dependencies [5ca138ee]
+- Updated dependencies [5ca138ee]
+- Updated dependencies [b8ce7fd5]
+  - @scalar/api-reference@1.13.5
+
 ## 0.2.16
 
 ### Patch Changes
