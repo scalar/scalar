@@ -29,6 +29,8 @@ export const getRequestFromOperation = (
 
   const requestBody = getRequestBodyFromOperation(operation)
 
+  console.log(requestBody)
+
   return {
     method: operation.httpVerb.toUpperCase(),
     path,
@@ -37,7 +39,7 @@ export const getRequestFromOperation = (
       ...(requestBody?.headers ?? []),
     ] as Header[],
     ...{
-      ...(requestBody?.postData ?? {}),
+      ...(requestBody?.postData ? { postData: requestBody?.postData } : {}),
     },
     queryString: getParametersFromOperation(operation, 'query') as Query[],
     cookies: getParametersFromOperation(operation, 'cookie') as Cookie[],
