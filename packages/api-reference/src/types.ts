@@ -160,7 +160,7 @@ export type ContentProperties = {
 }
 
 export type ContentSchema = {
-  schema: {
+  schema?: {
     type: string
     required?: string[]
     properties: ContentProperties
