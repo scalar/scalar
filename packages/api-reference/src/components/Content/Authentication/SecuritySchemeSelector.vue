@@ -51,7 +51,7 @@ const isOAuth2 = (item: any) => item.type.toLowerCase() === 'oauth2'
 
 // Translate type to label
 const getLabelForScheme = (item: any, key: string) => {
-  return `${getAuthorizationTypeLabel(item)} “${key}”`
+  return `${key} (${getAuthorizationTypeLabel(item)})`
 }
 
 // Translate type to label
