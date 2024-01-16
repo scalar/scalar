@@ -4,6 +4,7 @@ import { FlowModal, type ModalState } from '@scalar/use-modal'
 import Fuse from 'fuse.js'
 import { computed, ref, toRef, watch } from 'vue'
 
+import { getHeadingsFromMarkdown } from '../helpers'
 import { extractRequestBody } from '../helpers/specHelpers'
 import { type ParamMap, useNavState, useOperation, useSidebar } from '../hooks'
 import type { Spec, TransformedOperation } from '../types'
@@ -14,7 +15,7 @@ const reactiveSpec = toRef(props, 'parsedSpec')
 type FuseData = {
   title: string
   href: string
-  type: 'req' | 'model'
+  type: 'req' | 'model' | 'heading'
   operationId?: string
   description: string
   body?: string | string[] | ParamMap
@@ -43,7 +44,7 @@ const selectedEntry = computed<Fuse.FuseResult<FuseData>>(
   () => searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
 )
 
-const { getModelId, getOperationId, getTagId } = useNavState()
+const { getHeadingId, getModelId, getOperationId, getTagId } = useNavState()
 
 watch(
   () => props.modalState.open,
@@ -57,15 +58,37 @@ watch(
 
 watch(
   reactiveSpec.value,
-  () => {
+  async () => {
     fuseDataArray.value = []
 
+    // Likely an incomplete/invalid spec
     if (!props.parsedSpec?.tags?.length) {
       fuse.setCollection([])
       return
     }
 
-    // TODO: We need to go through the operations, not the tags. Spec files can have zero tags.
+    // Headings from the description
+    const headingsData: FuseData[] = []
+    const headings = await getHeadingsFromMarkdown(
+      props.parsedSpec.info?.description ?? '',
+    )
+
+    if (headings.length) {
+      headings.forEach((heading) => {
+        headingsData.push({
+          type: 'heading',
+          title: `Info > ${heading.value}`,
+          description: '',
+          href: `#${getHeadingId(heading)}`,
+          tag: heading.slug,
+          body: '',
+        })
+      })
+
+      fuseDataArray.value = fuseDataArray.value.concat(headingsData)
+    }
+
+    // Tags
     props.parsedSpec.tags.forEach((tag) => {
       const tagData: FuseData = {
         title: tag.name,
