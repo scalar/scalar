@@ -512,6 +512,13 @@ This repository contains all our open source projects and there’s definitely m
             <br />
             <sub><b>FotieMConstant</b></sub>
         </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/dunklesToast">
+            <img src="https://avatars.githubusercontent.com/u/17279485?v=4" width="100;" alt="dunklesToast"/>
+            <br />
+            <sub><b>dunklesToast</b></sub>
+        </a>
     </td></tr>
 </table>
 <!-- readme: collaborators,contributors -end -->
