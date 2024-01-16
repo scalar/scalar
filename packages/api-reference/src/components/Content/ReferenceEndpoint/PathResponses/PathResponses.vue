@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import { useClipboard } from '@scalar/use-clipboard'
 import { computed, ref } from 'vue'

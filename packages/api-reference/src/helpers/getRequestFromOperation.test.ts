@@ -13,7 +13,6 @@ describe('getRequestFromOperation', () => {
     expect(request).toMatchObject({
       method: 'GET',
       path: '/foobar',
-      postData: undefined,
     })
   })
 
@@ -26,7 +25,6 @@ describe('getRequestFromOperation', () => {
     expect(request).toMatchObject({
       method: 'POST',
       path: '/foobar',
-      postData: undefined,
     })
   })
 

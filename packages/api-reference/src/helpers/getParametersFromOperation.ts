@@ -7,10 +7,14 @@ import { getExampleFromSchema } from './getExampleFromSchema'
  * Get the query parameters from an operation.
  *
  * Example: [ { name: 'foobar', value: '' } ]
+ *
+ * - OpenAPI 3.x: Possible values are “query”, “header”, “path” or “cookie”.
+ * - Swagger 2.0: Possible values are "query", "header", "path", "formData" or "body".
  */
 export function getParametersFromOperation(
   operation: TransformedOperation,
-  where: 'query' | 'path' | 'header' | 'cookie',
+  where: 'query' | 'header' | 'path' | 'cookie' | 'formData' | 'body',
+  requiredOnly: boolean = true,
 ): BaseParameter[] {
   const parameters = [
     ...(operation.pathParameters || []),
@@ -22,7 +26,9 @@ export function getParametersFromOperation(
       // query, path, header, cookie?
       .filter((parameter) => parameter.in === where)
       // don’t add optional parameters
-      .filter((parameter) => parameter.required)
+      .filter(
+        (parameter) => (requiredOnly && parameter.required) || !requiredOnly,
+      )
       // transform them
       .map((parameter) => ({
         name: parameter.name,

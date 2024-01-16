@@ -29,7 +29,7 @@ export async function sendRequest(
     (request.headers ?? []).filter((header) => header.enabled),
     'name',
     'value',
-  )
+  ) as Record<string, string | number>
   const url = normalizeUrl(request.url)
   const path = normalizePath(request.path)
   const [urlWithPath, ...urlQueryString] = concatenateUrlAndPath(
@@ -43,7 +43,7 @@ export async function sendRequest(
       (request.variables ?? []).filter((variable) => variable.enabled),
       'name',
       'value',
-    ),
+    ) as Record<string, string | number>,
   )
 
   // Get query string from urlWithPath ("https://example.com?foo=bar")

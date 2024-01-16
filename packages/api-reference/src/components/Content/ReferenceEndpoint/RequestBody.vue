@@ -46,7 +46,7 @@ if (prop.requestBody?.content) {
       <Schema
         compact
         toggleVisibility
-        :value="prop?.requestBody.content[selectedContentType].schema" />
+        :value="prop?.requestBody.content?.[selectedContentType]?.schema" />
     </div>
   </div>
 </template>

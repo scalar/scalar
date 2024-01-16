@@ -67,10 +67,13 @@ export const DEFAULT_CONFIG: DeepReadonly<ReferenceConfiguration> = {
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
 
 export type Schema = {
-  format: string
   type: string
+  name?: string
+  example?: any
   default?: any
+  format?: string
   description?: string
+  properties?: Record<string, Schema>
 }
 
 export type Parameters = {
@@ -128,29 +131,8 @@ export type ExampleResponseHeaders = Record<
   }
 >
 
-export type RequestBodyMimeTypes =
-  | 'application/json'
-  | 'application/octet-stream'
-  | 'application/x-www-form-urlencoded'
-  | 'application/xml'
-  | 'multipart/form-data'
-  | 'text/plain'
-
 export type TransformedOperation = Operation & {
   pathParameters?: Parameters[]
-  // TODO: This overwrites was has been in information before? Let’s check if this is correct.
-  information?: {
-    requestBody?: {
-      content?: Record<
-        RequestBodyMimeTypes,
-        {
-          schema?: any
-          example?: any
-          examples?: any
-        }
-      >
-    }
-  }
 }
 
 export type Tag = {
@@ -168,9 +150,9 @@ export type Parameter = {
 export type ContentProperties = {
   [key: string]: {
     type: string
-    format: string
-    example: string
-    required: string[]
+    format?: string
+    example?: any
+    required?: string[]
     enum?: string[]
     description?: string
     properties?: ContentProperties
@@ -178,9 +160,9 @@ export type ContentProperties = {
 }
 
 export type ContentSchema = {
-  schema: {
+  schema?: {
     type: string
-    required: string[]
+    required?: string[]
     properties: ContentProperties
   }
 }
@@ -190,6 +172,7 @@ export type ContentType =
   | 'application/xml'
   | 'text/plain'
   | 'text/html'
+  | 'application/octet-stream'
   | 'application/x-www-form-urlencoded'
   | 'multipart/form-data'
 
@@ -197,10 +180,17 @@ export type Content = {
   [key in ContentType]: ContentSchema
 }
 
+// Create a mapped type to ensure keys are a subset of ContentType
+export type RequestBodyMimeTypes = {
+  [K in ContentType]?: {
+    schema?: any
+    example?: any
+    examples?: any
+  }
+}
+
 export type RequestBody = {
-  description: string
-  content: Content
-  required: boolean
+  content?: RequestBodyMimeTypes
 }
 
 export type Contact = {

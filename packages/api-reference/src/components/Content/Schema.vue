@@ -168,6 +168,12 @@ const visible = ref<boolean>(false)
   font-family: var(--theme-font, var(--default-theme-font));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
+
+.schema-visibility-toggle + .property {
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+}
+
 .schema-visibility-toggle:hover {
   color: var(--theme-color-1, var(--default-theme-color-1));
 }

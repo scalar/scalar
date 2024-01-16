@@ -39,7 +39,7 @@ export type AuthState = {
 export type BaseParameter = {
   name: string
   description?: string | null
-  value: string | number
+  value: string | number | Record<string, any>
   required?: boolean
   enabled: boolean
 }
