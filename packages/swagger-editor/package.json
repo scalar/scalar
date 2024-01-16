@@ -44,7 +44,7 @@
     "directory": "packages/swagger-editor"
   },
   "dependencies": {
-    "@codemirror/state": "^6.2.1",
+    "@codemirror/state": "^6.4.0",
     "@scalar/components": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
