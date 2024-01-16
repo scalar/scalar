@@ -18,6 +18,6 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
-    "vite-node": "^0.34.4"
+    "vite-node": "^1.2.0"
   }
 }

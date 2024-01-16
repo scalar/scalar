@@ -51,9 +51,9 @@
     "@vitest/coverage-v8": "^0.34.4",
     "nodemon": "^3.0.1",
     "tsc-alias": "^1.8.8",
-    "typescript": "^5.2.2",
+    "typescript": "^5.3.3",
     "vite": "^4.4.12",
-    "vite-node": "^0.34.4",
+    "vite-node": "^1.2.0",
     "vitest": "^0.34.4"
   }
 }

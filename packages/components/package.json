@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",
-    "@scalar/themes": "workspace:^",
+    "@scalar/themes": "workspace:*",
     "@storybook/addon-essentials": "^7.5.2",
     "@storybook/addon-interactions": "^7.5.2",
     "@storybook/addon-links": "^7.5.2",
@@ -78,7 +78,7 @@
     "storybook-dark-mode": "^3.0.1",
     "tailwindcss": "^3.3.3",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2",
+    "typescript": "^5.3.3",
     "vite": "^4.4.12",
     "vite-plugin-dts": "^3.6.3",
     "vitest": "^0.34.4",
