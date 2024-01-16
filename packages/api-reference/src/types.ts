@@ -260,6 +260,7 @@ export type Spec = {
   tags?: Tag[]
   info: Info
   host?: string
+  basePath?: string
   schemes?: string[]
   externalDocs?: ExternalDocs
   servers?: Server[]
