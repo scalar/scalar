@@ -65,6 +65,24 @@ export function getRequestBodyFromOperation(operation: TransformedOperation) {
    *   submit-name. This type of form parameters is more commonly used for file transfers.”
    */
 
+  const formDataParameters = getParametersFromOperation(
+    operation,
+    'formData',
+    false,
+  )
+
+  if (formDataParameters.length > 0) {
+    return {
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: formDataParameters.map((parameter) => ({
+          name: parameter.name,
+          value: parameter.value,
+        })),
+      },
+    }
+  }
+
   // If no mime type is supported, exit early
   if (!mimeType) {
     return null
