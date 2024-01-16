@@ -1,5 +1,15 @@
 # @scalar/fastify-api-reference
 
+## 1.13.5
+
+### Patch Changes
+
+- 5ca138ee: - Removed activeBreadCrumb from api-client as its available in the slot
+  - Centralized navigation logic
+  - use proper anchor navigation instead of scrollIntoView, it will also be saved to history
+  - scrolling down will open the next section
+- dda5162c: chore: update fastify-html
+
 ## 1.13.2
 
 ### Patch Changes

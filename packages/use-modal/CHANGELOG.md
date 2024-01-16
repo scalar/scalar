@@ -1,5 +1,14 @@
 # @scalar/use-modal
 
+## 0.2.2
+
+### Patch Changes
+
+- 5ca138ee: - Removed activeBreadCrumb from api-client as its available in the slot
+  - Centralized navigation logic
+  - use proper anchor navigation instead of scrollIntoView, it will also be saved to history
+  - scrolling down will open the next section
+
 ## 0.2.1
 
 ### Patch Changes
