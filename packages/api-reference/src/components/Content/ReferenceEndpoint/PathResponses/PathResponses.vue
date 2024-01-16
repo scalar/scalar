@@ -100,7 +100,6 @@ const showSchema = ref(false)
         <Headers :headers="currentResponse.headers" />
       </CardContent> -->
       <CardContent muted>
-<<<<<<< HEAD:packages/api-reference/src/components/Content/ReferenceEndpoint/PathResponses/PathResponses.vue
         <template v-if="currentJsonResponse?.schema">
           <RawSchema
             v-if="showSchema"
@@ -108,131 +107,6 @@ const showSchema = ref(false)
           <ExampleResponse
             v-else
             :response="currentJsonResponse" />
-=======
-        <!-- Multiple examples -->
-        <template
-          v-if="
-            currentJsonResponse?.examples &&
-            Object.keys(currentJsonResponse?.examples).length > 1
-          ">
-          <SelectExample :examples="currentJsonResponse?.examples" />
-        </template>
-        <!-- An array, but just one example -->
-        <template
-          v-else-if="
-            currentJsonResponse?.examples &&
-            Object.keys(currentJsonResponse?.examples).length === 1
-          ">
-          <CodeMirror
-            :content="
-              prettyPrintJson(
-                mapFromObject(currentJsonResponse?.examples)[0].value.value,
-              )
-            "
-            :languages="['json']"
-            readOnly />
-        </template>
-        <!-- Single example -->
-        <template v-else>
-          <div v-if="currentJsonResponse?.example">
-            <CodeMirror
-              :content="prettyPrintJson(currentJsonResponse?.example)"
-              :languages="['json']"
-              readOnly />
-          </div>
-          <div v-else-if="currentJsonResponse?.schema">
-            <!-- Single Schema -->
-            <CodeMirror
-              v-if="currentJsonResponse?.schema.type"
-              :content="
-                prettyPrintJson(
-                  getExampleFromSchema(
-                    currentJsonResponse?.schema,
-
-                    {
-                      emptyString: '…',
-                      mode: 'read',
-                    },
-                  ),
-                )
-              "
-              :languages="['json']"
-              readOnly />
-            <!-- oneOf, anyOf, not … -->
-            <template
-              v-for="rule in rules"
-              :key="rule">
-              <div
-                v-if="
-                  currentJsonResponse?.schema[rule] &&
-                  (currentJsonResponse?.schema[rule].length > 1 ||
-                    rule === 'not')
-                "
-                class="rule">
-                <div class="rule-title">
-                  {{ rule }}
-                </div>
-                <ol class="rule-items">
-                  <li
-                    v-for="(example, index) in currentJsonResponse?.schema[
-                      rule
-                    ]"
-                    :key="index"
-                    class="rule-item">
-                    <CodeMirror
-                      :content="
-                        prettyPrintJson(
-                          getExampleFromSchema(example, {
-                            emptyString: '…',
-                            mode: 'read',
-                          }),
-                        )
-                      "
-                      :languages="['json']"
-                      readOnly />
-                  </li>
-                </ol>
-              </div>
-              <CodeMirror
-                v-else-if="
-                  currentJsonResponse?.schema[rule] &&
-                  currentJsonResponse?.schema[rule].length === 1
-                "
-                :content="
-                  prettyPrintJson(
-                    getExampleFromSchema(currentJsonResponse?.schema[rule][0], {
-                      emptyString: '…',
-                      mode: 'read',
-                    }),
-                  )
-                "
-                :languages="['json']"
-                readOnly />
-            </template>
-            <!-- allOf-->
-            <CodeMirror
-              v-if="currentJsonResponse?.schema['allOf']"
-              :content="
-                prettyPrintJson(
-                  mergeAllObjects(
-                    currentJsonResponse?.schema['allOf'].map((schema: any) =>
-                      getExampleFromSchema(schema, {
-                        emptyString: '…',
-                        mode: 'read',
-                      }),
-                    ),
-                  ),
-                )
-              "
-              :languages="['json']"
-              readOnly />
-          </div>
-          <div
-            v-if="!currentJsonResponse?.example && !currentJsonResponse?.schema"
-            class="scalar-api-reference__empty-state">
-            No Body
-          </div>
->>>>>>> 896cf2fa (feat: don’t show readOnly attributes in requests, don’t show writeOnly attributes in responses):packages/api-reference/src/components/Content/ReferenceEndpoint/ExampleResponses/ExampleResponses.vue
         </template>
         <!-- Without Schema: Don’t show tabs -->
         <ExampleResponse
