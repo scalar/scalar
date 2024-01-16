@@ -13,7 +13,7 @@ import {
 import EndpointDetails from './EndpointDetails.vue'
 import EndpointPath from './EndpointPath.vue'
 import ExampleRequest from './ExampleRequest.vue'
-import { ExampleResponses } from './ExampleResponses'
+import { PathResponses } from './PathResponses'
 import TryRequestButton from './TryRequestButton.vue'
 
 defineProps<{
@@ -52,7 +52,7 @@ const { getOperationId } = useNavState()
                 <TryRequestButton :operation="operation" />
               </template>
             </ExampleRequest>
-            <ExampleResponses
+            <PathResponses
               :operation="operation"
               style="margin-top: 12px" />
           </div>

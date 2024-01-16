@@ -63,8 +63,18 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
     <!-- data-proxy-url="https://api.scalar.com/request-proxy" -->
     <script
       id="api-reference"
-      data-url="https://example.com/swagger.json"
+      data-url="https://petstore3.swagger.io/api/v3/openapi.json"
       data-proxy-url="https://api.scalar.com/request-proxy"></script>
+    <!-- You can also set a full configuration object like this -->
+    <!-- easier for nested objects -->
+    <script>
+      var configuration = {
+        theme: 'purple',
+      }
+
+      var apiReference = document.getElementById('api-reference')
+      apiReference.dataset.configuration = JSON.stringify(configuration)
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
   </body>
 </html>
@@ -234,6 +244,7 @@ To customize the behavior of the API Reference, you can use the following config
 - `customCss`: Pass custom CSS directly to the component.
 - `searchHotKey`: Key used with CNTRL/CMD to open the search modal.
 - `metaData`: Configure meta information for the page.
+- `hiddenClients`: List of httpsnippet clients to hide from the clients menu, by default hides Unirest, pass `[]` to show all clients.
 - `onSpecUpdate`: Listen to spec changes with a callback function.
 
 For detailed information on how to use these options, refer to the [Configuration Section](https://github.com/scalar/scalar/blob/main/packages/api-reference/README.md/#configuration).
@@ -249,7 +260,8 @@ We support two layouts at the moment, a `modern` layout (the default) and a Swag
 You don’t like the color scheme? We’ve prepared some themes for you:
 
 ```vue
-/* theme?: 'alternate' | 'default' | 'moon' | 'purple' | 'solarized' | 'none' */
+/* theme?: 'alternate' | 'default' | 'moon' | 'purple' | 'solarized' |
+'bluePlanet' | 'saturn' | 'kepler' | 'mars' | 'deepSpace' | 'none' */
 <ApiReference :configuration="{ theme: 'moon' }" />
 ```
 
@@ -437,20 +449,27 @@ This repository contains all our open source projects and there’s definitely m
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/sigpwned">
+            <img src="https://avatars.githubusercontent.com/u/1236302?v=4" width="100;" alt="sigpwned"/>
+            <br />
+            <sub><b>sigpwned</b></sub>
+        </a>
+    </td>
+    <td align="center">
         <a href="https://github.com/chrislearn">
             <img src="https://avatars.githubusercontent.com/u/5874864?v=4" width="100;" alt="chrislearn"/>
             <br />
             <sub><b>chrislearn</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/danp">
             <img src="https://avatars.githubusercontent.com/u/2182?v=4" width="100;" alt="danp"/>
             <br />
             <sub><b>danp</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/jonataw">
             <img src="https://avatars.githubusercontent.com/u/29772763?v=4" width="100;" alt="jonataw"/>
@@ -485,7 +504,8 @@ This repository contains all our open source projects and there’s definitely m
             <br />
             <sub><b>Chinlinlee</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/FotieMConstant">
             <img src="https://avatars.githubusercontent.com/u/42372656?v=4" width="100;" alt="FotieMConstant"/>

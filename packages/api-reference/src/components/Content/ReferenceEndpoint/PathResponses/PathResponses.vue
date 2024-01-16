@@ -1,14 +1,9 @@
 <script lang="ts" setup>
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import { useClipboard } from '@scalar/use-clipboard'
-import { CodeMirror } from '@scalar/use-codemirror'
 import { computed, ref } from 'vue'
 
-import {
-  getExampleFromSchema,
-  mapFromObject,
-  prettyPrintJson,
-} from '../../../../helpers'
 import type { TransformedOperation } from '../../../../types'
 import {
   Card,
@@ -18,8 +13,10 @@ import {
   CardTabHeader,
 } from '../../../Card'
 import MarkdownRenderer from '../../MarkdownRenderer.vue'
+import ExampleResponse from './ExampleResponse.vue'
+import RawSchema from './RawSchema.vue'
+
 // import Headers from './Headers.vue'
-import SelectExample from './SelectExample.vue'
 
 /**
  * TODO: copyToClipboard isn’t using the right content if there are multiple examples
@@ -61,16 +58,7 @@ const changeTab = (index: number) => {
   selectedResponseIndex.value = index
 }
 
-const rules = ['oneOf', 'anyOf', 'not']
-
-const mergeAllObjects = (items: Record<any, any>[]): any => {
-  return items.reduce((acc, object) => {
-    return {
-      ...acc,
-      ...object,
-    }
-  }, {})
-}
+const showSchema = ref(false)
 </script>
 <template>
   <Card v-if="orderedStatusCodes.length">
@@ -93,6 +81,16 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
             icon="Clipboard"
             width="10px" />
         </button>
+        <label
+          v-if="currentJsonResponse?.schema"
+          class="scalar-card-checkbox">
+          Show Schema
+          <input
+            v-model="showSchema"
+            class="scalar-card-checkbox-input"
+            type="checkbox" />
+          <span class="scalar-card-checkbox-checkmark"></span>
+        </label>
       </template>
     </CardTabHeader>
     <div class="scalar-card-container custom-scroll">
@@ -103,126 +101,18 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
         <Headers :headers="currentResponse.headers" />
       </CardContent> -->
       <CardContent muted>
-        <!-- Multiple examples -->
-        <template
-          v-if="
-            currentJsonResponse?.examples &&
-            Object.keys(currentJsonResponse?.examples).length > 1
-          ">
-          <SelectExample :examples="currentJsonResponse?.examples" />
+        <template v-if="currentJsonResponse?.schema">
+          <RawSchema
+            v-if="showSchema"
+            :response="currentJsonResponse" />
+          <ExampleResponse
+            v-else
+            :response="currentJsonResponse" />
         </template>
-        <!-- An array, but just one example -->
-        <template
-          v-else-if="
-            currentJsonResponse?.examples &&
-            Object.keys(currentJsonResponse?.examples).length === 1
-          ">
-          <CodeMirror
-            :content="
-              prettyPrintJson(
-                mapFromObject(currentJsonResponse?.examples)[0].value.value,
-              )
-            "
-            :languages="['json']"
-            readOnly />
-        </template>
-        <!-- Single example -->
-        <template v-else>
-          <div v-if="currentJsonResponse?.example">
-            <CodeMirror
-              :content="prettyPrintJson(currentJsonResponse?.example)"
-              :languages="['json']"
-              readOnly />
-          </div>
-          <div v-else-if="currentJsonResponse?.schema">
-            <!-- Single Schema -->
-            <CodeMirror
-              v-if="currentJsonResponse?.schema.type"
-              :content="
-                prettyPrintJson(
-                  getExampleFromSchema(
-                    currentJsonResponse?.schema,
-
-                    {
-                      emptyString: '…',
-                    },
-                  ),
-                )
-              "
-              :languages="['json']"
-              readOnly />
-            <!-- oneOf, anyOf, not … -->
-            <template
-              v-for="rule in rules"
-              :key="rule">
-              <div
-                v-if="
-                  currentJsonResponse?.schema[rule] &&
-                  (currentJsonResponse?.schema[rule].length > 1 ||
-                    rule === 'not')
-                "
-                class="rule">
-                <div class="rule-title">
-                  {{ rule }}
-                </div>
-                <ol class="rule-items">
-                  <li
-                    v-for="(example, index) in currentJsonResponse?.schema[
-                      rule
-                    ]"
-                    :key="index"
-                    class="rule-item">
-                    <CodeMirror
-                      :content="
-                        prettyPrintJson(
-                          getExampleFromSchema(example, {
-                            emptyString: '…',
-                          }),
-                        )
-                      "
-                      :languages="['json']"
-                      readOnly />
-                  </li>
-                </ol>
-              </div>
-              <CodeMirror
-                v-else-if="
-                  currentJsonResponse?.schema[rule] &&
-                  currentJsonResponse?.schema[rule].length === 1
-                "
-                :content="
-                  prettyPrintJson(
-                    getExampleFromSchema(currentJsonResponse?.schema[rule][0], {
-                      emptyString: '…',
-                    }),
-                  )
-                "
-                :languages="['json']"
-                readOnly />
-            </template>
-            <!-- allOf-->
-            <CodeMirror
-              v-if="currentJsonResponse?.schema['allOf']"
-              :content="
-                prettyPrintJson(
-                  mergeAllObjects(
-                    currentJsonResponse?.schema['allOf'].map((schema: any) =>
-                      getExampleFromSchema(schema, {
-                        emptyString: '…',
-                      }),
-                    ),
-                  ),
-                )
-              "
-              :languages="['json']"
-              readOnly />
-          </div>
-          <div
-            v-if="!currentJsonResponse?.example && !currentJsonResponse?.schema"
-            class="scalar-api-reference__empty-state">
-            No Body
-          </div>
-        </template>
+        <!-- Without Schema: Don’t show tabs -->
+        <ExampleResponse
+          v-else
+          :response="currentJsonResponse" />
       </CardContent>
     </div>
     <CardFooter
@@ -274,17 +164,6 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
   box-sizing: border-box;
   border-top: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
-}
-.scalar-api-reference__empty-state {
-  margin: 10px 0 10px 12px;
-  text-align: center;
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  min-height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 .schema-type {
   font-size: var(--theme-micro, var(--default-theme-micro));
@@ -357,5 +236,111 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
   transform: translateX(-25px);
   color: var(--theme-color-1, var(--default-theme-color-1));
   position: absolute;
+}
+
+.schema-tabs {
+  margin-top: 12px;
+}
+
+.schema-tabs .tab-list {
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+  margin-left: 12px;
+  display: flex;
+  gap: 6px;
+  padding-left: 6px;
+}
+
+.schema-tabs .tab {
+  padding: 5px 8px;
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border-bottom: 1px solid transparent;
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg))
+    var(--theme-radius-lg, var(--default-theme-radius-lg)) 0 0;
+  position: relative;
+  bottom: -1px;
+}
+
+.schema-tabs .tab--selected {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  border-bottom-color: var(
+    --theme-background-2,
+    var(--default-theme-background-2)
+  );
+}
+.scalar-card-checkbox {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-right: 27px;
+  min-height: 17px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  width: fit-content;
+  white-space: nowrap;
+  margin-right: 9px;
+}
+.scalar-card-checkbox:hover {
+  color: var(--theme-color--1, var(--default-theme-color-1));
+}
+.scalar-card-checkbox .scalar-card-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.scalar-card-checkbox-checkmark {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 17px;
+  width: 17px;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  background-color: transparent;
+  background-color: var(
+    --theme-background-3,
+    var(--default-theme-background-3)
+  );
+  box-shadow: inset 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
+}
+.scalar-card-checkbox:has(.scalar-card-checkbox-input:checked) {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
+
+.scalar-card-checkbox
+  .scalar-card-checkbox-input:checked
+  ~ .scalar-card-checkbox-checkmark {
+  background-color: var(--theme-color-1, var(--default-theme-color-1));
+  box-shadow: none;
+}
+
+.scalar-card-checkbox-checkmark:after {
+  content: '';
+  position: absolute;
+  display: none;
+}
+
+.scalar-card-checkbox
+  .scalar-card-checkbox-input:checked
+  ~ .scalar-card-checkbox-checkmark:after {
+  display: block;
+}
+
+.scalar-card-checkbox .scalar-card-checkbox-checkmark:after {
+  left: 7px;
+  top: 3.5px;
+  width: 4px;
+  height: 9px;
+  border: solid var(--theme-background-1, var(--default-theme-background-1));
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
 }
 </style>

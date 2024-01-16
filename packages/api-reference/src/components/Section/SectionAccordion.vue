@@ -76,7 +76,6 @@ const isHovered = useElementHover(button)
 .section-accordion-button {
   padding: 6px;
 }
-
 .section-accordion-button {
   display: flex;
   align-items: center;
@@ -117,5 +116,8 @@ const isHovered = useElementHover(button)
   font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-color--1, var(--default-theme-color-1));
   padding: 10px 12px 0px 12px;
+}
+.section-accordion-content-card :deep(.property:last-of-type) {
+  padding-bottom: 9px;
 }
 </style>

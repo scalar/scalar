@@ -48,19 +48,39 @@ const { responses } = useResponses(props.operation)
 .endpoint-details-card-item {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  padding: 4px 20px;
+  margin-top: 0;
+}
+.endpoint-details-card :deep(.parameter-list:first-of-type:last-of-type) {
+  margin: 0;
+}
+.endpoint-details-card :deep(.parameter-item:last-of-type .parameter-schema) {
+  padding-bottom: 12px;
+}
+.endpoint-details-card :deep(.parameter-list .parameter-list) {
+  margin-bottom: 12px;
+}
+.endpoint-details-card :deep(.parameter-list li) {
+  margin: 0;
+  padding: 0 9px;
+}
+.endpoint-details-card :deep(.property) {
+  padding: 9px;
+  margin: 0;
 }
 .endpoint-details-card :deep(.endpoint-title),
-.endpoint-details-card :deep(.parameter li) {
-  margin: 0;
-  padding: 9px;
-}
-
-.endpoint-details-card :deep(.endpoint-title) {
+.endpoint-details-card :deep(.parameters-title),
+.endpoint-details-card :deep(.request-body-title) {
   text-transform: uppercase;
   font-weight: var(--theme-bold, var(--default-theme-bold));
   font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-color-2, var(--default-theme-color-2));
   line-height: 1.33;
+  padding: 9px;
+  margin: 0;
+}
+.endpoint-details-card :deep(.request-body-title-select) {
+  text-transform: initial;
+  font-weight: initial;
+  margin-left: auto;
 }
 </style>

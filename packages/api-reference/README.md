@@ -131,6 +131,18 @@ You can pass information to the config object to configure meta information out 
   } />
 ```
 
+#### hiddenClients?: array
+
+You can pass an array of [httpsnippet clients](https://github.com/Kong/httpsnippet/wiki/Targets) to hide from the clients menu.
+
+```vue
+<ApiReference :configuration="{
+  hiddenClients: ['fetch']
+  } />
+```
+
+By default hides Unirest, pass `[]` to show all clients
+
 #### onSpecUpdate?: (spec: string) => void
 
 You can listen to spec changes with onSpecUpdate that runs on spec/swagger content change

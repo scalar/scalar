@@ -5,7 +5,7 @@ import DarkModeIconToggle from './DarkModeIconToggle.vue'
   <div class="references-classic-header-container">
     <div class="references-classic-header">
       <slot />
-      <DarkModeIconToggle />
+      <DarkModeIconToggle class="t-doc__sidebar" />
     </div>
   </div>
 </template>

@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.5.2
+
+### Patch Changes
+
+- 6d777194: feat: release themes
+
 ## 0.5.1
 
 ### Patch Changes

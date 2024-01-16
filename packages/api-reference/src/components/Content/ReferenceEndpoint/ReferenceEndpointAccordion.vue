@@ -10,7 +10,7 @@ import MarkdownRenderer from '../MarkdownRenderer.vue'
 import EndpointDetailsCard from './EndpointDetailsCard.vue'
 import EndpointPath from './EndpointPath.vue'
 import ExampleRequest from './ExampleRequest.vue'
-import { ExampleResponses } from './ExampleResponses'
+import { PathResponses } from './PathResponses'
 import TryRequestButton from './TryRequestButton.vue'
 
 defineProps<{
@@ -67,7 +67,7 @@ const { getOperationId } = useNavState()
     </template>
     <div class="endpoint-content">
       <EndpointDetailsCard :operation="operation" />
-      <ExampleResponses :operation="operation" />
+      <PathResponses :operation="operation" />
       <ExampleRequest :operation="operation" />
     </div>
   </SectionAccordion>

@@ -1,6 +1,5 @@
 export * from './deepMerge'
 export * from './getApiClientRequest'
-export * from './getAvailableTargets'
 export * from './getExampleFromSchema'
 export * from './getHarRequest'
 export * from './getHeadingsFromMarkdown'

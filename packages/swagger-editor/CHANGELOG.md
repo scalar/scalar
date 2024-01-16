@@ -1,5 +1,20 @@
 # @scalar/swagger-editor
 
+## 0.9.5
+
+### Patch Changes
+
+- 6cc43ab7: fix: reset body margin
+
+## 0.9.4
+
+### Patch Changes
+
+- 6d777194: feat: release themes
+- Updated dependencies [6d777194]
+  - @scalar/components@0.2.1
+  - @scalar/themes@0.5.2
+
 ## 0.9.3
 
 ### Patch Changes

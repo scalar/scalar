@@ -4,7 +4,8 @@
 import { type TargetId } from 'httpsnippet-lite'
 import { reactive, readonly } from 'vue'
 
-import { getAvailableTargets, objectMerge } from '../helpers'
+import { objectMerge } from '../helpers'
+import { useSnippetTargets } from '../hooks'
 import { setItemFactory, toggleItemFactory } from './utility'
 
 export enum NavState {
@@ -35,20 +36,22 @@ function resetState() {
   objectMerge(state, defaultTemplateState())
 }
 
-// Gets the client title from getAvailableTargets()
+// Gets the client title from the availableTargets
 // { targetKey: 'shell', clientKey: 'curl' } -> 'Shell'
 function getTargetTitle(client: SelectedClient) {
+  const { availableTargets } = useSnippetTargets()
   return (
-    getAvailableTargets().find((target) => target.key === client.targetKey)
+    availableTargets.value.find((target) => target.key === client.targetKey)
       ?.title ?? client.targetKey
   )
 }
 
-// Gets the client title from getAvailableTargets()
+// Gets the client title from the availableTargets
 // { targetKey: 'shell', clientKey: 'curl' } -> 'cURL'
 function getClientTitle(client: SelectedClient) {
+  const { availableTargets } = useSnippetTargets()
   return (
-    getAvailableTargets()
+    availableTargets.value
       .find((target) => target.key === client.targetKey)
       ?.clients.find((item) => item.key === client.clientKey)?.title ??
     client.clientKey

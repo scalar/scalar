@@ -1,5 +1,52 @@
 # @scalar/api-reference
 
+## 1.13.4
+
+### Patch Changes
+
+- dae1010a: chore: update axios to 1.6.5
+- Updated dependencies [dae1010a]
+  - @scalar/api-client@0.8.10
+
+## 1.13.3
+
+### Patch Changes
+
+- 87032eed: feat: show raw response schema
+- Updated dependencies [6cc43ab7]
+  - @scalar/swagger-editor@0.9.5
+
+## 1.13.2
+
+### Patch Changes
+
+- 6d777194: feat: release themes
+- Updated dependencies [6d777194]
+  - @scalar/swagger-editor@0.9.4
+  - @scalar/api-client@0.8.9
+  - @scalar/components@0.2.1
+  - @scalar/themes@0.5.2
+
+## 1.13.1
+
+### Patch Changes
+
+- 20790661: feat: add space themes
+
+## 1.13.0
+
+### Minor Changes
+
+- 97cd84e9: feat: client ignore list
+
+### Patch Changes
+
+- 5dac9c51: fix: open section on search result click
+- 0e0f34b3: fix: cleanup safari bugs
+- 7582e82a: fix: classic layout stylings
+- Updated dependencies [0e0f34b3]
+  - @scalar/api-client@0.8.8
+
 ## 1.12.9
 
 ### Patch Changes

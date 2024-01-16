@@ -1,5 +1,46 @@
 # @scalar/express-api-reference
 
+## 0.2.16
+
+### Patch Changes
+
+- Updated dependencies [dae1010a]
+  - @scalar/api-reference@1.13.4
+
+## 0.2.15
+
+### Patch Changes
+
+- Updated dependencies [87032eed]
+  - @scalar/api-reference@1.13.3
+
+## 0.2.14
+
+### Patch Changes
+
+- 6d777194: feat: release themes
+- Updated dependencies [6d777194]
+  - @scalar/api-reference@1.13.2
+
+## 0.2.13
+
+### Patch Changes
+
+- 20790661: feat: add space themes
+- Updated dependencies [20790661]
+  - @scalar/api-reference@1.13.1
+
+## 0.2.12
+
+### Patch Changes
+
+- 7582e82a: fix: classic layout stylings
+- Updated dependencies [5dac9c51]
+- Updated dependencies [0e0f34b3]
+- Updated dependencies [97cd84e9]
+- Updated dependencies [7582e82a]
+  - @scalar/api-reference@1.13.0
+
 ## 0.2.11
 
 ### Patch Changes

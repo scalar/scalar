@@ -8,12 +8,12 @@ import { computed, ref, watch } from 'vue'
 
 import {
   getApiClientRequest,
-  getAvailableTargets,
   getHarRequest,
   getRequestFromAuthentication,
   getRequestFromOperation,
   getUrlFromServerState,
 } from '../../../helpers'
+import { useSnippetTargets } from '../../../hooks'
 import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
 import type { TransformedOperation } from '../../../types'
@@ -26,6 +26,8 @@ const props = defineProps<{
 const CodeMirrorValue = ref<string>('')
 const { copyToClipboard } = useClipboard()
 const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
+
+const { availableTargets } = useSnippetTargets()
 
 const { server: serverState, authentication: authenticationState } =
   useGlobalStore()
@@ -132,7 +134,7 @@ computed(() => {
                 )
             ">
             <optgroup
-              v-for="target in getAvailableTargets()"
+              v-for="target in availableTargets"
               :key="target.key"
               :label="target.title">
               <option
@@ -267,7 +269,7 @@ computed(() => {
   cursor: pointer;
   color: var(--theme-color-3, var(--default-theme-color-3));
   margin-left: 6px;
-  margin-right: 12px;
+  margin-right: 10.5px;
   border: none;
   border-radius: 3px;
   padding: 0;
@@ -301,7 +303,7 @@ computed(() => {
   padding: 6px;
 }
 .request-editor-section {
-  display: grid;
+  display: flex;
   flex: 1;
 }
 </style>
