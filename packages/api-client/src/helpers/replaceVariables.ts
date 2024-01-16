@@ -3,7 +3,7 @@
  */
 export const replaceVariables = (
   url: string,
-  variables: Record<string, string | number>,
+  variables: Record<string, string | number | Record<string, any>>,
 ) => {
   return Object.entries(variables).reduce((acc, [key, value]) => {
     return acc.replace(`{${key}}`, value.toString())
