@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import { type SwaggerEditor } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
-import { useMediaQuery, useResizeObserver } from '@vueuse/core'
+import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
-import { useNavigation } from '../hooks'
+import { useNavState, useSidebar } from '../hooks'
 import type {
   ReferenceConfiguration,
   ReferenceLayoutSlot,
   ReferenceSlotProps,
   Spec,
 } from '../types'
-import {
-  default as ApiClientModal,
-  useApiClientStore,
-} from './ApiClientModal.vue'
+import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
 import GettingStarted from './GettingStarted.vue'
 import Sidebar from './Sidebar.vue'
@@ -47,17 +44,18 @@ useResizeObserver(documentEl, (entries) => {
 
 // Scroll to hash if exists
 const initiallyScrolled = ref(false)
-const tagRegex = /#(tag\/[^/]*)/
-const { setCollapsedSidebarItem } = useNavigation()
+const { breadcrumb, setCollapsedSidebarItem } = useSidebar()
+const { hash, getSectionId } = useNavState()
 
-// Wait until we have a parsed spec
+// Wait until we have a parsed spec then scroll to hash
 watch(props.parsedSpec, async (val) => {
   if (initiallyScrolled.value || !val?.info?.title) return
   initiallyScrolled.value = true
+  const sectionId = getSectionId()
+  const hashStr = hash.value
 
   // The original scroll to top from mounted
-  const hashId = document.location.hash
-  if (!hashId) {
+  if (!hash.value) {
     document.querySelector('#tippy')?.scrollTo({
       top: 0,
       left: 0,
@@ -65,17 +63,13 @@ watch(props.parsedSpec, async (val) => {
   }
 
   // Ensure we open the section
-  const match = hashId.match(tagRegex)
-  if (match && match.length > 1) {
-    setCollapsedSidebarItem(match[1], true)
-  }
+  if (sectionId) setCollapsedSidebarItem(sectionId, true)
 
   // I tried to get this to work with nextTick but it would scroll half way above
   // the section, I'm assuming this is due to the time for the section to render
   // We can probably come up with something better but this works for now
   setTimeout(() => {
-    const elem = document.getElementById(hashId.replace(/^#/, ''))
-    elem?.scrollIntoView()
+    document.getElementById(hashStr)?.scrollIntoView()
   }, 0)
 })
 
@@ -90,13 +84,24 @@ const showSwaggerEditor = computed(() => {
   )
 })
 
+// To clear hash when scrolled to the top
+const debouncedScroll = useDebounceFn((value) => {
+  const scrollDistance = value.target.scrollTop ?? 0
+  if (scrollDistance < 50) {
+    window.history.replaceState(
+      {},
+      '',
+      window.location.pathname + window.location.search,
+    )
+    hash.value = ''
+  }
+})
+
 /** This is passed into all of the slots so they have access to the references data */
 const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
-  breadcrumb: state.activeBreadcrumb,
+  breadcrumb: breadcrumb.value,
   spec: props.parsedSpec,
 }))
-
-const { state } = useApiClientStore()
 </script>
 <template>
   <div
@@ -109,7 +114,8 @@ const { state } = useApiClientStore()
         'references-classic': configuration.layout === 'classic',
       },
     ]"
-    :style="{ '--full-height': `${elementHeight}px` }">
+    :style="{ '--full-height': `${elementHeight}px` }"
+    @scroll.passive="debouncedScroll">
     <!-- Header -->
     <div class="references-header">
       <slot

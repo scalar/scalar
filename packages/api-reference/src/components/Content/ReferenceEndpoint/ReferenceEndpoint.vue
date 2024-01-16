@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getOperationSectionId } from '../../../helpers'
+import { useNavState } from '../../../hooks'
 import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { Badge } from '../../Badge'
@@ -20,10 +20,12 @@ defineProps<{
   operation: TransformedOperation
   tag: Tag
 }>()
+
+const { getOperationId } = useNavState()
 </script>
 <template>
   <Section
-    :id="getOperationSectionId(operation, tag)"
+    :id="getOperationId(operation, tag)"
     :label="operation.name">
     <SectionContent>
       <SectionColumns>
@@ -31,7 +33,7 @@ defineProps<{
           <Badge v-if="operation.information?.deprecated"> Deprecated </Badge>
           <div :class="operation.information?.deprecated ? 'deprecated' : ''">
             <SectionHeader :level="3">
-              <Anchor :id="getOperationSectionId(operation, tag)">
+              <Anchor :id="getOperationId(operation, tag)">
                 {{ operation.name }}
               </Anchor>
             </SectionHeader>

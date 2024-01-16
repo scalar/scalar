@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ScalarIcon, ScalarIconButton } from '@scalar/components'
-import { computed, ref } from 'vue'
+import { ScalarIconButton } from '@scalar/components'
+import { ref } from 'vue'
 
 import { Icon } from './Icon'
 
 const props = defineProps<{
   item: {
-    uid: string
+    id: string
     title: string
-    type: 'Page' | 'Folder' | 'Link'
+    select?: () => void
     link?: string
     icon?: {
       src: string
@@ -22,45 +22,13 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'select'): void
   (e: 'toggleOpen'): void
 }>()
 
-enum ElementType {
-  Page = 'Page',
-  Folder = 'Folder',
-  Link = 'Link',
-}
-
-const linkProps = computed(() => {
-  const item = props.item
-  if (item.type === ElementType.Link) {
-    return {
-      href: item.link,
-      rel: 'noopener noreferrer',
-      target: '_blank',
-    }
-  }
-
-  return {}
-})
-
-function handleClick() {
-  if (props.item.type === ElementType.Link) return
-
-  if (props.item.type === ElementType.Folder) {
-    emit('toggleOpen')
-    return
-  }
-
-  emit('select')
-}
-
-function handleToggleOpen() {
-  // Allow bubbled event to trigger folder open
-  if (props.item.type === ElementType.Folder) return
-
-  emit('toggleOpen')
+// We disable intersection observer on click
+const handleClick = async () => {
+  if (props.hasChildren) emit('toggleOpen')
+  props.item?.select?.()
 }
 
 // Ensure we expose the root element
@@ -74,23 +42,22 @@ defineExpose({ el })
     <div
       class="sidebar-heading"
       :class="{
-        'sidebar-group-item__folder':
-          hasChildren || item.type === ElementType.Folder,
+        'sidebar-group-item__folder': hasChildren,
         'active_page': isActive,
         'deprecated': item.deprecated ?? false,
       }"
       @click="handleClick">
       <!-- If children are detected then show the nesting icon -->
       <ScalarIconButton
-        v-if="hasChildren || item.type === ElementType.Folder"
+        v-if="hasChildren"
         class="toggle-nested-icon"
         :icon="open ? 'ChevronDown' : 'ChevronRight'"
         label="Toggle group"
         size="sm"
-        @click="handleToggleOpen" />
+        @click="handleClick" />
       <a
         class="sidebar-heading-link"
-        v-bind="linkProps">
+        :href="`#${item.id}`">
         <Icon
           v-if="item?.icon?.src"
           class="sidebar-icon"
@@ -105,11 +72,6 @@ defineExpose({ el })
           {{ item.httpVerb === 'delete' ? 'del' : item.httpVerb }}
         </div>
       </a>
-      <ScalarIcon
-        v-if="item?.type === ElementType.Link"
-        class="link-icon"
-        icon="ExternalLink"
-        width="16px" />
     </div>
     <slot v-if="open" />
     <div
@@ -165,6 +127,8 @@ defineExpose({ el })
   background: var(--sidebar-item-active-background, var(--default-sidebar-item-active-background, var(--theme-background-accent, var(--default-theme-background-accent))));
 }
 .sidebar-heading-link {
+  text-decoration: none;
+  color: inherit;
   padding-right: 12px;
   padding: 6px 0;
   display: flex;

@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import { nextTick } from 'vue'
 
-import {
-  getOperationSectionId,
-  getTagSectionId,
-  scrollToId,
-} from '../../helpers'
-import { useNavigation } from '../../hooks'
+import { useNavState, useSidebar } from '../../hooks'
 import type { Tag, TransformedOperation } from '../../types'
 import { Anchor } from '../Anchor'
 import { Card, CardContent, CardHeader } from '../Card'
@@ -21,26 +16,27 @@ import MarkdownRenderer from './MarkdownRenderer.vue'
 
 const props = defineProps<{ tag: Tag }>()
 
-const { setCollapsedSidebarItem } = useNavigation()
+const { getOperationId, getTagId } = useNavState()
+const { setCollapsedSidebarItem } = useSidebar()
 
 // We need to make sure the endpoint tag is open before
 // we try to scroll to it
 // we wait for next render after we open the tag
 async function scrollHandler(operation: TransformedOperation) {
-  setCollapsedSidebarItem(getTagSectionId(props.tag), true)
+  setCollapsedSidebarItem(getTagId(props.tag), true)
   await nextTick()
-  scrollToId(getOperationSectionId(operation, props.tag))
+  window.location.href = `#${getOperationId(operation, props.tag)}`
 }
 </script>
 <template>
   <Section
-    :id="getTagSectionId(tag)"
+    :id="getTagId(tag)"
     :label="tag.name.toUpperCase()">
     <SectionContent>
       <SectionColumns>
         <SectionColumn>
           <SectionHeader :level="2">
-            <Anchor :id="getTagSectionId(tag)">
+            <Anchor :id="getTagId(tag)">
               {{ tag.name }}
             </Anchor>
           </SectionHeader>
@@ -54,7 +50,7 @@ async function scrollHandler(operation: TransformedOperation) {
                 <div class="endpoints custom-scroll">
                   <a
                     v-for="operation in tag.operations"
-                    :key="getOperationSectionId(operation, tag)"
+                    :key="getOperationId(operation, tag)"
                     class="endpoint"
                     @click="scrollHandler(operation)">
                     <span :class="operation.httpVerb">{{

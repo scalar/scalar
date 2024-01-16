@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useResizeObserver } from '@vueuse/core'
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { hasModels } from '../../helpers'
-import { useNavigation, useRefOnMount } from '../../hooks'
+import { useRefOnMount } from '../../hooks'
 import type { Spec } from '../../types'
 import { Authentication } from './Authentication'
 import Introduction from './Introduction'
@@ -22,22 +22,13 @@ const props = defineProps<{
   layout?: 'default' | 'accordion'
 }>()
 
-const { setCollapsedSidebarItem } = useNavigation()
-
 const referenceEl = ref<HTMLElement | null>(null)
-
 const isNarrow = ref(true)
 
 useResizeObserver(
   referenceEl,
   (entries) => (isNarrow.value = entries[0].contentRect.width < 900),
 )
-
-onMounted(() => {
-  if (props.parsedSpec.tags?.length) {
-    setCollapsedSidebarItem(props.parsedSpec.tags[0].name, true)
-  }
-})
 
 const fallBackServer = useRefOnMount(() => {
   return {

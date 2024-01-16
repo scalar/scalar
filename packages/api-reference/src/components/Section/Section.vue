@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useApiClientStore } from '@scalar/api-client'
-
+import { useNavState, useSidebar } from '../../hooks'
 import IntersectionObserver from '../IntersectionObserver.vue'
 
 const props = defineProps<{
@@ -8,11 +7,19 @@ const props = defineProps<{
   label?: string
 }>()
 
-const { setBreadcrumb } = useApiClientStore()
+const { getSectionId, hash, isIntersectionEnabled } = useNavState()
+const { setCollapsedSidebarItem } = useSidebar()
 
 function handleScroll() {
-  if (!props.label) return
-  setBreadcrumb(props.label)
+  if (!props.label || !isIntersectionEnabled.value) return
+
+  // We use replaceState so we don't trigger the url hash watcher and trigger a scroll
+  // this is why we set the hash value directly
+  window.history.replaceState({}, '', `#${props.id}`)
+  hash.value = props.id ?? ''
+
+  // We can also open the next section if we are continuing to scroll down
+  setCollapsedSidebarItem(getSectionId(props.id), true)
 }
 </script>
 <template>

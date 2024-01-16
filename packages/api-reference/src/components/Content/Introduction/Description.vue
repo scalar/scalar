@@ -2,11 +2,11 @@
 import { computedAsync } from '@vueuse/core'
 
 import {
-  getHeadingId,
   getHeadingsFromMarkdown,
   getLowestHeadingLevel,
   splitMarkdownInSections,
 } from '../../../helpers'
+import { useNavState } from '../../../hooks'
 import IntersectionObserver from '../../IntersectionObserver.vue'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 
@@ -39,6 +39,17 @@ const sections = computedAsync(
   },
   [], // initial state
 )
+
+const { getHeadingId, hash, isIntersectionEnabled } = useNavState()
+
+function handleScroll(headingId: string) {
+  if (!isIntersectionEnabled.value) return
+
+  // We use replaceState so we don't trigger the url hash watcher and trigger a scroll
+  // this is why we set the hash value directly
+  window.history.replaceState({}, '', `#${headingId}`)
+  hash.value = headingId ?? ''
+}
 </script>
 <template>
   <template v-if="value">
@@ -47,7 +58,10 @@ const sections = computedAsync(
       :key="index">
       <!-- With a Heading -->
       <template v-if="section.heading">
-        <IntersectionObserver :id="getHeadingId(section.heading)">
+        <IntersectionObserver
+          :id="getHeadingId(section.heading)"
+          class="introduction-description-heading"
+          @intersecting="() => handleScroll(getHeadingId(section.heading))">
           <MarkdownRenderer :value="section.content" />
         </IntersectionObserver>
       </template>
@@ -58,3 +72,9 @@ const sections = computedAsync(
     </div>
   </template>
 </template>
+
+<style scoped>
+.introduction-description-heading {
+  scroll-margin-top: 64px;
+}
+</style>

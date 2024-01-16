@@ -2,7 +2,7 @@
 import { useMediaQuery } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
-import { useNavigation } from '../../hooks'
+import { useNavState } from '../../hooks'
 import { type ReferenceProps, type ReferenceSlots } from '../../types'
 import ApiReferenceBase from '../ApiReferenceBase.vue'
 import DarkModeToggle from '../DarkModeToggle.vue'
@@ -29,9 +29,9 @@ const config = computed(() => {
   return { ...props.configuration, showSidebar }
 })
 
-const { activeItemId } = useNavigation()
+const { hash } = useNavState()
 
-watch(activeItemId, (n, o) => {
+watch(hash, (n, o) => {
   if (n && n !== o) {
     showMobileDrawer.value = false
   }

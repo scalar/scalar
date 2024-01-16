@@ -5,7 +5,6 @@ type State = {
   activeApiClientEndpointId: string
   activeItem: any
   snippetType: string
-  activeBreadcrumb: string
 }
 
 function defaultState(): State {
@@ -14,7 +13,6 @@ function defaultState(): State {
     activeApiClientEndpointId: '',
     activeItem: {},
     snippetType: 'javascript',
-    activeBreadcrumb: '',
   }
 }
 
@@ -43,16 +41,10 @@ function setSnippetType(type: string) {
   state.snippetType = type
 }
 
-function setBreadcrumb(item: string) {
-  state.activeBreadcrumb = item
-}
-
 export const useApiClientStore = () => ({
   state: readonly(state),
   toggleApiClient,
   setActiveApiClientEndpointId,
   setSnippetType,
-  setBreadcrumb,
-
   hideApiClient,
 })

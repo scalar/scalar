@@ -4,13 +4,8 @@ import { FlowModal, type ModalState } from '@scalar/use-modal'
 import Fuse from 'fuse.js'
 import { computed, ref, toRef, watch } from 'vue'
 
-import {
-  getModelSectionId,
-  getOperationSectionId,
-  getTagSectionId,
-} from '../helpers'
 import { extractRequestBody } from '../helpers/specHelpers'
-import { type ParamMap, useNavigation, useOperation } from '../hooks'
+import { type ParamMap, useNavState, useOperation, useSidebar } from '../hooks'
 import type { Spec, TransformedOperation } from '../types'
 
 const props = defineProps<{ parsedSpec: Spec; modalState: ModalState }>()
@@ -48,6 +43,8 @@ const selectedEntry = computed<Fuse.FuseResult<FuseData>>(
   () => searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
 )
 
+const { getModelId, getOperationId, getTagId } = useNavState()
+
 watch(
   () => props.modalState.open,
   (open) => {
@@ -72,7 +69,7 @@ watch(
     props.parsedSpec.tags.forEach((tag) => {
       const tagData: FuseData = {
         title: tag.name,
-        href: `#${getTagSectionId(tag)}`,
+        href: `#${getTagId(tag)}`,
         description: tag.description,
         type: 'req',
         tag: tag.name,
@@ -93,7 +90,7 @@ watch(
           const operationData: FuseData = {
             type: 'req',
             title: operation.name ?? operation.path,
-            href: `#${getOperationSectionId(operation, tag)}`,
+            href: `#${getOperationId(operation, tag)}`,
             operationId: operation.operationId,
             description: operation.description ?? '',
             httpVerb: operation.httpVerb,
@@ -120,7 +117,7 @@ watch(
         modelData.push({
           type: 'model',
           title: 'Model',
-          href: `#${getModelSectionId(k)}`,
+          href: `#${getModelId(k)}`,
           description: k,
           tag: k,
           body: '',
@@ -191,10 +188,9 @@ const searchResultsWithPlaceholderResults = computed(
 )
 
 const tagRegex = /#(tag\/[^/]*)/
-const { setCollapsedSidebarItem } = useNavigation()
+const { setCollapsedSidebarItem } = useSidebar()
 
 // Ensure we open the section
-// #TODOAM refactor this in URL PR
 const onSearchResultClick = (entry: Fuse.FuseResult<FuseData>) => {
   let parentId = 'models'
   const tagMatch = entry.item.href.match(tagRegex)
