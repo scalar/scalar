@@ -43,7 +43,7 @@ export function getRequestBodyFromOperation(operation: TransformedOperation) {
     return {
       postData: {
         mimeType: 'application/json',
-        text: prettyPrintJson(bodyParameters[0]),
+        text: prettyPrintJson(bodyParameters[0].value),
       },
     }
   }
