@@ -1,14 +1,18 @@
 import { mergeAllObjects } from '../helpers'
-import type { RequestBodyMimeTypes, TransformedOperation } from '../types'
-import { getExampleFromSchema, getParametersFromOperation } from './'
-import { json2xml } from './json2xml'
+import type { ContentType, TransformedOperation } from '../types'
+import {
+  getExampleFromSchema,
+  getParametersFromOperation,
+  json2xml,
+  prettyPrintJson,
+} from './'
 
 /**
  * Get the request body from the operation.
  */
 export function getRequestBodyFromOperation(operation: TransformedOperation) {
   // Define all supported mime types
-  const mimeTypes: RequestBodyMimeTypes[] = [
+  const mimeTypes: ContentType[] = [
     'application/json',
     'application/octet-stream',
     'application/x-www-form-urlencoded',
@@ -18,14 +22,12 @@ export function getRequestBodyFromOperation(operation: TransformedOperation) {
   ]
 
   // Find the first mime type that is supported
-  const mimeType: RequestBodyMimeTypes | undefined = mimeTypes.find(
-    (currentMimeType) =>
+  const mimeType: ContentType | undefined = mimeTypes.find(
+    (currentMimeType: ContentType) =>
       !!operation.information?.requestBody?.content?.[currentMimeType],
   )
 
   // TODO:
-  // * Don’t assume all body parameters are JSON
-  // * Don’t assume the content type
   // * Add support for formData
 
   const bodyParameters = getParametersFromOperation(operation, 'body', false)
@@ -40,7 +42,7 @@ export function getRequestBodyFromOperation(operation: TransformedOperation) {
     return {
       postData: {
         mimeType: 'application/json',
-        text: JSON.stringify(allBodyParameters, null, 2),
+        text: prettyPrintJson(allBodyParameters),
       },
     }
   }

@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
-import type { TransformedOperation } from '../types'
 import { getRequestBodyFromOperation } from './getRequestBodyFromOperation'
 
 describe('getRequestBodyFromOperation', () => {
-  it('transforms a basic operation', () => {
+  it('creates a JSON body from a requestBody schema', () => {
     const request = getRequestBodyFromOperation({
       httpVerb: 'POST',
       path: '/foobar',
@@ -16,6 +15,7 @@ describe('getRequestBodyFromOperation', () => {
                 type: 'object',
                 properties: {
                   id: {
+                    type: 'integer',
                     example: 1,
                   },
                 },
@@ -24,10 +24,93 @@ describe('getRequestBodyFromOperation', () => {
           },
         },
       },
-    } as TransformedOperation)
+    })
 
     const expectedResult = {
       id: 1,
+    }
+
+    expect(request?.postData).toContain({
+      mimeType: 'application/json',
+      text: JSON.stringify(expectedResult, null, 2),
+    })
+  })
+
+  it('creates a JSON body from body parameters', () => {
+    const request = getRequestBodyFromOperation({
+      httpVerb: 'POST',
+      path: '/foobar',
+      information: {
+        parameters: [
+          {
+            name: 'body',
+            in: 'body',
+            schema: {
+              type: 'object',
+              properties: {
+                id: {
+                  name: 'id',
+                  type: 'integer',
+                  example: 1,
+                },
+              },
+            },
+          },
+        ],
+      },
+    })
+
+    const expectedResult = {
+      id: 1,
+    }
+
+    expect(request?.postData).toContain({
+      mimeType: 'application/json',
+      text: JSON.stringify(expectedResult, null, 2),
+    })
+  })
+
+  it('merges body parameters', () => {
+    const request = getRequestBodyFromOperation({
+      httpVerb: 'POST',
+      path: '/foobar',
+      information: {
+        parameters: [
+          {
+            name: 'body',
+            in: 'body',
+            schema: {
+              type: 'object',
+              properties: {
+                id: {
+                  name: 'id',
+                  type: 'integer',
+                  example: 1,
+                },
+              },
+            },
+          },
+          {
+            name: 'body',
+            in: 'body',
+            schema: {
+              type: 'object',
+              properties: {
+                name: {
+                  name: 'name',
+                  type: 'string',
+                  example: 'foobar',
+                },
+              },
+            },
+          },
+        ],
+      },
+    })
+
+    const expectedResult = {
+      id: 1,
+      name: 'foobar',
     }
 
     expect(request?.postData).toContain({
