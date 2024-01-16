@@ -22,7 +22,7 @@ withDefaults(
 
 const descriptions: Record<string, Record<string, string>> = {
   number: {
-    _default: 'Any numbers.',
+    _default: '',
     float: 'Floating-point numbers.',
     double: 'Floating-point numbers with double precision.',
   },
