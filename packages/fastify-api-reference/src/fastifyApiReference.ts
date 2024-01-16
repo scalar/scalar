@@ -154,7 +154,7 @@ export function htmlDocument(options: FastifyApiReferenceOptions) {
     </style>
   </head>
   <body>
-    ${javascript(options)}
+    !${javascript(options)}
   </body>
 </html>
 `
@@ -225,7 +225,7 @@ const fastifyApiReference: FastifyPluginAsync<
 
       // Render the HTML
       // @ts-ignore
-      return reply.html`${htmlDocument({
+      return reply.html`!${htmlDocument({
         ...options,
         configuration,
       })}`
