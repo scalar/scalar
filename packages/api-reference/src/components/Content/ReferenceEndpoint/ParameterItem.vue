@@ -3,7 +3,9 @@ import type { Parameters } from '../../../types'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import Schema from '../Schema.vue'
 
-defineProps<{ parameter: Parameters }>()
+withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
+  showChildren: false,
+})
 </script>
 <template>
   <li class="parameter-item">
@@ -47,7 +49,7 @@ defineProps<{ parameter: Parameters }>()
           v-if="parameter.schema"
           compact
           :level="1"
-          toggleVisibility
+          :toggleVisibility="!showChildren"
           :value="parameter.schema" />
       </div>
     </template>

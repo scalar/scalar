@@ -28,7 +28,9 @@ const { responses } = useResponses(props.operation)
     <Parameters :parameters="parameterMap.header">
       <template #title>Headers</template>
     </Parameters>
-    <Parameters :parameters="parameterMap.body">
+    <Parameters
+      :parameters="parameterMap.body"
+      showChildren>
       <template #title>Body Parameters</template>
     </Parameters>
     <Parameters :parameters="parameterMap.formData">

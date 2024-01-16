@@ -2,7 +2,12 @@
 import type { Parameters } from '../../../types'
 import ParameterItem from './ParameterItem.vue'
 
-defineProps<{ parameters?: Parameters[] }>()
+withDefaults(
+  defineProps<{ parameters?: Parameters[]; showChildren?: boolean }>(),
+  {
+    showChildren: false,
+  },
+)
 </script>
 <template>
   <div
@@ -15,7 +20,8 @@ defineProps<{ parameters?: Parameters[] }>()
       <ParameterItem
         v-for="item in parameters"
         :key="item.name"
-        :parameter="item" />
+        :parameter="item"
+        :showChildren="showChildren" />
     </ul>
   </div>
 </template>
