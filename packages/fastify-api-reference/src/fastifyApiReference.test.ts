@@ -4,223 +4,178 @@ import { describe, expect, it, vi } from 'vitest'
 import fastifyApiReference from './index'
 
 describe('fastifyApiReference', () => {
-  it('returns 200 OK for the HTML', () =>
-    new Promise((resolve) => {
-      const fastify = Fastify({
-        logger: false,
-      })
+  it('returns 200 OK for the HTML', async () => {
+    const fastify = Fastify({
+      logger: false,
+    })
 
-      fastify.register(fastifyApiReference, {
-        routePrefix: '/reference',
-        configuration: {
-          spec: { url: '/swagger.json' },
+    fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {
+        spec: { url: '/swagger.json' },
+      },
+    })
+
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}/reference`)
+    expect(response.status).toBe(200)
+  })
+
+  it('no fastify-html exposed', async () => {
+    const fastify = Fastify({
+      logger: false,
+    })
+
+    await fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {
+        spec: { url: '/swagger.json' },
+      },
+    })
+
+    // @ts-ignore
+    expect(fastify.html).toEqual(undefined)
+  })
+
+  it('the routePrefix is optional', async () => {
+    const fastify = Fastify({
+      logger: false,
+    })
+
+    fastify.register(fastifyApiReference, {
+      configuration: {
+        spec: { url: '/swagger.json' },
+      },
+    })
+
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}/`)
+    expect(response.status).toBe(200)
+  })
+
+  it('has the JS url', async () => {
+    const fastify = Fastify({
+      logger: false,
+    })
+
+    fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {
+        spec: { url: '/swagger.json' },
+      },
+    })
+
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}/reference`)
+    expect(await response.text()).toContain(
+      '/reference/@scalar/fastify-api-reference/js/browser.js',
+    )
+  })
+
+  it('has the spec URL', async () => {
+    const fastify = Fastify({
+      logger: false,
+    })
+
+    fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {
+        spec: { url: '/swagger.json' },
+      },
+    })
+
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}/reference`)
+    expect(await response.text()).toContain('/swagger.json')
+  })
+
+  it('has the spec', async () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Example API',
+      },
+      paths: {},
+    }
+
+    const fastify = Fastify({
+      logger: false,
+    })
+
+    fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {
+        spec: {
+          content: spec,
         },
-      })
+      },
+    })
 
-      fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/reference`).then((response) => {
-          expect(response.status).toBe(200)
-          resolve(null)
-        })
-      })
-    }))
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}/reference`)
+    const html = await response.text()
+    expect(html).toContain('Example API')
+  })
 
-  it('the routePrefix is optional', () =>
-    new Promise((resolve) => {
-      const fastify = Fastify({
-        logger: false,
-      })
+  it('calls a spec callback', async () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Example API',
+      },
+      paths: {},
+    }
 
-      fastify.register(fastifyApiReference, {
-        configuration: {
-          spec: { url: '/swagger.json' },
-        },
-      })
+    const fastify = Fastify({
+      logger: false,
+    })
 
-      fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/`).then((response) => {
-          expect(response.status).toBe(200)
-          resolve(null)
-        })
-      })
-    }))
+    fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {
+        spec: { content: () => spec },
+      },
+    })
 
-  it('has the JS url', () =>
-    new Promise((resolve) => {
-      const fastify = Fastify({
-        logger: false,
-      })
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}/reference`)
+    const html = await response.text()
 
-      fastify.register(fastifyApiReference, {
-        routePrefix: '/reference',
-        configuration: {
-          spec: { url: '/swagger.json' },
-        },
-      })
+    expect(html).toContain('Example API')
+  })
 
-      fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/reference`).then(async (response) => {
-          expect(await response.text()).toContain(
-            '/reference/@scalar/fastify-api-reference/js/browser.js',
-          )
-          resolve(null)
-        })
-      })
-    }))
+  it('has the default title', async () => {
+    const fastify = Fastify({
+      logger: false,
+    })
 
-  it('has the spec URL', () =>
-    new Promise((resolve) => {
-      const fastify = Fastify({
-        logger: false,
-      })
+    fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {
+        spec: { url: '/swagger.json' },
+      },
+    })
 
-      fastify.register(fastifyApiReference, {
-        routePrefix: '/reference',
-        configuration: {
-          spec: { url: '/swagger.json' },
-        },
-      })
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}/reference`)
+    expect(await response.text()).toContain('<title>API Reference</title>')
+  })
 
-      fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/reference`).then(async (response) => {
-          expect(await response.text()).toContain('/swagger.json')
-          resolve(null)
-        })
-      })
-    }))
+  it('has the correct content type', async () => {
+    const fastify = Fastify({
+      logger: false,
+    })
 
-  it('has the spec', () =>
-    new Promise((resolve) => {
-      const spec = {
-        openapi: '3.1.0',
-        info: {
-          title: 'Example API',
-        },
-        paths: {},
-      }
+    fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {
+        spec: { url: '/swagger.json' },
+      },
+    })
 
-      const fastify = Fastify({
-        logger: false,
-      })
-
-      fastify.register(fastifyApiReference, {
-        routePrefix: '/reference',
-        configuration: {
-          spec: {
-            content: spec,
-          },
-        },
-      })
-
-      fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/reference`).then(async (response) => {
-          const html = await response.text()
-
-          expect(html).toContain('Example API')
-
-          resolve(null)
-        })
-      })
-    }))
-
-  it('calls a spec callback', () =>
-    new Promise((resolve) => {
-      const spec = {
-        openapi: '3.1.0',
-        info: {
-          title: 'Example API',
-        },
-        paths: {},
-      }
-
-      const fastify = Fastify({
-        logger: false,
-      })
-
-      fastify.register(fastifyApiReference, {
-        routePrefix: '/reference',
-        configuration: {
-          spec: { content: () => spec },
-        },
-      })
-
-      fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/reference`).then(async (response) => {
-          const html = await response.text()
-
-          expect(html).toContain('Example API')
-
-          resolve(null)
-        })
-      })
-    }))
-
-  it('has the default title', () =>
-    new Promise((resolve) => {
-      const fastify = Fastify({
-        logger: false,
-      })
-
-      fastify.register(fastifyApiReference, {
-        routePrefix: '/reference',
-        configuration: {
-          spec: { url: '/swagger.json' },
-        },
-      })
-
-      fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/reference`).then(async (response) => {
-          expect(await response.text()).toContain(
-            '<title>API Reference</title>',
-          )
-          resolve(null)
-        })
-      })
-    }))
-
-  it('has the correct content type', () =>
-    new Promise((resolve) => {
-      const fastify = Fastify({
-        logger: false,
-      })
-
-      fastify.register(fastifyApiReference, {
-        routePrefix: '/reference',
-        configuration: {
-          spec: { url: '/swagger.json' },
-        },
-      })
-
-      fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/reference`).then(async (response) => {
-          expect(response.headers.has('content-type')).toBe(true)
-          expect(response.headers.get('content-type')).toContain('text/html')
-          resolve(null)
-        })
-      })
-    }))
-
-  // TODO: We’re using the fastify logger now.
-  it.skip('warns when nothing is passed', () =>
-    new Promise((resolve) => {
-      const consoleMock = vi
-        .spyOn(console, 'warn')
-        .mockImplementation(() => undefined)
-
-      const fastify = Fastify({
-        logger: false,
-      })
-
-      fastify.register(fastifyApiReference, {
-        routePrefix: '/reference',
-        configuration: {},
-      })
-
-      fastify.listen({ port: 0 }, function (err, address) {
-        fetch(`${address}/reference`).then(async () => {
-          expect(consoleMock).toHaveBeenCalledOnce()
-          resolve(null)
-        })
-      })
-    }))
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}/reference`)
+    expect(response.headers.has('content-type')).toBe(true)
+    expect(response.headers.get('content-type')).toContain('text/html')
+  })
 })

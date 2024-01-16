@@ -1,7 +1,5 @@
 import type { ReferenceConfiguration } from '@scalar/api-reference'
 import type { FastifyPluginAsync } from 'fastify'
-// @ts-ignore
-import fp from 'fastify-plugin'
 
 import { getJavaScriptFile } from './utils'
 
@@ -245,4 +243,4 @@ const fastifyApiReference: FastifyPluginAsync<
   })
 }
 
-export default fp(fastifyApiReference)
+export default fastifyApiReference
