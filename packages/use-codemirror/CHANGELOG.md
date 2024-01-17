@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.18
+
+### Patch Changes
+
+- 479a7e3e: fix: bumped @codemirror/state dependency
+
 ## 0.7.17
 
 ### Patch Changes

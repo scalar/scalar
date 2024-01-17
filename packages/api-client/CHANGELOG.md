@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 0.9.1
+
+### Patch Changes
+
+- 479a7e3e: fix: bumped @codemirror/state dependency
+- Updated dependencies [479a7e3e]
+  - @scalar/use-codemirror@0.7.18
+
 ## 0.9.0
 
 ### Minor Changes
