@@ -70,7 +70,7 @@ describe('getRequestBodyFromOperation', () => {
     })
   })
 
-  it.only('uses examples', () => {
+  it('uses examples', () => {
     const request = getRequestBodyFromOperation({
       httpVerb: 'POST',
       path: '/foobar',
