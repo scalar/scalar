@@ -35,7 +35,7 @@ export function getRequestBodyFromOperation(
 
   // Let’s use the first example
   const selectedExample = (examples ?? {})?.[
-    selectedExampleKey ?? Object.keys(examples)[0]
+    selectedExampleKey ?? Object.keys(examples ?? {})[0]
   ]
 
   if (selectedExample) {
