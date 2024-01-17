@@ -12,6 +12,7 @@ export const getRequestFromOperation = (
   options?: {
     replaceVariables?: boolean
   },
+  selectedExamplesIndex?: number,
 ): Partial<HarRequestWithPath> => {
   // Replace all variables of the format {something} with the uppercase variable name without the brackets
   let path = operation.path
@@ -27,7 +28,10 @@ export const getRequestFromOperation = (
     }
   }
 
-  const requestBody = getRequestBodyFromOperation(operation)
+  const requestBody = getRequestBodyFromOperation(
+    operation,
+    selectedExamplesIndex,
+  )
 
   return {
     method: operation.httpVerb.toUpperCase(),

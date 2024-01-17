@@ -213,6 +213,8 @@ export type RequestBodyMimeTypes = {
 }
 
 export type RequestBody = {
+  description?: string
+  required?: boolean
   content?: RequestBodyMimeTypes
 }
 

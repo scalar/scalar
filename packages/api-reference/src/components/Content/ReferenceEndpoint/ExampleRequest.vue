@@ -43,9 +43,13 @@ const generateSnippet = async (): Promise<string> => {
     {
       url: getUrlFromServerState(serverState) ?? window.location.origin,
     },
-    getRequestFromOperation(props.operation, {
-      replaceVariables: true,
-    }),
+    getRequestFromOperation(
+      props.operation,
+      {
+        replaceVariables: true,
+      },
+      0,
+    ),
     getRequestFromAuthentication(
       authenticationState,
       props.operation.information?.security,

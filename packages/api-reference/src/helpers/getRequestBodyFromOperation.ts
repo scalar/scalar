@@ -9,7 +9,10 @@ import {
 /**
  * Get the request body from the operation.
  */
-export function getRequestBodyFromOperation(operation: TransformedOperation) {
+export function getRequestBodyFromOperation(
+  operation: TransformedOperation,
+  selectedExamplesIndex?: number,
+) {
   // Define all supported mime types
   const mimeTypes: ContentType[] = [
     'application/json',
@@ -26,8 +29,25 @@ export function getRequestBodyFromOperation(operation: TransformedOperation) {
       !!operation.information?.requestBody?.content?.[currentMimeType],
   )
 
-  // TODO:
-  // * Add support for formData
+  /** Examples */
+  const examples =
+    operation.information?.requestBody?.content?.['application/json']?.examples
+
+  // Let’s use the first example
+  if (
+    selectedExamplesIndex !== undefined &&
+    Object.keys(examples ?? {})[selectedExamplesIndex]
+  ) {
+    return {
+      postData: {
+        mimeType: 'application/json',
+        text: prettyPrintJson(
+          examples[Object.keys(examples)[selectedExamplesIndex]]['value'],
+        ),
+      },
+    }
+  }
+
   /**
    * Body Parameters (Swagger 2.0)
    *
