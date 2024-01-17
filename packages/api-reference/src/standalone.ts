@@ -118,8 +118,8 @@ if (!specUrlElement && !specElement && !specScriptTag) {
     container = specElement
       ? '[data-spec]'
       : specUrlElement
-        ? '[data-spec-url]'
-        : 'body'
+      ? '[data-spec-url]'
+      : 'body'
   }
 
   createApp(ApiReference, {
