@@ -1,3 +1,5 @@
+import { readonly } from 'vue'
+
 /**
  * This function takes a properties object and generates an example response content.
  */
@@ -14,12 +16,27 @@ export const getExampleFromSchema = (
      * @default false
      */
     xml?: boolean
+    /**
+     * Whether to show read-only/write-only properties. Otherwise all properties are shown.
+     * @default undefined
+     */
+    mode?: 'read' | 'write'
   },
   level: number = 0,
 ): any => {
   // Break an infinite loop
   if (level > 10) {
     return null
+  }
+
+  // Check if the property is read-only
+  if (options?.mode === 'write' && schema.readOnly) {
+    return undefined
+  }
+
+  // Check if the property is write-only
+  if (options?.mode === 'read' && schema.writeOnly) {
+    return undefined
   }
 
   // Use an example, if there’s one
