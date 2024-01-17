@@ -442,6 +442,13 @@ This repository contains all our open source projects and there’s definitely m
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/mcollina">
+            <img src="https://avatars.githubusercontent.com/u/52195?v=4" width="100;" alt="mcollina"/>
+            <br />
+            <sub><b>mcollina</b></sub>
+        </a>
+    </td>
+    <td align="center">
         <a href="https://github.com/mouhannad-sh">
             <img src="https://avatars.githubusercontent.com/u/18495740?v=4" width="100;" alt="mouhannad-sh"/>
             <br />
@@ -454,15 +461,15 @@ This repository contains all our open source projects and there’s definitely m
             <br />
             <sub><b>sigpwned</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/chrislearn">
             <img src="https://avatars.githubusercontent.com/u/5874864?v=4" width="100;" alt="chrislearn"/>
             <br />
             <sub><b>chrislearn</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/danp">
             <img src="https://avatars.githubusercontent.com/u/2182?v=4" width="100;" alt="danp"/>
@@ -497,15 +504,15 @@ This repository contains all our open source projects and there’s definitely m
             <br />
             <sub><b>sinh117801</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/Chinlinlee">
             <img src="https://avatars.githubusercontent.com/u/49154622?v=4" width="100;" alt="Chinlinlee"/>
             <br />
             <sub><b>Chinlinlee</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/FotieMConstant">
             <img src="https://avatars.githubusercontent.com/u/42372656?v=4" width="100;" alt="FotieMConstant"/>
