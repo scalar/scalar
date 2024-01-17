@@ -54,7 +54,7 @@ defineExpose({ el })
         :icon="open ? 'ChevronDown' : 'ChevronRight'"
         label="Toggle group"
         size="sm"
-        @click="handleClick" />
+        @click.stop="handleClick" />
       <a
         class="sidebar-heading-link"
         :href="`#${item.id}`">

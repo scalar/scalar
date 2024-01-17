@@ -12,7 +12,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "1.13.5",
+  "version": "1.13.6",
   "engines": {
     "node": ">=20"
   },
@@ -58,7 +58,7 @@
   },
   "peerDependencies": {
     "fastify": "^4.0.0",
-    "fastify-html": "^0.2.0",
+    "fastify-html": "^0.3.0",
     "fastify-plugin": "^4.0.0"
   }
 }

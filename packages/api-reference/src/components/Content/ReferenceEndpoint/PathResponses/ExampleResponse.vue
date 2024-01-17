@@ -67,6 +67,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
 
               {
                 emptyString: '…',
+                mode: 'read',
               },
             ),
           )
@@ -96,6 +97,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
                   prettyPrintJson(
                     getExampleFromSchema(example, {
                       emptyString: '…',
+                      mode: 'read',
                     }),
                   )
                 "
@@ -112,6 +114,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
             prettyPrintJson(
               getExampleFromSchema(response?.schema[rule][0], {
                 emptyString: '…',
+                mode: 'read',
               }),
             )
           "
@@ -127,6 +130,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
               response?.schema['allOf'].map((schema: any) =>
                 getExampleFromSchema(schema, {
                   emptyString: '…',
+                  mode: 'read',
                 }),
               ),
             ),
