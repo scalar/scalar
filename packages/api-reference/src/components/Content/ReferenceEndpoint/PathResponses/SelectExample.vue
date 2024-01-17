@@ -99,6 +99,7 @@ const selectedExample = ref(examples[0])
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 
 .listbox-options {
@@ -111,6 +112,7 @@ const selectedExample = ref(examples[0])
   margin: 0 1px;
   transform: translateY(-50%);
   z-index: 100;
+  list-style: none;
 }
 
 .listbox-option {

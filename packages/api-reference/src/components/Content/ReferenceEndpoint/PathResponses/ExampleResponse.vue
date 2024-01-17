@@ -159,4 +159,50 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
   color: var(--theme-color-2, var(--default-theme-color-2));
 }
+
+.rule-title {
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  display: inline-block;
+  margin: 12px 0 6px;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+}
+
+.rule {
+  margin: 0 12px 0;
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+}
+
+.rule-items {
+  counter-reset: list-number;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-left: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+  padding: 12px 0 12px;
+}
+.rule-item {
+  counter-increment: list-number;
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  overflow: hidden;
+  margin-left: 24px;
+}
+.rule-item:before {
+  /* content: counter(list-number); */
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border-top: 0;
+  border-right: 0;
+  content: ' ';
+  display: block;
+  width: 24px;
+  height: 6px;
+  border-radius: 0 0 0 var(--theme-radius-lg, var(--default-theme-radius-lg));
+  margin-top: 6px;
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  transform: translateX(-25px);
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  position: absolute;
+}
 </style>
