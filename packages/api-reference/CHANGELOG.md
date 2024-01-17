@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.13.6
+
+### Patch Changes
+
+- b53b28c1: fix: toggle icon does not toggle
+- 460e25c0: feat: show/hide readOnly and writeOnly attributes in requests/responses
+
 ## 1.13.5
 
 ### Patch Changes

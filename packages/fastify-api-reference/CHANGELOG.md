@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.13.6
+
+### Patch Changes
+
+- 2003819a: fix: actually update fastify-html
+
 ## 1.13.5
 
 ### Patch Changes
