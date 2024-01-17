@@ -6,7 +6,7 @@ import {
   mapFromObject,
   prettyPrintJson,
 } from '../../../../helpers'
-import SelectExample from './SelectExample.vue'
+import SelectExample from '../SelectExample.vue'
 
 defineProps<{
   response:
@@ -34,7 +34,9 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
   <!-- Multiple examples -->
   <template
     v-if="response?.examples && Object.keys(response?.examples).length > 1">
-    <SelectExample :examples="response?.examples" />
+    <SelectExample
+      :examples="response?.examples"
+      renderExample />
   </template>
   <!-- An array, but just one example -->
   <template

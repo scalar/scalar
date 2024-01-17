@@ -18,6 +18,7 @@ import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
 import type { TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
+import SelectExample from './SelectExample.vue'
 import TextSelect from './TextSelect.vue'
 
 const props = defineProps<{
@@ -25,6 +26,7 @@ const props = defineProps<{
 }>()
 
 const CodeMirrorValue = ref<string>('')
+const selectedExampleKey = ref<string>()
 const { copyToClipboard } = useClipboard()
 const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
 
@@ -48,7 +50,7 @@ const generateSnippet = async (): Promise<string> => {
       {
         replaceVariables: true,
       },
-      0,
+      selectedExampleKey.value,
     ),
     getRequestFromAuthentication(
       authenticationState,
@@ -97,6 +99,8 @@ watch(
     () => serverState,
     // … or the global authentication state changed
     () => authenticationState,
+    // … or the selected example key
+    () => selectedExampleKey,
   ],
   async () => {
     CodeMirrorValue.value = await generateSnippet()
@@ -167,12 +171,32 @@ computed(() => {
       borderless
       class="request-editor-section custom-scroll"
       frameless>
-      <!-- @vue-ignore -->
-      <CodeMirror
-        :content="CodeMirrorValue"
-        :languages="CodeMirrorLanguages"
-        lineNumbers
-        readOnly />
+      <!-- Multiple examples -->
+      <div class="code-snippet">
+        <template
+          v-if="
+            operation.information?.requestBody?.content?.['application/json']
+              ?.examples &&
+            Object.keys(
+              operation.information?.requestBody?.content?.['application/json']
+                .examples,
+            ).length > 1
+          ">
+          <SelectExample
+            :examples="
+              operation.information?.requestBody?.content?.['application/json']
+                .examples
+            "
+            @update:modelValue="(value) => (selectedExampleKey = value)" />
+        </template>
+
+        <!-- @vue-ignore -->
+        <CodeMirror
+          :content="CodeMirrorValue"
+          :languages="CodeMirrorLanguages"
+          lineNumbers
+          readOnly />
+      </div>
     </CardContent>
     <CardFooter
       v-if="$slots.footer"
@@ -254,5 +278,11 @@ computed(() => {
 .request-editor-section {
   display: flex;
   flex: 1;
+}
+
+.code-snippet {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 </style>

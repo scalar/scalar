@@ -11,7 +11,7 @@ import {
  */
 export function getRequestBodyFromOperation(
   operation: TransformedOperation,
-  selectedExamplesIndex?: number,
+  selectedExampleKey?: string | number,
 ) {
   // Define all supported mime types
   const mimeTypes: ContentType[] = [
@@ -34,16 +34,15 @@ export function getRequestBodyFromOperation(
     operation.information?.requestBody?.content?.['application/json']?.examples
 
   // Let’s use the first example
-  if (
-    selectedExamplesIndex !== undefined &&
-    Object.keys(examples ?? {})[selectedExamplesIndex]
-  ) {
+  const selectedExample = (examples ?? {})?.[
+    selectedExampleKey ?? Object.keys(examples)[0]
+  ]
+
+  if (selectedExample) {
     return {
       postData: {
         mimeType: 'application/json',
-        text: prettyPrintJson(
-          examples[Object.keys(examples)[selectedExamplesIndex]]['value'],
-        ),
+        text: prettyPrintJson(selectedExample?.value),
       },
     }
   }

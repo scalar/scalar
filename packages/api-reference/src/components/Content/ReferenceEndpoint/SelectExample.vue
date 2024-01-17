@@ -6,17 +6,65 @@ import {
   ListboxOptions,
 } from '@headlessui/vue'
 import { CodeMirror } from '@scalar/use-codemirror'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
-import { mapFromObject } from '../../../../helpers'
-import { Icon } from '../../../Icon'
+import { prettyPrintJson } from '../../../helpers'
+import { Icon } from '../../Icon'
 
-const props = defineProps<{ examples: Record<string, any> }>()
+const props = withDefaults(
+  defineProps<{
+    examples: Record<string, any>
+    renderExample?: boolean
+  }>(),
+  {
+    renderExample: false,
+  },
+)
 
-// we never set the key properly, but i figured people might also have a key field
-// so i added a scalar exclusive field to fallback to that uses the key of the object
-const examples = mapFromObject(props.examples, 'scalarExampleName')
-const selectedExample = ref(examples[0])
+const emit = defineEmits<{
+  (e: 'update:modelValue', v: string): void
+}>()
+
+// Keep track of the selected example
+const selectedExampleKey = ref<string>(Object.keys(props.examples)[0])
+function selectExampleKey(key: string) {
+  if (key) {
+    selectedExampleKey.value = key
+  }
+}
+
+// Watch for new examples
+watch(
+  () => props.examples,
+  () => {
+    selectExampleKey(Object.keys(props.examples)[0])
+  },
+  { immediate: true },
+)
+
+// Propagate changes
+watch(
+  selectedExampleKey,
+  () => {
+    if (!selectedExampleKey.value) {
+      return
+    }
+
+    emit('update:modelValue', selectedExampleKey.value)
+  },
+  { immediate: true },
+)
+
+// Render text
+function getLabel(key: string | null) {
+  if (!key) {
+    return 'Select an example'
+  }
+
+  const example = props.examples[key]
+
+  return example?.summary ?? key
+}
 </script>
 <template>
   <div class="example-switcher">
@@ -25,17 +73,15 @@ const selectedExample = ref(examples[0])
       for="listbox-button">
       Select Example
     </label>
-    <Listbox v-model="selectedExample">
+    <Listbox
+      :modelValue="selectedExampleKey"
+      @update:modelValue="(value) => selectExampleKey(value)">
       <ListboxButton
         id="listbox-button"
         class="listbox-button">
         <div class="listbox-button-content">
           <div class="listbox-button-label">
-            {{
-              selectedExample.value.summary ??
-              selectedExample.key ??
-              selectedExample.scalarExampleName
-            }}
+            {{ getLabel(selectedExampleKey) }}
           </div>
           <div>
             <Icon
@@ -47,18 +93,21 @@ const selectedExample = ref(examples[0])
 
       <ListboxOptions class="listbox-options">
         <ListboxOption
-          v-for="example in examples"
-          :key="example.key"
+          v-for="key in Object.keys(examples)"
+          :key="key"
           class="listbox-option"
-          :value="example">
-          {{
-            example.value.summary ?? example.key ?? example.scalarExampleName
-          }}
+          :value="key">
+          {{ getLabel(key) }}
         </ListboxOption>
       </ListboxOptions>
     </Listbox>
     <CodeMirror
-      :content="JSON.stringify(selectedExample.value.value, null, 2)"
+      v-if="
+        renderExample &&
+        selectedExampleKey &&
+        props.examples[selectedExampleKey]
+      "
+      :content="prettyPrintJson(props.examples[selectedExampleKey])"
       :languages="['json']"
       readOnly />
   </div>
@@ -68,7 +117,7 @@ const selectedExample = ref(examples[0])
 .example-switcher {
   display: flex;
   gap: 6px;
-  margin: 12px 6px;
+  margin: 12px 6px 6px;
   flex-direction: column;
 }
 
