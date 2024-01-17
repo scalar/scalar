@@ -260,14 +260,8 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
 .read-only,
 .write-only {
-  background-color: var(
-    --theme-background-3,
-    var(--default-theme-background-3)
-  );
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  padding: 2px 5px;
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
+  color: var(--theme-color-blue, var(--default-theme-color-blue));
 }
 
 .property-type {
