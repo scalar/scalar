@@ -1,5 +1,13 @@
 # @scalar/swagger-editor
 
+## 0.9.7
+
+### Patch Changes
+
+- 479a7e3e: fix: bumped @codemirror/state dependency
+- Updated dependencies [479a7e3e]
+  - @scalar/use-codemirror@0.7.18
+
 ## 0.9.6
 
 ### Patch Changes
