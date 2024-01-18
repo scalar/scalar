@@ -1,6 +1,6 @@
 {
-  "name": "@scalar-examples/nest-typescript-starter",
-  "description": "Nest TypeScript starter repository",
+  "name": "@scalar-examples/nest-api-reference",
+  "description": "Nest TypeScript starter repository with fastify as http adapter",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -8,7 +8,7 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "build": "nest build",
@@ -44,7 +44,7 @@
   "dependencies": {
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
-    "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-fastify": "^10.0.0",
     "@nestjs/swagger": "^7.1.17",
     "@scalar/nestjs-api-reference": "workspace:^",
     "reflect-metadata": "^0.1.13",
@@ -56,7 +56,6 @@
     "@nestjs/testing": "^10.0.0",
     "@swc/cli": "^0.1.62",
     "@swc/core": "^1.3.64",
-    "@types/express": "^4.17.21",
     "@types/jest": "^29.5.2",
     "@types/node": "^20.6.3",
     "@types/supertest": "^2.0.12",

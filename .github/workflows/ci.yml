@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        node-version: [20]
+        node-version: [18, 20, 21]
 
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +26,8 @@ jobs:
         run: pnpm install
       - name: Turborepo cache
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
-      - name: Check code style
+      - if: matrix.node-version == 20
+        name: Check code style
         run: pnpm format:check
       - name: Build
         run: pnpm turbo build
