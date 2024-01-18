@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.13.8
+
+### Patch Changes
+
+- 2d83bef4: chore: bump version to update api-client dependency
+
 ## 1.13.6
 
 ### Patch Changes
