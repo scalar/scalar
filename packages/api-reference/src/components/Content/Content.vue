@@ -147,4 +147,23 @@ const introCardsSlot = computed(() =>
   flex-direction: column;
   align-items: stretch;
 }
+.references-classic
+  .introduction-cards-row
+  :deep(.scalar-card:nth-of-type(2) .scalar-card-header) {
+  display: none;
+}
+.references-classic
+  .introduction-cards-row
+  :deep(.scalar-card:nth-of-type(2) .scalar-card-header) {
+  display: none;
+}
+.references-classic
+  .introduction-cards-row
+  :deep(
+    .scalar-card:nth-of-type(2)
+      .scalar-card-header.scalar-card--borderless
+      + .scalar-card-content
+  ) {
+  margin-top: 0;
+}
 </style>

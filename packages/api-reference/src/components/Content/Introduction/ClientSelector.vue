@@ -17,7 +17,7 @@ const containerRef = ref<HTMLElement>()
 
 useResizeObserver(
   containerRef,
-  (entries) => (isSmall.value = entries[0].contentRect.width < 400),
+  (entries) => (isSmall.value = entries[0].contentRect.width < 500),
 )
 
 // Show popular clients with an icon, not just in a select.
@@ -277,6 +277,9 @@ function checkIfClientIsFeatured(client: SelectedClient) {
 .code-languages-icon__more {
   background: var(--theme-background-3, var(--default-theme-background-3));
 }
+.code-languages-icon__more svg {
+  height: initial;
+}
 .code-languages-icon__node {
   background: #83cd29;
 }
@@ -362,7 +365,7 @@ function checkIfClientIsFeatured(client: SelectedClient) {
 .code-languages__select select {
   opacity: 0;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1;
   position: absolute;
   top: 0;
   left: 0;
@@ -387,5 +390,22 @@ function checkIfClientIsFeatured(client: SelectedClient) {
   transform: rotate(45deg);
   margin-left: 5px;
   margin-top: -7px;
+}
+.references-classic .code-languages {
+  flex-direction: row;
+  gap: 9px;
+  max-width: initial;
+  padding: 10px 0;
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+}
+.references-classic .code-languages span {
+  margin-top: 0;
+}
+.references-classic .code-languages-icon {
+  width: 24px;
+  padding: 3px;
+}
+.references-classic .code-languages-background {
+  border-radius: var(--theme-radius, var(--default-theme-radius));
 }
 </style>
