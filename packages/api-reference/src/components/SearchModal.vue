@@ -180,6 +180,10 @@ useKeyboardEvent({
     } else {
       selectedSearchResult.value = 0
     }
+    document.getElementById(selectedEntry.value.item.href)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    })
   },
 })
 
@@ -194,6 +198,11 @@ useKeyboardEvent({
       selectedSearchResult.value =
         searchResultsWithPlaceholderResults.value.length - 1
     }
+
+    document.getElementById(selectedEntry.value.item.href)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    })
   },
 })
 
@@ -245,6 +254,7 @@ const onSearchResultClick = (entry: Fuse.FuseResult<FuseData>) => {
       class="ref-search-list custom-scroll">
       <a
         v-for="(entry, index) in searchResultsWithPlaceholderResults"
+        :id="entry.item.href"
         :key="entry.refIndex"
         class="item-entry"
         :class="{
