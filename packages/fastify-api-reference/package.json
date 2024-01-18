@@ -14,7 +14,7 @@
   ],
   "version": "1.13.8",
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",

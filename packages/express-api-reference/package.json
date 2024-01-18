@@ -7,7 +7,7 @@
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "version": "0.2.20",
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "build": "tsup ./src/index.ts --format esm,cjs --dts",
