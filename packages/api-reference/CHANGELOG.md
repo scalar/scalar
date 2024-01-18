@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.13.9
+
+### Patch Changes
+
+- cb45bb13: feat: scroll search selected item into view with keyboard nav
+- e87a2474: fix: enter key navigating search item
+
 ## 1.13.7
 
 ### Patch Changes
