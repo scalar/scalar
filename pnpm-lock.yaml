@@ -1019,7 +1019,7 @@ importers:
         version: 0.34.4(vitest@0.34.4)
       fastify-html:
         specifier: ^0.3.0
-        version: 0.3.0
+        version: 0.3.2
       magic-string:
         specifier: ^0.30.4
         version: 0.30.4
@@ -3917,9 +3917,9 @@ packages:
       - vue
     dev: false
 
-  /@gurgunday/html@7.0.2:
-    resolution: {integrity: sha512-UXcX5Ho5+8RZc3K+ruWJekUs6GgSrjBhxa3mp4zTaCv4eJeuxh0z+/4lMt/+5Qk9ekcsz9hlJ2Mt9bBQC44JCA==}
-    engines: {node: '>=20'}
+  /@gurgunday/html@7.1.0:
+    resolution: {integrity: sha512-E9Xj31YxOAkhWJCNy4fU0JbYaZKVot+3grFkGaRHLn/D/f5flU0GDwYMvdn0AWNrrAmwjvaUfMDxEXxu7xZxHA==}
+    engines: {node: '>=18'}
     dev: true
 
   /@headlessui/vue@1.7.16(vue@3.3.4):
@@ -10907,10 +10907,10 @@ packages:
   /fast-uri@2.2.0:
     resolution: {integrity: sha512-cIusKBIt/R/oI6z/1nyfe2FvGKVTohVRfvkOhvx0nCEW+xf5NoCXjAHcWp93uOUBchzYcsvPlrapAdX1uW+YGg==}
 
-  /fastify-html@0.3.0:
-    resolution: {integrity: sha512-/extZsjaGkm8I9sLH0XWZDvGxqRftMryQkpZVKoHUyRDmszbr2T8vZSGnBmWL4KTaR+bNT4VZvAyX7dBoJT/+Q==}
+  /fastify-html@0.3.2:
+    resolution: {integrity: sha512-X5+vpINutCxWAfSaFVyw5ByOsfwYLThNqD0PcjzKycv/LR8ExFNNRo2mevCdn2kdzXMf+MM5gUSr6YgTNEz0WA==}
     dependencies:
-      '@gurgunday/html': 7.0.2
+      '@gurgunday/html': 7.1.0
       fastify-plugin: 4.5.1
     dev: true
 
