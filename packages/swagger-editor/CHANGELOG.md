@@ -1,5 +1,16 @@
 # @scalar/swagger-editor
 
+## 0.9.8
+
+### Patch Changes
+
+- 81543f42: chore: add support for Node 18
+- Updated dependencies [81543f42]
+  - @scalar/use-codemirror@0.7.19
+  - @scalar/components@0.2.2
+  - @scalar/use-modal@0.2.3
+  - @scalar/themes@0.5.4
+
 ## 0.9.7
 
 ### Patch Changes

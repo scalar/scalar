@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.5.4
+
+### Patch Changes
+
+- 81543f42: chore: add support for Node 18
+
 ## 0.5.3
 
 ### Patch Changes

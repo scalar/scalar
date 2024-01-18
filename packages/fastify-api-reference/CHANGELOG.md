@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.13.10
+
+### Patch Changes
+
+- 81543f42: chore: add support for Node 18
+
 ## 1.13.8
 
 ### Patch Changes

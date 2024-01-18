@@ -1,5 +1,11 @@
 # @scalar/echo-server
 
+## 0.5.8
+
+### Patch Changes
+
+- 81543f42: chore: add support for Node 18
+
 ## 0.5.7
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/use-clipboard
 
+## 0.5.13
+
+### Patch Changes
+
+- 81543f42: chore: add support for Node 18
+- Updated dependencies [81543f42]
+  - @scalar/use-toasts@0.5.13
+
 ## 0.5.12
 
 ### Patch Changes

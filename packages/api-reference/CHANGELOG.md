@@ -1,5 +1,25 @@
 # @scalar/api-reference
 
+## 1.13.10
+
+### Patch Changes
+
+- c9abbbc0: fix: classic scrollbar
+- 81543f42: chore: add support for Node 18
+- cca668a2: fix: styles on classic layout client libraries
+- Updated dependencies [81543f42]
+  - @scalar/use-keyboard-event@0.5.7
+  - @scalar/swagger-editor@0.9.8
+  - @scalar/swagger-parser@0.5.14
+  - @scalar/use-codemirror@0.7.19
+  - @scalar/use-clipboard@0.5.13
+  - @scalar/use-tooltip@0.5.8
+  - @scalar/api-client@0.9.2
+  - @scalar/components@0.2.2
+  - @scalar/use-toasts@0.5.13
+  - @scalar/use-modal@0.2.3
+  - @scalar/themes@0.5.4
+
 ## 1.13.9
 
 ### Patch Changes

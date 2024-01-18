@@ -1,5 +1,11 @@
 # @scalar/use-keyboard-event
 
+## 0.5.7
+
+### Patch Changes
+
+- 81543f42: chore: add support for Node 18
+
 ## 0.5.6
 
 ### Patch Changes

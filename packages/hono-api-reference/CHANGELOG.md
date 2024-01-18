@@ -1,5 +1,15 @@
 # @scalar/hono-api-reference
 
+## 0.3.21
+
+### Patch Changes
+
+- 81543f42: chore: add support for Node 18
+- Updated dependencies [c9abbbc0]
+- Updated dependencies [81543f42]
+- Updated dependencies [cca668a2]
+  - @scalar/api-reference@1.13.10
+
 ## 0.3.20
 
 ### Patch Changes
