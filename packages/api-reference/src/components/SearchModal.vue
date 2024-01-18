@@ -161,6 +161,7 @@ useKeyboardEvent({
   active: () => props.modalState.open,
   handler: () => {
     if (!window) return
+    onSearchResultClick(selectedEntry.value)
     window.location.hash = selectedEntry.value.item.href
     props.modalState.hide()
   },
