@@ -1,5 +1,5 @@
 {
-  "name": "@scalar-examples/nest-fastify-typescript-starter",
+  "name": "@scalar-examples/nest-api-reference",
   "description": "Nest TypeScript starter repository with fastify as http adapter",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
