@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.19
+
+### Patch Changes
+
+- 81543f42: chore: add support for Node 18
+
 ## 0.7.18
 
 ### Patch Changes

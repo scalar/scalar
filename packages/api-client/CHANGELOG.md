@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 0.9.2
+
+### Patch Changes
+
+- 81543f42: chore: add support for Node 18
+- Updated dependencies [81543f42]
+  - @scalar/use-keyboard-event@0.5.7
+  - @scalar/use-codemirror@0.7.19
+  - @scalar/use-modal@0.2.3
+  - @scalar/themes@0.5.4
+
 ## 0.9.1
 
 ### Patch Changes

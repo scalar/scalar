@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.5.14
+
+### Patch Changes
+
+- 81543f42: chore: add support for Node 18
+
 ## 0.5.13
 
 ### Patch Changes

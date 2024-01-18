@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.2.3
+
+### Patch Changes
+
+- 81543f42: chore: add support for Node 18
+
 ## 0.2.2
 
 ### Patch Changes
