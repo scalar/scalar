@@ -278,7 +278,12 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   min-width: 0;
   background: var(--theme-background-1, var(--default-theme-background-1));
 }
-
+.scalar-api-reference.references-classic,
+.references-classic .references-rendered {
+  --full-height: fit-content !important;
+  height: initial !important;
+  max-height: initial !important;
+}
 .references-navigation-list {
   position: sticky;
   top: var(--refs-header-height);
