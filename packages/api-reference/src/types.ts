@@ -246,6 +246,8 @@ export type Components = Omit<
 
 export type Definitions = OpenAPIV2.DefinitionsObject
 
+export type Webhooks = Record<string, OpenAPIV3_1.PathItemObject>
+
 export type Spec = {
   tags?: Tag[]
   info: Info
@@ -255,6 +257,7 @@ export type Spec = {
   externalDocs?: ExternalDocs
   servers?: Server[]
   components?: Components
+  webhooks?: Webhooks
   definitions?: Definitions
   openapi?: string
   swagger?: string

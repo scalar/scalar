@@ -2,7 +2,7 @@
 import { useResizeObserver } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-import { hasModels } from '../../helpers'
+import { hasModels, hasWebhooks } from '../../helpers'
 import { useRefOnMount } from '../../hooks'
 import type { Spec } from '../../types'
 import { Authentication } from './Authentication'
@@ -15,6 +15,7 @@ import ReferenceEndpoint from './ReferenceEndpoint'
 import ReferenceEndpointAccordion from './ReferenceEndpoint/ReferenceEndpointAccordion.vue'
 import ReferenceTag from './ReferenceTag.vue'
 import ReferenceTagAccordion from './ReferenceTagAccordion.vue'
+import Webhooks from './Webhooks.vue'
 
 const props = defineProps<{
   parsedSpec: Spec
@@ -110,6 +111,9 @@ const introCardsSlot = computed(() =>
           :server="localServers[0]"
           :tag="tag" />
       </Component>
+    </template>
+    <template v-if="hasWebhooks(parsedSpec)">
+      <Webhooks :webhooks="parsedSpec.webhooks" />
     </template>
     <template v-if="hasModels(parsedSpec)">
       <ModelsAccordion

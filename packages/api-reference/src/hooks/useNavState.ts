@@ -21,6 +21,16 @@ const getHeadingId = (heading: Heading) => {
   return ''
 }
 
+const getWebhookId = (name?: string, httpVerb?: string) => {
+  if (!name) {
+    return 'webhooks'
+  }
+
+  const webhookSlug = slug(name)
+  const encodedSlug = encodeURIComponent(webhookSlug)
+  return `webhook/${httpVerb}/${encodedSlug}`
+}
+
 const getModelId = (name?: string) => {
   if (!name) {
     return 'models'
@@ -82,6 +92,7 @@ export const useNavState = (hasLifecyle = true) => {
 
   return {
     hash,
+    getWebhookId,
     getModelId,
     getHeadingId,
     getOperationId,
