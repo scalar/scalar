@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.13.11
+
+### Patch Changes
+
+- 57f899f2: fix: search keyboard navigation doesn’t work when the mouse hovers the results
+- cb4093f2: feat: show additionalProperties in example requests/responses and in Models
+
 ## 1.13.10
 
 ### Patch Changes
