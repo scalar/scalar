@@ -61,7 +61,7 @@
   "devDependencies": {
     "@scalar/api-client-proxy": "workspace:*",
     "@scalar/echo-server": "workspace:*",
-    "@types/content-type": "^1.1.6",
+    "@types/content-type": "^1.1.8",
     "@vitejs/plugin-vue": "^4.4.0",
     "@vitest/coverage-v8": "^0.34.4",
     "tsc-alias": "^1.8.8",

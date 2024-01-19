@@ -559,8 +559,8 @@ importers:
         specifier: workspace:*
         version: link:../echo-server
       '@types/content-type':
-        specifier: ^1.1.6
-        version: 1.1.6
+        specifier: ^1.1.8
+        version: 1.1.8
       '@vitejs/plugin-vue':
         specifier: ^4.4.0
         version: 4.4.0(vite@4.5.1)(vue@3.3.4)
@@ -6760,8 +6760,8 @@ packages:
       '@types/node': 20.6.3
     dev: true
 
-  /@types/content-type@1.1.6:
-    resolution: {integrity: sha512-WFHg/KFLCdUQl3m27WSQu0NEaLzoHGmgZHlsSYr0Y0iIvItMcBq7opZc6AGXPXqf+btIM6vTBJyLvuDAihB+zQ==}
+  /@types/content-type@1.1.8:
+    resolution: {integrity: sha512-1tBhmVUeso3+ahfyaKluXe38p+94lovUZdoVfQ3OnJo9uJC42JT7CBoN3k9HYhAae+GwiBYmHu+N9FZhOG+2Pg==}
     dev: true
 
   /@types/cookie-parser@1.4.3:
