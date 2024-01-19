@@ -1,23 +1,43 @@
 <script lang="ts" setup>
-import { CodeMirror } from '@scalar/use-codemirror'
-
+// import { CodeMirror } from '@scalar/use-codemirror'
+// import { getExampleFromSchema, prettyPrintJson } from '../../helpers'
+import { useResponses } from '../../hooks'
 import type { TransformedOperation } from '../../types'
+import Parameters from './ReferenceEndpoint/Parameters.vue'
+import RequestBody from './ReferenceEndpoint/RequestBody.vue'
 
-// import ExampleRequest from './ReferenceEndpoint/ExampleRequest.vue'
-// import { PathResponses } from './ReferenceEndpoint/PathResponses'
-
-defineProps<{
-  webhook?: TransformedOperation
+const props = defineProps<{
+  webhook: TransformedOperation
 }>()
+
+const { responses } = useResponses(props.webhook)
 </script>
 
 <template>
   <template v-if="webhook">
-    <!-- <pre><code>{{ JSON.stringify(webhook, null, 2) }}</code></pre> -->
-    <!-- <ExampleRequest :operation="webhook" /> -->
+    <!-- Payload Example
     <CodeMirror
-      :content="JSON.stringify(webhook.information, null, 2)"
-      readOnly />
+      :content="
+        prettyPrintJson(
+          getExampleFromSchema(
+            webhook.information?.requestBody?.content?.['application/json']
+              ?.schema,
+            {
+              emptyString: '…',
+            },
+          ),
+        )
+      "
+      :languages="['json']"
+      readOnly /> -->
+
+    <RequestBody :requestBody="webhook.information?.requestBody">
+      <template #title>Payload</template>
+    </RequestBody>
+
+    <Parameters :parameters="responses">
+      <template #title>Responses</template>
+    </Parameters>
     <!-- <PathResponses :operation="webhook" /> -->
   </template>
 </template>
