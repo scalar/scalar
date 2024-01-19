@@ -139,17 +139,19 @@ watch(
 
     if (webhooks) {
       Object.keys(webhooks).forEach((name) => {
-        Object.keys(webhooks[name]).forEach((httpVerb) => {
-          webhookData.push({
-            type: 'webhook',
-            title: `Webhook: ${name}`,
-            href: `#${getWebhookId(name, httpVerb)}`,
-            description: name,
-            httpVerb,
-            tag: name,
-            body: '',
-          })
-        })
+        ;(Object.keys(webhooks[name]) as OpenAPIV3_1.HttpMethods[]).forEach(
+          (httpVerb) => {
+            webhookData.push({
+              type: 'webhook',
+              title: `Webhook: ${webhooks[name][httpVerb]?.summary ?? name}`,
+              href: `#${getWebhookId(name, httpVerb)}`,
+              description: name,
+              httpVerb,
+              tag: name,
+              body: '',
+            })
+          },
+        )
 
         fuseDataArray.value = fuseDataArray.value.concat(webhookData)
       })

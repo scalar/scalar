@@ -1,5 +1,6 @@
 import { useApiClientStore } from '@scalar/api-client'
 import { objectEntries } from '@vueuse/core'
+import { type OpenAPIV3_1 } from 'openapi-types'
 import { computed, reactive, ref, watch } from 'vue'
 
 import {
@@ -130,19 +131,6 @@ const items = computed(() => {
         })
 
   // Webhooks
-
-  // const children = Object.keys(parsedSpec.value?.webhooks ?? {}).map((name) => {
-  //   const id = getWebhookId(name)
-  //   titlesById[id] = name
-
-  //   return {
-  //     id,
-  //     title: name,
-  //     show: !state.showApiClient,
-  //   }
-  // })
-
-  // Webhooks
   const webhookEntries: SidebarEntry[] = hasWebhooks(parsedSpec.value)
     ? [
         {
@@ -154,16 +142,20 @@ const items = computed(() => {
               const id = getWebhookId(name)
               titlesById[id] = name
 
-              return Object.keys(parsedSpec.value?.webhooks?.[name] ?? {}).map(
-                (httpVerb) => {
-                  return {
-                    id: getWebhookId(name, httpVerb),
-                    title: name,
-                    httpVerb,
-                    show: !state.showApiClient,
-                  }
-                },
-              )
+              return (
+                Object.keys(
+                  parsedSpec.value?.webhooks?.[name] ?? {},
+                ) as OpenAPIV3_1.HttpMethods[]
+              ).map((httpVerb) => {
+                return {
+                  id: getWebhookId(name, httpVerb),
+                  title:
+                    parsedSpec.value?.webhooks?.[name][httpVerb]?.summary ??
+                    name,
+                  httpVerb,
+                  show: !state.showApiClient,
+                }
+              })
             })
             .flat(),
         },

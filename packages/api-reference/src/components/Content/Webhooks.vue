@@ -30,7 +30,9 @@ const { getWebhookId } = useNavState()
       v-for="name in webhookKeys"
       :key="name">
       <Section
-        v-for="httpVerb in Object.keys(webhooks?.[name])"
+        v-for="httpVerb in Object.keys(
+          webhooks?.[name],
+        ) as OpenAPIV3_1.HttpMethods[]"
         :id="getWebhookId(name, httpVerb)"
         :key="httpVerb"
         :label="name">
@@ -39,22 +41,17 @@ const { getWebhookId } = useNavState()
             <!-- Title -->
             <SectionHeader :level="2">
               <Anchor :id="getWebhookId(name, httpVerb)">
-                {{ name }}
+                {{ webhooks[name][httpVerb]?.summary ?? name }}
               </Anchor>
             </SectionHeader>
 
             <!-- Description -->
             <MarkdownRenderer
-              v-if="
-                webhooks[name][httpVerb as OpenAPIV3_1.HttpMethods]?.description
-              "
-              :value="
-                webhooks[name][httpVerb as OpenAPIV3_1.HttpMethods]?.description
-              " />
+              v-if="webhooks[name][httpVerb]?.description"
+              :value="webhooks[name][httpVerb]?.description" />
 
             <!-- Details -->
-            <Webhook
-              :webhook="webhooks[name][httpVerb as OpenAPIV3_1.HttpMethods]" />
+            <Webhook :webhook="webhooks[name][httpVerb]" />
           </SectionContent>
         </template>
       </Section>
