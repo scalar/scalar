@@ -149,15 +149,13 @@ const items = computed(() => {
               ).map((httpVerb) => {
                 return {
                   id: getWebhookId(name, httpVerb),
-                  title:
-                    parsedSpec.value?.webhooks?.[name][httpVerb]?.summary ??
-                    name,
-                  httpVerb,
+                  title: parsedSpec.value?.webhooks?.[name][httpVerb]?.name,
+                  httpVerb: httpVerb as string,
                   show: !state.showApiClient,
                 }
               })
             })
-            .flat(),
+            .flat() as SidebarEntry[],
         },
       ]
     : []

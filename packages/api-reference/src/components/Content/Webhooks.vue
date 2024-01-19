@@ -41,7 +41,7 @@ const { getWebhookId } = useNavState()
             <!-- Title -->
             <SectionHeader :level="2">
               <Anchor :id="getWebhookId(name, httpVerb)">
-                {{ webhooks[name][httpVerb]?.summary ?? name }}
+                {{ webhooks[name][httpVerb]?.name }}
               </Anchor>
             </SectionHeader>
 

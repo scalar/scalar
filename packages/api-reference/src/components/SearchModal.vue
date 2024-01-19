@@ -143,7 +143,7 @@ watch(
           (httpVerb) => {
             webhookData.push({
               type: 'webhook',
-              title: `Webhook: ${webhooks[name][httpVerb]?.summary ?? name}`,
+              title: `Webhook: ${webhooks[name][httpVerb]?.name}`,
               href: `#${getWebhookId(name, httpVerb)}`,
               description: name,
               httpVerb,

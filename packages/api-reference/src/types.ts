@@ -246,7 +246,10 @@ export type Components = Omit<
 
 export type Definitions = OpenAPIV2.DefinitionsObject
 
-export type Webhooks = Record<string, OpenAPIV3_1.PathItemObject>
+export type Webhooks = Record<
+  string,
+  Record<OpenAPIV3_1.HttpMethods, TransformedOperation>
+>
 
 export type Spec = {
   tags?: Tag[]

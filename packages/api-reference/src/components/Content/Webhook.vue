@@ -1,17 +1,23 @@
 <script lang="ts" setup>
-import type { OpenAPIV3_1 } from 'openapi-types'
+import { CodeMirror } from '@scalar/use-codemirror'
 
-// TODO: Expects a `TransformedOperation`
+import type { TransformedOperation } from '../../types'
+
+// import ExampleRequest from './ReferenceEndpoint/ExampleRequest.vue'
 // import { PathResponses } from './ReferenceEndpoint/PathResponses'
 
 defineProps<{
-  webhook?: OpenAPIV3_1.OperationObject
+  webhook?: TransformedOperation
 }>()
 </script>
 
 <template>
   <template v-if="webhook">
-    {{ webhook }}
-    <!-- <PathResponses :responses="webhook.responses" /> -->
+    <!-- <pre><code>{{ JSON.stringify(webhook, null, 2) }}</code></pre> -->
+    <!-- <ExampleRequest :operation="webhook" /> -->
+    <CodeMirror
+      :content="JSON.stringify(webhook.information, null, 2)"
+      readOnly />
+    <!-- <PathResponses :operation="webhook" /> -->
   </template>
 </template>
