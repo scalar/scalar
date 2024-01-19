@@ -56,8 +56,9 @@ export const getExampleFromSchema = (
 
   // Object
   if (schema.type === 'object') {
-    const response: Record<string, any> = {}
+    let response: Record<string, any> = {}
 
+    // Regular properties
     if (schema.properties !== undefined) {
       Object.keys(schema.properties).forEach((name: string) => {
         const property = schema.properties[name]
@@ -69,6 +70,18 @@ export const getExampleFromSchema = (
           level + 1,
         )
       })
+    }
+
+    // Merge additionalProperties
+    if (schema.additionalProperties !== undefined) {
+      response = {
+        ...response,
+        ...getExampleFromSchema(
+          schema.additionalProperties,
+          options,
+          level + 1,
+        ),
+      }
     }
 
     return response
