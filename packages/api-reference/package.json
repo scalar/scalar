@@ -100,7 +100,7 @@
     "@storybook/testing-library": "^0.2.2",
     "@storybook/vue3": "^7.5.2",
     "@storybook/vue3-vite": "^7.5.2",
-    "@types/js-yaml": "^4.0.6",
+    "@types/js-yaml": "^4.0.9",
     "@vitejs/plugin-vue": "^4.4.0",
     "@vitest/coverage-v8": "^0.34.4",
     "http-server": "^14.1.1",

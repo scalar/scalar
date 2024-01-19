@@ -768,8 +768,8 @@ importers:
         specifier: ^7.5.2
         version: 7.5.2(@vue/compiler-core@3.3.11)(react-dom@18.2.0)(react@18.2.0)(typescript@5.3.3)(vite@4.5.1)(vue@3.3.4)
       '@types/js-yaml':
-        specifier: ^4.0.6
-        version: 4.0.6
+        specifier: ^4.0.9
+        version: 4.0.9
       '@vitejs/plugin-vue':
         specifier: ^4.4.0
         version: 4.4.0(vite@4.5.1)(vue@3.3.4)
@@ -1184,8 +1184,8 @@ importers:
         version: 4.1.0
     devDependencies:
       '@types/js-yaml':
-        specifier: ^4.0.6
-        version: 4.0.6
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/node':
         specifier: ^20.6.3
         version: 20.6.3
@@ -6911,8 +6911,8 @@ packages:
       pretty-format: 29.7.0
     dev: true
 
-  /@types/js-yaml@4.0.6:
-    resolution: {integrity: sha512-ACTuifTSIIbyksx2HTon3aFtCKWcID7/h3XEmRpDYdMCXxPbl+m9GteOJeaAkiAta/NJaSFuA7ahZ0NkwajDSw==}
+  /@types/js-yaml@4.0.9:
+    resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
     dev: true
 
   /@types/jsdom@21.1.3:
