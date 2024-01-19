@@ -88,7 +88,7 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.0.0",
     "remark-stringify": "^11.0.0",
-    "unhead": "^1.8.3",
+    "unhead": "^1.8.10",
     "unified": "^11.0.0"
   },
   "devDependencies": {
