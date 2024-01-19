@@ -112,7 +112,7 @@ const introCardsSlot = computed(() =>
           :tag="tag" />
       </Component>
     </template>
-    <template v-if="hasWebhooks(parsedSpec)">
+    <template v-if="parsedSpec.webhooks">
       <Webhooks :webhooks="parsedSpec.webhooks" />
     </template>
     <template v-if="hasModels(parsedSpec)">

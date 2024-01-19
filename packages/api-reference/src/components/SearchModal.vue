@@ -91,7 +91,7 @@ watch(
     }
 
     // Tags
-    props.parsedSpec.tags.forEach((tag) => {
+    props.parsedSpec.tags?.forEach((tag) => {
       const tagData: FuseData = {
         title: tag.name,
         href: `#${getTagId(tag)}`,
@@ -139,19 +139,21 @@ watch(
 
     if (webhooks) {
       Object.keys(webhooks).forEach((name) => {
-        ;(Object.keys(webhooks[name]) as OpenAPIV3_1.HttpMethods[]).forEach(
-          (httpVerb) => {
-            webhookData.push({
-              type: 'webhook',
-              title: `Webhook: ${webhooks[name][httpVerb]?.name}`,
-              href: `#${getWebhookId(name, httpVerb)}`,
-              description: name,
-              httpVerb,
-              tag: name,
-              body: '',
-            })
-          },
-        )
+        const httpVerbs = Object.keys(
+          webhooks[name],
+        ) as OpenAPIV3_1.HttpMethods[]
+
+        httpVerbs.forEach((httpVerb) => {
+          webhookData.push({
+            type: 'webhook',
+            title: `Webhook: ${webhooks[name][httpVerb]?.name}`,
+            href: `#${getWebhookId(name, httpVerb)}`,
+            description: name,
+            httpVerb,
+            tag: name,
+            body: '',
+          })
+        })
 
         fuseDataArray.value = fuseDataArray.value.concat(webhookData)
       })
