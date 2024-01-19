@@ -263,8 +263,7 @@ const onSearchResultClick = (entry: Fuse.FuseResult<FuseData>) => {
         }"
         :href="entry.item.href"
         @click="onSearchResultClick(entry)"
-        @focus="selectedSearchResult = index"
-        @mouseover="selectedSearchResult = index">
+        @focus="selectedSearchResult = index">
         <div
           class="item-entry-http-verb"
           :class="`item-entry-http-verb--${entry.item.httpVerb}`">
@@ -347,7 +346,8 @@ a {
 .ref-search-container {
   padding: 12px;
 }
-.item-entry--active {
+.item-entry--active,
+.item-entry:hover {
   background: var(--theme-background-2, var(--default-theme-background-2));
   cursor: pointer;
 }
