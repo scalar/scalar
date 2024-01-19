@@ -150,7 +150,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     </div>
     <!-- Object -->
     <div
-      v-if="value?.properties"
+      v-if="value?.properties || value?.additionalProperties"
       class="children">
       <Schema
         :compact="compact"

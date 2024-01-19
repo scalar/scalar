@@ -43,6 +43,14 @@ const shouldShowToggle = computed(() => {
 })
 
 const visible = ref<boolean>(false)
+
+// Merge the (optional) `additionalProperties` into the schema
+const mergedSchema = computed(() => {
+  return {
+    ...(props.value ?? {}),
+    ...(props.value?.additionalProperties ?? {}),
+  }
+})
 </script>
 <template>
   <div
@@ -78,35 +86,35 @@ const visible = ref<boolean>(false)
         </button>
       </template>
       <template v-if="!shouldShowToggle || visible">
-        <template v-if="value?.properties">
+        <template v-if="mergedSchema?.properties">
           <div
             v-if="!compact"
             class="schema-card-title">
             <SchemaHeading
               :name="name"
-              :value="value" />
+              :value="mergedSchema" />
           </div>
           <SchemaProperty
-            v-for="property in Object.keys(value.properties)"
+            v-for="property in Object.keys(mergedSchema?.properties)"
             :key="property"
             :compact="compact"
             :level="level"
             :name="property"
             :required="
-              value.required &&
-              value.required.length &&
-              value.required.includes(property)
+              mergedSchema.required &&
+              mergedSchema.required.length &&
+              mergedSchema.required.includes(property)
             "
             :toggleVisibility="toggleVisibility"
-            :value="value.properties[property]" />
+            :value="mergedSchema.properties?.[property]" />
         </template>
         <template v-else>
           <SchemaProperty
             :compact="compact"
             :level="level"
-            :name="value?.name"
+            :name="mergedSchema?.name"
             :toggleVisibility="toggleVisibility"
-            :value="value" />
+            :value="mergedSchema" />
         </template>
       </template>
     </div>

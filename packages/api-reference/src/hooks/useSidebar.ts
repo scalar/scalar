@@ -136,7 +136,9 @@ const items = computed(() => {
 
             return {
               id,
-              title: name,
+              title:
+                (parsedSpec?.value?.components?.schemas?.[name] as any).title ??
+                name,
               show: !state.showApiClient,
             }
           }),

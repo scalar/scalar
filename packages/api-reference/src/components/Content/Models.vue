@@ -48,7 +48,7 @@ const models = computed(() => {
         <SectionContent>
           <SectionHeader :level="2">
             <Anchor :id="getModelId(name)">
-              {{ name }}
+              {{ (components?.schemas?.[name] as any).title ?? name }}
             </Anchor>
           </SectionHeader>
           <!-- Schema -->

@@ -141,7 +141,7 @@ watch(
           type: 'model',
           title: 'Model',
           href: `#${getModelId(k)}`,
-          description: k,
+          description: (schemas[k] as any).title ?? k,
           tag: k,
           body: '',
         })

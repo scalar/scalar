@@ -526,4 +526,56 @@ describe('getExampleFromSchema', () => {
       ),
     ).toBe(undefined)
   })
+
+  it('merges object from additionalProperties', () => {
+    expect(
+      getExampleFromSchema({
+        properties: {
+          myProperty: {
+            additionalProperties: {
+              properties: {
+                propertyOne: {
+                  type: 'string',
+                  title: 'Message',
+                },
+                propertyTwo: {
+                  type: 'string',
+                  title: 'Message',
+                },
+              },
+              type: 'object',
+            },
+            type: 'object',
+            title: 'MyProperty',
+          },
+        },
+        type: 'object',
+      }),
+    ).toMatchObject({
+      myProperty: {
+        propertyOne: '',
+        propertyTwo: '',
+      },
+    })
+  })
+
+  it('overwrites with the schema additionalProperties', () => {
+    expect(
+      getExampleFromSchema({
+        properties: {
+          myProperty: {
+            additionalProperties: {
+              type: 'string',
+              title: 'Message',
+            },
+            type: 'object',
+            title: 'MyProperty',
+          },
+        },
+        type: 'object',
+      }),
+    ).toMatchObject({
+      myProperty: '',
+    })
+  })
 })
