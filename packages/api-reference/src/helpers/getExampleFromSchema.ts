@@ -74,13 +74,29 @@ export const getExampleFromSchema = (
 
     // Merge additionalProperties
     if (schema.additionalProperties !== undefined) {
-      response = {
-        ...response,
-        ...getExampleFromSchema(
-          schema.additionalProperties,
-          options,
-          level + 1,
-        ),
+      const additionalSchema = getExampleFromSchema(
+        schema.additionalProperties,
+        options,
+        level + 1,
+      )
+
+      // Merge objects, but not arrays
+      if (
+        typeof additionalSchema === 'object' &&
+        !Array.isArray(additionalSchema)
+      ) {
+        response = {
+          ...response,
+          ...getExampleFromSchema(
+            schema.additionalProperties,
+            options,
+            level + 1,
+          ),
+        }
+      }
+      // Otherwise just overwrite what’s there
+      else {
+        response = additionalSchema
       }
     }
 
