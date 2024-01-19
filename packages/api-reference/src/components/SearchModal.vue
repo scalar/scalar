@@ -2,6 +2,7 @@
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { FlowModal, type ModalState } from '@scalar/use-modal'
 import Fuse from 'fuse.js'
+import type { OpenAPIV3_1 } from 'openapi-types'
 import { computed, ref, toRef, watch } from 'vue'
 
 import { getHeadingsFromMarkdown } from '../helpers'
@@ -15,7 +16,7 @@ const reactiveSpec = toRef(props, 'parsedSpec')
 type FuseData = {
   title: string
   href: string
-  type: 'req' | 'model' | 'heading'
+  type: 'req' | 'webhook' | 'model' | 'heading'
   operationId?: string
   description: string
   body?: string | string[] | ParamMap
@@ -44,7 +45,8 @@ const selectedEntry = computed<Fuse.FuseResult<FuseData>>(
   () => searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
 )
 
-const { getHeadingId, getModelId, getOperationId, getTagId } = useNavState()
+const { getHeadingId, getWebhookId, getModelId, getOperationId, getTagId } =
+  useNavState()
 
 watch(
   () => props.modalState.open,
@@ -62,7 +64,7 @@ watch(
     fuseDataArray.value = []
 
     // Likely an incomplete/invalid spec
-    if (!props.parsedSpec?.tags?.length) {
+    if (!props.parsedSpec?.tags?.length && !props.parsedSpec?.webhooks) {
       fuse.setCollection([])
       return
     }
@@ -130,6 +132,28 @@ watch(
         })
       }
     })
+
+    // Adding webhooks
+    const webhooks = props.parsedSpec.webhooks
+    const webhookData: FuseData[] = []
+
+    if (webhooks) {
+      Object.keys(webhooks).forEach((name) => {
+        Object.keys(webhooks[name]).forEach((httpVerb) => {
+          webhookData.push({
+            type: 'webhook',
+            title: `Webhook: ${name}`,
+            href: `#${getWebhookId(name, httpVerb)}`,
+            description: name,
+            httpVerb,
+            tag: name,
+            body: '',
+          })
+        })
+
+        fuseDataArray.value = fuseDataArray.value.concat(webhookData)
+      })
+    }
 
     // Adding models as well
     const schemas = props.parsedSpec.components?.schemas

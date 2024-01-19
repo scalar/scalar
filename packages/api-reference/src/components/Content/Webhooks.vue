@@ -31,7 +31,7 @@ const { getWebhookId } = useNavState()
       :key="name">
       <Section
         v-for="httpVerb in Object.keys(webhooks?.[name])"
-        :id="getWebhookId(name)"
+        :id="getWebhookId(name, httpVerb)"
         :key="httpVerb"
         :label="name">
         <template v-if="webhooks?.[name]">
