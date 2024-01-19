@@ -28,6 +28,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   - [With Hono](#with-hono)
   - [With Express](#with-express)
   - [With NestJS](#with-nestjs)
+  - [With Laravel](#with-laravel)
 - [Hosted API Reference](#hosted-api-reference)
 - [Configuration](#configuration)
 - [Layouts](#layouts)
@@ -223,6 +224,22 @@ app.use(
 ```
 
 Read more: [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)
+
+### With Laravel
+
+There’s [a wonderful package to generate OpenAPI files for Laravel](https://scribe.knuckles.wtf/laravel/) already. Just set the `type` to `external_laravel` (for Blade) or `external_static` (for HTML) and `theme` to `scalar`:
+
+```php
+<?php
+// config/scribe.php
+
+return [
+  // …
+  'type' => 'external_laravel',
+  'theme' => 'scalar',
+  // …
+];
+```
 
 ## Hosted API Reference
 
