@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.5.15
+
+### Patch Changes
+
+- 2c7e0b5c: feat: show webhooks
+
 ## 0.5.14
 
 ### Patch Changes
