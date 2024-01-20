@@ -2,9 +2,9 @@
 import { type OpenAPIV3 } from 'openapi-types'
 import { computed } from 'vue'
 
-import { Security } from '../../../../../api-client/dist'
 import { useGlobalStore } from '../../../stores'
 import type { SecurityScheme } from '../../../types'
+import MarkdownRenderer from '../MarkdownRenderer.vue'
 import CardForm from './CardForm.vue'
 import CardFormButton from './CardFormButton.vue'
 import CardFormGroup from './CardFormGroup.vue'
@@ -183,4 +183,16 @@ const startAuthentication = (url: string) => {
       </CardFormButton>
     </CardFormGroup>
   </CardForm>
+  <CardForm v-if="value?.description">
+    <div class="description">
+      <MarkdownRenderer :value="value?.description" />
+    </div>
+  </CardForm>
 </template>
+
+<style scoped>
+.description {
+  padding: 12px 4px 4px;
+  font-size: var(--theme-mini, var(--default-theme-mini));
+}
+</style>

@@ -134,6 +134,12 @@ watch(
 .markdown :deep(a:hover) {
   text-decoration: underline !important;
 }
+.markdown :deep(em) {
+  font-style: italic;
+}
+.markdown :deep(del) {
+  text-decoration: line-through;
+}
 .markdown :deep(code) {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   background-color: var(
