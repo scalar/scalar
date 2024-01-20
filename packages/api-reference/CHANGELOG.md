@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.13.12
+
+### Patch Changes
+
+- 2c7e0b5c: feat: show webhooks
+- c3186f9e: feat: show security schema key and description
+- Updated dependencies [2c7e0b5c]
+  - @scalar/swagger-parser@0.5.15
+
 ## 1.13.11
 
 ### Patch Changes
