@@ -1,6 +1,7 @@
 import SwaggerParser from '@apidevtools/swagger-parser'
 import yaml from 'js-yaml'
 import { type OpenAPI, type OpenAPIV2, type OpenAPIV3 } from 'openapi-types'
+import { type OpenAPIV3_1 } from 'openapi-types'
 
 import { validRequestMethods } from '../fixtures'
 import type { AnyObject, AnyStringOrObject, SwaggerSpec } from '../types'
@@ -31,7 +32,7 @@ export const parse = (value: AnyStringOrObject): Promise<SwaggerSpec> => {
   })
 }
 
-const transformResult = (result: OpenAPI.Document<object>): SwaggerSpec => {
+const transformResult = (result: OpenAPI.Document): SwaggerSpec => {
   if (!result.tags) {
     result.tags = []
   }
@@ -39,6 +40,55 @@ const transformResult = (result: OpenAPI.Document<object>): SwaggerSpec => {
   if (!result.paths) {
     result.paths = {}
   }
+
+  // Webhooks
+  const newWebhooks: Record<string, any> = {}
+
+  Object.keys((result as OpenAPIV3_1.Document).webhooks ?? {}).forEach(
+    (name) => {
+      ;(
+        Object.keys(
+          (result as OpenAPIV3_1.Document).webhooks?.[name] ?? {},
+        ) as OpenAPIV3_1.HttpMethods[]
+      ).forEach((httpVerb) => {
+        const originalWebhook = (
+          (result as OpenAPIV3_1.Document).webhooks?.[
+            name
+          ] as OpenAPIV3_1.PathItemObject
+        )[httpVerb]
+
+        if (newWebhooks[name] === undefined) {
+          newWebhooks[name] = {}
+        }
+
+        newWebhooks[name][httpVerb] = {
+          // Transformed data
+          httpVerb: httpVerb,
+          path: name,
+          operationId: originalWebhook?.operationId || name,
+          name: originalWebhook?.summary || name || '',
+          description: originalWebhook?.description || '',
+          pathParameters: result.paths?.[name]?.parameters,
+          // Original webhook
+          information: {
+            ...originalWebhook,
+          },
+        }
+
+        // Object.assign(
+        //   (result as OpenAPIV3_1.Document).webhooks?.[name]?.[httpVerb] ?? {},
+        //   {},
+        // )
+        // Object.assign(
+        //   (result as OpenAPIV3_1.Document).webhooks?.[name]?.[httpVerb] ?? {},
+        //   {},
+        // )
+        // information: {
+        //   ...(result as OpenAPIV3_1.Document).webhooks?.[name],
+        // },
+      })
+    },
+  )
 
   /**
    * { '/pet': { … } }
@@ -136,7 +186,10 @@ const transformResult = (result: OpenAPI.Document<object>): SwaggerSpec => {
     })
   })
 
-  const returnedResult = result as unknown as SwaggerSpec
+  const returnedResult = {
+    ...result,
+    webhooks: newWebhooks,
+  } as unknown as SwaggerSpec
 
   return removeTagsWithoutOperations(returnedResult)
 }

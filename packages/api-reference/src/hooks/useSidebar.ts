@@ -1,10 +1,13 @@
 import { useApiClientStore } from '@scalar/api-client'
+import { objectEntries } from '@vueuse/core'
+import { type OpenAPIV3_1 } from 'openapi-types'
 import { computed, reactive, ref, watch } from 'vue'
 
 import {
   getHeadingsFromMarkdown,
   getLowestHeadingLevel,
   hasModels,
+  hasWebhooks,
   openClientFor,
 } from '../helpers'
 import type { Spec, Tag, TransformedOperation } from '../types'
@@ -20,8 +23,14 @@ export type SidebarEntry = {
   deprecated?: boolean
 }
 
-const { getHeadingId, getModelId, getOperationId, getTagId, hash } =
-  useNavState(false)
+const {
+  getHeadingId,
+  getWebhookId,
+  getModelId,
+  getOperationId,
+  getTagId,
+  hash,
+} = useNavState(false)
 
 // Track the parsed spec
 const parsedSpec = ref<Spec | undefined>(undefined)
@@ -121,6 +130,36 @@ const items = computed(() => {
           }
         })
 
+  // Webhooks
+  const webhookEntries: SidebarEntry[] = hasWebhooks(parsedSpec.value)
+    ? [
+        {
+          id: getWebhookId(),
+          title: 'WEBHOOKS',
+          show: !state.showApiClient,
+          children: Object.keys(parsedSpec.value?.webhooks ?? {})
+            .map((name) => {
+              const id = getWebhookId(name)
+              titlesById[id] = name
+
+              return (
+                Object.keys(
+                  parsedSpec.value?.webhooks?.[name] ?? {},
+                ) as OpenAPIV3_1.HttpMethods[]
+              ).map((httpVerb) => {
+                return {
+                  id: getWebhookId(name, httpVerb),
+                  title: parsedSpec.value?.webhooks?.[name][httpVerb]?.name,
+                  httpVerb: httpVerb as string,
+                  show: !state.showApiClient,
+                }
+              })
+            })
+            .flat() as SidebarEntry[],
+        },
+      ]
+    : []
+
   // Models
   const modelEntries: SidebarEntry[] = hasModels(parsedSpec.value)
     ? [
@@ -147,7 +186,12 @@ const items = computed(() => {
     : []
 
   return {
-    entries: [...headingEntries, ...(operationEntries ?? []), ...modelEntries],
+    entries: [
+      ...headingEntries,
+      ...(operationEntries ?? []),
+      ...webhookEntries,
+      ...modelEntries,
+    ],
     titles: titlesById,
   }
 })

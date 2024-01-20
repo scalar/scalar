@@ -55,7 +55,7 @@ export const getExampleFromSchema = (
   }
 
   // Object
-  if (schema.type === 'object') {
+  if (schema.type === 'object' || schema.properties !== undefined) {
     let response: Record<string, any> = {}
 
     // Regular properties
@@ -104,7 +104,7 @@ export const getExampleFromSchema = (
   }
 
   // Array
-  if (schema.type === 'array') {
+  if (schema.type === 'array' || schema.items !== undefined) {
     const itemsXmlTagName = schema?.items?.xml?.name
     const wrapItems = !!(options?.xml && schema.xml?.wrapped && itemsXmlTagName)
 

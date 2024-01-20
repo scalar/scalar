@@ -14,6 +14,7 @@ export type SwaggerSpec = {
       url: string
     }
   }
+  webhooks?: OpenAPIV3_1.PathsObject
   components?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
   definitions?: OpenAPIV2.DefinitionsObject
   tags: SwaggerTag[]
