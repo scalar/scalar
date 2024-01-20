@@ -110,7 +110,7 @@
     "storybook": "^7.5.2",
     "storybook-dark-mode": "^3.0.1",
     "tsc-alias": "^1.8.8",
-    "vite": "^4.4.12",
+    "vite": "^4.5.2",
     "vite-plugin-css-injected-by-js": "^3.3.0",
     "vite-plugin-node-polyfills": "^0.14.1",
     "vitest": "^0.34.4",

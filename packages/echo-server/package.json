@@ -52,7 +52,7 @@
     "nodemon": "^3.0.1",
     "tsc-alias": "^1.8.8",
     "typescript": "^5.2.2",
-    "vite": "^4.4.12",
+    "vite": "^4.5.2",
     "vite-node": "^0.34.4",
     "vitest": "^0.34.4"
   }
