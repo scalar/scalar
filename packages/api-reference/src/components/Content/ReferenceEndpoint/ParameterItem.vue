@@ -43,10 +43,13 @@ withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
     </div>
 
     <!-- Schema -->
-    <template v-if="parameter.schema">
+    <template
+      v-if="
+        typeof parameter.schema === 'object' &&
+        Object.keys(parameter.schema).length
+      ">
       <div class="parameter-schema">
         <Schema
-          v-if="parameter.schema"
           compact
           :level="1"
           :toggleVisibility="!showChildren"

@@ -80,6 +80,11 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
             v-if="value?.items && !['object'].includes(value.items.type)">
             {{ value.type }}
             {{ value.items.type }}[]
+            <template v-if="value.items.example">
+              <code class="property-example-value">
+                example: {{ value.items.example }}
+              </code>
+            </template>
           </template>
           <template v-else>
             {{ value.type }}
