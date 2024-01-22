@@ -1,5 +1,7 @@
 import { type Ref, computed, onMounted, watch } from 'vue'
 
+import { useActive } from './useActive'
+
 /**
  * Add global or pseudo-global keyboard event handlers
  *
@@ -32,6 +34,7 @@ export function useKeyboardEvent({
 }) {
   /** Element or global event */
   const targetEl = computed(() => element?.value || 'document')
+  const { isActive: componentIsActive } = useActive()
 
   const keys = keyList.map((k) => k.toLocaleLowerCase())
 
@@ -42,8 +45,10 @@ export function useKeyboardEvent({
       ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) ||
       target.contentEditable
     if (
+      // Check if the component is active (e.g. in a `<keepalive>`)
+      (componentIsActive.value &&
       // Check for command or ctrl keys
-      (withCtrlCmd
+      withCtrlCmd
         ? event.ctrlKey || event.metaKey
         : !event.ctrlKey && !event.metaKey) &&
       // Check for shift key
