@@ -6,7 +6,7 @@ import SchemaProperty from './SchemaProperty.vue'
 
 const props = withDefaults(
   defineProps<{
-    value?: Record<string, any>
+    value?: Record<string, any> | string
     /** Track how deep we’ve gone */
     level?: number
     /* Show as a heading */
@@ -47,78 +47,86 @@ const visible = ref<boolean>(false)
 // Merge the (optional) `additionalProperties` into the schema
 const mergedSchema = computed(() => {
   return {
-    ...(props.value ?? {}),
-    ...(props.value?.additionalProperties ?? {}),
+    ...(typeof props.value === 'object' ? props.value : {}),
+    ...(typeof props.value === 'object' &&
+    typeof props.value?.additionalProperties === 'object'
+      ? props.value?.additionalProperties
+      : {}),
   }
 })
 </script>
 <template>
-  <div
-    class="schema-card"
-    :class="`${
-      compact ? 'schema-card--compact' : ''
-    } schema-card--level-${level}`">
+  <template v-if="typeof value === 'object' && Object.keys(value).length">
     <div
-      class="properties"
-      :class="`properties--${
-        !shouldShowToggle || visible ? 'visible' : 'hidden'
-      }`">
-      <template v-if="shouldShowToggle">
-        <button
-          class="schema-visibility-toggle"
-          :class="`schema-visibility-toggle--${visible ? 'visible' : 'hidden'}`"
-          type="button"
-          @click="visible = !visible">
-          <svg
-            fill="currentColor"
-            height="14"
-            viewBox="0 0 14 14"
-            width="14"
-            xmlns="http://www.w3.org/2000/svg">
-            <polygon
-              fill-rule="nonzero"
-              points="14 8 8 8 8 14 6 14 6 8 0 8 0 6 6 6 6 0 8 0 8 6 14 6" />
-          </svg>
-          <span>
-            <template v-if="visible">Hide Child Attributes</template>
-            <template v-else>Show Child Attributes</template>
-          </span>
-        </button>
-      </template>
-      <template v-if="!shouldShowToggle || visible">
-        <template v-if="mergedSchema?.properties">
-          <div
-            v-if="!compact"
-            class="schema-card-title">
-            <SchemaHeading
-              :name="name"
+      class="schema-card"
+      :class="`${
+        compact ? 'schema-card--compact' : ''
+      } schema-card--level-${level}`">
+      <div
+        v-if="mergedSchema.properties || mergedSchema.items"
+        class="properties"
+        :class="`properties--${
+          !shouldShowToggle || visible ? 'visible' : 'hidden'
+        }`">
+        <template v-if="shouldShowToggle">
+          <button
+            class="schema-visibility-toggle"
+            :class="`schema-visibility-toggle--${
+              visible ? 'visible' : 'hidden'
+            }`"
+            type="button"
+            @click="visible = !visible">
+            <svg
+              fill="currentColor"
+              height="14"
+              viewBox="0 0 14 14"
+              width="14"
+              xmlns="http://www.w3.org/2000/svg">
+              <polygon
+                fill-rule="nonzero"
+                points="14 8 8 8 8 14 6 14 6 8 0 8 0 6 6 6 6 0 8 0 8 6 14 6" />
+            </svg>
+            <span>
+              <template v-if="visible">Hide Child Attributes</template>
+              <template v-else>Show Child Attributes</template>
+            </span>
+          </button>
+        </template>
+        <template v-if="!shouldShowToggle || visible">
+          <template v-if="mergedSchema?.properties">
+            <div
+              v-if="!compact"
+              class="schema-card-title">
+              <SchemaHeading
+                :name="name"
+                :value="mergedSchema" />
+            </div>
+            <SchemaProperty
+              v-for="property in Object.keys(mergedSchema?.properties)"
+              :key="property"
+              :compact="compact"
+              :level="level"
+              :name="property"
+              :required="
+                mergedSchema.required &&
+                mergedSchema.required.length &&
+                mergedSchema.required.includes(property)
+              "
+              :toggleVisibility="toggleVisibility"
+              :value="mergedSchema.properties?.[property]" />
+          </template>
+          <template v-else>
+            <SchemaProperty
+              :compact="compact"
+              :level="level"
+              :name="mergedSchema?.name"
+              :toggleVisibility="toggleVisibility"
               :value="mergedSchema" />
-          </div>
-          <SchemaProperty
-            v-for="property in Object.keys(mergedSchema?.properties)"
-            :key="property"
-            :compact="compact"
-            :level="level"
-            :name="property"
-            :required="
-              mergedSchema.required &&
-              mergedSchema.required.length &&
-              mergedSchema.required.includes(property)
-            "
-            :toggleVisibility="toggleVisibility"
-            :value="mergedSchema.properties?.[property]" />
+          </template>
         </template>
-        <template v-else>
-          <SchemaProperty
-            :compact="compact"
-            :level="level"
-            :name="mergedSchema?.name"
-            :toggleVisibility="toggleVisibility"
-            :value="mergedSchema" />
-        </template>
-      </template>
+      </div>
     </div>
-  </div>
+  </template>
 </template>
 <style scoped>
 .error {
