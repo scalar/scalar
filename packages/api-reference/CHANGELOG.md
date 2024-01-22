@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.13.13
+
+### Patch Changes
+
+- 7e0ca478: fix: Restoring missing forward slash between URL and API routes
+- 9ca25eda: fix: additionalProperties: false is ignored
+- e5354121: fix: better deal with incomplete schemas
+
 ## 1.13.12
 
 ### Patch Changes

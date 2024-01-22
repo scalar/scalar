@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.13.13
+
+### Patch Changes
+
+- 7e0ca478: fix: Restoring missing forward slash between URL and API routes
+
 ## 1.13.10
 
 ### Patch Changes
