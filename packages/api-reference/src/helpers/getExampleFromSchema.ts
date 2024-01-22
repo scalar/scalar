@@ -73,7 +73,10 @@ export const getExampleFromSchema = (
     }
 
     // Merge additionalProperties
-    if (schema.additionalProperties !== undefined) {
+    if (
+      schema.additionalProperties !== undefined &&
+      schema.additionalProperties !== false
+    ) {
       const additionalSchema = getExampleFromSchema(
         schema.additionalProperties,
         options,
