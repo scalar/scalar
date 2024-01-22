@@ -4,7 +4,6 @@ import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useModal } from '@scalar/use-modal'
 import { isMacOS } from '@scalar/use-tooltip'
 
-import { useActive } from '../hooks/useActive'
 import { type Spec } from '../types'
 import SearchModal from './SearchModal.vue'
 
@@ -18,15 +17,12 @@ const props = withDefaults(
   },
 )
 
-const { isActive } = useActive()
-
 const modalState = useModal()
 
 useKeyboardEvent({
   keyList: [props.searchHotKey],
   withCtrlCmd: true,
   handler: () => (modalState.open ? modalState.hide() : modalState.show()),
-  active: () => isActive.value,
 })
 </script>
 <template>
