@@ -12,7 +12,6 @@ import {
   getRequestFromAuthentication,
   getRequestFromOperation,
   getUrlFromServerState,
-  mergeAllObjects,
 } from '../../../helpers'
 import { useSnippetTargets } from '../../../hooks'
 import { useGlobalStore } from '../../../stores'
@@ -46,7 +45,10 @@ const generateSnippet = async (): Promise<string> => {
     getRequestFromOperation(props.operation, {
       replaceVariables: true,
     }),
-    getRequestFromAuthentication(authenticationState),
+    getRequestFromAuthentication(
+      authenticationState,
+      props.operation.information?.security,
+    ),
   )
 
   // Actually generate the snippet
