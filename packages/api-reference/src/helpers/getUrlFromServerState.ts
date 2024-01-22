@@ -7,7 +7,7 @@ export function getUrlFromServerState(state: ServerState) {
       ? state?.servers?.[0]?.url ?? undefined
       : state?.servers?.[state.selectedServer]?.url
 
-  if (url?.startsWith('/')) {
+  if (url?.startsWith('/') && !window.location.origin.endsWith("/")) {
     url = `${window.location.origin}${url.slice(1)}`
   }
 
