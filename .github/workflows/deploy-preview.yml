@@ -5,6 +5,8 @@ on:
     paths:
       - 'examples/web/**'
       - '.github/workflows/deploy-preview.yml'
+    branches:
+      - 'main'
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
