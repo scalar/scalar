@@ -516,13 +516,20 @@ This repository contains all our open source projects and there’s definitely m
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/dotfortun">
+            <img src="https://avatars.githubusercontent.com/u/11822957?v=4" width="100;" alt="dotfortun"/>
+            <br />
+            <sub><b>dotfortun</b></sub>
+        </a>
+    </td></tr>
+<tr>
+    <td align="center">
         <a href="https://github.com/sinh117801">
             <img src="https://avatars.githubusercontent.com/u/43696715?v=4" width="100;" alt="sinh117801"/>
             <br />
             <sub><b>sinh117801</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/Chinlinlee">
             <img src="https://avatars.githubusercontent.com/u/49154622?v=4" width="100;" alt="Chinlinlee"/>
