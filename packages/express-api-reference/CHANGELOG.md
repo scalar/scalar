@@ -1,5 +1,15 @@
 # @scalar/express-api-reference
 
+## 0.2.24
+
+### Patch Changes
+
+- 7e0ca478: fix: Restoring missing forward slash between URL and API routes
+- Updated dependencies [7e0ca478]
+- Updated dependencies [9ca25eda]
+- Updated dependencies [e5354121]
+  - @scalar/api-reference@1.13.13
+
 ## 0.2.23
 
 ### Patch Changes
