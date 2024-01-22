@@ -1,4 +1,3 @@
-import { a } from '@storybook/vue3/dist/render-ddbe18a8'
 import type { HarRequest } from 'httpsnippet-lite'
 import type { OpenAPIV3 } from 'openapi-types'
 
@@ -7,16 +6,15 @@ import type { AuthenticationState } from '../types'
 /**
  * Check whether the given security scheme key is in the `security` configuration for this operation.
  **/
-function givenSecuritySchemeIsRequired(
-  key: string,
+function authenticationRequired(
   security?: OpenAPIV3.SecurityRequirementObject[],
 ): boolean {
-  // If security isn’t declared, auth isn’t required.
+  // If security is not defined, auth is not required.
   if (!security) {
     return false
   }
 
-  // If security includes an empty object `{}`, auth is not required at all.
+  // Includes empty object = auth is not required
   if (
     (security ?? []).some(
       (securityRequirement) => !Object.keys(securityRequirement).length,
@@ -25,12 +23,7 @@ function givenSecuritySchemeIsRequired(
     return false
   }
 
-  // If security includes the given key, auth is required.
-  return (security ?? []).some((securityRequirement) => {
-    return Object.keys(securityRequirement).some((securityRequirementKey) => {
-      return securityRequirementKey === key
-    })
-  })
+  return true
 }
 
 /**
@@ -44,13 +37,11 @@ export function getRequestFromAuthentication(
   const queryString: HarRequest['queryString'] = []
   const cookies: HarRequest['cookies'] = []
 
-  // Authentication
-  if (
-    !authentication.securitySchemeKey ||
-    !givenSecuritySchemeIsRequired(authentication.securitySchemeKey, security)
-  ) {
+  // Check whether auth is required
+  if (!authentication.securitySchemeKey || !authenticationRequired(security)) {
     return { headers, queryString, cookies }
   }
+
   // We’re using a parsed Swagger file here, so let’s get rid of the `ReferenceObject` type
   const securityScheme =
     authentication.securitySchemes?.[authentication.securitySchemeKey]

@@ -138,7 +138,7 @@ describe('getRequestFromAuthentication', () => {
     })
   })
 
-  it.only('only return required security schemes', () => {
+  it('only return required security schemes', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
@@ -173,7 +173,7 @@ describe('getRequestFromAuthentication', () => {
     })
   })
 
-  it.only('doesn’t require auth if the security schema is empty', () => {
+  it('only use required security schemes', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
@@ -205,6 +205,96 @@ describe('getRequestFromAuthentication', () => {
           value: 'Basic Zm9vYmFyOnNlY3JldA==',
         },
       ],
+    })
+  })
+
+  it('doesn’t require auth if the security schema is an empty array', () => {
+    const request = getRequestFromAuthentication(
+      {
+        ...createEmptyAuthenticationState(),
+        securitySchemeKey: 'basic',
+        securitySchemes: {
+          basic: {
+            type: 'basic',
+          },
+        },
+        http: {
+          ...createEmptyAuthenticationState().http,
+          basic: {
+            username: 'foobar',
+            password: 'secret',
+          },
+        },
+      },
+      // remove a top-level security declaration for a specific operation by using an empty array
+      [],
+    )
+
+    expect(request).toMatchObject({
+      headers: [],
+      cookies: [],
+      queryString: [],
+    })
+  })
+
+  it('doesn’t require auth if the security is undefined', () => {
+    const request = getRequestFromAuthentication(
+      {
+        ...createEmptyAuthenticationState(),
+        securitySchemeKey: 'basic',
+        securitySchemes: {
+          basic: {
+            type: 'basic',
+          },
+        },
+        http: {
+          ...createEmptyAuthenticationState().http,
+          basic: {
+            username: 'foobar',
+            password: 'secret',
+          },
+        },
+      },
+      // remove a top-level security declaration for a specific operation by not defining `security`
+      undefined,
+    )
+
+    expect(request).toMatchObject({
+      headers: [],
+      cookies: [],
+      queryString: [],
+    })
+  })
+
+  it('doesn’t require auth if an empty object is passed', () => {
+    const request = getRequestFromAuthentication(
+      {
+        ...createEmptyAuthenticationState(),
+        securitySchemeKey: 'basic',
+        securitySchemes: {
+          basic: {
+            type: 'basic',
+          },
+        },
+        http: {
+          ...createEmptyAuthenticationState().http,
+          basic: {
+            username: 'foobar',
+            password: 'secret',
+          },
+        },
+      },
+      [
+        {
+          basic: [],
+        },
+        // empty object
+        {},
+      ],
+    )
+
+    expect(request).toMatchObject({
+      headers: [],
     })
   })
 })
