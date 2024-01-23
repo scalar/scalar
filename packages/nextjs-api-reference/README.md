@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/npm/l/%40scalar%2fnextjs-api-reference)](https://www.npmjs.com/package/@scalar/nextjs-api-reference)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/8HeZcRGPFS)
 
-This plugin provides an easy way to render a beautiful API reference based on a OpenAPI/Swagger file with Next.js.
+This plugin provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger file with Next.js.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/scalar/scalar/assets/2039539/5837adad-a605-4edb-90ec-b929ff2b803b">
