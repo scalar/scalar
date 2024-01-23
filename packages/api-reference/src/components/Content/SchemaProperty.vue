@@ -183,14 +183,16 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       <div
         v-if="value?.[rule]"
         class="rule">
-        <Schema
+        <template
           v-for="(schema, index) in value[rule]"
-          :key="index"
-          :compact="compact"
-          hideVisibilityToggle
-          :level="level + 1"
-          :toggleVisibility="level >= 3 || toggleVisibility"
-          :value="schema" />
+          :key="index">
+          <Schema
+            :compact="compact"
+            hideVisibilityToggle
+            :level="level + 1"
+            :toggleVisibility="level >= 3 || toggleVisibility"
+            :value="schema" />
+        </template>
       </div>
       <!-- Arrays -->
       <div
