@@ -14,6 +14,11 @@ function authenticationRequired(
     return false
   }
 
+  // Don’t require auth if security is just an empty array []
+  if (Array.isArray(security) && !security.length) {
+    return false
+  }
+
   // Includes empty object = auth is not required
   if (
     (security ?? []).some(
