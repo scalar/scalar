@@ -228,22 +228,20 @@ Read more: [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/
 
 ### With Nextjs
 
-Our Next.js component makes it easy to render a reference, just add it to your
-Next.js page:
+Our Next.js handler makes it easy to render a reference, just add it to an API
+route handler:
 
-```ts
+```ts sdjhasd
+// app/api/docs/route.ts
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
-const Page = () => {
-  const config = {
-    spec: {
-      url: '/swagger.json'
-    }
-  }
-
-  return <ApiReference config={config} />
+const config = {
+  spec: {
+    url: '/swagger.json',
+  },
 }
-export default Page
+
+export const GET = ApiReference(config)
 ```
 
 Read more: [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nextjs-api-reference)
