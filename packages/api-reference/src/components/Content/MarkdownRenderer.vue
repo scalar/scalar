@@ -13,7 +13,7 @@ import { ref, watch } from 'vue'
 const props = withDefaults(
   defineProps<{
     value?: string
-    withImages: boolean
+    withImages?: boolean
   }>(),
   {
     withImages: false,
