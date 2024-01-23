@@ -229,7 +229,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 
 .property--compact.property--level-0 {
-  padding: 0;
+  padding: 8px 0;
 }
 
 .property-information {
