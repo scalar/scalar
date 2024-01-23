@@ -63,7 +63,6 @@ const mergedSchema = computed(() => {
         compact ? 'schema-card--compact' : ''
       } schema-card--level-${level}`">
       <div
-        v-if="mergedSchema.properties || mergedSchema.items"
         class="properties"
         :class="`properties--${
           !shouldShowToggle || visible ? 'visible' : 'hidden'
