@@ -25,7 +25,7 @@ watch(
       .use(rehypeSanitize, {
         ...defaultSchema,
         tagNames: defaultSchema.tagNames?.filter(
-          (tag) => !['img'].includes(tag),
+          (tag) => !['script', 'iframe', 'object'].includes(tag),
         ),
       })
       .use(rehypeHighlight, {
