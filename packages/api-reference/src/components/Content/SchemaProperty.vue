@@ -124,7 +124,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         </div>
       </template>
       <div
-        v-if="value?.readOnly"
+        v-if="value?.nullable"
         class="property-nullable">
         nullable
       </div>
