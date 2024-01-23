@@ -1,6 +1,6 @@
 {
   "name": "@scalar/nextjs-api-reference",
-  "description": "a Next.js component to render API references from a Swagger spec",
+  "description": "a Next.js component to render API references from an OpenAPI file",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -9,6 +9,7 @@
     "api",
     "documentation",
     "next.js",
+    "nextjs",
     "openapi",
     "swagger"
   ],
