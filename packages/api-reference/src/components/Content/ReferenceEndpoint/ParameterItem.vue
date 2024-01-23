@@ -2,6 +2,7 @@
 import type { Parameters } from '../../../types'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import Schema from '../Schema.vue'
+import SchemaProperty from '../SchemaProperty.vue'
 
 withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
   showChildren: false,
@@ -10,52 +11,15 @@ withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
 <template>
   <li class="parameter-item">
     <div class="parameter-item-container">
-      <!-- Name -->
-      <span class="parameter-item-name">
-        {{ parameter.name }}
-      </span>
-
-      <!-- Optional -->
-      <template v-if="parameter.required === true">
-        <span class="parameter-item-required-optional parameter-item--required">
-          required
-        </span>
-      </template>
-      <!-- Maybe it’s cleaner to just show required, and not "optional". Makes it cleaner. -->
-      <!-- <template v-else>
-      <span class="parameter-item-required-optional parameter-item--optional">
-        optional
-      </span>
-    </template> -->
-
-      <!-- Type -->
-      <span
-        v-if="parameter.schema?.type"
-        class="parameter-item-type">
-        {{ parameter.schema?.type }}
-      </span>
-
-      <!-- Description -->
-      <MarkdownRenderer
-        v-if="parameter.description || parameter.schema?.description"
-        class="parameter-item-description"
-        :value="parameter.description || parameter.schema?.description" />
+      <SchemaProperty
+        compact
+        :description="parameter.description"
+        :level="0"
+        :name="parameter.name"
+        :required="parameter.required"
+        :toggleVisibility="!showChildren"
+        :value="parameter.schema" />
     </div>
-
-    <!-- Schema -->
-    <template
-      v-if="
-        typeof parameter.schema === 'object' &&
-        Object.keys(parameter.schema).length
-      ">
-      <div class="parameter-schema">
-        <Schema
-          compact
-          :level="1"
-          :toggleVisibility="!showChildren"
-          :value="parameter.schema" />
-      </div>
-    </template>
   </li>
 </template>
 
