@@ -16,7 +16,7 @@ export type ApiReferenceProps = {
 export const ApiReference = ({ config: _config = {} }: ApiReferenceProps) => {
   const { spec, ...config } = _config
 
-  // If no spec is passed and @fastify/swagger isn’t loaded, show a warning.
+  // If no spec is passed, show a warning.
   if (!spec?.content && !spec?.url) {
     throw new Error(
       '[@scalar/nextjs-api-reference] You didn’t provide a spec.content or spec.url. Please provide one of these options.',

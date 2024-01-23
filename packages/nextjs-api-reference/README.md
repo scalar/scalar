@@ -34,7 +34,7 @@ const Page = () => {
 export default Page
 ```
 
-Or, if you just have a static OpenAPI spec, you can directly pass it, too:
+Or, if you just have a static OpenAPI spec, you can directly pass it as well:
 
 ```ts
 const config = {
