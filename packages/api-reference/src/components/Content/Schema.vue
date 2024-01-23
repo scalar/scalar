@@ -63,7 +63,6 @@ const mergedSchema = computed(() => {
         compact ? 'schema-card--compact' : ''
       } schema-card--level-${level}`">
       <div
-        v-if="mergedSchema.properties || mergedSchema.items"
         class="properties"
         :class="`properties--${
           !shouldShowToggle || visible ? 'visible' : 'hidden'
@@ -134,7 +133,7 @@ const mergedSchema = computed(() => {
 }
 .schema-card {
   width: 100%;
-  margin-top: 24px;
+  margin-top: 12px;
   font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   color: var(--theme-color-1, var(--default-theme-color-1));
 }

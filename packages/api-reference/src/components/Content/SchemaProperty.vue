@@ -107,13 +107,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         class="read-only">
         read-only
       </div>
-      <div
-        v-if="value?.example !== undefined"
-        class="property-example">
-        <code class="property-example-value">
-          example: {{ value.example }}
-        </code>
-      </div>
       <template
         v-for="rule in rules"
         :key="rule">
@@ -124,9 +117,16 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         </div>
       </template>
       <div
-        v-if="value?.readOnly"
+        v-if="value?.nullable"
         class="property-nullable">
         nullable
+      </div>
+      <div
+        v-if="value?.example !== undefined"
+        class="property-example">
+        <code class="property-example-value">
+          example: {{ value.example }}
+        </code>
       </div>
     </div>
     <!-- Description -->
@@ -183,14 +183,16 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       <div
         v-if="value?.[rule]"
         class="rule">
-        <Schema
+        <template
           v-for="(schema, index) in value[rule]"
-          :key="index"
-          :compact="compact"
-          hideVisibilityToggle
-          :level="level + 1"
-          :toggleVisibility="level >= 3 || toggleVisibility"
-          :value="schema" />
+          :key="index">
+          <Schema
+            :compact="compact"
+            hideVisibilityToggle
+            :level="level + 1"
+            :toggleVisibility="level >= 3 || toggleVisibility"
+            :value="schema" />
+        </template>
       </div>
       <!-- Arrays -->
       <div
@@ -319,7 +321,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 
 .property-nullable {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   color: var(--theme-color-2, var(--default-theme-color-2));
 }
 
