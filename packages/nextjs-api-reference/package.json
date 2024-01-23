@@ -21,7 +21,6 @@
     "build-only": "vite build",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "test": "vitest",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
