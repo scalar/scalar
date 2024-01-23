@@ -62,12 +62,16 @@ function handleScroll(headingId: string) {
           :id="getHeadingId(section.heading)"
           class="introduction-description-heading"
           @intersecting="() => handleScroll(getHeadingId(section.heading))">
-          <MarkdownRenderer :value="section.content" />
+          <MarkdownRenderer
+            :value="section.content"
+            withImages />
         </IntersectionObserver>
       </template>
       <!-- Without a heading -->
       <template v-else>
-        <MarkdownRenderer :value="section.content" />
+        <MarkdownRenderer
+          :value="section.content"
+          withImages />
       </template>
     </div>
   </template>

@@ -10,9 +10,19 @@ import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
 import { ref, watch } from 'vue'
 
-const props = defineProps<{ value?: string }>()
+const props = withDefaults(
+  defineProps<{
+    value?: string
+    withImages: boolean
+  }>(),
+  {
+    withImages: false,
+  },
+)
 
 const html = ref<string>('')
+
+const disallowedTagNames = props.withImages ? [] : ['img', 'picture']
 
 watch(
   () => props.value,
@@ -25,7 +35,7 @@ watch(
       .use(rehypeSanitize, {
         ...defaultSchema,
         tagNames: defaultSchema.tagNames?.filter(
-          (tag) => !['img'].includes(tag),
+          (tag) => !disallowedTagNames.includes(tag),
         ),
       })
       .use(rehypeHighlight, {
