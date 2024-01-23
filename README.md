@@ -28,6 +28,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   - [With Hono](#with-hono)
   - [With Express](#with-express)
   - [With NestJS](#with-nestjs)
+  - [With Next.js](#with-nextjs)
   - [With Laravel](#with-laravel)
 - [Hosted API Reference](#hosted-api-reference)
 - [Configuration](#configuration)
@@ -224,6 +225,28 @@ app.use(
 ```
 
 Read more: [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)
+
+### With Nextjs
+
+Our Next.js component makes it easy to render a reference, just add it to your
+Next.js page:
+
+```ts
+import { ApiReference } from '@scalar/nextjs-api-reference'
+
+const Page = () => {
+  const config = {
+    spec: {
+      url: '/swagger.json'
+    }
+  }
+
+  return <ApiReference config={config} />
+}
+export default Page
+```
+
+Read more: [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nextjs-api-reference)
 
 ### With Laravel
 
