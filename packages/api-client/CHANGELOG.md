@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 0.9.3
+
+### Patch Changes
+
+- Updated dependencies [75e1cdf8]
+  - @scalar/use-keyboard-event@0.5.8
+
 ## 0.9.2
 
 ### Patch Changes
