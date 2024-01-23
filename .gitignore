@@ -3,3 +3,4 @@ dist/
 .env
 .turbo
 *.tgz
+tsconfig.tsbuildinfo
