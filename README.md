@@ -228,10 +228,10 @@ Read more: [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/
 
 ### With Nextjs
 
-Our Next.js handler makes it easy to render a reference, just add it to an API
+Our Next.js handler makes it easy to render a reference, just add it to an Api
 route handler:
 
-```ts sdjhasd
+```ts
 // app/api/docs/route.ts
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
