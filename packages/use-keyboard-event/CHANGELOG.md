@@ -1,5 +1,11 @@
 # @scalar/use-keyboard-event
 
+## 0.5.8
+
+### Patch Changes
+
+- 75e1cdf8: fix: only activate hotkey if component is active
+
 ## 0.5.7
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.13.14
+
+### Patch Changes
+
+- 455deefe: feat: export SidebarElement and SidebarGroup
+- 75e1cdf8: fix: only activate hotkey if component is active
+- Updated dependencies [75e1cdf8]
+  - @scalar/use-keyboard-event@0.5.8
+  - @scalar/api-client@0.9.3
+
 ## 1.13.13
 
 ### Patch Changes
