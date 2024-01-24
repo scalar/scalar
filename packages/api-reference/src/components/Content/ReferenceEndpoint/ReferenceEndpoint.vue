@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import { useNavState } from '../../../hooks'
 import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
@@ -10,18 +12,37 @@ import {
   SectionContent,
   SectionHeader,
 } from '../../Section'
+import CustomRequestExamples from './CustomRequestExamples.vue'
 import EndpointDetails from './EndpointDetails.vue'
 import EndpointPath from './EndpointPath.vue'
 import ExampleRequest from './ExampleRequest.vue'
 import { PathResponses } from './PathResponses'
 import TryRequestButton from './TryRequestButton.vue'
 
-defineProps<{
+const props = defineProps<{
   operation: TransformedOperation
   tag: Tag
 }>()
 
 const { getOperationId } = useNavState()
+
+const customRequestExamples = computed(() => {
+  const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples']
+
+  for (const key of keys) {
+    if (
+      props.operation.information?.[
+        key as 'x-custom-examples' | 'x-codeSamples' | 'x-code-samples'
+      ]
+    ) {
+      return props.operation.information[
+        key as 'x-custom-examples' | 'x-codeSamples' | 'x-code-samples'
+      ]
+    }
+  }
+
+  return null
+})
 </script>
 <template>
   <Section
@@ -42,7 +63,13 @@ const { getOperationId } = useNavState()
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
-            <ExampleRequest :operation="operation">
+            <CustomRequestExamples
+              v-if="customRequestExamples"
+              :examples="customRequestExamples"
+              :operation="operation" />
+            <ExampleRequest
+              v-else
+              :operation="operation">
               <template #header>
                 <EndpointPath
                   class="example-path"

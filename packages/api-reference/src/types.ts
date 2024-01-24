@@ -98,16 +98,34 @@ export type Response = {
   content: any
 }
 
+export type CustomRequestExample = {
+  lang: string
+  label: string
+  source: string
+}
+
 export type Information = {
-  description?: string
-  operationId?: string | number
-  parameters?: Parameters[]
-  responses?: Record<string, Response>
-  security?: OpenAPIV3.SecurityRequirementObject[]
-  requestBody?: RequestBody
-  summary?: string
-  tags?: string[]
-  deprecated?: boolean
+  'description'?: string
+  'operationId'?: string | number
+  'parameters'?: Parameters[]
+  'responses'?: Record<string, Response>
+  'security'?: OpenAPIV3.SecurityRequirementObject[]
+  'requestBody'?: RequestBody
+  'summary'?: string
+  'tags'?: string[]
+  'deprecated'?: boolean
+  /**
+   * Scalar
+   **/
+  'x-custom-examples': CustomRequestExample[]
+  /**
+   * Redocly, current
+   **/
+  'x-codeSamples': CustomRequestExample[]
+  /**
+   * Redocly, deprecated
+   **/
+  'x-code-samples': CustomRequestExample[]
 }
 
 export type Operation = {
