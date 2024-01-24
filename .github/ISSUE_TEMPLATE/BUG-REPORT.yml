@@ -3,64 +3,32 @@ description: If you’ve already asked for help with a problem and confirmed som
 labels: ['bug', 'triage']
 
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for taking the time to fill out this bug report!
-  - type: textarea
-    id: expected-behaviour
-    attributes:
-      label: Expected Behavior
-      description: What did you expect to happen?
-      placeholder: Tell us what you expected!
-    validations:
-      required: true
   - type: textarea
     id: actual-behaviour
     attributes:
-      label: Actual Behavior
-      description: What did you actually happened?
-      placeholder: Tell us what you see!
+      label: What happens?
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behaviour
+    attributes:
+      label: What did you expect to happen?
     validations:
       required: true
   - type: textarea
     id: reprod
     attributes:
-      label: 'Reproduction steps'
-      description: Please enter an explicit description of your issue
-      value: |
+      label: 'How can we reproduce the issue?'
+      placeholder: |
         1. Go to …
         2. Click on …
         3. Scroll down to …
         4. See error
-      render: bash
     validations:
       required: true
   - type: input
     id: env-link
     attributes:
-      label: Link to site / OpenAPI Spec
-      description: What is the site or OpenAPI spec that is having the issue? (Optional)
-      placeholder: Please link to a public URL
-    validations:
-      required: false
-  - type: input
-    id: version
-    attributes:
-      label: Version
-      description: What version of our software are you running?
-      placeholder: Enter the software version
-    validations:
-      required: true
-  - type: dropdown
-    id: browsers
-    attributes:
-      label: What browsers are you seeing the problem on?
-      multiple: true
-      options:
-        - Chrome
-        - Safari (iOS)
-        - Safari (macOS)
-        - Firefox
-        - Microsoft Edge
-        - Other
+      label: Swagger/OpenAPI Example
+      description: You can use https://sandbox.scalar.com to share an example with us.
+      placeholder: https://sandbox.scalar.com/…
