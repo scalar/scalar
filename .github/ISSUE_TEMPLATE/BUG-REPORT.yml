@@ -1,6 +1,5 @@
-name: 🐛 Bug Report
-description: If you’ve already asked for help with a problem and confirmed something is broken, create a bug report.
-labels: ['bug', 'triage']
+name: Bug Report
+labels: ['bug']
 
 body:
   - type: textarea
