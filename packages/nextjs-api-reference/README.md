@@ -24,7 +24,7 @@ npm install @scalar/nextjs-api-reference
 If you have a OpenAPI/Swagger file already, you can pass a URL to the plugin in an API [Route](https://nextjs.org/docs/app/building-your-application/routing/route-handlers):
 
 ```ts
-// app/api/docs/route.ts
+// app/reference/route.ts
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
 const config = {

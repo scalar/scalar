@@ -1,9 +1,8 @@
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
-import content from '../../../../web/src/fixtures/petstorev3.json'
+import content from '../../../web/src/fixtures/petstorev3.json'
 
 const config = {
-  isEditable: false,
   spec: {
     content,
   },

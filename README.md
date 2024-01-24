@@ -232,7 +232,7 @@ Our Next.js handler makes it easy to render a reference, just add it to an Api
 route handler:
 
 ```ts
-// app/api/docs/route.ts
+// app/reference/route.ts
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
 const config = {
