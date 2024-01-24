@@ -39,6 +39,11 @@ export const getExampleFromSchema = (
     return undefined
   }
 
+  // Use the first example, if there’s an array
+  if (Array.isArray(schema.examples) && schema.examples.length > 0) {
+    return schema.examples[0]
+  }
+
   // Use an example, if there’s one
   if (schema.example !== undefined) {
     return schema.example

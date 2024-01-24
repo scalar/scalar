@@ -11,6 +11,14 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject(10)
   })
 
+  it('uses first example, if multiple are configured', () => {
+    expect(
+      getExampleFromSchema({
+        examples: [10],
+      }),
+    ).toMatchObject(10)
+  })
+
   it('takes the first enum as example', () => {
     expect(
       getExampleFromSchema({
