@@ -117,15 +117,15 @@ export type Information = {
   /**
    * Scalar
    **/
-  'x-custom-examples': CustomRequestExample[]
+  'x-custom-examples'?: CustomRequestExample[]
   /**
    * Redocly, current
    **/
-  'x-codeSamples': CustomRequestExample[]
+  'x-codeSamples'?: CustomRequestExample[]
   /**
    * Redocly, deprecated
    **/
-  'x-code-samples': CustomRequestExample[]
+  'x-code-samples'?: CustomRequestExample[]
 }
 
 export type Operation = {
