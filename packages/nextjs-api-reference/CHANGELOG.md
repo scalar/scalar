@@ -1,5 +1,17 @@
 # @scalar/nextjs-api-reference
 
+## 0.1.1
+
+### Patch Changes
+
+- ac9e9326: fix: moved next.js adapter to an api route
+- 1963d803: chore: allow Next.js 14
+- Updated dependencies [706b29f2]
+- Updated dependencies [d8fc0544]
+- Updated dependencies [55e74b08]
+- Updated dependencies [8573da8d]
+  - @scalar/api-reference@1.13.15
+
 ## 0.1.0
 
 ### Minor Changes
