@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.13.15
+
+### Patch Changes
+
+- 706b29f2: feat: render images in the description
+- d8fc0544: feat: add support for `x-custom-examples` (custom request examples)
+- 55e74b08: feat: show nullable properties
+- 8573da8d: feat: use schema examples
+
 ## 1.13.14
 
 ### Patch Changes
