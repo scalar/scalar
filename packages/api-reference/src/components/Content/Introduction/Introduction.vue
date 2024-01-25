@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 import { computed } from 'vue'
 
 import type { Info, Spec } from '../../../types'
@@ -15,7 +16,9 @@ import Description from './Description.vue'
 import DownloadSpec from './DownloadSpec.vue'
 
 const props = defineProps<{
-  info: Info
+  info: Partial<
+    OpenAPIV2.InfoObject | OpenAPIV3.InfoObject | OpenAPIV3_1.InfoObject
+  >
   parsedSpec: Spec
   rawSpec: string
 }>()

@@ -1,7 +1,12 @@
 import { type ThemeId } from '@scalar/themes'
 import type { MetaFlatInput } from '@unhead/schema'
 import type { HarRequest } from 'httpsnippet-lite'
-import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
+import {
+  type OpenAPI,
+  type OpenAPIV2,
+  type OpenAPIV3,
+  type OpenAPIV3_1,
+} from 'openapi-types'
 import { type DeepReadonly, type Slot } from 'vue'
 
 export type ReferenceProps = {
@@ -255,13 +260,6 @@ export type SecurityScheme =
   | OpenAPIV3.SecuritySchemeObject
   | OpenAPIV3_1.SecuritySchemeObject
 
-export type Components = Omit<
-  OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject,
-  'securitySchemes'
-> & {
-  securitySchemes?: Record<string, SecurityScheme>
-}
-
 export type Definitions = OpenAPIV2.DefinitionsObject
 
 export type Webhooks = Record<
@@ -271,22 +269,27 @@ export type Webhooks = Record<
 
 export type Spec = {
   tags?: Tag[]
-  info: Info
-  host?: string
-  basePath?: string
-  schemes?: string[]
+  info:
+    | Partial<OpenAPIV2.Document['info']>
+    | Partial<OpenAPIV3.Document['info']>
+    | Partial<OpenAPIV3_1.Document['info']>
+  host?: OpenAPIV2.Document['host']
+  basePath?: OpenAPIV2.Document['basePath']
+  schemes?: OpenAPIV2.Document['schemes']
   externalDocs?: ExternalDocs
   servers?: Server[]
-  components?: Components
+  components?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
   webhooks?: Webhooks
   definitions?: Definitions
-  openapi?: string
-  swagger?: string
+  swagger?: OpenAPIV2.Document['swagger']
+  openapi?: OpenAPIV3.Document['openapi'] | OpenAPIV3_1.Document['openapi']
 }
 
 export type AuthenticationState = {
   securitySchemeKey: string | null
-  securitySchemes?: Record<string, SecurityScheme>
+  securitySchemes?:
+    | OpenAPIV3.ComponentsObject['securitySchemes']
+    | OpenAPIV3_1.ComponentsObject['securitySchemes']
   http: {
     basic: {
       username: string

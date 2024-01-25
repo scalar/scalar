@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { OpenAPIV3_1 } from 'openapi-types'
 import { computed, watch } from 'vue'
 
 import { hasSecuritySchemes } from '../../../helpers'
@@ -22,7 +23,7 @@ const showSecurityScheme = computed(() => {
       authentication.securitySchemeKey
     ]
 
-  return !!scheme?.type
+  return !!scheme && 'type' in scheme && !!scheme.type
 })
 
 // Keep a copy of the security schemes in the global authentication state
@@ -62,7 +63,7 @@ watch(
         :value="
           parsedSpec?.components?.securitySchemes?.[
             authentication.securitySchemeKey
-          ]
+          ] as OpenAPIV3_1.SecuritySchemeObject
         " />
     </CardContent>
   </Card>

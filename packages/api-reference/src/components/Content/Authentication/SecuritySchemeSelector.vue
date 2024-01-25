@@ -1,12 +1,22 @@
 <script lang="ts" setup>
 import { ScalarIcon } from '@scalar/components'
+import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { computed, onMounted } from 'vue'
 
 import { useGlobalStore } from '../../../stores'
 
 const props = defineProps<{
-  // TODO: Add type
-  value: any
+  value?:
+    | {
+        [key: string]:
+          | OpenAPIV3.SecuritySchemeObject
+          | OpenAPIV3.ReferenceObject
+      }
+    | Record<
+        string,
+        OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.ReferenceObject
+      >
+    | undefined
 }>()
 
 // Emit updates
@@ -24,7 +34,7 @@ const handleAuthenticationTypeInput = (event: Event) => {
 // Use first security scheme as default
 onMounted(() => {
   // Set the authentication type to the first security scheme
-  setSecuritySchemeKey(Object.keys(props.value)[0] ?? null)
+  setSecuritySchemeKey(Object.keys(props.value ?? {})[0] ?? null)
 })
 
 // Update current security scheme key
@@ -72,12 +82,12 @@ const getAuthorizationTypeLabel = (item: any) => {
 }
 
 // Alias
-const keys = computed(() => Object.keys(props.value))
+const keys = computed(() => Object.keys(props.value ?? {}))
 </script>
 <template>
   <!-- Single security scheme -->
   <template v-if="keys.length === 1">
-    {{ getLabelForScheme(value[keys[0]], keys[0]) }}
+    {{ getLabelForScheme(value?.[keys[0]], keys[0]) }}
   </template>
 
   <!-- Multiple security schemes -->
@@ -87,7 +97,7 @@ const keys = computed(() => Object.keys(props.value))
         {{
           authentication.securitySchemeKey
             ? getLabelForScheme(
-                value[authentication.securitySchemeKey],
+                value?.[authentication.securitySchemeKey],
                 authentication.securitySchemeKey,
               )
             : ''
@@ -101,7 +111,7 @@ const keys = computed(() => Object.keys(props.value))
           v-for="key in keys"
           :key="key">
           <option :value="key ?? null">
-            {{ getLabelForScheme(value[key], key) }}
+            {{ getLabelForScheme(value?.[key], key) }}
           </option>
         </template>
       </select>

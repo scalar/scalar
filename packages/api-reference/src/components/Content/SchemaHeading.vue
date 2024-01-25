@@ -1,12 +1,21 @@
 <script lang="ts" setup>
+import { type OpenAPI, type OpenAPIV2 } from 'openapi-types'
+
 defineProps<{
-  value: Record<string, any>
+  value: OpenAPIV2.SchemaObject
   name?: string
 }>()
 </script>
 <template>
   <span class="schema-type">
-    <em :title="value.type">
+    <em
+      :title="
+        typeof value.type === 'string'
+          ? value.type
+          : Array.isArray(value.type)
+          ? value.type.join(' | ')
+          : 'unkown type'
+      ">
       <template v-if="value.type === 'object'"> {} </template>
       <template v-if="value.type === 'array'"> [] </template>
     </em>
