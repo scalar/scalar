@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.13.16
+
+### Patch Changes
+
+- fcb2b75b: fix: text in method badges wraps for PATCH operations
+- 8e7fcfa0: chore: improve types
+
 ## 1.13.15
 
 ### Patch Changes
