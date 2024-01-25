@@ -62,7 +62,9 @@ defineExpose({ el })
           v-if="item?.icon?.src"
           class="sidebar-icon"
           :src="item.icon.src" />
-        <p>{{ item.title }}</p>
+        <span>
+          {{ item.title }}
+        </span>
         <div
           v-if="item.httpVerb"
           class="sidebar-heading-type"
@@ -102,14 +104,14 @@ defineExpose({ el })
   padding-right: 12px;
   user-select: none;
 }
-.sidebar-heading.deprecated p {
+.sidebar-heading.deprecated span {
   text-decoration: line-through;
 }
 .sidebar-heading:hover {
   /* prettier-ignore */
   background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background, var(--theme-background-2, var(--default-theme-background-2))));
 }
-.sidebar-heading:hover p {
+.sidebar-heading:hover span {
   color: var(
     --sidebar-item-hover-color,
     var(
@@ -134,7 +136,8 @@ defineExpose({ el })
   display: flex;
   flex: 1;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  gap: 2px;
 }
 
 /* Sidebar link icon */
@@ -208,11 +211,10 @@ defineExpose({ el })
 }
 
 .sidebar-heading-type {
-  width: 28px;
-  height: 12px;
-  line-height: 13px;
-  top: 3.5px;
-  margin-left: 2px;
+  width: 3.9em;
+  overflow: hidden;
+  height: 1.8em;
+  line-height: 1.8em;
   border-radius: 30px;
   flex-shrink: 0;
   color: var(
@@ -228,6 +230,7 @@ defineExpose({ el })
   text-align: center;
   position: relative;
   font-family: var(--theme-font-code, var(--default-theme-font-code));
+  white-space: nowrap;
 }
 .active_page .sidebar-heading-type {
   background: transparent;
