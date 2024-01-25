@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { computed } from 'vue'
 
 import { useNavState, useSidebar } from '../../hooks'
-import { type Components } from '../../types'
 import { Anchor } from '../Anchor'
 import {
   Section,
@@ -14,7 +14,7 @@ import Schema from './Schema.vue'
 import ShowMoreButton from './ShowMoreButton.vue'
 
 const props = defineProps<{
-  components?: Components
+  components?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
 }>()
 
 const { collapsedSidebarItems } = useSidebar()

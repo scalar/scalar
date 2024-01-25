@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { type OpenAPIV3 } from 'openapi-types'
+import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { computed } from 'vue'
 
 import { useNavState } from '../../hooks'
-import { type Components } from '../../types'
 import { Anchor } from '../Anchor'
 import {
   SectionAccordion,
@@ -14,16 +13,14 @@ import SchemaHeading from './SchemaHeading.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
 const props = defineProps<{
-  components?: Components
+  components?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
 }>()
 
-const models = computed<
-  {
-    name: string
-    schema: OpenAPIV3.SchemaObject
-  }[]
->(() => {
-  if (!props.components?.schemas) return []
+const models = computed(() => {
+  if (!props.components?.schemas) {
+    return []
+  }
+
   return Object.entries(props.components?.schemas).map(([name, schema]) => ({
     name,
     schema,
@@ -67,7 +64,7 @@ const { getModelId } = useNavState()
             !!schema.required.length &&
             schema.required.includes(property)
           "
-          :value="value" />
+          :value="value as OpenAPIV3_1.SchemaObject['properties']" />
       </div>
       <div v-else>
         <SchemaProperty :value="schema" />

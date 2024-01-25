@@ -53,20 +53,20 @@ export function getRequestFromAuthentication(
 
   if (securityScheme) {
     // API Key
-    if (securityScheme.type === 'apiKey') {
+    if ('type' in securityScheme && securityScheme.type === 'apiKey') {
       // Header
-      if (securityScheme.in === 'header') {
+      if ('in' in securityScheme && securityScheme.in === 'header') {
         const token = authentication.apiKey.token.length
           ? authentication.apiKey.token
           : 'YOUR_TOKEN'
 
         headers.push({
-          name: securityScheme.name,
+          name: 'name' in securityScheme ? securityScheme.name : '',
           value: token,
         })
       }
       // Cookie
-      else if (securityScheme.in === 'cookie') {
+      else if ('in' in securityScheme && securityScheme.in === 'cookie') {
         // TODO: Should we add a dedicated cookie section?
         const token = authentication.apiKey.token.length
           ? authentication.apiKey.token
@@ -78,7 +78,7 @@ export function getRequestFromAuthentication(
         })
       }
       // Query
-      else if (securityScheme.in === 'query') {
+      else if ('in' in securityScheme && securityScheme.in === 'query') {
         const token = authentication.apiKey.token.length
           ? authentication.apiKey.token
           : 'YOUR_TOKEN'
@@ -91,13 +91,16 @@ export function getRequestFromAuthentication(
     }
     // HTTP Header Auth
     else if (
-      securityScheme.type === 'http' ||
-      securityScheme.type === 'basic'
+      'type' in securityScheme &&
+      // @ts-ignore
+      (securityScheme.type === 'http' || securityScheme.type === 'basic')
     ) {
       // Basic Auth
       if (
-        securityScheme.type === 'basic' ||
-        securityScheme.scheme === 'basic'
+        'type' in securityScheme &&
+        // @ts-ignore
+        (securityScheme.type === 'basic' ||
+          (securityScheme.type === 'http' && securityScheme.scheme === 'basic'))
       ) {
         headers.push({
           name: 'Authorization',
@@ -107,7 +110,11 @@ export function getRequestFromAuthentication(
         })
       }
       // Bearer Auth
-      else if (securityScheme.scheme === 'bearer') {
+      else if (
+        'type' in securityScheme &&
+        securityScheme.type === 'http' &&
+        securityScheme.scheme === 'bearer'
+      ) {
         const token = authentication.http.bearer.token.length
           ? authentication.http.bearer.token
           : 'YOUR_SECRET_TOKEN'

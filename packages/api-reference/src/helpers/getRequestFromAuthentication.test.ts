@@ -110,6 +110,7 @@ describe('getRequestFromAuthentication', () => {
         securitySchemeKey: 'basic',
         securitySchemes: {
           basic: {
+            // @ts-ignore
             type: 'basic',
           },
         },
@@ -145,6 +146,7 @@ describe('getRequestFromAuthentication', () => {
         securitySchemeKey: 'basic',
         securitySchemes: {
           basic: {
+            // @ts-ignore
             type: 'basic',
           },
         },
@@ -180,6 +182,7 @@ describe('getRequestFromAuthentication', () => {
         securitySchemeKey: 'basic',
         securitySchemes: {
           basic: {
+            // @ts-ignore
             type: 'basic',
           },
         },
@@ -215,6 +218,7 @@ describe('getRequestFromAuthentication', () => {
         securitySchemeKey: 'basic',
         securitySchemes: {
           basic: {
+            // @ts-ignore
             type: 'basic',
           },
         },
@@ -244,6 +248,7 @@ describe('getRequestFromAuthentication', () => {
         securitySchemeKey: 'basic',
         securitySchemes: {
           basic: {
+            // @ts-ignore
             type: 'basic',
           },
         },
@@ -273,6 +278,7 @@ describe('getRequestFromAuthentication', () => {
         securitySchemeKey: 'basic',
         securitySchemes: {
           basic: {
+            // @ts-ignore
             type: 'basic',
           },
         },

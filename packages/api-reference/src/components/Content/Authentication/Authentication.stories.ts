@@ -44,6 +44,7 @@ export const NoAuthentication: Story = {
       },
       components: {
         securitySchemes: {
+          // @ts-ignore
           none: {},
         },
       },
@@ -62,6 +63,7 @@ export const BasicAuthentication: Story = {
       components: {
         securitySchemes: {
           basic: {
+            // @ts-ignore
             type: 'basic',
             description: 'Use HTTP **Basic** Auth.',
           },
@@ -160,8 +162,10 @@ export const MultipleMethods: Story = {
       },
       components: {
         securitySchemes: {
+          // @ts-ignore
           none: {},
           basic: {
+            // @ts-ignore
             type: 'basic',
             description: 'Use HTTP **Basic** Auth.',
           },
@@ -172,6 +176,7 @@ export const MultipleMethods: Story = {
           },
           oauth: {
             type: 'oauth2',
+            // @ts-ignore
             flow: 'accessCode',
             authorizationUrl: '',
             tokenUrl: '',
