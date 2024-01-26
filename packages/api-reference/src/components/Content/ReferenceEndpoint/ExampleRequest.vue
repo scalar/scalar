@@ -171,7 +171,6 @@ computed(() => {
       <!-- @vue-ignore -->
       <CodeMirror
         :content="CodeMirrorValue"
-        :forceDarkMode="true"
         :languages="CodeMirrorLanguages"
         lineNumbers
         readOnly />
