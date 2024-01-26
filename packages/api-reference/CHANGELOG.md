@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.13.18
+
+### Patch Changes
+
+- b4f66f0b: fix: example spec not loading on mobile
+
 ## 1.13.17
 
 ### Patch Changes

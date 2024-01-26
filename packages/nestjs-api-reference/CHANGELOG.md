@@ -1,5 +1,13 @@
 # @scalar/nestjs-api-reference
 
+## 0.1.28
+
+### Patch Changes
+
+- b4f66f0b: fix: example spec not loading on mobile
+- Updated dependencies [b4f66f0b]
+  - @scalar/api-reference@1.13.18
+
 ## 0.1.27
 
 ### Patch Changes

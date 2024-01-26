@@ -1,5 +1,13 @@
 # @scalar/hono-api-reference
 
+## 0.3.29
+
+### Patch Changes
+
+- b4f66f0b: fix: example spec not loading on mobile
+- Updated dependencies [b4f66f0b]
+  - @scalar/api-reference@1.13.18
+
 ## 0.3.28
 
 ### Patch Changes
