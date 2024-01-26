@@ -11,6 +11,7 @@ withDefaults(
     required?: boolean
     compact?: boolean
     toggleVisibility?: boolean
+    description?: string
   }>(),
   {
     level: 0,
@@ -75,26 +76,32 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       <div
         v-if="value?.type"
         class="property-type">
-        <template v-if="value.type !== 'object'">
-          <template
-            v-if="value?.items && !['object'].includes(value.items.type)">
-            {{ value.type }}
-            {{ value.items.type }}[]
-            <template v-if="value.items.example">
-              <code class="property-example-value">
-                example: {{ value.items.example }}
-              </code>
-            </template>
+        <template v-if="value?.items && !['object'].includes(value.items.type)">
+          {{ value.type }}
+          {{ value.items.type }}[]
+          <template v-if="value.items.example">
+            <code class="property-example-value">
+              example: {{ value.items.example }}
+            </code>
           </template>
-          <template v-else>
-            {{ value.type }}
-          </template>
-          <template v-if="value.minItems || value.maxItems">
-            {{ value.minItems }}..{{ value.maxItems }}
-          </template>
-          <template v-if="value.uniqueItems"> unique! </template>
         </template>
+        <template v-else>
+          {{ value.type }}
+        </template>
+        <template v-if="value.minItems || value.maxItems">
+          {{ value.minItems }}..{{ value.maxItems }}
+        </template>
+        <template v-if="value.minLength">
+          &middot; min: {{ value.minLength }}
+        </template>
+        <template v-if="value.maxLength">
+          &middot; max: {{ value.maxLength }}
+        </template>
+        <template v-if="value.uniqueItems"> unique! </template>
         <template v-if="value.format"> &middot; {{ value.format }} </template>
+        <template v-if="value.pattern">
+          &middot; <code class="pattern">{{ value.pattern }}</code>
+        </template>
         <template v-if="value.enum"> &middot; enum </template>
       </div>
       <div
@@ -131,9 +138,9 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     </div>
     <!-- Description -->
     <div
-      v-if="value?.description"
+      v-if="description || value?.description"
       class="property-description">
-      <MarkdownRenderer :value="value.description" />
+      <MarkdownRenderer :value="description || value?.description" />
     </div>
     <div
       v-else-if="generatePropertyDescription(value)"
@@ -212,21 +219,17 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
 <style scoped>
 .property {
+  color: var(--theme-color-1, var(--default-theme-color-1));
   padding: 10px;
-  overflow: auto;
   font-size: var(--theme-mini, var(--default-theme-mini));
 }
+
 .property:last-of-type {
   padding-bottom: 0;
 }
 
-.property--compact:not(.property--level-0) {
-  padding: 8px;
-}
-
 .property--compact.property--level-0 {
-  padding-left: 0;
-  padding-right: 0;
+  padding: 8px 0;
 }
 
 .property-information {
@@ -238,13 +241,19 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
 .property-description {
   margin-top: 4px;
-  color: var(--theme-color-2, var(--default-theme-color-2));
   line-height: 1.4;
+}
+
+:deep(.property-description) * {
+  color: var(--theme-color-2, var(--default-theme-color-2)) !important;
 }
 
 .property:not(:last-of-type) {
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
+}
+.children {
+  padding-top: 8px;
 }
 .children .property:first-of-type {
   border-top: 1px solid
@@ -291,6 +300,15 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     --default-theme-font-size-5,
     var(--default-default-theme-font-size-5)
   );
+}
+
+.pattern {
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  background: var(--theme-background-3, var(--default-theme-background-3));
+  padding: 1px 3px;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
 }
 
 .rule {

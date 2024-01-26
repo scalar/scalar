@@ -36,7 +36,9 @@ const { responses } = useResponses(props.operation)
     <Parameters :parameters="parameterMap.formData">
       <template #title>Form Data</template>
     </Parameters>
-    <RequestBody :requestBody="operation.information?.requestBody">
+    <RequestBody
+      v-if="operation.information?.requestBody"
+      :requestBody="operation.information?.requestBody">
       <template #title>Body</template>
     </RequestBody>
     <Parameters :parameters="responses">
