@@ -35,7 +35,8 @@ jobs:
         run: pnpm turbo types:check
       - name: Run tests
         run: pnpm turbo test
-      - name: Send bundle stats and build information to RelativeCI
+      - if: matrix.node-version == 20
+        name: Send bundle stats and build information to RelativeCI
         uses: relative-ci/agent-action@v2
         with:
           key: ${{ secrets.RELATIVE_CI_KEY }}
