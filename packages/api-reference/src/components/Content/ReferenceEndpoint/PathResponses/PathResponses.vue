@@ -188,7 +188,7 @@ const showSchema = ref(false)
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
 .scalar-card-container :deep(.cm-scroller) {
-  overflow: hidden;
+  overflow-y: hidden;
 }
 
 .scalar-card-checkbox {
