@@ -147,7 +147,7 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
       :value="rawSpecRef"
       @changeTheme="$emit('changeTheme', $event)"
       @openSwaggerEditor="gettingStartedModal.hide()"
-      @updateContent="handleCloseModal(() => $emit('updateContent', $event))" />
+      @updateContent="handleCloseModal(() => setRawSpecRef($event))" />
   </FlowModal>
   <ResetStyles v-slot="{ styles }">
     <ApiReferenceLayout
