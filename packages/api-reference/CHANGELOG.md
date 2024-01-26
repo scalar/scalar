@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.13.17
+
+### Patch Changes
+
+- 8ffea2ae: feat: better schema support for params
+- e073b015: fix: allow response to scroll horizontally
+
 ## 1.13.16
 
 ### Patch Changes
