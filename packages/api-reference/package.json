@@ -43,6 +43,7 @@
   },
   "files": [
     "dist",
+    "!dist/webpack-stats.json",
     "CHANGELOG.md"
   ],
   "browser": "./dist/browser/standalone.js",
@@ -93,6 +94,7 @@
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",
+    "@relative-ci/agent": "^4.2.3",
     "@storybook/addon-essentials": "^7.5.2",
     "@storybook/addon-interactions": "^7.5.2",
     "@storybook/addon-links": "^7.5.2",
@@ -107,6 +109,7 @@
     "postcss": "^8.4.31",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "rollup-plugin-webpack-stats": "^0.2.3",
     "storybook": "^7.5.2",
     "storybook-dark-mode": "^3.0.1",
     "tsc-alias": "^1.8.8",
