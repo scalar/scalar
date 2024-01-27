@@ -114,6 +114,7 @@ export async function sendRequest(
         url: requestConfig.url,
         headers: requestConfig.headers,
         data: requestConfig.data,
+        responseType: 'blob',
       }
 
   // if we have cookies, we need to pass withCredentials
@@ -129,20 +130,24 @@ export async function sendRequest(
   }
 
   const response: ClientResponse = await axios(axiosRequestConfig)
-    .then((result) => {
+    .then(async (result) => {
       // With proxy
       if (proxyUrl) {
         return {
+          // Result is a string via the proxy
           ...result.data,
           error: false,
         }
       }
 
+      // Result is a blob without the proxy
+      const blob = result.data as Blob
+      const data = blob.type === 'application/json' ? await blob.text() : blob
       // Without proxy
       return {
         ...result,
         statusCode: result.status,
-        data: JSON.stringify(result.data),
+        data,
         error: false,
       }
     })

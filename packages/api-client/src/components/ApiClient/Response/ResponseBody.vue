@@ -1,21 +1,20 @@
 <script lang="ts" setup>
 import { CodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
 import contentType from 'content-type'
-import { computed } from 'vue'
+import { computed, toRaw } from 'vue'
 
+import { isJsonString } from '../../../helpers'
 import { CollapsibleSection } from '../../CollapsibleSection'
 
-const props = withDefaults(
-  defineProps<{
-    active: boolean
-    data: any
-    headers: Record<string, string>[]
-  }>(),
-  {
-    active: false,
-    data: null,
-  },
-)
+const props = defineProps<{
+  active?: boolean
+  data?: Blob | string
+  headers: Record<string, string>[]
+}>()
+
+const isBlob = (d: Blob | string): d is Blob => {
+  return (d as Blob).type !== undefined
+}
 
 const mediaType = computed(() => {
   const contentTypeHeader = props.headers.find(
@@ -31,6 +30,22 @@ const mediaType = computed(() => {
   } catch {
     return null
   }
+})
+
+const formattedStringResponse = computed<string | undefined>(() => {
+  if (!props.data || isBlob(props.data)) return undefined
+
+  if (isJsonString(props.data)) {
+    // Format JSON
+    return JSON.stringify(JSON.parse(props.data as string), null, 2)
+  } else if (typeof toRaw(props.data) === 'object') {
+    return JSON.stringify(props.data, null, 2)
+  }
+  if (!isJsonString(props.data)) {
+    return JSON.stringify(props.data, null, 2)
+  }
+
+  return props.data
 })
 
 const codeMirrorLanguages = computed((): CodeMirrorLanguage[] | null => {
@@ -54,9 +69,14 @@ const codeMirrorLanguages = computed((): CodeMirrorLanguage[] | null => {
     <template v-if="active">
       <CodeMirror
         v-if="codeMirrorLanguages"
-        :content="data"
+        :content="formattedStringResponse"
         :languages="codeMirrorLanguages"
         readOnly />
+      <div
+        v-else-if="data && isBlob(data)"
+        class="scalar-api-client__empty-state">
+        It's a blob! ({{ mediaType }})
+      </div>
       <div
         v-else
         class="scalar-api-client__empty-state">
