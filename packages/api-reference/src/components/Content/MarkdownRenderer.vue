@@ -252,6 +252,16 @@ watch(
   border-left-color: transparent;
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
+
+.markdown :deep(tr) > [align=left] {
+  text-align: left;
+}
+.markdown :deep(tr) > [align=right] {
+  text-align: right;
+}
+.markdown :deep(tr) > [align=center] {
+  text-align: center;
+}
 </style>
 
 <style lang="postcss">
