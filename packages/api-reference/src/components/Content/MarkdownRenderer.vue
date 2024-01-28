@@ -253,13 +253,13 @@ watch(
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
 
-.markdown :deep(tr) > [align=left] {
+.markdown :deep(tr) > [align='left'] {
   text-align: left;
 }
-.markdown :deep(tr) > [align=right] {
+.markdown :deep(tr) > [align='right'] {
   text-align: right;
 }
-.markdown :deep(tr) > [align=center] {
+.markdown :deep(tr) > [align='center'] {
   text-align: center;
 }
 </style>
