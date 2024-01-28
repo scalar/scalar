@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.20
+
+### Patch Changes
+
+- 3d712d74: chore: remove light/dark mode features from useCodeMirror
+
 ## 0.7.19
 
 ### Patch Changes
