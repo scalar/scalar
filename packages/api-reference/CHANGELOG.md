@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.13.19
+
+### Patch Changes
+
+- 3d712d74: chore: remove light/dark mode features from useCodeMirror
+- Updated dependencies [3d712d74]
+  - @scalar/use-codemirror@0.7.20
+  - @scalar/api-client@0.9.4
+  - @scalar/swagger-editor@0.9.9
+
 ## 1.13.18
 
 ### Patch Changes
