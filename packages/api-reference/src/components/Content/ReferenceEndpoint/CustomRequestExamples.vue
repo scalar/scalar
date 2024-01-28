@@ -113,7 +113,6 @@ const { copyToClipboard } = useClipboard()
       frameless>
       <CodeMirror
         :content="currentExample.source.trim()"
-        :forceDarkMode="true"
         :languages="[language]"
         lineNumbers
         readOnly />

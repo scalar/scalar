@@ -1,16 +1,9 @@
 import { type Extension, StateEffect } from '@codemirror/state'
-import {
-  type EditorViewConfig,
-  type KeyBinding,
-  keymap,
-} from '@codemirror/view'
+import { type EditorViewConfig } from '@codemirror/view'
 import { EditorView } from 'codemirror'
 import { type Ref, ref, watch } from 'vue'
 
-import { darkTheme, lightTheme } from '../themes'
-
-/** TODO: This is a static value, make it work with a dynamic parameter. */
-const isDark = ref(false)
+import { customTheme } from '../themes'
 
 type UseCodeMirrorParameters = {
   /**
@@ -21,14 +14,6 @@ type UseCodeMirrorParameters = {
    * Prefill the content. Will be ignored when a provider is given.
    */
   content?: string
-  /**
-   * Force the dark mode.
-   */
-  forceDarkMode?: boolean
-  /**
-   * Force the light mode.
-   */
-  forceLightMode?: boolean
   /**
    * Whether to load a theme.
    */
@@ -45,8 +30,7 @@ export const useCodeMirror = (
   reconfigureCodeMirror: (newExtensions: Extension[]) => void
   restartCodeMirror: (newExtensions: Extension[]) => void
 } => {
-  const { extensions, content, forceDarkMode, forceLightMode, withoutTheme } =
-    parameters
+  const { extensions, content, withoutTheme } = parameters
   const value = ref(content ?? '')
   const codeMirrorRef = ref<HTMLDivElement | null>(null)
   const codeMirror = ref<EditorView | null>(null)
@@ -74,70 +58,22 @@ export const useCodeMirror = (
     }
   }
 
-  const getCurrentTheme = () => {
-    // return null
-    if (withoutTheme) {
-      return null
-    }
-
-    if (forceDarkMode) {
-      return darkTheme
-    }
-
-    if (forceLightMode) {
-      return lightTheme
-    }
-
-    if (isDark.value) {
-      return darkTheme
-    }
-
-    return lightTheme
-  }
-
-  // Extend the given extension list with a dark/light theme.
+  // All default extensions
   const addDefaultExtensions = (newExtensions: Extension[] = []) => {
-    // sometimes codemirror only selects what's in view
-    // so we double up the keybinding to make sure it selects everything
-    const selectAllKeyBinding: KeyBinding = {
-      key: 'Mod-a',
-      run: (view) => {
-        // Select the entire content
-        view.dispatch({
-          selection: { anchor: 0, head: view.state.doc.length },
-          scrollIntoView: false,
-        })
-        return true
-      },
-    }
-
-    // Themes
     const defaultExtensions: Extension[] = [
-      EditorView.theme(
-        {
-          '.cm-line': {
-            lineHeight: '20px',
-          },
-          '.cm-gutterElement': {
-            lineHeight: '20px',
-          },
+      withoutTheme ? null : customTheme,
+      EditorView.theme({
+        '.cm-line': {
+          lineHeight: '20px',
         },
-        { dark: forceDarkMode ? false : isDark.value },
-      ),
-      keymap.of([selectAllKeyBinding]),
-      getCurrentTheme(),
+        '.cm-gutterElement': {
+          lineHeight: '20px',
+        },
+      }),
     ].filter((extension) => extension !== null) as Extension[]
 
     return [...defaultExtensions, newExtensions]
   }
-
-  watch(isDark, () => {
-    const { extensions: configuredExtensions } = parameters
-
-    if (!forceDarkMode) {
-      reconfigureCodeMirror(configuredExtensions)
-    }
-  })
 
   // Removes CodeMirror.
   const destroyCodeMirror = () => {

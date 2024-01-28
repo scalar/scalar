@@ -45,11 +45,9 @@ const props = withDefaults(
     lineNumbers?: boolean
     withoutTheme?: boolean
     disableEnter?: boolean
-    forceDarkMode?: boolean
   }>(),
   {
     disableEnter: false,
-    forceDarkMode: false,
   },
 )
 
@@ -175,7 +173,6 @@ const {
   content: props.content ?? '',
   extensions: getCodeMirrorExtensions(),
   withoutTheme: props.withoutTheme,
-  forceDarkMode: props.forceDarkMode,
 })
 
 // Content changed. Updating CodeMirror …
@@ -198,7 +195,6 @@ watch(
 watch(
   [
     () => props.disableEnter,
-    () => props.forceDarkMode,
     () => props.languages,
     () => props.lineNumbers,
     () => props.readOnly,
