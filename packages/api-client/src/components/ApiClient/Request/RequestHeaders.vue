@@ -20,7 +20,9 @@ function addAnotherHandler() {
 }
 </script>
 <template>
-  <CollapsibleSection title="Headers">
+  <CollapsibleSection
+    :defaultOpen="activeRequest.headers && activeRequest.headers.length > 0"
+    title="Headers">
     <template v-if="!headers || headers.length === 0">
       <div class="scalar-api-client__empty-state">
         <button
