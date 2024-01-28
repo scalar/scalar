@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.14.0
+
+### Minor Changes
+
+- a244b049: Fix markdown table alignment
+
 ## 1.13.19
 
 ### Patch Changes
