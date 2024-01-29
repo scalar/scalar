@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.14.2
+
+### Patch Changes
+
+- 6caef07c: fix: response examples with a single value don’t render
+
 ## 1.14.1
 
 ### Patch Changes
