@@ -43,7 +43,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
     ">
     <CodeMirror
       :content="
-        prettyPrintJson(mapFromObject(response?.examples)[0].response.response)
+        prettyPrintJson(mapFromObject(response?.examples)[0].value?.value)
       "
       :languages="['json']"
       readOnly />
