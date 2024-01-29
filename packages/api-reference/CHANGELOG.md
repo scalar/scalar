@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.14.1
+
+### Patch Changes
+
+- eb4faf8c: fix: search input has autocomplete enabled
+
 ## 1.14.0
 
 ### Minor Changes
