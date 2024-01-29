@@ -816,6 +816,9 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
+      rollup-plugin-webpack-stats:
+        specifier: ^0.2.3
+        version: 0.2.3(rollup@3.29.4)
       storybook:
         specifier: ^7.5.2
         version: 7.5.2
@@ -16406,6 +16409,15 @@ packages:
     engines: {node: '>=16.0.0'}
     peerDependencies:
       rollup: ^3.0.0
+    dependencies:
+      rollup: 3.29.4
+    dev: true
+
+  /rollup-plugin-webpack-stats@0.2.3(rollup@3.29.4):
+    resolution: {integrity: sha512-X9I9eZJPaEaYpyQgHgIH0PVJ1c8v+kPXbpWrcHQWwX6LhqqqF7oW5o0RlsCsyeQBStSah1i/oRUPAlk754ClFw==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      rollup: ^3.0.0 || ^4.0.0
     dependencies:
       rollup: 3.29.4
     dev: true
