@@ -1,5 +1,12 @@
 # @scalar/hono-api-reference
 
+## 0.3.32
+
+### Patch Changes
+
+- Updated dependencies [eb4faf8c]
+  - @scalar/api-reference@1.14.1
+
 ## 0.3.31
 
 ### Patch Changes
