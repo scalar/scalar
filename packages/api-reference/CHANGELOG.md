@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.14.3
+
+### Patch Changes
+
+- e9eefff4: feat: improve custom example block with try request button, path and improved select
+- Updated dependencies [dccb83ab]
+  - @scalar/api-client@0.10.0
+
 ## 1.14.2
 
 ### Patch Changes
