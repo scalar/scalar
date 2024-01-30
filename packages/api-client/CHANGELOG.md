@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 0.10.1
+
+### Patch Changes
+
+- Updated dependencies [cd7afa70]
+  - @scalar/use-codemirror@0.7.21
+
 ## 0.10.0
 
 ### Minor Changes
