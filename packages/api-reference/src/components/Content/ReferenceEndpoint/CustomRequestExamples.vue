@@ -6,6 +6,7 @@ import { computed, ref, watch } from 'vue'
 
 import type { CustomRequestExample, TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
+import TextSelect from './TextSelect.vue'
 
 const props = defineProps<{
   operation: TransformedOperation
@@ -77,26 +78,21 @@ const { copyToClipboard } = useClipboard()
         <slot name="header" />
       </div>
       <template #actions>
-        <div class="language-select">
-          <span>{{ currentExample.label }}</span>
-          <select
-            :value="selectedExample"
-            @input="
-              (event) => (
-                (selectedExample = parseInt(
-                  (event.target as HTMLSelectElement).value,
-                )),
-                10
-              )
-            ">
-            <option
-              v-for="(example, index) in examples"
-              :key="index"
-              :value="index">
-              {{ example.label }}
-            </option>
-          </select>
-        </div>
+        <TextSelect
+          :modelValue="selectedExample"
+          :options="
+            examples.map((example, index) => {
+              return {
+                value: index.toString(),
+                label: example.label,
+              }
+            })
+          "
+          @update:modelValue="
+            (value) => ((selectedExample = parseInt(value)), 10)
+          ">
+          {{ currentExample.label }}
+        </TextSelect>
         <button
           class="copy-button"
           type="button"
@@ -155,56 +151,6 @@ const { copyToClipboard } = useClipboard()
 .request-method--put {
   color: var(--theme-color-orange, var(--default-theme-color-orange));
 }
-.language-select {
-  position: relative;
-  padding-right: 9px;
-  height: fit-content;
-  padding-left: 12px;
-  border-right: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-}
-.language-select select {
-  border: none;
-  outline: none;
-  cursor: pointer;
-  background: var(--theme-background-3, var(--default-theme-background-3));
-  box-shadow: -2px 0 0 0
-    var(--theme-background-3, var(--default-theme-background-3));
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  appearance: none;
-}
-.language-select span {
-  font-size: var(--theme-mini, var(--default-theme-mini));
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.language-select:hover span {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-}
-.language-select span:after {
-  content: '';
-  width: 7px;
-  height: 7px;
-  transform: rotate(45deg) translate3d(-2px, -2px, 0);
-  display: block;
-  margin-left: 6px;
-  box-shadow: 1px 1px 0 currentColor;
-}
-.language-select span:hover {
-  background: var(--theme-background-2, var(--default-theme-background-2));
-}
-
 .copy-button {
   appearance: none;
   -webkit-appearance: none;
