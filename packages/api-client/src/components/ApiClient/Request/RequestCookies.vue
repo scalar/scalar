@@ -20,7 +20,9 @@ function addAnotherHandler() {
 }
 </script>
 <template>
-  <CollapsibleSection title="Cookies">
+  <CollapsibleSection
+    :defaultOpen="activeRequest.cookies && activeRequest.cookies.length > 0"
+    title="Cookies">
     <template v-if="!cookies || cookies.length === 0">
       <div class="scalar-api-client__empty-state">
         <button

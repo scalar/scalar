@@ -21,7 +21,9 @@ function addAnotherHandler() {
 }
 </script>
 <template>
-  <CollapsibleSection title="Variables">
+  <CollapsibleSection
+    :defaultOpen="activeRequest.variables && activeRequest.variables.length > 0"
+    title="Variables">
     <template v-if="!variables || variables.length === 0">
       <div class="scalar-api-client__empty-state">
         <button
