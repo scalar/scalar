@@ -234,6 +234,8 @@ defineExpose({
   max-width: 100%;
   cursor: text;
   font-size: var(--theme-small, var(--default-theme-small));
+  /* Don't scale wide text on mobile because we let it scroll */
+  -webkit-text-size-adjust: 100%;
 }
 
 /** URL input */
