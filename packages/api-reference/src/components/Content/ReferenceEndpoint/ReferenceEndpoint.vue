@@ -72,6 +72,9 @@ const customRequestExamples = computed(() => {
                   class="example-path"
                   :path="operation.path" />
               </template>
+              <template #footer>
+                <TryRequestButton :operation="operation" />
+              </template>
             </CustomRequestExamples>
             <ExampleRequest
               v-else
