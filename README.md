@@ -28,11 +28,13 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   - [From a CDN](#from-a-cdn)
   - [With Vue.js](#with-vuejs)
   - [With React](#with-react)
+  - [With Nextjs](#with-nextjs)
   - [With Fastify](#with-fastify)
+  - [With Platformatic](#with-platformatic)
   - [With Hono](#with-hono)
+  - [With ElysiaJS](#with-elysiajs)
   - [With Express](#with-express)
   - [With NestJS](#with-nestjs)
-  - [With Next.js](#with-nextjs)
   - [With Laravel](#with-laravel)
   - [With Rust](#with-rust)
 - [Hosted API Reference](#hosted-api-reference)
@@ -42,7 +44,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
 - [Advanced: Styling](#advanced-styling)
 - [Community](#community)
 - [Other packages](#other-packages)
-- [Contributing](#contributors)
+- [Contributors](#contributors)
 - [License](#license)
 
 ## Getting Started
@@ -151,6 +153,26 @@ function App() {
 export default App
 ```
 
+### With Nextjs
+
+Our Next.js handler makes it easy to render a reference, just add it to an Api
+route handler:
+
+```ts
+// app/reference/route.ts
+import { ApiReference } from '@scalar/nextjs-api-reference'
+
+const config = {
+  spec: {
+    url: '/swagger.json',
+  },
+}
+
+export const GET = ApiReference(config)
+```
+
+Read more: [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nextjs-api-reference)
+
 ### With Fastify
 
 Our fastify plugin makes it so easy to render a reference, there’s no excuse to not have a documentation for your API.
@@ -174,6 +196,10 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 
 Read more: [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference)
 
+### With Platformatic
+
+Good news: If you’re using [a recent version of Platformatic](https://github.com/platformatic/platformatic/releases/tag/v1.16.0), the Scalar API reference is installed and configured automatically.
+
 ### With Hono
 
 Our Hono middleware makes it so easy to render a reference:
@@ -192,6 +218,25 @@ app.get(
 ```
 
 Read more: [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)
+
+### With ElysiaJS
+
+The @elysiajs/swagger plugin uses our API reference by default.
+
+```ts
+import { swagger } from '@elysiajs/swagger'
+import { Elysia } from 'elysia'
+
+new Elysia()
+  .use(swagger())
+  .get('/', () => 'hi')
+  .post('/hello', () => 'world')
+  .listen(8080)
+
+// open http://localhost:8080/swagger
+```
+
+[Read more about @elysiajs/swagger](https://elysiajs.com/plugins/swagger.html)
 
 ### With Express
 
@@ -230,26 +275,6 @@ app.use(
 ```
 
 Read more: [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)
-
-### With Nextjs
-
-Our Next.js handler makes it easy to render a reference, just add it to an Api
-route handler:
-
-```ts
-// app/reference/route.ts
-import { ApiReference } from '@scalar/nextjs-api-reference'
-
-const config = {
-  spec: {
-    url: '/swagger.json',
-  },
-}
-
-export const GET = ApiReference(config)
-```
-
-Read more: [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nextjs-api-reference)
 
 ### With Laravel
 
