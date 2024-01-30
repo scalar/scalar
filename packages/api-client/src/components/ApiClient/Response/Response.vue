@@ -14,18 +14,8 @@ const { activeResponse, activeRequestId } = useRequestStore()
 // Headers
 const responseHeaders = computed(() => {
   const headers = activeResponse.value?.headers
-
-  return headers
-    ? Object.keys(headers)
-        .map((key) => ({ name: key, value: headers[key] }))
-        .filter(
-          (item) =>
-            ![
-              'rest-api-client-content-length',
-              'X-API-Client-Content-Length',
-            ].includes(item.name),
-        )
-    : []
+  if (!headers) return []
+  return Object.keys(headers).map((key) => ({ name: key, value: headers[key] }))
 })
 
 // Cookies

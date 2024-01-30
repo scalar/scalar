@@ -22,5 +22,5 @@ if (activeRequestFromStorage) {
 </script>
 
 <template>
-  <ApiClient />
+  <ApiClient proxyUrl="http://localhost:5051" />
 </template>
