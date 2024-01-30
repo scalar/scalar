@@ -43,7 +43,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
 - [Themes](#themes)
 - [Advanced: Styling](#advanced-styling)
 - [Community](#community)
-- [Other packages](#other-packages)
+- [Packages](#packages)
 - [Contributors](#contributors)
 - [License](#license)
 
@@ -447,26 +447,24 @@ Or get more advanced by styling our sidebar!
 
 We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/8HeZcRGPFS>
 
-## Other packages
+## Packages
 
 This repository contains all our open source projects and there’s definitely more to discover.
 
-| Package                                                                                                    | Description                                           |
-| ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy)           | an API request proxy based on express                 |
-| [@scalar/api-client](https://github.com/scalar/scalar/tree/main/packages/api-client)                       | the open source API testing client                    |
-| [@scalar/api-reference](https://github.com/scalar/scalar/tree/main/packages/api-reference)                 | generate beautiful API references                     |
-| [@scalar/echo-server](https://github.com/scalar/scalar/tree/main/packages/echo-server)                     | an express server which replies with the request data |
-| [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference) | a fastify plugin to render API references             |
-| [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)       | a Hono middleware to render API references            |
-| [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)   | a NestJS middleware to render API references          |
-| [@scalar/swagger-editor](https://github.com/scalar/scalar/tree/main/packages/swagger-editor)               | an editor tailored to write OpenAPI spec              |
-| [@scalar/swagger-parser](https://github.com/scalar/scalar/tree/main/packages/swagger-parser)               | parse OpenAPI specs                                   |
-| [@scalar/use-clipboard](https://github.com/scalar/scalar/tree/main/packages/use-clipboard)                 | tiny Vue wrapper around the clipboard API             |
-| [@scalar/use-codemirror](https://github.com/scalar/scalar/tree/main/packages/use-codemirror)               | CodeMirror for Vue                                    |
-| [@scalar/use-keyboard-event](https://github.com/scalar/scalar/tree/main/packages/use-keyboard-event)       | keyboard shortcuts for Vue                            |
-| [@scalar/use-toasts](https://github.com/scalar/scalar/tree/main/packages/use-toasts)                       | display toasts in Vue                                 |
-| [@scalar/use-tooltip](https://github.com/scalar/scalar/tree/main/packages/use-tooltip)                     | tooltips in Vue                                       |
+| Package                                                                                                    | Description                                 |
+| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy)           | API request proxy                           |
+| [@scalar/api-client](https://github.com/scalar/scalar/tree/main/packages/api-client)                       | API testing client                          |
+| [@scalar/api-reference](https://github.com/scalar/scalar/tree/main/packages/api-reference)                 | beautiful API references                    |
+| [@scalar/cli](https://github.com/scalar/cli/tree/main/packages/cli)                                        | CLI to work with OpenAPI files              |
+| [@scalar/echo-server](https://github.com/scalar/scalar/tree/main/packages/echo-server)                     | a server that replies with the request data |
+| [@scalar/express-api-reference](https://github.com/scalar/scalar/tree/main/packages/express-api-reference) | Express plugin                              |
+| [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference) | Fastify plugin                              |
+| [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)       | Hono middleware                             |
+| [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)   | NestJS middleware                           |
+| [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)   | Next.js adapter                             |
+| [@scalar/swagger-editor](https://github.com/scalar/scalar/tree/main/packages/swagger-editor)               | editor tailored to write OpenAPI files      |
+| [@scalar/swagger-parser](https://github.com/scalar/scalar/tree/main/packages/swagger-parser)               | parse OpenAPI files                         |
 
 ## Contributors
 
