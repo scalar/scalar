@@ -272,8 +272,12 @@ const onSearchResultClick = (entry: Fuse.FuseResult<FuseData>) => {
       class="ref-search-container">
       <input
         v-model="searchText"
+        autocapitalize="off"
+        autocomplete="off"
+        autocorrect="off"
         class="ref-search-input"
         placeholder="Search …"
+        spellcheck="false"
         type="text"
         @input="fuseSearch" />
     </div>

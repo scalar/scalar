@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 0.10.1
+
+### Patch Changes
+
+- Updated dependencies [cd7afa70]
+  - @scalar/use-codemirror@0.7.21
+
+## 0.10.0
+
+### Minor Changes
+
+- dccb83ab: feat: add default state for api client collapsed panels
+
 ## 0.9.4
 
 ### Patch Changes

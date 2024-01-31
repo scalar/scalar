@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { CodeMirror } from '@scalar/use-codemirror'
+import { computed } from 'vue'
 
 import { useRequestStore } from '../../../stores/requestStore'
 import { CollapsibleSection } from '../../CollapsibleSection'

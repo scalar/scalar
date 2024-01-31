@@ -66,7 +66,16 @@ const customRequestExamples = computed(() => {
             <CustomRequestExamples
               v-if="customRequestExamples"
               :examples="customRequestExamples"
-              :operation="operation" />
+              :operation="operation">
+              <template #header>
+                <EndpointPath
+                  class="example-path"
+                  :path="operation.path" />
+              </template>
+              <template #footer>
+                <TryRequestButton :operation="operation" />
+              </template>
+            </CustomRequestExamples>
             <ExampleRequest
               v-else
               :operation="operation">

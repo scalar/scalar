@@ -1,5 +1,34 @@
 # @scalar/api-reference
 
+## 1.14.4
+
+### Patch Changes
+
+- Updated dependencies [cd7afa70]
+  - @scalar/use-codemirror@0.7.21
+  - @scalar/api-client@0.10.1
+  - @scalar/swagger-editor@0.9.10
+
+## 1.14.3
+
+### Patch Changes
+
+- e9eefff4: feat: improve custom example block with try request button, path and improved select
+- Updated dependencies [dccb83ab]
+  - @scalar/api-client@0.10.0
+
+## 1.14.2
+
+### Patch Changes
+
+- 6caef07c: fix: response examples with a single value don’t render
+
+## 1.14.1
+
+### Patch Changes
+
+- eb4faf8c: fix: search input has autocomplete enabled
+
 ## 1.14.0
 
 ### Minor Changes

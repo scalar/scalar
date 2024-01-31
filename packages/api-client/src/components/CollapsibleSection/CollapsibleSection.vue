@@ -1,19 +1,44 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+import { ref, watch } from 'vue'
 
-defineProps<{
-  title?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    title?: string
+    defaultOpen?: boolean
+  }>(),
+  {
+    defaultOpen: true,
+  },
+)
+
+const collapseButton = ref<typeof DisclosureButton | null>(null)
+const disclosureButton = ref<typeof Disclosure | null>(null)
+
+const openCopy = ref(props.defaultOpen)
+
+watch(
+  () => props.defaultOpen,
+  (newValue, oldValue) => {
+    if (newValue !== oldValue && newValue !== openCopy.value) {
+      collapseButton.value?.el.click()
+    }
+  },
+)
 </script>
 
 <template>
   <Disclosure
+    ref="disclosureButton"
     v-slot="{ open }"
-    :defaultOpen="true">
+    :defaultOpen="defaultOpen">
     <div
       class="scalar-api-client__item"
       :class="{ 'scalar-api-client__item--open': open }">
-      <DisclosureButton class="scalar-api-client__toggle">
+      <DisclosureButton
+        ref="collapseButton"
+        class="scalar-api-client__toggle"
+        @click="openCopy = !openCopy">
         <svg
           class="scalar-api-client__toggle__icon"
           height="10"

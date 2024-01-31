@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.21
+
+### Patch Changes
+
+- cd7afa70: fix: don't scale codemirror text on mobile webkit
+
 ## 0.7.20
 
 ### Patch Changes
