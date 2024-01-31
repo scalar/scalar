@@ -29,7 +29,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(JSON.parse((result?.response.data as string) ?? '')).toMatchObject({
       method: 'GET',
       path: '/',
     })
@@ -52,7 +52,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(JSON.parse((result?.response.data as string) ?? '')).toMatchObject({
       method: 'GET',
       path: '/example',
     })
@@ -75,7 +75,12 @@ describe('sendRequest', () => {
     const result = await sendRequest(request)
 
     expect(
-      (JSON.parse(result?.response.data ?? '') as Record<string, any>).query,
+      (
+        JSON.parse((result?.response.data as string) ?? '') as Record<
+          string,
+          any
+        >
+      ).query,
     ).toMatchObject({
       foo: 'bar',
     })
@@ -97,7 +102,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(JSON.parse((result?.response.data as string) ?? '')).toMatchObject({
       query: {
         example: 'parameter',
         foo: 'bar',
@@ -121,7 +126,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(JSON.parse((result?.response.data as string) ?? '')).toMatchObject({
       cookies: {
         foo: 'bar',
       },
@@ -149,7 +154,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(JSON.parse((result?.response.data as string) ?? '')).toMatchObject({
       cookies: {
         foo: 'bar',
         another: 'cookie',
@@ -167,7 +172,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request, `http://127.0.0.1:${proxyPort}`)
 
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(JSON.parse((result?.response.data as string) ?? '')).toMatchObject({
       method: 'GET',
       path: '/',
     })
@@ -182,7 +187,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(JSON.parse((result?.response.data as string) ?? '')).toMatchObject({
       method: 'GET',
       path: '/v1/',
     })

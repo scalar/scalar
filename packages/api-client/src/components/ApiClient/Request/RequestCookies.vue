@@ -66,6 +66,7 @@ function addAnotherHandler() {
   cursor: pointer;
   font-size: var(--theme-micro, var(--default-theme-micro));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  text-decoration: none;
   margin: 0 6px;
   border: none;
   font-family: var(--theme-font);

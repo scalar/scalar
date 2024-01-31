@@ -14,11 +14,8 @@ const timeAgo = new TimeAgo('en-US')
 const { requestHistory, activeRequestId, setActiveResponse } = useRequestStore()
 
 const getContentLength = (response: ClientResponse) => {
-  if (response?.headers?.['X-API-Client-Content-Length']) {
-    return prettyBytes(
-      parseFloat(response.headers['X-API-Client-Content-Length']),
-    )
-  }
+  if (response?.headers?.['content-length'])
+    return prettyBytes(parseFloat(response.headers['content-length']))
   return prettyBytes(0)
 }
 </script>

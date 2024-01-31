@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, toRaw } from 'vue'
+import { computed } from 'vue'
 
-import { isJsonString } from '../../../helpers'
 import { useRequestStore } from '../../../stores/requestStore'
 import { CollapsibleSection } from '../../CollapsibleSection'
 // import Copilot from './Copilot.vue'
@@ -15,18 +14,8 @@ const { activeResponse, activeRequestId } = useRequestStore()
 // Headers
 const responseHeaders = computed(() => {
   const headers = activeResponse.value?.headers
-
-  return headers
-    ? Object.keys(headers)
-        .map((key) => ({ name: key, value: headers[key] }))
-        .filter(
-          (item) =>
-            ![
-              'rest-api-client-content-length',
-              'X-API-Client-Content-Length',
-            ].includes(item.name),
-        )
-    : []
+  if (!headers) return []
+  return Object.keys(headers).map((key) => ({ name: key, value: headers[key] }))
 })
 
 // Cookies
@@ -39,21 +28,7 @@ const responseCookies = computed(() => {
 })
 
 // Pretty print JSON
-const responseData = computed(() => {
-  const value = activeResponse.value?.data
-
-  // Format JSON
-  if (value && isJsonString(value)) {
-    return JSON.stringify(JSON.parse(value as string), null, 2)
-  } else if (value && typeof toRaw(value) === 'object') {
-    return JSON.stringify(value, null, 2)
-  }
-  if (value && !isJsonString(value)) {
-    return JSON.stringify(value, null, 2)
-  }
-
-  return value
-})
+const responseData = computed(() => activeResponse.value?.data)
 </script>
 <template>
   <div class="scalar-api-client__main__right custom-scroll">

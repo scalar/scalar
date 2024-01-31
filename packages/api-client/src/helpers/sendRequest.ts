@@ -1,3 +1,4 @@
+import { ProxyHeader } from '@scalar/api-client-proxy'
 import axios, { type AxiosRequestConfig } from 'axios'
 import { nanoid } from 'nanoid'
 
@@ -108,12 +109,14 @@ export async function sendRequest(
         method: 'POST',
         url: proxyUrl,
         data: requestConfig,
+        responseType: 'blob',
       }
     : {
         method: requestConfig.method,
         url: requestConfig.url,
         headers: requestConfig.headers,
         data: requestConfig.data,
+        responseType: 'blob',
       }
 
   // if we have cookies, we need to pass withCredentials
@@ -129,11 +132,27 @@ export async function sendRequest(
   }
 
   const response: ClientResponse = await axios(axiosRequestConfig)
-    .then((result) => {
-      // With proxy
+    .then(async (result) => {
+      // Result is always blob
+      const blob = result.data as Blob
+      const data = blob.type === 'application/json' ? await blob.text() : blob
+
+      // With Proxy
       if (proxyUrl) {
+        const proxyHeaders = Object.values(ProxyHeader)
+        // Remove headers added by our proxy
+        const filtered = Object.fromEntries(
+          Object.entries(result.headers).filter(
+            ([key]) => !proxyHeaders.includes(key as ProxyHeader),
+          ),
+        )
         return {
-          ...result.data,
+          ...result,
+          data,
+          headers: filtered,
+          // Pull proxied info out of the headers
+          statusCode: result.headers[ProxyHeader.StatusCode],
+          statusText: result.headers[ProxyHeader.StatusText],
           error: false,
         }
       }
@@ -142,7 +161,7 @@ export async function sendRequest(
       return {
         ...result,
         statusCode: result.status,
-        data: JSON.stringify(result.data),
+        data,
         error: false,
       }
     })

@@ -57,31 +57,3 @@ function addAnotherHandler() {
     </template>
   </CollapsibleSection>
 </template>
-<style>
-.scalar-api-client-add {
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  padding: 6px;
-  width: fit-content;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  cursor: pointer;
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  margin: 0 6px;
-  border: none;
-  font-family: var(--theme-font);
-  appearance: none;
-  display: flex;
-  align-items: center;
-}
-.scalar-api-client-add svg {
-  width: 12px;
-  height: 12px;
-  margin-right: 6px;
-}
-.scalar-api-client-add:hover {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-}
-.scalar-api-client-add:focus-within {
-  background: var(--theme-background-3, var(--default-theme-background-3));
-}
-</style>
