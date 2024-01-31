@@ -11,7 +11,6 @@ const props = defineProps<{ response: any }>()
 
 /** Size of the response */
 const getContentLength = (response: ClientResponse) => {
-  console.log(response)
   if (response?.headers?.['content-length'])
     return prettyBytes(parseFloat(response.headers['content-length']))
   return prettyBytes(0)
