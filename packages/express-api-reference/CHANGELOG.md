@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.2.36
+
+### Patch Changes
+
+- 6da73708: feat: handle application/zip responses in the API client
+- Updated dependencies [6da73708]
+  - @scalar/api-reference@1.14.5
+
 ## 0.2.35
 
 ### Patch Changes

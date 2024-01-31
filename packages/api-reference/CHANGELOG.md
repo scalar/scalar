@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.14.5
+
+### Patch Changes
+
+- 6da73708: feat: handle application/zip responses in the API client
+- Updated dependencies [6da73708]
+  - @scalar/swagger-editor@0.9.11
+  - @scalar/use-codemirror@0.7.22
+  - @scalar/api-client@0.10.2
+
 ## 1.14.4
 
 ### Patch Changes

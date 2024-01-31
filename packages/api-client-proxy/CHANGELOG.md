@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.14
+
+### Patch Changes
+
+- 6da73708: feat: handle application/zip responses in the API client
+
 ## 0.5.13
 
 ### Patch Changes
