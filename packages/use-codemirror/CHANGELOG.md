@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.7.22
+
+### Patch Changes
+
+- 6da73708: feat: handle application/zip responses in the API client
+
 ## 0.7.21
 
 ### Patch Changes
