@@ -92,7 +92,6 @@ export const createApiClientProxy = () => {
         })
 
         const data = await response.arrayBuffer()
-        console.log(data)
 
         res.status(200)
         res.type(response.type)
@@ -102,7 +101,6 @@ export const createApiClientProxy = () => {
           [ProxyHeader.StatusCode]: response.status,
           [ProxyHeader.StatusText]: response.statusText,
         })
-        console.log(res.getHeaders())
         res.send(Buffer.from(data))
       } catch (error) {
         console.error('ERROR', error)
