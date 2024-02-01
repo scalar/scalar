@@ -23,9 +23,9 @@ export const requestMethodColors: { [x in RequestMethod]: string } = {
     GET: 'var(--theme-color-blue, var(--default-theme-color-blue))',
     PUT: 'var(--theme-color-orange, var(--default-theme-color-orange))',
     OPTIONS: 'var(--theme-color-purple, var(--default-theme-color-purple))',
-    HEAD: 'var(--theme-color-ghost, var(--default-theme-color-ghost))',
-    CONNECT: 'var(--theme-color-ghost, var(--default-theme-color-ghost))',
-    TRACE: 'var(--theme-color-ghost, var(--default-theme-color-ghost))',
+    HEAD: 'var(--theme-color-2, var(--default-theme-color-2))',
+    CONNECT: 'var(--theme-color-2, var(--default-theme-color-2))',
+    TRACE: 'var(--theme-color-2, var(--default-theme-color-2))',
 }
 
 export const requestMethodAbbreviations: { [x in RequestMethod]: string } = {

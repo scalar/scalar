@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { HttpMethod } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
 import { snippetz } from '@scalar/snippetz'
 import { useClipboard } from '@scalar/use-clipboard'
@@ -133,11 +134,10 @@ computed(() => {
   <Card class="dark-mode">
     <CardHeader muted>
       <div class="request-header">
-        <span
+        <HttpMethod
+          as="span"
           class="request-method"
-          :class="`request-method--${operation.httpVerb}`">
-          {{ operation.httpVerb }}
-        </span>
+          :method="operation.httpVerb" />
         <slot name="header" />
       </div>
       <template #actions>
@@ -224,21 +224,6 @@ computed(() => {
 .request-method {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   text-transform: uppercase;
-}
-.request-method--post {
-  color: var(--theme-color-green, var(--default-theme-color-green));
-}
-.request-method--patch {
-  color: var(--theme-color-yellow, var(--default-theme-color-yellow));
-}
-.request-method--get {
-  color: var(--theme-color-blue, var(--default-theme-color-blue));
-}
-.request-method--delete {
-  color: var(--theme-color-red, var(--default-theme-color-red));
-}
-.request-method--put {
-  color: var(--theme-color-orange, var(--default-theme-color-orange));
 }
 .request-client-picker {
   padding-left: 12px;

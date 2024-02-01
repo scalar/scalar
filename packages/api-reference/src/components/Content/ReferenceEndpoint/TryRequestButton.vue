@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { HttpMethod } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
 
 import { openClientFor } from '../../../helpers'
@@ -9,14 +10,16 @@ defineProps<{
 }>()
 </script>
 <template>
-  <button
+  <HttpMethod
+    as="button"
     class="show-api-client-button"
-    :class="`show-api-client-button--${operation.httpVerb}`"
+    :method="operation.httpVerb"
+    property="background"
     type="button"
     @click.stop="openClientFor(operation)">
     <span>Test Request</span>
     <ScalarIcon icon="PaperAirplane" />
-  </button>
+  </HttpMethod>
 </template>
 <style scoped>
 .show-api-client-button {
@@ -66,20 +69,5 @@ defineProps<{
   height: 12px;
   width: auto;
   margin-left: 9px;
-}
-.show-api-client-button--post {
-  background: var(--theme-color-green, var(--default-theme-color-green));
-}
-.show-api-client-button--patch {
-  background: var(--theme-color-yellow, var(--default-theme-color-yellow));
-}
-.show-api-client-button--get {
-  background: var(--theme-color-blue, var(--default-theme-color-blue));
-}
-.show-api-client-button--delete {
-  background: var(--theme-color-red, var(--default-theme-color-red));
-}
-.show-api-client-button--put {
-  background: var(--theme-color-orange, var(--default-theme-color-orange));
 }
 </style>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { HttpMethod } from '@scalar/api-client'
 import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { FlowModal, type ModalState } from '@scalar/use-modal'
 import Fuse from 'fuse.js'
@@ -296,11 +297,11 @@ const onSearchResultClick = (entry: Fuse.FuseResult<FuseData>) => {
         :href="entry.item.href"
         @click="onSearchResultClick(entry)"
         @focus="selectedSearchResult = index">
-        <div
+        <HttpMethod
+          as="div"
           class="item-entry-http-verb"
-          :class="`item-entry-http-verb--${entry.item.httpVerb}`">
-          {{ entry.item.httpVerb }}
-        </div>
+          :method="entry.item.httpVerb ?? 'get'"
+          short />
         <div
           v-if="entry.item.title"
           class="item-entry-title">
@@ -419,28 +420,6 @@ a {
   position: relative;
   /* optically center since all characters  above baseline*/
   top: 0.5px;
-}
-.item-entry-http-verb--post {
-  color: var(--theme-color-green, var(--default-theme-color-green));
-}
-.item-entry-http-verb--patch {
-  color: var(--theme-color-yellow, var(--default-theme-color-yellow));
-}
-.item-entry-http-verb--get {
-  color: var(--theme-color-blue, var(--default-theme-color-blue));
-}
-.item-entry-http-verb--delete {
-  color: var(--theme-color-red, var(--default-theme-color-red));
-}
-.item-entry-http-verb--delete {
-  font-size: 0;
-}
-.item-entry-http-verb--delete:after {
-  content: 'DEL';
-  font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
-}
-.item-entry-http-verb--put {
-  color: var(--theme-color-orange, var(--default-theme-color-orange));
 }
 .item-entry-path {
   color: var(--theme-color-3, var(--default-theme-color-3));

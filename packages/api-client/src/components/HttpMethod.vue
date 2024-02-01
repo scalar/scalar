@@ -8,9 +8,9 @@ import {
 } from '../fixtures'
 
 const props = defineProps<{
-  /** The type of element to render as, defaults to `div` */
+  /** The type of element to render as, defaults to `span` */
   as?: Component | string
-  /** The css style property or variable that will be set to the request method color */
+  /** The css style property or variable that will be set to the request method color, defaults to `color` */
   property?: string
   /** Whether or not to abbreviated the slot content */
   short?: boolean
@@ -31,15 +31,11 @@ const color = computed<string>(() => {
     return requestMethodColors[normalized.value]
   return 'var(--theme-color-ghost, var(--default-theme-color-ghost))'
 })
-
-const style = computed<object>(() =>
-  props.property ? { [props.property]: color.value } : {},
-)
 </script>
 <template>
   <component
-    :is="as ?? 'div'"
-    :style="style">
+    :is="as ?? 'span'"
+    :style="{ [property || 'color']: color }">
     <slot v-bind="{ normalized, abbreviated, color }">{{
       short ? abbreviated : normalized
     }}</slot>

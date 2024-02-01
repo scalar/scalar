@@ -68,6 +68,7 @@ defineExpose({ el })
         </span>
         <HttpMethod
           v-if="item.httpVerb"
+          as="div"
           class="sidebar-heading-type"
           :method="item.httpVerb"
           property="--method-color"
@@ -225,7 +226,7 @@ defineExpose({ el })
   );
   background: var(
     --method-color,
-    var(--theme-color-ghost, var(--default-theme-color-ghost))
+    var(--theme-color-2, var(--default-theme-color-2))
   );
   text-transform: uppercase;
   font-size: 8px;
