@@ -12,6 +12,7 @@ import {
   CardTabHeader,
 } from '../../../Card'
 import MarkdownRenderer from '../../MarkdownRenderer.vue'
+import ExamplePicker from '../ExamplePicker.vue'
 import ExampleResponse from './ExampleResponse.vue'
 import RawSchema from './RawSchema.vue'
 
@@ -25,6 +26,8 @@ const props = defineProps<{ operation: TransformedOperation }>()
 
 const { copyToClipboard } = useClipboard()
 
+const selectedExampleKey = ref<string>()
+
 // Bring the status codes in the right order.
 const orderedStatusCodes = computed(() => {
   return Object.keys(props?.operation?.information?.responses ?? {}).sort(
@@ -37,6 +40,12 @@ const orderedStatusCodes = computed(() => {
     },
   )
 })
+
+const hasMultipleExamples = computed<boolean>(
+  () =>
+    !!currentJsonResponse.value.examples &&
+    Object.keys(currentJsonResponse.value.examples).length > 1,
+)
 
 // Keep track of the current selected tab
 const selectedResponseIndex = ref<number>(0)
@@ -56,6 +65,13 @@ const currentJsonResponse = computed(
     // Swagger 2.0
     currentResponse.value,
 )
+const currentResponseWithExample = computed(() => ({
+  ...currentJsonResponse.value,
+  example:
+    hasMultipleExamples.value && selectedExampleKey.value
+      ? currentJsonResponse.value.examples[selectedExampleKey.value]
+      : currentJsonResponse.value.example,
+}))
 
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index
@@ -107,22 +123,29 @@ const showSchema = ref(false)
         <template v-if="currentJsonResponse?.schema">
           <RawSchema
             v-if="showSchema"
-            :response="currentJsonResponse" />
+            :response="currentResponseWithExample" />
           <ExampleResponse
             v-else
-            :response="currentJsonResponse" />
+            :response="currentResponseWithExample" />
         </template>
         <!-- Without Schema: Don’t show tabs -->
         <ExampleResponse
           v-else
-          :response="currentJsonResponse" />
+          :response="currentResponseWithExample" />
       </CardContent>
     </div>
     <CardFooter
-      v-if="currentResponse?.description"
-      class="scalar-card-footer"
+      v-if="currentResponse?.description || hasMultipleExamples"
+      class="response-card-footer"
       muted>
-      <div class="description">
+      <ExamplePicker
+        v-if="hasMultipleExamples"
+        class="response-example-selector"
+        :examples="currentJsonResponse?.examples"
+        @update:modelValue="(value) => (selectedExampleKey = value)" />
+      <div
+        v-if="currentResponse?.description"
+        class="response-description">
         <MarkdownRenderer
           class="markdown"
           :value="currentResponse.description" />
@@ -156,17 +179,27 @@ const showSchema = ref(false)
   width: 13px;
   height: 13px;
 }
-.description {
+.response-card-footer {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  padding: 10px 12px;
+  gap: 8px;
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+}
+.response-example-selector {
+  align-self: start;
+  margin: -4px;
+}
+.response-description {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-micro, var(--default-theme-micro));
   color: var(--theme-color--1, var(--default-theme-color-1));
-  padding: 10px 12px;
-  min-height: 35px;
+
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
 }
 .schema-type {
   font-size: var(--theme-micro, var(--default-theme-micro));

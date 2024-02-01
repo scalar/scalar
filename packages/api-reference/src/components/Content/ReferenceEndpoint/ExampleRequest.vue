@@ -18,7 +18,7 @@ import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
 import type { TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
-import SelectExample from './SelectExample.vue'
+import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
 const props = defineProps<{
@@ -194,12 +194,12 @@ computed(() => {
     </CardContent>
     <CardFooter
       v-if="hasMultipleExamples || $slots.footer"
-      class="scalar-card-footer"
+      class="request-card-footer"
       contrast>
       <div
         v-if="hasMultipleExamples"
-        class="scalar-card-footer-addon">
-        <SelectExample
+        class="request-card-footer-addon">
+        <ExamplePicker
           class="request-example-selector"
           :examples="
             operation.information?.requestBody?.content?.['application/json']
@@ -281,12 +281,12 @@ computed(() => {
   height: 13px;
 }
 
-.scalar-card-footer {
+.request-card-footer {
   display: flex;
   justify-content: end;
   padding: 6px;
 }
-.scalar-card-footer-addon {
+.request-card-footer-addon {
   display: flex;
   align-items: center;
 

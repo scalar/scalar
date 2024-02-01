@@ -1,20 +1,11 @@
 <script lang="ts" setup>
-import { CodeMirror } from '@scalar/use-codemirror'
 import { ref, watch } from 'vue'
 
-import { prettyPrintJson } from '../../../helpers'
-import { Icon } from '../../Icon'
 import TextSelect from './TextSelect.vue'
 
-const props = withDefaults(
-  defineProps<{
-    examples: Record<string, any>
-    renderExample?: boolean
-  }>(),
-  {
-    renderExample: false,
-  },
-)
+const props = defineProps<{
+  examples: Record<string, any>
+}>()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', v: string): void
@@ -62,28 +53,7 @@ function getLabel(key: string | null) {
 }
 </script>
 <template>
-  <div
-    v-if="renderExample"
-    class="example-selector-layout">
-    <TextSelect
-      v-model="selectedExampleKey"
-      class="example-selector"
-      :options="
-        Object.keys(examples).map((value) => ({
-          label: getLabel(value),
-          value,
-        }))
-      ">
-      {{ getLabel(selectedExampleKey) }}
-    </TextSelect>
-    <CodeMirror
-      v-if="selectedExampleKey && props.examples[selectedExampleKey]"
-      :content="prettyPrintJson(props.examples[selectedExampleKey])"
-      :languages="['json']"
-      readOnly />
-  </div>
   <TextSelect
-    v-else
     v-model="selectedExampleKey"
     class="example-selector"
     :options="
@@ -98,12 +68,5 @@ function getLabel(key: string | null) {
 <style scoped>
 .example-selector {
   padding: 4px;
-}
-.example-selector-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: start;
-  padding-top: 6px;
 }
 </style>
