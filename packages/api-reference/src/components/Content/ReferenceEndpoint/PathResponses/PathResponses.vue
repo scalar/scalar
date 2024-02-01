@@ -50,7 +50,11 @@ const currentResponse = computed(() => {
 })
 
 const currentJsonResponse = computed(
-  () => currentResponse.value?.content?.['application/json'],
+  () =>
+    // OpenAPI 3.x
+    currentResponse.value?.content?.['application/json'] ??
+    // Swagger 2.0
+    currentResponse.value,
 )
 
 const changeTab = (index: number) => {
