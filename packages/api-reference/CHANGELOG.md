@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.14.7
+
+### Patch Changes
+
+- ba5b70ce: feat: collapse all subschemas by default
+
 ## 1.14.6
 
 ### Patch Changes
