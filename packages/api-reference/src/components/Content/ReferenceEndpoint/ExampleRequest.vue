@@ -285,6 +285,7 @@ computed(() => {
   display: flex;
   justify-content: end;
   padding: 6px;
+  flex-shrink: 0;
 }
 .request-card-footer-addon {
   display: flex;
