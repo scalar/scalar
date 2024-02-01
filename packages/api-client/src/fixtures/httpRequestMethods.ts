@@ -10,8 +10,7 @@ export const validRequestMethods = [
     'TRACE',
 ] as const
 
-export type RequestMethod = typeof validRequestMethods[number];
-
+type RequestMethod = typeof validRequestMethods[number];
 
 export function isRequestMethod(s: string): s is RequestMethod {
 return validRequestMethods.includes(s as RequestMethod)
@@ -27,4 +26,16 @@ export const requestMethodColors: { [x in RequestMethod]: string } = {
     HEAD: 'var(--theme-color-ghost, var(--default-theme-color-ghost))',
     CONNECT: 'var(--theme-color-ghost, var(--default-theme-color-ghost))',
     TRACE: 'var(--theme-color-ghost, var(--default-theme-color-ghost))',
+}
+
+export const requestMethodAbbreviations: { [x in RequestMethod]: string } = {
+    POST: 'POST',
+    DELETE: 'DEL',
+    PATCH: 'PATCH',
+    GET: 'GET',
+    PUT: 'PUT',
+    OPTIONS: 'OPTS',
+    HEAD: 'HEAD',
+    CONNECT: 'CONN',
+    TRACE: 'TRACE',
 }
