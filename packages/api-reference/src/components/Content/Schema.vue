@@ -96,7 +96,10 @@ const mergedSchema = computed(() => {
           <template v-if="mergedSchema?.properties">
             <div
               v-if="!compact"
-              class="schema-card-title">
+              class="schema-card-title"
+              :style="{
+                top: `calc(var(--refs-header-height) +  calc(var(--schema-title-height) * ${level}))`,
+              }">
               <SchemaHeading
                 :name="name"
                 :value="mergedSchema" />
@@ -133,18 +136,25 @@ const mergedSchema = computed(() => {
   background-color: red;
 }
 .schema-card {
+  z-index: 0;
+  position: relative;
   width: 100%;
   font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .schema-card-title {
+  --schema-title-height: 34px;
   color: var(--theme-color-2, var(--default-theme-color-2));
   font-weight: var(--theme-bold, var(--default-theme-bold));
   font-size: var(--theme-micro, var(--default-theme-micro));
   background: var(--theme-background-2, var(--default-theme-background-2));
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
+  height: var(--schema-title-height);
+  z-index: 1;
   padding: 10px 12px;
+  position: sticky;
+  top: var(--refs-header-height);
 }
 .schema-card .property:last-of-type {
   padding-bottom: 10px;
@@ -157,7 +167,6 @@ const mergedSchema = computed(() => {
 .properties {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  overflow: hidden;
 }
 
 .schema-card--compact {
@@ -180,8 +189,7 @@ const mergedSchema = computed(() => {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 
-.schema-visibility-toggle + .property,
-.schema-visibility-toggle + .schema-card-title {
+.schema-visibility-toggle + .property {
   border-top: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
@@ -197,6 +205,12 @@ const mergedSchema = computed(() => {
 }
 .schema-visibility-toggle--visible svg {
   transform: rotate(45deg);
+}
+
+.schema-visibility-toggle--visible {
+  width: 100%;
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 .properties--hidden {
