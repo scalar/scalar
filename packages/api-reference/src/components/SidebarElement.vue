@@ -224,6 +224,7 @@ defineExpose({ el })
       var(--theme-background-1, var(--default-theme-background-1))
     )
   );
+  background: var(--theme-color-ghost, var(--default-theme-color-ghost));
   text-transform: uppercase;
   font-size: 8px;
   font-weight: bold;
