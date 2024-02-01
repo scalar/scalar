@@ -79,6 +79,7 @@ const { copyToClipboard } = useClipboard()
       </div>
       <template #actions>
         <TextSelect
+          class="request-client-picker"
           :modelValue="selectedExample"
           :options="
             examples.map((example, index) => {
@@ -150,6 +151,12 @@ const { copyToClipboard } = useClipboard()
 }
 .request-method--put {
   color: var(--theme-color-orange, var(--default-theme-color-orange));
+}
+.request-client-picker {
+  padding-left: 12px;
+  padding-right: 9px;
+  border-right: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 .copy-button {
   appearance: none;

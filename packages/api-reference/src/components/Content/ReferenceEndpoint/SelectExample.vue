@@ -1,15 +1,10 @@
 <script lang="ts" setup>
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-} from '@headlessui/vue'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { ref, watch } from 'vue'
 
 import { prettyPrintJson } from '../../../helpers'
 import { Icon } from '../../Icon'
+import TextSelect from './TextSelect.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -67,123 +62,48 @@ function getLabel(key: string | null) {
 }
 </script>
 <template>
-  <div class="example-switcher">
-    <label
-      class="listbox-label"
-      for="listbox-button">
-      Select Example
-    </label>
-    <Listbox
-      :modelValue="selectedExampleKey"
-      @update:modelValue="(value) => selectExampleKey(value)">
-      <ListboxButton
-        id="listbox-button"
-        class="listbox-button">
-        <div class="listbox-button-content">
-          <div class="listbox-button-label">
-            {{ getLabel(selectedExampleKey) }}
-          </div>
-          <div>
-            <Icon
-              class="icon"
-              src="line/arrow-chevron-down" />
-          </div>
-        </div>
-      </ListboxButton>
-
-      <ListboxOptions class="listbox-options">
-        <ListboxOption
-          v-for="key in Object.keys(examples)"
-          :key="key"
-          class="listbox-option"
-          :value="key">
-          {{ getLabel(key) }}
-        </ListboxOption>
-      </ListboxOptions>
-    </Listbox>
+  <div
+    v-if="renderExample"
+    class="example-selector-layout">
+    <TextSelect
+      v-model="selectedExampleKey"
+      class="example-selector"
+      :options="
+        Object.keys(examples).map((value) => ({
+          label: getLabel(value),
+          value,
+        }))
+      ">
+      {{ getLabel(selectedExampleKey) }}
+    </TextSelect>
     <CodeMirror
-      v-if="
-        renderExample &&
-        selectedExampleKey &&
-        props.examples[selectedExampleKey]
-      "
+      v-if="selectedExampleKey && props.examples[selectedExampleKey]"
       :content="prettyPrintJson(props.examples[selectedExampleKey])"
       :languages="['json']"
       readOnly />
   </div>
+  <TextSelect
+    v-else
+    v-model="selectedExampleKey"
+    class="example-selector"
+    :options="
+      Object.keys(examples).map((value) => ({
+        label: getLabel(value),
+        value,
+      }))
+    ">
+    {{ getLabel(selectedExampleKey) }}
+  </TextSelect>
 </template>
-
 <style scoped>
-.example-switcher {
+.example-selector {
+  padding: 4px;
+}
+.example-selector-layout {
   display: flex;
-  gap: 6px;
-  margin: 12px 6px 6px;
   flex-direction: column;
-}
-
-.listbox-label {
-  font-size: var(--theme-mini, var(--default-theme-mini));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  margin: 0 4px;
-  color: var(--theme-color-2, var(--default-theme-color-2));
-}
-
-.listbox-button {
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  background: var(--theme-background-1, var(--default-theme-background-1));
-  padding: 6px 12px;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  text-align: left;
-  display: block;
-  font-size: var(--theme-mini, var(--default-theme-mini));
-}
-
-.listbox-button-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.listbox-button-label {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--theme-color-1, var(--default-theme-color-1));
-}
-
-.listbox-options {
-  background: var(--theme-background-1, var(--default-theme-background-1));
-  padding: 6px 6px;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  margin-top: 4px;
-  box-shadow: var(--theme-shadow-2, var(--default-theme-shadow-2));
-  position: absolute;
-  margin: 0 1px;
-  transform: translateY(-50%);
-  z-index: 100;
-  list-style: none;
-}
-
-.listbox-option {
-  padding: 6px 12px;
-  cursor: pointer;
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  margin: 2px 0;
-}
-
-.listbox-option[data-headlessui-state='selected'] {
-  background: var(--theme-background-2, var(--default-theme-background-2));
-}
-
-.listbox-option:hover {
-  background: var(--theme-background-2, var(--default-theme-background-2));
-  color: var(--theme-color-2, var(--default-theme-color-2));
-}
-
-.icon {
-  width: 13px;
-  height: 13px;
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  gap: 6px;
+  align-items: start;
+  padding-top: 6px;
 }
 </style>

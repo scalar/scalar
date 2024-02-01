@@ -57,11 +57,7 @@ defineEmits<{
 <style>
 .text-select {
   position: relative;
-  padding-right: 9px;
   height: fit-content;
-  padding-left: 12px;
-  border-right: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
 }
 .text-select--single-option {
   pointer-events: none;

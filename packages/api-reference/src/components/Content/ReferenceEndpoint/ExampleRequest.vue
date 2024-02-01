@@ -39,6 +39,16 @@ const CodeMirrorLanguages = computed(() => {
   return [state.selectedClient.targetKey]
 })
 
+const hasMultipleExamples = computed<boolean>(
+  () =>
+    props.operation.information?.requestBody?.content?.['application/json']
+      ?.examples &&
+    Object.keys(
+      props.operation.information?.requestBody?.content?.['application/json']
+        .examples,
+    ).length > 1,
+)
+
 const generateSnippet = async (): Promise<string> => {
   // Generate a request object
   const request = getHarRequest(
@@ -132,6 +142,7 @@ computed(() => {
       </div>
       <template #actions>
         <TextSelect
+          class="request-client-picker"
           :modelValue="JSON.stringify(state.selectedClient)"
           :options="
             availableTargets.map((target) => {
@@ -173,23 +184,6 @@ computed(() => {
       frameless>
       <!-- Multiple examples -->
       <div class="code-snippet">
-        <template
-          v-if="
-            operation.information?.requestBody?.content?.['application/json']
-              ?.examples &&
-            Object.keys(
-              operation.information?.requestBody?.content?.['application/json']
-                .examples,
-            ).length > 1
-          ">
-          <SelectExample
-            :examples="
-              operation.information?.requestBody?.content?.['application/json']
-                .examples
-            "
-            @update:modelValue="(value) => (selectedExampleKey = value)" />
-        </template>
-
         <!-- @vue-ignore -->
         <CodeMirror
           :content="CodeMirrorValue"
@@ -199,9 +193,20 @@ computed(() => {
       </div>
     </CardContent>
     <CardFooter
-      v-if="$slots.footer"
+      v-if="hasMultipleExamples || $slots.footer"
       class="scalar-card-footer"
       contrast>
+      <div
+        v-if="hasMultipleExamples"
+        class="scalar-card-footer-addon">
+        <SelectExample
+          class="request-example-selector"
+          :examples="
+            operation.information?.requestBody?.content?.['application/json']
+              ?.examples ?? []
+          "
+          @update:modelValue="(value) => (selectedExampleKey = value)" />
+      </div>
       <slot name="footer" />
     </CardFooter>
   </Card>
@@ -234,6 +239,12 @@ computed(() => {
 }
 .request-method--put {
   color: var(--theme-color-orange, var(--default-theme-color-orange));
+}
+.request-client-picker {
+  padding-left: 12px;
+  padding-right: 9px;
+  border-right: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 .copy-button {
@@ -272,8 +283,15 @@ computed(() => {
 
 .scalar-card-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: end;
   padding: 6px;
+}
+.scalar-card-footer-addon {
+  display: flex;
+  align-items: center;
+
+  flex: 1;
+  min-width: 0;
 }
 .request-editor-section {
   display: flex;
