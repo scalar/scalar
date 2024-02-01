@@ -54,6 +54,7 @@ const models = computed(() => {
           <!-- Schema -->
           <Schema
             :name="name"
+            noncollapsible
             :value="components?.schemas?.[name]" />
           <!-- Show More Button -->
           <ShowMoreButton

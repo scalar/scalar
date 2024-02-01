@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import type { Parameters } from '../../../types'
-import MarkdownRenderer from '../MarkdownRenderer.vue'
-import Schema from '../Schema.vue'
 import SchemaProperty from '../SchemaProperty.vue'
 
 withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
@@ -16,8 +14,8 @@ withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
         :description="parameter.description"
         :level="0"
         :name="parameter.name"
+        :noncollapsible="showChildren"
         :required="parameter.required"
-        :toggleVisibility="!showChildren"
         :value="parameter.schema" />
     </div>
   </li>

@@ -45,7 +45,7 @@ if (prop.requestBody?.content) {
       class="request-body-schema">
       <Schema
         compact
-        toggleVisibility
+        noncollapsible
         :value="prop?.requestBody.content?.[selectedContentType]?.schema" />
     </div>
   </div>

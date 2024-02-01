@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type OpenAPI, type OpenAPIV2 } from 'openapi-types'
+import { type OpenAPIV2 } from 'openapi-types'
 
 defineProps<{
   value: OpenAPIV2.SchemaObject

@@ -184,7 +184,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       <!-- Property -->
       <div
         v-if="value?.[rule]"
-        class="rule">
+        class="property-rule">
         <template
           v-for="(schema, index) in value[rule]"
           :key="index">
@@ -197,7 +197,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       <!-- Arrays -->
       <div
         v-if="value?.items?.[rule] && level < 3"
-        class="rule">
+        class="property-rule">
         <Schema
           v-for="(schema, index) in value.items[rule]"
           :key="index"
@@ -221,7 +221,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 
 .property--compact.property--level-0 {
-  padding: 8px 0;
+  padding: 10px 0;
 }
 
 .property-information {
@@ -246,10 +246,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 .children {
   padding-top: 8px;
-}
-.children .property:first-of-type {
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 .property-name {
@@ -303,7 +299,11 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   border-radius: var(--theme-radius, var(--default-theme-radius));
 }
 
-.rule {
+.property-rule {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
   margin-top: 12px;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
