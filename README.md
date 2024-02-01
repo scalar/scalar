@@ -18,7 +18,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
 - Edit your Swagger files with a live preview
 - Doesn’t look like it’s 2011
 
-> [Scalar Townhall on Thu Feb, 14th in Discord](https://discord.com/invite/s4MJ7w5y?event=1198701245137952828)
+> [Scalar Townhall on Thu Feb, 15th in Discord](https://discord.com/invite/s4MJ7w5y?event=1198701245137952828)
 >
 > Join us to see upcoming features, discuss the roadmap and chat about APIs with us. 💬
 
