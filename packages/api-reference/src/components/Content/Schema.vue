@@ -21,7 +21,7 @@ const props = withDefaults(
   {
     level: 0,
     compact: false,
-    toggleVisibility: false,
+    toggleVisibility: true,
     hideVisibilityToggle: false,
   },
 )
@@ -59,9 +59,10 @@ const mergedSchema = computed(() => {
   <template v-if="typeof value === 'object' && Object.keys(value).length">
     <div
       class="schema-card"
-      :class="`${
-        compact ? 'schema-card--compact' : ''
-      } schema-card--level-${level}`">
+      :class="[
+        `schema-card--level-${level}`,
+        { 'schema-card--compact': compact },
+      ]">
       <div
         class="properties"
         :class="`properties--${
@@ -133,7 +134,6 @@ const mergedSchema = computed(() => {
 }
 .schema-card {
   width: 100%;
-  margin-top: 12px;
   font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
@@ -141,7 +141,9 @@ const mergedSchema = computed(() => {
   color: var(--theme-color-2, var(--default-theme-color-2));
   font-weight: var(--theme-bold, var(--default-theme-bold));
   font-size: var(--theme-micro, var(--default-theme-micro));
-  background: var(--theme-background-4, var(--default-theme-background-4));
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  border-bottom: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
   padding: 10px 12px;
 }
 .schema-card .property:last-of-type {
@@ -158,14 +160,8 @@ const mergedSchema = computed(() => {
   overflow: hidden;
 }
 
-.properties .properties {
-  margin-top: 12px;
-}
 .schema-card--compact {
   margin: 0;
-}
-.schema-card--compact .schema-card--compact > .properties {
-  margin: 9px 0 0;
 }
 
 .schema-card--compact.schema-card--level-0 > .properties {
@@ -184,7 +180,8 @@ const mergedSchema = computed(() => {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 
-.schema-visibility-toggle + .property {
+.schema-visibility-toggle + .property,
+.schema-visibility-toggle + .schema-card-title {
   border-top: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
