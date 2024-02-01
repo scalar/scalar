@@ -10,14 +10,12 @@ withDefaults(
     name?: string
     required?: boolean
     compact?: boolean
-    toggleVisibility?: boolean
     description?: string
   }>(),
   {
     level: 0,
     required: false,
     compact: false,
-    toggleVisibility: false,
   },
 )
 
@@ -57,11 +55,10 @@ const generatePropertyDescription = function (property?: Record<string, any>) {
 
 const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 </script>
-
 <template>
   <div
     class="property"
-    :class="`${compact ? 'property--compact' : ''} property--level-${level}`">
+    :class="[`property--level-${level}`, { 'property--compact': compact }]">
     <div class="property-information">
       <div
         v-if="name"
@@ -167,7 +164,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       <Schema
         :compact="compact"
         :level="level + 1"
-        :toggleVisibility="level >= 3 || toggleVisibility"
         :value="value" />
     </div>
     <!-- Array of objects -->
@@ -178,7 +174,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         <Schema
           :compact="compact"
           :level="level + 1"
-          :toggleVisibility="level >= 3 || toggleVisibility"
           :value="value.items" />
       </div>
     </template>
@@ -195,9 +190,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
           :key="index">
           <Schema
             :compact="compact"
-            hideVisibilityToggle
             :level="level + 1"
-            :toggleVisibility="level >= 3 || toggleVisibility"
             :value="schema" />
         </template>
       </div>
@@ -210,7 +203,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
           :key="index"
           :compact="compact"
           :level="level + 1"
-          :toggleVisibility="level >= 3 || toggleVisibility"
           :value="schema" />
       </div>
     </template>
@@ -313,11 +305,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
 .rule {
   margin-top: 12px;
-  padding: 0 12px 12px;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  background: var(--theme-background-4, var(--default-theme-background-4));
-  border: 2px dotted
-    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 .property-enum-value {
