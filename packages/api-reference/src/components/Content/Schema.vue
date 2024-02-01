@@ -196,6 +196,10 @@ button.schema-card-title:hover {
   height: auto;
   border-bottom: none;
 }
+.schema-card--compact > .schema-properties,
+.schema-card-title--compact {
+  border-radius: 13.5px;
+}
 
 .schema-card-title--compact > .schema-card-title-icon {
   width: 9px;
