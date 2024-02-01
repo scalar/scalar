@@ -144,7 +144,7 @@ const showSchema = ref(false)
         :examples="currentJsonResponse?.examples"
         @update:modelValue="(value) => (selectedExampleKey = value)" />
       <div
-        v-if="currentResponse?.description"
+        v-else-if="currentResponse?.description"
         class="response-description">
         <MarkdownRenderer
           class="markdown"
