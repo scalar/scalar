@@ -2,6 +2,7 @@
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
 import rehypeHighlight from 'rehype-highlight'
+import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import rehypeStringify from 'rehype-stringify'
 import remarkGfm from 'remark-gfm'
@@ -27,26 +28,38 @@ const disallowedTagNames = props.withImages ? [] : ['img', 'picture']
 watch(
   () => props.value,
   async () => {
+    // Markdown pipeline
     unified()
+      // Parses markdown
       .use(remarkParse)
+      // Support autolink literals, footnotes, strikethrough, tables and tasklists
       .use(remarkGfm)
-      .use(remarkRehype)
-      .use(rehypeFormat)
+      // Allows any HTML tags
+      .use(remarkRehype, { allowDangerousHtml: true })
+      // Creates a HTML AST
+      .use(rehypeRaw)
+      // Removes disallowed tags
       .use(rehypeSanitize, {
         ...defaultSchema,
+        // Makes it even more strict
         tagNames: defaultSchema.tagNames?.filter(
           (tag) => !disallowedTagNames.includes(tag),
         ),
       })
+      // Syntax highlighting
       .use(rehypeHighlight, {
         detect: true,
       })
+      // Adds target="_blank" to external links
       .use(rehypeExternalLinks, { target: '_blank' })
+      // Formats the HTML
+      .use(rehypeFormat)
+      // Converts the HTML AST to a string
       .use(rehypeStringify)
+      // Run the pipeline
       .process(props.value)
-      .then((result) => {
-        html.value = String(result)
-      })
+      // Puts it into the DOM
+      .then((result) => (html.value = String(result)))
   },
   { immediate: true },
 )
@@ -64,11 +77,20 @@ watch(
   all: unset;
   word-break: break-word;
 }
-.markdown :deep(*) {
+/* all elements inside .markdown, but not <details> and <summary> */
+.markdown :deep(*) :not(details) :not(summary) {
   all: unset;
   margin: 12px 0;
   font-family: var(--theme-font, var(--default-theme-font));
   color: var(--theme-color-1, var(--default-theme-color-1));
+}
+.markdown :deep(details) {
+  margin: 12px 0;
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
+.markdown :deep(summary) {
+  margin: 12px 0;
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 /* Don't add margin to the first block */
 .markdown :deep(> :first-child) {
