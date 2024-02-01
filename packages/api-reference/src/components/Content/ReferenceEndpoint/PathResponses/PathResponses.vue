@@ -50,7 +50,9 @@ const currentResponse = computed(() => {
 })
 
 const currentJsonResponse = computed(
-  () => currentResponse.value?.content?.['application/json'],
+  () =>
+    currentResponse.value?.content?.['application/json'] ??
+    currentResponse.value,
 )
 
 const changeTab = (index: number) => {
