@@ -89,10 +89,10 @@
     "remark-gfm": "^4.0.0",
     "remark-html": "^16.0.1",
     "remark-parse": "^11.0.0",
-    "remark-rehype": "^11.0.0",
+    "remark-rehype": "^11.1.0",
     "remark-stringify": "^11.0.0",
     "unhead": "^1.8.3",
-    "unified": "^11.0.0"
+    "unified": "^11.0.4"
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",
