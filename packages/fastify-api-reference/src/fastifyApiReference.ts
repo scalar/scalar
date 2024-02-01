@@ -177,7 +177,7 @@ const fastifyApiReference: FastifyPluginAsync<
     !hasSwaggerPlugin
   ) {
     fastify.log.warn(
-      '[@scalar/fastify-api-reference] You didn’t provide a spec.content or spec.url and @fastify/swagger could not be find either. Please provide one of these options.',
+      '[@scalar/fastify-api-reference] You didn’t provide a spec.content or spec.url, and @fastify/swagger could not be found. Please provide one of these options.',
     )
 
     return
