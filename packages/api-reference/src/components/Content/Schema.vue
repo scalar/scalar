@@ -78,8 +78,8 @@ const handleClick = (e: MouseEvent) =>
                 fill-rule="nonzero"
                 points="14 8 8 8 8 14 6 14 6 8 0 8 0 6 6 6 6 0 8 0 8 6 14 6" />
             </svg>
-            <template v-if="open">Hide details</template>
-            <template v-else>Show details</template>
+            <template v-if="open">Hide Child Attributes</template>
+            <template v-else>Show Child Attributes</template>
           </template>
           <template v-else>
             <ScalarIcon
@@ -142,7 +142,7 @@ const handleClick = (e: MouseEvent) =>
   gap: 4px;
 
   color: var(--theme-color-2, var(--default-theme-color-2));
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
   font-size: var(--theme-micro, var(--default-theme-micro));
   background: var(--theme-background-1, var(--default-theme-background-1));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
@@ -192,7 +192,8 @@ button.schema-card-title:hover {
 }
 
 .schema-card-title--compact {
-  padding: 6px 8px;
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  padding: 6px 10px;
   height: auto;
   border-bottom: none;
 }
@@ -202,8 +203,8 @@ button.schema-card-title:hover {
 }
 
 .schema-card-title--compact > .schema-card-title-icon {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   margin: 0;
 }
 .schema-card-title--compact > .schema-card-title-icon--open {
