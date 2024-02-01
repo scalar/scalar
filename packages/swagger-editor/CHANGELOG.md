@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.9.12
+
+### Patch Changes
+
+- 04c0bd9b: chore: remove unused dependencies
+
 ## 0.9.11
 
 ### Patch Changes
