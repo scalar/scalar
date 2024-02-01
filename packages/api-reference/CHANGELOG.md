@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.14.6
+
+### Patch Changes
+
+- 04c0bd9b: feat: details/summary tags in markdown
+- 569c104f: fix: swagger 2.0 response body isn’t shown
+- Updated dependencies [04c0bd9b]
+  - @scalar/swagger-editor@0.9.12
+
 ## 1.14.5
 
 ### Patch Changes
