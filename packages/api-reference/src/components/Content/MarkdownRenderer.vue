@@ -78,19 +78,19 @@ watch(
   word-break: break-word;
 }
 /* all elements inside .markdown, but not <details> and <summary> */
-.markdown :deep(*) :not(details) :not(summary) {
+.markdown :deep(*) {
   all: unset;
   margin: 12px 0;
   font-family: var(--theme-font, var(--default-theme-font));
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .markdown :deep(details) {
-  margin: 12px 0;
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  margin: 12px 0 !important;
+  color: var(--theme-color-1, var(--default-theme-color-1)) !important;
 }
 .markdown :deep(summary) {
-  margin: 12px 0;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  margin: 12px 0 !important;
+  font-weight: var(--theme-semibold, var(--default-theme-semibold)) !important;
 }
 /* Don't add margin to the first block */
 .markdown :deep(> :first-child) {
