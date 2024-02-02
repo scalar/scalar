@@ -78,7 +78,7 @@ watch(
   word-break: break-word;
 }
 /* all elements inside .markdown, but not <details> and <summary> */
-.markdown :deep(*) :not(details) :not(summary) {
+.markdown :deep(*) {
   all: unset;
   margin: 12px 0;
   font-family: var(--theme-font, var(--default-theme-font));
