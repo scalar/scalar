@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.14.8
+
+### Patch Changes
+
+- d7dbba87: fix: css reset on markdown details summary
+
 ## 1.13.18
 
 ### Patch Changes
