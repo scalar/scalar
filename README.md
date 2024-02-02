@@ -622,6 +622,13 @@ This repository contains all our open source projects and there’s definitely m
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/Fdawgs">
+            <img src="https://avatars.githubusercontent.com/u/43814140?v=4" width="100;" alt="Fdawgs"/>
+            <br />
+            <sub><b>Fdawgs</b></sub>
+        </a>
+    </td>
+    <td align="center">
         <a href="https://github.com/danp">
             <img src="https://avatars.githubusercontent.com/u/2182?v=4" width="100;" alt="danp"/>
             <br />
@@ -634,7 +641,8 @@ This repository contains all our open source projects and there’s definitely m
             <br />
             <sub><b>chrislearn</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/sigpwned">
             <img src="https://avatars.githubusercontent.com/u/1236302?v=4" width="100;" alt="sigpwned"/>
