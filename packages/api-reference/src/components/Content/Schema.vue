@@ -130,6 +130,9 @@ const handleClick = (e: MouseEvent) =>
 button.schema-card-title {
   cursor: pointer;
 }
+button.schema-card-title:hover {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
 .schema-card-title-icon {
   margin-left: -4px;
 }
@@ -146,10 +149,6 @@ button.schema-card-title {
 
 .schema-card .property:last-of-type {
   padding-bottom: 10px;
-}
-/* Style the "icon" */
-.schema-card-title :deep(em) {
-  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 
 .schema-properties {

@@ -116,7 +116,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         :key="rule">
         <div
           v-if="value?.[rule] || value?.items?.[rule]"
-          class="property-rule">
+          class="property-rule-badge">
           <Badge>{{ rule }}</Badge>
         </div>
       </template>
@@ -232,7 +232,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 
 .property-description {
-  margin-top: 4px;
+  margin-top: 6px;
   line-height: 1.4;
 }
 

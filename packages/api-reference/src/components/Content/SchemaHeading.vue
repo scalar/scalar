@@ -8,7 +8,8 @@ defineProps<{
 </script>
 <template>
   <span class="schema-type">
-    <em
+    <span
+      class="schema-type-icon"
       :title="
         typeof value.type === 'string'
           ? value.type
@@ -18,7 +19,8 @@ defineProps<{
       ">
       <template v-if="value.type === 'object'"> {} </template>
       <template v-if="value.type === 'array'"> [] </template>
-    </em>
+      <template v-if="value.enum"> enum </template>
+    </span>
     <template v-if="value?.xml?.name && value?.xml?.name !== '##default'">
       &lt;{{ value?.xml?.name }} /&gt;
     </template>
@@ -31,6 +33,10 @@ defineProps<{
   </span>
 </template>
 <style scoped>
+/* Style the "icon" */
+.schema-type-icon {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
 .schema-type {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
