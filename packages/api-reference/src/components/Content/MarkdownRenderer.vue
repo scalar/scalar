@@ -85,12 +85,12 @@ watch(
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .markdown :deep(details) {
-  margin: 12px 0 !important;
-  color: var(--theme-color-1, var(--default-theme-color-1)) !important;
+  margin: 12px 0;
+  color: var(--theme-color-1, var(--default-theme-color-1));
 }
 .markdown :deep(summary) {
-  margin: 12px 0 !important;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold)) !important;
+  margin: 12px 0;
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 /* Don't add margin to the first block */
 .markdown :deep(> :first-child) {
