@@ -127,7 +127,6 @@ const handleClick = (e: MouseEvent) =>
 .schema-card {
   z-index: 0;
   position: relative;
-  width: 100%;
   font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
@@ -182,6 +181,14 @@ button.schema-card-title:hover {
 
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+}
+
+.schema-card--compact {
+  align-self: start;
+}
+
+.schema-card--compact.schema-card--open {
+  align-self: initial;
 }
 
 .schema-card-title--compact {

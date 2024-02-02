@@ -245,6 +245,9 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     var(--theme-border-color, var(--default-theme-border-color));
 }
 .children {
+  display: flex;
+  flex-direction: column;
+
   padding-top: 8px;
 }
 
