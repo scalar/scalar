@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.14.9
+
+### Patch Changes
+
+- 2f7ce4d8: feat: improve model look and feel
+
 ## 1.14.8
 
 ### Patch Changes
