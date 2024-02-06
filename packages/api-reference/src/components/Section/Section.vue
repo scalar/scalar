@@ -18,8 +18,9 @@ function handleScroll() {
   window.history.replaceState({}, '', `#${props.id}`)
   hash.value = props.id ?? ''
 
-  // We can also open the next section if we are continuing to scroll down
-  setCollapsedSidebarItem(getSectionId(props.id), true)
+  // Open models on scroll
+  if (props.id?.startsWith('model'))
+    setCollapsedSidebarItem(getSectionId(props.id), true)
 }
 </script>
 <template>
