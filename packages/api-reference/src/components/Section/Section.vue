@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useNavState, useSidebar } from '../../hooks'
+import { useNavState } from '../../hooks'
 import IntersectionObserver from '../IntersectionObserver.vue'
 
 const props = defineProps<{
@@ -7,8 +7,7 @@ const props = defineProps<{
   label?: string
 }>()
 
-const { getSectionId, hash, isIntersectionEnabled } = useNavState()
-const { setCollapsedSidebarItem } = useSidebar()
+const { hash, isIntersectionEnabled } = useNavState()
 
 function handleScroll() {
   if (!props.label || !isIntersectionEnabled.value) return
@@ -17,9 +16,6 @@ function handleScroll() {
   // this is why we set the hash value directly
   window.history.replaceState({}, '', `#${props.id}`)
   hash.value = props.id ?? ''
-
-  // We can also open the next section if we are continuing to scroll down
-  setCollapsedSidebarItem(getSectionId(props.id), true)
 }
 </script>
 <template>
