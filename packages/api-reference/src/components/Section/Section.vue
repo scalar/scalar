@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useNavState } from '../../hooks'
+import { useNavState, useSidebar } from '../../hooks'
 import IntersectionObserver from '../IntersectionObserver.vue'
 
 const props = defineProps<{
@@ -7,7 +7,8 @@ const props = defineProps<{
   label?: string
 }>()
 
-const { hash, isIntersectionEnabled } = useNavState()
+const { getSectionId, hash, isIntersectionEnabled } = useNavState()
+const { setCollapsedSidebarItem } = useSidebar()
 
 function handleScroll() {
   if (!props.label || !isIntersectionEnabled.value) return
@@ -16,6 +17,10 @@ function handleScroll() {
   // this is why we set the hash value directly
   window.history.replaceState({}, '', `#${props.id}`)
   hash.value = props.id ?? ''
+
+  // Open models on scroll
+  if (props.id?.startsWith('model'))
+    setCollapsedSidebarItem(getSectionId(props.id), true)
 }
 </script>
 <template>
