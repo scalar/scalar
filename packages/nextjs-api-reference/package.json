@@ -57,7 +57,7 @@
     "vite-plugin-dts": "^3.6.3"
   },
   "peerDependencies": {
-    "next": "^13 | ^14",
+    "next": "^13 || ^14",
     "react": "^18"
   }
 }
