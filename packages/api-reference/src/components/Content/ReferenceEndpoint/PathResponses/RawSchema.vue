@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { CodeMirror } from '@scalar/use-codemirror'
+import { watch } from 'vue'
 
 import { prettyPrintJson } from '../../../../helpers'
 
-defineProps<{
+const props = defineProps<{
   response:
     | undefined
     | {
@@ -12,6 +13,13 @@ defineProps<{
         schema?: any
       }
 }>()
+
+watch(
+  () => props.response?.schema,
+  () => {
+    console.log(props.response?.schema)
+  },
+)
 </script>
 
 <template>

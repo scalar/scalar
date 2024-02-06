@@ -109,6 +109,9 @@ export const useCodeMirror = (
         parent: params.codeMirrorRef.value,
         extensions,
       })
+
+      // Set the initial content if a provider is not in use
+      if (!hasProvider(params)) setCodeMirrorContent(toValue(params.content))
     }
   }
 
