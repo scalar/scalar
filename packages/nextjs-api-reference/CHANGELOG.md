@@ -1,5 +1,11 @@
 # @scalar/nextjs-api-reference
 
+## 0.1.16
+
+### Patch Changes
+
+- f6396475: fix: typo in Next.js version requirement
+
 ## 0.1.15
 
 ### Patch Changes
