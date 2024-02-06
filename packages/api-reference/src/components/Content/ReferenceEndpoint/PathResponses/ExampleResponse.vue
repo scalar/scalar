@@ -1,18 +1,12 @@
 <script lang="ts" setup>
 import { CodeMirror } from '@scalar/use-codemirror'
 
-import {
-  getExampleFromSchema,
-  mapFromObject,
-  prettyPrintJson,
-} from '../../../../helpers'
-import SelectExample from './SelectExample.vue'
+import { getExampleFromSchema, prettyPrintJson } from '../../../../helpers'
 
 defineProps<{
   response:
     | undefined
     | {
-        examples?: Record<string, any>
         example?: any
         schema?: any
       }
@@ -29,122 +23,101 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
   }, {})
 }
 </script>
-
 <template>
-  <!-- Multiple examples -->
-  <template
-    v-if="response?.examples && Object.keys(response?.examples).length > 1">
-    <SelectExample :examples="response?.examples" />
-  </template>
-  <!-- An array, but just one example -->
-  <template
-    v-else-if="
-      response?.examples && Object.keys(response?.examples).length === 1
-    ">
+  <div v-if="response?.example">
     <CodeMirror
+      :content="prettyPrintJson(response?.example)"
+      :languages="['json']"
+      readOnly />
+  </div>
+  <div v-else-if="response?.schema">
+    <!-- Single Schema -->
+    <CodeMirror
+      v-if="response?.schema.type"
       :content="
-        prettyPrintJson(mapFromObject(response?.examples)[0].value?.value)
+        prettyPrintJson(
+          getExampleFromSchema(
+            response?.schema,
+
+            {
+              emptyString: '…',
+              mode: 'read',
+            },
+          ),
+        )
       "
       :languages="['json']"
       readOnly />
-  </template>
-  <!-- Single example -->
-  <template v-else>
-    <div v-if="response?.example">
+    <!-- oneOf, anyOf, not … -->
+    <template
+      v-for="rule in rules"
+      :key="rule">
+      <div
+        v-if="
+          response?.schema[rule] &&
+          (response?.schema[rule].length > 1 || rule === 'not')
+        "
+        class="rule">
+        <div class="rule-title">
+          {{ rule }}
+        </div>
+        <ol class="rule-items">
+          <li
+            v-for="(example, index) in response?.schema[rule]"
+            :key="index"
+            class="rule-item">
+            <CodeMirror
+              :content="
+                prettyPrintJson(
+                  getExampleFromSchema(example, {
+                    emptyString: '…',
+                    mode: 'read',
+                  }),
+                )
+              "
+              :languages="['json']"
+              readOnly />
+          </li>
+        </ol>
+      </div>
       <CodeMirror
-        :content="prettyPrintJson(response?.example)"
-        :languages="['json']"
-        readOnly />
-    </div>
-    <div v-else-if="response?.schema">
-      <!-- Single Schema -->
-      <CodeMirror
-        v-if="response?.schema.type"
+        v-else-if="
+          response?.schema[rule] && response?.schema[rule].length === 1
+        "
         :content="
           prettyPrintJson(
-            getExampleFromSchema(
-              response?.schema,
-
-              {
-                emptyString: '…',
-                mode: 'read',
-              },
-            ),
+            getExampleFromSchema(response?.schema[rule][0], {
+              emptyString: '…',
+              mode: 'read',
+            }),
           )
         "
         :languages="['json']"
         readOnly />
-      <!-- oneOf, anyOf, not … -->
-      <template
-        v-for="rule in rules"
-        :key="rule">
-        <div
-          v-if="
-            response?.schema[rule] &&
-            (response?.schema[rule].length > 1 || rule === 'not')
-          "
-          class="rule">
-          <div class="rule-title">
-            {{ rule }}
-          </div>
-          <ol class="rule-items">
-            <li
-              v-for="(example, index) in response?.schema[rule]"
-              :key="index"
-              class="rule-item">
-              <CodeMirror
-                :content="
-                  prettyPrintJson(
-                    getExampleFromSchema(example, {
-                      emptyString: '…',
-                      mode: 'read',
-                    }),
-                  )
-                "
-                :languages="['json']"
-                readOnly />
-            </li>
-          </ol>
-        </div>
-        <CodeMirror
-          v-else-if="
-            response?.schema[rule] && response?.schema[rule].length === 1
-          "
-          :content="
-            prettyPrintJson(
-              getExampleFromSchema(response?.schema[rule][0], {
+    </template>
+    <!-- allOf-->
+    <CodeMirror
+      v-if="response?.schema['allOf']"
+      :content="
+        prettyPrintJson(
+          mergeAllObjects(
+            response?.schema['allOf'].map((schema: any) =>
+              getExampleFromSchema(schema, {
                 emptyString: '…',
                 mode: 'read',
               }),
-            )
-          "
-          :languages="['json']"
-          readOnly />
-      </template>
-      <!-- allOf-->
-      <CodeMirror
-        v-if="response?.schema['allOf']"
-        :content="
-          prettyPrintJson(
-            mergeAllObjects(
-              response?.schema['allOf'].map((schema: any) =>
-                getExampleFromSchema(schema, {
-                  emptyString: '…',
-                  mode: 'read',
-                }),
-              ),
             ),
-          )
-        "
-        :languages="['json']"
-        readOnly />
-    </div>
-    <div
-      v-if="!response?.example && !response?.schema"
-      class="empty-state">
-      No Body
-    </div>
-  </template>
+          ),
+        )
+      "
+      :languages="['json']"
+      readOnly />
+  </div>
+  <div
+    v-else
+    class="empty-state">
+    No Body
+  </div>
 </template>
 
 <style scoped>

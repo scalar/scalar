@@ -69,4 +69,46 @@ describe('getRequestBodyFromOperation', () => {
       text: JSON.stringify(expectedResult, null, 2),
     })
   })
+
+  it('uses examples', () => {
+    const request = getRequestBodyFromOperation({
+      httpVerb: 'POST',
+      path: '/foobar',
+      information: {
+        requestBody: {
+          description: 'Sample request body',
+          required: false,
+          content: {
+            'application/json': {
+              examples: {
+                'request-example-1': {
+                  summary: 'an example of a request',
+                  description: 'a longer string than the summary',
+                  value: {
+                    someObject: {
+                      someAttribute: 'attribute1',
+                    },
+                  },
+                },
+              },
+              schema: {
+                $ref: '#/components/schemas/PutDocumentRequest',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const expectedResult = {
+      someObject: {
+        someAttribute: 'attribute1',
+      },
+    }
+
+    expect(request?.postData).toContain({
+      mimeType: 'application/json',
+      text: JSON.stringify(expectedResult, null, 2),
+    })
+  })
 })

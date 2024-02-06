@@ -18,6 +18,7 @@ import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
 import type { TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
+import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
 const props = defineProps<{
@@ -25,6 +26,7 @@ const props = defineProps<{
 }>()
 
 const CodeMirrorValue = ref<string>('')
+const selectedExampleKey = ref<string>()
 const { copyToClipboard } = useClipboard()
 const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
 
@@ -37,15 +39,29 @@ const CodeMirrorLanguages = computed(() => {
   return [state.selectedClient.targetKey]
 })
 
+const hasMultipleExamples = computed<boolean>(
+  () =>
+    props.operation.information?.requestBody?.content?.['application/json']
+      ?.examples &&
+    Object.keys(
+      props.operation.information?.requestBody?.content?.['application/json']
+        .examples,
+    ).length > 1,
+)
+
 const generateSnippet = async (): Promise<string> => {
   // Generate a request object
   const request = getHarRequest(
     {
       url: getUrlFromServerState(serverState) ?? window.location.origin,
     },
-    getRequestFromOperation(props.operation, {
-      replaceVariables: true,
-    }),
+    getRequestFromOperation(
+      props.operation,
+      {
+        replaceVariables: true,
+      },
+      selectedExampleKey.value,
+    ),
     getRequestFromAuthentication(
       authenticationState,
       props.operation.information?.security,
@@ -93,6 +109,8 @@ watch(
     () => serverState,
     // … or the global authentication state changed
     () => authenticationState,
+    // … or the selected example key
+    () => selectedExampleKey,
   ],
   async () => {
     CodeMirrorValue.value = await generateSnippet()
@@ -124,6 +142,7 @@ computed(() => {
       </div>
       <template #actions>
         <TextSelect
+          class="request-client-picker"
           :modelValue="JSON.stringify(state.selectedClient)"
           :options="
             availableTargets.map((target) => {
@@ -163,17 +182,31 @@ computed(() => {
       borderless
       class="request-editor-section custom-scroll"
       frameless>
-      <!-- @vue-ignore -->
-      <CodeMirror
-        :content="CodeMirrorValue"
-        :languages="CodeMirrorLanguages"
-        lineNumbers
-        readOnly />
+      <!-- Multiple examples -->
+      <div class="code-snippet">
+        <!-- @vue-ignore -->
+        <CodeMirror
+          :content="CodeMirrorValue"
+          :languages="CodeMirrorLanguages"
+          lineNumbers
+          readOnly />
+      </div>
     </CardContent>
     <CardFooter
-      v-if="$slots.footer"
-      class="scalar-card-footer"
+      v-if="hasMultipleExamples || $slots.footer"
+      class="request-card-footer"
       contrast>
+      <div
+        v-if="hasMultipleExamples"
+        class="request-card-footer-addon">
+        <ExamplePicker
+          class="request-example-selector"
+          :examples="
+            operation.information?.requestBody?.content?.['application/json']
+              ?.examples ?? []
+          "
+          @update:modelValue="(value) => (selectedExampleKey = value)" />
+      </div>
       <slot name="footer" />
     </CardFooter>
   </Card>
@@ -206,6 +239,12 @@ computed(() => {
 }
 .request-method--put {
   color: var(--theme-color-orange, var(--default-theme-color-orange));
+}
+.request-client-picker {
+  padding-left: 12px;
+  padding-right: 9px;
+  border-right: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
 }
 
 .copy-button {
@@ -242,13 +281,27 @@ computed(() => {
   height: 13px;
 }
 
-.scalar-card-footer {
+.request-card-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: end;
   padding: 6px;
+  flex-shrink: 0;
+}
+.request-card-footer-addon {
+  display: flex;
+  align-items: center;
+
+  flex: 1;
+  min-width: 0;
 }
 .request-editor-section {
   display: flex;
   flex: 1;
+}
+
+.code-snippet {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 </style>
