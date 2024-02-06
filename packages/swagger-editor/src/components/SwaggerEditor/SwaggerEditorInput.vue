@@ -20,11 +20,7 @@ defineExpose({
 const codeMirrorRef = ref<typeof CodeMirror | null>(null)
 
 function getSyntaxHighlighting(content?: string): CodeMirrorLanguage[] {
-  if (isJsonString(content)) {
-    return ['json']
-  }
-
-  return ['yaml']
+  return isJsonString(content) ? ['json'] : ['yaml']
 }
 </script>
 

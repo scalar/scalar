@@ -26,8 +26,6 @@ const handleContentUpdate = (value: string) => {
   emit('contentUpdate', value)
 }
 
-const codeMirrorReference = ref<typeof SwaggerEditorInput | null>(null)
-
 const formattedError = computed(() => {
   // Check whether there‘s an error
   if (props.error === undefined || props.error === null || props.error === '') {
@@ -84,12 +82,10 @@ defineExpose({
         {{ formattedError }}
       </SwaggerEditorNotification>
       <slot
-        ref="codeMirrorReference"
         name="editor-input"
         :value="value"
         @contentUpdate="handleContentUpdate">
         <SwaggerEditorInput
-          ref="codeMirrorReference"
           :value="value"
           @contentUpdate="handleContentUpdate" />
       </slot>
