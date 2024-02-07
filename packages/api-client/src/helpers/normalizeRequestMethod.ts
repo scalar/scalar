@@ -1,4 +1,4 @@
-import { validRequestMethods } from '../fixtures'
+import { isRequestMethod } from '../fixtures'
 
 const defaultRequestMethod = 'GET'
 
@@ -18,10 +18,7 @@ export const normalizeRequestMethod = (method?: string) => {
   // Normalize the string
   const normalizedMethod = method.trim().toUpperCase()
 
-  // Make sure it’s a valid request method
-  const isValidRequestMethod = validRequestMethods.includes(normalizedMethod)
-
-  if (!isValidRequestMethod) {
+  if (!isRequestMethod(normalizedMethod)) {
     console.warn(
       `[sendRequest] ${method} is not a valid request method. Using ${defaultRequestMethod} as the default.`,
     )

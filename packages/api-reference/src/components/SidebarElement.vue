@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { HttpMethod } from '@scalar/api-client'
 import { ScalarIconButton } from '@scalar/components'
 import { ref } from 'vue'
 
@@ -65,14 +66,13 @@ defineExpose({ el })
         <span>
           {{ item.title }}
         </span>
-        <div
+        <HttpMethod
           v-if="item.httpVerb"
+          as="div"
           class="sidebar-heading-type"
-          :class="[
-            item.httpVerb ? `sidebar-heading-type--${item.httpVerb}` : '',
-          ]">
-          {{ item.httpVerb === 'delete' ? 'del' : item.httpVerb }}
-        </div>
+          :method="item.httpVerb"
+          property="--method-color"
+          short />
       </a>
     </div>
     <slot v-if="open" />
@@ -224,6 +224,10 @@ defineExpose({ el })
       var(--theme-background-1, var(--default-theme-background-1))
     )
   );
+  background: var(
+    --method-color,
+    var(--theme-color-2, var(--default-theme-color-2))
+  );
   text-transform: uppercase;
   font-size: 8px;
   font-weight: bold;
@@ -252,20 +256,5 @@ defineExpose({ el })
 }
 .sidebar-group-item__folder .sidebar-heading-type {
   display: none;
-}
-.sidebar-heading-type--post {
-  background: var(--theme-color-green, var(--default-theme-color-green));
-}
-.sidebar-heading-type--delete {
-  background: var(--theme-color-red, var(--default-theme-color-red));
-}
-.sidebar-heading-type--patch {
-  background: var(--theme-color-yellow, var(--default-theme-color-yellow));
-}
-.sidebar-heading-type--get {
-  background: var(--theme-color-blue, var(--default-theme-color-blue));
-}
-.sidebar-heading-type--put {
-  background: var(--theme-color-orange, var(--default-theme-color-orange));
 }
 </style>

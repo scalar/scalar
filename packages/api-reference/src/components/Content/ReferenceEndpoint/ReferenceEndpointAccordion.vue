@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { HttpMethod } from '@scalar/api-client'
 import { ScalarIcon, ScalarIconButton } from '@scalar/components'
 import { useClipboard } from '@scalar/use-clipboard'
 
@@ -25,12 +26,14 @@ const { getOperationId } = useNavState()
   <SectionAccordion
     :id="getOperationId(operation, tag)"
     class="reference-endpoint"
-    :class="`reference-endpoint--${operation.httpVerb}`"
     transparent>
     <template #title>
       <h3 class="endpoint-header">
         <div class="endpoint-details">
-          <span class="endpoint-type">{{ operation.httpVerb }}</span>
+          <HttpMethod
+            class="endpoint-type"
+            :method="operation.httpVerb"
+            short />
           <Anchor
             :id="getOperationId(operation, tag)"
             class="endpoint-anchor">
@@ -74,22 +77,6 @@ const { getOperationId } = useNavState()
 </template>
 
 <style scoped>
-.reference-endpoint.reference-endpoint--post {
-  color: var(--theme-color-green, var(--default-theme-color-green));
-}
-.reference-endpoint.reference-endpoint--patch {
-  color: var(--theme-color-yellow, var(--default-theme-color-yellow));
-}
-.reference-endpoint.reference-endpoint--get {
-  color: var(--theme-color-blue, var(--default-theme-color-blue));
-}
-.reference-endpoint.reference-endpoint--delete {
-  color: var(--theme-color-red, var(--default-theme-color-red));
-}
-.reference-endpoint.reference-endpoint--put {
-  color: var(--theme-color-orange, var(--default-theme-color-orange));
-}
-
 .endpoint-header {
   display: flex;
   justify-content: space-between;
@@ -112,8 +99,9 @@ const { getOperationId } = useNavState()
   position: relative;
   z-index: 0;
 
-  width: 70px;
+  width: 60px;
   padding: 6px;
+  flex-shrink: 0;
 
   font-size: var(--theme-small, var(--default-theme-small));
 

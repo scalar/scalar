@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { HttpMethod } from '@scalar/api-client'
 import { nextTick } from 'vue'
 
 import { useNavState, useSidebar } from '../../hooks'
@@ -53,9 +54,7 @@ async function scrollHandler(operation: TransformedOperation) {
                     :key="getOperationId(operation, tag)"
                     class="endpoint"
                     @click="scrollHandler(operation)">
-                    <span :class="operation.httpVerb">{{
-                      operation.httpVerb
-                    }}</span>
+                    <HttpMethod :method="operation.httpVerb" />
                     <span>{{ operation.path }}</span>
                   </a>
                 </div>
@@ -91,21 +90,6 @@ async function scrollHandler(operation: TransformedOperation) {
 }
 .endpoint span:first-of-type {
   text-transform: uppercase;
-}
-.endpoint .post {
-  color: var(--theme-color-green, var(--default-theme-color-green));
-}
-.endpoint .patch {
-  color: var(--theme-color-yellow, var(--default-theme-color-yellow));
-}
-.endpoint .get {
-  color: var(--theme-color-blue, var(--default-theme-color-blue));
-}
-.endpoint .delete {
-  color: var(--theme-color-red, var(--default-theme-color-red));
-}
-.endpoint .put {
-  color: var(--theme-color-orange, var(--default-theme-color-orange));
 }
 .endpoint .post,
 .endpoint .get,
