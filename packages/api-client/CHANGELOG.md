@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 0.11.0
+
+### Minor Changes
+
+- 26340b12: feat: update components to support all basic http request methods
+
+### Patch Changes
+
+- Updated dependencies [612431b4]
+  - @scalar/use-codemirror@0.8.0
+
 ## 0.10.2
 
 ### Patch Changes
