@@ -13,7 +13,6 @@ defineProps<{
       }
 }>()
 </script>
-
 <template>
   <CodeMirror
     v-if="response?.schema"

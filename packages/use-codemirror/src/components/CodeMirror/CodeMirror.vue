@@ -1,44 +1,12 @@
 <script lang="ts" setup>
-import { html } from '@codemirror/lang-html'
-import { java } from '@codemirror/lang-java'
-import { javascript } from '@codemirror/lang-javascript'
-import { json } from '@codemirror/lang-json'
-import { python } from '@codemirror/lang-python'
-import { type LanguageSupport, StreamLanguage } from '@codemirror/language'
-import {
-  c,
-  csharp,
-  kotlin,
-  objectiveC,
-} from '@codemirror/legacy-modes/mode/clike'
-import { clojure } from '@codemirror/legacy-modes/mode/clojure'
-import { go } from '@codemirror/legacy-modes/mode/go'
-import { http } from '@codemirror/legacy-modes/mode/http'
-import { oCaml } from '@codemirror/legacy-modes/mode/mllike'
-import { powerShell } from '@codemirror/legacy-modes/mode/powershell'
-import { r } from '@codemirror/legacy-modes/mode/r'
-import { ruby } from '@codemirror/legacy-modes/mode/ruby'
-import { shell } from '@codemirror/legacy-modes/mode/shell'
-import { swift } from '@codemirror/legacy-modes/mode/swift'
-import * as yamlMode from '@codemirror/legacy-modes/mode/yaml'
-import { type Extension } from '@codemirror/state'
-import {
-  EditorView,
-  type ViewUpdate,
-  keymap,
-  lineNumbers as lineNumbersExtension,
-} from '@codemirror/view'
-import { toRaw, watch } from 'vue'
+import { computed, ref, toRef } from 'vue'
 
 import { useCodeMirror } from '../../hooks'
 import type { CodeMirrorLanguage } from '../../types'
-import { variables } from './extensions/variables'
 
 const props = withDefaults(
   defineProps<{
-    name?: string
-    extensions?: Extension[]
-    content?: string
+    content: string | undefined
     readOnly?: boolean
     languages?: CodeMirrorLanguage[]
     withVariables?: boolean
@@ -55,159 +23,29 @@ const emit = defineEmits<{
   (e: 'change', value: string): void
 }>()
 
-// TODO: Add 'php'
-const syntaxHighlighting: Partial<
-  Record<CodeMirrorLanguage, LanguageSupport | StreamLanguage<any>>
-> = {
-  c: StreamLanguage.define(c),
-  clojure: StreamLanguage.define(clojure),
-  csharp: StreamLanguage.define(csharp),
-  go: StreamLanguage.define(go),
-  http: StreamLanguage.define(http),
-  html: html(),
-  java: java(),
-  javascript: javascript(),
-  json: json(),
-  kotlin: StreamLanguage.define(kotlin),
-  node: javascript(),
-  objc: StreamLanguage.define(objectiveC),
-  ocaml: StreamLanguage.define(oCaml),
-  powershell: StreamLanguage.define(powerShell),
-  python: python(),
-  r: StreamLanguage.define(r),
-  ruby: StreamLanguage.define(ruby),
-  shell: StreamLanguage.define(shell),
-  swift: StreamLanguage.define(swift),
-  yaml: StreamLanguage.define(yamlMode.yaml),
-}
-
 // CSS Class
-const classes = ['scalar-api-client__codemirror']
+const classes = computed(() =>
+  props.readOnly
+    ? [
+        'scalar-api-client__codemirror',
+        'scalar-api-client__codemirror--read-only',
+      ]
+    : ['scalar-api-client__codemirror'],
+)
 
-if (props.readOnly) {
-  classes.push('scalar-api-client__codemirror--read-only')
-}
+const codeMirrorRef = ref<HTMLDivElement | null>(null)
 
-const getCodeMirrorExtensions = () => {
-  const extensions: Extension[] = []
-
-  extensions.push(EditorView.editorAttributes.of({ class: classes.join(' ') }))
-
-  // Custom extensions
-  if (props.extensions) {
-    props.extensions.forEach((extension) => {
-      extensions.push(toRaw(extension))
-    })
-  }
-
-  // Read only
-  if (props.readOnly) {
-    extensions.push(EditorView.editable.of(false))
-  }
-
-  // Syntax highlighting
-  if (props.languages) {
-    props.languages
-      .filter((language) => typeof syntaxHighlighting[language] !== 'undefined')
-      .forEach((language) => {
-        extensions.push(syntaxHighlighting[language] as Extension)
-      })
-  }
-
-  // Line numbers
-  if (props.lineNumbers) {
-    extensions.push(lineNumbersExtension())
-  }
-
-  // Highlight variables
-  if (props.withVariables) {
-    extensions.push(variables())
-  }
-
-  if (props.disableEnter) {
-    extensions.push(
-      keymap.of([
-        {
-          key: 'Enter',
-          run: () => {
-            return true
-          },
-        },
-        {
-          key: 'Ctrl-Enter',
-          mac: 'Cmd-Enter',
-          run: () => {
-            return true
-          },
-        },
-        {
-          key: 'Shift-Enter',
-          run: () => {
-            return true
-          },
-        },
-      ]),
-    )
-  }
-
-  // Listen to updates
-  extensions.push(
-    EditorView.updateListener.of((v: ViewUpdate) => {
-      if (!v.docChanged) {
-        return
-      }
-
-      emit('change', v.state.doc.toString())
-    }),
-  )
-
-  return extensions
-}
-
-const {
+useCodeMirror({
+  content: toRef(() => props.content),
+  readOnly: toRef(() => props.readOnly),
+  languages: toRef(() => props.languages),
+  withVariables: toRef(() => props.withVariables),
+  lineNumbers: toRef(() => props.lineNumbers),
+  withoutTheme: toRef(() => props.withoutTheme),
+  disableEnter: toRef(() => props.disableEnter),
+  onChange: (v: string) => emit('change', v || ''),
   codeMirrorRef,
-  setCodeMirrorContent,
-  reconfigureCodeMirror,
-  restartCodeMirror,
-} = useCodeMirror({
-  content: props.content ?? '',
-  extensions: getCodeMirrorExtensions(),
-  withoutTheme: props.withoutTheme,
-})
-
-// Content changed. Updating CodeMirror …
-watch(
-  () => props.content,
-  () => {
-    setCodeMirrorContent(props.content)
-  },
-)
-
-// Document changed. Restarting CodeMirror.
-watch(
-  () => props.name,
-  () => {
-    restartCodeMirror(getCodeMirrorExtensions())
-  },
-)
-
-// Settings changed. Reconfiguring CodeMirror …
-watch(
-  [
-    () => props.disableEnter,
-    () => props.languages,
-    () => props.lineNumbers,
-    () => props.readOnly,
-    () => props.withoutTheme,
-    () => props.withVariables,
-  ],
-  () => {
-    reconfigureCodeMirror(getCodeMirrorExtensions())
-  },
-)
-
-defineExpose({
-  setCodeMirrorContent,
+  classes,
 })
 </script>
 
