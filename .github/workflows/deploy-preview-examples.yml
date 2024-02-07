@@ -1,0 +1,61 @@
+name: Deploy Scalar preview
+
+on:
+  push:
+    paths:
+      - 'examples/web/**'
+      - '.github/workflows/deploy-preview-examples.yml'
+    branches-ignore:
+      - 'main'
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    name: Deploy Scalar preview
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install netlify
+        run: pnpm install -g netlify
+      - name: Generate Run UUID
+        run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+      - name: Install dependencies
+        run: pnpm --filter web install
+      - name: Turborepo cache
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+      - name: Build
+        run: cd examples/web && pnpm turbo run build
+        env:
+          DEPLOY_ID: ${{ env.DEPLOY_ID }}
+      - name: Deploy to netlify
+        run: |
+          netlify deploy --dir "./examples/web/dist" \
+          --message "Deployed from Github - ${{ env.DEPLOY_ID }}" \
+          --site ${{ vars.NETLIFY_SITE_ID_PREVIEW }} \
+          --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+          --filter @scalar-examples/web \
+          --alias=${{env.DEPLOY_ID}}
+      - uses: jwalton/gh-find-current-pr@master
+        id: findPr
+      - run: echo "Your PR is ${PR}"
+        if: success() && steps.findPr.outputs.number
+        env:
+          PR: ${{ steps.findPr.outputs.pr }}
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          number: ${{ steps.findPr.outputs.pr }}
+          message: |
+            Preview deployed at https://${{env.DEPLOY_ID}}--scalar-deploy-preview.netlify.app
