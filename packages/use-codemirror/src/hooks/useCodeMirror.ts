@@ -44,6 +44,8 @@ import { variables } from './variables'
 type BaseParameters = {
   /** Element Ref to mount codemirror to */
   codeMirrorRef: Ref<HTMLDivElement | null>
+  /** List of optional extensions for the instance */
+  extensions?: MaybeRefOrGetter<Extension[]>
   /** Whether to load a theme.*/
   withoutTheme?: MaybeRefOrGetter<boolean | undefined>
   /** Languages to support for syntax highlighting */
@@ -65,7 +67,7 @@ export type UseCodeMirrorParameters =
       onChange: (v: string) => void
     })
   | (BaseParameters & {
-      provider: Extension
+      provider: MaybeRefOrGetter<Extension | null>
       content?: MaybeRefOrGetter<string | undefined>
       onChange?: (v: string) => void
     })
@@ -75,8 +77,8 @@ const hasProvider = (
   params: UseCodeMirrorParameters,
 ): params is BaseParameters & {
   content?: MaybeRefOrGetter<string | undefined>
-  provider: Extension
-} => 'provider' in params
+  provider: MaybeRefOrGetter<Extension>
+} => 'provider' in params && !!toValue(params.provider)
 
 /** Reactive CodeMirror Integration */
 export const useCodeMirror = (
@@ -103,7 +105,6 @@ export const useCodeMirror = (
   function mountCodeMirror() {
     if (params.codeMirrorRef.value) {
       const extensions = getCodeMirrorExtensions(extensionConfig.value)
-      if (hasProvider(params)) extensions.push(params.provider)
 
       codeMirror.value = new EditorView({
         parent: params.codeMirrorRef.value,
@@ -126,6 +127,8 @@ export const useCodeMirror = (
     withVariables: toValue(params.withVariables),
     disableEnter: toValue(params.withVariables),
     withoutTheme: toValue(params.withoutTheme),
+    additionalExtensions: toValue(params.extensions),
+    provider: hasProvider(params) ? toValue(params.provider) : null,
   }))
 
   // Update the extensions whenever parameters changes
@@ -135,7 +138,6 @@ export const useCodeMirror = (
       if (!codeMirror.value) return
 
       const extensions = getCodeMirrorExtensions(extensionConfig.value)
-      if (hasProvider(params)) extensions.push(params.provider)
 
       codeMirror.value.dispatch({
         effects: StateEffect.reconfigure.of(extensions),
@@ -216,6 +218,7 @@ const syntaxHighlighting: Partial<
 /** Generate the list of extension from parameters */
 function getCodeMirrorExtensions({
   onChange,
+  provider,
   languages = [],
   classes = [],
   readOnly = false,
@@ -223,6 +226,7 @@ function getCodeMirrorExtensions({
   withVariables = false,
   disableEnter = false,
   withoutTheme = false,
+  additionalExtensions = [],
 }: {
   classes?: string[]
   languages?: CodeMirrorLanguage[]
@@ -232,6 +236,8 @@ function getCodeMirrorExtensions({
   disableEnter?: boolean
   onChange?: (val: string) => void
   withoutTheme?: boolean
+  provider: Extension | null
+  additionalExtensions?: Extension[]
 }) {
   const extensions: Extension[] = [
     EditorView.theme({
@@ -249,7 +255,11 @@ function getCodeMirrorExtensions({
     }),
     // Add Classes
     EditorView.editorAttributes.of({ class: classes.join(' ') }),
+    ...additionalExtensions,
   ]
+
+  // Enable the provider
+  if (provider) extensions.push(provider)
 
   // Add the theme as needed
   if (!withoutTheme) extensions.push(customTheme)
