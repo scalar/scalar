@@ -48,6 +48,8 @@ jobs:
           --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
           --filter @scalar-examples/web \
           --alias=${{env.DEPLOY_ID}}
+      - uses: jwalton/gh-find-current-pr@master
+        id: findPr
       - run: echo "Your PR is ${PR}"
         if: success() && steps.findPr.outputs.number
         env:
