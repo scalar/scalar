@@ -107,7 +107,7 @@ const introCardsSlot = computed(() =>
           :is="endpointLayout"
           v-for="(operation, operationIndex) in tag.operations"
           :key="`${operation.httpVerb}-${operation.operationId}`"
-          :isLazy="index > 0 || operationIndex > 0"
+          :isLazy="index > 0 && operationIndex > 0"
           :operation="operation"
           :server="localServers[0]"
           :tag="tag" />

@@ -45,7 +45,9 @@ useResizeObserver(documentEl, (entries) => {
 // Scroll to hash if exists
 const initiallyScrolled = ref(false)
 const { breadcrumb, setCollapsedSidebarItem } = useSidebar()
-const { hash, getSectionId } = useNavState()
+const { enableHashListener, hash, getSectionId } = useNavState()
+
+enableHashListener()
 
 // Wait until we have a parsed spec then scroll to hash
 watch(props.parsedSpec, async (val) => {

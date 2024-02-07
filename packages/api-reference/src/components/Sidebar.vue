@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
+import { sleep } from '../helpers'
 import { useNavState, useSidebar } from '../hooks'
 import type { Spec } from '../types'
 import SidebarElement from './SidebarElement.vue'
@@ -22,11 +23,13 @@ const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } = useSidebar(
 const SCROLL_OFFSET = -160
 const scrollerEl = ref<HTMLElement | null>(null)
 const sidebarRefs = ref<{ [key: string]: HTMLElement }>({})
+const disableScroll = ref(false)
 
 // Watch for the active item changing so we can scroll the sidebar,
-// but not when we click, only on scroll
+// but not when we click, only on scroll.
+// Also disable scroll on expansion of sidebar tag
 watch(hash, (id) => {
-  if (!isIntersectionEnabled.value) return
+  if (!isIntersectionEnabled.value || disableScroll.value) return
 
   const el = sidebarRefs.value[id!]
   if (!el || !scrollerEl.value) return
@@ -79,7 +82,14 @@ const setRef = (el: SidebarElementType, id: string) => {
               deprecated: item.deprecated ?? false,
             }"
             :open="collapsedSidebarItems[item.id] ?? false"
-            @toggleOpen="() => toggleCollapsedSidebarItem(item.id)">
+            @toggleOpen="
+              async () => {
+                disableScroll = true
+                toggleCollapsedSidebarItem(item.id)
+                await sleep(100)
+                disableScroll = false
+              }
+            ">
             <template v-if="item.children && item.children?.length > 0">
               <SidebarGroup :level="0">
                 <template

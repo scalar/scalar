@@ -30,7 +30,7 @@ const {
   getOperationId,
   getTagId,
   hash,
-} = useNavState(false)
+} = useNavState()
 
 // Track the parsed spec
 const parsedSpec = ref<Spec | undefined>(undefined)

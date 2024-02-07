@@ -21,7 +21,7 @@ function onIdle(cb = () => {}) {
   } else {
     setTimeout(() => {
       nextTick(cb)
-    }, 0)
+    }, 100)
   }
 }
 
@@ -29,7 +29,6 @@ const shouldRender = ref(false)
 
 if (props.isLazy) {
   onIdle(() => {
-    console.log('lazy loadin')
     shouldRender.value = true
   })
 }
