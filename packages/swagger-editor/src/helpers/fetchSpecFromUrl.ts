@@ -4,18 +4,16 @@
 export const fetchSpecFromUrl = async (url: string, proxy?: string) => {
   // With Proxy
   if (proxy) {
-    const response = proxy
-      ? await fetch(proxy, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            method: 'GET',
-            url,
-          }),
-        })
-      : await fetch(url)
+    const response = await fetch(proxy, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        method: 'GET',
+        url,
+      }),
+    })
 
     const payload = await response.json()
 
@@ -23,14 +21,7 @@ export const fetchSpecFromUrl = async (url: string, proxy?: string) => {
       throw new Error(JSON.stringify(payload))
     }
 
-    if (!payload.data) {
-      throw new Error(
-        'Didn’t receive a proper answer from the Proxy: ' +
-          JSON.stringify(payload),
-      )
-    }
-
-    return jsonOrYaml(payload.data)
+    return jsonOrYaml(JSON.stringify(payload))
   }
   // Without proxy
   else {
