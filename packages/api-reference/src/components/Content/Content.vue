@@ -105,8 +105,9 @@ const introCardsSlot = computed(() =>
         :tag="tag">
         <Component
           :is="endpointLayout"
-          v-for="operation in tag.operations"
+          v-for="(operation, operationIndex) in tag.operations"
           :key="`${operation.httpVerb}-${operation.operationId}`"
+          :isLazy="index > 0 || operationIndex > 0"
           :operation="operation"
           :server="localServers[0]"
           :tag="tag" />
@@ -115,15 +116,15 @@ const introCardsSlot = computed(() =>
     <template v-if="parsedSpec.webhooks">
       <Webhooks :webhooks="parsedSpec.webhooks" />
     </template>
-    <template v-if="hasModels(parsedSpec)">
-      <ModelsAccordion
-        v-if="layout === 'accordion'"
-        :components="parsedSpec.components" />
-      <Models
-        v-else
-        :components="parsedSpec.components" />
-    </template>
-    <slot name="end" />
+    <!-- <template v-if="hasModels(parsedSpec)"> -->
+    <!--   <ModelsAccordion -->
+    <!--     v-if="layout === 'accordion'" -->
+    <!--     :components="parsedSpec.components" /> -->
+    <!--   <Models -->
+    <!--     v-else -->
+    <!--     :components="parsedSpec.components" /> -->
+    <!-- </template> -->
+    <!-- <slot name="end" /> -->
   </div>
 </template>
 <style scoped>

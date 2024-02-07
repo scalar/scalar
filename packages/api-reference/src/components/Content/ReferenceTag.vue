@@ -23,6 +23,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
   <SectionContainer class="tag-section-container">
     <EndpointsOverview
       v-if="moreThanOneDefaultTag(tag)"
+      :isLazy="!isFirst"
       :tag="tag" />
     <ShowMoreButton
       v-if="

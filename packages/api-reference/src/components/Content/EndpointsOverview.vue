@@ -6,6 +6,7 @@ import { useNavState, useSidebar } from '../../hooks'
 import type { Tag, TransformedOperation } from '../../types'
 import { Anchor } from '../Anchor'
 import { Card, CardContent, CardHeader } from '../Card'
+import Lazy from '../Lazy.vue'
 import {
   Section,
   SectionColumn,
@@ -15,7 +16,7 @@ import {
 } from '../Section'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
-const props = defineProps<{ tag: Tag }>()
+const props = defineProps<{ isLazy: boolean; tag: Tag }>()
 
 const { getOperationId, getTagId } = useNavState()
 const { setCollapsedSidebarItem } = useSidebar()
@@ -44,7 +45,9 @@ async function scrollHandler(operation: TransformedOperation) {
           <MarkdownRenderer :value="tag.description" />
         </SectionColumn>
         <SectionColumn>
-          <template v-if="tag.operations?.length > 0">
+          <Lazy
+            v-if="tag.operations?.length > 0"
+            :isLazy="isLazy">
             <Card class="scalar-card-sticky">
               <CardHeader muted>Endpoints</CardHeader>
               <CardContent
@@ -62,7 +65,7 @@ async function scrollHandler(operation: TransformedOperation) {
                 </div>
               </CardContent>
             </Card>
-          </template>
+          </Lazy>
         </SectionColumn>
       </SectionColumns>
     </SectionContent>

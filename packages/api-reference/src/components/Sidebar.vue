@@ -10,7 +10,7 @@ const props = defineProps<{
   parsedSpec: Spec
 }>()
 
-const { hash } = useNavState()
+const { hash, isIntersectionEnabled } = useNavState()
 
 const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } = useSidebar(
   {
@@ -23,8 +23,11 @@ const SCROLL_OFFSET = -160
 const scrollerEl = ref<HTMLElement | null>(null)
 const sidebarRefs = ref<{ [key: string]: HTMLElement }>({})
 
-// Watch for the active item changing so we can scroll the sidebar
+// Watch for the active item changing so we can scroll the sidebar,
+// but not when we click, only on scroll
 watch(hash, (id) => {
+  if (!isIntersectionEnabled.value) return
+
   const el = sidebarRefs.value[id!]
   if (!el || !scrollerEl.value) return
 

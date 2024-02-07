@@ -5,6 +5,7 @@ import { useNavState } from '../../../hooks'
 import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { Badge } from '../../Badge'
+import Lazy from '../../Lazy.vue'
 import {
   Section,
   SectionColumn,
@@ -22,6 +23,7 @@ import TryRequestButton from './TryRequestButton.vue'
 const props = defineProps<{
   operation: TransformedOperation
   tag: Tag
+  isLazy: boolean
 }>()
 
 const { getOperationId } = useNavState()
@@ -59,40 +61,40 @@ const customRequestExamples = computed(() => {
               </Anchor>
             </SectionHeader>
           </div>
-          <EndpointDetails :operation="operation" />
+          <Lazy :isLazy="isLazy">
+            <EndpointDetails :operation="operation" />
+          </Lazy>
         </SectionColumn>
-        <SectionColumn>
-          <div class="examples">
-            <CustomRequestExamples
-              v-if="customRequestExamples"
-              :examples="customRequestExamples"
-              :operation="operation">
-              <template #header>
-                <EndpointPath
-                  class="example-path"
-                  :path="operation.path" />
-              </template>
-              <template #footer>
-                <TryRequestButton :operation="operation" />
-              </template>
-            </CustomRequestExamples>
-            <ExampleRequest
-              v-else
-              :operation="operation">
-              <template #header>
-                <EndpointPath
-                  class="example-path"
-                  :path="operation.path" />
-              </template>
-              <template #footer>
-                <TryRequestButton :operation="operation" />
-              </template>
-            </ExampleRequest>
-            <PathResponses
-              :operation="operation"
-              style="margin-top: 12px" />
-          </div>
-        </SectionColumn>
+        <Lazy :isLazy="isLazy">
+          <SectionColumn>
+            <div class="examples">
+              <CustomRequestExamples
+                v-if="customRequestExamples"
+                :examples="customRequestExamples"
+                :operation="operation">
+                <template #header>
+                  <EndpointPath
+                    class="example-path"
+                    :path="operation.path" />
+                </template>
+                <template #footer>
+                  <TryRequestButton :operation="operation" />
+                </template>
+              </CustomRequestExamples>
+              <ExampleRequest
+                v-else
+                :operation="operation">
+                <template #header> </template>
+                <template #footer>
+                  <TryRequestButton :operation="operation" />
+                </template>
+              </ExampleRequest>
+              <PathResponses
+                :operation="operation"
+                style="margin-top: 12px" />
+            </div>
+          </SectionColumn>
+        </Lazy>
       </SectionColumns>
     </SectionContent>
   </Section>

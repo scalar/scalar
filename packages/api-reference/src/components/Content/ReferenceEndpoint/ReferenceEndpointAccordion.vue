@@ -17,6 +17,7 @@ import TryRequestButton from './TryRequestButton.vue'
 defineProps<{
   operation: TransformedOperation
   tag: Tag
+  isLazy: boolean
 }>()
 
 const { copyToClipboard } = useClipboard()
