@@ -147,8 +147,8 @@ export const useCodeMirror = (
   // ---------------------------------------------------------------------------
 
   /** Set the codemirror content value */
-  const setCodeMirrorContent = (newValue?: string) => {
-    if (!codeMirror.value || typeof newValue === 'undefined') return
+  const setCodeMirrorContent = (newValue = '') => {
+    if (!codeMirror.value) return
 
     // No need to set the CodeMirror content if nothing has changed
     if (codeMirror.value.state.doc.toString() === newValue) return
