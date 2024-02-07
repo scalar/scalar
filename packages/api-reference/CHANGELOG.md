@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.14.10
+
+### Patch Changes
+
+- a963f10e: fix: shrink label and not actions on mobile
+- 4db085f4: feat: use provided examples for the request and the response
+- d1c085a0: fix: only open models sidebar section on scroll
+
 ## 1.14.9
 
 ### Patch Changes
