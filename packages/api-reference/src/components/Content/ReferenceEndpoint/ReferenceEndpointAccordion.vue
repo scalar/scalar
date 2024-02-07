@@ -156,6 +156,10 @@ const { getOperationId } = useNavState()
 .endpoint-label-path {
   font-family: var(--default-theme-font-code);
   font-size: var(--theme-mini, var(--default-theme-mini));
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .endpoint-label-path :deep(em) {
   color: var(--theme-color-2, var(--default-theme-color-2));
@@ -163,6 +167,9 @@ const { getOperationId } = useNavState()
 .endpoint-label-name {
   color: var(--theme-color-2, var(--default-theme-color-2));
   font-size: var(--theme-small, var(--default-theme-small));
+
+  /* Concatenate the name before we shrink the path */
+  flex-shrink: 1000000000;
 
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -172,7 +179,8 @@ const { getOperationId } = useNavState()
 .endpoint-try-hint {
   padding: 6px;
   height: 24px;
-  aspect-ratio: 1 / 1;
+  width: 24px;
+  flex-shrink: 0;
   opacity: 0.44;
 }
 
