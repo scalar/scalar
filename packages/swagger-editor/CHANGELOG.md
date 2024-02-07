@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.10.1
+
+### Patch Changes
+
+- dd6dd283: fix: expect a blob when fetching spec via proxy
+
 ## 0.10.0
 
 ### Minor Changes
