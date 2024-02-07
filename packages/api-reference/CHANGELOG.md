@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.15.0
+
+### Minor Changes
+
+- 612431b4: Migrate model logic from codemirror component to hook
+- 26340b12: feat: update components to support all basic http request methods
+
+### Patch Changes
+
+- Updated dependencies [612431b4]
+- Updated dependencies [26340b12]
+  - @scalar/swagger-editor@0.10.0
+  - @scalar/use-codemirror@0.8.0
+  - @scalar/api-client@0.11.0
+
 ## 1.14.10
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @scalar/swagger-editor
 
+## 0.10.0
+
+### Minor Changes
+
+- 612431b4: Migrate model logic from codemirror component to hook
+
+### Patch Changes
+
+- Updated dependencies [612431b4]
+  - @scalar/use-codemirror@0.8.0
+
 ## 0.9.12
 
 ### Patch Changes

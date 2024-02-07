@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.8.0
+
+### Minor Changes
+
+- 612431b4: Migrate model logic from codemirror component to hook
+
 ## 0.7.22
 
 ### Patch Changes
