@@ -5,6 +5,7 @@ import { computed, ref } from 'vue'
 import { hasModels, hasWebhooks } from '../../helpers'
 import { useRefOnMount } from '../../hooks'
 import type { Spec } from '../../types'
+import Lazy from '../Lazy.vue'
 import { Authentication } from './Authentication'
 import Introduction from './Introduction'
 import ClientList from './Introduction/ClientList.vue'
@@ -97,21 +98,23 @@ const introCardsSlot = computed(() =>
     <template
       v-for="(tag, index) in parsedSpec.tags"
       :key="tag.id">
-      <Component
-        :is="tagLayout"
-        v-if="tag.operations && tag.operations.length > 0"
-        :isFirst="index === 0"
-        :spec="parsedSpec"
-        :tag="tag">
+      <Lazy :isLazy="index > 0">
         <Component
-          :is="endpointLayout"
-          v-for="(operation, operationIndex) in tag.operations"
-          :key="`${operation.httpVerb}-${operation.operationId}`"
-          :isLazy="index > 0 && operationIndex > 0"
-          :operation="operation"
-          :server="localServers[0]"
-          :tag="tag" />
-      </Component>
+          :is="tagLayout"
+          v-if="tag.operations && tag.operations.length > 0"
+          :isFirst="index === 0"
+          :spec="parsedSpec"
+          :tag="tag">
+          <Component
+            :is="endpointLayout"
+            v-for="(operation, operationIndex) in tag.operations"
+            :key="`${operation.httpVerb}-${operation.operationId}`"
+            :isLazy="index > 0 && operationIndex > 0"
+            :operation="operation"
+            :server="localServers[0]"
+            :tag="tag" />
+        </Component>
+      </Lazy>
     </template>
     <template v-if="parsedSpec.webhooks">
       <Webhooks :webhooks="parsedSpec.webhooks" />

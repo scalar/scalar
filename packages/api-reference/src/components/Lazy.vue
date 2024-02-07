@@ -8,7 +8,7 @@ import { nextTick, ref } from 'vue'
  */
 const props = withDefaults(
   defineProps<{
-    isLazy: boolean
+    isLazy?: boolean
   }>(),
   {
     isLazy: true,
@@ -34,7 +34,5 @@ if (props.isLazy) {
 }
 </script>
 <template>
-  <div>
-    <slot v-if="!isLazy || shouldRender" />
-  </div>
+  <slot v-if="!isLazy || shouldRender" />
 </template>
