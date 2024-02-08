@@ -47,8 +47,10 @@ async function scrollHandler(operation: TransformedOperation) {
           <template v-if="tag.operations?.length > 0">
             <Card class="scalar-card-sticky">
               <CardHeader muted>Endpoints</CardHeader>
-              <CardContent muted>
-                <div class="endpoints custom-scroll">
+              <CardContent
+                class="custom-scroll"
+                muted>
+                <div class="endpoints">
                   <a
                     v-for="operation in tag.operations"
                     :key="getOperationId(operation, tag)"
