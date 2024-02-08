@@ -1,8 +1,11 @@
+import { css } from '@codemirror/lang-css'
 import { html } from '@codemirror/lang-html'
 import { java } from '@codemirror/lang-java'
 import { javascript } from '@codemirror/lang-javascript'
 import { json } from '@codemirror/lang-json'
+import { php } from '@codemirror/lang-php'
 import { python } from '@codemirror/lang-python'
+import { rust } from '@codemirror/lang-rust'
 import { type LanguageSupport, StreamLanguage } from '@codemirror/language'
 import {
   c,
@@ -85,8 +88,9 @@ export const useCodeMirror = (
   params: UseCodeMirrorParameters,
 ): {
   setCodeMirrorContent: (content?: string) => void
+  codeMirror: Ref<EditorView | null>
 } => {
-  const codeMirror = ref<EditorView | null>(null)
+  const codeMirror: Ref<EditorView | null> = ref(null)
 
   // Unmounts CodeMirror if it’s mounted already, and mounts CodeMirror, if the given ref exists.
   watch(
@@ -103,6 +107,7 @@ export const useCodeMirror = (
 
   // Initializes CodeMirror.
   function mountCodeMirror() {
+    console.debug('MOUNTING CODEMIRROR')
     if (params.codeMirrorRef.value) {
       const extensions = getCodeMirrorExtensions(extensionConfig.value)
 
@@ -185,17 +190,20 @@ export const useCodeMirror = (
   return {
     /** Replaces the current content with the given value. */
     setCodeMirrorContent,
+    /** Codemirror instance */
+    codeMirror,
   }
 }
 
 // ---------------------------------------------------------------------------
 
-const syntaxHighlighting: Partial<
-  Record<CodeMirrorLanguage, LanguageSupport | StreamLanguage<any>>
-> = {
+const syntaxHighlighting: {
+  [lang in CodeMirrorLanguage]: LanguageSupport | StreamLanguage<any>
+} = {
   c: StreamLanguage.define(c),
   clojure: StreamLanguage.define(clojure),
   csharp: StreamLanguage.define(csharp),
+  css: css(),
   go: StreamLanguage.define(go),
   http: StreamLanguage.define(http),
   html: html(),
@@ -208,8 +216,10 @@ const syntaxHighlighting: Partial<
   ocaml: StreamLanguage.define(oCaml),
   powershell: StreamLanguage.define(powerShell),
   python: python(),
+  php: php(),
   r: StreamLanguage.define(r),
   ruby: StreamLanguage.define(ruby),
+  rust: rust(),
   shell: StreamLanguage.define(shell),
   swift: StreamLanguage.define(swift),
   yaml: StreamLanguage.define(yamlMode.yaml),
