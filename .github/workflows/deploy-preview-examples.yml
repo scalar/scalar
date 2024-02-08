@@ -1,18 +1,18 @@
-name: Deploy Scalar preview
+name: Examples deploy preview
 
 on:
   push:
+    branches-ignore:
+      - 'main'
     paths:
       - 'examples/web/**'
       - '.github/workflows/deploy-preview-examples.yml'
-    branches-ignore:
-      - 'main'
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
-    name: Deploy Scalar preview
+    name: Examples deploy preview
     runs-on: ubuntu-latest
     strategy:
       matrix:
