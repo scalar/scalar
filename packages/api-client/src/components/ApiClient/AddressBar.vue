@@ -242,6 +242,11 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   align-items: stretch;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
+
+.scalar-api-client__url-form:deep(.cm-content) {
+  display: flex;
+  align-items: center;
+}
 .scalar-api-client__field {
   border-right: 0;
   background: var(--theme-background-2, var(--default-theme-background-2));
