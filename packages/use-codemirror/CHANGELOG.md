@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.8.3
+
+### Patch Changes
+
+- d4fff0de: Externalize yjs depedency in use-codemirror
+
 ## 0.8.2
 
 ### Patch Changes
