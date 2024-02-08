@@ -97,7 +97,9 @@ export const createApiClientProxy = () => {
         res.type(response.type)
         res.set({
           ...headers,
-          'Access-Control-Expose-Headers': '*',
+          // Make sure the client can read the special headers
+          'Access-Control-Expose-Headers':
+            Object.values(ProxyHeader).join(', '),
           [ProxyHeader.StatusCode]: response.status,
           [ProxyHeader.StatusText]: response.statusText,
         })
