@@ -1,19 +1,27 @@
-name: Deploy Scalar preview
+name: Examples deploy preview
 
 on:
   push:
+    branches-ignore:
+      - 'main'
     paths:
       - 'examples/web/**'
       - '.github/workflows/deploy-preview-examples.yml'
-    branches-ignore:
-      - 'main'
+  pull_request:
+    types:
+      - opened
+    paths:
+      - 'examples/web/**'
+      - '.github/workflows/deploy-preview-examples.yml'
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
-    name: Deploy Scalar preview
+    name: Examples deploy preview
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     strategy:
       matrix:
         node-version: [20]
@@ -57,5 +65,7 @@ jobs:
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
           number: ${{ steps.findPr.outputs.pr }}
+          header: 'Deploy Preview'
+          recreate: true
           message: |
-            Preview deployed at https://${{env.DEPLOY_ID}}--scalar-deploy-preview.netlify.app
+            Preview deployed to https://${{env.DEPLOY_ID}}--scalar-deploy-preview.netlify.app
