@@ -56,8 +56,10 @@
     "@lezer/common": "^1.2.1",
     "@lezer/highlight": "^1.2.0",
     "@lezer/lr": "^1.4.0",
+    "@replit/codemirror-css-color-picker": "^6.1.0",
     "@uiw/codemirror-themes": "^4.21.21",
-    "codemirror": "^6.0.0"
+    "codemirror": "^6.0.0",
+    "y-codemirror.next": "^0.3.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.4.0",

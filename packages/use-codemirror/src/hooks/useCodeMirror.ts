@@ -26,7 +26,6 @@ import * as yamlMode from '@codemirror/legacy-modes/mode/yaml'
 import { type Extension, StateEffect } from '@codemirror/state'
 import {
   EditorView,
-  type ViewUpdate,
   keymap,
   lineNumbers as lineNumbersExtension,
 } from '@codemirror/view'
@@ -61,6 +60,8 @@ type BaseParameters = {
   lineNumbers?: MaybeRefOrGetter<boolean | undefined>
   withVariables?: MaybeRefOrGetter<boolean | undefined>
   disableEnter?: MaybeRefOrGetter<boolean | undefined>
+  onBlur?: (v: string) => void
+  onFocus?: (v: string) => void
 }
 
 export type UseCodeMirrorParameters =
@@ -107,9 +108,12 @@ export const useCodeMirror = (
 
   // Initializes CodeMirror.
   function mountCodeMirror() {
-    console.debug('MOUNTING CODEMIRROR')
     if (params.codeMirrorRef.value) {
-      const extensions = getCodeMirrorExtensions(extensionConfig.value)
+      const provider = hasProvider(params) ? toValue(params.provider) : null
+      const extensions = getCodeMirrorExtensions({
+        ...extensionConfig.value,
+        provider,
+      })
 
       codeMirror.value = new EditorView({
         parent: params.codeMirrorRef.value,
@@ -123,8 +127,11 @@ export const useCodeMirror = (
 
   // ---------------------------------------------------------------------------
 
+  // All options except provider
   const extensionConfig = computed(() => ({
     onChange: params.onChange,
+    onBlur: params.onBlur,
+    onFocus: params.onFocus,
     languages: toValue(params.languages),
     classes: toValue(params.classes),
     readOnly: toValue(params.readOnly),
@@ -133,20 +140,36 @@ export const useCodeMirror = (
     disableEnter: toValue(params.withVariables),
     withoutTheme: toValue(params.withoutTheme),
     additionalExtensions: toValue(params.extensions),
-    provider: hasProvider(params) ? toValue(params.provider) : null,
   }))
+
+  // Provider must be watched separately because we need to restart codemirror if the provider changes
+  watch(
+    () => (hasProvider(params) ? toValue(params.provider) : null),
+    () => {
+      if (hasProvider(params)) {
+        codeMirror.value?.destroy()
+        mountCodeMirror()
+      }
+    },
+  )
 
   // Update the extensions whenever parameters changes
   watch(
     extensionConfig,
     () => {
       if (!codeMirror.value) return
+      // If a provider is
+      else {
+        const provider = hasProvider(params) ? toValue(params.provider) : null
+        const extensions = getCodeMirrorExtensions({
+          ...extensionConfig.value,
+          provider,
+        })
 
-      const extensions = getCodeMirrorExtensions(extensionConfig.value)
-
-      codeMirror.value.dispatch({
-        effects: StateEffect.reconfigure.of(extensions),
-      })
+        codeMirror.value.dispatch({
+          effects: StateEffect.reconfigure.of(extensions),
+        })
+      }
     },
     { immediate: true },
   )
@@ -228,6 +251,8 @@ const syntaxHighlighting: {
 /** Generate the list of extension from parameters */
 function getCodeMirrorExtensions({
   onChange,
+  onBlur,
+  onFocus,
   provider,
   languages = [],
   classes = [],
@@ -245,6 +270,8 @@ function getCodeMirrorExtensions({
   withVariables?: boolean
   disableEnter?: boolean
   onChange?: (val: string) => void
+  onFocus?: (val: string) => void
+  onBlur?: (val: string) => void
   withoutTheme?: boolean
   provider: Extension | null
   additionalExtensions?: Extension[]
@@ -259,9 +286,17 @@ function getCodeMirrorExtensions({
       },
     }),
     // Listen to updates
-    EditorView.updateListener.of((v: ViewUpdate) => {
+    EditorView.updateListener.of((v) => {
       if (!v.docChanged) return
       onChange?.(v.state.doc.toString())
+    }),
+    EditorView.domEventHandlers({
+      blur: (event, view) => {
+        onBlur?.(view.state.doc.toString())
+      },
+      focus: (event, view) => {
+        onFocus?.(view.state.doc.toString())
+      },
     }),
     // Add Classes
     EditorView.editorAttributes.of({ class: classes.join(' ') }),
