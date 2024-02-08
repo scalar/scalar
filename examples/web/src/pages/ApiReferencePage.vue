@@ -5,6 +5,7 @@ import {
 } from '@scalar/api-reference'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 
+import DevReferencesOptions from '../components/DevApiClientOptions.vue'
 import DevToolbar from '../components/DevToolbar.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 
@@ -40,7 +41,9 @@ const configProxy = computed({
     @changeTheme="configuration.theme = $event"
     @updateContent="(v) => (content = v)">
     <template #header>
-      <DevToolbar v-model="configProxy" />
+      <DevToolbar>
+        <DevReferencesOptions v-model="configProxy" />
+      </DevToolbar>
     </template>
     <template #sidebar-start>
       <SlotPlaceholder>sidebar-start</SlotPlaceholder>

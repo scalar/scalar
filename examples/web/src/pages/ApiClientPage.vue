@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ApiClient, useRequestStore } from '@scalar/api-client'
-import { watch } from 'vue'
+import { type ThemeId } from '@scalar/themes'
+import { ref, watch } from 'vue'
+
+import DevApiClientOptions from '../components/DevApiClientOptions.vue'
+import DevToolbar from '../components/DevToolbar.vue'
 
 const { activeRequest, setActiveRequest } = useRequestStore()
 
@@ -19,8 +23,14 @@ const activeRequestFromStorage = window.localStorage.getItem('activeRequest')
 if (activeRequestFromStorage) {
   setActiveRequest(JSON.parse(activeRequestFromStorage))
 }
-</script>
 
+const config = ref({
+  proxyUrl: 'http://localhost:5051',
+  readOnly: false,
+  theme: 'default' as ThemeId,
+})
+</script>
 <template>
-  <ApiClient proxyUrl="http://localhost:5051" />
+  <DevToolbar><DevApiClientOptions v-model="config" /></DevToolbar>
+  <ApiClient v-bind="config" />
 </template>
