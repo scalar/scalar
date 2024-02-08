@@ -1,5 +1,13 @@
 # @scalar/swagger-editor
 
+## 0.10.1
+
+### Patch Changes
+
+- dd6dd283: fix: expect a blob when fetching spec via proxy
+- Updated dependencies [b1f3cb49]
+  - @scalar/use-codemirror@0.8.1
+
 ## 0.10.0
 
 ### Minor Changes

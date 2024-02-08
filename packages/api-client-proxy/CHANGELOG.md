@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.15
+
+### Patch Changes
+
+- dd6dd283: fix: expect a blob when fetching spec via proxy
+
 ## 0.5.14
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.8.1
+
+### Patch Changes
+
+- b1f3cb49: feat: Add optional extensions and reactive provider to useCodemirror
+
 ## 0.8.0
 
 ### Minor Changes
