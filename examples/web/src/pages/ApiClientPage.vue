@@ -4,10 +4,6 @@ import { watch } from 'vue'
 
 const { activeRequest, setActiveRequest } = useRequestStore()
 
-// a comment to test the ci
-const a = 1
-console.log(a)
-
 // Store active request in local storage
 watch(activeRequest, () => {
   const activeRequestFromStorage = window.localStorage.getItem('activeRequest')
