@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.8.2
+
+### Patch Changes
+
+- f8650e4f: Bundle codemirror and update packages
+
 ## 0.8.1
 
 ### Patch Changes
