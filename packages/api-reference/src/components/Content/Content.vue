@@ -119,15 +119,15 @@ const introCardsSlot = computed(() =>
     <template v-if="parsedSpec.webhooks">
       <Webhooks :webhooks="parsedSpec.webhooks" />
     </template>
-    <!-- <template v-if="hasModels(parsedSpec)"> -->
-    <!--   <ModelsAccordion -->
-    <!--     v-if="layout === 'accordion'" -->
-    <!--     :components="parsedSpec.components" /> -->
-    <!--   <Models -->
-    <!--     v-else -->
-    <!--     :components="parsedSpec.components" /> -->
-    <!-- </template> -->
-    <!-- <slot name="end" /> -->
+    <template v-if="hasModels(parsedSpec)">
+      <ModelsAccordion
+        v-if="layout === 'accordion'"
+        :components="parsedSpec.components" />
+      <Models
+        v-else
+        :components="parsedSpec.components" />
+    </template>
+    <slot name="end" />
   </div>
 </template>
 <style scoped>

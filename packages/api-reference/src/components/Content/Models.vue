@@ -4,6 +4,7 @@ import { computed } from 'vue'
 
 import { useNavState, useSidebar } from '../../hooks'
 import { Anchor } from '../Anchor'
+import Lazy from '../Lazy.vue'
 import {
   Section,
   SectionContainer,
@@ -39,31 +40,35 @@ const models = computed(() => {
 </script>
 <template>
   <SectionContainer v-if="components">
-    <Section
+    <template
       v-for="(name, index) in models"
-      :id="getModelId(name)"
-      :key="name"
-      :label="name">
-      <template v-if="components?.schemas?.[name]">
-        <SectionContent>
-          <SectionHeader :level="2">
-            <Anchor :id="getModelId(name)">
-              {{ (components?.schemas?.[name] as any).title ?? name }}
-            </Anchor>
-          </SectionHeader>
-          <!-- Schema -->
-          <Schema
-            :name="name"
-            noncollapsible
-            :value="components?.schemas?.[name]" />
-          <!-- Show More Button -->
-          <ShowMoreButton
-            v-if="!showAllModels && index === models.length - 1"
-            :id="getModelId()"
-            class="something-special" />
-        </SectionContent>
-      </template>
-    </Section>
+      :key="name">
+      <Lazy :isLazy="index > 4">
+        <Section
+          :id="getModelId(name)"
+          :label="name">
+          <template v-if="components?.schemas?.[name]">
+            <SectionContent>
+              <SectionHeader :level="2">
+                <Anchor :id="getModelId(name)">
+                  {{ (components?.schemas?.[name] as any).title ?? name }}
+                </Anchor>
+              </SectionHeader>
+              <!-- Schema -->
+              <Schema
+                :name="name"
+                noncollapsible
+                :value="components?.schemas?.[name]" />
+              <!-- Show More Button -->
+              <ShowMoreButton
+                v-if="!showAllModels && index === models.length - 1"
+                :id="getModelId()"
+                class="something-special" />
+            </SectionContent>
+          </template>
+        </Section>
+      </Lazy>
+    </template>
   </SectionContainer>
 </template>
 <style scoped>

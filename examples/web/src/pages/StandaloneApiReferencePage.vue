@@ -6,7 +6,7 @@ import {
 import { reactive } from 'vue'
 
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
-import content from '../fixtures/echeck.json'
+import content from '../fixtures/models.json'
 
 const configuration = reactive<ReferenceConfiguration>({
   proxy: 'http://localhost:5051',
