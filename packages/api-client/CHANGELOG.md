@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.11.4
+
+### Patch Changes
+
+- 037029cc: fix: parse axios error responses as blobs
+
 ## 0.11.3
 
 ### Patch Changes
