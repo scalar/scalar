@@ -136,7 +136,6 @@ export async function sendRequest(
       // Result is always blob
       const blob = result.data as Blob
       const data = blob.type === 'application/json' ? await blob.text() : blob
-
       // With Proxy
       if (proxyUrl) {
         const proxyHeaders = Object.values(ProxyHeader)
@@ -165,18 +164,22 @@ export async function sendRequest(
         error: false,
       }
     })
-    .catch((error) => {
+    .catch(async (error) => {
       const { response: errorResponse } = error
+
+      const blob = errorResponse.data as Blob
+      const data = blob.type === 'application/json' ? await blob.text() : blob
 
       // We add fallbacks where we set the code, status and header type so we can
       // float all errors now to the user
       return {
         headers: {
           'content-type': 'application/json; charset=utf-8',
+          ...errorResponse['headers'],
         },
         ...errorResponse,
         statusCode: errorResponse?.status ?? 0,
-        data: JSON.stringify(errorResponse?.data ?? { error: error.code }),
+        data: data ?? JSON.stringify({ error: error.code }),
       }
     })
 
