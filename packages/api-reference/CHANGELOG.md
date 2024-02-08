@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.15.4
+
+### Patch Changes
+
+- 15738a16: fix: set custom scroll on container for endpoints overview
+- Updated dependencies [037029cc]
+  - @scalar/api-client@0.11.4
+
 ## 1.15.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.16
+
+### Patch Changes
+
+- 037029cc: fix: only expose special proxy headers instead of \*
+
 ## 0.5.15
 
 ### Patch Changes
