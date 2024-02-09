@@ -55,7 +55,9 @@ describe('parse', () => {
 
   it('reads yaml', () =>
     new Promise((resolve) => {
-      const swaggerYaml = getFile('./tests/fixtures/swagger.yaml')
+      const swaggerYaml = getFile(
+        './packages/swagger-parser/tests/fixtures/swagger.yaml',
+      )
 
       parse(swaggerYaml).then((result) => {
         expect(result.info.title).toBe('Sample API')
