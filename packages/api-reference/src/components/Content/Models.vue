@@ -43,7 +43,9 @@ const models = computed(() => {
     <template
       v-for="(name, index) in models"
       :key="name">
-      <Lazy :isLazy="index > 4">
+      <Lazy
+        :id="getModelId(name)"
+        :isLazy="index > 4">
         <Section
           :id="getModelId(name)"
           :label="name">

@@ -3,7 +3,7 @@ import { useResizeObserver } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
 import { hasModels, hasWebhooks } from '../../helpers'
-import { useRefOnMount } from '../../hooks'
+import { useNavState, useRefOnMount } from '../../hooks'
 import type { Spec } from '../../types'
 import Lazy from '../Lazy.vue'
 import { Authentication } from './Authentication'
@@ -31,6 +31,8 @@ useResizeObserver(
   referenceEl,
   (entries) => (isNarrow.value = entries[0].contentRect.width < 900),
 )
+
+const { getOperationId, getTagId } = useNavState()
 
 const fallBackServer = useRefOnMount(() => {
   return {
@@ -98,21 +100,26 @@ const introCardsSlot = computed(() =>
     <template
       v-for="(tag, index) in parsedSpec.tags"
       :key="tag.id">
-      <Lazy :isLazy="index > 0">
+      <Lazy
+        :id="getTagId(tag)"
+        :isLazy="index > 0">
         <Component
           :is="tagLayout"
           v-if="tag.operations && tag.operations.length > 0"
           :isFirst="index === 0"
           :spec="parsedSpec"
           :tag="tag">
-          <Component
-            :is="endpointLayout"
+          <Lazy
             v-for="(operation, operationIndex) in tag.operations"
+            :id="getOperationId(operation, tag)"
             :key="`${operation.httpVerb}-${operation.operationId}`"
-            :isLazy="index > 0 && operationIndex > 0"
-            :operation="operation"
-            :server="localServers[0]"
-            :tag="tag" />
+            :isLazy="index > 0 && operationIndex > 0">
+            <Component
+              :is="endpointLayout"
+              :operation="operation"
+              :server="localServers[0]"
+              :tag="tag" />
+          </Lazy>
         </Component>
       </Lazy>
     </template>

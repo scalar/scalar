@@ -1,14 +1,11 @@
 <script lang="ts">
-export const LAZY_LOADED_EVENT = 'LAZY_LOADED_EVENT'
+import { type EventBusKey, useEventBus } from '@vueuse/core'
 
-export const createLazyEvent = (id: string) =>
-  new CustomEvent(LAZY_LOADED_EVENT, { detail: id })
-
-// Create a listener for the custom event
-export const lazyEventListener = (id: string, cb: () => void) =>
-  document.addEventListener(LAZY_LOADED_EVENT, (e) => {
-    if (id === (e as CustomEvent).detail) cb()
-  })
+/**
+ * Setup an event bus so we can listen for loaded events
+ */
+export const lazyEventBusKey: EventBusKey<{ id: string }> = Symbol('symbol-key')
+export const lazyBus = useEventBus(lazyEventBusKey)
 </script>
 
 <script lang="ts" setup>
@@ -44,16 +41,14 @@ const onIdle = (cb = () => {}) => {
 
 const shouldRender = ref(!props.isLazy)
 
+// Fire the event for non-lazy components as well to keep track of loading
 if (props.isLazy) {
   onIdle(() => {
     shouldRender.value = true
-
-    // Fire off the lazy loaded event
-    if (props.id) {
-      await nextTick()
-      document.dispatchEvent(createLazyEvent(props.id))
-    }
+    if (props.id) nextTick(() => lazyBus.emit({ id: props.id! }))
   })
+} else if (props.id) {
+  nextTick(() => lazyBus.emit({ id: props.id! }))
 }
 </script>
 <template>

@@ -2,7 +2,7 @@
 import { type SwaggerEditor } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import { useNavState, useSidebar } from '../hooks'
 import type {
@@ -14,6 +14,7 @@ import type {
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
 import GettingStarted from './GettingStarted.vue'
+import { lazyBus } from './Lazy.vue'
 import Sidebar from './Sidebar.vue'
 
 const props = defineProps<{
@@ -49,16 +50,8 @@ const { enableHashListener, hash, getSectionId } = useNavState()
 
 enableHashListener()
 
-// Wait until we have a parsed spec then scroll to hash
-watch(props.parsedSpec, async (val) => {
-  if (initiallyScrolled.value || !val?.info?.title) return
-  initiallyScrolled.value = true
-  const sectionId = getSectionId()
-  const hashStr = hash.value
-
-  console.log(hashStr)
-
-  // The original scroll to top from mounted
+// Open the correct section for deep linking
+onMounted(() => {
   if (!hash.value) {
     document.querySelector('#tippy')?.scrollTo({
       top: 0,
@@ -66,15 +59,19 @@ watch(props.parsedSpec, async (val) => {
     })
   }
 
-  // Ensure we open the section
+  const sectionId = getSectionId()
   if (sectionId) setCollapsedSidebarItem(sectionId, true)
+})
 
-  // I tried to get this to work with nextTick but it would scroll half way above
-  // the section, I'm assuming this is due to the time for the section to render
-  // We can probably come up with something better but this works for now
-  setTimeout(() => {
-    document.getElementById(hashStr)?.scrollIntoView()
-  }, 200)
+// Scroll to hash when component has rendered
+lazyBus.on(({ id }) => {
+  const hashStr = hash.value
+
+  if (initiallyScrolled.value || !hashStr || id !== hashStr) return
+  initiallyScrolled.value = true
+
+  console.log('event loaded', id)
+  document.getElementById(hashStr)?.scrollIntoView()
 })
 
 const showRenderedContent = computed(
