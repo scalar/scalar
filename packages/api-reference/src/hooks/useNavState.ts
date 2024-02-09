@@ -65,7 +65,7 @@ const updateHash = () => (hash.value = window.location.hash.replace(/^#/, ''))
 // We should call this as little as possible, ideally once
 const enableHashListener = () =>
   onMounted(async () => {
-    // Disable intersectionObserver on first load as well if hash exists
+    // Disable intersectionObserver on first load
     isIntersectionEnabled.value = false
 
     updateHash()

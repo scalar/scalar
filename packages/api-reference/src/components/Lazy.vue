@@ -1,3 +1,16 @@
+<script lang="ts">
+export const LAZY_LOADED_EVENT = 'LAZY_LOADED_EVENT'
+
+export const createLazyEvent = (id: string) =>
+  new CustomEvent(LAZY_LOADED_EVENT, { detail: id })
+
+// Create a listener for the custom event
+export const lazyEventListener = (id: string, cb: () => void) =>
+  document.addEventListener(LAZY_LOADED_EVENT, (e) => {
+    if (id === (e as CustomEvent).detail) cb()
+  })
+</script>
+
 <script lang="ts" setup>
 import { nextTick, ref } from 'vue'
 
@@ -8,6 +21,8 @@ import { nextTick, ref } from 'vue'
  */
 const props = withDefaults(
   defineProps<{
+    // Identifier for loaded event, if no ID is passed then no event is dispatched
+    id?: string
     // To lazyload or not to lazyload, that is the question
     isLazy?: boolean
     // Amount of time in ms to wait before triggering requestIdleCallback
@@ -32,6 +47,12 @@ const shouldRender = ref(!props.isLazy)
 if (props.isLazy) {
   onIdle(() => {
     shouldRender.value = true
+
+    // Fire off the lazy loaded event
+    if (props.id) {
+      await nextTick()
+      document.dispatchEvent(createLazyEvent(props.id))
+    }
   })
 }
 </script>

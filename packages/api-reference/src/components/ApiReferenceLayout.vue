@@ -56,6 +56,8 @@ watch(props.parsedSpec, async (val) => {
   const sectionId = getSectionId()
   const hashStr = hash.value
 
+  console.log(hashStr)
+
   // The original scroll to top from mounted
   if (!hash.value) {
     document.querySelector('#tippy')?.scrollTo({
@@ -72,7 +74,7 @@ watch(props.parsedSpec, async (val) => {
   // We can probably come up with something better but this works for now
   setTimeout(() => {
     document.getElementById(hashStr)?.scrollIntoView()
-  }, 0)
+  }, 200)
 })
 
 const showRenderedContent = computed(

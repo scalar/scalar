@@ -19,8 +19,10 @@ function handleScroll() {
   hash.value = props.id ?? ''
 
   // Open models on scroll
-  if (props.id?.startsWith('model'))
+  if (props.id?.startsWith('model')) {
+    console.log('opneing models')
     setCollapsedSidebarItem(getSectionId(props.id), true)
+  }
 }
 </script>
 <template>
