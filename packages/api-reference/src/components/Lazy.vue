@@ -8,24 +8,26 @@ import { nextTick, ref } from 'vue'
  */
 const props = withDefaults(
   defineProps<{
+    // To lazyload or not to lazyload, that is the question
     isLazy?: boolean
+    // Amount of time in ms to wait before triggering requestIdleCallback
+    lazyTimeout?: number
   }>(),
   {
     isLazy: true,
+    lazyTimeout: 0,
   },
 )
 
-function onIdle(cb = () => {}) {
+const onIdle = (cb = () => {}) => {
   if ('requestIdleCallback' in window) {
-    window.requestIdleCallback(cb)
+    setTimeout(() => window.requestIdleCallback(cb), props.lazyTimeout)
   } else {
-    setTimeout(() => {
-      nextTick(cb)
-    }, 100)
+    setTimeout(() => nextTick(cb), props.lazyTimeout ?? 300)
   }
 }
 
-const shouldRender = ref(false)
+const shouldRender = ref(!props.isLazy)
 
 if (props.isLazy) {
   onIdle(() => {
@@ -34,5 +36,5 @@ if (props.isLazy) {
 }
 </script>
 <template>
-  <slot v-if="!isLazy || shouldRender" />
+  <slot v-if="shouldRender" />
 </template>
