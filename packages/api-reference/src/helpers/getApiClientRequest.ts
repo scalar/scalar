@@ -1,10 +1,10 @@
-import type { ClientRequestConfig } from '@scalar/api-client'
-
 import type {
   AuthenticationState,
+  ClientRequestConfig,
   ServerState,
-  TransformedOperation,
-} from '../types'
+} from '@scalar/api-client'
+
+import type { TransformedOperation } from '../types'
 import {
   getHarRequest,
   getParametersFromOperation,

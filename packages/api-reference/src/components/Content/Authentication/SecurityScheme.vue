@@ -1,8 +1,8 @@
 <script lang="ts" setup>
+import { useGlobalStore } from '@scalar/api-client'
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { computed } from 'vue'
 
-import { useGlobalStore } from '../../../stores'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
 import CardForm from './CardForm.vue'
 import CardFormButton from './CardFormButton.vue'

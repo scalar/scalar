@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { useGlobalStore } from '@scalar/api-client'
 import type { OpenAPIV3_1 } from 'openapi-types'
 import { computed, watch } from 'vue'
 
 import { hasSecuritySchemes } from '../../../helpers'
-import { useGlobalStore } from '../../../stores'
 import { type Spec } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
 import SecurityScheme from './SecurityScheme.vue'

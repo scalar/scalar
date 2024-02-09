@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useGlobalStore } from '../../../stores'
+import { useGlobalStore } from '@scalar/api-client'
+
 import type { Variable } from '../../../types'
 
 defineProps<{ value?: Variable[] }>()

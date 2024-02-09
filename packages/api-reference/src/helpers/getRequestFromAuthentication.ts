@@ -1,7 +1,6 @@
+import type { AuthenticationState } from '@scalar/api-client'
 import type { HarRequest } from 'httpsnippet-lite'
 import type { OpenAPIV3 } from 'openapi-types'
-
-import type { AuthenticationState } from '../types'
 
 /**
  * Check whether the given security scheme key is in the `security` configuration for this operation.
@@ -9,13 +8,8 @@ import type { AuthenticationState } from '../types'
 function authenticationRequired(
   security?: OpenAPIV3.SecurityRequirementObject[],
 ): boolean {
-  // If security is not defined, auth is not required.
-  if (!security) {
-    return false
-  }
-
   // Don’t require auth if security is just an empty array []
-  if (Array.isArray(security) && !security.length) {
+  if (security && Array.isArray(security) && !security.length) {
     return false
   }
 

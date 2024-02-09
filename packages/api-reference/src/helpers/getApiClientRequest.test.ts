@@ -1,6 +1,6 @@
+import { useGlobalStore } from '@scalar/api-client'
 import { describe, expect, it } from 'vitest'
 
-import { useGlobalStore } from '../stores'
 import { getApiClientRequest } from './getApiClientRequest'
 
 const { server, authentication } = useGlobalStore()

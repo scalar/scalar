@@ -1,9 +1,8 @@
 <script lang="ts" setup>
+import { useGlobalStore } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { computed, onMounted } from 'vue'
-
-import { useGlobalStore } from '../../../stores'
 
 const props = defineProps<{
   value?:

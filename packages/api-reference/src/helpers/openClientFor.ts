@@ -1,7 +1,10 @@
-import { useApiClientStore, useRequestStore } from '@scalar/api-client'
+import {
+  useApiClientStore,
+  useGlobalStore,
+  useRequestStore,
+} from '@scalar/api-client'
 
 import { getApiClientRequest } from '../helpers'
-import { useGlobalStore } from '../stores'
 import type { TransformedOperation } from '../types'
 
 const { server: serverState, authentication: authenticationState } =

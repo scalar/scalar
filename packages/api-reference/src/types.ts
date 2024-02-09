@@ -1,12 +1,7 @@
 import { type ThemeId } from '@scalar/themes'
 import type { MetaFlatInput } from '@unhead/schema'
 import type { HarRequest } from 'httpsnippet-lite'
-import {
-  type OpenAPI,
-  type OpenAPIV2,
-  type OpenAPIV3,
-  type OpenAPIV3_1,
-} from 'openapi-types'
+import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 import { type DeepReadonly, type Slot } from 'vue'
 
 export type ReferenceProps = {
@@ -287,38 +282,8 @@ export type Spec = {
   openapi?: OpenAPIV3.Document['openapi'] | OpenAPIV3_1.Document['openapi']
 }
 
-export type AuthenticationState = {
-  securitySchemeKey: string | null
-  securitySchemes?:
-    | OpenAPIV3.ComponentsObject['securitySchemes']
-    | OpenAPIV3_1.ComponentsObject['securitySchemes']
-  http: {
-    basic: {
-      username: string
-      password: string
-    }
-    bearer: {
-      token: string
-    }
-  }
-  apiKey: {
-    token: string
-  }
-  oAuth2: {
-    clientId: string
-    scopes: string[]
-  }
-}
-
 export type Variable = {
   [key: string]: string
-}
-
-export type ServerState = {
-  selectedServer: null | number
-  description?: string
-  servers: Server[]
-  variables: Variable[]
 }
 
 export type Header = {

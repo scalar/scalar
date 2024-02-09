@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { HttpMethod } from '@scalar/api-client'
+import { HttpMethod, useGlobalStore } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
 import { snippetz } from '@scalar/snippetz'
 import { useClipboard } from '@scalar/use-clipboard'
@@ -15,7 +15,6 @@ import {
   getUrlFromServerState,
 } from '../../../helpers'
 import { useSnippetTargets } from '../../../hooks'
-import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
 import type { TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
@@ -121,14 +120,6 @@ watch(
     immediate: true,
   },
 )
-
-computed(() => {
-  return getApiClientRequest({
-    serverState: serverState,
-    authenticationState: authenticationState,
-    operation: props.operation,
-  })
-})
 </script>
 <template>
   <Card class="dark-mode">

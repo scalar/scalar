@@ -1,4 +1,5 @@
-import type { ServerState } from '../types'
+import type { ServerState } from '@scalar/api-client'
+
 import { replaceVariables } from './replaceVariables'
 
 export function getUrlFromServerState(state: ServerState) {

@@ -1,1 +1,2 @@
-export * from './globalStore'
+export * from './template'
+export * from './utility'

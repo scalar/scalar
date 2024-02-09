@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { findVariables } from '@scalar/api-client'
+import { useGlobalStore } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
 import { ref, watch } from 'vue'
 
-import { useGlobalStore } from '../../../stores'
 import { type Server, type Variable } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
 import MarkdownRenderer from '../MarkdownRenderer.vue'
