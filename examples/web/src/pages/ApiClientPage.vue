@@ -31,6 +31,16 @@ const config = ref({
 })
 </script>
 <template>
-  <DevToolbar><DevApiClientOptions v-model="config" /></DevToolbar>
-  <ApiClient v-bind="config" />
+  <div class="client-page">
+    <DevToolbar><DevApiClientOptions v-model="config" /></DevToolbar>
+    <ApiClient v-bind="config" />
+  </div>
 </template>
+<style scoped>
+.client-page {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  width: 100dvw;
+}
+</style>
