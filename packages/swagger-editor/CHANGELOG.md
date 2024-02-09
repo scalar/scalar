@@ -1,5 +1,11 @@
 # @scalar/swagger-editor
 
+## 0.10.4
+
+### Patch Changes
+
+- cb8139e7: fix: rollback api client proxy and request changes
+
 ## 0.10.3
 
 ### Patch Changes

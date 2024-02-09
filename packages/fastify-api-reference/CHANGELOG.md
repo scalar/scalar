@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.15.5
+
+### Patch Changes
+
+- 04d0fe12: fix: rollback api client proxy and request changes
+
 ## 1.14.8
 
 ### Patch Changes
