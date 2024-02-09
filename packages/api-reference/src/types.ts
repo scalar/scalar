@@ -282,10 +282,6 @@ export type Spec = {
   openapi?: OpenAPIV3.Document['openapi'] | OpenAPIV3_1.Document['openapi']
 }
 
-export type Variable = {
-  [key: string]: string
-}
-
 export type Header = {
   name: string
   value: string

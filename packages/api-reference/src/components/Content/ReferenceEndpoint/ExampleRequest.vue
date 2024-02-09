@@ -8,7 +8,6 @@ import { HTTPSnippet } from 'httpsnippet-lite'
 import { computed, ref, watch } from 'vue'
 
 import {
-  getApiClientRequest,
   getHarRequest,
   getRequestFromAuthentication,
   getRequestFromOperation,
@@ -109,7 +108,7 @@ watch(
     () => serverState,
     // … or the global authentication state changed
     () => authenticationState,
-    // … or the selected example key
+    // … or the selected example key changed
     () => selectedExampleKey,
   ],
   async () => {
