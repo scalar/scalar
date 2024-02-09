@@ -18,6 +18,14 @@ import {
 } from './'
 
 /**
+ * Checks if a mimetype is text based
+ */
+function isTextMimeType(type: string) {
+  if (type.startsWith('text/')) return true
+  if (type === 'application/json') return true
+  return false
+}
+/**
  * Send a request via the proxy
  */
 export async function sendRequest(
@@ -135,7 +143,9 @@ export async function sendRequest(
     .then(async (result) => {
       // Result is always blob
       const blob = result.data as Blob
-      const data = blob.type === 'application/json' ? await blob.text() : blob
+
+      const data = isTextMimeType(blob.type) ? await blob.text() : blob
+
       // With Proxy
       if (proxyUrl) {
         const proxyHeaders = Object.values(ProxyHeader)
@@ -168,7 +178,7 @@ export async function sendRequest(
       const { response: errorResponse } = error
 
       const blob = errorResponse.data as Blob
-      const data = blob.type === 'application/json' ? await blob.text() : blob
+      const data = isTextMimeType(blob.type) ? await blob.text() : blob
 
       // We add fallbacks where we set the code, status and header type so we can
       // float all errors now to the user
