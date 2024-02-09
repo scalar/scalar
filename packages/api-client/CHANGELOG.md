@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.11.5
+
+### Patch Changes
+
+- cb8139e7: fix: rollback api client proxy and request changes
+
 ## 0.11.4
 
 ### Patch Changes
