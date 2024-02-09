@@ -35,11 +35,7 @@ useKeyboardEvent({
       class="search-icon"
       icon="Search" />
     <div class="sidebar-search-input">
-      <span
-        class="sidebar-search-placeholder"
-        type="text">
-        Search
-      </span>
+      <span class="sidebar-search-placeholder">Search</span>
       <span class="sidebar-search-shortcut">
         <span class="sidebar-search-key">
           {{ isMacOS() ? '⌘' : '⌃' }}{{ searchHotKey }}
