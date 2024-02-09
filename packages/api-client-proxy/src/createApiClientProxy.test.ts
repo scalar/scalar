@@ -34,8 +34,7 @@ describe('createApiClientProxy', () => {
           url: `http://localhost:${echoServerPort}`,
         }),
       }).then(async (response) => {
-        const parsed = await response.json()
-        expect(parsed).toMatchObject({
+        expect(JSON.parse((await response.json()).data)).toMatchObject({
           method: 'GET',
         })
 
@@ -58,8 +57,7 @@ describe('createApiClientProxy', () => {
           url: `http://localhost:${echoServerPort}/foobar`,
         }),
       }).then(async (response) => {
-        const parsed = await response.json()
-        expect(parsed).toMatchObject({
+        expect(JSON.parse((await response.json()).data)).toMatchObject({
           path: '/foobar',
         })
 
@@ -82,8 +80,7 @@ describe('createApiClientProxy', () => {
           url: `http://localhost:${echoServerPort}/foobar?foo=bar`,
         }),
       }).then(async (response) => {
-        const parsed = await response.json()
-        expect(parsed).toMatchObject({
+        expect(JSON.parse((await response.json()).data)).toMatchObject({
           query: {
             foo: 'bar',
           },
@@ -114,33 +111,9 @@ describe('createApiClientProxy', () => {
           },
         }),
       }).then(async (response) => {
-        const parsed = await response.json()
-        expect(parsed.body).toMatchObject({
+        expect(JSON.parse((await response.json()).data).body).toMatchObject({
           foo: 'bar',
         })
-
-        resolve(null)
-      })
-    }))
-
-  it('proxies a blob', () =>
-    new Promise((resolve) => {
-      const echoServerPort = createEchoServerOnAnyPort()
-      const apiClientProxyPort = createApiClientProxyOnAnyPort()
-
-      fetch(`http://localhost:${apiClientProxyPort}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          method: 'GET',
-          url: `http://localhost:${echoServerPort}/test.zip`,
-        }),
-      }).then(async (response) => {
-        const blob = await response.blob()
-        expect(blob.type).toContain('application/zip')
-        expect(blob.size).toBeGreaterThan(1)
 
         resolve(null)
       })
@@ -167,8 +140,7 @@ describe('createApiClientProxy', () => {
           },
         }),
       }).then(async (response) => {
-        const parsed = await response.json()
-        expect(parsed.cookies).toMatchObject({
+        expect(JSON.parse((await response.json()).data).cookies).toMatchObject({
           foo: 'bar',
         })
 
@@ -191,8 +163,7 @@ describe('createApiClientProxy', () => {
           url: `http://localhost:${echoServerPort}/v1/`,
         }),
       }).then(async (response) => {
-        const parsed = await response.json()
-        expect(parsed.path).toBe('/v1/')
+        expect(JSON.parse((await response.json()).data).path).toBe('/v1/')
 
         resolve(null)
       })

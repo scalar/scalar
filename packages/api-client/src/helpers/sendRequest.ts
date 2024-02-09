@@ -1,4 +1,3 @@
-import { ProxyHeader } from '@scalar/api-client-proxy'
 import axios, { type AxiosRequestConfig } from 'axios'
 import { nanoid } from 'nanoid'
 
@@ -109,14 +108,12 @@ export async function sendRequest(
         method: 'POST',
         url: proxyUrl,
         data: requestConfig,
-        responseType: 'blob',
       }
     : {
         method: requestConfig.method,
         url: requestConfig.url,
         headers: requestConfig.headers,
         data: requestConfig.data,
-        responseType: 'blob',
       }
 
   // if we have cookies, we need to pass withCredentials
@@ -132,26 +129,11 @@ export async function sendRequest(
   }
 
   const response: ClientResponse = await axios(axiosRequestConfig)
-    .then(async (result) => {
-      // Result is always blob
-      const blob = result.data as Blob
-      const data = blob.type === 'application/json' ? await blob.text() : blob
-      // With Proxy
+    .then((result) => {
+      // With proxy
       if (proxyUrl) {
-        const proxyHeaders = Object.values(ProxyHeader)
-        // Remove headers added by our proxy
-        const filtered = Object.fromEntries(
-          Object.entries(result.headers).filter(
-            ([key]) => !proxyHeaders.includes(key as ProxyHeader),
-          ),
-        )
         return {
-          ...result,
-          data,
-          headers: filtered,
-          // Pull proxied info out of the headers
-          statusCode: result.headers[ProxyHeader.StatusCode],
-          statusText: result.headers[ProxyHeader.StatusText],
+          ...result.data,
           error: false,
         }
       }
@@ -160,26 +142,22 @@ export async function sendRequest(
       return {
         ...result,
         statusCode: result.status,
-        data,
+        data: JSON.stringify(result.data),
         error: false,
       }
     })
-    .catch(async (error) => {
+    .catch((error) => {
       const { response: errorResponse } = error
-
-      const blob = errorResponse.data as Blob
-      const data = blob.type === 'application/json' ? await blob.text() : blob
 
       // We add fallbacks where we set the code, status and header type so we can
       // float all errors now to the user
       return {
         headers: {
           'content-type': 'application/json; charset=utf-8',
-          ...errorResponse['headers'],
         },
         ...errorResponse,
         statusCode: errorResponse?.status ?? 0,
-        data: data ?? JSON.stringify({ error: error.code }),
+        data: JSON.stringify(errorResponse?.data ?? { error: error.code }),
       }
     })
 

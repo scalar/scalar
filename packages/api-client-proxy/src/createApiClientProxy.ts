@@ -1,19 +1,11 @@
 import cors from 'cors'
-import type Express from 'express'
+import Express from 'express'
 import { type Server } from 'http'
 
 import { version } from '../package.json'
-import { ProxyHeader } from './types'
 
 export const createApiClientProxy = () => {
-  /*
-   * I don't know why this is needed 😭
-   * For some reason if you import express at the top of the file
-   * it breaks in the browser even though this function isn't being executed
-   */
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const express = require('express') as typeof Express
-  const app = express()
+  const app = Express()
 
   app.use(
     cors({
@@ -21,7 +13,7 @@ export const createApiClientProxy = () => {
     }),
   )
 
-  app.use(express.json())
+  app.use(Express.json())
   app.disable('x-powered-by')
 
   // Post request to / are proxied to the target url.
@@ -91,25 +83,27 @@ export const createApiClientProxy = () => {
           headers[key] = value
         })
 
-        const data = await response.arrayBuffer()
+        const text = await response.text()
 
         res.status(200)
-        res.type(response.type)
-        res.set({
-          ...headers,
-          // Make sure the client can read the special headers
-          'Access-Control-Expose-Headers':
-            Object.values(ProxyHeader).join(', '),
-          [ProxyHeader.StatusCode]: response.status,
-          [ProxyHeader.StatusText]: response.statusText,
+        res.json({
+          statusCode: response.status,
+          // TODO: Do we need body?
+          // body: …
+          data: text,
+          headers: {
+            ...headers,
+            'X-API-Client-Content-Length': text.length,
+          },
+          // TODO: transform cookie data
+          cookies: response.headers.get('cookies'),
         })
-        res.send(Buffer.from(data))
       } catch (error) {
         console.error('ERROR', error)
         const data = 'Scalar API Client Proxy Error'
         res.status(500)
         res.json({
-          error: data,
+          data,
         })
       }
 
