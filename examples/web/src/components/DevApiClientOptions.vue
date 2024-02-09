@@ -27,12 +27,6 @@ const config = computed(
       },
     }),
 )
-
-const enableProxy = computed<boolean>({
-  get: () => !!config.value.proxyUrl,
-  set: (enable) =>
-    (config.value.proxyUrl = enable ? 'http://localhost:5051' : undefined),
-})
 </script>
 <template>
   <div>
@@ -42,10 +36,10 @@ const enableProxy = computed<boolean>({
     readOnly
   </div>
   <div>
+    proxy:
     <input
-      v-model="enableProxy"
-      type="checkbox" />
-    enableProxy
+      v-model="config.proxyUrl"
+      type="text" />
   </div>
   <div>
     Theme:

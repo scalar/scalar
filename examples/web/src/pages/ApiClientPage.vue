@@ -25,7 +25,7 @@ if (activeRequestFromStorage) {
 }
 
 const config = ref({
-  proxyUrl: 'http://localhost:5051',
+  proxyUrl: import.meta.env.VITE_REQUEST_PROXY_URL,
   readOnly: false,
   theme: 'default' as ThemeId,
 })
