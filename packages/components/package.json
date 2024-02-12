@@ -78,10 +78,10 @@
     "storybook-dark-mode": "^3.0.1",
     "tailwindcss": "^3.3.3",
     "ts-node": "^10.9.1",
-    "typescript": "^5.3.3",
+    "typescript": "^5.2.2",
     "vite": "^4.5.2",
     "vite-plugin-dts": "^3.6.3",
-    "vitest": "^1.2.2",
+    "vitest": "^0.34.4",
     "vue-tsc": "^1.8.19"
   }
 }
