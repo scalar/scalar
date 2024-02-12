@@ -24,7 +24,33 @@ export type ReferenceConfiguration = {
   /** Whether dark mode is on or off (light mode) */
   darkMode?: boolean
   /** Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
-  searchHotKey?: string
+  searchHotKey?:
+    | 'a'
+    | 'b'
+    | 'c'
+    | 'd'
+    | 'e'
+    | 'f'
+    | 'g'
+    | 'h'
+    | 'i'
+    | 'j'
+    | 'k'
+    | 'l'
+    | 'm'
+    | 'n'
+    | 'o'
+    | 'p'
+    | 'q'
+    | 'r'
+    | 's'
+    | 't'
+    | 'u'
+    | 'v'
+    | 'w'
+    | 'x'
+    | 'y'
+    | 'z'
   /**
    * If used, passed data will be added to the HTML header
    * @see https://unhead.unjs.io/usage/composables/use-seo-meta
