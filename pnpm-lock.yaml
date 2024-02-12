@@ -780,9 +780,6 @@ importers:
       '@scalar/use-codemirror':
         specifier: workspace:*
         version: link:../use-codemirror
-      '@scalar/use-keyboard-event':
-        specifier: workspace:*
-        version: link:../use-keyboard-event
       '@scalar/use-modal':
         specifier: workspace:*
         version: link:../use-modal
@@ -1453,6 +1450,7 @@ importers:
         specifier: ^1.8.19
         version: 1.8.22(typescript@5.3.3)
 
+<<<<<<< HEAD
   packages/use-keyboard-event:
     devDependencies:
       '@vitejs/plugin-vue':
@@ -1477,6 +1475,8 @@ importers:
         specifier: ^1.8.19
         version: 1.8.22(typescript@5.3.3)
 
+=======
+>>>>>>> 00e8b04a (chore: update lock file)
   packages/use-modal:
     devDependencies:
       '@headlessui/vue':
