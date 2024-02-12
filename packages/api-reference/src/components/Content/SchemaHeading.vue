@@ -14,8 +14,8 @@ defineProps<{
         typeof value.type === 'string'
           ? value.type
           : Array.isArray(value.type)
-          ? value.type.join(' | ')
-          : 'unkown type'
+            ? value.type.join(' | ')
+            : 'unkown type'
       ">
       <template v-if="value.type === 'object'"> {} </template>
       <template v-if="value.type === 'array'"> [] </template>

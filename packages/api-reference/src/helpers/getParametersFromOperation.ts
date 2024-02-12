@@ -36,8 +36,8 @@ export function getParametersFromOperation(
         value: parameter.example
           ? parameter.example
           : parameter.schema
-          ? getExampleFromSchema(parameter.schema, { mode: 'write' })
-          : '',
+            ? getExampleFromSchema(parameter.schema, { mode: 'write' })
+            : '',
         required: parameter.required ?? false,
         enabled: true,
       }))
