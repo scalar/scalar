@@ -189,5 +189,4 @@ For OpenAuth2 it’s more looking like this:
       },
     },
   } />
-``
 ````
