@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.15.6
+
+### Patch Changes
+
+- 27a9e708: fix: remove type="text" from the search button placeholder span
+
 ## 1.15.5
 
 ### Patch Changes
