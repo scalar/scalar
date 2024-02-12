@@ -13,15 +13,6 @@ export type ReferenceProps = {
   configuration?: ReferenceConfiguration
 }
 
-export type SpecConfiguration = {
-  /** URL to a Swagger/OpenAPI file */
-  url?: string
-  /** Swagger/Open API spec */
-  content?: string | Record<string, any> | (() => Record<string, any>)
-  /** The result of @scalar/swagger-parser */
-  preparsedContent?: Record<any, any>
-}
-
 export type ReferenceConfiguration = {
   /** A string to use one of the color presets */
   theme?: ThemeId
@@ -54,6 +45,17 @@ export type ReferenceConfiguration = {
   customCss?: string
   /** onSpecUpdate is fired on spec/swagger content change */
   onSpecUpdate?: (spec: string) => void
+  /** Prefill authentication */
+  authentication?: Partial<AuthenticationState>
+}
+
+export type SpecConfiguration = {
+  /** URL to a Swagger/OpenAPI file */
+  url?: string
+  /** Swagger/Open API spec */
+  content?: string | Record<string, any> | (() => Record<string, any>)
+  /** The result of @scalar/swagger-parser */
+  preparsedContent?: Record<any, any>
 }
 
 /** Default reference configuration */

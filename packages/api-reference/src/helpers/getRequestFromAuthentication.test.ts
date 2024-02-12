@@ -139,6 +139,48 @@ describe('getRequestFromAuthentication', () => {
     })
   })
 
+  it('oAuth2 token in header', () => {
+    const request = getRequestFromAuthentication(
+      {
+        ...createEmptyAuthenticationState(),
+        securitySchemeKey: 'petstore_auth',
+        securitySchemes: {
+          petstore_auth: {
+            type: 'oauth2',
+            flows: {
+              implicit: {
+                authorizationUrl:
+                  'https://petstore3.swagger.io/oauth/authorize',
+                scopes: {
+                  'write:pets': 'modify pets in your account',
+                  'read:pets': 'read your pets',
+                },
+              },
+            },
+          },
+        },
+        oAuth2: {
+          clientId: '123',
+          scopes: [],
+        },
+      },
+      [
+        {
+          petstore_auth: [],
+        },
+      ],
+    )
+
+    expect(request).toMatchObject({
+      headers: [
+        {
+          name: 'Authorization',
+          value: 'Bearer 123',
+        },
+      ],
+    })
+  })
+
   it('only return required security schemes', () => {
     const request = getRequestFromAuthentication(
       {

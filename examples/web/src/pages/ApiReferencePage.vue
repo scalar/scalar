@@ -18,6 +18,17 @@ const configuration = reactive<ReferenceConfiguration>({
   showSidebar: true,
   layout: 'modern',
   spec: { content },
+  authentication: {
+    securitySchemeKey: 'petstore_auth',
+    oAuth2: {
+      clientId: 'foobar123',
+      scopes: ['read:pets', 'write:pets'],
+    },
+    // securitySchemeKey: 'api_key',
+    // apiKey: {
+    //   token: 'super-secret-token',
+    // },
+  },
 })
 
 onMounted(() => {
