@@ -2,7 +2,7 @@
 import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
 import { computed } from 'vue'
 
-import type { Info, Spec } from '../../../types'
+import type { Spec } from '../../../types'
 import { Badge } from '../../Badge'
 import {
   Section,
