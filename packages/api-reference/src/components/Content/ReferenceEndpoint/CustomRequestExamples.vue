@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { HttpMethod } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
-import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { computed, ref, watch } from 'vue'
 
+import { useClipboard } from '../../../hooks'
 import type { CustomRequestExample, TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import TextSelect from './TextSelect.vue'

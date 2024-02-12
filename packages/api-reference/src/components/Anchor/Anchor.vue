@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useClipboard } from '@scalar/use-clipboard'
-
+import { useClipboard } from '../../hooks'
 import ScreenReader from '../ScreenReader.vue'
 
 defineProps<{

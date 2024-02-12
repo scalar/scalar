@@ -2,7 +2,6 @@
 import { HttpMethod } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
 import { snippetz } from '@scalar/snippetz'
-import { useClipboard } from '@scalar/use-clipboard'
 import { CodeMirror } from '@scalar/use-codemirror'
 import { HTTPSnippet } from 'httpsnippet-lite'
 import { computed, ref, watch } from 'vue'
@@ -14,7 +13,7 @@ import {
   getRequestFromOperation,
   getUrlFromServerState,
 } from '../../../helpers'
-import { useSnippetTargets } from '../../../hooks'
+import { useClipboard, useSnippetTargets } from '../../../hooks'
 import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
 import type { TransformedOperation } from '../../../types'

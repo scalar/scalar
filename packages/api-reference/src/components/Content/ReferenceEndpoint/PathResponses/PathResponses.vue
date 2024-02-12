@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ScalarIcon } from '@scalar/components'
-import { useClipboard } from '@scalar/use-clipboard'
 import { computed, ref } from 'vue'
 
+import { useClipboard } from '../../../../hooks'
 import type { TransformedOperation } from '../../../../types'
 import {
   Card,

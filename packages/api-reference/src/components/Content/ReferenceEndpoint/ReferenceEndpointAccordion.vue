@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
 import { ScalarIcon, ScalarIconButton } from '@scalar/components'
-import { useClipboard } from '@scalar/use-clipboard'
 
-import { useNavState } from '../../../hooks/useNavState'
+import { useClipboard, useNavState } from '../../../hooks'
 import type { Tag, TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { SectionAccordion } from '../../Section'
