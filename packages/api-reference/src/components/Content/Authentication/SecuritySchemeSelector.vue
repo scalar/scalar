@@ -33,6 +33,11 @@ const handleAuthenticationTypeInput = (event: Event) => {
 
 // Use first security scheme as default
 onMounted(() => {
+  // Oh, the key was set already!
+  if (authentication.securitySchemeKey) {
+    return
+  }
+
   // Set the authentication type to the first security scheme
   setSecuritySchemeKey(Object.keys(props.value ?? {})[0] ?? null)
 })

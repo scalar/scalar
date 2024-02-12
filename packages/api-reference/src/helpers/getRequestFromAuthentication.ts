@@ -126,6 +126,20 @@ export function getRequestFromAuthentication(
       }
     }
     // TODO: oauth2
+    else if (
+      'type' in securityScheme &&
+      // @ts-ignore
+      securityScheme.type.toLowerCase() === 'oauth2'
+    ) {
+      const token = authentication.oAuth2.clientId.length
+        ? authentication.oAuth2.clientId
+        : 'YOUR_SECRET_TOKEN'
+
+      headers.push({
+        name: 'Authorization',
+        value: `Bearer ${token}`,
+      })
+    }
     // TODO: openIdConnect
   }
 
