@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
-import { useKeyboardEvent } from '@scalar/use-keyboard-event'
+import { useMagicKeys, whenever } from '@vueuse/core'
 import { useMediaQuery } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
@@ -26,6 +26,9 @@ const emit = defineEmits<{
   (e: 'escapeKeyPress'): void
 }>()
 
+const keys = useMagicKeys()
+whenever(keys.escape, () => emit('escapeKeyPress'))
+
 const { activeRequest, readOnly: stateReadOnly } = useRequestStore()
 
 const isSmallScreen = useMediaQuery('(max-width: 820px)')
@@ -48,11 +51,6 @@ watch(
   },
   { immediate: true },
 )
-
-useKeyboardEvent({
-  keyList: ['escape'],
-  handler: () => emit('escapeKeyPress'),
-})
 </script>
 
 <template>
