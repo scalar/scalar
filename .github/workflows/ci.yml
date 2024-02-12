@@ -34,7 +34,7 @@ jobs:
       - name: Check types
         run: pnpm turbo types:check
       - name: Run tests
-        run: pnpm turbo test
+        run: pnpm test
       - if: matrix.node-version == 20
         name: Send bundle stats and build information to RelativeCI
         uses: relative-ci/agent-action@v2

@@ -51,5 +51,7 @@
   "tailwindCSS.experimental.configFile": {
     "packages/components/tailwind.config.ts": "packages/components/**"
   },
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "vitest.commandLine": "pnpm vitest",
+  "vitest.enable": true
 }
