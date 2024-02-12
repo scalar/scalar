@@ -48,7 +48,7 @@
     "@types/cookie-parser": "^1.4.3",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.21",
-    "@vitest/coverage-v8": "^1.2.2",
+    "@vitest/coverage-v8": "^0.34.4",
     "nodemon": "^3.0.1",
     "tsc-alias": "^1.8.8",
     "typescript": "^5.3.3",

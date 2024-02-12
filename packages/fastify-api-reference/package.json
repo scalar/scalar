@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@scalar/api-reference": "workspace:*",
-    "@vitest/coverage-v8": "^1.2.2",
+    "@vitest/coverage-v8": "^0.34.4",
     "fastify-html": "^0.3.0",
     "magic-string": "^0.30.4",
     "rollup-plugin-node-externals": "^6.1.1",
