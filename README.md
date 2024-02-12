@@ -292,6 +292,8 @@ return [
 ];
 ```
 
+We wrote a [detailed integration guide for Laravel Scribe](https://github.com/scalar/scalar/tree/main/documentation/laravel-scribe.md), too.
+
 ### With Rust
 
 There’s [a wonderful package to generate OpenAPI files for Rust](https://github.com/tamasfe/aide) already. Just set the `api_route` to use `Scalar` to get started:
