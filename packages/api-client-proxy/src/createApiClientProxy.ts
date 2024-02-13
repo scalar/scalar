@@ -49,8 +49,8 @@ export const createApiClientProxy = () => {
       const body = isGetOrHeadRequest
         ? null
         : req.body.data
-        ? JSON.stringify(req.body.data)
-        : null
+          ? JSON.stringify(req.body.data)
+          : null
 
       // Default options are marked with *
       try {

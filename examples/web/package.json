@@ -21,15 +21,15 @@
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/swagger-editor": "workspace:*",
-    "@scalar/themes": "workspace:^",
+    "@scalar/themes": "workspace:*",
     "vue": "^3.3.0",
     "vue-router": "^4.2.4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.4.0",
     "autoprefixer": "^10.4.16",
-    "eslint": "^8.49.0",
-    "eslint-plugin-vue": "^9.17.0",
+    "eslint": "^8.56.0",
+    "eslint-plugin-vue": "^9.21.1",
     "postcss": "^8.4.31",
     "postcss-nested": "^6.0.1",
     "typescript": "^5.2.2",
