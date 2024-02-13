@@ -1,5 +1,4 @@
 import type { ClientRequestConfig } from '@scalar/api-client'
-import { type QueryString } from 'httpsnippet-lite'
 
 import type {
   AuthenticationState,
