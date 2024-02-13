@@ -50,12 +50,12 @@ describe('getRequestFromOperation', () => {
       },
     } as TransformedOperation)
 
-    expect(request).toContain({
+    expect(request).toMatchObject({
       method: 'POST',
       path: '/foobar',
     })
 
-    expect(request.postData).toContain({
+    expect(request.postData).toMatchObject({
       mimeType: 'application/json',
     })
 
@@ -81,12 +81,12 @@ describe('getRequestFromOperation', () => {
       },
     } as TransformedOperation)
 
-    expect(request).toContain({
+    expect(request).toMatchObject({
       method: 'POST',
       path: '/foobar',
     })
 
-    expect(request.postData).toContain({
+    expect(request.postData).toMatchObject({
       mimeType: 'application/json',
     })
 
@@ -117,12 +117,12 @@ describe('getRequestFromOperation', () => {
       },
     } as TransformedOperation)
 
-    expect(request).toContain({
+    expect(request).toMatchObject({
       method: 'POST',
       path: '/foobar',
     })
 
-    expect(request.postData).toContain({
+    expect(request.postData).toMatchObject({
       mimeType: 'application/x-www-form-urlencoded',
     })
 
@@ -157,12 +157,12 @@ describe('getRequestFromOperation', () => {
       },
     } as TransformedOperation)
 
-    expect(request).toContain({
+    expect(request).toMatchObject({
       method: 'POST',
       path: '/foobar',
     })
 
-    expect(request.postData).toContain({
+    expect(request.postData).toMatchObject({
       mimeType: 'application/xml',
     })
 
@@ -194,12 +194,12 @@ describe('getRequestFromOperation', () => {
       },
     } as TransformedOperation)
 
-    expect(request).toContain({
+    expect(request).toMatchObject({
       method: 'POST',
       path: '/foobar',
     })
 
-    expect(request.postData).toContain({
+    expect(request.postData).toMatchObject({
       mimeType: 'application/xml',
     })
 
@@ -224,12 +224,12 @@ describe('getRequestFromOperation', () => {
       },
     } as TransformedOperation)
 
-    expect(request).toContain({
+    expect(request).toMatchObject({
       method: 'POST',
       path: '/foobar',
     })
 
-    expect(request.postData).toContain({
+    expect(request.postData).toMatchObject({
       mimeType: 'application/octet-stream',
     })
 
