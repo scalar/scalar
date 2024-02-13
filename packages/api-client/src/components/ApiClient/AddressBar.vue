@@ -207,6 +207,13 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
     </div>
   </div>
 </template>
+
+<style>
+.scalar-api-client__variable {
+  color: var(--scalar-api-client-color, var(--default-scalar-api-client-color));
+}
+</style>
+
 <style scoped>
 .loader {
   position: absolute;
@@ -218,7 +225,6 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   );
   animation: loading 5s cubic-bezier(0, 0.5, 0.25, 1);
 }
-
 @keyframes loading {
   0% {
     width: 0;
@@ -227,7 +233,6 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
     width: 100%;
   }
 }
-
 .scalar-api-client__address-bar {
   width: 100%;
   padding: 12px 12px 10px 12px;
@@ -242,7 +247,6 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   align-items: stretch;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
-
 .scalar-api-client__url-form:deep(.cm-content) {
   display: flex;
   align-items: center;
@@ -258,56 +262,13 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   overflow: hidden;
   min-height: 31px;
 }
-.scalar-api-client__address-bar-data {
-  width: 100%;
-}
-.scalar-api-client__address-bar-data-meta {
-  display: flex;
-  margin-top: 5px;
-}
-
 .scalar-api-client__url-input {
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
-
-.scalar-api-client__request-type {
-  display: flex;
-  align-items: center;
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  appearance: none;
-  -webkit-appearance: none;
-  padding: 0 12px;
-  border-right: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-  position: relative;
-}
-.scalar-api-client__request-type span {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  text-transform: uppercase;
-}
-.scalar-api-client__request-type svg {
-  margin-left: 6px;
-  width: 8px;
-}
-.scalar-api-client__request-type i {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 6px;
-  text-align: center;
-  line-height: 18px;
-  font-style: normal;
-  flex-shrink: 0;
-  display: inline-block;
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  background: var(
-    --scalar-api-client-color,
-    var(--default-scalar-api-client-color)
-  );
-}
-.meta-request-break {
-  margin: 0 5px;
+.scalar-api-client__url-input {
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  min-height: auto;
+  padding-top: 0;
 }
 .scalar-api-client__history {
   appearance: none;
@@ -319,6 +280,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   border-radius: var(--theme-radius, var(--default-theme-radius));
   height: 100%;
 }
+
 .scalar-api-client__send-request-button[type='submit'] {
   font-size: var(--theme-micro, var(--default-theme-micro));
   letter-spacing: 0.25px;
@@ -380,14 +342,12 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
     margin-right: 0;
   }
 }
-
 .scalar-api-client__send-request-button[disabled] {
   pointer-events: none;
   color: var(--theme-color-2, var(--default-theme-color-2));
   background: var(--theme-background-3, var(--default-theme-background-3));
   border: 1px solid var(--default-theme-border-color);
 }
-
 .scalar-api-client__history-toggle {
   padding: 0 12px;
   line-height: 30px;
@@ -416,15 +376,6 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   margin-right: 6px;
   color: var(--theme-color-3, var(--default-theme-color-3));
 }
-.scalar-api-client__address-bar-close {
-  fill: var(--theme-color-3, var(--default-theme-color-3));
-  margin-left: 12px;
-  height: 24px;
-}
-.scalar-api-client__address-bar-close:hover {
-  cursor: pointer;
-  fill: var(--theme-color-1, var(--default-theme-color-1));
-}
 .scalar-api-client__address-bar__content {
   width: 640px;
   height: 100%;
@@ -440,11 +391,6 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
     opacity 0.01s ease-in-out 0.5s;
   pointer-events: none;
 }
-.scalar-api-client__address-bar-content-item {
-  height: 100vh;
-  max-height: 100vh;
-  overflow: auto;
-}
 .scalar-api-client__address-bar__on {
   z-index: 100000;
 }
@@ -459,37 +405,15 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   pointer-events: all;
   cursor: pointer;
 }
-.scalar-api-client__address-bar .navtable-item__active {
-  background: var(--theme-background-2, var(--default-theme-background-2));
-  cursor: default;
-}
-.scalar-api-client__address-bar .navtable-item__active .radio:before {
-  display: none;
-}
-.navigation-back {
-  stroke: var(--theme-color-2, var(--default-theme-color-2));
-  cursor: pointer;
-}
-.navigation-back:hover {
-  stroke: var(--theme-color-1, var(--default-theme-color-1));
-}
 .scalar-api-client__address-bar__close {
   width: 100%;
   height: 100%;
   position: fixed;
   top: 0;
   left: 0;
-  /* background: rgba(0,0,0,.55);
-	 */
   pointer-events: none;
   opacity: 0;
   transition: all 0.1s ease-in-out;
   z-index: 1000;
-}
-.navtable-item-time {
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  text-transform: capitalize;
-  padding: 0 9px;
 }
 </style>
