@@ -8,7 +8,7 @@ import {
 } from '../../../helpers'
 import { useNavState } from '../../../hooks'
 import IntersectionObserver from '../../IntersectionObserver.vue'
-import MarkdownRenderer from '../MarkdownRenderer.vue'
+import { MarkdownRenderer } from '../../MarkdownRenderer'
 
 const props = defineProps<{
   value?: string

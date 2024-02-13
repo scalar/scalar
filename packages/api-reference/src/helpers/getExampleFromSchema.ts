@@ -1,5 +1,3 @@
-import { readonly } from 'vue'
-
 /**
  * This function takes a properties object and generates an example response content.
  */

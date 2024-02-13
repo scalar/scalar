@@ -3,14 +3,12 @@ import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { computed } from 'vue'
 
 import { useGlobalStore } from '../../../stores'
-import MarkdownRenderer from '../MarkdownRenderer.vue'
+import { MarkdownRenderer } from '../../MarkdownRenderer'
 import CardForm from './CardForm.vue'
 import CardFormButton from './CardFormButton.vue'
 import CardFormGroup from './CardFormGroup.vue'
 import CardFormTextInput from './CardFormTextInput.vue'
 import SecuritySchemeScopes from './SecuritySchemeScopes.vue'
-
-// import MarkdownRenderer from '../MarkdownRenderer.vue'
 
 defineProps<{
   value?: OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject

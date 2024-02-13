@@ -1,1 +1,1 @@
-export { default as default } from './Introduction.vue'
+export { default as Introduction } from './Introduction.vue'
