@@ -1,5 +1,4 @@
 import { useApiClientStore } from '@scalar/api-client'
-import { objectEntries } from '@vueuse/core'
 import { type OpenAPIV3_1 } from 'openapi-types'
 import { computed, reactive, ref, watch } from 'vue'
 

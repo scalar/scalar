@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
-import { Spinner } from '../../Spinner'
+import Spinner from './Spinner.vue'
 
 const meta: Meta<typeof Spinner> = {
   title: 'Example/Spinner',

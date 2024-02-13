@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DarkModeIconToggle from './DarkModeIconToggle.vue'
+import { DarkModeIconToggle } from './DarkModeToggle'
 </script>
 <template>
   <div class="references-classic-header-container">

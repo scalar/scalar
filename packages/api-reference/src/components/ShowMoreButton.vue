@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
 
-import { useSidebar } from '../../hooks'
+import { useSidebar } from '../hooks'
 
 defineProps<{
   id: string

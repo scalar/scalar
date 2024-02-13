@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ScalarIcon } from '@scalar/components'
 
-import { useDarkModeState } from '../hooks/useDarkModeState'
+import { useDarkModeState } from '../../hooks/useDarkModeState'
 
 const { toggleDarkMode, isDark } = useDarkModeState()
 </script>

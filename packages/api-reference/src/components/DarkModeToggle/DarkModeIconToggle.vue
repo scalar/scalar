@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ScalarIcon } from '@scalar/components'
 
-import { useDarkModeState } from '../hooks/useDarkModeState'
-import ScreenReader from './ScreenReader.vue'
+import { useDarkModeState } from '../../hooks/useDarkModeState'
+import ScreenReader from '../ScreenReader.vue'
 
 const { toggleDarkMode, isDark } = useDarkModeState()
 </script>
