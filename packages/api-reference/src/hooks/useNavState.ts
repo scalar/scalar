@@ -8,7 +8,7 @@ import type { Tag, TransformedOperation } from '../types'
 const hash = ref('')
 
 // To disable the intersection observer on click
-const isIntersectionEnabled = ref(true)
+const isIntersectionEnabled = ref(false)
 
 /**
  * ID creation methods
@@ -80,9 +80,6 @@ const enableHashListener = () =>
       await sleep(100)
       isIntersectionEnabled.value = true
     }
-
-    await sleep(500)
-    isIntersectionEnabled.value = true
   })
 
 /**

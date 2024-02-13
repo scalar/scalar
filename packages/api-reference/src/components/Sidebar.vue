@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import { sleep } from '../helpers'
 import { useNavState, useSidebar } from '../hooks'
@@ -23,7 +23,7 @@ const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } = useSidebar(
 const SCROLL_OFFSET = -160
 const scrollerEl = ref<HTMLElement | null>(null)
 const sidebarRefs = ref<{ [key: string]: HTMLElement }>({})
-const disableScroll = ref(false)
+const disableScroll = ref(true)
 
 // Watch for the active item changing so we can scroll the sidebar,
 // but not when we click, only on scroll.
@@ -51,6 +51,8 @@ watch(hash, (id) => {
 
   scrollerEl.value?.scrollTo({ top, behavior: 'smooth' })
 })
+
+onMounted(() => (disableScroll.value = false))
 
 type SidebarElementType = InstanceType<typeof SidebarElement>
 const setRef = (el: SidebarElementType, id: string) => {

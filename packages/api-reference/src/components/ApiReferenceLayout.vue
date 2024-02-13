@@ -47,17 +47,17 @@ useResizeObserver(documentEl, (entries) => {
 // Scroll to hash if exists
 const initiallyScrolled = ref(false)
 const { breadcrumb } = useSidebar()
-const { enableHashListener, hash } = useNavState()
+const { enableHashListener, hash, isIntersectionEnabled } = useNavState()
 
 enableHashListener()
 
-// Open the correct section for deep linking
 onMounted(() => {
   if (!hash.value) {
     document.querySelector('#tippy')?.scrollTo({
       top: 0,
       left: 0,
     })
+    isIntersectionEnabled.value = true
   }
 })
 
@@ -69,8 +69,11 @@ lazyBus.on(({ id }) => {
   initiallyScrolled.value = true
 
   // TODO temp timeout for layout shift bug
+  const el = document.getElementById(hashStr)
+  console.log(el?.offsetTop)
   setTimeout(() => {
     scrollToId(hashStr)
+    console.log(el?.offsetTop)
   }, 0)
 })
 
