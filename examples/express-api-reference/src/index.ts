@@ -33,16 +33,17 @@ const OpenApiSpecification = swaggerJsdoc({
   apis: ['./src/*.ts'],
 })
 
-// TODO: Remove later
-app.get('/swagger.json', (req, res) => {
+// Serve the OpenAPI specification
+app.get('/openapi.json', (req, res) => {
   res.json(OpenApiSpecification)
 })
 
+// Serve the API Reference
 app.use(
   '/',
   apiReference({
     spec: {
-      content: OpenApiSpecification,
+      url: '/openapi.json',
     },
   }),
 )
