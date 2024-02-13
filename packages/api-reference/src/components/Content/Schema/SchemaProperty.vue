@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { Badge } from '../Badge'
-import MarkdownRenderer from './MarkdownRenderer.vue'
+import { Badge } from '../../Badge'
+import { MarkdownRenderer } from '../../MarkdownRenderer'
 import Schema from './Schema.vue'
 
 withDefaults(

@@ -2,18 +2,18 @@
 import { HttpMethod } from '@scalar/api-client'
 import { nextTick } from 'vue'
 
-import { useNavState, useSidebar } from '../../hooks'
-import type { Tag, TransformedOperation } from '../../types'
-import { Anchor } from '../Anchor'
-import { Card, CardContent, CardHeader } from '../Card'
+import { useNavState, useSidebar } from '../../../hooks'
+import type { Tag, TransformedOperation } from '../../../types'
+import { Anchor } from '../../Anchor'
+import { Card, CardContent, CardHeader } from '../../Card'
+import { MarkdownRenderer } from '../../MarkdownRenderer'
 import {
   Section,
   SectionColumn,
   SectionColumns,
   SectionContent,
   SectionHeader,
-} from '../Section'
-import MarkdownRenderer from './MarkdownRenderer.vue'
+} from '../../Section'
 
 const props = defineProps<{ tag: Tag }>()
 

@@ -14,7 +14,7 @@ import type {
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
 import GettingStarted from './GettingStarted.vue'
-import Sidebar from './Sidebar.vue'
+import { Sidebar } from './Sidebar'
 
 const props = defineProps<{
   configuration: ReferenceConfiguration

@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
-import { getParametersFromOperation } from '../../../helpers'
 import { useOperation, useResponses } from '../../../hooks'
 import type { TransformedOperation } from '../../../types'
-import MarkdownRenderer from '../MarkdownRenderer.vue'
+import { MarkdownRenderer } from '../../MarkdownRenderer'
 import Parameters from './Parameters.vue'
 import RequestBody from './RequestBody.vue'
 

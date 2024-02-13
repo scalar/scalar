@@ -2,16 +2,16 @@
 import type { OpenAPIV3_1 } from 'openapi-types'
 import { computed } from 'vue'
 
-import { useNavState } from '../../hooks'
-import type { Webhooks } from '../../types'
-import { Anchor } from '../Anchor'
+import { useNavState } from '../../../hooks'
+import type { Webhooks } from '../../../types'
+import { Anchor } from '../../Anchor'
+import { MarkdownRenderer } from '../../MarkdownRenderer'
 import {
   Section,
   SectionContainer,
   SectionContent,
   SectionHeader,
-} from '../Section'
-import MarkdownRenderer from './MarkdownRenderer.vue'
+} from '../../Section'
 import Webhook from './Webhook.vue'
 
 const props = defineProps<{

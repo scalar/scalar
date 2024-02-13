@@ -2,20 +2,17 @@
 import { useResizeObserver } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-import { hasModels, hasWebhooks } from '../../helpers'
+import { hasModels } from '../../helpers'
 import { useRefOnMount } from '../../hooks'
 import type { Spec } from '../../types'
 import { Authentication } from './Authentication'
-import Introduction from './Introduction'
-import ClientList from './Introduction/ClientList.vue'
-import ServerList from './Introduction/ServerList.vue'
-import Models from './Models.vue'
-import ModelsAccordion from './ModelsAccordion.vue'
-import ReferenceEndpoint from './ReferenceEndpoint'
-import ReferenceEndpointAccordion from './ReferenceEndpoint/ReferenceEndpointAccordion.vue'
-import ReferenceTag from './ReferenceTag.vue'
-import ReferenceTagAccordion from './ReferenceTagAccordion.vue'
-import Webhooks from './Webhooks.vue'
+import { BaseUrl } from './BaseUrl'
+import { ClientLibraries } from './ClientLibraries'
+import { Introduction } from './Introduction'
+import { Models, ModelsAccordion } from './Models'
+import { Operation, OperationAccordion } from './Operation'
+import { Tag, TagAccordion } from './Tag'
+import { Webhooks } from './Webhooks'
 
 const props = defineProps<{
   parsedSpec: Spec
@@ -59,11 +56,11 @@ const localServers = computed(() => {
   }
 })
 
-const tagLayout = computed<typeof ReferenceTag>(() =>
-  props.layout === 'accordion' ? ReferenceTagAccordion : ReferenceTag,
+const tagLayout = computed<typeof Tag>(() =>
+  props.layout === 'accordion' ? TagAccordion : Tag,
 )
-const endpointLayout = computed<typeof ReferenceEndpoint>(() =>
-  props.layout === 'accordion' ? ReferenceEndpointAccordion : ReferenceEndpoint,
+const endpointLayout = computed<typeof Operation>(() =>
+  props.layout === 'accordion' ? OperationAccordion : Operation,
 )
 const introCardsSlot = computed(() =>
   props.layout === 'accordion' ? 'after' : 'aside',
@@ -85,8 +82,8 @@ const introCardsSlot = computed(() =>
         <div
           class="introduction-cards"
           :class="{ 'introduction-cards-row': layout === 'accordion' }">
-          <ServerList :value="localServers" />
-          <ClientList />
+          <BaseUrl :value="localServers" />
+          <ClientLibraries />
           <Authentication :parsedSpec="parsedSpec" />
         </div>
       </template>

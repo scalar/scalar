@@ -2,16 +2,16 @@
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { computed } from 'vue'
 
-import { useNavState, useSidebar } from '../../hooks'
-import { Anchor } from '../Anchor'
+import { useNavState, useSidebar } from '../../../hooks'
+import { Anchor } from '../../Anchor'
 import {
   Section,
   SectionContainer,
   SectionContent,
   SectionHeader,
-} from '../Section'
-import Schema from './Schema.vue'
-import ShowMoreButton from './ShowMoreButton.vue'
+} from '../../Section'
+import { Schema } from '../Schema'
+import ShowMoreButton from '../ShowMoreButton.vue'
 
 const props = defineProps<{
   components?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject

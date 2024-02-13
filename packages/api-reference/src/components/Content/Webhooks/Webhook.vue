@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 // import { CodeMirror } from '@scalar/use-codemirror'
 // import { getExampleFromSchema, prettyPrintJson } from '../../helpers'
-import { useResponses } from '../../hooks'
-import type { TransformedOperation } from '../../types'
-import Parameters from './ReferenceEndpoint/Parameters.vue'
-import RequestBody from './ReferenceEndpoint/RequestBody.vue'
+import { useResponses } from '../../../hooks'
+import type { TransformedOperation } from '../../../types'
+import Parameters from '../Operation/Parameters.vue'
+import RequestBody from '../Operation/RequestBody.vue'
 
 const props = defineProps<{
   webhook: TransformedOperation

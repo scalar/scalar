@@ -11,7 +11,7 @@ import {
   CardTab,
   CardTabHeader,
 } from '../../../Card'
-import MarkdownRenderer from '../../MarkdownRenderer.vue'
+import { MarkdownRenderer } from '../../../MarkdownRenderer'
 import ExamplePicker from '../ExamplePicker.vue'
 import ExampleResponse from './ExampleResponse.vue'
 import RawSchema from './RawSchema.vue'

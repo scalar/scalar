@@ -2,15 +2,14 @@
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { computed } from 'vue'
 
-import { useNavState } from '../../hooks'
-import { Anchor } from '../Anchor'
+import { useNavState } from '../../../hooks'
+import { Anchor } from '../../Anchor'
 import {
   SectionAccordion,
   SectionContainerAccordion,
   SectionHeader,
-} from '../Section'
-import SchemaHeading from './SchemaHeading.vue'
-import SchemaProperty from './SchemaProperty.vue'
+} from '../../Section'
+import { SchemaHeading, SchemaProperty } from '../Schema'
 
 const props = defineProps<{
   components?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-import { useNavState, useSidebar } from '../hooks'
-import type { Spec } from '../types'
+import { useNavState, useSidebar } from '../../hooks'
+import type { Spec } from '../../types'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
 

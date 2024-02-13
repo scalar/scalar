@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
-import MarkdownRenderer from './MarkdownRenderer.vue'
+import { MarkdownRenderer } from '../MarkdownRenderer'
 
 const meta: Meta<typeof MarkdownRenderer> = {
   title: 'Example/MarkdownRenderer',

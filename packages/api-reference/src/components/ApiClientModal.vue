@@ -3,7 +3,7 @@ import { ApiClient, useApiClientStore } from '@scalar/api-client'
 import { useMediaQuery } from '@vueuse/core'
 
 import { type Spec } from '../types'
-import { default as Sidebar } from './Sidebar.vue'
+import { Sidebar } from './Sidebar'
 
 defineProps<{
   parsedSpec: Spec
@@ -28,10 +28,9 @@ export { useApiClientStore } from '@scalar/api-client'
   <div
     v-if="state.showApiClient || overloadShow"
     class="api-client-drawer">
-    <div class="scalar-api-client__overlay">
-      <div class="scalar-api-client__container">
-        <slot name="header" />
-        <!-- <div class="scalar-api-client__navigation">
+    <div class="api-client-container">
+      <slot name="header" />
+      <!-- <div class="scalar-api-client__navigation">
           <button
             class="scalar-api-client__close"
             type="button"
@@ -39,40 +38,39 @@ export { useApiClientStore } from '@scalar/api-client'
             <span>Back to Reference</span>
           </button>
         </div> -->
-        <div class="scalar-api-client-height">
-          <template v-if="tabMode">
-            <template v-if="activeTab === 'sidebar'">
-              <div class="t-doc__sidebar">
-                <Sidebar
-                  v-show="!isMobile"
-                  :parsedSpec="parsedSpec" />
-              </div>
-            </template>
-            <template v-else>
-              <slot name="active-tab"></slot>
-            </template>
-          </template>
-          <template v-else>
+      <div class="scalar-api-client-height">
+        <template v-if="tabMode">
+          <template v-if="activeTab === 'sidebar'">
             <div class="t-doc__sidebar">
               <Sidebar
                 v-show="!isMobile"
-                :parsedSpec="parsedSpec">
-                <!-- Pass up the sidebar slots -->
-                <template #sidebar-start>
-                  <slot name="sidebar-start" />
-                </template>
-                <template #sidebar-end>
-                  <slot name="sidebar-end" />
-                </template>
-              </Sidebar>
+                :parsedSpec="parsedSpec" />
             </div>
           </template>
-          <ApiClient
-            :proxyUrl="proxyUrl"
-            readOnly
-            theme="none"
-            @escapeKeyPress="hideApiClient" />
-        </div>
+          <template v-else>
+            <slot name="active-tab"></slot>
+          </template>
+        </template>
+        <template v-else>
+          <div class="t-doc__sidebar">
+            <Sidebar
+              v-show="!isMobile"
+              :parsedSpec="parsedSpec">
+              <!-- Pass up the sidebar slots -->
+              <template #sidebar-start>
+                <slot name="sidebar-start" />
+              </template>
+              <template #sidebar-end>
+                <slot name="sidebar-end" />
+              </template>
+            </Sidebar>
+          </div>
+        </template>
+        <ApiClient
+          :proxyUrl="proxyUrl"
+          readOnly
+          theme="none"
+          @escapeKeyPress="hideApiClient" />
       </div>
     </div>
   </div>
@@ -83,15 +81,15 @@ export { useApiClientStore } from '@scalar/api-client'
 </template>
 
 <style scoped>
-.scalar-api-client__container .scalar-api-client {
+.api-client-container .scalar-api-client {
   width: calc(100% - var(--refs-sidebar-width));
 }
 @media screen and (max-width: 1000px) {
-  .scalar-api-client__container .scalar-api-client {
+  .api-client-container .scalar-api-client {
     width: 100%;
   }
 }
-.scalar-api-client__container {
+.api-client-container {
   position: absolute;
   right: 0;
   left: 0;

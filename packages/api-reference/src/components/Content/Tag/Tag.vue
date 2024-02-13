@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useNavState, useSidebar } from '../../hooks'
-import { type Spec, type Tag } from '../../types'
-import SectionContainer from '../Section/SectionContainer.vue'
-import EndpointsOverview from './EndpointsOverview.vue'
-import ShowMoreButton from './ShowMoreButton.vue'
+import { useNavState, useSidebar } from '../../../hooks'
+import type { Spec, Tag } from '../../../types'
+import { SectionContainer } from '../../Section'
+import ShowMoreButton from '../ShowMoreButton.vue'
+import Endpoints from './Endpoints.vue'
 
 const props = defineProps<{
   tag: Tag
@@ -21,7 +21,7 @@ const moreThanOneDefaultTag = (tag: Tag) =>
 </script>
 <template>
   <SectionContainer class="tag-section-container">
-    <EndpointsOverview
+    <Endpoints
       v-if="moreThanOneDefaultTag(tag)"
       :tag="tag" />
     <ShowMoreButton

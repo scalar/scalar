@@ -3,7 +3,7 @@ import { HttpMethod } from '@scalar/api-client'
 import { ScalarIconButton } from '@scalar/components'
 import { ref } from 'vue'
 
-import { Icon } from './Icon'
+import { Icon } from '../Icon'
 
 const props = defineProps<{
   item: {

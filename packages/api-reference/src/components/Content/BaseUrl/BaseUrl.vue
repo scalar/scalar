@@ -6,7 +6,7 @@ import { ref, watch } from 'vue'
 import { useGlobalStore } from '../../../stores'
 import { type Server, type Variable } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
-import MarkdownRenderer from '../MarkdownRenderer.vue'
+import { MarkdownRenderer } from '../../MarkdownRenderer'
 import ServerItem from './ServerItem.vue'
 import ServerVariables from './ServerVariables.vue'
 

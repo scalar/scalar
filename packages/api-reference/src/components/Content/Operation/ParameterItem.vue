@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Parameters } from '../../../types'
-import SchemaProperty from '../SchemaProperty.vue'
+import { SchemaProperty } from '../Schema'
 
 withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
   showChildren: false,

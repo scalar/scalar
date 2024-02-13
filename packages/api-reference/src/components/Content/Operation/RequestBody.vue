@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 
 import type { ContentType, RequestBody } from '../../../types'
-import Schema from '../Schema.vue'
+import { Schema } from '../Schema'
 
 const prop = defineProps<{ requestBody?: RequestBody }>()
 
