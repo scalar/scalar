@@ -56,3 +56,13 @@ const getContentLength = (response: ClientResponse) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.navtable-item-time {
+  text-transform: capitalize;
+}
+.navtable-item__active {
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  cursor: default;
+}
+</style>

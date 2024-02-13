@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, toRef } from 'vue'
+import { ref, toRef } from 'vue'
 
 import { useCodeMirror } from '../../hooks'
 import type { CodeMirrorLanguage } from '../../types'
@@ -24,15 +24,6 @@ const emit = defineEmits<{
 }>()
 
 // CSS Class
-const classes = computed(() =>
-  props.readOnly
-    ? [
-        'scalar-api-client__codemirror',
-        'scalar-api-client__codemirror--read-only',
-      ]
-    : ['scalar-api-client__codemirror'],
-)
-
 const codeMirrorRef = ref<HTMLDivElement | null>(null)
 
 useCodeMirror({
@@ -45,19 +36,18 @@ useCodeMirror({
   disableEnter: toRef(() => props.disableEnter),
   onChange: (v: string) => emit('change', v || ''),
   codeMirrorRef,
-  classes,
+  classes: ['codemirror'],
 })
 </script>
 
 <template>
   <div
     ref="codeMirrorRef"
-    class="scalar-api-client__codemirror__wrapper" />
+    class="codemirror-container" />
 </template>
 
-<style>
-/** Basics */
-.scalar-api-client__codemirror__wrapper {
+<style scoped>
+.codemirror-container {
   width: 100%;
   height: 100%;
   padding-top: 4px;
@@ -67,7 +57,14 @@ useCodeMirror({
   display: flex;
   align-items: stretch;
 }
-.scalar-api-client__codemirror {
+
+.copy-to-clipboard-button {
+  background: red;
+}
+</style>
+
+<style>
+.codemirror {
   flex-grow: 1;
   max-width: 100%;
   cursor: text;
@@ -76,20 +73,6 @@ useCodeMirror({
   -webkit-text-size-adjust: 100%;
 }
 
-/** URL input */
-.scalar-api-client__url-input {
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  min-height: auto;
-  padding-top: 0;
-}
-
-.scalar-api-client__url-input .ͼ1 .cm-scroller {
-  align-items: center !important;
-}
-
-.scalar-api-client__variable {
-  color: var(--scalar-api-client-color, var(--default-scalar-api-client-color));
-}
 .cm-focused {
   outline: none !important;
 }
