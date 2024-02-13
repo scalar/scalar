@@ -1,4 +1,5 @@
 import type { ClientRequestConfig } from '@scalar/api-client'
+import { type QueryString } from 'httpsnippet-lite'
 
 import type {
   AuthenticationState,
@@ -50,11 +51,10 @@ export function getApiClientRequest({
     cookies: request.cookies.map((cookie) => {
       return { ...cookie, enabled: true }
     }),
-    query: request.queryString.map(
-      (queryString: QueryString & { required?: boolean }) => {
-        return { ...queryString, enabled: queryString.required ?? true }
-      },
-    ),
+    query: request.queryString.map((queryString) => {
+      const query: typeof queryString & { required?: boolean } = queryString
+      return { ...queryString, enabled: query.required ?? true }
+    }),
     headers: request.headers.map((header) => {
       return { ...header, enabled: true }
     }),
