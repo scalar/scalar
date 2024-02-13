@@ -53,6 +53,7 @@ function addAnotherHandler() {
       <Grid
         addLabel="Variable"
         :items="variables"
+        :showMoreFilter="true"
         @addAnother="addAnotherHandler"
         @deleteIndex="handleDeleteIndex" />
     </template>

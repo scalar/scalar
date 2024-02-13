@@ -11,6 +11,7 @@ export const getRequestFromOperation = (
   operation: TransformedOperation,
   options?: {
     replaceVariables?: boolean
+    requiredOnly?: boolean
   },
   selectedExampleKey?: string | number,
 ): Partial<HarRequestWithPath> => {
@@ -34,13 +35,21 @@ export const getRequestFromOperation = (
     method: operation.httpVerb.toUpperCase(),
     path,
     headers: [
-      ...getParametersFromOperation(operation, 'header'),
+      ...getParametersFromOperation(operation, 'header', options?.requiredOnly),
       ...(requestBody?.headers ?? []),
     ] as Header[],
     // TODO: Sorry, something is off here and I don’t get it.
     // @ts-ignore
     postData: requestBody?.postData,
-    queryString: getParametersFromOperation(operation, 'query') as Query[],
-    cookies: getParametersFromOperation(operation, 'cookie') as Cookie[],
+    queryString: getParametersFromOperation(
+      operation,
+      'query',
+      options?.requiredOnly,
+    ) as Query[],
+    cookies: getParametersFromOperation(
+      operation,
+      'cookie',
+      options?.requiredOnly,
+    ) as Cookie[],
   }
 }

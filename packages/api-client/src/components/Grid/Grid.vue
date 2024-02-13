@@ -1,14 +1,25 @@
 <script setup lang="ts">
+import { ScalarIcon } from '@scalar/components'
 import { ref } from 'vue'
 
-defineProps<{ items: any[]; addLabel?: string }>()
+const props = defineProps<{
+  items: any[]
+  addLabel?: string
+  showMoreFilter?: boolean
+}>()
 
-defineEmits<{
+const emits = defineEmits<{
   (event: 'deleteIndex', value: number): void
   (event: 'addAnother'): void
 }>()
 
 const showDescription = ref(false)
+const showMore = ref(false)
+
+function addHandler() {
+  emits('addAnother')
+  showMore.value = true
+}
 </script>
 <template>
   <div class="table">
@@ -39,118 +50,89 @@ const showDescription = ref(false)
         </svg>
       </div>
     </div>
-    <div
+    <template
       v-for="(item, index) in items"
-      :key="item.id"
-      class="table-row"
-      :class="{
-        'required-parameter': item.required,
-      }">
-      <div class="table-row-item">
-        <input
-          v-model="item.name"
-          placeholder="key" />
-        <!-- <MultilineEditor
-          :elID="`key_${item}`"
-          :focus="newlyAdded === `key_${item}` ? true : false"
-          :placeholder="''"
-          :singleLineEditor="true"
-          :value="dataObject[item].key"
-          @update="value => $emit('updateKey', item, value)" /> -->
-        <!-- <input :value="dataObject[item].key" @input="$emit('updateKey', item, $event.target.value)" type="text"> -->
-      </div>
-      <div class="table-row-item">
-        <input
-          v-model="item.value"
-          placeholder="value" />
-        <!-- <MultilineEditor
-          :elID="`value_${item}`"
-          :focus="newlyAdded === `value_${item}` ? true : false"
-          :placeholder="''"
-          :singleLineEditor="true"
-          :value="dataObject[item].value"
-          @update="value => $emit('updateValue', item, value)" /> -->
-        <!-- <input :ref="`value_${item}`" :value="dataObject[item].value" @input="$emit('updateValue', item, $event.target.value)" type="text"> -->
-        <!-- <div class="table-row-item-menu">
-          <svg
-            height="16"
-            viewBox="0 0 4 16"
-            width="4"
-            xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M2 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2C.9 6 0 6.9 0 8s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
-              fill-rule="nonzero" />
-          </svg>
-        </div> -->
-      </div>
+      :key="item.id">
       <div
-        v-show="showDescription"
-        class="table-row-item">
-        <input
-          v-model="item.description"
-          placeholder="value" />
-        <!-- <input
-          :ref="`description_${item}`"
-          type="text"
-          :value="dataObject[item].description"
-          @input="$emit('updateDescription', item, $event.target.value)"> -->
-      </div>
-      <div class="table-row-meta">
-        <label class="meta-check">
+        v-show="!showMoreFilter || (showMoreFilter && index < 5) || showMore"
+        class="table-row"
+        :class="{
+          'required-parameter': item.required,
+        }">
+        <div class="table-row-item">
           <input
-            v-model="item.enabled"
-            checked
-            type="checkbox" />
-          <span class="meta-checkmark" />
-        </label>
-        <button
-          class="meta-delete"
-          type="button"
-          @click="$emit('deleteIndex', index)">
-          <svg
-            fill="none"
-            height="10"
-            viewBox="-0.5 -0.5 10 10"
-            width="10"
-            xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="m8.55 0.45 -8.1 8.1"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.5"></path>
-            <path
-              d="m0.45 0.45 8.1 8.1"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.5"></path>
-          </svg>
-        </button>
+            v-model="item.name"
+            placeholder="key" />
+        </div>
+        <div class="table-row-item">
+          <input
+            v-model="item.value"
+            placeholder="value" />
+        </div>
+        <div
+          v-show="showDescription"
+          class="table-row-item">
+          <input
+            v-model="item.description"
+            placeholder="value" />
+        </div>
+        <div class="table-row-meta">
+          <label class="meta-check">
+            <input
+              v-model="item.enabled"
+              checked
+              type="checkbox" />
+            <span class="meta-checkmark" />
+          </label>
+          <button
+            class="meta-delete"
+            type="button"
+            @click="$emit('deleteIndex', index)">
+            <svg
+              fill="none"
+              height="10"
+              viewBox="-0.5 -0.5 10 10"
+              width="10"
+              xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="m8.55 0.45 -8.1 8.1"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"></path>
+              <path
+                d="m0.45 0.45 8.1 8.1"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"></path>
+            </svg>
+          </button>
+        </div>
       </div>
+    </template>
+    <div class="meta-actions">
+      <button
+        v-if="addLabel"
+        class="meta-actions-item"
+        type="button"
+        @click="addHandler">
+        <i class="meta-actions-item-icon">
+          <ScalarIcon icon="Add" />
+        </i>
+        {{ addLabel }}
+      </button>
+      <button
+        v-if="showMoreFilter && items.length > 5 && !showMore"
+        class="meta-actions-item"
+        type="button"
+        @click="showMore = true">
+        Show More
+        <i class="meta-actions-item-icon">
+          <ScalarIcon icon="ChevronDown" />
+        </i>
+      </button>
     </div>
-    <button
-      v-if="addLabel"
-      class="meta-add"
-      type="button"
-      @click="$emit('addAnother')">
-      <svg
-        class="flow-icon"
-        data-v-aa4fbd2d=""
-        height="100%"
-        viewBox="0 0 48 48"
-        xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M24 1.714v44.572M1.714 24h44.572"
-          fill="none"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="3.429"
-          xmlns="http://www.w3.org/2000/svg"></path>
-      </svg>
-      {{ addLabel }}
-    </button>
   </div>
 </template>
 <style>
@@ -653,10 +635,8 @@ const showDescription = ref(false)
     opacity: 1;
   }
 }
-.meta-add {
+.meta-actions-item {
   border: none;
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   appearance: none;
   padding: 9px;
@@ -669,14 +649,27 @@ const showDescription = ref(false)
   cursor: pointer;
   display: flex;
   align-items: center;
+  gap: 6px;
 }
-.meta-add svg {
+.meta-actions {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+.meta-actions-item:nth-of-type(2) {
+  display: flex;
+  justify-content: flex-end;
+}
+.meta-actions-item:nth-of-type(2) i {
+  filter: drop-shadow(0 0.125px 0 currentColor)
+    drop-shadow(0 -0.125px 0 currentColor);
+}
+.meta-actions-item-icon {
   width: 12px;
   height: 12px;
-  margin-right: 6px;
 }
-.meta-add:hover,
-.meta-add:focus {
+.meta-actions-item:hover,
+.meta-actions-item:focus {
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
 </style>

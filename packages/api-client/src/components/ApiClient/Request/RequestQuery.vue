@@ -53,6 +53,7 @@ function addAnotherHandler() {
       <Grid
         addLabel="Query Parameter"
         :items="queries"
+        :showMoreFilter="true"
         @addAnother="addAnotherHandler"
         @deleteIndex="handleDeleteIndex" />
     </template>

@@ -549,6 +549,9 @@ importers:
       '@headlessui/vue':
         specifier: ^1.7.16
         version: 1.7.16(vue@3.3.4)
+      '@scalar/components':
+        specifier: workspace:*
+        version: link:../components
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes

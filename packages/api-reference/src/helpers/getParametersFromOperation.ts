@@ -21,25 +21,32 @@ export function getParametersFromOperation(
     ...(operation.information?.parameters || []),
   ]
 
-  return (
-    parameters
-      // query, path, header, cookie?
-      .filter((parameter) => parameter.in === where)
-      // don’t add optional parameters
-      .filter(
-        (parameter) => (requiredOnly && parameter.required) || !requiredOnly,
-      )
-      // transform them
-      .map((parameter) => ({
-        name: parameter.name,
-        description: parameter.description ?? null,
-        value: parameter.example
-          ? parameter.example
-          : parameter.schema
-            ? getExampleFromSchema(parameter.schema, { mode: 'write' })
-            : '',
-        required: parameter.required ?? false,
-        enabled: true,
-      }))
-  )
+  const params = parameters
+    // query, path, header, cookie?
+    .filter((parameter) => parameter.in === where)
+    // don’t add optional parameters
+    .filter(
+      (parameter) => (requiredOnly && parameter.required) || !requiredOnly,
+    )
+    // transform them
+    .map((parameter) => ({
+      name: parameter.name,
+      description: parameter.description ?? null,
+      value: parameter.example
+        ? parameter.example
+        : parameter.schema
+          ? getExampleFromSchema(parameter.schema, { mode: 'write' })
+          : '',
+      required: parameter.required ?? false,
+      enabled: parameter.required ?? false,
+    }))
+
+  return params.sort((a, b) => {
+    if (a.required && !b.required) {
+      return -1 // Move a up if a is required and b is not
+    } else if (!a.required && b.required) {
+      return 1 // Move b up if b is required and a is not
+    }
+    return 0 // Keep original order if both have the same required status
+  })
 }
