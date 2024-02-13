@@ -52,6 +52,7 @@
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",
+    "@rise8/tailwind-pixel-perfect-preset": "^1.0.1",
     "@scalar/themes": "workspace:*",
     "@storybook/addon-essentials": "^7.5.2",
     "@storybook/addon-interactions": "^7.5.2",
