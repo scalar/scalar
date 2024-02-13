@@ -41,7 +41,6 @@ export default defineConfig({
     rollupOptions: {
       external: [
         'vue',
-        'vite-plugin-node-polyfills/shims/global',
         ...Object.keys(pkg.dependencies || {}).filter(
           (item) => !item.startsWith('@scalar'),
         ),
