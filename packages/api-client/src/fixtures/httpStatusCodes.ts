@@ -255,5 +255,3 @@ export const httpStatusCodes: HttpStatusCodes = {
     url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/511',
   },
 }
-
-export default httpStatusCodes
