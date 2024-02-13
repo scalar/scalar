@@ -29,15 +29,17 @@ export function getApiClientRequest({
     {
       url: getUrlFromServerState(serverState),
     },
-    getRequestFromOperation(operation),
+    getRequestFromOperation(operation, { requiredOnly: false }),
     getRequestFromAuthentication(
       authenticationState,
       operation.information?.security,
     ),
   )
 
-  const requestFromOperation = getRequestFromOperation(operation)
-  const variables = getParametersFromOperation(operation, 'path')
+  const requestFromOperation = getRequestFromOperation(operation, {
+    requiredOnly: false,
+  })
+  const variables = getParametersFromOperation(operation, 'path', false)
 
   return {
     id: operation.operationId,
@@ -48,9 +50,11 @@ export function getApiClientRequest({
     cookies: request.cookies.map((cookie) => {
       return { ...cookie, enabled: true }
     }),
-    query: request.queryString.map((queryString) => {
-      return { ...queryString, enabled: true }
-    }),
+    query: request.queryString.map(
+      (queryString: QueryString & { required?: boolean }) => {
+        return { ...queryString, enabled: queryString.required ?? true }
+      },
+    ),
     headers: request.headers.map((header) => {
       return { ...header, enabled: true }
     }),
