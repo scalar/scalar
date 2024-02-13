@@ -118,9 +118,6 @@ watch(
 </script>
 <template>
   <div
-    v-if="
-      typeof lazyIndexTag === 'number' && typeof lazyIndexOperation === 'number'
-    "
     ref="referenceEl"
     :class="{
       'references-narrow': isNarrow,
@@ -145,32 +142,38 @@ watch(
       v-else
       name="empty-state" />
     <template
-      v-for="(tag, index) in parsedSpec.tags"
-      :key="tag.id">
-      <Lazy
-        :id="getTagId(tag)"
-        :isLazy="index > lazyIndexTag">
-        <Component
-          :is="tagLayout"
-          v-if="tag.operations && tag.operations.length > 0"
-          :isFirst="index === 0"
-          :spec="parsedSpec"
-          :tag="tag">
-          <Lazy
-            v-for="(operation, operationIndex) in tag.operations"
-            :id="getOperationId(operation, tag)"
-            :key="`${operation.httpVerb}-${operation.operationId}`"
-            :isLazy="
-              index !== lazyIndexTag || operationIndex > lazyIndexOperation
-            ">
-            <Component
-              :is="endpointLayout"
-              :operation="operation"
-              :server="localServers[0]"
-              :tag="tag" />
-          </Lazy>
-        </Component>
-      </Lazy>
+      v-if="
+        typeof lazyIndexTag === 'number' &&
+        typeof lazyIndexOperation === 'number'
+      ">
+      <template
+        v-for="(tag, index) in parsedSpec.tags"
+        :key="tag.id">
+        <Lazy
+          :id="getTagId(tag)"
+          :isLazy="index > lazyIndexTag">
+          <Component
+            :is="tagLayout"
+            v-if="tag.operations && tag.operations.length > 0"
+            :isFirst="index === 0"
+            :spec="parsedSpec"
+            :tag="tag">
+            <Lazy
+              v-for="(operation, operationIndex) in tag.operations"
+              :id="getOperationId(operation, tag)"
+              :key="`${operation.httpVerb}-${operation.operationId}`"
+              :isLazy="
+                index !== lazyIndexTag || operationIndex > lazyIndexOperation
+              ">
+              <Component
+                :is="endpointLayout"
+                :operation="operation"
+                :server="localServers[0]"
+                :tag="tag" />
+            </Lazy>
+          </Component>
+        </Lazy>
+      </template>
     </template>
     <template v-if="parsedSpec.webhooks">
       <Webhooks :webhooks="parsedSpec.webhooks" />
