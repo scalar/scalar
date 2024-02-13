@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useResizeObserver } from '@vueuse/core'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
-import { hasModels, hasWebhooks } from '../../helpers'
+import { hasModels } from '../../helpers'
 import { useNavState, useRefOnMount } from '../../hooks'
 import type { Spec } from '../../types'
 import Lazy from '../Lazy.vue'
@@ -32,7 +32,7 @@ useResizeObserver(
   (entries) => (isNarrow.value = entries[0].contentRect.width < 900),
 )
 
-const { getOperationId, getTagId } = useNavState()
+const { getOperationId, getSectionId, getTagId, hash } = useNavState()
 
 const fallBackServer = useRefOnMount(() => {
   return {
@@ -71,9 +71,57 @@ const endpointLayout = computed<typeof ReferenceEndpoint>(() =>
 const introCardsSlot = computed(() =>
   props.layout === 'accordion' ? 'after' : 'aside',
 )
+
+// Don't lazy load if we are deep linking via hash
+const lazyIndexTag = ref<number | null>(null)
+const lazyIndexOperation = ref<number | null>(null)
+
+watch(
+  () => props.parsedSpec.tags?.length,
+  () => {
+    lazyIndexOperation.value = 0
+    lazyIndexTag.value = 0
+
+    if (!hash.value || !props.parsedSpec.tags?.length) return
+
+    const sectionId = getSectionId()
+
+    // If models, don't lazy load any tags
+    if (sectionId === 'models') {
+      lazyIndexTag.value = props.parsedSpec.tags.length ?? 0
+    }
+
+    // Lazy load until specific tag
+    if (sectionId.startsWith('tag')) {
+      const [, tagName] = sectionId.split('/')
+      const tagIndex = props.parsedSpec.tags?.findIndex(
+        ({ name }) => name === tagName,
+      )
+      lazyIndexTag.value = tagIndex ?? 0
+
+      // Lazy load until specific operation
+      const operationMatches = hash.value.match(/tag\/([^/]+)\/([^/]+)\/(.+)/)
+      if (operationMatches?.length === 4) {
+        const matchedVerb = operationMatches[2]
+        const matchedPath = '/' + operationMatches[3]
+
+        const operationIndex = props.parsedSpec.tags[
+          lazyIndexTag.value
+        ]?.operations.findIndex(
+          ({ httpVerb, path }) =>
+            matchedVerb === httpVerb && matchedPath === path,
+        )
+        lazyIndexOperation.value = operationIndex
+      }
+    }
+  },
+)
 </script>
 <template>
   <div
+    v-if="
+      typeof lazyIndexTag === 'number' && typeof lazyIndexOperation === 'number'
+    "
     ref="referenceEl"
     :class="{
       'references-narrow': isNarrow,
@@ -102,7 +150,7 @@ const introCardsSlot = computed(() =>
       :key="tag.id">
       <Lazy
         :id="getTagId(tag)"
-        :isLazy="index > 0">
+        :isLazy="index > lazyIndexTag">
         <Component
           :is="tagLayout"
           v-if="tag.operations && tag.operations.length > 0"
@@ -113,7 +161,9 @@ const introCardsSlot = computed(() =>
             v-for="(operation, operationIndex) in tag.operations"
             :id="getOperationId(operation, tag)"
             :key="`${operation.httpVerb}-${operation.operationId}`"
-            :isLazy="index > 0 && operationIndex > 0">
+            :isLazy="
+              index !== lazyIndexTag || operationIndex > lazyIndexOperation
+            ">
             <Component
               :is="endpointLayout"
               :operation="operation"

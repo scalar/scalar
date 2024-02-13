@@ -8,7 +8,6 @@ import ShowMoreButton from './ShowMoreButton.vue'
 const props = defineProps<{
   tag: Tag
   spec: Spec
-  isFirst?: boolean
 }>()
 
 const { collapsedSidebarItems } = useSidebar()
@@ -23,14 +22,9 @@ const moreThanOneDefaultTag = (tag: Tag) =>
   <SectionContainer class="tag-section-container">
     <EndpointsOverview
       v-if="moreThanOneDefaultTag(tag)"
-      :isLazy="!isFirst"
       :tag="tag" />
     <ShowMoreButton
-      v-if="
-        !isFirst &&
-        !collapsedSidebarItems[getTagId(tag)] &&
-        tag.operations?.length > 1
-      "
+      v-if="!collapsedSidebarItems[getTagId(tag)] && tag.operations?.length > 1"
       :id="getTagId(tag)" />
     <template v-else>
       <slot />

@@ -43,12 +43,14 @@ const shouldRender = ref(!props.isLazy)
 
 // Fire the event for non-lazy components as well to keep track of loading
 if (props.isLazy) {
+  console.log('lazy', props.id)
   onIdle(() => {
     shouldRender.value = true
     if (props.id) nextTick(() => lazyBus.emit({ id: props.id! }))
   })
 } else if (props.id) {
   nextTick(() => lazyBus.emit({ id: props.id! }))
+  console.log('not lazy', props.id)
 }
 </script>
 <template>

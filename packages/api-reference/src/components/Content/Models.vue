@@ -19,7 +19,7 @@ const props = defineProps<{
 }>()
 
 const { collapsedSidebarItems } = useSidebar()
-const { getModelId } = useNavState()
+const { getModelId, hash } = useNavState()
 
 const showAllModels = computed(
   () =>
@@ -37,6 +37,16 @@ const models = computed(() => {
   // return only first 3 models
   return allModels.slice(0, 3)
 })
+
+let lazyIndexModel = 4
+
+if (hash.value) {
+  const [, modelName] = hash.value.split('/')
+  const modelIndex = models.value.findIndex(
+    (name) => name.toLowerCase() === modelName,
+  )
+  lazyIndexModel = modelIndex
+}
 </script>
 <template>
   <SectionContainer v-if="components">
@@ -45,7 +55,7 @@ const models = computed(() => {
       :key="name">
       <Lazy
         :id="getModelId(name)"
-        :isLazy="index > 4">
+        :isLazy="index > lazyIndexModel">
         <Section
           :id="getModelId(name)"
           :label="name">

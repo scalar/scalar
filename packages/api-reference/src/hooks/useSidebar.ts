@@ -1,5 +1,4 @@
 import { useApiClientStore } from '@scalar/api-client'
-import { objectEntries } from '@vueuse/core'
 import { type OpenAPIV3_1 } from 'openapi-types'
 import { computed, reactive, ref, watch } from 'vue'
 
@@ -25,10 +24,11 @@ export type SidebarEntry = {
 
 const {
   getHeadingId,
-  getWebhookId,
   getModelId,
   getOperationId,
+  getSectionId,
   getTagId,
+  getWebhookId,
   hash,
 } = useNavState()
 
@@ -202,17 +202,18 @@ export function useSidebar(options?: { parsedSpec: Spec }) {
   if (options?.parsedSpec) {
     parsedSpec.value = options.parsedSpec
 
-    // Open the first tag section by default
+    // Open the first tag section by default OR specific section from hash
     watch(
-      parsedSpec,
+      () => parsedSpec.value?.tags?.length,
       () => {
-        const firstTag = parsedSpec.value?.tags?.[0]
-
-        if (firstTag) {
-          setCollapsedSidebarItem(getTagId(firstTag), true)
+        if (window.location.hash) {
+          const hashSectionId = getSectionId(window.location.hash)
+          if (hashSectionId) setCollapsedSidebarItem(hashSectionId, true)
+        } else {
+          const firstTag = parsedSpec.value?.tags?.[0]
+          if (firstTag) setCollapsedSidebarItem(getTagId(firstTag), true)
         }
       },
-      { immediate: true, deep: true },
     )
 
     // Watch the spec description for headings

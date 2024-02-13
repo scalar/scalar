@@ -2,8 +2,9 @@
 import { type SwaggerEditor } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
+import { scrollToId } from '../helpers'
 import { useNavState, useSidebar } from '../hooks'
 import type {
   ReferenceConfiguration,
@@ -45,8 +46,8 @@ useResizeObserver(documentEl, (entries) => {
 
 // Scroll to hash if exists
 const initiallyScrolled = ref(false)
-const { breadcrumb, setCollapsedSidebarItem } = useSidebar()
-const { enableHashListener, hash, getSectionId } = useNavState()
+const { breadcrumb } = useSidebar()
+const { enableHashListener, hash } = useNavState()
 
 enableHashListener()
 
@@ -58,9 +59,6 @@ onMounted(() => {
       left: 0,
     })
   }
-
-  const sectionId = getSectionId()
-  if (sectionId) setCollapsedSidebarItem(sectionId, true)
 })
 
 // Scroll to hash when component has rendered
@@ -70,8 +68,10 @@ lazyBus.on(({ id }) => {
   if (initiallyScrolled.value || !hashStr || id !== hashStr) return
   initiallyScrolled.value = true
 
-  console.log('event loaded', id)
-  document.getElementById(hashStr)?.scrollIntoView()
+  // TODO temp timeout for layout shift bug
+  setTimeout(() => {
+    scrollToId(hashStr)
+  }, 0)
 })
 
 const showRenderedContent = computed(
