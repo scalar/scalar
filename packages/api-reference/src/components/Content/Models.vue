@@ -45,7 +45,7 @@ if (hash.value) {
   const modelIndex = models.value.findIndex(
     (name) => name.toLowerCase() === modelName,
   )
-  lazyIndexModel = modelIndex
+  lazyIndexModel = modelIndex + 1
 }
 </script>
 <template>
