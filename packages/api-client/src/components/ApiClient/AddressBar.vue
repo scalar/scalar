@@ -209,7 +209,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
 </template>
 
 <style>
-.scalar-api-client__variable {
+.api-client-url-variable {
   color: var(--scalar-api-client-color, var(--default-scalar-api-client-color));
 }
 </style>
