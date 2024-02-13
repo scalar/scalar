@@ -43,11 +43,11 @@ useCodeMirror({
 <template>
   <div
     ref="codeMirrorRef"
-    class="codemirror-wrapper" />
+    class="codemirror-container" />
 </template>
 
-<style>
-.codemirror-wrapper {
+<style scoped>
+.codemirror-container {
   width: 100%;
   height: 100%;
   padding-top: 4px;
@@ -58,6 +58,12 @@ useCodeMirror({
   align-items: stretch;
 }
 
+.copy-to-clipboard-button {
+  background: red;
+}
+</style>
+
+<style>
 .codemirror {
   flex-grow: 1;
   max-width: 100%;
