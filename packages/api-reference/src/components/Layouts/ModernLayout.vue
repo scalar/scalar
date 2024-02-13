@@ -5,7 +5,7 @@ import { computed, ref, watch } from 'vue'
 import { useNavState } from '../../hooks'
 import { type ReferenceProps, type ReferenceSlots } from '../../types'
 import ApiReferenceBase from '../ApiReferenceBase.vue'
-import DarkModeToggle from '../DarkModeToggle.vue'
+import { DarkModeToggle } from '../DarkModeToggle'
 import MobileHeader from '../MobileHeader.vue'
 import SearchButton from '../SearchButton.vue'
 

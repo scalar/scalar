@@ -2,7 +2,7 @@
 import { useNavState, useSidebar } from '../../../hooks'
 import type { Spec, Tag } from '../../../types'
 import { SectionContainer } from '../../Section'
-import ShowMoreButton from '../ShowMoreButton.vue'
+import ShowMoreButton from '../../ShowMoreButton.vue'
 import Endpoints from './Endpoints.vue'
 
 const props = defineProps<{

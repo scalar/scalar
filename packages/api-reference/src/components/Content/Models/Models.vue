@@ -10,8 +10,8 @@ import {
   SectionContent,
   SectionHeader,
 } from '../../Section'
+import ShowMoreButton from '../../ShowMoreButton.vue'
 import { Schema } from '../Schema'
-import ShowMoreButton from '../ShowMoreButton.vue'
 
 const props = defineProps<{
   components?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
