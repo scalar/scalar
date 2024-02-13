@@ -93,9 +93,8 @@ watch(
 
     // Lazy load until specific tag
     if (sectionId.startsWith('tag')) {
-      const [, tagName] = sectionId.split('/')
       const tagIndex = props.parsedSpec.tags?.findIndex(
-        ({ name }) => name === tagName,
+        (tag) => getTagId(tag) === sectionId,
       )
       lazyIndexTag.value = tagIndex ?? 0
 

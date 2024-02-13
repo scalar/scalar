@@ -25,9 +25,9 @@ const { setCollapsedSidebarItem } = useSidebar()
 // we try to scroll to it
 // we wait for next render after we open the tag
 async function scrollHandler(operation: TransformedOperation) {
-  // setCollapsedSidebarItem(getTagId(props.tag), true)
-  // await nextTick()
-  // window.location.href = `#${getOperationId(operation, props.tag)}`
+  setCollapsedSidebarItem(getTagId(props.tag), true)
+  await nextTick()
+  window.location.href = `#${getOperationId(operation, props.tag)}`
 }
 </script>
 <template>
@@ -50,20 +50,20 @@ async function scrollHandler(operation: TransformedOperation) {
           <!--   :isLazy="isLazy"> -->
           <Card class="scalar-card-sticky">
             <CardHeader muted>Endpoints</CardHeader>
-            <!-- <CardContent -->
-            <!--   class="custom-scroll" -->
-            <!--   muted> -->
-            <!--   <div class="endpoints"> -->
-            <!--     <a -->
-            <!--       v-for="operation in tag.operations" -->
-            <!--       :key="getOperationId(operation, tag)" -->
-            <!--       class="endpoint" -->
-            <!--       @click="scrollHandler(operation)"> -->
-            <!--       <HttpMethod :method="operation.httpVerb" /> -->
-            <!--       <span>{{ operation.path }}</span> -->
-            <!--     </a> -->
-            <!--   </div> -->
-            <!-- </CardContent> -->
+            <CardContent
+              class="custom-scroll"
+              muted>
+              <div class="endpoints">
+                <a
+                  v-for="operation in tag.operations"
+                  :key="getOperationId(operation, tag)"
+                  class="endpoint"
+                  @click="scrollHandler(operation)">
+                  <HttpMethod :method="operation.httpVerb" />
+                  <span>{{ operation.path }}</span>
+                </a>
+              </div>
+            </CardContent>
           </Card>
           <!-- </Lazy> -->
         </SectionColumn>
