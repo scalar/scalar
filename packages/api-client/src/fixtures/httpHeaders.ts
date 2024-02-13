@@ -526,5 +526,3 @@ export const httpHeaders: HttpHeader[] = [
     url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/report-to',
   },
 ]
-
-export default httpHeaders
