@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  lint:
+  ci:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
