@@ -75,7 +75,7 @@ importers:
         version: 5.3.3
       vite-node:
         specifier: ^0.34.4
-        version: 0.34.7
+        version: 0.34.7(@types/node@20.6.3)
       vitest:
         specifier: ^0.34.4
         version: 0.34.6(jsdom@22.1.0)
@@ -97,10 +97,10 @@ importers:
         version: 3.0.1
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vite-node:
         specifier: ^0.34.4
-        version: 0.34.7
+        version: 0.34.7(@types/node@20.6.3)
 
   examples/echo-server:
     dependencies:
@@ -116,10 +116,10 @@ importers:
         version: 3.0.1
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vite-node:
         specifier: ^0.34.4
-        version: 0.34.7
+        version: 0.34.7(@types/node@20.6.3)
 
   examples/express-api-reference:
     dependencies:
@@ -144,7 +144,7 @@ importers:
         version: 3.0.1
       vite-node:
         specifier: ^0.34.4
-        version: 0.34.7
+        version: 0.34.7(@types/node@20.6.3)
 
   examples/fastify-api-reference:
     dependencies:
@@ -166,10 +166,10 @@ importers:
         version: 5.3.3
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vite-node:
         specifier: ^0.34.4
-        version: 0.34.7
+        version: 0.34.7(@types/node@20.6.3)
 
   examples/hono-api-reference:
     dependencies:
@@ -188,7 +188,7 @@ importers:
         version: 3.0.1
       vite-node:
         specifier: ^0.34.4
-        version: 0.34.7
+        version: 0.34.7(@types/node@20.6.3)
 
   examples/nestjs-api-reference:
     dependencies:
@@ -462,10 +462,10 @@ importers:
         version: 5.3.3
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vite-plugin-node-polyfills:
         specifier: ^0.14.1
-        version: 0.14.1(vite@4.5.2)
+        version: 0.14.1(rollup@3.29.4)(vite@4.5.2)
 
   examples/ssg:
     dependencies:
@@ -484,7 +484,7 @@ importers:
         version: 5.3.3
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vite-ssg:
         specifier: ^0.23.4
         version: 0.23.4(vite@4.5.2)(vue@3.3.4)
@@ -536,10 +536,10 @@ importers:
         version: 5.3.3
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vite-plugin-node-polyfills:
         specifier: ^0.14.1
-        version: 0.14.1(vite@4.5.2)
+        version: 0.14.1(rollup@3.29.4)(vite@4.5.2)
       vue-tsc:
         specifier: ^1.8.19
         version: 1.8.22(typescript@5.3.3)
@@ -606,7 +606,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vite-plugin-css-injected-by-js:
         specifier: ^3.3.0
         version: 3.3.0(vite@4.5.2)
@@ -839,7 +839,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vite-plugin-css-injected-by-js:
         specifier: ^3.3.0
         version: 3.3.0(vite@4.5.2)
@@ -1012,10 +1012,10 @@ importers:
         version: 5.3.3
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vite-node:
         specifier: ^0.34.4
-        version: 0.34.7
+        version: 0.34.7(@types/node@20.6.3)
       vitest:
         specifier: ^0.34.4
         version: 0.34.6(jsdom@22.1.0)
@@ -1037,7 +1037,7 @@ importers:
         version: 7.2.0(typescript@5.3.3)
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vitest:
         specifier: ^0.34.4
         version: 0.34.6(jsdom@22.1.0)
@@ -1105,7 +1105,7 @@ importers:
         version: 7.2.0(typescript@5.3.3)
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vitest:
         specifier: ^0.34.4
         version: 0.34.6(jsdom@22.1.0)
@@ -1130,7 +1130,7 @@ importers:
         version: 7.2.0(typescript@5.3.3)
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vitest:
         specifier: ^0.34.4
         version: 0.34.6(jsdom@22.1.0)
@@ -1198,7 +1198,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vite-plugin-css-injected-by-js:
         specifier: ^3.3.0
         version: 3.3.0(vite@4.5.2)
@@ -1266,7 +1266,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vite-plugin-css-injected-by-js:
         specifier: ^3.3.0
         version: 3.3.0(vite@4.5.2)
@@ -1280,36 +1280,6 @@ importers:
         specifier: ^1.8.19
         version: 1.8.22(typescript@5.3.3)
 
-<<<<<<< HEAD
-=======
-  packages/use-clipboard:
-    devDependencies:
-      '@scalar/use-toasts':
-        specifier: workspace:*
-        version: link:../use-toasts
-      '@vitejs/plugin-vue':
-        specifier: ^4.4.0
-        version: 4.4.0(vite@4.5.2)(vue@3.4.18)
-      '@vitest/coverage-v8':
-        specifier: ^0.34.4
-        version: 0.34.6(vitest@0.34.6)
-      nanoid:
-        specifier: ^5.0.1
-        version: 5.0.1
-      tsc-alias:
-        specifier: ^1.8.8
-        version: 1.8.8
-      vite:
-        specifier: ^4.5.2
-        version: 4.5.2
-      vitest:
-        specifier: ^0.34.4
-        version: 0.34.6(jsdom@22.1.0)
-      vue-tsc:
-        specifier: ^1.8.19
-        version: 1.8.22(typescript@5.3.3)
-
->>>>>>> d8a6df2c (chore: update workspace dependencies)
   packages/use-codemirror:
     dependencies:
       '@codemirror/lang-css':
@@ -1384,7 +1354,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vitest:
         specifier: ^0.34.4
         version: 0.34.6(jsdom@22.1.0)
@@ -1408,7 +1378,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vitest:
         specifier: ^0.34.4
         version: 0.34.6(jsdom@22.1.0)
@@ -1435,7 +1405,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vitest:
         specifier: ^0.34.4
         version: 0.34.6(jsdom@22.1.0)
@@ -1462,7 +1432,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vite-plugin-css-injected-by-js:
         specifier: ^3.3.0
         version: 3.3.0(vite@4.5.2)
@@ -1492,7 +1462,7 @@ importers:
         version: 1.8.8
       vite:
         specifier: ^4.5.2
-        version: 4.5.2
+        version: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vitest:
         specifier: ^0.34.4
         version: 0.34.6(jsdom@22.1.0)
@@ -7685,7 +7655,7 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.23.6)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: 4.5.2
+      vite: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -7700,7 +7670,7 @@ packages:
       '@babel/core': 7.22.20
       '@babel/plugin-transform-typescript': 7.22.15(@babel/core@7.22.20)
       '@vue/babel-plugin-jsx': 1.1.5(@babel/core@7.22.20)
-      vite: 4.5.2
+      vite: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vue: 3.3.4
     transitivePeerDependencies:
       - supports-color
@@ -7713,7 +7683,7 @@ packages:
       vite: ^4.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 4.5.2
+      vite: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vue: 3.3.4
     dev: true
 
@@ -18670,28 +18640,6 @@ packages:
       - terser
     dev: true
 
-  /vite-node@0.34.7:
-    resolution: {integrity: sha512-0Yzb96QzHmqIKIs/x2q/sqG750V/EF6yDkS2p1WjJc1W2bgRSuQjf5vB9HY8h2nVb5j4pO5paS5Npcv3s69YUg==}
-    engines: {node: '>=v14.18.0'}
-    hasBin: true
-    dependencies:
-      cac: 6.7.14
-      debug: 4.3.4
-      mlly: 1.5.0
-      pathe: 1.1.2
-      picocolors: 1.0.0
-      vite: 4.5.2
-    transitivePeerDependencies:
-      - '@types/node'
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-    dev: true
-
   /vite-node@0.34.7(@types/node@20.6.3):
     resolution: {integrity: sha512-0Yzb96QzHmqIKIs/x2q/sqG750V/EF6yDkS2p1WjJc1W2bgRSuQjf5vB9HY8h2nVb5j4pO5paS5Npcv3s69YUg==}
     engines: {node: '>=v14.18.0'}
@@ -18719,7 +18667,7 @@ packages:
     peerDependencies:
       vite: '>2.0.0-0'
     dependencies:
-      vite: 4.5.2
+      vite: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
     dev: true
 
   /vite-plugin-dts@3.6.3(@types/node@20.6.3)(typescript@5.3.3)(vite@4.5.2):
@@ -18769,21 +18717,7 @@ packages:
       buffer-polyfill: /buffer@6.0.3
       node-stdlib-browser: 1.2.0
       process: 0.11.10
-      vite: 4.5.2
-    transitivePeerDependencies:
-      - rollup
-    dev: true
-
-  /vite-plugin-node-polyfills@0.14.1(vite@4.5.2):
-    resolution: {integrity: sha512-S5ofYUkXea/d94AHzDwiTA7Pv/yEwzagnjgVEuBZdy7E72GBfK17qpljAlyK3CD+CRcDzAwwl/4bEjKdvZmTGQ==}
-    peerDependencies:
-      vite: ^2.0.0 || ^3.0.0 || ^4.0.0
-    dependencies:
-      '@rollup/plugin-inject': 5.0.3(rollup@3.29.4)
-      buffer-polyfill: /buffer@6.0.3
-      node-stdlib-browser: 1.2.0
-      process: 0.11.10
-      vite: 4.5.2
+      vite: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
     transitivePeerDependencies:
       - rollup
     dev: true
@@ -18824,7 +18758,7 @@ packages:
       jsdom: 22.1.0
       kolorist: 1.8.0
       prettier: 3.2.5
-      vite: 4.5.2
+      vite: 4.5.2(@types/node@20.6.3)(terser@5.24.0)
       vue: 3.3.4
       yargs: 17.7.2
     transitivePeerDependencies:
@@ -18832,41 +18766,6 @@ packages:
       - canvas
       - supports-color
       - utf-8-validate
-    dev: true
-
-  /vite@4.5.2:
-    resolution: {integrity: sha512-tBCZBNSBbHQkaGyhGCDUGqeo2ph8Fstyp6FMSvTtsXeZSPpSMGlviAOav2hxVTqFcx8Hj/twtWKsMJXNY0xI8w==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': '>= 14'
-      less: '*'
-      lightningcss: ^1.21.0
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      esbuild: 0.18.20
-      postcss: 8.4.32
-      rollup: 3.29.4
-    optionalDependencies:
-      fsevents: 2.3.3
     dev: true
 
   /vite@4.5.2(@types/node@20.6.3)(terser@5.24.0):
@@ -18899,7 +18798,7 @@ packages:
     dependencies:
       '@types/node': 20.6.3
       esbuild: 0.18.20
-      postcss: 8.4.35
+      postcss: 8.4.32
       rollup: 3.29.4
       terser: 5.24.0
     optionalDependencies:
