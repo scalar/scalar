@@ -6,12 +6,16 @@ on:
       - 'main'
     paths:
       - 'examples/web/**'
+      - 'packages/api-client/**'
+      - 'packages/api-reference/**'
       - '.github/workflows/deploy-preview-examples.yml'
   pull_request:
     types:
       - opened
     paths:
       - 'examples/web/**'
+      - 'packages/api-client/**'
+      - 'packages/api-reference/**'
       - '.github/workflows/deploy-preview-examples.yml'
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
