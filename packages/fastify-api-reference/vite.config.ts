@@ -2,13 +2,10 @@ import path from 'path'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { defineConfig } from 'vitest/config'
 
-// import pkg from './package.json'
-import { nodeExternals } from './src/vite-plugins'
-import { nodeShims } from './src/vite-plugins'
+import { nodeExternals } from './vite-plugins'
 
 export default defineConfig({
   plugins: [
-    nodeShims(),
     nodeExternals(),
     viteStaticCopy({
       targets: [
