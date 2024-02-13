@@ -5,7 +5,7 @@ import {
 } from '@scalar/api-reference'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 
-import DevReferencesOptions from '../components/DevApiClientOptions.vue'
+import DevReferencesOptions from '../components/DevReferencesOptions.vue'
 import DevToolbar from '../components/DevToolbar.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 
@@ -13,7 +13,7 @@ const content = ref('')
 
 const configuration = reactive<ReferenceConfiguration>({
   theme: 'default',
-  proxy: 'http://localhost:5051',
+  proxy: import.meta.env.VITE_REQUEST_PROXY_URL,
   isEditable: true,
   showSidebar: true,
   layout: 'modern',

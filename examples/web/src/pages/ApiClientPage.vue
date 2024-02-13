@@ -25,12 +25,22 @@ if (activeRequestFromStorage) {
 }
 
 const config = ref({
-  proxyUrl: 'http://localhost:5051',
+  proxyUrl: import.meta.env.VITE_REQUEST_PROXY_URL,
   readOnly: false,
   theme: 'default' as ThemeId,
 })
 </script>
 <template>
-  <DevToolbar><DevApiClientOptions v-model="config" /></DevToolbar>
-  <ApiClient v-bind="config" />
+  <div class="client-page">
+    <DevToolbar><DevApiClientOptions v-model="config" /></DevToolbar>
+    <ApiClient v-bind="config" />
+  </div>
 </template>
+<style scoped>
+.client-page {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  width: 100dvw;
+}
+</style>

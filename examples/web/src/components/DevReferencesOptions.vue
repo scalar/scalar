@@ -60,6 +60,12 @@ watch([enableCollaborativeEditingRef, collaborativeEditingDocumentRef], () => {
     showSidebar
   </div>
   <div>
+    proxy:
+    <input
+      v-model="configuration.proxy"
+      type="text" />
+  </div>
+  <div>
     Theme:
     <select v-model="configuration.theme">
       <option

@@ -9,7 +9,7 @@ import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 import content from '../fixtures/petstorev3.json'
 
 const configuration = reactive<ReferenceConfiguration>({
-  proxy: 'http://localhost:5051',
+  proxy: import.meta.env.VITE_REQUEST_PROXY_URL,
   isEditable: false,
   spec: { content },
 })
