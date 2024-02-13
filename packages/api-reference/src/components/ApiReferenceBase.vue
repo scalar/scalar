@@ -7,9 +7,9 @@ import {
 } from '@scalar/swagger-editor'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { FlowModal, useModal } from '@scalar/use-modal'
-import { FlowToastContainer } from '@scalar/use-toasts'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, ref, watch } from 'vue'
+import { Toaster } from 'vue-sonner'
 
 import { deepMerge } from '../helpers'
 import { useParser, useSnippetTargets, useSpec } from '../hooks'
@@ -145,7 +145,21 @@ if (props.configuration?.authentication) {
     {{ currentConfiguration.customCss }}
   </component>
   <ThemeStyles :id="currentConfiguration?.theme" />
-  <FlowToastContainer />
+  <Toaster
+    :toastOptions="{
+      style: {
+        'padding': '18px',
+        'background':
+          'var(--theme-background-1, var(--default-theme-background-1))',
+        'border-color':
+          'var(--theme-background-3, var(--default-theme-background-3))',
+        'border-radius':
+          'var(--theme-radius-lg, var(--default-theme-radius-lg))',
+        'font-size':
+          'var(--theme-font-size-3, var(--default-theme-font-size-3))',
+        'color': 'var(--theme-color-1, var(--default-theme-color-1))',
+      },
+    }" />
   <FlowModal
     :state="gettingStartedModal"
     title=""
