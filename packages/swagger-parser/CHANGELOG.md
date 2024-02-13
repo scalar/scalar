@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.5.16
+
+### Patch Changes
+
+- 92a8b9f: chore: update dependencies
+
 ## 0.5.15
 
 ### Patch Changes

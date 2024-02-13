@@ -1,5 +1,11 @@
 # @scalar/echo-server
 
+## 0.5.9
+
+### Patch Changes
+
+- 92a8b9f: chore: update dependencies
+
 ## 0.5.8
 
 ### Patch Changes

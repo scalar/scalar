@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 0.12.0
+
+### Minor Changes
+
+- e0faebb: feat: add show more button to request variables and path params
+
+### Patch Changes
+
+- 92a8b9f: chore: update dependencies
+- abfb086: chore: remove unused CodeMirror CSS
+- 76f4041: chore: remove unused code
+- Updated dependencies [92a8b9f]
+- Updated dependencies [abfb086]
+  - @scalar/use-keyboard-event@0.5.9
+  - @scalar/use-codemirror@0.8.4
+  - @scalar/components@0.2.3
+  - @scalar/use-modal@0.2.4
+  - @scalar/themes@0.5.5
+
 ## 0.11.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.5.14
+
+### Patch Changes
+
+- 92a8b9f: chore: update dependencies
+
 ## 0.5.13
 
 ### Patch Changes

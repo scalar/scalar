@@ -1,5 +1,16 @@
 # @scalar/swagger-editor
 
+## 0.10.5
+
+### Patch Changes
+
+- 92a8b9f: chore: update dependencies
+- Updated dependencies [92a8b9f]
+- Updated dependencies [abfb086]
+  - @scalar/use-codemirror@0.8.4
+  - @scalar/components@0.2.3
+  - @scalar/themes@0.5.5
+
 ## 0.10.4
 
 ### Patch Changes
