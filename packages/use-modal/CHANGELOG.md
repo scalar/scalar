@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.2.4
+
+### Patch Changes
+
+- 92a8b9f: chore: update dependencies
+
 ## 0.2.3
 
 ### Patch Changes

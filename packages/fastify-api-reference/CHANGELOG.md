@@ -1,5 +1,15 @@
 # @scalar/fastify-api-reference
 
+## 1.16.0
+
+### Minor Changes
+
+- e0faebb: feat: add show more button to request variables and path params
+
+### Patch Changes
+
+- 92a8b9f: chore: update dependencies
+
 ## 1.15.5
 
 ### Patch Changes

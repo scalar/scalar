@@ -1,5 +1,16 @@
 # @scalar/nestjs-api-reference
 
+## 0.1.48
+
+### Patch Changes
+
+- 92a8b9f: chore: update dependencies
+- Updated dependencies [e0faebb]
+- Updated dependencies [92a8b9f]
+- Updated dependencies [230f9fb]
+- Updated dependencies [77c62d3]
+  - @scalar/api-reference@1.16.0
+
 ## 0.1.47
 
 ### Patch Changes

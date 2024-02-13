@@ -1,5 +1,31 @@
 # @scalar/api-reference
 
+## 1.16.0
+
+### Minor Changes
+
+- e0faebb: feat: add show more button to request variables and path params
+
+### Patch Changes
+
+- 92a8b9f: chore: update dependencies
+- 230f9fb: feat: prefill the authentication data
+- 77c62d3: fix: path isn’t prefixed (https://github.com/scalar/scalar/issues/937)
+- Updated dependencies [e0faebb]
+- Updated dependencies [92a8b9f]
+- Updated dependencies [abfb086]
+- Updated dependencies [76f4041]
+  - @scalar/api-client@0.12.0
+  - @scalar/use-keyboard-event@0.5.9
+  - @scalar/swagger-editor@0.10.5
+  - @scalar/swagger-parser@0.5.16
+  - @scalar/use-codemirror@0.8.4
+  - @scalar/use-tooltip@0.5.9
+  - @scalar/components@0.2.3
+  - @scalar/use-toasts@0.5.14
+  - @scalar/use-modal@0.2.4
+  - @scalar/themes@0.5.5
+
 ## 1.15.6
 
 ### Patch Changes

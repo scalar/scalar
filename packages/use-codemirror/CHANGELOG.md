@@ -1,5 +1,12 @@
 # @scalar/use-codemirror
 
+## 0.8.4
+
+### Patch Changes
+
+- 92a8b9f: chore: update dependencies
+- abfb086: chore: remove unused CodeMirror CSS
+
 ## 0.8.3
 
 ### Patch Changes

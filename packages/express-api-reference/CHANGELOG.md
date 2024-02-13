@@ -1,5 +1,16 @@
 # @scalar/express-api-reference
 
+## 0.2.49
+
+### Patch Changes
+
+- 92a8b9f: chore: update dependencies
+- Updated dependencies [e0faebb]
+- Updated dependencies [92a8b9f]
+- Updated dependencies [230f9fb]
+- Updated dependencies [77c62d3]
+  - @scalar/api-reference@1.16.0
+
 ## 0.2.48
 
 ### Patch Changes
