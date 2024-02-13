@@ -121,16 +121,16 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
     v-if="loading"
     class="loader"></div>
   <div
-    class="scalar-api-client__address-bar"
-    :class="{ 'scalar-api-client__address-bar__on': showHistory }">
-    <div class="scalar-api-client__url-form">
-      <div class="scalar-api-client__field">
+    class="address-bar"
+    :class="{ 'address-bar--with-history': showHistory }">
+    <div class="url-form">
+      <div class="url-form-field">
         <RequestMethodSelect
           :readOnly="readOnly"
           :requestMethod="requestType"
           @change="handleRequestMethodChanged" />
         <CodeMirror
-          class="scalar-api-client__url-input"
+          class="url-form-input"
           :content="formattedUrl"
           disableEnter
           :readOnly="readOnly"
@@ -139,7 +139,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
           @change="onChange" />
       </div>
       <button
-        class="scalar-api-client__send-request-button"
+        class="send-button"
         :disabled="!formattedUrl.trim().length"
         type="submit"
         @click="send">
@@ -162,9 +162,9 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
       </button>
     </div>
     <div
-      class="scalar-api-client__address-bar__close"
+      class="address-bar-close"
       @click="showHistory = false" />
-    <div class="scalar-api-client__address-bar__content">
+    <div class="address-bar-content">
       <FlowModal
         :state="historyModal"
         title="Request History"
@@ -177,9 +177,9 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
 
     <div
       v-if="requestHistoryOrder.length"
-      class="scalar-api-client__history">
+      class="history">
       <div
-        class="scalar-api-client__history-toggle"
+        class="history-toggle"
         @click="historyModal.show()">
         <svg
           fill="none"
@@ -233,7 +233,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
     width: 100%;
   }
 }
-.scalar-api-client__address-bar {
+.address-bar {
   width: 100%;
   padding: 12px 12px 10px 12px;
   display: flex;
@@ -241,17 +241,17 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   position: relative;
   background: var(--theme-background-1, var(--default-theme-background-1));
 }
-.scalar-api-client__url-form {
+.url-form {
   display: flex;
   width: 100%;
   align-items: stretch;
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
-.scalar-api-client__url-form:deep(.cm-content) {
+.url-form:deep(.cm-content) {
   display: flex;
   align-items: center;
 }
-.scalar-api-client__field {
+.url-form-field {
   border-right: 0;
   background: var(--theme-background-2, var(--default-theme-background-2));
   border-radius: var(--theme-radius, var(--default-theme-radius)) 0 0
@@ -262,15 +262,15 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   overflow: hidden;
   min-height: 31px;
 }
-.scalar-api-client__url-input {
+.url-form-input {
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
-.scalar-api-client__url-input {
+.url-form-input {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   min-height: auto;
   padding-top: 0;
 }
-.scalar-api-client__history {
+.history {
   appearance: none;
   -webkit-appearance: none;
   background: transparent;
@@ -281,7 +281,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   height: 100%;
 }
 
-.scalar-api-client__send-request-button[type='submit'] {
+.send-button[type='submit'] {
   font-size: var(--theme-micro, var(--default-theme-micro));
   letter-spacing: 0.25px;
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
@@ -306,7 +306,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   overflow: hidden;
   flex-shrink: 0;
 }
-.scalar-api-client__send-request-button:before {
+.send-button:before {
   content: '';
   position: absolute;
   top: -5%;
@@ -318,10 +318,10 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   border-radius: var(--theme-radius, var(--default-theme-radius));
   background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2));
 }
-.scalar-api-client__send-request-button:hover:before {
+.send-button:hover:before {
   background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1));
 }
-.scalar-api-client__send-request-button svg {
+.send-button svg {
   width: 12px;
   height: 12px;
   flex-shrink: 0;
@@ -329,26 +329,26 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   position: relative;
 }
 
-.scalar-api-client__send-request-button span {
+.send-button span {
   position: relative;
 }
 @media screen and (max-width: 720px) {
-  .scalar-api-client__history-toggle span,
-  .scalar-api-client__send-request-button span {
+  .history-toggle span,
+  .send-button span {
     display: none;
   }
-  .scalar-api-client__history-toggle svg,
-  .scalar-api-client__send-request-button svg {
+  .history-toggle svg,
+  .send-button svg {
     margin-right: 0;
   }
 }
-.scalar-api-client__send-request-button[disabled] {
+.send-button[disabled] {
   pointer-events: none;
   color: var(--theme-color-2, var(--default-theme-color-2));
   background: var(--theme-background-3, var(--default-theme-background-3));
   border: 1px solid var(--default-theme-border-color);
 }
-.scalar-api-client__history-toggle {
+.history-toggle {
   padding: 0 12px;
   line-height: 30px;
   color: var(--theme-color-3, var(--default-theme-color-3));
@@ -367,16 +367,16 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   border-radius: var(--theme-radius, var(--default-theme-radius));
   user-select: none;
 }
-.scalar-api-client__history-toggle:hover {
+.history-toggle:hover {
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
-.scalar-api-client__history-toggle svg {
+.history-toggle svg {
   height: 13px;
   width: 13px;
   margin-right: 6px;
   color: var(--theme-color-3, var(--default-theme-color-3));
 }
-.scalar-api-client__address-bar__content {
+.address-bar-content {
   width: 640px;
   height: 100%;
   background: var(--theme-background-1, var(--default-theme-background-1));
@@ -391,21 +391,21 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
     opacity 0.01s ease-in-out 0.5s;
   pointer-events: none;
 }
-.scalar-api-client__address-bar__on {
+.address-bar--with-history {
   z-index: 100000;
 }
-.scalar-api-client__address-bar__on .scalar-api-client__address-bar__content {
+.address-bar--with-history .address-bar-content {
   transform: translate3d(0, 0, 0);
   opacity: 1;
   pointer-events: all;
   transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
 }
-.scalar-api-client__address-bar__on .scalar-api-client__address-bar__close {
+.address-bar--with-history .address-bar-close {
   opacity: 1;
   pointer-events: all;
   cursor: pointer;
 }
-.scalar-api-client__address-bar__close {
+.address-bar-close {
   width: 100%;
   height: 100%;
   position: fixed;
