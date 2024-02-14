@@ -38,7 +38,10 @@ const props = defineProps<CardContentProps>()
 
 .scalar-card-header-title {
   text-transform: uppercase;
-  word-break: break-all;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .scalar-card-header-actions {

@@ -31,5 +31,9 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
   font-size: var(--theme-small, var(--default-theme-small));
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   padding: 10px 12px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

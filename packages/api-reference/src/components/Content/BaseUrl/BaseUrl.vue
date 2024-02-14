@@ -133,6 +133,8 @@ watch(
   position: relative;
   display: flex;
   align-items: center;
+  min-width: 0;
+  overflow: hidden;
   gap: 2px;
   color: var(--theme-color-2, var(--default-theme-color-2));
 }
