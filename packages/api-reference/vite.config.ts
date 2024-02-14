@@ -11,17 +11,6 @@ export default defineConfig({
     'process.env.NODE_ENV': '"production"',
   },
   plugins: [vue(), cssInjectedByJsPlugin(), webpackStats()],
-  optimizeDeps: {
-    // Otherwise the packages are bundled twice 🤔
-    exclude: [
-      'hasown',
-      'get-intrinsic',
-      'define-data-property',
-      'call-bind',
-      'set-function-length',
-      'has-tostringtag',
-    ],
-  },
   build: {
     emptyOutDir: true,
     cssCodeSplit: false,
