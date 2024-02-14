@@ -2,12 +2,13 @@
 import { CodeMirror } from '@scalar/use-codemirror'
 import { FlowModal, useModal } from '@scalar/use-modal'
 import { useMagicKeys, whenever } from '@vueuse/core'
-// import { useMediaQuery } from '@vueuse/core'
-import TimeAgo from 'javascript-time-ago'
-import en from 'javascript-time-ago/locale/en'
 import { computed, ref } from 'vue'
 
-import { prepareClientRequestConfig, sendRequest } from '../../helpers'
+import {
+  humanDiff,
+  prepareClientRequestConfig,
+  sendRequest,
+} from '../../helpers'
 import { useRequestStore } from '../../stores/requestStore'
 import RequestHistory from './RequestHistory.vue'
 import RequestMethodSelect from './RequestMethodSelect.vue'
@@ -22,9 +23,6 @@ const emits = defineEmits<{
 
 const keys = useMagicKeys()
 whenever(keys.meta_enter, send)
-
-TimeAgo.addLocale(en)
-const timeAgo = new TimeAgo('en-US')
 
 const showHistory = ref(false)
 const loading = ref(false)
@@ -85,7 +83,7 @@ async function send() {
 const lastRequestTimestamp = computed(() => {
   const lastRequestKey = requestHistoryOrder.value[0]
   return requestHistory[lastRequestKey]
-    ? timeAgo.format(requestHistory[lastRequestKey].sentTime)
+    ? humanDiff(requestHistory[lastRequestKey].sentTime)
     : 'History'
 })
 
