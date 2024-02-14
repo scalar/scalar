@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type SwaggerEditor } from '@scalar/swagger-editor'
+// import { type SwaggerEditor } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
@@ -13,14 +13,14 @@ import type {
 } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
-import GettingStarted from './GettingStarted.vue'
+// import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
 
 const props = defineProps<{
   configuration: ReferenceConfiguration
   parsedSpec: Spec
   rawSpec: string
-  swaggerEditorRef?: null | typeof SwaggerEditor
+  // swaggerEditorRef?: null | typeof SwaggerEditor
 }>()
 
 defineEmits<{
@@ -73,16 +73,14 @@ watch(props.parsedSpec, async (val) => {
   }, 0)
 })
 
-const showRenderedContent = computed(
-  () => isLargeScreen.value || !props.configuration.isEditable,
-)
+const showRenderedContent = computed(() => isLargeScreen.value)
 
-const showSwaggerEditor = computed(() => {
-  return (
-    !props.configuration.spec?.preparsedContent &&
-    props.configuration?.isEditable
-  )
-})
+// const showSwaggerEditor = computed(() => {
+//   return (
+//     !props.configuration.spec?.preparsedContent &&
+//     props.configuration?.isEditable
+//   )
+// })
 
 // To clear hash when scrolled to the top
 const debouncedScroll = useDebounceFn((value) => {
@@ -109,7 +107,7 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
     class="scalar-api-reference references-layout"
     :class="[
       {
-        'references-editable': showSwaggerEditor,
+        // 'references-editable': showSwaggerEditor,
         'references-sidebar': configuration.showSidebar,
         'references-classic': configuration.layout === 'classic',
       },
@@ -143,7 +141,7 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
       </div>
     </aside>
     <!-- Swagger file editing -->
-    <div
+    <!-- <div
       v-show="showSwaggerEditor"
       class="references-editor">
       <div class="references-editor-textarea">
@@ -151,7 +149,7 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
           v-bind="referenceSlotProps"
           name="editor" />
       </div>
-    </div>
+    </div> -->
     <!-- Rendered reference -->
     <template v-if="showRenderedContent">
       <div class="references-rendered">
@@ -164,7 +162,7 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
               v-bind="referenceSlotProps"
               name="content-start" />
           </template>
-          <template
+          <!-- <template
             v-if="configuration?.isEditable"
             #empty-state>
             <GettingStarted
@@ -173,7 +171,7 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
               @changeTheme="$emit('changeTheme', $event)"
               @openSwaggerEditor="swaggerEditorRef?.handleOpenSwaggerEditor"
               @updateContent="$emit('updateContent', $event)" />
-          </template>
+          </template> -->
           <template #end>
             <slot
               v-bind="referenceSlotProps"

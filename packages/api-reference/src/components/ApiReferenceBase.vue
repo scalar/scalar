@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import {
-  HeaderTabButton,
-  ResetStyles,
-  type SwaggerEditor,
-  type SwaggerEditorInputProps,
-} from '@scalar/swagger-editor'
+// TODO: Let’s move the `ResetStyles` component somewhere else!
+// import {
+//   HeaderTabButton,
+//   ResetStyles,
+//   type SwaggerEditor,
+//   type SwaggerEditorInputProps,
+// } from '@scalar/swagger-editor'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
-import { FlowModal, useModal } from '@scalar/use-modal'
+// import { FlowModal, useModal } from '@scalar/use-modal'
 import { FlowToastContainer } from '@scalar/use-toasts'
-import { useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, defineAsyncComponent, ref, watch } from 'vue'
+// useMediaQuery
+import { useResizeObserver } from '@vueuse/core'
+// defineAsyncComponent
+import { computed, ref, watch } from 'vue'
 
 import { deepMerge } from '../helpers'
 import { useParser, useSnippetTargets, useSpec } from '../hooks'
@@ -24,7 +27,8 @@ import {
   type Spec,
 } from '../types'
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
-import GettingStarted from './GettingStarted.vue'
+
+// import GettingStarted from './GettingStarted.vue'
 
 const props = defineProps<ReferenceProps>()
 
@@ -39,18 +43,17 @@ defineOptions({
 
 type ReferenceSlot = Exclude<ReferenceLayoutSlot, 'editor'>
 
-const slots = defineSlots<
-  {
-    [x in ReferenceSlot]: (props: ReferenceSlotProps) => any
-  } & { 'editor-input': SwaggerEditorInputProps }
->()
+const slots = defineSlots<{
+  [x in ReferenceSlot]: (props: ReferenceSlotProps) => any
+}>()
+// & { 'editor-input': SwaggerEditorInputProps }
 
 /**
  * The editor component has heavy dependencies (process), let's lazy load it.
  */
-const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
-  import('@scalar/swagger-editor').then((module) => module.SwaggerEditor),
-)
+// const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
+//   import('@scalar/swagger-editor').then((module) => module.SwaggerEditor),
+// )
 
 /** Merge the default configuration with the given configuration. */
 const currentConfiguration = computed(
@@ -70,7 +73,7 @@ const { rawSpecRef, setRawSpecRef } = useSpec({
 })
 
 // Parse the content
-const { parsedSpecRef, overwriteParsedSpecRef, errorRef } = useParser({
+const { parsedSpecRef, overwriteParsedSpecRef } = useParser({
   input: rawSpecRef,
 })
 
@@ -116,20 +119,20 @@ useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height
 })
 
-const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
+// const swaggerEditorRef = ref<typeof SwaggerEditor | undefined>()
 
-const gettingStartedModal = useModal()
+// const gettingStartedModal = useModal()
 
-function handleGettingStarted() {
-  gettingStartedModal.show()
-}
+// function handleGettingStarted() {
+//   gettingStartedModal.show()
+// }
 
-function handleCloseModal(passThrough: () => void) {
-  gettingStartedModal.hide()
-  passThrough()
-}
+// function handleCloseModal(passThrough: () => void) {
+//   gettingStartedModal.hide()
+//   passThrough()
+// }
 
-const isMobile = useMediaQuery('(max-width: 1000px)')
+// const isMobile = useMediaQuery('(max-width: 1000px)')
 
 // Prefill authentication
 const { setAuthentication } = useGlobalStore()
@@ -146,7 +149,7 @@ if (props.configuration?.authentication) {
   </component>
   <ThemeStyles :id="currentConfiguration?.theme" />
   <FlowToastContainer />
-  <FlowModal
+  <!-- <FlowModal
     :state="gettingStartedModal"
     title=""
     variant="history">
@@ -156,26 +159,26 @@ if (props.configuration?.authentication) {
       @changeTheme="$emit('changeTheme', $event)"
       @openSwaggerEditor="gettingStartedModal.hide()"
       @updateContent="handleCloseModal(() => setRawSpecRef($event))" />
-  </FlowModal>
-  <ResetStyles v-slot="{ styles }">
-    <ApiReferenceLayout
-      v-bind="$attrs"
-      :class="styles"
-      :configuration="currentConfiguration"
-      :parsedSpec="parsedSpecRef"
-      :rawSpec="rawSpecRef"
-      :swaggerEditorRef="swaggerEditorRef"
-      @changeTheme="$emit('changeTheme', $event)"
-      @updateContent="(newContent: string) => setRawSpecRef(newContent)">
-      <!-- Passes up all the slots except `editor` with typed slot props -->
-      <template
-        v-for="(_, name) in slots"
-        #[name]="scope">
-        <slot
-          :name="name"
-          v-bind="scope" />
-      </template>
-      <template
+  </FlowModal> -->
+  <!-- <ResetStyles v-slot="{ styles }"> -->
+  <!-- :class="styles" -->
+  <!-- :swaggerEditorRef="swaggerEditorRef" -->
+  <ApiReferenceLayout
+    v-bind="$attrs"
+    :configuration="currentConfiguration"
+    :parsedSpec="parsedSpecRef"
+    :rawSpec="rawSpecRef"
+    @changeTheme="$emit('changeTheme', $event)"
+    @updateContent="(newContent: string) => setRawSpecRef(newContent)">
+    <!-- Passes up all the slots except `editor` with typed slot props -->
+    <template
+      v-for="(_, name) in slots"
+      #[name]="scope">
+      <slot
+        :name="name"
+        v-bind="scope" />
+    </template>
+    <!-- <template
         v-if="LazyLoadedSwaggerEditor"
         #editor>
         <LazyLoadedSwaggerEditor
@@ -199,7 +202,7 @@ if (props.configuration?.authentication) {
               v-bind="editorInputProps" />
           </template>
         </LazyLoadedSwaggerEditor>
-      </template>
-    </ApiReferenceLayout>
-  </ResetStyles>
+      </template> -->
+  </ApiReferenceLayout>
+  <!-- </ResetStyles> -->
 </template>

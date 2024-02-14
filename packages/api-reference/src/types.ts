@@ -17,7 +17,11 @@ export type ReferenceConfiguration = {
   spec?: SpecConfiguration
   /** URL to a request proxy for the API client */
   proxy?: string
-  /** Whether the spec input should show */
+  /**
+   * Whether the spec input should show
+   * @deprecated We moved the editor to a different package.
+   * If you want to edit your OpenAPI files, use @scalar/api-reference-editor now.
+   **/
   isEditable?: boolean
   /** Whether to show the sidebar */
   showSidebar?: boolean

@@ -1,7 +1,7 @@
-import { fetchSpecFromUrl } from '@scalar/swagger-editor'
+// import { fetchSpecFromUrl } from '@scalar/swagger-editor'
 import { type ComputedRef, type Ref, isRef, ref, watch } from 'vue'
 
-import { isValidUrl } from '../helpers'
+// import { isValidUrl } from '../helpers'
 import type { SpecConfiguration } from '../types'
 
 /**
@@ -23,14 +23,18 @@ const getSpecContent = async (
   proxy?: string,
 ): Promise<string | undefined> => {
   if (url !== undefined && url.length > 0) {
-    if (!isValidUrl(url)) {
-      // if the url is not valid, we can assume its a path
-      // and if it's a path we don't need to fetch from a proxy
-      // since it's served with the file
-      return await fetchSpecFromUrl(url)
-    }
-    return await fetchSpecFromUrl(url, proxy)
+    // TODO: Move helper function to the API reference package
+    console.warn('IMPORT FROM URL NOT SUPPORTED RIGHT NOW')
   }
+  // if (url !== undefined && url.length > 0) {
+  //   if (!isValidUrl(url)) {
+  //     // if the url is not valid, we can assume its a path
+  //     // and if it's a path we don't need to fetch from a proxy
+  //     // since it's served with the file
+  //     return await fetchSpecFromUrl(url)
+  //   }
+  //   return await fetchSpecFromUrl(url, proxy)
+  // }
 
   if (typeof content === 'string') {
     return content

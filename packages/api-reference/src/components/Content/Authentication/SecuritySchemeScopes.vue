@@ -7,7 +7,7 @@ import {
   ListboxOptions,
 } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
-import { ResetStyles } from '@scalar/swagger-editor'
+// import { ResetStyles } from '@scalar/swagger-editor'
 import { computed, ref } from 'vue'
 
 import { Badge } from '../../../components/Badge'
@@ -58,33 +58,33 @@ const model = computed({
       </ListboxButton>
     </div>
     <Teleport to="body">
-      <ResetStyles v-slot="{ styles: resetStyles }">
-        <div
-          ref="dropdown"
-          class="floating"
-          :class="resetStyles"
-          :style="floatingStyles">
-          <ListboxOptions
-            as="dl"
-            class="dropdown">
-            <ListboxOption
-              v-for="[key, description] in Object.entries(scopes)"
-              :key="key"
-              v-slot="{ selected: s }"
-              as="div"
-              class="dropdown-item"
-              :value="key">
-              <input
-                :checked="s"
-                class="dropdown-item-check"
-                tabindex="-1"
-                type="checkbox" />
-              <dt class="dropdown-item-title">{{ key }}</dt>
-              <dd class="dropdown-item-description">{{ description }}</dd>
-            </ListboxOption>
-          </ListboxOptions>
-        </div>
-      </ResetStyles>
+      <!-- <ResetStyles v-slot="{ styles: resetStyles }"> -->
+      <!-- :class="resetStyles" -->
+      <div
+        ref="dropdown"
+        class="floating"
+        :style="floatingStyles">
+        <ListboxOptions
+          as="dl"
+          class="dropdown">
+          <ListboxOption
+            v-for="[key, description] in Object.entries(scopes)"
+            :key="key"
+            v-slot="{ selected: s }"
+            as="div"
+            class="dropdown-item"
+            :value="key">
+            <input
+              :checked="s"
+              class="dropdown-item-check"
+              tabindex="-1"
+              type="checkbox" />
+            <dt class="dropdown-item-title">{{ key }}</dt>
+            <dd class="dropdown-item-description">{{ description }}</dd>
+          </ListboxOption>
+        </ListboxOptions>
+      </div>
+      <!-- </ResetStyles> -->
     </Teleport>
   </Listbox>
 </template>
