@@ -874,6 +874,9 @@ importers:
       '@etchteam/storybook-addon-css-variables-theme':
         specifier: ^1.5.1
         version: 1.5.1(react-dom@18.2.0)(react@18.2.0)
+      '@rise8/tailwind-pixel-perfect-preset':
+        specifier: ^1.0.1
+        version: 1.0.1(tailwindcss@3.3.3)
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -5387,6 +5390,14 @@ packages:
       '@codemirror/state': 6.4.0
       '@codemirror/view': 6.23.1
     dev: false
+
+  /@rise8/tailwind-pixel-perfect-preset@1.0.1(tailwindcss@3.3.3):
+    resolution: {integrity: sha512-XFIMm3t21O2Ubb6c49aTqMm/neYzutijYvWKVwYXkeRS4mPn42WpeBJXcy6FWJcAGS8SfwulZGHVlvl+9wDNpQ==}
+    peerDependencies:
+      tailwindcss: ^3.0.0
+    dependencies:
+      tailwindcss: 3.3.3(ts-node@10.9.1)
+    dev: true
 
   /@rollup/plugin-inject@5.0.3(rollup@3.29.4):
     resolution: {integrity: sha512-411QlbL+z2yXpRWFXSmw/teQRMkXcAAC8aYTemc15gwJRpvEVDQwoe+N/HTFD8RFG8+88Bme9DK2V9CVm7hJdA==}

@@ -58,7 +58,7 @@ const { getOperationId } = useNavState()
         class="endpoint-copy"
         icon="Clipboard"
         label="Copy endpoint URL"
-        size="full"
+        size="sm"
         variant="ghost"
         @click.stop="copyToClipboard(operation.path)" />
     </template>
@@ -178,7 +178,6 @@ const { getOperationId } = useNavState()
 
 .endpoint-copy {
   opacity: 0.44;
-  height: 14px;
 }
 .endpoint-copy:hover {
   opacity: 1;

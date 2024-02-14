@@ -146,7 +146,7 @@ onMounted(() => {
     <span
       :class="
         cx(
-          'helper-text mt-1.5 flex items-center text-xs text-error before:rounded-full before:font-black',
+          'helper-text before:rounded-full mt-1.5 flex items-center text-xs text-error before:font-black',
           'before:mr-1.5 before:block before:h-4 before:w-4 before:text-center before:text-xxs before:leading-4',
           `before:bg-error before:text-white before:content-['!'] empty:hidden`,
         )
