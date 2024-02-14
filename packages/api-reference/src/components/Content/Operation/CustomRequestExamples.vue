@@ -135,6 +135,7 @@ const { copyToClipboard } = useClipboard()
 .request-method {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
   text-transform: uppercase;
+  white-space: nowrap;
 }
 .request-client-picker {
   padding-left: 12px;
