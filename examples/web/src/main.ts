@@ -3,9 +3,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import App from './App.vue'
 import ApiClientPage from './pages/ApiClientPage.vue'
+import ApiReferenceEditorPage from './pages/ApiReferenceEditorPage.vue'
 import ApiReferencePage from './pages/ApiReferencePage.vue'
 import ClassicApiReferencePage from './pages/ClassicApiReferencePage.vue'
-import EditableApiReferencePage from './pages/EditableApiReferencePage.vue'
 import EmbeddedApiReferencePage from './pages/EmbeddedApiReferencePage.vue'
 import StandaloneApiReferencePage from './pages/StandaloneApiReferencePage.vue'
 import StartPage from './pages/StartPage.vue'
@@ -36,9 +36,9 @@ const routes = [
     component: EmbeddedApiReferencePage,
   },
   {
-    path: '/editable-api-reference',
-    name: 'editable-api-reference',
-    component: EditableApiReferencePage,
+    path: '/api-reference-editor',
+    name: 'api-reference-editor',
+    component: ApiReferenceEditorPage,
   },
   {
     path: '/swagger-editor',

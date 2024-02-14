@@ -35,16 +35,17 @@ import PageLink from '../components/PageLink.vue'
           born today.
         </template>
       </PageLink>
-      <PageLink to="embedded-api-reference">
-        <template #title>Embedded API Reference</template>
+      <PageLink to="api-reference-editor">
+        <template #title>API Reference Editor</template>
         <template #description>
-          API documentation within a pre-existing website.
+          Edit your OpenAPI file *in the browser* with our OpenAPI editor.
+          Mindblowing, I know.
         </template>
       </PageLink>
-      <PageLink to="editable-api-reference">
-        <template #title>Editable API Reference</template>
+      <PageLink to="embedded-api-reference">
+        <template #title>API Reference Embed</template>
         <template #description>
-          Interactive API documentation with real-time editing.
+          API documentation within a pre-existing website, still looks awesome.
         </template>
       </PageLink>
     </div>

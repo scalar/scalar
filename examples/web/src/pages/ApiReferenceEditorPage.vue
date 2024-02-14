@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {
-  ApiReference,
+  ApiReferenceEditor,
   type ReferenceConfiguration,
-} from '@scalar/api-reference'
+} from '@scalar/api-reference-editor'
 import { reactive } from 'vue'
 
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
@@ -14,9 +14,9 @@ const configuration = reactive<ReferenceConfiguration>({
 })
 </script>
 <template>
-  <ApiReference
+  <ApiReferenceEditor
     :configuration="configuration"
     @changeTheme="configuration.theme = $event">
     <template #footer><SlotPlaceholder>footer</SlotPlaceholder></template>
-  </ApiReference>
+  </ApiReferenceEditor>
 </template>
