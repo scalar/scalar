@@ -46,8 +46,14 @@ useResizeObserver(documentEl, (entries) => {
 
 // Scroll to hash if exists
 const initiallyScrolled = ref(false)
-const { breadcrumb } = useSidebar()
-const { enableHashListener, hash, isIntersectionEnabled } = useNavState()
+const { breadcrumb, setCollapsedSidebarItem } = useSidebar()
+const {
+  enableHashListener,
+  getSectionId,
+  getTagId,
+  hash,
+  isIntersectionEnabled,
+} = useNavState()
 
 enableHashListener()
 
@@ -58,6 +64,17 @@ onMounted(() => {
       left: 0,
     })
     isIntersectionEnabled.value = true
+
+    // Ensure first section is open for SSG
+    if (props.parsedSpec.tags?.[0]) {
+      const firstTag = props.parsedSpec.tags?.[0]
+      if (firstTag) setCollapsedSidebarItem(getTagId(firstTag), true)
+    }
+  }
+  // Ensure hash section is open for SSG
+  else {
+    const hashSectionId = getSectionId(hash.value)
+    if (hashSectionId) setCollapsedSidebarItem(hashSectionId, true)
   }
 })
 

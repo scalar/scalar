@@ -78,17 +78,17 @@ const lazyIndexOperation = ref<number | null>(null)
 
 watch(
   () => props.parsedSpec.tags?.length,
-  () => {
+  (tagsLength) => {
     lazyIndexOperation.value = 0
     lazyIndexTag.value = 0
 
-    if (!hash.value || !props.parsedSpec.tags?.length) return
+    if (!hash.value || !tagsLength || !props.parsedSpec.tags) return
 
     const sectionId = getSectionId()
 
     // If models, don't lazy load any tags
     if (sectionId === 'models') {
-      lazyIndexTag.value = props.parsedSpec.tags.length ?? 0
+      lazyIndexTag.value = tagsLength ?? 0
     }
 
     // Lazy load until specific tag
@@ -114,6 +114,7 @@ watch(
       }
     }
   },
+  { immediate: true },
 )
 </script>
 <template>

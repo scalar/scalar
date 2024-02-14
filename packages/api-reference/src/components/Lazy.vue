@@ -13,6 +13,7 @@ import { nextTick, ref } from 'vue'
 
 /**
  * Component which loads lazily when the browser is "idle"
+ * Disabled if being rendered from the server
  *
  * @link https://medium.com/js-dojo/lazy-rendering-in-vue-to-improve-performance-dcccd445d5f
  */
