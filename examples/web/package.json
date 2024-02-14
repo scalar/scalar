@@ -20,6 +20,7 @@
   "dependencies": {
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
+    "@scalar/api-reference-editor": "workspace:*",
     "@scalar/swagger-editor": "workspace:*",
     "@scalar/themes": "workspace:*",
     "vue": "^3.3.0",
