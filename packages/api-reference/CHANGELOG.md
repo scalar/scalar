@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.16.1
+
+### Patch Changes
+
+- 997568b: fix: wrapping of url on request snippet url
+
 ## 1.16.0
 
 ### Minor Changes
