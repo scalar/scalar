@@ -48,7 +48,6 @@
     "@scalar/components": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
-    "@scalar/use-keyboard-event": "workspace:*",
     "@scalar/use-modal": "workspace:*",
     "@vueuse/core": "^10.4.1",
     "axios": "^1.6.5",

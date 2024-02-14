@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
-import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { FlowModal, type ModalState } from '@scalar/use-modal'
+import { useMagicKeys, whenever } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import type { OpenAPIV3_1 } from 'openapi-types'
 import { computed, ref, toRef, watch } from 'vue'
@@ -13,6 +13,8 @@ import type { Spec, TransformedOperation } from '../types'
 
 const props = defineProps<{ parsedSpec: Spec; modalState: ModalState }>()
 const reactiveSpec = toRef(props, 'parsedSpec')
+
+const keys = useMagicKeys()
 
 type FuseData = {
   title: string
@@ -184,55 +186,64 @@ watch(
   { immediate: true },
 )
 
-useKeyboardEvent({
-  element: searchModalRef,
-  keyList: ['enter'],
-  active: () => props.modalState.open,
-  handler: () => {
-    if (!window) return
-    onSearchResultClick(selectedEntry.value)
-    window.location.hash = selectedEntry.value.item.href
-    props.modalState.hide()
-  },
+whenever(keys.enter, () => {
+  if (!props.modalState.open) {
+    return
+  }
+
+  if (!window) {
+    return
+  }
+
+  onSearchResultClick(selectedEntry.value)
+  window.location.hash = selectedEntry.value.item.href
+  props.modalState.hide()
 })
 
-useKeyboardEvent({
-  element: searchModalRef,
-  keyList: ['ArrowDown'],
-  active: () => props.modalState.open,
-  handler: () => {
-    if (
-      selectedSearchResult.value <
+whenever(keys.ArrowDown, () => {
+  if (!props.modalState.open) {
+    return
+  }
+
+  if (!window) {
+    return
+  }
+
+  if (
+    selectedSearchResult.value <
+    searchResultsWithPlaceholderResults.value.length - 1
+  ) {
+    selectedSearchResult.value++
+  } else {
+    selectedSearchResult.value = 0
+  }
+
+  document.getElementById(selectedEntry.value.item.href)?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center',
+  })
+})
+
+whenever(keys.ArrowUp, () => {
+  if (!props.modalState.open) {
+    return
+  }
+
+  if (!window) {
+    return
+  }
+
+  if (selectedSearchResult.value > 0) {
+    selectedSearchResult.value--
+  } else {
+    selectedSearchResult.value =
       searchResultsWithPlaceholderResults.value.length - 1
-    ) {
-      selectedSearchResult.value++
-    } else {
-      selectedSearchResult.value = 0
-    }
-    document.getElementById(selectedEntry.value.item.href)?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-    })
-  },
-})
+  }
 
-useKeyboardEvent({
-  element: searchModalRef,
-  keyList: ['ArrowUp'],
-  active: () => props.modalState.open,
-  handler: () => {
-    if (selectedSearchResult.value > 0) {
-      selectedSearchResult.value--
-    } else {
-      selectedSearchResult.value =
-        searchResultsWithPlaceholderResults.value.length - 1
-    }
-
-    document.getElementById(selectedEntry.value.item.href)?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-    })
-  },
+  document.getElementById(selectedEntry.value.item.href)?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center',
+  })
 })
 
 const searchResultsWithPlaceholderResults = computed(

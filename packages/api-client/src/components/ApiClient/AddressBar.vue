@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CodeMirror } from '@scalar/use-codemirror'
-import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { FlowModal, useModal } from '@scalar/use-modal'
+import { useMagicKeys, whenever } from '@vueuse/core'
 // import { useMediaQuery } from '@vueuse/core'
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
@@ -19,6 +19,9 @@ const props = defineProps<{
 const emits = defineEmits<{
   (event: 'onSend'): void
 }>()
+
+const keys = useMagicKeys()
+whenever(keys.meta_enter, send)
 
 TimeAgo.addLocale(en)
 const timeAgo = new TimeAgo('en-US')
@@ -84,12 +87,6 @@ const lastRequestTimestamp = computed(() => {
   return requestHistory[lastRequestKey]
     ? timeAgo.format(requestHistory[lastRequestKey].sentTime)
     : 'History'
-})
-
-useKeyboardEvent({
-  keyList: ['enter'],
-  withCtrlCmd: true,
-  handler: send,
 })
 
 // TODO we need to not update the active request with these computed properties

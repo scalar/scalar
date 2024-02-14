@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import { useKeyboardEvent } from '@scalar/use-keyboard-event'
 import { useModal } from '@scalar/use-modal'
 import { isMacOS } from '@scalar/use-tooltip'
+import { useMagicKeys, whenever } from '@vueuse/core'
 
 import { type Spec } from '../types'
 import SearchModal from './SearchModal.vue'
@@ -19,11 +19,10 @@ const props = withDefaults(
 
 const modalState = useModal()
 
-useKeyboardEvent({
-  keyList: [props.searchHotKey],
-  withCtrlCmd: true,
-  handler: () => (modalState.open ? modalState.hide() : modalState.show()),
-})
+const keys = useMagicKeys()
+whenever(keys[`meta_${props.searchHotKey}`], () =>
+  modalState.open ? modalState.hide() : modalState.show(),
+)
 </script>
 <template>
   <button
