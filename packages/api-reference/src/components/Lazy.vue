@@ -33,7 +33,7 @@ const props = withDefaults(
 )
 
 const onIdle = (cb = () => {}) => {
-  if ('requestIdleCallback' in window) {
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
     setTimeout(() => window.requestIdleCallback(cb), props.lazyTimeout)
   } else {
     setTimeout(() => nextTick(cb), props.lazyTimeout ?? 300)
