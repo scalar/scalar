@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
 
-import { useNavState } from '../../hooks'
-import type { Tag } from '../../types'
+import { useNavState, useSidebar } from '../../hooks'
+import type { Tag, TransformedOperation } from '../../types'
 import { Anchor } from '../Anchor'
 import { Card, CardContent, CardHeader } from '../Card'
 import {
@@ -14,9 +14,22 @@ import {
 } from '../Section'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
-defineProps<{ id?: string; tag: Tag }>()
+const props = defineProps<{ id?: string; tag: Tag }>()
 
 const { getOperationId, getTagId } = useNavState()
+const { setCollapsedSidebarItem } = useSidebar()
+
+// We need to make sure the endpoint tag is open before
+// we try to scroll to it
+// we wait for next render after we open the tag
+// TODO move this to v2
+async function scrollHandler(operation: TransformedOperation) {
+  setCollapsedSidebarItem(getTagId(props.tag), true)
+
+  setTimeout(() => {
+    window.location.href = `#${getOperationId(operation, props.tag)}`
+  }, 0)
+}
 </script>
 <template>
   <Section
@@ -42,7 +55,8 @@ const { getOperationId, getTagId } = useNavState()
                 <a
                   v-for="operation in tag.operations"
                   :key="getOperationId(operation, tag)"
-                  class="endpoint">
+                  class="endpoint"
+                  @click="scrollHandler(operation)">
                   <HttpMethod :method="operation.httpVerb" />
                   <span>{{ operation.path }}</span>
                 </a>

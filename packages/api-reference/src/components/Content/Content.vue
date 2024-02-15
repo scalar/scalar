@@ -87,14 +87,10 @@ watch(
     deepLink.operationIndex = 0
     deepLink.tagsIndex = 0
 
-    if (!hash.value || !tagsLength || !props.parsedSpec.tags) return
+    if (!hash.value || typeof tagsLength !== 'number' || !props.parsedSpec.tags)
+      return
 
     const sectionId = getSectionId()
-
-    // If models, don't lazy load any tags
-    if (sectionId === 'models') {
-      deepLink.tagsIndex = tagsLength ?? 0
-    }
 
     // Lazy load until specific tag
     if (sectionId.startsWith('tag')) {
@@ -117,10 +113,8 @@ watch(
         )
         deepLink.operationIndex = operationIndex
       }
-    }
 
-    // Tags
-    if (sectionId.startsWith('tag')) {
+      // Add a few tags to the loading section
       const tag = props.parsedSpec.tags[deepLink.tagsIndex]
       deepLink.hideTag = sectionId !== hash.value && sectionId.startsWith('tag')
 
@@ -128,15 +122,9 @@ watch(
         ...tag,
         lazyOperations: tag.operations.slice(
           deepLink.operationIndex,
-          Math.min(deepLink.operationIndex + 2, tag.operations.length),
+          deepLink.operationIndex + 2,
         ),
       })
-
-      // TODO load the next tag or model
-    }
-    // Models
-    else {
-      console.log('load models')
     }
   },
   { immediate: true },
@@ -154,7 +142,7 @@ const unsubscribe = lazyBus.on(({ id }) => {
   setTimeout(() => {
     scrollToId(hashStr)
     deepLink.isLoading = false
-  }, 300)
+  }, 100)
 })
 </script>
 <template>
