@@ -76,17 +76,12 @@ const introCardsSlot = computed(() =>
 const deepLink = reactive({
   hideTag: false,
   isLoading: !!window.location.hash,
-  operationIndex: null as number | null,
-  tagsIndex: null as number | null,
   tags: [] as (Tag & { lazyOperations: TransformedOperation[] })[],
 })
 
 watch(
   () => props.parsedSpec.tags?.length,
   (tagsLength) => {
-    deepLink.operationIndex = 0
-    deepLink.tagsIndex = 0
-
     if (!hash.value || typeof tagsLength !== 'number' || !props.parsedSpec.tags)
       return
 
@@ -94,10 +89,11 @@ watch(
 
     // Lazy load until specific tag
     if (sectionId.startsWith('tag')) {
-      const tagIndex = props.parsedSpec.tags?.findIndex(
-        (tag) => getTagId(tag) === sectionId,
-      )
-      deepLink.tagsIndex = tagIndex ?? 0
+      let operationsIndex = 0
+      const tagsIndex =
+        props.parsedSpec.tags?.findIndex(
+          (tag) => getTagId(tag) === sectionId,
+        ) ?? 0
 
       // Lazy load until specific operation
       const operationMatches = hash.value.match(/tag\/([^/]+)\/([^/]+)\/(.+)/)
@@ -105,24 +101,23 @@ watch(
         const matchedVerb = operationMatches[2]
         const matchedPath = '/' + operationMatches[3]
 
-        const operationIndex = props.parsedSpec.tags[
-          deepLink.tagsIndex
+        operationsIndex = props.parsedSpec.tags[
+          tagsIndex
         ]?.operations.findIndex(
           ({ httpVerb, path }) =>
             matchedVerb === httpVerb && matchedPath === path,
         )
-        deepLink.operationIndex = operationIndex
       }
 
       // Add a few tags to the loading section
-      const tag = props.parsedSpec.tags[deepLink.tagsIndex]
+      const tag = props.parsedSpec.tags[tagsIndex]
       deepLink.hideTag = sectionId !== hash.value && sectionId.startsWith('tag')
 
       deepLink.tags.push({
         ...tag,
         lazyOperations: tag.operations.slice(
-          deepLink.operationIndex,
-          deepLink.operationIndex + 2,
+          operationsIndex,
+          operationsIndex + 2,
         ),
       })
     }
@@ -142,7 +137,7 @@ const unsubscribe = lazyBus.on(({ id }) => {
   setTimeout(() => {
     scrollToId(hashStr)
     deepLink.isLoading = false
-  }, 100)
+  }, 0)
 })
 </script>
 <template>
@@ -194,40 +189,31 @@ const unsubscribe = lazyBus.on(({ id }) => {
       v-else
       name="empty-state" />
     <template
-      v-if="
-        typeof deepLink.operationIndex === 'number' &&
-        typeof deepLink.tagsIndex === 'number'
-      ">
-      <template
-        v-for="(tag, index) in parsedSpec.tags"
-        :key="tag.id">
-        <Lazy
+      v-for="tag in parsedSpec.tags"
+      :key="tag.id">
+      <Lazy
+        :id="getTagId(tag)"
+        isLazy>
+        <Component
+          :is="tagLayout"
+          v-if="tag.operations && tag.operations.length > 0"
           :id="getTagId(tag)"
-          :isLazy="index > deepLink.tagsIndex">
-          <Component
-            :is="tagLayout"
-            v-if="tag.operations && tag.operations.length > 0"
-            :id="getTagId(tag)"
-            :spec="parsedSpec"
-            :tag="tag">
-            <Lazy
-              v-for="(operation, operationIndex) in tag.operations"
+          :spec="parsedSpec"
+          :tag="tag">
+          <Lazy
+            v-for="operation in tag.operations"
+            :id="getOperationId(operation, tag)"
+            :key="`${operation.httpVerb}-${operation.operationId}`"
+            isLazy>
+            <Component
+              :is="endpointLayout"
               :id="getOperationId(operation, tag)"
-              :key="`${operation.httpVerb}-${operation.operationId}`"
-              :isLazy="
-                index !== deepLink.tagsIndex ||
-                operationIndex > deepLink.operationIndex
-              ">
-              <Component
-                :is="endpointLayout"
-                :id="getOperationId(operation, tag)"
-                :operation="operation"
-                :server="localServers[0]"
-                :tag="tag" />
-            </Lazy>
-          </Component>
-        </Lazy>
-      </template>
+              :operation="operation"
+              :server="localServers[0]"
+              :tag="tag" />
+          </Lazy>
+        </Component>
+      </Lazy>
     </template>
     <template v-if="parsedSpec.webhooks">
       <Webhooks :webhooks="parsedSpec.webhooks" />
