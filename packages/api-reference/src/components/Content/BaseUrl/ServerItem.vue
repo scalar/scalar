@@ -53,5 +53,9 @@ const formattedServerUrl = computed(() => {
   display: inline-block;
   padding: 10px 0;
   font-size: var(--theme-micro, var(--default-theme-micro));
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 </style>

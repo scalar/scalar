@@ -136,13 +136,14 @@ const introCardsSlot = computed(() =>
   gap: 12px;
 }
 .introduction-cards-row {
-  flex-direction: row;
+  flex-flow: row wrap;
   gap: 24px;
   --default-theme-background-2: var(--default-theme-background-1);
   --theme-background-2: var(--theme-background-1);
 }
 .introduction-cards-row > * {
   flex: 1;
+  min-width: min-content;
 }
 .references-narrow .introduction-cards-row {
   flex-direction: column;

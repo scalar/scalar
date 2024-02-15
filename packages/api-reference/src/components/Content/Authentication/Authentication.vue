@@ -69,6 +69,9 @@ watch(
   </Card>
 </template>
 <style scoped>
+.authentication-header {
+  white-space: nowrap;
+}
 .authentication-content {
   padding: 9px;
 }
