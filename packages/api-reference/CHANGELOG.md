@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.16.2
+
+### Patch Changes
+
+- 4fb6af9: chore: remove use-keyboard-event package
+- dc7b97c: fix: resize classic intro cards for difference screen sizes
+- Updated dependencies [4fb6af9]
+  - @scalar/api-client@0.12.1
+
 ## 1.16.1
 
 ### Patch Changes
