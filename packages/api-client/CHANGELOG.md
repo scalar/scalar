@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.12.1
+
+### Patch Changes
+
+- 4fb6af9: chore: remove use-keyboard-event package
+
 ## 0.12.0
 
 ### Minor Changes
