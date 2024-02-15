@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { useNavState } from '../../../hooks'
-import type { Tag, TransformedOperation } from '../../../types'
+import type { TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { Badge } from '../../Badge'
 import {
@@ -20,11 +19,9 @@ import { PathResponses } from './PathResponses'
 import TryRequestButton from './TryRequestButton.vue'
 
 const props = defineProps<{
+  id?: string
   operation: TransformedOperation
-  tag: Tag
 }>()
-
-const { getOperationId } = useNavState()
 
 const customRequestExamples = computed(() => {
   const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples']
@@ -46,7 +43,7 @@ const customRequestExamples = computed(() => {
 </script>
 <template>
   <Section
-    :id="getOperationId(operation, tag)"
+    :id="id"
     :label="operation.name">
     <SectionContent>
       <SectionColumns>
@@ -54,7 +51,7 @@ const customRequestExamples = computed(() => {
           <Badge v-if="operation.information?.deprecated"> Deprecated </Badge>
           <div :class="operation.information?.deprecated ? 'deprecated' : ''">
             <SectionHeader :level="3">
-              <Anchor :id="getOperationId(operation, tag)">
+              <Anchor :id="id ?? ''">
                 {{ operation.name }}
               </Anchor>
             </SectionHeader>

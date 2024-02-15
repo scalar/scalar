@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
-import { nextTick } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
 import type { Tag, TransformedOperation } from '../../../types'
@@ -15,7 +14,7 @@ import {
   SectionHeader,
 } from '../../Section'
 
-const props = defineProps<{ tag: Tag }>()
+const props = defineProps<{ id?: string; tag: Tag }>()
 
 const { getOperationId, getTagId } = useNavState()
 const { setCollapsedSidebarItem } = useSidebar()
@@ -23,15 +22,18 @@ const { setCollapsedSidebarItem } = useSidebar()
 // We need to make sure the endpoint tag is open before
 // we try to scroll to it
 // we wait for next render after we open the tag
+// TODO in V2 we need to do the same loading trick as the initial load
 async function scrollHandler(operation: TransformedOperation) {
   setCollapsedSidebarItem(getTagId(props.tag), true)
-  await nextTick()
-  window.location.href = `#${getOperationId(operation, props.tag)}`
+
+  setTimeout(() => {
+    window.location.href = `#${getOperationId(operation, props.tag)}`
+  }, 0)
 }
 </script>
 <template>
   <Section
-    :id="getTagId(tag)"
+    :id="id"
     :label="tag.name.toUpperCase()">
     <SectionContent>
       <SectionColumns>
