@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useResizeObserver } from '@vueuse/core'
-import { computed, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 
 import { hasModels, scrollToId } from '../../helpers'
 import { useNavState, useRefOnMount } from '../../hooks'
-import type { Spec } from '../../types'
+import type { Spec, Tag, TransformedOperation } from '../../types'
 import Lazy, { lazyBus } from '../Lazy.vue'
 import { Authentication } from './Authentication'
 import Introduction from './Introduction'
@@ -72,15 +72,20 @@ const introCardsSlot = computed(() =>
   props.layout === 'accordion' ? 'after' : 'aside',
 )
 
-// Don't lazy load if we are deep linking via hash
-const lazyIndexTag = ref<number | null>(null)
-const lazyIndexOperation = ref<number | null>(null)
+// Don't lazy load up to index if we are deep linking via hash
+const deepLink = reactive({
+  hideTag: false,
+  isLoading: !!window.location.hash,
+  operationIndex: null as number | null,
+  tagsIndex: null as number | null,
+  tags: [] as (Tag & { lazyOperations: TransformedOperation[] })[],
+})
 
 watch(
   () => props.parsedSpec.tags?.length,
   (tagsLength) => {
-    lazyIndexOperation.value = 0
-    lazyIndexTag.value = 0
+    deepLink.operationIndex = 0
+    deepLink.tagsIndex = 0
 
     if (!hash.value || !tagsLength || !props.parsedSpec.tags) return
 
@@ -88,7 +93,7 @@ watch(
 
     // If models, don't lazy load any tags
     if (sectionId === 'models') {
-      lazyIndexTag.value = tagsLength ?? 0
+      deepLink.tagsIndex = tagsLength ?? 0
     }
 
     // Lazy load until specific tag
@@ -96,7 +101,7 @@ watch(
       const tagIndex = props.parsedSpec.tags?.findIndex(
         (tag) => getTagId(tag) === sectionId,
       )
-      lazyIndexTag.value = tagIndex ?? 0
+      deepLink.tagsIndex = tagIndex ?? 0
 
       // Lazy load until specific operation
       const operationMatches = hash.value.match(/tag\/([^/]+)\/([^/]+)\/(.+)/)
@@ -105,36 +110,37 @@ watch(
         const matchedPath = '/' + operationMatches[3]
 
         const operationIndex = props.parsedSpec.tags[
-          lazyIndexTag.value
+          deepLink.tagsIndex
         ]?.operations.findIndex(
           ({ httpVerb, path }) =>
             matchedVerb === httpVerb && matchedPath === path,
         )
-        lazyIndexOperation.value = operationIndex
+        deepLink.operationIndex = operationIndex
       }
     }
 
-    const includeFirst = sectionId === hash.value && sectionId.startsWith('tag')
-    // const loadingTags
+    // Tags
+    if (sectionId.startsWith('tag')) {
+      const tag = props.parsedSpec.tags[deepLink.tagsIndex]
+      deepLink.hideTag = sectionId !== hash.value && sectionId.startsWith('tag')
 
-    // Deep link on load
-    if (sectionId === hash.value && sectionId.startsWith('tag')) {
-      // includeFirst
+      deepLink.tags.push({
+        ...tag,
+        lazyOperations: tag.operations.slice(
+          deepLink.operationIndex,
+          Math.min(deepLink.operationIndex + 2, tag.operations.length),
+        ),
+      })
+
+      // TODO load the next tag or model
     }
-    // If tag then load regular
-    // - unless not enough operations, then have to go to next tag
-    // If operation start at operation
-    // - same thing of not enouh operations, roll to next
-    // models
-    //
-    // edge cases
-    // last operation/model, no more after
-    // - need to show from bottom instead or something
+    // Models
+    else {
+      console.log('load models')
+    }
   },
   { immediate: true },
 )
-
-const deepLinkLoading = ref(!!window.location.hash)
 
 // Scroll to hash when component has rendered
 const unsubscribe = lazyBus.on(({ id }) => {
@@ -147,7 +153,7 @@ const unsubscribe = lazyBus.on(({ id }) => {
   // since we are already showing the docs this is inconsequential
   setTimeout(() => {
     scrollToId(hashStr)
-    deepLinkLoading.value = false
+    deepLink.isLoading = false
   }, 300)
 })
 </script>
@@ -157,11 +163,13 @@ const unsubscribe = lazyBus.on(({ id }) => {
     :class="{
       'references-narrow': isNarrow,
     }">
+    <!-- These are just for the initial load on deep linking -->
     <div
-      v-show="deepLinkLoading"
-      class="references-deep-link-loading">
+      v-show="deepLink.isLoading"
+      class="references-loading"
+      :class="{ 'references-loading-hidden-tag': deepLink.hideTag }">
       <template
-        v-for="tag in parsedSpec.tags"
+        v-for="tag in deepLink.tags"
         :key="tag.id">
         <Component
           :is="tagLayout"
@@ -170,7 +178,7 @@ const unsubscribe = lazyBus.on(({ id }) => {
           :tag="tag">
           <Component
             :is="endpointLayout"
-            v-for="operation in tag.operations"
+            v-for="operation in tag.lazyOperations"
             :key="`${operation.httpVerb}-${operation.operationId}`"
             :operation="operation"
             :server="localServers[0]"
@@ -199,15 +207,15 @@ const unsubscribe = lazyBus.on(({ id }) => {
       name="empty-state" />
     <template
       v-if="
-        typeof lazyIndexTag === 'number' &&
-        typeof lazyIndexOperation === 'number'
+        typeof deepLink.operationIndex === 'number' &&
+        typeof deepLink.tagsIndex === 'number'
       ">
       <template
         v-for="(tag, index) in parsedSpec.tags"
         :key="tag.id">
         <Lazy
           :id="getTagId(tag)"
-          :isLazy="index > lazyIndexTag">
+          :isLazy="index > deepLink.tagsIndex">
           <Component
             :is="tagLayout"
             v-if="tag.operations && tag.operations.length > 0"
@@ -219,10 +227,12 @@ const unsubscribe = lazyBus.on(({ id }) => {
               :id="getOperationId(operation, tag)"
               :key="`${operation.httpVerb}-${operation.operationId}`"
               :isLazy="
-                index !== lazyIndexTag || operationIndex > lazyIndexOperation
+                index !== deepLink.tagsIndex ||
+                operationIndex > deepLink.operationIndex
               ">
               <Component
                 :is="endpointLayout"
+                :id="getOperationId(operation, tag)"
                 :operation="operation"
                 :server="localServers[0]"
                 :tag="tag" />
@@ -246,7 +256,7 @@ const unsubscribe = lazyBus.on(({ id }) => {
   </div>
 </template>
 <style scoped>
-.references-deep-link-loading {
+.references-loading {
   position: absolute;
   top: 0;
   top: calc(var(--refs-header-height) - 1px);
@@ -255,6 +265,9 @@ const unsubscribe = lazyBus.on(({ id }) => {
   z-index: 1;
   grid-area: rendered;
   background: var(--theme-background-1, var(--default-theme-background-1));
+}
+.references-loading-hidden-tag .section-container :deep(.section:first-child) {
+  display: none;
 }
 .introduction-cards {
   display: flex;
