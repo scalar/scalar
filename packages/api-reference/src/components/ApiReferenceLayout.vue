@@ -2,9 +2,8 @@
 import { type SwaggerEditor } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
-import { scrollToId } from '../helpers'
 import { useNavState, useSidebar } from '../hooks'
 import type {
   ReferenceConfiguration,
@@ -15,7 +14,6 @@ import type {
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
 import GettingStarted from './GettingStarted.vue'
-import { lazyBus } from './Lazy.vue'
 import Sidebar from './Sidebar.vue'
 
 const props = defineProps<{
@@ -44,16 +42,8 @@ useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height
 })
 
-// Scroll to hash if exists
-const initiallyScrolled = ref(false)
 const { breadcrumb, setCollapsedSidebarItem } = useSidebar()
-const {
-  enableHashListener,
-  getSectionId,
-  getTagId,
-  hash,
-  isIntersectionEnabled,
-} = useNavState()
+const { enableHashListener, getSectionId, getTagId, hash } = useNavState()
 
 enableHashListener()
 
@@ -63,35 +53,16 @@ onMounted(() => {
       top: 0,
       left: 0,
     })
-    isIntersectionEnabled.value = true
-
-    // Ensure first section is open for SSG
-    if (props.parsedSpec.tags?.[0]) {
-      const firstTag = props.parsedSpec.tags?.[0]
-      if (firstTag) setCollapsedSidebarItem(getTagId(firstTag), true)
-    }
   }
-  // Ensure hash section is open for SSG
-  else {
-    const hashSectionId = getSectionId(hash.value)
-    if (hashSectionId) setCollapsedSidebarItem(hashSectionId, true)
-  }
-})
 
-// Scroll to hash when component has rendered
-lazyBus.on(({ id }) => {
-  const hashStr = hash.value
-
-  if (initiallyScrolled.value || !hashStr || id !== hashStr) return
-  initiallyScrolled.value = true
-
-  // TODO temp timeout for layout shift bug
-  const el = document.getElementById(hashStr)
-  console.log(el?.offsetTop)
-  setTimeout(() => {
-    scrollToId(hashStr)
-    console.log(el?.offsetTop)
-  }, 0)
+  // Ensure section is open for SSG
+  const firstTag = props.parsedSpec.tags?.[0]
+  const sectionId = hash.value
+    ? getSectionId(hash.value)
+    : firstTag
+    ? getTagId(firstTag)
+    : null
+  if (sectionId) setCollapsedSidebarItem(sectionId, true)
 })
 
 const showRenderedContent = computed(

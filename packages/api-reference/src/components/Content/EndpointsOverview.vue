@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
-import { nextTick } from 'vue'
 
-import { useNavState, useSidebar } from '../../hooks'
-import type { Tag, TransformedOperation } from '../../types'
+import { useNavState } from '../../hooks'
+import type { Tag } from '../../types'
 import { Anchor } from '../Anchor'
 import { Card, CardContent, CardHeader } from '../Card'
-import Lazy from '../Lazy.vue'
 import {
   Section,
   SectionColumn,
@@ -16,23 +14,13 @@ import {
 } from '../Section'
 import MarkdownRenderer from './MarkdownRenderer.vue'
 
-const props = defineProps<{ tag: Tag }>()
+defineProps<{ id?: string; tag: Tag }>()
 
 const { getOperationId, getTagId } = useNavState()
-const { setCollapsedSidebarItem } = useSidebar()
-
-// We need to make sure the endpoint tag is open before
-// we try to scroll to it
-// we wait for next render after we open the tag
-async function scrollHandler(operation: TransformedOperation) {
-  setCollapsedSidebarItem(getTagId(props.tag), true)
-  await nextTick()
-  window.location.href = `#${getOperationId(operation, props.tag)}`
-}
 </script>
 <template>
   <Section
-    :id="getTagId(tag)"
+    :id="id"
     :label="tag.name.toUpperCase()">
     <SectionContent>
       <SectionColumns>
@@ -45,9 +33,6 @@ async function scrollHandler(operation: TransformedOperation) {
           <MarkdownRenderer :value="tag.description" />
         </SectionColumn>
         <SectionColumn>
-          <!-- <Lazy -->
-          <!--   v-if="tag.operations?.length > 0" -->
-          <!--   :isLazy="isLazy"> -->
           <Card class="scalar-card-sticky">
             <CardHeader muted>Endpoints</CardHeader>
             <CardContent
@@ -57,15 +42,13 @@ async function scrollHandler(operation: TransformedOperation) {
                 <a
                   v-for="operation in tag.operations"
                   :key="getOperationId(operation, tag)"
-                  class="endpoint"
-                  @click="scrollHandler(operation)">
+                  class="endpoint">
                   <HttpMethod :method="operation.httpVerb" />
                   <span>{{ operation.path }}</span>
                 </a>
               </div>
             </CardContent>
           </Card>
-          <!-- </Lazy> -->
         </SectionColumn>
       </SectionColumns>
     </SectionContent>

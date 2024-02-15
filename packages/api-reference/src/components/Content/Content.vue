@@ -2,10 +2,10 @@
 import { useResizeObserver } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
-import { hasModels } from '../../helpers'
+import { hasModels, scrollToId } from '../../helpers'
 import { useNavState, useRefOnMount } from '../../hooks'
 import type { Spec } from '../../types'
-import Lazy from '../Lazy.vue'
+import Lazy, { lazyBus } from '../Lazy.vue'
 import { Authentication } from './Authentication'
 import Introduction from './Introduction'
 import ClientList from './Introduction/ClientList.vue'
@@ -113,9 +113,43 @@ watch(
         lazyIndexOperation.value = operationIndex
       }
     }
+
+    const includeFirst = sectionId === hash.value && sectionId.startsWith('tag')
+    // const loadingTags
+
+    // Deep link on load
+    if (sectionId === hash.value && sectionId.startsWith('tag')) {
+      // includeFirst
+    }
+    // If tag then load regular
+    // - unless not enough operations, then have to go to next tag
+    // If operation start at operation
+    // - same thing of not enouh operations, roll to next
+    // models
+    //
+    // edge cases
+    // last operation/model, no more after
+    // - need to show from bottom instead or something
   },
   { immediate: true },
 )
+
+const deepLinkLoading = ref(!!window.location.hash)
+
+// Scroll to hash when component has rendered
+const unsubscribe = lazyBus.on(({ id }) => {
+  const hashStr = window.location.hash.substring(1)
+
+  if (!hashStr || id !== hashStr) return
+  unsubscribe()
+
+  // Timeout is to allow codemirror to finish loading and prevent layout shift
+  // since we are already showing the docs this is inconsequential
+  setTimeout(() => {
+    scrollToId(hashStr)
+    deepLinkLoading.value = false
+  }, 300)
+})
 </script>
 <template>
   <div
@@ -123,6 +157,27 @@ watch(
     :class="{
       'references-narrow': isNarrow,
     }">
+    <div
+      v-show="deepLinkLoading"
+      class="references-deep-link-loading">
+      <template
+        v-for="tag in parsedSpec.tags"
+        :key="tag.id">
+        <Component
+          :is="tagLayout"
+          v-if="tag.operations && tag.operations.length > 0"
+          :spec="parsedSpec"
+          :tag="tag">
+          <Component
+            :is="endpointLayout"
+            v-for="operation in tag.operations"
+            :key="`${operation.httpVerb}-${operation.operationId}`"
+            :operation="operation"
+            :server="localServers[0]"
+            :tag="tag" />
+        </Component>
+      </template>
+    </div>
     <slot name="start" />
     <Introduction
       v-if="parsedSpec.info.title || parsedSpec.info.description"
@@ -156,7 +211,7 @@ watch(
           <Component
             :is="tagLayout"
             v-if="tag.operations && tag.operations.length > 0"
-            :isFirst="index === 0"
+            :id="getTagId(tag)"
             :spec="parsedSpec"
             :tag="tag">
             <Lazy
@@ -191,11 +246,15 @@ watch(
   </div>
 </template>
 <style scoped>
-.render-loading {
-  height: calc(var(--full-height) - var(--refs-header-height));
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.references-deep-link-loading {
+  position: absolute;
+  top: 0;
+  top: calc(var(--refs-header-height) - 1px);
+  left: 0;
+  right: 0;
+  z-index: 1;
+  grid-area: rendered;
+  background: var(--theme-background-1, var(--default-theme-background-1));
 }
 .introduction-cards {
   display: flex;

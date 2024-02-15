@@ -6,6 +6,7 @@ import EndpointsOverview from './EndpointsOverview.vue'
 import ShowMoreButton from './ShowMoreButton.vue'
 
 const props = defineProps<{
+  id?: string
   tag: Tag
   spec: Spec
 }>()
@@ -22,10 +23,11 @@ const moreThanOneDefaultTag = (tag: Tag) =>
   <SectionContainer class="tag-section-container">
     <EndpointsOverview
       v-if="moreThanOneDefaultTag(tag)"
+      :id="id"
       :tag="tag" />
     <ShowMoreButton
       v-if="!collapsedSidebarItems[getTagId(tag)] && tag.operations?.length > 1"
-      :id="getTagId(tag)" />
+      :id="id ?? ''" />
     <template v-else>
       <slot />
     </template>

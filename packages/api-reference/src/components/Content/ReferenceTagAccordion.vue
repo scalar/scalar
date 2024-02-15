@@ -9,7 +9,6 @@ import MarkdownRenderer from './MarkdownRenderer.vue'
 defineProps<{
   tag: Tag
   spec: Spec
-  isFirst?: boolean
 }>()
 
 const { getTagId } = useNavState()
