@@ -57,11 +57,11 @@ onMounted(() => {
 
   // Ensure section is open for SSG
   const firstTag = props.parsedSpec.tags?.[0]
-  const sectionId = hash.value
-    ? getSectionId(hash.value)
-    : firstTag
-    ? getTagId(firstTag)
-    : null
+  let sectionId: string | null = null
+
+  if (hash.value) sectionId = getSectionId(hash.value)
+  else if (firstTag) sectionId = getTagId(firstTag)
+
   if (sectionId) setCollapsedSidebarItem(sectionId, true)
 })
 
