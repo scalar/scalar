@@ -213,9 +213,6 @@ export function useSidebar(options?: { parsedSpec: Spec }) {
           const firstTag = parsedSpec.value?.tags?.[0]
           if (firstTag) setCollapsedSidebarItem(getTagId(firstTag), true)
         }
-
-        // Open default section
-        setCollapsedSidebarItem('tag/default', true)
       },
     )
 
