@@ -53,7 +53,6 @@ const isLoading = ref(
 )
 const tags = ref<(TagType & { lazyOperations: TransformedOperation[] })[]>([])
 const models = ref<string[]>([])
-const timeout = ref(300)
 
 const { getModelId, getSectionId, getTagId, hash, isIntersectionEnabled } =
   useNavState()
@@ -69,8 +68,8 @@ watch(
 
     // Grab specific tag to load
     if (sectionId.startsWith('tag')) {
-      let operationsIndex = 0
-      const tagsIndex =
+      let operationIndex = 0
+      const tagIndex =
         props.parsedSpec.tags?.findIndex(
           (tag) => getTagId(tag) === sectionId,
         ) ?? 0
@@ -81,15 +80,13 @@ watch(
         const matchedVerb = operationMatches[2]
         const matchedPath = '/' + operationMatches[3]
 
-        operationsIndex = props.parsedSpec.tags[
-          tagsIndex
-        ]?.operations.findIndex(
+        operationIndex = props.parsedSpec.tags[tagIndex]?.operations.findIndex(
           ({ httpVerb, path }) =>
             matchedVerb === httpVerb && matchedPath === path,
         )
       }
       // Add a few tags to the loading section
-      const tag = props.parsedSpec.tags[tagsIndex]
+      const tag = props.parsedSpec.tags[tagIndex]
       if (tag.name !== 'default') {
         hideTag.value = sectionId !== hash.value && sectionId.startsWith('tag')
       }
@@ -97,8 +94,8 @@ watch(
       tags.value.push({
         ...tag,
         lazyOperations: tag.operations.slice(
-          operationsIndex,
-          operationsIndex + 2,
+          operationIndex,
+          operationIndex + 2,
         ),
       })
     }
@@ -108,18 +105,15 @@ watch(
       const [, modelKey] = hash.value.toLowerCase().split('/')
 
       // Find the right model to start at
-      const modelsIndex =
+      const modelIndex =
         hash.value === 'models'
           ? 0
           : modelKeys.findIndex((key) => key.toLowerCase() === modelKey)
 
-      if (modelsIndex === -1) return
-
-      // TODO Need to remove this timeout but works for now
-      timeout.value = (modelKeys.length + props.parsedSpec.tags.length) * 10
+      if (modelIndex === -1) return
 
       // Display a couple models
-      models.value = modelKeys.slice(modelsIndex, modelsIndex + 3)
+      models.value = modelKeys.slice(modelIndex, modelIndex + 3)
     }
   },
   { immediate: true },
@@ -134,16 +128,17 @@ const unsubscribe = lazyBus.on(({ id }) => {
   unsubscribe()
 
   // Timeout is to allow codemirror to finish loading and prevent layout shift
-  // Models seem to need a bit more time
   setTimeout(() => {
     scrollToId(hashStr)
     isLoading.value = false
-    setTimeout(() => (isIntersectionEnabled.value = true), 100)
-  }, timeout.value)
+    setTimeout(() => (isIntersectionEnabled.value = true), 1000)
+  }, 300)
 })
 
 // Enable intersection observer withb timeout when not deep linking
-onMounted(() => setTimeout(() => (isIntersectionEnabled.value = true), 1000))
+onMounted(() => {
+  if (!hash.value) setTimeout(() => (isIntersectionEnabled.value = true), 1000)
+})
 </script>
 <template>
   <div

@@ -24,7 +24,7 @@ const props = defineProps<{
 const referenceEl = ref<HTMLElement | null>(null)
 const isNarrow = ref(true)
 
-const { getOperationId, getTagId, hash } = useNavState()
+const { getOperationId, getTagId } = useNavState()
 
 useResizeObserver(
   referenceEl,
@@ -70,8 +70,10 @@ const introCardsSlot = computed(() =>
 )
 
 // If the first load is models, we do not lazy load tags/operations
-const initOnModels =
-  typeof window !== 'undefined' && window.location.hash.startsWith('#model')
+const isLazy =
+  props.layout !== 'accordion' &&
+  typeof window !== 'undefined' &&
+  !window.location.hash.startsWith('#model')
 </script>
 <template>
   <div
@@ -79,11 +81,13 @@ const initOnModels =
     :class="{
       'references-narrow': isNarrow,
     }">
+    <slot name="start" />
+
     <Loading
       :layout="layout"
       :parsedSpec="parsedSpec"
       :server="localServers[0]" />
-    <slot name="start" />
+
     <Introduction
       v-if="parsedSpec.info.title || parsedSpec.info.description"
       :info="parsedSpec.info"
@@ -102,11 +106,12 @@ const initOnModels =
     <slot
       v-else
       name="empty-state" />
+
     <Lazy
       v-for="tag in parsedSpec.tags"
       :id="getTagId(tag)"
       :key="getTagId(tag)"
-      :isLazy="layout !== 'accordion' || initOnModels">
+      :isLazy="isLazy">
       <Component
         :is="tagLayout"
         v-if="tag.operations && tag.operations.length > 0"
@@ -114,10 +119,10 @@ const initOnModels =
         :spec="parsedSpec"
         :tag="tag">
         <Lazy
-          v-for="operation in tag.operations"
+          v-for="(operation, operationIndex) in tag.operations"
           :id="getOperationId(operation, tag)"
           :key="`${operation.httpVerb}-${operation.operationId}`"
-          :isLazy="layout !== 'accordion' || initOnModels">
+          :isLazy="operationIndex > 0">
           <Component
             :is="endpointLayout"
             :id="getOperationId(operation, tag)"
@@ -127,9 +132,11 @@ const initOnModels =
         </Lazy>
       </Component>
     </Lazy>
+
     <template v-if="parsedSpec.webhooks">
       <Webhooks :webhooks="parsedSpec.webhooks" />
     </template>
+
     <template v-if="hasModels(parsedSpec)">
       <ModelsAccordion
         v-if="layout === 'accordion'"
