@@ -171,8 +171,8 @@ export const getExampleFromSchema = (
               ...newExample,
             }
           : Array.isArray(newExample) && Array.isArray(example)
-          ? [...(example ?? {}), ...newExample]
-          : newExample
+            ? [...(example ?? {}), ...newExample]
+            : newExample
     })
 
     return example
