@@ -9,7 +9,15 @@ import type {
   Tag as TagType,
   TransformedOperation,
 } from '../../../types'
+import { Anchor } from '../../Anchor'
+import {
+  Section,
+  SectionContainer,
+  SectionContent,
+  SectionHeader,
+} from '../../Section'
 import { Operation } from '../Operation'
+import { Schema } from '../Schema'
 import { Tag } from '../Tag'
 import { lazyBus } from './Lazy.vue'
 
@@ -25,6 +33,7 @@ import { lazyBus } from './Lazy.vue'
  *   hitting endpoint links in V2
  * - only works for default layout, add accordion (if we need)
  * - code is ripe for refactor as it is duplicated from content and models
+ * - need to handle case of last operation/model
  */
 const props = withDefaults(
   defineProps<{
@@ -44,7 +53,7 @@ const isLoading = ref(
 const tags = ref<(TagType & { lazyOperations: TransformedOperation[] })[]>([])
 const models = ref<string[]>([])
 
-const { getSectionId, getTagId, hash } = useNavState()
+const { getModelId, getSectionId, getTagId, hash } = useNavState()
 
 // Ensure we have a spec loaded
 watch(
@@ -93,15 +102,14 @@ watch(
       const modelKeys = Object.keys(props.parsedSpec.components?.schemas ?? {})
       const [, modelKey] = hash.value.toLowerCase().split('/')
 
+      // Find the right model to start at
       const modelsIndex = modelKeys.findIndex(
         (key) => key.toLowerCase() === modelKey,
       )
-
-      console.log({ modelsIndex })
-
       if (modelsIndex === -1) return
 
-      models.value = modelKeys.slice(modelsIndex, modelsIndex + 2)
+      // Display a couple models
+      models.value = modelKeys.slice(modelsIndex, modelsIndex + 3)
     }
   },
   { immediate: true },
@@ -120,14 +128,18 @@ const unsubscribe = lazyBus.on(({ id }) => {
   setTimeout(() => {
     scrollToId(hashStr)
     isLoading.value = false
-  }, 0)
+  }, 500)
 })
 </script>
 <template>
   <div
     v-show="isLoading"
     class="references-loading"
-    :class="{ 'references-loading-hidden-tag': hideTag }">
+    :class="{
+      'references-loading-hidden-tag': hideTag,
+      'references-loading-top-spacer': tags.length,
+    }">
+    <!-- Tags -->
     <template
       v-for="tag in tags"
       :key="tag.id">
@@ -143,18 +155,44 @@ const unsubscribe = lazyBus.on(({ id }) => {
           :tag="tag" />
       </Tag>
     </template>
+
+    <!-- Models -->
+    <SectionContainer v-if="models.length">
+      <Section
+        v-for="name in models"
+        :key="name"
+        :label="name">
+        <template v-if="parsedSpec.components?.schemas?.[name]">
+          <SectionContent>
+            <SectionHeader :level="2">
+              <Anchor :id="getModelId(name)">
+                {{
+                  (parsedSpec.components?.schemas?.[name] as any).title ?? name
+                }}
+              </Anchor>
+            </SectionHeader>
+            <Schema
+              :name="name"
+              noncollapsible
+              :value="parsedSpec.components?.schemas?.[name]" />
+          </SectionContent>
+        </template>
+      </Section>
+    </SectionContainer>
   </div>
 </template>
 <style>
 .references-loading {
   position: absolute;
   top: 0;
-  top: calc(var(--refs-header-height) - 1px);
   left: 0;
   right: 0;
   z-index: 1;
   grid-area: rendered;
   background: var(--theme-background-1, var(--default-theme-background-1));
+}
+.references-loading-top-spacer {
+  top: calc(var(--refs-header-height) - 1px);
 }
 .references-loading-hidden-tag .section-container .section:first-child {
   display: none;
