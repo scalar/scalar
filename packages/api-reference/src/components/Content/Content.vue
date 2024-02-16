@@ -24,7 +24,7 @@ const props = defineProps<{
 const referenceEl = ref<HTMLElement | null>(null)
 const isNarrow = ref(true)
 
-const { getOperationId, getTagId } = useNavState()
+const { getOperationId, getTagId, hash } = useNavState()
 
 useResizeObserver(
   referenceEl,
@@ -68,6 +68,10 @@ const endpointLayout = computed<typeof Operation>(() =>
 const introCardsSlot = computed(() =>
   props.layout === 'accordion' ? 'after' : 'aside',
 )
+
+// If the first load is models, we do not lazy load tags/operations
+const initOnModels =
+  typeof window !== 'undefined' && window.location.hash.startsWith('#model')
 </script>
 <template>
   <div
@@ -102,7 +106,7 @@ const introCardsSlot = computed(() =>
       v-for="tag in parsedSpec.tags"
       :id="getTagId(tag)"
       :key="getTagId(tag)"
-      :isLazy="layout !== 'accordion'">
+      :isLazy="layout !== 'accordion' || initOnModels">
       <Component
         :is="tagLayout"
         v-if="tag.operations && tag.operations.length > 0"
@@ -113,7 +117,7 @@ const introCardsSlot = computed(() =>
           v-for="operation in tag.operations"
           :id="getOperationId(operation, tag)"
           :key="`${operation.httpVerb}-${operation.operationId}`"
-          :isLazy="layout !== 'accordion'">
+          :isLazy="layout !== 'accordion' || initOnModels">
           <Component
             :is="endpointLayout"
             :id="getOperationId(operation, tag)"

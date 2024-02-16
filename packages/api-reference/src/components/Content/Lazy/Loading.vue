@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import { scrollToId } from '../../../helpers'
 import { useNavState } from '../../../hooks'
@@ -108,9 +108,11 @@ watch(
       const [, modelKey] = hash.value.toLowerCase().split('/')
 
       // Find the right model to start at
-      const modelsIndex = modelKeys.findIndex(
-        (key) => key.toLowerCase() === modelKey,
-      )
+      const modelsIndex =
+        hash.value === 'models'
+          ? 0
+          : modelKeys.findIndex((key) => key.toLowerCase() === modelKey)
+
       if (modelsIndex === -1) return
 
       // TODO Need to remove this timeout but works for now
@@ -139,6 +141,9 @@ const unsubscribe = lazyBus.on(({ id }) => {
     setTimeout(() => (isIntersectionEnabled.value = true), 100)
   }, timeout.value)
 })
+
+// Enable intersection observer withb timeout when not deep linking
+onMounted(() => setTimeout(() => (isIntersectionEnabled.value = true), 1000))
 </script>
 <template>
   <div

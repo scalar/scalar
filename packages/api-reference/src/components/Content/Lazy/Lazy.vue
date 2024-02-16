@@ -4,7 +4,7 @@ import { type EventBusKey, useEventBus } from '@vueuse/core'
 /**
  * Setup an event bus so we can listen for loaded events
  */
-export const lazyEventBusKey: EventBusKey<{ id: string }> = Symbol('symbol-key')
+const lazyEventBusKey: EventBusKey<{ id: string }> = Symbol('lazyEventBusKey')
 export const lazyBus = useEventBus(lazyEventBusKey)
 </script>
 

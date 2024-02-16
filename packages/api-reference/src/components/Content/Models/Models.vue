@@ -40,6 +40,12 @@ const models = computed(() => {
 </script>
 <template>
   <SectionContainer v-if="components">
+    <!-- Just a cheap trick to jump down to models -->
+    <Lazy
+      id="models"
+      :isLazy="false">
+      <div id="models" />
+    </Lazy>
     <Lazy
       v-for="(name, index) in models"
       :id="getModelId(name)"

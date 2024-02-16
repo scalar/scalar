@@ -8,7 +8,7 @@ import type { Tag, TransformedOperation } from '../types'
 const hash = ref('')
 
 // To disable the intersection observer on click
-const isIntersectionEnabled = ref(true)
+const isIntersectionEnabled = ref(false)
 
 /**
  * ID creation methods
@@ -65,9 +65,6 @@ const updateHash = () => (hash.value = window.location.hash.replace(/^#/, ''))
 // We should call this as little as possible, ideally once
 const enableHashListener = () =>
   onMounted(async () => {
-    // Disable intersectionObserver on first load
-    if (window.location.hash) isIntersectionEnabled.value = false
-
     updateHash()
     window.onhashchange = async () => {
       isIntersectionEnabled.value = false
