@@ -265,6 +265,9 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   min-height: auto;
   padding-top: 0;
 }
+.url-form-input :deep(.cm-scroller) {
+  overflow-y: hidden;
+}
 .history {
   appearance: none;
   -webkit-appearance: none;
