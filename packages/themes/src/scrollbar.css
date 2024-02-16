@@ -1,6 +1,6 @@
 .cm-scroller,
 .custom-scroll {
-  overflow-y: scroll;
+  overflow-y: auto;
   scrollbar-color: transparent transparent;
   scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
@@ -8,16 +8,10 @@
 .custom-scroll-self-contain-overflow {
   overscroll-behavior: contain;
 }
-.custom-scroll-extra-padding-right {
-  padding-right: 12px !important;
-}
 @supports (-moz-appearance: none) {
   .cm-scroller,
   .custom-scroll {
     padding-right: 12px;
-  }
-  .custom-scroll-extra-padding-right {
-    padding-right: 24px !important;
   }
 }
 .cm-scroller:hover,
@@ -70,8 +64,5 @@
   .cm-scroller,
   .custom-scroll {
     padding-right: 12px;
-  }
-  .custom-scroll-extra-padding-right {
-    padding-right: 24px !important;
   }
 }
