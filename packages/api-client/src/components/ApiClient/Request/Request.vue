@@ -43,13 +43,13 @@ const { activeRequest, readOnly } = useRequestStore()
   width: 50%;
   border-right: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
-  padding: 0 6px 12px 18px;
+  padding: 0 18px 12px 18px;
 }
 @media screen and (max-width: 820px) {
   .scalar-api-client__main__left {
     width: 100%;
     border-right: none;
-    padding: 0 0 12px 12px;
+    padding: 0 12px 12px 12px;
   }
 }
 .scalar-api-client__item__content {

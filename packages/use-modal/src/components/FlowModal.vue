@@ -64,7 +64,7 @@ withDefaults(
   animation: modal-fade 0.2s forwards;
 }
 .modal-body {
-  padding: 24px 12px 18px 24px;
+  padding: 24px 24px 18px 24px;
   max-height: calc(100vh - 240px);
   background: var(--theme-background-1, var(--default-theme-background-1));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));

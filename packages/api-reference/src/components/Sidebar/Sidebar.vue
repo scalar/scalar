@@ -129,6 +129,7 @@ const setRef = (el: SidebarElementType, id: string) => {
   flex: 1;
   padding-top: 9px;
   padding-bottom: 9px;
+  padding-right: 12px;
 }
 
 @media (max-width: 1000px) {
