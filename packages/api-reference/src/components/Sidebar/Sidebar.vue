@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import { sleep } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'

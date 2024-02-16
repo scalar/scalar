@@ -105,14 +105,14 @@ watch(
       const modelKeys = Object.keys(props.parsedSpec.components?.schemas ?? {})
       const [, modelKey] = hash.value.toLowerCase().split('/')
 
-      // Need to remove this timeout but works for now
-      timeout.value = modelKeys.length * 10
-
       // Find the right model to start at
       const modelsIndex = modelKeys.findIndex(
         (key) => key.toLowerCase() === modelKey,
       )
       if (modelsIndex === -1) return
+
+      // TODO Need to remove this timeout but works for now
+      timeout.value = (modelKeys.length + props.parsedSpec.tags.length) * 10
 
       // Display a couple models
       models.value = modelKeys.slice(modelsIndex, modelsIndex + 3)
