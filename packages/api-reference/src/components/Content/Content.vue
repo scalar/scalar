@@ -102,7 +102,7 @@ const introCardsSlot = computed(() =>
       v-for="tag in parsedSpec.tags"
       :id="getTagId(tag)"
       :key="getTagId(tag)"
-      :isLazy="layout !== 'accordion'">
+      :isLazy="layout !== 'accordion' && getTagId(tag) !== 'tag/default'">
       <Component
         :is="tagLayout"
         v-if="tag.operations && tag.operations.length > 0"
@@ -113,7 +113,9 @@ const introCardsSlot = computed(() =>
           v-for="operation in tag.operations"
           :id="getOperationId(operation, tag)"
           :key="`${operation.httpVerb}-${operation.operationId}`"
-          :isLazy="layout !== 'accordion'">
+          :isLazy="
+            layout !== 'accordion' && !getTagId(tag).startsWith('tag/default')
+          ">
           <Component
             :is="endpointLayout"
             :id="getOperationId(operation, tag)"
