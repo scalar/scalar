@@ -309,7 +309,7 @@ watch(
 </template>
 <style scoped>
 .start {
-  padding: 24px 12px 24px 24px;
+  padding: 24px;
   display: flex;
   flex-flow: wrap;
   justify-content: space-between;

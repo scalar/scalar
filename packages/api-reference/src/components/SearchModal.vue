@@ -385,7 +385,7 @@ a {
   display: none;
 }
 .ref-search-list {
-  padding: 0 0 12px 12px;
+  padding: 0 12px 12px 12px;
 }
 .ref-search-container {
   padding: 12px;
