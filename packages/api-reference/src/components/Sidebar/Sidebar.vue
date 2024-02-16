@@ -29,10 +29,10 @@ const disableScroll = ref(true)
 // Also disable scroll on expansion of sidebar tag
 watch(hash, (id) => {
   if (!isIntersectionEnabled.value || disableScroll.value) return
-  scrollSidebar(id, 'smooth')
+  scrollSidebar(id)
 })
 
-const scrollSidebar = (id: string, behavior?: 'smooth') => {
+const scrollSidebar = (id: string) => {
   const el = document.getElementById(`sidebar-${id}`)
   if (!el || !scrollerEl.value) return
 
@@ -50,7 +50,7 @@ const scrollSidebar = (id: string, behavior?: 'smooth') => {
       (el.parentElement?.offsetTop ?? 0) +
       (el.parentElement?.parentElement?.offsetTop ?? 0)
   }
-  scrollerEl.value.scrollTo({ top, behavior })
+  scrollerEl.value.scrollTo({ top, behavior: 'smooth' })
 }
 
 // TODO timeout is due to sidebar section opening time

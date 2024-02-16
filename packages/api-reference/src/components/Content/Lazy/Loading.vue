@@ -134,8 +134,8 @@ const unsubscribe = lazyBus.on(({ id }) => {
   // Timeout is to allow codemirror to finish loading and prevent layout shift
   // Models seem to need a bit more time
   setTimeout(() => {
-    // scrollToId(hashStr)
-    // isLoading.value = false
+    scrollToId(hashStr)
+    isLoading.value = false
     setTimeout(() => (isIntersectionEnabled.value = true), 100)
   }, timeout.value)
 })
