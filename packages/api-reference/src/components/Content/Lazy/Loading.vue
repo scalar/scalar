@@ -34,6 +34,7 @@ import { lazyBus } from './Lazy.vue'
  * - only works for default layout, add accordion (if we need)
  * - code is ripe for refactor as it is duplicated from content and models
  * - need to handle case of last operation/model
+ * - need to find an event for codemirror loaded, currently using timeout for models
  */
 const props = withDefaults(
   defineProps<{
@@ -52,8 +53,10 @@ const isLoading = ref(
 )
 const tags = ref<(TagType & { lazyOperations: TransformedOperation[] })[]>([])
 const models = ref<string[]>([])
+const timeout = ref(300)
 
-const { getModelId, getSectionId, getTagId, hash } = useNavState()
+const { getModelId, getSectionId, getTagId, hash, isIntersectionEnabled } =
+  useNavState()
 
 // Ensure we have a spec loaded
 watch(
@@ -102,6 +105,9 @@ watch(
       const modelKeys = Object.keys(props.parsedSpec.components?.schemas ?? {})
       const [, modelKey] = hash.value.toLowerCase().split('/')
 
+      // Need to remove this timeout but works for now
+      timeout.value = modelKeys.length * 10
+
       // Find the right model to start at
       const modelsIndex = modelKeys.findIndex(
         (key) => key.toLowerCase() === modelKey,
@@ -124,11 +130,12 @@ const unsubscribe = lazyBus.on(({ id }) => {
   unsubscribe()
 
   // Timeout is to allow codemirror to finish loading and prevent layout shift
-  // since we are already showing the docs this is inconsequential
+  // Models seem to need a bit more time
   setTimeout(() => {
     scrollToId(hashStr)
     isLoading.value = false
-  }, 500)
+    setTimeout(() => (isIntersectionEnabled.value = true), 100)
+  }, timeout.value)
 })
 </script>
 <template>

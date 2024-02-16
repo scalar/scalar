@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 
 import { sleep } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
@@ -22,7 +22,6 @@ const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } = useSidebar(
 // This offset determines how far down the sidebar the items scroll
 const SCROLL_OFFSET = -160
 const scrollerEl = ref<HTMLElement | null>(null)
-const sidebarRefs = ref<{ [key: string]: HTMLElement }>({})
 const disableScroll = ref(true)
 
 // Watch for the active item changing so we can scroll the sidebar,
@@ -30,8 +29,11 @@ const disableScroll = ref(true)
 // Also disable scroll on expansion of sidebar tag
 watch(hash, (id) => {
   if (!isIntersectionEnabled.value || disableScroll.value) return
+  scrollSidebar(id, 'smooth')
+})
 
-  const el = sidebarRefs.value[id!]
+const scrollSidebar = (id: string, behavior?: 'smooth') => {
+  const el = document.getElementById(`sidebar-${id}`)
   if (!el || !scrollerEl.value) return
 
   let top = SCROLL_OFFSET
@@ -48,17 +50,16 @@ watch(hash, (id) => {
       (el.parentElement?.offsetTop ?? 0) +
       (el.parentElement?.parentElement?.offsetTop ?? 0)
   }
-
-  scrollerEl.value?.scrollTo({ top, behavior: 'smooth' })
-})
-
-onMounted(() => (disableScroll.value = false))
-
-type SidebarElementType = InstanceType<typeof SidebarElement>
-const setRef = (el: SidebarElementType, id: string) => {
-  if (!el?.el) return
-  sidebarRefs.value[id] = el.el
+  scrollerEl.value.scrollTo({ top, behavior })
 }
+
+// TODO timeout is due to sidebar section opening time
+onMounted(() => {
+  setTimeout(() => {
+    scrollSidebar(window.location.hash.replace(/^#/, ''))
+  }, 500)
+  disableScroll.value = false
+})
 </script>
 <template>
   <div class="sidebar">
@@ -72,7 +73,7 @@ const setRef = (el: SidebarElementType, id: string) => {
           :key="item.id">
           <SidebarElement
             v-if="item.show"
-            :ref="(el) => setRef(el as SidebarElementType, item.id)"
+            :id="`sidebar-${item.id}`"
             data-sidebar-type="heading"
             :hasChildren="item.children && item.children.length > 0"
             :isActive="hash === item.id"
@@ -99,7 +100,7 @@ const setRef = (el: SidebarElementType, id: string) => {
                   :key="child.id">
                   <SidebarElement
                     v-if="item.show"
-                    :ref="(el) => setRef(el as SidebarElementType, child.id)"
+                    :id="`sidebar-${child.id}`"
                     :isActive="hash === child.id"
                     :item="{
                       id: child.id,
