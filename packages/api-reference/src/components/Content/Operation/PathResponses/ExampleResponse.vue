@@ -40,8 +40,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
           }),
         )
       "
-      lang="json"
-      lineNumbers />
+      lang="json" />
     <!-- oneOf, anyOf, not … -->
     <template
       v-for="rule in rules"
