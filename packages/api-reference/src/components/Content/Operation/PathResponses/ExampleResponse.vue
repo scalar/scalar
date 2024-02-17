@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { CodeMirror } from '@scalar/use-codemirror'
-
 import { getExampleFromSchema, prettyPrintJson } from '../../../../helpers'
+import { Code } from '../../../Code'
 
 defineProps<{
   response:
@@ -25,29 +24,24 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
 </script>
 <template>
   <div v-if="response?.example">
-    <CodeMirror
+    <Code
       :content="prettyPrintJson(response?.example)"
-      :languages="['json']"
-      readOnly />
+      lang="json" />
   </div>
   <div v-else-if="response?.schema">
     <!-- Single Schema -->
-    <CodeMirror
+    <Code
       v-if="response?.schema.type"
       :content="
         prettyPrintJson(
-          getExampleFromSchema(
-            response?.schema,
-
-            {
-              emptyString: '…',
-              mode: 'read',
-            },
-          ),
+          getExampleFromSchema(response?.schema, {
+            emptyString: '…',
+            mode: 'read',
+          }),
         )
       "
-      :languages="['json']"
-      readOnly />
+      lang="json"
+      lineNumbers />
     <!-- oneOf, anyOf, not … -->
     <template
       v-for="rule in rules"
@@ -66,52 +60,43 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
             v-for="(example, index) in response?.schema[rule]"
             :key="index"
             class="rule-item">
-            <CodeMirror
+            <Code
               :content="
-                prettyPrintJson(
-                  getExampleFromSchema(example, {
-                    emptyString: '…',
-                    mode: 'read',
-                  }),
-                )
+                getExampleFromSchema(example, {
+                  emptyString: '…',
+                  mode: 'read',
+                })
               "
-              :languages="['json']"
-              readOnly />
+              lang="json" />
           </li>
         </ol>
       </div>
-      <CodeMirror
+      <Code
         v-else-if="
           response?.schema[rule] && response?.schema[rule].length === 1
         "
         :content="
-          prettyPrintJson(
-            getExampleFromSchema(response?.schema[rule][0], {
+          getExampleFromSchema(response?.schema[rule][0], {
+            emptyString: '…',
+            mode: 'read',
+          })
+        "
+        lang="json" />
+    </template>
+    <!-- allOf-->
+    <Code
+      v-if="response?.schema['allOf']"
+      :content="
+        mergeAllObjects(
+          response?.schema['allOf'].map((schema: any) =>
+            getExampleFromSchema(schema, {
               emptyString: '…',
               mode: 'read',
             }),
-          )
-        "
-        :languages="['json']"
-        readOnly />
-    </template>
-    <!-- allOf-->
-    <CodeMirror
-      v-if="response?.schema['allOf']"
-      :content="
-        prettyPrintJson(
-          mergeAllObjects(
-            response?.schema['allOf'].map((schema: any) =>
-              getExampleFromSchema(schema, {
-                emptyString: '…',
-                mode: 'read',
-              }),
-            ),
           ),
         )
       "
-      :languages="['json']"
-      readOnly />
+      lang="json" />
   </div>
   <div
     v-else
