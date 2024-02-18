@@ -19,17 +19,15 @@ import {
 import { Operation } from '../Operation'
 import { Schema } from '../Schema'
 import { Tag } from '../Tag'
-import { lazyBus } from './Lazy.vue'
+import { lazyBus } from './lazyBus'
 
 /**
  * Loads a "fake" tag/modal/operation if the user is deep linking
  * The fake popup is then hidden once the real one loads behind it
  * Giving a seemless instant load experience
  *
- * @link https://medium.com/js-dojo/lazy-rendering-in-vue-to-improve-performance-dcccd445d5f
-
  * TODO list
- * - only works on first load, but we will use this when 
+ * - only works on first load, but we will use this when
  *   hitting endpoint links in V2
  * - only works for default layout, add accordion (if we need)
  * - code is ripe for refactor as it is duplicated from content and models
@@ -87,6 +85,8 @@ watch(
       }
       // Add a few tags to the loading section
       const tag = props.parsedSpec.tags[tagIndex]
+
+      if (!tag) return
       if (tag.name !== 'default') {
         hideTag.value = sectionId !== hash.value && sectionId.startsWith('tag')
       }
