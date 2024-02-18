@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { getExampleFromSchema, prettyPrintJson } from '../../../../helpers'
-import { Code } from '../../../Code'
+import { CodeBlock } from '../../../CodeBlock'
 
 defineProps<{
   response:
@@ -24,13 +24,13 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
 </script>
 <template>
   <div v-if="response?.example">
-    <Code
+    <CodeBlock
       :content="prettyPrintJson(response?.example)"
       lang="json" />
   </div>
   <div v-else-if="response?.schema">
     <!-- Single Schema -->
-    <Code
+    <CodeBlock
       v-if="response?.schema.type"
       :content="
         prettyPrintJson(
@@ -59,7 +59,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
             v-for="(example, index) in response?.schema[rule]"
             :key="index"
             class="rule-item">
-            <Code
+            <CodeBlock
               :content="
                 getExampleFromSchema(example, {
                   emptyString: '…',
@@ -70,7 +70,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
           </li>
         </ol>
       </div>
-      <Code
+      <CodeBlock
         v-else-if="
           response?.schema[rule] && response?.schema[rule].length === 1
         "
@@ -83,7 +83,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
         lang="json" />
     </template>
     <!-- allOf-->
-    <Code
+    <CodeBlock
       v-if="response?.schema['allOf']"
       :content="
         mergeAllObjects(

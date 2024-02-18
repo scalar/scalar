@@ -17,7 +17,7 @@ import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
 import type { TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
-import { Code } from '../../Code'
+import { CodeBlock } from '../../CodeBlock'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
@@ -180,7 +180,7 @@ computed(() => {
       <!-- Multiple examples -->
       <div class="code-snippet">
         <!-- @vue-ignore -->
-        <Code
+        <CodeBlock
           :content="CodeMirrorValue"
           :lang="state.selectedClient.targetKey"
           lineNumbers />

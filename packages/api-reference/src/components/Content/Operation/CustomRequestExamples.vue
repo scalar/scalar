@@ -6,7 +6,7 @@ import { computed, ref, watch } from 'vue'
 import { useClipboard } from '../../../hooks'
 import type { CustomRequestExample, TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
-import { Code } from '../../Code'
+import { CodeBlock } from '../../CodeBlock'
 import TextSelect from './TextSelect.vue'
 
 const props = defineProps<{
@@ -107,7 +107,7 @@ const { copyToClipboard } = useClipboard()
       borderless
       class="request-editor-section custom-scroll"
       frameless>
-      <Code
+      <CodeBlock
         :content="currentExample.source.trim()"
         :lang="language"
         lineNumbers />
