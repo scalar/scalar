@@ -70,9 +70,9 @@ const { activeRequest, readOnly } = useRequestStore()
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
-.scalar-api-client__item__content .scalar-api-client__item__content--code {
+.scalar-api-client__item__content .codemirror-container {
   width: 100%;
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh - 300px);
   overflow: auto;
 }
 .scalar-api-client__item__content .cm-scroller {
