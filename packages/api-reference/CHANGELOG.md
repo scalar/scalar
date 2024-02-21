@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.17.0
+
+### Minor Changes
+
+- cd3068a: feat: switch syntax highlighting dependency from codemirror to prismjs
+
 ## 1.16.3
 
 ### Patch Changes
