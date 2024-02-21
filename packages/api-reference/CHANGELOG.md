@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.16.3
+
+### Patch Changes
+
+- 9f5fdf5: fix: tab overflow hidden
+- 5b3f7d9: fix: updated scroll region padding to for chrome update
+- Updated dependencies [c23b2cb]
+- Updated dependencies [5b3f7d9]
+  - @scalar/api-client@0.12.2
+  - @scalar/use-modal@0.2.5
+  - @scalar/themes@0.5.6
+  - @scalar/components@0.2.3
+  - @scalar/swagger-editor@0.10.6
+
 ## 1.16.2
 
 ### Patch Changes

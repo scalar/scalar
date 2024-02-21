@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.2.5
+
+### Patch Changes
+
+- 5b3f7d9: fix: updated scroll region padding to for chrome update
+
 ## 0.2.4
 
 ### Patch Changes
