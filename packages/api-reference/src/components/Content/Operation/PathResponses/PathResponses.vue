@@ -231,8 +231,8 @@ const showSchema = ref(false)
 .scalar-card-checkbox {
   display: flex;
   align-items: center;
+  justify-content: center;
   position: relative;
-  padding-right: 27px;
   min-height: 17px;
   cursor: pointer;
   user-select: none;
@@ -242,6 +242,7 @@ const showSchema = ref(false)
   width: fit-content;
   white-space: nowrap;
   margin-right: 9px;
+  gap: 6px;
 }
 .scalar-card-checkbox:hover {
   color: var(--theme-color--1, var(--default-theme-color-1));
@@ -255,9 +256,6 @@ const showSchema = ref(false)
 }
 
 .scalar-card-checkbox-checkmark {
-  position: absolute;
-  top: 0;
-  right: 0;
   height: 17px;
   width: 17px;
   border-radius: var(--theme-radius, var(--default-theme-radius));
@@ -293,9 +291,9 @@ const showSchema = ref(false)
 }
 
 .scalar-card-checkbox .scalar-card-checkbox-checkmark:after {
-  left: 7px;
-  top: 3.5px;
-  width: 4px;
+  right: 6px;
+  top: 36.5%;
+  width: 5px;
   height: 9px;
   border: solid var(--theme-background-1, var(--default-theme-background-1));
   border-width: 0 1.5px 1.5px 0;
