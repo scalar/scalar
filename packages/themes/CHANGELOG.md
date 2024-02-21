@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.5.6
+
+### Patch Changes
+
+- 5b3f7d9: fix: updated scroll region padding to for chrome update
+
 ## 0.5.5
 
 ### Patch Changes

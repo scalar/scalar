@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 0.12.2
+
+### Patch Changes
+
+- c23b2cb: fix: set max height on request body codemirror
+- 5b3f7d9: fix: updated scroll region padding to for chrome update
+- Updated dependencies [5b3f7d9]
+  - @scalar/use-modal@0.2.5
+  - @scalar/themes@0.5.6
+  - @scalar/components@0.2.3
+
 ## 0.12.1
 
 ### Patch Changes
