@@ -11,10 +11,10 @@ import {
   CardTab,
   CardTabHeader,
 } from '../../../Card'
+import { CodeBlock } from '../../../CodeBlock'
 import { MarkdownRenderer } from '../../../MarkdownRenderer'
 import ExamplePicker from '../ExamplePicker.vue'
 import ExampleResponse from './ExampleResponse.vue'
-import RawSchema from './RawSchema.vue'
 
 // import Headers from './Headers.vue'
 
@@ -121,9 +121,10 @@ const showSchema = ref(false)
       </CardContent> -->
       <CardContent muted>
         <template v-if="currentJsonResponse?.schema">
-          <RawSchema
-            v-if="showSchema"
-            :response="currentResponseWithExample" />
+          <CodeBlock
+            v-if="showSchema && currentResponseWithExample"
+            :content="currentResponseWithExample"
+            lang="json" />
           <ExampleResponse
             v-else
             :response="currentResponseWithExample" />

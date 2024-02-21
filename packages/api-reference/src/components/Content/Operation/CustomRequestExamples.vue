@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { HttpMethod } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
-import { CodeMirror } from '@scalar/use-codemirror'
 import { computed, ref, watch } from 'vue'
 
 import { useClipboard } from '../../../hooks'
 import type { CustomRequestExample, TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
+import { CodeBlock } from '../../CodeBlock'
 import TextSelect from './TextSelect.vue'
 
 const props = defineProps<{
@@ -107,11 +107,10 @@ const { copyToClipboard } = useClipboard()
       borderless
       class="request-editor-section custom-scroll"
       frameless>
-      <CodeMirror
+      <CodeBlock
         :content="currentExample.source.trim()"
-        :languages="[language]"
-        lineNumbers
-        readOnly />
+        :lang="language"
+        lineNumbers />
     </CardContent>
     <CardFooter
       v-if="$slots.footer"

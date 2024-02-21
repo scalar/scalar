@@ -683,9 +683,6 @@ importers:
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
-      '@scalar/use-codemirror':
-        specifier: workspace:*
-        version: link:../use-codemirror
       '@scalar/use-modal':
         specifier: workspace:*
         version: link:../use-modal
@@ -728,6 +725,9 @@ importers:
       postcss-nested:
         specifier: ^6.0.1
         version: 6.0.1(postcss@8.4.31)
+      prismjs:
+        specifier: ^1.29.0
+        version: 1.29.0
       rehype-external-links:
         specifier: ^3.0.0
         version: 3.0.0
@@ -795,6 +795,9 @@ importers:
       '@types/js-yaml':
         specifier: ^4.0.6
         version: 4.0.6
+      '@types/prismjs':
+        specifier: ^1.26.3
+        version: 1.26.3
       '@vitejs/plugin-vue':
         specifier: ^4.4.0
         version: 4.4.0(vite@4.5.2)(vue@3.3.4)
@@ -7871,6 +7874,10 @@ packages:
 
   /@types/pretty-hrtime@1.0.3:
     resolution: {integrity: sha512-nj39q0wAIdhwn7DGUyT9irmsKK1tV0bd5WFEhgpqNTMFZ8cE+jieuTphCW0tfdm47S2zVT5mr09B28b1chmQMA==}
+    dev: true
+
+  /@types/prismjs@1.26.3:
+    resolution: {integrity: sha512-A0D0aTXvjlqJ5ZILMz3rNfDBOx9hHxLZYv2by47Sm/pqW35zzjusrZTryatjN/Rf8Us2gZrJD+KeHbUSTux1Cw==}
     dev: true
 
   /@types/prop-types@15.7.6:
@@ -16236,6 +16243,11 @@ packages:
     engines: {node: '>=14.16'}
     dependencies:
       parse-ms: 3.0.0
+    dev: false
+
+  /prismjs@1.29.0:
+    resolution: {integrity: sha512-Kx/1w86q/epKcmte75LNrEoT+lX8pBpavuAbvJWRXar7Hz8jrtF+e3vY751p0R8H9HdArwaCTNDDzHg/ScJK1Q==}
+    engines: {node: '>=6'}
     dev: false
 
   /proc-log@3.0.0:

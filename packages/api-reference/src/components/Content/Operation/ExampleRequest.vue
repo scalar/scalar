@@ -2,7 +2,6 @@
 import { HttpMethod } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
 import { snippetz } from '@scalar/snippetz'
-import { CodeMirror } from '@scalar/use-codemirror'
 import { HTTPSnippet } from 'httpsnippet-lite'
 import { computed, ref, watch } from 'vue'
 
@@ -18,6 +17,7 @@ import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
 import type { TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
+import { CodeBlock } from '../../CodeBlock'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
@@ -34,10 +34,6 @@ const { availableTargets } = useSnippetTargets()
 
 const { server: serverState, authentication: authenticationState } =
   useGlobalStore()
-
-const CodeMirrorLanguages = computed(() => {
-  return [state.selectedClient.targetKey]
-})
 
 const hasMultipleExamples = computed<boolean>(
   () =>
@@ -184,11 +180,10 @@ computed(() => {
       <!-- Multiple examples -->
       <div class="code-snippet">
         <!-- @vue-ignore -->
-        <CodeMirror
+        <CodeBlock
           :content="CodeMirrorValue"
-          :languages="CodeMirrorLanguages"
-          lineNumbers
-          readOnly />
+          :lang="state.selectedClient.targetKey"
+          lineNumbers />
       </div>
     </CardContent>
     <CardFooter
