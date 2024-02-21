@@ -162,6 +162,15 @@ pre[class*='language-'].line-numbers {
   color: var(--theme-color-blue, var(--default-theme-color-blue));
 }
 
+.light-mode .dark-mode .language-shell .token.variable {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
+.light-mode .dark-mode .language-shell .token.string {
+  color: var(--theme-color-blue, var(--default-theme-color-blue));
+}
+.language-shell .token.string {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
 .token.operator,
 .token.entity,
 .token.url {

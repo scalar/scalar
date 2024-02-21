@@ -30,7 +30,7 @@ withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
   padding-bottom: 0;
 }
 .parameter-item-container {
-  padding: 6px 0;
+  padding: 0;
 }
 
 .parameter-item-name {
