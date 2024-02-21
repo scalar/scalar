@@ -4,3 +4,6 @@ dist/
 .turbo
 *.tgz
 tsconfig.tsbuildinfo
+
+# Testing data
+test-*.json

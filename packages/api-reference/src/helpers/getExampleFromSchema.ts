@@ -23,7 +23,7 @@ export const getExampleFromSchema = (
   level: number = 0,
 ): any => {
   // Break an infinite loop
-  if (level > 10) {
+  if (level > 5) {
     return null
   }
 

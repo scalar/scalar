@@ -3,12 +3,13 @@ import { useResizeObserver } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
 import { hasModels } from '../../helpers'
-import { useRefOnMount } from '../../hooks'
+import { useNavState, useRefOnMount } from '../../hooks'
 import type { Spec } from '../../types'
 import { Authentication } from './Authentication'
 import { BaseUrl } from './BaseUrl'
 import { ClientLibraries } from './ClientLibraries'
 import { Introduction } from './Introduction'
+import { Lazy, Loading } from './Lazy'
 import { Models, ModelsAccordion } from './Models'
 import { Operation, OperationAccordion } from './Operation'
 import { Tag, TagAccordion } from './Tag'
@@ -22,6 +23,8 @@ const props = defineProps<{
 
 const referenceEl = ref<HTMLElement | null>(null)
 const isNarrow = ref(true)
+
+const { getOperationId, getTagId } = useNavState()
 
 useResizeObserver(
   referenceEl,
@@ -65,6 +68,12 @@ const endpointLayout = computed<typeof Operation>(() =>
 const introCardsSlot = computed(() =>
   props.layout === 'accordion' ? 'after' : 'aside',
 )
+
+// If the first load is models, we do not lazy load tags/operations
+const isLazy =
+  props.layout !== 'accordion' &&
+  typeof window !== 'undefined' &&
+  !window.location.hash.startsWith('#model')
 </script>
 <template>
   <div
@@ -73,6 +82,12 @@ const introCardsSlot = computed(() =>
       'references-narrow': isNarrow,
     }">
     <slot name="start" />
+
+    <Loading
+      :layout="layout"
+      :parsedSpec="parsedSpec"
+      :server="localServers[0]" />
+
     <Introduction
       v-if="parsedSpec.info.title || parsedSpec.info.description"
       :info="parsedSpec.info"
@@ -91,27 +106,37 @@ const introCardsSlot = computed(() =>
     <slot
       v-else
       name="empty-state" />
-    <template
-      v-for="(tag, index) in parsedSpec.tags"
-      :key="tag.id">
+
+    <Lazy
+      v-for="tag in parsedSpec.tags"
+      :id="getTagId(tag)"
+      :key="getTagId(tag)"
+      :isLazy="isLazy">
       <Component
         :is="tagLayout"
         v-if="tag.operations && tag.operations.length > 0"
-        :isFirst="index === 0"
+        :id="getTagId(tag)"
         :spec="parsedSpec"
         :tag="tag">
-        <Component
-          :is="endpointLayout"
-          v-for="operation in tag.operations"
+        <Lazy
+          v-for="(operation, operationIndex) in tag.operations"
+          :id="getOperationId(operation, tag)"
           :key="`${operation.httpVerb}-${operation.operationId}`"
-          :operation="operation"
-          :server="localServers[0]"
-          :tag="tag" />
+          :isLazy="operationIndex > 0">
+          <Component
+            :is="endpointLayout"
+            :id="getOperationId(operation, tag)"
+            :operation="operation"
+            :server="localServers[0]"
+            :tag="tag" />
+        </Lazy>
       </Component>
-    </template>
+    </Lazy>
+
     <template v-if="parsedSpec.webhooks">
       <Webhooks :webhooks="parsedSpec.webhooks" />
     </template>
+
     <template v-if="hasModels(parsedSpec)">
       <ModelsAccordion
         v-if="layout === 'accordion'"

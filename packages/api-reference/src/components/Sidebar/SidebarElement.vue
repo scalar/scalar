@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
 import { ScalarIconButton } from '@scalar/components'
-import { ref } from 'vue'
 
 import { Icon } from '../Icon'
 
 const props = defineProps<{
+  id: string
   item: {
     id: string
     title: string
@@ -31,14 +31,10 @@ const handleClick = async () => {
   if (props.hasChildren) emit('toggleOpen')
   props.item?.select?.()
 }
-
-// Ensure we expose the root element
-const el = ref<HTMLElement | null>(null)
-defineExpose({ el })
 </script>
 <template>
   <li
-    ref="el"
+    :id="id"
     class="sidebar-group-item">
     <div
       class="sidebar-heading"

@@ -2,8 +2,8 @@
 import { HttpMethod } from '@scalar/api-client'
 import { ScalarIcon, ScalarIconButton } from '@scalar/components'
 
-import { useClipboard, useNavState } from '../../../hooks'
-import type { Tag, TransformedOperation } from '../../../types'
+import { useClipboard } from '../../../hooks'
+import type { TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { MarkdownRenderer } from '../../MarkdownRenderer'
 import { SectionAccordion } from '../../Section'
@@ -14,16 +14,15 @@ import { PathResponses } from './PathResponses'
 import TryRequestButton from './TryRequestButton.vue'
 
 defineProps<{
+  id?: string
   operation: TransformedOperation
-  tag: Tag
 }>()
 
 const { copyToClipboard } = useClipboard()
-const { getOperationId } = useNavState()
 </script>
 <template>
   <SectionAccordion
-    :id="getOperationId(operation, tag)"
+    :id="id"
     class="reference-endpoint"
     transparent>
     <template #title>
@@ -34,7 +33,7 @@ const { getOperationId } = useNavState()
             :method="operation.httpVerb"
             short />
           <Anchor
-            :id="getOperationId(operation, tag)"
+            :id="id ?? ''"
             class="endpoint-anchor">
             <div class="endpoint-label">
               <div class="endpoint-label-path">

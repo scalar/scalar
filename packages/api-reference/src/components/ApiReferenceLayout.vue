@@ -2,7 +2,7 @@
 import { type SwaggerEditor } from '@scalar/swagger-editor'
 import { type ThemeId } from '@scalar/themes'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import { useNavState, useSidebar } from '../hooks'
 import type {
@@ -43,18 +43,12 @@ useResizeObserver(documentEl, (entries) => {
 })
 
 // Scroll to hash if exists
-const initiallyScrolled = ref(false)
 const { breadcrumb, setCollapsedSidebarItem } = useSidebar()
-const { hash, getSectionId } = useNavState()
+const { enableHashListener, getSectionId, getTagId, hash } = useNavState()
 
-// Wait until we have a parsed spec then scroll to hash
-watch(props.parsedSpec, async (val) => {
-  if (initiallyScrolled.value || !val?.info?.title) return
-  initiallyScrolled.value = true
-  const sectionId = getSectionId()
-  const hashStr = hash.value
+enableHashListener()
 
-  // The original scroll to top from mounted
+onMounted(() => {
   if (!hash.value) {
     document.querySelector('#tippy')?.scrollTo({
       top: 0,
@@ -62,15 +56,14 @@ watch(props.parsedSpec, async (val) => {
     })
   }
 
-  // Ensure we open the section
-  if (sectionId) setCollapsedSidebarItem(sectionId, true)
+  // Ensure section is open for SSG
+  const firstTag = props.parsedSpec.tags?.[0]
+  let sectionId: string | null = null
 
-  // I tried to get this to work with nextTick but it would scroll half way above
-  // the section, I'm assuming this is due to the time for the section to render
-  // We can probably come up with something better but this works for now
-  setTimeout(() => {
-    document.getElementById(hashStr)?.scrollIntoView()
-  }, 0)
+  if (hash.value) sectionId = getSectionId(hash.value)
+  else if (firstTag) sectionId = getTagId(firstTag)
+
+  if (sectionId) setCollapsedSidebarItem(sectionId, true)
 })
 
 const showRenderedContent = computed(

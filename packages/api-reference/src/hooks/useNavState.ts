@@ -8,7 +8,7 @@ import type { Tag, TransformedOperation } from '../types'
 const hash = ref('')
 
 // To disable the intersection observer on click
-const isIntersectionEnabled = ref(true)
+const isIntersectionEnabled = ref(false)
 
 /**
  * ID creation methods
@@ -54,13 +54,30 @@ const getTagId = ({ name }: Tag) => {
 // Grabs the sectionId of the hash to open the section before scrolling
 const getSectionId = (hashStr = hash.value) => {
   const tagId = hashStr.match(/(tag\/[^/]+)/)?.[0]
-  const modelId = hashStr.includes('model/') ? 'models' : ''
+  const modelId = hashStr.startsWith('model') ? 'models' : ''
 
   return tagId ?? modelId
 }
 
 // Update the reactive hash state
 const updateHash = () => (hash.value = window.location.hash.replace(/^#/, ''))
+
+// We should call this as little as possible, ideally once
+const enableHashListener = () =>
+  onMounted(async () => {
+    updateHash()
+    window.onhashchange = async () => {
+      isIntersectionEnabled.value = false
+      updateHash()
+
+      // TODO: we should be able to remove this once we find the cause
+      // for some reason pressing back doesn't always scroll to the correct section
+      scrollToId(window.location.hash.replace(/^#/, ''))
+
+      await sleep(100)
+      isIntersectionEnabled.value = true
+    }
+  })
 
 /**
  * Hook which provides reactive hash state from the URL
@@ -72,24 +89,7 @@ const updateHash = () => (hash.value = window.location.hash.replace(/^#/, ''))
  *
  * @param hasLifecyle - we cannot use lifecycle hooks when called from another composable, this prevents that
  */
-export const useNavState = (hasLifecyle = true) => {
-  if (hasLifecyle) {
-    onMounted(() => {
-      updateHash()
-      window.onhashchange = async () => {
-        isIntersectionEnabled.value = false
-        updateHash()
-
-        // TODO: we should be able to remove this once we find the cause
-        // for some reason pressing back doesn't always scroll to the correct section
-        scrollToId(window.location.hash.replace(/^#/, ''))
-
-        await sleep(100)
-        isIntersectionEnabled.value = true
-      }
-    })
-  }
-
+export const useNavState = () => {
   return {
     hash,
     getWebhookId,
@@ -99,5 +99,6 @@ export const useNavState = (hasLifecyle = true) => {
     getSectionId,
     getTagId,
     isIntersectionEnabled,
+    enableHashListener,
   }
 }
