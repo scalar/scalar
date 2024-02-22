@@ -76,6 +76,10 @@ const { parsedSpecRef, overwriteParsedSpecRef, errorRef } = useParser({
 
 watch(rawSpecRef, () => {
   emit('updateContent', rawSpecRef.value)
+
+  if (props?.configuration?.onSpecUpdate) {
+    props?.configuration?.onSpecUpdate(rawSpecRef.value)
+  }
 })
 
 // Use preparsed content, if it’s passed
