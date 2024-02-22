@@ -3,7 +3,6 @@
 "@scalar/fastify-api-reference": patch
 "@scalar/nestjs-api-reference": patch
 "@scalar/hono-api-reference": patch
-"@scalar/use-keyboard-event": patch
 "@scalar/api-client-proxy": patch
 "@scalar/swagger-editor": patch
 "@scalar/swagger-parser": patch
