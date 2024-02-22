@@ -10,7 +10,7 @@
     "parser",
     "swagger"
   ],
-  "version": "0.5.16",
+  "version": "0.5.17",
   "engines": {
     "node": ">=18"
   },

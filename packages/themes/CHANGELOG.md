@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.5.7
+
+### Patch Changes
+
+- c6b95ca: chore: upgrade from Vite 4 to Vite 5
+
 ## 0.5.6
 
 ### Patch Changes

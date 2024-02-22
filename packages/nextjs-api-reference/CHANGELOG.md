@@ -1,5 +1,14 @@
 # @scalar/nextjs-api-reference
 
+## 0.1.31
+
+### Patch Changes
+
+- c6b95ca: chore: upgrade from Vite 4 to Vite 5
+- Updated dependencies [0133f86]
+- Updated dependencies [c6b95ca]
+  - @scalar/api-reference@1.17.2
+
 ## 0.1.30
 
 ### Patch Changes
