@@ -8,7 +8,6 @@
 "@scalar/swagger-parser": patch
 "@scalar/use-codemirror": patch
 "@scalar/api-reference": patch
-"@scalar/use-clipboard": patch
 "@scalar/echo-server": patch
 "@scalar/use-tooltip": patch
 "@scalar/api-client": patch
