@@ -102,11 +102,16 @@ export function getRequestFromAuthentication(
         (securityScheme.type === 'basic' ||
           (securityScheme.type === 'http' && securityScheme.scheme === 'basic'))
       ) {
+        const { username, password } = authentication.http.basic
+
+        const token =
+          username?.length || password?.length
+            ? Buffer.from(`${username}:${password}`).toString('base64')
+            : ''
+
         headers.push({
           name: 'Authorization',
-          value: `Basic ${Buffer.from(
-            `${authentication.http.basic.username}:${authentication.http.basic.password}`,
-          ).toString('base64')}`,
+          value: `Basic ${token}`.trim(),
         })
       }
       // Bearer Auth
