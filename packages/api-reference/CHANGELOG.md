@@ -1,5 +1,25 @@
 # @scalar/api-reference
 
+## 1.17.3
+
+### Patch Changes
+
+- 1669b27: chore: update dependencies
+- d96253a: fix: http basic auth empty credentials should not be encoded
+- 1669b27: refactor: migrate from use-toasts to vue-sonner
+- 9d43b0a: fix: urls with dynamic protocol are prefixed with the window location origin
+- a64c389: fix: onSpecUpdate is not called
+- 7ea052b: chore: remove some languages from CodeMirror
+- Updated dependencies [1669b27]
+- Updated dependencies [7ea052b]
+  - @scalar/swagger-editor@0.10.8
+  - @scalar/swagger-parser@0.5.18
+  - @scalar/use-tooltip@0.5.11
+  - @scalar/api-client@0.12.5
+  - @scalar/components@0.2.5
+  - @scalar/use-modal@0.2.8
+  - @scalar/themes@0.5.8
+
 ## 1.17.2
 
 ### Patch Changes
