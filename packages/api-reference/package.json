@@ -63,7 +63,6 @@
     "@scalar/swagger-parser": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-modal": "workspace:*",
-    "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
     "@unhead/schema": "^1.8.3",
     "@vcarl/remark-headings": "^0.1.0",
@@ -88,7 +87,8 @@
     "remark-rehype": "^11.1.0",
     "remark-stringify": "^11.0.0",
     "unhead": "^1.8.3",
-    "unified": "^11.0.4"
+    "unified": "^11.0.4",
+    "vue-sonner": "^1.0.3"
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",

@@ -7,7 +7,6 @@ import {
 } from '@scalar/swagger-editor'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { FlowModal, useModal } from '@scalar/use-modal'
-import { FlowToastContainer } from '@scalar/use-toasts'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, ref, watch } from 'vue'
 
@@ -24,6 +23,7 @@ import {
   type Spec,
 } from '../types'
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
+import CustomToaster from './CustomToaster.vue'
 import GettingStarted from './GettingStarted.vue'
 
 const props = defineProps<ReferenceProps>()
@@ -145,7 +145,7 @@ if (props.configuration?.authentication) {
     {{ currentConfiguration.customCss }}
   </component>
   <ThemeStyles :id="currentConfiguration?.theme" />
-  <FlowToastContainer />
+  <CustomToaster />
   <FlowModal
     :state="gettingStartedModal"
     title=""
