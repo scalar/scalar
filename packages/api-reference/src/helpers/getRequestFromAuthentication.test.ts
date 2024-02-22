@@ -139,6 +139,42 @@ describe('getRequestFromAuthentication', () => {
     })
   })
 
+  it('empty http basic auth', () => {
+    const request = getRequestFromAuthentication(
+      {
+        ...createEmptyAuthenticationState(),
+        securitySchemeKey: 'basic',
+        securitySchemes: {
+          basic: {
+            // @ts-ignore
+            type: 'basic',
+          },
+        },
+        http: {
+          ...createEmptyAuthenticationState().http,
+          basic: {
+            username: '',
+            password: '',
+          },
+        },
+      },
+      [
+        {
+          basic: [],
+        },
+      ],
+    )
+
+    expect(request).toMatchObject({
+      headers: [
+        {
+          name: 'Authorization',
+          value: 'Basic',
+        },
+      ],
+    })
+  })
+
   it('oAuth2 token in header', () => {
     const request = getRequestFromAuthentication(
       {
