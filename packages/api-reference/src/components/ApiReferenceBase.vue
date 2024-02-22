@@ -9,7 +9,6 @@ import { type ThemeId, ThemeStyles } from '@scalar/themes'
 import { FlowModal, useModal } from '@scalar/use-modal'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, ref, watch } from 'vue'
-import { Toaster } from 'vue-sonner'
 
 import { deepMerge } from '../helpers'
 import { useParser, useSnippetTargets, useSpec } from '../hooks'
@@ -24,6 +23,7 @@ import {
   type Spec,
 } from '../types'
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
+import CustomToaster from './CustomToaster.vue'
 import GettingStarted from './GettingStarted.vue'
 
 const props = defineProps<ReferenceProps>()
@@ -145,21 +145,7 @@ if (props.configuration?.authentication) {
     {{ currentConfiguration.customCss }}
   </component>
   <ThemeStyles :id="currentConfiguration?.theme" />
-  <Toaster
-    :toastOptions="{
-      style: {
-        'padding': '18px',
-        'background':
-          'var(--theme-background-1, var(--default-theme-background-1))',
-        'border-color':
-          'var(--theme-background-3, var(--default-theme-background-3))',
-        'border-radius':
-          'var(--theme-radius-lg, var(--default-theme-radius-lg))',
-        'font-size':
-          'var(--theme-font-size-3, var(--default-theme-font-size-3))',
-        'color': 'var(--theme-color-1, var(--default-theme-color-1))',
-      },
-    }" />
+  <CustomToaster />
   <FlowModal
     :state="gettingStartedModal"
     title=""

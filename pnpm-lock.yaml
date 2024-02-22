@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 overrides:
   '@apidevtools/json-schema-ref-parser': 9.0.7
 
@@ -215,7 +219,7 @@ importers:
         version: 10.0.1(@swc/cli@0.1.62)(@swc/core@1.3.64)
       '@nestjs/schematics':
         specifier: ^10.0.1
-        version: 10.0.1(chokidar@3.5.3)(typescript@5.1.3)
+        version: 10.0.1(typescript@5.3.3)
       '@nestjs/testing':
         specifier: ^10.0.0
         version: 10.0.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)
@@ -306,7 +310,7 @@ importers:
         version: 10.0.1(@swc/cli@0.1.62)(@swc/core@1.3.64)
       '@nestjs/schematics':
         specifier: ^10.0.1
-        version: 10.0.1(chokidar@3.5.3)(typescript@5.1.3)
+        version: 10.0.1(typescript@5.3.3)
       '@nestjs/testing':
         specifier: ^10.0.0
         version: 10.0.0(@nestjs/common@10.0.0)(@nestjs/core@10.0.0)
@@ -1375,36 +1379,6 @@ importers:
       vite:
         specifier: ^5.1.1
         version: 5.1.4(terser@5.24.0)
-      vitest:
-        specifier: ^1.2.2
-        version: 1.3.1(terser@5.24.0)
-      vue:
-        specifier: ^3.3.0
-        version: 3.3.4
-      vue-tsc:
-        specifier: ^1.8.19
-        version: 1.8.22(typescript@5.3.3)
-
-  packages/use-toasts:
-    devDependencies:
-      '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.4(vite@5.1.4)(vue@3.3.4)
-      '@vitest/coverage-v8':
-        specifier: ^1.2.2
-        version: 1.3.1(vitest@1.3.1)
-      nanoid:
-        specifier: ^5.0.1
-        version: 5.0.1
-      tsc-alias:
-        specifier: ^1.8.8
-        version: 1.8.8
-      vite:
-        specifier: ^5.1.1
-        version: 5.1.4(terser@5.24.0)
-      vite-plugin-css-injected-by-js:
-        specifier: ^3.4.0
-        version: 3.4.0(vite@5.1.4)
       vitest:
         specifier: ^1.2.2
         version: 1.3.1(terser@5.24.0)
@@ -4718,6 +4692,21 @@ packages:
       jsonc-parser: 3.2.0
       pluralize: 8.0.0
       typescript: 5.1.3
+    transitivePeerDependencies:
+      - chokidar
+    dev: true
+
+  /@nestjs/schematics@10.0.1(typescript@5.3.3):
+    resolution: {integrity: sha512-buxpYtSwOmWyf0nUJWJCkCkYITwbOfIEKHTnGS7sDbcfaajrOFXb5pPAGD2E1CUb3C1+NkQIURPKzs0IouZTQg==}
+    peerDependencies:
+      typescript: '>=4.8.2'
+    dependencies:
+      '@angular-devkit/core': 16.1.0(chokidar@3.5.3)
+      '@angular-devkit/schematics': 16.1.0(chokidar@3.5.3)
+      comment-json: 4.2.3
+      jsonc-parser: 3.2.0
+      pluralize: 8.0.0
+      typescript: 5.3.3
     transitivePeerDependencies:
       - chokidar
     dev: true
@@ -15415,6 +15404,7 @@ packages:
     resolution: {integrity: sha512-vWeVtV5Cw68aML/QaZvqN/3QQXc6fBfIieAlu05m7FZW2Dgb+3f0xc0TTxuJW+7u30t7iSDTV/j3kVI0oJqIfQ==}
     engines: {node: ^18 || >=20}
     hasBin: true
+    dev: false
 
   /natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
@@ -20508,7 +20498,3 @@ packages:
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: false
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
