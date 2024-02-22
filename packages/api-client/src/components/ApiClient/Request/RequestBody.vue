@@ -33,7 +33,7 @@ const updateActiveRequest = (value: string) => {
     <template v-else>
       <CodeMirror
         :content="activeRequest.body"
-        :languages="['json']"
+        language="json"
         lineNumbers
         @change="updateActiveRequest" />
     </template>

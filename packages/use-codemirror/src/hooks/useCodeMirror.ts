@@ -1,27 +1,6 @@
-import { css } from '@codemirror/lang-css'
 import { html } from '@codemirror/lang-html'
-import { java } from '@codemirror/lang-java'
-import { javascript } from '@codemirror/lang-javascript'
 import { json } from '@codemirror/lang-json'
-import { php } from '@codemirror/lang-php'
-import { python } from '@codemirror/lang-python'
-import { rust } from '@codemirror/lang-rust'
 import { type LanguageSupport, StreamLanguage } from '@codemirror/language'
-import {
-  c,
-  csharp,
-  kotlin,
-  objectiveC,
-} from '@codemirror/legacy-modes/mode/clike'
-import { clojure } from '@codemirror/legacy-modes/mode/clojure'
-import { go } from '@codemirror/legacy-modes/mode/go'
-import { http } from '@codemirror/legacy-modes/mode/http'
-import { oCaml } from '@codemirror/legacy-modes/mode/mllike'
-import { powerShell } from '@codemirror/legacy-modes/mode/powershell'
-import { r } from '@codemirror/legacy-modes/mode/r'
-import { ruby } from '@codemirror/legacy-modes/mode/ruby'
-import { shell } from '@codemirror/legacy-modes/mode/shell'
-import { swift } from '@codemirror/legacy-modes/mode/swift'
 import * as yamlMode from '@codemirror/legacy-modes/mode/yaml'
 import { type Extension, StateEffect } from '@codemirror/state'
 import {
@@ -51,7 +30,7 @@ type BaseParameters = {
   /** Whether to load a theme.*/
   withoutTheme?: MaybeRefOrGetter<boolean | undefined>
   /** Languages to support for syntax highlighting */
-  languages?: MaybeRefOrGetter<CodeMirrorLanguage[] | undefined>
+  language: MaybeRefOrGetter<CodeMirrorLanguage | undefined>
   /** Class names to apply to the instance */
   classes?: MaybeRefOrGetter<string[] | undefined>
   /** Put the editor into read-only mode */
@@ -132,7 +111,7 @@ export const useCodeMirror = (
     onChange: params.onChange,
     onBlur: params.onBlur,
     onFocus: params.onFocus,
-    languages: toValue(params.languages),
+    language: toValue(params.language),
     classes: toValue(params.classes),
     readOnly: toValue(params.readOnly),
     lineNumbers: toValue(params.lineNumbers),
@@ -223,28 +202,8 @@ export const useCodeMirror = (
 const syntaxHighlighting: {
   [lang in CodeMirrorLanguage]: LanguageSupport | StreamLanguage<any>
 } = {
-  c: StreamLanguage.define(c),
-  clojure: StreamLanguage.define(clojure),
-  csharp: StreamLanguage.define(csharp),
-  css: css(),
-  go: StreamLanguage.define(go),
-  http: StreamLanguage.define(http),
   html: html(),
-  java: java(),
-  javascript: javascript(),
   json: json(),
-  kotlin: StreamLanguage.define(kotlin),
-  node: javascript(),
-  objc: StreamLanguage.define(objectiveC),
-  ocaml: StreamLanguage.define(oCaml),
-  powershell: StreamLanguage.define(powerShell),
-  python: python(),
-  php: php(),
-  r: StreamLanguage.define(r),
-  ruby: StreamLanguage.define(ruby),
-  rust: rust(),
-  shell: StreamLanguage.define(shell),
-  swift: StreamLanguage.define(swift),
   yaml: StreamLanguage.define(yamlMode.yaml),
 }
 
@@ -254,7 +213,7 @@ function getCodeMirrorExtensions({
   onBlur,
   onFocus,
   provider,
-  languages = [],
+  language,
   classes = [],
   readOnly = false,
   lineNumbers = false,
@@ -264,7 +223,7 @@ function getCodeMirrorExtensions({
   additionalExtensions = [],
 }: {
   classes?: string[]
-  languages?: CodeMirrorLanguage[]
+  language?: CodeMirrorLanguage
   readOnly?: boolean
   lineNumbers?: boolean
   withVariables?: boolean
@@ -313,12 +272,8 @@ function getCodeMirrorExtensions({
   if (readOnly) extensions.push(EditorView.editable.of(false))
 
   // Syntax highlighting
-  if (languages.length) {
-    languages
-      .filter((language) => typeof syntaxHighlighting[language] !== 'undefined')
-      .forEach((language) => {
-        extensions.push(syntaxHighlighting[language] as Extension)
-      })
+  if (language && typeof syntaxHighlighting[language] === 'string') {
+    extensions.push(syntaxHighlighting[language] as Extension)
   }
 
   // Line numbers

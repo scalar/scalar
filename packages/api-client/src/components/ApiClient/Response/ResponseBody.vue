@@ -33,17 +33,17 @@ const mediaType = computed(() => {
   }
 })
 
-const codeMirrorLanguages = computed((): CodeMirrorLanguage[] | null => {
+const codeMirrorLanguage = computed((): CodeMirrorLanguage | null => {
   if (mediaType.value === 'application/json') {
-    return ['json']
+    return 'json'
   }
 
   if (mediaType.value === 'text/html') {
-    return ['html']
+    return 'html'
   }
 
   if (mediaType.value === 'text/plain') {
-    return ['html']
+    return 'html'
   }
 
   return null
@@ -53,9 +53,9 @@ const codeMirrorLanguages = computed((): CodeMirrorLanguage[] | null => {
   <CollapsibleSection title="Body">
     <template v-if="active">
       <CodeMirror
-        v-if="codeMirrorLanguages"
+        v-if="codeMirrorLanguage"
         :content="data"
-        :languages="codeMirrorLanguages"
+        :language="codeMirrorLanguage"
         readOnly />
       <div
         v-else

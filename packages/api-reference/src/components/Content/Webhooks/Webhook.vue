@@ -28,7 +28,7 @@ const { responses } = useResponses(props.webhook)
           ),
         )
       "
-      :languages="['json']"
+      language="json"
       readOnly /> -->
 
     <RequestBody :requestBody="webhook.information?.requestBody">
