@@ -8,7 +8,7 @@ const props = withDefaults(
   defineProps<{
     content: string | undefined
     readOnly?: boolean
-    languages?: CodeMirrorLanguage[]
+    language?: CodeMirrorLanguage
     withVariables?: boolean
     lineNumbers?: boolean
     withoutTheme?: boolean
@@ -29,7 +29,7 @@ const codeMirrorRef = ref<HTMLDivElement | null>(null)
 useCodeMirror({
   content: toRef(() => props.content),
   readOnly: toRef(() => props.readOnly),
-  languages: toRef(() => props.languages),
+  language: toRef(() => props.language),
   withVariables: toRef(() => props.withVariables),
   lineNumbers: toRef(() => props.lineNumbers),
   withoutTheme: toRef(() => props.withoutTheme),

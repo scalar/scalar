@@ -30,7 +30,7 @@ type BaseParameters = {
   /** Whether to load a theme.*/
   withoutTheme?: MaybeRefOrGetter<boolean | undefined>
   /** Languages to support for syntax highlighting */
-  languages?: MaybeRefOrGetter<CodeMirrorLanguage[] | undefined>
+  language: MaybeRefOrGetter<CodeMirrorLanguage | undefined>
   /** Class names to apply to the instance */
   classes?: MaybeRefOrGetter<string[] | undefined>
   /** Put the editor into read-only mode */
@@ -111,7 +111,7 @@ export const useCodeMirror = (
     onChange: params.onChange,
     onBlur: params.onBlur,
     onFocus: params.onFocus,
-    languages: toValue(params.languages),
+    language: toValue(params.language),
     classes: toValue(params.classes),
     readOnly: toValue(params.readOnly),
     lineNumbers: toValue(params.lineNumbers),
@@ -213,7 +213,7 @@ function getCodeMirrorExtensions({
   onBlur,
   onFocus,
   provider,
-  languages = [],
+  language,
   classes = [],
   readOnly = false,
   lineNumbers = false,
@@ -223,7 +223,7 @@ function getCodeMirrorExtensions({
   additionalExtensions = [],
 }: {
   classes?: string[]
-  languages?: CodeMirrorLanguage[]
+  language?: CodeMirrorLanguage
   readOnly?: boolean
   lineNumbers?: boolean
   withVariables?: boolean
@@ -272,12 +272,8 @@ function getCodeMirrorExtensions({
   if (readOnly) extensions.push(EditorView.editable.of(false))
 
   // Syntax highlighting
-  if (languages.length) {
-    languages
-      .filter((language) => typeof syntaxHighlighting[language] !== 'undefined')
-      .forEach((language) => {
-        extensions.push(syntaxHighlighting[language] as Extension)
-      })
+  if (language && typeof syntaxHighlighting[language] === 'string') {
+    extensions.push(syntaxHighlighting[language] as Extension)
   }
 
   // Line numbers
