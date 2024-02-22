@@ -6,6 +6,6 @@
     "esbenp.prettier-vscode",
     "bradlc.vscode-tailwindcss",
     "cpylua.language-postcss",
-    "zixuanchen.vitest-explorer"
+    "vitest.explorer"
   ]
 }
