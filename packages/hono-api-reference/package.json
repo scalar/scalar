@@ -43,8 +43,8 @@
   "devDependencies": {
     "hono": "^3.11.7",
     "tsup": "^7.2.0",
-    "vite": "^4.5.2",
-    "vitest": "^0.34.4"
+    "vite": "^5.1.1",
+    "vitest": "^1.2.2"
   },
   "peerDependencies": {
     "hono": "^3.0.0"

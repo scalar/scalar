@@ -20,6 +20,6 @@
     "@types/express": "^4.17.21",
     "@types/swagger-jsdoc": "^6.0.3",
     "nodemon": "^3.0.1",
-    "vite-node": "^0.34.4"
+    "vite-node": "^1.2.2"
   }
 }

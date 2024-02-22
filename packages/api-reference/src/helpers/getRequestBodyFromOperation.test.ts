@@ -30,7 +30,7 @@ describe('getRequestBodyFromOperation', () => {
       id: 1,
     }
 
-    expect(request?.postData).toContain({
+    expect(request?.postData).toMatchObject({
       mimeType: 'application/json',
       text: JSON.stringify(expectedResult, null, 2),
     })
@@ -64,7 +64,7 @@ describe('getRequestBodyFromOperation', () => {
       id: 1,
     }
 
-    expect(request?.postData).toContain({
+    expect(request?.postData).toMatchObject({
       mimeType: 'application/json',
       text: JSON.stringify(expectedResult, null, 2),
     })
@@ -106,7 +106,7 @@ describe('getRequestBodyFromOperation', () => {
       },
     }
 
-    expect(request?.postData).toContain({
+    expect(request?.postData).toMatchObject({
       mimeType: 'application/json',
       text: JSON.stringify(expectedResult, null, 2),
     })
