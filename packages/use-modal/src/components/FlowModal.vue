@@ -25,7 +25,7 @@ withDefaults(
   <Dialog
     :open="state.open"
     @close="state.hide()">
-    <div class="modal-layout">
+    <div class="scalar-modal-layout modal-layout">
       <DialogPanel
         class="modal"
         :class="{
