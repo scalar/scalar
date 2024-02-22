@@ -41,14 +41,8 @@
     "directory": "packages/use-codemirror"
   },
   "dependencies": {
-    "@codemirror/lang-css": "^6.2.1",
     "@codemirror/lang-html": "^6.4.8",
-    "@codemirror/lang-java": "^6.0.0",
-    "@codemirror/lang-javascript": "^6.0.0",
     "@codemirror/lang-json": "^6.0.0",
-    "@codemirror/lang-php": "^6.0.1",
-    "@codemirror/lang-python": "^6.1.4",
-    "@codemirror/lang-rust": "^6.0.1",
     "@codemirror/language": "^6.10.1",
     "@codemirror/legacy-modes": "^6.0.0",
     "@codemirror/state": "^6.4.0",
