@@ -12,7 +12,10 @@ export function getUrlFromServerState(state: ServerState) {
       : state?.servers?.[state.selectedServer]
 
   // Replace variables: {protocol}://{host}:{port}/{basePath}
-  let url = replaceVariables(server?.url, state.variables)
+  let url =
+    typeof server?.url === 'string'
+      ? replaceVariables(server?.url, state.variables)
+      : server?.url
 
   // Path `/v1`
   if (url?.startsWith('/')) {
