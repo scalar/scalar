@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { highlightElement, plugins } from 'prismjs'
+import prismjs from 'prismjs'
 import 'prismjs/components/prism-bash'
 import 'prismjs/components/prism-json'
 import 'prismjs/plugins/autoloader/prism-autoloader.js'
@@ -29,6 +29,12 @@ const props = withDefaults(
     lineNumbers: false,
   },
 )
+
+/**
+ * The requested module 'prismjs' is a CommonJS module, which may not support all module.exports as named exports.
+ * CommonJS modules can always be imported via the default export, for example using:
+ */
+const { plugins, highlightElement } = prismjs
 
 const el = ref(null)
 const language = computed(() => {
