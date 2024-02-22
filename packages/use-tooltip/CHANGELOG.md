@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 0.5.10
+
+### Patch Changes
+
+- c6b95ca: chore: upgrade from Vite 4 to Vite 5
+
 ## 0.5.9
 
 ### Patch Changes

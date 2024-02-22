@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 0.12.4
+
+### Patch Changes
+
+- c6b95ca: chore: upgrade from Vite 4 to Vite 5
+- Updated dependencies [c6b95ca]
+  - @scalar/use-codemirror@0.8.5
+  - @scalar/components@0.2.4
+  - @scalar/use-modal@0.2.7
+  - @scalar/themes@0.5.7
+
 ## 0.12.3
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/swagger-editor
 
+## 0.10.7
+
+### Patch Changes
+
+- c6b95ca: chore: upgrade from Vite 4 to Vite 5
+- Updated dependencies [c6b95ca]
+  - @scalar/use-codemirror@0.8.5
+  - @scalar/components@0.2.4
+  - @scalar/themes@0.5.7
+
 ## 0.10.6
 
 ### Patch Changes

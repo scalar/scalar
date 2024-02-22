@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.17.2
+
+### Patch Changes
+
+- 0133f86: fix: prismJS is commonjs and breaks in ESM envs
+- c6b95ca: chore: upgrade from Vite 4 to Vite 5
+- Updated dependencies [c6b95ca]
+  - @scalar/swagger-editor@0.10.7
+  - @scalar/swagger-parser@0.5.17
+  - @scalar/use-tooltip@0.5.10
+  - @scalar/api-client@0.12.4
+  - @scalar/components@0.2.4
+  - @scalar/use-toasts@0.5.15
+  - @scalar/use-modal@0.2.7
+  - @scalar/themes@0.5.7
+
 ## 1.17.1
 
 ### Patch Changes

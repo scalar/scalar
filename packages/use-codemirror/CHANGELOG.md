@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.8.5
+
+### Patch Changes
+
+- c6b95ca: chore: upgrade from Vite 4 to Vite 5
+
 ## 0.8.4
 
 ### Patch Changes
