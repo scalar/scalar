@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.20
+
+### Patch Changes
+
+- 1669b27: chore: update dependencies
+
 ## 0.5.19
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 0.5.11
+
+### Patch Changes
+
+- 1669b27: chore: update dependencies
+
 ## 0.5.10
 
 ### Patch Changes

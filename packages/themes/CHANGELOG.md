@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.5.8
+
+### Patch Changes
+
+- 1669b27: chore: update dependencies
+
 ## 0.5.7
 
 ### Patch Changes

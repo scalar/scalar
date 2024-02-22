@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.2.5
+
+### Patch Changes
+
+- 1669b27: chore: update dependencies
+
 ## 0.2.4
 
 ### Patch Changes
