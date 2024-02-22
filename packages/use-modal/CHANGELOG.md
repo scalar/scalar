@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.2.6
+
+### Patch Changes
+
+- 3ade0d1: feat: add scalar-modal-class
+
 ## 0.2.5
 
 ### Patch Changes
