@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.12.6
+
+### Patch Changes
+
+- b9523b7: fix: allow application/problem+json return type
+
 ## 0.12.5
 
 ### Patch Changes
