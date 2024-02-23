@@ -34,7 +34,10 @@ const mediaType = computed(() => {
 })
 
 const codeMirrorLanguage = computed((): CodeMirrorLanguage | null => {
-  if (mediaType.value === 'application/json') {
+  if (
+    mediaType.value === 'application/json' ||
+    mediaType.value === 'application/problem+json'
+  ) {
     return 'json'
   }
 
