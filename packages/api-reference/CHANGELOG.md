@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.17.4
+
+### Patch Changes
+
+- b9523b7: fix: allow application/problem+json return type
+- Updated dependencies [b9523b7]
+  - @scalar/api-client@0.12.6
+
 ## 1.17.3
 
 ### Patch Changes
