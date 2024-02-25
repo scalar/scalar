@@ -1,10 +1,13 @@
 import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
 /**
  * Read the JavaScript file.
  */
 export function getJavaScriptFile() {
+  const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
   const filePath = [
     path.resolve(`${__dirname}/js/standalone.js`),
     path.resolve(`${__dirname}/../../dist/js/standalone.js`),
