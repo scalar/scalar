@@ -59,7 +59,7 @@ export const getExampleFromSchema = (
 
   // Object
   if (schema.type === 'object' || schema.properties !== undefined) {
-    let response: Record<string, any> = {}
+    const response: Record<string, any> = {}
 
     // Regular properties
     if (schema.properties !== undefined) {
@@ -88,10 +88,11 @@ export const getExampleFromSchema = (
 
       // Merge objects, but not arrays
       if (
+        additionalSchema &&
         typeof additionalSchema === 'object' &&
         !Array.isArray(additionalSchema)
       ) {
-        response = {
+        return {
           ...response,
           ...getExampleFromSchema(
             schema.additionalProperties,
@@ -100,9 +101,18 @@ export const getExampleFromSchema = (
           ),
         }
       }
-      // Otherwise just overwrite what’s there
-      else {
-        response = additionalSchema
+      // Add an example for nullable properties
+      if (additionalSchema === null) {
+        return null
+      }
+      // Otherwise, add an example of key-value pair
+      return {
+        ...response,
+        someKey: getExampleFromSchema(
+          schema.additionalProperties,
+          options,
+          level + 1,
+        ),
       }
     }
 
