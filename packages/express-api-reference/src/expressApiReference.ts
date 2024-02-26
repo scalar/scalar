@@ -50,7 +50,7 @@ export const customThemeCSS = `
   --sidebar-color-active: var(--theme-color-accent);
   --sidebar-search-background: transparent;
   --sidebar-search-border-color: var(--theme-border-color);
-  --sidebar-search--color: var(--theme-color-3);
+  --sidebar-search-color: var(--theme-color-3);
 }
 
 .dark-mode .sidebar {
@@ -64,7 +64,7 @@ export const customThemeCSS = `
   --sidebar-color-active: var(--theme-color-accent);
   --sidebar-search-background: transparent;
   --sidebar-search-border-color: var(--theme-border-color);
-  --sidebar-search--color: var(--theme-color-3);
+  --sidebar-search-color: var(--theme-color-3);
 }
 
 /* advanced */

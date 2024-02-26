@@ -1,99 +1,77 @@
+/* basic theme */
 .light-mode {
-  color-scheme: light;
-  --default-theme-color-1: #24293c;
-  --default-theme-color-2: #4a5166;
-  --default-theme-color-3: #888c9a;
-  --default-theme-color-accent: #5369d2;
   --default-theme-background-1: #fff;
-  --default-theme-background-2: #f6f6f6;
-  --default-theme-background-3: #e7e7e7;
-  --default-theme-background-accent: #5369d20f;
-  --default-theme-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
+  --default-theme-background-2: #f5f6f8;
+  --default-theme-background-3: #eceef1;
 
-  --default-theme-border-color: #d8e0e8;
-  --default-theme-scrollbar-color: rgba(0, 0, 0, 0.18);
-  --default-theme-scrollbar-color-active: rgba(0, 0, 0, 0.36);
-  --default-theme-lifted-brightness: 1;
-  --default-theme-backdrop-brightness: 1;
+  --default-theme-color-1: #2a2f45;
+  --default-theme-color-2: #757575;
+  --default-theme-color-3: #8e8e8e;
 
-  --default-theme-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
-  --default-theme-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px,
-    rgba(0, 0, 0, 0.08) 0px 3px 8px 0px,
-    var(--default-theme-border-color) 0px 0 0 1px;
+  --default-theme-color-accent: #5469d4;
+  --default-theme-background-accent: #5469d41f;
 
-  --default-theme-button-1: rgb(49 53 56);
-  --default-theme-button-1-color: #fff;
-  --default-theme-button-1-hover: rgb(28 31 33);
-
-  --default-theme-color-green: #069061;
-  --default-theme-color-red: #ef0006;
-  --default-theme-color-yellow: #edbe20;
-  --default-theme-color-blue: #0082d0;
-  --default-theme-color-orange: #fb892c;
-  --default-theme-color-purple: #5203d1;
+  --default-theme-border-color: rgba(215, 215, 206, 0.5);
 }
-
 .dark-mode {
-  color-scheme: dark;
-  --default-theme-color-1: #f2f2f4;
-  --default-theme-color-2: #acaeb6;
-  --default-theme-color-3: #858893;
-  --default-theme-color-accent: #5579df;
-  --default-theme-background-1: #262a3f;
-  --default-theme-background-2: #383c4f;
-  --default-theme-background-3: #4a4d5f;
-  --default-theme-background-accent: #5579df1f;
-  --default-theme-border-color: rgba(255, 255, 255, 0.1);
-  --default-theme-scrollbar-color: rgba(255, 255, 255, 0.24);
-  --default-theme-scrollbar-color-active: rgba(255, 255, 255, 0.48);
-  --default-theme-lifted-brightness: 1.45;
-  --default-theme-backdrop-brightness: 0.5;
+  --default-theme-background-1: #15171c;
+  --default-theme-background-2: #1c1e24;
+  --default-theme-background-3: #22252b;
 
-  --default-theme-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
-  --default-theme-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px,
-    rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px rgba(255, 255, 255, 0.1);
+  --default-theme-color-1: #fafafa;
+  --default-theme-color-2: #c9ced8;
+  --default-theme-color-3: #8c99ad;
 
-  --default-theme-button-1: #f6f6f6;
-  --default-theme-button-1-color: #000;
-  --default-theme-button-1-hover: #e7e7e7;
+  --default-theme-color-accent: #5469d4;
+  --default-theme-background-accent: #5469d41f;
 
-  --default-theme-color-green: #00b648;
+  --default-theme-border-color: rgba(255, 255, 255, 0.12);
+}
+/* Document header */
+.light-mode .t-doc__header,
+.dark-mode .t-doc__header {
+  --header-background-1: var(--default-theme-background-1);
+  --header-color-1: var(--default-theme-color-1);
+  --header-color-2: var(--default-theme-color-2);
+  --header-border-color: var(--default-theme-border-color);
+  --header-call-to-action-color: var(--default-theme-color-accent);
+}
+/* Document Sidebar */
+.light-mode .t-doc__sidebar,
+.dark-mode .t-doc__sidebar {
+  --sidebar-background-1: var(--default-theme-background-1);
+  --sidebar-color-1: var(--default-theme-color-1);
+  --sidebar-color-2: var(--default-theme-color-2);
+  --sidebar-border-color: var(--default-theme-border-color);
+
+  /* Sidebar item hover */
+  --sidebar-item-hover-color: currentColor;
+  --sidebar-item-hover-background: var(--default-theme-background-3);
+
+  /* Sidebar Active */
+  --sidebar-item-active-background: var(--default-theme-background-accent);
+  --sidebar-color-active: var(--default-theme-color-accent);
+
+  /* Sidebar Search */
+  --sidebar-search-background: var(--default-theme-background-1);
+  --sidebar-search-color: var(--default-theme-color-3);
+  --sidebar-search-border-color: var(--default-theme-border-color);
+}
+
+/* advanced */
+.light-mode {
+  --default-theme-color-green: #17803d;
+  --default-theme-color-red: #e10909;
+  --default-theme-color-yellow: #edbe20;
+  --default-theme-color-blue: #1763a6;
+  --default-theme-color-orange: #e25b09;
+  --default-theme-color-purple: #5c3993;
+}
+.dark-mode {
+  --default-theme-color-green: #30a159;
   --default-theme-color-red: #dc1b19;
-  --default-theme-color-yellow: #ffc90d;
-  --default-theme-color-blue: #4eb3ec;
-  --default-theme-color-orange: #ff8d4d;
-  --default-theme-color-purple: #b191f9;
-}
-
-/* Sidebar */
-.light-mode .t-doc__sidebar {
-  --default-sidebar-background-1: var(--default-theme-background-1);
-  --default-sidebar-item-hover-color: currentColor;
-  --default-sidebar-item-hover-background: var(--default-theme-background-2);
-  --default-sidebar-item-active-background: var(
-    --default-theme-background-accent
-  );
-  --default-sidebar-border-color: var(--default-theme-border-color);
-  --default-sidebar-color-1: var(--default-theme-color-1);
-  --default-sidebar-color-2: var(--default-theme-color-2);
-  --default-sidebar-color-active: var(--default-theme-color-accent);
-  --default-sidebar-search-background: var(--default-theme-background-2);
-  --default-sidebar-search-border-color: var(--default-theme-border-color);
-  --default-sidebar-search--color: var(--default-theme-color-3);
-}
-
-.dark-mode .sidebar {
-  --default-sidebar-background-1: var(--default-theme-background-1);
-  --default-sidebar-item-hover-color: currentColor;
-  --default-sidebar-item-hover-background: var(--default-theme-background-2);
-  --default-sidebar-item-active-background: var(
-    --default-theme-background-accent
-  );
-  --default-sidebar-border-color: var(--default-theme-border-color);
-  --default-sidebar-color-1: var(--default-theme-color-1);
-  --default-sidebar-color-2: var(--default-theme-color-2);
-  --default-sidebar-color-active: var(--default-theme-color-accent);
-  --default-sidebar-search-background: var(--default-theme-background-2);
-  --default-sidebar-search-border-color: var(--default-theme-border-color);
-  --default-sidebar-search--color: var(--default-theme-color-3);
+  --default-theme-color-yellow: #eec644;
+  --default-theme-color-blue: #2b7abf;
+  --default-theme-color-orange: #f07528;
+  --default-theme-color-purple: #7a59b1;
 }

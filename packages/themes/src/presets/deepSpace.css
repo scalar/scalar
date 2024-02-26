@@ -41,7 +41,7 @@
   --sidebar-color-active: var(--default-theme-color-accent);
   --sidebar-search-background: transparent;
   --sidebar-search-border-color: var(--default-theme-border-color);
-  --sidebar-search--color: var(--default-theme-color-3);
+  --sidebar-search-color: var(--default-theme-color-3);
 }
 .light-mode .t-doc__sidebar {
   --sidebar-item-active-background: #09090b;
@@ -166,9 +166,6 @@
   );
   border-radius: 30px;
   opacity: 0.3;
-}
-.code-languages-icon {
-  padding: 12px !important;
 }
 .code-languages span {
   margin-top: 5px !important;
