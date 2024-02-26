@@ -12,7 +12,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "1.17.3",
+  "version": "1.17.5",
   "engines": {
     "node": ">=18"
   },

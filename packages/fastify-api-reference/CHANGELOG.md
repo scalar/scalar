@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.17.5
+
+### Patch Changes
+
+- d78e247: fix: ESM envs \_\_dirname is undefined
+
 ## 1.17.3
 
 ### Patch Changes
