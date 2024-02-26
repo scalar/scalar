@@ -194,7 +194,9 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
-Read more: [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference)
+We wrote a [detailed integration guide for Fastify](https://github.com/scalar/scalar/tree/main/documentation/fastify.md), too.
+
+Read more about the package: [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference)
 
 ### With Platformatic
 

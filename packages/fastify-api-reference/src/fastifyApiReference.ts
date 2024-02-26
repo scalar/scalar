@@ -166,11 +166,11 @@ const fastifyApiReference: FastifyPluginAsync<
 
   // Register fastify-html if it isn’t registered yet.
   if (!fastify.hasPlugin('fastify-html')) {
-    // @ts-ignore
+    // @ts-expect-error fastify-html doesn’t have types for some reason
     await fastify.register(import('fastify-html'))
   }
 
-  // If no spec is passed and @fastify/swagger isn’t loaded, show a warning.
+  // If no OpenAPI specification is passed and @fastify/swagger isn’t loaded, show a warning.
   if (
     !configuration?.spec?.content &&
     !configuration?.spec?.url &&
