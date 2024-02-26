@@ -216,7 +216,7 @@ await fastify.register(ScalarApiReference, {
 // …
 ```
 
-_Note: It's not really a problem to have an `import` statement in the middle of your file, it’s not really common, though. Feel free to move it to the top of your files, where `import` statements usually live._
+_Note: It’s not really a problem to have an `import` statement in the middle of your file, it’s not really common, though. Feel free to move it to the top of your files, where `import` statements usually live._
 
 Wow, this is it already. Restart the server, if it didn’t already and take a look at your new API reference:
 
