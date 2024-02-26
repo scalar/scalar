@@ -170,7 +170,7 @@ const fastifyApiReference: FastifyPluginAsync<
     await fastify.register(import('fastify-html'))
   }
 
-  // If no spec is passed and @fastify/swagger isn’t loaded, show a warning.
+  // If no OpenAPI specification is passed and @fastify/swagger isn’t loaded, show a warning.
   if (
     !configuration?.spec?.content &&
     !configuration?.spec?.url &&
