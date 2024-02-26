@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
  */
 export function getJavaScriptFile() {
   // Get the directory name
-  const dirname = __dirname ?? path.dirname(fileURLToPath(import.meta.url))
+  const dirname = path.dirname(fileURLToPath(import.meta.url))
 
   // Find the JavaScript file
   const filePath = [
