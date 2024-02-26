@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.17.6
+
+### Patch Changes
+
+- ca7cced: fix: \_\_dirname undefined (again)
+
 ## 1.17.5
 
 ### Patch Changes
