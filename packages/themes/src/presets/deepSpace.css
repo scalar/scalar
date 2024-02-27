@@ -97,12 +97,6 @@
   -webkit-background-clip: text;
   background-clip: text;
 }
-.light-mode .t-doc__header,
-.dark-mode .t-doc__header {
-  animation: headerbackground forwards;
-  animation-timeline: scroll();
-  animation-range: 0px 200px;
-}
 .examples .scalar-card-footer {
   --default-theme-background-3: transparent;
   padding-top: 0;
@@ -117,17 +111,6 @@
 .download-cta,
 .references-rendered .markdown a {
   text-decoration: underline !important;
-}
-/* Document header */
-@keyframes headerbackground {
-  from {
-    background: transparent;
-    backdrop-filter: none;
-  }
-  to {
-    background: var(--header-background-1);
-    backdrop-filter: blur(12px);
-  }
 }
 .code-languages-background {
   background: var(--default-theme-background-1) !important;

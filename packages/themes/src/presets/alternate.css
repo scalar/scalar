@@ -38,37 +38,23 @@
   );
   --default-theme-code-language-color-supersede: var(--default-theme-color-3);
 }
-/* Document header */
-.light-mode .t-doc__header,
-.dark-mode .t-doc__header {
-  --header-background-1: var(--default-theme-background-1);
-  --header-border-color: var(--default-theme-border-color);
-  --header-color-1: var(--default-theme-color-1);
-  --header-color-2: var(--default-theme-color-2);
-  --header-call-to-action-color: var(--default-theme-color-accent);
-}
-.download-cta a,
-.references-rendered .markdown a {
-  color: var(--default-theme-color-1) !important;
-  text-decoration: underline !important;
-}
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,
 .dark-mode .t-doc__sidebar {
-  --sidebar-background-1: var(--default-theme-background-1);
-  --sidebar-color-1: var(--default-theme-color-1);
-  --sidebar-color-2: var(--default-theme-color-2);
-  --sidebar-border-color: var(--default-theme-border-color);
+  --default-sidebar-background-1: var(--default-theme-background-1);
+  --default-sidebar-color-1: var(--default-theme-color-1);
+  --default-sidebar-color-2: var(--default-theme-color-2);
+  --default-sidebar-border-color: var(--default-theme-border-color);
 
-  --sidebar-item-hover-background: var(--default-theme-background-2);
-  --sidebar-item-hover-color: currentColor;
+  --default-sidebar-item-hover-background: var(--default-theme-background-2);
+  --default-sidebar-item-hover-color: currentColor;
 
-  --sidebar-item-active-background: var(--default-theme-background-accent);
-  --sidebar-color-active: var(--default-theme-color-accent);
+  --default-sidebar-item-active-background: var(--default-theme-background-accent);
+  --default-sidebar-color-active: var(--default-theme-color-accent);
 
-  --sidebar-search-background: transparent;
-  --sidebar-search-color: var(--default-theme-color-3);
-  --sidebar-search-border-color: var(--default-theme-border-color);
+  --default-sidebar-search-background: transparent;
+  --default-sidebar-search-color: var(--default-theme-color-3);
+  --default-sidebar-search-border-color: var(--default-theme-border-color);
 }
 /* advanced */
 .light-mode {
@@ -115,4 +101,9 @@
   --default-theme-color-blue: var(--default-theme-color-1);
   --default-theme-color-orange: var(--default-theme-color-1);
   --default-theme-color-purple: var(--default-theme-color-1);
+}
+.download-cta a,
+.references-rendered .markdown a {
+  color: var(--default-theme-color-1) !important;
+  text-decoration: underline !important;
 }

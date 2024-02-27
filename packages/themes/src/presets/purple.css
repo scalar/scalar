@@ -27,15 +27,6 @@
 
   --default-theme-border-color: rgba(255, 255, 255, 0.12);
 }
-/* Document header */
-.light-mode .t-doc__header,
-.dark-mode .t-doc__header {
-  --header-background-1: var(--default-theme-background-1);
-  --header-color-1: var(--default-theme-color-1);
-  --header-color-2: var(--default-theme-color-2);
-  --header-border-color: var(--default-theme-border-color);
-  --header-call-to-action-color: var(--default-theme-color-accent);
-}
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,
 .dark-mode .t-doc__sidebar {
