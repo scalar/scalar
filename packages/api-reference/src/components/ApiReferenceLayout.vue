@@ -204,7 +204,7 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
 .scalar-api-reference {
   --refs-sidebar-width: var(--theme-sidebar-width, 0px);
   --refs-header-height: var(--theme-header-height, 0px);
-  --refs-content-max-width: var(--theme-content-max-width, 1120px);
+  --refs-content-max-width: var(--theme-content-max-width, 1540px);
 }
 
 .scalar-api-reference.references-classic {
@@ -314,7 +314,7 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
 
 .references-sidebar {
   /* Set a default width if references are enabled */
-  --refs-sidebar-width: var(--theme-sidebar-width, 280px);
+  --refs-sidebar-width: var(--theme-sidebar-width, 250px);
 }
 
 /* Footer */
