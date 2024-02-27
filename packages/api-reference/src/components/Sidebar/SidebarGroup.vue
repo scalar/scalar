@@ -19,7 +19,7 @@ defineProps<{
 /* We indent each level of nesting further */
 .sidebar-indent-nested :deep(.sidebar-heading) {
   /* prettier-ignore */
-  padding-left: calc((var(--sidebar-level, var(--default-sidebar-level)) * var(--theme-sidebar-indent-base, var(--default-theme-sidebar-indent-base))) + 24px) !important;
+  padding-left: calc((var(--sidebar-level, var(--default-sidebar-level)) * var(--theme-sidebar-indent-base, var(--default-theme-sidebar-indent-base))) + 12px) !important;
 }
 
 /* Collapse/expand icons must also be offset */
