@@ -1,8 +1,8 @@
-# Scalar API Client
+# Scalar API Client React
 
-<!-- [![Version](https://img.shields.io/npm/v/%40scalar/api-client)](https://www.npmjs.com/package/@scalar/api-client) -->
-<!-- [![Downloads](https://img.shields.io/npm/dm/%40scalar/api-client)](https://www.npmjs.com/package/@scalar/api-client) -->
-<!-- [![License](https://img.shields.io/npm/l/%40scalar%2Fapi-client)](https://www.npmjs.com/package/@scalar/api-client) -->
+[![Version](https://img.shields.io/npm/v/%40scalar/api-client-react)](https://www.npmjs.com/package/@scalar/api-client-react)
+[![Downloads](https://img.shields.io/npm/dm/%40scalar/api-client-react)](https://www.npmjs.com/package/@scalar/api-client-react)
+[![License](https://img.shields.io/npm/l/%40scalar%2Fapi-client-react)](https://www.npmjs.com/package/@scalar/api-client-react)
 
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/8HeZcRGPFS)
 
@@ -15,46 +15,81 @@ npm install @scalar/api-client-react
 ## Usage
 
 Currently we are just exporting the typescript component so you will need to
-handle transpilation yourself.
+handle transpilation yourself. In the future we may add a build step.
 
-```typescript
+```ts
+import { ApiClientReact } from '@scalar/api-client-react'
+import React, { useState } from 'react'
 
+export const Wrapper = () => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <>
+      <button onClick={() => setIsOpen(true)}>
+        Click me to open the Api Client
+      </button>
+
+      <ApiClientReact
+        close={() => setIsOpen(false)}
+        isOpen={isOpen}
+        request={{
+          url: 'https://api.sampleapis.com',
+          type: 'GET',
+          path: '/simpsons/characters',
+        }}
+      />
+    </>
+  )
+}
+```
+
+You will also need one of the following classes on a parent element:
+
+```css
+.dark-mode
+.light-mode
 ```
 
 ## Props
 
-### proxyUrl?: string
+### close: function
 
-Pass an URL of [a request proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy) to avoid CORS issues.
+function to close the dialog, as seen above
 
-## Composable
+### isOpen: boolean
 
-You can use `useRequestStore()` to interact with the API client.
+boolean which controls the visibility of the dialog containing the client
 
-### readOnly
+### request: ClientRequestConfig
 
-```js
-const { readOnly } = useRequestStore()
-
-readOnly.value = false
+```ts
+export type ClientRequestConfig = {
+  id?: string
+  name?: string
+  url: string
+  /** HTTP Request Method */
+  type: string
+  /** Request path */
+  path: string
+  /** Variables */
+  variables?: BaseParameter[]
+  /** Query parameters */
+  query?: Query[]
+  /** Cookies */
+  cookies?: Cookie[]
+  /** Request headers */
+  headers?: Header[]
+  /** Content type matched body */
+  body?: string
+  /** Optional form data body */
+  formData?: FormDataItem[]
+}
 ```
 
-### activeRequest
+## ApiClientReactBase
 
-```js
-const { activeRequest } = useRequestStore()
+We also export the base component if you do not want the modal.
+`ApiClientReactBase`
 
-console.log(activeRequest)
-```
-
-### setActiveRequest
-
-```js
-const { setActiveRequest } = useRequestStore()
-
-setActiveRequest({
-  url: 'https://echo.scalar.com'
-  type: 'GET,
-  path: '/foobar'
-})
-```
+Details on how to use it can be found in the source code for `ApiClientReact`
