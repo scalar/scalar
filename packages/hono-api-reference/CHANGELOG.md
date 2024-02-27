@@ -1,5 +1,16 @@
 # @scalar/hono-api-reference
 
+## 0.3.58
+
+### Patch Changes
+
+- d2728c8: fix: theme fixes
+- Updated dependencies [55b9633]
+- Updated dependencies [c103201]
+- Updated dependencies [31d12a7]
+- Updated dependencies [36630da]
+  - @scalar/api-reference@1.17.7
+
 ## 0.3.57
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.17.7
+
+### Patch Changes
+
+- 55b9633: fix: request type polish
+- c103201: fix: polish sidebar
+- 31d12a7: fix: show key-value pair examples for objects
+- 36630da: chore: remove coinmarketcap example
+- Updated dependencies [c103201]
+- Updated dependencies [d2728c8]
+  - @scalar/components@0.2.6
+  - @scalar/themes@0.5.9
+  - @scalar/api-client@0.12.7
+  - @scalar/swagger-editor@0.10.9
+
 ## 1.17.4
 
 ### Patch Changes

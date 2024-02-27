@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.2.6
+
+### Patch Changes
+
+- c103201: fix: polish sidebar
+
 ## 0.2.5
 
 ### Patch Changes
