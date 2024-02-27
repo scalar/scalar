@@ -1,5 +1,6 @@
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
+import { webpackStats } from 'rollup-plugin-webpack-stats'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { defineConfig } from 'vitest/config'
@@ -25,6 +26,7 @@ export default defineConfig({
       // Whether to polyfill `node:` protocol imports.
       protocolImports: true,
     }),
+    webpackStats(),
   ],
   build: {
     emptyOutDir: false,

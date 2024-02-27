@@ -58,4 +58,4 @@ jobs:
         with:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          webpackStatsFile: ./packages/api-reference/dist/webpack-stats.json
+          webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
