@@ -1,7 +1,7 @@
-import { parse } from '@scalar/swagger-parser'
 import { useDebounceFn } from '@vueuse/core'
 import { type ComputedRef, type Ref, isRef, reactive, ref, watch } from 'vue'
 
+import { parse } from '../helpers'
 import type { Spec } from '../types'
 
 const emptySpec: Spec = {

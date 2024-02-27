@@ -1,4 +1,3 @@
-import { parse } from '@scalar/swagger-parser'
 import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
 

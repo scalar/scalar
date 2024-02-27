@@ -5,9 +5,6 @@ import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  optimizeDeps: {
-    include: ['@scalar/swagger-parser'],
-  },
   plugins: [vue(), cssInjectedByJsPlugin(), webpackStats()],
   build: {
     emptyOutDir: false,
