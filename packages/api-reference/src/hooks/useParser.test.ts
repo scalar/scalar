@@ -1,3 +1,4 @@
+import { parse } from '@scalar/swagger-parser'
 import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
 
@@ -8,7 +9,7 @@ describe('useParser', () => {
     const { parsedSpecRef } = useParser({
       input: JSON.stringify({
         openapi: '3.1.0',
-        info: { title: 'Example' },
+        info: { title: 'Example', version: '1.0' },
         paths: {},
       }),
     })
@@ -23,7 +24,7 @@ describe('useParser', () => {
     const rawSpec = ref<string>(
       JSON.stringify({
         openapi: '3.1.0',
-        info: { title: 'Example' },
+        info: { title: 'Example', version: '1.0' },
         paths: {},
       }),
     )
@@ -42,7 +43,7 @@ describe('useParser', () => {
     const rawSpec = ref<string>(
       JSON.stringify({
         openapi: '3.1.0',
-        info: { title: 'Example' },
+        info: { title: 'Example', version: '1.0' },
         paths: {},
       }),
     )
@@ -58,7 +59,7 @@ describe('useParser', () => {
 
     rawSpec.value = JSON.stringify({
       openapi: '3.1.0',
-      info: { title: 'Foobar' },
+      info: { title: 'Foobar', version: '1.0' },
       paths: {},
     })
 
@@ -96,14 +97,13 @@ describe('useParser', () => {
     // Sleep for 10ms to wait for the parser to finish
     await new Promise((resolve) => setTimeout(resolve, 10))
 
-    expect(errorRef.value).toContain('SyntaxError')
+    expect(errorRef.value).toContain('YAMLParseError: Missing closing')
   })
 
   it('overwrites the ref', async () => {
     const { parsedSpecRef, overwriteParsedSpecRef } = useParser({})
 
     overwriteParsedSpecRef({
-      // @ts-ignore
       info: { title: 'Example' },
     })
 

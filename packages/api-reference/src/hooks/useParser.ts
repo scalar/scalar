@@ -68,13 +68,13 @@ export function useParser({
     const processedValue = value.trim()
 
     parse(processedValue)
-      .then((spec) => {
+      .then((schema) => {
         errorRef.value = null
 
         Object.assign(parsedSpecRef, {
-          // Some specs don’t have servers, make sure they are defined
+          // Some schemas don’t have servers, make sure they are defined
           servers: [],
-          ...spec,
+          ...schema,
         })
       })
       .catch((error) => {
