@@ -1,3 +1,7 @@
+/**
+ * Unfortunately, this file is very messy. I think we should get rid of it entirely. :)
+ * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
+ */
 import { type ResolvedOpenAPI, openapi } from '@scalar/openapi-parser'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 
