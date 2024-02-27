@@ -60,7 +60,7 @@ describe('parse', () => {
   it('reads yaml', () =>
     new Promise((resolve) => {
       const swaggerYaml = getFile(
-        './packages/swagger-parser/tests/fixtures/swagger.yaml',
+        './packages/api-reference/tests/fixtures/swagger.yaml',
       )
 
       parse(swaggerYaml).then((result) => {
