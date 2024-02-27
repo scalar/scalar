@@ -653,6 +653,13 @@ This repository contains all our open source projects and there’s definitely m
             <br />
             <sub><b>sigpwned</b></sub>
         </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/Amorim33">
+            <img src="https://avatars.githubusercontent.com/u/42624869?v=4" width="100;" alt="Amorim33"/>
+            <br />
+            <sub><b>Amorim33</b></sub>
+        </a>
     </td></tr>
 </table>
 <!-- readme: collaborators,contributors -end -->
