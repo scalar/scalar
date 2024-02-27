@@ -51,7 +51,6 @@
     "tsc-alias": "^1.8.8",
     "typescript": "^5.2.2",
     "vite": "^5.1.1",
-    "vite-plugin-node-polyfills": "^0.21.0",
     "vite-plugin-static-copy": "^1.0.1",
     "vitest": "^1.2.2",
     "vue": "^3.3.0"
