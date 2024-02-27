@@ -28,53 +28,35 @@
   --default-theme-border-color: #242537;
   --default-theme-code-language-color-supersede: var(--default-theme-color-3);
 }
-/* Document header */
-.light-mode .t-doc__header {
-  --header-background-1: rgba(255, 255, 255, 0.1);
-  --header-border-color: var(--default-theme-border-color);
-  --header-color-1: var(--default-theme-color-1);
-  --header-color-2: var(--default-theme-color-2);
-  --header-background-toggle: var(--default-theme-color-3);
-  --header-call-to-action-color: var(--default-theme-color-accent);
-  backdrop-filter: blur(30px);
-}
-
-.dark-mode .t-doc__header {
-  --header-background-1: rgba(0, 2, 18, 0.1);
-  --header-border-color: var(--default-theme-border-color);
-  --header-color-1: var(--default-theme-color-1);
-  --header-color-2: var(--default-theme-color-2);
-  --header-background-toggle: var(--default-theme-color-3);
-  --header-call-to-action-color: var(--default-theme-color-accent);
-  backdrop-filter: blur(20px);
-}
 /* Document Sidebar */
 .light-mode .t-doc__sidebar {
-  --sidebar-background-1: var(--default-theme-background-1);
-  --sidebar-item-hover-color: currentColor;
-  --sidebar-item-hover-background: var(--default-theme-background-2);
-  --sidebar-item-active-background: var(--default-theme-background-accent);
-  --sidebar-border-color: var(--default-theme-border-color);
-  --sidebar-color-1: var(--default-theme-color-1);
-  --sidebar-color-2: var(--default-theme-color-2);
-  --sidebar-color-active: var(--default-theme-color-accent);
-  --sidebar-search-background: rgba(0, 0, 0, 0.05);
-  --sidebar-search-border-color: 1px solid rgba(0, 0, 0, 0.05);
-  --sidebar-search-color: var(--default-theme-color-3);
+  --default-sidebar-background-1: var(--default-theme-background-1);
+  --default-sidebar-item-hover-color: currentColor;
+  --default-sidebar-item-hover-background: var(--default-theme-background-2);
+  --default-sidebar-item-active-background: var(
+    --default-theme-background-accent
+  );
+  --default-sidebar-border-color: var(--default-theme-border-color);
+  --default-sidebar-color-1: var(--default-theme-color-1);
+  --default-sidebar-color-2: var(--default-theme-color-2);
+  --default-sidebar-color-active: var(--default-theme-color-accent);
+  --default-sidebar-search-background: rgba(0, 0, 0, 0.05);
+  --default-sidebar-search-border-color: 1px solid rgba(0, 0, 0, 0.05);
+  --default-sidebar-search-color: var(--default-theme-color-3);
   --default-theme-background-2: rgba(0, 0, 0, 0.03);
 }
 .dark-mode .t-doc__sidebar {
-  --sidebar-background-1: var(--default-theme-background-1);
-  --sidebar-item-hover-color: currentColor;
-  --sidebar-item-hover-background: var(--default-theme-background-2);
-  --sidebar-item-active-background: rgba(255, 255, 255, 0.1);
-  --sidebar-border-color: var(--default-theme-border-color);
-  --sidebar-color-1: var(--default-theme-color-1);
-  --sidebar-color-2: var(--default-theme-color-2);
-  --sidebar-color-active: var(--default-theme-color-accent);
-  --sidebar-search-background: rgba(255, 255, 255, 0.1);
-  --sidebar-search-border-color: 1px solid rgba(255, 255, 255, 0.05);
-  --sidebar-search-color: var(--default-theme-color-3);
+  --default-sidebar-background-1: var(--default-theme-background-1);
+  --default-sidebar-item-hover-color: currentColor;
+  --default-sidebar-item-hover-background: var(--default-theme-background-2);
+  --default-sidebar-item-active-background: rgba(255, 255, 255, 0.1);
+  --default-sidebar-border-color: var(--default-theme-border-color);
+  --default-sidebar-color-1: var(--default-theme-color-1);
+  --default-sidebar-color-2: var(--default-theme-color-2);
+  --default-sidebar-color-active: var(--default-theme-color-accent);
+  --default-sidebar-search-background: rgba(255, 255, 255, 0.1);
+  --default-sidebar-search-border-color: 1px solid rgba(255, 255, 255, 0.05);
+  --default-sidebar-search-color: var(--default-theme-color-3);
 }
 /* advanced */
 .light-mode {
