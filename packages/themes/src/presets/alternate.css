@@ -49,7 +49,9 @@
   --default-sidebar-item-hover-background: var(--default-theme-background-2);
   --default-sidebar-item-hover-color: currentColor;
 
-  --default-sidebar-item-active-background: var(--default-theme-background-accent);
+  --default-sidebar-item-active-background: var(
+    --default-theme-background-accent
+  );
   --default-sidebar-color-active: var(--default-theme-color-accent);
 
   --default-sidebar-search-background: transparent;
