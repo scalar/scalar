@@ -111,4 +111,84 @@ describe('getRequestBodyFromOperation', () => {
       text: JSON.stringify(expectedResult, null, 2),
     })
   })
+
+  it('creates key-value pair examples from object schema', () => {
+    const request = getRequestBodyFromOperation({
+      httpVerb: 'POST',
+      path: '/foobar',
+      information: {
+        requestBody: {
+          description: 'Sample request body',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  recordString: {
+                    type: 'object',
+                    additionalProperties: {
+                      type: 'string',
+                    },
+                  },
+                  recordInteger: {
+                    type: 'object',
+                    additionalProperties: {
+                      type: 'integer',
+                    },
+                  },
+                  recordArray: {
+                    type: 'object',
+                    additionalProperties: {
+                      type: 'array',
+                    },
+                  },
+                  recordBoolean: {
+                    type: 'object',
+                    additionalProperties: {
+                      type: 'boolean',
+                    },
+                  },
+                  recordNullable: {
+                    type: 'object',
+                    additionalProperties: {
+                      nullable: 'true',
+                    },
+                  },
+                  recordObject: {
+                    type: 'object',
+                  },
+                  recordWithoutAdditionalProperties: {
+                    type: 'object',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const expectedResult = {
+      recordString: {
+        someKey: '',
+      },
+      recordInteger: {
+        someKey: 1,
+      },
+      recordArray: {
+        someKey: [],
+      },
+      recordBoolean: {
+        someKey: true,
+      },
+      recordNullable: null,
+      recordObject: {},
+      recordWithoutAdditionalProperties: {},
+    }
+
+    expect(request?.postData).toMatchObject({
+      mimeType: 'application/json',
+      text: JSON.stringify(expectedResult, null, 2),
+    })
+  })
 })
