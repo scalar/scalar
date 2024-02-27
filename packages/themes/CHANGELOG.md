@@ -1,5 +1,12 @@
 # @scalar/themes
 
+## 0.5.9
+
+### Patch Changes
+
+- c103201: fix: polish sidebar
+- d2728c8: fix: theme fixes
+
 ## 0.5.8
 
 ### Patch Changes
