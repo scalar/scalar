@@ -3,7 +3,6 @@ import { ScalarButton } from '@scalar/components'
 import { type ThemeId } from '@scalar/themes'
 import { ref, watch } from 'vue'
 
-import coinmarketcap from '../specs/coinmarketcapv3.json'
 import petstore from '../specs/petstorev3.json'
 import { type GettingStartedExamples } from '../types'
 
@@ -55,8 +54,6 @@ function isActiveExample(exampleId: string | null) {
 function getContentForExample(exampleId: string) {
   if (exampleId === 'Petstore') {
     return JSON.stringify(petstore, null, 2)
-  } else if (exampleId === 'CoinMarketCap') {
-    return JSON.stringify(coinmarketcap, null, 2)
   }
 
   return ''
@@ -109,43 +106,6 @@ watch(
       </div>
     </div>
     <div class="start-row">
-      <div class="start-section">
-        <div class="start-h2">EXAMPLES</div>
-        <div
-          class="start-item"
-          :class="{ 'start-item-active': isActiveExample('Petstore') }"
-          @click="example = 'Petstore'">
-          <svg
-            baseProfile="tiny"
-            fill="currentColor"
-            height="800"
-            overflow="inherit"
-            version="1.2"
-            viewBox="0 0 50 50"
-            width="800"
-            xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M25 21.5a6 6 0 0 1 5.8 4.4c.9 3.3.7 6.8 4.4 8.6 3.3 1.1 4.5 2.5 4.5 6.3a7 7 0 0 1-5.8 6.5c-3.7.6-6.6-.1-8.9-1.5-2.3 1.4-5.2 2-8.9 1.5a7 7 0 0 1-5.8-6.5c0-3.7 1.3-5.2 4.6-6.3 4-2 3.4-5.6 4.3-8.7a6 6 0 0 1 5.8-4.3zm18.4-2.3c-1-.8-5 2.6-6.4 4.2-.7 1-1.2 2.1-1.2 3.5 0 2.7 2 4.9 4.3 4.9 1.8 0 3.4-1.3 4-3 1.3-3.3 1.3-7.7-.7-9.6zm-36.8 0c-2 1.9-2 6.3-.7 9.5.6 1.8 2.2 3 4 3 2.4 0 4.3-2.1 4.3-4.8 0-1.4-.5-2.6-1.2-3.5-1.3-1.6-5.4-5-6.4-4.2zM30.3 1.5c10.1 1.8 9.4 18.7 1.3 17.4-2.3-.4-4-2.5-4.3-5-.3-2.7-.9-13 3-12.4zm-10.6 0c3.9-.6 3.3 9.7 3 12.3-.3 2.6-2 4.7-4.3 5-8.1 1.4-8.8-15.5 1.3-17.3z" />
-          </svg>
-          Petstore
-        </div>
-        <div
-          class="start-item"
-          :class="{ 'start-item-active': isActiveExample('CoinMarketCap') }"
-          @click="example = 'CoinMarketCap'">
-          <svg
-            height="586"
-            viewBox="0 0 577.5 586"
-            width="577.5"
-            xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M502 350.2a31 31 0 0 1-31.5 2.1c-11.6-6.6-17.9-22-17.9-42.9v-64.3c0-30.9-12.2-52.8-32.7-58.8-34.5-10.1-60.3 32.2-70.2 48.1l-61.1 98.9V212.6c-.7-27.8-9.7-44.5-26.9-49.5-11.3-3.3-28.3-2-44.8 23.2L80.3 405.6A240 240 0 0 1 52.8 293c0-132.2 105.6-239.7 235.8-239.7 130.2 0 236.1 107.5 236.1 239.7v1.4c1.3 25.5-7 45.9-22.7 55.8Zm75.5-57.2v-1.3C576.4 130.7 447.2 0 288.6 0 130 0 0 131.4 0 293s129.4 293 288.6 293c73 0 143.2-28 196.2-78.2a26.9 26.9 0 0 0 1.4-37.7 26 26 0 0 0-36.6-1.8l-.1.1a233.4 233.4 0 0 1-336.3-15.7L236.1 255v91.2c0 43.8 17 58 31.2 62.2 14.2 4.2 36.1 1.3 58.9-35.8l68-110c2.1-3.5 4.1-6.6 6-9.2v55.9c0 41 16.4 73.7 45.3 89.9a83 83 0 0 0 84.6-3.4c31.7-20.6 49-57.9 47.2-102.8h.2Z"
-              fill="currentColor"
-              fill-rule="nonzero" />
-          </svg>
-          CoinMarketCap
-        </div>
-      </div>
       <div class="start-section">
         <div class="start-h2">INTEGRATIONS</div>
         <a
