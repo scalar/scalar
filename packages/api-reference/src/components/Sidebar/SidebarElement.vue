@@ -174,7 +174,7 @@ const handleClick = async () => {
 /* Folder/page collapse icon */
 /* awkward pixel value to deal with hairspace alignment across browser*/
 .sidebar-heading-chevron {
-  margin: 6px -5.5px 6px -9px;
+  margin: 5px -5.5px 5px -9px;
 }
 .toggle-nested-icon {
   border: none;
