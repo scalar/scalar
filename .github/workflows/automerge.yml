@@ -1,4 +1,4 @@
-name: Dependabot auto-merge
+name: Auto-merge
 on: pull_request
 
 permissions:
@@ -10,11 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
     steps:
-      - name: Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@v1
-        with:
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
       - name: Approve PR
         if: contains(github.event.pull_request.title, 'docs(contributor)')
         run: gh pr review --approve "$PR_URL"
