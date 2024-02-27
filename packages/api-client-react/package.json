@@ -26,6 +26,7 @@
   },
   "type": "module",
   "main": "./src/index.ts",
+  "types": "./src/types.d.ts",
   "exports": "./src/index.ts",
   "files": [
     "src",
