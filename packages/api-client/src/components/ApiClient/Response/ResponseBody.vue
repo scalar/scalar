@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { CodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
+import { ScalarCodeBlock } from '@scalar/components'
 import contentType from 'content-type'
 import { computed } from 'vue'
 
@@ -33,7 +33,7 @@ const mediaType = computed(() => {
   }
 })
 
-const codeMirrorLanguage = computed((): CodeMirrorLanguage | null => {
+const codeMirrorLanguage = computed((): string | null => {
   if (
     mediaType.value === 'application/json' ||
     mediaType.value === 'application/problem+json'
@@ -55,11 +55,10 @@ const codeMirrorLanguage = computed((): CodeMirrorLanguage | null => {
 <template>
   <CollapsibleSection title="Body">
     <template v-if="active">
-      <CodeMirror
+      <ScalarCodeBlock
         v-if="codeMirrorLanguage"
         :content="data"
-        :language="codeMirrorLanguage"
-        readOnly />
+        :lang="codeMirrorLanguage" />
       <div
         v-else
         class="scalar-api-client__empty-state">
