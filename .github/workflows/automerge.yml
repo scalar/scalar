@@ -8,21 +8,17 @@ permissions:
 jobs:
   contributors:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'github-actions[bot]'
     steps:
-      # Output github.event as json
-      - name: Output PR user
-        run: echo '${{ toJson(github.event.pull_request.user.login) }}'
-      - name: Output github.event
-        run: echo '${{ toJson(github.event.pull_request.user) }}'
-      # - name: Approve PR
-      #   if: contains(github.event.pull_request.title, 'docs(contributor)')
-      #   run: gh pr review --approve "$PR_URL"
-      #   env:
-      #     PR_URL: ${{github.event.pull_request.html_url}}
-      #     GH_TOKEN: ${{secrets.GH_PERSONAL_ACCESS_TOKEN}}
-      # - name: Enable auto-merge
-      #   if: contains(github.event.pull_request.title, 'docs(contributor)')
-      #   run: gh pr merge --auto --squash "$PR_URL"
-      #   env:
-      #     PR_URL: ${{github.event.pull_request.html_url}}
-      #     GH_TOKEN: ${{secrets.GH_PERSONAL_ACCESS_TOKEN}}
+      - name: Approve PR
+        if: contains(github.event.pull_request.title, 'docs(contributor)')
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GH_PERSONAL_ACCESS_TOKEN}}
+      - name: Enable auto-merge
+        if: contains(github.event.pull_request.title, 'docs(contributor)')
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GH_PERSONAL_ACCESS_TOKEN}}
