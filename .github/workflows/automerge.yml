@@ -10,8 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Output github.event as json
+      - name: Output PR user
+        run: echo '${{ toJson(github.event.pull_request.user.login) }}'
       - name: Output github.event
-        run: echo '${{ toJson(github.event) }}'
+        run: echo '${{ toJson(github.event.pull_request.user) }}'
       # - name: Approve PR
       #   if: contains(github.event.pull_request.title, 'docs(contributor)')
       #   run: gh pr review --approve "$PR_URL"
