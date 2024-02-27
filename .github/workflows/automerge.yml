@@ -8,20 +8,20 @@ permissions:
 jobs:
   contributors:
     runs-on: ubuntu-latest
-    # if: github.actor == 'github-actions[bot]'
+    if: github.event.pull_request.user == 'github-actions[bot]'
     steps:
       # Output github actor
-      - name: Output github actor
-        run: echo "github.actor ${{github.actor}}"
+      - name: Output github.event.pull_request.user
+        run: echo "github.event.pull_request.user ${{github.event.pull_request.user}}"
       - name: Approve PR
         if: contains(github.event.pull_request.title, 'docs(contributor)')
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GH_TOKEN: ${{secrets.GH_PERSONAL_ACCESS_TOKEN}}
       - name: Enable auto-merge
         if: contains(github.event.pull_request.title, 'docs(contributor)')
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GH_TOKEN: ${{secrets.GH_PERSONAL_ACCESS_TOKEN}}
