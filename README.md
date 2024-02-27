@@ -430,7 +430,7 @@ Or get more advanced by styling our sidebar!
   --sidebar-color-active: var(--theme-color-2);
   --sidebar-search-background: var(--theme-background-2);
   --sidebar-search-border-color: var(--theme-border-color);
-  --sidebar-search--color: var(--theme-color-3);
+  --sidebar-search-color: var(--theme-color-3);
 }
 .dark-mode .sidebar {
   --sidebar-background-1: var(--theme-background-1);
@@ -443,7 +443,7 @@ Or get more advanced by styling our sidebar!
   --sidebar-color-active: var(--theme-color-2);
   --sidebar-search-background: var(--theme-background-2);
   --sidebar-search-border-color: var(--theme-border-color);
-  --sidebar-search--color: var(--theme-color-3);
+  --sidebar-search-color: var(--theme-color-3);
 }
 ```
 
