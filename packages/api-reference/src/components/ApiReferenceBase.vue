@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import '@scalar/components/style.css'
 import {
   HeaderTabButton,
   ResetStyles,
