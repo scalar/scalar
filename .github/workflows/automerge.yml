@@ -8,7 +8,7 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
+    if: github.actor == 'github-actions[bot]'
     steps:
       - name: Approve PR
         if: contains(github.event.pull_request.title, 'docs(contributor)')
