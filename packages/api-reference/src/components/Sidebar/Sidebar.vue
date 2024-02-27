@@ -94,7 +94,7 @@ onMounted(() => {
               }
             ">
             <template v-if="item.children && item.children?.length > 0">
-              <SidebarGroup :level="0">
+              <SidebarGroup :level="1">
                 <template
                   v-for="child in item.children"
                   :key="child.id">
@@ -122,7 +122,7 @@ onMounted(() => {
 
 <style scoped>
 .sidebar {
-  --default-theme-sidebar-indent-base: 6px;
+  --default-theme-sidebar-indent-base: 12px;
 }
 .sidebar {
   flex: 1;
