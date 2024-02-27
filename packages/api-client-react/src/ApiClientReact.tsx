@@ -1,5 +1,5 @@
 import { type ClientRequestConfig, useRequestStore } from '@scalar/api-client'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { ApiClientReactBase } from './ApiClientReactBase'
 import './style.css'
@@ -17,12 +17,14 @@ const { setActiveRequest } = useRequestStore()
 
 /**
  * Api Client React
- * To use this component you must
  */
 export const ApiClientReact = ({ close, isOpen = false, request }: Props) => {
   useEffect(() => {
     setActiveRequest(request)
   }, [request])
+
+  const [host, setHost] = useState('')
+  useEffect(() => setHost(window.location.host), [])
 
   return (
     <div
@@ -33,7 +35,7 @@ export const ApiClientReact = ({ close, isOpen = false, request }: Props) => {
           <div className="scalar-app-header">
             <span>API Client </span>
             <a
-              href="https://www.scalar.com?utm_campaign=gitbook"
+              href={`https://www.scalar.com?utm_campaign=${host}`}
               target="_blank">
               Powered by scalar.com
             </a>
