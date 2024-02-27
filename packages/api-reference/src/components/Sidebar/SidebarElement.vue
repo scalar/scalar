@@ -45,13 +45,18 @@ const handleClick = async () => {
       }"
       @click="handleClick">
       <!-- If children are detected then show the nesting icon -->
-      <ScalarIconButton
+      <!-- Use &hairsp; to vertically center scalar icon button to the first line of text in the sidebar heading link -->
+      <p
         v-if="hasChildren"
-        class="toggle-nested-icon"
-        :icon="open ? 'ChevronDown' : 'ChevronRight'"
-        label="Toggle group"
-        size="sm"
-        @click.stop="handleClick" />
+        class="sidebar-heading-chevron">
+        <ScalarIconButton
+          class="toggle-nested-icon"
+          :icon="open ? 'ChevronDown' : 'ChevronRight'"
+          label="Toggle group"
+          size="sm"
+          @click.stop="handleClick" />
+        &hairsp;
+      </p>
       <a
         class="sidebar-heading-link"
         :href="`#${item.id}`">
@@ -62,10 +67,9 @@ const handleClick = async () => {
         <p>
           {{ item.title }}
         </p>
-        <p>
-          &thinsp;
+        <p v-if="item.httpVerb">
+          &hairsp;
           <HttpMethod
-            v-if="item.httpVerb"
             as="div"
             class="sidebar-heading-type"
             :method="item.httpVerb"
@@ -93,14 +97,12 @@ const handleClick = async () => {
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
   word-break: break-word;
   line-height: 1.385;
-  align-items: center;
   max-width: 100%;
   position: relative;
   cursor: pointer;
-  border-radius: 0 var(--theme-radius, var(--default-theme-radius))
-    var(--theme-radius, var(--default-theme-radius)) 0;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
   flex: 1;
-  padding-right: 12px;
+  padding-right: 9px;
   user-select: none;
 }
 .sidebar-heading.deprecated span {
@@ -137,10 +139,13 @@ const handleClick = async () => {
   justify-content: space-between;
   gap: 2px;
 }
-.sidebar-heading-link p {
+.sidebar-heading p {
   height: fit-content;
   display: flex;
   align-items: center;
+}
+.sidebar-heading p:empty {
+  display: none;
 }
 /* Sidebar link icon */
 .link-icon {
@@ -153,7 +158,6 @@ const handleClick = async () => {
   align-items: center;
   justify-content: center;
   margin-right: 6px;
-
   width: 13px;
   height: 13px;
 }
@@ -168,17 +172,31 @@ const handleClick = async () => {
 }
 
 /* Folder/page collapse icon */
+/* awkward pixel value to deal with hairspace alignment across browser*/
+.sidebar-heading-chevron {
+  margin-left: -21px;
+  margin-right: -5.5px;
+}
 .toggle-nested-icon {
   border: none;
-  position: absolute;
   color: currentColor;
+  margin: 6px 0;
+  padding: 2px;
+  color: var(--sidebar-color-2, var(--default-sidebar-color-2));
+}
+.active_page .toggle-nested-icon {
+  color: var(
+    --sidebar-color-active,
+    var(
+      --default-sidebar-color-active,
+      var(--theme-color-accent, var(--default-theme-color-accent))
+    )
+  );
 }
 
 .toggle-nested-icon:hover,
 .toggle-nested-icon:focus-visible {
   color: currentColor;
-  filter: drop-shadow(0 0.125px 0 currentColor)
-    drop-shadow(0 -0.125px 0 currentColor);
 }
 
 .action-menu {

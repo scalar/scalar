@@ -143,9 +143,7 @@ onMounted(() => {
 }
 .sidebar-pages {
   flex: 1;
-  padding-top: 9px;
-  padding-bottom: 9px;
-  padding-right: 12px;
+  padding: 9px 12px;
 }
 
 @media (max-width: 1000px) {

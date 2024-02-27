@@ -314,7 +314,7 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
 
 .references-sidebar {
   /* Set a default width if references are enabled */
-  --refs-sidebar-width: var(--theme-sidebar-width, 250px);
+  --refs-sidebar-width: var(--theme-sidebar-width, 280px);
 }
 
 /* Footer */
