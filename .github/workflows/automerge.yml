@@ -8,7 +8,6 @@ permissions:
 jobs:
   contributors:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.user == 'github-actions[bot]'
     steps:
       # Output github.event as json
       - name: Output github.event
