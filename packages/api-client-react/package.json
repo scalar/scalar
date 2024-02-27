@@ -19,14 +19,10 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "dev": "vite",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "preview": "vite preview",
-    "test": "vitest",
-    "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
+    "types:build": "tsc -p tsconfig.json",
+    "types:check": "tsc --noEmit --skipLibCheck --composite false"
   },
   "type": "module",
   "main": "./src/index.ts",

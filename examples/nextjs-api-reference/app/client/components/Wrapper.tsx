@@ -15,6 +15,11 @@ export const Wrapper = () => {
       <ApiClientReact
         close={() => setIsOpen(false)}
         isOpen={isOpen}
+        request={{
+          url: 'https://api.sampleapis.com',
+          type: 'GET',
+          path: '/simpsons/characters',
+        }}
       />
     </div>
   )

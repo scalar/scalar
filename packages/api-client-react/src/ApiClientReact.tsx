@@ -1,23 +1,28 @@
+import { type ClientRequestConfig, useRequestStore } from '@scalar/api-client'
 import React, { useEffect } from 'react'
 
-import { ApiClientReactBase, BaseProps } from './ApiClientReactBase'
+import { ApiClientReactBase } from './ApiClientReactBase'
+import './style.css'
 
 type Props = {
   // Function to close the modal
   close: () => void
   // Controls whether the modal is open or closed
   isOpen: boolean
-} & BaseProps
+  // The OpenApi request object
+  request: ClientRequestConfig
+}
+
+const { setActiveRequest } = useRequestStore()
 
 /**
  * Api Client React
+ * To use this component you must
  */
-export const ApiClientReact = ({
-  close,
-  isDarkMode = false,
-  isOpen = false,
-}: Props) => {
-  // useEffect(() => {}, [])
+export const ApiClientReact = ({ close, isOpen = false, request }: Props) => {
+  useEffect(() => {
+    setActiveRequest(request)
+  }, [request])
 
   return (
     <div
@@ -33,7 +38,7 @@ export const ApiClientReact = ({
               Powered by scalar.com
             </a>
           </div>
-          <ApiClientReactBase isDarkMode={isDarkMode} />
+          <ApiClientReactBase />
         </div>
         <div
           onClick={close}

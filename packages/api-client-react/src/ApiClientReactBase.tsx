@@ -4,24 +4,17 @@ import { ApiClient } from '@scalar/api-client'
 import React, { useEffect, useRef } from 'react'
 import { createApp } from 'vue/dist/vue.esm-bundler.js'
 
-import './style.css'
-
 // These are required for the vue bundler version
 globalThis.__VUE_OPTIONS_API__ = true
 globalThis.__VUE_PROD_HYDRATION_MISMATCH_DETAILS__ = true
 globalThis.__VUE_PROD_DEVTOOLS__ = false
 
-export type BaseProps = {
-  isDarkMode: boolean
-}
-
 /**
  * Api Client base for react
- * This would be the client itself, use ApiClientReact for the popup
+ * You are probably looking for ApiClientReact
+ * only use this if you know what you are doing
  */
-export const ApiClientReactBase = (
-  { isDarkMode = true }: BaseProps = { isDarkMode: true },
-) => {
+export const ApiClientReactBase = () => {
   const el = useRef(null)
 
   useEffect(() => {
@@ -34,13 +27,5 @@ export const ApiClientReactBase = (
     return () => vueApp.unmount()
   }, [el])
 
-  // Apply light or dark theme
-  const className = isDarkMode ? 'dark dark-mode' : 'light light-mode'
-
-  return (
-    <div
-      ref={el}
-      className={className}
-    />
-  )
+  return <div ref={el} />
 }
