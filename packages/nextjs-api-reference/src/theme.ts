@@ -81,7 +81,7 @@ export const nextjsThemeCss = `
   --sidebar-color-active: var(--theme-color-accent);
   --sidebar-search-background: var(--theme-background-2);
   --sidebar-search-border-color: var(--theme-background-2);
-  --sidebar-search--color: var(--theme-color-3);
+  --sidebar-search-color: var(--theme-color-3);
 }
 .api-client-drawer .t-doc__sidebar {
   --sidebar-border-color: var(--theme-border-color);

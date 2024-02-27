@@ -1,28 +1,77 @@
-.light-mode {
-  color-scheme: light;
-  --default-theme-color-1: #24293c;
-  --default-theme-color-2: #4a5166;
-  --default-theme-color-3: #888c9a;
-  --default-theme-color-accent: #0099ff;
-  --default-theme-background-1: #fff;
-  --default-theme-background-2: #f6f6f6;
+/* basic theme */
+.light-mode,
+.light-mode .dark-mode {
+  --default-theme-background-1: #f9f9f9;
+  --default-theme-background-2: #f1f1f1;
   --default-theme-background-3: #e7e7e7;
-  --default-theme-background-accent: #5369d20f;
+  --default-theme-background-card: #fff;
+
+  --default-theme-color-1: #2a2f45;
+  --default-theme-color-2: #757575;
+  --default-theme-color-3: #8e8e8e;
+
+  --default-theme-color-accent: var(--default-theme-color-1);
+  --default-theme-background-accent: var(--default-theme-background-3);
+
   --default-theme-border-color: rgba(0, 0, 0, 0.1);
-  --default-theme-scrollbar-color: rgba(0, 0, 0, 0.18);
-  --default-theme-scrollbar-color-active: rgba(0, 0, 0, 0.36);
-  --default-theme-lifted-brightness: 1;
-  --default-theme-backdrop-brightness: 1;
+  --default-theme-code-languages-background-supersede: var(
+    --default-theme-background-1
+  );
+  --default-theme-code-language-color-supersede: var(--default-theme-color-1);
+}
+.dark-mode {
+  --default-theme-background-1: #131313;
+  --default-theme-background-2: #1d1d1d;
+  --default-theme-background-3: #272727;
+  --default-theme-background-card: #1d1d1d;
 
-  --default-theme-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
-  --default-theme-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px,
-    rgba(0, 0, 0, 0.08) 0px 3px 8px 0px,
-    var(--default-theme-border-color) 0px 0 0 1px;
+  --default-theme-color-1: rgba(255, 255, 255, 0.9);
+  --default-theme-color-2: rgba(255, 255, 255, 0.62);
+  --default-theme-color-3: rgba(255, 255, 255, 0.44);
 
-  --default-theme-button-1: rgb(49 53 56);
-  --default-theme-button-1-color: #fff;
-  --default-theme-button-1-hover: rgb(28 31 33);
+  --default-theme-color-accent: var(--default-theme-color-1);
+  --default-theme-background-accent: var(--default-theme-background-3);
 
+  --default-theme-border-color: rgba(255, 255, 255, 0.1);
+  --default-theme-code-languages-background-supersede: var(
+    --default-theme-background-3
+  );
+  --default-theme-code-language-color-supersede: var(--default-theme-color-3);
+}
+/* Document header */
+.light-mode .t-doc__header,
+.dark-mode .t-doc__header {
+  --header-background-1: var(--default-theme-background-1);
+  --header-border-color: var(--default-theme-border-color);
+  --header-color-1: var(--default-theme-color-1);
+  --header-color-2: var(--default-theme-color-2);
+  --header-call-to-action-color: var(--default-theme-color-accent);
+}
+.download-cta a,
+.references-rendered .markdown a {
+  color: var(--default-theme-color-1) !important;
+  text-decoration: underline !important;
+}
+/* Document Sidebar */
+.light-mode .t-doc__sidebar,
+.dark-mode .t-doc__sidebar {
+  --sidebar-background-1: var(--default-theme-background-1);
+  --sidebar-color-1: var(--default-theme-color-1);
+  --sidebar-color-2: var(--default-theme-color-2);
+  --sidebar-border-color: var(--default-theme-border-color);
+
+  --sidebar-item-hover-background: var(--default-theme-background-2);
+  --sidebar-item-hover-color: currentColor;
+
+  --sidebar-item-active-background: var(--default-theme-background-accent);
+  --sidebar-color-active: var(--default-theme-color-accent);
+
+  --sidebar-search-background: transparent;
+  --sidebar-search-color: var(--default-theme-color-3);
+  --sidebar-search-border-color: var(--default-theme-border-color);
+}
+/* advanced */
+.light-mode {
   --default-theme-color-green: #069061;
   --default-theme-color-red: #ef0006;
   --default-theme-color-yellow: #edbe20;
@@ -30,94 +79,40 @@
   --default-theme-color-orange: #fb892c;
   --default-theme-color-purple: #5203d1;
 }
-
 .dark-mode {
-  color-scheme: dark;
-  --default-theme-color-1: rgba(255, 255, 255, 0.9);
-  --default-theme-color-2: rgba(255, 255, 255, 0.62);
-  --default-theme-color-3: rgba(255, 255, 255, 0.44);
-  --default-theme-color-disabled: rgba(255, 255, 255, 0.34);
-  --default-theme-color-ghost: rgba(255, 255, 255, 0.26);
-  --default-theme-color-accent: #8ab4f8;
-  --default-theme-background-1: #1a1a1a;
-  --default-theme-background-2: #252525;
-  --default-theme-background-3: #323232;
-  --default-theme-background-4: rgba(255, 255, 255, 0.06);
-  --default-theme-background-accent: #8ab4f81f;
-
-  --default-theme-border-color: rgba(255, 255, 255, 0.1);
-  --default-theme-scrollbar-color: rgba(255, 255, 255, 0.24);
-  --default-theme-scrollbar-color-active: rgba(255, 255, 255, 0.48);
-  --default-theme-lifted-brightness: 1.45;
-  --default-theme-backdrop-brightness: 0.5;
-
-  --default-theme-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
-  --default-theme-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px,
-    rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px rgba(255, 255, 255, 0.1);
-
-  --default-theme-button-1: #f6f6f6;
-  --default-theme-button-1-color: #000;
-  --default-theme-button-1-hover: #e7e7e7;
-
   --default-theme-color-green: #00b648;
-  --default-theme-color-red: #dc1b19;
+  --default-theme-color-red: #dd2f2c;
   --default-theme-color-yellow: #ffc90d;
   --default-theme-color-blue: #4eb3ec;
   --default-theme-color-orange: #ff8d4d;
   --default-theme-color-purple: #b191f9;
-
-  /* REST API Client */
-  --default-theme-code-languages-background-supersede: transparent;
 }
 
-/* Sidebar */
-.light-mode .t-doc__sidebar {
-  --default-sidebar-background-1: var(--default-theme-background-2);
-  --default-sidebar-item-hover-color: currentColor;
-  --default-sidebar-item-hover-background: var(--default-theme-background-3);
-  --default-sidebar-item-active-background: var(
-    --default-theme-background-accent
-  );
-  --default-sidebar-border-color: transparent;
-  --default-sidebar-color-1: var(--default-theme-color-1);
-  --default-sidebar-color-2: var(--default-theme-color-2);
-  --default-sidebar-color-active: var(--default-theme-color-accent);
-  --default-sidebar-search-background: var(--default-theme-background-3);
-  --default-sidebar-search-border-color: var(--default-theme-background-3);
-  --default-sidebar-search--color: var(--default-theme-color-3);
+.code-languages-background:before {
+  box-shadow: inset 0 0 0 1px var(--default-theme-border-color) !important;
 }
-
-.dark-mode .sidebar {
-  --default-sidebar-background-1: var(--default-theme-background-2);
-  --default-sidebar-item-hover-color: currentColor;
-  --default-sidebar-item-hover-background: var(--default-theme-background-3);
-  --default-sidebar-item-active-background: var(
-    --default-theme-background-accent
-  );
-  --default-sidebar-border-color: var(--default-theme-background-2);
-  --default-sidebar-color-1: var(--default-theme-color-1);
-  --default-sidebar-color-2: var(--default-theme-color-2);
-  --default-sidebar-color-active: var(--default-theme-color-accent);
-  --default-sidebar-search-background: var(--default-theme-background-3);
-  --default-sidebar-search-border-color: var(--default-theme-background-3);
-  --default-sidebar-search--color: var(--default-theme-color-3);
+.scalar-api-client__item,
+.scalar-card,
+.dark-mode .dark-mode.scalar-card {
+  --default-theme-background-1: var(--default-theme-background-card);
+  --default-theme-background-2: var(--default-theme-background-1);
+  --default-theme-background-3: var(--default-theme-background-1);
 }
-
-/* Document header */
-.light-mode .t-doc__header {
-  --default-header-background-1: #000;
-  --default-header-border-color: #000;
-  --default-header-color-1: #fff;
-  --default-header-color-2: rgba(255, 255, 255, 0.66);
-  --default-header-background-toggle: var(--default-theme-color-3);
-  --default-header-call-to-action-color: var(--default-theme-color-accent);
+.dark-mode .dark-mode.scalar-card {
+  --default-theme-background-3: var(--default-theme-background-3);
 }
-
-.dark-mode .t-doc__header {
-  --default-header-background-1: var(--default-theme-background-3);
-  --default-header-border-color: var(--header-background-1);
-  --default-header-color-1: var(--default-theme-color-1);
-  --default-header-color-2: var(--default-theme-color-2);
-  --default-header-background-toggle: var(--default-theme-color-3);
-  --default-header-call-to-action-color: var(--default-theme-color-accent);
+.dark-mode .show-api-client-button span,
+.dark-mode .show-api-client-button svg {
+  color: var(--default-theme-background-3);
+}
+.dark-mode .show-api-client-button {
+  background: var(--default-theme-color-1) !important;
+}
+.t-doc__sidebar {
+  --default-theme-color-green: var(--default-theme-color-1);
+  --default-theme-color-red: var(--default-theme-color-1);
+  --default-theme-color-yellow: var(--default-theme-color-1);
+  --default-theme-color-blue: var(--default-theme-color-1);
+  --default-theme-color-orange: var(--default-theme-color-1);
+  --default-theme-color-purple: var(--default-theme-color-1);
 }

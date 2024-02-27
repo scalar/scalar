@@ -41,7 +41,7 @@ export const customThemeCSS = `
 }
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,
-.dark-mode .sidebar {
+.dark-mode .t-doc__sidebar {
   --sidebar-background-1: var(--theme-background-1);
   --sidebar-item-hover-color: currentColor;
   --sidebar-item-hover-background: var(--theme-background-2);
@@ -52,7 +52,7 @@ export const customThemeCSS = `
   --sidebar-color-active: var(--theme-color-1);
   --sidebar-search-background: var(--theme-background-2);
   --sidebar-search-border-color: var(--theme-background-2);
-  --sidebar-search--color: var(--theme-color-3);
+  --sidebar-search-color: var(--theme-color-3);
 }
 
 /* advanced */

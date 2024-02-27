@@ -1,6 +1,5 @@
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-import { webpackStats } from 'rollup-plugin-webpack-stats'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { defineConfig } from 'vitest/config'
 
@@ -10,7 +9,7 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': '"production"',
   },
-  plugins: [vue(), cssInjectedByJsPlugin(), webpackStats()],
+  plugins: [vue(), cssInjectedByJsPlugin()],
   build: {
     emptyOutDir: true,
     cssCodeSplit: false,

@@ -430,7 +430,7 @@ Or get more advanced by styling our sidebar!
   --sidebar-color-active: var(--theme-color-2);
   --sidebar-search-background: var(--theme-background-2);
   --sidebar-search-border-color: var(--theme-border-color);
-  --sidebar-search--color: var(--theme-color-3);
+  --sidebar-search-color: var(--theme-color-3);
 }
 .dark-mode .sidebar {
   --sidebar-background-1: var(--theme-background-1);
@@ -443,7 +443,7 @@ Or get more advanced by styling our sidebar!
   --sidebar-color-active: var(--theme-color-2);
   --sidebar-search-background: var(--theme-background-2);
   --sidebar-search-border-color: var(--theme-border-color);
-  --sidebar-search--color: var(--theme-color-3);
+  --sidebar-search-color: var(--theme-color-3);
 }
 ```
 
@@ -652,6 +652,13 @@ This repository contains all our open source projects and there’s definitely m
             <img src="https://avatars.githubusercontent.com/u/1236302?v=4" width="100;" alt="sigpwned"/>
             <br />
             <sub><b>sigpwned</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/Amorim33">
+            <img src="https://avatars.githubusercontent.com/u/42624869?v=4" width="100;" alt="Amorim33"/>
+            <br />
+            <sub><b>Amorim33</b></sub>
         </a>
     </td></tr>
 </table>
