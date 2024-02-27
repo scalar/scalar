@@ -6,10 +6,13 @@ permissions:
   pull-requests: write
 
 jobs:
-  dependabot:
+  contributors:
     runs-on: ubuntu-latest
-    if: github.actor == 'github-actions[bot]'
+    # if: github.actor == 'github-actions[bot]'
     steps:
+      # Output github actor
+      - name: Output github actor
+        run: echo "github.actor ${{github.actor}}"
       - name: Approve PR
         if: contains(github.event.pull_request.title, 'docs(contributor)')
         run: gh pr review --approve "$PR_URL"
