@@ -16,12 +16,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "@scalar/api-client-react": "workspace:*",
     "@scalar/nextjs-api-reference": "workspace:*",
-    "@vue/shared": "^3.4.19",
     "next": "^14.1.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "vue": "^3.3.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/node": "^20.6.3",

@@ -1,0 +1,56 @@
+{
+  "name": "@scalar/api-client-react",
+  "description": "the open source API testing client for react",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "keywords": [
+    "api",
+    "client",
+    "graphql",
+    "postman alternative",
+    "rest",
+    "testing",
+    "react"
+  ],
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "dev": "vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "test": "vitest",
+    "types:build": "vue-tsc -p tsconfig.build.json",
+    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
+  },
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": "./src/index.ts",
+  "files": [
+    "src",
+    "CHANGELOG.md"
+  ],
+  "module": "./src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/api-client-react"
+  },
+  "dependencies": {
+    "@scalar/api-client": "workspace:*",
+    "react": "^18.2.0",
+    "vue": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.48"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "vue": "^3.3.0"
+  }
+}
