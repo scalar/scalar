@@ -59,16 +59,19 @@ const handleClick = async () => {
           v-if="item?.icon?.src"
           class="sidebar-icon"
           :src="item.icon.src" />
-        <span>
+        <p>
           {{ item.title }}
-        </span>
-        <HttpMethod
-          v-if="item.httpVerb"
-          as="div"
-          class="sidebar-heading-type"
-          :method="item.httpVerb"
-          property="--method-color"
-          short />
+        </p>
+        <p>
+          &thinsp;
+          <HttpMethod
+            v-if="item.httpVerb"
+            as="div"
+            class="sidebar-heading-type"
+            :method="item.httpVerb"
+            property="--method-color"
+            short />
+        </p>
       </a>
     </div>
     <slot v-if="open" />
@@ -132,10 +135,13 @@ const handleClick = async () => {
   display: flex;
   flex: 1;
   justify-content: space-between;
-  align-items: center;
   gap: 2px;
 }
-
+.sidebar-heading-link p {
+  height: fit-content;
+  display: flex;
+  align-items: center;
+}
 /* Sidebar link icon */
 .link-icon {
   position: relative;
@@ -207,11 +213,11 @@ const handleClick = async () => {
 }
 
 .sidebar-heading-type {
-  width: 3.9em;
+  min-width: 3.9em;
   overflow: hidden;
-  height: 1.8em;
-  line-height: 1.8em;
   border-radius: 30px;
+  padding: 0 3px;
+  line-height: 14px;
   flex-shrink: 0;
   color: var(
     --sidebar-background-1,
@@ -225,7 +231,7 @@ const handleClick = async () => {
     var(--theme-color-2, var(--default-theme-color-2))
   );
   text-transform: uppercase;
-  font-size: 8px;
+  font-size: 8.5px;
   font-weight: bold;
   text-align: center;
   position: relative;
