@@ -12,7 +12,7 @@ describe('parse', () => {
       const invalidJson = '{"foo": "bar}'
 
       parse(invalidJson).catch((error) => {
-        expect(error.message).toContain('JSON')
+        expect(error.message).toContain('Missing closing "quote')
         resolve(null)
       })
     }))
@@ -43,14 +43,18 @@ describe('parse', () => {
 
   it('finds all tags', () =>
     new Promise((resolve) => {
-      parse(SwaggerExampleJson).then((result) => {
-        expect(result.tags.length).toBe(3)
-        expect(result.tags[0].name).toBe('pet')
-        expect(result.tags[1].name).toBe('store')
-        expect(result.tags[2].name).toBe('user')
+      parse(SwaggerExampleJson)
+        .then((result) => {
+          expect(result.tags.length).toBe(3)
+          expect(result.tags[0].name).toBe('pet')
+          expect(result.tags[1].name).toBe('store')
+          expect(result.tags[2].name).toBe('user')
 
-        resolve(null)
-      })
+          resolve(null)
+        })
+        .catch((foo) => {
+          console.log('ASDASA', foo)
+        })
     }))
 
   it('reads yaml', () =>
@@ -73,7 +77,7 @@ describe('parse', () => {
 info`
 
       parse(invalidSwaggerYaml).catch((error) => {
-        expect(error.toString()).toMatch('YAMLException')
+        expect(error.toString()).toMatch('YAMLParseError')
         resolve(null)
       })
     }))

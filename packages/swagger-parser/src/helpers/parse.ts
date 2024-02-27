@@ -20,7 +20,7 @@ export const parse = (
         return
       }
 
-      resolve(transformResult(schema))
+      resolve(transformResult(structuredClone(schema)))
     } catch (error) {
       reject(error)
     }
