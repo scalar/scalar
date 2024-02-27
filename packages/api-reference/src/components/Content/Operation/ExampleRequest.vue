@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
-import { ScalarIcon } from '@scalar/components'
+import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
 import { snippetz } from '@scalar/snippetz'
 import { HTTPSnippet } from 'httpsnippet-lite'
 import { computed, ref, watch } from 'vue'
@@ -17,7 +17,6 @@ import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
 import type { TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
-import { CodeBlock } from '../../CodeBlock'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
@@ -180,7 +179,7 @@ computed(() => {
       <!-- Multiple examples -->
       <div class="code-snippet">
         <!-- @vue-ignore -->
-        <CodeBlock
+        <ScalarCodeBlock
           :content="CodeMirrorValue"
           :lang="state.selectedClient.targetKey"
           lineNumbers />

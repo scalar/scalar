@@ -9,11 +9,8 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 /**
  * Uses prism.js for syntax highlighting
- * New languages are loaded async
- *
- * For lazy loading we can use the raw methods to load it sync
- * const html = highlight(str, languages.javascript, 'javascript')
- * + line numbers plugin etc etc
+ * Comes with js, css, bash and json
+ * Other languages are loaded async
  *
  * @link https://prismjs.com/
  */
@@ -57,13 +54,14 @@ onMounted(() => {
 </script>
 <template>
   <pre
+    class="scalar-component scalar-codeblock-pre"
     :class="{
       'line-numbers': lineNumbers,
-    }"><code ref="el" :class="`lang-${language}`">{{content}}</code></pre>
+    }"><code ref="el" :class="`scalar-codeblock-code lang-${language}`">{{content}}</code></pre>
 </template>
 <style>
-code[class*='language-'],
-pre[class*='language-'] {
+.scalar-codeblock-code[class*='language-'],
+.scalar-codeblock-pre[class*='language-'] {
   color: var(--theme-color-3, var(--default-theme-color-2));
   background: none;
   font-family: var(--theme-font-code, var(--default-theme-font-code));
@@ -86,26 +84,32 @@ pre[class*='language-'] {
 }
 
 /* Code blocks */
-pre[class*='language-'] {
+.scalar-codeblock-pre[class*='language-'] {
   margin: 0;
   padding: 0.5rem;
   overflow: auto;
 }
 
 :not(pre) > code[class*='language-'],
-pre[class*='language-'] {
+.scalar-codeblock-pre[class*='language-'] {
   background: var(--theme-background-2, var(--default-theme-background-2));
 }
 
 /* Line Numbers */
-pre[class*='language-'].line-numbers {
+.scalar-codeblock-pre[class*='language-'].line-numbers {
   padding-left: 2em;
+  position: relative;
+  counter-reset: linenumber;
 }
 
 .line-numbers span.line-numbers-rows {
   width: 2em;
   border: none;
   left: -2em;
+}
+.line-numbers code {
+  position: relative;
+  white-space: inherit;
 }
 
 /* Inline code */
