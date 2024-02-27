@@ -467,8 +467,6 @@ This repository contains all our open source projects and there’s definitely m
 | [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)       | Hono middleware                             |
 | [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)   | NestJS middleware                           |
 | [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)   | Next.js adapter                             |
-| [@scalar/swagger-editor](https://github.com/scalar/scalar/tree/main/packages/swagger-editor)               | editor tailored to write OpenAPI files      |
-| [@scalar/swagger-parser](https://github.com/scalar/scalar/tree/main/packages/swagger-parser)               | parse OpenAPI files                         |
 
 ## Contributors
 
