@@ -20,6 +20,7 @@ const props = withDefaults(
     content: string | object
     lang?: string
     lineNumbers?: boolean
+    hideCredentials?: string | string[]
   }>(),
   {
     lang: 'js',
@@ -32,6 +33,49 @@ const props = withDefaults(
  * CommonJS modules can always be imported via the default export, for example using:
  */
 const { plugins, highlightElement } = prismjs
+
+// THis plugin hides given credentials from the snippet
+if (props.hideCredentials) {
+  prismjs.hooks.add('wrap', function (env) {
+    // Skip early
+    if (!props.hideCredentials) {
+      return
+    }
+
+    let showsCredentials = false
+
+    // Check if the content includes the hideCredentials string or any of the strings in the array
+    if (typeof props.hideCredentials === 'string') {
+      if (env.content.includes(props.hideCredentials)) {
+        showsCredentials = true
+      }
+    } else if (Array.isArray(props.hideCredentials)) {
+      showsCredentials = props.hideCredentials.some((token) =>
+        env.content.includes(token),
+      )
+    }
+
+    // Wrap all occurrences of hideCredentials (string or array of strings) with a span
+    if (showsCredentials) {
+      // Clean up the matches from previously added markup first
+      env.content = env.content.replace(
+        /<span class="credentials">.*?<\/span>/g,
+        (match) => match.replace(/<span class="credentials">|<\/span>/g, ''),
+      )
+
+      // Wrap the matches with a span
+      env.content = env.content.replace(
+        new RegExp(
+          typeof props.hideCredentials === 'string'
+            ? props.hideCredentials
+            : props.hideCredentials.join('|'),
+          'g',
+        ),
+        (match) => `<span class="credentials">${match}</span>`,
+      )
+    }
+  })
+}
 
 const el = ref(null)
 const language = computed(() => {
@@ -201,5 +245,18 @@ onMounted(() => {
 
 .token.inserted {
   color: var(--theme-color-green, var(--default-theme-color-green));
+}
+
+/** Hide credentials */
+.credentials {
+  font-size: 0;
+  color: transparent;
+}
+
+/** Show a few dots instead */
+.credentials::after {
+  content: '·····';
+  font-size: var(--theme-small, var(--default-theme-small));
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
 </style>
