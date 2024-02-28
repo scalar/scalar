@@ -153,3 +153,20 @@ export function getBase64Token(username: string, password: string) {
     ? Buffer.from(`${username}:${password}`).toString('base64')
     : ''
 }
+
+export function getSecretCredentialsFromAuthentication(
+  authentication: AuthenticationState,
+) {
+  return [
+    authentication.apiKey.token,
+    authentication.http.bearer.token,
+    authentication.oAuth2.clientId,
+    // The basic auth token is the base64 encoded username and password
+    getBase64Token(
+      authentication.http.basic.username,
+      authentication.http.basic.password,
+    ),
+    // The plain text password shouldn’t appear anyway, but just in case
+    authentication.http.basic.password,
+  ].filter(Boolean)
+}

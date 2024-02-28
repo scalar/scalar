@@ -162,6 +162,7 @@ const startAuthentication = (url: string) => {
       <CardFormTextInput
         id="oAuth2.clientId"
         placeholder="Token"
+        type="password"
         :value="authentication.oAuth2.clientId"
         @input="handleOpenAuth2ClientIdInput">
         Client ID

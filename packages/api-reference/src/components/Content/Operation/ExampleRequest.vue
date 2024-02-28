@@ -7,10 +7,10 @@ import { computed, ref, watch } from 'vue'
 
 import {
   getApiClientRequest,
-  getBase64Token,
   getHarRequest,
   getRequestFromAuthentication,
   getRequestFromOperation,
+  getSecretCredentialsFromAuthentication,
   getUrlFromServerState,
 } from '../../../helpers'
 import { useClipboard, useSnippetTargets } from '../../../hooks'
@@ -181,17 +181,7 @@ computed(() => {
         <ScalarCodeBlock
           :content="CodeMirrorValue"
           :hideCredentials="
-            [
-              authenticationState.apiKey.token,
-              authenticationState.http.bearer.token,
-              // The basic auth token is the base64 encoded username and password
-              getBase64Token(
-                authenticationState.http.basic.username,
-                authenticationState.http.basic.password,
-              ),
-              // The plain text password shouldn’t appear anyway, but just in case
-              authenticationState.http.basic.password,
-            ].filter(Boolean)
+            getSecretCredentialsFromAuthentication(authenticationState)
           "
           :lang="state.selectedClient.targetKey"
           lineNumbers />
