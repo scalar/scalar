@@ -9,23 +9,26 @@ export default function (context, options) {
     async contentLoaded({ content, actions }) {
       const { addRoute, createData } = actions
 
+      console.log(options, content, actions)
+
       // Assuming `content` is your OpenAPI spec; you might have loaded it above
       // Create a JSON file in .docusaurus that contains your OpenAPI spec
-      console.log(content)
-      const openApiSpecPath = await createData(
-        'openapi-spec.json',
-        JSON.stringify(content || {}),
-      )
 
-      // Add a route for your OpenAPI spec viewer page
-      addRoute({
-        path: '/api-docs',
-        component: '@site/src/Scalar', // You will create this React component
-        // Provide the path to the loaded spec as a prop to your component
-        exact: true,
-        modules: {
-          openApiSpec: openApiSpecPath,
-        },
+      options.specs.forEach(async (spec) => {
+        const specProps = await createData(
+          `scalarV1-${options.id || '1'}.json`,
+          JSON.stringify(spec),
+        )
+        // Add a route for your OpenAPI spec viewer page
+        addRoute({
+          path: spec.route,
+          component: '@site/src/ScalarDocu', // You will create this React component
+          // Provide the path to the loaded spec as a prop to your component
+          exact: true,
+          modules: {
+            specProps,
+          },
+        })
       })
     },
 

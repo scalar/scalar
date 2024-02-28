@@ -2,6 +2,7 @@ import type * as Preset from '@docusaurus/preset-classic'
 import type { Config } from '@docusaurus/types'
 import path from 'path'
 import { themes as prismThemes } from 'prism-react-renderer'
+import webpack from 'webpack'
 
 const config: Config = {
   title: 'My Site',
@@ -35,9 +36,45 @@ const config: Config = {
     [
       path.resolve(__dirname, './src/plugins/scalar-docusaurus'),
       {
-        // Plugin options
+        specs: [
+          {
+            id: 'using-single-yaml',
+            url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+            route: '/scalar',
+          },
+          // {
+          //   spec: 'openapi/openapi.yaml',
+          //   route: '/api-docs',
+          // },
+        ],
       },
     ],
+    function myWebpackPlugin() {
+      return {
+        name: 'webpack-configuration-plugin',
+        configureWebpack(config, isServer, utils) {
+          return {
+            plugins: [
+              new webpack.ProvidePlugin({
+                Buffer: ['buffer', 'Buffer'],
+              }),
+              new webpack.DefinePlugin({
+                'process.env': {},
+                '__VUE_OPTIONS_API__': true,
+                '__VUE_PROD_DEVTOOLS__': false,
+                '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': false,
+              }),
+            ],
+            resolve: {
+              fallback: {
+                ...config.resolve.fallback,
+                buffer: require.resolve('buffer/'),
+              },
+            },
+          }
+        },
+      }
+    },
   ],
 
   presets: [
@@ -81,6 +118,7 @@ const config: Config = {
           position: 'left',
           label: 'Tutorial',
         },
+        { to: '/scalar', label: 'Scalar', position: 'left' },
         { to: '/blog', label: 'Blog', position: 'left' },
         {
           href: 'https://github.com/facebook/docusaurus',

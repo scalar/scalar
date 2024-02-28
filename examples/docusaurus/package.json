@@ -48,6 +48,7 @@
     "@docusaurus/module-type-aliases": "^3.1.1",
     "@docusaurus/tsconfig": "^3.1.1",
     "@docusaurus/types": "^3.1.1",
+    "buffer": "^6.0.3",
     "typescript": "^5.2.2"
   }
 }
