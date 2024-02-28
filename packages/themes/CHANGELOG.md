@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.5.10
+
+### Patch Changes
+
+- 51acf2c: fix: sidebar theme precedence and remove unused OSS variables
+
 ## 0.5.9
 
 ### Patch Changes
