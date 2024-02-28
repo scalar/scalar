@@ -17,7 +17,7 @@ const containerRef = ref<HTMLElement>()
 
 useResizeObserver(
   containerRef,
-  (entries) => (isSmall.value = entries[0].contentRect.width < 500),
+  (entries) => (isSmall.value = entries[0].contentRect.width < 400),
 )
 
 // Show popular clients with an icon, not just in a select.
@@ -209,7 +209,7 @@ function checkIfClientIsFeatured(client: SelectedClient) {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  max-width: 68px;
+  max-width: 60px;
   width: 100%;
   padding: 12px 0;
   position: relative;
@@ -224,11 +224,11 @@ function checkIfClientIsFeatured(client: SelectedClient) {
   }
 }
 .code-languages-icon {
-  max-width: 48px;
+  max-width: 42px;
   width: 100%;
-  max-height: 48px;
+  max-height: 42px;
   aspect-ratio: 1;
-  padding: 7px;
+  padding: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -240,7 +240,7 @@ function checkIfClientIsFeatured(client: SelectedClient) {
   );
 }
 .code-languages-background {
-  border-radius: 12px;
+  border-radius: 9px;
   position: relative;
   box-shadow: 0 0 0 1px
     var(
@@ -355,7 +355,7 @@ function checkIfClientIsFeatured(client: SelectedClient) {
   }
 }
 .code-languages span {
-  margin-top: 3px;
+  margin-top: 6px;
   color: var(--theme-color-2, var(--default-theme-color-2));
   font-size: var(--theme-micro, var(--default-theme-micro));
 }
