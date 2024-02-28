@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 0.12.9
+
+### Patch Changes
+
+- 6857b8d: fix: api client syntax highlighting
+- Updated dependencies [6857b8d]
+  - @scalar/components@0.3.0
+
 ## 0.12.8
 
 ### Patch Changes

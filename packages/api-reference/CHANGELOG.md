@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.17.9
+
+### Patch Changes
+
+- 6857b8d: fix: api client syntax highlighting
+- Updated dependencies [6857b8d]
+  - @scalar/components@0.3.0
+  - @scalar/api-client@0.12.9
+  - @scalar/swagger-editor@0.10.11
+
 ## 1.17.8
 
 ### Patch Changes

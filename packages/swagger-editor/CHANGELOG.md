@@ -1,5 +1,12 @@
 # @scalar/swagger-editor
 
+## 0.10.11
+
+### Patch Changes
+
+- Updated dependencies [6857b8d]
+  - @scalar/components@0.3.0
+
 ## 0.10.10
 
 ### Patch Changes
