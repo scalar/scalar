@@ -61,6 +61,7 @@ const currentJsonResponse = computed(
   () =>
     // OpenAPI 3.x
     currentResponse.value?.content?.['application/json'] ??
+    currentResponse.value?.content?.['application/json; charset=utf-8'] ??
     currentResponse.value?.content?.['application/problem+json'] ??
     // Swagger 2.0
     currentResponse.value,
