@@ -1,6 +1,7 @@
 import type { App } from 'vue'
 
 import { ScalarButton } from '@/components/ScalarButton'
+import { ScalarCodeBlock } from '@/components/ScalarCodeBlock'
 import { ScalarIcon } from '@/components/ScalarIcon'
 import { ScalarIconButton } from '@/components/ScalarIconButton'
 import { ScalarLoading, useLoadingState } from '@/components/ScalarLoading'
@@ -21,6 +22,7 @@ export default {
 
 export {
   ScalarButton,
+  ScalarCodeBlock,
   ScalarIcon,
   ScalarIconButton,
   ScalarLoading,

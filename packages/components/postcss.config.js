@@ -1,7 +1,7 @@
 /** Global prefix class used to scoped tailwind */
 const classPrefix = 'scalar-component'
 
-const globalSelectors = ['*', ':root']
+const globalRegx = /^\*|:root/
 
 export default ({ env }) => ({
   plugins: {
@@ -16,7 +16,7 @@ export default ({ env }) => ({
       transform: (prefix, selector, prefixedSelector) => {
         if (env === 'development') return selector
         return `${prefix}${
-          globalSelectors.includes(selector) ? '' : selector
+          selector.match(globalRegx) ? '' : selector
         }, ${prefixedSelector}`
       },
     },
