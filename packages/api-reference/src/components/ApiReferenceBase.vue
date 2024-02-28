@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import {
   HeaderTabButton,
-  ResetStyles,
   type SwaggerEditor,
   type SwaggerEditorInputProps,
 } from '@scalar/swagger-editor'
-import { type ThemeId, ThemeStyles } from '@scalar/themes'
+import { ResetStyles, type ThemeId, ThemeStyles } from '@scalar/themes'
 import { FlowModal, useModal } from '@scalar/use-modal'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, ref, watch } from 'vue'

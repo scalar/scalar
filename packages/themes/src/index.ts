@@ -9,10 +9,11 @@ import purpleTheme from './presets/purple.css?inline'
 import saturnTheme from './presets/saturn.css?inline'
 import solarizedTheme from './presets/solarized.css?inline'
 
-/**
- * A component to insert the theme styles.
- */
+/** A component to insert the theme styles */
 export { default as ThemeStyles } from './components/ThemeStyles.vue'
+
+/** A scoped style reset component. */
+export { default as ResetStyles } from './components/ResetStyles.vue'
 
 /**
  * Available theme IDs as a type.
