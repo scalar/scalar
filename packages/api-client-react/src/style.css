@@ -1,5 +1,5 @@
-.light .scalar-modal-layout,
-.light .scalar {
+.light-mode .scalar-modal-layout,
+.light-mode .scalar {
   --theme-color-1: color-mix(
     in srgb,
     rgb(var(--primary-base-300, 180 180 180)),
@@ -47,8 +47,8 @@
   --theme-scrollbar-color: rgba(255, 255, 255, 0.24);
   --theme-scrollbar-color-active: rgba(255, 255, 255, 0.48);
 }
-.dark .scalar-modal-layout,
-.dark .scalar {
+.dark-mode .scalar-modal-layout,
+.dark-mode .scalar {
   --theme-color-1: color-mix(
     in srgb,
     rgb(var(--primary-base-700, 70 70 70)),
@@ -131,11 +131,15 @@
   padding: 6px 12px 6px 12px;
   border-radius: 0.25rem 0.25rem 0 0;
   font-size: 14px;
+  font-family: sans-serif;
   --scalar-app-header-height: 35px;
   height: var(--scalar-app-header-height);
   display: flex;
   align-items: center;
   gap: 6px;
+}
+.scalar .scalar-app-header a {
+  text-decoration: none;
 }
 .scalar .scalar-api-client {
   max-height: calc(100% - calc(var(--scalar-app-header-height)));

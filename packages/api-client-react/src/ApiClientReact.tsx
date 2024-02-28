@@ -33,7 +33,7 @@ export const ApiClientReact = ({ close, isOpen = false, request }: Props) => {
       <div className="scalar-container">
         <div className="scalar-app">
           <div className="scalar-app-header">
-            <span>API Client </span>
+            <span>API Client</span>
             <a
               href={`https://www.scalar.com?utm_campaign=${host}`}
               target="_blank">
