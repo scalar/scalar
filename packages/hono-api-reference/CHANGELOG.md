@@ -1,5 +1,13 @@
 # @scalar/hono-api-reference
 
+## 0.3.60
+
+### Patch Changes
+
+- 6e03e1c: allow hono@v4 as peerDependency
+- Updated dependencies [6857b8d]
+  - @scalar/api-reference@1.17.9
+
 ## 0.3.59
 
 ### Patch Changes
