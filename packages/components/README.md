@@ -10,12 +10,9 @@ pnpm i @scalar/theme @scalar/components
 
 ## Usage
 
-If you are using tailwind, make sure to import these after your tailwind reset or the styles will get overwritten.
-
 In your main setup file (main.ts etc)
 
 ```ts
-import '@scalar/components/style.css'
 import '@scalar/themes/base.css'
 ```
 

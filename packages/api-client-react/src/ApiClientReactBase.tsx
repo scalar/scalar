@@ -20,7 +20,7 @@ export const ApiClientReactBase = () => {
   useEffect(() => {
     if (!el.current) return undefined
 
-    const vueApp = createApp(ApiClient)
+    const vueApp = createApp(ApiClient, { readOnly: true })
     vueApp.mount(el.current)
 
     // Unmount for react strict mode

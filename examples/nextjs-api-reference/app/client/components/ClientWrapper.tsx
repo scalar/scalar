@@ -1,8 +1,7 @@
 'use client'
 
+import { ApiClientReact } from '@scalar/api-client-react'
 import React, { useState } from 'react'
-
-import { ApiClientReact } from '../../../../../packages/api-client-react/src'
 
 export const ClientWrapper = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -19,7 +18,7 @@ export const ClientWrapper = () => {
         request={{
           url: 'https://api.sampleapis.com',
           type: 'GET',
-          path: '/simpsons/characters',
+          path: '/simpsons/products',
         }}
       />
     </div>
