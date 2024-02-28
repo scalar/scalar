@@ -759,9 +759,6 @@ importers:
       postcss-nested:
         specifier: ^6.0.1
         version: 6.0.1(postcss@8.4.35)
-      prismjs:
-        specifier: ^1.29.0
-        version: 1.29.0
       rehype-external-links:
         specifier: ^3.0.0
         version: 3.0.0
@@ -832,9 +829,6 @@ importers:
       '@types/js-yaml':
         specifier: ^4.0.6
         version: 4.0.9
-      '@types/prismjs':
-        specifier: ^1.26.3
-        version: 1.26.3
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.4(vite@5.1.4)(vue@3.4.20)
@@ -904,6 +898,9 @@ importers:
       nanoid:
         specifier: ^5.0.1
         version: 5.0.6
+      prismjs:
+        specifier: ^1.29.0
+        version: 1.29.0
       tailwind-merge:
         specifier: ^2.0.0
         version: 2.2.1
@@ -950,6 +947,9 @@ importers:
       '@types/node':
         specifier: ^20.6.3
         version: 20.11.20
+      '@types/prismjs':
+        specifier: ^1.26.3
+        version: 1.26.3
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.4(vite@5.1.4)(vue@3.4.20)
