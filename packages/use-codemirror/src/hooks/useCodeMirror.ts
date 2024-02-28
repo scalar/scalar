@@ -5,6 +5,7 @@ import * as yamlMode from '@codemirror/legacy-modes/mode/yaml'
 import { type Extension, StateEffect } from '@codemirror/state'
 import {
   EditorView,
+  type KeyBinding,
   keymap,
   lineNumbers as lineNumbersExtension,
 } from '@codemirror/view'
@@ -62,6 +63,18 @@ const hasProvider = (
   content?: MaybeRefOrGetter<string | undefined>
   provider: MaybeRefOrGetter<Extension>
 } => 'provider' in params && !!toValue(params.provider)
+
+const selectAllKeyBinding: KeyBinding = {
+  key: 'Mod-a',
+  run: (view) => {
+    // Select the entire content
+    view.dispatch({
+      selection: { anchor: 0, head: view.state.doc.length },
+      scrollIntoView: false,
+    })
+    return true
+  },
+}
 
 /** Reactive CodeMirror Integration */
 export const useCodeMirror = (
@@ -236,6 +249,7 @@ function getCodeMirrorExtensions({
   additionalExtensions?: Extension[]
 }) {
   const extensions: Extension[] = [
+    keymap.of([selectAllKeyBinding]),
     EditorView.theme({
       '.cm-line': {
         lineHeight: '20px',
