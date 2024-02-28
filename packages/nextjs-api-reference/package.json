@@ -47,8 +47,8 @@
   "devDependencies": {
     "@scalar/api-reference": "workspace:*",
     "@types/node": "^20.6.3",
-    "@types/react": "^18.2.48",
-    "@types/react-dom": "^18.2.18",
+    "@types/react": "^18.2.60",
+    "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.2.1",
     "next": "^14.1.0",
     "react": "^18.2.0",
