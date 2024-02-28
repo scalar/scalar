@@ -1,7 +1,6 @@
 'use client'
 
 import { ApiClientReact } from '@scalar/api-client-react'
-import '@scalar/api-client-react/style.css'
 import React, { useState } from 'react'
 
 export const Wrapper = () => {

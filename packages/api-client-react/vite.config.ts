@@ -1,17 +1,15 @@
 import react from '@vitejs/plugin-react'
 import * as path from 'path'
 import { defineConfig } from 'vite'
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import dts from 'vite-plugin-dts'
 
-import pkg from './package.json'
-
-// https://vitejs.dev/config/
 export default defineConfig({
   build: {
     lib: {
       // Could also be a dictionary or array of multiple entry points
       entry: './src/index.ts',
-      name: '@scalar/nextjs-api-reference',
+      name: '@scalar/api-client-react',
       formats: ['es', 'cjs', 'umd'],
       fileName: 'index',
     },
@@ -35,5 +33,9 @@ export default defineConfig({
       },
     },
   },
-  plugins: [react(), dts({ insertTypesEntry: true, rollupTypes: true })],
+  plugins: [
+    react(),
+    dts({ insertTypesEntry: true, rollupTypes: true }),
+    cssInjectedByJsPlugin(),
+  ],
 })

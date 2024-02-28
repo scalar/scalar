@@ -58,6 +58,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "path": "^0.12.7",
     "vite": "^5.1.1",
+    "vite-plugin-css-injected-by-js": "^3.4.0",
     "vite-plugin-dts": "^3.6.3"
   },
   "peerDependencies": {
