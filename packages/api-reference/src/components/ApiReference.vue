@@ -32,3 +32,8 @@ function handleUpdateContent(value: string) {
     <template #footer><slot name="footer" /></template>
   </Component>
 </template>
+<style>
+body {
+  margin: 0;
+}
+</style>

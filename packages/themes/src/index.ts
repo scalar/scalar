@@ -15,6 +15,9 @@ export { default as ThemeStyles } from './components/ThemeStyles.vue'
 /** A scoped style reset component. */
 export { default as ResetStyles } from './components/ResetStyles.vue'
 
+/** A scoped scrollbar style component. */
+export { default as ScrollbarStyles } from './components/ScrollbarStyles.vue'
+
 /**
  * Available theme IDs as a type.
  */

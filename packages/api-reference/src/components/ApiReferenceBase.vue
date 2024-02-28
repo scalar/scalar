@@ -4,7 +4,12 @@ import {
   type SwaggerEditor,
   type SwaggerEditorInputProps,
 } from '@scalar/swagger-editor'
-import { ResetStyles, type ThemeId, ThemeStyles } from '@scalar/themes'
+import {
+  ResetStyles,
+  ScrollbarStyles,
+  type ThemeId,
+  ThemeStyles,
+} from '@scalar/themes'
 import { FlowModal, useModal } from '@scalar/use-modal'
 import { useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, defineAsyncComponent, ref, watch } from 'vue'
@@ -151,49 +156,51 @@ if (props.configuration?.authentication) {
       @openSwaggerEditor="gettingStartedModal.hide()"
       @updateContent="handleCloseModal(() => setRawSpecRef($event))" />
   </FlowModal>
-  <ResetStyles v-slot="{ styles }">
-    <ApiReferenceLayout
-      v-bind="$attrs"
-      :class="styles"
-      :configuration="currentConfiguration"
-      :parsedSpec="parsedSpecRef"
-      :rawSpec="rawSpecRef"
-      :swaggerEditorRef="swaggerEditorRef"
-      @changeTheme="$emit('changeTheme', $event)"
-      @updateContent="(newContent: string) => setRawSpecRef(newContent)">
-      <!-- Passes up all the slots except `editor` with typed slot props -->
-      <template
-        v-for="(_, name) in slots"
-        #[name]="scope">
-        <slot
-          :name="name"
-          v-bind="scope" />
-      </template>
-      <template
-        v-if="LazyLoadedSwaggerEditor"
-        #editor>
-        <LazyLoadedSwaggerEditor
-          ref="swaggerEditorRef"
-          :error="errorRef"
-          :proxyUrl="currentConfiguration.proxy"
-          :theme="currentConfiguration.theme"
-          :value="rawSpecRef"
-          @changeTheme="$emit('changeTheme', $event)"
-          @contentUpdate="(newContent: string) => setRawSpecRef(newContent)">
-          <template #tab-items>
-            <HeaderTabButton
-              v-if="isMobile"
-              @click="handleGettingStarted">
-              Getting Started
-            </HeaderTabButton>
-          </template>
-          <template #editor-input="editorInputProps">
-            <slot
-              name="editor-input"
-              v-bind="editorInputProps" />
-          </template>
-        </LazyLoadedSwaggerEditor>
-      </template>
-    </ApiReferenceLayout>
+  <ResetStyles v-slot="{ styles: reset }">
+    <ScrollbarStyles v-slot="{ styles: scrollbars }">
+      <ApiReferenceLayout
+        v-bind="$attrs"
+        :class="[reset, scrollbars]"
+        :configuration="currentConfiguration"
+        :parsedSpec="parsedSpecRef"
+        :rawSpec="rawSpecRef"
+        :swaggerEditorRef="swaggerEditorRef"
+        @changeTheme="$emit('changeTheme', $event)"
+        @updateContent="(newContent: string) => setRawSpecRef(newContent)">
+        <!-- Passes up all the slots except `editor` with typed slot props -->
+        <template
+          v-for="(_, name) in slots"
+          #[name]="scope">
+          <slot
+            :name="name"
+            v-bind="scope" />
+        </template>
+        <template
+          v-if="LazyLoadedSwaggerEditor"
+          #editor>
+          <LazyLoadedSwaggerEditor
+            ref="swaggerEditorRef"
+            :error="errorRef"
+            :proxyUrl="currentConfiguration.proxy"
+            :theme="currentConfiguration.theme"
+            :value="rawSpecRef"
+            @changeTheme="$emit('changeTheme', $event)"
+            @contentUpdate="(newContent: string) => setRawSpecRef(newContent)">
+            <template #tab-items>
+              <HeaderTabButton
+                v-if="isMobile"
+                @click="handleGettingStarted">
+                Getting Started
+              </HeaderTabButton>
+            </template>
+            <template #editor-input="editorInputProps">
+              <slot
+                name="editor-input"
+                v-bind="editorInputProps" />
+            </template>
+          </LazyLoadedSwaggerEditor>
+        </template>
+      </ApiReferenceLayout>
+    </ScrollbarStyles>
   </ResetStyles>
 </template>
