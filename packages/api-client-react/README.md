@@ -14,9 +14,6 @@ npm install @scalar/api-client-react
 
 ## Usage
 
-Currently we are just exporting the typescript component so you will need to
-handle transpilation yourself. In the future we may add a build step.
-
 ```ts
 import { ApiClientReact } from '@scalar/api-client-react'
 import React, { useState } from 'react'

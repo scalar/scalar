@@ -19,20 +19,30 @@
     "node": ">=18"
   },
   "scripts": {
+    "build": "pnpm types:check && pnpm build-only",
+    "build-only": "vite build",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "types:build": "tsc -p tsconfig.json",
-    "types:check": "tsc --noEmit --skipLibCheck --composite false"
+    "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/types.d.ts",
-  "exports": "./src/index.ts",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    },
+    "./style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  },
   "files": [
-    "src",
+    "dist",
     "CHANGELOG.md"
   ],
-  "module": "./src/index.ts",
+  "module": "./dist/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/scalar/scalar.git",
@@ -44,7 +54,11 @@
     "vue": "^3.3.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.48"
+    "@types/react": "^18.2.48",
+    "@vitejs/plugin-react": "^4.2.1",
+    "path": "^0.12.7",
+    "vite": "^5.1.1",
+    "vite-plugin-dts": "^3.6.3"
   },
   "peerDependencies": {
     "react": "^18.0.0",
