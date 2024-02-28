@@ -104,10 +104,7 @@ export function getRequestFromAuthentication(
       ) {
         const { username, password } = authentication.http.basic
 
-        const token =
-          username?.length || password?.length
-            ? Buffer.from(`${username}:${password}`).toString('base64')
-            : ''
+        const token = getBase64Token(username, password)
 
         headers.push({
           name: 'Authorization',
@@ -149,4 +146,10 @@ export function getRequestFromAuthentication(
   }
 
   return { headers, queryString, cookies }
+}
+
+export function getBase64Token(username: string, password: string) {
+  return username?.length || password?.length
+    ? Buffer.from(`${username}:${password}`).toString('base64')
+    : ''
 }

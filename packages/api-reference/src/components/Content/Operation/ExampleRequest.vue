@@ -7,6 +7,7 @@ import { computed, ref, watch } from 'vue'
 
 import {
   getApiClientRequest,
+  getBase64Token,
   getHarRequest,
   getRequestFromAuthentication,
   getRequestFromOperation,
@@ -68,7 +69,6 @@ const generateSnippet = async (): Promise<string> => {
     // Snippetz
     if (
       snippetz().hasPlugin(
-        // @ts-ignore
         state.selectedClient.targetKey.replace('javascript', 'js'),
         // @ts-ignore
         state.selectedClient.clientKey,
@@ -178,9 +178,21 @@ computed(() => {
       frameless>
       <!-- Multiple examples -->
       <div class="code-snippet">
-        <!-- @vue-ignore -->
         <ScalarCodeBlock
           :content="CodeMirrorValue"
+          :hideCredentials="
+            [
+              authenticationState.apiKey.token,
+              authenticationState.http.bearer.token,
+              // The basic auth token is the base64 encoded username and password
+              getBase64Token(
+                authenticationState.http.basic.username,
+                authenticationState.http.basic.password,
+              ),
+              // The plain text password shouldn’t appear anyway, but just in case
+              authenticationState.http.basic.password,
+            ].filter(Boolean)
+          "
           :lang="state.selectedClient.targetKey"
           lineNumbers />
       </div>
