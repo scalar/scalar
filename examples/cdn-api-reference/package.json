@@ -1,0 +1,27 @@
+{
+  "name": "@scalar-examples/cdn-api-reference",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ./",
+    "types:check": "tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
+  "dependencies": {
+    "@fastify/static": "^7.0.1",
+    "fastify": "^4.23.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.1",
+    "vite-node": "^1.2.2"
+  }
+}
