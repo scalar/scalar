@@ -57,6 +57,7 @@ const codeMirrorLanguage = computed((): string | null => {
     <template v-if="active">
       <ScalarCodeBlock
         v-if="codeMirrorLanguage"
+        class="custom-scroll"
         :content="data"
         :lang="codeMirrorLanguage" />
       <div
