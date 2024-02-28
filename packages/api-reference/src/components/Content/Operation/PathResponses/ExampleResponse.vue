@@ -1,6 +1,7 @@
 <script lang="ts" setup>
+import { ScalarCodeBlock } from '@scalar/components'
+
 import { getExampleFromSchema, prettyPrintJson } from '../../../../helpers'
-import { CodeBlock } from '../../../CodeBlock'
 
 defineProps<{
   response:
@@ -24,13 +25,13 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
 </script>
 <template>
   <div v-if="response?.example">
-    <CodeBlock
+    <ScalarCodeBlock
       :content="prettyPrintJson(response?.example)"
       lang="json" />
   </div>
   <div v-else-if="response?.schema">
     <!-- Single Schema -->
-    <CodeBlock
+    <ScalarCodeBlock
       v-if="response?.schema.type"
       :content="
         prettyPrintJson(
@@ -59,7 +60,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
             v-for="(example, index) in response?.schema[rule]"
             :key="index"
             class="rule-item">
-            <CodeBlock
+            <ScalarCodeBlock
               :content="
                 getExampleFromSchema(example, {
                   emptyString: '…',
@@ -70,7 +71,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
           </li>
         </ol>
       </div>
-      <CodeBlock
+      <ScalarCodeBlock
         v-else-if="
           response?.schema[rule] && response?.schema[rule].length === 1
         "
@@ -83,7 +84,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
         lang="json" />
     </template>
     <!-- allOf-->
-    <CodeBlock
+    <ScalarCodeBlock
       v-if="response?.schema['allOf']"
       :content="
         mergeAllObjects(

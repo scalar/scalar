@@ -1,5 +1,37 @@
 # @scalar/api-client
 
+## 0.12.10
+
+### Patch Changes
+
+- Updated dependencies [5a94530]
+  - @scalar/use-codemirror@0.8.7
+
+## 0.12.9
+
+### Patch Changes
+
+- 6857b8d: fix: api client syntax highlighting
+- Updated dependencies [6857b8d]
+  - @scalar/components@0.3.0
+
+## 0.12.8
+
+### Patch Changes
+
+- Updated dependencies [51acf2c]
+  - @scalar/themes@0.5.10
+  - @scalar/components@0.2.6
+
+## 0.12.7
+
+### Patch Changes
+
+- Updated dependencies [c103201]
+- Updated dependencies [d2728c8]
+  - @scalar/components@0.2.6
+  - @scalar/themes@0.5.9
+
 ## 0.12.6
 
 ### Patch Changes

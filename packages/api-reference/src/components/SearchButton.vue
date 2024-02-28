@@ -51,8 +51,8 @@ whenever(keys[`meta_${props.searchHotKey}`], () =>
   display: flex;
   align-items: center;
   position: relative;
-  padding: 0 3px 0 12px;
-  min-width: 224px;
+  padding: 0 3px 0 9px;
+  min-width: 254px;
   max-width: 100%;
   font-family: var(--theme-font, var(--default-theme-font));
   background: var(
@@ -118,7 +118,7 @@ whenever(keys[`meta_${props.searchHotKey}`], () =>
 
 .search-icon {
   padding: 0;
-  margin-right: 9px;
+  margin-right: 6px;
   width: 12px;
 }
 </style>

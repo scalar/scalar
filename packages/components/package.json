@@ -5,7 +5,7 @@
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "engines": {
     "node": ">=18"
   },
@@ -47,6 +47,7 @@
     "class-variance-authority": "^0.7.0",
     "cva": "1.0.0-beta.1",
     "nanoid": "^5.0.1",
+    "prismjs": "^1.29.0",
     "tailwind-merge": "^2.0.0",
     "vue": "^3.3.0"
   },
@@ -64,6 +65,7 @@
     "@tsconfig/node18": "^18.2.2",
     "@types/jsdom": "^21.1.3",
     "@types/node": "^20.6.3",
+    "@types/prismjs": "^1.26.3",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/test-utils": "^2.4.1",
     "@vue/tsconfig": "^0.4.0",

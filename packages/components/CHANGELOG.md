@@ -1,5 +1,17 @@
 # @scalar/components
 
+## 0.3.0
+
+### Minor Changes
+
+- 6857b8d: fix: api client syntax highlighting
+
+## 0.2.6
+
+### Patch Changes
+
+- c103201: fix: polish sidebar
+
 ## 0.2.5
 
 ### Patch Changes

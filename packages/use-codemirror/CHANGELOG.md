@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.8.7
+
+### Patch Changes
+
+- 5a94530: fix: select all keybinding does not work
+
 ## 0.8.6
 
 ### Patch Changes

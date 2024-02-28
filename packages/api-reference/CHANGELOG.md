@@ -1,5 +1,48 @@
 # @scalar/api-reference
 
+## 1.17.10
+
+### Patch Changes
+
+- d8d8341: fix: example response with encoding in content type is not shown
+  - @scalar/api-client@0.12.10
+  - @scalar/swagger-editor@0.10.12
+
+## 1.17.9
+
+### Patch Changes
+
+- 6857b8d: fix: api client syntax highlighting
+- Updated dependencies [6857b8d]
+  - @scalar/components@0.3.0
+  - @scalar/api-client@0.12.9
+  - @scalar/swagger-editor@0.10.11
+
+## 1.17.8
+
+### Patch Changes
+
+- Updated dependencies [51acf2c]
+  - @scalar/themes@0.5.10
+  - @scalar/api-client@0.12.8
+  - @scalar/components@0.2.6
+  - @scalar/swagger-editor@0.10.10
+
+## 1.17.7
+
+### Patch Changes
+
+- 55b9633: fix: request type polish
+- c103201: fix: polish sidebar
+- 31d12a7: fix: show key-value pair examples for objects
+- 36630da: chore: remove coinmarketcap example
+- Updated dependencies [c103201]
+- Updated dependencies [d2728c8]
+  - @scalar/components@0.2.6
+  - @scalar/themes@0.5.9
+  - @scalar/api-client@0.12.7
+  - @scalar/swagger-editor@0.10.9
+
 ## 1.17.4
 
 ### Patch Changes

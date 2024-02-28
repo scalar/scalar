@@ -104,9 +104,6 @@ export const defaultCss = `
   --theme-color-orange: #ff8d4d;
   --theme-color-purple: #b191f9;
 }
-.scalar-card:nth-of-type(3) {
-  display: none;
-}
 `
 
 /**
