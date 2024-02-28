@@ -115,6 +115,7 @@ const startAuthentication = (url: string) => {
       v-if="value.type === 'apiKey'"
       :id="`security-scheme-${value.name}`"
       placeholder="Token"
+      type="password"
       :value="authentication.apiKey.token"
       @input="handleApiKeyTokenInput">
       {{ value.in.charAt(0).toUpperCase() + value.in.slice(1) }} API Key
@@ -146,6 +147,7 @@ const startAuthentication = (url: string) => {
         v-else-if="value.type === 'http' && value.scheme === 'bearer'"
         id="http.bearer.token"
         placeholder="Token"
+        type="password"
         :value="authentication.http.bearer.token"
         @input="handleHttpBearerTokenInput">
         Bearer Token
