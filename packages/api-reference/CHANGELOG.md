@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.17.10
+
+### Patch Changes
+
+- d8d8341: fix: example response with encoding in content type is not shown
+  - @scalar/api-client@0.12.10
+  - @scalar/swagger-editor@0.10.12
+
 ## 1.17.9
 
 ### Patch Changes
