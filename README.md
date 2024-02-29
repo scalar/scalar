@@ -526,10 +526,10 @@ This repository contains all our open source projects and there’s definitely m
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/mcollina">
-            <img src="https://avatars.githubusercontent.com/u/52195?v=4" width="100;" alt="mcollina"/>
+        <a href="https://github.com/ATREAY">
+            <img src="https://avatars.githubusercontent.com/u/66585295?v=4" width="100;" alt="ATREAY"/>
             <br />
-            <sub><b>mcollina</b></sub>
+            <sub><b>ATREAY</b></sub>
         </a>
     </td>
     <td align="center">
@@ -540,10 +540,10 @@ This repository contains all our open source projects and there’s definitely m
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/ATREAY">
-            <img src="https://avatars.githubusercontent.com/u/66585295?v=4" width="100;" alt="ATREAY"/>
+        <a href="https://github.com/mcollina">
+            <img src="https://avatars.githubusercontent.com/u/52195?v=4" width="100;" alt="mcollina"/>
             <br />
-            <sub><b>ATREAY</b></sub>
+            <sub><b>mcollina</b></sub>
         </a>
     </td>
     <td align="center">
@@ -554,13 +554,20 @@ This repository contains all our open source projects and there’s definitely m
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/Amorim33">
+            <img src="https://avatars.githubusercontent.com/u/42624869?v=4" width="100;" alt="Amorim33"/>
+            <br />
+            <sub><b>Amorim33</b></sub>
+        </a>
+    </td></tr>
+<tr>
+    <td align="center">
         <a href="https://github.com/dunklesToast">
             <img src="https://avatars.githubusercontent.com/u/17279485?v=4" width="100;" alt="dunklesToast"/>
             <br />
             <sub><b>dunklesToast</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/FotieMConstant">
             <img src="https://avatars.githubusercontent.com/u/42372656?v=4" width="100;" alt="FotieMConstant"/>
@@ -595,15 +602,15 @@ This repository contains all our open source projects and there’s definitely m
             <br />
             <sub><b>dotfortun</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/SebastianBienert">
             <img src="https://avatars.githubusercontent.com/u/17458785?v=4" width="100;" alt="SebastianBienert"/>
             <br />
             <sub><b>SebastianBienert</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/Mason-Little">
             <img src="https://avatars.githubusercontent.com/u/105008441?v=4" width="100;" alt="Mason-Little"/>
@@ -638,15 +645,15 @@ This repository contains all our open source projects and there’s definitely m
             <br />
             <sub><b>Fdawgs</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/danp">
             <img src="https://avatars.githubusercontent.com/u/2182?v=4" width="100;" alt="danp"/>
             <br />
             <sub><b>danp</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/chrislearn">
             <img src="https://avatars.githubusercontent.com/u/5874864?v=4" width="100;" alt="chrislearn"/>
@@ -659,13 +666,6 @@ This repository contains all our open source projects and there’s definitely m
             <img src="https://avatars.githubusercontent.com/u/1236302?v=4" width="100;" alt="sigpwned"/>
             <br />
             <sub><b>sigpwned</b></sub>
-        </a>
-    </td>
-    <td align="center">
-        <a href="https://github.com/Amorim33">
-            <img src="https://avatars.githubusercontent.com/u/42624869?v=4" width="100;" alt="Amorim33"/>
-            <br />
-            <sub><b>Amorim33</b></sub>
         </a>
     </td></tr>
 </table>
