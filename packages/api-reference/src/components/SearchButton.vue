@@ -32,7 +32,8 @@ whenever(keys[`meta_${props.searchHotKey}`], () =>
     @click="modalState.show">
     <ScalarIcon
       class="search-icon"
-      icon="Search" />
+      icon="Search"
+      size="sm" />
     <div class="sidebar-search-input">
       <span class="sidebar-search-placeholder">Search</span>
       <span class="sidebar-search-shortcut">
