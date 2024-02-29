@@ -4,6 +4,7 @@ import {
   closeBracketsKeymap,
   completionKeymap,
 } from '@codemirror/autocomplete'
+import { css } from '@codemirror/lang-css'
 import { html } from '@codemirror/lang-html'
 import { json } from '@codemirror/lang-json'
 import { yaml } from '@codemirror/lang-yaml'
@@ -232,6 +233,7 @@ const languageExtensions: {
   html: html,
   json: json,
   yaml: yaml,
+  css: css,
 }
 
 /** Generate  the list of extension from parameters */
