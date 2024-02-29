@@ -26,6 +26,7 @@ module.exports = {
     '**/vite.config.ts',
     '**/vite.standalone.config.ts',
     '**/cdn/**',
+    'packages/docusaurus/src/ScalarDocu.ts',
   ],
   rules: {
     // ---------------------------------------------------------------------------

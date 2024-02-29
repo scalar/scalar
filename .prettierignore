@@ -16,3 +16,5 @@ cdn
 fixtures
 .vite-ssg-temp
 .next
+
+packages/docusaurus/src/ScalarDocu.ts

@@ -1,0 +1,59 @@
+{
+  "name": "@scalar/docusaurus",
+  "description": "a Docusaurus plugin to render API references from an OpenAPI file",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "keywords": [
+    "api",
+    "documentation",
+    "docusaurus",
+    "react",
+    "openapi",
+    "swagger"
+  ],
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "pnpm types:check && pnpm build-only",
+    "build-only": "vite build",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "types:check": "tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "./dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/docusaurus"
+  },
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*"
+  },
+  "devDependencies": {
+    "@scalar/api-reference": "workspace:*",
+    "@types/node": "^20.6.3",
+    "@types/react": "^18.2.60",
+    "@types/react-dom": "^18.2.19",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.1.1",
+    "vite-plugin-dts": "^3.6.3"
+  },
+  "peerDependencies": {
+    "react": "^18"
+  }
+}
