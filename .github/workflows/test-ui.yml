@@ -28,7 +28,7 @@ jobs:
       - name: Turborepo cache
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
       - name: Start static html server
-        run: pnpm --filter cdn-api-reference dev
+        run: pnpm --filter cdn-api-reference dev &
       - name: Get installed Playwright version
         id: playwright-version
         working-directory: ./packages/playwright
