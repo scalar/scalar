@@ -58,12 +58,23 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 <template>
   <div
     class="property"
-    :class="[`property--level-${level}`, { 'property--compact': compact }]">
+    :class="[
+      `property--level-${level}`,
+      {
+        'property--compact': compact,
+        'property--deprecated': value?.deprecated,
+      },
+    ]">
     <div class="property-information">
       <div
         v-if="name"
         class="property-name">
         {{ name }}
+      </div>
+      <div
+        v-if="value?.deprecated"
+        class="property-deprecated">
+        <Badge>deprecated</Badge>
       </div>
       <div
         v-if="required"
@@ -225,6 +236,21 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
 .property--compact.property--level-0 {
   padding: 10px 0;
+}
+
+.property--deprecated {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--theme-background-2, var(--default-theme-background-2)) 0,
+    var(--theme-background-2, var(--default-theme-background-2)) 2px,
+    transparent 2px,
+    transparent 5px
+  );
+  background-size: 100%;
+}
+
+.property--deprecated > * {
+  opacity: 0.75;
 }
 
 .property-information {
