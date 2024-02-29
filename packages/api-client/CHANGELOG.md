@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 0.12.11
+
+### Patch Changes
+
+- d16d07f: style: added scrollbar and border to api-client
+
 ## 0.12.10
 
 ### Patch Changes
