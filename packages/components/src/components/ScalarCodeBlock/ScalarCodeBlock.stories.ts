@@ -82,3 +82,12 @@ export const LineNumbers: Story = {
 export const JSON: Story = {
   args: { content: contentJson, lineNumbers: true, lang: 'json' },
 }
+
+export const HideCredentials: Story = {
+  args: {
+    content: `curl --request PUT \
+  --url https://petstore3.swagger.io/api/v3/pet \
+  --header 'Authorization: Bearer 123234324'`,
+    hideCredentials: ['123234324'],
+  },
+}

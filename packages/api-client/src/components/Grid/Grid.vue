@@ -2,7 +2,7 @@
 import { ScalarIcon } from '@scalar/components'
 import { ref } from 'vue'
 
-const props = defineProps<{
+defineProps<{
   items: any[]
   addLabel?: string
   showMoreFilter?: boolean

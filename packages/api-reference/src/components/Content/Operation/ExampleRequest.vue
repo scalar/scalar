@@ -10,6 +10,7 @@ import {
   getHarRequest,
   getRequestFromAuthentication,
   getRequestFromOperation,
+  getSecretCredentialsFromAuthentication,
   getUrlFromServerState,
 } from '../../../helpers'
 import { useClipboard, useSnippetTargets } from '../../../hooks'
@@ -68,7 +69,6 @@ const generateSnippet = async (): Promise<string> => {
     // Snippetz
     if (
       snippetz().hasPlugin(
-        // @ts-ignore
         state.selectedClient.targetKey.replace('javascript', 'js'),
         // @ts-ignore
         state.selectedClient.clientKey,
@@ -178,9 +178,11 @@ computed(() => {
       frameless>
       <!-- Multiple examples -->
       <div class="code-snippet">
-        <!-- @vue-ignore -->
         <ScalarCodeBlock
           :content="CodeMirrorValue"
+          :hideCredentials="
+            getSecretCredentialsFromAuthentication(authenticationState)
+          "
           :lang="state.selectedClient.targetKey"
           lineNumbers />
       </div>
