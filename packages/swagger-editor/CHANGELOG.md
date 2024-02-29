@@ -1,5 +1,15 @@
 # @scalar/swagger-editor
 
+## 0.10.13
+
+### Patch Changes
+
+- 5bc2ebf: Add syntax highlighting back to codemirror
+- Updated dependencies [407a3af]
+- Updated dependencies [5bc2ebf]
+  - @scalar/components@0.4.0
+  - @scalar/use-codemirror@0.8.8
+
 ## 0.10.12
 
 ### Patch Changes

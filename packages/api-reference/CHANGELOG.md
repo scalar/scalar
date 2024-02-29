@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.17.12
+
+### Patch Changes
+
+- e0eacb2: feat: show badge for deprecated schema attributes
+- db7762c: fix: stop rendering infinite child attributes
+- 5bc2ebf: Add syntax highlighting back to codemirror
+- Updated dependencies [407a3af]
+- Updated dependencies [5bc2ebf]
+  - @scalar/components@0.4.0
+  - @scalar/swagger-editor@0.10.13
+  - @scalar/swagger-parser@0.5.19
+  - @scalar/api-client@0.12.12
+
 ## 1.17.11
 
 ### Patch Changes

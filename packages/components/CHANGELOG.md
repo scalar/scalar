@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.4.0
+
+### Minor Changes
+
+- 407a3af: style: removed css file from components (breaking change)
+
+### Patch Changes
+
+- 5bc2ebf: Add syntax highlighting back to codemirror
+
 ## 0.3.0
 
 ### Minor Changes

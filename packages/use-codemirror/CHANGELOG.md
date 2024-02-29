@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.8.8
+
+### Patch Changes
+
+- 5bc2ebf: Add syntax highlighting back to codemirror
+
 ## 0.8.7
 
 ### Patch Changes

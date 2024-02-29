@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.21
+
+### Patch Changes
+
+- 5bc2ebf: Add syntax highlighting back to codemirror
+
 ## 0.5.20
 
 ### Patch Changes
