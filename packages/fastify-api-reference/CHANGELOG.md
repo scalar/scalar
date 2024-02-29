@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.17.12
+
+### Patch Changes
+
+- 5bc2ebf: Add syntax highlighting back to codemirror
+
 ## 1.17.6
 
 ### Patch Changes

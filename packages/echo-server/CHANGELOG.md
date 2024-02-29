@@ -1,5 +1,11 @@
 # @scalar/echo-server
 
+## 0.5.12
+
+### Patch Changes
+
+- 5bc2ebf: Add syntax highlighting back to codemirror
+
 ## 0.5.11
 
 ### Patch Changes
