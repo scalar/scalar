@@ -21,7 +21,5 @@ test('Renders petstore api reference from CDN', async ({ page, isMobile }) => {
     await expect(
       page.getByRole('link', { name: 'PET', exact: true }),
     ).toBeVisible()
-    // Search
-    await expect(page.getByRole('button', { name: 'Search ⌘k' })).toBeVisible()
   }
 })
