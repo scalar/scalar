@@ -12,7 +12,7 @@
   "singleQuote": true,
   "singleAttributePerLine": true,
   "bracketSameLine": true,
-  "importOrder": ["^@lib/(.*)$", "^@guide/(.*)$", "^@/(.*)$", "^[./]"],
+  "importOrder": ["^@lib/(.*)$", "^@guide/(.*)$", "^[./]"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true
 }

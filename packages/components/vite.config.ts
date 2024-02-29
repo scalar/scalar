@@ -46,9 +46,4 @@ export default defineConfig({
     dts({ insertTypesEntry: true, rollupTypes: true }),
     cssInjectedByJsPlugin(),
   ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
 })
