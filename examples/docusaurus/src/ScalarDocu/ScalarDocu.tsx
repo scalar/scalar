@@ -12,8 +12,6 @@ function ApiDoc({ layoutProps, specProps }) {
   // const defaultDescription =
   //   specProps.spec?.info?.description || 'Open API Reference Docs for the API';
 
-  console.log(specProps)
-
   const configuration = {
     proxy: 'https://api.scalar.com/request-proxy',
     spec: {

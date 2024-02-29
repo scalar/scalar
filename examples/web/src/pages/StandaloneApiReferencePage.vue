@@ -19,8 +19,3 @@ const configuration = reactive<ReferenceConfiguration>({
     <template #footer><SlotPlaceholder>footer</SlotPlaceholder></template>
   </ApiReference>
 </template>
-<style>
-body {
-  background: pink;
-}
-</style>
