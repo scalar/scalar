@@ -66,10 +66,12 @@ const { activeRequest, readOnly } = useRequestStore()
   width: 100%;
   min-height: 63px;
 }
+.scalar-api-client__item__content .scalar-codeblock-pre,
 .scalar-api-client__item__content .cm-s-default {
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
 }
+.scalar-api-client__item__content .scalar-codeblock-pre,
 .scalar-api-client__item__content .codemirror-container {
   width: 100%;
   max-height: calc(100vh - 300px);
