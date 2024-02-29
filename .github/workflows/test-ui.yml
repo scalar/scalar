@@ -1,0 +1,46 @@
+name: Playwright Tests
+
+on:
+  schedule:
+    # every hour
+    - cron: '0 * * * *'
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm --filter cdn-api-reference install
+      - name: Turborepo cache
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+      - name: Start static html server
+        run: pnpm --filter cdn-api-reference dev &
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package.json').devDependencies['@playwright/test'])")" >> $GITHUB_ENV
+      # TODO doesn't work
+      - name: Cache playwright binaries
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: '~/.cache/ms-playwright'
+          key: '${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}'
+          restore-keys: ${{ runner.os }}-playwright-
+      - name: Install Playwright browser binaries & OS dependencies
+        run: pnpm exec playwright install --with-deps
+      - name: Run e2e tests
+        run: CI=1 pnpm test:e2e
