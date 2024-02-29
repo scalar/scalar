@@ -10,7 +10,7 @@ await app.register(fastifyStatic, {
 })
 
 app.get('/', (_request, reply) => {
-  reply.sendFile('api-reference-cdn.html') // serving path.join(__dirname, 'public', 'myHtml.html') directly
+  reply.sendFile('api-reference-cdn.html', { cacheControl: false }) // overriding the options disabling cache-control headers) // serving path.join(__dirname, 'public', 'myHtml.html') directly
 })
 
 // Run the server!

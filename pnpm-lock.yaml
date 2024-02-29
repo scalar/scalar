@@ -111,6 +111,9 @@ importers:
         specifier: ^4.23.2
         version: 4.25.1
     devDependencies:
+      '@types/node':
+        specifier: ^20.6.3
+        version: 20.6.3
       nodemon:
         specifier: ^3.0.1
         version: 3.0.1
@@ -119,10 +122,10 @@ importers:
         version: 5.3.3
       vite:
         specifier: ^5.1.1
-        version: 5.1.4(terser@5.24.0)
+        version: 5.1.4(@types/node@20.6.3)
       vite-node:
         specifier: ^1.2.2
-        version: 1.3.1(terser@5.24.0)
+        version: 1.3.1(@types/node@20.6.3)
 
   examples/echo-server:
     dependencies:
