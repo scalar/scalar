@@ -1,19 +1,20 @@
 {
-  "name": "@scalar/nextjs-api-reference",
-  "description": "a Next.js component to render API references from an OpenAPI file",
+  "name": "@scalar/api-client-react",
+  "description": "the open source API testing client for react",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "keywords": [
     "api",
-    "documentation",
-    "next.js",
-    "nextjs",
-    "openapi",
-    "swagger"
+    "client",
+    "graphql",
+    "postman alternative",
+    "rest",
+    "testing",
+    "react"
   ],
-  "version": "0.1.38",
+  "version": "0.0.1",
   "engines": {
     "node": ">=18"
   },
@@ -26,10 +27,16 @@
   },
   "type": "module",
   "main": "./dist/index.cjs",
-  "types": "dist/index.d.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
-    "import": "./dist/index.js",
-    "require": "./dist/index.cjs"
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    },
+    "./style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
   },
   "files": [
     "dist",
@@ -39,25 +46,24 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/nextjs-api-reference"
+    "directory": "packages/api-client-react"
   },
   "dependencies": {
-    "@scalar/api-reference": "workspace:*"
+    "@scalar/api-client": "workspace:*",
+    "react": "^18.2.0",
+    "vue": "^3.3.0"
   },
   "devDependencies": {
-    "@scalar/api-reference": "workspace:*",
-    "@types/node": "^20.6.3",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.2.1",
-    "next": "^14.1.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "path": "^0.12.7",
     "vite": "^5.1.1",
+    "vite-plugin-css-injected-by-js": "^3.4.0",
     "vite-plugin-dts": "^3.6.3"
   },
   "peerDependencies": {
-    "next": "^13 || ^14",
-    "react": "^18"
+    "react": "^18.0.0",
+    "vue": "^3.3.0"
   }
 }

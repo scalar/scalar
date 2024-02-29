@@ -101,6 +101,7 @@ describe('useSpec', () => {
 
     await new Promise((resolve) => {
       watch(rawSpecRef, (value) => {
+        if (!value) return
         expect(JSON.parse(value)).toMatchObject({
           openapi: '3.1.0',
           info: {

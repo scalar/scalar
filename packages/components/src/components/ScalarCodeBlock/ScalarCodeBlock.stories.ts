@@ -20,7 +20,7 @@ export const Wrapper = () => {
         request={{
           url: 'https://api.sampleapis.com',
           type: 'GET',
-          path: '/simpsons/characters',
+          path: '/simpsons/products',
         }}
       />
     </>
