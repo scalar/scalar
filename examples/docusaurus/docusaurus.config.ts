@@ -52,7 +52,8 @@ const config: Config = {
     function myWebpackPlugin() {
       return {
         name: 'webpack-configuration-plugin',
-        configureWebpack(config, isServer, utils) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        configureWebpack(webpackConfig, isServer, utils) {
           return {
             plugins: [
               new webpack.ProvidePlugin({
@@ -66,8 +67,14 @@ const config: Config = {
               }),
             ],
             resolve: {
+              alias: {
+                '@scalar/docusaurus': path.resolve(
+                  __dirname,
+                  '../../packages/docusaurus/src/index.ts',
+                ),
+              },
               fallback: {
-                ...config.resolve.fallback,
+                ...webpackConfig.resolve.fallback,
                 buffer: require.resolve('buffer/'),
               },
             },
