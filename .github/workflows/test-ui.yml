@@ -43,4 +43,4 @@ jobs:
       - name: Install Playwright browser binaries & OS dependencies
         run: pnpm exec playwright install --with-deps
       - name: Run e2e tests
-        run: CI=1 pnpm -r --parallel test:e2e
+        run: CI=1 pnpm test:e2e
