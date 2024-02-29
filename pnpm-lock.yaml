@@ -19,9 +19,15 @@ importers:
       '@changesets/cli':
         specifier: ^2.27.1
         version: 2.27.1
+      '@playwright/test':
+        specifier: ^1.42.0
+        version: 1.42.0
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^4.3.0
         version: 4.3.0(prettier@3.2.5)
+      '@types/node':
+        specifier: ^20.6.3
+        version: 20.6.3
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.21.0
         version: 6.21.0(@typescript-eslint/parser@6.21.0)(eslint@8.57.0)(typescript@5.3.3)
@@ -122,10 +128,10 @@ importers:
         version: 5.3.3
       vite:
         specifier: ^5.1.1
-        version: 5.1.4(@types/node@20.6.3)
+        version: 5.1.4(@types/node@20.6.3)(terser@5.24.0)
       vite-node:
         specifier: ^1.2.2
-        version: 1.3.1(@types/node@20.6.3)
+        version: 1.3.1(@types/node@20.6.3)(terser@5.24.0)
 
   examples/echo-server:
     dependencies:
@@ -1230,15 +1236,6 @@ importers:
       vite-plugin-dts:
         specifier: ^3.6.3
         version: 3.7.3(@types/node@20.11.22)(typescript@5.3.3)(vite@5.1.4)
-
-  packages/playwright:
-    devDependencies:
-      '@playwright/test':
-        specifier: ^1.42.0
-        version: 1.42.0
-      '@types/node':
-        specifier: ^20.6.3
-        version: 20.6.3
 
   packages/swagger-editor:
     dependencies:
@@ -5811,42 +5808,7 @@ packages:
       '@storybook/node-logger': 7.6.17
       '@storybook/types': 7.6.17
       '@types/find-cache-dir': 3.2.1
-<<<<<<< HEAD
       '@types/node': 18.19.20
-=======
-      '@types/node': 18.19.15
-      '@types/node-fetch': 2.6.5
-      '@types/pretty-hrtime': 1.0.1
-      chalk: 4.1.2
-      esbuild: 0.18.20
-      esbuild-register: 3.5.0(esbuild@0.18.20)
-      file-system-cache: 2.3.0
-      find-cache-dir: 3.3.2
-      find-up: 5.0.0
-      fs-extra: 11.2.0
-      glob: 10.3.10
-      handlebars: 4.7.8
-      lazy-universal-dotenv: 4.0.0
-      node-fetch: 2.7.0
-      picomatch: 2.3.1
-      pkg-dir: 5.0.0
-      pretty-hrtime: 1.0.3
-      resolve-from: 5.0.0
-      ts-dedent: 2.2.0
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-    dev: true
-
-  /@storybook/core-common@7.6.14:
-    resolution: {integrity: sha512-0CIfwdjY5+OO6B+WxeCx3fZou1wk50RU9hFOMGwJ2yj/5ilV06xVHt0HNrA2x37zaK7r370PjOuny0Xudba03g==}
-    dependencies:
-      '@storybook/core-events': 7.6.14
-      '@storybook/node-logger': 7.6.14
-      '@storybook/types': 7.6.14
-      '@types/find-cache-dir': 3.2.1
-      '@types/node': 18.19.15
->>>>>>> 05608d4b (chore: resolve lockfile)
       '@types/node-fetch': 2.6.11
       '@types/pretty-hrtime': 1.0.3
       chalk: 4.1.2
@@ -5889,70 +5851,11 @@ packages:
       '@storybook/csf-tools': 7.6.17
       '@storybook/docs-mdx': 0.1.0
       '@storybook/global': 5.0.0
-<<<<<<< HEAD
       '@storybook/manager': 7.6.17
       '@storybook/node-logger': 7.6.17
       '@storybook/preview-api': 7.6.17
       '@storybook/telemetry': 7.6.17
       '@storybook/types': 7.6.17
-=======
-      '@storybook/manager': 7.5.2
-      '@storybook/node-logger': 7.5.2
-      '@storybook/preview-api': 7.5.2
-      '@storybook/telemetry': 7.5.2
-      '@storybook/types': 7.5.2
-      '@types/detect-port': 1.3.3
-      '@types/node': 18.19.15
-      '@types/pretty-hrtime': 1.0.1
-      '@types/semver': 7.5.2
-      better-opn: 3.0.2
-      chalk: 4.1.2
-      cli-table3: 0.6.3
-      compression: 1.7.4
-      detect-port: 1.5.1
-      express: 4.18.2
-      fs-extra: 11.2.0
-      globby: 11.1.0
-      ip: 2.0.0
-      lodash: 4.17.21
-      open: 8.4.2
-      pretty-hrtime: 1.0.3
-      prompts: 2.4.2
-      read-pkg-up: 7.0.1
-      semver: 7.6.0
-      telejson: 7.2.0
-      tiny-invariant: 1.3.1
-      ts-dedent: 2.2.0
-      util: 0.12.5
-      util-deprecate: 1.0.2
-      watchpack: 2.4.0
-      ws: 8.14.2
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - supports-color
-      - utf-8-validate
-    dev: true
-
-  /@storybook/core-server@7.6.14:
-    resolution: {integrity: sha512-OSUunvjXyUiyfGet8ZBz7/Lka6dSgbbVMH7lU6wELIYCd2ZUxU5HQMl9JPesl61wWB4L3JaWFAoMRaCVI7q0xQ==}
-    dependencies:
-      '@aw-web-design/x-default-browser': 1.4.126
-      '@discoveryjs/json-ext': 0.5.7
-      '@storybook/builder-manager': 7.6.14
-      '@storybook/channels': 7.6.14
-      '@storybook/core-common': 7.6.14
-      '@storybook/core-events': 7.6.14
-      '@storybook/csf': 0.1.2
-      '@storybook/csf-tools': 7.6.14
-      '@storybook/docs-mdx': 0.1.0
-      '@storybook/global': 5.0.0
-      '@storybook/manager': 7.6.14
-      '@storybook/node-logger': 7.6.14
-      '@storybook/preview-api': 7.6.14
-      '@storybook/telemetry': 7.6.14
-      '@storybook/types': 7.6.14
->>>>>>> 05608d4b (chore: resolve lockfile)
       '@types/detect-port': 1.3.5
       '@types/node': 18.19.20
       '@types/pretty-hrtime': 1.0.3
@@ -6732,7 +6635,6 @@ packages:
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
     dev: true
 
-<<<<<<< HEAD
   /@types/node@18.19.20:
     resolution: {integrity: sha512-SKXZvI375jkpvAj8o+5U2518XQv76mAsixqfXiVyWyXZbVWQK25RurFovYpVIxVzul0rZoH58V/3SkEnm7s3qA==}
     dependencies:
@@ -6741,10 +6643,6 @@ packages:
 
   /@types/node@20.11.22:
     resolution: {integrity: sha512-/G+IxWxma6V3E+pqK1tSl2Fo1kl41pK1yeCyDsgkF9WlVAme4j5ISYM2zR11bgLFJGLN5sVK40T4RJNuiZbEjA==}
-=======
-  /@types/node@18.19.15:
-    resolution: {integrity: sha512-AMZ2UWx+woHNfM11PyAEQmfSxi05jm9OlkxczuHeEqmvwPkYj6MWv44gbzDPefYOLysTOFyI3ziiy2ONmUZfpA==}
->>>>>>> 05608d4b (chore: resolve lockfile)
     dependencies:
       undici-types: 5.26.5
     dev: true
@@ -14705,30 +14603,9 @@ packages:
       pathe: 1.1.2
     dev: true
 
-<<<<<<< HEAD
   /plimit-lit@1.6.1:
     resolution: {integrity: sha512-B7+VDyb8Tl6oMJT9oSO2CW8XC/T4UcJGrwOVoNGwOQsQYhlpfajmrMj5xeejqaASq3V/EqThyOeATEOMuSEXiA==}
     engines: {node: '>=12'}
-=======
-  /playwright-core@1.42.0:
-    resolution: {integrity: sha512-0HD9y8qEVlcbsAjdpBaFjmaTHf+1FeIddy8VJLeiqwhcNqGCBe4Wp2e8knpqiYbzxtxarxiXyNDw2cG8sCaNMQ==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dev: true
-
-  /playwright@1.42.0:
-    resolution: {integrity: sha512-Ko7YRUgj5xBHbntrgt4EIw/nE//XBHOKVKnBjO1KuZkmkhlbgyggTe5s9hjqQ1LpN+Xg+kHsQyt5Pa0Bw5XpvQ==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dependencies:
-      playwright-core: 1.42.0
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
-
-  /plimit-lit@1.5.0:
-    resolution: {integrity: sha512-Eb/MqCb1Iv/ok4m1FqIXqvUKPISufcjZ605hl3KM/n8GaX8zfhtgdLwZU3vKjuHGh2O9Rjog/bHTq8ofIShdng==}
->>>>>>> 05608d4b (chore: resolve lockfile)
     dependencies:
       queue-lit: 1.5.2
     dev: true
@@ -18109,11 +17986,7 @@ packages:
     dev: true
 
   /vitest@1.3.1(terser@5.28.1):
-    resolution: {integrity: sha512-/1QJqXs8YbCrfv/GPQ05wAZf2eakUPLPa18vkJAKE7RXOKfVHqMZZ1WlTjiwl6Gcn65M5vpNUB6EFLnEdRdEXQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
-    hasBin: true
-    peerDependencies:
-      '@edge-runtime/vm': '*'
       '@types/node': ^18.0.0 || >=20.0.0
       '@vitest/browser': 1.3.1
       '@vitest/ui': 1.3.1
@@ -18133,6 +18006,7 @@ packages:
       jsdom:
         optional: true
     dependencies:
+      '@types/node': 20.6.3
       '@vitest/expect': 1.3.1
       '@vitest/runner': 1.3.1
       '@vitest/snapshot': 1.3.1

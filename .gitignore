@@ -7,3 +7,7 @@ tsconfig.tsbuildinfo
 
 # Testing data
 test-*.json
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

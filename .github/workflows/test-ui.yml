@@ -31,7 +31,6 @@ jobs:
         run: pnpm --filter cdn-api-reference dev &
       - name: Get installed Playwright version
         id: playwright-version
-        working-directory: ./packages/playwright
         run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package.json').devDependencies['@playwright/test'])")" >> $GITHUB_ENV
       # TODO doesn't work
       - name: Cache playwright binaries
@@ -42,7 +41,6 @@ jobs:
           key: '${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}'
           restore-keys: ${{ runner.os }}-playwright-
       - name: Install Playwright browser binaries & OS dependencies
-        working-directory: ./packages/playwright
         run: pnpm exec playwright install --with-deps
       - name: Run e2e tests
-        run: CI=1 pnpm --filter playwright -r --parallel test:e2e
+        run: CI=1 pnpm -r --parallel test:e2e
