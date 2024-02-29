@@ -7,7 +7,8 @@ export const customTheme = createTheme({
     background: 'var(--theme-background-2, var(--default-theme-background-2))',
     foreground: 'var(--theme-color-1, var(--default-theme-color-1))',
     caret: 'var(--theme-color-1, var(--default-theme-color-1))',
-    selection: 'var(--theme-background-3, var(--default-theme-background-3))',
+    // Selection likely needs a hardcoded color due to it not accepting variables
+    selection: 'rgba(151, 183, 205, 0.2)',
     selectionMatch: '#e3dcce',
     gutterBackground:
       'var(--theme-background-2, var(--default-theme-background-2))',

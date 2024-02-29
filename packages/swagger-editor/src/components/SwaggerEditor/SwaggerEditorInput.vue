@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { CodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { isJsonString } from '../../helpers'
 import { type SwaggerEditorInputProps } from '../../types'
 
-defineProps<SwaggerEditorInputProps>()
+const props = defineProps<SwaggerEditorInputProps>()
 
 defineEmits<{
   (e: 'contentUpdate', value: string): void
@@ -22,6 +22,8 @@ const codeMirrorRef = ref<typeof CodeMirror | null>(null)
 function getSyntaxHighlighting(content?: string): CodeMirrorLanguage {
   return isJsonString(content) ? 'json' : 'yaml'
 }
+
+const language = computed(() => getSyntaxHighlighting(props.value))
 </script>
 
 <template>
@@ -29,7 +31,7 @@ function getSyntaxHighlighting(content?: string): CodeMirrorLanguage {
     <CodeMirror
       ref="codeMirrorRef"
       :content="value"
-      :language="getSyntaxHighlighting(value)"
+      :language="language"
       lineNumbers
       @change="(value: string) => $emit('contentUpdate', value)" />
   </div>
