@@ -257,6 +257,10 @@ function getCodeMirrorExtensions({
       '.cm-gutterElement': {
         lineHeight: '20px',
       },
+      '.cm-selectionBackground, ::selection': {
+        backgroundColor:
+          'var(--theme-background-3, var(--default-theme-background-3))',
+      },
     }),
     // Listen to updates
     EditorView.updateListener.of((v) => {
@@ -281,6 +285,8 @@ function getCodeMirrorExtensions({
 
   // Add the theme as needed
   if (!withoutTheme) extensions.push(customTheme)
+
+  console.log(customTheme, extensions)
 
   // Read only
   if (readOnly) extensions.push(EditorView.editable.of(false))

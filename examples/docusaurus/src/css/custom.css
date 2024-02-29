@@ -1,37 +1,9 @@
-/**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
- */
-
-/* You can override the default Infima variables here. */
-:root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
-  --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-}
-
-/* For readability concerns, you should choose a lighter palette in dark mode. */
-[data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
-}
-
 /* Scalar Theme */
 :root {
   --theme-font: var(--ifm-font-family-base);
+}
+.scalar-api-reference {
+  --refs-header-height: var(--ifm-navbar-height) !important;
 }
 /* basic theme */
 html[data-theme='light'] {
@@ -125,8 +97,9 @@ html[data-theme='dark'] {
 .sidebar-heading-type {
   background: transparent !important;
   color: var(--method-color) !important;
-  font-size: 9px;
-  padding: 1px 3px;
+  font-size: 10px !important;
+  line-height: 16px !important;
+  padding: 1px 3px !important;
 }
 .sidebar-heading-type:after {
   content: '';
@@ -173,6 +146,7 @@ html[data-theme='light'] .api-client-drawer {
 }
 .sidebar-heading {
   margin-top: 2px;
+  --theme-mini: auto !important;
 }
 .sidebar-heading-link p {
   font-family: var(--ifm-font-family-base), 'Inter', var(--system-fonts);
@@ -186,4 +160,34 @@ html[data-theme='light'] .api-client-drawer {
 }
 .darklight-reference-promo {
   padding-top: 12px !important;
+}
+.t-doc__sidebar {
+  max-height: calc(100dvh - var(--ifm-navbar-height));
+  position: sticky;
+  top: var(--ifm-navbar-height);
+}
+#headlessui-portal-root {
+  position: fixed !important;
+  width: 100%;
+}
+#__docusaurus[aria-hidden='true'] ~ #headlessui-portal-root {
+  position: relative !important;
+}
+.references-layout {
+  height: initial !important;
+  max-height: initial !important;
+  overflow: initial !important;
+  grid-template-rows: 0 repeat(2, auto);
+}
+.references-navigation-list {
+  height: 100% !important;
+}
+.section-column:nth-of-type(2) {
+  max-height: calc(100dvh - var(--ifm-navbar-height));
+}
+.scalar-card {
+  --full-height: calc(100dvh - var(--ifm-navbar-height));
+  max-height: calc(
+    ((var(--full-height) - var(--refs-header-height)) - 60px) / 2
+  );
 }
