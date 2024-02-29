@@ -1,3 +1,3 @@
-import ScalarDocu from './ScalarDocu'
+import { ScalarDocu } from '@scalar/docusaurus'
 
 export default ScalarDocu
