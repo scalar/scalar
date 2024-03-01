@@ -75,5 +75,5 @@ jobs:
       - name: Comment on PR
         uses: thollander/actions-comment-pull-request@v2
         with:
-          filePath: ${{ steps.screenshot.outputs.path }}
+          message: ${{ steps.screenshot.outputs.path }}
           comment_tag: screenshots
