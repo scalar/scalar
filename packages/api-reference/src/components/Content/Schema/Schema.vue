@@ -156,8 +156,6 @@ button.schema-card-title:hover {
 }
 .schema-card-title-icon {
   margin-left: -4px;
-  width: 16px;
-  height: 16px;
 }
 .schema-card-title-icon--open {
   transform: rotate(90deg);

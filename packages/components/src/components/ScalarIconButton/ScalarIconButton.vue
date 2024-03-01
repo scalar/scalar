@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { VariantProps } from 'cva'
 
-import { cva, cx } from '../../cva'
+import { cva, cx } from '@/cva'
+
 import { styles } from '../ScalarButton'
 import { type Icon, ScalarIcon } from '../ScalarIcon'
 

@@ -1,13 +1,13 @@
 import type { App } from 'vue'
 
-import { ScalarButton } from './components/ScalarButton'
-import { ScalarCodeBlock } from './components/ScalarCodeBlock'
-import { ScalarIcon } from './components/ScalarIcon'
-import { ScalarIconButton } from './components/ScalarIconButton'
-import { ScalarLoading, useLoadingState } from './components/ScalarLoading'
-import { ScalarModal, useModal } from './components/ScalarModal'
-import { ScalarTextField } from './components/ScalarTextField'
-import './tailwind/tailwind.css'
+import { ScalarButton } from '@/components/ScalarButton'
+import { ScalarCodeBlock } from '@/components/ScalarCodeBlock'
+import { ScalarIcon } from '@/components/ScalarIcon'
+import { ScalarIconButton } from '@/components/ScalarIconButton'
+import { ScalarLoading, useLoadingState } from '@/components/ScalarLoading'
+import { ScalarModal, useModal } from '@/components/ScalarModal'
+import { ScalarTextField } from '@/components/ScalarTextField'
+import '@/tailwind/tailwind.css'
 
 export default {
   install: (app: App) => {
@@ -32,4 +32,4 @@ export {
   ScalarTextField,
 }
 
-export { extend, theme } from './tailwind'
+export { extend, theme } from '@/tailwind'

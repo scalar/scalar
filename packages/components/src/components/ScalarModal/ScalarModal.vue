@@ -5,7 +5,7 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@headlessui/vue'
-import { cva, cx } from '../../cva'
+import { cva, cx } from '@/cva'
 
 import { reactive } from 'vue'
 import type { VariantProps } from 'cva'
