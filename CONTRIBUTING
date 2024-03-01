@@ -12,6 +12,14 @@ Contributions are welcome. We’re using [pnpm](https://pnpm.io/).
 
 This should give you a nice start page with entrypoints to the various previews and examples.
 
+## Tests
+
+Most packages have a bunch of tests, mostly for all the helper functions we use.
+
+It’s worth to check the tests locally before sending contributions: `$ pnpm test`
+
+If you want to add a test and only run your test file, you can filter the test suite like this:  `$ pnpm test your-test`
+
 ## PRs
 
 Don’t worry, we’ll help you to get your PR in. But here is how you can help us:
