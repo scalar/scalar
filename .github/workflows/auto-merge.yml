@@ -1,4 +1,4 @@
-name: Auto-merge
+name: Auto Merge
 on: pull_request
 
 permissions:
@@ -15,10 +15,10 @@ jobs:
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{secrets.GH_PERSONAL_ACCESS_TOKEN}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Enable auto-merge
         if: contains(github.event.pull_request.title, 'docs(contributor)')
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{secrets.GH_PERSONAL_ACCESS_TOKEN}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
