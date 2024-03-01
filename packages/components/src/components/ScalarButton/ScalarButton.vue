@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue'
 
-import { cx } from '../../cva'
+import { cx } from '@/cva'
+
 import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 import { type Variants, variants } from './variants'
 

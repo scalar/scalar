@@ -18,7 +18,10 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2022",
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "exclude": ["node_modules"]
 }

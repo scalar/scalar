@@ -2,7 +2,8 @@
 import { type VariantProps } from 'cva'
 import { computed } from 'vue'
 
-import { cva, cx } from '../../cva'
+import { cva, cx } from '@/cva'
+
 import SvgRenderer from './SvgRenderer'
 import { type Icon, getIcon } from './icons/'
 

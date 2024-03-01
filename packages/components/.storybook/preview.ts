@@ -8,7 +8,8 @@ import purple from '@scalar/themes/presets/purple.css?inline'
 import solarized from '@scalar/themes/presets/solarized.css?inline'
 import type { Preview } from '@storybook/vue3'
 
-import '../src/tailwind/tailwind.css'
+import '@/tailwind/tailwind.css'
+
 import './preview.css'
 
 // Vite hack for storybook
