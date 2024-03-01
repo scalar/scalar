@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.17.13
+
+### Patch Changes
+
+- 5bf377e: fix: visual regressions
+
 ## 1.17.12
 
 ### Patch Changes

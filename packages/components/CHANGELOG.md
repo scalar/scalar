@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.4.1
+
+### Patch Changes
+
+- c5e8b13: feat: hide secret credentials
+
 ## 0.4.0
 
 ### Minor Changes
