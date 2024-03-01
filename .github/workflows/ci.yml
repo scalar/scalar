@@ -42,3 +42,32 @@ jobs:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
           webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
+
+  screenshots:
+    runs-on: ubuntu-20.04
+    needs: ci
+    strategy:
+      matrix:
+        url: ['https://github.com']
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Turborepo cache
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+      - name: Build
+        run: pnpm turbo build
+      - name: Take screenshots
+        uses: swinton/screenshot-website@v1.x
+        with:
+          source: ${{ matrix.url }}
+          destination: screenshot-${{ matrix.url }}.png
