@@ -73,11 +73,20 @@ jobs:
           source: ${{ matrix.url }}
           destination: screenshot.png
           width: 1280
-      - name: Post comment
-        uses: live-codes/pr-comment-from-artifact@v1
+      - uses: actions/download-artifact@v1
         with:
+          name: screenshot.png
+      - name: comment PR
+        uses: machine-learning-apps/pr-comment@master
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          artifact: screenshot.png
+        with:
+          path: screenshot.png
+      # - name: Post comment
+      #   uses: live-codes/pr-comment-from-artifact@v1
+      #   with:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     artifact: screenshot.png
       # - name: Comment on PR
       #   uses: gavv/pull-request-artifacts@v2
       #   with:
