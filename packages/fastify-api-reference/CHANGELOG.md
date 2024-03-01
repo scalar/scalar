@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.17.14
+
+### Patch Changes
+
+- fd0af3c: fix: mobile header button
+
 ## 1.17.13
 
 ### Patch Changes
