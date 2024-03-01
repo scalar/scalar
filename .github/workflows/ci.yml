@@ -70,4 +70,9 @@ jobs:
         uses: swinton/screenshot-website@v1.x
         with:
           source: ${{ matrix.url }}
-          destination: screenshot-${{ matrix.url }}.png
+          destination: screenshot.png
+      - name: Store screenshots as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshot.png
