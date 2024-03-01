@@ -19,44 +19,37 @@ import PageLink from '../components/PageLink.vue'
           fill-rule="evenodd"></path>
       </svg>
     </div>
-    <h1>Examples</h1>
+    <h1>@scalar/api-reference</h1>
     <div class="page-links">
       <PageLink to="standalone-api-reference">
-        <template #title>Full API Reference</template>
+        <template #title>Standalone API Reference</template>
         <template #description>
           Modern API documentation with pre-configured search and all the bells
           and whistles.
         </template>
       </PageLink>
+      <PageLink to="api-reference">
+        <template #title>Basic API Reference</template>
+        <template #description>
+          The customizable API documentation, pretty bare bones if you ask me.
+        </template>
+      </PageLink>
       <PageLink to="classic-api-reference">
-        <template #title>Classic API Reference</template>
+        <template #title>API Reference (Classic Layout)</template>
         <template #description>
           Classic API documentation with search. Looks like Swagger UI if it was
           born today.
         </template>
       </PageLink>
       <PageLink to="embedded-api-reference">
-        <template #title>Embedded API Reference</template>
+        <template #title>API Reference as an Embed</template>
         <template #description>
           API documentation within a pre-existing website.
         </template>
       </PageLink>
-      <PageLink to="editable-api-reference">
-        <template #title>Editable API Reference</template>
-        <template #description>
-          Interactive API documentation with real-time editing.
-        </template>
-      </PageLink>
     </div>
-    <h1>Packages</h1>
+    <h1>@scalar/api-client</h1>
     <div class="page-links">
-      <PageLink to="api-reference">
-        <template #title>API Reference</template>
-        <template #description>
-          The customizable interactive API documentation, pretty bare bones if
-          you ask me.
-        </template>
-      </PageLink>
       <PageLink to="api-client">
         <template #title>API Client</template>
         <template #description>
@@ -64,12 +57,45 @@ import PageLink from '../components/PageLink.vue'
           browser.
         </template>
       </PageLink>
-      <PageLink to="swagger-editor">
-        <template #title>Swagger Editor</template>
-        <template #description>
-          Our OpenAPI/Swagger editor, and just that. Ready to be embedded in any
-          website.
-        </template>
+    </div>
+    <h1>Examples</h1>
+    <div class="page-links">
+      <PageLink href="http://localhost:3001">
+        <template #title>Next.js</template>
+        <template #description>@scalar/nextjs-api-reference</template>
+      </PageLink>
+      <PageLink href="http://localhost:3002">
+        <template #title>React</template>
+        <template #description>@scalar/api-reference</template>
+      </PageLink>
+      <PageLink href="http://localhost:3003">
+        <template #title>Fastify</template>
+        <template #description>@scalar/fastify-api-reference</template>
+      </PageLink>
+      <PageLink href="http://localhost:3004">
+        <template #title>Hono</template>
+        <template #description>@scalar/hono-api-reference</template>
+      </PageLink>
+      <PageLink href="http://localhost:3005">
+        <template #title>Express</template>
+        <template #description>@scalar/express-api-reference</template>
+      </PageLink>
+      <PageLink href="http://localhost:3006">
+        <template #title>NestJS (Express)</template>
+        <template #description>@scalar/nestjs-api-reference</template>
+      </PageLink>
+      <PageLink href="http://localhost:3007">
+        <template #title>NestJS (Fastify)</template>
+        <template #description>@scalar/nestjs-api-reference</template>
+      </PageLink>
+    </div>
+    <h1>@scalar/components</h1>
+    <div class="page-links">
+      <PageLink href="http://localhost:3100">
+        <template #title>Components</template>
+        <template #description
+          >The design system we’re using throughout our packages.</template
+        >
       </PageLink>
     </div>
   </div>
