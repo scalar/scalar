@@ -100,6 +100,10 @@ const model = computed({
   line-height: 1;
   gap: 4px;
 }
+.scopes-label svg {
+  height: 16px;
+  width: 16px;
+}
 .scopes-label-badge {
   display: inline-flex;
   align-items: center;
