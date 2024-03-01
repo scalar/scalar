@@ -22,7 +22,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
 
   app.use(
-    '/reference',
+    '/',
     apiReference({
       withFastify: true,
       spec: {

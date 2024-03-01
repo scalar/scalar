@@ -93,9 +93,9 @@ import PageLink from '../components/PageLink.vue'
     <div class="page-links">
       <PageLink href="http://localhost:3100">
         <template #title>Components</template>
-        <template #description
-          >The design system we’re using throughout our packages.</template
-        >
+        <template #description>
+          The design system we’re using throughout our packages.
+        </template>
       </PageLink>
     </div>
   </div>

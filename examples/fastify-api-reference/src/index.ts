@@ -62,7 +62,7 @@ fastify.put(
 
 // Add the plugin
 await fastify.register(fastifyApiReference, {
-  routePrefix: '/reference',
+  routePrefix: '/',
   // configuration: {
   // theme: 'moon',
   // spec: {

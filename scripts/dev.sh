@@ -14,6 +14,8 @@ pnpm concurrently \
             --filter @scalar-examples/express-api-reference \
             --filter @scalar-examples/nestjs-api-reference \
             --filter @scalar-examples/nextjs-api-reference \
+            --filter @scalar-examples/nestjs-api-reference-express \
+            --filter @scalar-examples/nestjs-api-reference-fastify \
             dev \
     " \
     " \
