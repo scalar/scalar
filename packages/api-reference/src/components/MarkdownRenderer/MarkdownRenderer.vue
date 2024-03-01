@@ -84,6 +84,9 @@ watch(
   font-family: var(--theme-font, var(--default-theme-font));
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
+.markdown :deep(img) {
+  max-width: 100%;
+}
 .markdown :deep(details) {
   margin: 12px 0;
   color: var(--theme-color-1, var(--default-theme-color-1));

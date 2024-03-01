@@ -172,15 +172,37 @@ const handleClick = async () => {
 }
 
 /* Folder/page collapse icon */
+.sidebar-heading-chevron:deep(.sr-only) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+.sidebar-heading-chevron:deep(.scalar-icon-button) {
+  min-width: 20px;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 /* awkward pixel value to deal with hairspace alignment across browser*/
 .sidebar-heading-chevron {
-  margin: 5px -5.5px 5px -9px;
-}
-.toggle-nested-icon {
   border: none;
   color: currentColor;
   padding: 2px;
   color: var(--sidebar-color-2, var(--default-sidebar-color-2));
+  margin: 5px -3.5px 5px -9px;
+  max-width: 20px;
+  max-height: 20px;
+}
+.sidebar-heading-chevron:deep(svg) {
+  width: 16px;
+  height: 16px;
 }
 .active_page .toggle-nested-icon {
   color: var(
@@ -196,7 +218,12 @@ const handleClick = async () => {
 .toggle-nested-icon:focus-visible {
   color: currentColor;
 }
-
+.sidebar-heading.sidebar-group-item__folder {
+  color: var(--sidebar-color-1, var(--default-sidebar-color-1));
+}
+.sidebar-heading.sidebar-group-item__folder.active_page {
+  color: var(--sidebar-color-active, var(--default-sidebar-color-active));
+}
 .action-menu {
   position: absolute;
   top: 5px;
