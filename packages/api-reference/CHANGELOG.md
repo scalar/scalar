@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.17.13
+
+### Patch Changes
+
+- 5bf377e: fix: visual regressions
+- c5e8b13: feat: hide secret credentials
+- Updated dependencies [c5e8b13]
+  - @scalar/api-client@0.12.13
+  - @scalar/components@0.4.1
+  - @scalar/swagger-editor@0.10.14
+
 ## 1.17.12
 
 ### Patch Changes
