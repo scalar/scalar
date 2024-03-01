@@ -38,7 +38,30 @@ const { breadcrumb } = useSidebar()
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
-
+.references-mobile-header:deep(.sr-only) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+.references-mobile-header:deep(.scalar-icon-button) {
+  min-width: 20px;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
+.references-mobile-header:deep(svg) {
+  width: 16px;
+  height: 16px;
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
 .references-mobile-breadcrumbs {
   flex: 1;
   min-width: 0;
