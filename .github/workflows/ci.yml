@@ -73,7 +73,15 @@ jobs:
           source: ${{ matrix.url }}
           destination: screenshot.png
       - name: Comment on PR
-        uses: thollander/actions-comment-pull-request@v2
+        uses: tonyhallett/artifacts-url-comments@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          message: ${{ steps.screenshot.outputs.path }}
-          comment_tag: screenshots
+          prefix: '**Preview**'
+          format: name
+          addTo: pull
+      # - name: Comment on PR
+      #   uses: thollander/actions-comment-pull-request@v2
+      #   with:
+      #     message: ${{ steps.screenshot.outputs.path }}
+      #     comment_tag: screenshots
