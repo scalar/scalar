@@ -67,12 +67,13 @@ jobs:
       - name: Build
         run: pnpm turbo build
       - name: Take screenshots
+        id: screenshot
         uses: swinton/screenshot-website@v1.x
         with:
           source: ${{ matrix.url }}
           destination: screenshot.png
-      - name: Store screenshots as artifacts
-        uses: actions/upload-artifact@v4
+      - name: Comment on PR
+        uses: thollander/actions-comment-pull-request@v2
         with:
-          name: screenshots
-          path: screenshot.png
+          filePath: ${{ steps.screenshot.outputs.path }}
+          comment_tag: screenshots
