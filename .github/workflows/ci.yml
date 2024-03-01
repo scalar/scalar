@@ -71,7 +71,7 @@ jobs:
         uses: swinton/screenshot-website@v1.x
         with:
           source: ${{ matrix.url }}
-          destination: screenshot
+          destination: screenshot.png
           width: 1280
       # - name: Comment on PR
       #   uses: thollander/actions-comment-pull-request@v2
