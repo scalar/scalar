@@ -71,68 +71,10 @@ jobs:
         uses: swinton/screenshot-website@v1.x
         with:
           source: ${{ matrix.url }}
-          destination: screenshot.png
+          destination: screenshot
           width: 1280
-      - uses: actions/download-artifact@v1
-        with:
-          name: screenshot.png
-      - name: comment PR
-        uses: machine-learning-apps/pr-comment@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          path: screenshot.png
-      # - name: Post comment
-      #   uses: live-codes/pr-comment-from-artifact@v1
-      #   with:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     artifact: screenshot.png
-      # - name: Comment on PR
-      #   uses: gavv/pull-request-artifacts@v2
-      #   with:
-      #     # Commit hash that triggered PR
-      #     commit: ${{ github.event.pull_request.head.sha }}
-
-      #     # Token for current repo (used to post PR comment)
-      #     repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      #     # Optional, uncomment to upload to another repository
-      #     #artifacts-token: ${{ secrets.ANOTHER_TOKEN_WITH_PUSH_ACCESS }}
-      #     #artifacts-repo: some/repository_name
-
-      #     # Optional, uncomment to upload artifacts to specific branch, otherwise
-      #     # the default branch is used.
-      #     # Note that usually the main branch is protected by rules, so it's not
-      #     # possible to upload there.
-      #     # Perhaps, the best solution is to create an empty unprotected branch
-      #     # dedicated for artifacts.
-      #     # See README for details.
-      #     #artifacts-branch: some_branch
-
-      #     # Optional, uncomment to preserve artifacts path and add prefix.
-      #     # By default artifacts are uploaded to "pr<pr_number>-<artifact_basename>".
-      #     # With options below, artifacts will be uploaded to "my_prs/<pr_number>/<artifact_path>".
-      #     #artifacts-prefix: "my_prs/${{ github.event.number }}/"
-      #     #preserve-path: true
-
-      #     # Optional, uncomment to use non-default title and style.
-      #     #comment-title: "My artifacts"
-      #     #comment-message: "My message"
-      #     #comment-style: list
-
-      #     # Whitespace-separated list of files to upload
-      #     artifacts: |
-      #       screenshot.png
-      # - name: Comment on PR
-      #   uses: tonyhallett/artifacts-url-comments@v1.1.0
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     prefix: '**Preview**'
-      #     format: name
-      #     addTo: pull
       # - name: Comment on PR
       #   uses: thollander/actions-comment-pull-request@v2
       #   with:
-      #     message: ${{ steps.screenshot.outputs.path }}
+      #     filePath: ${{ steps.screenshot.outputs.path }}
       #     comment_tag: screenshots
