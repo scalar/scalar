@@ -2,16 +2,23 @@
 
 Contributions are welcome. We’re using [pnpm](https://pnpm.io/).
 
-Install all dependencies:
-`$ pnpm install`
+## Development setup
 
-Run the development server:
-`$ pnpm run dev`
+1. Clone the repository: `$ git clone git@github.com:scalar/scalar.git`
+2. Install all dependencies: `$ pnpm install`
+3. Build all packages once: `$ pnpm turbo build`
+4. Run the development server: `$ pnpm run dev`
+5. Open your browser: <http://localhost:3000>
 
-Build all packages:
-`$ pnpm run build`
+This should give you a nice start page with entrypoints to the various previews and examples.
 
-We require a semantic PR title, e. g.:
+## PRs
+
+Don’t worry, we’ll help you to get your PR in. But here is how you can help us:
+
+### Semantic PR titles
+
+We require a semantic PR title, here is an example:
 
 ```
 docs: Add information about semantic commits
