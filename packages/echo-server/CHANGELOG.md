@@ -1,5 +1,11 @@
 # @scalar/echo-server
 
+## 0.5.13
+
+### Patch Changes
+
+- 3b672cc: fix: revert css changes to components lib
+
 ## 0.5.12
 
 ### Patch Changes

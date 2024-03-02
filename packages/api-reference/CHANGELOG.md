@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.17.15
+
+### Patch Changes
+
+- 3b672cc: fix: revert css changes to components lib
+- 0f76d3d: style: fix padding and border for references
+- Updated dependencies [3b672cc]
+  - @scalar/swagger-editor@0.10.15
+  - @scalar/swagger-parser@0.5.20
+  - @scalar/api-client@0.12.14
+  - @scalar/components@0.4.2
+
 ## 1.17.14
 
 ### Patch Changes

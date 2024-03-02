@@ -1,5 +1,13 @@
 # @scalar/swagger-editor
 
+## 0.10.15
+
+### Patch Changes
+
+- 3b672cc: fix: revert css changes to components lib
+- Updated dependencies [3b672cc]
+  - @scalar/components@0.4.2
+
 ## 0.10.14
 
 ### Patch Changes

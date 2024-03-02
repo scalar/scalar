@@ -10,7 +10,7 @@
     "express",
     "proxy"
   ],
-  "version": "0.5.21",
+  "version": "0.5.22",
   "engines": {
     "node": ">=18"
   },
