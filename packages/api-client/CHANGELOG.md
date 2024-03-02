@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 0.12.14
+
+### Patch Changes
+
+- 3b672cc: fix: revert css changes to components lib
+- Updated dependencies [3b672cc]
+  - @scalar/components@0.4.2
+
 ## 0.12.13
 
 ### Patch Changes
