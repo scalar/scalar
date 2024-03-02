@@ -272,6 +272,15 @@ const handleClick = async () => {
     )
   );
 }
+.sidebar-group-item__folder {
+  color: var(
+    --sidebar-color-1,
+    var(
+      --default-sidebar-color-1,
+      var(--theme-color-1, var(--default-theme-color-1))
+    )
+  );
+}
 .sidebar-group-item__folder .sidebar-heading-type {
   display: none;
 }

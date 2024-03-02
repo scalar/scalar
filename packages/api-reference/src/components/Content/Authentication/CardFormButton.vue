@@ -14,7 +14,7 @@ defineExpose({ el })
   </button>
 </template>
 <style scoped>
-:where(.card-form-button) {
+.card-form-button {
   display: flex;
   align-items: center;
   position: relative;

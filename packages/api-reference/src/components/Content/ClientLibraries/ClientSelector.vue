@@ -17,7 +17,7 @@ const containerRef = ref<HTMLElement>()
 
 useResizeObserver(
   containerRef,
-  (entries) => (isSmall.value = entries[0].contentRect.width < 400),
+  (entries) => (isSmall.value = entries[0].contentRect.width < 500),
 )
 
 // Show popular clients with an icon, not just in a select.

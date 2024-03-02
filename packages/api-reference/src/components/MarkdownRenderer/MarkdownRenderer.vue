@@ -92,6 +92,11 @@ watch(
   margin: 12px 0;
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
+.markdown :deep(img) {
+  overflow: hidden;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  max-width: 100%;
+}
 /* Don't add margin to the first block */
 .markdown :deep(> :first-child) {
   margin-top: 0;
