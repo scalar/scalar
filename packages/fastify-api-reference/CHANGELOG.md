@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.17.15
+
+### Patch Changes
+
+- 3b672cc: fix: revert css changes to components lib
+
 ## 1.17.14
 
 ### Patch Changes

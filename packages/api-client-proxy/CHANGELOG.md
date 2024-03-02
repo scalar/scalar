@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.22
+
+### Patch Changes
+
+- 3b672cc: fix: revert css changes to components lib
+
 ## 0.5.21
 
 ### Patch Changes

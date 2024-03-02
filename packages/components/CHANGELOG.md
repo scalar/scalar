@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.4.2
+
+### Patch Changes
+
+- 3b672cc: fix: revert css changes to components lib
+
 ## 0.4.1
 
 ### Patch Changes
