@@ -163,8 +163,6 @@ const isLazy =
 .introduction-cards-row {
   flex-flow: row wrap;
   gap: 24px;
-  --default-theme-background-2: var(--default-theme-background-1);
-  --theme-background-2: var(--theme-background-1);
 }
 .introduction-cards-row > * {
   flex: 1;
@@ -182,6 +180,11 @@ const isLazy =
 .references-narrow .introduction-cards-row {
   flex-direction: column;
   align-items: stretch;
+}
+.references-classic .introduction-cards-row :deep(.card-footer),
+.references-classic .introduction-cards-row :deep(.scalar-card),
+.references-classic .introduction-cards-row :deep(.scalar-card--muted) {
+  background: var(--theme-background-1, var(--default-theme-background-1));
 }
 .references-classic
   .introduction-cards-row
