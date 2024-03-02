@@ -168,7 +168,16 @@ const isLazy =
 }
 .introduction-cards-row > * {
   flex: 1;
-  min-width: min-content;
+}
+@media (min-width: 600px) {
+  .introduction-cards-row > * {
+    min-width: min-content;
+  }
+}
+@media (max-width: 600px) {
+  .introduction-cards-row > * {
+    max-width: 100%;
+  }
 }
 .references-narrow .introduction-cards-row {
   flex-direction: column;
