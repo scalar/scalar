@@ -7,7 +7,7 @@
   "singleQuote": true,
   "singleAttributePerLine": true,
   "bracketSameLine": true,
-  "importOrder": ["^@/(.*)$", "^[./]"],
+  "importOrder": ["^[./]"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true
 }

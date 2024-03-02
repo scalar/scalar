@@ -13,11 +13,11 @@ export default ({ env }) => ({
        * Add the scoping prefix to all selectors and their children
        * e.g. .flex -> .scalar-component.flex, .scalar-component .flex
        */
-      transform: (prefix, selector, prefixedSelector) => {
+      transform: (prefix, selector) => {
         if (env === 'development') return selector
-        return `${prefix}${
+        return `${
           selector.match(globalRegx) ? '' : selector
-        }, ${prefixedSelector}`
+        }:where(${prefix}), :where(${prefix}) ${selector}`
       },
     },
     'autoprefixer': {},

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { cx } from '@/cva'
+import { cx } from '../../cva'
 import { reactive } from 'vue'
 
 withDefaults(
