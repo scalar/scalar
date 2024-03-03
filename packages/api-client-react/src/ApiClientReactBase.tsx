@@ -20,7 +20,10 @@ export const ApiClientReactBase = (props: { proxy: string }) => {
   useEffect(() => {
     if (!el.current) return undefined
 
-    const vueApp = createApp(ApiClient, { proxy: props.proxy, readOnly: true })
+    const vueApp = createApp(ApiClient, {
+      proxyUrl: props.proxy,
+      readOnly: true,
+    })
     vueApp.mount(el.current)
 
     // Unmount for react strict mode
