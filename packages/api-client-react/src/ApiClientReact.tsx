@@ -13,7 +13,7 @@ type Props = {
   request: ClientRequestConfig
 
   // optional proxy url for requests
-  proxy: string
+  proxy?: string
 }
 
 const { setActiveRequest } = useRequestStore()
