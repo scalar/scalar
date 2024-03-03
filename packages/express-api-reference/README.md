@@ -69,3 +69,21 @@ app.use(
   }),
 )
 ```
+
+### Custom CDN
+
+You can use a custom CDN ，default is `https://cdn.jsdelivr.net/npm/@scalar/api-reference`.
+
+```ts
+import { apiReference } from '@scalar/nestjs-api-reference'
+
+app.use(
+  '/reference',
+  apiReference({
+    cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
+    spec: {
+      content: OpenApiSpecification,
+    },
+  }),
+)
+```

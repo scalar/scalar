@@ -5,6 +5,7 @@ import { type ServerResponse } from 'http'
 
 export type NestJSReferenceConfiguration = ReferenceConfiguration & {
   withFastify?: boolean
+  cdn?: string
 }
 
 export type ApiReferenceOptions = ReferenceConfiguration
@@ -101,7 +102,7 @@ export const ApiReference = (options: ApiReferenceOptions) => {
             : JSON.stringify(options.spec?.content)
           : ''
       }</script>
-    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+    <script src="${options.cdn || 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'}"></script>
   `
 }
 
