@@ -263,80 +263,210 @@ function checkIfClientIsFeatured(client: SelectedClient) {
   );
 }
 .code-languages-icon__shell {
-  background: #000;
+  --code-languages-background: #000;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
 }
 .code-languages-icon__ruby {
-  background: #d91404;
+  --code-languages-background: #d91404;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
 }
 .code-languages-icon__php {
-  background: #6181b6;
+  --code-languages-background: #6181b6;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
 }
 .code-languages-icon__python {
-  background: #306998;
+  --code-languages-background: #306998;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__node {
+  --code-languages-background: #83cd29;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__c {
+  --code-languages-background: #03599c;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__csharp {
+  --code-languages-background: #68217a;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__cplusplus {
+  --code-languages-background: #9c033a;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__clojure {
+  --code-languages-background: #5881d8;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__go {
+  --code-languages-background: #00acd7;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__http {
+  --code-languages-background: #005b9b;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__java {
+  --code-languages-background: #ea2d2e;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__javascript {
+  --code-languages-background: #f0db4f;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__kotlin {
+  --code-languages-background: #7f6cb1;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__objc {
+  --code-languages-background: #0b5a9d;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__ocaml {
+  --code-languages-background: #f29100;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__powershell {
+  --code-languages-background: #2671be;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__r {
+  --code-languages-background: #cbced0;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
+}
+.code-languages-icon__swift {
+  --code-languages-background: #f05138;
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
 }
 .code-languages-icon__more {
-  background: var(--theme-background-3, var(--default-theme-background-3));
+  --code-languages-background: var(
+    --theme-background-3,
+    var(--default-theme-background-3)
+  );
+  background: var(
+    --theme-code-languages-background-supersede,
+    var(
+      --default-theme-code-languages-background-supersede,
+      var(--code-languages-background)
+    )
+  );
 }
 .code-languages-icon__more svg {
   height: initial;
-}
-.code-languages-icon__node {
-  background: #83cd29;
-}
-.code-languages-icon__c {
-  background: #03599c;
-}
-.code-languages-icon__csharp {
-  background: #68217a;
-}
-.code-languages-icon__cplusplus {
-  background: #9c033a;
-}
-.code-languages-icon__clojure {
-  background: #5881d8;
-}
-.code-languages-icon__go {
-  background: #00acd7;
-}
-.code-languages-icon__http {
-  background: #005b9b;
-}
-.code-languages-icon__java {
-  background: #ea2d2e;
-}
-.code-languages-icon__javascript {
-  background: #f0db4f;
-}
-.code-languages-icon__kotlin {
-  background: #7f6cb1;
-}
-.code-languages-icon__objc {
-  background: #0b5a9d;
-}
-.code-languages-icon__ocaml {
-  background: #f29100;
-}
-.code-languages-icon__powershell {
-  background: #2671be;
-}
-.code-languages-icon__r {
-  background: #cbced0;
-}
-.code-languages-icon__swift {
-  background: #f05138;
-}
-.code-languages__loading .code-languages-icon:before {
-  border: 1px solid rgba(255, 255, 255, 0.44);
-  border-top: 1px solid white;
-  animation: codeloader 0.45s linear infinite;
-  background: transparent;
-  width: 18px;
-  height: 18px;
-  content: '';
-  border-radius: 50%;
-}
-.code-languages__loading .code-languages-icon svg {
-  display: none;
 }
 .code-languages__active:after {
   content: '';
