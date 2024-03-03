@@ -10,4 +10,15 @@ describe('javascript', () => {
       `https://petstore3.swagger.io/api/v3/openapi.json`,
     )
   })
+
+  it('renders the given spec URL with custom cdn', () => {
+    expect(
+      javascript({
+        spec: {
+          url,
+          cdn: 'https://fastly.jsdelivr.net/npm/@scalar/api-reference',
+        },
+      }).toString(),
+    ).toContain(`https://petstore3.swagger.io/api/v3/openapi.json`)
+  })
 })
