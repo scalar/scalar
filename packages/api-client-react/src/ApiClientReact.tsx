@@ -12,6 +12,7 @@ type Props = {
   // The OpenApi request object
   request: ClientRequestConfig
 
+  // optional proxy url for requests
   proxy: string
 }
 
