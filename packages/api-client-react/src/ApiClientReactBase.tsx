@@ -14,13 +14,13 @@ globalThis.__VUE_PROD_DEVTOOLS__ = false
  * You are probably looking for ApiClientReact
  * only use this if you know what you are doing
  */
-export const ApiClientReactBase = () => {
+export const ApiClientReactBase = (props: { proxy: string }) => {
   const el = useRef(null)
 
   useEffect(() => {
     if (!el.current) return undefined
 
-    const vueApp = createApp(ApiClient, { readOnly: true })
+    const vueApp = createApp(ApiClient, { proxy: props.proxy, readOnly: true })
     vueApp.mount(el.current)
 
     // Unmount for react strict mode

@@ -11,6 +11,8 @@ type Props = {
   isOpen: boolean
   // The OpenApi request object
   request: ClientRequestConfig
+
+  proxy: string
 }
 
 const { setActiveRequest } = useRequestStore()
@@ -18,7 +20,12 @@ const { setActiveRequest } = useRequestStore()
 /**
  * Api Client React
  */
-export const ApiClientReact = ({ close, isOpen = false, request }: Props) => {
+export const ApiClientReact = ({
+  proxy = '',
+  close,
+  isOpen = false,
+  request,
+}: Props) => {
   useEffect(() => {
     setActiveRequest(request)
   }, [request])
@@ -40,7 +47,7 @@ export const ApiClientReact = ({ close, isOpen = false, request }: Props) => {
               Powered by scalar.com
             </a>
           </div>
-          <ApiClientReactBase />
+          <ApiClientReactBase proxy={proxy} />
         </div>
         <div
           onClick={close}
