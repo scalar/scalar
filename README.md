@@ -335,7 +335,6 @@ To customize the behavior of the API Reference, you can use the following config
 - `isEditable`: Whether the Swagger editor should be shown.
 - `spec.content`: Directly pass an OpenAPI/Swagger spec.
 - `spec.url`: Pass the URL of a spec file (JSON or YAML).
-- `spec.preparsedContent`: Preprocess specs with `@scalar/swagger-parser` and directly pass the result.
 - `proxyUrl`: Use a proxy to send requests to other origins.
 - `darkMode`: Set dark mode on or off (light mode)
 - `layout`: The layout to use, either of `modern` or `classic` (see [#layouts](#layouts)).
