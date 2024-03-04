@@ -82,19 +82,6 @@ watch(rawSpecRef, () => {
   }
 })
 
-// Use preparsed content, if it’s passed
-watch(
-  () => currentConfiguration.value.spec?.preparsedContent,
-  (newContent) => {
-    if (newContent) {
-      overwriteParsedSpecRef(newContent as Spec)
-    }
-  },
-  {
-    immediate: true,
-  },
-)
-
 const { setDarkMode } = useDarkModeState()
 watch(
   () => currentConfiguration.value.darkMode,
