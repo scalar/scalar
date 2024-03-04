@@ -45,29 +45,33 @@ const slots = defineSlots<
   } & { 'editor-input': SwaggerEditorInputProps }
 >()
 
-/**
- * The editor component has heavy dependencies (process), let's lazy load it.
- */
+// The editor component has heavy dependencies (process), let's lazy load it.
 const LazyLoadedSwaggerEditor = defineAsyncComponent(() =>
   import('@scalar/swagger-editor').then((module) => module.SwaggerEditor),
 )
 
-/** Merge the default configuration with the given configuration. */
+// Merge the default configuration with the given configuration.
 const currentConfiguration = computed(
   (): ReferenceConfiguration =>
     deepMerge(props.configuration ?? {}, { ...DEFAULT_CONFIG }),
 )
 
-// Make it a ComputedRef
-const specConfiguration = computed(() => {
-  return currentConfiguration.value.spec
-})
-
 // Get the raw content
-const { rawSpecRef, setRawSpecRef } = useSpec({
-  configuration: specConfiguration,
+const { rawSpecRef, setRawSpecRef, setConfiguration } = useSpec({
+  configuration: currentConfiguration.value.spec,
   proxy: currentConfiguration.value.proxy,
 })
+
+// Update the configuration when the spec changes
+watch(
+  () => currentConfiguration.value.spec,
+  () => {
+    setConfiguration(currentConfiguration.value.spec)
+  },
+  {
+    deep: true,
+  },
+)
 
 // Parse the content
 const { parsedSpecRef, overwriteParsedSpecRef, errorRef } = useParser({
