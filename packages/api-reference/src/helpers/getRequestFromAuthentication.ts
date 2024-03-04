@@ -36,20 +36,37 @@ function authenticationRequired(
  */
 export function getRequestFromAuthentication(
   authentication: AuthenticationState,
-  security?: OpenAPIV3.SecurityRequirementObject[],
+  operationSecurity?: OpenAPIV3.SecurityRequirementObject[],
 ): Partial<HarRequest> {
   const headers: HarRequest['headers'] = []
   const queryString: HarRequest['queryString'] = []
   const cookies: HarRequest['cookies'] = []
 
   // Check whether auth is required
-  if (!authentication.securitySchemeKey || !authenticationRequired(security)) {
+  if (
+    !authentication.securitySchemeKey ||
+    !authenticationRequired(operationSecurity)
+  ) {
     return { headers, queryString, cookies }
   }
 
-  // We’re using a parsed Swagger file here, so let’s get rid of the `ReferenceObject` type
+  // Check if the (globally) selected security scheme is allowed for the operation
+  const operationAllowsSelectedSecurityScheme = operationSecurity?.some(
+    (securityRequirement) =>
+      authentication.securitySchemeKey &&
+      Object.keys(securityRequirement).includes(
+        authentication.securitySchemeKey,
+      ),
+  )
+
+  // If the (globally) selected security scheme is not allowed for the operation, use the first available security scheme.
+  const operationSecurityKey = operationAllowsSelectedSecurityScheme
+    ? authentication.securitySchemeKey
+    : Object.keys(operationSecurity?.[0] ?? {}).pop()
+
+  // We’re using a parsed OpenAPI file here, so let’s get rid of the `ReferenceObject` type
   const securityScheme =
-    authentication.securitySchemes?.[authentication.securitySchemeKey]
+    authentication.securitySchemes?.[operationSecurityKey ?? '']
 
   if (securityScheme) {
     // API Key
