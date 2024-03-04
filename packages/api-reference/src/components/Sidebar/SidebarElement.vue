@@ -64,10 +64,12 @@ const handleClick = async () => {
           v-if="item?.icon?.src"
           class="sidebar-icon"
           :src="item.icon.src" />
-        <p>
+        <p class="sidebar-heading-link-title">
           {{ item.title }}
         </p>
-        <p v-if="item.httpVerb">
+        <p
+          v-if="item.httpVerb"
+          class="sidebar-heading-link-method">
           &hairsp;
           <HttpMethod
             as="div"
@@ -105,7 +107,7 @@ const handleClick = async () => {
   padding-right: 9px;
   user-select: none;
 }
-.sidebar-heading.deprecated span {
+.sidebar-heading.deprecated .sidebar-heading-link-title {
   text-decoration: line-through;
 }
 .sidebar-heading:hover {

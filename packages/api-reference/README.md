@@ -58,14 +58,6 @@ Pass the URL of a spec file (JSON or Yaml).
 <ApiReference :configuration="{ spec: { url: '/swagger.json' } }" />
 ```
 
-#### spec.preparsedContent?: string
-
-You can preprocess specs with `@scalar/swagger-parser` and directly pass the result.
-
-```vue
-<ApiReference :configuration="{ spec: { preparsedContent : '{ … }' } } />
-```
-
 #### proxyUrl?: string
 
 Making requests to other domains is restricted in the browser and requires [CORS headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). It’s recommended to use a proxy to send requests to other origins.

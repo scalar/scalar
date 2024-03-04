@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.17.16
+
+### Patch Changes
+
+- f39516c: chore: remove preparsed content
+- 8b2558a: fix: custom operation security scheme is ignored
+- ad80db9: fix: content not reactive
+- 2e9218f: fix: deprecated operations are not striked through in the sidebar
+
 ## 1.17.15
 
 ### Patch Changes

@@ -75,8 +75,6 @@ export type SpecConfiguration = {
   url?: string
   /** Swagger/Open API spec */
   content?: string | Record<string, any> | (() => Record<string, any>)
-  /** The result of @scalar/swagger-parser */
-  preparsedContent?: Record<any, any>
 }
 
 /** Default reference configuration */
@@ -84,7 +82,6 @@ export const DEFAULT_CONFIG: DeepReadonly<ReferenceConfiguration> = {
   spec: {
     content: undefined,
     url: undefined,
-    preparsedContent: undefined,
   },
   proxy: undefined,
   theme: 'default',

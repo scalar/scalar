@@ -22,7 +22,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
 
   app.use(
-    '/reference',
+    '/',
     apiReference({
       withFastify: true,
       spec: {
@@ -31,8 +31,8 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(5057, () => {
-    console.log('🦁 NestJS listening at http://localhost:5057/reference');
+  await app.listen(3007, () => {
+    console.log('🦁 NestJS listening at http://localhost:3007/reference');
   });
 }
 bootstrap();

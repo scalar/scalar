@@ -70,13 +70,6 @@ const showRenderedContent = computed(
   () => isLargeScreen.value || !props.configuration.isEditable,
 )
 
-const showSwaggerEditor = computed(() => {
-  return (
-    !props.configuration.spec?.preparsedContent &&
-    props.configuration?.isEditable
-  )
-})
-
 // To clear hash when scrolled to the top
 const debouncedScroll = useDebounceFn((value) => {
   const scrollDistance = value.target.scrollTop ?? 0
@@ -102,7 +95,7 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
     class="scalar-api-reference references-layout"
     :class="[
       {
-        'references-editable': showSwaggerEditor,
+        'references-editable': configuration.isEditable,
         'references-sidebar': configuration.showSidebar,
         'references-classic': configuration.layout === 'classic',
       },
@@ -137,7 +130,7 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
     </aside>
     <!-- Swagger file editing -->
     <div
-      v-show="showSwaggerEditor"
+      v-show="configuration.isEditable"
       class="references-editor">
       <div class="references-editor-textarea">
         <slot

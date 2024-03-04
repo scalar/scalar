@@ -1,5 +1,5 @@
 {
-  "name": "@scalar-examples/nest-fastify-api-reference",
+  "name": "@scalar-examples/nestjs-api-reference-express",
   "description": "Nest TypeScript starter repository with fastify as http adapter",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
@@ -44,6 +44,7 @@
   "dependencies": {
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
+    "@nestjs/platform-express": "^10.3.3",
     "@nestjs/platform-fastify": "^10.0.0",
     "@nestjs/swagger": "^7.1.17",
     "@scalar/nestjs-api-reference": "workspace:*",

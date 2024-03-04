@@ -381,4 +381,43 @@ describe('getRequestFromAuthentication', () => {
       headers: [],
     })
   })
+
+  it('uses custom security scheme for operation', () => {
+    const request = getRequestFromAuthentication(
+      {
+        ...createEmptyAuthenticationState(),
+        securitySchemeKey: 'bearerAuth',
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+          v1Auth: {
+            type: 'apiKey',
+            name: 'X-Auth-Token',
+            in: 'header',
+            description: 'JWT token',
+          },
+        },
+        apiKey: {
+          token: '123',
+        },
+      },
+      [
+        {
+          v1Auth: [],
+        },
+      ],
+    )
+
+    expect(request).toMatchObject({
+      headers: [
+        {
+          name: 'X-Auth-Token',
+          value: '123',
+        },
+      ],
+    })
+  })
 })

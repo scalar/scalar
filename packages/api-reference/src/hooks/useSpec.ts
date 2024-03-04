@@ -72,13 +72,7 @@ export function useSpec({
       watch(
         configuration,
         async () => {
-          if (configuration.value !== undefined) {
-            getSpecContent(configuration.value, proxy).then((value) => {
-              if (value !== undefined) {
-                setRawSpecRef(value)
-              }
-            })
-          }
+          setConfiguration(configuration.value)
         },
         {
           immediate: true,
@@ -96,6 +90,18 @@ export function useSpec({
     }
   }
 
+  // Manually update the spec configuration
+  function setConfiguration(newConfiguration: SpecConfiguration | undefined) {
+    if (newConfiguration !== undefined) {
+      getSpecContent(newConfiguration, proxy).then((value) => {
+        if (value !== undefined) {
+          setRawSpecRef(value)
+        }
+      })
+    }
+  }
+
+  // Manually updating the unparsed specification
   function setRawSpecRef(value: string) {
     if (value === rawSpecRef.value) {
       return
@@ -107,5 +113,6 @@ export function useSpec({
   return {
     rawSpecRef,
     setRawSpecRef,
+    setConfiguration,
   }
 }
