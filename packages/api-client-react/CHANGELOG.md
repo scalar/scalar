@@ -1,5 +1,11 @@
 # @scalar/api-client-react
 
+## 0.1.4
+
+### Patch Changes
+
+- c200170: fix: react client props name
+
 ## 0.1.3
 
 ### Patch Changes
