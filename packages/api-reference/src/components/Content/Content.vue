@@ -17,7 +17,6 @@ import { Webhooks } from './Webhooks'
 
 const props = defineProps<{
   parsedSpec: Spec
-  rawSpec: string
   layout?: 'default' | 'accordion'
 }>()
 
@@ -91,8 +90,7 @@ const isLazy =
     <Introduction
       v-if="parsedSpec.info.title || parsedSpec.info.description"
       :info="parsedSpec.info"
-      :parsedSpec="parsedSpec"
-      :rawSpec="rawSpec">
+      :parsedSpec="parsedSpec">
       <template #[introCardsSlot]>
         <div
           class="introduction-cards"

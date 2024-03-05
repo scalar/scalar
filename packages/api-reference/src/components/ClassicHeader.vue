@@ -1,11 +1,9 @@
-<script setup lang="ts">
-import { DarkModeIconToggle } from './DarkModeToggle'
-</script>
+<script setup lang="ts"></script>
 <template>
   <div class="references-classic-header-container">
     <div class="references-classic-header">
       <slot />
-      <DarkModeIconToggle class="t-doc__sidebar" />
+      <slot name="dark-mode-toggle" />
     </div>
   </div>
 </template>

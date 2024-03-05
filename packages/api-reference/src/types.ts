@@ -2,10 +2,16 @@ import { type ThemeId } from '@scalar/themes'
 import type { MetaFlatInput } from '@unhead/schema'
 import type { HarRequest } from 'httpsnippet-lite'
 import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
-import { type DeepReadonly, type Slot } from 'vue'
+import { type Slot } from 'vue'
 
 export type ReferenceProps = {
   configuration?: ReferenceConfiguration
+}
+
+export type ReferenceLayoutProps = {
+  configuration: ReferenceConfiguration
+  parsedSpec: Spec
+  rawSpec: string
 }
 
 export type ReferenceConfiguration = {
@@ -75,18 +81,6 @@ export type SpecConfiguration = {
   url?: string
   /** Swagger/Open API spec */
   content?: string | Record<string, any> | (() => Record<string, any>)
-}
-
-/** Default reference configuration */
-export const DEFAULT_CONFIG: DeepReadonly<ReferenceConfiguration> = {
-  spec: {
-    content: undefined,
-    url: undefined,
-  },
-  proxy: undefined,
-  theme: 'default',
-  showSidebar: true,
-  isEditable: false,
 }
 
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'

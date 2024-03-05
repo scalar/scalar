@@ -2,11 +2,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { computed, nextTick, reactive, watch } from 'vue'
 
 import { type SpecConfiguration } from '../types'
-import { useSpec } from './useSpec'
+import { useReactiveSpec } from './useReactiveSpec'
 
-describe('useSpec', () => {
+describe('useReactiveSpec', () => {
   it('returns the content', async () => {
-    const { rawSpecRef } = useSpec({
+    const { rawSpecRef } = useReactiveSpec({
       configuration: {
         content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
       },
@@ -20,7 +20,7 @@ describe('useSpec', () => {
   })
 
   it('returns an empty string', async () => {
-    const { rawSpecRef } = useSpec({
+    const { rawSpecRef } = useReactiveSpec({
       configuration: {
         content: '',
       },
@@ -32,7 +32,7 @@ describe('useSpec', () => {
   })
 
   it('calls the content callback', async () => {
-    const { rawSpecRef } = useSpec({
+    const { rawSpecRef } = useReactiveSpec({
       configuration: {
         content: () => {
           return { openapi: '3.1.0', info: { title: 'Example' }, paths: {} }
@@ -49,7 +49,7 @@ describe('useSpec', () => {
   })
 
   it('works with strings', async () => {
-    const { rawSpecRef } = useSpec({
+    const { rawSpecRef } = useReactiveSpec({
       configuration: {
         content: '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
       },
@@ -63,7 +63,7 @@ describe('useSpec', () => {
   })
 
   it('works with strings in callbacks', async () => {
-    const { rawSpecRef } = useSpec({
+    const { rawSpecRef } = useReactiveSpec({
       configuration: {
         content: () =>
           '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
@@ -91,7 +91,7 @@ describe('useSpec', () => {
       ),
     )
 
-    const { rawSpecRef } = useSpec({
+    const { rawSpecRef } = useReactiveSpec({
       configuration: {
         url: 'https://example.com/swagger.json',
       },
@@ -120,7 +120,7 @@ describe('useSpec', () => {
       content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
     })
 
-    const { rawSpecRef } = useSpec({
+    const { rawSpecRef } = useReactiveSpec({
       configuration,
     })
 
@@ -141,7 +141,7 @@ describe('useSpec', () => {
       return configurationRef
     })
 
-    const { rawSpecRef } = useSpec({
+    const { rawSpecRef } = useReactiveSpec({
       configuration,
     })
 
@@ -171,7 +171,7 @@ describe('useSpec', () => {
       return configurationRef
     })
 
-    const { rawSpecRef } = useSpec({
+    const { rawSpecRef } = useReactiveSpec({
       configuration,
     })
 
@@ -192,5 +192,113 @@ describe('useSpec', () => {
     expect(rawSpecRef.value).toBe(
       '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
     )
+  })
+})
+
+describe('useParser', () => {
+  it('returns the content', async () => {
+    const { parsedSpecRef } = useParser({
+      input: JSON.stringify({
+        openapi: '3.1.0',
+        info: { title: 'Example' },
+        paths: {},
+      }),
+    })
+
+    // Sleep for 10ms to wait for the parser to finish
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
+    expect(parsedSpecRef.info.title).toBe('Example')
+  })
+
+  it('works with refs', async () => {
+    const rawSpec = ref<string>(
+      JSON.stringify({
+        openapi: '3.1.0',
+        info: { title: 'Example' },
+        paths: {},
+      }),
+    )
+
+    const { parsedSpecRef } = useParser({
+      input: rawSpec,
+    })
+
+    // Sleep for 300ms to wait for the debouncer and the parser
+    await new Promise((resolve) => setTimeout(resolve, 300))
+
+    expect(parsedSpecRef.info.title).toBe('Example')
+  })
+
+  it('watches the ref', async () => {
+    const rawSpec = ref<string>(
+      JSON.stringify({
+        openapi: '3.1.0',
+        info: { title: 'Example' },
+        paths: {},
+      }),
+    )
+
+    const { parsedSpecRef } = useParser({
+      input: rawSpec,
+    })
+
+    // Sleep for 300ms to wait for the debouncer and the parser
+    await new Promise((resolve) => setTimeout(resolve, 300))
+
+    expect(parsedSpecRef.info.title).toBe('Example')
+
+    rawSpec.value = JSON.stringify({
+      openapi: '3.1.0',
+      info: { title: 'Foobar' },
+      paths: {},
+    })
+
+    // Sleep for 300ms to wait for the debouncer and the parser
+    await new Promise((resolve) => setTimeout(resolve, 300))
+
+    expect(parsedSpecRef.info.title).toBe('Foobar')
+  })
+
+  it('deals with undefined input', async () => {
+    const { parsedSpecRef } = useParser({})
+
+    // Sleep for 10ms to wait for the parser to finish
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
+    expect(parsedSpecRef.info.title).toBe('')
+  })
+
+  it('deals with empty input', async () => {
+    const { parsedSpecRef } = useParser({
+      input: '',
+    })
+
+    // Sleep for 10ms to wait for the parser to finish
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
+    expect(parsedSpecRef.info.title).toBe('')
+  })
+
+  it('returns errors', async () => {
+    const { errorRef } = useParser({
+      input: '{"foo}',
+    })
+
+    // Sleep for 10ms to wait for the parser to finish
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
+    expect(errorRef.value).toContain('SyntaxError')
+  })
+
+  it('overwrites the ref', async () => {
+    const { parsedSpecRef, overwriteParsedSpecRef } = useParser({})
+
+    overwriteParsedSpecRef({
+      // @ts-ignore
+      info: { title: 'Example' },
+    })
+
+    expect(parsedSpecRef.info.title).toBe('Example')
   })
 })

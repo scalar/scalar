@@ -1,19 +1,17 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
 import { type ThemeId } from '@scalar/themes'
-import { ref, watch } from 'vue'
 
-import petstore from '../specs/petstorev3.json'
-import { type GettingStartedExamples } from '../types'
+import petstore from '../specs/petstorev3.json?raw'
 
-const props = defineProps<{
+defineProps<{
   theme: ThemeId
-  value?: string
 }>()
 
 const emits = defineEmits<{
   (e: 'changeTheme', value: ThemeId): void
-  (e: 'openSwaggerEditor', action?: 'importUrl' | 'uploadFile'): void
+  (e: 'loadSwaggerFile'): void
+  (e: 'linkSwaggerFile'): void
   (e: 'updateContent', value: string): void
 }>()
 
@@ -30,45 +28,9 @@ const themeIds: ThemeId[] = [
   'deepSpace',
 ]
 
-const example = ref<GettingStartedExamples | null>(null)
-
-// When the example id changes, update the content.
-watch(example, () => {
-  if (!example.value) {
-    return
-  }
-
-  emits('updateContent', getContentForExample(example.value))
-})
-
-// Compares the content with the content for the given example id
-function isActiveExample(exampleId: string | null) {
-  if (exampleId === null) {
-    return false
-  }
-
-  return getContentForExample(exampleId) === props.value
+function handleEmitPetstore() {
+  emits('updateContent', petstore)
 }
-
-// Petstore -> { … }
-function getContentForExample(exampleId: string) {
-  if (exampleId === 'Petstore') {
-    return JSON.stringify(petstore, null, 2)
-  }
-
-  return ''
-}
-
-watch(
-  () => props.value,
-  () => {
-    if (isActiveExample(example.value)) {
-      return
-    }
-
-    example.value = null
-  },
-)
 </script>
 <template>
   <div class="start custom-scroll">
@@ -94,13 +56,13 @@ watch(
       <div class="start-cta">
         <ScalarButton
           fullWidth
-          @click="example = 'Petstore'">
+          @click="handleEmitPetstore">
           Test Petstore
         </ScalarButton>
         <ScalarButton
           fullWidth
           variant="outlined"
-          @click="$emit('openSwaggerEditor', 'uploadFile')">
+          @click="$emit('loadSwaggerFile')">
           Upload File
         </ScalarButton>
       </div>
@@ -208,19 +170,6 @@ watch(
           </svg>
           <span>React</span>
         </a>
-        <!-- <div class="start-item">
-            <svg
-              height="62"
-              viewBox="0 0 99.9 62"
-              width="99.9"
-              xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M99.5 2h-1.7c-2.1 0-4.1 1-5.4 2.6L75 27.4 57.6 4.6A6.7 6.7 0 0 0 52.2 2h-1.7l22 28.7L50 60h1.7c2 0 4-1 5.3-2.6L75 34l17.9 23.4a6.7 6.7 0 0 0 5.3 2.6h1.7L77.5 30.7 99.5 2Zm-57 46.5a21 21 0 0 1-24.7 8.2A21.7 21.7 0 0 1 4 36.2V34h46v-8.3c0-13-9.6-24.4-22.6-25.6A25 25 0 0 0 0 25v11.1C0 47 6.4 57 16.5 60.5A25 25 0 0 0 48.3 46h-1.2c-1.9 0-3.5 1-4.5 2.5ZM4 25a21 21 0 0 1 42 0v5H4v-5Z"
-                fill="currentColor"
-                fill-rule="nonzero" />
-            </svg>
-            <span>Express</span>
-          </div> -->
       </div>
       <div class="start-section start-section-colors">
         <p class="start-h2">THEMING</p>
@@ -232,10 +181,6 @@ watch(
           @click="$emit('changeTheme', themeId)">
           {{ themeId.toLocaleLowerCase() }}
         </div>
-        <!-- <p class="start-item-copy">
-          Add your own typography & color palettes, or use some of our prebuilt
-          themes!
-        </p> -->
       </div>
     </div>
     <p class="start-h1">Features</p>
