@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.18.0
+
+### Minor Changes
+
+- ad2b95a: fix: scope scrollbar styles
+- ad2b95a: refactor: move reset component to themes package
+
+### Patch Changes
+
+- Updated dependencies [ad2b95a]
+- Updated dependencies [ad2b95a]
+  - @scalar/swagger-editor@0.11.0
+  - @scalar/themes@0.6.0
+  - @scalar/api-client@0.12.15
+  - @scalar/components@0.4.2
+
 ## 1.17.16
 
 ### Patch Changes

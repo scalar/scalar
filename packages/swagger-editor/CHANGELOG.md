@@ -1,5 +1,19 @@
 # @scalar/swagger-editor
 
+## 0.11.0
+
+### Minor Changes
+
+- ad2b95a: fix: scope scrollbar styles
+- ad2b95a: refactor: move reset component to themes package
+
+### Patch Changes
+
+- Updated dependencies [ad2b95a]
+- Updated dependencies [ad2b95a]
+  - @scalar/themes@0.6.0
+  - @scalar/components@0.4.2
+
 ## 0.10.15
 
 ### Patch Changes
