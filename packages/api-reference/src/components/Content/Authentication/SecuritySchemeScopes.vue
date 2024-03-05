@@ -7,7 +7,7 @@ import {
   ListboxOptions,
 } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
-import { ResetStyles } from '@scalar/swagger-editor'
+import { ResetStyles } from '@scalar/themes'
 import { computed, ref } from 'vue'
 
 import { Badge } from '../../../components/Badge'

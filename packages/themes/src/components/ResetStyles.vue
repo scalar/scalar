@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { onMounted, useCssModule } from 'vue'
+import { useCssModule } from 'vue'
+
+import { useApplyClasses } from '../hooks/useApplyClasses'
 
 const { reset } = useCssModule()
 
 // Add the reset to the headless UI root as well if there is one
-onMounted(() => {
-  if (!document.body) return
-  const el = document.getElementById('headlessui-portal-root')
-  el?.classList.add(reset)
-})
+useApplyClasses('#headlessui-portal-root', reset)
 </script>
 <template>
   <slot :styles="reset" />
@@ -37,22 +35,8 @@ onMounted(() => {
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  i,
-  p,
-  ol,
-  ul,
-  dl,
-  dd,
-  dt,
-  em,
-  strong,
-  button {
+  /* prettier-ignore */
+  h1, h2, h3, h4, h5, h6, i, p, ol, ul, dl, dd, dt, em, strong, button {
     margin: unset;
     padding: unset;
     color: unset;
@@ -79,9 +63,5 @@ onMounted(() => {
     color: var(--theme-color-3, var(--default-theme-color-3));
     font-family: var(--theme-font, var(--default-theme-font));
   }
-}
-body.light-mode,
-body.dark-mode {
-  margin: 0;
 }
 </style>

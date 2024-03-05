@@ -26,7 +26,6 @@
   "exports": {
     ".": "./dist/index.js",
     "./base.css": "./dist/base.css",
-    "./scrollbar.css": "./dist/scrollbar.css",
     "./presets/alternate.css": "./dist/presets/alternate.css",
     "./presets/default.css": "./dist/presets/default.css",
     "./presets/moon.css": "./dist/presets/moon.css",
