@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ResetStyles } from '@scalar/swagger-editor'
+import { ResetStyles } from '@scalar/themes'
 import { ref, watch } from 'vue'
 
 const docStyle = document.documentElement.style

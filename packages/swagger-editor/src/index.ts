@@ -4,7 +4,6 @@ export * from './hooks'
 export * from './types'
 
 export { default as HeaderTabButton } from './components/SwaggerEditor/HeaderTabButton.vue'
-export { default as ResetStyles } from './components/ResetStyles.vue'
 
 /**
  * @deprecated Use `SwaggerEditor` instead.
