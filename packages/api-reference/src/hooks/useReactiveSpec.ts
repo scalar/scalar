@@ -6,7 +6,7 @@ import { isValidUrl } from '../helpers'
 import type { Spec, SpecConfiguration } from '../types'
 
 // Generate a new empty spec instance
-const emptySpecGenerator = (): Spec => ({
+export const emptySpecGenerator = (): Spec => ({
   info: {
     title: '',
     description: '',
@@ -31,13 +31,6 @@ const emptySpecGenerator = (): Spec => ({
   servers: [],
   tags: [],
 })
-
-/** OAS spec as a string */
-const rawSpec = ref('')
-/** Fully parsed and resolved OAS object */
-const parsedSpec = reactive(emptySpecGenerator())
-/** Parser error messages when parsing fails */
-const specErrors = ref<string | null>(null)
 
 /**
  * Get the spec content from the provided configuration:
@@ -70,30 +63,6 @@ const getSpecContent = async (
 }
 
 /**
- * Parse the raw spec string into a resolved object
- * If there is an empty string (or no string) fallback to the default
- * If there are errors continue to show the previous valid spec
- */
-function parseInput(value?: string) {
-  if (!value) return Object.assign(parsedSpec, emptySpecGenerator())
-
-  return parse(value)
-    .then((validSpec) => {
-      specErrors.value = null
-
-      // Some specs don’t have servers, make sure they are defined
-      Object.assign(parsedSpec, {
-        servers: [],
-        ...validSpec,
-      })
-    })
-    .catch((error) => {
-      // Save the parse error message to display
-      specErrors.value = error.toString()
-    })
-}
-
-/**
  * Keep the raw spec content in a ref and update it when the configuration changes.
  */
 export function useReactiveSpec({
@@ -103,6 +72,37 @@ export function useReactiveSpec({
   specConfig?: MaybeRefOrGetter<SpecConfiguration>
   proxy?: MaybeRefOrGetter<string>
 }) {
+  /** OAS spec as a string */
+  const rawSpec = ref('')
+  /** Fully parsed and resolved OAS object */
+  const parsedSpec = reactive(emptySpecGenerator())
+  /** Parser error messages when parsing fails */
+  const specErrors = ref<string | null>(null)
+
+  /**
+   * Parse the raw spec string into a resolved object
+   * If there is an empty string (or no string) fallback to the default
+   * If there are errors continue to show the previous valid spec
+   */
+  function parseInput(value?: string) {
+    if (!value) return Object.assign(parsedSpec, emptySpecGenerator())
+
+    return parse(value)
+      .then((validSpec) => {
+        specErrors.value = null
+
+        // Some specs don’t have servers, make sure they are defined
+        Object.assign(parsedSpec, {
+          servers: [],
+          ...validSpec,
+        })
+      })
+      .catch((error) => {
+        // Save the parse error message to display
+        specErrors.value = error.toString()
+      })
+  }
+
   watch(
     () => toValue(specConfig),
     async (newConfig) => {
@@ -110,10 +110,10 @@ export function useReactiveSpec({
         const specContent = (
           await getSpecContent(newConfig, toValue(proxy))
         )?.trim()
-        if (specContent) rawSpec.value = specContent
+        if (typeof specContent === 'string') rawSpec.value = specContent
       }
     },
-    { immediate: true },
+    { immediate: true, deep: true },
   )
 
   watch(rawSpec, () => {

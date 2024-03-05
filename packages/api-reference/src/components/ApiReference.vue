@@ -91,7 +91,7 @@ const { parsedSpec, rawSpec } = useReactiveSpec({
     :configuration="configuration"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec"
-    @toggleDarkMode="toggleDarkMode"
+    @toggleDarkMode="() => toggleDarkMode()"
     @updateContent="$emit('updateContent', $event)">
     <template #footer><slot name="footer" /></template>
   </Component>

@@ -9,6 +9,10 @@ import type { ReferenceLayoutProps, ReferenceSlots } from '../../types'
 
 // eslint-disable-next-line vue/no-unused-properties
 defineProps<ReferenceLayoutProps>()
+defineEmits<{
+  (e: 'toggleDarkMode'): void
+}>()
+
 defineSlots<ReferenceSlots>()
 
 onMounted(() => {

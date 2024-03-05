@@ -751,9 +751,6 @@ importers:
       '@scalar/snippetz':
         specifier: ^0.1.5
         version: 0.1.5
-      '@scalar/swagger-editor':
-        specifier: workspace:*
-        version: link:../swagger-editor
       '@scalar/swagger-parser':
         specifier: workspace:*
         version: link:../swagger-parser
