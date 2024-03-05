@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { createHead, useSeoMeta } from 'unhead'
 import { ref } from 'vue'
+import { toast } from 'vue-sonner'
 
+import { useToasts } from '../hooks/useToasts'
 import { type ReferenceProps } from '../types'
+import CustomToaster from './CustomToaster.vue'
 import Layouts from './Layouts/'
 
 const props = defineProps<ReferenceProps>()
@@ -12,6 +15,12 @@ defineEmits<{
 }>()
 
 const content = ref('')
+
+// Configure Reference toasts to use vue-sonner
+const { initializeToasts } = useToasts()
+initializeToasts((message) => {
+  toast(message)
+})
 
 // Create the head tag if the configuration has meta data
 if (props.configuration?.metaData) {
@@ -31,6 +40,8 @@ function handleUpdateContent(value: string) {
     @updateContent="handleUpdateContent">
     <template #footer><slot name="footer" /></template>
   </Component>
+  <!-- Initialize the vue-sonner instance -->
+  <CustomToaster />
 </template>
 <style>
 body {
