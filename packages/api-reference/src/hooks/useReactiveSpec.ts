@@ -1,5 +1,4 @@
-import { fetchSpecFromUrl } from '@scalar/swagger-editor'
-import { parse } from '@scalar/swagger-parser'
+import { fetchSpecFromUrl, parse } from '@scalar/swagger-parser'
 import { type MaybeRefOrGetter, reactive, ref, toValue, watch } from 'vue'
 
 import { isValidUrl } from '../helpers'
