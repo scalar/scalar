@@ -1,0 +1,52 @@
+{
+  "name": "@scalar/docusaurus",
+  "description": "Docusaurus integration for api references",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "keywords": [
+    "api",
+    "client",
+    "docusaurus",
+    "postman alternative",
+    "rest",
+    "testing",
+    "react"
+  ],
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm types:check && pnpm build-only",
+    "build-only": "vite build",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "types:check": "tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
+  "main": "./src/index.ts",
+  "files": [
+    "src",
+    "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/docusaurus"
+  },
+  "dependencies": {
+    "@scalar/api-reference-react": "workspace:*",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@docusaurus/types": "^3.1.1",
+    "@types/react": "^18.2.60",
+    "@types/react-dom": "^18.2.19",
+    "path": "^0.12.7"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
+  }
+}

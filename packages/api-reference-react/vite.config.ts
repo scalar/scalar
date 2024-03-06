@@ -1,7 +1,6 @@
 import react from '@vitejs/plugin-react'
 import * as path from 'path'
 import { defineConfig } from 'vite'
-import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import dts from 'vite-plugin-dts'
 
 export default defineConfig({
@@ -13,13 +12,14 @@ export default defineConfig({
       formats: ['es', 'cjs'],
       fileName: 'index',
     },
+    minify: false,
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'src/index.ts'),
       },
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ['next', 'next/script', 'react', 'react-dom'],
+      external: ['react', 'react-dom'],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
@@ -32,9 +32,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [
-    react(),
-    dts({ insertTypesEntry: true, rollupTypes: true }),
-    cssInjectedByJsPlugin(),
-  ],
+  plugins: [react(), dts({ insertTypesEntry: true, rollupTypes: true })],
 })
