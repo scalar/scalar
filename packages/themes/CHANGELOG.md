@@ -1,5 +1,18 @@
 # @scalar/themes
 
+## 0.6.1
+
+### Patch Changes
+
+- 4ef178f: fix: define color-scheme to improve request client selector readability
+
+## 0.6.0
+
+### Minor Changes
+
+- ad2b95a: fix: scope scrollbar styles
+- ad2b95a: refactor: move reset component to themes package
+
 ## 0.5.10
 
 ### Patch Changes
