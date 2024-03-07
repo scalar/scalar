@@ -2,32 +2,10 @@ import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { webpackStats } from 'rollup-plugin-webpack-stats'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  optimizeDeps: {
-    include: ['@scalar/swagger-parser'],
-  },
-  plugins: [
-    vue(),
-    cssInjectedByJsPlugin(),
-    nodePolyfills({
-      // To exclude specific polyfills, add them to this list.
-      exclude: [
-        'fs', // Excludes the polyfill for `fs` and `node:fs`.
-      ],
-      // Whether to polyfill specific globals.
-      globals: {
-        Buffer: true, // can also be 'build', 'dev', or false
-        global: true,
-        process: true,
-      },
-      // Whether to polyfill `node:` protocol imports.
-      protocolImports: true,
-    }),
-    webpackStats(),
-  ],
+  plugins: [vue(), cssInjectedByJsPlugin(), webpackStats()],
   build: {
     emptyOutDir: false,
     outDir: 'dist/browser',
@@ -56,7 +34,7 @@ export default defineConfig({
         // Resolve the uncompiled source code for all @scalar packages
         // @scalar/* -> packages/*/
         // (not @scalar/*/style.css)
-        find: /^@scalar\/(?!(snippetz|components\/style\.css|components\b))(.+)/,
+        find: /^@scalar\/(?!(openapi-parser|snippetz|components\/style\.css|components\b))(.+)/,
         replacement: path.resolve(__dirname, '../$2/src/index.ts'),
       },
     ],
