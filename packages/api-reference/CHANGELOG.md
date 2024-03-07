@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.18.1
+
+### Patch Changes
+
+- Updated dependencies [4ef178f]
+  - @scalar/themes@0.6.1
+  - @scalar/api-client@0.12.16
+  - @scalar/components@0.4.2
+  - @scalar/swagger-editor@0.11.1
+
 ## 1.18.0
 
 ### Minor Changes

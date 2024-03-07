@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.6.1
+
+### Patch Changes
+
+- 4ef178f: fix: define color-scheme to improve request client selector readability
+
 ## 0.6.0
 
 ### Minor Changes
