@@ -49,7 +49,7 @@
     "rollup-plugin-node-externals": "^7.0.1",
     "terser": "^5.24.0",
     "tsc-alias": "^1.8.8",
-    "typescript": "^5.2.2",
+    "typescript": "^5.4.2",
     "vite": "^5.1.1",
     "vite-plugin-node-polyfills": "^0.21.0",
     "vite-plugin-static-copy": "^1.0.1",
