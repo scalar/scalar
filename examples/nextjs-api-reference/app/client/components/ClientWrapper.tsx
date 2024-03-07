@@ -13,8 +13,6 @@ export const ClientWrapper = () => {
         Click me to open the Api Client
       </button>
 
-      <ApiReferenceReact configuration={{}} />
-
       <ApiClientReact
         close={() => setIsOpen(false)}
         isOpen={isOpen}
@@ -24,6 +22,8 @@ export const ClientWrapper = () => {
           path: '/simpsons/products',
         }}
       />
+
+      <ApiReferenceReact configuration={{}} />
     </div>
   )
 }

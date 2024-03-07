@@ -21,14 +21,7 @@ export default defineConfig({
       },
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: [
-        'react',
-        'react-dom',
-        'vue',
-        ...Object.keys(pkg.dependencies || {}).filter(
-          (item) => !item.startsWith('@scalar'),
-        ),
-      ],
+      external: ['react', 'react-dom'],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
@@ -36,7 +29,6 @@ export default defineConfig({
         globals: {
           'react': 'React',
           'react-dom': 'react-dom',
-          'next/script': 'Script',
         },
       },
     },
