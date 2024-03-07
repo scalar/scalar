@@ -11,7 +11,7 @@ export default defineConfig({
       // Could also be a dictionary or array of multiple entry points
       entry: './src/index.ts',
       name: '@scalar/api-reference-react',
-      formats: ['es', 'cjs'],
+      formats: ['es'],
       fileName: 'index',
     },
     minify: false,
@@ -23,6 +23,9 @@ export default defineConfig({
       // into your library
       external: ['react', 'react-dom'],
       output: {
+        preserveModules: true,
+        sourcemap: true,
+
         // Provide global variables to use in the UMD build
         // for externalized deps
         exports: 'named',

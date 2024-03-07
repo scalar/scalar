@@ -1,8 +1,8 @@
 'use client'
 
-import { type ReferenceProps } from '@scalar/api-reference'
+import { ApiReference, type ReferenceProps } from '@scalar/api-reference'
 import React, { useEffect, useRef } from 'react'
-import { App, createApp } from 'vue/dist/vue.esm-bundler.js'
+import { createApp } from 'vue/dist/vue.esm-bundler.js'
 
 // These are required for the vue bundler version
 globalThis.__VUE_OPTIONS_API__ = true
@@ -17,16 +17,9 @@ export const ApiReferenceReact = (props: ReferenceProps) => {
 
   useEffect(() => {
     if (!el.current) return undefined
-    let vueApp: App
 
-    const mountApp = async () => {
-      vueApp = createApp(
-        (await import('@scalar/api-reference')).ApiReference,
-        props,
-      )
-      vueApp.mount(el.current)
-    }
-    mountApp()
+    const vueApp = createApp(ApiReference, props)
+    vueApp.mount(el.current)
 
     // Unmount for react strict mode
     return () => vueApp?.unmount()
