@@ -19,8 +19,6 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "pnpm types:check && pnpm build-only",
-    "build-only": "vite build",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "types:check": "tsc --noEmit --skipLibCheck"

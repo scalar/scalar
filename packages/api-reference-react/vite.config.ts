@@ -3,12 +3,14 @@ import * as path from 'path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
+import pkg from './package.json'
+
 export default defineConfig({
   build: {
     lib: {
       // Could also be a dictionary or array of multiple entry points
       entry: './src/index.ts',
-      name: '@scalar/api-client-react',
+      name: '@scalar/api-reference-react',
       formats: ['es', 'cjs'],
       fileName: 'index',
     },
@@ -19,7 +21,14 @@ export default defineConfig({
       },
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ['react', 'react-dom'],
+      external: [
+        'react',
+        'react-dom',
+        'vue',
+        ...Object.keys(pkg.dependencies || {}).filter(
+          (item) => !item.startsWith('@scalar'),
+        ),
+      ],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps

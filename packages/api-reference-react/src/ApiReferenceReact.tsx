@@ -2,7 +2,7 @@
 
 import { ApiReference, type ReferenceProps } from '@scalar/api-reference'
 import React, { useEffect, useRef } from 'react'
-import { createApp } from 'vue/dist/vue.esm-bundler.js'
+import { createApp } from 'vue'
 
 // These are required for the vue bundler version
 globalThis.__VUE_OPTIONS_API__ = true

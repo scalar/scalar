@@ -1,14 +1,21 @@
-import { ApiReference as VueComponent } from '@scalar/api-reference'
-import { applyVueInReact } from 'veaury'
-
-const ApiReference = applyVueInReact(VueComponent)
+import { ApiReferenceReact } from '@scalar/api-reference-react'
 
 function App() {
   return (
     <>
       {/* Explanation: https://github.com/devilwjp/veaury#typescript-jsx-types-conflict-caused-by-vue-and-react-at-the-same-time
       // @ts-ignore */}
-      <ApiReference configuration={{ isEditable: true }} />
+      <ApiReferenceReact
+        configuration={{
+          spec: {
+            content: {
+              openapi: '3.1.0',
+              info: { title: 'Example' },
+              paths: {},
+            },
+          },
+        }}
+      />
     </>
   )
 }

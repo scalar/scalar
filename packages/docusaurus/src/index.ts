@@ -1,5 +1,5 @@
 import type { LoadContext, Plugin } from '@docusaurus/types'
-import { type ReferenceProps } from '@scalar/api-reference'
+import { type ReferenceProps } from '@scalar/api-reference-react'
 import path from 'path'
 
 export type ScalarOptions = ReferenceProps & { route: string }

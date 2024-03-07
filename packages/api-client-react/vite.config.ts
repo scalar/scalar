@@ -4,6 +4,8 @@ import { defineConfig } from 'vite'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import dts from 'vite-plugin-dts'
 
+import pkg from './package.json'
+
 export default defineConfig({
   build: {
     lib: {
@@ -19,7 +21,16 @@ export default defineConfig({
       },
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ['next', 'next/script', 'react', 'react-dom'],
+      external: [
+        'next',
+        'next/script',
+        'react',
+        'react-dom',
+        'vue',
+        ...Object.keys(pkg.dependencies || {}).filter(
+          (item) => !item.startsWith('@scalar'),
+        ),
+      ],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps

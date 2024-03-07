@@ -1,6 +1,7 @@
 'use client'
 
 import { ApiClientReact } from '@scalar/api-client-react'
+import { ApiReferenceReact } from '@scalar/api-reference-react'
 import React, { useState } from 'react'
 
 export const ClientWrapper = () => {
@@ -11,6 +12,8 @@ export const ClientWrapper = () => {
       <button onClick={() => setIsOpen(true)}>
         Click me to open the Api Client
       </button>
+
+      <ApiReferenceReact configuration={{}} />
 
       <ApiClientReact
         close={() => setIsOpen(false)}

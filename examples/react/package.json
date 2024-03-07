@@ -18,11 +18,11 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "veaury": "^2.3.12",
+    "veaury": "^2.3.15",
     "vue": "^3.3.0"
   },
   "devDependencies": {
-    "@scalar/api-reference": "workspace:*",
+    "@scalar/api-reference-react": "workspace:*",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^6.21.0",

@@ -451,6 +451,9 @@ importers:
       '@scalar/api-client-react':
         specifier: workspace:*
         version: link:../../packages/api-client-react
+      '@scalar/api-reference-react':
+        specifier: workspace:*
+        version: link:../../packages/api-reference-react
       '@scalar/nextjs-api-reference':
         specifier: workspace:*
         version: link:../../packages/nextjs-api-reference
@@ -486,15 +489,15 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       veaury:
-        specifier: ^2.3.12
+        specifier: ^2.3.15
         version: 2.3.15(react-dom@18.2.0)(react@18.2.0)
       vue:
         specifier: ^3.3.0
         version: 3.4.21(typescript@5.4.2)
     devDependencies:
-      '@scalar/api-reference':
+      '@scalar/api-reference-react':
         specifier: workspace:*
-        version: link:../../packages/api-reference
+        version: link:../../packages/api-reference-react
       '@types/react':
         specifier: ^18.2.60
         version: 18.2.60
@@ -964,12 +967,6 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      vue:
-        specifier: ^3.3.0
-        version: 3.4.21(typescript@5.3.3)
     devDependencies:
       '@types/react':
         specifier: ^18.2.60
@@ -980,18 +977,27 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.2.1
         version: 4.2.1(vite@5.1.4)
+      '@vitejs/plugin-vue':
+        specifier: ^5.0.4
+        version: 5.0.4(vite@5.1.4)(vue@3.4.21)
       path:
         specifier: ^0.12.7
         version: 0.12.7
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      veaury:
+        specifier: ^2.3.15
+        version: 2.3.15(react-dom@18.2.0)(react@18.2.0)
       vite:
         specifier: ^5.1.1
         version: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
-      vite-plugin-css-injected-by-js:
-        specifier: ^3.4.0
-        version: 3.4.0(vite@5.1.4)
       vite-plugin-dts:
         specifier: ^3.6.3
         version: 3.7.3(@types/node@20.11.22)(typescript@5.3.3)(vite@5.1.4)
+      vue:
+        specifier: ^3.3.0
+        version: 3.4.21(typescript@5.3.3)
 
   packages/components:
     dependencies:
@@ -21593,7 +21599,6 @@ packages:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-    dev: false
 
   /vfile-location@5.0.2:
     resolution: {integrity: sha512-NXPYyxyBSH7zB5U6+3uDdd6Nybz6o6/od9rk8bp9H8GR3L+cm/fC0uUTbqBmUTnMCUDslAGBOIKNfvvb+gGlDg==}
