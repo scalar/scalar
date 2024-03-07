@@ -59,7 +59,6 @@
     "@scalar/api-client": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/snippetz": "^0.1.5",
-    "@scalar/swagger-editor": "workspace:*",
     "@scalar/swagger-parser": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-modal": "workspace:*",

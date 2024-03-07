@@ -3,13 +3,17 @@ import { useMediaQuery } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
 import { useNavState } from '../../hooks'
-import { type ReferenceProps, type ReferenceSlots } from '../../types'
-import ApiReferenceBase from '../ApiReferenceBase.vue'
+import { type ReferenceLayoutProps, type ReferenceSlots } from '../../types'
+import ApiReferenceLayout from '../ApiReferenceLayout.vue'
 import { DarkModeToggle } from '../DarkModeToggle'
 import MobileHeader from '../MobileHeader.vue'
 import SearchButton from '../SearchButton.vue'
 
-const props = defineProps<ReferenceProps>()
+const props = defineProps<ReferenceLayoutProps>()
+defineEmits<{
+  (e: 'toggleDarkMode'): void
+}>()
+
 defineSlots<ReferenceSlots>()
 
 const showMobileDrawer = ref(false)
@@ -31,16 +35,18 @@ const config = computed(() => {
 
 const { hash } = useNavState()
 
-watch(hash, (n, o) => {
-  if (n && n !== o) {
+watch(hash, (newHash, oldHash) => {
+  if (newHash && newHash !== oldHash) {
     showMobileDrawer.value = false
   }
 })
 </script>
 <template>
-  <ApiReferenceBase
+  <ApiReferenceLayout
     :class="{ 'scalar-api-references-standalone-mobile': isMobile }"
-    :configuration="config">
+    :configuration="configuration"
+    :parsedSpec="parsedSpec"
+    :rawSpec="rawSpec">
     <template
       v-if="isMobile"
       #header>
@@ -54,11 +60,13 @@ watch(hash, (n, o) => {
       </div>
     </template>
     <template #sidebar-end>
-      <DarkModeToggle />
+      <DarkModeToggle
+        :isDarkMode="!!configuration?.darkMode"
+        @toggleDarkMode="$emit('toggleDarkMode')" />
     </template>
     <!-- Expose the content end slot as a slot for the footer -->
     <template #content-end><slot name="footer" /></template>
-  </ApiReferenceBase>
+  </ApiReferenceLayout>
 </template>
 <style>
 .scalar-api-references-standalone-mobile {

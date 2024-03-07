@@ -1,19 +1,24 @@
 <script lang="ts" setup>
 import { ScalarIcon } from '@scalar/components'
 
-import { useDarkModeState } from '../../hooks/useDarkModeState'
 import ScreenReader from '../ScreenReader.vue'
 
-const { toggleDarkMode, isDark } = useDarkModeState()
+defineProps<{
+  isDarkMode: boolean
+}>()
+
+defineEmits<{
+  (e: 'toggleDarkMode'): void
+}>()
 </script>
 <template>
   <button
     class="darklight"
     type="button"
-    @click="toggleDarkMode">
-    <ScalarIcon :icon="isDark ? 'DarkMode' : 'LightMode'" />
+    @click="$emit('toggleDarkMode')">
+    <ScalarIcon :icon="isDarkMode ? 'DarkMode' : 'LightMode'" />
     <ScreenReader>
-      Switch to {{ isDark ? 'Light' : 'Dark' }} Mode
+      Switch to {{ isDarkMode ? 'Light' : 'Dark' }} Mode
     </ScreenReader>
   </button>
 </template>

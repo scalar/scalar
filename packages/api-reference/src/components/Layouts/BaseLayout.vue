@@ -5,10 +5,14 @@
  */
 import { onMounted } from 'vue'
 
-import type { ReferenceProps, ReferenceSlots } from '../../types'
+import type { ReferenceLayoutProps, ReferenceSlots } from '../../types'
 
 // eslint-disable-next-line vue/no-unused-properties
-defineProps<ReferenceProps>()
+defineProps<ReferenceLayoutProps>()
+defineEmits<{
+  (e: 'toggleDarkMode'): void
+}>()
+
 defineSlots<ReferenceSlots>()
 
 onMounted(() => {

@@ -21,7 +21,9 @@
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/swagger-editor": "workspace:*",
+    "@scalar/swagger-parser": "workspace:*",
     "@scalar/themes": "workspace:*",
+    "@vueuse/core": "^10.4.1",
     "vue": "^3.3.0",
     "vue-router": "^4.2.4"
   },
