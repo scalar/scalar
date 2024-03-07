@@ -2,6 +2,7 @@
 const classPrefix = 'scalar-component'
 
 const globalRegx = /^\*|:root/
+const codeRegx = /^\.line-numbers/
 
 export default ({ env }) => ({
   plugins: {
@@ -15,6 +16,7 @@ export default ({ env }) => ({
        */
       transform: (prefix, selector) => {
         if (env === 'development') return selector
+        if (selector.match(codeRegx)) return selector
         return `${
           selector.match(globalRegx) ? '' : selector
         }:where(${prefix}), :where(${prefix}) ${selector}`

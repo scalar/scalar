@@ -3,7 +3,6 @@ import prismjs from 'prismjs'
 import 'prismjs/components/prism-bash'
 import 'prismjs/components/prism-json'
 import 'prismjs/plugins/autoloader/prism-autoloader.js'
-import 'prismjs/plugins/line-numbers/prism-line-numbers.css'
 import 'prismjs/plugins/line-numbers/prism-line-numbers.js'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
@@ -140,20 +139,39 @@ onMounted(() => {
 }
 
 /* Line Numbers */
-.scalar-codeblock-pre[class*='language-'].line-numbers {
-  padding-left: 2em;
+.line-numbers.scalar-codeblock-pre[class*='language-'] {
   position: relative;
+  padding-left: 2em;
   counter-reset: linenumber;
 }
 
-.line-numbers span.line-numbers-rows {
-  width: 2em;
-  border: none;
-  left: -2em;
-}
-.line-numbers code {
+.line-numbers > code {
   position: relative;
   white-space: inherit;
+}
+
+.line-numbers .line-numbers-rows {
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  font-size: 100%;
+  left: -3em;
+  width: 3em;
+  letter-spacing: -1px;
+  user-select: none;
+}
+
+.line-numbers-rows > span {
+  display: block;
+  counter-increment: linenumber;
+}
+
+.line-numbers-rows > span:before {
+  content: counter(linenumber);
+  color: #999;
+  display: block;
+  padding-right: 0.8em;
+  text-align: right;
 }
 
 /* Inline code */
