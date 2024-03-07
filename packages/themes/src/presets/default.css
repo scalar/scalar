@@ -12,6 +12,9 @@
   --default-theme-color-accent: #0099ff;
   --default-theme-border-color: rgba(0, 0, 0, 0.1);
 }
+.light-mode .dark-mode {
+  color-scheme: dark;
+}
 .dark-mode {
   --default-theme-background-1: #0f0f0f;
   --default-theme-background-2: #1a1a1a;
