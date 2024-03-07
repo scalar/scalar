@@ -1098,12 +1098,6 @@ importers:
       postcss-prefix-selector:
         specifier: ^1.16.0
         version: 1.16.0(postcss@8.4.35)
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
       storybook:
         specifier: ^7.5.2
         version: 7.6.17
@@ -7355,7 +7349,6 @@ packages:
       vue: 3.4.21(typescript@5.4.2)
       vue: 3.4.21(typescript@5.3.3)
       vue-component-type-helpers: 2.0.6
-      vue-component-type-helpers: 2.0.5
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -21896,8 +21889,6 @@ packages:
 
   /vue-component-type-helpers@2.0.6:
     resolution: {integrity: sha512-qdGXCtoBrwqk1BT6r2+1Wcvl583ZVkuSZ3or7Y1O2w5AvWtlvvxwjGhmz5DdPJS9xqRdDlgTJ/38ehWnEi0tFA==}
-  /vue-component-type-helpers@2.0.5:
-    resolution: {integrity: sha512-v9N4ufDSnd8YHcDq/vURPjxDyBVak5ZVAQ6aGNIrf7ZAj/VxRKpLZXFHEaqt9yHkWi0/TZp76Jmf8yNJxDQi4g==}
     dev: true
 
   /vue-demi@0.14.7(vue@3.4.21):
@@ -22727,4 +22718,3 @@ packages:
 
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
-    dev: false
