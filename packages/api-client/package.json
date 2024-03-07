@@ -54,8 +54,7 @@
     "content-type": "^1.0.5",
     "nanoid": "^5.0.1",
     "pretty-bytes": "^6.1.1",
-    "pretty-ms": "^8.0.0",
-    "vue": "^3.3.0"
+    "pretty-ms": "^8.0.0"
   },
   "devDependencies": {
     "@scalar/api-client-proxy": "workspace:*",
@@ -67,6 +66,7 @@
     "vite": "^5.1.1",
     "vite-plugin-css-injected-by-js": "^3.4.0",
     "vitest": "^1.2.2",
+    "vue": "^3.3.0",
     "vue-tsc": "^1.8.19"
   },
   "peerDependencies": {

@@ -104,8 +104,6 @@
     "eslint": "^8.56.0",
     "http-server": "^14.1.1",
     "postcss": "^8.4.31",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "rollup-plugin-webpack-stats": "^0.2.4",
     "storybook": "^7.5.2",
     "storybook-dark-mode": "^3.0.1",

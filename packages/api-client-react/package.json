@@ -49,18 +49,18 @@
     "directory": "packages/api-client-react"
   },
   "dependencies": {
-    "@scalar/api-client": "workspace:*",
-    "react": "^18.2.0",
-    "vue": "^3.3.0"
+    "@scalar/api-client": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.2.1",
     "path": "^0.12.7",
+    "react": "^18.2.0",
     "vite": "^5.1.1",
     "vite-plugin-css-injected-by-js": "^3.4.0",
-    "vite-plugin-dts": "^3.6.3"
+    "vite-plugin-dts": "^3.6.3",
+    "vue": "^3.3.0"
   },
   "peerDependencies": {
     "react": "^18.0.0",
