@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import '@scalar/components/style.css'
 import { ResetStyles, type ThemeId, ThemeStyles } from '@scalar/themes'
 import { computed, isRef, ref, watch } from 'vue'
 

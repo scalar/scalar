@@ -3,7 +3,7 @@ import { useTextareaAutosize } from '@vueuse/core'
 import { nanoid } from 'nanoid'
 import { type Ref, onMounted, ref, useAttrs } from 'vue'
 
-import { cva, cx } from '@/cva'
+import { cva, cx } from '../../cva'
 
 const props = withDefaults(
   defineProps<{

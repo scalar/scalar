@@ -2,6 +2,7 @@
 const classPrefix = 'scalar-component'
 
 const globalRegx = /^\*|:root/
+const codeRegx = /^\.line-numbers/
 
 export default ({ env }) => ({
   plugins: {
@@ -13,11 +14,12 @@ export default ({ env }) => ({
        * Add the scoping prefix to all selectors and their children
        * e.g. .flex -> .scalar-component.flex, .scalar-component .flex
        */
-      transform: (prefix, selector, prefixedSelector) => {
+      transform: (prefix, selector) => {
         if (env === 'development') return selector
-        return `${prefix}${
+        if (selector.match(codeRegx)) return selector
+        return `${
           selector.match(globalRegx) ? '' : selector
-        }, ${prefixedSelector}`
+        }:where(${prefix}), :where(${prefix}) ${selector}`
       },
     },
     'autoprefixer': {},
