@@ -10,7 +10,7 @@ export default defineConfig({
       // Could also be a dictionary or array of multiple entry points
       entry: './src/index.ts',
       name: '@scalar/api-client-react',
-      formats: ['es', 'cjs', 'umd'],
+      formats: ['es', 'cjs'],
       fileName: 'index',
     },
     minify: false,

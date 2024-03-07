@@ -14,7 +14,7 @@ export default defineConfig({
       // Could also be a dictionary or array of multiple entry points
       entry: './src/index.ts',
       name: '@scalar/components',
-      formats: ['es', 'cjs', 'umd'],
+      formats: ['es', 'cjs'],
       fileName: 'index',
       // the proper extensions will be added
       // fileName: 'my-lib',
@@ -31,14 +31,6 @@ export default defineConfig({
           (item) => !item.startsWith('@scalar'),
         ),
       ],
-      output: {
-        // Provide global variables to use in the UMD build
-        // for externalized deps
-        exports: 'named',
-        globals: {
-          vue: 'Vue',
-        },
-      },
     },
   },
   plugins: [
