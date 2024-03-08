@@ -936,6 +936,9 @@ importers:
       vite-plugin-dts:
         specifier: ^3.6.3
         version: 3.7.3(@types/node@20.11.22)(typescript@5.4.2)(vite@5.1.4)
+      vite-plugin-node-polyfills:
+        specifier: ^0.21.0
+        version: 0.21.0(rollup@4.12.0)(vite@5.1.4)
       vue:
         specifier: ^3.3.0
         version: 3.4.21(typescript@5.4.2)
