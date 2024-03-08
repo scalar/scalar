@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.18.2
+
+### Patch Changes
+
+- ef3a015: chore: update to typescript 5.4
+
 ## 1.17.15
 
 ### Patch Changes

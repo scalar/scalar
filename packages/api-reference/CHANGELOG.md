@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.18.2
+
+### Patch Changes
+
+- ddc9b17: fix: re-added moving the components css into js so importing the css file is no longer needed
+- 775646a: fix: removed extra copy of vue from themes and some dependencies
+- ef3a015: chore: update to typescript 5.4
+- Updated dependencies [ddc9b17]
+- Updated dependencies [775646a]
+- Updated dependencies [ef3a015]
+  - @scalar/api-client@0.12.17
+  - @scalar/components@0.4.3
+  - @scalar/themes@0.6.2
+  - @scalar/swagger-parser@0.5.21
+  - @scalar/use-modal@0.2.9
+  - @scalar/use-tooltip@0.5.12
+
 ## 1.18.1
 
 ### Patch Changes
