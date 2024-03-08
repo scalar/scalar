@@ -35,6 +35,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   - [With ElysiaJS](#with-elysiajs)
   - [With Express](#with-express)
   - [With NestJS](#with-nestjs)
+  - [With Docusaurus](#with-docusaurus)
   - [With Laravel](#with-laravel)
   - [With Rust](#with-rust)
 - [Hosted API Reference](#hosted-api-reference)
@@ -281,6 +282,32 @@ app.use(
 ```
 
 Read more: [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)
+
+### With Docusaurus
+
+Our Docusaurus plugin makes it easy to render API references. Simple add the
+following to your Docusaurus config
+
+```ts
+import type { ScalarOptions } from '@scalar/docusaurus'
+
+plugins: [
+  [
+    '@scalar/docusaurus',
+    {
+      label: 'Scalar',
+      route: '/scalar',
+      configuration: {
+        spec: {
+          url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+        },
+      },
+    } as ScalarOptions,
+  ],
+],
+```
+
+For more information, check out the [Docusaurus package](https://github.com/scalar/scalar/tree/main/packages/docusaurus/README.md)
 
 ### With Laravel
 

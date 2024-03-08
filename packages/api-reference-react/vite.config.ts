@@ -13,7 +13,6 @@ export default defineConfig({
       formats: ['es', 'cjs'],
       fileName: 'index',
     },
-    minify: false,
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'src/index.ts'),
