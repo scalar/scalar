@@ -119,7 +119,7 @@ export const customThemeCSS = `
 /**
  * The HTML to load the @scalar/api-reference JavaScript package.
  */
-export const javascript = (configuration: ReferenceConfiguration) => {
+export const javascript = (configuration: ApiReferenceOptions) => {
   return html`
     <script
       id="api-reference"

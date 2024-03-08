@@ -131,7 +131,7 @@ export const ApiReference = (options: ApiReferenceOptions) => {
 /**
  * The HTML template to render the API Reference.
  */
-export function apiReference(options: ReferenceConfiguration) {
+export function apiReference(options: ApiReferenceOptions) {
   return (req: Request, res: Response) => {
     res.send(`
   <!DOCTYPE html>
