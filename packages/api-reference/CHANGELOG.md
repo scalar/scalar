@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.18.4
+
+### Patch Changes
+
+- b0bd55d: fix: proxy error and side menu bug
+- Updated dependencies [b0bd55d]
+  - @scalar/swagger-parser@0.5.22
+
 ## 1.18.3
 
 ### Patch Changes

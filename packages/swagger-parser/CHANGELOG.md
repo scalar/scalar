@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.5.22
+
+### Patch Changes
+
+- b0bd55d: fix: proxy error and side menu bug
+
 ## 0.5.21
 
 ### Patch Changes
