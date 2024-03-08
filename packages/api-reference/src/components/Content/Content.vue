@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useResizeObserver } from '@vueuse/core'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 import { hasModels } from '../../helpers'
 import { useNavState, useRefOnMount } from '../../hooks'
@@ -20,15 +19,7 @@ const props = defineProps<{
   layout?: 'default' | 'accordion'
 }>()
 
-const referenceEl = ref<HTMLElement | null>(null)
-const isNarrow = ref(true)
-
 const { getOperationId, getTagId } = useNavState()
-
-useResizeObserver(
-  referenceEl,
-  (entries) => (isNarrow.value = entries[0].contentRect.width < 900),
-)
 
 const fallBackServer = useRefOnMount(() => {
   return {
@@ -75,11 +66,7 @@ const isLazy =
   !window.location.hash.startsWith('#model')
 </script>
 <template>
-  <div
-    ref="referenceEl"
-    :class="{
-      'references-narrow': isNarrow,
-    }">
+  <div class="narrow-references-container">
     <slot name="start" />
 
     <Loading
@@ -146,6 +133,12 @@ const isLazy =
     <slot name="end" />
   </div>
 </template>
+<style>
+.narrow-references-container {
+  container-name: narrow-references-container;
+  container-type: inline-size;
+}
+</style>
 <style scoped>
 .render-loading {
   height: calc(var(--full-height) - var(--refs-header-height));
@@ -175,9 +168,11 @@ const isLazy =
     max-width: 100%;
   }
 }
-.references-narrow .introduction-cards-row {
-  flex-direction: column;
-  align-items: stretch;
+@container (max-width: 900px) {
+  .introduction-cards-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 .references-classic .introduction-cards-row :deep(.card-footer),
 .references-classic .introduction-cards-row :deep(.scalar-card),

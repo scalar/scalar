@@ -21,11 +21,10 @@ withDefaults(
 </template>
 
 <style scoped>
-.section-content {
-}
-
-.references-narrow .section-content--with-columns {
-  flex-direction: column;
-  gap: 24px;
+@container narrow-references-container (max-width: 900px) {
+  .section-content--with-columns {
+    flex-direction: column;
+    gap: 24px;
+  }
 }
 </style>
