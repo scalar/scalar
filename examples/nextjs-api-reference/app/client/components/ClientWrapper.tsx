@@ -1,7 +1,6 @@
 'use client'
 
 import { ApiClientReact } from '@scalar/api-client-react'
-import { ApiReferenceReact } from '@scalar/api-reference-react'
 import React, { useState } from 'react'
 
 export const ClientWrapper = () => {
@@ -22,8 +21,6 @@ export const ClientWrapper = () => {
           path: '/simpsons/products',
         }}
       />
-
-      <ApiReferenceReact configuration={{}} />
     </div>
   )
 }

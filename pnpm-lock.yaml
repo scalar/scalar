@@ -411,9 +411,6 @@ importers:
       '@scalar/api-client-react':
         specifier: workspace:*
         version: link:../../packages/api-client-react
-      '@scalar/api-reference-react':
-        specifier: workspace:*
-        version: link:../../packages/api-reference-react
       '@scalar/nextjs-api-reference':
         specifier: workspace:*
         version: link:../../packages/nextjs-api-reference
