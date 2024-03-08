@@ -4,7 +4,6 @@ on:
   schedule:
     # every hour
     - cron: '0 * * * *'
-  push:
 
 jobs:
   test:
