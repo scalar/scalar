@@ -1,5 +1,6 @@
 {
   "name": "root",
+  "type": "module",
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
     "@playwright/test": "^1.42.0",

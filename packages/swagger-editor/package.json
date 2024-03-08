@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@scalar/components": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@vueuse/core": "^10.4.1"

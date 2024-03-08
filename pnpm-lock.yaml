@@ -782,6 +782,9 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
+      '@scalar/oas-utils':
+        specifier: workspace:*
+        version: link:../oas-utils
       '@scalar/snippetz':
         specifier: ^0.1.5
         version: 0.1.5
@@ -1382,6 +1385,9 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
+      '@scalar/oas-utils':
+        specifier: workspace:*
+        version: link:../oas-utils
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
