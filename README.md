@@ -134,19 +134,23 @@ You can [pass props to customize the API reference](https://github.com/scalar/sc
 
 ### With React
 
-The API Reference package is written in Vue. That shouldn’t stop you from using it in React, though. You can use [veaury](https://github.com/devilwjp/veaury) to load the `<APIReference />` component in React:
+The API Reference package is written in Vue, that shouldn’t stop you from using
+it in React though! We have created a client side (untested on SSR/SSG) wrapper
+in react.
 
 ```ts
-import { ApiReference as VueComponent } from '@scalar/api-reference'
-import { applyVueInReact } from 'veaury'
-
-const ApiReference = applyVueInReact(VueComponent)
+import { ApiReferenceReact } from '@scalar/api-reference-react'
+import React from 'react'
 
 function App() {
   return (
-    <>
-      <ApiReference configuration={{ isEditable: true }} />
-    </>
+    <ApiReferenceReact
+      configuration={{
+        spec: {
+          url: 'https://petstore.swagger.io/v2/swagger.json',
+        },
+      }}
+    />
   )
 }
 
