@@ -29,8 +29,10 @@ export const fetchSpecFromUrl = async (
     )
   }
 
-  const payload = await response.text()
+  const payload = proxy
+    ? String((await response.json()).data)
+    : await response.text()
 
   // Formats the JSON if provided
-  return parseObject ? loadJsonOrYamlString(payload) : loadJsonOrYaml(payload)
+  return parseObject ? loadJsonOrYaml(payload) : loadJsonOrYamlString(payload)
 }

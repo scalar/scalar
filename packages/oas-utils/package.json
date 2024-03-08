@@ -22,6 +22,7 @@
     "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
     "test": "vitest",
+    "test:unit": "vitest .",
     "types:build": "tsc -p tsconfig.build.json",
     "types:check": "tsc --noEmit --skipLibCheck --composite false"
   },
@@ -57,6 +58,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "tsc-alias": "^1.8.8",
-    "vite": "^5.1.1"
+    "vite": "^5.1.1",
+    "vitest": "^1.2.2"
   }
 }
