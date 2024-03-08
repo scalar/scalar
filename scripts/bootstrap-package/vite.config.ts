@@ -24,7 +24,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: [...Object.keys(pkg?.peerDependencies || {})],
+      external: [...Object.keys((pkg as any).peerDependencies || {})],
       output: {
         // Create a separate file for the dependency bundle
         manualChunks: (id) =>
