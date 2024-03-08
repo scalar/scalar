@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.18.3
+
+### Patch Changes
+
+- 5ffe3b6: fix: duplicate border top
+- bc9f965: fix: add deprecated path to classic layout
+
 ## 1.18.2
 
 ### Patch Changes
