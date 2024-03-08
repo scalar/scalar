@@ -44,7 +44,7 @@ watch(hash, (newHash, oldHash) => {
 <template>
   <ApiReferenceLayout
     :class="{ 'scalar-api-references-standalone-mobile': isMobile }"
-    :configuration="configuration"
+    :configuration="config"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec">
     <template
