@@ -8,7 +8,9 @@ export type NestJSReferenceConfiguration = ReferenceConfiguration & {
   cdn?: string
 }
 
-export type ApiReferenceOptions = ReferenceConfiguration
+export type ApiReferenceOptions = ReferenceConfiguration & {
+  cdn?: string
+}
 
 /**
  * The custom theme CSS for the API Reference.
