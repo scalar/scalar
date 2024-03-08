@@ -10,19 +10,20 @@
     "node": ">=18"
   },
   "scripts": {
+    "build": "pnpm types:check && pnpm build-only",
+    "build-only": "vite build",
     "dev": "vite",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
   "dependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "veaury": "^2.3.12",
-    "vue": "^3.3.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@scalar/api-reference": "workspace:*",
+    "@scalar/api-reference-react": "workspace:*",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^6.21.0",

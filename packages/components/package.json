@@ -48,8 +48,7 @@
     "cva": "1.0.0-beta.1",
     "nanoid": "^5.0.1",
     "prismjs": "^1.29.0",
-    "tailwind-merge": "^2.0.0",
-    "vue": "^3.3.0"
+    "tailwind-merge": "^2.0.0"
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",
@@ -75,8 +74,6 @@
     "plugins": "^0.4.2",
     "postcss": "^8.4.31",
     "postcss-prefix-selector": "^1.16.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "storybook": "^7.5.2",
     "storybook-dark-mode": "^3.0.1",
     "tailwindcss": "^3.3.3",
@@ -86,6 +83,10 @@
     "vite-plugin-css-injected-by-js": "^3.4.0",
     "vite-plugin-dts": "^3.6.3",
     "vitest": "^1.2.2",
+    "vue": "^3.3.0",
     "vue-tsc": "^1.8.19"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0"
   }
 }

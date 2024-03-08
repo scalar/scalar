@@ -1,6 +1,6 @@
 {
-  "name": "@scalar/api-client-react",
-  "description": "the open source API testing client for react",
+  "name": "@scalar/api-reference-react",
+  "description": "The react client only integration for api references",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -8,15 +8,14 @@
   "keywords": [
     "api",
     "client",
-    "graphql",
     "postman alternative",
     "rest",
     "testing",
     "react"
   ],
-  "version": "0.1.6",
+  "version": "0.0.1",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "pnpm types:check && pnpm build-only",
@@ -27,7 +26,7 @@
   },
   "type": "module",
   "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "dist/index.d.ts",
   "exports": "./dist/index.js",
   "files": [
     "dist",
@@ -37,20 +36,22 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/api-client-react"
+    "directory": "packages/docusaurus"
   },
   "dependencies": {
-    "@scalar/api-client": "workspace:*"
+    "@scalar/api-reference": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.2.1",
+    "character-entities": "^2.0.2",
+    "decode-named-character-reference": "^1.0.2",
     "path": "^0.12.7",
     "react": "^18.2.0",
     "vite": "^5.1.1",
-    "vite-plugin-css-injected-by-js": "^3.4.0",
     "vite-plugin-dts": "^3.6.3",
+    "vite-plugin-node-polyfills": "^0.21.0",
     "vue": "^3.3.0"
   },
   "peerDependencies": {

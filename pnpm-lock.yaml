@@ -445,16 +445,10 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
-      veaury:
-        specifier: ^2.3.12
-        version: 2.3.15(react-dom@18.2.0)(react@18.2.0)
-      vue:
-        specifier: ^3.3.0
-        version: 3.4.21(typescript@5.4.2)
     devDependencies:
-      '@scalar/api-reference':
+      '@scalar/api-reference-react':
         specifier: workspace:*
-        version: link:../../packages/api-reference
+        version: link:../../packages/api-reference-react
       '@types/react':
         specifier: ^18.2.60
         version: 18.2.60
@@ -622,9 +616,6 @@ importers:
       pretty-ms:
         specifier: ^8.0.0
         version: 8.0.0
-      vue:
-        specifier: ^3.3.0
-        version: 3.4.21(typescript@5.4.2)
     devDependencies:
       '@scalar/api-client-proxy':
         specifier: workspace:*
@@ -653,6 +644,9 @@ importers:
       vitest:
         specifier: ^1.2.2
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
+      vue:
+        specifier: ^3.3.0
+        version: 3.4.21(typescript@5.4.2)
       vue-tsc:
         specifier: ^1.8.19
         version: 1.8.27(typescript@5.4.2)
@@ -705,12 +699,6 @@ importers:
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../api-client
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      vue:
-        specifier: ^3.3.0
-        version: 3.4.21(typescript@5.4.2)
     devDependencies:
       '@types/react':
         specifier: ^18.2.60
@@ -724,6 +712,9 @@ importers:
       path:
         specifier: ^0.12.7
         version: 0.12.7
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
       vite:
         specifier: ^5.1.1
         version: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
@@ -733,6 +724,9 @@ importers:
       vite-plugin-dts:
         specifier: ^3.6.3
         version: 3.7.3(@types/node@20.11.22)(typescript@5.4.2)(vite@5.1.4)
+      vue:
+        specifier: ^3.3.0
+        version: 3.4.21(typescript@5.4.2)
 
   packages/api-reference:
     dependencies:
@@ -881,12 +875,6 @@ importers:
       postcss:
         specifier: ^8.4.31
         version: 8.4.35
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
       rollup-plugin-webpack-stats:
         specifier: ^0.2.4
         version: 0.2.4(rollup@4.12.0)
@@ -915,6 +903,46 @@ importers:
         specifier: ^1.8.19
         version: 1.8.27(typescript@5.4.2)
 
+  packages/api-reference-react:
+    dependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../api-reference
+    devDependencies:
+      '@types/react':
+        specifier: ^18.2.60
+        version: 18.2.60
+      '@types/react-dom':
+        specifier: ^18.2.19
+        version: 18.2.19
+      '@vitejs/plugin-react':
+        specifier: ^4.2.1
+        version: 4.2.1(vite@5.1.4)
+      character-entities:
+        specifier: ^2.0.2
+        version: 2.0.2
+      decode-named-character-reference:
+        specifier: ^1.0.2
+        version: 1.0.2
+      path:
+        specifier: ^0.12.7
+        version: 0.12.7
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      vite:
+        specifier: ^5.1.1
+        version: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
+      vite-plugin-dts:
+        specifier: ^3.6.3
+        version: 3.7.3(@types/node@20.11.22)(typescript@5.4.2)(vite@5.1.4)
+      vite-plugin-node-polyfills:
+        specifier: ^0.21.0
+        version: 0.21.0(rollup@4.12.0)(vite@5.1.4)
+      vue:
+        specifier: ^3.3.0
+        version: 3.4.21(typescript@5.4.2)
+
   packages/components:
     dependencies:
       '@headlessui/vue':
@@ -941,9 +969,6 @@ importers:
       tailwind-merge:
         specifier: ^2.0.0
         version: 2.2.1
-      vue:
-        specifier: ^3.3.0
-        version: 3.4.21(typescript@5.4.2)
     devDependencies:
       '@etchteam/storybook-addon-css-variables-theme':
         specifier: ^1.5.1
@@ -1014,12 +1039,6 @@ importers:
       postcss-prefix-selector:
         specifier: ^1.16.0
         version: 1.16.0(postcss@8.4.35)
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
       storybook:
         specifier: ^7.5.2
         version: 7.6.17
@@ -1047,6 +1066,9 @@ importers:
       vitest:
         specifier: ^1.2.2
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
+      vue:
+        specifier: ^3.3.0
+        version: 3.4.21(typescript@5.4.2)
       vue-tsc:
         specifier: ^1.8.19
         version: 1.8.27(typescript@5.4.2)
@@ -1257,9 +1279,6 @@ importers:
       '@vueuse/core':
         specifier: ^10.4.1
         version: 10.9.0(vue@3.4.21)
-      vue:
-        specifier: ^3.3.0
-        version: 3.4.21(typescript@5.4.2)
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
@@ -1279,6 +1298,9 @@ importers:
       vitest:
         specifier: ^1.2.2
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
+      vue:
+        specifier: ^3.3.0
+        version: 3.4.21(typescript@5.4.2)
       vue-tsc:
         specifier: ^1.8.19
         version: 1.8.27(typescript@5.4.2)
@@ -8584,7 +8606,6 @@ packages:
 
   /character-entities@2.0.2:
     resolution: {integrity: sha512-shx7oQ0Awen/BRIdkjkvz54PnEEI/EjwXDSIZp86/KKdbafHh1Df/RYGBhn4hbe2+uKC9FnT5UCEdyPz3ai9hQ==}
-    dev: false
 
   /character-parser@2.2.0:
     resolution: {integrity: sha512-+UqJQjFEFaTAs3bNsF2j2kEN1baG/zghZbdqoYEDxGZtJo9LBzl1A+m0D4n3qKx8N2FNv8/Xp6yV9mQmBuptaw==}
@@ -9280,7 +9301,6 @@ packages:
     resolution: {integrity: sha512-O8x12RzrUF8xyVcY0KJowWsmaJxQbmy0/EtnNtHRpsOcT7dFk5W598coHqBVpmWo1oQQfsCqfCmkZN5DJrZVdg==}
     dependencies:
       character-entities: 2.0.2
-    dev: false
 
   /decode-uri-component@0.4.1:
     resolution: {integrity: sha512-+8VxcR21HhTy8nOt6jf20w0c9CADrw1O8d+VZ/YzzCt4bJ3uBjw+D1q2osAB8RnpwwaeYBxy0HyKQxD5JBMuuQ==}
@@ -17798,16 +17818,6 @@ packages:
   /vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
-
-  /veaury@2.3.15(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-+pCJlmRMlpZbg4kPeRwjsKtHdVVIGfWNBIWGrbXMr9lyltqEjF+iVA2TP6B3szEbkGdHDqndOgiz8kZOu1DYoQ==}
-    peerDependencies:
-      react: '>= 16.4.0'
-      react-dom: '>= 16.4.0'
-    dependencies:
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: false
 
   /vfile-location@5.0.2:
     resolution: {integrity: sha512-NXPYyxyBSH7zB5U6+3uDdd6Nybz6o6/od9rk8bp9H8GR3L+cm/fC0uUTbqBmUTnMCUDslAGBOIKNfvvb+gGlDg==}

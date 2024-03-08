@@ -1,15 +1,15 @@
-import { ApiReference as VueComponent } from '@scalar/api-reference'
-import { applyVueInReact } from 'veaury'
-
-const ApiReference = applyVueInReact(VueComponent)
+import { ApiReferenceReact } from '@scalar/api-reference-react'
+import React from 'react'
 
 function App() {
   return (
-    <>
-      {/* Explanation: https://github.com/devilwjp/veaury#typescript-jsx-types-conflict-caused-by-vue-and-react-at-the-same-time
-      // @ts-ignore */}
-      <ApiReference configuration={{ isEditable: true }} />
-    </>
+    <ApiReferenceReact
+      configuration={{
+        spec: {
+          url: 'https://petstore.swagger.io/v2/swagger.json',
+        },
+      }}
+    />
   )
 }
 

@@ -30,6 +30,9 @@ export default defineConfig({
       name: '@scalar/themes',
       formats: ['es'],
     },
+    rollupOptions: {
+      external: ['vue'],
+    },
   },
   test: {
     coverage: {
