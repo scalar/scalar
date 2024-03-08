@@ -4,7 +4,7 @@
     "@changesets/cli": "^2.27.1",
     "@playwright/test": "^1.42.0",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "@types/node": "^20.6.3",
+    "@types/node": "^20.8.4",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "@vitest/coverage-v8": "^1.2.2",
@@ -52,8 +52,20 @@
     "pack:packages": "./scripts/pack.sh",
     "preview:standalone": "pnpm --filter api-reference preview:standalone",
     "test": "vitest",
+    "test:ci": "CI=1 vitest --silent",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "types:check": "pnpm -r types:check"
+    "types:check": "pnpm -r types:check",
+    "bootstrap:package": "vite-node scripts/bootstrap-package/bootstrap-package.ts"
+  },
+  "exports": {
+    "./css/*.css": {
+      "import": "./dist/css/*.css",
+      "require": "./dist/css/*.css"
+    },
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css"
+    }
   }
 }

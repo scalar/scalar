@@ -1,0 +1,48 @@
+{
+  "name": "@scalar/build-tooling",
+  "description": "Build tooling and helpers",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "keywords": [],
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "rollup -c rollup.config.js && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "dev": "vite",
+    "format": "pnpm prettier --write --ignore-path=../../.prettierignore .",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "dotenv -o -- vite preview",
+    "types:check": "tsc --noEmit"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "nx": {
+    "tags": [
+      "scope:package"
+    ]
+  },
+  "dependencies": {
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/node": "^20.8.4",
+    "glob": "^10.3.10",
+    "rollup-plugin-dts": "^6.1.0",
+    "tsc-alias": "^1.8.8",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.4.2",
+    "vitest": "^1.2.2"
+  },
+  "devDependencies": {
+    "rollup": "^4.12.0"
+  }
+}
