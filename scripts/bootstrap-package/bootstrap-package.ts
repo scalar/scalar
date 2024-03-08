@@ -39,7 +39,16 @@ if (!useVue) {
   delete newPackageFile.peerDependencies.vue
   delete newPackageFile.devDependencies['@vitejs/plugin-vue']
   delete newPackageFile.devDependencies['vite-svg-loader']
+
+  // Need to switch type checker
+  newPackageFile.scripts['types:build'] = newPackageFile.scripts[
+    'types:build'
+  ].replaceAll('vue-tsc', 'tsc')
+  newPackageFile.scripts['types:check'] = newPackageFile.scripts[
+    'types:check'
+  ].replaceAll('vue-tsc', 'tsc')
 }
+newPackageFile.peerDependencies = newPackageFile.peerDependencies || {}
 
 const dirs = (await fs.readdir('./packages', { withFileTypes: true }))
   .filter((e) => e.isDirectory())
@@ -66,6 +75,8 @@ if (dirs.includes(name)) {
     `${newDirName}/package.json`,
     JSON.stringify(newPackageFile, null, 2),
   )
+
+  await fs.writeFile(`${newDirName}/index.ts`, '')
 
   console.log(`\x1b[33m Package created! Checkout ./packages/${name} \x1b[0m`)
 }

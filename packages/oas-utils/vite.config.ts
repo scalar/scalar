@@ -1,13 +1,11 @@
 import { findEntryPoints } from '@scalar/build-tooling'
-import vue from '@vitejs/plugin-vue'
 import { URL, fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
-import svgLoader from 'vite-svg-loader'
 
 import pkg from './package.json'
 
 export default defineConfig({
-  plugins: [vue(), svgLoader()],
+  plugins: [],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -26,7 +24,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: [...Object.keys(pkg?.peerDependencies || {})],
+      external: [...Object.keys(pkg.peerDependencies || {})],
       output: {
         // Create a separate file for the dependency bundle
         manualChunks: (id) =>

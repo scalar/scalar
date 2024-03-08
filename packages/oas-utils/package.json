@@ -1,11 +1,16 @@
 {
-  "name": "bootstrap-package",
-  "description": "package description...",
+  "name": "@scalar/oas-utils",
+  "description": "Open API spec and Yaml handling utilities",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
-  "keywords": [],
+  "keywords": [
+    "oas",
+    "fetching",
+    "specification",
+    "yaml"
+  ],
   "version": "0.0.1",
   "engines": {
     "node": ">=20"
@@ -17,13 +22,24 @@
     "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
     "test": "vitest",
-    "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
+    "types:build": "tsc -p tsconfig.build.json",
+    "types:check": "tsc --noEmit --skipLibCheck --composite false"
   },
   "type": "module",
   "main": "dist/index.js",
   "exports": {
-    "import": "./dist/index.js"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./css/*.css": {
+      "import": "./dist/css/*.css",
+      "require": "./dist/css/*.css"
+    },
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css"
+    }
   },
   "files": [
     "dist",
@@ -33,17 +49,14 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/bootstrap-package"
+    "directory": "packages/oas-utils"
+  },
+  "dependencies": {
+    "yaml": "^2.4.1"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "^5.0.4",
-    "vite": "^5.1.1",
-    "vite-svg-loader": "^5.1.0",
-    "vue": "^3.3.0",
-    "tsc-alias": "^1.8.8"
-  },
-  "peerDependencies": {
-    "vue": "^3.3.0"
+    "tsc-alias": "^1.8.8",
+    "vite": "^5.1.1"
   }
 }
