@@ -1,5 +1,16 @@
 # @scalar/nextjs-api-reference
 
+## 0.1.46
+
+### Patch Changes
+
+- ddc9b17: fix: re-added moving the components css into js so importing the css file is no longer needed
+- ef3a015: chore: update to typescript 5.4
+- Updated dependencies [ddc9b17]
+- Updated dependencies [775646a]
+- Updated dependencies [ef3a015]
+  - @scalar/api-reference@1.18.2
+
 ## 0.1.45
 
 ### Patch Changes

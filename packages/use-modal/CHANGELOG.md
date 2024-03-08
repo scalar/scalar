@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.2.9
+
+### Patch Changes
+
+- ef3a015: chore: update to typescript 5.4
+
 ## 0.2.8
 
 ### Patch Changes

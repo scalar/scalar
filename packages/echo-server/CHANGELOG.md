@@ -1,5 +1,11 @@
 # @scalar/echo-server
 
+## 0.5.14
+
+### Patch Changes
+
+- ef3a015: chore: update to typescript 5.4
+
 ## 0.5.13
 
 ### Patch Changes

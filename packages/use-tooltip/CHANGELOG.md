@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 0.5.12
+
+### Patch Changes
+
+- ef3a015: chore: update to typescript 5.4
+
 ## 0.5.11
 
 ### Patch Changes
