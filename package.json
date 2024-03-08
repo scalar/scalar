@@ -4,11 +4,12 @@
     "@changesets/cli": "^2.27.1",
     "@playwright/test": "^1.42.0",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "@types/node": "^20.6.3",
+    "@types/node": "^20.8.4",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "@vitest/coverage-v8": "^1.2.2",
     "@vue/eslint-config-typescript": "^12.0.0",
+    "bun": "^1.0.30",
     "concurrently": "^8.2.2",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
@@ -51,6 +52,7 @@
     "test": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "types:check": "pnpm -r types:check"
+    "types:check": "pnpm -r types:check",
+    "bootstrap:package": "bun scripts/bootstrap-package/bootstrap-package.ts"
   }
 }
