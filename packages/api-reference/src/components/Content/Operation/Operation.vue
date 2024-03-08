@@ -67,6 +67,7 @@ const customRequestExamples = computed(() => {
               <template #header>
                 <EndpointPath
                   class="example-path"
+                  :deprecated="operation.information?.deprecated"
                   :path="operation.path" />
               </template>
               <template #footer>
@@ -79,6 +80,7 @@ const customRequestExamples = computed(() => {
               <template #header>
                 <EndpointPath
                   class="example-path"
+                  :deprecated="operation.information?.deprecated"
                   :path="operation.path" />
               </template>
               <template #footer>

@@ -37,7 +37,9 @@ const { copyToClipboard } = useClipboard()
             class="endpoint-anchor">
             <div class="endpoint-label">
               <div class="endpoint-label-path">
-                <EndpointPath :path="operation.path" />
+                <EndpointPath
+                  :deprecated="operation.information?.deprecated"
+                  :path="operation.path" />
               </div>
               <div class="endpoint-label-name">{{ operation.name }}</div>
             </div>

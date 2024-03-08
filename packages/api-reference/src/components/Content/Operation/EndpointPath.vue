@@ -3,6 +3,7 @@ import { computed } from 'vue'
 
 const props = defineProps<{
   path: string
+  deprecated?: boolean
 }>()
 
 const isVariable = (part: string) => part.startsWith('{') && part.endsWith('}')
@@ -11,7 +12,9 @@ const isVariable = (part: string) => part.startsWith('{') && part.endsWith('}')
 const pathParts = computed<string[]>(() => props.path.split(/({[^}]+})/))
 </script>
 <template>
-  <span class="endpoint-path">
+  <span
+    class="endpoint-path"
+    :class="{ deprecated: deprecated }">
     <template
       v-for="(part, i) in pathParts"
       :key="i">
@@ -25,5 +28,8 @@ const pathParts = computed<string[]>(() => props.path.split(/({[^}]+})/))
   overflow: hidden;
   word-wrap: break-word;
   font-weight: var(--theme-bold, var(--default-theme-bold));
+}
+.deprecated {
+  text-decoration: line-through;
 }
 </style>
