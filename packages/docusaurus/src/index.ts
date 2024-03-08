@@ -3,10 +3,9 @@ import { type ReferenceProps } from '@scalar/api-reference-react'
 import path from 'path'
 
 export type ScalarOptions = {
-  configuration: Omit<ReferenceProps['configuration'], 'theme'>
   label: string
   route: string
-}
+} & ReferenceProps
 
 /**
  * Scalar's Docusaurus plugin for Api References

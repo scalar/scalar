@@ -24,7 +24,6 @@
     "lint:fix": "eslint .  --fix",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
-  "type": "module",
   "main": "./dist/index.js",
   "files": [
     "src",
