@@ -49,9 +49,20 @@
     "lint:fix": "pnpm -r lint:fix",
     "preview:standalone": "pnpm --filter api-reference preview:standalone",
     "test": "vitest",
+    "test:ci": "CI=1 vitest --silent",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "types:check": "pnpm -r types:check",
     "bootstrap:package": "vite-node scripts/bootstrap-package/bootstrap-package.ts"
+  },
+  "exports": {
+    "./css/*.css": {
+      "import": "./dist/css/*.css",
+      "require": "./dist/css/*.css"
+    },
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css"
+    }
   }
 }

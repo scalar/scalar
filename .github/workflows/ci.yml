@@ -1,4 +1,4 @@
-name: CI
+name: Check build, types, and units tests are passing
 
 on:
   pull_request:
@@ -34,7 +34,7 @@ jobs:
       - name: Check types
         run: pnpm turbo types:check
       - name: Run tests
-        run: pnpm test
+        run: pnpm test:ci
       - if: matrix.node-version == 20
         name: Send bundle stats and build information to RelativeCI
         uses: relative-ci/agent-action@v2
