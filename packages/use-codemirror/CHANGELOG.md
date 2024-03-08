@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.8.9
+
+### Patch Changes
+
+- ef3a015: chore: update to typescript 5.4
+
 ## 0.8.8
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.6.2
+
+### Patch Changes
+
+- ddc9b17: fix: re-added moving the components css into js so importing the css file is no longer needed
+- 775646a: fix: removed extra copy of vue from themes and some dependencies
+- ef3a015: chore: update to typescript 5.4
+
 ## 0.6.1
 
 ### Patch Changes

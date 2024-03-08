@@ -1,5 +1,11 @@
 # @scalar/swagger-parser
 
+## 0.5.21
+
+### Patch Changes
+
+- ef3a015: chore: update to typescript 5.4
+
 ## 0.5.20
 
 ### Patch Changes
