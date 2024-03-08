@@ -3,6 +3,10 @@
 **/.hg
 **/node_modules
 **/dist/**
+**/.turbo/**
+**/.docusaurus/**
+**/build/**
+**/.next/**
 
 /venv/
 **/venv
@@ -16,3 +20,5 @@ cdn
 fixtures
 .vite-ssg-temp
 .next
+
+examples/docusaurus/**/*.mdx
