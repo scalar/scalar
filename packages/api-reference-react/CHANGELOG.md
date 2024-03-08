@@ -1,5 +1,11 @@
 # @scalar/api-reference-react
 
+## 0.0.4
+
+### Patch Changes
+
+- f18b3f1: feat: added docusaurus plugin and example
+
 ## 0.0.3
 
 ### Patch Changes
