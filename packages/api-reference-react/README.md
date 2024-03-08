@@ -15,38 +15,27 @@ npm install @scalar/api-reference-react
 ## Usage
 
 ```ts
-import { ApiClientReact } from '@scalar/api-client-react'
-import React, { useState } from 'react'
+import { ApiReferenceReact } from '@scalar/api-reference-react'
+import React from 'react'
 
-export const Wrapper = () => {
-  const [isOpen, setIsOpen] = useState(false)
-
+function App() {
   return (
-    <>
-      <button onClick={() => setIsOpen(true)}>
-        Click me to open the Api Client
-      </button>
-
-      <ApiClientReact
-        close={() => setIsOpen(false)}
-        isOpen={isOpen}
-        request={{
-          url: 'https://api.sampleapis.com',
-          type: 'GET',
-          path: '/simpsons/products',
-        }}
-      />
-    </>
+    <ApiReferenceReact
+      configuration={{
+        spec: {
+          url: 'https://petstore.swagger.io/v2/swagger.json',
+        },
+      }}
+    />
   )
 }
+
+export default App
 ```
 
-You will also need one of the following classes on a parent element:
+### Example
 
-```css
-.dark-mode
-.light-mode
-```
+You can find an example in this repo under [examples/react](https://github.com/scalar/scalar/tree/main/examples/react)
 
 ## Props
 
@@ -54,26 +43,77 @@ ApiReference only takes one prop which is the configuration object.
 
 ### configuration: ReferenceProps
 
+You can find the full configuration options under
+[packages/api-reference](https://github.com/scalar/scalar/tree/main/packages/api-reference).
+Here are the type definitions:
+
 ```ts
-export type ClientRequestConfig = {
-  id?: string
-  name?: string
-  url: string
-  /** HTTP Request Method */
-  type: string
-  /** Request path */
-  path: string
-  /** Variables */
-  variables?: BaseParameter[]
-  /** Query parameters */
-  query?: Query[]
-  /** Cookies */
-  cookies?: Cookie[]
-  /** Request headers */
-  headers?: Header[]
-  /** Content type matched body */
-  body?: string
-  /** Optional form data body */
-  formData?: FormDataItem[]
+export type ReferenceProps = {
+  configuration?: {
+    /** A string to use one of the color presets */
+    theme?: ThemeId
+    /** The layout to use for the references */
+    layout?: ReferenceLayoutType
+    /** The Swagger/OpenAPI spec to render */
+    spec?: {
+      /** URL to a Swagger/OpenAPI file */
+      url?: string
+      /** Swagger/Open API spec */
+      content?: string | Record<string, any> | (() => Record<string, any>)
+    }
+    /** URL to a request proxy for the API client */
+    proxy?: string
+    /** Whether the spec input should show */
+    isEditable?: boolean
+    /** Whether to show the sidebar */
+    showSidebar?: boolean
+    /** Whether dark mode is on or off (light mode) */
+    darkMode?: boolean
+    /** Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
+    searchHotKey?:
+      | 'a'
+      | 'b'
+      | 'c'
+      | 'd'
+      | 'e'
+      | 'f'
+      | 'g'
+      | 'h'
+      | 'i'
+      | 'j'
+      | 'k'
+      | 'l'
+      | 'm'
+      | 'n'
+      | 'o'
+      | 'p'
+      | 'q'
+      | 'r'
+      | 's'
+      | 't'
+      | 'u'
+      | 'v'
+      | 'w'
+      | 'x'
+      | 'y'
+      | 'z'
+    /**
+     * If used, passed data will be added to the HTML header
+     * @see https://unhead.unjs.io/usage/composables/use-seo-meta
+     * */
+    metaData?: MetaFlatInput
+    /**
+     * List of httpsnippet clients to hide from the clients menu
+     * By default hides Unirest, pass `[]` to show all clients
+     * @see https://github.com/Kong/httpsnippet/wiki/Targets
+     */
+    hiddenClients?: string[]
+    /** Custom CSS to be added to the page */
+    customCss?: string
+    /** onSpecUpdate is fired on spec/swagger content change */
+    onSpecUpdate?: (spec: string) => void
+    /** Prefill authentication */
+    authentication?: Partial<AuthenticationState>
+  }
 }
 ```
