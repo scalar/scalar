@@ -1,22 +1,17 @@
 import { ApiReferenceReact } from '@scalar/api-reference-react'
+import React from 'react'
+
+import content from '../../web/src/fixtures/petstorev3.json'
 
 function App() {
   return (
-    <>
-      {/* Explanation: https://github.com/devilwjp/veaury#typescript-jsx-types-conflict-caused-by-vue-and-react-at-the-same-time
-      // @ts-ignore */}
-      <ApiReferenceReact
-        configuration={{
-          spec: {
-            content: {
-              openapi: '3.1.0',
-              info: { title: 'Example' },
-              paths: {},
-            },
-          },
-        }}
-      />
-    </>
+    <ApiReferenceReact
+      configuration={{
+        spec: {
+          content,
+        },
+      }}
+    />
   )
 }
 

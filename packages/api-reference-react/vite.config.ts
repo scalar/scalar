@@ -3,8 +3,6 @@ import * as path from 'path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
-import pkg from './package.json'
-
 export default defineConfig({
   build: {
     lib: {
@@ -23,9 +21,6 @@ export default defineConfig({
       // into your library
       external: ['react', 'react-dom'],
       output: {
-        preserveModules: true,
-        sourcemap: true,
-
         // Provide global variables to use in the UMD build
         // for externalized deps
         exports: 'named',
@@ -34,6 +29,17 @@ export default defineConfig({
           'react-dom': 'react-dom',
         },
       },
+    },
+  },
+  resolve: {
+    /**
+     * This is part of a temporary hack to allow this component to be used during
+     * SSR in next/docusaurus etc
+     * TODO remove this when we can point to the correct version of this by targeting server
+     */
+    alias: {
+      'decode-named-character-reference':
+        './node_modules/decode-named-character-reference/index.js',
     },
   },
   plugins: [react(), dts({ insertTypesEntry: true, rollupTypes: true })],
