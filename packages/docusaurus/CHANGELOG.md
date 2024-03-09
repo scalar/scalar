@@ -1,5 +1,13 @@
 # @scalar/docusaurus
 
+## 0.0.4
+
+### Patch Changes
+
+- 5cf4afa: style: replace resize observer with css container queries
+- Updated dependencies [5cf4afa]
+  - @scalar/api-reference-react@0.0.6
+
 ## 0.0.3
 
 ### Patch Changes

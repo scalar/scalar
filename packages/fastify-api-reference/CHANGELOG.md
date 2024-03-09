@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.18.5
+
+### Patch Changes
+
+- 5cf4afa: style: replace resize observer with css container queries
+
 ## 1.18.2
 
 ### Patch Changes
