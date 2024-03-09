@@ -1,4 +1,4 @@
-import { loadJsonOrYamlString } from './parse'
+import { formatJsonOrYamlString } from './parse'
 
 /** Fetches an OAS spec file from a given URL. */
 export async function fetchSpecFromUrl(
@@ -33,5 +33,5 @@ export async function fetchSpecFromUrl(
     : await response.text()
 
   // Formats the JSON if provided
-  return loadJsonOrYamlString(payload)
+  return formatJsonOrYamlString(payload)
 }

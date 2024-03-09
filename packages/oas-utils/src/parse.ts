@@ -10,17 +10,17 @@ export const yaml = {
   parse: (val: string) => {
     const yamlObject = parse(val)
     if (typeof yamlObject !== 'object') throw Error('Invalid YAML object')
-    return yamlObject
+    return yamlObject as AnyObject
   },
   /** Parse and return a fallback on failure */
   parseSafe<T extends PrimitiveOrObject>(
     val: string,
-    fallback: T | (() => T),
+    fallback: T | ((err: any) => T),
   ): AnyObject | T {
     try {
       return yaml.parse(val)
-    } catch {
-      return typeof fallback === 'function' ? fallback() : fallback
+    } catch (err: any) {
+      return typeof fallback === 'function' ? fallback(err) : fallback
     }
   },
   stringify,
@@ -37,12 +37,12 @@ export const json = {
   /** Parse and return a fallback on failure */
   parseSafe<T extends PrimitiveOrObject>(
     val: string,
-    fallback: T | (() => T),
+    fallback: T | ((err: any) => T),
   ): AnyObject | T {
     try {
       return json.parse(val)
-    } catch {
-      return typeof fallback === 'function' ? fallback() : fallback
+    } catch (err) {
+      return typeof fallback === 'function' ? fallback(err) : fallback
     }
   },
   stringify: (val: object) => JSON.stringify(val),
@@ -65,27 +65,8 @@ export const transformToJson = (value: string) => {
   return JSON.stringify(json.parseSafe(value, yaml.parseSafe(value, value)))
 }
 
-/** Parses a JSON or Yaml object or string into an object */
-export const loadJsonOrYaml = (value: string | AnyObject): AnyObject => {
-  if (typeof value === 'string') {
-    try {
-      return JSON.parse(value) as AnyObject
-    } catch (error) {
-      // String starts with { or [, so it’s probably JSON.
-      if (value.length > 0 && ['{', '['].includes(value[0])) {
-        throw error
-      }
-
-      // Then maybe it’s YAML?
-      return yaml.parse(value) as AnyObject
-    }
-  }
-
-  return value as AnyObject
-}
-
 /** Validates a JSON string if provided. Otherwise returns the raw Yaml */
-export function loadJsonOrYamlString(value: string) {
+export function formatJsonOrYamlString(value: string) {
   // If we don't start with a bracket assume yaml
   const trimmed = value.trim()
   if (trimmed[0] !== '{') return value
@@ -111,7 +92,7 @@ export const parseJsonOrYaml = (value: string | AnyObject): AnyObject => {
     throw Error('Invalid JSON or YAML')
   }
 
-  return yaml.parseSafe(value, () => {
-    throw Error('Invalid JSON or YAML')
+  return yaml.parseSafe(value, (err) => {
+    throw Error(err)
   })
 }
