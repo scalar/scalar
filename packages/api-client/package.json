@@ -57,6 +57,7 @@
   "devDependencies": {
     "@scalar/api-client-proxy": "workspace:*",
     "@scalar/echo-server": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
     "@types/content-type": "^1.1.6",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.2.2",
@@ -68,6 +69,7 @@
     "vue-tsc": "^1.8.19"
   },
   "peerDependencies": {
-    "vue": "^3.3.0"
+    "vue": "^3.3.0",
+    "@scalar/oas-utils": "workspace:*"
   }
 }

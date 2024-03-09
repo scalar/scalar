@@ -39,11 +39,10 @@
     "directory": "packages/swagger-parser"
   },
   "dependencies": {
-    "@apidevtools/swagger-parser": "^10.1.0",
-    "js-yaml": "^4.1.0"
+    "@apidevtools/swagger-parser": "^10.1.0"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.6",
+    "@scalar/oas-utils": "workspace:*",
     "@types/node": "^20.8.4",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.2.2",
@@ -53,5 +52,8 @@
     "typescript": "^5.4.2",
     "vite": "^5.1.1",
     "vitest": "^1.2.2"
+  },
+  "peerDependencies": {
+    "@scalar/oas-utils": "workspace:*"
   }
 }
