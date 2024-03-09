@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.2.73
+
+### Patch Changes
+
+- 5cf4afa: style: replace resize observer with css container queries
+- Updated dependencies [5cf4afa]
+  - @scalar/api-reference@1.18.5
+
 ## 0.2.72
 
 ### Patch Changes
