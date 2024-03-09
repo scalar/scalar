@@ -107,10 +107,19 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         </template>
         <template v-if="value.uniqueItems"> unique! </template>
         <template v-if="value.format"> &middot; {{ value.format }} </template>
+        <template v-if="value.minimum">
+          &middot; min: {{ value.minimum }}
+        </template>
+        <template v-if="value.maximum">
+          &middot; max: {{ value.maximum }}
+        </template>
         <template v-if="value.pattern">
           &middot; <code class="pattern">{{ value.pattern }}</code>
         </template>
         <template v-if="value.enum"> &middot; enum </template>
+        <template v-if="value.default">
+          &middot; default: {{ value.default }}
+        </template>
       </div>
       <div
         v-if="value?.writeOnly"
