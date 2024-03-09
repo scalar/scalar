@@ -9,9 +9,10 @@
   display: flex;
   gap: 48px;
 }
-
-.references-narrow .section-columns {
-  flex-direction: column;
-  gap: 24px;
+@container narrow-references-container (max-width: 900px) {
+  .section-columns {
+    flex-direction: column;
+    gap: 24px;
+  }
 }
 </style>

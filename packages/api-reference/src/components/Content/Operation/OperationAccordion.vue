@@ -191,8 +191,10 @@ const { copyToClipboard } = useClipboard()
   padding: 9px;
 }
 
-.references-narrow .endpoint-content {
-  grid-template-columns: 1fr;
+@container (max-width: 900px) {
+  .endpoint-content {
+    grid-template-columns: 1fr;
+  }
 }
 
 .endpoint-content > * {

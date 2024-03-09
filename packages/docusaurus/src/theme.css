@@ -271,8 +271,10 @@ html[data-theme='light'] .api-client-drawer {
 .tag-section-container .scalar-card {
   border: none !important;
 }
-.references-narrow .section {
-  padding-top: calc(var(--refs-header-height) + 48px) !important;
+@container narrow-references-container (max-width: 900px) {
+  .section {
+    padding-top: calc(var(--refs-header-height) + 48px) !important;
+  }
 }
 @media screen and (max-width: 996px) {
   .references-header {

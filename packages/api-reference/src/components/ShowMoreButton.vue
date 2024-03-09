@@ -54,9 +54,11 @@ const { setCollapsedSidebarItem } = useSidebar()
   box-shadow: 0 0 0 1px
     var(--theme-border-color, var(--default-theme-border-color));
 }
-.references-narrow .show-more {
-  margin-top: -25px;
-  margin-bottom: 25px;
+@container narrow-references-container (max-width: 900px) {
+  .show-more {
+    margin-top: -25px;
+    margin-bottom: 25px;
+  }
 }
 @media (max-width: 1165px) {
   .show-more {

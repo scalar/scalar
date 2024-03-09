@@ -50,8 +50,11 @@ function handleScroll() {
   padding: 48px 0;
   gap: 24px;
 }
-.references-narrow .section {
-  padding: calc(48px + var(--refs-header-height)) 24px 48px 24px;
+@container narrow-references-container (max-width: 900px) {
+  .references-classic .section,
+  .section {
+    padding: calc(48px + var(--refs-header-height)) 24px 48px 24px;
+  }
 }
 .section:not(:last-of-type) {
   border-bottom: 1px solid

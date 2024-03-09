@@ -72,12 +72,14 @@ import { ScalarIcon } from '@scalar/components'
 .section-accordion-title :deep(.section-header) {
   margin-bottom: 0;
 }
-.references-narrow .section-accordion-chevron {
-  width: 16px;
-  left: -16px;
-  top: 14px;
-}
-.references-narrow .section-accordion-wrapper {
-  padding: calc(var(--refs-header-height)) 24px 0 24px;
+@container narrow-references-container (max-width: 900px) {
+  .section-accordion-chevron {
+    width: 16px;
+    left: -16px;
+    top: 14px;
+  }
+  .section-accordion-wrapper {
+    padding: calc(var(--refs-header-height)) 24px 0 24px;
+  }
 }
 </style>

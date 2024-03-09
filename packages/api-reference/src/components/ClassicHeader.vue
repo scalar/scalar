@@ -18,14 +18,16 @@
   margin: auto;
   padding: 12px 0;
 }
-.references-narrow .references-classic-header {
-  padding: 12px 24px;
-}
 .references-classic-header-container {
   padding: 0 60px;
 }
-.references-narrow .references-classic-header-container {
-  padding: 0;
+@container narrow-references-container (max-width: 900px) {
+  .references-classic-header {
+    padding: 12px 24px;
+  }
+  .references-classic-header-container {
+    padding: 0;
+  }
 }
 .references-classic-header-icon {
   height: 24px;
