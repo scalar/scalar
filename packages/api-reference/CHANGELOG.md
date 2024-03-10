@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.18.6
+
+### Patch Changes
+
+- c1410e7: fix: render missing schema properties (minimum, maximum and default values)
+
 ## 1.18.5
 
 ### Patch Changes

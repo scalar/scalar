@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.0.5
+
+### Patch Changes
+
+- 1a074fe: fix: reduce node version to 18
+  - @scalar/api-reference-react@0.0.7
+
 ## 0.0.4
 
 ### Patch Changes
