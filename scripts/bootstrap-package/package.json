@@ -8,7 +8,7 @@
   "keywords": [],
   "version": "0.0.1",
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
