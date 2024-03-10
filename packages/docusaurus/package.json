@@ -16,7 +16,7 @@
   ],
   "version": "0.0.4",
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "build": "tsc --declaration && cp ./src/theme.css ./dist/",
