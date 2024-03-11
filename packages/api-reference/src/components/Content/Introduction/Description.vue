@@ -52,8 +52,10 @@ function handleScroll(headingId: string) {
 }
 </script>
 <template>
-  <template v-if="value">
-    <div
+  <div
+    v-if="value"
+    class="introduction-description">
+    <template
       v-for="(section, index) in sections"
       :key="index">
       <!-- With a Heading -->
@@ -73,12 +75,17 @@ function handleScroll(headingId: string) {
           :value="section.content"
           withImages />
       </template>
-    </div>
-  </template>
+    </template>
+  </div>
 </template>
 
 <style scoped>
 .introduction-description-heading {
   scroll-margin-top: 64px;
+}
+.introduction-description {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 </style>

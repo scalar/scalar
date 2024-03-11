@@ -108,7 +108,7 @@ watch(
 .markdown :deep(h5),
 .markdown :deep(h6) {
   font-size: var(--font-size, var(--default-font-size));
-  margin: 24px 0 6px;
+  margin: 18px 0 6px;
   font-weight: var(--theme-bold, var(--default-theme-bold));
   display: block;
   line-height: 1.45;
