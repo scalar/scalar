@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
 import { useNavState } from '../../../hooks'

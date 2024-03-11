@@ -772,8 +772,8 @@ importers:
         specifier: workspace:*
         version: link:../oas-utils
       '@scalar/openapi-parser':
-        specifier: ^0.3.0
-        version: 0.3.0
+        specifier: ^0.3.1
+        version: 0.3.1
       '@scalar/snippetz':
         specifier: ^0.1.5
         version: 0.1.5
@@ -813,9 +813,6 @@ importers:
       httpsnippet-lite:
         specifier: ^3.0.5
         version: 3.0.5
-      openapi-types:
-        specifier: ^12.1.3
-        version: 12.1.3
       postcss-nested:
         specifier: ^6.0.1
         version: 6.0.1(postcss@8.4.35)
@@ -6481,8 +6478,8 @@ packages:
       string-argv: 0.3.2
     dev: true
 
-  /@scalar/openapi-parser@0.3.0:
-    resolution: {integrity: sha512-Hxfb0MQGMDTCeRGW9kbA2lkqQ9kMfl5rp2dKSluohQ6LaJd9Hk71AWDFLA2yEqXV/EdHCP2VLmoaKs5QAmcRtw==}
+  /@scalar/openapi-parser@0.3.1:
+    resolution: {integrity: sha512-zEnYNVDPAVR7N9q64d2ohbjwNfR8Y+NU1xmWGus0w+bHlwiXWBzmuNCJbMPnmdLp9LoDUVDAv2rTKbam+QwdGw==}
     engines: {node: '>=18'}
     dependencies:
       '@humanwhocodes/momoa': 3.0.1
@@ -6495,7 +6492,7 @@ packages:
       leven: 4.0.0
       openapi-types: 12.1.3
       vite: 5.1.5(@types/node@20.11.22)
-      yaml: 2.4.0
+      yaml: 2.4.1
     transitivePeerDependencies:
       - less
       - lightningcss

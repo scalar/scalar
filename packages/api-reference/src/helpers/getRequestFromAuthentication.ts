@@ -1,5 +1,5 @@
+import type { OpenAPIV3 } from '@scalar/openapi-parser'
 import type { HarRequest } from 'httpsnippet-lite'
-import type { OpenAPIV3 } from 'openapi-types'
 
 import type { AuthenticationState } from '../types'
 

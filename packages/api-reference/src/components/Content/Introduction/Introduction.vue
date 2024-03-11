@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { type OpenAPIV2, type OpenAPIV3, type OpenAPIV3_1 } from 'openapi-types'
+import {
+  type OpenAPIV2,
+  type OpenAPIV3,
+  type OpenAPIV3_1,
+} from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
 import type { Spec } from '../../../types'
