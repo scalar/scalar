@@ -15,7 +15,7 @@
   ],
   "version": "0.0.7",
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "build": "pnpm types:check && pnpm build-only",
