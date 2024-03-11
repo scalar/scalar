@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.18.7
+
+### Patch Changes
+
+- cecf074: Migrate to oas utils for basic spec operations
+
 ## 1.18.5
 
 ### Patch Changes

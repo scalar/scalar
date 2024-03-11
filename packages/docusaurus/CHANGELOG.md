@@ -1,5 +1,13 @@
 # @scalar/docusaurus
 
+## 0.0.7
+
+### Patch Changes
+
+- cecf074: Migrate to oas utils for basic spec operations
+- Updated dependencies [cecf074]
+  - @scalar/api-reference-react@0.0.9
+
 ## 0.0.6
 
 ### Patch Changes

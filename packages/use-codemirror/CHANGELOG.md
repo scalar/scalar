@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.8.10
+
+### Patch Changes
+
+- cecf074: Migrate to oas utils for basic spec operations
+
 ## 0.8.9
 
 ### Patch Changes

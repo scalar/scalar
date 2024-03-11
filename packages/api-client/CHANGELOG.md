@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 0.12.18
+
+### Patch Changes
+
+- cecf074: Migrate to oas utils for basic spec operations
+- Updated dependencies [cecf074]
+  - @scalar/use-codemirror@0.8.10
+  - @scalar/oas-utils@0.0.4
+
 ## 0.12.17
 
 ### Patch Changes
