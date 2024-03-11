@@ -1,5 +1,11 @@
 # @scalar/echo-server
 
+## 0.6.0
+
+### Minor Changes
+
+- 7fb8273: Migrate to @scalar/openapi-parser
+
 ## 0.5.14
 
 ### Patch Changes

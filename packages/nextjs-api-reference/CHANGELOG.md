@@ -1,5 +1,19 @@
 # @scalar/nextjs-api-reference
 
+## 0.2.0
+
+### Minor Changes
+
+- 7fb8273: Migrate to @scalar/openapi-parser
+
+### Patch Changes
+
+- Updated dependencies [7b31aa3]
+- Updated dependencies [6036d25]
+- Updated dependencies [53eaa1e]
+- Updated dependencies [7fb8273]
+  - @scalar/api-reference@1.19.0
+
 ## 0.1.51
 
 ### Patch Changes

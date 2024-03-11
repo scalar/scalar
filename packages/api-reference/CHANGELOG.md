@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.19.0
+
+### Minor Changes
+
+- 7fb8273: Migrate to @scalar/openapi-parser
+
+### Patch Changes
+
+- 7b31aa3: fix: only remove margin from 1st paragraph
+- 6036d25: fix: allow application/vnd.api+json return type
+- 53eaa1e: Export getting started
+- Updated dependencies [6036d25]
+- Updated dependencies [7fb8273]
+  - @scalar/api-client@1.0.0
+  - @scalar/swagger-editor@1.0.0
+  - @scalar/oas-utils@0.1.0
+
 ## 1.18.7
 
 ### Patch Changes

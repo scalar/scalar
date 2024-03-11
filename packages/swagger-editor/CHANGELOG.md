@@ -1,5 +1,17 @@
 # @scalar/swagger-editor
 
+## 1.0.0
+
+### Minor Changes
+
+- 7fb8273: Migrate to @scalar/openapi-parser
+
+### Patch Changes
+
+- Updated dependencies [7fb8273]
+  - @scalar/use-codemirror@0.9.0
+  - @scalar/oas-utils@0.1.0
+
 ## 0.11.3
 
 ### Patch Changes

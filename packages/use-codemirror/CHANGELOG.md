@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.9.0
+
+### Minor Changes
+
+- 7fb8273: Migrate to @scalar/openapi-parser
+
 ## 0.8.10
 
 ### Patch Changes

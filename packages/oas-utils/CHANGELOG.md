@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.1.0
+
+### Minor Changes
+
+- 7fb8273: Migrate to @scalar/openapi-parser
+
 ## 0.0.4
 
 ### Patch Changes
