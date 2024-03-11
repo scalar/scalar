@@ -5,10 +5,10 @@ import {
   ScalarTextField,
   useModal,
 } from '@scalar/components'
+import { fetchSpecFromUrl } from '@scalar/oas-utils'
 import { useFileDialog, useMediaQuery } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
-import { fetchSpecFromUrl } from '../../helpers'
 import { type SwaggerEditorHeaderProps } from '../../types'
 import HeaderTabButton from './HeaderTabButton.vue'
 

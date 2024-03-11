@@ -1,11 +1,10 @@
-import { loadJsonOrYaml, loadJsonOrYamlString } from './parse'
+import { formatJsonOrYamlString } from './parse'
 
 /** Fetches an OAS spec file from a given URL. */
-export const fetchSpecFromUrl = async (
+export async function fetchSpecFromUrl(
   url: string,
   proxy?: string,
-  parseObject = false,
-) => {
+): Promise<string> {
   // Optional use of proxy for fetching
   const response = proxy
     ? await fetch(proxy, {
@@ -34,5 +33,5 @@ export const fetchSpecFromUrl = async (
     : await response.text()
 
   // Formats the JSON if provided
-  return parseObject ? loadJsonOrYaml(payload) : loadJsonOrYamlString(payload)
+  return formatJsonOrYamlString(payload)
 }

@@ -1,10 +1,14 @@
 import SwaggerParser from '@apidevtools/swagger-parser'
-import yaml from 'js-yaml'
-import { type OpenAPI, type OpenAPIV2, type OpenAPIV3 } from 'openapi-types'
-import { type OpenAPIV3_1 } from 'openapi-types'
+import { parseJsonOrYaml } from '@scalar/oas-utils'
+import {
+  type OpenAPI,
+  type OpenAPIV2,
+  type OpenAPIV3,
+  type OpenAPIV3_1,
+} from 'openapi-types'
 
 import { validRequestMethods } from '../fixtures'
-import type { AnyObject, AnyStringOrObject, SwaggerSpec } from '../types'
+import type { AnyStringOrObject, SwaggerSpec } from '../types'
 
 export const parse = (value: AnyStringOrObject): Promise<SwaggerSpec> => {
   return new Promise((resolve, reject) => {
@@ -199,24 +203,6 @@ const removeTagsWithoutOperations = (spec: SwaggerSpec) => {
     ...spec,
     tags: spec.tags?.filter((tag) => tag.operations?.length > 0),
   }
-}
-
-export const parseJsonOrYaml = (value: string | AnyObject): AnyObject => {
-  if (typeof value === 'string') {
-    try {
-      return JSON.parse(value) as AnyObject
-    } catch (error) {
-      // String starts with { or [, so it’s probably JSON.
-      if (value.length > 0 && ['{', '['].includes(value[0])) {
-        throw error
-      }
-
-      // Then maybe it’s YAML?
-      return yaml.load(value) as AnyObject
-    }
-  }
-
-  return value as AnyObject
 }
 
 /** @deprecated */

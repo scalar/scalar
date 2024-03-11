@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { isJsonString } from '@scalar/oas-utils'
 import { CodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
 import { computed, ref } from 'vue'
 
-import { isJsonString } from '../../helpers'
 import { type SwaggerEditorInputProps } from '../../types'
 
 const props = defineProps<SwaggerEditorInputProps>()

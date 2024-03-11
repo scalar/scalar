@@ -1,5 +1,6 @@
+import { isJsonString } from '@scalar/oas-utils'
+
 import type { AuthState, ClientRequestConfig } from '../types'
-import { isJsonString } from './isJsonString'
 
 /**
  * Before a request is sent to the server, we’ll do some final preparation.

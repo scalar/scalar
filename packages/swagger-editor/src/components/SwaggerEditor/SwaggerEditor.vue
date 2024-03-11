@@ -34,7 +34,7 @@ const formattedError = computed(() => {
   const error = isRef(props.error) ? props.error.value : props.error
 
   // Handle YAMLExceptions
-  if (error.startsWith('YAMLException:')) {
+  if (error.startsWith('YAMLParseError:')) {
     // Trim everything but the first line
     return error.split('\n')[0]
   }

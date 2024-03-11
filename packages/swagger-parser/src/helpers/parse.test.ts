@@ -73,7 +73,8 @@ describe('parse', () => {
 info`
 
       parse(invalidSwaggerYaml).catch((error) => {
-        expect(error.toString()).toMatch('YAMLException')
+        console.log(error)
+        expect(error.toString()).toMatch('YAMLParseError')
         resolve(null)
       })
     }))

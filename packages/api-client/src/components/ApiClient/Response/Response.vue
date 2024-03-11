@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { isJsonString } from '@scalar/oas-utils'
 import { computed, toRaw } from 'vue'
 
-import { isJsonString } from '../../../helpers'
 import { useRequestStore } from '../../../stores/requestStore'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { SimpleGrid } from '../../Grid'
