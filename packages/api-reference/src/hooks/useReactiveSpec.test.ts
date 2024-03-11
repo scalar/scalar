@@ -1,25 +1,31 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
 import { type SpecConfiguration } from '../types'
 import { useReactiveSpec } from './useReactiveSpec'
 
+const basicSpec = {
+  openapi: '3.1.0',
+  info: { title: 'Example' },
+  paths: {},
+}
+
+const basicSpecString = JSON.stringify(basicSpec)
+
 describe('useReactiveSpec', () => {
-  it('returns the content', async () => {
+  test('returns the content', async () => {
     const { rawSpec } = useReactiveSpec({
       specConfig: {
-        content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
+        content: basicSpec,
       },
     })
 
     await nextTick()
 
-    expect(rawSpec.value).toBe(
-      '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
-    )
+    expect(rawSpec.value).toBe(basicSpecString)
   })
 
-  it('returns an empty string', async () => {
+  test('returns an empty string', async () => {
     const { rawSpec } = useReactiveSpec({
       specConfig: {
         content: '',
@@ -31,11 +37,11 @@ describe('useReactiveSpec', () => {
     expect(rawSpec.value).toBe('')
   })
 
-  it('calls the content callback', async () => {
+  test('calls the content callback', async () => {
     const { rawSpec } = useReactiveSpec({
       specConfig: {
         content: () => {
-          return { openapi: '3.1.0', info: { title: 'Example' }, paths: {} }
+          return basicSpec
         },
       },
     })
@@ -43,38 +49,31 @@ describe('useReactiveSpec', () => {
     await nextTick()
     await nextTick()
 
-    expect(rawSpec.value).toBe(
-      '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
-    )
+    expect(rawSpec.value).toBe(basicSpecString)
   })
 
-  it('works with strings', async () => {
+  test('works with strings', async () => {
     const { rawSpec } = useReactiveSpec({
       specConfig: {
-        content: '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
+        content: basicSpecString,
       },
     })
 
     await nextTick()
 
-    expect(rawSpec.value).toBe(
-      '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
-    )
+    expect(rawSpec.value).toBe(basicSpecString)
   })
 
-  it('works with strings in callbacks', async () => {
+  test('works with strings in callbacks', async () => {
     const { rawSpec } = useReactiveSpec({
       specConfig: {
-        content: () =>
-          '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
+        content: () => basicSpecString,
       },
     })
 
     await nextTick()
 
-    expect(rawSpec.value).toBe(
-      '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
-    )
+    expect(rawSpec.value).toBe(basicSpecString)
   })
 
   global.fetch = vi.fn()
@@ -83,13 +82,9 @@ describe('useReactiveSpec', () => {
     return { text: () => new Promise((resolve) => resolve(data)) }
   }
 
-  it('fetches JSON from an URL', async () => {
+  test('fetches JSON from an URL', async () => {
     // @ts-ignore
-    fetch.mockResolvedValue(
-      createFetchResponse(
-        '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
-      ),
-    )
+    fetch.mockResolvedValue(createFetchResponse(basicSpecString))
 
     const { rawSpec } = useReactiveSpec({
       specConfig: {
@@ -115,9 +110,9 @@ describe('useReactiveSpec', () => {
     })
   })
 
-  it('uses a ref', async () => {
+  test('uses a ref', async () => {
     const specConfig = reactive<SpecConfiguration>({
-      content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
+      content: basicSpec,
     })
 
     const { rawSpec } = useReactiveSpec({
@@ -126,47 +121,38 @@ describe('useReactiveSpec', () => {
 
     await nextTick()
 
-    expect(rawSpec.value).toBe(
-      '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
-    )
+    expect(rawSpec.value).toBe(basicSpecString)
   })
 
-  it('reacts to ref changes', async () => {
+  test('reacts to ref changes', async () => {
     const configurationRef = reactive<SpecConfiguration>({
-      content: JSON.stringify({
-        openapi: '3.1.0',
-        info: { title: 'Example' },
-        paths: {},
-      }),
+      content: basicSpec,
     })
 
     // Pass the configuration as a ComputedRef
-    const specConfig = computed(() => {
-      return configurationRef
-    })
+    const specConfig = computed(() => configurationRef)
 
-    const { rawSpec } = useReactiveSpec({
-      specConfig,
-    })
+    const { rawSpec } = useReactiveSpec({ specConfig })
 
     await nextTick()
 
-    expect(rawSpec.value).toBe(
-      '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
-    )
+    expect(rawSpec.value).toBe(basicSpecString)
 
     // Change the configuration …
     Object.assign(configurationRef, {
       content: {
-        openapi: '3.1.0',
-        info: { title: 'My Changed Title' },
-        paths: {},
+        ...basicSpec,
+        info: {
+          ...basicSpec.info,
+          title: 'My Changed Title',
+        },
       },
     })
+
     await nextTick()
 
     expect(rawSpec.value).toBe(
-      '{"openapi":"3.1.0","info":{"title":"My Changed Title"},"paths":{}}',
+      basicSpecString.replace('Example', 'My Changed Title'),
     )
 
     // Change the configuration to empty
@@ -176,25 +162,17 @@ describe('useReactiveSpec', () => {
     expect(rawSpec.value).toBe('')
   })
 
-  it('content isn’t overwritten if there’s nothing configured', async () => {
-    const configurationRef = reactive<SpecConfiguration>({
-      content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
-    })
+  test('content isn’t overwritten if there’s nothing configured', async () => {
+    const configurationRef = reactive<SpecConfiguration>({ content: basicSpec })
 
     // Pass the configuration as a ComputedRef
-    const specConfig = computed(() => {
-      return configurationRef
-    })
+    const specConfig = computed(() => configurationRef)
 
-    const { rawSpec } = useReactiveSpec({
-      specConfig,
-    })
+    const { rawSpec } = useReactiveSpec({ specConfig })
 
     await nextTick()
 
-    expect(rawSpec.value).toBe(
-      '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
-    )
+    expect(rawSpec.value).toBe(basicSpecString)
 
     // Change the configuration …
     Object.assign(configurationRef, {
@@ -204,55 +182,45 @@ describe('useReactiveSpec', () => {
     await nextTick()
 
     // … but the content shouldn’t be overwritten
-    expect(rawSpec.value).toBe(
-      '{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}',
-    )
+    expect(rawSpec.value).toBe(basicSpecString)
   })
 })
 
+// ---------------------------------------------------------------------------
+
 describe('useParser', () => {
-  it('returns the content', async () => {
+  test('returns the content', async () => {
     const { parsedSpec } = useReactiveSpec({
       specConfig: {
-        content: JSON.stringify({
-          openapi: '3.1.0',
-          info: { title: 'Example' },
-          paths: {},
-        }),
+        content: basicSpec,
       },
     })
 
+    await nextTick()
     // Sleep for 10ms to wait for the parser to finish
-    await new Promise((resolve) => setTimeout(resolve, 10))
+    await new Promise((resolve) => setTimeout(resolve, 50))
 
     expect(parsedSpec.info.title).toBe('Example')
   })
 
-  it('works with refs', async () => {
+  test('works with refs', async () => {
     const rawSpecConfig = ref({
-      content: JSON.stringify({
-        openapi: '3.1.0',
-        info: { title: 'Example' },
-        paths: {},
-      }),
+      content: basicSpecString,
     })
 
     const { parsedSpec } = useReactiveSpec({
       specConfig: rawSpecConfig,
     })
+
     // Sleep for 300ms to wait for the debouncer and the parser
     await new Promise((resolve) => setTimeout(resolve, 300))
 
     expect(parsedSpec.info.title).toBe('Example')
   })
 
-  it('watches the ref', async () => {
+  test('watches the ref', async () => {
     const rawSpecConfig = ref({
-      content: JSON.stringify({
-        openapi: '3.1.0',
-        info: { title: 'Example' },
-        paths: {},
-      }),
+      content: basicSpecString,
     })
 
     const { parsedSpec } = useReactiveSpec({
@@ -265,11 +233,7 @@ describe('useParser', () => {
     expect(parsedSpec.info.title).toBe('Example')
 
     rawSpecConfig.value = {
-      content: JSON.stringify({
-        openapi: '3.1.0',
-        info: { title: 'Foobar' },
-        paths: {},
-      }),
+      content: JSON.stringify(basicSpecString.replace('Example', 'Foobar')),
     }
 
     // Sleep for 300ms to wait for the debouncer and the parser
@@ -278,7 +242,7 @@ describe('useParser', () => {
     expect(parsedSpec.info.title).toBe('Foobar')
   })
 
-  it('deals with undefined input', async () => {
+  test('deals with undefined input', async () => {
     const { parsedSpec } = useReactiveSpec({})
 
     // Sleep for 10ms to wait for the parser to finish
@@ -287,7 +251,7 @@ describe('useParser', () => {
     expect(parsedSpec.info.title).toBe('')
   })
 
-  it('deals with empty input', async () => {
+  test('deals with empty input', async () => {
     const { parsedSpec } = useReactiveSpec({
       specConfig: {
         content: '',
@@ -300,7 +264,7 @@ describe('useParser', () => {
     expect(parsedSpec.info.title).toBe('')
   })
 
-  it('returns errors', async () => {
+  test('returns errors', async () => {
     const { specErrors } = useReactiveSpec({
       specConfig: {
         content: '{"foo}',
@@ -310,6 +274,6 @@ describe('useParser', () => {
     // Sleep for 10ms to wait for the parser to finish
     await new Promise((resolve) => setTimeout(resolve, 10))
 
-    expect(specErrors.value).toContain('Invalid JSON or YAML')
+    expect(specErrors.value).toContain('YAMLParseError')
   })
 })

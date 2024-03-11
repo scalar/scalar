@@ -21,7 +21,6 @@
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/swagger-editor": "workspace:*",
-    "@scalar/swagger-parser": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@vueuse/core": "^10.4.1",
     "vue": "^3.3.0",
@@ -36,7 +35,6 @@
     "postcss-nested": "^6.0.1",
     "typescript": "^5.4.2",
     "vite": "^5.1.1",
-    "vite-plugin-node-polyfills": "^0.21.0",
     "vue-tsc": "^1.8.19"
   }
 }

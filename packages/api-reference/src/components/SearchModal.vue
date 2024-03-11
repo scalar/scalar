@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
+import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { FlowModal, type ModalState } from '@scalar/use-modal'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import Fuse from 'fuse.js'
-import type { OpenAPIV3_1 } from 'openapi-types'
 import { computed, ref, toRef, watch } from 'vue'
 
 import { getHeadingsFromMarkdown } from '../helpers'

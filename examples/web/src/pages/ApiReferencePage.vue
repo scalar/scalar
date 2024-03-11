@@ -3,8 +3,8 @@ import {
   ApiReferenceLayout,
   type ReferenceConfiguration,
   type Spec,
+  parse,
 } from '@scalar/api-reference'
-import { parse } from '@scalar/swagger-parser'
 import { asyncComputed } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 

@@ -8,6 +8,7 @@ pnpm concurrently \
             --filter @scalar-examples/web \
             --filter @scalar-examples/react \
             --filter @scalar-examples/api-client-proxy \
+            --filter @scalar-examples/cdn-api-reference \
             --filter @scalar-examples/echo-server \
             --filter @scalar-examples/fastify-api-reference \
             --filter @scalar-examples/hono-api-reference \

@@ -10,7 +10,7 @@ export const validRequestMethods = [
     'TRACE',
 ] as const
 
-type RequestMethod = typeof validRequestMethods[number];
+export type RequestMethod = typeof validRequestMethods[number];
 
 export function isRequestMethod(s: string): s is RequestMethod {
 return validRequestMethods.includes(s as RequestMethod)
