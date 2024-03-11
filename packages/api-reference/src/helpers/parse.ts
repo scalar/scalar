@@ -3,8 +3,13 @@
  * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
  */
 import { type RequestMethod, validRequestMethods } from '@scalar/api-client'
-import { type ResolvedOpenAPI, openapi } from '@scalar/openapi-parser'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+import {
+  type OpenAPIV2,
+  type OpenAPIV3,
+  type OpenAPIV3_1,
+  type ResolvedOpenAPI,
+  openapi,
+} from '@scalar/openapi-parser'
 
 // AnyStringOrObject
 import type { Spec } from '../types'
