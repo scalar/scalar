@@ -4,6 +4,7 @@ import { html, raw } from 'hono/html'
 
 export type ApiReferenceOptions = ReferenceConfiguration & {
   pageTitle?: string
+  cdn?: string
 }
 
 /**
@@ -118,7 +119,7 @@ export const customThemeCSS = `
 /**
  * The HTML to load the @scalar/api-reference JavaScript package.
  */
-export const javascript = (configuration: ReferenceConfiguration) => {
+export const javascript = (configuration: ApiReferenceOptions) => {
   return html`
     <script
       id="api-reference"
@@ -134,7 +135,8 @@ export const javascript = (configuration: ReferenceConfiguration) => {
           : '',
       )}
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+    <script src="${configuration.cdn ||
+      'https://cdn.jsdelivr.net/npm/@scalar/api-reference'}"></script>
   `
 }
 

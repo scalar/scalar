@@ -1,7 +1,9 @@
 import type { ReferenceConfiguration } from '@scalar/api-reference'
 import type { Request, Response } from 'express'
 
-export type ApiReferenceOptions = ReferenceConfiguration
+export type ApiReferenceOptions = ReferenceConfiguration & {
+  cdn?: string
+}
 
 /**
  * The custom theme CSS for the API Reference.
@@ -122,14 +124,14 @@ export const ApiReference = (options: ApiReferenceOptions) => {
             : JSON.stringify(options.spec?.content)
           : ''
       }</script>
-    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+      <script src="${options.cdn || 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'}"></script>
   `
 }
 
 /**
  * The HTML template to render the API Reference.
  */
-export function apiReference(options: ReferenceConfiguration) {
+export function apiReference(options: ApiReferenceOptions) {
   return (req: Request, res: Response) => {
     res.send(`
   <!DOCTYPE html>
