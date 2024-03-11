@@ -63,6 +63,7 @@ const currentJsonResponse = computed(
     currentResponse.value?.content?.['application/json'] ??
     currentResponse.value?.content?.['application/json; charset=utf-8'] ??
     currentResponse.value?.content?.['application/problem+json'] ??
+    currentResponse.value?.content?.['application/vnd.api+json'] ??
     // Swagger 2.0
     currentResponse.value,
 )
