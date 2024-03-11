@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.19.0
+
+### Minor Changes
+
+- 7fb8273: Migrate to @scalar/openapi-parser
+
 ## 1.18.7
 
 ### Patch Changes

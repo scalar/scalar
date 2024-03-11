@@ -1,5 +1,16 @@
 # @scalar/docusaurus
 
+## 0.1.0
+
+### Minor Changes
+
+- 7fb8273: Migrate to @scalar/openapi-parser
+
+### Patch Changes
+
+- Updated dependencies [7fb8273]
+  - @scalar/api-reference-react@0.1.0
+
 ## 0.0.7
 
 ### Patch Changes

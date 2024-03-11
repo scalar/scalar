@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 1.0.0
+
+### Minor Changes
+
+- 7fb8273: Migrate to @scalar/openapi-parser
+
+### Patch Changes
+
+- 6036d25: fix: allow application/vnd.api+json return type
+- Updated dependencies [7fb8273]
+  - @scalar/use-codemirror@0.9.0
+  - @scalar/oas-utils@0.1.0
+
 ## 0.12.18
 
 ### Patch Changes
