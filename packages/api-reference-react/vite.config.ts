@@ -1,10 +1,10 @@
 import react from '@vitejs/plugin-react'
-import * as path from 'path'
+import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 export default defineConfig({
+  plugins: [react(), dts({ insertTypesEntry: true, rollupTypes: true })],
   build: {
     lib: {
       // Could also be a dictionary or array of multiple entry points
@@ -15,7 +15,7 @@ export default defineConfig({
     },
     rollupOptions: {
       input: {
-        main: path.resolve(__dirname, 'src/index.ts'),
+        main: resolve(__dirname, 'src/index.ts'),
       },
       // make sure to externalize deps that shouldn't be bundled
       // into your library
@@ -42,22 +42,4 @@ export default defineConfig({
         './node_modules/decode-named-character-reference/index.js',
     },
   },
-  plugins: [
-    react(),
-    dts({ insertTypesEntry: true, rollupTypes: true }),
-    nodePolyfills({
-      // To exclude specific polyfills, add them to this list.
-      exclude: [
-        'fs', // Excludes the polyfill for `fs` and `node:fs`.
-      ],
-      // Whether to polyfill specific globals.
-      globals: {
-        Buffer: true, // can also be 'build', 'dev', or false
-        global: true,
-        process: true,
-      },
-      // Whether to polyfill `node:` protocol imports.
-      protocolImports: true,
-    }),
-  ],
 })

@@ -1,8 +1,8 @@
 import { fetchSpecFromUrl } from '@scalar/oas-utils'
-import { parse } from '@scalar/swagger-parser'
 import { type MaybeRefOrGetter, reactive, ref, toValue, watch } from 'vue'
 
 import { isValidUrl } from '../helpers'
+import { parse } from '../helpers/parse'
 import type { Spec, SpecConfiguration } from '../types'
 
 // Generate a new empty spec instance
