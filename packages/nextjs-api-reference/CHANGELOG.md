@@ -1,5 +1,13 @@
 # @scalar/nextjs-api-reference
 
+## 0.1.51
+
+### Patch Changes
+
+- cecf074: Migrate to oas utils for basic spec operations
+- Updated dependencies [cecf074]
+  - @scalar/api-reference@1.18.7
+
 ## 0.1.50
 
 ### Patch Changes

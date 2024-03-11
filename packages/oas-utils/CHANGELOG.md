@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.0.4
+
+### Patch Changes
+
+- cecf074: Migrate to oas utils for basic spec operations
+
 ## 0.0.3
 
 ### Patch Changes

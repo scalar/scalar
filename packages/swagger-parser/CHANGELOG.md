@@ -1,5 +1,13 @@
 # @scalar/swagger-parser
 
+## 0.5.23
+
+### Patch Changes
+
+- cecf074: Migrate to oas utils for basic spec operations
+- Updated dependencies [cecf074]
+  - @scalar/oas-utils@0.0.4
+
 ## 0.5.22
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.2.75
+
+### Patch Changes
+
+- cecf074: Migrate to oas utils for basic spec operations
+- Updated dependencies [cecf074]
+  - @scalar/api-reference@1.18.7
+
 ## 0.2.74
 
 ### Patch Changes

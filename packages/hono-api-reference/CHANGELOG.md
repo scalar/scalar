@@ -1,5 +1,13 @@
 # @scalar/hono-api-reference
 
+## 0.3.75
+
+### Patch Changes
+
+- cecf074: Migrate to oas utils for basic spec operations
+- Updated dependencies [cecf074]
+  - @scalar/api-reference@1.18.7
+
 ## 0.3.74
 
 ### Patch Changes

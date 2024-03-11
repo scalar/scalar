@@ -1,5 +1,13 @@
 # @scalar/api-reference-react
 
+## 0.0.9
+
+### Patch Changes
+
+- cecf074: Migrate to oas utils for basic spec operations
+- Updated dependencies [cecf074]
+  - @scalar/api-reference@1.18.7
+
 ## 0.0.8
 
 ### Patch Changes
