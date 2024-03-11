@@ -1,5 +1,11 @@
 # @scalar/api-reference-react
 
+## 0.0.8
+
+### Patch Changes
+
+- 313997c: chore: align node versions to basis 18
+
 ## 0.0.7
 
 ### Patch Changes
