@@ -1,7 +1,10 @@
 import { expect, test } from '@playwright/test'
 
-test('Renders petstore api reference from CDN', async ({ page, isMobile }) => {
-  await page.goto('http://127.0.0.1:3173')
+test('Renders petstore api reference from the live CDN', async ({
+  page,
+  isMobile,
+}) => {
+  await page.goto('http://127.0.0.1:3173/live')
 
   // Check for basic elements on the page
   // The heading
