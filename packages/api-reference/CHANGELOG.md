@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.19.1
+
+### Patch Changes
+
+- 148966b: fix: move errors into warning from new parser
+
 ## 1.19.0
 
 ### Minor Changes
