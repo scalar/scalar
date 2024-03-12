@@ -18,11 +18,17 @@ export const parse = (specification: any): Promise<Spec> => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
     try {
-      const { valid, schema, errors } = await openapi()
-        .load(specification)
-        .resolve()
+      const { schema, errors } = await openapi().load(specification).resolve()
 
-      if (!valid || schema === undefined) {
+      if (errors?.length) {
+        console.warn(
+          'Please open an issue on https://github.com/scalar/scalar\n',
+          'Scalar OpenAPI Parser Warning:\n',
+          errors,
+        )
+      }
+
+      if (schema === undefined) {
         reject(errors?.[0]?.error ?? 'Failed to parse the OpenAPI file.')
 
         return
