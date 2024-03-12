@@ -59,7 +59,7 @@
     "@scalar/api-client": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/openapi-parser": "^0.3.1",
+    "@scalar/openapi-parser": "^0.3.2",
     "@scalar/snippetz": "^0.1.5",
     "@scalar/swagger-editor": "workspace:*",
     "@scalar/themes": "workspace:*",
