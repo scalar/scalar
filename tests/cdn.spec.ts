@@ -25,4 +25,21 @@ test('Renders petstore api reference from the live CDN', async ({
       page.getByRole('link', { name: 'PET', exact: true }),
     ).toBeVisible()
   }
+
+  /** Visual Regression Testing
+   * use Playwright built in screenshot functionality https://playwright.dev/docs/screenshots
+   * Playwright uses pixelmatch to compare screenshots
+   * update screenshots with npx playwright test --update-snapshots
+   */
+  await expect(page).toHaveScreenshot('cdn-snapshot.png', {
+    fullPage: true,
+    maxDiffPixels: 100,
+  })
+
+  /** Capture into buffer
+   * If we are unsatisfied with the built in visual regression testing
+   * this is how we could pass it to a third party pixel diff facility eg. Chromatic
+   *   const buffer = await page.screenshot()
+   *   console.log(buffer.toString('base64'))
+   */
 })

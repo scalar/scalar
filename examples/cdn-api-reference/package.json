@@ -11,6 +11,10 @@
   },
   "scripts": {
     "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ./",
+    "format": "pnpm prettier --write .",
+    "format:check": "pnpm prettier --check .",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
