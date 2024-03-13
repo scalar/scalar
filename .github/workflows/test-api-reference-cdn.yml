@@ -7,7 +7,7 @@ on:
   push:
     paths:
       - 'packages/cdn-api-reference/**'
-      - '.github/workflows/test-api-reference-live-cdn.yml'
+      - '.github/workflows/test-api-reference-cdn.yml'
 
 jobs:
   test:
