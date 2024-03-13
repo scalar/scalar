@@ -48,7 +48,10 @@ export async function findEntryPoints({
     ...(allowCss ? cssExports : {}),
   }
 
-  await fs.writeFile('./package.json', JSON.stringify(packageFile, null, 2))
+  await fs.writeFile(
+    './package.json',
+    JSON.stringify(packageFile, null, 2) + '\n',
+  )
 
   return entries
 }
