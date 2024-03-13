@@ -24,16 +24,12 @@
     "types:check": "vue-tsc --noEmit  --composite false"
   },
   "type": "module",
-  "main": "./dist/index.umd.cjs",
+  "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.umd.cjs"
-    },
-    "./style.css": {
-      "import": "./dist/style.css",
-      "require": "./dist/style.css"
+      "require": "./dist/index.cjs"
     }
   },
   "files": [
