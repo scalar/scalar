@@ -6,7 +6,7 @@ import {
 import { reactive } from 'vue'
 
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
-import content from '../fixtures/petstorev3.json'
+import content from '../fixtures/test-global-auth.json'
 
 const configuration = reactive<ReferenceConfiguration>({
   proxy: import.meta.env.VITE_REQUEST_PROXY_URL,
