@@ -33,7 +33,7 @@
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,
 .dark-mode .t-doc__sidebar {
-  --default-sidebar-background-1: transparent;
+  --default-sidebar-background-1: var(--default-theme-background-1);
   --default-sidebar-color-1: var(--default-theme-color-1);
   --default-sidebar-color-2: var(--default-theme-color-2);
   --default-sidebar-border-color: var(--default-theme-border-color);
