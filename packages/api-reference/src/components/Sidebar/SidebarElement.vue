@@ -114,6 +114,12 @@ const handleClick = async () => {
   /* prettier-ignore */
   background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background, var(--theme-background-2, var(--default-theme-background-2))));
 }
+.sidebar-heading:hover .sidebar-heading-link-title {
+  color: var(
+    --sidebar-item-hover-color,
+    var(--default-sidebar-item-hover-color, currentColor)
+  );
+}
 .sidebar-heading:hover span {
   color: var(
     --sidebar-item-hover-color,
@@ -130,6 +136,15 @@ const handleClick = async () => {
   color: var(--sidebar-color-active, var(--default-sidebar-color-active, var(--theme-color-accent, var(--default-theme-color-accent))));
   /* prettier-ignore */
   background: var(--sidebar-item-active-background, var(--default-sidebar-item-active-background, var(--theme-background-accent, var(--default-theme-background-accent))));
+}
+.active_page.sidebar-heading:hover .sidebar-heading-link-title {
+  color: var(
+    --sidebar-color-active,
+    var(
+      --default-sidebar-color-active,
+      var(--theme-color-accent, var(--default-theme-color-accent))
+    )
+  );
 }
 .sidebar-heading-link {
   text-decoration: none;
