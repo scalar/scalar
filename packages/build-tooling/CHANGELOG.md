@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.1.1
+
+### Patch Changes
+
+- 2488ddd: Add trailing space for package file saving
+
 ## 0.1.0
 
 ### Minor Changes
