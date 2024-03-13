@@ -59,6 +59,7 @@
   --default-sidebar-search-border-color: var(--default-theme-border-color);
 }
 /* advanced */
+.light-mode .dark-mode,
 .light-mode {
   --default-theme-color-green: #069061;
   --default-theme-color-red: #ef0006;

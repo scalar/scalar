@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import { sleep } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
@@ -71,48 +71,98 @@ onMounted(() => {
         <template
           v-for="item in items.entries"
           :key="item.id">
-          <SidebarElement
-            v-if="item.show"
-            :id="`sidebar-${item.id}`"
-            data-sidebar-type="heading"
-            :hasChildren="item.children && item.children.length > 0"
-            :isActive="hash === item.id"
-            :item="{
-              id: item.id,
-              title: item.title,
-              select: item.select,
-              httpVerb: item.httpVerb,
-              deprecated: item.deprecated ?? false,
-            }"
-            :open="collapsedSidebarItems[item.id] ?? false"
-            @toggleOpen="
-              async () => {
-                disableScroll = true
-                toggleCollapsedSidebarItem(item.id)
-                await sleep(100)
-                disableScroll = false
-              }
-            ">
-            <template v-if="item.children && item.children?.length > 0">
-              <SidebarGroup :level="1">
-                <template
-                  v-for="child in item.children"
-                  :key="child.id">
-                  <SidebarElement
-                    v-if="item.show"
-                    :id="`sidebar-${child.id}`"
-                    :isActive="hash === child.id"
-                    :item="{
-                      id: child.id,
-                      title: child.title,
-                      select: child.select,
-                      httpVerb: child.httpVerb,
-                      deprecated: child.deprecated ?? false,
-                    }" />
+          <template v-if="item.isGroup">
+            <li class="sidebar-group-title">{{ item.title }}</li>
+            <template
+              v-for="group in item.children"
+              :key="group.id">
+              <SidebarElement
+                :id="`sidebar-${group.id}`"
+                data-sidebar-type="heading"
+                :hasChildren="group.children && group.children.length > 0"
+                :isActive="hash === group.id"
+                :item="{
+                  id: group.id,
+                  title: group.title,
+                  select: group.select,
+                  httpVerb: group.httpVerb,
+                  deprecated: group.deprecated ?? false,
+                }"
+                :open="collapsedSidebarItems[group.id] ?? false"
+                @toggleOpen="
+                  async () => {
+                    disableScroll = true
+                    toggleCollapsedSidebarItem(group.id)
+                    await sleep(100)
+                    disableScroll = false
+                  }
+                ">
+                <template v-if="group.children && group.children?.length > 0">
+                  <SidebarGroup :level="2">
+                    <template
+                      v-for="child in group.children"
+                      :key="child.id">
+                      <SidebarElement
+                        v-if="item.show"
+                        :id="`sidebar-${child.id}`"
+                        :isActive="hash === child.id"
+                        :item="{
+                          id: child.id,
+                          title: child.title,
+                          select: child.select,
+                          httpVerb: child.httpVerb,
+                          deprecated: child.deprecated ?? false,
+                        }" />
+                    </template>
+                  </SidebarGroup>
                 </template>
-              </SidebarGroup>
+              </SidebarElement>
             </template>
-          </SidebarElement>
+          </template>
+          <template v-else>
+            <SidebarElement
+              v-if="item.show"
+              :id="`sidebar-${item.id}`"
+              data-sidebar-type="heading"
+              :hasChildren="item.children && item.children.length > 0"
+              :isActive="hash === item.id"
+              :item="{
+                id: item.id,
+                title: item.title,
+                select: item.select,
+                httpVerb: item.httpVerb,
+                deprecated: item.deprecated ?? false,
+              }"
+              :open="collapsedSidebarItems[item.id] ?? false"
+              @toggleOpen="
+                async () => {
+                  disableScroll = true
+                  toggleCollapsedSidebarItem(item.id)
+                  await sleep(100)
+                  disableScroll = false
+                }
+              ">
+              <template v-if="item.children && item.children?.length > 0">
+                <SidebarGroup :level="1">
+                  <template
+                    v-for="child in item.children"
+                    :key="child.id">
+                    <SidebarElement
+                      v-if="item.show"
+                      :id="`sidebar-${child.id}`"
+                      :isActive="hash === child.id"
+                      :item="{
+                        id: child.id,
+                        title: child.title,
+                        select: child.select,
+                        httpVerb: child.httpVerb,
+                        deprecated: child.deprecated ?? false,
+                      }" />
+                  </template>
+                </SidebarGroup>
+              </template>
+            </SidebarElement>
+          </template>
         </template>
       </SidebarGroup>
     </div>
@@ -153,5 +203,19 @@ onMounted(() => {
   .sidebar-pages {
     padding-top: 12px;
   }
+}
+.sidebar-group-title {
+  color: var(--sidebar-color-1, var(--default-sidebar-color-1));
+  font-size: var(--theme-mini, var(--default-theme-mini));
+  padding: 12px 6px 6px;
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  text-transform: uppercase;
+  word-break: break-word;
+  line-height: 1.385;
+}
+.sidebar-group-item + .sidebar-group-title {
+  border-top: 1px solid
+    var(--sidebar-border-color, var(--default-sidebar-border-color));
+  margin-top: 9px;
 }
 </style>

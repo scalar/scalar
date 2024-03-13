@@ -43,7 +43,7 @@
   --default-sidebar-color-2: var(--default-theme-color-2);
   --default-sidebar-border-color: var(--default-theme-border-color);
 
-  --default-sidebar-item-hover-background: var(--default-theme-background-3);
+  --default-sidebar-item-hover-background: var(--default-theme-background-2);
   --default-sidebar-item-hover-color: currentColor;
 
   --default-sidebar-item-active-background: var(--default-theme-background-3);
