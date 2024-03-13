@@ -137,6 +137,15 @@ const handleClick = async () => {
   /* prettier-ignore */
   background: var(--sidebar-item-active-background, var(--default-sidebar-item-active-background, var(--theme-background-accent, var(--default-theme-background-accent))));
 }
+.active_page.sidebar-heading:hover .sidebar-heading-link-title {
+  color: var(
+    --sidebar-color-active,
+    var(
+      --default-sidebar-color-active,
+      var(--theme-color-accent, var(--default-theme-color-accent))
+    )
+  );
+}
 .sidebar-heading-link {
   text-decoration: none;
   color: inherit;
