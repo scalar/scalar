@@ -94,7 +94,6 @@ const debouncedScroll = useDebounceFn((value) => {
 
 // Create the head tag if the configuration has meta data
 if (props.configuration.metaData) {
-  console.log(props.configuration.metaData)
   createHead()
   useSeoMeta(props.configuration.metaData)
 }
