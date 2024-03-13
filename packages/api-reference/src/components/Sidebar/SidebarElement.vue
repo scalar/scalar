@@ -252,16 +252,17 @@ const handleClick = async () => {
   padding: 0 3px;
   line-height: 14px;
   flex-shrink: 0;
-  color: var(
-    --sidebar-background-1,
-    var(
-      --default-sidebar-background-1,
-      var(--theme-background-1, var(--default-theme-background-1))
-    )
+  color: white;
+  color: color-mix(
+    in srgb,
+    var(--method-color, var(--theme-color-1)),
+    transparent 0%
   );
-  background: var(
-    --method-color,
-    var(--theme-color-2, var(--default-theme-color-2))
+  background: var(--method-color, var(--theme-background-3));
+  background: color-mix(
+    in srgb,
+    var(--method-color, var(--theme-background-3)),
+    transparent 90%
   );
   text-transform: uppercase;
   font-size: 8.5px;

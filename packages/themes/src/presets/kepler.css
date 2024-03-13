@@ -137,25 +137,6 @@
 .light-mode .dark-mode.scalar-card {
   background: #191b29 !important;
 }
-.sidebar-heading-type:before {
-  z-index: 10;
-  position: relative;
-}
-.sidebar-heading-type:after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    9deg,
-    var(--default-theme-background-1),
-    transparent
-  );
-  border-radius: 30px;
-  opacity: 0.3;
-}
 .show-api-client-button:before {
   background-color: var(--default-theme-color-accent) !important;
 }

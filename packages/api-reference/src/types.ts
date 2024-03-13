@@ -274,6 +274,11 @@ export type Server = {
   variables?: ServerVariables
 }
 
+export type TagGroup = {
+  name: string
+  tags: string[]
+}
+
 export type SecurityScheme =
   | Record<string, never> // Empty objects
   | OpenAPIV2.SecuritySchemeObject
@@ -288,21 +293,22 @@ export type Webhooks = Record<
 >
 
 export type Spec = {
-  tags?: Tag[]
-  info:
+  'tags'?: Tag[]
+  'info':
     | Partial<OpenAPIV2.Document['info']>
     | Partial<OpenAPIV3.Document['info']>
     | Partial<OpenAPIV3_1.Document['info']>
-  host?: OpenAPIV2.Document['host']
-  basePath?: OpenAPIV2.Document['basePath']
-  schemes?: OpenAPIV2.Document['schemes']
-  externalDocs?: ExternalDocs
-  servers?: Server[]
-  components?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
-  webhooks?: Webhooks
-  definitions?: Definitions
-  swagger?: OpenAPIV2.Document['swagger']
-  openapi?: OpenAPIV3.Document['openapi'] | OpenAPIV3_1.Document['openapi']
+  'host'?: OpenAPIV2.Document['host']
+  'basePath'?: OpenAPIV2.Document['basePath']
+  'schemes'?: OpenAPIV2.Document['schemes']
+  'externalDocs'?: ExternalDocs
+  'servers'?: Server[]
+  'components'?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
+  'webhooks'?: Webhooks
+  'definitions'?: Definitions
+  'swagger'?: OpenAPIV2.Document['swagger']
+  'openapi'?: OpenAPIV3.Document['openapi'] | OpenAPIV3_1.Document['openapi']
+  'x-tagGroups'?: TagGroup[]
 }
 
 export type AuthenticationState = {

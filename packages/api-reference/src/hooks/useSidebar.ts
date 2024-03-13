@@ -20,6 +20,7 @@ export type SidebarEntry = {
   httpVerb?: string
   show: boolean
   deprecated?: boolean
+  isGroup?: boolean
 }
 
 const {
@@ -130,6 +131,30 @@ const items = computed(() => {
           }
         })
 
+  const groupOperations: SidebarEntry[] | undefined = parsedSpec.value?.[
+    'x-tagGroups'
+  ]
+    ? parsedSpec.value?.['x-tagGroups']?.map((tagGroup) => {
+        const children: SidebarEntry[] = []
+        tagGroup.tags.map((tagName: string) => {
+          const tag = operationEntries?.find(
+            (entry) => entry.title === tagName.toUpperCase(),
+          )
+          if (tag) {
+            children.push(tag)
+          }
+        })
+        const sidebarTagGroup = {
+          id: tagGroup.name,
+          title: tagGroup.name.toUpperCase(),
+          children,
+          show: true,
+          isGroup: true,
+        }
+        return sidebarTagGroup
+      })
+    : undefined
+
   // Webhooks
   const webhookEntries: SidebarEntry[] = hasWebhooks(parsedSpec.value)
     ? [
@@ -188,9 +213,9 @@ const items = computed(() => {
   return {
     entries: [
       ...headingEntries,
-      ...(operationEntries ?? []),
-      ...webhookEntries,
-      ...modelEntries,
+      ...(groupOperations ?? operationEntries ?? []),
+      ...(groupOperations ? [] : webhookEntries),
+      ...(groupOperations ? [] : modelEntries),
     ],
     titles: titlesById,
   }
