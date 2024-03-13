@@ -195,6 +195,66 @@ describe('getExampleFromSchema', () => {
     ])
   })
 
+  it('uses the first example in anyOf', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'array',
+        items: {
+          anyOf: [
+            {
+              type: 'string',
+              example: 'foobar',
+            },
+            {
+              type: 'string',
+              example: 'barfoo',
+            },
+          ],
+        },
+      }),
+    ).toMatchObject(['foobar'])
+  })
+
+  it('uses one example in oneOf', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'array',
+        items: {
+          oneOf: [
+            {
+              type: 'string',
+              example: 'foobar',
+            },
+            {
+              type: 'string',
+              example: 'barfoo',
+            },
+          ],
+        },
+      }),
+    ).toMatchObject(['foobar'])
+  })
+
+  it('uses all examples in allOf', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'array',
+        items: {
+          allOf: [
+            {
+              type: 'string',
+              example: 'foobar',
+            },
+            {
+              type: 'string',
+              example: 'barfoo',
+            },
+          ],
+        },
+      }),
+    ).toMatchObject(['foobar', 'barfoo'])
+  })
+
   it('uses the default value', () => {
     const schema = {
       type: 'string',
