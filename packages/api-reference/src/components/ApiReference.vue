@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { createHead, useSeoMeta } from 'unhead'
 import { computed, toRef, watch } from 'vue'
 import { toast } from 'vue-sonner'
 
@@ -36,12 +35,6 @@ const { initializeToasts } = useToasts()
 initializeToasts((message) => {
   toast(message)
 })
-
-// Create the head tag if the configuration has meta data
-if (configuration.value?.metaData) {
-  createHead()
-  useSeoMeta(configuration.value.metaData)
-}
 
 // ---------------------------------------------------------------------------/
 // HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE

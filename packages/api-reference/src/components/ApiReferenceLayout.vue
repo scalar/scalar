@@ -6,6 +6,7 @@ import {
   ThemeStyles,
 } from '@scalar/themes'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
+import { createHead, useSeoMeta } from 'unhead'
 import { computed, onMounted, ref } from 'vue'
 
 import { downloadSpecBus, downloadSpecFile } from '../helpers'
@@ -90,6 +91,13 @@ const debouncedScroll = useDebounceFn((value) => {
     hash.value = ''
   }
 })
+
+// Create the head tag if the configuration has meta data
+if (props.configuration.metaData) {
+  console.log(props.configuration.metaData)
+  createHead()
+  useSeoMeta(props.configuration.metaData)
+}
 
 /** This is passed into all of the slots so they have access to the references data */
 const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
