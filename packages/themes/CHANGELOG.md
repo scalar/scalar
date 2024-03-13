@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.6.4
+
+### Patch Changes
+
+- 68cda2b: feat: add x-tagGroups in sidebar
+
 ## 0.6.3
 
 ### Patch Changes

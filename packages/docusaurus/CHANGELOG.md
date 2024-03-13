@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.1.3
+
+### Patch Changes
+
+- 68cda2b: feat: add x-tagGroups in sidebar
+  - @scalar/api-reference-react@0.1.3
+
 ## 0.1.2
 
 ### Patch Changes

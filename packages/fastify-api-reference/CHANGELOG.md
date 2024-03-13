@@ -1,5 +1,12 @@
 # @scalar/fastify-api-reference
 
+## 1.19.3
+
+### Patch Changes
+
+- 21195b7: fix: add back sidebar item hover color
+- 68cda2b: feat: add x-tagGroups in sidebar
+
 ## 1.19.2
 
 ### Patch Changes
