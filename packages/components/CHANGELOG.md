@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.4.4
+
+### Patch Changes
+
+- bbbba1f: fix: cjs export of components
+
 ## 0.4.3
 
 ### Patch Changes

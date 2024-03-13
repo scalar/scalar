@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.6.3
+
+### Patch Changes
+
+- 897990b: fix: mobile backgrounds for mars and blueplanet
+
 ## 0.6.2
 
 ### Patch Changes

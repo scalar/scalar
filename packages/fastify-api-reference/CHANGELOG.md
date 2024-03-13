@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.19.2
+
+### Patch Changes
+
+- a292ccb: fix: mobile backgrounds for mars and blueplanet
+
 ## 1.19.1
 
 ### Patch Changes
