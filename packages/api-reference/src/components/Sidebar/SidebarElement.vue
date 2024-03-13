@@ -113,6 +113,8 @@ const handleClick = async () => {
 .sidebar-heading:hover {
   /* prettier-ignore */
   background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background, var(--theme-background-2, var(--default-theme-background-2))));
+}
+.sidebar-heading:hover .sidebar-heading-link-title {
   color: var(
     --sidebar-item-hover-color,
     var(--default-sidebar-item-hover-color, currentColor)
