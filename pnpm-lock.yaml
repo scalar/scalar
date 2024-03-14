@@ -569,6 +569,9 @@ importers:
       '@vueuse/core':
         specifier: ^10.4.1
         version: 10.9.0(vue@3.4.21)
+      monaco-editor:
+        specifier: ^0.47.0
+        version: 0.47.0
       vue:
         specifier: ^3.3.0
         version: 3.4.21(typescript@5.4.2)
@@ -16242,6 +16245,10 @@ packages:
     resolution: {integrity: sha512-A/0v5Z59y63US00cRSLiloEIw3t5G+MiKz4BhX21FI+YBJXBOGW0ohFxTxO08dsOYlzxo87T7vGfZKYp2bcAWA==}
     dependencies:
       obliterator: 2.0.4
+    dev: false
+
+  /monaco-editor@0.47.0:
+    resolution: {integrity: sha512-VabVvHvQ9QmMwXu4du008ZDuyLnHs9j7ThVFsiJoXSOQk18+LF89N4ADzPbFenm0W4V2bGHnFBztIRQTgBfxzw==}
     dev: false
 
   /mrmime@2.0.0:
