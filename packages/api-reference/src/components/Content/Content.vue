@@ -2,7 +2,11 @@
 import { computed } from 'vue'
 
 import { hasModels } from '../../helpers'
-import { useNavState, useRefOnMount } from '../../hooks'
+import {
+  useNavState,
+  useNavigationKeyboardShortcuts,
+  useRefOnMount,
+} from '../../hooks'
 import type { Spec } from '../../types'
 import { Authentication } from './Authentication'
 import { BaseUrl } from './BaseUrl'
@@ -18,6 +22,8 @@ const props = defineProps<{
   parsedSpec: Spec
   layout?: 'default' | 'accordion'
 }>()
+
+useNavigationKeyboardShortcuts()
 
 const { getOperationId, getTagId } = useNavState()
 

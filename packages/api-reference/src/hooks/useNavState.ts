@@ -1,5 +1,5 @@
 import { slug } from 'github-slugger'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import { type Heading, scrollToId, sleep } from '../helpers'
 import type { Tag, TransformedOperation } from '../types'

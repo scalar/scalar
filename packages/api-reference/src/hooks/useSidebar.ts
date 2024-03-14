@@ -256,9 +256,48 @@ export function useSidebar(options?: { parsedSpec: Spec }) {
     )
   }
 
+  /**
+   * Flattened list of all entries
+   */
+  const flattenedEntries = computed(() => {
+    return items.value.entries.reduce((acc, entry) => {
+      if (entry.children) {
+        return [...acc, entry, ...entry.children]
+      }
+
+      return [...acc, entry]
+    }, [] as SidebarEntry[])
+  })
+
+  /**
+   * Find what’s coming next
+   */
+  const nextEntry = computed(() => {
+    const currentId = hash.value
+    const currentIdx = flattenedEntries.value.findIndex(
+      (entry) => entry.id === currentId,
+    )
+
+    return flattenedEntries.value[currentIdx + 1]
+  })
+
+  /**
+   * Find what came before
+   */
+  const previousEntry = computed(() => {
+    const currentId = hash.value
+    const currentIdx = flattenedEntries.value.findIndex(
+      (entry) => entry.id === currentId,
+    )
+
+    return flattenedEntries.value[currentIdx - 1]
+  })
+
   return {
     breadcrumb,
     items,
+    nextEntry,
+    previousEntry,
     collapsedSidebarItems,
     toggleCollapsedSidebarItem,
     setCollapsedSidebarItem,
