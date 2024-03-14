@@ -309,6 +309,7 @@ export type Spec = {
   'swagger'?: OpenAPIV2.Document['swagger']
   'openapi'?: OpenAPIV3.Document['openapi'] | OpenAPIV3_1.Document['openapi']
   'x-tagGroups'?: TagGroup[]
+  'security'?: OpenAPIV3.SecurityRequirementObject[]
 }
 
 export type AuthenticationState = {
