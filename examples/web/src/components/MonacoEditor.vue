@@ -113,7 +113,7 @@ async function init() {
   watch(
     () => model.value,
     (value) => {
-      if (editor?.getValue() !== value) {
+      if (editor?.getValue() !== value && typeof value === 'string') {
         editor?.setValue(value)
       }
     },
