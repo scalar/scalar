@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.19.3
+
+### Patch Changes
+
+- fc3f821: fix: example for array with anyOf, allOf, oneOf schemas doesn’t have a value
+- 21195b7: fix: add back sidebar item hover color
+- 68cda2b: feat: add x-tagGroups in sidebar
+- Updated dependencies [68cda2b]
+  - @scalar/themes@0.6.4
+  - @scalar/api-client@1.0.2
+  - @scalar/components@0.4.4
+  - @scalar/swagger-editor@1.0.2
+
 ## 1.19.2
 
 ### Patch Changes
