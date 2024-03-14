@@ -61,11 +61,6 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1" />
-    <style>
-      body {
-        margin: 0;
-      }
-    </style>
   </head>
   <body>
     <!-- Add your own OpenAPI/Swagger spec file URL here: -->

@@ -143,10 +143,6 @@ export function apiReference(options: ApiReferenceOptions) {
         name="viewport"
         content="width=device-width, initial-scale=1" />
       <style>
-        body {
-          margin: 0;
-        }
-
         ${options.theme ? null : customThemeCSS}
       </style>
     </head>
