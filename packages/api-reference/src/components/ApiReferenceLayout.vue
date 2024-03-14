@@ -227,6 +227,7 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
 .scalar-api-reference.references-classic {
   /* Classic layout is wider */
   --refs-content-max-width: var(--theme-content-max-width, 1420px);
+  min-height: 100dvh;
 }
 
 /* ----------------------------------------------------- */
