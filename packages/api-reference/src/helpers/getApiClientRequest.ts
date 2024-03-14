@@ -1,4 +1,5 @@
 import type { ClientRequestConfig } from '@scalar/api-client'
+import { type OpenAPIV3 } from '@scalar/openapi-parser'
 
 import type {
   AuthenticationState,
@@ -20,10 +21,12 @@ export function getApiClientRequest({
   serverState,
   authenticationState,
   operation,
+  globalSecurity,
 }: {
   serverState: ServerState
   authenticationState: AuthenticationState
   operation: TransformedOperation
+  globalSecurity?: OpenAPIV3.SecurityRequirementObject[]
 }): ClientRequestConfig {
   const request = getHarRequest(
     {
@@ -32,7 +35,7 @@ export function getApiClientRequest({
     getRequestFromOperation(operation, { requiredOnly: false }),
     getRequestFromAuthentication(
       authenticationState,
-      operation.information?.security,
+      operation.information?.security ?? globalSecurity,
     ),
   )
 

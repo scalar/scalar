@@ -3,9 +3,10 @@ import { HttpMethod } from '@scalar/api-client'
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
 import { snippetz } from '@scalar/snippetz'
 import { HTTPSnippet } from 'httpsnippet-lite'
-import { computed, ref, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 
 import {
+  GLOBAL_SECURITY_SYMBOL,
   getApiClientRequest,
   getHarRequest,
   getRequestFromAuthentication,
@@ -45,6 +46,8 @@ const hasMultipleExamples = computed<boolean>(
     ).length > 1,
 )
 
+const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
+
 const generateSnippet = async (): Promise<string> => {
   // Generate a request object
   const request = getHarRequest(
@@ -60,7 +63,7 @@ const generateSnippet = async (): Promise<string> => {
     ),
     getRequestFromAuthentication(
       authenticationState,
-      props.operation.information?.security,
+      props.operation.information?.security ?? getGlobalSecurity?.(),
     ),
   )
 
@@ -121,6 +124,7 @@ computed(() => {
     serverState: serverState,
     authenticationState: authenticationState,
     operation: props.operation,
+    globalSecurity: getGlobalSecurity?.(),
   })
 })
 </script>

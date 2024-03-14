@@ -6,9 +6,13 @@ import {
   ThemeStyles,
 } from '@scalar/themes'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, provide, ref, watch } from 'vue'
 
-import { downloadSpecBus, downloadSpecFile } from '../helpers'
+import {
+  GLOBAL_SECURITY_SYMBOL,
+  downloadSpecBus,
+  downloadSpecFile,
+} from '../helpers'
 import { useNavState, useSidebar } from '../hooks'
 import type {
   ReferenceLayoutProps,
@@ -96,6 +100,9 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   breadcrumb: breadcrumb.value,
   spec: props.parsedSpec,
 }))
+
+// Provide global security
+provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
 </script>
 <template>
   <ThemeStyles :id="configuration?.theme" />

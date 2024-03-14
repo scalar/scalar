@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
+import { inject } from 'vue'
 
-import { openClientFor } from '../../../helpers'
+import { GLOBAL_SECURITY_SYMBOL, openClientFor } from '../../../helpers'
 import { type TransformedOperation } from '../../../types'
 
 defineProps<{
   operation: TransformedOperation
 }>()
+
+const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
 </script>
 <template>
   <HttpMethod
@@ -16,7 +19,7 @@ defineProps<{
     :method="operation.httpVerb"
     property="background"
     type="button"
-    @click.stop="openClientFor(operation)">
+    @click.stop="openClientFor(operation, getGlobalSecurity?.())">
     <span>Test Request</span>
     <ScalarIcon icon="PaperAirplane" />
   </HttpMethod>
