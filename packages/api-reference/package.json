@@ -61,7 +61,6 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
     "@scalar/snippetz": "^0.1.5",
-    "@scalar/swagger-editor": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-modal": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
