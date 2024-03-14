@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.19.4
+
+### Patch Changes
+
+- c987a90: fix: add min height to classic layout
+
 ## 1.19.3
 
 ### Patch Changes
