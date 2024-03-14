@@ -19,6 +19,7 @@ export const createEmptyAuthenticationState = (): AuthenticationState => ({
   oAuth2: {
     clientId: '',
     scopes: [],
+    accessToken: '',
   },
 })
 
