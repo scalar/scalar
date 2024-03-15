@@ -24,8 +24,8 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(3006, () => {
-    console.log('🦁 NestJS listening at http://localhost:3006/reference');
+  await app.listen(5056, () => {
+    console.log('🦁 NestJS listening at http://localhost:5056/reference');
   });
 }
 bootstrap();
