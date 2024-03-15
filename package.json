@@ -1,6 +1,7 @@
 {
   "name": "root",
   "type": "module",
+  "packageManager": "pnpm@8.10.5",
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
     "@playwright/test": "^1.42.0",
