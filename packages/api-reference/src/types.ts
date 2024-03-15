@@ -332,6 +332,8 @@ export type AuthenticationState = {
   oAuth2: {
     clientId: string
     scopes: string[]
+    accessToken: string
+    state: string
   }
 }
 

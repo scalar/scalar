@@ -198,6 +198,8 @@ describe('getRequestFromAuthentication', () => {
         oAuth2: {
           clientId: '123',
           scopes: [],
+          accessToken: '',
+          state: '',
         },
       },
       [
@@ -207,14 +209,12 @@ describe('getRequestFromAuthentication', () => {
       ],
     )
 
-    expect(request).toMatchObject({
-      headers: [
-        {
-          name: 'Authorization',
-          value: 'Bearer 123',
-        },
-      ],
-    })
+    expect(request).toHaveProperty('headers', [
+      {
+        name: 'Authorization',
+        value: 'Bearer YOUR_SECRET_TOKEN',
+      },
+    ])
   })
 
   it('only return required security schemes', () => {

@@ -144,15 +144,12 @@ export function getRequestFromAuthentication(
         })
       }
     }
-    // TODO: oauth2
+    // Oauth2
     else if (
       'type' in securityScheme &&
-      // @ts-ignore
       securityScheme.type.toLowerCase() === 'oauth2'
     ) {
-      const token = authentication.oAuth2.clientId.length
-        ? authentication.oAuth2.clientId
-        : 'YOUR_SECRET_TOKEN'
+      const token = authentication.oAuth2.accessToken || 'YOUR_SECRET_TOKEN'
 
       headers.push({
         name: 'Authorization',
@@ -177,7 +174,7 @@ export function getSecretCredentialsFromAuthentication(
   return [
     authentication.apiKey.token,
     authentication.http.bearer.token,
-    authentication.oAuth2.clientId,
+    authentication.oAuth2.accessToken,
     // The basic auth token is the base64 encoded username and password
     getBase64Token(
       authentication.http.basic.username,
