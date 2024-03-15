@@ -333,6 +333,7 @@ export type AuthenticationState = {
     clientId: string
     scopes: string[]
     accessToken: string
+    state: string
   }
 }
 

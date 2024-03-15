@@ -79,15 +79,17 @@ const getOpenAuth2AuthorizationUrl = (flow: any) => {
   //   &state=something-random
 
   const scopes = authentication.oAuth2.scopes.join(' ')
-
+  const state = (Math.random() + 1).toString(36).substring(7)
   const url = new URL(flow.authorizationUrl)
+  setAuthentication({
+    oAuth2: { ...authentication.oAuth2, state },
+  })
 
   url.searchParams.set('response_type', 'token')
   url.searchParams.set('client_id', authentication.oAuth2.clientId)
   url.searchParams.set('redirect_uri', window.location.href)
   url.searchParams.set('scope', scopes)
-  // TODO: Generate random state string? Should we store that in the localStorage? 🤔
-  url.searchParams.set('state', 'something-random')
+  url.searchParams.set('state', state)
 
   return url.toString()
 }
@@ -98,29 +100,31 @@ const oauth2SelectedScopes = computed<string[]>({
     setAuthentication({ oAuth2: { ...authentication.oAuth2, scopes } }),
 })
 
+// Open oauth popup and set auth on success
 const startAuthentication = (url: string) => {
   const windowFeatures = 'left=100,top=100,width=800,height=600'
   const authWindow = window.open(url, 'openAuth2Window', windowFeatures)
 
-  if (!authWindow) {
-    console.warn('Popup blocked')
-    // The window wasn't allowed to open
-    // This is likely caused by built-in popup blockers.
-    // …
-  } else {
+  if (authWindow) {
     const checkWindowClosed = setInterval(function () {
-      const urlParams = new URLSearchParams(authWindow.location.href)
-      const accessToken = urlParams.get('access_token')
+      try {
+        const urlParams = new URLSearchParams(authWindow.location.href)
+        const accessToken = urlParams.get('access_token')
 
-      if (authWindow.closed || accessToken) {
-        clearInterval(checkWindowClosed)
+        if (authWindow.closed || accessToken) {
+          clearInterval(checkWindowClosed)
 
-        if (accessToken) {
-          setAuthentication({
-            oAuth2: { ...authentication.oAuth2, accessToken },
-          })
+          // State is a hash fragment and cannot be found through search params
+          const state = authWindow.location.href.match(/state=([^&]*)/)?.[1]
+          if (accessToken && authentication.oAuth2.state === state) {
+            setAuthentication({
+              oAuth2: { ...authentication.oAuth2, accessToken },
+            })
+          }
+          authWindow.close()
         }
-        authWindow.close()
+      } catch {
+        // Ignore CORS error from popup
       }
     }, 200)
   }
@@ -188,7 +192,11 @@ const startAuthentication = (url: string) => {
           @click="
             () =>
               setAuthentication({
-                oAuth2: { ...authentication.oAuth2, accessToken: '' },
+                oAuth2: {
+                  ...authentication.oAuth2,
+                  accessToken: '',
+                  state: '',
+                },
               })
           ">
           Reset
@@ -207,8 +215,7 @@ const startAuthentication = (url: string) => {
           v-if="value !== undefined"
           v-model:selected="oauth2SelectedScopes"
           :scopes="
-            //@ts-ignore
-            value.flows.implicit.scopes
+            (value as OpenAPIV3.OAuth2SecurityScheme).flows.implicit!.scopes
           " />
         <CardFormButton
           @click="

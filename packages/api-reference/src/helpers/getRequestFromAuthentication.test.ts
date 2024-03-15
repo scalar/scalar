@@ -198,6 +198,8 @@ describe('getRequestFromAuthentication', () => {
         oAuth2: {
           clientId: '123',
           scopes: [],
+          accessToken: '',
+          state: '',
         },
       },
       [
