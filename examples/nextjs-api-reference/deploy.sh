@@ -31,10 +31,14 @@ image_name="$name"
 
 case "${method:?}" in
     build)
-        docker run docker build -t nextjs-api-reference-example:latest -f ./examples/nextjs-api-reference/Dockerfile .
+        docker build \
+        -t nextjs-api-reference-example:latest \
+        -f ./examples/nextjs-api-reference/Dockerfile .
         ;;
     run)
-        docker run docker build -t nextjs-api-reference-example:latest -f ./examples/nextjs-api-reference/Dockerfile .
+        docker run \
+        -p 3000:3000 \
+        nextjs-api-reference-example:latest
             ;;
 
     *)
