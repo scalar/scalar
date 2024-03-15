@@ -1,5 +1,14 @@
 # @scalar/api-reference-react
 
+## 0.1.5
+
+### Patch Changes
+
+- e520363: feat: added oauth2 implicit login flow
+- Updated dependencies [00abdc5]
+- Updated dependencies [e520363]
+  - @scalar/api-reference@1.19.5
+
 ## 0.1.4
 
 ### Patch Changes

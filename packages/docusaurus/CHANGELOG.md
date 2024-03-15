@@ -1,5 +1,13 @@
 # @scalar/docusaurus
 
+## 0.1.5
+
+### Patch Changes
+
+- e520363: feat: added oauth2 implicit login flow
+- Updated dependencies [e520363]
+  - @scalar/api-reference-react@0.1.5
+
 ## 0.1.4
 
 ### Patch Changes

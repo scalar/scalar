@@ -1,5 +1,15 @@
 # @scalar/hono-api-reference
 
+## 0.4.5
+
+### Patch Changes
+
+- 00abdc5: chore: remove body margin reset everywhere, it’s not needed anymore
+- e520363: feat: added oauth2 implicit login flow
+- Updated dependencies [00abdc5]
+- Updated dependencies [e520363]
+  - @scalar/api-reference@1.19.5
+
 ## 0.4.4
 
 ### Patch Changes

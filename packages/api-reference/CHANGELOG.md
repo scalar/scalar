@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.19.5
+
+### Patch Changes
+
+- 00abdc5: chore: remove body margin reset everywhere, it’s not needed anymore
+- e520363: feat: added oauth2 implicit login flow
+
 ## 1.19.4
 
 ### Patch Changes
