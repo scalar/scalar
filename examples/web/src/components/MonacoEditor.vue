@@ -18,7 +18,7 @@ const props = withDefaults(
 // const isDark = useDarkMode(
 const model = defineModel<string>()
 
-const monacoEditorRef = ref<HTMLElement | null >(null)
+const monacoEditorRef = ref<HTMLElement | null>(null)
 const openApiVersion = ref<'3.1' | '3.0' | '2.0' | null>('3.1')
 
 let editor: monaco.editor.IStandaloneCodeEditor | null = null
