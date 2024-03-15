@@ -32,18 +32,16 @@ image_name="$name"
 case "${method:?}" in
     build)
         docker build \
-        -t nextjs-api-reference-example:latest \
+        -t ${image_name}:latest \
         -f ./examples/nextjs-api-reference/Dockerfile .
         ;;
     run)
         docker run \
         -p 3000:3000 \
-        nextjs-api-reference-example:latest
-            ;;
-
+        ${image_name}:latest
+        ;;
     *)
         echo "Usage: $0 {build|run}"
         exit 1
-
 esac
 

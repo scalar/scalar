@@ -32,6 +32,7 @@ RUN addgroup --system --gid 1001 nodejs && \
 RUN mkdir .next
 RUN chown nextjs:nodejs .next
 
+# https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
 COPY --from=builder --chown=nextjs:nodejs /app/examples/nextjs-api-reference/.next/standalone/ ./
 COPY --from=builder --chown=nextjs:nodejs /app/examples/nextjs-api-reference/.next/static ./.next/static
 
@@ -43,4 +44,6 @@ ENV PORT 3000
 # set hostname to localhost
 ENV HOSTNAME "0.0.0.0"
 
+# server.js is created by next build from the standalone output
+# https://nextjs.org/docs/pages/api-reference/next-config-js/output
 CMD ["node", "server.js"]
