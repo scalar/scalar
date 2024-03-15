@@ -32,10 +32,10 @@ test('Renders petstore api reference from the live CDN', async ({
    * Playwright uses pixelmatch to compare screenshots
    * update screenshots with npx playwright test --update-snapshots
    */
-  // await expect(page).toHaveScreenshot('cdn-snapshot.png', {
-  //   fullPage: true,
-  //   maxDiffPixels: 100,
-  // })
+  await expect(page).toHaveScreenshot('cdn-snapshot.png', {
+    fullPage: true,
+    maxDiffPixelRatio: 0.02,
+  })
 
   /** Capture into buffer
    * If we are unsatisfied with the built in visual regression testing
