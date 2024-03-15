@@ -1130,7 +1130,7 @@
         "type": "oauth2",
         "flows": {
           "implicit": {
-            "authorizationUrl": "https://petstore3.swagger.io/oauth/authorize",
+            "authorizationUrl": "https://www.oauth.com/playground/auth-dialog.html",
             "scopes": {
               "write:pets": "modify pets in your account",
               "read:pets": "read your pets"
