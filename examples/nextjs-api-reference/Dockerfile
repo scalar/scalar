@@ -1,56 +1,46 @@
-FROM node:20-bullseye-slim AS base
-# Setup pnpm and turbo on the base image
-RUN npm install pnpm turbo --global
+FROM node:20-bullseye AS base
+RUN npm install pnpm --global
 RUN pnpm config set store-dir ~/.pnpm-store
 
-# Prune projects
-FROM base AS pruner
-ARG PROJECT
-WORKDIR /app
-COPY . .
-RUN turbo prune @scalar-examples/nextjs-api-reference --docker
-
-# Build the project
-FROM base AS builder
-ARG PROJECT
+FROM base as builder
 WORKDIR /app
 
-# Copy lockfile and package.json's of isolated subworkspace
-COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=pruner /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
-COPY --from=pruner /app/out/json/ .
-COPY --from=pruner /app/tsconfig.json ./tsconfig.json
+# Copy everything but only install and build the main package and its dependencies
+COPY pnpm-lock.yaml .
+COPY .npmrc .
+COPY pnpm-workspace.yaml .
+COPY package.json .
+COPY tsconfig.json .
+COPY packages ./packages
 
-# Install the dependencies
-RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store pnpm install --frozen-lockfile
+COPY examples/nextjs-api-reference ./examples/nextjs-api-reference
+RUN pnpm --filter "@scalar-examples/nextjs-api-reference..." install && \
+    pnpm --filter "@scalar-examples/nextjs-api-reference..." build
 
-# Copy the source code of the isolated subworkspace
-COPY --from=pruner /app/out/full/ .
 
-# RUN pnpm build --filter=@scalar-examples/nextjs-api-reference
-RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store pnpm install --frozen-lockfile
-RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store pnpm run build --filter=@scalar-examples/nextjs-api-reference
-
-# Final image
-FROM base AS runner
-ARG PROJECT
+FROM node:20-bullseye-slim AS runner
 WORKDIR /app
+
+RUN npm install -g pnpm
 
 ENV NODE_ENV=production
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-COPY --from=builder --chown=nextjs:nodejs /app/examples/nextjs-api-reference/.next/standalone ./.next/standalone
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+COPY --from=builder --chown=nextjs:nodejs /app/examples/nextjs-api-reference/.next/standalone/ ./
 COPY --from=builder --chown=nextjs:nodejs /app/examples/nextjs-api-reference/.next/static ./.next/static
 
-WORKDIR /app/.next/standalone/examples/nextjs-api-reference
-
-USER nextjs
+WORKDIR /app/examples/nextjs-api-reference
 
 EXPOSE 3000
 
 ENV PORT 3000
-ENV HOSTNAME localhost
+# set hostname to localhost
+ENV HOSTNAME "0.0.0.0"
 
 CMD ["node", "server.js"]
