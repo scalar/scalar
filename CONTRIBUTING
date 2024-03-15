@@ -20,6 +20,13 @@ It’s worth to check the tests locally before sending contributions: `$ pnpm te
 
 If you want to add a test and only run your test file, you can filter the test suite like this:  `$ pnpm test your-test`
 
+### Testing the CLI
+
+If you want to run the tests for the CLI, you’ll need to package first. The tests don’t use the source files, but the dist files.
+
+To just run the CLI from the source files, you can use the following alias:
+`$ pnpm @scalar/cli --version`
+
 ## PRs
 
 Don’t worry, we’ll help you to get your PR in. But here is how you can help us:

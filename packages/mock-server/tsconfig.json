@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": null,
+    "composite": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "module": "esnext",
+    "allowSyntheticDefaultImports": true,
+    "outDir": "dist",
+    "sourceMap": false
+  },
+  "include": ["src/**/*", "./package.json", "tests/**/*", "petstore.json"]
+}
