@@ -23,6 +23,7 @@
     "@scalar/swagger-editor": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@vueuse/core": "^10.4.1",
+    "monaco-editor": "^0.47.0",
     "vue": "^3.3.0",
     "vue-router": "^4.2.4"
   },

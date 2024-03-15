@@ -10,6 +10,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 
 import DevReferencesOptions from '../components/DevReferencesOptions.vue'
 import DevToolbar from '../components/DevToolbar.vue'
+import MonacoEditor from '../components/MonacoEditor.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 import { emptySpecGenerator } from '../fixtures/emptySpec'
 
@@ -92,6 +93,11 @@ const parsedSpec = asyncComputed(
     </template>
     <template #sidebar-end>
       <SlotPlaceholder>sidebar-end</SlotPlaceholder>
+    </template>
+    <template #editor>
+      <MonacoEditor
+        v-model="content"
+        :darkMode="configuration.darkMode" />
     </template>
     <template #content-start>
       <SlotPlaceholder>content-start</SlotPlaceholder>
