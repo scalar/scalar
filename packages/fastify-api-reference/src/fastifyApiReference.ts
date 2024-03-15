@@ -9,6 +9,7 @@ export type FastifyApiReferenceOptions = {
    *
    * @default ''
    */
+  webRoot?: string
   routePrefix?: string
   configuration?: ReferenceConfiguration
 }
@@ -19,8 +20,8 @@ const schemaToHideRoute = {
   hide: true,
 }
 
-const getJavaScriptUrl = (routePrefix?: string) =>
-  `${routePrefix ?? ''}/@scalar/fastify-api-reference/js/browser.js`.replace(
+const getJavaScriptUrl = (routePrefix?: string, webRoot?: string) =>
+  `${webRoot ?? ''}${routePrefix ?? ''}/@scalar/fastify-api-reference/js/browser.js`.replace(
     /\/\//g,
     '/',
   )
@@ -125,7 +126,7 @@ export const javascript = (options: FastifyApiReferenceOptions) => {
             : JSON.stringify(configuration?.spec?.content)
           : ''
       }</script>
-      <script src="${getJavaScriptUrl(options.routePrefix)}"></script>
+      <script src="${getJavaScriptUrl(options.routePrefix, options.webRoot)}"></script>
   `
 }
 
