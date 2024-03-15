@@ -19,6 +19,6 @@ jobs:
         with:
           node-version: 20
       - name: Format OpenAPI File
-        run: npx @scalar/cli format ./packages/cli/openapi.json
+        run: npx @scalar/cli format ./examples/web/src/fixtures/petstorev3.json
       - name: Validate OpenAPI File
-        run: npx @scalar/cli validate ./packages/cli/openapi.json
+        run: npx @scalar/cli validate ./examples/web/src/fixtures/petstorev3.json
