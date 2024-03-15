@@ -135,7 +135,7 @@ export function getRequestBodyFromOperation(
       headers,
       postData: {
         mimeType: mimeType,
-        text: example ?? JSON.stringify(exampleFromSchema, null, 2),
+        text: JSON.stringify(example ?? exampleFromSchema, null, 2),
       },
     }
   }
