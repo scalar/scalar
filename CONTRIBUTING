@@ -8,7 +8,7 @@ Contributions are welcome. We’re using [pnpm](https://pnpm.io/).
 2. Install all dependencies: `$ pnpm install`
 3. Build all packages once: `$ pnpm turbo build`
 4. Run the development server: `$ pnpm run dev`
-5. Open your browser: <http://localhost:3000>
+5. Open your browser: <http://localhost:5050>
 
 This should give you a nice start page with entrypoints to the various previews and examples.
 

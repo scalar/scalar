@@ -60,38 +60,38 @@ import PageLink from '../components/PageLink.vue'
     </div>
     <h1>Examples</h1>
     <div class="page-links">
-      <PageLink href="http://localhost:3001">
+      <PageLink href="http://localhost:5051">
         <template #title>Next.js</template>
         <template #description>@scalar/nextjs-api-reference</template>
       </PageLink>
-      <PageLink href="http://localhost:3002">
+      <PageLink href="http://localhost:5052">
         <template #title>React</template>
         <template #description>@scalar/api-reference</template>
       </PageLink>
-      <PageLink href="http://localhost:3003">
+      <PageLink href="http://localhost:5053">
         <template #title>Fastify</template>
         <template #description>@scalar/fastify-api-reference</template>
       </PageLink>
-      <PageLink href="http://localhost:3004">
+      <PageLink href="http://localhost:5054">
         <template #title>Hono</template>
         <template #description>@scalar/hono-api-reference</template>
       </PageLink>
-      <PageLink href="http://localhost:3005">
+      <PageLink href="http://localhost:5055">
         <template #title>Express</template>
         <template #description>@scalar/express-api-reference</template>
       </PageLink>
-      <PageLink href="http://localhost:3006">
+      <PageLink href="http://localhost:5056">
         <template #title>NestJS (Express)</template>
         <template #description>@scalar/nestjs-api-reference</template>
       </PageLink>
-      <PageLink href="http://localhost:3007">
+      <PageLink href="http://localhost:5057">
         <template #title>NestJS (Fastify)</template>
         <template #description>@scalar/nestjs-api-reference</template>
       </PageLink>
     </div>
     <h1>@scalar/components</h1>
     <div class="page-links">
-      <PageLink href="http://localhost:3100">
+      <PageLink href="http://localhost:5100">
         <template #title>Components</template>
         <template #description>
           The design system we’re using throughout our packages.
