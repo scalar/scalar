@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 1.0.3
+
+### Patch Changes
+
+- e2491c1: chore: update axios
+
 ## 1.0.2
 
 ### Patch Changes

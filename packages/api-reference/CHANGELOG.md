@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.19.6
+
+### Patch Changes
+
+- e2491c1: chore: update axios
+- Updated dependencies [e2491c1]
+  - @scalar/api-client@1.0.3
+
 ## 1.19.5
 
 ### Patch Changes
