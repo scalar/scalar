@@ -45,10 +45,10 @@ defineSlots<{
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
 
 // Track the container height to control the sidebar height
-const elementHeight = ref(0)
+const elementHeight = ref('100dvh')
 const documentEl = ref<HTMLElement | null>(null)
 useResizeObserver(documentEl, (entries) => {
-  elementHeight.value = entries[0].contentRect.height
+  elementHeight.value = entries[0].contentRect.height + 'px'
 })
 
 // Scroll to hash if exists
@@ -121,7 +121,7 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
           scrollbars,
           $attrs.class,
         ]"
-        :style="{ '--full-height': `${elementHeight}px` }"
+        :style="{ '--full-height': elementHeight }"
         @scroll.passive="debouncedScroll">
         <!-- Header -->
         <div class="references-header">
