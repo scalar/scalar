@@ -262,10 +262,12 @@ export function useSidebar(options?: { parsedSpec: Spec }) {
   const flattenedEntries = computed(() => {
     return items.value.entries.reduce((acc, entry) => {
       if (entry.children) {
-        return [...acc, entry, ...entry.children]
+        acc.push(entry, ...entry.children)
+      } else {
+        acc.push(entry)
       }
 
-      return [...acc, entry]
+      return acc
     }, [] as SidebarEntry[])
   })
 
