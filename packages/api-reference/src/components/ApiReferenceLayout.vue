@@ -80,8 +80,8 @@ onMounted(() => {
 
 // Ensure section is open for SSG/SSR
 onServerPrefetch(() => {
-  const firstTagId = getTagId(props.parsedSpec.tags?.[0])
-  if (firstTag) setCollapsedSidebarItem(firstTagId, true)
+  const firstTag = props.parsedSpec.tags?.[0]
+  if (firstTag) setCollapsedSidebarItem(getTagId(firstTag), true)
 })
 
 const showRenderedContent = computed(
