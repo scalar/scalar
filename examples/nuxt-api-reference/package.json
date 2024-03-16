@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "nuxt dev",
-    "dsh": "nuxt build",
+    "build": "nuxt build",
     "generate": "nuxt generate",
     "postinstall": "nuxt prepare",
     "preview": "nuxt preview"

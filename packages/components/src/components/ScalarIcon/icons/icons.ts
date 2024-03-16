@@ -36,7 +36,7 @@ export const ICONS = [
   'programming-language-html5',
   'programming-language-http',
   'programming-language-java',
-  'programming-language-javascript-js',
+  'programming-language-javascript',
   'programming-language-json',
   'programming-language-kotlin',
   'programming-language-node',

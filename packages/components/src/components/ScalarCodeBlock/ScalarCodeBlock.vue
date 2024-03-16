@@ -2,7 +2,6 @@
 import prismjs from 'prismjs'
 import 'prismjs/components/prism-bash'
 import 'prismjs/components/prism-json'
-import 'prismjs/plugins/autoloader/prism-autoloader.js'
 import 'prismjs/plugins/line-numbers/prism-line-numbers.js'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
@@ -81,9 +80,6 @@ const language = computed(() => {
   return props.lang === 'node' ? 'js' : props.lang
 })
 
-plugins.autoloader.languages_path =
-  'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/'
-
 watch(
   () => [props.lang, props.content],
   () => {
@@ -91,8 +87,11 @@ watch(
   },
 )
 
-onMounted(() => {
+onMounted(async () => {
   if (el.value) highlightElement(el.value)
+  await import('prismjs/plugins/autoloader/prism-autoloader.js')
+  plugins.autoloader.languages_path =
+    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/'
 })
 </script>
 <template>

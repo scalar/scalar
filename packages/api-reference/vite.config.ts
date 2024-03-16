@@ -9,14 +9,14 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': '"production"',
   },
-  plugins: [vue(), cssInjectedByJsPlugin()],
+  plugins: [vue()],
   build: {
     emptyOutDir: true,
     cssCodeSplit: false,
     lib: {
       entry: ['src/index.ts'],
       name: '@scalar/api-reference',
-      formats: ['es'],
+      formats: ['es', 'cjs'],
     },
     rollupOptions: {
       external: [

@@ -1,89 +1,50 @@
 <script setup lang="ts">
-import { type Icon, ScalarIcon } from '@scalar/components'
-import { useResizeObserver } from '@vueuse/core'
+import { ScalarIcon } from '@scalar/components'
 import { type TargetId } from 'httpsnippet-lite'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 import { useSnippetTargets } from '../../../hooks'
 import { type SelectedClient, useTemplateStore } from '../../../stores/template'
 
 // Use the template store to keep it accessible globally
 const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
-
 const { availableTargets } = useSnippetTargets()
-
-const isSmall = ref(false)
 const containerRef = ref<HTMLElement>()
 
-useResizeObserver(
-  containerRef,
-  (entries) => (isSmall.value = entries[0].contentRect.width < 500),
-)
-
 // Show popular clients with an icon, not just in a select.
-const featuredClients = computed<SelectedClient[]>(() =>
-  isSmall.value
-    ? // Mobile
-      [
-        {
-          targetKey: 'shell',
-          clientKey: 'curl',
-        },
-        {
-          targetKey: 'ruby',
-          clientKey: 'native',
-        },
-        {
-          targetKey: 'node',
-          clientKey: 'undici',
-        },
-        {
-          targetKey: 'python',
-          clientKey: 'python3',
-        },
-      ]
-    : // Desktop
-      [
-        {
-          targetKey: 'shell',
-          clientKey: 'curl',
-        },
-        {
-          targetKey: 'ruby',
-          clientKey: 'native',
-        },
-        {
-          targetKey: 'node',
-          clientKey: 'undici',
-        },
-        {
-          targetKey: 'php',
-          clientKey: 'guzzle',
-        },
-        {
-          targetKey: 'python',
-          clientKey: 'python3',
-        },
-        {
-          targetKey: 'c',
-          clientKey: 'libcurl',
-        },
-      ],
-)
+const featuredClients = [
+  {
+    targetKey: 'shell',
+    clientKey: 'curl',
+  },
+  {
+    targetKey: 'ruby',
+    clientKey: 'native',
+  },
+  {
+    targetKey: 'node',
+    clientKey: 'undici',
+  },
+  {
+    targetKey: 'php',
+    clientKey: 'guzzle',
+  },
+  {
+    targetKey: 'python',
+    clientKey: 'python3',
+  },
+  {
+    targetKey: 'c',
+    clientKey: 'libcurl',
+  },
+] as const
 
 /**
  * Icons have longer names to appear in icon searches, e.g. "javascript-js" instead of just "javascript". This function
  * maps the language key to the icon name.
  */
-const getIconByLanguageKey = (targetKey: TargetId) => {
-  const targetKeyMap: Partial<Record<TargetId, string>> = {
-    javascript: 'javascript-js',
-  }
-
-  const icon = targetKeyMap[targetKey] ?? targetKey
-
-  return `programming-language-${icon}`
-}
+const getIconByLanguageKey = (targetKey: TargetId) =>
+  `programming-language-${targetKey}` as const
 
 const isSelectedClient = (language: SelectedClient) => {
   return (
@@ -92,13 +53,12 @@ const isSelectedClient = (language: SelectedClient) => {
   )
 }
 
-function checkIfClientIsFeatured(client: SelectedClient) {
-  return featuredClients.value.some((item) => {
-    return (
-      item.targetKey === client.targetKey && item.clientKey === client.clientKey
-    )
-  })
-}
+const checkIfClientIsFeatured = (client: SelectedClient) =>
+  featuredClients.some(
+    (item) =>
+      item.targetKey === client.targetKey &&
+      item.clientKey === client.clientKey,
+  )
 </script>
 <template>
   <div
