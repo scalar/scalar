@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { type Icon, ScalarIcon } from '@scalar/components'
 import { useResizeObserver } from '@vueuse/core'
 import { type TargetId } from 'httpsnippet-lite'
 import { computed, ref } from 'vue'
 
 import { useSnippetTargets } from '../../../hooks'
 import { type SelectedClient, useTemplateStore } from '../../../stores/template'
-import { Icon } from '../../Icon'
 
 // Use the template store to keep it accessible globally
 const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
@@ -82,7 +82,7 @@ const getIconByLanguageKey = (targetKey: TargetId) => {
 
   const icon = targetKeyMap[targetKey] ?? targetKey
 
-  return `brand/programming-language-${icon}`
+  return `programming-language-${icon}`
 }
 
 const isSelectedClient = (language: SelectedClient) => {
@@ -115,9 +115,9 @@ function checkIfClientIsFeatured(client: SelectedClient) {
       <div
         class="code-languages-background"
         :class="`code-languages-icon__${client.targetKey}`">
-        <Icon
+        <ScalarIcon
           class="code-languages-icon"
-          :src="getIconByLanguageKey(client.targetKey)" />
+          :icon="getIconByLanguageKey(client.targetKey)" />
       </div>
       <span>{{ getTargetTitle(client) }}</span>
     </div>
@@ -171,9 +171,9 @@ function checkIfClientIsFeatured(client: SelectedClient) {
           <div
             class="code-languages-background"
             :class="`code-languages-icon__${state.selectedClient.targetKey}`">
-            <Icon
+            <ScalarIcon
               class="code-languages-icon"
-              :src="getIconByLanguageKey(state.selectedClient.targetKey)" />
+              :icon="getIconByLanguageKey(state.selectedClient.targetKey)" />
           </div>
         </template>
         <template v-else>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import '@scalar/components/style.css'
 import {
   ResetStyles,
   ScrollbarStyles,

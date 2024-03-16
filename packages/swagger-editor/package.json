@@ -1,17 +1,19 @@
 {
-  "name": "@scalar/use-modal",
-  "description": "modals for Vue",
+  "name": "@scalar/swagger-editor",
+  "description": "an editor which is tailored to write OpenAPI spec",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "keywords": [
-    "composable",
-    "modals",
-    "vue",
-    "vue3"
+    "api",
+    "editor",
+    "openapi",
+    "openapi",
+    "spec",
+    "swagger"
   ],
-  "version": "0.2.9",
+  "version": "1.0.2",
   "engines": {
     "node": ">=18"
   },
@@ -26,7 +28,8 @@
     "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
   },
   "type": "module",
-  "main": "dist/index.js",
+  "main": "./dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     "import": "./dist/index.js"
   },
@@ -34,24 +37,33 @@
     "dist",
     "CHANGELOG.md"
   ],
-  "module": "dist/index.js",
+  "module": "./dist/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/use-modal"
+    "directory": "packages/swagger-editor"
   },
   "devDependencies": {
-    "@headlessui/vue": "^1.7.16",
+    "@scalar/components": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
+    "@scalar/themes": "workspace:*",
+    "@scalar/use-codemirror": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.2.2",
+    "@vueuse/core": "^10.4.1",
     "tsc-alias": "^1.8.8",
     "vite": "^5.1.1",
+    "vite-plugin-css-injected-by-js": "^3.4.0",
     "vitest": "^1.2.2",
     "vue": "^3.4.21",
     "vue-tsc": "^1.8.19"
   },
   "peerDependencies": {
-    "@headlessui/vue": "^1.7.0",
-    "vue": "^3.3.0"
+    "vue": "^3.3.0",
+    "@vueuse/core": "^10.4.1",
+    "@scalar/components": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
+    "@scalar/themes": "workspace:*",
+    "@scalar/use-codemirror": "workspace:*"
   }
 }
