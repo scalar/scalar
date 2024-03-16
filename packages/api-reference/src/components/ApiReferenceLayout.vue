@@ -7,7 +7,7 @@ import {
   ThemeStyles,
 } from '@scalar/themes'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, onMounted, provide, ref, watch } from 'vue'
+import { computed, onMounted, provide, ref } from 'vue'
 
 import {
   GLOBAL_SECURITY_SYMBOL,
