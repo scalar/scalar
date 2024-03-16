@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computedAsync } from '@vueuse/core'
+import { onServerPrefetch } from 'vue'
 
 import {
   getHeadingsFromMarkdown,
   getLowestHeadingLevel,
+  sleep,
   splitMarkdownInSections,
 } from '../../../helpers'
 import { useNavState } from '../../../hooks'
@@ -50,6 +52,9 @@ function handleScroll(headingId: string) {
   window.history.replaceState({}, '', `#${headingId}`)
   hash.value = headingId ?? ''
 }
+
+// SSR hack - waits for the computedAsync to complete
+onServerPrefetch(async () => await sleep(1))
 </script>
 <template>
   <div

@@ -9,7 +9,9 @@ import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
-import { ref, watch } from 'vue'
+import { onServerPrefetch, ref, watch } from 'vue'
+
+import { sleep } from '../../helpers'
 
 const props = withDefaults(
   defineProps<{
@@ -29,7 +31,7 @@ watch(
   () => props.value,
   async () => {
     // Markdown pipeline
-    unified()
+    const result = await unified()
       // Parses markdown
       .use(remarkParse)
       // Support autolink literals, footnotes, strikethrough, tables and tasklists
@@ -58,11 +60,15 @@ watch(
       .use(rehypeStringify)
       // Run the pipeline
       .process(props.value)
-      // Puts it into the DOM
-      .then((result) => (html.value = String(result)))
+
+    // Puts it into the DOM
+    html.value = String(result.value)
   },
   { immediate: true },
 )
+
+// SSR hack - waits for the watch to complete
+onServerPrefetch(async () => await sleep(1))
 </script>
 
 <template>
