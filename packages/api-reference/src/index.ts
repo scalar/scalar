@@ -4,6 +4,7 @@ export {
 } from './components/ApiClientModal.vue'
 export { default as ApiReference } from './components/ApiReference.vue'
 export { default as ApiReferenceLayout } from './components/ApiReferenceLayout.vue'
+export { default as ModernLayout } from './components/Layouts/ModernLayout.vue'
 export { default as RenderedReference } from './components/Content/Content.vue'
 export { default as SearchModal } from './components/SearchModal.vue'
 export { default as SearchButton } from './components/SearchButton.vue'

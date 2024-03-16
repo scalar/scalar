@@ -7,7 +7,7 @@ import {
   ThemeStyles,
 } from '@scalar/themes'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, onMounted, provide, ref } from 'vue'
+import { computed, onMounted, onServerPrefetch, provide, ref } from 'vue'
 
 import {
   GLOBAL_SECURITY_SYMBOL,
@@ -66,7 +66,6 @@ onMounted(() => {
     })
   }
 
-  // Ensure section is open for SSG
   const firstTag = props.parsedSpec.tags?.[0]
   let sectionId: string | null = null
 
@@ -77,6 +76,12 @@ onMounted(() => {
 
   // Enable the spec download event bus
   downloadSpecBus.on(() => downloadSpecFile(props.rawSpec))
+})
+
+// Ensure section is open for SSG/SSR
+onServerPrefetch(() => {
+  const firstTagId = getTagId(props.parsedSpec.tags?.[0])
+  if (firstTag) setCollapsedSidebarItem(firstTagId, true)
 })
 
 const showRenderedContent = computed(

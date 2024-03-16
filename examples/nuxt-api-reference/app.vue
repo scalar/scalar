@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ApiReferenceLayout, parse } from '@scalar/api-reference'
+import { ModernLayout, parse } from '@scalar/api-reference'
 import '@scalar/api-reference/style.css'
 
 // import ModernLayout from '../../packages/api-reference/src/components/Layouts/ModernLayout.vue'
@@ -16,14 +16,9 @@ useHead({
 })
 </script>
 <template>
-  <ApiReferenceLayout
+  <ModernLayout
     :configuration="configuration"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec">
-  </ApiReferenceLayout>
-  <!-- <ModernLayout -->
-  <!--   :configuration="configuration" -->
-  <!--   :parsedSpec="parsedSpec" -->
-  <!--   :rawSpec="rawSpec"> -->
-  <!-- </ModernLayout> -->
+  </ModernLayout>
 </template>
