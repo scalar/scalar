@@ -36,6 +36,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   - [With Express](#with-express)
   - [With NestJS](#with-nestjs)
   - [With Docusaurus](#with-docusaurus)
+  - [With AdonisJS](#with-adonisjs)
   - [With Laravel](#with-laravel)
   - [With Rust](#with-rust)
 - [Hosted API Reference](#hosted-api-reference)
@@ -303,6 +304,12 @@ plugins: [
 ```
 
 For more information, check out the [Docusaurus package](https://github.com/scalar/scalar/tree/main/packages/docusaurus/README.md)
+
+### With AdonisJS
+
+There’s [a community package to generate OpenAPI files in AdonisJS](https://github.com/hanspagel/adonis-autoswagger) and it comes with support for the Scalar API reference already.
+
+We wrote a [detailed integration guide for AdonisJS](https://github.com/scalar/scalar/tree/main/documentation/adonisjs.md).
 
 ### With Laravel
 
