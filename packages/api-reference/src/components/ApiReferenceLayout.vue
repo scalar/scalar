@@ -53,7 +53,7 @@ useResizeObserver(documentEl, (entries) => {
 })
 
 // Scroll to hash if exists
-const { breadcrumb, setCollapsedSidebarItem } = useSidebar()
+const { breadcrumb, setCollapsedSidebarItem, isSidebarOpen } = useSidebar()
 const { enableHashListener, getSectionId, getTagId, hash } = useNavState()
 
 enableHashListener()
@@ -121,6 +121,7 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
           {
             'references-editable': configuration.isEditable,
             'references-sidebar': configuration.showSidebar,
+            'references-sidebar-mobile-open': isSidebarOpen,
             'references-classic': configuration.layout === 'classic',
           },
           reset,
@@ -137,7 +138,7 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
         </div>
         <!-- Navigation (sidebar) wrapper -->
         <aside
-          v-show="configuration.showSidebar"
+          v-if="configuration.showSidebar"
           class="references-navigation t-doc__sidebar">
           <!-- Navigation tree / Table of Contents -->
           <div class="references-navigation-list">
@@ -229,7 +230,6 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
   --refs-header-height: var(--theme-header-height, 0px);
   --refs-content-max-width: var(--theme-content-max-width, 1540px);
 }
-
 .scalar-api-reference.references-classic {
   /* Classic layout is wider */
   --refs-content-max-width: var(--theme-content-max-width, 1420px);
@@ -245,6 +245,7 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
   width: 100dvw;
   max-width: 100%;
   flex: 1;
+  scrollbar-gutter: stable;
 
   /* Scroll vertically */
   overflow-y: auto;
@@ -367,7 +368,7 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
       'rendered'
       'footer';
   }
-  .references-sidebar {
+  .references-sidebar.references-sidebar-mobile-open {
     overflow-y: hidden;
   }
   .references-editable {
@@ -387,10 +388,15 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
   }
 
   .references-navigation {
+    display: none;
     position: sticky;
     top: var(--refs-header-height);
     height: 0px;
     z-index: 10;
+  }
+
+  .references-sidebar-mobile-open .references-navigation {
+    display: block;
   }
 
   .references-navigation-list {

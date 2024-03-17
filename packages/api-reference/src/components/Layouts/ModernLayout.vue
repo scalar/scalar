@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
-import { useNavState } from '../../hooks'
+import { useNavState, useSidebar } from '../../hooks'
 import { type ReferenceLayoutProps, type ReferenceSlots } from '../../types'
 import ApiReferenceLayout from '../ApiReferenceLayout.vue'
 import { DarkModeToggle } from '../DarkModeToggle'
@@ -16,41 +16,31 @@ defineEmits<{
 
 defineSlots<ReferenceSlots>()
 
-const showMobileDrawer = ref(false)
-
 const isMobile = useMediaQuery('(max-width: 1000px)')
+const { isSidebarOpen } = useSidebar()
 
 watch(isMobile, (n, o) => {
   // Close the drawer when we go from desktop to mobile
-  if (n && !o) showMobileDrawer.value = false
+  if (n && !o) isSidebarOpen.value = false
 })
 
 // Override the sidebar value for mobile to open and close the drawer
-const config = computed(() => {
-  const showSidebar = isMobile.value
-    ? showMobileDrawer.value
-    : props.configuration?.showSidebar
-  return { ...props.configuration, showSidebar }
-})
-
 const { hash } = useNavState()
 
 watch(hash, (newHash, oldHash) => {
   if (newHash && newHash !== oldHash) {
-    showMobileDrawer.value = false
+    isSidebarOpen.value = false
   }
 })
 </script>
 <template>
   <ApiReferenceLayout
-    :class="{ 'scalar-api-references-standalone-mobile': isMobile }"
-    :configuration="config"
+    class="scalar-api-references-standalone-mobile"
+    :configuration="configuration"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec">
-    <template
-      v-if="isMobile"
-      #header>
-      <MobileHeader v-model:open="showMobileDrawer" />
+    <template #header>
+      <MobileHeader v-model:open="isSidebarOpen" />
     </template>
     <template #sidebar-start="{ spec }">
       <div class="scalar-api-references-standalone-search">
@@ -69,9 +59,10 @@ watch(hash, (newHash, oldHash) => {
   </ApiReferenceLayout>
 </template>
 <style>
-.scalar-api-references-standalone-mobile {
-  /* By default add a header on mobile for the navigation */
-  --theme-header-height: 50px;
+@media (max-width: 1000px) {
+  .scalar-api-references-standalone-mobile {
+    --theme-header-height: 50px;
+  }
 }
 </style>
 <style scoped>
