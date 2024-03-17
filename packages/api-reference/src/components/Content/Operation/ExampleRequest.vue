@@ -8,7 +8,7 @@ import {
 } from '@scalar/oas-utils'
 import { snippetz } from '@scalar/snippetz'
 import { HTTPSnippet } from 'httpsnippet-lite'
-import { computed, inject, ref, watch } from 'vue'
+import { computed, inject, onServerPrefetch, ref, watch } from 'vue'
 
 import {
   GLOBAL_SECURITY_SYMBOL,
@@ -16,6 +16,7 @@ import {
   getRequestFromAuthentication,
   getSecretCredentialsFromAuthentication,
   getUrlFromServerState,
+  sleep,
 } from '../../../helpers'
 import { useClipboard, useSnippetTargets } from '../../../hooks'
 import { useGlobalStore } from '../../../stores'
@@ -121,6 +122,8 @@ watch(
   },
 )
 
+onServerPrefetch(async () => await sleep(1))
+
 computed(() => {
   return getApiClientRequest({
     serverState: serverState,
@@ -182,9 +185,9 @@ computed(() => {
       borderless
       class="request-editor-section custom-scroll"
       frameless>
-      <!-- Multiple examples -->
       <div class="code-snippet">
         <ScalarCodeBlock
+          class="custom-scroll"
           :content="CodeMirrorValue"
           :hideCredentials="
             getSecretCredentialsFromAuthentication(authenticationState)
