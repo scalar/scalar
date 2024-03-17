@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
-import { ref, watch } from 'vue'
+import { watch } from 'vue'
 
 import { useNavState, useSidebar } from '../../hooks'
 import { type ReferenceLayoutProps, type ReferenceSlots } from '../../types'
