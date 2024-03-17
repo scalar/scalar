@@ -53,6 +53,10 @@ const generatePropertyDescription = function (property?: Record<string, any>) {
   return descriptions[property.type][property.format || '_default']
 }
 
+const getEnumFromValue = function (value?: Record<string, any>): any[] | null {
+  return value?.enum || value?.items?.enum || null
+}
+
 const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 </script>
 <template>
@@ -116,7 +120,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         <template v-if="value.pattern">
           &middot; <code class="pattern">{{ value.pattern }}</code>
         </template>
-        <template v-if="value.enum"> &middot; enum </template>
+        <template v-if="getEnumFromValue(value)"> &middot; enum </template>
         <template v-if="value.default">
           &middot; default: {{ value.default }}
         </template>
@@ -166,11 +170,11 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     </div>
     <!-- Enum -->
     <div
-      v-if="value?.enum"
+      v-if="getEnumFromValue(value)"
       class="property-enum">
       <ul class="property-enum-values">
         <li
-          v-for="enumValue in value.enum"
+          v-for="enumValue in getEnumFromValue(value)"
           :key="enumValue"
           class="property-enum-value">
           {{ enumValue }}
