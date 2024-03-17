@@ -10,10 +10,10 @@
     "node": ">=18"
   },
   "scripts": {
+    "build": "docusaurus build",
     "clear": "docusaurus clear",
     "deploy": "docusaurus deploy",
     "docusaurus": "docusaurus",
-    "build": "docusaurus build",
     "serve": "docusaurus serve",
     "start": "docusaurus start",
     "swizzle": "docusaurus swizzle",
