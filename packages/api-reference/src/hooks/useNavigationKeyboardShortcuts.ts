@@ -1,4 +1,6 @@
-import { useMagicKeys, whenever } from '@vueuse/core'
+import { useActiveElement, useMagicKeys, whenever } from '@vueuse/core'
+import { logicAnd } from '@vueuse/math'
+import { computed } from 'vue'
 
 import { scrollToId } from '../helpers'
 import type { Spec } from '../types'
@@ -11,6 +13,14 @@ import { type SidebarEntry, useSidebar } from './useSidebar'
  * Note: Should be just onced in the app. Otherwise it will register multiple times. :)
  */
 export function useNavigationKeyboardShortcuts(options?: { parsedSpec: Spec }) {
+  const activeElement = useActiveElement()
+
+  const notUsingInput = computed(
+    () =>
+      activeElement.value?.tagName !== 'INPUT' &&
+      activeElement.value?.tagName !== 'TEXTAREA',
+  )
+
   const { previousEntry, nextEntry, setCollapsedSidebarItem } =
     useSidebar(options)
 
@@ -20,17 +30,17 @@ export function useNavigationKeyboardShortcuts(options?: { parsedSpec: Spec }) {
   const keys = useMagicKeys()
 
   // Previous section
-  whenever(keys.k, () => {
+  whenever(logicAnd(keys.k, notUsingInput), () => {
     goToSection(previousEntry.value, 'introduction')
   })
 
   // Next section
-  whenever(keys.j, () => {
+  whenever(logicAnd(keys.j, notUsingInput), () => {
     goToSection(nextEntry.value)
   })
 
   // Scroll to the given section
-  function goToSection(entry: SidebarEntry | undefined, fallback: string) {
+  function goToSection(entry: SidebarEntry | undefined, fallback?: string) {
     // If there is no entry, do nothing.
     if (!entry?.id) {
       if (fallback) {
