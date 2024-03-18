@@ -43,7 +43,9 @@ const specVersion = computed(() => {
       <div class="section-flare-item"></div>
       <div class="section-flare-item"></div>
     </div>
-    <Section class="introduction-section">
+    <Section
+      id="introduction"
+      class="introduction-section">
       <SectionContent :loading="!info.description && !info.title">
         <SectionColumns>
           <SectionColumn>

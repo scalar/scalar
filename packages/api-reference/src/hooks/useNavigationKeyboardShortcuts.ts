@@ -21,7 +21,7 @@ export function useNavigationKeyboardShortcuts(options?: { parsedSpec: Spec }) {
 
   // Previous section
   whenever(keys.k, () => {
-    goToSection(previousEntry.value)
+    goToSection(previousEntry.value, 'introduction')
   })
 
   // Next section
@@ -30,9 +30,13 @@ export function useNavigationKeyboardShortcuts(options?: { parsedSpec: Spec }) {
   })
 
   // Scroll to the given section
-  function goToSection(entry: SidebarEntry | undefined) {
+  function goToSection(entry: SidebarEntry | undefined, fallback: string) {
     // If there is no entry, do nothing.
     if (!entry?.id) {
+      if (fallback) {
+        scrollToId(fallback)
+      }
+
       return
     }
 
