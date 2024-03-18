@@ -70,6 +70,42 @@ describe('getRequestBodyFromOperation', () => {
     })
   })
 
+  it('uses example', () => {
+    const request = getRequestBodyFromOperation({
+      httpVerb: 'POST',
+      path: '/foobar',
+      information: {
+        requestBody: {
+          description: 'Sample request body',
+          required: false,
+          content: {
+            'application/json': {
+              example: {
+                someObject: {
+                  someAttribute: 'attribute1',
+                },
+              },
+              schema: {
+                $ref: '#/components/schemas/PutDocumentRequest',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const expectedResult = {
+      someObject: {
+        someAttribute: 'attribute1',
+      },
+    }
+
+    expect(request?.postData).toMatchObject({
+      mimeType: 'application/json',
+      text: JSON.stringify(expectedResult, null, 2),
+    })
+  })
+
   it('uses examples', () => {
     const request = getRequestBodyFromOperation({
       httpVerb: 'POST',

@@ -129,11 +129,13 @@ export function getRequestBodyFromOperation(
       ? getExampleFromSchema(requestBodyObject?.schema, { mode: 'write' })
       : null
 
+    const body = example ?? exampleFromSchema
+
     return {
       headers,
       postData: {
         mimeType: mimeType,
-        text: example ?? JSON.stringify(exampleFromSchema, null, 2),
+        text: typeof body === 'string' ? body : JSON.stringify(body, null, 2),
       },
     }
   }
