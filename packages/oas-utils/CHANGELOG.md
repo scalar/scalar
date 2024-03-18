@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.1.1
+
+### Patch Changes
+
+- 31aae5e: chore: moved shared types and methods into oas-utils
+
 ## 0.1.0
 
 ### Minor Changes

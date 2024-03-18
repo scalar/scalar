@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 1.1.0
+
+### Minor Changes
+
+- 31aae5e: chore: moved shared types and methods into oas-utils
+
+### Patch Changes
+
+- Updated dependencies [31aae5e]
+  - @scalar/oas-utils@0.1.1
+
 ## 1.0.3
 
 ### Patch Changes
