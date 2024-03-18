@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
+import { type TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { FlowModal, type ModalState } from '@scalar/use-modal'
 import { useMagicKeys, whenever } from '@vueuse/core'
@@ -9,7 +10,7 @@ import { computed, ref, toRef, watch } from 'vue'
 import { getHeadingsFromMarkdown } from '../helpers'
 import { extractRequestBody } from '../helpers/specHelpers'
 import { type ParamMap, useNavState, useOperation, useSidebar } from '../hooks'
-import type { Spec, TransformedOperation } from '../types'
+import type { Spec } from '../types'
 
 const props = defineProps<{ parsedSpec: Spec; modalState: ModalState }>()
 const reactiveSpec = toRef(props, 'parsedSpec')

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
+import { type TransformedOperation } from '@scalar/oas-utils'
 
 import { useNavState, useSidebar } from '../../../hooks'
-import type { Tag, TransformedOperation } from '../../../types'
+import type { Tag } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { Card, CardContent, CardHeader } from '../../Card'
 import { MarkdownRenderer } from '../../MarkdownRenderer'

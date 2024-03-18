@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
+import {
+  type TransformedOperation,
+  getHarRequest,
+  getRequestFromOperation,
+} from '@scalar/oas-utils'
 import { snippetz } from '@scalar/snippetz'
 import { HTTPSnippet } from 'httpsnippet-lite'
 import { computed, inject, ref, watch } from 'vue'
@@ -8,16 +13,13 @@ import { computed, inject, ref, watch } from 'vue'
 import {
   GLOBAL_SECURITY_SYMBOL,
   getApiClientRequest,
-  getHarRequest,
   getRequestFromAuthentication,
-  getRequestFromOperation,
   getSecretCredentialsFromAuthentication,
   getUrlFromServerState,
 } from '../../../helpers'
 import { useClipboard, useSnippetTargets } from '../../../hooks'
 import { useGlobalStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
-import type { TransformedOperation } from '../../../types'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'

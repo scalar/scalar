@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import type { ContentType, RequestBody } from '@scalar/oas-utils'
 import { computed, ref } from 'vue'
 
-import type { ContentType, RequestBody } from '../../../types'
 import { Schema } from '../Schema'
 
 const prop = defineProps<{ requestBody?: RequestBody }>()

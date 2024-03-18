@@ -1,6 +1,5 @@
 import { getExampleFromSchema } from './getExampleFromSchema'
-import type { TransformedOperation } from './types'
-import type { BaseParameter } from './types'
+import type { BaseParameter, TransformedOperation } from './types'
 
 /**
  * Get the query parameters from an operation.

@@ -1,3 +1,5 @@
+import { type BaseParameter } from '@scalar/oas-utils'
+
 export type BasicAuth = {
   username: string
   password: string
@@ -34,17 +36,6 @@ export type AuthState = {
   oauthTwo: OAuthTwo
   bearer: Bearer
   digest: Digest
-}
-
-/**
- * @deprecated use the type exported from oas-utils
- */
-export type BaseParameter = {
-  name: string
-  description?: string | null
-  value: string | number | Record<string, any>
-  required?: boolean
-  enabled: boolean
 }
 
 export type Header = BaseParameter

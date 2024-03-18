@@ -1,3 +1,4 @@
+import { type ContentType, type TransformedOperation } from '@scalar/oas-utils'
 import {
   type OpenAPIV2,
   type OpenAPIV3,
@@ -89,92 +90,6 @@ export type SpecConfiguration = {
 
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
 
-/**
- * @deprecated use the type exported from oas-utils
- */
-export type Schema = {
-  type: string
-  name?: string
-  example?: any
-  default?: any
-  format?: string
-  description?: string
-  properties?: Record<string, Schema>
-}
-
-/**
- * @deprecated use the type exported from oas-utils
- */
-export type Parameters = {
-  // Fixed Fields
-  name: string
-  in?: string
-  description?: string
-  required?: boolean
-  deprecated?: boolean
-  allowEmptyValue?: boolean
-  // Other
-  style?: 'form' | 'simple'
-  explode?: boolean
-  allowReserved?: boolean
-  schema?: Schema
-  example?: any
-  examples?: Map<string, any>
-}
-
-export type Response = {
-  description: string
-  content: any
-}
-
-/**
- * @deprecated use the type exported from oas-utils
- */
-export type CustomRequestExample = {
-  lang: string
-  label: string
-  source: string
-}
-
-/**
- * @deprecated use the type exported from oas-utils
- */
-export type Information = {
-  'description'?: string
-  'operationId'?: string | number
-  'parameters'?: Parameters[]
-  'responses'?: Record<string, Response>
-  'security'?: OpenAPIV3.SecurityRequirementObject[]
-  'requestBody'?: RequestBody
-  'summary'?: string
-  'tags'?: string[]
-  'deprecated'?: boolean
-  /**
-   * Scalar
-   **/
-  'x-custom-examples'?: CustomRequestExample[]
-  /**
-   * Redocly, current
-   **/
-  'x-codeSamples'?: CustomRequestExample[]
-  /**
-   * Redocly, deprecated
-   **/
-  'x-code-samples'?: CustomRequestExample[]
-}
-
-/**
- * @deprecated use the type exported from oas-utils
- */
-export type Operation = {
-  httpVerb: string
-  path: string
-  operationId?: string
-  name?: string
-  description?: string
-  information?: Information
-}
-
 export type ExampleResponseHeaders = Record<
   string,
   {
@@ -186,13 +101,6 @@ export type ExampleResponseHeaders = Record<
     }
   }
 >
-
-/**
- * @deprecated use the type exported from oas-utils
- */
-export type TransformedOperation = Operation & {
-  pathParameters?: Parameters[]
-}
 
 export type Tag = {
   name: string
@@ -226,40 +134,8 @@ export type ContentSchema = {
   }
 }
 
-/**
- * @deprecated use the type exported from oas-utils
- */
-export type ContentType =
-  | 'application/json'
-  | 'application/xml'
-  | 'text/plain'
-  | 'text/html'
-  | 'application/octet-stream'
-  | 'application/x-www-form-urlencoded'
-  | 'multipart/form-data'
-
 export type Content = {
   [key in ContentType]: ContentSchema
-}
-
-/**
- * @deprecated use the type exported from oas-utils
- */
-export type RequestBodyMimeTypes = {
-  [K in ContentType]?: {
-    schema?: any
-    example?: any
-    examples?: any
-  }
-}
-
-/**
- * @deprecated use the type exported from oas-utils
- */
-export type RequestBody = {
-  description?: string
-  required?: boolean
-  content?: RequestBodyMimeTypes
 }
 
 export type Contact = {
@@ -372,30 +248,6 @@ export type ServerState = {
   description?: string
   servers: Server[]
   variables: Variable[]
-}
-
-/**
- * @deprecated use the type exported from oas-utils
- */
-export type Header = {
-  name: string
-  value: string
-}
-
-/**
- * @deprecated use the type exported from oas-utils
- */
-export type Query = {
-  name: string
-  value: string
-}
-
-/**
- * @deprecated use the type exported from oas-utils
- */
-export type Cookie = {
-  name: string
-  value: string
 }
 
 export type HarRequestWithPath = HarRequest & {

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components'
-
-import { getExampleFromSchema, prettyPrintJson } from '../../../../helpers'
+import { getExampleFromSchema, prettyPrintJson } from '@scalar/oas-utils'
 
 defineProps<{
   response:

@@ -46,7 +46,7 @@ export type Information = {
   'description'?: string
   'operationId'?: string | number
   'parameters'?: Parameters[]
-  'responses'?: Record<string, Response>
+  'responses'?: Record<string, ScalarResponse>
   'security'?: OpenAPIV3.SecurityRequirementObject[]
   'requestBody'?: RequestBody
   'summary'?: string
@@ -103,6 +103,11 @@ export type RequestBodyMimeTypes = {
     example?: any
     examples?: any
   }
+}
+
+export type ScalarResponse = {
+  description: string
+  content: any
 }
 
 export type RequestBody = {

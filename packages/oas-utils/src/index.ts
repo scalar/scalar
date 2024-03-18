@@ -13,4 +13,5 @@ export {
   transformToJson,
   yaml,
 } from './parse'
+export { prettyPrintJson } from './prettyPrintJson'
 export * from './types'

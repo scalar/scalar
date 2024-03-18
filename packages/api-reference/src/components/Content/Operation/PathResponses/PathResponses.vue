@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
+import type { TransformedOperation } from '@scalar/oas-utils'
 import { computed, ref } from 'vue'
 
 import { useClipboard } from '../../../../hooks'
-import type { TransformedOperation } from '../../../../types'
 import {
   Card,
   CardContent,

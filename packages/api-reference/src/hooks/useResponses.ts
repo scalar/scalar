@@ -1,6 +1,5 @@
+import type { TransformedOperation } from '@scalar/oas-utils'
 import { computed } from 'vue'
-
-import type { TransformedOperation } from '../types'
 
 /**
  * This hook is used to generate the responses for the request from the parameters in the swagger file

@@ -1,4 +1,5 @@
 import { useApiClientStore } from '@scalar/api-client'
+import { type TransformedOperation } from '@scalar/oas-utils'
 import { type OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, reactive, ref, watch } from 'vue'
 
@@ -9,7 +10,7 @@ import {
   hasWebhooks,
   openClientFor,
 } from '../helpers'
-import type { Spec, Tag, TransformedOperation } from '../types'
+import type { Spec, Tag } from '../types'
 import { useNavState } from './useNavState'
 
 export type SidebarEntry = {
