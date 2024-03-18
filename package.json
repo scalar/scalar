@@ -38,6 +38,7 @@
     "clean:dist": "find . -name dist -type d -exec rm -rf {} \\;",
     "clean:turbo": "find . -name .turbo -type d -exec rm -rf {} \\;",
     "dev": "./scripts/dev.sh",
+    "@scalar/cli": "pnpm --filter @scalar/cli run @scalar/cli",
     "format": "pnpm prettier --write .",
     "format:check": "pnpm prettier --check .",
     "format:packages": "pnpm syncpack fix-mismatches --types 'prod,dev' || true && pnpm syncpack set-semver-ranges && vite-node scripts/format-package.ts && pnpm install -r",
