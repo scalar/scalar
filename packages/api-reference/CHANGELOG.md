@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.20.0
+
+### Minor Changes
+
+- 31aae5e: chore: moved shared types and methods into oas-utils
+
+### Patch Changes
+
+- 6dc67c1: fix: example requestBody isn’t shown in the api client
+- c4500f6: chore: remove @scalar/swagger-editor as a dependency
+- 41f0d86: fix: example for object with anyOf, allOf, oneOf schemas doesn’t have a value
+- Updated dependencies [31aae5e]
+  - @scalar/api-client@1.1.0
+  - @scalar/oas-utils@0.1.1
+
 ## 1.19.7
 
 ### Patch Changes
