@@ -18,7 +18,9 @@ export function useNavigationKeyboardShortcuts(options?: { parsedSpec: Spec }) {
   const notUsingInput = computed(
     () =>
       activeElement.value?.tagName !== 'INPUT' &&
-      activeElement.value?.tagName !== 'TEXTAREA',
+      activeElement.value?.tagName !== 'TEXTAREA' &&
+      // CodeMirror
+      activeElement.value?.classList.contains('cm-content') === false,
   )
 
   const { previousEntry, nextEntry, setCollapsedSidebarItem } =
