@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import type { TransformedOperation } from '@scalar/oas-utils'
 import { computed } from 'vue'
 
-import type { TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { Badge } from '../../Badge'
 import {

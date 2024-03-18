@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
 import { ScalarIcon, ScalarIconButton } from '@scalar/components'
+import type { TransformedOperation } from '@scalar/oas-utils'
 
 import { useClipboard } from '../../../hooks'
-import type { TransformedOperation } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { MarkdownRenderer } from '../../MarkdownRenderer'
 import { SectionAccordion } from '../../Section'

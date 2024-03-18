@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import type { BaseParameter } from '@scalar/oas-utils'
+
 import { useRequestStore } from '../../../stores'
-import type { BaseParameter } from '../../../types'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 

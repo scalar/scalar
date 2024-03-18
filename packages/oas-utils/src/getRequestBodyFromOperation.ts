@@ -1,10 +1,8 @@
-import type { ContentType, TransformedOperation } from '../types'
-import {
-  getExampleFromSchema,
-  getParametersFromOperation,
-  json2xml,
-  prettyPrintJson,
-} from './'
+import { getExampleFromSchema } from './getExampleFromSchema'
+import { getParametersFromOperation } from './getParametersFromOperation'
+import { json2xml } from './json2xml'
+import { prettyPrintJson } from './prettyPrintJson'
+import type { ContentType, TransformedOperation } from './types'
 
 /**
  * Get the request body from the operation.

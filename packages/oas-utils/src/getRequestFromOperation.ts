@@ -1,11 +1,12 @@
+import { getParametersFromOperation } from './getParametersFromOperation'
+import { getRequestBodyFromOperation } from './getRequestBodyFromOperation'
 import type {
   Cookie,
   HarRequestWithPath,
   Header,
   Query,
   TransformedOperation,
-} from '../types'
-import { getParametersFromOperation, getRequestBodyFromOperation } from './'
+} from './types'
 
 export const getRequestFromOperation = (
   operation: TransformedOperation,

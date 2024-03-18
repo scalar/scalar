@@ -1,6 +1,5 @@
+import type { Parameters, TransformedOperation } from '@scalar/oas-utils'
 import { computed } from 'vue'
-
-import type { Parameters, TransformedOperation } from '../types'
 
 export type ParamMap = {
   path: Parameters[]

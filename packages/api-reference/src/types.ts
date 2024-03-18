@@ -1,3 +1,4 @@
+import { type ContentType, type TransformedOperation } from '@scalar/oas-utils'
 import {
   type OpenAPIV2,
   type OpenAPIV3,
@@ -89,77 +90,6 @@ export type SpecConfiguration = {
 
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
 
-export type Schema = {
-  type: string
-  name?: string
-  example?: any
-  default?: any
-  format?: string
-  description?: string
-  properties?: Record<string, Schema>
-}
-
-export type Parameters = {
-  // Fixed Fields
-  name: string
-  in?: string
-  description?: string
-  required?: boolean
-  deprecated?: boolean
-  allowEmptyValue?: boolean
-  // Other
-  style?: 'form' | 'simple'
-  explode?: boolean
-  allowReserved?: boolean
-  schema?: Schema
-  example?: any
-  examples?: Map<string, any>
-}
-
-export type Response = {
-  description: string
-  content: any
-}
-
-export type CustomRequestExample = {
-  lang: string
-  label: string
-  source: string
-}
-
-export type Information = {
-  'description'?: string
-  'operationId'?: string | number
-  'parameters'?: Parameters[]
-  'responses'?: Record<string, Response>
-  'security'?: OpenAPIV3.SecurityRequirementObject[]
-  'requestBody'?: RequestBody
-  'summary'?: string
-  'tags'?: string[]
-  'deprecated'?: boolean
-  /**
-   * Scalar
-   **/
-  'x-custom-examples'?: CustomRequestExample[]
-  /**
-   * Redocly, current
-   **/
-  'x-codeSamples'?: CustomRequestExample[]
-  /**
-   * Redocly, deprecated
-   **/
-  'x-code-samples'?: CustomRequestExample[]
-}
-
-export type Operation = {
-  httpVerb: string
-  path: string
-  operationId?: string
-  name?: string
-  description?: string
-  information?: Information
-}
-
 export type ExampleResponseHeaders = Record<
   string,
   {
@@ -171,10 +101,6 @@ export type ExampleResponseHeaders = Record<
     }
   }
 >
-
-export type TransformedOperation = Operation & {
-  pathParameters?: Parameters[]
-}
 
 export type Tag = {
   name: string
@@ -208,32 +134,8 @@ export type ContentSchema = {
   }
 }
 
-export type ContentType =
-  | 'application/json'
-  | 'application/xml'
-  | 'text/plain'
-  | 'text/html'
-  | 'application/octet-stream'
-  | 'application/x-www-form-urlencoded'
-  | 'multipart/form-data'
-
 export type Content = {
   [key in ContentType]: ContentSchema
-}
-
-// Create a mapped type to ensure keys are a subset of ContentType
-export type RequestBodyMimeTypes = {
-  [K in ContentType]?: {
-    schema?: any
-    example?: any
-    examples?: any
-  }
-}
-
-export type RequestBody = {
-  description?: string
-  required?: boolean
-  content?: RequestBodyMimeTypes
 }
 
 export type Contact = {
@@ -346,21 +248,6 @@ export type ServerState = {
   description?: string
   servers: Server[]
   variables: Variable[]
-}
-
-export type Header = {
-  name: string
-  value: string
-}
-
-export type Query = {
-  name: string
-  value: string
-}
-
-export type Cookie = {
-  name: string
-  value: string
 }
 
 export type HarRequestWithPath = HarRequest & {

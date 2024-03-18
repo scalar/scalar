@@ -1,4 +1,6 @@
-import type { ContentSchema, Operation } from '../types'
+import { type Operation } from '@scalar/oas-utils'
+
+import type { ContentSchema } from '../types'
 
 type PropertyObject = {
   required?: string[]

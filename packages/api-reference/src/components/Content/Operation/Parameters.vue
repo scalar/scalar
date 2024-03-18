@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { Parameters } from '../../../types'
+import type { Parameters } from '@scalar/oas-utils'
+
 import ParameterItem from './ParameterItem.vue'
 
 withDefaults(

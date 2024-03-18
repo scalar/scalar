@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { Parameters } from '../../../types'
+import type { Parameters } from '@scalar/oas-utils'
+
 import { SchemaProperty } from '../Schema'
 
 withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {

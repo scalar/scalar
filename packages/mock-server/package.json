@@ -38,6 +38,7 @@
   "dependencies": {
     "@hono/node-server": "^1.8.2",
     "@scalar/api-reference": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
     "hono": "^4.1.0",
     "vite-node": "^1.2.2"
