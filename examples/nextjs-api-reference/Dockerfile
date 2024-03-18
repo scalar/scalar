@@ -15,7 +15,8 @@ COPY packages ./packages
 COPY examples/nextjs-api-reference ./examples/nextjs-api-reference
 
 # Install and build the main package and its dependencies
-RUN pnpm --filter "@scalar-examples/nextjs-api-reference..." install && \
+RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store \
+    pnpm --filter "@scalar-examples/nextjs-api-reference..." install --frozen-lockfile && \
     pnpm --filter "@scalar-examples/nextjs-api-reference..." build
 
 
@@ -43,6 +44,7 @@ WORKDIR /app/examples/nextjs-api-reference
 # Cloud build requires port 8080 to be exposed
 EXPOSE 8080
 ENV PORT 8080
+
 # TODO: set hostname
 ENV HOSTNAME "0.0.0.0"
 # server.js is created by next build from the standalone output

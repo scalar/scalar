@@ -15,8 +15,10 @@
     "dev": "next dev -p 5058",
     "lint": "next lint",
     "start": "next start",
-    "docker:build": "sh deploy.sh --method build",
-    "docker:run": "sh deploy.sh --method run"
+    "docker:build": "sh deploy.sh --method build --project engaged-list-379206",
+    "docker:build-local": "sh deploy.sh --method build-local --project engaged-list-379206",
+    "docker:run": "sh deploy.sh --method run --project engaged-list-379206",
+    "docker:push": "sh deploy.sh --method push --project engaged-list-379206"
   },
   "dependencies": {
     "@scalar/api-client-react": "workspace:*",

@@ -26,21 +26,32 @@ done
 # Move to the root of the project
 cd ../..
 
-name="nextjs-api-reference-example"
-image_name="$name"
+repo="us-central1-docker.pkg.dev/${project:?}/oss-examples"
+image="nextjs-api-reference-example"
+image_name="$repo/$image"
 
 case "${method:?}" in
+    build-local)
+        docker build \
+        -t ${image_name} \
+        -f ./examples/nextjs-api-reference/Dockerfile .
+        ;;
     build)
         docker build \
-        -t ${image_name}:latest \
+        --platform=linux/amd64 \
+        -t ${image_name} \
         -f ./examples/nextjs-api-reference/Dockerfile .
+        ;;
+    push)
+        docker push ${image_name}
         ;;
     run)
         docker run \
-        -p 3000:3000 \
-        ${image_name}:latest
+        -p 8080:8080 \
+        ${image_name}
         ;;
     *)
+    # docker push us-central1-docker.pkg.dev/engaged-list-379206/oss-examples/nextjs-api-reference-example
         echo "Usage: $0 {build|run}"
         exit 1
 esac
