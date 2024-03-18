@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.19.7
+
+### Patch Changes
+
+- 63deb4f: fix: enum under items is not being displayed
+
 ## 1.19.6
 
 ### Patch Changes
