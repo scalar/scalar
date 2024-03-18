@@ -75,6 +75,29 @@ export const getExampleFromSchema = (
       })
     }
 
+    if (schema.anyOf !== undefined) {
+      Object.assign(
+        response,
+        getExampleFromSchema(schema.anyOf[0]),
+        options,
+        level + 1,
+      )
+    } else if (schema.oneOf !== undefined) {
+      Object.assign(
+        response,
+        getExampleFromSchema(schema.oneOf[0]),
+        options,
+        level + 1,
+      )
+    } else if (schema.allOf !== undefined) {
+      Object.assign(
+        response,
+        ...schema.allOf.map((item: Record<string, any>) =>
+          getExampleFromSchema(item, options, level + 1),
+        ),
+      )
+    }
+
     // Merge additionalProperties
     if (
       schema.additionalProperties !== undefined &&

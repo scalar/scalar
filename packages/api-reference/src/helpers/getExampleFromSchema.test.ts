@@ -195,7 +195,73 @@ describe('getExampleFromSchema', () => {
     ])
   })
 
-  it('uses the first example in anyOf', () => {
+  it('uses the first example in object anyOf', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        anyOf: [
+          {
+            type: 'object',
+            properties: {
+              foo: { type: 'number' },
+            },
+          },
+          {
+            type: 'object',
+            properties: {
+              bar: { type: 'string' },
+            },
+          },
+        ],
+      }),
+    ).toMatchObject({ foo: 1 })
+  })
+
+  it('uses the first example in object oneOf', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        oneOf: [
+          {
+            type: 'object',
+            properties: {
+              foo: { type: 'number' },
+            },
+          },
+          {
+            type: 'object',
+            properties: {
+              bar: { type: 'string' },
+            },
+          },
+        ],
+      }),
+    ).toMatchObject({ foo: 1 })
+  })
+
+  it('uses all examples in object allOf', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        allOf: [
+          {
+            type: 'object',
+            properties: {
+              foo: { type: 'number' },
+            },
+          },
+          {
+            type: 'object',
+            properties: {
+              bar: { type: 'string' },
+            },
+          },
+        ],
+      }),
+    ).toMatchObject({ foo: 1, bar: '' })
+  })
+
+  it('uses the first example in array anyOf', () => {
     expect(
       getExampleFromSchema({
         type: 'array',
@@ -215,7 +281,7 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject(['foobar'])
   })
 
-  it('uses one example in oneOf', () => {
+  it('uses one example in array oneOf', () => {
     expect(
       getExampleFromSchema({
         type: 'array',
@@ -235,7 +301,7 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject(['foobar'])
   })
 
-  it('uses all examples in allOf', () => {
+  it('uses all examples in array allOf', () => {
     expect(
       getExampleFromSchema({
         type: 'array',
