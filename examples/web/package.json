@@ -20,7 +20,6 @@
   "dependencies": {
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
-    "@scalar/swagger-editor": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@vueuse/core": "^10.4.1",
     "monaco-editor": "^0.47.0",
