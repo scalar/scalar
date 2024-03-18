@@ -99,7 +99,7 @@ watch(
 
 // We want to render the syntax highlight on the server first
 onServerPrefetch(async () => {
-  const html = Prism.highlight(
+  const html = prismjs.highlight(
     typeof props.content === 'object'
       ? JSON.stringify(props.content)
       : props.content,
