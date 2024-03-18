@@ -6,6 +6,7 @@ import {
 } from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
+import { INTRODUCTION_ANCHOR } from '../../../helpers'
 import type { Spec } from '../../../types'
 import { Badge } from '../../Badge'
 import {
@@ -44,7 +45,7 @@ const specVersion = computed(() => {
       <div class="section-flare-item"></div>
     </div>
     <Section
-      id="introduction"
+      :id="INTRODUCTION_ANCHOR"
       class="introduction-section">
       <SectionContent :loading="!info.description && !info.title">
         <SectionColumns>

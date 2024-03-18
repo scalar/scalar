@@ -2,7 +2,6 @@ import { useActiveElement, useMagicKeys, whenever } from '@vueuse/core'
 import { logicAnd } from '@vueuse/math'
 import { computed } from 'vue'
 
-import { scrollToId } from '../helpers'
 import type { Spec } from '../types'
 import { useNavState } from './useNavState'
 import { type SidebarEntry, useSidebar } from './useSidebar'
@@ -33,7 +32,7 @@ export function useNavigationKeyboardShortcuts(options?: { parsedSpec: Spec }) {
 
   // Previous section
   whenever(logicAnd(keys.k, notUsingInput), () => {
-    goToSection(previousEntry.value, 'introduction')
+    goToSection(previousEntry.value, '')
   })
 
   // Next section
@@ -45,8 +44,8 @@ export function useNavigationKeyboardShortcuts(options?: { parsedSpec: Spec }) {
   function goToSection(entry: SidebarEntry | undefined, fallback?: string) {
     // If there is no entry, do nothing.
     if (!entry?.id) {
-      if (fallback) {
-        scrollToId(fallback)
+      if (fallback !== undefined) {
+        window.location.hash = fallback
       }
 
       return
@@ -56,6 +55,8 @@ export function useNavigationKeyboardShortcuts(options?: { parsedSpec: Spec }) {
     setCollapsedSidebarItem(getSectionId(entry.id), true)
 
     // Scroll to the section.
-    scrollToId(entry.id)
+    //
+    // Note: We can’t use scrollToId here, because some sections don’t have content and their height is 0. So there are in the view, but we can’t really scroll to them.
+    window.location.hash = entry.id
   }
 }
