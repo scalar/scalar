@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { TransformedOperation } from '../types'
 import { getRequestFromOperation } from './getRequestFromOperation'
+import type { TransformedOperation } from './types'
 
 describe('getRequestFromOperation', () => {
   it('transforms a basic operation', () => {

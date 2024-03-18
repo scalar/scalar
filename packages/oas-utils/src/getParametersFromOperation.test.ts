@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { TransformedOperation } from '../types'
 import { getParametersFromOperation } from './getParametersFromOperation'
+import type { TransformedOperation } from './types'
 
 describe('getParametersFromOperation', () => {
   it('operation query parameters', () => {

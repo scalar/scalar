@@ -1,9 +1,7 @@
-import { mapFromArray } from '@scalar/api-client'
 import { AxiosHeaders } from 'axios'
 import type { HarRequest } from 'httpsnippet-lite'
 
-import { mapFromObject } from '../helpers'
-import type { Cookie, HarRequestWithPath, Header, Query } from '../types'
+import type { Cookie, HarRequestWithPath, Header, Query } from './types'
 
 export const getHarRequest = (
   ...requests: Partial<HarRequestWithPath>[]

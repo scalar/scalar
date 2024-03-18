@@ -36,6 +36,9 @@ export type AuthState = {
   digest: Digest
 }
 
+/**
+ * @deprecated use the type exported from oas-utils
+ */
 export type BaseParameter = {
   name: string
   description?: string | null

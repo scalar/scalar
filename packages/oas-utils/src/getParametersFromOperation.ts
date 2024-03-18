@@ -1,7 +1,6 @@
-import type { BaseParameter } from '@scalar/api-client'
-
-import type { TransformedOperation } from '../types'
 import { getExampleFromSchema } from './getExampleFromSchema'
+import type { TransformedOperation } from './types'
+import type { BaseParameter } from './types'
 
 /**
  * Get the query parameters from an operation.
