@@ -1,15 +1,15 @@
-import { Operation, getExampleFromSchema } from '@scalar/api-reference'
+import { type Operation, getExampleFromSchema } from '@scalar/oas-utils'
 import { openapi } from '@scalar/openapi-parser'
 import { type Context, Hono } from 'hono'
 
-import { normalize, routeFromPath } from '../utils'
+import { routeFromPath } from '../utils'
 
 /**
  * Create a mock server instance
  */
 export async function createMockServer(options?: {
   specification: string | Record<string, any>
-  onRequest?: (data: { context: Context; operation: any }) => void
+  onRequest?: (data: { context: Context; operation: Operation }) => void
 }) {
   const app = new Hono()
 
