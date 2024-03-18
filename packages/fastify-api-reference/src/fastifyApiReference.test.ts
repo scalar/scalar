@@ -79,7 +79,7 @@ describe('fastifyApiReference', () => {
 
     fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
-      webRoot: '/foobar',
+      publicPath: '/foobar',
       configuration: {
         spec: { url: '/swagger.json' },
       },

@@ -5,12 +5,23 @@ import { getJavaScriptFile } from './utils'
 
 export type FastifyApiReferenceOptions = {
   /**
-   * Prefix for the registered route
+   * If you’re prefixing Fastify with a path, you can set it here.
+   * It’ll be added to the JavaScript URL and the route.
+   *
+   * Example: ${publicPath}${routePrefix}/@scalar/fastify-api-reference/js/browser.js
+   */
+  publicPath?: string
+  /**
+   * Prefix the route with a path. This is where the API Reference will be available.
    *
    * @default ''
    */
-  webRoot?: string
   routePrefix?: string
+  /**
+   * The universal configuration object for @scalar/api-reference.
+   *
+   * Read more: https://github.com/scalar/scalar
+   */
   configuration?: ReferenceConfiguration
 }
 
@@ -20,8 +31,8 @@ const schemaToHideRoute = {
   hide: true,
 }
 
-const getJavaScriptUrl = (routePrefix?: string, webRoot?: string) =>
-  `${webRoot ?? ''}${routePrefix ?? ''}/@scalar/fastify-api-reference/js/browser.js`.replace(
+const getJavaScriptUrl = (routePrefix?: string, publicPath?: string) =>
+  `${publicPath ?? ''}${routePrefix ?? ''}/@scalar/fastify-api-reference/js/browser.js`.replace(
     /\/\//g,
     '/',
   )
@@ -126,7 +137,7 @@ export const javascript = (options: FastifyApiReferenceOptions) => {
             : JSON.stringify(configuration?.spec?.content)
           : ''
       }</script>
-      <script src="${getJavaScriptUrl(options.routePrefix, options.webRoot)}"></script>
+      <script src="${getJavaScriptUrl(options.routePrefix, options.publicPath)}"></script>
   `
 }
 
