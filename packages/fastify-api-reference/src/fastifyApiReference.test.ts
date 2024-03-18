@@ -72,6 +72,26 @@ describe('fastifyApiReference', () => {
     )
   })
 
+  it('prefixes the JS url', async () => {
+    const fastify = Fastify({
+      logger: false,
+    })
+
+    fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      webRoot: '/foobar',
+      configuration: {
+        spec: { url: '/swagger.json' },
+      },
+    })
+
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}/reference`)
+    expect(await response.text()).toContain(
+      '/foobar/reference/@scalar/fastify-api-reference/js/browser.js',
+    )
+  })
+
   it('has the spec URL', async () => {
     const fastify = Fastify({
       logger: false,
