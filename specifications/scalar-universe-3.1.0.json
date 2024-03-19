@@ -51,7 +51,22 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/components/schemas/PaginatedPlanets"
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Planet"
+                      }
+                    }
+                  }
+                },
+                {
+                  "$ref": "#/components/schemas/PaginatedResource"
+                }
+              ]
             }
           }
         }
@@ -381,6 +396,7 @@
   "webhooks": {
     "newPlanet": {
       "post": {
+        "tags": ["Planets"],
         "requestBody": {
           "description": "Information about a new planet",
           "content": {
@@ -422,6 +438,7 @@
         "required": true,
         "schema": {
           "type": "integer",
+          "format": "int64",
           "example": 1
         }
       },
@@ -432,6 +449,7 @@
         "required": false,
         "schema": {
           "type": "integer",
+          "format": "int64",
           "default": 10
         }
       },
@@ -442,6 +460,7 @@
         "required": false,
         "schema": {
           "type": "integer",
+          "format": "int64",
           "default": 0
         }
       }
@@ -496,6 +515,7 @@
           "password": {
             "type": "string",
             "required": true,
+            "minLength": 8,
             "example": "i-love-scalar"
           }
         }
@@ -505,6 +525,7 @@
         "properties": {
           "id": {
             "type": "integer",
+            "format": "int64",
             "required": true,
             "example": 1
           },
@@ -551,6 +572,7 @@
         "properties": {
           "id": {
             "type": "integer",
+            "format": "int64",
             "required": true,
             "example": 1
           },
@@ -572,28 +594,25 @@
           }
         }
       },
-      "PaginatedPlanets": {
+      "PaginatedResource": {
         "type": "object",
         "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Planet"
-            }
-          },
           "meta": {
             "type": "object",
             "properties": {
               "limit": {
                 "type": "integer",
+                "format": "int64",
                 "example": 10
               },
               "offset": {
                 "type": "integer",
+                "format": "int64",
                 "example": 0
               },
               "total": {
                 "type": "integer",
+                "format": "int64",
                 "example": 100
               },
               "next": {
@@ -610,19 +629,20 @@
         "properties": {
           "type": {
             "type": "string",
-            "example": "https://example.com/probs/out-of-credit"
+            "example": "https://example.com/errors/generic-error"
           },
           "title": {
             "type": "string",
-            "example": "You do not have enough credit."
+            "example": "Something went wrong here."
           },
           "status": {
             "type": "integer",
+            "format": "int64",
             "example": 403
           },
           "detail": {
             "type": "string",
-            "example": "Your current balance is 30, but that costs 50."
+            "example": "Unfortunately, we can’t provide further information."
           }
         }
       }
