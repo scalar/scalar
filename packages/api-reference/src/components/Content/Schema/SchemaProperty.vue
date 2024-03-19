@@ -98,7 +98,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
           </template>
         </template>
         <template v-else>
-          {{ value.type }}
+          {{ Array.isArray(value.type) ? value.type.join(' | ') : value.type }}
         </template>
         <template v-if="value.minItems || value.maxItems">
           {{ value.minItems }}..{{ value.maxItems }}
