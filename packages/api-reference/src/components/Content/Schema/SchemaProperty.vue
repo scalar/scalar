@@ -99,6 +99,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         </template>
         <template v-else>
           {{ Array.isArray(value.type) ? value.type.join(' | ') : value.type }}
+          {{ value?.nullalbe ? ' | nullable' : '' }}
         </template>
         <template v-if="value.minItems || value.maxItems">
           {{ value.minItems }}..{{ value.maxItems }}
@@ -144,11 +145,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
           <Badge>{{ rule }}</Badge>
         </div>
       </template>
-      <div
-        v-if="value?.nullable"
-        class="property-nullable">
-        nullable
-      </div>
       <div
         v-if="value?.example !== undefined"
         class="property-example">
@@ -369,11 +365,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
 .property-read-only {
   font-family: var(--theme-font-code, var(--default-theme-font-code));
-}
-
-.property-nullable {
-  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
-  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 
 .property--compact .property-example {
