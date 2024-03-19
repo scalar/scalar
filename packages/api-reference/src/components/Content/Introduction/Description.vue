@@ -11,7 +11,7 @@ import {
 } from '../../../helpers'
 import { useNavState } from '../../../hooks'
 import { ssrState } from '../../../stores'
-import { type SSRState } from '../../../types'
+import { type DescriptionSectionSSRKey, type SSRState } from '../../../types'
 import IntersectionObserver from '../../IntersectionObserver.vue'
 import { MarkdownRenderer } from '../../MarkdownRenderer'
 
@@ -20,7 +20,7 @@ const props = defineProps<{
 }>()
 
 const ssrHash = createHash(props.value)
-const ssrStateKey = `components-Content-Introduction-Description-sections${ssrHash}`
+const ssrStateKey: DescriptionSectionSSRKey = `components-Content-Introduction-Description-sections${ssrHash}`
 
 const sections = computedAsync(
   async () => {

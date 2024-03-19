@@ -279,6 +279,24 @@ export type ReferenceSlotProps = {
   breadcrumb: string
 }
 
+export type CollapsedSidebarItems = Record<string, boolean>
+
+export type Heading = {
+  depth: number
+  value: string
+  slug?: string
+}
+
+export type DescriptionSectionSSRKey =
+  `components-Content-Introduction-Description-sections${number}`
+
 export type SSRState = {
-  scalarState: Record<string, any>
+  scalarState: {
+    'useGlobalStore-authentication'?: AuthenticationState
+    'useSidebarContent-collapsedSidebarItems'?: CollapsedSidebarItems
+    [key: DescriptionSectionSSRKey]: {
+      heading: Heading
+      content: string
+    }[]
+  }
 }

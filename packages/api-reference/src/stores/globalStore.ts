@@ -26,9 +26,8 @@ export const createEmptyAuthenticationState = (): AuthenticationState => ({
 })
 
 // Grab server state and preload if we have it
-const ssrStateKey = 'useGlobalStore-authentication'
 const authentication = reactive<AuthenticationState>(
-  ssrState[ssrStateKey] ?? createEmptyAuthenticationState(),
+  ssrState['useGlobalStore-authentication'] ?? createEmptyAuthenticationState(),
 )
 
 const setAuthentication = (newState: Partial<AuthenticationState>) => {
@@ -59,5 +58,4 @@ export const useGlobalStore = () => ({
   setAuthentication,
   server,
   setServer,
-  ssrStateKey,
 })

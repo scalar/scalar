@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { provideUseId } from '@headlessui/vue'
 import '@scalar/components/style.css'
 import {
   ResetStyles,
@@ -7,7 +8,15 @@ import {
   ThemeStyles,
 } from '@scalar/themes'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, onMounted, onServerPrefetch, provide, ref } from 'vue'
+import {
+  computed,
+  getCurrentInstance,
+  onMounted,
+  onServerPrefetch,
+  provide,
+  ref,
+  useSSRContext,
+} from 'vue'
 
 import {
   GLOBAL_SECURITY_SYMBOL,
@@ -19,6 +28,7 @@ import type {
   ReferenceLayoutProps,
   ReferenceLayoutSlot,
   ReferenceSlotProps,
+  SSRState,
 } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
@@ -53,7 +63,12 @@ useResizeObserver(documentEl, (entries) => {
 })
 
 // Scroll to hash if exists
-const { breadcrumb, setCollapsedSidebarItem, isSidebarOpen } = useSidebar()
+const {
+  breadcrumb,
+  collapsedSidebarItems,
+  setCollapsedSidebarItem,
+  isSidebarOpen,
+} = useSidebar()
 const { enableHashListener, getSectionId, getTagId, hash } = useNavState()
 
 enableHashListener()
@@ -82,6 +97,10 @@ onMounted(() => {
 onServerPrefetch(() => {
   const firstTag = props.parsedSpec.tags?.[0]
   if (firstTag) setCollapsedSidebarItem(getTagId(firstTag), true)
+
+  const ctx = useSSRContext<SSRState>()
+  ctx!.scalarState['useSidebarContent-collapsedSidebarItems'] =
+    collapsedSidebarItems
 })
 
 const showRenderedContent = computed(
@@ -106,6 +125,32 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   breadcrumb: breadcrumb.value,
   spec: props.parsedSpec,
 }))
+
+/**
+ * Due to a bug in headless UI, we need to set an ID here that can be shared across server/client
+ * TODO remove this once the bug is fixed
+ *
+ * @see https://github.com/tailwindlabs/headlessui/issues/2979
+ */
+provideUseId(() => {
+  const instance = getCurrentInstance()
+  const ATTR_KEY = 'scalar-instance-id'
+
+  if (!instance) return ATTR_KEY
+
+  let instanceId = instance.uid
+
+  // Grab the instance ID from vue and set it as an attribute
+  if (typeof window === 'undefined') {
+    instance.attrs ||= {}
+    instance.attrs[ATTR_KEY] = instanceId
+  }
+  // Then grab the instanceId from the attribute and return it to headless UI
+  else if (instance.vnode.el?.getAttribute) {
+    instanceId = instance.vnode.el.getAttribute(ATTR_KEY)
+  }
+  return `${ATTR_KEY}-${instanceId}`
+})
 
 // Provide global security
 provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)

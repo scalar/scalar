@@ -35,14 +35,6 @@ const model = computed({
   get: () => props.selected,
   set: (v) => emit('update:selected', v),
 })
-
-/**
- * Due to a bug in headless UI, we need to set an ID here that can be shared across server/client
- * TODO remove this once the bug is fixed
- *
- * @see https://github.com/tailwindlabs/headlessui/issues/297
- */
-const tempId = 'headlessui-listbox-button-oauth2'
 </script>
 <template>
   <Listbox
@@ -53,9 +45,7 @@ const tempId = 'headlessui-listbox-button-oauth2'
       ref="trigger"
       class="wrapper"
       :class="{ 'wrapper-open': open }">
-      <ListboxButton
-        :id="tempId"
-        :as="CardFormButton">
+      <ListboxButton :as="CardFormButton">
         <div class="scopes-label">
           <ScalarIcon
             :icon="open ? 'ChevronUp' : 'ChevronDown'"

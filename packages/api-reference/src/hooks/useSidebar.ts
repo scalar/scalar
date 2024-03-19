@@ -10,7 +10,8 @@ import {
   hasWebhooks,
   openClientFor,
 } from '../helpers'
-import type { Spec, Tag } from '../types'
+import { ssrState } from '../stores'
+import type { CollapsedSidebarItems, Spec, Tag } from '../types'
 import { useNavState } from './useNavState'
 
 export type SidebarEntry = {
@@ -38,9 +39,9 @@ const {
 const parsedSpec = ref<Spec | undefined>(undefined)
 
 // Track which sidebar items are collapsed
-type CollapsedSidebarItems = Record<string, boolean>
-
-const collapsedSidebarItems = reactive<CollapsedSidebarItems>({})
+const collapsedSidebarItems = reactive<CollapsedSidebarItems>(
+  ssrState['useSidebarContent-collapsedSidebarItems'] ?? {},
+)
 
 function toggleCollapsedSidebarItem(key: string) {
   collapsedSidebarItems[key] = !collapsedSidebarItems[key]
@@ -263,10 +264,10 @@ export function useSidebar(options?: { parsedSpec: Spec }) {
 
   return {
     breadcrumb,
-    items,
-    isSidebarOpen,
     collapsedSidebarItems,
-    toggleCollapsedSidebarItem,
+    isSidebarOpen,
+    items,
     setCollapsedSidebarItem,
+    toggleCollapsedSidebarItem,
   }
 }

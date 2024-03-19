@@ -4,11 +4,7 @@ import remarkParse from 'remark-parse'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 
-export type Heading = {
-  depth: number
-  value: string
-  slug?: string
-}
+import { type Heading } from '../types'
 
 export type Headings = Heading[]
 

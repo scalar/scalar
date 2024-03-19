@@ -3,6 +3,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { onServerPrefetch, useSSRContext, watch } from 'vue'
 
 import { useNavState, useSidebar } from '../../hooks'
+import { genDefaultSSRstate } from '../../stores'
 import {
   type ReferenceLayoutProps,
   type ReferenceSlots,
@@ -41,7 +42,7 @@ watch(hash, (newHash, oldHash) => {
 onServerPrefetch(() => {
   const ctx = useSSRContext<SSRState>()
   if (!ctx) return
-  ctx.scalarState ||= {}
+  ctx.scalarState ||= genDefaultSSRstate()
 })
 </script>
 <template>
