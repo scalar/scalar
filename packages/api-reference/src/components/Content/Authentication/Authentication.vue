@@ -1,17 +1,23 @@
 <script setup lang="ts">
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
-import { computed, watch } from 'vue'
+import {
+  type ComputedRef,
+  computed,
+  onServerPrefetch,
+  useSSRContext,
+  watch,
+} from 'vue'
 
-import { hasSecuritySchemes } from '../../../helpers'
-import { useGlobalStore } from '../../../stores'
-import { type Spec } from '../../../types'
+import { hasSecuritySchemes, sleep } from '../../../helpers'
+import { ssrState, useGlobalStore } from '../../../stores'
+import { type SSRState, type Spec } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
 import SecurityScheme from './SecurityScheme.vue'
 import SecuritySchemeSelector from './SecuritySchemeSelector.vue'
 
 const props = defineProps<{ parsedSpec?: Spec }>()
 
-const { authentication, setAuthentication } = useGlobalStore()
+const { authentication, setAuthentication, ssrStateKey } = useGlobalStore()
 
 const showSecurityScheme = computed(() => {
   if (!authentication.securitySchemeKey) {
@@ -36,6 +42,13 @@ watch(
   },
   { deep: true, immediate: true },
 )
+
+// SSR hack - waits for the computed to complete and store in state
+onServerPrefetch(async () => {
+  const ctx = useSSRContext<SSRState>()
+  await sleep(1)
+  ctx!.scalarState[ssrStateKey] = authentication
+})
 </script>
 
 <template>

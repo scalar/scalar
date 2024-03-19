@@ -63,11 +63,7 @@ function handleScroll(headingId: string) {
 onServerPrefetch(async () => {
   const ctx = useSSRContext<SSRState>()
   await sleep(1)
-  console.log('2', sections.value)
-
-  if (ctx) {
-    ctx.scalarState[ssrStateKey] = sections.value
-  }
+  ctx!.scalarState[ssrStateKey] = sections.value
 })
 </script>
 <template>

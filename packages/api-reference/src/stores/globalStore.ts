@@ -1,6 +1,7 @@
 import { reactive } from 'vue'
 
 import type { AuthenticationState, ServerState } from '../types'
+import { ssrState } from './ssrState'
 
 export const createEmptyAuthenticationState = (): AuthenticationState => ({
   securitySchemeKey: null,
@@ -24,8 +25,10 @@ export const createEmptyAuthenticationState = (): AuthenticationState => ({
   },
 })
 
+// Grab server state and preload if we have it
+const ssrStateKey = 'useGlobalStore-authentication'
 const authentication = reactive<AuthenticationState>(
-  createEmptyAuthenticationState(),
+  ssrState[ssrStateKey] ?? createEmptyAuthenticationState(),
 )
 
 const setAuthentication = (newState: Partial<AuthenticationState>) => {
@@ -56,4 +59,5 @@ export const useGlobalStore = () => ({
   setAuthentication,
   server,
   setServer,
+  ssrStateKey,
 })
