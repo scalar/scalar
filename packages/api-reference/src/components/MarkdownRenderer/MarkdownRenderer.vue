@@ -123,7 +123,6 @@ watch(
     var(--default-font-size),
     var(--theme-paragraph, var(--default-theme-paragraph))
   );
-  /* prettier-ignore */
   color: var(--theme-color-1, var(--default-theme-color-1));
   font-weight: var(
     --font-weight,
@@ -243,9 +242,15 @@ watch(
   min-width: 1em;
   padding: 6px 9px;
   vertical-align: top;
-  box-sizing: border-box;
+  line-height: 1.5;
   position: relative;
-  word-break: break-all;
+  font-size: var(--theme-small, var(--default-theme-small));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-weight: var(
+    --font-weight,
+    var(--default-font-weight),
+    var(--theme-small, var(--default-theme-small))
+  );
   border-right: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
   border-bottom: 1px solid
