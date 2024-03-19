@@ -154,8 +154,8 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     </div>
     <!-- Example -->
     <div
-      v-if="value?.example || value?.items.example"
-      class="property-example">
+      v-if="value?.example || value?.items?.example"
+      class="property-example custom-scroll">
       <span class="property-example-label">Example</span>
       <code class="property-example-value">{{
         value.example || value?.items.example
@@ -318,6 +318,8 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
   margin-top: 6px;
   padding: 6px;
+
+  max-height: calc(((var(--full-height) - var(--refs-header-height))) / 2);
 
   font-size: var(--default-theme-micro, var(--default-default-theme-micro));
   border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
