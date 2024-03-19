@@ -44,8 +44,6 @@ WORKDIR /app/examples/nextjs-api-reference
 # Cloud build requires port 8080 to be exposed
 EXPOSE 8080
 ENV PORT 8080
-
-# TODO: set hostname
 ENV HOSTNAME "0.0.0.0"
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output

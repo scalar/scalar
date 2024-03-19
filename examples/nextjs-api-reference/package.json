@@ -10,6 +10,7 @@
     "node": ">=18"
   },
   "packageManager": "pnpm@8.10.5",
+  "type": "module",
   "scripts": {
     "build": "next build",
     "dev": "next dev -p 5058",
