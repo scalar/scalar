@@ -282,7 +282,7 @@
         }
       }
     },
-    "/auth/signup": {
+    "/user/signup": {
       "post": {
         "tags": ["Authentication"],
         "summary": "Create a user",
@@ -373,6 +373,27 @@
                 }
               }
             }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {
+    "newPlanet": {
+      "post": {
+        "requestBody": {
+          "description": "Information about a new planet",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Planet"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Return a 200 status to indicate that the data was received successfully"
           }
         }
       }
