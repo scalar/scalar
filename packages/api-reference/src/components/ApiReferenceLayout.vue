@@ -137,18 +137,18 @@ provideUseId(() => {
   const ATTR_KEY = 'scalar-instance-id'
 
   if (!instance) return ATTR_KEY
-
   let instanceId = instance.uid
 
-  // Grab the instance ID from vue and set it as an attribute
+  // SSR: grab the instance ID from vue and set it as an attribute
   if (typeof window === 'undefined') {
     instance.attrs ||= {}
     instance.attrs[ATTR_KEY] = instanceId
   }
-  // Then grab the instanceId from the attribute and return it to headless UI
+  // Client: grab the instanceId from the attribute and return it to headless UI
   else if (instance.vnode.el?.getAttribute) {
     instanceId = instance.vnode.el.getAttribute(ATTR_KEY)
   }
+
   return `${ATTR_KEY}-${instanceId}`
 })
 
