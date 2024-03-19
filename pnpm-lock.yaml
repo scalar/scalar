@@ -469,7 +469,7 @@ importers:
         specifier: ^5.4.2
         version: 5.4.2
 
-  examples/nuxt-api-reference:
+  examples/nuxt:
     dependencies:
       '@scalar/api-reference':
         specifier: workspace:*
@@ -481,7 +481,7 @@ importers:
         specifier: ^0.8.4
         version: 0.8.10
       nuxt:
-        specifier: ^3.10.3
+        specifier: ^3.11.1
         version: 3.11.1(@types/node@20.11.22)(eslint@8.57.0)(typescript@5.4.2)(vite@5.1.6)
       vue:
         specifier: ^3.3.0

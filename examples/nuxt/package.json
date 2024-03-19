@@ -21,7 +21,7 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@xmldom/xmldom": "^0.8.4",
-    "nuxt": "^3.10.3",
+    "nuxt": "^3.11.1",
     "vue": "^3.3.0",
     "vue-router": "^4.3.0"
   },
