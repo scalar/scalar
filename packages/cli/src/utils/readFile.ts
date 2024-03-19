@@ -9,5 +9,7 @@ export function readFile(file: string) {
     return fs.readFileSync(file, 'utf8')
   } catch (err) {
     console.error(err)
+
+    return undefined
   }
 }

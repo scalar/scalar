@@ -38,15 +38,14 @@
     "@parcel/watcher": "^2.4.1",
     "@scalar/api-reference": "workspace:*",
     "@scalar/mock-server": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
     "commander": "^12.0.0",
     "hono": "^4.1.0",
     "kleur": "^4.1.5",
     "openapi-types": "^12.1.3",
-    "prettier": "^3.2.5",
     "prettyjson": "^1.2.5",
     "prompts": "^2.4.2",
-    "toml-js": "^0.0.8",
     "vite-node": "^1.2.2"
   },
   "devDependencies": {
