@@ -1,5 +1,11 @@
 # @scalar/cli
 
+## 0.2.2
+
+### Patch Changes
+
+- 2dbbd3c: feat: yaml support
+
 ## 0.2.1
 
 ### Patch Changes
