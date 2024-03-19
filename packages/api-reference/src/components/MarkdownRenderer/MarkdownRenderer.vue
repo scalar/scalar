@@ -210,13 +210,12 @@ watch(
 }
 
 .markdown :deep(table) {
-  display: table;
+  display: block;
+  overflow-x: auto;
   position: relative;
   border-collapse: collapse;
-  table-layout: fixed;
   width: 100%;
   margin: 1em 0;
-  overflow: hidden;
   box-shadow: 0 0 0 1px
     var(--theme-border-color, var(--default-theme-border-color));
   border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
@@ -244,6 +243,7 @@ watch(
   vertical-align: top;
   line-height: 1.5;
   position: relative;
+  word-break: initial;
   font-size: var(--theme-small, var(--default-theme-small));
   color: var(--theme-color-1, var(--default-theme-color-1));
   font-weight: var(
