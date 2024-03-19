@@ -27,6 +27,12 @@ describe('format', () => {
     // Check if file content is formatted
     const formattedFileContent = fs.readFileSync(jsonFile, 'utf8')
     expect(formattedFileContent).toBe(wellFormatted)
+
+    try {
+      fs.unlinkSync(jsonFile)
+    } catch {
+      // ignore
+    }
   })
 
   it('formats the given yaml file', () => {
@@ -49,5 +55,11 @@ describe('format', () => {
     // Check if file content is formatted
     const formattedFileContent = fs.readFileSync(yamlFile, 'utf8')
     expect(formattedFileContent).toBe(wellFormatted)
+
+    try {
+      fs.unlinkSync(yamlFile)
+    } catch {
+      // ignore
+    }
   })
 })
