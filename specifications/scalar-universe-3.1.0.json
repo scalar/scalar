@@ -22,6 +22,16 @@
       "apiKey": []
     }
   ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Some endpoints are public, but some required authentication. We provide all the required endpoints to create an account and authorize yourself."
+    },
+    {
+      "name": "Planets",
+      "description": "Everything about planets"
+    }
+  ],
   "paths": {
     "/planets": {
       "get": {
@@ -271,6 +281,101 @@
           }
         }
       }
+    },
+    "/auth/signup": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Create a user",
+        "operationId": "createUser",
+        "security": [{}],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/BadRequest"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/token": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Get a token",
+        "operationId": "getToken",
+        "security": [{}],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "$ref": "#/components/schemas/Credentials"
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Token Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get authenticated user",
+        "operationId": "getMe",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/responses/Forbidden"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -353,6 +458,73 @@
       }
     },
     "schemas": {
+      "NewUser": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "required": true,
+            "example": "Marc"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "required": true,
+            "example": "marc@scalar.com"
+          },
+          "password": {
+            "type": "string",
+            "required": true,
+            "example": "i-love-scalar"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "required": true,
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "required": true,
+            "example": "Marc"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "required": true,
+            "example": "marc@scalar.com"
+          }
+        }
+      },
+      "Credentials": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "required": true,
+            "example": "marc@scalar.com"
+          },
+          "password": {
+            "type": "string",
+            "required": true,
+            "example": "i-love-scalar"
+          }
+        }
+      },
+      "Token": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          }
+        }
+      },
       "Planet": {
         "type": "object",
         "properties": {
