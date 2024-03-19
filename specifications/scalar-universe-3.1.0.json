@@ -545,6 +545,9 @@
           "image": {
             "type": ["string", "nullable"],
             "example": "https://cdn.scalar.com/photos/mars.jpg"
+          },
+          "creator": {
+            "$ref": "#/components/schemas/User"
           }
         }
       },
