@@ -60,10 +60,10 @@ const introCardsSlot = computed(() =>
 )
 
 // If the first load is models, we do not lazy load tags/operations
-const isLazy =
-  props.layout !== 'accordion' &&
-  typeof window !== 'undefined' &&
-  !window.location.hash.startsWith('#model')
+// const isLazy =
+//   props.layout !== 'accordion' &&
+//   typeof window !== 'undefined' &&
+//   !window.location.hash.startsWith('#model')
 </script>
 <template>
   <div class="narrow-references-container">
@@ -93,10 +93,10 @@ const isLazy =
       name="empty-state" />
 
     <Lazy
-      v-for="tag in parsedSpec.tags"
+      v-for="(tag, tagIndex) in parsedSpec.tags"
       :id="getTagId(tag)"
       :key="getTagId(tag)"
-      :isLazy="isLazy">
+      :isLazy="tagIndex > 0">
       <Component
         :is="tagLayout"
         v-if="tag.operations && tag.operations.length > 0"
