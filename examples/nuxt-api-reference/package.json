@@ -24,5 +24,8 @@
     "nuxt": "^3.10.3",
     "vue": "^3.3.0",
     "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@nuxt/kit": "^3.11.1"
   }
 }

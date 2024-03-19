@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
-import { watch } from 'vue'
+import { onServerPrefetch, useSSRContext, watch } from 'vue'
 
 import { useNavState, useSidebar } from '../../hooks'
-import { type ReferenceLayoutProps, type ReferenceSlots } from '../../types'
+import {
+  type ReferenceLayoutProps,
+  type ReferenceSlots,
+  type SSRState,
+} from '../../types'
 import ApiReferenceLayout from '../ApiReferenceLayout.vue'
 import { DarkModeToggle } from '../DarkModeToggle'
 import MobileHeader from '../MobileHeader.vue'
@@ -31,6 +35,13 @@ watch(hash, (newHash, oldHash) => {
   if (newHash && newHash !== oldHash) {
     isSidebarOpen.value = false
   }
+})
+
+// Here we initialize the server state
+onServerPrefetch(() => {
+  const ctx = useSSRContext<SSRState>()
+  if (!ctx) return
+  ctx.scalarState ||= {}
 })
 </script>
 <template>

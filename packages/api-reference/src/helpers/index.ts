@@ -1,4 +1,5 @@
 export * from './deepMerge'
+export * from './createHash'
 export * from './getApiClientRequest'
 export * from './getHeadingsFromMarkdown'
 export * from './getLowestHeadingLevel'

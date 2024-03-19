@@ -278,3 +278,7 @@ export type ReferenceSlotProps = {
   spec: Spec
   breadcrumb: string
 }
+
+export type SSRState = {
+  scalarState: Record<string, any>
+}

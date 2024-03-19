@@ -1,20 +1,26 @@
 <script setup lang="ts">
 import { computedAsync } from '@vueuse/core'
-import { onServerPrefetch } from 'vue'
+import { onServerPrefetch, useSSRContext } from 'vue'
 
 import {
+  createHash,
   getHeadingsFromMarkdown,
   getLowestHeadingLevel,
   sleep,
   splitMarkdownInSections,
 } from '../../../helpers'
 import { useNavState } from '../../../hooks'
+import { ssrState } from '../../../stores'
+import { type SSRState } from '../../../types'
 import IntersectionObserver from '../../IntersectionObserver.vue'
 import { MarkdownRenderer } from '../../MarkdownRenderer'
 
 const props = defineProps<{
   value?: string
 }>()
+
+const ssrHash = createHash(props.value)
+const ssrStateKey = `components-Content-Introduction-Description-sections${ssrHash}`
 
 const sections = computedAsync(
   async () => {
@@ -39,7 +45,7 @@ const sections = computedAsync(
       ),
     )
   },
-  [], // initial state
+  ssrState[ssrStateKey] ?? [], // initial state
 )
 
 const { getHeadingId, hash, isIntersectionEnabled } = useNavState()
@@ -53,8 +59,16 @@ function handleScroll(headingId: string) {
   hash.value = headingId ?? ''
 }
 
-// SSR hack - waits for the computedAsync to complete
-onServerPrefetch(async () => await sleep(1))
+// SSR hack - waits for the computedAsync to complete then we save the state
+onServerPrefetch(async () => {
+  const ctx = useSSRContext<SSRState>()
+  await sleep(1)
+  console.log('2', sections.value)
+
+  if (ctx) {
+    ctx.scalarState[ssrStateKey] = sections.value
+  }
+})
 </script>
 <template>
   <div
