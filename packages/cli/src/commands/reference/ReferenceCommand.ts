@@ -54,7 +54,7 @@ export function ReferenceCommand() {
       })
 
       app.get('/__watcher', (c) => {
-        return stream(c, async (stream) => {
+        return stream(c, async (s) => {
           // watch file for changes
           if (watch) {
             watchFile(file, async () => {
@@ -63,12 +63,16 @@ export function ReferenceCommand() {
                 kleur.grey('OpenAPI file modified'),
               )
 
-              specification = (await loadOpenApiFile(file)).specification
+              const result = await loadOpenApiFile(file)
+              if (result?.specification) {
+                specification = result.specification
+              }
 
-              stream.write('data: file modified\n\n')
+              s.write('data: file modified\n\n')
             })
           }
 
+          // eslint-disable-next-line no-constant-condition
           while (true) {
             await new Promise((resolve) => setTimeout(resolve, 100))
           }
