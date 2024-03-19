@@ -1,5 +1,12 @@
 # @scalar/cli
 
+## 0.2.3
+
+### Patch Changes
+
+- 77aec33: fix: cli does not watch files outside of process.cwd
+- 0b784b5: fix: cli watcher exits when specification is invalid
+
 ## 0.2.2
 
 ### Patch Changes
