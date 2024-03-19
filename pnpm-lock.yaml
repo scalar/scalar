@@ -1002,6 +1002,9 @@ importers:
       '@scalar/mock-server':
         specifier: workspace:*
         version: link:../mock-server
+      '@scalar/oas-utils':
+        specifier: workspace:*
+        version: link:../oas-utils
       '@scalar/openapi-parser':
         specifier: ^0.3.2
         version: 0.3.2
@@ -1017,18 +1020,12 @@ importers:
       openapi-types:
         specifier: ^12.1.3
         version: 12.1.3
-      prettier:
-        specifier: ^3.2.5
-        version: 3.2.5
       prettyjson:
         specifier: ^1.2.5
         version: 1.2.5
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
-      toml-js:
-        specifier: ^0.0.8
-        version: 0.0.8
       vite-node:
         specifier: ^1.2.2
         version: 1.3.1(@types/node@20.11.26)
@@ -18196,6 +18193,7 @@ packages:
     resolution: {integrity: sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==}
     engines: {node: '>=14'}
     hasBin: true
+    dev: true
 
   /pretty-bytes@6.1.1:
     resolution: {integrity: sha512-mQUvGU6aUFQ+rNvTIAcZuWGRT9a6f6Yrg9bHs4ImKF+HZCEK+plBvnAZYSIQztknZF2qnzNtr6F8s0+IuptdlQ==}
@@ -20750,10 +20748,6 @@ packages:
       '@tokenizer/token': 0.3.0
       ieee754: 1.2.1
     dev: true
-
-  /toml-js@0.0.8:
-    resolution: {integrity: sha512-MQUXr5oq9fgOQIcucZuda1BtGUmQRt3Y2z1TY9JT3oUR6gs1qLkbsGfVdlr/gJ6JqrjJdPLO5wNXCgkmvzXNTQ==}
-    dev: false
 
   /totalist@3.0.1:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}

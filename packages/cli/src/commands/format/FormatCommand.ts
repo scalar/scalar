@@ -1,7 +1,8 @@
+import { isJsonString } from '@scalar/oas-utils'
+import { openapi } from '@scalar/openapi-parser'
 import { Command } from 'commander'
 import kleur from 'kleur'
 import fs from 'node:fs'
-import { format } from 'prettier'
 
 import { readFile, useGivenFileOrConfiguration } from '../../utils'
 
@@ -22,10 +23,9 @@ export function FormatCommand() {
       process.exit(1)
     }
 
-    const newContent = await format(fileContent, {
-      semi: false,
-      parser: 'json',
-    })
+    const newContent = isJsonString(fileContent)
+      ? openapi().load(fileContent).toJson()
+      : openapi().load(fileContent).toYaml()
 
     // Replace file content with newContent
     fs.writeFileSync(file, newContent, 'utf8')
