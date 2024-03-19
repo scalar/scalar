@@ -20,8 +20,11 @@ export async function watchFile(
   // Watch the file for changes
   console.log(`[INFO] Watch ${file}`)
 
+  // Get path where the file is located
+  const directory = path.dirname(absoluteFilePath)
+
   // Start the watcher
-  await watcher.subscribe(process.cwd(), (err, events) => {
+  await watcher.subscribe(directory, (err, events) => {
     // Match the file path
     if (events.some((event) => event.path === absoluteFilePath)) {
       callback()
