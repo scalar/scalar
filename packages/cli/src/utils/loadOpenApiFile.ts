@@ -34,8 +34,20 @@ export async function loadOpenApiFile(file: string) {
     } else {
       console.warn(
         kleur.bold().yellow('[WARN]'),
-        kleur.yellow('File doesn’t match the OpenAPI specification.'),
+        kleur.bold().yellow('File doesn’t match the OpenAPI specification.'),
       )
+
+      console.log()
+
+      // Loop through result.errors if present
+      result.errors?.forEach((error: any) => {
+        console.warn(
+          kleur.bold().yellow('[WARN]'),
+          kleur.yellow(error.error),
+          kleur.yellow(`(${error.path})`),
+        )
+      })
+
       console.log()
     }
     return result
