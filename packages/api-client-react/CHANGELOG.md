@@ -1,5 +1,13 @@
 # @scalar/api-client-react
 
+## 0.2.6
+
+### Patch Changes
+
+- 2eda0a3: fix: allow api client address bar to be editable in react
+- Updated dependencies [c7241e8]
+  - @scalar/api-client@1.1.2
+
 ## 0.2.5
 
 ### Patch Changes
