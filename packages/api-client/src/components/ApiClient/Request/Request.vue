@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { useRequestStore } from '../../../stores'
+import { computed } from 'vue'
+
+import { getRequestFromAuthentication } from '../../../helpers'
+import {
+  useAuthenticationStore,
+  useOpenApiStore,
+  useRequestStore,
+} from '../../../stores'
 import RequestAuth from './RequestAuth.vue'
 import RequestBody from './RequestBody.vue'
 import RequestCookies from './RequestCookies.vue'
@@ -8,6 +15,17 @@ import RequestQuery from './RequestQuery.vue'
 import RequestVariables from './RequestVariables.vue'
 
 const { activeRequest } = useRequestStore()
+const { authentication } = useAuthenticationStore()
+const {
+  openApi: { operation, globalSecurity },
+} = useOpenApiStore()
+
+const foobar = computed(() => {
+  return getRequestFromAuthentication(
+    authentication,
+    operation?.information?.security ?? globalSecurity,
+  )
+})
 
 /**
  * TODO: This is a workaround to make the address bar editable, but not the rest. If we’d really like to have an
@@ -19,6 +37,12 @@ const readOnly = true
   <div class="scalar-api-client__main__left custom-scroll">
     <div class="scalar-api-client__main__content">
       <label>Request</label>
+      <!-- <div>openapi: {{ openApi }}</div> -->
+      <!-- <div>auth: {{ authentication }}</div> -->
+      <div>
+        request:
+        {{ foobar }}
+      </div>
       <div class="meta">
         <div class="meta-item meta-item__input">
           <input

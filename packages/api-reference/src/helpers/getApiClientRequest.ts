@@ -33,10 +33,12 @@ export function getApiClientRequest({
       url: getUrlFromServerState(serverState),
     },
     getRequestFromOperation(operation, { requiredOnly: false }),
-    getRequestFromAuthentication(
-      authenticationState,
-      operation.information?.security ?? globalSecurity,
-    ),
+    authenticationState
+      ? getRequestFromAuthentication(
+          authenticationState,
+          operation.information?.security ?? globalSecurity,
+        )
+      : {},
   )
 
   const requestFromOperation = getRequestFromOperation(operation, {

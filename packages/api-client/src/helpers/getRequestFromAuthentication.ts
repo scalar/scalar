@@ -1,5 +1,5 @@
 import { encodeStringAsBase64 } from '@scalar/api-client'
-import type { OpenAPIV3 } from '@scalar/openapi-parser'
+import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { HarRequest } from 'httpsnippet-lite'
 
 import type { AuthenticationState } from '../stores'
@@ -37,7 +37,10 @@ function authenticationRequired(
  */
 export function getRequestFromAuthentication(
   authentication: AuthenticationState,
-  operationSecurity?: OpenAPIV3.SecurityRequirementObject[],
+  operationSecurity?: (
+    | OpenAPIV3.SecurityRequirementObject
+    | OpenAPIV3_1.SecurityRequirementObject
+  )[],
 ): Partial<HarRequest> {
   const headers: HarRequest['headers'] = []
   const queryString: HarRequest['queryString'] = []

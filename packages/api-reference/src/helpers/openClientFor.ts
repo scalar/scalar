@@ -1,6 +1,7 @@
 import {
   useApiClientStore,
   useAuthenticationStore,
+  useOpenApiStore,
   useRequestStore,
 } from '@scalar/api-client'
 import type { TransformedOperation } from '@scalar/oas-utils'
@@ -11,6 +12,7 @@ import { useServerStore } from '../stores'
 
 const { server: serverState } = useServerStore()
 const { authentication: authenticationState } = useAuthenticationStore()
+const { setOperation, setGlobalSecurity } = useOpenApiStore()
 
 const { toggleApiClient } = useApiClientStore()
 
@@ -23,9 +25,9 @@ export function openClientFor(
   // Get the HAR request object
   const request = getApiClientRequest({
     serverState: serverState,
-    authenticationState: authenticationState,
+    authenticationState: null,
     operation: operation,
-    globalSecurity: globalSecurity,
+    globalSecurity: null,
   })
 
   // Reset the API client response
@@ -33,6 +35,11 @@ export function openClientFor(
 
   // Set the new API client request
   setActiveRequest(request)
+
+  // Pass OpenAPI information to the API client
+  // TODO: Would be easier to just pass the whole specification once instead of passing a handful of small objects and doing data transformations everywhere, eh? Anyway, we’ll add this for now and hopefully we can further improve this later.
+  setOperation(operation)
+  setGlobalSecurity(globalSecurity)
 
   toggleApiClient(request, true)
 }
