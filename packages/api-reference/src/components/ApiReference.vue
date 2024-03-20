@@ -60,7 +60,7 @@ function mapConfigToState<K extends keyof ReferenceConfiguration>(
   )
 }
 
-// Handle the events from the toggle buttons and map the configuration to the interna state
+// Handle the events from the toggle buttons and map the configuration to the internal state
 const { toggleDarkMode, setDarkMode } = useDarkModeState()
 mapConfigToState('darkMode', (newDarkMode) => {
   if (newDarkMode !== undefined) setDarkMode(newDarkMode)
