@@ -242,6 +242,7 @@ function checkIfClientIsFeatured(client: SelectedClient) {
 .code-languages-background {
   border-radius: 9px;
   position: relative;
+  overflow: hidden;
   background: var(
     --theme-code-languages-background-supersede,
     var(

@@ -32,17 +32,6 @@ const specVersion = computed(() => {
 </script>
 <template>
   <SectionContainer>
-    <!-- For adding gradients + animations to introduction of documents that :before / :after won't work for -->
-    <div class="section-flare">
-      <div class="section-flare-item"></div>
-      <div class="section-flare-item"></div>
-      <div class="section-flare-item"></div>
-      <div class="section-flare-item"></div>
-      <div class="section-flare-item"></div>
-      <div class="section-flare-item"></div>
-      <div class="section-flare-item"></div>
-      <div class="section-flare-item"></div>
-    </div>
     <Section class="introduction-section">
       <SectionContent :loading="!info.description && !info.title">
         <SectionColumns>
@@ -101,12 +90,5 @@ const specVersion = computed(() => {
 
   position: sticky;
   top: calc(var(--refs-header-height) + 24px);
-}
-.section-flare {
-  position: absolute;
-  top: 0;
-  right: 0;
-  pointer-events: none;
-  z-index: -1;
 }
 </style>
