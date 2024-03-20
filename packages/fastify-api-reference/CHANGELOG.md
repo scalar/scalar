@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.20.2
+
+### Patch Changes
+
+- b32f46c: chore: update @scalar/api-reference
+
 ## 1.19.5
 
 ### Patch Changes
