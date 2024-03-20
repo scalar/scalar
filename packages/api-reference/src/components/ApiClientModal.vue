@@ -68,7 +68,6 @@ export { useApiClientStore } from '@scalar/api-client'
         </template>
         <ApiClient
           :proxyUrl="proxyUrl"
-          readOnly
           theme="none"
           @escapeKeyPress="hideApiClient" />
       </div>

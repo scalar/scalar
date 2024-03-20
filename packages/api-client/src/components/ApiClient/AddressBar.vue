@@ -87,8 +87,6 @@ const lastRequestTimestamp = computed(() => {
     : 'History'
 })
 
-// TODO we need to not update the active request with these computed properties
-// we get an infinite loop
 const onChange = (value: string) => {
   if (readOnly.value) {
     return
@@ -98,7 +96,8 @@ const onChange = (value: string) => {
     return
   }
 
-  setActiveRequest({ ...activeRequest, url: value })
+  // TODO: We can’t easily update the active request, because CodeMirror is prefilled with two values (URL + path).
+  // setActiveRequest({ ...activeRequest, url: value })
 }
 
 const handleRequestMethodChanged = (requestMethod?: string) => {

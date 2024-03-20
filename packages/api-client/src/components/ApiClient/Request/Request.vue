@@ -7,7 +7,13 @@ import RequestHeaders from './RequestHeaders.vue'
 import RequestQuery from './RequestQuery.vue'
 import RequestVariables from './RequestVariables.vue'
 
-const { activeRequest, readOnly } = useRequestStore()
+const { activeRequest } = useRequestStore()
+
+/**
+ * TODO: This is a workaround to make the address bar editable, but not the rest. If we’d really like to have an
+ * API client where everything can be edited, we need to invest more time.
+ */
+const readOnly = true
 </script>
 <template>
   <div class="scalar-api-client__main__left custom-scroll">
