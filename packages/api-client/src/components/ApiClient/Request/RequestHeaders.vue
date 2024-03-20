@@ -1,9 +1,42 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import { useRequestStore } from '../../../stores'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
-defineProps<{ headers?: any[] }>()
+type Header = {
+  /**
+   * The name of the header, e.g. X-Api-Key
+   */
+  name: string
+  /**
+   * The value of the header, e.g. 12345
+   */
+  value: string | number | Record<string, any>
+  /**
+   * The description of the header
+   */
+  description?: string | null | undefined
+  /**
+   * Whether the header is required
+   */
+  required?: boolean
+  /**
+   * Whether the header is sent or not
+   */
+  enabled: boolean
+}
+
+type GeneratedHeader = {
+  name: string
+  value: string
+}
+
+const props = defineProps<{
+  headers?: Header[]
+  generatedHeaders?: GeneratedHeader[]
+}>()
 
 const { activeRequest } = useRequestStore()
 
@@ -18,12 +51,16 @@ function addAnotherHandler() {
 
   activeRequest.headers?.push({ name: '', value: '', enabled: true })
 }
+
+const hasHeaders = computed(() => {
+  return !!(props.headers?.length || props.generatedHeaders?.length)
+})
 </script>
 <template>
   <CollapsibleSection
-    :defaultOpen="activeRequest.headers && activeRequest.headers.length > 0"
+    :defaultOpen="hasHeaders"
     title="Headers">
-    <template v-if="!headers || headers.length === 0">
+    <template v-if="!hasHeaders">
       <div class="scalar-api-client__empty-state">
         <button
           class="scalar-api-client-add"
@@ -51,6 +88,7 @@ function addAnotherHandler() {
     <template v-else>
       <Grid
         addLabel="Header"
+        :generatedItems="generatedHeaders"
         :items="headers"
         @addAnother="addAnotherHandler"
         @deleteIndex="handleDeleteIndex" />

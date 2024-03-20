@@ -20,7 +20,7 @@ const {
   openApi: { operation, globalSecurity },
 } = useOpenApiStore()
 
-const foobar = computed(() => {
+const authenticationRequest = computed(() => {
   return getRequestFromAuthentication(
     authentication,
     operation?.information?.security ?? globalSecurity,
@@ -37,12 +37,6 @@ const readOnly = true
   <div class="scalar-api-client__main__left custom-scroll">
     <div class="scalar-api-client__main__content">
       <label>Request</label>
-      <!-- <div>openapi: {{ openApi }}</div> -->
-      <!-- <div>auth: {{ authentication }}</div> -->
-      <div>
-        request:
-        {{ foobar }}
-      </div>
       <div class="meta">
         <div class="meta-item meta-item__input">
           <input
@@ -58,7 +52,9 @@ const readOnly = true
       <RequestVariables :variables="activeRequest.variables" />
       <RequestAuth />
       <RequestCookies :cookies="activeRequest.cookies" />
-      <RequestHeaders :headers="activeRequest.headers" />
+      <RequestHeaders
+        :generatedHeaders="authenticationRequest.headers"
+        :headers="activeRequest.headers" />
       <RequestQuery :queries="activeRequest.query" />
       <RequestBody
         :body="activeRequest.body"

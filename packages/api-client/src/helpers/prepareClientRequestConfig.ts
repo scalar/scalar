@@ -14,6 +14,8 @@ export const prepareClientRequestConfig = (configuration: {
 }) => {
   const { request } = configuration
 
+  // TODO: Add getRequestFromAuthentication here!
+
   // Check if request.body contains JSON
   if (request.body && isJsonString(request.body)) {
     // Check whether the request already has a Content-Type header

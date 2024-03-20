@@ -3,7 +3,8 @@ import { ScalarIcon } from '@scalar/components'
 import { ref } from 'vue'
 
 defineProps<{
-  items: any[]
+  items?: any[]
+  generatedItems?: any[]
   addLabel?: string
   showMoreFilter?: boolean
 }>()
@@ -50,6 +51,36 @@ function addHandler() {
         </svg>
       </div>
     </div>
+    <template
+      v-for="item in generatedItems"
+      :key="item.id">
+      <div class="table-row generated-parameter">
+        <div class="table-row-item">
+          <input
+            v-model="item.name"
+            disabled
+            placeholder="key" />
+        </div>
+        <div class="table-row-item">
+          <input
+            v-model="item.value"
+            disabled
+            placeholder="value"
+            type="password" />
+        </div>
+        <div
+          v-show="showDescription"
+          class="table-row-item">
+          <input
+            v-model="item.description"
+            disabled
+            placeholder="value" />
+        </div>
+        <div class="table-row-meta">
+          <!-- generated -->
+        </div>
+      </div>
+    </template>
     <template
       v-for="(item, index) in items"
       :key="item.id">
@@ -169,6 +200,21 @@ function addHandler() {
   .table-row-item:nth-of-type(2):focus-within:after {
   display: none;
 }
+
+.table-row.generated-parameter {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--theme-background-2, var(--default-theme-background-2)) 0,
+    var(--theme-background-3, var(--default-theme-background-3)) 2px,
+    transparent 2px,
+    transparent 5px
+  );
+  background-size: 100%;
+}
+
+.table-row.generated-parameter * {
+  color: var(--theme-color-3, var(--default-theme-color-3));
+}
 .table-row:last-of-type {
   border-bottom: none;
 }
@@ -235,11 +281,13 @@ function addHandler() {
   color: var(--theme-color-1, var(--default-theme-color-1));
   font-size: var(--theme-micro, var(--default-theme-micro));
   background: transparent;
-  font-family: var(--theme-font, var(--default-theme-font));
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
+}
+.table-row-item input::placeholder {
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 .table-row-item input[disabled] {
   background: transparent;
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 .table-row-item input:focus {
   box-shadow: 0 0 0 1px var(--theme-color-1, var(--default-theme-color-1));

@@ -33,6 +33,7 @@ export function getApiClientRequest({
       url: getUrlFromServerState(serverState),
     },
     getRequestFromOperation(operation, { requiredOnly: false }),
+    // Only generate authentication parameters if an authentication state is passed.
     authenticationState
       ? getRequestFromAuthentication(
           authenticationState,
