@@ -202,7 +202,7 @@ function handleEmitPetstore() {
         Free subdomain hosting on https://apidocumentation.com
       </li>
       <li>
-        <p class="start-h3">Openapi & Swagger</p>
+        <p class="start-h3">OpenAPI & Swagger</p>
         Support for OpenAPI 3.1, OpenAPI 3.0, and Swagger 2.0
       </li>
       <li>
