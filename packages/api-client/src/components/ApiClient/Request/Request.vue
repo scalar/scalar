@@ -50,7 +50,8 @@ const readOnly = true
     </div>
     <div>
       <RequestVariables :variables="activeRequest.variables" />
-      <RequestAuth />
+      <!-- TODO: We need to put the UI from the reference here. Until then we can hide it. -->
+      <!-- <RequestAuth /> -->
       <RequestCookies
         :cookies="activeRequest.cookies"
         :generatedCookies="authenticationRequest.cookies" />
