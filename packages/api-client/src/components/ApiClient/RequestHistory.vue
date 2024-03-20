@@ -144,4 +144,3 @@ const { requestHistoryOrder } = useRequestStore()
   color: var(--theme-color-3, var(--default-theme-color-3));
 }
 </style>
-../../stores/useRequestStore

@@ -105,4 +105,3 @@ const responseData = computed(() => {
   right: 12px;
 }
 </style>
-../../../stores/useRequestStore
