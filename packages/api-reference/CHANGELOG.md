@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.20.2
+
+### Patch Changes
+
+- 9fe930c: fix: allow examples to be multiline
+
 ## 1.20.1
 
 ### Patch Changes
