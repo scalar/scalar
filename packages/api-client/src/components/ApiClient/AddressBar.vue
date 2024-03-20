@@ -96,8 +96,10 @@ const onChange = (value: string) => {
     return
   }
 
-  // TODO: We can’t easily update the active request, because CodeMirror is prefilled with two values (URL + path).
-  // setActiveRequest({ ...activeRequest, url: value })
+  // The address is actually two values (URL + path). But we only have one value in the address bar.
+  // So we need to reset path, and just put everything into URL.
+  // TODO: This will bite us if we ever want to store the data and switch between environments (base URLs).
+  setActiveRequest({ ...activeRequest, url: value, path: '' })
 }
 
 const handleRequestMethodChanged = (requestMethod?: string) => {
