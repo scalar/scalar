@@ -1,8 +1,15 @@
 <script setup lang="ts">
+import { useAuthenticationStore } from '../../../stores'
 import { CollapsibleSection } from '../../CollapsibleSection'
+
+const { authentication } = useAuthenticationStore()
 </script>
 <template>
-  <CollapsibleSection title="Authentication"> TODO: Auth </CollapsibleSection>
+  <CollapsibleSection title="Authentication">
+    <div class="preferred-security-scheme">
+      {{ authentication.preferredSecurityScheme }}
+    </div>
+  </CollapsibleSection>
   <!-- <CollapsibleSection title="Authentication">
     <template #options>
       <div>
@@ -195,3 +202,15 @@ import { CollapsibleSection } from '../../CollapsibleSection'
     </template>
   </CollapsibleSection> -->
 </template>
+
+<style scoped>
+.preferred-security-scheme {
+  border: 1px solid var(--default-theme-border-color);
+  border-radius: var(--default-theme-radius);
+  color: var(--default-theme-color-2);
+  width: 100%;
+  height: 3rem;
+  line-height: 3rem;
+  text-align: center;
+}
+</style>

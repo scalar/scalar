@@ -1,3 +1,4 @@
+import type { AuthenticationState } from '@scalar/api-client'
 import type { ContentType, TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { ThemeId } from '@scalar/themes'
@@ -209,31 +210,6 @@ export type Spec = {
   'openapi'?: OpenAPIV3.Document['openapi'] | OpenAPIV3_1.Document['openapi']
   'x-tagGroups'?: TagGroup[]
   'security'?: OpenAPIV3.SecurityRequirementObject[]
-}
-
-export type AuthenticationState = {
-  preferredSecurityScheme: string | null
-  securitySchemes?:
-    | OpenAPIV3.ComponentsObject['securitySchemes']
-    | OpenAPIV3_1.ComponentsObject['securitySchemes']
-  http: {
-    basic: {
-      username: string
-      password: string
-    }
-    bearer: {
-      token: string
-    }
-  }
-  apiKey: {
-    token: string
-  }
-  oAuth2: {
-    clientId: string
-    scopes: string[]
-    accessToken: string
-    state: string
-  }
 }
 
 export type Variable = {

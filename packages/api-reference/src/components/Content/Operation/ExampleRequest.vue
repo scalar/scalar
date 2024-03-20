@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { HttpMethod } from '@scalar/api-client'
+import {
+  HttpMethod,
+  getRequestFromAuthentication,
+  getSecretCredentialsFromAuthentication,
+  useAuthenticationStore,
+} from '@scalar/api-client'
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
 import {
   type TransformedOperation,
@@ -13,16 +18,10 @@ import { computed, inject, ref, watch } from 'vue'
 import {
   GLOBAL_SECURITY_SYMBOL,
   getApiClientRequest,
-  getRequestFromAuthentication,
-  getSecretCredentialsFromAuthentication,
   getUrlFromServerState,
 } from '../../../helpers'
 import { useClipboard, useHttpClients } from '../../../hooks'
-import {
-  useAuthenticationStore,
-  useHttpClientStore,
-  useServerStore,
-} from '../../../stores'
+import { useHttpClientStore, useServerStore } from '../../../stores'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'

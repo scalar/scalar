@@ -2,7 +2,7 @@ import { encodeStringAsBase64 } from '@scalar/api-client'
 import type { OpenAPIV3 } from '@scalar/openapi-parser'
 import type { HarRequest } from 'httpsnippet-lite'
 
-import type { AuthenticationState } from '../types'
+import type { AuthenticationState } from '../stores'
 
 /**
  * Check whether the given security scheme key is in the `security` configuration for this operation.

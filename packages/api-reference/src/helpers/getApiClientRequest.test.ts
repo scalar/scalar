@@ -1,6 +1,7 @@
+import { useAuthenticationStore } from '@scalar/api-client'
 import { describe, expect, it } from 'vitest'
 
-import { useAuthenticationStore, useServerStore } from '../stores'
+import { useServerStore } from '../stores'
 import { getApiClientRequest } from './getApiClientRequest'
 
 const { server } = useServerStore()

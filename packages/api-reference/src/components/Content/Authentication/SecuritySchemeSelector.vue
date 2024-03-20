@@ -1,9 +1,8 @@
 <script lang="ts" setup>
+import { useAuthenticationStore } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, onMounted } from 'vue'
-
-import { useAuthenticationStore } from '../../../stores'
 
 const props = defineProps<{
   value?:

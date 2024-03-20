@@ -1,8 +1,8 @@
 <script lang="ts" setup>
+import { useAuthenticationStore } from '@scalar/api-client'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
-import { useAuthenticationStore } from '../../../stores'
 import { MarkdownRenderer } from '../../MarkdownRenderer'
 import CardForm from './CardForm.vue'
 import CardFormButton from './CardFormButton.vue'

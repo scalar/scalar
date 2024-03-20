@@ -12,7 +12,12 @@
     "strictNullChecks": true,
     "types": ["vite/client"]
   },
-  "include": ["src", "src/declarations"],
+  "include": [
+    "src",
+    "src/declarations",
+    "../api-client/src/helpers/getRequestFromAuthentication.test.ts",
+    "../api-client/src/helpers/getRequestFromAuthentication.ts"
+  ],
   "exclude": ["dist", "vite.config.ts", "node_modules"],
   "ts-node": {
     "require": ["tsconfig-paths/register"]

@@ -44,12 +44,14 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.16",
     "@scalar/components": "workspace:*",
+    "@scalar/openapi-parser": "^0.3.2",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-modal": "workspace:*",
     "@vueuse/core": "^10.4.1",
     "axios": "^1.6.7",
     "content-type": "^1.0.5",
+    "httpsnippet-lite": "^3.0.5",
     "nanoid": "^5.0.1",
     "pretty-bytes": "^6.1.1",
     "pretty-ms": "^8.0.0"

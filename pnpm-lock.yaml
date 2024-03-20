@@ -612,6 +612,9 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
+      '@scalar/openapi-parser':
+        specifier: ^0.3.2
+        version: 0.3.2
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -630,6 +633,9 @@ importers:
       content-type:
         specifier: ^1.0.5
         version: 1.0.5
+      httpsnippet-lite:
+        specifier: ^3.0.5
+        version: 3.0.5
       nanoid:
         specifier: ^5.0.1
         version: 5.0.6

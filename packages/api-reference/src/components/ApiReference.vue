@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { useAuthenticationStore } from '@scalar/api-client'
 import { createHead, useSeoMeta } from 'unhead'
 import { computed, toRef, watch } from 'vue'
 import { toast } from 'vue-sonner'
 
 import { useDarkModeState, useHttpClients, useReactiveSpec } from '../hooks'
 import { useToasts } from '../hooks/useToasts'
-import { useAuthenticationStore } from '../stores'
 import { type ReferenceConfiguration, type ReferenceProps } from '../types'
 import CustomToaster from './CustomToaster.vue'
 import Layouts from './Layouts/'
