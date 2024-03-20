@@ -1,6 +1,13 @@
-import { isJsonString } from '@scalar/oas-utils'
+import { type BaseParameter, isJsonString } from '@scalar/oas-utils'
 
+import { useAuthenticationStore, useOpenApiStore } from '../stores'
 import type { ClientRequestConfig } from '../types'
+import { getRequestFromAuthentication } from './getRequestFromAuthentication'
+
+// Enable all given parameters
+function enable(items?: any[]) {
+  return (items ?? []).map((item) => ({ ...item, enabled: true }))
+}
 
 /**
  * Before a request is sent to the server, we’ll do some final preparation.
@@ -14,7 +21,31 @@ export const prepareClientRequestConfig = (configuration: {
 }) => {
   const { request } = configuration
 
-  // TODO: Add getRequestFromAuthentication here!
+  const { authentication } = useAuthenticationStore()
+  const {
+    openApi: { operation, globalSecurity },
+  } = useOpenApiStore()
+
+  const authenticationRequest = getRequestFromAuthentication(
+    authentication,
+    operation?.information?.security ?? globalSecurity,
+  )
+
+  // Merge the request with the authentication request (headers, cookies, query, etc.)
+  request.headers = [
+    ...(request.headers ?? []),
+    ...enable(authenticationRequest.headers),
+  ]
+
+  request.cookies = [
+    ...(request.cookies ?? []),
+    ...enable(authenticationRequest.cookies),
+  ]
+
+  request.query = [
+    ...(request.query ?? []),
+    ...enable(authenticationRequest.queryString),
+  ]
 
   // Check if request.body contains JSON
   if (request.body && isJsonString(request.body)) {
@@ -27,11 +58,12 @@ export const prepareClientRequestConfig = (configuration: {
     if (!hasContentTypeHeader) {
       request.headers = [
         ...(request.headers ?? []),
-        {
-          name: 'Content-Type',
-          value: `application/json; charset=utf-8`,
-          enabled: true,
-        },
+        ...enable([
+          {
+            name: 'Content-Type',
+            value: `application/json; charset=utf-8`,
+          },
+        ]),
       ]
     }
 
