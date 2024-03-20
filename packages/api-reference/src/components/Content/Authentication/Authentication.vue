@@ -3,7 +3,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, watch } from 'vue'
 
 import { hasSecuritySchemes } from '../../../helpers'
-import { useGlobalStore } from '../../../stores'
+import { useAuthenticationStore } from '../../../stores'
 import { type Spec } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
 import SecurityScheme from './SecurityScheme.vue'
@@ -11,7 +11,7 @@ import SecuritySchemeSelector from './SecuritySchemeSelector.vue'
 
 const props = defineProps<{ parsedSpec?: Spec }>()
 
-const { authentication, setAuthentication } = useGlobalStore()
+const { authentication, setAuthentication } = useAuthenticationStore()
 
 const showSecurityScheme = computed(() => {
   if (!authentication.securitySchemeKey) {

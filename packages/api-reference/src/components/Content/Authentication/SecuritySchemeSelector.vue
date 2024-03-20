@@ -3,7 +3,7 @@ import { ScalarIcon } from '@scalar/components'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, onMounted } from 'vue'
 
-import { useGlobalStore } from '../../../stores'
+import { useAuthenticationStore } from '../../../stores'
 
 const props = defineProps<{
   value?:
@@ -24,7 +24,7 @@ const emits = defineEmits<{
   (event: 'input', key: string): void
 }>()
 
-const { authentication, setAuthentication } = useGlobalStore()
+const { authentication, setAuthentication } = useAuthenticationStore()
 
 // Update credentials in state
 const handleAuthenticationTypeInput = (event: Event) => {

@@ -18,7 +18,7 @@ import {
   getUrlFromServerState,
 } from '../../../helpers'
 import { useClipboard, useSnippetTargets } from '../../../hooks'
-import { useGlobalStore } from '../../../stores'
+import { useAuthenticationStore, useServerStore } from '../../../stores'
 import { useTemplateStore } from '../../../stores/template'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import ExamplePicker from './ExamplePicker.vue'
@@ -35,8 +35,8 @@ const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
 
 const { availableTargets } = useSnippetTargets()
 
-const { server: serverState, authentication: authenticationState } =
-  useGlobalStore()
+const { server: serverState } = useServerStore()
+const { authentication: authenticationState } = useAuthenticationStore()
 
 const hasMultipleExamples = computed<boolean>(
   () =>

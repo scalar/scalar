@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createEmptyAuthenticationState } from '../stores/globalStore'
+import { createEmptyAuthenticationState } from '../stores/useServerStore'
 import { getRequestFromAuthentication } from './getRequestFromAuthentication'
 
 describe('getRequestFromAuthentication', () => {

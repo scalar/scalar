@@ -1,12 +1,12 @@
 import { useApiClientStore, useRequestStore } from '@scalar/api-client'
 import type { TransformedOperation } from '@scalar/oas-utils'
-import { type OpenAPIV3 } from '@scalar/openapi-parser'
+import type { OpenAPIV3 } from '@scalar/openapi-parser'
 
 import { getApiClientRequest } from '../helpers'
-import { useGlobalStore } from '../stores'
+import { useAuthenticationStore, useServerStore } from '../stores'
 
-const { server: serverState, authentication: authenticationState } =
-  useGlobalStore()
+const { server: serverState } = useServerStore()
+const { authentication: authenticationState } = useAuthenticationStore()
 
 const { toggleApiClient } = useApiClientStore()
 

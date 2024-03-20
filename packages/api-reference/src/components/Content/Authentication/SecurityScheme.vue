@@ -2,7 +2,7 @@
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
-import { useGlobalStore } from '../../../stores'
+import { useAuthenticationStore } from '../../../stores'
 import { MarkdownRenderer } from '../../MarkdownRenderer'
 import CardForm from './CardForm.vue'
 import CardFormButton from './CardFormButton.vue'
@@ -14,7 +14,7 @@ defineProps<{
   value?: OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject
 }>()
 
-const { authentication, setAuthentication } = useGlobalStore()
+const { authentication, setAuthentication } = useAuthenticationStore()
 
 const handleApiKeyTokenInput = (event: Event) => {
   setAuthentication({

@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { useGlobalStore } from '../stores'
+import { useAuthenticationStore, useServerStore } from '../stores'
 import { getApiClientRequest } from './getApiClientRequest'
 
-const { server, authentication } = useGlobalStore()
+const { server } = useServerStore()
+const { authentication } = useAuthenticationStore()
 
 describe('getApiClientRequest', () => {
   it('returns a basic request', () => {

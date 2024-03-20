@@ -5,7 +5,7 @@ import { toast } from 'vue-sonner'
 
 import { useDarkModeState, useReactiveSpec, useSnippetTargets } from '../hooks'
 import { useToasts } from '../hooks/useToasts'
-import { useGlobalStore } from '../stores'
+import { useAuthenticationStore } from '../stores'
 import { type ReferenceConfiguration, type ReferenceProps } from '../types'
 import CustomToaster from './CustomToaster.vue'
 import Layouts from './Layouts/'
@@ -65,7 +65,7 @@ function mapConfigToState<K extends keyof ReferenceConfiguration>(
 }
 
 // Prefill authentication
-const { setAuthentication } = useGlobalStore()
+const { setAuthentication } = useAuthenticationStore()
 mapConfigToState('authentication', setAuthentication)
 
 // Hides any client snippets from the references
