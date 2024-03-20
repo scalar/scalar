@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 1.1.2
+
+### Patch Changes
+
+- c7241e8: fix: address bar changes do not have an effect on the actual request
+
 ## 1.1.1
 
 ### Patch Changes
