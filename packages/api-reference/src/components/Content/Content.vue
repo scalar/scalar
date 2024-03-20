@@ -66,9 +66,19 @@ const isLazy =
   !window.location.hash.startsWith('#model')
 </script>
 <template>
+  <!-- For adding gradients + animations to introduction of documents that :before / :after won't work for -->
+  <div class="section-flare">
+    <div class="section-flare-item"></div>
+    <div class="section-flare-item"></div>
+    <div class="section-flare-item"></div>
+    <div class="section-flare-item"></div>
+    <div class="section-flare-item"></div>
+    <div class="section-flare-item"></div>
+    <div class="section-flare-item"></div>
+    <div class="section-flare-item"></div>
+  </div>
   <div class="narrow-references-container">
     <slot name="start" />
-
     <Loading
       :layout="layout"
       :parsedSpec="parsedSpec"
@@ -197,5 +207,11 @@ const isLazy =
       + .scalar-card-content
   ) {
   margin-top: 0;
+}
+.section-flare {
+  position: absolute;
+  top: 0;
+  right: 0;
+  pointer-events: none;
 }
 </style>

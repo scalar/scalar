@@ -25,7 +25,7 @@ const configuration = computed<ReferenceConfiguration>(() => ({
     ...props.configuration?.spec,
   },
   proxy: undefined,
-  theme: 'default',
+  theme: 'kepler',
   showSidebar: true,
   isEditable: false,
   ...props.configuration,
