@@ -27,8 +27,8 @@ export const ApiClientReact = ({
   request,
 }: Props) => {
   useEffect(() => {
-    if (!isOpen) resetActiveResponse()
-    else if (request) setActiveRequest(request)
+    resetActiveResponse()
+    if (request) setActiveRequest(request)
   }, [isOpen, request])
 
   const [host, setHost] = useState('')
