@@ -6,7 +6,7 @@ on:
       - 'examples/fastify-api-reference/**'
       - 'packages/fastify-api-reference/**'
       - 'packages/cdn-api-reference/**'
-      - '.github/workflows/test-api-reference-cdn.yml'
+      - '.github/workflows/test-api-reference-cdn-local.yml'
       - 'tests/**'
     branches-ignore:
       - 'main'
