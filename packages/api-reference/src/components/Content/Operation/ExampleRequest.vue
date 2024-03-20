@@ -34,7 +34,7 @@ const props = defineProps<{
 const CodeMirrorValue = ref<string>('')
 const selectedExampleKey = ref<string>()
 const { copyToClipboard } = useClipboard()
-const { httpClient, setHttpClient, getClientTitle, getTargetTitle } =
+const { httpClient, setHttpClient, httpTargetTitle, httpClientTitle } =
   useHttpClientStore()
 
 const { availableTargets } = useHttpClients()
@@ -166,8 +166,8 @@ computed(() => {
             })
           "
           @update:modelValue="(value) => setHttpClient(JSON.parse(value))">
-          {{ getTargetTitle(httpClient) }}
-          {{ getClientTitle(httpClient) }}
+          {{ httpTargetTitle }}
+          {{ httpClientTitle }}
         </TextSelect>
 
         <button

@@ -1,5 +1,5 @@
 import type { TargetId } from 'httpsnippet-lite'
-import { reactive, readonly } from 'vue'
+import { computed, reactive, readonly } from 'vue'
 
 import { objectMerge } from '../helpers'
 import { useHttpClients } from '../hooks'
@@ -48,10 +48,20 @@ const setHttpClient = (newState: Partial<HttpClientState>) => {
   })
 }
 
+const httpTargetTitle = computed(() => {
+  return getTargetTitle(httpClient)
+})
+
+const httpClientTitle = computed(() => {
+  return getClientTitle(httpClient)
+})
+
 export const useHttpClientStore = () => ({
   httpClient: readonly(httpClient),
   resetState,
   setHttpClient,
+  httpTargetTitle,
+  httpClientTitle,
   getClientTitle,
   getTargetTitle,
 })

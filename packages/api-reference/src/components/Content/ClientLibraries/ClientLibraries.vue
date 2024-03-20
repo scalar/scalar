@@ -3,7 +3,7 @@ import { useHttpClientStore } from '../../../stores'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import ClientSelector from './ClientSelector.vue'
 
-const { httpClient, getClientTitle, getTargetTitle } = useHttpClientStore()
+const { httpTargetTitle, httpClientTitle } = useHttpClientStore()
 </script>
 <template>
   <Card>
@@ -20,8 +20,8 @@ const { httpClient, getClientTitle, getTargetTitle } = useHttpClientStore()
     <CardFooter
       class="selected-client card-footer"
       muted>
-      {{ getTargetTitle(httpClient) }}
-      {{ getClientTitle(httpClient) }}
+      {{ httpClientTitle }}
+      {{ httpTargetTitle }}
     </CardFooter>
   </Card>
 </template>
