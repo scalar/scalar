@@ -1,2 +1,2 @@
 export { useApiClientStore } from './useApiClientStore'
-export { useRequestStore, createEmptyAuthState } from './useRequestStore'
+export { useRequestStore } from './useRequestStore'

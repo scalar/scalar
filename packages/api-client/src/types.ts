@@ -1,43 +1,5 @@
 import { type BaseParameter } from '@scalar/oas-utils'
 
-export type BasicAuth = {
-  username: string
-  password: string
-  active: boolean
-}
-
-export type OAuthTwo = {
-  generatedToken: string
-  discoveryURL: string
-  authURL: string
-  accessTokenURL: string
-  clientID: string
-  clientSecret: string
-  scope: string
-  active: boolean
-}
-
-export type Bearer = {
-  token: string
-  active: boolean
-}
-
-export type Digest = {
-  username: string
-  password: string
-  active: boolean
-}
-
-export type AuthType = 'basic' | 'oauthTwo' | 'bearer' | 'digest' | 'none'
-
-export type AuthState = {
-  type: AuthType
-  basic: BasicAuth
-  oauthTwo: OAuthTwo
-  bearer: Bearer
-  digest: Digest
-}
-
 export type Header = BaseParameter
 
 export type Query = BaseParameter

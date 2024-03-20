@@ -1,42 +1,18 @@
 import { isJsonString } from '@scalar/oas-utils'
 
-import type { AuthState, ClientRequestConfig } from '../types'
+import type { ClientRequestConfig } from '../types'
 
 /**
  * Before a request is sent to the server, we’ll do some final preparation.
  *
- * - Add authentication headers
  * - Add Content-Type header if request.body is JSON
  * - Parse request.body if it’s JSON
  * - Remove duplicate headers
  */
 export const prepareClientRequestConfig = (configuration: {
   request: ClientRequestConfig
-  authState: AuthState
 }) => {
-  const { authState, request } = configuration
-
-  if (authState.type === 'basic' && authState.basic.active) {
-    request.headers = [
-      ...(request.headers ?? []),
-      {
-        name: 'Authorization',
-        value: `Basic ${btoa(
-          `${authState.basic.username}:${authState.basic.password}`,
-        )}`,
-        enabled: true,
-      },
-    ]
-  } else if (authState.type === 'bearer' && authState.bearer.active) {
-    request.headers = [
-      ...(request.headers ?? []),
-      {
-        name: 'Authorization',
-        value: `Bearer ${authState.bearer.token}`,
-        enabled: true,
-      },
-    ]
-  }
+  const { request } = configuration
 
   // Check if request.body contains JSON
   if (request.body && isJsonString(request.body)) {

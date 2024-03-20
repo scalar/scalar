@@ -1,45 +1,9 @@
 <script setup lang="ts">
-import { useRequestStore } from '../../../stores'
 import { CollapsibleSection } from '../../CollapsibleSection'
-
-const store = useRequestStore()
-
-const { authState } = store
-
-const authTypeFriendlyString: { [key: string]: string } = {
-  basic: 'Basic Auth',
-  digest: 'Digest Auth',
-  oauthOne: 'OAuth 1.0',
-  oauthTwo: 'OAuth 2.0',
-  bearer: 'Bearer Token',
-  none: 'None',
-}
-
-const authDropdownItems = [
-  {
-    text: 'Basic Auth',
-    type: 'basic',
-    disabled: false,
-  },
-  {
-    text: 'OAuth 2.0',
-    type: 'oauthTwo',
-    disabled: true,
-  },
-  {
-    text: 'Bearer Token',
-    type: 'bearer',
-    disabled: false,
-  },
-  {
-    text: 'None',
-    type: 'none',
-    disabled: false,
-  },
-]
 </script>
 <template>
-  <CollapsibleSection title="Authentication">
+  <CollapsibleSection title="Authentication"> TODO: Auth </CollapsibleSection>
+  <!-- <CollapsibleSection title="Authentication">
     <template #options>
       <div>
         <span>
@@ -203,7 +167,6 @@ const authDropdownItems = [
               spellcheck="false"
               type="text" />
           </div>
-          <!--  @click="generateOauthTwoToken" -->
           <button
             class="scalar-api-client__item__content-button"
             type="button">
@@ -230,6 +193,5 @@ const authDropdownItems = [
         </template>
       </div>
     </template>
-  </CollapsibleSection>
+  </CollapsibleSection> -->
 </template>
-../../../stores/useRequestStore
