@@ -154,10 +154,10 @@ To make authentication easier you can prefill the credentials for your users:
 ````vue
 <ApiReference :configuration="{
   authentication: {
-      // The OpenAPI file has keys for all security schemes
+      // The OpenAPI file has keys for all security schemes.
       // Which one should be used by default?
-      preferredSecurityScheme: 'api_key',
-      // Okay, the `api_key` security scheme is of type `apiKey`, so prefill the token:
+      preferredSecurityScheme: 'my_custom_security_scheme',
+      // Okay, the `my_custom_security_scheme` security scheme is of type `apiKey`, so prefill the token:
       apiKey: {
         token: 'super-secret-token',
       },
