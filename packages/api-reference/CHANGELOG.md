@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.20.5
+
+### Patch Changes
+
+- 0c5e22c: fix: section flare if position fixed
+- Updated dependencies [0c5e22c]
+  - @scalar/themes@0.6.5
+  - @scalar/api-client@1.1.3
+  - @scalar/components@0.4.4
+
 ## 1.20.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.20.5
+
+### Patch Changes
+
+- 0c5e22c: fix: section flare if position fixed
+
 ## 1.20.2
 
 ### Patch Changes

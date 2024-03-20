@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.6.5
+
+### Patch Changes
+
+- 0c5e22c: fix: section flare if position fixed
+
 ## 0.6.4
 
 ### Patch Changes
