@@ -22,7 +22,6 @@ export const ApiClientReactBase = (props: { proxy: string }) => {
 
     const vueApp = createApp(ApiClient, {
       proxyUrl: props.proxy,
-      readOnly: true,
     })
     vueApp.mount(el.current)
 
