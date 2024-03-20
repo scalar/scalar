@@ -1,14 +1,15 @@
-name: Test api reference - live CDN
+name: Test api reference - localhost CDN
 
 on:
-  schedule:
-    # every hour
-    - cron: '0 * * * *'
   push:
     paths:
+      - 'examples/fastify-api-reference/**'
+      - 'packages/fastify-api-reference/**'
       - 'packages/cdn-api-reference/**'
       - '.github/workflows/test-api-reference-cdn.yml'
       - 'tests/**'
+    branches-ignore:
+      - 'main'
 
 jobs:
   test:
@@ -28,9 +29,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm --filter cdn-api-reference install
+        run: pnpm --filter @scalar-examples/fastify-api-reference install
       - name: Turborepo cache
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
+      - name: Start local api-reference server
+        run: pnpm --filter @scalar-examples/fastify-api-reference dev &
       - name: Start static html server
         run: pnpm --filter cdn-api-reference dev &
       - name: Get installed Playwright version
@@ -47,4 +50,4 @@ jobs:
       - name: Install Playwright browser binaries & OS dependencies
         run: pnpm exec playwright install --with-deps
       - name: Run e2e tests
-        run: CI=1 pnpm test:e2e cdn
+        run: CI=1 pnpm test:e2e api-reference

@@ -3,7 +3,7 @@
   "type": "module",
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
-    "@playwright/test": "^1.42.0",
+    "@playwright/test": "^1.42.1",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/node": "^20.8.4",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
