@@ -42,9 +42,10 @@ function handleScroll() {
   max-width: var(--refs-content-max-width);
   margin: auto;
 
-  /* Extend by header height to line up scroll position */
-  padding: calc(90px + var(--refs-header-height)) 0 90px 0;
-  margin-top: calc(-1 * var(--refs-header-height));
+  padding: 90px 0;
+
+  /* Offset by header height to line up scroll position */
+  scroll-margin-top: var(--refs-header-height);
 }
 .references-classic .section {
   padding: 48px 0;
@@ -53,7 +54,7 @@ function handleScroll() {
 @container narrow-references-container (max-width: 900px) {
   .references-classic .section,
   .section {
-    padding: calc(48px + var(--refs-header-height)) 24px 48px 24px;
+    padding: 48px 24px;
   }
 }
 .section:not(:last-of-type) {
