@@ -1,5 +1,11 @@
 # @scalar/api-client-react
 
+## 0.2.8
+
+### Patch Changes
+
+- 8d11934: fix: clear response on irregardless of open or closed
+
 ## 0.2.7
 
 ### Patch Changes
