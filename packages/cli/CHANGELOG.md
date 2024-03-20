@@ -1,5 +1,17 @@
 # @scalar/cli
 
+## 0.2.4
+
+### Patch Changes
+
+- bb503e7: feat: show warnings for invalid specifications
+- Updated dependencies [4b5a136]
+- Updated dependencies [1fb2eac]
+- Updated dependencies [01476a9]
+- Updated dependencies [083e0a1]
+  - @scalar/api-reference@1.20.1
+  - @scalar/mock-server@0.1.2
+
 ## 0.2.3
 
 ### Patch Changes
