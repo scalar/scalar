@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useTemplateStore } from '../../../stores/template'
+import { useHttpClientStore } from '../../../stores'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import ClientSelector from './ClientSelector.vue'
 
-const { state, getClientTitle, getTargetTitle } = useTemplateStore()
+const { httpClient, getClientTitle, getTargetTitle } = useHttpClientStore()
 </script>
 <template>
   <Card>
@@ -20,8 +20,8 @@ const { state, getClientTitle, getTargetTitle } = useTemplateStore()
     <CardFooter
       class="selected-client card-footer"
       muted>
-      {{ getTargetTitle(state.selectedClient) }}
-      {{ getClientTitle(state.selectedClient) }}
+      {{ getTargetTitle(httpClient) }}
+      {{ getClientTitle(httpClient) }}
     </CardFooter>
   </Card>
 </template>

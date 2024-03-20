@@ -17,9 +17,12 @@ import {
   getSecretCredentialsFromAuthentication,
   getUrlFromServerState,
 } from '../../../helpers'
-import { useClipboard, useSnippetTargets } from '../../../hooks'
-import { useAuthenticationStore, useServerStore } from '../../../stores'
-import { useTemplateStore } from '../../../stores/template'
+import { useClipboard, useHttpClients } from '../../../hooks'
+import {
+  useAuthenticationStore,
+  useHttpClientStore,
+  useServerStore,
+} from '../../../stores'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
@@ -31,9 +34,10 @@ const props = defineProps<{
 const CodeMirrorValue = ref<string>('')
 const selectedExampleKey = ref<string>()
 const { copyToClipboard } = useClipboard()
-const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
+const { httpClient, setHttpClient, getClientTitle, getTargetTitle } =
+  useHttpClientStore()
 
-const { availableTargets } = useSnippetTargets()
+const { availableTargets } = useHttpClients()
 
 const { server: serverState } = useServerStore()
 const { authentication: authenticationState } = useAuthenticationStore()
@@ -74,16 +78,16 @@ const generateSnippet = async (): Promise<string> => {
     // Snippetz
     if (
       snippetz().hasPlugin(
-        state.selectedClient.targetKey.replace('javascript', 'js'),
+        httpClient.targetKey.replace('javascript', 'js'),
         // @ts-ignore
-        state.selectedClient.clientKey,
+        httpClient.clientKey,
       )
     ) {
       return (
         snippetz().print(
           // @ts-ignore
-          state.selectedClient.targetKey.replace('javascript', 'js'),
-          state.selectedClient.clientKey,
+          httpClient.targetKey.replace('javascript', 'js'),
+          httpClient.clientKey,
           request,
         ) ?? ''
       )
@@ -92,8 +96,8 @@ const generateSnippet = async (): Promise<string> => {
     // httpsnippet-lite
     const snippet = new HTTPSnippet(request)
     return (await snippet.convert(
-      state.selectedClient.targetKey,
-      state.selectedClient.clientKey,
+      httpClient.targetKey,
+      httpClient.clientKey,
     )) as string
   } catch (e) {
     console.error('[ExampleRequest]', e)
@@ -104,7 +108,7 @@ const generateSnippet = async (): Promise<string> => {
 watch(
   [
     // Update snippet when a different client is selected
-    () => state.selectedClient,
+    () => httpClient,
     // … or the global server state changed
     () => serverState,
     // … or the global authentication state changed
@@ -143,7 +147,7 @@ computed(() => {
       <template #actions>
         <TextSelect
           class="request-client-picker"
-          :modelValue="JSON.stringify(state.selectedClient)"
+          :modelValue="JSON.stringify(httpClient)"
           :options="
             availableTargets.map((target) => {
               return {
@@ -161,11 +165,9 @@ computed(() => {
               }
             })
           "
-          @update:modelValue="
-            (value) => setItem('selectedClient', JSON.parse(value))
-          ">
-          {{ getTargetTitle(state.selectedClient) }}
-          {{ getClientTitle(state.selectedClient) }}
+          @update:modelValue="(value) => setHttpClient(JSON.parse(value))">
+          {{ getTargetTitle(httpClient) }}
+          {{ getClientTitle(httpClient) }}
         </TextSelect>
 
         <button
@@ -189,7 +191,7 @@ computed(() => {
           :hideCredentials="
             getSecretCredentialsFromAuthentication(authenticationState)
           "
-          :lang="state.selectedClient.targetKey"
+          :lang="httpClient.targetKey"
           lineNumbers />
       </div>
     </CardContent>

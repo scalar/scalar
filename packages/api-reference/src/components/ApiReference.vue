@@ -3,7 +3,7 @@ import { createHead, useSeoMeta } from 'unhead'
 import { computed, toRef, watch } from 'vue'
 import { toast } from 'vue-sonner'
 
-import { useDarkModeState, useReactiveSpec, useSnippetTargets } from '../hooks'
+import { useDarkModeState, useHttpClients, useReactiveSpec } from '../hooks'
 import { useToasts } from '../hooks/useToasts'
 import { useAuthenticationStore } from '../stores'
 import { type ReferenceConfiguration, type ReferenceProps } from '../types'
@@ -69,7 +69,7 @@ const { setAuthentication } = useAuthenticationStore()
 mapConfigToState('authentication', setAuthentication)
 
 // Hides any client snippets from the references
-const { setExcludedClients } = useSnippetTargets()
+const { setExcludedClients } = useHttpClients()
 mapConfigToState('hiddenClients', setExcludedClients)
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
