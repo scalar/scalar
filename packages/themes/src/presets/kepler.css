@@ -44,6 +44,8 @@
   --default-sidebar-search-border-color: 1px solid rgba(0, 0, 0, 0.05);
   --default-sidebar-search-color: var(--default-theme-color-3);
   --default-theme-background-2: rgba(0, 0, 0, 0.03);
+  --default-sidebar-indent-border: transparent;
+  --default-sidebar-indent-border-active: transparent;
 }
 .dark-mode .t-doc__sidebar {
   --default-sidebar-background-1: var(--default-theme-background-1);
@@ -57,13 +59,11 @@
   --default-sidebar-search-background: rgba(255, 255, 255, 0.1);
   --default-sidebar-search-border-color: 1px solid rgba(255, 255, 255, 0.05);
   --default-sidebar-search-color: var(--default-theme-color-3);
+  --default-sidebar-indent-border: transparent;
+  --default-sidebar-indent-border-active: transparent;
 }
 /* advanced */
 .light-mode {
-  --default-theme-button-1: rgb(49 53 56);
-  --default-theme-button-1-color: #fff;
-  --default-theme-button-1-hover: rgb(28 31 33);
-
   --default-theme-color-green: #069061;
   --default-theme-color-red: #ef0006;
   --default-theme-color-yellow: #edbe20;
@@ -71,8 +71,9 @@
   --default-theme-color-orange: #fb892c;
   --default-theme-color-purple: #5203d1;
 
-  --default-theme-scrollbar-color: rgba(0, 0, 0, 0.18);
-  --default-theme-scrollbar-color-active: rgba(0, 0, 0, 0.36);
+  --default-theme-button-1: rgba(0, 0, 0, 1);
+  --default-theme-button-1-hover: rgba(0, 0, 0, 0.8);
+  --default-theme-button-1-color: rgba(255, 255, 255, 0.9);
 }
 .dark-mode {
   --default-theme-button-1: #f6f6f6;
@@ -86,8 +87,9 @@
   --default-theme-color-orange: #ff8d4d;
   --default-theme-color-purple: #b191f9;
 
-  --default-theme-scrollbar-color: rgba(255, 255, 255, 0.24);
-  --default-theme-scrollbar-color-active: rgba(255, 255, 255, 0.48);
+  --default-theme-button-1: rgba(255, 255, 255, 1);
+  --default-theme-button-1-hover: rgba(255, 255, 255, 0.9);
+  --default-theme-button-1-color: black;
 }
 /* Custom Theme */
 .dark-mode h2.t-editor__heading,

@@ -92,6 +92,8 @@
     --default-sidebar-search-background
   );
   --default-sidebar-search--color: var(--default-theme-color-3);
+  --default-sidebar-indent-border: transparent;
+  --default-sidebar-indent-border-active: transparent;
 }
 
 .dark-mode .sidebar {
@@ -110,4 +112,6 @@
     --default-sidebar-search-background
   );
   --default-sidebar-search--color: var(--default-theme-color-3);
+  --default-sidebar-indent-border: transparent;
+  --default-sidebar-indent-border-active: transparent;
 }

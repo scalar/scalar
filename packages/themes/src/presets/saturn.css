@@ -52,6 +52,9 @@
   --default-sidebar-search-background: var(--default-theme-background-1);
   --default-sidebar-search-border-color: var(--default-theme-border-color);
   --default-sidebar-search-color: var(--default-theme-color-3);
+
+  --default-sidebar-indent-border: transparent;
+  --default-sidebar-indent-border-active: transparent;
 }
 
 /* advanced */
@@ -62,6 +65,10 @@
   --default-theme-color-blue: #1763a6;
   --default-theme-color-orange: #e25b09;
   --default-theme-color-purple: #5c3993;
+
+  --default-theme-button-1: rgba(0, 0, 0, 1);
+  --default-theme-button-1-hover: rgba(0, 0, 0, 0.8);
+  --default-theme-button-1-color: rgba(255, 255, 255, 0.9);
 }
 .dark-mode {
   --default-theme-color-green: #30a159;
@@ -70,6 +77,10 @@
   --default-theme-color-blue: #2b7abf;
   --default-theme-color-orange: #f07528;
   --default-theme-color-purple: #7a59b1;
+
+  --default-theme-button-1: rgba(255, 255, 255, 1);
+  --default-theme-button-1-hover: rgba(255, 255, 255, 0.9);
+  --default-theme-button-1-color: black;
 }
 .dark-mode h2.t-editor__heading,
 .dark-mode .t-editor__page-title h1,

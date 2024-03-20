@@ -82,6 +82,8 @@ export const nextjsThemeCss = `
   --sidebar-search-background: var(--theme-background-2);
   --sidebar-search-border-color: var(--theme-background-2);
   --sidebar-search-color: var(--theme-color-3);
+  --sidebar-indent-border: var(--theme-border-color);
+  --sidebar-indent-border-active: #6aacf8;
 }
 .api-client-drawer .t-doc__sidebar {
   --sidebar-border-color: var(--theme-border-color);
@@ -120,21 +122,6 @@ export const nextjsThemeCss = `
 }
 .sidebar .sidebar-indent-nested .sidebar-heading {
   padding-right: 0;
-}
-.sidebar .sidebar-group .sidebar-indent-nested .sidebar-heading:before {
-  content: '';
-  position: absolute;
-  left: 11px;
-  background: var(--theme-border-color);
-  width: 1px;
-  height: 100%;
-  width: 1px;
-}
-.sidebar
-  .sidebar-group
-  .sidebar-indent-nested
-  .sidebar-heading.active_page:before {
-  background: #6aacf8;
 }
 .examples .show-api-client-button:before {
   background: var(--theme-color-1);
