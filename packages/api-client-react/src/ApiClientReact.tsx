@@ -9,14 +9,13 @@ type Props = {
   close: () => void
   // Controls whether the modal is open or closed
   isOpen: boolean
-  // The OpenApi request object
-  request: ClientRequestConfig
-
   // optional proxy url for requests
   proxy?: string
+  // TheOpenApi request object
+  request: ClientRequestConfig | null
 }
 
-const { setActiveRequest } = useRequestStore()
+const { resetActiveResponse, setActiveRequest } = useRequestStore()
 
 /**
  * Api Client React
@@ -28,8 +27,9 @@ export const ApiClientReact = ({
   request,
 }: Props) => {
   useEffect(() => {
-    setActiveRequest(request)
-  }, [request])
+    if (!isOpen) resetActiveResponse()
+    else if (request) setActiveRequest(request)
+  }, [isOpen, request])
 
   const [host, setHost] = useState('')
   useEffect(() => setHost(window.location.host), [])
