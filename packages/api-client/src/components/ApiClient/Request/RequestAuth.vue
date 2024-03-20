@@ -1,11 +1,51 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import { useAuthenticationStore } from '../../../stores'
 import { CollapsibleSection } from '../../CollapsibleSection'
 
-const { authentication } = useAuthenticationStore()
+const { authentication, setAuthentication } = useAuthenticationStore()
+
+const currentAuthenticationLabel = computed(() => {
+  return authentication.preferredSecurityScheme
+})
 </script>
 <template>
   <CollapsibleSection title="Authentication">
+    <template #options>
+      <div>
+        <span>
+          {{ currentAuthenticationLabel }}
+          <svg
+            fill="none"
+            height="100%"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="m19.5 10-7.5 7.5-7.5-7.5"
+              xmlns="http://www.w3.org/2000/svg"></path>
+          </svg>
+        </span>
+        <select
+          @click.prevent
+          @input="
+            (event) =>
+              setAuthentication({
+                preferredSecurityScheme: (event.target as HTMLSelectElement)
+                  .value,
+              })
+          ">
+          <option
+            v-for="key in Object.keys(authentication.securitySchemes)"
+            :key="key"
+            :value="key">
+            {{ key }}
+          </option>
+        </select>
+      </div>
+    </template>
+
     <div class="preferred-security-scheme">
       {{ authentication.preferredSecurityScheme }}
     </div>

@@ -72,9 +72,8 @@ function addHandler() {
           v-show="showDescription"
           class="table-row-item">
           <input
-            v-model="item.description"
             disabled
-            placeholder="value" />
+            value="Authentication" />
         </div>
         <div class="table-row-meta">
           <!-- generated -->
@@ -93,19 +92,19 @@ function addHandler() {
         <div class="table-row-item">
           <input
             v-model="item.name"
-            placeholder="key" />
+            placeholder="Key" />
         </div>
         <div class="table-row-item">
           <input
             v-model="item.value"
-            placeholder="value" />
+            placeholder="Value" />
         </div>
         <div
           v-show="showDescription"
           class="table-row-item">
           <input
             v-model="item.description"
-            placeholder="value" />
+            placeholder="Description" />
         </div>
         <div class="table-row-meta">
           <label class="meta-check">
