@@ -11,6 +11,7 @@ import {
   useGivenFileOrConfiguration,
   watchFile,
 } from '../../utils'
+import { printSpecificationBanner } from '../../utils/printSpecificationBanner'
 
 export function MockCommand() {
   const cmd = new Command('mock')
@@ -28,25 +29,56 @@ export function MockCommand() {
       let server: ReturnType<typeof serve> = null
 
       // Configuration
-      const file = useGivenFileOrConfiguration(fileArgument)
+      const input = useGivenFileOrConfiguration(fileArgument)
 
       // Load OpenAPI file
-      let { specification } = await loadOpenApiFile(file)
+      const result = await loadOpenApiFile(input)
+
+      if (!result.valid) {
+        console.warn(
+          kleur.bold().red('[ERROR]'),
+          kleur.red('Invalid OpenAPI specification'),
+        )
+
+        return
+      }
+
+      printSpecificationBanner({
+        version: result.version,
+        schema: result.schema,
+      })
+
+      let { specification } = result
 
       // Watch OpenAPI file for changes
       if (watch) {
-        await watchFile(file, async () => {
-          console.log(
-            kleur.bold().white('[INFO]'),
-            kleur.grey('Mock Server was updated.'),
-          )
-          specification = (await loadOpenApiFile(file)).specification
+        await watchFile(input, async () => {
+          const newResult = await loadOpenApiFile(input)
+          const specificationHasChanged =
+            newResult?.specification &&
+            JSON.stringify(specification) !==
+              JSON.stringify(newResult.specification)
 
-          server.close()
-          server = await bootServer({
-            specification,
-            port,
-          })
+          if (specificationHasChanged) {
+            console.log(
+              kleur.bold().white('[INFO]'),
+              kleur.grey('OpenAPI file modified'),
+            )
+
+            printSpecificationBanner({
+              version: newResult.version,
+              schema: newResult.schema,
+            })
+
+            specification = newResult.specification
+
+            // Update mock server
+            server.close()
+            server = await bootServer({
+              specification,
+              port,
+            })
+          }
         })
       }
 

@@ -2,6 +2,8 @@ import watcher from '@parcel/watcher'
 import fs from 'node:fs'
 import path from 'node:path'
 
+import { isUrl } from './isUrl'
+
 /**
  * Watch a foobar for changes and call a callback when it does.
  */
@@ -10,6 +12,12 @@ export async function watchFile(
   callback: () => void,
   options?: { immediate?: boolean },
 ) {
+  // Poll URLs
+  if (isUrl(file)) {
+    setInterval(callback, 5000)
+    return
+  }
+
   const absoluteFilePath = path.join(process.cwd(), file)
 
   // Check if file exists

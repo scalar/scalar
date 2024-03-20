@@ -10,6 +10,7 @@ import {
   useGivenFileOrConfiguration,
   watchFile,
 } from '../../utils'
+import { printSpecificationBanner } from '../../utils/printSpecificationBanner'
 
 export function ReferenceCommand() {
   const cmd = new Command('reference')
@@ -23,12 +24,22 @@ export function ReferenceCommand() {
   )
   cmd.action(
     async (
-      fileArgument: string,
+      inputArgument: string,
       { watch, port }: { watch?: boolean; port?: number },
     ) => {
-      const file = useGivenFileOrConfiguration(fileArgument)
+      const input = useGivenFileOrConfiguration(inputArgument)
+      const result = await loadOpenApiFile(input)
 
-      let { specification } = await loadOpenApiFile(file)
+      if (!result.valid) {
+        return
+      }
+
+      let { specification } = result
+
+      printSpecificationBanner({
+        version: result.version,
+        schema: result.schema,
+      })
 
       if (
         specification?.paths === undefined ||
@@ -57,18 +68,28 @@ export function ReferenceCommand() {
         return stream(c, async (s) => {
           // watch file for changes
           if (watch) {
-            watchFile(file, async () => {
-              console.log(
-                kleur.bold().white('[INFO]'),
-                kleur.grey('OpenAPI file modified'),
-              )
+            watchFile(input, async () => {
+              const newResult = await loadOpenApiFile(input)
+              const specificationHasChanged =
+                newResult?.specification &&
+                JSON.stringify(specification) !==
+                  JSON.stringify(newResult.specification)
 
-              const result = await loadOpenApiFile(file)
-              if (result?.specification) {
-                specification = result.specification
+              if (specificationHasChanged) {
+                console.log(
+                  kleur.bold().white('[INFO]'),
+                  kleur.grey('OpenAPI file modified'),
+                )
+
+                printSpecificationBanner({
+                  version: newResult.version,
+                  schema: newResult.schema,
+                })
+
+                specification = newResult.specification
+
+                s.write('data: file modified\n\n')
               }
-
-              s.write('data: file modified\n\n')
             })
           }
 

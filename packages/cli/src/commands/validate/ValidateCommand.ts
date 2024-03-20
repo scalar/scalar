@@ -16,6 +16,7 @@ export function ValidateCommand() {
 
     // Read file
     const file = useGivenFileOrConfiguration(fileArgument)
+    // TODO: Doesn’t work with URLs
     const specification = fs.readFileSync(file, 'utf8')
 
     // Validate

@@ -2,36 +2,17 @@ import { openapi } from '@scalar/openapi-parser'
 import kleur from 'kleur'
 import fs from 'node:fs'
 
-export async function loadOpenApiFile(file: string) {
-  const specification = fs.readFileSync(file, 'utf8')
+import { isUrl } from './isUrl'
+
+export async function loadOpenApiFile(input: string) {
+  const specification = await getFileOrUrl(input)
 
   try {
     const result = await openapi().load(specification).resolve()
-    const { valid, version, schema } = result
+    const { valid } = result
 
-    if (valid) {
-      console.log(
-        kleur.bold().white('[INFO]'),
-        kleur.bold().white(schema.info.title),
-        kleur.grey(`(OpenAPI v${version})`),
-      )
-      // Stats
-      const pathsCount = Object.keys(schema.paths).length
-
-      let operationsCount = 0
-      for (const path in schema.paths) {
-        for (const method in schema.paths[path]) {
-          operationsCount++
-        }
-      }
-
-      console.log(
-        kleur.bold().white('[INFO]'),
-        kleur.grey(`${pathsCount} paths, ${operationsCount} operations`),
-      )
-
-      console.log()
-    } else {
+    // Invalid specification
+    if (!valid) {
       console.warn(
         kleur.bold().yellow('[WARN]'),
         kleur.bold().yellow('File doesn’t match the OpenAPI specification.'),
@@ -39,7 +20,7 @@ export async function loadOpenApiFile(file: string) {
 
       console.log()
 
-      // Loop through result.errors if present
+      // Output errors
       result.errors?.forEach((error: any) => {
         console.warn(
           kleur.bold().yellow('[WARN]'),
@@ -49,10 +30,52 @@ export async function loadOpenApiFile(file: string) {
       })
 
       console.log()
+
+      return result
     }
+
     return result
   } catch (error) {
     console.warn(kleur.bold().red('[ERROR]'), kleur.red(error))
     console.log()
+
+    return {
+      valid: false,
+      version: undefined,
+      specification: undefined,
+      schema: undefined,
+      errors: [
+        {
+          error: error.message,
+          path: '',
+        },
+      ],
+    }
   }
+}
+
+/**
+ * Pass a file path or URL and get the content of the file.
+ */
+async function getFileOrUrl(input: string): Promise<string> {
+  if (isUrl(input)) {
+    const response = await fetch(input)
+
+    if (!response.ok) {
+      console.error(
+        kleur.bold().red('[ERROR]'),
+        kleur.bold().red('Failed to fetch OpenAPI specification from URL.'),
+      )
+
+      return ''
+    }
+
+    return await response.text()
+  }
+
+  if (!fs.existsSync(input)) {
+    throw new Error('File not found')
+  }
+
+  return fs.readFileSync(input, 'utf-8')
 }
