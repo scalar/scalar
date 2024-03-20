@@ -1,9 +1,15 @@
 <script setup lang="ts">
+import { type GeneratedParameter } from 'src/types'
+import { computed } from 'vue'
+
 import { useRequestStore } from '../../../stores'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
-defineProps<{ cookies?: any[] }>()
+const props = defineProps<{
+  cookies?: any[]
+  generatedCookies?: GeneratedParameter[]
+}>()
 
 const { activeRequest } = useRequestStore()
 
@@ -18,12 +24,16 @@ function addAnotherHandler() {
 
   activeRequest.cookies?.push({ name: '', value: '', enabled: true })
 }
+
+const hasCookies = computed(() => {
+  return !!(props.cookies?.length || props.generatedCookies?.length)
+})
 </script>
 <template>
   <CollapsibleSection
-    :defaultOpen="activeRequest.cookies && activeRequest.cookies.length > 0"
+    :defaultOpen="hasCookies"
     title="Cookies">
-    <template v-if="!cookies || cookies.length === 0">
+    <template v-if="!hasCookies">
       <div class="scalar-api-client__empty-state">
         <button
           class="scalar-api-client-add"
@@ -51,6 +61,7 @@ function addAnotherHandler() {
     <template v-else>
       <Grid
         addLabel="Cookie"
+        :generatedItems="generatedCookies"
         :items="cookies"
         @addAnother="addAnotherHandler"
         @deleteIndex="handleDeleteIndex" />

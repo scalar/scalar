@@ -51,11 +51,15 @@ const readOnly = true
     <div>
       <RequestVariables :variables="activeRequest.variables" />
       <RequestAuth />
-      <RequestCookies :cookies="activeRequest.cookies" />
+      <RequestCookies
+        :cookies="activeRequest.cookies"
+        :generatedCookies="authenticationRequest.cookies" />
       <RequestHeaders
         :generatedHeaders="authenticationRequest.headers"
         :headers="activeRequest.headers" />
-      <RequestQuery :queries="activeRequest.query" />
+      <RequestQuery
+        :generatedQueries="authenticationRequest.query"
+        :queries="activeRequest.query" />
       <RequestBody
         :body="activeRequest.body"
         :formData="activeRequest.formData"

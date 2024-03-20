@@ -1,4 +1,4 @@
-import { type BaseParameter } from '@scalar/oas-utils'
+import type { BaseParameter } from '@scalar/oas-utils'
 
 export type Header = BaseParameter
 
@@ -7,6 +7,11 @@ export type Query = BaseParameter
 export type Cookie = BaseParameter
 
 export type FormDataItem = BaseParameter
+
+export type GeneratedParameter = {
+  name: string
+  value: string
+}
 
 /** Complete request state for a client request */
 export type ClientRequestConfig = {

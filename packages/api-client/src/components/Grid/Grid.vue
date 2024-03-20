@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
+import type { BaseParameter } from '@scalar/oas-utils'
 import { ref } from 'vue'
 
+import type { GeneratedParameter } from '../../types'
+
 defineProps<{
-  items?: any[]
-  generatedItems?: any[]
+  items?: BaseParameter[]
+  generatedItems?: GeneratedParameter[]
   addLabel?: string
   showMoreFilter?: boolean
 }>()

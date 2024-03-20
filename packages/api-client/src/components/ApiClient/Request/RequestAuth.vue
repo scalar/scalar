@@ -7,7 +7,7 @@ import { CollapsibleSection } from '../../CollapsibleSection'
 const { authentication, setAuthentication } = useAuthenticationStore()
 
 const currentAuthenticationLabel = computed(() => {
-  return authentication.preferredSecurityScheme
+  return authentication.preferredSecurityScheme || 'None'
 })
 </script>
 <template>
@@ -36,9 +36,11 @@ const currentAuthenticationLabel = computed(() => {
                   .value,
               })
           ">
+          <option value="">None</option>
           <option
             v-for="key in Object.keys(authentication.securitySchemes)"
             :key="key"
+            :selected="key === authentication.preferredSecurityScheme"
             :value="key">
             {{ key }}
           </option>

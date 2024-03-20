@@ -1,41 +1,15 @@
 <script setup lang="ts">
+import type { BaseParameter } from '@scalar/oas-utils'
 import { computed } from 'vue'
 
 import { useRequestStore } from '../../../stores'
+import type { GeneratedParameter } from '../../../types'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
-type Header = {
-  /**
-   * The name of the header, e.g. X-Api-Key
-   */
-  name: string
-  /**
-   * The value of the header, e.g. 12345
-   */
-  value: string | number | Record<string, any>
-  /**
-   * The description of the header
-   */
-  description?: string | null | undefined
-  /**
-   * Whether the header is required
-   */
-  required?: boolean
-  /**
-   * Whether the header is sent or not
-   */
-  enabled: boolean
-}
-
-type GeneratedHeader = {
-  name: string
-  value: string
-}
-
 const props = defineProps<{
-  headers?: Header[]
-  generatedHeaders?: GeneratedHeader[]
+  headers?: BaseParameter[]
+  generatedHeaders?: GeneratedParameter[]
 }>()
 
 const { activeRequest } = useRequestStore()

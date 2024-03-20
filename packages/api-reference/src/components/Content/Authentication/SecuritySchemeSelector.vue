@@ -104,7 +104,7 @@ const keys = computed(() => Object.keys(props.value ?? {}))
                 value?.[authentication.preferredSecurityScheme],
                 authentication.preferredSecurityScheme,
               )
-            : ''
+            : 'None'
         }}
       </span>
       <ScalarIcon icon="ChevronDown" />
