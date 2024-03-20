@@ -91,11 +91,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         <template v-if="value?.items && !['object'].includes(value.items.type)">
           {{ value.type }}
           {{ value.items.type }}[]
-          <template v-if="value.items.example">
-            <code class="property-example-value">
-              example: {{ value.items.example }}
-            </code>
-          </template>
         </template>
         <template v-else>
           {{ Array.isArray(value.type) ? value.type.join(' | ') : value.type }}
@@ -145,13 +140,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
           <Badge>{{ rule }}</Badge>
         </div>
       </template>
-      <div
-        v-if="value?.example !== undefined"
-        class="property-example">
-        <code class="property-example-value">
-          example: {{ value.example }}
-        </code>
-      </div>
     </div>
     <!-- Description -->
     <div
@@ -163,6 +151,15 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       v-else-if="generatePropertyDescription(value)"
       class="property-description">
       <MarkdownRenderer :value="generatePropertyDescription(value) || ''" />
+    </div>
+    <!-- Example -->
+    <div
+      v-if="value?.example || value?.items?.example"
+      class="property-example custom-scroll">
+      <span class="property-example-label">Example</span>
+      <code class="property-example-value">{{
+        value.example || value?.items.example
+      }}</code>
     </div>
     <!-- Enum -->
     <div
@@ -315,20 +312,28 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 
 .property-example {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  margin-top: 6px;
+  padding: 6px;
+
+  max-height: calc(((var(--full-height) - var(--refs-header-height))) / 2);
+
+  font-size: var(--default-theme-micro, var(--default-default-theme-micro));
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+}
+
+.property-example-label {
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  color: var(--theme-color-3, var(--default-theme-color-3));
 }
 .property-example-value {
-  padding: 12px 12px;
-  box-shadow: 0 0 0 1px
-    var(--theme-border-color, var(--default-theme-border-color));
-  background: var(--theme-background-2, var(--default-theme-background-2));
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  padding: 2px 5px;
   font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: var(
-    --default-theme-font-size-5,
-    var(--default-default-theme-font-size-5)
-  );
+  white-space: pre;
 }
 
 .pattern {
