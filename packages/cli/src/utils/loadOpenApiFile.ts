@@ -2,6 +2,8 @@ import { openapi } from '@scalar/openapi-parser'
 import kleur from 'kleur'
 import fs from 'node:fs'
 
+import { isUrl } from './isUrl'
+
 export async function loadOpenApiFile(input: string) {
   const specification = await getFileOrUrl(input)
 
@@ -9,29 +11,8 @@ export async function loadOpenApiFile(input: string) {
     const result = await openapi().load(specification).resolve()
     const { valid, version, schema } = result
 
-    if (valid) {
-      console.log(
-        kleur.bold().white('[INFO]'),
-        kleur.bold().white(schema.info.title),
-        kleur.grey(`(OpenAPI v${version})`),
-      )
-      // Stats
-      const pathsCount = Object.keys(schema.paths).length
-
-      let operationsCount = 0
-      for (const path in schema.paths) {
-        for (const method in schema.paths[path]) {
-          operationsCount++
-        }
-      }
-
-      console.log(
-        kleur.bold().white('[INFO]'),
-        kleur.grey(`${pathsCount} paths, ${operationsCount} operations`),
-      )
-
-      console.log()
-    } else {
+    // Invalid specification
+    if (!valid) {
       console.warn(
         kleur.bold().yellow('[WARN]'),
         kleur.bold().yellow('File doesn’t match the OpenAPI specification.'),
@@ -39,7 +20,7 @@ export async function loadOpenApiFile(input: string) {
 
       console.log()
 
-      // Loop through result.errors if present
+      // Output errors
       result.errors?.forEach((error: any) => {
         console.warn(
           kleur.bold().yellow('[WARN]'),
@@ -49,19 +30,50 @@ export async function loadOpenApiFile(input: string) {
       })
 
       console.log()
+
+      return result
     }
+
+    // Valid specification
+    console.log(
+      kleur.bold().white('[INFO]'),
+      kleur.bold().white(schema.info.title),
+      kleur.grey(`(OpenAPI v${version})`),
+    )
+
+    // Count number of paths
+    const pathsCount = Object.keys(schema.paths).length
+
+    // Count number of operations
+    const operationsCount = Object.values(schema.paths).reduce(
+      (acc, path) => acc + Object.keys(path).length,
+      0,
+    )
+
+    // Statistics
+    console.log(
+      kleur.bold().white('[INFO]'),
+      kleur.grey(`${pathsCount} paths, ${operationsCount} operations`),
+    )
+
+    console.log()
+
     return result
   } catch (error) {
     console.warn(kleur.bold().red('[ERROR]'), kleur.red(error))
     console.log()
-  }
-}
 
-/**
- * Check if the input is a URL.
- */
-function isUrl(text: string): boolean {
-  return text.startsWith('http://') || text.startsWith('https://')
+    return {
+      valid: false,
+      specification: null,
+      errors: [
+        {
+          error: error.message,
+          path: '',
+        },
+      ],
+    }
+  }
 }
 
 /**
@@ -75,6 +87,15 @@ async function getFileOrUrl(input: string): Promise<string> {
     )
 
     const response = await fetch(input)
+
+    if (!response.ok) {
+      console.error(
+        kleur.bold().red('[ERROR]'),
+        kleur.bold().red('Failed to fetch OpenAPI specification from URL.'),
+      )
+
+      return ''
+    }
 
     return await response.text()
   }

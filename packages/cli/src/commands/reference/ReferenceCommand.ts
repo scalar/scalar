@@ -23,12 +23,17 @@ export function ReferenceCommand() {
   )
   cmd.action(
     async (
-      fileArgument: string,
+      inputArgument: string,
       { watch, port }: { watch?: boolean; port?: number },
     ) => {
-      const file = useGivenFileOrConfiguration(fileArgument)
+      const input = useGivenFileOrConfiguration(inputArgument)
+      const result = await loadOpenApiFile(input)
 
-      let { specification } = await loadOpenApiFile(file)
+      if (!result.valid) {
+        return
+      }
+
+      let { specification } = result
 
       if (
         specification?.paths === undefined ||
@@ -57,18 +62,23 @@ export function ReferenceCommand() {
         return stream(c, async (s) => {
           // watch file for changes
           if (watch) {
-            watchFile(file, async () => {
+            watchFile(input, async () => {
               console.log(
                 kleur.bold().white('[INFO]'),
                 kleur.grey('OpenAPI file modified'),
               )
 
-              const result = await loadOpenApiFile(file)
-              if (result?.specification) {
-                specification = result.specification
-              }
+              const newResult = await loadOpenApiFile(input)
 
-              s.write('data: file modified\n\n')
+              if (newResult?.specification) {
+                if (specification !== newResult.specification) {
+                  specification = newResult.specification
+
+                  s.write('data: file modified\n\n')
+                }
+              } else {
+                console.log('no change')
+              }
             })
           }
 
