@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 1.1.1
+
+### Patch Changes
+
+- 61a97e2: feat: make api client url editable
+
 ## 1.1.0
 
 ### Minor Changes
