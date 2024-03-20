@@ -9,7 +9,7 @@ export async function loadOpenApiFile(input: string) {
 
   try {
     const result = await openapi().load(specification).resolve()
-    const { valid, version, schema } = result
+    const { valid } = result
 
     // Invalid specification
     if (!valid) {
@@ -34,30 +34,6 @@ export async function loadOpenApiFile(input: string) {
       return result
     }
 
-    // Valid specification
-    console.log(
-      kleur.bold().white('[INFO]'),
-      kleur.bold().white(schema.info.title),
-      kleur.grey(`(OpenAPI v${version})`),
-    )
-
-    // Count number of paths
-    const pathsCount = Object.keys(schema.paths).length
-
-    // Count number of operations
-    const operationsCount = Object.values(schema.paths).reduce(
-      (acc, path) => acc + Object.keys(path).length,
-      0,
-    )
-
-    // Statistics
-    console.log(
-      kleur.bold().white('[INFO]'),
-      kleur.grey(`${pathsCount} paths, ${operationsCount} operations`),
-    )
-
-    console.log()
-
     return result
   } catch (error) {
     console.warn(kleur.bold().red('[ERROR]'), kleur.red(error))
@@ -65,7 +41,9 @@ export async function loadOpenApiFile(input: string) {
 
     return {
       valid: false,
-      specification: null,
+      version: undefined,
+      specification: undefined,
+      schema: undefined,
       errors: [
         {
           error: error.message,
@@ -81,11 +59,6 @@ export async function loadOpenApiFile(input: string) {
  */
 async function getFileOrUrl(input: string): Promise<string> {
   if (isUrl(input)) {
-    console.log(
-      kleur.bold().white('[INFO]'),
-      kleur.bold().white('Fetching OpenAPI specification from URL…'),
-    )
-
     const response = await fetch(input)
 
     if (!response.ok) {

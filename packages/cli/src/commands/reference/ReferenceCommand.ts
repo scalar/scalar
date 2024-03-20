@@ -10,6 +10,7 @@ import {
   useGivenFileOrConfiguration,
   watchFile,
 } from '../../utils'
+import { printSpecificationBanner } from '../../utils/printSpecificationBanner'
 
 export function ReferenceCommand() {
   const cmd = new Command('reference')
@@ -34,6 +35,11 @@ export function ReferenceCommand() {
       }
 
       let { specification } = result
+
+      printSpecificationBanner({
+        version: result.version,
+        schema: result.schema,
+      })
 
       if (
         specification?.paths === undefined ||
@@ -63,15 +69,24 @@ export function ReferenceCommand() {
           // watch file for changes
           if (watch) {
             watchFile(input, async () => {
-              console.log(
-                kleur.bold().white('[INFO]'),
-                kleur.grey('OpenAPI file modified'),
-              )
-
               const newResult = await loadOpenApiFile(input)
 
               if (newResult?.specification) {
-                if (specification !== newResult.specification) {
+                if (
+                  newResult.specification &&
+                  JSON.stringify(specification) !==
+                    JSON.stringify(newResult.specification)
+                ) {
+                  console.log(
+                    kleur.bold().white('[INFO]'),
+                    kleur.grey('OpenAPI file modified'),
+                  )
+
+                  printSpecificationBanner({
+                    version: newResult.version,
+                    schema: newResult.schema,
+                  })
+
                   specification = newResult.specification
 
                   s.write('data: file modified\n\n')
