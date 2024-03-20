@@ -34,7 +34,7 @@ const handleAuthenticationTypeInput = (event: Event) => {
 // Use first security scheme as default
 onMounted(() => {
   // Oh, the key was set already!
-  if (authentication.securitySchemeKey) {
+  if (authentication.preferredSecurityScheme) {
     return
   }
 
@@ -45,7 +45,7 @@ onMounted(() => {
 // Update current security scheme key
 const setSecuritySchemeKey = (key: string) => {
   setAuthentication({
-    securitySchemeKey: key,
+    preferredSecurityScheme: key,
   })
 
   emits('input', key)
@@ -100,10 +100,10 @@ const keys = computed(() => Object.keys(props.value ?? {}))
     <div class="security-scheme-selector">
       <span>
         {{
-          authentication.securitySchemeKey
+          authentication.preferredSecurityScheme
             ? getLabelForScheme(
-                value?.[authentication.securitySchemeKey],
-                authentication.securitySchemeKey,
+                value?.[authentication.preferredSecurityScheme],
+                authentication.preferredSecurityScheme,
               )
             : ''
         }}
@@ -111,7 +111,7 @@ const keys = computed(() => Object.keys(props.value ?? {}))
       <ScalarIcon icon="ChevronDown" />
       <select
         @input="handleAuthenticationTypeInput"
-        @value="authentication.securitySchemeKey">
+        @value="authentication.preferredSecurityScheme">
         <template
           v-for="key in keys"
           :key="key">

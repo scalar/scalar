@@ -14,13 +14,13 @@ const props = defineProps<{ parsedSpec?: Spec }>()
 const { authentication, setAuthentication } = useAuthenticationStore()
 
 const showSecurityScheme = computed(() => {
-  if (!authentication.securitySchemeKey) {
+  if (!authentication.preferredSecurityScheme) {
     return false
   }
 
   const scheme =
     props.parsedSpec?.components?.securitySchemes?.[
-      authentication.securitySchemeKey
+      authentication.preferredSecurityScheme
     ]
 
   return !!scheme && 'type' in scheme && !!scheme.type
@@ -59,10 +59,10 @@ watch(
       class="authentication-content"
       transparent>
       <SecurityScheme
-        v-if="authentication.securitySchemeKey"
+        v-if="authentication.preferredSecurityScheme"
         :value="
           parsedSpec?.components?.securitySchemes?.[
-            authentication.securitySchemeKey
+            authentication.preferredSecurityScheme
           ] as OpenAPIV3_1.SecuritySchemeObject
         " />
     </CardContent>

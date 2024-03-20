@@ -216,7 +216,7 @@ export type Spec = {
 }
 
 export type AuthenticationState = {
-  securitySchemeKey: string | null
+  preferredSecurityScheme: string | null
   securitySchemes?:
     | OpenAPIV3.ComponentsObject['securitySchemes']
     | OpenAPIV3_1.ComponentsObject['securitySchemes']

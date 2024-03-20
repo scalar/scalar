@@ -45,7 +45,7 @@ export function getRequestFromAuthentication(
 
   // Check whether auth is required
   if (
-    !authentication.securitySchemeKey ||
+    !authentication.preferredSecurityScheme ||
     !authenticationRequired(operationSecurity)
   ) {
     return { headers, queryString, cookies }
@@ -54,15 +54,15 @@ export function getRequestFromAuthentication(
   // Check if the (globally) selected security scheme is allowed for the operation
   const operationAllowsSelectedSecurityScheme = operationSecurity?.some(
     (securityRequirement) =>
-      authentication.securitySchemeKey &&
+      authentication.preferredSecurityScheme &&
       Object.keys(securityRequirement).includes(
-        authentication.securitySchemeKey,
+        authentication.preferredSecurityScheme,
       ),
   )
 
   // If the (globally) selected security scheme is not allowed for the operation, use the first available security scheme.
   const operationSecurityKey = operationAllowsSelectedSecurityScheme
-    ? authentication.securitySchemeKey
+    ? authentication.preferredSecurityScheme
     : Object.keys(operationSecurity?.[0] ?? {}).pop()
 
   // We’re using a parsed OpenAPI file here, so let’s get rid of the `ReferenceObject` type

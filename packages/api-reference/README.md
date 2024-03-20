@@ -156,7 +156,7 @@ To make authentication easier you can prefill the credentials for your users:
   authentication: {
       // The OpenAPI file has keys for all security schemes
       // Which one should be used by default?
-      securitySchemeKey: 'api_key',
+      preferredSecurityScheme: 'api_key',
       // Okay, the `api_key` security scheme is of type `apiKey`, so prefill the token:
       apiKey: {
         token: 'super-secret-token',
@@ -172,7 +172,7 @@ For OpenAuth2 it’s more looking like this:
   authentication: {
       // The OpenAPI file has keys for all security schemes
       // Which one should be used by default?
-      securitySchemeKey: 'petstore_auth',
+      preferredSecurityScheme: 'petstore_auth',
       // Okay, the `api_key` security scheme is of type `oAuth2`, so prefill the client id and the scopes:
       oAuth2: {
         clientId: 'foobar123',

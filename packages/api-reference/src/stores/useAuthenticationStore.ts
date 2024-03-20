@@ -3,7 +3,7 @@ import { reactive } from 'vue'
 import type { AuthenticationState } from '../types'
 
 export const createEmptyAuthenticationState = (): AuthenticationState => ({
-  securitySchemeKey: null,
+  preferredSecurityScheme: null,
   http: {
     basic: {
       username: '',

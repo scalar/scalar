@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createEmptyAuthenticationState } from '../stores/useServerStore'
+import { createEmptyAuthenticationState } from '../stores'
 import { getRequestFromAuthentication } from './getRequestFromAuthentication'
 
 describe('getRequestFromAuthentication', () => {
@@ -8,7 +8,7 @@ describe('getRequestFromAuthentication', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
-        securitySchemeKey: 'api_key',
+        preferredSecurityScheme: 'api_key',
         securitySchemes: {
           api_key: {
             type: 'apiKey',
@@ -41,7 +41,7 @@ describe('getRequestFromAuthentication', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
-        securitySchemeKey: 'api_key',
+        preferredSecurityScheme: 'api_key',
         securitySchemes: {
           api_key: {
             type: 'apiKey',
@@ -74,7 +74,7 @@ describe('getRequestFromAuthentication', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
-        securitySchemeKey: 'api_key',
+        preferredSecurityScheme: 'api_key',
         securitySchemes: {
           api_key: {
             type: 'apiKey',
@@ -107,7 +107,7 @@ describe('getRequestFromAuthentication', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
-        securitySchemeKey: 'basic',
+        preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
             // @ts-ignore
@@ -143,7 +143,7 @@ describe('getRequestFromAuthentication', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
-        securitySchemeKey: 'basic',
+        preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
             // @ts-ignore
@@ -179,7 +179,7 @@ describe('getRequestFromAuthentication', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
-        securitySchemeKey: 'petstore_auth',
+        preferredSecurityScheme: 'petstore_auth',
         securitySchemes: {
           petstore_auth: {
             type: 'oauth2',
@@ -221,7 +221,7 @@ describe('getRequestFromAuthentication', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
-        securitySchemeKey: 'basic',
+        preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
             // @ts-ignore
@@ -257,7 +257,7 @@ describe('getRequestFromAuthentication', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
-        securitySchemeKey: 'basic',
+        preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
             // @ts-ignore
@@ -293,7 +293,7 @@ describe('getRequestFromAuthentication', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
-        securitySchemeKey: 'basic',
+        preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
             // @ts-ignore
@@ -323,7 +323,7 @@ describe('getRequestFromAuthentication', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
-        securitySchemeKey: 'basic',
+        preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
             // @ts-ignore
@@ -353,7 +353,7 @@ describe('getRequestFromAuthentication', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
-        securitySchemeKey: 'basic',
+        preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
             // @ts-ignore
@@ -386,7 +386,7 @@ describe('getRequestFromAuthentication', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
-        securitySchemeKey: 'bearerAuth',
+        preferredSecurityScheme: 'bearerAuth',
         securitySchemes: {
           bearerAuth: {
             type: 'http',
