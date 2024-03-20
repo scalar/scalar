@@ -1,5 +1,11 @@
 # @scalar/api-client-react
 
+## 0.2.7
+
+### Patch Changes
+
+- 32677f7: fix: clear response on close and update request on open
+
 ## 0.2.6
 
 ### Patch Changes
