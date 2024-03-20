@@ -70,29 +70,25 @@ export function ReferenceCommand() {
           if (watch) {
             watchFile(input, async () => {
               const newResult = await loadOpenApiFile(input)
+              const specificationHasChanged =
+                newResult?.specification &&
+                JSON.stringify(specification) !==
+                  JSON.stringify(newResult.specification)
 
-              if (newResult?.specification) {
-                if (
-                  newResult.specification &&
-                  JSON.stringify(specification) !==
-                    JSON.stringify(newResult.specification)
-                ) {
-                  console.log(
-                    kleur.bold().white('[INFO]'),
-                    kleur.grey('OpenAPI file modified'),
-                  )
+              if (specificationHasChanged) {
+                console.log(
+                  kleur.bold().white('[INFO]'),
+                  kleur.grey('OpenAPI file modified'),
+                )
 
-                  printSpecificationBanner({
-                    version: newResult.version,
-                    schema: newResult.schema,
-                  })
+                printSpecificationBanner({
+                  version: newResult.version,
+                  schema: newResult.schema,
+                })
 
-                  specification = newResult.specification
+                specification = newResult.specification
 
-                  s.write('data: file modified\n\n')
-                }
-              } else {
-                console.log('no change')
+                s.write('data: file modified\n\n')
               }
             })
           }
