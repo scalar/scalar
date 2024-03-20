@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRequestStore } from '../../../stores/requestStore'
+import { useRequestStore } from '../../../stores'
 import RequestAuth from './RequestAuth.vue'
 import RequestBody from './RequestBody.vue'
 import RequestCookies from './RequestCookies.vue'
@@ -358,3 +358,4 @@ const readOnly = true
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
 }
 </style>
+../../../stores/useRequestStore

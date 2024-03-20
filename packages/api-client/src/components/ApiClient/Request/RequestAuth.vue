@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRequestStore } from '../../../stores/requestStore'
+import { useRequestStore } from '../../../stores'
 import { CollapsibleSection } from '../../CollapsibleSection'
 
 const store = useRequestStore()
@@ -232,3 +232,4 @@ const authDropdownItems = [
     </template>
   </CollapsibleSection>
 </template>
+../../../stores/useRequestStore

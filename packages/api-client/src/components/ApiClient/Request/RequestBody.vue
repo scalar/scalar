@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CodeMirror } from '@scalar/use-codemirror'
 
-import { useRequestStore } from '../../../stores/requestStore'
+import { useRequestStore } from '../../../stores'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
@@ -39,3 +39,4 @@ const updateActiveRequest = (value: string) => {
     </template>
   </CollapsibleSection>
 </template>
+../../../stores/useRequestStore

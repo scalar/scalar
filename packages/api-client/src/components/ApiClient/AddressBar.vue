@@ -9,7 +9,7 @@ import {
   prepareClientRequestConfig,
   sendRequest,
 } from '../../helpers'
-import { useRequestStore } from '../../stores/requestStore'
+import { useRequestStore } from '../../stores'
 import RequestHistory from './RequestHistory.vue'
 import RequestMethodSelect from './RequestMethodSelect.vue'
 
@@ -401,3 +401,4 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   z-index: 1000;
 }
 </style>
+../../stores/useRequestStore

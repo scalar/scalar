@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRequestStore } from '../../stores/requestStore'
+import { useRequestStore } from '../../stores'
 import RequestHistoryItem from './RequestHistoryItem.vue'
 
 defineEmits<{
@@ -144,3 +144,4 @@ const { requestHistoryOrder } = useRequestStore()
   color: var(--theme-color-3, var(--default-theme-color-3));
 }
 </style>
+../../stores/useRequestStore

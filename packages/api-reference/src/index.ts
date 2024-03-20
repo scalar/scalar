@@ -1,7 +1,4 @@
-export {
-  default as ApiClientModal,
-  useApiClientStore,
-} from './components/ApiClientModal.vue'
+export { default as ApiClientModal } from './components/ApiClientModal.vue'
 export { default as ApiReference } from './components/ApiReference.vue'
 export { default as ApiReferenceLayout } from './components/ApiReferenceLayout.vue'
 export { default as RenderedReference } from './components/Content/Content.vue'
@@ -18,3 +15,5 @@ export * from './components/Card'
 export * from './stores'
 export * from './helpers'
 export * from './types'
+
+export { useApiClientStore } from '@scalar/api-client'

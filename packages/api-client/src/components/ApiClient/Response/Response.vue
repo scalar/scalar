@@ -2,7 +2,7 @@
 import { isJsonString } from '@scalar/oas-utils'
 import { computed, toRaw } from 'vue'
 
-import { useRequestStore } from '../../../stores/requestStore'
+import { useRequestStore } from '../../../stores'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { SimpleGrid } from '../../Grid'
 import ResponseBody from './ResponseBody.vue'
@@ -105,3 +105,4 @@ const responseData = computed(() => {
   right: 12px;
 }
 </style>
+../../../stores/useRequestStore

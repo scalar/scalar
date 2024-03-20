@@ -1,13 +1,9 @@
-import { type ContentType, type TransformedOperation } from '@scalar/oas-utils'
-import {
-  type OpenAPIV2,
-  type OpenAPIV3,
-  type OpenAPIV3_1,
-} from '@scalar/openapi-parser'
-import { type ThemeId } from '@scalar/themes'
+import type { ContentType, TransformedOperation } from '@scalar/oas-utils'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { ThemeId } from '@scalar/themes'
 import type { MetaFlatInput } from '@unhead/schema'
 import type { HarRequest } from 'httpsnippet-lite'
-import { type Slot } from 'vue'
+import type { Slot } from 'vue'
 
 export type ReferenceProps = {
   configuration?: ReferenceConfiguration
