@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.20.1
+
+### Patch Changes
+
+- 4b5a136: fix: move theme flare behind all content
+- 1fb2eac: fix: use scroll margin instead of padding to align scroll headers
+- 01476a9: feat: improve nullable types in schemas
+- 083e0a1: style: improve text in markdown tables
+
 ## 1.20.0
 
 ### Minor Changes
