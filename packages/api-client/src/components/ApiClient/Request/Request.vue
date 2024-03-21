@@ -7,7 +7,7 @@ import {
   useOpenApiStore,
   useRequestStore,
 } from '../../../stores'
-// import RequestAuth from './RequestAuth.vue'
+import { RequestAuthentication } from './RequestAuthentication'
 import RequestBody from './RequestBody.vue'
 import RequestCookies from './RequestCookies.vue'
 import RequestHeaders from './RequestHeaders.vue'
@@ -50,8 +50,7 @@ const readOnly = true
     </div>
     <div>
       <RequestVariables :variables="activeRequest.variables" />
-      <!-- TODO: We need to put the UI from the reference here. Until then we can hide it. -->
-      <!-- <RequestAuth /> -->
+      <RequestAuthentication />
       <RequestCookies
         :cookies="activeRequest.cookies"
         :generatedCookies="authenticationRequest.cookies" />

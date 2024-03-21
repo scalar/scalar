@@ -203,17 +203,6 @@ function addHandler() {
   display: none;
 }
 
-.table-row.generated-parameter {
-  background: repeating-linear-gradient(
-    -45deg,
-    var(--theme-background-2, var(--default-theme-background-2)) 0,
-    var(--theme-background-3, var(--default-theme-background-3)) 2px,
-    transparent 2px,
-    transparent 5px
-  );
-  background-size: 100%;
-}
-
 .table-row.generated-parameter * {
   color: var(--theme-color-3, var(--default-theme-color-3));
 }

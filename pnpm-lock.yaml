@@ -606,6 +606,9 @@ importers:
 
   packages/api-client:
     dependencies:
+      '@floating-ui/vue':
+        specifier: ^1.0.2
+        version: 1.0.6(vue@3.4.21)
       '@headlessui/vue':
         specifier: ^1.7.16
         version: 1.7.19(vue@3.4.21)
@@ -762,9 +765,6 @@ importers:
 
   packages/api-reference:
     dependencies:
-      '@floating-ui/vue':
-        specifier: ^1.0.2
-        version: 1.0.6(vue@3.4.21)
       '@headlessui/vue':
         specifier: ^1.7.16
         version: 1.7.19(vue@3.4.21)

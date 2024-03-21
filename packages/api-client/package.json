@@ -42,6 +42,7 @@
     "directory": "packages/api-client"
   },
   "dependencies": {
+    "@floating-ui/vue": "^1.0.2",
     "@headlessui/vue": "^1.7.16",
     "@scalar/components": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",

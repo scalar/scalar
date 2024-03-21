@@ -10,7 +10,7 @@ import { ScalarIcon } from '@scalar/components'
 import { ResetStyles } from '@scalar/themes'
 import { computed, ref } from 'vue'
 
-import { Badge } from '../../../components/Badge'
+import { Badge } from '../../../Badge'
 import CardFormButton from './CardFormButton.vue'
 
 const props = defineProps<{
@@ -111,7 +111,7 @@ const model = computed({
 }
 .floating {
   position: relative;
-  z-index: 100;
+  z-index: 1010;
 }
 .dropdown {
   background: var(--theme-background-1, var(--default-theme-background-1));
