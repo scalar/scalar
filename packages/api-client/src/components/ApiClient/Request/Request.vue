@@ -7,7 +7,7 @@ import {
   useOpenApiStore,
   useRequestStore,
 } from '../../../stores'
-import RequestAuth from './RequestAuth.vue'
+// import RequestAuth from './RequestAuth.vue'
 import RequestBody from './RequestBody.vue'
 import RequestCookies from './RequestCookies.vue'
 import RequestHeaders from './RequestHeaders.vue'
@@ -59,7 +59,7 @@ const readOnly = true
         :generatedHeaders="authenticationRequest.headers"
         :headers="activeRequest.headers" />
       <RequestQuery
-        :generatedQueries="authenticationRequest.query"
+        :generatedQueries="authenticationRequest.queryString"
         :queries="activeRequest.query" />
       <RequestBody
         :body="activeRequest.body"

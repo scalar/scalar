@@ -38,7 +38,7 @@ const currentAuthenticationLabel = computed(() => {
           ">
           <option value="">None</option>
           <option
-            v-for="key in Object.keys(authentication.securitySchemes)"
+            v-for="key in Object.keys(authentication.securitySchemes ?? {})"
             :key="key"
             :selected="key === authentication.preferredSecurityScheme"
             :value="key">
