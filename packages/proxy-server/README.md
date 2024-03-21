@@ -37,7 +37,13 @@ const server = Bun.serve(proxyServer);
 ## Express
 
 ```ts
+const express = require('express')
+const app = express()
 
+// respond with "hello world" when a GET request is made to the homepage
+app.get('/', (req, res) => {
+  res.send('hello world')
+})
 ```
 
 ## Fastify
@@ -57,4 +63,10 @@ const app = new Hono()
 app.all('/', (c) => proxyServer.fetch(c.req.raw))
 
 export default app
+```
+
+## Nextjs
+
+```ts
+
 ```
