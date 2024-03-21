@@ -49,7 +49,6 @@
     "@scalar/use-modal": "workspace:*",
     "@vueuse/core": "^10.4.1",
     "axios": "^1.6.7",
-    "buffer": "^6.0.3",
     "content-type": "^1.0.5",
     "nanoid": "^5.0.1",
     "pretty-bytes": "^6.1.1",

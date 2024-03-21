@@ -1,5 +1,6 @@
 export * from './concatenateUrlAndPath'
 export * from './createPlaceholderRequest'
+export * from './encodeStringAsBase64'
 export * from './findVariables'
 export * from './humanDiff'
 export * from './mapFromArray'

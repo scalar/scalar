@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer'
 import { describe, expect, it } from 'vitest'
 
+import { encodeStringAsBase64 } from '../helpers'
 import { type AuthState } from '../types'
 import { prepareClientRequestConfig } from './prepareClientRequestConfig'
 
@@ -51,7 +51,7 @@ describe('prepareClientRequestConfig', () => {
       },
     })
 
-    const encodedAuthentication = Buffer.from(`foo:bar`).toString('base64')
+    const encodedAuthentication = encodeStringAsBase64(`foo:bar`)
 
     expect(clientRequestConfig).toMatchObject({
       headers: [
@@ -81,7 +81,7 @@ describe('prepareClientRequestConfig', () => {
       },
     })
 
-    const encodedAuthentication = Buffer.from(`foo:bar`).toString('base64')
+    const encodedAuthentication = encodeStringAsBase64(`foo:bar`)
 
     expect(clientRequestConfig).not.toMatchObject({
       headers: [
