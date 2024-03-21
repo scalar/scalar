@@ -3,5 +3,6 @@
   "compilerOptions": {
     "lib": ["ESNext"],
     "types": ["@cloudflare/workers-types"]
-  }
+  },
+  "outDir": "dist"
 }
