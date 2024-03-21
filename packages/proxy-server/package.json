@@ -1,7 +1,23 @@
 {
+  "name": "@scalar/proxy-server",
+  "description": "A simple proxy server running on hono which can be deployed anywhere!",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "keywords": [
+    "api docs references typescript proxy hono cloudflare"
+  ],
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
+    "deploy": "wrangler deploy --minify src/index.ts",
     "dev": "wrangler dev src/index.ts",
-    "deploy": "wrangler deploy --minify src/index.ts"
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "types:check": "tsc --noEmit --skipLibCheck --composite false"
   },
   "dependencies": {
     "hono": "^4.1.3"
