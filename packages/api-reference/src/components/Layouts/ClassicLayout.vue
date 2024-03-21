@@ -9,10 +9,6 @@ import SearchButton from '../SearchButton.vue'
 
 const props = defineProps<ReferenceLayoutProps>()
 
-defineEmits<{
-  (e: 'toggleDarkMode'): void
-}>()
-
 defineSlots<ReferenceSlots>()
 // Override the sidebar value and hide it
 const config = computed(() => ({ ...props.configuration, showSidebar: false }))
@@ -29,9 +25,7 @@ const config = computed(() => ({ ...props.configuration, showSidebar: false }))
           :searchHotKey="config.searchHotKey"
           :spec="spec" />
         <template #dark-mode-toggle>
-          <DarkModeIconToggle
-            :isDarkMode="!!configuration?.darkMode"
-            @toggleDarkMode="$emit('toggleDarkMode')" />
+          <DarkModeIconToggle />
         </template>
       </ClassicHeader>
     </template>

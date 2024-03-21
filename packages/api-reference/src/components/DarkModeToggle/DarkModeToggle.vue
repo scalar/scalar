@@ -1,22 +1,18 @@
 <script lang="ts" setup>
 import { ScalarIcon } from '@scalar/components'
 
-defineProps<{
-  isDarkMode: boolean
-}>()
+import { useDarkModeState } from '../../hooks'
 
-defineEmits<{
-  (e: 'toggleDarkMode'): void
-}>()
+const { isDark, toggleDarkMode } = useDarkModeState()
 </script>
 <template>
   <div class="darklight-reference">
     <button
       class="darklight"
       type="button"
-      @click="$emit('toggleDarkMode')">
+      @click="toggleDarkMode">
       <ScalarIcon icon="LightDarkModeToggle" />
-      <template v-if="isDarkMode">
+      <template v-if="isDark">
         <span>Light Mode</span>
       </template>
       <template v-else>

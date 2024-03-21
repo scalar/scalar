@@ -10,9 +10,6 @@ import MobileHeader from '../MobileHeader.vue'
 import SearchButton from '../SearchButton.vue'
 
 const props = defineProps<ReferenceLayoutProps>()
-defineEmits<{
-  (e: 'toggleDarkMode'): void
-}>()
 
 defineSlots<ReferenceSlots>()
 
@@ -60,9 +57,7 @@ watch(hash, (newHash, oldHash) => {
       </div>
     </template>
     <template #sidebar-end>
-      <DarkModeToggle
-        :isDarkMode="!!configuration?.darkMode"
-        @toggleDarkMode="$emit('toggleDarkMode')" />
+      <DarkModeToggle />
     </template>
     <!-- Expose the content end slot as a slot for the footer -->
     <template #content-end><slot name="footer" /></template>
