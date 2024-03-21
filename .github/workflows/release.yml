@@ -59,6 +59,8 @@ jobs:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
           webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
+
+  # TODO only run this when something in proxy-server changes
   release-proxy-server:
     runs-on: ubuntu-latest
     name: release-proxy-server
