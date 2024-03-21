@@ -1,7 +1,6 @@
 import {
   type AuthenticationState,
   type ClientRequestConfig,
-  type Query,
   getRequestFromAuthentication,
 } from '@scalar/api-client'
 import {
