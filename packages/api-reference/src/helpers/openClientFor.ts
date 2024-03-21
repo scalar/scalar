@@ -23,7 +23,7 @@ export function openClientFor(
   // Get the HAR request object
   const request = getApiClientRequest({
     serverState: serverState,
-    operation: operation,
+    operation,
     // Let the API client handle the authentication.
     authenticationState: null,
     globalSecurity: null,

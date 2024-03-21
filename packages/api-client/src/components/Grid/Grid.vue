@@ -156,7 +156,7 @@ function addHandler() {
         {{ addLabel }}
       </button>
       <button
-        v-if="showMoreFilter && items.length > 5 && !showMore"
+        v-if="showMoreFilter && items && items.length > 5 && !showMore"
         class="meta-actions-item"
         type="button"
         @click="showMore = true">

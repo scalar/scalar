@@ -1,10 +1,12 @@
-import { type BaseParameter, isJsonString } from '@scalar/oas-utils'
+import { isJsonString } from '@scalar/oas-utils'
 
 import { useAuthenticationStore, useOpenApiStore } from '../stores'
 import type { ClientRequestConfig } from '../types'
 import { getRequestFromAuthentication } from './getRequestFromAuthentication'
 
-// Enable all given parameters
+/**
+ * Enable all given parameters
+ */
 function enable(items?: any[]) {
   return (items ?? []).map((item) => ({ ...item, enabled: true }))
 }

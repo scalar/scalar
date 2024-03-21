@@ -1,6 +1,7 @@
 import {
   type AuthenticationState,
   type ClientRequestConfig,
+  type Query,
   getRequestFromAuthentication,
 } from '@scalar/api-client'
 import {
@@ -24,9 +25,9 @@ export function getApiClientRequest({
   globalSecurity,
 }: {
   serverState: ServerState
-  authenticationState: AuthenticationState
   operation: TransformedOperation
-  globalSecurity?: OpenAPIV3.SecurityRequirementObject[]
+  authenticationState?: AuthenticationState | null
+  globalSecurity?: OpenAPIV3.SecurityRequirementObject[] | null
 }): ClientRequestConfig {
   const request = getHarRequest(
     {
@@ -37,7 +38,7 @@ export function getApiClientRequest({
     authenticationState
       ? getRequestFromAuthentication(
           authenticationState,
-          operation.information?.security ?? globalSecurity,
+          operation.information?.security ?? globalSecurity ?? [],
         )
       : {},
   )
@@ -53,17 +54,20 @@ export function getApiClientRequest({
     type: request.method,
     path: requestFromOperation.path ?? '',
     variables,
-    cookies: request.cookies.map((cookie) => {
-      return { ...cookie, enabled: true }
-    }),
-    query: request.queryString.map((queryString) => {
+    cookies: enable(request.cookies),
+    query: request.queryString.map((queryString: any) => {
       const query: typeof queryString & { required?: boolean } = queryString
       return { ...queryString, enabled: query.required ?? true }
     }),
-    headers: request.headers.map((header) => {
-      return { ...header, enabled: true }
-    }),
+    headers: enable(request.headers),
     url: getUrlFromServerState(serverState) ?? '',
     body: request.postData?.text,
   }
+}
+
+/**
+ * Enable all given parameters
+ */
+function enable(items?: any[]) {
+  return (items ?? []).map((item) => ({ ...item, enabled: true }))
 }

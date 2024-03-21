@@ -17,7 +17,7 @@ export const createEmptyOpenApiState = (): OpenApiState => ({
 
 const openApi = reactive<OpenApiState>(createEmptyOpenApiState())
 
-const setOperation = (newOperation: TransformedOperation) => {
+const setOperation = (newOperation: TransformedOperation | undefined) => {
   Object.assign(openApi, {
     ...openApi,
     operation: newOperation,
@@ -25,7 +25,7 @@ const setOperation = (newOperation: TransformedOperation) => {
 }
 
 const setGlobalSecurity = (
-  newGlobalSecurity: OpenAPIV3_1.SecurityRequirementObject[],
+  newGlobalSecurity: OpenAPIV3_1.SecurityRequirementObject[] | undefined,
 ) => {
   Object.assign(openApi, {
     ...openApi,
