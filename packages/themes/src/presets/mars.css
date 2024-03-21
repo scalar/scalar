@@ -156,7 +156,7 @@
   right: -400px !important;
   left: initial;
 }
-.download-cta a,
-.section .markdown a {
+.references-rendered .download-cta .download-button,
+.references-rendered .markdown a {
   text-decoration: underline !important;
 }

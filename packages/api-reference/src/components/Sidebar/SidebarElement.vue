@@ -297,12 +297,12 @@ const handleClick = async () => {
   background: transparent;
 }
 .active_page .sidebar-heading-type {
-  box-shadow: var(--theme-shadow-1, var(--default-theme-shadow-1));
-  background: var(--sidebar-background-1, var(--default-sidebar-background-1));
+  background: var(--method-color);
+  color: color-mix(in srgb, var(--method-color), white 85%);
 }
 .dark-mode .active_page .sidebar-heading-type {
   background: var(--method-color);
-  color: black;
+  color: color-mix(in srgb, var(--method-color), black 80%);
 }
 .sidebar-group-item__folder {
   color: var(

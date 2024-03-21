@@ -109,7 +109,7 @@
   --default-theme-color-orange: var(--default-theme-color-1);
   --default-theme-color-purple: var(--default-theme-color-1);
 }
-.download-cta a,
+.references-rendered .download-cta .download-button,
 .references-rendered .markdown a {
   color: var(--default-theme-color-1) !important;
   text-decoration: underline !important;

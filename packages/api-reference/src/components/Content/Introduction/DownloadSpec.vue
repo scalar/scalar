@@ -22,6 +22,7 @@ import { downloadSpecBus } from '../../../helpers'
   color: var(--theme-color-accent, var(--default-theme-color-accent));
   text-decoration: none;
   font-size: var(--theme-paragraph, var(--default-theme-paragraph));
+  cursor: pointer;
 }
 .download-cta .download-button:hover {
   text-decoration: underline;

@@ -112,7 +112,7 @@
 .show-api-client-button svg {
   color: black !important;
 }
-.download-cta,
+.references-rendered .download-cta .download-button,
 .references-rendered .markdown a {
   text-decoration: underline !important;
 }
