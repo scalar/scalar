@@ -16,7 +16,7 @@ export default defineConfig({
     lib: {
       entry: ['src/index.ts'],
       name: '@scalar/api-reference',
-      formats: ['es'],
+      formats: ['es', 'cjs'],
     },
     rollupOptions: {
       external: [
