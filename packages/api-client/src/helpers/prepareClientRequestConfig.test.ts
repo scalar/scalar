@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer'
 import { describe, expect, it } from 'vitest'
 
 import { type AuthState } from '../types'
