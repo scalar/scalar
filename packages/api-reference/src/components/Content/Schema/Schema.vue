@@ -53,6 +53,11 @@ const handleClick = (e: MouseEvent) =>
         { 'schema-card--compact': compact, 'schema-card--open': open },
       ]">
       <div
+        v-if="value?.description"
+        class="schema-card-description">
+        {{ value.description }}
+      </div>
+      <div
         class="schema-properties"
         :class="{ 'schema-properties-open': open }">
         <DisclosureButton
@@ -173,6 +178,15 @@ button.schema-card-title:hover {
 
 .schema-card .property:last-of-type {
   padding-bottom: 10px;
+}
+
+.schema-card-description {
+  margin: 10px 0;
+  font-size: var(--theme-small, var(--default-theme-small));
+  font-weight: var(
+    --font-weight,
+    var(--default-font-weight, var(--theme-bold, var(--default-theme-bold)))
+  );
 }
 
 .schema-properties {
