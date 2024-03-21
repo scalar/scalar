@@ -76,8 +76,8 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.4.2",
     "vite": "^5.1.1",
-    "vite-plugin-css-injected-by-js": "^3.4.0",
     "vite-plugin-dts": "^3.6.3",
+    "vite-plugin-lib-inject-css": "^2.0.0",
     "vitest": "^1.2.2",
     "vue": "^3.3.0",
     "vue-tsc": "^1.8.19"

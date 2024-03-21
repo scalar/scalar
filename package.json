@@ -30,7 +30,7 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "build:packages": "pnpm --filter './packages/**' build",
+    "build:packages": "turbo --filter './packages/**' build",
     "build:standalone": "pnpm --filter api-reference build:standalone",
     "bump": "CI=true pnpm run test && pnpm changeset version",
     "clean": "pnpm clean:nodeModules; pnpm clean:dist; pnpm clean:turbo",

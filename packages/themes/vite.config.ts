@@ -1,12 +1,12 @@
 import vue from '@vitejs/plugin-vue'
-import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
+import { libInjectCss } from 'vite-plugin-lib-inject-css'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   plugins: [
     vue(),
-    cssInjectedByJsPlugin(),
+    libInjectCss(),
     viteStaticCopy({
       targets: [
         {
@@ -28,7 +28,7 @@ export default defineConfig({
     lib: {
       entry: ['src/index.ts'],
       name: '@scalar/themes',
-      formats: ['es'],
+      formats: ['es', 'cjs'],
     },
     rollupOptions: {
       external: ['vue'],
