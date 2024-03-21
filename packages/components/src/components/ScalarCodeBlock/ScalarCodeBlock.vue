@@ -2,9 +2,15 @@
 import prismjs from 'prismjs'
 import 'prismjs/components/prism-bash'
 import 'prismjs/components/prism-json'
-import 'prismjs/plugins/autoloader/prism-autoloader.js'
 import 'prismjs/plugins/line-numbers/prism-line-numbers.js'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onServerPrefetch,
+  ref,
+  watch,
+} from 'vue'
 
 /**
  * Uses prism.js for syntax highlighting
@@ -77,13 +83,13 @@ if (props.hideCredentials) {
 }
 
 const el = ref(null)
+const ssrContent = ref('')
+
 const language = computed(() => {
   return props.lang === 'node' ? 'js' : props.lang
 })
 
-plugins.autoloader.languages_path =
-  'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/'
-
+// Update the syntax highlight on lang change
 watch(
   () => [props.lang, props.content],
   () => {
@@ -91,16 +97,36 @@ watch(
   },
 )
 
-onMounted(() => {
+// We want to render the syntax highlight on the server first
+onServerPrefetch(async () => {
+  const html = prismjs.highlight(
+    typeof props.content === 'object'
+      ? JSON.stringify(props.content)
+      : props.content,
+    prismjs.languages[language.value]!,
+    language.value,
+  )
+  ssrContent.value = html
+})
+
+// Here we overwrite the SSR with client rendered syntax highlighting
+onMounted(async () => {
   if (el.value) highlightElement(el.value)
+
+  // This bit async autoloads any syntax we have not pre-loaded
+  await import('prismjs/plugins/autoloader/prism-autoloader.js')
+  plugins.autoloader.languages_path =
+    'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/'
 })
 </script>
 <template>
   <pre
-    class="scalar-component scalar-codeblock-pre"
-    :class="{
-      'line-numbers': lineNumbers,
-    }"><code ref="el" :class="`scalar-codeblock-code lang-${language}`">{{content}}</code></pre>
+    :class="[
+      `scalar-component scalar-codeblock-pre language-${language}`,
+      {
+        'line-numbers': lineNumbers,
+      },
+    ]"><code ref="el" :class="`scalar-codeblock-code language-${language}`" v-html="ssrContent || content" /></pre>
 </template>
 <style>
 .scalar-codeblock-code[class*='language-'],
