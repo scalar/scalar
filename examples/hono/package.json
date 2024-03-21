@@ -1,5 +1,5 @@
 {
-  "name": "@scalar-examples/hono-api-reference",
+  "name": "@scalar-examples/hono",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -14,6 +14,8 @@
   "dependencies": {
     "@hono/node-server": "^1.8.2",
     "@hono/zod-openapi": "^0.8.3",
+    "@scalar/hono-api-reference": "workspace:*",
+    "@scalar/proxy-server": "workspace:*",
     "hono": "^4.1.3"
   },
   "devDependencies": {
