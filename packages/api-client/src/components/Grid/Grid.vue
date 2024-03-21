@@ -76,7 +76,7 @@ function addHandler() {
           class="table-row-item">
           <input
             disabled
-            value="Authentication" />
+            value="Read-only" />
         </div>
         <div class="table-row-meta">
           <!-- generated -->
