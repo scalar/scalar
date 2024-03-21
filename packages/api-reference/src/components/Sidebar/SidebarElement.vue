@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
-import { ScalarIconButton } from '@scalar/components'
-
-import { Icon } from '../Icon'
+import { type Icon, ScalarIcon, ScalarIconButton } from '@scalar/components'
 
 const props = defineProps<{
   id: string
@@ -60,10 +58,10 @@ const handleClick = async () => {
       <a
         class="sidebar-heading-link"
         :href="`#${item.id}`">
-        <Icon
+        <ScalarIcon
           v-if="item?.icon?.src"
           class="sidebar-icon"
-          :src="item.icon.src" />
+          :icon="item.icon.src as Icon" />
         <p class="sidebar-heading-link-title">
           {{ item.title }}
         </p>

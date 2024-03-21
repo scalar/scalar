@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 9">
-    <g fill="none" fill-rule="evenodd" transform="translate(.67 .67)">
-        <rect transform="rotate(180 4 4)" />
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width=".5"
-            d="M2.85 1.73h3.4v3.4m0-3.4L1.74 6.24" />
-    </g>
-</svg>

@@ -1,89 +1,50 @@
 <script setup lang="ts">
-import { useResizeObserver } from '@vueuse/core'
+import { ScalarIcon } from '@scalar/components'
 import { type TargetId } from 'httpsnippet-lite'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 import { useSnippetTargets } from '../../../hooks'
 import { type SelectedClient, useTemplateStore } from '../../../stores/template'
-import { Icon } from '../../Icon'
 
 // Use the template store to keep it accessible globally
 const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
-
 const { availableTargets } = useSnippetTargets()
-
-const isSmall = ref(false)
 const containerRef = ref<HTMLElement>()
 
-useResizeObserver(
-  containerRef,
-  (entries) => (isSmall.value = entries[0].contentRect.width < 500),
-)
-
 // Show popular clients with an icon, not just in a select.
-const featuredClients = computed<SelectedClient[]>(() =>
-  isSmall.value
-    ? // Mobile
-      [
-        {
-          targetKey: 'shell',
-          clientKey: 'curl',
-        },
-        {
-          targetKey: 'ruby',
-          clientKey: 'native',
-        },
-        {
-          targetKey: 'node',
-          clientKey: 'undici',
-        },
-        {
-          targetKey: 'python',
-          clientKey: 'python3',
-        },
-      ]
-    : // Desktop
-      [
-        {
-          targetKey: 'shell',
-          clientKey: 'curl',
-        },
-        {
-          targetKey: 'ruby',
-          clientKey: 'native',
-        },
-        {
-          targetKey: 'node',
-          clientKey: 'undici',
-        },
-        {
-          targetKey: 'php',
-          clientKey: 'guzzle',
-        },
-        {
-          targetKey: 'python',
-          clientKey: 'python3',
-        },
-        {
-          targetKey: 'c',
-          clientKey: 'libcurl',
-        },
-      ],
-)
+const featuredClients = [
+  {
+    targetKey: 'shell',
+    clientKey: 'curl',
+  },
+  {
+    targetKey: 'ruby',
+    clientKey: 'native',
+  },
+  {
+    targetKey: 'node',
+    clientKey: 'undici',
+  },
+  {
+    targetKey: 'php',
+    clientKey: 'guzzle',
+  },
+  {
+    targetKey: 'python',
+    clientKey: 'python3',
+  },
+  {
+    targetKey: 'c',
+    clientKey: 'libcurl',
+  },
+] as const
 
 /**
  * Icons have longer names to appear in icon searches, e.g. "javascript-js" instead of just "javascript". This function
  * maps the language key to the icon name.
  */
-const getIconByLanguageKey = (targetKey: TargetId) => {
-  const targetKeyMap: Partial<Record<TargetId, string>> = {
-    javascript: 'javascript-js',
-  }
-
-  const icon = targetKeyMap[targetKey] ?? targetKey
-
-  return `brand/programming-language-${icon}`
-}
+const getIconByLanguageKey = (targetKey: TargetId) =>
+  `programming-language-${targetKey}` as const
 
 const isSelectedClient = (language: SelectedClient) => {
   return (
@@ -92,13 +53,12 @@ const isSelectedClient = (language: SelectedClient) => {
   )
 }
 
-function checkIfClientIsFeatured(client: SelectedClient) {
-  return featuredClients.value.some((item) => {
-    return (
-      item.targetKey === client.targetKey && item.clientKey === client.clientKey
-    )
-  })
-}
+const checkIfClientIsFeatured = (client: SelectedClient) =>
+  featuredClients.some(
+    (item) =>
+      item.targetKey === client.targetKey &&
+      item.clientKey === client.clientKey,
+  )
 </script>
 <template>
   <div
@@ -115,9 +75,9 @@ function checkIfClientIsFeatured(client: SelectedClient) {
       <div
         class="code-languages-background"
         :class="`code-languages-icon__${client.targetKey}`">
-        <Icon
+        <ScalarIcon
           class="code-languages-icon"
-          :src="getIconByLanguageKey(client.targetKey)" />
+          :icon="getIconByLanguageKey(client.targetKey)" />
       </div>
       <span>{{ getTargetTitle(client) }}</span>
     </div>
@@ -171,9 +131,9 @@ function checkIfClientIsFeatured(client: SelectedClient) {
           <div
             class="code-languages-background"
             :class="`code-languages-icon__${state.selectedClient.targetKey}`">
-            <Icon
+            <ScalarIcon
               class="code-languages-icon"
-              :src="getIconByLanguageKey(state.selectedClient.targetKey)" />
+              :icon="getIconByLanguageKey(state.selectedClient.targetKey)" />
           </div>
         </template>
         <template v-else>
@@ -242,7 +202,6 @@ function checkIfClientIsFeatured(client: SelectedClient) {
 .code-languages-background {
   border-radius: 9px;
   position: relative;
-  overflow: hidden;
   background: var(
     --theme-code-languages-background-supersede,
     var(

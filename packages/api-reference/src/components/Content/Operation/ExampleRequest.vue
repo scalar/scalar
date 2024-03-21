@@ -269,7 +269,7 @@ computed(() => {
 
 .request-card-footer {
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
   padding: 6px;
   flex-shrink: 0;
 }

@@ -1,16 +1,21 @@
+import { defineAsyncComponent } from 'vue'
+
 import { type ICONS } from './icons'
 
-const icons = import.meta.glob('./*.svg', { as: 'raw', eager: true })
+const icons = import.meta.glob<SVGElement>('./*.svg')
 
+/**
+ * Generate a vue component from the icon SVGs
+ */
 export const getIcon = (name: string) => {
   const filename = `./${name}.svg`
 
-  if (icons[filename] === undefined) {
+  if (!icons[filename]) {
     console.warn(`Could not find icon: ${name}`)
-    return ''
+    return null
   }
 
-  return icons[filename]
+  return defineAsyncComponent(icons[filename]!)
 }
 
 export type Icon = (typeof ICONS)[number]

@@ -2,7 +2,7 @@ import type { App } from 'vue'
 
 import { ScalarButton } from './components/ScalarButton'
 import { ScalarCodeBlock } from './components/ScalarCodeBlock'
-import { ScalarIcon } from './components/ScalarIcon'
+import { type Icon, ScalarIcon } from './components/ScalarIcon'
 import { ScalarIconButton } from './components/ScalarIconButton'
 import { ScalarLoading, useLoadingState } from './components/ScalarLoading'
 import { ScalarModal, useModal } from './components/ScalarModal'
@@ -26,10 +26,11 @@ export {
   ScalarIcon,
   ScalarIconButton,
   ScalarLoading,
-  useLoadingState,
   ScalarModal,
-  useModal,
   ScalarTextField,
+  type Icon,
+  useLoadingState,
+  useModal,
 }
 
 export { extend, theme } from './tailwind'
