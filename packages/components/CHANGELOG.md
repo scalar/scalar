@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.4.5
+
+### Patch Changes
+
+- 42b385b: fix: make ScalarCodeBlock SSR/SSG compatible
+
 ## 0.4.4
 
 ### Patch Changes
