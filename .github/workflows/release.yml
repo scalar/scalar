@@ -59,3 +59,13 @@ jobs:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
           webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
+  release-proxy-server:
+    runs-on: ubuntu-latest
+    name: release-proxy-server
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
