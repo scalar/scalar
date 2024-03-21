@@ -1,13 +1,12 @@
-FROM node:20-bullseye AS base
+FROM node:18-bullseye AS base
 RUN npm install pnpm --global
 RUN pnpm config set store-dir ~/.pnpm-store
 
-FROM base as builder
+FROM base AS builder
 WORKDIR /app
 
 # Copy everything but only install and build the main package and its dependencies
 COPY pnpm-lock.yaml .
-COPY .npmrc .
 COPY pnpm-workspace.yaml .
 COPY package.json .
 COPY tsconfig.json .
@@ -20,7 +19,7 @@ RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store \
     pnpm --filter "@scalar-examples/nextjs-api-reference..." build
 
 
-FROM node:20-bullseye-slim AS runner
+FROM node:18-bullseye-slim AS runner
 WORKDIR /app
 RUN npm install -g pnpm
 ENV NODE_ENV=production

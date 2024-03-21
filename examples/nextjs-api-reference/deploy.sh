@@ -4,9 +4,8 @@ function usage {
     echo "---Build and run examples---"
     echo ""
     echo " Arguments: "
-    echo "    --method  = build|run|push|deploy"
+    echo "    --method  = build|run|push|build-local"
     echo "    --project = gcp project id"
-    echo "    --env     = staging|production"
     echo "    --package = package path"
 }
 
@@ -51,7 +50,6 @@ case "${method:?}" in
         ${image_name}
         ;;
     *)
-    # docker push us-central1-docker.pkg.dev/engaged-list-379206/oss-examples/nextjs-api-reference-example
         echo "Usage: $0 {build|run}"
         exit 1
 esac
