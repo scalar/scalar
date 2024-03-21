@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { Badge } from '../../Badge'
 import { MarkdownRenderer } from '../../MarkdownRenderer'
 import Schema from './Schema.vue'
+import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 withDefaults(
   defineProps<{
@@ -20,11 +20,6 @@ withDefaults(
 )
 
 const descriptions: Record<string, Record<string, string>> = {
-  number: {
-    _default: '',
-    float: 'Floating-point numbers.',
-    double: 'Floating-point numbers with double precision.',
-  },
   integer: {
     _default: 'Integer numbers.',
     int32: 'Signed 32-bit integers (commonly used integer type).',
@@ -69,78 +64,16 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         'property--deprecated': value?.deprecated,
       },
     ]">
-    <div class="property-information">
-      <div
-        v-if="name"
-        class="property-name">
-        {{ name }}
-      </div>
-      <div
-        v-if="value?.deprecated"
-        class="property-deprecated">
-        <Badge>deprecated</Badge>
-      </div>
-      <div
-        v-if="required"
-        class="required">
-        required
-      </div>
-      <div
-        v-if="value?.type"
-        class="property-type">
-        <template v-if="value?.items && !['object'].includes(value.items.type)">
-          {{ value.type }}
-          {{ value.items.type }}[]
-        </template>
-        <template v-else>
-          {{ Array.isArray(value.type) ? value.type.join(' | ') : value.type }}
-          {{ value?.nullalbe ? ' | nullable' : '' }}
-        </template>
-        <template v-if="value.minItems || value.maxItems">
-          {{ value.minItems }}..{{ value.maxItems }}
-        </template>
-        <template v-if="value.minLength">
-          &middot; min: {{ value.minLength }}
-        </template>
-        <template v-if="value.maxLength">
-          &middot; max: {{ value.maxLength }}
-        </template>
-        <template v-if="value.uniqueItems"> unique! </template>
-        <template v-if="value.format"> &middot; {{ value.format }} </template>
-        <template v-if="value.minimum">
-          &middot; min: {{ value.minimum }}
-        </template>
-        <template v-if="value.maximum">
-          &middot; max: {{ value.maximum }}
-        </template>
-        <template v-if="value.pattern">
-          &middot; <code class="pattern">{{ value.pattern }}</code>
-        </template>
-        <template v-if="getEnumFromValue(value)"> &middot; enum </template>
-        <template v-if="value.default">
-          &middot; default: {{ value.default }}
-        </template>
-      </div>
-      <div
-        v-if="value?.writeOnly"
-        class="write-only">
-        write-only
-      </div>
-      <div
-        v-else-if="value?.readOnly"
-        class="read-only">
-        read-only
-      </div>
+    <SchemaPropertyHeading
+      :enum="!!getEnumFromValue(value)"
+      :required="required"
+      :value="value">
       <template
-        v-for="rule in rules"
-        :key="rule">
-        <div
-          v-if="value?.[rule] || value?.items?.[rule]"
-          class="property-rule-badge">
-          <Badge>{{ rule }}</Badge>
-        </div>
+        v-if="name"
+        #name>
+        {{ name }}
       </template>
-    </div>
+    </SchemaPropertyHeading>
     <!-- Description -->
     <div
       v-if="description || value?.description"
@@ -259,13 +192,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   opacity: 0.75;
 }
 
-.property-information {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  white-space: nowrap;
-}
-
 .property-description {
   margin-top: 6px;
   line-height: 1.4;
@@ -284,31 +210,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   flex-direction: column;
 
   padding-top: 8px;
-}
-
-.property-name {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-}
-
-.required,
-.optional {
-  color: var(--theme-color-2, var(--default-theme-color-2));
-}
-
-.required {
-  text-transform: uppercase;
-  color: var(--theme-color-orange, var(--default-theme-color-orange));
-}
-
-.read-only,
-.write-only {
-  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
-  color: var(--theme-color-blue, var(--default-theme-color-blue));
-}
-
-.property-type {
-  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
-  color: var(--theme-color-2, var(--default-theme-color-2));
 }
 
 .property-example {
@@ -336,15 +237,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   white-space: pre;
 }
 
-.pattern {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  background: var(--theme-background-3, var(--default-theme-background-3));
-  padding: 1px 3px;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-}
-
 .property-rule {
   display: flex;
   flex-direction: column;
@@ -366,10 +258,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 .property-enum-values {
   margin-top: 8px;
   list-style: none;
-}
-
-.property-read-only {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 
 .property--compact .property-example {
