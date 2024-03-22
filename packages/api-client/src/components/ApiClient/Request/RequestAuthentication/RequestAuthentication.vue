@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { ref } from 'vue'
 
 import { emitter } from '../../../../emitter'
@@ -11,7 +11,13 @@ import SecuritySchemeSelector from './SecuritySchemeSelector.vue'
 const requestAuthenticationRef = ref<typeof HTMLDivElement | null>(null)
 
 emitter.on('click.generated.parameter', () => {
-  requestAuthenticationRef.value?.scrollIntoView({
+  if (!requestAuthenticationRef.value) {
+    return
+  }
+
+  const element = requestAuthenticationRef.value as unknown as HTMLDivElement
+
+  element.scrollIntoView({
     behavior: 'smooth',
     block: 'center',
   })
