@@ -43,7 +43,7 @@ type CollapsedSidebarItems = Record<string, boolean>
 const collapsedSidebarItems = reactive<CollapsedSidebarItems>({})
 
 function toggleCollapsedSidebarItem(key: string) {
-  collapsedSidebarItems[key] = !collapsedSidebarItems[key] ?? true
+  collapsedSidebarItems[key] = !collapsedSidebarItems[key]
 }
 
 function setCollapsedSidebarItem(key: string, value: boolean) {
