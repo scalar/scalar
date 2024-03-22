@@ -48,7 +48,9 @@ export function useDarkModeState(isDarkInitially?: boolean) {
 
   // Priority of initial values is: LocalStorage/App Config/Fallback
   isDark.value =
-    JSON.parse(window.localStorage?.getItem('isDark') || 'null') ??
+    (typeof window === 'undefined'
+      ? null
+      : JSON.parse(window.localStorage?.getItem('isDark') || 'null')) ??
     isDarkInitially ??
     getDarkModeState()
 
