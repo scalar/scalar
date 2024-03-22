@@ -1,4 +1,3 @@
-import '@fastify/swagger'
 import fastifySwagger from '@fastify/swagger'
 import fastifyApiReference from '@scalar/fastify-api-reference'
 import Fastify from 'fastify'
