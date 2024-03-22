@@ -128,7 +128,7 @@ onMounted(async () => {
       {
         'line-numbers': lineNumbers,
       },
-    ]"><code ref="el" :class="`scalar-codeblock-code language-${language}`" v-html="ssrContent || content" /></pre>
+    ]"><code ref="el" :class="`scalar-codeblock-code language-${language}`" v-html="ssrContent" /></pre>
   <!-- Client side highlighting -->
   <pre
     v-else
