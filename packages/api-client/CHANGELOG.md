@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 1.1.5
+
+### Patch Changes
+
+- 06c57ca: fix: buffer not available in browser environments
+
 ## 1.1.4
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.20.7
+
+### Patch Changes
+
+- 1e658b0: fix: rebuild schema property details to truncate long strings
+- 06c57ca: fix: buffer not available in browser environments
+- Updated dependencies [06c57ca]
+  - @scalar/api-client@1.1.5
+
 ## 1.20.6
 
 ### Patch Changes
