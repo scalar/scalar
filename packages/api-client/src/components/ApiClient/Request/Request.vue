@@ -92,6 +92,9 @@ const readOnly = true
   justify-content: space-between;
   overflow: auto;
 }
+.scalar-api-client__item__content:empty {
+  display: none;
+}
 .scalar-api-client__item__content .scalar-api-client__codemirror__wrapper {
   width: 100%;
   min-height: 63px;

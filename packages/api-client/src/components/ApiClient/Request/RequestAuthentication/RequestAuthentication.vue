@@ -15,9 +15,10 @@ const { authentication } = useAuthenticationStore()
         :value="authentication.securitySchemes"></SecuritySchemeSelector>
     </template>
 
-    <div class="preferred-security-scheme">
+    <div
+      v-if="authentication.preferredSecurityScheme"
+      class="preferred-security-scheme">
       <SecurityScheme
-        v-if="authentication.preferredSecurityScheme"
         :value="
           authentication.securitySchemes?.[
             authentication.preferredSecurityScheme
