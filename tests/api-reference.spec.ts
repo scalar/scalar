@@ -4,7 +4,7 @@ test('Renders petstore api reference from the localhost CDN', async ({
   page,
   isMobile,
 }) => {
-  await page.goto('http://127.0.0.1:3173/local')
+  await page.goto('http://0.0.0.0:3173/local')
 
   // Check for basic elements on the page
   // The heading

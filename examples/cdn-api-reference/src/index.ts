@@ -19,7 +19,9 @@ app.get('/local', (_request, reply) => {
 
 // Run the server!
 try {
-  await app.listen({ port: 3173 })
+  app.listen({ port: 3173, host: '0.0.0.0' }, function (err, address) {
+    console.log(`⚡️ Fastify Plugin running on ${address}`)
+  })
 } catch (err) {
   app.log.error(err)
   process.exit(1)
