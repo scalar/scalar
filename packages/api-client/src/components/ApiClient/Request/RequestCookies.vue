@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { type GeneratedParameter } from 'src/types'
 import { computed } from 'vue'
 
 import { useRequestStore } from '../../../stores'
+import type { GeneratedParameter } from '../../../types'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
