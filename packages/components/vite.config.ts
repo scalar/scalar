@@ -32,7 +32,6 @@ export default defineConfig({
     vue(),
     libInjectCss(),
     dts({ insertTypesEntry: true, rollupTypes: true }),
-    cssInjectedByJsPlugin(),
     // Ensure the viewBox is preserved
     svgLoader({
       svgoConfig: {
