@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.4.6
+
+### Patch Changes
+
+- 7d0092e: fix: show schema selector
+
 ## 0.4.5
 
 ### Patch Changes
