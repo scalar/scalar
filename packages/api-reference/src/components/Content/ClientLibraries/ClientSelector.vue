@@ -365,4 +365,9 @@ const checkIfClientIsFeatured = (client: SelectedClient) =>
 .references-classic .code-languages-background {
   border-radius: var(--theme-radius, var(--default-theme-radius));
 }
+@media screen and (max-width: 600px) {
+  .references-classic .code-languages {
+    flex-direction: column;
+  }
+}
 </style>
