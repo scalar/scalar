@@ -458,9 +458,8 @@ components:
             - nullable
           example: The red planet
         image:
-          type:
-            - string
-            - nullable
+          type: string
+          nullable: true
           example: https://cdn.scalar.com/photos/mars.jpg
         creator:
           '$ref': '#/components/schemas/User'
