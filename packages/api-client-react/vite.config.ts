@@ -1,10 +1,8 @@
 import react from '@vitejs/plugin-react'
 import * as path from 'path'
 import { defineConfig } from 'vite'
-import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import dts from 'vite-plugin-dts'
-
-import pkg from './package.json'
+import { libInjectCss } from 'vite-plugin-lib-inject-css'
 
 export default defineConfig({
   build: {
@@ -35,7 +33,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    libInjectCss(),
     dts({ insertTypesEntry: true, rollupTypes: true }),
-    cssInjectedByJsPlugin(),
   ],
 })

@@ -664,9 +664,9 @@ importers:
       vite:
         specifier: ^5.1.1
         version: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
-      vite-plugin-css-injected-by-js:
-        specifier: ^3.4.0
-        version: 3.4.0(vite@5.1.4)
+      vite-plugin-lib-inject-css:
+        specifier: ^2.0.0
+        version: 2.0.0(vite@5.1.4)
       vitest:
         specifier: ^1.2.2
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
@@ -744,12 +744,12 @@ importers:
       vite:
         specifier: ^5.1.1
         version: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
-      vite-plugin-css-injected-by-js:
-        specifier: ^3.4.0
-        version: 3.4.0(vite@5.1.4)
       vite-plugin-dts:
         specifier: ^3.6.3
         version: 3.7.3(@types/node@20.11.22)(typescript@5.4.2)(vite@5.1.4)
+      vite-plugin-lib-inject-css:
+        specifier: ^2.0.0
+        version: 2.0.0(vite@5.1.4)
       vue:
         specifier: ^3.3.0
         version: 3.4.21(typescript@5.4.2)
@@ -913,6 +913,9 @@ importers:
       vite-plugin-css-injected-by-js:
         specifier: ^3.4.0
         version: 3.4.0(vite@5.1.4)
+      vite-plugin-lib-inject-css:
+        specifier: ^2.0.0
+        version: 2.0.0(vite@5.1.4)
       vitest:
         specifier: ^1.2.2
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
@@ -953,6 +956,9 @@ importers:
       vite-plugin-dts:
         specifier: ^3.6.3
         version: 3.7.3(@types/node@20.11.22)(typescript@5.4.2)(vite@5.1.4)
+      vite-plugin-lib-inject-css:
+        specifier: ^2.0.0
+        version: 2.0.0(vite@5.1.4)
       vue:
         specifier: ^3.3.0
         version: 3.4.21(typescript@5.4.2)
@@ -1172,12 +1178,12 @@ importers:
       vite:
         specifier: ^5.1.1
         version: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
-      vite-plugin-css-injected-by-js:
-        specifier: ^3.4.0
-        version: 3.4.0(vite@5.1.4)
       vite-plugin-dts:
         specifier: ^3.6.3
         version: 3.7.3(@types/node@20.11.22)(typescript@5.4.2)(vite@5.1.4)
+      vite-plugin-lib-inject-css:
+        specifier: ^2.0.0
+        version: 2.0.0(vite@5.1.4)
       vitest:
         specifier: ^1.2.2
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
@@ -1491,9 +1497,9 @@ importers:
       vite:
         specifier: ^5.1.1
         version: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
-      vite-plugin-css-injected-by-js:
-        specifier: ^3.4.0
-        version: 3.4.0(vite@5.1.4)
+      vite-plugin-lib-inject-css:
+        specifier: ^2.0.0
+        version: 2.0.0(vite@5.1.4)
       vite-plugin-static-copy:
         specifier: ^1.0.1
         version: 1.0.1(vite@5.1.4)
@@ -21697,6 +21703,16 @@ packages:
       - '@types/node'
       - rollup
       - supports-color
+    dev: true
+
+  /vite-plugin-lib-inject-css@2.0.0(vite@5.1.4):
+    resolution: {integrity: sha512-5RK9eP2biW340FEbpI8eHZQfeqIz0+Glbkk4U1fZ1QKOvyaYy5K6TmW43KuhmGLizk2Vd4Nv7OwGpxq2wXclyQ==}
+    peerDependencies:
+      vite: '*'
+    dependencies:
+      magic-string: 0.30.7
+      picocolors: 1.0.0
+      vite: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
     dev: true
 
   /vite-plugin-static-copy@1.0.1(vite@5.1.4):

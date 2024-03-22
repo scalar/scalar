@@ -1,6 +1,6 @@
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
+import { libInjectCss } from 'vite-plugin-lib-inject-css'
 import { defineConfig } from 'vitest/config'
 
 import pkg from './package.json'
@@ -9,14 +9,14 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': '"production"',
   },
-  plugins: [vue(), cssInjectedByJsPlugin()],
+  plugins: [vue(), libInjectCss()],
   build: {
     emptyOutDir: true,
     cssCodeSplit: false,
     lib: {
       entry: ['src/index.ts'],
       name: '@scalar/api-reference',
-      formats: ['es'],
+      formats: ['es', 'cjs'],
     },
     rollupOptions: {
       external: [
