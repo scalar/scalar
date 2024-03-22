@@ -1,3 +1,4 @@
-import proxy from './proxy-worker'
+import proxyServer from './proxy-worker'
 
-export default proxy
+export const proxyFetch = proxyServer.fetch
+export default proxyServer

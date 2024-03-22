@@ -1,4 +1,5 @@
 import { apiReference } from '@scalar/express-api-reference'
+import { proxyFetch } from '@scalar/proxy-server'
 import Express from 'express'
 import swaggerJsdoc from 'swagger-jsdoc'
 
