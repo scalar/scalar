@@ -1,3 +1,4 @@
+import { encodeStringAsBase64 } from '@scalar/api-client'
 import type { OpenAPIV3 } from '@scalar/openapi-parser'
 import type { HarRequest } from 'httpsnippet-lite'
 
@@ -164,7 +165,7 @@ export function getRequestFromAuthentication(
 
 export function getBase64Token(username: string, password: string) {
   return username?.length || password?.length
-    ? Buffer.from(`${username}:${password}`).toString('base64')
+    ? encodeStringAsBase64(`${username}:${password}`)
     : ''
 }
 
