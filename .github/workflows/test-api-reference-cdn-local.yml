@@ -29,7 +29,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
       - name: Install fastify api reference dependencies
-        run: pnpm --filter @scalar-examples/fastify-api-reference install
+        run: pnpm --filter "@scalar-examples/fastify-api-reference..." install
       - name: Install CDN api reference dependencies
         run: pnpm --filter cdn-api-reference install
       - name: Turborepo cache
