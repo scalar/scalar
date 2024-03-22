@@ -17,6 +17,10 @@ defineEmits<{
   (e: 'updateContent', value: string): void
 }>()
 
+const { toggleDarkMode, isDark } = useDarkModeState(
+  props.configuration?.darkMode,
+)
+
 // Set defaults as needed on the provided configuration
 const configuration = computed<ReferenceConfiguration>(() => ({
   spec: {
@@ -60,12 +64,6 @@ function mapConfigToState<K extends keyof ReferenceConfiguration>(
   )
 }
 
-// Handle the events from the toggle buttons and map the configuration to the internal state
-const { toggleDarkMode, setDarkMode } = useDarkModeState()
-mapConfigToState('darkMode', (newDarkMode) => {
-  if (newDarkMode !== undefined) setDarkMode(newDarkMode)
-})
-
 // Prefill authentication
 const { setAuthentication } = useGlobalStore()
 mapConfigToState('authentication', setAuthentication)
@@ -89,6 +87,7 @@ const { parsedSpec, rawSpec } = useReactiveSpec({
   <Component
     :is="Layouts[configuration?.layout || 'modern']"
     :configuration="configuration"
+    :isDark="isDark"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec"
     @toggleDarkMode="() => toggleDarkMode()"

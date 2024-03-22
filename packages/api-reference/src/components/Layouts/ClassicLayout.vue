@@ -30,7 +30,7 @@ const config = computed(() => ({ ...props.configuration, showSidebar: false }))
           :spec="spec" />
         <template #dark-mode-toggle>
           <DarkModeIconToggle
-            :isDarkMode="!!configuration?.darkMode"
+            :isDarkMode="isDark"
             @toggleDarkMode="$emit('toggleDarkMode')" />
         </template>
       </ClassicHeader>
