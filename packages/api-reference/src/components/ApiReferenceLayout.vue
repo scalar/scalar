@@ -6,7 +6,7 @@ import {
   ThemeStyles,
 } from '@scalar/themes'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, onMounted, provide, ref, watch } from 'vue'
+import { computed, onMounted, provide, ref } from 'vue'
 
 import {
   GLOBAL_SECURITY_SYMBOL,
@@ -24,7 +24,7 @@ import { Content } from './Content'
 import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
 
-const props = defineProps<ReferenceLayoutProps>()
+const props = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
 
 defineEmits<{
   (e: 'changeTheme', value: ThemeId): void

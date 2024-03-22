@@ -4,8 +4,8 @@ import { ref, watch } from 'vue'
 const isDark = ref<boolean>(false)
 
 /** This hook helps with retrieving the dark mode setting from local storage or from system settings. */
-export function useDarkModeState() {
-  // Get intial dark mode state
+export function useDarkModeState(isDarkInitially?: boolean) {
+  // Get initial dark mode state
   const getDarkModeState = () => {
     // Use setting from local storage
     const isDarkFromLocalStorage =
@@ -46,8 +46,11 @@ export function useDarkModeState() {
     }
   }
 
-  // Set initial value
-  isDark.value = getDarkModeState()
+  // Priority of initial values is: LocalStorage/App Config/Fallback
+  isDark.value =
+    JSON.parse(window.localStorage?.getItem('isDark') || 'null') ??
+    isDarkInitially ??
+    getDarkModeState()
 
   watch(
     isDark,
