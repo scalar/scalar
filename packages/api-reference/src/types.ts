@@ -17,6 +17,7 @@ export type ReferenceLayoutProps = {
   configuration: ReferenceConfiguration
   parsedSpec: Spec
   rawSpec: string
+  isDark: boolean
 }
 
 export type ReferenceConfiguration = {

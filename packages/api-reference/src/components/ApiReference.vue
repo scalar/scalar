@@ -61,7 +61,7 @@ function mapConfigToState<K extends keyof ReferenceConfiguration>(
 }
 
 // Handle the events from the toggle buttons and map the configuration to the internal state
-const { toggleDarkMode, setDarkMode } = useDarkModeState()
+const { toggleDarkMode, setDarkMode, isDark } = useDarkModeState()
 mapConfigToState('darkMode', (newDarkMode) => {
   if (newDarkMode !== undefined) setDarkMode(newDarkMode)
 })
@@ -89,6 +89,7 @@ const { parsedSpec, rawSpec } = useReactiveSpec({
   <Component
     :is="Layouts[configuration?.layout || 'modern']"
     :configuration="configuration"
+    :isDark="isDark"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec"
     @toggleDarkMode="() => toggleDarkMode()"
