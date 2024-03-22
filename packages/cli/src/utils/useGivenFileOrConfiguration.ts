@@ -1,6 +1,6 @@
 import kleur from 'kleur'
 
-import { readFile } from './'
+import { readFile } from './readFile'
 
 export const CONFIG_FILE = 'scalar.config.json'
 
@@ -20,7 +20,9 @@ export function useGivenFileOrConfiguration(file?: string) {
     if (configuration?.reference?.file) {
       return configuration.reference.file
     }
-  } catch {}
+  } catch {
+    // Do nothing
+  }
 
   console.error(kleur.red('No file provided.'))
   console.log()
@@ -31,5 +33,5 @@ export function useGivenFileOrConfiguration(file?: string) {
   )
   console.log()
 
-  process.exit(1)
+  return process.exit(1)
 }
