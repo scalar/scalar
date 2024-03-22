@@ -10,7 +10,10 @@
     "node": ">=18"
   },
   "scripts": {
+    "build": "tsc --p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/fastify-api-reference --watch ./",
+    "docker:build": "sh deploy.sh --method build",
+    "docker:run": "sh deploy.sh --method run",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
@@ -21,6 +24,7 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
+    "tsc-alias": "^1.8.8",
     "typescript": "^5.4.2",
     "vite": "^5.1.1",
     "vite-node": "^1.2.2"

@@ -1,4 +1,5 @@
 import '@fastify/swagger'
+import fastifySwagger from '@fastify/swagger'
 import fastifyApiReference from '@scalar/fastify-api-reference'
 import Fastify from 'fastify'
 
@@ -8,11 +9,20 @@ const fastify = Fastify({
 })
 
 // Register Swagger
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-await fastify.register(require('@fastify/swagger'), {
-  swagger: {
+await fastify.register(fastifySwagger, {
+  openapi: {
     info: {
-      title: 'Example API',
+      title: 'My Fastify App',
+      version: '1.0.0',
+    },
+    components: {
+      securitySchemes: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'apiKey',
+          in: 'header',
+        },
+      },
     },
   },
 })
@@ -75,6 +85,6 @@ await fastify.register(fastifyApiReference, {
 })
 
 // Start the server
-fastify.listen({ port: 5053 }, function (err, address) {
-  console.log(`⚡️ Fastify Plugin running on ${address}/reference`)
+fastify.listen({ port: 5053, host: '0.0.0.0' }, function (err, address) {
+  console.log(`⚡️ Fastify Plugin running on ${address}`)
 })
