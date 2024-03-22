@@ -224,6 +224,9 @@ importers:
       nodemon:
         specifier: ^3.0.1
         version: 3.1.0
+      tsc-alias:
+        specifier: ^1.8.8
+        version: 1.8.8
       typescript:
         specifier: ^5.4.2
         version: 5.4.2
