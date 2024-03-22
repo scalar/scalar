@@ -795,9 +795,6 @@ importers:
       '@vueuse/core':
         specifier: ^10.4.1
         version: 10.9.0(vue@3.4.21)
-      '@xmldom/xmldom':
-        specifier: ^0.8.4
-        version: 0.8.10
       axios:
         specifier: ^1.6.7
         version: 1.6.7
@@ -1072,9 +1069,6 @@ importers:
       '@vueuse/core':
         specifier: ^10.4.1
         version: 10.9.0(vue@3.4.21)
-      '@xmldom/xmldom':
-        specifier: ^0.8.4
-        version: 0.8.10
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -9208,11 +9202,6 @@ packages:
     dependencies:
       '@webassemblyjs/ast': 1.11.6
       '@xtuc/long': 4.2.2
-
-  /@xmldom/xmldom@0.8.10:
-    resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
-    engines: {node: '>=10.0.0'}
-    dev: false
 
   /@xtuc/ieee754@1.2.0:
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
