@@ -147,6 +147,7 @@ const keys = computed(() => Object.keys(props.value ?? {}))
   position: absolute;
   cursor: pointer;
   opacity: 0;
+  right: 0;
   -moz-appearance: none;
   -webkit-appearance: none;
   appearance: none;
