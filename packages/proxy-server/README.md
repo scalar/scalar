@@ -70,3 +70,15 @@ export default app
 ```ts
 
 ```
+
+## Nuxt
+
+```ts
+
+```
+
+## Platformatic
+
+```ts
+
+```
