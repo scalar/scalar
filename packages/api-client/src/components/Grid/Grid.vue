@@ -3,6 +3,7 @@ import { ScalarIcon } from '@scalar/components'
 import type { BaseParameter } from '@scalar/oas-utils'
 import { ref } from 'vue'
 
+import { emitter } from '../../emitter'
 import type { GeneratedParameter } from '../../types'
 
 defineProps<{
@@ -57,7 +58,9 @@ function addHandler() {
     <template
       v-for="item in generatedItems"
       :key="item.id">
-      <div class="table-row generated-parameter">
+      <div
+        class="table-row generated-parameter"
+        @click="emitter.emit('click.generated.parameter')">
         <div class="table-row-item">
           <input
             v-model="item.name"
@@ -205,6 +208,9 @@ function addHandler() {
 
 .table-row.generated-parameter * {
   color: var(--theme-color-3, var(--default-theme-color-3));
+}
+.table-row.generated-parameter input {
+  pointer-events: none;
 }
 .table-row:last-of-type {
   border-bottom: none;
