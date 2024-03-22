@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
-import type { TransformedOperation } from '@scalar/oas-utils'
+import { type TransformedOperation, prettyPrintJson } from '@scalar/oas-utils'
 import { computed, ref } from 'vue'
 
 import { useClipboard } from '../../../../hooks'
@@ -125,8 +125,8 @@ const showSchema = ref(false)
       <CardContent muted>
         <template v-if="currentJsonResponse?.schema">
           <ScalarCodeBlock
-            v-if="showSchema && currentResponseWithExample"
-            :content="currentResponseWithExample"
+            v-if="showSchema && currentJsonResponse.schema"
+            :content="prettyPrintJson(currentJsonResponse.schema)"
             lang="json" />
           <ExampleResponse
             v-else
