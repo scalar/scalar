@@ -1,5 +1,5 @@
 {
-  "name": "@scalar-examples/express-api-reference",
+  "name": "@scalar-examples/express",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@scalar/express-api-reference": "workspace:*",
+    "@scalar/proxy-server": "workspace:*",
     "express": "^4.18.2",
     "swagger-jsdoc": "^6.2.8"
   },

@@ -16,12 +16,11 @@ npm install @scalar/server-proxy
 
 ## Usage
 
-We will host the Scalar Proxy Server as a cloudflare worker for anyone to use.
-To use it, just hit pass the `url` parameter wherever it is hosted:
-`http://localhost:5051/?url=https://google.ca`
+To use it, just hit pass the `url` query parameter, everything else will be forwarded (headers, body etc).
+`https://proxy.scalar.com?url=https://scalar.com`
 
-If you would like to host it yourself, just import `proxyServer` and pass in a `Request` object
-to the fetch method as seen below:
+We will host the Scalar Proxy Server as a cloudflare worker for anyone to use at <https://proxy.scalar.com>
+If you would like to host it yourself, just import `proxyServer` and pass in a `Request` object.
 
 ## Bun
 
