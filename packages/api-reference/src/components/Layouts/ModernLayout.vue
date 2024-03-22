@@ -61,7 +61,7 @@ watch(hash, (newHash, oldHash) => {
     </template>
     <template #sidebar-end>
       <DarkModeToggle
-        :isDarkMode="isDark"
+        :isDarkMode="!!isDark || !!configuration.darkMode"
         @toggleDarkMode="$emit('toggleDarkMode')" />
     </template>
     <!-- Expose the content end slot as a slot for the footer -->
