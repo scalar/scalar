@@ -120,13 +120,22 @@ onMounted(async () => {
 })
 </script>
 <template>
+  <!-- SSR generated highlighting -->
   <pre
+    v-if="ssrContent"
     :class="[
       `scalar-component scalar-codeblock-pre language-${language}`,
       {
         'line-numbers': lineNumbers,
       },
-    ]"><code ref="el" :class="`scalar-codeblock-code language-${language}`" v-html="ssrContent || content" /></pre>
+    ]"><code ref="el" :class="`scalar-codeblock-code language-${language}`" v-html="ssrContent" /></pre>
+  <!-- Client side highlighting -->
+  <pre
+    v-else
+    class="scalar-component scalar-codeblock-pre"
+    :class="{
+      'line-numbers': lineNumbers,
+    }"><code ref="el" :class="`scalar-codeblock-code lang-${language}`">{{content}}</code></pre>
 </template>
 <style>
 .scalar-codeblock-code[class*='language-'],
