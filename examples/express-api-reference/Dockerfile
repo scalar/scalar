@@ -1,4 +1,4 @@
-FROM node:18-bullseye-slim as base
+FROM node:18-bullseye AS base
 RUN npm install pnpm --global
 RUN pnpm config set store-dir ~/.pnpm-store
 
@@ -21,8 +21,6 @@ RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store \
     pnpm --filter @scalar-examples/express-api-reference install --frozen-lockfile && \
     pnpm --filter @scalar-examples/express-api-reference build
 
-
-# examples  node_modules	package.json  packages	pnpm-lock.yaml	pnpm-workspace.yaml  tsconfig.json
 
 FROM node:18-bullseye-slim AS runner
 RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
