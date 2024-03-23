@@ -15,6 +15,12 @@ describe('normalizeUrl', () => {
     expect(normalizeUrl('http://EXAMPLE.COM')).toBe('http://example.com')
   })
 
+  it('makes hostname lowercase', async () => {
+    expect(normalizeUrl('http://EXAMPLE.COM/API/v1/TeSt')).toBe(
+      'http://example.com/API/v1/TeSt',
+    )
+  })
+
   it('adds http://', async () => {
     expect(normalizeUrl('example.com')).toBe('http://example.com')
   })
