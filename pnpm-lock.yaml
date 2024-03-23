@@ -220,6 +220,9 @@ importers:
       '@scalar/fastify-api-reference':
         specifier: workspace:*
         version: link:../../packages/fastify-api-reference
+      '@scalar/proxy-server':
+        specifier: workspace:*
+        version: link:../../packages/proxy-server
       fastify:
         specifier: ^4.23.2
         version: 4.26.1
@@ -232,7 +235,7 @@ importers:
         version: 5.4.2
       vite:
         specifier: ^5.1.1
-        version: 5.1.6(@types/node@20.11.22)
+        version: 5.1.6(@types/node@20.11.22)(terser@5.28.1)
       vite-node:
         specifier: ^1.2.2
         version: 1.3.1(@types/node@20.11.22)(terser@5.28.1)
@@ -22304,41 +22307,6 @@ packages:
       fsevents: 2.3.3
     dev: false
 
-  /vite@5.1.6(@types/node@20.11.22):
-    resolution: {integrity: sha512-yYIAZs9nVfRJ/AiOLCA91zzhjsHUgMjB+EigzFb6W2XTLO8JixBCKCjvhKZaye+NKYHCrkv3Oh50dH9EdLU2RA==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    hasBin: true
-    peerDependencies:
-      '@types/node': ^18.0.0 || >=20.0.0
-      less: '*'
-      lightningcss: ^1.21.0
-      sass: '*'
-      stylus: '*'
-      sugarss: '*'
-      terser: ^5.4.0
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-      less:
-        optional: true
-      lightningcss:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      terser:
-        optional: true
-    dependencies:
-      '@types/node': 20.11.22
-      esbuild: 0.19.12
-      postcss: 8.4.35
-      rollup: 4.13.0
-    optionalDependencies:
-      fsevents: 2.3.3
-
   /vite@5.1.6(@types/node@20.11.22)(terser@5.28.1):
     resolution: {integrity: sha512-yYIAZs9nVfRJ/AiOLCA91zzhjsHUgMjB+EigzFb6W2XTLO8JixBCKCjvhKZaye+NKYHCrkv3Oh50dH9EdLU2RA==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -22370,11 +22338,10 @@ packages:
       '@types/node': 20.11.22
       esbuild: 0.19.12
       postcss: 8.4.35
-      rollup: 4.12.0
+      rollup: 4.13.0
       terser: 5.28.1
     optionalDependencies:
       fsevents: 2.3.3
-    dev: true
 
   /vite@5.1.6(@types/node@20.11.26):
     resolution: {integrity: sha512-yYIAZs9nVfRJ/AiOLCA91zzhjsHUgMjB+EigzFb6W2XTLO8JixBCKCjvhKZaye+NKYHCrkv3Oh50dH9EdLU2RA==}
@@ -22407,7 +22374,7 @@ packages:
       '@types/node': 20.11.26
       esbuild: 0.19.12
       postcss: 8.4.35
-      rollup: 4.12.0
+      rollup: 4.13.0
     optionalDependencies:
       fsevents: 2.3.3
 
@@ -22455,7 +22422,7 @@ packages:
       strip-literal: 2.0.0
       tinybench: 2.6.0
       tinypool: 0.8.2
-      vite: 5.1.6(@types/node@20.11.22)
+      vite: 5.1.6(@types/node@20.11.22)(terser@5.28.1)
       vite-node: 1.3.1(@types/node@20.11.22)(terser@5.28.1)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
