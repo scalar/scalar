@@ -106,8 +106,23 @@ export default app
 
 ## Nextjs
 
-```ts
+For Next.js just create this handly handler and export it for every method you need. Once again
+removing the encoding header is optional.
 
+```ts
+import { proxyFetch } from '@scalar/proxy-server'
+
+export const handler = (request: Request) => {
+  request.headers.set('accept-encoding', '') // Optionally remove encoding header
+  return proxyFetch(request)
+}
+
+export const GET = handler
+export const HEAD = handler
+export const POST = handler
+export const PUT = handler
+export const DELETE = handler
+export const PATCH = handler
 ```
 
 ## Nuxt
