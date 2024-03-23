@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.20.9
+
+### Patch Changes
+
+- 5260d07: feat: description for any
+- f861efa: chore: changed svg rendering strategy
+- Updated dependencies [f861efa]
+  - @scalar/components@0.4.7
+  - @scalar/api-client@1.1.7
+
 ## 1.20.8
 
 ### Patch Changes
