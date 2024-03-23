@@ -53,6 +53,11 @@ const handleClick = (e: MouseEvent) =>
         { 'schema-card--compact': compact, 'schema-card--open': open },
       ]">
       <div
+        v-if="value?.description"
+        class="schema-card-description">
+        {{ value.description }}
+      </div>
+      <div
         class="schema-properties"
         :class="{ 'schema-properties-open': open }">
         <DisclosureButton
@@ -122,7 +127,7 @@ const handleClick = (e: MouseEvent) =>
 </template>
 <style scoped>
 .error {
-  background-color: red;
+  background-color: var(--theme-color-red, var(--default-theme-color-red));
 }
 .schema-card {
   z-index: 0;
@@ -170,7 +175,16 @@ button.schema-card-title:hover {
   border-bottom: 1px solid
     var(--theme-border-color, var(--default-theme-border-color));
 }
-
+.schema-properties-open > .schema-properties {
+  width: fit-content;
+}
+.schema-card-description + .schema-properties {
+  width: fit-content;
+}
+.schema-properties-open.schema-properties,
+.schema-properties-open > .schema-card--open {
+  width: 100%;
+}
 .schema-card .property:last-of-type {
   padding-bottom: 10px;
 }
@@ -215,5 +229,23 @@ button.schema-card-title:hover {
 }
 .schema-card--compact.schema-card--level-0 > .schema-properties {
   border: none;
+}
+.schema-card-description {
+  font-size: var(
+    --font-size,
+    var(--default-font-size),
+    var(--theme-paragraph, var(--default-theme-paragraph))
+  );
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  line-height: 1.5;
+  margin-bottom: 0;
+  display: block;
+  margin-bottom: 6px;
+}
+.schema-card-description:first-of-type {
+  padding-top: 10px;
+}
+.children .schema-card-description:first-of-type {
+  padding-top: 0;
 }
 </style>
