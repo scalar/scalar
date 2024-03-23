@@ -25,6 +25,8 @@ The URL must be the first and only query parameter on the base URL, so you can a
 We will host the Scalar Proxy Server as a cloudflare worker for anyone to use at <https://proxy.scalar.com>
 If you would like to host it yourself, just import `proxyServer` and pass in a `Request` object.
 
+Most the following examples can also be found in the examples folder.
+
 ## Bun
 
 We have a built in bun server in this repo, you can just `pnpm dev:bun` inside of this package.
@@ -38,8 +40,32 @@ const server = Bun.serve(proxyServer);
 
 ## Express
 
-```ts
+The express proxy just requires you to write the response back out. However, if you start getting
+`ERR_INVALID_STATE` or `Content Encoding Error` errors your server might not be able to handle the
+encoding. In that case just include the optional headers line below.
 
+```ts
+import { proxyFetch } from '@scalar/proxy-server'
+
+app.all('/', (req, res) => {
+  req.headers['accept-encoding'] = '' // Optional headers line for encoding
+
+  proxyFetch(req).then(({ body, headers }) => {
+    body?.pipeTo(
+      new WritableStream({
+        start() {
+          headers.forEach((v, n) => res.setHeader(n, v))
+        },
+        write(chunk) {
+          res.write(chunk)
+        },
+        close() {
+          res.end()
+        },
+      }),
+    )
+  })
+})
 ```
 
 ## Fastify
@@ -52,8 +78,9 @@ import { proxyFetch } from '@scalar/proxy-server'
 fastify.all('/', proxyFetch)
 ```
 
-However, if you start getting `ERR_INVALID_STATE` or CONTENT errors your server might not be able
-to handle the encoding. A simple workaround is just to remove the `accept-encoding` header like so:
+However, if you start getting `ERR_INVALID_STATE` or `Content Encoding Error` errors your server
+might not be able to handle the encoding. A simple workaround is just to remove the `accept-encoding`
+header like so:
 
 ```ts
 import { proxyFetch } from '@scalar/proxy-server'
