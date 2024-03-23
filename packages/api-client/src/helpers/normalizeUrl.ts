@@ -10,19 +10,19 @@ export const normalizeUrl = (url?: string) => {
     return ''
   }
 
-  const urlObject = new URL(url)
-  // we only want to lowercase the hostname, and not the path
-  urlObject.hostname = urlObject.hostname.trim().toLowerCase()
+  let sanitizedUrl = url
 
-  let normalizedUrl = urlObject.toString()
-
-  if (!normalizedUrl.startsWith('http')) {
+  if (!sanitizedUrl.startsWith('http')) {
     console.warn(
       `[sendRequest] URL does not start with http. Adding http:// as the default prefix.`,
     )
 
-    normalizedUrl = `http://${normalizedUrl}`
+    sanitizedUrl = `http://${sanitizedUrl}`
   }
 
-  return normalizedUrl
+  const urlObject = new URL(sanitizedUrl)
+  // we only want to lowercase the hostname, and not the path
+  urlObject.hostname = urlObject.hostname.trim().toLowerCase()
+
+  return urlObject.toString()
 }
