@@ -1,0 +1,505 @@
+openapi: 3.1.0
+info:
+  title: Scalar Galaxy
+  description: |
+    The Scalar Galaxy is an example OpenAPI specification to test OpenAPI tools and libraries. It’s a fictional universe with fictional planets and fictional data. Get all the data for all planets.
+
+    ## Resources
+
+    * https://github.com/scalar/scalar
+    * https://github.com/OAI/OpenAPI-Specification
+    * https://scalar.com
+
+    ## Markdown Support
+
+    All descriptions *can* contain ~~tons of text~~ **Markdown**. [If GitHub supports the syntax](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax), chances are we’re supporting it, too.
+
+    <details>
+      <summary>Examples</summary>
+
+      ### Blockquotes
+
+      > I love OpenAPI. <3
+
+      ### Tables
+
+      | Feature          | Availability |
+      | ---------------- | ------------ |
+      | Markdown Support | ✓            |
+
+      ### Accordion
+
+      ```html
+      <details>
+        <summary>Using Details Tags</summary>
+        <p>HTML Example</p>
+      </details>
+      ```
+
+      ### Images
+
+      Yes, there’s support for images, too!
+
+      ![Empty placeholder image showing the width/height](https://images.placeholders.dev/?width=1280&height=720)
+
+    </details>
+  version: 1.0.0
+  contact:
+    name: Marc from Scalar
+    url: https://scalar.com
+    email: marc@scalar.com
+servers:
+  - url: https://galaxy.scalar.com
+security:
+  - bearerAuth: []
+    basicAuth: []
+    apiKey: []
+tags:
+  - name: Authentication
+    description:
+      Some endpoints are public, but some required authentication. We provide
+      all the required endpoints to create an account and authorize yourself.
+  - name: Planets
+    description: Everything about planets
+paths:
+  '/planets':
+    get:
+      tags:
+        - Planets
+      summary: Get all planets
+      operationId: getAllData
+      security:
+        - {}
+      parameters:
+        - '$ref': '#/components/parameters/limit'
+        - '$ref': '#/components/parameters/offset'
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      '$ref': '#/components/schemas/Planet'
+              - '$ref': '#/components/schemas/PaginatedResource'
+    post:
+      tags:
+        - Planets
+      summary: Create a planet
+      operationId: createPlanet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              '$ref': '#/components/schemas/Planet'
+      responses:
+        '201':
+          description: Created
+          schema:
+            '$ref': '#/components/schemas/Planet'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/responses/BadRequest'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/responses/Forbidden'
+  '/planets/{planetId}':
+    get:
+      tags:
+        - Planets
+      summary: Get a planet
+      operationId: getPlanet
+      security:
+        - {}
+      parameters:
+        - '$ref': '#/components/parameters/planetId'
+      responses:
+        '200':
+          description: OK
+          schema:
+            '$ref': '#/components/schemas/Planet'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/responses/NotFound'
+    put:
+      tags:
+        - Planets
+      summary: Update a planet
+      operationId: updatePlanet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              '$ref': '#/components/schemas/Planet'
+      parameters:
+        - '$ref': '#/components/parameters/planetId'
+      responses:
+        '200':
+          description: OK
+          schema:
+            '$ref': '#/components/schemas/Planet'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/responses/BadRequest'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/responses/Forbidden'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/responses/NotFound'
+    delete:
+      tags:
+        - Planets
+      summary: Delete a planet
+      operationId: deletePlanet
+      description:
+        This endpoint was used to delete planets. Unfortunately, that caused
+        a lot of trouble for planets with life. So, this endpoint is now deprecated
+        and should not be used anymore.
+      deprecated: true
+      parameters:
+        - '$ref': '#/components/parameters/planetId'
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+  '/planets/{planetId}/image':
+    post:
+      tags:
+        - Planets
+      summary: Upload an image to a planet
+      operationId: uploadImage
+      parameters:
+        - '$ref': '#/components/parameters/planetId'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Image uploaded successfully
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/responses/BadRequest'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/responses/Forbidden'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/responses/NotFound'
+  '/user/signup':
+    post:
+      tags:
+        - Authentication
+      summary: Create a user
+      operationId: createUser
+      security:
+        - {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              '$ref': '#/components/schemas/NewUser'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/responses/BadRequest'
+  '/auth/token':
+    post:
+      tags:
+        - Authentication
+      summary: Get a token
+      operationId: getToken
+      security:
+        - {}
+      requestBody:
+        content:
+          application/json:
+            '$ref': '#/components/schemas/Credentials'
+      responses:
+        '201':
+          description: Token Created
+          content:
+            application/json:
+              schema:
+                ref: '#/components/schemas/Token'
+  '/me':
+    get:
+      tags:
+        - Authentication
+      summary: Get authenticated user
+      operationId: getMe
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/schemas/User'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/responses/Forbidden'
+webhooks:
+  newPlanet:
+    post:
+      tags:
+        - Planets
+      requestBody:
+        description: Information about a new planet
+        content:
+          application/json:
+            schema:
+              '$ref': '#/components/schemas/Planet'
+      responses:
+        '200':
+          description:
+            Return a 200 status to indicate that the data was received
+            successfully
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+    basicAuth:
+      type: http
+      scheme: basic
+    apiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    apiKeyQuery:
+      type: apiKey
+      in: query
+      name: api_key
+    apiKeyCookie:
+      type: apiKey
+      in: cookie
+      name: api_key
+    oauth2:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://galaxy.scalar.com/oauth/authorize
+          scopes:
+            write:planets: modify planets in your account
+            read:planets: read your planets
+  parameters:
+    planetId:
+      name: planetId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+    limit:
+      name: limit
+      in: query
+      description: The number of items to return
+      required: false
+      schema:
+        type: integer
+        format: int64
+        default: 10
+    offset:
+      name: offset
+      in: query
+      description:
+        The number of items to skip before starting to collect the result
+        set
+      required: false
+      schema:
+        type: integer
+        format: int64
+        default: 0
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            '$ref': '#/components/schemas/Error'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            '$ref': '#/components/schemas/Error'
+    NotFound:
+      description: NotFound
+      content:
+        application/json:
+          schema:
+            '$ref': '#/components/schemas/Error'
+  schemas:
+    NewUser:
+      type: object
+      properties:
+        name:
+          type: string
+          required: true
+          example: Marc
+        email:
+          type: string
+          format: email
+          required: true
+          example: marc@scalar.com
+        password:
+          type: string
+          required: true
+          minLength: 8
+          example: i-love-scalar
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          required: true
+          example: 1
+        name:
+          type: string
+          required: true
+          example: Marc
+        email:
+          type: string
+          format: email
+          required: true
+          example: marc@scalar.com
+    Credentials:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          required: true
+          example: marc@scalar.com
+        password:
+          type: string
+          required: true
+          example: i-love-scalar
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    Planet:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          required: true
+          example: 1
+        name:
+          type: string
+          required: true
+          example: Mars
+        description:
+          type:
+            - string
+            - nullable
+          example: The red planet
+        image:
+          type: string
+          nullable: true
+          example: https://cdn.scalar.com/photos/mars.jpg
+        creator:
+          '$ref': '#/components/schemas/User'
+    PaginatedResource:
+      type: object
+      properties:
+        meta:
+          type: object
+          properties:
+            limit:
+              type: integer
+              format: int64
+              example: 10
+            offset:
+              type: integer
+              format: int64
+              example: 0
+            total:
+              type: integer
+              format: int64
+              example: 100
+            next:
+              type:
+                - string
+                - nullable
+              example: '/planets?limit=10&offset=10'
+    Error:
+      type: object
+      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      properties:
+        type:
+          type: string
+          example: https://example.com/errors/generic-error
+        title:
+          type: string
+          example: Something went wrong here.
+        status:
+          type: integer
+          format: int64
+          example: 403
+        detail:
+          type: string
+          example: Unfortunately, we can’t provide further information.
