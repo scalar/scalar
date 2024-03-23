@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.20.9
+
+### Patch Changes
+
+- 5260d07: feat: description for any
+
 ## 1.20.5
 
 ### Patch Changes

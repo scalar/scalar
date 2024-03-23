@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.4.7
+
+### Patch Changes
+
+- f861efa: chore: changed svg rendering strategy
+
 ## 0.4.6
 
 ### Patch Changes
