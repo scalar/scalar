@@ -19,6 +19,9 @@ npm install @scalar/server-proxy
 To use it, just hit pass the `url` query parameter, everything else will be forwarded (headers, body etc).
 `https://proxy.scalar.com?url=https://scalar.com`
 
+The URL must be the first and only query parameter on the base URL, so you can add query params to to the url.
+`https://proxy.scalar.com?url=https://scalar.com?other=queries`
+
 We will host the Scalar Proxy Server as a cloudflare worker for anyone to use at <https://proxy.scalar.com>
 If you would like to host it yourself, just import `proxyServer` and pass in a `Request` object.
 
@@ -36,30 +39,40 @@ const server = Bun.serve(proxyServer);
 ## Express
 
 ```ts
-const express = require('express')
-const app = express()
 
-// respond with "hello world" when a GET request is made to the homepage
-app.get('/', (req, res) => {
-  res.send('hello world')
-})
 ```
 
 ## Fastify
 
-```ts
+The fastify proxy can be as simple as this.
 
+```ts
+import { proxyFetch } from '@scalar/proxy-server'
+
+fastify.all('/', proxyFetch)
+```
+
+However, if you start getting `ERR_INVALID_STATE` or CONTENT errors your server might not be able
+to handle the encoding. A simple workaround is just to remove the `accept-encoding` header like so:
+
+```ts
+import { proxyFetch } from '@scalar/proxy-server'
+
+fastify.all('/', (req, reply) => {
+  req.headers = { 'accept-encoding': '' }
+  return proxyFetch(req)
+})
 ```
 
 ## Hono
 
 ```ts
-import proxyServer from '@scalar/proxy-server'
+import { proxyFetch } from '@scalar/proxy-server'
 import { Hono } from 'hono'
 
 const app = new Hono()
 
-app.all('/', (c) => proxyServer.fetch(c.req.raw))
+app.all('/', (c) => proxyFetch(c.req.raw))
 
 export default app
 ```

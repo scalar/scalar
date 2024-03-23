@@ -17,6 +17,7 @@
   "dependencies": {
     "@fastify/swagger": "^8.10.1",
     "@scalar/fastify-api-reference": "workspace:*",
+    "@scalar/proxy-server": "workspace:*",
     "fastify": "^4.23.2"
   },
   "devDependencies": {
