@@ -10,7 +10,11 @@ export const normalizeUrl = (url?: string) => {
     return ''
   }
 
-  let normalizedUrl = url.trim().toLowerCase()
+  const urlObject = new URL(url)
+  // we only want to lowercase the hostname, and not the path
+  urlObject.hostname = urlObject.hostname.trim().toLowerCase()
+
+  let normalizedUrl = urlObject.toString()
 
   if (!normalizedUrl.startsWith('http')) {
     console.warn(
