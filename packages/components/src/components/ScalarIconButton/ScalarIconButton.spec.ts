@@ -1,5 +1,5 @@
-import { flushPromises, mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
 
 import ScalarIconButton from './ScalarIconButton.vue'
 
@@ -10,7 +10,7 @@ describe('ScalarIconButton', () => {
     })
 
     // Wait for icon to load
-    await flushPromises()
+    await vi.dynamicImportSettled()
 
     expect(wrapper.element.nodeName.toLowerCase()).toBe('button')
     expect(wrapper.find('svg').exists()).toBeTruthy()

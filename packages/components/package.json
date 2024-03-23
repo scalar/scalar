@@ -39,7 +39,6 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.16",
     "@vueuse/core": "^10.4.1",
-    "@xmldom/xmldom": "^0.8.4",
     "class-variance-authority": "^0.7.0",
     "cva": "1.0.0-beta.1",
     "nanoid": "^5.0.1",
@@ -78,6 +77,7 @@
     "vite": "^5.1.1",
     "vite-plugin-dts": "^3.6.3",
     "vite-plugin-lib-inject-css": "^2.0.0",
+    "vite-svg-loader": "^5.1.0",
     "vitest": "^1.2.2",
     "vue": "^3.3.0",
     "vue-tsc": "^1.8.19"

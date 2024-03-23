@@ -1,5 +1,5 @@
-import { flushPromises, mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
 
 import ScalarIcon from './ScalarIcon.vue'
 
@@ -8,7 +8,7 @@ describe('ScalarButton', () => {
     const wrapper = mount(ScalarIcon, { props: { icon: 'Logo' } })
 
     // Wait for icon to load
-    await flushPromises()
+    await vi.dynamicImportSettled()
 
     expect(wrapper.element.nodeName.toLowerCase()).toBe('svg')
   })

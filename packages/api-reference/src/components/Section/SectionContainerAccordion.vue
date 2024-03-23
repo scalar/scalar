@@ -65,7 +65,7 @@ import { ScalarIcon } from '@scalar/components'
 .section-accordion-title {
   display: flex;
   flex-direction: column;
-  align-items: start;
+  align-items: flex-start;
   flex: 1;
   padding: 0 6px;
 }

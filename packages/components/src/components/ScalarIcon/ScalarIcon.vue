@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { type VariantProps } from 'cva'
-import { computed } from 'vue'
 
 import { cva, cx } from '../../cva'
-import SvgRenderer from './SvgRenderer'
 import { type Icon, getIcon } from './icons/'
 
 type IconVariants = VariantProps<typeof iconProps>
@@ -32,12 +30,16 @@ const iconProps = cva({
   },
 })
 
-const data = computed(() => getIcon(props.icon))
+const iconComp = getIcon(props.icon)
 </script>
 
 <template>
-  <SvgRenderer
-    v-if="data"
-    :class="cx('scalar-icon', iconProps({ size }))"
-    :raw="data" />
+  <component
+    :is="getIcon(icon)"
+    v-if="iconComp"
+    :class="cx('scalar-icon', iconProps({ size }))" />
+  <!-- Temp fallback to match with other component but we should remove this -->
+  <img
+    v-else
+    :src="icon" />
 </template>
