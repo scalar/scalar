@@ -458,6 +458,9 @@ importers:
       '@scalar/nextjs-api-reference':
         specifier: workspace:*
         version: link:../../packages/nextjs-api-reference
+      '@scalar/proxy-server':
+        specifier: workspace:*
+        version: link:../../packages/proxy-server
       next:
         specifier: ^14.1.0
         version: 14.1.0(@babel/core@7.24.0)(react-dom@18.2.0)(react@18.2.0)
