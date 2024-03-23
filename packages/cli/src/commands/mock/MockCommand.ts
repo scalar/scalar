@@ -17,7 +17,7 @@ export function MockCommand() {
   const cmd = new Command('mock')
 
   cmd.description('Mock an API from an OpenAPI file')
-  cmd.argument('[file]', 'OpenAPI file to mock the server for')
+  cmd.argument('[file|url]', 'OpenAPI file or URL to mock the server for')
   cmd.option('-w, --watch', 'watch the file for changes')
   cmd.option('-p, --port <port>', 'set the HTTP port for the mock server')
   cmd.action(
