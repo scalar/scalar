@@ -124,15 +124,3 @@ export const PUT = handler
 export const DELETE = handler
 export const PATCH = handler
 ```
-
-## Nuxt
-
-```ts
-
-```
-
-## Platformatic
-
-```ts
-
-```
