@@ -1,5 +1,12 @@
 # @scalar/cli
 
+## 0.2.13
+
+### Patch Changes
+
+- bd54ac9: feat: add the output file argument to the format command
+- bd54ac9: feat: add URL support to the validate command
+
 ## 0.2.12
 
 ### Patch Changes
