@@ -5,19 +5,19 @@ import fs from 'node:fs'
 import prettyjson from 'prettyjson'
 
 import { useGivenFileOrConfiguration } from '../../utils'
+import { getFileOrUrl } from '../../utils/getFileOrUrl'
 
 export function ValidateCommand() {
   const cmd = new Command('validate')
 
   cmd.description('Validate an OpenAPI file')
-  cmd.argument('[file]', 'file to validate')
-  cmd.action(async (fileArgument: string) => {
+  cmd.argument('[file|url]', 'File or URL to validate')
+  cmd.action(async (inputArgument: string) => {
     const startTime = performance.now()
 
     // Read file
-    const file = useGivenFileOrConfiguration(fileArgument)
-    // TODO: Doesn’t work with URLs
-    const specification = fs.readFileSync(file, 'utf8')
+    const input = useGivenFileOrConfiguration(inputArgument)
+    const specification = await getFileOrUrl(input)
 
     // Validate
     const result = await openapi().load(specification).validate()

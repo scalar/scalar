@@ -42,6 +42,8 @@ The given JSON file will be formatted with Prettier.
 
 ```bash
 scalar format
+scalar format openapi.json --output openapi.yaml
+scalar format https://example.com/openapi.json --output openapi.json
 ```
 
 ### validate
@@ -50,6 +52,8 @@ To check whether your OpenAPI file adheres to the Swagger 2.0, OpenAPI 3.0 or Op
 
 ```bash
 scalar validate
+scalar validate openapi.json
+scalar validate https://example.com/openapi.json
 ```
 
 ### share
@@ -58,9 +62,22 @@ To quickly share an OpenAPI file or reference with someone, you can use the shar
 
 ```bash
 scalar share
+scalar share openapi.json
 ```
 
 This will upload your OpenAPI file to the [Scalar Sandbox](https://sandbox.scalar.com/) to give you a public reference URL and a public URL to your OpenAPI JSON file.
+
+### reference
+
+You can quickly spin up a local server with an API reference based on your OpenAPI file.
+
+```bash
+scalar reference
+scalar reference openapi.json
+scalar reference openapi.json --port 1234
+scalar reference openapi.json --watch
+scalar reference https://example.com/openapi.json --watch
+```
 
 ### mock
 
@@ -84,7 +101,15 @@ You can also change the port like this:
 scalar mock openapi.json --watch --port 8080
 ```
 
+And it even works with URLs:
+
+```bash
+scalar mock https://example.com/openapi.json --watch
+```
+
 ### bundle
+
+> Warning! The bundle command isn’t ready for production yet. Circular dependencies are not supported yet.
 
 Some OpenAPI files reference other files from the file system or an URL. You can bundle those files and make them a single file:
 
