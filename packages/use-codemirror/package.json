@@ -54,8 +54,7 @@
     "@lezer/lr": "^1.4.0",
     "@replit/codemirror-css-color-picker": "^6.1.0",
     "@uiw/codemirror-themes": "^4.21.21",
-    "codemirror": "^6.0.0",
-    "y-codemirror.next": "^0.3.2"
+    "codemirror": "^6.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
@@ -67,7 +66,6 @@
     "vue-tsc": "^1.8.19"
   },
   "peerDependencies": {
-    "vue": "^3.3.0",
-    "yjs": "^13.6.0"
+    "vue": "^3.3.0"
   }
 }
