@@ -125,7 +125,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
           <div :class="`code-languages-icon__${httpClient.targetKey}`">
             <ScalarIcon
               class="code-languages-icon"
-              :src="getIconByLanguageKey(httpClient.targetKey)" />
+              :icon="getIconByLanguageKey(httpClient.targetKey)" />
           </div>
         </template>
         <template v-else>
