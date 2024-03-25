@@ -284,7 +284,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   font-size: var(--theme-micro, var(--default-theme-micro));
   letter-spacing: 0.25px;
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: white;
+  color: var(--theme-button-1-color, var(--default-theme-button-1-color));
   border: none;
   white-space: nowrap;
   padding: 0 12px;
@@ -294,10 +294,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   font-family: (--theme-font, var(--default-theme-font));
   border-radius: 0 var(--theme-radius, var(--default-theme-radius))
     var(--theme-radius, var(--default-theme-radius)) 0;
-  background: var(
-    --scalar-api-client-color,
-    var(--default-scalar-api-client-color)
-  );
+  background: var(--theme-button-1, var(--default-theme-button-1));
   position: relative;
   /**  #087f5b */
   display: flex;
@@ -305,20 +302,8 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   overflow: hidden;
   flex-shrink: 0;
 }
-.send-button:before {
-  content: '';
-  position: absolute;
-  top: -5%;
-  left: -5%;
-  width: 110%;
-  height: 110%;
-  pointer-events: none;
-  cursor: pointer;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2));
-}
-.send-button:hover:before {
-  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1));
+.send-button:hover {
+  background: var(--theme-button-1-hover, var(--default-theme-button-1-hover));
 }
 .send-button svg {
   width: 12px;

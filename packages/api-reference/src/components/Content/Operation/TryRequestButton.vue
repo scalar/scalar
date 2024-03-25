@@ -17,11 +17,10 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
     as="button"
     class="show-api-client-button"
     :method="operation.httpVerb"
-    property="background"
     type="button"
     @click.stop="openClientFor(operation, getGlobalSecurity?.())">
-    <span>Test Request</span>
     <ScalarIcon icon="PaperAirplane" />
+    <span>Test Request</span>
   </HttpMethod>
 </template>
 <style scoped>
@@ -29,18 +28,17 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
   appearance: none;
   outline: none;
   border: none;
-  padding: 6px;
-  height: 23px;
+  padding: 4px 6px;
   white-space: nowrap;
   border-radius: var(--theme-radius, var(--default-theme-radius));
-  text-transform: uppercase;
   display: flex;
   justify-content: center;
   align-items: center;
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-background-2, var(--default-background-2));
   font-family: var(--theme-font, var(--default-theme-font));
+  background: var(--theme-button-1, var(--default-theme-button-1));
   position: relative;
   cursor: pointer;
   box-sizing: border-box;
@@ -48,29 +46,15 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
 }
 .show-api-client-button span,
 .show-api-client-button svg {
-  color: #fff;
+  color: var(--theme-button-1-color, var(--default-theme-button-1-color));
   z-index: 1;
 }
-.show-api-client-button:before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  cursor: pointer;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-}
-.show-api-client-button:before {
-  background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2));
-}
-.show-api-client-button:hover:before {
-  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1));
+.show-api-client-button:hover {
+  background: var(--theme-button-1-hover, var(--default-theme-button-1-hover));
 }
 .show-api-client-button svg {
   height: 12px;
   width: auto;
-  margin-left: 9px;
+  margin-right: 9px;
 }
 </style>
