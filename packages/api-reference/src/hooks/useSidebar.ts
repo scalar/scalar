@@ -132,17 +132,46 @@ const items = computed(() => {
           }
         })
 
+  // Models
+  const modelEntries: SidebarEntry[] = hasModels(parsedSpec.value)
+    ? [
+        {
+          id: getModelId(),
+          title: 'MODELS',
+          show: !state.showApiClient,
+          children: Object.keys(
+            parsedSpec.value?.components?.schemas ?? {},
+          ).map((name) => {
+            const id = getModelId(name)
+            titlesById[id] = name
+
+            return {
+              id,
+              title:
+                (parsedSpec?.value?.components?.schemas?.[name] as any).title ??
+                name,
+              show: !state.showApiClient,
+            }
+          }),
+        },
+      ]
+    : []
+
   const groupOperations: SidebarEntry[] | undefined = parsedSpec.value?.[
     'x-tagGroups'
   ]
     ? parsedSpec.value?.['x-tagGroups']?.map((tagGroup) => {
         const children: SidebarEntry[] = []
         tagGroup.tags.map((tagName: string) => {
-          const tag = operationEntries?.find(
-            (entry) => entry.title === tagName.toUpperCase(),
-          )
-          if (tag) {
-            children.push(tag)
+          if (tagName.toUpperCase() === 'MODELS' && modelEntries.length > 0) {
+            children.push(modelEntries[0])
+          } else {
+            const tag = operationEntries?.find(
+              (entry) => entry.title === tagName.toUpperCase(),
+            )
+            if (tag) {
+              children.push(tag)
+            }
           }
         })
         const sidebarTagGroup = {
@@ -182,31 +211,6 @@ const items = computed(() => {
               })
             })
             .flat() as SidebarEntry[],
-        },
-      ]
-    : []
-
-  // Models
-  const modelEntries: SidebarEntry[] = hasModels(parsedSpec.value)
-    ? [
-        {
-          id: getModelId(),
-          title: 'MODELS',
-          show: !state.showApiClient,
-          children: Object.keys(
-            parsedSpec.value?.components?.schemas ?? {},
-          ).map((name) => {
-            const id = getModelId(name)
-            titlesById[id] = name
-
-            return {
-              id,
-              title:
-                (parsedSpec?.value?.components?.schemas?.[name] as any).title ??
-                name,
-              show: !state.showApiClient,
-            }
-          }),
         },
       ]
     : []
