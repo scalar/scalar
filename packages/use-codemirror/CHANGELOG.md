@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.9.1
+
+### Patch Changes
+
+- 6889ad9: feat: tab and shift+tab codemirror, and escape codeblock hotkeys
+
 ## 0.9.0
 
 ### Minor Changes

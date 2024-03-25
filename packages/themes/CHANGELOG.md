@@ -1,5 +1,12 @@
 # @scalar/themes
 
+## 0.6.6
+
+### Patch Changes
+
+- 5b83e30: fix: put border indents in proper file
+- ae193a8: feat: sidebar border indents + theme polish
+
 ## 0.6.5
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/nextjs-api-reference
 
+## 0.2.18
+
+### Patch Changes
+
+- ae193a8: feat: sidebar border indents + theme polish
+- Updated dependencies [ae193a8]
+- Updated dependencies [bec8e52]
+  - @scalar/api-reference@1.20.10
+
 ## 0.2.17
 
 ### Patch Changes
