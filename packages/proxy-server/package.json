@@ -16,7 +16,7 @@
     "build": "tsc --project tsconfig.build.json",
     "deploy": "wrangler deploy --minify src/proxy-worker.ts",
     "dev:bun": "bun run --hot src/dev-server.ts",
-    "dev:cloudflare": "wrangler dev src/dev-server.ts",
+    "dev:cloudflare": "wrangler dev src/dev-server.ts --port 5051",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "types:check": "tsc --noEmit --skipLibCheck --composite false"
