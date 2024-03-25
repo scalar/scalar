@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.20.10
+
+### Patch Changes
+
+- bec8e52: fix: add models to tag groups
+
 ## 1.20.9
 
 ### Patch Changes

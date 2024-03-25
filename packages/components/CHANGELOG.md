@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.4.8
+
+### Patch Changes
+
+- ae193a8: feat: sidebar border indents + theme polish
+
 ## 0.4.7
 
 ### Patch Changes

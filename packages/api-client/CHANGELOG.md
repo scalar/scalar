@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 1.1.8
+
+### Patch Changes
+
+- 43421a6: fix: only lowercase hostname
+- ae193a8: feat: sidebar border indents + theme polish
+- Updated dependencies [5b83e30]
+- Updated dependencies [6889ad9]
+- Updated dependencies [ae193a8]
+  - @scalar/themes@0.6.6
+  - @scalar/use-codemirror@0.9.1
+  - @scalar/components@0.4.8
+
 ## 1.1.7
 
 ### Patch Changes

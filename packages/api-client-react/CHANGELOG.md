@@ -1,5 +1,15 @@
 # @scalar/api-client-react
 
+## 0.2.14
+
+### Patch Changes
+
+- 5b83e30: fix: put border indents in proper file
+- ae193a8: feat: sidebar border indents + theme polish
+- Updated dependencies [43421a6]
+- Updated dependencies [ae193a8]
+  - @scalar/api-client@1.1.8
+
 ## 0.2.13
 
 ### Patch Changes

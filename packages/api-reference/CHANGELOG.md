@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.20.10
+
+### Patch Changes
+
+- ae193a8: feat: sidebar border indents + theme polish
+- bec8e52: fix: add models to tag groups
+- Updated dependencies [5b83e30]
+- Updated dependencies [43421a6]
+- Updated dependencies [ae193a8]
+  - @scalar/themes@0.6.6
+  - @scalar/api-client@1.1.8
+  - @scalar/components@0.4.8
+
 ## 1.20.9
 
 ### Patch Changes
