@@ -131,9 +131,6 @@
 .light-mode .dark-mode.scalar-card {
   background: #191b29 !important;
 }
-.show-api-client-button:before {
-  background-color: var(--default-theme-color-accent) !important;
-}
 .badge {
   box-shadow: 0 0 0 1px var(--default-theme-border-color);
   margin-right: 6px;
