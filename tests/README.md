@@ -23,7 +23,7 @@ Update localhost calls in the Playwright tests to `host.docker.internal` (mac) 
 ### Example
 
 ```ts
-await page.goto('http://host.docker.internal:3173/live')
+await page.goto('http://127.0.0.1:3173/live')
 ```
 
 instead of
