@@ -46,6 +46,10 @@
 
   --theme-scrollbar-color: rgba(255, 255, 255, 0.24);
   --theme-scrollbar-color-active: rgba(255, 255, 255, 0.48);
+
+  --default-sidebar-indent-border: transparent;
+  --default-sidebar-indent-border-hover: transparent;
+  --default-sidebar-indent-border-active: transparent;
 }
 .dark-mode .scalar-modal-layout,
 .dark-mode .scalar {

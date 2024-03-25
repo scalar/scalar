@@ -279,7 +279,7 @@ const showSchema = ref(false)
 .scalar-card-checkbox
   .scalar-card-checkbox-input:checked
   ~ .scalar-card-checkbox-checkmark {
-  background-color: var(--theme-color-1, var(--default-theme-color-1));
+  background-color: var(--theme-button-1, var(--default-theme-button-1));
   box-shadow: none;
 }
 
@@ -300,7 +300,8 @@ const showSchema = ref(false)
   top: 36.5%;
   width: 5px;
   height: 9px;
-  border: solid var(--theme-background-1, var(--default-theme-background-1));
+  border: solid 1px
+    var(--theme-button-1-color, var(--default-theme-button-1-color));
   border-width: 0 1.5px 1.5px 0;
   transform: rotate(45deg);
 }
