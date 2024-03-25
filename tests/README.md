@@ -1,9 +1,12 @@
 # Playwright Testing
 
-Ensure the `api reference` CDN static server is running
-`pnpm --filter cdn-api-reference dev`
+1. Ensure you have downloaded Playwright and all its dependencies including the browsers necessary for running the tests
+   `pnpm playwright:install` or `npx playwright install --with-deps`
 
-Run Playwright e2e tests with `pnpm test:e2e` or `pnpm test:e2e:ui`
+2. Ensure the `api reference` CDN static server is running
+   `pnpm --filter cdn-api-reference dev`
+
+3. Run Playwright e2e tests with `pnpm test:e2e` or `pnpm test:e2e:ui`
 
 ## Visual Regression Testing
 
