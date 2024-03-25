@@ -1,5 +1,37 @@
 export default {
-  async fetch(request: Request) {
+  fetch: async (request: Request) => {
+    // Options
+    // https://developers.cloudflare.com/workers/examples/cors-header-proxy/
+    if (request.method === 'OPTIONS') {
+      const corsHeaders = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods':
+          'GET,HEAD,POST,PUT,DELETE,OPTIONS,PATCH',
+        'Access-Control-Max-Age': '86400',
+      }
+      if (
+        request.headers.get('Origin') !== null &&
+        request.headers.get('Access-Control-Request-Method') !== null &&
+        request.headers.get('Access-Control-Request-Headers') !== null
+      ) {
+        // Handle CORS preflight requests.
+        return new Response(null, {
+          headers: {
+            ...corsHeaders,
+            'Access-Control-Allow-Headers':
+              request.headers.get('Access-Control-Request-Headers') ?? '',
+          },
+        })
+      } else {
+        // Handle standard OPTIONS request.
+        return new Response(null, {
+          headers: {
+            Allow: 'GET, HEAD, POST, PUT, DELETE, OPTIONS, PATCH',
+          },
+        })
+      }
+    }
+
     // Invalid request object
     if (
       !request.url ||
@@ -21,8 +53,19 @@ export default {
     // Build the request URL
     const requestURL = new URL(parsedURL)
 
-    // Send ittttt
+    // Send request
     const modifiedRequest = new Request(requestURL, request)
-    return fetch(modifiedRequest)
+    modifiedRequest.headers.set('Origin', requestURL.origin)
+    const originalResponse = await fetch(modifiedRequest)
+
+    // Modify headers on return
+    const response = new Response(originalResponse.body, originalResponse)
+    response.headers.set(
+      'Access-Control-Allow-Origin',
+      request.headers.get('origin') || '*',
+    )
+    response.headers.append('Vary', 'Origin')
+
+    return response
   },
 }
