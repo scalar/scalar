@@ -63,6 +63,10 @@
   --default-theme-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
   --default-theme-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px,
     rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+  --default-sidebar-indent-border: transparent;
+  --default-sidebar-indent-border-hover: transparent;
+  --default-sidebar-indent-border-active: transparent;
 }
 .light-mode {
   color-scheme: light;
@@ -75,6 +79,10 @@
   --default-theme-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
   --default-theme-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px,
     rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 1px;
+
+  --default-sidebar-indent-border: transparent;
+  --default-sidebar-indent-border-hover: transparent;
+  --default-sidebar-indent-border-active: transparent;
 }
 /* On some browsers, the light color scheme takes precedence when the light mode is active */
 .light-mode .dark-mode {
