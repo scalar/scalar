@@ -15,10 +15,7 @@
     "dev": "next dev -p 5058",
     "lint": "next lint",
     "start": "next start",
-    "docker:build": "sh deploy.sh --method build --project",
-    "docker:build-local": "sh deploy.sh --method build-local --project",
-    "docker:run": "sh deploy.sh --method run --project",
-    "docker:push": "sh deploy.sh --method push --project"
+    "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/nextjs-api-reference/Dockerfile ."
   },
   "dependencies": {
     "@scalar/api-client-react": "workspace:*",

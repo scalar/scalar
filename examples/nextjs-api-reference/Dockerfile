@@ -1,22 +1,14 @@
-FROM node:18-bullseye AS base
-RUN npm install pnpm --global
-RUN pnpm config set store-dir ~/.pnpm-store
-
-FROM base AS builder
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE} AS builder
 WORKDIR /app
 
 # Copy everything but only install and build the main package and its dependencies
-COPY pnpm-lock.yaml .
-COPY pnpm-workspace.yaml .
-COPY package.json .
-COPY tsconfig.json .
-COPY packages ./packages
 COPY examples/nextjs-api-reference ./examples/nextjs-api-reference
 
 # Install and build the main package and its dependencies
 RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store \
-    pnpm --filter "@scalar-examples/nextjs-api-reference..." install --frozen-lockfile && \
-    pnpm --filter "@scalar-examples/nextjs-api-reference..." build
+    pnpm --filter "@scalar-examples/nextjs-api-reference" install && \
+    pnpm --filter "@scalar-examples/nextjs-api-reference" build
 
 
 FROM node:18-bullseye-slim AS runner

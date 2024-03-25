@@ -1,0 +1,61 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-base'
+    args:
+      [
+        'build',
+        '-t',
+        'gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}',
+        '-f',
+        './tooling/base-docker-builder/Dockerfile',
+        '.',
+      ]
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-base'
+    waitFor: ['build-base']
+    args: ['push', 'gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}']
+  # ---------------------------------------------------------------
+  # NextJS integration
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-next-js'
+    waitFor: ['push-base']
+    args:
+      [
+        'buildx',
+        'build',
+        '--build-arg',
+        'BASE_IMAGE=gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}',
+        '-t',
+        'gcr.io/${_PROJECT_ID}/${_SERVICE_NEXT_JS}',
+        '-f',
+        './examples/nextjs-api-reference/Dockerfile',
+        '.',
+      ]
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-next-js'
+    waitFor: ['build-next-js']
+    args: ['push', 'gcr.io/${_PROJECT_ID}/${_SERVICE_NEXT_JS}']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    waitFor: ['push-next-js']
+    args:
+      [
+        'run',
+        'deploy',
+        '$_SERVICE_NEXT_JS',
+        '--image=gcr.io/${_PROJECT_ID}/${_SERVICE_NEXT_JS}',
+        '--region=$_REGION',
+        '--platform=managed',
+        '--allow-unauthenticated',
+        '--execution-environment=gen2',
+        '--cpu=$_CPU',
+        '--memory=$_MEMORY',
+        '--service-account=$_SERVICE_ACCOUNT',
+      ]
+  # ---------------------------------------------------------------
+  # Other Integration
+  # - name: OTHER INTEGRATION
+options:
+  machineType: E2_HIGHCPU_8
+  logging: CLOUD_LOGGING_ONLY
