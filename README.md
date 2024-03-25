@@ -66,11 +66,11 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   <body>
     <!-- Add your own OpenAPI/Swagger spec file URL here: -->
     <!-- Note: this includes our proxy, you can remove the following line if you do not need it -->
-    <!-- data-proxy-url="https://api.scalar.com/request-proxy" -->
+    <!-- data-proxy-url="https://proxy.scalar.com" -->
     <script
       id="api-reference"
       data-url="https://petstore3.swagger.io/api/v3/openapi.json"
-      data-proxy-url="https://api.scalar.com/request-proxy"></script>
+      data-proxy-url="https://proxy.scalar.com"></script>
     <!-- You can also set a full configuration object like this -->
     <!-- easier for nested objects -->
     <script>
@@ -102,7 +102,7 @@ If you’d like to add a request proxy for the API client (to avoid CORS issues)
 <script
   id="api-reference"
   type="application/json"
-  data-proxy-url="https://api.scalar.com/request-proxy">
+  data-proxy-url="https://proxy.scalar.com">
   { … }
 </script>
 ```

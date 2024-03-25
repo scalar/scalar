@@ -3,11 +3,13 @@ import { formatJsonOrYamlString } from './parse'
 /** Fetches an OAS spec file from a given URL. */
 export async function fetchSpecFromUrl(
   url: string,
-  proxy?: string,
+  proxyUrl?: string,
 ): Promise<string> {
+  const isOldProxy = proxyUrl === 'https://api.scalar.com/request-proxy'
+
   // Optional use of proxy for fetching
-  const response = proxy
-    ? await fetch(proxy, {
+  const response = isOldProxy
+    ? await fetch(proxyUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -17,10 +19,10 @@ export async function fetchSpecFromUrl(
           url,
         }),
       })
-    : await fetch(url)
+    : await fetch(proxyUrl ? `${proxyUrl}?url=${url}` : url)
 
   if (response.status !== 200) {
-    const proxyWarning = proxy
+    const proxyWarning = proxyUrl
       ? ''
       : 'Trying to fetch the spec file without a proxy. The CORS headers must be set properly or the request will fail.'
     console.error(
@@ -28,7 +30,7 @@ export async function fetchSpecFromUrl(
     )
   }
 
-  const payload = proxy
+  const payload = isOldProxy
     ? String((await response.json()).data)
     : await response.text()
 

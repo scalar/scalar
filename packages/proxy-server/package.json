@@ -14,11 +14,13 @@
   },
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
-    "deploy": "wrangler deploy --minify src/proxy-worker.ts",
+    "deploy:cloudflare": "wrangler deploy --minify src/proxy-worker.ts",
+    "dev": "pnpm dev:cloudflare",
     "dev:bun": "bun run --hot src/dev-server.ts",
     "dev:cloudflare": "wrangler dev src/dev-server.ts --port 5051",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
+    "test": "vitest",
     "types:check": "tsc --noEmit --skipLibCheck --composite false"
   },
   "type": "module",
@@ -37,7 +39,9 @@
     "directory": "packages/proxy-server"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240208.0",
-    "wrangler": "^3.32.0"
+    "@cloudflare/vitest-pool-workers": "^0.1.5",
+    "@cloudflare/workers-types": "^4.20240320.1",
+    "vitest": "^1.3.0",
+    "wrangler": "^3.37.0"
   }
 }

@@ -1,6 +1,7 @@
 name = "proxy-server"
 main = "./src/index.ts"
 compatibility_date = "2023-12-01"
+compatibility_flags = [ "nodejs_compat" ]
 
 # [vars]
 # MY_VAR = "my-variable"

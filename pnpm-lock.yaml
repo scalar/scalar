@@ -75,7 +75,7 @@ importers:
         specifier: ^1.2.2
         version: 1.3.1(@types/node@20.11.22)(terser@5.28.1)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
       vue-eslint-parser:
         specifier: ^9.4.2
@@ -655,9 +655,6 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
     devDependencies:
-      '@scalar/api-client-proxy':
-        specifier: workspace:*
-        version: link:../api-client-proxy
       '@scalar/echo-server':
         specifier: workspace:*
         version: link:../echo-server
@@ -683,7 +680,7 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(vite@5.1.4)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
       vue:
         specifier: ^3.3.0
@@ -732,7 +729,7 @@ importers:
         specifier: ^1.2.2
         version: 1.3.1(@types/node@20.11.22)(terser@5.28.1)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
 
   packages/api-client-react:
@@ -929,7 +926,7 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(vite@5.1.4)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
       vue-tsc:
         specifier: ^1.8.19
@@ -999,7 +996,7 @@ importers:
         specifier: ^5.4.2
         version: 5.4.2
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
     devDependencies:
       rollup:
@@ -1197,7 +1194,7 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.4.21)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
       vue:
         specifier: ^3.3.0
@@ -1268,7 +1265,7 @@ importers:
         specifier: ^1.2.2
         version: 1.3.1(@types/node@20.11.22)(terser@5.28.1)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
 
   packages/express-api-reference:
@@ -1290,7 +1287,7 @@ importers:
         specifier: ^5.1.1
         version: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
 
   packages/fastify-api-reference:
@@ -1333,7 +1330,7 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1(vite@5.1.4)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(terser@5.28.1)
       vue:
         specifier: ^3.3.0
@@ -1355,7 +1352,7 @@ importers:
         specifier: ^5.1.1
         version: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
 
   packages/mock-server:
@@ -1426,7 +1423,7 @@ importers:
         specifier: ^5.1.1
         version: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
 
   packages/nextjs-api-reference:
@@ -1488,17 +1485,23 @@ importers:
         specifier: ^5.1.1
         version: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
 
   packages/proxy-server:
     devDependencies:
+      '@cloudflare/vitest-pool-workers':
+        specifier: ^0.1.5
+        version: 0.1.5(@cloudflare/workers-types@4.20240320.1)(@vitest/runner@1.3.0)(@vitest/snapshot@1.3.0)(vitest@1.3.1)
       '@cloudflare/workers-types':
-        specifier: ^4.20240208.0
+        specifier: ^4.20240320.1
         version: 4.20240320.1
+      vitest:
+        specifier: ^1.3.0
+        version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
       wrangler:
-        specifier: ^3.32.0
-        version: 3.36.0(@cloudflare/workers-types@4.20240320.1)
+        specifier: ^3.37.0
+        version: 3.37.0(@cloudflare/workers-types@4.20240320.1)
 
   packages/themes:
     dependencies:
@@ -1525,7 +1528,7 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1(vite@5.1.4)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
       vue-tsc:
         specifier: ^1.8.19
@@ -1598,7 +1601,7 @@ importers:
         specifier: ^5.1.1
         version: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
       vue:
         specifier: ^3.3.0
@@ -1625,7 +1628,7 @@ importers:
         specifier: ^5.1.1
         version: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
       vue:
         specifier: ^3.3.0
@@ -1652,7 +1655,7 @@ importers:
         specifier: ^5.1.1
         version: 5.1.4(@types/node@20.11.22)(terser@5.28.1)
       vitest:
-        specifier: ^1.2.2
+        specifier: ^1.3.0
         version: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
       vue:
         specifier: ^3.3.0
@@ -3418,8 +3421,32 @@ packages:
       mime: 3.0.0
     dev: true
 
-  /@cloudflare/workerd-darwin-64@1.20240314.0:
-    resolution: {integrity: sha512-19xW64AmkjGnp9ZSwa5RPMTBJ0eqadY/oLs3RcdC8J+R8vT766U2bgxyuf3VATlOf+T7t28aGYzW/QcBRls9eg==}
+  /@cloudflare/vitest-pool-workers@0.1.5(@cloudflare/workers-types@4.20240320.1)(@vitest/runner@1.3.0)(@vitest/snapshot@1.3.0)(vitest@1.3.1):
+    resolution: {integrity: sha512-SYEEP8rPTjCydRH8M7C+R01rM7QJZQGmR5siTZlyE2SO2mmgN1r6F9t7dmIX5lgh8muZKf6LDWJC4YpOGaESgg==}
+    peerDependencies:
+      '@vitest/runner': 1.3.0
+      '@vitest/snapshot': 1.3.0
+      vitest: 1.3.0
+    dependencies:
+      '@vitest/runner': 1.3.0
+      '@vitest/snapshot': 1.3.0
+      birpc: 0.2.14
+      cjs-module-lexer: 1.2.3
+      devalue: 4.3.2
+      esbuild: 0.17.19
+      miniflare: 3.20240320.0
+      vitest: 1.3.1(@types/node@20.11.22)(jsdom@22.1.0)
+      wrangler: 3.37.0(@cloudflare/workers-types@4.20240320.1)
+      zod: 3.22.4
+    transitivePeerDependencies:
+      - '@cloudflare/workers-types'
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+    dev: true
+
+  /@cloudflare/workerd-darwin-64@1.20240320.1:
+    resolution: {integrity: sha512-ioG5k2M17xyiAlK/k3L21NZLMVeSHMjwlmGtZyCyzSLL5/zGINcgZ5yPLV0UuWiysw07/6Jjzm5Sx94hzMVybg==}
     engines: {node: '>=16'}
     cpu: [x64]
     os: [darwin]
@@ -3427,8 +3454,8 @@ packages:
     dev: true
     optional: true
 
-  /@cloudflare/workerd-darwin-arm64@1.20240314.0:
-    resolution: {integrity: sha512-gq78D30GlNSg55YRzCzNHPuLp87L7xmYCYa5hIuIE7xpqhqGN6FV/mRtp2TQ5VoDXiuq1F+VdEZDwQFvrNAvtg==}
+  /@cloudflare/workerd-darwin-arm64@1.20240320.1:
+    resolution: {integrity: sha512-Ga6RDdnFEIsN4WuWsaP9bLGvK9K7pEIVoSIgmw6vweVlD8UK/a2MPGrsF1ogwdeCTCOMY8wUh9poL/Yu48IPpg==}
     engines: {node: '>=16'}
     cpu: [arm64]
     os: [darwin]
@@ -3436,8 +3463,8 @@ packages:
     dev: true
     optional: true
 
-  /@cloudflare/workerd-linux-64@1.20240314.0:
-    resolution: {integrity: sha512-1PYddg+lGGOUkXNt3LEHB0GvIBWjilTNwmbacGyyVRm+zaWGKqt2bS3bW/TY6cHJ1lxFe/fDMrQOgnSBB7jGIw==}
+  /@cloudflare/workerd-linux-64@1.20240320.1:
+    resolution: {integrity: sha512-KFof5H8eU0NXv+pUAU7Lk/OLtOmfsioTJqu0v6kPL7QsTGsgzj5sEQNcQ8DONSze549Yflu5W00qpA2cPz9eWQ==}
     engines: {node: '>=16'}
     cpu: [x64]
     os: [linux]
@@ -3445,8 +3472,8 @@ packages:
     dev: true
     optional: true
 
-  /@cloudflare/workerd-linux-arm64@1.20240314.0:
-    resolution: {integrity: sha512-GIyyO+TKYQ7TsM/DgpoHP2uQrJuPEc/cpRaXYeOzHerGAdQRej6iS2+LAnTJgLTXgOC4DE622mKBL3tnZvuKVQ==}
+  /@cloudflare/workerd-linux-arm64@1.20240320.1:
+    resolution: {integrity: sha512-t+kGc6dGdkKvVMGcHCPhlCsUZF5dj8xbAFvLB7DAJ8T79ys30rmY2Lu/C8vKlhjH9TJhbzgKmPaJ0wC/K4euvw==}
     engines: {node: '>=16'}
     cpu: [arm64]
     os: [linux]
@@ -3454,8 +3481,8 @@ packages:
     dev: true
     optional: true
 
-  /@cloudflare/workerd-windows-64@1.20240314.0:
-    resolution: {integrity: sha512-NWZeVXEXJfPuLAXfMTiFusJNOMnsHkBae0C4hlqzwIzYiQ0PYnQ+BEWFS5eWy5dZihhFrsW3VRYqnTbgESIkzw==}
+  /@cloudflare/workerd-windows-64@1.20240320.1:
+    resolution: {integrity: sha512-9xDylCOsuzWqGuANkuUByiJ5RHeMqgw37FiI7rn8I6zdGAc/alOB9B4Bh7B73WC2uEpFL+XCEjcHZ6NmsO4NaQ==}
     engines: {node: '>=16'}
     cpu: [x64]
     os: [win32]
@@ -9175,12 +9202,28 @@ packages:
       '@vitest/utils': 1.3.1
       chai: 4.4.1
 
+  /@vitest/runner@1.3.0:
+    resolution: {integrity: sha512-1Jb15Vo/Oy7mwZ5bXi7zbgszsdIBNjc4IqP8Jpr/8RdBC4nF1CTzIAn2dxYvpF1nGSseeL39lfLQ2uvs5u1Y9A==}
+    dependencies:
+      '@vitest/utils': 1.3.0
+      p-limit: 5.0.0
+      pathe: 1.1.2
+    dev: true
+
   /@vitest/runner@1.3.1:
     resolution: {integrity: sha512-5FzF9c3jG/z5bgCnjr8j9LNq/9OxV2uEBAITOXfoe3rdZJTdO7jzThth7FXv/6b+kdY65tpRQB7WaKhNZwX+Kg==}
     dependencies:
       '@vitest/utils': 1.3.1
       p-limit: 5.0.0
       pathe: 1.1.2
+
+  /@vitest/snapshot@1.3.0:
+    resolution: {integrity: sha512-swmktcviVVPYx9U4SEQXLV6AEY51Y6bZ14jA2yo6TgMxQ3h+ZYiO0YhAHGJNp0ohCFbPAis1R9kK0cvN6lDPQA==}
+    dependencies:
+      magic-string: 0.30.7
+      pathe: 1.1.2
+      pretty-format: 29.7.0
+    dev: true
 
   /@vitest/snapshot@1.3.1:
     resolution: {integrity: sha512-EF++BZbt6RZmOlE3SuTPu/NfwBF6q4ABS37HHXzs2LUVPBLx2QoY/K0fKpRChSo8eLiuxcbCVfqKgx/dplCDuQ==}
@@ -9193,6 +9236,15 @@ packages:
     resolution: {integrity: sha512-xAcW+S099ylC9VLU7eZfdT9myV67Nor9w9zhf0mGCYJSO+zM2839tOeROTdikOi/8Qeusffvxb/MyBSOja1Uig==}
     dependencies:
       tinyspy: 2.2.1
+
+  /@vitest/utils@1.3.0:
+    resolution: {integrity: sha512-/LibEY/fkaXQufi4GDlQZhikQsPO2entBKtfuyIpr1jV4DpaeasqkeHjhdOhU24vSHshcSuEyVlWdzvv2XmYCw==}
+    dependencies:
+      diff-sequences: 29.6.3
+      estree-walker: 3.0.3
+      loupe: 2.3.7
+      pretty-format: 29.7.0
+    dev: true
 
   /@vitest/utils@1.3.1:
     resolution: {integrity: sha512-d3Waie/299qqRyHTm2DjADeTaNdNSVsnwHPWrs20JMpjh6eiVq7ggggweO8rc4arhf6rRkWuHKwvxGvejUXZZQ==}
@@ -10230,6 +10282,10 @@ packages:
   /binary-extensions@2.2.0:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
+
+  /birpc@0.2.14:
+    resolution: {integrity: sha512-37FHE8rqsYM5JEKCnXFyHpBCzvgHEExwVVTq+nUmloInU7l8ezD1TpOhKpS8oe1DTYFqEK27rFZVKG43oTqXRA==}
+    dev: true
 
   /bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
@@ -11802,6 +11858,10 @@ packages:
       debug: 4.3.4(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
+
+  /devalue@4.3.2:
+    resolution: {integrity: sha512-KqFl6pOgOW+Y6wJgu80rHpo2/3H07vr8ntR9rkkFIRETewbf5GaYYcakYfiKz89K+sLsuPkQIZaXDMjUObZwWg==}
+    dev: true
 
   /devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -16955,8 +17015,8 @@ packages:
       webpack: 5.90.3
     dev: false
 
-  /miniflare@3.20240314.0:
-    resolution: {integrity: sha512-vjjiCEgNy4rfE8VP2C9xngT3eQY4HQg5eiXL+I845voM+6m67a7sZaGl2MspANNHXAKVi71m5bAzFgPcb2Jw9w==}
+  /miniflare@3.20240320.0:
+    resolution: {integrity: sha512-4M2QRxs+J5sUsybBzKT++tlbrjjjGZdtWxKmj2sqLsT26dGaKDz7DxjAeF5XIhKa5cADcffygjxx4EvfWocMmw==}
     engines: {node: '>=16.13'}
     hasBin: true
     dependencies:
@@ -16968,7 +17028,7 @@ packages:
       glob-to-regexp: 0.4.1
       stoppable: 1.1.0
       undici: 5.28.3
-      workerd: 1.20240314.0
+      workerd: 1.20240320.1
       ws: 8.16.0
       youch: 3.3.3
       zod: 3.22.4
@@ -23067,25 +23127,25 @@ packages:
     resolution: {integrity: sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==}
     dev: true
 
-  /workerd@1.20240314.0:
-    resolution: {integrity: sha512-5vXqDe6vJTMpfPVW8Vtcy2zcVIBnOIMv0D+Z0gVPMPq++KwEyQWzCIVLpIyc28EUc5bW3gEO49E8BN1PQebgfw==}
+  /workerd@1.20240320.1:
+    resolution: {integrity: sha512-nuavAGGjh0qqM6RF5zxTHyUwEqdLCHchodbrpbh/xlJpFGnJVY5C1YgSi2S9aLkJJoa0/25Ta/+EzXEbApA/3w==}
     engines: {node: '>=16'}
     hasBin: true
     requiresBuild: true
     optionalDependencies:
-      '@cloudflare/workerd-darwin-64': 1.20240314.0
-      '@cloudflare/workerd-darwin-arm64': 1.20240314.0
-      '@cloudflare/workerd-linux-64': 1.20240314.0
-      '@cloudflare/workerd-linux-arm64': 1.20240314.0
-      '@cloudflare/workerd-windows-64': 1.20240314.0
+      '@cloudflare/workerd-darwin-64': 1.20240320.1
+      '@cloudflare/workerd-darwin-arm64': 1.20240320.1
+      '@cloudflare/workerd-linux-64': 1.20240320.1
+      '@cloudflare/workerd-linux-arm64': 1.20240320.1
+      '@cloudflare/workerd-windows-64': 1.20240320.1
     dev: true
 
-  /wrangler@3.36.0(@cloudflare/workers-types@4.20240320.1):
-    resolution: {integrity: sha512-Fywf9RGAePIuIDcsSg4BW+lDUZX1jh2jN+TtmZOwG5Ewdr9dJGP3dxoFa85eQQZP1VLvY4lsqrKy67JqOuP9Gw==}
+  /wrangler@3.37.0(@cloudflare/workers-types@4.20240320.1):
+    resolution: {integrity: sha512-dffPF92EApW77lIYXxz0DMoMm2LPMlFNlgrQ0jNj7g7Mm/AaogtSuY7jXNLSeoniYNHL/57V7wlVBn82aYIqyg==}
     engines: {node: '>=16.17.0'}
     hasBin: true
     peerDependencies:
-      '@cloudflare/workers-types': ^4.20230914.0
+      '@cloudflare/workers-types': ^4.20240320.1
     peerDependenciesMeta:
       '@cloudflare/workers-types':
         optional: true
@@ -23097,7 +23157,7 @@ packages:
       blake3-wasm: 2.1.5
       chokidar: 3.6.0
       esbuild: 0.17.19
-      miniflare: 3.20240314.0
+      miniflare: 3.20240320.0
       nanoid: 3.3.7
       path-to-regexp: 6.2.1
       resolve: 1.22.8

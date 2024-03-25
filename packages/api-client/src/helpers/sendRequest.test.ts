@@ -1,4 +1,3 @@
-import { createApiClientProxy } from '@scalar/api-client-proxy'
 import { createEchoServer } from '@scalar/echo-server'
 import { type AddressInfo } from 'node:net'
 import { describe, expect, it } from 'vitest'
@@ -154,22 +153,6 @@ describe('sendRequest', () => {
         foo: 'bar',
         another: 'cookie',
       },
-    })
-  })
-
-  it('sends requests through a proxy', async () => {
-    const proxyPort = createApiClientProxyOnAnyPort()
-    const echoPort = createEchoServerOnAnyPort()
-
-    const request = {
-      url: `http://127.0.0.1:${echoPort}`,
-    }
-
-    const result = await sendRequest(request, `http://127.0.0.1:${proxyPort}`)
-
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
-      method: 'GET',
-      path: '/',
     })
   })
 

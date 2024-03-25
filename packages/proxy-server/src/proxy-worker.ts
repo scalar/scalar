@@ -38,34 +38,41 @@ export default {
       typeof request.url !== 'string' ||
       request.url.length < 3
     )
-      return new Response('Invalid request object provided', { status: 400 })
+      return new Response('Invalid request', { status: 400 })
 
     // request.url could be path only so we just split instead of using URLSearchParams
     let [, parsedURL] = request.url.split(/\?url=/s)
 
     // No valid URL provided
-    if (!parsedURL)
-      return new Response('No valid url query param provided', { status: 400 })
+    const INVALID_URL_MSG = 'Invalid url query param provided'
+    if (!parsedURL) return new Response(INVALID_URL_MSG, { status: 400 })
 
     // Prepend the request scheme if its missing
     if (!parsedURL.startsWith('http')) parsedURL = 'https://' + parsedURL
 
     // Build the request URL
-    const requestURL = new URL(parsedURL)
+    try {
+      const requestURL = new URL(parsedURL)
 
-    // Send request
-    const modifiedRequest = new Request(requestURL, request)
-    modifiedRequest.headers.set('Origin', requestURL.origin)
-    const originalResponse = await fetch(modifiedRequest)
+      // Send request
+      const modifiedRequest = new Request(requestURL, request)
+      modifiedRequest.headers.set('Origin', requestURL.origin)
+      const originalResponse = await fetch(modifiedRequest)
 
-    // Modify headers on return
-    const response = new Response(originalResponse.body, originalResponse)
-    response.headers.set(
-      'Access-Control-Allow-Origin',
-      request.headers.get('origin') || '*',
-    )
-    response.headers.append('Vary', 'Origin')
+      // Modify headers on return
+      const response = new Response(
+        await originalResponse.text(),
+        originalResponse,
+      )
+      response.headers.set(
+        'Access-Control-Allow-Origin',
+        request.headers.get('origin') || '*',
+      )
+      response.headers.append('Vary', 'Origin')
 
-    return response
+      return response
+    } catch (e) {
+      return new Response(INVALID_URL_MSG, { status: 400 })
+    }
   },
-}
+} satisfies ExportedHandler
