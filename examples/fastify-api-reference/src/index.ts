@@ -75,6 +75,6 @@ await fastify.register(fastifyApiReference, {
 })
 
 // Start the server
-fastify.listen({ port: 5053, host: '0.0.0.0' }, function (err, address) {
+fastify.listen({ port: 5053 }, function (err, address) {
   console.log(`⚡️ Fastify Plugin running on ${address}/reference`)
 })
