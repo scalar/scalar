@@ -1,20 +1,17 @@
 name: Release
-
 on:
   push:
     branches:
       - main
-
 concurrency: ${{ github.workflow }}-${{ github.ref }}
-
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20]
-
+        node-version:
+          - 20
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3
@@ -24,7 +21,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          cache: pnpm
       - name: Install dependencies
         run: pnpm install
       - name: Turborepo cache
@@ -38,11 +35,11 @@ jobs:
           # The pull request title.
           title: 'chore: release'
           # The command to update version, edit CHANGELOG, read and delete changesets.
-          version: 'pnpm run bump'
+          version: pnpm run bump
           # The commit message to use.
           commit: 'chore: version packages'
           # The command to use to build and publish packages
-          publish: 'pnpm -r publish --access public'
+          publish: pnpm -r publish --access public
         env:
           # https://github.com/settings/tokens/new
           # Expiration: No expiration
@@ -59,15 +56,13 @@ jobs:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
           webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
-
-  # TODO only run this when something in proxy-server changes
-  release-proxy-server:
-    runs-on: ubuntu-latest
-    name: release-proxy-server
-    steps:
-      - uses: actions/checkout@v3
-      - name: Deploy
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Deploy the proxy server on cloudflare workers
+        runs-on: ubuntu-latest
+        if: contains(changesets.outputs.publishedPackages.*.name, '@scalar/proxy-server')
+        steps:
+          - uses: actions/checkout@v2
+          - name: Deploy
+            uses: cloudflare/wrangler-action@v2
+            with:
+              apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+              accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
