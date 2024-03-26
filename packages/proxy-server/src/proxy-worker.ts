@@ -44,8 +44,8 @@ export default {
     let [, parsedURL] = request.url.split(/\?url=/s)
 
     // No valid URL provided
-    const INVALID_URL_MSG = 'Invalid url query param provided'
-    if (!parsedURL) return new Response(INVALID_URL_MSG, { status: 400 })
+    if (!parsedURL)
+      return new Response('Invalid url query param provided', { status: 400 })
 
     // Prepend the request scheme if its missing
     if (!parsedURL.startsWith('http')) parsedURL = 'https://' + parsedURL
@@ -57,6 +57,11 @@ export default {
       // Send request
       const modifiedRequest = new Request(requestURL, request)
       modifiedRequest.headers.set('Origin', requestURL.origin)
+
+      // The host header seems to break bun
+      if (typeof process === 'object' && process.versions?.bun)
+        modifiedRequest.headers.delete('host')
+
       const originalResponse = await fetch(modifiedRequest)
 
       // Modify headers on return
@@ -72,7 +77,10 @@ export default {
 
       return response
     } catch (e) {
-      return new Response(INVALID_URL_MSG, { status: 400 })
+      console.error(e)
+      return new Response('There was an error with the request', {
+        status: 406,
+      })
     }
   },
 } satisfies ExportedHandler

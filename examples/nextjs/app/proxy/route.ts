@@ -1,6 +1,6 @@
 import { proxyFetch } from '@scalar/proxy-server'
 
-export const handler = (request: Request) => {
+const handler = (request: Request) => {
   // Optionally remove encoding header
   request.headers.set('accept-encoding', '')
 
