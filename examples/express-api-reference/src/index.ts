@@ -1,4 +1,5 @@
 import { apiReference } from '@scalar/express-api-reference'
+import { proxyFetch } from '@scalar/proxy-server'
 import Express from 'express'
 import swaggerJsdoc from 'swagger-jsdoc'
 
@@ -36,6 +37,26 @@ const OpenApiSpecification = swaggerJsdoc({
 // Serve the OpenAPI specification
 app.get('/openapi.json', (req, res) => {
   res.json(OpenApiSpecification)
+})
+
+app.all('/proxy', (req, res) => {
+  req.headers['accept-encoding'] = ''
+
+  proxyFetch(req).then(({ body, headers }) => {
+    body?.pipeTo(
+      new WritableStream({
+        start() {
+          headers.forEach((v, n) => res.setHeader(n, v))
+        },
+        write(chunk) {
+          res.write(chunk)
+        },
+        close() {
+          res.end()
+        },
+      }),
+    )
+  })
 })
 
 // Serve the API Reference

@@ -9,14 +9,14 @@
   "engines": {
     "node": ">=18"
   },
-  "type": "module",
   "scripts": {
     "build": "next build",
     "dev": "next dev -p 5058",
+    "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/nextjs-api-reference/Dockerfile .",
     "lint": "next lint",
-    "start": "next start",
-    "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/nextjs-api-reference/Dockerfile ."
+    "start": "next start"
   },
+  "type": "module",
   "dependencies": {
     "@scalar/api-client-react": "workspace:*",
     "@scalar/nextjs-api-reference": "workspace:*",

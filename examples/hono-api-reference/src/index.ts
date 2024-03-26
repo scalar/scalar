@@ -1,6 +1,7 @@
 import { serve } from '@hono/node-server'
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { apiReference } from '@scalar/hono-api-reference'
+import { proxyFetch } from '@scalar/proxy-server'
 
 const app = new OpenAPIHono()
 
@@ -25,7 +26,7 @@ app.openapi(
     },
   }),
   (c) => {
-    return c.jsonT({
+    return c.json({
       message: 'hello',
     })
   },
@@ -58,7 +59,7 @@ app.openapi(
     },
   }),
   (c) => {
-    return c.jsonT({
+    return c.json({
       posts: [
         {
           id: 123,
@@ -105,7 +106,7 @@ app.openapi(
     },
   }),
   (c) => {
-    return c.jsonT({
+    return c.json({
       id: 123,
       title: 'My Blog Post',
       body: 'I want to share something with you …',
@@ -151,7 +152,7 @@ app.openapi(
     },
   }),
   (c) => {
-    return c.jsonT({
+    return c.json({
       status: 'OK',
       message: 'Post deleted',
     })
@@ -184,6 +185,9 @@ app.get(
     pageTitle: 'Hono API Reference Demo',
   }),
 )
+
+// Proxy server
+app.get('/proxy', (c) => proxyFetch(c.req.raw))
 
 // Listen
 serve(

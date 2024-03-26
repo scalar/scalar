@@ -3,14 +3,6 @@
 #   Refer for explanation to following link:
 #   https://github.com/evilmartians/lefthook/blob/master/docs/configuration.md
 #
-post-checkout:
-  commands:
-    conditional-pnpm-install:
-      # Run pnpm install if pnpm-lock changed between the commits we checked out.
-      # {1} is old-hash, {2} is current-head, {3} is 1 for a branch checkout, 0 for a file checkout
-      # See https://git-scm.com/docs/githooks#_post_checkout
-      run: 'if [ ! -z "$(git diff {1}..{2} --name-only pnpm-lock.yaml)" ]; then pnpm install -r; fi'
-
 pre-commit:
   commands:
     package_format:

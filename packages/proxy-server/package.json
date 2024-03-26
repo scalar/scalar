@@ -1,0 +1,48 @@
+{
+  "name": "@scalar/proxy-server",
+  "description": "A simple proxy server which can be deployed anywhere!",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "keywords": [
+    "api docs references typescript proxy"
+  ],
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "dev": "vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "test": "vitest",
+    "types:build": "tsc -p tsconfig.build.json",
+    "types:check": "tsc --noEmit --skipLibCheck --composite false"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/proxy-server"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "tsc-alias": "^1.8.8",
+    "vite": "^5.1.1"
+  }
+}
