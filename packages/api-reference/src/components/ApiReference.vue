@@ -2,12 +2,9 @@
 import { useAuthenticationStore } from '@scalar/api-client'
 import { createHead, useSeoMeta } from 'unhead'
 import { computed, toRef, watch } from 'vue'
-import { toast } from 'vue-sonner'
 
 import { useDarkModeState, useHttpClients, useReactiveSpec } from '../hooks'
-import { useToasts } from '../hooks/useToasts'
 import { type ReferenceConfiguration, type ReferenceProps } from '../types'
-import CustomToaster from './CustomToaster.vue'
 import Layouts from './Layouts/'
 
 const props = defineProps<ReferenceProps>()
@@ -34,12 +31,6 @@ const configuration = computed<ReferenceConfiguration>(() => ({
   isEditable: false,
   ...props.configuration,
 }))
-
-// Configure Reference toasts to use vue-sonner
-const { initializeToasts } = useToasts()
-initializeToasts((message) => {
-  toast(message)
-})
 
 // Create the head tag if the configuration has meta data
 if (configuration.value?.metaData) {
@@ -94,8 +85,6 @@ const { parsedSpec, rawSpec } = useReactiveSpec({
     @updateContent="$emit('updateContent', $event)">
     <template #footer><slot name="footer" /></template>
   </Component>
-  <!-- Initialize the vue-sonner instance -->
-  <CustomToaster />
 </template>
 <style>
 body {

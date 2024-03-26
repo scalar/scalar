@@ -7,6 +7,7 @@ import {
 } from '@scalar/themes'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import { computed, onMounted, provide, ref } from 'vue'
+import { toast } from 'vue-sonner'
 
 import {
   GLOBAL_SECURITY_SYMBOL,
@@ -14,6 +15,7 @@ import {
   downloadSpecFile,
 } from '../helpers'
 import { useNavState, useSidebar } from '../hooks'
+import { useToasts } from '../hooks/useToasts'
 import type {
   ReferenceLayoutProps,
   ReferenceLayoutSlot,
@@ -21,6 +23,7 @@ import type {
 } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
+import CustomToaster from './CustomToaster.vue'
 import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
 
@@ -36,6 +39,12 @@ defineEmits<{
 
 defineOptions({
   inheritAttrs: false,
+})
+
+// Configure Reference toasts to use vue-sonner
+const { initializeToasts } = useToasts()
+initializeToasts((message) => {
+  toast(message)
 })
 
 defineSlots<{
@@ -215,6 +224,8 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
       </div>
     </ScrollbarStyles>
   </ResetStyles>
+  <!-- Initialize the vue-sonner instance -->
+  <CustomToaster />
 </template>
 <style scoped>
 /* Configurable Layout Variables */
