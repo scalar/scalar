@@ -1,4 +1,8 @@
 /* basic theme */
+:root {
+  --default-theme-text-decoration: underline;
+  --default-theme-text-decoration-hover: underline;
+}
 .light-mode {
   --default-theme-background-1: #f0f2f5;
   --default-theme-background-2: #eaecf0;
@@ -78,17 +82,6 @@
   --default-theme-button-1-color: black;
 }
 /* Custom theme */
-.show-api-client-button:before {
-  background: white !important;
-}
-.show-api-client-button span,
-.show-api-client-button svg {
-  color: black !important;
-}
-.references-rendered .download-cta .download-button,
-.references-rendered .markdown a {
-  text-decoration: underline !important;
-}
 /* Document header */
 @keyframes headerbackground {
   from {

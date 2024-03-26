@@ -1,4 +1,8 @@
 /* basic theme */
+:root {
+  --default-theme-text-decoration: underline;
+  --default-theme-text-decoration-hover: underline;
+}
 .light-mode,
 .light-mode .dark-mode {
   --default-theme-background-1: #f9f9f9;
@@ -109,9 +113,4 @@
   --default-theme-color-blue: var(--default-theme-color-1);
   --default-theme-color-orange: var(--default-theme-color-1);
   --default-theme-color-purple: var(--default-theme-color-1);
-}
-.references-rendered .download-cta .download-button,
-.references-rendered .markdown a {
-  color: var(--default-theme-color-1) !important;
-  text-decoration: underline !important;
 }

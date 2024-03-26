@@ -164,11 +164,17 @@ watch(
     --theme-color-accent,
     var(--default-theme-color-accent)
   ) !important;
-  text-decoration: none !important;
+  text-decoration: var(
+    --theme-text-decoration,
+    var(--default-theme-text-decoration)
+  ) !important;
   cursor: pointer;
 }
 .markdown :deep(a:hover) {
-  text-decoration: underline !important;
+  text-decoration: var(
+    --theme-text-decoration-hover,
+    var(--default-theme-text-decoration-hover)
+  ) !important;
 }
 .markdown :deep(em) {
   font-style: italic;
