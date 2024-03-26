@@ -1,14 +1,18 @@
-import type { ClientRequestConfig } from '@scalar/api-client'
+import {
+  type AuthenticationState,
+  type ClientRequestConfig,
+  getRequestFromAuthentication,
+} from '@scalar/api-client'
 import {
   type TransformedOperation,
   getHarRequest,
   getParametersFromOperation,
   getRequestFromOperation,
 } from '@scalar/oas-utils'
-import { type OpenAPIV3 } from '@scalar/openapi-parser'
+import type { OpenAPIV3 } from '@scalar/openapi-parser'
 
-import type { AuthenticationState, ServerState } from '../types'
-import { getRequestFromAuthentication, getUrlFromServerState } from './'
+import type { ServerState } from '../types'
+import { getUrlFromServerState } from './'
 
 /**
  * Generate parameters for the request
@@ -20,19 +24,22 @@ export function getApiClientRequest({
   globalSecurity,
 }: {
   serverState: ServerState
-  authenticationState: AuthenticationState
   operation: TransformedOperation
-  globalSecurity?: OpenAPIV3.SecurityRequirementObject[]
+  authenticationState?: AuthenticationState | null
+  globalSecurity?: OpenAPIV3.SecurityRequirementObject[] | null
 }): ClientRequestConfig {
   const request = getHarRequest(
     {
       url: getUrlFromServerState(serverState),
     },
     getRequestFromOperation(operation, { requiredOnly: false }),
-    getRequestFromAuthentication(
-      authenticationState,
-      operation.information?.security ?? globalSecurity,
-    ),
+    // Only generate authentication parameters if an authentication state is passed.
+    authenticationState
+      ? getRequestFromAuthentication(
+          authenticationState,
+          operation.information?.security ?? globalSecurity ?? [],
+        )
+      : {},
   )
 
   const requestFromOperation = getRequestFromOperation(operation, {
@@ -46,17 +53,20 @@ export function getApiClientRequest({
     type: request.method,
     path: requestFromOperation.path ?? '',
     variables,
-    cookies: request.cookies.map((cookie) => {
-      return { ...cookie, enabled: true }
-    }),
-    query: request.queryString.map((queryString) => {
+    cookies: enable(request.cookies),
+    query: request.queryString.map((queryString: any) => {
       const query: typeof queryString & { required?: boolean } = queryString
       return { ...queryString, enabled: query.required ?? true }
     }),
-    headers: request.headers.map((header) => {
-      return { ...header, enabled: true }
-    }),
+    headers: enable(request.headers),
     url: getUrlFromServerState(serverState) ?? '',
     body: request.postData?.text,
   }
+}
+
+/**
+ * Enable all given parameters
+ */
+function enable(items?: any[]) {
+  return (items ?? []).map((item) => ({ ...item, enabled: true }))
 }

@@ -1,8 +1,8 @@
-import { encodeStringAsBase64 } from '@scalar/api-client'
-import type { OpenAPIV3 } from '@scalar/openapi-parser'
+import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { HarRequest } from 'httpsnippet-lite'
 
-import type { AuthenticationState } from '../types'
+import type { AuthenticationState } from '../stores'
+import { encodeStringAsBase64 } from './encodeStringAsBase64'
 
 /**
  * Check whether the given security scheme key is in the `security` configuration for this operation.
@@ -37,7 +37,10 @@ function authenticationRequired(
  */
 export function getRequestFromAuthentication(
   authentication: AuthenticationState,
-  operationSecurity?: OpenAPIV3.SecurityRequirementObject[],
+  operationSecurity?: (
+    | OpenAPIV3.SecurityRequirementObject
+    | OpenAPIV3_1.SecurityRequirementObject
+  )[],
 ): Partial<HarRequest> {
   const headers: HarRequest['headers'] = []
   const queryString: HarRequest['queryString'] = []
@@ -45,7 +48,7 @@ export function getRequestFromAuthentication(
 
   // Check whether auth is required
   if (
-    !authentication.securitySchemeKey ||
+    !authentication.preferredSecurityScheme ||
     !authenticationRequired(operationSecurity)
   ) {
     return { headers, queryString, cookies }
@@ -54,15 +57,15 @@ export function getRequestFromAuthentication(
   // Check if the (globally) selected security scheme is allowed for the operation
   const operationAllowsSelectedSecurityScheme = operationSecurity?.some(
     (securityRequirement) =>
-      authentication.securitySchemeKey &&
+      authentication.preferredSecurityScheme &&
       Object.keys(securityRequirement).includes(
-        authentication.securitySchemeKey,
+        authentication.preferredSecurityScheme,
       ),
   )
 
   // If the (globally) selected security scheme is not allowed for the operation, use the first available security scheme.
   const operationSecurityKey = operationAllowsSelectedSecurityScheme
-    ? authentication.securitySchemeKey
+    ? authentication.preferredSecurityScheme
     : Object.keys(operationSecurity?.[0] ?? {}).pop()
 
   // We’re using a parsed OpenAPI file here, so let’s get rid of the `ReferenceObject` type

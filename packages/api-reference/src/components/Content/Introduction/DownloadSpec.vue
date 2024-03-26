@@ -20,11 +20,17 @@ import { downloadSpecBus } from '../../../helpers'
 }
 .download-cta .download-button {
   color: var(--theme-color-accent, var(--default-theme-color-accent));
-  text-decoration: none;
+  text-decoration: var(
+    --theme-text-decoration,
+    var(--default-theme-text-decoration)
+  ) !important;
   font-size: var(--theme-paragraph, var(--default-theme-paragraph));
   cursor: pointer;
 }
 .download-cta .download-button:hover {
-  text-decoration: underline;
+  text-decoration: var(
+    --theme-text-decoration-hover,
+    var(--default-theme-text-decoration-hover)
+  ) !important;
 }
 </style>

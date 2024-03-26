@@ -1,42 +1,53 @@
 import { isJsonString } from '@scalar/oas-utils'
 
-import type { AuthState, ClientRequestConfig } from '../types'
+import { useAuthenticationStore, useOpenApiStore } from '../stores'
+import type { ClientRequestConfig } from '../types'
+import { getRequestFromAuthentication } from './getRequestFromAuthentication'
+
+/**
+ * Enable all given parameters
+ */
+function enable(items?: any[]) {
+  return (items ?? []).map((item) => ({ ...item, enabled: true }))
+}
 
 /**
  * Before a request is sent to the server, we’ll do some final preparation.
  *
- * - Add authentication headers
  * - Add Content-Type header if request.body is JSON
  * - Parse request.body if it’s JSON
  * - Remove duplicate headers
  */
 export const prepareClientRequestConfig = (configuration: {
   request: ClientRequestConfig
-  authState: AuthState
 }) => {
-  const { authState, request } = configuration
+  const { request } = configuration
 
-  if (authState.type === 'basic' && authState.basic.active) {
-    request.headers = [
-      ...(request.headers ?? []),
-      {
-        name: 'Authorization',
-        value: `Basic ${btoa(
-          `${authState.basic.username}:${authState.basic.password}`,
-        )}`,
-        enabled: true,
-      },
-    ]
-  } else if (authState.type === 'bearer' && authState.bearer.active) {
-    request.headers = [
-      ...(request.headers ?? []),
-      {
-        name: 'Authorization',
-        value: `Bearer ${authState.bearer.token}`,
-        enabled: true,
-      },
-    ]
-  }
+  const { authentication } = useAuthenticationStore()
+  const {
+    openApi: { operation, globalSecurity },
+  } = useOpenApiStore()
+
+  const authenticationRequest = getRequestFromAuthentication(
+    authentication,
+    operation?.information?.security ?? globalSecurity,
+  )
+
+  // Merge the request with the authentication request (headers, cookies, query, etc.)
+  request.headers = [
+    ...(request.headers ?? []),
+    ...enable(authenticationRequest.headers),
+  ]
+
+  request.cookies = [
+    ...(request.cookies ?? []),
+    ...enable(authenticationRequest.cookies),
+  ]
+
+  request.query = [
+    ...(request.query ?? []),
+    ...enable(authenticationRequest.queryString),
+  ]
 
   // Check if request.body contains JSON
   if (request.body && isJsonString(request.body)) {
@@ -49,11 +60,12 @@ export const prepareClientRequestConfig = (configuration: {
     if (!hasContentTypeHeader) {
       request.headers = [
         ...(request.headers ?? []),
-        {
-          name: 'Content-Type',
-          value: `application/json; charset=utf-8`,
-          enabled: true,
-        },
+        ...enable([
+          {
+            name: 'Content-Type',
+            value: `application/json; charset=utf-8`,
+          },
+        ]),
       ]
     }
 

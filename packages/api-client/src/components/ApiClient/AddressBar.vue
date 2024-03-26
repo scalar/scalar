@@ -9,7 +9,7 @@ import {
   prepareClientRequestConfig,
   sendRequest,
 } from '../../helpers'
-import { useRequestStore } from '../../stores/requestStore'
+import { useRequestStore } from '../../stores'
 import RequestHistory from './RequestHistory.vue'
 import RequestMethodSelect from './RequestMethodSelect.vue'
 
@@ -34,7 +34,6 @@ const {
   requestHistoryOrder,
   readOnly,
   setActiveRequest,
-  authState,
 } = useRequestStore()
 
 const historyModal = useModal()
@@ -68,7 +67,6 @@ const formattedUrl = computed(() => {
 async function send() {
   const clientRequestConfig = prepareClientRequestConfig({
     request: { ...activeRequest },
-    authState,
   })
   loading.value = true
   emits('onSend')

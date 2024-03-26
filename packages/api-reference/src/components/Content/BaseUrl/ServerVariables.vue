@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useGlobalStore } from '../../../stores'
+import { useServerStore } from '../../../stores'
 import type { Variable } from '../../../types'
 
 defineProps<{ value?: Variable[] }>()
 
-const { server, setServer } = useGlobalStore()
+const { server, setServer } = useServerStore()
 
 const handleInput = (name: string, event: Event) => {
   const newValue = (event.target as HTMLSelectElement).value

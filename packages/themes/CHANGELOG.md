@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.6.7
+
+### Patch Changes
+
+- d70bda7: fix: text decoration targetting in themes + unused css in themes
+
 ## 0.6.6
 
 ### Patch Changes

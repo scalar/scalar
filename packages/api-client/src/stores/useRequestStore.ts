@@ -1,45 +1,13 @@
 import { computed, reactive, ref } from 'vue'
 
 import { createPlaceholderRequest } from '../helpers/createPlaceholderRequest'
-import type { AuthState, ClientRequestConfig, RequestResult } from '../types'
-
-// Auth state template
-export const createEmptyAuthState = (): AuthState => ({
-  type: 'none',
-  basic: {
-    username: '',
-    password: '',
-    active: true,
-  },
-  oauthTwo: {
-    generatedToken: '',
-    discoveryURL: '',
-    authURL: '',
-    accessTokenURL: '',
-    clientID: '',
-    clientSecret: '',
-    scope: '',
-    active: true,
-  },
-  bearer: {
-    token: '',
-    active: true,
-  },
-  digest: {
-    username: '',
-    password: '',
-    active: true,
-  },
-})
+import type { ClientRequestConfig, RequestResult } from '../types'
 
 /**
  * Request state
  */
 type RequestHistoryOrder = string[]
 type RequestHistoryEntry = RequestResult
-
-// Request Authorization State
-const authState = reactive(createEmptyAuthState())
 
 // Log of all requests made
 const requestHistory: Record<string, RequestHistoryEntry> = reactive({})
@@ -101,7 +69,6 @@ const resetActiveResponse = () => {
 const readOnly = ref(true)
 
 export const useRequestStore = () => ({
-  authState,
   readOnly,
   activeRequest,
   activeResponse,

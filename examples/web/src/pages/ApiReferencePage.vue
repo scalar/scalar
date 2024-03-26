@@ -24,12 +24,12 @@ const configuration = reactive<ReferenceConfiguration>({
   layout: 'modern',
   spec: { content },
   // authentication: {
-  //   securitySchemeKey: 'petstore_auth',
+  //   preferredSecurityScheme: 'petstore_auth',
   //   oAuth2: {
   //     clientId: 'foobar123',
   //     scopes: ['read:pets', 'write:pets'],
   //   },
-  //   // securitySchemeKey: 'api_key',
+  //   // preferredSecurityScheme: 'api_key',
   //   // apiKey: {
   //   //   token: 'super-secret-token',
   //   // },

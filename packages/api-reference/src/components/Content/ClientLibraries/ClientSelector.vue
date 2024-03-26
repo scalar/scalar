@@ -3,12 +3,14 @@ import { ScalarIcon } from '@scalar/components'
 import { type TargetId } from 'httpsnippet-lite'
 import { ref } from 'vue'
 
-import { useSnippetTargets } from '../../../hooks'
-import { type SelectedClient, useTemplateStore } from '../../../stores/template'
+import { useHttpClients } from '../../../hooks'
+import { type HttpClientState, useHttpClientStore } from '../../../stores/'
 
 // Use the template store to keep it accessible globally
-const { state, setItem, getClientTitle, getTargetTitle } = useTemplateStore()
-const { availableTargets } = useSnippetTargets()
+const { httpClient, setHttpClient, getClientTitle, getTargetTitle } =
+  useHttpClientStore()
+const { availableTargets } = useHttpClients()
+
 const containerRef = ref<HTMLElement>()
 
 // Show popular clients with an icon, not just in a select.
@@ -46,14 +48,14 @@ const featuredClients = [
 const getIconByLanguageKey = (targetKey: TargetId) =>
   `programming-language-${targetKey}` as const
 
-const isSelectedClient = (language: SelectedClient) => {
+const isSelectedClient = (language: HttpClientState) => {
   return (
-    language.targetKey === state.selectedClient.targetKey &&
-    language.clientKey === state.selectedClient.clientKey
+    language.targetKey === httpClient.targetKey &&
+    language.clientKey === httpClient.clientKey
   )
 }
 
-const checkIfClientIsFeatured = (client: SelectedClient) =>
+const checkIfClientIsFeatured = (client: HttpClientState) =>
   featuredClients.some(
     (item) =>
       item.targetKey === client.targetKey &&
@@ -71,7 +73,7 @@ const checkIfClientIsFeatured = (client: SelectedClient) =>
       :class="{
         'code-languages__active': isSelectedClient(client),
       }"
-      @click="() => setItem('selectedClient', client)">
+      @click="() => setHttpClient(client)">
       <div
         class="code-languages-background"
         :class="`code-languages-icon__${client.targetKey}`">
@@ -86,18 +88,14 @@ const checkIfClientIsFeatured = (client: SelectedClient) =>
       class="code-languages code-languages__select"
       :class="{
         'code-languages__active':
-          state.selectedClient &&
-          !checkIfClientIsFeatured(state.selectedClient),
+          httpClient && !checkIfClientIsFeatured(httpClient),
       }">
       <select
         class="language-select"
-        :value="JSON.stringify(state.selectedClient)"
+        :value="JSON.stringify(httpClient)"
         @input="
           (event) =>
-            setItem(
-              'selectedClient',
-              JSON.parse((event.target as HTMLSelectElement).value),
-            )
+            setHttpClient(JSON.parse((event.target as HTMLSelectElement).value))
         ">
         <optgroup
           v-for="target in availableTargets"
@@ -123,17 +121,11 @@ const checkIfClientIsFeatured = (client: SelectedClient) =>
       </select>
 
       <div class="code-languages-background code-languages-icon__more">
-        <template
-          v-if="
-            state.selectedClient &&
-            !checkIfClientIsFeatured(state.selectedClient)
-          ">
-          <div
-            class="code-languages-background"
-            :class="`code-languages-icon__${state.selectedClient.targetKey}`">
+        <template v-if="httpClient && !checkIfClientIsFeatured(httpClient)">
+          <div :class="`code-languages-icon__${httpClient.targetKey}`">
             <ScalarIcon
               class="code-languages-icon"
-              :icon="getIconByLanguageKey(state.selectedClient.targetKey)" />
+              :icon="getIconByLanguageKey(httpClient.targetKey)" />
           </div>
         </template>
         <template v-else>

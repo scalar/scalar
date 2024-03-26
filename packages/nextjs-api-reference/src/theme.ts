@@ -123,14 +123,6 @@ export const nextjsThemeCss = `
 .sidebar .sidebar-indent-nested .sidebar-heading {
   padding-right: 0;
 }
-.examples .show-api-client-button:before {
-  background: var(--theme-color-1);
-}
-.examples .show-api-client-button span,
-.examples .show-api-client-button svg {
-  color: var(--theme-background-1);
-  text-transform: none;
-}
 .code-languages-icon {
   padding: 10px !important;
 }

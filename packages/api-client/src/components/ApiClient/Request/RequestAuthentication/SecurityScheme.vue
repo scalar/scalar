@@ -2,8 +2,8 @@
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
-import { useGlobalStore } from '../../../stores'
-import { MarkdownRenderer } from '../../MarkdownRenderer'
+import { useAuthenticationStore } from '../../../../stores'
+// import { MarkdownRenderer } from '../../MarkdownRenderer'
 import CardForm from './CardForm.vue'
 import CardFormButton from './CardFormButton.vue'
 import CardFormGroup from './CardFormGroup.vue'
@@ -14,7 +14,7 @@ defineProps<{
   value?: OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject
 }>()
 
-const { authentication, setAuthentication } = useGlobalStore()
+const { authentication, setAuthentication } = useAuthenticationStore()
 
 const handleApiKeyTokenInput = (event: Event) => {
   setAuthentication({
@@ -139,7 +139,7 @@ const startAuthentication = (url: string) => {
       type="password"
       :value="authentication.apiKey.token"
       @input="handleApiKeyTokenInput">
-      {{ value.in.charAt(0).toUpperCase() + value.in.slice(1) }} API Key
+      {{ value.in.charAt(0).toUpperCase() + value.in.slice(1) }} API
     </CardFormTextInput>
 
     <template
@@ -232,11 +232,11 @@ const startAuthentication = (url: string) => {
       </template>
     </CardFormGroup>
   </CardForm>
-  <CardForm v-if="value?.description">
+  <!-- <CardForm v-if="value?.description">
     <div class="description">
       <MarkdownRenderer :value="value?.description" />
     </div>
-  </CardForm>
+  </CardForm> -->
 </template>
 
 <style scoped>

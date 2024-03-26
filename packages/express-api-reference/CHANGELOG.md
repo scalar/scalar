@@ -1,5 +1,12 @@
 # @scalar/express-api-reference
 
+## 0.3.19
+
+### Patch Changes
+
+- Updated dependencies [d70bda7]
+  - @scalar/api-reference@1.20.11
+
 ## 0.3.18
 
 ### Patch Changes

@@ -1,6 +1,13 @@
 <script setup lang="ts">
-import { useRequestStore } from '../../../stores/requestStore'
-import RequestAuth from './RequestAuth.vue'
+import { computed } from 'vue'
+
+import { getRequestFromAuthentication } from '../../../helpers'
+import {
+  useAuthenticationStore,
+  useOpenApiStore,
+  useRequestStore,
+} from '../../../stores'
+import { RequestAuthentication } from './RequestAuthentication'
 import RequestBody from './RequestBody.vue'
 import RequestCookies from './RequestCookies.vue'
 import RequestHeaders from './RequestHeaders.vue'
@@ -8,6 +15,17 @@ import RequestQuery from './RequestQuery.vue'
 import RequestVariables from './RequestVariables.vue'
 
 const { activeRequest } = useRequestStore()
+const { authentication } = useAuthenticationStore()
+const {
+  openApi: { operation, globalSecurity },
+} = useOpenApiStore()
+
+const authenticationRequest = computed(() => {
+  return getRequestFromAuthentication(
+    authentication,
+    operation?.information?.security ?? globalSecurity,
+  )
+})
 
 /**
  * TODO: This is a workaround to make the address bar editable, but not the rest. If we’d really like to have an
@@ -32,10 +50,16 @@ const readOnly = true
     </div>
     <div>
       <RequestVariables :variables="activeRequest.variables" />
-      <RequestAuth />
-      <RequestCookies :cookies="activeRequest.cookies" />
-      <RequestHeaders :headers="activeRequest.headers" />
-      <RequestQuery :queries="activeRequest.query" />
+      <RequestAuthentication />
+      <RequestCookies
+        :cookies="activeRequest.cookies"
+        :generatedCookies="authenticationRequest.cookies" />
+      <RequestHeaders
+        :generatedHeaders="authenticationRequest.headers"
+        :headers="activeRequest.headers" />
+      <RequestQuery
+        :generatedQueries="authenticationRequest.queryString"
+        :queries="activeRequest.query" />
       <RequestBody
         :body="activeRequest.body"
         :formData="activeRequest.formData"
@@ -67,6 +91,9 @@ const readOnly = true
   margin-top: -3px;
   justify-content: space-between;
   overflow: auto;
+}
+.scalar-api-client__item__content:empty {
+  display: none;
 }
 .scalar-api-client__item__content .scalar-api-client__codemirror__wrapper {
   width: 100%;

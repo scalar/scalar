@@ -1,13 +1,10 @@
 <script setup lang="ts">
+import { useAuthenticationStore } from '@scalar/api-client'
 import { createHead, useSeoMeta } from 'unhead'
 import { computed, toRef, watch } from 'vue'
-import { toast } from 'vue-sonner'
 
-import { useDarkModeState, useReactiveSpec, useSnippetTargets } from '../hooks'
-import { useToasts } from '../hooks/useToasts'
-import { useGlobalStore } from '../stores'
+import { useDarkModeState, useHttpClients, useReactiveSpec } from '../hooks'
 import { type ReferenceConfiguration, type ReferenceProps } from '../types'
-import CustomToaster from './CustomToaster.vue'
 import Layouts from './Layouts/'
 
 const props = defineProps<ReferenceProps>()
@@ -35,12 +32,6 @@ const configuration = computed<ReferenceConfiguration>(() => ({
   ...props.configuration,
 }))
 
-// Configure Reference toasts to use vue-sonner
-const { initializeToasts } = useToasts()
-initializeToasts((message) => {
-  toast(message)
-})
-
 // Create the head tag if the configuration has meta data
 if (configuration.value?.metaData) {
   createHead()
@@ -65,11 +56,11 @@ function mapConfigToState<K extends keyof ReferenceConfiguration>(
 }
 
 // Prefill authentication
-const { setAuthentication } = useGlobalStore()
+const { setAuthentication } = useAuthenticationStore()
 mapConfigToState('authentication', setAuthentication)
 
 // Hides any client snippets from the references
-const { setExcludedClients } = useSnippetTargets()
+const { setExcludedClients } = useHttpClients()
 mapConfigToState('hiddenClients', setExcludedClients)
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
@@ -94,8 +85,6 @@ const { parsedSpec, rawSpec } = useReactiveSpec({
     @updateContent="$emit('updateContent', $event)">
     <template #footer><slot name="footer" /></template>
   </Component>
-  <!-- Initialize the vue-sonner instance -->
-  <CustomToaster />
 </template>
 <style>
 body {

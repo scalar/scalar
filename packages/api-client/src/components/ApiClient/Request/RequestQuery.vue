@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import { useRequestStore } from '../../../stores'
-import type { Query } from '../../../types'
+import type { GeneratedParameter, Query } from '../../../types'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
-defineProps<{ queries?: Query[] }>()
+const props = defineProps<{
+  queries?: Query[]
+  generatedQueries?: GeneratedParameter[]
+}>()
 
 const { activeRequest } = useRequestStore()
 
@@ -19,12 +24,16 @@ function addAnotherHandler() {
 
   activeRequest.query?.push({ name: '', value: '', enabled: true })
 }
+
+const hasQueries = computed(() => {
+  return !!(props.queries?.length || props.generatedQueries?.length)
+})
 </script>
 <template>
   <CollapsibleSection
-    :defaultOpen="activeRequest.query && activeRequest.query.length > 0"
+    :defaultOpen="hasQueries"
     title="Query Parameters">
-    <template v-if="!queries || queries.length === 0">
+    <template v-if="!hasQueries">
       <div class="scalar-api-client__empty-state">
         <button
           class="scalar-api-client-add"
@@ -52,6 +61,7 @@ function addAnotherHandler() {
     <template v-else>
       <Grid
         addLabel="Query Parameter"
+        :generatedItems="generatedQueries"
         :items="queries"
         :showMoreFilter="true"
         @addAnother="addAnotherHandler"

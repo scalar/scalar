@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createEmptyServerState } from '../stores/globalStore'
+import { createEmptyServerState } from '../stores/useServerStore'
 import { getUrlFromServerState } from './getUrlFromServerState'
 
 describe('getUrlFromServerState', () => {

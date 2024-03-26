@@ -51,6 +51,9 @@
 
   --default-theme-font-medium: 500;
   --default-theme-font-bold: 700;
+
+  --default-theme-text-decoration: none;
+  --default-theme-text-decoration-hover: underline;
 }
 .dark-mode {
   color-scheme: dark;
