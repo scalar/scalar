@@ -606,12 +606,18 @@ importers:
 
   packages/api-client:
     dependencies:
+      '@floating-ui/vue':
+        specifier: ^1.0.2
+        version: 1.0.6(vue@3.4.21)
       '@headlessui/vue':
         specifier: ^1.7.16
         version: 1.7.19(vue@3.4.21)
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
+      '@scalar/openapi-parser':
+        specifier: ^0.3.2
+        version: 0.3.2
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -630,6 +636,9 @@ importers:
       content-type:
         specifier: ^1.0.5
         version: 1.0.5
+      httpsnippet-lite:
+        specifier: ^3.0.5
+        version: 3.0.5
       nanoid:
         specifier: ^5.0.1
         version: 5.0.6
@@ -756,9 +765,6 @@ importers:
 
   packages/api-reference:
     dependencies:
-      '@floating-ui/vue':
-        specifier: ^1.0.2
-        version: 1.0.6(vue@3.4.21)
       '@headlessui/vue':
         specifier: ^1.7.16
         version: 1.7.19(vue@3.4.21)

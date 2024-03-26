@@ -1,9 +1,16 @@
 <script setup lang="ts">
+import type { BaseParameter } from '@scalar/oas-utils'
+import { computed } from 'vue'
+
 import { useRequestStore } from '../../../stores'
+import type { GeneratedParameter } from '../../../types'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { Grid } from '../../Grid'
 
-defineProps<{ headers?: any[] }>()
+const props = defineProps<{
+  headers?: BaseParameter[]
+  generatedHeaders?: GeneratedParameter[]
+}>()
 
 const { activeRequest } = useRequestStore()
 
@@ -18,12 +25,16 @@ function addAnotherHandler() {
 
   activeRequest.headers?.push({ name: '', value: '', enabled: true })
 }
+
+const hasHeaders = computed(() => {
+  return !!(props.headers?.length || props.generatedHeaders?.length)
+})
 </script>
 <template>
   <CollapsibleSection
-    :defaultOpen="activeRequest.headers && activeRequest.headers.length > 0"
+    :defaultOpen="hasHeaders"
     title="Headers">
-    <template v-if="!headers || headers.length === 0">
+    <template v-if="!hasHeaders">
       <div class="scalar-api-client__empty-state">
         <button
           class="scalar-api-client-add"
@@ -51,6 +62,7 @@ function addAnotherHandler() {
     <template v-else>
       <Grid
         addLabel="Header"
+        :generatedItems="generatedHeaders"
         :items="headers"
         @addAnother="addAnotherHandler"
         @deleteIndex="handleDeleteIndex" />

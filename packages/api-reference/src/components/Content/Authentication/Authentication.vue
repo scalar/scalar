@@ -1,26 +1,28 @@
 <script setup lang="ts">
+import {
+  SecurityScheme,
+  SecuritySchemeSelector,
+  useAuthenticationStore,
+} from '@scalar/api-client'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, watch } from 'vue'
 
 import { hasSecuritySchemes } from '../../../helpers'
-import { useGlobalStore } from '../../../stores'
 import { type Spec } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
-import SecurityScheme from './SecurityScheme.vue'
-import SecuritySchemeSelector from './SecuritySchemeSelector.vue'
 
 const props = defineProps<{ parsedSpec?: Spec }>()
 
-const { authentication, setAuthentication } = useGlobalStore()
+const { authentication, setAuthentication } = useAuthenticationStore()
 
 const showSecurityScheme = computed(() => {
-  if (!authentication.securitySchemeKey) {
+  if (!authentication.preferredSecurityScheme) {
     return false
   }
 
   const scheme =
     props.parsedSpec?.components?.securitySchemes?.[
-      authentication.securitySchemeKey
+      authentication.preferredSecurityScheme
     ]
 
   return !!scheme && 'type' in scheme && !!scheme.type
@@ -59,10 +61,10 @@ watch(
       class="authentication-content"
       transparent>
       <SecurityScheme
-        v-if="authentication.securitySchemeKey"
+        v-if="authentication.preferredSecurityScheme"
         :value="
           parsedSpec?.components?.securitySchemes?.[
-            authentication.securitySchemeKey
+            authentication.preferredSecurityScheme
           ] as OpenAPIV3_1.SecuritySchemeObject
         " />
     </CardContent>

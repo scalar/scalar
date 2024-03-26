@@ -3,7 +3,7 @@ import { ScalarIcon } from '@scalar/components'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, onMounted } from 'vue'
 
-import { useGlobalStore } from '../../../stores'
+import { useAuthenticationStore } from '../../../../stores'
 
 const props = defineProps<{
   value?:
@@ -24,7 +24,7 @@ const emits = defineEmits<{
   (event: 'input', key: string): void
 }>()
 
-const { authentication, setAuthentication } = useGlobalStore()
+const { authentication, setAuthentication } = useAuthenticationStore()
 
 // Update credentials in state
 const handleAuthenticationTypeInput = (event: Event) => {
@@ -34,7 +34,7 @@ const handleAuthenticationTypeInput = (event: Event) => {
 // Use first security scheme as default
 onMounted(() => {
   // Oh, the key was set already!
-  if (authentication.securitySchemeKey) {
+  if (authentication.preferredSecurityScheme) {
     return
   }
 
@@ -45,7 +45,7 @@ onMounted(() => {
 // Update current security scheme key
 const setSecuritySchemeKey = (key: string) => {
   setAuthentication({
-    securitySchemeKey: key,
+    preferredSecurityScheme: key,
   })
 
   emits('input', key)
@@ -66,7 +66,7 @@ const isOAuth2 = (item: any) => item.type.toLowerCase() === 'oauth2'
 
 // Translate type to label
 const getLabelForScheme = (item: any, key: string) => {
-  return `${key} (${getAuthorizationTypeLabel(item)})`
+  return `${getAuthorizationTypeLabel(item)} (${key})`
 }
 
 // Translate type to label
@@ -100,18 +100,20 @@ const keys = computed(() => Object.keys(props.value ?? {}))
     <div class="security-scheme-selector">
       <span>
         {{
-          authentication.securitySchemeKey
+          authentication.preferredSecurityScheme
             ? getLabelForScheme(
-                value?.[authentication.securitySchemeKey],
-                authentication.securitySchemeKey,
+                value?.[authentication.preferredSecurityScheme],
+                authentication.preferredSecurityScheme,
               )
-            : ''
+            : 'None'
         }}
       </span>
       <ScalarIcon icon="ChevronDown" />
       <select
-        @input="handleAuthenticationTypeInput"
-        @value="authentication.securitySchemeKey">
+        :value="authentication.preferredSecurityScheme"
+        @click.prevent
+        @input="handleAuthenticationTypeInput">
+        <option value="">None</option>
         <template
           v-for="key in keys"
           :key="key">
@@ -142,16 +144,16 @@ const keys = computed(() => Object.keys(props.value ?? {}))
   font-size: var(--theme-mini, var(--default-theme-mini));
 }
 .security-scheme-selector select {
-  opacity: 0;
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
   cursor: pointer;
+  opacity: 0;
+  right: 0;
   -moz-appearance: none;
   -webkit-appearance: none;
   appearance: none;
+  /** Increase clickable area */
+  margin-top: -5px;
+  padding: 10px 0;
 }
 
 .security-scheme-selector svg {

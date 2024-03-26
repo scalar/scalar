@@ -29,7 +29,7 @@ const targets = allTargets()
   })
   .filter((target) => target.clients.length)
 
-export function useSnippetTargets() {
+export function useHttpClients() {
   const availableTargets = computed(() => targets)
 
   return {

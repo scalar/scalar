@@ -1,6 +1,6 @@
-import { type ReferenceLayoutType } from 'src/types'
-import { type DeepReadonly } from 'vue'
+import type { DeepReadonly } from 'vue'
 
+import type { ReferenceLayoutType } from '../../types'
 import type BaseLayout from './BaseLayout.vue'
 import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'

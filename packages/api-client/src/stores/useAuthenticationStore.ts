@@ -1,9 +1,33 @@
+import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { reactive } from 'vue'
 
-import type { AuthenticationState, ServerState } from '../types'
+export type AuthenticationState = {
+  preferredSecurityScheme: string | null
+  securitySchemes?:
+    | OpenAPIV3.ComponentsObject['securitySchemes']
+    | OpenAPIV3_1.ComponentsObject['securitySchemes']
+  http: {
+    basic: {
+      username: string
+      password: string
+    }
+    bearer: {
+      token: string
+    }
+  }
+  apiKey: {
+    token: string
+  }
+  oAuth2: {
+    clientId: string
+    scopes: string[]
+    accessToken: string
+    state: string
+  }
+}
 
 export const createEmptyAuthenticationState = (): AuthenticationState => ({
-  securitySchemeKey: null,
+  preferredSecurityScheme: null,
   http: {
     basic: {
       username: '',
@@ -35,25 +59,7 @@ const setAuthentication = (newState: Partial<AuthenticationState>) => {
   })
 }
 
-/** Server */
-export const createEmptyServerState = (): ServerState => ({
-  selectedServer: null,
-  servers: [],
-  variables: [],
-})
-
-const server = reactive<ServerState>(createEmptyServerState())
-
-const setServer = (newState: Partial<ServerState>) => {
-  Object.assign(server, {
-    ...server,
-    ...newState,
-  })
-}
-
-export const useGlobalStore = () => ({
+export const useAuthenticationStore = () => ({
   authentication,
   setAuthentication,
-  server,
-  setServer,
 })

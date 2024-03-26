@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
+import type { BaseParameter } from '@scalar/oas-utils'
 import { ref } from 'vue'
 
+import { clickGeneratedParameter } from '../../clientBus'
+import type { GeneratedParameter } from '../../types'
+
 defineProps<{
-  items: any[]
+  items?: BaseParameter[]
+  generatedItems?: GeneratedParameter[]
   addLabel?: string
   showMoreFilter?: boolean
 }>()
@@ -51,6 +56,37 @@ function addHandler() {
       </div>
     </div>
     <template
+      v-for="item in generatedItems"
+      :key="item.id">
+      <div
+        class="table-row generated-parameter"
+        @click="clickGeneratedParameter.emit()">
+        <div class="table-row-item">
+          <input
+            v-model="item.name"
+            disabled
+            placeholder="key" />
+        </div>
+        <div class="table-row-item">
+          <input
+            v-model="item.value"
+            disabled
+            placeholder="value"
+            type="password" />
+        </div>
+        <div
+          v-show="showDescription"
+          class="table-row-item">
+          <input
+            disabled
+            value="Read-only" />
+        </div>
+        <div class="table-row-meta">
+          <!-- generated -->
+        </div>
+      </div>
+    </template>
+    <template
       v-for="(item, index) in items"
       :key="item.id">
       <div
@@ -62,19 +98,19 @@ function addHandler() {
         <div class="table-row-item">
           <input
             v-model="item.name"
-            placeholder="key" />
+            placeholder="Key" />
         </div>
         <div class="table-row-item">
           <input
             v-model="item.value"
-            placeholder="value" />
+            placeholder="Value" />
         </div>
         <div
           v-show="showDescription"
           class="table-row-item">
           <input
             v-model="item.description"
-            placeholder="value" />
+            placeholder="Description" />
         </div>
         <div class="table-row-meta">
           <label class="meta-check">
@@ -123,7 +159,7 @@ function addHandler() {
         {{ addLabel }}
       </button>
       <button
-        v-if="showMoreFilter && items.length > 5 && !showMore"
+        v-if="showMoreFilter && items && items.length > 5 && !showMore"
         class="meta-actions-item"
         type="button"
         @click="showMore = true">
@@ -168,6 +204,13 @@ function addHandler() {
 .table-row.required-parameter
   .table-row-item:nth-of-type(2):focus-within:after {
   display: none;
+}
+
+.table-row.generated-parameter * {
+  color: var(--theme-color-3, var(--default-theme-color-3));
+}
+.table-row.generated-parameter input {
+  pointer-events: none;
 }
 .table-row:last-of-type {
   border-bottom: none;
@@ -235,11 +278,13 @@ function addHandler() {
   color: var(--theme-color-1, var(--default-theme-color-1));
   font-size: var(--theme-micro, var(--default-theme-micro));
   background: transparent;
-  font-family: var(--theme-font, var(--default-theme-font));
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
+}
+.table-row-item input::placeholder {
+  font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 .table-row-item input[disabled] {
   background: transparent;
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 .table-row-item input:focus {
   box-shadow: 0 0 0 1px var(--theme-color-1, var(--default-theme-color-1));

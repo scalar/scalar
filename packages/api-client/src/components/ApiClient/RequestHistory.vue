@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRequestStore } from '../../stores/requestStore'
+import { useRequestStore } from '../../stores'
 import RequestHistoryItem from './RequestHistoryItem.vue'
 
 defineEmits<{
