@@ -59,8 +59,7 @@ export default {
       modifiedRequest.headers.set('Origin', requestURL.origin)
 
       // The host header seems to break bun
-      if (typeof process === 'object' && process.versions?.bun)
-        modifiedRequest.headers.delete('host')
+      if (typeof Bun !== 'undefined') modifiedRequest.headers.delete('host')
 
       const originalResponse = await fetch(modifiedRequest)
 
