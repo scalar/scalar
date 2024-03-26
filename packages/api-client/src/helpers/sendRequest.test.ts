@@ -11,13 +11,6 @@ const createEchoServerOnAnyPort = (): number => {
   return Number((instance.address() as AddressInfo).port)
 }
 
-const createApiClientProxyOnAnyPort = (): number => {
-  const { listen } = createApiClientProxy()
-  const instance = listen(0)
-
-  return Number((instance.address() as AddressInfo).port)
-}
-
 describe('sendRequest', () => {
   it('sends requests', async () => {
     const port = createEchoServerOnAnyPort()
