@@ -18,9 +18,6 @@ import {
 
 /**
  * Send a request via the proxy
- * IMPORTANT NOTE!
- * We have recently updated our proxy so you are advised to upgrade to the new one at
- * https://proxy.scalar.com OR you can host it yourself by using @scalar/proxy-server
  */
 export async function sendRequest(
   request: SendRequestConfig,
