@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.20.11
+
+### Patch Changes
+
+- d70bda7: fix: text decoration targetting in themes + unused css in themes
+- Updated dependencies [d70bda7]
+  - @scalar/themes@0.6.7
+  - @scalar/api-client@1.1.9
+  - @scalar/components@0.4.8
+
 ## 1.20.10
 
 ### Patch Changes
