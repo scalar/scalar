@@ -27,17 +27,6 @@ If you would like to host it yourself, just import `proxyServer` and pass in a `
 
 Most the following examples can also be found in the examples folder.
 
-## Bun
-
-We have a built in bun server in this repo, you can just `pnpm dev:bun` inside of this package.
-Otherwise you can add it to your own server with:
-
-```ts
-import proxyServer '@scalar/proxy-server'
-
-const server = Bun.serve(proxyServer);
-```
-
 ## Express
 
 The express proxy just requires you to write the response back out. However, if you start getting
@@ -104,9 +93,9 @@ app.all('/', (c) => proxyFetch(c.req.raw))
 export default app
 ```
 
-## Nextjs
+## NextJS
 
-For Next.js just create this handly handler and export it for every method you need. Once again
+For Next.js just create this handy handler and export it for every method you need. Once again
 removing the encoding header is optional.
 
 ```ts
