@@ -55,6 +55,7 @@
     "pretty-ms": "^8.0.0"
   },
   "devDependencies": {
+    "@scalar/api-client-proxy": "workspace:*",
     "@scalar/echo-server": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@types/content-type": "^1.1.6",

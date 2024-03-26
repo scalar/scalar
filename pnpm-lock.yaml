@@ -655,6 +655,9 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
     devDependencies:
+      '@scalar/api-client-proxy':
+        specifier: workspace:*
+        version: link:../api-client-proxy
       '@scalar/echo-server':
         specifier: workspace:*
         version: link:../echo-server
