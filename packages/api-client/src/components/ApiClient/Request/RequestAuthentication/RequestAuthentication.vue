@@ -2,7 +2,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { ref } from 'vue'
 
-import { emitter } from '../../../../emitter'
+import { clickGeneratedParameter } from '../../../../clientBus'
 import { useAuthenticationStore } from '../../../../stores'
 import { CollapsibleSection } from '../../../CollapsibleSection'
 import SecurityScheme from './SecurityScheme.vue'
@@ -10,7 +10,7 @@ import SecuritySchemeSelector from './SecuritySchemeSelector.vue'
 
 const requestAuthenticationRef = ref<typeof HTMLDivElement | null>(null)
 
-emitter.on('click.generated.parameter', () => {
+clickGeneratedParameter.on(() => {
   if (!requestAuthenticationRef.value) {
     return
   }

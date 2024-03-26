@@ -639,9 +639,6 @@ importers:
       httpsnippet-lite:
         specifier: ^3.0.5
         version: 3.0.5
-      mitt:
-        specifier: ^3.0.1
-        version: 3.0.1
       nanoid:
         specifier: ^5.0.1
         version: 5.0.6
@@ -16667,10 +16664,6 @@ packages:
       minipass: 3.3.6
       yallist: 4.0.0
     dev: true
-
-  /mitt@3.0.1:
-    resolution: {integrity: sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==}
-    dev: false
 
   /mixme@0.5.10:
     resolution: {integrity: sha512-5H76ANWinB1H3twpJ6JY8uvAtpmFvHNArpilJAjXRKXSDDLPIMoZArw5SH0q9z+lLs8IrMw7Q2VWpWimFKFT1Q==}

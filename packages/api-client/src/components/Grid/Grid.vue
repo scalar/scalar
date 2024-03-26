@@ -3,7 +3,7 @@ import { ScalarIcon } from '@scalar/components'
 import type { BaseParameter } from '@scalar/oas-utils'
 import { ref } from 'vue'
 
-import { emitter } from '../../emitter'
+import { clickGeneratedParameter } from '../../clientBus'
 import type { GeneratedParameter } from '../../types'
 
 defineProps<{
@@ -60,7 +60,7 @@ function addHandler() {
       :key="item.id">
       <div
         class="table-row generated-parameter"
-        @click="emitter.emit('click.generated.parameter')">
+        @click="clickGeneratedParameter.emit()">
         <div class="table-row-item">
           <input
             v-model="item.name"
