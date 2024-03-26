@@ -9,11 +9,13 @@
   "engines": {
     "node": ">=18"
   },
+  "type": "module",
   "scripts": {
     "build": "next build",
     "dev": "next dev -p 5058",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/nextjs-api-reference/Dockerfile ."
   },
   "dependencies": {
     "@scalar/api-client-react": "workspace:*",
