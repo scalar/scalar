@@ -1,5 +1,13 @@
 # @scalar/nextjs-api-reference
 
+## 0.2.19
+
+### Patch Changes
+
+- d70bda7: fix: text decoration targetting in themes + unused css in themes
+- Updated dependencies [d70bda7]
+  - @scalar/api-reference@1.20.11
+
 ## 0.2.18
 
 ### Patch Changes
