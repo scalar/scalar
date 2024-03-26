@@ -38,9 +38,6 @@
     "url": "https://github.com/scalar/scalar.git",
     "directory": "packages/proxy-server"
   },
-  "overrides": {
-    "vitest": "1.3.0"
-  },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.1.5",
     "@cloudflare/workers-types": "^4.20240320.1",

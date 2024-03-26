@@ -63,5 +63,9 @@
       "import": "./dist/*.css",
       "require": "./dist/*.css"
     }
+  },
+  "//": "This version is pinned for cloudflare",
+  "overrides": {
+    "vitest": "1.3.0"
   }
 }

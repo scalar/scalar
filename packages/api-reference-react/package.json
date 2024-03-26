@@ -49,7 +49,7 @@
     "decode-named-character-reference": "^1.0.2",
     "path": "^0.12.7",
     "react": "^18.2.0",
-    "vite": "^5.1.1",
+    "vite": "^5.2.6",
     "vite-plugin-dts": "^3.6.3",
     "vite-plugin-lib-inject-css": "^2.0.0",
     "vue": "^3.3.0"

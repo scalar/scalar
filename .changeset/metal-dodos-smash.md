@@ -17,4 +17,4 @@
 "@scalar/cli": patch
 ---
 
-chore: updated vitest
+chore: updated vite and pinned vitest
