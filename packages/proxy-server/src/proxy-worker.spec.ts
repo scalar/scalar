@@ -10,14 +10,18 @@ const IncomingRequest = Request<unknown, IncomingRequestCfProperties>
 describe('Proxy server', () => {
   it('proxies the call', async () => {
     const request = new IncomingRequest(
-      'http://example.com?url=https://petstore3.swagger.io/api/v3/pet/1',
+      'http://example.com?url=https://api.sampleapis.com/futurama/info',
     )
     const response = await proxyServer.fetch(request)
 
     expect(response.status).toBe(200)
-    const data = await response.json()
+    const data: unknown[] = await response.json()
+    const first = data[0]
 
-    expect(Object.keys(data ?? {})).toContain('id')
+    expect(first).toHaveProperty('id')
+    expect(first).toHaveProperty('creators')
+    expect(first).toHaveProperty('synopsis')
+    expect(first).toHaveProperty('yearsAired')
   }, 20000)
 
   it('fails without a url query param', async () => {
