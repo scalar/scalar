@@ -25,7 +25,7 @@ app.openapi(
     },
   }),
   (c) => {
-    return c.jsonT({
+    return c.json({
       message: 'hello',
     })
   },
@@ -58,7 +58,7 @@ app.openapi(
     },
   }),
   (c) => {
-    return c.jsonT({
+    return c.json({
       posts: [
         {
           id: 123,
@@ -105,7 +105,7 @@ app.openapi(
     },
   }),
   (c) => {
-    return c.jsonT({
+    return c.json({
       id: 123,
       title: 'My Blog Post',
       body: 'I want to share something with you …',
@@ -151,7 +151,7 @@ app.openapi(
     },
   }),
   (c) => {
-    return c.jsonT({
+    return c.json({
       status: 'OK',
       message: 'Post deleted',
     })

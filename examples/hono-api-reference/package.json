@@ -14,6 +14,7 @@
   "dependencies": {
     "@hono/node-server": "^1.8.2",
     "@hono/zod-openapi": "^0.8.3",
+    "@scalar/hono-api-reference": "workspace:*",
     "hono": "^4.1.0"
   },
   "devDependencies": {
