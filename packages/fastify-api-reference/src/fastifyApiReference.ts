@@ -168,11 +168,6 @@ const fastifyApiReference: FastifyPluginAsync<
   let { configuration } = options
   const hasSwaggerPlugin = fastify.hasPlugin('@fastify/swagger')
 
-  // Register fastify-html if it isn’t registered yet.
-  if (!fastify.hasPlugin('fastify-html')) {
-    await fastify.register(import('fastify-html'))
-  }
-
   // If no OpenAPI specification is passed and @fastify/swagger isn’t loaded, show a warning.
   if (
     !configuration?.spec?.content &&
@@ -196,9 +191,7 @@ const fastifyApiReference: FastifyPluginAsync<
     // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
     // @ts-ignore
     schema: schemaToHideRoute,
-    async handler(_, reply) {
-      reply.header('Content-Type', 'text/html; charset=utf-8')
-
+    handler(_, reply) {
       // If nothing is passed, try to use @fastify/swagger
       if (
         !configuration?.spec?.content &&
@@ -224,12 +217,12 @@ const fastifyApiReference: FastifyPluginAsync<
         }
       }
 
-      // Render the HTML
-      // @ts-ignore
-      return reply.html`!${htmlDocument({
-        ...options,
-        configuration,
-      })}`
+      return reply.header('Content-Type', 'text/html; charset=utf-8').send(
+        htmlDocument({
+          ...options,
+          configuration,
+        }),
+      )
     },
   })
 
@@ -239,9 +232,10 @@ const fastifyApiReference: FastifyPluginAsync<
     // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
     // @ts-ignore
     schema: schemaToHideRoute,
-    async handler(_, reply) {
-      reply.header('Content-Type', 'application/javascript; charset=utf-8')
-      reply.send(fileContent)
+    handler(_, reply) {
+      return reply
+        .header('Content-Type', 'application/javascript; charset=utf-8')
+        .send(fileContent)
     },
   })
 }

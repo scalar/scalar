@@ -44,7 +44,6 @@
   "devDependencies": {
     "@scalar/api-reference": "workspace:*",
     "@vitest/coverage-v8": "^1.2.2",
-    "fastify-html": "^0.3.0",
     "magic-string": "^0.30.4",
     "rollup-plugin-node-externals": "^7.0.1",
     "terser": "^5.24.0",
@@ -57,7 +56,6 @@
   },
   "peerDependencies": {
     "fastify": "^4.0.0",
-    "fastify-html": "^0.3.0",
     "fastify-plugin": "^4.0.0"
   }
 }

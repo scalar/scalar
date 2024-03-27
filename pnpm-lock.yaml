@@ -1302,9 +1302,6 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^1.2.2
         version: 1.3.1(vitest@1.3.1)
-      fastify-html:
-        specifier: ^0.3.0
-        version: 0.3.3
       magic-string:
         specifier: ^0.30.4
         version: 0.30.7
@@ -12610,15 +12607,9 @@ packages:
       punycode: 1.4.1
     dev: false
 
-  /fastify-html@0.3.3:
-    resolution: {integrity: sha512-gXOrdGOd7AWxMMmZl2esd/MgenEn5i9CApO7d6dkXZV/8kNn3/dm/VfkRUfTzvpVJUAsYM2FR+6bYHKcsC8p7w==}
-    dependencies:
-      fastify-plugin: 4.5.1
-      ghtml: 1.0.1
-    dev: true
-
   /fastify-plugin@4.5.1:
     resolution: {integrity: sha512-stRHYGeuqpEZTL1Ef0Ovr2ltazUT9g844X5z/zEBFLG8RYlpDiOCIG+ATvYEp+/zmc7sN29mcIMp8gvYplYPIQ==}
+    dev: false
 
   /fastify@4.26.0:
     resolution: {integrity: sha512-Fq/7ziWKc6pYLYLIlCRaqJqEVTIZ5tZYfcW/mDK2AQ9v/sqjGFpj0On0/7hU50kbPVjLO4de+larPA1WwPZSfw==}
@@ -13213,11 +13204,6 @@ packages:
     resolution: {integrity: sha512-wuMsz4leaj5hbGgg4IvDU0bqJagpftG5l5cXIAvo8uZrqn0NJqwtfupTN00VnkQJPcIRrxYrm1Ue24btpCha2A==}
     dependencies:
       resolve-pkg-maps: 1.0.0
-    dev: true
-
-  /ghtml@1.0.1:
-    resolution: {integrity: sha512-UazsDitjsbxCNksuUINln98LE+YNau/AaLJP752+Hac1zhgnwmwPILKSVaiuJ/ET0XvyQ/j8eEkUXUM10YHvMA==}
-    engines: {node: '>=18'}
     dev: true
 
   /giget@1.2.1:
