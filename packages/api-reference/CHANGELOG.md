@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.20.12
+
+### Patch Changes
+
+- 999dfc9: chore: moved sidemenu control to css
+- fd5c714: feat: add authentication UI to the API client
+- 5c1b385: fix: improper variables name + remove importants
+- 5f5395f: fix: toast notification doesn't show up
+- Updated dependencies [999dfc9]
+  - @scalar/api-client@1.1.10
+
 ## 1.20.11
 
 ### Patch Changes
@@ -466,7 +477,7 @@
 
 - 92a8b9f: chore: update dependencies
 - 230f9fb: feat: prefill the authentication data
-- 77c62d3: fix: path isn’t prefixed (https://github.com/scalar/scalar/issues/937)
+- 77c62d3: fix: path isn’t prefixed (<https://github.com/scalar/scalar/issues/937>)
 - Updated dependencies [e0faebb]
 - Updated dependencies [92a8b9f]
 - Updated dependencies [abfb086]
