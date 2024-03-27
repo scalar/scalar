@@ -57,6 +57,6 @@
     "rollup-plugin-delete": "^2.0.0",
     "strip-ansi": "^7.1.0",
     "tslib": "^2.6.2",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.2"
   }
 }
