@@ -28,7 +28,7 @@ const { breadcrumb } = useSidebar()
 </template>
 <style scoped>
 .references-mobile-header {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 12px;
   height: 100%;
@@ -57,5 +57,11 @@ const { breadcrumb } = useSidebar()
   height: 24px;
   align-items: center;
   padding-left: 4px;
+}
+
+@media (max-width: 1000px) {
+  .references-mobile-header {
+    display: flex;
+  }
 }
 </style>

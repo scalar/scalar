@@ -54,14 +54,14 @@ defineSlots<{
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
 
 // Track the container height to control the sidebar height
-const elementHeight = ref(0)
+const elementHeight = ref('100dvh')
 const documentEl = ref<HTMLElement | null>(null)
 useResizeObserver(documentEl, (entries) => {
-  elementHeight.value = entries[0].contentRect.height
+  elementHeight.value = entries[0].contentRect.height + 'px'
 })
 
 // Scroll to hash if exists
-const { breadcrumb, setCollapsedSidebarItem } = useSidebar()
+const { breadcrumb, isSidebarOpen, setCollapsedSidebarItem } = useSidebar()
 const { enableHashListener, getSectionId, getTagId, hash } = useNavState()
 
 enableHashListener()
@@ -124,13 +124,14 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
           {
             'references-editable': configuration.isEditable,
             'references-sidebar': configuration.showSidebar,
+            'references-sidebar-mobile-open': isSidebarOpen,
             'references-classic': configuration.layout === 'classic',
           },
           reset,
           scrollbars,
           $attrs.class,
         ]"
-        :style="{ '--full-height': `${elementHeight}px` }"
+        :style="{ '--full-height': elementHeight }"
         @scroll.passive="debouncedScroll">
         <!-- Header -->
         <div class="references-header">
@@ -140,7 +141,7 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
         </div>
         <!-- Navigation (sidebar) wrapper -->
         <aside
-          v-show="configuration.showSidebar"
+          v-if="configuration.showSidebar"
           class="references-navigation t-doc__sidebar">
           <!-- Navigation tree / Table of Contents -->
           <div class="references-navigation-list">
@@ -254,6 +255,7 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
   /* Scroll vertically */
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-gutter: stable;
 
   /*
   Calculated by a resize observer and set in the style attribute
@@ -372,7 +374,7 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
       'rendered'
       'footer';
   }
-  .references-sidebar {
+  .references-sidebar.references-sidebar-mobile-open {
     overflow-y: hidden;
   }
   .references-editable {
@@ -392,10 +394,15 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
   }
 
   .references-navigation {
+    display: none;
     position: sticky;
     top: var(--refs-header-height);
     height: 0px;
     z-index: 10;
+  }
+
+  .references-sidebar-mobile-open .references-navigation {
+    display: block;
   }
 
   .references-navigation-list {

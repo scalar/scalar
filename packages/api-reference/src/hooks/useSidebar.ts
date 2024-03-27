@@ -226,6 +226,10 @@ const items = computed(() => {
   }
 })
 
+// Controls whether or not the sidebar is open on MOBILE only
+// Desktop uses the standard showSidebar prop which supercedes this one
+const isSidebarOpen = ref(false)
+
 const breadcrumb = computed(() => items.value?.titles?.[hash.value] ?? '')
 
 export function useSidebar(options?: { parsedSpec: Spec }) {
@@ -264,6 +268,7 @@ export function useSidebar(options?: { parsedSpec: Spec }) {
   return {
     breadcrumb,
     items,
+    isSidebarOpen,
     collapsedSidebarItems,
     toggleCollapsedSidebarItem,
     setCollapsedSidebarItem,
