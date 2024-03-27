@@ -43,19 +43,21 @@
   },
   "devDependencies": {
     "@scalar/api-reference": "workspace:*",
-    "@vitest/coverage-v8": "^1.2.2",
-    "magic-string": "^0.30.4",
-    "rollup-plugin-node-externals": "^7.0.1",
-    "terser": "^5.24.0",
+    "@vitest/coverage-v8": "^1.4.0",
+    "magic-string": "^0.30.8",
+    "rollup-plugin-node-externals": "^7.1.1",
+    "terser": "^5.30.0",
     "tsc-alias": "^1.8.8",
-    "typescript": "^5.4.2",
-    "vite": "^5.1.1",
-    "vite-plugin-static-copy": "^1.0.1",
-    "vitest": "^1.2.2",
-    "vue": "^3.3.0"
+    "typescript": "^5.4.3",
+    "vite": "^5.2.6",
+    "vite-plugin-static-copy": "^1.0.2",
+    "vitest": "^1.4.0",
+    "vue": "^3.4.21"
   },
   "peerDependencies": {
-    "fastify": "^4.0.0",
-    "fastify-plugin": "^4.0.0"
+    "fastify": "^4.26.2"
+  },
+  "dependencies": {
+    "fastify-plugin": "^4.5.1"
   }
 }
