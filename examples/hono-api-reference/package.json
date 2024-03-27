@@ -11,13 +11,17 @@
   "scripts": {
     "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/hono-api-reference --watch ./"
   },
+  "type": "module",
   "dependencies": {
     "@hono/node-server": "^1.8.2",
     "@hono/zod-openapi": "^0.8.3",
+    "@scalar/hono-api-reference": "workspace:*",
+    "@scalar/proxy-server": "workspace:*",
     "hono": "^4.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
+    "vite": "^5.1.1",
     "vite-node": "^1.2.2"
   }
 }

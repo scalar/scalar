@@ -1,5 +1,6 @@
 import '@fastify/swagger'
 import fastifyApiReference from '@scalar/fastify-api-reference'
+import { proxyFetch } from '@scalar/proxy-server'
 import Fastify from 'fastify'
 
 // Init Fastify
@@ -59,6 +60,14 @@ fastify.put(
   },
   () => {},
 )
+
+// Add the proxy
+fastify.all('/proxy', (request) => {
+  // Disable compression header
+  request.headers = { 'accept-encoding': '' }
+
+  return proxyFetch(request)
+})
 
 // Add the plugin
 await fastify.register(fastifyApiReference, {

@@ -21,16 +21,23 @@ const useVue = (await readline.question(`Include Vue (y/n): `))
   .trim()
   .toLocaleLowerCase()
   .startsWith('y')
+const isExample = (await readline.question('Is this an example package?: '))
+  .trim()
+  .toLocaleLowerCase()
+  .startsWith('y')
+
+// Select which directory the package will go in
+const directory = isExample ? 'examples' : 'packages'
 
 // Create the new package file with appropriate commands
 const newPackageFile: Record<string, any> = {
   ...pkg,
-  name: `@scalar/${name}`,
+  name: `${isExample ? '@scalar-examples' : '@scalar'}/${name}`,
   description,
   keywords: keywords.split(',').map((k) => k.trim()),
   repository: {
     ...pkg.repository,
-    directory: `packages/${name}`,
+    directory: `${directory}/${name}`,
   },
 }
 
@@ -50,7 +57,7 @@ if (!useVue) {
 }
 newPackageFile.peerDependencies = newPackageFile.peerDependencies || {}
 
-const dirs = (await fs.readdir('./packages', { withFileTypes: true }))
+const dirs = (await fs.readdir(`./${directory}`, { withFileTypes: true }))
   .filter((e) => e.isDirectory())
   .map((e) => e.name)
 
@@ -58,7 +65,7 @@ if (dirs.includes(name)) {
   console.error('This package name conflicts with an existing package.')
 } else {
   const prefix = './scripts/bootstrap-package'
-  const newDirName = `./packages/${name}`
+  const newDirName = `./${directory}/${name}`
   await fs.mkdir(newDirName)
   await fs.mkdir(`${newDirName}/src`)
   await fs.copyFile(
@@ -76,9 +83,11 @@ if (dirs.includes(name)) {
     JSON.stringify(newPackageFile, null, 2),
   )
 
-  await fs.writeFile(`${newDirName}/index.ts`, '')
+  await fs.writeFile(`${newDirName}/src/index.ts`, '')
 
-  console.log(`\x1b[33m Package created! Checkout ./packages/${name} \x1b[0m`)
+  console.log(
+    `\x1b[33m Package created! Checkout ./${directory}/${name} \x1b[0m`,
+  )
 }
 
 readline.close()
