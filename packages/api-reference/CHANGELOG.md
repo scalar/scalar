@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.20.12
+
+### Patch Changes
+
+- 999dfc9: chore: moved sidemenu control to css
+- 999dfc9: feat: add authentication UI to the API client
+- 999dfc9: fix: improper variables name + remove importants
+- 999dfc9: fix: toast notification doesn't show up
+- Updated dependencies [999dfc9]
+  - @scalar/api-client@1.1.10
+
 ## 1.20.11
 
 ### Patch Changes
