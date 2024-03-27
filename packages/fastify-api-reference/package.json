@@ -1,7 +1,10 @@
 {
   "name": "@scalar/fastify-api-reference",
-  "version": "1.20.10",
   "description": "a fastify plugin to render an API reference from an OpenAPI file",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "keywords": [
     "api",
     "documentation",
@@ -9,27 +12,10 @@
     "openapi",
     "swagger"
   ],
-  "homepage": "https://github.com/scalar/scalar",
-  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/fastify-api-reference"
+  "version": "1.20.10",
+  "engines": {
+    "node": ">=18"
   },
-  "license": "MIT",
-  "author": "Scalar (https://github.com/scalar)",
-  "type": "module",
-  "exports": {
-    "import": "./dist/index.js",
-    "require": "./dist/index.cjs"
-  },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "lint:check": "eslint .",
@@ -38,6 +24,23 @@
     "types:build": "tsc -p tsconfig.build.json",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/fastify-api-reference"
+  },
+  "module": "./dist/index.js",
   "dependencies": {
     "fastify-plugin": "^4.5.1"
   },
@@ -56,8 +59,5 @@
   },
   "peerDependencies": {
     "fastify": "^4.26.2"
-  },
-  "engines": {
-    "node": ">=18"
   }
 }

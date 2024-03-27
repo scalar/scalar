@@ -61,7 +61,7 @@
     "axios": "^1.6.7",
     "httpsnippet-lite": "^3.0.5",
     "tsc-alias": "^1.8.8",
-    "vite": "^5.1.1",
-    "vitest": "^1.2.2"
+    "vite": "^5.2.6",
+    "vitest": "^1.4.0"
   }
 }
