@@ -35,6 +35,7 @@
     "build:standalone": "pnpm --filter api-reference build:standalone",
     "bump": "CI=true pnpm run test && pnpm changeset version",
     "clean": "pnpm clean:nodeModules; pnpm clean:dist; pnpm clean:turbo",
+    "clean:build": "pnpm clean ; pnpm i && pnpm build:packages",
     "clean:nodeModules": "find . -name node_modules -type d -exec rm -rf {} \\;",
     "clean:dist": "find . -name dist -type d -exec rm -rf {} \\;",
     "clean:turbo": "find . -name .turbo -type d -exec rm -rf {} \\;",
