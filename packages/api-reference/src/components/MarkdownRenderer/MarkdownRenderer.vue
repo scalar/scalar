@@ -217,7 +217,8 @@ watch(
   overflow-x: auto;
   position: relative;
   border-collapse: collapse;
-  width: 100%;
+  width: max-content;
+  max-width: 100%;
   margin: 1em 0;
   box-shadow: 0 0 0 1px
     var(--theme-border-color, var(--default-theme-border-color));
