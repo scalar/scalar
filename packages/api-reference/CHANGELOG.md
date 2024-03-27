@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 2.0.0
+
+### Major Changes
+
+- 5f5395f: fix: toast notification doesn't show up
+
+### Patch Changes
+
+- fe3a85f: chore: moved sidemenu control to css
+- fd5c714: feat: add authentication UI to the API client
+- 5c1b385: fix: improper variables name + remove importants
+- Updated dependencies [fd5c714]
+  - @scalar/api-client@1.1.10
+
 ## 1.20.11
 
 ### Patch Changes
