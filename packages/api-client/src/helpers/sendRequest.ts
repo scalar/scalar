@@ -24,6 +24,7 @@ export async function sendRequest(
   proxyUrl?: string,
 ): Promise<RequestResult | null> {
   const method = normalizeRequestMethod(request.type)
+  const isOldProxy = proxyUrl === 'https://api.scalar.com/request-proxy'
 
   const headers: Record<string, string | number> = mapFromArray(
     (request.headers ?? []).filter((header) => header.enabled),
@@ -103,7 +104,8 @@ export async function sendRequest(
     data: request.body,
   }
 
-  const axiosRequestConfig: AxiosRequestConfig = proxyUrl
+  // Currently supporting the old + new proxy
+  const axiosRequestConfig: AxiosRequestConfig = isOldProxy
     ? {
         method: 'POST',
         url: proxyUrl,
@@ -111,7 +113,9 @@ export async function sendRequest(
       }
     : {
         method: requestConfig.method,
-        url: requestConfig.url,
+        url: proxyUrl
+          ? `${proxyUrl}?url=${requestConfig.url}`
+          : requestConfig.url,
         headers: requestConfig.headers,
         data: requestConfig.data,
       }
@@ -131,7 +135,7 @@ export async function sendRequest(
   const response: ClientResponse = await axios(axiosRequestConfig)
     .then((result) => {
       // With proxy
-      if (proxyUrl) {
+      if (isOldProxy) {
         return {
           ...result.data,
           error: false,

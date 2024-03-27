@@ -7,7 +7,7 @@ pnpm concurrently \
             --workspace-concurrency=100 \
             --filter @scalar-examples/web \
             --filter @scalar-examples/react \
-            --filter @scalar-examples/api-client-proxy \
+            --filter @scalar/proxy-server \
             --filter @scalar-examples/cdn-api-reference \
             --filter @scalar-examples/echo-server \
             --filter @scalar-examples/fastify-api-reference \
@@ -18,11 +18,12 @@ pnpm concurrently \
             --filter @scalar-examples/nestjs-api-reference-express \
             --filter @scalar-examples/nestjs-api-reference-fastify \
             dev \
-    " \
-    " \
-        pnpm \
-            --workspace-concurrency=100 \
-            --filter @scalar/api-reference \
-            --filter @scalar/components \
-            storybook --no-open \
-    "
+    " #\
+    # Commented this out as storybook is currently broken
+    # " \
+    #     pnpm \
+    #         --workspace-concurrency=100 \
+    #         --filter @scalar/api-reference \
+    #         --filter @scalar/components \
+    #         storybook --no-open \
+    # "

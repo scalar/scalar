@@ -17,12 +17,13 @@
   "dependencies": {
     "@fastify/swagger": "^8.10.1",
     "@scalar/fastify-api-reference": "workspace:*",
+    "@scalar/proxy-server": "workspace:*",
     "fastify": "^4.23.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
     "typescript": "^5.4.2",
-    "vite": "^5.1.1",
+    "vite": "^5.2.6",
     "vite-node": "^1.2.2"
   }
 }

@@ -41,7 +41,7 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
     "commander": "^12.0.0",
-    "hono": "^4.1.0",
+    "hono": "^4.1.3",
     "kleur": "^4.1.5",
     "openapi-types": "^12.1.3",
     "prettyjson": "^1.2.5",
