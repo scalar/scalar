@@ -158,7 +158,7 @@ const handleClick = async () => {
 }
 .sidebar-indent-nested .sidebar-indent-nested .sidebar-heading:hover:before {
   background: var(
-    --sidebar-sidebar-indent-border-hover,
+    --sidebar-indent-border-hover,
     var(--default-sidebar-indent-border-hover)
   );
 }
