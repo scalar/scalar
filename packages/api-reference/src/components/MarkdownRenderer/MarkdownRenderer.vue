@@ -160,21 +160,18 @@ watch(
   display: list-item;
 }
 .markdown :deep(a) {
-  color: var(
-    --theme-color-accent,
-    var(--default-theme-color-accent)
-  ) !important;
+  color: var(--theme-color-accent, var(--default-theme-color-accent));
   text-decoration: var(
     --theme-text-decoration,
     var(--default-theme-text-decoration)
-  ) !important;
+  );
   cursor: pointer;
 }
 .markdown :deep(a:hover) {
   text-decoration: var(
     --theme-text-decoration-hover,
     var(--default-theme-text-decoration-hover)
-  ) !important;
+  );
 }
 .markdown :deep(em) {
   font-style: italic;
