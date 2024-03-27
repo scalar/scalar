@@ -1,11 +1,5 @@
 # @scalar/api-client
 
-## 1.1.10
-
-### Patch Changes
-
-- fd5c714: feat: add authentication UI to the API client
-
 ## 1.1.9
 
 ### Patch Changes
