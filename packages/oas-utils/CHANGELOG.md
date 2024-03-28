@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.1.2
+
+### Patch Changes
+
+- 8b0691b: feat: added future support for SSR server state hydration
+
 ## 0.1.1
 
 ### Patch Changes
