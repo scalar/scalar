@@ -20,7 +20,7 @@
   "type": "module",
   "dependencies": {
     "@fastify/static": "^7.0.1",
-    "fastify": "^4.23.2"
+    "fastify": "^4.26.2"
   },
   "devDependencies": {
     "@types/node": "^20.8.4",

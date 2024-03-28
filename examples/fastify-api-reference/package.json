@@ -15,9 +15,9 @@
   },
   "type": "module",
   "dependencies": {
-    "@fastify/swagger": "^8.10.1",
+    "@fastify/swagger": "^8.14.0",
     "@scalar/fastify-api-reference": "workspace:*",
-    "fastify": "^4.23.2"
+    "fastify": "^4.26.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
