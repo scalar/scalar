@@ -29,6 +29,7 @@ const configuration = computed<ReferenceConfiguration>(() => ({
   theme: 'default',
   showSidebar: true,
   isEditable: false,
+  showModels: true,
   ...props.configuration,
 }))
 

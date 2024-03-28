@@ -30,6 +30,12 @@ export type ReferenceConfiguration = {
   isEditable?: boolean
   /** Whether to show the sidebar */
   showSidebar?: boolean
+  /**
+   * Whether to show models in the sidebar, search, and content.
+   *
+   * @default true
+   */
+  showModels?: boolean
   /** Whether dark mode is on or off initially (light mode) */
   darkMode?: boolean
   /** Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
