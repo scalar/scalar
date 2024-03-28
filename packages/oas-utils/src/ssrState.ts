@@ -11,6 +11,7 @@ export const defaultStateFactory = (): SSRState['scalarState'] => ({})
 /**
  * This allows us to access the server state in the front-end
  */
-export const ssrState: SSRState['scalarState'] = window?.__SCALAR__
-  ? window.__SCALAR__ ?? defaultStateFactory()
-  : defaultStateFactory()
+export const ssrState: SSRState['scalarState'] =
+  typeof window !== 'undefined'
+    ? window.__SCALAR__ ?? defaultStateFactory()
+    : defaultStateFactory()
