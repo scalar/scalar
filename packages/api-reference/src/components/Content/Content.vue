@@ -42,7 +42,18 @@ const localServers = computed(() => {
         }`,
       },
     ]
-  } else if (fallBackServer.value) {
+  } else if (
+    props.parsedSpec.host
+  ) {
+    return [
+      {
+        url: `http://${props.parsedSpec.host}${
+          props.parsedSpec?.basePath ?? ''
+        }`,
+      },
+    ]
+  }
+   else if (fallBackServer.value) {
     return [fallBackServer.value]
   } else {
     return [{ url: '' }]
