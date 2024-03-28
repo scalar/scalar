@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ScalarIcon } from '@scalar/components'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onServerPrefetch } from 'vue'
 
 import { useAuthenticationStore } from '../../../../stores'
 
@@ -50,6 +50,10 @@ const setSecuritySchemeKey = (key: string) => {
 
   emits('input', key)
 }
+
+onServerPrefetch(() =>
+  setSecuritySchemeKey(Object.keys(props.value ?? {})[0] ?? null),
+)
 
 const isNone = (item: any) => !item?.type
 

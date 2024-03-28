@@ -1,14 +1,9 @@
+import { type Heading } from '@scalar/oas-utils'
 import remarkHeadings from '@vcarl/remark-headings'
 import GithubSlugger from 'github-slugger'
 import remarkParse from 'remark-parse'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
-
-export type Heading = {
-  depth: number
-  value: string
-  slug?: string
-}
 
 export type Headings = Heading[]
 

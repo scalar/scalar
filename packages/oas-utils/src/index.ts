@@ -14,4 +14,5 @@ export {
   yaml,
 } from './parse'
 export { prettyPrintJson } from './prettyPrintJson'
+export { defaultStateFactory, ssrState } from './ssrState'
 export * from './types'
