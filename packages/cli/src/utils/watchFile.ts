@@ -1,4 +1,4 @@
-import watcher from '@parcel/watcher'
+import { watch } from 'fs'
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -32,11 +32,9 @@ export async function watchFile(
   const directory = path.dirname(absoluteFilePath)
 
   // Start the watcher
-  await watcher.subscribe(directory, (err, events) => {
-    // Match the file path
-    if (events.some((event) => event.path === absoluteFilePath)) {
-      callback()
-    }
+  watch(directory, (event, filename) => {
+    console.log(`Detected ${event} in ${filename}`)
+    callback()
   })
 
   // Call the callback immediately
