@@ -1,5 +1,12 @@
 # @scalar/api-reference-react
 
+## 0.1.21
+
+### Patch Changes
+
+- Updated dependencies [8b0691b]
+  - @scalar/api-reference@1.20.13
+
 ## 0.1.20
 
 ### Patch Changes
