@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+  <head>
+    <title>API Reference</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+    <style>
+      .layout {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        height: 100dvh;
+      }
+      .my-header {
+        font-family: var(--default-theme-font);
+        font-style: italic;
+        color: var(--default-theme-color-1);
+        background: var(--default-theme-background-1);
+        border-bottom: 1px solid var(--default-theme-border-color);
+        padding: 12px 16px;
+      }
+      /* Target the references div */
+      .my-header + div {
+        display: flex;
+        min-height: 0;
+      }
+    </style>
+  </head>
+  <body class="layout">
+    <header class="my-header">Scalar API References</header>
+    <!-- References will be injected here  -->
+    <script id="api-reference"></script>
+    <!-- References Configuration -->
+    <script>
+      var configuration = {
+        theme: 'purple',
+        spec: { url: 'https://petstore3.swagger.io/api/v3/openapi.json' },
+        proxy: 'https://api.scalar.com/request-proxy',
+      }
+      var apiReference = document.getElementById('api-reference')
+      apiReference.dataset.configuration = JSON.stringify(configuration)
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+  </body>
+</html>
