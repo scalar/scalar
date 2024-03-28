@@ -9,8 +9,12 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/express-api-reference --watch ./"
+    "build": "tsc --p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/express-api-reference --watch ./",
+    "docker:build": "sh deploy.sh --method build",
+    "docker:run": "sh deploy.sh --method run"
   },
+  "type": "module",
   "dependencies": {
     "@scalar/express-api-reference": "workspace:*",
     "express": "^4.18.2",
@@ -20,6 +24,8 @@
     "@types/express": "^4.17.21",
     "@types/swagger-jsdoc": "^6.0.3",
     "nodemon": "^3.0.1",
+    "tsc-alias": "^1.8.8",
+    "vite": "^5.1.1",
     "vite-node": "^1.2.2"
   }
 }
