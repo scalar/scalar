@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.20.13
+
+### Patch Changes
+
+- 8b0691b: feat: added future support for SSR server state hydration
+- Updated dependencies [8b0691b]
+  - @scalar/api-client@1.1.11
+  - @scalar/oas-utils@0.1.2
+
 ## 1.20.12
 
 ### Patch Changes
