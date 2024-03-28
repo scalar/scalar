@@ -1,9 +1,9 @@
 import {
-  type AuthenticationState,
   type ClientRequestConfig,
   getRequestFromAuthentication,
 } from '@scalar/api-client'
 import {
+  type AuthenticationState,
   type TransformedOperation,
   getHarRequest,
   getParametersFromOperation,

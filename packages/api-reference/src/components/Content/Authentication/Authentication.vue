@@ -4,10 +4,11 @@ import {
   SecuritySchemeSelector,
   useAuthenticationStore,
 } from '@scalar/api-client'
+import { type SSRState } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
-import { computed, watch } from 'vue'
+import { computed, onServerPrefetch, useSSRContext, watch } from 'vue'
 
-import { hasSecuritySchemes } from '../../../helpers'
+import { hasSecuritySchemes, sleep } from '../../../helpers'
 import { type Spec } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
 
@@ -38,6 +39,13 @@ watch(
   },
   { deep: true, immediate: true },
 )
+
+// SSR hack - waits for the computed to complete and store in state
+onServerPrefetch(async () => {
+  const ctx = useSSRContext<SSRState>()
+  await sleep(1)
+  ctx!.scalarState['useGlobalStore-authentication'] = authentication
+})
 </script>
 
 <template>

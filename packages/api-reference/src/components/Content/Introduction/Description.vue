@@ -1,9 +1,17 @@
 <script setup lang="ts">
+import {
+  type DescriptionSectionSSRKey,
+  type SSRState,
+  ssrState,
+} from '@scalar/oas-utils'
 import { computedAsync } from '@vueuse/core'
+import { onServerPrefetch, useSSRContext } from 'vue'
 
 import {
+  createHash,
   getHeadingsFromMarkdown,
   getLowestHeadingLevel,
+  sleep,
   splitMarkdownInSections,
 } from '../../../helpers'
 import { useNavState } from '../../../hooks'
@@ -13,6 +21,9 @@ import { MarkdownRenderer } from '../../MarkdownRenderer'
 const props = defineProps<{
   value?: string
 }>()
+
+const ssrHash = createHash(props.value)
+const ssrStateKey: DescriptionSectionSSRKey = `components-Content-Introduction-Description-sections${ssrHash}`
 
 const sections = computedAsync(
   async () => {
@@ -37,7 +48,7 @@ const sections = computedAsync(
       ),
     )
   },
-  [], // initial state
+  ssrState[ssrStateKey] ?? [], // initial state
 )
 
 const { getHeadingId, hash, isIntersectionEnabled } = useNavState()
@@ -50,6 +61,13 @@ function handleScroll(headingId: string) {
   window.history.replaceState({}, '', `#${headingId}`)
   hash.value = headingId ?? ''
 }
+
+// SSR hack - waits for the computedAsync to complete then we save the state
+onServerPrefetch(async () => {
+  const ctx = useSSRContext<SSRState>()
+  await sleep(1)
+  ctx!.scalarState[ssrStateKey] = sections.value
+})
 </script>
 <template>
   <div

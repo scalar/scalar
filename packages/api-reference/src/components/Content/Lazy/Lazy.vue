@@ -25,7 +25,9 @@ const props = withDefaults(
 )
 
 const onIdle = (cb = () => {}) => {
-  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+  if (typeof window === 'undefined') {
+    // Do nothing and load on the client only
+  } else if ('requestIdleCallback' in window) {
     setTimeout(() => window.requestIdleCallback(cb), props.lazyTimeout)
   } else {
     setTimeout(() => nextTick(cb), props.lazyTimeout ?? 300)

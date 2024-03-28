@@ -1,8 +1,8 @@
-import { type TransformedOperation } from '@scalar/oas-utils'
+import type { Heading, TransformedOperation } from '@scalar/oas-utils'
 import { slug } from 'github-slugger'
 import { onMounted, ref } from 'vue'
 
-import { type Heading, scrollToId, sleep } from '../helpers'
+import { scrollToId, sleep } from '../helpers'
 import type { Tag } from '../types'
 
 // Keeps track of the URL hash without the #

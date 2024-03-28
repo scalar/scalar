@@ -1,4 +1,4 @@
-import { type OpenAPIV3 } from '@scalar/openapi-parser'
+import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { HarRequest } from 'httpsnippet-lite'
 
 export type AnyObject = Record<string, any>
@@ -128,4 +128,51 @@ export type Schema = {
 
 export type TransformedOperation = Operation & {
   pathParameters?: Parameters[]
+}
+
+export type CollapsedSidebarItems = Record<string, boolean>
+
+export type AuthenticationState = {
+  preferredSecurityScheme: string | null
+  securitySchemes?:
+    | OpenAPIV3.ComponentsObject['securitySchemes']
+    | OpenAPIV3_1.ComponentsObject['securitySchemes']
+  http: {
+    basic: {
+      username: string
+      password: string
+    }
+    bearer: {
+      token: string
+    }
+  }
+  apiKey: {
+    token: string
+  }
+  oAuth2: {
+    clientId: string
+    scopes: string[]
+    accessToken: string
+    state: string
+  }
+}
+
+export type Heading = {
+  depth: number
+  value: string
+  slug?: string
+}
+
+export type DescriptionSectionSSRKey =
+  `components-Content-Introduction-Description-sections${number}`
+
+export type SSRState = {
+  scalarState: {
+    'useGlobalStore-authentication'?: AuthenticationState
+    'useSidebarContent-collapsedSidebarItems'?: CollapsedSidebarItems
+    [key: DescriptionSectionSSRKey]: {
+      heading: Heading
+      content: string
+    }[]
+  }
 }

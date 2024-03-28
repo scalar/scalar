@@ -1,5 +1,5 @@
 import { useApiClientStore } from '@scalar/api-client'
-import { type TransformedOperation } from '@scalar/oas-utils'
+import { type TransformedOperation, ssrState } from '@scalar/oas-utils'
 import { type OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, reactive, ref, watch } from 'vue'
 
@@ -40,7 +40,9 @@ const parsedSpec = ref<Spec | undefined>(undefined)
 // Track which sidebar items are collapsed
 type CollapsedSidebarItems = Record<string, boolean>
 
-const collapsedSidebarItems = reactive<CollapsedSidebarItems>({})
+const collapsedSidebarItems = reactive<CollapsedSidebarItems>(
+  ssrState['useSidebarContent-collapsedSidebarItems'] ?? {},
+)
 
 function toggleCollapsedSidebarItem(key: string) {
   collapsedSidebarItems[key] = !collapsedSidebarItems[key]
