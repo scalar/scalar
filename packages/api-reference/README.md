@@ -78,7 +78,17 @@ Making requests to other domains is restricted in the browser and requires [CORS
 Whether the sidebar should be shown.
 
 ```vue
-<ApiReference :configuration="{ showSidebar: true} />
+<ApiReference :configuration="{ showSidebar: true } />
+```
+
+#### showModels?: boolean
+
+Whether models (components.schemas) should be shown in the sidebar, search and content.
+
+`@default true`
+
+```vue
+<ApiReference :configuration="{ showModels: false } />
 ```
 
 ### customCss?: string

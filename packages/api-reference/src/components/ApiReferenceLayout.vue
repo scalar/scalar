@@ -6,7 +6,7 @@ import {
   ThemeStyles,
 } from '@scalar/themes'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
-import { computed, onMounted, provide, ref } from 'vue'
+import { computed, onMounted, provide, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 
 import {
@@ -16,6 +16,7 @@ import {
 } from '../helpers'
 import { useNavState, useSidebar } from '../hooks'
 import { useToasts } from '../hooks/useToasts'
+import { useConfigurationStore } from '../stores'
 import type {
   ReferenceLayoutProps,
   ReferenceLayoutSlot,
@@ -36,6 +37,17 @@ defineEmits<{
   (e: 'linkSwaggerFile'): void
   (e: 'toggleDarkMode'): void
 }>()
+
+// Put the configuration in a globally accessible store
+const { setConfiguration } = useConfigurationStore()
+
+watch(
+  () => props.configuration,
+  () => {
+    setConfiguration(props.configuration)
+  },
+  { immediate: true, deep: true },
+)
 
 defineOptions({
   inheritAttrs: false,
