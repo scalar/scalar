@@ -63,6 +63,19 @@
   --default-theme-button-1-hover: rgba(255, 255, 255, 0.9);
   --default-theme-button-1-color: black;
 
+  --default-theme-button-2: var(
+    --theme-background-1,
+    var(--default-theme-background-1)
+  );
+  --default-theme-button-2-hover: var(
+    --theme-background-2,
+    var(--default-theme-background-2)
+  );
+  --default-theme-button-2-color: var(
+    --theme-color-1,
+    var(--default-theme-color-1)
+  );
+
   --default-theme-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
   --default-theme-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px,
     rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px rgba(255, 255, 255, 0.1);
@@ -82,6 +95,19 @@
   --default-theme-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
   --default-theme-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px,
     rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 1px;
+
+  --default-theme-button-2: var(
+    --theme-background-1,
+    var(--default-theme-background-1)
+  );
+  --default-theme-button-2-hover: var(
+    --theme-background-2,
+    var(--default-theme-background-2)
+  );
+  --default-theme-button-2-color: var(
+    --theme-color-1,
+    var(--default-theme-color-1)
+  );
 
   --default-sidebar-indent-border: transparent;
   --default-sidebar-indent-border-hover: transparent;

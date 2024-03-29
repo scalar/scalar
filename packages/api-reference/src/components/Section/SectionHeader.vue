@@ -42,7 +42,16 @@ withDefaults(
   margin-top: 0;
   margin-bottom: 12px;
 }
-
+.section-header--3 {
+  font-size: var(
+    --font-size,
+    var(
+      --default-font-size,
+      var(--theme-heading-3, var(--default-theme-heading-3))
+    )
+  );
+  margin-bottom: 0;
+}
 .section-header.tight {
   margin-bottom: 6px;
 }

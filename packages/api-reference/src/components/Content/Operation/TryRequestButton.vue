@@ -28,7 +28,7 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
   appearance: none;
   outline: none;
   border: none;
-  padding: 4px 6px;
+  padding: 6px 9px;
   white-space: nowrap;
   border-radius: var(--theme-radius, var(--default-theme-radius));
   display: flex;
@@ -38,23 +38,23 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
   font-size: var(--theme-mini, var(--default-theme-mini));
   color: var(--theme-background-2, var(--default-background-2));
   font-family: var(--theme-font, var(--default-theme-font));
-  background: var(--theme-button-1, var(--default-theme-button-1));
+  background: var(--theme-button-2, var(--default-theme-button-2));
   position: relative;
   cursor: pointer;
   box-sizing: border-box;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
 }
 .show-api-client-button span,
 .show-api-client-button svg {
-  color: var(--theme-button-1-color, var(--default-theme-button-1-color));
+  color: var(--default-theme-button-2-color) !important;
   z-index: 1;
 }
 .show-api-client-button:hover {
-  background: var(--theme-button-1-hover, var(--default-theme-button-1-hover));
+  background: var(--theme-button-2-hover, var(--default-theme-button-2-hover));
 }
 .show-api-client-button svg {
   height: 12px;
   width: auto;
-  margin-right: 9px;
+  margin-right: 6px;
 }
 </style>

@@ -44,18 +44,24 @@ const customRequestExamples = computed(() => {
 <template>
   <Section
     :id="id"
+    class="section-example"
     :label="operation.name">
     <SectionContent>
+      <Badge v-if="operation.information?.deprecated"> Deprecated </Badge>
+      <div
+        class="section-header-sticky"
+        :class="operation.information?.deprecated ? 'deprecated' : ''">
+        <SectionHeader
+          class="section-header--3"
+          :level="3">
+          <Anchor :id="id ?? ''">
+            {{ operation.name }}
+          </Anchor>
+        </SectionHeader>
+        <TryRequestButton :operation="operation" />
+      </div>
       <SectionColumns>
         <SectionColumn>
-          <Badge v-if="operation.information?.deprecated"> Deprecated </Badge>
-          <div :class="operation.information?.deprecated ? 'deprecated' : ''">
-            <SectionHeader :level="3">
-              <Anchor :id="id ?? ''">
-                {{ operation.name }}
-              </Anchor>
-            </SectionHeader>
-          </div>
           <EndpointDetails :operation="operation" />
         </SectionColumn>
         <SectionColumn>
@@ -70,9 +76,6 @@ const customRequestExamples = computed(() => {
                   :deprecated="operation.information?.deprecated"
                   :path="operation.path" />
               </template>
-              <template #footer>
-                <TryRequestButton :operation="operation" />
-              </template>
             </CustomRequestExamples>
             <ExampleRequest
               v-else
@@ -82,9 +85,6 @@ const customRequestExamples = computed(() => {
                   class="example-path"
                   :deprecated="operation.information?.deprecated"
                   :path="operation.path" />
-              </template>
-              <template #footer>
-                <TryRequestButton :operation="operation" />
               </template>
             </ExampleRequest>
             <PathResponses
@@ -100,7 +100,7 @@ const customRequestExamples = computed(() => {
 <style scoped>
 .examples {
   position: sticky;
-  top: calc(var(--refs-header-height) + 24px);
+  top: calc(var(--refs-header-height) + 64px);
 }
 .deprecated * {
   text-decoration: line-through;
@@ -111,5 +111,47 @@ const customRequestExamples = computed(() => {
 }
 .example-path :deep(em) {
   color: var(--theme-color-1, var(--default-theme-color-1));
+}
+.section-header-sticky {
+  position: sticky;
+  top: calc(var(--refs-header-height) - 0.01px);
+  background: var(--theme-background-1, var(--default-theme-background-1));
+  z-index: 10;
+  padding: 12px 0;
+  display: flex;
+  justify-content: space-between;
+}
+.section-header-sticky:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: calc(100vw - var(--theme-sidebar-width, 280px));
+  right: -60px;
+  height: calc(100% + var(--refs-header-height) + 0.01px);
+  animation: stickyscrollanimation linear;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-timeline: view(block);
+  animation-range: entry-crossing 100% exit-crossing 0%;
+  animation-timing-function: steps(1, end);
+  border-bottom: 1px solid transparent;
+  pointer-events: none;
+}
+@keyframes stickyscrollanimation {
+  exit 0% {
+    border-bottom-color: var(
+      --theme-border-color,
+      var(--default-theme-border-color)
+    );
+  }
+  exit 100% {
+    border-bottom-color: var(
+      --theme-border-color,
+      var(--default-theme-border-color)
+    );
+  }
+}
+.section-example :deep(.section-column:nth-of-type(2)) {
+  padding-top: 12px;
 }
 </style>
