@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.20.14
+
+### Patch Changes
+
+- 78f2ab3: fix: set global security on sidebar navigation
+
 ## 1.20.13
 
 ### Patch Changes
