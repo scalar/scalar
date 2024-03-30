@@ -1,4 +1,4 @@
-import { useApiClientStore } from '@scalar/api-client'
+import { useApiClientStore, useOpenApiStore } from '@scalar/api-client'
 import { type TransformedOperation, ssrState } from '@scalar/oas-utils'
 import { type OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, reactive, ref, watch } from 'vue'
@@ -67,6 +67,9 @@ const items = computed(() => {
   // Check whether the API client is visible
   const { state } = useApiClientStore()
   const titlesById: Record<string, string> = {}
+  const {
+    openApi: { globalSecurity },
+  } = useOpenApiStore()
 
   // Introduction
   const headingEntries: SidebarEntry[] = headings.value.map((heading) => {
@@ -108,7 +111,7 @@ const items = computed(() => {
                 show: true,
                 select: () => {
                   if (state.showApiClient) {
-                    openClientFor(operation)
+                    openClientFor(operation, globalSecurity)
                   }
                 },
               }
@@ -128,7 +131,7 @@ const items = computed(() => {
             show: true,
             select: () => {
               if (state.showApiClient) {
-                openClientFor(operation)
+                openClientFor(operation, globalSecurity)
               }
             },
           }
