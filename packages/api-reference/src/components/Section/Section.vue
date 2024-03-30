@@ -15,8 +15,11 @@ function handleScroll() {
 
   // We use replaceState so we don't trigger the url hash watcher and trigger a scroll
   // this is why we set the hash value directly
-  window.history.replaceState({}, '', `#${props.id}`)
-  hash.value = props.id ?? ''
+  const newUrl = new URL(window.location.href)
+  const id = props.id ?? ''
+  newUrl.hash = id
+  hash.value = id
+  window.history.replaceState({}, '', newUrl)
 
   // Open models on scroll
   if (props.id?.startsWith('model'))
