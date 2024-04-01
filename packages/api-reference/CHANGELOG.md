@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.20.15
+
+### Patch Changes
+
+- 8f03345: fix: update only the hash on scroll
+
 ## 1.20.14
 
 ### Patch Changes
