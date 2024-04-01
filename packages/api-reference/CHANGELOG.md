@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.20.16
+
+### Patch Changes
+
+- 5232eab: fix: use function for displaying description in schema property component
+
 ## 1.20.15
 
 ### Patch Changes
