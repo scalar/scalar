@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.20.17
+
+### Patch Changes
+
+- 5b4c8a5: fix: left align read only
+
 ## 1.20.16
 
 ### Patch Changes
