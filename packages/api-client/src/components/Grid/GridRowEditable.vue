@@ -69,6 +69,7 @@ const enabledProxy = computed<boolean>({
         <span class="meta-checkmark" />
       </label>
       <button
+        v-if="!required"
         class="meta-delete"
         type="button"
         @click="$emit('delete')">
