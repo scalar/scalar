@@ -16,12 +16,20 @@ const emit = defineEmits<{
 
 const nameProxy = computed<string>({
   get: () => props.name,
-  set: (v) => emit('update:name', v),
+  set: (v) => {
+    // Make sure to enable the field if they edit the name
+    emit('update:enabled', true)
+    emit('update:name', v)
+  },
 })
 
 const valueProxy = computed<string>({
   get: () => `${props.value}`,
-  set: (v) => emit('update:value', `${v}`),
+  set: (v) => {
+    // Make sure to enable the field if they edit the value
+    emit('update:enabled', true)
+    emit('update:value', v)
+  },
 })
 
 const descriptionProxy = computed<string>({
