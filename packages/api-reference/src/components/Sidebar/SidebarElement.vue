@@ -29,6 +29,13 @@ const handleClick = async () => {
   if (props.hasChildren) emit('toggleOpen')
   props.item?.select?.()
 }
+
+// Build relative URL and add hash
+const generateLink = (hash: string) => {
+  const newUrl = new URL(window.location.href)
+  newUrl.hash = hash
+  return `${newUrl.pathname}${newUrl.search}${newUrl.hash}`
+}
 </script>
 <template>
   <li
@@ -57,7 +64,7 @@ const handleClick = async () => {
       </p>
       <a
         class="sidebar-heading-link"
-        :href="`#${item.id}`">
+        :href="generateLink(item.id)">
         <ScalarIcon
           v-if="item?.icon?.src"
           class="sidebar-icon"
