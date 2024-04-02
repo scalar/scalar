@@ -7,7 +7,9 @@ import { createApp } from 'vue'
 import { default as ApiReference } from './components/ApiReference.vue'
 import { type ReferenceConfiguration } from './types'
 
-const specScriptTag = document.querySelector('#api-reference')
+const REFS_TAG_ID = '#api-reference'
+
+const specScriptTag = document.querySelector(REFS_TAG_ID)
 const specElement = document.querySelector('[data-spec]')
 const specUrlElement = document.querySelector('[data-spec-url]')
 const configurationScriptElement = document.querySelector(
@@ -113,11 +115,17 @@ if (!specUrlElement && !specElement && !specScriptTag) {
   document.querySelector('body')?.classList.add('light-mode')
 
   // If it’s a script tag, we can’t mount the Vue.js app inside that tag.
-  // We need to add a new container div before the script tag.
+  // We need to replace the script tag with a container div for the app
   let container: HTMLElement | string | null = null
   if (specScriptTag) {
-    container = document.createElement('div')
-    specScriptTag?.parentNode?.insertBefore(container, specScriptTag)
+    const target = document.createElement('div')
+    const attrs = [...specScriptTag.attributes]
+    attrs.forEach((attr) =>
+      target.setAttribute(attr.nodeName, attr.nodeValue || ''),
+    )
+    specScriptTag?.parentNode?.insertBefore(target, specScriptTag)
+    specScriptTag.remove()
+    container = target
   } else {
     container = specElement
       ? '[data-spec]'
