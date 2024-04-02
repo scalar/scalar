@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.20.19
+
+### Patch Changes
+
+- ed44d47: manual fastify release
+
 ## 1.20.10
 
 ### Patch Changes
