@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.20.18
+
+### Patch Changes
+
+- c99f6ff: fix: create url for sidebar links using constructor
+
 ## 1.20.17
 
 ### Patch Changes
