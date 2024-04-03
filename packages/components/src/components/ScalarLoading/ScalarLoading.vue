@@ -118,7 +118,7 @@ export function useLoadingState() {
   align-items: center;
   justify-content: center;
 
-  --default-loader-size: 50%;
+  --loader-size: 50%;
 }
 
 /*SVG Positioning for Loader Objects*/

@@ -232,7 +232,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
   max-height: calc(((var(--full-height) - var(--refs-header-height))) / 2);
 
-  font-size: var(--default-scalar-micro);
+  font-size: var(--scalar-micro);
   border: 1px solid var(--scalar-border-color);
   background: var(--scalar-background-2);
   border-radius: var(--scalar-radius-lg);

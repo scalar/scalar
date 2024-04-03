@@ -323,7 +323,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   pointer-events: none;
   color: var(--scalar-color-2);
   background: var(--scalar-background-3);
-  border: 1px solid var(--default-scalar-border-color);
+  border: 1px solid var(--scalar-border-color);
 }
 .history-toggle {
   padding: 0 12px;

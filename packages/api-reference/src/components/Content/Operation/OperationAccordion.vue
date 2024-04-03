@@ -106,8 +106,8 @@ const { copyToClipboard } = useClipboard()
   font-size: var(--scalar-small);
 
   text-transform: uppercase;
-  font-weight: var(--default-scalar-bold);
-  font-family: var(--default-scalar-font);
+  font-weight: var(--scalar-bold);
+  font-family: var(--scalar-font);
 }
 .endpoint-type::after {
   content: '';
@@ -142,7 +142,7 @@ const { copyToClipboard } = useClipboard()
 }
 
 .endpoint-label-path {
-  font-family: var(--default-scalar-font-code);
+  font-family: var(--scalar-font-code);
   font-size: var(--scalar-mini);
 
   text-overflow: ellipsis;

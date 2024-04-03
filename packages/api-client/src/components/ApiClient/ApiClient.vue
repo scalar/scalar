@@ -57,7 +57,7 @@ watch(
   <HttpMethod
     class="scalar-api-client"
     :method="activeRequest.type ?? 'get'"
-    property="--default-scalar-api-client-color"
+    property="--scalar-api-client-color"
     @keydown.esc="emit('escapeKeyPress')">
     <AddressBar
       :proxyUrl="proxyUrl"
@@ -216,7 +216,7 @@ watch(
   margin-top: 3px;
   font-size: var(--scalar-font-size-2);
   font-weight: var(--scalar-font-size-2);
-  color: var(--scalar-api-client-color2);
+  color: var(--scalar-api-client-color);
 }
 
 .meta-item svg {

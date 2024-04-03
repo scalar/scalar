@@ -175,7 +175,7 @@ onMounted(() => {
 
 <style scoped>
 .sidebar {
-  --default-scalar-sidebar-indent-base: 12px;
+  --scalar-sidebar-indent-base: 12px;
 }
 .sidebar {
   flex: 1;
@@ -189,7 +189,7 @@ onMounted(() => {
     );
   /* prettier-ignore */
   background: var(--scalar-sidebar-background-1, var(--default-scalar-sidebar-background-1, var(--scalar-background-1)));
-  --default-scalar-sidebar-level: 0;
+  --scalar-sidebar-level: 0;
 }
 .sidebar-pages {
   flex: 1;

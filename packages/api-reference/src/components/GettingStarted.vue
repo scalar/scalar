@@ -316,10 +316,10 @@ function handleEmitPetstore() {
   border-right: none;
 }
 .start-section-colors .start-item:not(:nth-of-type(3n)) {
-  border-right: 1px solid var(--default-scalar-border-color);
+  border-right: 1px solid var(--scalar-border-color);
 }
 .start-section-colors .start-item:nth-of-type(n + 4) {
-  border-top: 1px solid var(--default-scalar-border-color);
+  border-top: 1px solid var(--scalar-border-color);
 }
 .start-item:empty {
   pointer-events: none;
