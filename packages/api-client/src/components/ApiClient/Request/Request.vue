@@ -133,10 +133,7 @@ const readOnly = true
   border: none;
   outline: none;
   font-size: var(--scalar-micro);
-  background: var(
-    --scalar-api-client-color,
-    var(--default-scalar-api-client-color)
-  ) !important;
+  background: var(--scalar-api-client-color) !important;
   text-align: center;
   font-weight: var(--scalar-semibold);
   font-family: var(--scalar-font);

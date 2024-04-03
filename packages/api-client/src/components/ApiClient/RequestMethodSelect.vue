@@ -111,9 +111,6 @@ const supportedRequestMethods = [
   flex-shrink: 0;
   display: inline-block;
   color: var(--scalar-color-disabled);
-  background: var(
-    --scalar-api-client-color,
-    var(--default-scalar-api-client-color)
-  );
+  background: var(--scalar-api-client-color);
 }
 </style>

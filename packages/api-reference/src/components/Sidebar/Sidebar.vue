@@ -214,11 +214,7 @@ onMounted(() => {
   line-height: 1.385;
 }
 .sidebar-group-item + .sidebar-group-title {
-  border-top: 1px solid
-    var(
-      --scalar-sidebar-border-color,
-      var(--default-scalar-sidebar-border-color)
-    );
+  border-top: 1px solid var(--scalar-sidebar-border-color);
   margin-top: 9px;
 }
 </style>

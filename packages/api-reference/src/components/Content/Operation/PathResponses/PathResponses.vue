@@ -263,10 +263,7 @@ const showSchema = ref(false)
   width: 17px;
   border-radius: var(--scalar-radius);
   background-color: transparent;
-  background-color: var(
-    --scalar-background-3,
-    var(--default-scalar-background-3)
-  );
+  background-color: var(--scalar-background-3);
   box-shadow: inset 0 0 0 1px var(--scalar-border-color);
 }
 .scalar-card-checkbox:has(.scalar-card-checkbox-input:checked) {

@@ -186,10 +186,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   justify-content: center;
   position: relative;
   box-sizing: border-box;
-  color: var(
-    --scalar-code-language-color-supersede,
-    var(--default-scalar-code-language-color-supersede, #fff)
-  );
+  color: var(--scalar-code-language-color-supersede);
 }
 .code-languages-background {
   border-radius: 9px;
@@ -201,11 +198,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
       var(--code-languages-background)
     )
   );
-  box-shadow: 0 0 0 1px
-    var(
-      --scalar-code-languages-border-color,
-      var(--default-scalar-code-languages-border-color)
-    );
+  box-shadow: 0 0 0 1px var(--scalar-code-languages-border-color);
 }
 .code-languages-background:before {
   content: '';
@@ -215,11 +208,9 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   top: -1px;
   left: -1px;
   pointer-events: none;
+
   border-radius: 8px;
-  background: var(
-    --scalar-code-languages-background-supersede,
-    var(--default-scalar-code-languages-background-supersede)
-  );
+  background: var(--scalar-code-languages-background-supersede);
 }
 .code-languages-icon__shell {
   --code-languages-background: #000;
@@ -279,10 +270,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   --code-languages-background: #f05138;
 }
 .code-languages-icon__more {
-  --code-languages-background: var(
-    --scalar-background-3,
-    var(--default-scalar-background-3)
-  );
+  --code-languages-background: var(--scalar-background-3);
 }
 .code-languages-icon__more svg {
   height: initial;

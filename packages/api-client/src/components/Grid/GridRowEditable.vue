@@ -175,10 +175,7 @@ const enabledProxy = computed<boolean>({
 .meta-delete {
   position: absolute;
   right: -9px;
-  background: var(
-    --scalar-background-3,
-    var(--default-scalar-background-3)
-  ) !important;
+  background: var(--scalar-background-3) !important;
   height: 20px;
   width: 20px;
   border: none;

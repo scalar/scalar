@@ -213,10 +213,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   position: absolute;
   z-index: 3;
   height: 2px;
-  background: var(
-    --scalar-api-client-color,
-    var(--default-scalar-api-client-color)
-  );
+  background: var(--scalar-api-client-color);
   animation: loading 5s cubic-bezier(0, 0.5, 0.25, 1);
 }
 @keyframes loading {
@@ -288,7 +285,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   text-transform: uppercase;
   cursor: pointer;
   outline: none;
-  font-family: (--scalar-font, var(--default-scalar-font));
+  font-family: (--scalar-font);
   border-radius: 0 var(--scalar-radius) var(--scalar-radius) 0;
   background: var(--scalar-button-1);
   position: relative;
@@ -299,10 +296,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   flex-shrink: 0;
 }
 .send-button:hover {
-  background: var(
-    --scalar-button-1-hover,
-    var(--default-scalar-button-1-hover)
-  );
+  background: var(--scalar-button-1-hover);
 }
 .send-button svg {
   width: 12px;

@@ -167,17 +167,11 @@ onServerPrefetch(async () => await sleep(1))
 }
 .markdown :deep(a) {
   color: var(--scalar-color-accent);
-  text-decoration: var(
-    --scalar-text-decoration,
-    var(--default-scalar-text-decoration)
-  );
+  text-decoration: var(--scalar-text-decoration);
   cursor: pointer;
 }
 .markdown :deep(a:hover) {
-  text-decoration: var(
-    --scalar-text-decoration-hover,
-    var(--default-scalar-text-decoration-hover)
-  );
+  text-decoration: var(--scalar-text-decoration-hover);
 }
 .markdown :deep(em) {
   font-style: italic;
@@ -187,10 +181,7 @@ onServerPrefetch(async () => await sleep(1))
 }
 .markdown :deep(code) {
   font-family: var(--scalar-font-code);
-  background-color: var(
-    --scalar-background-2,
-    var(--default-scalar-background-2)
-  );
+  background-color: var(--scalar-background-2);
   box-shadow: 0 0 0 1px var(--scalar-border-color);
   font-size: var(--scalar-micro);
   border-radius: 2px;
@@ -284,10 +275,7 @@ onServerPrefetch(async () => await sleep(1))
 }
 
 .markdown :deep(th) {
-  font-weight: var(
-    --scalar-semibold,
-    var(--default-scalar-semibold)
-  ) !important;
+  font-weight: var(--scalar-semibold) !important;
   text-align: left;
   border-left-color: transparent;
   background: var(--scalar-background-2);
@@ -313,10 +301,7 @@ onServerPrefetch(async () => await sleep(1))
   }
   pre * {
     font-size: var(--scalar-small) !important;
-    font-family: var(
-      --scalar-font-code,
-      var(--default-scalar-font-code)
-    ) !important;
+    font-family: var(--scalar-font-code) !important;
   }
   code.hljs {
     padding: 3px 5px;

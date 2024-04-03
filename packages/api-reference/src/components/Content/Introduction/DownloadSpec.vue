@@ -25,17 +25,11 @@ const getHideDownloadButtonSymbol = inject(HIDE_DOWNLOAD_BUTTON_SYMBOL)
 }
 .download-cta .download-button {
   color: var(--scalar-color-accent);
-  text-decoration: var(
-    --scalar-text-decoration,
-    var(--default-scalar-text-decoration)
-  ) !important;
+  text-decoration: var(--scalar-text-decoration) !important;
   font-size: var(--scalar-paragraph);
   cursor: pointer;
 }
 .download-cta .download-button:hover {
-  text-decoration: var(
-    --scalar-text-decoration-hover,
-    var(--default-scalar-text-decoration-hover)
-  ) !important;
+  text-decoration: var(--scalar-text-decoration-hover) !important;
 }
 </style>

@@ -97,10 +97,7 @@ whenever(keys[`meta_${props.searchHotKey}`], () =>
   text-transform: uppercase;
 }
 .sidebar-search-key {
-  background-color: var(
-    --scalar-background-2,
-    var(--default-scalar-background-2)
-  );
+  background-color: var(--scalar-background-2);
   padding: 3px 5px;
   margin: 2px;
   border-radius: var(--scalar-radius);

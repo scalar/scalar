@@ -50,10 +50,7 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
   z-index: 1;
 }
 .show-api-client-button:hover {
-  background: var(
-    --scalar-button-1-hover,
-    var(--default-scalar-button-1-hover)
-  );
+  background: var(--scalar-button-1-hover);
 }
 .show-api-client-button svg {
   height: 12px;

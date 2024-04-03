@@ -216,10 +216,7 @@ watch(
   margin-top: 3px;
   font-size: var(--scalar-font-size-2);
   font-weight: var(--scalar-font-size-2);
-  color: var(
-    --scalar-api-client-color2,
-    var(--default-scalar-api-client-color2)
-  );
+  color: var(--scalar-api-client-color2);
 }
 
 .meta-item svg {

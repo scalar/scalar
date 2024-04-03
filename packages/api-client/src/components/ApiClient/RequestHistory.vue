@@ -67,10 +67,7 @@ const { requestHistoryOrder } = useRequestStore()
   background-color: black;
 }
 .navtable-follow * {
-  font-family: var(
-    --scalar-font-code,
-    var(--default-scalar-font-code)
-  ) !important;
+  font-family: var(--scalar-font-code) !important;
 }
 .navtable-table {
   position: relative;
@@ -105,10 +102,7 @@ const { requestHistoryOrder } = useRequestStore()
   color: var(--scalar-color-2);
   font-size: var(--scalar-micro);
   font-weight: var(--scalar-bold);
-  background: var(
-    --scalar-api-client-bg3,
-    var(--default-scalar-api-client-bg3)
-  );
+  background: var(--scalar-api-client-bg3);
   border: none;
   border-radius: 30px;
   appearance: none;
@@ -125,10 +119,7 @@ const { requestHistoryOrder } = useRequestStore()
 }
 .navtable-item-action:hover {
   color: var(--scalar-color-1);
-  background: var(
-    --scalar-api-client-gradient,
-    var(--default-scalar-api-client-gradient)
-  );
+  background: var(--scalar-api-client-gradient);
   box-shadow: 0 0 0 1px var(--scalar-border-color);
 }
 .navtable-item-action:focus {

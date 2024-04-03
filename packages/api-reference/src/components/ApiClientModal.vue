@@ -97,10 +97,7 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
   opacity: 1;
   overflow: hidden;
   pointer-events: all;
-  background: var(
-    --scalar-background-1,
-    var(--default-scalar-background-1)
-  ) !important;
+  background: var(--scalar-background-1) !important;
   border-radius: var(--scalar-radius-lg);
   box-shadow: var(--scalar-shadow-1);
   height: 100%;
@@ -115,10 +112,7 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
   align-items: center;
   padding: 11px 12px;
   height: var(--refs-header-height);
-  background-color: var(
-    --scalar-background-1,
-    var(--default-scalar-background-1)
-  );
+  background-color: var(--scalar-background-1);
   z-index: 10;
   position: sticky;
   border-bottom: 1px solid var(--scalar-border-color);
