@@ -137,15 +137,15 @@ const onAnchorClick = async (ev: Event) => {
   gap: 6px;
 
   /* prettier-ignore */
-  color: var(--sidebar-color-2, var(--default-theme-color-2, var(--theme-color-2, var(--default-theme-color-2))));
-  font-size: var(--theme-mini, var(--default-theme-mini));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  color: var(--sidebar-color-2, var(--default-scalar-color-2, var(--scalar-color-2, var(--default-scalar-color-2))));
+  font-size: var(--scalar-mini, var(--default-scalar-mini));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
   word-break: break-word;
   line-height: 1.385;
   max-width: 100%;
   position: relative;
   cursor: pointer;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border-radius: var(--scalar-radius, var(--default-scalar-radius));
   flex: 1;
   padding-right: 9px;
   user-select: none;
@@ -155,7 +155,7 @@ const onAnchorClick = async (ev: Event) => {
 }
 .sidebar-heading:hover {
   /* prettier-ignore */
-  background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background, var(--theme-background-2, var(--default-theme-background-2))));
+  background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background, var(--scalar-background-2, var(--default-scalar-background-2))));
 }
 .sidebar-heading:hover .sidebar-heading-link-title {
   color: var(
@@ -167,16 +167,16 @@ const onAnchorClick = async (ev: Event) => {
 .active_page.sidebar-heading:hover,
 .active_page.sidebar-heading {
   /* prettier-ignore */
-  color: var(--sidebar-color-active, var(--default-sidebar-color-active, var(--theme-color-accent, var(--default-theme-color-accent))));
+  color: var(--sidebar-color-active, var(--default-sidebar-color-active, var(--scalar-color-accent, var(--default-scalar-color-accent))));
   /* prettier-ignore */
-  background: var(--sidebar-item-active-background, var(--default-sidebar-item-active-background, var(--theme-background-accent, var(--default-theme-background-accent))));
+  background: var(--sidebar-item-active-background, var(--default-sidebar-item-active-background, var(--scalar-background-accent, var(--default-scalar-background-accent))));
 }
 .active_page.sidebar-heading:hover .sidebar-heading-link-title {
   color: var(
     --sidebar-color-active,
     var(
       --default-sidebar-color-active,
-      var(--theme-color-accent, var(--default-theme-color-accent))
+      var(--scalar-color-accent, var(--default-scalar-color-accent))
     )
   );
 }
@@ -265,7 +265,7 @@ const onAnchorClick = async (ev: Event) => {
     --sidebar-color-active,
     var(
       --default-sidebar-color-active,
-      var(--theme-color-accent, var(--default-theme-color-accent))
+      var(--scalar-color-accent, var(--default-scalar-color-accent))
     )
   );
 }
@@ -301,9 +301,9 @@ const onAnchorClick = async (ev: Event) => {
 }
 .sidebar-heading:has(~ .action-menu:hover) {
   /* prettier-ignore */
-  color: var(--sidebar-color-1, var(--default-sidebar-color-1), var(--theme-color-1, var(--default-theme-color-1)));
+  color: var(--sidebar-color-1, var(--default-sidebar-color-1), var(--scalar-color-1, var(--default-scalar-color-1)));
   /* prettier-ignore */
-  background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background), var(--theme-background-2, var(--default-theme-background-2)));
+  background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background), var(--scalar-background-2, var(--default-scalar-background-2)));
 }
 
 .sidebar-heading-type {
@@ -316,13 +316,13 @@ const onAnchorClick = async (ev: Event) => {
   color: white;
   color: color-mix(
     in srgb,
-    var(--method-color, var(--theme-color-1)),
+    var(--method-color, var(--scalar-color-1)),
     transparent 0%
   );
-  background: var(--method-color, var(--theme-background-3));
+  background: var(--method-color, var(--scalar-background-3));
   background: color-mix(
     in srgb,
-    var(--method-color, var(--theme-background-3)),
+    var(--method-color, var(--scalar-background-3)),
     transparent 90%
   );
   text-transform: uppercase;
@@ -330,7 +330,7 @@ const onAnchorClick = async (ev: Event) => {
   font-weight: bold;
   text-align: center;
   position: relative;
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  font-family: var(--scalar-font-code, var(--default-scalar-font-code));
   white-space: nowrap;
   margin-left: 3px;
 }
@@ -350,7 +350,7 @@ const onAnchorClick = async (ev: Event) => {
     --sidebar-color-1,
     var(
       --default-sidebar-color-1,
-      var(--theme-color-1, var(--default-theme-color-1))
+      var(--scalar-color-1, var(--default-scalar-color-1))
     )
   );
 }

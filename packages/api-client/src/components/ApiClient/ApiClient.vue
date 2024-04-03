@@ -112,13 +112,13 @@ watch(
 <style>
 .scalar-api-client,
 #headlessui-portal-root {
-  background: var(--theme-background-1, var(--default-theme-background-1));
+  background: var(--scalar-background-1, var(--default-scalar-background-1));
   position: relative;
   height: 100%;
   overflow: hidden !important;
   display: flex;
   flex-direction: column;
-  font-family: var(--theme-font, var(--default-theme-font));
+  font-family: var(--scalar-font, var(--default-scalar-font));
 
   /** Make sure box-sizing is set properly. */
   box-sizing: border-box;
@@ -139,15 +139,15 @@ watch(
   }
 }
 .scalar-api-client pre {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  font-family: var(--scalar-font-code, var(--default-scalar-font-code));
 }
 
 .scalar-api-client__mobile-navigation {
   padding: 12px 12px 0 12px;
   display: flex;
-  font-size: var(--theme-small, var(--default-theme-small));
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-size: var(--scalar-small, var(--default-scalar-small));
+  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  font-weight: var(--scalar-bold, var(--default-scalar-bold));
 }
 
 .scalar-api-client__mobile-navigation__toggle {
@@ -155,17 +155,17 @@ watch(
   border: none;
   outline: none;
   background: transparent;
-  font-size: var(--theme-font-size-2);
-  color: var(--theme-color-2);
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-family: var(--theme-font, var(--default-theme-font));
+  font-size: var(--scalar-font-size-2);
+  color: var(--scalar-color-2);
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  font-family: var(--scalar-font, var(--default-scalar-font));
   padding: 0;
   margin-right: 9px;
   cursor: pointer;
 }
 
 .scalar-api-client__mobile-navigation--active {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1, var(--default-scalar-color-1));
 }
 
 .scalar-api-client__mobile-navigation--active:hover {
@@ -176,9 +176,9 @@ watch(
   display: flex;
   height: 100%;
   min-height: 0;
-  background: var(--theme-background-1, var(--default-theme-background-1));
+  background: var(--scalar-background-1, var(--default-scalar-background-1));
   border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+    var(--scalar-border-color, var(--default-scalar-border-color));
 }
 
 @media screen and (max-width: 820px) {
@@ -190,15 +190,15 @@ watch(
 /** TODO: Consider to make a Column component */
 .scalar-api-client__main__content {
   padding: 12px 6px;
-  background: var(--theme-background-1, var(--default-theme-background-1));
+  background: var(--scalar-background-1, var(--default-scalar-background-1));
   top: 0;
   position: sticky;
   z-index: 100;
 }
 .scalar-api-client__main__content label {
-  font-size: var(--theme-small, var(--default-theme-small));
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--scalar-small, var(--default-scalar-small));
+  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
   display: flex;
   align-items: center;
 }
@@ -215,8 +215,8 @@ watch(
 .meta {
   display: flex;
   margin-top: 3px;
-  font-size: var(--theme-font-size-2, var(--default-theme-font-size-2));
-  font-weight: var(--theme-font-size-2, var(--default-theme-font-size-2));
+  font-size: var(--scalar-font-size-2, var(--default-scalar-font-size-2));
+  font-weight: var(--scalar-font-size-2, var(--default-scalar-font-size-2));
   color: var(
     --scalar-api-client-color2,
     var(--default-scalar-api-client-color2)
@@ -224,7 +224,7 @@ watch(
 }
 
 .meta-item svg {
-  fill: var(--theme-color-ghost, var(--default-theme-color-ghost));
+  fill: var(--scalar-color-ghost, var(--default-scalar-color-ghost));
   height: 14px;
   width: 14px;
   margin-right: 6px;
@@ -235,9 +235,9 @@ watch(
   align-items: center;
   margin-right: 12px;
   white-space: nowrap;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-size: var(--theme-small, var(--default-theme-small));
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  font-size: var(--scalar-small, var(--default-scalar-small));
+  color: var(--scalar-color-3, var(--default-scalar-color-3));
   min-height: 17px;
 }
 
@@ -271,11 +271,11 @@ watch(
 }
 .scalar-api-client__empty-state {
   border: 1px dashed
-    var(--theme-border-color, var(--default-theme-border-color));
+    var(--scalar-border-color, var(--default-scalar-border-color));
   width: 100%;
   text-align: center;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  font-size: var(--theme-small, var(--default-theme-small));
+  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  font-size: var(--scalar-small, var(--default-scalar-small));
   min-height: 58px;
   display: flex;
   align-items: center;

@@ -28,7 +28,7 @@ defineEmits<{
     --sidebar-color-2,
     var(
       --default-sidebar-color-2,
-      var(--theme-color-2, var(--default-theme-color-2))
+      var(--scalar-color-2, var(--default-scalar-color-2))
     )
   );
   display: flex;
@@ -45,7 +45,7 @@ defineEmits<{
     --sidebar-color-1,
     var(
       --default-sidebar-color-1,
-      var(--theme-color-1, var(--default-theme-color-1))
+      var(--scalar-color-1, var(--default-scalar-color-1))
     )
   );
 }

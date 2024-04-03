@@ -55,7 +55,7 @@ const isHovered = useElementHover(button)
 </template>
 <style scoped>
 .section-wrapper {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1, var(--default-scalar-color-1));
 
   padding-top: 12px;
   margin-top: -12px;
@@ -64,13 +64,14 @@ const isHovered = useElementHover(button)
   display: flex;
   flex-direction: column;
 
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
+  background: var(--scalar-background-2, var(--default-scalar-background-2));
 }
 
 .section-accordion-transparent {
   background: transparent;
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border: 1px solid
+    var(--scalar-border-color, var(--default-scalar-border-color));
 }
 
 .section-accordion-button {
@@ -91,7 +92,7 @@ const isHovered = useElementHover(button)
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  color: var(--scalar-color-3, var(--default-scalar-color-3));
 }
 
 .section-accordion-chevron {
@@ -99,22 +100,22 @@ const isHovered = useElementHover(button)
   width: 24px;
   cursor: pointer;
   opacity: 1;
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  color: var(--scalar-color-3, var(--default-scalar-color-3));
 }
 .section-accordion-button:hover .section-accordion-chevron {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1, var(--default-scalar-color-1));
 }
 .section-accordion-content {
   border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+    var(--scalar-border-color, var(--default-scalar-border-color));
   display: flex;
   flex-direction: column;
 }
 
 .section-accordion-description {
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-size: var(--theme-mini, var(--default-theme-mini));
-  color: var(--theme-color--1, var(--default-theme-color-1));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  font-size: var(--scalar-mini, var(--default-scalar-mini));
+  color: var(--scalar-color--1, var(--default-scalar-color-1));
   padding: 10px 12px 0px 12px;
 }
 .section-accordion-content-card :deep(.property:last-of-type) {

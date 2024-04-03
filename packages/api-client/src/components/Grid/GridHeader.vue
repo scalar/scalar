@@ -47,9 +47,9 @@ defineEmits<{
   text-transform: uppercase;
   display: block;
   padding: 9px;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  font-size: var(--scalar-micro, var(--default-scalar-micro));
 }
 .table-description-toggle {
   padding: 0;
@@ -60,10 +60,10 @@ defineEmits<{
   width: 13px;
   height: 13px;
   margin: 0 1px;
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  color: var(--scalar-color-3, var(--default-scalar-color-3));
   cursor: pointer;
 }
 .table-description-toggle svg:hover {
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  color: var(--scalar-color-2, var(--default-scalar-color-2));
 }
 </style>

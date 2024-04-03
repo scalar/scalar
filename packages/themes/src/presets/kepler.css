@@ -1,87 +1,87 @@
 /* basic theme */
 .light-mode {
-  --default-theme-color-1: #2a2f45;
-  --default-theme-color-2: #757575;
-  --default-theme-color-3: #8e8e8e;
-  --default-theme-color-accent: #7070ff;
+  --default-scalar-color-1: #2a2f45;
+  --default-scalar-color-2: #757575;
+  --default-scalar-color-3: #8e8e8e;
+  --default-scalar-color-accent: #7070ff;
 
-  --default-theme-background-1: #fff;
-  --default-theme-background-2: #f6f6f6;
-  --default-theme-background-3: #e7e7e7;
-  --default-theme-background-accent: #7070ff1f;
+  --default-scalar-background-1: #fff;
+  --default-scalar-background-2: #f6f6f6;
+  --default-scalar-background-3: #e7e7e7;
+  --default-scalar-background-accent: #7070ff1f;
 
-  --default-theme-border-color: rgba(0, 0, 0, 0.1);
+  --default-scalar-border-color: rgba(0, 0, 0, 0.1);
 
-  --default-theme-code-language-color-supersede: var(--default-theme-color-3);
+  --default-scalar-code-language-color-supersede: var(--default-scalar-color-3);
 }
 .dark-mode {
-  --default-theme-color-1: #f7f8f8;
-  --default-theme-color-2: rgb(180, 188, 208);
-  --default-theme-color-3: #b4bcd099;
-  --default-theme-color-accent: #828fff;
+  --default-scalar-color-1: #f7f8f8;
+  --default-scalar-color-2: rgb(180, 188, 208);
+  --default-scalar-color-3: #b4bcd099;
+  --default-scalar-color-accent: #828fff;
 
-  --default-theme-background-1: #000212;
-  --default-theme-background-2: rgba(255, 255, 255, 0.05);
-  --default-theme-background-3: rgba(255, 255, 255, 0.05);
-  --default-theme-background-accent: #8ab4f81f;
+  --default-scalar-background-1: #000212;
+  --default-scalar-background-2: rgba(255, 255, 255, 0.05);
+  --default-scalar-background-3: rgba(255, 255, 255, 0.05);
+  --default-scalar-background-accent: #8ab4f81f;
 
-  --default-theme-border-color: #242537;
-  --default-theme-code-language-color-supersede: var(--default-theme-color-3);
+  --default-scalar-border-color: #242537;
+  --default-scalar-code-language-color-supersede: var(--default-scalar-color-3);
 }
 /* Document Sidebar */
 .light-mode .t-doc__sidebar {
-  --default-sidebar-background-1: var(--default-theme-background-1);
+  --default-sidebar-background-1: var(--default-scalar-background-1);
   --default-sidebar-item-hover-color: currentColor;
-  --default-sidebar-item-hover-background: var(--default-theme-background-2);
+  --default-sidebar-item-hover-background: var(--default-scalar-background-2);
   --default-sidebar-item-active-background: var(
-    --default-theme-background-accent
+    --default-scalar-background-accent
   );
-  --default-sidebar-border-color: var(--default-theme-border-color);
-  --default-sidebar-color-1: var(--default-theme-color-1);
-  --default-sidebar-color-2: var(--default-theme-color-2);
-  --default-sidebar-color-active: var(--default-theme-color-accent);
+  --default-sidebar-border-color: var(--default-scalar-border-color);
+  --default-sidebar-color-1: var(--default-scalar-color-1);
+  --default-sidebar-color-2: var(--default-scalar-color-2);
+  --default-sidebar-color-active: var(--default-scalar-color-accent);
   --default-sidebar-search-background: rgba(0, 0, 0, 0.05);
   --default-sidebar-search-border-color: 1px solid rgba(0, 0, 0, 0.05);
-  --default-sidebar-search-color: var(--default-theme-color-3);
-  --default-theme-background-2: rgba(0, 0, 0, 0.03);
+  --default-sidebar-search-color: var(--default-scalar-color-3);
+  --default-scalar-background-2: rgba(0, 0, 0, 0.03);
 }
 .dark-mode .t-doc__sidebar {
-  --default-sidebar-background-1: var(--default-theme-background-1);
+  --default-sidebar-background-1: var(--default-scalar-background-1);
   --default-sidebar-item-hover-color: currentColor;
-  --default-sidebar-item-hover-background: var(--default-theme-background-2);
+  --default-sidebar-item-hover-background: var(--default-scalar-background-2);
   --default-sidebar-item-active-background: rgba(255, 255, 255, 0.1);
-  --default-sidebar-border-color: var(--default-theme-border-color);
-  --default-sidebar-color-1: var(--default-theme-color-1);
-  --default-sidebar-color-2: var(--default-theme-color-2);
-  --default-sidebar-color-active: var(--default-theme-color-accent);
+  --default-sidebar-border-color: var(--default-scalar-border-color);
+  --default-sidebar-color-1: var(--default-scalar-color-1);
+  --default-sidebar-color-2: var(--default-scalar-color-2);
+  --default-sidebar-color-active: var(--default-scalar-color-accent);
   --default-sidebar-search-background: rgba(255, 255, 255, 0.1);
   --default-sidebar-search-border-color: 1px solid rgba(255, 255, 255, 0.05);
-  --default-sidebar-search-color: var(--default-theme-color-3);
+  --default-sidebar-search-color: var(--default-scalar-color-3);
 }
 /* advanced */
 .light-mode {
-  --default-theme-color-green: #069061;
-  --default-theme-color-red: #ef0006;
-  --default-theme-color-yellow: #edbe20;
-  --default-theme-color-blue: #0082d0;
-  --default-theme-color-orange: #fb892c;
-  --default-theme-color-purple: #5203d1;
+  --default-scalar-color-green: #069061;
+  --default-scalar-color-red: #ef0006;
+  --default-scalar-color-yellow: #edbe20;
+  --default-scalar-color-blue: #0082d0;
+  --default-scalar-color-orange: #fb892c;
+  --default-scalar-color-purple: #5203d1;
 
-  --default-theme-button-1: rgba(0, 0, 0, 1);
-  --default-theme-button-1-hover: rgba(0, 0, 0, 0.8);
-  --default-theme-button-1-color: rgba(255, 255, 255, 0.9);
+  --default-scalar-button-1: rgba(0, 0, 0, 1);
+  --default-scalar-button-1-hover: rgba(0, 0, 0, 0.8);
+  --default-scalar-button-1-color: rgba(255, 255, 255, 0.9);
 }
 .dark-mode {
-  --default-theme-color-green: #00b648;
-  --default-theme-color-red: #dc1b19;
-  --default-theme-color-yellow: #ffc90d;
-  --default-theme-color-blue: #4eb3ec;
-  --default-theme-color-orange: #ff8d4d;
-  --default-theme-color-purple: #b191f9;
+  --default-scalar-color-green: #00b648;
+  --default-scalar-color-red: #dc1b19;
+  --default-scalar-color-yellow: #ffc90d;
+  --default-scalar-color-blue: #4eb3ec;
+  --default-scalar-color-orange: #ff8d4d;
+  --default-scalar-color-purple: #b191f9;
 
-  --default-theme-button-1: rgba(255, 255, 255, 1);
-  --default-theme-button-1-hover: rgba(255, 255, 255, 0.9);
-  --default-theme-button-1-color: black;
+  --default-scalar-button-1: rgba(255, 255, 255, 1);
+  --default-scalar-button-1-hover: rgba(255, 255, 255, 0.9);
+  --default-scalar-button-1-color: black;
 }
 /* Custom Theme */
 .dark-mode h2.t-editor__heading,
@@ -119,20 +119,20 @@
   background: rgba(255, 255, 255, 0.05) !important;
 }
 .dark-mode .scalar-card * {
-  --default-theme-background-2: transparent !important;
-  --default-theme-background-1: transparent !important;
+  --default-scalar-background-2: transparent !important;
+  --default-scalar-background-1: transparent !important;
 }
 .light-mode .dark-mode.scalar-card *,
 .light-mode .dark-mode.scalar-card {
-  --default-theme-background-1: #0d0f1e !important;
-  --default-theme-background-2: #0d0f1e !important;
-  --default-theme-background-3: #191b29 !important;
+  --default-scalar-background-1: #0d0f1e !important;
+  --default-scalar-background-2: #0d0f1e !important;
+  --default-scalar-background-3: #191b29 !important;
 }
 .light-mode .dark-mode.scalar-card {
   background: #191b29 !important;
 }
 .badge {
-  box-shadow: 0 0 0 1px var(--default-theme-border-color);
+  box-shadow: 0 0 0 1px var(--default-scalar-border-color);
   margin-right: 6px;
 }
 
@@ -141,14 +141,14 @@
   box-shadow: none;
 }
 .code-languages__active {
-  --default-theme-code-language-color-supersede: var(--default-theme-color-1);
+  --default-scalar-code-language-color-supersede: var(--default-scalar-color-1);
 }
 .code-languages-background {
   background: linear-gradient(
     rgba(255, 255, 255, 0) 0%,
     rgba(255, 255, 255, 0.05) 100%
   ) !important;
-  box-shadow: inset 0 0 0 1px var(--default-theme-border-color) !important;
+  box-shadow: inset 0 0 0 1px var(--default-scalar-border-color) !important;
 }
 /* Hero Section Flare */
 .section-flare {

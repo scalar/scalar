@@ -34,17 +34,17 @@ const { breadcrumb } = useSidebar()
   height: 100%;
   width: 100%;
   padding: 0 8px;
-  background: var(--theme-background-1, var(--default-theme-background-1));
+  background: var(--scalar-background-1, var(--default-scalar-background-1));
   border-bottom: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+    var(--scalar-border-color, var(--default-scalar-border-color));
 }
 
 .references-mobile-breadcrumbs {
   flex: 1;
   min-width: 0;
-  font-size: var(--theme-small, var(--default-theme-small));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-size: var(--scalar-small, var(--default-scalar-small));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  color: var(--scalar-color-1, var(--default-scalar-color-1));
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

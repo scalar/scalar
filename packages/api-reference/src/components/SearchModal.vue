@@ -354,18 +354,19 @@ a {
   width: 100%;
   background: transparent;
   padding: 12px;
-  font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
+  font-size: var(--scalar-font-size-4, var(--default-scalar-font-size-4));
   outline: none;
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
-  font-family: var(--theme-font, var(--default-theme-font));
+  border: 1px solid
+    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  font-size: var(--scalar-font-size-3, var(--default-scalar-font-size-3));
+  font-family: var(--scalar-font, var(--default-scalar-font));
   appearance: none;
 }
 .ref-search-input:focus {
-  border-color: var(--theme-color-1, var(--default-theme-color-1));
+  border-color: var(--scalar-color-1, var(--default-scalar-color-1));
 }
 /** Results */
 .item-entry {
@@ -375,12 +376,12 @@ a {
   outline: none;
   padding: 9px 12px;
   width: 100%;
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  color: var(--scalar-color-3, var(--default-scalar-color-3));
   text-align: left;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border-radius: var(--scalar-radius, var(--default-scalar-radius));
   display: flex;
   align-items: center;
-  font-family: var(--theme-font);
+  font-family: var(--scalar-font);
   min-height: 31px;
   display: flex;
   gap: 6px;
@@ -397,7 +398,7 @@ a {
 }
 .item-entry--active,
 .item-entry:hover {
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--scalar-background-2, var(--default-scalar-background-2));
   cursor: pointer;
 }
 
@@ -408,9 +409,9 @@ a {
 }
 .item-entry-description,
 .item-entry-title {
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  font-size: var(--scalar-font-size-4, var(--default-scalar-font-size-4));
   white-space: nowrap;
   min-width: 0;
   white-space: nowrap;
@@ -423,8 +424,8 @@ a {
 .item-entry-http-verb,
 .item-entry-subtitle {
   display: flex;
-  font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  font-size: var(--scalar-font-size-4, var(--default-scalar-font-size-4));
+  font-family: var(--scalar-font-code, var(--default-scalar-font-code));
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -438,19 +439,19 @@ a {
   top: 0.5px;
 }
 .item-entry-path {
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
+  color: var(--scalar-color-3, var(--default-scalar-color-3));
+  font-size: var(--scalar-font-size-4, var(--default-scalar-font-size-4));
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .ref-search-meta {
-  background: var(--theme-background-3, var(--default-theme-background-3));
+  background: var(--scalar-background-3, var(--default-scalar-background-3));
   padding: 6px 12px;
-  font-size: var(--theme-font-size-4, var(--default-theme-font-size-4));
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--scalar-font-size-4, var(--default-scalar-font-size-4));
+  color: var(--scalar-color-3, var(--default-scalar-color-3));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
   display: flex;
   gap: 12px;
 }

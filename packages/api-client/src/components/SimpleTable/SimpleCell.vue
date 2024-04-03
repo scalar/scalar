@@ -29,14 +29,14 @@ withDefaults(
   all: unset;
   display: table-cell;
   border-right: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+    var(--scalar-border-color, var(--default-scalar-border-color));
   position: relative;
   padding: 9px !important;
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1, var(--default-scalar-color-1));
   white-space: nowrap;
 }
 .simple-cell a {
-  color: var(--theme-color-1, var(--default-theme-color-1)) !important;
+  color: var(--scalar-color-1, var(--default-scalar-color-1)) !important;
 }
 .simple-cell:last-of-type {
   border-right: none;
@@ -47,6 +47,6 @@ withDefaults(
 }
 
 .simple-cell.strong {
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
 }
 </style>

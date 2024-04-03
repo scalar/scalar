@@ -33,16 +33,16 @@ useApplyClasses('#headlessui-portal-root', scrollbars)
   .cm-scroller:hover,
   .custom-scroll:hover {
     scrollbar-color: var(
-        --theme-scrollbar-color,
-        var(--default-theme-scrollbar-color)
+        --scalar-scrollbar-color,
+        var(--default-scalar-scrollbar-color)
       )
       transparent;
   }
   .cm-scroller:hover::-webkit-scrollbar-thumb,
   .custom-scroll:hover::-webkit-scrollbar-thumb {
     background: var(
-      --theme-scrollbar-color,
-      var(--default-theme-scrollbar-color)
+      --scalar-scrollbar-color,
+      var(--default-scalar-scrollbar-color)
     );
     background-clip: content-box;
     border: 3px solid transparent;
@@ -50,8 +50,8 @@ useApplyClasses('#headlessui-portal-root', scrollbars)
   .cm-scroller::-webkit-scrollbar-thumb:active,
   .custom-scroll::-webkit-scrollbar-thumb:active {
     background: var(
-      --theme-scrollbar-color-active,
-      var(--default-theme-scrollbar-color-active)
+      --scalar-scrollbar-color-active,
+      var(--default-scalar-scrollbar-color-active)
     );
     background-clip: content-box;
     border: 3px solid transparent;

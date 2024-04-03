@@ -330,14 +330,14 @@ hideModels.value = props.configuration.hideModels ?? false
 <style scoped>
 /* Configurable Layout Variables */
 .scalar-api-reference {
-  --refs-sidebar-width: var(--theme-sidebar-width, 0px);
-  --refs-header-height: var(--theme-header-height, 0px);
-  --refs-content-max-width: var(--theme-content-max-width, 1540px);
+  --refs-sidebar-width: var(--scalar-sidebar-width, 0px);
+  --refs-header-height: var(--scalar-header-height, 0px);
+  --refs-content-max-width: var(--scalar-content-max-width, 1540px);
 }
 
 .scalar-api-reference.references-classic {
   /* Classic layout is wider */
-  --refs-content-max-width: var(--theme-content-max-width, 1420px);
+  --refs-content-max-width: var(--scalar-content-max-width, 1420px);
   min-height: 100dvh;
 }
 
@@ -371,7 +371,7 @@ hideModels.value = props.configuration.hideModels ?? false
     'navigation rendered'
     'footer footer';
 
-  background: var(--theme-background-1, var(--default-theme-background-1));
+  background: var(--scalar-background-1, var(--default-scalar-background-1));
 }
 
 .references-header {
@@ -387,7 +387,7 @@ hideModels.value = props.configuration.hideModels ?? false
   grid-area: editor;
   display: flex;
   min-width: 0;
-  background: var(--theme-background-1, var(--default-theme-background-1));
+  background: var(--scalar-background-1, var(--default-scalar-background-1));
   z-index: 1;
 }
 
@@ -399,7 +399,7 @@ hideModels.value = props.configuration.hideModels ?? false
   position: relative;
   grid-area: rendered;
   min-width: 0;
-  background: var(--theme-background-1, var(--default-theme-background-1));
+  background: var(--scalar-background-1, var(--default-scalar-background-1));
 }
 .scalar-api-reference.references-classic,
 .references-classic .references-rendered {
@@ -415,7 +415,7 @@ hideModels.value = props.configuration.hideModels ?? false
     --sidebar-background-1,
     var(
       --default-sidebar-background-1,
-      var(--theme-background-1, var(--default-theme-background-1))
+      var(--scalar-background-1, var(--default-scalar-background-1))
     )
   );
   overflow-y: auto;
@@ -444,7 +444,7 @@ hideModels.value = props.configuration.hideModels ?? false
 
 .references-sidebar {
   /* Set a default width if references are enabled */
-  --refs-sidebar-width: var(--theme-sidebar-width, 280px);
+  --refs-sidebar-width: var(--scalar-sidebar-width, 280px);
 }
 
 /* Footer */
@@ -515,7 +515,7 @@ hideModels.value = props.configuration.hideModels ?? false
     width: 100%;
 
     border-top: 1px solid
-      var(--theme-border-color, var(--default-theme-border-color));
+      var(--scalar-border-color, var(--default-scalar-border-color));
     display: flex;
     flex-direction: column;
   }

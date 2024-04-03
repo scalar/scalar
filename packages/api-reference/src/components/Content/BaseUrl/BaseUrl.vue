@@ -125,17 +125,17 @@ watch(
   min-width: 0;
   overflow: hidden;
   gap: 2px;
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  color: var(--scalar-color-2, var(--default-scalar-color-2));
 }
 
 .description {
   padding: 6px 12px;
-  font-size: var(--theme-small, var(--default-theme-small));
+  font-size: var(--scalar-small, var(--default-scalar-small));
 }
 .description :deep(.markdown) {
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color--1, var(--default-theme-color-1));
+  font-size: var(--scalar-micro, var(--default-scalar-micro));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  color: var(--scalar-color--1, var(--default-scalar-color-1));
   padding: 4px 0;
   display: block;
 }
@@ -162,7 +162,7 @@ watch(
 .scalar-card-serverlist-container {
   /* margin: 9px; */
   box-shadow: 0 0 0 1px
-    var(--theme-border-color, var(--default-theme-border-color));
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-radius: var(--scalar-radius, var(--default-scalar-radius));
 }
 </style>

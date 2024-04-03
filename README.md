@@ -443,7 +443,7 @@ Overwrite our CSS variables. We won’t judge.
 
 ```
 :root {
-  --theme-font: 'Comic Sans MS', 'Comic Sans', cursive;
+  --scalar-font: 'Comic Sans MS', 'Comic Sans', cursive;
 }
 ```
 
@@ -451,9 +451,9 @@ We’re using the `default-` prefix for our variables to not overwrite your vari
 
 ```css
 /* ✅ Good (without `default` prefix) */
---theme-font: 'Comic Sans MS', 'Comic Sans', cursive;
+--scalar-font: 'Comic Sans MS', 'Comic Sans', cursive;
 /* ❌ Bad (with `default` prefix) */
---default-theme-font: 'Comic Sans MS', 'Comic Sans', cursive;
+--default-scalar-font: 'Comic Sans MS', 'Comic Sans', cursive;
 ```
 
 Overwrite our night mode and day mode variables to build your own themes. Here are some of the basic variables to get you started:
@@ -462,25 +462,25 @@ Overwrite our night mode and day mode variables to build your own themes. Here a
 
 ```
 .light-mode {
-  --theme-color-1: #121212;
-  --theme-color-2: rgba(0, 0, 0, 0.6);
-  --theme-color-3: rgba(0, 0, 0, 0.4);
-  --theme-color-accent: #0a85d1;
-  --theme-background-1: #fff;
-  --theme-background-2: #f6f5f4;
-  --theme-background-3: #f1ede9;
-  --theme-background-accent: #5369d20f;
-  --theme-border-color: rgba(0, 0, 0, 0.08);
+  --scalar-color-1: #121212;
+  --scalar-color-2: rgba(0, 0, 0, 0.6);
+  --scalar-color-3: rgba(0, 0, 0, 0.4);
+  --scalar-color-accent: #0a85d1;
+  --scalar-background-1: #fff;
+  --scalar-background-2: #f6f5f4;
+  --scalar-background-3: #f1ede9;
+  --scalar-background-accent: #5369d20f;
+  --scalar-border-color: rgba(0, 0, 0, 0.08);
 }
 .dark-mode {
-  --theme-color-1: rgba(255, 255, 255, 0.81);
-  --theme-color-2: rgba(255, 255, 255, 0.443);
-  --theme-color-3: rgba(255, 255, 255, 0.282);
-  --theme-color-accent: #8ab4f8;
-  --theme-background-1: #202020;
-  --theme-background-2: #272727;
-  --theme-background-3: #333333;
-  --theme-background-accent: #8ab4f81f;
+  --scalar-color-1: rgba(255, 255, 255, 0.81);
+  --scalar-color-2: rgba(255, 255, 255, 0.443);
+  --scalar-color-3: rgba(255, 255, 255, 0.282);
+  --scalar-color-accent: #8ab4f8;
+  --scalar-background-1: #202020;
+  --scalar-background-2: #272727;
+  --scalar-background-3: #333333;
+  --scalar-background-accent: #8ab4f81f;
 }
 ```
 
@@ -490,30 +490,30 @@ Or get more advanced by styling our sidebar!
 
 ```
 .light-mode .sidebar {
-  --sidebar-background-1: var(--theme-background-1);
+  --sidebar-background-1: var(--scalar-background-1);
   --sidebar-item-hover-color: currentColor;
-  --sidebar-item-hover-background: var(--theme-background-2);
-  --sidebar-item-active-background: var(--theme-background-2);
-  --sidebar-border-color: var(--theme-border-color);
-  --sidebar-color-1: var(--theme-color-1);
-  --sidebar-color-2: var(--theme-color-2);
-  --sidebar-color-active: var(--theme-color-2);
-  --sidebar-search-background: var(--theme-background-2);
-  --sidebar-search-border-color: var(--theme-border-color);
-  --sidebar-search-color: var(--theme-color-3);
+  --sidebar-item-hover-background: var(--scalar-background-2);
+  --sidebar-item-active-background: var(--scalar-background-2);
+  --sidebar-border-color: var(--scalar-border-color);
+  --sidebar-color-1: var(--scalar-color-1);
+  --sidebar-color-2: var(--scalar-color-2);
+  --sidebar-color-active: var(--scalar-color-2);
+  --sidebar-search-background: var(--scalar-background-2);
+  --sidebar-search-border-color: var(--scalar-border-color);
+  --sidebar-search-color: var(--scalar-color-3);
 }
 .dark-mode .sidebar {
-  --sidebar-background-1: var(--theme-background-1);
+  --sidebar-background-1: var(--scalar-background-1);
   --sidebar-item-hover-color: currentColor;
-  --sidebar-item-hover-background: var(--theme-background-2);
-  --sidebar-item-active-background: var(--theme-background-2);
-  --sidebar-border-color: var(--theme-border-color);
-  --sidebar-color-1: var(--theme-color-1);
-  --sidebar-color-2: var(--theme-color-2);
-  --sidebar-color-active: var(--theme-color-2);
-  --sidebar-search-background: var(--theme-background-2);
-  --sidebar-search-border-color: var(--theme-border-color);
-  --sidebar-search-color: var(--theme-color-3);
+  --sidebar-item-hover-background: var(--scalar-background-2);
+  --sidebar-item-active-background: var(--scalar-background-2);
+  --sidebar-border-color: var(--scalar-border-color);
+  --sidebar-color-1: var(--scalar-color-1);
+  --sidebar-color-2: var(--scalar-color-2);
+  --sidebar-color-active: var(--scalar-color-2);
+  --sidebar-search-background: var(--scalar-background-2);
+  --sidebar-search-border-color: var(--scalar-border-color);
+  --sidebar-search-color: var(--scalar-color-3);
 }
 ```
 

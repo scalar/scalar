@@ -98,11 +98,11 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
   overflow: hidden;
   pointer-events: all;
   background: var(
-    --theme-background-1,
-    var(--default-theme-background-1)
+    --scalar-background-1,
+    var(--default-scalar-background-1)
   ) !important;
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  box-shadow: var(--theme-shadow-1, var(--default-theme-shadow-1));
+  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
+  box-shadow: var(--scalar-shadow-1, var(--default-scalar-shadow-1));
   height: 100%;
   overflow: hidden;
   display: flex;
@@ -116,13 +116,13 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
   padding: 11px 12px;
   height: var(--refs-header-height);
   background-color: var(
-    --theme-background-1,
-    var(--default-theme-background-1)
+    --scalar-background-1,
+    var(--default-scalar-background-1)
   );
   z-index: 10;
   position: sticky;
   border-bottom: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+    var(--scalar-border-color, var(--default-scalar-border-color));
   top: 0;
 }
 
@@ -133,15 +133,15 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
   display: flex;
   align-items: center;
   background: transparent;
-  font-size: var(--theme-small, var(--default-theme-small));
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--scalar-small, var(--default-scalar-small));
+  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
 }
 .scalar-api-client__close:hover {
   cursor: pointer;
 }
 .api-client-drawer {
-  background: var(--theme-background-1, var(--default-theme-background-1));
+  background: var(--scalar-background-1, var(--default-scalar-background-1));
   height: calc(100% - 58px);
   width: calc(100% - 8px);
   border-radius: 12px;
@@ -234,7 +234,7 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
       --sidebar-border-color,
       var(
         --default-sidebar-border-color,
-        var(--theme-border-color, var(--default-theme-border-color))
+        var(--scalar-border-color, var(--default-scalar-border-color))
       )
     );
 }

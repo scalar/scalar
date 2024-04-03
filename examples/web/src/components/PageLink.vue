@@ -37,13 +37,13 @@ defineProps<{
 <style scoped>
 a {
   text-decoration: none;
-  color: var(--default-theme-color-2);
+  color: var(--default-scalar-color-2);
 }
 
 .description {
   padding: 10px;
   min-height: 75px;
-  font-size: var(--default-theme-small);
+  font-size: var(--default-scalar-small);
   line-height: 1.5;
 }
 </style>

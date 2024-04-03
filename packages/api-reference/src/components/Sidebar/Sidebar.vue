@@ -175,7 +175,7 @@ onMounted(() => {
 
 <style scoped>
 .sidebar {
-  --default-theme-sidebar-indent-base: 12px;
+  --default-scalar-sidebar-indent-base: 12px;
 }
 .sidebar {
   flex: 1;
@@ -187,11 +187,11 @@ onMounted(() => {
       --sidebar-border-color,
       var(
         --default-sidebar-border-color,
-        var(--theme-border-color, var(--default-theme-border-color))
+        var(--scalar-border-color, var(--default-scalar-border-color))
       )
     );
   /* prettier-ignore */
-  background: var(--sidebar-background-1, var(--default-sidebar-background-1, var(--theme-background-1, var(--default-theme-background-1))));
+  background: var(--sidebar-background-1, var(--default-sidebar-background-1, var(--scalar-background-1, var(--default-scalar-background-1))));
   --default-sidebar-level: 0;
 }
 .sidebar-pages {
@@ -209,9 +209,9 @@ onMounted(() => {
 }
 .sidebar-group-title {
   color: var(--sidebar-color-1, var(--default-sidebar-color-1));
-  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-size: var(--scalar-mini, var(--default-scalar-mini));
   padding: 12px 6px 6px;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
   text-transform: uppercase;
   word-break: break-word;
   line-height: 1.385;

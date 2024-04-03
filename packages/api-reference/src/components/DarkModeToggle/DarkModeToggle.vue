@@ -33,26 +33,26 @@ defineEmits<{
 </template>
 <style scoped>
 .darklight {
-  font-family: var(--theme-font, var(--default-theme-font));
+  font-family: var(--scalar-font, var(--default-scalar-font));
   border: none;
   border-top: 1px solid
     var(
       --sidebar-border-color,
       var(
         --default-sidebar-border-color,
-        var(--theme-border-color, var(--default-theme-border-color))
+        var(--scalar-border-color, var(--default-scalar-border-color))
       )
     );
   color: var(
     --sidebar-color-2,
     var(
       --default-sidebar-color-2,
-      var(--theme-color-2, var(--default-theme-color-2))
+      var(--scalar-color-2, var(--default-scalar-color-2))
     )
   );
 
-  font-size: var(--theme-mini, var(--default-theme-mini));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--scalar-mini, var(--default-scalar-mini));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
   appearance: none;
   background: transparent;
   outline: none;
@@ -73,7 +73,7 @@ defineEmits<{
     --sidebar-color-1,
     var(
       --default-sidebar-color-1,
-      var(--theme-color-1, var(--default-theme-color-1))
+      var(--scalar-color-1, var(--default-scalar-color-1))
     )
   );
 }
@@ -87,13 +87,13 @@ defineEmits<{
   padding: 6px 24px 12px;
   display: flex;
   align-items: center;
-  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-size: var(--scalar-mini, var(--default-scalar-mini));
   text-decoration: none;
   color: var(
     --sidebar-color-2,
     var(
       --default-sidebar-color-2,
-      var(--theme-color-2, var(--default-theme-color-2))
+      var(--scalar-color-2, var(--default-scalar-color-2))
     )
   );
 }

@@ -52,8 +52,8 @@ useCodeMirror({
   height: 100%;
   padding-top: 4px;
   min-height: 76px;
-  background: var(--theme-background-2, var(--default-theme-background-2));
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  background: var(--scalar-background-2, var(--default-scalar-background-2));
+  color: var(--scalar-color-1, var(--default-scalar-color-1));
   display: flex;
   align-items: stretch;
 }
@@ -68,7 +68,7 @@ useCodeMirror({
   flex-grow: 1;
   max-width: 100%;
   cursor: text;
-  font-size: var(--theme-small, var(--default-theme-small));
+  font-size: var(--scalar-small, var(--default-scalar-small));
   /* Don't scale wide text on mobile because we let it scroll */
   -webkit-text-size-adjust: 100%;
 }

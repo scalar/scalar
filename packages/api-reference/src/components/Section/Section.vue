@@ -69,6 +69,6 @@ function handleScroll() {
 }
 .section:not(:last-of-type) {
   border-bottom: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+    var(--scalar-border-color, var(--default-scalar-border-color));
 }
 </style>

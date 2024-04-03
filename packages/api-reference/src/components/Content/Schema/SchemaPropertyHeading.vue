@@ -111,28 +111,28 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 
 .property-name {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  font-family: var(--scalar-font-code, var(--default-scalar-font-code));
 }
 
 .property-required,
 .property-optional {
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  color: var(--scalar-color-2, var(--default-scalar-color-2));
 }
 
 .property-required {
   text-transform: uppercase;
-  color: var(--theme-color-orange, var(--default-theme-color-orange));
+  color: var(--scalar-color-orange, var(--default-scalar-color-orange));
 }
 
 .property-read-only,
 .property-write-only {
-  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
-  color: var(--theme-color-blue, var(--default-theme-color-blue));
+  font-size: var(--scalar-font-size-3, var(--default-scalar-font-size-3));
+  color: var(--scalar-color-blue, var(--default-scalar-color-blue));
 }
 
 .property-details {
-  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  font-size: var(--scalar-font-size-3, var(--default-scalar-font-size-3));
+  color: var(--scalar-color-2, var(--default-scalar-color-2));
 
   display: flex;
   align-items: center;

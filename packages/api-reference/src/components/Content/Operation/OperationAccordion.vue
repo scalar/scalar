@@ -103,11 +103,11 @@ const { copyToClipboard } = useClipboard()
   padding: 6px;
   flex-shrink: 0;
 
-  font-size: var(--theme-small, var(--default-theme-small));
+  font-size: var(--scalar-small, var(--default-scalar-small));
 
   text-transform: uppercase;
-  font-weight: var(--default-theme-bold);
-  font-family: var(--default-theme-font);
+  font-weight: var(--default-scalar-bold);
+  font-family: var(--default-scalar-font);
 }
 .endpoint-type::after {
   content: '';
@@ -118,7 +118,7 @@ const { copyToClipboard } = useClipboard()
   background: currentColor;
   opacity: 0.15;
 
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
 }
 
 .endpoint-anchor {
@@ -138,23 +138,23 @@ const { copyToClipboard } = useClipboard()
   min-width: 0;
   flex-shrink: 1;
 
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1, var(--default-scalar-color-1));
 }
 
 .endpoint-label-path {
-  font-family: var(--default-theme-font-code);
-  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-family: var(--default-scalar-font-code);
+  font-size: var(--scalar-mini, var(--default-scalar-mini));
 
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
 }
 .endpoint-label-path :deep(em) {
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  color: var(--scalar-color-2, var(--default-scalar-color-2));
 }
 .endpoint-label-name {
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  font-size: var(--theme-small, var(--default-theme-small));
+  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  font-size: var(--scalar-small, var(--default-scalar-small));
 
   /* Concatenate the name before we shrink the path */
   flex-shrink: 1000000000;

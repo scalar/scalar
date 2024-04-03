@@ -70,7 +70,7 @@ watch(
 
 <style>
 .scalar-api-client__item {
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border-radius: var(--scalar-radius, var(--default-scalar-radius));
   margin-bottom: 6px;
   position: relative;
 }
@@ -95,7 +95,7 @@ watch(
 }
 .scalar-api-client__item:hover,
 .scalar-api-client__item--open {
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--scalar-background-2, var(--default-scalar-background-2));
 }
 
 .scalar-api-client__item--open .scalar-api-client__item__content {
@@ -120,15 +120,15 @@ watch(
   appearance: none;
   outline: 0;
   border: none;
-  font-family: (--theme-font, var(--default-theme-font));
+  font-family: (--scalar-font, var(--default-scalar-font));
   cursor: pointer;
 }
 
 .scalar-api-client__item .scalar-api-client__item__title {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  font-size: var(--theme-small, var(--default-theme-small));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-family: (--theme-font, var(--default-theme-font));
+  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  font-size: var(--scalar-small, var(--default-scalar-small));
+  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  font-family: (--scalar-font, var(--default-scalar-font));
   user-select: none;
   flex: 1;
   position: relative;
@@ -137,12 +137,12 @@ watch(
 .scalar-api-client__item .scalar-api-client__toggle__icon {
   width: 10px;
   margin-right: 6px;
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  color: var(--scalar-color-3, var(--default-scalar-color-3));
   z-index: 1;
   position: relative;
 }
 .scalar-api-client__toggle:hover .scalar-api-client__toggle__icon {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1, var(--default-scalar-color-1));
 }
 
 .scalar-api-client__item__options {
@@ -154,15 +154,15 @@ watch(
   background: transparent;
   padding: 2px 0;
   border-radius: 3px;
-  font-size: var(--theme-small, var(--default-theme-small));
+  font-size: var(--scalar-small, var(--default-scalar-small));
   pointer-events: none;
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  color: var(--scalar-color-2, var(--default-scalar-color-2));
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .scalar-api-client__item__options:hover span {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1, var(--default-scalar-color-1));
   border-color: currentColor;
 }
 .scalar-api-client__item__options span svg {

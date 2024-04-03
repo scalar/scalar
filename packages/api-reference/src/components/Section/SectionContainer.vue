@@ -10,7 +10,7 @@
 }
 .section-container:last-of-type {
   border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+    var(--scalar-border-color, var(--default-scalar-border-color));
 }
 
 @container narrow-references-container (max-width: 900px) {

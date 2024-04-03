@@ -13,8 +13,8 @@ defineProps<{ href: string }>()
 a {
   text-decoration: underline;
   text-decoration-color: var(
-    --theme-border-color,
-    var(--default-theme-border-color)
+    --scalar-border-color,
+    var(--default-scalar-border-color)
   );
   text-underline-offset: 2px;
   cursor: help;

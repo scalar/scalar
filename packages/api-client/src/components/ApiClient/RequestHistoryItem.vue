@@ -58,7 +58,7 @@ const getContentLength = (response: ClientResponse) => {
   text-transform: capitalize;
 }
 .navtable-item__active {
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--scalar-background-2, var(--default-scalar-background-2));
   cursor: default;
 }
 </style>

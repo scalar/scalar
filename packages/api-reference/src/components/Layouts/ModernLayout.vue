@@ -63,7 +63,7 @@ watch(hash, (newHash, oldHash) => {
 <style>
 @media (max-width: 1000px) {
   .scalar-api-references-standalone-mobile {
-    --theme-header-height: 50px;
+    --scalar-header-height: 50px;
   }
 }
 </style>

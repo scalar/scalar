@@ -203,7 +203,7 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
 .references-classic .introduction-cards-row :deep(.card-footer),
 .references-classic .introduction-cards-row :deep(.scalar-card),
 .references-classic .introduction-cards-row :deep(.scalar-card--muted) {
-  background: var(--theme-background-1, var(--default-theme-background-1));
+  background: var(--scalar-background-1, var(--default-scalar-background-1));
 }
 .references-classic
   .introduction-cards-row
