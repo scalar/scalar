@@ -447,18 +447,11 @@ Overwrite our CSS variables. We won’t judge.
 }
 ```
 
-We’re using the `default-` prefix for our variables to not overwrite your variables. You can [use all variables without a prefix](https://github.com/scalar/scalar/blob/main/packages/themes/src/base.css).
-
-```css
-/* ✅ Good (without `default` prefix) */
---scalar-font: 'Comic Sans MS', 'Comic Sans', cursive;
-/* ❌ Bad (with `default` prefix) */
---default-scalar-font: 'Comic Sans MS', 'Comic Sans', cursive;
-```
+You can [use all variables](https://github.com/scalar/scalar/blob/main/packages/themes/src/base.css).
 
 Overwrite our night mode and day mode variables to build your own themes. Here are some of the basic variables to get you started:
 
-![basic-scalar-variables](https://github.com/scalar/scalar/assets/6201407/63524321-66d2-44d0-8509-3db7e045a315)
+![basic-scalar-variables](https://github.com/scalar/scalar/assets/6374090/f49256c4-4623-4797-87a1-24bdbc9b17fd)
 
 ```
 .light-mode {
@@ -486,7 +479,7 @@ Overwrite our night mode and day mode variables to build your own themes. Here a
 
 Or get more advanced by styling our sidebar!
 
-![scalar-sidebar-variables](https://github.com/scalar/scalar/assets/6201407/2c363cbc-f06f-4ad3-b44f-05cee8c95a8b)
+![scalar-sidebar-variables](https://github.com/scalar/scalar/assets/6374090/5b1f0211-5c09-4092-a882-03d8241ad428)
 
 ```
 .light-mode .sidebar {
