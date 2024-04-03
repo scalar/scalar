@@ -43,10 +43,10 @@ export const extend = {
     xl: 'var(--scalar-radius-xl)',
   },
   fontSize: {
-    xxs: 'var(--scalar-micro, var(--default-scalar-micro, var(--scalar-font-size-5)))',
-    xs: 'var(--scalar-mini, var(--default-scalar-mini, var(--scalar-font-size-4)))',
-    sm: 'var(--scalar-small, var(--default-scalar-small, var(--scalar-font-size-3)))',
-    base: 'var(--scalar-paragraph, var(--default-scalar-paragraph, var(--scalar-font-size-2)))',
+    xxs: 'var(--scalar-micro, var(--scalar-font-size-5))',
+    xs: 'var(--scalar-mini, var(--scalar-font-size-4))',
+    sm: 'var(--scalar-small,var(--scalar-font-size-3))',
+    base: 'var(--scalar-paragraph, var(--scalar-font-size-2))',
     lg: 'var(--scalar-font-size-1)',
   },
   fontWeight: {
