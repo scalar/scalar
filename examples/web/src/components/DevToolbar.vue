@@ -56,13 +56,13 @@ watch(
 .dev-header {
   display: flex;
   justify-content: space-between;
-  color: var(--default-scalar-color-1);
+  color: var(--scalar-color-1);
 
   width: 100%;
   height: var(--scalar-header-height);
 
-  background: var(--default-scalar-background-1);
-  border-bottom: 1px solid var(--default-scalar-border-color);
+  background: var(--scalar-background-1);
+  border-bottom: 1px solid var(--scalar-border-color);
 }
 .dev-title {
   font-weight: bold;
@@ -83,23 +83,23 @@ watch(
   text-decoration: none;
 
   padding: 4px 6px;
-  border: 1px solid var(--default-scalar-border-color);
-  color: var(--default-scalar-color-1);
-  background: var(--default-scalar-background-2);
-  border-radius: var(--default-scalar-radius);
+  border: 1px solid var(--scalar-border-color);
+  color: var(--scalar-color-1);
+  background: var(--scalar-background-2);
+  border-radius: var(--scalar-radius);
 }
 .dev-home-link:hover {
-  background: var(--default-scalar-background-3);
+  background: var(--scalar-background-3);
 }
 
 .dev-options {
   display: flex;
-  font-size: var(--default-scalar-small);
+  font-size: var(--scalar-small);
 }
 
 .dev-options > :deep(*) {
   padding: 0px 12px;
-  border-left: 1px solid var(--default-scalar-border-color);
+  border-left: 1px solid var(--scalar-border-color);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -113,18 +113,18 @@ watch(
 
   padding: 4px 8px;
 
-  font-size: var(--default-scalar-small);
+  font-size: var(--scalar-small);
   font-weight: 500;
 
-  color: var(--default-scalar-color-1);
-  background: var(--default-scalar-background-1);
-  border: 1px solid var(--default-scalar-border-color);
-  border-radius: var(--default-scalar-radius);
-  box-shadow: var(--default-scalar-shadow-1);
+  color: var(--scalar-color-1);
+  background: var(--scalar-background-1);
+  border: 1px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
+  box-shadow: var(--scalar-shadow-1);
 }
 
 .dev-show-toolbar:hover,
 .dev-hide-toolbar:hover {
-  background: var(--default-scalar-background-2);
+  background: var(--scalar-background-2);
 }
 </style>

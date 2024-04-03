@@ -189,7 +189,7 @@ html[data-theme='light'] .api-client-drawer {
   font-weight: 500;
 }
 .sidebar-indent-nested .sidebar-heading {
-  --default-scalar-sidebar-indent-base: 6px;
+  --scalar-sidebar-indent-base: 6px;
 }
 .sidebar .darklight {
   display: none !important;

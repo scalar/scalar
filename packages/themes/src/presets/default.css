@@ -1,78 +1,74 @@
-/* basic theme */
-.light-mode {
-  --default-scalar-background-1: #fff;
-  --default-scalar-background-2: #f6f6f6;
-  --default-scalar-background-3: #e7e7e7;
-  --default-scalar-background-accent: #8ab4f81f;
+@layer scalar-theme {
+  /* basic theme */
+  .light-mode {
+    --scalar-background-1: #fff;
+    --scalar-background-2: #f6f6f6;
+    --scalar-background-3: #e7e7e7;
+    --scalar-background-accent: #8ab4f81f;
 
-  --default-scalar-color-1: #2a2f45;
-  --default-scalar-color-2: #757575;
-  --default-scalar-color-3: #8e8e8e;
+    --scalar-color-1: #2a2f45;
+    --scalar-color-2: #757575;
+    --scalar-color-3: #8e8e8e;
 
-  --default-scalar-color-accent: #0099ff;
-  --default-scalar-border-color: rgba(0, 0, 0, 0.1);
-}
-.dark-mode {
-  --default-scalar-background-1: #0f0f0f;
-  --default-scalar-background-2: #1a1a1a;
-  --default-scalar-background-3: #272727;
+    --scalar-color-accent: #0099ff;
+    --scalar-border-color: rgba(0, 0, 0, 0.1);
+  }
+  .dark-mode {
+    --scalar-background-1: #0f0f0f;
+    --scalar-background-2: #1a1a1a;
+    --scalar-background-3: #272727;
 
-  --default-scalar-color-1: rgba(255, 255, 255, 0.9);
-  --default-scalar-color-2: rgba(255, 255, 255, 0.62);
-  --default-scalar-color-3: rgba(255, 255, 255, 0.44);
+    --scalar-color-1: rgba(255, 255, 255, 0.9);
+    --scalar-color-2: rgba(255, 255, 255, 0.62);
+    --scalar-color-3: rgba(255, 255, 255, 0.44);
 
-  --default-scalar-color-accent: #3ea6ff;
-  --default-scalar-background-accent: #3ea6ff1f;
+    --scalar-color-accent: #3ea6ff;
+    --scalar-background-accent: #3ea6ff1f;
 
-  --default-scalar-border-color: rgba(255, 255, 255, 0.1);
-}
-/* Document Sidebar */
-.light-mode .t-doc__sidebar,
-.dark-mode .t-doc__sidebar {
-  --default-scalar-sidebar-background-1: var(--default-scalar-background-1);
-  --default-scalar-sidebar-color-1: var(--default-scalar-color-1);
-  --default-scalar-sidebar-color-2: var(--default-scalar-color-2);
-  --default-scalar-sidebar-border-color: var(--default-scalar-border-color);
+    --scalar-border-color: rgba(255, 255, 255, 0.1);
+  }
+  /* Document Sidebar */
+  .light-mode .t-doc__sidebar,
+  .dark-mode .t-doc__sidebar {
+    --scalar-sidebar-background-1: var(--scalar-background-1);
+    --scalar-sidebar-color-1: var(--scalar-color-1);
+    --scalar-sidebar-color-2: var(--scalar-color-2);
+    --scalar-sidebar-border-color: var(--scalar-border-color);
 
-  --default-scalar-sidebar-item-hover-background: var(
-    --default-scalar-background-2
-  );
-  --default-scalar-sidebar-item-hover-color: currentColor;
+    --scalar-sidebar-item-hover-background: var(--scalar-background-2);
+    --scalar-sidebar-item-hover-color: currentColor;
 
-  --default-scalar-sidebar-item-active-background: var(
-    --default-scalar-background-2
-  );
-  --default-scalar-sidebar-color-active: var(--default-scalar-color-1);
+    --scalar-sidebar-item-active-background: var(--scalar-background-2);
+    --scalar-sidebar-color-active: var(--scalar-color-1);
 
-  --default-scalar-sidebar-search-background: transparent;
-  --default-scalar-sidebar-search-color: var(--default-scalar-color-3);
-  --default-scalar-sidebar-search-border-color: var(
-    --default-scalar-border-color
-  );
-}
+    --scalar-sidebar-search-background: transparent;
+    --scalar-sidebar-search-color: var(--scalar-color-3);
+    --scalar-sidebar-search-border-color: var(--scalar-border-color);
+  }
 
-/* advanced */
-.light-mode {
-  --default-scalar-color-green: #069061;
-  --default-scalar-color-red: #ef0006;
-  --default-scalar-color-yellow: #edbe20;
-  --default-scalar-color-blue: #0082d0;
-  --default-scalar-color-orange: #fb892c;
-  --default-scalar-color-purple: #5203d1;
+  /* advanced */
+  .light-mode {
+    --scalar-color-green: #069061;
+    --scalar-color-red: #ef0006;
+    --scalar-color-yellow: #edbe20;
+    --scalar-color-blue: #0082d0;
+    --scalar-color-orange: #fb892c;
+    --scalar-color-purple: #5203d1;
 
-  --default-scalar-button-1: rgba(0, 0, 0, 1);
-  --default-scalar-button-1-hover: rgba(0, 0, 0, 0.8);
-  --default-scalar-button-1-color: rgba(255, 255, 255, 0.9);
-}
-.dark-mode {
-  --default-scalar-color-green: #00b648;
-  --default-scalar-color-red: #dc1b19;
-  --default-scalar-color-yellow: #ffc90d;
-  --default-scalar-color-blue: #4eb3ec;
-  --default-scalar-color-orange: #ff8d4d;
-  --default-scalar-color-purple: #b191f9;
+    --scalar-button-1: rgba(0, 0, 0, 1);
+    --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
+    --scalar-button-1-color: rgba(255, 255, 255, 0.9);
+  }
+  .dark-mode {
+    --scalar-color-green: #00b648;
+    --scalar-color-red: #dc1b19;
+    --scalar-color-yellow: #ffc90d;
+    --scalar-color-blue: #4eb3ec;
+    --scalar-color-orange: #ff8d4d;
+    --scalar-color-purple: #b191f9;
 
-  --default-scalar-button-1: rgba(255, 255, 255, 1);
-  --default-scalar-button-1-hover: rgba(255, 255, 255, 0.9);
-  --default-scalar-button-1-color: black;
+    --scalar-button-1: rgba(255, 255, 255, 1);
+    --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
+    --scalar-button-1-color: black;
+  }
 }
