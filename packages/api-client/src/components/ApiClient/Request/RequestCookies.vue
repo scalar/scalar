@@ -71,9 +71,8 @@ const hasCookies = computed(() => {
 <style>
 .scalar-api-client-add {
   color: var(--theme-color-2, var(--default-theme-color-2));
-  padding: 6px;
+  padding: 3px 9px;
   width: fit-content;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
   cursor: pointer;
   font-size: var(--theme-micro, var(--default-theme-micro));
   font-weight: var(--theme-semibold, var(--default-theme-semibold));
@@ -84,6 +83,8 @@ const hasCookies = computed(() => {
   appearance: none;
   display: flex;
   align-items: center;
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border-radius: 30px;
 }
 .scalar-api-client-add svg {
   width: 12px;

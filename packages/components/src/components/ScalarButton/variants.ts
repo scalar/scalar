@@ -9,7 +9,7 @@ export const styles: Record<string, Record<string, any>> = {
   ],
   outlined: [
     'scalar-button-outlined',
-    'active:bg-btn-1 border border-solid border-border bg-transparent text-fore-1 hocus:bg-back-2',
+    'active:bg-btn-1 border border-solid border-border bg-transparent text-fore-1 hocus:bg-border',
   ],
   ghost: [
     'scalar-button-ghost',

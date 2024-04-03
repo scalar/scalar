@@ -20,12 +20,12 @@ const {
   openApi: { operation, globalSecurity },
 } = useOpenApiStore()
 
-const authenticationRequest = computed(() => {
-  return getRequestFromAuthentication(
+const authenticationRequest = computed(() =>
+  getRequestFromAuthentication(
     authentication,
     operation?.information?.security ?? globalSecurity,
-  )
-})
+  ),
+)
 
 /**
  * TODO: This is a workaround to make the address bar editable, but not the rest. If we’d really like to have an
