@@ -55,29 +55,23 @@ whenever(keys[`meta_${props.searchHotKey}`], () =>
   padding: 0 3px 0 9px;
   min-width: 254px;
   max-width: 100%;
-  font-family: var(--scalar-font, var(--default-scalar-font));
+  font-family: var(--scalar-font);
   background: var(
     --scalar-sidebar-search-background,
-    var(
-      --default-scalar-sidebar-search-background,
-      var(--scalar-background-1, var(--default-scalar-background-1))
-    )
+    var(--default-scalar-sidebar-search-background, var(--scalar-background-1))
   );
   color: var(
     --scalar-sidebar-color-2,
-    var(
-      --default-scalar-sidebar-color-2,
-      var(--scalar-color-2, var(--default-scalar-color-2))
-    )
+    var(--default-scalar-sidebar-color-2, var(--scalar-color-2))
   );
   outline: none;
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  border-radius: var(--scalar-radius);
   box-shadow: 0 0 0 1px
     var(
       --scalar-sidebar-search-border-color,
       var(
         --default-scalar-sidebar-search-border-color,
-        var(--scalar-border-color, var(--default-scalar-border-color))
+        var(--scalar-border-color)
       )
     );
   /* prettier-ignore */
@@ -87,8 +81,8 @@ whenever(keys[`meta_${props.searchHotKey}`], () =>
 }
 
 .sidebar-search-input {
-  font-size: var(--scalar-mini, var(--default-scalar-mini));
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  font-size: var(--scalar-mini);
+  font-weight: var(--scalar-semibold);
   height: 31px;
 
   user-select: none;
@@ -109,11 +103,11 @@ whenever(keys[`meta_${props.searchHotKey}`], () =>
   );
   padding: 3px 5px;
   margin: 2px;
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  border-radius: var(--scalar-radius);
   color: var(
     --scalar-sidebar-color-2,
     var(--default-scalar-sidebar-color-2),
-    var(--scalar-color-2, var(--default-scalar-color-2))
+    var(--scalar-color-2)
   );
 }
 

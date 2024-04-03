@@ -26,10 +26,7 @@ defineEmits<{
 .darklight {
   color: var(
     --scalar-sidebar-color-2,
-    var(
-      --default-scalar-sidebar-color-2,
-      var(--scalar-color-2, var(--default-scalar-color-2))
-    )
+    var(--default-scalar-sidebar-color-2, var(--scalar-color-2))
   );
   display: flex;
   align-items: center;
@@ -43,10 +40,7 @@ defineEmits<{
   cursor: pointer;
   color: var(
     --scalar-sidebar-color-1,
-    var(
-      --default-scalar-sidebar-color-1,
-      var(--scalar-color-1, var(--default-scalar-color-1))
-    )
+    var(--default-scalar-sidebar-color-1, var(--scalar-color-1))
   );
 }
 </style>

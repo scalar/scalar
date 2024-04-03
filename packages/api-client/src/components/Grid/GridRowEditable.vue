@@ -104,11 +104,10 @@ const enabledProxy = computed<boolean>({
   top: 4px;
   right: 0;
   padding: 5px 9px 5px 6px;
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
-  font-size: var(--scalar-micro, var(--default-scalar-micro));
-  background: var(--scalar-background-2, var(--default-scalar-background-2));
-  box-shadow: -2px 0 4px
-    var(--scalar-background-2, var(--default-scalar-background-2));
+  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-micro);
+  background: var(--scalar-background-2);
+  box-shadow: -2px 0 4px var(--scalar-background-2);
 }
 .table-row-editable.required-parameter
   :deep(.table-row-item:nth-of-type(2):focus-within:after) {
@@ -117,7 +116,7 @@ const enabledProxy = computed<boolean>({
 .table-row-meta-check {
   width: 18px;
   height: 18px;
-  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
+  border-radius: var(--scalar-radius-lg);
   background: rgba(47, 177, 228, 0.1);
 }
 .meta-check {
@@ -125,8 +124,8 @@ const enabledProxy = computed<boolean>({
   position: relative;
   cursor: pointer;
   align-items: center;
-  font-size: var(--scalar-micro, var(--default-scalar-micro));
-  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
+  font-size: var(--scalar-micro);
+  border-radius: var(--scalar-radius-lg);
   user-select: none;
   margin: 0 1px;
   transition: all 0.15s ease-in-out;
@@ -141,7 +140,7 @@ const enabledProxy = computed<boolean>({
 .meta-checkmark {
   height: 17px;
   width: 17px;
-  background: var(--scalar-background-3, var(--default-scalar-background-3));
+  background: var(--scalar-background-3);
   border-radius: 3px;
   display: flex;
   align-items: center;
@@ -149,17 +148,17 @@ const enabledProxy = computed<boolean>({
   position: relative;
 }
 .meta-checkmark:hover {
-  background: var(--scalar-background-3, var(--default-scalar-background-3));
+  background: var(--scalar-background-3);
 }
 .meta-check:focus-within .meta-checkmark {
-  box-shadow: 0 0 0 1px var(--scalar-color-1, var(--default-scalar-color-1));
+  box-shadow: 0 0 0 1px var(--scalar-color-1);
 }
 .meta-check .meta-checkmark:after {
   content: '';
   display: none;
   width: 5px;
   height: 8px;
-  border: solid var(--scalar-color-1, var(--default-scalar-color-1));
+  border: solid var(--scalar-color-1);
   border-width: 0 1.5px 1.5px 0;
   transform: rotate(45deg) translate3d(0, -1px, 0);
 }
@@ -169,8 +168,8 @@ const enabledProxy = computed<boolean>({
 .meta-checkmark:hover {
   background: color-mix(
     in srgb,
-    var(--scalar-background-3, var(--default-scalar-background-3)) 90%,
-    var(--scalar-color-1, var(--default-scalar-color-1))
+    var(--scalar-background-3) 90%,
+    var(--scalar-color-1)
   );
 }
 .meta-delete {
@@ -195,17 +194,17 @@ const enabledProxy = computed<boolean>({
 .meta-delete svg {
   width: 11px;
   height: 11px;
-  color: var(--scalar-color-3, var(--default-scalar-color-3));
+  color: var(--scalar-color-3);
 }
 .meta-delete:hover svg {
-  color: var(--scalar-color-red, var(--default-scalar-color-red));
+  color: var(--scalar-color-red);
 }
 .meta-delete:focus svg {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
 }
 .meta-delete:focus {
-  border-color: var(--scalar-color-1, var(--default-scalar-color-1));
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  border-color: var(--scalar-color-1);
+  color: var(--scalar-color-1);
 }
 .table-row-editable:hover .meta-delete {
   opacity: 1;

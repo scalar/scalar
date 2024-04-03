@@ -26,17 +26,14 @@ withDefaults(
 .section-header {
   font-size: var(
     --font-size,
-    var(
-      --default-font-size,
-      var(--scalar-heading-2, var(--default-scalar-heading-2))
-    )
+    var(--default-font-size, var(--scalar-heading-2))
   );
   font-weight: var(
     --font-weight,
-    var(--default-font-weight, var(--scalar-bold, var(--default-scalar-bold)))
+    var(--default-font-weight, var(--scalar-bold))
   );
   /* prettier-ignore */
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
   word-wrap: break-word;
   line-height: 1.45;
   margin-top: 0;

@@ -112,13 +112,13 @@ watch(
 <style>
 .scalar-api-client,
 #headlessui-portal-root {
-  background: var(--scalar-background-1, var(--default-scalar-background-1));
+  background: var(--scalar-background-1);
   position: relative;
   height: 100%;
   overflow: hidden !important;
   display: flex;
   flex-direction: column;
-  font-family: var(--scalar-font, var(--default-scalar-font));
+  font-family: var(--scalar-font);
 
   /** Make sure box-sizing is set properly. */
   box-sizing: border-box;
@@ -139,15 +139,15 @@ watch(
   }
 }
 .scalar-api-client pre {
-  font-family: var(--scalar-font-code, var(--default-scalar-font-code));
+  font-family: var(--scalar-font-code);
 }
 
 .scalar-api-client__mobile-navigation {
   padding: 12px 12px 0 12px;
   display: flex;
-  font-size: var(--scalar-small, var(--default-scalar-small));
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
-  font-weight: var(--scalar-bold, var(--default-scalar-bold));
+  font-size: var(--scalar-small);
+  color: var(--scalar-color-2);
+  font-weight: var(--scalar-bold);
 }
 
 .scalar-api-client__mobile-navigation__toggle {
@@ -157,15 +157,15 @@ watch(
   background: transparent;
   font-size: var(--scalar-font-size-2);
   color: var(--scalar-color-2);
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
-  font-family: var(--scalar-font, var(--default-scalar-font));
+  font-weight: var(--scalar-semibold);
+  font-family: var(--scalar-font);
   padding: 0;
   margin-right: 9px;
   cursor: pointer;
 }
 
 .scalar-api-client__mobile-navigation--active {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
 }
 
 .scalar-api-client__mobile-navigation--active:hover {
@@ -176,9 +176,8 @@ watch(
   display: flex;
   height: 100%;
   min-height: 0;
-  background: var(--scalar-background-1, var(--default-scalar-background-1));
-  border-top: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  background: var(--scalar-background-1);
+  border-top: 1px solid var(--scalar-border-color);
 }
 
 @media screen and (max-width: 820px) {
@@ -190,15 +189,15 @@ watch(
 /** TODO: Consider to make a Column component */
 .scalar-api-client__main__content {
   padding: 12px 6px;
-  background: var(--scalar-background-1, var(--default-scalar-background-1));
+  background: var(--scalar-background-1);
   top: 0;
   position: sticky;
   z-index: 100;
 }
 .scalar-api-client__main__content label {
-  font-size: var(--scalar-small, var(--default-scalar-small));
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  font-size: var(--scalar-small);
+  color: var(--scalar-color-1);
+  font-weight: var(--scalar-semibold);
   display: flex;
   align-items: center;
 }
@@ -215,8 +214,8 @@ watch(
 .meta {
   display: flex;
   margin-top: 3px;
-  font-size: var(--scalar-font-size-2, var(--default-scalar-font-size-2));
-  font-weight: var(--scalar-font-size-2, var(--default-scalar-font-size-2));
+  font-size: var(--scalar-font-size-2);
+  font-weight: var(--scalar-font-size-2);
   color: var(
     --scalar-api-client-color2,
     var(--default-scalar-api-client-color2)
@@ -224,7 +223,7 @@ watch(
 }
 
 .meta-item svg {
-  fill: var(--scalar-color-ghost, var(--default-scalar-color-ghost));
+  fill: var(--scalar-color-ghost);
   height: 14px;
   width: 14px;
   margin-right: 6px;
@@ -235,9 +234,9 @@ watch(
   align-items: center;
   margin-right: 12px;
   white-space: nowrap;
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
-  font-size: var(--scalar-small, var(--default-scalar-small));
-  color: var(--scalar-color-3, var(--default-scalar-color-3));
+  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-small);
+  color: var(--scalar-color-3);
   min-height: 17px;
 }
 
@@ -270,12 +269,11 @@ watch(
   font-size: 24px;
 }
 .scalar-api-client__empty-state {
-  border: 1px dashed
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border: 1px dashed var(--scalar-border-color);
   width: 100%;
   text-align: center;
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
-  font-size: var(--scalar-small, var(--default-scalar-small));
+  border-radius: var(--scalar-radius);
+  font-size: var(--scalar-small);
   min-height: 58px;
   display: flex;
   align-items: center;

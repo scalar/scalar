@@ -47,9 +47,8 @@ const { responses } = useResponses(props.operation)
   gap: 12px;
 }
 .endpoint-details-card-item {
-  border: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
-  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
+  border: 1px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius-lg);
   margin-top: 0;
 }
 .endpoint-details-card :deep(.parameter-list:first-of-type:last-of-type) {
@@ -73,9 +72,9 @@ const { responses } = useResponses(props.operation)
 .endpoint-details-card :deep(.parameters-title),
 .endpoint-details-card :deep(.request-body-title) {
   text-transform: uppercase;
-  font-weight: var(--scalar-bold, var(--default-scalar-bold));
-  font-size: var(--scalar-mini, var(--default-scalar-mini));
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  font-weight: var(--scalar-bold);
+  font-size: var(--scalar-mini);
+  color: var(--scalar-color-2);
   line-height: 1.33;
   padding: 9px;
   margin: 0;

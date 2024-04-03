@@ -23,8 +23,7 @@ defineProps<{
 </template>
 <style scoped>
 .table-row {
-  border-bottom: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-bottom: 1px solid var(--scalar-border-color);
   display: flex;
   position: relative;
 }
@@ -32,13 +31,11 @@ defineProps<{
   border-bottom: none;
 }
 .table-row__active {
-  border-radius: 0 0 var(--scalar-radius-lg, var(--default-scalar-radius-lg))
-    var(--scalar-radius-lg, var(--default-scalar-radius-lg));
+  border-radius: 0 0 var(--scalar-radius-lg) var(--scalar-radius-lg);
 }
 .table-row-item {
   width: 100%;
-  border-right: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-right: 1px solid var(--scalar-border-color);
   position: relative;
 }
 .table-row-item :deep(input) {
@@ -48,19 +45,19 @@ defineProps<{
   padding: 9px;
   width: 100%;
   min-height: 100%;
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
-  font-size: var(--scalar-micro, var(--default-scalar-micro));
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-micro);
   background: transparent;
-  font-family: var(--scalar-font-code, var(--default-scalar-font-code));
+  font-family: var(--scalar-font-code);
 }
 .table-row-item :deep(input::placeholder) {
-  font-family: var(--scalar-font-code, var(--default-scalar-font-code));
+  font-family: var(--scalar-font-code);
 }
 .table-row-item :deep(input[disabled]) {
   background: transparent;
 }
 .table-row-item :deep(input:focus) {
-  box-shadow: 0 0 0 1px var(--scalar-color-1, var(--default-scalar-color-1));
+  box-shadow: 0 0 0 1px var(--scalar-color-1);
 }
 .table-row-meta {
   overflow: hidden;

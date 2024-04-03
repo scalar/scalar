@@ -242,6 +242,6 @@ const startAuthentication = (url: string) => {
 <style scoped>
 .description {
   padding: 12px 4px 4px;
-  font-size: var(--scalar-mini, var(--default-scalar-mini));
+  font-size: var(--scalar-mini);
 }
 </style>

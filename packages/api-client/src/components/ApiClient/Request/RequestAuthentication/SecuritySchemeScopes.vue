@@ -107,19 +107,17 @@ const model = computed({
 }
 .scopes-label-badge em {
   transform: rotate(10deg) translate(0, -0.9px);
-  color: var(--scalar-color-3, var(--default-scalar-color-3));
+  color: var(--scalar-color-3);
 }
 .floating {
   position: relative;
   z-index: 1010;
 }
 .dropdown {
-  background: var(--scalar-background-1, var(--default-scalar-background-1));
-  filter: brightness(
-    var(--scalar-lifted-brightness, var(--default-scalar-lifted-brightness))
-  );
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
-  box-shadow: var(--scalar-shadow-2, var(--default-scalar-shadow-2));
+  background: var(--scalar-background-1);
+  filter: brightness(var(--scalar-lifted-brightness));
+  border-radius: var(--scalar-radius);
+  box-shadow: var(--scalar-shadow-2);
   padding: 4px;
   font-style: normal;
 
@@ -139,26 +137,26 @@ const model = computed({
   row-gap: 2px;
   column-gap: 8px;
 
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  border-radius: var(--scalar-radius);
 
-  font-size: var(--scalar-mini, var(--default-scalar-mini));
+  font-size: var(--scalar-mini);
 
   cursor: pointer;
 }
 .dropdown-item[data-headlessui-state='active'],
 .dropdown-item[data-headlessui-state='active selected'] {
-  background: var(--scalar-background-2, var(--default-scalar-background-2));
+  background: var(--scalar-background-2);
 }
 .dropdown-item-title {
   grid-area: title;
 
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  color: var(--scalar-color-1);
+  font-weight: var(--scalar-semibold);
 }
 .dropdown-item-description {
   grid-area: description;
 
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  color: var(--scalar-color-2);
   line-height: initial;
 }
 .dropdown-item-check {
@@ -170,11 +168,10 @@ const model = computed({
   width: 20px;
   height: 20px;
 
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
-  background: var(--scalar-background-1, var(--default-scalar-background-1));
-  border: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  color: var(--scalar-color-2);
+  background: var(--scalar-background-1);
+  border: 1px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
 }
 .dropdown-item-check:checked:after {
   content: '';
@@ -188,8 +185,8 @@ const model = computed({
   transform: translate(-50%, -50%) rotate(45deg);
 }
 .dropdown-item-check:checked {
-  background: var(--scalar-color-accent, var(--default-scalar-color-accent));
-  color: var(--scalar-background-1, var(--default-scalar-background-1));
+  background: var(--scalar-color-accent);
+  color: var(--scalar-background-1);
   border: 1px solid currentColor;
 }
 </style>

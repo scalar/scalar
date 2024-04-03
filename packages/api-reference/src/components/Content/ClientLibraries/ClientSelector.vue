@@ -293,7 +293,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   bottom: 0;
   height: 2px;
   width: 100%;
-  background: var(--scalar-color-1, var(--default-scalar-color-1));
+  background: var(--scalar-color-1);
 }
 @keyframes codeloader {
   0% {
@@ -305,11 +305,11 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
 }
 .code-languages span {
   margin-top: 6px;
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
-  font-size: var(--scalar-micro, var(--default-scalar-micro));
+  color: var(--scalar-color-2);
+  font-size: var(--scalar-micro);
 }
 .code-languages__active span {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
 }
 .code-languages__select select {
   opacity: 0;
@@ -333,7 +333,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   content: '';
   width: 8px;
   height: 8px;
-  background: var(--scalar-background-1, var(--default-scalar-background-1));
+  background: var(--scalar-background-1);
   box-shadow: 1px 1px 0 currentColor;
   display: block;
   transform: rotate(45deg);
@@ -345,7 +345,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   gap: 9px;
   max-width: initial;
   padding: 10px 0;
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  font-weight: var(--scalar-semibold);
 }
 .references-classic .code-languages span {
   margin-top: 0;
@@ -355,7 +355,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   padding: 3px;
 }
 .references-classic .code-languages-background {
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  border-radius: var(--scalar-radius);
 }
 @media screen and (max-width: 600px) {
   .references-classic .code-languages {

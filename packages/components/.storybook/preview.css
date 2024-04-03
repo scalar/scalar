@@ -1,5 +1,5 @@
 html {
-  font-family: var(--scalar-font, var(--default-scalar-font));
+  font-family: var(--scalar-font);
 }
 
 body.sb-show-main,

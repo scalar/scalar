@@ -28,15 +28,14 @@ withDefaults(
 .simple-cell {
   all: unset;
   display: table-cell;
-  border-right: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-right: 1px solid var(--scalar-border-color);
   position: relative;
   padding: 9px !important;
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
   white-space: nowrap;
 }
 .simple-cell a {
-  color: var(--scalar-color-1, var(--default-scalar-color-1)) !important;
+  color: var(--scalar-color-1) !important;
 }
 .simple-cell:last-of-type {
   border-right: none;
@@ -47,6 +46,6 @@ withDefaults(
 }
 
 .simple-cell.strong {
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  font-weight: var(--scalar-semibold);
 }
 </style>

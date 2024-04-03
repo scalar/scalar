@@ -108,26 +108,26 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
 .empty-state {
   margin: 10px 0 10px 12px;
   text-align: center;
-  font-size: var(--scalar-micro, var(--default-scalar-micro));
+  font-size: var(--scalar-micro);
   min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  border-radius: var(--scalar-radius-lg);
+  color: var(--scalar-color-2);
 }
 
 .rule-title {
-  font-family: var(--scalar-font-code, var(--default-scalar-font-code));
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  font-family: var(--scalar-font-code);
+  color: var(--scalar-color-1);
   display: inline-block;
   margin: 12px 0 6px;
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  border-radius: var(--scalar-radius);
 }
 
 .rule {
   margin: 0 12px 0;
-  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
+  border-radius: var(--scalar-radius-lg);
 }
 
 .rule-items {
@@ -135,33 +135,30 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  border-left: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-left: 1px solid var(--scalar-border-color);
   padding: 12px 0 12px;
 }
 .rule-item {
   counter-increment: list-number;
-  border: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
-  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
+  border: 1px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius-lg);
   overflow: hidden;
   margin-left: 24px;
 }
 .rule-item:before {
   /* content: counter(list-number); */
-  border: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border: 1px solid var(--scalar-border-color);
   border-top: 0;
   border-right: 0;
   content: ' ';
   display: block;
   width: 24px;
   height: 6px;
-  border-radius: 0 0 0 var(--scalar-radius-lg, var(--default-scalar-radius-lg));
+  border-radius: 0 0 0 var(--scalar-radius-lg);
   margin-top: 6px;
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  color: var(--scalar-color-2);
   transform: translateX(-25px);
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
   position: absolute;
 }
 </style>

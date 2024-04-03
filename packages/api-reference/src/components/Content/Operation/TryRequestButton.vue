@@ -30,15 +30,15 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
   border: none;
   padding: 4px 6px;
   white-space: nowrap;
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  border-radius: var(--scalar-radius);
   display: flex;
   justify-content: center;
   align-items: center;
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
-  font-size: var(--scalar-mini, var(--default-scalar-mini));
-  color: var(--scalar-background-2, var(--default-background-2));
-  font-family: var(--scalar-font, var(--default-scalar-font));
-  background: var(--scalar-button-1, var(--default-scalar-button-1));
+  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-mini);
+  color: var(--scalar-background-2);
+  font-family: var(--scalar-font);
+  background: var(--scalar-button-1);
   position: relative;
   cursor: pointer;
   box-sizing: border-box;
@@ -46,7 +46,7 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
 }
 .show-api-client-button span,
 .show-api-client-button svg {
-  color: var(--scalar-button-1-color, var(--default-scalar-button-1-color));
+  color: var(--scalar-button-1-color);
   z-index: 1;
 }
 .show-api-client-button:hover {

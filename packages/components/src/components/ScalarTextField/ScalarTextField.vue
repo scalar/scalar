@@ -23,8 +23,7 @@ const props = withDefaults(
   }>(),
   {
     emitOnBlur: true,
-    labelShadowColor:
-      'var(--scalar-background-2, var(--default-scalar-background-2))',
+    labelShadowColor: 'var(--scalar-background-2)',
     disableTrim: false,
   },
 )
@@ -162,13 +161,13 @@ onMounted(() => {
   transition: opacity 0.2s ease-in-out 0.15s;
 }
 .scalar-input-wrapper-focus .scalar-input-label {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
 }
 .scalar-input-wrapper-error .scalar-input-label {
-  color: var(--scalar-color-error-color, var(--default-scalar-color-red));
+  color: var(--scalar-color-error-color);
 }
 .scalar-input::selection {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
   background: rgba(255, 165, 88, 0.35);
 }
 .scalar-input:has(+ .scalar-input-label) {
@@ -187,11 +186,10 @@ onMounted(() => {
 .scalar-input:focus-within:-webkit-autofill:hover,
 .scalar-input:focus-within:-webkit-autofill:focus,
 .scalar-input:focus-within:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0px 1000px
-    var(--scalar-background-1, var(--default-scalar-background-1)) inset !important;
-  -webkit-text-fill-color: var(--scalar-color-1, var(--default-scalar-color-1));
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  -webkit-box-shadow: 0 0 0px 1000px var(--scalar-background-1) inset !important;
+  -webkit-text-fill-color: var(--scalar-color-1);
+  color: var(--scalar-color-1);
+  border-radius: var(--scalar-radius);
 }
 .scalar-input-wrapper-focus .scalar-input-label,
 .scalar-input:not(:placeholder-shown) + .scalar-input-label {
@@ -204,6 +202,6 @@ onMounted(() => {
   transform-origin: top left;
 }
 .scalar-input-wrapper-focus:has(button:active) .scalar-input-label {
-  color: var(--scalar-color-3, var(--default-scalar-color-3)) !important;
+  color: var(--scalar-color-3) !important;
 }
 </style>

@@ -225,38 +225,38 @@ function handleEmitPetstore() {
   padding-top: 24px;
 }
 .start-h1 {
-  font-size: var(--scalar-heading-2, var(--default-scalar-heading-2));
+  font-size: var(--scalar-heading-2);
   margin-top: 0;
   line-height: 1.45;
   margin-bottom: 0;
-  font-weight: var(--scalar-bold, var(--default-scalar-bold));
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  font-weight: var(--scalar-bold);
+  color: var(--scalar-color-1);
   width: 100%;
   position: relative;
 }
 .start-h3 {
-  font-size: var(--scalar-paragraph, var(--default-scalar-paragraph));
+  font-size: var(--scalar-paragraph);
   margin-top: 0;
   margin-bottom: 6px;
   display: block;
   line-height: 1.45;
-  font-weight: var(--scalar-bold, var(--default-scalar-bold));
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  font-weight: var(--scalar-bold);
+  color: var(--scalar-color-1);
   width: 100%;
 }
 .start-h1:not(:first-of-type) {
   margin-top: 24px;
 }
 .start-p {
-  font-size: var(--scalar-paragraph, var(--default-scalar-paragraph));
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  font-size: var(--scalar-paragraph);
+  color: var(--scalar-color-2);
   line-height: 1.5;
   width: 100%;
   margin-top: 12px;
 }
 .start-ul {
   margin-top: 12px;
-  font-size: var(--scalar-paragraph, var(--default-scalar-paragraph));
+  font-size: var(--scalar-paragraph);
   line-height: 1.5;
   padding-left: 0;
   list-style: initial;
@@ -269,7 +269,7 @@ function handleEmitPetstore() {
   padding: 0;
   list-style: none;
   width: calc(50% - 24px);
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  color: var(--scalar-color-2);
 }
 .start-ul li:first-of-type {
   margin-top: 0;
@@ -277,24 +277,22 @@ function handleEmitPetstore() {
 .start-section {
   width: 100%;
   margin-bottom: 12px;
-  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
-  border: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-radius: var(--scalar-radius-lg);
+  border: 1px solid var(--scalar-border-color);
   display: flex;
   flex-flow: wrap;
-  background: var(--scalar-background-2, var(--default-scalar-background-2));
+  background: var(--scalar-background-2);
 }
 .start-section:last-of-type {
   margin-bottom: 48px;
 }
 .start-h2 {
   padding: 9px;
-  color: var(--scalar-color-3, var(--default-scalar-color-3));
-  font-size: var(--scalar-mini, var(--default-scalar-mini));
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  color: var(--scalar-color-3);
+  font-size: var(--scalar-mini);
+  font-weight: var(--scalar-semibold);
   width: 100%;
-  border-bottom: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-bottom: 1px solid var(--scalar-border-color);
 }
 .start-item {
   padding: 9px;
@@ -302,9 +300,9 @@ function handleEmitPetstore() {
   align-items: center;
   user-select: none;
   cursor: pointer;
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
-  font-size: var(--scalar-mini, var(--default-scalar-mini));
+  color: var(--scalar-color-1);
+  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-mini);
   flex: 1;
   text-transform: capitalize;
 }
@@ -312,8 +310,7 @@ function handleEmitPetstore() {
   min-width: 33.33%;
 }
 .start-item:not(:last-of-type) {
-  border-right: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-right: 1px solid var(--scalar-border-color);
 }
 .start-section-colors .start-item:not(:last-of-type) {
   border-right: none;
@@ -333,13 +330,13 @@ function handleEmitPetstore() {
   margin-right: 6px;
 }
 .start-item:hover {
-  background: var(--scalar-background-2, var(--default-scalar-background-2));
+  background: var(--scalar-background-2);
 }
 .start-item-active {
-  box-shadow: 0 0 0 1px var(--scalar-color-1, var(--default-scalar-color-1));
+  box-shadow: 0 0 0 1px var(--scalar-color-1);
   z-index: 10;
   position: relative;
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
 }
 .start-section-color .start-item {
   text-transform: capitalize;
@@ -352,10 +349,8 @@ function handleEmitPetstore() {
   margin-bottom: 0;
 }
 .start-section:nth-of-type(2) {
-  border-left: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
-  border-right: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-left: 1px solid var(--scalar-border-color);
+  border-right: 1px solid var(--scalar-border-color);
 }
 .start-row {
   width: 100%;
@@ -363,14 +358,14 @@ function handleEmitPetstore() {
   overflow: hidden;
 }
 .start-hero-copy {
-  background: var(--scalar-background-2, var(--default-scalar-background-2));
+  background: var(--scalar-background-2);
   padding: 12px;
-  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
+  border-radius: var(--scalar-radius-lg);
 }
 .start-p-small {
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
-  font-size: var(--scalar-mini, var(--default-scalar-mini));
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-mini);
+  color: var(--scalar-color-2);
   margin-bottom: 12px;
   line-height: 1.4;
 }
@@ -388,12 +383,12 @@ function handleEmitPetstore() {
   text-align: center;
 }
 .start-logo {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
   margin-bottom: 24px;
   width: 72px;
   aspect-ratio: 1;
   position: relative;
-  box-shadow: var(--scalar-shadow-2, var(--default-scalar-shadow-2));
+  box-shadow: var(--scalar-shadow-2);
   border-radius: 50%;
 }
 .start-logo:before {
@@ -407,25 +402,19 @@ function handleEmitPetstore() {
   border-radius: 50%;
   background-size: 24px 24px;
   box-shadow:
-    inset 0 0 50px
-      var(--scalar-background-1, var(--default-scalar-background-1)),
-    inset 0 0 50px
-      var(--scalar-background-1, var(--default-scalar-background-1));
+    inset 0 0 50px var(--scalar-background-1),
+    inset 0 0 50px var(--scalar-background-1);
   background-image: linear-gradient(
       to right,
-      var(--scalar-border-color, var(--default-scalar-border-color)) 1px,
+      var(--scalar-border-color) 1px,
       transparent 1px
     ),
-    linear-gradient(
-      to bottom,
-      var(--scalar-border-color, var(--default-scalar-border-color)) 1px,
-      transparent 1px
-    );
+    linear-gradient(to bottom, var(--scalar-border-color) 1px, transparent 1px);
 }
 .start-logo svg {
   width: 100%;
   height: auto;
-  background: var(--scalar-background-1, var(--default-scalar-background-1));
+  background: var(--scalar-background-1);
   padding: 3px;
   border-radius: 50%;
   position: relative;
@@ -436,8 +425,7 @@ function handleEmitPetstore() {
     width: 100%;
     border-radius: 0;
     border-right: none;
-    border-top: 1px solid
-      var(--scalar-border-color, var(--default-scalar-border-color));
+    border-top: 1px solid var(--scalar-border-color);
   }
   .start-item:empty {
     display: none;

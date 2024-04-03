@@ -24,12 +24,12 @@ const getHideDownloadButtonSymbol = inject(HIDE_DOWNLOAD_BUTTON_SYMBOL)
   margin-bottom: 24px;
 }
 .download-cta .download-button {
-  color: var(--scalar-color-accent, var(--default-scalar-color-accent));
+  color: var(--scalar-color-accent);
   text-decoration: var(
     --scalar-text-decoration,
     var(--default-scalar-text-decoration)
   ) !important;
-  font-size: var(--scalar-paragraph, var(--default-scalar-paragraph));
+  font-size: var(--scalar-paragraph);
   cursor: pointer;
 }
 .download-cta .download-button:hover {

@@ -68,15 +68,15 @@ const statusCodeInformation = computed((): HttpStatusCode | undefined => {
   height: 10px;
   border-radius: 50%;
   margin-right: 4px;
-  background: var(--scalar-background-2, var(--default-scalar-background-2));
+  background: var(--scalar-background-2);
 }
 .scalar-api-client__status--2xx:before {
-  background: var(--scalar-color-green, var(--default-scalar-color-green));
+  background: var(--scalar-color-green);
 }
 .scalar-api-client__status--3xx:before {
-  background: var(--scalar-color-orange, var(--default-scalar-color-orange));
+  background: var(--scalar-color-orange);
 }
 .scalar-api-client__status--4xx:before {
-  background: var(--scalar-color-red, var(--default-scalar-color-red));
+  background: var(--scalar-color-red);
 }
 </style>

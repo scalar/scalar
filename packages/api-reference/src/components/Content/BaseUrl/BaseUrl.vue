@@ -125,17 +125,17 @@ watch(
   min-width: 0;
   overflow: hidden;
   gap: 2px;
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  color: var(--scalar-color-2);
 }
 
 .description {
   padding: 6px 12px;
-  font-size: var(--scalar-small, var(--default-scalar-small));
+  font-size: var(--scalar-small);
 }
 .description :deep(.markdown) {
-  font-size: var(--scalar-micro, var(--default-scalar-micro));
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
-  color: var(--scalar-color--1, var(--default-scalar-color-1));
+  font-size: var(--scalar-micro);
+  font-weight: var(--scalar-semibold);
+  color: var(--scalar-color--1);
   padding: 4px 0;
   display: block;
 }
@@ -161,8 +161,7 @@ watch(
 
 .scalar-card-serverlist-container {
   /* margin: 9px; */
-  box-shadow: 0 0 0 1px
-    var(--scalar-border-color, var(--default-scalar-border-color));
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  box-shadow: 0 0 0 1px var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
 }
 </style>

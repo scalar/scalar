@@ -187,10 +187,10 @@ onMounted(async () => {
 <style>
 .scalar-codeblock-code[class*='language-'],
 .scalar-codeblock-pre[class*='language-'] {
-  color: var(--scalar-color-3, var(--default-scalar-color-2));
+  color: var(--scalar-color-3);
   background: none;
-  font-family: var(--scalar-font-code, var(--default-scalar-font-code));
-  font-size: var(--scalar-small, var(--default-scalar-small));
+  font-family: var(--scalar-font-code);
+  font-size: var(--scalar-small);
   text-align: left;
   white-space: pre;
   word-spacing: normal;
@@ -219,7 +219,7 @@ onMounted(async () => {
 
 :not(pre) > code[class*='language-'],
 .scalar-codeblock-pre[class*='language-'] {
-  background: var(--scalar-background-2, var(--default-scalar-background-2));
+  background: var(--scalar-background-2);
 }
 
 /* Line Numbers */
@@ -271,35 +271,35 @@ onMounted(async () => {
 .token.prolog,
 .token.doctype,
 .token.cdata {
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  color: var(--scalar-color-2);
 }
 
 .token.punctuation {
-  color: var(--scalar-color-3, var(--default-scalar-color-3));
+  color: var(--scalar-color-3);
 }
 
 .token.tag,
 .token.attr-name,
 .token.namespace,
 .token.deleted {
-  color: var(--scalar-color-red, var(--default-scalar-color-red));
+  color: var(--scalar-color-red);
 }
 
 .token.function-name {
-  color: var(--scalar-color-green, var(--default-scalar-color-green));
+  color: var(--scalar-color-green);
 }
 
 .token.boolean,
 .token.number,
 .token.function {
-  color: var(--scalar-color-orange, var(--default-scalar-color-orange));
+  color: var(--scalar-color-orange);
 }
 
 .token.property,
 .token.class-name,
 .token.constant,
 .token.symbol {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
 }
 
 .token.selector,
@@ -307,7 +307,7 @@ onMounted(async () => {
 .token.atrule,
 .token.keyword,
 .token.builtin {
-  color: var(--scalar-color-purple, var(--default-scalar-color-purple));
+  color: var(--scalar-color-purple);
 }
 
 .token.string,
@@ -315,22 +315,22 @@ onMounted(async () => {
 .token.attr-value,
 .token.regex,
 .token.variable {
-  color: var(--scalar-color-blue, var(--default-scalar-color-blue));
+  color: var(--scalar-color-blue);
 }
 
 .light-mode .dark-mode .language-shell .token.variable {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
 }
 .light-mode .dark-mode .language-shell .token.string {
-  color: var(--scalar-color-blue, var(--default-scalar-color-blue));
+  color: var(--scalar-color-blue);
 }
 .language-shell .token.string {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
 }
 .token.operator,
 .token.entity,
 .token.url {
-  color: var(--scalar-color-3, var(--default-scalar-color-3));
+  color: var(--scalar-color-3);
 }
 
 .token.important,
@@ -346,7 +346,7 @@ onMounted(async () => {
 }
 
 .token.inserted {
-  color: var(--scalar-color-green, var(--default-scalar-color-green));
+  color: var(--scalar-color-green);
 }
 
 /** Hide credentials */
@@ -358,7 +358,7 @@ onMounted(async () => {
 /** Show a few dots instead */
 .credentials::after {
   content: '·····';
-  font-size: var(--scalar-small, var(--default-scalar-small));
-  color: var(--scalar-color-3, var(--default-scalar-color-3));
+  font-size: var(--scalar-small);
+  color: var(--scalar-color-3);
 }
 </style>

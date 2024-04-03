@@ -9,8 +9,7 @@
   width: 100%;
 }
 .section-container:last-of-type {
-  border-top: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-top: 1px solid var(--scalar-border-color);
 }
 
 @container narrow-references-container (max-width: 900px) {

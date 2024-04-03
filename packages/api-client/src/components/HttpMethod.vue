@@ -29,7 +29,7 @@ const abbreviated = computed<string>(() => {
 const color = computed<string>(() => {
   if (isRequestMethod(normalized.value))
     return requestMethodColors[normalized.value]
-  return 'var(--scalar-color-ghost, var(--default-scalar-color-ghost))'
+  return 'var(--scalar-color-ghost)'
 })
 </script>
 <template>

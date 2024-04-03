@@ -204,7 +204,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
 
 <style>
 .api-client-url-variable {
-  color: var(--scalar-api-client-color, var(--default-scalar-api-client-color));
+  color: var(--scalar-api-client-color);
 }
 </style>
 
@@ -233,13 +233,13 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   display: flex;
   align-items: center;
   position: relative;
-  background: var(--scalar-background-1, var(--default-scalar-background-1));
+  background: var(--scalar-background-1);
 }
 .url-form {
   display: flex;
   width: 100%;
   align-items: stretch;
-  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
+  border-radius: var(--scalar-radius-lg);
 }
 .url-form:deep(.cm-content) {
   display: flex;
@@ -247,9 +247,8 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
 }
 .url-form-field {
   border-right: 0;
-  background: var(--scalar-background-2, var(--default-scalar-background-2));
-  border-radius: var(--scalar-radius, var(--default-scalar-radius)) 0 0
-    var(--scalar-radius, var(--default-scalar-radius));
+  background: var(--scalar-background-2);
+  border-radius: var(--scalar-radius) 0 0 var(--scalar-radius);
   display: flex;
   align-items: stretch;
   width: 100%;
@@ -257,10 +256,10 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   min-height: 31px;
 }
 .url-form-input {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
 }
 .url-form-input {
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  font-weight: var(--scalar-semibold);
   min-height: auto;
   padding-top: 0;
 }
@@ -271,18 +270,18 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   appearance: none;
   -webkit-appearance: none;
   background: transparent;
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  color: var(--scalar-color-2);
   display: flex;
   align-items: center;
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  border-radius: var(--scalar-radius);
   height: 100%;
 }
 
 .send-button[type='submit'] {
-  font-size: var(--scalar-micro, var(--default-scalar-micro));
+  font-size: var(--scalar-micro);
   letter-spacing: 0.25px;
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
-  color: var(--scalar-button-1-color, var(--default-scalar-button-1-color));
+  font-weight: var(--scalar-semibold);
+  color: var(--scalar-button-1-color);
   border: none;
   white-space: nowrap;
   padding: 0 12px;
@@ -290,9 +289,8 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   cursor: pointer;
   outline: none;
   font-family: (--scalar-font, var(--default-scalar-font));
-  border-radius: 0 var(--scalar-radius, var(--default-scalar-radius))
-    var(--scalar-radius, var(--default-scalar-radius)) 0;
-  background: var(--scalar-button-1, var(--default-scalar-button-1));
+  border-radius: 0 var(--scalar-radius) var(--scalar-radius) 0;
+  background: var(--scalar-button-1);
   position: relative;
   /**  #087f5b */
   display: flex;
@@ -329,42 +327,41 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
 }
 .send-button[disabled] {
   pointer-events: none;
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
-  background: var(--scalar-background-3, var(--default-scalar-background-3));
+  color: var(--scalar-color-2);
+  background: var(--scalar-background-3);
   border: 1px solid var(--default-scalar-border-color);
 }
 .history-toggle {
   padding: 0 12px;
   line-height: 30px;
-  color: var(--scalar-color-3, var(--default-scalar-color-3));
-  font-size: var(--scalar-micro, var(--default-scalar-micro));
+  color: var(--scalar-color-3);
+  font-size: var(--scalar-micro);
   letter-spacing: 0.125px;
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  font-weight: var(--scalar-semibold);
   text-transform: uppercase;
   height: 100%;
   display: flex;
   align-items: center;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 0 0 1px
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  box-shadow: 0 0 0 1px var(--scalar-border-color);
   margin-left: 12px;
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  border-radius: var(--scalar-radius);
   user-select: none;
 }
 .history-toggle:hover {
-  background: var(--scalar-background-2, var(--default-scalar-background-2));
+  background: var(--scalar-background-2);
 }
 .history-toggle svg {
   height: 13px;
   width: 13px;
   margin-right: 6px;
-  color: var(--scalar-color-3, var(--default-scalar-color-3));
+  color: var(--scalar-color-3);
 }
 .address-bar-content {
   width: 640px;
   height: 100%;
-  background: var(--scalar-background-1, var(--default-scalar-background-1));
+  background: var(--scalar-background-1);
   position: fixed;
   top: 0;
   right: 0;

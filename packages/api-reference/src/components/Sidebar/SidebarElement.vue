@@ -137,15 +137,15 @@ const onAnchorClick = async (ev: Event) => {
   gap: 6px;
 
   /* prettier-ignore */
-  color: var(--scalar-sidebar-color-2, var(--default-scalar-color-2, var(--scalar-color-2, var(--default-scalar-color-2))));
-  font-size: var(--scalar-mini, var(--default-scalar-mini));
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  color: var(--scalar-sidebar-color-2, var(--default-scalar-color-2, var(--scalar-color-2)));
+  font-size: var(--scalar-mini);
+  font-weight: var(--scalar-semibold);
   word-break: break-word;
   line-height: 1.385;
   max-width: 100%;
   position: relative;
   cursor: pointer;
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  border-radius: var(--scalar-radius);
   flex: 1;
   padding-right: 9px;
   user-select: none;
@@ -155,7 +155,7 @@ const onAnchorClick = async (ev: Event) => {
 }
 .sidebar-heading:hover {
   /* prettier-ignore */
-  background: var(--scalar-sidebar-item-hover-background, var(--default-scalar-sidebar-item-hover-background, var(--scalar-background-2, var(--default-scalar-background-2))));
+  background: var(--scalar-sidebar-item-hover-background, var(--default-scalar-sidebar-item-hover-background, var(--scalar-background-2)));
 }
 .sidebar-heading:hover .sidebar-heading-link-title {
   color: var(
@@ -167,26 +167,21 @@ const onAnchorClick = async (ev: Event) => {
 .active_page.sidebar-heading:hover,
 .active_page.sidebar-heading {
   /* prettier-ignore */
-  color: var(--scalar-sidebar-color-active, var(--default-scalar-sidebar-color-active, var(--scalar-color-accent, var(--default-scalar-color-accent))));
+  color: var(--scalar-sidebar-color-active, var(--default-scalar-sidebar-color-active, var(--scalar-color-accent)));
   /* prettier-ignore */
-  background: var(--scalar-sidebar-item-active-background, var(--default-scalar-sidebar-item-active-background, var(--scalar-background-accent, var(--default-scalar-background-accent))));
+  background: var(--scalar-sidebar-item-active-background, var(--default-scalar-sidebar-item-active-background, var(--scalar-background-accent)));
 }
 .active_page.sidebar-heading:hover .sidebar-heading-link-title {
   color: var(
     --scalar-sidebar-color-active,
-    var(
-      --default-scalar-sidebar-color-active,
-      var(--scalar-color-accent, var(--default-scalar-color-accent))
-    )
+    var(--default-scalar-sidebar-color-active, var(--scalar-color-accent))
   );
 }
 .sidebar-indent-nested .sidebar-indent-nested .sidebar-heading:before {
   content: '';
   position: absolute;
   top: 0;
-  left: calc(
-    (var(--scalar-sidebar-level, var(--default-scalar-sidebar-level)) * 12px)
-  );
+  left: calc((var(--scalar-sidebar-level) * 12px));
   width: 1px;
   height: 100%;
   background: var(
@@ -260,15 +255,12 @@ const onAnchorClick = async (ev: Event) => {
   border: none;
   color: currentColor;
   padding: 3px;
-  color: var(--scalar-sidebar-color-2, var(--default-scalar-sidebar-color-2));
+  color: var(--scalar-sidebar-color-2);
 }
 .active_page .toggle-nested-icon {
   color: var(
     --scalar-sidebar-color-active,
-    var(
-      --default-scalar-sidebar-color-active,
-      var(--scalar-color-accent, var(--default-scalar-color-accent))
-    )
+    var(--default-scalar-sidebar-color-active, var(--scalar-color-accent))
   );
 }
 
@@ -303,9 +295,9 @@ const onAnchorClick = async (ev: Event) => {
 }
 .sidebar-heading:has(~ .action-menu:hover) {
   /* prettier-ignore */
-  color: var(--scalar-sidebar-color-1, var(--default-scalar-sidebar-color-1), var(--scalar-color-1, var(--default-scalar-color-1)));
+  color: var(--scalar-sidebar-color-1, var(--default-scalar-sidebar-color-1), var(--scalar-color-1));
   /* prettier-ignore */
-  background: var(--scalar-sidebar-item-hover-background, var(--default-scalar-sidebar-item-hover-background), var(--scalar-background-2, var(--default-scalar-background-2)));
+  background: var(--scalar-sidebar-item-hover-background, var(--default-scalar-sidebar-item-hover-background), var(--scalar-background-2));
 }
 
 .sidebar-heading-type {
@@ -332,7 +324,7 @@ const onAnchorClick = async (ev: Event) => {
   font-weight: bold;
   text-align: center;
   position: relative;
-  font-family: var(--scalar-font-code, var(--default-scalar-font-code));
+  font-family: var(--scalar-font-code);
   white-space: nowrap;
   margin-left: 3px;
 }
@@ -350,10 +342,7 @@ const onAnchorClick = async (ev: Event) => {
 .sidebar-group-item__folder {
   color: var(
     --scalar-sidebar-color-1,
-    var(
-      --default-scalar-sidebar-color-1,
-      var(--scalar-color-1, var(--default-scalar-color-1))
-    )
+    var(--default-scalar-sidebar-color-1, var(--scalar-color-1))
   );
 }
 .sidebar-group-item__folder .sidebar-heading-type {

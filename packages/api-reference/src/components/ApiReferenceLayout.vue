@@ -371,7 +371,7 @@ hideModels.value = props.configuration.hideModels ?? false
     'navigation rendered'
     'footer footer';
 
-  background: var(--scalar-background-1, var(--default-scalar-background-1));
+  background: var(--scalar-background-1);
 }
 
 .references-header {
@@ -387,7 +387,7 @@ hideModels.value = props.configuration.hideModels ?? false
   grid-area: editor;
   display: flex;
   min-width: 0;
-  background: var(--scalar-background-1, var(--default-scalar-background-1));
+  background: var(--scalar-background-1);
   z-index: 1;
 }
 
@@ -399,7 +399,7 @@ hideModels.value = props.configuration.hideModels ?? false
   position: relative;
   grid-area: rendered;
   min-width: 0;
-  background: var(--scalar-background-1, var(--default-scalar-background-1));
+  background: var(--scalar-background-1);
 }
 .scalar-api-reference.references-classic,
 .references-classic .references-rendered {
@@ -413,10 +413,7 @@ hideModels.value = props.configuration.hideModels ?? false
   height: calc(var(--full-height) - var(--refs-header-height));
   background: var(
     --scalar-sidebar-background-1,
-    var(
-      --default-scalar-sidebar-background-1,
-      var(--scalar-background-1, var(--default-scalar-background-1))
-    )
+    var(--default-scalar-sidebar-background-1, var(--scalar-background-1))
   );
   overflow-y: auto;
   display: flex;
@@ -514,8 +511,7 @@ hideModels.value = props.configuration.hideModels ?? false
     height: calc(var(--full-height) - var(--refs-header-height) + 1px);
     width: 100%;
 
-    border-top: 1px solid
-      var(--scalar-border-color, var(--default-scalar-border-color));
+    border-top: 1px solid var(--scalar-border-color);
     display: flex;
     flex-direction: column;
   }

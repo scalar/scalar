@@ -101,8 +101,8 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
     --scalar-background-1,
     var(--default-scalar-background-1)
   ) !important;
-  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
-  box-shadow: var(--scalar-shadow-1, var(--default-scalar-shadow-1));
+  border-radius: var(--scalar-radius-lg);
+  box-shadow: var(--scalar-shadow-1);
   height: 100%;
   overflow: hidden;
   display: flex;
@@ -121,8 +121,7 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
   );
   z-index: 10;
   position: sticky;
-  border-bottom: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-bottom: 1px solid var(--scalar-border-color);
   top: 0;
 }
 
@@ -133,15 +132,15 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
   display: flex;
   align-items: center;
   background: transparent;
-  font-size: var(--scalar-small, var(--default-scalar-small));
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  font-size: var(--scalar-small);
+  color: var(--scalar-color-1);
+  font-weight: var(--scalar-semibold);
 }
 .scalar-api-client__close:hover {
   cursor: pointer;
 }
 .api-client-drawer {
-  background: var(--scalar-background-1, var(--default-scalar-background-1));
+  background: var(--scalar-background-1);
   height: calc(100% - 58px);
   width: calc(100% - 8px);
   border-radius: 12px;
@@ -232,10 +231,7 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
   border-right: 1px solid
     var(
       --scalar-sidebar-border-color,
-      var(
-        --default-scalar-sidebar-border-color,
-        var(--scalar-border-color, var(--default-scalar-border-color))
-      )
+      var(--default-scalar-sidebar-border-color, var(--scalar-border-color))
     );
 }
 </style>

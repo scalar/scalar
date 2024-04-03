@@ -127,13 +127,13 @@ const handleClick = (e: MouseEvent) =>
 </template>
 <style scoped>
 .error {
-  background-color: var(--scalar-color-red, var(--default-scalar-color-red));
+  background-color: var(--scalar-color-red);
 }
 .schema-card {
   z-index: 0;
   position: relative;
-  font-size: var(--scalar-font-size-4, var(--default-scalar-font-size-4));
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  font-size: var(--scalar-font-size-4);
+  color: var(--scalar-color-1);
 }
 
 .schema-card-title {
@@ -146,18 +146,18 @@ const handleClick = (e: MouseEvent) =>
   align-items: center;
   gap: 4px;
 
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
-  font-size: var(--scalar-micro, var(--default-scalar-micro));
-  background: var(--scalar-background-1, var(--default-scalar-background-1));
-  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
+  color: var(--scalar-color-2);
+  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-micro);
+  background: var(--scalar-background-1);
+  border-radius: var(--scalar-radius-lg);
   border-bottom: 1px solid transparent;
 }
 button.schema-card-title {
   cursor: pointer;
 }
 button.schema-card-title:hover {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
 }
 .schema-card-title-icon {
   margin-left: -4px;
@@ -172,8 +172,7 @@ button.schema-card-title:hover {
 
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  border-bottom: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-bottom: 1px solid var(--scalar-border-color);
 }
 .schema-properties-open > .schema-properties {
   width: fit-content;
@@ -193,9 +192,8 @@ button.schema-card-title:hover {
   display: flex;
   flex-direction: column;
 
-  border: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
-  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
+  border: 1px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius-lg);
 }
 
 .schema-card--compact {
@@ -207,7 +205,7 @@ button.schema-card-title:hover {
 }
 
 .schema-card-title--compact {
-  color: var(--scalar-color-3, var(--default-scalar-color-3));
+  color: var(--scalar-color-3);
   padding: 6px 10px;
   height: auto;
   border-bottom: none;
@@ -235,9 +233,9 @@ button.schema-card-title:hover {
   font-size: var(
     --font-size,
     var(--default-font-size),
-    var(--scalar-paragraph, var(--default-scalar-paragraph))
+    var(--scalar-paragraph)
   );
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  color: var(--scalar-color-2);
   line-height: 1.5;
   margin-bottom: 0;
   display: block;

@@ -185,13 +185,10 @@ onMounted(() => {
   border-right: 1px solid
     var(
       --scalar-sidebar-border-color,
-      var(
-        --default-scalar-sidebar-border-color,
-        var(--scalar-border-color, var(--default-scalar-border-color))
-      )
+      var(--default-scalar-sidebar-border-color, var(--scalar-border-color))
     );
   /* prettier-ignore */
-  background: var(--scalar-sidebar-background-1, var(--default-scalar-sidebar-background-1, var(--scalar-background-1, var(--default-scalar-background-1))));
+  background: var(--scalar-sidebar-background-1, var(--default-scalar-sidebar-background-1, var(--scalar-background-1)));
   --default-scalar-sidebar-level: 0;
 }
 .sidebar-pages {
@@ -208,10 +205,10 @@ onMounted(() => {
   }
 }
 .sidebar-group-title {
-  color: var(--scalar-sidebar-color-1, var(--default-scalar-sidebar-color-1));
-  font-size: var(--scalar-mini, var(--default-scalar-mini));
+  color: var(--scalar-sidebar-color-1);
+  font-size: var(--scalar-mini);
   padding: 12px 6px 6px;
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  font-weight: var(--scalar-semibold);
   text-transform: uppercase;
   word-break: break-word;
   line-height: 1.385;

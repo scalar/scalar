@@ -11,7 +11,7 @@ defineProps<{ href: string }>()
 </template>
 <style scoped>
 a {
-  color: var(--scalar-color-3, var(--default-scalar-color-3));
+  color: var(--scalar-color-3);
   text-decoration: underline;
   text-decoration-color: var(
     --scalar-border-color,

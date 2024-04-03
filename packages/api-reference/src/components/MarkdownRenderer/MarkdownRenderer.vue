@@ -79,7 +79,7 @@ onServerPrefetch(async () => await sleep(1))
 
 <style scoped>
 .markdown {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
   all: unset;
   word-break: break-word;
 }
@@ -87,20 +87,20 @@ onServerPrefetch(async () => await sleep(1))
 .markdown :deep(*) {
   all: unset;
   margin: 12px 0;
-  font-family: var(--scalar-font, var(--default-scalar-font));
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  font-family: var(--scalar-font);
+  color: var(--scalar-color-1);
 }
 .markdown :deep(details) {
   margin: 12px 0;
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
 }
 .markdown :deep(summary) {
   margin: 12px 0;
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  font-weight: var(--scalar-semibold);
 }
 .markdown :deep(img) {
   overflow: hidden;
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  border-radius: var(--scalar-radius);
   max-width: 100%;
 }
 /* Don't add margin to the first block */
@@ -113,27 +113,27 @@ onServerPrefetch(async () => await sleep(1))
 .markdown :deep(h4),
 .markdown :deep(h5),
 .markdown :deep(h6) {
-  font-size: var(--font-size, var(--default-font-size));
+  font-size: var(--font-size);
   margin: 18px 0 6px;
-  font-weight: var(--scalar-bold, var(--default-scalar-bold));
+  font-weight: var(--scalar-bold);
   display: block;
   line-height: 1.45;
 }
 .markdown :deep(b),
 .markdown :deep(strong) {
-  font-weight: var(--scalar-bold, var(--default-scalar-bold));
+  font-weight: var(--scalar-bold);
 }
 .markdown :deep(p) {
   font-size: var(
     --font-size,
     var(--default-font-size),
-    var(--scalar-paragraph, var(--default-scalar-paragraph))
+    var(--scalar-paragraph)
   );
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
   font-weight: var(
     --font-weight,
     var(--default-font-weight),
-    var(--scalar-small, var(--default-scalar-small))
+    var(--scalar-small)
   );
   line-height: 1.5;
   margin-bottom: 0;
@@ -166,7 +166,7 @@ onServerPrefetch(async () => await sleep(1))
   display: list-item;
 }
 .markdown :deep(a) {
-  color: var(--scalar-color-accent, var(--default-scalar-color-accent));
+  color: var(--scalar-color-accent);
   text-decoration: var(
     --scalar-text-decoration,
     var(--default-scalar-text-decoration)
@@ -186,14 +186,13 @@ onServerPrefetch(async () => await sleep(1))
   text-decoration: line-through;
 }
 .markdown :deep(code) {
-  font-family: var(--scalar-font-code, var(--default-scalar-font-code));
+  font-family: var(--scalar-font-code);
   background-color: var(
     --scalar-background-2,
     var(--default-scalar-background-2)
   );
-  box-shadow: 0 0 0 1px
-    var(--scalar-border-color, var(--default-scalar-border-color));
-  font-size: var(--scalar-micro, var(--default-scalar-micro));
+  box-shadow: 0 0 0 1px var(--scalar-border-color);
+  font-size: var(--scalar-micro);
   border-radius: 2px;
   padding: 0 3px;
 }
@@ -211,8 +210,7 @@ onServerPrefetch(async () => await sleep(1))
 }
 
 .markdown :deep(blockquote) {
-  border-left: 3px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-left: 3px solid var(--scalar-border-color);
   padding-left: 12px;
   margin: 0;
   display: block;
@@ -226,9 +224,8 @@ onServerPrefetch(async () => await sleep(1))
   width: max-content;
   max-width: 100%;
   margin: 1em 0;
-  box-shadow: 0 0 0 1px
-    var(--scalar-border-color, var(--default-scalar-border-color));
-  border-radius: var(--scalar-radius-lg, var(--default-scalar-radius-lg));
+  box-shadow: 0 0 0 1px var(--scalar-border-color);
+  border-radius: var(--scalar-radius-lg);
 }
 .markdown :deep(tbody) {
   display: table-row-group;
@@ -254,17 +251,15 @@ onServerPrefetch(async () => await sleep(1))
   line-height: 1.5;
   position: relative;
   word-break: initial;
-  font-size: var(--scalar-small, var(--default-scalar-small));
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  font-size: var(--scalar-small);
+  color: var(--scalar-color-1);
   font-weight: var(
     --font-weight,
     var(--default-font-weight),
-    var(--scalar-small, var(--default-scalar-small))
+    var(--scalar-small)
   );
-  border-right: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
-  border-bottom: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-right: 1px solid var(--scalar-border-color);
+  border-bottom: 1px solid var(--scalar-border-color);
 }
 
 .markdown :deep(td > *),
@@ -295,7 +290,7 @@ onServerPrefetch(async () => await sleep(1))
   ) !important;
   text-align: left;
   border-left-color: transparent;
-  background: var(--scalar-background-2, var(--default-scalar-background-2));
+  background: var(--scalar-background-2);
 }
 
 .markdown :deep(tr) > [align='left'] {
@@ -317,7 +312,7 @@ onServerPrefetch(async () => await sleep(1))
     padding: 12px;
   }
   pre * {
-    font-size: var(--scalar-small, var(--default-scalar-small)) !important;
+    font-size: var(--scalar-small) !important;
     font-family: var(
       --scalar-font-code,
       var(--default-scalar-font-code)
@@ -327,12 +322,12 @@ onServerPrefetch(async () => await sleep(1))
     padding: 3px 5px;
   }
   .hljs {
-    background: var(--scalar-background-4, var(--default-scalar-background-4));
-    color: var(--scalar-color-1, var(--default-scalar-color-1));
+    background: var(--scalar-background-4);
+    color: var(--scalar-color-1);
   }
   .hljs-comment,
   .hljs-quote {
-    color: var(--scalar-color-3, var(--default-scalar-color-3));
+    color: var(--scalar-color-3);
     font-style: italic;
   }
   .hljs-addition,
@@ -340,52 +335,52 @@ onServerPrefetch(async () => await sleep(1))
   .hljs-literal,
   .hljs-selector-tag,
   .hljs-type {
-    color: var(--scalar-color-green, var(--default-scalar-color-green));
+    color: var(--scalar-color-green);
   }
   .hljs-number,
   .hljs-selector-attr,
   .hljs-selector-pseudo {
-    color: var(--scalar-color-orange, var(--default-scalar-color-orange));
+    color: var(--scalar-color-orange);
   }
   .hljs-doctag,
   .hljs-regexp,
   .hljs-string {
-    color: var(--scalar-color-blue, var(--default-scalar-color-blue));
+    color: var(--scalar-color-blue);
   }
   .hljs-built_in,
   .hljs-name,
   .hljs-section,
   .hljs-title {
-    color: var(--scalar-color-1, var(--default-scalar-color-1));
+    color: var(--scalar-color-1);
   }
   .hljs-class .hljs-title,
   .hljs-selector-id,
   .hljs-template-variable,
   .hljs-title.class_,
   .hljs-variable {
-    color: var(--scalar-color-1, var(--default-scalar-color-1));
+    color: var(--scalar-color-1);
   }
   .hljs-name,
   .hljs-section,
   .hljs-strong {
-    font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+    font-weight: var(--scalar-semibold);
   }
   .hljs-bullet,
   .hljs-link,
   .hljs-meta,
   .hljs-subst,
   .hljs-symbol {
-    color: var(--scalar-color-blue, var(--default-scalar-color-blue));
+    color: var(--scalar-color-blue);
   }
   .hljs-deletion {
-    color: var(--scalar-color-red, var(--default-scalar-color-red));
+    color: var(--scalar-color-red);
   }
   .hljs-formula {
-    background: var(--scalar-color-1, var(--default-scalar-color-1));
+    background: var(--scalar-color-1);
   }
   .hljs-attr,
   .hljs-attribute {
-    color: var(--scalar-color-1, var(--default-scalar-color-1));
+    color: var(--scalar-color-1);
   }
   .hljs-emphasis {
     font-style: italic;

@@ -78,19 +78,19 @@ const getValue = (name: string) => {
 }
 
 .input-value {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
-  font-size: var(--scalar-micro, var(--default-scalar-micro));
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-micro);
   padding: 9px;
 }
 
 .variable-description {
   padding: 6px 12px;
-  font-size: var(--scalar-small, var(--default-scalar-small));
+  font-size: var(--scalar-small);
 }
 .variable-description :deep(.markdown) {
-  font-size: var(--scalar-micro, var(--default-scalar-micro));
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
-  color: var(--scalar-color--1, var(--default-scalar-color-1));
+  font-size: var(--scalar-micro);
+  font-weight: var(--scalar-semibold);
+  color: var(--scalar-color--1);
   padding: 4px 0;
   display: block;
 }
@@ -102,7 +102,6 @@ const getValue = (name: string) => {
 }
 .input:first-of-type {
   border-radius: 0;
-  border-top: 1px solid
-    var(--scalar-border-color, var(--default-scalar-border-color));
+  border-top: 1px solid var(--scalar-border-color);
 }
 </style>

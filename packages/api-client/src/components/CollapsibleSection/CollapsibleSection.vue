@@ -70,7 +70,7 @@ watch(
 
 <style>
 .scalar-api-client__item {
-  border-radius: var(--scalar-radius, var(--default-scalar-radius));
+  border-radius: var(--scalar-radius);
   margin-bottom: 6px;
   position: relative;
 }
@@ -95,7 +95,7 @@ watch(
 }
 .scalar-api-client__item:hover,
 .scalar-api-client__item--open {
-  background: var(--scalar-background-2, var(--default-scalar-background-2));
+  background: var(--scalar-background-2);
 }
 
 .scalar-api-client__item--open .scalar-api-client__item__content {
@@ -125,9 +125,9 @@ watch(
 }
 
 .scalar-api-client__item .scalar-api-client__item__title {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
-  font-size: var(--scalar-small, var(--default-scalar-small));
-  font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-small);
+  font-weight: var(--scalar-semibold);
   font-family: (--scalar-font, var(--default-scalar-font));
   user-select: none;
   flex: 1;
@@ -137,12 +137,12 @@ watch(
 .scalar-api-client__item .scalar-api-client__toggle__icon {
   width: 10px;
   margin-right: 6px;
-  color: var(--scalar-color-3, var(--default-scalar-color-3));
+  color: var(--scalar-color-3);
   z-index: 1;
   position: relative;
 }
 .scalar-api-client__toggle:hover .scalar-api-client__toggle__icon {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
 }
 
 .scalar-api-client__item__options {
@@ -154,15 +154,15 @@ watch(
   background: transparent;
   padding: 2px 0;
   border-radius: 3px;
-  font-size: var(--scalar-small, var(--default-scalar-small));
+  font-size: var(--scalar-small);
   pointer-events: none;
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
+  color: var(--scalar-color-2);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .scalar-api-client__item__options:hover span {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
   border-color: currentColor;
 }
 .scalar-api-client__item__options span svg {

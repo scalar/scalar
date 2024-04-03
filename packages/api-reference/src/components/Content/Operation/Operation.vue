@@ -106,10 +106,10 @@ const customRequestExamples = computed(() => {
   text-decoration: line-through;
 }
 .example-path {
-  color: var(--scalar-color-2, var(--default-scalar-color-2));
-  font-family: var(--scalar-font-code, var(--default-scalar-font-code));
+  color: var(--scalar-color-2);
+  font-family: var(--scalar-font-code);
 }
 .example-path :deep(em) {
-  color: var(--scalar-color-1, var(--default-scalar-color-1));
+  color: var(--scalar-color-1);
 }
 </style>
