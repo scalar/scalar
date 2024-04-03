@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.20.20
+
+### Patch Changes
+
+- c14568f: feat: add custom security option
+
 ## 1.20.19
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.1.3
+
+### Patch Changes
+
+- c14568f: feat: add custom security option
+
 ## 0.1.2
 
 ### Patch Changes

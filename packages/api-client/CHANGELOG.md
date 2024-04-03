@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 1.1.12
+
+### Patch Changes
+
+- c14568f: feat: add custom security option
+- Updated dependencies [c14568f]
+  - @scalar/components@0.4.9
+  - @scalar/oas-utils@0.1.3
+
 ## 1.1.11
 
 ### Patch Changes
