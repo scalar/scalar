@@ -57,16 +57,16 @@ whenever(keys[`meta_${props.searchHotKey}`], () =>
   max-width: 100%;
   font-family: var(--scalar-font, var(--default-scalar-font));
   background: var(
-    --sidebar-search-background,
+    --scalar-sidebar-search-background,
     var(
-      --default-sidebar-search-background,
+      --default-scalar-sidebar-search-background,
       var(--scalar-background-1, var(--default-scalar-background-1))
     )
   );
   color: var(
-    --sidebar-color-2,
+    --scalar-sidebar-color-2,
     var(
-      --default-sidebar-color-2,
+      --default-scalar-sidebar-color-2,
       var(--scalar-color-2, var(--default-scalar-color-2))
     )
   );
@@ -74,9 +74,9 @@ whenever(keys[`meta_${props.searchHotKey}`], () =>
   border-radius: var(--scalar-radius, var(--default-scalar-radius));
   box-shadow: 0 0 0 1px
     var(
-      --sidebar-search-border-color,
+      --scalar-sidebar-search-border-color,
       var(
-        --default-sidebar-search-border-color,
+        --default-scalar-sidebar-search-border-color,
         var(--scalar-border-color, var(--default-scalar-border-color))
       )
     );
@@ -111,8 +111,8 @@ whenever(keys[`meta_${props.searchHotKey}`], () =>
   margin: 2px;
   border-radius: var(--scalar-radius, var(--default-scalar-radius));
   color: var(
-    --sidebar-color-2,
-    var(--default-sidebar-color-2),
+    --scalar-sidebar-color-2,
+    var(--default-scalar-sidebar-color-2),
     var(--scalar-color-2, var(--default-scalar-color-2))
   );
 }

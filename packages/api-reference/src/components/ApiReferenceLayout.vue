@@ -412,9 +412,9 @@ hideModels.value = props.configuration.hideModels ?? false
   top: var(--refs-header-height);
   height: calc(var(--full-height) - var(--refs-header-height));
   background: var(
-    --sidebar-background-1,
+    --scalar-sidebar-background-1,
     var(
-      --default-sidebar-background-1,
+      --default-scalar-sidebar-background-1,
       var(--scalar-background-1, var(--default-scalar-background-1))
     )
   );

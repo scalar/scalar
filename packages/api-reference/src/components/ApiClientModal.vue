@@ -231,9 +231,9 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
   max-width: var(--refs-sidebar-width);
   border-right: 1px solid
     var(
-      --sidebar-border-color,
+      --scalar-sidebar-border-color,
       var(
-        --default-sidebar-border-color,
+        --default-scalar-sidebar-border-color,
         var(--scalar-border-color, var(--default-scalar-border-color))
       )
     );

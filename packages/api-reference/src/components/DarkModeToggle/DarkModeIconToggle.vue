@@ -25,9 +25,9 @@ defineEmits<{
 <style scoped>
 .darklight {
   color: var(
-    --sidebar-color-2,
+    --scalar-sidebar-color-2,
     var(
-      --default-sidebar-color-2,
+      --default-scalar-sidebar-color-2,
       var(--scalar-color-2, var(--default-scalar-color-2))
     )
   );
@@ -42,9 +42,9 @@ defineEmits<{
 .darklight:hover {
   cursor: pointer;
   color: var(
-    --sidebar-color-1,
+    --scalar-sidebar-color-1,
     var(
-      --default-sidebar-color-1,
+      --default-scalar-sidebar-color-1,
       var(--scalar-color-1, var(--default-scalar-color-1))
     )
   );

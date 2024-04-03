@@ -38,20 +38,28 @@
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,
 .dark-mode .t-doc__sidebar {
-  --default-sidebar-background-1: var(--default-scalar-background-1);
-  --default-sidebar-color-1: var(--default-scalar-color-1);
-  --default-sidebar-color-2: var(--default-scalar-color-2);
-  --default-sidebar-border-color: var(--default-scalar-border-color);
+  --default-scalar-sidebar-background-1: var(--default-scalar-background-1);
+  --default-scalar-sidebar-color-1: var(--default-scalar-color-1);
+  --default-scalar-sidebar-color-2: var(--default-scalar-color-2);
+  --default-scalar-sidebar-border-color: var(--default-scalar-border-color);
 
-  --default-sidebar-item-hover-background: var(--default-scalar-background-2);
-  --default-sidebar-item-hover-color: currentColor;
+  --default-scalar-sidebar-item-hover-background: var(
+    --default-scalar-background-2
+  );
+  --default-scalar-sidebar-item-hover-color: currentColor;
 
-  --default-sidebar-item-active-background: var(--default-scalar-background-3);
-  --default-sidebar-color-active: var(--default-scalar-color-1);
+  --default-scalar-sidebar-item-active-background: var(
+    --default-scalar-background-3
+  );
+  --default-scalar-sidebar-color-active: var(--default-scalar-color-1);
 
-  --default-sidebar-search-background: var(--default-scalar-background-1);
-  --default-sidebar-search-border-color: var(--default-scalar-border-color);
-  --default-sidebar-search-color: var(--default-scalar-color-3);
+  --default-scalar-sidebar-search-background: var(
+    --default-scalar-background-1
+  );
+  --default-scalar-sidebar-search-border-color: var(
+    --default-scalar-border-color
+  );
+  --default-scalar-sidebar-search-color: var(--default-scalar-color-3);
 }
 
 /* advanced */

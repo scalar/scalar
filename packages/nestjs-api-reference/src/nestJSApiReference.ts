@@ -45,17 +45,17 @@ export const customThemeCSS = `
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,
 .dark-mode .t-doc__sidebar {
-  --sidebar-background-1: var(--scalar-background-1);
-  --sidebar-item-hover-color: currentColor;
-  --sidebar-item-hover-background: var(--scalar-background-2);
-  --sidebar-item-active-background: var(--scalar-background-3);
-  --sidebar-border-color: var(--scalar-border-color);
-  --sidebar-color-1: var(--scalar-color-1);
-  --sidebar-color-2: var(--scalar-color-2);
-  --sidebar-color-active: var(--scalar-color-1);
-  --sidebar-search-background: var(--scalar-background-2);
-  --sidebar-search-border-color: var(--scalar-background-2);
-  --sidebar-search-color: var(--scalar-color-3);
+  --scalar-sidebar-background-1: var(--scalar-background-1);
+  --scalar-sidebar-item-hover-color: currentColor;
+  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
+  --scalar-sidebar-item-active-background: var(--scalar-background-3);
+  --scalar-sidebar-border-color: var(--scalar-border-color);
+  --scalar-sidebar-color-1: var(--scalar-color-1);
+  --scalar-sidebar-color-2: var(--scalar-color-2);
+  --scalar-sidebar-color-active: var(--scalar-color-1);
+  --scalar-sidebar-search-background: var(--scalar-background-2);
+  --scalar-sidebar-search-border-color: var(--scalar-background-2);
+  --scalar-sidebar-search-color: var(--scalar-color-3);
 }
 
 /* advanced */

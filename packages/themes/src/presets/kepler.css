@@ -30,33 +30,38 @@
 }
 /* Document Sidebar */
 .light-mode .t-doc__sidebar {
-  --default-sidebar-background-1: var(--default-scalar-background-1);
-  --default-sidebar-item-hover-color: currentColor;
-  --default-sidebar-item-hover-background: var(--default-scalar-background-2);
-  --default-sidebar-item-active-background: var(
+  --default-scalar-sidebar-background-1: var(--default-scalar-background-1);
+  --default-scalar-sidebar-item-hover-color: currentColor;
+  --default-scalar-sidebar-item-hover-background: var(
+    --default-scalar-background-2
+  );
+  --default-scalar-sidebar-item-active-background: var(
     --default-scalar-background-accent
   );
-  --default-sidebar-border-color: var(--default-scalar-border-color);
-  --default-sidebar-color-1: var(--default-scalar-color-1);
-  --default-sidebar-color-2: var(--default-scalar-color-2);
-  --default-sidebar-color-active: var(--default-scalar-color-accent);
-  --default-sidebar-search-background: rgba(0, 0, 0, 0.05);
-  --default-sidebar-search-border-color: 1px solid rgba(0, 0, 0, 0.05);
-  --default-sidebar-search-color: var(--default-scalar-color-3);
+  --default-scalar-sidebar-border-color: var(--default-scalar-border-color);
+  --default-scalar-sidebar-color-1: var(--default-scalar-color-1);
+  --default-scalar-sidebar-color-2: var(--default-scalar-color-2);
+  --default-scalar-sidebar-color-active: var(--default-scalar-color-accent);
+  --default-scalar-sidebar-search-background: rgba(0, 0, 0, 0.05);
+  --default-scalar-sidebar-search-border-color: 1px solid rgba(0, 0, 0, 0.05);
+  --default-scalar-sidebar-search-color: var(--default-scalar-color-3);
   --default-scalar-background-2: rgba(0, 0, 0, 0.03);
 }
 .dark-mode .t-doc__sidebar {
-  --default-sidebar-background-1: var(--default-scalar-background-1);
-  --default-sidebar-item-hover-color: currentColor;
-  --default-sidebar-item-hover-background: var(--default-scalar-background-2);
-  --default-sidebar-item-active-background: rgba(255, 255, 255, 0.1);
-  --default-sidebar-border-color: var(--default-scalar-border-color);
-  --default-sidebar-color-1: var(--default-scalar-color-1);
-  --default-sidebar-color-2: var(--default-scalar-color-2);
-  --default-sidebar-color-active: var(--default-scalar-color-accent);
-  --default-sidebar-search-background: rgba(255, 255, 255, 0.1);
-  --default-sidebar-search-border-color: 1px solid rgba(255, 255, 255, 0.05);
-  --default-sidebar-search-color: var(--default-scalar-color-3);
+  --default-scalar-sidebar-background-1: var(--default-scalar-background-1);
+  --default-scalar-sidebar-item-hover-color: currentColor;
+  --default-scalar-sidebar-item-hover-background: var(
+    --default-scalar-background-2
+  );
+  --default-scalar-sidebar-item-active-background: rgba(255, 255, 255, 0.1);
+  --default-scalar-sidebar-border-color: var(--default-scalar-border-color);
+  --default-scalar-sidebar-color-1: var(--default-scalar-color-1);
+  --default-scalar-sidebar-color-2: var(--default-scalar-color-2);
+  --default-scalar-sidebar-color-active: var(--default-scalar-color-accent);
+  --default-scalar-sidebar-search-background: rgba(255, 255, 255, 0.1);
+  --default-scalar-sidebar-search-border-color: 1px solid
+    rgba(255, 255, 255, 0.05);
+  --default-scalar-sidebar-search-color: var(--default-scalar-color-3);
 }
 /* advanced */
 .light-mode {

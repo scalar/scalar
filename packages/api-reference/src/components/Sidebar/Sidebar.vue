@@ -184,15 +184,15 @@ onMounted(() => {
   flex-direction: column;
   border-right: 1px solid
     var(
-      --sidebar-border-color,
+      --scalar-sidebar-border-color,
       var(
-        --default-sidebar-border-color,
+        --default-scalar-sidebar-border-color,
         var(--scalar-border-color, var(--default-scalar-border-color))
       )
     );
   /* prettier-ignore */
-  background: var(--sidebar-background-1, var(--default-sidebar-background-1, var(--scalar-background-1, var(--default-scalar-background-1))));
-  --default-sidebar-level: 0;
+  background: var(--scalar-sidebar-background-1, var(--default-scalar-sidebar-background-1, var(--scalar-background-1, var(--default-scalar-background-1))));
+  --default-scalar-sidebar-level: 0;
 }
 .sidebar-pages {
   flex: 1;
@@ -208,7 +208,7 @@ onMounted(() => {
   }
 }
 .sidebar-group-title {
-  color: var(--sidebar-color-1, var(--default-sidebar-color-1));
+  color: var(--scalar-sidebar-color-1, var(--default-scalar-sidebar-color-1));
   font-size: var(--scalar-mini, var(--default-scalar-mini));
   padding: 12px 6px 6px;
   font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
@@ -218,7 +218,10 @@ onMounted(() => {
 }
 .sidebar-group-item + .sidebar-group-title {
   border-top: 1px solid
-    var(--sidebar-border-color, var(--default-sidebar-border-color));
+    var(
+      --scalar-sidebar-border-color,
+      var(--default-scalar-sidebar-border-color)
+    );
   margin-top: 9px;
 }
 </style>

@@ -71,22 +71,22 @@ export const nextjsThemeCss = `
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,
 .dark-mode .t-doc__sidebar {
-  --sidebar-background-1: var(--scalar-background-1);
-  --sidebar-item-hover-color: var(--sidebar-color-1);
-  --sidebar-item-hover-background: transparent;
-  --sidebar-item-active-background: var(--scalar-background-accent);
-  --sidebar-border-color: transparent;
-  --sidebar-color-1: var(--scalar-color-1);
-  --sidebar-color-2: var(--scalar-color-2);
-  --sidebar-color-active: var(--scalar-color-accent);
-  --sidebar-search-background: var(--scalar-background-2);
-  --sidebar-search-border-color: var(--scalar-background-2);
-  --sidebar-search-color: var(--scalar-color-3);
-  --sidebar-indent-border: var(--scalar-border-color);
-  --sidebar-indent-border-active: #6aacf8;
+  --scalar-sidebar-background-1: var(--scalar-background-1);
+  --scalar-sidebar-item-hover-color: var(--scalar-sidebar-color-1);
+  --scalar-sidebar-item-hover-background: transparent;
+  --scalar-sidebar-item-active-background: var(--scalar-background-accent);
+  --scalar-sidebar-border-color: transparent;
+  --scalar-sidebar-color-1: var(--scalar-color-1);
+  --scalar-sidebar-color-2: var(--scalar-color-2);
+  --scalar-sidebar-color-active: var(--scalar-color-accent);
+  --scalar-sidebar-search-background: var(--scalar-background-2);
+  --scalar-sidebar-search-border-color: var(--scalar-background-2);
+  --scalar-sidebar-search-color: var(--scalar-color-3);
+  --scalar-sidebar-indent-border: var(--scalar-border-color);
+  --scalar-sidebar-indent-border-active: #6aacf8;
 }
 .api-client-drawer .t-doc__sidebar {
-  --sidebar-border-color: var(--scalar-border-color);
+  --scalar-sidebar-border-color: var(--scalar-border-color);
 }
 /* advanced */
 .light-mode .dark-mode,

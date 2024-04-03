@@ -37,16 +37,16 @@ defineEmits<{
   border: none;
   border-top: 1px solid
     var(
-      --sidebar-border-color,
+      --scalar-sidebar-border-color,
       var(
-        --default-sidebar-border-color,
+        --default-scalar-sidebar-border-color,
         var(--scalar-border-color, var(--default-scalar-border-color))
       )
     );
   color: var(
-    --sidebar-color-2,
+    --scalar-sidebar-color-2,
     var(
-      --default-sidebar-color-2,
+      --default-scalar-sidebar-color-2,
       var(--scalar-color-2, var(--default-scalar-color-2))
     )
   );
@@ -70,9 +70,9 @@ defineEmits<{
 .darklight:hover {
   cursor: pointer;
   color: var(
-    --sidebar-color-1,
+    --scalar-sidebar-color-1,
     var(
-      --default-sidebar-color-1,
+      --default-scalar-sidebar-color-1,
       var(--scalar-color-1, var(--default-scalar-color-1))
     )
   );
@@ -90,9 +90,9 @@ defineEmits<{
   font-size: var(--scalar-mini, var(--default-scalar-mini));
   text-decoration: none;
   color: var(
-    --sidebar-color-2,
+    --scalar-sidebar-color-2,
     var(
-      --default-sidebar-color-2,
+      --default-scalar-sidebar-color-2,
       var(--scalar-color-2, var(--default-scalar-color-2))
     )
   );

@@ -137,7 +137,7 @@ const onAnchorClick = async (ev: Event) => {
   gap: 6px;
 
   /* prettier-ignore */
-  color: var(--sidebar-color-2, var(--default-scalar-color-2, var(--scalar-color-2, var(--default-scalar-color-2))));
+  color: var(--scalar-sidebar-color-2, var(--default-scalar-color-2, var(--scalar-color-2, var(--default-scalar-color-2))));
   font-size: var(--scalar-mini, var(--default-scalar-mini));
   font-weight: var(--scalar-semibold, var(--default-scalar-semibold));
   word-break: break-word;
@@ -155,27 +155,27 @@ const onAnchorClick = async (ev: Event) => {
 }
 .sidebar-heading:hover {
   /* prettier-ignore */
-  background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background, var(--scalar-background-2, var(--default-scalar-background-2))));
+  background: var(--scalar-sidebar-item-hover-background, var(--default-scalar-sidebar-item-hover-background, var(--scalar-background-2, var(--default-scalar-background-2))));
 }
 .sidebar-heading:hover .sidebar-heading-link-title {
   color: var(
-    --sidebar-item-hover-color,
-    var(--default-sidebar-item-hover-color, currentColor)
+    --scalar-sidebar-item-hover-color,
+    var(--default-scalar-sidebar-item-hover-color, currentColor)
   );
 }
 
 .active_page.sidebar-heading:hover,
 .active_page.sidebar-heading {
   /* prettier-ignore */
-  color: var(--sidebar-color-active, var(--default-sidebar-color-active, var(--scalar-color-accent, var(--default-scalar-color-accent))));
+  color: var(--scalar-sidebar-color-active, var(--default-scalar-sidebar-color-active, var(--scalar-color-accent, var(--default-scalar-color-accent))));
   /* prettier-ignore */
-  background: var(--sidebar-item-active-background, var(--default-sidebar-item-active-background, var(--scalar-background-accent, var(--default-scalar-background-accent))));
+  background: var(--scalar-sidebar-item-active-background, var(--default-scalar-sidebar-item-active-background, var(--scalar-background-accent, var(--default-scalar-background-accent))));
 }
 .active_page.sidebar-heading:hover .sidebar-heading-link-title {
   color: var(
-    --sidebar-color-active,
+    --scalar-sidebar-color-active,
     var(
-      --default-sidebar-color-active,
+      --default-scalar-sidebar-color-active,
       var(--scalar-color-accent, var(--default-scalar-color-accent))
     )
   );
@@ -184,26 +184,28 @@ const onAnchorClick = async (ev: Event) => {
   content: '';
   position: absolute;
   top: 0;
-  left: calc((var(--sidebar-level, var(--default-sidebar-level)) * 12px));
+  left: calc(
+    (var(--scalar-sidebar-level, var(--default-scalar-sidebar-level)) * 12px)
+  );
   width: 1px;
   height: 100%;
   background: var(
-    --sidebar-indent-border,
-    var(--default-sidebar-indent-border)
+    --scalar-sidebar-indent-border,
+    var(--default-scalar-sidebar-indent-border)
   );
 }
 .sidebar-indent-nested .sidebar-indent-nested .sidebar-heading:hover:before {
   background: var(
-    --sidebar-indent-border-hover,
-    var(--default-sidebar-indent-border-hover)
+    --scalar-sidebar-indent-border-hover,
+    var(--default-scalar-sidebar-indent-border-hover)
   );
 }
 .sidebar-indent-nested
   .sidebar-indent-nested
   .active_page.sidebar-heading:before {
   background: var(
-    --sidebar-indent-border-active,
-    var(--default-sidebar-indent-border-active)
+    --scalar-sidebar-indent-border-active,
+    var(--default-scalar-sidebar-indent-border-active)
   );
 }
 
@@ -258,13 +260,13 @@ const onAnchorClick = async (ev: Event) => {
   border: none;
   color: currentColor;
   padding: 3px;
-  color: var(--sidebar-color-2, var(--default-sidebar-color-2));
+  color: var(--scalar-sidebar-color-2, var(--default-scalar-sidebar-color-2));
 }
 .active_page .toggle-nested-icon {
   color: var(
-    --sidebar-color-active,
+    --scalar-sidebar-color-active,
     var(
-      --default-sidebar-color-active,
+      --default-scalar-sidebar-color-active,
       var(--scalar-color-accent, var(--default-scalar-color-accent))
     )
   );
@@ -301,9 +303,9 @@ const onAnchorClick = async (ev: Event) => {
 }
 .sidebar-heading:has(~ .action-menu:hover) {
   /* prettier-ignore */
-  color: var(--sidebar-color-1, var(--default-sidebar-color-1), var(--scalar-color-1, var(--default-scalar-color-1)));
+  color: var(--scalar-sidebar-color-1, var(--default-scalar-sidebar-color-1), var(--scalar-color-1, var(--default-scalar-color-1)));
   /* prettier-ignore */
-  background: var(--sidebar-item-hover-background, var(--default-sidebar-item-hover-background), var(--scalar-background-2, var(--default-scalar-background-2)));
+  background: var(--scalar-sidebar-item-hover-background, var(--default-scalar-sidebar-item-hover-background), var(--scalar-background-2, var(--default-scalar-background-2)));
 }
 
 .sidebar-heading-type {
@@ -347,9 +349,9 @@ const onAnchorClick = async (ev: Event) => {
 }
 .sidebar-group-item__folder {
   color: var(
-    --sidebar-color-1,
+    --scalar-sidebar-color-1,
     var(
-      --default-sidebar-color-1,
+      --default-scalar-sidebar-color-1,
       var(--scalar-color-1, var(--default-scalar-color-1))
     )
   );
