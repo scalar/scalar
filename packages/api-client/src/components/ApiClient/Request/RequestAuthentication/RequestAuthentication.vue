@@ -64,26 +64,30 @@ const setIntialScheme = (
       <div
         v-if="!authentication.securitySchemes"
         class="security-scheme-empty-state">
-        <ScalarButton
+        <div
+          class="scalar-api-client-add"
           variant="outlined"
-          @click="setIntialScheme('apiKey')"
-          >ApiKey</ScalarButton
-        >
-        <ScalarButton
+          @click="setIntialScheme('apiKey')">
+          ApiKey
+        </div>
+        <div
+          class="scalar-api-client-add"
           variant="outlined"
-          @click="setIntialScheme('httpBasic')"
-          >Basic</ScalarButton
-        >
-        <ScalarButton
+          @click="setIntialScheme('httpBasic')">
+          Basic
+        </div>
+        <div
+          class="scalar-api-client-add"
           variant="outlined"
-          @click="setIntialScheme('httpBearer')"
-          >Bearer</ScalarButton
-        >
-        <ScalarButton
+          @click="setIntialScheme('httpBearer')">
+          Bearer
+        </div>
+        <div
+          class="scalar-api-client-add"
           variant="outlined"
-          @click="setIntialScheme('oauth2')"
-          >oAuth2</ScalarButton
-        >
+          @click="setIntialScheme('oauth2')">
+          oAuth2
+        </div>
       </div>
     </CollapsibleSection>
   </div>
@@ -96,15 +100,43 @@ const setIntialScheme = (
 }
 
 .security-scheme-empty-state {
-  flex-wrap: wrap;
-  gap: 16px;
+  border: 1px dashed
+    var(--theme-border-color, var(--default-theme-border-color));
+  width: 100%;
+  text-align: center;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  font-size: var(--theme-small, var(--default-theme-small));
+  min-height: 58px;
   display: flex;
-  flex: 1;
-  flex-direction: row;
-  justify-content: space-around;
-
-  .scalar-button {
-    width: 100px;
-  }
+  align-items: center;
+  justify-content: center;
+}
+.scalar-api-client-add {
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  padding: 3px 9px;
+  width: fit-content;
+  cursor: pointer;
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  text-decoration: none;
+  margin: 0 6px;
+  border: none;
+  font-family: var(--theme-font);
+  appearance: none;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border-radius: 30px;
+}
+.scalar-api-client-add svg {
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+}
+.scalar-api-client-add:hover {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
+.scalar-api-client-add:focus-within {
+  background: var(--theme-background-3, var(--default-theme-background-3));
 }
 </style>
