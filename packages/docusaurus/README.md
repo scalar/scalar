@@ -24,8 +24,7 @@ import type { ScalarOptions } from '@scalar/docusaurus'
 
 plugins: [
   [
-    '@scalar/docusaurus',
-    {
+    ['@scalar/docusaurus', {
       label: 'Scalar',
       route: '/scalar',
       configuration: {
@@ -33,7 +32,7 @@ plugins: [
           url: 'https://petstore3.swagger.io/api/v3/openapi.json',
         },
       },
-    } as ScalarOptions,
+    } as ScalarOptions],
   ],
 ],
 ```
