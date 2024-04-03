@@ -133,6 +133,7 @@ export type TransformedOperation = Operation & {
 export type CollapsedSidebarItems = Record<string, boolean>
 
 export type AuthenticationState = {
+  customSecurity: boolean
   preferredSecurityScheme: string | null
   securitySchemes?:
     | OpenAPIV3.ComponentsObject['securitySchemes']
