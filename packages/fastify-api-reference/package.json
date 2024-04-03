@@ -50,7 +50,7 @@
     "terser": "^5.24.0",
     "tsc-alias": "^1.8.8",
     "typescript": "^5.4.2",
-    "vite": "^5.1.1",
+    "vite": "^5.1.7",
     "vite-plugin-static-copy": "^1.0.1",
     "vitest": "^1.2.2",
     "vue": "^3.3.0"
