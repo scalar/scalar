@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.4.9
+
+### Patch Changes
+
+- c14568f: feat: add custom security option
+
 ## 0.4.8
 
 ### Patch Changes
