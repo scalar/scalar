@@ -82,12 +82,13 @@ const setIntialScheme = (
           @click="setIntialScheme('httpBearer')">
           Bearer
         </div>
-        <div
+        <!-- TODO implement -->
+        <!-- <div
           class="scalar-api-client-add"
           variant="outlined"
           @click="setIntialScheme('oauth2')">
           oAuth2
-        </div>
+        </div> -->
       </div>
     </CollapsibleSection>
   </div>
