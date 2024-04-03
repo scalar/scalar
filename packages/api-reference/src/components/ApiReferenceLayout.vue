@@ -411,10 +411,7 @@ hideModels.value = props.configuration.hideModels ?? false
   position: sticky;
   top: var(--refs-header-height);
   height: calc(var(--full-height) - var(--refs-header-height));
-  background: var(
-    --scalar-sidebar-background-1,
-    var(--default-scalar-sidebar-background-1, var(--scalar-background-1))
-  );
+  background: var(--scalar-sidebar-background-1 var(--scalar-background-1));
   overflow-y: auto;
   display: flex;
   flex-direction: column;

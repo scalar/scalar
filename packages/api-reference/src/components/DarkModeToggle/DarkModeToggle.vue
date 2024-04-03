@@ -36,14 +36,8 @@ defineEmits<{
   font-family: var(--scalar-font);
   border: none;
   border-top: 1px solid
-    var(
-      --scalar-sidebar-border-color,
-      var(--default-scalar-sidebar-border-color, var(--scalar-border-color))
-    );
-  color: var(
-    --scalar-sidebar-color-2,
-    var(--default-scalar-sidebar-color-2, var(--scalar-color-2))
-  );
+    var(--scalar-sidebar-border-color, var(--scalar-border-color));
+  color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
 
   font-size: var(--scalar-mini);
   font-weight: var(--scalar-semibold);
@@ -63,10 +57,7 @@ defineEmits<{
 }
 .darklight:hover {
   cursor: pointer;
-  color: var(
-    --scalar-sidebar-color-1,
-    var(--default-scalar-sidebar-color-1, var(--scalar-color-1))
-  );
+  color: var(--scalar-sidebar-color-1, var(--scalar-color-1));
 }
 
 .darklight svg {
@@ -80,10 +71,7 @@ defineEmits<{
   align-items: center;
   font-size: var(--scalar-mini);
   text-decoration: none;
-  color: var(
-    --scalar-sidebar-color-2,
-    var(--default-scalar-sidebar-color-2, var(--scalar-color-2))
-  );
+  color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
 }
 .darklight-reference-promo:hover {
   text-decoration: underline;

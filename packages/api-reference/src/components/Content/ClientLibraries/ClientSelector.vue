@@ -193,10 +193,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   position: relative;
   background: var(
     --scalar-code-languages-background-supersede,
-    var(
-      --default-scalar-code-languages-background-supersede,
-      var(--code-languages-background)
-    )
+    var(--code-languages-background)
   );
   box-shadow: 0 0 0 1px var(--scalar-code-languages-border-color);
 }

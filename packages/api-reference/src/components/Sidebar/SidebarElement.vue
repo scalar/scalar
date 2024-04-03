@@ -136,8 +136,7 @@ const onAnchorClick = async (ev: Event) => {
   display: flex;
   gap: 6px;
 
-  /* prettier-ignore */
-  color: var(--scalar-sidebar-color-2, var(--default-scalar-color-2, var(--scalar-color-2)));
+  color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
   font-size: var(--scalar-mini);
   font-weight: var(--scalar-semibold);
   word-break: break-word;
@@ -154,8 +153,10 @@ const onAnchorClick = async (ev: Event) => {
   text-decoration: line-through;
 }
 .sidebar-heading:hover {
-  /* prettier-ignore */
-  background: var(--scalar-sidebar-item-hover-background, var(--default-scalar-sidebar-item-hover-background, var(--scalar-background-2)));
+  background: var(
+    --scalar-sidebar-item-hover-background,
+    var(--scalar-background-2)
+  );
 }
 .sidebar-heading:hover .sidebar-heading-link-title {
   color: var(--scalar-sidebar-item-hover-color);
@@ -163,16 +164,15 @@ const onAnchorClick = async (ev: Event) => {
 
 .active_page.sidebar-heading:hover,
 .active_page.sidebar-heading {
-  /* prettier-ignore */
-  color: var(--scalar-sidebar-color-active, var(--default-scalar-sidebar-color-active, var(--scalar-color-accent)));
-  /* prettier-ignore */
-  background: var(--scalar-sidebar-item-active-background, var(--default-scalar-sidebar-item-active-background, var(--scalar-background-accent)));
+  color: var(--scalar-sidebar-color-active, var(--scalar-color-accent));
+
+  background: var(
+    --scalar-sidebar-item-active-background,
+    var(--scalar-background-accent)
+  );
 }
 .active_page.sidebar-heading:hover .sidebar-heading-link-title {
-  color: var(
-    --scalar-sidebar-color-active,
-    var(--default-scalar-sidebar-color-active, var(--scalar-color-accent))
-  );
+  color: var(--scalar-sidebar-color-active, var(--scalar-color-accent));
 }
 .sidebar-indent-nested .sidebar-indent-nested .sidebar-heading:before {
   content: '';
@@ -246,10 +246,7 @@ const onAnchorClick = async (ev: Event) => {
   color: var(--scalar-sidebar-color-2);
 }
 .active_page .toggle-nested-icon {
-  color: var(
-    --scalar-sidebar-color-active,
-    var(--default-scalar-sidebar-color-active, var(--scalar-color-accent))
-  );
+  color: var(--scalar-sidebar-color-active, var(--scalar-color-accent));
 }
 
 .toggle-nested-icon:hover,
@@ -282,10 +279,11 @@ const onAnchorClick = async (ev: Event) => {
   opacity: 1;
 }
 .sidebar-heading:has(~ .action-menu:hover) {
-  /* prettier-ignore */
-  color: var(--scalar-sidebar-color-1, var(--default-scalar-sidebar-color-1), var(--scalar-color-1));
-  /* prettier-ignore */
-  background: var(--scalar-sidebar-item-hover-background, var(--default-scalar-sidebar-item-hover-background), var(--scalar-background-2));
+  color: var(--scalar-sidebar-color-1, var(--scalar-color-1));
+  background: var(
+    --scalar-sidebar-item-hover-background,
+    var(--scalar-background-2)
+  );
 }
 
 .sidebar-heading-type {
@@ -328,10 +326,7 @@ const onAnchorClick = async (ev: Event) => {
   color: color-mix(in srgb, var(--method-color), black 80%);
 }
 .sidebar-group-item__folder {
-  color: var(
-    --scalar-sidebar-color-1,
-    var(--default-scalar-sidebar-color-1, var(--scalar-color-1))
-  );
+  color: var(--scalar-sidebar-color-1, var(--scalar-color-1));
 }
 .sidebar-group-item__folder .sidebar-heading-type {
   display: none;

@@ -183,12 +183,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   border-right: 1px solid
-    var(
-      --scalar-sidebar-border-color,
-      var(--default-scalar-sidebar-border-color, var(--scalar-border-color))
-    );
-  /* prettier-ignore */
-  background: var(--scalar-sidebar-background-1, var(--default-scalar-sidebar-background-1, var(--scalar-background-1)));
+    var(--scalar-sidebar-border-color, var(--scalar-border-color));
+  background: var(--scalar-sidebar-background-1, var(--scalar-background-1));
   --scalar-sidebar-level: 0;
 }
 .sidebar-pages {

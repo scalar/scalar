@@ -223,9 +223,6 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
   width: var(--refs-sidebar-width);
   max-width: var(--refs-sidebar-width);
   border-right: 1px solid
-    var(
-      --scalar-sidebar-border-color,
-      var(--default-scalar-sidebar-border-color, var(--scalar-border-color))
-    );
+    var(--scalar-sidebar-border-color, var(--scalar-border-color));
 }
 </style>

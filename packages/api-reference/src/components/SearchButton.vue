@@ -58,22 +58,13 @@ whenever(keys[`meta_${props.searchHotKey}`], () =>
   font-family: var(--scalar-font);
   background: var(
     --scalar-sidebar-search-background,
-    var(--default-scalar-sidebar-search-background, var(--scalar-background-1))
+    var(--scalar-background-1)
   );
-  color: var(
-    --scalar-sidebar-color-2,
-    var(--default-scalar-sidebar-color-2, var(--scalar-color-2))
-  );
+  color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
   outline: none;
   border-radius: var(--scalar-radius);
   box-shadow: 0 0 0 1px
-    var(
-      --scalar-sidebar-search-border-color,
-      var(
-        --default-scalar-sidebar-search-border-color,
-        var(--scalar-border-color)
-      )
-    );
+    var(--scalar-sidebar-search-border-color, var(--scalar-border-color));
   /* prettier-ignore */
   cursor: pointer;
   appearance: none;
@@ -101,11 +92,7 @@ whenever(keys[`meta_${props.searchHotKey}`], () =>
   padding: 3px 5px;
   margin: 2px;
   border-radius: var(--scalar-radius);
-  color: var(
-    --scalar-sidebar-color-2,
-    var(--default-scalar-sidebar-color-2),
-    var(--scalar-color-2)
-  );
+  color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
 }
 
 .search-icon {

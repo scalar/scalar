@@ -230,11 +230,7 @@ button.schema-card-title:hover {
   border: none;
 }
 .schema-card-description {
-  font-size: var(
-    --font-size,
-    var(--default-font-size),
-    var(--scalar-paragraph)
-  );
+  font-size: var(--font-size, var(--scalar-paragraph));
   color: var(--scalar-color-2);
   line-height: 1.5;
   margin-bottom: 0;

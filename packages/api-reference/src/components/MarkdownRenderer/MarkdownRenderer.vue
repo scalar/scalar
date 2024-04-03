@@ -124,17 +124,9 @@ onServerPrefetch(async () => await sleep(1))
   font-weight: var(--scalar-bold);
 }
 .markdown :deep(p) {
-  font-size: var(
-    --font-size,
-    var(--default-font-size),
-    var(--scalar-paragraph)
-  );
+  font-size: var(--font-size, var(--scalar-paragraph));
   color: var(--scalar-color-1);
-  font-weight: var(
-    --font-weight,
-    var(--default-font-weight),
-    var(--scalar-small)
-  );
+  font-weight: var(--font-weight, var(--scalar-regular));
   line-height: 1.5;
   margin-bottom: 0;
   display: block;
@@ -244,11 +236,7 @@ onServerPrefetch(async () => await sleep(1))
   word-break: initial;
   font-size: var(--scalar-small);
   color: var(--scalar-color-1);
-  font-weight: var(
-    --font-weight,
-    var(--default-font-weight),
-    var(--scalar-small)
-  );
+  font-weight: var(--font-weight, var(--scalar-regular));
   border-right: 1px solid var(--scalar-border-color);
   border-bottom: 1px solid var(--scalar-border-color);
 }
