@@ -186,7 +186,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   justify-content: center;
   position: relative;
   box-sizing: border-box;
-  color: var(--scalar-code-language-color-supersede);
+  color: var(--scalar-code-language-color-supersede, #fff);
 }
 .code-languages-background {
   border-radius: 9px;
