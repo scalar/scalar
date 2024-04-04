@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.20.24
+
+### Patch Changes
+
+- ab58747: fix: decrease border radius on code language background element
+
 ## 1.20.23
 
 ### Patch Changes
