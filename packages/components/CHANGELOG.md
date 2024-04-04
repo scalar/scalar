@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.4.10
+
+### Patch Changes
+
+- 95bac72: fix: docusaurus code blocks
+
 ## 0.4.9
 
 ### Patch Changes
