@@ -191,6 +191,16 @@ const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
     })
   })
 
+  // handle x-displayName extension
+  schema.tags.forEach((tag, tagIndex) => {
+    // @ts-expect-error TODO: We need to handle extensions
+    const xDisplayName = tag['x-displayName']
+
+    if (xDisplayName && schema.tags?.[tagIndex]) {
+      schema.tags[tagIndex].name = xDisplayName
+    }
+  })
+
   const returnedResult = {
     ...schema,
     webhooks: newWebhooks,
