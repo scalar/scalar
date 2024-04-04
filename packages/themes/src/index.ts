@@ -18,6 +18,9 @@ export { default as ResetStyles } from './components/ResetStyles.vue'
 /** A scoped scrollbar style component. */
 export { default as ScrollbarStyles } from './components/ScrollbarStyles.vue'
 
+/**  */
+export { migrateThemeVariables } from './utilities/legacy'
+
 /**
  * Available theme IDs as a type.
  */

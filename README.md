@@ -447,9 +447,9 @@ Overwrite our CSS variables. We won’t judge.
 }
 ```
 
-You can [use all variables](https://github.com/scalar/scalar/blob/main/packages/themes/src/base.css).
+You can [use all variables](https://github.com/scalar/scalar/blob/main/packages/themes/src/base.css) available in the base styles as well as overwrite the color theme.
 
-Overwrite our night mode and day mode variables to build your own themes. Here are some of the basic variables to get you started:
+To build your own color themes overwrite the night mode and day mode variables. Here are some basic variables to get you started:
 
 ![basic-scalar-variables](https://github.com/scalar/scalar/assets/6374090/f49256c4-4623-4797-87a1-24bdbc9b17fd)
 
@@ -509,6 +509,17 @@ Or get more advanced by styling our sidebar!
   --scalar-sidebar-search-color: var(--scalar-color-3);
 }
 ```
+
+### Theme Prefix Changes
+
+We've migrated our `--theme-*` CSS variables to `--scalar-*` to avoid conflicts with other CSS variables in applications consuming the Scalar references or themes. If you're injecting your custom CSS through the [`customCss`](#configuration) configuration option we will automatically migrate your variable prefixes but display a warning in the console.
+
+We recommend updating your theme variables as soon as possible:
+
+- `--theme-*` → `--scalar-*`
+- `--sidebar-*` → `--scalar-sidebar-*`
+
+For a before and after example of an updated theme see [`legacyTheme.css`](https://github.com/scalar/scalar/tree/main/packages/themes/src/fixtures/legacyTheme.css) and [`updatedTheme.css`](https://github.com/scalar/scalar/tree/main/packages/themes/src/fixtures/updatedTheme.css) in the [`@scalar/themes`](https://github.com/scalar/scalar/tree/main/packages/themes/) package.
 
 ## Community
 
