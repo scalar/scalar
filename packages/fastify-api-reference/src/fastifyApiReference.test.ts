@@ -21,6 +21,21 @@ describe('fastifyApiReference', () => {
     expect(response.status).toBe(200)
   })
 
+  it('hasPlugin(fastifyApiReference) returns true', async () => {
+    const fastify = Fastify({
+      logger: false,
+    })
+
+    await fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {
+        spec: { url: '/swagger.json' },
+      },
+    })
+
+    expect(fastify.hasPlugin('@scalar/fastify-api-reference')).toBeTruthy()
+  })
+
   it('no fastify-html exposed', async () => {
     const fastify = Fastify({
       logger: false,
