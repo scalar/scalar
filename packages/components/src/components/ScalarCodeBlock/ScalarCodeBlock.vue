@@ -159,6 +159,8 @@ onMounted(async () => {
   -moz-hyphens: none;
   -ms-hyphens: none;
   hyphens: none;
+
+  display: block;
 }
 
 /* Code blocks */
