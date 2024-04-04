@@ -216,12 +216,9 @@ const fastifyApiReference = fp<FastifyApiReferenceOptions>(
           }
         }
 
-        return reply.header('Content-Type', 'text/html; charset=utf-8').send(
-          htmlDocument({
-            ...options,
-            configuration,
-          }),
-        )
+        return reply
+          .header('Content-Type', 'text/html; charset=utf-8')
+          .send(htmlDocument({ ...options, configuration }))
       },
     })
 
