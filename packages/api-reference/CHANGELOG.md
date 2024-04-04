@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.20.22
+
+### Patch Changes
+
+- 4089634: feat: support x-displayName tag extension
+
 ## 1.20.21
 
 ### Patch Changes
