@@ -1,7 +1,7 @@
+import type { AuthenticationState } from '@scalar/oas-utils'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { HarRequest } from 'httpsnippet-lite'
 
-import type { AuthenticationState } from '../stores'
 import { encodeStringAsBase64 } from './encodeStringAsBase64'
 
 /**
@@ -47,9 +47,11 @@ export function getRequestFromAuthentication(
   const cookies: HarRequest['cookies'] = []
 
   // Check whether auth is required
+  // Custom Security required for users that add auth on the client with none in the spec
   if (
-    !authentication.preferredSecurityScheme ||
-    !authenticationRequired(operationSecurity)
+    !authentication.customSecurity &&
+    (!authentication.preferredSecurityScheme ||
+      !authenticationRequired(operationSecurity))
   ) {
     return { headers, queryString, cookies }
   }
@@ -64,9 +66,10 @@ export function getRequestFromAuthentication(
   )
 
   // If the (globally) selected security scheme is not allowed for the operation, use the first available security scheme.
-  const operationSecurityKey = operationAllowsSelectedSecurityScheme
-    ? authentication.preferredSecurityScheme
-    : Object.keys(operationSecurity?.[0] ?? {}).pop()
+  const operationSecurityKey =
+    operationAllowsSelectedSecurityScheme || authentication.customSecurity
+      ? authentication.preferredSecurityScheme
+      : Object.keys(operationSecurity?.[0] ?? {}).pop()
 
   // We’re using a parsed OpenAPI file here, so let’s get rid of the `ReferenceObject` type
   const securityScheme =

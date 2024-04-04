@@ -36,6 +36,17 @@ const descriptions: Record<string, Record<string, string>> = {
   },
 }
 
+const displayDescription = function (
+  description: string | undefined,
+  value?: Record<string, any>,
+) {
+  if (value?.properties) {
+    return null
+  }
+
+  return description || value?.description || null
+}
+
 const generatePropertyDescription = function (property?: Record<string, any>) {
   if (!property) {
     return null
@@ -76,9 +87,9 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     </SchemaPropertyHeading>
     <!-- Description -->
     <div
-      v-if="description || value?.description"
+      v-if="displayDescription(description, value)"
       class="property-description">
-      <MarkdownRenderer :value="description || value?.description" />
+      <MarkdownRenderer :value="displayDescription(description, value)" />
     </div>
     <div
       v-else-if="generatePropertyDescription(value)"

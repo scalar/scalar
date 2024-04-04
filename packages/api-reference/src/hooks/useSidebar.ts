@@ -1,5 +1,5 @@
-import { useApiClientStore } from '@scalar/api-client'
-import { type TransformedOperation } from '@scalar/oas-utils'
+import { useApiClientStore, useOpenApiStore } from '@scalar/api-client'
+import { type TransformedOperation, ssrState } from '@scalar/oas-utils'
 import { type OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, reactive, ref, watch } from 'vue'
 
@@ -40,7 +40,9 @@ const parsedSpec = ref<Spec | undefined>(undefined)
 // Track which sidebar items are collapsed
 type CollapsedSidebarItems = Record<string, boolean>
 
-const collapsedSidebarItems = reactive<CollapsedSidebarItems>({})
+const collapsedSidebarItems = reactive<CollapsedSidebarItems>(
+  ssrState['useSidebarContent-collapsedSidebarItems'] ?? {},
+)
 
 function toggleCollapsedSidebarItem(key: string) {
   collapsedSidebarItems[key] = !collapsedSidebarItems[key]
@@ -65,6 +67,9 @@ const items = computed(() => {
   // Check whether the API client is visible
   const { state } = useApiClientStore()
   const titlesById: Record<string, string> = {}
+  const {
+    openApi: { globalSecurity },
+  } = useOpenApiStore()
 
   // Introduction
   const headingEntries: SidebarEntry[] = headings.value.map((heading) => {
@@ -106,7 +111,7 @@ const items = computed(() => {
                 show: true,
                 select: () => {
                   if (state.showApiClient) {
-                    openClientFor(operation)
+                    openClientFor(operation, globalSecurity)
                   }
                 },
               }
@@ -126,7 +131,7 @@ const items = computed(() => {
             show: true,
             select: () => {
               if (state.showApiClient) {
-                openClientFor(operation)
+                openClientFor(operation, globalSecurity)
               }
             },
           }

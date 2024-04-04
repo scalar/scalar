@@ -40,8 +40,238 @@ const { requestHistoryOrder } = useRequestStore()
     </div>
   </div>
 </template>
-
 <style>
+.navtable {
+  width: 100%;
+}
+.navtable-follow {
+  background-color: black;
+  color: white;
+  font-size: 9px;
+  padding: 6px;
+  display: -webkit-box;
+  max-width: 250px;
+  -webkit-line-clamp: 12;
+  border-radius: 3px;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.24;
+  transform: translate3d(10px, 0, 0);
+}
+.navtable-follow:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 6px;
+  background-color: black;
+}
+.navtable-follow * {
+  font-family: var(
+    --theme-font-code,
+    var(--default-theme-font-code)
+  ) !important;
+}
+.navtable-table {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 389px;
+  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+}
+.navtable-radios {
+  z-index: 1;
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+}
+.navtable-item {
+  display: flex;
+  position: relative;
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  border-top: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+}
+.navtable-item:first-of-type {
+  border-top: none;
+}
+.navtable-item > div {
+  word-wrap: break-word;
+}
+.navtable-item > div:not(:first-child) {
+  border-left: 1px solid
+    var(--theme-border-color, var(--default-theme-border-color));
+}
+.navtable-item-action {
+  color: var(--theme-color-2, var(--default-theme-color-2));
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-weight: var(--theme-bold, var(--default-theme-bold));
+  background: var(
+    --scalar-api-client-bg3,
+    var(--default-scalar-api-client-bg3)
+  );
+  border: none;
+  border-radius: 30px;
+  appearance: none;
+  max-height: 25px;
+  margin-left: 12px;
+  margin-right: 6px;
+  padding: 4px 8px;
+  outline: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+  white-space: nowrap;
+  position: relative;
+}
+.navtable-item-action:hover {
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  background: var(
+    --scalar-api-client-gradient,
+    var(--default-scalar-api-client-gradient)
+  );
+  box-shadow: 0 0 0 1px
+    var(--theme-border-color, var(--default-theme-border-color));
+}
+.navtable-item-action:focus {
+  background: var(--theme-background-2, var(--default-theme-background-2));
+}
+.navtable-item:hover,
+.navtable-item:focus-within .navtable-item-action {
+  opacity: 1;
+}
+.navtable-item-add {
+  display: flex;
+  align-items: center;
+  padding: 9px;
+  font-weight: var(--theme-bold, var(--default-theme-bold));
+  outline: none;
+  border: none;
+  appearance: none;
+  background: transparent;
+  color: var(--theme-color-1, var(--default-theme-color-1));
+}
+.navtable-item-add:hover {
+  background: var(--theme-background-2, var(--default-theme-background-2));
+  cursor: pointer;
+}
+.navtable-item-25 {
+  width: 25%;
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  display: flex;
+  align-items: center;
+}
+.navtable-item-33 {
+  width: 33.33333%;
+  display: flex;
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  align-items: center;
+}
+.navtable-item-66 {
+  width: 66.6666%;
+  display: flex;
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  align-items: center;
+}
+.navtable-item-75 {
+  width: 75%;
+  display: flex;
+  align-items: center;
+}
+.navtable-item-75:focus-within {
+  background: var(--theme-background-2, var(--default-theme-background-2));
+}
+.navtable-item-40 {
+  width: 40%;
+  display: flex;
+  align-items: center;
+  padding: 9px;
+}
+.navtable-item-20 {
+  width: 20%;
+  display: flex;
+  align-items: center;
+  padding: 9px;
+}
+.navtable-item-50 {
+  width: 50%;
+  display: flex;
+  align-items: center;
+}
+.navtable-item-50:focus-within {
+  background: var(--theme-background-2, var(--default-theme-background-2));
+}
+.navtable-item p {
+  padding: 9px;
+}
+.navtable-item input {
+  padding: 12px 6px;
+  border: none;
+  outline: none;
+  appearance: none;
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  background: transparent;
+  width: 100%;
+}
+.navtable-item input:focus {
+  background: var(--theme-background-2, var(--default-theme-background-2));
+}
+.navtable-item-select {
+  position: relative;
+}
+.navtable-item-select select {
+  background: transparent;
+  outline: none;
+  border: none;
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  padding: 12px 6px;
+  top: 0;
+  position: relative;
+  cursor: pointer;
+  color: var(--theme-color-2, var(--default-theme-color-2));
+}
+.navtable-item-select svg {
+  position: absolute;
+  right: 6px;
+  color: var(--theme-color-ghost, var(--default-theme-color-ghost));
+  width: 6px;
+  top: 12px;
+  pointer-events: none;
+}
+.navtable-item .option {
+  padding: 12px 6px;
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  color: var(--theme-color-1, var(--default-theme-color-1));
+  width: 100%;
+}
+.navtable-item label {
+  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  text-transform: uppercase;
+  display: block;
+  width: 100%;
+}
+.navtable-item-response {
+  padding: 0 9px;
+}
+.navtable-item-response span {
+  font-size: var(--theme-micro, var(--default-theme-micro));
+  display: flex;
+  align-items: center;
+  margin-right: 9px;
+  min-width: 40px;
+}
+.navtable-item-response span:empty {
+  display: none;
+}
 .navtable-mock {
   background-repeat: repeat;
   width: 100%;
@@ -104,9 +334,6 @@ const { requestHistoryOrder } = useRequestStore()
   top: 0;
   left: 0;
   height: 100%;
-}
-.navtable-item__active + .navtable-item {
-  /* box-shadow: none; */
 }
 .radio.post {
   background: var(--theme-color-green, var(--default-theme-color-green));

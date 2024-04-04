@@ -1,5 +1,17 @@
 # @scalar/oas-utils
 
+## 0.1.3
+
+### Patch Changes
+
+- c14568f: feat: add custom security option
+
+## 0.1.2
+
+### Patch Changes
+
+- 8b0691b: feat: added future support for SSR server state hydration
+
 ## 0.1.1
 
 ### Patch Changes

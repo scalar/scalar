@@ -1,5 +1,35 @@
 # @scalar/api-client
 
+## 1.1.14
+
+### Patch Changes
+
+- Updated dependencies [95bac72]
+  - @scalar/components@0.4.10
+
+## 1.1.13
+
+### Patch Changes
+
+- b0b757d: feat: improve API Client request parameter tables
+
+## 1.1.12
+
+### Patch Changes
+
+- c14568f: feat: add custom security option
+- Updated dependencies [c14568f]
+  - @scalar/components@0.4.9
+  - @scalar/oas-utils@0.1.3
+
+## 1.1.11
+
+### Patch Changes
+
+- 8b0691b: feat: added future support for SSR server state hydration
+- Updated dependencies [8b0691b]
+  - @scalar/oas-utils@0.1.2
+
 ## 1.1.10
 
 ### Patch Changes

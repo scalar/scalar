@@ -13,12 +13,13 @@ import {
 } from '@scalar/oas-utils'
 import { snippetz } from '@scalar/snippetz'
 import { HTTPSnippet } from 'httpsnippet-lite'
-import { computed, inject, ref, watch } from 'vue'
+import { computed, inject, onServerPrefetch, ref, watch } from 'vue'
 
 import {
   GLOBAL_SECURITY_SYMBOL,
   getApiClientRequest,
   getUrlFromServerState,
+  sleep,
 } from '../../../helpers'
 import { useClipboard, useHttpClients } from '../../../hooks'
 import { useHttpClientStore, useServerStore } from '../../../stores'
@@ -123,6 +124,8 @@ watch(
     immediate: true,
   },
 )
+
+onServerPrefetch(async () => await sleep(1))
 
 computed(() => {
   return getApiClientRequest({

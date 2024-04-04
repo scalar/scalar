@@ -1,5 +1,79 @@
 # @scalar/hono-api-reference
 
+## 0.4.31
+
+### Patch Changes
+
+- Updated dependencies [ab58747]
+  - @scalar/api-reference@1.20.24
+
+## 0.4.30
+
+### Patch Changes
+
+- @scalar/api-reference@1.20.23
+
+## 0.4.29
+
+### Patch Changes
+
+- Updated dependencies [4089634]
+  - @scalar/api-reference@1.20.22
+
+## 0.4.28
+
+### Patch Changes
+
+- @scalar/api-reference@1.20.21
+
+## 0.4.27
+
+### Patch Changes
+
+- @scalar/api-reference@1.20.20
+
+## 0.4.26
+
+### Patch Changes
+
+- Updated dependencies [c99f6ff]
+  - @scalar/api-reference@1.20.18
+
+## 0.4.25
+
+### Patch Changes
+
+- Updated dependencies [5b4c8a5]
+  - @scalar/api-reference@1.20.17
+
+## 0.4.24
+
+### Patch Changes
+
+- Updated dependencies [5232eab]
+  - @scalar/api-reference@1.20.16
+
+## 0.4.23
+
+### Patch Changes
+
+- Updated dependencies [8f03345]
+  - @scalar/api-reference@1.20.15
+
+## 0.4.22
+
+### Patch Changes
+
+- Updated dependencies [78f2ab3]
+  - @scalar/api-reference@1.20.14
+
+## 0.4.21
+
+### Patch Changes
+
+- Updated dependencies [8b0691b]
+  - @scalar/api-reference@1.20.13
+
 ## 0.4.20
 
 ### Patch Changes

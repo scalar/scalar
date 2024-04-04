@@ -1,5 +1,8 @@
-import type { AuthenticationState } from '@scalar/api-client'
-import type { ContentType, TransformedOperation } from '@scalar/oas-utils'
+import type {
+  AuthenticationState,
+  ContentType,
+  TransformedOperation,
+} from '@scalar/oas-utils'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { ThemeId } from '@scalar/themes'
 import type { MetaFlatInput } from '@unhead/schema'

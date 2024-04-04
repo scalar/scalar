@@ -31,3 +31,15 @@ defineProps<{ items: any[] }>()
     </div>
   </div>
 </template>
+<style scoped>
+.simpletable.navtable {
+  padding: 0;
+}
+.simpletable.navtable .navtable-item-66,
+.simpletable.navtable .navtable-item-33 {
+  display: block;
+}
+.simpletable.navtable .navtable-table {
+  height: fit-content;
+}
+</style>

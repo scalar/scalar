@@ -53,7 +53,6 @@ const getContentLength = (response: ClientResponse) => {
     </div>
   </div>
 </template>
-
 <style scoped>
 .navtable-item-time {
   text-transform: capitalize;

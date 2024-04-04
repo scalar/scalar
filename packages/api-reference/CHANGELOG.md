@@ -1,5 +1,80 @@
 # @scalar/api-reference
 
+## 1.20.24
+
+### Patch Changes
+
+- ab58747: fix: decrease border radius on code language background element
+
+## 1.20.23
+
+### Patch Changes
+
+- Updated dependencies [95bac72]
+  - @scalar/components@0.4.10
+  - @scalar/api-client@1.1.14
+
+## 1.20.22
+
+### Patch Changes
+
+- 4089634: feat: support x-displayName tag extension
+
+## 1.20.21
+
+### Patch Changes
+
+- Updated dependencies [b0b757d]
+  - @scalar/api-client@1.1.13
+
+## 1.20.20
+
+### Patch Changes
+
+- Updated dependencies [c14568f]
+  - @scalar/api-client@1.1.12
+  - @scalar/components@0.4.9
+  - @scalar/oas-utils@0.1.3
+
+## 1.20.18
+
+### Patch Changes
+
+- c99f6ff: fix: create url for sidebar links using constructor
+
+## 1.20.17
+
+### Patch Changes
+
+- 5b4c8a5: fix: left align read only
+
+## 1.20.16
+
+### Patch Changes
+
+- 5232eab: fix: use function for displaying description in schema property component
+
+## 1.20.15
+
+### Patch Changes
+
+- 8f03345: fix: update only the hash on scroll
+
+## 1.20.14
+
+### Patch Changes
+
+- 78f2ab3: fix: set global security on sidebar navigation
+
+## 1.20.13
+
+### Patch Changes
+
+- 8b0691b: feat: added future support for SSR server state hydration
+- Updated dependencies [8b0691b]
+  - @scalar/api-client@1.1.11
+  - @scalar/oas-utils@0.1.2
+
 ## 1.20.12
 
 ### Patch Changes

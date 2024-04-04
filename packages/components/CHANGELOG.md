@@ -1,5 +1,17 @@
 # @scalar/components
 
+## 0.4.10
+
+### Patch Changes
+
+- 95bac72: fix: docusaurus code blocks
+
+## 0.4.9
+
+### Patch Changes
+
+- c14568f: feat: add custom security option
+
 ## 0.4.8
 
 ### Patch Changes

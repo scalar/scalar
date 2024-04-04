@@ -1,5 +1,79 @@
 # @scalar/nextjs-api-reference
 
+## 0.2.31
+
+### Patch Changes
+
+- Updated dependencies [ab58747]
+  - @scalar/api-reference@1.20.24
+
+## 0.2.30
+
+### Patch Changes
+
+- @scalar/api-reference@1.20.23
+
+## 0.2.29
+
+### Patch Changes
+
+- Updated dependencies [4089634]
+  - @scalar/api-reference@1.20.22
+
+## 0.2.28
+
+### Patch Changes
+
+- @scalar/api-reference@1.20.21
+
+## 0.2.27
+
+### Patch Changes
+
+- @scalar/api-reference@1.20.20
+
+## 0.2.26
+
+### Patch Changes
+
+- Updated dependencies [c99f6ff]
+  - @scalar/api-reference@1.20.18
+
+## 0.2.25
+
+### Patch Changes
+
+- Updated dependencies [5b4c8a5]
+  - @scalar/api-reference@1.20.17
+
+## 0.2.24
+
+### Patch Changes
+
+- Updated dependencies [5232eab]
+  - @scalar/api-reference@1.20.16
+
+## 0.2.23
+
+### Patch Changes
+
+- Updated dependencies [8f03345]
+  - @scalar/api-reference@1.20.15
+
+## 0.2.22
+
+### Patch Changes
+
+- Updated dependencies [78f2ab3]
+  - @scalar/api-reference@1.20.14
+
+## 0.2.21
+
+### Patch Changes
+
+- Updated dependencies [8b0691b]
+  - @scalar/api-reference@1.20.13
+
 ## 0.2.20
 
 ### Patch Changes

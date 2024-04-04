@@ -215,7 +215,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   top: -1px;
   left: -1px;
   pointer-events: none;
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(
     --theme-code-languages-background-supersede,
     var(--default-theme-code-languages-background-supersede)

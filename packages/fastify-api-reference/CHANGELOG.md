@@ -1,5 +1,23 @@
 # @scalar/fastify-api-reference
 
+## 1.20.22
+
+### Patch Changes
+
+- 4089634: feat: support x-displayName tag extension
+
+## 1.20.20
+
+### Patch Changes
+
+- c14568f: feat: add custom security option
+
+## 1.20.19
+
+### Patch Changes
+
+- ed44d47: manual fastify release
+
 ## 1.20.10
 
 ### Patch Changes

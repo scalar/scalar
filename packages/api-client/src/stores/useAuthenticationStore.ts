@@ -1,33 +1,11 @@
-import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import { type AuthenticationState } from '@scalar/oas-utils'
+import { ssrState } from '@scalar/oas-utils'
 import { reactive } from 'vue'
-
-export type AuthenticationState = {
-  preferredSecurityScheme: string | null
-  securitySchemes?:
-    | OpenAPIV3.ComponentsObject['securitySchemes']
-    | OpenAPIV3_1.ComponentsObject['securitySchemes']
-  http: {
-    basic: {
-      username: string
-      password: string
-    }
-    bearer: {
-      token: string
-    }
-  }
-  apiKey: {
-    token: string
-  }
-  oAuth2: {
-    clientId: string
-    scopes: string[]
-    accessToken: string
-    state: string
-  }
-}
 
 export const createEmptyAuthenticationState = (): AuthenticationState => ({
   preferredSecurityScheme: null,
+  // In case the spec has no security and the user would like to add some
+  customSecurity: false,
   http: {
     basic: {
       username: '',
@@ -49,15 +27,11 @@ export const createEmptyAuthenticationState = (): AuthenticationState => ({
 })
 
 const authentication = reactive<AuthenticationState>(
-  createEmptyAuthenticationState(),
+  ssrState['useGlobalStore-authentication'] ?? createEmptyAuthenticationState(),
 )
 
-const setAuthentication = (newState: Partial<AuthenticationState>) => {
-  Object.assign(authentication, {
-    ...authentication,
-    ...newState,
-  })
-}
+const setAuthentication = (newState: Partial<AuthenticationState>) =>
+  Object.assign(authentication, newState)
 
 export const useAuthenticationStore = () => ({
   authentication,
