@@ -1,8 +1,10 @@
-/** The legacy CSS variable prefix */
-export const LEGACY_VAR_PREFIX = '--theme-'
+/** The legacy -> updated CSS variable prefix pairs */
+export const PREFIX_MIGRATIONS = [
+  ['--theme-', '--scalar-'],
+  ['--sidebar-', '--scalar-sidebar-'],
+]
 
-/** The new CSS variable prefix */
-export const VAR_PREFIX = '--scalar-'
+export const LEGACY_PREFIXES = PREFIX_MIGRATIONS.map(([legacy]) => legacy)
 
 /**
  * Checks a style string for legacy theme variables and updated them to the new theme variables
@@ -10,11 +12,13 @@ export const VAR_PREFIX = '--scalar-'
  * @param styles the style string to be checked for legacy theme variables and updated
  */
 export function migrateThemeVariables(styles: string): string {
-  if (!styles.includes(LEGACY_VAR_PREFIX)) return styles
+  const hasLegacyPrefixes = LEGACY_PREFIXES.some((p) => styles.includes(p))
+  if (!hasLegacyPrefixes) return styles
 
   console.warn(
-    `DEPRECATION WARNING: It looks like you're using legacy ${LEGACY_VAR_PREFIX}* CSS variables in your custom CSS string. Please migrate them to use the ${VAR_PREFIX}* prefix.`,
+    `DEPRECATION WARNING: It looks like you're using legacy CSS variables in your custom CSS string. Please migrate them to use the updated prefixes. See (link to )`,
   )
 
-  return styles.replaceAll(LEGACY_VAR_PREFIX, VAR_PREFIX)
+  // Replaces each old variable in the prefix migrations
+  return PREFIX_MIGRATIONS.reduce((s, [o, n]) => s.replaceAll(o, n), styles)
 }
