@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 1.1.13
+
+### Patch Changes
+
+- b0b757d: feat: improve API Client request parameter tables
+
 ## 1.1.12
 
 ### Patch Changes
