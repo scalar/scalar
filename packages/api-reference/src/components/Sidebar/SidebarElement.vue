@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
 import { type Icon, ScalarIcon, ScalarIconButton } from '@scalar/components'
-import { type PathRouting } from 'src/types'
+
+import { scrollToId } from '../../helpers'
+import { type PathRouting } from '../../types'
 
 const props = defineProps<{
   id: string
@@ -42,6 +44,20 @@ const generateLink = (hash: string) => {
     return `${newUrl.pathname}${newUrl.search}${newUrl.hash}`
   }
 }
+
+// For path routing we want to handle the clicks
+const onAnchorClick = (ev: Event) => {
+  if (props.pathRouting) {
+    ev.preventDefault()
+    ev.stopPropagation()
+
+    const target = ev.target as HTMLAnchorElement
+    window.history.pushState({}, '', target.href)
+    // Make sure to open the section
+
+    scrollToId(props.item.id)
+  }
+}
 </script>
 <template>
   <li
@@ -70,7 +86,8 @@ const generateLink = (hash: string) => {
       </p>
       <a
         class="sidebar-heading-link"
-        :href="generateLink(item.id)">
+        :href="generateLink(item.id)"
+        @click="onAnchorClick">
         <ScalarIcon
           v-if="item?.icon?.src"
           class="sidebar-icon"
