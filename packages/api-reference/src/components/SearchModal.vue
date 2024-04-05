@@ -12,7 +12,10 @@ import { extractRequestBody } from '../helpers/specHelpers'
 import { type ParamMap, useNavState, useOperation, useSidebar } from '../hooks'
 import type { Spec } from '../types'
 
-const props = defineProps<{ parsedSpec: Spec; modalState: ModalState }>()
+const props = defineProps<{
+  parsedSpec: Spec
+  modalState: ModalState
+}>()
 const reactiveSpec = toRef(props, 'parsedSpec')
 
 const keys = useMagicKeys()
@@ -61,6 +64,8 @@ watch(
     searchResults.value = []
   },
 )
+
+const { setCollapsedSidebarItem, hideModels } = useSidebar()
 
 watch(
   reactiveSpec.value,
@@ -164,7 +169,7 @@ watch(
     }
 
     // Adding models as well
-    const schemas = props.parsedSpec.components?.schemas
+    const schemas = hideModels.value ? {} : props.parsedSpec.components?.schemas
     const modelData: FuseData[] = []
 
     if (schemas) {
@@ -262,7 +267,6 @@ const searchResultsWithPlaceholderResults = computed(
 )
 
 const tagRegex = /#(tag\/[^/]*)/
-const { setCollapsedSidebarItem } = useSidebar()
 
 // Ensure we open the section
 const onSearchResultClick = (entry: Fuse.FuseResult<FuseData>) => {
