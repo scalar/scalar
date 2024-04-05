@@ -169,6 +169,7 @@ export type DescriptionSectionSSRKey =
 
 export type SSRState = {
   scalarState: {
+    'hash'?: string
     'useGlobalStore-authentication'?: AuthenticationState
     'useSidebarContent-collapsedSidebarItems'?: CollapsedSidebarItems
     [key: DescriptionSectionSSRKey]: {
@@ -176,4 +177,5 @@ export type SSRState = {
       content: string
     }[]
   }
+  url: string
 }

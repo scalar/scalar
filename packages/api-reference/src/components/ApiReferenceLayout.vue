@@ -139,6 +139,18 @@ onServerPrefetch(() => {
   ctx.scalarState ||= defaultStateFactory()
   ctx.scalarState['useSidebarContent-collapsedSidebarItems'] =
     collapsedSidebarItems
+
+  // Set initial hash value
+  if (props.configuration.pathRouting) {
+    const reggy = new RegExp(
+      '^' + props.configuration.pathRouting.basePath + '/?',
+    )
+    const id = ctx.url.replace(reggy, '')
+    if (id.length) {
+      hash.value = id
+      ctx.scalarState.hash = id
+    }
+  }
 })
 
 /**

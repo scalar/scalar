@@ -28,7 +28,12 @@ const disableScroll = ref(true)
 // but not when we click, only on scroll.
 // Also disable scroll on expansion of sidebar tag
 watch(hash, (id) => {
-  if (!isIntersectionEnabled.value || disableScroll.value) return
+  if (
+    !isIntersectionEnabled.value ||
+    disableScroll.value ||
+    typeof window === 'undefined'
+  )
+    return
   scrollSidebar(id)
 })
 

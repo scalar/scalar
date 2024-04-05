@@ -1,4 +1,8 @@
-import type { Heading, TransformedOperation } from '@scalar/oas-utils'
+import {
+  type Heading,
+  type TransformedOperation,
+  ssrState,
+} from '@scalar/oas-utils'
 import { slug } from 'github-slugger'
 import { onMounted, ref } from 'vue'
 
@@ -6,7 +10,7 @@ import { scrollToId, sleep } from '../helpers'
 import type { Tag } from '../types'
 
 // Keeps track of the URL hash without the #
-const hash = ref('')
+const hash = ref(ssrState.hash ?? '')
 
 // To disable the intersection observer on click
 const isIntersectionEnabled = ref(false)
