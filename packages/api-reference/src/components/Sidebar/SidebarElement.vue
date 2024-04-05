@@ -99,7 +99,7 @@ const onAnchorClick = async (ev: Event) => {
       </p>
       <a
         class="sidebar-heading-link"
-        :href="generateLink"
+        :href="generateLink()"
         @click="onAnchorClick">
         <ScalarIcon
           v-if="item?.icon?.src"

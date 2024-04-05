@@ -75,7 +75,7 @@ function handleScroll(headingId = '') {
 onServerPrefetch(async () => {
   const ctx = useSSRContext<SSRState>()
   await sleep(1)
-  ctx!.scalarState[ssrStateKey] = sections.value
+  ctx!.payload.data[ssrStateKey] = sections.value
 })
 </script>
 <template>

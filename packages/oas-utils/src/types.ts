@@ -167,15 +167,19 @@ export type Heading = {
 export type DescriptionSectionSSRKey =
   `components-Content-Introduction-Description-sections${number}`
 
+export type ScalarState = {
+  'hash'?: string
+  'useGlobalStore-authentication'?: AuthenticationState
+  'useSidebarContent-collapsedSidebarItems'?: CollapsedSidebarItems
+  [key: DescriptionSectionSSRKey]: {
+    heading: Heading
+    content: string
+  }[]
+}
+
 export type SSRState = {
-  scalarState: {
-    'hash'?: string
-    'useGlobalStore-authentication'?: AuthenticationState
-    'useSidebarContent-collapsedSidebarItems'?: CollapsedSidebarItems
-    [key: DescriptionSectionSSRKey]: {
-      heading: Heading
-      content: string
-    }[]
+  payload: {
+    data: ScalarState
   }
   url: string
 }

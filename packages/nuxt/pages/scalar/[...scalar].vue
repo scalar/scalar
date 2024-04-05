@@ -5,8 +5,6 @@ import ApiReferenceNuxt from '../components/ApiReferenceNuxt.vue'
 useHead({
   title: 'Scalar API Reference',
 })
-
-console.log('nuxt page loaded')
 </script>
 
 <template>

@@ -86,7 +86,7 @@ pathRouting.value = props.configuration.pathRouting
 enableHashListener()
 
 onMounted(() => {
-  if (!hash.value) {
+  if (!hash.value && !pathRouting.value) {
     document.querySelector('#tippy')?.scrollTo({
       top: 0,
       left: 0,
@@ -131,24 +131,35 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
 
 // Initialize the server state
 onServerPrefetch(() => {
-  const firstTag = props.parsedSpec.tags?.[0]
-  if (firstTag) setCollapsedSidebarItem(getTagId(firstTag), true)
-
   const ctx = useSSRContext<SSRState>()
   if (!ctx) return
 
-  ctx.scalarState ||= defaultStateFactory()
-  ctx.scalarState['useSidebarContent-collapsedSidebarItems'] =
-    collapsedSidebarItems
+  ctx.payload.data ||= defaultStateFactory()
 
   // Set initial hash value
   if (props.configuration.pathRouting) {
     const reggy = new RegExp(
       '^' + props.configuration.pathRouting.basePath + '/?',
     )
-    const id = ctx.url.replace(reggy, '')
+    const id = decodeURIComponent(ctx.url.replace(reggy, ''))
     hash.value = id
-    ctx.scalarState.hash = id
+    ctx.payload.data.hash = id
+
+    // For sidebar items we need to reset the state as it persists between requests
+    // This is a temp hack, need to come up with a better solution
+    for (const key in collapsedSidebarItems) {
+      if (Object.hasOwn(collapsedSidebarItems, key))
+        delete collapsedSidebarItems[key]
+    }
+
+    if (id) {
+      setCollapsedSidebarItem(getSectionId(id), true)
+    } else {
+      const firstTag = props.parsedSpec.tags?.[0]
+      if (firstTag) setCollapsedSidebarItem(getTagId(firstTag), true)
+    }
+    ctx.payload.data['useSidebarContent-collapsedSidebarItems'] =
+      collapsedSidebarItems
   }
 })
 
