@@ -37,6 +37,8 @@ const {
 // Track the parsed spec
 const parsedSpec = ref<Spec | undefined>(undefined)
 
+const hideModels = ref(false)
+
 // Track which sidebar items are collapsed
 type CollapsedSidebarItems = Record<string, boolean>
 
@@ -138,29 +140,30 @@ const items = computed(() => {
         })
 
   // Models
-  const modelEntries: SidebarEntry[] = hasModels(parsedSpec.value)
-    ? [
-        {
-          id: getModelId(),
-          title: 'MODELS',
-          show: !state.showApiClient,
-          children: Object.keys(
-            parsedSpec.value?.components?.schemas ?? {},
-          ).map((name) => {
-            const id = getModelId(name)
-            titlesById[id] = name
+  const modelEntries: SidebarEntry[] =
+    hasModels(parsedSpec.value) && !hideModels.value
+      ? [
+          {
+            id: getModelId(),
+            title: 'MODELS',
+            show: !state.showApiClient,
+            children: Object.keys(
+              parsedSpec.value?.components?.schemas ?? {},
+            ).map((name) => {
+              const id = getModelId(name)
+              titlesById[id] = name
 
-            return {
-              id,
-              title:
-                (parsedSpec?.value?.components?.schemas?.[name] as any).title ??
-                name,
-              show: !state.showApiClient,
-            }
-          }),
-        },
-      ]
-    : []
+              return {
+                id,
+                title:
+                  (parsedSpec?.value?.components?.schemas?.[name] as any)
+                    .title ?? name,
+                show: !state.showApiClient,
+              }
+            }),
+          },
+        ]
+      : []
 
   const groupOperations: SidebarEntry[] | undefined = parsedSpec.value?.[
     'x-tagGroups'
@@ -277,5 +280,6 @@ export function useSidebar(options?: { parsedSpec: Spec }) {
     collapsedSidebarItems,
     toggleCollapsedSidebarItem,
     setCollapsedSidebarItem,
+    hideModels,
   }
 }

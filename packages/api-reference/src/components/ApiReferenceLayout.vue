@@ -76,8 +76,11 @@ const {
   collapsedSidebarItems,
   isSidebarOpen,
   setCollapsedSidebarItem,
+  hideModels,
 } = useSidebar()
 const { enableHashListener, getSectionId, getTagId, hash } = useNavState()
+
+console.log('hideModels,', hideModels)
 
 enableHashListener()
 
@@ -163,6 +166,8 @@ provideUseId(() => {
 
 // Provide global security
 provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
+
+hideModels.value = props.configuration.hideModels ?? false
 </script>
 <template>
   <ThemeStyles :id="configuration?.theme" />

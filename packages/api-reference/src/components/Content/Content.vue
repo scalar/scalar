@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, inject } from 'vue'
 
 import { hasModels } from '../../helpers'
-import { useNavState, useRefOnMount } from '../../hooks'
+import { useNavState, useRefOnMount, useSidebar } from '../../hooks'
 import type { Spec } from '../../types'
 import { Authentication } from './Authentication'
 import { BaseUrl } from './BaseUrl'
@@ -26,6 +26,8 @@ const fallBackServer = useRefOnMount(() => {
     url: window.location.origin,
   }
 })
+
+const { hideModels } = useSidebar()
 
 const localServers = computed(() => {
   if (props.parsedSpec.servers && props.parsedSpec.servers.length > 0) {
@@ -132,7 +134,7 @@ const isLazy =
       <Webhooks :webhooks="parsedSpec.webhooks" />
     </template>
 
-    <template v-if="hasModels(parsedSpec)">
+    <template v-if="hasModels(parsedSpec) && !hideModels">
       <ModelsAccordion
         v-if="layout === 'accordion'"
         :components="parsedSpec.components" />
