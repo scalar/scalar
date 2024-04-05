@@ -11,7 +11,8 @@ useHead({
   <ApiReferenceNuxt
     :configuration="{
       showSidebar: true,
-      spec: { url: 'https://petstore.swagger.io/v2/swagger.json' },
+      // spec: { url: 'https://petstore.swagger.io/v2/swagger.json' },
+      spec: { content },
     }">
   </ApiReferenceNuxt>
 </template>

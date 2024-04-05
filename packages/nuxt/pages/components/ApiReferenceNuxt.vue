@@ -16,8 +16,6 @@ const props = defineProps<{
   >
 }>()
 
-const { path } = useRoute()
-
 // Set defaults as needed on the provided configuration
 const configuration = computed<ReferenceConfiguration>(() => ({
   spec: {
@@ -29,7 +27,7 @@ const configuration = computed<ReferenceConfiguration>(() => ({
   showSidebar: true,
   isEditable: false,
   pathRouting: {
-    basePath: path,
+    basePath: '/scalar',
   },
   ...props.configuration,
 }))

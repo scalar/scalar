@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { inject } from 'vue'
+
+import { PATH_ROUTING_SYMBOL } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
 import IntersectionObserver from '../IntersectionObserver.vue'
 
@@ -10,6 +13,8 @@ const props = defineProps<{
 const { getSectionId, hash, isIntersectionEnabled } = useNavState()
 const { setCollapsedSidebarItem } = useSidebar()
 
+const pathRouting = inject(PATH_ROUTING_SYMBOL)
+
 function handleScroll() {
   if (!props.label || !isIntersectionEnabled.value) return
 
@@ -17,8 +22,15 @@ function handleScroll() {
   // this is why we set the hash value directly
   const newUrl = new URL(window.location.href)
   const id = props.id ?? ''
-  newUrl.hash = id
+
+  // If we are pathrouting, set path instead of hash
+  if (pathRouting) {
+    newUrl.pathname = pathRouting.basePath + '/' + id
+  } else {
+    newUrl.hash = id
+  }
   hash.value = id
+
   window.history.replaceState({}, '', newUrl)
 
   // Open models on scroll

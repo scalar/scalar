@@ -84,6 +84,7 @@ const { enableHashListener, getSectionId, getTagId, hash } = useNavState()
 enableHashListener()
 
 onMounted(() => {
+  console.log('we mountin')
   if (!hash.value) {
     document.querySelector('#tippy')?.scrollTo({
       top: 0,
@@ -149,8 +150,10 @@ onServerPrefetch(() => {
 provideUseId(() => {
   const instance = getCurrentInstance()
   const ATTR_KEY = 'scalar-instance-id'
+
   if (!instance) return ATTR_KEY
   let instanceId = instance.uid
+
   // SSR: grab the instance ID from vue and set it as an attribute
   if (typeof window === 'undefined') {
     instance.attrs ||= {}
@@ -204,9 +207,7 @@ hideModels.value = props.configuration.hideModels ?? false
           class="references-navigation t-doc__sidebar">
           <!-- Navigation tree / Table of Contents -->
           <div class="references-navigation-list">
-            <Sidebar
-              :parsedSpec="parsedSpec"
-              :pathRouting="configuration.pathRouting">
+            <Sidebar :parsedSpec="parsedSpec">
               <template #sidebar-start>
                 <slot
                   v-bind="referenceSlotProps"
@@ -271,7 +272,6 @@ hideModels.value = props.configuration.hideModels ?? false
         <!-- REST API Client Overlay -->
         <ApiClientModal
           :parsedSpec="parsedSpec"
-          :pathRouting="configuration.pathRouting"
           :proxyUrl="configuration?.proxy">
           <template #sidebar-start>
             <slot

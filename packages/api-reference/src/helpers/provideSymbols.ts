@@ -1,4 +1,5 @@
 import { type OpenAPIV3 } from '@scalar/openapi-parser'
+import { type PathRouting } from 'src/types'
 import { type InjectionKey } from 'vue'
 
 /**
