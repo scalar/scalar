@@ -83,7 +83,6 @@ const generateLink = (hash: string) => {
           class="sidebar-heading-link-method">
           &hairsp;
           <HttpMethod
-            as="div"
             class="sidebar-heading-type"
             :method="item.httpVerb"
             property="--method-color"

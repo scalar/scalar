@@ -10,7 +10,7 @@ useHead({
 <template>
   <ApiReferenceNuxt
     :configuration="{
-      showSidebar: false,
+      showSidebar: true,
       spec: { url: 'https://petstore.swagger.io/v2/swagger.json' },
     }">
   </ApiReferenceNuxt>

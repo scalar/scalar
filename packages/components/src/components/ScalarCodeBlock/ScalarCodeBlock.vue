@@ -120,22 +120,19 @@ onMounted(async () => {
 })
 </script>
 <template>
-  <!-- SSR generated highlighting -->
   <pre
-    v-if="ssrContent"
     :class="[
       `scalar-component scalar-codeblock-pre language-${language}`,
       {
         'line-numbers': lineNumbers,
       },
-    ]"><code ref="el" :class="`scalar-codeblock-code language-${language}`" v-html="ssrContent" /></pre>
-  <!-- Client side highlighting -->
-  <pre
-    v-else
-    class="scalar-component scalar-codeblock-pre"
-    :class="{
-      'line-numbers': lineNumbers,
-    }"><code ref="el" :class="`scalar-codeblock-code lang-${language}`">{{content}}</code></pre>
+    ]"><!-- 
+        SSR generated highlighting 
+        * Do not remove these strange comments and line breaks as any line breaks
+          inside of pre will show in the dom
+      --><code v-if="ssrContent" ref="el" :class="`scalar-codeblock-code language-${language}`" v-html="ssrContent" /><!-- 
+        Client side generated highlighting
+      --><code v-else ref="el" :class="`scalar-codeblock-code language-${language}`">{{content}}</code></pre>
 </template>
 <style>
 .scalar-codeblock-code[class*='language-'],
