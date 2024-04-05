@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.20.25
+
+### Patch Changes
+
+- 1504d3b: feat: add config to hide models
+
 ## 1.20.22
 
 ### Patch Changes
