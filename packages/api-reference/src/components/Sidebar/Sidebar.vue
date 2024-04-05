@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import { sleep } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
-import type { Spec } from '../../types'
+import type { PathRouting, Spec } from '../../types'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
 
 const props = defineProps<{
   parsedSpec: Spec
+  pathRouting?: PathRouting
 }>()
 
 const { hash, isIntersectionEnabled } = useNavState()
@@ -89,6 +90,7 @@ onMounted(() => {
                   deprecated: group.deprecated ?? false,
                 }"
                 :open="collapsedSidebarItems[group.id] ?? false"
+                :pathRouting="pathRouting"
                 @toggleOpen="
                   async () => {
                     disableScroll = true
@@ -112,7 +114,8 @@ onMounted(() => {
                           select: child.select,
                           httpVerb: child.httpVerb,
                           deprecated: child.deprecated ?? false,
-                        }" />
+                        }"
+                        :pathRouting="pathRouting" />
                     </template>
                   </SidebarGroup>
                 </template>
@@ -134,6 +137,7 @@ onMounted(() => {
                 deprecated: item.deprecated ?? false,
               }"
               :open="collapsedSidebarItems[item.id] ?? false"
+              :pathRouting="pathRouting"
               @toggleOpen="
                 async () => {
                   disableScroll = true
@@ -157,7 +161,8 @@ onMounted(() => {
                         select: child.select,
                         httpVerb: child.httpVerb,
                         deprecated: child.deprecated ?? false,
-                      }" />
+                      }"
+                      :pathRouting="pathRouting" />
                   </template>
                 </SidebarGroup>
               </template>

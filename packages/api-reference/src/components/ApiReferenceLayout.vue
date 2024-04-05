@@ -204,7 +204,9 @@ hideModels.value = props.configuration.hideModels ?? false
           class="references-navigation t-doc__sidebar">
           <!-- Navigation tree / Table of Contents -->
           <div class="references-navigation-list">
-            <Sidebar :parsedSpec="parsedSpec">
+            <Sidebar
+              :parsedSpec="parsedSpec"
+              :pathRouting="configuration.pathRouting">
               <template #sidebar-start>
                 <slot
                   v-bind="referenceSlotProps"
@@ -269,6 +271,7 @@ hideModels.value = props.configuration.hideModels ?? false
         <!-- REST API Client Overlay -->
         <ApiClientModal
           :parsedSpec="parsedSpec"
+          :pathRouting="configuration.pathRouting"
           :proxyUrl="configuration?.proxy">
           <template #sidebar-start>
             <slot

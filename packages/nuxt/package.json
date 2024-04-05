@@ -1,0 +1,39 @@
+{
+  "name": "@scalar/nuxt",
+  "description": "Docusaurus integration for api references",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "keywords": [
+    "api",
+    "references",
+    "nuxt",
+    "docs",
+    "postman alternative",
+    "rest",
+    "testing",
+    "vue"
+  ],
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "postinstall": "nuxt prepare",
+    "preview": "nuxt preview"
+  },
+  "type": "module",
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*"
+  },
+  "devDependencies": {
+    "nuxt": "^3.11.1",
+    "vue": "^3.3.0",
+    "vue-router": "^4.3.0",
+    "zod": "^3.22.4"
+  }
+}

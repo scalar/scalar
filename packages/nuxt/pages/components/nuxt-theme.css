@@ -1,0 +1,84 @@
+/* basic theme */
+.light-mode {
+  --theme-background-1: #fff;
+  --theme-background-2: #f8fafc;
+  --theme-background-3: #e7e7e7;
+  --theme-background-accent: #8ab4f81f;
+
+  --theme-color-1: #000;
+  --theme-color-2: rgb(107, 114, 128);
+  --theme-color-3: rgb(156, 163, 175);
+
+  --theme-color-accent: rgba(0 193 106);
+  --theme-border-color: rgb(229 231 235);
+
+  --theme-color-green: #069061;
+  --theme-color-red: #ef4444;
+  --theme-color-yellow: rgb(245 158 11);
+  --theme-color-blue: rgb(29 78 216);
+  --theme-color-orange: #fb892c;
+  --theme-color-purple: rgb(109 40 217);
+
+  --theme-button-1: black;
+  --theme-button-1-hover: rgba(0, 0, 0, 0.9);
+  --theme-button-1-color: white;
+}
+
+.dark-mode {
+  --theme-background-1: #020420;
+  --theme-background-2: #121a31;
+  --theme-background-3: #1e293b;
+  --theme-background-accent: #8ab4f81f;
+
+  --theme-color-1: #fff;
+  --theme-color-2: rgb(203, 213, 225);
+  --theme-color-3: rgb(148, 163, 184);
+  --theme-color-accent: rgb(0 220 130);
+
+  --theme-border-color: rgb(30 41 59);
+  /* --theme-code-language-color-supersede: black;
+  --theme-code-languages-background-supersede: #fff; */
+
+  --theme-color-green: #069061;
+  --theme-color-red: #f87171;
+  --theme-color-yellow: rgb(253 230 138);
+  --theme-color-blue: #60a5fa;
+  --theme-color-orange: #fb892c;
+  --theme-color-purple: rgb(221 214 254);
+
+  --theme-button-1: rgba(255, 255, 255, 0.9);
+  --theme-button-1-hover: rgba(255, 255, 255, 0.8);
+  --theme-button-1-color: black;
+}
+
+.light-mode .t-doc__sidebar,
+.dark-mode .t-doc__sidebar {
+  --sidebar-background-1: transparent;
+  --sidebar-color-1: var(--theme-color-1);
+  --sidebar-color-2: var(--theme-color-3);
+  --sidebar-border-color: var(--theme-border-color);
+
+  --sidebar-item-hover-background: transparent;
+  --sidebar-item-hover-color: var(--theme-color-1);
+
+  --sidebar-item-active-background: transparent;
+  --sidebar-color-active: var(--theme-color-accent);
+
+  --sidebar-search-background: transparent;
+  --sidebar-search-color: var(--theme-color-3);
+  --sidebar-search-border-color: var(--theme-border-color);
+
+  --sidebar-indent-border: var(--theme-border-color);
+  --sidebar-indent-border-hover: var(--theme-color-1);
+  --sidebar-indent-border-active: var(--theme-color-accent);
+}
+/* cusotm theme */
+.scalar-card .request-card-footer {
+  --theme-background-3: var(--theme-background-2);
+  --theme-button-1: rgb(15, 23, 42);
+  --theme-button-1-hover: rgba(30, 41, 59, 0.5);
+  --theme-button-1-color: white;
+}
+.scalar-card .show-api-client-button {
+  border: 1px solid rgb(51 65 85) !important;
+}

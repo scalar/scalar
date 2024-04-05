@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
 import { type Icon, ScalarIcon, ScalarIconButton } from '@scalar/components'
+import { type PathRouting } from 'src/types'
 
 const props = defineProps<{
   id: string
@@ -18,6 +19,7 @@ const props = defineProps<{
   isActive?: boolean
   hasChildren?: boolean
   open?: boolean
+  pathRouting?: PathRouting
 }>()
 
 const emit = defineEmits<{
@@ -32,9 +34,13 @@ const handleClick = async () => {
 
 // Build relative URL and add hash
 const generateLink = (hash: string) => {
-  const newUrl = new URL(window.location.href)
-  newUrl.hash = hash
-  return `${newUrl.pathname}${newUrl.search}${newUrl.hash}`
+  if (props.pathRouting) {
+    return props.pathRouting.basePath + '/' + hash
+  } else {
+    const newUrl = new URL(window.location.href)
+    newUrl.hash = hash
+    return `${newUrl.pathname}${newUrl.search}${newUrl.hash}`
+  }
 }
 </script>
 <template>

@@ -2,7 +2,7 @@
 import { ApiClient, useApiClientStore } from '@scalar/api-client'
 import { useMediaQuery } from '@vueuse/core'
 
-import { type Spec } from '../types'
+import { type PathRouting, type Spec } from '../types'
 import { Sidebar } from './Sidebar'
 
 defineProps<{
@@ -11,6 +11,7 @@ defineProps<{
   tabMode?: boolean
   activeTab?: string
   proxyUrl?: string
+  pathRouting?: PathRouting
 }>()
 
 defineEmits<{
@@ -41,7 +42,8 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
             <div class="t-doc__sidebar">
               <Sidebar
                 v-show="!isMobile"
-                :parsedSpec="parsedSpec" />
+                :parsedSpec="parsedSpec"
+                :pathRouting="pathRouting" />
             </div>
           </template>
           <template v-else>
@@ -52,7 +54,8 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
           <div class="t-doc__sidebar">
             <Sidebar
               v-show="!isMobile"
-              :parsedSpec="parsedSpec">
+              :parsedSpec="parsedSpec"
+              :pathRouting="pathRouting">
               <!-- Pass up the sidebar slots -->
               <template #sidebar-start>
                 <slot name="sidebar-start" />

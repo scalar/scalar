@@ -24,7 +24,7 @@
     "@vueuse/core": "^10.4.1",
     "monaco-editor": "^0.47.0",
     "vue": "^3.3.0",
-    "vue-router": "^4.2.4"
+    "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",

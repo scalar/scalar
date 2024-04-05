@@ -20,4 +20,8 @@ import { Toaster } from 'vue-sonner'
   font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
   color: var(--theme-color-1, var(--default-theme-color-1));
 }
+/* To remove jump on SSR */
+ol[data-sonner-toaster] {
+  margin: 0;
+}
 </style>

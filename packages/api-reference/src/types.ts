@@ -92,6 +92,12 @@ export type ReferenceConfiguration = {
   onSpecUpdate?: (spec: string) => void
   /** Prefill authentication */
   authentication?: Partial<AuthenticationState>
+  /** Route using paths instead of hashes [SSR] */
+  pathRouting?: PathRouting
+}
+
+export type PathRouting = {
+  basePath: string
 }
 
 export type SpecConfiguration = {
