@@ -80,8 +80,6 @@ const {
 } = useSidebar()
 const { enableHashListener, getSectionId, getTagId, hash } = useNavState()
 
-console.log('hideModels,', hideModels)
-
 enableHashListener()
 
 onMounted(() => {
