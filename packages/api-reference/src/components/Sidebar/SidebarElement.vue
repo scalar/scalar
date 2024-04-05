@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
 import { type Icon, ScalarIcon, ScalarIconButton } from '@scalar/components'
-import { inject } from 'vue'
 
-import { PATH_ROUTING_SYMBOL, scrollToId, sleep } from '../../helpers'
+import { scrollToId, sleep } from '../../helpers'
 import { useNavState } from '../../hooks'
 
 const props = defineProps<{
@@ -28,8 +27,7 @@ const emit = defineEmits<{
   (e: 'toggleOpen'): void
 }>()
 
-const pathRouting = inject(PATH_ROUTING_SYMBOL)
-const { hash, isIntersectionEnabled } = useNavState()
+const { hash, isIntersectionEnabled, pathRouting } = useNavState()
 
 // We disable intersection observer on click
 const handleClick = async () => {
@@ -39,8 +37,8 @@ const handleClick = async () => {
 
 // Build relative URL and add hash
 const generateLink = () => {
-  if (pathRouting) {
-    return pathRouting.basePath + '/' + props.item.id
+  if (pathRouting.value) {
+    return pathRouting.value.basePath + '/' + props.item.id
   } else {
     const newUrl = new URL(window.location.href)
     newUrl.hash = props.item.id
@@ -50,7 +48,7 @@ const generateLink = () => {
 
 // For path routing we want to handle the clicks
 const onAnchorClick = async (ev: Event) => {
-  if (pathRouting) {
+  if (pathRouting.value) {
     ev.preventDefault()
     ev.stopPropagation()
 
@@ -64,7 +62,7 @@ const onAnchorClick = async (ev: Event) => {
     hash.value = props.item.id
 
     const url = new URL(window.location.href)
-    url.pathname = pathRouting.basePath + '/' + props.item.id
+    url.pathname = pathRouting.value.basePath + '/' + props.item.id
 
     window.history.pushState({}, '', url)
     scrollToId(props.item.id)

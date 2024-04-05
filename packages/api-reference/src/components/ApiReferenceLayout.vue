@@ -79,12 +79,13 @@ const {
   setCollapsedSidebarItem,
   hideModels,
 } = useSidebar()
-const { enableHashListener, getSectionId, getTagId, hash } = useNavState()
+const { enableHashListener, getSectionId, getTagId, hash, pathRouting } =
+  useNavState()
 
+pathRouting.value = props.configuration.pathRouting
 enableHashListener()
 
 onMounted(() => {
-  console.log('we mountin')
   if (!hash.value) {
     document.querySelector('#tippy')?.scrollTo({
       top: 0,
@@ -146,10 +147,8 @@ onServerPrefetch(() => {
       '^' + props.configuration.pathRouting.basePath + '/?',
     )
     const id = ctx.url.replace(reggy, '')
-    if (id.length) {
-      hash.value = id
-      ctx.scalarState.hash = id
-    }
+    hash.value = id
+    ctx.scalarState.hash = id
   }
 })
 

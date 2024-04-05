@@ -40,16 +40,27 @@ const props = withDefaults(
 )
 
 const hideTag = ref(false)
-const isLoading = ref(
-  typeof window !== 'undefined' &&
-    !!window.location.hash &&
-    props.layout !== 'accordion',
-)
+
 const tags = ref<(TagType & { lazyOperations: TransformedOperation[] })[]>([])
 const models = ref<string[]>([])
 
-const { getModelId, getSectionId, getTagId, hash, isIntersectionEnabled } =
-  useNavState()
+const {
+  getModelId,
+  getSectionId,
+  getTagId,
+  hash,
+  isIntersectionEnabled,
+  pathRouting,
+} = useNavState()
+
+// Check if we should show the loading
+const isLoadingInitial = Boolean(
+  (typeof window !== 'undefined' &&
+    !!window.location.hash &&
+    props.layout !== 'accordion') ||
+    (pathRouting.value && hash.value),
+)
+const isLoading = ref(isLoadingInitial)
 
 // Ensure we have a spec loaded
 watch(

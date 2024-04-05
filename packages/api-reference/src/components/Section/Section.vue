@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { inject } from 'vue'
-
-import { PATH_ROUTING_SYMBOL } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
 import IntersectionObserver from '../IntersectionObserver.vue'
 
@@ -10,10 +7,8 @@ const props = defineProps<{
   label?: string
 }>()
 
-const { getSectionId, hash, isIntersectionEnabled } = useNavState()
+const { getSectionId, hash, isIntersectionEnabled, pathRouting } = useNavState()
 const { setCollapsedSidebarItem } = useSidebar()
-
-const pathRouting = inject(PATH_ROUTING_SYMBOL)
 
 function handleScroll() {
   if (!props.label || !isIntersectionEnabled.value) return
@@ -24,8 +19,8 @@ function handleScroll() {
   const id = props.id ?? ''
 
   // If we are pathrouting, set path instead of hash
-  if (pathRouting) {
-    newUrl.pathname = pathRouting.basePath + '/' + id
+  if (pathRouting.value) {
+    newUrl.pathname = pathRouting.value.basePath + '/' + id
   } else {
     newUrl.hash = id
   }

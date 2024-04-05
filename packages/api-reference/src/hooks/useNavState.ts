@@ -7,10 +7,13 @@ import { slug } from 'github-slugger'
 import { onMounted, ref } from 'vue'
 
 import { scrollToId, sleep } from '../helpers'
-import type { Tag } from '../types'
+import type { PathRouting, Tag } from '../types'
 
 // Keeps track of the URL hash without the #
 const hash = ref(ssrState.hash ?? '')
+
+// Are we using path routing
+const pathRouting = ref<PathRouting | undefined>()
 
 // To disable the intersection observer on click
 const isIntersectionEnabled = ref(false)
@@ -70,18 +73,34 @@ const updateHash = () => (hash.value = window.location.hash.replace(/^#/, ''))
 // We should call this as little as possible, ideally once
 const enableHashListener = () =>
   onMounted(async () => {
-    updateHash()
+    if (!pathRouting.value) updateHash()
     window.onhashchange = async () => {
       isIntersectionEnabled.value = false
       updateHash()
 
-      // TODO: we should be able to remove this once we find the cause
-      // for some reason pressing back doesn't always scroll to the correct section
       scrollToId(window.location.hash.replace(/^#/, ''))
 
       await sleep(100)
       isIntersectionEnabled.value = true
     }
+
+    // window.onpopstate = async (ev) => {
+    //   console.log(ev)
+    //   ev.preventDefault()
+    //   ev.stopPropagation()
+    //   ev.stopImmediatePropagation()
+    //   window.history.pushState({ page: 2 }, '', '')
+    //   window.history.replaceState({ page: 2 }, '', '')
+    //   // history.go(-1)
+    //
+    //   scrollToId(window.location.pathname.replace('/scalar/', ''))
+    // }
+    //
+    // window.onbeforeunload = (ev: any) => {
+    //   console.log('beforeunload', ev)
+    //   ev.preventDefault()
+    //   console.log('yeehaw')
+    // }
   })
 
 /**
@@ -105,5 +124,6 @@ export const useNavState = () => {
     getTagId,
     isIntersectionEnabled,
     enableHashListener,
+    pathRouting,
   }
 }
