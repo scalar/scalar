@@ -1,36 +1,30 @@
 import { availableTargets as allTargets } from 'httpsnippet-lite'
-import { computed, readonly, ref } from 'vue'
+import { computed, readonly, ref, watchEffect } from 'vue'
 
 const DEFAULT_EXCLUDED_CLIENTS = ['unirest'] as const
 
 const excludedClients = ref<string[]>([...DEFAULT_EXCLUDED_CLIENTS])
 
-// Move this out so it only gets run once
-const targets = allTargets()
-  .map((target) => {
-    // Node.js
-    if (target.key === 'node') {
-      target.default = 'undici'
+// Use a reactive reference for caching the computed targets
+const cachedTargets = ref([])
 
-      target.clients.unshift({
-        description: 'An HTTP/1.1 client, written from scratch for Node.js.',
-        key: 'undici',
-        link: 'https://github.com/nodejs/undici',
-        title: 'undici',
-      })
-    }
+// Watch for changes in excludedClients and update the cachedTargets accordingly
+watchEffect(() => {
+  cachedTargets.value = allTargets()
+    .map((target) => {
+      // Filter out excluded clients
+      target.clients = target.clients.filter(
+        (client) => !excludedClients.value.includes(client.key),
+      )
 
-    // Filter out excluded clients
-    target.clients = target.clients.filter(
-      (client) => !excludedClients.value.includes(client.key),
-    )
-
-    return target
-  })
-  .filter((target) => target.clients.length)
+      return target
+    })
+    .filter((target) => target.clients.length)
+})
 
 export function useHttpClients() {
-  const availableTargets = computed(() => targets)
+  // Use computed to provide a reactive interface to the cached targets
+  const availableTargets = computed(() => cachedTargets.value)
 
   return {
     availableTargets,
