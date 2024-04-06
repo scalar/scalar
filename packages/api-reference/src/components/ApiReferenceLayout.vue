@@ -21,6 +21,7 @@ import { toast } from 'vue-sonner'
 
 import {
   GLOBAL_SECURITY_SYMBOL,
+  HIDE_DOWNLOAD_BUTTON_SYMBOL,
   downloadSpecBus,
   downloadSpecFile,
 } from '../helpers'
@@ -164,6 +165,10 @@ provideUseId(() => {
 
 // Provide global security
 provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
+provide(
+  HIDE_DOWNLOAD_BUTTON_SYMBOL,
+  () => props.configuration.hideDownloadButton,
+)
 
 hideModels.value = props.configuration.hideModels ?? false
 </script>

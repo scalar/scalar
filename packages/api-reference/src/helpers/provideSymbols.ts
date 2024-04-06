@@ -7,3 +7,7 @@ import { type InjectionKey } from 'vue'
 export const GLOBAL_SECURITY_SYMBOL = Symbol() as InjectionKey<
   () => OpenAPIV3.SecurityRequirementObject[] | undefined
 >
+
+export const HIDE_DOWNLOAD_BUTTON_SYMBOL = Symbol() as InjectionKey<
+  () => boolean | undefined
+>
