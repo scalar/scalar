@@ -2,13 +2,13 @@
 import {
   type DescriptionSectionSSRKey,
   type SSRState,
+  createHash,
   ssrState,
 } from '@scalar/oas-utils'
 import { computedAsync } from '@vueuse/core'
 import { onServerPrefetch, useSSRContext } from 'vue'
 
 import {
-  createHash,
   getHeadingsFromMarkdown,
   getLowestHeadingLevel,
   sleep,

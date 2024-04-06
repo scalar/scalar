@@ -38,6 +38,7 @@
   "module": "./dist/index.js",
   "dependencies": {
     "@headlessui/vue": "^1.7.16",
+    "@scalar/oas-utils": "workspace:*",
     "@vueuse/core": "^10.4.1",
     "class-variance-authority": "^0.7.0",
     "cva": "1.0.0-beta.1",

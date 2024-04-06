@@ -164,17 +164,22 @@ export type Heading = {
   slug?: string
 }
 
+export type CodeBlockSSRKey = `components-scalar-code-block${number}`
 export type DescriptionSectionSSRKey =
   `components-Content-Introduction-Description-sections${number}`
+export type ExampleRequestSSRKey =
+  `components-Content-Operation-Example-Request${number}`
 
 export type ScalarState = {
   'hash'?: string
   'useGlobalStore-authentication'?: AuthenticationState
   'useSidebarContent-collapsedSidebarItems'?: CollapsedSidebarItems
+  [key: CodeBlockSSRKey]: string
   [key: DescriptionSectionSSRKey]: {
     heading: Heading
     content: string
   }[]
+  [key: ExampleRequestSSRKey]: string
 }
 
 export type SSRState = {

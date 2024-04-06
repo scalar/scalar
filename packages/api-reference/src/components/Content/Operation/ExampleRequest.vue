@@ -7,13 +7,24 @@ import {
 } from '@scalar/api-client'
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
 import {
+  type ExampleRequestSSRKey,
+  type SSRState,
   type TransformedOperation,
+  createHash,
   getHarRequest,
   getRequestFromOperation,
+  ssrState,
 } from '@scalar/oas-utils'
 import { snippetz } from '@scalar/snippetz'
 import { HTTPSnippet } from 'httpsnippet-lite'
-import { computed, inject, onServerPrefetch, ref, watch } from 'vue'
+import {
+  computed,
+  inject,
+  onServerPrefetch,
+  ref,
+  useSSRContext,
+  watch,
+} from 'vue'
 
 import {
   GLOBAL_SECURITY_SYMBOL,
@@ -31,8 +42,15 @@ const props = defineProps<{
   operation: TransformedOperation
 }>()
 
-const CodeMirrorValue = ref<string>('')
+const ssrHash = createHash(
+  props.operation.path + props.operation.httpVerb + props.operation.operationId,
+)
+const ssrStateKey =
+  `components-Content-Operation-Example-Request${ssrHash}` satisfies ExampleRequestSSRKey
+
+const generatedCode = ref<string>(ssrState[ssrStateKey] ?? '')
 const selectedExampleKey = ref<string>()
+
 const { copyToClipboard } = useClipboard()
 const { httpClient, setHttpClient, httpTargetTitle, httpClientTitle } =
   useHttpClientStore()
@@ -117,7 +135,7 @@ watch(
     () => selectedExampleKey,
   ],
   async () => {
-    CodeMirrorValue.value = await generateSnippet()
+    generatedCode.value = await generateSnippet()
   },
   {
     deep: true,
@@ -125,7 +143,11 @@ watch(
   },
 )
 
-onServerPrefetch(async () => await sleep(1))
+onServerPrefetch(async () => {
+  const ctx = useSSRContext<SSRState>()
+  await sleep(1)
+  ctx!.payload.data[ssrStateKey] = generatedCode.value
+})
 
 computed(() => {
   return getApiClientRequest({
@@ -175,7 +197,7 @@ computed(() => {
         <button
           class="copy-button"
           type="button"
-          @click="copyToClipboard(CodeMirrorValue)">
+          @click="copyToClipboard(generatedCode)">
           <ScalarIcon
             icon="Clipboard"
             width="10px" />
@@ -189,7 +211,7 @@ computed(() => {
       <!-- Multiple examples -->
       <div class="code-snippet">
         <ScalarCodeBlock
-          :content="CodeMirrorValue"
+          :content="generatedCode"
           :hideCredentials="
             getSecretCredentialsFromAuthentication(authenticationState)
           "

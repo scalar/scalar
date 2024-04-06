@@ -1,4 +1,10 @@
 <script lang="ts" setup>
+import {
+  type CodeBlockSSRKey,
+  type SSRState,
+  createHash,
+  ssrState,
+} from '@scalar/oas-utils'
 import prismjs from 'prismjs'
 import 'prismjs/components/prism-bash'
 import 'prismjs/components/prism-json'
@@ -9,6 +15,7 @@ import {
   onMounted,
   onServerPrefetch,
   ref,
+  useSSRContext,
   watch,
 } from 'vue'
 
@@ -32,6 +39,15 @@ const props = withDefaults(
     lineNumbers: false,
   },
 )
+
+const ssrHash = createHash(
+  typeof props.content === 'object'
+    ? JSON.stringify(props.content)
+    : props.content,
+)
+
+const ssrStateKey =
+  `components-scalar-code-block${ssrHash}` satisfies CodeBlockSSRKey
 
 /**
  * The requested module 'prismjs' is a CommonJS module, which may not support all module.exports as named exports.
@@ -83,18 +99,32 @@ if (props.hideCredentials) {
 }
 
 const el = ref(null)
-const ssrContent = ref('')
+const ssrContent = ref(ssrState[ssrStateKey] ?? '')
 
 const language = computed(() => {
   return props.lang === 'node' ? 'js' : props.lang
 })
+const originalLang = props.lang
 
 // Update the syntax highlight on lang change
 watch(
   () => [props.lang, props.content],
   () => {
-    if (el.value) nextTick(() => highlightElement(el.value!))
+    if (
+      el.value &&
+      props.content &&
+      (!ssrContent.value || props.lang !== originalLang)
+    ) {
+      ssrContent.value = ''
+      highlightElement(el.value!)
+    } else {
+      console.log(el.value)
+      console.log(props.content)
+      console.log(ssrContent.value)
+      console.log(props.lang === originalLang)
+    }
   },
+  { immediate: true },
 )
 
 // We want to render the syntax highlight on the server first
@@ -107,12 +137,15 @@ onServerPrefetch(async () => {
     language.value,
   )
   ssrContent.value = html
+
+  const ctx = useSSRContext<SSRState>()
+
+  // Make sure we aren't storing 0s
+  if (ssrHash !== 0) ctx!.payload.data[ssrStateKey] = html
 })
 
 // Here we overwrite the SSR with client rendered syntax highlighting
 onMounted(async () => {
-  if (el.value) highlightElement(el.value)
-
   // This bit async autoloads any syntax we have not pre-loaded
   await import('prismjs/plugins/autoloader/prism-autoloader.js')
   plugins.autoloader.languages_path =

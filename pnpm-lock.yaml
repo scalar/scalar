@@ -1075,6 +1075,9 @@ importers:
       '@headlessui/vue':
         specifier: ^1.7.16
         version: 1.7.19(vue@3.4.21)
+      '@scalar/oas-utils':
+        specifier: workspace:*
+        version: link:../oas-utils
       '@vueuse/core':
         specifier: ^10.4.1
         version: 10.9.0(vue@3.4.21)

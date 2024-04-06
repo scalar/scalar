@@ -105,10 +105,10 @@ const isLazy =
       name="empty-state" />
 
     <Lazy
-      v-for="(tag, tagIndex) in parsedSpec.tags"
+      v-for="tag in parsedSpec.tags"
       :id="getTagId(tag)"
       :key="getTagId(tag)"
-      :isLazy="isLazy || tagIndex > 0">
+      :isLazy="isLazy">
       <Component
         :is="tagLayout"
         v-if="tag.operations && tag.operations.length > 0"
