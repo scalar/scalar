@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.20.26
+
+### Patch Changes
+
+- 050410a: feat: add config to hide download button
+
 ## 1.20.25
 
 ### Patch Changes
