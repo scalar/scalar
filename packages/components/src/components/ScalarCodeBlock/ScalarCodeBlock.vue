@@ -108,20 +108,17 @@ const originalLang = props.lang
 
 // Update the syntax highlight on lang change
 watch(
-  () => [props.lang, props.content],
+  [() => props.lang, () => props.content, el],
   () => {
+    // Ensure everything has loaded before applying client side highlighting
+    // Also for SSR only apply client side after changing the language
     if (
       el.value &&
       props.content &&
       (!ssrContent.value || props.lang !== originalLang)
     ) {
       ssrContent.value = ''
-      highlightElement(el.value!)
-    } else {
-      console.log(el.value)
-      console.log(props.content)
-      console.log(ssrContent.value)
-      console.log(props.lang === originalLang)
+      nextTick(() => highlightElement(el.value!))
     }
   },
   { immediate: true },
@@ -163,9 +160,9 @@ onMounted(async () => {
         SSR generated highlighting 
         * Do not remove these strange comments and line breaks as any line breaks
           inside of pre will show in the dom
-      --><code v-if="ssrContent" ref="el" :class="`scalar-codeblock-code language-${language}`" v-html="ssrContent" /><!-- 
+      --><code v-if="ssrContent" :class="`servece scalar-codeblock-code language-${language}`" v-html="ssrContent" /><!-- 
         Client side generated highlighting
-      --><code v-else ref="el" :class="`scalar-codeblock-code language-${language}`">{{content}}</code></pre>
+      --><code v-else ref="el" :class="`clience scalar-codeblock-code language-${language}`">{{content}}</code></pre>
 </template>
 <style>
 .scalar-codeblock-code[class*='language-'],
