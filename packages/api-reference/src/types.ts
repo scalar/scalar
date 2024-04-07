@@ -39,6 +39,12 @@ export type ReferenceConfiguration = {
    * @default false
    */
   hideModels?: boolean
+  /**
+   * Whether to show the "Download OpenAPI Specification" button
+   *
+   * @default false
+   */
+  hideDownloadButton?: boolean
   /** Whether dark mode is on or off initially (light mode) */
   darkMode?: boolean
   /** Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
