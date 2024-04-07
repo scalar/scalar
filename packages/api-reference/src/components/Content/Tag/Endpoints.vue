@@ -17,19 +17,21 @@ import {
 
 const props = defineProps<{ id?: string; tag: Tag }>()
 
+const emit = defineEmits<{
+  (event: 'observeAndNavigate', value: string): void
+}>()
+
 const { getOperationId, getTagId } = useNavState()
 const { setCollapsedSidebarItem } = useSidebar()
 
-// We need to make sure the endpoint tag is open before
-// we try to scroll to it
-// we wait for next render after we open the tag
+const navigateToOperation = (operationId: string) => {
+  emit('observeAndNavigate', operationId)
+}
+
 // TODO in V2 we need to do the same loading trick as the initial load
 async function scrollHandler(operation: TransformedOperation) {
+  navigateToOperation(getOperationId(operation, props.tag))
   setCollapsedSidebarItem(getTagId(props.tag), true)
-
-  setTimeout(() => {
-    window.location.href = `#${getOperationId(operation, props.tag)}`
-  }, 0)
 }
 </script>
 <template>
