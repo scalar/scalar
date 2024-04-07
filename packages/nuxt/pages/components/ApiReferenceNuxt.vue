@@ -35,10 +35,16 @@ const configuration = computed<ReferenceConfiguration>(() => ({
 
 const isDark = ref(configuration.value.darkMode ?? true)
 
-// Grab spec from URL
+// Grab spec if we can
 const content: unknown = props.configuration.spec?.content
   ? props.configuration.spec.content
-  : await $fetch(props.configuration.spec?.url ?? '')
+  : props.configuration.spec?.url
+    ? await $fetch(props.configuration.spec?.url)
+    : await $fetch('/_nitro/openapi.json')
+
+// Check for empty spec
+if (!content)
+  throw new Error('You must provide a spec to the Scalar API Reference')
 
 const parsedSpec = reactive(await parse(content))
 const rawSpec = JSON.stringify(content)
