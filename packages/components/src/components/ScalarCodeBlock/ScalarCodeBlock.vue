@@ -124,8 +124,25 @@ watch(
   { immediate: true },
 )
 
-// We want to render the syntax highlight on the server first
+const NEW_LINE_EXP = /\n(?!$)/g
+
+/**
+ * We want to render the syntax highlight on the server first
+ * The line numbers plugin is front-end only so we handle it ourselves on the server
+ * @see https://stackoverflow.com/a/59577306
+ */
 onServerPrefetch(async () => {
+  let lineNumbers = ''
+
+  if (props.lineNumbers) {
+    prismjs.hooks.add('after-tokenize', (env) => {
+      const match = env.code.match(NEW_LINE_EXP)
+      const linesNum = match ? match.length + 1 : 1
+      const lines = new Array(linesNum + 1).join('<span></span>')
+      lineNumbers = `<span aria-hidden="true" class="line-numbers-rows">${lines}</span>`
+    })
+  }
+
   const html = prismjs.highlight(
     typeof props.content === 'object'
       ? JSON.stringify(props.content)
@@ -133,12 +150,14 @@ onServerPrefetch(async () => {
     prismjs.languages[language.value]!,
     language.value,
   )
-  ssrContent.value = html
 
-  const ctx = useSSRContext<SSRState>()
+  ssrContent.value = html + lineNumbers
 
   // Make sure we aren't storing 0s
-  if (ssrHash !== 0) ctx!.payload.data[ssrStateKey] = html
+  if (ssrHash !== 0) {
+    const ctx = useSSRContext<SSRState>()
+    ctx!.payload.data[ssrStateKey] = html + lineNumbers
+  }
 })
 
 // Here we overwrite the SSR with client rendered syntax highlighting
