@@ -12,7 +12,7 @@ import './nuxt-theme.css'
 const props = defineProps<{
   configuration: Pick<
     ReferenceConfiguration,
-    'pathRouting' | 'proxy' | 'showSidebar' | 'spec'
+    'darkMode' | 'pathRouting' | 'proxy' | 'showSidebar' | 'spec'
   >
 }>()
 
@@ -23,6 +23,7 @@ const configuration = computed<ReferenceConfiguration>(() => ({
     url: undefined,
     ...props.configuration?.spec,
   },
+  darkMode: true,
   proxy: undefined,
   showSidebar: true,
   isEditable: false,
@@ -32,6 +33,8 @@ const configuration = computed<ReferenceConfiguration>(() => ({
   ...props.configuration,
 }))
 
+const isDark = ref(configuration.value.darkMode ?? true)
+
 // Grab spec from URL
 const content: unknown = props.configuration.spec?.content
   ? props.configuration.spec.content
@@ -40,10 +43,9 @@ const content: unknown = props.configuration.spec?.content
 const parsedSpec = reactive(await parse(content))
 const rawSpec = JSON.stringify(content)
 
-// TODO control dark mode
 useHead({
   bodyAttrs: {
-    class: 'dark-mode',
+    class: () => (isDark.value ? 'dark-mode' : 'light-mode'),
   },
 })
 </script>
@@ -51,8 +53,9 @@ useHead({
 <template>
   <ModernLayout
     :configuration="configuration"
-    isDark
+    :isDark="isDark"
     :parsedSpec="parsedSpec"
-    :rawSpec="rawSpec">
+    :rawSpec="rawSpec"
+    @toggleDarkMode="isDark = !isDark">
   </ModernLayout>
 </template>

@@ -129,6 +129,7 @@ const NEW_LINE_EXP = /\n(?!$)/g
 /**
  * We want to render the syntax highlight on the server first
  * The line numbers plugin is front-end only so we handle it ourselves on the server
+ * TODO we can get rid of the front-end plugin as well and just use this method
  * @see https://stackoverflow.com/a/59577306
  */
 onServerPrefetch(async () => {
