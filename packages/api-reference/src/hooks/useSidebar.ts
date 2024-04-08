@@ -28,6 +28,7 @@ const {
   getHeadingId,
   getModelId,
   getOperationId,
+  getSectionId,
   getTagId,
   getWebhookId,
   hash,
@@ -242,6 +243,22 @@ const breadcrumb = computed(() => items.value?.titles?.[hash.value] ?? '')
 export function useSidebar(options?: { parsedSpec: Spec }) {
   if (options?.parsedSpec) {
     parsedSpec.value = options.parsedSpec
+
+    // Open the first tag section by default OR specific section from hash
+    watch(
+      () => parsedSpec.value?.tags?.length,
+      () => {
+        if (window?.location.hash) {
+          const hashSectionId = getSectionId(
+            window.location.hash.replace(/^#/, ''),
+          )
+          if (hashSectionId) setCollapsedSidebarItem(hashSectionId, true)
+        } else {
+          const firstTag = parsedSpec.value?.tags?.[0]
+          if (firstTag) setCollapsedSidebarItem(getTagId(firstTag), true)
+        }
+      },
+    )
 
     // Watch the spec description for headings
     watch(

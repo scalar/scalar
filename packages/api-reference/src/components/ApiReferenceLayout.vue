@@ -86,22 +86,6 @@ pathRouting.value = props.configuration.pathRouting
 enableHashListener()
 
 onMounted(() => {
-  if (!hash.value && !pathRouting.value) {
-    document.querySelector('#tippy')?.scrollTo({
-      top: 0,
-      left: 0,
-    })
-  }
-
-  // Ensure section is open for SSG
-  const firstTag = props.parsedSpec.tags?.[0]
-  let sectionId: string | null = null
-
-  if (hash.value) sectionId = getSectionId(hash.value)
-  else if (firstTag) sectionId = getTagId(firstTag)
-
-  if (sectionId) setCollapsedSidebarItem(sectionId, true)
-
   // Enable the spec download event bus
   downloadSpecBus.on(() => downloadSpecFile(props.rawSpec))
 })
