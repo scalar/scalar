@@ -11,6 +11,7 @@ import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
   computed,
   getCurrentInstance,
+  onBeforeMount,
   onMounted,
   onServerPrefetch,
   provide,
@@ -24,6 +25,8 @@ import {
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
   downloadSpecBus,
   downloadSpecFile,
+  scrollToId,
+  sleep,
 } from '../helpers'
 import { useNavState, useSidebar } from '../hooks'
 import { useToasts } from '../hooks/useToasts'
@@ -79,15 +82,45 @@ const {
   setCollapsedSidebarItem,
   hideModels,
 } = useSidebar()
-const { enableHashListener, getSectionId, getTagId, hash, pathRouting } =
-  useNavState()
+const {
+  getPathRoutingId,
+  getSectionId,
+  getTagId,
+  hash,
+  isIntersectionEnabled,
+  pathRouting,
+  updateHash,
+} = useNavState()
 
 pathRouting.value = props.configuration.pathRouting
-enableHashListener()
+
+// Ideally this triggers absolutely first on the client so we can set hash value
+onBeforeMount(() => {
+  updateHash()
+})
 
 onMounted(() => {
   // Enable the spec download event bus
   downloadSpecBus.on(() => downloadSpecFile(props.rawSpec))
+
+  // This is what updates the hash ref from hash changes
+  window.onhashchange = async () => {
+    isIntersectionEnabled.value = false
+    updateHash()
+
+    scrollToId(window.location.hash.replace(/^#/, ''))
+
+    await sleep(100)
+    isIntersectionEnabled.value = true
+  }
+
+  // Ensure we are moving around on back
+  window.onpopstate = async () => {
+    if (pathRouting.value) {
+      const id = getPathRoutingId(window.location.pathname)
+      scrollToId(id)
+    }
+  }
 })
 
 const showRenderedContent = computed(
@@ -122,10 +155,7 @@ onServerPrefetch(() => {
 
   // Set initial hash value
   if (props.configuration.pathRouting) {
-    const reggy = new RegExp(
-      '^' + props.configuration.pathRouting.basePath + '/?',
-    )
-    const id = decodeURIComponent(ctx.url.replace(reggy, ''))
+    const id = getPathRoutingId(ctx.url)
     hash.value = id
     ctx.payload.data.hash = id
 

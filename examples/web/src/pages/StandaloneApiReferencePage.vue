@@ -11,6 +11,12 @@ import content from '../fixtures/petstorev3.json'
 const configuration = reactive<ReferenceConfiguration>({
   proxy: import.meta.env.VITE_REQUEST_PROXY_URL,
   isEditable: false,
+  // Add path routing option
+  ...(window.location.pathname.startsWith('/path-routing')
+    ? {
+        pathRouting: { basePath: '/path-routing' },
+      }
+    : {}),
   spec: { content },
 })
 </script>

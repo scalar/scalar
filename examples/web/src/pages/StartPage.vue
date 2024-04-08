@@ -47,6 +47,12 @@ import PageLink from '../components/PageLink.vue'
           API documentation within a pre-existing website.
         </template>
       </PageLink>
+      <PageLink to="path-routing-api-reference">
+        <template #title>API Reference with Path Routing</template>
+        <template #description>
+          Standalone API Reference with path routing instead of hash routing
+        </template>
+      </PageLink>
     </div>
     <h1>@scalar/api-client</h1>
     <div class="page-links">

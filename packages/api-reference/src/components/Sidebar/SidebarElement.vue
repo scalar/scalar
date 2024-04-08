@@ -50,7 +50,10 @@ const generateLink = () => {
 const onAnchorClick = async (ev: Event) => {
   if (pathRouting.value) {
     ev.preventDefault()
-    ev.stopPropagation()
+
+    // Due to the prevent default
+    if (props.hasChildren) emit('toggleOpen')
+    props.item?.select?.()
 
     // Make sure to open the section
     emit('toggleOpen')
