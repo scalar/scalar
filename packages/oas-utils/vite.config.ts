@@ -1,3 +1,4 @@
+import ViteYaml from '@modyfi/vite-plugin-yaml'
 import { findEntryPoints } from '@scalar/build-tooling'
 import { URL, fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
@@ -5,7 +6,7 @@ import { defineConfig } from 'vite'
 import pkg from './package.json'
 
 export default defineConfig({
-  plugins: [],
+  plugins: [ViteYaml()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
