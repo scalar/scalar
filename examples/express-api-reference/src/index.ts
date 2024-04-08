@@ -49,6 +49,6 @@ app.use(
 )
 
 // Listen
-app.listen(5055, () => {
-  console.log('💻 Express listening on http://localhost:5055')
+app.listen(8080, '0.0.0.0', () => {
+  console.log('💻 Express listening on http://localhost:8080')
 })
