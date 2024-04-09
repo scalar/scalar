@@ -206,12 +206,5 @@ const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
     webhooks: newWebhooks,
   } as unknown as Spec
 
-  return removeTagsWithoutOperations(returnedResult)
-}
-
-const removeTagsWithoutOperations = (spec: Spec) => {
-  return {
-    ...spec,
-    tags: spec.tags?.filter((tag) => tag.operations?.length > 0),
-  }
+  return returnedResult
 }

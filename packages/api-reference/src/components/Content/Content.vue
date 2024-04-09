@@ -111,7 +111,6 @@ const isLazy =
       :isLazy="isLazy">
       <Component
         :is="tagLayout"
-        v-if="tag.operations && tag.operations.length > 0"
         :id="getTagId(tag)"
         :spec="parsedSpec"
         :tag="tag">
