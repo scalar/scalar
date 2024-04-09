@@ -41,9 +41,7 @@ const orderedStatusCodes = computed(() => {
 })
 
 const hasMultipleExamples = computed<boolean>(
-  () =>
-    !!currentJsonResponse.value.examples &&
-    Object.keys(currentJsonResponse.value.examples).length > 1,
+  () => !!currentJsonResponse.value.examples,
 )
 
 // Keep track of the current selected tab
