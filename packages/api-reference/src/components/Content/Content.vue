@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue'
+import { computed } from 'vue'
 
 import { hasModels } from '../../helpers'
 import { useNavState, useRefOnMount, useSidebar } from '../../hooks'
@@ -19,7 +19,7 @@ const props = defineProps<{
   layout?: 'default' | 'accordion'
 }>()
 
-const { getOperationId, getTagId } = useNavState()
+const { getOperationId, getTagId, hash } = useNavState()
 
 const fallBackServer = useRefOnMount(() => {
   return {
@@ -62,10 +62,7 @@ const introCardsSlot = computed(() =>
 )
 
 // If the first load is models, we do not lazy load tags/operations
-const isLazy =
-  props.layout !== 'accordion' &&
-  typeof window !== 'undefined' &&
-  !window.location.hash.startsWith('#model')
+const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('#model')
 </script>
 <template>
   <!-- For adding gradients + animations to introduction of documents that :before / :after won't work for -->

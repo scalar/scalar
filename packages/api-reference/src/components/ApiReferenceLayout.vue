@@ -135,8 +135,8 @@ onServerPrefetch(() => {
   const ctx = useSSRContext<SSRState>()
   if (!ctx) return
 
-  ctx.scalarState ||= defaultStateFactory()
-  ctx.scalarState['useSidebarContent-collapsedSidebarItems'] =
+  ctx.payload.data ||= defaultStateFactory()
+  ctx.payload.data['useSidebarContent-collapsedSidebarItems'] =
     collapsedSidebarItems
 })
 
@@ -149,8 +149,10 @@ onServerPrefetch(() => {
 provideUseId(() => {
   const instance = getCurrentInstance()
   const ATTR_KEY = 'scalar-instance-id'
+
   if (!instance) return ATTR_KEY
   let instanceId = instance.uid
+
   // SSR: grab the instance ID from vue and set it as an attribute
   if (typeof window === 'undefined') {
     instance.attrs ||= {}

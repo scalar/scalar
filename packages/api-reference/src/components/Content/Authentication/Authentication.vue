@@ -44,7 +44,7 @@ watch(
 onServerPrefetch(async () => {
   const ctx = useSSRContext<SSRState>()
   await sleep(1)
-  ctx!.scalarState['useGlobalStore-authentication'] = authentication
+  ctx!.payload.data['useGlobalStore-authentication'] = authentication
 })
 </script>
 

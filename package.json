@@ -39,7 +39,7 @@
     "clean:nodeModules": "find . -name node_modules -type d -exec rm -rf {} \\;",
     "clean:dist": "find . -name dist -type d -exec rm -rf {} \\;",
     "clean:turbo": "find . -name .turbo -type d -exec rm -rf {} \\;",
-    "dev": "./scripts/dev.sh",
+    "dev": "turbo run dev --parallel --concurrency=100 --filter './examples/*' --filter './packages/nuxt'",
     "@scalar/cli": "pnpm --filter @scalar/cli run @scalar/cli",
     "format": "pnpm prettier --write .",
     "format:check": "pnpm prettier --check .",
