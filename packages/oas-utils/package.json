@@ -54,7 +54,8 @@
   },
   "dependencies": {
     "@modyfi/vite-plugin-yaml": "^1.1.0",
-    "yaml": "^2.4.1"
+    "yaml": "^2.4.1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

@@ -6,18 +6,28 @@ import {
   type ResolvedOpenAPIV3_1,
   openapi,
 } from '@scalar/openapi-parser'
+import { z } from 'zod'
 
 import {
-  DeepPartial,
   type Operation,
-  RemoveUndefined,
   type RequestMethod,
   type Spec,
   type Tag,
-  TransformedOperation,
+  type TransformedOperation,
   objectKeys,
   validRequestMethods,
 } from '../types'
+
+export const operationSchema = z.object({
+  httpVerb: z.string().optional(), // TODO: set this to RequestMethod?
+  operationId: z.string().optional(),
+  summary: z.string().optional(),
+  description: z.string().optional(),
+  name: z.string().optional(),
+  path: z.string().optional(),
+  information: z.record(z.any(), z.any()).optional(),
+  tags: z.array(z.string()).optional(),
+})
 
 /**
  * Parse and transform an OpenAPI specification for rendering
@@ -56,19 +66,20 @@ export const transformResult = <TSpec extends ResolvedOpenAPI.Document>(
   const tags = initTags(schema)
   const paths = initPaths(schema)
 
-  const transformedTags = []
-  const transformedPaths = {}
-
   /** Transform request methods, operations, tags */
   Object.keys(paths).forEach((path: string) => {
     // for each path, format operation data and add operations to tags
+
     objectKeys(paths[path]).forEach((requestMethod) => {
+      // TODO: zod schema for request method
       if (
         validRequestMethods.includes(
           requestMethod.toUpperCase() as RequestMethod,
         )
       ) {
-        const operation: Operation = paths[path][requestMethod]
+        // TODO: zod schema parse
+        // const operation = operationSchema.parse(paths[path][requestMethod])
+        const operation = paths[path][requestMethod] as Operation
 
         // Transform the operation
         const newOperation = {
@@ -81,7 +92,7 @@ export const transformResult = <TSpec extends ResolvedOpenAPI.Document>(
             ...operation,
           },
           pathParameters: paths[path]?.parameters,
-        }
+        } as TransformedOperation
 
         // If the operation has no tags, add operation to the default tag
         if (!operation.tags || operation.tags.length === 0) {
@@ -93,7 +104,6 @@ export const transformResult = <TSpec extends ResolvedOpenAPI.Document>(
           )
 
           // Add the new operation to the default tag.
-
           if (indexOfDefaultTag >= 0) {
             // Add the new operation to the default tag.
             tags[indexOfDefaultTag].operations.push(newOperation)
@@ -112,6 +122,7 @@ export const transformResult = <TSpec extends ResolvedOpenAPI.Document>(
               tags.push({
                 name: operationTag,
                 description: '',
+                operations: [],
               })
             }
 
@@ -129,18 +140,10 @@ export const transformResult = <TSpec extends ResolvedOpenAPI.Document>(
         }
 
         // TODO: path types are a little wonky
-        // scalarSchema.paths[path][requestMethod] = transformedPath
+        // transformedPaths[path][requestMethod] = transformedPath
       }
     })
   })
-
-  // /** Validate or instantiate required scalar schema properties (tags, paths, webhooks) */
-  // const scalarSchema = {
-  //   ...schema,
-  //   tags: initTags(schema),
-  //   paths: initPaths(schema),
-  //   webhooks: transformWebhooks(schema),
-  // }
 
   return {
     ...schema,
@@ -206,7 +209,7 @@ export const initPaths = <T extends ResolvedOpenAPI.Document>(schema: T) => {
  * Add Webhooks to the schema if they don’t exist and properly type them
  * Returns a new webhooks object with the transformed data
  */
-// TODO: turn this into a zod schema
+// TODO: turn this into a zod schema?
 export const transformWebhooks = <T extends ResolvedOpenAPI.Document>(
   schema: T,
 ) => {
