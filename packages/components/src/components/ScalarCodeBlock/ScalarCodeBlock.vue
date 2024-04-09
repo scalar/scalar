@@ -187,7 +187,7 @@ onMounted(async () => {
 <style>
 .scalar-codeblock-code[class*='language-'],
 .scalar-codeblock-pre[class*='language-'] {
-  color: var(--scalar-color-3);
+  color: var(--scalar-color-2);
   background: none;
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-small);

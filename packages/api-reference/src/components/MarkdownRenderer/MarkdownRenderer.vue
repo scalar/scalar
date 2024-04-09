@@ -124,7 +124,6 @@ onServerPrefetch(async () => await sleep(1))
   font-weight: var(--scalar-bold);
 }
 .markdown :deep(p) {
-  font-size: var(--font-size, var(--scalar-paragraph));
   color: var(--scalar-color-1);
   font-weight: var(--font-weight, var(--scalar-regular));
   line-height: 1.5;
