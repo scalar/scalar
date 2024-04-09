@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.1.4
+
+### Patch Changes
+
+- 24b3c2a: Add peer dependency for axios
+
 ## 0.1.3
 
 ### Patch Changes
