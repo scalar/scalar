@@ -99,28 +99,30 @@ onBeforeMount(() => {
   updateHash()
 })
 
+// Disables intersection observer and scrolls to section
+const scrollToSection = async (id?: string) => {
+  isIntersectionEnabled.value = false
+  updateHash()
+
+  if (id) scrollToId(id)
+  else documentEl.value?.scrollTo(0, 0)
+
+  await sleep(100)
+  isIntersectionEnabled.value = true
+}
+
 onMounted(() => {
   // Enable the spec download event bus
   downloadSpecBus.on(() => downloadSpecFile(props.rawSpec))
 
   // This is what updates the hash ref from hash changes
-  window.onhashchange = async () => {
-    isIntersectionEnabled.value = false
-    updateHash()
+  window.onhashchange = async () =>
+    scrollToSection(window.location.hash.replace(/^#/, ''))
 
-    scrollToId(window.location.hash.replace(/^#/, ''))
-
-    await sleep(100)
-    isIntersectionEnabled.value = true
-  }
-
-  // Ensure we are moving around on back
-  window.onpopstate = async () => {
-    if (pathRouting.value) {
-      const id = getPathRoutingId(window.location.pathname)
-      scrollToId(id)
-    }
-  }
+  // Handle back for path routing
+  window.onpopstate = async () =>
+    pathRouting.value &&
+    scrollToSection(getPathRoutingId(window.location.pathname))
 })
 
 const showRenderedContent = computed(

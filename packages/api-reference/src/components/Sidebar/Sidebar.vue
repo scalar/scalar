@@ -60,9 +60,7 @@ const scrollSidebar = (id: string) => {
 
 // TODO timeout is due to sidebar section opening time
 onMounted(() => {
-  setTimeout(() => {
-    scrollSidebar(window.location.hash.replace(/^#/, ''))
-  }, 500)
+  setTimeout(() => scrollSidebar(hash.value), 500)
   disableScroll.value = false
 })
 </script>
