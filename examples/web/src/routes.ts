@@ -19,6 +19,11 @@ export const routes = [
     component: StandaloneApiReferencePage,
   },
   {
+    path: '/path-routing/:custom(.*)?',
+    name: 'path-routing-api-reference',
+    component: StandaloneApiReferencePage,
+  },
+  {
     path: '/classic-api-reference',
     name: 'classic-api-reference',
     component: ClassicApiReferencePage,
