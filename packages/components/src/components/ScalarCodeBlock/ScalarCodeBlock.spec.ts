@@ -1,15 +1,17 @@
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import ScalarCodeBlock from './ScalarCodeBlock.vue'
 
 describe('ScalarCodeBlock', () => {
-  it('renders properly', () => {
+  it('renders properly', async () => {
     const wrapper = mount(ScalarCodeBlock, {
       attrs: {
         content: 'console.log()',
       },
     })
+
+    await flushPromises()
 
     // Check the outer elements
     const pre = wrapper.find('*')
@@ -24,7 +26,7 @@ describe('ScalarCodeBlock', () => {
     )
   })
 
-  it('renders a schema', () => {
+  it('renders a schema', async () => {
     const wrapper = mount(ScalarCodeBlock, {
       attrs: {
         content: {
@@ -47,6 +49,8 @@ describe('ScalarCodeBlock', () => {
         },
       },
     })
+
+    await flushPromises()
 
     // Check the outer elements
     const pre = wrapper.find('*')
