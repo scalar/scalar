@@ -62,7 +62,7 @@ const introCardsSlot = computed(() =>
 )
 
 // If the first load is models, we do not lazy load tags/operations
-const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('#model')
+const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
 </script>
 <template>
   <!-- For adding gradients + animations to introduction of documents that :before / :after won't work for -->
