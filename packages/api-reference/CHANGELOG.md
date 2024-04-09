@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.20.28
+
+### Patch Changes
+
+- 622f31b: fix: endpoint navigation
+- f2c2ce8: fix: decode uri component when setting hash values from url
+
 ## 1.20.27
 
 ### Patch Changes
