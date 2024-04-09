@@ -61,7 +61,8 @@ const getSectionId = (hashStr = hash.value) => {
 }
 
 // Update the reactive hash state
-const updateHash = () => (hash.value = window.location.hash.replace(/^#/, ''))
+const updateHash = () =>
+  (hash.value = decodeURIComponent(window.location.hash.replace(/^#/, '')))
 
 // We should call this as little as possible, ideally once
 const enableHashListener = () =>
@@ -73,7 +74,7 @@ const enableHashListener = () =>
 
       // TODO: we should be able to remove this once we find the cause
       // for some reason pressing back doesn't always scroll to the correct section
-      scrollToId(window.location.hash.replace(/^#/, ''))
+      scrollToId(hash.value)
 
       await sleep(100)
       isIntersectionEnabled.value = true
