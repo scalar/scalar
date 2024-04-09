@@ -6,19 +6,28 @@ type PrimitiveOrObject = object | undefined | JsonPrimitive
 
 type JsonPrimitive = string | number | boolean | null
 
+const primitives: string[] = [
+  'string',
+  'number',
+  'boolean',
+  'null',
+  'object',
+] as const
+
 /** Yaml handling with optional safeparse */
 export const yaml = {
   /** Parse and throw if the return value is not an object */
-  parse: (val: string) => {
+  parse: (val: string): AnyObject | JsonPrimitive => {
     const yamlObject = parse(val)
-    if (typeof yamlObject !== 'object') throw Error('Invalid YAML object')
-    return yamlObject as AnyObject
+    if (!primitives.includes(typeof yamlObject))
+      throw Error('Invalid YAML object')
+    return yamlObject
   },
   /** Parse and return a fallback on failure */
   parseSafe<T extends PrimitiveOrObject>(
     val: string,
     fallback: T | ((err: any) => T),
-  ): AnyObject | T {
+  ): AnyObject | JsonPrimitive | T {
     try {
       return yaml.parse(val)
     } catch (err: any) {
@@ -33,11 +42,7 @@ export const json = {
   /** Parse and throw if the return value is not an object */
   parse: (val: string): AnyObject | JsonPrimitive => {
     const jsonObject = JSON.parse(val)
-    if (
-      !['string', 'number', 'boolean', 'null', 'object'].includes(
-        typeof jsonObject,
-      )
-    )
+    if (!primitives.includes(typeof jsonObject))
       throw Error('Invalid JSON object')
     return jsonObject
   },
