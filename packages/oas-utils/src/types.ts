@@ -77,6 +77,8 @@ export type Operation = {
   name?: string
   description?: string
   information?: Information
+  summary?: string
+  tags?: string[]
 }
 export type Parameters = {
   // Fixed Fields
@@ -149,10 +151,11 @@ type DeepPartialObject<T> = {
 
 export type Spec = {
   'tags'?: Tag[]
-  'info':
+  'info'?:
     | DeepPartial<OpenAPIV2.Document['info']>
     | DeepPartial<OpenAPIV3.Document['info']>
     | DeepPartial<OpenAPIV3_1.Document['info']>
+  'paths'?: DeepPartial<TransformedOperation>
   'host'?: OpenAPIV2.Document['host']
   'basePath'?: OpenAPIV2.Document['basePath']
   'schemes'?: OpenAPIV2.Document['schemes']
