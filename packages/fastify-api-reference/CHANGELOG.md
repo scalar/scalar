@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.20.27
+
+### Patch Changes
+
+- 605f522: feat: support tags with no operations
+
 ## 1.20.26
 
 ### Patch Changes
