@@ -106,7 +106,7 @@ importers:
         specifier: ^7.0.1
         version: 7.0.1
       fastify:
-        specifier: ^4.26.2
+        specifier: ^4.23.2
         version: 4.26.2
     devDependencies:
       '@types/node':
@@ -212,13 +212,13 @@ importers:
   examples/fastify-api-reference:
     dependencies:
       '@fastify/swagger':
-        specifier: ^8.14.0
+        specifier: ^8.10.1
         version: 8.14.0
       '@scalar/fastify-api-reference':
         specifier: workspace:*
         version: link:../../packages/fastify-api-reference
       fastify:
-        specifier: ^4.26.2
+        specifier: ^4.23.2
         version: 4.26.2
     devDependencies:
       nodemon:
@@ -1411,7 +1411,7 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       fastify:
-        specifier: ^4.26.2
+        specifier: ^4.23.2
         version: 4.26.2
       tsup:
         specifier: ^7.2.0
@@ -9081,7 +9081,7 @@ packages:
       strip-literal: 2.0.0
       test-exclude: 6.0.0
       v8-to-istanbul: 9.2.0
-      vitest: 1.4.0(@types/node@20.11.22)(terser@5.30.0)
+      vitest: 1.4.0(@types/node@20.11.22)(jsdom@22.1.0)
     transitivePeerDependencies:
       - supports-color
     dev: true
