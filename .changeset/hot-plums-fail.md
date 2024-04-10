@@ -1,5 +1,5 @@
 ---
-"@scalar/fastify-api-reference": patch
+"@scalar/fastify-api-reference": minor
 ---
 
-Removed fastify-html to avoid conflicts
+Improved fastify-api-reference plugin.
