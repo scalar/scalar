@@ -1,5 +1,38 @@
 # @scalar/api-reference
 
+## 1.20.29
+
+### Patch Changes
+
+- Updated dependencies [24b3c2a]
+  - @scalar/oas-utils@0.1.4
+  - @scalar/api-client@1.1.15
+
+## 1.20.28
+
+### Patch Changes
+
+- 622f31b: fix: endpoint navigation
+- f2c2ce8: fix: decode uri component when setting hash values from url
+
+## 1.20.27
+
+### Patch Changes
+
+- 605f522: feat: support tags with no operations
+
+## 1.20.26
+
+### Patch Changes
+
+- 050410a: feat: add config to hide download button
+
+## 1.20.25
+
+### Patch Changes
+
+- 1504d3b: feat: add config to hide models
+
 ## 1.20.24
 
 ### Patch Changes

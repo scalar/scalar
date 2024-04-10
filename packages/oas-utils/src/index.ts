@@ -1,3 +1,4 @@
+export { createHash } from './createHash'
 export { fetchSpecFromUrl } from './fetch-spec'
 export { getExampleFromSchema } from './getExampleFromSchema'
 export { getHarRequest } from './getHarRequest'

@@ -1,4 +1,10 @@
 <script lang="ts" setup>
+import {
+  type CodeBlockSSRKey,
+  type SSRState,
+  createHash,
+  ssrState,
+} from '@scalar/oas-utils'
 import prismjs from 'prismjs'
 import 'prismjs/components/prism-bash'
 import 'prismjs/components/prism-json'
@@ -9,6 +15,7 @@ import {
   onMounted,
   onServerPrefetch,
   ref,
+  useSSRContext,
   watch,
 } from 'vue'
 
@@ -32,6 +39,15 @@ const props = withDefaults(
     lineNumbers: false,
   },
 )
+
+const ssrHash = createHash(
+  typeof props.content === 'object'
+    ? JSON.stringify(props.content)
+    : props.content,
+)
+
+const ssrStateKey =
+  `components-scalar-code-block${ssrHash}` satisfies CodeBlockSSRKey
 
 /**
  * The requested module 'prismjs' is a CommonJS module, which may not support all module.exports as named exports.
@@ -83,22 +99,51 @@ if (props.hideCredentials) {
 }
 
 const el = ref(null)
-const ssrContent = ref('')
+const ssrContent = ref(ssrState[ssrStateKey] ?? '')
 
 const language = computed(() => {
   return props.lang === 'node' ? 'js' : props.lang
 })
+const originalLang = props.lang
 
 // Update the syntax highlight on lang change
 watch(
-  () => [props.lang, props.content],
+  [() => props.lang, () => props.content, el],
   () => {
-    if (el.value) nextTick(() => highlightElement(el.value!))
+    // Ensure everything has loaded before applying client side highlighting
+    // Also for SSR only apply client side after changing the language
+    if (
+      el.value &&
+      props.content &&
+      (!ssrContent.value || props.lang !== originalLang)
+    ) {
+      ssrContent.value = ''
+      nextTick(() => highlightElement(el.value!))
+    }
   },
+  { immediate: true },
 )
 
-// We want to render the syntax highlight on the server first
+const NEW_LINE_EXP = /\n(?!$)/g
+
+/**
+ * We want to render the syntax highlight on the server first
+ * The line numbers plugin is front-end only so we handle it ourselves on the server
+ * TODO we can get rid of the front-end plugin as well and just use this method
+ * @see https://stackoverflow.com/a/59577306
+ */
 onServerPrefetch(async () => {
+  let lineNumbers = ''
+
+  if (props.lineNumbers) {
+    prismjs.hooks.add('after-tokenize', (env) => {
+      const match = env.code.match(NEW_LINE_EXP)
+      const linesNum = match ? match.length + 1 : 1
+      const lines = new Array(linesNum + 1).join('<span></span>')
+      lineNumbers = `<span aria-hidden="true" class="line-numbers-rows">${lines}</span>`
+    })
+  }
+
   const html = prismjs.highlight(
     typeof props.content === 'object'
       ? JSON.stringify(props.content)
@@ -106,13 +151,18 @@ onServerPrefetch(async () => {
     prismjs.languages[language.value]!,
     language.value,
   )
-  ssrContent.value = html
+
+  ssrContent.value = html + lineNumbers
+
+  // Make sure we aren't storing 0s
+  if (ssrHash !== 0) {
+    const ctx = useSSRContext<SSRState>()
+    ctx!.payload.data[ssrStateKey] = html + lineNumbers
+  }
 })
 
 // Here we overwrite the SSR with client rendered syntax highlighting
 onMounted(async () => {
-  if (el.value) highlightElement(el.value)
-
   // This bit async autoloads any syntax we have not pre-loaded
   await import('prismjs/plugins/autoloader/prism-autoloader.js')
   plugins.autoloader.languages_path =
@@ -120,22 +170,19 @@ onMounted(async () => {
 })
 </script>
 <template>
-  <!-- SSR generated highlighting -->
   <pre
-    v-if="ssrContent"
     :class="[
       `scalar-component scalar-codeblock-pre language-${language}`,
       {
         'line-numbers': lineNumbers,
       },
-    ]"><code ref="el" :class="`scalar-codeblock-code language-${language}`" v-html="ssrContent" /></pre>
-  <!-- Client side highlighting -->
-  <pre
-    v-else
-    class="scalar-component scalar-codeblock-pre"
-    :class="{
-      'line-numbers': lineNumbers,
-    }"><code ref="el" :class="`scalar-codeblock-code lang-${language}`">{{content}}</code></pre>
+    ]"><!-- 
+        SSR generated highlighting 
+        * Do not remove these strange comments and line breaks as any line breaks
+          inside of pre will show in the dom
+      --><code v-if="ssrContent" :class="`scalar-codeblock-code language-${language}`" v-html="ssrContent" /><!-- 
+        Client side generated highlighting
+      --><code v-else ref="el" :class="`scalar-codeblock-code language-${language}`">{{content}}</code></pre>
 </template>
 <style>
 .scalar-codeblock-code[class*='language-'],

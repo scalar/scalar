@@ -33,6 +33,18 @@ export type ReferenceConfiguration = {
   isEditable?: boolean
   /** Whether to show the sidebar */
   showSidebar?: boolean
+  /**
+   * Whether to show models in the sidebar, search, and content.
+   *
+   * @default false
+   */
+  hideModels?: boolean
+  /**
+   * Whether to show the "Download OpenAPI Specification" button
+   *
+   * @default false
+   */
+  hideDownloadButton?: boolean
   /** Whether dark mode is on or off initially (light mode) */
   darkMode?: boolean
   /** Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
@@ -80,6 +92,21 @@ export type ReferenceConfiguration = {
   onSpecUpdate?: (spec: string) => void
   /** Prefill authentication */
   authentication?: Partial<AuthenticationState>
+  /**
+   * Route using paths instead of hashes, your server MUST support this
+   * for example vue router needs a catch all so any subpaths are included
+   *
+   * @example
+   * '/standalone-api-reference/:custom(.*)?'
+   *
+   * @experimental
+   * @default undefined
+   */
+  pathRouting?: PathRouting
+}
+
+export type PathRouting = {
+  basePath: string
 }
 
 export type SpecConfiguration = {

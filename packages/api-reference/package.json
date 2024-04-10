@@ -15,7 +15,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.20.24",
+  "version": "1.20.29",
   "engines": {
     "node": ">=18"
   },
@@ -43,9 +43,9 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./style.css": {
-      "import": "./dist/style.css",
-      "require": "./dist/style.css"
+    "./index.css": {
+      "import": "./dist/index.css",
+      "require": "./dist/index.css"
     }
   },
   "files": [

@@ -1,10 +1,15 @@
 <script lang="ts" setup>
-import { downloadSpecBus } from '../../../helpers'
+import { inject } from 'vue'
+
+import { HIDE_DOWNLOAD_BUTTON_SYMBOL, downloadSpecBus } from '../../../helpers'
+
+const getHideDownloadButtonSymbol = inject(HIDE_DOWNLOAD_BUTTON_SYMBOL)
 </script>
 <template>
   <div class="download">
     <div class="download-cta">
       <button
+        v-if="!getHideDownloadButtonSymbol?.()"
         class="download-button"
         type="button"
         @click="downloadSpecBus.emit()">

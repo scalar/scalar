@@ -1,5 +1,23 @@
 # @scalar/fastify-api-reference
 
+## 1.20.27
+
+### Patch Changes
+
+- 605f522: feat: support tags with no operations
+
+## 1.20.26
+
+### Patch Changes
+
+- 050410a: feat: add config to hide download button
+
+## 1.20.25
+
+### Patch Changes
+
+- 1504d3b: feat: add config to hide models
+
 ## 1.20.22
 
 ### Patch Changes

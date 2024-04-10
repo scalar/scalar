@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import { sleep } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
@@ -28,7 +28,12 @@ const disableScroll = ref(true)
 // but not when we click, only on scroll.
 // Also disable scroll on expansion of sidebar tag
 watch(hash, (id) => {
-  if (!isIntersectionEnabled.value || disableScroll.value) return
+  if (
+    !isIntersectionEnabled.value ||
+    disableScroll.value ||
+    typeof window === 'undefined'
+  )
+    return
   scrollSidebar(id)
 })
 
@@ -55,9 +60,7 @@ const scrollSidebar = (id: string) => {
 
 // TODO timeout is due to sidebar section opening time
 onMounted(() => {
-  setTimeout(() => {
-    scrollSidebar(window.location.hash.replace(/^#/, ''))
-  }, 500)
+  setTimeout(() => scrollSidebar(hash.value), 500)
   disableScroll.value = false
 })
 </script>

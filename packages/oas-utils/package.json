@@ -11,7 +11,7 @@
     "specification",
     "yaml"
   ],
-  "version": "0.1.3",
+  "version": "0.1.4",
   "engines": {
     "node": ">=18"
   },
@@ -63,5 +63,8 @@
     "tsc-alias": "^1.8.8",
     "vite": "^5.1.1",
     "vitest": "^1.2.2"
+  },
+  "peerDependencies": {
+    "axios": "^1.5"
   }
 }

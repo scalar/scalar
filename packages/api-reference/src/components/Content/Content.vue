@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 import { hasModels } from '../../helpers'
-import { useNavState, useRefOnMount } from '../../hooks'
+import { useNavState, useRefOnMount, useSidebar } from '../../hooks'
 import type { Spec } from '../../types'
 import { Authentication } from './Authentication'
 import { BaseUrl } from './BaseUrl'
@@ -19,13 +19,15 @@ const props = defineProps<{
   layout?: 'default' | 'accordion'
 }>()
 
-const { getOperationId, getTagId } = useNavState()
+const { getOperationId, getTagId, hash } = useNavState()
 
 const fallBackServer = useRefOnMount(() => {
   return {
     url: window.location.origin,
   }
 })
+
+const { hideModels } = useSidebar()
 
 const localServers = computed(() => {
   if (props.parsedSpec.servers && props.parsedSpec.servers.length > 0) {
@@ -60,10 +62,7 @@ const introCardsSlot = computed(() =>
 )
 
 // If the first load is models, we do not lazy load tags/operations
-const isLazy =
-  props.layout !== 'accordion' &&
-  typeof window !== 'undefined' &&
-  !window.location.hash.startsWith('#model')
+const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
 </script>
 <template>
   <!-- For adding gradients + animations to introduction of documents that :before / :after won't work for -->
@@ -109,7 +108,6 @@ const isLazy =
       :isLazy="isLazy">
       <Component
         :is="tagLayout"
-        v-if="tag.operations && tag.operations.length > 0"
         :id="getTagId(tag)"
         :spec="parsedSpec"
         :tag="tag">
@@ -132,7 +130,7 @@ const isLazy =
       <Webhooks :webhooks="parsedSpec.webhooks" />
     </template>
 
-    <template v-if="hasModels(parsedSpec)">
+    <template v-if="hasModels(parsedSpec) && !hideModels">
       <ModelsAccordion
         v-if="layout === 'accordion'"
         :components="parsedSpec.components" />

@@ -11,6 +11,7 @@ import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
   computed,
   getCurrentInstance,
+  onBeforeMount,
   onMounted,
   onServerPrefetch,
   provide,
@@ -21,8 +22,11 @@ import { toast } from 'vue-sonner'
 
 import {
   GLOBAL_SECURITY_SYMBOL,
+  HIDE_DOWNLOAD_BUTTON_SYMBOL,
   downloadSpecBus,
   downloadSpecFile,
+  scrollToId,
+  sleep,
 } from '../helpers'
 import { useNavState, useSidebar } from '../hooks'
 import { useToasts } from '../hooks/useToasts'
@@ -76,30 +80,49 @@ const {
   collapsedSidebarItems,
   isSidebarOpen,
   setCollapsedSidebarItem,
+  hideModels,
 } = useSidebar()
-const { enableHashListener, getSectionId, getTagId, hash } = useNavState()
+const {
+  getPathRoutingId,
+  getSectionId,
+  getTagId,
+  hash,
+  isIntersectionEnabled,
+  pathRouting,
+  updateHash,
+} = useNavState()
 
-enableHashListener()
+pathRouting.value = props.configuration.pathRouting
+
+// Ideally this triggers absolutely first on the client so we can set hash value
+onBeforeMount(() => {
+  updateHash()
+})
+
+// Disables intersection observer and scrolls to section
+const scrollToSection = async (id?: string) => {
+  isIntersectionEnabled.value = false
+  updateHash()
+
+  if (id) scrollToId(id)
+  else documentEl.value?.scrollTo(0, 0)
+
+  await sleep(100)
+  isIntersectionEnabled.value = true
+}
 
 onMounted(() => {
-  if (!hash.value) {
-    document.querySelector('#tippy')?.scrollTo({
-      top: 0,
-      left: 0,
-    })
-  }
-
-  // Ensure section is open for SSG
-  const firstTag = props.parsedSpec.tags?.[0]
-  let sectionId: string | null = null
-
-  if (hash.value) sectionId = getSectionId(hash.value)
-  else if (firstTag) sectionId = getTagId(firstTag)
-
-  if (sectionId) setCollapsedSidebarItem(sectionId, true)
-
   // Enable the spec download event bus
   downloadSpecBus.on(() => downloadSpecFile(props.rawSpec))
+
+  // This is what updates the hash ref from hash changes
+  window.onhashchange = async () =>
+    scrollToSection(decodeURIComponent(window.location.hash.replace(/^#/, '')))
+
+  // Handle back for path routing
+  window.onpopstate = async () =>
+    pathRouting.value &&
+    scrollToSection(getPathRoutingId(window.location.pathname))
 })
 
 const showRenderedContent = computed(
@@ -127,15 +150,33 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
 
 // Initialize the server state
 onServerPrefetch(() => {
-  const firstTag = props.parsedSpec.tags?.[0]
-  if (firstTag) setCollapsedSidebarItem(getTagId(firstTag), true)
-
   const ctx = useSSRContext<SSRState>()
   if (!ctx) return
 
-  ctx.scalarState ||= defaultStateFactory()
-  ctx.scalarState['useSidebarContent-collapsedSidebarItems'] =
-    collapsedSidebarItems
+  ctx.payload.data ||= defaultStateFactory()
+
+  // Set initial hash value
+  if (props.configuration.pathRouting) {
+    const id = getPathRoutingId(ctx.url)
+    hash.value = id
+    ctx.payload.data.hash = id
+
+    // For sidebar items we need to reset the state as it persists between requests
+    // This is a temp hack, need to come up with a better solution
+    for (const key in collapsedSidebarItems) {
+      if (Object.hasOwn(collapsedSidebarItems, key))
+        delete collapsedSidebarItems[key]
+    }
+
+    if (id) {
+      setCollapsedSidebarItem(getSectionId(id), true)
+    } else {
+      const firstTag = props.parsedSpec.tags?.[0]
+      if (firstTag) setCollapsedSidebarItem(getTagId(firstTag), true)
+    }
+    ctx.payload.data['useSidebarContent-collapsedSidebarItems'] =
+      collapsedSidebarItems
+  }
 })
 
 /**
@@ -147,8 +188,10 @@ onServerPrefetch(() => {
 provideUseId(() => {
   const instance = getCurrentInstance()
   const ATTR_KEY = 'scalar-instance-id'
+
   if (!instance) return ATTR_KEY
   let instanceId = instance.uid
+
   // SSR: grab the instance ID from vue and set it as an attribute
   if (typeof window === 'undefined') {
     instance.attrs ||= {}
@@ -163,6 +206,12 @@ provideUseId(() => {
 
 // Provide global security
 provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
+provide(
+  HIDE_DOWNLOAD_BUTTON_SYMBOL,
+  () => props.configuration.hideDownloadButton,
+)
+
+hideModels.value = props.configuration.hideModels ?? false
 </script>
 <template>
   <ThemeStyles :id="configuration?.theme" />

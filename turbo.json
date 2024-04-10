@@ -6,6 +6,11 @@
       "outputs": ["dist/**"],
       "dependsOn": ["^build"]
     },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"]
+    },
     "types:check": {}
   }
 }
