@@ -2,13 +2,13 @@
 import {
   type DescriptionSectionSSRKey,
   type SSRState,
+  createHash,
   ssrState,
 } from '@scalar/oas-utils'
 import { computedAsync } from '@vueuse/core'
 import { onServerPrefetch, useSSRContext } from 'vue'
 
 import {
-  createHash,
   getHeadingsFromMarkdown,
   getLowestHeadingLevel,
   sleep,
@@ -66,7 +66,7 @@ function handleScroll(headingId: string) {
 onServerPrefetch(async () => {
   const ctx = useSSRContext<SSRState>()
   await sleep(1)
-  ctx!.scalarState[ssrStateKey] = sections.value
+  ctx!.payload.data[ssrStateKey] = sections.value
 })
 </script>
 <template>

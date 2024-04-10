@@ -1,4 +1,3 @@
-export * from './createHash'
 export * from './deepMerge'
 export * from './getApiClientRequest'
 export * from './getHeadingsFromMarkdown'

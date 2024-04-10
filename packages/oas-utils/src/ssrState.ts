@@ -1,17 +1,17 @@
-import { type SSRState } from './types'
+import { type ScalarState } from './types'
 
 declare global {
   interface Window {
-    __SCALAR__: SSRState['scalarState']
+    __SCALAR__: ScalarState
   }
 }
 
-export const defaultStateFactory = (): SSRState['scalarState'] => ({})
+export const defaultStateFactory = (): ScalarState => ({})
 
 /**
  * This allows us to access the server state in the front-end
  */
-export const ssrState: SSRState['scalarState'] =
+export const ssrState: ScalarState =
   typeof window !== 'undefined'
     ? window.__SCALAR__ ?? defaultStateFactory()
     : defaultStateFactory()
