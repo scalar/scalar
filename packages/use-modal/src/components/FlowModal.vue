@@ -98,6 +98,9 @@ withDefaults(
 .dark-mode .modal:before {
   background: #1a1a1a;
 }
+.dark-mode .modal-content-history:before {
+  background: inherit;
+}
 .light-mode .modal:before {
   background: #fff;
 }
