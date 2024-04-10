@@ -2,6 +2,9 @@
 import { HttpMethod } from '@scalar/api-client'
 import { type Icon, ScalarIcon, ScalarIconButton } from '@scalar/components'
 
+import { scrollToId, sleep } from '../../helpers'
+import { useNavState } from '../../hooks'
+
 const props = defineProps<{
   id: string
   item: {
@@ -24,6 +27,8 @@ const emit = defineEmits<{
   (e: 'toggleOpen'): void
 }>()
 
+const { hash, isIntersectionEnabled, pathRouting } = useNavState()
+
 // We disable intersection observer on click
 const handleClick = async () => {
   if (props.hasChildren) emit('toggleOpen')
@@ -31,10 +36,43 @@ const handleClick = async () => {
 }
 
 // Build relative URL and add hash
-const generateLink = (hash: string) => {
-  const newUrl = new URL(window.location.href)
-  newUrl.hash = hash
-  return `${newUrl.pathname}${newUrl.search}${newUrl.hash}`
+const generateLink = () => {
+  if (pathRouting.value) {
+    return pathRouting.value.basePath + '/' + props.item.id
+  } else {
+    const newUrl = new URL(window.location.href)
+    newUrl.hash = props.item.id
+    return `${newUrl.pathname}${newUrl.search}${newUrl.hash}`
+  }
+}
+
+// For path routing we want to handle the clicks
+const onAnchorClick = async (ev: Event) => {
+  if (pathRouting.value) {
+    ev.preventDefault()
+
+    // Due to the prevent default
+    if (props.hasChildren) emit('toggleOpen')
+    props.item?.select?.()
+
+    // Make sure to open the section
+    emit('toggleOpen')
+
+    // Disable intersection observer before we scroll
+    isIntersectionEnabled.value = false
+
+    // Manually update "hash"
+    hash.value = props.item.id
+
+    const url = new URL(window.location.href)
+    url.pathname = pathRouting.value.basePath + '/' + props.item.id
+
+    window.history.pushState({}, '', url)
+    scrollToId(props.item.id)
+
+    await sleep(100)
+    isIntersectionEnabled.value = true
+  }
 }
 </script>
 <template>
@@ -64,7 +102,8 @@ const generateLink = (hash: string) => {
       </p>
       <a
         class="sidebar-heading-link"
-        :href="generateLink(item.id)">
+        :href="generateLink()"
+        @click="onAnchorClick">
         <ScalarIcon
           v-if="item?.icon?.src"
           class="sidebar-icon"
@@ -77,7 +116,6 @@ const generateLink = (hash: string) => {
           class="sidebar-heading-link-method">
           &hairsp;
           <HttpMethod
-            as="div"
             class="sidebar-heading-type"
             :method="item.httpVerb"
             property="--method-color"

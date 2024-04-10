@@ -248,9 +248,9 @@ export function useSidebar(options?: { parsedSpec: Spec }) {
     watch(
       () => parsedSpec.value?.tags?.length,
       () => {
-        if (window?.location.hash) {
-          const hashSectionId = getSectionId(window.location.hash)
-          if (!hashSectionId) setCollapsedSidebarItem(hashSectionId, true)
+        if (hash.value) {
+          const hashSectionId = getSectionId(hash.value)
+          if (hashSectionId) setCollapsedSidebarItem(hashSectionId, true)
         } else {
           const firstTag = parsedSpec.value?.tags?.[0]
           if (firstTag) setCollapsedSidebarItem(getTagId(firstTag), true)
