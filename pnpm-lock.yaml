@@ -1292,9 +1292,6 @@ importers:
 
   packages/fastify-api-reference:
     dependencies:
-      fastify:
-        specifier: ^4.26.2
-        version: 4.26.2
       fastify-plugin:
         specifier: ^4.5.1
         version: 4.5.1
@@ -1305,6 +1302,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^1.4.0
         version: 1.4.0(vitest@1.4.0)
+      fastify:
+        specifier: ^4.26.2
+        version: 4.26.2
       magic-string:
         specifier: ^0.30.8
         version: 0.30.8
@@ -9081,7 +9081,7 @@ packages:
       strip-literal: 2.0.0
       test-exclude: 6.0.0
       v8-to-istanbul: 9.2.0
-      vitest: 1.4.0(@types/node@20.11.22)(jsdom@22.1.0)
+      vitest: 1.4.0(@types/node@20.11.22)(terser@5.30.0)
     transitivePeerDependencies:
       - supports-color
     dev: true
