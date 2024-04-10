@@ -6,28 +6,19 @@ import {
   type ResolvedOpenAPIV3_1,
   openapi,
 } from '@scalar/openapi-parser'
-import { z } from 'zod'
 
 import {
   type Operation,
+  OperationSchema,
+  RemoveUndefined,
   type RequestMethod,
+  RequestMethodSchema,
   type Spec,
   type Tag,
   type TransformedOperation,
   objectKeys,
   validRequestMethods,
 } from '../types'
-
-export const operationSchema = z.object({
-  httpVerb: z.string().optional(), // TODO: set this to RequestMethod?
-  operationId: z.string().optional(),
-  summary: z.string().optional(),
-  description: z.string().optional(),
-  name: z.string().optional(),
-  path: z.string().optional(),
-  information: z.record(z.any(), z.any()).optional(),
-  tags: z.array(z.string()).optional(),
-})
 
 /**
  * Parse and transform an OpenAPI specification for rendering
@@ -50,7 +41,7 @@ export const scalarParse = (specification: any): Promise<Spec> => {
           result.errors,
         )
       }
-
+      // TODO: zod schema parse
       const schema: ResolvedOpenAPI.Document = result.schema
       resolve(transformResult(structuredClone(schema)))
     } catch (error) {
@@ -71,15 +62,14 @@ export const transformResult = <TSpec extends ResolvedOpenAPI.Document>(
     // for each path, format operation data and add operations to tags
 
     objectKeys(paths[path]).forEach((requestMethod) => {
-      // TODO: zod schema for request method
-      if (
-        validRequestMethods.includes(
-          requestMethod.toUpperCase() as RequestMethod,
-        )
-      ) {
-        // TODO: zod schema parse
-        // const operation = operationSchema.parse(paths[path][requestMethod])
-        const operation = paths[path][requestMethod] as Operation
+      // Check if the request method is valid
+      const method = RequestMethodSchema.parse(requestMethod.toUpperCase())
+      if (method) {
+        // TODO: zod parse this object?
+        // const operation = OperationSchema.parse(paths[path][requestMethod])
+        const operation = paths[path][
+          requestMethod
+        ] as ResolvedOpenAPI.Operation
 
         // Transform the operation
         const newOperation = {
@@ -138,9 +128,6 @@ export const transformResult = <TSpec extends ResolvedOpenAPI.Document>(
             tags[tagIndex].operations.push(newOperation)
           })
         }
-
-        // TODO: path types are a little wonky
-        // transformedPaths[path][requestMethod] = transformedPath
       }
     })
   })
@@ -149,12 +136,12 @@ export const transformResult = <TSpec extends ResolvedOpenAPI.Document>(
     ...schema,
     webhooks: transformWebhooks(schema),
     paths: paths,
-    tags: tags.filter((tag) => tag.operations?.length > 0), // todo: just remove tags from the tags object
+    tags: tags.filter((tag) => tag.operations.length > 0),
   }
 }
 
 /** Returns a formatted list of Tag objects for the schema */
-// TODO: turn this into a zod schema
+// TODO: turn this into a zod schema ?
 export const initTags = <T extends ResolvedOpenAPI.Document>(schema: T) => {
   const defaultTag = {
     name: 'default',

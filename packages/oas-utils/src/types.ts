@@ -4,6 +4,23 @@ import {
   type OpenAPIV3_1,
 } from '@scalar/openapi-parser'
 import type { HarRequest } from 'httpsnippet-lite'
+import { z } from 'zod'
+
+export const validRequestMethods = [
+  'GET',
+  'POST',
+  'PUT',
+  'HEAD',
+  'DELETE',
+  'PATCH',
+  'OPTIONS',
+  'CONNECT',
+  'TRACE',
+] as const
+
+export type RequestMethod = (typeof validRequestMethods)[number]
+
+export const RequestMethodSchema = z.enum(validRequestMethods)
 
 export type AnyObject = Record<string, any>
 
@@ -71,8 +88,8 @@ export type Information = {
 }
 
 export type Operation = {
-  httpVerb: string // TODO: set this to RequestMethod?
-  path: string
+  httpVerb: RequestMethod
+
   operationId?: string
   name?: string
   description?: string
@@ -80,6 +97,16 @@ export type Operation = {
   summary?: string
   tags?: string[]
 }
+
+export const OperationSchema = z.object({
+  httpVerb: RequestMethodSchema.optional(),
+  operationId: z.string().optional(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  information: z.record(z.any(), z.any()).optional(),
+  summary: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+})
 export type Parameters = {
   // Fixed Fields
   name: string
@@ -208,20 +235,6 @@ export type Webhooks = Record<
   string,
   Record<OpenAPIV3_1.HttpMethods, TransformedOperation>
 >
-
-export const validRequestMethods = [
-  'GET',
-  'POST',
-  'PUT',
-  'HEAD',
-  'DELETE',
-  'PATCH',
-  'OPTIONS',
-  'CONNECT',
-  'TRACE',
-] as const
-
-export type RequestMethod = (typeof validRequestMethods)[number]
 
 export type RemoveUndefined<TType> = TType extends undefined ? never : TType
 

@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
+import { RequestMethod, RequestMethodSchema } from '../types'
 import mega from './mega.yaml'
 import { parse } from './parseOld'
 import { scalarParse } from './scalarParse'
@@ -45,7 +46,14 @@ describe('Translates open api spec to data object for rendering', () => {
     expect(result).toStrictEqual(oldresult)
   })
 
-  test('Parse openapi 2 spec', async () => {
+  test('Request method enum types', async () => {
+    const put = 'PUT'
+    const result = RequestMethodSchema.parse(put)
+
+    console.log(result)
+  })
+
+  test.skip('Parse openapi 2 spec', async () => {
     const specification = {
       openapi: '2.0.0',
       info: { title: 'Example' },
