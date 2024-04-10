@@ -77,7 +77,7 @@ const getSectionId = (hashStr = hash.value) => {
 const updateHash = () => {
   hash.value = pathRouting.value
     ? getPathRoutingId(window.location.pathname)
-    : window.location.hash.replace(/^#/, '')
+    : decodeURIComponent(window.location.hash.replace(/^#/, ''))
 }
 
 /**

@@ -117,7 +117,7 @@ onMounted(() => {
 
   // This is what updates the hash ref from hash changes
   window.onhashchange = async () =>
-    scrollToSection(window.location.hash.replace(/^#/, ''))
+    scrollToSection(decodeURIComponent(window.location.hash.replace(/^#/, '')))
 
   // Handle back for path routing
   window.onpopstate = async () =>
