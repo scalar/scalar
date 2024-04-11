@@ -5,7 +5,7 @@ import type {
 } from '@scalar/oas-utils'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { ThemeId } from '@scalar/themes'
-import type { MetaFlatInput } from '@unhead/schema'
+import type { UseSeoMetaInput } from '@unhead/schema'
 import type { HarRequest } from 'httpsnippet-lite'
 import type { Slot } from 'vue'
 
@@ -79,7 +79,7 @@ export type ReferenceConfiguration = {
    * If used, passed data will be added to the HTML header
    * @see https://unhead.unjs.io/usage/composables/use-seo-meta
    * */
-  metaData?: MetaFlatInput
+  metaData?: UseSeoMetaInput
   /**
    * List of httpsnippet clients to hide from the clients menu
    * By default hides Unirest, pass `[]` to show all clients

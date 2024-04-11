@@ -1,19 +1,13 @@
 <script lang="ts" setup>
-import {
-  ModernLayout,
-  type ReferenceConfiguration,
-  parse,
-} from '@scalar/api-reference'
+import { ModernLayout, parse } from '@scalar/api-reference'
 import '@scalar/api-reference/index.css'
 import { reactive, ref } from 'vue'
+import type { Configuration } from '~/src/types'
 
 import './nuxt-theme.css'
 
 const props = defineProps<{
-  configuration: Pick<
-    ReferenceConfiguration,
-    'darkMode' | 'pathRouting' | 'proxy' | 'showSidebar' | 'spec'
-  >
+  configuration: Configuration
 }>()
 
 const isDark = ref(props.configuration.darkMode)
@@ -31,6 +25,9 @@ if (!content)
 
 const parsedSpec = reactive(await parse(content))
 const rawSpec = JSON.stringify(content)
+
+// Load up the metadata
+if (props.configuration?.metaData) useSeoMeta(props.configuration.metaData)
 
 useHead({
   bodyAttrs: {

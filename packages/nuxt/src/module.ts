@@ -5,13 +5,11 @@ import {
   defineNuxtModule,
   extendPages,
 } from '@nuxt/kit'
-import { type ReferenceConfiguration } from '@scalar/api-reference'
+
+import type { Configuration } from './types'
 
 // Module options TypeScript interface definition
-export type ModuleOptions = Omit<
-  ReferenceConfiguration,
-  'layout' | 'isEditable' | 'onSpecUpdate'
->
+export type ModuleOptions = Configuration
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -21,6 +19,9 @@ export default defineNuxtModule<ModuleOptions>({
   // Default configuration options of the Nuxt module
   defaults: {
     darkMode: true,
+    metaData: {
+      title: 'API Documentation by Scalar',
+    },
     pathRouting: {
       basePath: '/scalar',
     },
@@ -44,8 +45,8 @@ export default defineNuxtModule<ModuleOptions>({
     // Add the route for the docs
     extendPages((pages) => {
       pages.push({
-        name: 'API Documentation',
-        path: '/scalar:pathMatch(.*)*',
+        name: 'scalar',
+        path: _options.pathRouting?.basePath + ':pathMatch(.*)*',
         meta: {
           configuration: _options,
           isOpenApiEnabled,

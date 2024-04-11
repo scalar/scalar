@@ -1,5 +1,8 @@
 <script lang="ts" setup>
-const { meta } = useRoute()
+import type { Meta } from '~/src/types'
+
+const route = useRoute()
+const meta = route.meta as Meta
 
 // Ensure we have a spec
 if (

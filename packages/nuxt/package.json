@@ -20,6 +20,7 @@
     "node": ">=18"
   },
   "scripts": {
+    "build": "npm run lint:check && npm run test && npm run prepack",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
