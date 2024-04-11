@@ -121,8 +121,9 @@ const unsubscribe = lazyBus.on(({ id }) => {
   unsubscribe()
 
   // Timeout is to allow codemirror to finish loading and prevent layout shift
+  // TODO mutation observer
   setTimeout(() => {
-    scrollToId(hashStr)
+    if (typeof window !== 'undefined') scrollToId(hashStr)
     isLoading.value = false
     setTimeout(() => (isIntersectionEnabled.value = true), 1000)
   }, 300)

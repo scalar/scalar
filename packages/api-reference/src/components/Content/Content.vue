@@ -22,7 +22,7 @@ const props = defineProps<{
 
 const { getOperationId, getTagId, hash } = useNavState()
 const { setServer } = useServerStore()
-const { hideModels } = useSidebar()
+const { hideModels, collapsedSidebarItems } = useSidebar()
 
 // Watch the spec and set the servers
 watch(
@@ -105,7 +105,7 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
       v-for="tag in parsedSpec.tags"
       :id="getTagId(tag)"
       :key="getTagId(tag)"
-      :isLazy="isLazy">
+      :isLazy="isLazy && !collapsedSidebarItems[getTagId(tag)]">
       <Component
         :is="tagLayout"
         :id="getTagId(tag)"
