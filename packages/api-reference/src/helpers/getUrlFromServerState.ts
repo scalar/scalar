@@ -6,10 +6,7 @@ import { replaceVariables } from './replaceVariables'
  */
 export function getUrlFromServerState(state: ServerState) {
   // Get the selected server
-  const server =
-    state.selectedServer === null
-      ? state?.servers?.[0]
-      : state?.servers?.[state.selectedServer]
+  const server = state?.servers?.[state.selectedServer ?? 0]
 
   // Replace variables: {protocol}://{host}:{port}/{basePath}
   let url =

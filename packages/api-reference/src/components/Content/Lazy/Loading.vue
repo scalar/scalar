@@ -4,7 +4,7 @@ import { onMounted, ref, watch } from 'vue'
 
 import { scrollToId } from '../../../helpers'
 import { useNavState } from '../../../hooks'
-import type { Server, Spec, Tag as TagType } from '../../../types'
+import type { Spec, Tag as TagType } from '../../../types'
 import { Anchor } from '../../Anchor'
 import {
   Section,
@@ -34,7 +34,6 @@ const props = withDefaults(
   defineProps<{
     layout?: 'accordion' | 'default'
     parsedSpec: Spec
-    server: Server
   }>(),
   { layout: 'default' },
 )
@@ -154,7 +153,6 @@ onMounted(() => {
           v-for="operation in tag.lazyOperations"
           :key="`${operation.httpVerb}-${operation.operationId}`"
           :operation="operation"
-          :server="server"
           :tag="tag" />
       </Tag>
     </template>

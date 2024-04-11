@@ -1,16 +1,16 @@
 export default defineNuxtConfig({
   modules: ['../src/module'],
   scalarConfig: {
-    spec: { url: 'https://cdn.scalar.com/spec/openapi_petstore.json' },
+    // spec: { url: 'https://cdn.scalar.com/spec/openapi_petstore.json' },
     pathRouting: {
       basePath: '/scalar',
     },
   },
-  // nitro: {
-  //   experimental: {
-  //     openAPI: true,
-  //   },
-  // },
+  nitro: {
+    experimental: {
+      openAPI: true,
+    },
+  },
   devtools: { enabled: true },
   devServer: {
     port: 5062,

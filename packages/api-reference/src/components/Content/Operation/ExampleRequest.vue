@@ -76,10 +76,7 @@ const generateSnippet = async (): Promise<string> => {
   // Generate a request object
   const request = getHarRequest(
     {
-      url:
-        getUrlFromServerState(serverState) ?? typeof window !== 'undefined'
-          ? window.location.origin
-          : '',
+      url: getUrlFromServerState(serverState),
     },
     getRequestFromOperation(
       props.operation,

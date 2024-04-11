@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 
 import { hasModels } from '../../helpers'
-import { useNavState, useRefOnMount, useSidebar } from '../../hooks'
+import { useNavState, useSidebar } from '../../hooks'
+import { useServerStore } from '../../stores'
 import type { Spec } from '../../types'
 import { Authentication } from './Authentication'
 import { BaseUrl } from './BaseUrl'
@@ -20,37 +21,37 @@ const props = defineProps<{
 }>()
 
 const { getOperationId, getTagId, hash } = useNavState()
-
-const fallBackServer = useRefOnMount(() => {
-  return {
-    url: window.location.origin,
-  }
-})
-
+const { setServer } = useServerStore()
 const { hideModels } = useSidebar()
 
-const localServers = computed(() => {
-  if (props.parsedSpec.servers && props.parsedSpec.servers.length > 0) {
-    return props.parsedSpec.servers
-  } else if (
-    props.parsedSpec.host &&
-    props.parsedSpec.schemes &&
-    props.parsedSpec.schemes.length > 0
-  ) {
-    return [
-      {
-        url: `${props.parsedSpec.schemes[0]}://${props.parsedSpec.host}${
-          props.parsedSpec?.basePath ?? ''
-        }`,
-      },
+// Watch the spec and set the servers
+watch(
+  () => props.parsedSpec,
+  (parsedSpec) => {
+    let servers = [
+      { url: typeof window !== 'undefined' ? window.location.origin : '' },
     ]
-  } else if (fallBackServer.value) {
-    return [fallBackServer.value]
-  } else {
-    return [{ url: '' }]
-  }
-})
 
+    if (parsedSpec.servers && parsedSpec.servers.length > 0) {
+      servers = parsedSpec.servers
+    } else if (
+      props.parsedSpec.host &&
+      props.parsedSpec.schemes &&
+      props.parsedSpec.schemes.length > 0
+    ) {
+      servers = [
+        {
+          url: `${props.parsedSpec.schemes[0]}://${props.parsedSpec.host}${
+            props.parsedSpec?.basePath ?? ''
+          }`,
+        },
+      ]
+    }
+
+    setServer({ servers })
+  },
+  { deep: true, immediate: true },
+)
 const tagLayout = computed<typeof Tag>(() =>
   props.layout === 'accordion' ? TagAccordion : Tag,
 )
@@ -80,8 +81,7 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
     <slot name="start" />
     <Loading
       :layout="layout"
-      :parsedSpec="parsedSpec"
-      :server="localServers[0]" />
+      :parsedSpec="parsedSpec" />
 
     <Introduction
       v-if="parsedSpec.info.title || parsedSpec.info.description"
@@ -91,7 +91,7 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
         <div
           class="introduction-cards"
           :class="{ 'introduction-cards-row': layout === 'accordion' }">
-          <BaseUrl :value="localServers" />
+          <BaseUrl />
           <ClientLibraries />
           <Authentication :parsedSpec="parsedSpec" />
         </div>
@@ -120,7 +120,6 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
             :is="endpointLayout"
             :id="getOperationId(operation, tag)"
             :operation="operation"
-            :server="localServers[0]"
             :tag="tag" />
         </Lazy>
       </Component>
