@@ -20,14 +20,14 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "npm run lint:check && npm run test && npm run prepack",
+    "build": "pnpm run lint:check && pnpm run test && pnpm run prepack",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "prepack": "nuxt-module-build build",
-    "release": "npm run lint:check && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
+    "postinstall": "pnpm dev:prepare",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "types:check": "nuxi typecheck"
