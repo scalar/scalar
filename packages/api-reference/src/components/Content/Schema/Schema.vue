@@ -107,7 +107,23 @@ const handleClick = (e: MouseEvent) =>
                 :value="value.properties?.[property]" />
             </template>
             <template v-if="value.additionalProperties">
+              <!-- 
+                Allows any type of additional property value
+                @see https://swagger.io/docs/specification/data-models/dictionaries/#free-form
+               -->
               <SchemaProperty
+                v-if="
+                  value.additionalProperties === true ||
+                  Object.keys(value.additionalProperties).length === 0
+                "
+                additional
+                :compact="compact"
+                :level="level"
+                noncollapsible
+                :value="{ type: 'any' }" />
+              <!-- Allows a specific type of additional property value -->
+              <SchemaProperty
+                v-else
                 additional
                 :compact="compact"
                 :level="level"
