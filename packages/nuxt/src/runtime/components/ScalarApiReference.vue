@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ModernLayout, parse } from '@scalar/api-reference'
 import '@scalar/api-reference/index.css'
-import { reactive, ref } from 'vue'
+import { reactive, ref, toRaw } from 'vue'
 import type { Configuration } from '~/src/types'
 
 import './nuxt-theme.css'
@@ -14,7 +14,7 @@ const isDark = ref(props.configuration.darkMode)
 
 // Grab spec if we can
 const content: unknown = props.configuration.spec?.content
-  ? props.configuration.spec.content
+  ? toRaw(props.configuration.spec.content)
   : props.configuration.spec?.url
     ? await $fetch(props.configuration.spec?.url)
     : await $fetch('/_nitro/openapi.json')
