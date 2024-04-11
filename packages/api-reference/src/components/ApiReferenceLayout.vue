@@ -74,7 +74,6 @@ useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height + 'px'
 })
 
-// Scroll to hash if exists
 const {
   breadcrumb,
   collapsedSidebarItems,
@@ -82,6 +81,7 @@ const {
   setCollapsedSidebarItem,
   hideModels,
 } = useSidebar()
+
 const {
   getPathRoutingId,
   getSectionId,
@@ -95,9 +95,7 @@ const {
 pathRouting.value = props.configuration.pathRouting
 
 // Ideally this triggers absolutely first on the client so we can set hash value
-onBeforeMount(() => {
-  updateHash()
-})
+onBeforeMount(() => updateHash())
 
 // Disables intersection observer and scrolls to section
 const scrollToSection = async (id?: string) => {
