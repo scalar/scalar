@@ -51,7 +51,7 @@ export default defineNuxtModule<ModuleOptions>({
           configuration: _options,
           isOpenApiEnabled,
         },
-        file: resolver.resolve('./runtime/pages/Scalar.vue'),
+        file: resolver.resolve('./runtime/pages/ScalarPage.vue'),
       })
     })
 

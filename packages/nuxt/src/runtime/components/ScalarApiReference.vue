@@ -42,6 +42,5 @@ useHead({
     :isDark="isDark"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec"
-    @toggleDarkMode="isDark = !isDark">
-  </ModernLayout>
+    @toggleDarkMode="isDark = !isDark" />
 </template>

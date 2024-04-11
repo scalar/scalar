@@ -1,6 +1,3 @@
-// import content from '../../../specifications/scalar-galaxy-3.1.json'
-import content from '../../../examples/web/src/specifications/openapi-3.1.json'
-
 export default defineNuxtConfig({
   modules: ['../src/module'],
   scalarConfig: {
