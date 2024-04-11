@@ -27,16 +27,7 @@ const shouldShowToggle = computed(() => {
   return true
 })
 
-// Merge the (optional) `additionalProperties` into the schema
-const mergedSchema = computed(() => {
-  return {
-    ...(typeof props.value === 'object' ? props.value : {}),
-    ...(typeof props.value === 'object' &&
-    typeof props.value?.additionalProperties === 'object'
-      ? props.value?.additionalProperties
-      : {}),
-  }
-})
+console.log(props.value)
 
 // Prevent click action if noncollapsible
 const handleClick = (e: MouseEvent) =>
@@ -96,30 +87,40 @@ const handleClick = (e: MouseEvent) =>
               size="md" />
             <SchemaHeading
               :name="name"
-              :value="mergedSchema" />
+              :value="value" />
           </template>
         </DisclosureButton>
         <DisclosurePanel :static="noncollapsible">
-          <template v-if="mergedSchema?.properties">
-            <SchemaProperty
-              v-for="property in Object.keys(mergedSchema?.properties)"
-              :key="property"
-              :compact="compact"
-              :level="level"
-              :name="property"
-              :required="
-                mergedSchema.required &&
-                mergedSchema.required.length &&
-                mergedSchema.required.includes(property)
-              "
-              :value="mergedSchema.properties?.[property]" />
+          <template v-if="value.properties || value.additionalProperties">
+            <template v-if="value.properties">
+              <SchemaProperty
+                v-for="property in Object.keys(value?.properties)"
+                :key="property"
+                :compact="compact"
+                :level="level"
+                :name="property"
+                :required="
+                  value.required &&
+                  value.required.length &&
+                  value.required.includes(property)
+                "
+                :value="value.properties?.[property]" />
+            </template>
+            <template v-if="value.additionalProperties">
+              <SchemaProperty
+                additional
+                :compact="compact"
+                :level="level"
+                noncollapsible
+                :value="value.additionalProperties" />
+            </template>
           </template>
           <template v-else>
             <SchemaProperty
               :compact="compact"
               :level="level"
-              :name="mergedSchema?.name"
-              :value="mergedSchema" />
+              :name="value.name"
+              :value="value" />
           </template>
         </DisclosurePanel>
       </div>
