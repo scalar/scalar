@@ -28,6 +28,7 @@ export function getUrlFromServerState(state: ServerState) {
 
 /**
  * Removes trailing slashes from window.location.origin
+ * TODO we must pass in the server baseURL here
  */
 const normalizedWindowOrigin = () => {
   const location = typeof window !== 'undefined' ? window.location.origin : ''
