@@ -30,7 +30,7 @@ export function getUrlFromServerState(state: ServerState) {
  * Removes trailing slashes from window.location.origin
  */
 const normalizedWindowOrigin = () => {
-  const location = window.location.origin
+  const location = typeof window !== 'undefined' ? window.location.origin : ''
 
   return location.endsWith('/') ? location.slice(0, -1) : location
 }
