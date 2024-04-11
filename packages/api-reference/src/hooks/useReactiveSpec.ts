@@ -1,8 +1,7 @@
-import { fetchSpecFromUrl } from '@scalar/oas-utils'
+import { fetchSpecFromUrl, scalarParse } from '@scalar/oas-utils'
 import { type MaybeRefOrGetter, reactive, ref, toValue, watch } from 'vue'
 
 import { isValidUrl } from '../helpers'
-import { parse } from '../helpers/parse'
 import type { Spec, SpecConfiguration } from '../types'
 
 // Generate a new empty spec instance
@@ -87,7 +86,7 @@ export function useReactiveSpec({
   function parseInput(value?: string) {
     if (!value) return Object.assign(parsedSpec, emptySpecGenerator())
 
-    return parse(value)
+    return scalarParse(value)
       .then((validSpec) => {
         specErrors.value = null
 

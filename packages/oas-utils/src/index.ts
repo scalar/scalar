@@ -15,5 +15,9 @@ export {
   yaml,
 } from './parse'
 export { prettyPrintJson } from './prettyPrintJson'
+<<<<<<< HEAD
 export { defaultStateFactory, ssrState } from './ssrState'
+=======
+export { scalarParse } from './scalarParse'
+>>>>>>> 93d67d008 (feat: new scalarParse translation function)
 export * from './types'

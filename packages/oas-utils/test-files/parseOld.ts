@@ -2,7 +2,6 @@
  * Unfortunately, this file is very messy. I think we should get rid of it entirely. :)
  * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
  */
-import { type RequestMethod, validRequestMethods } from '@scalar/api-client'
 import {
   type OpenAPIV2,
   type OpenAPIV3,
@@ -11,8 +10,11 @@ import {
   openapi,
 } from '@scalar/openapi-parser'
 
-// AnyStringOrObject
-import type { Spec } from '../types'
+import {
+  type RequestMethod,
+  type Spec,
+  validRequestMethods,
+} from '../src/types'
 
 export const parse = (specification: any): Promise<Spec> => {
   // eslint-disable-next-line no-async-promise-executor
@@ -188,6 +190,9 @@ const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
           schema.tags[tagIndex].operations.push(newOperation)
         })
       }
+
+      // console.log('NEW OPERATION', newOperation)
+      // console.log('TAGS', JSON.stringify(schema.tags, null, 2))
     })
   })
 

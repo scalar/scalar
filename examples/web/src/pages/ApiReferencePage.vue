@@ -3,8 +3,8 @@ import {
   ApiReferenceLayout,
   type ReferenceConfiguration,
   type Spec,
-  parse,
 } from '@scalar/api-reference'
+import { scalarParse } from '@scalar/oas-utils'
 import { asyncComputed } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 
@@ -61,7 +61,7 @@ watch(
 
 const parsedSpec = asyncComputed(
   async () =>
-    parse(content.value)
+    scalarParse(content.value)
       .then((validSpec) => {
         // Some specs don’t have servers, make sure they are defined
         return {
