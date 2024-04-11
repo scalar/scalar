@@ -33,12 +33,17 @@ watch(hash, (newHash, oldHash) => {
 </script>
 <template>
   <ApiReferenceLayout
-    :class="{ 'scalar-api-references-standalone-mobile': isMobile }"
+    :class="{
+      'scalar-api-references-standalone-mobile':
+        isMobile && configuration.showSidebar,
+    }"
     :configuration="configuration"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec">
     <template #header>
-      <MobileHeader v-model:open="isSidebarOpen" />
+      <MobileHeader
+        v-if="props.configuration.showSidebar"
+        v-model:open="isSidebarOpen" />
     </template>
     <template #sidebar-start="{ spec }">
       <div class="scalar-api-references-standalone-search">
