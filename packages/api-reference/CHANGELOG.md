@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.20.31
+
+### Patch Changes
+
+- b903a2f: fix: intersection observer detection
+
 ## 1.20.30
 
 ### Patch Changes

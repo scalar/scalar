@@ -1,5 +1,13 @@
 # @scalar/nuxt
 
+## 0.0.2
+
+### Patch Changes
+
+- 4de0ea4: fix: import isses
+- Updated dependencies [b903a2f]
+  - @scalar/api-reference@1.20.31
+
 ## 0.0.1
 
 ### Patch Changes
