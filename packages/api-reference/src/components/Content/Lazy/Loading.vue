@@ -93,7 +93,7 @@ watch(
       })
     }
     // Models
-    else {
+    else if (hash.value.startsWith('model')) {
       const modelKeys = Object.keys(props.parsedSpec.components?.schemas ?? {})
       const [, modelKey] = hash.value.toLowerCase().split('/')
 
@@ -107,6 +107,11 @@ watch(
 
       // Display a couple models
       models.value = modelKeys.slice(modelIndex, modelIndex + 3)
+    }
+    // Descriptions
+    else {
+      scrollToId(hash.value)
+      setTimeout(() => (isIntersectionEnabled.value = true), 300)
     }
   },
   { immediate: true },
