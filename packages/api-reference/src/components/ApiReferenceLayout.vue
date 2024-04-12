@@ -271,6 +271,7 @@ hideModels.value = props.configuration.hideModels ?? false
         <template v-if="showRenderedContent">
           <div class="references-rendered">
             <Content
+              :baseServerURL="configuration.baseServerURL"
               :layout="
                 configuration.layout === 'classic' ? 'accordion' : 'default'
               "

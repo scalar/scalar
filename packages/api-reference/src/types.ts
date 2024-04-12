@@ -103,6 +103,15 @@ export type ReferenceConfiguration = {
    * @default undefined
    */
   pathRouting?: PathRouting
+  /**
+   * The baseServerURL is used when the spec servers are relative paths and we are using SSR.
+   * On the client we can grab the window.location.origin but on the server we need
+   * to use this prop.
+   *
+   * @default undefined
+   * @example 'http://localhost:3000'
+   */
+  baseServerURL?: string
 }
 
 export type PathRouting = {

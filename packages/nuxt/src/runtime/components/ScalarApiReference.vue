@@ -34,6 +34,13 @@ useHead({
     class: () => (isDark.value ? 'dark-mode' : 'light-mode'),
   },
 })
+
+// Add baseServerURL
+const { origin } = useRequestURL()
+const config = {
+  baseServerURL: origin,
+  ...props.configuration,
+}
 </script>
 
 <template>
