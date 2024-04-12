@@ -1,10 +1,12 @@
-import content from '../../../../../specifications/scalar-galaxy-3.1.json'
-import MyModule from '../../../src/module'
+import type { NuxtConfig } from 'nuxt/schema'
 
 export default defineNuxtConfig({
-  modules: [MyModule],
+  modules: ['../../../src/module'],
   scalarConfig: {
-    spec: { content },
+    spec: {
+      url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
+    },
+
     pathRouting: {
       basePath: '/scalar',
     },
@@ -14,4 +16,4 @@ export default defineNuxtConfig({
       openAPI: true,
     },
   },
-})
+} as NuxtConfig)
