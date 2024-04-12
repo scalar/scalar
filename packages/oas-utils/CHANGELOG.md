@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.1.5
+
+### Patch Changes
+
+- 3ba9774: feat: add path routing option to references
+
 ## 0.1.4
 
 ### Patch Changes
