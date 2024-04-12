@@ -74,7 +74,6 @@ useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height + 'px'
 })
 
-// Scroll to hash if exists
 const {
   breadcrumb,
   collapsedSidebarItems,
@@ -82,6 +81,7 @@ const {
   setCollapsedSidebarItem,
   hideModels,
 } = useSidebar()
+
 const {
   getPathRoutingId,
   getSectionId,
@@ -95,9 +95,7 @@ const {
 pathRouting.value = props.configuration.pathRouting
 
 // Ideally this triggers absolutely first on the client so we can set hash value
-onBeforeMount(() => {
-  updateHash()
-})
+onBeforeMount(() => updateHash())
 
 // Disables intersection observer and scrolls to section
 const scrollToSection = async (id?: string) => {
@@ -116,11 +114,11 @@ onMounted(() => {
   downloadSpecBus.on(() => downloadSpecFile(props.rawSpec))
 
   // This is what updates the hash ref from hash changes
-  window.onhashchange = async () =>
+  window.onhashchange = () =>
     scrollToSection(decodeURIComponent(window.location.hash.replace(/^#/, '')))
 
   // Handle back for path routing
-  window.onpopstate = async () =>
+  window.onpopstate = () =>
     pathRouting.value &&
     scrollToSection(getPathRoutingId(window.location.pathname))
 })
@@ -133,11 +131,11 @@ const showRenderedContent = computed(
 const debouncedScroll = useDebounceFn((value) => {
   const scrollDistance = value.target.scrollTop ?? 0
   if (scrollDistance < 50) {
-    window.history.replaceState(
-      {},
-      '',
-      window.location.pathname + window.location.search,
-    )
+    const basePath = props.configuration.pathRouting
+      ? props.configuration.pathRouting.basePath
+      : window.location.pathname
+
+    window.history.replaceState({}, '', basePath + window.location.search)
     hash.value = ''
   }
 })
@@ -273,6 +271,7 @@ hideModels.value = props.configuration.hideModels ?? false
         <template v-if="showRenderedContent">
           <div class="references-rendered">
             <Content
+              :baseServerURL="configuration.baseServerURL"
               :layout="
                 configuration.layout === 'classic' ? 'accordion' : 'default'
               "

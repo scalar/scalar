@@ -1,0 +1,63 @@
+{
+  "name": "@scalar/nuxt",
+  "description": "Nuxt integration for Scalar API references",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "keywords": [
+    "api",
+    "references",
+    "nuxt",
+    "docs",
+    "postman alternative",
+    "rest",
+    "testing",
+    "vue"
+  ],
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "nuxt-module-build build",
+    "dev": "nuxi dev playground",
+    "dev:build": "nuxi build playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "prepack": "nuxt-module-build build",
+    "postinstall": "pnpm dev:prepare",
+    "toist": "vitest run",
+    "test:watch": "vitest watch",
+    "types:check": "nuxi typecheck"
+  },
+  "main": "./dist/module.cjs",
+  "types": "./dist/types.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/module.mjs",
+      "require": "./dist/module.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@nuxt/kit": "^3.11.2",
+    "@scalar/api-reference": "workspace:*"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "^1.1.5",
+    "@nuxt/eslint-config": "^0.3.4",
+    "@nuxt/module-builder": "^0.5.5",
+    "@nuxt/schema": "^3.11.2",
+    "@nuxt/test-utils": "^3.12.0",
+    "@types/node": "^20.8.4",
+    "changelogen": "^0.5.5",
+    "eslint": "^8.56.0",
+    "nuxt": "^3.11.2",
+    "vitest": "^1.2.2"
+  }
+}
