@@ -1,5 +1,3 @@
-import type { NuxtConfig } from 'nuxt/schema'
-
 export default defineNuxtConfig({
   modules: ['../src/module'],
   scalarConfig: {
@@ -19,4 +17,4 @@ export default defineNuxtConfig({
   devServer: {
     port: 5062,
   },
-} as NuxtConfig)
+})

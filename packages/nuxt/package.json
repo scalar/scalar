@@ -26,9 +26,9 @@
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "prepack": "nuxt-module-build build",
-    "postinstall": "pnpm dev:prepare",
-    "toist": "vitest run",
+    "preeeeeeepack": "nuxt-module-build build",
+    "pooooostinstall": "pnpm dev:prepare",
+    "teeeeeeeeeest": "vitest run",
     "test:watch": "vitest watch",
     "types:check": "nuxi typecheck"
   },

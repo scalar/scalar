@@ -31,6 +31,10 @@ export default defineNuxtModule<ModuleOptions>({
     const resolver = createResolver(import.meta.url)
     let isOpenApiEnabled = false
 
+    // Ensure we transpile api-reference css
+    _nuxt.options.build.transpile.push('@scalar/api-reference')
+
+    // Also check for Nitro OpenAPI auto generation
     _nuxt.hook('nitro:config', (config) => {
       if (config.experimental?.openAPI) isOpenApiEnabled = true
     })

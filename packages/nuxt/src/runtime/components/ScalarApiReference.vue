@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useHead, useRequestURL, useSeoMeta } from '#imports'
 import { ModernLayout, parse } from '@scalar/api-reference'
 import '@scalar/api-reference/index.css'
 import { reactive, ref, toRaw } from 'vue'
