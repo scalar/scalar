@@ -26,6 +26,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
 
 - [Getting Started](#getting-started)
   - [From a CDN](#from-a-cdn)
+  - [With Nuxt](#with-nuxt)
   - [With Vue.js](#with-vuejs)
   - [With React](#with-react)
   - [With Nextjs](#with-nextjs)
@@ -106,6 +107,43 @@ If you’d like to add a request proxy for the API client (to avoid CORS issues)
   { … }
 </script>
 ```
+
+### With Nuxt
+
+You can easily run Scalar API References in Nuxt via the module.
+
+```bash
+npx nuxi module add @scalar/nuxt
+```
+
+If you are using nuxt server routes you can enable scalar simply by enabling openAPI in the nitro
+config in your nuxt.config.ts
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@scalar/nuxt'],
+  nitro: {
+    experimental: {
+      openAPI: true,
+    },
+  },
+})
+```
+
+If you would like to add your own OpenAPI spec file you can do so with the following minimal config
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@scalar/nuxt'],
+  scalarConfig: {
+    spec: {
+      url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
+    },
+  },
+})
+```
+
+Read more: [@scalar/nuxt](https://github.com/scalar/scalar/tree/main/packages/nuxt)
 
 ### With Vue.js
 

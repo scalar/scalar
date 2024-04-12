@@ -33,10 +33,7 @@ watch(hash, (newHash, oldHash) => {
 </script>
 <template>
   <ApiReferenceLayout
-    :class="{
-      'scalar-api-references-standalone-mobile':
-        isMobile && configuration.showSidebar,
-    }"
+    class="scalar-api-references-standalone-mobile"
     :configuration="configuration"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec">
