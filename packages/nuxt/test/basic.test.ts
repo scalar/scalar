@@ -7,9 +7,10 @@ describe('ssr', async () => {
     rootDir: fileURLToPath(new URL('./fixtures/basic', import.meta.url)),
   })
 
-  it('renders the index page', async () => {
+  it('renders the references', async () => {
     // Get response to a server-rendered page with `$fetch`.
-    const html = await $fetch('/')
+    const html = await $fetch('/scalar')
+    console.log({ html })
     expect(html).toContain('<div>basic</div>')
   })
 })
