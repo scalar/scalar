@@ -1,10 +1,10 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import { describe, expect, test } from 'vitest'
+import YAML from 'yaml'
 
-import bbccouk from '../test-files/bbccouk.yaml'
-import mega from '../test-files/mega.yaml'
-import { parse } from '../test-files/parseOld'
-import webflowcom from '../test-files/webflowcom.yaml'
 import { scalarParse } from './scalarParse'
+import { parse } from './test-files/parseOld'
 
 describe('Translates open api spec to data object for rendering', () => {
   test('Parse openapi 3 spec', async () => {
@@ -16,14 +16,18 @@ describe('Translates open api spec to data object for rendering', () => {
     const oldresult = await parse(specification)
     const result = await scalarParse(specification)
 
-    console.log(result)
-
     expect(result).toStrictEqual(oldresult)
   })
 
   test('Parse openapi 3.1 spec with webhooks', async () => {
-    const oldresult = await parse(mega)
-    const result = await scalarParse(mega)
+    const content = fs.readFileSync(
+      path.resolve(__dirname, './test-files/mega.yaml'),
+      'utf-8',
+    )
+    const specification = YAML.parse(content)
+
+    const oldresult = await parse(specification)
+    const result = await scalarParse(specification)
 
     expect(result.tags).toStrictEqual(oldresult.tags)
     expect(result.info).toStrictEqual(oldresult.info)
@@ -35,11 +39,14 @@ describe('Translates open api spec to data object for rendering', () => {
   })
 
   test('Parse openapi 3.1 spec webflow', async () => {
-    const oldresult = await parse(webflowcom)
-    const result = await scalarParse(webflowcom)
+    const content = fs.readFileSync(
+      path.resolve(__dirname, './test-files/webflowcom.yaml'),
+      'utf-8',
+    )
+    const specification = YAML.parse(content)
 
-    // // cannot print circular reference
-    // // console.log(JSON.stringify(oldresult, null, 2))
+    const oldresult = await parse(specification)
+    const result = await scalarParse(specification)
 
     expect(result.tags).toStrictEqual(oldresult.tags)
     expect(result.info).toStrictEqual(oldresult.info)
@@ -50,11 +57,14 @@ describe('Translates open api spec to data object for rendering', () => {
   })
 
   test('Parse swagger 2.0 spec bbc uk', async () => {
-    const oldresult = await parse(bbccouk)
-    const result = await scalarParse(bbccouk)
+    const content = fs.readFileSync(
+      path.resolve(__dirname, './test-files/bbccouk.yaml'),
+      'utf-8',
+    )
+    const specification = YAML.parse(content)
 
-    // // cannot print circular reference
-    // // console.log(JSON.stringify(oldresult, null, 2))
+    const oldresult = await parse(specification)
+    const result = await scalarParse(specification)
 
     expect(result.tags).toStrictEqual(oldresult.tags)
     expect(result.info).toStrictEqual(oldresult.info)
