@@ -1,81 +1,74 @@
-<!--
-Get your module up and running quickly.
+# Scalar API Reference Nuxt Module
 
-Find and replace all on all files (CMD+SHIFT+F):
-- Name: My Module
-- Package name: my-module
-- Description: My new Nuxt module
--->
+[![Version](https://img.shields.io/npm/v/%40scalar/nuxt)](https://www.npmjs.com/package/@scalar/nuxt)
+[![Downloads](https://img.shields.io/npm/dm/%40scalar/nuxt)](https://www.npmjs.com/package/@scalar/nuxt)
+[![License](https://img.shields.io/npm/l/%40scalar%2Fnuxt)](https://www.npmjs.com/package/@scalar/nuxt)
 
-# My Module
+[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/8HeZcRGPFS)
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![License][license-src]][license-href]
-[![Nuxt][nuxt-src]][nuxt-href]
-
-My new Nuxt module for doing amazing things.
-
-- [✨ &nbsp;Release Notes](/CHANGELOG.md)
-  <!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/my-module?file=playground%2Fapp.vue) -->
-  <!-- - [📖 &nbsp;Documentation](https://example.com) -->
-
-## Features
-
-<!-- Highlight some of the features your module provide here -->
-
-- ⛰ &nbsp;Foo
-- 🚠 &nbsp;Bar
-- 🌲 &nbsp;Baz
+## Introduction
 
 ## Quick Setup
 
 Install the module to your Nuxt application with one command:
 
 ```bash
-npx nuxi module add my-module
+npx nuxi module add @scalar/nuxt
 ```
 
-That's it! You can now use My Module in your Nuxt app ✨
+That's it! You can now use @scalar/nuxt in your Nuxt app ✨
 
-## Contribution
+## Configuration
 
-<details>
-  <summary>Local development</summary>
-  
-  ```bash
-  # Install dependencies
-  npm install
-  
-  # Generate type stubs
-  npm run dev:prepare
-  
-  # Develop with the playground
-  npm run dev
-  
-  # Build the playground
-  npm run dev:build
-  
-  # Run ESLint
-  npm run lint
-  
-  # Run Vitest
-  npm run test
-  npm run test:watch
-  
-  # Release new version
-  npm run release
-  ```
+If you are using nuxt server routes you can enable scalar simply by enabling openAPI in the nitro
+config in your nuxt.config.ts
 
-</details>
+```ts
+export default defineNuxtConfig({
+  modules: ['@scalar/nuxt'],
+  nitro: {
+    experimental: {
+      openAPI: true,
+    },
+  },
+})
+```
 
-<!-- Badges -->
+If you would like to add your own OpenAPI spec file you can do so with the following minimal config
 
-[npm-version-src]: https://img.shields.io/npm/v/my-module/latest.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-version-href]: https://npmjs.com/package/my-module
-[npm-downloads-src]: https://img.shields.io/npm/dm/my-module.svg?style=flat&colorA=020420&colorB=00DC82
-[npm-downloads-href]: https://npmjs.com/package/my-module
-[license-src]: https://img.shields.io/npm/l/my-module.svg?style=flat&colorA=020420&colorB=00DC82
-[license-href]: https://npmjs.com/package/my-module
-[nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js
-[nuxt-href]: https://nuxt.com
+```ts
+export default defineNuxtConfig({
+  modules: ['@scalar/nuxt'],
+  scalarConfig: {
+    spec: {
+      url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
+    },
+  },
+})
+```
+
+By default the docs will be hosted at `/scalar` but you an easily customize that, here's a more in
+depth config example.
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@scalar/nuxt'],
+  scalarConfig: {
+    darkMode: true,
+    hideModals: false,
+    hideDownloadButton: false,
+    metaData: {
+      title: 'API Documentation by Scalar',
+    },
+    proxy: 'https://api.scalar.com/request-proxy',
+    searchHotKey: 'k',
+    showSidebar: true,
+    pathRouting: {
+      basePath: '/scalar',
+    },
+    spec: {
+      url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
+    },
+  },
+})
+```

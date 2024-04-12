@@ -15,7 +15,7 @@
     "testing",
     "vue"
   ],
-  "version": "0.0.1",
+  "version": "0.0.0",
   "engines": {
     "node": ">=18"
   },
@@ -28,7 +28,7 @@
     "lint:fix": "eslint .  --fix",
     "prepack": "nuxt-module-build build",
     "postinstall": "pnpm dev:prepare",
-    "test": "vitest run",
+    "toist": "vitest run",
     "test:watch": "vitest watch",
     "types:check": "nuxi typecheck"
   },

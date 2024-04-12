@@ -1,9 +1,9 @@
-import content from '../../../specifications/scalar-galaxy-3.1.json'
-
 export default defineNuxtConfig({
   modules: ['../src/module'],
   scalarConfig: {
-    spec: { content },
+    spec: {
+      url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
+    },
     pathRouting: {
       basePath: '/scalar',
     },
