@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.4.11
+
+### Patch Changes
+
+- 3ba9774: feat: add better SSR support to ScalarCodeBlock
+- Updated dependencies [3ba9774]
+  - @scalar/oas-utils@0.1.5
+
 ## 0.4.10
 
 ### Patch Changes

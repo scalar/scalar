@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.2.10
+
+### Patch Changes
+
+- e6d1b81: fix: modal content history header
+
 ## 0.2.9
 
 ### Patch Changes
