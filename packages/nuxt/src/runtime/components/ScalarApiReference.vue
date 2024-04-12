@@ -45,7 +45,7 @@ const config = {
 
 <template>
   <ModernLayout
-    :configuration="configuration"
+    :configuration="config"
     :isDark="isDark"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec"
