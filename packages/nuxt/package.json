@@ -49,6 +49,9 @@
     "@nuxt/kit": "^3.11.2",
     "@scalar/api-reference": "workspace:*"
   },
+  "peerDepenencies": {
+    "debug": "4.3.4"
+  },
   "devDependencies": {
     "@nuxt/devtools": "^1.1.5",
     "@nuxt/eslint-config": "^0.3.4",
@@ -60,8 +63,5 @@
     "eslint": "^8.56.0",
     "nuxt": "^3.11.2",
     "vitest": "^1.2.2"
-  },
-  "overrides": {
-    "debug": "github:milahu/debug#28e27c8b4249fec2f778cf61f13e18e8c814822a"
   }
 }
