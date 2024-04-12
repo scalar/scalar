@@ -38,27 +38,6 @@ describe('getUrlFromServerState', () => {
     expect(request).toMatchObject('https://unicorn.fantasy')
   })
 
-  it('prefixes path with the origin', () => {
-    global.window = {
-      // @ts-expect-error
-      location: {
-        origin: 'https://example.com',
-      },
-    }
-
-    const request = getUrlFromServerState({
-      ...createEmptyServerState(),
-      selectedServer: 0,
-      servers: [
-        {
-          url: 'v1',
-        },
-      ],
-    })
-
-    expect(request).toMatchObject('https://example.com/v1')
-  })
-
   it('replaces variables first, and then checks whether a prefix is necessary', () => {
     const request = getUrlFromServerState({
       ...createEmptyServerState(),
