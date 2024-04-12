@@ -111,7 +111,7 @@ watch(
     // Descriptions
     else {
       scrollToId(hash.value)
-      setTimeout(() => (isIntersectionEnabled.value = true), 300)
+      setTimeout(() => (isIntersectionEnabled.value = true), 1000)
     }
   },
   { immediate: true },
@@ -199,7 +199,12 @@ onMounted(() => {
   background: var(--theme-background-1, var(--default-theme-background-1));
 }
 .references-loading-top-spacer {
-  top: calc(var(--refs-header-height) - 1px);
+  top: -1px;
+}
+@media (min-width: 1001px) {
+  .references-loading-top-spacer {
+    top: calc(var(--refs-header-height) - 1px);
+  }
 }
 .references-loading-hidden-tag .section-container .section:first-child {
   display: none;
