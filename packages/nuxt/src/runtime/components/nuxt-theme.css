@@ -53,7 +53,7 @@
 
 .light-mode .t-doc__sidebar,
 .dark-mode .t-doc__sidebar {
-  --sidebar-background-1: transparent;
+  --sidebar-background-1: var(--theme-background-1);
   --sidebar-color-1: var(--theme-color-1);
   --sidebar-color-2: var(--theme-color-3);
   --sidebar-border-color: var(--theme-border-color);
