@@ -19,6 +19,7 @@
   "engines": {
     "node": ">=18"
   },
+  "type": "module",
   "scripts": {
     "build": "nuxt-module-build build",
     "dev": "nuxi dev playground",
@@ -26,9 +27,9 @@
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "preeeeeeepack": "nuxt-module-build build",
-    "pooooostinstall": "pnpm dev:prepare",
-    "teeeeeeeeeest": "vitest run",
+    "prepack": "nuxt-module-build build",
+    "prepare": "pnpm dev:prepare",
+    "toist": "vitest run",
     "test:watch": "vitest watch",
     "types:check": "nuxi typecheck"
   },
@@ -59,5 +60,8 @@
     "eslint": "^8.56.0",
     "nuxt": "^3.11.2",
     "vitest": "^1.2.2"
+  },
+  "overrides": {
+    "debug": "github:milahu/debug#28e27c8b4249fec2f778cf61f13e18e8c814822a"
   }
 }
