@@ -13,23 +13,36 @@ const emit = defineEmits<{
 
 const intersectionObserverRef = ref<HTMLElement>()
 
-onMounted(() => {
-  useIntersectionObserver(
-    intersectionObserverRef,
-    ([{ isIntersecting }]) => {
-      if (!props.id) {
-        return
-      }
+const calculateRootMargin = (element: HTMLElement) => {
+  const height = element.offsetHeight
+  // Use of a margin on height to ensure sooner intersection detection.
+  return `${height / 2}px 0px ${height / 2}px 0px`
+}
 
-      if (isIntersecting) {
-        emit('intersecting')
-      }
-    },
-    {
-      rootMargin: '0px 0px 50% 0px',
-      threshold: 0.2,
-    },
-  )
+const calculateThreshold = (element: HTMLElement) => {
+  const height = element.offsetHeight
+  // Favor larger threshold if the element is smaller that the screen
+  // to ensure that it is selected
+  return height < window.innerHeight ? 0.8 : 0.5
+}
+
+onMounted(() => {
+  if (intersectionObserverRef.value) {
+    const options = {
+      rootMargin: calculateRootMargin(intersectionObserverRef.value),
+      threshold: calculateThreshold(intersectionObserverRef.value),
+    }
+
+    useIntersectionObserver(
+      intersectionObserverRef,
+      ([{ isIntersecting }]) => {
+        if (isIntersecting && props.id) {
+          emit('intersecting')
+        }
+      },
+      options,
+    )
+  }
 })
 </script>
 <template>
