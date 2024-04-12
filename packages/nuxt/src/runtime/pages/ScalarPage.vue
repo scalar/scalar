@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useRoute } from '#imports'
 import type { Meta } from '~/src/types'
 
 const route = useRoute()

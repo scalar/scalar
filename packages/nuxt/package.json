@@ -19,6 +19,7 @@
   "engines": {
     "node": ">=18"
   },
+  "type": "module",
   "scripts": {
     "build": "nuxt-module-build build",
     "dev": "nuxi dev playground",
@@ -27,7 +28,7 @@
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "prepack": "nuxt-module-build build",
-    "postinstall": "pnpm dev:prepare",
+    "prepare": "pnpm dev:prepare",
     "toist": "vitest run",
     "test:watch": "vitest watch",
     "types:check": "nuxi typecheck"
@@ -47,6 +48,9 @@
   "dependencies": {
     "@nuxt/kit": "^3.11.2",
     "@scalar/api-reference": "workspace:*"
+  },
+  "peerDepenencies": {
+    "debug": "4.3.4"
   },
   "devDependencies": {
     "@nuxt/devtools": "^1.1.5",
