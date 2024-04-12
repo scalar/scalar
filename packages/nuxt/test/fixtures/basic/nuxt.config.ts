@@ -1,3 +1,5 @@
+import type { NuxtConfig } from 'nuxt/schema'
+
 export default defineNuxtConfig({
   modules: ['../../../src/module'],
   scalarConfig: {
@@ -14,4 +16,4 @@ export default defineNuxtConfig({
       openAPI: true,
     },
   },
-})
+} as NuxtConfig)
