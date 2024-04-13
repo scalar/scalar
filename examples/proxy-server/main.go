@@ -40,8 +40,10 @@ func getPing(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	// port := ":1337"
-	port := ":" + os.Getenv("PORT")
+	port := ":1234"
+	if p := os.Getenv("MONGO_PASS"); p != "" {
+    port = ":" + os.Getenv("PORT")
+}
 
 	http.HandleFunc("/", handleRequest)
 	http.HandleFunc("/ping", getPing)

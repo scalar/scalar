@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "go build",
-    "dev": "go run src/main.go",
+    "dev": "go run .",
     "lint:check": "go fmt -l ./...",
     "lint:fix": "go fmt ./...",
     "preview": "pnpm dev",
