@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.20.32
+
+### Patch Changes
+
+- 51d4997: fix: sidebar heading type remove hover color
+
 ## 1.20.31
 
 ### Patch Changes
