@@ -1,4 +1,10 @@
 import type { ReferenceConfiguration } from '@scalar/api-reference'
+import type {
+  FastifyBaseLogger,
+  FastifyPluginAsync,
+  FastifyTypeProviderDefault,
+  RawServerDefault,
+} from 'fastify'
 import fp from 'fastify-plugin'
 
 import { getJavaScriptFile } from './utils'
@@ -162,7 +168,13 @@ export function htmlDocument(options: FastifyApiReferenceOptions) {
 `
 }
 
-const fastifyApiReference = fp<FastifyApiReferenceOptions>(
+const fastifyApiReference = fp<
+  FastifyApiReferenceOptions,
+  RawServerDefault,
+  FastifyTypeProviderDefault,
+  FastifyBaseLogger,
+  FastifyPluginAsync
+>(
   async (fastify, options) => {
     let { configuration } = options
     const hasSwaggerPlugin = fastify.hasPlugin('@fastify/swagger')
