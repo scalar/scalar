@@ -163,15 +163,6 @@ const onAnchorClick = async (ev: Event) => {
     var(--default-sidebar-item-hover-color, currentColor)
   );
 }
-.sidebar-heading:hover span {
-  color: var(
-    --sidebar-item-hover-color,
-    var(
-      --default-sidebar-item-hover-color,
-      var(--theme-color-accent, var(--default-theme-color-accent))
-    )
-  );
-}
 
 .active_page.sidebar-heading:hover,
 .active_page.sidebar-heading {
