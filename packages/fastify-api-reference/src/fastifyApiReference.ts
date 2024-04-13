@@ -1,7 +1,6 @@
 import type { ReferenceConfiguration } from '@scalar/api-reference'
 import type {
   FastifyBaseLogger,
-  FastifyPluginAsync,
   FastifyTypeProviderDefault,
   RawServerDefault,
 } from 'fastify'
@@ -172,8 +171,7 @@ const fastifyApiReference = fp<
   FastifyApiReferenceOptions,
   RawServerDefault,
   FastifyTypeProviderDefault,
-  FastifyBaseLogger,
-  FastifyPluginAsync
+  FastifyBaseLogger
 >(
   async (fastify, options) => {
     let { configuration } = options
