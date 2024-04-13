@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.21.0
+
+### Minor Changes
+
+- b58b83e: Improved fastify-api-reference plugin.
+
 ## 1.20.27
 
 ### Patch Changes
