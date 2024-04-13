@@ -1,5 +1,27 @@
 # @scalar/api-reference
 
+## 1.20.31
+
+### Patch Changes
+
+- b903a2f: fix: intersection observer detection
+
+## 1.20.30
+
+### Patch Changes
+
+- deabe4c: feat: made changes to support server side rendering
+- 3ba9774: feat: add path routing option to references
+- a14fc32: fix: hide mobile header when showSidebar: false
+- 3d4d83e: fix: show example picker if the list only has one example
+- Updated dependencies [e6d1b81]
+- Updated dependencies [3ba9774]
+- Updated dependencies [3ba9774]
+  - @scalar/use-modal@0.2.10
+  - @scalar/oas-utils@0.1.5
+  - @scalar/components@0.4.11
+  - @scalar/api-client@1.1.16
+
 ## 1.20.29
 
 ### Patch Changes
