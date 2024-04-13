@@ -39,8 +39,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "vite": "^5.1.1",
-    "tsc-alias": "^1.8.8"
-  },
-  "peerDependencies": {}
+    "tsc-alias": "^1.8.8",
+    "vite": "^5.2.6"
+  }
 }
