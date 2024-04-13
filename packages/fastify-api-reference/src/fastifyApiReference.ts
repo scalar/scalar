@@ -1,5 +1,10 @@
 import type { ReferenceConfiguration } from '@scalar/api-reference'
-import type { FastifyPluginAsync } from 'fastify'
+import type {
+  FastifyBaseLogger,
+  FastifyTypeProviderDefault,
+  RawServerDefault,
+} from 'fastify'
+import fp from 'fastify-plugin'
 
 import { getJavaScriptFile } from './utils'
 
@@ -162,88 +167,87 @@ export function htmlDocument(options: FastifyApiReferenceOptions) {
 `
 }
 
-const fastifyApiReference: FastifyPluginAsync<
-  FastifyApiReferenceOptions
-> = async (fastify, options) => {
-  let { configuration } = options
-  const hasSwaggerPlugin = fastify.hasPlugin('@fastify/swagger')
+const fastifyApiReference = fp<
+  FastifyApiReferenceOptions,
+  RawServerDefault,
+  FastifyTypeProviderDefault,
+  FastifyBaseLogger
+>(
+  async (fastify, options) => {
+    let { configuration } = options
+    const hasSwaggerPlugin = fastify.hasPlugin('@fastify/swagger')
 
-  // Register fastify-html if it isn’t registered yet.
-  if (!fastify.hasPlugin('fastify-html')) {
-    await fastify.register(import('fastify-html'))
-  }
+    // If no OpenAPI specification is passed and @fastify/swagger isn’t loaded, show a warning.
+    if (
+      !configuration?.spec?.content &&
+      !configuration?.spec?.url &&
+      !hasSwaggerPlugin
+    ) {
+      fastify.log.warn(
+        '[@scalar/fastify-api-reference] You didn’t provide a spec.content or spec.url, and @fastify/swagger could not be found. Please provide one of these options.',
+      )
 
-  // If no OpenAPI specification is passed and @fastify/swagger isn’t loaded, show a warning.
-  if (
-    !configuration?.spec?.content &&
-    !configuration?.spec?.url &&
-    !hasSwaggerPlugin
-  ) {
-    fastify.log.warn(
-      '[@scalar/fastify-api-reference] You didn’t provide a spec.content or spec.url, and @fastify/swagger could not be found. Please provide one of these options.',
-    )
+      return
+    }
 
-    return
-  }
+    // Read the JavaScript file once.
+    const fileContent = getJavaScriptFile()
 
-  // Read the JavaScript file once.
-  const fileContent = getJavaScriptFile()
-
-  // If no theme is passed, use the default theme.
-  fastify.route({
-    method: 'GET',
-    url: options.routePrefix ?? '/',
-    // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
-    // @ts-ignore
-    schema: schemaToHideRoute,
-    async handler(_, reply) {
-      reply.header('Content-Type', 'text/html; charset=utf-8')
-
-      // If nothing is passed, try to use @fastify/swagger
-      if (
-        !configuration?.spec?.content &&
-        !configuration?.spec?.url &&
-        hasSwaggerPlugin
-      ) {
-        configuration = {
-          ...configuration,
-          spec: {
-            content: () => {
-              // @ts-ignore
-              return fastify.swagger()
-            },
-          },
-        }
-      }
-
-      // Add the default CSS
-      if (!configuration?.customCss && !configuration?.theme) {
-        configuration = {
-          ...configuration,
-          customCss: defaultCss,
-        }
-      }
-
-      // Render the HTML
+    // If no theme is passed, use the default theme.
+    fastify.route({
+      method: 'GET',
+      url: options.routePrefix ?? '/',
+      // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
       // @ts-ignore
-      return reply.html`!${htmlDocument({
-        ...options,
-        configuration,
-      })}`
-    },
-  })
+      schema: schemaToHideRoute,
+      handler(_, reply) {
+        // If nothing is passed, try to use @fastify/swagger
+        if (
+          !configuration?.spec?.content &&
+          !configuration?.spec?.url &&
+          hasSwaggerPlugin
+        ) {
+          configuration = {
+            ...configuration,
+            spec: {
+              content: () => {
+                // @ts-ignore
+                return fastify.swagger()
+              },
+            },
+          }
+        }
 
-  fastify.route({
-    method: 'GET',
-    url: getJavaScriptUrl(options.routePrefix),
-    // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
-    // @ts-ignore
-    schema: schemaToHideRoute,
-    async handler(_, reply) {
-      reply.header('Content-Type', 'application/javascript; charset=utf-8')
-      reply.send(fileContent)
-    },
-  })
-}
+        // Add the default CSS
+        if (!configuration?.customCss && !configuration?.theme) {
+          configuration = {
+            ...configuration,
+            customCss: defaultCss,
+          }
+        }
+
+        return reply
+          .header('Content-Type', 'text/html; charset=utf-8')
+          .send(htmlDocument({ ...options, configuration }))
+      },
+    })
+
+    fastify.route({
+      method: 'GET',
+      url: getJavaScriptUrl(options.routePrefix),
+      // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
+      // @ts-ignore
+      schema: schemaToHideRoute,
+      handler(_, reply) {
+        return reply
+          .header('Content-Type', 'application/javascript; charset=utf-8')
+          .send(fileContent)
+      },
+    })
+  },
+  {
+    name: '@scalar/fastify-api-reference',
+  },
+)
 
 export default fastifyApiReference
