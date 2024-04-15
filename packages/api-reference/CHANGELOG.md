@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.21.1
+
+### Patch Changes
+
+- b4abb34: fix: object description markdown
+
 ## 1.20.32
 
 ### Patch Changes
