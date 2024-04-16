@@ -14,7 +14,7 @@
     "testing",
     "react"
   ],
-  "version": "0.1.40",
+  "version": "0.1.41",
   "engines": {
     "node": ">=18"
   },
