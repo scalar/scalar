@@ -19,8 +19,18 @@ const props = withDefaults(
 
 const modalState = useModal()
 
-const keys = useMagicKeys()
-whenever(keys[`meta_${props.searchHotKey}`], () =>
+const keys = useMagicKeys({
+  passive: false,
+  onEventFired(e) {
+    // Remove default behaviour for keypress
+    if (!isMacOS() && e.ctrlKey && e.key === props.searchHotKey) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+  },
+})
+
+whenever(keys[`${isMacOS() ? 'meta' : 'control'}_${props.searchHotKey}`], () =>
   modalState.open ? modalState.hide() : modalState.show(),
 )
 </script>
