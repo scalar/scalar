@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { CodeMirror } from '@scalar/use-codemirror'
 import { FlowModal, useModal } from '@scalar/use-modal'
+import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
@@ -22,7 +23,7 @@ const emits = defineEmits<{
 }>()
 
 const keys = useMagicKeys()
-whenever(keys.meta_enter, send)
+whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, send)
 
 const showHistory = ref(false)
 const loading = ref(false)
