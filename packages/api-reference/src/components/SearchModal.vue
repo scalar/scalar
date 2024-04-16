@@ -279,6 +279,16 @@ const onSearchResultClick = (entry: Fuse.FuseResult<FuseData>) => {
   setCollapsedSidebarItem(parentId, true)
   props.modalState.hide()
 }
+
+// given just a #hash-name, we grab the full URL to be explicit to
+// handle edge cases of other framework routers resetting to base URL on navigation
+function getFullUrlFromHash(href: string) {
+  const newUrl = new URL(window.location.href)
+
+  newUrl.hash = href
+
+  return newUrl.toString()
+}
 </script>
 <template>
   <FlowModal
@@ -310,7 +320,7 @@ const onSearchResultClick = (entry: Fuse.FuseResult<FuseData>) => {
           'item-entry--active': index === selectedSearchResult,
           'item-entry--tag': !entry.item.httpVerb,
         }"
-        :href="entry.item.href"
+        :href="getFullUrlFromHash(entry.item.href)"
         @click="onSearchResultClick(entry)"
         @focus="selectedSearchResult = index">
         <HttpMethod
