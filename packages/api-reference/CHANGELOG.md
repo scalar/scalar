@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.21.2
+
+### Patch Changes
+
+- 851017a: fix: give explicit URL to href in search modal
+
 ## 1.21.1
 
 ### Patch Changes
