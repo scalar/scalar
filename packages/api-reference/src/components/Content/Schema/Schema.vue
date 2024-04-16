@@ -27,8 +27,6 @@ const shouldShowToggle = computed(() => {
   return true
 })
 
-console.log(props.value)
-
 // Prevent click action if noncollapsible
 const handleClick = (e: MouseEvent) =>
   props.noncollapsible && e.stopPropagation()
