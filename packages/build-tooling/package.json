@@ -40,7 +40,7 @@
     "tsc-alias": "^1.8.8",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.3",
-    "vitest": "^1.4.0"
+    "vitest": "^1.5.0"
   },
   "devDependencies": {
     "rollup": "^4.12.0"
