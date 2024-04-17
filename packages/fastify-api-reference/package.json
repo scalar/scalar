@@ -46,16 +46,16 @@
   },
   "devDependencies": {
     "@scalar/api-reference": "workspace:*",
-    "@vitest/coverage-v8": "^1.4.0",
+    "@vitest/coverage-v8": "^1.5.0",
     "fastify": "^4.26.2",
     "magic-string": "^0.30.8",
     "rollup-plugin-node-externals": "^7.1.1",
     "terser": "^5.30.0",
     "tsc-alias": "^1.8.8",
     "typescript": "^5.4.3",
-    "vite": "^5.2.6",
+    "vite": "^5.2.9",
     "vite-plugin-static-copy": "^1.0.2",
-    "vitest": "^1.4.0",
+    "vitest": "^1.5.0",
     "vue": "^3.4.21"
   }
 }
