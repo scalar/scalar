@@ -2,11 +2,11 @@
 import { computed, useAttrs } from 'vue'
 
 import { cx } from '../../cva'
-
-// import { type LoadingState, ScalarLoading } from '../ScalarLoading'
+import { ScalarIconButton } from '../ScalarIconButton'
+import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 
 defineProps<{
-  // loading?: LoadingState
+  loading?: LoadingState
   modelValue?: string
 }>()
 
@@ -27,22 +27,36 @@ const attrs = computed(() => {
 })
 </script>
 <template>
-  <input
+  <label
     v-bind="attrs.rest"
-    autocapitalize="off"
-    autocomplete="off"
-    autocorrect="off"
-    class="ref-search-input"
     :class="
       cx(
-        'rounded border p-3 text-sm font-medium outline-none focus:border-fore-1',
+        'flex rounded border text-sm font-medium focus-within:border-fore-1',
         attrs.className,
       )
-    "
-    placeholder="Search..."
-    spellcheck="false"
-    type="text"
-    :value="modelValue"
-    @input="handleInput" />
+    ">
+    <span class="sr-only"><slot name="label">Enter search</slot></span>
+    <input
+      autocapitalize="off"
+      autocomplete="off"
+      autocorrect="off"
+      class="flex-1 rounded p-3 outline-none"
+      placeholder="Search..."
+      spellcheck="false"
+      type="text"
+      :value="modelValue"
+      @input="handleInput" />
+    <ScalarLoading
+      v-if="loading && loading.isLoading"
+      class="mr-3 self-center"
+      :loadingState="loading"
+      size="20px" />
+    <ScalarIconButton
+      v-else-if="modelValue"
+      class="self-center"
+      icon="Close"
+      label="Clear Search"
+      size="md"
+      @click="emit('update:modelValue', '')" />
+  </label>
 </template>
-<style></style>
