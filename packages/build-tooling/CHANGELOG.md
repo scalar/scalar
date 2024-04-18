@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.1.2
+
+### Patch Changes
+
+- 22f2858: chore: ran syncpack to update packages
+
 ## 0.1.1
 
 ### Patch Changes

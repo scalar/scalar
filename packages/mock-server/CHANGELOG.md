@@ -1,5 +1,17 @@
 # @scalar/mock-server
 
+## 0.1.35
+
+### Patch Changes
+
+- 22f2858: chore: ran syncpack to update packages
+- Updated dependencies [22f2858]
+- Updated dependencies [ced76e5]
+- Updated dependencies [0e64a36]
+- Updated dependencies [3afec45]
+  - @scalar/api-reference@1.22.0
+  - @scalar/oas-utils@0.1.6
+
 ## 0.1.34
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @scalar/docusaurus
 
+## 0.2.0
+
+### Minor Changes
+
+- 0e64a36: refactor: rename all --theme-_ variables to --scalar-_
+
+### Patch Changes
+
+- Updated dependencies [22f2858]
+  - @scalar/api-reference-react@0.1.42
+
 ## 0.1.41
 
 ### Patch Changes

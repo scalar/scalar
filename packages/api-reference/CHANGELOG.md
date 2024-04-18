@@ -1,5 +1,25 @@
 # @scalar/api-reference
 
+## 1.22.0
+
+### Minor Changes
+
+- 0e64a36: refactor: rename all --theme-_ variables to --scalar-_
+
+### Patch Changes
+
+- 22f2858: chore: ran syncpack to update packages
+- ced76e5: fix: search key modifier incorrect on non macos machines
+- 3afec45: feat: render images in tag descriptions
+- Updated dependencies [22f2858]
+- Updated dependencies [0e64a36]
+  - @scalar/use-tooltip@0.6.0
+  - @scalar/api-client@1.2.0
+  - @scalar/components@0.5.0
+  - @scalar/oas-utils@0.1.6
+  - @scalar/use-modal@0.3.0
+  - @scalar/themes@0.7.0
+
 ## 1.21.2
 
 ### Patch Changes

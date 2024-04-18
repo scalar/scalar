@@ -1,5 +1,15 @@
 # @scalar/fastify-api-reference
 
+## 1.22.0
+
+### Minor Changes
+
+- 0e64a36: refactor: rename all --theme-_ variables to --scalar-_
+
+### Patch Changes
+
+- 22f2858: chore: ran syncpack to update packages
+
 ## 1.21.0
 
 ### Minor Changes
