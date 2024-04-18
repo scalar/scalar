@@ -48,7 +48,7 @@ import { ScalarIcon } from '@scalar/components'
 
   padding: 6px 0 6px 0;
   margin: -6px 0 -6px 0;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border-radius: var(--scalar-radius);
 }
 .section-accordion-chevron {
   width: 24px;
@@ -56,11 +56,11 @@ import { ScalarIcon } from '@scalar/components'
   left: -24px;
   height: auto;
   top: 10px;
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  color: var(--scalar-color-3);
 }
 
 .section-accordion-button:hover .section-accordion-chevron {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
 }
 .section-accordion-title {
   display: flex;

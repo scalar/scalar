@@ -14,11 +14,11 @@ import { Toaster } from 'vue-sonner'
 */
 .toaster[data-sonner-toast][data-styled='true'] {
   padding: 18px;
-  background: var(--theme-background-1, var(--default-theme-background-1));
-  border-color: var(--theme-background-3, var(--default-theme-background-3));
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
-  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  background: var(--scalar-background-1);
+  border-color: var(--scalar-background-3);
+  border-radius: var(--scalar-radius-lg);
+  font-size: var(--scalar-font-size-3);
+  color: var(--scalar-color-1);
 }
 /* To remove jump on SSR */
 ol[data-sonner-toaster] {

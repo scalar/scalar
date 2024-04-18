@@ -78,19 +78,19 @@ const getValue = (name: string) => {
 }
 
 .input-value {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-micro);
   padding: 9px;
 }
 
 .variable-description {
   padding: 6px 12px;
-  font-size: var(--theme-small, var(--default-theme-small));
+  font-size: var(--scalar-small);
 }
 .variable-description :deep(.markdown) {
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color--1, var(--default-theme-color-1));
+  font-size: var(--scalar-micro);
+  font-weight: var(--scalar-semibold);
+  color: var(--scalar-color--1);
   padding: 4px 0;
   display: block;
 }
@@ -102,7 +102,6 @@ const getValue = (name: string) => {
 }
 .input:first-of-type {
   border-radius: 0;
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+  border-top: 1px solid var(--scalar-border-color);
 }
 </style>

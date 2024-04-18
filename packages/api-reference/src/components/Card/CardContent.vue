@@ -19,8 +19,7 @@ defineProps<CardContentProps>()
 <style scoped>
 .scalar-card-content {
   overflow: auto;
-  border-bottom: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+  border-bottom: 1px solid var(--scalar-border-color);
 }
 .scalar-card-content :deep(.simple-table .simple-header) {
   display: none;
@@ -30,15 +29,15 @@ defineProps<CardContentProps>()
   border-bottom: none;
 }
 .scalar-card--muted {
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--scalar-background-2);
 }
 .scalar-card--contrast {
-  background: var(--theme-background-3, var(--default-theme-background-3));
+  background: var(--scalar-background-3);
 }
 .scalar-card--frameless {
   padding: 0;
 }
 .scalar-card--transparent {
-  background: var(--theme-background-1, var(--default-theme-background-1));
+  background: var(--scalar-background-1);
 }
 </style>

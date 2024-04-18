@@ -24,19 +24,10 @@ withDefaults(
 
 <style scoped>
 .section-header {
-  font-size: var(
-    --font-size,
-    var(
-      --default-font-size,
-      var(--theme-heading-2, var(--default-theme-heading-2))
-    )
-  );
-  font-weight: var(
-    --font-weight,
-    var(--default-font-weight, var(--theme-bold, var(--default-theme-bold)))
-  );
+  font-size: var(--font-size, var(--scalar-heading-2));
+  font-weight: var(--font-weight, var(--scalar-bold));
   /* prettier-ignore */
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
   word-wrap: break-word;
   line-height: 1.45;
   margin-top: 0;

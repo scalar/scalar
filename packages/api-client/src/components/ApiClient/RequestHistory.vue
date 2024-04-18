@@ -67,32 +67,27 @@ const { requestHistoryOrder } = useRequestStore()
   background-color: black;
 }
 .navtable-follow * {
-  font-family: var(
-    --theme-font-code,
-    var(--default-theme-font-code)
-  ) !important;
+  font-family: var(--scalar-font-code) !important;
 }
 .navtable-table {
   position: relative;
   display: flex;
   flex-direction: column;
   min-height: 389px;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border-radius: var(--scalar-radius);
+  border: 1px solid var(--scalar-border-color);
 }
 .navtable-radios {
   z-index: 1;
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+  border-top: 1px solid var(--scalar-border-color);
 }
 .navtable-item {
   display: flex;
   position: relative;
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-micro);
+  border-top: 1px solid var(--scalar-border-color);
+  font-weight: var(--scalar-semibold);
 }
 .navtable-item:first-of-type {
   border-top: none;
@@ -101,17 +96,13 @@ const { requestHistoryOrder } = useRequestStore()
   word-wrap: break-word;
 }
 .navtable-item > div:not(:first-child) {
-  border-left: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+  border-left: 1px solid var(--scalar-border-color);
 }
 .navtable-item-action {
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  font-weight: var(--theme-bold, var(--default-theme-bold));
-  background: var(
-    --scalar-api-client-bg3,
-    var(--default-scalar-api-client-bg3)
-  );
+  color: var(--scalar-color-2);
+  font-size: var(--scalar-micro);
+  font-weight: var(--scalar-bold);
+  background: var(--scalar-api-client-bg3);
   border: none;
   border-radius: 30px;
   appearance: none;
@@ -127,16 +118,12 @@ const { requestHistoryOrder } = useRequestStore()
   position: relative;
 }
 .navtable-item-action:hover {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  background: var(
-    --scalar-api-client-gradient,
-    var(--default-scalar-api-client-gradient)
-  );
-  box-shadow: 0 0 0 1px
-    var(--theme-border-color, var(--default-theme-border-color));
+  color: var(--scalar-color-1);
+  background: var(--scalar-api-client-gradient);
+  box-shadow: 0 0 0 1px var(--scalar-border-color);
 }
 .navtable-item-action:focus {
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--scalar-background-2);
 }
 .navtable-item:hover,
 .navtable-item:focus-within .navtable-item-action {
@@ -146,33 +133,33 @@ const { requestHistoryOrder } = useRequestStore()
   display: flex;
   align-items: center;
   padding: 9px;
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-weight: var(--scalar-bold);
   outline: none;
   border: none;
   appearance: none;
   background: transparent;
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
 }
 .navtable-item-add:hover {
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--scalar-background-2);
   cursor: pointer;
 }
 .navtable-item-25 {
   width: 25%;
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-size: var(--scalar-micro);
   display: flex;
   align-items: center;
 }
 .navtable-item-33 {
   width: 33.33333%;
   display: flex;
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-size: var(--scalar-micro);
   align-items: center;
 }
 .navtable-item-66 {
   width: 66.6666%;
   display: flex;
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-size: var(--scalar-micro);
   align-items: center;
 }
 .navtable-item-75 {
@@ -181,7 +168,7 @@ const { requestHistoryOrder } = useRequestStore()
   align-items: center;
 }
 .navtable-item-75:focus-within {
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--scalar-background-2);
 }
 .navtable-item-40 {
   width: 40%;
@@ -201,7 +188,7 @@ const { requestHistoryOrder } = useRequestStore()
   align-items: center;
 }
 .navtable-item-50:focus-within {
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--scalar-background-2);
 }
 .navtable-item p {
   padding: 9px;
@@ -211,13 +198,13 @@ const { requestHistoryOrder } = useRequestStore()
   border: none;
   outline: none;
   appearance: none;
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-size: var(--scalar-micro);
+  color: var(--scalar-color-1);
   background: transparent;
   width: 100%;
 }
 .navtable-item input:focus {
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--scalar-background-2);
 }
 .navtable-item-select {
   position: relative;
@@ -226,7 +213,7 @@ const { requestHistoryOrder } = useRequestStore()
   background: transparent;
   outline: none;
   border: none;
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-size: var(--scalar-micro);
   -moz-appearance: none;
   -webkit-appearance: none;
   appearance: none;
@@ -235,26 +222,26 @@ const { requestHistoryOrder } = useRequestStore()
   top: 0;
   position: relative;
   cursor: pointer;
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  color: var(--scalar-color-2);
 }
 .navtable-item-select svg {
   position: absolute;
   right: 6px;
-  color: var(--theme-color-ghost, var(--default-theme-color-ghost));
+  color: var(--scalar-color-ghost);
   width: 6px;
   top: 12px;
   pointer-events: none;
 }
 .navtable-item .option {
   padding: 12px 6px;
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-size: var(--scalar-micro);
+  color: var(--scalar-color-1);
   width: 100%;
 }
 .navtable-item label {
-  color: var(--theme-color-3, var(--default-theme-color-3));
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  color: var(--scalar-color-3);
+  font-size: var(--scalar-micro);
+  font-weight: var(--scalar-semibold);
   text-transform: uppercase;
   display: block;
   width: 100%;
@@ -263,7 +250,7 @@ const { requestHistoryOrder } = useRequestStore()
   padding: 0 9px;
 }
 .navtable-item-response span {
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-size: var(--scalar-micro);
   display: flex;
   align-items: center;
   margin-right: 9px;
@@ -280,13 +267,12 @@ const { requestHistoryOrder } = useRequestStore()
   flex: 1;
   position: relative;
   z-index: 0;
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+  border-top: 1px solid var(--scalar-border-color);
   background: repeating-linear-gradient(
-    var(--theme-background-1, var(--default-theme-background-1)),
-    var(--theme-background-1, var(--default-theme-background-1)) 34.8px,
-    var(--theme-border-color, var(--default-theme-border-color)) 34.8px,
-    var(--theme-border-color, var(--default-theme-border-color)) 35.8px
+    var(--scalar-background-1),
+    var(--scalar-background-1) 34.8px,
+    var(--scalar-border-color) 34.8px,
+    var(--scalar-border-color) 35.8px
   );
 }
 .navtable-mock .navtable-item {
@@ -305,7 +291,7 @@ const { requestHistoryOrder } = useRequestStore()
   width: 10px;
   max-height: 10px;
   background: transparent;
-  border: var(--border, var(--default-border));
+  border: var(--border);
   flex-shrink: 0;
   margin-right: 6px;
   margin-left: 0;
@@ -328,7 +314,7 @@ const { requestHistoryOrder } = useRequestStore()
 .navtable-item__active:before {
   content: '';
   display: block;
-  box-shadow: 0 0 0 1px var(--theme-color-1, var(--default-theme-color-1)) !important;
+  box-shadow: 0 0 0 1px var(--scalar-color-1) !important;
   width: 100%;
   position: absolute;
   top: 0;
@@ -336,25 +322,25 @@ const { requestHistoryOrder } = useRequestStore()
   height: 100%;
 }
 .radio.post {
-  background: var(--theme-color-green, var(--default-theme-color-green));
+  background: var(--scalar-color-green);
 }
 .radio.delete {
-  background: var(--theme-color-red, var(--default-theme-color-red));
+  background: var(--scalar-color-red);
 }
 .radio.patch {
-  background: var(--theme-color-yellow, var(--default-theme-color-yellow));
+  background: var(--scalar-color-yellow);
 }
 .radio.get {
-  background: var(--theme-color-blue, var(--default-theme-color-blue));
+  background: var(--scalar-color-blue);
 }
 .radio.put {
-  background: var(--theme-color-orange, var(--default-theme-color-orange));
+  background: var(--scalar-color-orange);
 }
 .navtable-item-request span {
   border: none;
   outline: none;
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-size: var(--scalar-micro);
+  color: var(--scalar-color-1);
   width: 100%;
   display: block;
   overflow: hidden;
@@ -364,10 +350,10 @@ const { requestHistoryOrder } = useRequestStore()
 .navtable-item-request span em {
   text-transform: uppercase;
   font-style: normal;
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-family: var(--scalar-font-code);
+  font-size: var(--scalar-micro);
   margin-right: 6px;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-weight: var(--scalar-semibold);
+  color: var(--scalar-color-3);
 }
 </style>

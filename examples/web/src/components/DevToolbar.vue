@@ -10,9 +10,9 @@ watch(
   showToolbar,
   (show) => {
     if (show) {
-      docStyle.setProperty('--theme-header-height', '40px')
+      docStyle.setProperty('--scalar-header-height', '40px')
     } else {
-      docStyle.removeProperty('--theme-header-height')
+      docStyle.removeProperty('--scalar-header-height')
     }
   },
   { immediate: true },
@@ -56,13 +56,13 @@ watch(
 .dev-header {
   display: flex;
   justify-content: space-between;
-  color: var(--default-theme-color-1);
+  color: var(--scalar-color-1);
 
   width: 100%;
-  height: var(--theme-header-height);
+  height: var(--scalar-header-height);
 
-  background: var(--default-theme-background-1);
-  border-bottom: 1px solid var(--default-theme-border-color);
+  background: var(--scalar-background-1);
+  border-bottom: 1px solid var(--scalar-border-color);
 }
 .dev-title {
   font-weight: bold;
@@ -83,23 +83,23 @@ watch(
   text-decoration: none;
 
   padding: 4px 6px;
-  border: 1px solid var(--default-theme-border-color);
-  color: var(--default-theme-color-1);
-  background: var(--default-theme-background-2);
-  border-radius: var(--default-theme-radius);
+  border: 1px solid var(--scalar-border-color);
+  color: var(--scalar-color-1);
+  background: var(--scalar-background-2);
+  border-radius: var(--scalar-radius);
 }
 .dev-home-link:hover {
-  background: var(--default-theme-background-3);
+  background: var(--scalar-background-3);
 }
 
 .dev-options {
   display: flex;
-  font-size: var(--default-theme-small);
+  font-size: var(--scalar-small);
 }
 
 .dev-options > :deep(*) {
   padding: 0px 12px;
-  border-left: 1px solid var(--default-theme-border-color);
+  border-left: 1px solid var(--scalar-border-color);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -113,18 +113,18 @@ watch(
 
   padding: 4px 8px;
 
-  font-size: var(--default-theme-small);
+  font-size: var(--scalar-small);
   font-weight: 500;
 
-  color: var(--default-theme-color-1);
-  background: var(--default-theme-background-1);
-  border: 1px solid var(--default-theme-border-color);
-  border-radius: var(--default-theme-radius);
-  box-shadow: var(--default-theme-shadow-1);
+  color: var(--scalar-color-1);
+  background: var(--scalar-background-1);
+  border: 1px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
+  box-shadow: var(--scalar-shadow-1);
 }
 
 .dev-show-toolbar:hover,
 .dev-hide-toolbar:hover {
-  background: var(--default-theme-background-2);
+  background: var(--scalar-background-2);
 }
 </style>

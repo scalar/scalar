@@ -80,14 +80,14 @@ const { getModelId } = useNavState()
   align-items: center;
   font-size: 20px;
   padding-left: 6px;
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
 }
 .reference-models-label {
-  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-size: var(--scalar-mini);
 }
 
 /* Style the "icon" */
 .reference-models-label :deep(em) {
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-weight: var(--scalar-bold);
 }
 </style>

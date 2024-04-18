@@ -18,11 +18,11 @@ import { Tab } from '@headlessui/vue'
 .tab {
   background: none;
   border: none;
-  font-size: var(--theme-mini, var(--default-theme-mini));
-  font-family: var(--theme-font, var(--default-theme-font));
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  line-height: calc(var(--theme-mini, var(--default-theme-mini)) + 2px);
+  font-size: var(--scalar-mini);
+  font-family: var(--scalar-font);
+  color: var(--scalar-color-2);
+  font-weight: var(--scalar-semibold);
+  line-height: calc(var(--scalar-mini) + 2px);
   white-space: nowrap;
   cursor: pointer;
   padding: 0;
@@ -39,8 +39,8 @@ import { Tab } from '@headlessui/vue'
   top: -6px;
   width: calc(100% + 12px);
   height: calc(100% + 12px);
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  background: var(--theme-background-3, var(--default-theme-background-3));
+  border-radius: var(--scalar-radius);
+  background: var(--scalar-background-3);
   opacity: 0;
 }
 .tab:hover:before {
@@ -51,8 +51,8 @@ import { Tab } from '@headlessui/vue'
   position: relative;
 }
 .tab-selected {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
   text-decoration: underline;
-  text-underline-offset: var(--theme-micro, var(--default-theme-micro));
+  text-underline-offset: var(--scalar-micro);
 }
 </style>

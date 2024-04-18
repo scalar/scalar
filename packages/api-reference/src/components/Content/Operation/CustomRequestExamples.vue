@@ -134,15 +134,14 @@ const { copyToClipboard } = useClipboard()
   text-transform: initial;
 }
 .request-method {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  font-family: var(--scalar-font-code);
   text-transform: uppercase;
   white-space: nowrap;
 }
 .request-client-picker {
   padding-left: 12px;
   padding-right: 9px;
-  border-right: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+  border-right: 1px solid var(--scalar-border-color);
 }
 .copy-button {
   appearance: none;
@@ -151,7 +150,7 @@ const { copyToClipboard } = useClipboard()
   background: transparent;
   display: flex;
   cursor: pointer;
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  color: var(--scalar-color-3);
   margin-left: 6px;
   margin-right: 10.5px;
   border: none;
@@ -165,12 +164,12 @@ const { copyToClipboard } = useClipboard()
 .copy-button:after {
   content: '.';
   color: transparent;
-  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-size: var(--scalar-mini);
   line-height: 1.35;
   width: 0px;
 }
 .copy-button:hover {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
 }
 
 .copy-button svg {

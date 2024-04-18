@@ -32,9 +32,9 @@ withDefaults(
   margin-top: 24px;
 }
 .parameters-title {
-  font-size: var(--theme-heading-4, var(--default-theme-heading-4));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-size: var(--scalar-heading-4);
+  font-weight: var(--scalar-semibold);
+  color: var(--scalar-color-1);
   line-height: 1.45;
   margin-top: 12px;
   margin-bottom: 12px;
@@ -44,7 +44,7 @@ withDefaults(
   list-style: none;
   padding: 0;
   margin: 0;
-  font-size: var(--theme-small, var(--default-theme-small));
+  font-size: var(--scalar-small);
   margin-bottom: 12px;
 }
 </style>

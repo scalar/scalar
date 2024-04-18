@@ -47,8 +47,8 @@ const { responses } = useResponses(props.operation)
   gap: 12px;
 }
 .endpoint-details-card-item {
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  border: 1px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius-lg);
   margin-top: 0;
 }
 .endpoint-details-card :deep(.parameter-list:first-of-type:last-of-type) {
@@ -72,9 +72,9 @@ const { responses } = useResponses(props.operation)
 .endpoint-details-card :deep(.parameters-title),
 .endpoint-details-card :deep(.request-body-title) {
   text-transform: uppercase;
-  font-weight: var(--theme-bold, var(--default-theme-bold));
-  font-size: var(--theme-mini, var(--default-theme-mini));
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  font-weight: var(--scalar-bold);
+  font-size: var(--scalar-mini);
+  color: var(--scalar-color-2);
   line-height: 1.33;
   padding: 9px;
   margin: 0;

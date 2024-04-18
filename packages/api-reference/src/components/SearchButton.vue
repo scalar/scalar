@@ -65,31 +65,16 @@ whenever(keys[`${isMacOS() ? 'meta' : 'control'}_${props.searchHotKey}`], () =>
   padding: 0 3px 0 9px;
   min-width: 254px;
   max-width: 100%;
-  font-family: var(--theme-font, var(--default-theme-font));
+  font-family: var(--scalar-font);
   background: var(
-    --sidebar-search-background,
-    var(
-      --default-sidebar-search-background,
-      var(--theme-background-1, var(--default-theme-background-1))
-    )
+    --scalar-sidebar-search-background,
+    var(--scalar-background-1)
   );
-  color: var(
-    --sidebar-color-2,
-    var(
-      --default-sidebar-color-2,
-      var(--theme-color-2, var(--default-theme-color-2))
-    )
-  );
+  color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
   outline: none;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border-radius: var(--scalar-radius);
   box-shadow: 0 0 0 1px
-    var(
-      --sidebar-search-border-color,
-      var(
-        --default-sidebar-search-border-color,
-        var(--theme-border-color, var(--default-theme-border-color))
-      )
-    );
+    var(--scalar-sidebar-search-border-color, var(--scalar-border-color));
   /* prettier-ignore */
   cursor: pointer;
   appearance: none;
@@ -97,8 +82,8 @@ whenever(keys[`${isMacOS() ? 'meta' : 'control'}_${props.searchHotKey}`], () =>
 }
 
 .sidebar-search-input {
-  font-size: var(--theme-mini, var(--default-theme-mini));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--scalar-mini);
+  font-weight: var(--scalar-semibold);
   height: 31px;
 
   user-select: none;
@@ -113,18 +98,11 @@ whenever(keys[`${isMacOS() ? 'meta' : 'control'}_${props.searchHotKey}`], () =>
   text-transform: uppercase;
 }
 .sidebar-search-key {
-  background-color: var(
-    --theme-background-2,
-    var(--default-theme-background-2)
-  );
+  background-color: var(--scalar-background-2);
   padding: 3px 5px;
   margin: 2px;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  color: var(
-    --sidebar-color-2,
-    var(--default-sidebar-color-2),
-    var(--theme-color-2, var(--default-theme-color-2))
-  );
+  border-radius: var(--scalar-radius);
+  color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
 }
 
 .search-icon {

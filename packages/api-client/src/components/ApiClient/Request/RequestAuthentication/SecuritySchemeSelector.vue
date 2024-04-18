@@ -134,18 +134,18 @@ const keys = computed(() => Object.keys(props.value ?? {}))
 .security-scheme-selector {
   position: relative;
   display: flex;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  border-radius: var(--scalar-radius);
+  color: var(--scalar-color-2);
   display: flex;
   align-items: center;
   gap: 4px;
   cursor: pointer;
 }
 .security-scheme-selector:hover {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
 }
 .security-scheme-selector span {
-  font-size: var(--theme-mini, var(--default-theme-mini));
+  font-size: var(--scalar-mini);
 }
 .security-scheme-selector select {
   position: absolute;

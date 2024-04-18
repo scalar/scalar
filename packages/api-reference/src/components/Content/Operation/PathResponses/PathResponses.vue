@@ -171,13 +171,13 @@ const showSchema = ref(false)
   outline: none;
   background: transparent;
   cursor: pointer;
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  color: var(--scalar-color-3);
   border: none;
   padding: 0;
   margin-right: 12px;
 }
 .code-copy:hover {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
 }
 .code-copy svg {
   width: 13px;
@@ -189,35 +189,34 @@ const showSchema = ref(false)
   flex-shrink: 0;
   padding: 10px 12px;
   gap: 8px;
-  border-top: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+  border-top: 1px solid var(--scalar-border-color);
 }
 .response-example-selector {
   align-self: start;
   margin: -4px;
 }
 .response-description {
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  color: var(--theme-color--1, var(--default-theme-color-1));
+  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-micro);
+  color: var(--scalar-color--1);
 
   display: flex;
   align-items: center;
   box-sizing: border-box;
 }
 .schema-type {
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  background: var(--theme-background-3, var(--default-theme-background-3));
+  font-size: var(--scalar-micro);
+  color: var(--scalar-color-2);
+  font-weight: var(--scalar-semibold);
+  background: var(--scalar-background-3);
   padding: 2px 4px;
   border-radius: 4px;
   margin-right: 4px;
 }
 .schema-example {
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--scalar-micro);
+  color: var(--scalar-color-2);
+  font-weight: var(--scalar-semibold);
 }
 
 .example-response-tab {
@@ -226,7 +225,7 @@ const showSchema = ref(false)
 }
 .scalar-card-container {
   flex: 1;
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--scalar-background-2);
 }
 .scalar-card-container :deep(.cm-scroller) {
   overflow-y: hidden;
@@ -240,16 +239,16 @@ const showSchema = ref(false)
   min-height: 17px;
   cursor: pointer;
   user-select: none;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  font-size: var(--theme-mini, var(--default-theme-mini));
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-mini);
+  color: var(--scalar-color-2);
   width: fit-content;
   white-space: nowrap;
   margin-right: 9px;
   gap: 6px;
 }
 .scalar-card-checkbox:hover {
-  color: var(--theme-color--1, var(--default-theme-color-1));
+  color: var(--scalar-color--1);
 }
 .scalar-card-checkbox .scalar-card-checkbox-input {
   position: absolute;
@@ -262,23 +261,19 @@ const showSchema = ref(false)
 .scalar-card-checkbox-checkmark {
   height: 17px;
   width: 17px;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border-radius: var(--scalar-radius);
   background-color: transparent;
-  background-color: var(
-    --theme-background-3,
-    var(--default-theme-background-3)
-  );
-  box-shadow: inset 0 0 0 1px
-    var(--theme-border-color, var(--default-theme-border-color));
+  background-color: var(--scalar-background-3);
+  box-shadow: inset 0 0 0 1px var(--scalar-border-color);
 }
 .scalar-card-checkbox:has(.scalar-card-checkbox-input:checked) {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
 }
 
 .scalar-card-checkbox
   .scalar-card-checkbox-input:checked
   ~ .scalar-card-checkbox-checkmark {
-  background-color: var(--theme-button-1, var(--default-theme-button-1));
+  background-color: var(--scalar-button-1);
   box-shadow: none;
 }
 
@@ -299,8 +294,7 @@ const showSchema = ref(false)
   top: 36.5%;
   width: 5px;
   height: 9px;
-  border: solid 1px
-    var(--theme-button-1-color, var(--default-theme-button-1-color));
+  border: solid 1px var(--scalar-button-1-color);
   border-width: 0 1.5px 1.5px 0;
   transform: rotate(45deg);
 }

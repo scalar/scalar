@@ -55,21 +55,20 @@ if (prop.requestBody?.content) {
 .request-body-title {
   display: flex;
   align-items: center;
-  font-size: var(--theme-heading-4, var(--default-theme-heading-4));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-size: var(--scalar-heading-4);
+  font-weight: var(--scalar-semibold);
+  color: var(--scalar-color-1);
   line-height: 1.45;
   margin-top: 24px;
   padding-bottom: 12px;
-  border-bottom: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+  border-bottom: 1px solid var(--scalar-border-color);
 }
 .request-body-title-select {
   position: relative;
   padding-left: 9px;
   height: fit-content;
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
+  color: var(--scalar-color-2);
+  font-size: var(--scalar-font-size-3);
   display: flex;
   align-items: center;
 }
@@ -96,9 +95,8 @@ if (prop.requestBody?.content) {
   border: none;
   outline: none;
   cursor: pointer;
-  background: var(--theme-background-3, var(--default-theme-background-3));
-  box-shadow: -2px 0 0 0
-    var(--theme-background-3, var(--default-theme-background-3));
+  background: var(--scalar-background-3);
+  box-shadow: -2px 0 0 0 var(--scalar-background-3);
   position: absolute;
   top: 0;
   left: 0;
@@ -108,7 +106,7 @@ if (prop.requestBody?.content) {
   appearance: none;
 }
 .request-body-title-select:hover {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
 }
 @media (max-width: 460px) {
   .request-body-title-select {

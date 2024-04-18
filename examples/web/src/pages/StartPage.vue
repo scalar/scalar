@@ -118,8 +118,8 @@ import PageLink from '../components/PageLink.vue'
 <style scoped>
 .main {
   font-family: 'Inter', sans-serif;
-  background-color: var(--default-theme-background-1);
-  color: var(--default-theme-color-1);
+  background-color: var(--scalar-background-1);
+  color: var(--scalar-color-1);
   min-height: 100vh;
   padding: 2rem;
   box-sizing: border-box;

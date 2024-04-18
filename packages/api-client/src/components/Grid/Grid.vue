@@ -75,22 +75,22 @@ function addHandler() {
 </template>
 <style scoped>
 .table {
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border: 1px solid var(--scalar-border-color);
   background: transparent;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border-radius: var(--scalar-radius);
   width: 100%;
 }
 .meta-actions-item {
   border: none;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-weight: var(--scalar-semibold);
   appearance: none;
   padding: 9px;
   width: 100%;
   appearance: none;
   outline: none;
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  font-family: var(--theme-font, var(--default-theme-font));
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  font-size: var(--scalar-micro);
+  font-family: var(--scalar-font);
+  color: var(--scalar-color-3);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -115,6 +115,6 @@ function addHandler() {
 }
 .meta-actions-item:hover,
 .meta-actions-item:focus {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
 }
 </style>

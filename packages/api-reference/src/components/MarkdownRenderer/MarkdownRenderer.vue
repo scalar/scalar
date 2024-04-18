@@ -79,7 +79,7 @@ onServerPrefetch(async () => await sleep(1))
 
 <style scoped>
 .markdown {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
   all: unset;
   word-break: break-word;
 }
@@ -87,20 +87,20 @@ onServerPrefetch(async () => await sleep(1))
 .markdown :deep(*) {
   all: unset;
   margin: 12px 0;
-  font-family: var(--theme-font, var(--default-theme-font));
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  font-family: var(--scalar-font);
+  color: var(--scalar-color-1);
 }
 .markdown :deep(details) {
   margin: 12px 0;
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
 }
 .markdown :deep(summary) {
   margin: 12px 0;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-weight: var(--scalar-semibold);
 }
 .markdown :deep(img) {
   overflow: hidden;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border-radius: var(--scalar-radius);
   max-width: 100%;
 }
 /* Don't add margin to the first block */
@@ -113,28 +113,19 @@ onServerPrefetch(async () => await sleep(1))
 .markdown :deep(h4),
 .markdown :deep(h5),
 .markdown :deep(h6) {
-  font-size: var(--font-size, var(--default-font-size));
+  font-size: var(--font-size);
   margin: 18px 0 6px;
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-weight: var(--scalar-bold);
   display: block;
   line-height: 1.45;
 }
 .markdown :deep(b),
 .markdown :deep(strong) {
-  font-weight: var(--theme-bold, var(--default-theme-bold));
+  font-weight: var(--scalar-bold);
 }
 .markdown :deep(p) {
-  font-size: var(
-    --font-size,
-    var(--default-font-size),
-    var(--theme-paragraph, var(--default-theme-paragraph))
-  );
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  font-weight: var(
-    --font-weight,
-    var(--default-font-weight),
-    var(--theme-small, var(--default-theme-small))
-  );
+  color: var(--scalar-color-1);
+  font-weight: var(--font-weight, var(--scalar-regular));
   line-height: 1.5;
   margin-bottom: 0;
   display: block;
@@ -166,18 +157,12 @@ onServerPrefetch(async () => await sleep(1))
   display: list-item;
 }
 .markdown :deep(a) {
-  color: var(--theme-color-accent, var(--default-theme-color-accent));
-  text-decoration: var(
-    --theme-text-decoration,
-    var(--default-theme-text-decoration)
-  );
+  color: var(--scalar-color-accent);
+  text-decoration: var(--scalar-text-decoration);
   cursor: pointer;
 }
 .markdown :deep(a:hover) {
-  text-decoration: var(
-    --theme-text-decoration-hover,
-    var(--default-theme-text-decoration-hover)
-  );
+  text-decoration: var(--scalar-text-decoration-hover);
 }
 .markdown :deep(em) {
   font-style: italic;
@@ -186,14 +171,10 @@ onServerPrefetch(async () => await sleep(1))
   text-decoration: line-through;
 }
 .markdown :deep(code) {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  background-color: var(
-    --theme-background-2,
-    var(--default-theme-background-2)
-  );
-  box-shadow: 0 0 0 1px
-    var(--theme-border-color, var(--default-theme-border-color));
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-family: var(--scalar-font-code);
+  background-color: var(--scalar-background-2);
+  box-shadow: 0 0 0 1px var(--scalar-border-color);
+  font-size: var(--scalar-micro);
   border-radius: 2px;
   padding: 0 3px;
 }
@@ -211,8 +192,7 @@ onServerPrefetch(async () => await sleep(1))
 }
 
 .markdown :deep(blockquote) {
-  border-left: 3px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+  border-left: 3px solid var(--scalar-border-color);
   padding-left: 12px;
   margin: 0;
   display: block;
@@ -226,9 +206,8 @@ onServerPrefetch(async () => await sleep(1))
   width: max-content;
   max-width: 100%;
   margin: 1em 0;
-  box-shadow: 0 0 0 1px
-    var(--theme-border-color, var(--default-theme-border-color));
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  box-shadow: 0 0 0 1px var(--scalar-border-color);
+  border-radius: var(--scalar-radius-lg);
 }
 .markdown :deep(tbody) {
   display: table-row-group;
@@ -254,17 +233,11 @@ onServerPrefetch(async () => await sleep(1))
   line-height: 1.5;
   position: relative;
   word-break: initial;
-  font-size: var(--theme-small, var(--default-theme-small));
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  font-weight: var(
-    --font-weight,
-    var(--default-font-weight),
-    var(--theme-small, var(--default-theme-small))
-  );
-  border-right: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
-  border-bottom: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+  font-size: var(--scalar-small);
+  color: var(--scalar-color-1);
+  font-weight: var(--font-weight, var(--scalar-regular));
+  border-right: 1px solid var(--scalar-border-color);
+  border-bottom: 1px solid var(--scalar-border-color);
 }
 
 .markdown :deep(td > *),
@@ -289,10 +262,10 @@ onServerPrefetch(async () => await sleep(1))
 }
 
 .markdown :deep(th) {
-  font-weight: var(--theme-semibold, var(--default-theme-semibold)) !important;
+  font-weight: var(--scalar-semibold) !important;
   text-align: left;
   border-left-color: transparent;
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--scalar-background-2);
 }
 
 .markdown :deep(tr) > [align='left'] {
@@ -314,22 +287,19 @@ onServerPrefetch(async () => await sleep(1))
     padding: 12px;
   }
   pre * {
-    font-size: var(--theme-small, var(--default-theme-small)) !important;
-    font-family: var(
-      --theme-font-code,
-      var(--default-theme-font-code)
-    ) !important;
+    font-size: var(--scalar-small) !important;
+    font-family: var(--scalar-font-code) !important;
   }
   code.hljs {
     padding: 3px 5px;
   }
   .hljs {
-    background: var(--theme-background-4, var(--default-theme-background-4));
-    color: var(--theme-color-1, var(--default-theme-color-1));
+    background: var(--scalar-background-4);
+    color: var(--scalar-color-1);
   }
   .hljs-comment,
   .hljs-quote {
-    color: var(--theme-color-3, var(--default-theme-color-3));
+    color: var(--scalar-color-3);
     font-style: italic;
   }
   .hljs-addition,
@@ -337,52 +307,52 @@ onServerPrefetch(async () => await sleep(1))
   .hljs-literal,
   .hljs-selector-tag,
   .hljs-type {
-    color: var(--theme-color-green, var(--default-theme-color-green));
+    color: var(--scalar-color-green);
   }
   .hljs-number,
   .hljs-selector-attr,
   .hljs-selector-pseudo {
-    color: var(--theme-color-orange, var(--default-theme-color-orange));
+    color: var(--scalar-color-orange);
   }
   .hljs-doctag,
   .hljs-regexp,
   .hljs-string {
-    color: var(--theme-color-blue, var(--default-theme-color-blue));
+    color: var(--scalar-color-blue);
   }
   .hljs-built_in,
   .hljs-name,
   .hljs-section,
   .hljs-title {
-    color: var(--theme-color-1, var(--default-theme-color-1));
+    color: var(--scalar-color-1);
   }
   .hljs-class .hljs-title,
   .hljs-selector-id,
   .hljs-template-variable,
   .hljs-title.class_,
   .hljs-variable {
-    color: var(--theme-color-1, var(--default-theme-color-1));
+    color: var(--scalar-color-1);
   }
   .hljs-name,
   .hljs-section,
   .hljs-strong {
-    font-weight: var(--theme-semibold, var(--default-theme-semibold));
+    font-weight: var(--scalar-semibold);
   }
   .hljs-bullet,
   .hljs-link,
   .hljs-meta,
   .hljs-subst,
   .hljs-symbol {
-    color: var(--theme-color-blue, var(--default-theme-color-blue));
+    color: var(--scalar-color-blue);
   }
   .hljs-deletion {
-    color: var(--theme-color-red, var(--default-theme-color-red));
+    color: var(--scalar-color-red);
   }
   .hljs-formula {
-    background: var(--theme-color-1, var(--default-theme-color-1));
+    background: var(--scalar-color-1);
   }
   .hljs-attr,
   .hljs-attribute {
-    color: var(--theme-color-1, var(--default-theme-color-1));
+    color: var(--scalar-color-1);
   }
   .hljs-emphasis {
     font-style: italic;

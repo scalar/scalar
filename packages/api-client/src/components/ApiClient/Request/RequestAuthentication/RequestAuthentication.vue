@@ -101,32 +101,31 @@ const setIntialScheme = (
 }
 
 .security-scheme-empty-state {
-  border: 1px dashed
-    var(--theme-border-color, var(--default-theme-border-color));
+  border: 1px dashed var(--scalar-border-color);
   width: 100%;
   text-align: center;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
-  font-size: var(--theme-small, var(--default-theme-small));
+  border-radius: var(--scalar-radius);
+  font-size: var(--scalar-small);
   min-height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .scalar-api-client-add {
-  color: var(--theme-color-2, var(--default-theme-color-2));
+  color: var(--scalar-color-2);
   padding: 3px 9px;
   width: fit-content;
   cursor: pointer;
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-size: var(--scalar-micro);
+  font-weight: var(--scalar-semibold);
   text-decoration: none;
   margin: 0 6px;
   border: none;
-  font-family: var(--theme-font);
+  font-family: var(--scalar-font);
   appearance: none;
   display: flex;
   align-items: center;
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
+  border: 1px solid var(--scalar-border-color);
   border-radius: 30px;
 }
 .scalar-api-client-add svg {
@@ -135,9 +134,9 @@ const setIntialScheme = (
   margin-right: 6px;
 }
 .scalar-api-client-add:hover {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
 }
 .scalar-api-client-add:focus-within {
-  background: var(--theme-background-3, var(--default-theme-background-3));
+  background: var(--scalar-background-3);
 }
 </style>

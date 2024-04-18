@@ -6,11 +6,11 @@
 <style scoped>
 .scalar-card {
   all: unset;
-  font-family: var(--theme-font, var(--default-theme-font));
-  border-radius: var(--theme-radius-lg, var(--default-theme-radius-lg));
+  font-family: var(--scalar-font);
+  border-radius: var(--scalar-radius-lg);
   overflow: hidden;
-  border: 1px solid var(--theme-border-color, var(--default-theme-border-color));
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  border: 1px solid var(--scalar-border-color);
+  background: var(--scalar-background-2);
   display: flex;
   flex-direction: column;
   max-height: calc(

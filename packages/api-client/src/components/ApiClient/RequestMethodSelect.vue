@@ -54,9 +54,8 @@ const supportedRequestMethods = [
   border: none;
   outline: none;
   cursor: pointer;
-  background: var(--theme-background-3, var(--default-theme-background-3));
-  box-shadow: -2px 0 0 0
-    var(--theme-background-3, var(--default-theme-background-3));
+  background: var(--scalar-background-3);
+  box-shadow: -2px 0 0 0 var(--scalar-background-3);
   position: absolute;
   top: 0;
   left: 0;
@@ -75,18 +74,17 @@ const supportedRequestMethods = [
 .request-method {
   display: flex;
   align-items: center;
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  color: var(--scalar-color-3);
   appearance: none;
   -webkit-appearance: none;
   padding: 0 12px;
-  border-right: 1px solid
-    var(--theme-border-color, var(--default-theme-border-color));
+  border-right: 1px solid var(--scalar-border-color);
   position: relative;
 }
 .request-method span {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  font-family: var(--scalar-font-code);
   font-size: 500;
-  font-size: var(--theme-micro, var(--default-theme-micro));
+  font-size: var(--scalar-micro);
   text-transform: uppercase;
   display: flex;
   align-items: center;
@@ -112,10 +110,7 @@ const supportedRequestMethods = [
   font-style: normal;
   flex-shrink: 0;
   display: inline-block;
-  color: var(--theme-color-disabled, var(--default-theme-color-disabled));
-  background: var(
-    --scalar-api-client-color,
-    var(--default-scalar-api-client-color)
-  );
+  color: var(--scalar-color-disabled);
+  background: var(--scalar-api-client-color);
 }
 </style>

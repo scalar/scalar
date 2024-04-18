@@ -27,7 +27,7 @@ const pathParts = computed<string[]>(() => props.path.split(/({[^}]+})/))
 .endpoint-path {
   overflow: hidden;
   word-wrap: break-word;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-weight: var(--scalar-semibold);
 }
 .deprecated {
   text-decoration: line-through;

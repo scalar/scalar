@@ -27,9 +27,9 @@ const { httpTargetTitle, httpClientTitle } = useHttpClientStore()
 </template>
 <style scoped>
 .selected-client {
-  color: var(--theme-color-1, var(--default-theme-color-1));
-  font-size: var(--theme-small, var(--default-theme-small));
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
+  color: var(--scalar-color-1);
+  font-size: var(--scalar-small);
+  font-family: var(--scalar-font-code);
   padding: 10px 12px;
 
   white-space: nowrap;

@@ -44,15 +44,15 @@ defineProps<{
 }
 
 .property-detail-prefix {
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  color: var(--scalar-color-3);
 }
 
 code.property-detail-value {
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  background: var(--theme-background-3, var(--default-theme-background-3));
+  font-family: var(--scalar-font-code);
+  font-size: var(--scalar-font-size-3);
+  color: var(--scalar-color-2);
+  background: var(--scalar-background-3);
   padding: 1px 3px;
-  border-radius: var(--theme-radius, var(--default-theme-radius));
+  border-radius: var(--scalar-radius);
 }
 </style>

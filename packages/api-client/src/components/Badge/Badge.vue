@@ -6,12 +6,12 @@
 
 <style scoped>
 .badge {
-  color: var(--theme-color-2, var(--default-theme-color-2));
-  font-size: var(--theme-micro, var(--default-theme-micro));
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  color: var(--scalar-color-2);
+  font-size: var(--scalar-micro);
+  background: var(--scalar-background-2);
   padding: 2px 6px;
   border-radius: 12px;
-  font-weight: var(--theme-semibold, var(--default-theme-semibold));
+  font-weight: var(--scalar-semibold);
   display: inline-block;
   text-transform: uppercase;
 }

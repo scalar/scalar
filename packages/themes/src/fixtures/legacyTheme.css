@@ -1,0 +1,77 @@
+:root {
+  --theme-font: 'Inter';
+}
+/* basic theme */
+.light-mode {
+  --theme-background-1: #fff;
+  --theme-background-2: #f5f6f8;
+  --theme-background-3: #eceef1;
+
+  --theme-color-1: #2a2f45;
+  --theme-color-2: #757575;
+  --theme-color-3: #8e8e8e;
+
+  --theme-color-accent: #5469d4;
+  --theme-background-accent: #5469d41f;
+
+  --theme-border-color: rgba(215, 215, 206, 0.5);
+}
+.dark-mode {
+  --theme-background-1: #15171c;
+  --theme-background-2: #1c1e24;
+  --theme-background-3: #22252b;
+
+  --theme-color-1: #fafafa;
+  --theme-color-2: #c9ced8;
+  --theme-color-3: #8c99ad;
+
+  --theme-color-accent: #5469d4;
+  --theme-background-accent: #5469d41f;
+
+  --theme-border-color: rgba(255, 255, 255, 0.12);
+}
+/* Document header */
+.light-mode .t-doc__header,
+.dark-mode .t-doc__header {
+  --header-background-1: var(--theme-background-1);
+  --header-border-color: var(--theme-border-color);
+  --header-color-1: var(--theme-color-1);
+  --header-color-2: var(--theme-color-2);
+  --header-call-to-action-color: var(--theme-color-accent);
+}
+/* Document Sidebar */
+.light-mode .t-doc__sidebar,
+.dark-mode .t-doc__sidebar {
+  --sidebar-background-1: var(--theme-background-1);
+  --sidebar-color-1: var(--theme-color-1);
+  --sidebar-color-2: var(--theme-color-2);
+  --sidebar-border-color: var(--theme-border-color);
+
+  --sidebar-item-hover-background: var(--theme-background-3);
+  --sidebar-item-hover-color: currentColor;
+
+  --sidebar-item-active-background: var(--theme-background-accent);
+  --sidebar-color-active: var(--theme-color-accent);
+
+  --sidebar-search-background: var(--theme-background-1);
+  --sidebar-search-color: var(--theme-color-3);
+  --sidebar-search-border-color: var(--theme-border-color);
+}
+
+/* advanced */
+.light-mode {
+  --theme-color-green: #17803d;
+  --theme-color-red: #e10909;
+  --theme-color-yellow: #edbe20;
+  --theme-color-blue: #1763a6;
+  --theme-color-orange: #e25b09;
+  --theme-color-purple: #5c3993;
+}
+.dark-mode {
+  --theme-color-green: #30a159;
+  --theme-color-red: #dc1b19;
+  --theme-color-yellow: #eec644;
+  --theme-color-blue: #2b7abf;
+  --theme-color-orange: #f07528;
+  --theme-color-purple: #7a59b1;
+}

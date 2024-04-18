@@ -78,7 +78,7 @@ async function scrollHandler(operation: TransformedOperation) {
 <style scoped>
 .endpoints {
   overflow: auto;
-  background: var(--theme-background-2, var(--default-theme-background-2));
+  background: var(--scalar-background-2);
   padding: 10px 12px;
 }
 @media (max-width: 580px) {
@@ -107,13 +107,13 @@ async function scrollHandler(operation: TransformedOperation) {
   white-space: nowrap;
 }
 .endpoint span {
-  color: var(--theme-color-1, var(--default-theme-color-1));
+  color: var(--scalar-color-1);
   min-width: 62px;
   display: inline-block;
   text-align: right;
   line-height: 1.55;
-  font-family: var(--theme-font-code, var(--default-theme-font-code));
-  font-size: var(--theme-small, var(--default-theme-small));
+  font-family: var(--scalar-font-code);
+  font-size: var(--scalar-small);
   cursor: pointer;
 }
 </style>

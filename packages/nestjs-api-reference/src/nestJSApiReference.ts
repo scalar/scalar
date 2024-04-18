@@ -17,73 +17,73 @@ export type ApiReferenceOptions = ReferenceConfiguration & {
  */
 export const customThemeCSS = `
 :root {
-  --theme-font: "Inter", var(--system-fonts);
+  --scalar-font: "Inter", var(--system-fonts);
 }
 /* basic theme */
 .light-mode {
-  --theme-color-1: #2a2f45;
-  --theme-color-2: #757575;
-  --theme-color-3: #8e8e8e;
-  --theme-color-accent: #e0234d;
-  --theme-background-1: #fff;
-  --theme-background-2: #f6f6f6;
-  --theme-background-3: #e7e7e7;
-  --theme-background-accent: #8ab4f81f;
-  --theme-border-color: rgba(0, 0, 0, 0.1);
+  --scalar-color-1: #2a2f45;
+  --scalar-color-2: #757575;
+  --scalar-color-3: #8e8e8e;
+  --scalar-color-accent: #e0234d;
+  --scalar-background-1: #fff;
+  --scalar-background-2: #f6f6f6;
+  --scalar-background-3: #e7e7e7;
+  --scalar-background-accent: #8ab4f81f;
+  --scalar-border-color: rgba(0, 0, 0, 0.1);
 }
 .dark-mode {
-  --theme-color-1: rgba(255, 255, 255, 1);
-  --theme-color-2: #b2bac2;
-  --theme-color-3: #6e748b;
-  --theme-color-accent: #e0234d;
-  --theme-background-1: #11131e;
-  --theme-background-2: #1c2132;
-  --theme-background-3: #2f354a;
-  --theme-background-accent: #8ab4f81f;
-  --theme-border-color: rgba(255, 255, 255, 0.1);
+  --scalar-color-1: rgba(255, 255, 255, 1);
+  --scalar-color-2: #b2bac2;
+  --scalar-color-3: #6e748b;
+  --scalar-color-accent: #e0234d;
+  --scalar-background-1: #11131e;
+  --scalar-background-2: #1c2132;
+  --scalar-background-3: #2f354a;
+  --scalar-background-accent: #8ab4f81f;
+  --scalar-border-color: rgba(255, 255, 255, 0.1);
 }
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,
 .dark-mode .t-doc__sidebar {
-  --sidebar-background-1: var(--theme-background-1);
-  --sidebar-item-hover-color: currentColor;
-  --sidebar-item-hover-background: var(--theme-background-2);
-  --sidebar-item-active-background: var(--theme-background-3);
-  --sidebar-border-color: var(--theme-border-color);
-  --sidebar-color-1: var(--theme-color-1);
-  --sidebar-color-2: var(--theme-color-2);
-  --sidebar-color-active: var(--theme-color-1);
-  --sidebar-search-background: var(--theme-background-2);
-  --sidebar-search-border-color: var(--theme-background-2);
-  --sidebar-search-color: var(--theme-color-3);
+  --scalar-sidebar-background-1: var(--scalar-background-1);
+  --scalar-sidebar-item-hover-color: currentColor;
+  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
+  --scalar-sidebar-item-active-background: var(--scalar-background-3);
+  --scalar-sidebar-border-color: var(--scalar-border-color);
+  --scalar-sidebar-color-1: var(--scalar-color-1);
+  --scalar-sidebar-color-2: var(--scalar-color-2);
+  --scalar-sidebar-color-active: var(--scalar-color-1);
+  --scalar-sidebar-search-background: var(--scalar-background-2);
+  --scalar-sidebar-search-border-color: var(--scalar-background-2);
+  --scalar-sidebar-search-color: var(--scalar-color-3);
 }
 
 /* advanced */
 .light-mode {
-  --theme-button-1: rgb(49 53 56);
-  --theme-button-1-color: #fff;
-  --theme-button-1-hover: rgb(28 31 33);
-  --theme-color-green: #069061;
-  --theme-color-red: #ef0006;
-  --theme-color-yellow: #edbe20;
-  --theme-color-blue: #0082d0;
-  --theme-color-orange: #fb892c;
-  --theme-color-purple: #5203d1;
-  --theme-scrollbar-color: rgba(0, 0, 0, 0.18);
-  --theme-scrollbar-color-active: rgba(0, 0, 0, 0.36);
+  --scalar-button-1: rgb(49 53 56);
+  --scalar-button-1-color: #fff;
+  --scalar-button-1-hover: rgb(28 31 33);
+  --scalar-color-green: #069061;
+  --scalar-color-red: #ef0006;
+  --scalar-color-yellow: #edbe20;
+  --scalar-color-blue: #0082d0;
+  --scalar-color-orange: #fb892c;
+  --scalar-color-purple: #5203d1;
+  --scalar-scrollbar-color: rgba(0, 0, 0, 0.18);
+  --scalar-scrollbar-color-active: rgba(0, 0, 0, 0.36);
 }
 .dark-mode {
-  --theme-button-1: #f6f6f6;
-  --theme-button-1-color: #000;
-  --theme-button-1-hover: #e7e7e7;
-  --theme-color-green: #30beb0;
-  --theme-color-red: #e91e63;
-  --theme-color-yellow: #ffc90d;
-  --theme-color-blue: #2cb6f6;
-  --theme-color-orange: #ff5656;
-  --theme-color-purple: #6223e0;
-  --theme-scrollbar-color: rgba(255, 255, 255, 0.24);
-  --theme-scrollbar-color-active: rgba(255, 255, 255, 0.48);
+  --scalar-button-1: #f6f6f6;
+  --scalar-button-1-color: #000;
+  --scalar-button-1-hover: #e7e7e7;
+  --scalar-color-green: #30beb0;
+  --scalar-color-red: #e91e63;
+  --scalar-color-yellow: #ffc90d;
+  --scalar-color-blue: #2cb6f6;
+  --scalar-color-orange: #ff5656;
+  --scalar-color-purple: #6223e0;
+  --scalar-scrollbar-color: rgba(255, 255, 255, 0.24);
+  --scalar-scrollbar-color-active: rgba(255, 255, 255, 0.48);
 }
 `
 

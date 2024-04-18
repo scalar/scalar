@@ -118,13 +118,13 @@ export function useLoadingState() {
   align-items: center;
   justify-content: center;
 
-  --default-loader-size: 50%;
+  --loader-size: 50%;
 }
 
 /*SVG Positioning for Loader Objects*/
 .svg-loader {
-  width: var(--loader-size, var(--default-loader-size));
-  height: var(--loader-size, var(--default-loader-size));
+  width: var(--loader-size);
+  height: var(--loader-size);
   top: 1rem;
   right: 0.9rem;
   overflow: visible;
