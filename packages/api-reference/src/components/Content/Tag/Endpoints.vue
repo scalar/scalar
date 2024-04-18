@@ -46,7 +46,9 @@ async function scrollHandler(operation: TransformedOperation) {
               {{ tag.name }}
             </Anchor>
           </SectionHeader>
-          <MarkdownRenderer :value="tag.description" />
+          <MarkdownRenderer
+            :value="tag.description"
+            withImages />
         </SectionColumn>
         <SectionColumn>
           <template v-if="tag.operations?.length > 0">
