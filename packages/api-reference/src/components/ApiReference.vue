@@ -6,7 +6,7 @@ import { computed, toRef, watch } from 'vue'
 
 import { useDarkModeState, useHttpClients, useReactiveSpec } from '../hooks'
 import type { ReferenceConfiguration, ReferenceProps } from '../types'
-import Layouts from './Layouts/'
+import { Layouts } from './Layouts'
 
 const props = defineProps<ReferenceProps>()
 
@@ -92,7 +92,7 @@ const { parsedSpec, rawSpec } = useReactiveSpec({
     v-if="configuration?.customCss">
     {{ configuration.customCss }}
   </component>
-  <Component
+  <Layouts
     :is="Layouts[configuration?.layout || 'modern']"
     :configuration="configuration"
     :isDark="isDark"
@@ -100,8 +100,9 @@ const { parsedSpec, rawSpec } = useReactiveSpec({
     :rawSpec="rawSpec"
     @toggleDarkMode="() => toggleDarkMode()"
     @updateContent="$emit('updateContent', $event)">
-    <template #footer><slot name="footer" /></template>
-  </Component>
+    <!-- Expose the content end slot as a slot for the footer -->
+    <template #content-end><slot name="footer" /></template>
+  </Layouts>
 </template>
 <style>
 body {

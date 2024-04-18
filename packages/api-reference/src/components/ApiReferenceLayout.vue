@@ -7,7 +7,7 @@ import {
   type ThemeId,
   ThemeStyles,
 } from '@scalar/themes'
-import { ScalarToasts } from '@scalar/use-toasts'
+import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
   computed,
@@ -57,6 +57,12 @@ defineOptions({
 defineSlots<{
   [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
 }>()
+
+// Configure Reference toasts to use vue-sonner
+const { initializeToasts, toast } = useToasts()
+initializeToasts((message) => {
+  toast(message)
+})
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
 
