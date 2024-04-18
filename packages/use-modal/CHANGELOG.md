@@ -1,5 +1,15 @@
 # @scalar/use-modal
 
+## 0.3.0
+
+### Minor Changes
+
+- 0e64a36: refactor: rename all --theme-_ variables to --scalar-_
+
+### Patch Changes
+
+- 22f2858: chore: ran syncpack to update packages
+
 ## 0.2.10
 
 ### Patch Changes

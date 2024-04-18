@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.24
+
+### Patch Changes
+
+- 22f2858: chore: ran syncpack to update packages
+
 ## 0.5.23
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.1.6
+
+### Patch Changes
+
+- 22f2858: chore: ran syncpack to update packages
+
 ## 0.1.5
 
 ### Patch Changes

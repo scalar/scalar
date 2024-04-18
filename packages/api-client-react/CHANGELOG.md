@@ -1,5 +1,18 @@
 # @scalar/api-client-react
 
+## 0.3.0
+
+### Minor Changes
+
+- 0e64a36: refactor: rename all --theme-_ variables to --scalar-_
+
+### Patch Changes
+
+- 22f2858: chore: ran syncpack to update packages
+- Updated dependencies [22f2858]
+- Updated dependencies [0e64a36]
+  - @scalar/api-client@1.2.0
+
 ## 0.2.22
 
 ### Patch Changes

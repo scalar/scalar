@@ -1,5 +1,17 @@
 # @scalar/components
 
+## 0.5.0
+
+### Minor Changes
+
+- 0e64a36: refactor: rename all --theme-_ variables to --scalar-_
+
+### Patch Changes
+
+- 22f2858: chore: ran syncpack to update packages
+- Updated dependencies [22f2858]
+  - @scalar/oas-utils@0.1.6
+
 ## 0.4.11
 
 ### Patch Changes

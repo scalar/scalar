@@ -1,5 +1,20 @@
 # @scalar/express-api-reference
 
+## 0.4.0
+
+### Minor Changes
+
+- 0e64a36: refactor: rename all --theme-_ variables to --scalar-_
+
+### Patch Changes
+
+- 22f2858: chore: ran syncpack to update packages
+- Updated dependencies [22f2858]
+- Updated dependencies [ced76e5]
+- Updated dependencies [0e64a36]
+- Updated dependencies [3afec45]
+  - @scalar/api-reference@1.22.0
+
 ## 0.3.41
 
 ### Patch Changes

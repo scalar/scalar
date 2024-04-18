@@ -1,5 +1,11 @@
 # @scalar/echo-server
 
+## 0.6.1
+
+### Patch Changes
+
+- 22f2858: chore: ran syncpack to update packages
+
 ## 0.6.0
 
 ### Minor Changes
