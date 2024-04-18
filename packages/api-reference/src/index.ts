@@ -9,6 +9,7 @@ export { default as GettingStarted } from './components/GettingStarted.vue'
 export { createScalarReferences } from './esm'
 export { useReactiveSpec } from './hooks/useReactiveSpec'
 
+export * from './components/Layouts'
 export * from './components/DarkModeToggle'
 export * from './components/Sidebar'
 export * from './components/Card'
