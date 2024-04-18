@@ -11,9 +11,9 @@
 @layer base {
   * {
     box-sizing: border-box;
-    border-width: unset;
-    border-style: unset;
-    border-color: theme('borderColor.DEFAULT', currentColor);
+    border-width: 0;
+    border-style: solid;
+    border-color: var(--scalar-border-color);
 
     font-family: inherit;
     font-feature-settings: inherit;

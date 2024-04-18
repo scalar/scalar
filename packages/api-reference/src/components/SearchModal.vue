@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
+import { ScalarSearchInput } from '@scalar/components'
 import { type TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { FlowModal, type ModalState } from '@scalar/use-modal'
@@ -297,15 +298,8 @@ function getFullUrlFromHash(href: string) {
     <div
       ref="searchModalRef"
       class="ref-search-container">
-      <input
+      <ScalarSearchInput
         v-model="searchText"
-        autocapitalize="off"
-        autocomplete="off"
-        autocorrect="off"
-        class="ref-search-input"
-        placeholder="Search …"
-        spellcheck="false"
-        type="text"
         @input="fuseSearch" />
     </div>
     <div
@@ -359,24 +353,6 @@ function getFullUrlFromHash(href: string) {
 a {
   text-decoration: none;
 }
-/** Input */
-.ref-search-input {
-  width: 100%;
-  background: transparent;
-  padding: 12px;
-  font-size: var(--scalar-font-size-4);
-  outline: none;
-  border: 1px solid var(--scalar-border-color);
-  border-radius: var(--scalar-radius);
-  color: var(--scalar-color-1);
-  font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-font-size-3);
-  font-family: var(--scalar-font);
-  appearance: none;
-}
-.ref-search-input:focus {
-  border-color: var(--scalar-color-1);
-}
 /** Results */
 .item-entry {
   appearance: none;
@@ -400,10 +376,13 @@ a {
   display: none;
 }
 .ref-search-list {
-  padding: 0 12px 12px 12px;
+  padding: 12px;
 }
 .ref-search-container {
+  display: flex;
+  flex-direction: column;
   padding: 12px;
+  padding-bottom: 0px;
 }
 .item-entry--active,
 .item-entry:hover {
