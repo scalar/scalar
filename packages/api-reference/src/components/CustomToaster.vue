@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { Toaster } from 'vue-sonner'
 
+// The toaster is only required on the client
 const isClientMounted = ref(false)
 onMounted(() => (isClientMounted.value = true))
 </script>
