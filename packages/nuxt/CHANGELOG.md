@@ -1,5 +1,12 @@
 # @scalar/nuxt
 
+## 0.0.8
+
+### Patch Changes
+
+- ac85c04: chore: update readme
+- c68e7d9: fix: missing scalar vars in nuxt theme
+
 ## 0.0.7
 
 ### Patch Changes
