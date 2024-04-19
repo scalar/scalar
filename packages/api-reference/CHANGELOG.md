@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.22.1
+
+### Patch Changes
+
+- 8dc1640: feat: moved toast component to client only
+
 ## 1.22.0
 
 ### Minor Changes
