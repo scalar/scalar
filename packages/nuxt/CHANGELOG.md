@@ -1,5 +1,11 @@
 # @scalar/nuxt
 
+## 0.0.9
+
+### Patch Changes
+
+- da8a9ca: fix: building nuxt in the ci
+
 ## 0.0.8
 
 ### Patch Changes
