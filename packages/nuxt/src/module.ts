@@ -23,7 +23,7 @@ export default defineNuxtModule<ModuleOptions>({
       title: 'API Documentation by Scalar',
     },
     pathRouting: {
-      basePath: '/scalar',
+      basePath: '/docs',
     },
     showSidebar: true,
   },
