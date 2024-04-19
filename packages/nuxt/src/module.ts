@@ -14,7 +14,7 @@ export type ModuleOptions = Configuration
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: '@scalar/nuxt',
-    configKey: 'scalarConfig',
+    configKey: 'scalar',
   },
   // Default configuration options of the Nuxt module
   defaults: {

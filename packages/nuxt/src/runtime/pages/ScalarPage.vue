@@ -12,7 +12,7 @@ if (
   !meta.configuration?.spec?.content
 )
   throw new Error(
-    'You must either provide a spec to scalarConfig, or enable experimental openApi in the Nitro config.',
+    'You must either provide a spec to scalar, or enable experimental openApi in the Nitro config.',
   )
 </script>
 
