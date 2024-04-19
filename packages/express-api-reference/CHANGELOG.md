@@ -1,5 +1,12 @@
 # @scalar/express-api-reference
 
+## 0.4.3
+
+### Patch Changes
+
+- 85a0074: fix: hotfix integration fonts
+  - @scalar/api-reference@1.22.3
+
 ## 0.4.2
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @scalar/nestjs-api-reference
 
+## 0.3.3
+
+### Patch Changes
+
+- 85a0074: fix: hotfix integration fonts
+  - @scalar/api-reference@1.22.3
+
 ## 0.3.2
 
 ### Patch Changes

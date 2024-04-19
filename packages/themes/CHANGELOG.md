@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.7.2
+
+### Patch Changes
+
+- 85a0074: fix: hotfix integration fonts
+
 ## 0.7.1
 
 ### Patch Changes
