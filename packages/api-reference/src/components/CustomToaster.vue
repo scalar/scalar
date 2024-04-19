@@ -1,9 +1,15 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import { Toaster } from 'vue-sonner'
+
+const isClientMounted = ref(false)
+onMounted(() => (isClientMounted.value = true))
 </script>
 
 <template>
-  <Toaster :toastOptions="{ className: 'toaster' }" />
+  <Toaster
+    v-if="isClientMounted"
+    :toastOptions="{ className: 'toaster' }" />
 </template>
 
 <style>
@@ -19,9 +25,5 @@ import { Toaster } from 'vue-sonner'
   border-radius: var(--scalar-radius-lg);
   font-size: var(--scalar-font-size-3);
   color: var(--scalar-color-1);
-}
-/* To remove jump on SSR */
-ol[data-sonner-toaster] {
-  margin: 0;
 }
 </style>
