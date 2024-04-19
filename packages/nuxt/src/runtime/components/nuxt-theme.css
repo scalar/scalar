@@ -36,8 +36,6 @@
   --scalar-color-accent: rgb(0 220 130);
 
   --scalar-border-color: rgb(30 41 59);
-  /* --theme-code-language-color-supersede: black;
-  --theme-code-languages-background-supersede: #fff; */
 
   --scalar-color-green: #069061;
   --scalar-color-red: #f87171;
@@ -53,28 +51,28 @@
 
 .light-mode .t-doc__sidebar,
 .dark-mode .t-doc__sidebar {
-  --scalar-sidebar-background-1: var(--theme-background-1);
-  --scalar-sidebar-color-1: var(--theme-color-1);
-  --scalar-sidebar-color-2: var(--theme-color-3);
-  --scalar-sidebar-border-color: var(--theme-border-color);
+  --scalar-sidebar-background-1: var(--scalar-background-1);
+  --scalar-sidebar-color-1: var(--scalar-color-1);
+  --scalar-sidebar-color-2: var(--scalar-color-3);
+  --scalar-sidebar-border-color: var(--scalar-border-color);
 
   --scalar-sidebar-item-hover-background: transparent;
-  --scalar-sidebar-item-hover-color: var(--theme-color-1);
+  --scalar-sidebar-item-hover-color: var(--scalar-color-1);
 
   --scalar-sidebar-item-active-background: transparent;
-  --scalar-sidebar-color-active: var(--theme-color-accent);
+  --scalar-sidebar-color-active: var(--scalar-color-accent);
 
   --scalar-sidebar-search-background: transparent;
-  --scalar-sidebar-search-color: var(--theme-color-3);
-  --scalar-sidebar-search-border-color: var(--theme-border-color);
+  --scalar-sidebar-search-color: var(--scalar-color-3);
+  --scalar-sidebar-search-border-color: var(--scalar-border-color);
 
-  --scalar-sidebar-indent-border: var(--theme-border-color);
-  --scalar-sidebar-indent-border-hover: var(--theme-color-1);
-  --scalar-sidebar-indent-border-active: var(--theme-color-accent);
+  --scalar-sidebar-indent-border: var(--scalar-border-color);
+  --scalar-sidebar-indent-border-hover: var(--scalar-color-1);
+  --scalar-sidebar-indent-border-active: var(--scalar-color-accent);
 }
 /* cusotm theme */
 .scalar-card .request-card-footer {
-  --scalar-background-3: var(--theme-background-2);
+  --scalar-background-3: var(--scalar-background-2);
   --scalar-button-1: rgb(15, 23, 42);
   --scalar-button-1-hover: rgba(30, 41, 59, 0.5);
   --scalar-button-1-color: white;
