@@ -1,5 +1,11 @@
 # @scalar/nuxt
 
+## 0.0.11
+
+### Patch Changes
+
+- ad77186: chore: update scalar nuxt changelog
+
 ## 0.0.10
 
 ### Patch Changes
