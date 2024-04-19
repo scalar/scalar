@@ -50,6 +50,7 @@
     "pack:packages": "./scripts/pack.sh",
     "preview:standalone": "pnpm --filter api-reference preview:standalone",
     "playwright:install": "npx playwright install --with-deps",
+    "postinstall": "pnpm -r dev:prepare",
     "test": "vitest",
     "test:ci": "CI=1 vitest --silent",
     "test:e2e": "playwright test",
