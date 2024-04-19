@@ -45,9 +45,6 @@
   "files": [
     "dist"
   ],
-  "peerDepenencies": {
-    "debug": "4.3.4"
-  },
   "dependencies": {
     "@nuxt/kit": "^3.11.2",
     "@scalar/api-reference": "workspace:*"

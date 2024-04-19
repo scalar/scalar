@@ -23,7 +23,7 @@ export default defineNuxtModule<ModuleOptions>({
       title: 'API Documentation by Scalar',
     },
     pathRouting: {
-      basePath: '/scalar',
+      basePath: '/docs',
     },
     showSidebar: true,
   },
@@ -33,6 +33,18 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Ensure we transpile api-reference css
     _nuxt.options.build.transpile.push('@scalar/api-reference')
+
+    // Check if it exists and push else assign it
+    _nuxt.options.vite.optimizeDeps ||= {}
+    _nuxt.options.vite.optimizeDeps.include ||= []
+
+    // Ensure we transform these cjs dependencies, remove as they get converted to ejs
+    _nuxt.options.vite.optimizeDeps.include.push(
+      'debug',
+      'extend',
+      'stringify-object',
+      'rehype-highlight',
+    )
 
     // Also check for Nitro OpenAPI auto generation
     _nuxt.hook('nitro:config', (config) => {
