@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.22.3
+
+### Patch Changes
+
+- 85a0074: fix: hotfix integration fonts
+
 ## 1.22.2
 
 ### Patch Changes

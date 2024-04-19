@@ -1,5 +1,12 @@
 # @scalar/hono-api-reference
 
+## 0.5.3
+
+### Patch Changes
+
+- 85a0074: fix: hotfix integration fonts
+  - @scalar/api-reference@1.22.3
+
 ## 0.5.2
 
 ### Patch Changes
