@@ -1,5 +1,12 @@
 # @scalar/cli
 
+## 0.2.40
+
+### Patch Changes
+
+- @scalar/api-reference@1.22.2
+- @scalar/mock-server@0.1.37
+
 ## 0.2.39
 
 ### Patch Changes

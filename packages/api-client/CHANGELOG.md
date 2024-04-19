@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 1.2.1
+
+### Patch Changes
+
+- d77acdd: fix: missing css font
+- Updated dependencies [d77acdd]
+  - @scalar/themes@0.7.1
+  - @scalar/components@0.5.0
+
 ## 1.2.0
 
 ### Minor Changes

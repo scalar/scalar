@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.22.2
+
+### Patch Changes
+
+- d77acdd: fix: missing css font
+
 ## 1.22.0
 
 ### Minor Changes

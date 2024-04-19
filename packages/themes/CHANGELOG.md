@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.7.1
+
+### Patch Changes
+
+- d77acdd: fix: missing css font
+
 ## 0.7.0
 
 ### Minor Changes

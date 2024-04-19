@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.22.2
+
+### Patch Changes
+
+- Updated dependencies [d77acdd]
+  - @scalar/api-client@1.2.1
+  - @scalar/themes@0.7.1
+  - @scalar/components@0.5.0
+
 ## 1.22.1
 
 ### Patch Changes
