@@ -11,10 +11,6 @@ export type ApiReferenceOptions = ReferenceConfiguration & {
  * The custom theme CSS for the API Reference.
  */
 export const customThemeCSS = `
-:root {
-  --scalar-font: 'Inter', var(--system-fonts);
-}
-
 .light-mode {
   color-scheme: light;
   --scalar-color-1: #2a2f45;

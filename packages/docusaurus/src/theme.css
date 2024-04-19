@@ -185,7 +185,7 @@ html[data-theme='light'] .api-client-drawer {
   --scalar-mini: auto !important;
 }
 .sidebar-heading-link p {
-  font-family: var(--ifm-font-family-base), 'Inter', var(--system-fonts);
+  font-family: var(--ifm-font-family-base);
   font-weight: 500;
 }
 .sidebar-indent-nested .sidebar-heading {

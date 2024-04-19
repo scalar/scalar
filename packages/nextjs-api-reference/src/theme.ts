@@ -1,7 +1,4 @@
 export const nextjsThemeCss = `
-:root {
-  --scalar-font: 'Inter', var(--system-fonts);
-}
 /* basic theme */
 .dark-mode {
   --scalar-color-1: rgba(255, 255, 255, 0.9);

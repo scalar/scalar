@@ -46,10 +46,6 @@ const getJavaScriptUrl = (routePrefix?: string, publicPath?: string) =>
  * The Fastify custom theme CSS
  */
 export const defaultCss = `
-:root {
-  --scalar-font: 'Inter', var(--system-fonts);
-}
-
 .light-mode {
   color-scheme: light;
   --scalar-color-1: #1c1e21;
