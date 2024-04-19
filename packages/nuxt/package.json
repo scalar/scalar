@@ -27,7 +27,6 @@
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "prepack": "nuxt-module-build build",
-    "prepare": "pnpm dev:prepare",
     "test:watch": "vitest watch",
     "toist": "vitest run",
     "types:check": "nuxi typecheck"
