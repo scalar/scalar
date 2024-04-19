@@ -1,5 +1,13 @@
 # @scalar/nuxt
 
+## 0.0.7
+
+### Patch Changes
+
+- 8dc1640: fix: nuxt client commonJs conversion
+- Updated dependencies [8dc1640]
+  - @scalar/api-reference@1.22.1
+
 ## 0.0.6
 
 ### Patch Changes
