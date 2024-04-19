@@ -40,7 +40,7 @@ If you would like to add your own OpenAPI spec file you can do so with the follo
 ```ts
 export default defineNuxtConfig({
   modules: ['@scalar/nuxt'],
-  scalarConfig: {
+  scalar: {
     spec: {
       url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
     },
@@ -54,7 +54,7 @@ depth config example.
 ```ts
 export default defineNuxtConfig({
   modules: ['@scalar/nuxt'],
-  scalarConfig: {
+  scalar: {
     darkMode: true,
     hideModals: false,
     hideDownloadButton: false,
