@@ -120,7 +120,7 @@ watch(
   appearance: none;
   outline: 0;
   border: none;
-  font-family: (--scalar-font);
+  font-family: var(--scalar-font);
   cursor: pointer;
 }
 
@@ -128,7 +128,7 @@ watch(
   color: var(--scalar-color-1);
   font-size: var(--scalar-small);
   font-weight: var(--scalar-semibold);
-  font-family: (--scalar-font);
+  font-family: var(--scalar-font);
   user-select: none;
   flex: 1;
   position: relative;

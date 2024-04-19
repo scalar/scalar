@@ -286,7 +286,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   text-transform: uppercase;
   cursor: pointer;
   outline: none;
-  font-family: (--scalar-font);
+  font-family: var(--scalar-font);
   border-radius: 0 var(--scalar-radius) var(--scalar-radius) 0;
   background: var(--scalar-button-1);
   position: relative;

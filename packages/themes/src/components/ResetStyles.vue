@@ -15,7 +15,19 @@ useApplyClasses('#headlessui-portal-root', reset)
 /* Use :where to lower specificity to 0 */
 :where(.reset) :global {
   /** Add some more things which are normally applied to `html`. */
-  font-family: var(--scalar-font);
+  font-family:
+    var(--scalar-font),
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    'Open Sans',
+    'Helvetica Neue',
+    sans-serif;
   line-height: 1.15;
   -webkit-text-size-adjust: 100%;
   -moz-tab-size: 4;
@@ -48,20 +60,68 @@ useApplyClasses('#headlessui-portal-root', reset)
     border: unset;
     background: unset;
     appearance: unset;
-    font-family: var(--scalar-font);
+    font-family:
+      var(--scalar-font),
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      Oxygen,
+      Ubuntu,
+      Cantarell,
+      'Open Sans',
+      'Helvetica Neue',
+      sans-serif;
   }
 
   input::placeholder {
     color: var(--scalar-color-3);
-    font-family: var(--scalar-font);
+    font-family:
+      var(--scalar-font),
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      Oxygen,
+      Ubuntu,
+      Cantarell,
+      'Open Sans',
+      'Helvetica Neue',
+      sans-serif;
   }
   input:-ms-input-placeholder {
     color: var(--scalar-color-3);
-    font-family: var(--scalar-font);
+    font-family:
+      var(--scalar-font),
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      Oxygen,
+      Ubuntu,
+      Cantarell,
+      'Open Sans',
+      'Helvetica Neue',
+      sans-serif;
   }
   input::-webkit-input-placeholder {
     color: var(--scalar-color-3);
-    font-family: var(--scalar-font);
+    font-family:
+      var(--scalar-font),
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      Oxygen,
+      Ubuntu,
+      Cantarell,
+      'Open Sans',
+      'Helvetica Neue',
+      sans-serif;
   }
 }
 </style>
