@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.22.5
+
+### Patch Changes
+
+- d03ab0f: feat: add better support for additional properties
+
 ## 1.22.4
 
 ### Patch Changes
