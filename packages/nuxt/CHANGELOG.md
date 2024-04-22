@@ -1,5 +1,11 @@
 # @scalar/nuxt
 
+## 0.0.16
+
+### Patch Changes
+
+- 7e37c84: add scalar tab to nuxt devtools
+
 ## 0.0.15
 
 ### Patch Changes
