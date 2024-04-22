@@ -4,6 +4,7 @@ import {
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
+import { type Icon } from '@scalar/components'
 import { type TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { FlowModal, type ModalState } from '@scalar/use-modal'
@@ -17,18 +18,27 @@ import { type ParamMap, useNavState, useOperation, useSidebar } from '../hooks'
 import type { Spec } from '../types'
 import SidebarHttpBadge from './Sidebar/SidebarHttpBadge.vue'
 
+type EntryType = 'req' | 'webhook' | 'model' | 'heading'
+
 const props = defineProps<{
   parsedSpec: Spec
   modalState: ModalState
 }>()
 const reactiveSpec = toRef(props, 'parsedSpec')
 
+const ENTRY_ICONS: { [x in EntryType]: Icon } = {
+  heading: 'DocsPage',
+  model: 'JsonObject',
+  req: 'Terminal',
+  webhook: 'Terminal',
+}
+
 const keys = useMagicKeys()
 
 type FuseData = {
   title: string
   href: string
-  type: 'req' | 'webhook' | 'model' | 'heading'
+  type: EntryType
   operationId?: string
   description: string
   body?: string | string[] | ParamMap
@@ -315,7 +325,7 @@ function getFullUrlFromHash(href: string) {
         :key="entry.refIndex"
         :active="selectedSearchResult === index"
         :href="getFullUrlFromHash(entry.item.href)"
-        icon="Search"
+        :icon="ENTRY_ICONS[entry.item.type]"
         @click="onSearchResultClick(entry)"
         @focus="selectedSearchResult = index">
         {{ entry.item.title }}

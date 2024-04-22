@@ -3,10 +3,10 @@ import { computed, useAttrs } from 'vue'
 
 import { cx } from '../../cva'
 
-defineProps<{
-  // empty?: boolean
-  // noResults?: boolean
-}>()
+// defineProps<{
+//   empty?: boolean
+//   noResults?: boolean
+// }>()
 
 defineOptions({ inheritAttrs: false })
 
