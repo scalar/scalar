@@ -1,5 +1,5 @@
 ---
-"@scalar/nuxt": minor
+"@scalar/nuxt": patch
 ---
 
 add scalar tab to nuxt devtools
