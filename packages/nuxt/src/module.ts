@@ -26,6 +26,7 @@ export default defineNuxtModule<ModuleOptions>({
       basePath: '/docs',
     },
     showSidebar: true,
+    devtools: true,
   },
   setup(_options, _nuxt) {
     const resolver = createResolver(import.meta.url)
@@ -70,6 +71,21 @@ export default defineNuxtModule<ModuleOptions>({
         file: resolver.resolve('./runtime/pages/ScalarPage.vue'),
       })
     })
+
+    // add scalar tab to DevTools
+    if (_nuxt.options.dev && _options.devtools) {
+      _nuxt.hook('devtools:customTabs', (tabs) => {
+        tabs.push({
+          name: 'scalar',
+          title: 'Scalar',
+          icon: 'https://scalar.com/favicon.svg',
+          view: {
+            type: 'iframe',
+            src: _options.pathRouting?.basePath,
+          },
+        })
+      })
+    }
 
     // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
     addPlugin(resolver.resolve('./runtime/plugins/hydrateClient'))
