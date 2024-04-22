@@ -78,7 +78,8 @@ export default defineNuxtModule<ModuleOptions>({
         tabs.push({
           name: 'scalar',
           title: 'Scalar',
-          icon: 'https://scalar.com/favicon.svg',
+          icon: 'https://gist.githubusercontent.com/cameronrohani/0fa020f6dcf957266bff49e7b6b7c05e/raw/17fce1ef37bbb036dca36b778c8b422056ad6fdf/scalar-logo-nuxt-color.svg',
+          category: 'server',
           view: {
             type: 'iframe',
             src: _options.pathRouting!.basePath,
