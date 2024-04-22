@@ -81,7 +81,7 @@ export default defineNuxtModule<ModuleOptions>({
           icon: 'https://scalar.com/favicon.svg',
           view: {
             type: 'iframe',
-            src: _options.pathRouting?.basePath,
+            src: _options.pathRouting!.basePath,
           },
         })
       })
