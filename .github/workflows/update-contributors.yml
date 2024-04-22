@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Update the list of contributors
-        uses: akhilmhdh/contributors-readme-action@v2.3.6
+        uses: akhilmhdh/contributors-readme-action@v2.3.8
         with:
           use_username: true
         env:

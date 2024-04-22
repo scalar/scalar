@@ -7,6 +7,7 @@ withDefaults(
     value?: Record<string, any>
     enum?: boolean
     required?: boolean
+    additional?: boolean
   }>(),
   {
     level: 0,
@@ -24,6 +25,11 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       <slot name="name" />
     </div>
     <div
+      v-if="additional"
+      class="property-additional">
+      additional properties
+    </div>
+    <div
       v-if="value?.deprecated"
       class="property-deprecated">
       <Badge>deprecated</Badge>
@@ -36,8 +42,14 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     <div
       v-if="value?.type"
       class="property-details">
+      <SchemaPropertyDetail v-if="additional">
+        <template #prefix>key:</template>
+        string
+      </SchemaPropertyDetail>
       <SchemaPropertyDetail>
-        <template v-if="value?.items && !['object'].includes(value.items.type)">
+        <!-- prettier-ignore -->
+        <template v-if="additional" #prefix>value:</template >
+        <template v-if="value?.items?.type">
           {{ value.type }}
           {{ value.items.type }}[]
         </template>
@@ -112,6 +124,9 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
 .property-name {
   font-family: var(--scalar-font-code);
+}
+.property-additional {
+  font-size: var(--scalar-font-size-3);
 }
 
 .property-required,

@@ -1,5 +1,6 @@
 import ApiClientPage from './pages/ApiClientPage.vue'
 import ApiReferencePage from './pages/ApiReferencePage.vue'
+import ApiReferenceTestPage from './pages/ApiReferenceTestPage.vue'
 import ClassicApiReferencePage from './pages/ClassicApiReferencePage.vue'
 import EmbeddedApiReferencePage from './pages/EmbeddedApiReferencePage.vue'
 import StandaloneApiReferencePage from './pages/StandaloneApiReferencePage.vue'
@@ -32,5 +33,10 @@ export const routes = [
     path: '/embedded-api-reference',
     name: 'embedded-api-reference',
     component: EmbeddedApiReferencePage,
+  },
+  {
+    path: '/test-api-reference/:layout/:theme',
+    name: 'test-api-reference',
+    component: ApiReferenceTestPage,
   },
 ]

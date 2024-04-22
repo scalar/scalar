@@ -11,6 +11,7 @@ withDefaults(
     required?: boolean
     compact?: boolean
     description?: string
+    additional?: boolean
   }>(),
   {
     level: 0,
@@ -76,6 +77,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       },
     ]">
     <SchemaPropertyHeading
+      :additional="additional"
       :enum="!!getEnumFromValue(value)"
       :required="required"
       :value="value">
