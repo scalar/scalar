@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.22.6
+
+### Patch Changes
+
+- cf12a95: fix: sidebar models collapse
+- 7b37c63: fix: start section theme name
+
 ## 1.22.5
 
 ### Patch Changes
