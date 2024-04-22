@@ -39,7 +39,6 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.20",
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/themes": "workspace:*",
     "@storybook/test": "^8.0.8",
     "@vueuse/core": "^10.9.0",
     "class-variance-authority": "^0.7.0",

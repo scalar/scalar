@@ -31,7 +31,7 @@ const attrs = computed(() => {
     v-bind="attrs.rest"
     :class="
       cx(
-        'flex rounded border text-sm font-medium focus-within:border-fore-1',
+        'flex rounded border bg-back-1 text-sm font-medium focus-within:border-fore-1',
         attrs.className,
       )
     ">
@@ -40,7 +40,7 @@ const attrs = computed(() => {
       autocapitalize="off"
       autocomplete="off"
       autocorrect="off"
-      class="flex-1 rounded p-3 outline-none"
+      class="flex-1 rounded bg-transparent p-3 outline-none"
       placeholder="Search..."
       spellcheck="false"
       type="text"

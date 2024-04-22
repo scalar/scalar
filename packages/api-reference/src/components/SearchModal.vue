@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
-import { ScalarSearchInput } from '@scalar/components'
+import {
+  ScalarSearchInput,
+  ScalarSearchResultItem,
+  ScalarSearchResultList,
+} from '@scalar/components'
 import { type TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { FlowModal, type ModalState } from '@scalar/use-modal'
@@ -302,47 +306,41 @@ function getFullUrlFromHash(href: string) {
         v-model="searchText"
         @input="fuseSearch" />
     </div>
-    <div
+    <ScalarSearchResultList
       v-if="searchResultsWithPlaceholderResults.length"
-      class="ref-search-list custom-scroll">
-      <a
+      class="ref-search-results custom-scroll">
+      <ScalarSearchResultItem
         v-for="(entry, index) in searchResultsWithPlaceholderResults"
         :id="entry.item.href"
         :key="entry.refIndex"
-        class="item-entry"
-        :class="{
-          'item-entry--active': index === selectedSearchResult,
-          'item-entry--tag': !entry.item.httpVerb,
-        }"
+        :active="selectedSearchResult === index"
         :href="getFullUrlFromHash(entry.item.href)"
+        icon="Search"
         @click="onSearchResultClick(entry)"
         @focus="selectedSearchResult = index">
-        <HttpMethod
-          as="div"
-          class="item-entry-http-verb"
-          :method="entry.item.httpVerb ?? 'get'"
-          short />
-        <div
-          v-if="entry.item.title"
-          class="item-entry-title">
-          {{ entry.item.title }}
-        </div>
-
-        <div
+        {{ entry.item.title }}
+        <template
           v-if="
             (entry.item.httpVerb || entry.item.path) &&
             entry.item.path !== entry.item.title
           "
-          class="item-entry-path">
+          #description>
           {{ entry.item.path }}
-        </div>
-        <div
+        </template>
+        <template
           v-else-if="entry.item.description"
-          class="item-entry-description">
+          #description>
           {{ entry.item.description }}
-        </div>
-      </a>
-    </div>
+        </template>
+        <template #addon>
+          <HttpMethod
+            as="div"
+            class="item-entry-http-verb"
+            :method="entry.item.httpVerb ?? 'get'"
+            short />
+        </template>
+      </ScalarSearchResultItem>
+    </ScalarSearchResultList>
     <div class="ref-search-meta">
       <span>↑↓ Navigate</span>
       <span>⏎ Select</span>
@@ -353,86 +351,14 @@ function getFullUrlFromHash(href: string) {
 a {
   text-decoration: none;
 }
-/** Results */
-.item-entry {
-  appearance: none;
-  background: transparent;
-  border: none;
-  outline: none;
-  padding: 9px 12px;
-  width: 100%;
-  color: var(--scalar-color-3);
-  text-align: left;
-  border-radius: var(--scalar-radius);
-  display: flex;
-  align-items: center;
-  font-family: var(--scalar-font);
-  min-height: 31px;
-  display: flex;
-  gap: 6px;
-  overflow: hidden;
-}
-.item-entry-http-verb:empty {
-  display: none;
-}
-.ref-search-list {
-  padding: 12px;
-}
 .ref-search-container {
   display: flex;
   flex-direction: column;
   padding: 12px;
   padding-bottom: 0px;
 }
-.item-entry--active,
-.item-entry:hover {
-  background: var(--scalar-background-2);
-  cursor: pointer;
-}
-
-/** If it’s a tag, let’s put a dash between the tag name and the description and set the margin to the gap size. */
-.item-entry--tag .item-entry-description::before {
-  content: '–';
-  margin-right: 6px;
-}
-.item-entry-description,
-.item-entry-title {
-  font-weight: var(--scalar-semibold);
-  color: var(--scalar-color-1);
-  font-size: var(--scalar-font-size-4);
-  white-space: nowrap;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.item-entry-title {
-  min-width: fit-content;
-}
-.item-entry-http-verb,
-.item-entry-subtitle {
-  display: flex;
-  font-size: var(--scalar-font-size-4);
-  font-family: var(--scalar-font-code);
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.item-entry-http-verb {
-  text-transform: uppercase;
-  min-width: 45px;
-  position: relative;
-  /* optically center since all characters  above baseline*/
-  top: 0.5px;
-}
-.item-entry-path {
-  color: var(--scalar-color-3);
-  font-size: var(--scalar-font-size-4);
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.ref-search-results {
+  padding: 12px;
 }
 .ref-search-meta {
   background: var(--scalar-background-3);
@@ -442,5 +368,22 @@ a {
   font-weight: var(--scalar-semibold);
   display: flex;
   gap: 12px;
+}
+.item-entry-http-verb {
+  display: flex;
+  font-size: var(--scalar-font-size-4);
+  font-family: var(--scalar-font-code);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  min-width: 45px;
+  position: relative;
+  /* optically center since all characters  above baseline*/
+  top: 0.5px;
+}
+.item-entry-http-verb:empty {
+  display: none;
 }
 </style>

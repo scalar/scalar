@@ -4,10 +4,6 @@ import { ref } from 'vue'
 import { useLoadingState } from '../ScalarLoading'
 import ScalarSearchInput from './ScalarSearchInput.vue'
 
-/**
- * - Default slot must be text only as it becomes the [aria]-label
- * - If you are looking for an icon only button, use ScalarIconButton instead, its a helpful wrapper around this component
- */
 const meta = {
   component: ScalarSearchInput,
   tags: ['autodocs'],
