@@ -1,3 +1,3 @@
 <script setup lang="ts">
-import('../fonts.css')
+import '../fonts.css'
 </script>
