@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.22.4
+
+### Patch Changes
+
+- adc0693: feat: use http as default scheme for Swagger 2.0 specifications
+
 ## 1.22.3
 
 ### Patch Changes
