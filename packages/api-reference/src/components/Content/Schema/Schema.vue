@@ -33,7 +33,10 @@ const mergedSchema = computed(() => {
     ...(typeof props.value === 'object' ? props.value : {}),
     ...(typeof props.value === 'object' &&
     typeof props.value?.additionalProperties === 'object'
-      ? props.value?.additionalProperties
+      ? {
+          ...props.value?.additionalProperties,
+          additionalProperties: undefined,
+        }
       : {}),
   }
 })
