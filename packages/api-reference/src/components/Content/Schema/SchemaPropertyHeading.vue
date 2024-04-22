@@ -126,7 +126,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   font-family: var(--theme-font-code, var(--default-theme-font-code));
 }
 .property-additional {
-  font-size: var(--theme-font-size-3, var(--default-theme-font-size-3));
+  font-size: var(--scalar-font-size-3);
 }
 
 .property-required,
