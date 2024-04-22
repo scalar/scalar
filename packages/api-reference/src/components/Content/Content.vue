@@ -48,14 +48,13 @@ watch(
 
     if (parsedSpec.servers && parsedSpec.servers.length > 0) {
       servers = parsedSpec.servers
-    } else if (
-      props.parsedSpec.host &&
-      props.parsedSpec.schemes &&
-      props.parsedSpec.schemes.length > 0
-    ) {
+    } else if (props.parsedSpec.host) {
+      // Use the first scheme if available, otherwise default to http
+      const scheme = props.parsedSpec.schemes?.[0] ?? 'http'
+
       servers = [
         {
-          url: `${props.parsedSpec.schemes[0]}://${props.parsedSpec.host}${
+          url: `${scheme}://${props.parsedSpec.host}${
             props.parsedSpec?.basePath ?? ''
           }`,
         },
