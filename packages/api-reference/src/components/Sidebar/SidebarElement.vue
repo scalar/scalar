@@ -33,6 +33,13 @@ const { hash, isIntersectionEnabled, pathRouting } = useNavState()
 const handleClick = async () => {
   if (props.hasChildren) emit('toggleOpen')
   props.item?.select?.()
+
+  // If the section was open, wait for a short delay before enabling intersection observer
+  if (props.open) {
+    isIntersectionEnabled.value = false
+    await sleep(100)
+  }
+  isIntersectionEnabled.value = true
 }
 
 // Build relative URL and add hash
