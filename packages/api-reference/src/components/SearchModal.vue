@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { HttpMethod } from '@scalar/api-client'
 import {
   ScalarSearchInput,
   ScalarSearchResultItem,
@@ -16,6 +15,7 @@ import { getHeadingsFromMarkdown } from '../helpers'
 import { extractRequestBody } from '../helpers/specHelpers'
 import { type ParamMap, useNavState, useOperation, useSidebar } from '../hooks'
 import type { Spec } from '../types'
+import SidebarHttpBadge from './Sidebar/SidebarHttpBadge.vue'
 
 const props = defineProps<{
   parsedSpec: Spec
@@ -332,12 +332,10 @@ function getFullUrlFromHash(href: string) {
           #description>
           {{ entry.item.description }}
         </template>
-        <template #addon>
-          <HttpMethod
-            as="div"
-            class="item-entry-http-verb"
-            :method="entry.item.httpVerb ?? 'get'"
-            short />
+        <template
+          v-if="entry.item.type === 'req'"
+          #addon>
+          <SidebarHttpBadge :method="entry.item.httpVerb ?? 'get'" />
         </template>
       </ScalarSearchResultItem>
     </ScalarSearchResultList>
@@ -368,22 +366,5 @@ a {
   font-weight: var(--scalar-semibold);
   display: flex;
   gap: 12px;
-}
-.item-entry-http-verb {
-  display: flex;
-  font-size: var(--scalar-font-size-4);
-  font-family: var(--scalar-font-code);
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-  min-width: 45px;
-  position: relative;
-  /* optically center since all characters  above baseline*/
-  top: 0.5px;
-}
-.item-entry-http-verb:empty {
-  display: none;
 }
 </style>
