@@ -15,9 +15,11 @@ const props = withDefaults(
     proxyUrl?: string
     readOnly?: boolean
     theme?: ThemeId
+    withoutDefaultFonts: boolean
   }>(),
   {
     readOnly: false,
+    withoutDefaultFonts: false,
   },
 )
 
@@ -53,7 +55,9 @@ watch(
 </script>
 
 <template>
-  <ThemeStyles :id="theme" />
+  <ThemeStyles
+    :id="theme"
+    :withoutDefaultFonts="withoutDefaultFonts" />
   <HttpMethod
     class="scalar-api-client"
     :method="activeRequest.type ?? 'get'"
