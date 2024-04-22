@@ -93,7 +93,6 @@ const { parsedSpec, rawSpec } = useReactiveSpec({
     {{ configuration.customCss }}
   </component>
   <Layouts
-    :is="Layouts[configuration?.layout || 'modern']"
     :configuration="configuration"
     :isDark="isDark"
     :parsedSpec="parsedSpec"

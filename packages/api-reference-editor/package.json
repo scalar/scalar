@@ -48,15 +48,20 @@
     "url": "https://github.com/scalar/scalar.git",
     "directory": "packages/api-reference-editor"
   },
+  "dependencies": {
+    "@scalar/api-client": "workspace:*",
+    "@scalar/api-reference": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
+    "@scalar/use-codemirror": "workspace:*",
+    "unhead": "^1.8.3"
+  },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "tsc-alias": "^1.8.8",
     "vite": "^5.1.1",
     "vite-svg-loader": "^5.1.0",
-    "vue": "^3.3.0"
-  },
-  "peerDependencies": {
-    "vue": "^3.3.0"
+    "vue": "^3.4.21",
+    "vue-tsc": "^1.8.19"
   }
 }
