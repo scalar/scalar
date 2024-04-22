@@ -14,6 +14,10 @@ export default defineConfig({
           dest: './',
         },
         {
+          src: 'src/fonts.css',
+          dest: './',
+        },
+        {
           src: 'src/scrollbar.css',
           dest: './',
         },

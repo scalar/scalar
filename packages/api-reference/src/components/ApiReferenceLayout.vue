@@ -212,7 +212,9 @@ provide(
 hideModels.value = props.configuration.hideModels ?? false
 </script>
 <template>
-  <ThemeStyles :id="configuration?.theme" />
+  <ThemeStyles
+    :id="configuration?.theme"
+    :withoutDefaultFonts="configuration?.withoutDefaultFonts" />
   <ResetStyles v-slot="{ styles: reset }">
     <ScrollbarStyles v-slot="{ styles: scrollbars }">
       <div

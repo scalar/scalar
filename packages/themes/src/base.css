@@ -1,6 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900');
-@import url('https://fonts.googleapis.com/css?family=JetBrains%20Mono');
-
 @layer scalar-base {
   :root {
     --scalar-border-width: 1px;
