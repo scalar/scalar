@@ -28,6 +28,20 @@ const themeIds: ThemeId[] = [
   'deepSpace',
 ]
 
+const themeNames: Record<ThemeId, string> = {
+  default: 'Default',
+  alternate: 'Alternate',
+  moon: 'Moon',
+  purple: 'Purple',
+  solarized: 'Solarized',
+  bluePlanet: 'Blue Planet',
+  saturn: 'Saturn',
+  kepler: 'Kepler-11e',
+  mars: 'Mars',
+  deepSpace: 'Deep Space',
+  none: '',
+}
+
 function handleEmitPetstore() {
   emits('updateContent', petstore)
 }
@@ -179,7 +193,7 @@ function handleEmitPetstore() {
           class="start-item"
           :class="{ 'start-item-active': themeId === theme }"
           @click="$emit('changeTheme', themeId)">
-          {{ themeId.toLocaleLowerCase() }}
+          {{ themeNames[themeId] }}
         </div>
       </div>
     </div>
