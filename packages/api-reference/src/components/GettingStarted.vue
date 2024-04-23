@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
-import { type ThemeId } from '@scalar/themes'
+import { type ThemeId, themeLabels } from '@scalar/themes'
 
 import petstore from '../specs/petstorev3.json?raw'
 
@@ -27,20 +27,6 @@ const themeIds: ThemeId[] = [
   'mars',
   'deepSpace',
 ]
-
-const themeNames: Record<ThemeId, string> = {
-  default: 'Default',
-  alternate: 'Alternate',
-  moon: 'Moon',
-  purple: 'Purple',
-  solarized: 'Solarized',
-  bluePlanet: 'Blue Planet',
-  saturn: 'Saturn',
-  kepler: 'Kepler-11e',
-  mars: 'Mars',
-  deepSpace: 'Deep Space',
-  none: '',
-}
 
 function handleEmitPetstore() {
   emits('updateContent', petstore)
@@ -193,7 +179,7 @@ function handleEmitPetstore() {
           class="start-item"
           :class="{ 'start-item-active': themeId === theme }"
           @click="$emit('changeTheme', themeId)">
-          {{ themeNames[themeId] }}
+          {{ themeLabels[themeId] }}
         </div>
       </div>
     </div>
