@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.5.1
+
+### Patch Changes
+
+- 24662c3: feat: rebuild search modal
+
 ## 0.5.0
 
 ### Minor Changes
