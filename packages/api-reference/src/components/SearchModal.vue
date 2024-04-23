@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {
+  type Icon,
   ScalarSearchInput,
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
-import { type Icon } from '@scalar/components'
 import { type TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { FlowModal, type ModalState } from '@scalar/use-modal'
@@ -18,7 +18,7 @@ import { type ParamMap, useNavState, useOperation, useSidebar } from '../hooks'
 import type { Spec } from '../types'
 import SidebarHttpBadge from './Sidebar/SidebarHttpBadge.vue'
 
-type EntryType = 'req' | 'webhook' | 'model' | 'heading'
+type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
 
 const props = defineProps<{
   parsedSpec: Spec
@@ -30,6 +30,7 @@ const ENTRY_ICONS: { [x in EntryType]: Icon } = {
   heading: 'DocsPage',
   model: 'JsonObject',
   req: 'Terminal',
+  tag: 'CodeFolder',
   webhook: 'Terminal',
 }
 
@@ -120,7 +121,7 @@ watch(
         title: tag.name,
         href: `#${getTagId(tag)}`,
         description: tag.description,
-        type: 'req',
+        type: 'tag',
         tag: tag.name,
         body: '',
       }
