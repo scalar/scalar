@@ -38,6 +38,23 @@ export type ThemeId =
   | 'none'
 
 /**
+ * User readable theme names / labels
+ */
+export const themeLabels: Record<ThemeId, string> = {
+  default: 'Default',
+  alternate: 'Alternate',
+  moon: 'Moon',
+  purple: 'Purple',
+  solarized: 'Solarized',
+  bluePlanet: 'Blue Planet',
+  saturn: 'Saturn',
+  kepler: 'Kepler-11e',
+  mars: 'Mars',
+  deepSpace: 'Deep Space',
+  none: '',
+}
+
+/**
  * List of available theme presets.
  */
 export const presets: Record<Exclude<ThemeId, 'none'>, string> = {
