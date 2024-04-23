@@ -1,5 +1,5 @@
 ---
-"@scalar/themes": minor
+"@scalar/themes": patch
 "@scalar/api-reference": patch
 ---
 
