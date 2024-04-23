@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.22.7
+
+### Patch Changes
+
+- c408cf5: style: getting started integrations + themes
+
 ## 1.22.6
 
 ### Patch Changes
