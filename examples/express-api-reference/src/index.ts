@@ -49,6 +49,7 @@ app.use(
 )
 
 // Listen
-app.listen(5055, () => {
-  console.log('💻 Express listening on http://localhost:5055')
+const PORT = 8080
+app.listen(PORT, () => {
+  console.log(`💻 Express listening on http://localhost:${PORT}`)
 })
