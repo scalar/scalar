@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.22.9
+
+### Patch Changes
+
+- 6f68b40: fix: allow nullable additional properties
+- 4d31b19: refactor: move theme labels to @scalar/themes
+- Updated dependencies [4d31b19]
+  - @scalar/themes@0.7.3
+  - @scalar/api-client@1.2.4
+  - @scalar/components@0.5.1
+
 ## 1.22.8
 
 ### Patch Changes
