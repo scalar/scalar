@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.7.3
+
+### Patch Changes
+
+- 4d31b19: refactor: move theme labels to @scalar/themes
+
 ## 0.7.2
 
 ### Patch Changes
