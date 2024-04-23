@@ -10,6 +10,6 @@ defineProps<{
   <component
     :is="'style'"
     v-if="id !== 'none'">
-    {{ getThemeById(id) }}
+    {{ getThemeById(id, { layer: 'scalar-theme' }) }}
   </component>
 </template>

@@ -7,7 +7,11 @@ export default mergeConfig(
   defineConfig({
     test: {
       css: {
-        include: /.\/fixtures\/.+/,
+        /**
+         * Allow vitest to actually import css files for testing
+         * @see https://vitest.dev/config/#css
+         */
+        include: /.\/.+/,
       },
       deps: {
         web: {
