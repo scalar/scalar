@@ -112,13 +112,14 @@ const handleClick = (e: MouseEvent) =>
               <SchemaProperty
                 v-if="
                   value.additionalProperties === true ||
-                  Object.keys(value.additionalProperties).length === 0
+                  Object.keys(value.additionalProperties).length === 0 ||
+                  !value.additionalProperties.type
                 "
                 additional
                 :compact="compact"
                 :level="level"
                 noncollapsible
-                :value="{ type: 'any' }" />
+                :value="{ type: 'any', ...value.additionalProperties }" />
               <!-- Allows a specific type of additional property value -->
               <SchemaProperty
                 v-else
