@@ -23,7 +23,7 @@ const attrs = computed(() => {
       v-bind="attrs.rest"
       :class="
         cx(
-          'group flex cursor-pointer gap-3 rounded px-3 py-2.5 no-underline hover:bg-back-2',
+          'group flex cursor-pointer gap-3 rounded px-3 py-1.5 no-underline hover:bg-back-2',
           {
             'bg-back-2': active,
           },
@@ -40,7 +40,7 @@ const attrs = computed(() => {
         </slot>
       </div>
       <!-- Content -->
-      <div class="flex flex-1 flex-col gap-1">
+      <div class="flex flex-1 flex-col gap-0.75">
         <div class="flex items-center">
           <div class="flex-1 truncate text-sm font-medium">
             <slot />
