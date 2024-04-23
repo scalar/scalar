@@ -3,10 +3,9 @@ import { computed, useAttrs } from 'vue'
 
 import { cx } from '../../cva'
 
-// defineProps<{
-//   empty?: boolean
-//   noResults?: boolean
-// }>()
+defineProps<{
+  noResults?: boolean
+}>()
 
 defineOptions({ inheritAttrs: false })
 
@@ -20,6 +19,17 @@ const attrs = computed(() => {
   <ul
     v-bind="attrs.rest"
     :class="cx('flex flex-col', attrs.className)">
+    <slot
+      v-if="noResults"
+      name="noResults">
+      <div class="flex flex-col items-center gap-2 px-3 py-4">
+        <div class="rotate-90 text-lg font-bold">:(</div>
+        <div class="text-sm font-medium text-fore-2">
+          No results found
+          <template v-if="$slots.query">for "<slot name="query" />"</template>
+        </div>
+      </div>
+    </slot>
     <slot />
   </ul>
 </template>

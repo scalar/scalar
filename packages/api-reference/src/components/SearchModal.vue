@@ -318,8 +318,8 @@ function getFullUrlFromHash(href: string) {
         @input="fuseSearch" />
     </div>
     <ScalarSearchResultList
-      v-if="searchResultsWithPlaceholderResults.length"
-      class="ref-search-results custom-scroll">
+      class="ref-search-results custom-scroll"
+      :noResults="!searchResultsWithPlaceholderResults.length">
       <ScalarSearchResultItem
         v-for="(entry, index) in searchResultsWithPlaceholderResults"
         :id="entry.item.href"
@@ -349,6 +349,7 @@ function getFullUrlFromHash(href: string) {
           <SidebarHttpBadge :method="entry.item.httpVerb ?? 'get'" />
         </template>
       </ScalarSearchResultItem>
+      <template #query>{{ searchText }}</template>
     </ScalarSearchResultList>
     <div class="ref-search-meta">
       <span>↑↓ Navigate</span>

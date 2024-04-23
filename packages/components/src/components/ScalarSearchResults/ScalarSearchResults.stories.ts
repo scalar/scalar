@@ -38,14 +38,12 @@ type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
 
-// export const Loading: Story = {
-//   render: () => ({
-//     components: { ScalarSearchResultList },
-//     setup() {
-//       const loadingState = useLoadingState()
-//       loadingState.startLoading()
-//       return { loadingState }
-//     },
-//     template: `<ScalarSearchInput modelValue="My search query" :loading="loadingState" />`,
-//   }),
-// }
+export const NoResults: Story = {
+  render: () => ({
+    components: { ScalarSearchResultList },
+    template: `
+<ScalarSearchResultList noResults>
+  <template #query>search query</template>
+</ScalarSearchResultList>`,
+  }),
+}
