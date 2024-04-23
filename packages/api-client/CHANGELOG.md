@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 1.2.3
+
+### Patch Changes
+
+- Updated dependencies [96ded16]
+- Updated dependencies [24662c3]
+  - @scalar/use-codemirror@0.10.1
+  - @scalar/components@0.5.1
+
 ## 1.2.2
 
 ### Patch Changes

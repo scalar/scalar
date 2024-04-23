@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.22.8
+
+### Patch Changes
+
+- 24662c3: feat: rebuild search modal
+- Updated dependencies [24662c3]
+  - @scalar/components@0.5.1
+  - @scalar/api-client@1.2.3
+
 ## 1.22.7
 
 ### Patch Changes
