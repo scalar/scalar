@@ -43,5 +43,3 @@ export {
   useLoadingState,
   useModal,
 }
-
-export { extend, theme } from './tailwind'
