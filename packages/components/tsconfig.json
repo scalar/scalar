@@ -20,5 +20,6 @@
     "target": "es2022",
     "verbatimModuleSyntax": true
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "include": ["src"]
 }
