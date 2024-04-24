@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.5.2
+
+### Patch Changes
+
+- e8ef57e: chore: export tailwind config as ts
+- 1353154: fix: circular references in code blocks throw errors
+
 ## 0.5.1
 
 ### Patch Changes
