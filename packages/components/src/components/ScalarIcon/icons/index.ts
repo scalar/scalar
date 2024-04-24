@@ -2,6 +2,7 @@ import { defineAsyncComponent } from 'vue'
 
 import { type ICONS } from './icons'
 
+// @ts-expect-error This is a dynamic import
 const icons = import.meta.glob<SVGElement>('./*.svg')
 
 /**
