@@ -1,14 +1,22 @@
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { webpackStats } from 'rollup-plugin-webpack-stats'
+import banner from 'vite-plugin-banner'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { defineConfig } from 'vitest/config'
+
+import licenseBanner from './license-banner.txt'
 
 export default defineConfig({
   define: {
     'process.env.NODE_ENV': '"production"',
   },
-  plugins: [vue(), cssInjectedByJsPlugin(), webpackStats()],
+  plugins: [
+    vue(),
+    cssInjectedByJsPlugin(),
+    webpackStats(),
+    banner({ outDir: 'dist/browser', content: licenseBanner }),
+  ],
   build: {
     emptyOutDir: false,
     outDir: 'dist/browser',
