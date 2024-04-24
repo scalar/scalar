@@ -40,6 +40,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   - [With AdonisJS](#with-adonisjs)
   - [With Laravel](#with-laravel)
   - [With Rust](#with-rust)
+- [CLI](#cli)
 - [Hosted API Reference](#hosted-api-reference)
 - [Configuration](#configuration)
 - [Layouts](#layouts)
@@ -394,6 +395,77 @@ use aide::{
         )
         ...
 ```
+
+## CLI
+
+We’ve also got a nice command-line interface that you can use to play with OpenAPI files locally, integrate validation into your CI or share them easily (with us or anyone else).
+
+[CLI documentation](https://github.com/scalar/scalar/tree/main/packages/cli)
+
+Here’s a few use cases:
+
+### Installation
+
+You can use [npx](https://docs.npmjs.com/cli/v8/commands/npx) to use the CLI without manually installing it:
+
+```bash
+npx @scalar/cli --version
+```
+
+If you want to install it locally, you can do it like this:
+
+```bash
+npm -g install @scalar/cli
+scalar --version
+```
+
+### Format
+
+Quickly bring your OpenAPI file (JSON or YAML) into shape:
+
+```bash
+scalar format openapi.json --output openapi.yaml
+```
+
+### Validate
+
+Validate your OpenAPI file to find errors quickly, [great for CI](https://github.com/scalar/scalar/blob/main/.github/workflows/validate-openapi-file.yml):
+
+```bash
+scalar validate openapi.json
+```
+
+Oh, and all commands work with hosted OpenAPI files, too:
+
+```bash
+scalar validate https://example.com/openapi.json
+```
+
+### Preview
+
+Preview the API reference for your OpenAPI file with just one command. It can even watch your file and reload the content on file changes:
+
+```bash
+scalar reference openapi.json --watch
+```
+
+### Mock server
+
+Designing an API, but don’t have a backend yet? Just quickly boot up a mock server like this:
+
+```bash
+scalar mock openapi.json --watch --port 8080
+```
+
+## Share
+
+Want to share your OpenAPI file? It’s as easy as this:
+
+```bash
+scalar share openapi.json
+```
+
+Read [more about the CLI here](https://github.com/scalar/scalar/tree/main/packages/cli).
 
 ## Hosted API Reference
 
