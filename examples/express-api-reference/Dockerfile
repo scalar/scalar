@@ -41,9 +41,8 @@ WORKDIR /app/examples/express-api-reference
 
 USER node
 
-# Cloud build requires port 8080 to be exposed
-EXPOSE 8080
-ENV PORT 8080
+EXPOSE 5050
+ENV PORT 5050
 ENV HOSTNAME "0.0.0.0"
 
-CMD ["node", "dist/index.js"]
+CMD ["dumb-init", "node", "dist/index.js"]
