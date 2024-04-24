@@ -2,4 +2,4 @@
 "@scalar/api-reference": patch
 ---
 
-fix: license banner in api reference cdn
+chore: beautiful license banner in the CDN version
