@@ -5,7 +5,9 @@ import banner from 'vite-plugin-banner'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { defineConfig } from 'vitest/config'
 
-import licenseBanner from './license-banner.txt'
+import licenseBannerTemplate from './license-banner-template.txt'
+import { name, version } from './package.json'
+import { replaceVariables } from './src/helpers/replaceVariables'
 
 export default defineConfig({
   define: {
@@ -15,7 +17,19 @@ export default defineConfig({
     vue(),
     cssInjectedByJsPlugin(),
     webpackStats(),
-    banner({ outDir: 'dist/browser', content: licenseBanner }),
+    banner({
+      outDir: 'dist/browser',
+      content: replaceVariables(licenseBannerTemplate, [
+        {
+          name: 'packageName',
+          value: name,
+        },
+        {
+          name: 'version',
+          value: version,
+        },
+      ]),
+    }),
   ],
   build: {
     emptyOutDir: false,
