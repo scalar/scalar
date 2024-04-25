@@ -19,6 +19,6 @@ jobs:
         with:
           node-version: 20
       - name: Format OpenAPI File
-        run: npx @scalar/cli format ./specifications/scalar-galaxxy-3.1.yaml
+        run: npx @scalar/cli format ./specifications/scalar-galaxy-3.1.yaml
       - name: Validate OpenAPI File
-        run: npx @scalar/cli validate ./specifications/scalar-galaxxy-3.1.yaml
+        run: npx @scalar/cli validate ./specifications/scalar-galaxy-3.1.yaml
