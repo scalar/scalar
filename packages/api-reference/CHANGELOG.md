@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.22.12
+
+### Patch Changes
+
+- 55398db: fix: summary markdown, add default browser styling
+- Updated dependencies [79485ff]
+- Updated dependencies [92b5b2a]
+  - @scalar/components@0.5.4
+  - @scalar/api-client@1.2.7
+
 ## 1.22.11
 
 ### Patch Changes

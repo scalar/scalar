@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.5.4
+
+### Patch Changes
+
+- 79485ff: fix: scalar package icon types
+- 92b5b2a: fix: truncate search results properly
+
 ## 0.5.3
 
 ### Patch Changes
