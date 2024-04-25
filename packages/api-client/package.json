@@ -66,7 +66,7 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.5.0",
     "tsc-alias": "^1.8.8",
-    "vite": "^5.2.9",
+    "vite": "^5.2.10",
     "vite-plugin-lib-inject-css": "^2.0.1",
     "vitest": "^1.5.0",
     "vue": "^3.4.21",
