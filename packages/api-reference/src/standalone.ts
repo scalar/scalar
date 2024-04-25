@@ -98,7 +98,7 @@ const getProxyUrl = () => {
 
 if (!specUrlElement && !specElement && !specScriptTag) {
   console.error(
-    'Couldn’t find a [data-spec], [data-spec-url] or <script id="api-reference" /> element. Try adding it like this: %c<div data-spec-url="https://petstore.swagger.io/v2/swagger.json" />',
+    'Couldn’t find a [data-spec], [data-spec-url] or <script id="api-reference" /> element. Try adding it like this: %c<div data-spec-url="https://petstore3.swagger.io/api/v3/openapi.json" />',
     'font-family: monospace;',
   )
 } else {

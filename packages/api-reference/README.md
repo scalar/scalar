@@ -55,7 +55,7 @@ Directly pass an OpenAPI/Swagger spec.
 Pass the URL of a spec file (JSON or Yaml).
 
 ```vue
-<ApiReference :configuration="{ spec: { url: '/swagger.json' } }" />
+<ApiReference :configuration="{ spec: { url: '/openapi.json' } }" />
 ```
 
 #### proxyUrl?: string

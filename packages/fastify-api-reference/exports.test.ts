@@ -11,7 +11,7 @@ describe('exports', () => {
       fastify.register(import('./dist/index.js'), {
         routePrefix: '/foobar',
         configuration: {
-          spec: { url: '/swagger.json' },
+          spec: { url: '/openapi.json' },
         },
       })
 
@@ -33,7 +33,7 @@ describe('exports', () => {
       fastify.register(require('./dist/index.cjs'), {
         routePrefix: '/foobar',
         configuration: {
-          spec: { url: '/swagger.json' },
+          spec: { url: '/openapi.json' },
         },
       })
 

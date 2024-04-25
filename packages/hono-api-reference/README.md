@@ -26,7 +26,7 @@ app.get(
   '/reference',
   apiReference({
     spec: {
-      url: '/swagger.json',
+      url: '/openapi.json',
     },
   }),
 )
@@ -46,7 +46,7 @@ app.get(
   apiReference({
     theme: 'purple',
     spec: {
-      url: '/swagger.json',
+      url: '/openapi.json',
     },
   }),
 )
@@ -64,7 +64,7 @@ app.get(
   apiReference({
     pageTitle: 'Hono API Reference',
     spec: {
-      url: '/swagger.json',
+      url: '/openapi.json',
     },
   }),
 )

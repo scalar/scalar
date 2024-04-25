@@ -29,7 +29,7 @@ import { ApiReference } from '@scalar/nextjs-api-reference'
 
 const config = {
   spec: {
-    url: '/swagger.json',
+    url: '/openapi.json',
   },
 }
 

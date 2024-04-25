@@ -183,7 +183,7 @@ function App() {
     <ApiReferenceReact
       configuration={{
         spec: {
-          url: 'https://petstore.swagger.io/v2/swagger.json',
+          url: 'https://petstore3.swagger.io/api/v3/openapi.json',
         },
       }}
     />
@@ -204,7 +204,7 @@ import { ApiReference } from '@scalar/nextjs-api-reference'
 
 const config = {
   spec: {
-    url: '/swagger.json',
+    url: '/openapi.json',
   },
 }
 
@@ -253,7 +253,7 @@ app.get(
   '/reference',
   apiReference({
     spec: {
-      url: '/swagger.json',
+      url: '/openapi.json',
     },
   }),
 )
@@ -310,7 +310,7 @@ app.use(
   '/reference',
   apiReference({
     spec: {
-      url: '/swagger.json',
+      url: '/openapi.json',
     },
   }),
 )

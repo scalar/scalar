@@ -34,7 +34,7 @@ fastify.register(require('@scalar/fastify-api-reference'), {
   configuration: {
     title: 'Our API Reference',
     spec: {
-      url: '/swagger.json',
+      url: '/openapi.json',
     },
   },
 })

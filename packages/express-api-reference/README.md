@@ -44,7 +44,7 @@ app.use(
   '/reference',
   apiReference({
     spec: {
-      url: '/swagger.json',
+      url: '/openapi.json',
     },
   }),
 )
