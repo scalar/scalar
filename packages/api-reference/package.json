@@ -111,6 +111,7 @@
     "storybook-dark-mode": "^4.0.1",
     "tsc-alias": "^1.8.8",
     "vite": "^5.2.9",
+    "vite-plugin-banner": "^0.7.1",
     "vite-plugin-css-injected-by-js": "^3.4.0",
     "vite-plugin-lib-inject-css": "^2.0.1",
     "vitest": "^1.5.0",

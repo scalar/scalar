@@ -919,6 +919,9 @@ importers:
       vite:
         specifier: ^5.2.9
         version: 5.2.9(@types/node@20.11.22)(terser@5.30.0)
+      vite-plugin-banner:
+        specifier: ^0.7.1
+        version: 0.7.1
       vite-plugin-css-injected-by-js:
         specifier: ^3.4.0
         version: 3.4.0(vite@5.2.9)
@@ -27691,6 +27694,10 @@ packages:
       - sugarss
       - supports-color
       - terser
+    dev: true
+
+  /vite-plugin-banner@0.7.1:
+    resolution: {integrity: sha512-Bww2Xd5tOGsZ1yZ9rQiGneryvsL1u86znPrqeQjCsXPsG72pnSdV5lcQA+cy8UNDguMqyTJiCevlNUbLnT85UA==}
     dev: true
 
   /vite-plugin-checker@0.6.4(eslint@8.57.0)(typescript@5.4.3)(vite@5.2.9):
