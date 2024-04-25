@@ -52,8 +52,11 @@ servers:
   - url: https://galaxy.scalar.com
 security:
   - bearerAuth: []
-    basicAuth: []
-    apiKey: []
+  - basicAuth: []
+  - apiKeyQuery: []
+  - apiKeyHeader: []
+  - apiKeyCookie: []
+  - oauth2: []
 tags:
   - name: Authentication
     description:
@@ -67,6 +70,7 @@ paths:
       tags:
         - Planets
       summary: Get all planets
+      description: It’s easy to say you know them all, but do you really? Retrieve all the planets and check whether you missed one.
       operationId: getAllData
       security:
         - {}
@@ -76,21 +80,25 @@ paths:
       responses:
         '200':
           description: OK
-          schema:
-            allOf:
-              - type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      '$ref': '#/components/schemas/Planet'
-              - '$ref': '#/components/schemas/PaginatedResource'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          '$ref': '#/components/schemas/Planet'
+                  - '$ref': '#/components/schemas/PaginatedResource'
     post:
       tags:
         - Planets
       summary: Create a planet
+      description: Time to play god and create a new planet. What do you think? Ah, don’t think too much. What could go wrong anyway?
       operationId: createPlanet
       requestBody:
+        description: Planet
         content:
           application/json:
             schema:
@@ -98,8 +106,10 @@ paths:
       responses:
         '201':
           description: Created
-          schema:
-            '$ref': '#/components/schemas/Planet'
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/schemas/Planet'
         '400':
           description: Bad Request
           content:
@@ -117,6 +127,7 @@ paths:
       tags:
         - Planets
       summary: Get a planet
+      description: You’ll better learn a little bit more about the planets. It might come in handy once space travel is available for everyone.
       operationId: getPlanet
       security:
         - {}
@@ -124,11 +135,13 @@ paths:
         - '$ref': '#/components/parameters/planetId'
       responses:
         '200':
-          description: OK
-          schema:
-            '$ref': '#/components/schemas/Planet'
+          description: Planet Found
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/schemas/Planet'
         '404':
-          description: Not Found
+          description: Planet Not Found
           content:
             application/json:
               schema:
@@ -137,8 +150,10 @@ paths:
       tags:
         - Planets
       summary: Update a planet
+      description: Sometimes you make mistakes, that’s fine. No worries, you can update all planets.
       operationId: updatePlanet
       requestBody:
+        description: New information about the planet
         content:
           application/json:
             schema:
@@ -148,8 +163,10 @@ paths:
       responses:
         '200':
           description: OK
-          schema:
-            '$ref': '#/components/schemas/Planet'
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/schemas/Planet'
         '400':
           description: Bad Request
           content:
@@ -190,6 +207,7 @@ paths:
       tags:
         - Planets
       summary: Upload an image to a planet
+      description: Got a crazy good photo of a planet? Share it with the world!
       operationId: uploadImage
       parameters:
         - '$ref': '#/components/parameters/planetId'
@@ -204,7 +222,7 @@ paths:
                   format: binary
       responses:
         '200':
-          description: OK
+          description: Image uploaded
           content:
             application/json:
               schema:
@@ -212,21 +230,22 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Image uploaded successfully
+                    examples:
+                      - Image uploaded successfully
         '400':
-          description: Bad Request
+          description: Bad Upload Request
           content:
             application/json:
               schema:
                 '$ref': '#/components/responses/BadRequest'
         '403':
-          description: Forbidden
+          description: Upload Forbidden
           content:
             application/json:
               schema:
                 '$ref': '#/components/responses/Forbidden'
         '404':
-          description: Not Found
+          description: Failed to Upload Image, Planet Not Found
           content:
             application/json:
               schema:
@@ -236,6 +255,7 @@ paths:
       tags:
         - Authentication
       summary: Create a user
+      description: Time to create a user account, eh?
       operationId: createUser
       security:
         - {}
@@ -262,13 +282,15 @@ paths:
       tags:
         - Authentication
       summary: Get a token
+      description: Yeah, this is the boring security stuff. Just get your super secret token and move on.
       operationId: getToken
       security:
         - {}
       requestBody:
         content:
           application/json:
-            '$ref': '#/components/schemas/Credentials'
+            schema:
+              '$ref': '#/components/schemas/Credentials'
       responses:
         '201':
           description: Token Created
@@ -281,6 +303,7 @@ paths:
       tags:
         - Authentication
       summary: Get authenticated user
+      description: Find yourself they say. That’s what you can do here.
       operationId: getMe
       responses:
         '200':
@@ -347,7 +370,8 @@ components:
       schema:
         type: integer
         format: int64
-        example: 1
+        examples:
+          - 1
     limit:
       name: limit
       in: query
@@ -390,77 +414,94 @@ components:
   schemas:
     NewUser:
       type: object
+      required:
+        - name
+        - email
+        - password
       properties:
         name:
           type: string
-          required: true
-          example: Marc
+          examples:
+            - Marc
         email:
           type: string
           format: email
-          required: true
-          example: marc@scalar.com
+          examples:
+            - marc@scalar.com
         password:
           type: string
-          required: true
           minLength: 8
-          example: i-love-scalar
+          examples:
+            - i-love-scalar
     User:
       type: object
+      required:
+        - id
+        - name
+        - email
       properties:
         id:
           type: integer
           format: int64
-          required: true
-          example: 1
+          examples:
+            - 1
         name:
           type: string
-          required: true
-          example: Marc
+          examples:
+            - Marc
         email:
           type: string
           format: email
-          required: true
-          example: marc@scalar.com
+          examples:
+            - marc@scalar.com
     Credentials:
       type: object
+      required:
+        - email
+        - password
       properties:
         email:
           type: string
           format: email
-          required: true
-          example: marc@scalar.com
+          examples:
+            - marc@scalar.com
         password:
           type: string
-          required: true
-          example: i-love-scalar
+          examples:
+            - i-love-scalar
     Token:
       type: object
       properties:
         token:
           type: string
-          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+          examples:
+            - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
     Planet:
       type: object
+      required:
+        - id
+        - name
       properties:
         id:
           type: integer
           format: int64
-          required: true
-          example: 1
+          examples:
+            - 1
         name:
           type: string
-          required: true
-          example: Mars
+          examples:
+            - Mars
         description:
           type:
             - string
-            - nullable
-          example: The red planet
+            - 'null'
+          examples:
+            - The red planet
         image:
           type: string
           nullable: true
-          example: https://cdn.scalar.com/photos/mars.jpg
+          examples:
+            - https://cdn.scalar.com/photos/mars.jpg
         creator:
           '$ref': '#/components/schemas/User'
     PaginatedResource:
@@ -472,34 +513,42 @@ components:
             limit:
               type: integer
               format: int64
-              example: 10
+              examples:
+                - 10
             offset:
               type: integer
               format: int64
-              example: 0
+              examples:
+                - 0
             total:
               type: integer
               format: int64
-              example: 100
+              examples:
+                - 100
             next:
               type:
                 - string
-                - nullable
-              example: '/planets?limit=10&offset=10'
+                - 'null'
+              examples:
+                - '/planets?limit=10&offset=10'
     Error:
       type: object
       description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
       properties:
         type:
           type: string
-          example: https://example.com/errors/generic-error
+          examples:
+            - https://example.com/errors/generic-error
         title:
           type: string
-          example: Something went wrong here.
+          examples:
+            - Something went wrong here.
         status:
           type: integer
           format: int64
-          example: 403
+          examples:
+            - 403
         detail:
           type: string
-          example: Unfortunately, we can’t provide further information.
+          examples:
+            - Unfortunately, we can’t provide further information.
