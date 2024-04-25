@@ -12,7 +12,7 @@ describe('fastifyApiReference', () => {
     fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {
-        spec: { url: '/swagger.json' },
+        spec: { url: '/openapi.json' },
       },
     })
 
@@ -29,7 +29,7 @@ describe('fastifyApiReference', () => {
     await fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {
-        spec: { url: '/swagger.json' },
+        spec: { url: '/openapi.json' },
       },
     })
 
@@ -44,7 +44,7 @@ describe('fastifyApiReference', () => {
     await fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {
-        spec: { url: '/swagger.json' },
+        spec: { url: '/openapi.json' },
       },
     })
 
@@ -59,7 +59,7 @@ describe('fastifyApiReference', () => {
 
     fastify.register(fastifyApiReference, {
       configuration: {
-        spec: { url: '/swagger.json' },
+        spec: { url: '/openapi.json' },
       },
     })
 
@@ -76,7 +76,7 @@ describe('fastifyApiReference', () => {
     fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {
-        spec: { url: '/swagger.json' },
+        spec: { url: '/openapi.json' },
       },
     })
 
@@ -96,7 +96,7 @@ describe('fastifyApiReference', () => {
       routePrefix: '/reference',
       publicPath: '/foobar',
       configuration: {
-        spec: { url: '/swagger.json' },
+        spec: { url: '/openapi.json' },
       },
     })
 
@@ -115,13 +115,13 @@ describe('fastifyApiReference', () => {
     fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {
-        spec: { url: '/swagger.json' },
+        spec: { url: '/openapi.json' },
       },
     })
 
     const address = await fastify.listen({ port: 0 })
     const response = await fetch(`${address}/reference`)
-    expect(await response.text()).toContain('/swagger.json')
+    expect(await response.text()).toContain('/openapi.json')
   })
 
   it('has the spec', async () => {
@@ -187,7 +187,7 @@ describe('fastifyApiReference', () => {
     fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {
-        spec: { url: '/swagger.json' },
+        spec: { url: '/openapi.json' },
       },
     })
 
@@ -204,7 +204,7 @@ describe('fastifyApiReference', () => {
     fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {
-        spec: { url: '/swagger.json' },
+        spec: { url: '/openapi.json' },
       },
     })
 

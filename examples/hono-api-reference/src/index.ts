@@ -159,7 +159,7 @@ app.openapi(
 )
 
 // Create a Swagger file
-app.doc('/swagger.json', {
+app.doc('/openapi.json', {
   info: {
     title: 'Example',
     description:
@@ -174,7 +174,7 @@ app.get(
   '/',
   apiReference({
     spec: {
-      url: '/swagger.json',
+      url: '/openapi.json',
       // content: {
       //   openapi: '3.1.0',
       //   info: { title: 'Example' },
