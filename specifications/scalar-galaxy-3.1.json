@@ -50,6 +50,7 @@
       "get": {
         "tags": ["Planets"],
         "summary": "Get all planets",
+        "description": "It’s easy to say you know them all, but do you really? Retrieve all the planets and check whether you missed one.",
         "operationId": "getAllData",
         "security": [{}],
         "parameters": [
@@ -91,8 +92,10 @@
       "post": {
         "tags": ["Planets"],
         "summary": "Create a planet",
+        "description": "Time to play god and create a new planet. What do you think? Ah, don’t think too much. What could go wrong anyway?",
         "operationId": "createPlanet",
         "requestBody": {
+          "description": "Planet",
           "content": {
             "application/json": {
               "schema": {
@@ -139,6 +142,7 @@
       "get": {
         "tags": ["Planets"],
         "summary": "Get a planet",
+        "description": "You’ll better learn a little bit more about the planets. It might come in handy once space travel is available for everyone.",
         "operationId": "getPlanet",
         "security": [{}],
         "parameters": [
@@ -148,7 +152,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Planet Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -158,7 +162,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "Planet Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -172,8 +176,10 @@
       "put": {
         "tags": ["Planets"],
         "summary": "Update a planet",
+        "description": "Sometimes you make mistakes, that’s fine. No worries, you can update all planets.",
         "operationId": "updatePlanet",
         "requestBody": {
+          "description": "New information about the planet",
           "content": {
             "application/json": {
               "schema": {
@@ -255,6 +261,7 @@
       "post": {
         "tags": ["Planets"],
         "summary": "Upload an image to a planet",
+        "description": "Got a crazy good photo of a planet? Share it with the world!",
         "operationId": "uploadImage",
         "parameters": [
           {
@@ -278,7 +285,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Image uploaded",
             "content": {
               "application/json": {
                 "schema": {
@@ -294,7 +301,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Upload Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -304,7 +311,7 @@
             }
           },
           "403": {
-            "description": "Forbidden",
+            "description": "Upload Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -314,7 +321,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "Failed to Upload Image, Planet Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -330,6 +337,7 @@
       "post": {
         "tags": ["Authentication"],
         "summary": "Create a user",
+        "description": "Time to create a user account, eh?",
         "operationId": "createUser",
         "security": [{}],
         "requestBody": {
@@ -369,6 +377,7 @@
       "post": {
         "tags": ["Authentication"],
         "summary": "Get a token",
+        "description": "Yeah, this is the boring security stuff. Just get your super secret token and move on.",
         "operationId": "getToken",
         "security": [{}],
         "requestBody": {
@@ -398,6 +407,7 @@
       "get": {
         "tags": ["Authentication"],
         "summary": "Get authenticated user",
+        "description": "Find yourself they say. That’s what you can do here.",
         "operationId": "getMe",
         "responses": {
           "200": {
