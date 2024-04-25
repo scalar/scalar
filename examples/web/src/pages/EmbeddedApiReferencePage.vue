@@ -5,8 +5,8 @@ import {
 } from '@scalar/api-reference'
 import { reactive } from 'vue'
 
+import content from '../../../../specifications/scalar-galaxy-3.1.json'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
-import content from '../fixtures/petstorev3.json'
 
 const configuration = reactive<ReferenceConfiguration>({
   proxy: import.meta.env.VITE_REQUEST_PROXY_URL,
