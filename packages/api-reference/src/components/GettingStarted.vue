@@ -57,7 +57,7 @@ function handleEmitPetstore() {
         <ScalarButton
           fullWidth
           @click="handleEmitPetstore">
-          Show an Example
+          Show Example
         </ScalarButton>
         <ScalarButton
           fullWidth
