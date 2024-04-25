@@ -2,7 +2,7 @@
 import { ScalarButton } from '@scalar/components'
 import { type ThemeId, themeLabels } from '@scalar/themes'
 
-import petstore from '../specs/petstorev3.json?raw'
+import placeholderSpecification from '../../../../specifications/scalar-galaxy-3.1.json?raw'
 
 defineProps<{
   theme: ThemeId
@@ -29,7 +29,7 @@ const themeIds: ThemeId[] = [
 ]
 
 function handleEmitPetstore() {
-  emits('updateContent', petstore)
+  emits('updateContent', placeholderSpecification)
 }
 </script>
 <template>
@@ -57,7 +57,7 @@ function handleEmitPetstore() {
         <ScalarButton
           fullWidth
           @click="handleEmitPetstore">
-          Test Petstore
+          Show an Example
         </ScalarButton>
         <ScalarButton
           fullWidth
