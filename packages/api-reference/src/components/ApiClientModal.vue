@@ -5,13 +5,19 @@ import { useMediaQuery } from '@vueuse/core'
 import { type Spec } from '../types'
 import { Sidebar } from './Sidebar'
 
-defineProps<{
-  parsedSpec: Spec
-  overloadShow?: boolean
-  tabMode?: boolean
-  activeTab?: string
-  proxyUrl?: string
-}>()
+withDefaults(
+  defineProps<{
+    parsedSpec: Spec
+    overloadShow?: boolean
+    tabMode?: boolean
+    activeTab?: string
+    proxyUrl?: string
+    withoutDefaultFonts?: boolean
+  }>(),
+  {
+    withoutDefaultFonts: false,
+  },
+)
 
 defineEmits<{
   (e: 'toggleDarkMode'): void
@@ -67,7 +73,7 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
         <ApiClient
           :proxyUrl="proxyUrl"
           theme="none"
-          withoutDefaultFonts
+          :withoutDefaultFonts="withoutDefaultFonts"
           @escapeKeyPress="hideApiClient" />
       </div>
     </div>
