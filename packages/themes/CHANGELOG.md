@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.7.4
+
+### Patch Changes
+
+- 86d1363: refactor: remove @layer from base theme files
+
 ## 0.7.3
 
 ### Patch Changes

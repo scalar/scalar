@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.5.3
+
+### Patch Changes
+
+- bc3f3af: build: add icons to scalar components package
+
 ## 0.5.2
 
 ### Patch Changes

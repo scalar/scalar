@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.22.11
+
+### Patch Changes
+
+- b24b455: chore: beautiful license banner in the CDN version
+- 43e1217: feat: new scalar galaxy example specification
+- Updated dependencies [86d1363]
+- Updated dependencies [bc3f3af]
+  - @scalar/themes@0.7.4
+  - @scalar/components@0.5.3
+  - @scalar/api-client@1.2.6
+
 ## 1.22.10
 
 ### Patch Changes
