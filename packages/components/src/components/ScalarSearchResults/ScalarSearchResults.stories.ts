@@ -20,8 +20,8 @@ const meta = {
     <template #addon>Addon</template>
   </ScalarSearchResultItem>
   <ScalarSearchResultItem icon="Search">
-    Result 2
-    <template #description>This is a description</template>
+    Result 2 - Extra long result title that might need to be truncated
+    <template #description>This is a really long description that might need to be truncated</template>
     <template #addon>Addon</template>
   </ScalarSearchResultItem>
   <ScalarSearchResultItem icon="Search">

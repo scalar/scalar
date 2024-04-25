@@ -40,8 +40,8 @@ const attrs = computed(() => {
         </slot>
       </div>
       <!-- Content -->
-      <div class="flex flex-1 flex-col gap-0.75">
-        <div class="flex items-center">
+      <div class="flex min-w-0 flex-1 flex-col gap-0.75">
+        <div class="flex items-center gap-1">
           <div class="flex-1 truncate text-sm font-medium">
             <slot />
           </div>
