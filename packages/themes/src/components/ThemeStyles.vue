@@ -6,15 +6,15 @@ import DefaultFonts from './DefaultFonts.vue'
 withDefaults(
   defineProps<{
     id?: ThemeId
-    withoutDefaultFonts?: boolean
+    withDefaultFonts?: boolean
   }>(),
   {
-    withoutDefaultFonts: false,
+    withDefaultFonts: true,
   },
 )
 </script>
 <template>
-  <DefaultFonts v-if="!withoutDefaultFonts" />
+  <DefaultFonts v-if="withDefaultFonts" />
   <component
     :is="'style'"
     v-if="id !== 'none'">

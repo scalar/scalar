@@ -203,13 +203,13 @@ For OpenAuth2 it’s more looking like this:
   } />
 ```
 
-#### withoutDefaultFonts?: boolean
+#### withDefaultFonts?: boolean
 
-By default we’re using Inter and JetBrains Mono, served by Google Fonts. If you use a different font or just don’t want to use Google Fonts, pass `withoutDefaultFonts: true` to the configuration.
+By default we’re using Inter and JetBrains Mono, served by Google Fonts. If you use a different font or just don’t want to use Google Fonts, pass `withDefaultFonts: false` to the configuration.
 
 ```vue
 <ApiReference :configuration="{
-  withoutDefaultFonts: true
+  withDefaultFonts: false
 } />
 ```
 ````

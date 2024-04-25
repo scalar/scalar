@@ -113,11 +113,11 @@ export type ReferenceConfiguration = {
    */
   baseServerURL?: string
   /**
-   * We’re using Inter and JetBrains Mono as the default fonts. If you want to use your own fonts, set this to true.
+   * We’re using Inter and JetBrains Mono as the default fonts. If you want to use your own fonts, set this to false.
    *
-   * @default false
+   * @default true
    */
-  withoutDefaultFonts?: boolean
+  withDefaultFonts?: boolean
 }
 
 export type PathRouting = {

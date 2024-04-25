@@ -4,4 +4,4 @@
 "@scalar/themes": patch
 ---
 
-feat: separate google fonts from theme, add withoutDefaultFonts setting
+feat: separate google fonts from theme, add withDefaultFonts setting

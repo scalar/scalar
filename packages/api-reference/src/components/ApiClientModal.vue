@@ -5,19 +5,13 @@ import { useMediaQuery } from '@vueuse/core'
 import { type Spec } from '../types'
 import { Sidebar } from './Sidebar'
 
-withDefaults(
-  defineProps<{
-    parsedSpec: Spec
-    overloadShow?: boolean
-    tabMode?: boolean
-    activeTab?: string
-    proxyUrl?: string
-    withoutDefaultFonts?: boolean
-  }>(),
-  {
-    withoutDefaultFonts: false,
-  },
-)
+defineProps<{
+  parsedSpec: Spec
+  overloadShow?: boolean
+  tabMode?: boolean
+  activeTab?: string
+  proxyUrl?: string
+}>()
 
 defineEmits<{
   (e: 'toggleDarkMode'): void
@@ -69,11 +63,11 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
             </Sidebar>
           </div>
         </template>
-        <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withoutDefaultFonts: true` -->
+        <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
         <ApiClient
           :proxyUrl="proxyUrl"
           theme="none"
-          :withoutDefaultFonts="withoutDefaultFonts"
+          :withDefaultFonts="false"
           @escapeKeyPress="hideApiClient" />
       </div>
     </div>
