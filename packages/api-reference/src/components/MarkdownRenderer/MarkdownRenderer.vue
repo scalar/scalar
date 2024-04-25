@@ -95,8 +95,11 @@ onServerPrefetch(async () => await sleep(1))
   color: var(--scalar-color-1);
 }
 .markdown :deep(summary) {
+  all: revert;
   margin: 12px 0;
   font-weight: var(--scalar-semibold);
+  cursor: pointer;
+  user-select: none;
 }
 .markdown :deep(img) {
   overflow: hidden;
