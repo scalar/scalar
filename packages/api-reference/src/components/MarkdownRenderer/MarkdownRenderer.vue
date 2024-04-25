@@ -155,6 +155,37 @@ onServerPrefetch(async () => await sleep(1))
   padding-left: 0;
 }
 
+.markdown :deep(details summary) {
+  position: relative;
+  padding-left: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.markdown :deep(details summary:hover) {
+  text-decoration: underline;
+}
+
+.markdown :deep(details summary::after) {
+  display: block;
+  content: '';
+
+  position: absolute;
+  top: 5px;
+  left: 1px;
+  transform: rotate(-45deg);
+
+  width: 8px;
+  height: 8px;
+  border-right: 1px solid var(--scalar-color-1);
+  border-bottom: 1px solid var(--scalar-color-1);
+}
+
+.markdown :deep(details[open] summary::after) {
+  top: 3px;
+  transform: rotate(45deg);
+}
+
 .markdown :deep(li) {
   margin: 6px 0;
   display: list-item;
