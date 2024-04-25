@@ -1,5 +1,7 @@
 export const ICONS = [
   'Add',
+  'Brackets',
+  'Branch',
   'CheckMark',
   'ChevronDown',
   'ChevronLeft',
@@ -8,6 +10,7 @@ export const ICONS = [
   'Clipboard',
   'Close',
   'CodeFolder',
+  'Cookie',
   'DarkMode',
   'DocsPage',
   'Ellipses',
