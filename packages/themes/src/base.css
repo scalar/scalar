@@ -1,5 +1,5 @@
-@import url('https://storage.googleapis.com/production-scalar-cdn/fonts/inter.txt');
-@import url('https://storage.googleapis.com/production-scalar-cdn/fonts/jet.brains.mono.txt');
+@import url('https://api.scalar.com/cdn/fonts/inter.txt');
+@import url('https://api.scalar.com/cdn/fonts/jet.brains.mono.txt');
 
 @layer scalar-base {
   :root {
