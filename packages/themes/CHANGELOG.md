@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.7.5
+
+### Patch Changes
+
+- 2700c5c: feat: separate google fonts from theme, add withDefaultFonts setting
+
 ## 0.7.4
 
 ### Patch Changes
