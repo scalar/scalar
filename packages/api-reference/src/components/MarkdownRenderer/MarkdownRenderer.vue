@@ -95,11 +95,35 @@ onServerPrefetch(async () => await sleep(1))
   color: var(--scalar-color-1);
 }
 .markdown :deep(summary) {
-  all: revert;
   margin: 12px 0;
+  padding-left: 20px;
+  position: relative;
   font-weight: var(--scalar-semibold);
   cursor: pointer;
   user-select: none;
+}
+
+.markdown :deep(summary::after) {
+  display: block;
+  content: '';
+
+  position: absolute;
+  top: 1px;
+  left: 1px;
+
+  width: 16px;
+  height: 16px;
+
+  background-color: var(--scalar-color-3);
+  mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.25 19.5L15.75 12L8.25 4.5" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+}
+
+.markdown :deep(summary:hover::after) {
+  background-color: var(--scalar-color-1);
+}
+
+.markdown :deep(details[open] summary::after) {
+  transform: rotate(90deg);
 }
 .markdown :deep(img) {
   overflow: hidden;
@@ -153,37 +177,6 @@ onServerPrefetch(async () => await sleep(1))
 .markdown :deep(ul.contains-task-list) {
   list-style: none;
   padding-left: 0;
-}
-
-.markdown :deep(details summary) {
-  position: relative;
-  padding-left: 16px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.markdown :deep(details summary:hover) {
-  text-decoration: underline;
-}
-
-.markdown :deep(details summary::after) {
-  display: block;
-  content: '';
-
-  position: absolute;
-  top: 5px;
-  left: 1px;
-  transform: rotate(-45deg);
-
-  width: 8px;
-  height: 8px;
-  border-right: 1px solid var(--scalar-color-1);
-  border-bottom: 1px solid var(--scalar-color-1);
-}
-
-.markdown :deep(details[open] summary::after) {
-  top: 3px;
-  transform: rotate(45deg);
 }
 
 .markdown :deep(li) {
