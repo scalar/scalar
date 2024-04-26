@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
+import exampleSpecification from '@scalar/galaxy/latest.yaml?raw'
 import { type ThemeId, themeLabels } from '@scalar/themes'
-
-import placeholderSpecification from '../../../../specifications/scalar-galaxy-3.1.json?raw'
 
 defineProps<{
   theme: ThemeId
@@ -29,7 +28,7 @@ const themeIds: ThemeId[] = [
 ]
 
 function handleEmitPetstore() {
-  emits('updateContent', placeholderSpecification)
+  emits('updateContent', exampleSpecification)
 }
 </script>
 <template>

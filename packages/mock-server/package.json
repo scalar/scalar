@@ -38,6 +38,7 @@
   "dependencies": {
     "@hono/node-server": "^1.11.0",
     "@scalar/api-reference": "workspace:*",
+    "@scalar/galaxy": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
     "hono": "^4.2.7",

@@ -64,6 +64,7 @@
     "@headlessui/vue": "^1.7.20",
     "@scalar/api-client": "workspace:*",
     "@scalar/components": "workspace:*",
+    "@scalar/galaxy": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
     "@scalar/snippetz": "^0.1.6",

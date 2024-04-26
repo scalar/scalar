@@ -18,7 +18,6 @@
   "scripts": {
     "build": "vite build && pnpm build:format && pnpm types:build && tsc-alias -p tsconfig.build.json",
     "build:format": "./scripts/format.sh",
-    "cli": "./node_modules/.bin/scalar",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
@@ -28,7 +27,10 @@
   "type": "module",
   "main": "./dist/index.js",
   "exports": {
-    "./latest.yaml": "./dist/latest.yaml"
+    "./3.1.yaml": "./dist/3.1.yaml",
+    "./3.1.json": "./dist/3.1.json",
+    "./latest.yaml": "./dist/latest.yaml",
+    "./latest.json": "./dist/latest.json"
   },
   "files": [
     "dist",
@@ -41,8 +43,6 @@
     "directory": "packages/galaxy"
   },
   "devDependencies": {
-    "@scalar/cli": "workspace:*",
-    "@scalar/mock-server": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
     "@vitest/coverage-v8": "^1.5.0",
     "tsc-alias": "^1.8.8",
