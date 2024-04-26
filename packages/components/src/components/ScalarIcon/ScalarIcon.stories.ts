@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
+import IconGrid from './IconList.vue'
 import ScalarIcon from './ScalarIcon.vue'
 import { ICONS } from './icons/icons'
 
@@ -32,4 +33,14 @@ type Story = StoryObj<typeof meta>
 
 export const Base: Story = {
   args: { icon: 'Logo' },
+}
+
+export const IconList: StoryObj = {
+  render: () => ({
+    components: { IconGrid },
+    setup() {
+      return { icons: ICONS }
+    },
+    template: `<IconGrid :icons="icons" />`,
+  }),
 }
