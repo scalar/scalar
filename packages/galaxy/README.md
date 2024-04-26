@@ -17,12 +17,12 @@ npm install @scalar/galaxy
 
 ### CDN
 
-| Version     | Format | URL                                                                        |
-| ----------- | ------ | -------------------------------------------------------------------------- |
-| Latest      | JSON   | https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/scalar-galaxy-latest.json |
-| Latest      | YAML   | https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/scalar-galaxy-latest.yaml |
-| OpenAPI 3.1 | JSON   | https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/scalar-galaxy-3.1.json    |
-| OpenAPI 3.1 | YAML   | https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/scalar-galaxy-3.1.yaml    |
+| Version     | Format | URL                                                          |
+| ----------- | ------ | ------------------------------------------------------------ |
+| Latest      | JSON   | https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json |
+| Latest      | YAML   | https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml |
+| OpenAPI 3.1 | JSON   | https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/3.1.json    |
+| OpenAPI 3.1 | YAML   | https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/3.1.yaml    |
 
 ### Import as object
 
