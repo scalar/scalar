@@ -38,7 +38,7 @@
   "tags": [
     {
       "name": "Authentication",
-      "description": "Some endpoints are public, but some required authentication. We provide all the required endpoints to create an account and authorize yourself."
+      "description": "Some endpoints are public, but some require authentication. We provide all the required endpoints to create an account and authorize yourself."
     },
     {
       "name": "Planets",
