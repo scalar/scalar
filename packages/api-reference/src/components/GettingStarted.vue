@@ -6,13 +6,16 @@ import { type ThemeId, themeLabels } from '@scalar/themes'
 defineProps<{
   theme: ThemeId
 }>()
-
 const emits = defineEmits<{
   (e: 'changeTheme', { id, label }: { id: ThemeId; label: string }): void
   (e: 'loadSwaggerFile'): void
   (e: 'linkSwaggerFile'): void
   (e: 'updateContent', value: string): void
 }>()
+const placeholderSpecificationRes = await fetch(
+  'https://cdn.scalar.com/spec/scalar-galaxy-3.1.yaml',
+)
+const placeholderSpecification = await placeholderSpecificationRes.text()
 
 const themeIds: ThemeId[] = [
   'default',
