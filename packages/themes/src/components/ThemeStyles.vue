@@ -1,12 +1,20 @@
 <script lang="ts" setup>
 import '../base.css'
 import { type ThemeId, getThemeById } from '../index'
+import DefaultFonts from './DefaultFonts.vue'
 
-defineProps<{
-  id?: ThemeId
-}>()
+withDefaults(
+  defineProps<{
+    id?: ThemeId
+    withDefaultFonts?: boolean
+  }>(),
+  {
+    withDefaultFonts: true,
+  },
+)
 </script>
 <template>
+  <DefaultFonts v-if="withDefaultFonts" />
   <component
     :is="'style'"
     v-if="id !== 'none'">

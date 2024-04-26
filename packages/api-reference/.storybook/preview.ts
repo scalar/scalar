@@ -1,6 +1,7 @@
 import cssVariablesTheme from '@etchteam/storybook-addon-css-variables-theme'
-// Themeing
+// Theming
 import '@scalar/themes/base.css'
+import '@scalar/themes/fonts.css'
 import alternate from '@scalar/themes/presets/alternate.css?inline'
 import base from '@scalar/themes/presets/default.css?inline'
 import moon from '@scalar/themes/presets/moon.css?inline'

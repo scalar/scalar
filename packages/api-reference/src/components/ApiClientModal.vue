@@ -63,9 +63,11 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
             </Sidebar>
           </div>
         </template>
+        <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
         <ApiClient
           :proxyUrl="proxyUrl"
           theme="none"
+          :withDefaultFonts="false"
           @escapeKeyPress="hideApiClient" />
       </div>
     </div>
