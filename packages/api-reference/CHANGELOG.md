@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.22.13
+
+### Patch Changes
+
+- c05c90e: feat: add image support to tag, operation and webhook descriptions
+- 2700c5c: feat: separate google fonts from theme, add withDefaultFonts setting
+- Updated dependencies [2700c5c]
+  - @scalar/components@0.5.5
+  - @scalar/themes@0.7.5
+  - @scalar/api-client@1.2.8
+
 ## 1.22.12
 
 ### Patch Changes
