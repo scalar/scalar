@@ -41,8 +41,4 @@ WORKDIR /app/examples/express-api-reference
 
 USER node
 
-EXPOSE 5050
-ENV PORT 5050
-ENV HOSTNAME "0.0.0.0"
-
 CMD ["dumb-init", "node", "dist/index.js"]

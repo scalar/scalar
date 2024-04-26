@@ -24,7 +24,7 @@
     "@types/swagger-jsdoc": "^6.0.3",
     "nodemon": "^3.0.1",
     "tsc-alias": "^1.8.8",
-    "vite": "^5.2.9",
+    "vite": "^5.2.10",
     "vite-node": "^1.2.2"
   }
 }
