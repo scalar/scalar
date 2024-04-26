@@ -48,7 +48,8 @@ const { getWebhookId } = useNavState()
             <!-- Description -->
             <MarkdownRenderer
               v-if="webhooks[name][httpVerb]?.description"
-              :value="webhooks[name][httpVerb]?.description" />
+              :value="webhooks[name][httpVerb]?.description"
+              withImages />
 
             <!-- Details -->
             <Webhook :webhook="webhooks[name][httpVerb]" />

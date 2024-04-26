@@ -25,7 +25,8 @@ const { getTagId } = useNavState()
       </SectionHeader>
       <MarkdownRenderer
         class="tag-description"
-        :value="tag.description" />
+        :value="tag.description"
+        withImages />
     </template>
     <slot />
   </SectionContainerAccordion>

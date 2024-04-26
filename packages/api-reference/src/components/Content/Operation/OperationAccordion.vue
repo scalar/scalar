@@ -66,7 +66,9 @@ const { copyToClipboard } = useClipboard()
     <template
       v-if="operation.description"
       #description>
-      <MarkdownRenderer :value="operation.description" />
+      <MarkdownRenderer
+        :value="operation.description"
+        withImages />
     </template>
     <div class="endpoint-content">
       <EndpointDetailsCard :operation="operation" />
