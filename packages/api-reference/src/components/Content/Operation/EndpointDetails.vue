@@ -15,7 +15,9 @@ const { responses } = useResponses(props.operation)
 <template>
   <div class="endpoint-details">
     <div class="endpoint-description">
-      <MarkdownRenderer :value="operation.description" />
+      <MarkdownRenderer
+        :value="operation.description"
+        withImages />
     </div>
     <Parameters :parameters="parameterMap.path">
       <template #title>Path Parameters</template>
