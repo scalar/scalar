@@ -91,35 +91,41 @@ const items = computed(() => {
     tags[0].name !== 'default' ||
     tags[0].description !== ''
 
-  const operationEntries: SidebarEntry[] | undefined =
-    firstTag &&
-    moreThanOneDefaultTag(parsedSpec.value?.tags) &&
-    firstTag.operations?.length > 0
-      ? parsedSpec.value?.tags?.map((tag: Tag) => {
-          return {
-            id: getTagId(tag),
-            title: tag.name.toUpperCase(),
-            show: true,
-            children: tag.operations?.map((operation: TransformedOperation) => {
-              const id = getOperationId(operation, tag)
-              const title = operation.name ?? operation.path
-              titlesById[id] = title
+  console.log(moreThanOneDefaultTag(parsedSpec.value?.tags))
 
-              return {
-                id,
-                title,
-                httpVerb: operation.httpVerb,
-                deprecated: operation.information?.deprecated ?? false,
-                show: true,
-                select: () => {
-                  if (state.showApiClient) {
-                    openClientFor(operation, globalSecurity)
+  const operationEntries: SidebarEntry[] | undefined =
+    firstTag && moreThanOneDefaultTag(parsedSpec.value?.tags)
+      ? parsedSpec.value?.tags
+          // Filter out tags without operations
+          ?.filter((tag: Tag) => tag.operations?.length > 0)
+          .map((tag: Tag) => {
+            console.log('loop through tag', tag)
+            return {
+              id: getTagId(tag),
+              title: tag.name.toUpperCase(),
+              show: true,
+              children: tag.operations?.map(
+                (operation: TransformedOperation) => {
+                  const id = getOperationId(operation, tag)
+                  const title = operation.name ?? operation.path
+                  titlesById[id] = title
+
+                  return {
+                    id,
+                    title,
+                    httpVerb: operation.httpVerb,
+                    deprecated: operation.information?.deprecated ?? false,
+                    show: true,
+                    select: () => {
+                      if (state.showApiClient) {
+                        openClientFor(operation, globalSecurity)
+                      }
+                    },
                   }
                 },
-              }
-            }),
-          }
-        })
+              ),
+            }
+          })
       : firstTag?.operations?.map((operation) => {
           const id = getOperationId(operation, firstTag)
           const title = operation.name ?? operation.path
