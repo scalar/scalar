@@ -34,6 +34,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   - [With Platformatic](#with-platformatic)
   - [With Hono](#with-hono)
   - [With ElysiaJS](#with-elysiajs)
+  - [With FastAPI](https://github.com/scalar/scalar/tree/main/packages/scalar_fastapi/README)
   - [With Express](#with-express)
   - [With NestJS](#with-nestjs)
   - [With Docusaurus](#with-docusaurus)
