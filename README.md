@@ -519,7 +519,7 @@ Overwrite our CSS variables. We won’t judge.
 }
 ```
 
-> Note: By default we’re using Inter and JetBrains Mono, served by Google Fonts. If you use a different font or just don’t want to use Google Fonts, pass `withoutDefaultFonts: true` to the configuration.
+> Note: By default we’re using Inter and JetBrains Mono, served by Google Fonts. If you use a different font or just don’t want to use Google Fonts, pass `withDefaultFonts: true` to the configuration.
 
 You can [use all variables](https://github.com/scalar/scalar/blob/main/packages/themes/src/base.css) available in the base styles as well as overwrite the color theme.
 
