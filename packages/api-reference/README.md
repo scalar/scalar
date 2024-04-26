@@ -119,7 +119,7 @@ const customCss = `* { font-family: "Comic Sans MS", cursive, sans-serif; }`
 
 #### searchHotKey?: string
 
-Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
+Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
 
 ```vue
 <ApiReference :configuration="{ searchHotKey: 'l'} />

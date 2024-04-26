@@ -74,8 +74,7 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
       id="api-reference"
       data-url="https://petstore3.swagger.io/api/v3/openapi.json"
       data-proxy-url="https://api.scalar.com/request-proxy"></script>
-    <!-- You can also set a full configuration object like this -->
-    <!-- easier for nested objects -->
+    <!-- You can also set a full configuration object like this (easier for nested objects): -->
     <script>
       var configuration = {
         theme: 'purple',
@@ -216,7 +215,7 @@ Read more: [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/
 
 ### With Fastify
 
-Our fastify plugin makes it so easy to render a reference, there’s no excuse to not have a documentation for your API.
+Our fastify plugin makes it so easy to render a reference, there’s no excuse to not have documentation for your API.
 
 ```ts
 await fastify.register(require('@scalar/fastify-api-reference'), {
@@ -485,7 +484,7 @@ To customize the behavior of the API Reference, you can use the following config
 - `theme`: The them to use (see [#themes](#themes)).
 - `showSidebar`: Whether the sidebar should be shown.
 - `customCss`: Pass custom CSS directly to the component.
-- `searchHotKey`: Key used with CNTRL/CMD to open the search modal.
+- `searchHotKey`: Key used with CTRL/CMD to open the search modal.
 - `metaData`: Configure meta information for the page.
 - `hiddenClients`: List of httpsnippet clients to hide from the clients menu, by default hides Unirest, pass `[]` to show all clients.
 - `onSpecUpdate`: Listen to spec changes with a callback function.
