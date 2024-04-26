@@ -1,6 +1,3 @@
-@import url('https://cdn.scalar.com/fonts/jet.brains.mono.css');
-@import url('https://cdn.scalar.com/fontsinter.css');
-
 @layer scalar-base {
   :root {
     --scalar-border-width: 1px;
