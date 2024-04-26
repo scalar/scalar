@@ -298,6 +298,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
 }
 .code-languages__select select {
   opacity: 0;
+  height: 100%;
   width: 100%;
   aspect-ratio: 1;
   position: absolute;
@@ -308,6 +309,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   -moz-appearance: none;
   -webkit-appearance: none;
   appearance: none;
+  border: none;
 }
 .code-languages__select span {
   position: relative;
