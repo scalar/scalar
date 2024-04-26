@@ -3,9 +3,8 @@ import {
   ApiReference,
   type ReferenceConfiguration,
 } from '@scalar/api-reference'
+import content from '@scalar/galaxy/latest.json'
 import { reactive } from 'vue'
-
-import content from '../../../../specifications/scalar-galaxy-3.1.json'
 
 const configuration = reactive<ReferenceConfiguration>({
   theme: 'default',

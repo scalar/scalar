@@ -4,11 +4,10 @@ import {
   type ReferenceConfiguration,
   type ReferenceLayoutType,
 } from '@scalar/api-reference'
+import content from '@scalar/galaxy/latest.json'
 import { type ThemeId } from '@scalar/themes'
 import { reactive } from 'vue'
 import { useRoute } from 'vue-router'
-
-import content from '../../../../specifications/scalar-galaxy-3.1.json'
 
 const route = useRoute()
 

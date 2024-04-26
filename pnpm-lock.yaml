@@ -563,6 +563,9 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../../packages/api-reference
+      '@scalar/galaxy':
+        specifier: workspace:*
+        version: link:../../packages/galaxy
       '@scalar/themes':
         specifier: workspace:*
         version: link:../../packages/themes
