@@ -2,6 +2,7 @@
 import type { ContentType, RequestBody } from '@scalar/oas-utils'
 import { computed, ref } from 'vue'
 
+import { MarkdownRenderer } from '../../MarkdownRenderer'
 import { Schema } from '../Schema'
 
 const prop = defineProps<{ requestBody?: RequestBody }>()
@@ -39,6 +40,11 @@ if (prop.requestBody?.content) {
           </option>
         </select>
       </div>
+    </div>
+    <div
+      v-if="prop?.requestBody.description"
+      class="request-body-description">
+      <MarkdownRenderer :value="prop.requestBody.description" />
     </div>
     <div
       v-if="prop?.requestBody.content?.[selectedContentType]"
@@ -107,6 +113,9 @@ if (prop.requestBody?.content) {
 }
 .request-body-title-select:hover {
   color: var(--scalar-color-1);
+}
+.request-body-description {
+  margin-top: 12px;
 }
 @media (max-width: 460px) {
   .request-body-title-select {
