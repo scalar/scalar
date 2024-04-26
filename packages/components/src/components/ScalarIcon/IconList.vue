@@ -14,7 +14,7 @@ const selected = ref('')
 const copied = ref(false)
 </script>
 <template>
-  <div class="flex max-w-[862px] flex-col divide-y rounded border">
+  <div class="flex flex-col divide-y rounded border bg-back-1">
     <div class="flex flex-wrap gap-2 p-0.5">
       <ScalarIconButton
         v-for="icon in ICONS"
