@@ -37,6 +37,8 @@ export default defineConfig({
     rollupOptions: {
       external: ['vue'],
     },
+    // Don't minify CSS so we can use it in stuff like the theme editor
+    cssMinify: false,
   },
   test: {
     coverage: {
