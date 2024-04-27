@@ -15,7 +15,7 @@ import { serve } from '@hono/node-server'
 import { createMockServer } from '@scalar/mock-server'
 
 // Your OpenAPI specification
-const openapi = {
+const specification = {
   openapi: '3.1.0',
   info: {
     title: 'Hello World',
@@ -43,7 +43,7 @@ const openapi = {
 
 // Create the mocked routes
 const app = await createMockServer({
-  openapi,
+  specification,
   onRequest({ context, operation }) {
     console.log(context.req.method, context.req.path)
   },
