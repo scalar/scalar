@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.22.14
+
+### Patch Changes
+
+- b8e3f09: feat: add chevron for markdown summary
+- Updated dependencies [0a77380]
+  - @scalar/themes@0.7.6
+  - @scalar/api-client@1.2.9
+  - @scalar/components@0.5.5
+
 ## 1.22.13
 
 ### Patch Changes
