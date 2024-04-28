@@ -26,23 +26,23 @@ Generate interactive API documentation from Swagger files. [Try our Demo](https:
 ## Table of Contents
 
 - [Getting Started](#getting-started)
-    - [From a CDN](#from-a-cdn)
-    - [With Nuxt](#with-nuxt)
-    - [With Vue.js](#with-vuejs)
-    - [With React](#with-react)
-    - [With Next.js](#with-nextjs)
-    - [With ElysiaJS](#with-elysiajs)
-    - [With Express](#with-express)
-    - [With NestJS](#with-nestjs)
-    - [With AdonisJS](#with-adonisjs)
-    - [With Fastify](#with-fastify)
-    - [With Platformatic](#with-platformatic)
-    - [With Hono](#with-hono)
-    - [With Docusaurus](#with-docusaurus)
-    - [With FastAPI](https://github.com/scalar/scalar/tree/main/packages/scalar_fastapi/README)
-    - [With Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
-    - [With Laravel](#with-laravel)
-    - [With Rust](#with-rust)
+  - [From a CDN](#from-a-cdn)
+  - [With Nuxt](#with-nuxt)
+  - [With Vue.js](#with-vuejs)
+  - [With React](#with-react)
+  - [With Next.js](#with-nextjs)
+  - [With ElysiaJS](#with-elysiajs)
+  - [With Express](#with-express)
+  - [With NestJS](#with-nestjs)
+  - [With AdonisJS](#with-adonisjs)
+  - [With Fastify](#with-fastify)
+  - [With Platformatic](#with-platformatic)
+  - [With Hono](#with-hono)
+  - [With Docusaurus](#with-docusaurus)
+  - [With FastAPI](https://github.com/scalar/scalar/tree/main/packages/scalar_fastapi/README)
+  - [With Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
+  - [With Laravel](#with-laravel)
+  - [With Rust](#with-rust)
 - [CLI](#cli)
 - [Hosted API Reference](#hosted-api-reference)
 - [Configuration](#configuration)
@@ -61,39 +61,38 @@ Generate interactive API documentation from Swagger files. [Try our Demo](https:
 ```html
 <!doctype html>
 <html>
-<head>
-  <title>API Reference</title>
-  <meta charset="utf-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1" />
-</head>
-<body>
-<!-- Add your own OpenAPI/Swagger spec file URL here: -->
-<!-- Note: this includes our proxy, you can remove the following line if you do not need it -->
-<!-- data-proxy-url="https://api.scalar.com/request-proxy" -->
-<script
-  id="api-reference"
-  data-url="https://petstore3.swagger.io/api/v3/openapi.json"
-  data-proxy-url="https://api.scalar.com/request-proxy"></script>
-<!-- You can also set a full configuration object like this (easier for nested objects): -->
-<script>
-  var configuration = {
-    theme: 'purple',
-  }
+  <head>
+    <title>API Reference</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <!-- Add your own OpenAPI/Swagger spec file URL here: -->
+    <!-- Note: this includes our proxy, you can remove the following line if you do not need it -->
+    <!-- data-proxy-url="https://api.scalar.com/request-proxy" -->
+    <script
+      id="api-reference"
+      data-url="https://petstore3.swagger.io/api/v3/openapi.json"
+      data-proxy-url="https://api.scalar.com/request-proxy"></script>
+    <!-- You can also set a full configuration object like this (easier for nested objects): -->
+    <script>
+      var configuration = {
+        theme: 'purple',
+      }
 
-  var apiReference = document.getElementById('api-reference')
-  apiReference.dataset.configuration = JSON.stringify(configuration)
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-</body>
+      var apiReference = document.getElementById('api-reference')
+      apiReference.dataset.configuration = JSON.stringify(configuration)
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+  </body>
 </html>
 ```
 
 You can also use the following syntax to directly pass an OpenAPI spec:
 
 ```html
-
 <script
   id="api-reference"
   type="application/json">
@@ -104,7 +103,6 @@ You can also use the following syntax to directly pass an OpenAPI spec:
 If you’d like to add a request proxy for the API client (to avoid CORS issues):
 
 ```html
-
 <script
   id="api-reference"
   type="application/json"
@@ -645,7 +643,7 @@ We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 This repository contains all our open source projects, and there’s definitely more to discover.
 
 | Package                                                                                                    | Description                                       |
-|------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
+| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
 | [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy)           | API request proxy                                 |
 | [@scalar/api-client](https://github.com/scalar/scalar/tree/main/packages/api-client)                       | API testing client                                |
 | [@scalar/api-reference](https://github.com/scalar/scalar/tree/main/packages/api-reference)                 | beautiful API references                          |
