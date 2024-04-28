@@ -638,7 +638,7 @@ in the [`@scalar/themes`](https://github.com/scalar/scalar/tree/main/packages/th
 
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/8HeZcRGPFS>
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
 ## Packages
 
