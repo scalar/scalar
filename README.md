@@ -200,7 +200,8 @@ export default App
 ```
 
 export default App
-```
+
+````
 
 ### With Next.js
 
@@ -218,7 +219,7 @@ const config = {
 }
 
 export const GET = ApiReference(config)
-```
+````
 
 Read more: [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nextjs-api-reference)
 
