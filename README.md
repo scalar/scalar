@@ -174,8 +174,11 @@ You can [pass props to customize the API reference](https://github.com/scalar/sc
 ### With React
 
 The API Reference package is written in Vue, that shouldn’t stop you from using
-it in React though! We have created a client side (untested on SSR/SSG) wrapper
-in React:
+it in React though!
+We have created a client side wrapper in React:
+
+> [!WARNING]\
+> This is untested on SSR/SSG!
 
 ```ts
 import { ApiReferenceReact } from '@scalar/api-reference-react'
