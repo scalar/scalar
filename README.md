@@ -121,7 +121,7 @@ You can easily run Scalar API References in Nuxt via the module:
 npx nuxi module add @scalar/nuxt
 ```
 
-If you are using Nuxt server routes, you can enable scalar simply by enabling openAPI in the nitro
+If you are using Nuxt server routes, you can enable scalar simply by enabling `openAPI` in the nitro
 config in your `nuxt.config.ts`:
 
 ```ts
