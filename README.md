@@ -4,9 +4,9 @@
 [![Release](https://github.com/scalar/scalar/actions/workflows/release.yml/badge.svg)](https://github.com/scalar/scalar/actions/workflows/release.yml)
 [![Contributors](https://img.shields.io/github/contributors/scalar/scalar)](https://github.com/scalar/scalar/graphs/contributors)
 [![GitHub License](https://img.shields.io/github/license/scalar/scalar)](https://github.com/scalar/scalar/blob/main/LICENSE)
-[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/8HeZcRGPFS)
+[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-Generate interactive API documentations from Swagger files. [Try our Demo](https://docs.scalar.com/swagger-editor)
+Generate interactive API documentation from Swagger files. [Try our Demo](https://docs.scalar.com/swagger-editor)
 
 [![Screenshot of an API Reference](https://github.com/scalar/scalar/assets/6201407/d8beb5e1-bf64-4589-8cb0-992ba79215a8)](https://docs.scalar.com/swagger-editor)
 
@@ -18,9 +18,10 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
 - Edit your Swagger files with a live preview
 - Doesn’t look like it’s 2011
 
+> [!NOTE]\
 > [Scalar Townhall every 2nd Thursday in Discord](https://discord.gg/bcCycarP3D?event=1219363385485824000)
 >
-> Join us to see upcoming features, discuss the roadmap and chat about APIs with us. 💬
+> Join us to see upcoming features, discuss the roadmap and chat about APIs. 💬
 
 ## Table of Contents
 
@@ -29,16 +30,17 @@ Generate interactive API documentations from Swagger files. [Try our Demo](https
   - [With Nuxt](#with-nuxt)
   - [With Vue.js](#with-vuejs)
   - [With React](#with-react)
-  - [With Nextjs](#with-nextjs)
+  - [With Next.js](#with-nextjs)
+  - [With ElysiaJS](#with-elysiajs)
+  - [With Express](#with-express)
+  - [With NestJS](#with-nestjs)
+  - [With AdonisJS](#with-adonisjs)
   - [With Fastify](#with-fastify)
   - [With Platformatic](#with-platformatic)
   - [With Hono](#with-hono)
-  - [With ElysiaJS](#with-elysiajs)
-  - [With FastAPI](https://github.com/scalar/scalar/tree/main/packages/scalar_fastapi/README)
-  - [With Express](#with-express)
-  - [With NestJS](#with-nestjs)
   - [With Docusaurus](#with-docusaurus)
-  - [With AdonisJS](#with-adonisjs)
+  - [With FastAPI](https://github.com/scalar/scalar/tree/main/packages/scalar_fastapi/README)
+  - [With Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
   - [With Laravel](#with-laravel)
   - [With Rust](#with-rust)
 - [CLI](#cli)
@@ -111,14 +113,14 @@ If you’d like to add a request proxy for the API client (to avoid CORS issues)
 
 ### With Nuxt
 
-You can easily run Scalar API References in Nuxt via the module.
+You can easily run Scalar API References in Nuxt via the module:
 
 ```bash
 npx nuxi module add @scalar/nuxt
 ```
 
-If you are using nuxt server routes you can enable scalar simply by enabling openAPI in the nitro
-config in your nuxt.config.ts
+If you are using Nuxt server routes, you can enable scalar simply by enabling `openAPI` in the nitro
+config in your `nuxt.config.ts`:
 
 ```ts
 export default defineNuxtConfig({
@@ -131,7 +133,7 @@ export default defineNuxtConfig({
 })
 ```
 
-If you would like to add your own OpenAPI spec file you can do so with the following minimal config
+If you would like to add your own OpenAPI spec file, you can do so with the following minimal config:
 
 ```ts
 export default defineNuxtConfig({
@@ -148,7 +150,8 @@ Read more: [@scalar/nuxt](https://github.com/scalar/scalar/tree/main/packages/nu
 
 ### With Vue.js
 
-The API Reference is built in Vue.js. If you’re working in Vue.js, too, you can directly use our Vue components. Just install them:
+The API Reference is built in Vue.js. If you’re working in Vue.js, too, you can directly use our Vue components.
+Install them via `npm`:
 
 ```bash
 npm install @scalar/api-reference
@@ -171,8 +174,11 @@ You can [pass props to customize the API reference](https://github.com/scalar/sc
 ### With React
 
 The API Reference package is written in Vue, that shouldn’t stop you from using
-it in React though! We have created a client side (untested on SSR/SSG) wrapper
-in react.
+it in React though!
+We have created a client side wrapper in React:
+
+> [!WARNING]\
+> This is untested on SSR/SSG!
 
 ```ts
 import { ApiReferenceReact } from '@scalar/api-reference-react'
@@ -193,9 +199,13 @@ function App() {
 export default App
 ```
 
-### With Nextjs
+export default App
 
-Our Next.js handler makes it easy to render a reference, just add it to an Api
+````
+
+### With Next.js
+
+Our Next.js handler makes it easy to render a reference; just add it to an API
 route handler:
 
 ```ts
@@ -209,13 +219,13 @@ const config = {
 }
 
 export const GET = ApiReference(config)
-```
+````
 
 Read more: [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nextjs-api-reference)
 
 ### With Fastify
 
-Our fastify plugin makes it so easy to render a reference, there’s no excuse to not have documentation for your API.
+Our fastify plugin makes it so easy to render a reference, there’s no excuse to not have documentation for your API:
 
 ```ts
 await fastify.register(require('@scalar/fastify-api-reference'), {
@@ -234,13 +244,17 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
-We wrote a [detailed integration guide for Fastify](https://github.com/scalar/scalar/tree/main/documentation/fastify.md), too.
+We wrote
+a [detailed integration guide for Fastify](https://github.com/scalar/scalar/tree/main/documentation/fastify.md), too.
 
-Read more about the package: [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference)
+Read more about the
+package: [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference)
 
 ### With Platformatic
 
-Good news: If you’re using [a recent version of Platformatic](https://github.com/platformatic/platformatic/releases/tag/v1.16.0), the Scalar API reference is installed and configured automatically.
+Good news: If you’re
+using [a recent version of Platformatic](https://github.com/platformatic/platformatic/releases/tag/v1.16.0), the Scalar
+API reference is installed and configured automatically.
 
 ### With Hono
 
@@ -263,7 +277,7 @@ Read more: [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/ma
 
 ### With ElysiaJS
 
-The @elysiajs/swagger plugin uses our API reference by default.
+The `@elysiajs/swagger` plugin uses our API reference by default:
 
 ```ts
 import { swagger } from '@elysiajs/swagger'
@@ -321,7 +335,7 @@ Read more: [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/
 ### With Docusaurus
 
 Our Docusaurus plugin makes it easy to render API references. Simple add the
-following to your Docusaurus config
+following to your Docusaurus config:
 
 ```ts
 import type { ScalarOptions } from '@scalar/docusaurus'
@@ -342,17 +356,22 @@ plugins: [
 ],
 ```
 
-For more information, check out the [Docusaurus package](https://github.com/scalar/scalar/tree/main/packages/docusaurus/README.md)
+For more information, check out
+the [Docusaurus package](https://github.com/scalar/scalar/tree/main/packages/docusaurus/README.md)
 
 ### With AdonisJS
 
-There’s [a community package to generate OpenAPI files in AdonisJS](https://github.com/hanspagel/adonis-autoswagger) and it comes with support for the Scalar API reference already.
+There’s [a community package to generate OpenAPI files in AdonisJS,](https://github.com/hanspagel/adonis-autoswagger)
+and it comes with support for the
+Scalar API reference already.
 
-We wrote a [detailed integration guide for AdonisJS](https://github.com/scalar/scalar/tree/main/documentation/adonisjs.md).
+We wrote
+a [detailed integration guide for AdonisJS](https://github.com/scalar/scalar/tree/main/documentation/adonisjs.md).
 
 ### With Laravel
 
-There’s [a wonderful package to generate OpenAPI files for Laravel](https://scribe.knuckles.wtf/laravel/) already. Just set the `type` to `external_laravel` (for Blade) or `external_static` (for HTML) and `theme` to `scalar`:
+There’s [a wonderful package to generate OpenAPI files for Laravel](https://scribe.knuckles.wtf/laravel/) already.
+Set the `type` to `external_laravel` (for Blade) or `external_static` (for HTML) and `theme` to `scalar`:
 
 ```php
 <?php
@@ -366,11 +385,14 @@ return [
 ];
 ```
 
-We wrote a [detailed integration guide for Laravel Scribe](https://github.com/scalar/scalar/tree/main/documentation/laravel-scribe.md), too.
+We wrote
+a [detailed integration guide for Laravel Scribe](https://github.com/scalar/scalar/tree/main/documentation/laravel-scribe.md),
+too.
 
 ### With Rust
 
-There’s [a wonderful package to generate OpenAPI files for Rust](https://github.com/tamasfe/aide) already. Just set the `api_route` to use `Scalar` to get started:
+There’s [a wonderful package to generate OpenAPI files for Rust](https://github.com/tamasfe/aide) already.
+Set the `api_route` to use `Scalar` to get started:
 
 ```rust
 use aide::{
@@ -398,11 +420,12 @@ use aide::{
 
 ## CLI
 
-We’ve also got a nice command-line interface that you can use to play with OpenAPI files locally, integrate validation into your CI or share them easily (with us or anyone else).
+We’ve also got a nice command-line interface that you can use to play with OpenAPI files locally,
+integrate validation into your CI or share them easily (with us or anyone else).
 
 [CLI documentation](https://github.com/scalar/scalar/tree/main/packages/cli)
 
-Here’s a few use cases:
+Here are a few use cases:
 
 ### Installation
 
@@ -429,7 +452,8 @@ scalar format openapi.json --output openapi.yaml
 
 ### Validate
 
-Validate your OpenAPI file to find errors quickly, [great for CI](https://github.com/scalar/scalar/blob/main/.github/workflows/validate-openapi-file.yml):
+Validate your OpenAPI file to find errors
+quickly, [great for CI](https://github.com/scalar/scalar/blob/main/.github/workflows/validate-openapi-file.yml):
 
 ```bash
 scalar validate openapi.json
@@ -443,7 +467,8 @@ scalar validate https://example.com/openapi.json
 
 ### Preview
 
-Preview the API reference for your OpenAPI file with just one command. It can even watch your file and reload the content on file changes:
+Preview the API reference for your OpenAPI file with just one command. It can even watch your file and reload the
+content on file changes:
 
 ```bash
 scalar reference openapi.json --watch
@@ -469,7 +494,9 @@ Read [more about the CLI here](https://github.com/scalar/scalar/tree/main/packag
 
 ## Hosted API Reference
 
-Wait, this is open source and you can do whatever you want. But if you want to add a nice, customizable guide, collaborate with your team and have everything served through a CDN, create an account on [scalar.com](https://scalar.com).
+Wait, this is open source and you can do whatever you want. But if you want to add a nice, customizable guide,
+collaborate with your team and have everything served through a CDN, create an account
+on [scalar.com](https://scalar.com).
 
 ## Configuration
 
@@ -481,19 +508,22 @@ To customize the behavior of the API Reference, you can use the following config
 - `proxyUrl`: Use a proxy to send requests to other origins.
 - `darkMode`: Set dark mode on or off (light mode)
 - `layout`: The layout to use, either of `modern` or `classic` (see [#layouts](#layouts)).
-- `theme`: The them to use (see [#themes](#themes)).
+- `theme`: The theme to use (see [#themes](#themes)).
 - `showSidebar`: Whether the sidebar should be shown.
 - `customCss`: Pass custom CSS directly to the component.
 - `searchHotKey`: Key used with CTRL/CMD to open the search modal.
-- `metaData`: Configure meta information for the page.
-- `hiddenClients`: List of httpsnippet clients to hide from the clients menu, by default hides Unirest, pass `[]` to show all clients.
+- `metaData`: Configure meta-information for the page.
+- `hiddenClients`: List of `httpsnippet` clients to hide from the client's menu, by default hides Unirest,
+  pass `[]` to show all clients.
 - `onSpecUpdate`: Listen to spec changes with a callback function.
 
-For detailed information on how to use these options, refer to the [Configuration Section](https://github.com/scalar/scalar/blob/main/packages/api-reference/README.md/#configuration).
+For detailed information on how to use these options, refer to
+the [Configuration Section](https://github.com/scalar/scalar/blob/main/packages/api-reference/README.md/#configuration).
 
 ## Layouts
 
-We support two layouts at the moment, a `modern` layout (the default) and a Swagger UI inspired `classic` layout (we jazzed it up a bit though).
+We support two layouts at the moment, a `modern` layout (the default) and a Swagger UI inspired
+`classic` layout (we jazzed it up a bit though).
 
 ![layouts](https://github.com/scalar/scalar/assets/6374090/a28b89e0-8d3b-477f-a02f-bcf39f7830f0)
 
@@ -507,7 +537,9 @@ You don’t like the color scheme? We’ve prepared some themes for you:
 <ApiReference :configuration="{ theme: 'moon' }" />
 ```
 
-ℹ️ The `default` theme is … the default theme. If you want to make sure no theme is applied, pass `none`.
+> [!NOTE]\
+> The `default` theme is … the default theme.
+> If you want to make sure **no** theme is applied, pass `none`.
 
 ## Advanced: Styling
 
@@ -519,11 +551,16 @@ Overwrite our CSS variables. We won’t judge.
 }
 ```
 
-> Note: By default we’re using Inter and JetBrains Mono, served by Google Fonts. If you use a different font or just don’t want to use Google Fonts, pass `withDefaultFonts: true` to the configuration.
+> [!NOTE]\
+> By default, we’re using Inter and JetBrains Mono, served by Google Fonts.
+> If you use a different font or just don’t want to use Google Fonts,
+> pass `withDefaultFonts: true` to the configuration.
 
-You can [use all variables](https://github.com/scalar/scalar/blob/main/packages/themes/src/base.css) available in the base styles as well as overwrite the color theme.
+You can [use all variables](https://github.com/scalar/scalar/blob/main/packages/themes/src/base.css) available in the
+base styles as well as overwrite the color theme.
 
-To build your own color themes overwrite the night mode and day mode variables. Here are some basic variables to get you started:
+To build your own color themes, overwrite the night mode and day mode variables.
+Here are some basic variables to get you started:
 
 ![basic-scalar-variables](https://github.com/scalar/scalar/assets/6374090/f49256c4-4623-4797-87a1-24bdbc9b17fd)
 
@@ -586,22 +623,28 @@ Or get more advanced by styling our sidebar!
 
 ### Theme Prefix Changes
 
-We've migrated our `--theme-*` CSS variables to `--scalar-*` to avoid conflicts with other CSS variables in applications consuming the Scalar references or themes. If you're injecting your custom CSS through the [`customCss`](#configuration) configuration option we will automatically migrate your variable prefixes but display a warning in the console.
+We've migrated our `--theme-*` CSS variables to `--scalar-*` to avoid conflicts with other CSS variables in
+applications consuming the Scalar references or themes.
+If you're injecting your custom CSS through the [`customCss`](#configuration) configuration option we will automatically
+migrate your variable prefixes but display a warning in the console.
 
 We recommend updating your theme variables as soon as possible:
 
 - `--theme-*` → `--scalar-*`
 - `--sidebar-*` → `--scalar-sidebar-*`
 
-For a before and after example of an updated theme see [`legacyTheme.css`](https://github.com/scalar/scalar/tree/main/packages/themes/src/fixtures/legacyTheme.css) and [`updatedTheme.css`](https://github.com/scalar/scalar/tree/main/packages/themes/src/fixtures/updatedTheme.css) in the [`@scalar/themes`](https://github.com/scalar/scalar/tree/main/packages/themes/) package.
+For a before and after example of an updated theme
+see [`legacyTheme.css`](https://github.com/scalar/scalar/tree/main/packages/themes/src/fixtures/legacyTheme.css)
+and [`updatedTheme.css`](https://github.com/scalar/scalar/tree/main/packages/themes/src/fixtures/updatedTheme.css)
+in the [`@scalar/themes`](https://github.com/scalar/scalar/tree/main/packages/themes/) package.
 
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/8HeZcRGPFS>
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
 ## Packages
 
-This repository contains all our open source projects and there’s definitely more to discover.
+This repository contains all our open source projects, and there’s definitely more to discover.
 
 | Package                                                                                                    | Description                                       |
 | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
