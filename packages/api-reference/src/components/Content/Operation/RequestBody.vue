@@ -40,11 +40,11 @@ if (prop.requestBody?.content) {
           </option>
         </select>
       </div>
-    </div>
-    <div
-      v-if="prop?.requestBody.description"
-      class="request-body-description">
-      <MarkdownRenderer :value="prop.requestBody.description" />
+      <div
+        v-if="prop?.requestBody.description"
+        class="request-body-description">
+        <MarkdownRenderer :value="prop.requestBody.description" />
+      </div>
     </div>
     <div
       v-if="prop?.requestBody.content?.[selectedContentType]"
@@ -68,6 +68,7 @@ if (prop.requestBody?.content) {
   margin-top: 24px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--scalar-border-color);
+  flex-flow: wrap;
 }
 .request-body-title-select {
   position: relative;
@@ -115,7 +116,12 @@ if (prop.requestBody?.content) {
   color: var(--scalar-color-1);
 }
 .request-body-description {
-  margin-top: 12px;
+  margin-top: 6px;
+  font-size: var(--scalar-small);
+  width: 100%;
+}
+.request-body-description :deep(.markdown) * {
+  color: var(--scalar-color-2) !important;
 }
 @media (max-width: 460px) {
   .request-body-title-select {

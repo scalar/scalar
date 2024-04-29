@@ -95,7 +95,7 @@
         "description": "Time to play god and create a new planet. What do you think? Ah, don’t think too much. What could go wrong anyway?",
         "operationId": "createPlanet",
         "requestBody": {
-          "description": "Planet",
+          "description": "The payload required to create a planet.",
           "content": {
             "application/json": {
               "schema": {

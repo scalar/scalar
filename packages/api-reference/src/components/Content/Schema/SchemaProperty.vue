@@ -210,8 +210,9 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 
 .property-description {
-  margin-top: 8px;
+  margin-top: 6px;
   line-height: 1.4;
+  font-size: var(--scalar-small);
 }
 
 :deep(.property-description) * {
