@@ -1,4 +1,4 @@
-import { useToasts } from './useToasts'
+import { useToasts } from '@scalar/use-toasts'
 
 export const useClipboard = () => {
   const { toast } = useToasts()
