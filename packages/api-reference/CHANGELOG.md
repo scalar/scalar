@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.22.16
+
+### Patch Changes
+
+- 7e1d318: fix: addtional properties duplicate description
+
 ## 1.22.15
 
 ### Patch Changes
