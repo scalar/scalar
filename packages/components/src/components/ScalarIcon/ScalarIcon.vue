@@ -17,12 +17,14 @@ const props = defineProps<{
 const iconProps = cva({
   variants: {
     size: {
-      xs: 'h-3 w-3',
-      sm: 'h-3.5 w-3.5',
-      md: 'h-4 w-4',
-      lg: 'h-5 w-5',
-      xl: 'h-6 w-6',
-      full: 'h-full w-full',
+      'xs': 'h-3 w-3 stroke-[1.4]',
+      'sm': 'h-3.5 w-3.5 stroke-[1.2]',
+      'md': 'h-4 w-4 stroke-[1.1]',
+      'lg': 'h-5 w-5',
+      'xl': 'h-6 w-6 stroke-[0.96]',
+      '2xl': 'h-8 w-8 stroke-[0.92]',
+      '3xl': 'h-10 w-10 stroke-[0.9]',
+      'full': 'h-full w-full',
     },
   },
   defaultVariants: {

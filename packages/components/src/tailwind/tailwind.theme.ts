@@ -33,6 +33,10 @@ export const theme = {
     'ghost': 'var(--scalar-color-ghost)',
     'transparent': 'transparent',
   },
+  fontFamily: {
+    sans: 'var(--scalar-font)',
+    code: 'var(--scalar-font-code)',
+  },
 } as const
 
 export const extend = {
