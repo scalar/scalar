@@ -1237,6 +1237,31 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
 
+  packages/draggable:
+    dependencies:
+      '@vueuse/core':
+        specifier: ^10.9.0
+        version: 10.9.0(vue@3.4.21)
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@vitejs/plugin-vue':
+        specifier: ^5.0.4
+        version: 5.0.4(vite@5.2.10)(vue@3.4.21)
+      tsc-alias:
+        specifier: ^1.8.8
+        version: 1.8.8
+      vite:
+        specifier: ^5.2.10
+        version: 5.2.10(@types/node@20.11.22)(terser@5.30.0)
+      vite-svg-loader:
+        specifier: ^5.1.0
+        version: 5.1.0(vue@3.4.21)
+      vue:
+        specifier: ^3.4.21
+        version: 3.4.21(typescript@5.4.3)
+
   packages/echo-server:
     dependencies:
       cookie-parser:
@@ -11780,7 +11805,7 @@ packages:
   /@vue/compiler-sfc@3.4.21:
     resolution: {integrity: sha512-me7epoTxYlY+2CUM7hy9PCDdpMPfIwrOvAXud2Upk10g4YLv9UBW7kL798TvMeDhPthkZ0CONNrK2GoeI1ODiQ==}
     dependencies:
-      '@babel/parser': 7.24.0
+      '@babel/parser': 7.24.4
       '@vue/compiler-core': 3.4.21
       '@vue/compiler-dom': 3.4.21
       '@vue/compiler-ssr': 3.4.21
