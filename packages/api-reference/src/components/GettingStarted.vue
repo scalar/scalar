@@ -14,6 +14,12 @@ const emits = defineEmits<{
   (e: 'updateContent', value: string): void
 }>()
 
+// TODO: use new example spec package
+const placeholderSpecificationRes = await fetch(
+  'https://cdn.scalar.com/spec/scalar-galaxy-3.1.yaml',
+)
+const placeholderSpecification = await placeholderSpecificationRes.text()
+
 const themeIds: ThemeId[] = [
   'default',
   'alternate',
