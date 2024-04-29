@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.22.15
+
+### Patch Changes
+
+- fc2c90f: feat: cleanup component library icons
+- Updated dependencies [fc2c90f]
+  - @scalar/components@0.6.0
+  - @scalar/api-client@1.2.10
+
 ## 1.22.14
 
 ### Patch Changes
