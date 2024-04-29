@@ -96,7 +96,7 @@ const isHovered = useElementHover(button)
 
 .section-accordion-chevron {
   margin-right: 4px;
-  width: 24px;
+  width: 20px;
   cursor: pointer;
   opacity: 1;
   color: var(--scalar-color-3);
