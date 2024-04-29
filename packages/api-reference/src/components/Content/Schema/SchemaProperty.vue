@@ -45,6 +45,10 @@ const displayDescription = function (
     return null
   }
 
+  if (value?.additionalProperties) {
+    return null
+  }
+
   return description || value?.description || null
 }
 
@@ -208,6 +212,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 .property-description {
   margin-top: 6px;
   line-height: 1.4;
+  font-size: var(--scalar-small);
 }
 
 :deep(.property-description) * {

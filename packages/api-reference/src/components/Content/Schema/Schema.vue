@@ -105,7 +105,7 @@ const handleClick = (e: MouseEvent) =>
                 :value="value.properties?.[property]" />
             </template>
             <template v-if="value.additionalProperties">
-              <!-- 
+              <!--
                 Allows any type of additional property value
                 @see https://swagger.io/docs/specification/data-models/dictionaries/#free-form
                -->
@@ -246,8 +246,8 @@ button.schema-card-title:hover {
 .schema-card--compact.schema-card--level-0 > .schema-properties {
   border: none;
 }
-.schema-card-description {
-  font-size: var(--font-size, var(--scalar-paragraph));
+:deep(.schema-card-description) p {
+  font-size: var(--scalar-mini, var(--scalar-paragraph));
   color: var(--scalar-color-2);
   line-height: 1.5;
   margin-bottom: 0;

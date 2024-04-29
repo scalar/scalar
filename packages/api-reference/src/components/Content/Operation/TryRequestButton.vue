@@ -55,6 +55,6 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
 .show-api-client-button svg {
   height: 12px;
   width: auto;
-  margin-right: 9px;
+  margin-right: 6px;
 }
 </style>
