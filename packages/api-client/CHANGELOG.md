@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 1.2.10
+
+### Patch Changes
+
+- Updated dependencies [fc2c90f]
+  - @scalar/components@0.6.0
+
 ## 1.2.9
 
 ### Patch Changes

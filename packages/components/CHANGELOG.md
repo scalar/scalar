@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.6.0
+
+### Minor Changes
+
+- fc2c90f: feat: cleanup component library icons
+
 ## 0.5.5
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @scalar/express-api-reference
 
+## 0.4.15
+
+### Patch Changes
+
+- Updated dependencies [fc2c90f]
+  - @scalar/api-reference@1.22.15
+
 ## 0.4.14
 
 ### Patch Changes
