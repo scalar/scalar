@@ -1,5 +1,37 @@
 # @scalar/components
 
+## 0.5.5
+
+### Patch Changes
+
+- 2700c5c: feat: separate google fonts from theme, add withDefaultFonts setting
+
+## 0.5.4
+
+### Patch Changes
+
+- 79485ff: fix: scalar package icon types
+- 92b5b2a: fix: truncate search results properly
+
+## 0.5.3
+
+### Patch Changes
+
+- bc3f3af: build: add icons to scalar components package
+
+## 0.5.2
+
+### Patch Changes
+
+- e8ef57e: chore: export tailwind config as ts
+- 1353154: fix: circular references in code blocks throw errors
+
+## 0.5.1
+
+### Patch Changes
+
+- 24662c3: feat: rebuild search modal
+
 ## 0.5.0
 
 ### Minor Changes

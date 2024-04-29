@@ -1,5 +1,71 @@
 # @scalar/express-api-reference
 
+## 0.4.14
+
+### Patch Changes
+
+- Updated dependencies [b8e3f09]
+  - @scalar/api-reference@1.22.14
+
+## 0.4.13
+
+### Patch Changes
+
+- Updated dependencies [c05c90e]
+- Updated dependencies [2700c5c]
+  - @scalar/api-reference@1.22.13
+
+## 0.4.12
+
+### Patch Changes
+
+- Updated dependencies [55398db]
+  - @scalar/api-reference@1.22.12
+
+## 0.4.11
+
+### Patch Changes
+
+- Updated dependencies [b24b455]
+- Updated dependencies [43e1217]
+  - @scalar/api-reference@1.22.11
+
+## 0.4.10
+
+### Patch Changes
+
+- @scalar/api-reference@1.22.10
+
+## 0.4.9
+
+### Patch Changes
+
+- Updated dependencies [6f68b40]
+- Updated dependencies [4d31b19]
+  - @scalar/api-reference@1.22.9
+
+## 0.4.8
+
+### Patch Changes
+
+- Updated dependencies [24662c3]
+  - @scalar/api-reference@1.22.8
+
+## 0.4.7
+
+### Patch Changes
+
+- Updated dependencies [c408cf5]
+  - @scalar/api-reference@1.22.7
+
+## 0.4.6
+
+### Patch Changes
+
+- Updated dependencies [cf12a95]
+- Updated dependencies [7b37c63]
+  - @scalar/api-reference@1.22.6
+
 ## 0.4.5
 
 ### Patch Changes

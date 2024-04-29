@@ -9,4 +9,5 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
+    # This will disable updates, but still create PRs for security updates.
     open-pull-requests-limit: 0

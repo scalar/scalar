@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.10.1
+
+### Patch Changes
+
+- 96ded16: Externalize y-codemirror
+
 ## 0.10.0
 
 ### Minor Changes

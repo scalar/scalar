@@ -1,14 +1,36 @@
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { webpackStats } from 'rollup-plugin-webpack-stats'
+import banner from 'vite-plugin-banner'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { defineConfig } from 'vitest/config'
+
+import licenseBannerTemplate from './license-banner-template.txt'
+import { name, version } from './package.json'
+import { replaceVariables } from './src/helpers/replaceVariables'
 
 export default defineConfig({
   define: {
     'process.env.NODE_ENV': '"production"',
   },
-  plugins: [vue(), cssInjectedByJsPlugin(), webpackStats()],
+  plugins: [
+    vue(),
+    cssInjectedByJsPlugin(),
+    webpackStats(),
+    banner({
+      outDir: 'dist/browser',
+      content: replaceVariables(licenseBannerTemplate, [
+        {
+          name: 'packageName',
+          value: name,
+        },
+        {
+          name: 'version',
+          value: version,
+        },
+      ]),
+    }),
+  ],
   build: {
     emptyOutDir: false,
     outDir: 'dist/browser',

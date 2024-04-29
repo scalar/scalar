@@ -11,7 +11,7 @@
     "swagger",
     "cli"
   ],
-  "version": "0.1.40",
+  "version": "0.1.49",
   "engines": {
     "node": ">=18"
   },
@@ -36,11 +36,11 @@
     "directory": "packages/mock-server"
   },
   "dependencies": {
-    "@hono/node-server": "^1.8.2",
+    "@hono/node-server": "^1.11.0",
     "@scalar/api-reference": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
-    "hono": "^4.1.0",
+    "hono": "^4.2.7",
     "vite-node": "^1.2.2"
   },
   "devDependencies": {
@@ -48,7 +48,7 @@
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/node": "^20.8.4",
     "execa": "^8.0.1",
-    "rollup": "^4.12.0",
+    "rollup": "^4.16.4",
     "strip-ansi": "^7.1.0",
     "tslib": "^2.6.2",
     "typescript": "^5.4.3"

@@ -1,5 +1,63 @@
 # @scalar/api-client
 
+## 1.2.9
+
+### Patch Changes
+
+- Updated dependencies [0a77380]
+  - @scalar/themes@0.7.6
+  - @scalar/components@0.5.5
+
+## 1.2.8
+
+### Patch Changes
+
+- Updated dependencies [2700c5c]
+  - @scalar/components@0.5.5
+  - @scalar/themes@0.7.5
+
+## 1.2.7
+
+### Patch Changes
+
+- Updated dependencies [79485ff]
+- Updated dependencies [92b5b2a]
+  - @scalar/components@0.5.4
+
+## 1.2.6
+
+### Patch Changes
+
+- Updated dependencies [86d1363]
+- Updated dependencies [bc3f3af]
+  - @scalar/themes@0.7.4
+  - @scalar/components@0.5.3
+
+## 1.2.5
+
+### Patch Changes
+
+- Updated dependencies [e8ef57e]
+- Updated dependencies [1353154]
+  - @scalar/components@0.5.2
+
+## 1.2.4
+
+### Patch Changes
+
+- Updated dependencies [4d31b19]
+  - @scalar/themes@0.7.3
+  - @scalar/components@0.5.1
+
+## 1.2.3
+
+### Patch Changes
+
+- Updated dependencies [96ded16]
+- Updated dependencies [24662c3]
+  - @scalar/use-codemirror@0.10.1
+  - @scalar/components@0.5.1
+
 ## 1.2.2
 
 ### Patch Changes

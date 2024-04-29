@@ -96,7 +96,34 @@ onServerPrefetch(async () => await sleep(1))
 }
 .markdown :deep(summary) {
   margin: 12px 0;
+  padding-left: 20px;
+  position: relative;
   font-weight: var(--scalar-semibold);
+  cursor: pointer;
+  user-select: none;
+}
+
+.markdown :deep(summary::after) {
+  display: block;
+  content: '';
+
+  position: absolute;
+  top: 1px;
+  left: 1px;
+
+  width: 16px;
+  height: 16px;
+
+  background-color: var(--scalar-color-3);
+  mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.25 19.5L15.75 12L8.25 4.5" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+}
+
+.markdown :deep(summary:hover::after) {
+  background-color: var(--scalar-color-1);
+}
+
+.markdown :deep(details[open] summary::after) {
+  transform: rotate(90deg);
 }
 .markdown :deep(img) {
   overflow: hidden;

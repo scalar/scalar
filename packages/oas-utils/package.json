@@ -61,7 +61,7 @@
     "axios": "^1.6.8",
     "httpsnippet-lite": "^3.0.5",
     "tsc-alias": "^1.8.8",
-    "vite": "^5.2.9",
+    "vite": "^5.2.10",
     "vitest": "^1.5.0"
   },
   "peerDependencies": {

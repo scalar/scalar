@@ -31,6 +31,8 @@ jobs:
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
       - name: Build
         run: pnpm turbo build
+      - name: Git Status
+        run: git status
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1

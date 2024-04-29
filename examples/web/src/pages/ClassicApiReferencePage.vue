@@ -5,7 +5,7 @@ import {
 } from '@scalar/api-reference'
 import { reactive } from 'vue'
 
-import content from '../fixtures/petstorev3.json'
+import content from '../../../../specifications/scalar-galaxy-3.1.json'
 
 const configuration = reactive<ReferenceConfiguration>({
   theme: 'default',

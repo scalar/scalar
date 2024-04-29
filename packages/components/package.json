@@ -5,7 +5,7 @@
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
-  "version": "0.5.0",
+  "version": "0.5.5",
   "engines": {
     "node": ">=18"
   },
@@ -30,10 +30,14 @@
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./tailwind": {
+      "import": "./src/tailwind/index.ts"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "src/tailwind/**.ts"
   ],
   "module": "./dist/index.js",
   "dependencies": {
@@ -74,7 +78,7 @@
     "tailwindcss": "^3.3.3",
     "ts-node": "^10.9.1",
     "typescript": "^5.4.3",
-    "vite": "^5.2.9",
+    "vite": "^5.2.10",
     "vite-plugin-dts": "^3.6.3",
     "vite-plugin-lib-inject-css": "^2.0.1",
     "vite-svg-loader": "^5.1.0",

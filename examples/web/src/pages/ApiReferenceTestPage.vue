@@ -8,7 +8,7 @@ import { type ThemeId } from '@scalar/themes'
 import { reactive } from 'vue'
 import { useRoute } from 'vue-router'
 
-import content from '../fixtures/petstorev3.json'
+import content from '../../../../specifications/scalar-galaxy-3.1.json'
 
 const route = useRoute()
 

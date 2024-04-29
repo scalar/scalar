@@ -212,7 +212,9 @@ provide(
 hideModels.value = props.configuration.hideModels ?? false
 </script>
 <template>
-  <ThemeStyles :id="configuration?.theme" />
+  <ThemeStyles
+    :id="configuration?.theme"
+    :withDefaultFonts="configuration?.withDefaultFonts" />
   <ResetStyles v-slot="{ styles: reset }">
     <ScrollbarStyles v-slot="{ styles: scrollbars }">
       <div
@@ -307,6 +309,7 @@ hideModels.value = props.configuration.hideModels ?? false
           </div>
         </template>
         <!-- REST API Client Overlay -->
+        <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
         <ApiClientModal
           :parsedSpec="parsedSpec"
           :proxyUrl="configuration?.proxy">

@@ -19,6 +19,8 @@ import {
   watch,
 } from 'vue'
 
+import { prettyPrintString } from './utils/prettyPrintString'
+
 /**
  * Uses prism.js for syntax highlighting
  * Comes with js, css, bash and json
@@ -40,11 +42,7 @@ const props = withDefaults(
   },
 )
 
-const ssrHash = createHash(
-  typeof props.content === 'object'
-    ? JSON.stringify(props.content)
-    : props.content,
-)
+const ssrHash = createHash(prettyPrintString(props.content))
 
 const ssrStateKey =
   `components-scalar-code-block${ssrHash}` satisfies CodeBlockSSRKey
@@ -145,9 +143,7 @@ onServerPrefetch(async () => {
   }
 
   const html = prismjs.highlight(
-    typeof props.content === 'object'
-      ? JSON.stringify(props.content)
-      : props.content,
+    prettyPrintString(props.content),
     prismjs.languages[language.value]!,
     language.value,
   )
@@ -164,6 +160,7 @@ onServerPrefetch(async () => {
 // Here we overwrite the SSR with client rendered syntax highlighting
 onMounted(async () => {
   // This bit async autoloads any syntax we have not pre-loaded
+  // @ts-expect-error This is a dynamic import
   await import('prismjs/plugins/autoloader/prism-autoloader.js')
   plugins.autoloader.languages_path =
     'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/'
@@ -176,13 +173,13 @@ onMounted(async () => {
       {
         'line-numbers': lineNumbers,
       },
-    ]"><!-- 
-        SSR generated highlighting 
+    ]"><!--
+        SSR generated highlighting
         * Do not remove these strange comments and line breaks as any line breaks
           inside of pre will show in the dom
-      --><code v-if="ssrContent" :class="`scalar-codeblock-code language-${language}`" v-html="ssrContent" /><!-- 
+      --><code v-if="ssrContent" :class="`scalar-codeblock-code language-${language}`" v-html="prettyPrintString(ssrContent)" /><!--
         Client side generated highlighting
-      --><code v-else ref="el" :class="`scalar-codeblock-code language-${language}`">{{content}}</code></pre>
+      --><code v-else ref="el" :class="`scalar-codeblock-code language-${language}`">{{prettyPrintString(content)}}</code></pre>
 </template>
 <style>
 .scalar-codeblock-code[class*='language-'],

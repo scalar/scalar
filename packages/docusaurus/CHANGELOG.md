@@ -1,5 +1,59 @@
 # @scalar/docusaurus
 
+## 0.2.14
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.1.56
+
+## 0.2.13
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.1.55
+
+## 0.2.12
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.1.54
+
+## 0.2.11
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.1.53
+
+## 0.2.10
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.1.52
+
+## 0.2.9
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.1.51
+
+## 0.2.8
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.1.50
+
+## 0.2.7
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.1.49
+
+## 0.2.6
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.1.48
+
 ## 0.2.5
 
 ### Patch Changes

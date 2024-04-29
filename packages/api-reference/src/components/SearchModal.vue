@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { HttpMethod } from '@scalar/api-client'
+import {
+  type Icon,
+  ScalarSearchInput,
+  ScalarSearchResultItem,
+  ScalarSearchResultList,
+} from '@scalar/components'
 import { type TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { FlowModal, type ModalState } from '@scalar/use-modal'
@@ -11,6 +16,9 @@ import { getHeadingsFromMarkdown } from '../helpers'
 import { extractRequestBody } from '../helpers/specHelpers'
 import { type ParamMap, useNavState, useOperation, useSidebar } from '../hooks'
 import type { Spec } from '../types'
+import SidebarHttpBadge from './Sidebar/SidebarHttpBadge.vue'
+
+type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
 
 const props = defineProps<{
   parsedSpec: Spec
@@ -18,12 +26,20 @@ const props = defineProps<{
 }>()
 const reactiveSpec = toRef(props, 'parsedSpec')
 
+const ENTRY_ICONS: { [x in EntryType]: Icon } = {
+  heading: 'DocsPage',
+  model: 'JsonObject',
+  req: 'Terminal',
+  tag: 'CodeFolder',
+  webhook: 'Terminal',
+}
+
 const keys = useMagicKeys()
 
 type FuseData = {
   title: string
   href: string
-  type: 'req' | 'webhook' | 'model' | 'heading'
+  type: EntryType
   operationId?: string
   description: string
   body?: string | string[] | ParamMap
@@ -105,7 +121,7 @@ watch(
         title: tag.name,
         href: `#${getTagId(tag)}`,
         description: tag.description,
-        type: 'req',
+        type: 'tag',
         tag: tag.name,
         body: '',
       }
@@ -297,58 +313,44 @@ function getFullUrlFromHash(href: string) {
     <div
       ref="searchModalRef"
       class="ref-search-container">
-      <input
+      <ScalarSearchInput
         v-model="searchText"
-        autocapitalize="off"
-        autocomplete="off"
-        autocorrect="off"
-        class="ref-search-input"
-        placeholder="Search …"
-        spellcheck="false"
-        type="text"
         @input="fuseSearch" />
     </div>
-    <div
-      v-if="searchResultsWithPlaceholderResults.length"
-      class="ref-search-list custom-scroll">
-      <a
+    <ScalarSearchResultList
+      class="ref-search-results custom-scroll"
+      :noResults="!searchResultsWithPlaceholderResults.length">
+      <ScalarSearchResultItem
         v-for="(entry, index) in searchResultsWithPlaceholderResults"
         :id="entry.item.href"
         :key="entry.refIndex"
-        class="item-entry"
-        :class="{
-          'item-entry--active': index === selectedSearchResult,
-          'item-entry--tag': !entry.item.httpVerb,
-        }"
+        :active="selectedSearchResult === index"
         :href="getFullUrlFromHash(entry.item.href)"
+        :icon="ENTRY_ICONS[entry.item.type]"
         @click="onSearchResultClick(entry)"
         @focus="selectedSearchResult = index">
-        <HttpMethod
-          as="div"
-          class="item-entry-http-verb"
-          :method="entry.item.httpVerb ?? 'get'"
-          short />
-        <div
-          v-if="entry.item.title"
-          class="item-entry-title">
-          {{ entry.item.title }}
-        </div>
-
-        <div
+        {{ entry.item.title }}
+        <template
           v-if="
             (entry.item.httpVerb || entry.item.path) &&
             entry.item.path !== entry.item.title
           "
-          class="item-entry-path">
+          #description>
           {{ entry.item.path }}
-        </div>
-        <div
+        </template>
+        <template
           v-else-if="entry.item.description"
-          class="item-entry-description">
+          #description>
           {{ entry.item.description }}
-        </div>
-      </a>
-    </div>
+        </template>
+        <template
+          v-if="entry.item.type === 'req'"
+          #addon>
+          <SidebarHttpBadge :method="entry.item.httpVerb ?? 'get'" />
+        </template>
+      </ScalarSearchResultItem>
+      <template #query>{{ searchText }}</template>
+    </ScalarSearchResultList>
     <div class="ref-search-meta">
       <span>↑↓ Navigate</span>
       <span>⏎ Select</span>
@@ -359,101 +361,14 @@ function getFullUrlFromHash(href: string) {
 a {
   text-decoration: none;
 }
-/** Input */
-.ref-search-input {
-  width: 100%;
-  background: transparent;
-  padding: 12px;
-  font-size: var(--scalar-font-size-4);
-  outline: none;
-  border: 1px solid var(--scalar-border-color);
-  border-radius: var(--scalar-radius);
-  color: var(--scalar-color-1);
-  font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-font-size-3);
-  font-family: var(--scalar-font);
-  appearance: none;
-}
-.ref-search-input:focus {
-  border-color: var(--scalar-color-1);
-}
-/** Results */
-.item-entry {
-  appearance: none;
-  background: transparent;
-  border: none;
-  outline: none;
-  padding: 9px 12px;
-  width: 100%;
-  color: var(--scalar-color-3);
-  text-align: left;
-  border-radius: var(--scalar-radius);
-  display: flex;
-  align-items: center;
-  font-family: var(--scalar-font);
-  min-height: 31px;
-  display: flex;
-  gap: 6px;
-  overflow: hidden;
-}
-.item-entry-http-verb:empty {
-  display: none;
-}
-.ref-search-list {
-  padding: 0 12px 12px 12px;
-}
 .ref-search-container {
-  padding: 12px;
-}
-.item-entry--active,
-.item-entry:hover {
-  background: var(--scalar-background-2);
-  cursor: pointer;
-}
-
-/** If it’s a tag, let’s put a dash between the tag name and the description and set the margin to the gap size. */
-.item-entry--tag .item-entry-description::before {
-  content: '–';
-  margin-right: 6px;
-}
-.item-entry-description,
-.item-entry-title {
-  font-weight: var(--scalar-semibold);
-  color: var(--scalar-color-1);
-  font-size: var(--scalar-font-size-4);
-  white-space: nowrap;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.item-entry-title {
-  min-width: fit-content;
-}
-.item-entry-http-verb,
-.item-entry-subtitle {
   display: flex;
-  font-size: var(--scalar-font-size-4);
-  font-family: var(--scalar-font-code);
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex-direction: column;
+  padding: 12px;
+  padding-bottom: 0px;
 }
-.item-entry-http-verb {
-  text-transform: uppercase;
-  min-width: 45px;
-  position: relative;
-  /* optically center since all characters  above baseline*/
-  top: 0.5px;
-}
-.item-entry-path {
-  color: var(--scalar-color-3);
-  font-size: var(--scalar-font-size-4);
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.ref-search-results {
+  padding: 12px;
 }
 .ref-search-meta {
   background: var(--scalar-background-3);

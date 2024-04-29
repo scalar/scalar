@@ -47,7 +47,7 @@ export type ReferenceConfiguration = {
   hideDownloadButton?: boolean
   /** Whether dark mode is on or off initially (light mode) */
   darkMode?: boolean
-  /** Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
+  /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
   searchHotKey?:
     | 'a'
     | 'b'
@@ -112,6 +112,12 @@ export type ReferenceConfiguration = {
    * @example 'http://localhost:3000'
    */
   baseServerURL?: string
+  /**
+   * We’re using Inter and JetBrains Mono as the default fonts. If you want to use your own fonts, set this to false.
+   *
+   * @default true
+   */
+  withDefaultFonts?: boolean
 }
 
 export type PathRouting = {

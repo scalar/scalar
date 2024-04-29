@@ -44,7 +44,7 @@ app.use(
   '/reference',
   apiReference({
     spec: {
-      url: '/swagger.json',
+      url: '/openapi.json',
     },
   }),
 )
@@ -75,7 +75,7 @@ app.use(
 You can use a custom CDN ，default is `https://cdn.jsdelivr.net/npm/@scalar/api-reference`.
 
 ```ts
-import { apiReference } from '@scalar/nestjs-api-reference'
+import { apiReference } from '@scalar/express-api-reference'
 
 app.use(
   '/reference',

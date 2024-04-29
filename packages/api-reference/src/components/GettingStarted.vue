@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
-import { type ThemeId } from '@scalar/themes'
+import { type ThemeId, themeLabels } from '@scalar/themes'
 
-import petstore from '../specs/petstorev3.json?raw'
+import placeholderSpecification from '../../../../specifications/scalar-galaxy-3.1.json?raw'
 
 defineProps<{
   theme: ThemeId
@@ -29,7 +29,7 @@ const themeIds: ThemeId[] = [
 ]
 
 function handleEmitPetstore() {
-  emits('updateContent', petstore)
+  emits('updateContent', placeholderSpecification)
 }
 </script>
 <template>
@@ -57,7 +57,7 @@ function handleEmitPetstore() {
         <ScalarButton
           fullWidth
           @click="handleEmitPetstore">
-          Test Petstore
+          Show Example
         </ScalarButton>
         <ScalarButton
           fullWidth
@@ -68,7 +68,7 @@ function handleEmitPetstore() {
       </div>
     </div>
     <div class="start-row">
-      <div class="start-section">
+      <div class="start-section start-section-integrations">
         <div class="start-h2">INTEGRATIONS</div>
         <a
           class="start-item"
@@ -179,7 +179,7 @@ function handleEmitPetstore() {
           class="start-item"
           :class="{ 'start-item-active': themeId === theme }"
           @click="$emit('changeTheme', themeId)">
-          {{ themeId.toLocaleLowerCase() }}
+          {{ themeLabels[themeId] }}
         </div>
       </div>
     </div>
@@ -277,49 +277,54 @@ function handleEmitPetstore() {
 .start-section {
   width: 100%;
   margin-bottom: 12px;
-  border-radius: var(--scalar-radius-lg);
-  border: 1px solid var(--scalar-border-color);
   display: flex;
   flex-flow: wrap;
-  background: var(--scalar-background-2);
 }
 .start-section:last-of-type {
   margin-bottom: 48px;
 }
 .start-h2 {
-  padding: 9px;
+  background: var(--scalar-background-2);
+  border-top-left-radius: var(--scalar-radius-lg);
+  border-top-right-radius: var(--scalar-radius-lg);
+  border: 1px solid var(--scalar-border-color);
   color: var(--scalar-color-3);
   font-size: var(--scalar-mini);
   font-weight: var(--scalar-semibold);
+  padding: 9px;
   width: 100%;
-  border-bottom: 1px solid var(--scalar-border-color);
 }
 .start-item {
-  padding: 9px;
-  display: flex;
   align-items: center;
-  user-select: none;
-  cursor: pointer;
+  background: var(--scalar-background-2);
+  border-right: 1px solid var(--scalar-border-color);
+  border-bottom: 1px solid var(--scalar-border-color);
   color: var(--scalar-color-1);
-  font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-mini);
+  cursor: pointer;
+  display: flex;
   flex: 1;
+  font-size: var(--scalar-mini);
+  font-weight: var(--scalar-semibold);
+  padding: 9px;
   text-transform: capitalize;
+  user-select: none;
+}
+.start-section-integrations .start-item:first-of-type {
+  border-bottom-left-radius: var(--scalar-radius-lg);
+  border-left: 1px solid var(--scalar-border-color);
+}
+.start-section-integrations .start-item:last-of-type {
+  border-bottom-right-radius: var(--scalar-radius-lg);
 }
 .start-section-colors .start-item {
   min-width: 33.33%;
 }
-.start-item:not(:last-of-type) {
-  border-right: 1px solid var(--scalar-border-color);
+.start-section-colors .start-item:nth-child(3n + 2) {
+  border-left: 1px solid var(--scalar-border-color);
 }
-.start-section-colors .start-item:not(:last-of-type) {
-  border-right: none;
-}
-.start-section-colors .start-item:not(:nth-of-type(3n)) {
-  border-right: 1px solid var(--scalar-border-color);
-}
-.start-section-colors .start-item:nth-of-type(n + 4) {
-  border-top: 1px solid var(--scalar-border-color);
+.start-section-colors .start-item:last-of-type,
+.start-section-colors .start-item-active:last-of-type::before {
+  border-radius: 0 0 var(--scalar-radius-lg) var(--scalar-radius-lg);
 }
 .start-item:empty {
   pointer-events: none;
@@ -330,13 +335,19 @@ function handleEmitPetstore() {
   margin-right: 6px;
 }
 .start-item:hover {
-  background: var(--scalar-background-2);
+  background: var(--scalar-background-3);
 }
 .start-item-active {
-  box-shadow: 0 0 0 1px var(--scalar-color-1);
   z-index: 10;
   position: relative;
   color: var(--scalar-color-1);
+}
+.start-item-active::before {
+  border: 1px solid var(--scalar-color-1);
+  content: '';
+  inset: -1px -1px -1px -1px;
+  pointer-events: none;
+  position: absolute;
 }
 .start-section-color .start-item {
   text-transform: capitalize;
@@ -347,10 +358,6 @@ function handleEmitPetstore() {
   width: 100%;
   margin-top: 24px;
   margin-bottom: 0;
-}
-.start-section:nth-of-type(2) {
-  border-left: 1px solid var(--scalar-border-color);
-  border-right: 1px solid var(--scalar-border-color);
 }
 .start-row {
   width: 100%;

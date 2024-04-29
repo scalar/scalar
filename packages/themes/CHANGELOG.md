@@ -1,5 +1,29 @@
 # @scalar/themes
 
+## 0.7.6
+
+### Patch Changes
+
+- 0a77380: fix: don't minify theme css
+
+## 0.7.5
+
+### Patch Changes
+
+- 2700c5c: feat: separate google fonts from theme, add withDefaultFonts setting
+
+## 0.7.4
+
+### Patch Changes
+
+- 86d1363: refactor: remove @layer from base theme files
+
+## 0.7.3
+
+### Patch Changes
+
+- 4d31b19: refactor: move theme labels to @scalar/themes
+
 ## 0.7.2
 
 ### Patch Changes

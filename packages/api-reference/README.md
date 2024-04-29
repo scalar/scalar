@@ -55,7 +55,7 @@ Directly pass an OpenAPI/Swagger spec.
 Pass the URL of a spec file (JSON or Yaml).
 
 ```vue
-<ApiReference :configuration="{ spec: { url: '/swagger.json' } }" />
+<ApiReference :configuration="{ spec: { url: '/openapi.json' } }" />
 ```
 
 #### proxyUrl?: string
@@ -119,7 +119,7 @@ const customCss = `* { font-family: "Comic Sans MS", cursive, sans-serif; }`
 
 #### searchHotKey?: string
 
-Key used with CNTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
+Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
 
 ```vue
 <ApiReference :configuration="{ searchHotKey: 'l'} />
@@ -201,4 +201,15 @@ For OpenAuth2 it’s more looking like this:
       },
     },
   } />
+```
+
+#### withDefaultFonts?: boolean
+
+By default we’re using Inter and JetBrains Mono, served by Google Fonts. If you use a different font or just don’t want to use Google Fonts, pass `withDefaultFonts: false` to the configuration.
+
+```vue
+<ApiReference :configuration="{
+  withDefaultFonts: false
+} />
+```
 ````

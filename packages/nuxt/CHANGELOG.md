@@ -1,5 +1,77 @@
 # @scalar/nuxt
 
+## 0.0.24
+
+### Patch Changes
+
+- Updated dependencies [b8e3f09]
+  - @scalar/api-reference@1.22.14
+
+## 0.0.23
+
+### Patch Changes
+
+- Updated dependencies [c05c90e]
+- Updated dependencies [2700c5c]
+  - @scalar/api-reference@1.22.13
+
+## 0.0.22
+
+### Patch Changes
+
+- Updated dependencies [55398db]
+  - @scalar/api-reference@1.22.12
+
+## 0.0.21
+
+### Patch Changes
+
+- Updated dependencies [b24b455]
+- Updated dependencies [43e1217]
+  - @scalar/api-reference@1.22.11
+
+## 0.0.20
+
+### Patch Changes
+
+- @scalar/api-reference@1.22.10
+
+## 0.0.19
+
+### Patch Changes
+
+- Updated dependencies [6f68b40]
+- Updated dependencies [4d31b19]
+  - @scalar/api-reference@1.22.9
+
+## 0.0.18
+
+### Patch Changes
+
+- Updated dependencies [24662c3]
+  - @scalar/api-reference@1.22.8
+
+## 0.0.17
+
+### Patch Changes
+
+- Updated dependencies [c408cf5]
+  - @scalar/api-reference@1.22.7
+
+## 0.0.16
+
+### Patch Changes
+
+- 7e37c84: add scalar tab to nuxt devtools
+
+## 0.0.15
+
+### Patch Changes
+
+- Updated dependencies [cf12a95]
+- Updated dependencies [7b37c63]
+  - @scalar/api-reference@1.22.6
+
 ## 0.0.14
 
 ### Patch Changes

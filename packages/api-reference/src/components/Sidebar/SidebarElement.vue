@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { HttpMethod } from '@scalar/api-client'
 import { type Icon, ScalarIcon, ScalarIconButton } from '@scalar/components'
 
 import { scrollToId, sleep } from '../../helpers'
 import { useNavState } from '../../hooks'
+import SidebarHttpBadge from './SidebarHttpBadge.vue'
 
 const props = defineProps<{
   id: string
@@ -33,6 +33,13 @@ const { hash, isIntersectionEnabled, pathRouting } = useNavState()
 const handleClick = async () => {
   if (props.hasChildren) emit('toggleOpen')
   props.item?.select?.()
+
+  // If the section was open, wait for a short delay before enabling intersection observer
+  if (props.open) {
+    isIntersectionEnabled.value = false
+    await sleep(100)
+  }
+  isIntersectionEnabled.value = true
 }
 
 // Build relative URL and add hash
@@ -112,14 +119,12 @@ const onAnchorClick = async (ev: Event) => {
           {{ item.title }}
         </p>
         <p
-          v-if="item.httpVerb"
+          v-if="item.httpVerb && !hasChildren"
           class="sidebar-heading-link-method">
           &hairsp;
-          <HttpMethod
-            class="sidebar-heading-type"
-            :method="item.httpVerb"
-            property="--method-color"
-            short />
+          <SidebarHttpBadge
+            :active="isActive"
+            :method="item.httpVerb" />
         </p>
       </a>
     </div>
@@ -285,50 +290,7 @@ const onAnchorClick = async (ev: Event) => {
     var(--scalar-background-2)
   );
 }
-
-.sidebar-heading-type {
-  min-width: 3.9em;
-  overflow: hidden;
-  border-radius: 30px;
-  padding: 0 3px;
-  line-height: 14px;
-  flex-shrink: 0;
-  color: white;
-  color: color-mix(
-    in srgb,
-    var(--method-color, var(--scalar-color-1)),
-    transparent 0%
-  );
-  background: var(--method-color, var(--scalar-background-3));
-  background: color-mix(
-    in srgb,
-    var(--method-color, var(--scalar-background-3)),
-    transparent 90%
-  );
-  text-transform: uppercase;
-  font-size: 8.5px;
-  font-weight: bold;
-  text-align: center;
-  position: relative;
-  font-family: var(--scalar-font-code);
-  white-space: nowrap;
-  margin-left: 3px;
-}
-.active_page .sidebar-heading-type {
-  background: transparent;
-}
-.active_page .sidebar-heading-type {
-  background: var(--method-color);
-  color: color-mix(in srgb, var(--method-color), white 85%);
-}
-.dark-mode .active_page .sidebar-heading-type {
-  background: var(--method-color);
-  color: color-mix(in srgb, var(--method-color), black 80%);
-}
 .sidebar-group-item__folder {
   color: var(--scalar-sidebar-color-1, var(--scalar-color-1));
-}
-.sidebar-group-item__folder .sidebar-heading-type {
-  display: none;
 }
 </style>

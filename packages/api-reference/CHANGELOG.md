@@ -1,5 +1,90 @@
 # @scalar/api-reference
 
+## 1.22.14
+
+### Patch Changes
+
+- b8e3f09: feat: add chevron for markdown summary
+- Updated dependencies [0a77380]
+  - @scalar/themes@0.7.6
+  - @scalar/api-client@1.2.9
+  - @scalar/components@0.5.5
+
+## 1.22.13
+
+### Patch Changes
+
+- c05c90e: feat: add image support to tag, operation and webhook descriptions
+- 2700c5c: feat: separate google fonts from theme, add withDefaultFonts setting
+- Updated dependencies [2700c5c]
+  - @scalar/components@0.5.5
+  - @scalar/themes@0.7.5
+  - @scalar/api-client@1.2.8
+
+## 1.22.12
+
+### Patch Changes
+
+- 55398db: fix: summary markdown, add default browser styling
+- Updated dependencies [79485ff]
+- Updated dependencies [92b5b2a]
+  - @scalar/components@0.5.4
+  - @scalar/api-client@1.2.7
+
+## 1.22.11
+
+### Patch Changes
+
+- b24b455: chore: beautiful license banner in the CDN version
+- 43e1217: feat: new scalar galaxy example specification
+- Updated dependencies [86d1363]
+- Updated dependencies [bc3f3af]
+  - @scalar/themes@0.7.4
+  - @scalar/components@0.5.3
+  - @scalar/api-client@1.2.6
+
+## 1.22.10
+
+### Patch Changes
+
+- Updated dependencies [e8ef57e]
+- Updated dependencies [1353154]
+  - @scalar/components@0.5.2
+  - @scalar/api-client@1.2.5
+
+## 1.22.9
+
+### Patch Changes
+
+- 6f68b40: fix: allow nullable additional properties
+- 4d31b19: refactor: move theme labels to @scalar/themes
+- Updated dependencies [4d31b19]
+  - @scalar/themes@0.7.3
+  - @scalar/api-client@1.2.4
+  - @scalar/components@0.5.1
+
+## 1.22.8
+
+### Patch Changes
+
+- 24662c3: feat: rebuild search modal
+- Updated dependencies [24662c3]
+  - @scalar/components@0.5.1
+  - @scalar/api-client@1.2.3
+
+## 1.22.7
+
+### Patch Changes
+
+- c408cf5: style: getting started integrations + themes
+
+## 1.22.6
+
+### Patch Changes
+
+- cf12a95: fix: sidebar models collapse
+- 7b37c63: fix: start section theme name
+
 ## 1.22.5
 
 ### Patch Changes
