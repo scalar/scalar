@@ -91,15 +91,12 @@ const items = computed(() => {
     tags[0].name !== 'default' ||
     tags[0].description !== ''
 
-  console.log(moreThanOneDefaultTag(parsedSpec.value?.tags))
-
   const operationEntries: SidebarEntry[] | undefined =
     firstTag && moreThanOneDefaultTag(parsedSpec.value?.tags)
       ? parsedSpec.value?.tags
           // Filter out tags without operations
           ?.filter((tag: Tag) => tag.operations?.length > 0)
           .map((tag: Tag) => {
-            console.log('loop through tag', tag)
             return {
               id: getTagId(tag),
               title: tag.name.toUpperCase(),
