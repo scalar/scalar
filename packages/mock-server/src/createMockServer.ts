@@ -2,7 +2,7 @@ import { type Operation, getExampleFromSchema } from '@scalar/oas-utils'
 import { openapi } from '@scalar/openapi-parser'
 import { type Context, Hono } from 'hono'
 
-import { routeFromPath } from '../utils'
+import { routeFromPath } from './utils'
 
 /**
  * Create a mock server instance

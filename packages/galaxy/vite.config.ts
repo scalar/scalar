@@ -1,27 +1,28 @@
-import vue from '@vitejs/plugin-vue'
-import path from 'path'
-import { libInjectCss } from 'vite-plugin-lib-inject-css'
+import path from 'node:path'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { defineConfig } from 'vitest/config'
 
-import pkg from './package.json'
-
 export default defineConfig({
-  plugins: [vue(), libInjectCss()],
+  plugins: [
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'src/specifications/3.1.yaml',
+          dest: './',
+        },
+        {
+          src: 'src/specifications/3.1.yaml',
+          dest: './',
+          rename: 'latest.yaml',
+        },
+      ],
+    }),
+  ],
   build: {
-    cssCodeSplit: false,
-    minify: false,
     lib: {
       entry: ['src/index.ts'],
-      name: '@scalar/api-client',
+      name: '@scalar/galaxy',
       formats: ['es'],
-    },
-    rollupOptions: {
-      external: [
-        'vue',
-        ...Object.keys(pkg.dependencies || {}).filter(
-          (item) => !item.startsWith('@scalar'),
-        ),
-      ],
     },
   },
   resolve: {
@@ -32,7 +33,7 @@ export default defineConfig({
       {
         // Resolve the uncompiled source code for all @scalar packages
         // @scalar/* -> packages/*/
-        // (not @scalar/*/style.css)
+        // (not @scalar/components/*/style.css)
         find: /^@scalar\/(?!(openapi-parser|snippetz|galaxy|components\/style\.css|components\b))(.+)/,
         replacement: path.resolve(__dirname, '../$2/src/index.ts'),
       },

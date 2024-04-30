@@ -38,6 +38,7 @@
   "dependencies": {
     "@hono/node-server": "^1.11.0",
     "@scalar/api-reference": "workspace:*",
+    "@scalar/galaxy": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
     "hono": "^4.2.7",
@@ -46,6 +47,7 @@
   "devDependencies": {
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@scalar/galaxy": "workspace:*",
     "@types/node": "^20.8.4",
     "execa": "^8.0.1",
     "rollup": "^4.16.4",

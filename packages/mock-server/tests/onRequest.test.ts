@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createMockServer } from './createMockServer'
+import { createMockServer } from '../src/createMockServer'
 
 describe('onRequest', () => {
   it('call custom onRequest hook', async () => {

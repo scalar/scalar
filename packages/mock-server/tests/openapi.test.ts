@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createMockServer } from './createMockServer'
+import { createMockServer } from '../src/createMockServer'
 
 describe('openapi.{json|yaml}', () => {
   it('GET /openapi.json (object)', async () => {

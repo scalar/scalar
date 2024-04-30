@@ -1,0 +1,53 @@
+{
+  "name": "@scalar/galaxy",
+  "description": "OpenAPI example specification in YAML and JSON",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "keywords": [
+    "openapi",
+    "example",
+    "swagger",
+    "petstore"
+  ],
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "vite build && pnpm build:format && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "build:format": "./scripts/format.sh",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "test": "vitest",
+    "types:build": "tsc -p tsconfig.build.json",
+    "types:check": "tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "exports": {
+    "./3.1.yaml": "./dist/3.1.yaml",
+    "./3.1.json": "./dist/3.1.json",
+    "./latest.yaml": "./dist/latest.yaml",
+    "./latest.json": "./dist/latest.json"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "./dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/galaxy"
+  },
+  "devDependencies": {
+    "@scalar/openapi-parser": "^0.3.2",
+    "@vitest/coverage-v8": "^1.5.0",
+    "tsc-alias": "^1.8.8",
+    "vite": "^5.2.10",
+    "vite-plugin-static-copy": "^1.0.2",
+    "vitest": "^1.5.0"
+  }
+}
