@@ -45,6 +45,7 @@
     "fastify-plugin": "^4.5.1"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@vitest/coverage-v8": "^1.5.0",
     "fastify": "^4.26.2",

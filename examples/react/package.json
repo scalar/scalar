@@ -23,6 +23,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "@scalar/api-reference-react": "workspace:*",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",

@@ -109,6 +109,9 @@ importers:
         specifier: ^4.26.2
         version: 4.26.2
     devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
       '@types/node':
         specifier: ^20.8.4
         version: 20.11.22
@@ -221,6 +224,9 @@ importers:
         specifier: ^4.26.2
         version: 4.26.2
     devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
       nodemon:
         specifier: ^3.0.1
         version: 3.1.0
@@ -484,6 +490,9 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
     devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
       '@scalar/api-reference-react':
         specifier: workspace:*
         version: link:../../packages/api-reference-react
@@ -585,6 +594,9 @@ importers:
         specifier: ^4.2.4
         version: 4.3.0(vue@3.4.21)
     devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10)(vue@3.4.21)
@@ -989,6 +1001,9 @@ importers:
 
   packages/build-tooling:
     dependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../tsconfig
       '@rollup/plugin-typescript':
         specifier: ^11.1.6
         version: 11.1.6(rollup@4.16.4)(tslib@2.6.2)(typescript@5.4.3)
@@ -1292,6 +1307,9 @@ importers:
         specifier: ^4.19.2
         version: 4.19.2
     devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../tsconfig
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.21
@@ -1311,6 +1329,9 @@ importers:
         specifier: ^4.5.1
         version: 4.5.1
     devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../tsconfig
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
@@ -1371,6 +1392,9 @@ importers:
 
   packages/hono-api-reference:
     dependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../tsconfig
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
@@ -1439,6 +1463,9 @@ importers:
 
   packages/nestjs-api-reference:
     dependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../tsconfig
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
@@ -1542,6 +1569,9 @@ importers:
         specifier: ^2.4.1
         version: 2.4.1
     devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../tsconfig
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -1595,6 +1625,8 @@ importers:
         specifier: ^1.8.19
         version: 1.8.27(typescript@5.4.3)
 
+  packages/tsconfig: {}
+
   packages/use-codemirror:
     dependencies:
       '@codemirror/autocomplete':
@@ -1647,6 +1679,9 @@ importers:
         specifier: ^0.3.2
         version: 0.3.2(@codemirror/state@6.4.1)(@codemirror/view@6.24.1)(yjs@13.6.12)
     devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../tsconfig
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10)(vue@3.4.21)
@@ -1677,6 +1712,9 @@ importers:
       '@headlessui/vue':
         specifier: ^1.7.20
         version: 1.7.20(vue@3.4.21)
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../tsconfig
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10)(vue@3.4.21)
@@ -1701,6 +1739,9 @@ importers:
 
   packages/use-tooltip:
     devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../tsconfig
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10)(vue@3.4.21)

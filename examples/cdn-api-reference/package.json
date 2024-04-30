@@ -23,6 +23,7 @@
     "fastify": "^4.26.2"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "@types/node": "^20.8.4",
     "nodemon": "^3.0.1",
     "typescript": "^5.4.3",

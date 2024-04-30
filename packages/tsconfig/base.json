@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Default",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true
+  },
+  "types": ["vite/client"],
+  "exclude": ["dist", "node_modules", "**/dist", "**/node_modules"],
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true
+  }
+}

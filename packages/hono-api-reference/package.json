@@ -38,6 +38,7 @@
     "directory": "packages/hono-api-reference"
   },
   "dependencies": {
+    "@repo/typescript-config": "workspace:*",
     "@scalar/api-reference": "workspace:*"
   },
   "devDependencies": {

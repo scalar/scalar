@@ -22,6 +22,7 @@
     "fastify": "^4.26.2"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "nodemon": "^3.0.1",
     "tsc-alias": "^1.8.8",
     "typescript": "^5.4.3",

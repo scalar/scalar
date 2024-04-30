@@ -33,6 +33,7 @@
     ]
   },
   "dependencies": {
+    "@repo/typescript-config": "workspace:*",
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/node": "^20.8.4",
     "glob": "^10.3.10",

@@ -61,6 +61,7 @@
     "codemirror": "^6.0.0"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.5.0",
     "tsc-alias": "^1.8.8",
