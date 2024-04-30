@@ -54,6 +54,41 @@ steps:
         '--service-account=$_SERVICE_ACCOUNT',
       ]
   # ---------------------------------------------------------------
+  # Fastify integration
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-fastify'
+    args:
+      [
+        'buildx',
+        'build',
+        '-t',
+        'gcr.io/${_PROJECT_ID}/${_SERVICE_FASTIFY}',
+        '-f',
+        './examples/fastify-api-reference/Dockerfile',
+        '.',
+      ]
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-fastify'
+    waitFor: ['build-fastify']
+    args: ['push', 'gcr.io/${_PROJECT_ID}/${_SERVICE_FASTIFY}']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    waitFor: ['push-fastify']
+    args:
+      [
+        'run',
+        'deploy',
+        '$_SERVICE_FASTIFY',
+        '--image=gcr.io/${_PROJECT_ID}/${_SERVICE_FASTIFY}',
+        '--region=$_REGION',
+        '--platform=managed',
+        '--allow-unauthenticated',
+        '--execution-environment=gen2',
+        '--cpu=$_CPU',
+        '--memory=$_MEMORY',
+        '--service-account=$_SERVICE_ACCOUNT',
+      ]
+  # ---------------------------------------------------------------
   # Other Integration
   # - name: OTHER INTEGRATION
 options:
