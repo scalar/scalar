@@ -81,7 +81,7 @@ const parsedSpec = asyncComputed(
     :configuration="configuration"
     :parsedSpec="parsedSpec"
     :rawSpec="content"
-    @changeTheme="configuration.theme = $event"
+    @changeTheme="configuration.theme = $event.id"
     @updateContent="(v) => (content = v)">
     <template #header>
       <DevToolbar>
