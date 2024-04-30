@@ -6,6 +6,7 @@ import { computed, reactive, ref, watch } from 'vue'
 import {
   getHeadingsFromMarkdown,
   getLowestHeadingLevel,
+  getModels,
   hasModels,
   hasWebhooks,
   openClientFor,
@@ -147,20 +148,19 @@ const items = computed(() => {
             id: getModelId(),
             title: 'MODELS',
             show: !state.showApiClient,
-            children: Object.keys(
-              parsedSpec.value?.components?.schemas ?? {},
-            ).map((name) => {
-              const id = getModelId(name)
-              titlesById[id] = name
+            children: Object.keys(getModels(parsedSpec.value) ?? {}).map(
+              (name) => {
+                const id = getModelId(name)
+                titlesById[id] = name
 
-              return {
-                id,
-                title:
-                  (parsedSpec?.value?.components?.schemas?.[name] as any)
-                    .title ?? name,
-                show: !state.showApiClient,
-              }
-            }),
+                return {
+                  id,
+                  title:
+                    (getModels(parsedSpec.value)?.[name] as any).title ?? name,
+                  show: !state.showApiClient,
+                }
+              },
+            ),
           },
         ]
       : []

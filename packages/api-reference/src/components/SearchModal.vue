@@ -12,7 +12,7 @@ import { useMagicKeys, whenever } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, ref, toRef, watch } from 'vue'
 
-import { getHeadingsFromMarkdown } from '../helpers'
+import { getHeadingsFromMarkdown, getModels } from '../helpers'
 import { extractRequestBody } from '../helpers/specHelpers'
 import { type ParamMap, useNavState, useOperation, useSidebar } from '../hooks'
 import type { Spec } from '../types'
@@ -185,7 +185,7 @@ watch(
     }
 
     // Adding models as well
-    const schemas = hideModels.value ? {} : props.parsedSpec.components?.schemas
+    const schemas = hideModels.value ? {} : getModels(props.parsedSpec)
     const modelData: FuseData[] = []
 
     if (schemas) {

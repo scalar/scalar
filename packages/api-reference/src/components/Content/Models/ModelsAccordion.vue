@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
 import { useNavState } from '../../../hooks'
@@ -12,15 +12,19 @@ import {
 import { SchemaHeading, SchemaProperty } from '../Schema'
 
 const props = defineProps<{
-  components?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
+  schemas?:
+    | OpenAPIV2.DefinitionsObject
+    | Record<string, OpenAPIV3.SchemaObject>
+    | Record<string, OpenAPIV3_1.SchemaObject>
+    | unknown
 }>()
 
 const models = computed(() => {
-  if (!props.components?.schemas) {
+  if (!props.schemas) {
     return []
   }
 
-  return Object.entries(props.components?.schemas).map(([name, schema]) => ({
+  return Object.entries(props.schemas).map(([name, schema]) => ({
     name,
     schema,
   }))
@@ -30,7 +34,7 @@ const { getModelId } = useNavState()
 </script>
 <template>
   <SectionContainerAccordion
-    v-if="components"
+    v-if="props.schemas"
     class="reference-models">
     <template #title>
       <SectionHeader :level="2">Models</SectionHeader>
