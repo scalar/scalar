@@ -1,22 +1,14 @@
 import { availableTargets as allTargets } from 'httpsnippet-lite'
 import type { AvailableTarget } from 'httpsnippet-lite/dist/types/helpers/utils'
-import type {
-  ClientInfo,
-  TargetInfo,
-} from 'httpsnippet-lite/dist/types/targets/targets'
 import { type Ref, computed, readonly, ref, watchEffect } from 'vue'
 
-type ExcludedClientsConfiguration =
-  // Exclude whole targets or just specific clients
-  | Partial<Record<TargetInfo['key'], boolean | ClientInfo['key'][]>>
-  // Backwards compatibility with the previous behavior ['fetch', 'xhr']
-  | ClientInfo['key'][]
+import type { HiddenClients } from '../types'
 
 const DEFAULT_EXCLUDED_CLIENTS = {
   node: ['unirest'],
-} as ExcludedClientsConfiguration
+} as HiddenClients
 
-const excludedClients = ref<ExcludedClientsConfiguration>({
+const excludedClients = ref<HiddenClients>({
   ...DEFAULT_EXCLUDED_CLIENTS,
 })
 
@@ -30,7 +22,7 @@ watchEffect(() => {
 
 export function filterHiddenClients(
   targets: AvailableTarget[],
-  exclude: Ref<ExcludedClientsConfiguration>,
+  exclude: Ref<HiddenClients>,
 ): AvailableTarget[] {
   // @ts-expect-error We checked whether it has content already.
   return (
