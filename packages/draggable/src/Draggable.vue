@@ -48,6 +48,8 @@ const emit = defineEmits<{
   hover: [hoveredItem: HoveredItem | null]
 }>()
 
+defineSlots<{ default: [id: string] }>()
+
 export type HoveredItem = {
   id: string
   parentId: string | null
@@ -137,7 +139,11 @@ const containerClass = computed(() => {
     draggable="true"
     @dragend="$emit('draggingEnded')"
     @dragover.prevent.stop="onDragOver"
-    @dragstart.stop="onDragStart"></div>
+    @dragstart.stop="onDragStart">
+    <slot
+      :id="id"
+      :level="parentIds?.length ?? 0" />
+  </div>
 </template>
 
 <style scoped>

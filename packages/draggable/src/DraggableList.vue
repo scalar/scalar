@@ -6,42 +6,19 @@ import Draggable, { type DraggingItem, type HoveredItem } from './Draggable.vue'
 /**
  * This component keeps track of higher level state for DraggingItem
  */
-withDefaults(
-  defineProps<{
-    /**
-     * Upper threshold (gets multiplied with height)
-     *
-     * @default 0.8
-     */
-    ceiling: number
-    /**
-     * Lower threshold (gets multiplied with height)
-     *
-     * @default 0.2
-     */
-    floor: number
-    /**
-     * Height of individual items (not including children)
-     *
-     * @default 30
-     */
-    height: number
-    /**
-     * List of ids to iterate on
-     */
-    itemIds: string[]
-  }>(),
-  {
-    floor: 0.2,
-    height: 30,
-    ceiling: 0.8,
-  },
-)
+defineProps<{
+  /**
+   * List of ids to iterate on
+   */
+  itemIds: string[]
+}>()
 
 const emit = defineEmits<{
   onDragEnd: [draggingItem: DraggingItem, hoveredItem: HoveredItem]
   onDragStart: [draggingItem: DraggingItem]
 }>()
+
+defineSlots<{ default: [id: string] }>()
 
 // Item you are currently dragging
 const draggingItem = ref<DraggingItem | null>(null)
@@ -88,6 +65,12 @@ const onDragEnd = () => {
         }
       "
       @draggingEnded="onDragEnd"
-      @hover="(h: HoveredItem | null) => (hoveredItem = h)" />
+      @hover="(h: HoveredItem | null) => (hoveredItem = h)">
+      <template #default="{ id, level }">
+        <slot
+          :id="id"
+          :level="level" />
+      </template>
+    </Draggable>
   </ul>
 </template>
