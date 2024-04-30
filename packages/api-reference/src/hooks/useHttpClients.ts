@@ -13,8 +13,7 @@ type ExcludedClientsConfiguration =
   | ClientInfo['key'][]
 
 const DEFAULT_EXCLUDED_CLIENTS = {
-  // node: false,
-  // TODO: Unirest
+  node: ['unirest'],
 } as ExcludedClientsConfiguration
 
 const excludedClients = ref<ExcludedClientsConfiguration>({
