@@ -91,6 +91,6 @@ export function useHttpClients() {
   return {
     availableTargets,
     excludedClients: readonly(excludedClients),
-    setExcludedClients: (v: string[]) => (excludedClients.value = v),
+    setExcludedClients: (v: HiddenClients) => (excludedClients.value = v),
   }
 }
