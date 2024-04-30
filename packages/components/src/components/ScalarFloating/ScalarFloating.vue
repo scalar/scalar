@@ -13,10 +13,13 @@ const floatingRef: Ref<HTMLElement | null> = ref(null)
 const wrapperRef: Ref<HTMLElement | null> = ref(null)
 
 const targetWidth = ref(0)
-const observer = new ResizeObserver(([entry]) => {
-  if (!entry) return
-  targetWidth.value = entry.target.clientWidth
-})
+const observer = ref<ResizeObserver>()
+
+if (typeof ResizeObserver !== 'undefined')
+  observer.value = new ResizeObserver(([entry]) => {
+    if (!entry) return
+    targetWidth.value = entry.target.clientWidth
+  })
 
 /** Fallback to div wrapper if a button element is not provided */
 const targetRef = computed(
@@ -27,9 +30,9 @@ const targetRef = computed(
 watch(
   () => [props.resize, targetRef.value],
   ([observe]) => {
-    if (!targetRef.value) return
-    if (observe) observer.observe(targetRef.value)
-    else observer.disconnect()
+    if (!targetRef.value || !observer.value) return
+    if (observe) observer.value.observe(targetRef.value)
+    else observer.value.disconnect()
   },
   { immediate: true },
 )

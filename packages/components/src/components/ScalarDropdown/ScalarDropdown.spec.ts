@@ -7,6 +7,9 @@ describe('ScalarIconButton', () => {
   it('renders properly', async () => {
     const wrapper = mount(ScalarDropdown, {
       props: {},
+      slots: {
+        default: `<button>Button</button>`,
+      },
     })
 
     expect(wrapper.exists()).toBeTruthy()
