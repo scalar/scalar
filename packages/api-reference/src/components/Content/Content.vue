@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 
-import { hasModels } from '../../helpers'
+import { getModels, hasModels } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
 import { useServerStore } from '../../stores'
 import type { Server, Spec } from '../../types'
@@ -150,10 +150,10 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
     <template v-if="hasModels(parsedSpec) && !hideModels">
       <ModelsAccordion
         v-if="layout === 'accordion'"
-        :components="parsedSpec.components" />
+        :schemas="getModels(parsedSpec)" />
       <Models
         v-else
-        :components="parsedSpec.components" />
+        :schemas="getModels(parsedSpec)" />
     </template>
     <slot name="end" />
   </div>

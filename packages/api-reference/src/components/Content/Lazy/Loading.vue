@@ -2,7 +2,7 @@
 import { type TransformedOperation } from '@scalar/oas-utils'
 import { onMounted, ref, watch } from 'vue'
 
-import { scrollToId } from '../../../helpers'
+import { getModels, scrollToId } from '../../../helpers'
 import { useNavState } from '../../../hooks'
 import type { Spec, Tag as TagType } from '../../../types'
 import { Anchor } from '../../Anchor'
@@ -94,7 +94,7 @@ watch(
     }
     // Models
     else if (hash.value.startsWith('model')) {
-      const modelKeys = Object.keys(props.parsedSpec.components?.schemas ?? {})
+      const modelKeys = Object.keys(getModels(props.parsedSpec) ?? {})
       const [, modelKey] = hash.value.toLowerCase().split('/')
 
       // Find the right model to start at
@@ -169,19 +169,17 @@ onMounted(() => {
         v-for="name in models"
         :key="name"
         :label="name">
-        <template v-if="parsedSpec.components?.schemas?.[name]">
+        <template v-if="getModels(parsedSpec)?.[name]">
           <SectionContent>
             <SectionHeader :level="2">
               <Anchor :id="getModelId(name)">
-                {{
-                  (parsedSpec.components?.schemas?.[name] as any).title ?? name
-                }}
+                {{ (getModels(parsedSpec)?.[name] as any).title ?? name }}
               </Anchor>
             </SectionHeader>
             <Schema
               :name="name"
               noncollapsible
-              :value="parsedSpec.components?.schemas?.[name]" />
+              :value="getModels(parsedSpec)?.[name]" />
           </SectionContent>
         </template>
       </Section>

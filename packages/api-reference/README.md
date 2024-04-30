@@ -83,7 +83,7 @@ Whether the sidebar should be shown.
 
 #### hideModels?: boolean
 
-Whether models (components.schemas) should be shown in the sidebar, search and content.
+Whether models (`components.schemas` or `definitions`) should be shown in the sidebar, search and content.
 
 `@default false`
 

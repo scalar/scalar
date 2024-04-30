@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
@@ -15,7 +15,11 @@ import { Lazy } from '../Lazy'
 import { Schema } from '../Schema'
 
 const props = defineProps<{
-  components?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
+  schemas?:
+    | OpenAPIV2.DefinitionsObject
+    | Record<string, OpenAPIV3.SchemaObject>
+    | Record<string, OpenAPIV3_1.SchemaObject>
+    | unknown
 }>()
 
 const { collapsedSidebarItems } = useSidebar()
@@ -23,12 +27,12 @@ const { getModelId } = useNavState()
 
 const showAllModels = computed(
   () =>
-    Object.keys(props.components?.schemas ?? {}).length <= 3 ||
+    Object.keys(props.schemas ?? {}).length <= 3 ||
     collapsedSidebarItems[getModelId()],
 )
 
 const models = computed(() => {
-  const allModels = Object.keys(props.components?.schemas ?? {})
+  const allModels = Object.keys(props.schemas ?? {})
 
   if (showAllModels.value) {
     return allModels
@@ -39,7 +43,7 @@ const models = computed(() => {
 })
 </script>
 <template>
-  <SectionContainer v-if="components">
+  <SectionContainer v-if="schemas">
     <!-- Just a cheap trick to jump down to models -->
     <Lazy
       id="models"
@@ -54,18 +58,18 @@ const models = computed(() => {
       <Section
         :id="getModelId(name)"
         :label="name">
-        <template v-if="components?.schemas?.[name]">
+        <template v-if="(schemas as any)[name]">
           <SectionContent>
             <SectionHeader :level="2">
               <Anchor :id="getModelId(name)">
-                {{ (components?.schemas?.[name] as any).title ?? name }}
+                {{ (schemas as any)[name].title ?? name }}
               </Anchor>
             </SectionHeader>
             <!-- Schema -->
             <Schema
               :name="name"
               noncollapsible
-              :value="components?.schemas?.[name]" />
+              :value="(schemas as any)[name]" />
             <!-- Show More Button -->
             <ShowMoreButton
               v-if="!showAllModels && index === models.length - 1"
