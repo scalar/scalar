@@ -17,7 +17,19 @@ const cachedTargets = ref<AvailableTarget[]>([])
 
 // Watch for changes in excludedClients and update the cachedTargets accordingly
 watchEffect(() => {
-  cachedTargets.value = filterHiddenClients(allTargets(), excludedClients)
+  const targets = allTargets()
+
+  // Add undici to node (@scalar/snippetz)
+  targets
+    .find((target) => target.key === 'node')
+    ?.clients.unshift({
+      description: 'An HTTP/1.1 client, written from scratch for Node.js.',
+      key: 'undici',
+      link: 'https://github.com/nodejs/undici',
+      title: 'undici',
+    })
+
+  cachedTargets.value = filterHiddenClients(targets, excludedClients)
 })
 
 export function filterHiddenClients(
