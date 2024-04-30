@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.22.17
+
+### Patch Changes
+
+- b42479c: fix: unused empty tags break the sidebar
+- 4c38ac1: fix: add label value in changeTheme event
+- Updated dependencies [53ba90d]
+  - @scalar/galaxy@0.1.0
+
 ## 1.22.16
 
 ### Patch Changes
