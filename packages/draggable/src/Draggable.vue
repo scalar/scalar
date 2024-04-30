@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useThrottleFn } from '@vueuse/core'
 import { computed } from 'vue'
 
 import {
@@ -8,6 +7,7 @@ import {
   draggingItem,
   hoveredItem,
 } from './store'
+import { throttle } from './throttle'
 
 const props = defineProps<{
   /**
@@ -70,7 +70,7 @@ const FLOOR = props.floor * props.height
 const CEILING = props.ceiling * props.height
 
 // On dragging over we decide which highlight to show
-const onDragOver = useThrottleFn((ev) => {
+const onDragOver = throttle((ev: DragEvent) => {
   // Don't highlight if hovering over self or child
   if (
     draggingItem.value?.id === props.id ||

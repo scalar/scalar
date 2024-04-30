@@ -1238,10 +1238,6 @@ importers:
         version: 18.2.0
 
   packages/draggable:
-    dependencies:
-      '@vueuse/core':
-        specifier: ^10.9.0
-        version: 10.9.0(vue@3.4.21)
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -1261,6 +1257,9 @@ importers:
       vue:
         specifier: ^3.4.21
         version: 3.4.21(typescript@5.4.3)
+      vue-tsc:
+        specifier: ^1.8.19
+        version: 1.8.27(typescript@5.4.3)
 
   packages/echo-server:
     dependencies:
@@ -11955,7 +11954,7 @@ packages:
       '@vue/compiler-dom': 3.4.21
       '@vue/shared': 3.4.21
       computeds: 0.0.1
-      minimatch: 9.0.3
+      minimatch: 9.0.4
       muggle-string: 0.3.1
       path-browserify: 1.0.1
       typescript: 5.4.3
