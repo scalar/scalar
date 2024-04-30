@@ -10,7 +10,7 @@ import {
   openapi,
 } from '@scalar/openapi-parser'
 
-import { type RequestMethod, type Spec, validRequestMethods } from '../types'
+import { type RequestMethod, type Spec, validRequestMethods } from './types'
 
 export const parse = (specification: any): Promise<Spec> => {
   // eslint-disable-next-line no-async-promise-executor

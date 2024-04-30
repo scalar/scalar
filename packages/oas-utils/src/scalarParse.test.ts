@@ -1,10 +1,8 @@
-import fs from 'node:fs'
-import path from 'node:path'
 import { describe, expect, test } from 'vitest'
 import YAML from 'yaml'
 
+import { parse } from './parseOld'
 import { scalarParse } from './scalarParse'
-import { parse } from './test-files/parseOld'
 
 describe('Translates open api spec to data object for rendering', () => {
   test('Parse openapi 3 spec', async () => {
@@ -20,10 +18,10 @@ describe('Translates open api spec to data object for rendering', () => {
   })
 
   test('Parse openapi 3.1 spec with webhooks', async () => {
-    const content = fs.readFileSync(
-      path.resolve(__dirname, './test-files/mega.yaml'),
-      'utf-8',
+    const content = await fetch('https://cdn.scalar.com/spec/mega.yaml').then(
+      (res) => res.text(),
     )
+
     const specification = YAML.parse(content)
 
     const oldresult = await parse(specification)
@@ -39,10 +37,10 @@ describe('Translates open api spec to data object for rendering', () => {
   })
 
   test('Parse openapi 3.1 spec webflow', async () => {
-    const content = fs.readFileSync(
-      path.resolve(__dirname, './test-files/webflowcom.yaml'),
-      'utf-8',
-    )
+    const content = await fetch(
+      'https://cdn.scalar.com/spec/webflowcom.yaml',
+    ).then((res) => res.text())
+
     const specification = YAML.parse(content)
 
     const oldresult = await parse(specification)
@@ -57,10 +55,9 @@ describe('Translates open api spec to data object for rendering', () => {
   })
 
   test('Parse swagger 2.0 spec bbc uk', async () => {
-    const content = fs.readFileSync(
-      path.resolve(__dirname, './test-files/bbccouk.yaml'),
-      'utf-8',
-    )
+    const content = await fetch(
+      'https://cdn.scalar.com/spec/bbccouk.yaml',
+    ).then((res) => res.text())
     const specification = YAML.parse(content)
 
     const oldresult = await parse(specification)
