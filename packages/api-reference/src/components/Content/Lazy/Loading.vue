@@ -94,7 +94,7 @@ watch(
     }
     // Models
     else if (hash.value.startsWith('model')) {
-      const modelKeys = Object.keys(getModels(props.parsedSpec))
+      const modelKeys = Object.keys(getModels(props.parsedSpec) ?? {})
       const [, modelKey] = hash.value.toLowerCase().split('/')
 
       // Find the right model to start at

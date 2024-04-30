@@ -58,18 +58,18 @@ const models = computed(() => {
       <Section
         :id="getModelId(name)"
         :label="name">
-        <template v-if="schemas?.[name]">
+        <template v-if="(schemas as any)[name]">
           <SectionContent>
             <SectionHeader :level="2">
               <Anchor :id="getModelId(name)">
-                {{ (schemas?.[name] as any).title ?? name }}
+                {{ (schemas as any)[name].title ?? name }}
               </Anchor>
             </SectionHeader>
             <!-- Schema -->
             <Schema
               :name="name"
               noncollapsible
-              :value="schemas?.[name]" />
+              :value="(schemas as any)[name]" />
             <!-- Show More Button -->
             <ShowMoreButton
               v-if="!showAllModels && index === models.length - 1"
