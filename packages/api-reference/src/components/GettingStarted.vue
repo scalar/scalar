@@ -8,7 +8,7 @@ defineProps<{
 }>()
 
 const emits = defineEmits<{
-  (e: 'changeTheme', value: ThemeId): void
+  (e: 'changeTheme', { id, label }: { id: ThemeId; label: string }): void
   (e: 'loadSwaggerFile'): void
   (e: 'linkSwaggerFile'): void
   (e: 'updateContent', value: string): void
@@ -177,7 +177,9 @@ function handleEmitPetstore() {
           :key="themeId"
           class="start-item"
           :class="{ 'start-item-active': themeId === theme }"
-          @click="$emit('changeTheme', themeId)">
+          @click="
+            $emit('changeTheme', { id: themeId, label: themeLabels[themeId] })
+          ">
           {{ themeLabels[themeId] }}
         </div>
       </div>

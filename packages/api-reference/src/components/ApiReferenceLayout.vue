@@ -44,7 +44,7 @@ import { Sidebar } from './Sidebar'
 const props = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
 
 defineEmits<{
-  (e: 'changeTheme', value: ThemeId): void
+  (e: 'changeTheme', { id, label }: { id: ThemeId; label: string }): void
   (e: 'updateContent', value: string): void
   (e: 'loadSwaggerFile'): void
   (e: 'linkSwaggerFile'): void
