@@ -37,6 +37,15 @@ export const theme = {
     sans: 'var(--scalar-font)',
     code: 'var(--scalar-font-code)',
   },
+  zIndex: {
+    '-1': '-1',
+    '0': '0',
+    '1': '1',
+    // Contextual overlays like dropdowns, popovers, tooltips
+    'context': '1000',
+    // Full screen overlays / modals
+    'overlay': '10000',
+  },
 } as const
 
 export const extend = {
@@ -62,5 +71,9 @@ export const extend = {
     'screen-sm': '540px',
     'screen-md': '640px',
     'screen-lg': '800px',
+  },
+  brightness: {
+    lifted: 'var(--scalar-lifted-brightness)',
+    backdrop: 'var(--scalar-backdrop-brightness)',
   },
 } as const

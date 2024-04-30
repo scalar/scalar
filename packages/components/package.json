@@ -39,6 +39,8 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
+    "@floating-ui/utils": "^0.2.2",
+    "@floating-ui/vue": "^1.0.2",
     "@headlessui/vue": "^1.7.20",
     "@scalar/oas-utils": "workspace:*",
     "@storybook/test": "^8.0.8",
