@@ -4,7 +4,7 @@ import type { TargetId } from 'httpsnippet-lite'
 import { ref } from 'vue'
 
 import { useHttpClients } from '../../../hooks'
-import { type HttpClientState, useHttpClientStore } from '../../../stores/'
+import { type HttpClientState, useHttpClientStore } from '../../../stores'
 
 // Use the template store to keep it accessible globally
 const { httpClient, setHttpClient, getClientTitle, getTargetTitle } =
