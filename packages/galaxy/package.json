@@ -43,6 +43,7 @@
     "directory": "packages/galaxy"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
     "@vitest/coverage-v8": "^1.5.0",
     "tsc-alias": "^1.8.8",

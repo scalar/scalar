@@ -1371,6 +1371,9 @@ importers:
 
   packages/galaxy:
     devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../tsconfig
       '@scalar/openapi-parser':
         specifier: ^0.3.2
         version: 0.3.2
