@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Draggable } from '../../src'
+import { type DraggingItem, type HoveredItem } from '../../src/store'
 
 export type Items = Record<
   string,
@@ -7,6 +8,9 @@ export type Items = Record<
 >
 
 defineProps<{ items: Items; id: string; parentIds: string[] }>()
+defineEmits<{
+  onDragEnd: [draggingItem: DraggingItem, hoveredItem: HoveredItem]
+}>()
 </script>
 
 <template>
@@ -15,7 +19,8 @@ defineProps<{ items: Items; id: string; parentIds: string[] }>()
     :ceiling="0.8"
     :floor="0.2"
     :height="30"
-    :parentIds="[...parentIds, id]">
+    :parentIds="parentIds"
+    @onDragEnd="(...args) => $emit('onDragEnd', ...args)">
     <div
       class="sidebar-item"
       :class="{ 'sidebar-folder': items[id].children.length }">
@@ -25,7 +30,8 @@ defineProps<{ items: Items; id: string; parentIds: string[] }>()
         :id="childId"
         :key="childId"
         :items="items"
-        :parentIds="[...parentIds, id]" />
+        :parentIds="[...parentIds, id]"
+        @onDragEnd="(...args) => $emit('onDragEnd', ...args)" />
     </div>
   </Draggable>
 </template>

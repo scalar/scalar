@@ -116,8 +116,8 @@ const containerClass = computed(() => {
 const onDragEnd = () => {
   if (!hoveredItem.value || !draggingItem.value) return
 
-  const { id: draggingUid } = draggingItem.value
-  const { id: hoveredUid } = hoveredItem.value
+  const _draggingItem = { ...draggingItem.value }
+  const _hoveredItem = { ...hoveredItem.value }
 
   // Remove hover and dragging
   draggingItem.value = null
@@ -126,9 +126,9 @@ const onDragEnd = () => {
     .querySelectorAll('div.dragging')
     .forEach((el) => el.classList.remove('dragging'))
 
-  if (draggingUid === hoveredUid) return
+  if (_draggingItem.id === _hoveredItem.id) return
 
-  emit('onDragEnd', draggingItem.value!, hoveredItem.value!)
+  emit('onDragEnd', _draggingItem, _hoveredItem)
 }
 </script>
 

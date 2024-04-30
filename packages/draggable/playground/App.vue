@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive } from 'vue'
 
+import { type DraggingItem, type HoveredItem } from '../src/store'
 import SidebarItem, { type Items } from './components/SidebarItem.vue'
 
-const sidebar = ref({
+const sidebar = reactive({
   // Master list of all items
   items: {
     '1': {
@@ -26,10 +27,49 @@ const sidebar = ref({
     '10': { id: '10', name: 'Predators', children: [] },
     '11': { id: '11', name: 'Maple Leafs', children: [] },
     '12': { id: '12', name: 'Kings', children: [] },
-  } satisfies Items,
+  } as Items,
   // Root level children (the top level of the sidebar)
   children: ['1', '8', '9', '10', '11', '12'],
 })
+
+const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
+  // Remove from old position
+  if (draggingItem.parentId && sidebar.items[draggingItem.parentId]?.children) {
+    sidebar.items[draggingItem.parentId].children = sidebar.items[
+      draggingItem.parentId
+    ]?.children?.filter((id) => id !== draggingItem.id)
+  } else {
+    sidebar.children = sidebar.children.filter((id) => id !== draggingItem.id)
+  }
+
+  // Add as a child
+  if (hoveredItem.offset === 2) {
+    sidebar.items[hoveredItem.id]?.children?.push(draggingItem.id)
+  }
+  // Add to an items children
+  else if (hoveredItem.parentId) {
+    const hoveredIndex =
+      sidebar.items[hoveredItem.parentId]?.children?.findIndex(
+        (id) => hoveredItem.id === id,
+      ) ?? 0
+
+    sidebar.items[hoveredItem.parentId]?.children?.splice(
+      hoveredIndex + hoveredItem.offset,
+      0,
+      draggingItem.id,
+    )
+  }
+  // Add to root children
+  else {
+    const hoveredIndex =
+      sidebar.children?.findIndex((id) => hoveredItem.id === id) ?? 0
+    sidebar.children?.splice(
+      hoveredIndex + hoveredItem.offset,
+      0,
+      draggingItem.id,
+    )
+  }
+}
 </script>
 
 <template>
@@ -42,7 +82,8 @@ const sidebar = ref({
       :id="id"
       :key="id"
       :items="sidebar.items"
-      :parentIds="[]" />
+      :parentIds="[]"
+      @onDragEnd="onDragEnd" />
   </ul>
 </template>
 
