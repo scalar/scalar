@@ -9,34 +9,31 @@ import {
 } from './store'
 import { throttle } from './throttle'
 
-const props = defineProps<{
-  /**
-   * Upper threshold (gets multiplied with height)
-   *
-   * @default 0.8
-   */
-  ceiling: number
-  /**
-   * Lower threshold (gets multiplied with height)
-   *
-   * @default 0.2
-   */
-  floor: number
-  /**
-   * Height of individual items (not including children)
-   *
-   * @default 30
-   */
-  height: number
-  /**
-   * We pass an array of parents to make it easier to reverse traverse
-   */
-  parentIds: string[]
-  /**
-   * ID for the current item
-   */
-  id: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    /**
+     * Upper threshold (gets multiplied with height)
+     *
+     * @default 0.8
+     */
+    ceiling?: number
+    /**
+     * Lower threshold (gets multiplied with height)
+     *
+     * @default 0.2
+     */
+    floor?: number
+    /**
+     * We pass an array of parents to make it easier to reverse traverse
+     */
+    parentIds: string[]
+    /**
+     * ID for the current item
+     */
+    id: string
+  }>(),
+  { ceiling: 0.8, floor: 0.2 },
+)
 
 const emit = defineEmits<{
   /**
@@ -66,9 +63,6 @@ const onDragStart = (ev: DragEvent) => {
   emit('onDragStart', { id: props.id, parentId: parentId.value })
 }
 
-const FLOOR = props.floor * props.height
-const CEILING = props.ceiling * props.height
-
 // On dragging over we decide which highlight to show
 const onDragOver = throttle((ev: DragEvent) => {
   // Don't highlight if hovering over self or child
@@ -79,6 +73,9 @@ const onDragOver = throttle((ev: DragEvent) => {
     return
 
   const previousOffset = hoveredItem.value?.offset
+  const height = (ev.target as HTMLDivElement).offsetHeight
+  const floor = props.floor * height
+  const ceiling = props.ceiling * height
   let offset = 3
 
   // handle negative offset to be previous offset
@@ -86,15 +83,15 @@ const onDragOver = throttle((ev: DragEvent) => {
     offset = previousOffset
   }
   // Above
-  else if (ev.offsetY <= FLOOR) {
+  else if (ev.offsetY <= floor) {
     offset = 0
   }
   // Below
-  else if (ev.offsetY >= CEILING) {
+  else if (ev.offsetY >= ceiling) {
     offset = 1
   }
   // between
-  else if (ev.offsetY > FLOOR && ev.offsetY < CEILING) {
+  else if (ev.offsetY > floor && ev.offsetY < ceiling) {
     offset = 2
   }
 
