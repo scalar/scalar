@@ -2,6 +2,13 @@
 import { useThrottleFn } from '@vueuse/core'
 import { computed } from 'vue'
 
+import {
+  type DraggingItem,
+  type HoveredItem,
+  draggingItem,
+  hoveredItem,
+} from './store'
+
 const props = defineProps<{
   /**
    * Upper threshold (gets multiplied with height)
@@ -22,47 +29,22 @@ const props = defineProps<{
    */
   height: number
   /**
-   * The item we are currently dragging
-   */
-  draggingItem?: DraggingItem | null
-  /**
-   * The item that is currently being hovered over by the dragging item
-   */
-  hoveredItem?: HoveredItem | null
-  /**
    * We pass an array of parents to make it easier to reverse traverse
    */
   parentIds: string[]
+  /**
+   * ID for the current item
+   */
   id: string
 }>()
 
 const emit = defineEmits<{
   /**
-   * Set the item which is currently dragging
-   */
-  dragging: [draggingItem: DraggingItem | null]
-  /**
    * We emit our own draggingEnded event instead of using native @drop
    */
-  draggingEnded: []
-  hover: [hoveredItem: HoveredItem | null]
+  onDragEnd: [draggingItem: DraggingItem, hoveredItem: HoveredItem]
+  onDragStart: [draggingItem: DraggingItem]
 }>()
-
-defineSlots<{ default: [id: string] }>()
-
-export type HoveredItem = {
-  id: string
-  parentId: string | null
-  /**
-   * Offset is used when adding back an item, also for the highlight classes
-   * 0 = above      | .dragover-above
-   * 1 = below      | .dragover-below
-   * 2 = as a child | .dragover-asChild
-   */
-  offset: number
-}
-
-export type DraggingItem = Omit<HoveredItem, 'offset'>
 
 // The latest parentId in the arr should be the current parent
 const parentId = computed(() =>
@@ -80,7 +62,8 @@ const onDragStart = (ev: DragEvent) => {
   ev.dataTransfer.effectAllowed = 'move'
 
   // Store dragging item
-  emit('dragging', { id: props.id, parentId: parentId.value })
+  draggingItem.value = { id: props.id, parentId: parentId.value }
+  emit('onDragStart', { id: props.id, parentId: parentId.value })
 }
 
 const FLOOR = props.floor * props.height
@@ -90,14 +73,12 @@ const CEILING = props.ceiling * props.height
 const onDragOver = useThrottleFn((ev) => {
   // Don't highlight if hovering over self or child
   if (
-    props.draggingItem?.id === props.id ||
-    props.parentIds.includes(props.draggingItem?.id ?? '')
+    draggingItem.value?.id === props.id ||
+    props.parentIds.includes(draggingItem.value?.id ?? '')
   )
     return
 
-  const previousOffset = props.hoveredItem?.offset
-
-  // As a child
+  const previousOffset = hoveredItem.value?.offset
   let offset = 3
 
   // handle negative offset to be previous offset
@@ -117,7 +98,7 @@ const onDragOver = useThrottleFn((ev) => {
     offset = 2
   }
 
-  emit('hover', { id: props.id, parentId: parentId.value, offset })
+  hoveredItem.value = { id: props.id, parentId: parentId.value, offset }
 }, 25)
 
 // Set above middle below classes based on offset
@@ -125,28 +106,44 @@ const positionDict = ['above', 'below', 'asChild']
 const containerClass = computed(() => {
   let classList = 'sidebar-indent-nested'
 
-  if (props.id === props.hoveredItem?.id) {
-    classList += ` dragover-${positionDict[props.hoveredItem.offset]}`
+  if (props.id === hoveredItem.value?.id) {
+    classList += ` dragover-${positionDict[hoveredItem.value.offset]}`
   }
 
   return classList
 })
+
+const onDragEnd = () => {
+  if (!hoveredItem.value || !draggingItem.value) return
+
+  const { id: draggingUid } = draggingItem.value
+  const { id: hoveredUid } = hoveredItem.value
+
+  // Remove hover and dragging
+  draggingItem.value = null
+  hoveredItem.value = null
+  document
+    .querySelectorAll('div.dragging')
+    .forEach((el) => el.classList.remove('dragging'))
+
+  if (draggingUid === hoveredUid) return
+
+  emit('onDragEnd', draggingItem.value!, hoveredItem.value!)
+}
 </script>
 
 <template>
   <div
     :class="containerClass"
     draggable="true"
-    @dragend="$emit('draggingEnded')"
+    @dragend="onDragEnd"
     @dragover.prevent.stop="onDragOver"
     @dragstart.stop="onDragStart">
-    <slot
-      :id="id"
-      :level="parentIds?.length ?? 0" />
+    <slot />
   </div>
 </template>
 
-<style scoped>
+<style>
 .dragover-asChild,
 .dragover-above,
 .dragover-below {
