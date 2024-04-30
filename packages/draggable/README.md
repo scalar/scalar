@@ -70,6 +70,8 @@ Then you will need a recursive component that wraps Draggable like:
 </template>
 ```
 
+Then manage the data manipluation on drop using the emitted events!
+
 ### Example
 
 You can find an example in this repo under the [playground](https://github.com/scalar/scalar/packages/draggable/playground)

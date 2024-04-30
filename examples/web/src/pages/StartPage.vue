@@ -112,6 +112,15 @@ import PageLink from '../components/PageLink.vue'
         </template>
       </PageLink>
     </div>
+    <h1>@scalar/draggable</h1>
+    <div class="page-links">
+      <PageLink href="http://localhost:5064">
+        <template #title>Draggable</template>
+        <template #description>
+          Light vue wrapper around html5 drag and drop
+        </template>
+      </PageLink>
+    </div>
   </div>
 </template>
 

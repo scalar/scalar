@@ -85,6 +85,7 @@ const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
       :parentIds="[]"
       @onDragEnd="onDragEnd" />
   </ul>
+  <div>#TODO make this pretty :)</div>
 </template>
 
 <style>
