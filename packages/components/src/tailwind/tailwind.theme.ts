@@ -76,4 +76,7 @@ export const extend = {
     lifted: 'var(--scalar-lifted-brightness)',
     backdrop: 'var(--scalar-backdrop-brightness)',
   },
+  spacing: {
+    px: '1px',
+  },
 } as const

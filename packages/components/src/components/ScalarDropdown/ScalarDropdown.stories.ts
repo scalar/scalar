@@ -3,6 +3,8 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 
 import { ScalarButton } from '../../'
 import ScalarDropdown from './ScalarDropdown.vue'
+import ScalarDropdownDivider from './ScalarDropdownDivider.vue'
+import ScalarDropdownItem from './ScalarDropdownItem.vue'
 
 const meta = {
   component: ScalarDropdown,
@@ -14,16 +16,25 @@ const meta = {
     },
   },
   render: (args) => ({
-    components: { ScalarDropdown, ScalarButton },
+    components: {
+      ScalarDropdown,
+      ScalarDropdownItem,
+      ScalarDropdownDivider,
+      ScalarButton,
+    },
     setup() {
       return { args }
     },
     template: `
-<div class="flex items-center justify-center w-screen h-screen">
+<div class="flex items-center justify-center w-full h-screen">
   <ScalarDropdown v-bind="args">
     <ScalarButton>Click Me</ScalarButton>
     <template #items>
-      Items go here
+      <ScalarDropdownItem>An item</ScalarDropdownItem>
+      <ScalarDropdownItem>Another item</ScalarDropdownItem>
+      <ScalarDropdownDivider />
+      <ScalarDropdownItem>An item with a long label that needs to be truncated</ScalarDropdownItem>
+      <ScalarDropdownItem disabled>A disabled item</ScalarDropdownItem>
     </template>
   </ScalarDropdown>
 </div>
