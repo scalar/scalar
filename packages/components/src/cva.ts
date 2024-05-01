@@ -15,6 +15,7 @@ import { prefix } from '../postcss.config'
 const tw = extendTailwindMerge<typeof prefix>({
   extend: {
     classGroups: {
+      'font-size': ['text-xxs'],
       // Add the scalar class prefix as a custom class to be deduped by tailwind-merge
       [prefix]: [prefix],
     },
