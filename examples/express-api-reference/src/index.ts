@@ -49,8 +49,8 @@ app.use(
 )
 
 // Listen
-const PORT = 5055
-const HOST = '0.0.0.0'
+const PORT = import.meta.env.PORT || 5055
+const HOST = import.meta.env.HOST || '0.0.0.0'
 app.listen(PORT, HOST, () => {
   console.log(`💻 Express listening on http://${HOST}:${PORT}`)
 })
