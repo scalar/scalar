@@ -12,10 +12,6 @@ const emits = defineEmits<{
   (e: 'linkSwaggerFile'): void
   (e: 'updateContent', value: string): void
 }>()
-const placeholderSpecificationRes = await fetch(
-  'https://cdn.scalar.com/spec/scalar-galaxy-3.1.yaml',
-)
-const placeholderSpecification = await placeholderSpecificationRes.text()
 
 const themeIds: ThemeId[] = [
   'default',
