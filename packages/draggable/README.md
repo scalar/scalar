@@ -1,4 +1,4 @@
-# Scalar Draggable Componebtb
+# Scalar Draggable component
 
 [![Version](https://img.shields.io/npm/v/%40scalar/draggable)](https://www.npmjs.com/package/@scalar/draggable)
 [![Downloads](https://img.shields.io/npm/dm/%40scalar/draggable)](https://www.npmjs.com/package/@scalar/draggable)
@@ -13,7 +13,7 @@ npm install @scalar/draggable
 
 ## Usage
 
-A complete example can be found the [playground](https://github.com/scalar/scalar/packages/draggable/playground), but basically you need a data structure like:
+A complete example can be found the [playground](https://github.com/scalar/scalar/tree/main/packages/draggable/playground), but basically you need a data structure like:
 
 ```ts
 const sidebar = ref({
@@ -74,4 +74,4 @@ Then manage the data manipluation on drop using the emitted events!
 
 ### Example
 
-You can find an example in this repo under the [playground](https://github.com/scalar/scalar/packages/draggable/playground)
+You can find an example in this repo under the [playground](https://github.com/scalar/scalar/tree/main/packages/draggable/playground)

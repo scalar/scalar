@@ -31,9 +31,7 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./tailwind": {
-      "import": "./src/tailwind/index.ts"
-    }
+    "./tailwind": "./src/tailwind/index.ts"
   },
   "files": [
     "dist",
