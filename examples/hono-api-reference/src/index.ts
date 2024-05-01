@@ -190,6 +190,7 @@ serve(
   {
     fetch: app.fetch,
     port: 5054,
+    hostname: '0.0.0.0',
   },
   (address) => {
     console.log(
