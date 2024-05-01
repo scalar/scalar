@@ -14,7 +14,7 @@ export function useResizeWithTarget(
   if (typeof ResizeObserver !== 'undefined')
     observer.value = new ResizeObserver(([entry]) => {
       if (!entry) return
-      targetWidth.value = entry.target.clientWidth
+      targetWidth.value = entry.borderBoxSize[0]?.inlineSize ?? 0
     })
 
   watch(

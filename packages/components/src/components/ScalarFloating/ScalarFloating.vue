@@ -22,8 +22,9 @@ const { width: targetWidth } = useResizeWithTarget(targetRef, {
   enabled: resize,
 })
 
+const placement = computed(() => props.placement || 'bottom')
 const { floatingStyles } = useFloating(targetRef, floatingRef, {
-  placement: props.placement || 'bottom',
+  placement,
   whileElementsMounted: autoUpdate,
   middleware: [offset(5), flip(), shift()],
 })
