@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.6.1
+
+### Patch Changes
+
+- 2706d57: chore: update tailwind export to include commonjs
+
 ## 0.6.0
 
 ### Minor Changes
