@@ -27,15 +27,18 @@ ENV NODE_ENV production
 
 WORKDIR /app
 
+# Set the correct permission for prerender cache
+RUN chown node:node app
+
 # Copy root node modules and any utilized packages
-COPY --from=builder --chown=node:node /app/node_modules /app/node_modules
-COPY --from=builder --chown=node:node /app/packages/components /app/packages/components
-COPY --from=builder --chown=node:node /app/packages/themes /app/packages/themes
-COPY --from=builder --chown=node:node /app/packages/oas-utils /app/packages/oas-utils
-COPY --from=builder --chown=node:node /app/packages/build-tooling /app/packages/build-tooling
-COPY --from=builder --chown=node:node /app/packages/api-reference /app/packages/api-reference
-COPY --from=builder --chown=node:node /app/packages/express-api-reference /app/packages/express-api-reference
-COPY --from=builder --chown=node:node /app/examples/express-api-reference /app/examples/express-api-reference
+COPY --from=builder /app/node_modules /app/node_modules
+COPY --from=builder /app/packages/components /app/packages/components
+COPY --from=builder /app/packages/themes /app/packages/themes
+COPY --from=builder /app/packages/oas-utils /app/packages/oas-utils
+COPY --from=builder /app/packages/build-tooling /app/packages/build-tooling
+COPY --from=builder /app/packages/api-reference /app/packages/api-reference
+COPY --from=builder /app/packages/express-api-reference /app/packages/express-api-reference
+COPY --from=builder /app/examples/express-api-reference /app/examples/express-api-reference
 
 WORKDIR /app/examples/express-api-reference
 
