@@ -2,8 +2,6 @@ import { apiReference } from '@scalar/express-api-reference'
 import Express from 'express'
 import swaggerJsdoc from 'swagger-jsdoc'
 
-const env = process.env.PORT
-
 // Initialize Express
 const app = Express()
 
