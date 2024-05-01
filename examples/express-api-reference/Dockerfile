@@ -47,6 +47,6 @@ COPY --from=builder /app/examples/express-api-reference /app/examples/express-ap
 
 WORKDIR /app/examples/express-api-reference
 
-USER node
+USER expressjs
 
 CMD ["dumb-init", "node", "dist/index.js"]
