@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.22.18
+
+### Patch Changes
+
+- 45dccb0: fix: avoid prepending path when running standalone from an html file without a server
+- abff1f4: fix: swagger 2.0 definitions don’t show up in list of models
+
 ## 1.22.17
 
 ### Patch Changes
