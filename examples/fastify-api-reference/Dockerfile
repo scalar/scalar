@@ -38,6 +38,7 @@ COPY --from=builder /app/packages/api-reference /app/packages/api-reference
 COPY --from=builder /app/packages/fastify-api-reference /app/packages/fastify-api-reference
 COPY --from=builder /app/examples/fastify-api-reference /app/examples/fastify-api-reference
 
+USER fastify
 
 WORKDIR /app/examples/fastify-api-reference
 
