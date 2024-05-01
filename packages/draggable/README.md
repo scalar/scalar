@@ -1,4 +1,4 @@
-# Scalar Draggable Componebtb
+# Scalar Draggable component
 
 [![Version](https://img.shields.io/npm/v/%40scalar/draggable)](https://www.npmjs.com/package/@scalar/draggable)
 [![Downloads](https://img.shields.io/npm/dm/%40scalar/draggable)](https://www.npmjs.com/package/@scalar/draggable)
