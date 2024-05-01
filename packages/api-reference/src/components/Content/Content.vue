@@ -27,7 +27,7 @@ const { hideModels, collapsedSidebarItems } = useSidebar()
 
 const prependRelativePath = (server: Server) => {
   // URLs that don't start with http[s]://
-  if (server.url.match(/^(?!https?:\/\/).+/)) {
+  if (server.url.match(/^(?!(https?|file):\/\/).+/)) {
     let baseURL = props.baseServerURL ?? window.location.origin
 
     // Handle slashes
