@@ -25,10 +25,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
 RUN npm install -g pnpm
 ENV NODE_ENV production
 
-WORKDIR /app
+# Create a non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 expressjs
 
-# Set the correct permission for prerender cache
-RUN chown node:node app
+# Set the correct permission for the build
+RUN mkdir app
+RUN chown expressjs:nodejs app
+
+WORKDIR /app
 
 # Copy root node modules and any utilized packages
 COPY --from=builder /app/node_modules /app/node_modules

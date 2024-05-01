@@ -2,6 +2,8 @@ import { apiReference } from '@scalar/express-api-reference'
 import Express from 'express'
 import swaggerJsdoc from 'swagger-jsdoc'
 
+const env = process.env.PORT
+
 // Initialize Express
 const app = Express()
 
@@ -49,8 +51,8 @@ app.use(
 )
 
 // Listen
-const PORT = import.meta.env.PORT || 5055
-const HOST = import.meta.env.HOST || '0.0.0.0'
+const PORT = Number(process.env.PORT) || 5055
+const HOST = process.env.HOST || '0.0.0.0'
 app.listen(PORT, HOST, () => {
   console.log(`💻 Express listening on http://${HOST}:${PORT}`)
 })
