@@ -49,4 +49,6 @@ WORKDIR /app/examples/hono-api-reference
 
 USER honojs
 
+# dumb-init runs as PID 1 and ensures all signals are forwarded
+# to the spawned node process (ensures the server shuts down gracefully)
 CMD ["dumb-init", "node", "dist/index.js"]
