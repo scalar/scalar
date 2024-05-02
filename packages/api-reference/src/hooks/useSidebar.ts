@@ -62,7 +62,14 @@ const updateHeadings = async (description: string) => {
   const newHeadings = await getHeadingsFromMarkdown(description)
   const lowestLevel = getLowestHeadingLevel(newHeadings)
 
-  return newHeadings.filter((heading) => heading.depth === lowestLevel)
+  return newHeadings.filter((heading) => {
+    return (
+      // highest level, eg. # Introduction
+      heading.depth === lowestLevel ||
+      // second highest level, eg. ## Authentication
+      heading.depth === lowestLevel + 1
+    )
+  })
 }
 
 // Create the list of sidebar items from the given spec
@@ -74,12 +81,29 @@ const items = computed(() => {
     openApi: { globalSecurity },
   } = useOpenApiStore()
 
-  // Introduction
-  const headingEntries: SidebarEntry[] = headings.value.map((heading) => {
-    return {
-      id: getHeadingId(heading),
-      title: heading.value.toUpperCase(),
-      show: !state.showApiClient,
+  // Headings from the OpenAPI description field
+  const headingEntries: SidebarEntry[] = []
+  let currentHeading: SidebarEntry | null = null
+
+  headings.value.forEach((heading) => {
+    // If the heading is the lowest level, create a new heading entry.
+    if (heading.depth === getLowestHeadingLevel(headings.value)) {
+      currentHeading = {
+        id: getHeadingId(heading),
+        title: heading.value.toUpperCase(),
+        show: !state.showApiClient,
+        children: [],
+      }
+
+      headingEntries.push(currentHeading)
+    }
+    // If the heading is the second lowest level, add it to the current heading entry.
+    else if (currentHeading) {
+      currentHeading.children?.push({
+        id: getHeadingId(heading),
+        title: heading.value,
+        show: !state.showApiClient,
+      })
     }
   })
 
