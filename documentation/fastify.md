@@ -11,9 +11,10 @@ npm init
 npm install fastify
 ```
 
-To actually use it, we need to create a JavaScript file:
+To actually use it, we need to create a JavaScript file (`index.js`):
 
 ```js
+// index.js
 import Fastify from 'fastify'
 
 // Instantiate the framework
