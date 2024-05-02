@@ -130,6 +130,44 @@ steps:
         '--service-account=$_SERVICE_ACCOUNT',
       ]
   # ---------------------------------------------------------------
+  # Express integration
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-express-js'
+    waitFor: ['push-base']
+    args:
+      [
+        'buildx',
+        'build',
+        '--build-arg',
+        'BASE_IMAGE=gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}',
+        '-t',
+        'gcr.io/${_PROJECT_ID}/${_SERVICE_EXPRESS}',
+        '-f',
+        './examples/express-api-reference/Dockerfile',
+        '.',
+      ]
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-express-js'
+    waitFor: ['build-express-js']
+    args: ['push', 'gcr.io/${_PROJECT_ID}/${_SERVICE_EXPRESS}']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    waitFor: ['push-express-js']
+    args:
+      [
+        'run',
+        'deploy',
+        '$_SERVICE_EXPRESS',
+        '--image=gcr.io/${_PROJECT_ID}/${_SERVICE_EXPRESS}',
+        '--region=$_REGION',
+        '--platform=managed',
+        '--allow-unauthenticated',
+        '--execution-environment=gen2',
+        '--cpu=$_CPU',
+        '--memory=$_MEMORY',
+        '--service-account=$_SERVICE_ACCOUNT',
+      ]
+  # ---------------------------------------------------------------
   # Other Integration
   # - name: OTHER INTEGRATION
 # ---------------------------------------------------------------

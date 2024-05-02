@@ -6,7 +6,6 @@ import { type ThemeId, themeLabels } from '@scalar/themes'
 defineProps<{
   theme: ThemeId
 }>()
-
 const emits = defineEmits<{
   (e: 'changeTheme', { id, label }: { id: ThemeId; label: string }): void
   (e: 'loadSwaggerFile'): void
