@@ -43,8 +43,7 @@ export const ApiReference = (refConfig: ReferenceConfiguration) => {
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scalar API Reference for Next.js</title>
-    <meta name="description" content="Example to show how to use Scalar API Reference for Next.js">
+    <title>Scalar API Reference</title>
   </head>
   <body>
     <script
