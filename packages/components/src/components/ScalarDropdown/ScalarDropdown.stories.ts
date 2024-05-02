@@ -10,6 +10,9 @@ const meta = {
   component: ScalarDropdown,
   tags: ['autodocs'],
   argTypes: {
+    resize: {
+      control: 'boolean',
+    },
     placement: {
       control: 'select',
       options: placements,

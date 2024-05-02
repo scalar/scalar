@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 
 import ScalarFloating from './ScalarFloating.vue'
 
-const meta = {
+const meta: Meta = {
   component: ScalarFloating,
   tags: ['autodocs'],
   argTypes: {
@@ -20,9 +20,11 @@ const meta = {
     template: `
 <div class="flex items-center justify-center w-full h-screen">
   <ScalarFloating v-bind="args">
-    <div class="rounded border bg-back-2 p-1">Target for #floating</div>
-    <template #floating="{ width }">
-      <div class="rounded border shadow bg-back-2 p-1" :style="{ width }">
+    <div class="rounded border bg-back-2 p-2">Target for #floating</div>
+    <template #floating="{ width, height }">
+      <div 
+        class="flex items-center justify-center rounded border shadow bg-back-2 p-1" 
+        :style="{ width, height }">
         Floating
       </div>
     </template>

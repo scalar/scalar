@@ -1,11 +1,32 @@
 <script setup lang="ts">
-import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/vue'
+import {
+  type MiddlewareData,
+  autoUpdate,
+  flip,
+  offset,
+  shift,
+  useFloating,
+} from '@floating-ui/vue'
 import { type Ref, computed, ref } from 'vue'
 
 import type { FloatingOptions } from './types'
 import { useResizeWithTarget } from './useResizeWithTarget'
 
 const props = defineProps<FloatingOptions>()
+
+defineSlots<{
+  /** The reference element for the element in the #floating slot */
+  default(): any
+  /** The floating element */
+  floating(props: {
+    /** The width of the reference element if `resize` is true */
+    width?: string
+    /** The height of the reference element if `resize` is true */
+    height?: string
+    /** The middleware data return by Floating UI */
+    data?: MiddlewareData
+  }): any
+}>()
 
 defineOptions({ inheritAttrs: false })
 
@@ -17,16 +38,19 @@ const targetRef = computed(
   () => (wrapperRef.value?.children?.[0] || wrapperRef.value) ?? undefined,
 )
 
-const resize = computed(() => props.resize)
-const { width: targetWidth } = useResizeWithTarget(targetRef, {
-  enabled: resize,
+const targetSize = useResizeWithTarget(targetRef, {
+  enabled: computed(() => props.resize),
 })
 
-const placement = computed(() => props.placement || 'bottom')
-const { floatingStyles } = useFloating(targetRef, floatingRef, {
-  placement,
+const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
+  placement: computed(() => props.placement),
   whileElementsMounted: autoUpdate,
-  middleware: [offset(5), flip(), shift()],
+  middleware: computed(() => [
+    offset(5),
+    flip(),
+    shift(),
+    ...(props.middleware ?? []),
+  ]),
 })
 </script>
 <template>
@@ -41,7 +65,9 @@ const { floatingStyles } = useFloating(targetRef, floatingRef, {
     :style="floatingStyles"
     v-bind="$attrs">
     <slot
+      :data="middlewareData"
+      :height="targetSize.height.value"
       name="floating"
-      :width="targetWidth" />
+      :width="targetSize.width.value" />
   </div>
 </template>
