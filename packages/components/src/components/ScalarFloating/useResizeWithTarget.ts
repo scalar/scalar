@@ -1,11 +1,11 @@
-import { type ComputedRef, type Ref, computed, ref, watch } from 'vue'
+import { type MaybeRefOrGetter, computed, ref, toValue, watch } from 'vue'
 
 type ResizeOptions = {
-  enabled?: Ref<boolean> | ComputedRef<boolean>
+  enabled?: MaybeRefOrGetter<boolean>
 }
 
 export function useResizeWithTarget(
-  target: Ref<Element | undefined>,
+  target: MaybeRefOrGetter<Element | undefined>,
   opts: ResizeOptions = { enabled: ref(true) },
 ) {
   const targetWidth = ref(0)
@@ -18,10 +18,10 @@ export function useResizeWithTarget(
     })
 
   watch(
-    () => [opts.enabled?.value, target?.value],
-    ([enabled]) => {
-      if (!target?.value || !observer.value) return
-      if (enabled) observer.value.observe(target.value)
+    [() => toValue(opts.enabled), () => toValue(target)],
+    ([enabled, element]) => {
+      if (!element || !observer.value) return
+      if (enabled) observer.value.observe(element)
       else observer.value.disconnect()
     },
     { immediate: true },
@@ -29,7 +29,7 @@ export function useResizeWithTarget(
 
   return {
     width: computed(() =>
-      opts.enabled?.value ? `${targetWidth.value}px` : undefined,
+      toValue(opts.enabled) ? `${targetWidth.value}px` : undefined,
     ),
   }
 }
