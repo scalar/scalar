@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.22.20
+
+### Patch Changes
+
+- 9201802: chore: update example page title
+
 ## 1.22.3
 
 ### Patch Changes

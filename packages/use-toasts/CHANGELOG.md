@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.6.1
+
+### Patch Changes
+
+- a8c3045: build: re-introduce @scalar/use-toasts package
+
 ## 0.5.15
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/mock-server
 
+## 0.1.55
+
+### Patch Changes
+
+- Updated dependencies [a8c3045]
+- Updated dependencies [1324378]
+- Updated dependencies [9201802]
+  - @scalar/api-reference@1.22.20
+
 ## 0.1.54
 
 ### Patch Changes
