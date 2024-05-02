@@ -168,6 +168,45 @@ steps:
         '--service-account=$_SERVICE_ACCOUNT',
       ]
   # ---------------------------------------------------------------
+  # NestJS Fastify integration
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-nest-js-fastify'
+    waitFor: ['push-base']
+    args:
+      [
+        'buildx',
+        'build',
+        '--build-arg',
+        'BASE_IMAGE=gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}',
+        '-t',
+        'gcr.io/${_PROJECT_ID}/${_SERVICE_NEST_JS_FASTIFY}',
+        '-f',
+        './examples/nestjs-api-reference-fastify/Dockerfile',
+        '.',
+      ]
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-nest-js-fastify'
+    waitFor: ['build-nest-js-fastify']
+    args: ['push', 'gcr.io/${_PROJECT_ID}/${_SERVICE_NEST_JS_FASTIFY}']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    waitFor: ['push-nest-js-fastify']
+    args:
+      [
+        'run',
+        'deploy',
+        '$_SERVICE_NEST_JS_FASTIFY',
+        '--image=gcr.io/${_PROJECT_ID}/${_SERVICE_NEST_JS_FASTIFY}',
+        '--region=$_REGION',
+        '--platform=managed',
+        '--allow-unauthenticated',
+        '--execution-environment=gen2',
+        '--cpu=$_CPU',
+        '--memory=$_MEMORY',
+        '--service-account=$_SERVICE_ACCOUNT',
+      ]
+  # ---------------------------------------------------------------
+  # ---------------------------------------------------------------
   # Other Integration
   # - name: OTHER INTEGRATION
 # ---------------------------------------------------------------
