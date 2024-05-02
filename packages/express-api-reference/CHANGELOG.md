@@ -1,5 +1,15 @@
 # @scalar/express-api-reference
 
+## 0.4.20
+
+### Patch Changes
+
+- 9201802: chore: update example page title
+- Updated dependencies [a8c3045]
+- Updated dependencies [1324378]
+- Updated dependencies [9201802]
+  - @scalar/api-reference@1.22.20
+
 ## 0.4.19
 
 ### Patch Changes

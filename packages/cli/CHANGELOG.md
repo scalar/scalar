@@ -1,5 +1,16 @@
 # @scalar/cli
 
+## 0.2.58
+
+### Patch Changes
+
+- 9201802: chore: update example page title
+- Updated dependencies [a8c3045]
+- Updated dependencies [1324378]
+- Updated dependencies [9201802]
+  - @scalar/api-reference@1.22.20
+  - @scalar/mock-server@0.1.55
+
 ## 0.2.57
 
 ### Patch Changes

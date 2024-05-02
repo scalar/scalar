@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.22.20
+
+### Patch Changes
+
+- a8c3045: build: re-introduce @scalar/use-toasts package
+- 1324378: feat: show two levels of headings in the sidebar
+- 9201802: chore: update example page title
+- Updated dependencies [c6e4385]
+- Updated dependencies [a8c3045]
+  - @scalar/api-client@1.2.12
+  - @scalar/use-toasts@0.6.1
+
 ## 1.22.19
 
 ### Patch Changes

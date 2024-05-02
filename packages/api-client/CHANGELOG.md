@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 1.2.12
+
+### Patch Changes
+
+- c6e4385: fix: passing a prefilled token as null throws an exception
+
 ## 1.2.11
 
 ### Patch Changes
