@@ -6,16 +6,16 @@
 [![GitHub License](https://img.shields.io/github/license/scalar/scalar)](https://github.com/scalar/scalar/blob/main/LICENSE)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-Generate interactive API documentation from Swagger files. [Try our Demo](https://docs.scalar.com/swagger-editor)
+Generate interactive API documentation from OpenAPI/Swagger files. [Try our Demo](https://docs.scalar.com/swagger-editor)
 
 [![Screenshot of an API Reference](https://github.com/scalar/scalar/assets/6201407/d8beb5e1-bf64-4589-8cb0-992ba79215a8)](https://docs.scalar.com/swagger-editor)
 
 ## Features
 
-- Uses Swagger/OpenAPI spec files
+- Uses OpenAPI/Swagger specifications
 - Request examples for a ton of languages + frameworks
 - Has an integrated API client
-- Edit your Swagger files with a live preview
+- Edit your OpenAPI/Swagger specification with a live preview
 - Doesn’t look like it’s 2011
 
 > [!NOTE]\
@@ -62,35 +62,35 @@ Generate interactive API documentation from Swagger files. [Try our Demo](https:
 <!doctype html>
 <html>
   <head>
-    <title>API Reference</title>
+    <title>Scalar API Reference</title>
     <meta charset="utf-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1" />
   </head>
   <body>
-    <!-- Add your own OpenAPI/Swagger spec file URL here: -->
-    <!-- Note: this includes our proxy, you can remove the following line if you do not need it -->
-    <!-- data-proxy-url="https://api.scalar.com/request-proxy" -->
+    <!-- Add your own OpenAPI/Swagger specification URL here: -->
+    <!-- Note: The example is our public proxy (to avoid CORS issues). You can remove the `data-proxy-url` attribute if you don’t need it. -->
     <script
       id="api-reference"
-      data-url="https://petstore3.swagger.io/api/v3/openapi.json"
+      data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml"
       data-proxy-url="https://api.scalar.com/request-proxy"></script>
-    <!-- You can also set a full configuration object like this (easier for nested objects): -->
+
+    <!-- Optional: You can set a full configuration object like this: -->
     <script>
       var configuration = {
         theme: 'purple',
       }
 
-      var apiReference = document.getElementById('api-reference')
-      apiReference.dataset.configuration = JSON.stringify(configuration)
+      document.getElementById('api-reference').dataset.configuration =
+        JSON.stringify(configuration)
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
   </body>
 </html>
 ```
 
-You can also use the following syntax to directly pass an OpenAPI spec:
+You can also use the following syntax to directly pass an OpenAPI specification:
 
 ```html
 <script
@@ -189,7 +189,7 @@ function App() {
     <ApiReferenceReact
       configuration={{
         spec: {
-          url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
         },
       }}
     />
@@ -348,7 +348,7 @@ plugins: [
       route: '/scalar',
       configuration: {
         spec: {
-          url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
         },
       },
     } as ScalarOptions,
@@ -502,8 +502,7 @@ on [scalar.com](https://scalar.com).
 
 To customize the behavior of the API Reference, you can use the following configuration options:
 
-- `isEditable`: Whether the Swagger editor should be shown.
-- `spec.content`: Directly pass an OpenAPI/Swagger spec.
+- `spec.content`: Directly pass an OpenAPI/Swagger specifcation.
 - `spec.url`: Pass the URL of a spec file (JSON or YAML).
 - `proxyUrl`: Use a proxy to send requests to other origins.
 - `darkMode`: Set dark mode on or off (light mode)
