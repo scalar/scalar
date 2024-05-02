@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/npm/v/%40scalar/cli)](https://www.npmjs.com/package/@scalar/cli)
 [![Downloads](https://img.shields.io/npm/dm/%40scalar/cli)](https://www.npmjs.com/package/@scalar/cli)
 [![License](https://img.shields.io/npm/l/%40scalar%2Fapi-reference)](https://www.npmjs.com/package/@scalar/cli)
-[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/8HeZcRGPFS)
+[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
 Command-line interface to work with OpenAPI files
 
