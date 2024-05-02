@@ -541,9 +541,14 @@ You don’t like the color scheme? We’ve prepared some themes for you:
 > The `default` theme is … the default theme.
 > If you want to make sure **no** theme is applied, pass `none`.
 
+Wow, still nothing that fits your brand? Reach out to <marc@scalar.com> and we’ll make you a custom theme, just for you.
+
 ## Advanced: Styling
 
-Overwrite our CSS variables. We won’t judge.
+You can pretty much style everything you see.
+[Here’s an extreme example of what’s possible.](https://windows98.apidocumentation.com/)
+
+To get started, overwrite our CSS variables. We won’t judge.
 
 ```
 :root {
