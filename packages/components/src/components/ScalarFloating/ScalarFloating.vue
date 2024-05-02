@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getSideAxis } from '@floating-ui/utils'
 import {
   type MiddlewareData,
   autoUpdate,
@@ -19,9 +20,9 @@ defineSlots<{
   default(): any
   /** The floating element */
   floating(props: {
-    /** The width of the reference element if `resize` is true */
+    /** The width of the reference element if `resize` is true and placement is on the y axis */
     width?: string
-    /** The height of the reference element if `resize` is true */
+    /** The height of the reference element if `resize` is true and placement is on the x axis */
     height?: string
     /** The middleware data return by Floating UI */
     data?: MiddlewareData
@@ -41,6 +42,18 @@ const targetRef = computed(
 const targetSize = useResizeWithTarget(targetRef, {
   enabled: computed(() => props.resize),
 })
+
+const targetWidth = computed(() =>
+  getSideAxis(props.placement || 'bottom') === 'y'
+    ? targetSize.width.value
+    : undefined,
+)
+
+const targetHeight = computed(() =>
+  getSideAxis(props.placement || 'bottom') === 'x'
+    ? targetSize.height.value
+    : undefined,
+)
 
 const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
   placement: computed(() => props.placement),
@@ -66,8 +79,8 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
     v-bind="$attrs">
     <slot
       :data="middlewareData"
-      :height="targetSize.height.value"
+      :height="targetHeight"
       name="floating"
-      :width="targetSize.width.value" />
+      :width="targetWidth" />
   </div>
 </template>
