@@ -80,7 +80,7 @@ export function getRequestFromAuthentication(
     if ('type' in securityScheme && securityScheme.type === 'apiKey') {
       // Header
       if ('in' in securityScheme && securityScheme.in === 'header') {
-        const token = authentication.apiKey.token.length
+        const token = authentication.apiKey.token?.length
           ? authentication.apiKey.token
           : 'YOUR_TOKEN'
 
