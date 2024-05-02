@@ -111,6 +111,39 @@ If you’d like to add a request proxy for the API client (to avoid CORS issues)
 </script>
 ```
 
+#### Events [beta]
+
+We have recently added two events to the standalone CDN build only.
+
+##### scalar:reload-references
+
+Reload the references, this will re-mount the app in case you have switched pages or the dom
+elements have been removed.
+
+```ts
+document.dispatchEvent(new Event('scalar:reload-references'))
+```
+
+##### scalar:reload-references
+
+If you have updated the config or spec, you can trigger this event with the new payload to update
+the app. It should update reactively so you do not need to trigger the reload event above after.
+
+```ts
+import { type ReferenceProps } from './types'
+
+const ev = new CustomEvent('scalar:update-references-config', {
+  detail: {
+    configuration: {
+      spec: {
+        url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
+      },
+    },
+  } satisfies ReferenProps,
+})
+document.dispatchEvent(ev)
+```
+
 ### With Nuxt
 
 You can easily run Scalar API References in Nuxt via the module:
