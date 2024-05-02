@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 
 import { apiReference } from '@scalar/nestjs-api-reference';
 
-const PORT = process.env.PORT || 5056;
+const PORT = Number(process.env.PORT);
 const HOST = process.env.HOST || '0.0.0.0';
 
 async function bootstrap() {
