@@ -2,10 +2,10 @@
   "$schema": "https://unpkg.com/@changesets/config@2.3.1/schema.json",
   "changelog": "@changesets/cli/changelog",
   "commit": ["@changesets/cli/commit", { "skipCI": false }],
-  "fixed": [],
-  "linked": [
+  "fixed": [
     ["@scalar/api-reference", "@scalar/fastify-api-reference"]
   ],
+  "linked": [],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
