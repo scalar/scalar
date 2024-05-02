@@ -7,6 +7,9 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 
+const PORT = Number(process.env.PORT) || 5057;
+const HOST = process.env.HOST || '0.0.0.0';
+
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
@@ -31,8 +34,8 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(5057, () => {
-    console.log('🦁 NestJS listening at http://localhost:5057/reference');
+  await app.listen(PORT, HOST, () => {
+    console.log(`🦁 NestJS listening at http://${HOST}:${PORT}/reference`);
   });
 }
 bootstrap();
