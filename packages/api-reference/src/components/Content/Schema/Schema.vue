@@ -73,8 +73,12 @@ const handleClick = (e: MouseEvent) =>
                 fill-rule="nonzero"
                 points="14 8 8 8 8 14 6 14 6 8 0 8 0 6 6 6 6 0 8 0 8 6 14 6" />
             </svg>
-            <template v-if="open">Hide Child Attributes</template>
-            <template v-else>Show Child Attributes</template>
+            <template v-if="open">
+              Hide {{ value?.title ?? 'Child Attributes' }}
+            </template>
+            <template v-else>
+              Show {{ value?.title ?? 'Child Attributes' }}
+            </template>
           </template>
           <template v-else>
             <ScalarIcon
@@ -84,7 +88,7 @@ const handleClick = (e: MouseEvent) =>
               icon="ChevronRight"
               size="md" />
             <SchemaHeading
-              :name="name"
+              :name="value?.title ?? name"
               :value="value" />
           </template>
         </DisclosureButton>
