@@ -30,6 +30,7 @@ COPY --from=builder /usr/bin/dumb-init /usr/bin/dumb-init
 ENV NODE_ENV production
 # Set the PORT environment variable for the node server
 ENV PORT $PORT
+ENV HOST '0.0.0.0'
 
 # Use default non-root user from the node image
 USER node
