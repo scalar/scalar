@@ -5,7 +5,7 @@ import { fetchSpecFromUrl } from './fetch-spec'
 describe('Fetches specs correctly', () => {
   test('Fetches without a proxy', async () => {
     const spec = await fetchSpecFromUrl(
-      'https://petstore3.swagger.io/api/v3/openapi.json',
+      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
     )
 
     expect(typeof spec).toEqual('string')
@@ -14,7 +14,7 @@ describe('Fetches specs correctly', () => {
 
   test('Fetches with a proxy', async () => {
     const spec = await fetchSpecFromUrl(
-      'https://petstore3.swagger.io/api/v3/openapi.json',
+      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
       'https://api.scalar.com/request-proxy',
     )
 

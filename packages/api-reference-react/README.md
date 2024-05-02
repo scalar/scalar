@@ -22,7 +22,7 @@ function App() {
     <ApiReferenceReact
       configuration={{
         spec: {
-          url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
         },
       }}
     />
