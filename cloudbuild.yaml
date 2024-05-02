@@ -73,7 +73,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-react-js'
     waitFor: ['build-react-js']
-    args: ['push', 'gcr.io/${_PROJECT_ID}/${__SERVICE_REACT_JS}']
+    args: ['push', 'gcr.io/${_PROJECT_ID}/${_SERVICE_REACT_JS}']
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     waitFor: ['push-react-js']
