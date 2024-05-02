@@ -32,10 +32,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/examples/nextjs-api-reference/.ne
 # Path for the standalone output for the nextjs example (contents of .next/standalone)
 WORKDIR /app/examples/nextjs-api-reference
 
-# Cloud build requires port 8080 to be exposed
-EXPOSE 8080
-ENV PORT 8080
-ENV HOSTNAME "0.0.0.0"
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output
 CMD ["node", "server.js"]
