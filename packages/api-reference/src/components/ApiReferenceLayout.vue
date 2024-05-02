@@ -7,6 +7,7 @@ import {
   type ThemeId,
   ThemeStyles,
 } from '@scalar/themes'
+import { ScalarToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
   computed,
@@ -18,7 +19,6 @@ import {
   ref,
   useSSRContext,
 } from 'vue'
-import { toast } from 'vue-sonner'
 
 import {
   GLOBAL_SECURITY_SYMBOL,
@@ -29,7 +29,6 @@ import {
   sleep,
 } from '../helpers'
 import { useNavState, useSidebar } from '../hooks'
-import { useToasts } from '../hooks/useToasts'
 import type {
   ReferenceLayoutProps,
   ReferenceLayoutSlot,
@@ -37,7 +36,6 @@ import type {
 } from '../types'
 import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
-import CustomToaster from './CustomToaster.vue'
 import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
 
@@ -53,12 +51,6 @@ defineEmits<{
 
 defineOptions({
   inheritAttrs: false,
-})
-
-// Configure Reference toasts to use vue-sonner
-const { initializeToasts } = useToasts()
-initializeToasts((message) => {
-  toast(message)
 })
 
 defineSlots<{
@@ -327,8 +319,7 @@ hideModels.value = props.configuration.hideModels ?? false
       </div>
     </ScrollbarStyles>
   </ResetStyles>
-  <!-- Initialize the vue-sonner instance -->
-  <CustomToaster />
+  <ScalarToasts />
 </template>
 <style scoped>
 /* Configurable Layout Variables */
