@@ -113,7 +113,7 @@ export function apiReference(options: NestJSReferenceConfiguration) {
     <!DOCTYPE html>
     <html>
       <head>
-        <title>API Reference</title>
+        <title>Scalar API Reference</title>
         <meta charset="utf-8" />
         <meta
           name="viewport"

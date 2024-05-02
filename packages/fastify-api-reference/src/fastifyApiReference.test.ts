@@ -193,7 +193,9 @@ describe('fastifyApiReference', () => {
 
     const address = await fastify.listen({ port: 0 })
     const response = await fetch(`${address}/reference`)
-    expect(await response.text()).toContain('<title>API Reference</title>')
+    expect(await response.text()).toContain(
+      '<title>Scalar API Reference</title>',
+    )
   })
 
   it('has the correct content type', async () => {
