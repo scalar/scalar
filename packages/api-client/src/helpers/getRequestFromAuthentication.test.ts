@@ -420,4 +420,38 @@ describe('getRequestFromAuthentication', () => {
       ],
     })
   })
+
+  it('doesn’t complain about token being null', () => {
+    const request = getRequestFromAuthentication(
+      {
+        ...createEmptyAuthenticationState(),
+        preferredSecurityScheme: 'api_key',
+        securitySchemes: {
+          api_key: {
+            type: 'apiKey',
+            name: 'api_key',
+            in: 'header',
+          },
+        },
+        apiKey: {
+          // @ts-ignore
+          token: null,
+        },
+      },
+      [
+        {
+          api_key: [],
+        },
+      ],
+    )
+
+    expect(request).toMatchObject({
+      headers: [
+        {
+          name: 'api_key',
+          value: 'YOUR_TOKEN',
+        },
+      ],
+    })
+  })
 })
