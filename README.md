@@ -19,7 +19,7 @@ Generate interactive API documentation from Swagger files. [Try our Demo](https:
 - Doesn’t look like it’s 2011
 
 > [!NOTE]\
-> [Scalar Townhall every 2nd Thursday in Discord](https://discord.gg/bcCycarP3D?event=1219363385485824000)
+> [Scalar Townhall every 2nd Thursday in Discord](https://discord.gg/scalar?event=1219363385485824000)
 >
 > Join us to see upcoming features, discuss the roadmap and chat about APIs. 💬
 
