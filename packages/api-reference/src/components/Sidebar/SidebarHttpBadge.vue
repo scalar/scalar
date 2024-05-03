@@ -8,7 +8,6 @@ defineProps<{
 </script>
 <template>
   <HttpMethod
-    as="div"
     class="sidebar-heading-type"
     :class="{ 'sidebar-heading-type-active': active }"
     :method="method"
@@ -17,6 +16,7 @@ defineProps<{
 </template>
 <style scoped>
 .sidebar-heading-type {
+  display: block;
   min-width: 3.9em;
   overflow: hidden;
   border-radius: 30px;
