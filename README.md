@@ -39,7 +39,7 @@ Generate interactive API documentation from OpenAPI/Swagger files. [Try our Demo
   - [With Platformatic](#with-platformatic)
   - [With Hono](#with-hono)
   - [With Docusaurus](#with-docusaurus)
-  - [With FastAPI](https://github.com/scalar/scalar/tree/main/packages/scalar_fastapi/README)
+  - [With FastAPI](https://github.com/scalar/scalar/blob/main/packages/scalar_fastapi/README.md)
   - [With Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
   - [With Laravel](#with-laravel)
   - [With Rust](#with-rust)
