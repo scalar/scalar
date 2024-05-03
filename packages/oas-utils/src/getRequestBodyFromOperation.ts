@@ -1,8 +1,8 @@
 import { getExampleFromSchema } from './getExampleFromSchema'
 import { getParametersFromOperation } from './getParametersFromOperation'
 import { json2xml } from './json2xml'
+import { normalizeMimeTypeObject } from './normalizeMimeTypeObject'
 import { prettyPrintJson } from './prettyPrintJson'
-import { removeCharsetFromContentTypes } from './removeCharsetFromContentTypes'
 import type { ContentType, TransformedOperation } from './types'
 
 /**
@@ -25,7 +25,9 @@ export function getRequestBodyFromOperation(
   // Get the content object from the operation
   const content = operation.information?.requestBody?.content
 
-  removeCharsetFromContentTypes(content)
+  normalizeMimeTypeObject(content)
+
+  console.log('CONTENT', content)
 
   // Find the first mime type that is supported
   const mimeType: ContentType | undefined = mimeTypes.find(

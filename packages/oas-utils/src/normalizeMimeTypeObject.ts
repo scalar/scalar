@@ -7,15 +7,21 @@ import type { ContentType } from './types'
  *
  * Example: `application/json; charset=utf-8` -> `application/json`
  */
-export function removeCharsetFromContentTypes(
-  content?: Record<ContentType, any>,
-) {
+export function normalizeMimeTypeObject(content?: Record<ContentType, any>) {
   if (!content) {
     return
   }
 
   Object.keys(content).forEach((key) => {
-    const newKey = key.split(';')[0] as ContentType
+    // Example: 'application/problem+json; charset=utf-8'
+
+    const newKey = key
+      // Remove '; charset=utf-8'
+      .replace(/;.*$/, '')
+      // Remove 'problem+'
+      .replace(/\/.+\+/, '/')
+      // Remove whitespace
+      .trim() as ContentType
 
     content[newKey] = content[key as ContentType]
 

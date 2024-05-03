@@ -2,7 +2,7 @@
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
 import {
   type TransformedOperation,
-  removeCharsetFromContentTypes,
+  normalizeMimeTypeObject,
 } from '@scalar/oas-utils'
 import { computed, ref } from 'vue'
 
@@ -59,13 +59,11 @@ const currentResponse = computed(() => {
 })
 
 const currentJsonResponse = computed(() => {
-  removeCharsetFromContentTypes(currentResponse.value?.content)
+  normalizeMimeTypeObject(currentResponse.value?.content)
 
   return (
     // OpenAPI 3.x
     currentResponse.value?.content?.['application/json'] ??
-    currentResponse.value?.content?.['application/problem+json'] ??
-    currentResponse.value?.content?.['application/vnd.api+json'] ??
     // Swagger 2.0
     currentResponse.value
   )
