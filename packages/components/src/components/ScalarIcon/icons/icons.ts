@@ -1,4 +1,4 @@
-const ICONS = [
+export const ICONS = [
   'Add',
   'Brackets',
   'Branch',
@@ -61,5 +61,3 @@ const ICONS = [
   'programming-tool-git',
   'programming-tool-tailwindcss',
 ] as const
-
-export type ICONS = typeof ICONS
