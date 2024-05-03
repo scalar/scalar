@@ -139,7 +139,7 @@ const ev = new CustomEvent('scalar:update-references-config', {
         url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
       },
     },
-  } satisfies ReferenProps,
+  } satisfies ReferenceProps,
 })
 document.dispatchEvent(ev)
 ```
