@@ -38,8 +38,8 @@ const handleClick = async () => {
   if (props.open) {
     isIntersectionEnabled.value = false
     await sleep(100)
+    isIntersectionEnabled.value = true
   }
-  isIntersectionEnabled.value = true
 }
 
 // Build relative URL and add hash
