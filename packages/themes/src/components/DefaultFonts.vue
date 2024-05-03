@@ -11,8 +11,14 @@ import fonts from '../fonts.css?inline'
 </script>
 
 <template>
-  <!-- We can’t use <style> tags in Vue components. -->
-  <component :is="'style'">
-    {{ fonts }}
+  <!-- 
+    Temp workaround for SSR
+    We should stop using <component :is="style or script"> as its an anti pattern
+    @see https://github.com/vuejs/core/issues/7775
+  -->
+  <!-- eslint-disable vue/no-v-text-v-html-on-component -->
+  <component
+    :is="'style'"
+    v-html="fonts">
   </component>
 </template>

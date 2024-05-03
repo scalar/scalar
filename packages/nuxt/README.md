@@ -73,3 +73,37 @@ export default defineNuxtConfig({
   },
 })
 ```
+
+For multiple references, pass in an array of configuration objects which extend on top of the base
+config.
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@scalar/nuxt'],
+  scalar: {
+    darkMode: true,
+    metaData: {
+      title: 'API Documentation by Scalar',
+    },
+    proxy: 'https://api.scalar.com/request-proxy',
+    configurations: [
+      {
+        spec: {
+          url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
+        },
+        pathRouting: {
+          basePath: '/petstore',
+        },
+      },
+      {
+        spec: {
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        },
+        pathRouting: {
+          basePath: '/galaxy',
+        },
+      },
+    ],
+  },
+})
+```
