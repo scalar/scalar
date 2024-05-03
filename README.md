@@ -124,7 +124,7 @@ elements have been removed.
 document.dispatchEvent(new Event('scalar:reload-references'))
 ```
 
-##### scalar:reload-references
+##### scalar:update-references-config
 
 If you have updated the config or spec, you can trigger this event with the new payload to update
 the app. It should update reactively so you do not need to trigger the reload event above after.
