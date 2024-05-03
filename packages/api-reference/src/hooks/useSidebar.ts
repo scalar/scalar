@@ -292,7 +292,7 @@ export function useSidebar(options?: { parsedSpec: Spec }) {
         const description = parsedSpec.value?.info?.description
 
         if (!description) {
-          return []
+          return (headings.value = [])
         }
 
         return (headings.value = await updateHeadings(description))
