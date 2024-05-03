@@ -8,9 +8,7 @@ describe('normalizeMimeTypeObject', () => {
       'application/json; charset=utf-8': {},
     }
 
-    normalizeMimeTypeObject(content)
-
-    expect(content).toMatchObject({
+    expect(normalizeMimeTypeObject(content)).toMatchObject({
       'application/json': {},
     })
   })
@@ -20,9 +18,7 @@ describe('normalizeMimeTypeObject', () => {
       'application/json;': {},
     }
 
-    normalizeMimeTypeObject(content)
-
-    expect(content).toMatchObject({
+    expect(normalizeMimeTypeObject(content)).toMatchObject({
       'application/json': {},
     })
   })
@@ -32,9 +28,7 @@ describe('normalizeMimeTypeObject', () => {
       ' application/json ': {},
     }
 
-    normalizeMimeTypeObject(content)
-
-    expect(content).toMatchObject({
+    expect(normalizeMimeTypeObject(content)).toMatchObject({
       'application/json': {},
     })
   })
@@ -44,9 +38,7 @@ describe('normalizeMimeTypeObject', () => {
       'application/problem+json': {},
     }
 
-    normalizeMimeTypeObject(content)
-
-    expect(content).toMatchObject({
+    expect(normalizeMimeTypeObject(content)).toMatchObject({
       'application/json': {},
     })
   })
@@ -56,9 +48,7 @@ describe('normalizeMimeTypeObject', () => {
       'application/vnd.api+json': {},
     }
 
-    normalizeMimeTypeObject(content)
-
-    expect(content).toMatchObject({
+    expect(normalizeMimeTypeObject(content)).toMatchObject({
       'application/json': {},
     })
   })
@@ -68,9 +58,7 @@ describe('normalizeMimeTypeObject', () => {
       'application/problem-foobar+json; charset=utf-8': {},
     }
 
-    normalizeMimeTypeObject(content)
-
-    expect(content).toMatchObject({
+    expect(normalizeMimeTypeObject(content)).toMatchObject({
       'application/json': {},
     })
   })

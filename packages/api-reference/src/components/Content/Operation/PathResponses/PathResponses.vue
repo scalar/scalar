@@ -59,11 +59,13 @@ const currentResponse = computed(() => {
 })
 
 const currentJsonResponse = computed(() => {
-  normalizeMimeTypeObject(currentResponse.value?.content)
+  const normalizedContent = normalizeMimeTypeObject(
+    currentResponse.value?.content,
+  )
 
   return (
     // OpenAPI 3.x
-    currentResponse.value?.content?.['application/json'] ??
+    normalizedContent?.['application/json'] ??
     // Swagger 2.0
     currentResponse.value
   )

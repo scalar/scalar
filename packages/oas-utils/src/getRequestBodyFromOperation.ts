@@ -23,11 +23,8 @@ export function getRequestBodyFromOperation(
   ]
 
   // Get the content object from the operation
-  const content = operation.information?.requestBody?.content
-
-  normalizeMimeTypeObject(content)
-
-  console.log('CONTENT', content)
+  const originalContent = operation.information?.requestBody?.content
+  const content = normalizeMimeTypeObject(originalContent)
 
   // Find the first mime type that is supported
   const mimeType: ContentType | undefined = mimeTypes.find(
