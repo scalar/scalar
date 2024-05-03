@@ -1,5 +1,6 @@
 # Scalar API Reference
 
+
 [![CI](https://github.com/scalar/scalar/actions/workflows/ci.yml/badge.svg)](https://github.com/scalar/scalar/actions/workflows/ci.yml)
 [![Release](https://github.com/scalar/scalar/actions/workflows/release.yml/badge.svg)](https://github.com/scalar/scalar/actions/workflows/release.yml)
 [![Contributors](https://img.shields.io/github/contributors/scalar/scalar)](https://github.com/scalar/scalar/graphs/contributors)
@@ -8,7 +9,7 @@
 
 Generate interactive API documentation from OpenAPI/Swagger files. [Try our Demo](https://docs.scalar.com/swagger-editor)
 
-[![Screenshot of an API Reference](https://github.com/scalar/scalar/assets/6201407/d8beb5e1-bf64-4589-8cb0-992ba79215a8)](https://docs.scalar.com/swagger-editor)
+<img width="830" height="455" src="https://github.com/scalar/scalar/assets/6201407/09a54c45-028a-45c9-9772-6a8d9acbdb8d">
 
 ## Features
 
