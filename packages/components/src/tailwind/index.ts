@@ -1,1 +1,1 @@
-export * from './tailwind.theme.ts'
+export * from './tailwind.theme'
