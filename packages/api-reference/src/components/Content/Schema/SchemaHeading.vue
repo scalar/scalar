@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type OpenAPIV2 } from '@scalar/openapi-parser'
+import type { OpenAPIV2 } from '@scalar/openapi-parser'
 
 defineProps<{
   value: OpenAPIV2.SchemaObject

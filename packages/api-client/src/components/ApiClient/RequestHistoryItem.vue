@@ -4,7 +4,7 @@ import prettyMilliseconds from 'pretty-ms'
 
 import { humanDiff } from '../../helpers'
 import { useRequestStore } from '../../stores'
-import { type ClientResponse } from '../../types'
+import type { ClientResponse } from '../../types'
 
 defineProps<{ history: string }>()
 

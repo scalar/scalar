@@ -1,4 +1,4 @@
-import { type Headings } from './getHeadingsFromMarkdown'
+import type { Headings } from './getHeadingsFromMarkdown'
 
 export type HeadingLevels = 1 | 2 | 3 | 4 | 5 | 6
 

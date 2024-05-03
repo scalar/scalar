@@ -160,7 +160,6 @@ onServerPrefetch(async () => {
 // Here we overwrite the SSR with client rendered syntax highlighting
 onMounted(async () => {
   // This bit async autoloads any syntax we have not pre-loaded
-  // @ts-expect-error This is a dynamic import
   await import('prismjs/plugins/autoloader/prism-autoloader.js')
   plugins.autoloader.languages_path =
     'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/'

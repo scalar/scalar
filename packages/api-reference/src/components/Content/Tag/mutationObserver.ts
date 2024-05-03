@@ -1,5 +1,5 @@
 import { useMutationObserver } from '@vueuse/core'
-import { type Ref } from 'vue'
+import type { Ref } from 'vue'
 
 export const observeMutations = (
   target: Ref<HTMLElement | null>,

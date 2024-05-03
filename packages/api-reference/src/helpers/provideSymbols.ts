@@ -1,5 +1,5 @@
-import { type OpenAPIV3 } from '@scalar/openapi-parser'
-import { type InjectionKey } from 'vue'
+import type { OpenAPIV3 } from '@scalar/openapi-parser'
+import type { InjectionKey } from 'vue'
 
 /**
  * Collection of symbols to use with provide inject

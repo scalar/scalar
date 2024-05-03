@@ -5,7 +5,7 @@
 import { createApp } from 'vue'
 
 import { default as ApiReference } from './components/ApiReference.vue'
-import { type ReferenceConfiguration } from './types'
+import type { ReferenceConfiguration } from './types'
 
 const specScriptTag = document.querySelector('#api-reference')
 const specElement = document.querySelector('[data-spec]')

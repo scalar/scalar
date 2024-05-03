@@ -1,5 +1,5 @@
 import { nodeExternals as RollupNodeExternals } from 'rollup-plugin-node-externals'
-import { type Plugin } from 'vite'
+import type { Plugin } from 'vite'
 
 /**
  * Here, to simplify, we use the existing rollup-plugin-node-externals plugin. It can exclude node dependencies and

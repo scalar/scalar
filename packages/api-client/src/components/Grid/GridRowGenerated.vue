@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type GeneratedParameter } from 'src/types'
+import type { GeneratedParameter } from 'src/types'
 
 import GridRow from './GridRow.vue'
 

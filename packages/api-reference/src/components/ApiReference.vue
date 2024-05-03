@@ -5,7 +5,7 @@ import { createHead, useSeoMeta } from 'unhead'
 import { computed, toRef, watch } from 'vue'
 
 import { useDarkModeState, useHttpClients, useReactiveSpec } from '../hooks'
-import { type ReferenceConfiguration, type ReferenceProps } from '../types'
+import type { ReferenceConfiguration, ReferenceProps } from '../types'
 import Layouts from './Layouts/'
 
 const props = defineProps<ReferenceProps>()

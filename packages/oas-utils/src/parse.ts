@@ -1,6 +1,6 @@
 import { parse, stringify } from 'yaml'
 
-import { type AnyObject } from './types'
+import type { AnyObject } from './types'
 
 type PrimitiveOrObject = object | string | null | number | boolean | undefined
 

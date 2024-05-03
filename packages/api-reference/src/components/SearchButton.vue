@@ -4,7 +4,7 @@ import { useModal } from '@scalar/use-modal'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
 
-import { type Spec } from '../types'
+import type { Spec } from '../types'
 import SearchModal from './SearchModal.vue'
 
 const props = withDefaults(

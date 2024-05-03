@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 
-import { type DraggingItem, type HoveredItem } from '../src/store'
+import type { DraggingItem, HoveredItem } from '../src/store'
 import SidebarItem, { type Items } from './components/SidebarItem.vue'
 
 const sidebar = reactive({
