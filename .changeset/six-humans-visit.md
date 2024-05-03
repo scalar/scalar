@@ -3,4 +3,4 @@
 "@scalar/use-toasts": patch
 ---
 
-feat: added two events to standalone build with tests
+feat: added two events to standalone references build with tests
