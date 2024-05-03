@@ -4,7 +4,7 @@ import { ScalarIcon } from '@scalar/components'
 import { ref, watch } from 'vue'
 
 import { useServerStore } from '../../../stores'
-import { type Variable } from '../../../types'
+import type { Variable } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
 import { MarkdownRenderer } from '../../MarkdownRenderer'
 import ServerItem from './ServerItem.vue'

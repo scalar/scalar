@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ApiClient, useRequestStore } from '@scalar/api-client'
-import { type ThemeId } from '@scalar/themes'
+import type { ThemeId } from '@scalar/themes'
 import { ref, watch } from 'vue'
 
 import DevApiClientOptions from '../components/DevApiClientOptions.vue'

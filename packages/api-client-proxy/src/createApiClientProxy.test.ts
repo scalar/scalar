@@ -1,5 +1,5 @@
 import { createEchoServer } from '@scalar/echo-server'
-import { type AddressInfo } from 'node:net'
+import type { AddressInfo } from 'node:net'
 import { describe, expect, it } from 'vitest'
 
 import { createApiClientProxy } from './createApiClientProxy'

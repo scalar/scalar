@@ -3,7 +3,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { watch } from 'vue'
 
 import { useNavState, useSidebar } from '../../hooks'
-import { type ReferenceLayoutProps, type ReferenceSlots } from '../../types'
+import type { ReferenceLayoutProps, ReferenceSlots } from '../../types'
 import ApiReferenceLayout from '../ApiReferenceLayout.vue'
 import { DarkModeToggle } from '../DarkModeToggle'
 import MobileHeader from '../MobileHeader.vue'

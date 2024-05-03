@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type VariantProps } from 'cva'
+import type { VariantProps } from 'cva'
 
 import { cva, cx } from '../../cva'
 import { type Icon, getIcon } from './icons/'

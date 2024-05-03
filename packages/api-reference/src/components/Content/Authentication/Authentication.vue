@@ -4,12 +4,12 @@ import {
   SecuritySchemeSelector,
   useAuthenticationStore,
 } from '@scalar/api-client'
-import { type SSRState } from '@scalar/oas-utils'
+import type { SSRState } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, onServerPrefetch, useSSRContext, watch } from 'vue'
 
 import { hasSecuritySchemes, sleep } from '../../../helpers'
-import { type Spec } from '../../../types'
+import type { Spec } from '../../../types'
 import { Card, CardContent, CardHeader } from '../../Card'
 
 const props = defineProps<{ parsedSpec?: Spec }>()

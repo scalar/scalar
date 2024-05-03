@@ -1,4 +1,4 @@
-import { type Spec } from '../types'
+import type { Spec } from '../types'
 
 export const hasWebhooks = (spec?: Spec) => {
   if (!spec) {

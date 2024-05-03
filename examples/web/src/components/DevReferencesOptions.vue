@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type ReferenceConfiguration } from '@scalar/api-reference'
+import type { ReferenceConfiguration } from '@scalar/api-reference'
 import { availableThemes } from '@scalar/themes'
 import { computed } from 'vue'
 

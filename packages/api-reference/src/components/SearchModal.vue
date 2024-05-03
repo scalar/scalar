@@ -5,7 +5,7 @@ import {
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
-import { type TransformedOperation } from '@scalar/oas-utils'
+import type { TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { FlowModal, type ModalState } from '@scalar/use-modal'
 import { useMagicKeys, whenever } from '@vueuse/core'

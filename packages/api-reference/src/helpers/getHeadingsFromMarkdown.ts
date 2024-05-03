@@ -1,4 +1,4 @@
-import { type Heading } from '@scalar/oas-utils'
+import type { Heading } from '@scalar/oas-utils'
 import remarkHeadings from '@vcarl/remark-headings'
 import GithubSlugger from 'github-slugger'
 import remarkParse from 'remark-parse'

@@ -1,6 +1,6 @@
 import { useApiClientStore, useOpenApiStore } from '@scalar/api-client'
 import { type TransformedOperation, ssrState } from '@scalar/oas-utils'
-import { type OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, reactive, ref, watch } from 'vue'
 
 import {

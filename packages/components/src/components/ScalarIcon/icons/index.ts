@@ -1,8 +1,8 @@
 import { defineAsyncComponent } from 'vue'
 
-import { type ICONS } from './icons'
+import type { ICONS } from './icons'
 
-export type Icon = (typeof ICONS)[number]
+export type Icon = ICONS[number]
 
 const icons = import.meta.glob<SVGElement>('./*.svg')
 

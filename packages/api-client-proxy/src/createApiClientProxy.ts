@@ -1,6 +1,6 @@
 import cors from 'cors'
 import Express from 'express'
-import { type Server } from 'http'
+import type { Server } from 'http'
 
 import { version } from '../package.json'
 

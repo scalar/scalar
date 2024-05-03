@@ -2,7 +2,7 @@
 import { ApiClient, useApiClientStore } from '@scalar/api-client'
 import { useMediaQuery } from '@vueuse/core'
 
-import { type Spec } from '../types'
+import type { Spec } from '../types'
 import { Sidebar } from './Sidebar'
 
 defineProps<{

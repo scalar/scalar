@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from '@headlessui/vue'
 
-import { type ModalState } from '../hooks'
+import type { ModalState } from '../hooks'
 
 withDefaults(
   defineProps<{

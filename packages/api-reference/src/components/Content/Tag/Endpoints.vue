@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
-import { type TransformedOperation } from '@scalar/oas-utils'
+import type { TransformedOperation } from '@scalar/oas-utils'
 
 import { useNavState, useSidebar } from '../../../hooks'
 import type { Tag } from '../../../types'

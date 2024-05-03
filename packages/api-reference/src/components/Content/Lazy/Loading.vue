@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type TransformedOperation } from '@scalar/oas-utils'
+import type { TransformedOperation } from '@scalar/oas-utils'
 import { onMounted, ref, watch } from 'vue'
 
 import { getModels, scrollToId } from '../../../helpers'

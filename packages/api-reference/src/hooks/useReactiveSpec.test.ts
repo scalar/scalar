@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import { type SpecConfiguration } from '../types'
+import type { SpecConfiguration } from '../types'
 import { useReactiveSpec } from './useReactiveSpec'
 
 const basicSpec = {

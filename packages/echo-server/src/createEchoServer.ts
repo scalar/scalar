@@ -1,7 +1,7 @@
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import Express from 'express'
-import { type Server } from 'http'
+import type { Server } from 'http'
 
 export const createEchoServer = () => {
   const app = Express()
