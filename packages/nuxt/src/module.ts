@@ -9,7 +9,13 @@ import {
 import type { Configuration } from './types'
 
 // Module options TypeScript interface definition
-export type ModuleOptions = Configuration
+export type ModuleOptions = {
+  /**
+   * For multiple references, pass an array of config objects into
+   * configurations. These configurations will extend over the base config
+   */
+  configurations: Configuration[]
+} & Configuration
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
@@ -27,6 +33,7 @@ export default defineNuxtModule<ModuleOptions>({
     },
     showSidebar: true,
     devtools: true,
+    configurations: [],
   },
   setup(_options, _nuxt) {
     const resolver = createResolver(import.meta.url)
@@ -61,15 +68,35 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Add the route for the docs
     extendPages((pages) => {
-      pages.push({
-        name: 'scalar',
-        path: _options.pathRouting?.basePath + ':pathMatch(.*)*',
-        meta: {
-          configuration: _options,
-          isOpenApiEnabled,
-        },
-        file: resolver.resolve('./runtime/pages/ScalarPage.vue'),
-      })
+      // Overriding config
+      if (_options.configurations.length) {
+        const { configurations, ...baseConfig } = _options
+        configurations.forEach((_config, index) => {
+          const configuration = { ...baseConfig, ..._config }
+
+          pages.push({
+            name: 'scalar-' + index,
+            path: configuration.pathRouting?.basePath + ':pathMatch(.*)*',
+            meta: {
+              configuration,
+              isOpenApiEnabled,
+            },
+            file: resolver.resolve('./runtime/pages/ScalarPage.vue'),
+          })
+        })
+      }
+      // Single config
+      else {
+        pages.push({
+          name: 'scalar',
+          path: _options.pathRouting?.basePath + ':pathMatch(.*)*',
+          meta: {
+            configuration: _options,
+            isOpenApiEnabled,
+          },
+          file: resolver.resolve('./runtime/pages/ScalarPage.vue'),
+        })
+      }
     })
 
     // add scalar tab to DevTools

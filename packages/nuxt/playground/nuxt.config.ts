@@ -9,6 +9,24 @@ export default defineNuxtConfig({
     pathRouting: {
       basePath: '/scalar',
     },
+    configurations: [
+      {
+        spec: {
+          url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
+        },
+        pathRouting: {
+          basePath: '/petstore',
+        },
+      },
+      {
+        spec: {
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        },
+        pathRouting: {
+          basePath: '/galaxy',
+        },
+      },
+    ],
   },
   nitro: {
     experimental: {
