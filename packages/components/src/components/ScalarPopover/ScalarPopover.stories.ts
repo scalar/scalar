@@ -1,38 +1,43 @@
 import { placements } from '@floating-ui/utils'
 import type { Meta, StoryObj } from '@storybook/vue3'
 
-import ScalarFloating from './ScalarFloating.vue'
+import { ScalarButton } from '../../'
+import ScalarPopover from './ScalarPopover.vue'
 
-const meta: Meta = {
-  component: ScalarFloating,
+const meta = {
+  component: ScalarPopover,
   tags: ['autodocs'],
   argTypes: {
+    resize: {
+      control: 'boolean',
+    },
     placement: {
       control: 'select',
       options: placements,
     },
   },
   render: (args) => ({
-    components: { ScalarFloating },
+    components: {
+      ScalarPopover,
+      ScalarButton,
+    },
     setup() {
       return { args }
     },
     template: `
 <div class="flex items-center justify-center w-full h-screen">
-  <ScalarFloating v-bind="args">
-    <div class="rounded border bg-back-2 p-2">Target for #floating</div>
-    <template #floating="{ width, height }">
-      <div 
-        class="flex items-center justify-center rounded border shadow bg-back-2 p-1" 
-        :style="{ width, height }">
-        Floating
+  <ScalarPopover v-bind="args">
+    <ScalarButton>Click Me</ScalarButton>
+    <template #popover>
+      <div class="h-full flex items-center justify-center p-1">
+        Pop pop
       </div>
     </template>
-  </ScalarDropdown>
+  </ScalarPopover>
 </div>
 `,
   }),
-} satisfies Meta<typeof ScalarFloating>
+} satisfies Meta<typeof ScalarPopover>
 
 export default meta
 type Story = StoryObj<typeof meta>

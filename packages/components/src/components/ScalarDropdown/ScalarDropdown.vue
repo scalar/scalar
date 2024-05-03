@@ -3,7 +3,7 @@ import { Menu, MenuButton, MenuItems } from '@headlessui/vue'
 
 import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
 
-defineProps<FloatingOptions>()
+defineProps<Omit<FloatingOptions, 'middleware'>>()
 
 defineOptions({ inheritAttrs: false })
 </script>
