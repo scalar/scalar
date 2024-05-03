@@ -18,32 +18,23 @@ Playwright stores snapshots with a suffix related to the environment it was run 
 
 The key snapshot is the `-linux` because that is where the tests run in CI. To update these snapshots from a mac we need to use Docker.
 
-Update localhost calls in the Playwright tests to `host.docker.internal` (mac) or `172.17.0.1` (linux) instead of `127.0.0.1`
-
 ### Update Linux snapshots from a Mac using Docker
 
-```ts
-await page.goto('http://127.0.0.1:3173/live')
-```
-
-instead of
-
-```ts
-await page.goto('http://127.0.0.1:3173/live')
-```
-
-Ensure the service you want to test is running on localhost
+Ensure the service you want to test is running on locally
+`pnpm --filter cdn-api-reference dev` for cdn tests or `pnpm --filter web dev` for theme tests
 
 Build the image
-`docker build -t 'playwright-linux' .`
+`docker build -t playwright-linux -f playwright/Dockerfile .`
 
 Run the image
-`docker run --network="host" -it playwright-linux:latest bash`
+`docker run --network="host" -e HOST='host.docker.internal' -it playwright-linux:latest bash`
+
+Pass the HOST env variable to the container. For mac it is `host.docker.internal` or `172.17.0.1` on linux
 
 set network to host so you can access localhost from inside the container
 
 Inside the container update the snapshots
-`npx playwright test --update-snapshots`
+`pnpm test:e2e --update-snapshots`
 
 In another terminal tab
 
@@ -52,4 +43,4 @@ get the container id
 
 copy the snapshots to your local filesystem
 
-`docker cp <CONTAINER_ID>:/app/tests/ ./`
+`docker cp <CONTAINER_ID>:/app/playwright/tests/ ./`
