@@ -8,7 +8,7 @@
 
 Generate interactive API documentation from OpenAPI/Swagger files. [Try our Demo](https://docs.scalar.com/swagger-editor)
 
-[![Screenshot of an API Reference](https://github.com/scalar/scalar/assets/6201407/d8beb5e1-bf64-4589-8cb0-992ba79215a8)](https://docs.scalar.com/swagger-editor)
+<img width="830" height="455" src="https://github.com/scalar/scalar/assets/6201407/046aaeca-f0fe-453d-a661-c747399c56ef">
 
 ## Features
 
