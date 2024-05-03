@@ -1,8 +1,21 @@
 <script setup lang="ts">
-defineProps<{
+import { ScalarIconButton } from '@scalar/components'
+import { computed, ref } from 'vue'
+
+const props = defineProps<{
   id: string
   type?: string
 }>()
+
+const mask = ref(true)
+
+const inputType = computed(() =>
+  props.type === 'password'
+    ? mask.value
+      ? 'password'
+      : 'text'
+    : props.type ?? 'text',
+)
 
 defineOptions({
   inheritAttrs: false,
@@ -17,8 +30,15 @@ defineOptions({
       v-bind="$attrs"
       :id="id"
       autocomplete="off"
+      data-1p-ignore
       spellcheck="false"
-      :type="type ?? 'text'" />
+      :type="inputType" />
+    <ScalarIconButton
+      v-if="type === 'password'"
+      class="password-mask"
+      :icon="mask ? 'Show' : 'Hide'"
+      :label="mask ? 'Show Password' : 'Hide Password'"
+      @click="mask = !mask" />
   </div>
 </template>
 <style scoped>
@@ -28,6 +48,7 @@ defineOptions({
   width: 100%;
   text-align: left;
   display: flex;
+  align-items: baseline;
   border-style: solid;
   border-width: 1px;
   border-color: inherit;
@@ -62,5 +83,12 @@ defineOptions({
 }
 .card-form-input input:not(:placeholder-shown) + label {
   color: var(--scalar-color-2);
+}
+
+.password-mask {
+  padding: 6px 8px 6px 0;
+  height: 24px;
+  width: auto;
+  align-self: center;
 }
 </style>
