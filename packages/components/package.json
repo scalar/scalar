@@ -10,7 +10,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "run-p types:check \"build-only {@}\" --",
+    "build": "run-p typegen:icons types:check \"build-only {@}\" --",
     "build-only": "vite build",
     "build:storybook": "storybook build",
     "dev": "storybook dev -p 5100",

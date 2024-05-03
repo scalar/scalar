@@ -24,6 +24,8 @@ module.exports = {
     '**/dist-publish/**',
     '**/.vite-ssg-temp/**',
     '**/vite.config.ts',
+    '**/vitest.config.ts',
+    '**/tailwind.config.ts',
     '**/vite.standalone.config.ts',
     '**/cdn/**',
   ],
