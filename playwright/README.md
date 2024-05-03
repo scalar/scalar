@@ -20,7 +20,7 @@ The key snapshot is the `-linux` because that is where the tests run in CI. To u
 
 Update localhost calls in the Playwright tests to `host.docker.internal` (mac) or `172.17.0.1` (linux) instead of `127.0.0.1`
 
-### Example
+### Update Linux snapshots from a Mac using Docker
 
 ```ts
 await page.goto('http://127.0.0.1:3173/live')

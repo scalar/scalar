@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+const HOST = process.env.HOST || 'localhost'
+
 const layouts = ['modern', 'classic']
 const themes = [
   'alternate',
@@ -15,7 +17,7 @@ const themes = [
   'none',
 ]
 
-const baseUrl = 'http://localhost:5050/test-api-reference'
+const baseUrl = `http://${HOST}:5050/test-api-reference`
 
 const testOpts = { fullPage: true, maxDiffPixelRatio: 0.02 }
 

@@ -1,20 +1,20 @@
 import { expect, test } from '@playwright/test'
 
-test('Renders petstore api reference from the live CDN', async ({
+const HOST = process.env.HOST || 'localhost'
+
+test('Renders scalar/galaxy api reference from the live CDN', async ({
   page,
   isMobile,
 }) => {
-  await page.goto('http://127.0.0.1:3173/live')
+  await page.goto(`http://${HOST}:3173/live`)
 
   // Check for basic elements on the page
   // The heading
   await expect(
-    page.getByRole('heading', { name: 'Swagger Petstore - OpenAPI' }),
+    page.getByRole('heading', { name: 'Scalar Galaxy' }),
   ).toBeVisible()
   // Body Text
-  await expect(
-    page.locator('p').filter({ hasText: 'This is a sample Pet Store' }),
-  ).toBeVisible()
+  await expect(page.getByText('The Scalar Galaxy')).toBeVisible()
   // http client
   await expect(page.getByText('Client Libraries')).toBeVisible()
 
@@ -22,7 +22,7 @@ test('Renders petstore api reference from the live CDN', async ({
   if (!isMobile) {
     // Sidebar
     await expect(
-      page.getByRole('link', { name: 'PET', exact: true }),
+      page.getByRole('link', { name: 'PLANETS', exact: true }),
     ).toBeVisible()
   }
 
