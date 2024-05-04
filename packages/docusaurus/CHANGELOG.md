@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.2.21
+
+### Patch Changes
+
+- 07211ad: chore: added new lint rule for type importing for better perf
+  - @scalar/api-reference-react@0.1.63
+
 ## 0.2.20
 
 ### Patch Changes

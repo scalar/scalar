@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.25
+
+### Patch Changes
+
+- 07211ad: chore: added new lint rule for type importing for better perf
+
 ## 0.5.24
 
 ### Patch Changes

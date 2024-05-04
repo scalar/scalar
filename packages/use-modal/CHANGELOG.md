@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.3.1
+
+### Patch Changes
+
+- 07211ad: chore: added new lint rule for type importing for better perf
+
 ## 0.3.0
 
 ### Minor Changes

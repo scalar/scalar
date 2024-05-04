@@ -1,5 +1,17 @@
 # @scalar/nuxt
 
+## 0.0.31
+
+### Patch Changes
+
+- 07211ad: chore: added new lint rule for type importing for better perf
+- d4fa19b: feat: allow multiple configs for nuxt
+- Updated dependencies [07211ad]
+- Updated dependencies [801ad65]
+- Updated dependencies [d4fa19b]
+- Updated dependencies [b234d1d]
+  - @scalar/api-reference@1.22.21
+
 ## 0.0.30
 
 ### Patch Changes

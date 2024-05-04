@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.22.21
+
+### Patch Changes
+
+- 07211ad: chore: added new lint rule for type importing for better perf
+
 ## 1.22.20
 
 ### Patch Changes
