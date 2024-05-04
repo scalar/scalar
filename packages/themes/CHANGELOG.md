@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.7.7
+
+### Patch Changes
+
+- d4fa19b: feat: allow multiple configs for nuxt
+
 ## 0.7.6
 
 ### Patch Changes

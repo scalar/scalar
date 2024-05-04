@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.1.7
+
+### Patch Changes
+
+- 07211ad: chore: added new lint rule for type importing for better perf
+
 ## 0.1.6
 
 ### Patch Changes

@@ -1,5 +1,19 @@
 # @scalar/components
 
+## 0.7.0
+
+### Minor Changes
+
+- 1c18f77: feat: add scalar popover
+
+### Patch Changes
+
+- c68939c: feat: allow toggling of password fields
+- 07211ad: chore: added new lint rule for type importing for better perf
+- 830b3c8: fix: remove ts extension from tailwind export
+- Updated dependencies [07211ad]
+  - @scalar/oas-utils@0.1.7
+
 ## 0.6.1
 
 ### Patch Changes

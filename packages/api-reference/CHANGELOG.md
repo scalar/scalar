@@ -1,5 +1,26 @@
 # @scalar/api-reference
 
+## 1.22.21
+
+### Patch Changes
+
+- 07211ad: chore: added new lint rule for type importing for better perf
+- 801ad65: feat: use schema property title if available
+- d4fa19b: feat: allow multiple configs for nuxt
+- b234d1d: feat: added two events to standalone references build with tests
+- Updated dependencies [c68939c]
+- Updated dependencies [07211ad]
+- Updated dependencies [d4fa19b]
+- Updated dependencies [1c18f77]
+- Updated dependencies [830b3c8]
+- Updated dependencies [b234d1d]
+  - @scalar/api-client@1.2.13
+  - @scalar/components@0.7.0
+  - @scalar/oas-utils@0.1.7
+  - @scalar/use-modal@0.3.1
+  - @scalar/themes@0.7.7
+  - @scalar/use-toasts@0.6.2
+
 ## 1.22.20
 
 ### Patch Changes

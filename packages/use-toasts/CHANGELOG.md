@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.6.2
+
+### Patch Changes
+
+- b234d1d: feat: added two events to standalone references build with tests
+
 ## 0.6.1
 
 ### Patch Changes

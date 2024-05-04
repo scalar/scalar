@@ -1,5 +1,21 @@
 # @scalar/api-client
 
+## 1.2.13
+
+### Patch Changes
+
+- c68939c: feat: allow toggling of password fields
+- 07211ad: chore: added new lint rule for type importing for better perf
+- Updated dependencies [c68939c]
+- Updated dependencies [07211ad]
+- Updated dependencies [d4fa19b]
+- Updated dependencies [1c18f77]
+- Updated dependencies [830b3c8]
+  - @scalar/components@0.7.0
+  - @scalar/oas-utils@0.1.7
+  - @scalar/use-modal@0.3.1
+  - @scalar/themes@0.7.7
+
 ## 1.2.12
 
 ### Patch Changes
