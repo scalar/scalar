@@ -5,6 +5,7 @@ export { getHarRequest } from './getHarRequest'
 export { getParametersFromOperation } from './getParametersFromOperation'
 export { getRequestBodyFromOperation } from './getRequestBodyFromOperation'
 export { getRequestFromOperation } from './getRequestFromOperation'
+export { normalizeMimeTypeObject } from './normalizeMimeTypeObject'
 export { json2xml } from './json2xml'
 export {
   formatJsonOrYamlString,

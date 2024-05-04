@@ -13,14 +13,16 @@ export type BaseParameter = {
   enabled: boolean
 }
 
+type OptionalCharset = string | null
+
 export type ContentType =
-  | 'application/json'
-  | 'application/xml'
-  | 'text/plain'
-  | 'text/html'
-  | 'application/octet-stream'
-  | 'application/x-www-form-urlencoded'
-  | 'multipart/form-data'
+  | `application/json${OptionalCharset}`
+  | `application/xml${OptionalCharset}`
+  | `text/plain${OptionalCharset}`
+  | `text/html${OptionalCharset}`
+  | `application/octet-stream${OptionalCharset}`
+  | `application/x-www-form-urlencoded${OptionalCharset}`
+  | `multipart/form-data${OptionalCharset}`
 
 export type Cookie = {
   name: string

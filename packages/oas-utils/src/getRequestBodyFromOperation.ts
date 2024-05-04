@@ -1,6 +1,7 @@
 import { getExampleFromSchema } from './getExampleFromSchema'
 import { getParametersFromOperation } from './getParametersFromOperation'
 import { json2xml } from './json2xml'
+import { normalizeMimeTypeObject } from './normalizeMimeTypeObject'
 import { prettyPrintJson } from './prettyPrintJson'
 import type { ContentType, TransformedOperation } from './types'
 
@@ -21,15 +22,17 @@ export function getRequestBodyFromOperation(
     'text/plain',
   ]
 
+  // Get the content object from the operation
+  const originalContent = operation.information?.requestBody?.content
+  const content = normalizeMimeTypeObject(originalContent)
+
   // Find the first mime type that is supported
   const mimeType: ContentType | undefined = mimeTypes.find(
-    (currentMimeType: ContentType) =>
-      !!operation.information?.requestBody?.content?.[currentMimeType],
+    (currentMimeType: ContentType) => !!content?.[currentMimeType],
   )
 
   /** Examples */
-  const examples =
-    operation.information?.requestBody?.content?.['application/json']?.examples
+  const examples = content?.['application/json']?.examples
 
   // Let’s use the first example
   const selectedExample = (examples ?? {})?.[
@@ -107,8 +110,7 @@ export function getRequestBodyFromOperation(
   }
 
   // Get the request body object for the mime type
-  const requestBodyObject =
-    operation.information?.requestBody?.content?.[mimeType]
+  const requestBodyObject = content?.[mimeType]
 
   // Define the appropriate Content-Type headers
   const headers = [

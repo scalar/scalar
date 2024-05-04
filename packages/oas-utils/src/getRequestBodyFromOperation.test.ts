@@ -36,6 +36,39 @@ describe('getRequestBodyFromOperation', () => {
     })
   })
 
+  it('ignores charset in mimetypes', () => {
+    const request = getRequestBodyFromOperation({
+      httpVerb: 'POST',
+      path: '/foobar',
+      information: {
+        requestBody: {
+          content: {
+            'application/json; charset=utf-8': {
+              schema: {
+                type: 'object',
+                properties: {
+                  id: {
+                    type: 'integer',
+                    example: 1,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const expectedResult = {
+      id: 1,
+    }
+
+    expect(request?.postData).toMatchObject({
+      mimeType: 'application/json',
+      text: JSON.stringify(expectedResult, null, 2),
+    })
+  })
+
   it('creates a JSON body from body parameters', () => {
     const request = getRequestBodyFromOperation({
       httpVerb: 'POST',

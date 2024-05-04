@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
-import type { TransformedOperation } from '@scalar/oas-utils'
+import {
+  type TransformedOperation,
+  normalizeMimeTypeObject,
+} from '@scalar/oas-utils'
 import { computed, ref } from 'vue'
 
 import { useClipboard } from '../../../../hooks'
@@ -55,16 +58,18 @@ const currentResponse = computed(() => {
   return props.operation.information?.responses?.[currentStatusCode]
 })
 
-const currentJsonResponse = computed(
-  () =>
+const currentJsonResponse = computed(() => {
+  const normalizedContent = normalizeMimeTypeObject(
+    currentResponse.value?.content,
+  )
+
+  return (
     // OpenAPI 3.x
-    currentResponse.value?.content?.['application/json'] ??
-    currentResponse.value?.content?.['application/json; charset=utf-8'] ??
-    currentResponse.value?.content?.['application/problem+json'] ??
-    currentResponse.value?.content?.['application/vnd.api+json'] ??
+    normalizedContent?.['application/json'] ??
     // Swagger 2.0
-    currentResponse.value,
-)
+    currentResponse.value
+  )
+})
 const currentResponseWithExample = computed(() => ({
   ...currentJsonResponse.value,
   example:
