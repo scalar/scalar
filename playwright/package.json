@@ -1,0 +1,15 @@
+{
+  "name": "playwright",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
+  },
+  "main": "index.js",
+  "devDependencies": {
+    "@playwright/test": "^1.42.0"
+  }
+}
