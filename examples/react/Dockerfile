@@ -23,19 +23,17 @@ RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store \
 FROM node:18-bullseye-slim AS runner
 RUN npm install -g serve
 
-# Create a non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 reactjs
-
-# Set the correct permission for the build
-RUN mkdir app
-RUN chown reactjs:nodejs app
-USER reactjs
-
+# Use default non-root user from the node image
+USER node
 WORKDIR /app
+RUN chown node:node /app
 
 COPY --from=builder /app/examples/react /app/examples/react
 
 WORKDIR /app/examples/react
 
-CMD ["serve", "-s", "-l", "5059", "./dist"]
+# Set the PORT environment variable for the server
+ENV PORT $PORT
+
+# Run the server with shell so PORT variable is expanded
+CMD ["sh", "-c", "serve -s -l $PORT ./dist"]
