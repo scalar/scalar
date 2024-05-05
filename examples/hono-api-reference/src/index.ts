@@ -2,6 +2,9 @@ import { serve } from '@hono/node-server'
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { apiReference } from '@scalar/hono-api-reference'
 
+const PORT = Number(process.env.PORT) || 5054
+const HOST = process.env.HOST || '0.0.0.0'
+
 const app = new OpenAPIHono()
 
 // Example route
@@ -189,11 +192,12 @@ app.get(
 serve(
   {
     fetch: app.fetch,
-    port: 5054,
+    port: PORT,
+    hostname: HOST,
   },
   (address) => {
     console.log(
-      `🔥 Hono Middleware listening on http://localhost:${address.port}/`,
+      `🔥 Hono Middleware listening on http://${HOST}:${address.port}/`,
     )
   },
 )

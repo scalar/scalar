@@ -72,8 +72,8 @@ importers:
         specifier: ^5.4.3
         version: 5.4.3
       vite-node:
-        specifier: ^1.2.2
-        version: 1.3.1(@types/node@20.11.22)
+        specifier: ^1.3.1
+        version: 1.5.0(@types/node@20.11.22)(terser@5.30.0)
       vitest:
         specifier: ^1.5.0
         version: 1.5.0(@types/node@20.11.22)(jsdom@22.1.0)
@@ -97,8 +97,8 @@ importers:
         specifier: ^5.2.10
         version: 5.2.10(@types/node@20.11.22)(terser@5.30.0)
       vite-node:
-        specifier: ^1.2.2
-        version: 1.3.1(@types/node@20.11.22)
+        specifier: ^1.3.1
+        version: 1.5.0(@types/node@20.11.22)(terser@5.30.0)
 
   examples/cdn-api-reference:
     dependencies:
@@ -122,8 +122,8 @@ importers:
         specifier: ^5.2.10
         version: 5.2.10(@types/node@20.11.22)(terser@5.30.0)
       vite-node:
-        specifier: ^1.2.2
-        version: 1.3.1(@types/node@20.11.22)
+        specifier: ^1.3.1
+        version: 1.5.0(@types/node@20.11.22)(terser@5.30.0)
 
   examples/docusaurus:
     dependencies:
@@ -181,8 +181,8 @@ importers:
         specifier: ^5.2.10
         version: 5.2.10(@types/node@20.11.22)(terser@5.30.0)
       vite-node:
-        specifier: ^1.2.2
-        version: 1.3.1(@types/node@20.11.22)
+        specifier: ^1.3.1
+        version: 1.5.0(@types/node@20.11.22)(terser@5.30.0)
 
   examples/express-api-reference:
     dependencies:
@@ -212,8 +212,8 @@ importers:
         specifier: ^5.2.10
         version: 5.2.10(@types/node@20.11.22)(terser@5.30.0)
       vite-node:
-        specifier: ^1.2.2
-        version: 1.3.1(@types/node@20.11.22)
+        specifier: ^1.3.1
+        version: 1.5.0(@types/node@20.11.22)(terser@5.30.0)
 
   examples/fastify-api-reference:
     dependencies:
@@ -237,8 +237,8 @@ importers:
         specifier: ^5.2.10
         version: 5.2.10(@types/node@20.11.22)(terser@5.30.0)
       vite-node:
-        specifier: ^1.2.2
-        version: 1.3.1(@types/node@20.11.22)
+        specifier: ^1.3.1
+        version: 1.5.0(@types/node@20.11.22)(terser@5.30.0)
 
   examples/hono-api-reference:
     dependencies:
@@ -258,8 +258,14 @@ importers:
       nodemon:
         specifier: ^3.0.1
         version: 3.1.0
+      tsc-alias:
+        specifier: ^1.8.8
+        version: 1.8.8
+      vite:
+        specifier: ^5.2.10
+        version: 5.2.10(@types/node@20.11.22)(terser@5.30.0)
       vite-node:
-        specifier: ^1.2.2
+        specifier: ^1.3.1
         version: 1.3.1(@types/node@20.11.22)
 
   examples/nestjs-api-reference-express:
@@ -738,8 +744,8 @@ importers:
         specifier: ^5.2.10
         version: 5.2.10(@types/node@20.11.22)(terser@5.30.0)
       vite-node:
-        specifier: ^1.2.2
-        version: 1.3.1(@types/node@20.11.22)
+        specifier: ^1.3.1
+        version: 1.5.0(@types/node@20.11.22)(terser@5.30.0)
       vitest:
         specifier: ^1.5.0
         version: 1.5.0(@types/node@20.11.22)(jsdom@22.1.0)
@@ -1063,8 +1069,8 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
       vite-node:
-        specifier: ^1.2.2
-        version: 1.3.1(@types/node@20.11.26)
+        specifier: ^1.3.1
+        version: 1.5.0(@types/node@20.11.26)
     devDependencies:
       '@rollup/plugin-json':
         specifier: ^6.1.0
@@ -1310,8 +1316,8 @@ importers:
         specifier: ^5.2.10
         version: 5.2.10(@types/node@20.11.22)(terser@5.30.0)
       vite-node:
-        specifier: ^1.2.2
-        version: 1.3.1(@types/node@20.11.22)
+        specifier: ^1.3.1
+        version: 1.5.0(@types/node@20.11.22)(terser@5.30.0)
       vitest:
         specifier: ^1.5.0
         version: 1.5.0(@types/node@20.11.22)(jsdom@22.1.0)
@@ -1442,8 +1448,8 @@ importers:
         specifier: ^4.2.7
         version: 4.2.8
       vite-node:
-        specifier: ^1.2.2
-        version: 1.3.1(@types/node@20.11.26)
+        specifier: ^1.3.1
+        version: 1.5.0(@types/node@20.11.26)
     devDependencies:
       '@rollup/plugin-json':
         specifier: ^6.1.0
@@ -27356,27 +27362,6 @@ packages:
       - terser
     dev: true
 
-  /vite-node@1.3.1(@types/node@20.11.26):
-    resolution: {integrity: sha512-azbRrqRxlWTJEVbzInZCTchx0X69M/XPTCz4H+TLvlTcR/xH/3hkRqhOakT41fMJCMzXTu4UvegkZiEoJAWvng==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    hasBin: true
-    dependencies:
-      cac: 6.7.14
-      debug: 4.3.4(supports-color@5.5.0)
-      pathe: 1.1.2
-      picocolors: 1.0.0
-      vite: 5.2.10(@types/node@20.11.26)
-    transitivePeerDependencies:
-      - '@types/node'
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-    dev: false
-
   /vite-node@1.5.0(@types/node@20.11.22)(terser@5.30.0):
     resolution: {integrity: sha512-tV8h6gMj6vPzVCa7l+VGq9lwoJjW8Y79vst8QZZGiuRAfijU+EEWuc0kFpmndQrWhMMhet1jdSF+40KSZUqIIw==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -27416,7 +27401,6 @@ packages:
       - sugarss
       - supports-color
       - terser
-    dev: true
 
   /vite-plugin-banner@0.7.1:
     resolution: {integrity: sha512-Bww2Xd5tOGsZ1yZ9rQiGneryvsL1u86znPrqeQjCsXPsG72pnSdV5lcQA+cy8UNDguMqyTJiCevlNUbLnT85UA==}
