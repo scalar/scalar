@@ -4,6 +4,9 @@ import { AppModule } from './app.module';
 
 import { apiReference } from '@scalar/nestjs-api-reference';
 
+const PORT = Number(process.env.PORT);
+const HOST = process.env.HOST || '0.0.0.0';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -24,8 +27,8 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(5056, () => {
-    console.log('🦁 NestJS listening at http://localhost:5056/reference');
+  await app.listen(PORT, HOST, () => {
+    console.log(`🦁 NestJS listening at http://${HOST}:${PORT}/reference`);
   });
 }
 bootstrap();
