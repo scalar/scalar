@@ -192,4 +192,22 @@ describe('useHttpClients', () => {
       },
     ])
   })
+
+  it('filters targets without clients', () => {
+    expect(
+      filterHiddenClients(
+        [
+          {
+            title: 'Node.js',
+            key: 'node',
+            extname: '.js',
+            default: 'foobar',
+            clients: [],
+          },
+        ],
+        // No Node.js
+        ref({}),
+      ),
+    ).toMatchObject([])
+  })
 })
