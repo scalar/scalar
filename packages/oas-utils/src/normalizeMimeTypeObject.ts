@@ -11,7 +11,9 @@ export function normalizeMimeTypeObject(content?: Record<ContentType, any>) {
   }
 
   // Clone the object
-  const newContent = structuredClone(content)
+  const newContent = {
+    ...content,
+  }
 
   Object.keys(newContent).forEach((key) => {
     // Example: 'application/problem+json; charset=utf-8'
