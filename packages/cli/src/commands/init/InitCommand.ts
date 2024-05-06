@@ -33,7 +33,7 @@ export function InitCommand() {
 
       if (overwrite === false) {
         console.log()
-        process.exit(1)
+        process.exit(0)
       }
     }
 
