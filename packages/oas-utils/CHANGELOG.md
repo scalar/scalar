@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.1.8
+
+### Patch Changes
+
+- 085a0c2: fix: mimetypes with charsets and variants are ignored
+- fa10d45: fix: failed to execute structuredClone
+
 ## 0.1.7
 
 ### Patch Changes

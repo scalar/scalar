@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.22.22
+
+### Patch Changes
+
+- f1bf5bc: fix: sidebar headings don’t reset
+- 085a0c2: fix: mimetypes with charsets and variants are ignored
+- Updated dependencies [085a0c2]
+- Updated dependencies [fa10d45]
+  - @scalar/oas-utils@0.1.8
+  - @scalar/api-client@1.2.14
+  - @scalar/components@0.7.1
+
 ## 1.22.21
 
 ### Patch Changes
