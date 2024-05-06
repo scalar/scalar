@@ -3,7 +3,7 @@ import { afterAll, describe, expect, it } from 'vitest'
 import MatchMediaMock from 'vitest-matchmedia-mock'
 
 import { sleep } from './helpers'
-import { type ReferenceProps } from './types'
+import type { ReferenceProps } from './types'
 
 /**
  * Tests for standalone
@@ -29,7 +29,7 @@ describe('Standalone API References', () => {
     document.body.appendChild(script)
 
     await import('./standalone')
-    await sleep(10)
+    await sleep(50)
 
     const rootElement = document.querySelector('[data-v-app]')
     const reference = rootElement?.querySelector('.scalar-api-reference')
@@ -49,7 +49,7 @@ describe('Standalone API References', () => {
 
     // Now we use the event to re-load the app
     document.dispatchEvent(new Event('scalar:reload-references'))
-    await sleep(10)
+    await sleep(50)
 
     rootElement = document.querySelector('[data-v-app]')
     const reference = rootElement?.querySelector('.scalar-api-reference')
@@ -71,7 +71,7 @@ describe('Standalone API References', () => {
       } satisfies ReferenceProps,
     })
     document.dispatchEvent(ev)
-    await sleep(10)
+    await sleep(50)
 
     const rootElement = document.querySelector('[data-v-app]')
     const h1 = rootElement?.querySelector('h1')
