@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.7.1
+
+### Patch Changes
+
+- Updated dependencies [085a0c2]
+- Updated dependencies [fa10d45]
+  - @scalar/oas-utils@0.1.8
+
 ## 0.7.0
 
 ### Minor Changes
