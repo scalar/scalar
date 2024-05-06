@@ -11,6 +11,8 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     strategy:
       matrix:
         node-version: [20]
