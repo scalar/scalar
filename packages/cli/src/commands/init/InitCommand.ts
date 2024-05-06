@@ -19,8 +19,9 @@ export function InitCommand() {
 
     // Check if `scalar.config.json` already exists
     if (fs.existsSync(configFile)) {
-      console.warn(kleur.yellow(`A ${CONFIG_FILE} file already exists.`))
-      console.log()
+      console.log(
+        `${kleur.green('✔')} Found Scalar configuration file: ${kleur.reset().green(`${CONFIG_FILE}`)}`,
+      )
 
       const { overwrite } = await prompts({
         type: 'toggle',
@@ -52,7 +53,9 @@ export function InitCommand() {
           message: 'Where is your OpenAPI file?',
           initial: './openapi.json',
           validate: (input: string) => {
-            return fs.existsSync(input) ? true : 'File doesn’t exist.'
+            return fs.existsSync(input)
+              ? true
+              : 'Please enter a valid file path.'
           },
         })
 
@@ -79,11 +82,10 @@ export function InitCommand() {
     fs.writeFileSync(configFile, content)
 
     console.log(kleur.green('Created a new project configuration.'))
+    console.log()
     console.log(
       kleur.white(
-        `Run ${kleur
-          .grey()
-          .bold('scalar --help')} to see all available commands.`,
+        `Run ${kleur.magenta('scalar --help')} to see all available commands.`,
       ),
     )
     console.log()
