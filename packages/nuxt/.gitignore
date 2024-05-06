@@ -55,5 +55,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-./src/runtime/plugins/hydrateClient.d.ts
-./src/runtime/plugins/hydrateClient.mjs
+src/runtime/plugins/hydrateClient.d.ts
+src/runtime/plugins/hydrateClient.mjs
