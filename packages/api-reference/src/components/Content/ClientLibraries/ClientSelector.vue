@@ -43,16 +43,16 @@ const featuredClients = (
       clientKey: 'libcurl',
     },
   ] as const
-).filter((featuredClient) => {
-  return availableTargets.value.find((target: AvailableTarget) => {
+).filter((featuredClient) =>
+  availableTargets.value.find((target: AvailableTarget) => {
     return (
       target.key === featuredClient.targetKey &&
       target.clients.find(
         (client: ClientInfo) => client.key === featuredClient.clientKey,
       )
     )
-  })
-})
+  }),
+)
 
 /**
  * Icons have longer names to appear in icon searches, e.g. "javascript-js" instead of just "javascript". This function
