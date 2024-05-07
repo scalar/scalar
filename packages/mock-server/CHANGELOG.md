@@ -1,5 +1,11 @@
 # @scalar/mock-server
 
+## 0.1.61
+
+### Patch Changes
+
+- 5a2f0c9: fix: release workflow fails
+
 ## 0.1.60
 
 ### Patch Changes
