@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.1.9
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+
 ## 0.1.8
 
 ### Patch Changes

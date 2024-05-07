@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.3.2
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+
 ## 0.3.1
 
 ### Patch Changes

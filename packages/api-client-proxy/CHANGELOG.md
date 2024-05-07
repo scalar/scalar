@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.26
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+
 ## 0.5.25
 
 ### Patch Changes

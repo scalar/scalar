@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.7.2
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+- Updated dependencies [05e2e27]
+  - @scalar/oas-utils@0.1.9
+
 ## 0.7.1
 
 ### Patch Changes

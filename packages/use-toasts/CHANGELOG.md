@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.6.3
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+
 ## 0.6.2
 
 ### Patch Changes

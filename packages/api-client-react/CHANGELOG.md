@@ -1,5 +1,13 @@
 # @scalar/api-client-react
 
+## 0.3.15
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+- Updated dependencies [05e2e27]
+  - @scalar/api-client@1.2.15
+
 ## 0.3.14
 
 ### Patch Changes

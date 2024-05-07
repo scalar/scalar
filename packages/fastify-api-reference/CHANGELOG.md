@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.22.23
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+
 ## 1.22.22
 
 ## 1.22.21

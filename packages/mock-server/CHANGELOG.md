@@ -1,5 +1,15 @@
 # @scalar/mock-server
 
+## 0.1.58
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+- Updated dependencies [05e2e27]
+  - @scalar/api-reference@1.22.23
+  - @scalar/galaxy@0.1.1
+  - @scalar/oas-utils@0.1.9
+
 ## 0.1.57
 
 ### Patch Changes

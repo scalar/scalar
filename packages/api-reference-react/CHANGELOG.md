@@ -1,5 +1,13 @@
 # @scalar/api-reference-react
 
+## 0.1.65
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+- Updated dependencies [05e2e27]
+  - @scalar/api-reference@1.22.23
+
 ## 0.1.64
 
 ### Patch Changes

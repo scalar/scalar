@@ -1,5 +1,13 @@
 # @scalar/docusaurus
 
+## 0.2.23
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+- Updated dependencies [05e2e27]
+  - @scalar/api-reference-react@0.1.65
+
 ## 0.2.22
 
 ### Patch Changes

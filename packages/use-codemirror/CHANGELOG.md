@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.10.2
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+
 ## 0.10.1
 
 ### Patch Changes

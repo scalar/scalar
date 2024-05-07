@@ -1,5 +1,16 @@
 # @scalar/cli
 
+## 0.2.61
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+- 7254f6e: feat: directory navigation on init command
+- Updated dependencies [05e2e27]
+  - @scalar/api-reference@1.22.23
+  - @scalar/mock-server@0.1.58
+  - @scalar/oas-utils@0.1.9
+
 ## 0.2.60
 
 ### Patch Changes

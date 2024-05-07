@@ -1,5 +1,13 @@
 # @scalar/draggable
 
+## 0.0.4
+
+### Patch Changes
+
+- f0cc812: chore: update exports for draggable and add jsdoc types
+- 05e2e27: chore: add provenance statement
+- bf430f6: fix: export draggable types
+
 ## 0.0.3
 
 ### Patch Changes

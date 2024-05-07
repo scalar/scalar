@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.1.3
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+
 ## 0.1.2
 
 ### Patch Changes
