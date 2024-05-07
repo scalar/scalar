@@ -183,7 +183,7 @@ To make authentication easier you can prefill the credentials for your users:
       },
     },
   } />
-``
+```
 
 For OpenAuth2 it’s more looking like this:
 
@@ -192,12 +192,12 @@ For OpenAuth2 it’s more looking like this:
   authentication: {
       // The OpenAPI file has keys for all security schemes
       // Which one should be used by default?
-      preferredSecurityScheme: 'petstore_auth',
+      preferredSecurityScheme: 'planets_auth',
       // The `petstore_auth` security scheme is of type `oAuth2`, so prefill the client id and the scopes:
       oAuth2: {
         clientId: 'foobar123',
         // optional:
-        scopes: ['read:pets', 'write:pets'],
+        scopes: ['read:planets', 'write:planets'],
       },
     },
   } />
