@@ -171,7 +171,7 @@ You can listen to spec changes with onSpecUpdate that runs on spec/swagger conte
 
 To make authentication easier you can prefill the credentials for your users:
 
-````vue
+```vue
 <ApiReference :configuration="{
   authentication: {
       // The OpenAPI file has keys for all security schemes:
@@ -212,4 +212,7 @@ By default we’re using Inter and JetBrains Mono, served by Google Fonts. If yo
   withDefaultFonts: false
 } />
 ```
-````
+
+```
+
+```
