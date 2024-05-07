@@ -5,6 +5,11 @@
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/oas-utils"
+  },
   "keywords": [
     "oas",
     "fetching",
@@ -47,11 +52,6 @@
     "CHANGELOG.md"
   ],
   "module": "dist/index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/oas-utils"
-  },
   "dependencies": {
     "yaml": "^2.4.1"
   },

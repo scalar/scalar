@@ -5,6 +5,11 @@
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/api-reference-react"
+  },
   "keywords": [
     "api",
     "client",
@@ -33,11 +38,6 @@
     "CHANGELOG.md"
   ],
   "module": "./dist/index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/docusaurus"
-  },
   "dependencies": {
     "@scalar/api-reference": "workspace:*"
   },

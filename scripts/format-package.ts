@@ -26,6 +26,7 @@ const restrictedKeys = [
   'author',
   'homepage',
   'bugs',
+  'repository',
   'keywords',
   'version',
   'private',
