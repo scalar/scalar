@@ -1,5 +1,11 @@
 # @scalar/mock-server
 
+## 0.1.60
+
+### Patch Changes
+
+- 17841a8: fix: wrong repository URL in the package.json
+
 ## 0.1.59
 
 ### Patch Changes
