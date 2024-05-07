@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
-// @ts-expect-error comes without types
 import rehypePrism from 'rehype-prism'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
