@@ -212,7 +212,3 @@ By default we’re using Inter and JetBrains Mono, served by Google Fonts. If yo
   withDefaultFonts: false
 } />
 ```
-
-```
-
-```
