@@ -18,7 +18,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "go build",
+    "build": "go build main.go",
     "dev": "go run main.go",
     "lint:check": "go fmt -l ./...",
     "lint:fix": "go fmt ./...",
