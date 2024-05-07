@@ -26,37 +26,43 @@ Generate interactive API documentation from OpenAPI/Swagger files. [Try our Demo
 ## Table of Contents
 
 - [Getting Started](#getting-started)
-  - [From a CDN](#from-a-cdn)
+  - [CDN](#cdn)
   - [With Nuxt](#with-nuxt)
   - [With Vue.js](#with-vuejs)
   - [With React](#with-react)
-  - [With Next.js](#with-nextjs)
-  - [With ElysiaJS](#with-elysiajs)
-  - [With Express](#with-express)
-  - [With NestJS](#with-nestjs)
-  - [With AdonisJS](#with-adonisjs)
   - [With Fastify](#with-fastify)
   - [With Platformatic](#with-platformatic)
   - [With Hono](#with-hono)
+  - [With ElysiaJS](#with-elysiajs)
+  - [With Express](#with-express)
+  - [With NestJS](#with-nestjs)
   - [With Docusaurus](#with-docusaurus)
-  - [With FastAPI](https://github.com/scalar/scalar/blob/main/packages/scalar_fastapi/README.md)
-  - [With Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
+  - [With AdonisJS](#with-adonisjs)
   - [With Laravel](#with-laravel)
   - [With Rust](#with-rust)
-- [CLI](#cli)
-- [Hosted API Reference](#hosted-api-reference)
-- [Configuration](#configuration)
-- [Layouts](#layouts)
-- [Themes](#themes)
-- [Advanced: Styling](#advanced-styling)
-- [Community](#community)
-- [Packages](#packages)
-- [Contributors](#contributors)
-- [License](#license)
+  - [With Go](#with-go)
+  - [CLI](#cli)
+    - [Installation](#installation)
+    - [Format](#format)
+    - [Validate](#validate)
+    - [Preview](#preview)
+    - [Mock server](#mock-server)
+    - [Share](#share)
+  - [Hosted API Reference](#hosted-api-reference)
+  - [Configuration](#configuration)
+  - [Markdown](#markdown)
+  - [Layouts](#layouts)
+  - [Themes](#themes)
+  - [Advanced: Styling](#advanced-styling)
+    - [Theme Prefix Changes](#theme-prefix-changes)
+  - [Community](#community)
+  - [Packages](#packages)
+  - [Contributors](#contributors)
+  - [License](#license)
 
 ## Getting Started
 
-### From a CDN
+### CDN
 
 ```html
 <!doctype html>
@@ -451,6 +457,13 @@ use aide::{
         ...
 ```
 
+### With Go
+
+`go-scalar-api-reference` by [@MarceloPetrucio](https://github.com/MarceloPetrucio/) offers a convenient way to generate
+API references in Go:
+
+https://github.com/MarceloPetrucio/go-scalar-api-reference/
+
 ## CLI
 
 We’ve also got a nice command-line interface that you can use to play with OpenAPI files locally,
@@ -515,9 +528,9 @@ Designing an API, but don’t have a backend yet? Just quickly boot up a mock se
 scalar mock openapi.json --watch --port 8080
 ```
 
-## Share
+### Share
 
-Want to share your OpenAPI file? It’s as easy as this:
+Want to share your OpenAPI file? The following command will upload the given specification [to our sandbox](https://sandbox.scalar.com/):
 
 ```bash
 scalar share openapi.json
