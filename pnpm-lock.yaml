@@ -843,6 +843,9 @@ importers:
       postcss-nested:
         specifier: ^6.0.1
         version: 6.0.1(postcss@8.4.38)
+      prismjs:
+        specifier: ^1.29.0
+        version: 1.29.0
       rehype-external-links:
         specifier: ^3.0.0
         version: 3.0.0

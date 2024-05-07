@@ -21,6 +21,7 @@ export default defineConfig({
     rollupOptions: {
       external: [
         'vue',
+        'prismjs',
         ...Object.keys(pkg.dependencies || {}).filter(
           (item) => !item.startsWith('@scalar'),
         ),
