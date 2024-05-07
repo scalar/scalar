@@ -41,24 +41,18 @@ Generate interactive API documentation from OpenAPI/Swagger files. [Try our Demo
   - [With Laravel](#with-laravel)
   - [With Rust](#with-rust)
   - [With Go](#with-go)
-  - [CLI](#cli)
-    - [Installation](#installation)
-    - [Format](#format)
-    - [Validate](#validate)
-    - [Preview](#preview)
-    - [Mock server](#mock-server)
-    - [Share](#share)
-  - [Hosted API Reference](#hosted-api-reference)
-  - [Configuration](#configuration)
-  - [Markdown](#markdown)
+  - [Free Hosting](#free-hosting)
+- [CLI](#cli)
+- [Markdown](#markdown)
+- [Configuration](#configuration)
   - [Layouts](#layouts)
   - [Themes](#themes)
   - [Advanced: Styling](#advanced-styling)
     - [Theme Prefix Changes](#theme-prefix-changes)
-  - [Community](#community)
-  - [Packages](#packages)
-  - [Contributors](#contributors)
-  - [License](#license)
+- [Community](#community)
+- [Packages](#packages)
+- [Contributors](#contributors)
+- [License](#license)
 
 ## Getting Started
 
@@ -464,6 +458,15 @@ API references in Go:
 
 https://github.com/MarceloPetrucio/go-scalar-api-reference/
 
+### Free Hosting
+
+- Write your API documentation and publish your API references (free)
+- Get SSL and a super cool \*.apidocumentation.com subdomain (free)
+- Collaborate with your whole team (paid)
+- Use any domain (paid)
+
+Ready? [Create an account on scalar.com](https://scalar.com).
+
 ## CLI
 
 We’ve also got a nice command-line interface that you can use to play with OpenAPI files locally,
@@ -538,11 +541,25 @@ scalar share openapi.json
 
 Read [more about the CLI here](https://github.com/scalar/scalar/tree/main/packages/cli).
 
-## Hosted API Reference
+## Markdown
 
-Wait, this is open source and you can do whatever you want. But if you want to add a nice, customizable guide,
-collaborate with your team and have everything served through a CDN, create an account
-on [scalar.com](https://scalar.com).
+You can use Markdown in various places, for example in `info.description`, in your tag descriptions, in your operation
+descriptions, in your parameter descriptions and in a lot of other places. We’re using GitHub-flavored Markdown.
+What’s working here, is probably also working in the API reference:
+
+- bullet lists, numbered lists
+- _italic_, **bold**, ~~striked~~ text
+- accordions
+- links
+- tables
+- images
+- …
+
+[Have a look at our OpenAPI example specification](https://github.com/scalar/scalar/blob/main/packages/galaxy/src/specifications/3.1.yaml)
+to see more examples.
+
+> Note: Not everything is supported in all places. For example, you can use images in most places, but not in parameter
+> descriptions.
 
 ## Configuration
 
@@ -565,34 +582,14 @@ To customize the behavior of the API Reference, you can use the following config
 For detailed information on how to use these options, refer to
 the [Configuration Section](https://github.com/scalar/scalar/blob/main/packages/api-reference/README.md/#configuration).
 
-## Markdown
-
-You can use Markdown in various places, for example in `info.description`, in your tag descriptions, in your operation
-descriptions, in your parameter descriptions and in a lot of other places. We’re using GitHub-flavored Markdown.
-What’s working here, is probably also working in the API reference:
-
-- bullet lists, numbered lists
-- _italic_, **bold**, ~~striked~~ text
-- accordions
-- links
-- tables
-- images
-- …
-
-[Have a look at our OpenAPI example specification](https://github.com/scalar/scalar/blob/main/packages/galaxy/src/specifications/3.1.yaml)
-to see more examples.
-
-> Note: Not everything is supported in all places. For example, you can use images in most places, but not in parameter
-> descriptions.
-
-## Layouts
+### Layouts
 
 We support two layouts at the moment, a `modern` layout (the default) and a Swagger UI inspired
 `classic` layout (we jazzed it up a bit though).
 
 ![layouts](https://github.com/scalar/scalar/assets/6374090/a28b89e0-8d3b-477f-a02f-bcf39f7830f0)
 
-## Themes
+### Themes
 
 You don’t like the color scheme? We’ve prepared some themes for you:
 
@@ -608,7 +605,7 @@ You don’t like the color scheme? We’ve prepared some themes for you:
 
 Wow, still nothing that fits your brand? Reach out to <marc@scalar.com> and we’ll make you a custom theme, just for you.
 
-## Advanced: Styling
+### Advanced: Styling
 
 You can pretty much style everything you see.
 [Here’s an extreme example of what’s possible.](https://windows98.apidocumentation.com/)
@@ -691,7 +688,7 @@ Or get more advanced by styling our sidebar!
 }
 ```
 
-### Theme Prefix Changes
+#### Theme Prefix Changes
 
 We've migrated our `--theme-*` CSS variables to `--scalar-*` to avoid conflicts with other CSS variables in
 applications consuming the Scalar references or themes.
