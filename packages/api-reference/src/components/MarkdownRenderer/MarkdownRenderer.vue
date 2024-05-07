@@ -83,7 +83,7 @@ onServerPrefetch(async () => await sleep(1))
   all: unset;
   word-break: break-word;
 }
-/* all elements inside .markdown, but not <details> and <summary> */
+/* all elements inside .markdown */
 .markdown :deep(*) {
   all: unset;
   margin: 12px 0;
@@ -125,6 +125,12 @@ onServerPrefetch(async () => await sleep(1))
 .markdown :deep(details[open] summary::after) {
   transform: rotate(90deg);
 }
+
+/* Fix for Safari displaying default caret next to `<summary>` */
+.markdown :deep(summary::-webkit-details-marker) {
+  display: none;
+}
+
 .markdown :deep(img) {
   overflow: hidden;
   border-radius: var(--scalar-radius);
