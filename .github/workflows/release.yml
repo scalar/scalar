@@ -36,6 +36,8 @@ jobs:
         run: pnpm turbo build
       - name: Git Status
         run: git status
+      - name: Stash changes
+        run: git stash
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
