@@ -27,16 +27,10 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
     },
-    "./css/*.css": {
-      "import": "./dist/css/*.css",
-      "require": "./dist/css/*.css"
-    },
-    "./*.css": {
-      "import": "./dist/*.css",
-      "require": "./dist/*.css"
-    }
+    "./*.css": "./dist/*.css"
   },
   "files": [
     "dist",
@@ -49,10 +43,10 @@
     "directory": "packages/draggable"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "tsc-alias": "^1.8.8",
     "vite": "^5.2.10",
+    "vite-plugin-dts": "^3.6.3",
     "vite-svg-loader": "^5.1.0",
     "vue": "^3.4.21",
     "vue-tsc": "^1.8.19"

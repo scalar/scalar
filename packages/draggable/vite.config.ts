@@ -1,12 +1,13 @@
-import { findEntryPoints } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
 import { URL, fileURLToPath } from 'node:url'
+import * as path from 'path'
 import { defineConfig } from 'vite'
+import dts from 'vite-plugin-dts'
 
 import pkg from './package.json'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), dts({ insertTypesEntry: true, rollupTypes: true })],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -17,19 +18,18 @@ export default defineConfig({
     port: 5064,
   },
   build: {
-    ssr: true,
-    minify: false,
+    ssr: false,
     target: 'esnext',
     lib: {
-      entry: await findEntryPoints({ allowCss: true }),
-      formats: ['es'],
+      name: '@scalar/draggable',
+      entry: './src/index.ts',
+      formats: ['es', 'cjs'],
+      fileName: 'index',
     },
     rollupOptions: {
       external: [...Object.keys((pkg as any).peerDependencies || {})],
-      output: {
-        // Create a separate file for the dependency bundle
-        manualChunks: (id) =>
-          id.includes('node_modules') ? 'vendor' : undefined,
+      input: {
+        main: path.resolve(__dirname, 'src/index.ts'),
       },
     },
   },
