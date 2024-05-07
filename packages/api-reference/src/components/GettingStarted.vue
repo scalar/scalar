@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
-import exampleSpecification from '@scalar/galaxy/latest.yaml?raw'
 import { type ThemeId, themeLabels } from '@scalar/themes'
 
 defineProps<{
@@ -26,8 +25,12 @@ const themeIds: ThemeId[] = [
   'deepSpace',
 ]
 
-function handleEmitPetstore() {
-  emits('updateContent', exampleSpecification)
+async function fetchExampleSpecification() {
+  const response = await fetch(
+    'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+  )
+
+  emits('updateContent', await response.text())
 }
 </script>
 <template>
@@ -54,7 +57,7 @@ function handleEmitPetstore() {
       <div class="start-cta">
         <ScalarButton
           fullWidth
-          @click="handleEmitPetstore">
+          @click="fetchExampleSpecification">
           Show Example
         </ScalarButton>
         <ScalarButton

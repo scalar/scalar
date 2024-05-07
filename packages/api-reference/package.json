@@ -64,7 +64,6 @@
     "@headlessui/vue": "^1.7.20",
     "@scalar/api-client": "workspace:*",
     "@scalar/components": "workspace:*",
-    "@scalar/galaxy": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
     "@scalar/snippetz": "^0.1.6",
@@ -118,7 +117,8 @@
     "vite-plugin-lib-inject-css": "^2.0.1",
     "vitest": "^1.5.0",
     "vitest-matchmedia-mock": "^1.0.5",
-    "vue-tsc": "^1.8.19"
+    "vue-tsc": "^1.8.19",
+    "@scalar/galaxy": "workspace:*"
   },
   "peerDependencies": {
     "unified": "^11.0.0",
