@@ -1,0 +1,45 @@
+{
+  "name": "@scalar-examples/proxy-server",
+  "description": "Golang proxy for CORS requests",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "examples/proxy-server"
+  },
+  "keywords": [
+    "golang proxy api-client"
+  ],
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "go build",
+    "dev": "go run main.go",
+    "lint:check": "go fmt -l ./...",
+    "lint:fix": "go fmt ./...",
+    "preview": "pnpm dev",
+    "test": "go test",
+    "types:build": "pnpm build",
+    "types:check": "pnpm build"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    "import": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "dist/index.js",
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "tsc-alias": "^1.8.8",
+    "vite": "^5.2.10"
+  }
+}
