@@ -64,7 +64,6 @@
     "@headlessui/vue": "^1.7.20",
     "@scalar/api-client": "workspace:*",
     "@scalar/components": "workspace:*",
-    "@scalar/galaxy": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
     "@scalar/snippetz": "^0.1.6",
@@ -95,6 +94,7 @@
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",
+    "@scalar/galaxy": "workspace:*",
     "@storybook/addon-essentials": "^8.0.8",
     "@storybook/addon-interactions": "^8.0.8",
     "@storybook/addon-links": "^8.0.8",

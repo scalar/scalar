@@ -798,9 +798,6 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
-      '@scalar/galaxy':
-        specifier: workspace:*
-        version: link:../galaxy
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
@@ -889,6 +886,9 @@ importers:
       '@etchteam/storybook-addon-css-variables-theme':
         specifier: ^1.5.1
         version: 1.6.0(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
+      '@scalar/galaxy':
+        specifier: workspace:*
+        version: link:../galaxy
       '@storybook/addon-essentials':
         specifier: ^8.0.8
         version: 8.0.8(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
