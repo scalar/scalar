@@ -1,5 +1,13 @@
 # @scalar/hono-api-reference
 
+## 0.5.23
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+- Updated dependencies [05e2e27]
+  - @scalar/api-reference@1.22.23
+
 ## 0.5.22
 
 ### Patch Changes

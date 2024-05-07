@@ -8,7 +8,7 @@
   "keywords": [
     "vue drag and drop draggable html"
   ],
-  "version": "0.0.3",
+  "version": "0.0.4",
   "engines": {
     "node": ">=18"
   },

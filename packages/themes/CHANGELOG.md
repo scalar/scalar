@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.7.8
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+
 ## 0.7.7
 
 ### Patch Changes

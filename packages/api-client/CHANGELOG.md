@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 1.2.15
+
+### Patch Changes
+
+- 05e2e27: chore: add provenance statement
+- Updated dependencies [05e2e27]
+  - @scalar/components@0.7.2
+  - @scalar/oas-utils@0.1.9
+  - @scalar/themes@0.7.8
+  - @scalar/use-codemirror@0.10.2
+  - @scalar/use-modal@0.3.2
+  - @scalar/use-tooltip@0.6.1
+
 ## 1.2.14
 
 ### Patch Changes
