@@ -1263,9 +1263,6 @@ importers:
 
   packages/draggable:
     devDependencies:
-      '@scalar/build-tooling':
-        specifier: workspace:*
-        version: link:../build-tooling
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10)(vue@3.4.21)
@@ -1275,6 +1272,9 @@ importers:
       vite:
         specifier: ^5.2.10
         version: 5.2.10(@types/node@20.11.22)(terser@5.30.0)
+      vite-plugin-dts:
+        specifier: ^3.6.3
+        version: 3.7.3(@types/node@20.11.22)(typescript@5.4.3)(vite@5.2.10)
       vite-svg-loader:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.4.21)
