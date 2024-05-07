@@ -1,5 +1,13 @@
 # @scalar/cli
 
+## 0.2.64
+
+### Patch Changes
+
+- 5a2f0c9: fix: release workflow fails
+- Updated dependencies [5a2f0c9]
+  - @scalar/mock-server@0.1.61
+
 ## 0.2.63
 
 ### Patch Changes
