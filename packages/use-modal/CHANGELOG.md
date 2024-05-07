@@ -1,5 +1,11 @@
 # @scalar/use-modal
 
+## 0.3.3
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+
 ## 0.3.2
 
 ### Patch Changes

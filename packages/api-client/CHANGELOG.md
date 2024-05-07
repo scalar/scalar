@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 1.2.16
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+- Updated dependencies [45dc04b]
+  - @scalar/use-codemirror@0.10.3
+  - @scalar/use-tooltip@0.6.2
+  - @scalar/components@0.7.3
+  - @scalar/oas-utils@0.1.10
+  - @scalar/use-modal@0.3.3
+  - @scalar/themes@0.7.9
+
 ## 1.2.15
 
 ### Patch Changes

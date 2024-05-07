@@ -1,5 +1,11 @@
 # @scalar/echo-server
 
+## 0.6.4
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+
 ## 0.6.3
 
 ### Patch Changes

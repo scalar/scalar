@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.10.3
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+
 ## 0.10.2
 
 ### Patch Changes

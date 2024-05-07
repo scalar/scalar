@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 0.6.2
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+
 ## 0.6.1
 
 ### Patch Changes

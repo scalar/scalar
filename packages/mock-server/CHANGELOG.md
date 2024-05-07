@@ -1,5 +1,16 @@
 # @scalar/mock-server
 
+## 0.1.59
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+- Updated dependencies [9ba838b]
+- Updated dependencies [45dc04b]
+  - @scalar/api-reference@1.22.24
+  - @scalar/oas-utils@0.1.10
+  - @scalar/galaxy@0.1.2
+
 ## 0.1.58
 
 ### Patch Changes

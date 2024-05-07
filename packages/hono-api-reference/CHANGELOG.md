@@ -1,5 +1,14 @@
 # @scalar/hono-api-reference
 
+## 0.5.24
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+- Updated dependencies [9ba838b]
+- Updated dependencies [45dc04b]
+  - @scalar/api-reference@1.22.24
+
 ## 0.5.23
 
 ### Patch Changes

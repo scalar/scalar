@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.7.9
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+
 ## 0.7.8
 
 ### Patch Changes
