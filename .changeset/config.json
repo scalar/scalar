@@ -9,5 +9,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@scalar-examples/*"]
+  "ignore": ["@scalar-examples/*", "playwright"]
 }

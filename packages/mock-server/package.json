@@ -5,6 +5,11 @@
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/cli.git",
+    "directory": "packages/mock-server"
+  },
   "keywords": [
     "scalar",
     "openapi",
@@ -30,11 +35,6 @@
   "files": [
     "./dist"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/cli.git",
-    "directory": "packages/mock-server"
-  },
   "dependencies": {
     "@hono/node-server": "^1.11.0",
     "@scalar/api-reference": "workspace:*",

@@ -5,6 +5,11 @@
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/cli.git",
+    "directory": "packages/cli"
+  },
   "keywords": [
     "scalar",
     "openapi",
@@ -25,11 +30,6 @@
   "files": [
     "./dist"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/cli.git",
-    "directory": "packages/cli"
-  },
   "bin": {
     "scalar": "./dist/index.js"
   },

@@ -5,6 +5,11 @@
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/galaxy"
+  },
   "keywords": [
     "openapi",
     "example",
@@ -37,11 +42,6 @@
     "CHANGELOG.md"
   ],
   "module": "./dist/index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/galaxy"
-  },
   "devDependencies": {
     "@scalar/openapi-parser": "^0.3.2",
     "@vitest/coverage-v8": "^1.5.0",
