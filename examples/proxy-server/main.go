@@ -1,10 +1,10 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"log"
 	"os"
 )
 
@@ -32,7 +32,6 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	// ServeHttp uses the given ResponseWriter and Request to do the proxying
 	proxy.ServeHTTP(w, r)
 }
-
 
 func main() {
 	port := ":1337"
