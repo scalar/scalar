@@ -7,7 +7,7 @@
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "repository": {
     "type": "git",
-    "url": "https://github.com/scalar/cli.git",
+    "url": "https://github.com/scalar/scalar.git",
     "directory": "packages/cli"
   },
   "keywords": [
@@ -16,7 +16,7 @@
     "swagger",
     "cli"
   ],
-  "version": "0.2.62",
+  "version": "0.2.63",
   "engines": {
     "node": ">=18"
   },
