@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.1.10
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+
 ## 0.1.9
 
 ### Patch Changes

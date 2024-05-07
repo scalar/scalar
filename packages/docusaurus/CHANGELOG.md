@@ -1,5 +1,13 @@
 # @scalar/docusaurus
 
+## 0.2.24
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+- Updated dependencies [45dc04b]
+  - @scalar/api-reference-react@0.1.66
+
 ## 0.2.23
 
 ### Patch Changes

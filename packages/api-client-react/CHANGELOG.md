@@ -1,5 +1,13 @@
 # @scalar/api-client-react
 
+## 0.3.16
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+- Updated dependencies [45dc04b]
+  - @scalar/api-client@1.2.16
+
 ## 0.3.15
 
 ### Patch Changes

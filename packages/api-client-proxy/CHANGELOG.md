@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.5.27
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+
 ## 0.5.26
 
 ### Patch Changes

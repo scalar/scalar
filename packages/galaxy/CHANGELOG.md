@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.1.2
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+
 ## 0.1.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.22.24
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+
 ## 1.22.23
 
 ### Patch Changes

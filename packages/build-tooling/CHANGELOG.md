@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.1.4
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+
 ## 0.1.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/draggable
 
+## 0.0.5
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+
 ## 0.0.4
 
 ### Patch Changes

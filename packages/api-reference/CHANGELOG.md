@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.22.24
+
+### Patch Changes
+
+- 9ba838b: chore: fetch scalar galaxy example from jsdelivr
+- 45dc04b: fix: can’t release packages
+- Updated dependencies [45dc04b]
+  - @scalar/use-tooltip@0.6.2
+  - @scalar/api-client@1.2.16
+  - @scalar/components@0.7.3
+  - @scalar/use-toasts@0.6.4
+  - @scalar/oas-utils@0.1.10
+  - @scalar/use-modal@0.3.3
+  - @scalar/themes@0.7.9
+
 ## 1.22.23
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/api-reference-react
 
+## 0.1.66
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+- Updated dependencies [9ba838b]
+- Updated dependencies [45dc04b]
+  - @scalar/api-reference@1.22.24
+
 ## 0.1.65
 
 ### Patch Changes

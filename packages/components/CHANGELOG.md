@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.7.3
+
+### Patch Changes
+
+- 45dc04b: fix: can’t release packages
+- Updated dependencies [45dc04b]
+  - @scalar/oas-utils@0.1.10
+
 ## 0.7.2
 
 ### Patch Changes
