@@ -48,6 +48,7 @@
     "character-entities": "^2.0.2",
     "decode-named-character-reference": "^1.0.2",
     "path": "^0.12.7",
+    "prismjs": "^1.29.0",
     "react": "^18.2.0",
     "vite": "^5.2.10",
     "vite-plugin-dts": "^3.6.3",
@@ -55,7 +56,6 @@
     "vue": "^3.4.21"
   },
   "peerDependencies": {
-    "react": "^18.0.0",
-    "vue": "^3.3.0"
+    "react": "^18.0.0"
   }
 }

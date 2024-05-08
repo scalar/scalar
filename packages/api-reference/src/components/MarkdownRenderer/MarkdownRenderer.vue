@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
-import rehypeHighlight from 'rehype-highlight'
+import rehypePrism from 'rehype-prism'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import rehypeStringify from 'rehype-stringify'
@@ -49,9 +49,7 @@ watch(
         ),
       })
       // Syntax highlighting
-      .use(rehypeHighlight, {
-        detect: true,
-      })
+      .use(rehypePrism)
       // Adds target="_blank" to external links
       .use(rehypeExternalLinks, { target: '_blank' })
       // Formats the HTML
@@ -314,7 +312,7 @@ onServerPrefetch(async () => await sleep(1))
 
 <style lang="postcss">
 .markdown {
-  pre code.hljs {
+  pre code[class*='language-'] {
     display: block;
     overflow-x: auto;
     padding: 12px;
@@ -323,71 +321,91 @@ onServerPrefetch(async () => await sleep(1))
     font-size: var(--scalar-small) !important;
     font-family: var(--scalar-font-code) !important;
   }
-  code.hljs {
+  code[class*='language-'] {
     padding: 3px 5px;
   }
-  .hljs {
-    background: var(--scalar-background-4);
-    color: var(--scalar-color-1);
+  pre[class*='language-']::-moz-selection,
+  pre[class*='language-'] ::-moz-selection,
+  code[class*='language-']::-moz-selection,
+  code[class*='language-'] ::-moz-selection {
+    background: var(--scalar-background-3);
   }
-  .hljs-comment,
-  .hljs-quote {
-    color: var(--scalar-color-3);
+
+  pre[class*='language-']::selection,
+  pre[class*='language-'] ::selection,
+  code[class*='language-']::selection,
+  code[class*='language-'] ::selection {
+    background: var(--scalar-background-3);
+  }
+
+  /* Code blocks */
+  pre[class*='language-'] {
+    padding: 1em;
+    margin: 0.5em 0;
+    overflow: auto;
+    background-color: var(--scalar-background-4);
+  }
+
+  .token.comment,
+  .token.prolog,
+  .token.doctype,
+  .token.cdata {
+    color: var(--scalar-color-2);
     font-style: italic;
   }
-  .hljs-addition,
-  .hljs-keyword,
-  .hljs-literal,
-  .hljs-selector-tag,
-  .hljs-type {
+
+  .token.namespace {
+    opacity: 0.7;
+  }
+
+  .token.string,
+  .token.attr-value {
+    color: var(--scalar-color-blue);
+  }
+
+  .token.punctuation,
+  .token.operator {
+    color: var(--scalar-color-1); /* no highlight */
+  }
+
+  .token.entity,
+  .token.url,
+  .token.symbol,
+  .token.number,
+  .token.boolean,
+  .token.variable,
+  .token.constant,
+  .token.property,
+  .token.regex,
+  .token.inserted {
+    color: var(--scalar-color-1);
+  }
+
+  .token.atrule,
+  .token.keyword,
+  .token.attr-name,
+  .language-autohotkey .token.selector {
     color: var(--scalar-color-green);
   }
-  .hljs-number,
-  .hljs-selector-attr,
-  .hljs-selector-pseudo {
-    color: var(--scalar-color-orange);
+
+  .token.function,
+  .token.deleted,
+  .language-autohotkey .token.tag {
+    color: var(--scalar-color-1);
   }
-  .hljs-doctag,
-  .hljs-regexp,
-  .hljs-string {
+
+  .token.tag,
+  .token.selector,
+  .language-autohotkey .token.keyword {
     color: var(--scalar-color-blue);
   }
-  .hljs-built_in,
-  .hljs-name,
-  .hljs-section,
-  .hljs-title {
-    color: var(--scalar-color-1);
+
+  .token.important,
+  .token.bold {
+    font-weight: bold;
   }
-  .hljs-class .hljs-title,
-  .hljs-selector-id,
-  .hljs-template-variable,
-  .hljs-title.class_,
-  .hljs-variable {
-    color: var(--scalar-color-1);
-  }
-  .hljs-name,
-  .hljs-section,
-  .hljs-strong {
-    font-weight: var(--scalar-semibold);
-  }
-  .hljs-bullet,
-  .hljs-link,
-  .hljs-meta,
-  .hljs-subst,
-  .hljs-symbol {
-    color: var(--scalar-color-blue);
-  }
-  .hljs-deletion {
-    color: var(--scalar-color-red);
-  }
-  .hljs-formula {
-    background: var(--scalar-color-1);
-  }
-  .hljs-attr,
-  .hljs-attribute {
-    color: var(--scalar-color-1);
-  }
-  .hljs-emphasis {
+
+  .token.italic {
     font-style: italic;
   }
 }
