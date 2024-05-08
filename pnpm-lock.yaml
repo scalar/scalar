@@ -487,6 +487,18 @@ importers:
         specifier: ^5.4.3
         version: 5.4.3
 
+  examples/proxy-server:
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../../packages/build-tooling
+      tsc-alias:
+        specifier: ^1.8.8
+        version: 1.8.8
+      vite:
+        specifier: ^5.2.10
+        version: 5.2.10(@types/node@20.11.22)(terser@5.30.0)
+
   examples/react:
     dependencies:
       react:

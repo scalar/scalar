@@ -711,7 +711,6 @@ This repository contains all our open source projects, and there’s definitely 
 
 | Package                                                                                                    | Description                                       |
 | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy)           | API request proxy                                 |
 | [@scalar/api-client](https://github.com/scalar/scalar/tree/main/packages/api-client)                       | API testing client                                |
 | [@scalar/api-reference](https://github.com/scalar/scalar/tree/main/packages/api-reference)                 | beautiful API references                          |
 | [@scalar/cli](https://github.com/scalar/scalar/tree/main/packages/cli)                                     | CLI to work with OpenAPi files                    |

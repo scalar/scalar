@@ -1,0 +1,29 @@
+# The .dockerignore file excludes files from the container build process.
+#
+# https://docs.docker.com/engine/reference/builder/#dockerignore-file
+
+.env
+**/.env
+**/coverage/**
+coverage
+
+.env.staging
+.env.production
+.sh
+
+# Exclude git history and configuration.
+.gitignore
+
+# Exclude nested dockerfile to prevent cache break issues
+**/Dockerfile
+
+# Exclude "build-time" ignore files.
+.dockerignore
+.gcloudignore
+
+# compiled output
+dist
+tmp
+main
+/out-tsc
+**/dist/**

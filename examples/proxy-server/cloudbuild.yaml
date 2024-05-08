@@ -1,0 +1,37 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-go-proxy'
+    args:
+      [
+        'buildx',
+        'build',
+        '-t',
+        'gcr.io/${_PROJECT_ID}',
+        '-f',
+        './Dockerfile',
+        '.',
+      ]
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-go-proxy'
+    waitFor: ['build-go-proxy']
+    args: ['push', 'gcr.io/${_PROJECT_ID}/${_SERVICE_GO_PROXY}']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    waitFor: ['push-go-proxy']
+    args:
+      [
+        'run',
+        'deploy',
+        '$_SERVICE_GO_PROXY',
+        '--image=gcr.io/${_PROJECT_ID}/${_SERVICE_GO_PROXY}',
+        '--region=$_REGION',
+        '--platform=managed',
+        '--allow-unauthenticated',
+        '--execution-environment=gen2',
+        '--cpu=$_CPU',
+        '--memory=$_MEMORY',
+        '--service-account=$_SERVICE_ACCOUNT',
+      ]
+options:
+  machineType: E2_HIGHCPU_8
+  logging: CLOUD_LOGGING_ONLY
