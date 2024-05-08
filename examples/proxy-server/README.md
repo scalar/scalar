@@ -17,7 +17,7 @@ go run main.go
 ```
 
 ```
-2024/03/29 21:51:54 Starting proxy server on :1337
+2024/05/08 10:49:59 🥤 Proxy Server listening on http://localhost:1337
 ```
 
 ### Example
