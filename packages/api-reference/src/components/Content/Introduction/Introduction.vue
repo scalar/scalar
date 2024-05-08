@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import GithubSlugger from 'github-slugger'
 import { computed } from 'vue'
 
 import type { Spec } from '../../../types'
@@ -22,8 +23,14 @@ const props = defineProps<{
   parsedSpec: Spec
 }>()
 
+const slugger = new GithubSlugger()
+
 const specVersion = computed(() => {
   return props.parsedSpec.openapi ?? props.parsedSpec.swagger ?? ''
+})
+
+const formattedSpecTitle = computed(() => {
+  return slugger.slug(props.info.title ?? '')
 })
 </script>
 <template>
@@ -44,7 +51,7 @@ const specVersion = computed(() => {
               tight>
               {{ info.title }}
             </SectionHeader>
-            <DownloadSpec />
+            <DownloadSpec :specTitle="formattedSpecTitle" />
             <Description :value="info.description" />
           </SectionColumn>
           <SectionColumn v-if="$slots.aside">

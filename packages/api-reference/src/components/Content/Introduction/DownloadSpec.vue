@@ -3,7 +3,16 @@ import { inject } from 'vue'
 
 import { HIDE_DOWNLOAD_BUTTON_SYMBOL, downloadSpecBus } from '../../../helpers'
 
+const props = defineProps<{
+  specTitle?: string
+}>()
+
 const getHideDownloadButtonSymbol = inject(HIDE_DOWNLOAD_BUTTON_SYMBOL)
+
+// id is retrieved at the layout level
+const handleDownloadClick = () => {
+  downloadSpecBus.emit({ id: '', specTitle: props.specTitle })
+}
 </script>
 <template>
   <div class="download">
@@ -12,7 +21,7 @@ const getHideDownloadButtonSymbol = inject(HIDE_DOWNLOAD_BUTTON_SYMBOL)
         v-if="!getHideDownloadButtonSymbol?.()"
         class="download-button"
         type="button"
-        @click="downloadSpecBus.emit()">
+        @click="handleDownloadClick">
         Download OpenAPI Spec
       </button>
     </div>

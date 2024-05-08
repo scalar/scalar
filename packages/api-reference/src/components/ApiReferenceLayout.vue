@@ -105,7 +105,9 @@ const scrollToSection = async (id?: string) => {
 
 onMounted(() => {
   // Enable the spec download event bus
-  downloadSpecBus.on(() => downloadSpecFile(props.rawSpec))
+  downloadSpecBus.on(({ specTitle }) => {
+    downloadSpecFile(props.rawSpec, specTitle)
+  })
 
   // This is what updates the hash ref from hash changes
   window.onhashchange = () =>
