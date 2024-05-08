@@ -22,6 +22,16 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// The URL parameter is required. Return a helpful error message if it’s not provided.
+	if target == "" {
+		http.Error(
+			w,
+			"The `url` query parameter is required. Try to add `?url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL.", http.StatusBadRequest,
+		)
+
+		return
+	}
+
 	// we can eventually do a check on the type of request
 	// i.e. websocket vs mqtt vs grpc
 	// but let's handle just http for now :)
