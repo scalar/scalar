@@ -232,10 +232,6 @@ function App() {
 export default App
 ```
 
-export default App
-
-````
-
 ### With Next.js
 
 Our Next.js handler makes it easy to render a reference; just add it to an API
@@ -252,7 +248,7 @@ const config = {
 }
 
 export const GET = ApiReference(config)
-````
+```
 
 Read more: [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nextjs-api-reference)
 
