@@ -27,20 +27,20 @@ Generate interactive API documentation from OpenAPI/Swagger files. [Try our Demo
 
 - [Getting Started](#getting-started)
   - [CDN](#cdn)
-  - [With Nuxt](#with-nuxt)
-  - [With Vue.js](#with-vuejs)
-  - [With React](#with-react)
-  - [With Fastify](#with-fastify)
-  - [With Platformatic](#with-platformatic)
-  - [With Hono](#with-hono)
-  - [With ElysiaJS](#with-elysiajs)
-  - [With Express](#with-express)
-  - [With NestJS](#with-nestjs)
-  - [With Docusaurus](#with-docusaurus)
-  - [With AdonisJS](#with-adonisjs)
-  - [With Laravel](#with-laravel)
-  - [With Rust](#with-rust)
-  - [With Go](#with-go)
+  - [Nuxt](#nuxt)
+  - [Vue.js](#vuejs)
+  - [React](#react)
+  - [Fastify](#fastify)
+  - [Platformatic](#platformatic)
+  - [Hono](#hono)
+  - [ElysiaJS](#elysiajs)
+  - [Express](#express)
+  - [NestJS](#nestjs)
+  - [Docusaurus](#docusaurus)
+  - [AdonisJS](#adonisjs)
+  - [Laravel](#laravel)
+  - [Rust](#rust)
+  - [Go](#go)
   - [Free Hosting](#free-hosting)
 - [CLI](#cli)
 - [Markdown](#markdown)
@@ -144,7 +144,7 @@ const ev = new CustomEvent('scalar:update-references-config', {
 document.dispatchEvent(ev)
 ```
 
-### With Nuxt
+### Nuxt
 
 You can easily run Scalar API References in Nuxt via the module:
 
@@ -181,7 +181,7 @@ export default defineNuxtConfig({
 
 Read more: [@scalar/nuxt](https://github.com/scalar/scalar/tree/main/packages/nuxt)
 
-### With Vue.js
+### Vue.js
 
 The API Reference is built in Vue.js. If you’re working in Vue.js, too, you can directly use our Vue components.
 Install them via `npm`:
@@ -204,7 +204,7 @@ import { ApiReference } from '@scalar/api-reference'
 
 You can [pass props to customize the API reference](https://github.com/scalar/scalar/tree/main/packages/api-reference).
 
-### With React
+### React
 
 The API Reference package is written in Vue, that shouldn’t stop you from using
 it in React though!
@@ -232,7 +232,7 @@ function App() {
 export default App
 ```
 
-### With Next.js
+### Next.js
 
 Our Next.js handler makes it easy to render a reference; just add it to an API
 route handler:
@@ -252,7 +252,7 @@ export const GET = ApiReference(config)
 
 Read more: [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nextjs-api-reference)
 
-### With Fastify
+### Fastify
 
 Our fastify plugin makes it so easy to render a reference, there’s no excuse to not have documentation for your API:
 
@@ -279,13 +279,13 @@ a [detailed integration guide for Fastify](https://github.com/scalar/scalar/tree
 Read more about the
 package: [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference)
 
-### With Platformatic
+### Platformatic
 
 Good news: If you’re
 using [a recent version of Platformatic](https://github.com/platformatic/platformatic/releases/tag/v1.16.0), the Scalar
 API reference is installed and configured automatically.
 
-### With Hono
+### Hono
 
 Our Hono middleware makes it so easy to render a reference:
 
@@ -304,7 +304,7 @@ app.get(
 
 Read more: [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)
 
-### With ElysiaJS
+### ElysiaJS
 
 The `@elysiajs/swagger` plugin uses our API reference by default:
 
@@ -323,7 +323,7 @@ new Elysia()
 
 [Read more about @elysiajs/swagger](https://elysiajs.com/plugins/swagger.html)
 
-### With Express
+### Express
 
 Our Express middleware makes it so easy to render a reference:
 
@@ -342,7 +342,7 @@ app.use(
 
 Read more: [@scalar/express-api-reference](https://github.com/scalar/scalar/tree/main/packages/express-api-reference)
 
-### With NestJS
+### NestJS
 
 Our NestJS middleware makes it so easy to render a reference:
 
@@ -361,7 +361,7 @@ app.use(
 
 Read more: [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)
 
-### With Docusaurus
+### Docusaurus
 
 Our Docusaurus plugin makes it easy to render API references. Simple add the
 following to your Docusaurus config:
@@ -388,7 +388,7 @@ plugins: [
 For more information, check out
 the [Docusaurus package](https://github.com/scalar/scalar/tree/main/packages/docusaurus/README.md)
 
-### With AdonisJS
+### AdonisJS
 
 There’s [a community package to generate OpenAPI files in AdonisJS,](https://github.com/hanspagel/adonis-autoswagger)
 and it comes with support for the
@@ -397,7 +397,7 @@ Scalar API reference already.
 We wrote
 a [detailed integration guide for AdonisJS](https://github.com/scalar/scalar/tree/main/documentation/adonisjs.md).
 
-### With Laravel
+### Laravel
 
 There’s [a wonderful package to generate OpenAPI files for Laravel](https://scribe.knuckles.wtf/laravel/) already.
 Set the `type` to `external_laravel` (for Blade) or `external_static` (for HTML) and `theme` to `scalar`:
@@ -418,7 +418,7 @@ We wrote
 a [detailed integration guide for Laravel Scribe](https://github.com/scalar/scalar/tree/main/documentation/laravel-scribe.md),
 too.
 
-### With Rust
+### Rust
 
 There’s [a wonderful package to generate OpenAPI files for Rust](https://github.com/tamasfe/aide) already.
 Set the `api_route` to use `Scalar` to get started:
@@ -447,7 +447,7 @@ use aide::{
         ...
 ```
 
-### With Go
+### Go
 
 `go-scalar-api-reference` by [@MarceloPetrucio](https://github.com/MarceloPetrucio/) offers a convenient way to generate
 API references in Go:
