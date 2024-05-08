@@ -38,6 +38,10 @@ const {
 // Track the parsed spec
 const parsedSpec = ref<Spec | undefined>(undefined)
 
+function setParsedSpec(spec: Spec) {
+  return (parsedSpec.value = spec)
+}
+
 const hideModels = ref(false)
 
 // Track which sidebar items are collapsed
@@ -308,5 +312,6 @@ export function useSidebar(options?: { parsedSpec: Spec }) {
     toggleCollapsedSidebarItem,
     setCollapsedSidebarItem,
     hideModels,
+    setParsedSpec,
   }
 }

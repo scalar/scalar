@@ -18,6 +18,7 @@ import {
   provide,
   ref,
   useSSRContext,
+  watch,
 } from 'vue'
 
 import {
@@ -72,6 +73,7 @@ const {
   isSidebarOpen,
   setCollapsedSidebarItem,
   hideModels,
+  setParsedSpec,
 } = useSidebar()
 
 const {
@@ -137,6 +139,9 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   breadcrumb: breadcrumb.value,
   spec: props.parsedSpec,
 }))
+
+// Keep the parsed spec up to date
+watch(() => props.parsedSpec, setParsedSpec, { deep: true })
 
 // Initialize the server state
 onServerPrefetch(() => {
