@@ -18,6 +18,10 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	// i.e. websocket vs mqtt vs grpc
 	// but let's handle just http for now :)
 
+	// Log the request
+	// Format: [HTTP Method] [Target URL]
+	log.Println(r.Method, target)
+
 	proxyUrl, _ := url.Parse(target)
 
 	// Create a reverse proxy
