@@ -28,7 +28,7 @@ import {
   scrollToId,
   sleep,
 } from '../helpers'
-import { useNavState, useSidebar } from '../hooks'
+import { useDeprecationWarnings, useNavState, useSidebar } from '../hooks'
 import type {
   ReferenceLayoutProps,
   ReferenceLayoutSlot,
@@ -202,6 +202,8 @@ provide(
 )
 
 hideModels.value = props.configuration.hideModels ?? false
+
+useDeprecationWarnings(props.configuration)
 </script>
 <template>
   <ThemeStyles
