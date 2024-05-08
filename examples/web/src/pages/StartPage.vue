@@ -82,7 +82,7 @@ import PageLink from '../components/PageLink.vue'
         <template #title>React</template>
         <template #description>@scalar/api-reference</template>
       </PageLink>
-      <PageLink href="http://localhost:5053">
+      <PageLink href="http://localhost:5053/reference">
         <template #title>Fastify</template>
         <template #description>@scalar/fastify-api-reference</template>
       </PageLink>
