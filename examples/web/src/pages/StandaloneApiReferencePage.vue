@@ -3,7 +3,7 @@ import {
   ApiReference,
   type ReferenceConfiguration,
 } from '@scalar/api-reference'
-import content from '@scalar/galaxy/latest.json'
+import content from '@scalar/galaxy/latest.yaml?raw'
 import { reactive } from 'vue'
 
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'

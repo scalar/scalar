@@ -1,4 +1,4 @@
-import galaxyContent from '@scalar/galaxy/latest.json?raw'
+import galaxyContent from '@scalar/galaxy/latest.yaml?raw'
 import { afterAll, describe, expect, it } from 'vitest'
 import MatchMediaMock from 'vitest-matchmedia-mock'
 
