@@ -1,18 +1,20 @@
-import json from '@rollup/plugin-json'
 import typescript from '@rollup/plugin-typescript'
+import del from 'rollup-plugin-delete'
 
 const config = [
   {
-    input: 'src/index.ts',
+    input: './src/index.ts',
     output: {
-      dir: 'dist',
-      format: 'es',
+      out: 'dist',
+      format: 'esm',
       sourcemap: false,
     },
     plugins: [
-      json(),
       typescript({
-        include: ['src/**/*', 'package.json', 'tests/**/*'],
+        outputToFilesystem: true,
+      }),
+      del({
+        targets: ['dist/tests', 'dist/**/*.test.*'],
       }),
     ],
   },

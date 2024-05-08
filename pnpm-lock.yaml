@@ -1438,12 +1438,6 @@ importers:
       '@hono/node-server':
         specifier: ^1.11.0
         version: 1.11.1
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../api-reference
-      '@scalar/galaxy':
-        specifier: workspace:*
-        version: link:../galaxy
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
@@ -1453,34 +1447,31 @@ importers:
       hono:
         specifier: ^4.2.7
         version: 4.2.8
-      vite-node:
-        specifier: ^1.3.1
-        version: 1.5.0(@types/node@20.11.26)
     devDependencies:
-      '@rollup/plugin-json':
-        specifier: ^6.1.0
-        version: 6.1.0(rollup@4.16.4)
       '@rollup/plugin-typescript':
         specifier: ^11.1.6
         version: 11.1.6(rollup@4.16.4)(tslib@2.6.2)(typescript@5.4.3)
+      '@scalar/galaxy':
+        specifier: workspace:*
+        version: link:../galaxy
       '@types/node':
         specifier: ^20.8.4
         version: 20.11.26
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
       rollup:
         specifier: ^4.16.4
         version: 4.16.4
-      strip-ansi:
-        specifier: ^7.1.0
-        version: 7.1.0
+      rollup-plugin-delete:
+        specifier: ^2.0.0
+        version: 2.0.0
       tslib:
         specifier: ^2.6.2
         version: 2.6.2
       typescript:
         specifier: ^5.4.3
         version: 5.4.3
+      vite-node:
+        specifier: ^1.3.1
+        version: 1.5.0(@types/node@20.11.26)
 
   packages/nestjs-api-reference:
     dependencies:

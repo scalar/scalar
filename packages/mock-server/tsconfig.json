@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "tsBuildInfoFile": null,
     "composite": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
@@ -11,5 +10,5 @@
     "outDir": "dist",
     "sourceMap": false
   },
-  "include": ["src/**/*", "./package.json", "tests/**/*", "petstore.json"]
+  "include": ["src/**/*", "tests/**/*"]
 }
