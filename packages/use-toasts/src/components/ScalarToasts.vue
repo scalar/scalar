@@ -42,18 +42,32 @@ initializeToasts((message, level = 'info', options: ToastOptions = {}) => {
   background: var(--scalar-background-1);
   color: var(--scalar-color-1);
   padding: 18px;
-  border-color: var(--scalar-background-3);
+  border: none;
   border-radius: var(--scalar-radius-lg);
   font-size: var(--scalar-font-size-3);
+  font-weight: var(--scalar-font-medium);
+  box-shadow: var(--scalar-shadow-2);
+}
+.toaster[data-sonner-toast] [data-icon] {
+  align-self: start;
+}
+.toaster[data-sonner-toast][data-styled='true'][data-expanded='true'] {
+  height: auto;
 }
 .toaster[data-sonner-toast][data-type='error'] {
-  background: var(--scalar-color-red);
-  border-color: transparent;
-  color: white;
+  background: var(--scalar-background-1);
+}
+.toaster[data-sonner-toast][data-type='error'] [data-icon] {
+  color: color-mix(in srgb, var(--scalar-color-red) 75%, var(--scalar-color-1));
 }
 .toaster[data-sonner-toast][data-type='warning'] {
-  background: var(--scalar-color-orange);
-  border-color: transparent;
-  color: rgba(0, 0, 0, 0.8);
+  background: var(--scalar-background-1);
+}
+.toaster[data-sonner-toast][data-type='warning'] [data-icon] {
+  color: color-mix(
+    in srgb,
+    var(--scalar-color-orange) 90%,
+    var(--scalar-color-1)
+  );
 }
 </style>

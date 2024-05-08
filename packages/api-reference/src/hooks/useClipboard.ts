@@ -5,7 +5,7 @@ export const useClipboard = () => {
 
   const copyToClipboard = (value: string) => {
     navigator.clipboard.writeText(value).then(() => {
-      toast('Copied to the clipboard.', 'info')
+      toast('Copied to the clipboard', 'info')
     })
   }
   return {
