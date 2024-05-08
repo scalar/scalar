@@ -14,6 +14,14 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	queryValues := r.URL.Query()
 	target := queryValues.Get("url")
 
+	// If the requested path is /ping, return a simple response.
+	if r.URL.Path == "/ping" {
+		log.Println("/ping")
+
+		w.Write([]byte("pong"))
+		return
+	}
+
 	// we can eventually do a check on the type of request
 	// i.e. websocket vs mqtt vs grpc
 	// but let's handle just http for now :)
