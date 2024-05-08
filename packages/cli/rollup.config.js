@@ -16,7 +16,7 @@ const config = [
         include: ['src/**/*', 'package.json', 'tests/**/*'],
       }),
       del({
-        targets: ['dist/src', 'dist/tests'],
+        targets: ['dist/src', 'dist/tests', 'dist/vite.config.*'],
       }),
     ],
   },

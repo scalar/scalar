@@ -14,7 +14,9 @@ export async function createMockServer(options?: {
   const app = new Hono()
 
   // Resolve references
-  const result = await openapi().load(options.specification).resolve()
+  const result = await openapi()
+    .load(options?.specification ?? {})
+    .resolve()
 
   // OpenAPI file
   app.get('/openapi.json', (c) => {
@@ -26,23 +28,26 @@ export async function createMockServer(options?: {
   })
 
   // Paths
-  Object.keys(result.schema.paths ?? {}).forEach((path) => {
+  Object.keys(result.schema?.paths ?? {}).forEach((path) => {
     // Request methods
-    Object.keys(result.schema.paths[path]).forEach((method) => {
+    Object.keys(result.schema?.paths?.[path] ?? {}).forEach((method) => {
       const route = routeFromPath(path)
 
       // Route
+      // @ts-expect-error Needs a proper type
       app[method](route, (c: Context) => {
         // Call onRequest callback
         if (options?.onRequest) {
           options.onRequest({
             context: c,
+            // @ts-expect-error Needs a proper type
             operation: result.schema.paths[path][method],
           })
         }
 
         // Response
-        const operation = result.schema.paths[path][method]
+        // @ts-expect-error Needs a proper type
+        const operation = result.schema?.paths?.[path]?.[method]
 
         const jsonResponseConfiguration =
           operation.responses?.['200']?.content['application/json']

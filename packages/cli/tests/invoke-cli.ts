@@ -34,6 +34,7 @@ export function ScalarCli() {
             env: { NODE_ENV },
           },
         )
+
         return [
           results.exitCode,
           createLogsMatcher(
@@ -42,6 +43,10 @@ export function ScalarCli() {
         ]
       } catch (e) {
         const execaError = e as ExecaSyncError
+
+        // Console output for CI
+        console.error('ERROR', e)
+
         return [
           execaError.exitCode,
           createLogsMatcher(strip(execaError.stdout?.toString() || '')),

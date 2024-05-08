@@ -1,14 +1,5 @@
 {
-  "compilerOptions": {
-    "composite": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "Node",
-    "esModuleInterop": true,
-    "module": "esnext",
-    "allowSyntheticDefaultImports": true,
-    "outDir": "dist",
-    "sourceMap": false
-  },
-  "include": ["src/**/*", "tests/**/*"]
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {},
+  "include": ["src/**/*"]
 }
