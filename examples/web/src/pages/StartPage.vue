@@ -74,31 +74,33 @@ import PageLink from '../components/PageLink.vue'
         <template #title>Docusaurus</template>
         <template #description>@scalar/docusaurus</template>
       </PageLink>
-      <PageLink href="http://localhost:5058">
+      <PageLink href="https://scalar-example-next-js-p6gnzjpyuq-uc.a.run.app">
         <template #title>Next.js</template>
         <template #description>@scalar/nextjs-api-reference</template>
       </PageLink>
-      <PageLink href="http://localhost:5059">
+      <PageLink href="https://scalar-example-react-p6gnzjpyuq-uc.a.run.app">
         <template #title>React</template>
         <template #description>@scalar/api-reference</template>
       </PageLink>
-      <PageLink href="http://localhost:5053/reference">
+      <PageLink
+        href="https://scalar-example-fastify-p6gnzjpyuq-uc.a.run.app/reference">
         <template #title>Fastify</template>
         <template #description>@scalar/fastify-api-reference</template>
       </PageLink>
-      <PageLink href="http://localhost:5054">
+      <PageLink href="https://scalar-example-hono-p6gnzjpyuq-uc.a.run.app">
         <template #title>Hono</template>
         <template #description>@scalar/hono-api-reference</template>
       </PageLink>
-      <PageLink href="http://localhost:5055">
+      <PageLink href="https://scalar-example-express-p6gnzjpyuq-uc.a.run.app">
         <template #title>Express</template>
         <template #description>@scalar/express-api-reference</template>
       </PageLink>
-      <PageLink href="http://localhost:5056">
+      <PageLink href="https://scalar-example-nest-js-p6gnzjpyuq-uc.a.run.app">
         <template #title>NestJS (Express)</template>
         <template #description>@scalar/nestjs-api-reference</template>
       </PageLink>
-      <PageLink href="http://localhost:5057">
+      <PageLink
+        href="https://scalar-example-nest-js-fastify-p6gnzjpyuq-uc.a.run.app">
         <template #title>NestJS (Fastify)</template>
         <template #description>@scalar/nestjs-api-reference</template>
       </PageLink>
