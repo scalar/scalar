@@ -16,13 +16,22 @@ export async function createMockServer(options?: {
   // Resolve references
   const result = await openapi().load(options.specification).resolve()
 
-  // OpenAPI file
+  // OpenAPI JSON file
   app.get('/openapi.json', (c) => {
     if (!options?.specification) {
       return c.text('Not found', 404)
     }
 
-    return c.json(options.specification)
+    return c.json(openapi().load(options.specification).get())
+  })
+
+  // OpenAPI YAML file
+  app.get('/openapi.yaml', (c) => {
+    if (!options?.specification) {
+      return c.text('Not found', 404)
+    }
+
+    return c.text(openapi().load(options.specification).toYaml())
   })
 
   // Paths
