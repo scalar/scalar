@@ -41,7 +41,8 @@ func main() {
 
 	http.HandleFunc("/", handleRequest)
 
-	log.Println("Starting proxy server on", port)
+	// Console output
+	log.Println("🥤 Proxy Server listening on http://localhost"+port)
 
 	err := http.ListenAndServe(port, nil)
 	if err != nil {
