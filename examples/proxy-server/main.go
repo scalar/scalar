@@ -35,6 +35,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	port := ":1337"
+
 	if p := os.Getenv("PORT"); p != "" {
 		port = ":" + os.Getenv("PORT")
 	}
