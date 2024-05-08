@@ -27,6 +27,13 @@ const authenticationRequest = computed(() =>
   ),
 )
 
+const showRequestBody = computed(() => {
+  const requestType = activeRequest.type.toLowerCase()
+  return (
+    requestType === 'put' || requestType === 'post' || requestType === 'patch'
+  )
+})
+
 /**
  * TODO: This is a workaround to make the address bar editable, but not the rest. If we’d really like to have an
  * API client where everything can be edited, we need to invest more time.
@@ -61,6 +68,7 @@ const readOnly = true
         :generatedQueries="authenticationRequest.queryString"
         :queries="activeRequest.query" />
       <RequestBody
+        v-if="showRequestBody"
         :body="activeRequest.body"
         :formData="activeRequest.formData"
         :requestBody="activeRequest.body" />
