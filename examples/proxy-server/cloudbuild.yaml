@@ -1,24 +1,20 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
     dir: 'examples/proxy-server'
-    id: 'build-go-proxy'
     args:
       [
         'buildx',
         'build',
         '-t',
-        'gcr.io/${_PROJECT_ID}',
+        'gcr.io/${_PROJECT_ID}/${_SERVICE_GO_PROXY}',
         '-f',
         './Dockerfile',
         '.',
       ]
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'push-go-proxy'
-    waitFor: ['build-go-proxy']
     args: ['push', 'gcr.io/${_PROJECT_ID}/${_SERVICE_GO_PROXY}']
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
-    waitFor: ['push-go-proxy']
     args:
       [
         'run',
