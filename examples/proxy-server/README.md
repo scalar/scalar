@@ -1,13 +1,18 @@
-# Golang proxy
+# Go Proxy
 
-## Installation
+[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-Ensure you have golang installed
-https://go.dev/
+The Scalar Proxy redirects requests to another server to avoid CORS issues. It’s made to work well with the Scalar API Client.
 
-# Run
+## Usage
 
-```
+### Requirements
+
+- [Go](https://go.dev/)
+
+### Run
+
+```bash
 go run main.go
 ```
 
@@ -15,17 +20,41 @@ go run main.go
 2024/03/29 21:51:54 Starting proxy server on :1337
 ```
 
-Test it out!
+### Example
 
 ```
 curl --request GET \
-  --url 'localhost:1337?=&url=https%3A%2F%2Fpetstore3.swagger.io%2Fapi%2Fv3%2Fpet%2F10'
+     --url 'localhost:1337?url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets'
 ```
 
-```
-{"id":10,"category":{"id":1,"name":"Dogs"},"name":"doggie","photoUrls":["string"],"tags":[{"id":0,"name":"string"}],"status":"string"}
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Mars",
+      "description": "The red planet",
+      "image": "https://cdn.scalar.com/photos/mars.jpg",
+      "creator": {
+        "id": 1,
+        "name": "Marc",
+        "email": "marc@scalar.com"
+      }
+    }
+  ],
+  "meta": {
+    "limit": 10,
+    "offset": 0,
+    "total": 100,
+    "next": "/planets?limit=10&offset=10"
+  }
+}
 ```
 
-# no mod file?
+> Yo, there’s no mod file.
 
-just using the standard library! so we dont need a mod file :)
+You’re so right! We’re using the standard libraries. Isn’t that why we all love Go? Anyway, we just don’t need a mod file. :)
+
+## License
+
+The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).
