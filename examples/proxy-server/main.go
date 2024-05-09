@@ -12,7 +12,7 @@ import (
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	// Parse query parameters
 	queryValues := r.URL.Query()
-	target := queryValues.Get("url")
+	target := queryValues.Get("scalar_url")
 
 	// If the requested path is /ping, return a simple response.
 	if r.URL.Path == "/ping" {
@@ -26,7 +26,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	if target == "" {
 		http.Error(
 			w,
-			"The `url` query parameter is required. Try to add `?url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL.", http.StatusBadRequest,
+			"The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL.", http.StatusBadRequest,
 		)
 
 		return

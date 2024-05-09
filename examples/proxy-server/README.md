@@ -24,7 +24,7 @@ go run main.go
 
 ```
 curl --request GET \
-     --url 'localhost:1337?url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets'
+     --url 'localhost:1337?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets'
 ```
 
 ```json
