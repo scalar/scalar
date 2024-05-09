@@ -1,5 +1,11 @@
 # @scalar/draggable
 
+## 0.0.6
+
+### Patch Changes
+
+- b5a3f7e: feat: added a few props to draggable and exported prop types
+
 ## 0.0.5
 
 ### Patch Changes
