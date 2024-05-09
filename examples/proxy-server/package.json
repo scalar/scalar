@@ -1,5 +1,5 @@
 {
-  "name": "@scalar-examples/proxy-server",
+  "name": "@scalar/proxy-server",
   "description": "Golang proxy for CORS requests",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
@@ -28,18 +28,13 @@
     "types:check": "pnpm build"
   },
   "type": "module",
-  "main": "dist/index.js",
+  "main": "main",
   "exports": {
-    "import": "./dist/index.js"
+    "import": "./main"
   },
   "files": [
-    "dist",
+    "main",
     "CHANGELOG.md"
   ],
-  "module": "dist/index.js",
-  "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
-    "tsc-alias": "^1.8.8",
-    "vite": "^5.2.10"
-  }
+  "module": "main"
 }
