@@ -28,15 +28,6 @@
     "types:check": "pnpm build"
   },
   "type": "module",
-  "main": "dist/index.js",
-  "exports": {
-    "import": "./dist/index.js"
-  },
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
-  "module": "dist/index.js",
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "tsc-alias": "^1.8.8",
