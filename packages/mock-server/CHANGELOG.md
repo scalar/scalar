@@ -1,5 +1,11 @@
 # @scalar/mock-server
 
+## 0.1.63
+
+### Patch Changes
+
+- 670156e: chore: bump packages
+
 ## 0.1.62
 
 ### Patch Changes

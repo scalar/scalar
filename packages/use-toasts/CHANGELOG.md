@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.6.6
+
+### Patch Changes
+
+- 670156e: chore: bump packages
+
 ## 0.6.5
 
 ### Patch Changes

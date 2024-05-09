@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.22.26
+
+### Patch Changes
+
+- 26d9146: feat: improved api client modal
+- Updated dependencies [26d9146]
+- Updated dependencies [670156e]
+  - @scalar/api-client@1.2.18
+  - @scalar/components@0.7.4
+  - @scalar/use-toasts@0.6.6
+
 ## 1.22.25
 
 ### Patch Changes

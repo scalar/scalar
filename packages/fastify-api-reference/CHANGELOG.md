@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.22.26
+
+### Patch Changes
+
+- 670156e: chore: bump packages
+
 ## 1.22.25
 
 ## 1.22.24

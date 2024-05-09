@@ -1,5 +1,15 @@
 # @scalar/cli
 
+## 0.2.66
+
+### Patch Changes
+
+- 670156e: chore: bump packages
+- Updated dependencies [26d9146]
+- Updated dependencies [670156e]
+  - @scalar/api-reference@1.22.26
+  - @scalar/mock-server@0.1.63
+
 ## 0.2.65
 
 ### Patch Changes
