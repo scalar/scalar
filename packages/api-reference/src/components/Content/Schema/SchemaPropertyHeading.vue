@@ -135,7 +135,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 
 .property-required {
-  text-transform: uppercase;
+  text-transform: capitalize;
   color: var(--scalar-color-orange);
 }
 
