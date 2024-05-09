@@ -20,7 +20,7 @@ defineEmits<{
 const { hideApiClient, state } = useApiClientStore()
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
-const showSideBar = ref(true)
+const showSideBar = ref(false)
 </script>
 <template>
   <div
