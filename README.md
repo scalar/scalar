@@ -37,6 +37,8 @@ Generate interactive API documentation from OpenAPI/Swagger files. [Try our Demo
   - [Express](#express)
   - [NestJS](#nestjs)
   - [Docusaurus](#docusaurus)
+  - [Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
+  - [FastAPI](https://github.com/scalar/scalar/blob/main/packages/scalar_fastapi/README.md)
   - [AdonisJS](#adonisjs)
   - [Laravel](#laravel)
   - [Rust](#rust)
