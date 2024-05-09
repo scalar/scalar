@@ -47,7 +47,7 @@ const showSideBar = ref(true)
           <template #address-bar-controls>
             <div class="scalar-api-client-states">
               <button
-                class="scalar-api-client-states-button"
+                class="scalar-api-client-states-button scalar-api-client-states-button__endpoints"
                 type="button"
                 @click="showSideBar = !showSideBar">
                 <ScalarIcon
@@ -254,6 +254,12 @@ const showSideBar = ref(true)
   .api-client-drawer {
     height: calc(100% - 56px);
     top: calc(50% + 26px);
+  }
+}
+@media (max-width: 820px) {
+  .scalar-api-client-states-button__endpoints {
+    opacity: 0;
+    pointer-events: none;
   }
 }
 </style>
