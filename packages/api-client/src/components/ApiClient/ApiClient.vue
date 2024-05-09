@@ -16,10 +16,12 @@ const props = withDefaults(
     readOnly?: boolean
     theme?: ThemeId
     withDefaultFonts: boolean
+    showSideBar?: boolean
   }>(),
   {
     readOnly: false,
     withDefaultFonts: true,
+    showSideBar: false,
   },
 )
 
@@ -63,10 +65,16 @@ watch(
     :method="activeRequest.type ?? 'get'"
     property="--scalar-api-client-color"
     @keydown.esc="emit('escapeKeyPress')">
-    <AddressBar
-      :proxyUrl="proxyUrl"
-      @onSend="changeTab(Tabs.Response)" />
+    <div>
+      <slot name="address-bar-controls" />
+      <AddressBar
+        :proxyUrl="proxyUrl"
+        @onSend="changeTab(Tabs.Response)" />
+    </div>
     <div class="scalar-api-client__main">
+      <slot
+        v-if="showSideBar"
+        name="sidebar" />
       <!-- Desktop-->
       <template v-if="!isSmallScreen">
         <Request />

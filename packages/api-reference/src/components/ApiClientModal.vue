@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ApiClient, useApiClientStore } from '@scalar/api-client'
+import { ScalarIcon } from '@scalar/components'
 import { useMediaQuery } from '@vueuse/core'
+import { ref } from 'vue'
 
 import type { Spec } from '../types'
 import { Sidebar } from './Sidebar'
@@ -8,8 +10,6 @@ import { Sidebar } from './Sidebar'
 defineProps<{
   parsedSpec: Spec
   overloadShow?: boolean
-  tabMode?: boolean
-  activeTab?: string
   proxyUrl?: string
 }>()
 
@@ -20,6 +20,7 @@ defineEmits<{
 const { hideApiClient, state } = useApiClientStore()
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
+const showSideBar = ref(true)
 </script>
 <template>
   <div
@@ -36,39 +37,46 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
           </button>
         </div> -->
       <div class="scalar-api-client-height">
-        <template v-if="tabMode">
-          <template v-if="activeTab === 'sidebar'">
-            <div class="t-doc__sidebar">
-              <Sidebar
-                v-show="!isMobile"
-                :parsedSpec="parsedSpec" />
-            </div>
-          </template>
-          <template v-else>
-            <slot name="active-tab"></slot>
-          </template>
-        </template>
-        <template v-else>
-          <div class="t-doc__sidebar">
-            <Sidebar
-              v-show="!isMobile"
-              :parsedSpec="parsedSpec">
-              <!-- Pass up the sidebar slots -->
-              <template #sidebar-start>
-                <slot name="sidebar-start" />
-              </template>
-              <template #sidebar-end>
-                <slot name="sidebar-end" />
-              </template>
-            </Sidebar>
-          </div>
-        </template>
         <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
         <ApiClient
           :proxyUrl="proxyUrl"
+          :showSideBar="showSideBar"
           theme="none"
           :withDefaultFonts="false"
-          @escapeKeyPress="hideApiClient" />
+          @escapeKeyPress="hideApiClient">
+          <template #address-bar-controls>
+            <div class="scalar-api-client-states">
+              <button
+                class="scalar-api-client-states-button"
+                type="button"
+                @click="showSideBar = !showSideBar">
+                <ScalarIcon
+                  :icon="showSideBar ? 'SideBarClosed' : 'SideBarOpen'"
+                  size="sm" />
+              </button>
+              <button
+                class="scalar-api-client-states-button"
+                type="button"
+                @click="hideApiClient">
+                <ScalarIcon
+                  icon="Close"
+                  size="sm" />
+              </button>
+            </div>
+          </template>
+          <template #sidebar>
+            <div class="t-doc__sidebar">
+              <Sidebar
+                v-show="!isMobile"
+                :parsedSpec="parsedSpec">
+                <!-- Pass up the sidebar slots -->
+                <template #sidebar-start>
+                  <slot name="sidebar-start" />
+                </template>
+              </Sidebar>
+            </div>
+          </template>
+        </ApiClient>
       </div>
     </div>
   </div>
@@ -137,14 +145,16 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
 }
 .api-client-drawer {
   background: var(--scalar-background-1);
-  height: calc(100% - 58px);
+  height: calc(100% - 180px);
   width: calc(100% - 8px);
+  max-width: 1280px;
+  left: 50%;
+  top: 50%;
+  transform: translate3d(-50%, -50%, 0);
   border-radius: 12px;
   overflow: hidden;
   visibility: visible;
   position: fixed;
-  bottom: 4px;
-  left: 4px;
   z-index: 1001;
   opacity: 0;
   animation: apiclientfadein 0.35s forwards;
@@ -165,11 +175,11 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
 }
 @keyframes apiclientfadein {
   from {
-    transform: translate3d(0, 20px, 0) scale(0.985);
+    transform: translate3d(-50%, calc(-50% + 20px), 0) scale(0.985);
     opacity: 0;
   }
   to {
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: translate3d(-50%, -50%, 0) scale(1);
     opacity: 1;
   }
 }
@@ -184,23 +194,6 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
   z-index: 1000;
   cursor: pointer;
   animation: drawerexitfadein 0.35s forwards;
-}
-.api-client-drawer-exit:before {
-  content: '\00d7';
-  font-family: sans-serif;
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-size: 30px;
-  font-weight: 100;
-  line-height: 50px;
-  right: 12px;
-  text-align: center;
-  color: white;
-  opacity: 0.6;
-}
-.api-client-drawer-exit:hover:before {
-  opacity: 1;
 }
 @keyframes drawerexitfadein {
   from {
@@ -226,5 +219,41 @@ const isMobile = useMediaQuery('(max-width: 1000px)')
   max-width: var(--refs-sidebar-width);
   border-right: 1px solid
     var(--scalar-sidebar-border-color, var(--scalar-border-color));
+}
+.scalar-api-client-states {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+.scalar-api-client-states-button {
+  appearance: none;
+  outline: none;
+  border: none;
+  min-height: 31px;
+  display: flex;
+  align-items: center;
+  font-weight: var(--scalar-semibold);
+  gap: 6px;
+  padding: 6px;
+  color: var(--scalar-color-3);
+  cursor: pointer;
+  border-radius: var(--scalar-radius);
+}
+.scalar-api-client-states-button:hover {
+  color: var(--scalar-color-1);
+}
+.scalar-api-client-states-button:focus {
+  background: var(--scalar-background-2);
+  box-shadow: 0 0 0 1px var(--scalar-border-color);
+}
+@media (max-width: 1280px) {
+  .api-client-drawer {
+    height: calc(100% - 56px);
+    top: calc(50% + 26px);
+  }
 }
 </style>

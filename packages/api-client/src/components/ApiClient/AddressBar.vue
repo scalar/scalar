@@ -153,7 +153,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
               fill-rule="evenodd"></path>
           </g>
         </svg>
-        <span>Send Request</span>
+        <span>Send</span>
       </button>
     </div>
     <div
@@ -231,13 +231,16 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   display: flex;
   align-items: center;
   position: relative;
-  background: var(--scalar-background-1);
 }
 .url-form {
   display: flex;
-  width: 100%;
+  width: 720px;
   align-items: stretch;
   border-radius: var(--scalar-radius-lg);
+  max-width: 720px;
+  margin: auto;
+  z-index: 2;
+  max-width: calc(100% - 68px);
 }
 .url-form:deep(.cm-content) {
   display: flex;
@@ -278,19 +281,17 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
 .send-button[type='submit'] {
   font-size: var(--scalar-micro);
   letter-spacing: 0.25px;
-  font-weight: var(--scalar-semibold);
   color: var(--scalar-button-1-color);
   border: none;
   white-space: nowrap;
   padding: 0 12px;
-  text-transform: uppercase;
   cursor: pointer;
   outline: none;
   font-family: var(--scalar-font);
+  font-weight: var(--scalar-semibold);
   border-radius: 0 var(--scalar-radius) var(--scalar-radius) 0;
   background: var(--scalar-button-1);
   position: relative;
-  /**  #087f5b */
   display: flex;
   align-items: center;
   overflow: hidden;
