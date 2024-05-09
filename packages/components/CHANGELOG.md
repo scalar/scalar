@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.7.4
+
+### Patch Changes
+
+- 26d9146: feat: improved api client modal
+
 ## 0.7.3
 
 ### Patch Changes

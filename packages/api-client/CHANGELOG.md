@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 1.2.18
+
+### Patch Changes
+
+- 26d9146: feat: improved api client modal
+- Updated dependencies [26d9146]
+  - @scalar/components@0.7.4
+
 ## 1.2.17
 
 ### Patch Changes
