@@ -29,6 +29,8 @@ export const ICONS = [
   'PaperAirplane',
   'Search',
   'Show',
+  'SideBarClosed',
+  'SideBarOpen',
   'Terminal',
   'programming-framework-angular',
   'programming-framework-astro',
