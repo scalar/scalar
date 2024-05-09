@@ -1,5 +1,12 @@
 # @scalar/mock-server
 
+## 0.1.62
+
+### Patch Changes
+
+- 09b38c4: fix: openapi.json returns yaml string
+- ea0eed3: fix: types not available
+
 ## 0.1.61
 
 ### Patch Changes

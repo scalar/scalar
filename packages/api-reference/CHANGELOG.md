@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.22.25
+
+### Patch Changes
+
+- 5b24896: fix: sidebar doesn’t react to changes
+- 64024a5: refactor: use prismjs instead of highlightjs in the markdown component
+- 36e1e66: feat: include spec title in downloaded spec filename
+- 2e7b074: feat: clean up toast styles and colors
+- 298735f: fix: hide default caret on <summary> on Safari
+- Updated dependencies [d649691]
+- Updated dependencies [2e7b074]
+  - @scalar/api-client@1.2.17
+  - @scalar/use-toasts@0.6.5
+
 ## 1.22.24
 
 ### Patch Changes

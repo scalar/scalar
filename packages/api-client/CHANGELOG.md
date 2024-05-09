@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 1.2.17
+
+### Patch Changes
+
+- d649691: fix: request body display
+
 ## 1.2.16
 
 ### Patch Changes

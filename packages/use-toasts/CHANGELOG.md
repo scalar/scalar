@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.6.5
+
+### Patch Changes
+
+- 2e7b074: feat: clean up toast styles and colors
+
 ## 0.6.4
 
 ### Patch Changes
