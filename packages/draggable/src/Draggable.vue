@@ -9,31 +9,46 @@ import {
 } from './store'
 import { throttle } from './throttle'
 
-const props = withDefaults(
-  defineProps<{
-    /**
-     * Upper threshold (gets multiplied with height)
-     *
-     * @default 0.8
-     */
-    ceiling?: number
-    /**
-     * Lower threshold (gets multiplied with height)
-     *
-     * @default 0.2
-     */
-    floor?: number
-    /**
-     * We pass an array of parents to make it easier to reverse traverse
-     */
-    parentIds: string[]
-    /**
-     * ID for the current item
-     */
-    id: string
-  }>(),
-  { ceiling: 0.8, floor: 0.2 },
-)
+export type DraggableProps = {
+  /**
+   * Upper threshold (gets multiplied with height)
+   *
+   * @default 0.8
+   */
+  ceiling?: number
+  /**
+   * Lower threshold (gets multiplied with height)
+   *
+   * @default 0.2
+   */
+  floor?: number
+  /**
+   * Disable dragging by setting to false
+   *
+   * @default true
+   */
+  isDraggable?: boolean
+  /**
+   * Prevents items from being hovered and dropped into
+   *
+   * @default true
+   */
+  isDroppable?: boolean
+  /**
+   * We pass an array of parents to make it easier to reverse traverse
+   */
+  parentIds: string[]
+  /**
+   * ID for the current item
+   */
+  id: string
+}
+const props = withDefaults(defineProps<DraggableProps>(), {
+  ceiling: 0.8,
+  floor: 0.2,
+  isDraggable: true,
+  isDroppable: true,
+})
 
 const emit = defineEmits<{
   /**
@@ -103,7 +118,7 @@ const positionDict = ['above', 'below', 'asChild']
 const containerClass = computed(() => {
   let classList = 'sidebar-indent-nested'
 
-  if (props.id === hoveredItem.value?.id) {
+  if (props.isDroppable && props.id === hoveredItem.value?.id) {
     classList += ` dragover-${positionDict[hoveredItem.value.offset]}`
   }
 
@@ -132,10 +147,10 @@ const onDragEnd = () => {
 <template>
   <div
     :class="containerClass"
-    draggable="true"
+    :draggable="isDraggable"
     @dragend="onDragEnd"
-    @dragover.prevent.stop="onDragOver"
-    @dragstart.stop="onDragStart">
+    @dragover.prevent.stop="isDroppable ? onDragOver : () => null"
+    @dragstart.stop="isDraggable ? onDragStart : () => null">
     <slot />
   </div>
 </template>
