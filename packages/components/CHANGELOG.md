@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.7.5
+
+### Patch Changes
+
+- 836869b: feat: add icons from Scalar Docs
+
 ## 0.7.4
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 1.2.19
+
+### Patch Changes
+
+- fa2cc5b: fix: history toggle location
+- Updated dependencies [836869b]
+  - @scalar/components@0.7.5
+
 ## 1.2.18
 
 ### Patch Changes
