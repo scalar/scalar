@@ -41,7 +41,7 @@ export default defineConfig({
   ],
   build: {
     emptyOutDir: false,
-    outDir: 'dist/browser',
+    outDir: 'dist',
     commonjsOptions: {
       include: [/@scalar\/api-reference/, /node_modules/],
     },
