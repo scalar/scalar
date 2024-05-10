@@ -25,7 +25,6 @@ const supportedRequestMethods = [
     <span
       class="request-method"
       :class="{ 'request-method--disabled': readOnly }">
-      <i :class="requestMethod.toLowerCase()" />
       <span>{{ requestMethod }}</span>
     </span>
     <select
@@ -54,7 +53,6 @@ const supportedRequestMethods = [
   border: none;
   outline: none;
   cursor: pointer;
-  background: var(--scalar-background-3);
   box-shadow: -2px 0 0 0 var(--scalar-background-3);
   position: absolute;
   top: 0;
@@ -72,13 +70,19 @@ const supportedRequestMethods = [
 }
 
 .request-method {
-  display: flex;
   align-items: center;
-  color: var(--scalar-color-3);
   appearance: none;
+  background: var(--scalar-api-client-color, var(--scalar-background-3));
+  background: color-mix(
+    in srgb,
+    var(--scalar-api-client-color, var(--scalar-background-3)),
+    transparent 90%
+  );
+  border-radius: var(--scalar-radius);
+  color: var(--scalar-api-client-color);
+  display: flex;
   -webkit-appearance: none;
   padding: 0 12px;
-  border-right: 1px solid var(--scalar-border-color);
   position: relative;
 }
 .request-method span {
@@ -88,29 +92,5 @@ const supportedRequestMethods = [
   text-transform: uppercase;
   display: flex;
   align-items: center;
-}
-
-.request-method:not(.request-method--disabled) span:after {
-  content: '';
-  width: 7px;
-  height: 7px;
-  transform: rotate(45deg) translate3d(-2px, -2px, 0);
-  display: block;
-  margin-left: 6px;
-  box-shadow: 1px 1px 0 currentColor;
-}
-
-.request-method i {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 6px;
-  text-align: center;
-  line-height: 18px;
-  font-style: normal;
-  flex-shrink: 0;
-  display: inline-block;
-  color: var(--scalar-color-disabled);
-  background: var(--scalar-api-client-color);
 }
 </style>
