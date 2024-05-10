@@ -115,7 +115,7 @@ const responseData = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  height: 100%;
+  height: calc(100% - 50px);
   justify-content: center;
 }
 .scalar-api-client__main__content .empty-state p {
