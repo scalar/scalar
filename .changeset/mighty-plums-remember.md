@@ -1,6 +1,6 @@
 ---
 "@scalar/api-reference": patch
-"@scalar/test-button": patch
+"@scalar/play-button": patch
 ---
 
 feat: ship test button

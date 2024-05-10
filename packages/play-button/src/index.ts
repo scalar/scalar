@@ -5,8 +5,8 @@
 import { ApiClientModal, openClientFor, parse } from '@scalar/api-reference'
 import { createApp, h, reactive } from 'vue'
 
-const specScriptTag = document.getElementById('scalar-test-button-script')
-const testButtons = document.getElementsByClassName('scalar-test-button')
+const specScriptTag = document.getElementById('scalar-play-button-script')
+const testButtons = document.getElementsByClassName('scalar-play-button')
 const specElement = document.querySelector('[data-spec]')
 const specUrlElement = document.querySelector('[data-spec-url]')
 
@@ -23,7 +23,7 @@ const getSpecUrl = () => {
   // <div data-spec-url="/scalar.json" />
   if (specUrlElement) {
     console.warn(
-      '[@scalar/test-button] The [data-spec-url] HTML API is deprecated. Use the new <script id="api-reference" data-url="/scalar.json" /> API instead.',
+      '[@scalar/play-button] The [data-spec-url] HTML API is deprecated. Use the new <script id="api-reference" data-url="/scalar.json" /> API instead.',
     )
     const urlFromSpecUrlElement = specUrlElement.getAttribute('data-spec-url')
 

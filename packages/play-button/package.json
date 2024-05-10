@@ -1,5 +1,5 @@
 {
-  "name": "@scalar/test-button",
+  "name": "@scalar/play-button",
   "description": "A minimal package to test any OpenAPI/Swagger Spec with the Scalar API Client",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/test-button"
+    "directory": "packages/play-button"
   },
   "keywords": [
     ""
