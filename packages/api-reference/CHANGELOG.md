@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.22.27
+
+### Patch Changes
+
+- ce44360: fix: support markdown <sup> tag
+- 7622134: fix: uppercase required property
+
 ## 1.22.26
 
 ### Patch Changes
