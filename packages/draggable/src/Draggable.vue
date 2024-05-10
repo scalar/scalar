@@ -67,7 +67,12 @@ const parentId = computed(() =>
 
 // Start draggin, we want to store the uid + parentUid
 const onDragStart = (ev: DragEvent) => {
-  if (!ev.dataTransfer || !(ev.target instanceof HTMLDivElement)) return
+  if (
+    !ev.dataTransfer ||
+    !(ev.target instanceof HTMLDivElement) ||
+    !props.isDraggable
+  )
+    return
 
   ev.target.classList.add('dragging')
   ev.dataTransfer.dropEffect = 'move'
@@ -83,7 +88,8 @@ const onDragOver = throttle((ev: DragEvent) => {
   // Don't highlight if hovering over self or child
   if (
     draggingItem.value?.id === props.id ||
-    props.parentIds.includes(draggingItem.value?.id ?? '')
+    props.parentIds.includes(draggingItem.value?.id ?? '') ||
+    !props.isDroppable
   )
     return
 
@@ -149,8 +155,8 @@ const onDragEnd = () => {
     :class="containerClass"
     :draggable="isDraggable"
     @dragend="onDragEnd"
-    @dragover.prevent.stop="isDroppable ? onDragOver : () => null"
-    @dragstart.stop="isDraggable ? onDragStart : () => null">
+    @dragover.prevent.stop="onDragOver"
+    @dragstart.stop="onDragStart">
     <slot />
   </div>
 </template>
