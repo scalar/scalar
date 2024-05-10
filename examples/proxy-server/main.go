@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -13,6 +14,8 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	// Parse query parameters
 	queryValues := r.URL.Query()
 	target := queryValues.Get("scalar_url")
+
+	remote, _ := url.Parse(target)
 
 	// If the requested path is /ping, return a simple response.
 	if r.URL.Path == "/ping" {
@@ -40,18 +43,29 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	// Format: [HTTP Method] [Target URL]
 	log.Println(r.Method, target)
 
-	proxyUrl, _ := url.Parse(target)
+	proxy := httputil.NewSingleHostReverseProxy(remote)
 
-	// Create a reverse proxy
-	proxy := httputil.NewSingleHostReverseProxy(proxyUrl)
+	proxy.Transport = &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	proxy.Director = func(req *http.Request) {
+		req.Header = r.Header
+		req.Host = remote.Host
+		req.URL.Scheme = remote.Scheme
+		req.URL.Host = remote.Host
+		req.URL.Path = r.URL.Path
+	}
 
 	// Modify the request to indicate it is proxied
-	r.URL.Host = proxyUrl.Host
-	r.URL.Scheme = proxyUrl.Scheme
-	r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
-	r.Host = proxyUrl.Host
+	r.URL.Host = remote.Host
+	r.URL = remote
+	r.URL.Scheme = remote.Scheme
+	r.URL.Path = remote.Path
 
-	// ServeHttp uses the given ResponseWriter and Request to do the proxying
+	r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
+	r.Host = remote.Host
+
 	proxy.ServeHTTP(w, r)
 }
 
@@ -65,7 +79,7 @@ func main() {
 	http.HandleFunc("/", handleRequest)
 
 	// Console output
-	log.Println("🥤 Proxy Server listening on http://localhost"+port)
+	log.Println("🥤 Proxy Server listening on http://localhost" + port)
 
 	err := http.ListenAndServe(port, nil)
 	if err != nil {
