@@ -199,36 +199,49 @@ watch(
 }
 
 /** TODO: Consider to make a Column component */
-.scalar-api-client__main__content {
-  padding: 12px 6px;
+.scalar-api-client__main__content__header {
+  align-items: center;
   background: var(--scalar-background-1);
-  top: 0;
+  border-bottom: 1px solid var(--scalar-border-color);
+  display: flex;
+  gap: 6px;
+  height: 50px;
+  padding: 16px;
   position: sticky;
+  top: 0;
   z-index: 100;
 }
-.scalar-api-client__main__content label {
+.scalar-api-client__main__content__header label {
   font-size: var(--scalar-small);
   color: var(--scalar-color-1);
   font-weight: var(--scalar-semibold);
   display: flex;
   align-items: center;
 }
+.scalar-api-client__main__content:has(
+    .scalar-api-client__main__content.empty-state
+  ) {
+  height: 100%;
+}
+.scalar-api-client__main__content__body {
+  padding: 8px;
+}
 @media screen and (max-width: 820px) {
-  .scalar-api-client__main__content {
-    padding: 3px 0 12px 0;
+  .scalar-api-client__main__content__header {
+    padding: 14px;
   }
-
   .scalar-api-client__main__content label {
     display: none;
   }
 }
 
 .meta {
+  color: var(--scalar-api-client-color);
   display: flex;
-  margin-top: 3px;
+  flex: 1;
   font-size: var(--scalar-font-size-2);
   font-weight: var(--scalar-font-size-2);
-  color: var(--scalar-api-client-color);
+  gap: 6px;
 }
 
 .meta-item svg {
@@ -241,7 +254,6 @@ watch(
 .meta-item {
   display: flex;
   align-items: center;
-  margin-right: 12px;
   white-space: nowrap;
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-small);
@@ -251,8 +263,9 @@ watch(
 
 .meta-item__input {
   background: transparent;
-  width: 100%;
+  flex: 1;
   margin-right: 0;
+  width: 100%;
 }
 
 .types {

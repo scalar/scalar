@@ -43,36 +43,38 @@ const readOnly = true
 <template>
   <div class="scalar-api-client__main__left custom-scroll">
     <div class="scalar-api-client__main__content">
-      <label>Request</label>
-      <div class="meta">
-        <div class="meta-item meta-item__input">
-          <input
-            v-model="activeRequest.name"
-            class="scalar-api-client__request-name"
-            :disabled="readOnly"
-            placeholder="Request Name"
-            type="text" />
+      <div class="scalar-api-client__main__content__header">
+        <label>Request</label>
+        <div class="meta">
+          <div class="meta-item meta-item__input">
+            <input
+              v-model="activeRequest.name"
+              class="scalar-api-client__request-name"
+              :disabled="readOnly"
+              placeholder="Request Name"
+              type="text" />
+          </div>
         </div>
       </div>
-    </div>
-    <div>
-      <RequestVariables :variables="activeRequest.variables" />
-      <RequestAuthentication />
-      <RequestCookies
-        :cookies="activeRequest.cookies"
-        :generatedCookies="authenticationRequest.cookies" />
-      <RequestHeaders
-        :generatedHeaders="authenticationRequest.headers"
-        :headers="activeRequest.headers" />
-      <RequestQuery
-        :generatedQueries="authenticationRequest.queryString"
-        :queries="activeRequest.query" />
-      <RequestBody
-        v-if="showRequestBody"
-        :body="activeRequest.body"
-        :formData="activeRequest.formData"
-        :requestBody="activeRequest.body" />
-      <div class="scalar-api-client__main__scroll-container" />
+      <div class="scalar-api-client__main__content__body">
+        <RequestVariables :variables="activeRequest.variables" />
+        <RequestAuthentication />
+        <RequestCookies
+          :cookies="activeRequest.cookies"
+          :generatedCookies="authenticationRequest.cookies" />
+        <RequestHeaders
+          :generatedHeaders="authenticationRequest.headers"
+          :headers="activeRequest.headers" />
+        <RequestQuery
+          :generatedQueries="authenticationRequest.queryString"
+          :queries="activeRequest.query" />
+        <RequestBody
+          v-if="showRequestBody"
+          :body="activeRequest.body"
+          :formData="activeRequest.formData"
+          :requestBody="activeRequest.body" />
+        <div class="scalar-api-client__main__scroll-container" />
+      </div>
     </div>
   </div>
 </template>
@@ -80,13 +82,11 @@ const readOnly = true
 .scalar-api-client__main__left {
   width: 50%;
   border-right: 1px solid var(--scalar-border-color);
-  padding: 0 18px 12px 18px;
 }
 @media screen and (max-width: 820px) {
   .scalar-api-client__main__left {
     width: 100%;
     border-right: none;
-    padding: 0 12px 12px 12px;
   }
 }
 .scalar-api-client__item__content {
