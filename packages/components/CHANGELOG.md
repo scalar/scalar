@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.7.6
+
+### Patch Changes
+
+- 6e67167: feat: added more icons to components package
+
 ## 0.7.5
 
 ### Patch Changes
