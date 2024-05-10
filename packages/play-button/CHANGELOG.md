@@ -1,5 +1,11 @@
 # @scalar/play-button
 
+## 0.0.3
+
+### Patch Changes
+
+- dbcef01: chore: remove standard vite build
+
 ## 0.0.2
 
 ### Patch Changes
