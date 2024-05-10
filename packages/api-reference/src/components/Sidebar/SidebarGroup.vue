@@ -14,6 +14,8 @@ defineProps<{
 .sidebar-group {
   list-style: none;
   width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 /* We indent each level of nesting further */

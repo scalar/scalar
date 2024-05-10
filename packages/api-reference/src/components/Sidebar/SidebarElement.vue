@@ -154,8 +154,14 @@ const onAnchorClick = async (ev: Event) => {
   padding-right: 9px;
   user-select: none;
 }
+.sidebar-heading-link-method {
+  margin: 0;
+}
 .sidebar-heading.deprecated .sidebar-heading-link-title {
   text-decoration: line-through;
+}
+.sidebar-heading-link-title {
+  margin: 0;
 }
 .sidebar-heading:hover {
   background: var(

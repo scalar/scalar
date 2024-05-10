@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Scalar API Test Button</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <button
+      scalar-operation-id="getPetById"
+      class="scalar-play-button scalar-api-client-small"
+      style="
+        all: unset;
+        background: #6a5fc1;
+        color: white;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+          'Segoe UI Symbol';
+        font-size: 14px;
+        padding: 3px 9px 3px 6px;
+        gap: 6px;
+        border-radius: 4px;
+        height: fit-content;
+        appearance: none;
+        border: none;
+        outline: none;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+        margin-left: 6px;
+      ">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        height="18px"
+        viewBox="0 0 27 27"
+        fill="none">
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M13.33.5a13.16 13.16 0 1 0 0 26.33 13.16 13.16 0 0 0 0-26.32ZM11.1 18.74l6.28-4.19a1.05 1.05 0 0 0 0-1.74L11.1 8.6a1.05 1.05 0 0 0-1.63.87v8.38a1.05 1.05 0 0 0 1.63.87Z"
+          clip-rule="evenodd"></path>
+      </svg>
+      Test API
+    </button>
+    <button
+      scalar-operation-id="deletePet"
+      class="scalar-play-button scalar-api-client-small"
+      style="
+        all: unset;
+        background: #6a5fc1;
+        color: white;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+          'Segoe UI Symbol';
+        font-size: 14px;
+        padding: 3px 9px 3px 6px;
+        gap: 6px;
+        border-radius: 4px;
+        height: fit-content;
+        appearance: none;
+        border: none;
+        outline: none;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+        margin-left: 6px;
+      ">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        height="18px"
+        viewBox="0 0 27 27"
+        fill="none">
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M13.33.5a13.16 13.16 0 1 0 0 26.33 13.16 13.16 0 0 0 0-26.32ZM11.1 18.74l6.28-4.19a1.05 1.05 0 0 0 0-1.74L11.1 8.6a1.05 1.05 0 0 0-1.63.87v8.38a1.05 1.05 0 0 0 1.63.87Z"
+          clip-rule="evenodd"></path>
+      </svg>
+      Test API
+    </button>
+    <script
+      id="scalar-play-button-script"
+      data-url="https://petstore3.swagger.io/api/v3/openapi.json"
+      type="application/json">
+      { "openapi": "3.1.0", "info": { "title": "Example" }, "paths": {} }
+    </script>
+
+    <script
+      type="module"
+      src="src/index.ts"></script>
+  </body>
+</html>
