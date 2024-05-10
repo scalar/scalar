@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ApiClient, useApiClientStore } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
+import type { ThemeId } from '@scalar/themes'
 import { useMediaQuery } from '@vueuse/core'
 import { ref } from 'vue'
 
@@ -11,6 +12,7 @@ defineProps<{
   parsedSpec: Spec
   overloadShow?: boolean
   proxyUrl?: string
+  theme?: ThemeId
 }>()
 
 defineEmits<{
@@ -41,7 +43,7 @@ const showSideBar = ref(false)
         <ApiClient
           :proxyUrl="proxyUrl"
           :showSideBar="showSideBar"
-          theme="none"
+          :theme="theme ?? 'none'"
           :withDefaultFonts="false"
           @escapeKeyPress="hideApiClient">
           <template #address-bar-controls>
@@ -87,6 +89,12 @@ const showSideBar = ref(false)
 </template>
 
 <style scoped>
+.api-client-container .t-doc__sidebar :deep(*),
+.t-doc__sidebar * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 .api-client-container .scalar-api-client {
   width: calc(100% - var(--refs-sidebar-width));
 }

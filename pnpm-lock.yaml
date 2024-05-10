@@ -1624,6 +1624,55 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0(@types/node@20.11.22)(jsdom@22.1.0)
 
+  packages/test-button:
+    dependencies:
+      '@scalar/api-client':
+        specifier: workspace:*
+        version: link:../api-client
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../api-reference
+      '@scalar/openapi-parser':
+        specifier: ^0.3.2
+        version: 0.3.2
+      '@scalar/themes':
+        specifier: workspace:*
+        version: link:../themes
+      '@vueuse/core':
+        specifier: ^10.9.0
+        version: 10.9.0(vue@3.4.21)
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@vitejs/plugin-vue':
+        specifier: ^5.0.4
+        version: 5.0.4(vite@5.2.10)(vue@3.4.21)
+      rollup-plugin-webpack-stats:
+        specifier: ^0.2.5
+        version: 0.2.5(rollup@4.16.4)
+      tsc-alias:
+        specifier: ^1.8.8
+        version: 1.8.8
+      vite:
+        specifier: ^5.2.10
+        version: 5.2.10(@types/node@20.11.22)(terser@5.30.0)
+      vite-plugin-banner:
+        specifier: ^0.7.1
+        version: 0.7.1
+      vite-plugin-css-injected-by-js:
+        specifier: ^3.4.0
+        version: 3.4.0(vite@5.2.10)
+      vite-svg-loader:
+        specifier: ^5.1.0
+        version: 5.1.0(vue@3.4.21)
+      vue:
+        specifier: ^3.4.21
+        version: 3.4.21(typescript@5.4.3)
+      vue-tsc:
+        specifier: ^1.8.19
+        version: 1.8.27(typescript@5.4.3)
+
   packages/themes:
     dependencies:
       vue:
@@ -2126,7 +2175,7 @@ packages:
       '@babel/helper-compilation-targets': 7.23.6
       '@babel/helper-module-transforms': 7.23.3(@babel/core@7.24.0)
       '@babel/helpers': 7.24.0
-      '@babel/parser': 7.24.0
+      '@babel/parser': 7.24.4
       '@babel/template': 7.24.0
       '@babel/traverse': 7.24.0
       '@babel/types': 7.24.0
@@ -2165,7 +2214,7 @@ packages:
     resolution: {integrity: sha512-oLcVCTeIFadUoArDTwpluncplrYBmTCCZZgXCbgNGvOBBiSDDK3eWO4b/+eOTli5tKv1lg+a5/NAXg+nTcei1w==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.17.0
+      '@babel/types': 7.24.0
       jsesc: 2.5.2
       source-map: 0.5.7
     dev: true
@@ -2547,6 +2596,7 @@ packages:
     hasBin: true
     dependencies:
       '@babel/types': 7.24.0
+    dev: true
 
   /@babel/parser@7.24.4:
     resolution: {integrity: sha512-zTvEBcghmeBma9QIGunWevvBAp4/Qu9Bdq+2k0Ot4fVMD6v3dsC9WOcRSKk7tRRyBM/53yKMJko9xOatGQAwSg==}
@@ -4543,7 +4593,6 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.14.1
-    dev: false
 
   /@babel/standalone@7.24.4:
     resolution: {integrity: sha512-V4uqWeedadiuiCx5P5OHYJZ1PehdMpcBccNCEptKFGPiZIY3FI5f2ClxUl4r5wZ5U+ohcQ+4KW6jX2K6xXzq4Q==}
@@ -4567,7 +4616,7 @@ packages:
       '@babel/helper-function-name': 7.23.0
       '@babel/helper-hoist-variables': 7.22.5
       '@babel/helper-split-export-declaration': 7.22.6
-      '@babel/parser': 7.24.0
+      '@babel/parser': 7.24.4
       '@babel/types': 7.24.0
       debug: 4.3.4(supports-color@5.5.0)
       globals: 11.12.0
@@ -5112,7 +5161,7 @@ packages:
       react: ^18.0.0
       react-dom: ^18.0.0
     dependencies:
-      '@babel/parser': 7.24.0
+      '@babel/parser': 7.24.4
       '@babel/traverse': 7.24.0
       '@docusaurus/logger': 3.1.1
       '@docusaurus/utils': 3.1.1(@docusaurus/types@3.1.1)
@@ -7063,7 +7112,7 @@ packages:
   /@manypkg/find-root@1.1.0:
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@types/node': 12.20.55
       find-up: 4.1.0
       fs-extra: 8.1.0
@@ -8205,13 +8254,13 @@ packages:
   /@radix-ui/number@1.0.1:
     resolution: {integrity: sha512-T5gIdVO2mmPW3NNhjNgEP3cqMXjXL9UbO0BzWcXfvdBs+BohbQxvd/K5hSVKmn9/lbTdsQVKbUcP5WLCwvUbBg==}
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
     dev: true
 
   /@radix-ui/primitive@1.0.1:
     resolution: {integrity: sha512-yQ8oGX2GVsEYMWGxcovu1uGWPCxV5BFfeeYxqPmuAzUyLT9qmaMXSAhXpb0WrspIeqYzdJpkh2vHModJPgRIaw==}
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
     dev: true
 
   /@radix-ui/react-arrow@1.0.3(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0):
@@ -8227,7 +8276,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/react-primitive': 1.0.3(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
       '@types/react': 18.2.60
       react: 18.2.0
@@ -8247,7 +8296,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/react-compose-refs': 1.0.1(@types/react@18.2.60)(react@18.2.0)
       '@radix-ui/react-context': 1.0.1(@types/react@18.2.60)(react@18.2.0)
       '@radix-ui/react-primitive': 1.0.3(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
@@ -8266,7 +8315,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@types/react': 18.2.60
       react: 18.2.0
     dev: true
@@ -8280,7 +8329,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@types/react': 18.2.60
       react: 18.2.0
     dev: true
@@ -8294,7 +8343,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@types/react': 18.2.60
       react: 18.2.0
     dev: true
@@ -8312,7 +8361,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/primitive': 1.0.1
       '@radix-ui/react-compose-refs': 1.0.1(@types/react@18.2.60)(react@18.2.0)
       '@radix-ui/react-primitive': 1.0.3(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
@@ -8332,7 +8381,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@types/react': 18.2.60
       react: 18.2.0
     dev: true
@@ -8350,7 +8399,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/react-compose-refs': 1.0.1(@types/react@18.2.60)(react@18.2.0)
       '@radix-ui/react-primitive': 1.0.3(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
       '@radix-ui/react-use-callback-ref': 1.0.1(@types/react@18.2.60)(react@18.2.0)
@@ -8368,7 +8417,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/react-use-layout-effect': 1.0.1(@types/react@18.2.60)(react@18.2.0)
       '@types/react': 18.2.60
       react: 18.2.0
@@ -8387,7 +8436,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@floating-ui/react-dom': 2.0.8(react-dom@18.2.0)(react@18.2.0)
       '@radix-ui/react-arrow': 1.0.3(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
       '@radix-ui/react-compose-refs': 1.0.1(@types/react@18.2.60)(react@18.2.0)
@@ -8416,7 +8465,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/react-primitive': 1.0.3(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
       '@types/react': 18.2.60
       react: 18.2.0
@@ -8436,7 +8485,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/react-slot': 1.0.2(@types/react@18.2.60)(react@18.2.0)
       '@types/react': 18.2.60
       react: 18.2.0
@@ -8456,7 +8505,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/primitive': 1.0.1
       '@radix-ui/react-collection': 1.0.3(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
       '@radix-ui/react-compose-refs': 1.0.1(@types/react@18.2.60)(react@18.2.0)
@@ -8484,7 +8533,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/number': 1.0.1
       '@radix-ui/primitive': 1.0.1
       '@radix-ui/react-collection': 1.0.3(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
@@ -8524,7 +8573,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/react-primitive': 1.0.3(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
       '@types/react': 18.2.60
       react: 18.2.0
@@ -8540,7 +8589,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/react-compose-refs': 1.0.1(@types/react@18.2.60)(react@18.2.0)
       '@types/react': 18.2.60
       react: 18.2.0
@@ -8559,7 +8608,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/primitive': 1.0.1
       '@radix-ui/react-context': 1.0.1(@types/react@18.2.60)(react@18.2.0)
       '@radix-ui/react-direction': 1.0.1(@types/react@18.2.60)(react@18.2.0)
@@ -8585,7 +8634,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/primitive': 1.0.1
       '@radix-ui/react-primitive': 1.0.3(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
       '@radix-ui/react-use-controllable-state': 1.0.1(@types/react@18.2.60)(react@18.2.0)
@@ -8607,7 +8656,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/primitive': 1.0.1
       '@radix-ui/react-context': 1.0.1(@types/react@18.2.60)(react@18.2.0)
       '@radix-ui/react-direction': 1.0.1(@types/react@18.2.60)(react@18.2.0)
@@ -8629,7 +8678,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@types/react': 18.2.60
       react: 18.2.0
     dev: true
@@ -8643,7 +8692,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/react-use-callback-ref': 1.0.1(@types/react@18.2.60)(react@18.2.0)
       '@types/react': 18.2.60
       react: 18.2.0
@@ -8658,7 +8707,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/react-use-callback-ref': 1.0.1(@types/react@18.2.60)(react@18.2.0)
       '@types/react': 18.2.60
       react: 18.2.0
@@ -8673,7 +8722,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@types/react': 18.2.60
       react: 18.2.0
     dev: true
@@ -8687,7 +8736,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@types/react': 18.2.60
       react: 18.2.0
     dev: true
@@ -8701,7 +8750,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/rect': 1.0.1
       '@types/react': 18.2.60
       react: 18.2.0
@@ -8716,7 +8765,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/react-use-layout-effect': 1.0.1(@types/react@18.2.60)(react@18.2.0)
       '@types/react': 18.2.60
       react: 18.2.0
@@ -8735,7 +8784,7 @@ packages:
       '@types/react-dom':
         optional: true
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       '@radix-ui/react-primitive': 1.0.3(@types/react@18.2.60)(react-dom@18.2.0)(react@18.2.0)
       '@types/react': 18.2.60
       react: 18.2.0
@@ -8745,7 +8794,7 @@ packages:
   /@radix-ui/rect@1.0.1:
     resolution: {integrity: sha512-fyrgCaedtvMg9NK3en0pnOYJdtfwxUcNolezkNPUsoX57X8oQk+NkqcvzHXD2uKNij6GXmWU9NDru2IWjrO4BQ==}
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
     dev: true
 
   /@replit/codemirror-css-color-picker@6.1.0(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.24.1):
@@ -10626,7 +10675,7 @@ packages:
         optional: true
     dependencies:
       '@adobe/css-tools': 4.3.3
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       aria-query: 5.1.3
       chalk: 3.0.0
       css.escape: 1.5.1
@@ -10723,7 +10772,7 @@ packages:
   /@types/babel__core@7.20.5:
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
     dependencies:
-      '@babel/parser': 7.24.0
+      '@babel/parser': 7.24.4
       '@babel/types': 7.24.0
       '@types/babel__generator': 7.6.8
       '@types/babel__template': 7.4.4
@@ -12064,7 +12113,7 @@ packages:
   /@vue/compiler-core@3.4.21:
     resolution: {integrity: sha512-MjXawxZf2SbZszLPYxaFCjxfibYrzr3eYbKxwpLR9EQN+oaziSu3qKVbwBERj1IFIB8OLUewxB5m/BFzi613og==}
     dependencies:
-      '@babel/parser': 7.24.0
+      '@babel/parser': 7.24.4
       '@vue/shared': 3.4.21
       entities: 4.5.0
       estree-walker: 2.0.2
@@ -14936,7 +14985,7 @@ packages:
     resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
     engines: {node: '>=0.11'}
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
     dev: true
 
   /db0@0.1.4:
@@ -16139,7 +16188,7 @@ packages:
       globals: 13.24.0
       natural-compare: 1.4.0
       nth-check: 2.1.1
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
       semver: 7.6.0
       vue-eslint-parser: 9.4.2(eslint@8.57.0)
       xml-name-validator: 4.0.0
@@ -17787,7 +17836,7 @@ packages:
   /history@4.10.1:
     resolution: {integrity: sha512-36nwAD620w12kuzPAsyINPWJqlNbij+hpK1k9XRloDtym8mxzGYl2c17LnV6IAGB2Dmg4tEa7G7DlawS0+qjew==}
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       loose-envify: 1.4.0
       resolve-pathname: 3.0.0
       tiny-invariant: 1.3.3
@@ -22452,7 +22501,7 @@ packages:
       postcss: ^8.2.2
     dependencies:
       postcss: 8.4.35
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
       postcss-value-parser: 4.2.0
     dev: false
 
@@ -22462,7 +22511,7 @@ packages:
       postcss: ^8.2.2
     dependencies:
       postcss: 8.4.38
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
       postcss-value-parser: 4.2.0
     dev: false
 
@@ -22473,7 +22522,7 @@ packages:
       postcss: ^8.2.2
     dependencies:
       postcss: 8.4.38
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
       postcss-value-parser: 4.2.0
     dev: true
 
@@ -22664,7 +22713,7 @@ packages:
       postcss: ^8.2.15
     dependencies:
       postcss: 8.4.38
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
     dev: false
 
   /postcss-import@15.1.0(postcss@8.4.38):
@@ -22704,7 +22753,7 @@ packages:
       lilconfig: 3.1.1
       postcss: 8.4.38
       ts-node: 10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)
-      yaml: 2.4.0
+      yaml: 2.4.1
     dev: true
 
   /postcss-loader@7.3.4(postcss@8.4.35)(typescript@5.4.3)(webpack@5.90.3):
@@ -22777,7 +22826,7 @@ packages:
       caniuse-api: 3.0.0
       cssnano-utils: 3.1.0(postcss@8.4.35)
       postcss: 8.4.35
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
     dev: false
 
   /postcss-merge-rules@5.1.4(postcss@8.4.38):
@@ -22790,7 +22839,7 @@ packages:
       caniuse-api: 3.0.0
       cssnano-utils: 3.1.0(postcss@8.4.38)
       postcss: 8.4.38
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
     dev: false
 
   /postcss-merge-rules@6.1.1(postcss@8.4.38):
@@ -22915,7 +22964,7 @@ packages:
       postcss: ^8.2.15
     dependencies:
       postcss: 8.4.35
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
     dev: false
 
   /postcss-minify-selectors@5.2.1(postcss@8.4.38):
@@ -22925,7 +22974,7 @@ packages:
       postcss: ^8.2.15
     dependencies:
       postcss: 8.4.38
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
     dev: false
 
   /postcss-minify-selectors@6.0.4(postcss@8.4.38):
@@ -22955,7 +23004,7 @@ packages:
     dependencies:
       icss-utils: 5.1.0(postcss@8.4.38)
       postcss: 8.4.38
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
       postcss-value-parser: 4.2.0
     dev: false
 
@@ -22966,7 +23015,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       postcss: 8.4.38
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
     dev: false
 
   /postcss-modules-values@4.0.0(postcss@8.4.38):
@@ -23387,7 +23436,6 @@ packages:
     dependencies:
       cssesc: 3.0.0
       util-deprecate: 1.0.2
-    dev: true
 
   /postcss-sort-media-queries@4.4.1(postcss@8.4.38):
     resolution: {integrity: sha512-QDESFzDDGKgpiIh4GYXsSy6sek2yAwQx1JASl5AxBtU1Lq2JfKBljIPNdil989NcSKRQX1ToiaKphImtBuhXWw==}
@@ -23439,7 +23487,7 @@ packages:
       postcss: ^8.2.15
     dependencies:
       postcss: 8.4.35
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
     dev: false
 
   /postcss-unique-selectors@5.1.1(postcss@8.4.38):
@@ -23449,7 +23497,7 @@ packages:
       postcss: ^8.2.15
     dependencies:
       postcss: 8.4.38
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
     dev: false
 
   /postcss-unique-selectors@6.0.4(postcss@8.4.38):
@@ -24092,7 +24140,7 @@ packages:
       react-loadable: '*'
       webpack: '>=4.41.1 || 5.x'
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       react-loadable: /@docusaurus/react-loadable@5.5.2(react@18.2.0)
       webpack: 5.90.3
     dev: false
@@ -24143,7 +24191,7 @@ packages:
       react: '>=15'
       react-router: '>=5'
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       react: 18.2.0
       react-router: 5.3.4(react@18.2.0)
     dev: false
@@ -24153,7 +24201,7 @@ packages:
     peerDependencies:
       react: '>=15'
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       history: 4.10.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
@@ -24168,7 +24216,7 @@ packages:
     peerDependencies:
       react: '>=15'
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
       history: 4.10.1
       hoist-non-react-statics: 3.3.2
       loose-envify: 1.4.0
@@ -24381,7 +24429,7 @@ packages:
   /regenerator-transform@0.15.2:
     resolution: {integrity: sha512-hfMp2BoF0qOk3uc5V20ALGDS2ddjQaLrdl7xrGXvAIow7qeWRM2VA2HuCHkUKk9slq3VwEwLNK3DFBqDfPGYtg==}
     dependencies:
-      '@babel/runtime': 7.24.0
+      '@babel/runtime': 7.24.5
 
   /regexp-tree@0.1.27:
     resolution: {integrity: sha512-iETxpjK6YoRWJG5o6hXLwvjYAoW+FEZn9os0PD/b6AP6xQwsa/Y7lCVgIixBbUPMfhu+i2LtdeAqVTgGlQarfA==}
@@ -25856,7 +25904,7 @@ packages:
     dependencies:
       browserslist: 4.23.0
       postcss: 8.4.35
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
     dev: false
 
   /stylehacks@5.1.1(postcss@8.4.38):
@@ -25867,7 +25915,7 @@ packages:
     dependencies:
       browserslist: 4.23.0
       postcss: 8.4.38
-      postcss-selector-parser: 6.0.15
+      postcss-selector-parser: 6.0.16
     dev: false
 
   /stylehacks@6.1.1(postcss@8.4.38):
@@ -28986,12 +29034,6 @@ packages:
     resolution: {integrity: sha512-W7h5dEhywMKenDJh2iX/LABkbFnBxasD27oyXWDS/feDsxiw0dD5ncXdYXgkvAsXIY2MpW/ZKkr9IU30DBdMNQ==}
     engines: {node: '>= 6'}
     dev: false
-
-  /yaml@2.4.0:
-    resolution: {integrity: sha512-j9iR8g+/t0lArF4V6NE/QCfT+CO7iLqrXAHZbJdo+LfjqP1vR8Fg5bSiaq6Q2lOD1AUEVrEVIgABvBFYojJVYQ==}
-    engines: {node: '>= 14'}
-    hasBin: true
-    dev: true
 
   /yaml@2.4.1:
     resolution: {integrity: sha512-pIXzoImaqmfOrL7teGUBt/T7ZDnyeGBWyXQBvOVhLkWLN37GXv8NMLK406UY6dS51JfcQHsmcW5cJ441bHg6Lg==}
