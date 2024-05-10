@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -45,9 +46,15 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	// Create a reverse proxy
 	proxy := httputil.NewSingleHostReverseProxy(proxyUrl)
 
+	proxy.Transport = &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
 	// Modify the request to indicate it is proxied
 	r.URL.Host = proxyUrl.Host
 	r.URL.Scheme = proxyUrl.Scheme
+	r.URL.Path = proxyUrl.Path
+
 	r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
 	r.Host = proxyUrl.Host
 
@@ -65,7 +72,7 @@ func main() {
 	http.HandleFunc("/", handleRequest)
 
 	// Console output
-	log.Println("🥤 Proxy Server listening on http://localhost"+port)
+	log.Println("🥤 Proxy Server listening on http://localhost" + port)
 
 	err := http.ListenAndServe(port, nil)
 	if err != nil {
