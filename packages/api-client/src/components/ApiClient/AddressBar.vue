@@ -79,13 +79,6 @@ async function send() {
   loading.value = false
 }
 
-const lastRequestTimestamp = computed(() => {
-  const lastRequestKey = requestHistoryOrder.value[0]
-  return requestHistory[lastRequestKey]
-    ? humanDiff(requestHistory[lastRequestKey].sentTime)
-    : 'History'
-})
-
 const onChange = (value: string) => {
   if (readOnly.value) {
     return
