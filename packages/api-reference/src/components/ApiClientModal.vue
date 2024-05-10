@@ -49,7 +49,8 @@ const showSideBar = ref(false)
           :showSideBar="showSideBar"
           :theme="theme ?? 'none'"
           :withDefaultFonts="false"
-          @escapeKeyPress="hideApiClient">
+          @escapeKeyPress="hideApiClient"
+          @toggleSidebar="showSideBar = !showSideBar">
           <template #address-bar-controls>
             <div class="scalar-api-client-states">
               <button
