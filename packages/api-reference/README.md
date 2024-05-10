@@ -6,9 +6,9 @@
 [![License](https://img.shields.io/npm/l/%40scalar%2Fapi-reference)](https://www.npmjs.com/package/@scalar/api-reference)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-Generate interactive API documentations from Swagger files. [Try our Demo](https://docs.scalar.com/swagger-editor)
+Generate interactive API documentations from Swagger files. [Try our Demo](https://app.scalar.com/swagger-editor)
 
-[![Screenshot of an API Reference](https://github.com/scalar/scalar/assets/6201407/d8beb5e1-bf64-4589-8cb0-992ba79215a8)](https://docs.scalar.com/swagger-editor)
+[![Screenshot of an API Reference](https://github.com/scalar/scalar/assets/6201407/d8beb5e1-bf64-4589-8cb0-992ba79215a8)](https://app.scalar.com/swagger-editor)
 
 ## Installation
 
