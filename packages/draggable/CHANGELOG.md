@@ -1,5 +1,11 @@
 # @scalar/draggable
 
+## 0.0.7
+
+### Patch Changes
+
+- 453b297: fix: drag and dropping of draggable
+
 ## 0.0.6
 
 ### Patch Changes
