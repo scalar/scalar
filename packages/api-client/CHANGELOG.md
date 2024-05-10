@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 1.2.20
+
+### Patch Changes
+
+- 0640c52: feat: api client address bar style update
+- 84399ab: feat: add api client response empty state
+- a80345a: fix: vertical alignment of client response empty state
+- Updated dependencies [6e67167]
+  - @scalar/components@0.7.6
+
 ## 1.2.19
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.22.30
+
+### Patch Changes
+
+- 36819a2: chore: lazy load api client
+- Updated dependencies [0640c52]
+- Updated dependencies [6e67167]
+- Updated dependencies [84399ab]
+- Updated dependencies [a80345a]
+  - @scalar/api-client@1.2.20
+  - @scalar/components@0.7.6
+
 ## 1.22.29
 
 ### Patch Changes
