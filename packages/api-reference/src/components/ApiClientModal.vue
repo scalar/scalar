@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import {  useApiClientStore } from '@scalar/api-client'
+import { useApiClientStore } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
 import type { ThemeId } from '@scalar/themes'
 import { useMediaQuery } from '@vueuse/core'
-import { ref } from 'vue'
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent, ref } from 'vue'
 
 import type { Spec } from '../types'
 import { Sidebar } from './Sidebar'
@@ -83,7 +82,7 @@ const showSideBar = ref(false)
               </Sidebar>
             </div>
           </template>
-        </ApiClient>
+        </LazyLoadedApiClient>
       </div>
     </div>
   </div>
