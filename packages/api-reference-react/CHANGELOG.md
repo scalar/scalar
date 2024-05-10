@@ -1,5 +1,11 @@
 # @scalar/api-reference-react
 
+## 0.1.71
+
+### Patch Changes
+
+- @scalar/api-reference@1.22.29
+
 ## 0.1.70
 
 ### Patch Changes
