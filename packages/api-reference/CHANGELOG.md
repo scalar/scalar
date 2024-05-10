@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.22.28
+
+### Patch Changes
+
+- 192f348: feat: ship test button
+
 ## 1.22.27
 
 ### Patch Changes
