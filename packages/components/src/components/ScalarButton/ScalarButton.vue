@@ -39,7 +39,7 @@ const attrs = computed(() => {
       cx(
         variants({ fullWidth, disabled, size, variant }),
         { 'pl-9 pr-3': loading },
-        `${attrs.class}`,
+        `${attrs.className}`,
       )
     "
     type="button">
