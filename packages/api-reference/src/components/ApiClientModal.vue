@@ -90,7 +90,7 @@ const showSideBar = ref(false)
 
 <style scoped>
 .api-client-container .scalar-api-client {
-  --refs-sidebar-width: 260px;
+  --refs-sidebar-width: 280px;
   width: calc(100% - var(--refs-sidebar-width));
 }
 @media screen and (max-width: 1000px) {
@@ -117,7 +117,7 @@ const showSideBar = ref(false)
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  --refs-sidebar-width: 260px;
+  --refs-sidebar-width: 280px;
 }
 
 .scalar-api-client__navigation {
