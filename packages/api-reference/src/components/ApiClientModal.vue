@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ApiClient, useApiClientStore } from '@scalar/api-client'
+import { useApiClientStore } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
 import type { ThemeId } from '@scalar/themes'
 import { useMediaQuery } from '@vueuse/core'
-import { ref } from 'vue'
+import { defineAsyncComponent, ref } from 'vue'
 
 import type { Spec } from '../types'
 import { Sidebar } from './Sidebar'
@@ -18,6 +18,10 @@ defineProps<{
 defineEmits<{
   (e: 'toggleDarkMode'): void
 }>()
+
+const LazyLoadedApiClient = defineAsyncComponent(() =>
+  import('@scalar/api-client').then((m) => m.ApiClient),
+)
 
 const { hideApiClient, state } = useApiClientStore()
 
@@ -40,7 +44,7 @@ const showSideBar = ref(false)
         </div> -->
       <div class="scalar-api-client-height">
         <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
-        <ApiClient
+        <LazyLoadedApiClient
           :proxyUrl="proxyUrl"
           :showSideBar="showSideBar"
           :theme="theme ?? 'none'"
@@ -78,7 +82,7 @@ const showSideBar = ref(false)
               </Sidebar>
             </div>
           </template>
-        </ApiClient>
+        </LazyLoadedApiClient>
       </div>
     </div>
   </div>
