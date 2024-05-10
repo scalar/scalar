@@ -1663,6 +1663,9 @@ importers:
       vite-plugin-css-injected-by-js:
         specifier: ^3.4.0
         version: 3.4.0(vite@5.2.10)
+      vite-plugin-lib-inject-css:
+        specifier: ^2.0.1
+        version: 2.0.1(vite@5.2.10)
       vite-svg-loader:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.4.21)
