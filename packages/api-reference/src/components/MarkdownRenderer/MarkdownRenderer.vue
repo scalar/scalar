@@ -198,6 +198,11 @@ onServerPrefetch(async () => await sleep(1))
 .markdown :deep(em) {
   font-style: italic;
 }
+.markdown :deep(sup) {
+  font-size: var(--scalar-micro);
+  vertical-align: super;
+  font-weight: 450;
+}
 .markdown :deep(del) {
   text-decoration: line-through;
 }
