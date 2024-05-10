@@ -74,13 +74,6 @@ const onDragStart = (ev: DragEvent) => {
   )
     return
 
-  // Anchors get a special ghost image so we must remove the href
-  const anchor = ev.target.querySelector('a')
-  if (anchor) {
-    anchor.setAttribute('data-href', anchor.href)
-    anchor.removeAttribute('href')
-  }
-
   ev.target.classList.add('dragging')
   ev.dataTransfer.dropEffect = 'move'
   ev.dataTransfer.effectAllowed = 'move'
@@ -138,7 +131,7 @@ const containerClass = computed(() => {
   return classList
 })
 
-const onDragEnd = (ev: DragEvent) => {
+const onDragEnd = () => {
   if (!hoveredItem.value || !draggingItem.value) return
 
   const _draggingItem = { ...draggingItem.value }
@@ -150,13 +143,6 @@ const onDragEnd = (ev: DragEvent) => {
   document
     .querySelectorAll('div.dragging')
     .forEach((el) => el.classList.remove('dragging'))
-
-  // Return the anchors href
-  const anchor = (ev.target as HTMLElement).querySelector('a')
-  if (anchor) {
-    anchor.setAttribute('href', anchor.getAttribute('data-href')!)
-    anchor.removeAttribute('data-href')
-  }
 
   if (_draggingItem.id === _hoveredItem.id) return
 
