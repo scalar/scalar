@@ -89,13 +89,8 @@ const showSideBar = ref(false)
 </template>
 
 <style scoped>
-.api-client-container .t-doc__sidebar :deep(*),
-.t-doc__sidebar * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 .api-client-container .scalar-api-client {
+  --refs-sidebar-width: 260px;
   width: calc(100% - var(--refs-sidebar-width));
 }
 @media screen and (max-width: 1000px) {
@@ -122,6 +117,7 @@ const showSideBar = ref(false)
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  --refs-sidebar-width: 260px;
 }
 
 .scalar-api-client__navigation {
@@ -250,6 +246,7 @@ const showSideBar = ref(false)
   color: var(--scalar-color-3);
   cursor: pointer;
   border-radius: var(--scalar-radius);
+  background: transparent;
 }
 .scalar-api-client-states-button:hover {
   color: var(--scalar-color-1);
