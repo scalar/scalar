@@ -67,7 +67,19 @@ const parentId = computed(() =>
 
 // Start draggin, we want to store the uid + parentUid
 const onDragStart = (ev: DragEvent) => {
-  if (!ev.dataTransfer || !(ev.target instanceof HTMLDivElement)) return
+  if (
+    !ev.dataTransfer ||
+    !(ev.target instanceof HTMLDivElement) ||
+    !props.isDraggable
+  )
+    return
+
+  // Anchors get a special ghost image so we must remove the href
+  const anchor = ev.target.querySelector('a')
+  if (anchor) {
+    anchor.setAttribute('data-href', anchor.href)
+    anchor.removeAttribute('href')
+  }
 
   ev.target.classList.add('dragging')
   ev.dataTransfer.dropEffect = 'move'
@@ -83,7 +95,8 @@ const onDragOver = throttle((ev: DragEvent) => {
   // Don't highlight if hovering over self or child
   if (
     draggingItem.value?.id === props.id ||
-    props.parentIds.includes(draggingItem.value?.id ?? '')
+    props.parentIds.includes(draggingItem.value?.id ?? '') ||
+    !props.isDroppable
   )
     return
 
@@ -125,7 +138,7 @@ const containerClass = computed(() => {
   return classList
 })
 
-const onDragEnd = () => {
+const onDragEnd = (ev: DragEvent) => {
   if (!hoveredItem.value || !draggingItem.value) return
 
   const _draggingItem = { ...draggingItem.value }
@@ -138,6 +151,13 @@ const onDragEnd = () => {
     .querySelectorAll('div.dragging')
     .forEach((el) => el.classList.remove('dragging'))
 
+  // Return the anchors href
+  const anchor = (ev.target as HTMLElement).querySelector('a')
+  if (anchor) {
+    anchor.setAttribute('href', anchor.getAttribute('data-href')!)
+    anchor.removeAttribute('data-href')
+  }
+
   if (_draggingItem.id === _hoveredItem.id) return
 
   emit('onDragEnd', _draggingItem, _hoveredItem)
@@ -149,8 +169,8 @@ const onDragEnd = () => {
     :class="containerClass"
     :draggable="isDraggable"
     @dragend="onDragEnd"
-    @dragover.prevent.stop="isDroppable ? onDragOver : () => null"
-    @dragstart.stop="isDraggable ? onDragStart : () => null">
+    @dragover.prevent.stop="onDragOver"
+    @dragstart.stop="onDragStart">
     <slot />
   </div>
 </template>
