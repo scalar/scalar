@@ -4,11 +4,9 @@ import { type StyleValue, computed } from 'vue'
 const props = defineProps<{ art: string }>()
 
 const lines = computed<string[]>(() => props.art.split('\n'))
-
 </script>
 <template>
-  <div
-    class="ascii-art">
+  <div class="ascii-art">
     <span
       v-for="(line, i) in lines"
       :key="i"
@@ -41,4 +39,3 @@ const lines = computed<string[]>(() => props.art.split('\n'))
   overflow: hidden;
 }
 </style>
-

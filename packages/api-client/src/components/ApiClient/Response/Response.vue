@@ -2,9 +2,11 @@
 import { isJsonString } from '@scalar/oas-utils'
 import { computed, toRaw } from 'vue'
 
+import Computer from '../../../assets/computer.ascii?raw'
 import { useRequestStore } from '../../../stores'
 import { CollapsibleSection } from '../../CollapsibleSection'
 import { SimpleGrid } from '../../Grid'
+import ScalarAsciiArt from '../../ScalarAsciiArt.vue'
 import ResponseBody from './ResponseBody.vue'
 import ResponseHeaders from './ResponseHeaders.vue'
 import ResponseMetaInformation from './ResponseMetaInformation.vue'
@@ -57,51 +59,68 @@ const responseData = computed(() => {
 <template>
   <div class="scalar-api-client__main__right custom-scroll">
     <div class="scalar-api-client__main__content">
-      <label>Response</label>
-      <div class="meta">
-        <template v-if="activeRequestId && activeResponse">
+      <div class="scalar-api-client__main__content__header">
+        <label>Response</label>
+        <div
+          v-if="activeRequestId && activeResponse"
+          class="meta">
           <ResponseMetaInformation :response="activeResponse" />
-        </template>
-        <template v-else>
-          <div class="meta-item">
-            <span>Send your first request to start</span>
-          </div>
-        </template>
+        </div>
       </div>
-    </div>
-    <div>
-      <ResponseBody
-        :active="!!activeResponse"
-        :data="responseData"
-        :headers="responseHeaders" />
-      <ResponseHeaders :headers="responseHeaders" />
-      <CollapsibleSection title="Cookies">
-        <SimpleGrid
-          v-show="responseCookies.length > 0"
-          :items="responseCookies" />
-        <template v-if="responseCookies.length === 0">
-          <div class="scalar-api-client__empty-state">No Cookies</div>
-        </template>
-      </CollapsibleSection>
-      <div class="scalar-api-client__main__scroll-container" />
+      <template v-if="activeRequestId && activeResponse">
+        <div class="scalar-api-client__main__content__body">
+          <ResponseBody
+            :active="!!activeResponse"
+            :data="responseData"
+            :headers="responseHeaders" />
+          <ResponseHeaders :headers="responseHeaders" />
+          <CollapsibleSection title="Cookies">
+            <SimpleGrid
+              v-show="responseCookies.length > 0"
+              :items="responseCookies" />
+            <template v-if="responseCookies.length === 0">
+              <div class="scalar-api-client__empty-state">No Cookies</div>
+            </template>
+          </CollapsibleSection>
+          <div class="scalar-api-client__main__scroll-container" />
+        </div>
+      </template>
+      <template v-else>
+        <div class="scalar-api-client__main__content empty-state">
+          <ScalarAsciiArt :art="Computer" />
+          <p>Fill the void and send your request</p>
+        </div>
+      </template>
     </div>
   </div>
 </template>
 <style>
 .scalar-api-client__main__right {
   width: 50%;
-  padding: 0 18px 12px 18px;
 }
 @media screen and (max-width: 820px) {
   .scalar-api-client__main__right {
-    width: 100%;
     border-right: none;
-    padding: 0 12px 12px 12px;
+    height: 100%;
+    width: 100%;
   }
 }
 .scalar-api-client__main__right :deep(.scalar-copilot__header-button) {
   position: absolute;
   top: 6px;
   right: 12px;
+}
+.scalar-api-client__main__content .empty-state {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  justify-content: center;
+}
+.scalar-api-client__main__content .empty-state p {
+  color: var(--scalar-color-2);
+  font-size: var(--scalar-small);
+  text-transform: capitalize;
 }
 </style>
