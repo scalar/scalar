@@ -9,6 +9,24 @@ import (
 	"os"
 )
 
+// corsMiddleware adds CORS headers to the response and handles pre-flight requests.
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*") // Allow all origins
+
+		// Handle pre-flight requests
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+
+		// Pass down the request to the next middleware (or final handler)
+		next.ServeHTTP(w, r)
+	})
+}
+
 // Handler that forwards requests to the target and writes the response back to the original client
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	// Parse query parameters
@@ -76,12 +94,16 @@ func main() {
 		port = ":" + os.Getenv("PORT")
 	}
 
-	http.HandleFunc("/", handleRequest)
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/", handleRequest)
+
+	handler := corsMiddleware(mux)
 
 	// Console output
 	log.Println("🥤 Proxy Server listening on http://localhost" + port)
 
-	err := http.ListenAndServe(port, nil)
+	err := http.ListenAndServe(port, handler)
 	if err != nil {
 		log.Fatal("Error starting proxy server: ", err)
 	}
