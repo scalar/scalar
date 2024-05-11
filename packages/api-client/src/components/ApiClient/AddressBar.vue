@@ -117,14 +117,18 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
           :readOnly="readOnly"
           :requestMethod="requestType"
           @change="handleRequestMethodChanged" />
-        <CodeMirror
-          class="url-form-input"
-          :content="formattedUrl"
-          disableEnter
-          :readOnly="readOnly"
-          withoutTheme
-          withVariables
-          @change="onChange" />
+        <div class="url-form-input-wrapper cm-scroller">
+          <div class="url-form-input-fade__left"></div>
+          <CodeMirror
+            class="url-form-input"
+            :content="formattedUrl"
+            disableEnter
+            :readOnly="readOnly"
+            withoutTheme
+            withVariables
+            @change="onChange" />
+          <div class="url-form-input-fade__right"></div>
+        </div>
         <div
           v-if="requestHistoryOrder.length"
           class="history">
@@ -247,19 +251,71 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   padding: 2px;
   width: 100%;
 }
-
+.url-form-input-wrapper {
+  display: flex;
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+  scroll-timeline: --scroll-timeline x;
+  /* Firefox supports */
+  scroll-timeline: --scroll-timeline horizontal;
+}
 .url-form-input {
   background: var(--scalar-background-1);
   color: var(--scalar-color-1);
   font-weight: var(--scalar-semibold);
   min-height: auto;
+  min-width: fit-content;
   padding-top: 0;
+  position: relative;
+}
+.url-form-input-fade__left,
+.url-form-input-fade__right {
+  content: '';
+  position: sticky;
+  height: 100%;
+  animation-name: fadein;
+  animation-duration: 1ms;
+  animation-direction: reverse;
+  animation-timeline: --scroll-timeline;
+  z-index: 1;
+}
+.url-form-input-fade__left {
+  background: linear-gradient(
+    -90deg,
+    color-mix(in srgb, var(--scalar-background-1), transparent 100%) 0%,
+    color-mix(in srgb, var(--scalar-background-1), transparent 20%) 30%,
+    var(--scalar-background-1) 100%
+  );
+  left: 0;
+  min-width: 6px;
+}
+.url-form-input-fade__right {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--scalar-background-1), transparent 100%) 0%,
+    color-mix(in srgb, var(--scalar-background-1), transparent 20%) 30%,
+    var(--scalar-background-1) 100%
+  );
+  right: 0;
+  min-width: 24px;
+  animation-direction: reverse;
+}
+@keyframes fadein {
+  0% {
+    opacity: 0;
+  }
+  2% {
+    opacity: 1;
+  }
 }
 .url-form-input :deep(.cm-scroller) {
   overflow-y: hidden;
 }
 .url-form-input :deep(.cm-line) {
   font-size: var(--scalar-micro);
+  padding: 0;
 }
 .history {
   appearance: none;
