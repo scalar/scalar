@@ -27,10 +27,12 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: 'escapeKeyPress'): void
+  (e: 'toggleSidebar'): void
 }>()
 
 const keys = useMagicKeys()
 whenever(keys.escape, () => emit('escapeKeyPress'))
+whenever(keys.meta_b, () => emit('toggleSidebar'))
 
 const { activeRequest, readOnly: stateReadOnly } = useRequestStore()
 
