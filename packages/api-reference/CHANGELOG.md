@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.22.31
+
+### Patch Changes
+
+- 3748dc5: feat: api client toggle sidebar hotkey
+- Updated dependencies [f871c28]
+- Updated dependencies [3748dc5]
+  - @scalar/api-client@1.2.21
+
 ## 1.22.30
 
 ### Patch Changes

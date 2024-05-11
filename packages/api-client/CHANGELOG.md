@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 1.2.21
+
+### Patch Changes
+
+- f871c28: fix: api client address bar url
+- 3748dc5: feat: api client toggle sidebar hotkey
+
 ## 1.2.20
 
 ### Patch Changes
