@@ -208,13 +208,13 @@ watch(
   display: flex;
   gap: 6px;
   height: 50px;
-  padding: 16px;
+  padding: 16px 18px;
   position: sticky;
   top: 0;
   z-index: 100;
 }
 .scalar-api-client__main__content__header label {
-  font-size: var(--scalar-small);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color-1);
   font-weight: var(--scalar-semibold);
   display: flex;
@@ -226,7 +226,7 @@ watch(
   height: 100%;
 }
 .scalar-api-client__main__content__body {
-  padding: 8px;
+  padding: 9px 9px 9px 18px;
 }
 @media screen and (max-width: 820px) {
   .scalar-api-client__main__content__header {
@@ -258,7 +258,7 @@ watch(
   align-items: center;
   white-space: nowrap;
   font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-small);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color-3);
   min-height: 17px;
 }
@@ -293,14 +293,15 @@ watch(
   font-size: 24px;
 }
 .scalar-api-client__empty-state {
-  border: 1px dashed var(--scalar-border-color);
+  border: 1px solid var(--scalar-border-color);
   width: 100%;
   text-align: center;
-  border-radius: var(--scalar-radius);
+  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
   font-size: var(--scalar-small);
   min-height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: var(--scalar-background-1);
 }
 </style>

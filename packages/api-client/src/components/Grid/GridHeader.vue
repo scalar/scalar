@@ -44,11 +44,11 @@ defineEmits<{
 <style scoped>
 .table-column-header {
   background: transparent;
-  text-transform: uppercase;
+  text-transform: capitalize;
   display: block;
   padding: 9px;
   font-weight: var(--scalar-semibold);
-  color: var(--scalar-color-2);
+  color: var(--scalar-color-1);
   font-size: var(--scalar-micro);
 }
 .table-description-toggle {

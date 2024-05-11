@@ -5,7 +5,7 @@
 </template>
 <style scoped>
 .card-form {
-  --input-radius: var(--scalar-radius-lg);
+  --input-radius: var(--scalar-radius);
   border-color: var(--scalar-border-color);
   color: var(--scalar-color-1);
   width: 100%;

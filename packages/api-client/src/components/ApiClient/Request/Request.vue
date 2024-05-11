@@ -91,13 +91,18 @@ const readOnly = true
 }
 .scalar-api-client__item__content {
   flex-flow: wrap;
-  padding: 3px 9px 9px 9px;
-  border-radius: 3px;
   color: var(--scalar-color-3);
   font-size: var(--scalar-micro);
-  margin-top: -3px;
+  margin-bottom: 12px;
   justify-content: space-between;
   overflow: auto;
+  padding: 0 9px 0 0;
+  z-index: 2;
+  position: relative;
+}
+.scalar-api-client__item__content .card-form > :first-child {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 .scalar-api-client__item__content:empty {
   display: none;
@@ -109,7 +114,11 @@ const readOnly = true
 .scalar-api-client__item__content .scalar-codeblock-pre,
 .scalar-api-client__item__content .cm-s-default {
   border: 1px solid var(--scalar-border-color);
-  border-radius: var(--scalar-radius-lg);
+  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
+  background: transparent;
+}
+.scalar-api-client__item__content .scalar-codeblock-pre * {
+  font-size: var(--scalar-micro);
 }
 .scalar-api-client__item__content .scalar-codeblock-pre,
 .scalar-api-client__item__content .codemirror-container {
@@ -119,7 +128,8 @@ const readOnly = true
 }
 .scalar-api-client__item__content .cm-scroller {
   border: 1px solid var(--scalar-border-color);
-  border-radius: 3px;
+  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
+  background-color: var(--scalar-background-1);
 }
 .scalar-api-client__item__content .cm-editor {
   outline: none !important;
@@ -251,7 +261,7 @@ const readOnly = true
   color: var(--scalar-color-2);
 }
 .select {
-  background: --scalar-background-1;
+  background: var(--scalar-background-1);
   border-radius: var(--scalar-radius-lg);
   font-size: var(--scalar-micro);
   border: 1px solid var(--scalar-border-color);
@@ -365,7 +375,7 @@ const readOnly = true
   appearance: none;
   -webkit-appearance: none;
   color: var(--scalar-color-3);
-  font-size: var(--scalar-small);
+  font-size: var(--scalar-mini);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-3);
   width: 100%;

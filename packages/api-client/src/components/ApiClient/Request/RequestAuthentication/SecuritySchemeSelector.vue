@@ -145,7 +145,8 @@ const keys = computed(() => Object.keys(props.value ?? {}))
   color: var(--scalar-color-1);
 }
 .security-scheme-selector span {
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-micro);
+  font-weight: var(--scalar-semibold);
 }
 .security-scheme-selector select {
   position: absolute;

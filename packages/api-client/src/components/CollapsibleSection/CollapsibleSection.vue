@@ -41,14 +41,14 @@ watch(
         @click="openCopy = !openCopy">
         <svg
           class="scalar-api-client__toggle__icon"
-          height="10"
-          viewBox="0 0 5 10"
-          width="5"
-          xmlns="http://www.w3.org/2000/svg">
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 12 12">
           <path
-            d="M0 10l5-5-5-5z"
-            fill="currentColor"
-            fill-rule="nonzero" />
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M2.2 4.1 6 7.9l3.8-3.8"></path>
         </svg>
         <span class="scalar-api-client__item__title">
           {{ title }}
@@ -93,8 +93,7 @@ watch(
 .scalar-api-client__item--open .scalar-api-client__toggle:after {
   display: none;
 }
-.scalar-api-client__item:hover,
-.scalar-api-client__item--open {
+.scalar-api-client__toggle:hover {
   background: var(--scalar-background-2);
 }
 
@@ -105,41 +104,61 @@ watch(
 .scalar-api-client__item--open:hover {
   cursor: default;
 }
-
-.scalar-api-client__item--open .scalar-api-client__toggle__icon {
-  transform: rotate(90deg);
-}
 .scalar-api-client__toggle {
-  padding: 6px;
-  min-height: 37px;
+  padding: 0 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
-  width: 100%;
+  width: calc(100% - 9px);
   appearance: none;
   outline: 0;
   border: none;
   font-family: var(--scalar-font);
+  border-radius: var(--scalar-radius);
   cursor: pointer;
+  border: 1px solid transparent;
+  border-bottom: none;
 }
-
+.scalar-api-client__item--open .scalar-api-client__toggle {
+  border-radius: var(--scalar-radius) var(--scalar-radius) 0 0;
+  border-color: var(--scalar-background-1);
+}
+/* use this to match border colors between the toggle and it's sibling   */
+.scalar-api-client__item--open .scalar-api-client__toggle:before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: calc(100% + 2px);
+  height: calc(100% + 1px);
+  pointer-events: none;
+  border: 1px solid var(--scalar-border-color);
+  border-bottom: none;
+  border-radius: var(--scalar-radius) var(--scalar-radius) 0 0;
+}
 .scalar-api-client__item .scalar-api-client__item__title {
   color: var(--scalar-color-1);
-  font-size: var(--scalar-small);
+  font-size: var(--scalar-mini);
   font-weight: var(--scalar-semibold);
   font-family: var(--scalar-font);
   user-select: none;
   flex: 1;
   position: relative;
   z-index: 1;
+  padding: 6px 0;
 }
 .scalar-api-client__item .scalar-api-client__toggle__icon {
-  width: 10px;
-  margin-right: 6px;
+  width: 20px;
+  padding: 3px;
   color: var(--scalar-color-3);
   z-index: 1;
   position: relative;
+  transform: rotate(-90deg);
+  margin: 5px 0 5px -9px;
+}
+.scalar-api-client__item--open .scalar-api-client__toggle__icon {
+  transform: rotate(0deg);
 }
 .scalar-api-client__toggle:hover .scalar-api-client__toggle__icon {
   color: var(--scalar-color-1);

@@ -175,7 +175,7 @@ const enabledProxy = computed<boolean>({
 .meta-delete {
   position: absolute;
   right: -9px;
-  background: var(--scalar-background-3) !important;
+  background: var(--scalar-background-1);
   height: 20px;
   width: 20px;
   border: none;
@@ -187,6 +187,8 @@ const enabledProxy = computed<boolean>({
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  box-shadow: var(--scalar-shadow-1);
+  z-index: 10;
 }
 .meta-delete svg {
   width: 11px;

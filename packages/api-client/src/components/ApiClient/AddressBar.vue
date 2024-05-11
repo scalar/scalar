@@ -333,7 +333,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   color: var(--scalar-button-1-color);
   border: none;
   white-space: nowrap;
-  padding: 0 8px;
+  padding: 0 9px;
   cursor: pointer;
   outline: none;
   font-family: var(--scalar-font);

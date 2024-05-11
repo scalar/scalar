@@ -59,7 +59,8 @@ defineOptions({
 
 .card-form-input label,
 .card-form-input input {
-  padding: 9px;
+  padding: 6px;
+  margin: 3px 0 3px 3px;
   border: 0;
   outline: none;
   font-size: var(--scalar-micro);
@@ -73,13 +74,15 @@ defineOptions({
 .card-form-input label {
   color: var(--scalar-color-1);
   width: fit-content;
-  padding-right: 0;
   white-space: nowrap;
   cursor: text;
+  background: var(--scalar-background-2);
+  border-radius: var(--scalar-radius);
 }
 .card-form-input input {
   position: relative;
   z-index: 99;
+  color: var(--scalar-color-1);
 }
 .card-form-input input:not(:placeholder-shown) + label {
   color: var(--scalar-color-2);
