@@ -269,6 +269,8 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   min-width: fit-content;
   padding-top: 0;
   position: relative;
+  max-width: calc(100% - 153px);
+  margin-right: auto;
 }
 .url-form-input-fade__left,
 .url-form-input-fade__right {
