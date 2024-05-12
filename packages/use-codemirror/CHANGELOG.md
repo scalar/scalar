@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.10.4
+
+### Patch Changes
+
+- a13f853: feat: update api client ui
+
 ## 0.10.3
 
 ### Patch Changes

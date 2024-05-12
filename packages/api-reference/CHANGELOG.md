@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.22.32
+
+### Patch Changes
+
+- Updated dependencies [a13f853]
+  - @scalar/api-client@1.2.22
+
 ## 1.22.31
 
 ### Patch Changes
