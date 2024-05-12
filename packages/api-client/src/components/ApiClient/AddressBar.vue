@@ -310,6 +310,11 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
     opacity: 1;
   }
 }
+@media screen and (max-width: 720px) {
+  .url-form-input {
+    max-width: calc(100% - 113px);
+  }
+}
 .url-form-input :deep(.cm-scroller) {
   overflow-y: hidden;
 }
