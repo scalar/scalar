@@ -1,5 +1,6 @@
 export * from './useClipboard'
 export * from './useDarkModeState'
+export * from './useDeprecationWarnings'
 export * from './useHttpClients'
 export * from './useNavState'
 export * from './useOperation'
