@@ -46,12 +46,12 @@ defineProps<{
   width: 100%;
   min-height: 100%;
   color: var(--scalar-color-1);
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   background: transparent;
-  font-family: var(--scalar-font-code);
+  font-family: var(--scalar-font);
 }
 .table-row-item :deep(input::placeholder) {
-  font-family: var(--scalar-font-code);
+  font-family: var(--scalar-font);
 }
 .table-row-item :deep(input[disabled]) {
   background: transparent;

@@ -77,7 +77,7 @@ function addHandler() {
 .table {
   border: 1px solid var(--scalar-border-color);
   background: transparent;
-  border-radius: var(--scalar-radius);
+  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
   width: 100%;
 }
 .meta-actions-item {
@@ -88,7 +88,7 @@ function addHandler() {
   width: 100%;
   appearance: none;
   outline: none;
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   font-family: var(--scalar-font);
   color: var(--scalar-color-3);
   cursor: pointer;

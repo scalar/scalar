@@ -269,6 +269,8 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   min-width: fit-content;
   padding-top: 0;
   position: relative;
+  max-width: calc(100% - 153px);
+  margin-right: auto;
 }
 .url-form-input-fade__left,
 .url-form-input-fade__right {
@@ -310,6 +312,11 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
     opacity: 1;
   }
 }
+@media screen and (max-width: 720px) {
+  .url-form-input {
+    max-width: calc(100% - 113px);
+  }
+}
 .url-form-input :deep(.cm-scroller) {
   overflow-y: hidden;
 }
@@ -333,7 +340,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   color: var(--scalar-button-1-color);
   border: none;
   white-space: nowrap;
-  padding: 0 8px;
+  padding: 0 9px;
   cursor: pointer;
   outline: none;
   font-family: var(--scalar-font);

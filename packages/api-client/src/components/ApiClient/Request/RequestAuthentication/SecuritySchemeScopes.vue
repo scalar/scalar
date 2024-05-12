@@ -47,13 +47,11 @@ const model = computed({
       :class="{ 'wrapper-open': open }">
       <ListboxButton :as="CardFormButton">
         <div class="scopes-label">
+          Scopes
+          {{ model.length }}<em>/</em>{{ Object.entries(scopes).length }}
           <ScalarIcon
             :icon="open ? 'ChevronUp' : 'ChevronDown'"
             size="sm" />
-          Scopes
-          <Badge class="scopes-label-badge">
-            {{ model.length }}<em>|</em>{{ Object.entries(scopes).length }}
-          </Badge>
         </div>
       </ListboxButton>
     </div>
@@ -107,7 +105,6 @@ const model = computed({
 }
 .scopes-label-badge em {
   transform: rotate(10deg) translate(0, -0.9px);
-  color: var(--scalar-color-3);
 }
 .floating {
   position: relative;

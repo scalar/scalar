@@ -70,11 +70,11 @@ const hasCookies = computed(() => {
 </template>
 <style>
 .scalar-api-client-add {
-  color: var(--scalar-color-2);
-  padding: 3px 9px;
+  color: var(--scalar-color-3);
+  padding: 6px 9px;
   width: fit-content;
   cursor: pointer;
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   font-weight: var(--scalar-semibold);
   text-decoration: none;
   margin: 0 6px;

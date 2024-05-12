@@ -34,6 +34,13 @@ withDefaults(
   color: var(--scalar-color-1);
   white-space: nowrap;
 }
+.simple-cell:first-of-type {
+  position: sticky;
+  left: 0;
+  background-color: var(--scalar-background-1);
+  z-index: 1;
+  box-shadow: 0 -1px var(--scalar-border-color);
+}
 .simple-cell a {
   color: var(--scalar-color-1) !important;
 }
