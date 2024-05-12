@@ -106,8 +106,8 @@ const enabledProxy = computed<boolean>({
   padding: 5px 9px 5px 6px;
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-micro);
-  background: var(--scalar-background-2);
-  box-shadow: -2px 0 4px var(--scalar-background-2);
+  background: var(--scalar-background-1);
+  box-shadow: -2px 0 4px var(--scalar-background-1);
 }
 .table-row-editable.required-parameter
   :deep(.table-row-item:nth-of-type(2):focus-within:after) {
