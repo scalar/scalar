@@ -100,10 +100,6 @@ const readOnly = true
   z-index: 2;
   position: relative;
 }
-.scalar-api-client__item__content .card-form > :first-child {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
 .scalar-api-client__item__content:empty {
   display: none;
 }
@@ -145,6 +141,9 @@ const readOnly = true
 }
 .scalar-api-client__item__content .cm-editor .cm-line {
   color: var(--scalar-color-1);
+}
+.scalar-api-client__item__content .card-form {
+  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
 }
 .scalar-api-client__item__content-button {
   appearance: none;

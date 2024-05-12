@@ -49,21 +49,15 @@ defineOptions({
   text-align: left;
   display: flex;
   align-items: baseline;
-  border-style: solid;
-  border-width: 1px;
   border-color: inherit;
-}
-.card-form-input:focus-within {
-  border-color: var(--scalar-color-3);
 }
 
 .card-form-input label,
 .card-form-input input {
-  padding: 6px;
-  margin: 3px 0 3px 3px;
+  padding: 9px;
   border: 0;
   outline: none;
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   color: var(--scalar-color-2);
   width: 100%;
   background: transparent;
@@ -76,13 +70,17 @@ defineOptions({
   width: fit-content;
   white-space: nowrap;
   cursor: text;
-  background: var(--scalar-background-2);
+  padding: 9px 0 9px 9px;
   border-radius: var(--scalar-radius);
+  font-weight: var(--scalar-semibold);
 }
 .card-form-input input {
   position: relative;
   z-index: 99;
   color: var(--scalar-color-1);
+}
+.card-form-input + .card-form-input {
+  border-left: 1px solid var(--scalar-border-color);
 }
 .card-form-input input:not(:placeholder-shown) + label {
   color: var(--scalar-color-2);

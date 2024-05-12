@@ -49,7 +49,7 @@ defineEmits<{
   padding: 9px;
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
 }
 .table-description-toggle {
   padding: 0;

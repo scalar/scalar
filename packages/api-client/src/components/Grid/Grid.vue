@@ -88,7 +88,7 @@ function addHandler() {
   width: 100%;
   appearance: none;
   outline: none;
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   font-family: var(--scalar-font);
   color: var(--scalar-color-3);
   cursor: pointer;

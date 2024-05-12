@@ -39,6 +39,16 @@ watch(
         ref="collapseButton"
         class="scalar-api-client__toggle"
         @click="openCopy = !openCopy">
+        <div class="scalar-api-client__toggle-container">
+          <span class="scalar-api-client__item__title">
+            {{ title }}
+          </span>
+          <div
+            v-if="$slots.options && open"
+            class="scalar-api-client__item__options">
+            <slot name="options" />
+          </div>
+        </div>
         <svg
           class="scalar-api-client__toggle__icon"
           xmlns="http://www.w3.org/2000/svg"
@@ -50,14 +60,6 @@ watch(
             stroke-linejoin="round"
             d="M2.2 4.1 6 7.9l3.8-3.8"></path>
         </svg>
-        <span class="scalar-api-client__item__title">
-          {{ title }}
-        </span>
-        <div
-          v-if="$slots.options && open"
-          class="scalar-api-client__item__options">
-          <slot name="options" />
-        </div>
       </DisclosureButton>
       <DisclosurePanel>
         <div class="scalar-api-client__item__content">
@@ -90,6 +92,11 @@ watch(
   height: 6px;
   left: 0;
 }
+.scalar-api-client__toggle-container {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
 .scalar-api-client__item--open .scalar-api-client__toggle:after {
   display: none;
 }
@@ -105,7 +112,7 @@ watch(
   cursor: default;
 }
 .scalar-api-client__toggle {
-  padding: 0 12px;
+  padding: 0 6px 0 9px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -123,6 +130,7 @@ watch(
 .scalar-api-client__item--open .scalar-api-client__toggle {
   border-radius: var(--scalar-radius) var(--scalar-radius) 0 0;
   border-color: var(--scalar-background-1);
+  background: var(--scalar-background-2);
 }
 /* use this to match border colors between the toggle and it's sibling   */
 .scalar-api-client__item--open .scalar-api-client__toggle:before {
@@ -143,7 +151,6 @@ watch(
   font-weight: var(--scalar-semibold);
   font-family: var(--scalar-font);
   user-select: none;
-  flex: 1;
   position: relative;
   z-index: 1;
   padding: 6px 0;
@@ -175,7 +182,7 @@ watch(
   border-radius: 3px;
   font-size: var(--scalar-small);
   pointer-events: none;
-  color: var(--scalar-color-2);
+  color: var(--scalar-color-3);
   display: flex;
   align-items: center;
   justify-content: center;

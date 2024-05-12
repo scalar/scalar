@@ -160,13 +160,19 @@ const showSideBar = ref(false)
   left: 50%;
   top: 50%;
   transform: translate3d(-50%, -50%, 0);
-  border-radius: 12px;
+  border-radius: var(--scalar-radius-lg);
   overflow: hidden;
   visibility: visible;
   position: fixed;
   z-index: 1001;
   opacity: 0;
   animation: apiclientfadein 0.35s forwards;
+}
+@media (min-width: 1520px) {
+  .api-client-drawer {
+    max-width: 80vw;
+    max-width: 1720px;
+  }
 }
 .api-client-drawer:before {
   content: '';

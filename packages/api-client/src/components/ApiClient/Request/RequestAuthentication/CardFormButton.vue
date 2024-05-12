@@ -20,19 +20,15 @@ defineExpose({ el })
   position: relative;
   background: transparent;
   cursor: pointer;
-  border-style: solid;
-  border-width: 1px;
-  border-color: inherit;
   padding: 9px;
   outline: none;
   white-space: nowrap;
   font-family: var(--scalar-font);
   font-size: var(--scalar-micro);
   font-weight: var(--scalar-semibold);
-  color: var(--scalar-color-1);
+  color: var(--scalar-color-2);
 }
 .card-form-button:hover {
-  background: var(--scalar-background-2);
-  border-color: var(--scalar-border-color);
+  color: var(--scalar-color-1);
 }
 </style>

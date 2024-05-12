@@ -112,7 +112,7 @@ const setIntialScheme = (
   justify-content: center;
 }
 .scalar-api-client-add {
-  color: var(--scalar-color-2);
+  color: var(--scalar-color-3);
   padding: 3px 9px;
   width: fit-content;
   cursor: pointer;
