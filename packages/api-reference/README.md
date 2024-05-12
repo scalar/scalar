@@ -136,7 +136,7 @@ Making requests to other domains is restricted in the browser and requires [CORS
 ℹ️ You can use [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy) to host your own proxy or you can just use ours:
 
 ```vue
-<ApiReference :configuration="{ proxy: 'https://proxy.scalar.com/' }" />
+<ApiReference :configuration="{ proxy: 'https://proxy.scalar.com' }" />
 ```
 
 #### showSidebar?: boolean

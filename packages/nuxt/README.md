@@ -61,7 +61,7 @@ export default defineNuxtConfig({
     metaData: {
       title: 'API Documentation by Scalar',
     },
-    proxy: 'https://proxy.scalar.com/',
+    proxy: 'https://proxy.scalar.com',
     searchHotKey: 'k',
     showSidebar: true,
     pathRouting: {
@@ -85,7 +85,7 @@ export default defineNuxtConfig({
     metaData: {
       title: 'API Documentation by Scalar',
     },
-    proxy: 'https://proxy.scalar.com/',
+    proxy: 'https://proxy.scalar.com',
     configurations: [
       {
         spec: {
