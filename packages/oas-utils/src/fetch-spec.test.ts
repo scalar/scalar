@@ -15,7 +15,7 @@ describe('Fetches specs correctly', () => {
   test('Fetches with a proxy', async () => {
     const spec = await fetchSpecFromUrl(
       'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-      'https://api.scalar.com/request-proxy',
+      'https://proxy.scalar.com/',
     )
 
     expect(typeof spec).toEqual('string')

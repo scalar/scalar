@@ -133,7 +133,7 @@ def get_scalar_api_reference(
         Doc(
             """
             The URL to use to set the Scalar Proxy.
-            It is normally set to a Scalar API URL (https://api.scalar.com/request-proxy), but default is empty
+            It is normally set to a Scalar API URL (https://proxy.scalar.com/), but default is empty
             """
         ),
     ] = "",

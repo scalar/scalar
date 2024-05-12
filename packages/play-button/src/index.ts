@@ -36,7 +36,7 @@ const getSpecUrl = () => {
 }
 
 const getProxyUrl = () => {
-  // <script id="api-reference" data-proxy-url="https://api.scalar.com/request-proxy">…</script>
+  // <script id="api-reference" data-proxy-url="https://proxy.scalar.com/">…</script>
   if (specScriptTag) {
     const proxyUrl = specScriptTag.getAttribute('data-proxy-url')
 

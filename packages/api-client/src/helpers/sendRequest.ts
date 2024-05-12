@@ -103,18 +103,14 @@ export async function sendRequest(
     data: request.body,
   }
 
-  const axiosRequestConfig: AxiosRequestConfig = proxyUrl
-    ? {
-        method: 'POST',
-        url: proxyUrl,
-        data: requestConfig,
-      }
-    : {
-        method: requestConfig.method,
-        url: requestConfig.url,
-        headers: requestConfig.headers,
-        data: requestConfig.data,
-      }
+  const axiosRequestConfig: AxiosRequestConfig = {
+    method: requestConfig.method,
+    url: proxyUrl
+      ? `${proxyUrl}?scalar_url=${requestConfig.url}`
+      : requestConfig.url,
+    headers: requestConfig.headers,
+    data: requestConfig.data,
+  }
 
   // if we have cookies, we need to pass withCredentials
   // to properly set cookies in the browser
@@ -130,14 +126,6 @@ export async function sendRequest(
 
   const response: ClientResponse = await axios(axiosRequestConfig)
     .then((result) => {
-      // With proxy
-      if (proxyUrl) {
-        return {
-          ...result.data,
-          error: false,
-        }
-      }
-
       // Without proxy
       return {
         ...result,

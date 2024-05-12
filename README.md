@@ -77,7 +77,7 @@ Generate interactive API documentation from OpenAPI/Swagger files. [Try our Demo
     <script
       id="api-reference"
       data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml"
-      data-proxy-url="https://api.scalar.com/request-proxy"></script>
+      data-proxy-url="https://proxy.scalar.com/"></script>
 
     <!-- Optional: You can set a full configuration object like this: -->
     <script>
@@ -109,7 +109,7 @@ If you’d like to add a request proxy for the API client (to avoid CORS issues)
 <script
   id="api-reference"
   type="application/json"
-  data-proxy-url="https://api.scalar.com/request-proxy">
+  data-proxy-url="https://proxy.scalar.com/">
   { … }
 </script>
 ```
