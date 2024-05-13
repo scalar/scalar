@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 1.2.23
+
+### Patch Changes
+
+- 3a4ff3c: fix: required api client bg
+
 ## 1.2.22
 
 ### Patch Changes
