@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 1.2.24
+
+### Patch Changes
+
+- 624604e: chore: move http status codes to oas-utils
+- Updated dependencies [624604e]
+- Updated dependencies [624604e]
+  - @scalar/oas-utils@0.1.11
+  - @scalar/components@0.7.7
+
 ## 1.2.23
 
 ### Patch Changes
