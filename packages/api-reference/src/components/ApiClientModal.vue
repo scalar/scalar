@@ -154,9 +154,8 @@ const showSideBar = ref(false)
 }
 .api-client-drawer {
   background: var(--scalar-background-1);
-  height: calc(100% - 180px);
-  width: calc(100% - 8px);
-  max-width: 1280px;
+  height: calc(100% - 2dvw);
+  width: calc(100% - 2dvw);
   left: 50%;
   top: 50%;
   transform: translate3d(-50%, -50%, 0);
@@ -265,12 +264,6 @@ const showSideBar = ref(false)
 .scalar-api-client-states-button:focus {
   background: var(--scalar-background-2);
   box-shadow: 0 0 0 1px var(--scalar-border-color);
-}
-@media (max-width: 1280px) {
-  .api-client-drawer {
-    height: calc(100% - 56px);
-    top: calc(50% + 26px);
-  }
 }
 @media (max-width: 820px) {
   .scalar-api-client-states-button__endpoints {
