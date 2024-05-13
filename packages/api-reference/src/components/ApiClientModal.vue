@@ -224,7 +224,7 @@ const showSideBar = ref(false)
 .dark-mode .api-client-drawer-exit {
   background-color: color-mix(
     in srgb,
-    transparent 70%,
+    transparent 30%,
     var(--scalar-background-1)
   );
 }
