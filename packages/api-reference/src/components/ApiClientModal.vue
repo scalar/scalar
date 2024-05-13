@@ -117,14 +117,12 @@ const showSideBar = ref(false)
   pointer-events: all;
   background: var(--scalar-background-1) !important;
   border-radius: var(--scalar-radius-lg);
-  box-shadow: var(--scalar-shadow-1);
   height: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   --refs-sidebar-width: 280px;
 }
-
 .scalar-api-client__navigation {
   width: 100%;
   display: flex;
@@ -154,9 +152,9 @@ const showSideBar = ref(false)
 }
 .api-client-drawer {
   background: var(--scalar-background-1);
-  height: calc(100% - 180px);
+  height: calc(100% - 120px);
   width: calc(100% - 8px);
-  max-width: 1280px;
+  max-width: 1390px;
   left: 50%;
   top: 50%;
   transform: translate3d(-50%, -50%, 0);
@@ -167,11 +165,25 @@ const showSideBar = ref(false)
   z-index: 1001;
   opacity: 0;
   animation: apiclientfadein 0.35s forwards;
+  box-shadow:
+    rgba(0, 0, 0, 0.12) 0px 4px 30px,
+    rgba(0, 0, 0, 0.04) 0px 3px 17px,
+    rgba(0, 0, 0, 0.04) 0px 2px 8px,
+    rgba(0, 0, 0, 0.04) 0px 1px 1px;
+}
+.dark-mode .api-client-drawer {
+  border: 1px solid var(--scalar-border-color);
+  box-shadow:
+    rgba(0, 0, 0, 0.15) 0px 4px 40px,
+    rgba(0, 0, 0, 0.184) 0px 3px 20px,
+    rgba(0, 0, 0, 0.184) 0px 3px 12px,
+    rgba(0, 0, 0, 0.184) 0px 2px 8px,
+    rgba(0, 0, 0, 0.184) 0px 1px 1px;
 }
 @media (min-width: 1520px) {
   .api-client-drawer {
-    max-width: 80vw;
-    max-width: 1720px;
+    width: 92vw;
+    max-width: 1780px;
   }
 }
 .api-client-drawer:before {
@@ -190,11 +202,11 @@ const showSideBar = ref(false)
 }
 @keyframes apiclientfadein {
   from {
-    transform: translate3d(-50%, calc(-50% + 20px), 0) scale(0.985);
+    transform: translate3d(-50%, calc(-50% + 20px), 0);
     opacity: 0;
   }
   to {
-    transform: translate3d(-50%, -50%, 0) scale(1);
+    transform: translate3d(-50%, -50%, 0);
     opacity: 1;
   }
 }
@@ -204,11 +216,17 @@ const showSideBar = ref(false)
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.44);
-  transition: all 0.3s ease-in-out;
+  background: rgba(0, 0, 0, 0.25);
   z-index: 1000;
   cursor: pointer;
   animation: drawerexitfadein 0.35s forwards;
+}
+.dark-mode .api-client-drawer-exit {
+  background-color: color-mix(
+    in srgb,
+    transparent 70%,
+    var(--scalar-background-1)
+  );
 }
 @keyframes drawerexitfadein {
   from {
