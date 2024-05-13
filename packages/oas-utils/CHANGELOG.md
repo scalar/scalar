@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.1.11
+
+### Patch Changes
+
+- 624604e: chore: move http status codes to oas-utils
+
 ## 0.1.10
 
 ### Patch Changes

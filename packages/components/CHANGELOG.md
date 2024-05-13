@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.7.7
+
+### Patch Changes
+
+- 624604e: style: adjust some icon sizes and allow overwriting classes
+- Updated dependencies [624604e]
+  - @scalar/oas-utils@0.1.11
+
 ## 0.7.6
 
 ### Patch Changes
