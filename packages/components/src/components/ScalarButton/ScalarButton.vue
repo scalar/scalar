@@ -28,7 +28,7 @@ defineOptions({ inheritAttrs: false })
 /* Extract the classes so they can be merged by `cx` */
 const attrs = computed(() => {
   const { class: className, ...rest } = useAttrs()
-  return { className: className || '', rest }
+  return { class: className || '', rest }
 })
 </script>
 <template>
@@ -39,7 +39,7 @@ const attrs = computed(() => {
       cx(
         variants({ fullWidth, disabled, size, variant }),
         { 'pl-9 pr-3': loading },
-        `${attrs.className}`,
+        `${attrs.class}`,
       )
     "
     type="button">
