@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.22.34
+
+### Patch Changes
+
+- 15625a2: feat: support <sub> tag in markdown
+
 ## 1.22.33
 
 ### Patch Changes
