@@ -248,13 +248,19 @@ TypeScript should give you a nice autocomplete for all options. If you’re more
 
 Auto-generated OpenAPI files are great, but some OpenAPI purists argue it’s worth to handcraft your OpenAPI files. If you’re one of them, feel free to just pass an URL to your existing OpenAPI file:
 
+> Note: If you don’t use `@fastify/swagger` to generate and serve an OpenAPI specification, you need to serve it
+> manually. [To serve static files, try @fastify/static](https://github.com/fastify/fastify-static).
+
 ```js
 import ScalarApiReference from '@scalar/fastify-api-reference'
 
 await fastify.register(ScalarApiReference, {
   routePrefix: '/reference',
   configuration: {
+    // On your domain:
     url: '/openapi.json',
+    // Or somewhere else:
+    // url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
   },
 })
 ```
