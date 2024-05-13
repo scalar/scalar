@@ -203,6 +203,11 @@ onServerPrefetch(async () => await sleep(1))
   vertical-align: super;
   font-weight: 450;
 }
+.markdown :deep(sub) {
+  font-size: var(--scalar-micro);
+  vertical-align: sub;
+  font-weight: 450;
+}
 .markdown :deep(del) {
   text-decoration: line-through;
 }
