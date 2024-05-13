@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { VariantProps } from 'cva'
+import { computed, useAttrs } from 'vue'
 
 import { cva, cx } from '../../cva'
 import { styles } from '../ScalarButton'
@@ -25,9 +26,9 @@ const variants = cva({
   base: 'scalar-icon-button grid aspect-square cursor-pointer rounded',
   variants: {
     size: {
-      xs: 'h-3.5 w-3.5 p-0.5',
-      sm: 'h-5 w-5 p-1',
-      md: 'h-10 w-10 p-3',
+      xs: 'size-3.5 p-0.5',
+      sm: 'size-6 p-1',
+      md: 'size-10 p-3',
       full: 'h-full w-full',
     },
     disabled: {
@@ -36,11 +37,18 @@ const variants = cva({
     variant: styles,
   },
 })
+
+/* Extract the classes so they can be merged by `cx` */
+const attrs = computed(() => {
+  const { class: className, ...rest } = useAttrs()
+  return { class: className || '', rest }
+})
 </script>
 <template>
   <button
+    v-bind="attrs.rest"
     :ariaDisabled="disabled || undefined"
-    :class="cx(variants({ size, variant, disabled }))"
+    :class="cx(variants({ size, variant, disabled }), attrs.class)"
     type="button">
     <ScalarIcon :icon="icon" />
     <span class="sr-only">{{ label }}</span>

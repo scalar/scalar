@@ -28,7 +28,7 @@ export const variants = cva({
       true: 'bg-background-2 text-color-3 cursor-not-allowed shadow-none',
     },
     fullWidth: { true: 'w-full' },
-    size: { md: 'h-10 px-6 text-sm' },
+    size: { sm: 'px-2 py-1 text-xs', md: 'h-10 px-6 text-sm' },
     variant: styles,
   },
   compoundVariants: [
