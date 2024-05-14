@@ -14,7 +14,7 @@ import {
 
 import { createEmptySpecification } from '../hooks'
 // AnyStringOrObject
-import type { Spec } from '../types'
+import type { Spec, Tag } from '../types'
 
 export const parse = (specification: any): Promise<Spec> => {
   // eslint-disable-next-line no-async-promise-executor
@@ -228,7 +228,7 @@ const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
   })
 
   // handle x-displayName extension
-  schema.tags.forEach((tag, tagIndex) => {
+  schema.tags.forEach((tag: Tag, tagIndex: number) => {
     const xDisplayName = tag['x-displayName']
 
     if (xDisplayName && schema.tags?.[tagIndex]) {
