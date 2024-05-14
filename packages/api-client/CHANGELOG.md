@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 1.2.25
+
+### Patch Changes
+
+- 79e3caa: chore: replace petstore example with galaxy example
+- e022ee6: fix: color single security scheme
+- Updated dependencies [79e3caa]
+  - @scalar/components@0.7.8
+
 ## 1.2.24
 
 ### Patch Changes
