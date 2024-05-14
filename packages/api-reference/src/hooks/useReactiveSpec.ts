@@ -1,36 +1,9 @@
 import { fetchSpecFromUrl } from '@scalar/oas-utils'
 import { type MaybeRefOrGetter, reactive, ref, toValue, watch } from 'vue'
 
-import { isValidUrl } from '../helpers'
+import { createEmptySpecification, isValidUrl } from '../helpers'
 import { parse } from '../helpers/parse'
-import type { Spec, SpecConfiguration } from '../types'
-
-// Generate a new empty spec instance
-export const createEmptySpecification = (): Spec => ({
-  info: {
-    title: '',
-    description: '',
-    termsOfService: '',
-    version: '',
-    license: {
-      name: '',
-      url: '',
-    },
-    contact: {
-      email: '',
-    },
-  },
-  externalDocs: {
-    description: '',
-    url: '',
-  },
-  components: {
-    schemas: {},
-    securitySchemes: {},
-  },
-  servers: [],
-  tags: [],
-})
+import type { SpecConfiguration } from '../types'
 
 /**
  * Get the spec content from the provided configuration:

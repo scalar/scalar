@@ -12,7 +12,7 @@ import {
   openapi,
 } from '@scalar/openapi-parser'
 
-import { createEmptySpecification } from '../hooks'
+import { createEmptySpecification } from '../helpers'
 // AnyStringOrObject
 import type { Spec, Tag } from '../types'
 

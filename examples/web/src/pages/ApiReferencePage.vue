@@ -3,6 +3,7 @@ import {
   ApiReferenceLayout,
   type ReferenceConfiguration,
   type Spec,
+  createEmptySpecification,
   parse,
 } from '@scalar/api-reference'
 import { asyncComputed } from '@vueuse/core'
@@ -12,7 +13,6 @@ import DevReferencesOptions from '../components/DevReferencesOptions.vue'
 import DevToolbar from '../components/DevToolbar.vue'
 import MonacoEditor from '../components/MonacoEditor.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
-import { createEmptySpecification } from '../fixtures/emptySpec'
 
 const content = ref('')
 
