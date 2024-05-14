@@ -28,7 +28,7 @@ initializeToasts((message, level = 'info', options: ToastOptions = {}) => {
 <template>
   <Toaster
     v-if="isClientMounted"
-    :toastOptions="{ className: 'toaster' }">
+    :toastOptions="{ class: 'toaster' }">
   </Toaster>
 </template>
 
