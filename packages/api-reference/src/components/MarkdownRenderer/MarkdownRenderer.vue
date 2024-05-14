@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import rehypeShiki from '@shikijs/rehype'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
 import rehypeRaw from 'rehype-raw'
@@ -49,6 +50,14 @@ watch(
       })
       // Adds target="_blank" to external links
       .use(rehypeExternalLinks, { target: '_blank' })
+      // Syntax highlighting
+      .use(rehypeShiki, {
+        // or `theme` for a single theme
+        themes: {
+          light: 'vitesse-light',
+          dark: 'vitesse-dark',
+        },
+      })
       // Formats the HTML
       .use(rehypeFormat)
       // Converts the HTML AST to a string

@@ -71,6 +71,7 @@
     "@scalar/use-modal": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
+    "@shikijs/rehype": "^1.5.2",
     "@unhead/schema": "^1.9.5",
     "@vcarl/remark-headings": "^0.1.0",
     "@vueuse/core": "^10.9.0",
