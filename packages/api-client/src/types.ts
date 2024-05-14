@@ -72,10 +72,7 @@ export type Schema = {
   type: string
 }
 
-export type Security = {
-  api_key?: any[]
-  petstore_auth?: string[]
-}
+export type Security = Record<string, any>
 
 export type ContentProperties = {
   [key: string]: {

@@ -138,7 +138,7 @@ const ev = new CustomEvent('scalar:update-references-config', {
   detail: {
     configuration: {
       spec: {
-        url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
       },
     },
   } satisfies ReferenceProps,
@@ -175,7 +175,7 @@ export default defineNuxtConfig({
   modules: ['@scalar/nuxt'],
   scalar: {
     spec: {
-      url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
+      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
     },
   },
 })

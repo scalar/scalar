@@ -24,15 +24,13 @@ const configuration = reactive<ReferenceConfiguration>({
   layout: 'modern',
   spec: { content },
   // authentication: {
-  //   preferredSecurityScheme: 'petstore_auth',
-  //   oAuth2: {
-  //     clientId: 'foobar123',
-  //     scopes: ['read:pets', 'write:pets'],
+  //   // The OpenAPI file has keys for all security schemes:
+  //   // Which one should be used by default?
+  //   preferredSecurityScheme: 'my_custom_security_scheme',
+  //   // The `my_custom_security_scheme` security scheme is of type `apiKey`, so prefill the token:
+  //   apiKey: {
+  //     token: 'super-secret-token',
   //   },
-  //   // preferredSecurityScheme: 'api_key',
-  //   // apiKey: {
-  //   //   token: 'super-secret-token',
-  //   // },
   // },
 })
 

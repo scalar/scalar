@@ -4,18 +4,18 @@ export default defineNuxtConfig({
   modules: ['../src/module'],
   scalar: {
     spec: {
-      url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
+      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
     },
     pathRouting: {
-      basePath: '/scalar',
+      basePath: '/galaxy',
     },
     configurations: [
       {
         spec: {
-          url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
         },
         pathRouting: {
-          basePath: '/petstore',
+          basePath: '/yaml',
         },
       },
       {
@@ -23,7 +23,7 @@ export default defineNuxtConfig({
           url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
         },
         pathRouting: {
-          basePath: '/galaxy',
+          basePath: '/json',
         },
       },
     ],
