@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.7.9
+
+### Patch Changes
+
+- e3a72bb: style: updated icon button size
+
 ## 0.7.8
 
 ### Patch Changes
