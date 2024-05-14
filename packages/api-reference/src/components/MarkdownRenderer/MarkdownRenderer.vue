@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
-import rehypePrism from 'rehype-prism'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import rehypeStringify from 'rehype-stringify'
@@ -48,8 +47,6 @@ watch(
           (tag) => !disallowedTagNames.includes(tag),
         ),
       })
-      // Syntax highlighting
-      .use(rehypePrism)
       // Adds target="_blank" to external links
       .use(rehypeExternalLinks, { target: '_blank' })
       // Formats the HTML
