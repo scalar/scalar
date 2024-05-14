@@ -4,6 +4,7 @@
  */
 import { type RequestMethod, validRequestMethods } from '@scalar/api-client'
 import {
+  type AnyObject,
   type OpenAPIV2,
   type OpenAPIV3,
   type OpenAPIV3_1,
@@ -11,13 +12,23 @@ import {
   openapi,
 } from '@scalar/openapi-parser'
 
+import { createEmptySpecification } from '../helpers'
 // AnyStringOrObject
-import type { Spec } from '../types'
+import type { Spec, Tag } from '../types'
 
 export const parse = (specification: any): Promise<Spec> => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
     try {
+      // Return an empty resolved specification if the given specification is empty
+      if (!specification) {
+        return resolve(
+          transformResult(
+            createEmptySpecification() as ResolvedOpenAPI.Document,
+          ),
+        )
+      }
+
       const { schema, errors } = await openapi().load(specification).resolve()
 
       if (errors?.length) {
@@ -31,21 +42,40 @@ export const parse = (specification: any): Promise<Spec> => {
       if (schema === undefined) {
         reject(errors?.[0]?.error ?? 'Failed to parse the OpenAPI file.')
 
-        return
+        return resolve(
+          transformResult(
+            createEmptySpecification() as ResolvedOpenAPI.Document,
+          ),
+        )
       }
 
-      resolve(transformResult(structuredClone(schema)))
+      return resolve(transformResult(schema))
     } catch (error) {
       reject(error)
     }
+
+    return resolve(
+      transformResult(createEmptySpecification() as ResolvedOpenAPI.Document),
+    )
   })
 }
 
-const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
+const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
+  // Make it an object
+  let schema = {} as AnyObject
+
+  if (originalSchema && typeof originalSchema === 'object') {
+    schema = structuredClone(originalSchema)
+  } else {
+    schema = createEmptySpecification() as AnyObject
+  }
+
+  // Create empty tags array
   if (!schema.tags) {
     schema.tags = []
   }
 
+  // Create empty paths object
   if (!schema.paths) {
     schema.paths = {}
   }
@@ -53,15 +83,20 @@ const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
   // Webhooks
   const newWebhooks: Record<string, any> = {}
 
-  // @ts-expect-error TODO: The types are just screwed, needs refactoring
   Object.keys(schema.webhooks ?? {}).forEach((name) => {
     // prettier-ignore
     ;(
-      // @ts-expect-error TODO: The types are just screwed, needs refactoring
       Object.keys(schema.webhooks?.[name] ?? {}) as OpenAPIV3_1.HttpMethods[]
     ).forEach((httpVerb) => {
-      const originalWebhook = // @ts-expect-error TODO: The types are just screwed, needs refactoring
-        (schema.webhooks?.[name] as OpenAPIV3_1.PathItemObject)[httpVerb]
+      const originalWebhook =
+        (schema.webhooks?.[name] as (OpenAPIV3_1.PathItemObject[typeof httpVerb]) & {
+          'x-internal'?: boolean
+        })
+
+      // Filter out webhooks marked as internal
+      if (originalWebhook?.['x-internal'] === true) {
+        return
+      }
 
       if (newWebhooks[name] === undefined) {
         newWebhooks[name] = {}
@@ -99,14 +134,22 @@ const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
    * { '/pet': { … } }
    */
   Object.keys(schema.paths).forEach((path: string) => {
-    // @ts-expect-error TODO: The types are just screwed, needs refactoring
     const requestMethods = Object.keys(schema.paths[path]).filter((key) =>
       validRequestMethods.includes(key.toUpperCase() as RequestMethod),
     )
 
     requestMethods.forEach((requestMethod) => {
-      // @ts-expect-error TODO: The types are just screwed, needs refactoring
       const operation = schema.paths[path][requestMethod]
+
+      // Skip if the operation is undefined
+      if (operation === undefined) {
+        return
+      }
+
+      // Filter out operations marked as internal
+      if (operation['x-internal'] === true) {
+        return
+      }
 
       // Transform the operation
       const newOperation = {
@@ -133,7 +176,6 @@ const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
           schema.tags?.push({
             name: 'default',
             description: '',
-            // @ts-expect-error TODO: The types are just screwed, needs refactoring
             operations: [],
           })
         }
@@ -145,10 +187,8 @@ const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
         )
 
         // Add the new operation to the default tag.
-        // @ts-expect-error TODO: The types are just screwed, needs refactoring
         if (indexOfDefaultTag >= 0) {
           // Add the new operation to the default tag.
-          // @ts-expect-error TODO: The types are just screwed, needs refactoring
           schema.tags[indexOfDefaultTag]?.operations.push(newOperation)
         }
       }
@@ -173,18 +213,14 @@ const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
           const tagIndex =
             indexOfExistingTag !== -1
               ? indexOfExistingTag
-              : // @ts-expect-error TODO: The types are just screwed, needs refactoring
-                schema.tags.length - 1
+              : schema.tags.length - 1
 
           // Create operations array if it doesn’t exist yet
-          // @ts-expect-error TODO: The types are just screwed, needs refactoring
           if (typeof schema.tags[tagIndex]?.operations === 'undefined') {
-            // @ts-expect-error TODO: The types are just screwed, needs refactoring
             schema.tags[tagIndex].operations = []
           }
 
           // Add the new operation
-          // @ts-expect-error TODO: The types are just screwed, needs refactoring
           schema.tags[tagIndex].operations.push(newOperation)
         })
       }
@@ -192,8 +228,7 @@ const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
   })
 
   // handle x-displayName extension
-  schema.tags.forEach((tag, tagIndex) => {
-    // @ts-expect-error TODO: We need to handle extensions
+  schema.tags.forEach((tag: Tag, tagIndex: number) => {
     const xDisplayName = tag['x-displayName']
 
     if (xDisplayName && schema.tags?.[tagIndex]) {

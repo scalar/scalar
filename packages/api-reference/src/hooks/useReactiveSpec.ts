@@ -1,36 +1,9 @@
 import { fetchSpecFromUrl } from '@scalar/oas-utils'
 import { type MaybeRefOrGetter, reactive, ref, toValue, watch } from 'vue'
 
-import { isValidUrl } from '../helpers'
+import { createEmptySpecification, isValidUrl } from '../helpers'
 import { parse } from '../helpers/parse'
-import type { Spec, SpecConfiguration } from '../types'
-
-// Generate a new empty spec instance
-export const emptySpecGenerator = (): Spec => ({
-  info: {
-    title: '',
-    description: '',
-    termsOfService: '',
-    version: '',
-    license: {
-      name: '',
-      url: '',
-    },
-    contact: {
-      email: '',
-    },
-  },
-  externalDocs: {
-    description: '',
-    url: '',
-  },
-  components: {
-    schemas: {},
-    securitySchemes: {},
-  },
-  servers: [],
-  tags: [],
-})
+import type { SpecConfiguration } from '../types'
 
 /**
  * Get the spec content from the provided configuration:
@@ -75,7 +48,7 @@ export function useReactiveSpec({
   /** OAS spec as a string */
   const rawSpec = ref('')
   /** Fully parsed and resolved OAS object */
-  const parsedSpec = reactive(emptySpecGenerator())
+  const parsedSpec = reactive(createEmptySpecification())
   /** Parser error messages when parsing fails */
   const specErrors = ref<string | null>(null)
 
@@ -85,7 +58,7 @@ export function useReactiveSpec({
    * If there are errors continue to show the previous valid spec
    */
   function parseInput(value?: string) {
-    if (!value) return Object.assign(parsedSpec, emptySpecGenerator())
+    if (!value) return Object.assign(parsedSpec, createEmptySpecification())
 
     return parse(value)
       .then((validSpec) => {

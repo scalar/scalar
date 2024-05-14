@@ -146,9 +146,10 @@ export type ExampleResponseHeaders = Record<
 >
 
 export type Tag = {
-  name: string
-  description: string
-  operations: TransformedOperation[]
+  'name': string
+  'description': string
+  'operations': TransformedOperation[]
+  'x-displayName'?: string
 }
 export type Parameter = {
   name: string
@@ -234,7 +235,12 @@ export type Definitions = OpenAPIV2.DefinitionsObject
 
 export type Webhooks = Record<
   string,
-  Record<OpenAPIV3_1.HttpMethods, TransformedOperation>
+  Record<
+    OpenAPIV3_1.HttpMethods,
+    TransformedOperation & {
+      'x-internal'?: boolean
+    }
+  >
 >
 
 export type Spec = {
