@@ -1,4 +1,8 @@
 import type { TargetId } from 'httpsnippet-lite'
+import type {
+  ClientInfo,
+  TargetInfo,
+} from 'httpsnippet-lite/dist/types/targets/targets'
 import { computed, reactive, readonly } from 'vue'
 
 import { objectMerge } from '../helpers'

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
 import type { TargetId } from 'httpsnippet-lite'
+import type { AvailableTarget } from 'httpsnippet-lite/dist/types/helpers/utils'
+import type { ClientInfo } from 'httpsnippet-lite/dist/types/targets/targets'
 import { ref } from 'vue'
 
 import { useHttpClients } from '../../../hooks'
-import { type HttpClientState, useHttpClientStore } from '../../../stores/'
+import { type HttpClientState, useHttpClientStore } from '../../../stores'
 
 // Use the template store to keep it accessible globally
 const { httpClient, setHttpClient, getClientTitle, getTargetTitle } =
@@ -14,32 +16,43 @@ const { availableTargets } = useHttpClients()
 const containerRef = ref<HTMLElement>()
 
 // Show popular clients with an icon, not just in a select.
-const featuredClients = [
-  {
-    targetKey: 'shell',
-    clientKey: 'curl',
-  },
-  {
-    targetKey: 'ruby',
-    clientKey: 'native',
-  },
-  {
-    targetKey: 'node',
-    clientKey: 'undici',
-  },
-  {
-    targetKey: 'php',
-    clientKey: 'guzzle',
-  },
-  {
-    targetKey: 'python',
-    clientKey: 'python3',
-  },
-  {
-    targetKey: 'c',
-    clientKey: 'libcurl',
-  },
-] as const
+const featuredClients = (
+  [
+    {
+      targetKey: 'shell',
+      clientKey: 'curl',
+    },
+    {
+      targetKey: 'ruby',
+      clientKey: 'native',
+    },
+    {
+      targetKey: 'node',
+      clientKey: 'undici',
+    },
+    {
+      targetKey: 'php',
+      clientKey: 'guzzle',
+    },
+    {
+      targetKey: 'python',
+      clientKey: 'python3',
+    },
+    {
+      targetKey: 'c',
+      clientKey: 'libcurl',
+    },
+  ] as const
+).filter((featuredClient) =>
+  availableTargets.value.find((target: AvailableTarget) => {
+    return (
+      target.key === featuredClient.targetKey &&
+      target.clients.find(
+        (client: ClientInfo) => client.key === featuredClient.clientKey,
+      )
+    )
+  }),
+)
 
 /**
  * Icons have longer names to appear in icon searches, e.g. "javascript-js" instead of just "javascript". This function

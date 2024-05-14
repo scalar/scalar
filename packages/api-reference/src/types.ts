@@ -7,6 +7,10 @@ import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { ThemeId } from '@scalar/themes'
 import type { UseSeoMetaInput } from '@unhead/schema'
 import type { HarRequest } from 'httpsnippet-lite'
+import type {
+  ClientInfo,
+  TargetInfo,
+} from 'httpsnippet-lite/dist/types/targets/targets'
 import type { Slot } from 'vue'
 
 export type ReferenceProps = {
@@ -19,6 +23,12 @@ export type ReferenceLayoutProps = {
   rawSpec: string
   isDark: boolean
 }
+
+export type HiddenClients =
+  // Exclude whole targets or just specific clients
+  | Partial<Record<TargetInfo['key'], boolean | ClientInfo['key'][]>>
+  // Backwards compatibility with the previous behavior ['fetch', 'xhr']
+  | ClientInfo['key'][]
 
 export type ReferenceConfiguration = {
   /** A string to use one of the color presets */
@@ -83,9 +93,8 @@ export type ReferenceConfiguration = {
   /**
    * List of httpsnippet clients to hide from the clients menu
    * By default hides Unirest, pass `[]` to show all clients
-   * @see https://github.com/Kong/httpsnippet/wiki/Targets
    */
-  hiddenClients?: string[]
+  hiddenClients?: HiddenClients
   /** Custom CSS to be added to the page */
   customCss?: string
   /** onSpecUpdate is fired on spec/swagger content change */
