@@ -14,3 +14,5 @@ test-*.json
 
 # Temporary Vite/Vitest config files
 *.config.ts.timestamp-*.mjs
+
+.DS_Store
