@@ -96,13 +96,16 @@ const keys = computed(() => Object.keys(props.value ?? {}))
 <template>
   <!-- Single security scheme -->
   <template v-if="keys.length === 1">
-    {{ getLabelForScheme(value?.[keys[0]], keys[0]) }}
+    <!-- Use <div> to avoid unnecessary styles added by `CollapsibleSection` -->
+    <div class="security-scheme-label">
+      {{ getLabelForScheme(value?.[keys[0]], keys[0]) }}
+    </div>
   </template>
 
   <!-- Multiple security schemes -->
   <template v-else-if="keys.length > 1">
     <div class="security-scheme-selector">
-      <span>
+      <span class="security-scheme-label">
         {{
           authentication.preferredSecurityScheme
             ? getLabelForScheme(
@@ -144,7 +147,8 @@ const keys = computed(() => Object.keys(props.value ?? {}))
 .security-scheme-selector:hover {
   color: var(--scalar-color-1);
 }
-.security-scheme-selector span {
+.security-scheme-label {
+  color: var(--scalar-color-2);
   font-size: var(--scalar-mini);
   font-weight: var(--scalar-semibold);
 }
