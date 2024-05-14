@@ -20,6 +20,15 @@ export const parse = (specification: any): Promise<Spec> => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
     try {
+      // Return an empty resolved specification if the given specification is empty
+      if (!specification) {
+        return resolve(
+          transformResult(
+            createEmptySpecification() as ResolvedOpenAPI.Document,
+          ),
+        )
+      }
+
       const { schema, errors } = await openapi().load(specification).resolve()
 
       if (errors?.length) {
