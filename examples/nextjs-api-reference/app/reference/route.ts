@@ -6,7 +6,7 @@ const response = await fetch(
 
 const config = {
   spec: {
-    content: await response.json(),
+    content: await response.text(),
   },
 }
 
