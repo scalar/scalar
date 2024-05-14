@@ -179,17 +179,16 @@ describe('getRequestFromAuthentication', () => {
     const request = getRequestFromAuthentication(
       {
         ...createEmptyAuthenticationState(),
-        preferredSecurityScheme: 'petstore_auth',
+        preferredSecurityScheme: 'my_custom_scheme',
         securitySchemes: {
-          petstore_auth: {
+          my_custom_scheme: {
             type: 'oauth2',
             flows: {
               implicit: {
-                authorizationUrl:
-                  'https://petstore3.swagger.io/oauth/authorize',
+                authorizationUrl: 'https://galaxy.scalar.com/oauth/authorize',
                 scopes: {
-                  'write:pets': 'modify pets in your account',
-                  'read:pets': 'read your pets',
+                  'write:planets': 'modify planets in your account',
+                  'read:planets': 'get all information about planets',
                 },
               },
             },
@@ -204,7 +203,7 @@ describe('getRequestFromAuthentication', () => {
       },
       [
         {
-          petstore_auth: [],
+          my_custom_scheme: [],
         },
       ],
     )

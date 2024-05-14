@@ -259,8 +259,8 @@ For OpenAuth2 it’s more looking like this:
   authentication: {
       // The OpenAPI file has keys for all security schemes
       // Which one should be used by default?
-      preferredSecurityScheme: 'planets_auth',
-      // The `petstore_auth` security scheme is of type `oAuth2`, so prefill the client id and the scopes:
+      preferredSecurityScheme: 'oauth2',
+      // The `oauth2` security scheme is of type `oAuth2`, so prefill the client id and the scopes:
       oAuth2: {
         clientId: 'foobar123',
         // optional:

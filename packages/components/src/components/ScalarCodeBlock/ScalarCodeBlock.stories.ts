@@ -86,7 +86,7 @@ export const JSON: Story = {
 export const HideCredentials: Story = {
   args: {
     content: `curl --request PUT \
-  --url https://petstore3.swagger.io/api/v3/pet \
+  --url https://galaxy.scalar.com/planets \
   --header 'Authorization: Bearer 123234324'`,
     hideCredentials: ['123234324'],
   },

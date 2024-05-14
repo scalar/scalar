@@ -9,7 +9,7 @@ Add the Scalar Play Button to your page
 ```
     <script
       id="scalar-play-button-script"
-      data-url="https://petstore3.swagger.io/api/v3/openapi.json"></script>
+      data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml"></script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/play-button"></script>
 ```
 

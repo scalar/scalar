@@ -39,7 +39,7 @@ const {
 
 const historyModal = useModal()
 
-// https://petstore3.swagger.io/api/v3
+// https://galaxy.scalar.com
 const url = computed(() => activeRequest.url)
 // GET, POST …
 const requestType = computed(() => activeRequest.type)

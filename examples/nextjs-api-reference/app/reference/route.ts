@@ -1,16 +1,12 @@
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
-// Local example for local development
-// import content from '../../../web/src/fixtures/petstorev3.json'
-
-const openapiResponse = await fetch(
-  'https://cdn.scalar.com/spec/openapi_petstore.json',
+const response = await fetch(
+  'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
 )
-const content = await openapiResponse.json()
 
 const config = {
   spec: {
-    content,
+    content: await response.text(),
   },
 }
 
