@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import rehypeShiki from '@shikijs/rehype'
+import rehypeShikiFromHighlighter from '@shikijs/rehype/core'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
 import rehypeRaw from 'rehype-raw'
@@ -8,6 +8,7 @@ import rehypeStringify from 'rehype-stringify'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
+import { getHighlighterCore } from 'shiki/core'
 import { unified } from 'unified'
 import { onServerPrefetch, ref, watch } from 'vue'
 
@@ -30,6 +31,12 @@ const disallowedTagNames = props.withImages ? [] : ['img', 'picture']
 watch(
   () => props.value,
   async () => {
+    const highlighter = await getHighlighterCore({
+      themes: [import('shiki/themes/github-light.mjs')],
+      langs: [import('shiki/langs/html.mjs')],
+      loadWasm: import('shiki/wasm'),
+    })
+
     // Markdown pipeline
     const result = await unified()
       // Parses markdown
@@ -51,11 +58,10 @@ watch(
       // Adds target="_blank" to external links
       .use(rehypeExternalLinks, { target: '_blank' })
       // Syntax highlighting
-      .use(rehypeShiki, {
+      .use(rehypeShikiFromHighlighter, highlighter, {
         // or `theme` for a single theme
         themes: {
-          light: 'vitesse-light',
-          dark: 'vitesse-dark',
+          light: 'github-light',
         },
       })
       // Formats the HTML
