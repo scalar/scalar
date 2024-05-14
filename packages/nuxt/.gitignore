@@ -15,6 +15,7 @@ node_modules
 
 # Generated dirs
 dist
+test-results
 
 # Nuxt
 .nuxt
