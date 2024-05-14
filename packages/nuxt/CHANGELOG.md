@@ -1,5 +1,15 @@
 # @scalar/nuxt
 
+## 0.0.46
+
+### Patch Changes
+
+- 79e3caa: chore: replace petstore example with galaxy example
+- Updated dependencies [79e3caa]
+- Updated dependencies [5d0e06c]
+- Updated dependencies [c6ee654]
+  - @scalar/api-reference@1.22.36
+
 ## 0.0.45
 
 ### Patch Changes

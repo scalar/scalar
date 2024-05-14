@@ -1,5 +1,17 @@
 # @scalar/play-button
 
+## 0.0.11
+
+### Patch Changes
+
+- 79e3caa: chore: replace petstore example with galaxy example
+- Updated dependencies [79e3caa]
+- Updated dependencies [5d0e06c]
+- Updated dependencies [c6ee654]
+- Updated dependencies [e022ee6]
+  - @scalar/api-reference@1.22.36
+  - @scalar/api-client@1.2.25
+
 ## 0.0.10
 
 ### Patch Changes

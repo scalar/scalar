@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.22.36
+
+### Patch Changes
+
+- 79e3caa: chore: replace petstore example with galaxy example
+- 5d0e06c: fix: api client blur, modal size, client contrast with clickout area
+- c6ee654: feat: hide operations with x-internal: true
+- Updated dependencies [79e3caa]
+- Updated dependencies [e022ee6]
+  - @scalar/api-client@1.2.25
+  - @scalar/components@0.7.8
+
 ## 1.22.35
 
 ### Patch Changes

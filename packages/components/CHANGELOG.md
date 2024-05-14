@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.7.8
+
+### Patch Changes
+
+- 79e3caa: chore: replace petstore example with galaxy example
+
 ## 0.7.7
 
 ### Patch Changes

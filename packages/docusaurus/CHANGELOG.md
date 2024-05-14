@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.2.36
+
+### Patch Changes
+
+- 79e3caa: chore: replace petstore example with galaxy example
+  - @scalar/api-reference-react@0.1.78
+
 ## 0.2.35
 
 ### Patch Changes
