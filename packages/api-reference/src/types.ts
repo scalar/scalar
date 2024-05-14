@@ -234,7 +234,12 @@ export type Definitions = OpenAPIV2.DefinitionsObject
 
 export type Webhooks = Record<
   string,
-  Record<OpenAPIV3_1.HttpMethods, TransformedOperation>
+  Record<
+    OpenAPIV3_1.HttpMethods,
+    TransformedOperation & {
+      'x-internal'?: boolean
+    }
+  >
 >
 
 export type Spec = {

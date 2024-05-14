@@ -4,11 +4,11 @@
  */
 import { type RequestMethod, validRequestMethods } from '@scalar/api-client'
 import {
+  type AnyObject,
   type OpenAPIV2,
   type OpenAPIV3,
   type OpenAPIV3_1,
   type ResolvedOpenAPI,
-  filter,
   openapi,
 } from '@scalar/openapi-parser'
 
@@ -42,40 +42,43 @@ export const parse = (specification: any): Promise<Spec> => {
       if (schema === undefined) {
         reject(errors?.[0]?.error ?? 'Failed to parse the OpenAPI file.')
 
-        return
+        return resolve(
+          transformResult(
+            createEmptySpecification() as ResolvedOpenAPI.Document,
+          ),
+        )
       }
 
-      resolve(transformResult(structuredClone(schema)))
+      return resolve(transformResult(schema))
     } catch (error) {
       reject(error)
     }
+
+    return resolve(
+      transformResult(createEmptySpecification() as ResolvedOpenAPI.Document),
+    )
   })
 }
 
 const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
   // Make it an object
-  let normalizedSchema = {} as ResolvedOpenAPI.Document
+  let schema = {} as AnyObject
 
   if (originalSchema && typeof originalSchema === 'object') {
-    normalizedSchema = structuredClone(originalSchema)
+    schema = structuredClone(originalSchema)
   } else {
-    normalizedSchema = createEmptySpecification() as ResolvedOpenAPI.Document
+    schema = createEmptySpecification() as AnyObject
   }
 
   // Create empty tags array
-  if (!normalizedSchema.tags) {
-    normalizedSchema.tags = []
+  if (!schema.tags) {
+    schema.tags = []
   }
 
   // Create empty paths object
-  if (!normalizedSchema.paths) {
-    normalizedSchema.paths = {}
+  if (!schema.paths) {
+    schema.paths = {}
   }
-
-  // Filter out operations marked as internal
-  const schema = filter(normalizedSchema, (item) => {
-    return !item?.['x-internal']
-  })
 
   // Webhooks
   const newWebhooks: Record<string, any> = {}
@@ -86,7 +89,14 @@ const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
       Object.keys(schema.webhooks?.[name] ?? {}) as OpenAPIV3_1.HttpMethods[]
     ).forEach((httpVerb) => {
       const originalWebhook =
-        (schema.webhooks?.[name] as OpenAPIV3_1.PathItemObject)[httpVerb]
+        (schema.webhooks?.[name] as (OpenAPIV3_1.PathItemObject[typeof httpVerb]) & {
+          'x-internal'?: boolean
+        })
+
+      // Filter out webhooks marked as internal
+      if (originalWebhook?.['x-internal'] === true) {
+        return
+      }
 
       if (newWebhooks[name] === undefined) {
         newWebhooks[name] = {}
@@ -133,6 +143,11 @@ const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
 
       // Skip if the operation is undefined
       if (operation === undefined) {
+        return
+      }
+
+      // Filter out operations marked as internal
+      if (operation['x-internal'] === true) {
         return
       }
 
@@ -214,7 +229,6 @@ const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
 
   // handle x-displayName extension
   schema.tags.forEach((tag, tagIndex) => {
-    // @ts-expect-error TODO: We need to handle extensions
     const xDisplayName = tag['x-displayName']
 
     if (xDisplayName && schema.tags?.[tagIndex]) {
