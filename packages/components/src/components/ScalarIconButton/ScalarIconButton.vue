@@ -26,7 +26,8 @@ const variants = cva({
   base: 'scalar-icon-button grid aspect-square cursor-pointer rounded',
   variants: {
     size: {
-      xs: 'size-3.5 p-0.5',
+      xxs: 'size-3.5 p-0.5',
+      xs: 'size-5 p-1',
       sm: 'size-6 p-1',
       md: 'size-10 p-3',
       full: 'h-full w-full',

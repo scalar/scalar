@@ -59,7 +59,7 @@ const { copyToClipboard } = useClipboard()
         class="endpoint-copy"
         icon="Clipboard"
         label="Copy endpoint URL"
-        size="sm"
+        size="xs"
         variant="ghost"
         @click.stop="copyToClipboard(operation.path)" />
     </template>

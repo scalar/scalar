@@ -103,7 +103,7 @@ const onAnchorClick = async (ev: Event) => {
           class="toggle-nested-icon"
           :icon="open ? 'ChevronDown' : 'ChevronRight'"
           label="Toggle group"
-          size="sm"
+          size="xs"
           @click.stop="handleClick" />
         &hairsp;
       </p>
