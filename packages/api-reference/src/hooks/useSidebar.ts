@@ -17,6 +17,7 @@ import { useNavState } from './useNavState'
 export type SidebarEntry = {
   id: string
   title: string
+  displayTitle?: string
   children?: SidebarEntry[]
   select?: () => void
   httpVerb?: string
@@ -129,6 +130,7 @@ const items = computed(() => {
             return {
               id: getTagId(tag),
               title: tag.name.toUpperCase(),
+              displayTitle: (tag['x-displayName'] ?? tag.name).toUpperCase(),
               show: true,
               children: tag.operations?.map(
                 (operation: TransformedOperation) => {
