@@ -63,7 +63,7 @@ const config: Config = {
         route: '/scalar',
         configuration: {
           spec: {
-            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
           },
         },
       } as ScalarOptions,
