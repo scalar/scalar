@@ -1,7 +1,7 @@
-import { type Spec } from "@scalar/api-reference";
+import type { Spec } from "@scalar/api-reference";
 
 // Generate a new empty spec instance
-export const emptySpecGenerator = (): Spec => ({
+export const createEmptySpecification = (): Spec => ({
     info: {
       title: '',
       description: '',

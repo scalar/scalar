@@ -8,9 +8,11 @@ import {
   type OpenAPIV3,
   type OpenAPIV3_1,
   type ResolvedOpenAPI,
+  filter,
   openapi,
 } from '@scalar/openapi-parser'
 
+import { createEmptySpecification } from '../hooks'
 // AnyStringOrObject
 import type { Spec } from '../types'
 
@@ -41,26 +43,40 @@ export const parse = (specification: any): Promise<Spec> => {
   })
 }
 
-const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
-  if (!schema.tags) {
-    schema.tags = []
+const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
+  // Make it an object
+  let normalizedSchema = {} as ResolvedOpenAPI.Document
+
+  if (originalSchema && typeof originalSchema === 'object') {
+    normalizedSchema = structuredClone(originalSchema)
+  } else {
+    normalizedSchema = createEmptySpecification() as ResolvedOpenAPI.Document
   }
 
-  if (!schema.paths) {
-    schema.paths = {}
+  // Create empty tags array
+  if (!normalizedSchema.tags) {
+    normalizedSchema.tags = []
   }
+
+  // Create empty paths object
+  if (!normalizedSchema.paths) {
+    normalizedSchema.paths = {}
+  }
+
+  // Filter out operations marked as internal
+  const schema = filter(normalizedSchema, (item) => {
+    return !item?.['x-internal']
+  })
 
   // Webhooks
   const newWebhooks: Record<string, any> = {}
 
-  // @ts-expect-error TODO: The types are just screwed, needs refactoring
   Object.keys(schema.webhooks ?? {}).forEach((name) => {
     // prettier-ignore
     ;(
-      // @ts-expect-error TODO: The types are just screwed, needs refactoring
       Object.keys(schema.webhooks?.[name] ?? {}) as OpenAPIV3_1.HttpMethods[]
     ).forEach((httpVerb) => {
-      const originalWebhook = // @ts-expect-error TODO: The types are just screwed, needs refactoring
+      const originalWebhook =
         (schema.webhooks?.[name] as OpenAPIV3_1.PathItemObject)[httpVerb]
 
       if (newWebhooks[name] === undefined) {
@@ -99,14 +115,17 @@ const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
    * { '/pet': { … } }
    */
   Object.keys(schema.paths).forEach((path: string) => {
-    // @ts-expect-error TODO: The types are just screwed, needs refactoring
     const requestMethods = Object.keys(schema.paths[path]).filter((key) =>
       validRequestMethods.includes(key.toUpperCase() as RequestMethod),
     )
 
     requestMethods.forEach((requestMethod) => {
-      // @ts-expect-error TODO: The types are just screwed, needs refactoring
       const operation = schema.paths[path][requestMethod]
+
+      // Skip if the operation is undefined
+      if (operation === undefined) {
+        return
+      }
 
       // Transform the operation
       const newOperation = {
@@ -133,7 +152,6 @@ const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
           schema.tags?.push({
             name: 'default',
             description: '',
-            // @ts-expect-error TODO: The types are just screwed, needs refactoring
             operations: [],
           })
         }
@@ -145,10 +163,8 @@ const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
         )
 
         // Add the new operation to the default tag.
-        // @ts-expect-error TODO: The types are just screwed, needs refactoring
         if (indexOfDefaultTag >= 0) {
           // Add the new operation to the default tag.
-          // @ts-expect-error TODO: The types are just screwed, needs refactoring
           schema.tags[indexOfDefaultTag]?.operations.push(newOperation)
         }
       }
@@ -173,18 +189,14 @@ const transformResult = (schema: ResolvedOpenAPI.Document): Spec => {
           const tagIndex =
             indexOfExistingTag !== -1
               ? indexOfExistingTag
-              : // @ts-expect-error TODO: The types are just screwed, needs refactoring
-                schema.tags.length - 1
+              : schema.tags.length - 1
 
           // Create operations array if it doesn’t exist yet
-          // @ts-expect-error TODO: The types are just screwed, needs refactoring
           if (typeof schema.tags[tagIndex]?.operations === 'undefined') {
-            // @ts-expect-error TODO: The types are just screwed, needs refactoring
             schema.tags[tagIndex].operations = []
           }
 
           // Add the new operation
-          // @ts-expect-error TODO: The types are just screwed, needs refactoring
           schema.tags[tagIndex].operations.push(newOperation)
         })
       }

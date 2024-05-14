@@ -12,7 +12,7 @@ import DevReferencesOptions from '../components/DevReferencesOptions.vue'
 import DevToolbar from '../components/DevToolbar.vue'
 import MonacoEditor from '../components/MonacoEditor.vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
-import { emptySpecGenerator } from '../fixtures/emptySpec'
+import { createEmptySpecification } from '../fixtures/emptySpec'
 
 const content = ref('')
 
@@ -71,9 +71,9 @@ const parsedSpec = asyncComputed(
       })
       .catch((error) => {
         console.warn(error)
-        return emptySpecGenerator()
+        return createEmptySpecification()
       }),
-  emptySpecGenerator(),
+  createEmptySpecification(),
 )
 </script>
 <template>
