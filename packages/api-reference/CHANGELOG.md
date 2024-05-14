@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.22.37
+
+### Patch Changes
+
+- e3a72bb: style: updated icon button size
+- Updated dependencies [e3a72bb]
+  - @scalar/components@0.7.9
+  - @scalar/api-client@1.2.26
+
 ## 1.22.36
 
 ### Patch Changes
