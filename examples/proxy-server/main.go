@@ -85,6 +85,15 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		return nil
 	}
 
+	// Deal with network errors
+	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, e error) {
+		// Original behavior
+		http.Error(w, e.Error(), http.StatusServiceUnavailable)
+
+		// Output the error to the console
+		log.Printf("[ERROR] %v\n", e)
+	}
+
 	// Modify the request to indicate it is proxied
 	r.URL.Host = remote.Host
 	r.URL = remote
