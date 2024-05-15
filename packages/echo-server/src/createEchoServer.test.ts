@@ -111,4 +111,17 @@ describe('createEchoServer', () => {
         resolve(null)
       })
     }))
+
+  it('returns 404', () =>
+    new Promise((resolve) => {
+      const port = createEchoServerOnAnyPort()
+
+      fetch(`http://localhost:${port}/404`, {
+        method: 'POST',
+      }).then(async (response) => {
+        expect(response.status).toBe(404)
+
+        resolve(null)
+      })
+    }))
 })
