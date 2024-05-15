@@ -188,14 +188,18 @@ describe('sendRequest', () => {
     })
   })
 
-  it('returns ENOTFOUND for invalid domain', async () => {
+  it('returns error for invalid domain', async () => {
     const request = {
-      url: `http://127.0.0.1:${ECHO_PORT}/v1`,
+      url: `http://DOES_NOT_EXIST`,
     }
 
-    const result = await sendRequest(request, `http://DOES_NOT_EXIST`)
+    const result = await sendRequest(request, `http://127.0.0.1:${PROXY_PORT}`)
 
-    expect(result?.response.data).toBe('ENOTFOUND')
+    console.log(result?.response.data)
+
+    expect(result?.response.data?.trim()).toBe(
+      'dial tcp: lookup does_not_exist: no such host',
+    )
   })
 
   it('keeps the trailing slash', async () => {

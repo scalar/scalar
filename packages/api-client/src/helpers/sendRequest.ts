@@ -155,9 +155,6 @@ export async function sendRequest(
       // We add fallbacks where we set the code, status and header type so we can
       // float all errors now to the user
       return {
-        headers: {
-          'content-type': 'application/json; charset=utf-8',
-        },
         data: error.code ?? error.message,
         ...errorResponse,
         statusCode: errorResponse?.status ?? 0,
