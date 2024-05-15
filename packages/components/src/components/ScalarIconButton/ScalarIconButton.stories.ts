@@ -9,7 +9,7 @@ const meta = {
   argTypes: {
     icon: { control: 'select', options: ICONS },
     size: { control: 'select', options: ['xxs', 'xs', 'sm', 'md'] },
-    label: { control: 'string' },
+    label: { control: 'text' },
     variant: {
       control: 'select',
       options: ['solid', 'outlined', 'ghost', 'danger'],

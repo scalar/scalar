@@ -7,7 +7,7 @@ const meta = {
   component: ScalarTextField,
   tags: ['autodocs'],
   argTypes: {
-    label: { control: 'string', defaultValue: 'Scalar Text Field' },
+    label: { control: 'text', defaultValue: 'Scalar Text Field' },
   },
   render: (args) => ({
     components: { ScalarTextField },
