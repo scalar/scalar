@@ -155,9 +155,11 @@ const showSideBar = ref(false)
   height: calc(100% - 120px);
   width: calc(100% - 8px);
   max-width: 1390px;
-  left: 50%;
-  top: 50%;
-  transform: translate3d(-50%, -50%, 0);
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
   border-radius: var(--scalar-radius-lg);
   overflow: hidden;
   visibility: visible;
@@ -285,7 +287,7 @@ const showSideBar = ref(false)
 @media (max-width: 1280px) {
   .api-client-drawer {
     height: calc(100% - 56px);
-    top: calc(50% + 26px);
+    top: 46px;
   }
 }
 @media (max-width: 820px) {
