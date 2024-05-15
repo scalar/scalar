@@ -75,7 +75,9 @@ onMounted(() => {
           v-for="item in items.entries"
           :key="item.id">
           <template v-if="item.isGroup">
-            <li class="sidebar-group-title">{{ item.title }}</li>
+            <li class="sidebar-group-title">
+              {{ item.displayTitle ?? item.title }}
+            </li>
             <template
               v-for="group in item.children"
               :key="group.id">
@@ -86,7 +88,7 @@ onMounted(() => {
                 :isActive="hash === group.id"
                 :item="{
                   id: group.id,
-                  title: group.title,
+                  title: group.displayTitle ?? group.title,
                   select: group.select,
                   httpVerb: group.httpVerb,
                   deprecated: group.deprecated ?? false,
@@ -111,7 +113,7 @@ onMounted(() => {
                         :isActive="hash === child.id"
                         :item="{
                           id: child.id,
-                          title: child.title,
+                          title: child.displayTitle ?? child.title,
                           select: child.select,
                           httpVerb: child.httpVerb,
                           deprecated: child.deprecated ?? false,
@@ -131,7 +133,7 @@ onMounted(() => {
               :isActive="hash === item.id"
               :item="{
                 id: item.id,
-                title: item.title,
+                title: item.displayTitle ?? item.title,
                 select: item.select,
                 httpVerb: item.httpVerb,
                 deprecated: item.deprecated ?? false,
@@ -156,7 +158,7 @@ onMounted(() => {
                       :isActive="hash === child.id"
                       :item="{
                         id: child.id,
-                        title: child.title,
+                        title: child.displayTitle ?? child.title,
                         select: child.select,
                         httpVerb: child.httpVerb,
                         deprecated: child.deprecated ?? false,

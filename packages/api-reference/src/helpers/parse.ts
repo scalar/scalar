@@ -227,15 +227,6 @@ const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
     })
   })
 
-  // handle x-displayName extension
-  schema.tags.forEach((tag: Tag, tagIndex: number) => {
-    const xDisplayName = tag['x-displayName']
-
-    if (xDisplayName && schema.tags?.[tagIndex]) {
-      schema.tags[tagIndex].name = xDisplayName
-    }
-  })
-
   const returnedResult = {
     ...schema,
     webhooks: newWebhooks,
