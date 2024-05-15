@@ -1,0 +1,37 @@
+{
+  "name": "svelte-api-reference",
+  "version": "1.0.0",
+  "description": "a Svelte component to render API references from an OpenAPI file",
+  "keywords": [
+    "api",
+    "documentation",
+    "svelte",
+    "openapi",
+    "swagger"
+  ],
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsup ./src/index.ts --format esm,cjs --dts",
+    "test": "vitest run"
+  },
+  "type": "module",
+  "main": "src/ApiReference.svelte",
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*"
+  },
+  "devDependencies": {
+    "svelte-preprocess": "^5.1.4",
+    "tsup": "^7.2.0",
+    "typescript": "^5.4.3",
+    "vite": "^5.2.10",
+    "vitest": "^1.5.0"
+  },
+  "peerDependencies": {
+    "svelte": "^4.2.17"
+  }
+}
