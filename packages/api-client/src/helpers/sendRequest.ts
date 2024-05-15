@@ -143,6 +143,7 @@ export async function sendRequest(
         headers: {
           'content-type': 'application/json; charset=utf-8',
         },
+        data: error.code ?? error.message,
         ...errorResponse,
         statusCode: errorResponse?.status ?? 0,
         error: {
