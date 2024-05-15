@@ -164,9 +164,7 @@ const showSideBar = ref(false)
   position: fixed;
   z-index: 1001;
   opacity: 0;
-  backface-visibility: hidden;
-  -webkit-font-smoothing: subpixel-antialiased;
-  animation: apiclientfadein 0.35s forwards;
+  animation: apiclientfadein 0.25s forwards 0.1s;
   box-shadow:
     rgba(0, 0, 0, 0.12) 0px 4px 30px,
     rgba(0, 0, 0, 0.04) 0px 3px 17px,
@@ -204,11 +202,9 @@ const showSideBar = ref(false)
 }
 @keyframes apiclientfadein {
   from {
-    transform: translate3d(-50%, calc(-50% + 20px), 0) perspective(1px);
     opacity: 0;
   }
   to {
-    transform: translate3d(-50%, -50%, 0) perspective(1px);
     opacity: 1;
   }
 }
