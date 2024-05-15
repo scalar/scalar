@@ -32,6 +32,7 @@ Generate interactive API documentation from OpenAPI/Swagger files. [Try our Demo
   - [React](#react)
   - [Fastify](#fastify)
   - [Platformatic](#platformatic)
+  - [.NET](https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/README.md)
   - [Hono](#hono)
   - [ElysiaJS](#elysiajs)
   - [Express](#express)
