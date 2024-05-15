@@ -13,7 +13,7 @@ export const styles: Record<string, Record<string, any>> = {
   ],
   ghost: [
     'scalar-button-ghost',
-    'bg-transparent text-fore-3 active:text-fore-1 hocus:text-fore-1',
+    'bg-transparent text-fore-3 transition-colors active:text-fore-1 hocus:text-fore-1',
   ],
   danger: [
     'scalar-button-danger',
