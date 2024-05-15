@@ -6,14 +6,15 @@ This example demonstrates Scalar integration with ASP.NET Core's [minimal APIs f
 
 ### Requirements
 
-* Docker
-* .NET 9 Preview 4 SDK (https://github.com/dotnet/installer#table)
+- Docker
+- .NET 9 Preview 4 SDK (https://github.com/dotnet/installer#table)
 
 ### Run
 
 ```bash
 docker build -t scalar-dotnet-image .
 ```
+
 ```bash
 docker run -it --rm -p 8080:8080 --name scalar-dotnet-sample scalar-dotnet-image
 ```
