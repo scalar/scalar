@@ -51,4 +51,142 @@ describe('sendRequest', () => {
       path: '/',
     })
   })
+
+  it('replaces variables', async () => {
+    const request = {
+      url: `http://127.0.0.1:${ECHO_PORT}`,
+      path: '{path}',
+      variables: [
+        {
+          name: 'path',
+          value: 'example',
+          enabled: true,
+        },
+      ],
+    }
+
+    const result = await sendRequest(request)
+
+    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+      method: 'GET',
+      path: '/example',
+    })
+  })
+
+  it('sends query parameters', async () => {
+    const request = {
+      url: `http://127.0.0.1:${ECHO_PORT}`,
+      query: [
+        {
+          name: 'foo',
+          value: 'bar',
+          enabled: true,
+        },
+      ],
+    }
+
+    const result = await sendRequest(request)
+
+    expect(
+      (JSON.parse(result?.response.data ?? '') as Record<string, any>).query,
+    ).toMatchObject({
+      foo: 'bar',
+    })
+  })
+
+  it('merges query parameters', async () => {
+    const request = {
+      url: `http://127.0.0.1:${ECHO_PORT}?example=parameter`,
+      query: [
+        {
+          name: 'foo',
+          value: 'bar',
+          enabled: true,
+        },
+      ],
+    }
+
+    const result = await sendRequest(request)
+
+    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+      query: {
+        example: 'parameter',
+        foo: 'bar',
+      },
+    })
+  })
+
+  it('adds cookies as headers', async () => {
+    const request = {
+      url: `http://127.0.0.1:${ECHO_PORT}`,
+      cookies: [
+        {
+          name: 'foo',
+          value: 'bar',
+          enabled: true,
+        },
+      ],
+    }
+
+    const result = await sendRequest(request)
+
+    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+      cookies: {
+        foo: 'bar',
+      },
+    })
+  })
+
+  it('merges cookies', async () => {
+    const request = {
+      url: `http://127.0.0.1:${ECHO_PORT}`,
+      cookies: [
+        {
+          name: 'foo',
+          value: 'bar',
+          enabled: true,
+        },
+        {
+          name: 'another',
+          value: 'cookie',
+          enabled: true,
+        },
+      ],
+    }
+
+    const result = await sendRequest(request)
+
+    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+      cookies: {
+        foo: 'bar',
+        another: 'cookie',
+      },
+    })
+  })
+
+  it('sends requests through a proxy', async () => {
+    const request = {
+      url: `http://127.0.0.1:${ECHO_PORT}/v1`,
+    }
+
+    const result = await sendRequest(request, `http://127.0.0.1:${PROXY_PORT}`)
+
+    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+      method: 'GET',
+      path: '/v1',
+    })
+  })
+
+  it('keeps the trailing slash', async () => {
+    const request = {
+      url: `http://127.0.0.1:${ECHO_PORT}/v1/`,
+    }
+
+    const result = await sendRequest(request)
+
+    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+      method: 'GET',
+      path: '/v1/',
+    })
+  })
 })
