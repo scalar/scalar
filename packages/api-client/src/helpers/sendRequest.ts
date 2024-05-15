@@ -125,15 +125,12 @@ export async function sendRequest(
   }
 
   const response: ClientResponse = await axios(axiosRequestConfig)
-    .then((result) => {
-      // Without proxy
-      return {
-        ...result,
-        statusCode: result.status,
-        data: result.data,
-        error: false,
-      }
-    })
+    .then((result) => ({
+      ...result,
+      statusCode: result.status,
+      data: result.data,
+      error: false,
+    }))
     .catch((error) => {
       const { response: errorResponse } = error
 
