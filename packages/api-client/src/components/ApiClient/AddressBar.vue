@@ -5,11 +5,7 @@ import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-import {
-  humanDiff,
-  prepareClientRequestConfig,
-  sendRequest,
-} from '../../helpers'
+import { prepareClientRequestConfig, sendRequest } from '../../helpers'
 import { useRequestStore } from '../../stores'
 import RequestHistory from './RequestHistory.vue'
 import RequestMethodSelect from './RequestMethodSelect.vue'
@@ -31,7 +27,6 @@ const loading = ref(false)
 const {
   activeRequest,
   addRequestToHistory,
-  requestHistory,
   requestHistoryOrder,
   readOnly,
   setActiveRequest,

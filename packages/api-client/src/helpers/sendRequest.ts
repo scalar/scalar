@@ -130,7 +130,7 @@ export async function sendRequest(
       return {
         ...result,
         statusCode: result.status,
-        data: JSON.stringify(result.data),
+        data: result.data,
         error: false,
       }
     })
@@ -145,7 +145,10 @@ export async function sendRequest(
         },
         ...errorResponse,
         statusCode: errorResponse?.status ?? 0,
-        data: JSON.stringify(errorResponse?.data ?? { error: error.code }),
+        error: {
+          message: errorResponse?.data?.message ?? error.message,
+          stack: errorResponse?.data?.stack ?? error.stack,
+        },
       }
     })
 
