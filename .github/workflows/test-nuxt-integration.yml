@@ -28,8 +28,8 @@ jobs:
         run: pnpm --filter nuxt install
       - name: Turborepo cache
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
-      - name: Start static html server
-        run: pnpm --filter nuxt dev &
+      - name: Start nuxt server
+        run: pnpm --filter nuxt dev --host &
       - name: Get installed Playwright version
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package.json').devDependencies['@playwright/test'])")" >> $GITHUB_ENV
@@ -43,4 +43,4 @@ jobs:
       - name: Install Playwright browser binaries & OS dependencies
         run: pnpm exec playwright install --with-deps
       - name: Run e2e tests
-        run: CI=1 pnpm test:e2e:nuxt
+        run: CI=1 pnpm -r --parallel test:e2e:nuxt

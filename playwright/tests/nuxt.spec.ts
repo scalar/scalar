@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 const HOST = process.env.HOST || 'localhost'
 
-test('Renders scalar/galaxy api reference from the nuxt', async ({
+test('Renders scalar/galaxy api reference from nuxt', async ({
   page,
   isMobile,
 }) => {
