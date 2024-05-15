@@ -34,6 +34,8 @@ export const Base: Story = {}
 
 export const FullWidth: Story = { args: { fullWidth: true } }
 
+export const Ghost: Story = { args: { variant: 'ghost' } }
+
 export const Disabled: Story = { args: { disabled: true } }
 
 export const Loading: Story = {
