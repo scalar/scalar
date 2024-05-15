@@ -24,10 +24,10 @@ describe('fetchSpecFromUrl', () => {
     expect(spec.length).toBeGreaterThan(100)
   })
 
-  it(`fetches specifications (through localhost:${PROXY_PORT})`, async () => {
+  it(`fetches specifications (through 127.0.0.1:${PROXY_PORT})`, async () => {
     const spec = await fetchSpecFromUrl(
       'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-      `https://localhost:${PROXY_PORT}`,
+      `http://127.0.0.1:${PROXY_PORT}`,
     )
 
     expect(typeof spec).toEqual('string')
