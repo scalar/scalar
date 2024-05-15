@@ -32,8 +32,6 @@
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "prepack": "nuxt-module-build build",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
     "test:watch": "vitest watch",
     "toist": "vitest run",
     "types:check": "nuxi typecheck"
