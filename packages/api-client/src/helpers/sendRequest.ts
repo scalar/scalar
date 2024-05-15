@@ -16,6 +16,20 @@ import {
   replaceVariables,
 } from './'
 
+/** Redirects the request to a proxy server with a given URL. */
+function redirectToProxy(proxy: string, url: string): string {
+  return `${proxy}?scalar_url=${encodeURI(url)}`
+}
+
+/** Skip the proxy for requests to localhost */
+function isRequestToLocalhost(url: string) {
+  const { hostname } = new URL(url)
+
+  const listOfLocalUrls = ['localhost', '127.0.0.1', '[::1]']
+
+  return listOfLocalUrls.includes(hostname)
+}
+
 /**
  * Send a request via the proxy
  */
@@ -103,10 +117,12 @@ export async function sendRequest(
     data: request.body,
   }
 
+  const shouldUseProxy = proxyUrl && !isRequestToLocalhost(requestConfig.url)
+
   const axiosRequestConfig: AxiosRequestConfig = {
     method: requestConfig.method,
-    url: proxyUrl
-      ? `${proxyUrl}?scalar_url=${requestConfig.url}`
+    url: shouldUseProxy
+      ? redirectToProxy(proxyUrl, requestConfig.url)
       : requestConfig.url,
     headers: requestConfig.headers,
     data: requestConfig.data,
@@ -118,8 +134,10 @@ export async function sendRequest(
     axiosRequestConfig.withCredentials = true
   }
 
-  if (proxyUrl) {
-    console.info(`${requestConfig.method} ${proxyUrl} → ${requestConfig.url}`)
+  if (shouldUseProxy) {
+    console.info(
+      `${requestConfig.method} ${requestConfig.url} (proxy: ${proxyUrl})`,
+    )
   } else {
     console.info(`${requestConfig.method} ${requestConfig.url}`)
   }
