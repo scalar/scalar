@@ -10,12 +10,13 @@ export async function fetchSpecFromUrl(
   url: string,
   proxy?: string,
 ): Promise<string> {
-  // Optional use of proxy for fetching
+  // To use a proxy or not to use a proxy
   const response = await fetch(proxy ? redirectToProxy(proxy, url) : url)
 
+  // Looks like the request failed
   if (response.status !== 200) {
     console.error(
-      `[fetchSpecFromUrl] Failed to fetch the specification at ${url}. ${proxyWarning}`,
+      `[fetchSpecFromUrl] Failed to fetch the specification at ${url} (Status: ${response.status})`,
     )
 
     if (!proxy) {
@@ -25,8 +26,6 @@ export async function fetchSpecFromUrl(
     }
   }
 
-  const payload = proxy ? String(await response.text()) : await response.text()
-
-  // Formats the JSON if provided
-  return formatJsonOrYamlString(payload)
+  // If it’s JSON, make it pretty
+  return formatJsonOrYamlString(await response.text())
 }
