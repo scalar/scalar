@@ -87,7 +87,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect((result?.response.data as Record<string, any>).query).toMatchObject({
+    expect((result?.response.data as any).query).toMatchObject({
       foo: 'bar',
     })
   })
