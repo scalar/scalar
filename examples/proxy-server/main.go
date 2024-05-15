@@ -20,6 +20,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
+
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 
 		// Pass down the request to the next middleware (or final handler)
@@ -75,6 +76,15 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		req.URL.Path = r.URL.Path
 	}
 
+	// Modify the response to remove original CORS headers
+	proxy.ModifyResponse = func(res *http.Response) error {
+		res.Header.Del("Access-Control-Allow-Headers")
+		res.Header.Del("Access-Control-Allow-Origin")
+		res.Header.Del("Access-Control-Allow-Methods")
+
+		return nil
+	}
+
 	// Modify the request to indicate it is proxied
 	r.URL.Host = remote.Host
 	r.URL = remote
@@ -82,6 +92,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	r.URL.Path = remote.Path
 
 	r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
+
 	r.Host = remote.Host
 
 	proxy.ServeHTTP(w, r)
@@ -104,6 +115,7 @@ func main() {
 	log.Println("🥤 Proxy Server listening on http://localhost" + port)
 
 	err := http.ListenAndServe(port, handler)
+
 	if err != nil {
 		log.Fatal("Error starting proxy server: ", err)
 	}
