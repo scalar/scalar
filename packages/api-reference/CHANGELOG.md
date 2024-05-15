@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.22.38
+
+### Patch Changes
+
+- 64cc35f: fix: x-displayName & x-tagGroups cancel eachother out
+
 ## 1.22.37
 
 ### Patch Changes
