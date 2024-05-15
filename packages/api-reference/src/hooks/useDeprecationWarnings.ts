@@ -11,7 +11,11 @@ export function useDeprecationWarnings(configuration: ReferenceConfiguration) {
     () => {
       if (configuration.proxy === OLD_PROXY_URL) {
         console.warn(
-          `[DEPRECATED] Warning: configuration.proxy points to our old proxy (${OLD_PROXY_URL}). We’re using the new proxy URL instead.`,
+          `[DEPRECATED] Warning: configuration.proxy points to our old proxy (${OLD_PROXY_URL}).`,
+        )
+
+        console.warn(
+          `[DEPRECATED] We are overwriting the value and use the new proxy URL (${NEW_PROXY_URL}) instead.`,
         )
 
         // WARNING: This replaces the OLD_PROXY_URL with the NEW_PROXY_URL on the fly.
