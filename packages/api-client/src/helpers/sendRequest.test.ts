@@ -33,7 +33,7 @@ describe('sendRequest', () => {
     const result = await sendRequest(request)
 
     expect(result?.response.data).not.toContain('ECONNREFUSED')
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/',
     })
@@ -46,7 +46,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/',
     })
@@ -67,7 +67,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/example',
     })
@@ -87,9 +87,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(
-      (JSON.parse(result?.response.data ?? '') as Record<string, any>).query,
-    ).toMatchObject({
+    expect((result?.response.data as Record<string, any>).query).toMatchObject({
       foo: 'bar',
     })
   })
@@ -108,7 +106,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(result?.response.data).toMatchObject({
       query: {
         example: 'parameter',
         foo: 'bar',
@@ -130,7 +128,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(result?.response.data).toMatchObject({
       cookies: {
         foo: 'bar',
       },
@@ -156,7 +154,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(result?.response.data).toMatchObject({
       cookies: {
         foo: 'bar',
         another: 'cookie',
@@ -171,10 +169,33 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request, `http://127.0.0.1:${PROXY_PORT}`)
 
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/v1',
     })
+  })
+
+  it('skips the proxy for requests to localhost', async () => {
+    const request = {
+      url: `http://127.0.0.1:${ECHO_PORT}/v1`,
+    }
+
+    const result = await sendRequest(request, `http://DOES_NOT_EXIST`)
+
+    expect(result?.response.data).toMatchObject({
+      method: 'GET',
+      path: '/v1',
+    })
+  })
+
+  it('returns ENOTFOUND for invalid domain', async () => {
+    const request = {
+      url: `http://127.0.0.1:${ECHO_PORT}/v1`,
+    }
+
+    const result = await sendRequest(request, `http://DOES_NOT_EXIST`)
+
+    expect(result?.response.data).toBe('ENOTFOUND')
   })
 
   it('keeps the trailing slash', async () => {
@@ -184,7 +205,7 @@ describe('sendRequest', () => {
 
     const result = await sendRequest(request)
 
-    expect(JSON.parse(result?.response.data ?? '')).toMatchObject({
+    expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/v1/',
     })
