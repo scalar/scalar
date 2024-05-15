@@ -15,7 +15,7 @@ const props = withDefaults(
     proxyUrl?: string
     readOnly?: boolean
     theme?: ThemeId
-    withDefaultFonts: boolean
+    withDefaultFonts?: boolean
     showSideBar?: boolean
   }>(),
   {
