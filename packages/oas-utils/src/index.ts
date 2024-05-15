@@ -1,6 +1,6 @@
 export { createHash } from './createHash'
 export { defaultStateFactory, ssrState } from './ssrState'
-export { fetchSpecFromUrl } from './fetch-spec'
+export { fetchSpecFromUrl } from './fetchSpecFromUrl'
 export { getExampleFromSchema } from './getExampleFromSchema'
 export { getHarRequest } from './getHarRequest'
 export { getParametersFromOperation } from './getParametersFromOperation'
