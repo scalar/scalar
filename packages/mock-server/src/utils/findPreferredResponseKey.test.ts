@@ -11,7 +11,7 @@ describe('findPreferredResponseKey', () => {
     expect(findPreferredResponseKey(['201'])).toBe('201')
   })
 
-  it('returns 201 over 200', () => {
-    expect(findPreferredResponseKey(['200', '201'])).toBe('201')
+  it('returns 200 over 201', () => {
+    expect(findPreferredResponseKey(['200', '201'])).toBe('200')
   })
 })
