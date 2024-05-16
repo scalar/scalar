@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.10.5
+
+### Patch Changes
+
+- 7ba851f: feature: client ui updates
+
 ## 0.10.4
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 1.2.27
+
+### Patch Changes
+
+- 7ba851f: feature: client ui updates
+- Updated dependencies [7ba851f]
+  - @scalar/use-codemirror@0.10.5
+
 ## 1.2.26
 
 ### Patch Changes
