@@ -43,7 +43,7 @@ async function scrollHandler(operation: TransformedOperation) {
         <SectionColumn>
           <SectionHeader :level="2">
             <Anchor :id="getTagId(tag)">
-              {{ tag.name }}
+              {{ tag['x-displayName'] ?? tag.name }}
             </Anchor>
           </SectionHeader>
           <MarkdownRenderer
