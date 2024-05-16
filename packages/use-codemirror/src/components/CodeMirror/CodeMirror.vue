@@ -55,7 +55,6 @@ useCodeMirror({
   display: flex;
   align-items: stretch;
 }
-
 .copy-to-clipboard-button {
   background: red;
 }

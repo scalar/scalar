@@ -28,7 +28,7 @@ withDefaults(
 .simple-cell {
   all: unset;
   display: table-cell;
-  border-right: 1px solid var(--scalar-border-color);
+  border-right: 0.5px solid var(--scalar-border-color);
   position: relative;
   padding: 9px !important;
   color: var(--scalar-color-1);
@@ -39,7 +39,8 @@ withDefaults(
   left: 0;
   background-color: var(--scalar-background-1);
   z-index: 1;
-  box-shadow: 0 -1px var(--scalar-border-color);
+  box-shadow: 0 -0.5px var(--scalar-border-color);
+  color: var(--scalar-color-3);
 }
 .simple-cell a {
   color: var(--scalar-color-1) !important;

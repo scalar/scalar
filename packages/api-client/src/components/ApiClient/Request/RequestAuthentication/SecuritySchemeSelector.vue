@@ -148,9 +148,9 @@ const keys = computed(() => Object.keys(props.value ?? {}))
   color: var(--scalar-color-1);
 }
 .security-scheme-label {
-  color: var(--scalar-color-2);
+  color: var(--scalar-color-3);
   font-size: var(--scalar-mini);
-  font-weight: var(--scalar-semibold);
+  margin-left: 9px;
 }
 .security-scheme-selector select {
   position: absolute;

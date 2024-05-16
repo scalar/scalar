@@ -66,7 +66,6 @@ defineOptions({
   left: 0;
 }
 .card-form-input label {
-  color: var(--scalar-color-1);
   width: fit-content;
   white-space: nowrap;
   cursor: text;

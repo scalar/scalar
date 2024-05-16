@@ -99,7 +99,21 @@ const setIntialScheme = (
   display: flex;
   width: 100%;
 }
-
+.preferred-security-scheme:focus-within,
+.preferred-security-scheme:active {
+  margin: 0;
+}
+.preferred-security-scheme .card-form {
+  padding: 0 9px;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  border-bottom-width: 0.5px;
+}
+.preferred-security-scheme:focus-within .card-form {
+  background-color: var(--scalar-background-2);
+}
 .security-scheme-empty-state {
   border: 1px dashed var(--scalar-border-color);
   width: 100%;
@@ -131,7 +145,7 @@ const setIntialScheme = (
 .scalar-api-client-add svg {
   width: 12px;
   height: 12px;
-  margin-right: 6px;
+  margin-right: 3px;
 }
 .scalar-api-client-add:hover {
   color: var(--scalar-color-1);
