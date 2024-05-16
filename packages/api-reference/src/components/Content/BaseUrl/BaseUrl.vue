@@ -58,13 +58,9 @@ watch(
 </script>
 
 <template>
-  <Card v-if="server.servers.length > 0">
-    <CardHeader
-      borderless
-      muted>
-      Base URL
-    </CardHeader>
-    <CardContent class="scalar-card-serverlist">
+  <div v-if="server.servers.length > 0">
+    <span class="scalar-card-serverlist-title">Base URL</span>
+    <div class="scalar-card-serverlist">
       <div class="scalar-card-serverlist-container">
         <!-- Multiple URLs -->
         <div class="server-item">
@@ -99,24 +95,21 @@ watch(
         <!-- Variables -->
         <ServerVariables :value="server.variables" />
       </div>
-    </CardContent>
+    </div>
     <!-- Description -->
-    <CardContent
+    <div
       v-if="server.description"
       muted>
       <div class="description">
         <MarkdownRenderer :value="server.description" />
       </div>
-    </CardContent>
-  </Card>
+    </div>
+  </div>
 </template>
 
 <style scoped>
 .server-item {
   padding: 0 9px;
-}
-.scalar-card-serverlist {
-  padding: 9px;
 }
 .server-selector {
   position: relative;
@@ -158,10 +151,19 @@ watch(
 .server-selector svg {
   width: 12px;
 }
-
+.scalar-card-serverlist {
+  margin-top: 6px;
+}
 .scalar-card-serverlist-container {
   /* margin: 9px; */
   box-shadow: 0 0 0 1px var(--scalar-border-color);
   border-radius: var(--scalar-radius);
+}
+.scalar-card-serverlist-title {
+  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-mini);
+  color: var(--scalar-color-3);
+  text-transform: uppercase;
+  display: block;
 }
 </style>

@@ -30,7 +30,6 @@
   );
   --scalar-background-accent: #007d9c1f;
   --scalar-code-language-color-supersede: var(--scalar-color-1);
-  --scalar-code-languages-background-supersede: var(--scalar-background-1);
   --scalar-border-color: color-mix(
     in srgb,
     var(--scalar-color-1),
@@ -78,7 +77,6 @@
     var(--scalar-background-1) 88%
   );
   --scalar-background-accent: #8ab4f81f;
-  --scalar-code-languages-background-supersede: var(--scalar-background-1);
   --scalar-border-color: color-mix(
     in srgb,
     var(--scalar-color-1),

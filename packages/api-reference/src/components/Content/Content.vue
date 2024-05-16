@@ -107,11 +107,11 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
       :parsedSpec="parsedSpec">
       <template #[introCardsSlot]>
         <div
-          class="introduction-cards"
-          :class="{ 'introduction-cards-row': layout === 'accordion' }">
+          class="introduction-card"
+          :class="{ 'introduction-card-row': layout === 'accordion' }">
           <BaseUrl />
-          <ClientLibraries />
           <Authentication :parsedSpec="parsedSpec" />
+          <ClientLibraries />
         </div>
       </template>
     </Introduction>
@@ -171,51 +171,64 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
   align-items: center;
   justify-content: center;
 }
-.introduction-cards {
+.introduction-card {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding: 12px 12px 0 12px;
+  background: var(--scalar-background-1);
+  border: 1px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius-lg);
 }
-.introduction-cards-row {
+.introduction-card-title {
+  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-mini);
+  color: var(--scalar-color-3);
+}
+.introduction-card-row {
   flex-flow: row wrap;
   gap: 24px;
 }
-.introduction-cards-row > * {
+.introduction-card-row > * {
   flex: 1;
 }
 @media (min-width: 600px) {
-  .introduction-cards-row > * {
+  .introduction-card-row > * {
     min-width: min-content;
   }
 }
 @media (max-width: 600px) {
-  .introduction-cards-row > * {
+  .introduction-card-row > * {
     max-width: 100%;
   }
 }
 @container (max-width: 900px) {
-  .introduction-cards-row {
+  .introduction-card-row {
     flex-direction: column;
     align-items: stretch;
   }
 }
-.references-classic .introduction-cards-row :deep(.card-footer),
-.references-classic .introduction-cards-row :deep(.scalar-card),
-.references-classic .introduction-cards-row :deep(.scalar-card--muted) {
+.introduction-card :deep(.security-scheme-label) {
+  text-transform: uppercase;
+  font-weight: var(--scalar-semibold);
+}
+.references-classic .introduction-card-row :deep(.card-footer),
+.references-classic .introduction-card-row :deep(.scalar-card),
+.references-classic .introduction-card-row :deep(.scalar-card--muted) {
   background: var(--scalar-background-1);
 }
 .references-classic
-  .introduction-cards-row
+  .introduction-card-row
   :deep(.scalar-card:nth-of-type(2) .scalar-card-header) {
   display: none;
 }
 .references-classic
-  .introduction-cards-row
+  .introduction-card-row
   :deep(.scalar-card:nth-of-type(2) .scalar-card-header) {
   display: none;
 }
 .references-classic
-  .introduction-cards-row
+  .introduction-card-row
   :deep(
     .scalar-card:nth-of-type(2)
       .scalar-card-header.scalar-card--borderless

@@ -104,33 +104,6 @@
   --scalar-background-3: transparent;
   padding-top: 0;
 }
-.code-languages-background {
-  background: var(--scalar-background-1) !important;
-}
-.code-languages-background:before {
-  box-shadow: inset 0 0 0 2px var(--scalar-border-color);
-  background: linear-gradient(
-    to right top,
-    rgb(211 225 249 / 12%),
-    rgb(209 223 247 / 11%),
-    rgb(223 233 251 / 29%)
-  ) !important;
-}
-.light-mode .code-languages-background:before {
-  background: linear-gradient(
-    to right top,
-    rgb(0 0 0 / 8%),
-    rgb(0 0 0 / 7%),
-    rgb(0 0 0 / 19%)
-  ) !important;
-}
-.code-languages__active .code-languages-background:before {
-  background: var(--scalar-background-1) !important;
-}
-
-.code-languages span {
-  margin-top: 5px !important;
-}
 /* Hero section flare */
 .section-flare-item:nth-of-type(1) {
   background: #d25019;

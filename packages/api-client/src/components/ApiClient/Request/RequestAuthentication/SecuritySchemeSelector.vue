@@ -150,7 +150,9 @@ const keys = computed(() => Object.keys(props.value ?? {}))
 .security-scheme-label {
   color: var(--scalar-color-3);
   font-size: var(--scalar-mini);
-  margin-left: 9px;
+}
+.security-scheme-selector:hover .security-scheme-label {
+  color: var(--scalar-color-1);
 }
 .security-scheme-selector select {
   position: absolute;
@@ -160,6 +162,7 @@ const keys = computed(() => Object.keys(props.value ?? {}))
   -moz-appearance: none;
   -webkit-appearance: none;
   appearance: none;
+  width: 100%;
   /** Increase clickable area */
   margin-top: -5px;
   padding: 10px 0;
