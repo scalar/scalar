@@ -5,6 +5,9 @@ defineProps<{
 </script>
 <template>
   <div class="table-row">
+    <div class="table-row-meta">
+      <slot name="meta" />
+    </div>
     <div class="table-row-item">
       <slot name="key" />
     </div>
@@ -16,16 +19,17 @@ defineProps<{
       class="table-row-item">
       <slot name="description" />
     </div>
-    <div class="table-row-meta">
-      <slot name="meta" />
-    </div>
   </div>
 </template>
 <style scoped>
 .table-row {
-  border-bottom: 1px solid var(--scalar-border-color);
+  border-bottom: 0.5px solid var(--scalar-border-color);
   display: flex;
   position: relative;
+}
+.table-row:active,
+.table-row:focus-within {
+  background-color: var(--scalar-background-2);
 }
 .table-row:last-of-type {
   border-bottom: none;
@@ -35,7 +39,7 @@ defineProps<{
 }
 .table-row-item {
   width: 100%;
-  border-right: 1px solid var(--scalar-border-color);
+  border-left: 0.5px solid var(--scalar-border-color);
   position: relative;
 }
 .table-row-item :deep(input) {
@@ -56,9 +60,6 @@ defineProps<{
 .table-row-item :deep(input[disabled]) {
   background: transparent;
 }
-.table-row-item :deep(input:focus) {
-  box-shadow: 0 0 0 1px var(--scalar-color-1);
-}
 .table-row-meta {
   overflow: hidden;
   flex-shrink: 0;
@@ -66,7 +67,7 @@ defineProps<{
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 51px;
+  width: 26px;
   user-select: none;
 }
 </style>

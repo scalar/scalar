@@ -7,7 +7,7 @@
 .simple-row {
   all: unset;
   display: table-row;
-  box-shadow: 0 -1px var(--scalar-border-color);
+  box-shadow: 0 -0.5px var(--scalar-border-color);
 }
 .simple-row:first-of-type {
   box-shadow: none;

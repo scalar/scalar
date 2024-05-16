@@ -43,7 +43,7 @@ function addAnotherHandler() {
               stroke="currentColor"
               stroke-linecap="round"
               stroke-linejoin="round"
-              stroke-width="3.429"
+              stroke-width="5"
               xmlns="http://www.w3.org/2000/svg"></path>
           </svg>
           Variable

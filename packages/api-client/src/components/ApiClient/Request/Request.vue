@@ -92,13 +92,11 @@ const readOnly = true
 .scalar-api-client__item__content {
   flex-flow: wrap;
   color: var(--scalar-color-3);
-  font-size: var(--scalar-micro);
-  margin-bottom: 12px;
+  font-size: var(--scalar-mini);
   justify-content: space-between;
-  overflow: auto;
-  padding: 0 9px 0 0;
   z-index: 2;
   position: relative;
+  margin-bottom: 12px;
 }
 .scalar-api-client__item__content:empty {
   display: none;
@@ -109,9 +107,12 @@ const readOnly = true
 }
 .scalar-api-client__item__content .scalar-codeblock-pre,
 .scalar-api-client__item__content .cm-s-default {
-  border: 1px solid var(--scalar-border-color);
-  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
+  border: 0.5px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
   background: transparent;
+}
+.scalar-api-client__item__content .scalar-codeblock-pre {
+  margin: 0 18px;
 }
 .scalar-api-client__item__content .scalar-codeblock-pre * {
   font-size: var(--scalar-micro);
@@ -123,9 +124,20 @@ const readOnly = true
   overflow: auto;
 }
 .scalar-api-client__item__content .cm-scroller {
-  border: 1px solid var(--scalar-border-color);
-  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
+  border: 0.5px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
   background-color: var(--scalar-background-1);
+}
+.scalar-api-client__item__content .cm-scroller {
+  padding: 0 18.5px;
+  margin: 0;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+.scalar-api-client__item__content .cm-scroller:focus-within {
+  background: var(--scalar-background-2);
 }
 .scalar-api-client__item__content .cm-editor {
   outline: none !important;
@@ -143,7 +155,7 @@ const readOnly = true
   color: var(--scalar-color-1);
 }
 .scalar-api-client__item__content .card-form {
-  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
+  border-radius: var(--scalar-radius);
 }
 .scalar-api-client__item__content-button {
   appearance: none;
@@ -208,7 +220,7 @@ const readOnly = true
 }
 .input:last-child {
   box-shadow: none;
-  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
+  border-radius: var(--scalar-radius);
 }
 .input__half:first-of-type {
   border-radius: var(--scalar-radius) 0 0 0;
@@ -313,7 +325,7 @@ const readOnly = true
   align-items: center;
   font-size: var(--scalar-micro);
   padding: 6px 9px;
-  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
+  border-radius: var(--scalar-radius);
   user-select: none;
   width: 100%;
   outline: none;

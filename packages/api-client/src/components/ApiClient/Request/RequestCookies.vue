@@ -51,7 +51,7 @@ const hasCookies = computed(() => {
               stroke="currentColor"
               stroke-linecap="round"
               stroke-linejoin="round"
-              stroke-width="3.429"
+              stroke-width="5"
               xmlns="http://www.w3.org/2000/svg"></path>
           </svg>
           Cookies
@@ -71,7 +71,7 @@ const hasCookies = computed(() => {
 <style>
 .scalar-api-client-add {
   color: var(--scalar-color-3);
-  padding: 6px 9px;
+  padding: 3px 6px;
   width: fit-content;
   cursor: pointer;
   font-size: var(--scalar-mini);
@@ -83,13 +83,13 @@ const hasCookies = computed(() => {
   appearance: none;
   display: flex;
   align-items: center;
-  border: 1px solid var(--scalar-border-color);
-  border-radius: 30px;
+  border: 0.5px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
 }
 .scalar-api-client-add svg {
   width: 12px;
   height: 12px;
-  margin-right: 6px;
+  margin-right: 3px;
 }
 .scalar-api-client-add:hover {
   color: var(--scalar-color-1);
