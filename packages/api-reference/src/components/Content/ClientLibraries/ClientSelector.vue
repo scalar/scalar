@@ -38,10 +38,6 @@ const featuredClients = (
       targetKey: 'python',
       clientKey: 'python3',
     },
-    {
-      targetKey: 'c',
-      clientKey: 'libcurl',
-    },
   ] as const
 ).filter((featuredClient) =>
   availableTargets.value.find((target: AvailableTarget) => {
@@ -82,25 +78,23 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
     <div
       v-for="client in featuredClients"
       :key="client.clientKey"
-      class="code-languages rendered-code-sdks"
+      class="client-libraries rendered-code-sdks"
       :class="{
-        'code-languages__active': isSelectedClient(client),
+        'client-libraries__active': isSelectedClient(client),
       }"
       @click="() => setHttpClient(client)">
-      <div
-        class="code-languages-background"
-        :class="`code-languages-icon__${client.targetKey}`">
+      <div :class="`client-libraries-icon__${client.targetKey}`">
         <ScalarIcon
-          class="code-languages-icon"
+          class="client-libraries-icon"
           :icon="getIconByLanguageKey(client.targetKey)" />
       </div>
       <span>{{ getTargetTitle(client) }}</span>
     </div>
 
     <div
-      class="code-languages code-languages__select"
+      class="client-libraries client-libraries__select"
       :class="{
-        'code-languages__active':
+        'client-libraries__active':
           httpClient && !checkIfClientIsFeatured(httpClient),
       }">
       <select
@@ -133,17 +127,17 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
         </optgroup>
       </select>
 
-      <div class="code-languages-background code-languages-icon__more">
+      <div class="client-libraries-icon__more">
         <template v-if="httpClient && !checkIfClientIsFeatured(httpClient)">
-          <div :class="`code-languages-icon__${httpClient.targetKey}`">
+          <div :class="`client-libraries-icon__${httpClient.targetKey}`">
             <ScalarIcon
-              class="code-languages-icon"
+              class="client-libraries-icon"
               :icon="getIconByLanguageKey(httpClient.targetKey)" />
           </div>
         </template>
         <template v-else>
           <svg
-            class="code-languages-icon"
+            class="client-libraries-icon"
             height="50"
             viewBox="0 0 50 50"
             width="50"
@@ -165,133 +159,56 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
 .client-libraries-content {
   display: flex;
   justify-content: center;
-  gap: 6px;
-  padding: 0 12px;
   overflow: hidden;
+  padding: 3px;
+  border: 1px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius) var(--scalar-radius) 0 0;
 }
-.code-languages {
+.client-libraries {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  max-width: 60px;
   width: 100%;
-  padding: 12px 0;
   position: relative;
   cursor: pointer;
   white-space: nowrap;
+  padding: 5px 0;
+  gap: 6px;
+  color: var(--scalar-color-3);
+  border-radius: var(--scalar-radius);
+  border: 0.5px solid transparent;
+  user-select: none;
+}
+.client-libraries:hover {
+  color: var(--scalar-color-1);
 }
 /* remove php and c on mobile */
 @media screen and (max-width: 450px) {
-  .code-languages:nth-of-type(4),
-  .code-languages:nth-of-type(6) {
+  .client-libraries:nth-of-type(4),
+  .client-libraries:nth-of-type(5) {
     display: none;
   }
 }
-.code-languages-icon {
-  max-width: 42px;
+.client-libraries-icon {
+  max-width: 14px;
+  max-height: 14px;
   width: 100%;
-  max-height: 42px;
   aspect-ratio: 1;
-  padding: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   box-sizing: border-box;
-  color: var(--scalar-code-language-color-supersede, #fff);
+  color: currentColor;
 }
-.code-languages-background {
-  border-radius: 9px;
-  position: relative;
-  background: var(
-    --scalar-code-languages-background-supersede,
-    var(--code-languages-background)
-  );
-  box-shadow: 0 0 0 1px var(--scalar-code-languages-border-color);
-}
-.code-languages-background:before {
-  content: '';
-  width: calc(100% + 2px);
-  height: calc(100% + 2px);
-  position: absolute;
-  top: -1px;
-  left: -1px;
-  pointer-events: none;
-
-  border-radius: 8px;
-  background: var(--scalar-code-languages-background-supersede);
-}
-.code-languages-icon__shell {
-  --code-languages-background: #000;
-}
-.code-languages-icon__ruby {
-  --code-languages-background: #d91404;
-}
-.code-languages-icon__php {
-  --code-languages-background: #6181b6;
-}
-.code-languages-icon__python {
-  --code-languages-background: #306998;
-}
-.code-languages-icon__node {
-  --code-languages-background: #83cd29;
-}
-.code-languages-icon__c {
-  --code-languages-background: #03599c;
-}
-.code-languages-icon__csharp {
-  --code-languages-background: #68217a;
-}
-.code-languages-icon__cplusplus {
-  --code-languages-background: #9c033a;
-}
-.code-languages-icon__clojure {
-  --code-languages-background: #5881d8;
-}
-.code-languages-icon__go {
-  --code-languages-background: #00acd7;
-}
-.code-languages-icon__http {
-  --code-languages-background: #005b9b;
-}
-.code-languages-icon__java {
-  --code-languages-background: #ea2d2e;
-}
-.code-languages-icon__javascript {
-  --code-languages-background: #f0db4f;
-}
-.code-languages-icon__kotlin {
-  --code-languages-background: #7f6cb1;
-}
-.code-languages-icon__objc {
-  --code-languages-background: #0b5a9d;
-}
-.code-languages-icon__ocaml {
-  --code-languages-background: #f29100;
-}
-.code-languages-icon__powershell {
-  --code-languages-background: #2671be;
-}
-.code-languages-icon__r {
-  --code-languages-background: #cbced0;
-}
-.code-languages-icon__swift {
-  --code-languages-background: #f05138;
-}
-.code-languages-icon__more {
-  --code-languages-background: var(--scalar-background-3);
-}
-.code-languages-icon__more svg {
+.client-libraries-icon__more svg {
   height: initial;
 }
-.code-languages__active:after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  height: 2px;
-  width: 100%;
-  background: var(--scalar-color-1);
+.client-libraries__active {
+  background-color: var(--scalar-background-2);
+  color: var(--scalar-color-1);
+  border-color: var(--scalar-border-color);
+  filter: brightness(var(--scalar-lifted-brightness));
 }
 @keyframes codeloader {
   0% {
@@ -301,15 +218,14 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
     transform: rotate(1turn);
   }
 }
-.code-languages span {
-  margin-top: 6px;
-  color: var(--scalar-color-2);
-  font-size: var(--scalar-micro);
+.client-libraries span {
+  font-size: var(--scalar-mini);
+  font-weight: var(--scalar-semibold);
 }
-.code-languages__active span {
+.client-libraries__active span {
   color: var(--scalar-color-1);
 }
-.code-languages__select select {
+.client-libraries__select select {
   opacity: 0;
   height: 100%;
   width: 100%;
@@ -324,41 +240,13 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   appearance: none;
   border: none;
 }
-.code-languages__select span {
+.client-libraries__select span {
   position: relative;
   display: flex;
   align-items: center;
 }
-.code-languages__select span:after {
-  content: '';
-  width: 8px;
-  height: 8px;
-  background: var(--scalar-background-1);
-  box-shadow: 1px 1px 0 currentColor;
-  display: block;
-  transform: rotate(45deg);
-  margin-left: 5px;
-  margin-top: -7px;
-}
-.references-classic .code-languages {
-  flex-direction: row;
-  gap: 9px;
-  max-width: initial;
-  padding: 10px 0;
-  font-weight: var(--scalar-semibold);
-}
-.references-classic .code-languages span {
-  margin-top: 0;
-}
-.references-classic .code-languages-icon {
-  width: 24px;
-  padding: 3px;
-}
-.references-classic .code-languages-background {
-  border-radius: var(--scalar-radius);
-}
 @media screen and (max-width: 600px) {
-  .references-classic .code-languages {
+  .references-classic .client-libraries {
     flex-direction: column;
   }
 }

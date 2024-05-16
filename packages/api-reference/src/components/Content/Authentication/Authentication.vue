@@ -49,25 +49,20 @@ onServerPrefetch(async () => {
 </script>
 
 <template>
-  <Card v-if="hasSecuritySchemes(parsedSpec)">
-    <CardHeader
-      borderless
-      class="authentication-header"
-      transparent>
-      Authentication
-      <template #actions>
-        <div class="selector">
-          <SecuritySchemeSelector
-            :value="
-              parsedSpec?.components?.securitySchemes
-            "></SecuritySchemeSelector>
-        </div>
-      </template>
-    </CardHeader>
-    <CardContent
+  <div v-if="hasSecuritySchemes(parsedSpec)">
+    <div class="authentication-header">
+      <!-- <template #actions> -->
+      <div class="selector">
+        <SecuritySchemeSelector
+          :value="
+            parsedSpec?.components?.securitySchemes
+          "></SecuritySchemeSelector>
+      </div>
+      <!-- </template> -->
+    </div>
+    <div
       v-if="showSecurityScheme"
-      class="authentication-content"
-      transparent>
+      class="authentication-content">
       <SecurityScheme
         v-if="authentication.preferredSecurityScheme"
         :value="
@@ -75,17 +70,14 @@ onServerPrefetch(async () => {
             authentication.preferredSecurityScheme
           ] as OpenAPIV3_1.SecuritySchemeObject
         " />
-    </CardContent>
-  </Card>
+    </div>
+  </div>
 </template>
 <style scoped>
 .authentication-header {
   white-space: nowrap;
 }
-.authentication-content {
-  padding: 9px;
-}
 .selector {
-  margin-right: 12px;
+  margin-bottom: 6px;
 }
 </style>

@@ -162,7 +162,7 @@ watch(
 .scalar-api-client__item__options {
   position: relative;
   z-index: 1;
-  padding: 6px 9px;
+  padding: 6px 18px;
   border-bottom: 0.5px solid var(--scalar-border-color);
 }
 

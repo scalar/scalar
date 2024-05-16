@@ -12,8 +12,6 @@ export const nextjsThemeCss = `
   --scalar-background-accent: transparent;
 
   --scalar-border-color: rgba(255, 255, 255, 0.1);
-  --scalar-code-language-color-supersede: var(--scalar-color-1);
-  --scalar-code-languages-background-supersede: var(--scalar-background-3);
 }
 
 .light-mode .dark-mode,
@@ -29,9 +27,6 @@ export const nextjsThemeCss = `
   --scalar-background-accent: transparent;
 
   --scalar-border-color: rgba(0, 0, 0, 0.1);
-
-  --scalar-code-language-color-supersede: var(--scalar-color-1);
-  --scalar-code-languages-background-supersede: var(--scalar-background-3);
 }
 .light-mode .scalar-card {
   --scalar-background-1: #fff;
@@ -119,9 +114,6 @@ export const nextjsThemeCss = `
 }
 .sidebar .sidebar-indent-nested .sidebar-heading {
   padding-right: 0;
-}
-.code-languages-icon {
-  padding: 10px !important;
 }
 .sidebar-search-key {
   background: var(--scalar-background-1) !important;

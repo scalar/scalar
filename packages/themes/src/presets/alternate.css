@@ -18,8 +18,6 @@
   --scalar-background-accent: var(--scalar-background-3);
 
   --scalar-border-color: rgba(0, 0, 0, 0.1);
-  --scalar-code-languages-background-supersede: var(--scalar-background-1);
-  --scalar-code-language-color-supersede: var(--scalar-color-1);
 }
 .dark-mode {
   --scalar-background-1: #131313;
@@ -35,8 +33,6 @@
   --scalar-background-accent: var(--scalar-background-3);
 
   --scalar-border-color: rgba(255, 255, 255, 0.1);
-  --scalar-code-languages-background-supersede: var(--scalar-background-3);
-  --scalar-code-language-color-supersede: var(--scalar-color-3);
 }
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,
@@ -87,9 +83,6 @@
   --scalar-button-1-color: black;
 }
 
-.code-languages-background:before {
-  box-shadow: inset 0 0 0 1px var(--scalar-border-color) !important;
-}
 .scalar-api-client__item,
 .scalar-card,
 .dark-mode .dark-mode.scalar-card {
