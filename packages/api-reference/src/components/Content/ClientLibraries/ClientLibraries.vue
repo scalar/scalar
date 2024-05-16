@@ -22,9 +22,9 @@ const { httpTargetTitle, httpClientTitle } = useHttpClientStore()
 <style scoped>
 .selected-client {
   color: var(--scalar-color-1);
-  font-size: var(--scalar-small);
+  font-size: var(--scalar-mini);
   font-family: var(--scalar-font-code);
-  padding: 8px 12px;
+  padding: 9px 12px;
   border: 1px solid var(--scalar-border-color);
   border-top: none;
   white-space: nowrap;
