@@ -76,7 +76,12 @@ watch(
 .scalar-api-client__item {
   position: relative;
 }
-
+.scalar-api-client__main__left
+  .scalar-api-client__item--open
+  .scalar-api-client__toggle {
+  background-color: var(--scalar-background-2);
+  border-top: 0.5px solid var(--scalar-border-color);
+}
 .scalar-api-client__item button {
   background-color: transparent;
   text-align: left;
@@ -123,6 +128,7 @@ watch(
   font-family: var(--scalar-font);
   cursor: pointer;
   margin-top: 6px;
+  border-top: 0.5px solid transparent;
 }
 .scalar-api-client__item--open .scalar-api-client__toggle {
 }
