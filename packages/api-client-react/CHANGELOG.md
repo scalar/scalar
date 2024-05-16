@@ -1,5 +1,13 @@
 # @scalar/api-client-react
 
+## 0.3.28
+
+### Patch Changes
+
+- 1ce9661: feat: intro cards redesign
+- Updated dependencies [1ce9661]
+  - @scalar/api-client@1.2.28
+
 ## 0.3.27
 
 ### Patch Changes

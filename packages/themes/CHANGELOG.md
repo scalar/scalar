@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.7.10
+
+### Patch Changes
+
+- 1ce9661: feat: intro cards redesign
+
 ## 0.7.9
 
 ### Patch Changes

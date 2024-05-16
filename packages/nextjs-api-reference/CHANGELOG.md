@@ -1,5 +1,13 @@
 # @scalar/nextjs-api-reference
 
+## 0.3.41
+
+### Patch Changes
+
+- 1ce9661: feat: intro cards redesign
+- Updated dependencies [1ce9661]
+  - @scalar/api-reference@1.22.41
+
 ## 0.3.40
 
 ### Patch Changes

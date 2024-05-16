@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 1.2.28
+
+### Patch Changes
+
+- 1ce9661: feat: intro cards redesign
+- Updated dependencies [1ce9661]
+  - @scalar/themes@0.7.10
+  - @scalar/components@0.7.9
+
 ## 1.2.27
 
 ### Patch Changes
