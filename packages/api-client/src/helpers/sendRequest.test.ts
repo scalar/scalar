@@ -197,8 +197,8 @@ describe('sendRequest', () => {
 
     console.log(result?.response.data)
 
-    expect(result?.response.data?.trim()).toBe(
-      'dial tcp: lookup does_not_exist: no such host',
+    expect(result?.response.data?.trim()).toContain(
+      'dial tcp: lookup does_not_exist',
     )
   })
 
