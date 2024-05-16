@@ -2,6 +2,7 @@ import { getExampleFromSchema } from '@scalar/oas-utils'
 import { type ResolvedOpenAPI, openapi } from '@scalar/openapi-parser'
 import { type Context, Hono } from 'hono'
 import type { StatusCode } from 'hono/utils/http-status'
+import { cors } from 'hono/cors'
 
 import { findPreferredResponseKey, routeFromPath } from './utils'
 
@@ -21,6 +22,9 @@ export async function createMockServer(options?: {
   const result = await openapi()
     .load(options?.specification ?? {})
     .resolve()
+
+  // CORS headers
+  app.use(cors())
 
   // OpenAPI JSON file
   app.get('/openapi.json', (c) => {

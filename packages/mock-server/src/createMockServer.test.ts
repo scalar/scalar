@@ -252,4 +252,70 @@ describe('createMockServer', () => {
       foo: 'bar',
     })
   })
+
+  it('has CORS headers', async () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    example: {
+                      foo: 'bar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({
+      specification,
+    })
+
+    // Options request
+    let response = await server.request('/foobar', {
+      method: 'OPTIONS',
+      headers: {
+        origin: 'https://example.com',
+      },
+    })
+
+    expect(response.status).toBe(204)
+
+    expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
+
+    const allowMethodsHeader = response.headers.get(
+      'Access-Control-Allow-Methods',
+    )
+    expect(allowMethodsHeader).toBeTypeOf('string')
+    expect(allowMethodsHeader?.split(',').sort()).toStrictEqual(
+      ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH'].sort(),
+    )
+
+    // Get request
+    response = await server.request('/foobar', {
+      headers: {
+        origin: 'https://example.com',
+      },
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
+
+    expect(await response.json()).toMatchObject({
+      foo: 'bar',
+    })
+  })
 })
