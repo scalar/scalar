@@ -1,15 +1,19 @@
-import { type Operation, getExampleFromSchema } from '@scalar/oas-utils'
-import { openapi } from '@scalar/openapi-parser'
+import { getExampleFromSchema } from '@scalar/oas-utils'
+import { type ResolvedOpenAPI, openapi } from '@scalar/openapi-parser'
 import { type Context, Hono } from 'hono'
+import type { StatusCode } from 'hono/utils/http-status'
 
-import { routeFromPath } from './utils'
+import { findPreferredResponseKey, routeFromPath } from './utils'
 
 /**
  * Create a mock server instance
  */
 export async function createMockServer(options?: {
   specification: string | Record<string, any>
-  onRequest?: (data: { context: Context; operation: Operation }) => void
+  onRequest?: (data: {
+    context: Context
+    operation: ResolvedOpenAPI.Operation
+  }) => void
 }) {
   const app = new Hono()
 
@@ -58,18 +62,36 @@ export async function createMockServer(options?: {
         // @ts-expect-error Needs a proper type
         const operation = result.schema?.paths?.[path]?.[method]
 
-        const jsonResponseConfiguration =
-          operation.responses?.['200']?.content['application/json']
+        // default, 200, 201 …
+        const preferredResponseKey = findPreferredResponseKey(
+          Object.keys(operation.responses ?? {}),
+        )
 
-        const response = jsonResponseConfiguration?.example
-          ? jsonResponseConfiguration.example
-          : jsonResponseConfiguration?.schema
-            ? getExampleFromSchema(jsonResponseConfiguration.schema, {
+        // Focus on JSON for now
+        const jsonResponse = preferredResponseKey
+          ? operation.responses?.[preferredResponseKey]?.content[
+              'application/json'
+            ]
+          : null
+
+        // Get or generate JSON
+        const response = jsonResponse?.example
+          ? jsonResponse.example
+          : jsonResponse?.schema
+            ? getExampleFromSchema(jsonResponse.schema, {
                 emptyString: '…',
               })
             : null
 
-        return c.json(response)
+        // Status code
+        const statusCode = parseInt(
+          preferredResponseKey === 'default'
+            ? '200'
+            : preferredResponseKey ?? '200',
+          10,
+        ) as StatusCode
+
+        return c.json(response, statusCode)
       })
     })
   })

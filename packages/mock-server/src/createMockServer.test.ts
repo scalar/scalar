@@ -83,6 +83,47 @@ describe('createMockServer', () => {
     })
   })
 
+  it('POST /foobar -> return 201', async () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          post: {
+            responses: {
+              '201': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    example: {
+                      foo: 'bar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({
+      specification,
+    })
+
+    const response = await server.request('/foobar', {
+      method: 'POST',
+    })
+
+    expect(response.status).toBe(201)
+    expect(await response.json()).toMatchObject({
+      foo: 'bar',
+    })
+  })
+
   it('POST /foobar/{id} -> example JSON', async () => {
     const specification = {
       openapi: '3.1.0',
