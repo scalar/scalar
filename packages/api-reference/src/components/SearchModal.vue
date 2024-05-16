@@ -118,7 +118,7 @@ watch(
     // Tags
     props.parsedSpec.tags?.forEach((tag) => {
       const tagData: FuseData = {
-        title: tag.name,
+        title: tag['x-displayName'] ?? tag.name,
         href: `#${getTagId(tag)}`,
         description: tag.description,
         type: 'tag',
