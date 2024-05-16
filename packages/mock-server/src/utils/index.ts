@@ -1,2 +1,2 @@
-export * from './normalize'
+export * from './findPreferredResponseKey'
 export * from './routeFromPath'
