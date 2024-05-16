@@ -226,7 +226,6 @@ watch(
   height: 100%;
 }
 .scalar-api-client__main__content__body {
-  padding: 9px 9px 9px 18px;
 }
 @media screen and (max-width: 820px) {
   .scalar-api-client__main__content__header {
@@ -293,15 +292,19 @@ watch(
   font-size: 24px;
 }
 .scalar-api-client__empty-state {
-  border: 1px solid var(--scalar-border-color);
+  border-bottom: 0.5px solid var(--scalar-border-color);
   width: 100%;
   text-align: center;
-  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
   font-size: var(--scalar-small);
-  min-height: 58px;
+  min-height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--scalar-background-1);
+}
+.scalar-api-client__main__right .scalar-api-client__empty-state {
+  margin: 0 18px;
+  border: 0.5px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
 }
 </style>

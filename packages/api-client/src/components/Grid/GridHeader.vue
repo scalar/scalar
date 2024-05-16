@@ -28,14 +28,11 @@ defineEmits<{
         variant="text"
         @click="$emit('update:showDescription', !showDescription)">
         <svg
-          fill="currentColor"
-          height="12"
-          viewBox="0 0 18 12"
+          xmlns="http://www.w3.org/2000/svg"
           width="18"
-          xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M0 12h12v-2H0v2zM0 0v2h18V0H0zm0 7h18V5H0v2z"
-            fill-rule="nonzero" />
+          height="12"
+          fill="currentColor">
+          <path d="M0 11h9v-1H0v1ZM0 0v1h18V0H0Zm0 6h18V5H0v1Z" />
         </svg>
       </ScalarButton>
     </template>
@@ -48,7 +45,7 @@ defineEmits<{
   display: block;
   padding: 9px;
   font-weight: var(--scalar-semibold);
-  color: var(--scalar-color-1);
+  color: var(--scalar-color-3);
   font-size: var(--scalar-mini);
 }
 .table-description-toggle {

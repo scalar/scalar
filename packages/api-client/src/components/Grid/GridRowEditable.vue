@@ -72,6 +72,7 @@ const enabledProxy = computed<boolean>({
         v-if="!required"
         class="meta-delete"
         type="button"
+        tabindex="-1"
         @click="$emit('delete')">
         <svg
           fill="none"
@@ -138,44 +139,51 @@ const enabledProxy = computed<boolean>({
   width: 0;
 }
 .meta-checkmark {
-  height: 17px;
-  width: 17px;
-  background: var(--scalar-background-3);
-  border-radius: 3px;
+  height: 33.5px;
+  width: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
 }
-.meta-checkmark:hover {
-  background: var(--scalar-background-3);
-}
-.meta-check:focus-within .meta-checkmark {
-  box-shadow: 0 0 0 1px var(--scalar-color-1);
-}
 .meta-check .meta-checkmark:after {
   content: '';
-  display: none;
-  width: 5px;
-  height: 8px;
-  border: solid var(--scalar-color-1);
-  border-width: 0 1.5px 1.5px 0;
+  width: 6px;
+  height: 10px;
+  left: -0.5px;
+  top: -0.5px;
+  position: relative;
+  border: solid var(--scalar-border-color);
+  border-width: 0 1px 1px 0;
   transform: rotate(45deg) translate3d(0, -1px, 0);
 }
 .meta-check input:checked ~ .meta-checkmark:after {
-  display: block;
+  border-color: var(--scalar-color-1);
 }
-.meta-checkmark:hover {
-  background: color-mix(
-    in srgb,
-    var(--scalar-background-3) 90%,
-    var(--scalar-color-1)
-  );
+.meta-checkmark:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--scalar-radius);
+  border: 0.5px solid var(--scalar-border-color);
+  opacity: 0;
+}
+.meta-check input:checked ~ .meta-checkmark:before {
+  border-color: var(--scalar-color-3);
+}
+.meta-check:focus-within .meta-checkmark:before,
+.meta-checkmark:hover:before {
+  opacity: 1;
 }
 .meta-delete {
   position: absolute;
-  right: -9px;
-  background: var(--scalar-background-1);
+  right: 9px;
   height: 20px;
   width: 20px;
   border: none;
@@ -187,7 +195,6 @@ const enabledProxy = computed<boolean>({
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: var(--scalar-shadow-1);
   z-index: 10;
 }
 .meta-delete svg {
@@ -199,11 +206,11 @@ const enabledProxy = computed<boolean>({
   color: var(--scalar-color-red);
 }
 .meta-delete:focus svg {
-  color: var(--scalar-color-1);
+  color: var(--scalar-color-3);
 }
 .meta-delete:focus {
-  border-color: var(--scalar-color-1);
-  color: var(--scalar-color-1);
+  border-color: var(--scalar-color-3);
+  color: var(--scalar-color-3);
 }
 .table-row-editable:hover .meta-delete {
   opacity: 1;

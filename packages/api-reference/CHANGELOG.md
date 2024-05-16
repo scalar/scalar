@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.22.40
+
+### Patch Changes
+
+- Updated dependencies [7ba851f]
+  - @scalar/api-client@1.2.27
+
+## 1.22.39
+
+### Patch Changes
+
+- 1305f28: fix: client blur popup
+- 4ba9fed: fix: blurry api client popup
+- bf35da5: fix: x-displayName is not used in the tag component
+- ab5d017: refactor: use lowlight instead of prism in the markdown component (rollback 64024a5)
+- 484bd33: feat: show text/plain example responses, too
+- bf35da5: fix: x-displayName is not used in the search modal
+
 ## 1.22.38
 
 ### Patch Changes

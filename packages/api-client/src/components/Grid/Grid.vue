@@ -75,14 +75,21 @@ function addHandler() {
 </template>
 <style scoped>
 .table {
-  border: 1px solid var(--scalar-border-color);
   background: transparent;
-  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
   width: 100%;
+}
+.table .table-row {
+  padding: 0 18px;
+}
+.table .meta-actions {
+  padding: 0 16px;
+}
+.table:focus-within,
+.table:active {
+  margin: 0;
 }
 .meta-actions-item {
   border: none;
-  font-weight: var(--scalar-semibold);
   appearance: none;
   padding: 9px;
   width: 100%;
@@ -94,12 +101,12 @@ function addHandler() {
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 16px;
 }
 .meta-actions {
-  width: 100%;
   display: flex;
   justify-content: space-between;
+  border-bottom: 0.5px solid var(--scalar-border-color);
 }
 .meta-actions-item:nth-of-type(2) {
   display: flex;

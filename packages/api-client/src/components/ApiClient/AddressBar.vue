@@ -243,7 +243,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
 }
 .url-form-field {
   align-items: stretch;
-  border: 1px solid var(--scalar-border-color);
+  border: 0.5px solid var(--scalar-border-color);
   border-radius: var(--scalar-radius);
   display: flex;
   min-height: 31px;
