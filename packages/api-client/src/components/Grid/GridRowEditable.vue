@@ -158,7 +158,7 @@ const enabledProxy = computed<boolean>({
   transform: rotate(45deg) translate3d(0, -1px, 0);
 }
 .meta-check input:checked ~ .meta-checkmark:after {
-  border-color: var(--scalar-color-3);
+  border-color: var(--scalar-color-1);
 }
 .meta-checkmark:before {
   content: '';
