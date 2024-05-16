@@ -1,5 +1,12 @@
 # @scalar/mock-server
 
+## 0.1.65
+
+### Patch Changes
+
+- 742ef52: feat: add wildcard CORS headers
+- 46a3a94: feat: return responses other than 200
+
 ## 0.1.64
 
 ### Patch Changes
