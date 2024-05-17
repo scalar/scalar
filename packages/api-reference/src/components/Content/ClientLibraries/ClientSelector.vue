@@ -172,7 +172,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   position: relative;
   cursor: pointer;
   white-space: nowrap;
-  padding: 5px 0;
+  padding: 5px;
   gap: 6px;
   color: var(--scalar-color-3);
   border-radius: var(--scalar-radius);
@@ -192,6 +192,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
 .client-libraries-icon {
   max-width: 14px;
   max-height: 14px;
+  min-width: 14px;
   width: 100%;
   aspect-ratio: 1;
   display: flex;
