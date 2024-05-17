@@ -751,6 +751,39 @@ see [`legacyTheme.css`](https://github.com/scalar/scalar/tree/main/packages/them
 and [`updatedTheme.css`](https://github.com/scalar/scalar/tree/main/packages/themes/src/fixtures/updatedTheme.css)
 in the [`@scalar/themes`](https://github.com/scalar/scalar/tree/main/packages/themes/) package.
 
+### Custom Header with CDN
+
+If you'd like to add custom elements around the references app you can do so by wrapping it in a height restricting layout such as a grid or flexbox.
+
+The following example shows the rendered output using a grid layout to add a header above the references app. You can also target the injected references app container with css using `.scalar-api-references-container`.
+
+For a full working example with a header see [`api-reference-cdn-with-header.html`](https://github.com/scalar/scalar/tree/main/examples/cdn-api-reference/src/public/api-reference-cdn-with-header.html).
+
+```html
+<head>
+  <!-- ... -->
+  <style>
+    .layout {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      height: 100dvh;
+    }
+    /* ... header styles ... */
+  </style>
+</head>
+<body class="layout">
+  <header>My Header</header>
+  <!-- ↓ injected by script ↓ -->
+  <div class="scalar-api-references-container">
+    <!-- ... references app ... -->
+  </div>
+  <!-- ↑ injected by script ↑ -->
+  <script id="api-reference"></script>
+  <!-- ... references configuration ... -->
+  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+</body>
+```
+
 ## Community
 
 We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
