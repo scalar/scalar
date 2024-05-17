@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.22.42
+
+### Patch Changes
+
+- a1cbb21: fix: client selector style
+
 ## 1.22.41
 
 ### Patch Changes
