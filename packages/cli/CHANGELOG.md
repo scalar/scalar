@@ -1,5 +1,11 @@
 # @scalar/cli
 
+## 0.2.82
+
+### Patch Changes
+
+- 246ca61: feat: update existing sandboxes
+
 ## 0.2.81
 
 ### Patch Changes
