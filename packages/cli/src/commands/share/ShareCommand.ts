@@ -1,28 +1,35 @@
 import { Command } from 'commander'
 import kleur from 'kleur'
 
-import { readFile, useGivenFileOrConfiguration } from '../../utils'
+import { getFileOrUrl, useGivenFileOrConfiguration } from '../../utils'
 
 export function ShareCommand() {
   const cmd = new Command('share')
 
   cmd.description('Share an OpenAPI file')
   cmd.argument('[file]', 'file to share')
-  cmd.action(async (fileArgument: string) => {
+  cmd.option(
+    '-t, --token <token>',
+    'pass a token to update an existing sandbox',
+  )
+  cmd.action(async (fileArgument: string, { token }: { token?: string }) => {
     const file = useGivenFileOrConfiguration(fileArgument)
 
-    fetch('https://sandbox.scalar.com/api/share', {
+    const url =
+      'https://sandbox.scalar.com/api/share' + (token ? `?token=${token}` : '')
+
+    fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        content: readFile(file),
+        content: await getFileOrUrl(file),
       }),
     })
       .then((response) => response.json())
       .then((data) => {
-        const { id } = data
+        const { id, token: newToken } = data
 
         console.log(kleur.bold().green('Your OpenAPI file is public.'))
         console.log()
@@ -54,6 +61,14 @@ export function ShareCommand() {
             .grey('OpenAPI YAML:'.padEnd(14))} ${kleur.cyan(
             `https://sandbox.scalar.com/files/${id}/openapi.yaml`,
           )}`,
+        )
+        console.log()
+        console.log(
+          kleur.white('Use the token to update the existing sandbox:'),
+        )
+        console.log()
+        console.log(
+          `${kleur.grey('$')} ${kleur.bold().white(`scalar share --token=`)}${kleur.bold().cyan(`${newToken}`)} `,
         )
         console.log()
       })
