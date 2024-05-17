@@ -75,5 +75,9 @@ useApplyClasses('#headlessui-portal-root', reset)
     color: var(--scalar-color-3);
     font-family: var(--scalar-font);
   }
+  /** Remove yellow/blue autofill indicator */
+  input:-webkit-autofill {
+    background-clip: text !important;
+  }
 }
 </style>
