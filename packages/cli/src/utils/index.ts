@@ -1,3 +1,4 @@
+export * from './getFileOrUrl'
 export * from './getHtmlDocument'
 export * from './getMethodColor'
 export * from './getOperationByMethodAndPath'
