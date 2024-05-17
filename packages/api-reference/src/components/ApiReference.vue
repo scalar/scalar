@@ -105,7 +105,18 @@ const { parsedSpec, rawSpec } = useReactiveSpec({
   </Component>
 </template>
 <style>
+/*
+ * Reset body margin for standalone use
+ */
 body {
   margin: 0;
+}
+/*
+ * Allow the container div to shrink to accommodate other page elements like headers
+ * Class is applied in @scalar/api-reference/standalone.ts
+ */
+.scalar-api-references-container {
+  display: flex;
+  min-height: 0;
 }
 </style>

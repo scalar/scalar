@@ -133,6 +133,7 @@ if (!specUrlElement && !specElement && !specScriptTag) {
     let _container: Element | null = null
     if (specScriptTag) {
       _container = document.createElement('div')
+      _container.classList.add('scalar-api-references-container')
       specScriptTag?.parentNode?.insertBefore(_container, specScriptTag)
     } else {
       _container = specElement || specUrlElement || document.body
