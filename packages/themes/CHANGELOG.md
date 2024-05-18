@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.7.11
+
+### Patch Changes
+
+- 69a617c: fix: remove yellow/blue autofill indicator
+
 ## 0.7.10
 
 ### Patch Changes
