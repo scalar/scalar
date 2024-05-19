@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "scalar-django-ninja"
+version = "0.1.0"
+description = "Scalar Django Ninja"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django-ninja = "^1.1.0"
+typing_extensions = "^4.11.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
