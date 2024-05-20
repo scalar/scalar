@@ -138,7 +138,7 @@ const keys = computed(() => Object.keys(props.value ?? {}))
   position: relative;
   display: flex;
   border-radius: var(--scalar-radius);
-  color: var(--scalar-color-2);
+  color: var(--scalar-color-3);
   display: flex;
   align-items: center;
   gap: 4px;

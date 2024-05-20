@@ -13,10 +13,9 @@
   width: 100%;
 }
 .simple-table-container {
-  border: 0.5px solid var(--scalar-border-color);
-  border-radius: var(--scalar-radius);
+  border-right: none;
+  border-left: none;
   width: 100%;
   overflow: auto;
-  margin: 0 18px;
 }
 </style>

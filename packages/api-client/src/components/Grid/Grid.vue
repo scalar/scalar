@@ -79,10 +79,7 @@ function addHandler() {
   width: 100%;
 }
 .table .table-row {
-  padding: 0 18px;
-}
-.table .meta-actions {
-  padding: 0 16px;
+  padding: 0 3px;
 }
 .table:focus-within,
 .table:active {
@@ -106,7 +103,6 @@ function addHandler() {
 .meta-actions {
   display: flex;
   justify-content: space-between;
-  border-bottom: 0.5px solid var(--scalar-border-color);
 }
 .meta-actions-item:nth-of-type(2) {
   display: flex;

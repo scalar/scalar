@@ -226,6 +226,7 @@ watch(
   height: 100%;
 }
 .scalar-api-client__main__content__body {
+  padding: 10px 18px 10px 9px;
 }
 @media screen and (max-width: 820px) {
   .scalar-api-client__main__content__header {
@@ -292,7 +293,6 @@ watch(
   font-size: 24px;
 }
 .scalar-api-client__empty-state {
-  border-bottom: 0.5px solid var(--scalar-border-color);
   width: 100%;
   text-align: center;
   font-size: var(--scalar-small);
@@ -300,11 +300,9 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--scalar-background-1);
 }
 .scalar-api-client__main__right .scalar-api-client__empty-state {
   margin: 0 18px;
-  border: 0.5px solid var(--scalar-border-color);
   border-radius: var(--scalar-radius);
 }
 </style>

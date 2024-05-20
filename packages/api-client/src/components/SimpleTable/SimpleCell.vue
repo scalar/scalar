@@ -42,6 +42,10 @@ withDefaults(
   box-shadow: 0 -0.5px var(--scalar-border-color);
   color: var(--scalar-color-3);
 }
+.simple-row:first-of-type .simple-cell:first-of-type {
+  border-top-left-radius: var(--scalar-radius);
+}
+border-top-left-radius: var(--scalar-radius);
 .simple-cell a {
   color: var(--scalar-color-1) !important;
 }

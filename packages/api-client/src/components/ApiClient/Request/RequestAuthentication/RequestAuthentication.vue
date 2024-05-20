@@ -104,15 +104,15 @@ const setIntialScheme = (
   margin: 0;
 }
 .preferred-security-scheme .card-form {
-  padding: 0 9px;
   border-radius: 0;
-  border-left: none;
-  border-right: none;
-  border-top: none;
-  border-bottom-width: 0.5px;
+  border: none;
 }
 .preferred-security-scheme:focus-within .card-form {
-  background-color: var(--scalar-background-2);
+  background-color: color-mix(
+    in srgb,
+    transparent 60%,
+    var(--scalar-background-2)
+  );
 }
 .security-scheme-empty-state {
   border: 1px dashed var(--scalar-border-color);
