@@ -29,7 +29,11 @@ defineProps<{
 }
 .table-row:active,
 .table-row:focus-within {
-  background-color: var(--scalar-background-2);
+  background-color: color-mix(
+    in srgb,
+    transparent 60%,
+    var(--scalar-background-2)
+  );
 }
 .table-row:last-of-type {
   border-bottom: none;
@@ -41,6 +45,16 @@ defineProps<{
   width: 100%;
   border-left: 0.5px solid var(--scalar-border-color);
   position: relative;
+}
+.table-row:hover .table-row-item:last-of-type {
+  mask-image: linear-gradient(
+    to left,
+    transparent 20px,
+    var(--scalar-background-2) 40px
+  );
+}
+.table-row-item:last-of-type:focus-within :deep(input) {
+  width: calc(100% - 18px);
 }
 .table-row-item :deep(input) {
   border: none;

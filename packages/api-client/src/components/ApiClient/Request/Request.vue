@@ -57,8 +57,8 @@ const readOnly = true
         </div>
       </div>
       <div class="scalar-api-client__main__content__body">
-        <RequestVariables :variables="activeRequest.variables" />
         <RequestAuthentication />
+        <RequestVariables :variables="activeRequest.variables" />
         <RequestCookies
           :cookies="activeRequest.cookies"
           :generatedCookies="authenticationRequest.cookies" />
@@ -96,6 +96,9 @@ const readOnly = true
   justify-content: space-between;
   z-index: 2;
   position: relative;
+  border: 0.5px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
+  margin-left: 24px;
   margin-bottom: 12px;
 }
 .scalar-api-client__item__content:empty {
@@ -107,12 +110,10 @@ const readOnly = true
 }
 .scalar-api-client__item__content .scalar-codeblock-pre,
 .scalar-api-client__item__content .cm-s-default {
-  border: 0.5px solid var(--scalar-border-color);
-  border-radius: var(--scalar-radius);
   background: transparent;
 }
 .scalar-api-client__item__content .scalar-codeblock-pre {
-  margin: 0 18px;
+  /* margin: 0 18px; */
 }
 .scalar-api-client__item__content .scalar-codeblock-pre * {
   font-size: var(--scalar-micro);
@@ -124,12 +125,11 @@ const readOnly = true
   overflow: auto;
 }
 .scalar-api-client__item__content .cm-scroller {
-  border: 0.5px solid var(--scalar-border-color);
   border-radius: var(--scalar-radius);
-  background-color: var(--scalar-background-1);
+  background-color: transparent;
 }
 .scalar-api-client__item__content .cm-scroller {
-  padding: 0 18.5px;
+  padding: 0 0;
   margin: 0;
   border-radius: 0;
   border-left: none;
@@ -137,7 +137,7 @@ const readOnly = true
   border-top: none;
 }
 .scalar-api-client__item__content .cm-scroller:focus-within {
-  background: var(--scalar-background-2);
+  background: color-mix(in srgb, transparent 60%, var(--scalar-background-2));
 }
 .scalar-api-client__item__content .cm-editor {
   outline: none !important;

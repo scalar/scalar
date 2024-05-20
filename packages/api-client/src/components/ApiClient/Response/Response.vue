@@ -88,7 +88,6 @@ const responseData = computed(() => {
       <template v-else>
         <div class="scalar-api-client__main__content empty-state">
           <ScalarAsciiArt :art="Computer" />
-          <p>Fill the void and send your request</p>
         </div>
       </template>
     </div>
@@ -115,7 +114,7 @@ const responseData = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  height: calc(100% - 50px);
+  height: calc(100% - 90px);
   justify-content: center;
 }
 .scalar-api-client__main__content .empty-state p {
