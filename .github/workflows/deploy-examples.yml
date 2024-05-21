@@ -2,9 +2,6 @@ name: Deploy Scalar examples
 
 on:
   push:
-    paths:
-      - 'examples/web/**'
-      - '.github/workflows/deploy-examples.yml'
     branches:
       - 'main'
 
