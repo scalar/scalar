@@ -65,7 +65,7 @@ export const transformToJson = (value: string) => {
   return JSON.stringify(json.parseSafe(value, yaml.parseSafe(value, value)))
 }
 
-/** Validates a JSON string if provided. Otherwise returns the raw Yaml */
+/** Validates a JSON string if provided. Otherwise returns the raw YAML */
 export function formatJsonOrYamlString(value: string) {
   // If we don't start with a bracket assume yaml
   const trimmed = value.trim()
@@ -75,7 +75,7 @@ export function formatJsonOrYamlString(value: string) {
     // JSON
     return JSON.stringify(JSON.parse(value), null, 2)
   } catch {
-    // Yaml
+    // YAML
     return value
   }
 }

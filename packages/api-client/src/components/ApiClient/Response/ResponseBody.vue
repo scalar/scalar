@@ -1,26 +1,22 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components'
-import { normalizeMimeType } from '@scalar/oas-utils'
-import { computed } from 'vue'
+import { isJsonString, normalizeMimeType } from '@scalar/oas-utils'
+import { computed, toRaw } from 'vue'
 
+import { normalizeHeaders } from '../../../helpers'
 import { CollapsibleSection } from '../../CollapsibleSection'
 
-const props = withDefaults(
-  defineProps<{
-    active: boolean
-    data: any
-    headers: Record<string, string>[]
-  }>(),
-  {
-    active: false,
-    data: null,
-  },
-)
+const props = defineProps<{
+  response?: any
+}>()
 
+// In order to render the response body, we need to know the media type.
 const mediaType = computed(() => {
-  const contentTypeHeader = props.headers.find(
-    (header) => header.name.toLowerCase() === 'content-type',
-  )
+  // Transform all header keys to lowercase
+  const headers = normalizeHeaders(props.response?.headers)
+
+  // Get the content-type header
+  const contentTypeHeader = headers['content-type']
 
   if (!contentTypeHeader) {
     return null
@@ -30,7 +26,8 @@ const mediaType = computed(() => {
   return normalizeMimeType(contentTypeHeader?.value)
 })
 
-const codeMirrorLanguage = computed((): string | null => {
+// Determine the CodeMirror language based on the media type
+const codeMirrorLanguage = computed((): string | undefined => {
   if (mediaType.value === 'application/json') {
     return 'json'
   }
@@ -43,22 +40,36 @@ const codeMirrorLanguage = computed((): string | null => {
     return 'html'
   }
 
-  return null
+  return undefined
+})
+
+// Pretty print JSON
+const formattedResponseData = computed(() => {
+  const value = props.response?.data
+
+  // Format JSON
+  if (value && isJsonString(value)) {
+    return JSON.stringify(JSON.parse(value as string), null, 2)
+  } else if (value && typeof toRaw(value) === 'object') {
+    return JSON.stringify(value, null, 2)
+  }
+
+  return value
 })
 </script>
 <template>
   <CollapsibleSection title="Body">
-    <template v-if="active">
+    <template v-if="response">
       <ScalarCodeBlock
-        v-if="codeMirrorLanguage"
+        v-if="codeMirrorLanguage || typeof response.data === 'string'"
         class="custom-scroll"
-        :content="data"
+        :content="formattedResponseData"
         :lang="codeMirrorLanguage" />
       <div
         v-else
         class="scalar-api-client__empty-state">
         <template v-if="mediaType">
-          No Preview Available ({{ mediaType }})
+          No preview available for {{ mediaType }}
         </template>
         <template v-else>
           Can’t render a preview. The Content-Type header is missing or unknown.

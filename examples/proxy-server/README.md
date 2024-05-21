@@ -20,6 +20,10 @@ go run main.go
 2024/05/08 10:49:59 🥤 Proxy Server listening on http://localhost:1337
 ```
 
+```bash
+PORT=8080 go run main.go
+```
+
 ### Example
 
 ```

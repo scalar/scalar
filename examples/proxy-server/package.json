@@ -20,7 +20,7 @@
   },
   "scripts": {
     "build": "go build main.go",
-    "dev": "go run main.go",
+    "dev": "PORT=5051 go run main.go",
     "lint:check": "go fmt ./main.go",
     "lint:fix": "go fmt ./main.go",
     "preview": "pnpm dev",

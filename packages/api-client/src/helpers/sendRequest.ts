@@ -16,6 +16,20 @@ import {
   replaceVariables,
 } from './'
 
+/** Redirects the request to a proxy server with a given URL. */
+function redirectToProxy(proxy: string, url: string): string {
+  return `${proxy}?scalar_url=${encodeURI(url)}`
+}
+
+/** Skip the proxy for requests to localhost */
+function isRequestToLocalhost(url: string) {
+  const { hostname } = new URL(url)
+
+  const listOfLocalUrls = ['localhost', '127.0.0.1', '[::1]']
+
+  return listOfLocalUrls.includes(hostname)
+}
+
 /**
  * Send a request via the proxy
  */
@@ -103,18 +117,16 @@ export async function sendRequest(
     data: request.body,
   }
 
-  const axiosRequestConfig: AxiosRequestConfig = proxyUrl
-    ? {
-        method: 'POST',
-        url: proxyUrl,
-        data: requestConfig,
-      }
-    : {
-        method: requestConfig.method,
-        url: requestConfig.url,
-        headers: requestConfig.headers,
-        data: requestConfig.data,
-      }
+  const shouldUseProxy = proxyUrl && !isRequestToLocalhost(requestConfig.url)
+
+  const axiosRequestConfig: AxiosRequestConfig = {
+    method: requestConfig.method,
+    url: shouldUseProxy
+      ? redirectToProxy(proxyUrl, requestConfig.url)
+      : requestConfig.url,
+    headers: requestConfig.headers,
+    data: requestConfig.data,
+  }
 
   // if we have cookies, we need to pass withCredentials
   // to properly set cookies in the browser
@@ -122,42 +134,36 @@ export async function sendRequest(
     axiosRequestConfig.withCredentials = true
   }
 
-  if (proxyUrl) {
-    console.info(`${requestConfig.method} ${proxyUrl} → ${requestConfig.url}`)
+  if (shouldUseProxy) {
+    console.info(
+      `${requestConfig.method} ${requestConfig.url} (proxy: ${proxyUrl})`,
+    )
   } else {
     console.info(`${requestConfig.method} ${requestConfig.url}`)
   }
 
   const response: ClientResponse = await axios(axiosRequestConfig)
-    .then((result) => {
-      // With proxy
-      if (proxyUrl) {
-        return {
-          ...result.data,
-          error: false,
-        }
-      }
-
-      // Without proxy
-      return {
-        ...result,
-        statusCode: result.status,
-        data: JSON.stringify(result.data),
-        error: false,
-      }
-    })
+    .then((result) => ({
+      ...result,
+      statusCode: result.status,
+      data: result.data,
+      error: false,
+    }))
     .catch((error) => {
       const { response: errorResponse } = error
+
+      console.error('ERROR', error)
 
       // We add fallbacks where we set the code, status and header type so we can
       // float all errors now to the user
       return {
-        headers: {
-          'content-type': 'application/json; charset=utf-8',
-        },
+        data: error.code ?? error.message,
         ...errorResponse,
         statusCode: errorResponse?.status ?? 0,
-        data: JSON.stringify(errorResponse?.data ?? { error: error.code }),
+        error: {
+          message: errorResponse?.data?.message ?? error.message,
+          stack: errorResponse?.data?.stack ?? error.stack,
+        },
       }
     })
 

@@ -18,15 +18,7 @@ const responseHeaders = computed(() => {
   const headers = activeResponse.value?.headers
 
   return headers
-    ? Object.keys(headers)
-        .map((key) => ({ name: key, value: headers[key] }))
-        .filter(
-          (item) =>
-            ![
-              'rest-api-client-content-length',
-              'X-API-Client-Content-Length',
-            ].includes(item.name),
-        )
+    ? Object.keys(headers).map((key) => ({ name: key, value: headers[key] }))
     : []
 })
 
@@ -37,23 +29,6 @@ const responseCookies = computed(() => {
   return cookies
     ? Object.keys(cookies).map((key) => ({ name: key, value: cookies[key] }))
     : []
-})
-
-// Pretty print JSON
-const responseData = computed(() => {
-  const value = activeResponse.value?.data
-
-  // Format JSON
-  if (value && isJsonString(value)) {
-    return JSON.stringify(JSON.parse(value as string), null, 2)
-  } else if (value && typeof toRaw(value) === 'object') {
-    return JSON.stringify(value, null, 2)
-  }
-  if (value && !isJsonString(value)) {
-    return JSON.stringify(value, null, 2)
-  }
-
-  return value
 })
 </script>
 <template>
@@ -69,10 +44,7 @@ const responseData = computed(() => {
       </div>
       <template v-if="activeRequestId && activeResponse">
         <div class="scalar-api-client__main__content__body">
-          <ResponseBody
-            :active="!!activeResponse"
-            :data="responseData"
-            :headers="responseHeaders" />
+          <ResponseBody :response="activeResponse" />
           <ResponseHeaders :headers="responseHeaders" />
           <CollapsibleSection title="Cookies">
             <SimpleGrid
