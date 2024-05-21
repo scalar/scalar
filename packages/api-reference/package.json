@@ -25,11 +25,11 @@
     "node": ">=18"
   },
   "scripts": {
+    "analyze:default": "pnpm dlx vite-bundle-visualizer",
+    "analyze:standalone": "pnpm dlx vite-bundle-visualizer -c vite.standalone.config.ts",
     "build": "pnpm build:default && pnpm build:standalone && pnpm types:build && tsc-alias -p tsconfig.build.json",
     "build:default": "vite build",
-    "analyze:default": "pnpm dlx vite-bundle-visualizer",
     "build:standalone": "vite build -c vite.standalone.config.ts",
-    "analyze:standalone": "pnpm dlx vite-bundle-visualizer -c vite.standalone.config.ts",
     "build:storybook": "storybook build",
     "dev": "vite",
     "dev:standalone": "vite -c vite.standalone.config.ts",
