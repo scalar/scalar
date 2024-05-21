@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.1.12
+
+### Patch Changes
+
+- 61b8ddc: fix: doesn’t render preview for mimetype variations like application/foobar+json
+- 165b901: feat: dynamic values for generated examples
+
 ## 0.1.11
 
 ### Patch Changes

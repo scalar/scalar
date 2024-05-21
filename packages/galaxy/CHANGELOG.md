@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.1.3
+
+### Patch Changes
+
+- 165b901: feat: dynamic values for generated examples
+
 ## 0.1.2
 
 ### Patch Changes

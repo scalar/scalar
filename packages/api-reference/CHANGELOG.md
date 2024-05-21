@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.22.44
+
+### Patch Changes
+
+- 496bca4: fix: api client selector responsive
+- f677ff5: feat: favor uppercase css style for sidebar heading
+- 28c8dc5: fix: server url with variable is overwritten with current url
+- Updated dependencies [dfe51b1]
+- Updated dependencies [504ff7a]
+- Updated dependencies [61b8ddc]
+- Updated dependencies [165b901]
+- Updated dependencies [925572f]
+  - @scalar/components@0.7.10
+  - @scalar/api-client@1.2.30
+  - @scalar/oas-utils@0.1.12
+
 ## 1.22.43
 
 ### Patch Changes

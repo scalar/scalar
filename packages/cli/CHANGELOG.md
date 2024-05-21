@@ -1,5 +1,19 @@
 # @scalar/cli
 
+## 0.2.85
+
+### Patch Changes
+
+- ca19683: chore: rename reference command to serve
+- Updated dependencies [496bca4]
+- Updated dependencies [f677ff5]
+- Updated dependencies [28c8dc5]
+- Updated dependencies [61b8ddc]
+- Updated dependencies [165b901]
+  - @scalar/api-reference@1.22.44
+  - @scalar/oas-utils@0.1.12
+  - @scalar/mock-server@0.1.66
+
 ## 0.2.84
 
 ### Patch Changes
