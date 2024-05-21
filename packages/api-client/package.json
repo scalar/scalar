@@ -52,7 +52,6 @@
     "@scalar/use-tooltip": "workspace:*",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.6.8",
-    "content-type": "^1.0.5",
     "httpsnippet-lite": "^3.0.5",
     "nanoid": "^5.0.1",
     "pretty-bytes": "^6.1.1",
