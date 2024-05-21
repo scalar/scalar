@@ -51,7 +51,7 @@ export default defineNuxtModule<ModuleOptions>({
       'debug',
       'extend',
       'stringify-object',
-      'rehype-prismjs',
+      'rehype-highlight',
     )
 
     // Also check for Nitro OpenAPI auto generation
