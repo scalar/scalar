@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.7.10
+
+### Patch Changes
+
+- dfe51b1: style: brightened ScalarButton ghost highlight color
+- 925572f: fix: add scalar component scope to missing components
+- Updated dependencies [61b8ddc]
+- Updated dependencies [165b901]
+  - @scalar/oas-utils@0.1.12
+
 ## 0.7.9
 
 ### Patch Changes

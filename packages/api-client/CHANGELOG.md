@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 1.2.30
+
+### Patch Changes
+
+- 504ff7a: fix: request / response active states margins, etc
+- 61b8ddc: fix: doesn’t render preview for mimetype variations like application/foobar+json
+- Updated dependencies [dfe51b1]
+- Updated dependencies [61b8ddc]
+- Updated dependencies [165b901]
+- Updated dependencies [925572f]
+  - @scalar/components@0.7.10
+  - @scalar/oas-utils@0.1.12
+
 ## 1.2.29
 
 ### Patch Changes

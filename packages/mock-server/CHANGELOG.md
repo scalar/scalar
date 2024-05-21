@@ -1,5 +1,14 @@
 # @scalar/mock-server
 
+## 0.1.66
+
+### Patch Changes
+
+- 165b901: feat: dynamic values for generated examples
+- Updated dependencies [61b8ddc]
+- Updated dependencies [165b901]
+  - @scalar/oas-utils@0.1.12
+
 ## 0.1.65
 
 ### Patch Changes
