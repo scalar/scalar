@@ -33,7 +33,7 @@
     "build": "turbo build",
     "build:packages": "turbo --filter './packages/**' build",
     "build:standalone": "pnpm --filter api-reference play-button build:standalone",
-    "bump": "CI=true pnpm run test && pnpm changeset version",
+    "bump": "pnpm test:ci && pnpm changeset version",
     "clean": "pnpm clean:nodeModules; pnpm clean:dist; pnpm clean:turbo; pnpm clean:nuxt",
     "clean:build": "pnpm clean ; pnpm i && pnpm build:packages",
     "clean:nodeModules": "find . -name node_modules -type d -exec rm -rf {} \\;",
