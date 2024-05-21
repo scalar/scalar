@@ -51,6 +51,7 @@ watch(
     })
   },
   {
+    immediate: true,
     deep: true,
   },
 )
