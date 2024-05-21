@@ -4,6 +4,7 @@ import type { ReferenceConfiguration } from '../types'
 
 const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 const NEW_PROXY_URL = 'https://proxy.scalar.com'
+const LOCAL_PROXY_URL = 'http://localhost:5051'
 
 export function useDeprecationWarnings(configuration: ReferenceConfiguration) {
   watch(
@@ -26,7 +27,8 @@ export function useDeprecationWarnings(configuration: ReferenceConfiguration) {
         )
       } else if (
         configuration.proxy?.length &&
-        configuration.proxy !== NEW_PROXY_URL
+        configuration.proxy !== NEW_PROXY_URL &&
+        configuration.proxy !== LOCAL_PROXY_URL
       ) {
         console.warn(
           `[DEPRECATED] Warning: configuration.proxy points to a custom proxy (${configuration?.proxy}).`,
