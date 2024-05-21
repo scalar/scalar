@@ -137,6 +137,9 @@ const onAnchorClick = async (ev: Event) => {
   </li>
 </template>
 <style scoped>
+[data-sidebar-type] > .sidebar-heading {
+  text-transform: uppercase;
+}
 .sidebar-heading {
   display: flex;
   gap: 6px;
