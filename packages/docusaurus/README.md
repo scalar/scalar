@@ -37,6 +37,47 @@ plugins: [
 ],
 ```
 
+### Multiple API descriptions
+
+Is it possible to add show multiple API descriptions? Yes, it is! :)
+
+```ts
+import type { ScalarOptions } from '@scalar/docusaurus'
+
+plugins: [
+  // First API definition
+  [
+    '@scalar/docusaurus',
+    {
+      // the `id` is required if you have multiple instances of the @scalar/docusaurus plugin
+      id: 'scalar/galaxy',
+      label: 'Scalar',
+      route: '/scalar',
+      configuration: {
+        spec: {
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        },
+      },
+    } as ScalarOptions,
+  ],
+  // Second API definition
+  [
+    '@scalar/docusaurus',
+    {
+      // the `id` is required if you have multiple instances of the @scalar/docusaurus plugin
+      id: 'petstore',
+      label: 'Petstore',
+      route: '/petstore',
+      configuration: {
+        spec: {
+          url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+        },
+      },
+    } as ScalarOptions,
+  ],
+],
+```
+
 ### Example
 
 You can find an example in this repo under [examples/docusaurus](https://github.com/scalar/scalar/tree/main/examples/docusaurus)
