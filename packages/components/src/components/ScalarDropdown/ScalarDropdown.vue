@@ -17,7 +17,7 @@ defineOptions({ inheritAttrs: false })
       </MenuButton>
       <template #floating="{ width }">
         <MenuItems
-          class="relative flex w-56 flex-col p-0.75"
+          class="scalar-component relative flex w-56 flex-col p-0.75"
           :style="{ width }"
           v-bind="$attrs">
           <slot name="items" />
