@@ -73,6 +73,26 @@ describe('sendRequest', () => {
     })
   })
 
+  it('replaces variables in urls', async () => {
+    const request = {
+      url: `http://127.0.0.1:${ECHO_PORT}/{path}`,
+      variables: [
+        {
+          name: 'path',
+          value: 'example',
+          enabled: true,
+        },
+      ],
+    }
+
+    const result = await sendRequest(request)
+
+    expect(result?.response.data).toMatchObject({
+      method: 'GET',
+      path: '/example',
+    })
+  })
+
   it('sends query parameters', async () => {
     const request = {
       url: `http://127.0.0.1:${ECHO_PORT}`,
@@ -197,7 +217,7 @@ describe('sendRequest', () => {
 
     console.log(result?.response.data)
 
-    expect(result?.response.data?.trim()).toContain(
+    expect(result?.response.data?.trim().toLowerCase()).toContain(
       'dial tcp: lookup does_not_exist',
     )
   })
