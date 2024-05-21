@@ -12,9 +12,11 @@ import {
 } from '../../utils'
 import { printSpecificationBanner } from '../../utils/printSpecificationBanner'
 
-export function ReferenceCommand() {
-  const cmd = new Command('reference')
+export function ServeCommand() {
+  const cmd = new Command('serve')
 
+  // Old name for the command
+  cmd.alias('reference')
   cmd.description('Serve an API Reference from an OpenAPI file')
   cmd.argument('[file|url]', 'OpenAPI file or URL to show the reference for')
   cmd.option('-w, --watch', 'watch the file for changes')

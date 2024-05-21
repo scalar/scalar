@@ -519,7 +519,7 @@ Preview the API reference for your OpenAPI file with just one command. It can ev
 content on file changes:
 
 ```bash
-scalar reference openapi.json --watch
+scalar serve openapi.json --watch
 ```
 
 ### Mock server
