@@ -157,6 +157,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
 </template>
 <style scoped>
 .client-libraries-content {
+  container: client-libraries-content / inline-size;
   display: flex;
   justify-content: center;
   overflow: hidden;
@@ -204,6 +205,23 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
 }
 .client-libraries-icon__more svg {
   height: initial;
+}
+@container client-libraries-content (width < 400px) {
+  .client-libraries__select {
+    width: fit-content;
+
+    .client-libraries-icon__more + span {
+      display: none;
+    }
+  }
+}
+@container client-libraries-content (width < 380px) {
+  .client-libraries {
+    width: 100%;
+  }
+  .client-libraries span {
+    display: none;
+  }
 }
 .client-libraries__active {
   background-color: var(--scalar-background-2);
