@@ -14,7 +14,7 @@ const props = defineProps<{
 const mediaType = computed(() => {
   // Transform all header keys to lowercase
   const headers = Object.fromEntries(
-    Object.entries(props.response.headers as AxiosHeaders).map(
+    Object.entries((props.response?.headers ?? {}) as AxiosHeaders).map(
       ([key, value]) => [key.toLowerCase(), value],
     ),
   )
@@ -31,7 +31,7 @@ const mediaType = computed(() => {
 })
 
 // Determine the CodeMirror language based on the media type
-const codeMirrorLanguage = computed((): string | null => {
+const codeMirrorLanguage = computed((): string | undefined => {
   if (mediaType.value === 'application/json') {
     return 'json'
   }
@@ -44,7 +44,7 @@ const codeMirrorLanguage = computed((): string | null => {
     return 'html'
   }
 
-  return null
+  return undefined
 })
 
 // Pretty print JSON

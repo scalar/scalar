@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { httpStatusCodes } from '@scalar/oas-utils'
-import type { HttpStatusCode } from '@scalar/oas-utils'
+import { type HttpStatusCode, httpStatusCodes } from '@scalar/oas-utils'
 import prettyBytes from 'pretty-bytes'
 import prettyMilliseconds from 'pretty-ms'
 import { computed } from 'vue'
@@ -12,7 +11,7 @@ const props = defineProps<{ response: any }>()
 
 /** Size of the response */
 const getContentLength = (response: ClientResponse) => {
-  const contentLength = parseInt(response.headers['content-length'], 10)
+  const contentLength = parseInt(response.headers?.['content-length'], 10)
 
   return contentLength ? prettyBytes(contentLength) : undefined
 }
