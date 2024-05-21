@@ -5,7 +5,6 @@ import { ref, watch } from 'vue'
 
 import { useServerStore } from '../../../stores'
 import type { Variable } from '../../../types'
-import { Card, CardContent, CardHeader } from '../../Card'
 import { MarkdownRenderer } from '../../MarkdownRenderer'
 import ServerItem from './ServerItem.vue'
 import ServerVariables from './ServerVariables.vue'
@@ -13,7 +12,7 @@ import ServerVariables from './ServerVariables.vue'
 const { server, setServer } = useServerStore()
 const selectedServerIndex = ref<number>(0)
 
-// TODO move this to a computed property in the store
+// TODO: Move this to the store
 watch(
   [selectedServerIndex, () => server.servers],
   () => {
@@ -52,6 +51,7 @@ watch(
     })
   },
   {
+    immediate: true,
     deep: true,
   },
 )

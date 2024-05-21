@@ -26,8 +26,8 @@ const { setServer } = useServerStore()
 const { hideModels, collapsedSidebarItems } = useSidebar()
 
 const prependRelativePath = (server: Server) => {
-  // URLs that don't start with http[s]://
-  if (server.url.match(/^(?!(https?|file):\/\/).+/)) {
+  // URLs that don't start with http[s]:// or a variable
+  if (server.url.match(/^(?!(https?|file):\/\/|{).+/)) {
     let baseURL = props.baseServerURL ?? window.location.origin
 
     // Handle slashes
