@@ -1,5 +1,13 @@
 # @scalar/nuxt
 
+## 0.0.55
+
+### Patch Changes
+
+- 5aa656f: feat: [BREAKING CHANGE] use new HTTP proxy (https://github.com/scalar/scalar/pull/1703)
+- Updated dependencies [5aa656f]
+  - @scalar/api-reference@1.22.45
+
 ## 0.0.54
 
 ### Patch Changes

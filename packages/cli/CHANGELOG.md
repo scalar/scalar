@@ -1,5 +1,15 @@
 # @scalar/cli
 
+## 0.2.86
+
+### Patch Changes
+
+- 5aa656f: feat: [BREAKING CHANGE] use new HTTP proxy (https://github.com/scalar/scalar/pull/1703)
+- Updated dependencies [5aa656f]
+  - @scalar/api-reference@1.22.45
+  - @scalar/oas-utils@0.1.13
+  - @scalar/mock-server@0.1.67
+
 ## 0.2.85
 
 ### Patch Changes
