@@ -51,8 +51,7 @@
   --scalar-sidebar-search-color: var(--scalar-color-3);
 }
 .light-mode .t-doc__sidebar {
-  --scalar-sidebar-item-active-background: #09090b;
-  --scalar-sidebar-color-active: var(--scalar-sidebar-background-1);
+  --scalar-sidebar-item-active-background: var(--scalar-background-2);
 }
 /* advanced */
 .light-mode {
