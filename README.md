@@ -201,7 +201,12 @@ import { ApiReference } from '@scalar/api-reference'
 </script>
 
 <template>
-  <ApiReference />
+  <ApiReference
+    :configuration="{
+      spec: {
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+      },
+    }" />
 </template>
 ```
 
@@ -620,9 +625,9 @@ To get started, overwrite our CSS variables. We won’t judge.
 ```
 
 > [!NOTE]\
-> By default, we’re using Inter and JetBrains Mono, served by Google Fonts.
-> If you use a different font or just don’t want to use Google Fonts,
-> pass `withDefaultFonts: true` to the configuration.
+> By default, we’re using Inter and JetBrains Mono, served by our in-house CDN.
+> If you use a different font or want to use Google Fonts,
+> pass `withDefaultFonts: false` to the configuration.
 
 You can [use all variables](https://github.com/scalar/scalar/blob/main/packages/themes/src/base.css) available in the
 base styles as well as overwrite the color theme.
