@@ -1,5 +1,15 @@
 # @scalar/nuxt
 
+## 0.0.54
+
+### Patch Changes
+
+- 6b61765: fix: nuxt transpilation commonjs errors
+- Updated dependencies [496bca4]
+- Updated dependencies [f677ff5]
+- Updated dependencies [28c8dc5]
+  - @scalar/api-reference@1.22.44
+
 ## 0.0.53
 
 ### Patch Changes
