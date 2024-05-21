@@ -152,6 +152,8 @@ export async function sendRequest(
     .catch((error) => {
       const { response: errorResponse } = error
 
+      console.error('ERROR', error)
+
       // We add fallbacks where we set the code, status and header type so we can
       // float all errors now to the user
       return {
