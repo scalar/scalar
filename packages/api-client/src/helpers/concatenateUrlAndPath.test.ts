@@ -24,4 +24,10 @@ describe('concatenateUrlAndPath', () => {
   it('works without a path', async () => {
     expect(concatenateUrlAndPath('http://127.0.0.1')).toBe('http://127.0.0.1')
   })
+
+  it('removes duplicate slashes', async () => {
+    expect(concatenateUrlAndPath('http://127.0.0.1/', '/foobar')).toBe(
+      'http://127.0.0.1/foobar',
+    )
+  })
 })
