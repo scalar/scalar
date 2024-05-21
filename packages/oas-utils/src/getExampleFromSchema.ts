@@ -19,6 +19,10 @@ export const getExampleFromSchema = (
      * @default undefined
      */
     mode?: 'read' | 'write'
+    /**
+     * Dynamic values to add to the example.
+     */
+    variables?: Record<string, any>
   },
   level: number = 0,
 ): any => {
@@ -35,6 +39,21 @@ export const getExampleFromSchema = (
   // Check if the property is write-only
   if (options?.mode === 'read' && schema.writeOnly) {
     return undefined
+  }
+
+  // Use given variables as values
+  if (schema['x-variable']) {
+    const value = options?.variables?.[schema['x-variable']]
+
+    // Return the value if it’s defined
+    if (value !== undefined) {
+      // Type-casting
+      if (schema.type === 'number' || schema.type === 'integer') {
+        return parseInt(value, 10)
+      }
+
+      return value
+    }
   }
 
   // Use the first example, if there’s an array

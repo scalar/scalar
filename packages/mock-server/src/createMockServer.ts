@@ -73,7 +73,7 @@ export async function createMockServer(options?: {
 
         // Focus on JSON for now
         const jsonResponse = preferredResponseKey
-          ? operation.responses?.[preferredResponseKey]?.content[
+          ? operation.responses?.[preferredResponseKey]?.content?.[
               'application/json'
             ]
           : null
@@ -84,6 +84,7 @@ export async function createMockServer(options?: {
           : jsonResponse?.schema
             ? getExampleFromSchema(jsonResponse.schema, {
                 emptyString: '…',
+                variables: c.req.param(),
               })
             : null
 

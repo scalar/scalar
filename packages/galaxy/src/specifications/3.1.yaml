@@ -487,6 +487,7 @@ components:
           format: int64
           examples:
             - 1
+          x-variable: planetId
         name:
           type: string
           examples:

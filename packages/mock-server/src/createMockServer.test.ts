@@ -163,6 +163,52 @@ describe('createMockServer', () => {
     })
   })
 
+  it('POST /foobar/{id} -> uses dynamic ID', async () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar/{id}': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: {
+                          'type': 'number',
+                          'example': 'bar',
+                          'x-variable': 'id',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({
+      specification,
+    })
+
+    const response = await server.request('/foobar/123')
+
+    expect(await response.json()).toMatchObject({
+      id: 123,
+    })
+    expect(response.status).toBe(200)
+  })
+
   it('GET /foobar -> example from schema', async () => {
     const specification = {
       openapi: '3.1.0',
