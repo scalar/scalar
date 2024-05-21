@@ -45,12 +45,15 @@ export const getExampleFromSchema = (
   if (schema['x-variable']) {
     const value = options?.variables?.[schema['x-variable']]
 
-    // Type-casting
-    if (schema.type === 'number' || schema.type === 'integer') {
-      return parseInt(value, 10)
-    }
+    // Return the value if it’s defined
+    if (value !== undefined) {
+      // Type-casting
+      if (schema.type === 'number' || schema.type === 'integer') {
+        return parseInt(value, 10)
+      }
 
-    return value
+      return value
+    }
   }
 
   // Use the first example, if there’s an array
