@@ -7,7 +7,7 @@ import {
   FormatCommand,
   InitCommand,
   MockCommand,
-  ReferenceCommand,
+  ServeCommand,
   ShareCommand,
   ValidateCommand,
 } from './commands'
@@ -25,7 +25,7 @@ program.addCommand(InitCommand(), {
 program.addCommand(FormatCommand())
 program.addCommand(ValidateCommand())
 program.addCommand(BundleCommand())
-program.addCommand(ReferenceCommand())
+program.addCommand(ServeCommand())
 program.addCommand(MockCommand())
 program.addCommand(ShareCommand())
 

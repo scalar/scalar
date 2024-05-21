@@ -66,16 +66,16 @@ scalar share openapi.json
 
 This will upload your OpenAPI file to the [Scalar Sandbox](https://sandbox.scalar.com/) to give you a public reference URL and a public URL to your OpenAPI JSON file.
 
-### reference
+### serve
 
 You can quickly spin up a local server with an API reference based on your OpenAPI file.
 
 ```bash
-scalar reference
-scalar reference openapi.json
-scalar reference openapi.json --port 1234
-scalar reference openapi.json --watch
-scalar reference https://example.com/openapi.json --watch
+scalar serve
+scalar serve openapi.json
+scalar serve openapi.json --port 1234
+scalar serve openapi.json --watch
+scalar serve https://example.com/openapi.json --watch
 ```
 
 ### mock
