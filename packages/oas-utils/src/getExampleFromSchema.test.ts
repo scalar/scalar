@@ -135,6 +135,22 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject('…')
   })
 
+  it('uses variables as an example value', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          'type': 'string',
+          'x-variable': 'id',
+        },
+        {
+          variables: {
+            id: 'foobar',
+          },
+        },
+      ),
+    ).toBe('foobar')
+  })
+
   it('uses true as a fallback for booleans', () => {
     expect(
       getExampleFromSchema({
