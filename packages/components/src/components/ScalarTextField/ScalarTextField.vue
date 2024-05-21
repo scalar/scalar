@@ -101,7 +101,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div class="scalar-input-container relative">
+  <div class="scalar-component scalar-input-container relative">
     <div :class="textField({ error, focus: isFocused })">
       <component
         :is="isMultiline ? 'textarea' : 'input'"
