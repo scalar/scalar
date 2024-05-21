@@ -1,3 +1,4 @@
+import { normalizeMimeType } from './normalizeMimeType'
 import type { ContentType } from './types'
 
 /**
@@ -18,13 +19,7 @@ export function normalizeMimeTypeObject(content?: Record<ContentType, any>) {
   Object.keys(newContent).forEach((key) => {
     // Example: 'application/problem+json; charset=utf-8'
 
-    const newKey = key
-      // Remove '; charset=utf-8'
-      .replace(/;.*$/, '')
-      // Remove 'problem+'
-      .replace(/\/.+\+/, '/')
-      // Remove whitespace
-      .trim() as ContentType
+    const newKey = normalizeMimeType(key)
 
     newContent[newKey] = newContent[key as ContentType]
 

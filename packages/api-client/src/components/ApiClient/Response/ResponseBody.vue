@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components'
-import contentType from 'content-type'
+import { normalizeMimeType } from '@scalar/oas-utils'
 import { computed } from 'vue'
 
 import { CollapsibleSection } from '../../CollapsibleSection'
@@ -26,19 +26,12 @@ const mediaType = computed(() => {
     return null
   }
 
-  try {
-    return contentType.parse(contentTypeHeader.value).type
-  } catch {
-    return null
-  }
+  // application/foobar+json; charset=utf-8 -> application/json
+  return normalizeMimeType(contentTypeHeader?.value)
 })
 
 const codeMirrorLanguage = computed((): string | null => {
-  if (
-    mediaType.value === 'application/json' ||
-    mediaType.value === 'application/problem+json' ||
-    mediaType.value === 'application/vnd.api+json'
-  ) {
+  if (mediaType.value === 'application/json') {
     return 'json'
   }
 
