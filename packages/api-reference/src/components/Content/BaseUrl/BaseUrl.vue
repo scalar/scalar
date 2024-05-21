@@ -12,7 +12,7 @@ import ServerVariables from './ServerVariables.vue'
 const { server, setServer } = useServerStore()
 const selectedServerIndex = ref<number>(0)
 
-// TODO move this to a computed property in the store
+// TODO: Move this to the store
 watch(
   [selectedServerIndex, () => server.servers],
   () => {
