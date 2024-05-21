@@ -95,7 +95,7 @@ const items = computed(() => {
     if (heading.depth === getLowestHeadingLevel(headings.value)) {
       currentHeading = {
         id: getHeadingId(heading),
-        title: heading.value.toUpperCase(),
+        title: heading.value,
         show: !state.showApiClient,
         children: [],
       }
@@ -129,8 +129,8 @@ const items = computed(() => {
           .map((tag: Tag) => {
             return {
               id: getTagId(tag),
-              title: tag.name.toUpperCase(),
-              displayTitle: (tag['x-displayName'] ?? tag.name).toUpperCase(),
+              title: tag.name,
+              displayTitle: tag['x-displayName'] ?? tag.name,
               show: true,
               children: tag.operations?.map(
                 (operation: TransformedOperation) => {
@@ -179,7 +179,7 @@ const items = computed(() => {
       ? [
           {
             id: getModelId(),
-            title: 'MODELS',
+            title: 'Models',
             show: !state.showApiClient,
             children: Object.keys(getModels(parsedSpec.value) ?? {}).map(
               (name) => {
@@ -204,11 +204,11 @@ const items = computed(() => {
     ? parsedSpec.value?.['x-tagGroups']?.map((tagGroup) => {
         const children: SidebarEntry[] = []
         tagGroup.tags.map((tagName: string) => {
-          if (tagName.toUpperCase() === 'MODELS' && modelEntries.length > 0) {
+          if (tagName === 'models' && modelEntries.length > 0) {
             children.push(modelEntries[0])
           } else {
             const tag = operationEntries?.find(
-              (entry) => entry.title === tagName.toUpperCase(),
+              (entry) => entry.title === tagName,
             )
             if (tag) {
               children.push(tag)
@@ -217,7 +217,7 @@ const items = computed(() => {
         })
         const sidebarTagGroup = {
           id: tagGroup.name,
-          title: tagGroup.name.toUpperCase(),
+          title: tagGroup.name,
           children,
           show: true,
           isGroup: true,
@@ -231,7 +231,7 @@ const items = computed(() => {
     ? [
         {
           id: getWebhookId(),
-          title: 'WEBHOOKS',
+          title: 'Webhook',
           show: !state.showApiClient,
           children: Object.keys(parsedSpec.value?.webhooks ?? {})
             .map((name) => {
