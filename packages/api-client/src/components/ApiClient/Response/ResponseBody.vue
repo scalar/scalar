@@ -73,7 +73,7 @@ const formattedResponseData = computed(() => {
         v-else
         class="scalar-api-client__empty-state">
         <template v-if="mediaType">
-          No Preview Available ({{ mediaType }})
+          No preview available for {{ mediaType }}
         </template>
         <template v-else>
           Can’t render a preview. The Content-Type header is missing or unknown.
