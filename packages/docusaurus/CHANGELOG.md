@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.2.47
+
+### Patch Changes
+
+- 059598c: fix: docusaurus preffered color scheme bug
+  - @scalar/api-reference-react@0.1.89
+
 ## 0.2.46
 
 ### Patch Changes

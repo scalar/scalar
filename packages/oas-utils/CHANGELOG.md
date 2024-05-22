@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.1.14
+
+### Patch Changes
+
+- 7205137: fix: response body does not show a preview when the content-type is undefined
+- d369ac4: feat: union types in getExampleFromSchema
+
 ## 0.1.13
 
 ### Patch Changes

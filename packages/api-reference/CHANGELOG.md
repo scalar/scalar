@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.22.47
+
+### Patch Changes
+
+- 4b78b40: fix: text transform folder as option + remove transforms from top level items
+- 8865d12: fix: webhook operation parsing
+- Updated dependencies [7205137]
+- Updated dependencies [d369ac4]
+- Updated dependencies [50480c7]
+  - @scalar/oas-utils@0.1.14
+  - @scalar/components@0.7.12
+  - @scalar/api-client@1.2.32
+
 ## 1.22.46
 
 ### Patch Changes
