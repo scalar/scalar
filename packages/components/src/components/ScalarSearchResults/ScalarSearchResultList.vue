@@ -24,10 +24,7 @@ const attrs = computed(() => {
       name="noResults">
       <div class="flex flex-col items-center gap-2 px-3 py-4">
         <div class="rotate-90 text-lg font-bold">:(</div>
-        <div class="text-sm font-medium text-fore-2">
-          No results found
-          <template v-if="$slots.query">for "<slot name="query" />"</template>
-        </div>
+        <div class="text-sm font-medium text-fore-2">No results found</div>
       </div>
     </slot>
     <slot />
