@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 1.2.31
+
+### Patch Changes
+
+- 5aa656f: feat: [BREAKING CHANGE] use new HTTP proxy (https://github.com/scalar/scalar/pull/1703)
+- Updated dependencies [5aa656f]
+  - @scalar/oas-utils@0.1.13
+  - @scalar/components@0.7.11
+
 ## 1.2.30
 
 ### Patch Changes

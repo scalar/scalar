@@ -1,5 +1,14 @@
 # @scalar/play-button
 
+## 0.0.20
+
+### Patch Changes
+
+- 5aa656f: feat: [BREAKING CHANGE] use new HTTP proxy (https://github.com/scalar/scalar/pull/1703)
+- Updated dependencies [5aa656f]
+  - @scalar/api-reference@1.22.45
+  - @scalar/api-client@1.2.31
+
 ## 0.0.19
 
 ### Patch Changes
