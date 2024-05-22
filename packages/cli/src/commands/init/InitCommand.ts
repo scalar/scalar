@@ -20,10 +20,33 @@ export function InitCommand() {
     let validInput = false
     let input = file
 
+    const nextSteps = () => {
+      console.log('What to do next:')
+      console.log(
+        `  ${kleur.cyan('scalar format')} ${kleur.gray('[options] [file|url]')} to format your OpenAPI file`,
+      )
+      console.log(
+        `  ${kleur.cyan('scalar validate')} ${kleur.gray('[file|url]')} to validate your OpenAPI file`,
+      )
+      console.log(
+        `  ${kleur.cyan('scalar bundle')} ${kleur.gray('[options] [file]')} to bundle your OpenAPI file`,
+      )
+      console.log(
+        `  ${kleur.cyan('scalar serve')} ${kleur.gray('[options] [file|url]')} to serve your OpenAPI file`,
+      )
+      console.log()
+      console.log(
+        kleur.white(
+          `Run ${kleur.magenta('scalar --help')} to see all available commands.`,
+        ),
+      )
+      console.log()
+    }
+
     // Handle cancel from the user
     const handleCancel = () => {
-      console.log()
       cancel('Operation cancelled.')
+      nextSteps()
       process.exit(0)
     }
 
@@ -117,11 +140,8 @@ export function InitCommand() {
         `Scalar configuration file created: ${kleur.reset().green(`${CONFIG_FILE}`)}`,
       )
       console.log()
-      console.log(
-        kleur.white(
-          `Run ${kleur.magenta('scalar --help')} to see all available commands.`,
-        ),
-      )
+      nextSteps()
+      console.log()
       console.log()
     }, 1000)
   })
