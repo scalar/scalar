@@ -5,9 +5,6 @@ import { createEmptySpecification, isValidUrl } from '../helpers'
 import { parse } from '../helpers/parse'
 import type { SpecConfiguration } from '../types'
 
-const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
-const NEW_PROXY_URL = 'https://proxy.scalar.com'
-
 /**
  * Get the spec content from the provided configuration:
  *
@@ -21,12 +18,6 @@ const getSpecContent = async (
   { url, content }: SpecConfiguration,
   proxy?: string,
 ): Promise<string | undefined> => {
-  // This replaces the OLD_PROXY_URL with the NEW_PROXY_URL on the fly.
-  if (proxy === OLD_PROXY_URL) {
-    // eslint-disable-next-line no-param-reassign
-    proxy = NEW_PROXY_URL
-  }
-
   // If the URL is provided, fetch the API definition from the URL
   if (url) {
     if (!isValidUrl(url)) {

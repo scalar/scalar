@@ -1,5 +1,10 @@
 import { formatJsonOrYamlString } from './parse'
 
+// Doesn’t work
+const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
+// Does work
+const NEW_PROXY_URL = 'https://proxy.scalar.com'
+
 /** Redirects the request to a proxy server with a given URL. */
 function redirectToProxy(proxy: string, url: string): string {
   return `${proxy}?scalar_url=${encodeURI(url)}`
@@ -10,6 +15,12 @@ export async function fetchSpecFromUrl(
   url: string,
   proxy?: string,
 ): Promise<string> {
+  // This replaces the OLD_PROXY_URL with the NEW_PROXY_URL on the fly.
+  if (proxy === OLD_PROXY_URL) {
+    // eslint-disable-next-line no-param-reassign
+    proxy = NEW_PROXY_URL
+  }
+
   // To use a proxy or not to use a proxy
   const response = await fetch(proxy ? redirectToProxy(proxy, url) : url)
 
