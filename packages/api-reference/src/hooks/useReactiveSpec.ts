@@ -1,4 +1,4 @@
-import { fetchSpecFromUrl } from '@scalar/oas-utils'
+import { fetchSpecFromUrl, prettyPrintJson } from '@scalar/oas-utils'
 import { type MaybeRefOrGetter, reactive, ref, toValue, watch } from 'vue'
 
 import { createEmptySpecification, isValidUrl } from '../helpers'
@@ -39,7 +39,7 @@ const getSpecContent = async (
 
   // Pretty print objects
   if (typeof activeContent === 'object') {
-    return JSON.stringify(activeContent, null, 2)
+    return prettyPrintJson(activeContent)
   }
 
   return undefined

@@ -1,3 +1,4 @@
+import { prettyPrintJson } from '@scalar/oas-utils'
 import { describe, expect, test, vi } from 'vitest'
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
@@ -22,7 +23,7 @@ describe('useReactiveSpec', () => {
 
     await nextTick()
 
-    expect(rawSpec.value).toBe(basicSpecString)
+    expect(rawSpec.value).toBe(prettyPrintJson(basicSpecString))
   })
 
   test('returns an empty string', async () => {
@@ -49,7 +50,7 @@ describe('useReactiveSpec', () => {
     await nextTick()
     await nextTick()
 
-    expect(rawSpec.value).toBe(basicSpecString)
+    expect(rawSpec.value).toBe(prettyPrintJson(basicSpecString))
   })
 
   test('works with strings', async () => {
@@ -121,7 +122,7 @@ describe('useReactiveSpec', () => {
 
     await nextTick()
 
-    expect(rawSpec.value).toBe(basicSpecString)
+    expect(rawSpec.value).toBe(prettyPrintJson(basicSpecString))
   })
 
   test('reacts to ref changes', async () => {
@@ -136,7 +137,7 @@ describe('useReactiveSpec', () => {
 
     await nextTick()
 
-    expect(rawSpec.value).toBe(basicSpecString)
+    expect(rawSpec.value).toBe(prettyPrintJson(basicSpecString))
 
     // Change the configuration …
     Object.assign(configurationRef, {
@@ -152,7 +153,7 @@ describe('useReactiveSpec', () => {
     await nextTick()
 
     expect(rawSpec.value).toBe(
-      basicSpecString.replace('Example', 'My Changed Title'),
+      prettyPrintJson(basicSpecString.replace('Example', 'My Changed Title')),
     )
 
     // Change the configuration to empty
@@ -172,7 +173,7 @@ describe('useReactiveSpec', () => {
 
     await nextTick()
 
-    expect(rawSpec.value).toBe(basicSpecString)
+    expect(rawSpec.value).toBe(prettyPrintJson(basicSpecString))
 
     // Change the configuration …
     Object.assign(configurationRef, {
@@ -182,7 +183,7 @@ describe('useReactiveSpec', () => {
     await nextTick()
 
     // … but the content shouldn’t be overwritten
-    expect(rawSpec.value).toBe(basicSpecString)
+    expect(rawSpec.value).toBe(prettyPrintJson(basicSpecString))
   })
 })
 
