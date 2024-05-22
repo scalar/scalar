@@ -14,16 +14,26 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Turborepo cache
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+      - name: Build
+        run: pnpm turbo build
       - name: Format OpenAPI File
-        run: npx @scalar/cli format ./packages/galaxy/src/specifications/3.1.yaml
+        run: pnpm @scalar/cli format ../../packages/galaxy/src/specifications/3.1.yaml
       - name: Validate OpenAPI File
-        run: npx @scalar/cli validate ./packages/galaxy/src/specifications/3.1.yaml
+        run: pnpm @scalar/cli validate ../../packages/galaxy/src/specifications/3.1.yaml
       - name: Update Scalar Sandbox (https://sandbox.scalar.com/e/MeCHQ)
         if: github.ref == 'refs/heads/main'
-        run: npx @scalar/cli share ./packages/galaxy/src/specifications/3.1.yaml --token=${{ secrets.SANDBOX_TOKEN }}
+        run: pnpm @scalar/cli share ../../packages/galaxy/src/specifications/3.1.yaml --token=${{ secrets.SANDBOX_TOKEN }}
         env:
           SANDBOX_TOKEN: ${{ secrets.SANDBOX_TOKEN }}
