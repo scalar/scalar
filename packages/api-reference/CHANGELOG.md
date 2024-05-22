@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.22.48
+
+### Patch Changes
+
+- 37471ee: fix: indentation bug on groups
+
 ## 1.22.47
 
 ### Patch Changes
