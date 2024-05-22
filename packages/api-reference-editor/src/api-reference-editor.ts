@@ -1,11 +1,12 @@
-import ApiReferenceEditor from '@/components/ApiReferenceEditor.vue'
-import { UPDATE_EVENT } from '@/constants'
 import {
   type ReferenceConfiguration,
   type ReferenceProps,
   objectMerge,
 } from '@scalar/api-reference'
 import { createApp, h, reactive } from 'vue'
+
+import ApiReferenceEditor from './components/ApiReferenceEditor.vue'
+import { UPDATE_EVENT } from './constants'
 
 /** Attach the Editable API Reference to the DOM */
 export function mountApiReferenceEditable(

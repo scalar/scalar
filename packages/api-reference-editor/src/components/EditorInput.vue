@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { UPDATE_EVENT } from '@/constants'
 import { isJsonString } from '@scalar/oas-utils'
 import { type CodeMirrorLanguage, useCodeMirror } from '@scalar/use-codemirror'
 import { type Ref, ref, toRef } from 'vue'
+
+import { UPDATE_EVENT } from '../constants'
 
 const props = defineProps<{
   modelValue: string
