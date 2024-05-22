@@ -45,17 +45,6 @@ We even made [a dedicated Nuxt Module](https://nuxt.com/modules/scalar) for you.
 npx nuxi module add @scalar/nuxt
 ```
 
-`app.vue`
-
-```diff
-<template>
-  <div>
--    <NuxtWelcome />
-+    <RouterView />
-  </div>
-</template>
-```
-
 ```ts
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -68,6 +57,17 @@ export default defineNuxtConfig({
 })
 ```
 
+`app.vue`
+
+```diff
+<template>
+  <div>
+-    <NuxtWelcome />
++    <RouterView />
+  </div>
+</template>
+```
+
 http://localhost:3000/docs
 
 If you would like to add your own OpenAPI specification, you can do so with the following minimal configuration:
@@ -76,7 +76,7 @@ If you would like to add your own OpenAPI specification, you can do so with the 
 export default defineNuxtConfig({
   scalar: {
     spec: {
-      url: 'https://cdn.scalar.com/spec/openapi_petstore.json',
+      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
     },
   },
 })
