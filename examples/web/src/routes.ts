@@ -1,4 +1,5 @@
 import ApiClientPage from './pages/ApiClientPage.vue'
+import ApiReferenceEditorPage from './pages/ApiReferenceEditorPage.vue'
 import ApiReferencePage from './pages/ApiReferencePage.vue'
 import ApiReferenceTestPage from './pages/ApiReferenceTestPage.vue'
 import ClassicApiReferencePage from './pages/ClassicApiReferencePage.vue'
@@ -8,7 +9,6 @@ import StartPage from './pages/StartPage.vue'
 
 export const routes = [
   { path: '/', name: 'home', component: StartPage },
-  { path: '/api-client', name: 'api-client', component: ApiClientPage },
   {
     path: '/api-reference',
     name: 'api-reference',
@@ -39,4 +39,10 @@ export const routes = [
     name: 'test-api-reference',
     component: ApiReferenceTestPage,
   },
+  {
+    path: '/api-reference-editor',
+    name: 'api-reference-editor',
+    component: ApiReferenceEditorPage,
+  },
+  { path: '/api-client', name: 'api-client', component: ApiClientPage },
 ]

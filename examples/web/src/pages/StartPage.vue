@@ -56,6 +56,16 @@ const inDevelopment = import.meta.env.DEV
         </template>
       </PageLink>
     </div>
+    <h1>@scalar/api-reference-editor</h1>
+    <div class="page-links">
+      <PageLink to="api-reference-editor">
+        <template #title>API Reference Editor</template>
+        <template #description>
+          You like to get your hands dirty? Use the editor to hand craft your
+          API definitions.
+        </template>
+      </PageLink>
+    </div>
     <h1>@scalar/api-client</h1>
     <div class="page-links">
       <PageLink to="api-client">
