@@ -24,6 +24,10 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
+      - name: Turborepo cache
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+      - name: Build
+        run: pnpm turbo build
       - name: Format OpenAPI File
         run: pnpm @scalar/cli format ../../packages/galaxy/src/specifications/3.1.yaml
       - name: Validate OpenAPI File
