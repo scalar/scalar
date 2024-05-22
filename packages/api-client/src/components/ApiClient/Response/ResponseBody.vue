@@ -40,7 +40,8 @@ const codeMirrorLanguage = computed((): string | undefined => {
     return 'html'
   }
 
-  return undefined
+  // let's just always return html vs not rendering anything
+  return 'html'
 })
 
 // Pretty print JSON
