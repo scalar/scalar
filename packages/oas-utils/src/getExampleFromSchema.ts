@@ -258,6 +258,19 @@ export const getExampleFromSchema = (
     return example
   }
 
+  // Check if schema is a union type
+  if (Array.isArray(schema.type)) {
+    // Return null if the type is nullable
+    if (schema.type.includes('null')) {
+      return null
+    }
+    // Return an example for the first type in the union
+    const exampleValue = exampleValues[schema.type[0]]
+    if (exampleValue !== undefined) {
+      return exampleValue
+    }
+  }
+
   // Warn if the type is unknown …
   console.warn(`[getExampleFromSchema] Unknown property type "${schema.type}".`)
 
