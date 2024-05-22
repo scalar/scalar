@@ -103,7 +103,7 @@ onMounted(() => {
                   }
                 ">
                 <template v-if="group.children && group.children?.length > 0">
-                  <SidebarGroup :level="2">
+                  <SidebarGroup :level="1">
                     <template
                       v-for="child in group.children"
                       :key="child.id">
