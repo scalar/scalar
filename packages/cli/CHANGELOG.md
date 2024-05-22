@@ -1,5 +1,19 @@
 # @scalar/cli
 
+## 0.2.88
+
+### Patch Changes
+
+- 596fbdc: feat: update cli initCommand prompts
+- 3b09344: feat: scalar cli default display
+- Updated dependencies [7205137]
+- Updated dependencies [4b78b40]
+- Updated dependencies [8865d12]
+- Updated dependencies [d369ac4]
+  - @scalar/oas-utils@0.1.14
+  - @scalar/api-reference@1.22.47
+  - @scalar/mock-server@0.1.68
+
 ## 0.2.87
 
 ### Patch Changes

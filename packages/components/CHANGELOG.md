@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.7.12
+
+### Patch Changes
+
+- 50480c7: feat: set type prop in scalar button component
+- Updated dependencies [7205137]
+- Updated dependencies [d369ac4]
+  - @scalar/oas-utils@0.1.14
+
 ## 0.7.11
 
 ### Patch Changes
