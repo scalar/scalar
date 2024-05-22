@@ -14,11 +14,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
       - name: Format OpenAPI File
         run: pnpm @scalar/cli format ../../packages/galaxy/src/specifications/3.1.yaml
       - name: Validate OpenAPI File
