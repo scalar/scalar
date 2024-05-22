@@ -8,17 +8,24 @@
       content="width=device-width, initial-scale=1" />
   </head>
   <body>
-    <!-- <script id="api-reference" data-url="/scalar.json"></script> -->
+    <!-- Add your own OpenAPI/Swagger specification URL here: -->
+    <!-- Note: The example is our public proxy (to avoid CORS issues). You can remove the `data-proxy-url` attribute if you don’t need it. -->
     <script
       id="api-reference"
-      type="application/json">
-      { "openapi": "3.1.0", "info": { "title": "Example" }, "paths": {} }
-    </script>
-    <!-- <div data-spec-url="/scalar.json" /> -->
-    <!-- <div data-spec='{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}' /> -->
+      data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml"
+      data-proxy-url="https://api.scalar.com/request-proxy"></script>
 
+    <!-- Optional: You can set a full configuration object like this: -->
+    <script>
+      var configuration = {
+        theme: 'default',
+      }
+
+      document.getElementById('api-reference').dataset.configuration =
+        JSON.stringify(configuration)
+    </script>
     <script
-      type="module"
-      src="src/standalone.ts"></script>
+      src="src/standalone.ts"
+      type="module"></script>
   </body>
 </html>
