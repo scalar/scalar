@@ -1,12 +1,11 @@
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-import { libInjectCss } from 'vite-plugin-lib-inject-css'
 import { defineConfig } from 'vitest/config'
 
 import pkg from './package.json'
 
 export default defineConfig({
-  plugins: [vue(), libInjectCss()],
+  plugins: [vue()],
   build: {
     cssCodeSplit: false,
     minify: false,
