@@ -16,14 +16,14 @@ const mediaType = computed(() => {
   const headers = normalizeHeaders(props.response?.headers)
 
   // Get the content-type header
-  const contentTypeHeader = headers['content-type']
+  const contentTypeHeader = `${headers['content-type']}`
 
   if (!contentTypeHeader) {
     return null
   }
 
   // application/foobar+json; charset=utf-8 -> application/json
-  return normalizeMimeType(contentTypeHeader?.value)
+  return normalizeMimeType(contentTypeHeader)
 })
 
 // Determine the CodeMirror language based on the media type
