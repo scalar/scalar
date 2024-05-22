@@ -17,12 +17,19 @@ export function normalizeMimeTypeObject(content?: Record<ContentType, any>) {
   }
 
   Object.keys(newContent).forEach((key) => {
-    // Example: 'application/problem+json; charset=utf-8'
-
+    // Input: 'application/problem+json; charset=utf-8'
+    // Output: 'application/json'
     const newKey = normalizeMimeType(key)
 
+    // We need a new key to replace the old one
+    if (newKey === undefined) {
+      return
+    }
+
+    // Move the content
     newContent[newKey] = newContent[key as ContentType]
 
+    // Remove the old key
     if (key !== newKey) {
       delete newContent[key as ContentType]
     }
