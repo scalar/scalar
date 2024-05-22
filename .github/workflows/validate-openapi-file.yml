@@ -18,6 +18,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
       - name: Format OpenAPI File
         run: pnpm @scalar/cli format ../../packages/galaxy/src/specifications/3.1.yaml
       - name: Validate OpenAPI File
