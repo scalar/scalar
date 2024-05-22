@@ -15,11 +15,13 @@ withDefaults(
     loading?: LoadingState
     size?: Variants['size']
     variant?: Variants['variant']
+    type?: 'button' | 'submit' | 'reset'
   }>(),
   {
     fullWidth: false,
     size: 'md',
     variant: 'solid',
+    type: 'button',
   },
 )
 
@@ -42,7 +44,7 @@ const attrs = computed(() => {
         `${attrs.class}`,
       )
     "
-    type="button">
+    :type="type">
     <div
       v-if="$slots.icon"
       class="mr-2 h-4 w-4">

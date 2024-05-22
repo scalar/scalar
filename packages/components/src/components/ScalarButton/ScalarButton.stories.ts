@@ -17,6 +17,10 @@ const meta = {
       control: 'select',
       options: ['solid', 'outlined', 'ghost', 'danger'],
     },
+    type: {
+      control: 'select',
+      options: ['button', 'submit', 'reset'],
+    },
   },
   render: (args) => ({
     components: { ScalarButton },
