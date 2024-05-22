@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.22.46
+
+### Patch Changes
+
+- 594ac4e: fix: useReactiveSpec does not rewrite old proxy url
+
 ## 1.22.45
 
 ### Patch Changes
