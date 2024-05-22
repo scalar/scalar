@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 1.2.33
+
+### Patch Changes
+
+- cfba428: fix: always return html vs error rendering
+
 ## 1.2.32
 
 ### Patch Changes
