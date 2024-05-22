@@ -28,6 +28,7 @@ const mediaType = computed(() => {
 
 // Determine the CodeMirror language based on the media type
 const codeMirrorLanguage = computed((): string | undefined => {
+  console.log(mediaType.value)
   if (mediaType.value === 'application/json') {
     return 'json'
   }
@@ -40,7 +41,8 @@ const codeMirrorLanguage = computed((): string | undefined => {
     return 'html'
   }
 
-  return undefined
+  // let's just always return html vs not rendering anything
+  return 'html'
 })
 
 // Pretty print JSON
