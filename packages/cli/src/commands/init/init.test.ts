@@ -26,7 +26,7 @@ describe('init', () => {
       ])
 
     // Output
-    logs.should.contain('./packages/cli/src/commands/validate/valid.json')
+    logs.should.contain('Scalar configuration file created: scalar.config.json')
 
     // File exists
     expect(fs.existsSync(configFile)).toBe(true)
