@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- 067e767: fix: remove ifm colour system from sidebar hea
+- 067e767: fix: remove ifm colour system from sidebar header
   - @scalar/api-reference-react@0.1.88
 
 ## 0.2.45
