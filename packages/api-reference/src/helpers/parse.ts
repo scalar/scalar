@@ -89,7 +89,7 @@ const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
       Object.keys(schema.webhooks?.[name] ?? {}) as OpenAPIV3_1.HttpMethods[]
     ).forEach((httpVerb) => {
       const originalWebhook =
-        (schema.webhooks?.[name] as (OpenAPIV3_1.PathItemObject[typeof httpVerb]) & {
+        (schema.webhooks?.[name][httpVerb] as (OpenAPIV3_1.PathItemObject[typeof httpVerb]) & {
           'x-internal'?: boolean
         })
 
