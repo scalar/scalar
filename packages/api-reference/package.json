@@ -49,10 +49,7 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./index.css": {
-      "import": "./dist/index.css",
-      "require": "./dist/index.css"
-    }
+    "./style.css": "./dist/style.css"
   },
   "files": [
     "dist",
@@ -116,7 +113,6 @@
     "vite": "^5.2.10",
     "vite-plugin-banner": "^0.7.1",
     "vite-plugin-css-injected-by-js": "^3.4.0",
-    "vite-plugin-lib-inject-css": "^2.0.1",
     "vitest": "^1.5.0",
     "vitest-matchmedia-mock": "^1.0.5",
     "vue-tsc": "^1.8.19"

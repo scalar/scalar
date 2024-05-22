@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
+import '@scalar/components/style.css'
 import { type SSRState, defaultStateFactory } from '@scalar/oas-utils'
 import {
   ResetStyles,

@@ -2,7 +2,6 @@ import vue from '@vitejs/plugin-vue'
 import * as path from 'path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
-import { libInjectCss } from 'vite-plugin-lib-inject-css'
 import svgLoader from 'vite-svg-loader'
 
 import pkg from './package.json'
@@ -30,7 +29,6 @@ export default defineConfig({
   },
   plugins: [
     vue(),
-    libInjectCss(),
     dts({ insertTypesEntry: true, rollupTypes: true }),
     // Ensure the viewBox is preserved
     svgLoader({
