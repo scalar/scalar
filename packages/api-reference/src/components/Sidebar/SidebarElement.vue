@@ -137,9 +137,6 @@ const onAnchorClick = async (ev: Event) => {
   </li>
 </template>
 <style scoped>
-[data-sidebar-type] > .sidebar-heading {
-  text-transform: uppercase;
-}
 .sidebar-heading {
   display: flex;
   gap: 6px;
@@ -301,5 +298,6 @@ const onAnchorClick = async (ev: Event) => {
 }
 .sidebar-group-item__folder {
   color: var(--scalar-sidebar-color-1, var(--scalar-color-1));
+  text-transform: var(--scalar-tag-text-transform, initial);
 }
 </style>
