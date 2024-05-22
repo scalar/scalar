@@ -35,6 +35,22 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject('')
   })
 
+  it('uses example value for first type in non-null union types', () => {
+    expect(
+      getExampleFromSchema({
+        type: ['string', 'number'],
+      }),
+    ).toMatchObject('')
+  })
+
+  it('uses null for nullable union types', () => {
+    expect(
+      getExampleFromSchema({
+        type: ['string', 'null'],
+      }),
+    ).toBeNull()
+  })
+
   it('sets example values', () => {
     expect(
       getExampleFromSchema({
