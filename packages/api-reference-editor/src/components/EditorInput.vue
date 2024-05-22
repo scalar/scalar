@@ -79,11 +79,12 @@ defineExpose({
   max-height: 100%;
   height: 100%;
   padding-top: 3px;
+  font-size: var(--scalar-small);
 }
 
 .editor-input .cm-line:first-of-type:last-of-type:has(br):before {
-  content: 'Paste your Swagger file here...';
-  color: var(--theme-color-3, var(--default-theme-color-3));
+  content: 'Paste your API definition …';
+  color: var(--scalar-color-3);
   position: absolute;
   display: block;
   height: 23px;
