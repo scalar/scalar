@@ -19,9 +19,14 @@ program
   .description('CLI to work with your OpenAPI files')
   .version(version)
 
+/** display help in case of error */
+program.showHelpAfterError()
+
 program.addCommand(InitCommand(), {
   isDefault: true,
 })
+
+program.addCommand(InitCommand())
 program.addCommand(FormatCommand())
 program.addCommand(ValidateCommand())
 program.addCommand(BundleCommand())
