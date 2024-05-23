@@ -1,0 +1,20 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
+{
+  "extends": "../../tsconfig.json",
+
+  "compileOnSave": false,
+  "compilerOptions": {
+    "paths": {
+      "@scalar/api-reference-angular": [
+        "../../packages/api-reference-angular/dist"
+      ],
+      "@scalar/api-reference": ["../../packages/api-reference/dist"]
+    }
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  }
+}

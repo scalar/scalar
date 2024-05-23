@@ -1,0 +1,7 @@
+{
+  "dest": "./dist",
+  "lib": {
+    "entryFile": "src/index.ts"
+  },
+  "allowedNonPeerDependencies": ["vue", "@scalar/api-reference"]
+}

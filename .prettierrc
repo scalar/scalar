@@ -9,5 +9,6 @@
   "bracketSameLine": true,
   "importOrder": ["^[./]"],
   "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true
+  "importOrderSortSpecifiers": true,
+  "importOrderParserPlugins": ["typescript", "decorators"]
 }
