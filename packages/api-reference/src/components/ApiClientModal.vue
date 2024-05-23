@@ -19,9 +19,11 @@ defineEmits<{
   (e: 'toggleDarkMode'): void
 }>()
 
-const LazyLoadedApiClient = defineAsyncComponent(() =>
-  import('@scalar/api-client').then((m) => m.ApiClient),
-)
+const LazyLoadedApiClient = defineAsyncComponent(async () => {
+  await import('@scalar/api-client/style.css')
+  const comp = await import('@scalar/api-client')
+  return comp.ApiClient
+})
 
 const { hideApiClient, state } = useApiClientStore()
 
