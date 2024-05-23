@@ -2,7 +2,7 @@
 import { useAuthenticationStore } from '@scalar/api-client'
 import { migrateThemeVariables } from '@scalar/themes'
 import { createHead, useSeoMeta } from 'unhead'
-import { computed, ref, toRef, watch } from 'vue'
+import { computed, toRef, watch } from 'vue'
 
 import { useDarkModeState, useHttpClients, useReactiveSpec } from '../hooks'
 import type { ReferenceConfiguration, ReferenceProps } from '../types'
@@ -19,22 +19,20 @@ const { toggleDarkMode, isDark } = useDarkModeState(
   props.configuration?.darkMode,
 )
 
+/** Update the dark mode state when props change */
+watch(
+  () => props.configuration?.darkMode,
+  (_isDark) => {
+    if (_isDark !== isDark.value) toggleDarkMode()
+  },
+)
+
 const customCss = computed(() => {
   if (!props.configuration?.customCss) return undefined
   return migrateThemeVariables(props.configuration?.customCss)
 })
 
 watch(customCss, () => console.log(customCss.value))
-
-// For non-vue integrations we expose an api to update the props dynamically
-const localConfig = ref<ReferenceConfiguration>(props.configuration ?? {})
-watch(
-  () => props.configuration,
-  () => {
-    localConfig.value = props.configuration ?? {}
-  },
-  { deep: true },
-)
 
 // Set defaults as needed on the provided configuration
 const configuration = computed<ReferenceConfiguration>(() => ({
@@ -47,7 +45,7 @@ const configuration = computed<ReferenceConfiguration>(() => ({
   theme: 'default',
   showSidebar: true,
   isEditable: false,
-  ...localConfig.value,
+  ...props.configuration,
   customCss: customCss.value,
 }))
 

@@ -6,7 +6,7 @@ export { default as RenderedReference } from './components/Content/Content.vue'
 export { default as SearchModal } from './components/SearchModal.vue'
 export { default as SearchButton } from './components/SearchButton.vue'
 export { default as GettingStarted } from './components/GettingStarted.vue'
-export { ScalarReferences } from './integration'
+export { createScalarReferences } from './esm'
 export { useReactiveSpec } from './hooks/useReactiveSpec'
 
 export * from './components/DarkModeToggle'
