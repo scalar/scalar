@@ -2,7 +2,7 @@
 import { useAuthenticationStore } from '@scalar/api-client'
 import { migrateThemeVariables } from '@scalar/themes'
 import { createHead, useSeoMeta } from 'unhead'
-import { computed, toRef, watch } from 'vue'
+import { computed, ref, toRef, watch } from 'vue'
 
 import { useDarkModeState, useHttpClients, useReactiveSpec } from '../hooks'
 import type { ReferenceConfiguration, ReferenceProps } from '../types'
@@ -26,6 +26,16 @@ const customCss = computed(() => {
 
 watch(customCss, () => console.log(customCss.value))
 
+// For non-vue integrations we expose an api to update the props dynamically
+const localConfig = ref<ReferenceConfiguration>(props.configuration ?? {})
+watch(
+  () => props.configuration,
+  () => {
+    localConfig.value = props.configuration ?? {}
+  },
+  { deep: true },
+)
+
 // Set defaults as needed on the provided configuration
 const configuration = computed<ReferenceConfiguration>(() => ({
   spec: {
@@ -37,7 +47,7 @@ const configuration = computed<ReferenceConfiguration>(() => ({
   theme: 'default',
   showSidebar: true,
   isEditable: false,
-  ...props.configuration,
+  ...localConfig.value,
   customCss: customCss.value,
 }))
 
