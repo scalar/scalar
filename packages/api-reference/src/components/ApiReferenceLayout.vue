@@ -8,6 +8,7 @@ import {
   type ThemeId,
   ThemeStyles,
 } from '@scalar/themes'
+import '@scalar/themes/style.css'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {

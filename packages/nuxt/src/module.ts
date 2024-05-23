@@ -39,6 +39,12 @@ export default defineNuxtModule<ModuleOptions>({
     const resolver = createResolver(import.meta.url)
     let isOpenApiEnabled = false
 
+    /**
+     * Ensure we transpile yaml
+     * @see https://github.com/eemeli/yaml/issues/394#issuecomment-1151577111
+     */
+    _nuxt.options.build.transpile.push('yaml')
+
     // Also check for Nitro OpenAPI auto generation
     _nuxt.hook('nitro:config', (config) => {
       if (config.experimental?.openAPI) isOpenApiEnabled = true
