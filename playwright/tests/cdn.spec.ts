@@ -22,7 +22,7 @@ test('Renders scalar/galaxy api reference from the live CDN', async ({
   if (!isMobile) {
     // Sidebar
     await expect(
-      page.getByRole('link', { name: 'PLANETS', exact: true }),
+      page.getByRole('link', { name: 'Planets', exact: true }),
     ).toBeVisible()
   }
 
