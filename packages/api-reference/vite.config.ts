@@ -18,7 +18,12 @@ export default defineConfig({
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
-      external: ['vue', 'prismjs', ...Object.keys(pkg.dependencies || {})],
+      external: [
+        'vue',
+        ...Object.keys(pkg.dependencies || {}).filter((item) =>
+          item.match(/^(?!@scalar\/(?!components\b)).*/),
+        ),
+      ],
     },
   },
   resolve: {
