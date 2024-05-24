@@ -9,8 +9,9 @@ import {
   type OpenAPIV2,
   type OpenAPIV3,
   type OpenAPIV3_1,
+  dereference,
   fetchUrlsPlugin,
-  openapi,
+  load,
 } from '@scalar/openapi-parser'
 
 import { createEmptySpecification } from '../helpers'
@@ -30,12 +31,11 @@ export const parse = (specification: any): Promise<Spec> => {
 
       const start = performance.now()
 
-      const { schema, errors } = await openapi()
-        .load(specification, {
-          plugins: [fetchUrlsPlugin()],
-        })
-        .dereference()
-        .get()
+      const content = await load(specification, {
+        plugins: [fetchUrlsPlugin()],
+      })
+
+      const { schema, errors } = await dereference(content)
 
       const end = performance.now()
       console.log(`dereference: ${Math.round(end - start)} ms`)
