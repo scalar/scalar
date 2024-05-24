@@ -27,7 +27,10 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     <div
       v-if="additional"
       class="property-additional">
-      additional properties
+      <template v-if="value?.['x-additionalPropertiesName']">
+        {{ value['x-additionalPropertiesName'] }}
+      </template>
+      <template v-else> additional properties </template>
     </div>
     <div
       v-if="value?.deprecated"
