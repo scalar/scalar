@@ -59,6 +59,7 @@ export default defineConfig({
                     document.head.appendChild(elementStyle)
                   }, 0)
 
+                  console.warn('Auto-loading the css through js has been deprecated. Please import the css directly. Visit https://github.com/scalar/scalar for more info.')
                 } catch (error) {
                   console.error(error, 'unable to concat style inside the bundled file')
                 }
