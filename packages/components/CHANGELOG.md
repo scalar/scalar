@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.7.13
+
+### Patch Changes
+
+- be75488: fix: update password show hide icon
+
 ## 0.7.12
 
 ### Patch Changes
