@@ -1,4 +1,3 @@
-import '@scalar/api-client/style.css'
 import { ApiReferenceReact } from '@scalar/api-reference-react'
 import { galaxySpec } from '@scalar/galaxy'
 import { generate } from 'random-words'

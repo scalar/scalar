@@ -332,6 +332,12 @@ useDeprecationWarnings(props.configuration)
   </ResetStyles>
   <ScalarToasts />
 </template>
+<style>
+/** Used to check if css is loaded */
+:root {
+  --scalar-loaded-api-reference: true;
+}
+</style>
 <style scoped>
 /* Configurable Layout Variables */
 .scalar-api-reference {
