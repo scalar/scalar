@@ -1,11 +1,10 @@
-import pixelPreset from '@rise8/tailwind-pixel-perfect-preset'
 import { type Config } from 'tailwindcss'
 import plugin from 'tailwindcss/plugin'
 
 import scalarPreset from './tailwind.preset'
 
 export default {
-  presets: [pixelPreset, scalarPreset],
+  presets: [scalarPreset],
   content: ['./src/**/*.{vue,ts}'],
   corePlugins: {
     preflight: false,
@@ -18,12 +17,6 @@ export default {
     }),
   ],
   theme: {
-    boxShadow: {
-      DEFAULT: 'var(--scalar-shadow-1)',
-      md: 'var(--scalar-shadow-2)',
-      sm: 'rgba(0, 0, 0, 0.09) 0px 1px 4px',
-      none: '0 0 #0000',
-    },
     colors: {
       'fore-1': 'var(--scalar-color-1)',
       'fore-2': 'var(--scalar-color-2)',
@@ -52,49 +45,18 @@ export default {
       'ghost': 'var(--scalar-color-ghost)',
       'transparent': 'transparent',
     },
-    fontFamily: {
-      sans: 'var(--scalar-font)',
-      code: 'var(--scalar-font-code)',
-    },
-    zIndex: {
-      '-1': '-1',
-      '0': '0',
-      '1': '1',
-      // Contextual overlays like dropdowns, popovers, tooltips
-      'context': '1000',
-      // Full screen overlays / modals
-      'overlay': '10000',
-    },
     extend: {
-      borderRadius: {
-        DEFAULT: 'var(--scalar-radius)',
-        md: 'var(--scalar-radius)',
-        lg: 'var(--scalar-radius-lg)',
-        xl: 'var(--scalar-radius-xl)',
-      },
-      fontSize: {
-        xxs: 'var(--scalar-micro, var(--scalar-font-size-5))',
-        xs: 'var(--scalar-mini, var(--scalar-font-size-4))',
-        sm: 'var(--scalar-small,var(--scalar-font-size-3))',
-        base: 'var(--scalar-paragraph, var(--scalar-font-size-2))',
-        lg: 'var(--scalar-font-size-1)',
-      },
-      fontWeight: {
-        medium: 'var(--scalar-font-medium)',
-        bold: 'var(--scalar-font-bold)',
-      },
       maxWidth: {
         'screen-xs': '480px',
         'screen-sm': '540px',
         'screen-md': '640px',
         'screen-lg': '800px',
       },
-      brightness: {
-        lifted: 'var(--scalar-lifted-brightness)',
-        backdrop: 'var(--scalar-backdrop-brightness)',
-      },
-      spacing: {
-        px: '1px',
+      zIndex: {
+        // Contextual overlays like dropdowns, popovers, tooltips
+        context: '1000',
+        // Full screen overlays / modals
+        overlay: '10000',
       },
     },
   },

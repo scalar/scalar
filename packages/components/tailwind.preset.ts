@@ -1,23 +1,25 @@
 import headlessPlugin from '@headlessui/tailwindcss'
+import pixelPreset from '@rise8/tailwind-pixel-perfect-preset'
 import type { Config } from 'tailwindcss'
 import colorMix from 'tailwindcss-color-mix'
 
 export default {
   darkMode: ['selector', '.dark-mode'],
+  presets: [pixelPreset],
   theme: {
-    boxShadow: {
-      DEFAULT: 'var(--scalar-shadow-1)',
-      lg: 'var(--scalar-shadow-2)',
-      md: 'var(--scalar-shadow-1)',
-      sm: 'rgba(0, 0, 0, 0.09) 0px 1px 4px',
-      none: '0 0 #0000',
-    },
     borderRadius: {
       DEFAULT: 'var(--scalar-radius)',
       md: 'var(--scalar-radius)',
       lg: 'var(--scalar-radius-lg)',
       xl: 'var(--scalar-radius-xl)',
       full: '9999px',
+    },
+    boxShadow: {
+      DEFAULT: 'var(--scalar-shadow-1)',
+      lg: 'var(--scalar-shadow-2)',
+      md: 'var(--scalar-shadow-1)',
+      sm: 'rgba(0, 0, 0, 0.09) 0px 1px 4px',
+      none: '0 0 #0000',
     },
     fontFamily: {
       DEFAULT: 'var(--scalar-font)',
@@ -136,10 +138,12 @@ export default {
       lg: '1000px',
       xl: '1200px',
     },
+    zIndex: {
+      '-1': '-1',
+      '0': '0',
+      '1': '1',
+    },
     extend: {
-      height: { header: 'var(--scalar-header-height)' },
-      width: { sidebar: 'var(--scalar-sidebar-width)' },
-      minHeight: { header: 'var(--scalar-header-height)' },
       borderColor: { DEFAULT: 'var(--scalar-border-color)' },
       borderWidth: { DEFAULT: 'var(--scalar-border-width)' },
       brightness: {
