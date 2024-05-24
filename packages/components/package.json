@@ -58,6 +58,7 @@
     "tailwind-merge": "^2.3.0"
   },
   "devDependencies": {
+    "@headlessui/tailwindcss": "^0.2.0",
     "@rise8/tailwind-pixel-perfect-preset": "^1.0.1",
     "@scalar/themes": "workspace:*",
     "@storybook/addon-essentials": "^8.0.8",
@@ -83,6 +84,7 @@
     "storybook-dark-mode": "^4.0.1",
     "svglint": "^2.7.1",
     "tailwindcss": "^3.3.3",
+    "tailwindcss-color-mix": "^0.0.8",
     "ts-node": "^10.9.1",
     "typescript": "^5.4.3",
     "vite": "^5.2.10",

@@ -2,8 +2,10 @@ import pixelPreset from '@rise8/tailwind-pixel-perfect-preset'
 import { type Config } from 'tailwindcss'
 import plugin from 'tailwindcss/plugin'
 
+import scalarPreset from './tailwind.preset'
+
 export default {
-  presets: [pixelPreset],
+  presets: [pixelPreset, scalarPreset],
   content: ['./src/**/*.{vue,ts}'],
   corePlugins: {
     preflight: false,
