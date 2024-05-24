@@ -15,6 +15,7 @@ import {
   type OpenAPIV3,
   type OpenAPIV3_1,
   type ResolvedOpenAPI,
+  fetchUrlsPlugin,
   openapi,
 } from '@scalar/openapi-parser'
 
@@ -33,7 +34,12 @@ export const parse = (specification: any): Promise<Spec> => {
         )
       }
 
-      const { schema, errors } = await openapi().load(specification).resolve()
+      const { schema, errors } = await openapi()
+        .load(specification, {
+          plugins: [fetchUrlsPlugin],
+        })
+        .dereference()
+        .get()
 
       if (errors?.length) {
         console.warn(
