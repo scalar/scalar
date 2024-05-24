@@ -11,10 +11,10 @@ import {
 import type { Spec } from '@scalar/oas-utils'
 import {
   type AnyObject,
+  type OpenAPI,
   type OpenAPIV2,
   type OpenAPIV3,
   type OpenAPIV3_1,
-  type ResolvedOpenAPI,
   fetchUrlsPlugin,
   openapi,
 } from '@scalar/openapi-parser'
@@ -28,18 +28,21 @@ export const parse = (specification: any): Promise<Spec> => {
       // Return an empty resolved specification if the given specification is empty
       if (!specification) {
         return resolve(
-          transformResult(
-            createEmptySpecification() as ResolvedOpenAPI.Document,
-          ),
+          transformResult(createEmptySpecification() as OpenAPI.Document),
         )
       }
 
+      const start = performance.now()
+
       const { schema, errors } = await openapi()
         .load(specification, {
-          plugins: [fetchUrlsPlugin],
+          plugins: [fetchUrlsPlugin()],
         })
         .dereference()
         .get()
+
+      const end = performance.now()
+      console.log(`dereference: ${Math.round(end - start)} ms`)
 
       if (errors?.length) {
         console.warn(
@@ -53,9 +56,7 @@ export const parse = (specification: any): Promise<Spec> => {
         reject(errors?.[0]?.error ?? 'Failed to parse the OpenAPI file.')
 
         return resolve(
-          transformResult(
-            createEmptySpecification() as ResolvedOpenAPI.Document,
-          ),
+          transformResult(createEmptySpecification() as OpenAPI.Document),
         )
       }
 
@@ -65,12 +66,12 @@ export const parse = (specification: any): Promise<Spec> => {
     }
 
     return resolve(
-      transformResult(createEmptySpecification() as ResolvedOpenAPI.Document),
+      transformResult(createEmptySpecification() as OpenAPI.Document),
     )
   })
 }
 
-const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
+const transformResult = (originalSchema: OpenAPI.Document): Spec => {
   // Make it an object
   let schema = {} as AnyObject
 
@@ -180,6 +181,7 @@ const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
         if (
           !schema.tags?.find(
             (tag: OpenAPIV2.TagObject | OpenAPIV3.TagObject) =>
+              // @ts-expect-error upstream issue
               tag.name === 'default',
           )
         ) {
@@ -193,6 +195,7 @@ const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
         // find the index of the default tag
         const indexOfDefaultTag = schema.tags?.findIndex(
           (tag: OpenAPIV2.TagObject | OpenAPIV3.TagObject) =>
+            // @ts-expect-error upstream issue
             tag.name === 'default',
         )
 
