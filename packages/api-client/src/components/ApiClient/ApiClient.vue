@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
-import '@scalar/components/style.css'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
-import '@scalar/themes/style.css'
 import { useMagicKeys, useMediaQuery, whenever } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
@@ -126,11 +124,6 @@ watch(
 </template>
 
 <style>
-/** Used to check if css is loaded */
-:root {
-  --scalar-loaded-api-client: true;
-}
-
 .scalar-api-client,
 #headlessui-portal-root {
   background: var(--scalar-background-1);
