@@ -4,6 +4,29 @@ import { defineConfig } from 'vitest/config'
 
 import pkg from './package.json'
 
+/**
+ * Automatic css injection via js
+ * We need the setTimeout so we can do a quick check to see if the css file has already been loaded
+ */
+const injectCodeFunction = (cssCode: string) => {
+  const STYLE_ID = 'scalar-style-api-client'
+  try {
+    if (typeof document === 'undefined' || document.getElementById(STYLE_ID))
+      return
+
+    setTimeout(() => {
+      getComputedStyle(document.body).getPropertyValue('--scalar-loaded')
+
+      const elementStyle = document.createElement('style')
+      elementStyle.setAttribute('id', STYLE_ID)
+      elementStyle.appendChild(document.createTextNode(cssCode))
+      document.head.appendChild(elementStyle)
+    }, 0)
+  } catch (e) {
+    console.error('vite-plugin-css-injected-by-js', e)
+  }
+}
+
 export default defineConfig({
   plugins: [vue()],
   build: {
@@ -12,7 +35,7 @@ export default defineConfig({
     lib: {
       entry: ['src/index.ts'],
       name: '@scalar/api-client',
-      formats: ['es', 'cjs'],
+      formats: ['es'],
     },
     rollupOptions: {
       external: [
@@ -20,6 +43,39 @@ export default defineConfig({
         ...Object.keys(pkg.dependencies || {}).filter((item) =>
           item.match(/^(?!@scalar\/(?!components\b)).*/),
         ),
+      ],
+      plugins: [
+        {
+          name: 'pack-css',
+          generateBundle(opts, bundle) {
+            console.log('generating bundle')
+            console.log({ bundle })
+            const { ['style.css']: style, ['index.js']: component } = bundle
+
+            const IIFEcss = `
+            (function() {
+              try {
+setTimeout(() => {console.log(getComputedStyle(document.body).getPropertyValue('--scalar-loaded'))},0)
+
+              } catch(error) {
+                console.error(error, 'unable to concat style inside the bundled file')
+              }
+            })()`
+
+            //               const IIFEcss = `
+            // (function() {
+            //   try {
+            //       var elementStyle = document.createElement('style');
+            //       elementStyle.innerText = ${JSON.stringify(rawCss)}
+            //       document.head.appendChild(elementStyle)
+            //   } catch(error) {
+            //     console.error(error, 'unable to concat style inside the bundled file')
+            //   }
+            // })()`
+
+            component.code += IIFEcss
+          },
+        },
       ],
     },
   },
