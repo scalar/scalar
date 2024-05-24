@@ -1,5 +1,3 @@
-@import '@scalar/api-client/style.css';
-
 .light-mode .scalar-modal-layout,
 .light-mode .scalar {
   --scalar-color-1: color-mix(

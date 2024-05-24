@@ -5,6 +5,8 @@ import '@scalar/api-reference/style.css'
 import React, { useEffect, useRef } from 'react'
 import { createApp } from 'vue/dist/vue.esm-bundler.js'
 
+import './style.css'
+
 // These are required for the vue bundler version
 globalThis.__VUE_OPTIONS_API__ = true
 globalThis.__VUE_PROD_HYDRATION_MISMATCH_DETAILS__ = true
