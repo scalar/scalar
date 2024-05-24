@@ -4,28 +4,8 @@ import { defineConfig } from 'vitest/config'
 
 import pkg from './package.json'
 
-/**
- * Automatic css injection via js
- * We need the setTimeout so we can do a quick check to see if the css file has already been loaded
- */
-const injectCodeFunction = (cssCode: string) => {
-  const STYLE_ID = 'scalar-style-api-client'
-  try {
-    if (typeof document === 'undefined' || document.getElementById(STYLE_ID))
-      return
-
-    setTimeout(() => {
-      getComputedStyle(document.body).getPropertyValue('--scalar-loaded')
-
-      const elementStyle = document.createElement('style')
-      elementStyle.setAttribute('id', STYLE_ID)
-      elementStyle.appendChild(document.createTextNode(cssCode))
-      document.head.appendChild(elementStyle)
-    }, 0)
-  } catch (e) {
-    console.error('vite-plugin-css-injected-by-js', e)
-  }
-}
+const STYLE_ID = 'scalar-style-api-client'
+const STYLE_LOADED_VAR = '--scalar-loaded-api-client'
 
 export default defineConfig({
   plugins: [vue()],
@@ -45,35 +25,44 @@ export default defineConfig({
         ),
       ],
       plugins: [
+        /**
+         * Automatic css injection via js
+         * We need the setTimeout so we can do a quick check to see if the css file has already been loaded
+         */
         {
-          name: 'pack-css',
-          generateBundle(opts, bundle) {
+          name: 'autoload-css',
+          generateBundle(_, bundle) {
             console.log('generating bundle')
             console.log({ bundle })
-            const { ['style.css']: style, ['index.js']: component } = bundle
+            if (!('source' in bundle['style.css'])) return
+
+            const {
+              ['style.css']: { source: css },
+              ['index.js']: component,
+            } = bundle
+            console.log({ css })
 
             const IIFEcss = `
-            (function() {
-              try {
-setTimeout(() => {console.log(getComputedStyle(document.body).getPropertyValue('--scalar-loaded'))},0)
+              (function() {
+                try {
+                  if (typeof document === 'undefined' || document.getElementById(${STYLE_ID}))
+                    return
 
-              } catch(error) {
-                console.error(error, 'unable to concat style inside the bundled file')
-              }
-            })()`
+                  setTimeout(() => {
+                    if (getComputedStyle(document.body).getPropertyValue(${STYLE_LOADED_VAR}) === 'true') return console.log('whaaaat')
 
-            //               const IIFEcss = `
-            // (function() {
-            //   try {
-            //       var elementStyle = document.createElement('style');
-            //       elementStyle.innerText = ${JSON.stringify(rawCss)}
-            //       document.head.appendChild(elementStyle)
-            //   } catch(error) {
-            //     console.error(error, 'unable to concat style inside the bundled file')
-            //   }
-            // })()`
+                    const elementStyle = document.createElement('style')
+                    elementStyle.setAttribute('id', ${STYLE_ID})
+                    elementStyle.appendChild(document.createTextNode(${css}))
+                    document.head.appendChild(elementStyle)
+                  }, 0)
 
-            component.code += IIFEcss
+                } catch (error) {
+                  console.error(error, 'unable to concat style inside the bundled file')
+                }
+              })()`
+
+            if ('code' in component) component.code += IIFEcss
           },
         },
       ],
