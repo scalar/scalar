@@ -28,32 +28,31 @@ export default defineConfig({
         /**
          * Automatic css injection via js
          * We need the setTimeout so we can do a quick check to see if the css file has already been loaded
+         *
+         * @see https://stackoverflow.com/a/68954980/1624255
          */
         {
           name: 'autoload-css',
           generateBundle(_, bundle) {
-            console.log('generating bundle')
-            console.log({ bundle })
             if (!('source' in bundle['style.css'])) return
 
             const {
               ['style.css']: { source: css },
               ['index.js']: component,
             } = bundle
-            console.log({ css })
 
             const IIFEcss = `
               (function() {
                 try {
-                  if (typeof document === 'undefined' || document.getElementById(${STYLE_ID}))
+                  if (typeof document === 'undefined' || document.getElementById('${STYLE_ID}'))
                     return
 
                   setTimeout(() => {
-                    if (getComputedStyle(document.body).getPropertyValue(${STYLE_LOADED_VAR}) === 'true') return console.log('whaaaat')
+                    if (getComputedStyle(document.body).getPropertyValue('${STYLE_LOADED_VAR}') === 'true') return console.log('style not loaded')
 
                     const elementStyle = document.createElement('style')
-                    elementStyle.setAttribute('id', ${STYLE_ID})
-                    elementStyle.appendChild(document.createTextNode(${css}))
+                    elementStyle.setAttribute('id', '${STYLE_ID}')
+                    elementStyle.appendChild(document.createTextNode(${JSON.stringify(css)}))
                     document.head.appendChild(elementStyle)
                   }, 0)
 
