@@ -1549,6 +1549,9 @@ importers:
       '@nuxt/kit':
         specifier: ^3.11.2
         version: 3.11.2(rollup@3.29.4)
+      '@scalar/api-client':
+        specifier: workspace:*
+        version: link:../api-client
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
