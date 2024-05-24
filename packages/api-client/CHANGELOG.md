@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 1.2.34
+
+### Patch Changes
+
+- be75488: fix: update password show hide icon
+- Updated dependencies [be75488]
+  - @scalar/components@0.7.13
+
 ## 1.2.33
 
 ### Patch Changes
