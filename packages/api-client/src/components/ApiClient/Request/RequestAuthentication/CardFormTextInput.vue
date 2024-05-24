@@ -86,7 +86,8 @@ defineOptions({
 }
 
 .password-mask {
-  padding: 6px 8px 6px 0;
+  padding: 4px;
+  margin-right: 6px;
   height: 24px;
   width: auto;
   align-self: center;
