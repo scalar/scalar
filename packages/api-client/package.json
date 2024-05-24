@@ -48,7 +48,7 @@
     "@floating-ui/vue": "^1.0.2",
     "@headlessui/vue": "^1.7.20",
     "@scalar/components": "workspace:*",
-    "@scalar/openapi-parser": "^0.4.0",
+    "@scalar/openapi-parser": "^0.4.1",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-modal": "workspace:*",

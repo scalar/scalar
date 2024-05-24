@@ -57,7 +57,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/openapi-parser": "^0.4.0",
+    "@scalar/openapi-parser": "^0.4.1",
     "axios": "^1.6.8",
     "httpsnippet-lite": "^3.0.5",
     "tsc-alias": "^1.8.8",
