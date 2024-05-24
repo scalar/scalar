@@ -26,6 +26,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@scalar/api-client": "workspace:*",
     "@scalar/api-reference-react": "workspace:*",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
@@ -39,8 +40,14 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "postcss": "^8.4.38",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.4.3",
     "vite": "^5.2.10"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }

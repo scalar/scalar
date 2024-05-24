@@ -33,10 +33,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
+    ".": "./dist/index.js",
     "./style.css": "./dist/style.css"
   },
   "files": [
@@ -57,7 +54,6 @@
     "prismjs": "^1.29.0",
     "react": "^18.2.0",
     "vite": "^5.2.10",
-    "vite-plugin-css-injected-by-js": "^3.4.0",
     "vite-plugin-dts": "^3.6.3",
     "vue": "^3.4.21"
   },

@@ -514,6 +514,9 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
     devDependencies:
+      '@scalar/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
       '@scalar/api-reference-react':
         specifier: workspace:*
         version: link:../../packages/api-reference-react
@@ -553,6 +556,12 @@ importers:
       postcss:
         specifier: ^8.4.38
         version: 8.4.38
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
       tailwindcss:
         specifier: ^3.3.3
         version: 3.4.1(ts-node@10.9.2)
@@ -1001,9 +1010,6 @@ importers:
       vite:
         specifier: ^5.2.10
         version: 5.2.10(@types/node@20.11.22)(terser@5.30.0)
-      vite-plugin-css-injected-by-js:
-        specifier: ^3.4.0
-        version: 3.4.0(vite@5.2.10)
       vite-plugin-dts:
         specifier: ^3.6.3
         version: 3.7.3(@types/node@20.11.22)(typescript@5.4.3)(vite@5.2.10)
