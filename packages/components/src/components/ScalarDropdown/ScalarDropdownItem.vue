@@ -17,13 +17,13 @@ const variants = cva({
     'min-w-0 items-center gap-3 rounded px-2.5 py-1.5 text-left',
     'first-of-type:mt-0.75 last-of-type:mb-0.75',
     // Text / background style
-    'truncate bg-transparent text-xs font-medium text-fore-2',
+    'truncate bg-transparent text-xs font-medium text-c-2',
     // Interaction
-    'cursor-pointer hover:bg-back-2 hover:text-fore-1',
+    'cursor-pointer hover:bg-b-2 hover:text-c-1',
   ],
   variants: {
-    disabled: { true: 'pointer-events-none text-fore-3' },
-    active: { true: 'bg-back-2 text-fore-1' },
+    disabled: { true: 'pointer-events-none text-c-3' },
+    active: { true: 'bg-b-2 text-c-1' },
   },
 })
 </script>

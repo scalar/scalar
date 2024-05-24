@@ -46,7 +46,7 @@ export const AllSizes: Story = {
       return { args }
     },
     template: `
-<div class="flex items-center gap-2 text-fore-2">
+<div class="flex items-center gap-2 text-c-2">
   <ScalarIcon size="xs" v-bind="args"/>
   <ScalarIcon size="sm" v-bind="args"/>
   <ScalarIcon size="md" v-bind="args"/>

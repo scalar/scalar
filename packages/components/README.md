@@ -27,7 +27,7 @@ import { ScalarButton, ScalarTextField } from '@scalar/components'
 <template>
   <main class="col-1 items-center justify-center">
     <div
-      class="col w-full max-w-md items-center gap-4 rounded-lg bg-back-3 p-8 shadow">
+      class="col w-full max-w-md items-center gap-4 rounded-lg bg-b-3 p-8 shadow">
       <h1 className="text-lg font-bold">Sign in to your account</h1>
 
       <ScalarTextField
