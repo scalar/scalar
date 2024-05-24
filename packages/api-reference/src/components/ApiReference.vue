@@ -19,6 +19,14 @@ const { toggleDarkMode, isDark } = useDarkModeState(
   props.configuration?.darkMode,
 )
 
+/** Update the dark mode state when props change */
+watch(
+  () => props.configuration?.darkMode,
+  (_isDark) => {
+    if (_isDark !== isDark.value) toggleDarkMode()
+  },
+)
+
 const customCss = computed(() => {
   if (!props.configuration?.customCss) return undefined
   return migrateThemeVariables(props.configuration?.customCss)

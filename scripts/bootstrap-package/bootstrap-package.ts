@@ -76,7 +76,7 @@ if (dirs.includes(name)) {
     JSON.stringify(newPackageFile, null, 2),
   )
 
-  await fs.writeFile(`${newDirName}/index.ts`, '')
+  await fs.writeFile(`${newDirName}/src/index.ts`, '')
 
   console.log(`\x1b[33m Package created! Checkout ./packages/${name} \x1b[0m`)
 }
