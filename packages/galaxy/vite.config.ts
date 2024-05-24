@@ -1,9 +1,11 @@
+import yaml from '@modyfi/vite-plugin-yaml'
 import path from 'node:path'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   plugins: [
+    yaml(),
     viteStaticCopy({
       targets: [
         {
