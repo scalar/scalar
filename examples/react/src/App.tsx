@@ -1,6 +1,5 @@
-import '@scalar/api-client/style.css'
 import { ApiReferenceReact } from '@scalar/api-reference-react'
-// import '@scalar/api-reference-react/style.css'
+import '@scalar/api-reference-react/style.css'
 import React from 'react'
 
 function App() {

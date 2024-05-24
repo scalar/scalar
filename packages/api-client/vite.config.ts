@@ -30,6 +30,10 @@ export default defineConfig({
          * We need the setTimeout so we can do a quick check to see if the css file has already been loaded
          *
          * @see https://stackoverflow.com/a/68954980/1624255
+         *
+         * TODO make this into a rollup/vite plugin
+         *
+         * copied from api-reference/vite.config
          */
         {
           name: 'autoload-css',
@@ -38,7 +42,6 @@ export default defineConfig({
 
             const {
               ['style.css']: { source: css },
-              ['index.js']: component,
             } = bundle
 
             const IIFEcss = `
@@ -48,7 +51,7 @@ export default defineConfig({
                     return
 
                   setTimeout(() => {
-                    if (getComputedStyle(document.body).getPropertyValue('${STYLE_LOADED_VAR}') === 'true') return console.log('style not loaded')
+                    if (getComputedStyle(document.body).getPropertyValue('${STYLE_LOADED_VAR}') === 'true') return 
 
                     const elementStyle = document.createElement('style')
                     elementStyle.setAttribute('id', '${STYLE_ID}')
@@ -61,6 +64,8 @@ export default defineConfig({
                 }
               })()`
 
+            const component =
+              bundle['index.js'] || bundle['index.cjs'] || bundle['index.mjs']
             if ('code' in component) component.code += IIFEcss
           },
         },

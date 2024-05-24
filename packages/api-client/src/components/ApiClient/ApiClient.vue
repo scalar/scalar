@@ -126,6 +126,11 @@ watch(
 </template>
 
 <style>
+/** Used to check if css is loaded */
+:root {
+  --scalar-loaded-api-client: true;
+}
+
 .scalar-api-client,
 #headlessui-portal-root {
   background: var(--scalar-background-1);
