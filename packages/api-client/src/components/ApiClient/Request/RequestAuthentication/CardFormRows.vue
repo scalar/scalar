@@ -11,9 +11,3 @@
   width: 100%;
 }
 </style>
-
-<style>
-:where(.card-form-rows) > * + * {
-  border-top: 1px solid var(--scalar-border-color);
-}
-</style>
