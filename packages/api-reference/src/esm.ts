@@ -46,5 +46,7 @@ export function createScalarReferences(
     },
     /** Mount the references to a given element */
     mount,
+    /** Unmount the app from an element */
+    unmount: () => app.unmount(),
   }
 }

@@ -1,8 +1,7 @@
 'use client'
 
-import { ApiReference, type ReferenceProps } from '@scalar/api-reference'
-import React, { useEffect, useRef } from 'react'
-import { createApp } from 'vue/dist/vue.esm-bundler.js'
+import { ReferenceProps, createScalarReferences } from '@scalar/api-reference'
+import React, { useEffect, useRef, useState } from 'react'
 
 // These are required for the vue bundler version
 globalThis.__VUE_OPTIONS_API__ = true
@@ -13,17 +12,32 @@ globalThis.__VUE_PROD_DEVTOOLS__ = false
  * React wrapper around Api Reference
  */
 export const ApiReferenceReact = (props: ReferenceProps) => {
-  const el = useRef(null)
+  const el = useRef<HTMLDivElement | null>(null)
+
+  const [reference, setReference] = useState<ReturnType<
+    typeof createScalarReferences
+  > | null>(null)
 
   useEffect(() => {
-    if (!el.current) return undefined
+    if (!el.current) return reference?.unmount
 
-    const vueApp = createApp(ApiReference, props)
-    vueApp.mount(el.current)
+    const instance = createScalarReferences(
+      el.current,
+      props.configuration ?? {},
+    )
+    setReference(instance)
 
-    // Unmount for react strict mode
-    return () => vueApp?.unmount()
+    // Unmount on cleanup
+    return instance.unmount
   }, [el])
+
+  useEffect(() => {
+    reference?.updateConfig(
+      props.configuration ?? {},
+      /** For React we will just replace the config if it changes */
+      false,
+    )
+  }, [props.configuration])
 
   return <div ref={el} />
 }
