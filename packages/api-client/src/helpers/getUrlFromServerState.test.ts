@@ -1,6 +1,6 @@
-import { createEmptyServerState } from '@scalar/api-client'
 import { describe, expect, it } from 'vitest'
 
+import { createEmptyServerState } from '../stores'
 import { getUrlFromServerState } from './getUrlFromServerState'
 
 describe('getUrlFromServerState', () => {
