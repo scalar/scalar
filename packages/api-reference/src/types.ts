@@ -1,3 +1,4 @@
+import type { Server } from '@scalar/api-client'
 import type {
   AuthenticationState,
   ContentType,
