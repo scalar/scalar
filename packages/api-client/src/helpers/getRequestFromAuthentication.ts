@@ -71,7 +71,6 @@ export function getRequestFromAuthentication(
       ? authentication.preferredSecurityScheme
       : Object.keys(operationSecurity?.[0] ?? {}).pop()
 
-  // We’re using a parsed OpenAPI file here, so let’s get rid of the `ReferenceObject` type
   const securityScheme =
     authentication.securitySchemes?.[operationSecurityKey ?? '']
 

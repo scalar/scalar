@@ -1,6 +1,6 @@
 import { getExampleFromSchema } from '@scalar/oas-utils'
 import {
-  type OpenAPIV3,
+  type OpenAPIV3_1,
   type ResolvedOpenAPI,
   openapi,
 } from '@scalar/openapi-parser'
@@ -9,35 +9,11 @@ import { basicAuth } from 'hono/basic-auth'
 import { cors } from 'hono/cors'
 import type { StatusCode } from 'hono/utils/http-status'
 
-import { findPreferredResponseKey, routeFromPath } from './utils'
-
-/**
- * Check whether the given security scheme key is in the `security` configuration for this operation.
- **/
-function authenticationRequired(
-  security?: OpenAPIV3.SecurityRequirementObject[],
-): boolean {
-  // If security is not defined, auth is not required.
-  if (!security) {
-    return false
-  }
-
-  // Don’t require auth if security is just an empty array []
-  if (Array.isArray(security) && !security.length) {
-    return false
-  }
-
-  // Includes empty object = auth is not required
-  if (
-    (security ?? []).some(
-      (securityRequirement) => !Object.keys(securityRequirement).length,
-    )
-  ) {
-    return false
-  }
-
-  return true
-}
+import {
+  authenticationRequired,
+  findPreferredResponseKey,
+  routeFromPath,
+} from './utils'
 
 /**
  * Create a mock server instance
@@ -88,14 +64,26 @@ export async function createMockServer(options?: {
 
       // Check if authentication is required
       const requiresAuthentication = authenticationRequired(operation.security)
-      console.log(
-        'route',
-        route,
-        'requiresAuthentication',
-        requiresAuthentication,
+      // Get all available authentication methods
+      const allowedSecuritySchemes = operation.security?.map(
+        (securityScheme: OpenAPIV3_1.SecurityRequirementObject) => {
+          return Object.keys(securityScheme)[0]
+        },
       )
+      // Check if one of them is HTTP Basic Auth
+      const httpBasicAuthIsRequired =
+        allowedSecuritySchemes?.findIndex((securitySchemeKey: string) => {
+          const securityScheme =
+            result?.schema?.components?.securitySchemes?.[securitySchemeKey]
 
-      if (requiresAuthentication) {
+          return (
+            securityScheme?.type === 'http' &&
+            securityScheme?.scheme === 'basic'
+          )
+        }) !== undefined
+
+      // Add HTTP basic authentication
+      if (requiresAuthentication && httpBasicAuthIsRequired) {
         // @ts-expect-error Needs a proper type
         app[method](
           route,

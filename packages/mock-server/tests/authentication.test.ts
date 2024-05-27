@@ -3,6 +3,35 @@ import { describe, expect, it } from 'vitest'
 import { createMockServer } from '../src/createMockServer'
 
 describe('authentication', () => {
+  it('doesn’t require authentication', async () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/public': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({
+      specification,
+    })
+
+    const response = await server.request('/public')
+
+    expect(response.status).toBe(200)
+  })
+
   it('fails without credentials', async () => {
     const specification = {
       openapi: '3.1.0',
@@ -10,11 +39,6 @@ describe('authentication', () => {
         title: 'Hello World',
         version: '1.0.0',
       },
-      security: [
-        {
-          basicAuth: [],
-        },
-      ],
       paths: {
         '/secret': {
           get: {
@@ -35,7 +59,7 @@ describe('authentication', () => {
         securitySchemes: {
           basicAuth: {
             type: 'http',
-            schema: 'basic',
+            scheme: 'basic',
           },
         },
       },
@@ -57,11 +81,6 @@ describe('authentication', () => {
         title: 'Hello World',
         version: '1.0.0',
       },
-      security: [
-        {
-          basicAuth: [],
-        },
-      ],
       paths: {
         '/secret': {
           get: {
@@ -82,7 +101,7 @@ describe('authentication', () => {
         securitySchemes: {
           basicAuth: {
             type: 'http',
-            schema: 'basic',
+            scheme: 'basic',
           },
         },
       },
