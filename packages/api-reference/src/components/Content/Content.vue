@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useServerStore } from '@scalar/api-client'
+import { type Server, useServerStore } from '@scalar/api-client'
 import { computed, watch } from 'vue'
 
 import { getModels, hasModels } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
-import type { Server, Spec } from '../../types'
+import type { Spec } from '../../types'
 import { Authentication } from './Authentication'
 import { BaseUrl } from './BaseUrl'
 import { ClientLibraries } from './ClientLibraries'
