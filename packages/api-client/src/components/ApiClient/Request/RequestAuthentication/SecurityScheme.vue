@@ -219,6 +219,7 @@ const startAuthentication = (url: string) => {
           " />
         <button
           class="cardform-auth-button"
+          type="button"
           @click="
             () =>
               startAuthentication(
