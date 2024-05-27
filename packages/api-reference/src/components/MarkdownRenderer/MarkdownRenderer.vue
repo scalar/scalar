@@ -27,6 +27,22 @@ const html = ref<string>('')
 
 const disallowedTagNames = props.withImages ? [] : ['img', 'picture']
 
+const extendedSchema = {
+  ...defaultSchema,
+  tagNames: [
+    ...(defaultSchema.tagNames || []).filter(
+      // Removes disallowed tags
+      (tag) => !disallowedTagNames.includes(tag),
+    ),
+    // Adds support for <abbr>
+    'abbr',
+  ],
+  attributes: {
+    ...defaultSchema.attributes,
+    abbr: ['title'],
+  },
+}
+
 watch(
   () => props.value,
   async () => {
@@ -40,14 +56,8 @@ watch(
       .use(remarkRehype, { allowDangerousHtml: true })
       // Creates a HTML AST
       .use(rehypeRaw)
-      // Removes disallowed tags
-      .use(rehypeSanitize, {
-        ...defaultSchema,
-        // Makes it even more strict
-        tagNames: defaultSchema.tagNames?.filter(
-          (tag) => !disallowedTagNames.includes(tag),
-        ),
-      })
+      // Extends capabilities
+      .use(rehypeSanitize, extendedSchema)
       // Syntax highlighting
       .use(rehypeHighlight, {
         detect: true,
@@ -212,6 +222,9 @@ onServerPrefetch(async () => await sleep(1))
 }
 .markdown :deep(del) {
   text-decoration: line-through;
+}
+.markdown :deep(abbr[title]) {
+  text-decoration: underline dotted;
 }
 .markdown :deep(code) {
   font-family: var(--scalar-font-code);
