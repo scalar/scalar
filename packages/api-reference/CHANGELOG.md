@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.22.52
+
+### Patch Changes
+
+- 4bc33db: feat: support for constants in schemas
+- 30953fa: Add scalar galaxy yaml export and improve React reference reactivity
+- Updated dependencies [da7cdb6]
+  - @scalar/api-client@1.2.36
+
 ## 1.22.51
 
 ### Patch Changes
