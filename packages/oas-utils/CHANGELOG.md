@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.1.15
+
+### Patch Changes
+
+- f472998: feat: generated example values based on the given format
+
 ## 0.1.14
 
 ### Patch Changes
