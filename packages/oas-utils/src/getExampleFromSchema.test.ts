@@ -151,6 +151,24 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject('…')
   })
 
+  it('returns emails as an example value', () => {
+    const result = getExampleFromSchema(
+      {
+        type: 'string',
+        format: 'email',
+      },
+      {
+        emptyString: '…',
+      },
+    )
+
+    function isEmail(text: string) {
+      return !!text.match(/^.+@.+\..+$/)
+    }
+
+    expect(isEmail(result)).toBe(true)
+  })
+
   it('uses variables as an example value', () => {
     expect(
       getExampleFromSchema(

@@ -1,3 +1,19 @@
+function guessFromFormat(schema: Record<string, any>, fallback: string = '') {
+  if (schema.format === 'date') {
+    return '1970-01-01'
+  }
+
+  if (schema.format === 'date-time') {
+    return '1970-01-01T00:00:00Z'
+  }
+
+  if (schema.format === 'email') {
+    return 'john.doe@example.com'
+  }
+
+  return fallback
+}
+
 /**
  * This function takes a properties object and generates an example response content.
  */
@@ -30,6 +46,10 @@ export const getExampleFromSchema = (
   if (level > 5) {
     return null
   }
+
+  // Sometimes, we just want the structure and no values.
+  // But if `emptyString` is  set, we do want to see some values.
+  const makeUpRandomData = !!options?.emptyString
 
   // Check if the property is read-only
   if (options?.mode === 'write' && schema.readOnly) {
@@ -214,7 +234,9 @@ export const getExampleFromSchema = (
   }
 
   const exampleValues: Record<any, any> = {
-    string: options?.emptyString ?? '',
+    string: makeUpRandomData
+      ? guessFromFormat(schema, options?.emptyString)
+      : '',
     boolean: true,
     integer: schema.min ?? 1,
     number: schema.min ?? 1,
