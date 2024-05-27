@@ -1,10 +1,43 @@
 import { getExampleFromSchema } from '@scalar/oas-utils'
-import { type ResolvedOpenAPI, openapi } from '@scalar/openapi-parser'
+import {
+  type OpenAPIV3,
+  type ResolvedOpenAPI,
+  openapi,
+} from '@scalar/openapi-parser'
 import { type Context, Hono } from 'hono'
+import { basicAuth } from 'hono/basic-auth'
 import { cors } from 'hono/cors'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import { findPreferredResponseKey, routeFromPath } from './utils'
+
+/**
+ * Check whether the given security scheme key is in the `security` configuration for this operation.
+ **/
+function authenticationRequired(
+  security?: OpenAPIV3.SecurityRequirementObject[],
+): boolean {
+  // If security is not defined, auth is not required.
+  if (!security) {
+    return false
+  }
+
+  // Don’t require auth if security is just an empty array []
+  if (Array.isArray(security) && !security.length) {
+    return false
+  }
+
+  // Includes empty object = auth is not required
+  if (
+    (security ?? []).some(
+      (securityRequirement) => !Object.keys(securityRequirement).length,
+    )
+  ) {
+    return false
+  }
+
+  return true
+}
 
 /**
  * Create a mock server instance
@@ -50,6 +83,29 @@ export async function createMockServer(options?: {
     Object.keys(result.schema?.paths?.[path] ?? {}).forEach((method) => {
       const route = routeFromPath(path)
 
+      // @ts-expect-error Needs a proper type
+      const operation = result.schema?.paths?.[path]?.[method]
+
+      // Check if authentication is required
+      const requiresAuthentication = authenticationRequired(operation.security)
+      console.log(
+        'route',
+        route,
+        'requiresAuthentication',
+        requiresAuthentication,
+      )
+
+      if (requiresAuthentication) {
+        // @ts-expect-error Needs a proper type
+        app[method](
+          route,
+          basicAuth({
+            username: 'demo',
+            password: 'secret',
+          }),
+        )
+      }
+
       // Route
       // @ts-expect-error Needs a proper type
       app[method](route, (c: Context) => {
@@ -57,15 +113,11 @@ export async function createMockServer(options?: {
         if (options?.onRequest) {
           options.onRequest({
             context: c,
-            // @ts-expect-error Needs a proper type
-            operation: result.schema.paths[path][method],
+            operation,
           })
         }
 
         // Response
-        // @ts-expect-error Needs a proper type
-        const operation = result.schema?.paths?.[path]?.[method]
-
         // default, 200, 201 …
         const preferredResponseKey = findPreferredResponseKey(
           Object.keys(operation.responses ?? {}),
