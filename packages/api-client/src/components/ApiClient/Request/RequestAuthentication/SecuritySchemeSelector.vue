@@ -84,6 +84,14 @@ const getAuthorizationTypeLabel = (item: any) => {
   } else if (isHttpBearer(item)) {
     return 'Bearer Authentication'
   } else if (isOAuth2(item)) {
+    if (item.flows?.implicit) {
+      return 'OAuth 2.0 Implicit'
+    }
+
+    if (item.flows?.password) {
+      return 'OAuth 2.0 Password'
+    }
+
     return 'OAuth 2.0'
   }
 
