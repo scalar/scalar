@@ -1,3 +1,4 @@
+import { replaceVariables } from '@scalar/api-client'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { webpackStats } from 'rollup-plugin-webpack-stats'
@@ -7,7 +8,6 @@ import { defineConfig } from 'vitest/config'
 
 import licenseBannerTemplate from './license-banner-template.txt'
 import { name, version } from './package.json'
-import { replaceVariables } from './src/helpers/replaceVariables'
 
 export default defineConfig({
   define: {

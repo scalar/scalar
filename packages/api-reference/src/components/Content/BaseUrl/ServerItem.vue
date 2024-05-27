@@ -1,8 +1,11 @@
 <script lang="ts" setup>
-import type { Server, Variable } from '@scalar/api-client'
+import {
+  type Server,
+  type Variable,
+  replaceVariables,
+} from '@scalar/api-client'
 import { computed } from 'vue'
 
-import { replaceVariables } from '../../../helpers'
 import { useClipboard } from '../../../hooks'
 
 const props = defineProps<{
