@@ -113,7 +113,7 @@ describe('authentication', () => {
 
     const response = await server.request('/secret', {
       headers: {
-        Authorization: `Basic ${btoa(`demo:secret`)}`,
+        Authorization: `Basic ${Buffer.from(`demo:secret`).toString('base64')}`,
       },
     })
 
