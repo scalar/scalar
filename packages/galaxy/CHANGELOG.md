@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.1.4
+
+### Patch Changes
+
+- 30953fa: Add scalar galaxy yaml export and improve React reference reactivity
+
 ## 0.1.3
 
 ### Patch Changes

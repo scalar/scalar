@@ -1,5 +1,14 @@
 # @scalar/api-reference-react
 
+## 0.1.94
+
+### Patch Changes
+
+- 30953fa: Add scalar galaxy yaml export and improve React reference reactivity
+- Updated dependencies [4bc33db]
+- Updated dependencies [30953fa]
+  - @scalar/api-reference@1.22.52
+
 ## 0.1.93
 
 ### Patch Changes

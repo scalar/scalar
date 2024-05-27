@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 1.2.36
+
+### Patch Changes
+
+- da7cdb6: fix: authentication card form style
+
 ## 1.2.35
 
 ### Patch Changes
