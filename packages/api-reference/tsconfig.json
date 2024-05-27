@@ -12,12 +12,7 @@
     "strictNullChecks": true,
     "types": ["vite/client"]
   },
-  "include": [
-    "src",
-    "src/declarations",
-    "global.d.ts",
-    "../api-client/src/helpers/getUrlFromServerState.ts"
-  ],
+  "include": ["src", "src/declarations", "global.d.ts"],
   "exclude": ["dist", "vite.config.ts", "node_modules"],
   "ts-node": {
     "require": ["tsconfig-paths/register"]
