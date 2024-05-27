@@ -122,7 +122,7 @@ function getOpenAuth2AuthorizationUrl(flow: any) {
 }
 
 function authorizeWithPassword(
-  tokenUrl: string,
+  tokenUrl?: string,
   options?: {
     baseUrl?: string
     proxy?: string
@@ -164,14 +164,23 @@ function authorizeWithPassword(
       },
     },
   )
-    .then((response) => response.json())
+    .then((response) => {
+      // Check if is a 2xx response
+      if (!response.ok) {
+        throw new Error(
+          'Failed to get an access token. Please check your credentials.',
+        )
+      }
+
+      return response.json()
+    })
     .then((data) => {
       setAuthentication({
         oAuth2: { ...authentication.oAuth2, accessToken: data.access_token },
       })
     })
     .catch((response) => {
-      console.error('[authorizeWithPassword] Error:', response)
+      console.error('[authorizeWithPassword]', response)
     })
 }
 
