@@ -199,6 +199,8 @@ describe('getRequestFromAuthentication', () => {
           scopes: [],
           accessToken: '',
           state: '',
+          username: '',
+          password: '',
         },
       },
       [
