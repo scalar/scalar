@@ -18,6 +18,9 @@ export default {
   ],
   theme: {
     extend: {
+      spacing: {
+        px: '1px',
+      },
       maxWidth: {
         'screen-xs': '480px',
         'screen-sm': '540px',
