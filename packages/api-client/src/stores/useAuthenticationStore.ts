@@ -1,5 +1,4 @@
-import type { AuthenticationState } from '@scalar/oas-utils'
-import { ssrState } from '@scalar/oas-utils'
+import { type AuthenticationState, ssrState } from '@scalar/oas-utils'
 import { reactive } from 'vue'
 
 export const createEmptyAuthenticationState = (): AuthenticationState => ({
@@ -19,6 +18,8 @@ export const createEmptyAuthenticationState = (): AuthenticationState => ({
     token: '',
   },
   oAuth2: {
+    username: '',
+    password: '',
     clientId: '',
     scopes: [],
     accessToken: '',
