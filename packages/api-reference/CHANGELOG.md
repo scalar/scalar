@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.22.51
+
+### Patch Changes
+
+- 6ccdd5c: feat: support abbr html tag
+- 4d01a2a: feat: copy server URL with replaced variables
+- Updated dependencies [f472998]
+  - @scalar/oas-utils@0.1.15
+  - @scalar/api-client@1.2.35
+  - @scalar/components@0.7.14
+
 ## 1.22.50
 
 ### Patch Changes
