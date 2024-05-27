@@ -1,4 +1,42 @@
 /**
+ * We can use the `format` to generate some random values.
+ */
+function guessFromFormat(schema: Record<string, any>, fallback: string = '') {
+  const exampleValues: Record<string, string> = {
+    // 'date-time': '1970-01-01T00:00:00Z',
+    'date-time': new Date().toISOString(),
+    // 'date': '1970-01-01',
+    'date': new Date().toISOString().split('T')[0],
+    'email': 'hello@example.com',
+    'hostname': 'example.com',
+    // https://tools.ietf.org/html/rfc6531#section-3.3
+    'idn-email': 'jane.doe@example.com',
+    // https://tools.ietf.org/html/rfc5890#section-2.3.2.3
+    'idn-hostname': 'example.com',
+    'ipv4': '127.0.0.1',
+    'ipv6': '51d4:7fab:bfbf:b7d7:b2cb:d4b4:3dad:d998',
+    'iri-reference': '/entitiy/1',
+    // https://tools.ietf.org/html/rfc3987
+    'iri': 'https://example.com/entity/123',
+    'json-pointer': '/nested/objects',
+    'password': 'super-secret',
+    'regex': '/[a-z]/',
+    // https://tools.ietf.org/html/draft-handrews-relative-json-pointer-01
+    'relative-json-pointer': '1/nested/objects',
+    // full-time in https://tools.ietf.org/html/rfc3339#section-5.6
+    // 'time': '00:00:00Z',
+    'time': new Date().toISOString().split('T')[1].split('.')[0],
+    // either a URI or relative-reference https://tools.ietf.org/html/rfc3986#section-4.1
+    'uri-reference': '../folder',
+    'uri-template': 'https://example.com/{id}',
+    'uri': 'https://example.com',
+    'uuid': '123e4567-e89b-12d3-a456-426614174000',
+  }
+
+  return exampleValues[schema.format] ?? fallback
+}
+
+/**
  * This function takes a properties object and generates an example response content.
  */
 export const getExampleFromSchema = (
@@ -30,6 +68,10 @@ export const getExampleFromSchema = (
   if (level > 5) {
     return null
   }
+
+  // Sometimes, we just want the structure and no values.
+  // But if `emptyString` is  set, we do want to see some values.
+  const makeUpRandomData = !!options?.emptyString
 
   // Check if the property is read-only
   if (options?.mode === 'write' && schema.readOnly) {
@@ -214,7 +256,9 @@ export const getExampleFromSchema = (
   }
 
   const exampleValues: Record<any, any> = {
-    string: options?.emptyString ?? '',
+    string: makeUpRandomData
+      ? guessFromFormat(schema, options?.emptyString)
+      : '',
     boolean: true,
     integer: schema.min ?? 1,
     number: schema.min ?? 1,
