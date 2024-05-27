@@ -1,11 +1,9 @@
 'use client'
 
-import { ReferenceProps, createScalarReferences } from '@scalar/api-reference'
-import React, { useEffect, useRef, useState } from 'react'
-import { ApiReference, type ReferenceProps } from '@scalar/api-reference'
+import { createScalarReferences } from '@scalar/api-reference'
+import type { ReferenceProps } from '@scalar/api-reference'
 import '@scalar/api-reference/style.css'
-import React, { useEffect, useRef } from 'react'
-import { createApp } from 'vue/dist/vue.esm-bundler.js'
+import React, { useEffect, useRef, useState } from 'react'
 
 // These are required for the vue bundler version
 globalThis.__VUE_OPTIONS_API__ = true
