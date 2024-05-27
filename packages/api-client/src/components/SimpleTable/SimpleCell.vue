@@ -45,7 +45,6 @@ withDefaults(
 .simple-row:first-of-type .simple-cell:first-of-type {
   border-top-left-radius: var(--scalar-radius);
 }
-border-top-left-radius: var(--scalar-radius);
 .simple-cell a {
   color: var(--scalar-color-1) !important;
 }
