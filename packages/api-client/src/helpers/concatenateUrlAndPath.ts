@@ -6,8 +6,13 @@ export const concatenateUrlAndPath = (url: string, path?: string) => {
     return url
   }
 
-  const urlWithSlash = url.endsWith('/') ? url : `${url}/`
-  const pathWithoutSlash = path.startsWith('/') ? path.slice(1) : path
+  const trimmedUrl = url.trim()
+  const trimmedPath = path.trim()
+
+  const urlWithSlash = trimmedUrl.endsWith('/') ? trimmedUrl : `${trimmedUrl}/`
+  const pathWithoutSlash = trimmedPath.startsWith('/')
+    ? trimmedPath.slice(1)
+    : trimmedPath
 
   return [urlWithSlash, pathWithoutSlash].join('')
 }

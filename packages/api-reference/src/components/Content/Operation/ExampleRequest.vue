@@ -3,7 +3,9 @@ import {
   HttpMethod,
   getRequestFromAuthentication,
   getSecretCredentialsFromAuthentication,
+  getUrlFromServerState,
   useAuthenticationStore,
+  useServerStore,
 } from '@scalar/api-client'
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
 import {
@@ -29,11 +31,10 @@ import {
 import {
   GLOBAL_SECURITY_SYMBOL,
   getApiClientRequest,
-  getUrlFromServerState,
   sleep,
 } from '../../../helpers'
 import { useClipboard, useHttpClients } from '../../../hooks'
-import { useHttpClientStore, useServerStore } from '../../../stores'
+import { useHttpClientStore } from '../../../stores'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'

@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { useServerStore } from '@scalar/api-client'
 import { computed, watch } from 'vue'
 
 import { getModels, hasModels } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
-import { useServerStore } from '../../stores'
 import type { Server, Spec } from '../../types'
 import { Authentication } from './Authentication'
 import { BaseUrl } from './BaseUrl'
@@ -19,6 +19,7 @@ const props = defineProps<{
   parsedSpec: Spec
   layout?: 'default' | 'accordion'
   baseServerURL?: string
+  proxy?: string
 }>()
 
 const { getOperationId, getTagId, hash } = useNavState()
@@ -110,7 +111,9 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
           class="introduction-card"
           :class="{ 'introduction-card-row': layout === 'accordion' }">
           <BaseUrl />
-          <Authentication :parsedSpec="parsedSpec" />
+          <Authentication
+            :parsedSpec="parsedSpec"
+            :proxy="proxy" />
           <ClientLibraries />
         </div>
       </template>

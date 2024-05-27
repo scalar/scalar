@@ -19,16 +19,10 @@ export default defineConfig({
     webpackStats(),
     banner({
       outDir: 'dist/browser',
-      content: replaceVariables(licenseBannerTemplate, [
-        {
-          name: 'packageName',
-          value: name,
-        },
-        {
-          name: 'version',
-          value: version,
-        },
-      ]),
+      content: replaceVariables(licenseBannerTemplate, {
+        packageName: name,
+        version: version,
+      }),
     }),
   ],
   build: {

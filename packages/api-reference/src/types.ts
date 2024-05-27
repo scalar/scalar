@@ -214,21 +214,6 @@ export type ExternalDocs = {
   url: string
 }
 
-export type ServerVariables = Record<
-  string,
-  {
-    default?: string | number
-    description?: string
-    enum?: (string | number)[]
-  }
->
-
-export type Server = {
-  url: string
-  description?: string
-  variables?: ServerVariables
-}
-
 export type TagGroup = {
   name: string
   tags: string[]
@@ -270,17 +255,6 @@ export type Spec = {
   'openapi'?: OpenAPIV3.Document['openapi'] | OpenAPIV3_1.Document['openapi']
   'x-tagGroups'?: TagGroup[]
   'security'?: OpenAPIV3.SecurityRequirementObject[]
-}
-
-export type Variable = {
-  [key: string]: string
-}
-
-export type ServerState = {
-  selectedServer: null | number
-  description?: string
-  servers: Server[]
-  variables: Variable[]
 }
 
 export type HarRequestWithPath = HarRequest & {

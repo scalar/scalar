@@ -5,23 +5,17 @@ import { replaceVariables } from './replaceVariables'
 describe('replaceVariables', () => {
   it('replaces variables with a single bracket', () => {
     expect(
-      replaceVariables('foo{bar}foo', [
-        {
-          name: 'bar',
-          value: 'foo',
-        },
-      ]),
+      replaceVariables('foo{bar}foo', {
+        bar: 'foo',
+      }),
     ).toMatchObject('foofoofoo')
   })
 
   it('replaces variables with a double bracket', () => {
     expect(
-      replaceVariables('foo{{bar}}foo', [
-        {
-          name: 'bar',
-          value: 'foo',
-        },
-      ]),
+      replaceVariables('foo{{bar}}foo', {
+        bar: 'foo',
+      }),
     ).toMatchObject('foofoofoo')
   })
 

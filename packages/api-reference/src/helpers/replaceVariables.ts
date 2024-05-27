@@ -1,11 +1,11 @@
-import type { Variable } from '../types'
-
 /**
  * This function takes a string and replace {variables} with given values.
  */
 export function replaceVariables(
   value: string,
-  variablesOrCallback: Variable[] | ((match: string) => string),
+  variablesOrCallback:
+    | Record<string, string | number>
+    | ((match: string) => string),
 ) {
   // Replace all variables (example: {{ baseurl }} with an HTML tag)
   const doubleCurlyBrackets = /{{\s*([\w.-]+)\s*}}/g
@@ -15,11 +15,7 @@ export function replaceVariables(
     if (typeof variablesOrCallback === 'function') {
       return variablesOrCallback(match)
     } else {
-      const variable = variablesOrCallback?.find(
-        (currentVariable: Variable) => currentVariable.name === match,
-      )
-
-      return (variable?.value ?? '').toString()
+      return variablesOrCallback[match].toString()
     }
   }
 

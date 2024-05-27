@@ -30,4 +30,10 @@ describe('concatenateUrlAndPath', () => {
       'http://127.0.0.1/foobar',
     )
   })
+
+  it('removes whitespace', async () => {
+    expect(concatenateUrlAndPath('http://127.0.0.1/ ', ' /foobar')).toBe(
+      'http://127.0.0.1/foobar',
+    )
+  })
 })

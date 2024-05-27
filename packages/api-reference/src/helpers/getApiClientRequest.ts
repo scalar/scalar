@@ -1,6 +1,7 @@
 import {
   type ClientRequestConfig,
   getRequestFromAuthentication,
+  getUrlFromServerState,
 } from '@scalar/api-client'
 import {
   type AuthenticationState,
@@ -12,7 +13,6 @@ import {
 import type { OpenAPIV3 } from '@scalar/openapi-parser'
 
 import type { ServerState } from '../types'
-import { getUrlFromServerState } from './'
 
 /**
  * Generate parameters for the request
