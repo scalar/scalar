@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
+import '@scalar/components/style.css'
 import { type ThemeId, ThemeStyles } from '@scalar/themes'
+import '@scalar/themes/style.css'
 import { useMagicKeys, useMediaQuery, whenever } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
@@ -124,11 +126,8 @@ watch(
 </template>
 
 <style>
-@import '@scalar/themes/style.css';
-@import '@scalar/components/style.css';
-
 /** Used to check if css is loaded */
-: root {
+:root {
   --scalar-loaded-api-client: true;
 }
 

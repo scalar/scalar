@@ -1,6 +1,3 @@
-@import '@scalar/api-client/style.css';
-@import '@scalar/api-reference/style.css';
-
 .light-mode {
   --scalar-background-1: #fff;
   --scalar-background-2: #f8fafc;
