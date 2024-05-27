@@ -42,7 +42,7 @@ defineOptions({
   </div>
 </template>
 <style scoped>
-:where(.card-form-input) {
+.card-form-input {
   background: transparent;
   position: relative;
   width: 100%;

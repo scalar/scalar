@@ -4,7 +4,7 @@
   </div>
 </template>
 <style scoped>
-:where(.card-form-group) {
+.card-form-group {
   display: flex;
 }
 </style>

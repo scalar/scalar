@@ -87,7 +87,7 @@ const model = computed({
   </Listbox>
 </template>
 <style scoped>
-:where(.wrapper) {
+.wrapper {
   display: grid;
   border-color: inherit;
 }
