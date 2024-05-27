@@ -28,13 +28,26 @@ const formattedServerUrl = computed(() => {
     }</span>`
   })
 })
+
+/**
+ * We don’t want to just replace all variables, but keep variables without a value.
+ *
+ * Examples:
+ *  - `https://example.com/{foo}` (without foo) should return `https://example.com/{foo}`
+ *  - `https://example.com/{foo}` (with foo: 123) should return `https://example.com/123`
+ *
+ * So we just what we did above, but strip the HTML.
+ */
+const plainTextUrl = computed(() =>
+  formattedServerUrl.value.replace(/(<([^>]+)>)/gi, ''),
+)
 </script>
 <template>
   <template v-if="value">
     <a
       class="base-url"
       :title="value.description"
-      @click="copyToClipboard(value.url)"
+      @click="copyToClipboard(plainTextUrl)"
       v-html="formattedServerUrl" />
   </template>
 </template>
