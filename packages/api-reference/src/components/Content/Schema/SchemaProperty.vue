@@ -64,8 +64,8 @@ const generatePropertyDescription = function (property?: Record<string, any>) {
   return descriptions[property.type][property.format || '_default']
 }
 
-const getEnumFromValue = function (value?: Record<string, any>): any[] | null {
-  return value?.enum || value?.items?.enum || null
+const getEnumFromValue = function (value?: Record<string, any>): any[] | [] {
+  return value?.enum || value?.items?.enum || []
 }
 
 const rules = ['oneOf', 'anyOf', 'allOf', 'not']
@@ -82,7 +82,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     ]">
     <SchemaPropertyHeading
       :additional="additional"
-      :enum="!!getEnumFromValue(value)"
+      :enum="getEnumFromValue(value).length > 1"
       :required="required"
       :value="value">
       <template
@@ -113,7 +113,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     </div>
     <!-- Enum -->
     <div
-      v-if="getEnumFromValue(value)"
+      v-if="getEnumFromValue(value)?.length > 1"
       class="property-enum">
       <ul class="property-enum-values">
         <li
