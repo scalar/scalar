@@ -117,3 +117,29 @@ export type Response = {
   description: string
   content: any
 }
+
+export type Server = {
+  url: string
+  description?: string
+  variables?: ServerVariables
+}
+
+export type ServerVariables = Record<
+  string,
+  {
+    default?: string | number
+    description?: string
+    enum?: (string | number)[]
+  }
+>
+
+export type Variable = {
+  [key: string]: string
+}
+
+export type ServerState = {
+  selectedServer: null | number
+  description?: string
+  servers: Server[]
+  variables: Variable[]
+}

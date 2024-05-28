@@ -1,11 +1,26 @@
 /**
- * Replaces variables in a url with the values provided.
+ * This function takes a string and replace {variables} with given values.
  */
-export const replaceVariables = (
-  url: string,
-  variables: Record<string, string | number>,
-) => {
-  return Object.entries(variables).reduce((acc, [key, value]) => {
-    return acc.replace(`{${key}}`, value.toString())
-  }, url)
+export function replaceVariables(
+  value: string,
+  variablesOrCallback:
+    | Record<string, string | number>
+    | ((match: string) => string),
+) {
+  // Replace all variables (example: {{ baseurl }} with an HTML tag)
+  const doubleCurlyBrackets = /{{\s*([\w.-]+)\s*}}/g
+  const singleCurlyBrackets = /{\s*([\w.-]+)\s*}/g
+
+  const callback = (_: string, match: string): string => {
+    if (typeof variablesOrCallback === 'function') {
+      return variablesOrCallback(match)
+    } else {
+      return variablesOrCallback[match]?.toString()
+    }
+  }
+
+  // Loop through all matches and replace the match with the variable value
+  return value
+    .replace(doubleCurlyBrackets, callback)
+    .replace(singleCurlyBrackets, callback)
 }

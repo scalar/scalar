@@ -7,7 +7,12 @@ import { defineConfig } from 'vitest/config'
 
 import licenseBannerTemplate from './license-banner-template.txt'
 import { name, version } from './package.json'
-import { replaceVariables } from './src/helpers/replaceVariables'
+
+function replaceVariables(template: string, variables: Record<string, string>) {
+  return Object.entries(variables).reduce((content, [key, value]) => {
+    return content.replace(new RegExp(`\\$\\{${key}\\}`, 'g'), value)
+  }, template)
+}
 
 export default defineConfig({
   define: {
@@ -19,16 +24,10 @@ export default defineConfig({
     webpackStats(),
     banner({
       outDir: 'dist/browser',
-      content: replaceVariables(licenseBannerTemplate, [
-        {
-          name: 'packageName',
-          value: name,
-        },
-        {
-          name: 'version',
-          value: version,
-        },
-      ]),
+      content: replaceVariables(licenseBannerTemplate, {
+        packageName: name,
+        version: version,
+      }),
     }),
   ],
   build: {

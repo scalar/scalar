@@ -1,10 +1,12 @@
 <script lang="ts" setup>
-import { findVariables } from '@scalar/api-client'
+import {
+  type Variable,
+  findVariables,
+  useServerStore,
+} from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
 import { ref, watch } from 'vue'
 
-import { useServerStore } from '../../../stores'
-import type { Variable } from '../../../types'
 import { MarkdownRenderer } from '../../MarkdownRenderer'
 import ServerItem from './ServerItem.vue'
 import ServerVariables from './ServerVariables.vue'

@@ -15,11 +15,7 @@ import {
   normalizeUrl,
   replaceVariables,
 } from './'
-
-/** Redirects the request to a proxy server with a given URL. */
-function redirectToProxy(proxy: string, url: string): string {
-  return `${proxy}?scalar_url=${encodeURI(url)}`
-}
+import { redirectToProxy } from './redirectToProxy'
 
 /** Skip the proxy for requests to localhost */
 function isRequestToLocalhost(url: string) {

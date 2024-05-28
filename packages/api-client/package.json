@@ -49,6 +49,7 @@
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-modal": "workspace:*",
+    "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.6.8",

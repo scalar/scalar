@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { ref } from 'vue'
 
@@ -8,6 +7,10 @@ import { useAuthenticationStore } from '../../../../stores'
 import { CollapsibleSection } from '../../../CollapsibleSection'
 import SecurityScheme from './SecurityScheme.vue'
 import SecuritySchemeSelector from './SecuritySchemeSelector.vue'
+
+defineProps<{
+  proxy?: string
+}>()
 
 const requestAuthenticationRef = ref<typeof HTMLDivElement | null>(null)
 
@@ -54,6 +57,7 @@ const setIntialScheme = (
         v-if="authentication.preferredSecurityScheme"
         class="preferred-security-scheme">
         <SecurityScheme
+          :proxy="proxy"
           :value="
             authentication.securitySchemes?.[
               authentication.preferredSecurityScheme

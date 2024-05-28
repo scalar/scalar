@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useServerStore } from '../../../stores'
-import type { Variable } from '../../../types'
+import { type Variable, useServerStore } from '@scalar/api-client'
 
 defineProps<{ value?: Variable[] }>()
 

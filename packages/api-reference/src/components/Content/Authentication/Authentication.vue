@@ -10,9 +10,8 @@ import { computed, onServerPrefetch, useSSRContext, watch } from 'vue'
 
 import { hasSecuritySchemes, sleep } from '../../../helpers'
 import type { Spec } from '../../../types'
-import { Card, CardContent, CardHeader } from '../../Card'
 
-const props = defineProps<{ parsedSpec?: Spec }>()
+const props = defineProps<{ parsedSpec?: Spec; proxy?: string }>()
 
 const { authentication, setAuthentication } = useAuthenticationStore()
 
@@ -65,6 +64,7 @@ onServerPrefetch(async () => {
       class="authentication-content">
       <SecurityScheme
         v-if="authentication.preferredSecurityScheme"
+        :proxy="proxy"
         :value="
           parsedSpec?.components?.securitySchemes?.[
             authentication.preferredSecurityScheme

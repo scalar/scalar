@@ -278,7 +278,8 @@ useDeprecationWarnings(props.configuration)
               :layout="
                 configuration.layout === 'classic' ? 'accordion' : 'default'
               "
-              :parsedSpec="parsedSpec">
+              :parsedSpec="parsedSpec"
+              :proxy="configuration.proxy">
               <template #start>
                 <slot
                   v-bind="referenceSlotProps"

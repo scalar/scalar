@@ -1,5 +1,6 @@
 export type ToastOptions = {
   timeout?: number
+  description?: string
 }
 
 export type ToastFunction = (

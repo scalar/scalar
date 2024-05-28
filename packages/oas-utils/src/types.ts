@@ -157,6 +157,8 @@ export type AuthenticationState = {
     scopes: string[]
     accessToken: string
     state: string
+    username: string
+    password: string
   }
 }
 
