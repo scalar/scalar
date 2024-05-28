@@ -332,16 +332,18 @@ useDeprecationWarnings(props.configuration)
 </template>
 <style scoped>
 /* Configurable Layout Variables */
-.scalar-api-reference {
-  --refs-sidebar-width: var(--scalar-sidebar-width, 0px);
-  --refs-header-height: var(--scalar-header-height, 0px);
-  --refs-content-max-width: var(--scalar-content-max-width, 1540px);
-}
+@layer scalar-config {
+  .scalar-api-reference {
+    --refs-sidebar-width: var(--scalar-sidebar-width, 0px);
+    --refs-header-height: var(--scalar-header-height, 0px);
+    --refs-content-max-width: var(--scalar-content-max-width, 1540px);
+  }
 
-.scalar-api-reference.references-classic {
-  /* Classic layout is wider */
-  --refs-content-max-width: var(--scalar-content-max-width, 1420px);
-  min-height: 100dvh;
+  .scalar-api-reference.references-classic {
+    /* Classic layout is wider */
+    --refs-content-max-width: var(--scalar-content-max-width, 1420px);
+    min-height: 100dvh;
+  }
 }
 
 /* ----------------------------------------------------- */
@@ -438,10 +440,11 @@ useDeprecationWarnings(props.configuration)
     'navigation editor rendered'
     'footer footer footer';
 }
-
-.references-sidebar {
-  /* Set a default width if references are enabled */
-  --refs-sidebar-width: var(--scalar-sidebar-width, 280px);
+@layer scalar-config {
+  .references-sidebar {
+    /* Set a default width if references are enabled */
+    --refs-sidebar-width: var(--scalar-sidebar-width, 280px);
+  }
 }
 
 /* Footer */
