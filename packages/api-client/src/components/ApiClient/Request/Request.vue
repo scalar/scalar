@@ -30,7 +30,10 @@ const authenticationRequest = computed(() =>
 const showRequestBody = computed(() => {
   const requestType = activeRequest.type.toLowerCase()
   return (
-    requestType === 'put' || requestType === 'post' || requestType === 'patch'
+    requestType === 'put' ||
+    requestType === 'post' ||
+    requestType === 'patch' ||
+    requestType === 'delete'
   )
 })
 
