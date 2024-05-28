@@ -25,7 +25,7 @@
     "@scalar/themes": "workspace:*",
     "@vueuse/core": "^10.9.0",
     "monaco-editor": "^0.47.0",
-    "vue": "^3.4.21",
+    "vue": "^3.4.27",
     "vue-router": "^4.2.4"
   },
   "devDependencies": {
