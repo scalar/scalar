@@ -52,7 +52,6 @@ function setSpec({ url, content }: SpecConfiguration) {
 
 // Set the content whenever the input props change
 watchEffect(() => {
-  console.log('update spec')
   setSpec(props.configuration?.spec ?? { content: '' })
 })
 
@@ -79,24 +78,17 @@ function handleInput(evt: CustomEvent<{ value: string }>) {
 // ---------------------------------------------------------------------------
 
 // Set defaults as needed on the provided configuration
-const configuration = computed<ReferenceConfiguration>(() => {
-  console.log(
-    'config',
-    props.configuration?.useExternalState,
-    props.configuration?.spec,
-  )
-  return {
-    proxy: 'https://api.scalar.com/request-proxy',
-    theme: 'default',
-    showSidebar: true,
-    isEditable: true,
-    ...props.configuration,
-    /** If we are managing the dynamic state internally we override the spec */
-    spec: props.configuration?.useExternalState
-      ? props.configuration.spec
-      : { content: editorContent.value },
-  }
-})
+const configuration = computed<ReferenceConfiguration>(() => ({
+  proxy: 'https://proxy.scalar.com',
+  theme: 'default',
+  showSidebar: true,
+  isEditable: true,
+  ...props.configuration,
+  /** If we are managing the dynamic state internally we override the spec */
+  spec: props.configuration?.useExternalState
+    ? props.configuration.spec
+    : { content: editorContent.value },
+}))
 
 // Create the head tag if the configuration has meta data
 if (configuration.value?.metaData) {
