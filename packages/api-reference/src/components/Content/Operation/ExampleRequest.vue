@@ -159,7 +159,7 @@ computed(() => {
 })
 </script>
 <template>
-  <Card class="dark-mode">
+  <Card>
     <CardHeader muted>
       <div class="request-header">
         <HttpMethod
