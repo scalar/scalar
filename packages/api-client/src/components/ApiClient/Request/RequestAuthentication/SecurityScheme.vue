@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import { useToasts } from '@scalar/use-toasts'
 import { computed } from 'vue'
 
 import {
@@ -20,6 +21,8 @@ defineProps<{
   value?: OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject
   proxy?: string
 }>()
+
+const { toast } = useToasts()
 
 const { server } = useServerStore()
 
@@ -180,6 +183,10 @@ function authorizeWithPassword(
       })
     })
     .catch((response) => {
+      toast(
+        `Couldn’t retrieve the password grant token. Open your browser console to get more information.`,
+        'warn',
+      )
       console.error('[authorizeWithPassword]', response)
     })
 }

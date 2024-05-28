@@ -666,6 +666,9 @@ importers:
       '@scalar/use-modal':
         specifier: workspace:*
         version: link:../use-modal
+      '@scalar/use-toasts':
+        specifier: workspace:*
+        version: link:../use-toasts
       '@scalar/use-tooltip':
         specifier: workspace:*
         version: link:../use-tooltip
