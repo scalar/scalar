@@ -1,19 +1,16 @@
 import { getExampleFromSchema } from '@scalar/oas-utils'
-import {
-  type OpenAPIV3_1,
-  type ResolvedOpenAPI,
-  openapi,
-} from '@scalar/openapi-parser'
+import { type ResolvedOpenAPI, openapi } from '@scalar/openapi-parser'
 import { type Context, Hono } from 'hono'
-import { basicAuth } from 'hono/basic-auth'
 import { cors } from 'hono/cors'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import {
-  authenticationRequired,
   findPreferredResponseKey,
+  isAuthenticationRequired,
   routeFromPath,
 } from './utils'
+import { anyBasicAuthentication } from './utils/anyBasicAuthentication'
+import { isBasicAuthenticationRequired } from './utils/isBasicAuthenticationRequired'
 
 /**
  * Create a mock server instance
@@ -55,7 +52,7 @@ export async function createMockServer(options?: {
 
   // Paths
   Object.keys(result.schema?.paths ?? {}).forEach((path) => {
-    // Request methods
+    // Operations
     Object.keys(result.schema?.paths?.[path] ?? {}).forEach((method) => {
       const route = routeFromPath(path)
 
@@ -63,35 +60,19 @@ export async function createMockServer(options?: {
       const operation = result.schema?.paths?.[path]?.[method]
 
       // Check if authentication is required
-      const requiresAuthentication = authenticationRequired(operation.security)
-      // Get all available authentication methods
-      const allowedSecuritySchemes = operation.security?.map(
-        (securityScheme: OpenAPIV3_1.SecurityRequirementObject) => {
-          return Object.keys(securityScheme)[0]
-        },
+      const requiresAuthentication = isAuthenticationRequired(
+        operation.security,
       )
-      // Check if one of them is HTTP Basic Auth
-      const httpBasicAuthIsRequired =
-        allowedSecuritySchemes?.findIndex((securitySchemeKey: string) => {
-          const securityScheme =
-            result?.schema?.components?.securitySchemes?.[securitySchemeKey]
-
-          return (
-            securityScheme?.type === 'http' &&
-            securityScheme?.scheme === 'basic'
-          )
-        }) !== undefined
+      // Get all available authentication methods
+      const requiresBasicAuthentication = isBasicAuthenticationRequired(
+        operation,
+        result?.schema,
+      )
 
       // Add HTTP basic authentication
-      if (requiresAuthentication && httpBasicAuthIsRequired) {
+      if (requiresAuthentication && requiresBasicAuthentication) {
         // @ts-expect-error Needs a proper type
-        app[method](
-          route,
-          basicAuth({
-            username: 'demo',
-            password: 'secret',
-          }),
-        )
+        app[method](route, anyBasicAuthentication())
       }
 
       // Route

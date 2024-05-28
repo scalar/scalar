@@ -3,7 +3,7 @@ import type { OpenAPIV3 } from '@scalar/openapi-parser'
 /**
  * Check whether the given security scheme key is in the `security` configuration for this operation.
  **/
-export function authenticationRequired(
+export function isAuthenticationRequired(
   security?: OpenAPIV3.SecurityRequirementObject[],
 ): boolean {
   // If security is not defined, auth is not required.
