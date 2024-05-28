@@ -23,8 +23,8 @@ export default defineConfig({
     rollupOptions: {
       external: [
         'vue',
-        ...Object.keys(pkg.dependencies || {}).filter((item) =>
-          item.match(/^(?!@scalar\/(?!components\b)).*/),
+        ...Object.keys(pkg.dependencies || {}).filter(
+          (item) => !item.startsWith('@scalar'),
         ),
       ],
       plugins: [

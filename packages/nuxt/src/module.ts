@@ -45,6 +45,19 @@ export default defineNuxtModule<ModuleOptions>({
      */
     _nuxt.options.build.transpile.push('yaml')
 
+    // Check if it exists and push else assign it
+    _nuxt.options.vite.optimizeDeps ||= {}
+    _nuxt.options.vite.optimizeDeps.include ||= []
+
+    // Ensure we transform these cjs dependencies, remove as they get converted to ejs
+    _nuxt.options.vite.optimizeDeps.include.push(
+      'debug',
+      'extend',
+      'prismjs',
+      'stringify-object',
+      'rehype-highlight',
+    )
+
     // Also check for Nitro OpenAPI auto generation
     _nuxt.hook('nitro:config', (config) => {
       if (config.experimental?.openAPI) isOpenApiEnabled = true
