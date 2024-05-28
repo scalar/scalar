@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 1.2.37
+
+### Patch Changes
+
+- d60cc10: fix: api client body on delete request
+
 ## 1.2.36
 
 ### Patch Changes

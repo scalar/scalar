@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.22.53
+
+### Patch Changes
+
+- 5a9c298: feat: move references css config to css layer
+- cad7eef: fix: small images destroy the layout
+- Updated dependencies [d60cc10]
+  - @scalar/api-client@1.2.37
+
 ## 1.22.52
 
 ### Patch Changes
