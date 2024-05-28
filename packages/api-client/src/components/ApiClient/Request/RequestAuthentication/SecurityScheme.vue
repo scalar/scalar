@@ -183,10 +183,9 @@ function authorizeWithPassword(
       })
     })
     .catch((response) => {
-      toast(
-        `Couldn’t retrieve the password grant token. Open your browser console to get more information.`,
-        'warn',
-      )
+      toast(`Couldn’t retrieve the password grant token`, 'warn', {
+        description: 'Open your browser console to get more information.',
+      })
       console.error('[authorizeWithPassword]', response)
     })
 }

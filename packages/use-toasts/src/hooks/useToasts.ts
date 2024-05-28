@@ -1,5 +1,6 @@
 export type ToastOptions = {
   timeout?: number
+  description?: string | null
 }
 
 export type ToastFunction = (
@@ -25,7 +26,7 @@ export function useToasts() {
     toast: (
       message: string,
       level: 'warn' | 'info' | 'error' = 'info',
-      options: ToastOptions = { timeout: 3000 },
+      options: ToastOptions = { timeout: 3000, description: null },
     ) => {
       state.toast(message, level, options)
     },
