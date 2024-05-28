@@ -26,7 +26,7 @@ export function useToasts() {
     toast: (
       message: string,
       level: 'warn' | 'info' | 'error' = 'info',
-      options: ToastOptions = { timeout: 3000, description: null },
+      options: ToastOptions = { timeout: 3000 },
     ) => {
       state.toast(message, level, options)
     },
