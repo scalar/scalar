@@ -145,6 +145,7 @@ onServerPrefetch(async () => await sleep(1))
   overflow: hidden;
   border-radius: var(--scalar-radius);
   max-width: 100%;
+  display: block;
 }
 /* Don't add margin to the first block */
 .markdown :deep(> :first-child) {
