@@ -21,7 +21,7 @@ initializeToasts((message, level = 'info', options: ToastOptions = {}) => {
 
   toastAction(message, {
     duration: options.timeout || 3000,
-    description: options.description ?? null,
+    description: options.description,
   })
 })
 </script>
