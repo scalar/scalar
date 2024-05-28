@@ -151,8 +151,3 @@ const { parsedSpec, rawSpec } = useReactiveSpec({
     <template #content-end><slot name="footer" /></template>
   </Layouts>
 </template>
-<style>
-body {
-  margin: 0;
-}
-</style>
