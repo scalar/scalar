@@ -1,5 +1,11 @@
 # @scalar/mock-server
 
+## 0.1.70
+
+### Patch Changes
+
+- 32b08ad: feat: http basic auth middleware
+
 ## 0.1.69
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.2.53
+
+### Patch Changes
+
+- 5a9c298: fix: apply docusaurus theme to body
+  - @scalar/api-reference-react@0.1.95
+
 ## 0.2.52
 
 ### Patch Changes
