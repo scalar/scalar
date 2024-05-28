@@ -155,7 +155,7 @@ function authorizeWithPassword(
   // TODO: Proxy this request
   fetch(
     options?.proxy
-      ? redirectToProxy(url.toString(), options?.proxy)
+      ? redirectToProxy(options?.proxy, url.toString())
       : url.toString(),
     {
       method: 'POST',
