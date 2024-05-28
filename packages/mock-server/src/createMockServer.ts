@@ -4,7 +4,13 @@ import { type Context, Hono } from 'hono'
 import { cors } from 'hono/cors'
 import type { StatusCode } from 'hono/utils/http-status'
 
-import { findPreferredResponseKey, routeFromPath } from './utils'
+import {
+  findPreferredResponseKey,
+  isAuthenticationRequired,
+  routeFromPath,
+} from './utils'
+import { anyBasicAuthentication } from './utils/anyBasicAuthentication'
+import { isBasicAuthenticationRequired } from './utils/isBasicAuthenticationRequired'
 
 /**
  * Create a mock server instance
@@ -46,9 +52,28 @@ export async function createMockServer(options?: {
 
   // Paths
   Object.keys(result.schema?.paths ?? {}).forEach((path) => {
-    // Request methods
+    // Operations
     Object.keys(result.schema?.paths?.[path] ?? {}).forEach((method) => {
       const route = routeFromPath(path)
+
+      // @ts-expect-error Needs a proper type
+      const operation = result.schema?.paths?.[path]?.[method]
+
+      // Check if authentication is required
+      const requiresAuthentication = isAuthenticationRequired(
+        operation.security,
+      )
+      // Get all available authentication methods
+      const requiresBasicAuthentication = isBasicAuthenticationRequired(
+        operation,
+        result?.schema,
+      )
+
+      // Add HTTP basic authentication
+      if (requiresAuthentication && requiresBasicAuthentication) {
+        // @ts-expect-error Needs a proper type
+        app[method](route, anyBasicAuthentication())
+      }
 
       // Route
       // @ts-expect-error Needs a proper type
@@ -57,15 +82,11 @@ export async function createMockServer(options?: {
         if (options?.onRequest) {
           options.onRequest({
             context: c,
-            // @ts-expect-error Needs a proper type
-            operation: result.schema.paths[path][method],
+            operation,
           })
         }
 
         // Response
-        // @ts-expect-error Needs a proper type
-        const operation = result.schema?.paths?.[path]?.[method]
-
         // default, 200, 201 …
         const preferredResponseKey = findPreferredResponseKey(
           Object.keys(operation.responses ?? {}),
