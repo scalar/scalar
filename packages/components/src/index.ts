@@ -10,6 +10,7 @@ import {
 import { ScalarFloating } from './components/ScalarFloating'
 import { type Icon, ScalarIcon } from './components/ScalarIcon'
 import { ScalarIconButton } from './components/ScalarIconButton'
+import { ScalarListbox } from './components/ScalarListbox'
 import { ScalarLoading, useLoadingState } from './components/ScalarLoading'
 import { ScalarModal, useModal } from './components/ScalarModal'
 import { ScalarPopover } from './components/ScalarPopover'
@@ -31,6 +32,7 @@ export default {
     app.component('ScalarIcon', ScalarIcon)
     app.component('ScalarIconButton', ScalarIconButton)
     app.component('ScalarLoading', ScalarLoading)
+    app.component('ScalarListbox', ScalarListbox)
     app.component('ScalarModal', ScalarModal)
     app.component('ScalarPopover', ScalarPopover)
     app.component('ScalarSearchInput', ScalarSearchInput)
