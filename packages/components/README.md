@@ -113,9 +113,10 @@ export const extend = {
 } as const
 ```
 
-## Todo
+## CSS Layers
 
-- documentation
-- github actions for lint, types, tests, build, npm deployment
-- implementation (can remove more base style here)
-- host storybook
+This package exports its' tailwind styles in the following CSS cascade layers to make them easy to overwrite.
+
+- `scalar-base`: reset and normalize
+- `scalar-components`: complex component styles
+- `scalar-utilities`: utility styles like `flex`

@@ -1,8 +1,6 @@
 import { defineConfig } from 'cva'
 import { extendTailwindMerge } from 'tailwind-merge'
 
-import { prefix } from '../postcss.config'
-
 /**
  * Tailwind Merge Config
  *
@@ -12,12 +10,10 @@ import { prefix } from '../postcss.config'
  *
  * https://github.com/dcastil/tailwind-merge/blob/v2.0.0/docs/configuration.md#class-groups
  */
-const tw = extendTailwindMerge<typeof prefix>({
+const tw = extendTailwindMerge({
   extend: {
     classGroups: {
       'font-size': ['text-xxs'],
-      // Add the scalar class prefix as a custom class to be deduped by tailwind-merge
-      [prefix]: [prefix],
     },
   },
 })
@@ -29,7 +25,7 @@ const tw = extendTailwindMerge<typeof prefix>({
  */
 const { cva, cx, compose } = defineConfig({
   hooks: {
-    onComplete: (className) => `${tw(className, prefix)}`,
+    onComplete: (className) => tw(className),
   },
 })
 

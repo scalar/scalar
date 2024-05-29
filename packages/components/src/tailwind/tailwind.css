@@ -1,6 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/**
+ * Put the Tailwind output into our Scalar cascade layers
+ *
+ * @see https://emamoah.medium.com/using-native-css-cascade-layers-with-tailwindcss-cb11af266104
+ */
+@import 'tailwindcss/base' layer(scalar-base);
+@import 'tailwindcss/components' layer(scalar-components);
+@import 'tailwindcss/utilities' layer(scalar-utilities);
 
 /** 
  * Custom Reset - copied over from the tailwind reset
@@ -8,7 +13,7 @@
  *
  * @link https://tailwindcss.com/docs/preflight 
  */
-@layer base {
+@layer scalar-base {
   * {
     box-sizing: border-box;
     border-width: 0;
@@ -27,7 +32,7 @@
   }
 }
 
-@layer utilities {
+@layer scalar-utilities {
   .row {
     @apply flex flex-row;
   }
