@@ -257,7 +257,14 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   margin-top: 6px;
   padding: 6px;
 
-  max-height: calc(((var(--full-height) - var(--refs-header-height))) / 2);
+  max-height: calc(
+    (
+        (
+            var(--full-height) - var(--scalar-y-offset) -
+              var(--refs-header-height)
+          ) - 60px
+      ) / 2
+  );
 
   font-size: var(--scalar-micro);
   border: 1px solid var(--scalar-border-color);

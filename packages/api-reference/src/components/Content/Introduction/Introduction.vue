@@ -92,6 +92,6 @@ const formattedSpecTitle = computed(() => {
   flex-direction: column;
 
   position: sticky;
-  top: calc(var(--refs-header-height) + 24px);
+  top: calc(var(--scalar-y-offset) + var(--refs-header-height) + 24px);
 }
 </style>

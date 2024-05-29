@@ -103,7 +103,7 @@ const customRequestExamples = computed(() => {
 <style scoped>
 .examples {
   position: sticky;
-  top: calc(var(--refs-header-height) + 24px);
+  top: calc(var(--scalar-y-offset) + var(--refs-header-height) + 24px);
 }
 .deprecated * {
   text-decoration: line-through;

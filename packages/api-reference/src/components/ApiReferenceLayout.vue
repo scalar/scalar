@@ -69,6 +69,20 @@ useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height + 'px'
 })
 
+const yPosition = ref(0)
+const yHeight = ref(0)
+const yParent = ref(0)
+onMounted(() => {
+  const pbcr = documentEl.value?.parentElement?.getBoundingClientRect()
+  const bcr = documentEl.value?.getBoundingClientRect()
+
+  if (pbcr && bcr) {
+    const difference = bcr.top - pbcr.top
+    yPosition.value = difference < 2 ? 0 : difference
+    yHeight.value = pbcr.height
+  }
+})
+
 const {
   breadcrumb,
   collapsedSidebarItems,
@@ -234,7 +248,10 @@ useDeprecationWarnings(props.configuration)
           scrollbars,
           $attrs.class,
         ]"
-        :style="{ '--full-height': elementHeight }"
+        :style="{
+          '--scalar-y-offset': `var(--scalar-custom-header-height, ${yPosition}px)`,
+          '--scalar-y-height': `${yHeight}px`,
+        }"
         @scroll.passive="debouncedScroll">
         <!-- Header -->
         <div class="references-header">
@@ -359,16 +376,9 @@ useDeprecationWarnings(props.configuration)
 /* References Layout */
 .references-layout {
   /* Try to fill the container */
-  height: 100dvh;
-  max-height: 100%;
-  width: 100dvw;
+  min-height: 100dvh;
+  min-width: 100%;
   max-width: 100%;
-  flex: 1;
-
-  /* Scroll vertically */
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-gutter: stable;
 
   /*
   Calculated by a resize observer and set in the style attribute
@@ -391,7 +401,7 @@ useDeprecationWarnings(props.configuration)
 .references-header {
   grid-area: header;
   position: sticky;
-  top: 0;
+  top: var(--scalar-y-offset, 0px);
   z-index: 10;
 
   height: var(--refs-header-height);
@@ -423,8 +433,9 @@ useDeprecationWarnings(props.configuration)
 }
 .references-navigation-list {
   position: sticky;
-  top: var(--refs-header-height);
-  height: calc(var(--full-height) - var(--refs-header-height));
+  top: calc(var(--scalar-y-offset) + var(--refs-header-height));
+  height: calc(100dvh - (var(--scalar-y-offset) + var(--refs-header-height)));
+  max-height: var(--scalar-y-height);
   background: var(--scalar-sidebar-background-1 var(--scalar-background-1));
   overflow-y: auto;
   display: flex;
@@ -484,6 +495,9 @@ useDeprecationWarnings(props.configuration)
   }
   .references-sidebar.references-sidebar-mobile-open {
     overflow-y: hidden;
+  }
+  .references-sidebar-mobile-open .references-header {
+    top: 0;
   }
   .references-editable {
     grid-template-areas:
