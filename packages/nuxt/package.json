@@ -20,7 +20,7 @@
     "testing",
     "vue"
   ],
-  "version": "0.0.66",
+  "version": "0.1.0",
   "engines": {
     "node": ">=18"
   },

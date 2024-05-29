@@ -1,5 +1,17 @@
 # @scalar/api-reference-react
 
+## 0.2.0
+
+### Minor Changes
+
+- 7d3bc16: feat: css files must be explicitly imported, check the docs
+
+### Patch Changes
+
+- Updated dependencies [7d3bc16]
+- Updated dependencies [7d3bc16]
+  - @scalar/api-reference@1.23.0
+
 ## 0.1.98
 
 ### Patch Changes

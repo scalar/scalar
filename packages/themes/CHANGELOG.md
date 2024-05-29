@@ -1,5 +1,16 @@
 # @scalar/themes
 
+## 0.8.0
+
+### Minor Changes
+
+- 7d3bc16: feat: css files must be explicitly imported, check the docs
+- 7d3bc16: BREAKING CHANGE: css must now be explicitly imported, see docs for more details
+
+### Patch Changes
+
+- a839889: fix: also use cascade layers for CSS reset to avoid overriding tailwind
+
 ## 0.7.11
 
 ### Patch Changes

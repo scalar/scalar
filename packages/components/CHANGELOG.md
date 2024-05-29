@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.9.0
+
+### Minor Changes
+
+- 7d3bc16: feat: css files must be explicitly imported, check the docs
+- 7d3bc16: BREAKING CHANGE: css must now be explicitly imported, see docs for more details
+
 ## 0.8.0
 
 ### Minor Changes
