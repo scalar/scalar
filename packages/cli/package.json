@@ -31,7 +31,8 @@
     "./dist"
   ],
   "bin": {
-    "scalar": "./dist/index.js"
+    "scalar": "./dist/index.js",
+    "scalar-cli": "./dist/index.js"
   },
   "dependencies": {
     "@clack/prompts": "^0.7.0",
