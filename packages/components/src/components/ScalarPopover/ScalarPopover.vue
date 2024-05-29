@@ -16,7 +16,7 @@ defineOptions({ inheritAttrs: false })
       </PopoverButton>
       <template #floating="{ width, height }">
         <PopoverPanel
-          class="scalar-component relative flex flex-col p-0.75"
+          class="relative flex flex-col p-0.75"
           :style="{ width, height }"
           v-bind="$attrs">
           <slot name="popover" />

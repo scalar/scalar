@@ -69,12 +69,12 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
 <template>
   <div
     ref="wrapperRef"
-    :class="['scalar-component', { contents: !!$slots.default }]">
+    :class="{ contents: !!$slots.default }">
     <slot />
   </div>
   <div
     ref="floatingRef"
-    class="scalar-component relative z-context"
+    class="relative z-context"
     :style="floatingStyles"
     v-bind="$attrs">
     <slot
