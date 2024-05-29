@@ -9,13 +9,18 @@ const DEFAULT_EXCLUDED_CLIENTS = {
 } as HiddenClients
 
 const excludedClients = ref<HiddenClients>({
-  ...DEFAULT_EXCLUDED_CLIENTS,
+  ...(DEFAULT_EXCLUDED_CLIENTS === true ? {} : DEFAULT_EXCLUDED_CLIENTS),
 })
 
 export function filterHiddenClients(
   targets: AvailableTarget[],
   exclude: Ref<HiddenClients>,
 ): AvailableTarget[] {
+  // Just remove all clients
+  if (exclude.value === true) {
+    return []
+  }
+
   return targets.flatMap((target: AvailableTarget) => {
     // NOTE: This is for backwards compatibility with the previous behavior,
     // If exclude is an array, it will exclude the matching clients from all targets.
@@ -28,6 +33,11 @@ export function filterHiddenClients(
       )
 
       return [target]
+    }
+
+    // Just to please TypeScript
+    if (typeof exclude.value !== 'object') {
+      return []
     }
 
     // Determine if the whole target (language) is to be excluded
