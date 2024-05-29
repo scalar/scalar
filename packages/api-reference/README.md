@@ -209,7 +209,7 @@ You can pass information to the config object to configure meta information out 
   } />
 ```
 
-#### hiddenClients?: array
+#### hiddenClients?: array | true
 
 You can pass an array of [httpsnippet clients](https://github.com/Kong/httpsnippet/wiki/Targets) to hide from the clients menu.
 
@@ -219,7 +219,13 @@ You can pass an array of [httpsnippet clients](https://github.com/Kong/httpsnipp
   } />
 ```
 
-By default hides Unirest, pass `[]` to show all clients
+By default hides Unirest, pass `[]` to **show** all clients or `true` to **hide** all clients:
+
+```vue
+<ApiReference :configuration="{
+  hiddenClients: true
+  } />
+```
 
 #### onSpecUpdate?: (spec: string) => void
 
