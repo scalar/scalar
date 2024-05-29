@@ -13,6 +13,9 @@ describe('ScalarListbox', () => {
           { id: '3', label: 'Option 3' },
         ],
       },
+      slots: {
+        default: `<button>Button</button>`,
+      },
     })
 
     expect(wrapper.exists()).toBeTruthy()
