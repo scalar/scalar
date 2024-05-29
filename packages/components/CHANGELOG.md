@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.8.0
+
+### Minor Changes
+
+- 18ecd33: refactor: remove component app install
+- 26e2392: refactor: remove :where prefix in favor of cascade layers
+
 ## 0.7.15
 
 ### Patch Changes
