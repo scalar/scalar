@@ -13,8 +13,8 @@ app.get('/live', (_request, reply) => {
   reply.sendFile('api-reference-cdn-live.html', { cacheControl: false }) // overriding the options disabling cache-control headers) // serving path.join(__dirname, 'public', 'myHtml.html') directly
 })
 
-app.get('/localhost', (_request, reply) => {
-  reply.sendFile('api-reference-cdn-localhost.html', { cacheControl: false }) // overriding the options disabling cache-control headers) // serving path.join(__dirname, 'public', 'myHtml.html') directly
+app.get('/local', (_request, reply) => {
+  reply.sendFile('api-reference-cdn-local.html', { cacheControl: false }) // overriding the options disabling cache-control headers) // serving path.join(__dirname, 'public', 'myHtml.html') directly
 })
 
 // Run the server!
