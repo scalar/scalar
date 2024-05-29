@@ -1,5 +1,11 @@
 # @scalar/api-client-proxy
 
+## 0.6.0
+
+### Minor Changes
+
+- 7d3bc16: feat: css files must be explicitly imported, check the docs
+
 ## 0.5.27
 
 ### Patch Changes

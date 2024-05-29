@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.23.0
+
+### Minor Changes
+
+- 7d3bc16: feat: css files must be explicitly imported, check the docs
+- 7d3bc16: BREAKING CHANGE: css must now be explicitly imported, see docs for more details
+
+### Patch Changes
+
+- Updated dependencies [7d3bc16]
+- Updated dependencies [7d3bc16]
+- Updated dependencies [a839889]
+  - @scalar/api-client@1.3.0
+  - @scalar/components@0.9.0
+  - @scalar/themes@0.8.0
+
 ## 1.22.56
 
 ### Patch Changes
