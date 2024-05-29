@@ -1,5 +1,3 @@
-import type { App } from 'vue'
-
 import { ScalarButton } from './components/ScalarButton'
 import { ScalarCodeBlock } from './components/ScalarCodeBlock'
 import {
@@ -20,25 +18,6 @@ import {
 } from './components/ScalarSearchResults'
 import { ScalarTextField } from './components/ScalarTextField'
 import './tailwind/tailwind.css'
-
-export default {
-  install: (app: App) => {
-    app.component('ScalarButton', ScalarButton)
-    app.component('ScalarDropdown', ScalarDropdown)
-    app.component('ScalarDropdownDivider', ScalarDropdownDivider)
-    app.component('ScalarDropdownItem', ScalarDropdownItem)
-    app.component('ScalarFloating', ScalarFloating)
-    app.component('ScalarIcon', ScalarIcon)
-    app.component('ScalarIconButton', ScalarIconButton)
-    app.component('ScalarLoading', ScalarLoading)
-    app.component('ScalarModal', ScalarModal)
-    app.component('ScalarPopover', ScalarPopover)
-    app.component('ScalarSearchInput', ScalarSearchInput)
-    app.component('ScalarSearchResultItem', ScalarSearchResultItem)
-    app.component('ScalarSearchResultList', ScalarSearchResultList)
-    app.component('ScalarTextField', ScalarTextField)
-  },
-}
 
 export {
   ScalarButton,
