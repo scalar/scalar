@@ -33,7 +33,7 @@ import {
   getApiClientRequest,
   sleep,
 } from '../../../helpers'
-import { useClipboard, useHttpClients } from '../../../hooks'
+import { useClipboard } from '../../../hooks'
 import { useHttpClientStore } from '../../../stores'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import ExamplePicker from './ExamplePicker.vue'
@@ -53,10 +53,13 @@ const generatedCode = ref<string>(ssrState[ssrStateKey] ?? '')
 const selectedExampleKey = ref<string>()
 
 const { copyToClipboard } = useClipboard()
-const { httpClient, setHttpClient, httpTargetTitle, httpClientTitle } =
-  useHttpClientStore()
-
-const { availableTargets } = useHttpClients()
+const {
+  httpClient,
+  setHttpClient,
+  availableTargets,
+  httpTargetTitle,
+  httpClientTitle,
+} = useHttpClientStore()
 
 const { server: serverState } = useServerStore()
 const { authentication: authenticationState } = useAuthenticationStore()

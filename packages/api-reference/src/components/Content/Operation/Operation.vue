@@ -2,6 +2,7 @@
 import type { TransformedOperation } from '@scalar/oas-utils'
 import { computed } from 'vue'
 
+import { useHttpClientStore } from '../../../stores'
 import { Anchor } from '../../Anchor'
 import { Badge } from '../../Badge'
 import {
@@ -22,6 +23,8 @@ const props = defineProps<{
   id?: string
   operation: TransformedOperation
 }>()
+
+const { availableTargets } = useHttpClientStore()
 
 const customRequestExamples = computed(() => {
   const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples']
@@ -75,7 +78,7 @@ const customRequestExamples = computed(() => {
               </template>
             </CustomRequestExamples>
             <ExampleRequest
-              v-else
+              v-else-if="availableTargets.length"
               :operation="operation">
               <template #header>
                 <EndpointPath

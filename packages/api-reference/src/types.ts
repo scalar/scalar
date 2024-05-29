@@ -26,6 +26,8 @@ export type ReferenceLayoutProps = {
 }
 
 export type HiddenClients =
+  // Just hide all
+  | true
   // Exclude whole targets or just specific clients
   | Partial<Record<TargetInfo['key'], boolean | ClientInfo['key'][]>>
   // Backwards compatibility with the previous behavior ['fetch', 'xhr']
