@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.22.54
+
+### Patch Changes
+
+- cc5402c: feat: OpenAuth 2.0 password grant
+- b3a46c7: fix: http client library default value ignores `hiddenClients` configuration
+- Updated dependencies [cc5402c]
+- Updated dependencies [cc5402c]
+  - @scalar/use-toasts@0.6.7
+  - @scalar/api-client@1.2.38
+  - @scalar/oas-utils@0.1.16
+  - @scalar/components@0.7.15
+
 ## 1.22.53
 
 ### Patch Changes
