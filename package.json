@@ -56,6 +56,7 @@
     "test": "vitest",
     "test:ci": "start-server-and-test 'pnpm dev:proxy-server & pnpm dev:echo-server' 'http://127.0.0.1:5051/ping|http://127.0.0.1:5052' 'CI=1 vitest --silent'",
     "test:e2e": "pnpm --filter playwright test:e2e",
+    "test:e2e:local": "pnpm --filter playwright test:e2e api-reference",
     "test:e2e:ui": "pnpm --filter playwright test:e2e:ui",
     "test:e2e:cdn": "pnpm --filter playwright test:e2e cdn",
     "test:e2e:themes": "pnpm --filter playwright test:e2e themes",
