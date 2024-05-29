@@ -34,7 +34,7 @@ export default defineConfig({
     emptyOutDir: false,
     outDir: 'dist/browser',
     commonjsOptions: {
-      include: [/@scalar\/swagger-editor/, /node_modules/],
+      include: [/node_modules/],
     },
     cssCodeSplit: false,
     minify: 'terser',
@@ -58,7 +58,7 @@ export default defineConfig({
         // Resolve the uncompiled source code for all @scalar packages
         // @scalar/* -> packages/*/
         // (not @scalar/*/style.css)
-        find: /^@scalar\/(?!(openapi-parser|snippetz|galaxy|components\/style\.css|components\b))(.+)/,
+        find: /^@scalar\/(?!(openapi-parser|snippetz\b))(.+)/,
         replacement: path.resolve(__dirname, '../$2/src/index.ts'),
       },
     ],
