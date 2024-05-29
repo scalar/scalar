@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.1.16
+
+### Patch Changes
+
+- cc5402c: feat: OpenAuth 2.0 password grant
+
 ## 0.1.15
 
 ### Patch Changes
