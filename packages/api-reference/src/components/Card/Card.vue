@@ -14,7 +14,12 @@
   display: flex;
   flex-direction: column;
   max-height: calc(
-    ((var(--full-height) - var(--refs-header-height)) - 60px) / 2
+    (
+        (
+            var(--full-height) - var(--scalar-y-offset) -
+              var(--refs-header-height)
+          ) - 60px
+      ) / 2
   );
   position: relative;
 }
