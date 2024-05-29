@@ -23,7 +23,7 @@
   "scripts": {
     "@scalar/cli": "pnpm vite-node src/index.ts",
     "build": "rm -Rf dist/ && tsc && rollup -c",
-    "cli:link": "pnpm run build && npm unlink -g && npm link",
+    "link:cli": "pnpm run build && npm unlink -g @scalar/cli && npm link",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
