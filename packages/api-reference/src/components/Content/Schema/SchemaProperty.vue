@@ -1,5 +1,11 @@
 <script lang="ts" setup>
 import { MarkdownRenderer } from '../../MarkdownRenderer'
+import {
+  SimpleCell,
+  SimpleHeader,
+  SimpleRow,
+  SimpleTable,
+} from '../../SimpleTable'
 import Schema from './Schema.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
@@ -115,14 +121,35 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     <div
       v-if="getEnumFromValue(value)?.length > 1"
       class="property-enum">
-      <ul class="property-enum-values">
-        <li
-          v-for="enumValue in getEnumFromValue(value)"
-          :key="enumValue"
-          class="property-enum-value">
-          {{ enumValue }}
-        </li>
-      </ul>
+      <template v-if="value?.['x-enumDescriptions']">
+        <SimpleTable>
+          <SimpleRow>
+            <SimpleHeader>Value</SimpleHeader>
+            <SimpleHeader>Description</SimpleHeader>
+          </SimpleRow>
+          <SimpleRow
+            v-for="enumValue in getEnumFromValue(value)"
+            :key="enumValue">
+            <SimpleCell>
+              {{ enumValue }}
+            </SimpleCell>
+            <SimpleCell>
+              <MarkdownRenderer
+                :value="value['x-enumDescriptions'][enumValue]" />
+            </SimpleCell>
+          </SimpleRow>
+        </SimpleTable>
+      </template>
+      <template v-else>
+        <ul class="property-enum-values">
+          <li
+            v-for="enumValue in getEnumFromValue(value)"
+            :key="enumValue"
+            class="property-enum-value">
+            {{ enumValue }}
+          </li>
+        </ul>
+      </template>
     </div>
     <!-- Object -->
     <div
