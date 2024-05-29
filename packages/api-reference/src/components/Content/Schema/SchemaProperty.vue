@@ -1,11 +1,5 @@
 <script lang="ts" setup>
 import { MarkdownRenderer } from '../../MarkdownRenderer'
-import {
-  SimpleCell,
-  SimpleHeader,
-  SimpleRow,
-  SimpleTable,
-} from '../../SimpleTable'
 import Schema from './Schema.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
@@ -122,23 +116,22 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       v-if="getEnumFromValue(value)?.length > 1"
       class="property-enum">
       <template v-if="value?.['x-enumDescriptions']">
-        <SimpleTable>
-          <SimpleRow>
-            <SimpleHeader>Value</SimpleHeader>
-            <SimpleHeader>Description</SimpleHeader>
-          </SimpleRow>
-          <SimpleRow
+        <div class="property-list">
+          <div
             v-for="enumValue in getEnumFromValue(value)"
-            :key="enumValue">
-            <SimpleCell>
-              {{ enumValue }}
-            </SimpleCell>
-            <SimpleCell>
+            :key="enumValue"
+            class="property">
+            <div class="property-heading">
+              <div class="property-name">
+                {{ enumValue }}
+              </div>
+            </div>
+            <div class="property-description">
               <MarkdownRenderer
                 :value="value['x-enumDescriptions'][enumValue]" />
-            </SimpleCell>
-          </SimpleRow>
-        </SimpleTable>
+            </div>
+          </div>
+        </div>
       </template>
       <template v-else>
         <ul class="property-enum-values">
@@ -306,5 +299,16 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
 .property--compact .property-example {
   display: none;
+}
+.property-list {
+  border: 1px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
+  margin-top: 10px;
+}
+.property-list .property:last-of-type {
+  padding-bottom: 10px;
+}
+.property-name {
+  font-family: var(--scalar-font-code);
 }
 </style>
