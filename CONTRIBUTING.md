@@ -57,3 +57,7 @@ Here are all the prefixes you need to know:
 | ci       | Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs) |
 | chore    | Other changes that don't modify src or test files                                                           |
 | revert   | Reverts a previous commit                                                                                   |
+
+## Styles and CSS Layers
+
+The Scalar packages use CSS cascade layers extensively to manage the priority of exported styles and to make it easy to override themes and component styles in projects consuming those packages. A load order for layers isn't specified by default because the contents layers have minimal overlap.
