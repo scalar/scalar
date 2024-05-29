@@ -151,7 +151,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
           </svg>
         </template>
       </div>
-      <span>More</span>
+      <span v-if="availableTargets.length">More</span>
     </div>
   </div>
 </template>
