@@ -18,7 +18,7 @@ Most packages have a bunch of tests, mostly for all the helper functions we use.
 
 It’s worth to check the tests locally before sending contributions: `$ pnpm test`
 
-If you want to add a test and only run your test file, you can filter the test suite like this:  `$ pnpm test your-test`
+If you want to add a test and only run your test file, you can filter the test suite like this: `$ pnpm test your-test`
 
 ### Testing the CLI
 
