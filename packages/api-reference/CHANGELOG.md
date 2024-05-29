@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.22.56
+
+### Patch Changes
+
+- 6c870da: fix: style x-enums
+
 ## 1.22.55
 
 ### Patch Changes
