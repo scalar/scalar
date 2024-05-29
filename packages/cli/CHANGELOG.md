@@ -1,5 +1,13 @@
 # @scalar/cli
 
+## 0.2.97
+
+### Patch Changes
+
+- 711a1da: chore: undo cli rename
+- Updated dependencies [6c870da]
+  - @scalar/api-reference@1.22.56
+
 ## 0.2.96
 
 ### Patch Changes
