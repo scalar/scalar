@@ -32,6 +32,7 @@
     ".": "./dist/index.js",
     "./base.css": "./dist/base.css",
     "./fonts.css": "./dist/fonts.css",
+    "./style.css": "./dist/style.css",
     "./presets/alternate.css": "./dist/presets/alternate.css",
     "./presets/default.css": "./dist/presets/default.css",
     "./presets/moon.css": "./dist/presets/moon.css",
@@ -48,7 +49,6 @@
     "@vitest/coverage-v8": "^1.5.0",
     "tsc-alias": "^1.8.8",
     "vite": "^5.2.10",
-    "vite-plugin-lib-inject-css": "^2.0.1",
     "vite-plugin-static-copy": "^1.0.2",
     "vitest": "^1.5.0",
     "vue-tsc": "^1.8.19"

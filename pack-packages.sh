@@ -13,7 +13,7 @@ cd ./packages
 CURRENT=$(pwd)
 echo "CURRENT: $CURRENT"
 
-disallowed=("cli/")
+disallowed=("cli/", "scalar.aspnetcore/", "scalar_fastapi/")
 
 # Loop over directories and pack
 pwd

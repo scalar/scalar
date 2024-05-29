@@ -21,6 +21,7 @@ npm install @scalar/api-reference
 ```vue
 <script setup>
 import { ApiReference } from '@scalar/api-reference'
+import '@scalar/api-reference/style.css'
 </script>
 
 <template>

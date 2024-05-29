@@ -2,20 +2,15 @@ import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
-import { libInjectCss } from 'vite-plugin-lib-inject-css'
 
 export default defineConfig({
-  plugins: [
-    react(),
-    libInjectCss(),
-    dts({ insertTypesEntry: true, rollupTypes: true }),
-  ],
+  plugins: [react(), dts({ insertTypesEntry: true, rollupTypes: true })],
   build: {
     lib: {
       // Could also be a dictionary or array of multiple entry points
       entry: './src/index.ts',
       name: '@scalar/api-reference-react',
-      formats: ['es', 'cjs'],
+      formats: ['es'],
       fileName: 'index',
     },
     rollupOptions: {
