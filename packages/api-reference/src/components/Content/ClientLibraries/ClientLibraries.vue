@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { useHttpClients } from '../../../hooks'
 import { useHttpClientStore } from '../../../stores'
 import ClientSelector from './ClientSelector.vue'
 
-const { httpTargetTitle, httpClientTitle } = useHttpClientStore()
-const { availableTargets } = useHttpClients()
+const { availableTargets, httpTargetTitle, httpClientTitle } =
+  useHttpClientStore()
 </script>
 <template>
   <div>

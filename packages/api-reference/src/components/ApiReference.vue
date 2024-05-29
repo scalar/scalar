@@ -4,7 +4,8 @@ import { migrateThemeVariables } from '@scalar/themes'
 import { createHead, useSeoMeta } from 'unhead'
 import { computed, toRef, watch } from 'vue'
 
-import { useDarkModeState, useHttpClients, useReactiveSpec } from '../hooks'
+import { useDarkModeState, useReactiveSpec } from '../hooks'
+import { useHttpClientStore } from '../stores'
 import type { ReferenceConfiguration, ReferenceProps } from '../types'
 import Layouts from './Layouts/'
 
@@ -77,7 +78,7 @@ const { setAuthentication } = useAuthenticationStore()
 mapConfigToState('authentication', setAuthentication)
 
 // Hides any client snippets from the references
-const { setExcludedClients } = useHttpClients()
+const { setExcludedClients } = useHttpClientStore()
 mapConfigToState('hiddenClients', setExcludedClients)
 
 const { parsedSpec, rawSpec } = useReactiveSpec({

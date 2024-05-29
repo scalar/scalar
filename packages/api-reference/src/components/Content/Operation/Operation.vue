@@ -2,7 +2,7 @@
 import type { TransformedOperation } from '@scalar/oas-utils'
 import { computed } from 'vue'
 
-import { useHttpClients } from '../../../hooks'
+import { useHttpClientStore } from '../../../stores'
 import { Anchor } from '../../Anchor'
 import { Badge } from '../../Badge'
 import {
@@ -24,7 +24,7 @@ const props = defineProps<{
   operation: TransformedOperation
 }>()
 
-const { availableTargets } = useHttpClients()
+const { availableTargets } = useHttpClientStore()
 
 const customRequestExamples = computed(() => {
   const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples']
