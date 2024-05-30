@@ -14,10 +14,10 @@ export default {
         'rule::selector': 'svg',
         // Don't allow extraneous attributes
         'rule::whitelist': true,
-        // ViewBox and namespace must be set
-        'viewBox': /^0 0 \d+ \d+$/,
+        // ViewBox must be square and namespace must be set
+        'viewBox': /^0 0 (\d+) \1$/,
         'xmlns': 'http://www.w3.org/2000/svg',
-        // Require fill property
+        // Require fill property on <svg> tag
         'fill': true,
         // Allow stroke properties
         'stroke?': true,
@@ -28,7 +28,7 @@ export default {
         'height': false,
       },
       {
-        // Require fills to be `none` or `currentColor`
+        // Require fills to be either `none` or `currentColor`
         'rule::selector': '[fill]',
         'fill': ['currentColor', 'none'],
       },
