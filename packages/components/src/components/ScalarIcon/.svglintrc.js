@@ -3,6 +3,9 @@ export default {
     elm: {
       // Only allow one <svg> node
       svg: 1,
+      // Don't allow certain elements
+      clipPath: false,
+      desc: false,
     },
     attr: [
       {
@@ -23,6 +26,17 @@ export default {
         // Make sure the svg is responsive
         'width': false,
         'height': false,
+      },
+      {
+        // Ensure that the SVG children have appropriate attributes
+        'rule::selector': 'svg *',
+        // Allow fill and stroke properties
+        'fill?': ['currentColor', 'none'],
+        'stroke?': 'currentColor',
+        'stroke-linecap?': 'round',
+        'stroke-linejoin?': 'round',
+        // Make sure to not override stroke width
+        'stroke-width': false,
       },
     ],
   },
