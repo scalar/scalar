@@ -51,7 +51,7 @@ export default defineConfig({
                     return
 
                   setTimeout(() => {
-                    if (getComputedStyle(document.body).getPropertyValue('${STYLE_LOADED_VAR}') === 'true') return 
+                    if (getComputedStyle(document.body).getPropertyValue('${STYLE_LOADED_VAR}') === 'true') return
 
                     const elementStyle = document.createElement('style')
                     elementStyle.setAttribute('id', '${STYLE_ID}')
@@ -82,7 +82,7 @@ export default defineConfig({
         // Resolve the uncompiled source code for all @scalar packages
         // @scalar/* -> packages/*/
         // (not @scalar/*/style.css)
-        find: /^@scalar\/(?!(openapi-parser|snippetz|galaxy|themes\/style.css|components\/style\.css|components\b))(.+)/,
+        find: /^@scalar\/(?!(openapi-parser|snippetz|galaxy|components))([^\/]+)(?<!\/[^\/]+\.css)$/,
         replacement: path.resolve(__dirname, '../$2/src/index.ts'),
       },
     ],
