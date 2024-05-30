@@ -1,4 +1,3 @@
-import { encode } from 'punycode'
 import { describe, expect, it } from 'vitest'
 
 import { sendRequest } from './sendRequest'

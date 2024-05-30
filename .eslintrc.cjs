@@ -28,6 +28,7 @@ module.exports = {
     '**/tailwind.config.ts',
     '**/vite.standalone.config.ts',
     '**/cdn/**',
+    '**/hydrateClient.d.ts',
   ],
   rules: {
     // ---------------------------------------------------------------------------

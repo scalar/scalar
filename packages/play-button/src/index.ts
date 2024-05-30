@@ -35,22 +35,6 @@ const getSpecUrl = () => {
   return undefined
 }
 
-const getProxyUrl = () => {
-  // <script id="api-reference" data-proxy-url="https://proxy.scalar.com">…</script>
-  if (specScriptTag) {
-    const proxyUrl = specScriptTag.getAttribute('data-proxy-url')
-
-    if (proxyUrl) {
-      return proxyUrl.trim()
-    }
-  }
-
-  return undefined
-}
-
-// Ensure Reference Props are reactive
-const props = reactive({})
-
 if (!specUrlElement && !specElement && !specScriptTag) {
   console.error(
     'Couldn’t find a [data-spec], [data-spec-url] or <script id="api-reference" /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
