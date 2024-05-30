@@ -192,6 +192,15 @@ describe('getRequestBodyFromOperation', () => {
             'application/json': {
               schema: {
                 type: 'object',
+                required: [
+                  'recordString',
+                  'recordInteger',
+                  'recordArray',
+                  'recordBoolean',
+                  'recordNullable',
+                  'recordObject',
+                  'recordWithoutAdditionalProperties',
+                ],
                 properties: {
                   recordString: {
                     type: 'object',
