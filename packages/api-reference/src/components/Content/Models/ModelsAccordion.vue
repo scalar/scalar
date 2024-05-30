@@ -63,9 +63,8 @@ const { getModelId } = useNavState()
           :key="property"
           :name="property"
           :required="
-            schema.required &&
-            !!schema.required.length &&
-            schema.required.includes(property)
+            schema.required?.includes(property) ||
+            schema.properties?.[property]?.required === true
           "
           :value="value as OpenAPIV3_1.SchemaObject['properties']" />
       </div>

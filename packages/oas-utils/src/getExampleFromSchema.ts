@@ -61,6 +61,10 @@ export const getExampleFromSchema = (
      * Dynamic values to add to the example.
      */
     variables?: Record<string, any>
+    /**
+     * Whether to omit empty and optional properties.
+     */
+    omitEmptyAndOptionalProperties?: boolean
   },
   level: number = 0,
   parentSchema?: Record<string, any>,
@@ -163,9 +167,11 @@ export const getExampleFromSchema = (
     } else if (schema.allOf !== undefined) {
       Object.assign(
         response,
-        ...schema.allOf.map((item: Record<string, any>) =>
-          getExampleFromSchema(item, options, level + 1, schema),
-        ),
+        ...schema.allOf
+          .map((item: Record<string, any>) =>
+            getExampleFromSchema(item, options, level + 1, schema),
+          )
+          .filter((item: any) => item !== undefined),
       )
     }
 
@@ -200,13 +206,15 @@ export const getExampleFromSchema = (
         return null
       }
       // Otherwise, add an example of key-value pair
+      const someKey = getExampleFromSchema(
+        schema.additionalProperties,
+        options,
+        level + 1,
+      )
+
       return {
         ...response,
-        someKey: getExampleFromSchema(
-          schema.additionalProperties,
-          options,
-          level + 1,
-        ),
+        ...(someKey !== undefined ? { someKey } : {}),
       }
     }
 
@@ -240,9 +248,11 @@ export const getExampleFromSchema = (
           : // Use all items
             schema.items[rule]
 
-        const exampleFromRule = schemas.map((item: Record<string, any>) =>
-          getExampleFromSchema(item, options, level + 1, schema),
-        )
+        const exampleFromRule = schemas
+          .map((item: Record<string, any>) =>
+            getExampleFromSchema(item, options, level + 1, schema),
+          )
+          .filter((item: any) => item !== undefined)
 
         return wrapItems
           ? [{ [itemsXmlTagName]: exampleFromRule }]
@@ -276,12 +286,14 @@ export const getExampleFromSchema = (
   }
 
   if (schema.type !== undefined && exampleValues[schema.type] !== undefined) {
-    const isRequired =
-      schema.required === true ||
-      parentSchema?.required?.includes(name ?? schema.name)
+    if (options?.omitEmptyAndOptionalProperties === true) {
+      const isRequired =
+        schema.required === true ||
+        parentSchema?.required?.includes(name ?? schema.name)
 
-    if (!isRequired) {
-      return undefined
+      if (!isRequired) {
+        return undefined
+      }
     }
 
     return exampleValues[schema.type]

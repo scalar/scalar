@@ -103,7 +103,7 @@ const handleClick = (e: MouseEvent) =>
                 :name="property"
                 :required="
                   value.required?.includes(property) ||
-                  value.properties[property].required
+                  value.properties?.[property]?.required === true
                 "
                 :value="value.properties?.[property]" />
             </template>

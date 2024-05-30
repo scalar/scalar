@@ -37,30 +37,35 @@ describe('getExampleFromSchema', () => {
 
   it('only includes required attributes and attributes with example values', () => {
     expect(
-      getExampleFromSchema({
-        type: 'object',
-        required: ['first_name'],
-        properties: {
-          first_name: {
-            type: 'string',
-          },
-          last_name: {
-            type: 'string',
-            required: true,
-          },
-          position: {
-            type: 'string',
-            examples: ['Developer'],
-          },
-          description: {
-            type: 'string',
-            example: 'A developer',
-          },
-          age: {
-            type: 'number',
+      getExampleFromSchema(
+        {
+          type: 'object',
+          required: ['first_name'],
+          properties: {
+            first_name: {
+              type: 'string',
+            },
+            last_name: {
+              type: 'string',
+              required: true,
+            },
+            position: {
+              type: 'string',
+              examples: ['Developer'],
+            },
+            description: {
+              type: 'string',
+              example: 'A developer',
+            },
+            age: {
+              type: 'number',
+            },
           },
         },
-      }),
+        {
+          omitEmptyAndOptionalProperties: true,
+        },
+      ),
     ).toStrictEqual({
       first_name: '',
       last_name: '',
