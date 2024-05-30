@@ -10,7 +10,6 @@ import { ScalarIcon } from '@scalar/components'
 import { ResetStyles } from '@scalar/themes'
 import { computed, ref } from 'vue'
 
-import { Badge } from '../../../Badge'
 import CardFormButton from './CardFormButton.vue'
 
 const props = defineProps<{

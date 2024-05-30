@@ -28,10 +28,10 @@ defineEmits<{
         variant="text"
         @click="$emit('update:showDescription', !showDescription)">
         <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
+          fill="currentColor"
           height="12"
-          fill="currentColor">
+          width="18"
+          xmlns="http://www.w3.org/2000/svg">
           <path d="M0 11h9v-1H0v1ZM0 0v1h18V0H0Zm0 6h18V5H0v1Z" />
         </svg>
       </ScalarButton>
