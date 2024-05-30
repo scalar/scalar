@@ -15,7 +15,7 @@ export default {
         // Don't allow extraneous attributes
         'rule::whitelist': true,
         // ViewBox and namespace must be set
-        'viewBox': true,
+        'viewBox': /^0 0 \d+ \d+$/,
         'xmlns': 'http://www.w3.org/2000/svg',
         // Require fill property
         'fill': true,
