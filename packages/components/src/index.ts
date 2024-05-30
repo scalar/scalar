@@ -29,6 +29,7 @@ export {
   ScalarFloating,
   ScalarIcon,
   ScalarIconButton,
+  ScalarListbox,
   ScalarLoading,
   ScalarModal,
   ScalarPopover,
