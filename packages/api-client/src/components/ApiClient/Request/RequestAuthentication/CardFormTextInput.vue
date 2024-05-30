@@ -91,5 +91,6 @@ defineOptions({
   height: 24px;
   width: auto;
   align-self: center;
+  stroke-width: 0.75;
 }
 </style>
