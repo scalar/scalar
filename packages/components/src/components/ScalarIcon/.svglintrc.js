@@ -1,12 +1,28 @@
+const fillOpts = {
+  'fill?': true,
+  'fill-rule?': true,
+  'clip-rule?': true,
+}
+
+const strokeOpts = {
+  'stroke?': true,
+  'stroke-linecap?': true,
+  'stroke-linejoin?': true,
+}
+
 export default {
   rules: {
     elm: {
       // Only allow one <svg> node
-      svg: 1,
-      // Don't allow certain elements
-      clipPath: false,
-      desc: false,
-      g: false,
+      'svg': 1,
+      // Allow up to one <title>
+      'title': [0, 1],
+      // Allow shape elements
+      'path': [0, 999],
+      'rect': [0, 999],
+      'circle': [0, 999],
+      // Don't allow other elements
+      '*': false,
     },
     attr: [
       {
@@ -20,12 +36,48 @@ export default {
         // Require fill property on <svg> tag
         'fill': true,
         // Allow stroke properties
-        'stroke?': true,
-        'stroke-linecap?': true,
-        'stroke-linejoin?': true,
+        ...strokeOpts,
         // Make sure the svg is responsive
         'width': false,
         'height': false,
+      },
+      {
+        // Ensure that path elements have the appropriate attributes
+        'rule::selector': 'path',
+        // Don't allow extraneous attributes
+        'rule::whitelist': true,
+        // Require a path definition
+        'd': true,
+        // Allow fill and stroke properties
+        ...fillOpts,
+        ...strokeOpts,
+      },
+      {
+        // Ensure that circle elements have the appropriate attributes
+        'rule::selector': 'circle',
+        // Don't allow extraneous attributes
+        'rule::whitelist': true,
+        // Require a circle definition
+        'cx': true,
+        'cy': true,
+        'r': true,
+        // Allow fill and stroke properties
+        ...fillOpts,
+        ...strokeOpts,
+      },
+      {
+        // Ensure that rectangle elements have the appropriate attributes
+        'rule::selector': 'rect',
+        // Don't allow extraneous attributes
+        'rule::whitelist': true,
+        // Require a rectangle definition
+        'x': true,
+        'y': true,
+        'width': true,
+        'height': true,
+        // Allow fill and stroke properties
+        ...fillOpts,
+        ...strokeOpts,
       },
       {
         // Require fills to be either `none` or `currentColor`
@@ -38,7 +90,10 @@ export default {
         'stroke': 'currentColor',
         'stroke-linecap': 'round',
         'stroke-linejoin': 'round',
+      },
+      {
         // Make sure to not override stroke width
+        'rule::selector': '*',
         'stroke-width': false,
       },
     ],
