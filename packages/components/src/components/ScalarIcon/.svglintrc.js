@@ -17,12 +17,10 @@ export default {
         'viewBox': true,
         'xmlns': 'http://www.w3.org/2000/svg',
         // Allow fill and stroke properties
-        'fill?': ['currentColor', 'none'],
+        'fill': ['currentColor', 'none'],
         'stroke?': 'currentColor',
         'stroke-linecap?': 'round',
         'stroke-linejoin?': 'round',
-        // Make sure to not override stroke width
-        'stroke-width': false,
         // Make sure the svg is responsive
         'width': false,
         'height': false,
