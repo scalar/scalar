@@ -1,5 +1,38 @@
 # @scalar/cli
 
+## 0.2.98
+
+### Patch Changes
+
+- Updated dependencies [7d3bc16]
+- Updated dependencies [7d3bc16]
+  - @scalar/api-reference@1.23.0
+
+## 0.2.97
+
+### Patch Changes
+
+- 711a1da: chore: undo cli rename
+- Updated dependencies [6c870da]
+  - @scalar/api-reference@1.22.56
+
+## 0.2.96
+
+### Patch Changes
+
+- @scalar/api-reference@1.22.55
+
+## 0.2.95
+
+### Patch Changes
+
+- e45d715: chore: provide alternative name for the CLI (`scalar-cli`)
+- Updated dependencies [cc5402c]
+- Updated dependencies [b3a46c7]
+  - @scalar/api-reference@1.22.54
+  - @scalar/oas-utils@0.1.16
+  - @scalar/mock-server@0.1.71
+
 ## 0.2.94
 
 ### Patch Changes

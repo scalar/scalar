@@ -5,13 +5,16 @@ import type { AvailableTarget } from 'httpsnippet-lite/dist/types/helpers/utils'
 import type { ClientInfo } from 'httpsnippet-lite/dist/types/targets/targets'
 import { ref } from 'vue'
 
-import { useHttpClients } from '../../../hooks'
 import { type HttpClientState, useHttpClientStore } from '../../../stores'
 
 // Use the template store to keep it accessible globally
-const { httpClient, setHttpClient, getClientTitle, getTargetTitle } =
-  useHttpClientStore()
-const { availableTargets } = useHttpClients()
+const {
+  httpClient,
+  setHttpClient,
+  availableTargets,
+  getClientTitle,
+  getTargetTitle,
+} = useHttpClientStore()
 
 const containerRef = ref<HTMLElement>()
 
@@ -151,7 +154,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
           </svg>
         </template>
       </div>
-      <span>More</span>
+      <span v-if="availableTargets.length">More</span>
     </div>
   </div>
 </template>

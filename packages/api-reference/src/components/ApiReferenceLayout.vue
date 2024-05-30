@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
+import '@scalar/components/style.css'
 import { type SSRState, defaultStateFactory } from '@scalar/oas-utils'
 import {
   ResetStyles,
@@ -7,6 +8,7 @@ import {
   type ThemeId,
   ThemeStyles,
 } from '@scalar/themes'
+import '@scalar/themes/style.css'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
@@ -331,6 +333,12 @@ useDeprecationWarnings(props.configuration)
   </ResetStyles>
   <ScalarToasts />
 </template>
+<style>
+/** Used to check if css is loaded */
+:root {
+  --scalar-loaded-api-reference: true;
+}
+</style>
 <style scoped>
 /* Configurable Layout Variables */
 @layer scalar-config {

@@ -1,5 +1,30 @@
 # @scalar/api-client-react
 
+## 0.4.0
+
+### Minor Changes
+
+- 7d3bc16: feat: css files must be explicitly imported, check the docs
+
+### Patch Changes
+
+- Updated dependencies [7d3bc16]
+- Updated dependencies [7d3bc16]
+  - @scalar/api-client@1.3.0
+
+## 0.3.39
+
+### Patch Changes
+
+- @scalar/api-client@1.2.39
+
+## 0.3.38
+
+### Patch Changes
+
+- Updated dependencies [cc5402c]
+  - @scalar/api-client@1.2.38
+
 ## 0.3.37
 
 ### Patch Changes

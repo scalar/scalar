@@ -20,7 +20,7 @@
     "testing",
     "vue"
   ],
-  "version": "0.0.63",
+  "version": "0.1.0",
   "engines": {
     "node": ">=18"
   },
@@ -51,6 +51,7 @@
   ],
   "dependencies": {
     "@nuxt/kit": "^3.11.2",
+    "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*"
   },
   "devDependencies": {

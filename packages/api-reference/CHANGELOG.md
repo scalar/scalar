@@ -1,5 +1,49 @@
 # @scalar/api-reference
 
+## 1.23.0
+
+### Minor Changes
+
+- 7d3bc16: feat: css files must be explicitly imported, check the docs
+- 7d3bc16: BREAKING CHANGE: css must now be explicitly imported, see docs for more details
+
+### Patch Changes
+
+- Updated dependencies [7d3bc16]
+- Updated dependencies [7d3bc16]
+- Updated dependencies [a839889]
+  - @scalar/api-client@1.3.0
+  - @scalar/components@0.9.0
+  - @scalar/themes@0.8.0
+
+## 1.22.56
+
+### Patch Changes
+
+- 6c870da: fix: style x-enums
+
+## 1.22.55
+
+### Patch Changes
+
+- Updated dependencies [18ecd33]
+- Updated dependencies [26e2392]
+  - @scalar/components@0.8.0
+  - @scalar/api-client@1.2.39
+
+## 1.22.54
+
+### Patch Changes
+
+- cc5402c: feat: OpenAuth 2.0 password grant
+- b3a46c7: fix: http client library default value ignores `hiddenClients` configuration
+- Updated dependencies [cc5402c]
+- Updated dependencies [cc5402c]
+  - @scalar/use-toasts@0.6.7
+  - @scalar/api-client@1.2.38
+  - @scalar/oas-utils@0.1.16
+  - @scalar/components@0.7.15
+
 ## 1.22.53
 
 ### Patch Changes

@@ -56,4 +56,5 @@ Temporary Items
 .apdisk
 
 src/runtime/plugins/hydrateClient.d.ts
+src/runtime/plugins/hydrateClient.d.mts
 src/runtime/plugins/hydrateClient.mjs

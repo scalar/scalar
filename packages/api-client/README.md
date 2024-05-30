@@ -16,6 +16,7 @@ npm install @scalar/api-client
 ```vue
 <script setup>
 import { ApiClient } from '@scalar/api-client'
+import '@scalar/api-client/style.css'
 </script>
 
 <template>

@@ -115,14 +115,34 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     <div
       v-if="getEnumFromValue(value)?.length > 1"
       class="property-enum">
-      <ul class="property-enum-values">
-        <li
-          v-for="enumValue in getEnumFromValue(value)"
-          :key="enumValue"
-          class="property-enum-value">
-          {{ enumValue }}
-        </li>
-      </ul>
+      <template v-if="value?.['x-enumDescriptions']">
+        <div class="property-list">
+          <div
+            v-for="enumValue in getEnumFromValue(value)"
+            :key="enumValue"
+            class="property">
+            <div class="property-heading">
+              <div class="property-name">
+                {{ enumValue }}
+              </div>
+            </div>
+            <div class="property-description">
+              <MarkdownRenderer
+                :value="value['x-enumDescriptions'][enumValue]" />
+            </div>
+          </div>
+        </div>
+      </template>
+      <template v-else>
+        <ul class="property-enum-values">
+          <li
+            v-for="enumValue in getEnumFromValue(value)"
+            :key="enumValue"
+            class="property-enum-value">
+            {{ enumValue }}
+          </li>
+        </ul>
+      </template>
     </div>
     <!-- Object -->
     <div
@@ -279,5 +299,16 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
 .property--compact .property-example {
   display: none;
+}
+.property-list {
+  border: 1px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
+  margin-top: 10px;
+}
+.property-list .property:last-of-type {
+  padding-bottom: 10px;
+}
+.property-name {
+  font-family: var(--scalar-font-code);
 }
 </style>

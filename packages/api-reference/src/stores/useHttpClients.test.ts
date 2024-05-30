@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
 
-import { filterHiddenClients } from './useHttpClients'
+import { filterHiddenClients } from './useHttpClientStore'
 
-describe('useHttpClients', () => {
+describe('useHttpClientStore', () => {
   it('filters hidden targets', () => {
     expect(
       filterHiddenClients(

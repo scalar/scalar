@@ -193,11 +193,12 @@ Install them via `npm`:
 npm install @scalar/api-reference
 ```
 
-And import the `ApiReference` component to your app:
+And import the `ApiReference` component and style to your app:
 
 ```vue
 <script setup lang="ts">
 import { ApiReference } from '@scalar/api-reference'
+import '@scalar/api-reference/style.css'
 </script>
 
 <template>
@@ -218,6 +219,7 @@ We have created a client side wrapper in React:
 
 ```ts
 import { ApiReferenceReact } from '@scalar/api-reference-react'
+import '@scalar/api-reference-react/style.css'
 import React from 'react'
 
 function App() {
@@ -455,7 +457,7 @@ use aide::{
 `go-scalar-api-reference` by [@MarceloPetrucio](https://github.com/MarceloPetrucio/) offers a convenient way to generate
 API references in Go:
 
-https://github.com/MarceloPetrucio/go-scalar-api-reference/
+<https://github.com/MarceloPetrucio/go-scalar-api-reference/>
 
 ### Free Hosting
 

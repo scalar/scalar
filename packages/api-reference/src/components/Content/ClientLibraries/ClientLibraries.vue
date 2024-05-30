@@ -1,22 +1,24 @@
 <script setup lang="ts">
 import { useHttpClientStore } from '../../../stores'
-import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import ClientSelector from './ClientSelector.vue'
 
-const { httpTargetTitle, httpClientTitle } = useHttpClientStore()
+const { availableTargets, httpTargetTitle, httpClientTitle } =
+  useHttpClientStore()
 </script>
 <template>
   <div>
-    <div class="client-libraries-heading">Client Libraries</div>
-    <div>
-      <ClientSelector />
-    </div>
-    <div
-      class="selected-client card-footer"
-      muted>
-      {{ httpClientTitle }}
-      {{ httpTargetTitle }}
-    </div>
+    <template v-if="availableTargets.length">
+      <div class="client-libraries-heading">Client Libraries</div>
+      <div>
+        <ClientSelector />
+      </div>
+      <div
+        class="selected-client card-footer"
+        muted>
+        {{ httpClientTitle }}
+        {{ httpTargetTitle }}
+      </div>
+    </template>
   </div>
 </template>
 <style scoped>

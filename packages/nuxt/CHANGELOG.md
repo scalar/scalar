@@ -1,5 +1,39 @@
 # @scalar/nuxt
 
+## 0.1.0
+
+### Minor Changes
+
+- 7d3bc16: feat: css files must be explicitly imported, check the docs
+
+### Patch Changes
+
+- Updated dependencies [7d3bc16]
+- Updated dependencies [7d3bc16]
+  - @scalar/api-reference@1.23.0
+  - @scalar/api-client@1.3.0
+
+## 0.0.66
+
+### Patch Changes
+
+- Updated dependencies [6c870da]
+  - @scalar/api-reference@1.22.56
+
+## 0.0.65
+
+### Patch Changes
+
+- @scalar/api-reference@1.22.55
+
+## 0.0.64
+
+### Patch Changes
+
+- Updated dependencies [cc5402c]
+- Updated dependencies [b3a46c7]
+  - @scalar/api-reference@1.22.54
+
 ## 0.0.63
 
 ### Patch Changes

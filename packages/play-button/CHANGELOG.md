@@ -1,5 +1,43 @@
 # @scalar/play-button
 
+## 0.1.0
+
+### Minor Changes
+
+- 7d3bc16: feat: css files must be explicitly imported, check the docs
+
+### Patch Changes
+
+- Updated dependencies [7d3bc16]
+- Updated dependencies [7d3bc16]
+- Updated dependencies [a839889]
+  - @scalar/api-reference@1.23.0
+  - @scalar/api-client@1.3.0
+  - @scalar/themes@0.8.0
+
+## 0.0.31
+
+### Patch Changes
+
+- Updated dependencies [6c870da]
+  - @scalar/api-reference@1.22.56
+
+## 0.0.30
+
+### Patch Changes
+
+- @scalar/api-client@1.2.39
+- @scalar/api-reference@1.22.55
+
+## 0.0.29
+
+### Patch Changes
+
+- Updated dependencies [cc5402c]
+- Updated dependencies [b3a46c7]
+  - @scalar/api-reference@1.22.54
+  - @scalar/api-client@1.2.38
+
 ## 0.0.28
 
 ### Patch Changes

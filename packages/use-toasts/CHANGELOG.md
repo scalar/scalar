@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.6.7
+
+### Patch Changes
+
+- cc5402c: feat: support for descriptions
+
 ## 0.6.6
 
 ### Patch Changes

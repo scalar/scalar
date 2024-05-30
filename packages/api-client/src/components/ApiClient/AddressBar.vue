@@ -256,7 +256,7 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
   /* Firefox supports */
   scroll-timeline: --scroll-timeline horizontal;
 }
-.url-form-input {
+.url-form-input-wrapper .url-form-input {
   background: var(--scalar-background-1);
   color: var(--scalar-color-1);
   font-weight: var(--scalar-semibold);

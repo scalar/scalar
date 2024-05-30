@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+import { apiReference } from './api-reference-ui-test'
+
 const HOST = process.env.HOST || 'localhost'
 
 test('Renders scalar/galaxy api reference from the live CDN', async ({
@@ -8,23 +10,7 @@ test('Renders scalar/galaxy api reference from the live CDN', async ({
 }) => {
   await page.goto(`http://${HOST}:3173/live`)
 
-  // Check for basic elements on the page
-  // The heading
-  await expect(
-    page.getByRole('heading', { name: 'Scalar Galaxy' }),
-  ).toBeVisible()
-  // Body Text
-  await expect(page.getByText('The Scalar Galaxy')).toBeVisible()
-  // http client
-  await expect(page.getByText('Client Libraries')).toBeVisible()
-
-  // Check for elements that are only visible on desktop
-  if (!isMobile) {
-    // Sidebar
-    await expect(
-      page.getByRole('link', { name: 'Planets', exact: true }),
-    ).toBeVisible()
-  }
+  await apiReference(page, isMobile)
 
   // TODO: fix the dev workflow
   /** Visual Regression Testing

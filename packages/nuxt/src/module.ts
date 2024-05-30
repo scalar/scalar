@@ -39,8 +39,11 @@ export default defineNuxtModule<ModuleOptions>({
     const resolver = createResolver(import.meta.url)
     let isOpenApiEnabled = false
 
-    // Ensure we transpile api-reference css
-    _nuxt.options.build.transpile.push('@scalar/api-reference')
+    /**
+     * Ensure we transpile yaml
+     * @see https://github.com/eemeli/yaml/issues/394#issuecomment-1151577111
+     */
+    _nuxt.options.build.transpile.push('yaml')
 
     // Check if it exists and push else assign it
     _nuxt.options.vite.optimizeDeps ||= {}
@@ -50,6 +53,7 @@ export default defineNuxtModule<ModuleOptions>({
     _nuxt.options.vite.optimizeDeps.include.push(
       'debug',
       'extend',
+      'prismjs',
       'stringify-object',
       'rehype-highlight',
     )
