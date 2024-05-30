@@ -63,6 +63,8 @@ export const getExampleFromSchema = (
     variables?: Record<string, any>
   },
   level: number = 0,
+  parentSchema?: Record<string, any>,
+  name?: string,
 ): any => {
   // Break an infinite loop
   if (level > 5) {
@@ -124,15 +126,23 @@ export const getExampleFromSchema = (
 
     // Regular properties
     if (schema.properties !== undefined) {
-      Object.keys(schema.properties).forEach((name: string) => {
-        const property = schema.properties[name]
+      Object.keys(schema.properties).forEach((propertyName: string) => {
+        const property = schema.properties[propertyName]
         const propertyXmlTagName = options?.xml ? property.xml?.name : undefined
 
-        response[propertyXmlTagName ?? name] = getExampleFromSchema(
+        response[propertyXmlTagName ?? propertyName] = getExampleFromSchema(
           property,
           options,
           level + 1,
+          schema,
+          propertyName,
         )
+
+        if (
+          typeof response[propertyXmlTagName ?? propertyName] === 'undefined'
+        ) {
+          delete response[propertyXmlTagName ?? propertyName]
+        }
       })
     }
 
@@ -154,7 +164,7 @@ export const getExampleFromSchema = (
       Object.assign(
         response,
         ...schema.allOf.map((item: Record<string, any>) =>
-          getExampleFromSchema(item, options, level + 1),
+          getExampleFromSchema(item, options, level + 1, schema),
         ),
       )
     }
@@ -231,7 +241,7 @@ export const getExampleFromSchema = (
             schema.items[rule]
 
         const exampleFromRule = schemas.map((item: Record<string, any>) =>
-          getExampleFromSchema(item, options, level + 1),
+          getExampleFromSchema(item, options, level + 1, schema),
         )
 
         return wrapItems
@@ -266,6 +276,14 @@ export const getExampleFromSchema = (
   }
 
   if (schema.type !== undefined && exampleValues[schema.type] !== undefined) {
+    const isRequired =
+      schema.required === true ||
+      parentSchema?.required?.includes(name ?? schema.name)
+
+    if (!isRequired) {
+      return undefined
+    }
+
     return exampleValues[schema.type]
   }
 
