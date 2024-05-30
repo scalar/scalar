@@ -28,8 +28,8 @@ function handleScroll() {
 
   window.history.replaceState({}, '', newUrl)
 
-  // Open models on scroll
-  if (props.id?.startsWith('model'))
+  // Open models and webhooks on scroll
+  if (props.id?.startsWith('model') || props.id?.startsWith('webhook'))
     setCollapsedSidebarItem(getSectionId(props.id), true)
 }
 </script>

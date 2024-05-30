@@ -67,10 +67,12 @@ const getTagId = ({ name }: Tag) => {
 
 // Grabs the sectionId of the hash to open the section before scrolling
 const getSectionId = (hashStr = hash.value) => {
+  console.log('hashStr', hash.value)
   const tagId = hashStr.match(/(tag\/[^/]+)/)?.[0]
   const modelId = hashStr.startsWith('model') ? 'models' : ''
+  const webhookId = hashStr.startsWith('webhook') ? 'webhooks' : ''
 
-  return tagId ?? modelId
+  return tagId || modelId || webhookId
 }
 
 // Update the reactive hash state
