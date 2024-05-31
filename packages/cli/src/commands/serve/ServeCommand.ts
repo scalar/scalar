@@ -20,6 +20,7 @@ export function ServeCommand() {
   cmd.description('Serve an API Reference from an OpenAPI file')
   cmd.argument('[file|url]', 'OpenAPI file or URL to show the reference for')
   cmd.option('-w, --watch', 'watch the file for changes')
+  cmd.option('-o, --once', 'run the server only once and exit after that')
   cmd.option(
     '-p, --port <port>',
     'set the HTTP port for the API reference server',
@@ -27,7 +28,7 @@ export function ServeCommand() {
   cmd.action(
     async (
       inputArgument: string,
-      { watch, port }: { watch?: boolean; port?: number },
+      { watch, once, port }: { watch?: boolean; once?: boolean; port?: number },
     ) => {
       const input = useGivenFileOrConfiguration(inputArgument)
       const result = await loadOpenApiFile(input)
@@ -102,7 +103,7 @@ export function ServeCommand() {
         })
       })
 
-      serve(
+      const server = serve(
         {
           fetch: app.fetch,
           port: port ?? 3000,
@@ -116,6 +117,13 @@ export function ServeCommand() {
           console.log()
         },
       )
+
+      // Exit after the first run
+      if (once) {
+        setTimeout(() => {
+          server.close()
+        }, 2000)
+      }
     },
   )
 

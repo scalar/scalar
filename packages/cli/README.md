@@ -55,6 +55,8 @@ pnpm dlx @scalar/cli help
 
 ### format
 
+![](./screenshots/format.png)
+
 The given JSON file will be formatted with Prettier.
 
 ```bash
@@ -65,6 +67,8 @@ scalar format https://example.com/openapi.json --output openapi.json
 
 ### validate
 
+![](./screenshots/validate.png)
+
 To check whether your OpenAPI file adheres to the Swagger 2.0, OpenAPI 3.0 or OpenAPI 3.1 specification, run the following command:
 
 ```bash
@@ -74,6 +78,8 @@ scalar validate https://example.com/openapi.json
 ```
 
 ### share
+
+![](./screenshots/share.png)
 
 To quickly share an OpenAPI file or reference with someone, you can use the share command:
 
@@ -86,6 +92,8 @@ This will upload your OpenAPI file to the [Scalar Sandbox](https://sandbox.scala
 
 ### serve
 
+![](./screenshots/serve.png)
+
 You can quickly spin up a local server with an API reference based on your OpenAPI file.
 
 ```bash
@@ -97,6 +105,8 @@ scalar serve https://example.com/openapi.json --watch
 ```
 
 ### mock
+
+![](./screenshots/mock.png)
 
 We can even mock your API, and it’s just one command:
 
@@ -157,6 +167,8 @@ scalar --version
 ```
 
 ### --help
+
+![](./screenshots/help.png)
 
 ```bash
 scalar --help
