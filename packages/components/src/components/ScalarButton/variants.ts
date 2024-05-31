@@ -5,15 +5,15 @@ import { cva } from '../../cva'
 export const styles: Record<string, Record<string, any>> = {
   solid: [
     'scalar-button-solid',
-    'bg-b-btn text-c-btn shadow-sm active:bg-b-btn active:shadow-none focus:bg-h-btn',
+    'bg-b-btn text-c-btn shadow-sm active:bg-b-btn active:shadow-none hocus:bg-h-btn',
   ],
   outlined: [
     'scalar-button-outlined',
-    'active:bg-btn-1 border border-solid border-border bg-transparent text-c-1 focus:bg-border',
+    'active:bg-btn-1 border border-solid border-border bg-transparent text-c-1 hocus:bg-border',
   ],
   ghost: [
     'scalar-button-ghost',
-    'bg-transparent text-c-3 transition-colors active:text-c-1 focus:text-c-1',
+    'bg-transparent text-c-3 transition-colors active:text-c-1 hocus:text-c-1',
   ],
   danger: [
     'scalar-button-danger',

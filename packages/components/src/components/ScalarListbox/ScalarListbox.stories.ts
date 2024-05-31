@@ -45,7 +45,7 @@ export const Base: Story = {
     template: `
 <div class="flex items-center justify-center w-full h-screen">
   <ScalarListbox v-model="selected" v-bind="args">
-    <ScalarButton class="w-48" variant="outlined">
+    <ScalarButton class="w-48 px-3" variant="outlined">
       <div class="flex flex-1 items-center min-w-0">
         <span class="inline-block truncate flex-1 min-w-0 text-left">
         {{ selected?.label ?? 'Select an option' }}

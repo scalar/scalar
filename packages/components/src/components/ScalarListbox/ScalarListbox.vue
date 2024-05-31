@@ -30,13 +30,13 @@ const variants = cva({
     'flex min-w-0 items-center gap-2 rounded px-2.5 py-1.5 text-left',
     'first-of-type:mt-0.75 last-of-type:mb-0.75',
     // Text / background style
-    'truncate bg-transparent text-xs font-medium text-fore-2',
+    'truncate bg-transparent text-xs font-medium text-c-2',
     // Interaction
-    'cursor-pointer hover:bg-back-2 hover:text-fore-1',
+    'cursor-pointer hover:bg-b-2 hover:text-c-1',
   ],
   variants: {
-    selected: { true: 'text-fore-1' },
-    active: { true: 'bg-back-2 text-fore-1' },
+    selected: { true: 'text-f-1' },
+    active: { true: 'text-f-1 bg-back-2' },
     disabled: { true: 'pointer-events-none opacity-50' },
   },
 })
@@ -54,7 +54,7 @@ const variants = cva({
       </ListboxButton>
       <template #floating="{ width }">
         <ListboxOptions
-          class="scalar-component relative flex w-40 flex-col p-0.75"
+          class="relative flex w-40 flex-col p-0.75"
           :style="{ width }"
           v-bind="$attrs">
           <ListboxOption
@@ -78,7 +78,7 @@ const variants = cva({
             </li>
           </ListboxOption>
           <div
-            class="absolute inset-0 -z-1 rounded bg-back-1 shadow-md brightness-lifted" />
+            class="absolute inset-0 -z-1 rounded bg-b-1 shadow-md brightness-lifted" />
         </ListboxOptions>
       </template>
     </ScalarFloating>
