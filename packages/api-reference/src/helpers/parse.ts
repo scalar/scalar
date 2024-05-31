@@ -49,7 +49,7 @@ export const parse = (specification: any): Promise<Spec> => {
       }
 
       if (schema === undefined) {
-        reject(errors?.[0]?.error ?? 'Failed to parse the OpenAPI file.')
+        reject(errors?.[0]?.message ?? 'Failed to parse the OpenAPI file.')
 
         return resolve(
           transformResult(createEmptySpecification() as OpenAPI.Document),
@@ -177,7 +177,6 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
         if (
           !schema.tags?.find(
             (tag: OpenAPIV2.TagObject | OpenAPIV3.TagObject) =>
-              // @ts-expect-error upstream issue
               tag.name === 'default',
           )
         ) {
@@ -191,7 +190,6 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
         // find the index of the default tag
         const indexOfDefaultTag = schema.tags?.findIndex(
           (tag: OpenAPIV2.TagObject | OpenAPIV3.TagObject) =>
-            // @ts-expect-error upstream issue
             tag.name === 'default',
         )
 
