@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.23.2
+
+### Patch Changes
+
+- 3619881: fix: remove console log in use nav state
+
 ## 1.23.1
 
 ### Patch Changes
