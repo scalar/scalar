@@ -28,7 +28,6 @@ do
     # Take the screenshot
     freeze \
         --window \
-        --shadow.blur 10 --shadow.x 0 --shadow.y 10 \
         --padding 20 \
         --margin 20 \
         --width 800 --height 300 \
