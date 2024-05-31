@@ -1,7 +1,5 @@
-import headlessPlugin from '@headlessui/tailwindcss'
 import pixelPreset from '@rise8/tailwind-pixel-perfect-preset'
 import type { Config } from 'tailwindcss'
-import colorMix from 'tailwindcss-color-mix'
 
 export default {
   darkMode: ['selector', '.dark-mode'],
@@ -125,5 +123,4 @@ export default {
       },
     },
   },
-  plugins: [headlessPlugin, colorMix()],
 } satisfies Partial<Config>

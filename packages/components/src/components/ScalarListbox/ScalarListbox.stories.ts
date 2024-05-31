@@ -50,7 +50,7 @@ export const Base: Story = {
         <span class="inline-block truncate flex-1 min-w-0 text-left">
         {{ selected?.label ?? 'Select an option' }}
         </span>
-        <ScalarIcon icon="ChevronDown" size="sm" class="ml-1" />
+        <ScalarIcon icon="ChevronDown" size="sm" class="ml-1 ui-open:rotate-180" />
       </div>
     </ScalarButton>
   </ScalarListbox>

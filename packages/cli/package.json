@@ -23,8 +23,8 @@
   "scripts": {
     "@scalar/cli": "pnpm vite-node src/index.ts",
     "build": "rm -Rf dist/ && tsc && rollup -c",
-    "screenshot": "./scripts/take-screenshots.sh",
     "link:cli": "pnpm run build && npm unlink -g @scalar/cli && npm link",
+    "screenshot": "./scripts/take-screenshots.sh",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
