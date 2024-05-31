@@ -23,6 +23,10 @@ export default defineConfig({
           src: 'src/presets',
           dest: './',
         },
+        {
+          src: 'src/fonts',
+          dest: './',
+        },
       ],
     }),
   ],
