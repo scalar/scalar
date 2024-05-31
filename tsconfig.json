@@ -12,7 +12,7 @@
     "strict": true,
     "strictNullChecks": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "checkJs": true
   },
   "types": ["vite/client"],
   "exclude": ["dist", "node_modules", "**/dist", "**/node_modules"],
