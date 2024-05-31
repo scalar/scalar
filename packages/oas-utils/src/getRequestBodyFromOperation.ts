@@ -128,7 +128,10 @@ export function getRequestBodyFromOperation(
   // JSON
   if (mimeType === 'application/json') {
     const exampleFromSchema = requestBodyObject?.schema
-      ? getExampleFromSchema(requestBodyObject?.schema, { mode: 'write' })
+      ? getExampleFromSchema(requestBodyObject?.schema, {
+          mode: 'write',
+          omitEmptyAndOptionalProperties: true,
+        })
       : null
 
     const body = example ?? exampleFromSchema
@@ -148,6 +151,7 @@ export function getRequestBodyFromOperation(
       ? getExampleFromSchema(requestBodyObject?.schema, {
           xml: true,
           mode: 'write',
+          omitEmptyAndOptionalProperties: true,
         })
       : null
 
@@ -177,6 +181,7 @@ export function getRequestBodyFromOperation(
       ? getExampleFromSchema(requestBodyObject?.schema, {
           xml: true,
           mode: 'write',
+          omitEmptyAndOptionalProperties: true,
         })
       : null
 

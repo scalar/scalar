@@ -35,6 +35,45 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject('')
   })
 
+  it('only includes required attributes and attributes with example values', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          type: 'object',
+          required: ['first_name'],
+          properties: {
+            first_name: {
+              type: 'string',
+            },
+            last_name: {
+              type: 'string',
+              required: true,
+            },
+            position: {
+              type: 'string',
+              examples: ['Developer'],
+            },
+            description: {
+              type: 'string',
+              example: 'A developer',
+            },
+            age: {
+              type: 'number',
+            },
+          },
+        },
+        {
+          omitEmptyAndOptionalProperties: true,
+        },
+      ),
+    ).toStrictEqual({
+      first_name: '',
+      last_name: '',
+      position: 'Developer',
+      description: 'A developer',
+    })
+  })
+
   it('uses example value for first type in non-null union types', () => {
     expect(
       getExampleFromSchema({
@@ -760,7 +799,34 @@ describe('getExampleFromSchema', () => {
       }),
     ).toMatchObject({
       myProperty: {
-        someKey: '',
+        '{{key}}': '',
+      },
+    })
+  })
+
+  it('adds a key-value pair example with the schema additionalProperties (omitEmptyAndOptionalProperties: true)', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          type: 'object',
+          properties: {
+            myProperty: {
+              additionalProperties: {
+                type: 'string',
+                title: 'Message',
+              },
+              type: 'object',
+              title: 'MyProperty',
+            },
+          },
+        },
+        {
+          omitEmptyAndOptionalProperties: true,
+        },
+      ),
+    ).toMatchObject({
+      myProperty: {
+        '{{key}}': '',
       },
     })
   })

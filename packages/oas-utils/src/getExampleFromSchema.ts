@@ -61,8 +61,14 @@ export const getExampleFromSchema = (
      * Dynamic values to add to the example.
      */
     variables?: Record<string, any>
+    /**
+     * Whether to omit empty and optional properties.
+     */
+    omitEmptyAndOptionalProperties?: boolean
   },
   level: number = 0,
+  parentSchema?: Record<string, any>,
+  name?: string,
 ): any => {
   // Break an infinite loop
   if (level > 5) {
@@ -118,21 +124,42 @@ export const getExampleFromSchema = (
     return schema.enum[0]
   }
 
+  // Check if the property is required
+  const isObjectOrArray = schema.type === 'object' || schema.type === 'array'
+  if (!isObjectOrArray && options?.omitEmptyAndOptionalProperties === true) {
+    const isRequired =
+      schema.required === true ||
+      parentSchema?.required === true ||
+      parentSchema?.required?.includes(name ?? schema.name)
+
+    if (!isRequired) {
+      return undefined
+    }
+  }
+
   // Object
   if (schema.type === 'object' || schema.properties !== undefined) {
     const response: Record<string, any> = {}
 
     // Regular properties
     if (schema.properties !== undefined) {
-      Object.keys(schema.properties).forEach((name: string) => {
-        const property = schema.properties[name]
+      Object.keys(schema.properties).forEach((propertyName: string) => {
+        const property = schema.properties[propertyName]
         const propertyXmlTagName = options?.xml ? property.xml?.name : undefined
 
-        response[propertyXmlTagName ?? name] = getExampleFromSchema(
+        response[propertyXmlTagName ?? propertyName] = getExampleFromSchema(
           property,
           options,
           level + 1,
+          schema,
+          propertyName,
         )
+
+        if (
+          typeof response[propertyXmlTagName ?? propertyName] === 'undefined'
+        ) {
+          delete response[propertyXmlTagName ?? propertyName]
+        }
       })
     }
 
@@ -153,9 +180,11 @@ export const getExampleFromSchema = (
     } else if (schema.allOf !== undefined) {
       Object.assign(
         response,
-        ...schema.allOf.map((item: Record<string, any>) =>
-          getExampleFromSchema(item, options, level + 1),
-        ),
+        ...schema.allOf
+          .map((item: Record<string, any>) =>
+            getExampleFromSchema(item, options, level + 1, schema),
+          )
+          .filter((item: any) => item !== undefined),
       )
     }
 
@@ -190,13 +219,21 @@ export const getExampleFromSchema = (
         return null
       }
       // Otherwise, add an example of key-value pair
+      const additionalProperties = getExampleFromSchema(
+        schema.additionalProperties,
+        {
+          ...options,
+          // Let’s just add the additionalProperties, even if they are optional.
+          omitEmptyAndOptionalProperties: false,
+        },
+        level + 1,
+      )
+
       return {
         ...response,
-        someKey: getExampleFromSchema(
-          schema.additionalProperties,
-          options,
-          level + 1,
-        ),
+        ...(additionalProperties === undefined
+          ? {}
+          : { '{{key}}': additionalProperties }),
       }
     }
 
@@ -230,9 +267,11 @@ export const getExampleFromSchema = (
           : // Use all items
             schema.items[rule]
 
-        const exampleFromRule = schemas.map((item: Record<string, any>) =>
-          getExampleFromSchema(item, options, level + 1),
-        )
+        const exampleFromRule = schemas
+          .map((item: Record<string, any>) =>
+            getExampleFromSchema(item, options, level + 1, schema),
+          )
+          .filter((item: any) => item !== undefined)
 
         return wrapItems
           ? [{ [itemsXmlTagName]: exampleFromRule }]

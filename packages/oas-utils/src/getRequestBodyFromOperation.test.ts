@@ -192,6 +192,15 @@ describe('getRequestBodyFromOperation', () => {
             'application/json': {
               schema: {
                 type: 'object',
+                required: [
+                  'recordString',
+                  'recordInteger',
+                  'recordArray',
+                  'recordBoolean',
+                  'recordNullable',
+                  'recordObject',
+                  'recordWithoutAdditionalProperties',
+                ],
                 properties: {
                   recordString: {
                     type: 'object',
@@ -239,18 +248,20 @@ describe('getRequestBodyFromOperation', () => {
 
     const expectedResult = {
       recordString: {
-        someKey: '',
+        '{{key}}': '',
       },
       recordInteger: {
-        someKey: 1,
+        '{{key}}': 1,
       },
       recordArray: {
-        someKey: [],
+        '{{key}}': [],
       },
       recordBoolean: {
-        someKey: true,
+        '{{key}}': true,
       },
-      recordNullable: null,
+      recordNullable: {
+        '{{key}}': null,
+      },
       recordObject: {},
       recordWithoutAdditionalProperties: {},
     }
