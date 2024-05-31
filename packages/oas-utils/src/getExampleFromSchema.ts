@@ -124,6 +124,19 @@ export const getExampleFromSchema = (
     return schema.enum[0]
   }
 
+  // Check if the property is required
+  const isObjectOrArray = schema.type === 'object' || schema.type === 'array'
+  if (!isObjectOrArray && options?.omitEmptyAndOptionalProperties === true) {
+    const isRequired =
+      schema.required === true ||
+      parentSchema?.required === true ||
+      parentSchema?.required?.includes(name ?? schema.name)
+
+    if (!isRequired) {
+      return undefined
+    }
+  }
+
   // Object
   if (schema.type === 'object' || schema.properties !== undefined) {
     const response: Record<string, any> = {}
@@ -218,9 +231,9 @@ export const getExampleFromSchema = (
 
       return {
         ...response,
-        ...(additionalProperties !== undefined
-          ? { '{{key}}': additionalProperties }
-          : {}),
+        ...(additionalProperties === undefined
+          ? {}
+          : { '{{key}}': additionalProperties }),
       }
     }
 
@@ -292,16 +305,6 @@ export const getExampleFromSchema = (
   }
 
   if (schema.type !== undefined && exampleValues[schema.type] !== undefined) {
-    if (options?.omitEmptyAndOptionalProperties === true) {
-      const isRequired =
-        schema.required === true ||
-        parentSchema?.required?.includes(name ?? schema.name)
-
-      if (!isRequired) {
-        return undefined
-      }
-    }
-
     return exampleValues[schema.type]
   }
 

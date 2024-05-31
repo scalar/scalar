@@ -259,7 +259,9 @@ describe('getRequestBodyFromOperation', () => {
       recordBoolean: {
         '{{key}}': true,
       },
-      recordNullable: null,
+      recordNullable: {
+        '{{key}}': null,
+      },
       recordObject: {},
       recordWithoutAdditionalProperties: {},
     }

@@ -808,6 +808,7 @@ describe('getExampleFromSchema', () => {
     expect(
       getExampleFromSchema(
         {
+          type: 'object',
           properties: {
             myProperty: {
               additionalProperties: {
@@ -818,7 +819,6 @@ describe('getExampleFromSchema', () => {
               title: 'MyProperty',
             },
           },
-          type: 'object',
         },
         {
           omitEmptyAndOptionalProperties: true,
