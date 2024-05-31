@@ -4,6 +4,7 @@ import rehypeFormat from 'rehype-format'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
+import rehypeSlug from 'rehype-slug'
 import rehypeStringify from 'rehype-stringify'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
@@ -62,6 +63,8 @@ watch(
       .use(rehypeHighlight, {
         detect: true,
       })
+      // Adds ids to headings
+      .use(rehypeSlug, { prefix: 'description/' })
       // Adds target="_blank" to external links
       .use(rehypeExternalLinks, { target: '_blank' })
       // Formats the HTML
@@ -162,6 +165,7 @@ onServerPrefetch(async () => await sleep(1))
   font-weight: var(--scalar-bold);
   display: block;
   line-height: 1.45;
+  scroll-margin-top: 18px;
 }
 .markdown :deep(b),
 .markdown :deep(strong) {
