@@ -1,4 +1,3 @@
-
 # Scalar API Reference
 
 [![Version](https://img.shields.io/npm/v/%40scalar/api-reference)](https://www.npmjs.com/package/@scalar/api-reference)
@@ -298,4 +297,3 @@ Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, 
   theme: default
 } />
 ```
-
