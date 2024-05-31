@@ -206,15 +206,21 @@ export const getExampleFromSchema = (
         return null
       }
       // Otherwise, add an example of key-value pair
-      const someKey = getExampleFromSchema(
+      const additionalProperties = getExampleFromSchema(
         schema.additionalProperties,
-        options,
+        {
+          ...options,
+          // Let’s just add the additionalProperties, even if they are optional.
+          omitEmptyAndOptionalProperties: false,
+        },
         level + 1,
       )
 
       return {
         ...response,
-        ...(someKey !== undefined ? { someKey } : {}),
+        ...(additionalProperties !== undefined
+          ? { '{{key}}': additionalProperties }
+          : {}),
       }
     }
 

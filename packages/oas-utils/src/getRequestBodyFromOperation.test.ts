@@ -248,16 +248,16 @@ describe('getRequestBodyFromOperation', () => {
 
     const expectedResult = {
       recordString: {
-        someKey: '',
+        '{{key}}': '',
       },
       recordInteger: {
-        someKey: 1,
+        '{{key}}': 1,
       },
       recordArray: {
-        someKey: [],
+        '{{key}}': [],
       },
       recordBoolean: {
-        someKey: true,
+        '{{key}}': true,
       },
       recordNullable: null,
       recordObject: {},

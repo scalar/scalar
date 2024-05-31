@@ -799,7 +799,34 @@ describe('getExampleFromSchema', () => {
       }),
     ).toMatchObject({
       myProperty: {
-        someKey: '',
+        '{{key}}': '',
+      },
+    })
+  })
+
+  it('adds a key-value pair example with the schema additionalProperties (omitEmptyAndOptionalProperties: true)', () => {
+    expect(
+      getExampleFromSchema(
+        {
+          properties: {
+            myProperty: {
+              additionalProperties: {
+                type: 'string',
+                title: 'Message',
+              },
+              type: 'object',
+              title: 'MyProperty',
+            },
+          },
+          type: 'object',
+        },
+        {
+          omitEmptyAndOptionalProperties: true,
+        },
+      ),
+    ).toMatchObject({
+      myProperty: {
+        '{{key}}': '',
       },
     })
   })
