@@ -55,6 +55,8 @@ pnpm dlx @scalar/cli help
 
 ### format
 
+![](./screenshots/format.png)
+
 The given JSON file will be formatted with Prettier.
 
 ```bash
@@ -65,6 +67,8 @@ scalar format https://example.com/openapi.json --output openapi.json
 
 ### validate
 
+![](./screenshots/validate.png)
+
 To check whether your OpenAPI file adheres to the Swagger 2.0, OpenAPI 3.0 or OpenAPI 3.1 specification, run the following command:
 
 ```bash
@@ -74,6 +78,8 @@ scalar validate https://example.com/openapi.json
 ```
 
 ### share
+
+![](./screenshots/share.png)
 
 To quickly share an OpenAPI file or reference with someone, you can use the share command:
 
