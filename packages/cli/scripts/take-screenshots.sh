@@ -28,9 +28,10 @@ do
     # Take the screenshot
     freeze \
         --window \
-        --shadow.blur 20 --shadow.x 0 --shadow.y 10 \
+        --shadow.blur 10 --shadow.x 0 --shadow.y 10 \
         --padding 20 \
         --margin 20 \
+        --width 800 --height 300 \
         --border.width 1 --border.color "#515151" --border.radius 8 \
         --execute "timeout 5 $command" \
         --output "screenshots/$name.png"
