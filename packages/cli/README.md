@@ -92,6 +92,8 @@ This will upload your OpenAPI file to the [Scalar Sandbox](https://sandbox.scala
 
 ### serve
 
+![](./screenshots/serve.png)
+
 You can quickly spin up a local server with an API reference based on your OpenAPI file.
 
 ```bash
@@ -103,6 +105,8 @@ scalar serve https://example.com/openapi.json --watch
 ```
 
 ### mock
+
+![](./screenshots/mock.png)
 
 We can even mock your API, and it’s just one command:
 

@@ -9,12 +9,12 @@
 
 # Commands
 commands=(
-    "pnpm vite-node ./src/index.ts validate https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"
-    "pnpm vite-node ./src/index.ts format https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json --output ./dist/.temp"
-    "pnpm vite-node ./src/index.ts share https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"
-    # "pnpm vite-node ./src/index.ts serve https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"
-    # "pnpm vite-node ./src/index.ts mock https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"
-    "pnpm vite-node ./src/index.ts help"
+    # "pnpm vite-node ./src/index.ts validate https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"
+    # "pnpm vite-node ./src/index.ts format https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json --output ./dist/.temp"
+    # "pnpm vite-node ./src/index.ts share https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"
+    "pnpm vite-node ./src/index.ts serve https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json --once"
+    "pnpm vite-node ./src/index.ts mock https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json --once"
+    # "pnpm vite-node ./src/index.ts help"
 )
 
 # Take screenshots
@@ -30,7 +30,7 @@ do
         --window \
         --padding 20 \
         --margin 20 \
-        --width 800 --height 300 \
+        --width 800 --height 400 \
         --border.width 1 --border.color "#515151" --border.radius 8 \
         --execute "timeout 5 $command" \
         --output "screenshots/$name.png"
