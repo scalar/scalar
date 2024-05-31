@@ -285,3 +285,15 @@ By default we’re using Inter and JetBrains Mono, served by Google Fonts. If yo
   withDefaultFonts: false
 } />
 ```
+
+#### theme?: string
+
+You don’t like the color scheme? We’ve prepared some themes for you:
+
+Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, **bluePlanet**, **saturn**, **kepler**, **mars**, **deepSpace**, **none**
+
+```vue
+<ApiReference :configuration="{
+  theme: default
+} />
+```
