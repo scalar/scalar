@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.23.4
+
+### Patch Changes
+
+- db7864a: feat: self host fonts on scalar cdn
+
 ## 1.23.3
 
 ## 1.23.2
