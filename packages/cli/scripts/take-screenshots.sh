@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Freeze
+# Generate images of code and terminal output.
+#
+# Installation: brew install charmbracelet/tap/freeze
+#
+# URL: https://github.com/charmbracelet/freeze
+
 # Commands
 commands=(
     "pnpm vite-node ./src/index.ts validate https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"
