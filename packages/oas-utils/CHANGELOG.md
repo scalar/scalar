@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.1.17
+
+### Patch Changes
+
+- c951512: feat: omit empty and not required properties from the generated request body
+
 ## 0.1.16
 
 ### Patch Changes

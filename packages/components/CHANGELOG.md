@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.10.1
+
+### Patch Changes
+
+- 961690d: chore: export listbox component
+- Updated dependencies [c951512]
+  - @scalar/oas-utils@0.1.17
+
 ## 0.10.0
 
 ### Minor Changes
