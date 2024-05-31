@@ -22,7 +22,7 @@ defineOptions({ inheritAttrs: false })
           v-bind="$attrs">
           <slot name="items" />
           <div
-            class="absolute inset-0 -z-1 rounded bg-back-1 shadow-md brightness-lifted" />
+            class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />
         </MenuItems>
       </template>
     </ScalarFloating>

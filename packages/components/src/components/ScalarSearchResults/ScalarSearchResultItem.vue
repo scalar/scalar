@@ -23,15 +23,15 @@ const attrs = computed(() => {
       v-bind="attrs.rest"
       :class="
         cx(
-          'group flex cursor-pointer gap-3 rounded px-3 py-1.5 no-underline hover:bg-back-2',
+          'group flex cursor-pointer gap-3 rounded px-3 py-1.5 no-underline hover:bg-b-2',
           {
-            'bg-back-2': active,
+            'bg-b-2': active,
           },
           attrs.className,
         )
       ">
       <!-- Icon -->
-      <div class="text-fore-3 group-hover:text-fore-1">
+      <div class="text-c-3 group-hover:text-c-1">
         <slot name="icon">
           <ScalarIcon
             v-if="icon"
@@ -47,11 +47,11 @@ const attrs = computed(() => {
           </div>
           <div
             v-if="$slots.addon"
-            class="text-xs text-fore-2">
+            class="text-xs text-c-2">
             <slot name="addon" />
           </div>
         </div>
-        <div class="truncate text-xs text-fore-2">
+        <div class="truncate text-xs text-c-2">
           <slot name="description" />
         </div>
       </div>

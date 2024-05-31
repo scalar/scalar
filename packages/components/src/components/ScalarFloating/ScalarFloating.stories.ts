@@ -20,10 +20,10 @@ const meta: Meta = {
     template: `
 <div class="flex items-center justify-center w-full h-screen">
   <ScalarFloating v-bind="args">
-    <div class="rounded border bg-back-2 p-2">Target for #floating</div>
+    <div class="rounded border bg-b-2 p-2">Target for #floating</div>
     <template #floating="{ width, height }">
       <div 
-        class="flex items-center justify-center rounded border shadow bg-back-2 p-1" 
+        class="flex items-center justify-center rounded border shadow bg-b-2 p-1" 
         :style="{ width, height }">
         Floating
       </div>

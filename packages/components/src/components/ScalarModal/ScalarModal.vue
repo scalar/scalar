@@ -29,7 +29,7 @@ withDefaults(
 const modal = cva({
   base: [
     'scalar-modal',
-    'col leading-snug relative mx-auto mb-0 mt-20 w-full rounded-lg bg-back-2 text-left text-fore-1 opacity-0',
+    'col relative mx-auto mb-0 mt-20 w-full rounded-lg bg-b-2 text-left leading-snug text-c-1 opacity-0',
   ].join(' '),
   variants: {
     size: {
@@ -39,7 +39,7 @@ const modal = cva({
       lg: 'max-w-screen-lg',
     },
     variant: {
-      history: 'scalar-modal-history bg-back-1',
+      history: 'scalar-modal-history bg-b-1',
       search: 'scalar-modal-search',
     },
   },
@@ -76,12 +76,12 @@ export const useModal = () =>
         :style="{ maxWidth }">
         <DialogTitle
           v-if="title"
-          class="scalar-modal-header font-semiBold m-0 rounded-lg px-6 py-3 text-left text-xs text-fore-1"
+          class="scalar-modal-header font-semiBold m-0 rounded-lg px-6 py-3 text-left text-xs text-c-1"
           :class="{ 'pb-0 pt-6': variant === 'history' }">
           {{ title }}
         </DialogTitle>
         <DialogDescription
-          class="scalar-modal-body relative max-h-[calc(100dvh-240px)] overflow-y-auto rounded-lg bg-back-1 px-6 pb-4 pt-6"
+          class="scalar-modal-body relative max-h-[calc(100dvh-240px)] overflow-y-auto rounded-lg bg-b-1 px-6 pb-4 pt-6"
           :class="
             cx(
               bodyClass,
