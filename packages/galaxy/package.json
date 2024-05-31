@@ -51,7 +51,7 @@
     "@modyfi/vite-plugin-yaml": "^1.1.0",
     "@scalar/build-tooling": "workspace:*",
     "@vitest/coverage-v8": "^1.6.0",
-    "@scalar/openapi-parser": "^0.5.0",
+    "@scalar/openapi-parser": "^0.6.0",
     "tsc-alias": "^1.8.8",
     "vite": "^5.2.10",
     "vite-plugin-static-copy": "^1.0.2",
