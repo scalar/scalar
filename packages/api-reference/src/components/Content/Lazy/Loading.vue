@@ -182,7 +182,7 @@ onMounted(() => {
             <Schema
               :name="name"
               noncollapsible
-              :value="getModels(parsedSpec)?.[name]" />
+              :value="getModels(parsedSpec)?.[name] as Record<string, any>" />
           </SectionContent>
         </template>
       </Section>

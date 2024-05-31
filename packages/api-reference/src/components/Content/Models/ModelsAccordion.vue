@@ -66,7 +66,7 @@ const { getModelId } = useNavState()
             schema.required?.includes(property) ||
             schema.properties?.[property]?.required === true
           "
-          :value="value as OpenAPIV3_1.SchemaObject['properties']" />
+          :value="value as Record<string, any>" />
       </div>
       <div v-else>
         <SchemaProperty :value="schema" />
