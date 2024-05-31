@@ -164,6 +164,8 @@ scalar --version
 
 ### --help
 
+![](./screenshots/help.png)
+
 ```bash
 scalar --help
 ```
