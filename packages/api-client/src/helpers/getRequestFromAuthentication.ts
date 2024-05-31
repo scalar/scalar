@@ -123,6 +123,7 @@ export function getRequestFromAuthentication(
         'type' in securityScheme &&
         // @ts-ignore
         (securityScheme.type === 'basic' ||
+          // @ts-ignore
           (securityScheme.type === 'http' && securityScheme.scheme === 'basic'))
       ) {
         const { username, password } = authentication.http.basic
@@ -138,6 +139,7 @@ export function getRequestFromAuthentication(
       else if (
         'type' in securityScheme &&
         securityScheme.type === 'http' &&
+        // @ts-ignore
         securityScheme.scheme === 'bearer'
       ) {
         const token = authentication.http.bearer.token.length

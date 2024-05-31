@@ -1,5 +1,5 @@
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
-import { type ResolvedOpenAPI, openapi } from '@scalar/openapi-parser'
+import { type OpenAPI, openapi } from '@scalar/openapi-parser'
 import { type Context, Hono } from 'hono'
 import { cors } from 'hono/cors'
 import type { StatusCode } from 'hono/utils/http-status'
@@ -17,17 +17,15 @@ import { isBasicAuthenticationRequired } from './utils/isBasicAuthenticationRequ
  */
 export async function createMockServer(options?: {
   specification: string | Record<string, any>
-  onRequest?: (data: {
-    context: Context
-    operation: ResolvedOpenAPI.Operation
-  }) => void
+  onRequest?: (data: { context: Context; operation: OpenAPI.Operation }) => void
 }) {
   const app = new Hono()
 
   // Resolve references
   const result = await openapi()
     .load(options?.specification ?? {})
-    .resolve()
+    .dereference()
+    .get()
 
   // CORS headers
   app.use(cors())
@@ -42,12 +40,12 @@ export async function createMockServer(options?: {
   })
 
   // OpenAPI YAML file
-  app.get('/openapi.yaml', (c) => {
+  app.get('/openapi.yaml', async (c) => {
     if (!options?.specification) {
       return c.text('Not found', 404)
     }
 
-    return c.text(openapi().load(options.specification).toYaml())
+    return c.text(await openapi().load(options.specification).toYaml())
   })
 
   // Paths
