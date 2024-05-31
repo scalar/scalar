@@ -37,12 +37,10 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./style.css": "./dist/style.css",
-    "./tailwind": "./src/tailwind/index.ts"
+    "./style.css": "./dist/style.css"
   },
   "files": [
-    "dist",
-    "src/tailwind/**.ts"
+    "dist"
   ],
   "module": "./dist/index.js",
   "dependencies": {
@@ -59,7 +57,6 @@
   },
   "devDependencies": {
     "@headlessui/tailwindcss": "^0.2.0",
-    "@rise8/tailwind-pixel-perfect-preset": "^1.0.1",
     "@scalar/themes": "workspace:*",
     "@storybook/addon-essentials": "^8.0.8",
     "@storybook/addon-interactions": "^8.0.8",

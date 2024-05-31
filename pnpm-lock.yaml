@@ -1224,9 +1224,6 @@ importers:
       '@headlessui/tailwindcss':
         specifier: ^0.2.0
         version: 0.2.0(tailwindcss@3.4.1)
-      '@rise8/tailwind-pixel-perfect-preset':
-        specifier: ^1.0.1
-        version: 1.0.1(tailwindcss@3.4.1)
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -1752,12 +1749,18 @@ importers:
         specifier: ^3.3.0
         version: 3.4.21(typescript@5.4.3)
     devDependencies:
+      '@rise8/tailwind-pixel-perfect-preset':
+        specifier: ^1.0.1
+        version: 1.0.1(tailwindcss@3.4.1)
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10)(vue@3.4.21)
       '@vitest/coverage-v8':
         specifier: ^1.5.0
         version: 1.5.0(vitest@1.5.0)
+      tailwindcss:
+        specifier: ^3.3.3
+        version: 3.4.1(ts-node@10.9.2)
       tsc-alias:
         specifier: ^1.8.8
         version: 1.8.8

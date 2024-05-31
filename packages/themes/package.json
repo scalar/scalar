@@ -37,16 +37,20 @@
     "./presets/default.css": "./dist/presets/default.css",
     "./presets/moon.css": "./dist/presets/moon.css",
     "./presets/purple.css": "./dist/presets/purple.css",
-    "./presets/solarized.css": "./dist/presets/solarized.css"
+    "./presets/solarized.css": "./dist/presets/solarized.css",
+    "./tailwind": "./src/tailwind.ts"
   },
   "files": [
     "dist",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "src/tailwind.ts"
   ],
   "module": "./dist/index.js",
   "devDependencies": {
+    "@rise8/tailwind-pixel-perfect-preset": "^1.0.1",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.5.0",
+    "tailwindcss": "^3.3.3",
     "tsc-alias": "^1.8.8",
     "vite": "^5.2.10",
     "vite-plugin-static-copy": "^1.0.2",

@@ -1,7 +1,8 @@
+import headlessPlugin from '@headlessui/tailwindcss'
+import scalarPreset from '@scalar/themes/tailwind'
 import { type Config } from 'tailwindcss'
+import colorMix from 'tailwindcss-color-mix'
 import plugin from 'tailwindcss/plugin'
-
-import scalarPreset from './tailwind.preset'
 
 export default {
   presets: [scalarPreset],
@@ -10,6 +11,8 @@ export default {
     preflight: false,
   },
   plugins: [
+    headlessPlugin,
+    colorMix(),
     plugin(({ addVariant }) => {
       addVariant('has-actv-btn', '&:has(button:active)')
       addVariant('!empty', '&:not(:empty)')
