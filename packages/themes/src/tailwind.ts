@@ -18,6 +18,7 @@ export default {
       md: 'var(--scalar-shadow-1)',
       sm: 'rgba(0, 0, 0, 0.09) 0px 1px 4px',
       none: '0 0 #0000',
+      border: 'inset 0 0 0 1px var(--scalar-border-color)',
     },
     fontFamily: {
       DEFAULT: 'var(--scalar-font)',
