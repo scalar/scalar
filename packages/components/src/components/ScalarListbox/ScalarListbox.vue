@@ -27,16 +27,17 @@ defineOptions({ inheritAttrs: false })
 const variants = cva({
   base: [
     // Layout
-    'flex min-w-0 items-center gap-2 rounded px-2.5 py-1.5 text-left',
+    'group',
+    'flex min-w-0 items-center gap-2.5 rounded px-2.5 py-1.5 text-left',
     'first-of-type:mt-0.75 last-of-type:mb-0.75',
     // Text / background style
-    'truncate bg-transparent text-xs font-medium text-c-2',
+    'text-c-1 truncate bg-transparent text-xs',
     // Interaction
-    'cursor-pointer hover:bg-b-2 hover:text-c-1',
+    'hover:bg-b-2 cursor-pointer',
   ],
   variants: {
-    selected: { true: 'text-f-1' },
-    active: { true: 'text-f-1 bg-back-2' },
+    selected: { true: 'text-c-1' },
+    active: { true: 'text-c-1 bg-back-2' },
     disabled: { true: 'pointer-events-none opacity-50' },
   },
 })
@@ -68,17 +69,22 @@ const variants = cva({
               :class="
                 cx(variants({ active, selected, disabled: option.disabled }))
               ">
-              <span class="inline-block min-w-0 flex-1 truncate">{{
+              <ScalarIcon
+                class="group-hover rounded-full stroke-[1.75] p-[3px] group-hover:shadow-[inset_0_0_0_1px_var(--scalar-border-color)]"
+                :class="
+                  selected
+                    ? 'text-b-1 bg-blue shadow-[inset_0_0_0_1px_var(--scalar-border-color)]'
+                    : 'text-transparent'
+                "
+                icon="Checkmark"
+                size="md" />
+              <span class="text-c-1 inline-block min-w-0 flex-1 truncate">{{
                 option.label
               }}</span>
-              <ScalarIcon
-                v-if="selected"
-                icon="Checkmark"
-                size="sm" />
             </li>
           </ListboxOption>
           <div
-            class="absolute inset-0 -z-1 rounded bg-b-1 shadow-md brightness-lifted" />
+            class="bg-b-1 absolute inset-0 -z-1 rounded shadow-md brightness-lifted" />
         </ListboxOptions>
       </template>
     </ScalarFloating>
