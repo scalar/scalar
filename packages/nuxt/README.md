@@ -107,3 +107,9 @@ export default defineNuxtConfig({
   },
 })
 ```
+
+## Troubleshooting
+
+If you come across any "\*\*\*\* not default export" errors, its likely you are using `pnpm`.
+A temporary fix for this would be to enable [shamefully-hoist](https://pnpm.io/npmrc#shamefully-hoist) until
+we sort out what is causing the package issues.
