@@ -114,7 +114,7 @@ If you come across any `**** not default export` errors, its likely you are usin
 A temporary fix for this would be to enable [shamefully-hoist](https://pnpm.io/npmrc#shamefully-hoist) until
 we sort out what is causing the package issues.
 
-To do this, just create a `.npmrc` file in your root and fill it with:
+To do this, just create a `.npmrc` file in your project root and fill it with:
 
 ```
 shamefully-hoist=true
