@@ -66,6 +66,10 @@
       "import": "./dist/entities/workspace/shared/index.js",
       "types": "./dist/entities/workspace/shared/index.d.ts"
     },
+    "./entities/workspace/server": {
+      "import": "./dist/entities/workspace/server/index.js",
+      "types": "./dist/entities/workspace/server/index.d.ts"
+    },
     "./entities/workspace/environment": {
       "import": "./dist/entities/workspace/environment/index.js",
       "types": "./dist/entities/workspace/environment/index.d.ts"

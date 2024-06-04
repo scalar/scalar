@@ -17,6 +17,8 @@ export type Workspace = {
   environments: Environment[]
   /** Cookies */
   cookies: Cookie[]
+  /** Servers */
+  servers: Server[]
 }
 
 export const defaultWorkspace = (): Workspace => ({
@@ -27,4 +29,5 @@ export const defaultWorkspace = (): Workspace => ({
   collections: [],
   environments: [],
   cookies: [],
+  servers: [],
 })
