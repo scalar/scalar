@@ -27,16 +27,17 @@ defineOptions({ inheritAttrs: false })
 const variants = cva({
   base: [
     // Layout
-    'flex min-w-0 items-center gap-2 rounded px-2.5 py-1.5 text-left',
+    'group',
+    'flex min-w-0 items-center gap-2.5 rounded px-2.5 py-1.5 text-left',
     'first-of-type:mt-0.75 last-of-type:mb-0.75',
     // Text / background style
-    'truncate bg-transparent text-xs font-medium text-c-2',
+    'truncate bg-transparent text-xs text-c-1',
     // Interaction
-    'cursor-pointer hover:bg-b-2 hover:text-c-1',
+    'cursor-pointer hover:bg-b-2',
   ],
   variants: {
-    selected: { true: 'text-f-1' },
-    active: { true: 'text-f-1 bg-back-2' },
+    selected: { true: 'text-c-1' },
+    active: { true: 'bg-back-2 text-c-1' },
     disabled: { true: 'pointer-events-none opacity-50' },
   },
 })
@@ -68,13 +69,17 @@ const variants = cva({
               :class="
                 cx(variants({ active, selected, disabled: option.disabled }))
               ">
-              <span class="inline-block min-w-0 flex-1 truncate">{{
+              <div
+                class="flex size-4 items-center justify-center rounded-full group-hover:shadow-border"
+                :class="selected ? 'bg-blue text-b-1' : 'text-transparent'">
+                <!-- Icon needs help to be optically centered (╥﹏╥) -->
+                <ScalarIcon
+                  class="relative top-[0.5px] size-2.5 stroke-[1.75]"
+                  icon="Checkmark" />
+              </div>
+              <span class="inline-block min-w-0 flex-1 truncate text-c-1">{{
                 option.label
               }}</span>
-              <ScalarIcon
-                v-if="selected"
-                icon="Checkmark"
-                size="sm" />
             </li>
           </ListboxOption>
           <div
