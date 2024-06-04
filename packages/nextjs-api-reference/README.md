@@ -57,3 +57,28 @@ const config = {
   theme: 'purple',
 }
 ```
+
+## Pages router
+
+If you are using the pages router, you can import the React component
+
+```bash
+npm install @scalar/api-reference-react
+```
+
+```tsx
+import { ApiReferenceReact } from '@scalar/api-reference-react'
+import '@scalar/api-reference-react/style.css'
+
+export default function References() {
+  return (
+    <ApiReferenceReact
+      configuration={{
+        spec: {
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        },
+      }}
+    />
+  )
+}
+```
