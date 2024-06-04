@@ -88,6 +88,7 @@
     "vite-plugin-dts": "^3.6.3",
     "vite-svg-loader": "^5.1.0",
     "vitest": "^1.5.0",
+    "vue": "^3.4.22",
     "vue-tsc": "^2.0.13"
   },
   "peerDependencies": {

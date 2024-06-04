@@ -85,7 +85,6 @@ if (!specUrlElement && !specElement && !specScriptTag) {
     // )
 
     const _app = createApp(
-      // @ts-expect-error excessive depth issue
       h(ApiClientModal, {
         parsedSpec,
         theme: 'default',
