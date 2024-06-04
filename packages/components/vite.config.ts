@@ -24,7 +24,10 @@ export default defineConfig({
       },
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ['vue', ...Object.keys(pkg.dependencies || {})],
+      external: [
+        ...Object.keys(pkg.dependencies),
+        ...Object.keys(pkg.peerDependencies),
+      ],
     },
   },
   plugins: [

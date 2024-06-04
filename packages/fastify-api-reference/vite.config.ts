@@ -2,6 +2,7 @@ import path from 'path'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { defineConfig } from 'vitest/config'
 
+import pkg from './package.json'
 import { nodeExternals } from './vite-plugins'
 
 export default defineConfig({
@@ -25,24 +26,11 @@ export default defineConfig({
       fileName: 'index',
       formats: ['es', 'cjs'],
     },
-    // We don’t have any production dependencies.
-    // rollupOptions: {
-    //   external: pkg.dependencies || {},
-    // },
+    rollupOptions: {
+      external: Object.keys(pkg.dependencies),
+    },
   },
-  resolve: {
-    alias: [
-      // Resolve the uncompiled source code for all @scalar packages
-      // It’s working with the alias, too. It’s just required to enable HMR.
-      {
-        // Resolve the uncompiled source code for all @scalar packages
-        // @scalar/* -> packages/*/
-        // (not @scalar/*/style.css)
-        find: /^@scalar\/(?!(openapi-parser|snippetz|galaxy|components\/style\.css|components\b))(.+)/,
-        replacement: path.resolve(__dirname, '../$2/src/index.ts'),
-      },
-    ],
-  },
+  resolve: {},
   test: {
     coverage: {
       enabled: true,

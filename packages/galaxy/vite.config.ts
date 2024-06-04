@@ -1,7 +1,8 @@
 import yaml from '@modyfi/vite-plugin-yaml'
-import path from 'node:path'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { defineConfig } from 'vitest/config'
+
+import pkg from './package.json'
 
 export default defineConfig({
   plugins: [
@@ -26,20 +27,9 @@ export default defineConfig({
       name: '@scalar/galaxy',
       formats: ['es'],
     },
-  },
-  resolve: {
-    alias: [
-      // Resolve the uncompiled source code for all @scalar packages
-      // It’s working with the alias, too. It’s just required to enable HMR.
-      // It also does not match components since we want the built version
-      {
-        // Resolve the uncompiled source code for all @scalar packages
-        // @scalar/* -> packages/*/
-        // (not @scalar/components/*/style.css)
-        find: /^@scalar\/(?!(openapi-parser|snippetz|galaxy|components\/style\.css|components\b))(.+)/,
-        replacement: path.resolve(__dirname, '../$2/src/index.ts'),
-      },
-    ],
+    rollupOptions: {
+      // external: [...Object.keys(pkg.depedencies)],
+    },
   },
   test: {
     coverage: {

@@ -16,7 +16,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', 'nanoid'],
+      external: [...Object.keys(pkg.peerDependencies)],
     },
   },
   test: {

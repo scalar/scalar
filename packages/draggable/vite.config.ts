@@ -27,7 +27,7 @@ export default defineConfig({
       fileName: 'index',
     },
     rollupOptions: {
-      external: [...Object.keys((pkg as any).peerDependencies || {})],
+      external: [...Object.keys(pkg.peerDependencies)],
       input: {
         main: path.resolve(__dirname, 'src/index.ts'),
       },
