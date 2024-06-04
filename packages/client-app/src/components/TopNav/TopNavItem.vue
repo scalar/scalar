@@ -3,7 +3,7 @@ import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import type { Route } from '@/constants'
 import { ScalarIcon } from '@scalar/components'
 import { useTooltip } from '@scalar/use-tooltip'
-import { ref } from 'vue'
+import { type Ref, ref } from 'vue'
 
 defineProps<
   Route & {
@@ -17,7 +17,7 @@ defineEmits<{
 }>()
 
 const focused = ref(false)
-const labelRef = ref<HTMLDivElement | null>(null)
+const labelRef: Ref<HTMLDivElement | null> = ref(null)
 
 const tooltipRef = useTooltip({
   content: () => labelRef.value || '',

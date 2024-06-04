@@ -77,7 +77,7 @@ const parsedSpec = asyncComputed(
 <template>
   <ApiReferenceLayout
     :configuration="configuration"
-    :parsedSpec="parsedSpec"
+    :parsedSpec="parsedSpec.value"
     :rawSpec="content"
     @changeTheme="configuration.theme = $event.id"
     @updateContent="(v) => (content = v)">
