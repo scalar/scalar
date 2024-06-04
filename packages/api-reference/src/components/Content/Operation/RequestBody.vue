@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import type { ContentType, RequestBody } from '@scalar/oas-utils'
+import {
+  type ContentType,
+  type RequestBody,
+  normalizeSchema,
+} from '@scalar/oas-utils'
 import { computed, ref } from 'vue'
 
 import { MarkdownRenderer } from '../../MarkdownRenderer'
@@ -20,6 +24,12 @@ if (prop.requestBody?.content) {
     selectedContentType.value = contentTypes.value[0] as ContentType
   }
 }
+
+const schema = computed(() => {
+  return normalizeSchema(
+    prop?.requestBody?.content?.[selectedContentType.value]?.schema,
+  )
+})
 </script>
 <template>
   <div v-if="prop?.requestBody">
@@ -47,12 +57,12 @@ if (prop.requestBody?.content) {
       </div>
     </div>
     <div
-      v-if="prop?.requestBody.content?.[selectedContentType]"
+      v-if="schema"
       class="request-body-schema">
       <Schema
         compact
         noncollapsible
-        :value="prop?.requestBody.content?.[selectedContentType]?.schema" />
+        :value="schema" />
     </div>
   </div>
 </template>
