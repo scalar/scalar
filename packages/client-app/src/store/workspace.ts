@@ -64,6 +64,17 @@ const activeCookieId = computed<string | undefined>(
 )
 
 // ---------------------------------------------------------------------------
+// SERVERS
+
+const servers = reactive<Record<string, Server>>({})
+const serverMutators = mutationFactory(servers, reactive({}))
+
+/** Cookie associated with the current route */
+const activeServerId = computed<string | undefined>(
+  () => activeRouterParams.value[PathId.Servers],
+)
+
+// ---------------------------------------------------------------------------
 // WORKSPACE
 
 /** Active workspace object (will be associated with an entry in the workspace collection) */
@@ -245,7 +256,9 @@ export function useWorkspace() {
     requests,
     environments,
     cookies,
+    servers,
     activeCookieId,
+    activeServerId,
     activeCollection,
     activeRequest,
     activeInstance,
@@ -255,6 +268,7 @@ export function useWorkspace() {
     importSpecFile,
     importSpecFromUrl,
     cookieMutators,
+    serverMutators,
     requestMutators,
     environmentMutators,
     updateRequestInstance,
