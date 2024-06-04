@@ -15,5 +15,6 @@ export const ROUTES: Route[] = [
   { label: 'Requests', icon: 'ExternalLink', path: '/request' },
   { label: 'Cookies', icon: 'Cookie', path: '/cookies' },
   { label: 'Environment', icon: 'Brackets', path: '/environment' },
+  { label: 'Servers', icon: 'CodeFolder', path: '/servers' },
   { label: 'Git Sync', icon: 'Branch', path: '/git-sync' },
 ] as const
