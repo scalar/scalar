@@ -76,14 +76,13 @@ const currentJsonResponse = computed(() => {
  * Gets the first example response if there are multiple example responses
  * or the only example if there is only one example response.
  */
- const getFirstExampleResponse = () => {
-  if (!hasMultipleExamples.value)
-    return currentJsonResponse.value.example;
+const getFirstExampleResponse = () => {
+  if (!hasMultipleExamples.value) return currentJsonResponse.value.example
   else if (Array.isArray(currentJsonResponse.value.examples))
     return currentJsonResponse.value.examples[0]
   else {
-    const firstProperty = Object.keys(currentJsonResponse.value.examples)[0];
-    return currentJsonResponse.value.examples[firstProperty];
+    const firstProperty = Object.keys(currentJsonResponse.value.examples)[0]
+    return currentJsonResponse.value.examples[firstProperty]
   }
 }
 
@@ -98,7 +97,7 @@ const currentResponseWithExample = computed(() => ({
 
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index
-  selectedExampleKey.value = undefined;
+  selectedExampleKey.value = undefined
 }
 
 const showSchema = ref(false)
