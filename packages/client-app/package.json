@@ -59,6 +59,10 @@
       "import": "./dist/components/HttpMethod/index.js",
       "types": "./dist/components/HttpMethod/index.d.ts"
     },
+    "./components/Form": {
+      "import": "./dist/components/Form/index.js",
+      "types": "./dist/components/Form/index.d.ts"
+    },
     "./components/DarkModeToggle": {
       "import": "./dist/components/DarkModeToggle/index.js",
       "types": "./dist/components/DarkModeToggle/index.d.ts"
