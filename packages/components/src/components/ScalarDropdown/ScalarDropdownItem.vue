@@ -17,12 +17,12 @@ const variants = cva({
     'min-w-0 items-center gap-3 rounded px-2.5 py-1.5 text-left',
     'first-of-type:mt-0.75 last-of-type:mb-0.75',
     // Text / background style
-    'text-c-1 truncate bg-transparent text-xs',
+    'truncate bg-transparent text-xs text-c-1',
     // Interaction
-    'hover:bg-b-2 hover:text-c-1 cursor-pointer',
+    'cursor-pointer hover:bg-b-2 hover:text-c-1',
   ],
   variants: {
-    disabled: { true: 'text-c-3 pointer-events-none' },
+    disabled: { true: 'pointer-events-none text-c-3' },
     active: { true: 'bg-b-2 text-c-1' },
   },
 })
