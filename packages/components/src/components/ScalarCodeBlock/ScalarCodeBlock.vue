@@ -1,10 +1,6 @@
 <script lang="ts" setup>
-import {
-  type CodeBlockSSRKey,
-  type SSRState,
-  createHash,
-  ssrState,
-} from '@scalar/oas-utils'
+import type { CodeBlockSSRKey, SSRState } from '@scalar/oas-utils'
+import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import prismjs from 'prismjs'
 import 'prismjs/components/prism-bash'
 import 'prismjs/components/prism-json'

@@ -1,9 +1,8 @@
 import { type TargetId, availableTargets as allTargets } from 'httpsnippet-lite'
-import type { AvailableTarget } from 'httpsnippet-lite/dist/types/helpers/utils'
 import { type Ref, computed, reactive, readonly, ref } from 'vue'
 
 import { objectMerge } from '../helpers'
-import type { HiddenClients } from '../types'
+import type { AvailableTarget, HiddenClients } from '../types'
 
 // Gets the client title from the availableTargets
 // { targetKey: 'shell', clientKey: 'curl' } -> 'Shell'
@@ -87,7 +86,7 @@ export function filterHiddenClients(
   })
 }
 
-const availableTargets = computed(() => {
+const availableTargets = computed<AvailableTarget[]>(() => {
   const targets = allTargets()
 
   // Add undici to node (comes from @scalar/snippetz)

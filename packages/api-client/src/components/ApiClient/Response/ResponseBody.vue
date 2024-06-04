@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components'
-import { isJsonString, normalizeMimeType } from '@scalar/oas-utils'
+import { isJsonString, normalizeMimeType } from '@scalar/oas-utils/helpers'
 import { computed, toRaw } from 'vue'
 
 import { normalizeHeaders } from '../../../helpers'

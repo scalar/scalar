@@ -1,0 +1,19 @@
+x-scalar-folder:
+  description: Custom extension to support arbitrary depth operation sorting
+  children:
+    - $ref: '#/x-scalar-folder/first-folder'
+  first-folder:
+    description: My folder for some things
+    children:
+      - $ref: '#/paths/some-path/get'
+      - $ref: '#/x-scalar-folder/first-folder/nested-folder'
+      - $ref: '#/paths/some-path/post'
+  second-folder:
+    description: Another folder
+    children:
+      - $ref: '#/paths/some-path/get'
+      - $ref: '#/paths/some-path/post'
+  first-folder/nested-folder:
+    description: My nested folder
+    children:
+      - $ref: '#/paths/some-path/post'

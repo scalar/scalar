@@ -1,0 +1,18 @@
+/**
+ * Put the Tailwind base into the Scalar base cascade layer
+ */
+@import 'tailwindcss/base' layer(scalar-base);
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .centered-x {
+    @apply left-1/2 -translate-x-1/2;
+  }
+  .centered-y {
+    @apply top-1/2 -translate-y-1/2;
+  }
+  .centered {
+    @apply centered-x centered-y;
+  }
+}
