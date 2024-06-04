@@ -49,7 +49,7 @@
     "@headlessui/vue": "^1.7.20",
     "@scalar/oas-utils": "workspace:*",
     "@storybook/test": "^8.0.8",
-    "@vueuse/core": "^10.9.0",
+    "@vueuse/core": "^10.10.0",
     "cva": "1.0.0-beta.1",
     "nanoid": "^5.0.7",
     "prismjs": "^1.29.0",

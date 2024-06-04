@@ -91,7 +91,7 @@
     "@scalar/use-modal": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
-    "@vueuse/core": "^10.9.0",
+    "@vueuse/core": "^10.10.0",
     "axios": "^1.6.8",
     "content-type": "^1.0.5",
     "cva": "1.0.0-beta.1",

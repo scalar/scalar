@@ -55,7 +55,7 @@
     "@scalar/use-modal": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
-    "@vueuse/core": "^10.9.0",
+    "@vueuse/core": "^10.10.0",
     "axios": "^1.6.8",
     "httpsnippet-lite": "^3.0.5",
     "nanoid": "^5.0.7",

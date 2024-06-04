@@ -603,8 +603,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/themes
       '@vueuse/core':
-        specifier: ^10.9.0
-        version: 10.9.0(vue@3.4.27)
+        specifier: ^10.10.0
+        version: 10.10.0(vue@3.4.27)
       monaco-editor:
         specifier: ^0.47.0
         version: 0.47.0
@@ -676,8 +676,8 @@ importers:
         specifier: workspace:*
         version: link:../use-tooltip
       '@vueuse/core':
-        specifier: ^10.9.0
-        version: 10.9.0(vue@3.4.27)
+        specifier: ^10.10.0
+        version: 10.10.0(vue@3.4.27)
       axios:
         specifier: ^1.6.8
         version: 1.6.8(debug@4.3.4)
@@ -838,8 +838,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0
       '@vueuse/core':
-        specifier: ^10.9.0
-        version: 10.9.0(vue@3.4.21)
+        specifier: ^10.10.0
+        version: 10.10.0(vue@3.4.21)
       axios:
         specifier: ^1.6.8
         version: 1.6.8(debug@4.3.4)
@@ -1145,8 +1145,8 @@ importers:
         specifier: workspace:*
         version: link:../use-tooltip
       '@vueuse/core':
-        specifier: ^10.9.0
-        version: 10.9.0(vue@3.4.27)
+        specifier: ^10.10.0
+        version: 10.10.0(vue@3.4.27)
       axios:
         specifier: ^1.6.8
         version: 1.6.8(debug@4.3.4)
@@ -1300,8 +1300,8 @@ importers:
         specifier: ^8.0.8
         version: 8.0.8(vitest@1.5.0)
       '@vueuse/core':
-        specifier: ^10.9.0
-        version: 10.9.0(vue@3.4.21)
+        specifier: ^10.10.0
+        version: 10.10.0(vue@3.4.21)
       cva:
         specifier: 1.0.0-beta.1
         version: 1.0.0-beta.1(typescript@5.4.3)
@@ -1831,8 +1831,8 @@ importers:
         specifier: workspace:*
         version: link:../themes
       '@vueuse/core':
-        specifier: ^10.9.0
-        version: 10.9.0(vue@3.4.27)
+        specifier: ^10.10.0
+        version: 10.10.0(vue@3.4.27)
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -11666,7 +11666,7 @@ packages:
     dependencies:
       '@unocss/reset': 0.59.2
       '@vueuse/components': 10.9.0(vue@3.4.27)
-      '@vueuse/core': 10.9.0(vue@3.4.27)
+      '@vueuse/core': 10.10.0(vue@3.4.27)
       '@vueuse/integrations': 10.9.0(focus-trap@7.5.4)(vue@3.4.27)
       colord: 2.9.3
       floating-vue: 5.2.2(@nuxt/kit@3.11.2)(vue@3.4.27)
@@ -11854,17 +11854,28 @@ packages:
       - vue
     dev: true
 
-  /@vueuse/core@10.9.0(vue@3.4.21):
-    resolution: {integrity: sha512-/1vjTol8SXnx6xewDEKfS0Ra//ncg4Hb0DaZiwKf7drgfMsKFExQ+FnnENcN6efPen+1kIzhLQoGSy0eDUVOMg==}
+  /@vueuse/core@10.10.0(vue@3.4.21):
+    resolution: {integrity: sha512-vexJ/YXYs2S42B783rI95lMt3GzEwkxzC8Hb0Ndpd8rD+p+Lk/Za4bd797Ym7yq4jXqdSyj3JLChunF/vyYjUw==}
     dependencies:
       '@types/web-bluetooth': 0.0.20
-      '@vueuse/metadata': 10.9.0
-      '@vueuse/shared': 10.9.0(vue@3.4.21)
+      '@vueuse/metadata': 10.10.0
+      '@vueuse/shared': 10.10.0(vue@3.4.21)
       vue-demi: 0.14.7(vue@3.4.21)
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
     dev: false
+
+  /@vueuse/core@10.10.0(vue@3.4.27):
+    resolution: {integrity: sha512-vexJ/YXYs2S42B783rI95lMt3GzEwkxzC8Hb0Ndpd8rD+p+Lk/Za4bd797Ym7yq4jXqdSyj3JLChunF/vyYjUw==}
+    dependencies:
+      '@types/web-bluetooth': 0.0.20
+      '@vueuse/metadata': 10.10.0
+      '@vueuse/shared': 10.10.0(vue@3.4.27)
+      vue-demi: 0.14.7(vue@3.4.27)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
 
   /@vueuse/core@10.9.0(vue@3.4.27):
     resolution: {integrity: sha512-/1vjTol8SXnx6xewDEKfS0Ra//ncg4Hb0DaZiwKf7drgfMsKFExQ+FnnENcN6efPen+1kIzhLQoGSy0eDUVOMg==}
@@ -11876,6 +11887,7 @@ packages:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
+    dev: true
 
   /@vueuse/integrations@10.9.0(focus-trap@7.5.4)(vue@3.4.27):
     resolution: {integrity: sha512-acK+A01AYdWSvL4BZmCoJAcyHJ6EqhmkQEXbQLwev1MY7NBnS+hcEMx/BzVoR9zKI+UqEPMD9u6PsyAuiTRT4Q==}
@@ -11927,17 +11939,29 @@ packages:
       - vue
     dev: true
 
+  /@vueuse/metadata@10.10.0:
+    resolution: {integrity: sha512-UNAo2sTCAW5ge6OErPEHb5z7NEAg3XcO9Cj7OK45aZXfLLH1QkexDcZD77HBi5zvEiLOm1An+p/4b5K3Worpug==}
+
   /@vueuse/metadata@10.9.0:
     resolution: {integrity: sha512-iddNbg3yZM0X7qFY2sAotomgdHK7YJ6sKUvQqbvwnf7TmaVPxS4EJydcNsVejNdS8iWCtDk+fYXr7E32nyTnGA==}
+    dev: true
 
-  /@vueuse/shared@10.9.0(vue@3.4.21):
-    resolution: {integrity: sha512-Uud2IWncmAfJvRaFYzv5OHDli+FbOzxiVEQdLCKQKLyhz94PIyFC3CHcH7EDMwIn8NPtD06+PNbC/PiO0LGLtw==}
+  /@vueuse/shared@10.10.0(vue@3.4.21):
+    resolution: {integrity: sha512-2aW33Ac0Uk0U+9yo3Ypg9s5KcR42cuehRWl7vnUHadQyFvCktseyxxEPBi1Eiq4D2yBGACOnqLZpx1eMc7g5Og==}
     dependencies:
       vue-demi: 0.14.7(vue@3.4.21)
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
     dev: false
+
+  /@vueuse/shared@10.10.0(vue@3.4.27):
+    resolution: {integrity: sha512-2aW33Ac0Uk0U+9yo3Ypg9s5KcR42cuehRWl7vnUHadQyFvCktseyxxEPBi1Eiq4D2yBGACOnqLZpx1eMc7g5Og==}
+    dependencies:
+      vue-demi: 0.14.7(vue@3.4.27)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
 
   /@vueuse/shared@10.9.0(vue@3.4.27):
     resolution: {integrity: sha512-Uud2IWncmAfJvRaFYzv5OHDli+FbOzxiVEQdLCKQKLyhz94PIyFC3CHcH7EDMwIn8NPtD06+PNbC/PiO0LGLtw==}
@@ -11946,6 +11970,7 @@ packages:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
+    dev: true
 
   /@webassemblyjs/ast@1.11.6:
     resolution: {integrity: sha512-IN1xI7PwOvLPgjcf180gC1bqn3q/QaOCwYUahIOhbYUu8KA/3tw2RT/T0Gidi1l7Hhj5D/INhJxiICObqpMu4Q==}

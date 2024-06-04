@@ -5,6 +5,7 @@ import {
   type Spec,
   createEmptySpecification,
   parse,
+  useReactiveSpec,
 } from '@scalar/api-reference'
 import { asyncComputed } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
@@ -57,22 +58,12 @@ watch(
   },
 )
 
-const parsedSpec = asyncComputed(
-  async () =>
-    parse(content.value)
-      .then((validSpec) => {
-        // Some specs don’t have servers, make sure they are defined
-        return {
-          servers: [],
-          ...validSpec,
-        } as Spec
-      })
-      .catch((error) => {
-        console.warn(error)
-        return createEmptySpecification()
-      }),
-  createEmptySpecification(),
-)
+const { parsedSpec } = useReactiveSpec({
+  proxy: () => configuration.proxy ?? '',
+  specConfig: () => ({
+    content: content.value,
+  }),
+})
 </script>
 <template>
   <ApiReferenceLayout
@@ -89,9 +80,7 @@ const parsedSpec = asyncComputed(
     <template #sidebar-start>
       <SlotPlaceholder>sidebar-start</SlotPlaceholder>
     </template>
-    <template #sidebar-end>
-      <SlotPlaceholder>sidebar-end</SlotPlaceholder>
-    </template>
+    <template #sidebar-end>value </template>
     <template #editor>
       <MonacoEditor
         v-model="content"

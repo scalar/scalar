@@ -54,7 +54,7 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
     "@scalar/themes": "workspace:*",
-    "@vueuse/core": "^10.9.0"
+    "@vueuse/core": "^10.10.0"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
