@@ -11,6 +11,7 @@ import {
 } from '@scalar/oas-utils/entities/workspace/collection'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import type { Environment } from '@scalar/oas-utils/entities/workspace/environment'
+import type { Server } from '@scalar/oas-utils/entities/workspace/server'
 import type {
   RequestExample,
   RequestRef,
