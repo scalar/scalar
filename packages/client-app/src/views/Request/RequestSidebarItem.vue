@@ -68,7 +68,7 @@ const highlightClasses =
 const leftOffset = computed(() => {
   if (!props.parentUids.length) return '0px'
   else if (isFolder.value) return `-${props.parentUids.length * 16}px`
-  else return `-${(props.parentUids.length - 1) * 16}px`
+  else return `-${props.parentUids.length * 16}px`
 })
 
 const handleNavigation = (event: MouseEvent, uid: string) => {
@@ -132,7 +132,7 @@ const handleItemDelete = () => {
             </slot>
             &hairsp;
           </span>
-          <span class="z-10 font-medium">{{
+          <span class="z-10 font-medium w-full">{{
             'spec' in item ? item.spec.info?.title : item.name
           }}</span>
         </button>
@@ -155,7 +155,7 @@ const handleItemDelete = () => {
         custom
         :to="`/request/${item.uid}`">
         <div
-          class="group relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2"
+          class="group relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2 editable-sidebar-hover"
           :class="[
             highlightClasses,
             activeRequest?.uid === item.uid
@@ -164,78 +164,78 @@ const handleItemDelete = () => {
             !isDroppable ? `pl-6` : 'pl-4',
           ]"
           @click="($event) => handleNavigation($event, item.uid)">
-          <span class="z-10 font-medium">
+          <span class="z-10 font-medium w-full editable-sidebar-hover-item">
             {{ item?.summary }}
           </span>
-          <span
-            class="flex group-hover:hidden group-has-[.group-dropdown]:hidden">
-            &hairsp;
-            <HttpMethod
-              class="font-bold"
-              :method="item.method" />
-          </span>
-          <ScalarDropdown
-            class="group-dropdown -right-12 top-20"
-            placement="left"
-            resize>
-            <ScalarButton
-              class="hover:bg-b-3 z-10 hidden p-1 transition-colors duration-150 group-hover:flex group-has-[.group-dropdown]:flex"
-              size="sm"
-              variant="ghost"
-              @click.stop>
-              <ScalarIcon
-                class="text-c-2"
-                icon="Ellipses"
-                size="xs" />
-            </ScalarButton>
-            <template #items>
-              <ScalarDropdownItem class="flex !gap-2">
+          <div class="relative">
+            <ScalarDropdown
+              class="group-dropdown left-10 top-20"
+              placement="left"
+              resize>
+              <ScalarButton
+                class="z-10 hover:bg-b-3 transition-none p-1 group-hover:flex group-has-[.group-dropdown]:flex absolute left-0 hidden -translate-x-full -ml-1"
+                size="sm"
+                variant="ghost"
+                @click.stop>
                 <ScalarIcon
-                  class="text-c-2 inline-flex"
-                  icon="Add"
-                  size="xs" />
-                <span>Add Variant</span>
-                <ScalarHotkey
-                  class="absolute right-2 group-hover:opacity-80"
-                  hotkey="1"
-                  @hotkeyPressed="handleItemAddVariant" />
-              </ScalarDropdownItem>
-              <ScalarDropdownItem class="flex !gap-2">
-                <ScalarIcon
-                  class="text-c-2 inline-flex"
-                  icon="Edit"
-                  size="xs" />
-                <span>Rename</span>
-                <ScalarHotkey
-                  class="absolute right-2 group-hover:opacity-80"
-                  hotkey="2"
-                  @hotkeyPressed="handleItemRename" />
-              </ScalarDropdownItem>
-              <ScalarDropdownItem class="flex !gap-2">
-                <ScalarIcon
-                  class="text-c-2 inline-flex"
-                  icon="Duplicate"
-                  size="xs" />
-                <span>Duplicate</span>
-                <ScalarHotkey
-                  class="absolute right-2 group-hover:opacity-80"
-                  hotkey="3"
-                  @hotkeyPressed="handleItemDuplicate" />
-              </ScalarDropdownItem>
-              <ScalarDropdownDivider />
-              <ScalarDropdownItem class="flex !gap-2">
-                <ScalarIcon
-                  class="text-c-2 inline-flex"
-                  icon="Trash"
-                  size="xs" />
-                <span>Delete</span>
-                <ScalarHotkey
-                  class="absolute right-2 group-hover:opacity-80"
-                  hotkey="4"
-                  @hotkeyPressed="handleItemDelete" />
-              </ScalarDropdownItem>
-            </template>
-          </ScalarDropdown>
+                  icon="Ellipses"
+                  size="sm" />
+              </ScalarButton>
+              <template #items>
+                <ScalarDropdownItem class="flex !gap-2">
+                  <ScalarIcon
+                    class="text-c-2 inline-flex p-[1px]"
+                    icon="Add"
+                    size="xs" />
+                  <span>Add Variant</span>
+                  <ScalarHotkey
+                    class="absolute right-2 text-c-3"
+                    hotkey="1"
+                    @hotkeyPressed="handleItemAddVariant" />
+                </ScalarDropdownItem>
+                <ScalarDropdownItem class="flex !gap-2">
+                  <ScalarIcon
+                    class="text-c-2 inline-flex p-[1px]"
+                    icon="Edit"
+                    size="xs" />
+                  <span>Rename</span>
+                  <ScalarHotkey
+                    class="absolute right-2 text-c-3"
+                    hotkey="2"
+                    @hotkeyPressed="handleItemRename" />
+                </ScalarDropdownItem>
+                <ScalarDropdownItem class="flex !gap-2">
+                  <ScalarIcon
+                    class="text-c-2 inline-flex p-[1px]"
+                    icon="Duplicate"
+                    size="xs" />
+                  <span>Duplicate</span>
+                  <ScalarHotkey
+                    class="absolute right-2 text-c-3"
+                    hotkey="3"
+                    @hotkeyPressed="handleItemDuplicate" />
+                </ScalarDropdownItem>
+                <ScalarDropdownDivider />
+                <ScalarDropdownItem class="flex !gap-2">
+                  <ScalarIcon
+                    class="text-c-2 inline-flex p-[1px]"
+                    icon="Trash"
+                    size="xs" />
+                  <span>Delete</span>
+                  <ScalarHotkey
+                    class="absolute right-2 text-c-3"
+                    hotkey="4"
+                    @hotkeyPressed="handleItemDelete" />
+                </ScalarDropdownItem>
+              </template>
+            </ScalarDropdown>
+            <span class="flex">
+              &hairsp;
+              <HttpMethod
+                class="font-bold"
+                :method="item.method" />
+            </span>
+          </div>
         </div>
       </RouterLink>
     </Draggable>
@@ -245,5 +245,12 @@ const handleItemDelete = () => {
 <style scoped>
 .before-left-offset:before {
   left: v-bind(leftOffset);
+}
+.editable-sidebar-hover:hover .editable-sidebar-hover-item {
+  mask-image: linear-gradient(
+    to left,
+    transparent 0,
+    var(--scalar-background-2) 20px
+  );
 }
 </style>
