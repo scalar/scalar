@@ -10,25 +10,28 @@ import { themeClasses } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
 import { nanoid } from 'nanoid'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import EnvironmentColors from './EnvironmentColors.vue'
 
+const router = useRouter()
 const { environments, environmentMutators } = useWorkspace()
 
 const activeEnvironmentID = ref<string | null>(null)
 
 function addEnvironmentVariable() {
   const environment = {
-    name: 'New Environment Variable',
+    name: 'New Environment',
     uid: nanoid(),
     color: 'grey',
-    raw: '',
+    raw: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
     parsed: [],
     isDefault: false,
   }
 
   environmentMutators.add(environment)
   activeEnvironmentID.value = environment.uid
+  router.push(activeEnvironmentID.value)
 }
 
 function handleEnvironmentUpdate(raw: string) {
