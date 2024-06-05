@@ -168,14 +168,13 @@ function getPathName(request: XMLHttpRequest) {
             isSquare
             :method="activeRequest.method"
             @change="updateRequestMethod" />
-          <div
-            class="scroll-timeline-x custom-scroll relative flex w-full overflow-hidden overflow-x-auto overflow-y-hidden">
+          <div class="scroll-timeline-x relative flex w-full overflow-hidden">
             <div class="fade-left"></div>
 
             <!-- TODO wrap vars in spans for special effects like mouseOver descriptions -->
-            <div>
+            <div class="w-full">
               <div
-                class="custom-scroll font-code text-c-1 flex flex-1 items-center whitespace-nowrap text-sm font-medium leading-[24.5px]"
+                class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap text-sm font-medium leading-[24.5px]"
                 contenteditable
                 @input="
                   (ev) => onUrlChange((ev.target as HTMLElement).innerText)
@@ -200,7 +199,7 @@ function getPathName(request: XMLHttpRequest) {
           <!-- History shadow and placement-->
           <div
             :class="[
-              'absolute left-0 top-[31px] w-full rounded before:pointer-events-none before:absolute before:left-0 before:top-[-31.5px] before:h-[calc(100%+31.5px)] before:w-full before:rounded',
+              'absolute left-0 top-[31px] w-full rounded before:pointer-events-none before:absolute before:left-0 before:top-[-31.5px] before:h-[calc(100%+31.5px)] before:w-full before:rounded z-50',
               { 'before:shadow-lg': open },
             ]">
             <!-- History Item -->
@@ -268,6 +267,25 @@ function getPathName(request: XMLHttpRequest) {
   scroll-timeline: --scroll-timeline x;
   /* Firefox supports */
   scroll-timeline: --scroll-timeline horizontal;
+  -ms-overflow-style: none; /* IE and Edge */
+}
+.scroll-timeline-x-address {
+  scrollbar-width: none; /* Firefox */
+  overflow: auto;
+}
+/* make clickable are to left of send button */
+.scroll-timeline-x-address:after {
+  content: '';
+  position: absolute;
+  height: 100%;
+  width: 24px;
+  right: 0;
+  cursor: text;
+}
+.scroll-timeline-x-address:empty:before {
+  content: 'Enter URL or cURL request';
+  color: var(--scalar-color-3);
+  pointer-events: none;
 }
 .fade-left,
 .fade-right {
@@ -279,6 +297,7 @@ function getPathName(request: XMLHttpRequest) {
   animation-direction: reverse;
   animation-timeline: --scroll-timeline;
   z-index: 1;
+  pointer-events: none;
 }
 .fade-left {
   background: linear-gradient(
