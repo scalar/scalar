@@ -70,7 +70,7 @@ const variants = cva({
                 cx(variants({ active, selected, disabled: option.disabled }))
               ">
               <div
-                class="flex size-4 items-center justify-center rounded-full group-hover:shadow-border"
+                class="flex size-4 items-center justify-center rounded-full p-[3px] group-hover:shadow-border"
                 :class="selected ? 'bg-blue text-b-1' : 'text-transparent'">
                 <!-- Icon needs help to be optically centered (╥﹏╥) -->
                 <ScalarIcon
