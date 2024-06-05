@@ -9,6 +9,7 @@ const { variable } = defineProps<{
   variable: {
     uid: string
     name: string
+    isDefault: boolean
   }
 }>()
 
@@ -52,6 +53,7 @@ function handleDelete(id: string) {
         icon="Clipboard" />
     </button>
     <button
+      v-if="!variable.isDefault"
       class="text-c-3 hover:bg-b-3 hover:text-c-1 rounded p-1.5"
       type="button"
       @click.prevent="startActionFlow(ModalAction.Delete)">

@@ -9,25 +9,29 @@ import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { themeClasses } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
 import { nanoid } from 'nanoid'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import EnvironmentColors from './EnvironmentColors.vue'
 
+const router = useRouter()
 const { environments, environmentMutators } = useWorkspace()
 
 const activeEnvironmentID = ref<string | null>(null)
 
 function addEnvironmentVariable() {
   const environment = {
-    name: 'New Environment Variable',
+    name: 'New Environment',
     uid: nanoid(),
     color: 'grey',
-    raw: '',
+    raw: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
     parsed: [],
+    isDefault: false,
   }
 
   environmentMutators.add(environment)
   activeEnvironmentID.value = environment.uid
+  router.push(activeEnvironmentID.value)
 }
 
 function handleEnvironmentUpdate(raw: string) {
@@ -48,6 +52,16 @@ const handleColorSelect = (color: string) => {
     environments[activeEnvironmentID.value].color = color
   }
 }
+
+/** set active environment based on the route */
+const setActiveEnvironment = () => {
+  const routeEnvironmentId = router.currentRoute.value.params.environment
+  if (routeEnvironmentId === 'default') {
+    activeEnvironmentID.value = environments.default.uid
+  }
+}
+
+onMounted(setActiveEnvironment)
 </script>
 <template>
   <Sidebar>
@@ -63,6 +77,7 @@ const handleColorSelect = (color: string) => {
               name: environment.name,
               uid: environment.uid,
               color: environment.color,
+              isDefault: environment.isDefault,
             }"
             @click="activeEnvironmentID = environment.uid"
             @delete="removeEnvironmentVariable(environment.uid)" />
