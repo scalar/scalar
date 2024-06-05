@@ -2,7 +2,6 @@
   "name": "@scalar/client-app",
   "description": "API Client App",
   "license": "MIT",
-  "private": true,
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
@@ -15,6 +14,7 @@
     ""
   ],
   "version": "0.0.1",
+  "private": true,
   "engines": {
     "node": ">=18"
   },
