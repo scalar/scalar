@@ -7,7 +7,7 @@ import legacyTheme from '../fixtures/legacyTheme.css?inline'
 import { migrateThemeVariables } from './legacy'
 
 // TODO: re-enable this test - it's failing because of an issue with the vitest snapshot
-describe.skip('Legacy Utils', () => {
+describe('Legacy Utils', () => {
   it('Changes a legacy theme variable', () => {
     const res = migrateThemeVariables('--theme-color-1')
     expect(res).toBe('--scalar-color-1')
