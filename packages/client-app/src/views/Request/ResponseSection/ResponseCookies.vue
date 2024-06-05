@@ -19,8 +19,8 @@ defineProps<{
         <DataTableRow
           v-for="(item, idx) in cookies"
           :key="idx">
-          <DataTableText :modelValue="item.name" />
-          <DataTableText :modelValue="item.value" />
+          <DataTableText :text="item.name" />
+          <DataTableText :text="item.value" />
         </DataTableRow>
       </DataTable>
       <!-- Empty state -->
