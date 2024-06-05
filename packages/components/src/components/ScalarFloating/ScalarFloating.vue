@@ -59,7 +59,7 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
   placement: computed(() => props.placement),
   whileElementsMounted: autoUpdate,
   middleware: computed(() => [
-    offset(5),
+    offset(props.offset || 5),
     flip(),
     shift(),
     ...(props.middleware ?? []),

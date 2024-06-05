@@ -49,7 +49,8 @@ const variants = cva({
     @update:modelValue="(v) => $emit('update:modelValue', v)">
     <ScalarFloating
       :placement="placement ?? 'bottom-start'"
-      :resize="resize">
+      :resize="resize"
+      :offset="offset">
       <ListboxButton as="template">
         <slot />
       </ListboxButton>

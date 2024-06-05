@@ -11,7 +11,8 @@ defineOptions({ inheritAttrs: false })
   <Menu>
     <ScalarFloating
       :placement="placement ?? 'bottom-start'"
-      :resize="resize">
+      :resize="resize"
+      :offset="offset">
       <MenuButton as="template">
         <slot />
       </MenuButton>
