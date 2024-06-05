@@ -9,7 +9,7 @@ import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { themeClasses } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
 import { nanoid } from 'nanoid'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import EnvironmentColors from './EnvironmentColors.vue'
@@ -52,6 +52,16 @@ const handleColorSelect = (color: string) => {
     environments[activeEnvironmentID.value].color = color
   }
 }
+
+/** set active environment based on the route */
+const setActiveEnvironment = () => {
+  const routeEnvironmentId = router.currentRoute.value.params.environment
+  if (routeEnvironmentId === 'default') {
+    activeEnvironmentID.value = environments.default.uid
+  }
+}
+
+onMounted(setActiveEnvironment)
 </script>
 <template>
   <Sidebar>
