@@ -100,6 +100,15 @@ const handleOAuth2PasswordInput = (event: Event) => {
   })
 }
 
+const handleOpenAuth2ClientSecretInput = (event: Event) => {
+  setAuthentication({
+    oAuth2: {
+      ...authentication.oAuth2,
+      clientSecret: (event.target as HTMLInputElement).value,
+    },
+  })
+}
+
 function getOpenAuth2AuthorizationUrl(flow: any) {
   // https://example.com/oauth/authorize?
   //   response_type=token
@@ -187,6 +196,74 @@ function authorizeWithPassword(
         description: 'Open your browser console to get more information.',
       })
       console.error('[authorizeWithPassword]', response)
+    })
+}
+
+function authorizeWithClientCredentials(
+  tokenUrl?: string,
+  options?: {
+    baseUrl?: string
+    proxy?: string
+  },
+) {
+  // Require tokenUrl
+  if (typeof tokenUrl !== 'string') {
+    console.log('tokenUrl is not a string')
+    return
+  }
+
+  // Append baseUrl to tokenUrl if it’s a relative path
+  const urlAndPath =
+    options?.baseUrl && !tokenUrl.startsWith('http')
+      ? concatenateUrlAndPath(options?.baseUrl, tokenUrl)
+      : tokenUrl
+
+  // POST https://api.authorization-server.com/token
+  const url = new URL(urlAndPath)
+
+  // grant_type=client_credentials&
+  // client_id=CLIENT_ID&
+  // client_secret=CLIENT_SECRET
+  const formData = new URLSearchParams()
+  formData.set('grant_type', 'client_credentials')
+  formData.set('client_id', authentication.oAuth2.clientId)
+  formData.set('client_secret', authentication.oAuth2.clientSecret)
+  formData.set('scope', authentication.oAuth2.scopes.join(' '))
+
+  // TODO: Proxy this request
+  fetch(
+    options?.proxy
+      ? redirectToProxy(options?.proxy, url.toString())
+      : url.toString(),
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${btoa(`${authentication.oAuth2.clientId}:${authentication.oAuth2.clientSecret}`)}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: formData,
+    },
+  )
+    .then((response) => {
+      // Check if is a 2xx response
+      if (!response.ok) {
+        throw new Error(
+          'Failed to get an access token. Please check your credentials.',
+        )
+      }
+
+      return response.json()
+    })
+    .then((data) => {
+      setAuthentication({
+        oAuth2: { ...authentication.oAuth2, accessToken: data.access_token },
+      })
+    })
+    .catch((response) => {
+      toast(`Couldn’t retrieve the client_credentials grant token`, 'warn', {
+        description: 'Open your browser console to get more information.',
+      })
+      console.error('[authorizeWithClientCredentials]', response)
     })
 }
 
@@ -303,9 +380,50 @@ const startAuthentication = (url: string) => {
             Reset
           </CardFormButton>
         </template>
+        <CardFormRows>
+          <CardFormGroup>
+            <CardFormTextInput
+              id="oAuth2.clientId"
+              placeholder="12345"
+              type="text"
+              :value="authentication.oAuth2.clientId"
+              @input="handleOpenAuth2ClientIdInput">
+              Client ID
+            </CardFormTextInput>
+            <SecuritySchemeScopes
+              v-if="
+                value !== undefined &&
+                Object.entries(
+                  (value as OpenAPIV3.OAuth2SecurityScheme).flows.implicit
+                    ?.scopes ?? {},
+                ).length > 0
+              "
+              v-model:selected="oauth2SelectedScopes"
+              :scopes="
+                (value as OpenAPIV3.OAuth2SecurityScheme).flows.implicit
+                  ?.scopes ??
+                (value as OpenAPIV3.OAuth2SecurityScheme).flows.password!.scopes
+              " />
+            <button
+              class="cardform-auth-button"
+              type="button"
+              @click="
+                () =>
+                  startAuthentication(
+                    getOpenAuth2AuthorizationUrl(
+                      //@ts-ignore
+                      value?.flows.implicit,
+                    ),
+                  )
+              ">
+              Authorize
+            </button>
+          </CardFormGroup>
+        </CardFormRows>
       </template>
       <!-- Password Flow -->
-      <template v-if="(value as OpenAPIV3.OAuth2SecurityScheme).flows.password">
+      <template
+        v-else-if="(value as OpenAPIV3.OAuth2SecurityScheme).flows.password">
         <CardFormRows>
           <CardFormGroup>
             <CardFormTextInput
@@ -357,6 +475,83 @@ const startAuthentication = (url: string) => {
                   authorizeWithPassword(
                     (value as OpenAPIV3.OAuth2SecurityScheme).flows?.password
                       ?.tokenUrl,
+                    {
+                      baseUrl: getUrlFromServerState(server),
+                      proxy,
+                    },
+                  )
+              ">
+              Authorize
+            </button>
+          </CardFormGroup>
+        </CardFormRows>
+      </template>
+      <!-- Client Credentials Flow -->
+      <template
+        v-else-if="
+          (value as OpenAPIV3.OAuth2SecurityScheme).flows.clientCredentials
+        ">
+        <template v-if="authentication.oAuth2.accessToken">
+          <CardFormTextInput
+            id="oAuth2.accessToken"
+            placeholder="xxxxx"
+            type="password"
+            :value="authentication.oAuth2.accessToken">
+            Access Token
+          </CardFormTextInput>
+          <CardFormButton
+            @click="
+              () =>
+                setAuthentication({
+                  oAuth2: {
+                    ...authentication.oAuth2,
+                    accessToken: '',
+                    state: '',
+                  },
+                })
+            ">
+            Reset
+          </CardFormButton>
+        </template>
+        <CardFormRows>
+          <CardFormGroup>
+            <CardFormTextInput
+              id="oAuth2.clientId"
+              placeholder="12345"
+              type="text"
+              :value="authentication.oAuth2.clientId"
+              @input="handleOpenAuth2ClientIdInput">
+              Client ID
+            </CardFormTextInput>
+            <CardFormTextInput
+              id="oAuth2.clientSecret"
+              placeholder="Secret"
+              type="password"
+              :value="authentication.oAuth2.clientSecret"
+              @input="handleOpenAuth2ClientSecretInput">
+              Client Secret
+            </CardFormTextInput>
+            <SecuritySchemeScopes
+              v-if="
+                value !== undefined &&
+                Object.entries(
+                  (value as OpenAPIV3.OAuth2SecurityScheme).flows
+                    .clientCredentials?.scopes ?? {},
+                ).length > 0
+              "
+              v-model:selected="oauth2SelectedScopes"
+              :scopes="
+                (value as OpenAPIV3.OAuth2SecurityScheme).flows
+                  .clientCredentials?.scopes ?? {}
+              " />
+            <button
+              class="cardform-auth-button"
+              type="button"
+              @click="
+                () =>
+                  authorizeWithClientCredentials(
+                    (value as OpenAPIV3.OAuth2SecurityScheme).flows
+                      ?.clientCredentials?.tokenUrl,
                     {
                       baseUrl: getUrlFromServerState(server),
                       proxy,

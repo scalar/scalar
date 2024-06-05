@@ -56,7 +56,9 @@ security:
   - apiKeyQuery: []
   - apiKeyHeader: []
   - apiKeyCookie: []
-  - oauth2: []
+  - oauth2Implicit: []
+  - oauth2Password: []
+  - oauth2ClientCredentials: []
 tags:
   - name: Authentication
     description:
@@ -354,11 +356,27 @@ components:
       type: apiKey
       in: cookie
       name: api_key
-    oauth2:
+    oauth2Implicit:
       type: oauth2
       flows:
         implicit:
           authorizationUrl: https://galaxy.scalar.com/oauth/authorize
+          scopes:
+            write:planets: modify planets in your account
+            read:planets: read your planets
+    oauth2Password:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: https://galaxy.scalar.com/oauth/authorize
+          scopes:
+            write:planets: modify planets in your account
+            read:planets: read your planets
+    oauth2ClientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://galaxy.scalar.com/oauth/token
           scopes:
             write:planets: modify planets in your account
             read:planets: read your planets

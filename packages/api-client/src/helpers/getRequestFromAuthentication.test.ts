@@ -201,6 +201,7 @@ describe('getRequestFromAuthentication', () => {
           state: '',
           username: '',
           password: '',
+          clientSecret: '',
         },
       },
       [

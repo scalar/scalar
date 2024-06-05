@@ -159,6 +159,7 @@ export type AuthenticationState = {
     state: string
     username: string
     password: string
+    clientSecret: string
   }
 }
 
