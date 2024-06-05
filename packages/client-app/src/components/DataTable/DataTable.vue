@@ -5,7 +5,7 @@ defineProps<{
 </script>
 <template>
   <table
-    class="grid auto-rows-auto rounded-lg shadow-insetsm bg-b-1 min-h-[31.5px] mx-1"
+    class="grid auto-rows-auto rounded shadow-insetsm bg-b-1 min-h-[31.5px] mx-1 custom-scroll"
     :style="{
       gridTemplateColumns: columns.map((col) => col || '1fr').join(' '),
     }">

@@ -211,7 +211,7 @@ onMounted(async () => {
 
 :not(pre) > code[class*='language-'],
 .scalar-codeblock-pre[class*='language-'] {
-  background: var(--scalar-background-2);
+  background: transparent;
 }
 
 /* Line Numbers */

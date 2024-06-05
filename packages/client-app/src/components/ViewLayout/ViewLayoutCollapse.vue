@@ -17,7 +17,7 @@ withDefaults(
   <Disclosure
     v-slot="{ open }"
     as="div"
-    class="focus-within:bg-b-2 focus-within:text-c-1 text-c-2 rounded-lg request-item ui-not-open:bg-transparent ui-open:pb-1 ui-open:mb-[11.75px]"
+    class="focus-within:bg-b-2 focus-within:text-c-1 text-c-2 rounded request-item ui-not-open:bg-transparent ui-open:pb-1 ui-open:mb-[11.75px]"
     :defaultOpen="defaultOpen">
     <DisclosureButton
       class="hover:text-c-1 group flex w-full items-center gap-1.5 overflow-hidden py-1.5 text-sm font-medium px-1.5">

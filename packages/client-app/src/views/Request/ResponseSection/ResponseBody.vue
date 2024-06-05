@@ -111,7 +111,7 @@ watch(
           <template v-if="activePreview === 'raw'">
             <ScalarCodeBlock
               v-if="codeMirrorLanguage"
-              class="marc rounded-b border-[.5px] border-t-0"
+              class="force-text-sm rounded-b border-t-0"
               :content="data"
               :lang="codeMirrorLanguage" />
             <div
@@ -130,7 +130,7 @@ watch(
             <iframe
               ref="iframe"
               allowfullscreen
-              class="w-full"
+              class="w-full aspect-video"
               frameborder="0"></iframe>
           </template>
         </DataTableRow>
@@ -139,7 +139,7 @@ watch(
   </ViewLayoutCollapse>
 </template>
 <style scoped>
-.marc {
-  max-width: 620px;
+.force-text-sm {
+  --scalar-small: 13px;
 }
 </style>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import DataTable from '@/components/DataTable/DataTable.vue'
-import DataTableInput from '@/components/DataTable/DataTableInput.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
+import DataTableText from '@/components/DataTable/DataTableText.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 
 defineProps<{
@@ -19,14 +19,14 @@ defineProps<{
         <DataTableRow
           v-for="(item, idx) in cookies"
           :key="idx">
-          <DataTableInput :modelValue="item.name" />
-          <DataTableInput :modelValue="item.value" />
+          <DataTableText :modelValue="item.name" />
+          <DataTableText :modelValue="item.value" />
         </DataTableRow>
       </DataTable>
       <!-- Empty state -->
       <div
         v-else
-        class="text-c-3 px-4 text-sm border rounded min-h-[47.25px] justify-center flex items-center bg-b-1 mx-1">
+        class="text-c-3 px-4 text-sm border border-[0.5px] rounded min-h-[47.25px] justify-center flex items-center bg-b-1 mx-1">
         No cookies
       </div>
     </template>

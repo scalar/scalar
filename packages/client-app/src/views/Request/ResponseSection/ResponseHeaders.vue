@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import DataTable from '@/components/DataTable/DataTable.vue'
-import DataTableInput from '@/components/DataTable/DataTableInput.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
+import DataTableText from '@/components/DataTable/DataTableText.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 
 defineProps<{
@@ -31,10 +31,10 @@ const formatHeaderName = (headerName: string) => {
         <DataTableRow
           v-for="(item, idx) in headers"
           :key="idx">
-          <DataTableInput
+          <DataTableText
             :modelValue="formatHeaderName(item.name)"
             :readOnly="true" />
-          <DataTableInput
+          <DataTableText
             :modelValue="item.value"
             :readOnly="true" />
         </DataTableRow>
@@ -43,7 +43,7 @@ const formatHeaderName = (headerName: string) => {
       <div
         v-else
         class="text-c-3 px-4 text-sm border rounded min-h-[47.25px] justify-center flex items-center bg-b-1 mx-1">
-        No cookies
+        No Headers
       </div>
     </template>
   </ViewLayoutCollapse>
