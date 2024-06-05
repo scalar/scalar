@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { joinWithSlash } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
 import IntersectionObserver from '../IntersectionObserver.vue'
 
@@ -20,7 +21,7 @@ function handleScroll() {
 
   // If we are pathrouting, set path instead of hash
   if (pathRouting.value) {
-    newUrl.pathname = pathRouting.value.basePath + '/' + id
+    newUrl.pathname = joinWithSlash(pathRouting.value.basePath, id)
   } else {
     newUrl.hash = id
   }
