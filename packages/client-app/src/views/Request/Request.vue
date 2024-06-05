@@ -6,7 +6,7 @@ import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import { themeClasses } from '@/constants'
 import { type ActionModalTab, useActionModal, useSidebar } from '@/hooks'
-import { executeRequestBus } from '@/libs'
+import { executeRequestBus, sendRequest } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
@@ -35,16 +35,6 @@ const handleTabChange = (activeTab: string) => {
   modalState.tab = activeTab as ActionModalTab
 }
 
-const paramsReducer = (params: RequestInstanceParameter[] = []) =>
-  params.reduce(
-    (acc, param) => {
-      if (!param.key) return {}
-      acc[param.key] = param.value
-      return acc
-    },
-    {} as Record<string, string>,
-  )
-
 /**
  * Execute the request
  * called from the send button as well as keyboard shortcuts
@@ -57,43 +47,16 @@ executeRequestBus.on(async () => {
     return
   }
 
-  // Replace path params
-  let url = activeInstance.value.url
-  activeInstance.value.parameters.path.forEach((pathParam) => {
-    if (pathParam.key && pathParam.value) {
-      url = url.replace(`:${pathParam.key}`, pathParam.value)
-    }
-  })
+  const { request, response } = await sendRequest(
+    activeRequest.value,
+    activeInstance.value,
+  )
 
-  const bodyFormData = new FormData()
-  activeInstance.value.body.formData.value.forEach((formParam) => {
-    if (formParam.key && formParam.value) {
-      bodyFormData.append(formParam.key, formParam.value)
-    }
-  })
-
-  const config: AxiosRequestConfig = {
-    url: `https://proxy.scalar.com?scalar_url=${url}`,
-    method: activeRequest.value.method,
-    headers: paramsReducer(activeInstance.value.parameters.headers),
-    params: paramsReducer(activeInstance.value.parameters.query),
-    data: bodyFormData,
+  if (request && response) {
+    activeRequest.value.history.push({ request, response })
+  } else {
+    console.warn('No response or request was returned')
   }
-
-  const response = await axios(config).catch((error: AxiosError) => {
-    // TODO handle error
-    console.error(error)
-    activeRequest.value?.history.push({
-      request: activeInstance.value!,
-      response: error.response!,
-    })
-  })
-
-  if (response)
-    activeRequest.value.history.push({
-      request: activeInstance.value,
-      response: response,
-    })
 })
 
 // TODO temp switch for folder mode
