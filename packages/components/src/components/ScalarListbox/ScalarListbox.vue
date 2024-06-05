@@ -28,7 +28,7 @@ const variants = cva({
   base: [
     // Layout
     'group',
-    'flex min-w-0 items-center gap-2.5 rounded px-2.5 py-1.5 text-left',
+    'text-lef flex min-w-0 items-center gap-2.5 rounded px-2.5 py-1.5',
     'first-of-type:mt-0.75 last-of-type:mb-0.75',
     // Text / background style
     'truncate bg-transparent text-xs text-c-1',
@@ -37,7 +37,7 @@ const variants = cva({
   ],
   variants: {
     selected: { true: 'text-c-1' },
-    active: { true: 'bg-back-2 text-c-1' },
+    active: { true: 'bg-b-2' },
     disabled: { true: 'pointer-events-none opacity-50' },
   },
 })
@@ -49,8 +49,7 @@ const variants = cva({
     @update:modelValue="(v) => $emit('update:modelValue', v)">
     <ScalarFloating
       :placement="placement ?? 'bottom-start'"
-      :resize="resize"
-      :offset="offset">
+      :resize="resize">
       <ListboxButton as="template">
         <slot />
       </ListboxButton>
