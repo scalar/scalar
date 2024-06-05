@@ -31,12 +31,8 @@ const formatHeaderName = (headerName: string) => {
         <DataTableRow
           v-for="(item, idx) in headers"
           :key="idx">
-          <DataTableText
-            :modelValue="formatHeaderName(item.name)"
-            :readOnly="true" />
-          <DataTableText
-            :modelValue="item.value"
-            :readOnly="true" />
+          <DataTableText :text="formatHeaderName(item.name)" />
+          <DataTableText :text="item.value" />
         </DataTableRow>
       </DataTable>
       <!-- Empty state -->
