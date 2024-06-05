@@ -7,14 +7,14 @@ import { $refSchema } from './refs'
 
 /** Request examples - formerly known as instances - are "children" of requests */
 export type RequestExampleParameter = z.TypeOf<
-  typeof requestInstanceParametersSchema
+  typeof requestExampleParametersSchema
 >
-export const requestInstanceParametersSchema = z.object({
-  uid: nanoidSchema,
+export const requestExampleParametersSchema = z.object({
   key: z.string().default(''),
   value: z.string().default(''),
   enabled: z.boolean().default(true),
-  ref: z.any().optional(),
+  /** Params are linked to parents such as path params and global headers/cookies */
+  refUid: nanoidSchema.optional(),
 })
 
 /** A single set of populated values for a sent request */
@@ -44,7 +44,7 @@ export const requestExampleSchema = z.object({
       encoding: z
         .union([z.literal('form-data'), z.literal('urlencoded')])
         .default('form-data'),
-      value: requestInstanceParametersSchema.array().default([]),
+      value: requestExampleParametersSchema.array().default([]),
     }),
     binary: z.instanceof(File).optional(),
     activeBody: z
@@ -52,10 +52,10 @@ export const requestExampleSchema = z.object({
       .default('raw'),
   }),
   parameters: z.object({
-    path: requestInstanceParametersSchema.array().default([]),
-    query: requestInstanceParametersSchema.array().default([]),
-    headers: requestInstanceParametersSchema.array().default([]),
-    cookies: requestInstanceParametersSchema.array().default([]),
+    path: requestExampleParametersSchema.array().default([]),
+    query: requestExampleParametersSchema.array().default([]),
+    headers: requestExampleParametersSchema.array().default([]),
+    cookies: requestExampleParametersSchema.array().default([]),
   }),
   auth: z.record(z.string(), z.any()).default({}),
 })
@@ -64,7 +64,7 @@ export const requestExampleSchema = z.object({
  * Create new instance parameter from a request parameter
  */
 const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
-  requestInstanceParametersSchema.parse({
+  requestExampleParametersSchema.parse({
     key: param.name,
     value:
       param.schema && 'default' in param.schema ? param.schema.default : '',
