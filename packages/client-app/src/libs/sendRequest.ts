@@ -8,9 +8,7 @@ import type { AxiosError, AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 
 /**
- * Convert the parameters to an object
- * @param RequestInstanceParameter
- * @returns Record<string, string>
+ * Convert the parameters array to an object for axios to consume
  */
 const paramsReducer = (params: RequestInstanceParameter[] = []) =>
   params.reduce(
