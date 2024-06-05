@@ -24,6 +24,7 @@ function addEnvironmentVariable() {
     color: 'grey',
     raw: '',
     parsed: [],
+    isDefault: false,
   }
 
   environmentMutators.add(environment)
@@ -63,6 +64,7 @@ const handleColorSelect = (color: string) => {
               name: environment.name,
               uid: environment.uid,
               color: environment.color,
+              isDefault: environment.isDefault,
             }"
             @click="activeEnvironmentID = environment.uid"
             @delete="removeEnvironmentVariable(environment.uid)" />

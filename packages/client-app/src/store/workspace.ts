@@ -49,8 +49,33 @@ function updateRequestInstance<P extends Path<RequestInstance>>(
 // ---------------------------------------------------------------------------
 // ENVIRONMENT
 
-const environments = reactive<Record<string, Environment>>({})
+/** initialize default environment */
+const environments = reactive<Record<string, Environment>>({
+  default: {
+    uid: 'default',
+    name: 'Global Environment',
+    color: 'blue',
+    raw: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
+    parsed: [],
+    isDefault: true,
+  },
+})
 const environmentMutators = mutationFactory(environments, reactive({}))
+
+function editEnvironment(uid: string, path: Path<Environment>, value: string) {
+  if (uid === 'default' || environments[uid]) {
+    setNestedValue(environments[uid], path, value)
+  }
+}
+
+/** prevent deletion of the default environment */
+const deleteEnvironment = (uid: string) => {
+  if (uid === 'default') {
+    console.warn('Default environment cannot be deleted.')
+    return
+  }
+  environmentMutators.delete(uid)
+}
 
 // ---------------------------------------------------------------------------
 // COOKIES
@@ -256,7 +281,11 @@ export function useWorkspace() {
     importSpecFromUrl,
     cookieMutators,
     requestMutators,
-    environmentMutators,
+    environmentMutators: {
+      ...environmentMutators,
+      edit: editEnvironment,
+      delete: deleteEnvironment,
+    },
     updateRequestInstance,
     collectionMutators: {
       add: addCollection,

@@ -4,4 +4,5 @@ export type Environment = {
   color: string
   raw: string
   parsed: { key: string; value: string }[]
+  isDefault?: boolean
 }

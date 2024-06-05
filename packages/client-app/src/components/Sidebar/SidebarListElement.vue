@@ -7,6 +7,7 @@ defineProps<{
     uid: string
     name: string
     color?: string
+    isDefault?: boolean
   }
 }>()
 
@@ -46,7 +47,7 @@ const handleDelete = (id: string) => {
       </button>
       {{ variable.name }}
       <SidebarListElementActions
-        :variable="variable"
+        :variable="{ ...variable, isDefault: variable.isDefault ?? false }"
         @delete="handleDelete" />
     </router-link>
   </li>
