@@ -16,4 +16,10 @@ export type FloatingOptions = {
    * @see https://floating-ui.com/docs/computePosition#middleware
    */
   middleware?: Middleware[]
+  /**
+   * The offset distance between the floating element and its reference element.
+   * This can be used to adjust the spacing or alignment of the floating element.
+   * @default 5
+   */
+  offset?: number
 }
