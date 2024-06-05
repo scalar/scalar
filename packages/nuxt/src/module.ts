@@ -113,7 +113,7 @@ export default defineNuxtModule<ModuleOptions>({
           category: 'server',
           view: {
             type: 'iframe',
-            src: _options.pathRouting!.basePath,
+            src: _options.pathRouting?.basePath ?? '/docs',
           },
         })
       })

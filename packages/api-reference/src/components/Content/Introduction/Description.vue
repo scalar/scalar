@@ -7,6 +7,7 @@ import { onServerPrefetch, useSSRContext } from 'vue'
 import {
   getHeadingsFromMarkdown,
   getLowestHeadingLevel,
+  joinWithSlash,
   sleep,
   splitMarkdownInSections,
 } from '../../../helpers'
@@ -56,7 +57,7 @@ function handleScroll(headingId = '') {
 
   // If we are pathrouting, set path instead of hash
   if (pathRouting.value) {
-    newUrl.pathname = pathRouting.value.basePath + '/' + headingId
+    newUrl.pathname = joinWithSlash(pathRouting.value.basePath, headingId)
   } else {
     newUrl.hash = headingId
   }
