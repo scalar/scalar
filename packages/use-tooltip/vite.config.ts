@@ -1,5 +1,4 @@
 import vue from '@vitejs/plugin-vue'
-import { URL, fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
 import pkg from './package.json'
@@ -16,7 +15,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: Object.keys(pkg.peerDependencies),
+      external: [...Object.keys(pkg.peerDependencies)],
     },
   },
   test: {

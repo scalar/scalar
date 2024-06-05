@@ -14,7 +14,7 @@ export type ModuleOptions = {
    * For multiple references, pass an array of config objects into
    * configurations. These configurations will extend over the base config
    */
-  configurations: Configuration[]
+  configurations: Omit<Configuration, 'devtools'>[]
 } & Configuration
 
 export default defineNuxtModule<ModuleOptions>({

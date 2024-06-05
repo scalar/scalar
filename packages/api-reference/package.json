@@ -71,9 +71,9 @@
     "@scalar/use-tooltip": "workspace:*",
     "@unhead/schema": "^1.9.5",
     "@vcarl/remark-headings": "^0.1.0",
-    "@vueuse/core": "^10.9.0",
+    "@vueuse/core": "^10.10.0",
     "axios": "^1.6.8",
-    "fuse.js": "^6.6.2",
+    "fuse.js": "^7.0.0",
     "github-slugger": "^2.0.0",
     "httpsnippet-lite": "^3.0.5",
     "postcss-nested": "^6.0.1",
@@ -115,7 +115,8 @@
     "vite-plugin-css-injected-by-js": "^3.4.0",
     "vitest": "^1.5.0",
     "vitest-matchmedia-mock": "^1.0.5",
-    "vue-tsc": "^1.8.19"
+    "vue": "^3.4.22",
+    "vue-tsc": "^2.0.13"
   },
   "peerDependencies": {
     "unified": "^11.0.0",

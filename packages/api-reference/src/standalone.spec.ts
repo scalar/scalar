@@ -1,3 +1,4 @@
+//@ts-expect-error yaml imports not registered
 import galaxyContent from '@scalar/galaxy/latest.yaml?raw'
 import { afterAll, describe, expect, it } from 'vitest'
 import MatchMediaMock from 'vitest-matchmedia-mock'

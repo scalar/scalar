@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, toRef } from 'vue'
+import { type Ref, ref, toRef } from 'vue'
 
 import { useCodeMirror } from '../../hooks'
 import type { CodeMirrorLanguage } from '../../types'
@@ -24,7 +24,7 @@ const emit = defineEmits<{
 }>()
 
 // CSS Class
-const codeMirrorRef = ref<HTMLDivElement | null>(null)
+const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
 useCodeMirror({
   content: toRef(() => props.content),

@@ -1,0 +1,71 @@
+{
+  "name": "@scalar/object-utils",
+  "description": "Object manipulation utilities",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/object-utils"
+  },
+  "keywords": [
+    "typescript object transforms"
+  ],
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "dev": "vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "test": "vitest",
+    "types:build": "tsc -p tsconfig.build.json",
+    "types:check": "tsc --noEmit --skipLibCheck --composite false"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./transforms": {
+      "import": "./dist/transforms/index.js",
+      "types": "./dist/transforms/index.d.ts"
+    },
+    "./nested": {
+      "import": "./dist/nested/index.js",
+      "types": "./dist/nested/index.d.ts"
+    },
+    "./mutator-record": {
+      "import": "./dist/mutator-record/index.js",
+      "types": "./dist/mutator-record/index.d.ts"
+    },
+    "./clone": {
+      "import": "./dist/clone/index.js",
+      "types": "./dist/clone/index.d.ts"
+    },
+    "./arrays": {
+      "import": "./dist/arrays/index.js",
+      "types": "./dist/arrays/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "dist/index.js",
+  "dependencies": {
+    "just-clone": "^6.2.0"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "tsc-alias": "^1.8.8",
+    "vite": "^5.2.10"
+  }
+}

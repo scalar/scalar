@@ -1,4 +1,4 @@
-import { isJsonString } from '@scalar/oas-utils'
+import { isJsonString } from '@scalar/oas-utils/helpers'
 
 import { useAuthenticationStore, useOpenApiStore } from '../stores'
 import type { ClientRequestConfig } from '../types'

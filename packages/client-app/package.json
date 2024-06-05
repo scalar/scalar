@@ -1,0 +1,122 @@
+{
+  "name": "@scalar/client-app",
+  "description": "API Client App",
+  "license": "MIT",
+  "private": true,
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/client-app"
+  },
+  "keywords": [
+    ""
+  ],
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "dev": "vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "vite preview",
+    "test": "vitest",
+    "types:build": "vue-tsc -p tsconfig.build.json",
+    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./libs": {
+      "import": "./dist/libs/index.js",
+      "types": "./dist/libs/index.d.ts"
+    },
+    "./libs/eventBusses": {
+      "import": "./dist/libs/eventBusses/index.js",
+      "types": "./dist/libs/eventBusses/index.d.ts"
+    },
+    "./hooks": {
+      "import": "./dist/hooks/index.js",
+      "types": "./dist/hooks/index.d.ts"
+    },
+    "./components": {
+      "import": "./dist/components/index.js",
+      "types": "./dist/components/index.d.ts"
+    },
+    "./components/Sidebar": {
+      "import": "./dist/components/Sidebar/index.js",
+      "types": "./dist/components/Sidebar/index.d.ts"
+    },
+    "./components/HttpMethod": {
+      "import": "./dist/components/HttpMethod/index.js",
+      "types": "./dist/components/HttpMethod/index.d.ts"
+    },
+    "./components/DarkModeToggle": {
+      "import": "./dist/components/DarkModeToggle/index.js",
+      "types": "./dist/components/DarkModeToggle/index.d.ts"
+    },
+    "./components/AddressBar": {
+      "import": "./dist/components/AddressBar/index.js",
+      "types": "./dist/components/AddressBar/index.d.ts"
+    },
+    "./css/*.css": {
+      "import": "./dist/css/*.css",
+      "require": "./dist/css/*.css"
+    },
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "dist/index.js",
+  "dependencies": {
+    "@headlessui/tailwindcss": "^0.2.0",
+    "@headlessui/vue": "^1.7.20",
+    "@scalar/components": "workspace:*",
+    "@scalar/draggable": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
+    "@scalar/object-utils": "workspace:*",
+    "@scalar/openapi-parser": "^0.3.2",
+    "@scalar/use-modal": "workspace:*",
+    "@scalar/use-toasts": "workspace:*",
+    "@scalar/use-tooltip": "workspace:*",
+    "@vueuse/core": "^10.10.0",
+    "axios": "^1.6.8",
+    "content-type": "^1.0.5",
+    "cva": "1.0.0-beta.1",
+    "nanoid": "^5.0.7",
+    "vue-router": "^4.3.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@scalar/use-codemirror": "workspace:*",
+    "@types/content-type": "^1.1.8",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "autoprefixer": "^10.4.19",
+    "fuse.js": "^7.0.0",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "tailwindcss-color-mix": "^0.0.8",
+    "tsc-alias": "^1.8.8",
+    "vite": "^5.2.10",
+    "vite-svg-loader": "^5.1.0",
+    "vue": "^3.4.22",
+    "vue-tsc": "^2.0.13"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0"
+  }
+}

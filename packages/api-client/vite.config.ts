@@ -19,10 +19,8 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        'vue',
-        ...Object.keys(pkg.dependencies || {}).filter(
-          (item) => !item.startsWith('@scalar'),
-        ),
+        ...Object.keys(pkg.peerDependencies),
+        ...Object.keys(pkg.dependencies),
       ],
       plugins: [
         /**
@@ -59,7 +57,7 @@ export default defineConfig({
                     document.head.appendChild(elementStyle)
                   }, 0)
 
-                  console.warn('Auto-loading the css through js has been deprecated. Please import the css directly. Visit https://github.com/scalar/scalar for more info.')
+                  console.warn('Auto-loading the client css through js has been deprecated. Please import the css directly. Visit https://github.com/scalar/scalar for more info.')
                 } catch (error) {
                   console.error(error, 'unable to concat style inside the bundled file')
                 }
@@ -73,20 +71,7 @@ export default defineConfig({
       ],
     },
   },
-  resolve: {
-    alias: [
-      // Resolve the uncompiled source code for all @scalar packages
-      // It’s working with the alias, too. It’s just required to enable HMR.
-      // It also does not match components since we want the built version
-      {
-        // Resolve the uncompiled source code for all @scalar packages
-        // @scalar/* -> packages/*/
-        // (not @scalar/*/style.css)
-        find: /^@scalar\/(?!(openapi-parser|snippetz|galaxy|themes\/style.css|components\/style\.css|components\b))(.+)/,
-        replacement: path.resolve(__dirname, '../$2/src/index.ts'),
-      },
-    ],
-  },
+  resolve: {},
   test: {
     coverage: {
       enabled: true,

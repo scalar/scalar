@@ -49,9 +49,9 @@
     "@headlessui/vue": "^1.7.20",
     "@scalar/oas-utils": "workspace:*",
     "@storybook/test": "^8.0.8",
-    "@vueuse/core": "^10.9.0",
+    "@vueuse/core": "^10.10.0",
     "cva": "1.0.0-beta.1",
-    "nanoid": "^5.0.1",
+    "nanoid": "^5.0.7",
     "prismjs": "^1.29.0",
     "tailwind-merge": "^2.3.0"
   },
@@ -71,7 +71,7 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/test-utils": "^2.4.1",
     "@vue/tsconfig": "^0.4.0",
-    "autoprefixer": "^10.4.16",
+    "autoprefixer": "^10.4.19",
     "jsdom": "^22.1.0",
     "npm-run-all2": "^6.1.1",
     "plugins": "^0.4.2",
@@ -80,7 +80,7 @@
     "storybook": "^8.0.8",
     "storybook-dark-mode": "^4.0.1",
     "svglint": "^2.7.1",
-    "tailwindcss": "^3.3.3",
+    "tailwindcss": "^3.4.3",
     "tailwindcss-color-mix": "^0.0.8",
     "ts-node": "^10.9.1",
     "typescript": "^5.4.3",
@@ -88,7 +88,8 @@
     "vite-plugin-dts": "^3.6.3",
     "vite-svg-loader": "^5.1.0",
     "vitest": "^1.5.0",
-    "vue-tsc": "^1.8.19"
+    "vue": "^3.4.22",
+    "vue-tsc": "^2.0.13"
   },
   "peerDependencies": {
     "vue": "^3.3.0"

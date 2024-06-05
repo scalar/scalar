@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import {
-  type DescriptionSectionSSRKey,
-  type SSRState,
-  createHash,
-  ssrState,
-} from '@scalar/oas-utils'
+import type { DescriptionSectionSSRKey, SSRState } from '@scalar/oas-utils'
+import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import { computedAsync } from '@vueuse/core'
 import { onServerPrefetch, useSSRContext } from 'vue'
 

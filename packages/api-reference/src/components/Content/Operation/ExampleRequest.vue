@@ -8,15 +8,13 @@ import {
   useServerStore,
 } from '@scalar/api-client'
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
-import {
-  type ExampleRequestSSRKey,
-  type SSRState,
-  type TransformedOperation,
-  createHash,
-  getHarRequest,
-  getRequestFromOperation,
-  ssrState,
+import type {
+  ExampleRequestSSRKey,
+  SSRState,
+  TransformedOperation,
 } from '@scalar/oas-utils'
+import { createHash, ssrState } from '@scalar/oas-utils/helpers'
+import { getRequestFromOperation } from '@scalar/oas-utils/spec-getters'
 import { snippetz } from '@scalar/snippetz'
 import { HTTPSnippet } from 'httpsnippet-lite'
 import {
@@ -31,6 +29,7 @@ import {
 import {
   GLOBAL_SECURITY_SYMBOL,
   getApiClientRequest,
+  getHarRequest,
   sleep,
 } from '../../../helpers'
 import { useClipboard } from '../../../hooks'
