@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 export enum PathId {
   Request = 'request',
+  Example = 'example',
   Cookies = 'cookies',
   Collection = 'collection',
   Schema = 'schema',
@@ -33,6 +34,10 @@ const routes = [
   },
   {
     path: `/request/:${PathId.Request}`,
+    component: () => import('@/views/Request/Request.vue'),
+  },
+  {
+    path: `/request/:${PathId.Request}/example/:${PathId.Example}`,
     component: () => import('@/views/Request/Request.vue'),
   },
   /** Components will map to each section of the spec components object */
@@ -74,6 +79,7 @@ export const activeRouterParams = computed(() => {
     [PathId.Collection]: 'default',
     [PathId.Environment]: 'default',
     [PathId.Request]: 'default',
+    [PathId.Example]: 'example',
     [PathId.Schema]: 'default',
     [PathId.Cookies]: 'default',
   }

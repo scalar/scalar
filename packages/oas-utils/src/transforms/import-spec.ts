@@ -6,7 +6,8 @@ import {
 import type { Nanoid } from '@/entities/workspace/shared'
 import {
   type RequestRef,
-  createRequestInstance,
+  createRequestExample,
+  requestRefSchema,
 } from '@/entities/workspace/spec'
 import { tagObjectSchema } from '@/entities/workspace/spec/spec'
 import { parseJsonOrYaml } from '@/helpers/parse'
@@ -96,7 +97,7 @@ export async function importSpecToWorkspace(spec: string) {
         }
       })
 
-      const request: RequestRef = {
+      const request = requestRefSchema.parse({
         uid: nanoid(),
         ref: null,
         method: method.toUpperCase(),
@@ -108,12 +109,12 @@ export async function importSpecToWorkspace(spec: string) {
         externalDocs: operation.externalDocs,
         requestBody: operation.requestBody,
         parameters,
-        values: [],
-        history: [],
-      }
+      })
 
-      // Add initial instance
-      request.values.push(createRequestInstance(request, parsedSpec.servers))
+      // Add initial example
+      const example = createRequestExample(request)
+      request.examples[example.uid] = example
+      request.children.push(example.uid)
 
       request.tags.forEach((t) => requestTags.add(t))
       requests[request.uid] = request

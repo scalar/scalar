@@ -19,7 +19,7 @@ import { type DeepReadonly, computed } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
 
-const emit = defineEmits<{ (event: 'openModal', tab: string): void }>()
+defineEmits<{ (event: 'openModal', tab: string): void }>()
 
 const {
   activeRequest,
