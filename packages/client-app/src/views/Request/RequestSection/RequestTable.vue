@@ -24,6 +24,7 @@ const emit = defineEmits<{
   (e: 'inputFocus'): void
   (e: 'inputBlur'): void
   (e: 'uploadFile', idx: number): void
+  (e: 'removeFile', idx: number): void
 }>()
 
 const columns = props.isEnabledHidden ? ['', ''] : ['', '', '36px']
@@ -70,21 +71,32 @@ const handleFileUpload = (idx: number) => {
         @input="items && idx === items.length - 1 && emit('addRow')"
         @selectVariable="(v) => handleSelectVariable(idx, 'value', v)"
         @update:modelValue="(v) => emit('updateRow', idx, 'value', v)" />
-      <div
+      <DataTableCell
         v-if="showUploadButton"
-        class="p-1">
-        <ScalarButton
-          class="w-full"
-          size="sm"
-          variant="outlined"
-          @click="handleFileUpload(idx)">
-          <span>Upload File</span>
-          <ScalarIcon
-            class="ml-1"
-            icon="Upload"
-            size="xs" />
-        </ScalarButton>
-      </div>
+        class="group/upload p-1 overflow-hidden relative text-ellipsis whitespace-nowrap">
+        <template v-if="item.file">
+          <span class="text-c-2">{{ item.file?.name }}</span>
+          <button
+            class="absolute backdrop-blur-sm border centered-x centered-y hidden rounded text-center p-0.5 w-[calc(100%_-_8px)] group-hover/upload:block"
+            type="button"
+            @click="emit('removeFile', idx)">
+            Remove
+          </button>
+        </template>
+        <template v-else>
+          <ScalarButton
+            class="w-full"
+            size="sm"
+            variant="outlined"
+            @click="handleFileUpload(idx)">
+            <span>Upload File</span>
+            <ScalarIcon
+              class="ml-1"
+              icon="Upload"
+              size="xs" />
+          </ScalarButton>
+        </template>
+      </DataTableCell>
     </DataTableRow>
   </DataTable>
 </template>
