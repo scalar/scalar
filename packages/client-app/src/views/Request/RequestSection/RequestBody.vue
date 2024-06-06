@@ -181,33 +181,20 @@ const handleFileUploadFormData = async (rowIdx: number) => {
   const { open } = useFileDialog({
     onChange: async (files) => {
       const file = files?.[0]
-      if (file) {
-        const reader = new FileReader()
-        reader.onload = async (e) => {
-          if (!activeRequest.value) return
-
-          const text = e.target?.result as string
-
-          const currentParams = formParams.value
-          const updatedParams = [...currentParams]
-          updatedParams[rowIdx] = {
-            ...updatedParams[rowIdx],
-            binary: {
-              file,
-              value: text,
-            },
-          }
-
-          console.log(updatedParams)
-
-          updateRequestInstance(
-            activeRequest.value.uid,
-            activeInstanceIdx,
-            'body.formData.value',
-            updatedParams,
-          )
+      if (file && activeRequest.value) {
+        const currentParams = formParams.value
+        const updatedParams = [...currentParams]
+        updatedParams[rowIdx] = {
+          ...updatedParams[rowIdx],
+          binary: file,
         }
-        reader.readAsText(file)
+
+        updateRequestInstance(
+          activeRequest.value.uid,
+          activeInstanceIdx,
+          'body.formData.value',
+          updatedParams,
+        )
       }
     },
     multiple: false,
@@ -250,23 +237,13 @@ function handleFileUpload() {
   const { open } = useFileDialog({
     onChange: async (files) => {
       const file = files?.[0]
-      if (file) {
-        const reader = new FileReader()
-        reader.onload = async (e) => {
-          if (!activeRequest.value) return
-
-          const text = e.target?.result as string
-          updateRequestInstance(
-            activeRequest.value.uid,
-            activeInstanceIdx,
-            'body.binary',
-            {
-              file,
-              value: text,
-            },
-          )
-        }
-        reader.readAsText(file)
+      if (file && activeRequest.value) {
+        updateRequestInstance(
+          activeRequest.value.uid,
+          activeInstanceIdx,
+          'body.binary',
+          file,
+        )
       }
     },
     multiple: false,
@@ -336,9 +313,9 @@ watch(
           </template>
           <template v-else-if="contentType === 'binaryFile'">
             <div class="flex items-center justify-center p-1.5">
-              <template v-if="activeInstance?.body.binary?.file">
+              <template v-if="activeInstance?.body.binary">
                 <span class="text-c-2">{{
-                  activeInstance?.body.binary.file.name
+                  activeInstance?.body.binary.name
                 }}</span>
                 <button
                   type="button"

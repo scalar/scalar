@@ -39,7 +39,8 @@ export const sendRequest = async (
   let data: FormData | string | File | null = null
 
   if (instance.body.activeBody === 'binary' && instance.body.binary) {
-    data = instance.body.binary
+    const bodyFormData = new FormData()
+    bodyFormData.append(instance.body.binary.name, instance.body.binary)
   } else if (instance.body.activeBody === 'raw') {
     data = instance.body.raw.value
   } else if (instance.body.activeBody === 'formData') {
@@ -48,6 +49,8 @@ export const sendRequest = async (
       instance.body.formData.value.forEach((formParam) => {
         if (formParam.key && formParam.value) {
           bodyFormData.append(formParam.key, formParam.value)
+        } else if (formParam.key && formParam.binary) {
+          bodyFormData.append(formParam.binary.name, formParam.binary)
         }
       })
     }

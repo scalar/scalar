@@ -72,8 +72,8 @@ const handleFileUpload = (idx: number) => {
       <div
         v-if="showUploadButton"
         class="p-1">
-        <template v-if="item.binary?.file">
-          <span class="text-c-2">{{ item.binary?.file.name }}</span>
+        <template v-if="item.binary">
+          <span class="text-c-2">{{ item.binary?.name }}</span>
           <button
             type="button"
             @click="emit('removeFile', idx)">

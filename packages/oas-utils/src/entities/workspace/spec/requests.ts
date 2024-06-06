@@ -13,10 +13,7 @@ export type RequestInstanceParameter = {
   uid: string
   key: string
   value: string
-  binary?: {
-    file: File
-    value: string
-  }
+  binary?: File
   required: boolean
   enabled: boolean
   description: string
@@ -56,10 +53,7 @@ export type RequestInstance = {
       encoding: 'form-data' | 'urlencoded'
       value: RequestInstanceParameter[]
     }
-    binary?: {
-      file: File
-      value: string
-    }
+    binary?: File
     activeBody: 'raw' | 'formData' | 'binary'
   }
   parameters: {
