@@ -109,9 +109,9 @@ const handleOpenAuth2ClientSecretInput = (event: Event) => {
   })
 }
 
-function getOpenAuth2AuthorizationUrl(flow: any) {
+function getOpenAuth2AuthorizationUrl(flow: any, responseType: string) {
   // https://example.com/oauth/authorize?
-  //   response_type=token
+  //   response_type=responseType
   //   &client_id=123
   //   &redirect_uri=https%3A%2F%2Fexample.com%2Foauth2%2Fredirect
   //   &scope=write%3Apets%20read%3Apets
@@ -124,7 +124,7 @@ function getOpenAuth2AuthorizationUrl(flow: any) {
     oAuth2: { ...authentication.oAuth2, state },
   })
 
-  url.searchParams.set('response_type', 'token')
+  url.searchParams.set('response_type', responseType)
   url.searchParams.set('client_id', authentication.oAuth2.clientId)
   url.searchParams.set('redirect_uri', window.location.href)
   url.searchParams.set('scope', scopes)
@@ -267,6 +267,89 @@ function authorizeWithClientCredentials(
     })
 }
 
+function authorizeWithAuthorizationCode(
+  tokenUrl?: string,
+  options?: {
+    baseUrl?: string
+    proxy?: string
+  },
+) {
+  // Require tokenUrl
+  if (typeof tokenUrl !== 'string') {
+    console.log('tokenUrl is not a string')
+    return
+  }
+
+  // Require code
+  const code = authentication.oAuth2.code
+  if (!code) {
+    console.log('code is not set')
+    return
+  }
+
+  // Append baseUrl to tokenUrl if it’s a relative path
+  const urlAndPath =
+    options?.baseUrl && !tokenUrl.startsWith('http')
+      ? concatenateUrlAndPath(options?.baseUrl, tokenUrl)
+      : tokenUrl
+
+  // POST https://api.authorization-server.com/token
+  const url = new URL(urlAndPath)
+
+  // grant_type=authorization_code&
+  // client_id=CLIENT_ID&
+  // client_secret=CLIENT_SECRET&
+  // redirect_uri=REDIRECT_URI&
+  // code=CODE
+  const formData = new URLSearchParams()
+  formData.set('grant_type', 'authorization_code')
+  formData.set('client_id', authentication.oAuth2.clientId)
+  formData.set('client_secret', authentication.oAuth2.clientSecret)
+  formData.set('redirect_uri', window.location.href)
+  formData.set('code', code)
+  formData.set('scope', authentication.oAuth2.scopes.join(' '))
+
+  // TODO: Proxy this request
+  fetch(
+    options?.proxy
+      ? redirectToProxy(options?.proxy, url.toString())
+      : url.toString(),
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${btoa(`${authentication.oAuth2.clientId}:${authentication.oAuth2.clientSecret}`)}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: formData,
+    },
+  )
+    .then((response) => {
+      // Check if is a 2xx response
+      if (!response.ok) {
+        throw new Error(
+          'Failed to get an access token. Please check your credentials.',
+        )
+      }
+
+      return response.json()
+    })
+    .then((data) => {
+      setAuthentication({
+        oAuth2: { ...authentication.oAuth2, accessToken: data.access_token },
+      })
+    })
+    .catch((response) => {
+      toast(`Couldn’t retrieve the authorization_code grant token`, 'warn', {
+        description: 'Open your browser console to get more information.',
+      })
+      // Clear code on failure
+      setAuthentication({
+        oAuth2: { ...authentication.oAuth2, code: '' },
+      })
+      console.error('[authorizeWithAuthorizationCode]', response)
+    })
+}
+
 const oauth2SelectedScopes = computed<string[]>({
   get: () => authentication.oAuth2.scopes,
   set: (scopes) =>
@@ -283,16 +366,23 @@ const startAuthentication = (url: string) => {
       try {
         const urlParams = new URLSearchParams(authWindow.location.href)
         const accessToken = urlParams.get('access_token')
+        const code = urlParams.get('code')
 
-        if (authWindow.closed || accessToken) {
+        if (authWindow.closed || accessToken || code) {
           clearInterval(checkWindowClosed)
 
           // State is a hash fragment and cannot be found through search params
           const state = authWindow.location.href.match(/state=([^&]*)/)?.[1]
-          if (accessToken && authentication.oAuth2.state === state) {
-            setAuthentication({
-              oAuth2: { ...authentication.oAuth2, accessToken },
-            })
+          if (authentication.oAuth2.state === state) {
+            if (accessToken) {
+              setAuthentication({
+                oAuth2: { ...authentication.oAuth2, accessToken },
+              })
+            } else if (code) {
+              setAuthentication({
+                oAuth2: { ...authentication.oAuth2, code },
+              })
+            }
           }
           authWindow.close()
         }
@@ -413,6 +503,7 @@ const startAuthentication = (url: string) => {
                     getOpenAuth2AuthorizationUrl(
                       //@ts-ignore
                       value?.flows.implicit,
+                      'token',
                     ),
                   )
               ">
@@ -563,8 +654,46 @@ const startAuthentication = (url: string) => {
           </CardFormGroup>
         </CardFormRows>
       </template>
-      <!-- Other Flows -->
-      <template v-else>
+      <!-- Authorization Code Flow -->
+      <template
+        v-else-if="
+          (value as OpenAPIV3.OAuth2SecurityScheme).flows.authorizationCode
+        ">
+        <template v-if="authentication.oAuth2.accessToken">
+          <CardFormTextInput
+            id="oAuth2.accessToken"
+            placeholder="xxxxx"
+            type="password"
+            :value="authentication.oAuth2.accessToken">
+            Access Token
+          </CardFormTextInput>
+          <CardFormButton
+            @click="
+              () =>
+                setAuthentication({
+                  oAuth2: {
+                    ...authentication.oAuth2,
+                    accessToken: '',
+                    state: '',
+                    code: '',
+                  },
+                })
+            ">
+            Reset
+          </CardFormButton>
+        </template>
+        <template v-else-if="authentication.oAuth2.code">
+          {{
+            authorizeWithAuthorizationCode(
+              (value as OpenAPIV3.OAuth2SecurityScheme).flows?.authorizationCode
+                ?.tokenUrl,
+              {
+                baseUrl: getUrlFromServerState(server),
+                proxy,
+              },
+            )
+          }}
+        </template>
         <CardFormRows>
           <CardFormGroup>
             <CardFormTextInput
@@ -575,21 +704,26 @@ const startAuthentication = (url: string) => {
               @input="handleOpenAuth2ClientIdInput">
               Client ID
             </CardFormTextInput>
+            <CardFormTextInput
+              id="oAuth2.clientSecret"
+              placeholder="Secret"
+              type="password"
+              :value="authentication.oAuth2.clientSecret"
+              @input="handleOpenAuth2ClientSecretInput">
+              Client Secret
+            </CardFormTextInput>
             <SecuritySchemeScopes
               v-if="
                 value !== undefined &&
                 Object.entries(
-                  (value as OpenAPIV3.OAuth2SecurityScheme).flows.implicit
-                    ?.scopes ??
-                    (value as OpenAPIV3.OAuth2SecurityScheme).flows.password!
-                      .scopes,
+                  (value as OpenAPIV3.OAuth2SecurityScheme).flows
+                    .authorizationCode?.scopes ?? {},
                 ).length > 0
               "
               v-model:selected="oauth2SelectedScopes"
               :scopes="
-                (value as OpenAPIV3.OAuth2SecurityScheme).flows.implicit
-                  ?.scopes ??
-                (value as OpenAPIV3.OAuth2SecurityScheme).flows.password!.scopes
+                (value as OpenAPIV3.OAuth2SecurityScheme).flows
+                  .authorizationCode?.scopes ?? {}
               " />
             <button
               class="cardform-auth-button"
@@ -599,7 +733,8 @@ const startAuthentication = (url: string) => {
                   startAuthentication(
                     getOpenAuth2AuthorizationUrl(
                       //@ts-ignore
-                      value?.flows.implicit ?? value?.flows.password,
+                      value?.flows.authorizationCode,
+                      'code',
                     ),
                   )
               ">

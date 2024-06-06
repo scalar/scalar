@@ -25,6 +25,7 @@ export const createEmptyAuthenticationState = (): AuthenticationState => ({
     accessToken: '',
     state: '',
     clientSecret: '',
+    code: '',
   },
 })
 

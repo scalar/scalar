@@ -160,6 +160,7 @@ export type AuthenticationState = {
     username: string
     password: string
     clientSecret: string
+    code: string
   }
 }
 

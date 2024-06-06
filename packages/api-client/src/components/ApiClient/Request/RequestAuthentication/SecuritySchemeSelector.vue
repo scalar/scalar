@@ -96,6 +96,10 @@ const getAuthorizationTypeLabel = (item: any) => {
       return 'OAuth 2.0 Client Credentials'
     }
 
+    if (item.flows?.authorizationCode) {
+      return 'OAuth 2.0 Authorization Code'
+    }
+
     return 'OAuth 2.0'
   }
 

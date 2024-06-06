@@ -59,6 +59,7 @@ security:
   - oauth2Implicit: []
   - oauth2Password: []
   - oauth2ClientCredentials: []
+  - oauth2AuthorizationCode: []
 tags:
   - name: Authentication
     description:
@@ -377,6 +378,15 @@ components:
       flows:
         clientCredentials:
           tokenUrl: https://galaxy.scalar.com/oauth/token
+          scopes:
+            write:planets: modify planets in your account
+            read:planets: read your planets
+    oauth2AuthorizationCode:
+      type: oauth2
+      flows:
+        authorizationCode:
+          tokenUrl: https://galaxy.scalar.com/oauth/token
+          authorizationUrl: https://galaxy.scalar.com/oauth/authorize
           scopes:
             write:planets: modify planets in your account
             read:planets: read your planets
