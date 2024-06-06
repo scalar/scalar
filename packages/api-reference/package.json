@@ -93,7 +93,6 @@
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",
-    "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@storybook/addon-essentials": "^8.0.8",
     "@storybook/addon-interactions": "^8.0.8",

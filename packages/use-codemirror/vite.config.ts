@@ -1,12 +1,27 @@
-import { createViteBuildOptions } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
+import path from 'path'
 import { defineConfig } from 'vitest/config'
+
+import pkg from './package.json'
 
 export default defineConfig({
   plugins: [vue()],
-  build: createViteBuildOptions({
-    entry: ['src/index.ts'],
-  }),
+  build: {
+    cssCodeSplit: false,
+    minify: false,
+    lib: {
+      entry: ['src/index.ts'],
+      name: pkg.name,
+      fileName: 'index',
+      formats: ['es'],
+    },
+    rollupOptions: {
+      external: [
+        ...Object.keys(pkg.peerDependencies),
+        ...Object.keys(pkg.dependencies),
+      ],
+    },
+  },
   test: {
     coverage: {
       enabled: true,

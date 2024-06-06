@@ -57,7 +57,6 @@
   },
   "devDependencies": {
     "@headlessui/tailwindcss": "^0.2.0",
-    "@scalar/build-tooling": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@storybook/addon-essentials": "^8.0.8",
     "@storybook/addon-interactions": "^8.0.8",
