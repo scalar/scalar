@@ -103,7 +103,7 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
       :parsedSpec="parsedSpec" />
 
     <Introduction
-      v-if="parsedSpec.info.title || parsedSpec.info.description"
+      v-if="parsedSpec?.info?.title || parsedSpec?.info?.description"
       :info="parsedSpec.info"
       :parsedSpec="parsedSpec">
       <template #[introCardsSlot]>
