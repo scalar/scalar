@@ -236,9 +236,9 @@ const startAuthentication = (url: string) => {
       type="password"
       :value="authentication.apiKey.token"
       @input="handleApiKeyTokenInput">
-      {{
-        value.in ? value.in?.charAt(0).toUpperCase() + value.in?.slice(1) : ''
-      }}
+      <template v-if="value.in">
+        {{ value.in?.charAt(0)?.toUpperCase() + value.in?.slice(1) }}
+      </template>
       API
     </CardFormTextInput>
 
@@ -283,7 +283,7 @@ const startAuthentication = (url: string) => {
         (value as OpenAPIV3.OAuth2SecurityScheme).flows
       ">
       <!-- Implicit Flow -->
-      <template v-if="(value as OpenAPIV3.OAuth2SecurityScheme).flows.implicit">
+      <template v-if="(value as any).flows.implicit">
         <template v-if="authentication.oAuth2.accessToken">
           <CardFormTextInput
             id="oAuth2.accessToken"
@@ -308,13 +308,13 @@ const startAuthentication = (url: string) => {
         </template>
       </template>
       <!-- Password Flow -->
-      <template v-if="(value as OpenAPIV3.OAuth2SecurityScheme).flows.password">
+      <template v-if="(value as any).flows.password">
         <CardFormRows>
           <CardFormGroup>
             <CardFormTextInput
               id="oAuth2.username"
               placeholder="Username"
-              :value="(authentication.oAuth2 as any).username"
+              :value="authentication.oAuth2.username"
               @input="handleOAuth2UsernameInput">
               Username
             </CardFormTextInput>
@@ -322,7 +322,7 @@ const startAuthentication = (url: string) => {
               id="oAuth2.password"
               placeholder="Password"
               type="password"
-              :value="(authentication.oAuth2 as any).password"
+              :value="authentication.oAuth2.password"
               @input="handleOAuth2PasswordInput">
               Password
             </CardFormTextInput>
@@ -340,17 +340,14 @@ const startAuthentication = (url: string) => {
               v-if="
                 value !== undefined &&
                 Object.entries(
-                  (value as OpenAPIV3.OAuth2SecurityScheme).flows.implicit
-                    ?.scopes ??
-                    (value as OpenAPIV3.OAuth2SecurityScheme).flows.password!
-                      .scopes,
+                  (value as any).flows.implicit?.scopes ??
+                    (value as any).flows.password!.scopes,
                 ).length > 0
               "
               v-model:selected="oauth2SelectedScopes"
               :scopes="
-                (value as OpenAPIV3.OAuth2SecurityScheme).flows.implicit
-                  ?.scopes ??
-                (value as OpenAPIV3.OAuth2SecurityScheme).flows.password!.scopes
+                (value as any).flows.implicit?.scopes ??
+                (value as any).flows.password!.scopes
               " />
             <button
               class="cardform-auth-button"
@@ -373,7 +370,6 @@ const startAuthentication = (url: string) => {
       </template>
       <!-- Other Flows -->
       <template v-else>
-        <<<<<<< HEAD
         <CardFormRows>
           <CardFormGroup>
             <CardFormTextInput
@@ -388,17 +384,14 @@ const startAuthentication = (url: string) => {
               v-if="
                 value !== undefined &&
                 Object.entries(
-                  (value as OpenAPIV3.OAuth2SecurityScheme).flows.implicit
-                    ?.scopes ??
-                    (value as OpenAPIV3.OAuth2SecurityScheme).flows.password!
-                      .scopes,
+                  (value as any).flows.implicit?.scopes ??
+                    (value as any).flows.password!.scopes,
                 ).length > 0
               "
               v-model:selected="oauth2SelectedScopes"
               :scopes="
-                (value as OpenAPIV3.OAuth2SecurityScheme).flows.implicit
-                  ?.scopes ??
-                (value as OpenAPIV3.OAuth2SecurityScheme).flows.password!.scopes
+                (value as any).flows.implicit?.scopes ??
+                (value as any).flows.password!.scopes
               " />
             <button
               class="cardform-auth-button"
@@ -416,34 +409,6 @@ const startAuthentication = (url: string) => {
             </button>
           </CardFormGroup>
         </CardFormRows>
-        =======
-        <CardFormTextInput
-          id="oAuth2.clientId"
-          placeholder="12345"
-          type="text"
-          :value="authentication.oAuth2.clientId"
-          @input="handleOpenAuth2ClientIdInput">
-          Client ID
-        </CardFormTextInput>
-        <SecuritySchemeScopes
-          v-if="value !== undefined"
-          v-model:selected="oauth2SelectedScopes"
-          :scopes="(value as Record<string, any>).flows.implicit!.scopes" />
-        <button
-          class="cardform-auth-button"
-          type="button"
-          @click="
-            () =>
-              startAuthentication(
-                getOpenAuth2AuthorizationUrl(
-                  //@ts-ignore
-                  value?.flows.implicit,
-                ),
-              )
-          ">
-          Authorize
-        </button>
-        >>>>>>> ab402bb1c (fix: some TS issues)
       </template>
     </CardFormGroup>
   </CardForm>
