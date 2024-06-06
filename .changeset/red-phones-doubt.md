@@ -2,4 +2,4 @@
 "@scalar/api-client": patch
 ---
 
-fix: scoping request component styles #1972
+fix: scoping request component styles
