@@ -166,4 +166,5 @@ export const requestRefSchema = z.object({
   /** Ordered exampleUids for the sidenav */
   children: nanoidSchema.array().default([]),
   history: z.any().array().default([]),
+  baseUrl: z.string().optional(),
 })
