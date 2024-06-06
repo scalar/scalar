@@ -13,6 +13,10 @@ export type RequestInstanceParameter = {
   uid: string
   key: string
   value: string
+  binary?: {
+    file: File
+    value: string
+  }
   required: boolean
   enabled: boolean
   description: string
@@ -23,6 +27,7 @@ export const requestInstanceParametersSchema = z.object({
   key: z.string().default(''),
   required: z.boolean().default(false),
   value: z.string().default(''),
+  file: z.instanceof(File),
   description: z.string().default(''),
   enabled: z.boolean().default(false),
 }) satisfies ZodSchema<RequestInstanceParameter, ZodTypeDef, any>
@@ -51,7 +56,10 @@ export type RequestInstance = {
       encoding: 'form-data' | 'urlencoded'
       value: RequestInstanceParameter[]
     }
-    binary?: File
+    binary?: {
+      file: File
+      value: string
+    }
     activeBody: 'raw' | 'formData' | 'binary'
   }
   parameters: {

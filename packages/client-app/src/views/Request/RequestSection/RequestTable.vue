@@ -24,6 +24,7 @@ const emit = defineEmits<{
   (e: 'inputFocus'): void
   (e: 'inputBlur'): void
   (e: 'uploadFile', idx: number): void
+  (e: 'removeFile', idx: number): void
 }>()
 
 const columns = props.isEnabledHidden ? ['', ''] : ['', '', '36px']
@@ -71,17 +72,27 @@ const handleFileUpload = (idx: number) => {
       <div
         v-if="showUploadButton"
         class="p-1">
-        <ScalarButton
-          class="w-full"
-          size="sm"
-          variant="outlined"
-          @click="handleFileUpload(idx)">
-          <span>Upload File</span>
-          <ScalarIcon
-            class="ml-1"
-            icon="Upload"
-            size="xs" />
-        </ScalarButton>
+        <template v-if="item.binary?.file">
+          <span class="text-c-2">{{ item.binary?.file.name }}</span>
+          <button
+            type="button"
+            @click="emit('removeFile', idx)">
+            remove
+          </button>
+        </template>
+        <template v-else>
+          <ScalarButton
+            class="w-full"
+            size="sm"
+            variant="outlined"
+            @click="handleFileUpload(idx)">
+            <span>Upload File</span>
+            <ScalarIcon
+              class="ml-1"
+              icon="Upload"
+              size="xs" />
+          </ScalarButton>
+        </template>
       </div>
     </DataTableRow>
   </DataTable>
