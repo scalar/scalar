@@ -49,7 +49,7 @@ executeRequestBus.on(async () => {
     activeRequest.value,
     activeExample.value,
     // TOdo update this with the new server + request path
-    'https://example.com',
+    activeRequest.value.path,
   )
 
   if (request && response) {
