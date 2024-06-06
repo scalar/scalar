@@ -17,7 +17,10 @@ import {
 } from '@scalar/draggable'
 import '@scalar/draggable/style.css'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
-import type { RequestRef } from '@scalar/oas-utils/entities/workspace/spec'
+import type {
+  RequestExample,
+  RequestRef,
+} from '@scalar/oas-utils/entities/workspace/spec'
 import { type DeepReadonly, computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
@@ -43,6 +46,7 @@ const props = withDefaults(
       | DeepReadonly<Collection>
       | DeepReadonly<Collection['folders']>[string]
       | RequestRef
+      | RequestExample
   }>(),
   { isDraggable: false, isDroppable: false, isChild: false },
 )
@@ -94,6 +98,17 @@ const handleItemDuplicate = () => {
 const handleItemDelete = () => {
   console.log('delete')
 }
+
+// TODO handle requestExample
+const getTitle = (item: (typeof props)['item']) => {
+  // Collection
+  if ('spec' in item) return item.spec.info?.title
+  // Request
+  else if ('summary' in item) return item.summary
+  // Folder
+  else if ('name' in item) return item.name
+  return ''
+}
 </script>
 <template>
   <div
@@ -132,9 +147,9 @@ const handleItemDelete = () => {
             </slot>
             &hairsp;
           </span>
-          <span class="z-10 font-medium w-full">{{
-            'spec' in item ? item.spec.info?.title : item.name
-          }}</span>
+          <span class="z-10 font-medium w-full">
+            {{ getTitle(item) }}
+          </span>
         </button>
         <div v-show="collapsedSidebarFolders[item.uid]">
           <RequestSidebarItem
@@ -165,7 +180,7 @@ const handleItemDelete = () => {
           ]"
           @click="($event) => handleNavigation($event, item.uid)">
           <span class="z-10 font-medium w-full editable-sidebar-hover-item">
-            {{ item?.summary }}
+            {{ getTitle(item) }}
           </span>
           <div class="relative">
             <ScalarDropdown
@@ -231,9 +246,9 @@ const handleItemDelete = () => {
             </ScalarDropdown>
             <span class="flex">
               &hairsp;
-              <HttpMethod
-                class="font-bold"
-                :method="item.method" />
+              <!-- <HttpMethod -->
+              <!--   class="font-bold" -->
+              <!--   :method="item.method" /> -->
             </span>
           </div>
         </div>
