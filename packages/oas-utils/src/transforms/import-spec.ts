@@ -145,7 +145,9 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
   const collection = createCollection({
     spec: {
       openapi: parsedSpec.openapi,
+      // @ts-expect-error For some reason the types don't match
       info: schema?.info,
+      // @ts-expect-error For some reason the types don't match
       externalDocs: schema?.externalDocs,
       serverUids: servers.map(({ uid }) => uid),
       tags,
