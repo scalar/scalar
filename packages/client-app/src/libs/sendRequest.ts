@@ -42,11 +42,10 @@ export const sendRequest = async (
   let data: FormData | string | File | null = null
 
   if (example.body.activeBody === 'binary' && example.body.binary) {
-    headers['Content-Type'] = 'multipart/form-data'
-
-    const bodyFormData = new FormData()
-    bodyFormData.append(example.body.binary.name, example.body.binary)
-    data = bodyFormData
+    headers['Content-Type'] = example.body.binary.type
+    headers['Content-Disposition'] =
+      `attachment; filename="${example.body.binary.name}"`
+    data = example.body.binary
   } else if (example.body.activeBody === 'raw') {
     data = example.body.raw.value
   } else if (example.body.activeBody === 'formData') {

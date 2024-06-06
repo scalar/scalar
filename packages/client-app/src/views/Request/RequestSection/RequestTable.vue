@@ -74,8 +74,8 @@ const handleFileUpload = (idx: number) => {
       <DataTableCell
         v-if="showUploadButton"
         class="group/upload p-1 overflow-hidden relative text-ellipsis whitespace-nowrap">
-        <template v-if="item.binary">
-          <span class="text-c-2">{{ item.binary?.name }}</span>
+        <template v-if="item.file">
+          <span class="text-c-2">{{ item.file?.name }}</span>
           <button
             class="absolute backdrop-blur-sm border centered-x centered-y hidden rounded text-center p-0.5 w-[calc(100%_-_8px)] group-hover/upload:block"
             type="button"
