@@ -93,10 +93,22 @@ const activeCookieId = computed<string | undefined>(
 // ---------------------------------------------------------------------------
 // SERVERS
 
-const servers = reactive<Record<string, Server>>({})
+const servers = reactive<Record<string, Server>>({
+  default: {
+    uid: 'default',
+    name: 'default',
+    url: 'https://galaxy.scalar.com',
+  },
+})
 const serverMutators = mutationFactory(servers, reactive({}))
 
-/** Cookie associated with the current route */
+function editServers(uid: string, path: Path<Server>, value: string) {
+  if (uid === 'default' || servers[uid]) {
+    setNestedValue(servers[uid], path, value)
+  }
+}
+
+/** Server associated with the current route */
 const activeServerId = computed<string | undefined>(
   () => activeRouterParams.value[PathId.Servers],
 )
@@ -115,6 +127,7 @@ const workspaceRequests = computed(() =>
       path: r.path,
       method: r.method,
       summary: r.summary,
+      baseUrl: servers.default.url,
     })),
     workspace.requests,
     'uid',
@@ -292,7 +305,10 @@ export function useWorkspace() {
     importSpecFile,
     importSpecFromUrl,
     cookieMutators,
-    serverMutators,
+    serverMutators: {
+      ...serverMutators,
+      edit: editServers,
+    },
     requestMutators,
     environmentMutators: {
       ...environmentMutators,
