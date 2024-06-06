@@ -4,10 +4,11 @@ import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableHeader from '@/components/DataTable/DataTableHeader.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
+import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { requestExampleParametersSchema } from '@scalar/oas-utils/entities/workspace/spec'
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 import RequestTable from './RequestTable.vue'
 
@@ -111,10 +112,6 @@ const formParams = computed(
   () => activeExample.value?.body.formData.value ?? [],
 )
 
-onMounted(() => {
-  defaultRow()
-})
-
 function defaultRow() {
   /** ensure one empty row by default */
   if (formParams.value.length === 0) {
@@ -157,27 +154,116 @@ const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
 
   let activeBodyType: { encoding: string; value: any } | undefined
   let bodyPath: 'body.raw.value' | 'body.formData.value' = 'body.raw.value'
+  let bodyType: 'raw' | 'formData' | 'binary' = 'raw'
 
   if (type === 'multipartForm' || type === 'formUrlEncoded') {
     activeBodyType = { encoding: 'form-data', value: formParams.value || [] }
     bodyPath = 'body.formData.value'
+    bodyType = 'formData'
+  } else if (type === 'binaryFile') {
+    bodyType = 'binary'
   } else {
     const rawValue = activeExample.value?.body.raw.value ?? ''
     activeBodyType = { encoding: type, value: rawValue }
     bodyPath = 'body.raw.value'
+    bodyType = 'raw'
   }
 
+  if (activeBodyType) {
+    updateRequestExample(
+      activeRequest.value.uid,
+      activeExample.value.uid,
+      bodyPath,
+      activeBodyType.value,
+    )
+  }
   updateRequestExample(
     activeRequest.value.uid,
     activeExample.value.uid,
-    bodyPath,
-    activeBodyType.value,
+    'body.activeBody',
+    bodyType,
   )
 }
 
-const handleFileUpload = (idx: number) => {
-  console.log(`File upload triggered for row ${idx}`)
+const handleFileUploadFormData = async (rowIdx: number) => {
+  const { open } = useFileDialog({
+    onChange: async (files) => {
+      const file = files?.[0]
+      if (file && activeRequest.value && activeExample.value) {
+        const currentParams = formParams.value
+        const updatedParams = [...currentParams]
+        updatedParams[rowIdx] = {
+          ...updatedParams[rowIdx],
+          binary: file,
+        }
+        updateRequestExample(
+          activeRequest.value.uid,
+          activeExample.value.uid,
+          'body.formData.value',
+          updatedParams,
+        )
+      }
+    },
+    multiple: false,
+    accept: '*/*',
+  })
+  open()
 }
+
+function removeBinaryFile() {
+  if (!activeRequest.value || !activeExample.value) return
+  updateRequestExample(
+    activeRequest.value.uid,
+    activeExample.value.uid,
+    'body.binary',
+    undefined,
+  )
+}
+function handleRemoveFileFormData(rowIdx: number) {
+  if (!activeRequest.value || !activeExample.value) return
+  const currentParams = formParams.value
+  const updatedParams = [...currentParams]
+  updatedParams[rowIdx] = {
+    ...updatedParams[rowIdx],
+    binary: undefined,
+  }
+  updateRequestExample(
+    activeRequest.value.uid,
+    activeExample.value.uid,
+    'body.formData.value',
+    updatedParams,
+  )
+}
+
+function handleFileUpload() {
+  const { open } = useFileDialog({
+    onChange: async (files) => {
+      const file = files?.[0]
+      if (file && activeRequest.value && activeExample.value) {
+        updateRequestExample(
+          activeRequest.value.uid,
+          activeExample.value.uid,
+          'body.binary',
+          file,
+        )
+      }
+    },
+    multiple: false,
+    accept: '*/*',
+  })
+  open()
+}
+
+// we always add an empty row if its empty :)
+watch(
+  contentType,
+  (val) => {
+    if (val === 'multipartForm' || val === 'formUrlEncoded') {
+      defaultRow()
+    }
+  },
+  { immediate: true },
+)
 </script>
 <template>
   <ViewLayoutCollapse>
@@ -228,15 +314,28 @@ const handleFileUpload = (idx: number) => {
           </template>
           <template v-else-if="contentType === 'binaryFile'">
             <div class="flex items-center justify-center p-1.5">
-              <ScalarButton
-                size="sm"
-                variant="outlined">
-                <span>Upload File</span>
-                <ScalarIcon
-                  class="ml-1"
-                  icon="Upload"
-                  size="xs" />
-              </ScalarButton>
+              <template v-if="activeExample?.body.binary">
+                <span class="text-c-2">{{
+                  activeExample?.body.binary.name
+                }}</span>
+                <button
+                  type="button"
+                  @click="removeBinaryFile">
+                  remove
+                </button>
+              </template>
+              <template v-else>
+                <ScalarButton
+                  size="sm"
+                  variant="outlined"
+                  @click="handleFileUpload">
+                  <span>Upload File</span>
+                  <ScalarIcon
+                    class="ml-1"
+                    icon="Upload"
+                    size="xs" />
+                </ScalarButton>
+              </template>
             </div>
           </template>
           <template v-else-if="contentType == 'multipartForm'">
@@ -248,8 +347,9 @@ const handleFileUpload = (idx: number) => {
               showUploadButton
               @addRow="addRow"
               @deleteRow="deleteRow"
+              @removeFile="handleRemoveFileFormData"
               @updateRow="updateRow"
-              @uploadFile="handleFileUpload" />
+              @uploadFile="handleFileUploadFormData" />
           </template>
           <template v-else-if="contentType == 'formUrlEncoded'">
             <RequestTable
@@ -260,8 +360,9 @@ const handleFileUpload = (idx: number) => {
               showUploadButton
               @addRow="addRow"
               @deleteRow="deleteRow"
+              @removeFile="handleRemoveFileFormData"
               @updateRow="updateRow"
-              @uploadFile="handleFileUpload" />
+              @uploadFile="handleFileUploadFormData" />
           </template>
           <template v-else>
             <CodeInput

@@ -14,6 +14,7 @@ export const requestExampleParametersSchema = z.object({
   key: z.string().default(''),
   value: z.union([z.string(), z.number()]).transform(String).default(''),
   enabled: z.boolean().default(true),
+  file: z.instanceof(File).optional(),
   /** Params are linked to parents such as path params and global headers/cookies */
   refUid: nanoidSchema.optional(),
 })
