@@ -1,4 +1,5 @@
 import { nanoidSchema } from '@/entities/workspace/shared'
+import { iterateTitle } from '@/helpers'
 import type { AxiosResponse } from 'axios'
 import type { OpenAPIV3_1 } from 'openapi-types'
 import { type ZodSchema, z } from 'zod'
@@ -24,6 +25,8 @@ export type ResponseInstance = AxiosResponse
 export type RequestExample = z.TypeOf<typeof requestExampleSchema>
 export const requestExampleSchema = z.object({
   uid: nanoidSchema,
+  requestUid: z.string().min(7),
+  name: z.string(),
   body: z
     .object({
       raw: z
@@ -78,6 +81,7 @@ const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
 
 /**
  * Create new request example from a request
+ * Also iterates the name
  *
  * TODO body
  */
@@ -91,9 +95,17 @@ export const createRequestExample = (request: RequestRef): RequestExample => {
 
   // TODO body
 
-  return requestExampleSchema.parse({
+  const name = iterateTitle(request.summary ?? 'Example', (t) =>
+    Object.values(request.examples).some(({ name: _name }) => t === _name),
+  )
+
+  const example = requestExampleSchema.parse({
+    requestUid: request.uid,
+    name,
     parameters,
   })
+
+  return example
 }
 
 /**

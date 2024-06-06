@@ -1,5 +1,6 @@
 export * from './schema-model'
 export * from './fetchSpecFromUrl'
+export * from './iterateTitle'
 export * from './prettyPrintJson'
 export * from './ssrState'
 export * from './createHash'
