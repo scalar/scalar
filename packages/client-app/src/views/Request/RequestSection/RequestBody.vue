@@ -159,21 +159,41 @@ const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
 
   let activeBodyType: { encoding: string; value: any } | undefined
   let bodyPath: 'body.raw.value' | 'body.formData.value' = 'body.raw.value'
+  let bodyType: 'raw' | 'formData' | 'binary' = 'raw'
 
   if (type === 'multipartForm' || type === 'formUrlEncoded') {
     activeBodyType = { encoding: 'form-data', value: formParams.value || [] }
     bodyPath = 'body.formData.value'
+    bodyType = 'formData'
+  } else if (type === 'binaryFile') {
+    bodyType = 'binary'
   } else {
     const rawValue = activeInstance.value?.body.raw.value ?? ''
     activeBodyType = { encoding: type, value: rawValue }
     bodyPath = 'body.raw.value'
+    bodyType = 'raw'
   }
 
+  if (activeBodyType) {
+    updateRequestInstance(
+      activeRequest.value.uid,
+      activeInstanceIdx,
+      bodyPath,
+      activeBodyType.value,
+    )
+  }
   updateRequestInstance(
     activeRequest.value.uid,
     activeInstanceIdx,
     bodyPath,
     activeBodyType.value,
+  )
+
+  updateRequestInstance(
+    activeRequest.value.uid,
+    activeInstanceIdx,
+    'body.activeBody',
+    bodyType,
   )
 }
 
