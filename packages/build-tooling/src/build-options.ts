@@ -7,7 +7,9 @@ type StrictPluginOptions = RollupOptions & { plugins?: InputPluginOption[] }
 
 /**
  * Generate rollup options for a Scalar package build
- * DO NOT USE FOR CLIENT BUNDLING
+ *
+ * This should be used for packages and libraries NOT bundling
+ * projects to be served client-side (like web apps)
  *
  * Defaults:
  * - Treeshaking enabled
@@ -61,6 +63,9 @@ export function createRollupConfig(props: {
 
 /**
  * Creates a standard Scalar library vite build config
+ *
+ * This should be used for packages and libraries NOT bundling
+ * projects to be served client-side (like web apps)
  *
  * Defaults:
  * - Uses './dist' as output
