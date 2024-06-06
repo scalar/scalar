@@ -35,11 +35,11 @@ export const parse = (specification: any): Promise<Spec> => {
 
       const start = performance.now()
 
-      const content = await load(specification, {
+      const { filesystem } = await load(specification, {
         plugins: [fetchUrlsPlugin()],
       })
 
-      const { schema, errors } = await dereference(content)
+      const { schema, errors } = await dereference(filesystem)
 
       const end = performance.now()
       console.log(`dereference: ${Math.round(end - start)} ms`)
