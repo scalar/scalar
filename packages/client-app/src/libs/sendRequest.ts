@@ -37,25 +37,32 @@ export const sendRequest = async (
     }
   })
 
+  const headers = paramsReducer(example.parameters.headers)
+
   let data: FormData | string | File | null = null
 
   if (example.body.activeBody === 'binary' && example.body.binary) {
+    headers['Content-Type'] = example.body.binary.type
+    headers['Content-Disposition'] =
+      `attachment; filename="${example.body.binary.name}"`
     data = example.body.binary
   } else if (example.body.activeBody === 'raw') {
     data = example.body.raw.value
   } else if (example.body.activeBody === 'formData') {
+    headers['Content-Type'] = 'multipart/form-data'
+
     const bodyFormData = new FormData()
     if (example.body.formData.encoding === 'form-data') {
       example.body.formData.value.forEach((formParam) => {
         if (formParam.key && formParam.value) {
           bodyFormData.append(formParam.key, formParam.value)
+        } else if (formParam.file) {
+          bodyFormData.append(formParam.file.name, formParam.file)
         }
       })
+      data = bodyFormData
     }
-    data = bodyFormData
   }
-
-  const headers = paramsReducer(example.parameters.headers)
 
   // Add cookies to the headers
   if (example.parameters.cookies) {
