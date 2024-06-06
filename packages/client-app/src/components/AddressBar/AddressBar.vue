@@ -8,7 +8,8 @@ import {
   ListboxOption,
   ListboxOptions,
 } from '@headlessui/vue'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import type { Server } from '@scalar/oas-utils/entities/workspace/server/server'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
@@ -18,12 +19,19 @@ import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import { REQUEST_METHODS, type RequestMethod } from '../HttpMethod/httpMethods'
 import { getStatusCodeColor } from './httpStatusCodeColors'
 
-const { activeRequest, activeExample, updateRequestExample, requestMutators } =
-  useWorkspace()
+const {
+  activeRequest,
+  activeExample,
+  updateRequestExample,
+  requestMutators,
+  servers,
+} = useWorkspace()
 
 const history = computed(() => activeRequest.value?.history ?? [])
 
 const selectedRequest = ref(history.value[0])
+const selectedServer = ref<Server>(servers.default)
+
 const keys = useMagicKeys()
 whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, () =>
   executeRequestBus.emit(),
@@ -122,6 +130,29 @@ function getPathName(request: XMLHttpRequest) {
   return pathName
 }
 
+const serverOptions = computed(() => [
+  ...Object.entries(servers).map(([id, server]) => ({
+    id,
+    label: server.name,
+    url: server.url,
+  })),
+])
+
+watch(serverOptions, (newOptions) => {
+  if (newOptions) {
+    const currentServer = newOptions.find(
+      (option) => option.id === selectedServer.value.id,
+    )
+    selectedServer.value = currentServer || newOptions[0]
+  }
+})
+
+watch(selectedServer, (newServer) => {
+  if (newServer.id && activeRequest.value) {
+    requestMutators.edit(activeRequest.value.uid, 'baseUrl', newServer.url)
+  }
+})
+
 /**
  * TODO: This component is pretty much mocked for now, will come back and finish it up once we
  * Start making requests and adding some history
@@ -157,17 +188,29 @@ function getPathName(request: XMLHttpRequest) {
               :class="getBackgroundColor()"
               :style="{ transform: `translate3d(-${percentage}%,0,0)` }"></div>
           </div>
-          <HttpMethod
-            class="font-bold"
-            isEditable
-            isSquare
-            :method="activeRequest.method"
-            @change="updateRequestMethod" />
+          <div class="flex gap-1">
+            <HttpMethod
+              class="font-bold"
+              isEditable
+              isSquare
+              :method="activeRequest.method"
+              @change="updateRequestMethod" />
+            <ScalarListbox
+              v-model="selectedServer"
+              :options="serverOptions">
+              <ScalarButton
+                variant="outlined"
+                size="sm"
+                class="font-code text-sm whitespace-nowrap"
+                >{{ selectedServer.url }}</ScalarButton
+              >
+            </ScalarListbox>
+          </div>
           <div class="scroll-timeline-x relative flex w-full overflow-hidden">
             <div class="fade-left"></div>
 
             <!-- TODO wrap vars in spans for special effects like mouseOver descriptions -->
-            <div class="w-full">
+            <div class="flex w-full">
               <div
                 class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap text-sm font-medium leading-[24.5px]"
                 contenteditable
@@ -302,7 +345,7 @@ function getPathName(request: XMLHttpRequest) {
     var(--scalar-background-1) 100%
   );
   left: 0;
-  min-width: 6px;
+  min-width: 3px;
 }
 .fade-right {
   background: linear-gradient(
