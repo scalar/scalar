@@ -1,5 +1,6 @@
 import type { Cookie } from '@/entities/workspace/cookie'
 import type { Environment } from '@/entities/workspace/environment'
+import type { Server } from '@/entities/workspace/server'
 import type { Nanoid } from '@/entities/workspace/shared'
 import { nanoid } from 'nanoid'
 
@@ -17,6 +18,8 @@ export type Workspace = {
   environments: Environment[]
   /** Cookies */
   cookies: Cookie[]
+  /** Servers */
+  servers: Server[]
 }
 
 export const defaultWorkspace = (): Workspace => ({
@@ -27,4 +30,5 @@ export const defaultWorkspace = (): Workspace => ({
   collections: [],
   environments: [],
   cookies: [],
+  servers: [],
 })

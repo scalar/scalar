@@ -11,6 +11,7 @@ import {
 } from '@scalar/oas-utils/entities/workspace/collection'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import type { Environment } from '@scalar/oas-utils/entities/workspace/environment'
+import type { Server } from '@scalar/oas-utils/entities/workspace/server'
 import type {
   RequestExample,
   RequestRef,
@@ -87,6 +88,17 @@ const cookieMutators = mutationFactory(cookies, reactive({}))
 /** Cookie associated with the current route */
 const activeCookieId = computed<string | undefined>(
   () => activeRouterParams.value[PathId.Cookies],
+)
+
+// ---------------------------------------------------------------------------
+// SERVERS
+
+const servers = reactive<Record<string, Server>>({})
+const serverMutators = mutationFactory(servers, reactive({}))
+
+/** Cookie associated with the current route */
+const activeServerId = computed<string | undefined>(
+  () => activeRouterParams.value[PathId.Servers],
 )
 
 // ---------------------------------------------------------------------------
@@ -269,7 +281,9 @@ export function useWorkspace() {
     requests,
     environments,
     cookies,
+    servers,
     activeCookieId,
+    activeServerId,
     activeCollection,
     activeRequest,
     activeExample,
@@ -278,6 +292,7 @@ export function useWorkspace() {
     importSpecFile,
     importSpecFromUrl,
     cookieMutators,
+    serverMutators,
     requestMutators,
     environmentMutators: {
       ...environmentMutators,
