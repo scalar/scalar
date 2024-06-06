@@ -43,7 +43,6 @@
   "devDependencies": {
     "@headlessui/vue": "^1.7.20",
     "@vitejs/plugin-vue": "^5.0.4",
-    "@vitest/coverage-v8": "^1.5.0",
     "tsc-alias": "^1.8.8",
     "vite": "^5.2.10",
     "vitest": "^1.6.0",

@@ -42,7 +42,6 @@
   "module": "dist/index.js",
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
-    "@vitest/coverage-v8": "^1.5.0",
     "tippy.js": "^6.3.7",
     "tsc-alias": "^1.8.8",
     "vite": "^5.2.10",
