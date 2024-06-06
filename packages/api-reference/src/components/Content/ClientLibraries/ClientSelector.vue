@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import { type HttpClientState, useHttpClientStore } from '@/stores'
+import type { AvailableTarget } from '@/types'
 import { ScalarIcon } from '@scalar/components'
 import type { TargetId } from 'httpsnippet-lite'
 import { ref } from 'vue'
-
-import { type HttpClientState, useHttpClientStore } from '../../../stores'
-import type { AvailableTarget } from '../../../types'
 
 // Use the template store to keep it accessible globally
 const {

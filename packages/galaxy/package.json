@@ -49,7 +49,6 @@
   "module": "./dist/index.js",
   "devDependencies": {
     "@modyfi/vite-plugin-yaml": "^1.1.0",
-    "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
     "@vitest/coverage-v8": "^1.5.0",
     "tsc-alias": "^1.8.8",

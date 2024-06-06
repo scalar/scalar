@@ -1,6 +1,8 @@
-import { createViteBuildOptions, findEntryPoints } from '@scalar/build-tooling'
+import { findEntryPoints } from '@scalar/build-tooling'
 import { URL, fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
+
+import pkg from './package.json'
 
 export default defineConfig({
   plugins: [],
@@ -13,7 +15,21 @@ export default defineConfig({
   server: {
     port: 9000,
   },
-  build: createViteBuildOptions({
-    entry: ['src/index.ts'],
-  }),
+  build: {
+    ssr: true,
+    minify: false,
+    target: 'esnext',
+    lib: {
+      entry: await findEntryPoints({ allowCss: false }),
+      formats: ['es'],
+    },
+    rollupOptions: {
+      external: Object.keys(pkg.dependencies),
+      output: {
+        // Create a separate file for the dependency bundle
+        manualChunks: (id) =>
+          id.includes('node_modules') ? 'vendor' : undefined,
+      },
+    },
+  },
 })
