@@ -110,7 +110,7 @@ export const createRequestExample = (request: RequestRef): RequestExample => {
 
 /**
  * Helper method to create new requests
- * Adds the first instance as well
+ * Adds the first example as well
  */
 export const createRequest = (params: Partial<RequestRef>) => {
   const request = requestRefSchema.parse(params)
