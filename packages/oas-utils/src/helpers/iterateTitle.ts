@@ -1,4 +1,6 @@
-/** Check for duplicate titles, and iterate title # */
+/**
+ * Check for duplicate titles, and iterate title
+ */
 export const iterateTitle = (
   title: string,
   checkDuplicates: (title: string) => boolean,
