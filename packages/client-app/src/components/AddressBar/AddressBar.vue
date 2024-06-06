@@ -175,7 +175,7 @@ function getPathName(request: XMLHttpRequest) {
                   (ev) => onUrlChange((ev.target as HTMLElement).innerText)
                 "
                 @keydown.enter.prevent="executeRequestBus.emit()">
-                <!-- {{ activeInstance.url }} -->
+                {{ activeRequest.path }}
               </div>
             </div>
             <div class="fade-right"></div>
