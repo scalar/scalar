@@ -1,6 +1,11 @@
+import { nanoid } from 'nanoid'
 import { z } from 'zod'
 
-/** UID format for objects */
-export type Nanoid = string
+/** Generates a default value */
+export const nanoidSchema = z
+  .string()
+  .min(7)
+  .default(() => nanoid())
 
-export const nanoidSchema = z.string().min(7)
+/** UID format for objects */
+export type Nanoid = z.infer<typeof nanoidSchema>

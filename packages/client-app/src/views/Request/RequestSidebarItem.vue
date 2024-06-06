@@ -1,15 +1,8 @@
 <script setup lang="ts">
 import { HttpMethod } from '@/components/HttpMethod'
-import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { useSidebar } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
-import {
-  ScalarButton,
-  ScalarDropdown,
-  ScalarDropdownDivider,
-  ScalarDropdownItem,
-  ScalarIcon,
-} from '@scalar/components'
+import { ScalarIcon } from '@scalar/components'
 import {
   Draggable,
   type DraggingItem,
@@ -17,9 +10,14 @@ import {
 } from '@scalar/draggable'
 import '@scalar/draggable/style.css'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
-import type { RequestRef } from '@scalar/oas-utils/entities/workspace/spec'
+import type {
+  RequestExample,
+  RequestRef,
+} from '@scalar/oas-utils/entities/workspace/spec'
 import { type DeepReadonly, computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+
+import RequestSidebarItemMenu from './RequestSidebarItemMenu.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -43,6 +41,7 @@ const props = withDefaults(
       | DeepReadonly<Collection>
       | DeepReadonly<Collection['folders']>[string]
       | RequestRef
+      | RequestExample
   }>(),
   { isDraggable: false, isDroppable: false, isChild: false },
 )
@@ -56,10 +55,11 @@ defineSlots<{
 }>()
 
 const { activeRequest, requests } = useWorkspace()
+
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const router = useRouter()
 
-const isFolder = computed(() => 'children' in props.item)
+const hasChildren = computed(() => 'children' in props.item)
 
 const highlightClasses =
   'hover:before:bg-sidebar-active-b before:absolute before:inset-0 before:rounded before-left-offset'
@@ -67,7 +67,7 @@ const highlightClasses =
 /** Due to the nesting, we need a dynamic left offset for hover and active backgrounds */
 const leftOffset = computed(() => {
   if (!props.parentUids.length) return '0px'
-  else if (isFolder.value) return `-${props.parentUids.length * 16}px`
+  else if (hasChildren.value) return `-${props.parentUids.length * 16}px`
   else return `-${props.parentUids.length * 16}px`
 })
 
@@ -79,21 +79,36 @@ const handleNavigation = (event: MouseEvent, uid: string) => {
   }
 }
 
-const handleItemAddVariant = () => {
-  console.log('add variant')
+const getTitle = (item: (typeof props)['item']) => {
+  // Collection
+  if ('spec' in item) return item.spec.info?.title
+  // Request
+  else if ('summary' in item) return item.summary
+  // Folder/Example
+  else if ('name' in item) return item.name
+  return ''
 }
 
-const handleItemRename = () => {
-  console.log('rename')
-}
+/**
+ * We either show the method or the parent request method
+ */
+const method = computed(() => {
+  const _request = (
+    'requestUid' in props.item ? requests[props.item.requestUid] : props.item
+  ) as RequestRef
+  return _request.method
+})
 
-const handleItemDuplicate = () => {
-  console.log('duplicate')
-}
-
-const handleItemDelete = () => {
-  console.log('delete')
-}
+/**
+ * Show folders if they are open,
+ * show examples if there are more than one and the request is active
+ */
+const showChildren = computed(
+  () =>
+    collapsedSidebarFolders[props.item.uid] ||
+    (activeRequest.value?.uid === props.item.uid &&
+      (props.item as RequestRef).children.length > 1),
+)
 </script>
 <template>
   <div
@@ -104,54 +119,16 @@ const handleItemDelete = () => {
     ">
     <Draggable
       :id="item.uid"
-      :ceiling="isFolder ? 0.8 : 0.5"
+      :ceiling="hasChildren ? 0.8 : 0.5"
       class="flex flex-1 flex-col text-sm"
-      :floor="isFolder ? 0.2 : 0.5"
+      :floor="hasChildren ? 0.2 : 0.5"
       :isDraggable="parentUids.length > 0 && isDraggable"
       :isDroppable="isDroppable"
       :parentIds="parentUids"
       @onDragEnd="(...args) => $emit('onDragEnd', ...args)">
-      <!-- Folder -->
-      <template v-if="'children' in item">
-        <button
-          class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5"
-          :class="highlightClasses"
-          type="button"
-          @click="toggleSidebarFolder(item.uid)">
-          <span class="z-10 mr-[-.5px] flex h-fit items-center justify-center">
-            <slot name="leftIcon">
-              <div
-                :class="{
-                  'rotate-90': collapsedSidebarFolders[item.uid],
-                }">
-                <ScalarIcon
-                  class="text-c-3 text-sm"
-                  icon="ChevronRight"
-                  size="sm" />
-              </div>
-            </slot>
-            &hairsp;
-          </span>
-          <span class="z-10 font-medium w-full">{{
-            'spec' in item ? item.spec.info?.title : item.name
-          }}</span>
-        </button>
-        <div v-show="collapsedSidebarFolders[item.uid]">
-          <RequestSidebarItem
-            v-for="uid in item.children"
-            :key="uid"
-            :folders="folders"
-            :isDraggable="isDraggable"
-            :isDroppable="isDroppable"
-            :item="folders[uid] || requests[uid]"
-            :parentUids="[...parentUids, item.uid]"
-            @onDragEnd="(...args) => $emit('onDragEnd', ...args)" />
-        </div>
-      </template>
-
-      <!-- Operation -->
+      <!-- Request -->
       <RouterLink
-        v-else
+        v-if="'summary' in item || 'requestUid' in item"
         custom
         :to="`/request/${item.uid}`">
         <div
@@ -165,79 +142,62 @@ const handleItemDelete = () => {
           ]"
           @click="($event) => handleNavigation($event, item.uid)">
           <span class="z-10 font-medium w-full editable-sidebar-hover-item">
-            {{ item?.summary }}
+            {{ getTitle(item) }}
           </span>
           <div class="relative">
-            <ScalarDropdown
-              class="group-dropdown left-10 top-20"
-              placement="left"
-              resize>
-              <ScalarButton
-                class="z-10 hover:bg-b-3 transition-none p-1 group-hover:flex group-has-[.group-dropdown]:flex absolute left-0 hidden -translate-x-full -ml-1"
-                size="sm"
-                variant="ghost"
-                @click.stop>
-                <ScalarIcon
-                  icon="Ellipses"
-                  size="sm" />
-              </ScalarButton>
-              <template #items>
-                <ScalarDropdownItem class="flex !gap-2">
-                  <ScalarIcon
-                    class="text-c-2 inline-flex p-[1px]"
-                    icon="Add"
-                    size="xs" />
-                  <span>Add Variant</span>
-                  <ScalarHotkey
-                    class="absolute right-2 text-c-3"
-                    hotkey="1"
-                    @hotkeyPressed="handleItemAddVariant" />
-                </ScalarDropdownItem>
-                <ScalarDropdownItem class="flex !gap-2">
-                  <ScalarIcon
-                    class="text-c-2 inline-flex p-[1px]"
-                    icon="Edit"
-                    size="xs" />
-                  <span>Rename</span>
-                  <ScalarHotkey
-                    class="absolute right-2 text-c-3"
-                    hotkey="2"
-                    @hotkeyPressed="handleItemRename" />
-                </ScalarDropdownItem>
-                <ScalarDropdownItem class="flex !gap-2">
-                  <ScalarIcon
-                    class="text-c-2 inline-flex p-[1px]"
-                    icon="Duplicate"
-                    size="xs" />
-                  <span>Duplicate</span>
-                  <ScalarHotkey
-                    class="absolute right-2 text-c-3"
-                    hotkey="3"
-                    @hotkeyPressed="handleItemDuplicate" />
-                </ScalarDropdownItem>
-                <ScalarDropdownDivider />
-                <ScalarDropdownItem class="flex !gap-2">
-                  <ScalarIcon
-                    class="text-c-2 inline-flex p-[1px]"
-                    icon="Trash"
-                    size="xs" />
-                  <span>Delete</span>
-                  <ScalarHotkey
-                    class="absolute right-2 text-c-3"
-                    hotkey="4"
-                    @hotkeyPressed="handleItemDelete" />
-                </ScalarDropdownItem>
-              </template>
-            </ScalarDropdown>
+            <RequestSidebarItemMenu :item="item" />
             <span class="flex">
               &hairsp;
               <HttpMethod
                 class="font-bold"
-                :method="item.method" />
+                :method="method" />
             </span>
           </div>
         </div>
       </RouterLink>
+
+      <!-- Collection/Folder -->
+      <button
+        v-else
+        class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5"
+        :class="highlightClasses"
+        type="button"
+        @click="toggleSidebarFolder(item.uid)">
+        <span class="z-10 mr-[-.5px] flex h-fit items-center justify-center">
+          <slot name="leftIcon">
+            <div
+              :class="{
+                'rotate-90': collapsedSidebarFolders[item.uid],
+              }">
+              <ScalarIcon
+                class="text-c-3 text-sm"
+                icon="ChevronRight"
+                size="sm" />
+            </div>
+          </slot>
+          &hairsp;
+        </span>
+        <span class="z-10 font-medium w-full">
+          {{ getTitle(item) }}
+        </span>
+      </button>
+
+      <!-- Children -->
+      <div
+        v-if="'children' in item"
+        v-show="showChildren">
+        <RequestSidebarItem
+          v-for="uid in item.children"
+          :key="uid"
+          :folders="folders"
+          :isDraggable="isDraggable"
+          :isDroppable="isDroppable"
+          :item="
+            folders[uid] || requests[uid] || (item as RequestRef).examples[uid]
+          "
+          :parentUids="[...parentUids, item.uid]"
+          @onDragEnd="(...args) => $emit('onDragEnd', ...args)" />
+      </div>
     </Draggable>
   </div>
 </template>

@@ -12,7 +12,7 @@ import {
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import type { Environment } from '@scalar/oas-utils/entities/workspace/environment'
 import type {
-  RequestInstance,
+  RequestExample,
   RequestRef,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
@@ -33,17 +33,18 @@ const requests = reactive<Record<string, RequestRef>>({})
 const requestMutators = mutationFactory(requests, reactive({}))
 
 /**
- * Each request has multiple "instances" associated with it
- * An instance is a complete set of request params that is saved to the request
- * Multiple test cases can each be saved as an instance and switched between
+ * Each request has multiple examples associated with it
+ * An example is a set of request params that is saved to the example
+ * Multiple test cases can each be saved as an example and switched between
  */
-function updateRequestInstance<P extends Path<RequestInstance>>(
+const updateRequestExample = <P extends Path<RequestExample>>(
   uid: string,
-  instanceIdx: number,
+  exampleUid: string,
   path: P,
-  value: PathValue<RequestInstance, P>,
-) {
-  requestMutators.edit(uid, `values.${instanceIdx}.${path}`, value)
+  value: PathValue<RequestExample, P>,
+) => {
+  // @ts-expect-error need Geoff to fix this plz!
+  requestMutators.edit(uid, `examples.${exampleUid}.${path}`, value)
 }
 
 // ---------------------------------------------------------------------------
@@ -153,12 +154,10 @@ const activeCollection = computed(() =>
     : null,
 )
 
-/** Currently active instance index, just hardcoded to 0 at the moment */
-const activeInstanceIdx = 0
-
 /** Currently active instance, just hardcoded to 0 at the moment */
-const activeInstance = computed(
-  () => activeRequest.value?.values?.[activeInstanceIdx],
+// TODO get this from the route params
+const activeExample = computed(
+  () => activeRequest.value?.examples[activeRequest.value.children[0]],
 )
 
 // ---------------------------------------------------------------------------
@@ -273,8 +272,7 @@ export function useWorkspace() {
     activeCookieId,
     activeCollection,
     activeRequest,
-    activeInstance,
-    activeInstanceIdx,
+    activeExample,
     // ---------------------------------------------------------------------------
     // METHODS
     importSpecFile,
@@ -286,7 +284,7 @@ export function useWorkspace() {
       edit: editEnvironment,
       delete: deleteEnvironment,
     },
-    updateRequestInstance,
+    updateRequestExample,
     collectionMutators: {
       add: addCollection,
       delete: deleteCollection,

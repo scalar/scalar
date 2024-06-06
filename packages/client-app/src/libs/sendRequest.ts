@@ -1,16 +1,15 @@
 import type {
-  RequestInstance,
-  RequestInstanceParameter,
+  RequestExample,
+  RequestExampleParameter,
   RequestRef,
   ResponseInstance,
 } from '@scalar/oas-utils/entities/workspace/spec'
-import type { AxiosError, AxiosRequestConfig } from 'axios'
-import axios from 'axios'
+import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 
 /**
  * Convert the parameters array to an object for axios to consume
  */
-const paramsReducer = (params: RequestInstanceParameter[] = []) =>
+const paramsReducer = (params: RequestExampleParameter[] = []) =>
   params.reduce(
     (acc, param) => {
       if (!param.key) return acc
@@ -26,11 +25,13 @@ const paramsReducer = (params: RequestInstanceParameter[] = []) =>
  */
 export const sendRequest = async (
   request: RequestRef,
-  instance: RequestInstance,
+  example: RequestExample,
+  rawUrl: string,
 ) => {
+  let url = rawUrl
+
   // Replace path params
-  let url = instance.url
-  instance.parameters.path.forEach((pathParam) => {
+  example.parameters.path.forEach((pathParam) => {
     if (pathParam.key && pathParam.value) {
       url = url.replace(`:${pathParam.key}`, pathParam.value)
     }
@@ -38,14 +39,14 @@ export const sendRequest = async (
 
   let data: FormData | string | File | null = null
 
-  if (instance.body.activeBody === 'binary' && instance.body.binary) {
-    data = instance.body.binary
-  } else if (instance.body.activeBody === 'raw') {
-    data = instance.body.raw.value
-  } else if (instance.body.activeBody === 'formData') {
+  if (example.body.activeBody === 'binary' && example.body.binary) {
+    data = example.body.binary
+  } else if (example.body.activeBody === 'raw') {
+    data = example.body.raw.value
+  } else if (example.body.activeBody === 'formData') {
     const bodyFormData = new FormData()
-    if (instance.body.formData.encoding === 'form-data') {
-      instance.body.formData.value.forEach((formParam) => {
+    if (example.body.formData.encoding === 'form-data') {
+      example.body.formData.value.forEach((formParam) => {
         if (formParam.key && formParam.value) {
           bodyFormData.append(formParam.key, formParam.value)
         }
@@ -54,12 +55,12 @@ export const sendRequest = async (
     data = bodyFormData
   }
 
-  const headers = paramsReducer(instance.parameters.headers)
+  const headers = paramsReducer(example.parameters.headers)
 
   // Add cookies to the headers
-  if (instance.parameters.cookies) {
+  if (example.parameters.cookies) {
     const cookies = paramsReducer(
-      (instance.parameters.cookies ?? []).filter((cookie) => cookie.enabled),
+      (example.parameters.cookies ?? []).filter((cookie) => cookie.enabled),
     )
 
     headers.Cookie = Object.keys(cookies)
@@ -71,7 +72,7 @@ export const sendRequest = async (
     url: `https://proxy.scalar.com?scalar_url=${url}`,
     method: request.method,
     headers,
-    params: paramsReducer(instance.parameters.query),
+    params: paramsReducer(example.parameters.query),
     data,
   }
 
@@ -79,14 +80,14 @@ export const sendRequest = async (
     // TODO handle error
     console.error(error)
     return {
-      request: instance!,
+      request: example!,
       response: error.response!,
     }
   })) as ResponseInstance
 
   if (response) {
     return {
-      request: instance,
+      request: example,
       response: response,
     }
   } else {

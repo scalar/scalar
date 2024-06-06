@@ -56,7 +56,7 @@ function handleSelect(request: any) {
           </div>
         </ScalarButton>
         <template #items>
-          <div class="max-h-40 overflow-y-scroll">
+          <div class="max-h-40 custom-scroll">
             <ScalarDropdownItem
               v-for="request in workspaceRequests"
               :key="request.uid"

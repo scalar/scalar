@@ -15,7 +15,7 @@ export default defineConfig({
     dedupe: ['vue'],
   },
   server: {
-    port: 9000,
+    port: 5065,
   },
   build: {
     ssr: true,

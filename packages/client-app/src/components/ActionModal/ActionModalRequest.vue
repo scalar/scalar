@@ -4,10 +4,7 @@ import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import {
-  type RequestRef,
-  createRequestInstance,
-} from '@scalar/oas-utils/entities/workspace/spec'
+import { createRequest } from '@scalar/oas-utils/entities/workspace/spec'
 import { nanoid } from 'nanoid'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -48,25 +45,16 @@ function handleChangeMethod(method: string) {
 
 function handleSubmit() {
   if (!activeCollection.value) return
-  const newRequest: RequestRef = {
+  const newRequest = createRequest({
     uid: nanoid(),
     path: '',
     method: requestMethod.value,
     description: requestName.value,
     operationId: requestName.value,
     summary: requestName.value,
-    values: [],
-    ref: null,
     tags: ['default'],
-    parameters: {
-      path: {},
-      query: {},
-      headers: {},
-      cookies: {},
-    },
-    history: [],
-  }
-  newRequest.values.push(createRequestInstance(newRequest))
+  })
+
   requestMutators.add(newRequest)
   collectionMutators.edit(
     0,

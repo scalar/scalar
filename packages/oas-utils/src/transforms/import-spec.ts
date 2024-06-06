@@ -4,10 +4,7 @@ import {
   defaultCollectionFolder,
 } from '@/entities/workspace/collection'
 import type { Nanoid } from '@/entities/workspace/shared'
-import {
-  type RequestRef,
-  createRequestInstance,
-} from '@/entities/workspace/spec'
+import { type RequestRef, createRequest } from '@/entities/workspace/spec'
 import { tagObjectSchema } from '@/entities/workspace/spec/spec'
 import { parseJsonOrYaml } from '@/helpers/parse'
 import { schemaModel } from '@/helpers/schema-model'
@@ -96,9 +93,7 @@ export async function importSpecToWorkspace(spec: string) {
         }
       })
 
-      const request: RequestRef = {
-        uid: nanoid(),
-        ref: null,
+      const request = createRequest({
         method: method.toUpperCase(),
         path: pathString,
         tags: operation.tags || ['default'],
@@ -108,12 +103,7 @@ export async function importSpecToWorkspace(spec: string) {
         externalDocs: operation.externalDocs,
         requestBody: operation.requestBody,
         parameters,
-        values: [],
-        history: [],
-      }
-
-      // Add initial instance
-      request.values.push(createRequestInstance(request, parsedSpec.servers))
+      })
 
       request.tags.forEach((t) => requestTags.add(t))
       requests[request.uid] = request

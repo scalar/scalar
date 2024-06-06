@@ -2,69 +2,61 @@
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store/workspace'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
-import type { RequestInstance } from '@scalar/oas-utils/entities/workspace/spec'
+import type { RequestExample } from '@scalar/oas-utils/entities/workspace/spec'
 import { computed } from 'vue'
 
 const props = defineProps<{
   title: string
-  paramKey: keyof RequestInstance['parameters']
+  paramKey: keyof RequestExample['parameters']
 }>()
 
-const {
-  activeRequest,
-  activeInstance,
-  activeInstanceIdx,
-  updateRequestInstance,
-} = useWorkspace()
+const { activeRequest, activeExample, updateRequestExample } = useWorkspace()
 
 const params = computed(
-  () => activeInstance.value?.parameters[props.paramKey] ?? [],
+  () => activeExample.value?.parameters[props.paramKey] ?? [],
 )
 
 /** Update a field in a parameter row */
 const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
-  if (!activeRequest.value || !activeInstance.value) return
-
-  const parameters = activeInstance.value.parameters[props.paramKey]
-  const oldKey = parameters[rowIdx]?.key
-
-  /** Change variable in path as well */
-  if (field === 'key') {
-    if (!value) {
-      /** Remove parameter if path params table key is empty */
-      parameters.splice(rowIdx, 1)
-      const regx = new RegExp(`/:${encodeURIComponent(oldKey)}(?=[/?#]|$)`, 'g')
-      const newPath = activeInstance.value.url.replace(regx, '')
-      updateRequestInstance(
-        activeRequest.value.uid,
-        activeInstanceIdx,
-        'url',
-        newPath,
-      )
-    } else {
-      /** Update URL with path params table key */
-      const encodedOldKey = encodeURIComponent(oldKey)
-      const encodedNewKey = encodeURIComponent(value)
-      const regx = new RegExp(`(?<=/):${encodedOldKey}(?=[/?#]|$)`, 'g')
-      const newPath = activeInstance.value.url.replace(
-        regx,
-        `:${encodedNewKey}`,
-      )
-      updateRequestInstance(
-        activeRequest.value.uid,
-        activeInstanceIdx,
-        'url',
-        newPath,
-      )
-    }
-  }
-
-  updateRequestInstance(
-    activeRequest.value.uid,
-    activeInstanceIdx,
-    `parameters.${props.paramKey}.${rowIdx}.${field}`,
-    value,
-  )
+  // if (!activeRequest.value || !activeExample.value) return
+  //
+  // const parameters = activeExample.value.parameters[props.paramKey]
+  // const oldKey = parameters[rowIdx]?.key
+  //
+  // /** Change variable in path as well */
+  // if (field === 'key') {
+  //   if (!value) {
+  //     /** Remove parameter if path params table key is empty */
+  //     parameters.splice(rowIdx, 1)
+  //     const regx = new RegExp(`/:${encodeURIComponent(oldKey)}(?=[/?#]|$)`, 'g')
+  //     const newPath = activeExample.value.url.replace(regx, '')
+  //     updateRequestExample(
+  //       activeRequest.value.uid,
+  //       activeExample.value.uid,
+  //       'url',
+  //       newPath,
+  //     )
+  //   } else {
+  //     /** Update URL with path params table key */
+  //     const encodedOldKey = encodeURIComponent(oldKey)
+  //     const encodedNewKey = encodeURIComponent(value)
+  //     const regx = new RegExp(`(?<=/):${encodedOldKey}(?=[/?#]|$)`, 'g')
+  //     const newPath = activeExample.value.url.replace(regx, `:${encodedNewKey}`)
+  //     updateRequestExample(
+  //       activeRequest.value.uid,
+  //       activeExampleIdx,
+  //       'url',
+  //       newPath,
+  //     )
+  //   }
+  // }
+  //
+  // updateRequestExample(
+  //   activeRequest.value.uid,
+  //   activeExampleIdx,
+  //   `parameters.${props.paramKey}.${rowIdx}.${field}`,
+  //   value,
+  // )
 }
 </script>
 <template>

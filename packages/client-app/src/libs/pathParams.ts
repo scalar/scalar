@@ -1,18 +1,18 @@
 import {
-  type RequestInstance,
-  type RequestInstanceParameter,
-  defaultRequestInstanceParameters,
+  type RequestExample,
+  type RequestExampleParameter,
+  requestExampleParametersSchema,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import type { Path } from '@scalar/object-utils/nested'
 
 /**
  * Uses the new, and old URL values to update/create/delete path params
  */
-export const syncPathParamsFromURL = <P extends Path<RequestInstance>>(
+export const syncPathParamsFromURL = <P extends Path<RequestExample>>(
   newURL?: string,
   oldURL?: string,
-  pathParams: RequestInstanceParameter[] = [],
-): { key: P; value: string | RequestInstanceParameter[] } | null => {
+  pathParams: RequestExampleParameter[] = [],
+): { key: P; value: string | RequestExampleParameter[] } | null => {
   if (!newURL || !oldURL) return null
 
   const newArr = newURL.split('/')
@@ -37,7 +37,7 @@ export const syncPathParamsFromURL = <P extends Path<RequestInstance>>(
           key: 'parameters.path' as P,
           value: [
             ...pathParams,
-            { ...defaultRequestInstanceParameters(), key: newKey },
+            requestExampleParametersSchema.parse({ key: newKey }),
           ],
         }
       }

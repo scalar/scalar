@@ -18,13 +18,8 @@ import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import { REQUEST_METHODS, type RequestMethod } from '../HttpMethod/httpMethods'
 import { getStatusCodeColor } from './httpStatusCodeColors'
 
-const {
-  activeRequest,
-  activeInstance,
-  activeInstanceIdx,
-  updateRequestInstance,
-  requestMutators,
-} = useWorkspace()
+const { activeRequest, activeExample, updateRequestExample, requestMutators } =
+  useWorkspace()
 
 const history = computed(() => activeRequest.value?.history ?? [])
 
@@ -34,36 +29,36 @@ whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, () =>
   executeRequestBus.emit(),
 )
 
-watch(
-  () => activeInstance.value?.url,
-  (newURL, oldURL) => {
-    if (!activeRequest.value) return
-
-    const toUpdate = syncPathParamsFromURL(
-      newURL,
-      oldURL,
-      activeInstance.value?.parameters.path,
-    )
-    if (toUpdate)
-      updateRequestInstance(
-        activeRequest.value.uid,
-        activeInstanceIdx,
-        toUpdate.key,
-        toUpdate.value,
-      )
-  },
-)
-
+// watch(
+//   () => activeInstance.value?.url,
+//   (newURL, oldURL) => {
+//     if (!activeRequest.value) return
+//
+//     const toUpdate = syncPathParamsFromURL(
+//       newURL,
+//       oldURL,
+//       activeInstance.value?.parameters.path,
+//     )
+//     if (toUpdate)
+//       updateRequestInstance(
+//         activeRequest.value.uid,
+//         activeInstanceIdx,
+//         toUpdate.key,
+//         toUpdate.value,
+//       )
+//   },
+// )
+//
 /** Ensure we update the instance path parameters on change as well */
 const onUrlChange = (newPath: string) => {
   if (!activeRequest.value) return
 
-  updateRequestInstance(
-    activeRequest.value.uid,
-    activeInstanceIdx,
-    'url',
-    newPath,
-  )
+  // updateRequestInstance(
+  //   activeRequest.value.uid,
+  //   activeInstanceIdx,
+  //   'url',
+  //   newPath,
+  // )
 }
 
 const percentage = ref(100)
@@ -134,7 +129,7 @@ function getPathName(request: XMLHttpRequest) {
 </script>
 <template>
   <div
-    v-if="activeRequest && activeInstance"
+    v-if="activeRequest && activeExample"
     class="min-h-header flex flex-row items-center"
     :class="[themeClasses.topContainer]">
     <!-- <div class="text-c-2 flex w-80 flex-row items-center gap-1 p-4">
@@ -180,7 +175,7 @@ function getPathName(request: XMLHttpRequest) {
                   (ev) => onUrlChange((ev.target as HTMLElement).innerText)
                 "
                 @keydown.enter.prevent="executeRequestBus.emit()">
-                {{ activeInstance.url }}
+                {{ activeRequest.path }}
               </div>
             </div>
             <div class="fade-right"></div>
