@@ -71,7 +71,7 @@ const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
   })
 
 /**
- * Create new request instance from a request
+ * Create new request example from a request
  *
  * TODO body
  */
@@ -88,6 +88,21 @@ export const createRequestExample = (request: RequestRef): RequestExample => {
   return requestExampleSchema.parse({
     parameters,
   })
+}
+
+/**
+ * Helper method to create new requests
+ * Adds the first instance as well
+ */
+export const createRequest = (params: Partial<RequestRef>) => {
+  const request = requestRefSchema.parse(params)
+
+  // Add initial example
+  const example = createRequestExample(request)
+  request.examples[example.uid] = example
+  request.children.push(example.uid)
+
+  return request
 }
 
 /** A single request/response set to save to the history stack */
@@ -113,19 +128,21 @@ export const requestRefSchema = z.object({
   path: z.string(),
   method: z.string(),
   uid: z.string().min(7),
-  ref: $refSchema.nullable(),
+  ref: $refSchema.nullable().default(null),
   /** Tags can be assigned and any tags that do not exist in the collection will be automatically created */
   tags: z.string().array(),
   summary: z.string().optional(),
   description: z.string().optional(),
   operationId: z.string().optional(),
   requestBody: requestBodySchema.optional(),
-  parameters: z.object({
-    path: parametersSchema,
-    query: parametersSchema,
-    headers: parametersSchema,
-    cookies: parametersSchema,
-  }),
+  parameters: z
+    .object({
+      path: parametersSchema,
+      query: parametersSchema,
+      headers: parametersSchema,
+      cookies: parametersSchema,
+    })
+    .default({ path: {}, query: {}, headers: {}, cookies: {} }),
   examples: z.record(nanoidSchema, requestExampleSchema).default({}),
   /** Ordered exampleUids for the sidenav */
   children: nanoidSchema.array().default([]),

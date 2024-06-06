@@ -40,7 +40,7 @@
     "clean:nuxt": "find . -name .nuxt -type d -exec rm -rf {} \\;",
     "clean:dist": "find . -name dist -type d -exec rm -rf {} \\;",
     "clean:turbo": "find . -name .turbo -type d -exec rm -rf {} \\;",
-    "dev": "turbo dev --concurrency=100 --filter './examples/*' --filter=@scalar/nuxt --filter=@scalar/draggable --filter @scalar/components",
+    "dev": "turbo dev --concurrency=100 --filter './examples/*' --filter=@scalar/nuxt --filter=@scalar/draggable --filter @scalar/components --filter @scalar/client-app",
     "dev:proxy-server": "pnpm --filter @scalar-examples/proxy-server dev",
     "dev:echo-server": "pnpm --filter @scalar-examples/echo-server dev",
     "@scalar/cli": "pnpm --filter @scalar/cli run @scalar/cli",

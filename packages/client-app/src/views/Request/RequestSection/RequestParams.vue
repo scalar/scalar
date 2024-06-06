@@ -4,25 +4,20 @@ import { useWorkspace } from '@/store/workspace'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
 import { ScalarButton } from '@scalar/components'
 import {
-  type RequestInstance,
-  defaultRequestInstanceParameters,
+  type RequestExample,
+  requestExampleParametersSchema,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 const props = defineProps<{
   title: string
-  paramKey: keyof RequestInstance['parameters']
+  paramKey: keyof RequestExample['parameters']
 }>()
 
-const {
-  activeRequest,
-  activeInstance,
-  activeInstanceIdx,
-  updateRequestInstance,
-} = useWorkspace()
+const { activeRequest, activeExample, updateRequestExample } = useWorkspace()
 
 const params = computed(
-  () => activeInstance.value?.parameters[props.paramKey] ?? [],
+  () => activeExample.value?.parameters[props.paramKey] ?? [],
 )
 
 onMounted(() => {
@@ -31,19 +26,15 @@ onMounted(() => {
 
 /** Add a new row to a given parameter list */
 const addRow = () => {
-  if (!activeRequest.value) return
+  if (!activeRequest.value || !activeExample.value) return
 
   /** Create a new parameter instance with 'enabled' set to false */
-  const newParam = {
-    ...defaultRequestInstanceParameters(),
-    enabled: false,
-  }
-
+  const newParam = requestExampleParametersSchema.parse({ enabled: false })
   const newParams = [...params.value, newParam]
 
-  updateRequestInstance(
+  updateRequestExample(
     activeRequest.value.uid,
-    activeInstanceIdx,
+    activeExample.value.uid,
     `parameters.${props.paramKey}`,
     newParams,
   )
@@ -53,7 +44,7 @@ const tableWrapperRef = ref<HTMLInputElement | null>(null)
 
 /** Update a field in a parameter row */
 const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
-  if (!activeRequest.value) return
+  if (!activeRequest.value || !activeExample.value) return
 
   const currentParams = params.value
   if (currentParams.length > rowIdx) {
@@ -77,18 +68,18 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
       updatedParams.splice(rowIdx, 1)
     }
 
-    updateRequestInstance(
+    updateRequestExample(
       activeRequest.value.uid,
-      activeInstanceIdx,
+      activeExample.value.uid,
       `parameters.${props.paramKey}`,
       updatedParams,
     )
   } else {
     /** if there is no row at the index, add a new one */
-    const payload = [{ ...defaultRequestInstanceParameters(), [field]: value }]
-    updateRequestInstance(
+    const payload = [requestExampleParametersSchema.parse({ [field]: value })]
+    updateRequestExample(
       activeRequest.value.uid,
-      activeInstanceIdx,
+      activeExample.value.uid,
       `parameters.${props.paramKey}`,
       payload,
     )
@@ -106,19 +97,20 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
 /** Toggle a parameter row on or off */
 const toggleRow = (rowIdx: number, enabled: boolean) =>
   activeRequest.value &&
-  updateRequestInstance(
+  activeExample.value &&
+  updateRequestExample(
     activeRequest.value.uid,
-    activeInstanceIdx,
+    activeExample.value.uid,
     `parameters.${props.paramKey}.${rowIdx}.enabled`,
     enabled,
   )
 
 const deleteAllRows = () => {
-  if (!activeRequest.value) return
+  if (!activeRequest.value || !activeExample.value) return
 
-  updateRequestInstance(
+  updateRequestExample(
     activeRequest.value.uid,
-    activeInstanceIdx,
+    activeExample.value.uid,
     `parameters.${props.paramKey}`,
     [],
   )
@@ -141,7 +133,7 @@ const itemCount = computed(
 )
 
 watch(
-  () => activeInstance.value,
+  () => activeExample.value,
   (newVal, oldVal) => {
     if (newVal !== oldVal) {
       defaultRow()

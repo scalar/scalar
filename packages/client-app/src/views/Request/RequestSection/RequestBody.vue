@@ -6,7 +6,7 @@ import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
-import { defaultRequestInstanceParameters } from '@scalar/oas-utils/entities/workspace/spec'
+import { requestExampleParametersSchema } from '@scalar/oas-utils/entities/workspace/spec'
 import { computed, nextTick, onMounted, ref } from 'vue'
 
 import RequestTable from './RequestTable.vue'
@@ -29,12 +29,7 @@ const contentTypeOptions = {
   none: 'None',
 } as const
 
-const {
-  activeRequest,
-  activeInstance,
-  activeInstanceIdx,
-  updateRequestInstance,
-} = useWorkspace()
+const { activeRequest, activeExample, updateRequestExample } = useWorkspace()
 
 const contentType = ref<keyof typeof contentTypeOptions>('none')
 const contentTypeLabel = computed(() => contentTypeOptions[contentType.value])
@@ -61,7 +56,7 @@ function deleteRow() {
 
 /** Update a field in a parameter row */
 const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
-  if (!activeRequest.value) return
+  if (!activeRequest.value || !activeExample.value) return
 
   const currentParams = formParams.value
   if (currentParams.length > rowIdx) {
@@ -85,18 +80,19 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
       updatedParams.splice(rowIdx, 1)
     }
 
-    updateRequestInstance(
+    updateRequestExample(
       activeRequest.value.uid,
-      activeInstanceIdx,
+      activeExample.value.uid,
       'body.formData.value',
       updatedParams,
     )
   } else {
     /** if there is no row at the index, add a new one */
-    const payload = [{ ...defaultRequestInstanceParameters(), [field]: value }]
-    updateRequestInstance(
+    const payload = [requestExampleParametersSchema.parse({ [field]: value })]
+
+    updateRequestExample(
       activeRequest.value.uid,
-      activeInstanceIdx,
+      activeExample.value.uid,
       'body.formData.value',
       payload,
     )
@@ -112,7 +108,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
 }
 
 const formParams = computed(
-  () => activeInstance.value?.body.formData.value ?? [],
+  () => activeExample.value?.body.formData.value ?? [],
 )
 
 onMounted(() => {
@@ -128,37 +124,36 @@ function defaultRow() {
 
 /** Add a new row to a given parameter list */
 const addRow = () => {
-  if (!activeRequest.value) return
+  if (!activeRequest.value || !activeExample.value) return
 
   /** Create a new parameter instance with 'enabled' set to false */
-  const newParam = {
-    ...defaultRequestInstanceParameters(),
+  const newParam = requestExampleParametersSchema.parse({
     enabled: false,
-  }
+  })
 
   const newParams = [...formParams.value, newParam]
 
-  updateRequestInstance(
+  updateRequestExample(
     activeRequest.value.uid,
-    activeInstanceIdx,
+    activeExample.value.uid,
     'body.formData.value',
     newParams,
   )
 }
 
 const updateRequestBody = (content: string) => {
-  if (!activeRequest.value) return
+  if (!activeRequest.value || !activeExample.value) return
 
-  updateRequestInstance(
+  updateRequestExample(
     activeRequest.value.uid,
-    activeInstanceIdx,
+    activeExample.value.uid,
     'body.raw.value',
     content,
   )
 }
 
 const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
-  if (!activeRequest.value) return
+  if (!activeRequest.value || !activeExample.value) return
 
   let activeBodyType: { encoding: string; value: any } | undefined
   let bodyPath: 'body.raw.value' | 'body.formData.value' = 'body.raw.value'
@@ -167,14 +162,14 @@ const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
     activeBodyType = { encoding: 'form-data', value: formParams.value || [] }
     bodyPath = 'body.formData.value'
   } else {
-    const rawValue = activeInstance.value?.body.raw.value ?? ''
+    const rawValue = activeExample.value?.body.raw.value ?? ''
     activeBodyType = { encoding: type, value: rawValue }
     bodyPath = 'body.raw.value'
   }
 
-  updateRequestInstance(
+  updateRequestExample(
     activeRequest.value.uid,
-    activeInstanceIdx,
+    activeExample.value.uid,
     bodyPath,
     activeBodyType.value,
   )
@@ -273,7 +268,7 @@ const handleFileUpload = (idx: number) => {
               content=""
               :language="codeInputLanguage"
               lineNumbers
-              :modelValue="activeInstance?.body.raw.value ?? ''"
+              :modelValue="activeExample?.body.raw.value ?? ''"
               @change="updateRequestBody" />
           </template>
         </DataTableRow>

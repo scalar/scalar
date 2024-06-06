@@ -13,8 +13,6 @@ import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue
 import { ScalarIcon } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
-import type { RequestInstanceParameter } from '@scalar/oas-utils/entities/workspace/spec'
-import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 import { type DeepReadonly, computed } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
@@ -23,7 +21,7 @@ defineEmits<{ (event: 'openModal', tab: string): void }>()
 
 const {
   activeRequest,
-  activeInstance,
+  activeExample,
   collectionMutators,
   requests,
   workspace,
@@ -40,7 +38,7 @@ const handleTabChange = (activeTab: string) => {
  * called from the send button as well as keyboard shortcuts
  */
 executeRequestBus.on(async () => {
-  if (!activeRequest.value || !activeInstance.value) {
+  if (!activeRequest.value || !activeExample.value) {
     console.warn(
       'There is no request active at the moment. Please select one then try again.',
     )
@@ -49,7 +47,7 @@ executeRequestBus.on(async () => {
 
   const { request, response } = await sendRequest(
     activeRequest.value,
-    activeInstance.value,
+    activeExample.value,
   )
 
   if (request && response) {
@@ -258,7 +256,7 @@ const addItemHandler = () => {
 
   <!-- TODO possible loading state -->
   <ViewLayout
-    v-if="activeInstance"
+    v-if="activeExample"
     :class="[themeClasses.view]">
     <RequestSection />
     <ResponseSection

@@ -4,11 +4,11 @@ import DataTableCheckbox from '@/components/DataTable/DataTableCheckbox.vue'
 import DataTableInput from '@/components/DataTable/DataTableInput.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
-import type { RequestInstanceParameter } from '@scalar/oas-utils/entities/workspace/spec'
+import type { RequestExampleParameter } from '@scalar/oas-utils/entities/workspace/spec'
 
 const props = withDefaults(
   defineProps<{
-    items?: RequestInstanceParameter[]
+    items?: RequestExampleParameter[]
     /** Hide the enabled column */
     isEnabledHidden?: boolean
     showUploadButton?: boolean
@@ -59,10 +59,12 @@ const handleFileUpload = (idx: number) => {
         @input="items && idx === items.length - 1 && emit('addRow')"
         @selectVariable="(v) => handleSelectVariable(idx, 'key', v)"
         @update:modelValue="(v) => emit('updateRow', idx, 'key', v)" />
+
+      <!-- todo grab required from the ref -->
+      <!-- :required="item.required" -->
       <DataTableInput
         :modelValue="item.value"
         placeholder="Value"
-        :required="item.required"
         @blur="emit('inputBlur')"
         @focus="emit('inputFocus')"
         @input="items && idx === items.length - 1 && emit('addRow')"
