@@ -182,12 +182,6 @@ const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
       activeBodyType.value,
     )
   }
-  updateRequestInstance(
-    activeRequest.value.uid,
-    activeInstanceIdx,
-    bodyPath,
-    activeBodyType.value,
-  )
 
   updateRequestInstance(
     activeRequest.value.uid,
