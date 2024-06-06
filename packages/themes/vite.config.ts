@@ -1,7 +1,8 @@
-import { createViteBuildOptions } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { defineConfig } from 'vitest/config'
+
+import pkg from './package.json'
 
 export default defineConfig({
   plugins: [
@@ -31,9 +32,18 @@ export default defineConfig({
       ],
     }),
   ],
-  build: createViteBuildOptions({
-    entry: ['src/index.ts'],
-  }),
+  build: {
+    lib: {
+      entry: ['src/index.ts'],
+      name: '@scalar/themes',
+      formats: ['es', 'cjs'],
+    },
+    rollupOptions: {
+      external: [...Object.keys(pkg.peerDependencies)],
+    },
+    // Don't minify CSS so we can use it in stuff like the theme editor
+    cssMinify: false,
+  },
   test: {
     coverage: {
       enabled: true,

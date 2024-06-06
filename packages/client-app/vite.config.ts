@@ -1,4 +1,4 @@
-import { createViteBuildOptions, findEntryPoints } from '@scalar/build-tooling'
+import { findEntryPoints } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
 import { URL, fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
@@ -17,10 +17,24 @@ export default defineConfig({
   server: {
     port: 5065,
   },
-  build: createViteBuildOptions({
-    entry: await findEntryPoints({ allowCss: true }),
-    options: {
-      ssr: true,
+  build: {
+    ssr: true,
+    minify: false,
+    target: 'esnext',
+    lib: {
+      entry: await findEntryPoints({ allowCss: true }),
+      formats: ['es'],
     },
-  }),
+    rollupOptions: {
+      external: [
+        ...Object.keys(pkg.dependencies),
+        ...Object.keys(pkg.peerDependencies),
+      ],
+      output: {
+        // Create a separate file for the dependency bundle
+        manualChunks: (id) =>
+          id.includes('node_modules') ? 'vendor' : undefined,
+      },
+    },
+  },
 })
