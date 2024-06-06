@@ -95,7 +95,7 @@ export const createRequestExample = (request: RequestRef): RequestExample => {
 
   // TODO body
 
-  const name = iterateTitle(request.summary + ' #1' ?? 'Example #1', (t) =>
+  const name = iterateTitle((request.summary ?? 'Example') + ' #1', (t) =>
     Object.values(request.examples).some(({ name: _name }) => t === _name),
   )
 
