@@ -48,8 +48,8 @@ executeRequestBus.on(async () => {
   const { request, response } = await sendRequest(
     activeRequest.value,
     activeExample.value,
-    // TOdo update this with the new server + request path
-    activeRequest.value.path,
+    /** to be added as a fullUrl?  */
+    activeRequest.value.baseUrl + activeRequest.value.path,
   )
 
   if (request && response) {
