@@ -64,6 +64,7 @@
   },
   "devDependencies": {
     "@scalar/api-client-proxy": "workspace:*",
+    "@scalar/build-tooling": "workspace:*",
     "@scalar/echo-server": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@types/content-type": "^1.1.8",

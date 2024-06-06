@@ -1,2 +1,6 @@
 export { findEntryPoints } from './entry'
-export { createRollupConfig, createViteBuildOptions } from './build-options'
+export {
+  createRollupConfig,
+  createViteBuildOptions,
+  autoCSSInject,
+} from './build-options'
