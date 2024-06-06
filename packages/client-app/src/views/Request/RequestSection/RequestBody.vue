@@ -194,7 +194,7 @@ const handleFileUploadFormData = async (rowIdx: number) => {
         const updatedParams = [...currentParams]
         updatedParams[rowIdx] = {
           ...updatedParams[rowIdx],
-          binary: file,
+          file,
         }
         updateRequestExample(
           activeRequest.value.uid,
@@ -225,7 +225,7 @@ function handleRemoveFileFormData(rowIdx: number) {
   const updatedParams = [...currentParams]
   updatedParams[rowIdx] = {
     ...updatedParams[rowIdx],
-    binary: undefined,
+    file: undefined,
   }
   updateRequestExample(
     activeRequest.value.uid,
