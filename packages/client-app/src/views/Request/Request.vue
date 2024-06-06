@@ -48,6 +48,8 @@ executeRequestBus.on(async () => {
   const { request, response } = await sendRequest(
     activeRequest.value,
     activeExample.value,
+    // TOdo update this with the new server + request path
+    'https://example.com',
   )
 
   if (request && response) {

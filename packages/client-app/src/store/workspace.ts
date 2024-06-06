@@ -37,12 +37,13 @@ const requestMutators = mutationFactory(requests, reactive({}))
  * An example is a set of request params that is saved to the example
  * Multiple test cases can each be saved as an example and switched between
  */
-function updateRequestExample<P extends Path<RequestExample>>(
+const updateRequestExample = <P extends Path<RequestExample>>(
   uid: string,
   exampleUid: string,
   path: P,
   value: PathValue<RequestExample, P>,
-) {
+) => {
+  // @ts-expect-error need Geoff to fix this plz!
   requestMutators.edit(uid, `examples.${exampleUid}.${path}`, value)
 }
 

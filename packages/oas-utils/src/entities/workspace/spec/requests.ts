@@ -11,7 +11,7 @@ export type RequestExampleParameter = z.TypeOf<
 >
 export const requestExampleParametersSchema = z.object({
   key: z.string().default(''),
-  value: z.string().default(''),
+  value: z.union([z.string(), z.number()]).transform(String).default(''),
   enabled: z.boolean().default(true),
   /** Params are linked to parents such as path params and global headers/cookies */
   refUid: nanoidSchema.optional(),
@@ -24,33 +24,39 @@ export type ResponseInstance = AxiosResponse
 export type RequestExample = z.TypeOf<typeof requestExampleSchema>
 export const requestExampleSchema = z.object({
   uid: nanoidSchema,
-  body: z.object({
-    raw: z.object({
-      encoding: z
-        .union([
-          z.literal('json'),
-          z.literal('text'),
-          z.literal('html'),
-          z.literal('text'),
-          z.literal('javascript'),
-          z.literal('xml'),
-          z.literal('yaml'),
-          z.literal('edn'),
-        ])
-        .default('json'),
-      value: z.string().default(''),
-    }),
-    formData: z.object({
-      encoding: z
-        .union([z.literal('form-data'), z.literal('urlencoded')])
-        .default('form-data'),
-      value: requestExampleParametersSchema.array().default([]),
-    }),
-    binary: z.instanceof(File).optional(),
-    activeBody: z
-      .union([z.literal('raw'), z.literal('formData'), z.literal('binary')])
-      .default('raw'),
-  }),
+  body: z
+    .object({
+      raw: z
+        .object({
+          encoding: z
+            .union([
+              z.literal('json'),
+              z.literal('text'),
+              z.literal('html'),
+              z.literal('text'),
+              z.literal('javascript'),
+              z.literal('xml'),
+              z.literal('yaml'),
+              z.literal('edn'),
+            ])
+            .default('json'),
+          value: z.string().default(''),
+        })
+        .default({}),
+      formData: z
+        .object({
+          encoding: z
+            .union([z.literal('form-data'), z.literal('urlencoded')])
+            .default('form-data'),
+          value: requestExampleParametersSchema.array().default([]),
+        })
+        .default({}),
+      binary: z.instanceof(File).optional(),
+      activeBody: z
+        .union([z.literal('raw'), z.literal('formData'), z.literal('binary')])
+        .default('raw'),
+    })
+    .default({}),
   parameters: z.object({
     path: requestExampleParametersSchema.array().default([]),
     query: requestExampleParametersSchema.array().default([]),
@@ -127,7 +133,7 @@ export type RequestRef = z.TypeOf<typeof requestRefSchema> & {
 export const requestRefSchema = z.object({
   path: z.string(),
   method: z.string(),
-  uid: z.string().min(7),
+  uid: nanoidSchema,
   ref: $refSchema.nullable().default(null),
   /** Tags can be assigned and any tags that do not exist in the collection will be automatically created */
   tags: z.string().array(),

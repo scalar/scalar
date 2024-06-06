@@ -49,17 +49,17 @@ whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, () =>
 //   },
 // )
 //
-// /** Ensure we update the instance path parameters on change as well */
-// const onUrlChange = (newPath: string) => {
-//   if (!activeRequest.value) return
-//
-//   updateRequestInstance(
-//     activeRequest.value.uid,
-//     activeInstanceIdx,
-//     'url',
-//     newPath,
-//   )
-// }
+/** Ensure we update the instance path parameters on change as well */
+const onUrlChange = (newPath: string) => {
+  if (!activeRequest.value) return
+
+  // updateRequestInstance(
+  //   activeRequest.value.uid,
+  //   activeInstanceIdx,
+  //   'url',
+  //   newPath,
+  // )
+}
 
 const percentage = ref(100)
 
@@ -172,7 +172,7 @@ function getPathName(request: XMLHttpRequest) {
                 class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap text-sm font-medium leading-[24.5px]"
                 contenteditable
                 @input="
-                  // (ev) => onUrlChange((ev.target as HTMLElement).innerText)
+                  (ev) => onUrlChange((ev.target as HTMLElement).innerText)
                 "
                 @keydown.enter.prevent="executeRequestBus.emit()">
                 <!-- {{ activeInstance.url }} -->
