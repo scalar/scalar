@@ -2,4 +2,4 @@
 "@scalar/api-client": patch
 ---
 
-Preventing styles from bleeding into other applications.
+fix: scoping request component styles #1972
