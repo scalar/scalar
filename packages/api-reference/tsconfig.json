@@ -1,11 +1,5 @@
 {
   "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "paths": {
-      "@/*": ["./src/*"],
-      "@test/*": ["./test/*"]
-    }
-  },
   "include": ["src", "src/declarations", "global.d.ts"],
   "exclude": ["dist", "vite.config.ts", "node_modules"],
   "ts-node": {

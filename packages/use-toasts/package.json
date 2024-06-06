@@ -38,6 +38,7 @@
     "CHANGELOG.md"
   ],
   "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.5.0",
     "nanoid": "^5.0.7",
