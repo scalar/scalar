@@ -68,7 +68,7 @@ const itemCount = computed(() => {
       :columns="LAYOUTS[scheme]">
       <DataTableRow>
         <DataTableHeader
-          class="relative col-span-full h-[31.5px] cursor-pointer py-[2.25px] px-[2.25px] flex items-center">
+          class="relative col-span-full h-8 cursor-pointer py-[2.25px] px-[2.25px] flex items-center">
           <div
             class="items-center justify-start flex rounded px-1.5 w-full h-full text-c-2 group-hover:text-c-1">
             <span>{{ schemeLabel }}</span>

@@ -85,7 +85,7 @@ watch(
       <DataTable :columns="['']">
         <DataTableRow>
           <DataTableHeader
-            class="relative col-span-full flex h-[31.5px] cursor-pointer items-center px-[2.25px] py-[2.25px]">
+            class="relative col-span-full flex h-8 cursor-pointer items-center px-[2.25px] py-[2.25px]">
             <div
               class="text-c-2 group-hover:text-c-1 flex h-full w-full items-center justify-start rounded px-1.5">
               <span class="capitalize">{{ activePreview }}</span>

@@ -75,7 +75,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
     <!-- Empty state -->
     <div
       v-else
-      class="text-c-3 px-4 text-sm border rounded min-h-[47.25px] justify-center flex items-center bg-b-1 mx-1">
+      class="text-c-3 px-4 text-sm border rounded min-h-12 justify-center flex items-center bg-b-1 mx-1">
       Add to address bar, i.e:
       <code class="bg-b-2 ml-1 px-1 rounded">/path/:var</code>
     </div>
