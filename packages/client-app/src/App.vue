@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import AddressBar from '@/components/AddressBar/AddressBar.vue'
-import {
-  REQUEST_METHODS,
-  type RequestMethod,
-} from '@/components/HttpMethod/httpMethods'
 import SideNav from '@/components/SideNav/SideNav.vue'
 import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
 import '@scalar/components/style.css'
-import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
+import {
+  REQUEST_METHODS,
+  type RequestMethod,
+  fetchSpecFromUrl,
+} from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { onMounted, watchEffect } from 'vue'
 import { RouterView } from 'vue-router'
@@ -31,8 +31,8 @@ onMounted(async () => {
   importSpecFile(spec)
 })
 
-function getBackgroundColor() {
-  if (!activeRequest.value) return
+const getBackgroundColor = () => {
+  if (!activeRequest.value) return ''
   const { method } = activeRequest.value
   return REQUEST_METHODS[method as RequestMethod].backgroundColor
 }

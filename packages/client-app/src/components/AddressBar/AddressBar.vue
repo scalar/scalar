@@ -8,22 +8,37 @@ import {
   ListboxOption,
   ListboxOptions,
 } from '@headlessui/vue'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
-import { httpStatusCodes } from '@scalar/oas-utils/helpers'
+import {
+  ScalarButton,
+  ScalarIcon,
+  ScalarListbox,
+  type ScalarListboxOption,
+} from '@scalar/components'
+import type { Server } from '@scalar/oas-utils/entities/workspace/server'
+import {
+  REQUEST_METHODS,
+  type RequestMethod,
+  httpStatusCodes,
+} from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
-import { REQUEST_METHODS, type RequestMethod } from '../HttpMethod/httpMethods'
 import { getStatusCodeColor } from './httpStatusCodeColors'
 
-const { activeRequest, activeExample, updateRequestExample, requestMutators } =
-  useWorkspace()
+const {
+  activeRequest,
+  activeExample,
+  activeCollection,
+  collectionMutators,
+  updateRequestExample,
+  requestMutators,
+} = useWorkspace()
 
 const history = computed(() => activeRequest.value?.history ?? [])
-
 const selectedRequest = ref(history.value[0])
+
 const keys = useMagicKeys()
 whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, () =>
   executeRequestBus.emit(),
@@ -73,7 +88,7 @@ executeRequestBus.on(() => {
   }, 20)
 })
 
-function updateRequestMethod(method: string) {
+function updateRequestMethod(method: RequestMethod) {
   if (!activeRequest.value) return
   requestMutators.edit(activeRequest.value.uid, 'method', method)
 }
@@ -85,41 +100,40 @@ function getBackgroundColor() {
 }
 
 /**
- * Get the host from the scalar proxy request
+ * Get a part of the URL object from the scalar proxy request
+ *
  * @param request
+ * @param the part of the url you want ex: origin or pathname etc
  */
-function getHost(request: XMLHttpRequest) {
+function getUrlPart(request: XMLHttpRequest, part: keyof URL) {
   const url = new URL(request.responseURL)
-
   const params = new URLSearchParams(url.search)
 
   const scalarUrl = params.get('scalar_url')
   if (!scalarUrl) return url.origin
 
   const scalarUrlParsed = new URL(scalarUrl)
-
-  const baseUrl = scalarUrlParsed.origin
+  const baseUrl = scalarUrlParsed[part]
 
   return baseUrl
 }
 
-/**
- * Get the pathName from the scalar proxy request
- * @param request
- */
-function getPathName(request: XMLHttpRequest) {
-  const url = new URL(request.responseURL)
+const serverOptions = computed(() =>
+  activeCollection.value?.spec.servers?.map((server) => ({
+    id: server.uid,
+    label: server.url,
+  })),
+)
 
-  const params = new URLSearchParams(url.search)
+/** Update the currently selected server on the collection */
+const updateSelectedServer = (server: ScalarListboxOption) => {
+  if (!activeCollection.value) return
 
-  const scalarUrl = params.get('scalar_url')
-  if (!scalarUrl) return url.origin
-
-  const scalarUrlParsed = new URL(scalarUrl)
-
-  const pathName = scalarUrlParsed.pathname
-
-  return pathName
+  collectionMutators.edit(
+    activeCollection.value.uid,
+    'selectedServerUid',
+    server.id,
+  )
 }
 
 /**
@@ -157,17 +171,35 @@ function getPathName(request: XMLHttpRequest) {
               :class="getBackgroundColor()"
               :style="{ transform: `translate3d(-${percentage}%,0,0)` }"></div>
           </div>
-          <HttpMethod
-            class="font-bold"
-            isEditable
-            isSquare
-            :method="activeRequest.method"
-            @change="updateRequestMethod" />
+          <div class="flex gap-1">
+            <HttpMethod
+              class="font-bold"
+              isEditable
+              isSquare
+              :method="activeRequest.method"
+              @change="updateRequestMethod" />
+            <ScalarListbox
+              v-if="serverOptions"
+              :options="serverOptions"
+              :value="activeCollection?.selectedServerUid"
+              @update:modelValue="updateSelectedServer">
+              <ScalarButton
+                class="font-code text-sm whitespace-nowrap"
+                size="sm"
+                variant="outlined">
+                {{
+                  activeCollection?.spec.servers?.find(
+                    ({ uid }) => activeCollection?.selectedServerUid === uid,
+                  )?.url
+                }}
+              </ScalarButton>
+            </ScalarListbox>
+          </div>
           <div class="scroll-timeline-x relative flex w-full overflow-hidden">
             <div class="fade-left"></div>
 
             <!-- TODO wrap vars in spans for special effects like mouseOver descriptions -->
-            <div class="w-full">
+            <div class="flex w-full">
               <div
                 class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap text-sm font-medium leading-[24.5px]"
                 contenteditable
@@ -212,9 +244,9 @@ function getPathName(request: XMLHttpRequest) {
                     {{ response.status }}
                   </span>
                   <span class="text-c-2 gap-0">
-                    {{ getHost(response.request) }}
+                    {{ getUrlPart(response.request, 'origin') }}
                     <em class="text-c-1 ml-[-8px]">{{
-                      getPathName(response.request)
+                      getUrlPart(response.request, 'pathname')
                     }}</em>
                   </span>
                 </div>
@@ -302,7 +334,7 @@ function getPathName(request: XMLHttpRequest) {
     var(--scalar-background-1) 100%
   );
   left: 0;
-  min-width: 6px;
+  min-width: 3px;
 }
 .fade-right {
   background: linear-gradient(
@@ -324,4 +356,3 @@ function getPathName(request: XMLHttpRequest) {
   }
 }
 </style>
-./httpStatusCodeColors

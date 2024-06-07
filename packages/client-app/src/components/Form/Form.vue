@@ -6,7 +6,7 @@ import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 
 defineProps<{
   title: string
-  options: { key: string; label: string }[]
+  options: { key: string; label: string; placeholder: string }[]
   data: Record<string, any>
   onUpdate: (key: string, value: any) => void
 }>()
@@ -26,7 +26,7 @@ defineProps<{
           :class="{ 'border-t': index === 0 }">
           <DataTableInput
             :modelValue="String(data[option.key] ?? '')"
-            :placeholder="option.label"
+            :placeholder="option.placeholder"
             @update:modelValue="onUpdate(option.key, $event)">
             {{ option.label }}
           </DataTableInput>

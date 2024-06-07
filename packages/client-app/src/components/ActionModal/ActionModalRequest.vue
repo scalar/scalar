@@ -5,6 +5,7 @@ import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { createRequest } from '@scalar/oas-utils/entities/workspace/spec'
+import type { RequestMethod } from '@scalar/oas-utils/helpers'
 import { nanoid } from 'nanoid'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -45,10 +46,11 @@ function handleChangeMethod(method: string) {
 
 function handleSubmit() {
   if (!activeCollection.value) return
+
   const newRequest = createRequest({
     uid: nanoid(),
     path: '',
-    method: requestMethod.value,
+    method: requestMethod.value.toUpperCase() as RequestMethod,
     description: requestName.value,
     operationId: requestName.value,
     summary: requestName.value,
@@ -57,7 +59,7 @@ function handleSubmit() {
 
   requestMutators.add(newRequest)
   collectionMutators.edit(
-    0,
+    activeCollection.value.uid,
     'requests',
     activeCollection.value.requests.concat(newRequest.uid),
   )
@@ -69,7 +71,7 @@ function handleSubmit() {
   } else {
     // If no folder is selected, add to the root of the collection
     collectionMutators.edit(
-      0,
+      activeCollection.value.uid,
       'requests',
       activeCollection.value.requests.concat(newRequest.uid),
     )

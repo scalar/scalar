@@ -8,7 +8,7 @@ export enum PathId {
   Collection = 'collection',
   Schema = 'schema',
   Environment = 'environment',
-  Servers = 'servers',
+  Server = 'server',
 }
 
 const routes = [
@@ -73,7 +73,7 @@ const routes = [
     redirect: '/servers/default',
   },
   {
-    path: `/servers/:${PathId.Servers}`,
+    path: `/servers/:${PathId.Server}`,
     component: () => import('@/views/Servers/Servers.vue'),
   },
 ]
@@ -91,7 +91,7 @@ export const activeRouterParams = computed(() => {
     [PathId.Example]: 'example',
     [PathId.Schema]: 'default',
     [PathId.Cookies]: 'default',
-    [PathId.Servers]: 'default',
+    [PathId.Server]: 'default',
   }
 
   if (router.currentRoute.value) {

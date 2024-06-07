@@ -11,7 +11,6 @@ import {
 } from '@scalar/oas-utils/entities/workspace/collection'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import type { Environment } from '@scalar/oas-utils/entities/workspace/environment'
-import type { Server } from '@scalar/oas-utils/entities/workspace/server'
 import type {
   RequestExample,
   RequestRef,
@@ -91,17 +90,6 @@ const activeCookieId = computed<string | undefined>(
 )
 
 // ---------------------------------------------------------------------------
-// SERVERS
-
-const servers = reactive<Record<string, Server>>({})
-const serverMutators = mutationFactory(servers, reactive({}))
-
-/** Cookie associated with the current route */
-const activeServerId = computed<string | undefined>(
-  () => activeRouterParams.value[PathId.Servers],
-)
-
-// ---------------------------------------------------------------------------
 // WORKSPACE
 
 /** Active workspace object (will be associated with an entry in the workspace collection) */
@@ -143,29 +131,6 @@ const activeRequest = computed<RequestRef | undefined>(() => {
   return request
 })
 
-/**
- * Find the first collection that a request is in
- *
- * TODO temporarily we just loop on arrays but we should convert to array of uids + dictionary
- * for the perf 💪
- */
-const getCollectionFromRequest = (
-  requestUid: string,
-  collections: Collection[],
-) =>
-  collections.find((collection) =>
-    collection.requests.find((uid) => uid === requestUid),
-  )
-
-/**
- * First collection that the active request is in
- */
-const activeCollection = computed(() =>
-  activeRequest.value
-    ? getCollectionFromRequest(activeRequest.value.uid, workspace.collections)
-    : null,
-)
-
 /** Currently active instance, just hardcoded to 0 at the moment */
 // TODO get this from the route params
 const activeExample = computed(
@@ -190,17 +155,50 @@ function deleteCollection(uid: string) {
 }
 
 /** Edit a property of a given collection */
-function editCollection<K extends Path<Collection>>(
-  collectionIdx: number,
+const editCollection = <K extends Path<Collection>>(
+  collectionUidOrIndex: number | string,
   path: K,
   value: PathValue<Collection, K>,
-) {
+) =>
   setNestedValue(
-    workspace.collections[collectionIdx],
+    typeof collectionUidOrIndex === 'number'
+      ? collectionUidOrIndex
+      : workspace.collections.find(({ uid }) => uid === collectionUidOrIndex),
     path as Path<Collection>,
     value,
   )
-}
+
+/**
+ * Find the first collection that a request is in
+ *
+ * TODO temporarily we just loop on arrays but we should convert to array of uids + dictionary
+ * for the perf 💪
+ */
+const getCollectionFromRequest = (
+  requestUid: string,
+  collections: Collection[],
+) =>
+  collections.find((collection) =>
+    collection.requests.find((uid) => uid === requestUid),
+  )
+
+/**
+ * First collection that the active request is in
+ */
+const activeCollection = computed(() =>
+  activeRequest.value
+    ? getCollectionFromRequest(activeRequest.value.uid, workspace.collections)
+    : null,
+)
+
+/**
+ * The currently selected server in the addressBar
+ */
+const activeServer = computed(() =>
+  activeCollection.value?.spec.servers.find(
+    ({ uid }) => uid === activeCollection.value?.selectedServerUid,
+  ),
+)
 
 // ---------------------------------------------------------------------------
 // COLLECTION FOLDERS
@@ -281,10 +279,9 @@ export function useWorkspace() {
     requests,
     environments,
     cookies,
-    servers,
     activeCookieId,
-    activeServerId,
     activeCollection,
+    activeServer,
     activeRequest,
     activeExample,
     // ---------------------------------------------------------------------------
@@ -292,7 +289,6 @@ export function useWorkspace() {
     importSpecFile,
     importSpecFromUrl,
     cookieMutators,
-    serverMutators,
     requestMutators,
     environmentMutators: {
       ...environmentMutators,
