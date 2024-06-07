@@ -2,12 +2,8 @@
 import {
   ApiReferenceLayout,
   type ReferenceConfiguration,
-  type Spec,
-  createEmptySpecification,
-  parse,
   useReactiveSpec,
 } from '@scalar/api-reference'
-import { asyncComputed } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 
 import DevReferencesOptions from '../components/DevReferencesOptions.vue'
@@ -80,7 +76,9 @@ const { parsedSpec } = useReactiveSpec({
     <template #sidebar-start>
       <SlotPlaceholder>sidebar-start</SlotPlaceholder>
     </template>
-    <template #sidebar-end>value </template>
+    <template #sidebar-end>
+      <SlotPlaceholder>sidebar-end</SlotPlaceholder>
+    </template>
     <template #editor>
       <MonacoEditor
         v-model="content"
