@@ -16,7 +16,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "rollup -c rollup.config.js && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build": "rollup -c rollup.config.ts --configPlugin typescript && tsc -p tsconfig.build.json",
     "dev": "vite",
     "format": "pnpm prettier --write --ignore-path=../../.prettierignore .",
     "lint:check": "eslint .",
@@ -41,13 +41,11 @@
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/node": "^20.8.4",
     "glob": "^10.3.10",
+    "rollup": "^4.16.4",
     "rollup-plugin-dts": "^6.1.0",
-    "tsc-alias": "^1.8.8",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.3",
+    "vite": "^5.2.10",
     "vitest": "^1.6.0"
-  },
-  "devDependencies": {
-    "rollup": "^4.16.4"
   }
 }
