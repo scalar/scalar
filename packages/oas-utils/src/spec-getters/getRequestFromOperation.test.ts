@@ -266,26 +266,19 @@ describe('getRequestFromOperation', () => {
   })
 
   it('uses example values for path variables', () => {
-    const request = getRequestFromOperation(
-      {
-        httpVerb: 'POST',
-        path: '/foobar/{id}',
-      } as TransformedOperation,
-      {
-        parameters: {
-          path: [
-            {
-              name: 'id',
-              example: 123,
-            },
-          ],
-          query: [],
-          header: [],
-          body: [],
-          formData: [],
-        },
+    const request = getRequestFromOperation({
+      httpVerb: 'POST',
+      path: '/foobar/{id}',
+      information: {
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            example: 123,
+          },
+        ],
       },
-    )
+    } as TransformedOperation)
 
     expect(request).toMatchObject({
       method: 'POST',

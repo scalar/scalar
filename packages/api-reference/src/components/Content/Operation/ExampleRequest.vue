@@ -32,7 +32,7 @@ import {
   getHarRequest,
   sleep,
 } from '../../../helpers'
-import { useClipboard, useOperation } from '../../../hooks'
+import { useClipboard } from '../../../hooks'
 import { useHttpClientStore } from '../../../stores'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import ExamplePicker from './ExamplePicker.vue'
@@ -76,8 +76,6 @@ const hasMultipleExamples = computed<boolean>(
 const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
 
 const generateSnippet = async (): Promise<string> => {
-  const { parameterMap } = useOperation(props)
-
   // Generate a request object
   const request = getHarRequest(
     {
@@ -87,7 +85,6 @@ const generateSnippet = async (): Promise<string> => {
       props.operation,
       {
         replaceVariables: true,
-        parameters: parameterMap,
       },
       selectedExampleKey.value,
     ),

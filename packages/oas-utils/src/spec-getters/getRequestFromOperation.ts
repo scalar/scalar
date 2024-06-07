@@ -8,26 +8,15 @@ import type {
 import { getParametersFromOperation } from './getParametersFromOperation'
 import { getRequestBodyFromOperation } from './getRequestBodyFromOperation'
 
-export type Parameters = {
-  name: string
-  example?: any
-  examples?: Map<string, any>
-}
-
-type ParamMap = {
-  path: Parameters[]
-  query: Parameters[]
-  header: Parameters[]
-  body: Parameters[]
-  formData: Parameters[]
-}
-
 export const getRequestFromOperation = (
   operation: TransformedOperation,
   options?: {
+    /**
+     * If the path will be URL encoded, you may want to replace {curlyBrackets} with __UNDERSCORES__ to indicate an
+     * variable.
+     */
     replaceVariables?: boolean
     requiredOnly?: boolean
-    parameters?: ParamMap
   },
   selectedExampleKey?: string | number,
 ): Partial<HarRequestWithPath> => {
@@ -35,20 +24,22 @@ export const getRequestFromOperation = (
   let path = operation.path
 
   // {id} -> 123
-  if (options?.parameters?.path) {
+  const pathParameters = getParametersFromOperation(operation, 'path', false)
+
+  if (pathParameters.length) {
     const pathVariables = path.match(/{(.*?)}/g)
 
     if (pathVariables) {
       pathVariables.forEach((variable) => {
         const variableName = variable.replace(/{|}/g, '')
 
-        if (options.parameters?.path) {
-          const parameter = options.parameters.path.find(
+        if (pathParameters) {
+          const parameter = pathParameters.find(
             (param) => param.name === variableName,
           )
 
           if (parameter) {
-            path = path.replace(variable, parameter.example.toString() ?? '')
+            path = path.replace(variable, parameter.value?.toString())
           }
         }
       })
