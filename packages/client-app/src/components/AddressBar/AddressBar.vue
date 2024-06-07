@@ -89,7 +89,6 @@ executeRequestBus.on(() => {
 })
 
 function updateRequestMethod(method: RequestMethod) {
-  console.log(method)
   if (!activeRequest.value) return
   requestMutators.edit(activeRequest.value.uid, 'method', method)
 }

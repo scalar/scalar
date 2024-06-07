@@ -17,32 +17,31 @@ const options = [
 
 const { params } = useRoute()
 
-const activeServer = computed(() => {
-  const server = activeCollection.value?.spec.servers.find(
-    ({ uid }) => uid === params.server,
-  )
+const activeServer = computed(() =>
+  activeCollection.value && params.server === 'default'
+    ? activeCollection.value?.spec.servers[0]
+    : activeCollection.value?.spec.servers.find(
+        ({ uid }) => uid === params.server,
+      ),
+)
 
-  console.log('========')
-  console.log(activeCollection.value?.spec.servers)
-  console.log(params.server)
-
-  return { url: server?.url, description: server?.description }
-})
 const updateServer = (key: string, value: string) => {
   if (!activeCollection.value) return
 
   const serverIndex = activeCollection.value?.spec.servers.findIndex(
-    ({ uid }) => uid === params.server,
+    ({ uid }) => uid === activeServer.value?.uid,
   )
-  // collectionMutators.edit(
-  //   activeCollection.value.uid,
-  //   `spec.servers.${serverIndex}.${key}`,
-  //   value,
-  // )
+
+  collectionMutators.edit(
+    activeCollection.value.uid,
+    `spec.servers.${serverIndex}.${key}`,
+    value,
+  )
 }
 </script>
 <template>
   <Form
+    v-if="activeServer"
     :data="activeServer"
     :onUpdate="updateServer"
     :options="options"
