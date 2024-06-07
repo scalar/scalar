@@ -285,4 +285,29 @@ describe('getRequestFromOperation', () => {
       path: '/foobar/123',
     })
   })
+
+  it('still replaces variables if an example value isn’t available', () => {
+    const request = getRequestFromOperation(
+      {
+        httpVerb: 'POST',
+        path: '/foobar/{id}',
+        information: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+            },
+          ],
+        },
+      } as TransformedOperation,
+      {
+        replaceVariables: true,
+      },
+    )
+
+    expect(request).toMatchObject({
+      method: 'POST',
+      path: '/foobar/__ID__',
+    })
+  })
 })

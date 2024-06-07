@@ -38,8 +38,8 @@ export const getRequestFromOperation = (
             (param) => param.name === variableName,
           )
 
-          if (parameter) {
-            path = path.replace(variable, parameter.value?.toString())
+          if (parameter?.value) {
+            path = path.replace(variable, parameter.value.toString())
           }
         }
       })
