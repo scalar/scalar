@@ -8,17 +8,54 @@ import type {
 import { getParametersFromOperation } from './getParametersFromOperation'
 import { getRequestBodyFromOperation } from './getRequestBodyFromOperation'
 
+export type Parameters = {
+  name: string
+  example?: any
+  examples?: Map<string, any>
+}
+
+type ParamMap = {
+  path: Parameters[]
+  query: Parameters[]
+  header: Parameters[]
+  body: Parameters[]
+  formData: Parameters[]
+}
+
 export const getRequestFromOperation = (
   operation: TransformedOperation,
   options?: {
     replaceVariables?: boolean
     requiredOnly?: boolean
+    parameters?: ParamMap
   },
   selectedExampleKey?: string | number,
 ): Partial<HarRequestWithPath> => {
   // Replace all variables of the format {something} with the uppercase variable name without the brackets
   let path = operation.path
 
+  // {id} -> 123
+  if (options?.parameters?.path) {
+    const pathVariables = path.match(/{(.*?)}/g)
+
+    if (pathVariables) {
+      pathVariables.forEach((variable) => {
+        const variableName = variable.replace(/{|}/g, '')
+
+        if (options.parameters?.path) {
+          const parameter = options.parameters.path.find(
+            (param) => param.name === variableName,
+          )
+
+          if (parameter) {
+            path = path.replace(variable, parameter.example.toString() ?? '')
+          }
+        }
+      })
+    }
+  }
+
+  // {id} -> __ID__
   if (options?.replaceVariables === true) {
     const pathVariables = path.match(/{(.*?)}/g)
 
