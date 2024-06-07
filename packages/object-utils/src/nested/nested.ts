@@ -249,8 +249,6 @@ export function setNestedValue<T, P extends Path<T>>(
   keys.reduce((acc, current) => {
     if (current === lastKey) acc[current] = value
 
-    console.log(acc, current)
-
     return acc[current]
   }, obj as any)
 
