@@ -1,5 +1,5 @@
 import { nanoidSchema } from '@/entities/workspace/shared'
-import { iterateTitle } from '@/helpers'
+import { REQUEST_METHODS, type RequestMethod, iterateTitle } from '@/helpers'
 import type { AxiosResponse } from 'axios'
 import type { OpenAPIV3_1 } from 'openapi-types'
 import { type ZodSchema, z } from 'zod'
@@ -143,9 +143,10 @@ export const parametersSchema = z.record(z.string(), z.any())
 export type RequestRef = z.TypeOf<typeof requestRefSchema> & {
   externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
 }
+
 export const requestRefSchema = z.object({
   path: z.string(),
-  method: z.string(),
+  method: z.enum(Object.keys(REQUEST_METHODS) as [RequestMethod]),
   uid: nanoidSchema,
   ref: $refSchema.nullable().default(null),
   /** Tags can be assigned and any tags that do not exist in the collection will be automatically created */

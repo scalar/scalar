@@ -11,10 +11,6 @@ import {
 } from '@scalar/oas-utils/entities/workspace/collection'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import type { Environment } from '@scalar/oas-utils/entities/workspace/environment'
-import {
-  type Server,
-  serverSchema,
-} from '@scalar/oas-utils/entities/workspace/server'
 import type {
   RequestExample,
   RequestRef,
@@ -183,12 +179,14 @@ function deleteCollection(uid: string) {
 
 /** Edit a property of a given collection */
 const editCollection = <K extends Path<Collection>>(
-  collectionUid: string,
+  collectionUidOrIndex: number | string,
   path: K,
   value: PathValue<Collection, K>,
 ) =>
   setNestedValue(
-    workspace.collections.find(({ uid }) => uid === collectionUid),
+    typeof collectionUidOrIndex === 'number'
+      ? collectionUidOrIndex
+      : workspace.collections.find(({ uid }) => uid === collectionUidOrIndex),
     path as Path<Collection>,
     value,
   )

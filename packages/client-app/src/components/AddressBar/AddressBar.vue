@@ -8,15 +8,23 @@ import {
   ListboxOption,
   ListboxOptions,
 } from '@headlessui/vue'
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarIcon,
+  ScalarListbox,
+  type ScalarListboxOption,
+} from '@scalar/components'
 import type { Server } from '@scalar/oas-utils/entities/workspace/server'
-import { httpStatusCodes } from '@scalar/oas-utils/helpers'
+import {
+  REQUEST_METHODS,
+  type RequestMethod,
+  httpStatusCodes,
+} from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
-import { REQUEST_METHODS, type RequestMethod } from '../HttpMethod/httpMethods'
 import { getStatusCodeColor } from './httpStatusCodeColors'
 
 const {
@@ -80,7 +88,8 @@ executeRequestBus.on(() => {
   }, 20)
 })
 
-function updateRequestMethod(method: string) {
+function updateRequestMethod(method: RequestMethod) {
+  console.log(method)
   if (!activeRequest.value) return
   requestMutators.edit(activeRequest.value.uid, 'method', method)
 }
@@ -117,29 +126,14 @@ const serverOptions = computed(() =>
   })),
 )
 
-// watch(serverOptions, (newOptions) => {
-// if (newOptions) {
-//   const currentServer = newOptions.find(
-//     (option) => option.id === selectedServer.value.id,
-//   )
-//   selectedServer.value = currentServer || newOptions[0]
-// }
-// })
-
-// watch(selectedServer, (newServer) => {
-//   if (newServer.id && activeRequest.value) {
-//     requestMutators.edit(activeRequest.value.uid, 'baseUrl', newServer.url)
-//   }
-// })
-
 /** Update the currently selected server on the collection */
-const updateSelectedServer = (server: Server) => {
+const updateSelectedServer = (server: ScalarListboxOption) => {
   if (!activeCollection.value) return
 
   collectionMutators.edit(
     activeCollection.value.uid,
     'selectedServerUid',
-    server.uid,
+    server.id,
   )
 }
 

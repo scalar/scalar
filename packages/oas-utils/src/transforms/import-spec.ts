@@ -7,6 +7,7 @@ import { serverSchema } from '@/entities/workspace/server'
 import type { Nanoid } from '@/entities/workspace/shared'
 import { type RequestRef, createRequest } from '@/entities/workspace/spec'
 import { tagObjectSchema } from '@/entities/workspace/spec/spec'
+import type { RequestMethod } from '@/helpers'
 import { parseJsonOrYaml } from '@/helpers/parse'
 import { schemaModel } from '@/helpers/schema-model'
 import { openapi } from '@scalar/openapi-parser'
@@ -95,7 +96,7 @@ export async function importSpecToWorkspace(spec: string) {
       })
 
       const request = createRequest({
-        method: method.toUpperCase(),
+        method: method.toUpperCase() as RequestMethod,
         path: pathString,
         tags: operation.tags || ['default'],
         description: operation.description,

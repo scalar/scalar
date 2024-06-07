@@ -15,7 +15,7 @@ defineProps<
   {
     options: Option[]
     modelValue?: Option
-  } & Omit<FloatingOptions, 'middleware'>
+  } & Omit<FloatingOptions, 'middleware' | 'offset'>
 >()
 
 defineEmits<{
