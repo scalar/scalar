@@ -44,7 +44,13 @@ export function createRollupConfig(props: {
     treeshake: {
       annotations: true,
       preset: 'recommended',
-      moduleSideEffects: false,
+      /**
+       * We should never be importing modules for the side effects BUT
+       * CSS import are by definition side effects. These must be excluded
+       */
+      moduleSideEffects: (id) => {
+        return id.includes('.css')
+      },
     },
     output: {
       format: 'esm',
