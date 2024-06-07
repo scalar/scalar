@@ -27,10 +27,11 @@ const formatHeaderName = (headerName: string) => {
       <DataTable
         v-if="headers.length"
         class="flex-1"
-        :columns="['', '']">
+        :columns="['minmax(auto, min-content)', 'minmax(50%, 1fr)']">
         <DataTableRow
           v-for="(item, idx) in headers"
-          :key="idx">
+          :key="idx"
+          class="text-c-1">
           <DataTableText :text="formatHeaderName(item.name)" />
           <DataTableText :text="item.value" />
         </DataTableRow>

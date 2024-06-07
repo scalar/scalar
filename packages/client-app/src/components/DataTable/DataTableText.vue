@@ -8,7 +8,7 @@ defineProps<{
 <template>
   <DataTableCell class="relative flex">
     <span
-      class="text-c-2 focus:text-c-1 min-w-0 flex-1 px-2 py-[5.75px] whitespace-nowrap">
+      class="min-w-0 flex-1 px-2 py-[5.75px] whitespace-nowrap overflow-x-auto overflow-y-hidden custom-scroll">
       {{ text }}
     </span>
   </DataTableCell>

@@ -4,7 +4,7 @@ import DataTableCell from './DataTableCell.vue'
 <template>
   <DataTableCell
     is="th"
-    class="truncate">
+    class="truncate font-medium px-2 py-1.5">
     <slot />
   </DataTableCell>
 </template>
