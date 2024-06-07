@@ -37,7 +37,7 @@ const activeSection = ref<ActiveSections>('All')
       </div>
     </template>
     <div
-      class="request-section-content custom-scroll flex flex-1 flex-col px-5 py-2.5">
+      class="request-section-content custom-scroll flex flex-1 flex-col px-2 xl:px-5 py-2.5">
       <ContextBar
         :activeSection="activeSection"
         :sections="sections"
