@@ -143,10 +143,18 @@ export default {
       width: { sidebar: 'var(--scalar-sidebar-width)' },
       minHeight: { header: 'var(--scalar-client-header-height)' },
       borderColor: { DEFAULT: 'var(--scalar-border-color)' },
-      borderWidth: { DEFAULT: 'var(--scalar-border-width)' },
+      borderWidth: {
+        'DEFAULT': 'var(--scalar-border-width)',
+        '1/2': 'calc(var(--scalar-border-width) / 2)',
+      },
       brightness: {
         lifted: 'var(--scalar-lifted-brightness)',
         backdrop: 'var(--scalar-backdrop-brightness)',
+      },
+      zIndex: {
+        '-1': '-1',
+        '0': '0',
+        '1': '1',
       },
     },
   },
