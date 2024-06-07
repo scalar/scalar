@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DataTable from '@/components/DataTable/DataTable.vue'
+import DataTableCell from '@/components/DataTable/DataTableCell.vue'
 import DataTableCheckbox from '@/components/DataTable/DataTableCheckbox.vue'
 import DataTableInput from '@/components/DataTable/DataTableInput.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'

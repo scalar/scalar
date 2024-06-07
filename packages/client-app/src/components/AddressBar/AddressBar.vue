@@ -9,7 +9,7 @@ import {
   ListboxOptions,
 } from '@headlessui/vue'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import type { Server } from '@scalar/oas-utils/entities/workspace/server/server'
+import type { Server } from '@scalar/oas-utils/entities/workspace/server'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
@@ -22,15 +22,14 @@ import { getStatusCodeColor } from './httpStatusCodeColors'
 const {
   activeRequest,
   activeExample,
+  activeCollection,
+  collectionMutators,
   updateRequestExample,
   requestMutators,
-  servers,
 } = useWorkspace()
 
 const history = computed(() => activeRequest.value?.history ?? [])
-
 const selectedRequest = ref(history.value[0])
-const selectedServer = ref<Server>(servers.default)
 
 const keys = useMagicKeys()
 whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, () =>
@@ -93,65 +92,56 @@ function getBackgroundColor() {
 }
 
 /**
- * Get the host from the scalar proxy request
+ * Get a part of the URL object from the scalar proxy request
+ *
  * @param request
+ * @param the part of the url you want ex: origin or pathname etc
  */
-function getHost(request: XMLHttpRequest) {
+function getUrlPart(request: XMLHttpRequest, part: keyof URL) {
   const url = new URL(request.responseURL)
-
   const params = new URLSearchParams(url.search)
 
   const scalarUrl = params.get('scalar_url')
   if (!scalarUrl) return url.origin
 
   const scalarUrlParsed = new URL(scalarUrl)
-
-  const baseUrl = scalarUrlParsed.origin
+  const baseUrl = scalarUrlParsed[part]
 
   return baseUrl
 }
 
-/**
- * Get the pathName from the scalar proxy request
- * @param request
- */
-function getPathName(request: XMLHttpRequest) {
-  const url = new URL(request.responseURL)
-
-  const params = new URLSearchParams(url.search)
-
-  const scalarUrl = params.get('scalar_url')
-  if (!scalarUrl) return url.origin
-
-  const scalarUrlParsed = new URL(scalarUrl)
-
-  const pathName = scalarUrlParsed.pathname
-
-  return pathName
-}
-
-const serverOptions = computed(() => [
-  ...Object.entries(servers).map(([id, server]) => ({
-    id,
-    label: server.name,
-    url: server.url,
+const serverOptions = computed(() =>
+  activeCollection.value?.spec.servers?.map((server) => ({
+    id: server.uid,
+    label: server.url,
   })),
-])
+)
 
-watch(serverOptions, (newOptions) => {
-  if (newOptions) {
-    const currentServer = newOptions.find(
-      (option) => option.id === selectedServer.value.id,
-    )
-    selectedServer.value = currentServer || newOptions[0]
-  }
-})
+// watch(serverOptions, (newOptions) => {
+// if (newOptions) {
+//   const currentServer = newOptions.find(
+//     (option) => option.id === selectedServer.value.id,
+//   )
+//   selectedServer.value = currentServer || newOptions[0]
+// }
+// })
 
-watch(selectedServer, (newServer) => {
-  if (newServer.id && activeRequest.value) {
-    requestMutators.edit(activeRequest.value.uid, 'baseUrl', newServer.url)
-  }
-})
+// watch(selectedServer, (newServer) => {
+//   if (newServer.id && activeRequest.value) {
+//     requestMutators.edit(activeRequest.value.uid, 'baseUrl', newServer.url)
+//   }
+// })
+
+/** Update the currently selected server on the collection */
+const updateSelectedServer = (server: Server) => {
+  if (!activeCollection.value) return
+
+  collectionMutators.edit(
+    activeCollection.value.uid,
+    'selectedServerUid',
+    server.uid,
+  )
+}
 
 /**
  * TODO: This component is pretty much mocked for now, will come back and finish it up once we
@@ -196,14 +186,20 @@ watch(selectedServer, (newServer) => {
               :method="activeRequest.method"
               @change="updateRequestMethod" />
             <ScalarListbox
-              v-model="selectedServer"
-              :options="serverOptions">
+              v-if="serverOptions"
+              :options="serverOptions"
+              :value="activeCollection?.selectedServerUid"
+              @update:modelValue="updateSelectedServer">
               <ScalarButton
-                variant="outlined"
-                size="sm"
                 class="font-code text-sm whitespace-nowrap"
-                >{{ selectedServer.url }}</ScalarButton
-              >
+                size="sm"
+                variant="outlined">
+                {{
+                  activeCollection?.spec.servers?.find(
+                    ({ uid }) => activeCollection?.selectedServerUid === uid,
+                  )?.url
+                }}
+              </ScalarButton>
             </ScalarListbox>
           </div>
           <div class="scroll-timeline-x relative flex w-full overflow-hidden">
@@ -255,9 +251,9 @@ watch(selectedServer, (newServer) => {
                     {{ response.status }}
                   </span>
                   <span class="text-c-2 gap-0">
-                    {{ getHost(response.request) }}
+                    {{ getUrlPart(response.request, 'origin') }}
                     <em class="text-c-1 ml-[-8px]">{{
-                      getPathName(response.request)
+                      getUrlPart(response.request, 'pathname')
                     }}</em>
                   </span>
                 </div>
@@ -367,4 +363,3 @@ watch(selectedServer, (newServer) => {
   }
 }
 </style>
-./httpStatusCodeColors

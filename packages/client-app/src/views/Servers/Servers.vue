@@ -4,23 +4,21 @@ import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
-import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { themeClasses } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
-import { nanoid } from 'nanoid'
+import { serverSchema } from '@scalar/oas-utils/entities/workspace/server'
 
 import ServerForm from './ServerForm.vue'
 
-const { servers, serverMutators } = useWorkspace()
+const { activeCollection, collectionMutators } = useWorkspace()
 
-function addServerHandler() {
-  const server = {
-    uid: nanoid(),
-    name: 'new server',
-    url: 'http://localhost',
-  }
+const addServerHandler = () => {
+  if (!activeCollection.value) return
 
-  serverMutators.add(server)
+  collectionMutators.edit(activeCollection.value.uid, 'spec.servers', [
+    ...activeCollection.value.spec.servers,
+    serverSchema.parse({ url: 'http://localhost' }),
+  ])
 }
 </script>
 <template>
@@ -30,10 +28,10 @@ function addServerHandler() {
       <div class="flex-1">
         <SidebarList>
           <SidebarListElement
-            v-for="server in servers"
+            v-for="server in activeCollection?.spec.servers"
             :key="server.uid"
             class="text-xs"
-            :variable="{ name: server.name, uid: server.uid }" />
+            :variable="{ name: server.url, uid: server.uid }" />
         </SidebarList>
       </div>
     </template>

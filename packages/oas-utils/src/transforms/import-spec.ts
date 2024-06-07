@@ -3,6 +3,7 @@ import {
   type CollectionFolder,
   defaultCollectionFolder,
 } from '@/entities/workspace/collection'
+import { serverSchema } from '@/entities/workspace/server'
 import type { Nanoid } from '@/entities/workspace/shared'
 import { type RequestRef, createRequest } from '@/entities/workspace/spec'
 import { tagObjectSchema } from '@/entities/workspace/spec/spec'
@@ -138,6 +139,17 @@ export async function importSpecToWorkspace(spec: string) {
     folders[folder.uid] = folder
   })
 
+  // Toss in a default server if there aren't any
+  const unparsedServers = parsedSpec.servers?.length
+    ? parsedSpec.servers!
+    : [
+        {
+          url: 'http://localhost',
+          description: 'Replace with your API server',
+        },
+      ]
+  const servers = unparsedServers.map((server) => serverSchema.parse(server))
+
   const collection: Collection = {
     uid: nanoid(),
     requests: Object.keys(requests),
@@ -145,9 +157,10 @@ export async function importSpecToWorkspace(spec: string) {
       openapi: parsedSpec.openapi,
       info: schema?.info,
       externalDocs: schema?.externalDocs,
-      servers: parsedSpec.servers,
+      servers,
       tags,
     },
+    selectedServerUid: servers[0].uid,
     folders,
     // We default to having all the requests in the root folder
     children: Object.keys(folders),

@@ -11,7 +11,10 @@ import {
 } from '@scalar/oas-utils/entities/workspace/collection'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import type { Environment } from '@scalar/oas-utils/entities/workspace/environment'
-import type { Server } from '@scalar/oas-utils/entities/workspace/server'
+import {
+  type Server,
+  serverSchema,
+} from '@scalar/oas-utils/entities/workspace/server'
 import type {
   RequestExample,
   RequestRef,
@@ -91,29 +94,6 @@ const activeCookieId = computed<string | undefined>(
 )
 
 // ---------------------------------------------------------------------------
-// SERVERS
-
-const servers = reactive<Record<string, Server>>({
-  default: {
-    uid: 'default',
-    name: 'default',
-    url: 'https://galaxy.scalar.com',
-  },
-})
-const serverMutators = mutationFactory(servers, reactive({}))
-
-function editServers(uid: string, path: Path<Server>, value: string) {
-  if (uid === 'default' || servers[uid]) {
-    setNestedValue(servers[uid], path, value)
-  }
-}
-
-/** Server associated with the current route */
-const activeServerId = computed<string | undefined>(
-  () => activeRouterParams.value[PathId.Servers],
-)
-
-// ---------------------------------------------------------------------------
 // WORKSPACE
 
 /** Active workspace object (will be associated with an entry in the workspace collection) */
@@ -127,7 +107,6 @@ const workspaceRequests = computed(() =>
       path: r.path,
       method: r.method,
       summary: r.summary,
-      baseUrl: servers.default.url,
     })),
     workspace.requests,
     'uid',
@@ -203,17 +182,16 @@ function deleteCollection(uid: string) {
 }
 
 /** Edit a property of a given collection */
-function editCollection<K extends Path<Collection>>(
-  collectionIdx: number,
+const editCollection = <K extends Path<Collection>>(
+  collectionUid: string,
   path: K,
   value: PathValue<Collection, K>,
-) {
+) =>
   setNestedValue(
-    workspace.collections[collectionIdx],
+    workspace.collections.find(({ uid }) => uid === collectionUid),
     path as Path<Collection>,
     value,
   )
-}
 
 // ---------------------------------------------------------------------------
 // COLLECTION FOLDERS
@@ -294,9 +272,7 @@ export function useWorkspace() {
     requests,
     environments,
     cookies,
-    servers,
     activeCookieId,
-    activeServerId,
     activeCollection,
     activeRequest,
     activeExample,
@@ -305,10 +281,6 @@ export function useWorkspace() {
     importSpecFile,
     importSpecFromUrl,
     cookieMutators,
-    serverMutators: {
-      ...serverMutators,
-      edit: editServers,
-    },
     requestMutators,
     environmentMutators: {
       ...environmentMutators,

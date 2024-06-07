@@ -1,3 +1,4 @@
+import type { Server } from '@/entities/workspace/server'
 import type { Nanoid } from '@/entities/workspace/shared'
 import { nanoid } from 'nanoid'
 import type { OpenAPIV3_1 } from 'openapi-types'
@@ -15,7 +16,7 @@ export type Collection = {
   spec: {
     openapi: string | '3.1.0' | '4.0.0'
     info?: OpenAPIV3_1.InfoObject
-    servers?: OpenAPIV3_1.ServerObject[]
+    servers: Server[]
     tags: OpenAPIV3_1.TagObject[]
     externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
   }
@@ -24,6 +25,8 @@ export type Collection = {
    * WARNING: While a workspace may contain multiple requests with the same path and method only
    */
   requests: Nanoid[]
+  /** The currently selected server */
+  selectedServerUid: string
   /** All folders in a collection */
   folders: Record<Nanoid, CollectionFolder>
   /**  List of uids that correspond to collection requests or folders */
@@ -48,8 +51,10 @@ export const defaultCollection = ({
       description,
       version: version ?? '0.0.1',
     },
+    servers: [],
     tags: [],
   },
+  selectedServerUid: '',
   requests: [],
   folders: {},
   children: [],
