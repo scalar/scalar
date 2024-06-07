@@ -81,7 +81,7 @@ const readOnly = true
     </div>
   </div>
 </template>
-<style>
+<style lang="postcss">
 .scalar-api-client__main__left {
   width: 50%;
   border-right: 1px solid var(--scalar-border-color);
