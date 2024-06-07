@@ -14,6 +14,6 @@ export default defineConfig({
     port: 9000,
   },
   build: createViteBuildOptions({
-    entry: ['src/index.ts'],
+    entry: await findEntryPoints({ allowCss: false }),
   }),
 })
