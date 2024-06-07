@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Form from '@/components/Form/Form.vue'
 import { useWorkspace } from '@/store/workspace'
+import type { Server } from '@scalar/oas-utils/entities/workspace/server'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -34,7 +35,7 @@ const updateServer = (key: string, value: string) => {
 
   collectionMutators.edit(
     activeCollection.value.uid,
-    `spec.servers.${serverIndex}.${key}`,
+    `spec.servers.${serverIndex}.${key as keyof Server}`,
     value,
   )
 }

@@ -7,18 +7,23 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import { themeClasses } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
 import { serverSchema } from '@scalar/oas-utils/entities/workspace/server'
+import { useRouter } from 'vue-router'
 
 import ServerForm from './ServerForm.vue'
 
 const { activeCollection, collectionMutators } = useWorkspace()
+const { push } = useRouter()
 
 const addServerHandler = () => {
   if (!activeCollection.value) return
 
+  const newServer = serverSchema.parse({ url: 'http://localhost' })
   collectionMutators.edit(activeCollection.value.uid, 'spec.servers', [
     ...activeCollection.value.spec.servers,
-    serverSchema.parse({ url: 'http://localhost' }),
+    newServer,
   ])
+
+  push(`/servers/${newServer.uid}`)
 }
 </script>
 <template>

@@ -7,7 +7,7 @@ import { type ZodSchema, z } from 'zod'
 import { $refSchema } from './refs'
 
 /** Request examples - formerly known as instances - are "children" of requests */
-export type RequestExampleParameter = z.TypeOf<
+export type RequestExampleParameter = z.infer<
   typeof requestExampleParametersSchema
 >
 export const requestExampleParametersSchema = z.object({
@@ -23,7 +23,7 @@ export const requestExampleParametersSchema = z.object({
 export type ResponseInstance = AxiosResponse
 
 /** A single set of params for a request example */
-export type RequestExample = z.TypeOf<typeof requestExampleSchema>
+export type RequestExample = z.infer<typeof requestExampleSchema>
 export const requestExampleSchema = z.object({
   uid: nanoidSchema,
   requestUid: z.string().min(7),
@@ -140,7 +140,7 @@ export type Parameters = Record<string, OpenAPIV3_1.ParameterObject>
 export const parametersSchema = z.record(z.string(), z.any())
 
 /** Each operation in an OpenAPI file will correspond with a single request */
-export type RequestRef = z.TypeOf<typeof requestRefSchema> & {
+export type RequestRef = z.infer<typeof requestRefSchema> & {
   externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
 }
 
