@@ -16,13 +16,13 @@ const options = [
   { label: 'URL', key: 'url', placeholder: 'https://galaxy.scalar.com/api/v1' },
 ]
 
-const { params } = useRoute()
+const route = useRoute()
 
 const activeServer = computed(() =>
-  activeCollection.value && params.server === 'default'
+  activeCollection.value && route.params.server === 'default'
     ? activeCollection.value?.spec.servers[0]
     : activeCollection.value?.spec.servers.find(
-        ({ uid }) => uid === params.server,
+        ({ uid }) => uid === route.params.server,
       ),
 )
 
