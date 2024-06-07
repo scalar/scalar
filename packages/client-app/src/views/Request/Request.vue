@@ -20,8 +20,9 @@ import RequestSidebarItem from './RequestSidebarItem.vue'
 defineEmits<{ (event: 'openModal', tab: string): void }>()
 
 const {
-  activeRequest,
   activeExample,
+  activeRequest,
+  activeServer,
   collectionMutators,
   requests,
   workspace,
@@ -49,7 +50,7 @@ executeRequestBus.on(async () => {
     activeRequest.value,
     activeExample.value,
     /** to be added as a fullUrl?  */
-    activeRequest.value.baseUrl + activeRequest.value.path,
+    activeServer.value?.url + activeRequest.value.path,
   )
 
   if (request && response) {

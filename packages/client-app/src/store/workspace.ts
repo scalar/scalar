@@ -131,29 +131,6 @@ const activeRequest = computed<RequestRef | undefined>(() => {
   return request
 })
 
-/**
- * Find the first collection that a request is in
- *
- * TODO temporarily we just loop on arrays but we should convert to array of uids + dictionary
- * for the perf 💪
- */
-const getCollectionFromRequest = (
-  requestUid: string,
-  collections: Collection[],
-) =>
-  collections.find((collection) =>
-    collection.requests.find((uid) => uid === requestUid),
-  )
-
-/**
- * First collection that the active request is in
- */
-const activeCollection = computed(() =>
-  activeRequest.value
-    ? getCollectionFromRequest(activeRequest.value.uid, workspace.collections)
-    : null,
-)
-
 /** Currently active instance, just hardcoded to 0 at the moment */
 // TODO get this from the route params
 const activeExample = computed(
@@ -190,6 +167,38 @@ const editCollection = <K extends Path<Collection>>(
     path as Path<Collection>,
     value,
   )
+
+/**
+ * Find the first collection that a request is in
+ *
+ * TODO temporarily we just loop on arrays but we should convert to array of uids + dictionary
+ * for the perf 💪
+ */
+const getCollectionFromRequest = (
+  requestUid: string,
+  collections: Collection[],
+) =>
+  collections.find((collection) =>
+    collection.requests.find((uid) => uid === requestUid),
+  )
+
+/**
+ * First collection that the active request is in
+ */
+const activeCollection = computed(() =>
+  activeRequest.value
+    ? getCollectionFromRequest(activeRequest.value.uid, workspace.collections)
+    : null,
+)
+
+/**
+ * The currently selected server in the addressBar
+ */
+const activeServer = computed(() =>
+  activeCollection.value?.spec.servers.find(
+    ({ uid }) => uid === activeCollection.value?.selectedServerUid,
+  ),
+)
 
 // ---------------------------------------------------------------------------
 // COLLECTION FOLDERS
@@ -272,6 +281,7 @@ export function useWorkspace() {
     cookies,
     activeCookieId,
     activeCollection,
+    activeServer,
     activeRequest,
     activeExample,
     // ---------------------------------------------------------------------------
