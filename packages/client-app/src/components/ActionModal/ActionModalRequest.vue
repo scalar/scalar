@@ -21,7 +21,7 @@ const { push } = useRouter()
 
 const { requestMutators, collectionMutators, activeCollection } = useWorkspace()
 const requestName = ref('')
-const requestMethod = ref('Get')
+const requestMethod = ref('GET')
 const selectedFolderId = ref('')
 
 const folders = computed(() => {
