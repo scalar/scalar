@@ -52,7 +52,8 @@ function getBackgroundColor() {
         );
       ">
       <AddressBar />
-      <div class="bg-b-1 m-1 mt-0 flex min-h-0 flex-1 rounded-lg border">
+      <div
+        class="m-1 mt-0 flex min-h-0 flex-1 rounded xl:rounded-lg xl:border xl:overflow-hidden">
         <RouterView />
       </div>
     </div>

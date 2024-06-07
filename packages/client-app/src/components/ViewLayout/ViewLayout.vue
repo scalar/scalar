@@ -1,5 +1,5 @@
 <template>
-  <div class="grid auto-cols-fr xl:grid-flow-col">
+  <div class="flex xl:flex-row flex-col xl:gap-0 gap-1 custom-scroll rounded">
     <slot />
   </div>
 </template>

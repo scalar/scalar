@@ -130,121 +130,123 @@ function getPathName(request: XMLHttpRequest) {
 <template>
   <div
     v-if="activeRequest && activeExample"
-    class="min-h-header flex flex-row items-center"
+    class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap"
     :class="[themeClasses.topContainer]">
-    <!-- <div class="text-c-2 flex w-80 flex-row items-center gap-1 p-4">
+    <div
+      class="text-c-2 flex w-80 flex-row items-center gap-1 px-4 lg:flex-1 w-6/12">
       <ScalarIcon
         icon="Branch"
         size="md" />
-      <h2 class="text-sm">Branch Name</h2>
-    </div> -->
+    </div>
 
-    <div class="m-auto flex basis-1/2 flex-row items-center">
-      <!-- Address Bar -->
-      <Listbox
-        v-slot="{ open }"
-        v-model="selectedRequest">
+    <!-- Address Bar -->
+    <Listbox
+      v-slot="{ open }"
+      v-model="selectedRequest">
+      <div
+        :class="[
+          'text-xxs bg-b-1 relative flex w-full lg:min-w-[720px] order-last lg:order-none flex-1 flex-row items-stretch rounded border p-[3px]',
+          { 'rounded-b-none': open },
+          { 'border-transparent': open },
+        ]">
+        <div
+          class="pointer-events-none absolute left-0 top-0 z-10 block h-full w-full overflow-hidden">
+          <div
+            class="bg-mix-transparent bg-mix-amount-95 absolute left-0 top-0 h-full w-full"
+            :class="getBackgroundColor()"
+            :style="{ transform: `translate3d(-${percentage}%,0,0)` }"></div>
+        </div>
+        <HttpMethod
+          class="font-bold"
+          isEditable
+          isSquare
+          :method="activeRequest.method"
+          @change="updateRequestMethod" />
+        <div class="scroll-timeline-x relative flex w-full overflow-hidden">
+          <div class="fade-left"></div>
+
+          <!-- TODO wrap vars in spans for special effects like mouseOver descriptions -->
+          <div class="w-full">
+            <div
+              class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap text-sm font-medium leading-[24.5px]"
+              contenteditable
+              @input="(ev) => onUrlChange((ev.target as HTMLElement).innerText)"
+              @keydown.enter.prevent="executeRequestBus.emit()">
+              {{ activeRequest.path }}
+            </div>
+          </div>
+          <div class="fade-right"></div>
+        </div>
+
+        <!-- History -->
+        <ListboxButton
+          v-if="activeRequest.history.length"
+          class="hover:bg-b-2 mr-1 rounded p-1.5">
+          <ScalarIcon
+            class="text-c-3"
+            icon="History"
+            size="xs" />
+        </ListboxButton>
+
+        <!-- History shadow and placement-->
         <div
           :class="[
-            'text-xxs bg-b-1 relative flex w-[720px] flex-1 flex-row items-stretch rounded border p-[3px]',
-            { 'rounded-b-none': open },
-            { 'border-transparent': open },
+            'absolute left-0 top-[31px] w-full rounded before:pointer-events-none before:absolute before:left-0 before:top-[-31.5px] before:h-[calc(100%+31.5px)] before:w-full before:rounded z-50',
+            { 'before:shadow-lg': open },
           ]">
-          <div
-            class="pointer-events-none absolute left-0 top-0 z-10 block h-full w-full overflow-hidden">
-            <div
-              class="bg-mix-transparent bg-mix-amount-95 absolute left-0 top-0 h-full w-full"
-              :class="getBackgroundColor()"
-              :style="{ transform: `translate3d(-${percentage}%,0,0)` }"></div>
-          </div>
-          <HttpMethod
-            class="font-bold"
-            isEditable
-            isSquare
-            :method="activeRequest.method"
-            @change="updateRequestMethod" />
-          <div class="scroll-timeline-x relative flex w-full overflow-hidden">
-            <div class="fade-left"></div>
-
-            <!-- TODO wrap vars in spans for special effects like mouseOver descriptions -->
-            <div class="w-full">
-              <div
-                class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap text-sm font-medium leading-[24.5px]"
-                contenteditable
-                @input="
-                  (ev) => onUrlChange((ev.target as HTMLElement).innerText)
-                "
-                @keydown.enter.prevent="executeRequestBus.emit()">
-                {{ activeRequest.path }}
+          <!-- History Item -->
+          <ListboxOptions
+            class="bg-b-1 custom-scroll bg-mix-transparent bg-mix-amount-30 max-h-[300px] rounded-b p-[3px] pt-0 backdrop-blur">
+            <ListboxOption
+              v-for="({ response }, index) in history"
+              :key="index"
+              class="ui-active:bg-b-2 text-c-1 ui-active:text-c-1 flex cursor-pointer flex-row gap-2.5 rounded px-2.5 py-1.5 pr-3"
+              :value="index">
+              <div class="font-code flex flex-1 gap-1.5 text-sm font-medium">
+                <span
+                  class="mr-[1px] min-w-[44px] pr-2 text-right"
+                  :class="[getStatusCodeColor(response.status).color]">
+                  {{ response.status }}
+                </span>
+                <span class="text-c-2 gap-0">
+                  {{ getHost(response.request) }}
+                  <em class="text-c-1 ml-[-8px]">{{
+                    getPathName(response.request)
+                  }}</em>
+                </span>
               </div>
-            </div>
-            <div class="fade-right"></div>
-          </div>
 
-          <!-- History -->
-          <ListboxButton
-            v-if="activeRequest.history.length"
-            class="hover:bg-b-2 mr-1 rounded p-1.5">
-            <ScalarIcon
-              class="text-c-3"
-              icon="History"
-              size="xs" />
-          </ListboxButton>
-
-          <!-- History shadow and placement-->
-          <div
-            :class="[
-              'absolute left-0 top-[31px] w-full rounded before:pointer-events-none before:absolute before:left-0 before:top-[-31.5px] before:h-[calc(100%+31.5px)] before:w-full before:rounded z-50',
-              { 'before:shadow-lg': open },
-            ]">
-            <!-- History Item -->
-            <ListboxOptions
-              class="bg-b-1 custom-scroll bg-mix-transparent bg-mix-amount-30 max-h-[300px] rounded-b p-[3px] pt-0 backdrop-blur">
-              <ListboxOption
-                v-for="({ response }, index) in history"
-                :key="index"
-                class="ui-active:bg-b-2 text-c-1 ui-active:text-c-1 flex cursor-pointer flex-row gap-2.5 rounded px-2.5 py-1.5 pr-3"
-                :value="index">
-                <div class="font-code flex flex-1 gap-1.5 text-sm font-medium">
-                  <span
-                    class="mr-[1px] min-w-[44px] pr-2 text-right"
-                    :class="[getStatusCodeColor(response.status).color]">
-                    {{ response.status }}
-                  </span>
-                  <span class="text-c-2 gap-0">
-                    {{ getHost(response.request) }}
-                    <em class="text-c-1 ml-[-8px]">{{
-                      getPathName(response.request)
-                    }}</em>
-                  </span>
-                </div>
-
-                <!-- Response info -->
-                <div
-                  class="font-code text-c-3 flex flex-row items-center gap-3 text-sm font-medium">
-                  <!-- <span>{{ formatMs(response.ms) }}</span> -->
-                  <!-- <span>{{ formatBytes(response.bytes) }}</span> -->
-                  <span>
-                    {{ httpStatusCodes[response.status]?.name }}
-                  </span>
-                  <HttpMethod
-                    class="text-sm"
-                    :method="activeRequest.method" />
-                </div>
-              </ListboxOption>
-            </ListboxOptions>
-          </div>
-          <ScalarButton
-            class="relative h-auto shrink-0 gap-1.5 overflow-hidden px-2.5 py-1"
-            @click="executeRequestBus.emit()">
-            <ScalarIcon
-              class="relative z-10 w-2 shrink-0"
-              icon="Play"
-              size="xs" />
-            <span class="text-xxs relative z-10">Send</span>
-          </ScalarButton>
+              <!-- Response info -->
+              <div
+                class="font-code text-c-3 flex flex-row items-center gap-3 text-sm font-medium">
+                <!-- <span>{{ formatMs(response.ms) }}</span> -->
+                <!-- <span>{{ formatBytes(response.bytes) }}</span> -->
+                <span>
+                  {{ httpStatusCodes[response.status]?.name }}
+                </span>
+                <HttpMethod
+                  class="text-sm"
+                  :method="activeRequest.method" />
+              </div>
+            </ListboxOption>
+          </ListboxOptions>
         </div>
-      </Listbox>
+        <ScalarButton
+          class="relative h-auto shrink-0 gap-1.5 overflow-hidden px-2.5 py-1"
+          @click="executeRequestBus.emit()">
+          <ScalarIcon
+            class="relative z-10 w-2 shrink-0"
+            icon="Play"
+            size="xs" />
+          <span class="text-xxs relative z-10">Send</span>
+        </ScalarButton>
+      </div>
+    </Listbox>
+
+    <!-- close button / scalar button don't delete -->
+    <div
+      class="text-c-2 flex w-80 flex-row items-center gap-1 px-4 lg:flex-1 items-end w-6/12">
+      open in scalar
     </div>
   </div>
 </template>
