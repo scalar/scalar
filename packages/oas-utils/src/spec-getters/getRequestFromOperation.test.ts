@@ -235,4 +235,79 @@ describe('getRequestFromOperation', () => {
 
     expect(request.postData?.text).toBe('BINARY')
   })
+
+  it('doesn’t replace path variables with underscore syntax', () => {
+    const request = getRequestFromOperation({
+      httpVerb: 'POST',
+      path: '/foobar/{id}',
+    } as TransformedOperation)
+
+    expect(request).toMatchObject({
+      method: 'POST',
+      path: '/foobar/{id}',
+    })
+  })
+
+  it('replaces path variables with underscore syntax when replaceVariables: true', () => {
+    const request = getRequestFromOperation(
+      {
+        httpVerb: 'POST',
+        path: '/foobar/{id}',
+      } as TransformedOperation,
+      {
+        replaceVariables: true,
+      },
+    )
+
+    expect(request).toMatchObject({
+      method: 'POST',
+      path: '/foobar/__ID__',
+    })
+  })
+
+  it('uses example values for path variables', () => {
+    const request = getRequestFromOperation({
+      httpVerb: 'POST',
+      path: '/foobar/{id}',
+      information: {
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            example: 123,
+          },
+        ],
+      },
+    } as TransformedOperation)
+
+    expect(request).toMatchObject({
+      method: 'POST',
+      path: '/foobar/123',
+    })
+  })
+
+  it('still replaces variables if an example value isn’t available', () => {
+    const request = getRequestFromOperation(
+      {
+        httpVerb: 'POST',
+        path: '/foobar/{id}',
+        information: {
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+            },
+          ],
+        },
+      } as TransformedOperation,
+      {
+        replaceVariables: true,
+      },
+    )
+
+    expect(request).toMatchObject({
+      method: 'POST',
+      path: '/foobar/__ID__',
+    })
+  })
 })

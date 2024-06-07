@@ -11,6 +11,10 @@ import { getRequestBodyFromOperation } from './getRequestBodyFromOperation'
 export const getRequestFromOperation = (
   operation: TransformedOperation,
   options?: {
+    /**
+     * If the path will be URL encoded, you may want to replace {curlyBrackets} with __UNDERSCORES__ to indicate an
+     * variable.
+     */
     replaceVariables?: boolean
     requiredOnly?: boolean
   },
@@ -19,6 +23,30 @@ export const getRequestFromOperation = (
   // Replace all variables of the format {something} with the uppercase variable name without the brackets
   let path = operation.path
 
+  // {id} -> 123
+  const pathParameters = getParametersFromOperation(operation, 'path', false)
+
+  if (pathParameters.length) {
+    const pathVariables = path.match(/{(.*?)}/g)
+
+    if (pathVariables) {
+      pathVariables.forEach((variable) => {
+        const variableName = variable.replace(/{|}/g, '')
+
+        if (pathParameters) {
+          const parameter = pathParameters.find(
+            (param) => param.name === variableName,
+          )
+
+          if (parameter?.value) {
+            path = path.replace(variable, parameter.value.toString())
+          }
+        }
+      })
+    }
+  }
+
+  // {id} -> __ID__
   if (options?.replaceVariables === true) {
     const pathVariables = path.match(/{(.*?)}/g)
 
