@@ -29,17 +29,9 @@ const { copyToClipboard } = useClipboard()
 const selectedExampleKey = ref<string>()
 
 // Bring the status codes in the right order.
-const orderedStatusCodes = computed(() => {
-  return Object.keys(props?.operation?.information?.responses ?? {}).sort(
-    (x) => {
-      if (x === 'default') {
-        return -1
-      }
-
-      return 0
-    },
-  )
-})
+const orderedStatusCodes = computed(() =>
+  Object.keys(props?.operation?.information?.responses ?? {}).sort(),
+)
 
 const hasMultipleExamples = computed<boolean>(
   () => !!currentJsonResponse.value.examples,
