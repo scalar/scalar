@@ -64,7 +64,7 @@ const formattedResponseData = computed(() => {
       <ScalarCodeBlock
         v-if="codeMirrorLanguage || typeof response.data === 'string'"
         class="custom-scroll"
-        :content="formattedResponseData"
+        :content="formattedResponseData || response?.error?.message"
         :lang="codeMirrorLanguage" />
       <div
         v-else
