@@ -134,11 +134,13 @@ Making requests to other domains is restricted in the browser and requires [CORS
 <ApiReference :configuration="{ proxy: 'https://proxy.example.com' }" />
 ```
 
-ℹ️ You can use [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy) to host your own proxy or you can just use ours:
+You can use our hosted proxy:
 
 ```vue
 <ApiReference :configuration="{ proxy: 'https://proxy.scalar.com' }" />
 ```
+
+If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/examples/proxy-server).
 
 #### showSidebar?: boolean
 
