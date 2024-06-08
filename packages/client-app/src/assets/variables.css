@@ -2,7 +2,6 @@
 @import url('https://fonts.googleapis.com/css?family=JetBrains%20Mono');
 
 :root {
-  --scalar-header-height: 48px;
   --scalar-border-width: 1px;
   --scalar-radius: 3px;
   --scalar-radius-lg: 6px;
