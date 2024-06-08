@@ -37,7 +37,7 @@ import { computed, reactive, readonly } from 'vue'
 const requests = reactive<Record<string, RequestRef>>({})
 const requestMutators = mutationFactory(requests, reactive({}))
 
-const addRequest = (payload: Partial<RequestRef>) => {
+const addRequest = (payload: Partial<RequestRef>, collectionUid?: string) => {
   const request = requestRefSchema.parse(payload)
 
   // Add initial example
@@ -47,9 +47,11 @@ const addRequest = (payload: Partial<RequestRef>) => {
   // Add request
   requestMutators.add(request)
   workspace.requests.push(request.uid)
+
+  // TODO add to collection
 }
 
-const deleteRequest = (request: RequestRef) => {
+const deleteRequest = (request: RequestRef, collectionUid?: string) => {
   // Remove all examples
   request.examples.forEach((uid) => requestExampleMutators.delete(uid))
 
@@ -57,6 +59,8 @@ const deleteRequest = (request: RequestRef) => {
   const requestIndex = workspace.requests.indexOf(request.uid)
   workspace.requests.splice(requestIndex, 1)
   requestMutators.delete(request.uid)
+
+  // TODO remove from collection
 }
 
 const { openFoldersForRequest } = useSidebar()
@@ -165,6 +169,7 @@ const deleteRequestExample = (requestExample: RequestExample) => {
 }
 
 /** Currently active instance */
+// TODO hard coded right now, get from router
 const activeExample = computed(
   () => requestExamples[activeRequest.value?.examples[0] ?? ''],
 )
