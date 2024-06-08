@@ -810,6 +810,9 @@ importers:
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../api-client
+      '@scalar/client-app':
+        specifier: workspace:*
+        version: link:../client-app
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
