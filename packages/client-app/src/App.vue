@@ -30,32 +30,15 @@ onMounted(async () => {
   )
   importSpecFile(spec)
 })
-
-const getBackgroundColor = () => {
-  if (!activeRequest.value) return ''
-  const { method } = activeRequest.value
-  return REQUEST_METHODS[method as RequestMethod].backgroundColor
-}
 </script>
 <template>
   <TopNav />
   <!-- min-h-0 is to allow scrolling of individual flex children -->
   <main class="flex min-h-0 flex-1">
     <SideNav />
-    <div
-      class="bg-mix-transparent bg-mix-amount-95 flex flex-1 flex-col rounded-lg rounded-b-none rounded-r-none pt-0"
-      :class="getBackgroundColor()"
-      style="
-        background: linear-gradient(
-          color-mix(in srgb, var(--tw-bg-base) 6%, transparent) 1%,
-          var(--scalar-background-2) 9%
-        );
-      ">
-      <AddressBar />
-      <div
-        class="m-1 mt-0 flex min-h-0 flex-1 rounded xl:rounded-lg xl:border xl:overflow-hidden">
-        <RouterView />
-      </div>
+    <div class="flex flex-1 flex-col">
+      <!-- <AddressBar /> -->
+      <RouterView />
     </div>
   </main>
   <ScalarToasts />

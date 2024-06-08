@@ -20,7 +20,7 @@ export default defineConfig({
   build: createViteBuildOptions({
     entry: await findEntryPoints({ allowCss: true }),
     options: {
-      ssr: true,
+      ssr: false,
     },
   }),
 })

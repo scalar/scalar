@@ -149,7 +149,7 @@ const isSelectedServer = (serverId: string) => {
 <template>
   <div
     v-if="activeRequest && activeExample"
-    class="min-h-header flex flex-row items-center"
+    class="flex flex-row items-center"
     :class="[themeClasses.topContainer]">
     <!-- <div class="text-c-2 flex w-80 flex-row items-center gap-1 p-4">
       <ScalarIcon
@@ -165,7 +165,7 @@ const isSelectedServer = (serverId: string) => {
         v-model="selectedRequest">
         <div
           :class="[
-            'text-xxs bg-b-1 relative flex w-[720px] flex-1 flex-row items-stretch rounded border p-[3px]',
+            'text-xxs bg-b-1 relative flex w-full lg:min-w-[720px] order-last lg:order-none flex-1 flex-row items-stretch rounded border p-[3px]',
             { 'rounded-b-none': open },
             { 'border-transparent': open },
           ]">
@@ -185,10 +185,11 @@ const isSelectedServer = (serverId: string) => {
               @change="updateRequestMethod" />
             <ScalarDropdown
               v-if="serverOptions"
-              class="font-code text-sm whitespace-nowrap"
+              class="h-auto font-code text-sm whitespace-nowrap"
               :options="serverOptions"
               :value="activeCollection?.selectedServerUid">
               <ScalarButton
+                class="relative h-auto min-h-[24.5px] shrink-0 gap-1.5 overflow-hidden px-1 py-0 font-code"
                 size="sm"
                 variant="outlined"
                 @click.stop>

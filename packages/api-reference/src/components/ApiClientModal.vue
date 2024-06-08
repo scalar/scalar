@@ -1,32 +1,35 @@
 <script setup lang="ts">
 import { useApiClientStore } from '@scalar/api-client'
-import { ScalarIcon } from '@scalar/components'
+import { ScalarClientRequest, router, useWorkspace } from '@scalar/client-app'
+import '@scalar/client-app/style.css'
+import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import type { ThemeId } from '@scalar/themes'
-import { useMediaQuery } from '@vueuse/core'
-import { defineAsyncComponent, ref } from 'vue'
+import { getCurrentInstance, onMounted, ref } from 'vue'
 
 import type { Spec } from '../types'
-import { Sidebar } from './Sidebar'
 
 defineProps<{
-  parsedSpec: Spec
+  // parsedSpec: Spec
   overloadShow?: boolean
-  proxyUrl?: string
-  theme?: ThemeId
+  // proxyUrl?: string
+  // theme?: ThemeId
 }>()
-
 defineEmits<{
   (e: 'toggleDarkMode'): void
 }>()
+const { importSpecFile } = useWorkspace()
+onMounted(async () => {
+  const app = getCurrentInstance()
+  app?.appContext.app.use(router)
+  const spec = await fetchSpecFromUrl(
+    'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+  )
+  importSpecFile(spec)
+})
 
-const LazyLoadedApiClient = defineAsyncComponent(() =>
-  import('@scalar/api-client').then((m) => m.ApiClient),
-)
+const newApiClient = ref(true)
 
 const { hideApiClient, state } = useApiClientStore()
-
-const isMobile = useMediaQuery('(max-width: 1000px)')
-const showSideBar = ref(false)
 </script>
 <template>
   <div
@@ -44,46 +47,9 @@ const showSideBar = ref(false)
         </div> -->
       <div class="scalar-api-client-height">
         <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
-        <LazyLoadedApiClient
-          :proxyUrl="proxyUrl"
-          :showSideBar="showSideBar"
-          :theme="theme ?? 'none'"
-          :withDefaultFonts="false"
-          @escapeKeyPress="hideApiClient"
-          @toggleSidebar="showSideBar = !showSideBar">
-          <template #address-bar-controls>
-            <div class="scalar-api-client-states">
-              <button
-                class="scalar-api-client-states-button scalar-api-client-states-button__endpoints"
-                type="button"
-                @click="showSideBar = !showSideBar">
-                <ScalarIcon
-                  :icon="showSideBar ? 'SideBarClosed' : 'SideBarOpen'"
-                  size="sm" />
-              </button>
-              <button
-                class="scalar-api-client-states-button"
-                type="button"
-                @click="hideApiClient">
-                <ScalarIcon
-                  icon="Close"
-                  size="sm" />
-              </button>
-            </div>
-          </template>
-          <template #sidebar>
-            <div class="t-doc__sidebar">
-              <Sidebar
-                v-show="!isMobile"
-                :parsedSpec="parsedSpec">
-                <!-- Pass up the sidebar slots -->
-                <template #sidebar-start>
-                  <slot name="sidebar-start" />
-                </template>
-              </Sidebar>
-            </div>
-          </template>
-        </LazyLoadedApiClient>
+        <template v-if="newApiClient">
+          <ScalarClientRequest />
+        </template>
       </div>
     </div>
   </div>
@@ -93,7 +59,7 @@ const showSideBar = ref(false)
     @click="hideApiClient"></div>
 </template>
 
-<style scoped>
+<style>
 .api-client-container .scalar-api-client {
   --refs-sidebar-width: 280px;
   width: calc(100% - var(--refs-sidebar-width));
@@ -239,6 +205,7 @@ const showSideBar = ref(false)
 .scalar-api-client-height {
   height: 100%;
   display: flex;
+  flex-direction: column;
 }
 .scalar-api-client-height .sidebar {
   flex: 1 1 0%;

@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createMemoryHistory, createRouter, createWebHistory } from 'vue-router'
 
 export enum PathId {
   Request = 'request',
@@ -79,7 +79,7 @@ const routes = [
 ]
 
 export const router = createRouter({
-  history: createWebHistory(),
+  history: createMemoryHistory(),
   routes,
 })
 
