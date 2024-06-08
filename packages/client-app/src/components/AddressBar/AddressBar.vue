@@ -144,15 +144,8 @@ const updateSelectedServer = (server: ScalarListboxOption) => {
 <template>
   <div
     v-if="activeRequest && activeExample"
-    class="flex flex-row items-center"
+    class="order-last lg:order-none lg:w-auto w-full"
     :class="[themeClasses.topContainer]">
-    <!-- <div class="text-c-2 flex w-80 flex-row items-center gap-1 p-4">
-      <ScalarIcon
-        icon="Branch"
-        size="md" />
-      <h2 class="text-sm">Branch Name</h2>
-    </div> -->
-
     <div class="m-auto flex basis-1/2 flex-row items-center">
       <!-- Address Bar -->
       <Listbox
@@ -173,28 +166,30 @@ const updateSelectedServer = (server: ScalarListboxOption) => {
           </div>
           <div class="flex gap-1">
             <HttpMethod
-              class="font-bold"
+              class="font-bold font-code font-medium"
               isEditable
               isSquare
               :method="activeRequest.method"
               @change="updateRequestMethod" />
-            <ScalarListbox
-              v-if="serverOptions"
-              class="h-auto"
-              :options="serverOptions"
-              :value="activeCollection?.selectedServerUid"
-              @update:modelValue="updateSelectedServer">
-              <ScalarButton
-                class="relative h-auto min-h-[24.5px] shrink-0 gap-1.5 overflow-hidden px-1 py-0 font-code"
-                size="sm"
-                variant="outlined">
-                {{
-                  activeCollection?.spec.servers?.find(
-                    ({ uid }) => activeCollection?.selectedServerUid === uid,
-                  )?.url
-                }}
-              </ScalarButton>
-            </ScalarListbox>
+            <div class="relative">
+              <ScalarListbox
+                v-if="serverOptions"
+                class="h-auto"
+                :options="serverOptions"
+                :value="activeCollection?.selectedServerUid"
+                @update:modelValue="updateSelectedServer">
+                <button
+                  class="relative h-auto min-h-[24.5px] shrink-0 gap-1.5 overflow-hidden px-1 py-0 font-code font-medium text-sm border rounded relative text-c-2"
+                  type="button"
+                  variant="outlined">
+                  {{
+                    activeCollection?.spec.servers?.find(
+                      ({ uid }) => activeCollection?.selectedServerUid === uid,
+                    )?.url
+                  }}
+                </button>
+              </ScalarListbox>
+            </div>
           </div>
           <div class="scroll-timeline-x relative flex w-full overflow-hidden">
             <div class="fade-left"></div>
@@ -236,7 +231,7 @@ const updateSelectedServer = (server: ScalarListboxOption) => {
               <ListboxOption
                 v-for="({ response }, index) in history"
                 :key="index"
-                class="ui-active:bg-b-2 text-c-1 ui-active:text-c-1 flex cursor-pointer flex-row gap-2.5 rounded px-2.5 py-1.5 pr-3"
+                class="ui-active:bg-b-2 text-c-1 ui-active:text-c-1 flex cursor-pointer flex-row gap-2.5 rounded py-1.5 pr-3"
                 :value="index">
                 <div class="font-code flex flex-1 gap-1.5 text-sm font-medium">
                   <span

@@ -14,7 +14,9 @@ const options = [
   { color: 'red', bgClass: 'bg-red' },
   { color: 'yellow', bgClass: 'bg-yellow' },
   { color: 'green', bgClass: 'bg-green' },
+  { color: 'orange', bgClass: 'bg-orange' },
   { color: 'blue', bgClass: 'bg-blue' },
+  { color: 'text-c-2', bgClass: 'bg-c-2' },
   { color: 'purple', bgClass: 'bg-purple' },
   { color: 'pink', bgClass: 'bg-pink' },
 ]
