@@ -295,7 +295,7 @@ const activeServer = computed(() =>
 )
 
 // ---------------------------------------------------------------------------
-// COLLECTION FOLDERS
+// FOLDERS
 
 /** Add a new folder to a collection */
 function addFolder(
@@ -342,6 +342,10 @@ async function importSpecFile(spec: string) {
   // Create a new collection for the spec file
   addCollection(workspaceEntities.collection)
 
+  // folders
+
+  // servers
+
   console.log(workspace)
 }
 
@@ -379,17 +383,20 @@ export function useWorkspace() {
     importSpecFile,
     importSpecFromUrl,
     cookieMutators,
+    collectionMutators: {
+      add: addCollection,
+      delete: deleteCollection,
+      edit: editCollection,
+    },
     environmentMutators: {
       ...environmentMutators,
       edit: editEnvironment,
       delete: deleteEnvironment,
     },
-    collectionMutators: {
-      add: addCollection,
-      delete: deleteCollection,
-      edit: editCollection,
-      addFolder,
-      deleteFolder,
+    folderMutators: {
+      ...folderMutators,
+      add: addFolder,
+      delete: deleteFolder,
     },
     requestMutators: {
       ...requestMutators,
@@ -401,6 +408,10 @@ export function useWorkspace() {
       add: addRequestExample,
       delete: deleteRequestExample,
     },
-    folderMutators: {},
+    serverMutators: {
+      ...serverMutators,
+      add: addServer,
+      delete: deleteServer,
+    },
   }
 }

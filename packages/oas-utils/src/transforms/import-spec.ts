@@ -1,7 +1,7 @@
 import {
-  type Collection,
-  type CollectionFolder,
-  collectionFolderSchema,
+  type Folder,
+  collectionSchema,
+  folderSchema,
 } from '@/entities/workspace/collection'
 import { serverSchema } from '@/entities/workspace/server'
 import type { Nanoid } from '@/entities/workspace/shared'
@@ -11,7 +11,6 @@ import type { RequestMethod } from '@/helpers'
 import { parseJsonOrYaml } from '@/helpers/parse'
 import { schemaModel } from '@/helpers/schema-model'
 import { openapi } from '@scalar/openapi-parser'
-import { nanoid } from 'nanoid'
 import type { OpenAPIV3_1 } from 'openapi-types'
 
 const PARAM_DICTIONARY = {
@@ -116,9 +115,9 @@ export async function importSpecToWorkspace(spec: string) {
 
   // TODO: Consider if we want this for production or just for data mocking
   // Create a basic folder structure from tags
-  const folders: Record<Nanoid, CollectionFolder> = {}
+  const folders: Record<Nanoid, Folder> = {}
   tags.forEach((t) => {
-    const folder = collectionFolderSchema.parse({
+    const folder = folderSchema.parse({
       ...t,
       children: requests
         .filter((r) => r.tags.includes(t.name))
@@ -139,12 +138,11 @@ export async function importSpecToWorkspace(spec: string) {
       ]
   const servers = unparsedServers.map((server) => serverSchema.parse(server))
 
-  const collection: Collection = {
-    uid: nanoid(),
+  const collection = collectionSchema.parse({
     requests: requests.map(({ uid }) => uid),
     spec: {
       openapi: parsedSpec.openapi,
-      info: schema?.info,
+      info: schema?.info ?? {},
       externalDocs: schema?.externalDocs,
       servers: servers.map(({ uid }) => uid),
       tags,
@@ -152,7 +150,7 @@ export async function importSpecToWorkspace(spec: string) {
     selectedServerUid: servers[0].uid,
     // We default to having all the requests in the root folder
     children: Object.keys(folders),
-  }
+  })
 
   const components = schema?.components
 

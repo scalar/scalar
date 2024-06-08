@@ -103,22 +103,6 @@ const specSchema = z.object({
   externalDocs: exteralDocumentationSchema.optional(),
 })
 
-/** Folders will correspond to the x- */
-export type CollectionFolder = z.infer<typeof collectionFolderSchema>
-export const collectionFolderSchema = z.object({
-  /** Used for database sync only */
-  uid: nanoidSchema,
-  /** Will correspond to the slash separate path some, some/nested or some/nested/folder */
-  name: z.string(),
-  /** Folder descriptions */
-  description: z.string().optional(),
-  /**
-   * List of uids that correspond to requests or folders
-   * WARNING: while uids are used we must check that corresponding $refs are not duplicated
-   */
-  children: z.array(z.string()).optional(),
-})
-
 /**
  * A collection must be able to map 1:1 with an OAS 3.1 spec file
  *
