@@ -11,9 +11,11 @@ import {
 } from '@scalar/oas-utils/entities/workspace/collection'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import type { Environment } from '@scalar/oas-utils/entities/workspace/environment'
-import type {
-  RequestExample,
-  RequestRef,
+import {
+  type RequestExample,
+  type RequestRef,
+  createRequestExample,
+  requestRefSchema,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
 import { sortByOrder } from '@scalar/object-utils/arrays'
@@ -32,20 +34,88 @@ import { computed, reactive, readonly } from 'vue'
 const requests = reactive<Record<string, RequestRef>>({})
 const requestMutators = mutationFactory(requests, reactive({}))
 
+const addRequest = (params: Partial<RequestRef>) => {
+  const request = requestRefSchema.parse(params)
+
+  // Add initial example
+  const example = createRequestExample(request, {})
+  request.examples.push(example.uid)
+  requestExampleMutators.add(example)
+
+  // "save" request
+  requestMutators.add(request)
+  workspace.requests.push(request.uid)
+}
+
+const deleteRequest = (request: RequestRef) => {
+  // Remove all examples
+  request.examples.forEach((uid) => requestExampleMutators.delete(uid))
+
+  // Remove request
+  const requestIndex = workspace.requests.indexOf(request.uid)
+  workspace.requests.splice(requestIndex, 1)
+  requestMutators.delete(request.uid)
+}
+
+const { openFoldersForRequest } = useSidebar()
+
+/** Request associated with the current route */
+const activeRequest = computed<RequestRef | undefined>(() => {
+  const key = activeRouterParams.value[PathId.Request]
+  const firstKey = workspaceRequests.value[0]?.uid
+
+  const request = requests[key] ?? requests[firstKey]
+  fallbackMissingParams(PathId.Request, request)
+
+  // Ensure the sidebar folders are open
+  if (request) {
+    const collection = getCollectionFromRequest(
+      request.uid,
+      workspace.collections,
+    )
+    if (collection) openFoldersForRequest(request.uid, collection)
+  }
+
+  return request
+})
+
+// ---------------------------------------------------------------------------
+// REQUEST EXAMPLE
+
 /**
  * Each request has multiple examples associated with it
  * An example is a set of request params that is saved to the example
  * Multiple test cases can each be saved as an example and switched between
  */
-const updateRequestExample = <P extends Path<RequestExample>>(
-  uid: string,
-  exampleUid: string,
-  path: P,
-  value: PathValue<RequestExample, P>,
-) => {
-  // @ts-expect-error need Geoff to fix this plz!
-  requestMutators.edit(uid, `examples.${exampleUid}.${path}`, value)
+const requestExamples = reactive<Record<string, RequestExample>>({})
+const requestExampleMutators = mutationFactory(requestExamples, reactive({}))
+
+/** Ensure we add to the base examples as well as from the request it is in */
+const addRequestExample = (requestExample: RequestExample) => {
+  // Add to request
+  // Add to base
+  requestExampleMutators.add(requestExample)
 }
+
+/** Ensure we remove from the base as well as from the request it is in */
+const deleteRequestExample = (requestExample: RequestExample) => {
+  // Remove from request
+  requestMutators.edit(
+    requestExample.requestUid,
+    'examples',
+    requests[requestExample.requestUid].examples.filter(
+      ({ uid }) => uid !== requestExample.uid,
+    ),
+  )
+  // Remove from base
+  requestExampleMutators.delete(requestExample.uid)
+}
+
+/** Currently active instance, just hardcoded to 0 at the moment */
+// TODO get this from the route params
+const activeExample = computed(
+  () => activeRequest.value?.examples[activeRequest.value.children[0]],
+)
 
 // ---------------------------------------------------------------------------
 // ENVIRONMENT
@@ -107,34 +177,6 @@ const workspaceRequests = computed(() =>
     workspace.requests,
     'uid',
   ),
-)
-
-const { openFoldersForRequest } = useSidebar()
-
-/** Request associated with the current route */
-const activeRequest = computed<RequestRef | undefined>(() => {
-  const key = activeRouterParams.value[PathId.Request]
-  const firstKey = workspaceRequests.value[0]?.uid
-
-  const request = requests[key] ?? requests[firstKey]
-  fallbackMissingParams(PathId.Request, request)
-
-  // Ensure the sidebar folders are open
-  if (request) {
-    const collection = getCollectionFromRequest(
-      request.uid,
-      workspace.collections,
-    )
-    if (collection) openFoldersForRequest(request.uid, collection)
-  }
-
-  return request
-})
-
-/** Currently active instance, just hardcoded to 0 at the moment */
-// TODO get this from the route params
-const activeExample = computed(
-  () => activeRequest.value?.examples[activeRequest.value.children[0]],
 )
 
 // ---------------------------------------------------------------------------
@@ -243,12 +285,7 @@ async function importSpecFile(spec: string) {
   const workspaceEntities = await importSpecToWorkspace(spec)
 
   // Add all the new requests into the request collection
-  Object.values(workspaceEntities.requests).forEach((r) =>
-    requestMutators.add(r),
-  )
-
-  // Associate all the new requests with the workspace
-  workspace.requests.push(...Object.keys(workspaceEntities.requests))
+  workspaceEntities.requests.forEach(addRequest)
 
   // Create a new collection for the spec file
   workspace.collections.push(workspaceEntities.collection)
@@ -289,19 +326,27 @@ export function useWorkspace() {
     importSpecFile,
     importSpecFromUrl,
     cookieMutators,
-    requestMutators,
     environmentMutators: {
       ...environmentMutators,
       edit: editEnvironment,
       delete: deleteEnvironment,
     },
-    updateRequestExample,
     collectionMutators: {
       add: addCollection,
       delete: deleteCollection,
       edit: editCollection,
       addFolder,
       deleteFolder,
+    },
+    requestMutators: {
+      ...requestMutators,
+      add: addRequest,
+      delete: deleteRequest,
+    },
+    requestExampleMutators: {
+      ...requestExampleMutators,
+      add: addRequestExample,
+      delete: deleteRequestExample,
     },
     folderMutators: {},
   }

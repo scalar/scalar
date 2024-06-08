@@ -5,7 +5,7 @@ import {
 } from '@/entities/workspace/collection'
 import { serverSchema } from '@/entities/workspace/server'
 import type { Nanoid } from '@/entities/workspace/shared'
-import { type RequestRef, createRequest } from '@/entities/workspace/spec'
+import { type RequestRef, requestRefSchema } from '@/entities/workspace/spec'
 import { tagObjectSchema } from '@/entities/workspace/spec/spec'
 import type { RequestMethod } from '@/helpers'
 import { parseJsonOrYaml } from '@/helpers/parse'
@@ -24,8 +24,7 @@ const PARAM_DICTIONARY = {
 /** Import an OpenAPI spec file and convert it to workspace entities */
 export async function importSpecToWorkspace(spec: string) {
   const importWarnings: string[] = []
-
-  const requests: Record<string, RequestRef> = {}
+  const requests: RequestRef[] = []
   const parsedSpec = parseJsonOrYaml(spec) as OpenAPIV3_1.Document
 
   const { schema, errors } = await openapi().load(parsedSpec).resolve()
@@ -76,17 +75,6 @@ export async function importSpecToWorkspace(spec: string) {
       operation.parameters?.forEach((_param: any) => {
         const param = _param
 
-        // Fetch ref
-        if ('$ref' in _param) {
-          const refPath = _param.$ref.replace(/^#\//g, '').replace(/\//g, '.')
-          console.log({ refPath })
-          // TODO for some reason this hangs
-          // param = getNestedValue(parsedSpec, refPath)
-          importWarnings.push(
-            `${pathString} - Importing of $ref paths is not yet supported`,
-          )
-        }
-
         if ('name' in param) {
           parameters[
             // Map cookie -> and header -> headers
@@ -95,7 +83,7 @@ export async function importSpecToWorkspace(spec: string) {
         }
       })
 
-      const request = createRequest({
+      const request = requestRefSchema.parse({
         method: method.toUpperCase() as RequestMethod,
         path: pathString,
         tags: operation.tags || ['default'],
@@ -108,7 +96,7 @@ export async function importSpecToWorkspace(spec: string) {
       })
 
       request.tags.forEach((t) => requestTags.add(t))
-      requests[request.uid] = request
+      requests.push(request)
     })
   })
 
@@ -132,7 +120,7 @@ export async function importSpecToWorkspace(spec: string) {
   tags.forEach((t) => {
     const folder = defaultCollectionFolder({
       ...t,
-      children: Object.values(requests)
+      children: requests
         .filter((r) => r.tags.includes(t.name))
         .map((r) => r.uid),
     })
@@ -153,7 +141,7 @@ export async function importSpecToWorkspace(spec: string) {
 
   const collection: Collection = {
     uid: nanoid(),
-    requests: Object.keys(requests),
+    requests: requests.map(({ uid }) => uid),
     spec: {
       openapi: parsedSpec.openapi,
       info: schema?.info,
