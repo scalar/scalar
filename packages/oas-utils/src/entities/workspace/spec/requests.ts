@@ -39,7 +39,7 @@ export const requestRefSchema = z.object({
   /** A list of tags for API documentation control. Tags can be used for logical
    * grouping of operations by resources or any other qualifier.
    */
-  tags: z.string().array().optional(),
+  tags: z.string().array().default(['default']),
   /** A short summary of what the operation does. */
   summary: z.string().optional(),
   /** A verbose explanation of the operation behavior. CommonMark syntax MAY be used for rich text representation. */
@@ -65,6 +65,6 @@ export const requestRefSchema = z.object({
    */
   requestBody: requestBodySchema.optional(),
   /** Ordered exampleUids for the sidenav */
-  examples: nanoidSchema.array().default([]),
+  exampleUids: nanoidSchema.array().default([]),
   history: z.any().array().default([]),
 })

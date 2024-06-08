@@ -14,5 +14,5 @@ export const folderSchema = z.object({
    * List of uids that correspond to requests or folders
    * WARNING: while uids are used we must check that corresponding $refs are not duplicated
    */
-  children: z.array(z.string()).optional(),
+  childUids: z.array(z.string()).default([]),
 })

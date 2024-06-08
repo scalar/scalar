@@ -7,8 +7,8 @@ const parsed = z.object({
   value: z.string(),
 })
 
-export type Environment = z.infer<typeof environment>
-const environment = z.object({
+export type Environment = z.infer<typeof environmentSchema>
+export const environmentSchema = z.object({
   uid: nanoidSchema,
   name: z.string(),
   color: z.string(),

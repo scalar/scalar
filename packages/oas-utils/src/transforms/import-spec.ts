@@ -1,8 +1,5 @@
-import {
-  type Folder,
-  collectionSchema,
-  folderSchema,
-} from '@/entities/workspace/collection'
+import { collectionSchema } from '@/entities/workspace/collection'
+import { type Folder, folderSchema } from '@/entities/workspace/folder'
 import { serverSchema } from '@/entities/workspace/server'
 import type { Nanoid } from '@/entities/workspace/shared'
 import { type RequestRef, requestRefSchema } from '@/entities/workspace/spec'
@@ -139,7 +136,6 @@ export async function importSpecToWorkspace(spec: string) {
   const servers = unparsedServers.map((server) => serverSchema.parse(server))
 
   const collection = collectionSchema.parse({
-    requests: requests.map(({ uid }) => uid),
     spec: {
       openapi: parsedSpec.openapi,
       info: schema?.info ?? {},
@@ -149,7 +145,7 @@ export async function importSpecToWorkspace(spec: string) {
     },
     selectedServerUid: servers[0].uid,
     // We default to having all the requests in the root folder
-    children: Object.keys(folders),
+    childUids: Object.keys(folders),
   })
 
   const components = schema?.components

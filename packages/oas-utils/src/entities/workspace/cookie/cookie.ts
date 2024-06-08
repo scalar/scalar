@@ -7,8 +7,8 @@ import { nanoidSchema } from '../shared'
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
  */
-export type Cookie = z.infer<typeof cookie>
-export const cookie = z.object({
+export type Cookie = z.infer<typeof cookieSchema>
+export const cookieSchema = z.object({
   uid: nanoidSchema,
   /**  Defines the cookie name and its value. A cookie definition begins with a name-value pair.  */
   name: z.string(),

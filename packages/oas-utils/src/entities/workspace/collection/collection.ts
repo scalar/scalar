@@ -2,7 +2,6 @@ import { nanoidSchema } from '@/entities/workspace/shared'
 import { z } from 'zod'
 
 /**
- * License
  * License information for the exposed API.
  *
  * @see https://spec.openapis.org/oas/latest.html#license-object
@@ -97,7 +96,7 @@ const specSchema = z.object({
   /** OAS info */
   info: infoSchema.optional(),
   /** Uids which refer to servers on the workspace base */
-  servers: z.array(z.string()).default([]),
+  serverUids: z.array(z.string()).default([]),
   /** OAS Tags */
   tags: z.array(tagSchema).default([]),
   externalDocs: exteralDocumentationSchema.optional(),
@@ -114,13 +113,8 @@ export type Collection = z.infer<typeof collectionSchema>
 export const collectionSchema = z.object({
   uid: nanoidSchema,
   spec: specSchema.default({}),
-  /**
-   * List of request uids from the workspace to be assigned to a given collection/spec-file
-   * WARNING: While a workspace may contain multiple requests with the same path and method only
-   */
-  requests: z.array(z.string()).default([]),
   /** The currently selected server */
   selectedServerUid: z.string().default(''),
   /**  List of uids that correspond to collection requests or folders */
-  children: z.array(z.string()).default([]),
+  childUids: z.array(z.string()).default([]),
 })

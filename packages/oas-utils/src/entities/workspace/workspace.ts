@@ -2,8 +2,11 @@ import { z } from 'zod'
 
 import { nanoidSchema } from './shared'
 
-export type Workspace = z.infer<typeof workspace>
-const workspace = z.object({
+/**
+ * The base scalar workspace
+ */
+export type Workspace = z.infer<typeof workspaceSchema>
+export const workspaceSchema = z.object({
   uid: nanoidSchema,
   name: z.string().default('Default Workspace'),
   description: z.string().default('Basic Scalar Workspace'),
