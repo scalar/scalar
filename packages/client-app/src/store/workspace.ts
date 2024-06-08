@@ -14,9 +14,11 @@ import type { Environment } from '@scalar/oas-utils/entities/workspace/environme
 import {
   type RequestExample,
   type RequestRef,
-  createRequestExample,
+  requestExampleParametersSchema,
+  requestExampleSchema,
   requestRefSchema,
 } from '@scalar/oas-utils/entities/workspace/spec'
+import { iterateTitle } from '@scalar/oas-utils/helpers'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
 import { sortByOrder } from '@scalar/object-utils/arrays'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
@@ -25,6 +27,7 @@ import {
   type PathValue,
   setNestedValue,
 } from '@scalar/object-utils/nested'
+import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, reactive, readonly } from 'vue'
 
 // ---------------------------------------------------------------------------
@@ -34,15 +37,14 @@ import { computed, reactive, readonly } from 'vue'
 const requests = reactive<Record<string, RequestRef>>({})
 const requestMutators = mutationFactory(requests, reactive({}))
 
-const addRequest = (params: Partial<RequestRef>) => {
-  const request = requestRefSchema.parse(params)
+const addRequest = (payload: Partial<RequestRef>) => {
+  const request = requestRefSchema.parse(payload)
 
   // Add initial example
-  const example = createRequestExample(request, {})
+  const example = createExampleFromRequest(request)
   request.examples.push(example.uid)
-  requestExampleMutators.add(example)
 
-  // "save" request
+  // Add request
   requestMutators.add(request)
   workspace.requests.push(request.uid)
 }
@@ -90,11 +92,62 @@ const activeRequest = computed<RequestRef | undefined>(() => {
 const requestExamples = reactive<Record<string, RequestExample>>({})
 const requestExampleMutators = mutationFactory(requestExamples, reactive({}))
 
-/** Ensure we add to the base examples as well as from the request it is in */
-const addRequestExample = (requestExample: RequestExample) => {
+/**
+ * Create new instance parameter from a request parameter
+ */
+const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
+  requestExampleParametersSchema.parse({
+    key: param.name,
+    value:
+      param.schema && 'default' in param.schema ? param.schema.default : '',
+  })
+
+/**
+ * Create new request example from a request
+ * Also iterates the name
+ *
+ * TODO body
+ */
+const createExampleFromRequest = (request: RequestRef): RequestExample => {
+  const parameters = {
+    path: Object.values(request.parameters.path).map(createParamInstance),
+    query: Object.values(request.parameters.query).map(createParamInstance),
+    headers: Object.values(request.parameters.headers).map(createParamInstance),
+    cookies: Object.values(request.parameters.cookies).map(createParamInstance),
+  }
+
+  // TODO body
+
+  // Check all current examples for the title and iterate
+  const name = iterateTitle((request.summary ?? 'Example') + ' #1', (t) =>
+    request.examples.some((uid) => t === requestExamples[uid].name),
+  )
+
+  const example = requestExampleSchema.parse({
+    requestUid: request.uid,
+    parameters,
+    name,
+  })
+
+  requestExampleMutators.add(example)
+
+  return example
+}
+
+/** Ensure we add to the base examples as well as the request it is in */
+const addRequestExample = (request: RequestRef) => {
+  const example = createExampleFromRequest(request)
+  request.examples.push(example.uid)
+
+  console.log(activeRouterParams)
+
   // Add to request
-  // Add to base
-  requestExampleMutators.add(requestExample)
+  if (!request) return
+
+  requestMutators.edit(request.uid, 'examples', [
+    ...request.examples,
+    example.uid,
+  ])
 }
 
 /** Ensure we remove from the base as well as from the request it is in */
@@ -104,17 +157,16 @@ const deleteRequestExample = (requestExample: RequestExample) => {
     requestExample.requestUid,
     'examples',
     requests[requestExample.requestUid].examples.filter(
-      ({ uid }) => uid !== requestExample.uid,
+      (uid) => uid !== requestExample.uid,
     ),
   )
   // Remove from base
   requestExampleMutators.delete(requestExample.uid)
 }
 
-/** Currently active instance, just hardcoded to 0 at the moment */
-// TODO get this from the route params
+/** Currently active instance */
 const activeExample = computed(
-  () => activeRequest.value?.examples[activeRequest.value.children[0]],
+  () => requestExamples[activeRequest.value?.examples[0] ?? ''],
 )
 
 // ---------------------------------------------------------------------------
