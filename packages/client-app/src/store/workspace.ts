@@ -6,8 +6,7 @@ import {
 } from '@scalar/oas-utils/entities/workspace'
 import {
   type Collection,
-  defaultCollection,
-  defaultCollectionFolder,
+  collectionSchema,
 } from '@scalar/oas-utils/entities/workspace/collection'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import type { Environment } from '@scalar/oas-utils/entities/workspace/environment'
@@ -20,7 +19,6 @@ import {
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { iterateTitle } from '@scalar/oas-utils/helpers'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
-import { sortByOrder } from '@scalar/object-utils/arrays'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import {
   type Path,
@@ -46,7 +44,6 @@ const addRequest = (payload: Partial<RequestRef>, collectionUid?: string) => {
 
   // Add request
   requestMutators.add(request)
-  workspace.requests.push(request.uid)
 
   // TODO add to collection
 }
@@ -56,8 +53,6 @@ const deleteRequest = (request: RequestRef, collectionUid?: string) => {
   request.examples.forEach((uid) => requestExampleMutators.delete(uid))
 
   // Remove request
-  const requestIndex = workspace.requests.indexOf(request.uid)
-  workspace.requests.splice(requestIndex, 1)
   requestMutators.delete(request.uid)
 
   // TODO remove from collection
@@ -224,23 +219,23 @@ const workspace = reactive<Workspace>(defaultWorkspace())
 
 /** Simplified list of requests in the workspace for displaying */
 const workspaceRequests = computed(() =>
-  sortByOrder(
-    Object.values(requests).map((r) => ({
-      uid: r.uid,
-      path: r.path,
-      method: r.method,
-      summary: r.summary,
-    })),
-    workspace.requests,
-    'uid',
-  ),
+  Object.values(requests).map((r) => ({
+    uid: r.uid,
+    path: r.path,
+    method: r.method,
+    summary: r.summary,
+  })),
 )
 
 // ---------------------------------------------------------------------------
 // COLLECTION
 
-function addCollection(options: { title: string; description?: string }) {
-  const collection = defaultCollection(options)
+const collections = reactive<Record<string, Collection>>({})
+const collectionMutators = mutationFactory(collections, reactive({}))
+
+const addCollection = (payload: Partial<Collection>) => {
+  const collection = collectionSchema.parse(payload)
+
   workspace.collections.push(collection)
 }
 
@@ -275,11 +270,11 @@ const editCollection = <K extends Path<Collection>>(
  */
 const getCollectionFromRequest = (
   requestUid: string,
-  collections: Collection[],
-) =>
-  collections.find((collection) =>
-    collection.requests.find((uid) => uid === requestUid),
-  )
+  _collections: Collection[],
+) => null
+_collections.find((collection) =>
+  collection.requests.find((uid) => uid === requestUid),
+)
 
 /**
  * First collection that the active request is in
@@ -345,7 +340,7 @@ async function importSpecFile(spec: string) {
   workspaceEntities.requests.forEach(addRequest)
 
   // Create a new collection for the spec file
-  workspace.collections.push(workspaceEntities.collection)
+  addCollection(workspaceEntities.collection)
 
   console.log(workspace)
 }
@@ -370,6 +365,7 @@ export function useWorkspace() {
     // STATE
     workspace: readonly(workspace),
     workspaceRequests,
+    collections,
     requests,
     environments,
     cookies,

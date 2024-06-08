@@ -4,6 +4,7 @@ import { nanoidSchema } from '../shared'
 
 /**
  * Server variables
+ * An object representing a Server Variable for server URL template substitution.
  *
  * @see https://spec.openapis.org/oas/v3.1.0#server-variable-object
  */
@@ -24,6 +25,7 @@ export const serverVariableSchema = z.object({
 
 /**
  * Server object
+ * An object representing a Server.
  *
  * @see https://spec.openapis.org/oas/v3.1.0#server-object
  */

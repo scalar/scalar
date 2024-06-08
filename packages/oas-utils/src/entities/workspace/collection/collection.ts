@@ -1,7 +1,123 @@
-import type { Server } from '@/entities/workspace/server'
-import type { Nanoid } from '@/entities/workspace/shared'
-import { nanoid } from 'nanoid'
-import type { OpenAPIV3_1 } from 'openapi-types'
+import { nanoidSchema } from '@/entities/workspace/shared'
+import { z } from 'zod'
+
+/**
+ * License
+ * License information for the exposed API.
+ *
+ * @see https://spec.openapis.org/oas/latest.html#license-object
+ */
+const licenseSchema = z.object({
+  /** REQUIRED. The license name used for the API. */
+  name: z.string(),
+  /** An SPDX license expression for the API. The identifier field is mutually exclusive of the url field. */
+  identifier: z.string().optional(),
+  /**
+   * A URL to the license used for the API. This MUST be in the form of a URL. The url field
+   * is mutually exclusive of the identifier field.
+   */
+  url: z.string().url().optional(),
+})
+
+/**
+ * Contact
+ * Contact information for the exposed API.
+ *
+ * @see https://spec.openapis.org/oas/latest.html#contact-object
+ */
+const contactSchema = z.object({
+  /** The identifying name of the contact person/organization. */
+  name: z.string().optional(),
+  /** The URL pointing to the contact information. This MUST be in the form of a URL. */
+  url: z.string().url().optional(),
+  /** The email address of the contact person/organization. This MUST be in the form of an email address. */
+  email: z.string().email().optional(),
+})
+
+/**
+ * Info
+ * The object provides metadata about the API. The metadata MAY be used by the clients if needed,
+ * and MAY be presented in editing or documentation generation tools for convenience.
+ *
+ * @see https://spec.openapis.org/oas/latest.html#info-object
+ */
+export const infoSchema = z.object({
+  /** REQUIRED. The title of the API. */
+  title: z.string(),
+  /** A short summary of the API. */
+  summary: z.string().optional(),
+  /** A description of the API. CommonMark syntax MAY be used for rich text representation. */
+  description: z.string().optional(),
+  /** A URL to the Terms of Service for the API. This MUST be in the form of a URL. */
+  termsOfService: z.string().optional(),
+  /** The contact information for the exposed API. */
+  contact: contactSchema.optional(),
+  /** The license information for the exposed API. */
+  license: licenseSchema.optional(),
+  /**
+   * REQUIRED. The version of the OpenAPI document (which is distinct from the OpenAPI
+   * Specification version or the API implementation version).
+   */
+  version: z.string().default('0.0.1'),
+})
+
+/**
+ * External Documentation
+ * Allows referencing an external resource for extended documentation.
+ *
+ * @see https://spec.openapis.org/oas/latest.html#external-documentation-object
+ */
+const exteralDocumentationSchema = z.object({
+  /** A description of the target documentation. CommonMark syntax MAY be used for rich text representation. */
+  description: z.string().optional(),
+  /** REQUIRED. The URL for the target documentation. This MUST be in the form of a URL. */
+  url: z.string().url(),
+})
+
+/**
+ * Tag
+ * Adds metadata to a single tag that is used by the Operation Object. It is not mandatory to have a Tag
+ * Object per tag defined in the Operation Object instances.
+ *
+ * @see https://spec.openapis.org/oas/latest.html#tag-object
+ */
+const tagSchema = z.object({
+  /** REQUIRED. The name of the tag. */
+  name: z.string(),
+  /** A description for the tag. CommonMark syntax MAY be used for rich text representation. */
+  description: z.string().optional(),
+  /** Additional external documentation for this tag. */
+  externalDocs: exteralDocumentationSchema.optional(),
+})
+
+const specSchema = z.object({
+  openapi: z
+    .union([z.string(), z.literal('3.1.0'), z.literal('4.0.0')])
+    .default('3.1.0'),
+  /** OAS info */
+  info: infoSchema.optional(),
+  /** Uids which refer to servers on the workspace base */
+  servers: z.array(z.string()).default([]),
+  /** OAS Tags */
+  tags: z.array(tagSchema).default([]),
+  externalDocs: exteralDocumentationSchema.optional(),
+})
+
+/** Folders will correspond to the x- */
+export type CollectionFolder = z.infer<typeof collectionFolderSchema>
+export const collectionFolderSchema = z.object({
+  /** Used for database sync only */
+  uid: nanoidSchema,
+  /** Will correspond to the slash separate path some, some/nested or some/nested/folder */
+  name: z.string(),
+  /** Folder descriptions */
+  description: z.string().optional(),
+  /**
+   * List of uids that correspond to requests or folders
+   * WARNING: while uids are used we must check that corresponding $refs are not duplicated
+   */
+  children: z.array(z.string()).optional(),
+})
 
 /**
  * A collection must be able to map 1:1 with an OAS 3.1 spec file
@@ -10,78 +126,17 @@ import type { OpenAPIV3_1 } from 'openapi-types'
  * - Standard: Ordered by tag similar to ApiReference Sidebar
  * - Folder: Ordered into arbitrary folders. See x-scalar-folder.yaml
  */
-export type Collection = {
-  uid: Nanoid
-  /** Additional Open API spec fields that can be edited */
-  spec: {
-    openapi: string | '3.1.0' | '4.0.0'
-    info?: OpenAPIV3_1.InfoObject
-    servers: Server[]
-    tags: OpenAPIV3_1.TagObject[]
-    externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
-  }
+export type Collection = z.infer<typeof collectionSchema>
+export const collectionSchema = z.object({
+  uid: nanoidSchema,
+  spec: specSchema.default({}),
   /**
    * List of request uids from the workspace to be assigned to a given collection/spec-file
    * WARNING: While a workspace may contain multiple requests with the same path and method only
    */
-  requests: Nanoid[]
+  requests: z.array(z.string()).default([]),
   /** The currently selected server */
-  selectedServerUid: string
-  /** All folders in a collection */
-  folders: Record<Nanoid, CollectionFolder>
+  selectedServerUid: z.string().default(''),
   /**  List of uids that correspond to collection requests or folders */
-  children: string[]
-}
-
-/** Create a new collection object */
-export const defaultCollection = ({
-  title,
-  version,
-  description,
-}: {
-  title: string
-  version?: string
-  description?: string
-}): Collection => ({
-  uid: nanoid(),
-  spec: {
-    openapi: '3.1.0',
-    info: {
-      title,
-      description,
-      version: version ?? '0.0.1',
-    },
-    servers: [],
-    tags: [],
-  },
-  selectedServerUid: '',
-  requests: [],
-  folders: {},
-  children: [],
-})
-
-/** Folders will correspond to the x- */
-export type CollectionFolder = {
-  /** Used for database sync only */
-  uid: Nanoid
-  /** Will correspond to the slash separate path some, some/nested or some/nested/folder */
-  name: string
-  /** Folder descriptions */
-  description?: string
-  /**
-   * List of uids that correspond to requests or folders
-   * WARNING: while uids are used we must check that corresponding $refs are not duplicated
-   */
-  children: string[]
-}
-
-/** New collection folder instance */
-export const defaultCollectionFolder = (info: {
-  name: string
-  description?: string
-  children?: string[]
-}): CollectionFolder => ({
-  uid: nanoid(),
-  ...info,
-  children: info.children ?? [],
+  children: z.array(z.string()).default([]),
 })

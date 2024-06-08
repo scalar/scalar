@@ -1,7 +1,7 @@
 import {
   type Collection,
   type CollectionFolder,
-  defaultCollectionFolder,
+  collectionFolderSchema,
 } from '@/entities/workspace/collection'
 import { serverSchema } from '@/entities/workspace/server'
 import type { Nanoid } from '@/entities/workspace/shared'
@@ -118,7 +118,7 @@ export async function importSpecToWorkspace(spec: string) {
   // Create a basic folder structure from tags
   const folders: Record<Nanoid, CollectionFolder> = {}
   tags.forEach((t) => {
-    const folder = defaultCollectionFolder({
+    const folder = collectionFolderSchema.parse({
       ...t,
       children: requests
         .filter((r) => r.tags.includes(t.name))
@@ -146,11 +146,10 @@ export async function importSpecToWorkspace(spec: string) {
       openapi: parsedSpec.openapi,
       info: schema?.info,
       externalDocs: schema?.externalDocs,
-      servers,
+      servers: servers.map(({ uid }) => uid),
       tags,
     },
     selectedServerUid: servers[0].uid,
-    folders,
     // We default to having all the requests in the root folder
     children: Object.keys(folders),
   }
@@ -159,6 +158,8 @@ export async function importSpecToWorkspace(spec: string) {
 
   return {
     tags,
+    folders,
+    servers,
     requests,
     collection,
     components,
