@@ -24,8 +24,8 @@ const addExample = () => {
 
   const example = createExampleFromRequest(props.item)
 
-  requestMutators.edit(props.item.uid, 'exampleUids', [
-    ...props.item.exampleUids,
+  requestMutators.edit(props.item.uid, 'childUids', [
+    ...props.item.childUids,
     example.uid,
   ])
 

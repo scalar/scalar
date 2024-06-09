@@ -40,7 +40,7 @@ const contactSchema = z.object({
  *
  * @see https://spec.openapis.org/oas/latest.html#info-object
  */
-export const infoSchema = z.object({
+const infoSchema = z.object({
   /** REQUIRED. The title of the API. */
   title: z.string(),
   /** A short summary of the API. */
@@ -89,7 +89,7 @@ const tagSchema = z.object({
   externalDocs: exteralDocumentationSchema.optional(),
 })
 
-export const specSchema = z.object({
+const specSchema = z.object({
   openapi: z
     .union([z.string(), z.literal('3.1.0'), z.literal('4.0.0')])
     .default('3.1.0'),
@@ -102,6 +102,15 @@ export const specSchema = z.object({
   externalDocs: exteralDocumentationSchema.optional(),
 })
 
+const collectionSchema = z.object({
+  uid: nanoidSchema,
+  spec: specSchema,
+  /** The currently selected server */
+  selectedServerUid: z.string().default(''),
+  /**  List of uids that correspond to collection requests or folders */
+  childUids: z.array(z.string()).default([]),
+})
+
 /**
  * A collection must be able to map 1:1 with an OAS 3.1 spec file
  *
@@ -110,11 +119,10 @@ export const specSchema = z.object({
  * - Folder: Ordered into arbitrary folders. See x-scalar-folder.yaml
  */
 export type Collection = z.infer<typeof collectionSchema>
-export const collectionSchema = z.object({
-  uid: nanoidSchema,
-  spec: specSchema,
-  /** The currently selected server */
-  selectedServerUid: z.string().default(''),
-  /**  List of uids that correspond to collection requests or folders */
-  childUids: z.array(z.string()).default([]),
-})
+export type CollectionPayload = z.input<typeof collectionSchema>
+
+/**
+ * Create Collction helper
+ */
+export const createCollection = (payload: CollectionPayload) =>
+  collectionSchema.parse(payload)

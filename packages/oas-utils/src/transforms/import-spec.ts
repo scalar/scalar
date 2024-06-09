@@ -1,7 +1,6 @@
-import { collectionSchema } from '@/entities/workspace/collection'
+import { createCollection } from '@/entities/workspace/collection'
 import { type Folder, folderSchema } from '@/entities/workspace/folder'
 import { serverSchema } from '@/entities/workspace/server'
-import type { Nanoid } from '@/entities/workspace/shared'
 import { type RequestRef, requestRefSchema } from '@/entities/workspace/spec'
 import { tagObjectSchema } from '@/entities/workspace/spec/spec'
 import type { RequestMethod } from '@/helpers'
@@ -112,16 +111,16 @@ export async function importSpecToWorkspace(spec: string) {
 
   // TODO: Consider if we want this for production or just for data mocking
   // Create a basic folder structure from tags
-  const folders: Record<Nanoid, Folder> = {}
+  const folders: Folder[] = []
   tags.forEach((t) => {
     const folder = folderSchema.parse({
       ...t,
-      children: requests
+      childUids: requests
         .filter((r) => r.tags.includes(t.name))
         .map((r) => r.uid),
     })
 
-    folders[folder.uid] = folder
+    folders.push(folder)
   })
 
   // Toss in a default server if there aren't any
@@ -135,17 +134,17 @@ export async function importSpecToWorkspace(spec: string) {
       ]
   const servers = unparsedServers.map((server) => serverSchema.parse(server))
 
-  const collection = collectionSchema.parse({
+  const collection = createCollection({
     spec: {
       openapi: parsedSpec.openapi,
-      info: schema?.info ?? {},
+      info: schema?.info,
       externalDocs: schema?.externalDocs,
       serverUids: servers.map(({ uid }) => uid),
       tags,
     },
     selectedServerUid: servers[0].uid,
     // We default to having all the requests in the root folder
-    childUids: Object.keys(folders),
+    childUids: folders.map(({ uid }) => uid),
   })
 
   const components = schema?.components

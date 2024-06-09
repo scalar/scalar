@@ -4,9 +4,10 @@ import {
   type Workspace,
   workspaceSchema,
 } from '@scalar/oas-utils/entities/workspace'
+import type { CollectionPayload } from '@scalar/oas-utils/entities/workspace/collection'
 import {
   type Collection,
-  collectionSchema,
+  createCollection,
 } from '@scalar/oas-utils/entities/workspace/collection'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import {
@@ -53,7 +54,7 @@ const addRequest = (
 
   // Add initial example
   const example = createExampleFromRequest(request)
-  request.exampleUids.push(example.uid)
+  request.childUids.push(example.uid)
 
   // Add request
   requestMutators.add(request)
@@ -83,7 +84,7 @@ const deleteRequest = (
   parentUid: string,
 ) => {
   // Remove all examples
-  request.exampleUids.forEach((uid) => requestExampleMutators.delete(uid))
+  request.childUids.forEach((uid) => requestExampleMutators.delete(uid))
 
   // Remove from parent
   if (collections[parentUid]) {
@@ -114,6 +115,7 @@ const activeRequest = computed<RequestRef | undefined>(() => {
 
   // Ensure the sidebar folders are open
   if (request) {
+    console.log(request)
     findRequestFolders(request.uid).forEach((uid) =>
       setCollapsedSidebarFolder(uid, true),
     )
@@ -183,7 +185,7 @@ const createExampleFromRequest = (request: RequestRef): RequestExample => {
 
   // Check all current examples for the title and iterate
   const name = iterateTitle((request.summary ?? 'Example') + ' #1', (t) =>
-    request.exampleUids.some((uid) => t === requestExamples[uid].name),
+    request.childUids.some((uid) => t === requestExamples[uid].name),
   )
 
   const example = requestExampleSchema.parse({
@@ -201,8 +203,8 @@ const createExampleFromRequest = (request: RequestRef): RequestExample => {
 const addRequestExample = (request: RequestRef) => {
   const example = createExampleFromRequest(request)
 
-  requestMutators.edit(request.uid, 'exampleUids', [
-    ...request.exampleUids,
+  requestMutators.edit(request.uid, 'childUids', [
+    ...request.childUids,
     example.uid,
   ])
 }
@@ -212,8 +214,8 @@ const deleteRequestExample = (requestExample: RequestExample) => {
   // Remove from request
   requestMutators.edit(
     requestExample.requestUid,
-    'exampleUids',
-    requests[requestExample.requestUid].exampleUids.filter(
+    'childUids',
+    requests[requestExample.requestUid].childUids.filter(
       (uid) => uid !== requestExample.uid,
     ),
   )
@@ -227,7 +229,7 @@ const activeExample = computed(
   () =>
     requestExamples[
       activeRouterParams.value[PathId.Example] ??
-        requestExamples[activeRequest.value?.exampleUids[0] ?? '']
+        requestExamples[activeRequest.value?.childUids[0] ?? '']
     ],
 )
 
@@ -289,8 +291,8 @@ const workspaceRequests = computed(() =>
 const collections = reactive<Record<string, Collection>>({})
 const collectionMutators = mutationFactory(collections, reactive({}))
 
-const addCollection = (payload: Partial<Collection>) => {
-  const collection = collectionSchema.parse(payload)
+const addCollection = (payload: CollectionPayload) => {
+  const collection = createCollection(payload)
   workspace.collectionUids.push(collection.uid)
   collectionMutators.add(collection)
 }
@@ -334,28 +336,33 @@ const activeServer = computed(
 const folders = reactive<Record<string, Folder>>({})
 const folderMutators = mutationFactory(folders, reactive({}))
 
-/** Add a new folder to a folder or colleciton */
+/**
+ * Add a new folder to a folder or colleciton
+ * If the parentUid is included it is added ot the parent as well
+ */
 const addFolder = (
   payload: Partial<Folder>,
   /** parentUid can be either a folderUid or collectionUid */
-  parentUid: string,
+  parentUid?: string,
 ) => {
   const folder = folderSchema.parse(payload)
 
   // Add to parent folder or collection
-  if (collections[parentUid]) {
-    collectionMutators.edit(parentUid, 'childUids', [
-      ...collections[parentUid].childUids,
-      folder.uid,
-    ])
-  } else if (folders[parentUid]) {
-    folderMutators.edit(parentUid, 'childUids', [
-      ...folders[parentUid].childUids,
-      folder.uid,
-    ])
-  } else {
-    console.error("Could not find folder's parent ID")
-    return
+  if (parentUid) {
+    if (collections[parentUid]) {
+      collectionMutators.edit(parentUid, 'childUids', [
+        ...collections[parentUid].childUids,
+        folder.uid,
+      ])
+    } else if (folders[parentUid]) {
+      folderMutators.edit(parentUid, 'childUids', [
+        ...folders[parentUid].childUids,
+        folder.uid,
+      ])
+    } else {
+      console.error("Could not find folder's parent ID")
+      return
+    }
   }
 
   folderMutators.add(folder)
@@ -391,15 +398,20 @@ const deleteFolder = (
 const servers = reactive<Record<string, Server>>({})
 const serverMutators = mutationFactory(servers, reactive({}))
 
-/** Add a server */
-const addServer = (payload: Partial<Server>, collectionUid: string) => {
+/**
+ * Add a server
+ * If the collectionUid is included it is added to the collection as well
+ */
+const addServer = (payload: Partial<Server>, collectionUid?: string) => {
   const server = serverSchema.parse(payload)
 
   // Add to collection
-  collectionMutators.edit(collectionUid, 'spec.serverUids', [
-    ...collections[collectionUid].spec.serverUids,
-    server.uid,
-  ])
+  if (collectionUid) {
+    collectionMutators.edit(collectionUid, 'spec.serverUids', [
+      ...collections[collectionUid].spec.serverUids,
+      server.uid,
+    ])
+  }
 
   serverMutators.add(server)
 }
@@ -431,14 +443,10 @@ async function importSpecFile(spec: string) {
   addCollection(workspaceEntities.collection)
 
   // Folders
-  Object.values(workspaceEntities.folders).forEach((folder) =>
-    addFolder(folder, workspaceEntities.collection.uid),
-  )
+  workspaceEntities.folders.forEach((folder) => addFolder(folder))
 
   // Servers
-  workspaceEntities.servers.forEach((folder) =>
-    addFolder(folder, workspaceEntities.collection.uid),
-  )
+  workspaceEntities.servers.forEach((server) => addServer(server))
 
   console.log(workspace)
 }

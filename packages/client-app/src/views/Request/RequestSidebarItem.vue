@@ -49,12 +49,13 @@ defineSlots<{
   leftIcon(): void
 }>()
 
-const { activeRequest, folders, requests, requestExamples } = useWorkspace()
+const { activeRequest, collections, folders, requests, requestExamples } =
+  useWorkspace()
 
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const router = useRouter()
 
-const hasChildren = computed(() => 'children' in props.item)
+const hasChildren = computed(() => 'childUids' in props.item)
 
 const highlightClasses =
   'hover:before:bg-sidebar-active-b before:absolute before:inset-0 before:rounded before-left-offset'
@@ -84,6 +85,11 @@ const getTitle = (item: (typeof props)['item']) => {
   return ''
 }
 
+console.log({ collections })
+console.log({ folders })
+console.log({ requests })
+console.log(props.item)
+
 /**
  * We either show the method or the parent request method
  */
@@ -102,7 +108,7 @@ const showChildren = computed(
   () =>
     collapsedSidebarFolders[props.item.uid] ||
     (activeRequest.value?.uid === props.item.uid &&
-      (props.item as RequestRef).exampleUids.length > 1),
+      (props.item as RequestRef).childUids.length > 1),
 )
 </script>
 <template>
@@ -179,10 +185,10 @@ const showChildren = computed(
 
       <!-- Children -->
       <div
-        v-if="'children' in item"
+        v-if="'childUids' in item"
         v-show="showChildren">
         <RequestSidebarItem
-          v-for="uid in item.children"
+          v-for="uid in item.childUids"
           :key="uid"
           :isDraggable="isDraggable"
           :isDroppable="isDroppable"

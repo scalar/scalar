@@ -3,7 +3,6 @@ import Collection from '@/assets/ascii/collection.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton } from '@scalar/components'
-import { specSchema } from '@scalar/oas-utils/entities/workspace/collection'
 import { ref } from 'vue'
 
 defineProps<{
@@ -19,13 +18,13 @@ const collectionName = ref('')
 
 const handleSubmit = () => {
   collectionMutators.add({
-    spec: specSchema.parse({
+    spec: {
       openapi: '3.1.0',
       info: {
         title: collectionName.value,
         version: '0.0.1',
       },
-    }),
+    },
   })
   emits('close')
 }
