@@ -86,11 +86,23 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       <SchemaPropertyDetail v-if="value.format">{{
         value.format
       }}</SchemaPropertyDetail>
-      <SchemaPropertyDetail v-if="value.minimum">
+      <SchemaPropertyDetail
+        v-if="value.minimum !== undefined && value.exclusiveMinimum">
+        <template #prefix>greater than:</template>
+        {{ value.minimum }}
+      </SchemaPropertyDetail>
+      <SchemaPropertyDetail
+        v-if="value.minimum !== undefined && !value.exclusiveMinimum">
         <template #prefix>min:</template>
         {{ value.minimum }}
       </SchemaPropertyDetail>
-      <SchemaPropertyDetail v-if="value.maximum">
+      <SchemaPropertyDetail
+        v-if="value.maximum !== undefined && value.exclusiveMaximum">
+        <template #prefix>less than:</template>
+        {{ value.maximum }}
+      </SchemaPropertyDetail>
+      <SchemaPropertyDetail
+        v-if="value.maximum !== undefined && !value.exclusiveMaximum">
         <template #prefix>max:</template>
         {{ value.maximum }}
       </SchemaPropertyDetail>
