@@ -34,6 +34,8 @@ import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, reactive, readonly } from 'vue'
 
+const { setCollapsedSidebarFolder } = useSidebar()
+
 // ---------------------------------------------------------------------------
 // REQUEST
 
@@ -100,8 +102,6 @@ const deleteRequest = (
   requestMutators.delete(request.uid)
 }
 
-const { openFoldersForRequest } = useSidebar()
-
 /** Request associated with the current route */
 const activeRequest = computed<RequestRef | undefined>(() => {
   const key = activeRouterParams.value[PathId.Request]
@@ -112,11 +112,37 @@ const activeRequest = computed<RequestRef | undefined>(() => {
 
   // Ensure the sidebar folders are open
   if (request) {
-    openFoldersForRequest(request.uid, collections, folders)
+    findRequestFolders(request.uid).forEach((uid) =>
+      setCollapsedSidebarFolder(uid, true),
+    )
   }
 
   return request
 })
+
+/**
+ * Find nested request inside a collection of folders and return the folderUids up to the collectionUid
+ *
+ * TODO we definitely need a more performant way of doing this, but because folders can have multiple parents
+ * theres no easy short circuit we can store. This can work for now but replace this!
+ */
+const findRequestFolders = (
+  uid: string,
+  foldersToOpen: string[] = [],
+): string[] => {
+  const collection = Object.values(collections).find((_collection) =>
+    _collection.childUids.includes(uid),
+  )
+  if (collection) return [...foldersToOpen, collection.uid]
+
+  const folder = Object.values(folders).find(({ childUids }) =>
+    childUids.includes(uid),
+  )
+
+  if (folder) {
+    return findRequestFolders(folder.uid, [...foldersToOpen, folder.uid])
+  } else return foldersToOpen
+}
 
 // ---------------------------------------------------------------------------
 // REQUEST EXAMPLE
@@ -284,19 +310,20 @@ const deleteCollection = (collectionUid: string) => {
  *
  * TODO we should add collection to the route and grab this from the params
  */
-const activeCollection = computed(() =>
-  activeRequest.value
-    ? getCollectionFromRequest(activeRequest.value.uid)
-    : null,
-)
+const activeCollection = computed(() => {
+  if (!activeRequest.value) return null
 
-/**
- * The currently selected server in the addressBar
- */
-const activeServer = computed(() =>
-  activeCollection.value?.spec.serverUids.find(
-    ({ uid }) => uid === activeCollection.value?.selectedServerUid,
-  ),
+  const uids = findRequestFolders(activeRequest.value.uid)
+  if (!uids.length) return null
+
+  const collectionUid = uids[uids.length - 1]
+  return collections[collectionUid]
+})
+
+/** The currently selected server in the addressBar */
+const activeServer = computed(
+  () =>
+    activeCollection.value && servers[activeCollection.value.selectedServerUid],
 )
 
 // ---------------------------------------------------------------------------
