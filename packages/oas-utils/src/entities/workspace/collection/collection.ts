@@ -89,7 +89,7 @@ const tagSchema = z.object({
   externalDocs: exteralDocumentationSchema.optional(),
 })
 
-const specSchema = z.object({
+export const specSchema = z.object({
   openapi: z
     .union([z.string(), z.literal('3.1.0'), z.literal('4.0.0')])
     .default('3.1.0'),
@@ -112,7 +112,7 @@ const specSchema = z.object({
 export type Collection = z.infer<typeof collectionSchema>
 export const collectionSchema = z.object({
   uid: nanoidSchema,
-  spec: specSchema.default({}),
+  spec: specSchema,
   /** The currently selected server */
   selectedServerUid: z.string().default(''),
   /**  List of uids that correspond to collection requests or folders */

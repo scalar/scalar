@@ -58,20 +58,22 @@ const addRequest = (
   // Add request
   requestMutators.add(request)
 
-  if (!parentUid) return
-
-  // Add to parent
-  if (collections[parentUid]) {
-    collectionMutators.edit(parentUid, 'childUids', [
-      ...collections[parentUid].childUids,
-      request.uid,
-    ])
-  } else if (folders[parentUid]) {
-    folderMutators.edit(parentUid, 'childUids', [
-      ...folders[parentUid].childUids,
-      request.uid,
-    ])
+  if (parentUid) {
+    // Add to parent
+    if (collections[parentUid]) {
+      collectionMutators.edit(parentUid, 'childUids', [
+        ...collections[parentUid].childUids,
+        request.uid,
+      ])
+    } else if (folders[parentUid]) {
+      folderMutators.edit(parentUid, 'childUids', [
+        ...folders[parentUid].childUids,
+        request.uid,
+      ])
+    }
   }
+
+  return request
 }
 
 /** Delete request */
@@ -464,7 +466,10 @@ export function useWorkspace() {
     collections,
     requests,
     environments,
+    requestExamples,
+    folders,
     cookies,
+    servers,
     activeCookieId,
     activeCollection,
     activeServer,
@@ -475,7 +480,9 @@ export function useWorkspace() {
     importSpecFile,
     importSpecFromUrl,
     cookieMutators,
+    createExampleFromRequest,
     collectionMutators: {
+      ...collectionMutators,
       add: addCollection,
       delete: deleteCollection,
     },

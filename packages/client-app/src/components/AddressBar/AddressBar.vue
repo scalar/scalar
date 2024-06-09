@@ -32,7 +32,7 @@ const {
   activeExample,
   activeCollection,
   collectionMutators,
-  updateRequestExample,
+  servers,
   requestMutators,
 } = useWorkspace()
 
@@ -119,9 +119,9 @@ function getUrlPart(request: XMLHttpRequest, part: keyof URL) {
 }
 
 const serverOptions = computed(() =>
-  activeCollection.value?.spec.servers?.map((server) => ({
-    id: server.uid,
-    label: server.url,
+  activeCollection.value?.spec.serverUids?.map((serverUid) => ({
+    id: serverUid,
+    label: servers[serverUid].url,
   })),
 )
 
@@ -187,11 +187,7 @@ const updateSelectedServer = (server: ScalarListboxOption) => {
                 class="font-code text-sm whitespace-nowrap"
                 size="sm"
                 variant="outlined">
-                {{
-                  activeCollection?.spec.servers?.find(
-                    ({ uid }) => activeCollection?.selectedServerUid === uid,
-                  )?.url
-                }}
+                {{ servers[activeCollection?.selectedServerUid ?? '']?.url }}
               </ScalarButton>
             </ScalarListbox>
           </div>

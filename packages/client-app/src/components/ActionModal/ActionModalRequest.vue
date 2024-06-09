@@ -4,9 +4,7 @@ import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import { createRequest } from '@scalar/oas-utils/entities/workspace/spec'
 import type { RequestMethod } from '@scalar/oas-utils/helpers'
-import { nanoid } from 'nanoid'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -20,17 +18,27 @@ const emits = defineEmits<{
 
 const { push } = useRouter()
 
-const { requestMutators, collectionMutators, activeCollection } = useWorkspace()
+const { requestMutators, activeCollection, folders: _folders } = useWorkspace()
 const requestName = ref('')
 const requestMethod = ref('GET')
 const selectedFolderId = ref('')
 
 const folders = computed(() => {
   if (!activeCollection.value) return []
-  return Object.values(activeCollection.value.folders).map((folder) => ({
-    id: folder.uid,
-    label: folder.name,
-  }))
+
+  // Check if child of collection is folder as it could be a request
+  return Object.values(activeCollection.value.childUids).flatMap((uid) => {
+    const folder = _folders[uid]
+
+    return folder
+      ? [
+          {
+            id: folder.uid,
+            label: folder.name,
+          },
+        ]
+      : []
+  })
 })
 
 const selectedFolder = computed({
@@ -47,8 +55,7 @@ function handleChangeMethod(method: string) {
 function handleSubmit() {
   if (!activeCollection.value) return
 
-  const newRequest = createRequest({
-    uid: nanoid(),
+  const newRequest = requestMutators.add({
     path: '',
     method: requestMethod.value.toUpperCase() as RequestMethod,
     description: requestName.value,
@@ -57,28 +64,7 @@ function handleSubmit() {
     tags: ['default'],
   })
 
-  requestMutators.add(newRequest)
-  collectionMutators.edit(
-    activeCollection.value.uid,
-    'requests',
-    activeCollection.value.requests.concat(newRequest.uid),
-  )
-
-  const folderUid = selectedFolderId.value
-  if (folderUid) {
-    const folder = activeCollection.value.folders[folderUid]
-    folder.children.push(newRequest.uid)
-  } else {
-    // If no folder is selected, add to the root of the collection
-    collectionMutators.edit(
-      activeCollection.value.uid,
-      'requests',
-      activeCollection.value.requests.concat(newRequest.uid),
-    )
-  }
-
   push(`/request/${newRequest.uid}`)
-
   emits('close')
 }
 </script>

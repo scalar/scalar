@@ -4,19 +4,17 @@ import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
-import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { themeClasses } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
-import { nanoid } from 'nanoid'
+import { cookieSchema } from '@scalar/oas-utils/entities/workspace/cookie'
 
 import CookieForm from './CookieForm.vue'
 import CookieRaw from './CookieRaw.vue'
 
 const { cookies, cookieMutators } = useWorkspace()
 
-function addCookieHandler() {
-  const cookie = {
-    uid: nanoid(),
+const addCookieHandler = () => {
+  const cookie = cookieSchema.parse({
     name: 'new cookie',
     value: 'new value',
     domain: 'localhost',
@@ -24,8 +22,7 @@ function addCookieHandler() {
     secure: false,
     httpOnly: false,
     sameSite: 'None',
-    expires: null,
-  }
+  })
 
   cookieMutators.add(cookie)
 }
