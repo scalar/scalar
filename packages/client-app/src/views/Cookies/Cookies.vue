@@ -6,7 +6,7 @@ import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import { themeClasses } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
-import { cookieSchema } from '@scalar/oas-utils/entities/workspace/cookie'
+import { createCookie } from '@scalar/oas-utils/entities/workspace/cookie'
 
 import CookieForm from './CookieForm.vue'
 import CookieRaw from './CookieRaw.vue'
@@ -14,7 +14,7 @@ import CookieRaw from './CookieRaw.vue'
 const { cookies, cookieMutators } = useWorkspace()
 
 const addCookieHandler = () => {
-  const cookie = cookieSchema.parse({
+  const cookie = createCookie({
     name: 'new cookie',
     value: 'new value',
     domain: 'localhost',

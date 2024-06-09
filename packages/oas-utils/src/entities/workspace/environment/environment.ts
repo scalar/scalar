@@ -7,8 +7,7 @@ const parsed = z.object({
   value: z.string(),
 })
 
-export type Environment = z.infer<typeof environmentSchema>
-export const environmentSchema = z.object({
+const environmentSchema = z.object({
   uid: nanoidSchema,
   name: z.string(),
   color: z.string(),
@@ -16,3 +15,11 @@ export const environmentSchema = z.object({
   parsed: z.array(parsed),
   isDefault: z.boolean().optional(),
 })
+
+/** Environment */
+export type Environment = z.infer<typeof environmentSchema>
+export type EnvironmentPayload = z.input<typeof environmentSchema>
+
+/** Create environment helper */
+export const createEnvironment = (payload: EnvironmentPayload) =>
+  environmentSchema.parse(payload)

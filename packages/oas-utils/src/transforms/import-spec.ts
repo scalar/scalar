@@ -1,7 +1,7 @@
 import { createCollection } from '@/entities/workspace/collection'
-import { type Folder, folderSchema } from '@/entities/workspace/folder'
-import { serverSchema } from '@/entities/workspace/server'
-import { type RequestRef, requestRefSchema } from '@/entities/workspace/spec'
+import { type Folder, createFolder } from '@/entities/workspace/folder'
+import { createServer } from '@/entities/workspace/server'
+import { type Request, createRequest } from '@/entities/workspace/spec'
 import { tagObjectSchema } from '@/entities/workspace/spec/spec'
 import type { RequestMethod } from '@/helpers'
 import { parseJsonOrYaml } from '@/helpers/parse'
@@ -19,7 +19,7 @@ const PARAM_DICTIONARY = {
 /** Import an OpenAPI spec file and convert it to workspace entities */
 export async function importSpecToWorkspace(spec: string) {
   const importWarnings: string[] = []
-  const requests: RequestRef[] = []
+  const requests: Request[] = []
   const parsedSpec = parseJsonOrYaml(spec) as OpenAPIV3_1.Document
 
   const { schema, errors } = await openapi().load(parsedSpec).resolve()
@@ -59,7 +59,7 @@ export async function importSpecToWorkspace(spec: string) {
         return
       }
 
-      const parameters: RequestRef['parameters'] = {
+      const parameters: Request['parameters'] = {
         path: {},
         query: {},
         headers: {},
@@ -78,7 +78,7 @@ export async function importSpecToWorkspace(spec: string) {
         }
       })
 
-      const request = requestRefSchema.parse({
+      const request = createRequest({
         method: method.toUpperCase() as RequestMethod,
         path: pathString,
         tags: operation.tags || ['default'],
@@ -113,7 +113,7 @@ export async function importSpecToWorkspace(spec: string) {
   // Create a basic folder structure from tags
   const folders: Folder[] = []
   tags.forEach((t) => {
-    const folder = folderSchema.parse({
+    const folder = createFolder({
       ...t,
       childUids: requests
         .filter((r) => r.tags.includes(t.name))
@@ -132,7 +132,7 @@ export async function importSpecToWorkspace(spec: string) {
           description: 'Replace with your API server',
         },
       ]
-  const servers = unparsedServers.map((server) => serverSchema.parse(server))
+  const servers = unparsedServers.map((server) => createServer(server))
 
   const collection = createCollection({
     spec: {

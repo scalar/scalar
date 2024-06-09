@@ -2,13 +2,7 @@ import { z } from 'zod'
 
 import { nanoidSchema } from '../shared'
 
-/**
- * Cookies
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
- */
-export type Cookie = z.infer<typeof cookieSchema>
-export const cookieSchema = z.object({
+const cookieSchema = z.object({
   uid: nanoidSchema,
   /**  Defines the cookie name and its value. A cookie definition begins with a name-value pair.  */
   name: z.string(),
@@ -37,10 +31,22 @@ export const cookieSchema = z.object({
   /** Controls whether or not a cookie is sent with cross-site requests, providing some protection against cross-site
    * request forgery attacks (CSRF).
    */
-  sameSite: z.union([z.literal('lax'), z.literal('strict'), z.literal('none')]),
+  sameSite: z.union([z.literal('Lax'), z.literal('Strict'), z.literal('None')]),
   /**
    * Indicates that the cookie is sent to the server only when a request is made with the https: scheme (except on
    * localhost), and therefore, is more resistant to man-in-the-middle attacks.
    */
   secure: z.boolean().optional(),
 })
+
+/**
+ * Cookies
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
+ */
+export type Cookie = z.infer<typeof cookieSchema>
+export type CookiePayload = z.input<typeof cookieSchema>
+
+/** Create cookie helper */
+export const createCookie = (payload: CookiePayload) =>
+  cookieSchema.parse(payload)

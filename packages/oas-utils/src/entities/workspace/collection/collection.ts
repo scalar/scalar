@@ -121,8 +121,6 @@ const collectionSchema = z.object({
 export type Collection = z.infer<typeof collectionSchema>
 export type CollectionPayload = z.input<typeof collectionSchema>
 
-/**
- * Create Collction helper
- */
+/** Create Collction helper */
 export const createCollection = (payload: CollectionPayload) =>
   collectionSchema.parse(payload)

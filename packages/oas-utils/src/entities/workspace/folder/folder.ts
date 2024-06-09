@@ -1,9 +1,7 @@
 import { nanoidSchema } from '@/entities/workspace/shared'
 import { z } from 'zod'
 
-/** Folders will correspond to the x- */
-export type Folder = z.infer<typeof folderSchema>
-export const folderSchema = z.object({
+const folderSchema = z.object({
   /** Used for database sync only */
   uid: nanoidSchema,
   /** Will correspond to the slash separate path some, some/nested or some/nested/folder */
@@ -16,3 +14,11 @@ export const folderSchema = z.object({
    */
   childUids: z.array(z.string()).default([]),
 })
+
+/** Folders will correspond to the x- */
+export type Folder = z.infer<typeof folderSchema>
+export type FolderPayload = z.input<typeof folderSchema>
+
+/** Create folder helper */
+export const createFolder = (payload: FolderPayload) =>
+  folderSchema.parse(payload)

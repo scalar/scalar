@@ -20,18 +20,9 @@ export type RequestEvent = {
 type RequestBody = object
 const requestBodySchema = z.any() satisfies ZodSchema<RequestBody>
 
-export type Parameters = Record<string, OpenAPIV3_1.ParameterObject>
-export const parametersSchema = z.record(z.string(), z.any())
+const parametersSchema = z.record(z.string(), z.any())
 
-/**
- * Each operation in an OpenAPI file will correspond with a single request
- *
- * @see https://spec.openapis.org/oas/v3.1.0#operation-object
- */
-export type RequestRef = z.infer<typeof requestRefSchema> & {
-  externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
-}
-export const requestRefSchema = z.object({
+const requestSchema = z.object({
   path: z.string(),
   method: z.enum(Object.keys(REQUEST_METHODS) as [RequestMethod]),
   uid: nanoidSchema,
@@ -68,3 +59,19 @@ export const requestRefSchema = z.object({
   childUids: nanoidSchema.array().default([]),
   history: z.any().array().default([]),
 })
+
+/**
+ * Each operation in an OpenAPI file will correspond with a single request
+ *
+ * @see https://spec.openapis.org/oas/v3.1.0#operation-object
+ */
+export type Request = z.infer<typeof requestSchema> & {
+  externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
+}
+export type RequestPayload = z.input<typeof requestSchema> & {
+  externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
+}
+
+/** Create request helper */
+export const createRequest = (payload: RequestPayload) =>
+  requestSchema.parse(payload)

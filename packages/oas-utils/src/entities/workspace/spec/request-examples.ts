@@ -1,11 +1,7 @@
 import { nanoidSchema } from '@/entities/workspace/shared'
 import { z } from 'zod'
 
-/** Request examples - formerly known as instances - are "children" of requests */
-export type RequestExampleParameter = z.infer<
-  typeof requestExampleParametersSchema
->
-export const requestExampleParametersSchema = z.object({
+const requestExampleParametersSchema = z.object({
   key: z.string().default(''),
   value: z.union([z.string(), z.number()]).transform(String).default(''),
   enabled: z.boolean().default(true),
@@ -14,9 +10,20 @@ export const requestExampleParametersSchema = z.object({
   refUid: nanoidSchema.optional(),
 })
 
-/** A single set of params for a request example */
-export type RequestExample = z.infer<typeof requestExampleSchema>
-export const requestExampleSchema = z.object({
+/** Request examples - formerly known as instances - are "children" of requests */
+export type RequestExampleParameter = z.infer<
+  typeof requestExampleParametersSchema
+>
+export type RequestExampleParameterPayload = z.input<
+  typeof requestExampleParametersSchema
+>
+
+/** Create request example parameter helper */
+export const creatRequestExampleParameter = (
+  payload: RequestExampleParameterPayload,
+) => requestExampleParametersSchema.parse(payload)
+
+const requestExampleSchema = z.object({
   uid: nanoidSchema,
   requestUid: z.string().min(7),
   name: z.string(),
@@ -61,3 +68,11 @@ export const requestExampleSchema = z.object({
   }),
   auth: z.record(z.string(), z.any()).default({}),
 })
+
+/** A single set of params for a request example */
+export type RequestExample = z.infer<typeof requestExampleSchema>
+export type RequestExamplePayload = z.input<typeof requestExampleSchema>
+
+/** Create request example helper */
+export const createExampleRequest = (payload: RequestExamplePayload) =>
+  requestExampleSchema.parse(payload)
