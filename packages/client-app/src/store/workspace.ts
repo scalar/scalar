@@ -13,8 +13,14 @@ import {
   type Environment,
   environmentSchema,
 } from '@scalar/oas-utils/entities/workspace/environment'
-import type { Folder } from '@scalar/oas-utils/entities/workspace/folder'
-import type { Server } from '@scalar/oas-utils/entities/workspace/server'
+import {
+  type Folder,
+  folderSchema,
+} from '@scalar/oas-utils/entities/workspace/folder'
+import {
+  type Server,
+  serverSchema,
+} from '@scalar/oas-utils/entities/workspace/server'
 import {
   type RequestExample,
   type RequestRef,
@@ -35,12 +41,12 @@ import { computed, reactive, readonly } from 'vue'
 const requests = reactive<Record<string, RequestRef>>({})
 const requestMutators = mutationFactory(requests, reactive({}))
 
-/**
- * Add request
- *
- * @param parentUid can be either a folderUid or collectionUid
- */
-const addRequest = (payload: Partial<RequestRef>, parentUid?: string) => {
+/** Add request */
+const addRequest = (
+  payload: Partial<RequestRef>,
+  /** parentUid can be either a folderUid or collectionUid */
+  parentUid?: string,
+) => {
   const request = requestRefSchema.parse(payload)
 
   // Add initial example
@@ -66,12 +72,12 @@ const addRequest = (payload: Partial<RequestRef>, parentUid?: string) => {
   }
 }
 
-/**
- * Add request
- *
- * @param parentUid can be either a folderUid or collectionUid
- */
-const deleteRequest = (request: RequestRef, parentUid: string) => {
+/** Delete request */
+const deleteRequest = (
+  request: RequestRef,
+  /** parentUid can be either a folderUid or collectionUid */
+  parentUid: string,
+) => {
   // Remove all examples
   request.exampleUids.forEach((uid) => requestExampleMutators.delete(uid))
 
@@ -123,9 +129,7 @@ const activeRequest = computed<RequestRef | undefined>(() => {
 const requestExamples = reactive<Record<string, RequestExample>>({})
 const requestExampleMutators = mutationFactory(requestExamples, reactive({}))
 
-/**
- * Create new instance parameter from a request parameter
- */
+/** Create new instance parameter from a request parameter */
 const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
   requestExampleParametersSchema.parse({
     key: param.name,
@@ -301,37 +305,55 @@ const activeServer = computed(() =>
 const folders = reactive<Record<string, Folder>>({})
 const folderMutators = mutationFactory(folders, reactive({}))
 
-/** Add a new folder to a collection */
-function addFolder(
-  collectionIdx: number,
-  parentUid: string | null,
-  options: { name: string; description?: string },
-) {
-  const collection = workspace.collections[collectionIdx]
+/** Add a new folder to a folder or colleciton */
+const addFolder = (
+  payload: Partial<Folder>,
+  /** parentUid can be either a folderUid or collectionUid */
+  parentUid: string,
+) => {
+  const folder = folderSchema.parse(payload)
 
-  const folder = defaultCollectionFolder(options)
-
-  collection.folders[folder.uid] = folder
-
-  // Add the folder UID to either the root or its parent
-  const parent = collection.folders[parentUid ?? '']
-  if (parent) {
-    parent.children.push(folder.uid)
+  // Add to parent folder or collection
+  if (collections[parentUid]) {
+    collectionMutators.edit(parentUid, 'childUids', [
+      ...collections[parentUid].childUids,
+      folder.uid,
+    ])
+  } else if (folders[parentUid]) {
+    folderMutators.edit(parentUid, 'childUids', [
+      ...folders[parentUid].childUids,
+      folder.uid,
+    ])
   } else {
-    collection.children.push(folder.uid)
+    console.error("Could not find folder's parent ID")
+    return
   }
+
+  folderMutators.add(folder)
 }
 
 /** Delete a folder from a collection */
-function deleteFolder(collectionIdx: number, folderUid: string) {
-  const collection = workspace.collections[collectionIdx]
+const deleteFolder = (
+  folderUid: string,
+  /** parentUid can be either a folderUid or collectionUid */
+  parentUid: string,
+) => {
+  // Remove from parent collection or folder
+  if (collections[parentUid]) {
+    collectionMutators.edit(
+      parentUid,
+      'childUids',
+      collections[parentUid].childUids.filter((uid) => uid !== folderUid),
+    )
+  } else if (folders[parentUid]) {
+    folderMutators.edit(
+      parentUid,
+      'childUids',
+      folders[parentUid].childUids.filter((uid) => uid !== folderUid),
+    )
+  }
 
-  Object.values(collection.folders).forEach((f) => {
-    f.children = f.children.filter((c) => c !== folderUid)
-  })
-  collection.children = collection.children.filter((c) => c != folderUid)
-
-  delete collection.folders[folderUid]
+  folderMutators.delete(folderUid)
 }
 
 // ---------------------------------------------------------------------------
@@ -340,8 +362,32 @@ function deleteFolder(collectionIdx: number, folderUid: string) {
 const servers = reactive<Record<string, Server>>({})
 const serverMutators = mutationFactory(servers, reactive({}))
 
-const addServer = () => {}
-const removeServer = () => {}
+/** Add a server */
+const addServer = (payload: Partial<Server>, collectionUid: string) => {
+  const server = serverSchema.parse(payload)
+
+  // Add to collection
+  collectionMutators.edit(collectionUid, 'spec.serverUids', [
+    ...collections[collectionUid].spec.serverUids,
+    server.uid,
+  ])
+
+  serverMutators.add(server)
+}
+
+/** Delete a server */
+const deleteServer = (serverUid: string, collectionUid: string) => {
+  // Remove from parent collection
+  collectionMutators.edit(
+    collectionUid,
+    'spec.serverUids',
+    collections[collectionUid].spec.serverUids.filter(
+      (uid) => uid !== serverUid,
+    ),
+  )
+
+  serverMutators.delete(serverUid)
+}
 
 // ---------------------------------------------------------------------------
 
@@ -356,8 +402,14 @@ async function importSpecFile(spec: string) {
   addCollection(workspaceEntities.collection)
 
   // Folders
+  Object.values(workspaceEntities.folders).forEach((folder) =>
+    addFolder(folder, workspaceEntities.collection.uid),
+  )
 
-  // servers
+  // Servers
+  workspaceEntities.servers.forEach((folder) =>
+    addFolder(folder, workspaceEntities.collection.uid),
+  )
 
   console.log(workspace)
 }

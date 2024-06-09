@@ -140,7 +140,7 @@ export async function importSpecToWorkspace(spec: string) {
       openapi: parsedSpec.openapi,
       info: schema?.info ?? {},
       externalDocs: schema?.externalDocs,
-      servers: servers.map(({ uid }) => uid),
+      serverUids: servers.map(({ uid }) => uid),
       tags,
     },
     selectedServerUid: servers[0].uid,
