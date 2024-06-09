@@ -74,5 +74,5 @@ export type RequestExample = z.infer<typeof requestExampleSchema>
 export type RequestExamplePayload = z.input<typeof requestExampleSchema>
 
 /** Create request example helper */
-export const createExampleRequest = (payload: RequestExamplePayload) =>
+export const createRequestExample = (payload: RequestExamplePayload) =>
   requestExampleSchema.parse(payload)

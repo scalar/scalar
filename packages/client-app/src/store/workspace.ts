@@ -2,32 +2,38 @@ import { useSidebar } from '@/hooks'
 import { PathId, activeRouterParams, fallbackMissingParams } from '@/router'
 import {
   type Workspace,
-  workspaceSchema,
+  type WorkspacePayload,
+  createWorkspace,
 } from '@scalar/oas-utils/entities/workspace'
-import type { CollectionPayload } from '@scalar/oas-utils/entities/workspace/collection'
 import {
   type Collection,
+  type CollectionPayload,
   createCollection,
 } from '@scalar/oas-utils/entities/workspace/collection'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import {
   type Environment,
-  environmentSchema,
+  type EnvironmentPayload,
+  createEnvironment,
 } from '@scalar/oas-utils/entities/workspace/environment'
 import {
   type Folder,
-  folderSchema,
+  type FolderPayload,
+  createFolder,
 } from '@scalar/oas-utils/entities/workspace/folder'
 import {
   type Server,
-  serverSchema,
+  type ServerPayload,
+  createServer,
 } from '@scalar/oas-utils/entities/workspace/server'
 import {
+  type Request,
   type RequestExample,
-  type RequestRef,
-  requestExampleParametersSchema,
-  requestExampleSchema,
-  requestRefSchema,
+  type RequestExamplePayload,
+  type RequestPayload,
+  createRequest,
+  createRequestExample,
+  createRequestExampleParameters,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { iterateTitle } from '@scalar/oas-utils/helpers'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
@@ -41,16 +47,16 @@ const { setCollapsedSidebarFolder } = useSidebar()
 // REQUEST
 
 /** Local list of all requests (will be associated with a database collection) */
-const requests = reactive<Record<string, RequestRef>>({})
+const requests = reactive<Record<string, Request>>({})
 const requestMutators = mutationFactory(requests, reactive({}))
 
 /** Add request */
 const addRequest = (
-  payload: Partial<RequestRef>,
+  payload: RequestPayload,
   /** parentUid can be either a folderUid or collectionUid */
   parentUid?: string,
 ) => {
-  const request = requestRefSchema.parse(payload)
+  const request = createRequest(payload)
 
   // Add initial example
   const example = createExampleFromRequest(request)
@@ -79,7 +85,7 @@ const addRequest = (
 
 /** Delete request */
 const deleteRequest = (
-  request: RequestRef,
+  request: Request,
   /** parentUid can be either a folderUid or collectionUid */
   parentUid: string,
 ) => {
@@ -106,7 +112,7 @@ const deleteRequest = (
 }
 
 /** Request associated with the current route */
-const activeRequest = computed<RequestRef | undefined>(() => {
+const activeRequest = computed(() => {
   const key = activeRouterParams.value[PathId.Request]
   const firstKey = workspaceRequests.value[0]?.uid
 
@@ -161,7 +167,7 @@ const requestExampleMutators = mutationFactory(requestExamples, reactive({}))
 
 /** Create new instance parameter from a request parameter */
 const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
-  requestExampleParametersSchema.parse({
+  createRequestExampleParameters({
     key: param.name,
     value:
       param.schema && 'default' in param.schema ? param.schema.default : '',
@@ -173,7 +179,7 @@ const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
  *
  * TODO body
  */
-const createExampleFromRequest = (request: RequestRef): RequestExample => {
+const createExampleFromRequest = (request: Request): RequestExample => {
   const parameters = {
     path: Object.values(request.parameters.path).map(createParamInstance),
     query: Object.values(request.parameters.query).map(createParamInstance),
@@ -188,7 +194,7 @@ const createExampleFromRequest = (request: RequestRef): RequestExample => {
     request.childUids.some((uid) => t === requestExamples[uid].name),
   )
 
-  const example = requestExampleSchema.parse({
+  const example = createRequestExample({
     requestUid: request.uid,
     parameters,
     name,
@@ -200,7 +206,7 @@ const createExampleFromRequest = (request: RequestRef): RequestExample => {
 }
 
 /** Ensure we add to the base examples as well as the request it is in */
-const addRequestExample = (request: RequestRef) => {
+const addRequestExample = (request: Request) => {
   const example = createExampleFromRequest(request)
 
   requestMutators.edit(request.uid, 'childUids', [
@@ -238,7 +244,7 @@ const activeExample = computed(
 
 /** Initialize default environment */
 const environments = reactive<Record<string, Environment>>({
-  default: environmentSchema.parse({
+  default: createEnvironment({
     uid: 'default',
     name: 'Global Environment',
     color: 'blue',
@@ -273,7 +279,7 @@ const activeCookieId = computed<string | undefined>(
 // WORKSPACE
 
 /** Active workspace object (will be associated with an entry in the workspace collection) */
-const workspace = reactive<Workspace>(workspaceSchema.parse({}))
+const workspace = reactive<Workspace>(createWorkspace({}))
 
 /** Simplified list of requests in the workspace for displaying */
 const workspaceRequests = computed(() =>
@@ -341,11 +347,11 @@ const folderMutators = mutationFactory(folders, reactive({}))
  * If the parentUid is included it is added ot the parent as well
  */
 const addFolder = (
-  payload: Partial<Folder>,
+  payload: FolderPayload,
   /** parentUid can be either a folderUid or collectionUid */
   parentUid?: string,
 ) => {
-  const folder = folderSchema.parse(payload)
+  const folder = createFolder(payload)
 
   // Add to parent folder or collection
   if (parentUid) {
@@ -402,8 +408,8 @@ const serverMutators = mutationFactory(servers, reactive({}))
  * Add a server
  * If the collectionUid is included it is added to the collection as well
  */
-const addServer = (payload: Partial<Server>, collectionUid?: string) => {
-  const server = serverSchema.parse(payload)
+const addServer = (payload: ServerPayload, collectionUid?: string) => {
+  const server = createServer(payload)
 
   // Add to collection
   if (collectionUid) {

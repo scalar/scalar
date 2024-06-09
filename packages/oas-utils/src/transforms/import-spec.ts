@@ -17,7 +17,7 @@ const PARAM_DICTIONARY = {
 } as const
 
 /** Import an OpenAPI spec file and convert it to workspace entities */
-export async function importSpecToWorkspace(spec: string) {
+export const importSpecToWorkspace = async (spec: string) => {
   const importWarnings: string[] = []
   const requests: Request[] = []
   const parsedSpec = parseJsonOrYaml(spec) as OpenAPIV3_1.Document
