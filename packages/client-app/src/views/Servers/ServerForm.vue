@@ -5,7 +5,7 @@ import type { Server } from '@scalar/oas-utils/entities/workspace/server'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
-const { activeCollection, collectionMutators } = useWorkspace()
+const { activeCollection, servers, serverMutators } = useWorkspace()
 
 const options = [
   {
@@ -18,26 +18,20 @@ const options = [
 
 const route = useRoute()
 
-const activeServer = computed(() =>
-  activeCollection.value && route.params.server === 'default'
-    ? activeCollection.value?.spec.servers[0]
-    : activeCollection.value?.spec.servers.find(
-        ({ uid }) => uid === route.params.server,
-      ),
+const activeServer = computed(
+  () =>
+    servers[
+      activeCollection.value && route.params.server === 'default'
+        ? activeCollection.value?.spec.serverUids[0]
+        : activeCollection.value?.spec.serverUids.find(
+            (uid) => uid === route.params.server,
+          ) ?? ''
+    ],
 )
 
 const updateServer = (key: string, value: string) => {
   if (!activeCollection.value) return
-
-  const serverIndex = activeCollection.value?.spec.servers.findIndex(
-    ({ uid }) => uid === activeServer.value?.uid,
-  )
-
-  collectionMutators.edit(
-    activeCollection.value.uid,
-    `spec.servers.${serverIndex}.${key as keyof Server}`,
-    value,
-  )
+  serverMutators.edit(activeServer.value.uid, key as keyof Server, value)
 }
 </script>
 <template>

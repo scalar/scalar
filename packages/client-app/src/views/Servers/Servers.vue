@@ -11,17 +11,14 @@ import { useRouter } from 'vue-router'
 
 import ServerForm from './ServerForm.vue'
 
-const { activeCollection, collectionMutators } = useWorkspace()
+const { activeCollection, servers, serverMutators } = useWorkspace()
 const { push } = useRouter()
 
 const addServerHandler = () => {
   if (!activeCollection.value) return
 
   const newServer = serverSchema.parse({ url: 'http://localhost' })
-  collectionMutators.edit(activeCollection.value.uid, 'spec.servers', [
-    ...activeCollection.value.spec.servers,
-    newServer,
-  ])
+  serverMutators.add(newServer, activeCollection.value.uid)
 
   push(`/servers/${newServer.uid}`)
 }
@@ -33,10 +30,10 @@ const addServerHandler = () => {
       <div class="flex-1">
         <SidebarList>
           <SidebarListElement
-            v-for="server in activeCollection?.spec.servers"
-            :key="server.uid"
+            v-for="serverUid in activeCollection?.spec.serverUids"
+            :key="serverUid"
             class="text-xs"
-            :variable="{ name: server.url, uid: server.uid }" />
+            :variable="{ name: servers[serverUid].url, uid: serverUid }" />
         </SidebarList>
       </div>
     </template>

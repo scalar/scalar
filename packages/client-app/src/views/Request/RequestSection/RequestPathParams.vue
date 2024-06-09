@@ -10,7 +10,7 @@ const props = defineProps<{
   paramKey: keyof RequestExample['parameters']
 }>()
 
-const { activeRequest, activeExample, updateRequestExample } = useWorkspace()
+const { activeRequest, activeExample } = useWorkspace()
 
 const params = computed(
   () => activeExample.value?.parameters[props.paramKey] ?? [],
