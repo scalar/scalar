@@ -9,13 +9,13 @@ import {
   ScalarIcon,
 } from '@scalar/components'
 import type {
+  Request,
   RequestExample,
-  RequestRef,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { computed } from 'vue'
 
 const props = defineProps<{
-  item: RequestRef | RequestExample
+  item: Request | RequestExample
 }>()
 const { createExampleFromRequest, requestMutators } = useWorkspace()
 

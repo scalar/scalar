@@ -19,7 +19,7 @@ export type RequestExampleParameterPayload = z.input<
 >
 
 /** Create request example parameter helper */
-export const creatRequestExampleParameter = (
+export const createRequestExampleParameter = (
   payload: RequestExampleParameterPayload,
 ) => requestExampleParametersSchema.parse(payload)
 

@@ -12,8 +12,8 @@ import '@scalar/draggable/style.css'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
 import type { Folder } from '@scalar/oas-utils/entities/workspace/folder'
 import type {
+  Request,
   RequestExample,
-  RequestRef,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
@@ -36,7 +36,7 @@ const props = withDefaults(
     isDroppable?: boolean
     /** Both inidicate the level and provide a way to traverse upwards */
     parentUids: string[]
-    item: Collection | Folder | RequestRef | RequestExample
+    item: Collection | Folder | Request | RequestExample
   }>(),
   { isDraggable: false, isDroppable: false, isChild: false },
 )
@@ -85,18 +85,13 @@ const getTitle = (item: (typeof props)['item']) => {
   return ''
 }
 
-console.log({ collections })
-console.log({ folders })
-console.log({ requests })
-console.log(props.item)
-
 /**
  * We either show the method or the parent request method
  */
 const method = computed(() => {
   const _request = (
     'requestUid' in props.item ? requests[props.item.requestUid] : props.item
-  ) as RequestRef
+  ) as Request
   return _request.method
 })
 
@@ -108,7 +103,7 @@ const showChildren = computed(
   () =>
     collapsedSidebarFolders[props.item.uid] ||
     (activeRequest.value?.uid === props.item.uid &&
-      (props.item as RequestRef).childUids.length > 1),
+      (props.item as Request).childUids.length > 1),
 )
 </script>
 <template>

@@ -1,7 +1,7 @@
 import type {
+  Request,
   RequestExample,
   RequestExampleParameter,
-  RequestRef,
   ResponseInstance,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
@@ -24,7 +24,7 @@ const paramsReducer = (params: RequestExampleParameter[] = []) =>
  * called from the send button as well as keyboard shortcuts
  */
 export const sendRequest = async (
-  request: RequestRef,
+  request: Request,
   example: RequestExample,
   rawUrl: string,
 ) => {

@@ -5,7 +5,7 @@ import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
 import { ScalarButton } from '@scalar/components'
 import {
   type RequestExample,
-  requestExampleParametersSchema,
+  createRequestExampleParameter,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
@@ -29,7 +29,7 @@ const addRow = () => {
   if (!activeRequest.value || !activeExample.value) return
 
   /** Create a new parameter instance with 'enabled' set to false */
-  const newParam = requestExampleParametersSchema.parse({ enabled: false })
+  const newParam = createRequestExampleParameter({ enabled: false })
   const newParams = [...params.value, newParam]
 
   requestExampleMutators.edit(
@@ -74,7 +74,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
     )
   } else {
     /** if there is no row at the index, add a new one */
-    const payload = [requestExampleParametersSchema.parse({ [field]: value })]
+    const payload = [createRequestExampleParameter({ [field]: value })]
     requestExampleMutators.edit(
       activeExample.value.uid,
       `parameters.${props.paramKey}`,

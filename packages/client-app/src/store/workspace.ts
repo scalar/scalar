@@ -33,7 +33,7 @@ import {
   type RequestPayload,
   createRequest,
   createRequestExample,
-  createRequestExampleParameters,
+  createRequestExampleParameter,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { iterateTitle } from '@scalar/oas-utils/helpers'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
@@ -167,7 +167,7 @@ const requestExampleMutators = mutationFactory(requestExamples, reactive({}))
 
 /** Create new instance parameter from a request parameter */
 const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
-  createRequestExampleParameters({
+  createRequestExampleParameter({
     key: param.name,
     value:
       param.schema && 'default' in param.schema ? param.schema.default : '',

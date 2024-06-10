@@ -7,7 +7,7 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
-import { requestExampleParametersSchema } from '@scalar/oas-utils/entities/workspace/spec'
+import { createRequestExampleParameter } from '@scalar/oas-utils/entities/workspace/spec'
 import { computed, nextTick, ref, watch } from 'vue'
 
 import RequestTable from './RequestTable.vue'
@@ -88,7 +88,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
     )
   } else {
     /** if there is no row at the index, add a new one */
-    const payload = [requestExampleParametersSchema.parse({ [field]: value })]
+    const payload = [createRequestExampleParameter({ [field]: value })]
 
     requestExampleMutators.edit(
       activeExample.value.uid,
@@ -122,7 +122,7 @@ const addRow = () => {
   if (!activeRequest.value || !activeExample.value) return
 
   /** Create a new parameter instance with 'enabled' set to false */
-  const newParam = requestExampleParametersSchema.parse({
+  const newParam = createRequestExampleParameter({
     enabled: false,
   })
 
