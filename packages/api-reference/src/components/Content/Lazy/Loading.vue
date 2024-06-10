@@ -4,6 +4,7 @@ import type {
   Tag as TagType,
   TransformedOperation,
 } from '@scalar/oas-utils'
+import type { OpenAPIV3 } from '@scalar/openapi-parser'
 import { onMounted, ref, watch } from 'vue'
 
 import { getModels, scrollToId } from '../../../helpers'
@@ -176,7 +177,10 @@ onMounted(() => {
           <SectionContent>
             <SectionHeader :level="2">
               <Anchor :id="getModelId(name)">
-                {{ (getModels(parsedSpec)?.[name]).title ?? name }}
+                {{
+                  (getModels(parsedSpec)?.[name] as OpenAPIV3.SchemaObject)
+                    .title ?? name
+                }}
               </Anchor>
             </SectionHeader>
             <Schema

@@ -1,13 +1,22 @@
 <script lang="ts" setup>
-import type { OpenAPIV2 } from '@scalar/openapi-parser'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 
 defineProps<{
-  value: OpenAPIV2.SchemaObject
+  value:
+    | OpenAPIV2.DefinitionsObject
+    | OpenAPIV3.SchemaObject
+    | OpenAPIV3.ArraySchemaObject
+    | OpenAPIV3.NonArraySchemaObject
+    | OpenAPIV3_1.SchemaObject
+    | OpenAPIV3_1.ArraySchemaObject
+    | OpenAPIV3_1.NonArraySchemaObject
   name?: string
 }>()
 </script>
 <template>
-  <span class="schema-type">
+  <span
+    v-if="typeof value === 'object'"
+    class="schema-type">
     <span
       class="schema-type-icon"
       :title="

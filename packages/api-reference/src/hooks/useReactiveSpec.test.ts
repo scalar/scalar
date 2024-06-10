@@ -201,7 +201,7 @@ describe('useParser', () => {
     // Sleep for 10ms to wait for the parser to finish
     await new Promise((resolve) => setTimeout(resolve, 50))
 
-    expect(parsedSpec.info.title).toBe('Example')
+    expect(parsedSpec.info?.title).toBe('Example')
   })
 
   test('works with refs', async () => {
@@ -216,7 +216,7 @@ describe('useParser', () => {
     // Sleep for 300ms to wait for the debouncer and the parser
     await new Promise((resolve) => setTimeout(resolve, 300))
 
-    expect(parsedSpec.info.title).toBe('Example')
+    expect(parsedSpec.info?.title).toBe('Example')
   })
 
   test('watches the ref', async () => {
@@ -231,7 +231,7 @@ describe('useParser', () => {
     // Sleep for 300ms to wait for the debouncer and the parser
     await new Promise((resolve) => setTimeout(resolve, 300))
 
-    expect(parsedSpec.info.title).toBe('Example')
+    expect(parsedSpec.info?.title).toBe('Example')
 
     rawSpecConfig.value = {
       content: JSON.stringify(basicSpecString.replace('Example', 'Foobar')),
@@ -240,7 +240,7 @@ describe('useParser', () => {
     // Sleep for 300ms to wait for the debouncer and the parser
     await new Promise((resolve) => setTimeout(resolve, 300))
 
-    expect(parsedSpec.info.title).toBe('Foobar')
+    expect(parsedSpec.info?.title).toBe('Foobar')
   })
 
   test('deals with undefined input', async () => {
@@ -249,7 +249,7 @@ describe('useParser', () => {
     // Sleep for 10ms to wait for the parser to finish
     await new Promise((resolve) => setTimeout(resolve, 10))
 
-    expect(parsedSpec.info.title).toBe('')
+    expect(parsedSpec.info?.title).toBe('')
   })
 
   test('deals with empty input', async () => {
@@ -262,7 +262,7 @@ describe('useParser', () => {
     // Sleep for 10ms to wait for the parser to finish
     await new Promise((resolve) => setTimeout(resolve, 10))
 
-    expect(parsedSpec.info.title).toBe('')
+    expect(parsedSpec.info?.title).toBe('')
   })
 
   test('returns errors', async () => {

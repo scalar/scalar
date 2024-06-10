@@ -318,7 +318,7 @@ const startAuthentication = (url: string) => {
             value as
               | OpenAPIV3.OAuth2SecurityScheme
               | OpenAPIV3_1.OAuth2SecurityScheme
-          ).flows.password
+          )?.flows?.password
         ">
         <CardFormRows>
           <CardFormGroup>
@@ -355,12 +355,13 @@ const startAuthentication = (url: string) => {
                     value as
                       | OpenAPIV3.OAuth2SecurityScheme
                       | OpenAPIV3_1.OAuth2SecurityScheme
-                  ).flows.implicit?.scopes ??
+                  )?.flows?.implicit?.scopes ??
                     (
                       value as
                         | OpenAPIV3.OAuth2SecurityScheme
                         | OpenAPIV3_1.OAuth2SecurityScheme
-                    ).flows.password!.scopes,
+                    )?.flows?.password?.scopes ??
+                    {},
                 ).length > 0
               "
               v-model:selected="oauth2SelectedScopes"
@@ -369,12 +370,12 @@ const startAuthentication = (url: string) => {
                   value as
                     | OpenAPIV3.OAuth2SecurityScheme
                     | OpenAPIV3_1.OAuth2SecurityScheme
-                ).flows.implicit?.scopes ??
+                )?.flows?.implicit?.scopes ??
                 (
                   value as
                     | OpenAPIV3.OAuth2SecurityScheme
                     | OpenAPIV3_1.OAuth2SecurityScheme
-                ).flows.password!.scopes
+                )?.flows?.password!.scopes
               " />
             <button
               class="cardform-auth-button"

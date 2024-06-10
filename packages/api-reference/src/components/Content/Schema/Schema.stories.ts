@@ -1,3 +1,4 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { Meta, StoryObj } from '@storybook/vue3'
 
 import Schema from './Schema.vue'
@@ -107,6 +108,6 @@ export const Default: Story = {
     `,
   }),
   args: {
-    value: schema,
+    value: schema as OpenAPIV3_1.SchemaObject,
   },
 }
