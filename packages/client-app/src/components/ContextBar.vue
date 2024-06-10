@@ -10,7 +10,7 @@ defineEmits<{
 </script>
 <template>
   <div
-    class="request-section-content-filter bg-b-2 text-c-3 bg-b-1 sticky top-0 z-10 mb-2.5 hidden xl:flex justify-center rounded p-[2.25px] text-xs">
+    class="request-section-content request-section-content-filter bg-b-2 text-c-3 bg-b-1 sticky top-0 z-10 mb-2.5 hidden xl:flex justify-center rounded p-[2.25px] text-xs">
     <button
       v-for="section in sections"
       :key="section"

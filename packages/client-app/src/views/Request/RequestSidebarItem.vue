@@ -115,12 +115,12 @@ const showChildren = computed(
     class="relative flex flex-row"
     :class="
       parentUids.length &&
-      `before:bg-b-3 pl-4 before:absolute before:left-[calc(.75rem_+_.5px)] before:top-0 before:z-10 before:h-full before:w-px`
+      `before:bg-b-3 pl-4 before:absolute before:left-[calc(.75rem_+_.5px)] before:top-0 before:z-10 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-px mb-[.5px] last:mb-0`
     ">
     <Draggable
       :id="item.uid"
       :ceiling="hasChildren ? 0.8 : 0.5"
-      class="flex flex-1 flex-col text-sm"
+      class="flex flex-1 flex-col gap-[.5px] text-sm"
       :floor="hasChildren ? 0.2 : 0.5"
       :isDraggable="parentUids.length > 0 && isDraggable"
       :isDroppable="isDroppable"

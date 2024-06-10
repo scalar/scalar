@@ -204,7 +204,7 @@ const addItemHandler = () => {
     <template #content>
       <div class="bg-b-1 sticky top-0 z-50 px-3 py-2.5 pb-0">
         <button
-          class="shadow-inset text-c-2 flex w-full items-center rounded p-1.5"
+          class="h-8 shadow-inset text-c-2 flex w-full items-center rounded p-1.5"
           type="button">
           <ScalarIcon
             icon="Search"
