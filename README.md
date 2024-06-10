@@ -973,7 +973,7 @@ This repository contains all our open source projects, and there’s definitely 
 </table>
 <!-- readme: collaborators,contributors -end -->
 
-Contributions are welcome! Read [`CONTRIBUTING.md`](https://github.com/scalar/scalar/blob/main/CONTRIBUTING.md).
+Contributions are welcome! Read [`CONTRIBUTING`](https://github.com/scalar/scalar/blob/main/CONTRIBUTING).
 
 ## License
 
