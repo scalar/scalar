@@ -13,14 +13,14 @@ const emits = defineEmits<{
   (event: 'close'): void
 }>()
 
-const { collectionMutators, workspace } = useWorkspace()
+const { collections, folderMutators, workspace } = useWorkspace()
 const folderName = ref('')
 const selectedCollectionId = ref('')
 
 const availableCollections = computed(() => {
-  return workspace.collections.map((collection) => ({
-    id: collection.uid,
-    label: collection.spec?.info?.title ?? '',
+  return workspace.collectionUids.map((collectionUid) => ({
+    id: collectionUid,
+    label: collections[collectionUid].spec?.info?.title ?? '',
   }))
 })
 
@@ -36,15 +36,13 @@ const selectedCollection = computed({
 
 const handleSubmit = () => {
   if (folderName.value && selectedCollection.value) {
-    const collectionIdx = workspace.collections.findIndex(
-      (collection) => collection.uid === selectedCollectionId.value,
-    )
-    if (collectionIdx !== -1) {
-      collectionMutators.addFolder(collectionIdx, null, {
+    folderMutators.add(
+      {
         name: folderName.value,
-      })
-      emits('close')
-    }
+      },
+      selectedCollectionId.value,
+    )
+    emits('close')
   }
 }
 </script>

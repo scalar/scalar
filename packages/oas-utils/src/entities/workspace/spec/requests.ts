@@ -1,128 +1,14 @@
 import { nanoidSchema } from '@/entities/workspace/shared'
-import { REQUEST_METHODS, type RequestMethod, iterateTitle } from '@/helpers'
+import { REQUEST_METHODS, type RequestMethod } from '@/helpers'
 import type { AxiosResponse } from 'axios'
 import type { OpenAPIV3_1 } from 'openapi-types'
 import { type ZodSchema, z } from 'zod'
 
 import { $refSchema } from './refs'
-
-/** Request examples - formerly known as instances - are "children" of requests */
-export type RequestExampleParameter = z.infer<
-  typeof requestExampleParametersSchema
->
-export const requestExampleParametersSchema = z.object({
-  key: z.string().default(''),
-  value: z.union([z.string(), z.number()]).transform(String).default(''),
-  enabled: z.boolean().default(true),
-  file: z.instanceof(File).optional(),
-  /** Params are linked to parents such as path params and global headers/cookies */
-  refUid: nanoidSchema.optional(),
-})
+import type { RequestExample } from './request-examples'
 
 /** A single set of populated values for a sent request */
 export type ResponseInstance = AxiosResponse
-
-/** A single set of params for a request example */
-export type RequestExample = z.infer<typeof requestExampleSchema>
-export const requestExampleSchema = z.object({
-  uid: nanoidSchema,
-  requestUid: z.string().min(7),
-  name: z.string(),
-  body: z
-    .object({
-      raw: z
-        .object({
-          encoding: z
-            .union([
-              z.literal('json'),
-              z.literal('text'),
-              z.literal('html'),
-              z.literal('text'),
-              z.literal('javascript'),
-              z.literal('xml'),
-              z.literal('yaml'),
-              z.literal('edn'),
-            ])
-            .default('json'),
-          value: z.string().default(''),
-        })
-        .default({}),
-      formData: z
-        .object({
-          encoding: z
-            .union([z.literal('form-data'), z.literal('urlencoded')])
-            .default('form-data'),
-          value: requestExampleParametersSchema.array().default([]),
-        })
-        .default({}),
-      binary: z.instanceof(File).optional(),
-      activeBody: z
-        .union([z.literal('raw'), z.literal('formData'), z.literal('binary')])
-        .default('raw'),
-    })
-    .default({}),
-  parameters: z.object({
-    path: requestExampleParametersSchema.array().default([]),
-    query: requestExampleParametersSchema.array().default([]),
-    headers: requestExampleParametersSchema.array().default([]),
-    cookies: requestExampleParametersSchema.array().default([]),
-  }),
-  auth: z.record(z.string(), z.any()).default({}),
-})
-
-/**
- * Create new instance parameter from a request parameter
- */
-const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
-  requestExampleParametersSchema.parse({
-    key: param.name,
-    value:
-      param.schema && 'default' in param.schema ? param.schema.default : '',
-  })
-
-/**
- * Create new request example from a request
- * Also iterates the name
- *
- * TODO body
- */
-export const createRequestExample = (request: RequestRef): RequestExample => {
-  const parameters = {
-    path: Object.values(request.parameters.path).map(createParamInstance),
-    query: Object.values(request.parameters.query).map(createParamInstance),
-    headers: Object.values(request.parameters.headers).map(createParamInstance),
-    cookies: Object.values(request.parameters.cookies).map(createParamInstance),
-  }
-
-  // TODO body
-
-  const name = iterateTitle((request.summary ?? 'Example') + ' #1', (t) =>
-    Object.values(request.examples).some(({ name: _name }) => t === _name),
-  )
-
-  const example = requestExampleSchema.parse({
-    requestUid: request.uid,
-    name,
-    parameters,
-  })
-
-  return example
-}
-
-/**
- * Helper method to create new requests
- * Adds the first example as well
- */
-export const createRequest = (params: Partial<RequestRef>) => {
-  const request = requestRefSchema.parse(params)
-
-  // Add initial example
-  const example = createRequestExample(request)
-  request.examples[example.uid] = example
-  request.children.push(example.uid)
-
-  return request
-}
 
 /** A single request/response set to save to the history stack */
 export type RequestEvent = {
@@ -130,31 +16,30 @@ export type RequestEvent = {
   response: ResponseInstance
 }
 
-// ---------------------------------------------------------------------------
-
+// TODO fill out body
 type RequestBody = object
-
 const requestBodySchema = z.any() satisfies ZodSchema<RequestBody>
 
-export type Parameters = Record<string, OpenAPIV3_1.ParameterObject>
-export const parametersSchema = z.record(z.string(), z.any())
+const parametersSchema = z.record(z.string(), z.any())
 
-/** Each operation in an OpenAPI file will correspond with a single request */
-export type RequestRef = z.infer<typeof requestRefSchema> & {
-  externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
-}
-
-export const requestRefSchema = z.object({
+const requestSchema = z.object({
   path: z.string(),
   method: z.enum(Object.keys(REQUEST_METHODS) as [RequestMethod]),
   uid: nanoidSchema,
   ref: $refSchema.nullable().default(null),
-  /** Tags can be assigned and any tags that do not exist in the collection will be automatically created */
-  tags: z.string().array(),
+  /** A list of tags for API documentation control. Tags can be used for logical
+   * grouping of operations by resources or any other qualifier.
+   */
+  tags: z.string().array().default(['default']),
+  /** A short summary of what the operation does. */
   summary: z.string().optional(),
+  /** A verbose explanation of the operation behavior. CommonMark syntax MAY be used for rich text representation. */
   description: z.string().optional(),
+  /** Unique string used to identify the operation. The id MUST be unique among all operations described in the API.
+   * The operationId value is case-sensitive. Tools and libraries MAY use the operationId to uniquely identify an
+   * operation, therefore, it is RECOMMENDED to follow bin common programming naming conventions./
+   */
   operationId: z.string().optional(),
-  requestBody: requestBodySchema.optional(),
   parameters: z
     .object({
       path: parametersSchema,
@@ -163,8 +48,30 @@ export const requestRefSchema = z.object({
       cookies: parametersSchema,
     })
     .default({ path: {}, query: {}, headers: {}, cookies: {} }),
-  examples: z.record(nanoidSchema, requestExampleSchema).default({}),
+  /**
+   * The request body applicable for this operation. The requestBody is fully supported in HTTP methods where the
+   * HTTP 1.1 specification [RFC7231] has explicitly defined semantics for request bodies. In other cases where the
+   * HTTP spec is vague (such as GET, HEAD and DELETE), requestBody is permitted but does not have well-defined
+   * semantics and SHOULD be avoided if possible.
+   */
+  requestBody: requestBodySchema.optional(),
   /** Ordered exampleUids for the sidenav */
-  children: nanoidSchema.array().default([]),
+  childUids: nanoidSchema.array().default([]),
   history: z.any().array().default([]),
 })
+
+/**
+ * Each operation in an OpenAPI file will correspond with a single request
+ *
+ * @see https://spec.openapis.org/oas/v3.1.0#operation-object
+ */
+export type Request = z.infer<typeof requestSchema> & {
+  externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
+}
+export type RequestPayload = z.input<typeof requestSchema> & {
+  externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
+}
+
+/** Create request helper */
+export const createRequest = (payload: RequestPayload) =>
+  requestSchema.parse(payload)

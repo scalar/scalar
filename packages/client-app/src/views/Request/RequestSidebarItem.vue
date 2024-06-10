@@ -10,19 +10,18 @@ import {
 } from '@scalar/draggable'
 import '@scalar/draggable/style.css'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
+import type { Folder } from '@scalar/oas-utils/entities/workspace/folder'
 import type {
+  Request,
   RequestExample,
-  RequestRef,
 } from '@scalar/oas-utils/entities/workspace/spec'
-import { type DeepReadonly, computed } from 'vue'
+import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
 import RequestSidebarItemMenu from './RequestSidebarItemMenu.vue'
 
 const props = withDefaults(
   defineProps<{
-    /** For folder mode we need all the folders to check against */
-    folders: DeepReadonly<Collection['folders']>
     /**
      * Toggle dragging on and off
      *
@@ -37,11 +36,7 @@ const props = withDefaults(
     isDroppable?: boolean
     /** Both inidicate the level and provide a way to traverse upwards */
     parentUids: string[]
-    item:
-      | DeepReadonly<Collection>
-      | DeepReadonly<Collection['folders']>[string]
-      | RequestRef
-      | RequestExample
+    item: Collection | Folder | Request | RequestExample
   }>(),
   { isDraggable: false, isDroppable: false, isChild: false },
 )
@@ -54,12 +49,13 @@ defineSlots<{
   leftIcon(): void
 }>()
 
-const { activeRequest, requests } = useWorkspace()
+const { activeRequest, collections, folders, requests, requestExamples } =
+  useWorkspace()
 
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const router = useRouter()
 
-const hasChildren = computed(() => 'children' in props.item)
+const hasChildren = computed(() => 'childUids' in props.item)
 
 const highlightClasses =
   'hover:before:bg-sidebar-active-b before:absolute before:inset-0 before:rounded before-left-offset'
@@ -95,7 +91,7 @@ const getTitle = (item: (typeof props)['item']) => {
 const method = computed(() => {
   const _request = (
     'requestUid' in props.item ? requests[props.item.requestUid] : props.item
-  ) as RequestRef
+  ) as Request
   return _request.method
 })
 
@@ -107,7 +103,7 @@ const showChildren = computed(
   () =>
     collapsedSidebarFolders[props.item.uid] ||
     (activeRequest.value?.uid === props.item.uid &&
-      (props.item as RequestRef).children.length > 1),
+      (props.item as Request).childUids.length > 1),
 )
 </script>
 <template>
@@ -184,17 +180,14 @@ const showChildren = computed(
 
       <!-- Children -->
       <div
-        v-if="'children' in item"
+        v-if="'childUids' in item"
         v-show="showChildren">
         <RequestSidebarItem
-          v-for="uid in item.children"
+          v-for="uid in item.childUids"
           :key="uid"
-          :folders="folders"
           :isDraggable="isDraggable"
           :isDroppable="isDroppable"
-          :item="
-            folders[uid] || requests[uid] || (item as RequestRef).examples[uid]
-          "
+          :item="folders[uid] || requests[uid] || requestExamples[uid]"
           :parentUids="[...parentUids, item.uid]"
           @onDragEnd="(...args) => $emit('onDragEnd', ...args)" />
       </div>

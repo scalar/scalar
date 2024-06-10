@@ -15,7 +15,6 @@ import {
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
-import type { Server } from '@scalar/oas-utils/entities/workspace/server'
 import {
   REQUEST_METHODS,
   type RequestMethod,
@@ -33,7 +32,7 @@ const {
   activeExample,
   activeCollection,
   collectionMutators,
-  updateRequestExample,
+  servers,
   requestMutators,
 } = useWorkspace()
 
@@ -120,21 +119,20 @@ function getUrlPart(request: XMLHttpRequest, part: keyof URL) {
 }
 
 const serverOptions = computed(() =>
-  activeCollection.value?.spec.servers?.map((server) => ({
-    uid: server.uid,
-    label: server.url,
-    url: server.url,
+  activeCollection.value?.spec.serverUids?.map((serverUid) => ({
+    id: serverUid,
+    label: servers[serverUid].url,
   })),
 )
 
 /** Update the currently selected server on the collection */
-const updateSelectedServer = (server: Server) => {
+const updateSelectedServer = (serverUid: string) => {
   if (!activeCollection.value) return
 
   collectionMutators.edit(
     activeCollection.value.uid,
     'selectedServerUid',
-    server.uid,
+    serverUid,
   )
 }
 
@@ -194,23 +192,19 @@ const isSelectedServer = (serverId: string) => {
                 size="sm"
                 variant="outlined"
                 @click.stop>
-                {{
-                  activeCollection?.spec.servers?.find(
-                    ({ uid }) => activeCollection?.selectedServerUid === uid,
-                  )?.url
-                }}
+                {{ servers[activeCollection?.selectedServerUid ?? '']?.url }}
               </ScalarButton>
               <template #items>
                 <ScalarDropdownItem
                   v-for="server in serverOptions"
-                  :key="server.uid"
+                  :key="server.id"
                   class="flex group font-code text-sm whitespace-nowrap text-ellipsis overflow-hidden"
-                  :value="server.uid"
-                  @click="updateSelectedServer(server)">
+                  :value="server.id"
+                  @click="updateSelectedServer(server.id)">
                   <div
                     class="flex size-4 items-center justify-center rounded-full p-[3px] group-hover:shadow-border"
                     :class="
-                      isSelectedServer(server.uid)
+                      isSelectedServer(server.id)
                         ? 'bg-blue text-b-1'
                         : 'text-transparent'
                     ">
@@ -218,10 +212,9 @@ const isSelectedServer = (serverId: string) => {
                       class="relative top-[0.5px] size-2.5 stroke-[1.75]"
                       icon="Checkmark" />
                   </div>
-                  <span
-                    class="whitespace-nowrap text-ellipsis overflow-hidden"
-                    >{{ server.label }}</span
-                  >
+                  <span class="whitespace-nowrap text-ellipsis overflow-hidden">
+                    {{ server.label }}
+                  </span>
                 </ScalarDropdownItem>
                 <ScalarDropdownDivider />
                 <ScalarDropdownItem>

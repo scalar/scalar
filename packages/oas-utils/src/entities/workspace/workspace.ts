@@ -1,34 +1,22 @@
-import type { Cookie } from '@/entities/workspace/cookie'
-import type { Environment } from '@/entities/workspace/environment'
-import type { Server } from '@/entities/workspace/server'
-import type { Nanoid } from '@/entities/workspace/shared'
-import { nanoid } from 'nanoid'
+import { z } from 'zod'
 
-import type { Collection } from './collection'
+import { nanoidSchema } from './shared'
 
-export type Workspace = {
-  uid: string
-  name: string
-  description: string
-  /** List of all request uids in a given workspace */
-  requests: Nanoid[]
-  /** List of all collections in a given workspace */
-  collections: Collection[]
-  /** Components */
-  environments: Environment[]
-  /** Cookies */
-  cookies: Cookie[]
-  /** Servers */
-  servers: Server[]
-}
-
-export const defaultWorkspace = (): Workspace => ({
-  uid: nanoid(),
-  name: 'Default Workspace',
-  description: 'Basic Scalar Client Workspace',
-  requests: [],
-  collections: [],
-  environments: [],
-  cookies: [],
-  servers: [],
+const workspaceSchema = z.object({
+  uid: nanoidSchema,
+  name: z.string().default('Default Workspace'),
+  description: z.string().default('Basic Scalar Workspace'),
+  /** List of all collection uids in a given workspace */
+  collectionUids: z.array(z.string()).default([]),
+  /** List of all environment uids in a given workspace */
+  environmentUids: z.array(z.string()).default([]),
+  /** List of all cookie uids in a given workspace */
+  cookieUids: z.array(z.string()).default([]),
 })
+
+/** The base scalar workspace */
+export type Workspace = z.infer<typeof workspaceSchema>
+export type WorkspacePayload = z.input<typeof workspaceSchema>
+
+export const createWorkspace = (payload: WorkspacePayload) =>
+  workspaceSchema.parse(payload)

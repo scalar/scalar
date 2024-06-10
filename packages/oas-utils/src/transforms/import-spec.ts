@@ -1,17 +1,12 @@
-import {
-  type Collection,
-  type CollectionFolder,
-  defaultCollectionFolder,
-} from '@/entities/workspace/collection'
-import { serverSchema } from '@/entities/workspace/server'
-import type { Nanoid } from '@/entities/workspace/shared'
-import { type RequestRef, createRequest } from '@/entities/workspace/spec'
+import { createCollection } from '@/entities/workspace/collection'
+import { type Folder, createFolder } from '@/entities/workspace/folder'
+import { createServer } from '@/entities/workspace/server'
+import { type Request, createRequest } from '@/entities/workspace/spec'
 import { tagObjectSchema } from '@/entities/workspace/spec/spec'
 import type { RequestMethod } from '@/helpers'
 import { parseJsonOrYaml } from '@/helpers/parse'
 import { schemaModel } from '@/helpers/schema-model'
 import { openapi } from '@scalar/openapi-parser'
-import { nanoid } from 'nanoid'
 import type { OpenAPIV3_1 } from 'openapi-types'
 
 const PARAM_DICTIONARY = {
@@ -22,10 +17,9 @@ const PARAM_DICTIONARY = {
 } as const
 
 /** Import an OpenAPI spec file and convert it to workspace entities */
-export async function importSpecToWorkspace(spec: string) {
+export const importSpecToWorkspace = async (spec: string) => {
   const importWarnings: string[] = []
-
-  const requests: Record<string, RequestRef> = {}
+  const requests: Request[] = []
   const parsedSpec = parseJsonOrYaml(spec) as OpenAPIV3_1.Document
 
   const { schema, errors } = await openapi().load(parsedSpec).resolve()
@@ -65,7 +59,7 @@ export async function importSpecToWorkspace(spec: string) {
         return
       }
 
-      const parameters: RequestRef['parameters'] = {
+      const parameters: Request['parameters'] = {
         path: {},
         query: {},
         headers: {},
@@ -75,17 +69,6 @@ export async function importSpecToWorkspace(spec: string) {
       // Loop over params to set request params
       operation.parameters?.forEach((_param: any) => {
         const param = _param
-
-        // Fetch ref
-        if ('$ref' in _param) {
-          const refPath = _param.$ref.replace(/^#\//g, '').replace(/\//g, '.')
-          console.log({ refPath })
-          // TODO for some reason this hangs
-          // param = getNestedValue(parsedSpec, refPath)
-          importWarnings.push(
-            `${pathString} - Importing of $ref paths is not yet supported`,
-          )
-        }
 
         if ('name' in param) {
           parameters[
@@ -108,7 +91,7 @@ export async function importSpecToWorkspace(spec: string) {
       })
 
       request.tags.forEach((t) => requestTags.add(t))
-      requests[request.uid] = request
+      requests.push(request)
     })
   })
 
@@ -128,16 +111,16 @@ export async function importSpecToWorkspace(spec: string) {
 
   // TODO: Consider if we want this for production or just for data mocking
   // Create a basic folder structure from tags
-  const folders: Record<Nanoid, CollectionFolder> = {}
+  const folders: Folder[] = []
   tags.forEach((t) => {
-    const folder = defaultCollectionFolder({
+    const folder = createFolder({
       ...t,
-      children: Object.values(requests)
+      childUids: requests
         .filter((r) => r.tags.includes(t.name))
         .map((r) => r.uid),
     })
 
-    folders[folder.uid] = folder
+    folders.push(folder)
   })
 
   // Toss in a default server if there aren't any
@@ -149,28 +132,27 @@ export async function importSpecToWorkspace(spec: string) {
           description: 'Replace with your API server',
         },
       ]
-  const servers = unparsedServers.map((server) => serverSchema.parse(server))
+  const servers = unparsedServers.map((server) => createServer(server))
 
-  const collection: Collection = {
-    uid: nanoid(),
-    requests: Object.keys(requests),
+  const collection = createCollection({
     spec: {
       openapi: parsedSpec.openapi,
       info: schema?.info,
       externalDocs: schema?.externalDocs,
-      servers,
+      serverUids: servers.map(({ uid }) => uid),
       tags,
     },
     selectedServerUid: servers[0].uid,
-    folders,
     // We default to having all the requests in the root folder
-    children: Object.keys(folders),
-  }
+    childUids: folders.map(({ uid }) => uid),
+  })
 
   const components = schema?.components
 
   return {
     tags,
+    folders,
+    servers,
     requests,
     collection,
     components,

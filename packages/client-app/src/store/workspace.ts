@@ -2,72 +2,253 @@ import { useSidebar } from '@/hooks'
 import { PathId, activeRouterParams, fallbackMissingParams } from '@/router'
 import {
   type Workspace,
-  defaultWorkspace,
+  createWorkspace,
 } from '@scalar/oas-utils/entities/workspace'
 import {
   type Collection,
-  defaultCollection,
-  defaultCollectionFolder,
+  type CollectionPayload,
+  createCollection,
 } from '@scalar/oas-utils/entities/workspace/collection'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
-import type { Environment } from '@scalar/oas-utils/entities/workspace/environment'
-import type {
-  RequestExample,
-  RequestRef,
-} from '@scalar/oas-utils/entities/workspace/spec'
-import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
-import { sortByOrder } from '@scalar/object-utils/arrays'
-import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import {
-  type Path,
-  type PathValue,
-  setNestedValue,
-} from '@scalar/object-utils/nested'
+  type Environment,
+  createEnvironment,
+} from '@scalar/oas-utils/entities/workspace/environment'
+import {
+  type Folder,
+  type FolderPayload,
+  createFolder,
+} from '@scalar/oas-utils/entities/workspace/folder'
+import {
+  type Server,
+  type ServerPayload,
+  createServer,
+} from '@scalar/oas-utils/entities/workspace/server'
+import {
+  type Request,
+  type RequestExample,
+  type RequestPayload,
+  createRequest,
+  createRequestExample,
+  createRequestExampleParameter,
+} from '@scalar/oas-utils/entities/workspace/spec'
+import { iterateTitle } from '@scalar/oas-utils/helpers'
+import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
+import { mutationFactory } from '@scalar/object-utils/mutator-record'
+import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, reactive, readonly } from 'vue'
+
+const { setCollapsedSidebarFolder } = useSidebar()
 
 // ---------------------------------------------------------------------------
 // REQUEST
 
 /** Local list of all requests (will be associated with a database collection) */
-const requests = reactive<Record<string, RequestRef>>({})
+const requests = reactive<Record<string, Request>>({})
 const requestMutators = mutationFactory(requests, reactive({}))
+
+/** Add request */
+const addRequest = (
+  payload: RequestPayload,
+  /** parentUid can be either a folderUid or collectionUid */
+  parentUid?: string,
+) => {
+  const request = createRequest(payload)
+
+  // Add initial example
+  const example = createExampleFromRequest(request)
+  request.childUids.push(example.uid)
+
+  // Add request
+  requestMutators.add(request)
+
+  if (parentUid) {
+    // Add to parent
+    if (collections[parentUid]) {
+      collectionMutators.edit(parentUid, 'childUids', [
+        ...collections[parentUid].childUids,
+        request.uid,
+      ])
+    } else if (folders[parentUid]) {
+      folderMutators.edit(parentUid, 'childUids', [
+        ...folders[parentUid].childUids,
+        request.uid,
+      ])
+    }
+  }
+
+  return request
+}
+
+/** Delete request */
+const deleteRequest = (
+  request: Request,
+  /** parentUid can be either a folderUid or collectionUid */
+  parentUid: string,
+) => {
+  // Remove all examples
+  request.childUids.forEach((uid) => requestExampleMutators.delete(uid))
+
+  // Remove from parent
+  if (collections[parentUid]) {
+    collectionMutators.edit(
+      parentUid,
+      'childUids',
+      collections[parentUid].childUids.filter((uid) => uid !== request.uid),
+    )
+  } else if (folders[parentUid]) {
+    folderMutators.edit(
+      parentUid,
+      'childUids',
+      folders[parentUid].childUids.filter((uid) => uid !== request.uid),
+    )
+  }
+
+  // Remove request
+  requestMutators.delete(request.uid)
+}
+
+/** Request associated with the current route */
+const activeRequest = computed(() => {
+  const key = activeRouterParams.value[PathId.Request]
+  const firstKey = workspaceRequests.value[0]?.uid
+
+  const request = requests[key] ?? requests[firstKey]
+  fallbackMissingParams(PathId.Request, request)
+
+  // Ensure the sidebar folders are open
+  if (request) {
+    console.log(request)
+    findRequestFolders(request.uid).forEach((uid) =>
+      setCollapsedSidebarFolder(uid, true),
+    )
+  }
+
+  return request
+})
+
+/**
+ * Find nested request inside a collection of folders and return the folderUids up to the collectionUid
+ *
+ * TODO we definitely need a more performant way of doing this, but because folders can have multiple parents
+ * theres no easy short circuit we can store. This can work for now but replace this!
+ */
+const findRequestFolders = (
+  uid: string,
+  foldersToOpen: string[] = [],
+): string[] => {
+  const collection = Object.values(collections).find((_collection) =>
+    _collection.childUids.includes(uid),
+  )
+  if (collection) return [...foldersToOpen, collection.uid]
+
+  const folder = Object.values(folders).find(({ childUids }) =>
+    childUids.includes(uid),
+  )
+
+  if (folder) {
+    return findRequestFolders(folder.uid, [...foldersToOpen, folder.uid])
+  } else return foldersToOpen
+}
+
+// ---------------------------------------------------------------------------
+// REQUEST EXAMPLE
 
 /**
  * Each request has multiple examples associated with it
  * An example is a set of request params that is saved to the example
  * Multiple test cases can each be saved as an example and switched between
  */
-const updateRequestExample = <P extends Path<RequestExample>>(
-  uid: string,
-  exampleUid: string,
-  path: P,
-  value: PathValue<RequestExample, P>,
-) => {
-  // @ts-expect-error need Geoff to fix this plz!
-  requestMutators.edit(uid, `examples.${exampleUid}.${path}`, value)
+const requestExamples = reactive<Record<string, RequestExample>>({})
+const requestExampleMutators = mutationFactory(requestExamples, reactive({}))
+
+/** Create new instance parameter from a request parameter */
+const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
+  createRequestExampleParameter({
+    key: param.name,
+    value:
+      param.schema && 'default' in param.schema ? param.schema.default : '',
+  })
+
+/**
+ * Create new request example from a request
+ * Also iterates the name
+ *
+ * TODO body
+ */
+const createExampleFromRequest = (request: Request): RequestExample => {
+  const parameters = {
+    path: Object.values(request.parameters.path).map(createParamInstance),
+    query: Object.values(request.parameters.query).map(createParamInstance),
+    headers: Object.values(request.parameters.headers).map(createParamInstance),
+    cookies: Object.values(request.parameters.cookies).map(createParamInstance),
+  }
+
+  // TODO body
+
+  // Check all current examples for the title and iterate
+  const name = iterateTitle((request.summary ?? 'Example') + ' #1', (t) =>
+    request.childUids.some((uid) => t === requestExamples[uid].name),
+  )
+
+  const example = createRequestExample({
+    requestUid: request.uid,
+    parameters,
+    name,
+  })
+
+  requestExampleMutators.add(example)
+
+  return example
 }
+
+/** Ensure we add to the base examples as well as the request it is in */
+const addRequestExample = (request: Request) => {
+  const example = createExampleFromRequest(request)
+
+  requestMutators.edit(request.uid, 'childUids', [
+    ...request.childUids,
+    example.uid,
+  ])
+}
+
+/** Ensure we remove from the base as well as from the request it is in */
+const deleteRequestExample = (requestExample: RequestExample) => {
+  // Remove from request
+  requestMutators.edit(
+    requestExample.requestUid,
+    'childUids',
+    requests[requestExample.requestUid].childUids.filter(
+      (uid) => uid !== requestExample.uid,
+    ),
+  )
+
+  // Remove from base
+  requestExampleMutators.delete(requestExample.uid)
+}
+
+/** Currently active example OR the first one */
+const activeExample = computed(
+  () =>
+    requestExamples[activeRouterParams.value[PathId.Example]] ??
+    requestExamples[activeRequest.value?.childUids[0] ?? ''],
+)
 
 // ---------------------------------------------------------------------------
 // ENVIRONMENT
 
-/** initialize default environment */
+/** Initialize default environment */
 const environments = reactive<Record<string, Environment>>({
-  default: {
+  default: createEnvironment({
     uid: 'default',
     name: 'Global Environment',
     color: 'blue',
     raw: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
     parsed: [],
     isDefault: true,
-  },
+  }),
 })
 const environmentMutators = mutationFactory(environments, reactive({}))
-
-function editEnvironment(uid: string, path: Path<Environment>, value: string) {
-  if (uid === 'default' || environments[uid]) {
-    setNestedValue(environments[uid], path, value)
-  }
-}
 
 /** prevent deletion of the default environment */
 const deleteEnvironment = (uid: string) => {
@@ -93,147 +274,161 @@ const activeCookieId = computed<string | undefined>(
 // WORKSPACE
 
 /** Active workspace object (will be associated with an entry in the workspace collection) */
-const workspace = reactive<Workspace>(defaultWorkspace())
+const workspace = reactive<Workspace>(createWorkspace({}))
 
 /** Simplified list of requests in the workspace for displaying */
 const workspaceRequests = computed(() =>
-  sortByOrder(
-    Object.values(requests).map((r) => ({
-      uid: r.uid,
-      path: r.path,
-      method: r.method,
-      summary: r.summary,
-    })),
-    workspace.requests,
-    'uid',
-  ),
-)
-
-const { openFoldersForRequest } = useSidebar()
-
-/** Request associated with the current route */
-const activeRequest = computed<RequestRef | undefined>(() => {
-  const key = activeRouterParams.value[PathId.Request]
-  const firstKey = workspaceRequests.value[0]?.uid
-
-  const request = requests[key] ?? requests[firstKey]
-  fallbackMissingParams(PathId.Request, request)
-
-  // Ensure the sidebar folders are open
-  if (request) {
-    const collection = getCollectionFromRequest(
-      request.uid,
-      workspace.collections,
-    )
-    if (collection) openFoldersForRequest(request.uid, collection)
-  }
-
-  return request
-})
-
-/** Currently active instance, just hardcoded to 0 at the moment */
-// TODO get this from the route params
-const activeExample = computed(
-  () => activeRequest.value?.examples[activeRequest.value.children[0]],
+  Object.values(requests).map((r) => ({
+    uid: r.uid,
+    path: r.path,
+    method: r.method,
+    summary: r.summary,
+  })),
 )
 
 // ---------------------------------------------------------------------------
 // COLLECTION
 
-function addCollection(options: { title: string; description?: string }) {
-  const collection = defaultCollection(options)
-  workspace.collections.push(collection)
+const collections = reactive<Record<string, Collection>>({})
+const collectionMutators = mutationFactory(collections, reactive({}))
+
+const addCollection = (payload: CollectionPayload) => {
+  const collection = createCollection(payload)
+  workspace.collectionUids.push(collection.uid)
+  collectionMutators.add(collection)
 }
 
-function deleteCollection(uid: string) {
-  const idx = workspace.collections.findIndex((c) => c.uid === uid)
+const deleteCollection = (collectionUid: string) => {
+  const idx = workspace.collectionUids.findIndex((uid) => uid === collectionUid)
   if (idx >= 0) {
-    workspace.collections.splice(idx, 1)
+    workspace.collectionUids.splice(idx, 1)
+    collectionMutators.delete(collectionUid)
+
+    // TODO do we want to cascade delete folders + requests + examples
   } else {
     console.error('Tried to remove a collection that does not exist')
   }
 }
 
-/** Edit a property of a given collection */
-const editCollection = <K extends Path<Collection>>(
-  collectionUidOrIndex: number | string,
-  path: K,
-  value: PathValue<Collection, K>,
-) =>
-  setNestedValue(
-    typeof collectionUidOrIndex === 'number'
-      ? collectionUidOrIndex
-      : workspace.collections.find(({ uid }) => uid === collectionUidOrIndex),
-    path as Path<Collection>,
-    value,
-  )
-
-/**
- * Find the first collection that a request is in
- *
- * TODO temporarily we just loop on arrays but we should convert to array of uids + dictionary
- * for the perf 💪
- */
-const getCollectionFromRequest = (
-  requestUid: string,
-  collections: Collection[],
-) =>
-  collections.find((collection) =>
-    collection.requests.find((uid) => uid === requestUid),
-  )
-
 /**
  * First collection that the active request is in
+ *
+ * TODO we should add collection to the route and grab this from the params
  */
-const activeCollection = computed(() =>
-  activeRequest.value
-    ? getCollectionFromRequest(activeRequest.value.uid, workspace.collections)
-    : null,
-)
+const activeCollection = computed(() => {
+  if (!activeRequest.value) return null
 
-/**
- * The currently selected server in the addressBar
- */
-const activeServer = computed(() =>
-  activeCollection.value?.spec.servers.find(
-    ({ uid }) => uid === activeCollection.value?.selectedServerUid,
-  ),
+  const uids = findRequestFolders(activeRequest.value.uid)
+  if (!uids.length) return null
+
+  const collectionUid = uids[uids.length - 1]
+  return collections[collectionUid]
+})
+
+/** The currently selected server in the addressBar */
+const activeServer = computed(
+  () =>
+    activeCollection.value && servers[activeCollection.value.selectedServerUid],
 )
 
 // ---------------------------------------------------------------------------
-// COLLECTION FOLDERS
+// FOLDERS
 
-/** Add a new folder to a collection */
-function addFolder(
-  collectionIdx: number,
-  parentUid: string | null,
-  options: { name: string; description?: string },
-) {
-  const collection = workspace.collections[collectionIdx]
+const folders = reactive<Record<string, Folder>>({})
+const folderMutators = mutationFactory(folders, reactive({}))
 
-  const folder = defaultCollectionFolder(options)
+/**
+ * Add a new folder to a folder or colleciton
+ * If the parentUid is included it is added ot the parent as well
+ */
+const addFolder = (
+  payload: FolderPayload,
+  /** parentUid can be either a folderUid or collectionUid */
+  parentUid?: string,
+) => {
+  const folder = createFolder(payload)
 
-  collection.folders[folder.uid] = folder
-
-  // Add the folder UID to either the root or its parent
-  const parent = collection.folders[parentUid ?? '']
-  if (parent) {
-    parent.children.push(folder.uid)
-  } else {
-    collection.children.push(folder.uid)
+  // Add to parent folder or collection
+  if (parentUid) {
+    if (collections[parentUid]) {
+      collectionMutators.edit(parentUid, 'childUids', [
+        ...collections[parentUid].childUids,
+        folder.uid,
+      ])
+    } else if (folders[parentUid]) {
+      folderMutators.edit(parentUid, 'childUids', [
+        ...folders[parentUid].childUids,
+        folder.uid,
+      ])
+    } else {
+      console.error("Could not find folder's parent ID")
+      return
+    }
   }
+
+  folderMutators.add(folder)
 }
 
 /** Delete a folder from a collection */
-function deleteFolder(collectionIdx: number, folderUid: string) {
-  const collection = workspace.collections[collectionIdx]
+const deleteFolder = (
+  folderUid: string,
+  /** parentUid can be either a folderUid or collectionUid */
+  parentUid: string,
+) => {
+  // Remove from parent collection or folder
+  if (collections[parentUid]) {
+    collectionMutators.edit(
+      parentUid,
+      'childUids',
+      collections[parentUid].childUids.filter((uid) => uid !== folderUid),
+    )
+  } else if (folders[parentUid]) {
+    folderMutators.edit(
+      parentUid,
+      'childUids',
+      folders[parentUid].childUids.filter((uid) => uid !== folderUid),
+    )
+  }
 
-  Object.values(collection.folders).forEach((f) => {
-    f.children = f.children.filter((c) => c !== folderUid)
-  })
-  collection.children = collection.children.filter((c) => c != folderUid)
+  folderMutators.delete(folderUid)
+}
 
-  delete collection.folders[folderUid]
+// ---------------------------------------------------------------------------
+// SERVERS
+
+const servers = reactive<Record<string, Server>>({})
+const serverMutators = mutationFactory(servers, reactive({}))
+
+/**
+ * Add a server
+ * If the collectionUid is included it is added to the collection as well
+ */
+const addServer = (payload: ServerPayload, collectionUid?: string) => {
+  const server = createServer(payload)
+
+  // Add to collection
+  if (collectionUid) {
+    collectionMutators.edit(collectionUid, 'spec.serverUids', [
+      ...collections[collectionUid].spec.serverUids,
+      server.uid,
+    ])
+  }
+
+  serverMutators.add(server)
+}
+
+/** Delete a server */
+const deleteServer = (serverUid: string, collectionUid: string) => {
+  // Remove from parent collection
+  collectionMutators.edit(
+    collectionUid,
+    'spec.serverUids',
+    collections[collectionUid].spec.serverUids.filter(
+      (uid) => uid !== serverUid,
+    ),
+  )
+
+  serverMutators.delete(serverUid)
 }
 
 // ---------------------------------------------------------------------------
@@ -242,16 +437,17 @@ function deleteFolder(collectionIdx: number, folderUid: string) {
 async function importSpecFile(spec: string) {
   const workspaceEntities = await importSpecToWorkspace(spec)
 
-  // Add all the new requests into the request collection
-  Object.values(workspaceEntities.requests).forEach((r) =>
-    requestMutators.add(r),
-  )
-
-  // Associate all the new requests with the workspace
-  workspace.requests.push(...Object.keys(workspaceEntities.requests))
+  // Add all the new requests into the request collection, the already have parent folders
+  workspaceEntities.requests.forEach((request) => addRequest(request))
 
   // Create a new collection for the spec file
-  workspace.collections.push(workspaceEntities.collection)
+  addCollection(workspaceEntities.collection)
+
+  // Folders
+  workspaceEntities.folders.forEach((folder) => addFolder(folder))
+
+  // Servers
+  workspaceEntities.servers.forEach((server) => addServer(server))
 
   console.log(workspace)
 }
@@ -276,9 +472,13 @@ export function useWorkspace() {
     // STATE
     workspace: readonly(workspace),
     workspaceRequests,
+    collections,
     requests,
     environments,
+    requestExamples,
+    folders,
     cookies,
+    servers,
     activeCookieId,
     activeCollection,
     activeServer,
@@ -289,20 +489,35 @@ export function useWorkspace() {
     importSpecFile,
     importSpecFromUrl,
     cookieMutators,
-    requestMutators,
-    environmentMutators: {
-      ...environmentMutators,
-      edit: editEnvironment,
-      delete: deleteEnvironment,
-    },
-    updateRequestExample,
+    createExampleFromRequest,
     collectionMutators: {
+      ...collectionMutators,
       add: addCollection,
       delete: deleteCollection,
-      edit: editCollection,
-      addFolder,
-      deleteFolder,
     },
-    folderMutators: {},
+    environmentMutators: {
+      ...environmentMutators,
+      delete: deleteEnvironment,
+    },
+    folderMutators: {
+      ...folderMutators,
+      add: addFolder,
+      delete: deleteFolder,
+    },
+    requestMutators: {
+      ...requestMutators,
+      add: addRequest,
+      delete: deleteRequest,
+    },
+    requestExampleMutators: {
+      ...requestExampleMutators,
+      add: addRequestExample,
+      delete: deleteRequestExample,
+    },
+    serverMutators: {
+      ...serverMutators,
+      add: addServer,
+      delete: deleteServer,
+    },
   }
 }

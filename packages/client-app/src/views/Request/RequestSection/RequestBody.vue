@@ -7,8 +7,8 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
-import { requestExampleParametersSchema } from '@scalar/oas-utils/entities/workspace/spec'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { createRequestExampleParameter } from '@scalar/oas-utils/entities/workspace/spec'
+import { computed, nextTick, ref, watch } from 'vue'
 
 import RequestTable from './RequestTable.vue'
 
@@ -30,7 +30,7 @@ const contentTypeOptions = {
   none: 'None',
 } as const
 
-const { activeRequest, activeExample, updateRequestExample } = useWorkspace()
+const { activeRequest, activeExample, requestExampleMutators } = useWorkspace()
 
 const contentType = ref<keyof typeof contentTypeOptions>('none')
 const contentTypeLabel = computed(() => contentTypeOptions[contentType.value])
@@ -81,18 +81,16 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
       updatedParams.splice(rowIdx, 1)
     }
 
-    updateRequestExample(
-      activeRequest.value.uid,
+    requestExampleMutators.edit(
       activeExample.value.uid,
       'body.formData.value',
       updatedParams,
     )
   } else {
     /** if there is no row at the index, add a new one */
-    const payload = [requestExampleParametersSchema.parse({ [field]: value })]
+    const payload = [createRequestExampleParameter({ [field]: value })]
 
-    updateRequestExample(
-      activeRequest.value.uid,
+    requestExampleMutators.edit(
       activeExample.value.uid,
       'body.formData.value',
       payload,
@@ -124,14 +122,13 @@ const addRow = () => {
   if (!activeRequest.value || !activeExample.value) return
 
   /** Create a new parameter instance with 'enabled' set to false */
-  const newParam = requestExampleParametersSchema.parse({
+  const newParam = createRequestExampleParameter({
     enabled: false,
   })
 
   const newParams = [...formParams.value, newParam]
 
-  updateRequestExample(
-    activeRequest.value.uid,
+  requestExampleMutators.edit(
     activeExample.value.uid,
     'body.formData.value',
     newParams,
@@ -141,8 +138,7 @@ const addRow = () => {
 const updateRequestBody = (content: string) => {
   if (!activeRequest.value || !activeExample.value) return
 
-  updateRequestExample(
-    activeRequest.value.uid,
+  requestExampleMutators.edit(
     activeExample.value.uid,
     'body.raw.value',
     content,
@@ -170,15 +166,13 @@ const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
   }
 
   if (activeBodyType) {
-    updateRequestExample(
-      activeRequest.value.uid,
+    requestExampleMutators.edit(
       activeExample.value.uid,
       bodyPath,
       activeBodyType.value,
     )
   }
-  updateRequestExample(
-    activeRequest.value.uid,
+  requestExampleMutators.edit(
     activeExample.value.uid,
     'body.activeBody',
     bodyType,
@@ -196,8 +190,7 @@ const handleFileUploadFormData = async (rowIdx: number) => {
           ...updatedParams[rowIdx],
           file,
         }
-        updateRequestExample(
-          activeRequest.value.uid,
+        requestExampleMutators.edit(
           activeExample.value.uid,
           'body.formData.value',
           updatedParams,
@@ -212,12 +205,7 @@ const handleFileUploadFormData = async (rowIdx: number) => {
 
 function removeBinaryFile() {
   if (!activeRequest.value || !activeExample.value) return
-  updateRequestExample(
-    activeRequest.value.uid,
-    activeExample.value.uid,
-    'body.binary',
-    undefined,
-  )
+  requestExampleMutators.edit(activeExample.value.uid, 'body.binary', undefined)
 }
 function handleRemoveFileFormData(rowIdx: number) {
   if (!activeRequest.value || !activeExample.value) return
@@ -227,8 +215,7 @@ function handleRemoveFileFormData(rowIdx: number) {
     ...updatedParams[rowIdx],
     file: undefined,
   }
-  updateRequestExample(
-    activeRequest.value.uid,
+  requestExampleMutators.edit(
     activeExample.value.uid,
     'body.formData.value',
     updatedParams,
@@ -240,8 +227,7 @@ function handleFileUpload() {
     onChange: async (files) => {
       const file = files?.[0]
       if (file && activeRequest.value && activeExample.value) {
-        updateRequestExample(
-          activeRequest.value.uid,
+        requestExampleMutators.edit(
           activeExample.value.uid,
           'body.binary',
           file,

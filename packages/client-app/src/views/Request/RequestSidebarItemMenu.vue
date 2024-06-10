@@ -8,29 +8,24 @@ import {
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
-import {
-  type RequestExample,
-  type RequestRef,
-  createRequestExample,
+import type {
+  Request,
+  RequestExample,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { computed } from 'vue'
 
 const props = defineProps<{
-  item: RequestRef | RequestExample
+  item: Request | RequestExample
 }>()
-const { requestMutators } = useWorkspace()
+const { createExampleFromRequest, requestMutators } = useWorkspace()
 
 const addExample = () => {
   if (!('summary' in props.item)) return
 
-  const example = createRequestExample(props.item)
+  const example = createExampleFromRequest(props.item)
 
-  requestMutators.edit(props.item.uid, 'examples', {
-    ...props.item.examples,
-    [example.uid]: example,
-  })
-  requestMutators.edit(props.item.uid, 'children', [
-    ...props.item.children,
+  requestMutators.edit(props.item.uid, 'childUids', [
+    ...props.item.childUids,
     example.uid,
   ])
 

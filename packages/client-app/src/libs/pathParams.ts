@@ -1,7 +1,7 @@
 import {
   type RequestExample,
   type RequestExampleParameter,
-  requestExampleParametersSchema,
+  createRequestExampleParameter,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import type { Path } from '@scalar/object-utils/nested'
 
@@ -37,7 +37,7 @@ export const syncPathParamsFromURL = <P extends Path<RequestExample>>(
           key: 'parameters.path' as P,
           value: [
             ...pathParams,
-            requestExampleParametersSchema.parse({ key: newKey }),
+            createRequestExampleParameter({ key: newKey }),
           ],
         }
       }

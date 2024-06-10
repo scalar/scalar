@@ -16,8 +16,16 @@ const emits = defineEmits<{
 const { collectionMutators } = useWorkspace()
 const collectionName = ref('')
 
-function handleSubmit() {
-  collectionMutators.add({ title: collectionName.value })
+const handleSubmit = () => {
+  collectionMutators.add({
+    spec: {
+      openapi: '3.1.0',
+      info: {
+        title: collectionName.value,
+        version: '0.0.1',
+      },
+    },
+  })
   emits('close')
 }
 </script>

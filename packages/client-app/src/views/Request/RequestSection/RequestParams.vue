@@ -5,7 +5,7 @@ import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
 import { ScalarButton } from '@scalar/components'
 import {
   type RequestExample,
-  requestExampleParametersSchema,
+  createRequestExampleParameter,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
@@ -14,7 +14,7 @@ const props = defineProps<{
   paramKey: keyof RequestExample['parameters']
 }>()
 
-const { activeRequest, activeExample, updateRequestExample } = useWorkspace()
+const { activeRequest, activeExample, requestExampleMutators } = useWorkspace()
 
 const params = computed(
   () => activeExample.value?.parameters[props.paramKey] ?? [],
@@ -29,11 +29,10 @@ const addRow = () => {
   if (!activeRequest.value || !activeExample.value) return
 
   /** Create a new parameter instance with 'enabled' set to false */
-  const newParam = requestExampleParametersSchema.parse({ enabled: false })
+  const newParam = createRequestExampleParameter({ enabled: false })
   const newParams = [...params.value, newParam]
 
-  updateRequestExample(
-    activeRequest.value.uid,
+  requestExampleMutators.edit(
     activeExample.value.uid,
     `parameters.${props.paramKey}`,
     newParams,
@@ -68,17 +67,15 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
       updatedParams.splice(rowIdx, 1)
     }
 
-    updateRequestExample(
-      activeRequest.value.uid,
+    requestExampleMutators.edit(
       activeExample.value.uid,
       `parameters.${props.paramKey}`,
       updatedParams,
     )
   } else {
     /** if there is no row at the index, add a new one */
-    const payload = [requestExampleParametersSchema.parse({ [field]: value })]
-    updateRequestExample(
-      activeRequest.value.uid,
+    const payload = [createRequestExampleParameter({ [field]: value })]
+    requestExampleMutators.edit(
       activeExample.value.uid,
       `parameters.${props.paramKey}`,
       payload,
@@ -98,8 +95,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
 const toggleRow = (rowIdx: number, enabled: boolean) =>
   activeRequest.value &&
   activeExample.value &&
-  updateRequestExample(
-    activeRequest.value.uid,
+  requestExampleMutators.edit(
     activeExample.value.uid,
     `parameters.${props.paramKey}.${rowIdx}.enabled`,
     enabled,
@@ -108,8 +104,7 @@ const toggleRow = (rowIdx: number, enabled: boolean) =>
 const deleteAllRows = () => {
   if (!activeRequest.value || !activeExample.value) return
 
-  updateRequestExample(
-    activeRequest.value.uid,
+  requestExampleMutators.edit(
     activeExample.value.uid,
     `parameters.${props.paramKey}`,
     [],
