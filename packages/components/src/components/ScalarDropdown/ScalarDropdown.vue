@@ -8,11 +8,12 @@ defineProps<Omit<FloatingOptions, 'middleware'>>()
 defineOptions({ inheritAttrs: false })
 </script>
 <template>
-  <Menu>
+  <Menu v-slot="{ open }">
     <ScalarFloating
+      :isOpen="open ?? isOpen"
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
-      :offset="offset">
+      :teleport="teleport">
       <MenuButton as="template">
         <slot />
       </MenuButton>

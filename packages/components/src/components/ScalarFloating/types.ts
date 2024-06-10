@@ -17,9 +17,13 @@ export type FloatingOptions = {
    */
   middleware?: Middleware[]
   /**
-   * The offset distance between the floating element and its reference element.
-   * This can be used to adjust the spacing or alignment of the floating element.
-   * @default 5
+   * Whether the floating element is open or not.
+   * @default false
    */
-  offset?: number
+  isOpen?: boolean
+  /**
+   * Whether to teleport the floating element to the end of the document body.
+   * @default false
+   */
+  teleport?: boolean
 }

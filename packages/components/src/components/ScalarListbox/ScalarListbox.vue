@@ -44,12 +44,15 @@ const variants = cva({
 </script>
 <template>
   <Listbox
+    v-slot="{ open }"
     as="div"
     :modelValue="modelValue"
     @update:modelValue="(v) => $emit('update:modelValue', v)">
     <ScalarFloating
+      :isOpen="open ?? isOpen"
       :placement="placement ?? 'bottom-start'"
-      :resize="resize">
+      :resize="resize"
+      :teleport="teleport">
       <ListboxButton as="template">
         <slot />
       </ListboxButton>
