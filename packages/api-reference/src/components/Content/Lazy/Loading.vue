@@ -176,13 +176,13 @@ onMounted(() => {
           <SectionContent>
             <SectionHeader :level="2">
               <Anchor :id="getModelId(name)">
-                {{ (getModels(parsedSpec)?.[name] as any).title ?? name }}
+                {{ (getModels(parsedSpec)?.[name]).title ?? name }}
               </Anchor>
             </SectionHeader>
             <Schema
               :name="name"
               noncollapsible
-              :value="getModels(parsedSpec)?.[name] as Record<string, any>" />
+              :value="getModels(parsedSpec)?.[name]" />
           </SectionContent>
         </template>
       </Section>
