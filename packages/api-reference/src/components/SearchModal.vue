@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import {
   type Icon,
+  type ModalState,
+  ScalarModal,
   ScalarSearchInput,
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
-import { FlowModal, type ModalState } from '@scalar/use-modal'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { computed, ref, toRef, watch } from 'vue'
@@ -307,7 +308,7 @@ function getFullUrlFromHash(href: string) {
 }
 </script>
 <template>
-  <FlowModal
+  <ScalarModal
     :state="modalState"
     variant="search">
     <div
@@ -355,7 +356,7 @@ function getFullUrlFromHash(href: string) {
       <span>↑↓ Navigate</span>
       <span>⏎ Select</span>
     </div>
-  </FlowModal>
+  </ScalarModal>
 </template>
 <style scoped>
 a {

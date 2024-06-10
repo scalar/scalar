@@ -13,7 +13,11 @@ import {
   type ScalarListboxOption,
 } from './components/ScalarListbox'
 import { ScalarLoading, useLoadingState } from './components/ScalarLoading'
-import { ScalarModal, useModal } from './components/ScalarModal'
+import {
+  type ModalState,
+  ScalarModal,
+  useModal,
+} from './components/ScalarModal'
 import { ScalarPopover } from './components/ScalarPopover'
 import { ScalarSearchInput } from './components/ScalarSearchInput'
 import {
@@ -42,6 +46,7 @@ export {
   ScalarTextField,
   type Icon,
   type ScalarListboxOption,
+  type ModalState,
   useLoadingState,
   useModal,
 }

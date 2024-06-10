@@ -66,7 +66,6 @@
     "@scalar/openapi-parser": "^0.3.2",
     "@scalar/snippetz": "^0.1.6",
     "@scalar/themes": "workspace:*",
-    "@scalar/use-modal": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
     "@unhead/schema": "^1.9.5",
