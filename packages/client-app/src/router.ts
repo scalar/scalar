@@ -88,7 +88,7 @@ export const activeRouterParams = computed(() => {
     [PathId.Collection]: 'default',
     [PathId.Environment]: 'default',
     [PathId.Request]: 'default',
-    [PathId.Example]: 'example',
+    [PathId.Example]: 'default',
     [PathId.Schema]: 'default',
     [PathId.Cookies]: 'default',
     [PathId.Server]: 'default',

@@ -19,15 +19,8 @@ import RequestSidebarItem from './RequestSidebarItem.vue'
 
 defineEmits<{ (event: 'openModal', tab: string): void }>()
 
-const {
-  activeExample,
-  activeRequest,
-  activeServer,
-  collectionMutators,
-  collections,
-  requests,
-  workspace,
-} = useWorkspace()
+const { activeExample, activeRequest, activeServer, collections, workspace } =
+  useWorkspace()
 const { collapsedSidebarFolders } = useSidebar()
 const modalState = useActionModal()
 

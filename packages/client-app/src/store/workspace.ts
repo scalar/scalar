@@ -2,7 +2,6 @@ import { useSidebar } from '@/hooks'
 import { PathId, activeRouterParams, fallbackMissingParams } from '@/router'
 import {
   type Workspace,
-  type WorkspacePayload,
   createWorkspace,
 } from '@scalar/oas-utils/entities/workspace'
 import {
@@ -13,7 +12,6 @@ import {
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import {
   type Environment,
-  type EnvironmentPayload,
   createEnvironment,
 } from '@scalar/oas-utils/entities/workspace/environment'
 import {
@@ -29,7 +27,6 @@ import {
 import {
   type Request,
   type RequestExample,
-  type RequestExamplePayload,
   type RequestPayload,
   createRequest,
   createRequestExample,
@@ -233,10 +230,8 @@ const deleteRequestExample = (requestExample: RequestExample) => {
 /** Currently active example OR the first one */
 const activeExample = computed(
   () =>
-    requestExamples[
-      activeRouterParams.value[PathId.Example] ??
-        requestExamples[activeRequest.value?.childUids[0] ?? '']
-    ],
+    requestExamples[activeRouterParams.value[PathId.Example]] ??
+    requestExamples[activeRequest.value?.childUids[0] ?? ''],
 )
 
 // ---------------------------------------------------------------------------
