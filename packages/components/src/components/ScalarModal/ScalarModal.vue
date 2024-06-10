@@ -44,8 +44,19 @@ const modal = cva({
     },
   },
 })
+const body = cva({
+  base: [
+    'scalar-modal-body',
+    'relative max-h-[calc(100dvh-240px)] overflow-y-auto rounded-lg bg-b-1 px-6 pb-4 pt-6',
+  ].join(' '),
+  variants: {
+    variant: {
+      history: 'pt-3',
+      search: 'col max-h-[440px] overflow-hidden p-0',
+    },
+  },
+})
 </script>
-
 <script lang="ts">
 export const useModal = () =>
   reactive({
@@ -58,7 +69,6 @@ export const useModal = () =>
     },
   })
 </script>
-
 <template>
   <Dialog
     :open="state.open"
@@ -80,15 +90,7 @@ export const useModal = () =>
           :class="{ 'pb-0 pt-6': variant === 'history' }">
           {{ title }}
         </DialogTitle>
-        <DialogDescription
-          class="scalar-modal-body relative max-h-[calc(100dvh-240px)] overflow-y-auto rounded-lg bg-b-1 px-6 pb-4 pt-6"
-          :class="
-            cx(
-              bodyClass,
-              variant === 'history' && 'pt-3',
-              variant === 'search' && 'col max-h-[440px] overflow-hidden p-0',
-            )
-          ">
+        <DialogDescription :class="cx(bodyClass, body({ variant }))">
           <slot />
         </DialogDescription>
       </DialogPanel>

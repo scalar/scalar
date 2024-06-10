@@ -666,9 +666,6 @@ importers:
       '@scalar/use-codemirror':
         specifier: workspace:*
         version: link:../use-codemirror
-      '@scalar/use-modal':
-        specifier: workspace:*
-        version: link:../use-modal
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
@@ -825,9 +822,6 @@ importers:
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
-      '@scalar/use-modal':
-        specifier: workspace:*
-        version: link:../use-modal
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
@@ -1140,9 +1134,6 @@ importers:
       '@scalar/openapi-parser':
         specifier: ^0.3.2
         version: 0.3.2(terser@5.30.0)
-      '@scalar/use-modal':
-        specifier: workspace:*
-        version: link:../use-modal
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
@@ -1994,36 +1985,6 @@ importers:
       yjs:
         specifier: ^13.6.0
         version: 13.6.12
-
-  packages/use-modal:
-    devDependencies:
-      '@headlessui/vue':
-        specifier: ^1.7.20
-        version: 1.7.20(vue@3.4.27(typescript@5.4.3))
-      '@scalar/build-tooling':
-        specifier: workspace:*
-        version: link:../build-tooling
-      '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.4(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vue@3.4.27(typescript@5.4.3))
-      '@vitest/coverage-v8':
-        specifier: ^1.5.0
-        version: 1.5.0(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))
-      tsc-alias:
-        specifier: ^1.8.8
-        version: 1.8.8
-      vite:
-        specifier: ^5.2.10
-        version: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
-      vitest:
-        specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
-      vue:
-        specifier: ^3.4.22
-        version: 3.4.27(typescript@5.4.3)
-      vue-tsc:
-        specifier: ^2.0.13
-        version: 2.0.19(typescript@5.4.3)
 
   packages/use-toasts:
     dependencies:
@@ -14435,8 +14396,8 @@ packages:
   vue-component-type-helpers@2.0.13:
     resolution: {integrity: sha512-xNO5B7DstNWETnoYflLkVgh8dK8h2ZDgxY1M2O0zrqGeBNq5yAZ8a10yCS9+HnixouNGYNX+ggU9MQQq86HTpg==}
 
-  vue-component-type-helpers@2.0.19:
-    resolution: {integrity: sha512-cN3f1aTxxKo4lzNeQAkVopswuImUrb5Iurll9Gaw5cqpnbTAxtEMM1mgi6ou4X79OCyqYv1U1mzBHJkzmiK82w==}
+  vue-component-type-helpers@2.0.21:
+    resolution: {integrity: sha512-3NaicyZ7N4B6cft4bfb7dOnPbE9CjLcx+6wZWAg5zwszfO4qXRh+U52dN5r5ZZfc6iMaxKCEcoH9CmxxoFZHLg==}
 
   vue-demi@0.14.7:
     resolution: {integrity: sha512-EOG8KXDQNwkJILkx/gPcoL/7vH+hORoBaKgGe+6W7VFMvCYJfmF2dGbvgDroVnI8LU7/kTu8mbjRZGBU1z9NTA==}
@@ -20285,7 +20246,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.4.27(typescript@5.4.3)
-      vue-component-type-helpers: 2.0.19
+      vue-component-type-helpers: 2.0.21
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -31953,7 +31914,7 @@ snapshots:
 
   vue-component-type-helpers@2.0.13: {}
 
-  vue-component-type-helpers@2.0.19: {}
+  vue-component-type-helpers@2.0.21: {}
 
   vue-demi@0.14.7(vue@3.4.27(typescript@5.4.3)):
     dependencies:

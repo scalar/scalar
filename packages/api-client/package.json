@@ -52,7 +52,6 @@
     "@scalar/openapi-parser": "^0.3.2",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
-    "@scalar/use-modal": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
     "@vueuse/core": "^10.10.0",
