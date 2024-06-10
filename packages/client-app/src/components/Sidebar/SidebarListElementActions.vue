@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { useClipboard } from '@/hooks'
-import { ScalarIcon, ScalarModal } from '@scalar/components'
-import { useModal } from '@scalar/use-modal'
+import { ScalarIcon, ScalarModal, useModal } from '@scalar/components'
 import { ref } from 'vue'
 
 const { variable } = defineProps<{

@@ -89,7 +89,6 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
-    "@scalar/use-modal": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
     "@vueuse/core": "^10.10.0",
