@@ -29,8 +29,8 @@ export function FormatCommand() {
     }
 
     const newContent = isYamlFileName(output || input)
-      ? openapi().load(specification).toYaml()
-      : openapi().load(specification).toJson()
+      ? await openapi().load(specification).toYaml()
+      : await openapi().load(specification).toJson()
 
     // Replace file content with newContent
     if (output) {

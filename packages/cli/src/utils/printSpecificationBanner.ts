@@ -1,9 +1,9 @@
-import type { ResolvedOpenAPI } from '@scalar/openapi-parser'
+import type { OpenAPI } from '@scalar/openapi-parser'
 import kleur from 'kleur'
 
 export function printSpecificationBanner(result: {
   version: string
-  schema: ResolvedOpenAPI.Document
+  schema: OpenAPI.Document
 }) {
   const { version, schema } = result
 
@@ -19,7 +19,7 @@ export function printSpecificationBanner(result: {
 
   // Count number of operations
   const operationsCount = Object.values(schema.paths).reduce(
-    (acc, path) => acc + Object.keys(path).length,
+    (acc: number, path) => acc + Object.keys(path).length,
     0,
   )
 
