@@ -13,7 +13,7 @@ import { computed, ref } from 'vue'
 import CardFormButton from './CardFormButton.vue'
 
 const props = defineProps<{
-  scopes: { [scope: string]: string }
+  scopes?: { [scope: string]: string }
   selected: string[]
 }>()
 
@@ -37,6 +37,7 @@ const model = computed({
 </script>
 <template>
   <Listbox
+    v-if="Object.keys(scopes ?? {}).length"
     v-slot="{ open }"
     v-model="model"
     multiple>
@@ -47,7 +48,7 @@ const model = computed({
       <ListboxButton :as="CardFormButton">
         <div class="scopes-label">
           Scopes
-          {{ model.length }}<em>/</em>{{ Object.entries(scopes).length }}
+          {{ model.length }}<em>/</em>{{ Object.entries(scopes ?? {}).length }}
           <ScalarIcon
             :icon="open ? 'ChevronUp' : 'ChevronDown'"
             size="sm" />
@@ -65,7 +66,7 @@ const model = computed({
             as="dl"
             class="dropdown">
             <ListboxOption
-              v-for="[key, description] in Object.entries(scopes)"
+              v-for="[key, description] in Object.entries(scopes ?? {})"
               :key="key"
               v-slot="{ selected: s }"
               as="div"
