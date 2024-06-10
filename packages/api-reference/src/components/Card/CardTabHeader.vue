@@ -12,7 +12,7 @@ const changeTab = (index: number) => {
 }
 </script>
 <template>
-  <CardHeader class="scalar-card-header-tabs">
+  <CardHeader class="scalar-card-header scalar-card-header-tabs">
     <TabGroup @change="changeTab">
       <TabList class="tab-list custom-scroll">
         <slot />
@@ -32,7 +32,7 @@ const changeTab = (index: number) => {
   padding: 9px 12px;
   overflow: auto;
 }
-.scalar-card-header-tabs {
+.scalar-card-header.scalar-card-header-tabs {
   padding: 0;
 }
 </style>
