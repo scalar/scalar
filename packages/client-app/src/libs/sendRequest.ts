@@ -76,7 +76,7 @@ export const sendRequest = async (
   }
 
   const config: AxiosRequestConfig = {
-    url: `https://proxy.scalar.com?scalar_url=${url}`,
+    url: `https://proxy.scalar.com/?scalar_url=${encodeURI(url)}`,
     method: request.method,
     headers,
     params: paramsReducer(example.parameters.query),
