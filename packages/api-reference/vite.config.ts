@@ -13,7 +13,7 @@ export default defineConfig({
       emptyOutDir: true,
       cssCodeSplit: false,
       rollupOptions: {
-        plugins: [autoCSSInject],
+        plugins: [autoCSSInject('references')],
       },
     },
   }),

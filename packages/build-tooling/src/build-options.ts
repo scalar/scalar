@@ -103,10 +103,18 @@ export function createViteBuildOptions(props: {
 // CSS injection plugin used while we migrate away from Javascript CSS injections
 // TODO: Remove this at end of 2024
 
-const STYLE_ID = 'scalar-style-api-reference'
-const STYLE_LOADED_VAR = '--scalar-loaded-api-reference'
+const VARS_DICT = {
+  client: {
+    STYLE_ID: 'scalar-style-api-client',
+    STYLE_LOADED_VAR: '--scalar-loaded-api-client',
+  },
+  references: {
+    STYLE_ID: 'scalar-style-api-reference',
+    STYLE_LOADED_VAR: '--scalar-loaded-api-reference',
+  },
+}
 
-export const autoCSSInject: Plugin =
+export const autoCSSInject = (app: keyof typeof VARS_DICT): Plugin =>
   /**
    * Automatic css injection via js
    * We need the setTimeout so we can do a quick check to see if the css file has already been loaded
@@ -117,7 +125,7 @@ export const autoCSSInject: Plugin =
    *
    * copied from client/vite.config
    */
-  {
+  ({
     name: 'autoload-css',
     generateBundle(_, bundle) {
       if (!('source' in bundle['style.css'])) return
@@ -129,18 +137,19 @@ export const autoCSSInject: Plugin =
       const IIFEcss = `
         (function() {
           try {
-            if (typeof document === 'undefined' || document.getElementById('${STYLE_ID}'))
+            if (typeof document === 'undefined' || document.getElementById('${VARS_DICT[app].STYLE_ID}'))
               return
 
             setTimeout(() => {
-              if (getComputedStyle(document.body).getPropertyValue('${STYLE_LOADED_VAR}') === 'true') return 
+              if (getComputedStyle(document.body).getPropertyValue('${VARS_DICT[app].STYLE_LOADED_VAR}') === 'true') 
+                return 
 
               const elementStyle = document.createElement('style')
-              elementStyle.setAttribute('id', '${STYLE_ID}')
+              elementStyle.setAttribute('id', '${VARS_DICT[app].STYLE_ID}')
               elementStyle.appendChild(document.createTextNode(${JSON.stringify(css)}))
               document.head.appendChild(elementStyle)
 
-              console.warn('Auto-loading the css through js has been deprecated. Please import the css directly. Visit https://github.com/scalar/scalar for more info.')
+              console.warn('Auto-loading the ${app} css through js has been deprecated. Please import the css directly. Visit https://github.com/scalar/scalar for more info.')
             }, 0)
 
           } catch (error) {
@@ -152,4 +161,4 @@ export const autoCSSInject: Plugin =
         bundle['index.js'] || bundle['index.cjs'] || bundle['index.mjs']
       if ('code' in component) component.code += IIFEcss
     },
-  }
+  })

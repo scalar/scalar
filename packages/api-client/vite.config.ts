@@ -8,7 +8,7 @@ export default defineConfig({
     entry: ['src/index.ts'],
     options: {
       rollupOptions: {
-        plugins: [autoCSSInject],
+        plugins: [autoCSSInject('client')],
       },
     },
   }),
