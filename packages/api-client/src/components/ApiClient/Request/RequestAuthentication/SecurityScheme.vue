@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { useToasts } from '@scalar/use-toasts'
 import { computed } from 'vue'
 
@@ -18,7 +18,10 @@ import CardFormTextInput from './CardFormTextInput.vue'
 import SecuritySchemeScopes from './SecuritySchemeScopes.vue'
 
 defineProps<{
-  value?: OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject
+  value?:
+    | OpenAPIV2.SecuritySchemeObject
+    | OpenAPIV3.SecuritySchemeObject
+    | OpenAPIV3_1.SecuritySchemeObject
   proxy?: string
 }>()
 
@@ -243,10 +246,7 @@ const startAuthentication = (url: string) => {
     </CardFormTextInput>
 
     <!-- HTTP Basic Auth -->
-    <template
-      v-else-if="
-        value.type === 'http' || (value as unknown as any).type === 'basic'
-      ">
+    <template v-else-if="value.type === 'http' || value.type === 'basic'">
       <!-- @vue-ignore -->
       <CardFormGroup v-if="value.type === 'basic' || value.scheme === 'basic'">
         <CardFormTextInput
@@ -280,7 +280,11 @@ const startAuthentication = (url: string) => {
     <CardFormGroup
       v-else-if="
         value.type.toLowerCase() === 'oauth2' &&
-        (value as OpenAPIV3.OAuth2SecurityScheme).flows
+        (
+          value as
+            | OpenAPIV3.OAuth2SecurityScheme
+            | OpenAPIV3_1.OAuth2SecurityScheme
+        ).flows
       ">
       <!-- Implicit Flow -->
       <template v-if="(value as any).flows.implicit">
@@ -308,7 +312,14 @@ const startAuthentication = (url: string) => {
         </template>
       </template>
       <!-- Password Flow -->
-      <template v-if="(value as any).flows.password">
+      <template
+        v-if="
+          (
+            value as
+              | OpenAPIV3.OAuth2SecurityScheme
+              | OpenAPIV3_1.OAuth2SecurityScheme
+          ).flows.password
+        ">
         <CardFormRows>
           <CardFormGroup>
             <CardFormTextInput
@@ -340,14 +351,30 @@ const startAuthentication = (url: string) => {
               v-if="
                 value !== undefined &&
                 Object.entries(
-                  (value as any).flows.implicit?.scopes ??
-                    (value as any).flows.password!.scopes,
+                  (
+                    value as
+                      | OpenAPIV3.OAuth2SecurityScheme
+                      | OpenAPIV3_1.OAuth2SecurityScheme
+                  ).flows.implicit?.scopes ??
+                    (
+                      value as
+                        | OpenAPIV3.OAuth2SecurityScheme
+                        | OpenAPIV3_1.OAuth2SecurityScheme
+                    ).flows.password!.scopes,
                 ).length > 0
               "
               v-model:selected="oauth2SelectedScopes"
               :scopes="
-                (value as any).flows.implicit?.scopes ??
-                (value as any).flows.password!.scopes
+                (
+                  value as
+                    | OpenAPIV3.OAuth2SecurityScheme
+                    | OpenAPIV3_1.OAuth2SecurityScheme
+                ).flows.implicit?.scopes ??
+                (
+                  value as
+                    | OpenAPIV3.OAuth2SecurityScheme
+                    | OpenAPIV3_1.OAuth2SecurityScheme
+                ).flows.password!.scopes
               " />
             <button
               class="cardform-auth-button"
@@ -355,8 +382,11 @@ const startAuthentication = (url: string) => {
               @click="
                 () =>
                   authorizeWithPassword(
-                    (value as OpenAPIV3.OAuth2SecurityScheme).flows?.password
-                      ?.tokenUrl,
+                    (
+                      value as
+                        | OpenAPIV3.OAuth2SecurityScheme
+                        | OpenAPIV3_1.OAuth2SecurityScheme
+                    ).flows?.password?.tokenUrl,
                     {
                       baseUrl: getUrlFromServerState(server),
                       proxy,
@@ -400,8 +430,16 @@ const startAuthentication = (url: string) => {
                 () =>
                   startAuthentication(
                     getOpenAuth2AuthorizationUrl(
-                      //@ts-ignore
-                      value?.flows.implicit ?? value?.flows.password,
+                      (
+                        value as
+                          | OpenAPIV3.OAuth2SecurityScheme
+                          | OpenAPIV3_1.OAuth2SecurityScheme
+                      )?.flows?.implicit ??
+                        (
+                          value as
+                            | OpenAPIV3.OAuth2SecurityScheme
+                            | OpenAPIV3_1.OAuth2SecurityScheme
+                        )?.flows?.password,
                     ),
                   )
               ">
