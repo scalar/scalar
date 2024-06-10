@@ -33,6 +33,6 @@ const changeTab = (index: number) => {
   overflow: auto;
 }
 .scalar-card-header-tabs {
-  padding: 0;
+  padding: 0 !important;
 }
 </style>
