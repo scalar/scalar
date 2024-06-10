@@ -6,7 +6,7 @@ import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import { themeClasses } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
-import { serverSchema } from '@scalar/oas-utils/entities/workspace/server'
+import { createServer } from '@scalar/oas-utils/entities/workspace/server'
 import { useRouter } from 'vue-router'
 
 import ServerForm from './ServerForm.vue'
@@ -17,7 +17,7 @@ const { push } = useRouter()
 const addServerHandler = () => {
   if (!activeCollection.value) return
 
-  const newServer = serverSchema.parse({ url: 'http://localhost' })
+  const newServer = createServer({ url: 'http://localhost' })
   serverMutators.add(newServer, activeCollection.value.uid)
 
   push(`/servers/${newServer.uid}`)
