@@ -10,9 +10,10 @@ import {
 } from '@headlessui/vue'
 import {
   ScalarButton,
+  ScalarDropdown,
+  ScalarDropdownDivider,
+  ScalarDropdownItem,
   ScalarIcon,
-  ScalarListbox,
-  type ScalarListboxOption,
 } from '@scalar/components'
 import type { Server } from '@scalar/oas-utils/entities/workspace/server'
 import {
@@ -120,20 +121,26 @@ function getUrlPart(request: XMLHttpRequest, part: keyof URL) {
 
 const serverOptions = computed(() =>
   activeCollection.value?.spec.servers?.map((server) => ({
-    id: server.uid,
+    uid: server.uid,
     label: server.url,
+    url: server.url,
   })),
 )
 
 /** Update the currently selected server on the collection */
-const updateSelectedServer = (server: ScalarListboxOption) => {
+const updateSelectedServer = (server: Server) => {
   if (!activeCollection.value) return
 
   collectionMutators.edit(
     activeCollection.value.uid,
     'selectedServerUid',
-    server.id,
+    server.uid,
   )
+}
+
+/** Set server checkbox in the dropdown */
+const isSelectedServer = (serverId: string) => {
+  return activeCollection.value?.selectedServerUid === serverId
 }
 
 /**
@@ -178,22 +185,59 @@ const updateSelectedServer = (server: ScalarListboxOption) => {
               isSquare
               :method="activeRequest.method"
               @change="updateRequestMethod" />
-            <ScalarListbox
+            <ScalarDropdown
               v-if="serverOptions"
+              class="font-code text-sm whitespace-nowrap"
               :options="serverOptions"
-              :value="activeCollection?.selectedServerUid"
-              @update:modelValue="updateSelectedServer">
+              :value="activeCollection?.selectedServerUid">
               <ScalarButton
-                class="font-code text-sm whitespace-nowrap"
                 size="sm"
-                variant="outlined">
+                variant="outlined"
+                @click.stop>
                 {{
                   activeCollection?.spec.servers?.find(
                     ({ uid }) => activeCollection?.selectedServerUid === uid,
                   )?.url
                 }}
               </ScalarButton>
-            </ScalarListbox>
+              <template #items>
+                <ScalarDropdownItem
+                  v-for="server in serverOptions"
+                  :key="server.uid"
+                  class="flex group font-code text-sm whitespace-nowrap text-ellipsis overflow-hidden"
+                  :value="server.uid"
+                  @click="updateSelectedServer(server)">
+                  <div
+                    class="flex size-4 items-center justify-center rounded-full p-[3px] group-hover:shadow-border"
+                    :class="
+                      isSelectedServer(server.uid)
+                        ? 'bg-blue text-b-1'
+                        : 'text-transparent'
+                    ">
+                    <ScalarIcon
+                      class="relative top-[0.5px] size-2.5 stroke-[1.75]"
+                      icon="Checkmark" />
+                  </div>
+                  <span
+                    class="whitespace-nowrap text-ellipsis overflow-hidden"
+                    >{{ server.label }}</span
+                  >
+                </ScalarDropdownItem>
+                <ScalarDropdownDivider />
+                <ScalarDropdownItem>
+                  <RouterLink
+                    class="flex items-center gap-3"
+                    to="/servers">
+                    <div class="flex items-center justify-center h-4 w-4">
+                      <ScalarIcon
+                        class="h-2.5"
+                        icon="Add" />
+                    </div>
+                    <span>Add Server</span>
+                  </RouterLink>
+                </ScalarDropdownItem>
+              </template>
+            </ScalarDropdown>
           </div>
           <div class="scroll-timeline-x relative flex w-full overflow-hidden">
             <div class="fade-left"></div>
