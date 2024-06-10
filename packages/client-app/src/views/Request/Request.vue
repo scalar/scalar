@@ -207,7 +207,7 @@ const getBackgroundColor = () => {
 </script>
 <template>
   <div
-    class="bg-mix-transparent bg-mix-amount-95 flex flex-1 flex-col rounded-lg rounded-b-none rounded-r-none pt-0"
+    class="bg-mix-transparent bg-mix-amount-95 flex flex-1 flex-col rounded-lg rounded-b-none rounded-r-none pt-0 h-full"
     :class="getBackgroundColor()"
     style="
       background: linear-gradient(
@@ -224,7 +224,7 @@ const getBackgroundColor = () => {
         class="text-c-2 flex w-80 flex-row items-center gap-1 px-4 lg:flex-1 items-end w-6/12"></div>
     </div>
     <div
-      class="m-1 mt-0 flex min-h-0 flex-1 rounded xl:rounded-lg xl:border xl:overflow-hidden">
+      class="m-1 mt-0 flex min-h-0 flex-1 rounded xl:rounded-lg xl:border xl:overflow-hidden leading-[19.5px]">
       <Sidebar>
         <template #title>Workspace Name</template>
         <template #content>

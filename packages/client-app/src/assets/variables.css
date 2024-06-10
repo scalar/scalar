@@ -158,7 +158,6 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
 
   font-family: var(--scalar-font);
   color: var(--scalar-color-1);

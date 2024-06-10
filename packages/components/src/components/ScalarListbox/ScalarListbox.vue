@@ -28,10 +28,10 @@ const variants = cva({
   base: [
     // Layout
     'group',
-    'text-lef flex min-w-0 items-center gap-2.5 rounded px-2.5 py-1.5',
+    'text-lef flex min-w-0 items-center gap-1.5 rounded px-2 py-1.5',
     'first-of-type:mt-0.75 last-of-type:mb-0.75',
     // Text / background style
-    'truncate bg-transparent text-xs text-c-1',
+    'truncate bg-transparent text-c-1',
     // Interaction
     'cursor-pointer hover:bg-b-2',
   ],
@@ -45,6 +45,7 @@ const variants = cva({
 <template>
   <Listbox
     as="div"
+    class="text-xs"
     :modelValue="modelValue"
     @update:modelValue="(v) => $emit('update:modelValue', v)">
     <ScalarFloating

@@ -44,14 +44,6 @@ onMounted(async () => {
   <ScalarToasts />
 </template>
 <style>
-#app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  background: var(--scalar-background-1);
-}
-
 /* Main app view wrapper */
 .t-app__view {
   flex: 1;
