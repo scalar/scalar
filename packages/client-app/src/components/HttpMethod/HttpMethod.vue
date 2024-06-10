@@ -35,7 +35,7 @@ const variants = cva({
   base: 'text-center font-code text-3xs justify-center items-center flex',
   variants: {
     isSquare: {
-      true: 'px-2.5 rounded bg-mix-transparent bg-mix-amount-90 dark:bg-mix-amount-80 hover:bg-mix-b-2',
+      true: 'px-2.5 rounded-md bg-mix-transparent bg-mix-amount-90 dark:bg-mix-amount-80 hover:bg-mix-b-2',
       false: 'rounded-full',
     },
     isEditable: {
