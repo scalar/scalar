@@ -171,7 +171,7 @@ const isSelectedServer = (serverId: string) => {
           </div>
           <div class="flex gap-1">
             <HttpMethod
-              class="font-bold font-code font-medium"
+              class="font-code text-xxs font-medium"
               isEditable
               isSquare
               :method="activeRequest.method"
