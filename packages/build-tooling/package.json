@@ -16,13 +16,14 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "rollup -c rollup.config.ts --configPlugin typescript && tsc -p tsconfig.build.json",
+    "build": "bash scripts/build-rollup.sh",
     "dev": "vite",
-    "format": "pnpm prettier --write --ignore-path=../../.prettierignore .",
+    "format": "bash scripts/format.sh",
     "lint:check": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "dotenv -o -- vite preview",
-    "types:check": "tsc --noEmit"
+    "types:build": "bash scripts/types-build.sh",
+    "types:check": "bash scripts/types-check.sh"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -32,20 +33,33 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "nx": {
-    "tags": [
-      "scope:package"
-    ]
+  "bin": {
+    "scalar-format-js": "scripts/format.sh",
+    "scalar-build-rollup": "scripts/build-rollup.sh",
+    "scalar-build-vite": "scripts/build-vite.sh",
+    "scalar-types-check": "scripts/types-check.sh",
+    "scalar-types-build": "scripts/types-build.sh",
+    "scalar-types-check-vue": "scripts/types-check-vue.sh",
+    "scalar-types-build-vue": "scripts/types-build-vue.sh"
   },
   "dependencies": {
+    "@rollup/plugin-alias": "^5.1.0",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-swc": "^0.3.1",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@rollup/plugin-yaml": "^4.1.2",
     "@types/node": "^20.8.4",
     "glob": "^10.3.10",
     "rollup": "^4.16.4",
+    "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-import-css": "^3.5.0",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.3",
     "vite": "^5.2.10",
     "vitest": "^1.6.0"
+  },
+  "devDependencies": {
+    "tsc-alias": "^1.8.8"
   }
 }

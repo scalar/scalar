@@ -1,10 +1,12 @@
-import type { RollupOptions } from 'rollup'
+import { addPackageFileExports, createRollupConfig } from './src'
 
-import { createRollupConfig } from './src/build-options'
+const entries = ['./src/index.ts']
 
-const options: RollupOptions = {
-  input: './src/index.ts',
-  ...createRollupConfig({ typescript: true }),
-}
+export default createRollupConfig({
+  options: {
+    input: entries,
+  },
+  typescript: true,
+})
 
-export default options
+await addPackageFileExports({ entries })

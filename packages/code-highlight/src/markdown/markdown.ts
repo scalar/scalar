@@ -1,3 +1,4 @@
+import { rehypeHighlight } from '@/rehype-highlight'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
 import rehypeRaw from 'rehype-raw'
@@ -7,8 +8,6 @@ import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
-
-import { rehypeHighlight } from './rehype-highlight'
 
 /** Take a markdown string and generate a raw HTML string */
 export async function htmlFromMarkdown(

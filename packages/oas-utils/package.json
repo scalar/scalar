@@ -21,15 +21,15 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "build": "scalar-build-rollup",
     "dev": "vite",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
     "test": "vitest",
     "test:unit": "vitest .",
-    "types:build": "tsc -p tsconfig.build.json",
-    "types:check": "tsc --noEmit --skipLibCheck --composite false"
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -85,14 +85,6 @@
     "./entities/workspace/collection": {
       "import": "./dist/entities/workspace/collection/index.js",
       "types": "./dist/entities/workspace/collection/index.d.ts"
-    },
-    "./css/*.css": {
-      "import": "./dist/css/*.css",
-      "require": "./dist/css/*.css"
-    },
-    "./*.css": {
-      "import": "./dist/*.css",
-      "require": "./dist/*.css"
     }
   },
   "files": [
@@ -111,6 +103,7 @@
     "axios": "^1.6.8",
     "httpsnippet-lite": "^3.0.5",
     "openapi-types": "^12.1.3",
+    "rollup": "^4.16.4",
     "tsc-alias": "^1.8.8",
     "vite": "^5.2.10",
     "vitest": "^1.6.0"

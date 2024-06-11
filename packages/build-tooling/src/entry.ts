@@ -24,20 +24,45 @@ const cssExports = {
 export async function findEntryPoints({
   allowCss,
 }: { allowCss?: boolean } = {}) {
-  const entries: Record<string, string> = {}
+  const entries: string[] = []
+  glob.sync('./src/**/index.ts').forEach((e) => entries.push(e))
 
+  await addPackageFileExports({ allowCss, entries })
+  return entries
+}
+
+/**
+ * For a series of imports we add package.json exports to enable nested typescript definitions
+ * and path nested imports
+ *
+ * ex. import { foo } from '@scalar/some-package/foo-domain'
+ */
+export async function addPackageFileExports({
+  allowCss,
+  entries,
+}: {
+  allowCss?: boolean
+  entries: string | string[]
+}) {
   /** package.json type exports need to be updated */
   const packageExports: Record<string, { import: string; types: string }> = {}
 
-  glob.sync('./src/**/index.ts').forEach((entry) => {
-    // Remove the leading './src' and the trailing './ts'to create the entrypoint name
-    const name = entry.slice(4, -3)
-    entries[name] = entry
+  const paths = Array.isArray(entries) ? entries : [entries]
 
-    const exportName = `./${name.slice(0, -6)}`
-    packageExports[exportName === './' ? '.' : exportName] = {
-      import: `./dist/${name}.js`,
-      types: `./dist/${name}.d.ts`,
+  paths.forEach((entry) => {
+    // Get the nested path that will be transpiled to dist with preserved modules
+    const segments = entry.split('/').filter((s) => !['.', 'src'].includes(s))
+
+    /** Nested folder the entry files lives in for a path scoped export */
+    const namespace = segments.slice(0, -1)
+    /** Filename without the extension */
+    const filename = segments.at(-1)?.split('.')[0] ?? ''
+    /** Output filepath relative to ./dist and not ./src */
+    const filepath = [...namespace, filename].join('/')
+
+    packageExports[namespace.length ? `./${namespace.join('/')}` : '.'] = {
+      import: `./dist/${filepath}.js`,
+      types: `./dist/${filepath}.d.ts`,
     }
   })
 
@@ -48,10 +73,9 @@ export async function findEntryPoints({
     ...(allowCss ? cssExports : {}),
   }
 
+  console.log('\x1b[32m%s\x1b[0m', '...Updating package.json exports field') //cyan
   await fs.writeFile(
     './package.json',
     JSON.stringify(packageFile, null, 2) + '\n',
   )
-
-  return entries
 }

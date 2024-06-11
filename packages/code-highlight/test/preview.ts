@@ -9,7 +9,7 @@ import { syntaxHighlight } from '../src/code'
 import codeExampleLarge from '../src/constants.ts?raw'
 import '../src/css/code.css'
 import '../src/css/markdown.css'
-import { htmlFromMarkdown } from '../src/markdown'
+import { htmlFromMarkdown } from '../src/markdown/markdown'
 // @ts-expect-error vite not looking for raw types
 import markdownFile from './markdown-test.md?raw'
 
