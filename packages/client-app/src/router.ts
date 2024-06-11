@@ -11,11 +11,6 @@ export enum PathId {
   Server = 'server',
 }
 
-export enum ClientPathId {
-  Request = 'request',
-  Example = 'example',
-}
-
 /** Routes required by the client modal */
 export const clientRoutes = [
   { path: '/', redirect: '/request/default' },
@@ -110,10 +105,15 @@ export const activeRouterParams = computed(() => {
     [PathId.Server]: 'default',
   }
 
-  if (router.currentRoute.value) {
+  // Snag current route from active router
+  const currentRoute = clientRouter.currentRoute.value.matched.length
+    ? clientRouter.currentRoute.value
+    : router.currentRoute.value
+
+  if (currentRoute) {
     Object.values(PathId).forEach((k) => {
-      if (router.currentRoute.value.params[k]) {
-        pathParams[k] = router.currentRoute.value.params[k] as string
+      if (currentRoute.params[k]) {
+        pathParams[k] = currentRoute.params[k] as string
       }
     })
   }

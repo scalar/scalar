@@ -58,7 +58,8 @@
   "dependencies": {
     "@scalar/client-app": "workspace:*",
     "@scalar/components": "workspace:*",
-    "@scalar/oas-utils": "workspace:*"
+    "@scalar/oas-utils": "workspace:*",
+    "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

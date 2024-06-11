@@ -119,7 +119,6 @@ const activeRequest = computed(() => {
 
   // Ensure the sidebar folders are open
   if (request) {
-    console.log(request)
     findRequestFolders(request.uid).forEach((uid) =>
       setCollapsedSidebarFolder(uid, true),
     )

@@ -1,4 +1,4 @@
-import { createScalarClient } from '@/esm'
+import { createScalarClient } from '@/api-client-modal'
 import content from '@scalar/galaxy/latest.json?raw'
 
 const el = document.getElementById('root')

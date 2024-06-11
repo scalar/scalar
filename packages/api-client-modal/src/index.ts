@@ -1,1 +1,1 @@
-export * from './esm'
+export * from './api-client-modal'

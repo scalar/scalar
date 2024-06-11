@@ -736,6 +736,9 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
+      vue-router:
+        specifier: ^4.3.0
+        version: 4.3.2(vue@3.4.27(typescript@5.4.3))
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*

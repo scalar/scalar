@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { ClientConfiguration } from '#@/types'
-import { ScalarClientRequest } from '@scalar/client-app'
 import '@scalar/client-app/style.css'
 import { ScalarModal, type useModal } from '@scalar/components'
 import '@scalar/components/style.css'
+import { RouterView } from 'vue-router'
 
 defineProps<{
   /** Controls opening and closing the modal */
@@ -18,6 +18,6 @@ defineProps<{
     bodyClass="row flex-1"
     size="full"
     :state="modalState">
-    <ScalarClientRequest />
+    <RouterView key="$route.fullPath" />
   </ScalarModal>
 </template>
