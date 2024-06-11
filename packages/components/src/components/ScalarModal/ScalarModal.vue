@@ -80,6 +80,7 @@ export const useModal = () =>
           'scalar-modal-layout fixed left-0 top-0',
           'z-[1001] h-[100dvh] w-[100dvw]',
           'bg-backdrop p-5 opacity-0',
+          size === 'full' && 'flex',
         )
       ">
       <DialogPanel
