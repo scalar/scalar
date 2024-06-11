@@ -91,7 +91,11 @@ export const useModal = () =>
           :class="{ 'pb-0 pt-6': variant === 'history' }">
           {{ title }}
         </DialogTitle>
-        <slot v-if="size === 'full'" />
+        <div
+          v-if="size === 'full'"
+          :class="bodyClass">
+          <slot />
+        </div>
         <DialogDescription
           v-else
           :class="cx(bodyClass, body({ variant }))">

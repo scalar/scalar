@@ -15,6 +15,7 @@ defineProps<{
 
 <template>
   <ScalarModal
+    bodyClass="row flex-1"
     size="full"
     :state="modalState">
     <ScalarClientRequest />

@@ -1,5 +1,5 @@
 import { ApiClientModal } from '@/components'
-import { useWorkspace } from '@scalar/client-app'
+import { clientRouter, useWorkspace } from '@scalar/client-app'
 import { useModal } from '@scalar/components'
 import type { SpecConfiguration } from '@scalar/oas-utils'
 import { fetchSpecFromUrl, objectMerge } from '@scalar/oas-utils/helpers'
@@ -8,7 +8,7 @@ import { createApp, reactive } from 'vue'
 import type { ClientConfiguration } from './types'
 
 /** Initialize Scalar API Client Modal */
-export const createScalarReferences = async (
+export const createScalarClient = async (
   /** Element to mount the references to */
   el: HTMLElement | null,
   /** Configuration object for Scalar References */
@@ -35,6 +35,7 @@ export const createScalarReferences = async (
   }
 
   const app = createApp(ApiClientModal, { config, modalState })
+  app.use(clientRouter)
 
   const mount = (mountingEl = el) => {
     if (!mountingEl) {
@@ -47,6 +48,8 @@ export const createScalarReferences = async (
   }
 
   if (mountOnInitialize) mount()
+
+  modalState.open = true
 
   return {
     /** Update the API client config */
@@ -62,7 +65,7 @@ export const createScalarReferences = async (
       config.spec = spec
     },
     /** Opens the API client modal */
-    open,
+    open: modalState.show,
     /** Mount the references to a given element */
     mount,
   }
