@@ -726,13 +726,23 @@ importers:
         version: 2.0.19(typescript@5.4.3)
 
   packages/api-client-modal:
-    devDependencies:
+    dependencies:
       '@scalar/client-app':
         specifier: workspace:*
         version: link:../client-app
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
+      '@scalar/oas-utils':
+        specifier: workspace:*
+        version: link:../oas-utils
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@scalar/galaxy':
+        specifier: workspace:*
+        version: link:../galaxy
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vue@3.4.27(typescript@5.4.3))
@@ -742,12 +752,6 @@ importers:
       vite:
         specifier: ^5.2.10
         version: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
-      vite-plugin-dts:
-        specifier: ^3.6.3
-        version: 3.7.3(@types/node@20.11.26)(rollup@4.16.4)(typescript@5.4.3)(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))
-      vite-svg-loader:
-        specifier: ^5.1.0
-        version: 5.1.0(vue@3.4.27(typescript@5.4.3))
       vue:
         specifier: ^3.4.22
         version: 3.4.27(typescript@5.4.3)

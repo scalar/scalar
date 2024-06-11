@@ -2,6 +2,7 @@ import type { Server } from '@scalar/api-client'
 import type {
   AuthenticationState,
   ContentType,
+  SpecConfiguration,
   TransformedOperation,
 } from '@scalar/oas-utils'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
@@ -150,13 +151,6 @@ export type ReferenceConfiguration = {
 
 export type PathRouting = {
   basePath: string
-}
-
-export type SpecConfiguration = {
-  /** URL to a Swagger/OpenAPI file */
-  url?: string
-  /** Swagger/Open API spec */
-  content?: string | Record<string, any> | (() => Record<string, any>)
 }
 
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'

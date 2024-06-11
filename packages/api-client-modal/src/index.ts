@@ -1,3 +1,1 @@
-import ApiClientModal from './ApiClientModal.vue'
-
-export { ApiClientModal }
+export * from './esm'

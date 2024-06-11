@@ -4,8 +4,6 @@ import { URL, fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import svgLoader from 'vite-svg-loader'
 
-import pkg from './package.json'
-
 export default defineConfig({
   plugins: [vue(), svgLoader()],
   resolve: {
@@ -20,7 +18,7 @@ export default defineConfig({
   build: createViteBuildOptions({
     entry: await findEntryPoints({ allowCss: true }),
     options: {
-      ssr: true,
+      ssr: false,
     },
   }),
 })

@@ -1,7 +1,7 @@
+import { objectMerge } from '@scalar/oas-utils/helpers'
 import { type TargetId, availableTargets as allTargets } from 'httpsnippet-lite'
 import { type Ref, computed, reactive, readonly, ref } from 'vue'
 
-import { objectMerge } from '../helpers'
 import type { AvailableTarget, HiddenClients } from '../types'
 
 // Gets the client title from the availableTargets

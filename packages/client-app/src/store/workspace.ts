@@ -1,5 +1,6 @@
 import { useSidebar } from '@/hooks'
 import { PathId, activeRouterParams, fallbackMissingParams } from '@/router'
+import type { AnyObject } from '@scalar/oas-utils'
 import {
   type Workspace,
   createWorkspace,
@@ -434,7 +435,7 @@ const deleteServer = (serverUid: string, collectionUid: string) => {
 // ---------------------------------------------------------------------------
 
 /** Helper function to import a OpenAPI spec file into the local workspace */
-async function importSpecFile(spec: string) {
+async function importSpecFile(spec: string | AnyObject) {
   const workspaceEntities = await importSpecToWorkspace(spec)
 
   // Add all the new requests into the request collection, the already have parent folders

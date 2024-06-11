@@ -17,8 +17,6 @@ import { type DeepReadonly, computed } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
 
-defineEmits<{ (event: 'openModal', tab: string): void }>()
-
 const { activeExample, activeRequest, activeServer, collections, workspace } =
   useWorkspace()
 const { collapsedSidebarFolders } = useSidebar()

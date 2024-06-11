@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createMemoryHistory, createRouter, createWebHistory } from 'vue-router'
 
 export enum PathId {
   Request = 'request',
@@ -11,8 +11,30 @@ export enum PathId {
   Server = 'server',
 }
 
-const routes = [
+export enum ClientPathId {
+  Request = 'request',
+  Example = 'example',
+}
+
+/** Routes required by the client modal */
+export const clientRoutes = [
   { path: '/', redirect: '/request/default' },
+  {
+    path: '/request',
+    redirect: '/request/default',
+  },
+  {
+    path: `/request/:${PathId.Request}`,
+    component: () => import('@/views/Request/Request.vue'),
+  },
+  {
+    path: `/request/:${PathId.Request}/example/:${PathId.Example}`,
+    component: () => import('@/views/Request/Request.vue'),
+  },
+]
+
+const routes = [
+  ...clientRoutes,
   {
     path: '/collection',
     redirect: '/collection/default',
@@ -28,18 +50,6 @@ const routes = [
         component: () => import('@/views/Request/Request.vue'),
       },
     ],
-  },
-  {
-    path: '/request',
-    redirect: '/request/default',
-  },
-  {
-    path: `/request/:${PathId.Request}`,
-    component: () => import('@/views/Request/Request.vue'),
-  },
-  {
-    path: `/request/:${PathId.Request}/example/:${PathId.Example}`,
-    component: () => import('@/views/Request/Request.vue'),
   },
   /** Components will map to each section of the spec components object */
   {
@@ -81,6 +91,12 @@ const routes = [
 export const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+/** Creates the in memory client router */
+export const clientRouter = createRouter({
+  history: createMemoryHistory(),
+  routes: clientRoutes,
 })
 
 export const activeRouterParams = computed(() => {
