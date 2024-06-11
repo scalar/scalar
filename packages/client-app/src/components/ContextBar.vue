@@ -17,7 +17,7 @@ defineEmits<{
       class="hover:text-c-1 hover:bg-b-3 w-full rounded px-1 py-1 text-center font-medium"
       :class="[
         activeSection === section
-          ? 'bg-b-1 text-c-1 dark:bg-b-3 border'
+          ? 'bg-b-1 text-c-1 dark:bg-b-3 border hover:bg-b-1'
           : 'border border-transparent',
       ]"
       :isActive="activeSection === section"

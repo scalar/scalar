@@ -218,10 +218,34 @@ const getBackgroundColor = () => {
     <div
       class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container">
       <div
-        class="text-c-2 flex w-80 flex-row items-center gap-1 px-4 lg:flex-1 items-end w-6/12"></div>
+        class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 w-6/12">
+        <button
+          class="request-text-color bg-mix-transparent hover:bg-mix-amount-95 p-2 rounded bg-mix-amount-100"
+          :class="getBackgroundColor()"
+          type="button">
+          <ScalarIcon
+            icon="SideBarClosed"
+            size="sm" />
+        </button>
+      </div>
       <AddressBar />
       <div
-        class="text-c-2 flex w-80 flex-row items-center gap-1 px-4 lg:flex-1 items-end w-6/12"></div>
+        class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 justify-end w-6/12">
+        <button
+          class="request-text-color-text bg-mix-transparent hover:bg-mix-amount-95 px-2 py-1.5 rounded bg-mix-amount-90 font-medium text-sm"
+          :class="getBackgroundColor()"
+          type="button">
+          Test Acctual Locally
+        </button>
+        <button
+          class="request-text-color bg-mix-transparent hover:bg-mix-amount-95 p-2 rounded bg-mix-amount-100"
+          :class="getBackgroundColor()"
+          type="button">
+          <ScalarIcon
+            icon="Close"
+            size="xs" />
+        </button>
+      </div>
     </div>
     <div
       class="m-1 mt-0 flex min-h-0 flex-1 rounded xl:rounded-lg xl:border xl:overflow-hidden leading-[19.5px]">
@@ -300,3 +324,15 @@ const getBackgroundColor = () => {
     </div>
   </div>
 </template>
+<style scoped>
+.request-text-color {
+  color: color-mix(in srgb, var(--tw-bg-base) 15%, var(--scalar-color-3));
+}
+.request-text-color-text {
+  color: color-mix(in srgb, var(--tw-bg-base) 25%, var(--scalar-color-1));
+}
+.request-text-color-text:active,
+.request-text-color:active {
+  color: var(--scalar-color-1);
+}
+</style>
