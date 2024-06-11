@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Sidebar } from '@/components'
 import ActionModal from '@/components/ActionModal/ActionModal.vue'
+import AddressBar from '@/components/AddressBar/AddressBar.vue'
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
@@ -13,6 +14,7 @@ import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue
 import { ScalarIcon } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
+import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
 import { type DeepReadonly, computed } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
@@ -194,75 +196,100 @@ const onDragEnd = (
 const addItemHandler = () => {
   modalState.show()
 }
+
+const getBackgroundColor = () => {
+  if (!activeRequest.value) return ''
+  const { method } = activeRequest.value
+  return REQUEST_METHODS[method as RequestMethod].backgroundColor
+}
 </script>
 <template>
-  <Sidebar>
-    <template #title>Workspace Name</template>
-    <template #content>
-      <div class="bg-b-1 sticky top-0 z-50 px-3 py-2.5 pb-0">
-        <button
-          class="h-8 shadow-inset text-c-2 flex w-full items-center rounded p-1.5"
-          type="button">
-          <ScalarIcon
-            icon="Search"
-            size="xs" />
-          <div
-            class="sidebar-search-input ml-1.5 flex w-full items-center justify-between text-sm font-medium">
-            <span class="sidebar-search-placeholder">Search</span>
-            <ScalarHotkey hotkey="k" />
-          </div>
-        </button>
-      </div>
-      <div
-        class="custom-scroll flex flex-1 flex-col overflow-visible px-3 pb-12 pt-2.5"
-        @dragenter.prevent
-        @dragover.prevent>
-        <!-- Collections -->
-        <RequestSidebarItem
-          v-for="(collection, collectionIndex) in workspaceCollections"
-          :key="collection.uid"
-          :isDraggable="FOLDER_MODE"
-          :isDroppable="FOLDER_MODE"
-          :item="collection"
-          :parentUids="[]"
-          @onDragEnd="
-            (...args) => onDragEnd(collection, collectionIndex, ...args)
-          ">
-          <template #leftIcon>
-            <ScalarIcon
-              class="text-sidebar-c-2 stroke-[1] text-sm group-hover:hidden"
-              icon="CodeFolder"
-              size="sm" />
-            <div
-              :class="{
-                'rotate-90': collapsedSidebarFolders[collection.uid],
-              }">
-              <ScalarIcon
-                class="text-c-3 hidden text-sm group-hover:block"
-                icon="ChevronRight"
-                size="sm" />
-            </div>
-          </template>
-        </RequestSidebarItem>
-      </div>
-    </template>
-    <template #button>
-      <SidebarButton :click="addItemHandler">
-        <template #title>Add Item</template>
-      </SidebarButton>
-    </template>
-  </Sidebar>
+  <div
+    class="bg-mix-transparent bg-mix-amount-95 flex flex-col rounded-lg rounded-b-none rounded-r-none pt-0 h-full"
+    :class="getBackgroundColor()"
+    style="
+      background: linear-gradient(
+        color-mix(in srgb, var(--tw-bg-base) 6%, transparent) 1%,
+        var(--scalar-background-2) 9%
+      );
+    ">
+    <div
+      class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container">
+      <AddressBar />
+    </div>
 
-  <!-- TODO possible loading state -->
-  <ViewLayout
-    v-if="activeExample"
-    :class="[themeClasses.view]">
-    <RequestSection />
-    <ResponseSection
-      :response="
-        activeRequest?.history?.[activeRequest?.history?.length - 1]?.response
-      " />
-  </ViewLayout>
+    <div
+      class="m-1 mt-0 flex min-h-0 flex-1 rounded xl:rounded-lg xl:border xl:overflow-hidden leading-[19.5px]">
+      <Sidebar>
+        <template #title>Workspace Name</template>
+        <template #content>
+          <div class="bg-b-1 sticky top-0 z-50 px-3 py-2.5 pb-0">
+            <button
+              class="h-8 shadow-inset text-c-2 flex w-full items-center rounded p-1.5"
+              type="button">
+              <ScalarIcon
+                icon="Search"
+                size="xs" />
+              <div
+                class="sidebar-search-input ml-1.5 flex w-full items-center justify-between text-sm font-medium">
+                <span class="sidebar-search-placeholder">Search</span>
+                <ScalarHotkey hotkey="k" />
+              </div>
+            </button>
+          </div>
+          <div
+            class="custom-scroll flex flex-1 flex-col overflow-visible px-3 pb-12 pt-2.5"
+            @dragenter.prevent
+            @dragover.prevent>
+            <!-- Collections -->
+            <RequestSidebarItem
+              v-for="(collection, collectionIndex) in workspaceCollections"
+              :key="collection.uid"
+              :isDraggable="FOLDER_MODE"
+              :isDroppable="FOLDER_MODE"
+              :item="collection"
+              :parentUids="[]"
+              @onDragEnd="
+                (...args) => onDragEnd(collection, collectionIndex, ...args)
+              ">
+              <template #leftIcon>
+                <ScalarIcon
+                  class="text-sidebar-c-2 stroke-[1] text-sm group-hover:hidden"
+                  icon="CodeFolder"
+                  size="sm" />
+                <div
+                  :class="{
+                    'rotate-90': collapsedSidebarFolders[collection.uid],
+                  }">
+                  <ScalarIcon
+                    class="text-c-3 hidden text-sm group-hover:block"
+                    icon="ChevronRight"
+                    size="sm" />
+                </div>
+              </template>
+            </RequestSidebarItem>
+          </div>
+        </template>
+        <template #button>
+          <SidebarButton :click="addItemHandler">
+            <template #title>Add Item</template>
+          </SidebarButton>
+        </template>
+      </Sidebar>
+
+      <!-- TODO possible loading state -->
+      <ViewLayout
+        v-if="activeExample"
+        :class="[themeClasses.view]">
+        <RequestSection />
+        <ResponseSection
+          :response="
+            activeRequest?.history?.[activeRequest?.history?.length - 1]
+              ?.response
+          " />
+      </ViewLayout>
+    </div>
+  </div>
   <ActionModal
     :state="modalState"
     @update:tab="handleTabChange" />
