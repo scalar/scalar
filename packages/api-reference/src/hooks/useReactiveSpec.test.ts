@@ -1,8 +1,8 @@
-import { prettyPrintJson } from '@scalar/oas-utils'
+import type { SpecConfiguration } from '@scalar/oas-utils'
+import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { describe, expect, test, vi } from 'vitest'
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import type { SpecConfiguration } from '../types'
 import { useReactiveSpec } from './useReactiveSpec'
 
 const basicSpec = {

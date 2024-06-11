@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type HttpStatusCode, httpStatusCodes } from '@scalar/oas-utils'
+import { type HttpStatusCode, httpStatusCodes } from '@scalar/oas-utils/helpers'
 import prettyBytes from 'pretty-bytes'
 import prettyMilliseconds from 'pretty-ms'
 import { computed } from 'vue'

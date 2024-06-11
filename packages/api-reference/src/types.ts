@@ -2,17 +2,34 @@ import type { Server } from '@scalar/api-client'
 import type {
   AuthenticationState,
   ContentType,
+  SpecConfiguration,
   TransformedOperation,
 } from '@scalar/oas-utils'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { ThemeId } from '@scalar/themes'
 import type { UseSeoMetaInput } from '@unhead/schema'
-import type { HarRequest } from 'httpsnippet-lite'
-import type {
-  ClientInfo,
-  TargetInfo,
-} from 'httpsnippet-lite/dist/types/targets/targets'
+import type { HarRequest, TargetId } from 'httpsnippet-lite'
 import type { Slot } from 'vue'
+
+// ---------------------------------------------------------------------------
+// Types copied from package as they are not exported
+type ClientInfo = {
+  key: string
+  title: string
+  link: string
+  description: string
+}
+export type TargetInfo = {
+  key: TargetId
+  title: string
+  extname: `.${string}` | null
+  default: string
+}
+
+export type AvailableTarget = TargetInfo & {
+  clients: ClientInfo[]
+}
+// ---------------------------------------------------------------------------
 
 export type ReferenceProps = {
   configuration?: ReferenceConfiguration
@@ -134,13 +151,6 @@ export type ReferenceConfiguration = {
 
 export type PathRouting = {
   basePath: string
-}
-
-export type SpecConfiguration = {
-  /** URL to a Swagger/OpenAPI file */
-  url?: string
-  /** Swagger/Open API spec */
-  content?: string | Record<string, any> | (() => Record<string, any>)
 }
 
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'

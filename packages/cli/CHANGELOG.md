@@ -1,5 +1,42 @@
 # @scalar/cli
 
+## 0.2.103
+
+### Patch Changes
+
+- @scalar/api-reference@1.23.5
+
+## 0.2.102
+
+### Patch Changes
+
+- @scalar/api-reference@1.23.4
+
+## 0.2.101
+
+### Patch Changes
+
+- Updated dependencies [c951512]
+  - @scalar/api-reference@1.23.3
+  - @scalar/oas-utils@0.1.17
+  - @scalar/mock-server@0.1.72
+
+## 0.2.100
+
+### Patch Changes
+
+- 746cb6f: feat: add --once to serve and mock to exit right-away
+- Updated dependencies [3619881]
+  - @scalar/api-reference@1.23.2
+  - @scalar/mock-server@0.1.71
+
+## 0.2.99
+
+### Patch Changes
+
+- Updated dependencies [7d21723]
+  - @scalar/api-reference@1.23.1
+
 ## 0.2.98
 
 ### Patch Changes

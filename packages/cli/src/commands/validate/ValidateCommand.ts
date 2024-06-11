@@ -1,7 +1,6 @@
 import { openapi } from '@scalar/openapi-parser'
 import { Command } from 'commander'
 import kleur from 'kleur'
-import fs from 'node:fs'
 import prettyjson from 'prettyjson'
 
 import { useGivenFileOrConfiguration } from '../../utils'

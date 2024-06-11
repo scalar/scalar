@@ -149,8 +149,8 @@ onMounted(() => {
     }">
     <!-- Tags -->
     <template
-      v-for="tag in tags"
-      :key="tag.id">
+      v-for="(tag, idx) in tags"
+      :key="tag.name + idx">
       <Tag
         v-if="tag.operations && tag.operations.length > 0"
         :spec="parsedSpec"

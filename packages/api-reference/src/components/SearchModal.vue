@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import {
   type Icon,
+  type ModalState,
+  ScalarModal,
   ScalarSearchInput,
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
-import { FlowModal, type ModalState } from '@scalar/use-modal'
 import { useMagicKeys, whenever } from '@vueuse/core'
-import Fuse from 'fuse.js'
+import Fuse, { type FuseResult } from 'fuse.js'
 import { computed, ref, toRef, watch } from 'vue'
 
 import { getHeadingsFromMarkdown, getModels } from '../helpers'
@@ -50,7 +51,7 @@ type FuseData = {
 }
 
 const fuseDataArray = ref<FuseData[]>([])
-const searchResults = ref<Fuse.FuseResult<FuseData>[]>([])
+const searchResults = ref<FuseResult<FuseData>[]>([])
 const selectedSearchResult = ref<number>(0)
 const searchText = ref<string>('')
 const searchModalRef = ref<HTMLElement | null>(null)
@@ -64,7 +65,7 @@ const fuseSearch = (): void => {
   searchResults.value = fuse.search(searchText.value)
 }
 
-const selectedEntry = computed<Fuse.FuseResult<FuseData>>(
+const selectedEntry = computed<FuseResult<FuseData>>(
   () => searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
 )
 
@@ -269,12 +270,12 @@ whenever(keys.ArrowUp, () => {
 })
 
 const searchResultsWithPlaceholderResults = computed(
-  (): Fuse.FuseResult<FuseData>[] => {
+  (): FuseResult<FuseData>[] => {
     if (searchText.value.length === 0) {
       return fuseDataArray.value.map((item) => {
         return {
           item: item,
-        } as Fuse.FuseResult<FuseData>
+        } as FuseResult<FuseData>
       })
     }
 
@@ -285,7 +286,7 @@ const searchResultsWithPlaceholderResults = computed(
 const tagRegex = /#(tag\/[^/]*)/
 
 // Ensure we open the section
-const onSearchResultClick = (entry: Fuse.FuseResult<FuseData>) => {
+const onSearchResultClick = (entry: FuseResult<FuseData>) => {
   let parentId = 'models'
   const tagMatch = entry.item.href.match(tagRegex)
 
@@ -307,7 +308,7 @@ function getFullUrlFromHash(href: string) {
 }
 </script>
 <template>
-  <FlowModal
+  <ScalarModal
     :state="modalState"
     variant="search">
     <div
@@ -355,7 +356,7 @@ function getFullUrlFromHash(href: string) {
       <span>↑↓ Navigate</span>
       <span>⏎ Select</span>
     </div>
-  </FlowModal>
+  </ScalarModal>
 </template>
 <style scoped>
 a {

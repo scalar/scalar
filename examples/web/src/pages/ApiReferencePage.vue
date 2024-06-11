@@ -2,11 +2,8 @@
 import {
   ApiReferenceLayout,
   type ReferenceConfiguration,
-  type Spec,
-  createEmptySpecification,
-  parse,
+  useReactiveSpec,
 } from '@scalar/api-reference'
-import { asyncComputed } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 
 import DevReferencesOptions from '../components/DevReferencesOptions.vue'
@@ -57,22 +54,12 @@ watch(
   },
 )
 
-const parsedSpec = asyncComputed(
-  async () =>
-    parse(content.value)
-      .then((validSpec) => {
-        // Some specs don’t have servers, make sure they are defined
-        return {
-          servers: [],
-          ...validSpec,
-        } as Spec
-      })
-      .catch((error) => {
-        console.warn(error)
-        return createEmptySpecification()
-      }),
-  createEmptySpecification(),
-)
+const { parsedSpec } = useReactiveSpec({
+  proxy: () => configuration.proxy ?? '',
+  specConfig: () => ({
+    content: content.value,
+  }),
+})
 </script>
 <template>
   <ApiReferenceLayout

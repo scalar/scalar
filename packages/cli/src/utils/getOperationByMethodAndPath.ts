@@ -1,4 +1,4 @@
-import type { OpenAPI } from 'openapi-types'
+import type { OpenAPI } from '@scalar/openapi-parser'
 
 export function getOperationByMethodAndPath(
   schema: OpenAPI.Document,
@@ -14,9 +14,8 @@ export function getOperationByMethodAndPath(
 
   // Create a Regex for all paths with variables
   const pathRegex = Object.keys(schema.paths ?? {})
-    .filter((path) => {
-      return path.includes('{')
-    })
+    // Has variables?
+    .filter((item) => item.includes('{'))
     .map((operationPath) => {
       return {
         path: operationPath,

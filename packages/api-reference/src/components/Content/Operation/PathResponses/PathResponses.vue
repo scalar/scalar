@@ -1,9 +1,7 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
-import {
-  type TransformedOperation,
-  normalizeMimeTypeObject,
-} from '@scalar/oas-utils'
+import type { TransformedOperation } from '@scalar/oas-utils'
+import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 
 import { useClipboard } from '../../../../hooks'
@@ -31,17 +29,9 @@ const { copyToClipboard } = useClipboard()
 const selectedExampleKey = ref<string>()
 
 // Bring the status codes in the right order.
-const orderedStatusCodes = computed(() => {
-  return Object.keys(props?.operation?.information?.responses ?? {}).sort(
-    (x) => {
-      if (x === 'default') {
-        return -1
-      }
-
-      return 0
-    },
-  )
-})
+const orderedStatusCodes = computed(() =>
+  Object.keys(props?.operation?.information?.responses ?? {}).sort(),
+)
 
 const hasMultipleExamples = computed<boolean>(
   () => !!currentJsonResponse.value.examples,
@@ -71,17 +61,33 @@ const currentJsonResponse = computed(() => {
     currentResponse.value
   )
 })
+
+/**
+ * Gets the first example response if there are multiple example responses
+ * or the only example if there is only one example response.
+ */
+const getFirstExampleResponse = () => {
+  if (!hasMultipleExamples.value) return currentJsonResponse.value.example
+  else if (Array.isArray(currentJsonResponse.value.examples))
+    return currentJsonResponse.value.examples[0]
+  else {
+    const firstProperty = Object.keys(currentJsonResponse.value.examples)[0]
+    return currentJsonResponse.value.examples[firstProperty]
+  }
+}
+
 const currentResponseWithExample = computed(() => ({
   ...currentJsonResponse.value,
   example:
     hasMultipleExamples.value && selectedExampleKey.value
       ? currentJsonResponse.value.examples[selectedExampleKey.value].value ??
         currentJsonResponse.value.examples[selectedExampleKey.value]
-      : currentJsonResponse.value.example,
+      : getFirstExampleResponse(),
 }))
 
 const changeTab = (index: number) => {
   selectedResponseIndex.value = index
+  selectedExampleKey.value = undefined
 }
 
 const showSchema = ref(false)

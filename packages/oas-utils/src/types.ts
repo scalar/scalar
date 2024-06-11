@@ -118,6 +118,14 @@ export type RequestBody = {
   content?: RequestBodyMimeTypes
 }
 
+/** For providing a OAS spec object or url to be fetched */
+export type SpecConfiguration = {
+  /** URL to a Swagger/OpenAPI file */
+  url?: string
+  /** Swagger/Open API spec */
+  content?: string | Record<string, any> | (() => Record<string, any>)
+}
+
 export type Schema = {
   type: string
   name?: string

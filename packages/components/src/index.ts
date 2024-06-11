@@ -8,8 +8,16 @@ import {
 import { ScalarFloating } from './components/ScalarFloating'
 import { type Icon, ScalarIcon } from './components/ScalarIcon'
 import { ScalarIconButton } from './components/ScalarIconButton'
+import {
+  ScalarListbox,
+  type ScalarListboxOption,
+} from './components/ScalarListbox'
 import { ScalarLoading, useLoadingState } from './components/ScalarLoading'
-import { ScalarModal, useModal } from './components/ScalarModal'
+import {
+  type ModalState,
+  ScalarModal,
+  useModal,
+} from './components/ScalarModal'
 import { ScalarPopover } from './components/ScalarPopover'
 import { ScalarSearchInput } from './components/ScalarSearchInput'
 import {
@@ -28,6 +36,7 @@ export {
   ScalarFloating,
   ScalarIcon,
   ScalarIconButton,
+  ScalarListbox,
   ScalarLoading,
   ScalarModal,
   ScalarPopover,
@@ -36,6 +45,8 @@ export {
   ScalarSearchResultList,
   ScalarTextField,
   type Icon,
+  type ScalarListboxOption,
+  type ModalState,
   useLoadingState,
   useModal,
 }

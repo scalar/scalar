@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import '@scalar/components/style.css'
-import { type SSRState, defaultStateFactory } from '@scalar/oas-utils'
+import type { SSRState } from '@scalar/oas-utils'
+import { defaultStateFactory } from '@scalar/oas-utils/helpers'
 import {
   ResetStyles,
   ScrollbarStyles,

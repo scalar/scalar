@@ -31,7 +31,7 @@ const attrs = computed(() => {
     v-bind="attrs.rest"
     :class="
       cx(
-        'flex rounded border bg-back-1 text-sm font-medium focus-within:border-fore-1',
+        'flex rounded border bg-b-1 text-sm font-medium focus-within:border-c-1',
         attrs.className,
       )
     ">

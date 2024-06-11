@@ -1,5 +1,17 @@
 # @scalar/themes
 
+## 0.8.2
+
+### Patch Changes
+
+- 55e01dd: fix: copy fonts to dist directory
+
+## 0.8.1
+
+### Patch Changes
+
+- db7864a: feat: self host fonts on scalar cdn
+
 ## 0.8.0
 
 ### Minor Changes

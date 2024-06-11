@@ -10,7 +10,7 @@
     "url": "https://github.com/scalar/scalar.git",
     "directory": "packages/components"
   },
-  "version": "0.9.0",
+  "version": "0.10.1",
   "engines": {
     "node": ">=18"
   },
@@ -18,11 +18,12 @@
     "build": "run-p typegen:icons types:check \"build-only {@}\" --",
     "build-only": "vite build",
     "build:storybook": "storybook build",
-    "dev": "storybook dev -p 5100",
+    "dev": "storybook dev -p 5100 --ci",
     "format": "pnpm prettier --write .",
     "format:check": "pnpm prettier --check .",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "lint:check": "eslint . && pnpm lint:icons",
+    "lint:fix": "eslint . --fix",
+    "lint:icons": "svglint src/components/ScalarIcon/icons/*.svg --config src/components/ScalarIcon/.svglintrc.js",
     "storybook": "storybook dev -p 5100",
     "test": "vitest",
     "typegen:icons": "node --no-warnings --loader ts-node/esm ./src/scripts/typegen.ts",
@@ -36,12 +37,10 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./style.css": "./dist/style.css",
-    "./tailwind": "./src/tailwind/index.ts"
+    "./style.css": "./dist/style.css"
   },
   "files": [
-    "dist",
-    "src/tailwind/**.ts"
+    "dist"
   ],
   "module": "./dist/index.js",
   "dependencies": {
@@ -50,14 +49,15 @@
     "@headlessui/vue": "^1.7.20",
     "@scalar/oas-utils": "workspace:*",
     "@storybook/test": "^8.0.8",
-    "@vueuse/core": "^10.9.0",
+    "@vueuse/core": "^10.10.0",
     "cva": "1.0.0-beta.1",
-    "nanoid": "^5.0.1",
+    "nanoid": "^5.0.7",
     "prismjs": "^1.29.0",
     "tailwind-merge": "^2.3.0"
   },
   "devDependencies": {
-    "@rise8/tailwind-pixel-perfect-preset": "^1.0.1",
+    "@headlessui/tailwindcss": "^0.2.0",
+    "@scalar/build-tooling": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@storybook/addon-essentials": "^8.0.8",
     "@storybook/addon-interactions": "^8.0.8",
@@ -72,7 +72,7 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/test-utils": "^2.4.1",
     "@vue/tsconfig": "^0.4.0",
-    "autoprefixer": "^10.4.16",
+    "autoprefixer": "^10.4.19",
     "jsdom": "^22.1.0",
     "npm-run-all2": "^6.1.1",
     "plugins": "^0.4.2",
@@ -80,14 +80,17 @@
     "postcss-prefix-selector": "^1.16.0",
     "storybook": "^8.0.8",
     "storybook-dark-mode": "^4.0.1",
-    "tailwindcss": "^3.3.3",
+    "svglint": "^2.7.1",
+    "tailwindcss": "^3.4.3",
+    "tailwindcss-color-mix": "^0.0.8",
     "ts-node": "^10.9.1",
     "typescript": "^5.4.3",
     "vite": "^5.2.10",
     "vite-plugin-dts": "^3.6.3",
     "vite-svg-loader": "^5.1.0",
-    "vitest": "^1.5.0",
-    "vue-tsc": "^1.8.19"
+    "vitest": "^1.6.0",
+    "vue": "^3.4.22",
+    "vue-tsc": "^2.0.13"
   },
   "peerDependencies": {
     "vue": "^3.3.0"

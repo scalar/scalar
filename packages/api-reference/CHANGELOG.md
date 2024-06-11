@@ -1,5 +1,52 @@
 # @scalar/api-reference
 
+## 1.23.5
+
+### Patch Changes
+
+- Updated dependencies [55e01dd]
+  - @scalar/themes@0.8.2
+  - @scalar/api-client@1.3.4
+  - @scalar/components@0.10.1
+
+## 1.23.4
+
+### Patch Changes
+
+- Updated dependencies [db7864a]
+  - @scalar/themes@0.8.1
+  - @scalar/api-client@1.3.3
+  - @scalar/components@0.10.1
+
+## 1.23.3
+
+### Patch Changes
+
+- c951512: feat: omit empty and not required properties from the generated request body
+- Updated dependencies [c951512]
+- Updated dependencies [961690d]
+  - @scalar/oas-utils@0.1.17
+  - @scalar/components@0.10.1
+  - @scalar/api-client@1.3.2
+
+## 1.23.2
+
+### Patch Changes
+
+- 3619881: fix: remove console log in use nav state
+
+## 1.23.1
+
+### Patch Changes
+
+- 7d21723: fix: sidebar webhooks state
+- Updated dependencies [83bfad8]
+- Updated dependencies [34eba38]
+- Updated dependencies [843218d]
+- Updated dependencies [195ca18]
+  - @scalar/components@0.10.0
+  - @scalar/api-client@1.3.1
+
 ## 1.23.0
 
 ### Minor Changes

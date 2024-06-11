@@ -43,14 +43,14 @@ watch(
           <div class="scalar-api-client__toggle-container">
             <svg
               class="scalar-api-client__toggle__icon"
-              xmlns="http://www.w3.org/2000/svg"
               fill="none"
-              viewBox="0 0 12 12">
+              viewBox="0 0 12 12"
+              xmlns="http://www.w3.org/2000/svg">
               <path
+                d="M2.2 4.1 6 7.9l3.8-3.8"
                 stroke="currentColor"
                 stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M2.2 4.1 6 7.9l3.8-3.8"></path>
+                stroke-linejoin="round"></path>
             </svg>
             <span class="scalar-api-client__item__title">
               {{ title }}

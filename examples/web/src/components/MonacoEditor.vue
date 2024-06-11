@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import * as monaco from 'monaco-editor'
-import { defineModel, nextTick, onMounted, ref, watch } from 'vue'
+import { type Ref, defineModel, nextTick, onMounted, ref, watch } from 'vue'
 
 import OpenAPI30 from '../specifications/openapi-3.0.json'
 import OpenAPI31 from '../specifications/openapi-3.1.json'
@@ -18,7 +18,7 @@ const props = withDefaults(
 // const isDark = useDarkMode(
 const model = defineModel<string>()
 
-const monacoEditorRef = ref<HTMLElement | null>(null)
+const monacoEditorRef: Ref<HTMLElement | null> = ref(null)
 const openApiVersion = ref<'3.1' | '3.0' | '2.0' | null>('3.1')
 
 let editor: monaco.editor.IStandaloneCodeEditor | null = null

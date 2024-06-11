@@ -9,8 +9,11 @@ defineProps<Omit<FloatingOptions, 'middleware'>>()
 defineOptions({ inheritAttrs: false })
 </script>
 <template>
-  <Popover>
-    <ScalarFloating v-bind="$props">
+  <Popover v-slot="{ open }">
+    <ScalarFloating
+      v-bind="$props"
+      :isOpen="open ?? isOpen"
+      :teleport="teleport">
       <PopoverButton as="template">
         <slot />
       </PopoverButton>
@@ -21,7 +24,7 @@ defineOptions({ inheritAttrs: false })
           v-bind="$attrs">
           <slot name="popover" />
           <div
-            class="absolute inset-0 -z-1 rounded bg-back-1 shadow-md brightness-lifted" />
+            class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />
         </PopoverPanel>
       </template>
     </ScalarFloating>

@@ -1,5 +1,25 @@
 # @scalar/components
 
+## 0.10.1
+
+### Patch Changes
+
+- 961690d: chore: export listbox component
+- Updated dependencies [c951512]
+  - @scalar/oas-utils@0.1.17
+
+## 0.10.0
+
+### Minor Changes
+
+- 843218d: feat: add listbox component
+
+### Patch Changes
+
+- 83bfad8: chore: lint icon svgs
+- 34eba38: fix: update storybook script
+- 195ca18: fix: align show hide icons with icon standards
+
 ## 0.9.0
 
 ### Minor Changes

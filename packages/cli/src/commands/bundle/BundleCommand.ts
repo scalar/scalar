@@ -1,7 +1,6 @@
 import { Command } from 'commander'
 import kleur from 'kleur'
 import fs from 'node:fs'
-import type { OpenAPI } from 'openapi-types'
 
 import { loadOpenApiFile, useGivenFileOrConfiguration } from '../../utils'
 

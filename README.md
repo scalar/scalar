@@ -202,7 +202,12 @@ import '@scalar/api-reference/style.css'
 </script>
 
 <template>
-  <ApiReference />
+  <ApiReference
+    :configuration="{
+      spec: {
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+      },
+    }" />
 </template>
 ```
 
@@ -622,9 +627,40 @@ To get started, overwrite our CSS variables. We won’t judge.
 ```
 
 > [!NOTE]\
-> By default, we’re using Inter and JetBrains Mono, served by Google Fonts.
-> If you use a different font or just don’t want to use Google Fonts,
-> pass `withDefaultFonts: true` to the configuration.
+> By default, we’re using Inter and JetBrains Mono, served by our in-house CDN.
+
+If you want use a different font or want to use Google Fonts, pass `withDefaultFonts: false` to the configuration and overwrite the `--scalar-font` CSS variable. You will also need to provide the source of your new font which can be local or served over the network.
+
+Here is an example of how to use the `Roboto` font from Google Fonts with the CDN API reference.
+
+```html
+<!doctype html>
+<html>
+  <head>
+    <!-- Link to the font on Google -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto"
+      rel="stylesheet" />
+    <!-- Overwrite the scalar font variable -->
+    <style>
+      :root {
+        --scalar-font: 'Roboto', sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Pass the custom configuration object -->
+    <script>
+      var configuration = {
+        theme: 'kepler',
+        // Do not use the default fonts from the Scalar CDN
+        withDefaultFonts: 'false',
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+  </body>
+</html>
+```
 
 You can [use all variables](https://github.com/scalar/scalar/blob/main/packages/themes/src/base.css) available in the
 base styles as well as overwrite the color theme.

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components'
-import { isJsonString, normalizeMimeType } from '@scalar/oas-utils'
+import { isJsonString, normalizeMimeType } from '@scalar/oas-utils/helpers'
 import { computed, toRaw } from 'vue'
 
 import { normalizeHeaders } from '../../../helpers'
@@ -64,7 +64,7 @@ const formattedResponseData = computed(() => {
       <ScalarCodeBlock
         v-if="codeMirrorLanguage || typeof response.data === 'string'"
         class="custom-scroll"
-        :content="formattedResponseData"
+        :content="formattedResponseData || response?.error?.message"
         :lang="codeMirrorLanguage" />
       <div
         v-else

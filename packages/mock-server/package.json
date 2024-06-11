@@ -16,7 +16,7 @@
     "swagger",
     "cli"
   ],
-  "version": "0.1.71",
+  "version": "0.1.72",
   "engines": {
     "node": ">=18"
   },
@@ -43,6 +43,7 @@
     "hono": "^4.2.7"
   },
   "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@types/node": "^20.8.4",
     "esbuild": "^0.21.1",

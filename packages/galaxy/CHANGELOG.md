@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.1.5
+
+### Patch Changes
+
+- c8066f3: chore: remove headings from inside the details tag
+
 ## 0.1.4
 
 ### Patch Changes

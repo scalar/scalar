@@ -68,6 +68,10 @@ const inDevelopment = import.meta.env.DEV
     </div>
     <h1>Examples</h1>
     <div class="page-links">
+      <PageLink href="http://localhost:5065">
+        <template #title>Client V2</template>
+        <template #description>@scalar/client-app</template>
+      </PageLink>
       <PageLink href="http://localhost:5062/json">
         <template #title>Nuxt</template>
         <template #description>@scalar/nuxt</template>

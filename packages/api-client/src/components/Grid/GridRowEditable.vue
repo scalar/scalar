@@ -71,8 +71,8 @@ const enabledProxy = computed<boolean>({
       <button
         v-if="!required"
         class="meta-delete"
-        type="button"
         tabindex="-1"
+        type="button"
         @click="$emit('delete')">
         <svg
           fill="none"

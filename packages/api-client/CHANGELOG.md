@@ -1,5 +1,41 @@
 # @scalar/api-client
 
+## 1.3.4
+
+### Patch Changes
+
+- Updated dependencies [55e01dd]
+  - @scalar/themes@0.8.2
+  - @scalar/components@0.10.1
+
+## 1.3.3
+
+### Patch Changes
+
+- Updated dependencies [db7864a]
+  - @scalar/themes@0.8.1
+  - @scalar/components@0.10.1
+
+## 1.3.2
+
+### Patch Changes
+
+- Updated dependencies [c951512]
+- Updated dependencies [961690d]
+  - @scalar/oas-utils@0.1.17
+  - @scalar/components@0.10.1
+
+## 1.3.1
+
+### Patch Changes
+
+- 195ca18: fix: align show hide icons with icon standards
+- Updated dependencies [83bfad8]
+- Updated dependencies [34eba38]
+- Updated dependencies [843218d]
+- Updated dependencies [195ca18]
+  - @scalar/components@0.10.0
+
 ## 1.3.0
 
 ### Minor Changes

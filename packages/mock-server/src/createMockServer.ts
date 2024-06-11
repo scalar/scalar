@@ -1,4 +1,4 @@
-import { getExampleFromSchema } from '@scalar/oas-utils'
+import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import { type ResolvedOpenAPI, openapi } from '@scalar/openapi-parser'
 import { type Context, Hono } from 'hono'
 import { cors } from 'hono/cors'

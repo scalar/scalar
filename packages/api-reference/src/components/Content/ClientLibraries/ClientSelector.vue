@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
 import type { TargetId } from 'httpsnippet-lite'
-import type { AvailableTarget } from 'httpsnippet-lite/dist/types/helpers/utils'
-import type { ClientInfo } from 'httpsnippet-lite/dist/types/targets/targets'
 import { ref } from 'vue'
 
 import { type HttpClientState, useHttpClientStore } from '../../../stores'
+import type { AvailableTarget } from '../../../types'
 
 // Use the template store to keep it accessible globally
 const {
@@ -46,9 +45,7 @@ const featuredClients = (
   availableTargets.value.find((target: AvailableTarget) => {
     return (
       target.key === featuredClient.targetKey &&
-      target.clients.find(
-        (client: ClientInfo) => client.key === featuredClient.clientKey,
-      )
+      target.clients.find((client) => client.key === featuredClient.clientKey)
     )
   }),
 )

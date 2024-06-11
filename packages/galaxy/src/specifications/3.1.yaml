@@ -17,17 +17,17 @@ info:
     <details>
       <summary>Examples</summary>
 
-      ### Blockquotes
+      **Blockquotes**
 
       > I love OpenAPI. <3
 
-      ### Tables
+      **Tables**
 
       | Feature          | Availability |
       | ---------------- | ------------ |
       | Markdown Support | ✓            |
 
-      ### Accordion
+      **Accordion**
 
       ```html
       <details>
@@ -36,7 +36,7 @@ info:
       </details>
       ```
 
-      ### Images
+      **Images**
 
       Yes, there’s support for images, too!
 

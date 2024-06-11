@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { ScalarModal, useModal } from '@scalar/components'
 import { CodeMirror } from '@scalar/use-codemirror'
-import { FlowModal, useModal } from '@scalar/use-modal'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import { computed, ref } from 'vue'
@@ -181,14 +181,14 @@ const handleRequestMethodChanged = (requestMethod?: string) => {
       class="address-bar-close"
       @click="showHistory = false" />
     <div class="address-bar-content">
-      <FlowModal
+      <ScalarModal
         :state="historyModal"
         title="Request History"
         variant="history">
         <RequestHistory
           :showHistory="showHistory"
           @toggle="showHistory = !showHistory" />
-      </FlowModal>
+      </ScalarModal>
     </div>
   </div>
 </template>

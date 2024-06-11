@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "1.3.0",
+  "version": "1.3.4",
   "engines": {
     "node": ">=18"
   },
@@ -48,31 +48,32 @@
     "@floating-ui/vue": "^1.0.2",
     "@headlessui/vue": "^1.7.20",
     "@scalar/components": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",
     "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
-    "@scalar/use-modal": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
-    "@vueuse/core": "^10.9.0",
+    "@vueuse/core": "^10.10.0",
     "axios": "^1.6.8",
     "httpsnippet-lite": "^3.0.5",
-    "nanoid": "^5.0.1",
+    "nanoid": "^5.0.7",
     "pretty-bytes": "^6.1.1",
     "pretty-ms": "^8.0.0"
   },
   "devDependencies": {
     "@scalar/api-client-proxy": "workspace:*",
+    "@scalar/build-tooling": "workspace:*",
     "@scalar/echo-server": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "@types/content-type": "^1.1.6",
+    "@types/content-type": "^1.1.8",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.5.0",
     "tsc-alias": "^1.8.8",
     "vite": "^5.2.10",
-    "vitest": "^1.5.0",
-    "vue": "^3.4.21",
-    "vue-tsc": "^1.8.19"
+    "vitest": "^1.6.0",
+    "vue": "^3.4.22",
+    "vue-tsc": "^2.0.13"
   },
   "peerDependencies": {
     "@scalar/oas-utils": "workspace:*",

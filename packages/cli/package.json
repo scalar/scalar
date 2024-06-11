@@ -16,14 +16,15 @@
     "swagger",
     "cli"
   ],
-  "version": "0.2.98",
+  "version": "0.2.103",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
     "@scalar/cli": "pnpm vite-node src/index.ts",
     "build": "rm -Rf dist/ && tsc && rollup -c",
-    "cli:link": "pnpm run build && npm unlink -g && npm link",
+    "link:cli": "pnpm run build && npm unlink -g @scalar/cli && npm link",
+    "screenshot": "./scripts/take-screenshots.sh",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
@@ -45,7 +46,6 @@
     "glob": "^10.3.10",
     "hono": "^4.2.7",
     "kleur": "^4.1.5",
-    "openapi-types": "^12.1.3",
     "prettyjson": "^1.2.5"
   },
   "devDependencies": {

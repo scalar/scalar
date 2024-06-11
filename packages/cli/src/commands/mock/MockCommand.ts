@@ -1,9 +1,9 @@
 import { serve } from '@hono/node-server'
 import { createMockServer } from '@scalar/mock-server'
+import type { OpenAPI } from '@scalar/openapi-parser'
 import { Command } from 'commander'
 import type { Context } from 'hono'
 import kleur from 'kleur'
-import type { OpenAPI } from 'openapi-types'
 
 import {
   getMethodColor,
@@ -19,11 +19,12 @@ export function MockCommand() {
   cmd.description('Mock an API from an OpenAPI file')
   cmd.argument('[file|url]', 'OpenAPI file or URL to mock the server for')
   cmd.option('-w, --watch', 'watch the file for changes')
+  cmd.option('-o, --once', 'run the server only once and exit after that')
   cmd.option('-p, --port <port>', 'set the HTTP port for the mock server')
   cmd.action(
     async (
       fileArgument: string,
-      { watch, port }: { watch?: boolean; port?: number },
+      { watch, once, port }: { watch?: boolean; once?: boolean; port?: number },
     ) => {
       // Server instance
       let server: ReturnType<typeof serve> = null
@@ -90,6 +91,13 @@ export function MockCommand() {
         specification,
         port,
       })
+
+      // Exit after the first run
+      if (once) {
+        setTimeout(() => {
+          server.close()
+        }, 2000)
+      }
     },
   )
 

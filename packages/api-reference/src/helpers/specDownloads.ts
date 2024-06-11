@@ -1,4 +1,4 @@
-import { isJsonString } from '@scalar/oas-utils'
+import { isJsonString } from '@scalar/oas-utils/helpers'
 import { type EventBusKey, useEventBus } from '@vueuse/core'
 
 const downloadSpecEventBusKey: EventBusKey<{ id: string; specTitle?: string }> =

@@ -1,8 +1,5 @@
-import {
-  type Heading,
-  type TransformedOperation,
-  ssrState,
-} from '@scalar/oas-utils'
+import type { Heading, TransformedOperation } from '@scalar/oas-utils'
+import { ssrState } from '@scalar/oas-utils/helpers'
 import { slug } from 'github-slugger'
 import { ref } from 'vue'
 
@@ -69,8 +66,9 @@ const getTagId = ({ name }: Tag) => {
 const getSectionId = (hashStr = hash.value) => {
   const tagId = hashStr.match(/(tag\/[^/]+)/)?.[0]
   const modelId = hashStr.startsWith('model') ? 'models' : ''
+  const webhookId = hashStr.startsWith('webhook') ? 'webhooks' : ''
 
-  return tagId ?? modelId
+  return tagId || modelId || webhookId
 }
 
 // Update the reactive hash state

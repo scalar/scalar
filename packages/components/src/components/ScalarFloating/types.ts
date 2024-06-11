@@ -16,4 +16,14 @@ export type FloatingOptions = {
    * @see https://floating-ui.com/docs/computePosition#middleware
    */
   middleware?: Middleware[]
+  /**
+   * Whether the floating element is open or not.
+   * @default false
+   */
+  isOpen?: boolean
+  /**
+   * Whether to teleport the floating element to the end of the document body.
+   * @default false
+   */
+  teleport?: boolean
 }

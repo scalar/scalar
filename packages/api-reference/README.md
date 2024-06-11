@@ -134,11 +134,13 @@ Making requests to other domains is restricted in the browser and requires [CORS
 <ApiReference :configuration="{ proxy: 'https://proxy.example.com' }" />
 ```
 
-ℹ️ You can use [@scalar/api-client-proxy](https://github.com/scalar/scalar/tree/main/packages/api-client-proxy) to host your own proxy or you can just use ours:
+You can use our hosted proxy:
 
 ```vue
 <ApiReference :configuration="{ proxy: 'https://proxy.scalar.com' }" />
 ```
+
+If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/examples/proxy-server).
 
 #### showSidebar?: boolean
 
@@ -283,5 +285,17 @@ By default we’re using Inter and JetBrains Mono, served by Google Fonts. If yo
 ```vue
 <ApiReference :configuration="{
   withDefaultFonts: false
+} />
+```
+
+#### theme?: string
+
+You don’t like the color scheme? We’ve prepared some themes for you:
+
+Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, **bluePlanet**, **saturn**, **kepler**, **mars**, **deepSpace**, **none**
+
+```vue
+<ApiReference :configuration="{
+  theme: default
 } />
 ```

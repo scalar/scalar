@@ -29,7 +29,7 @@ withDefaults(
 const modal = cva({
   base: [
     'scalar-modal',
-    'col leading-snug relative mx-auto mb-0 mt-20 w-full rounded-lg bg-back-2 text-left text-fore-1 opacity-0',
+    'col relative mx-auto mb-0 mt-20 w-full rounded-lg bg-b-2 text-left leading-snug text-c-1 opacity-0',
   ].join(' '),
   variants: {
     size: {
@@ -37,15 +37,27 @@ const modal = cva({
       sm: 'max-w-screen-sm',
       md: 'max-w-screen-md',
       lg: 'max-w-screen-lg',
+      full: 'mt-0 overflow-hidden',
     },
     variant: {
-      history: 'scalar-modal-history bg-back-1',
+      history: 'scalar-modal-history bg-b-1',
       search: 'scalar-modal-search',
     },
   },
 })
+const body = cva({
+  base: [
+    'scalar-modal-body',
+    'relative max-h-[calc(100dvh-240px)] overflow-y-auto rounded-lg bg-b-1 px-6 pb-4 pt-6',
+  ].join(' '),
+  variants: {
+    variant: {
+      history: 'pt-3',
+      search: 'col max-h-[440px] overflow-hidden p-0',
+    },
+  },
+})
 </script>
-
 <script lang="ts">
 export const useModal = () =>
   reactive({
@@ -58,7 +70,6 @@ export const useModal = () =>
     },
   })
 </script>
-
 <template>
   <Dialog
     :open="state.open"
@@ -69,6 +80,7 @@ export const useModal = () =>
           'scalar-modal-layout fixed left-0 top-0',
           'z-[1001] h-[100dvh] w-[100dvw]',
           'bg-backdrop p-5 opacity-0',
+          size === 'full' && 'flex',
         )
       ">
       <DialogPanel
@@ -76,19 +88,18 @@ export const useModal = () =>
         :style="{ maxWidth }">
         <DialogTitle
           v-if="title"
-          class="scalar-modal-header font-semiBold m-0 rounded-lg px-6 py-3 text-left text-xs text-fore-1"
+          class="scalar-modal-header font-semiBold m-0 rounded-lg px-6 py-3 text-left text-xs text-c-1"
           :class="{ 'pb-0 pt-6': variant === 'history' }">
           {{ title }}
         </DialogTitle>
+        <div
+          v-if="size === 'full'"
+          :class="bodyClass">
+          <slot />
+        </div>
         <DialogDescription
-          class="scalar-modal-body relative max-h-[calc(100dvh-240px)] overflow-y-auto rounded-lg bg-back-1 px-6 pb-4 pt-6"
-          :class="
-            cx(
-              bodyClass,
-              variant === 'history' && 'pt-3',
-              variant === 'search' && 'col max-h-[440px] overflow-hidden p-0',
-            )
-          ">
+          v-else
+          :class="cx(bodyClass, body({ variant }))">
           <slot />
         </DialogDescription>
       </DialogPanel>

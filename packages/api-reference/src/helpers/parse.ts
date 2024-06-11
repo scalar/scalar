@@ -14,7 +14,7 @@ import {
 
 import { createEmptySpecification } from '../helpers'
 // AnyStringOrObject
-import type { Spec, Tag } from '../types'
+import type { Spec } from '../types'
 
 export const parse = (specification: any): Promise<Spec> => {
   // eslint-disable-next-line no-async-promise-executor

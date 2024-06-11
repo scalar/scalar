@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { isJsonString } from '@scalar/oas-utils'
-import { computed, toRaw } from 'vue'
+import { computed } from 'vue'
 
 import Computer from '../../../assets/computer.ascii?raw'
 import { useRequestStore } from '../../../stores'

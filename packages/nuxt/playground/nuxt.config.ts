@@ -33,6 +33,11 @@ export default defineNuxtConfig({
       openAPI: true,
     },
   },
+  imports: {
+    transform: {
+      exclude: [/programming-language-php/],
+    },
+  },
   devtools: { enabled: true },
   devServer: {
     port: 5062,
