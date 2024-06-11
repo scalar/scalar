@@ -1,5 +1,5 @@
 import { createScalarClient } from '@/api-client-modal'
-import content from '@scalar/galaxy/latest.json?raw'
+import content from '@scalar/galaxy/latest.json'
 
 const el = document.getElementById('root')
 console.log(el)
