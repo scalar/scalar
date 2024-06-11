@@ -11,7 +11,6 @@
     "url": "https://github.com/scalar/scalar.git",
     "directory": "packages/api-client-modal"
   },
-  "rootDir": "src",
   "keywords": [
     "vue api client modal"
   ],
