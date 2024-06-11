@@ -4,7 +4,7 @@ import { type LanguageFn, common, createLowlight } from 'lowlight'
 import { visit } from 'unist-util-visit'
 import type { VFile } from 'vfile'
 
-import { lowlightLanguageMappings } from './constants'
+import { lowlightLanguageMappings } from '../constants'
 
 type HighlightOptions = {
   /** Optional existing lowlight instance to use */

@@ -1,69 +1,14 @@
-import typescript from '@rollup/plugin-typescript'
-import { readFileSync } from 'fs'
-import type { InputPluginOption, Plugin, RollupOptions } from 'rollup'
+import type { Plugin } from 'rollup'
+import { fileURLToPath } from 'url'
 import type { BuildOptions, LibraryOptions } from 'vite'
 
-type StrictPluginOptions = RollupOptions & { plugins?: InputPluginOption[] }
+import { type StrictPluginOptions, createRollupConfig } from './rollup-options'
 
-/**
- * Generate rollup options for a Scalar package build
- *
- * This should be used for packages and libraries NOT bundling
- * projects to be served client-side (like web apps)
- *
- * Defaults:
- * - Treeshaking enabled
- * - Preserves modules
- * - Externalizes ALL dependencies
- */
-export function createRollupConfig(props: {
-  pkgFile?: Record<string, any>
-  /** Add the typescript plugin for non-vite builds */
-  typescript?: boolean
-  options?: StrictPluginOptions
-}): RollupOptions {
-  /** Load the pkg file if not provided */
-  const pkgFile =
-    props.pkgFile ?? JSON.parse(readFileSync('./package.json', 'utf-8'))
-
-  const plugins = Array.isArray(props.options?.plugins)
-    ? [...props.options.plugins]
-    : []
-
-  if (props.typescript) plugins.push(typescript())
-
-  const external: string[] = []
-
-  if ('dependencies' in pkgFile)
-    external.push(...Object.keys(pkgFile.dependencies))
-  if ('devDependencies' in pkgFile)
-    external.push(...Object.keys(pkgFile.devDependencies))
-  if ('peerDependencies' in pkgFile)
-    external.push(...Object.keys(pkgFile.peerDependencies))
+/** Standard path aliases for Vite */
+export function alias(url: string) {
   return {
-    treeshake: {
-      annotations: true,
-      preset: 'recommended',
-      /**
-       * We should never be importing modules for the side effects BUT
-       * CSS import are by definition side effects. These must be excluded
-       */
-      moduleSideEffects: (id) => {
-        return id.includes('.css')
-      },
-    },
-    output: {
-      format: 'esm',
-      preserveModules: true,
-      preserveModulesRoot: './src',
-      dir: './dist',
-    },
-    // Do not bundle any dependencies by default.
-    external: external.map(
-      (packageName) => new RegExp(`^${packageName}(/.*)?`),
-    ),
-    ...props.options,
-    plugins,
+    '@test': fileURLToPath(new URL('./test', url)),
+    '@': fileURLToPath(new URL('./src', url)),
   }
 }
 
