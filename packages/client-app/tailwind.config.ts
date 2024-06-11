@@ -139,9 +139,9 @@ export default {
         lg: 'var(--scalar-radius-lg)',
         xl: 'var(--scalar-radius-xl)',
       },
-      height: { header: 'var(--scalar-header-height)' },
+      height: { header: 'var(--scalar-client-header-height)' },
       width: { sidebar: 'var(--scalar-sidebar-width)' },
-      minHeight: { header: 'var(--scalar-header-height)' },
+      minHeight: { header: 'var(--scalar-client-header-height)' },
       borderColor: { DEFAULT: 'var(--scalar-border-color)' },
       borderWidth: { DEFAULT: 'var(--scalar-border-width)' },
       brightness: {

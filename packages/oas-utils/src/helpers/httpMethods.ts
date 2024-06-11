@@ -1,7 +1,7 @@
 export const REQUEST_METHODS = {
   CONNECT: {
     short: 'CONN',
-    color: 'text-scalar-c-2',
+    color: 'text-c-2',
     backgroundColor: 'bg-c-2',
   },
   DELETE: {

@@ -7,7 +7,7 @@
   --scalar-radius-lg: 6px;
   --scalar-radius-xl: 8px;
 
-  --scalar-header-height: 50px;
+  --scalar-client-header-height: 50px;
   --scalar-sidebar-width: 280px;
   --scalar-toc-width: 280px;
 
@@ -158,7 +158,6 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
 
   font-family: var(--scalar-font);
   color: var(--scalar-color-1);
