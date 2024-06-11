@@ -19,7 +19,6 @@
 "@scalar/use-toasts": minor
 "@scalar/draggable": minor
 "@scalar/oas-utils": minor
-"@scalar/use-modal": minor
 "@scalar/galaxy": minor
 "@scalar/themes": minor
 "@scalar/nuxt": minor
