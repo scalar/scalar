@@ -81,7 +81,7 @@ const activeSection = ref<ActiveSections>('All')
         <span class="text-c-3 pl-1">{{ response?.status }}</span>
       </div>
     </template>
-    <div class="xl:custom-scroll flex flex-1 flex-col px-2 xl:px-6 py-2.5">
+    <div class="custom-scroll flex flex-1 flex-col px-2 xl:px-6 py-2.5">
       <template v-if="!response">
         <ResponseEmpty />
       </template>
