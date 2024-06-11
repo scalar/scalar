@@ -9,7 +9,6 @@
 "@scalar/client-app": patch
 "@scalar/components": patch
 "@scalar/use-toasts": patch
-"@scalar/use-modal": patch
 "@scalar/galaxy": patch
 "@scalar/themes": patch
 ---
