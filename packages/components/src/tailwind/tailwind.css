@@ -3,17 +3,16 @@
  *
  * @see https://emamoah.medium.com/using-native-css-cascade-layers-with-tailwindcss-cb11af266104
  */
-@import 'tailwindcss/base' layer(scalar-base);
-@import 'tailwindcss/components' layer(scalar-components);
-@import 'tailwindcss/utilities' layer(scalar-utilities);
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /** 
  * Custom Reset - copied over from the tailwind reset
- * Auto-magically scoped by postcss (in postcss.config.js)
- *
+
  * @link https://tailwindcss.com/docs/preflight 
  */
-@layer scalar-base {
+@layer base {
   * {
     box-sizing: border-box;
     border-width: 0;
@@ -32,7 +31,7 @@
   }
 }
 
-@layer scalar-utilities {
+@layer utilities {
   .row {
     @apply flex flex-row;
   }

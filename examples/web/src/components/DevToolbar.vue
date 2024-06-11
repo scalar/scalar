@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ResetStyles } from '@scalar/themes'
 import { ref, watch } from 'vue'
 
 const docStyle = document.documentElement.style
@@ -19,38 +18,35 @@ watch(
 )
 </script>
 <template>
-  <ResetStyles v-slot="{ styles }">
-    <header
-      v-if="showToolbar"
-      class="dev-header"
-      :class="styles">
-      <div class="dev-title">
-        Dev Toolbar
-        <a
-          class="dev-home-link"
-          href="/"
-          title="Back to homepage">
-          &larr; Go back
-        </a>
-      </div>
-      <div class="dev-options">
-        <slot />
-        <button
-          class="dev-hide-toolbar"
-          type="button"
-          @click="showToolbar = false">
-          Hide
-        </button>
-      </div>
-    </header>
-    <button
-      v-else
-      class="dev-show-toolbar"
-      type="button"
-      @click="showToolbar = true">
+  <header
+    v-if="showToolbar"
+    class="dev-header">
+    <div class="dev-title">
       Dev Toolbar
-    </button>
-  </ResetStyles>
+      <a
+        class="dev-home-link"
+        href="/"
+        title="Back to homepage">
+        &larr; Go back
+      </a>
+    </div>
+    <div class="dev-options">
+      <slot />
+      <button
+        class="dev-hide-toolbar"
+        type="button"
+        @click="showToolbar = false">
+        Hide
+      </button>
+    </div>
+  </header>
+  <button
+    v-else
+    class="dev-show-toolbar"
+    type="button"
+    @click="showToolbar = true">
+    Dev Toolbar
+  </button>
 </template>
 <style scoped>
 .dev-header {

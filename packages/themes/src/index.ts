@@ -1,3 +1,4 @@
+import defaultFonts from './fonts.css?inline'
 import alternateTheme from './presets/alternate.css?inline'
 import bluePlanetTheme from './presets/bluePlanet.css?inline'
 import deepSpaceTheme from './presets/deepSpace.css?inline'
@@ -8,17 +9,8 @@ import moonTheme from './presets/moon.css?inline'
 import purpleTheme from './presets/purple.css?inline'
 import saturnTheme from './presets/saturn.css?inline'
 import solarizedTheme from './presets/solarized.css?inline'
+import baseVariables from './variables.css?inline'
 
-/** A component to insert the theme styles */
-export { default as ThemeStyles } from './components/ThemeStyles.vue'
-
-/** A scoped style reset component. */
-export { default as ResetStyles } from './components/ResetStyles.vue'
-
-/** A scoped scrollbar style component. */
-export { default as ScrollbarStyles } from './components/ScrollbarStyles.vue'
-
-/**  */
 export { migrateThemeVariables } from './utilities/legacy'
 
 /**
@@ -71,26 +63,59 @@ export const presets: Record<Exclude<ThemeId, 'none'>, string> = {
 }
 
 /**
+ * Get the CSS for the default Scalar fonts
+ */
+export const getDefaultFonts = () => defaultFonts
+
+/**
  * List of available theme IDs.
  */
 export const availableThemes = Object.keys(presets) as ThemeId[]
 
 type GetThemeOpts = {
   /**
-   * Optional cascade layer to assign the theme styles to
+   * Whether or not to include the base variables (e.g. typography)
+   *
+   * @default true
    */
-  layer?: string
+  variables?: boolean
+  /**
+   * Whether or not to include the definitions for the default scalar fonts (e.g. Inter)
+   *
+   * @default true
+   */
+  fonts?: boolean
+  /**
+   * Cascade layer to assign the theme styles to
+   *
+   * @default 'scalar-theme'
+   */
+  layer?: string | false
 }
 
 /**
  * Get the theme CSS for a given theme ID.
  */
-export const getThemeById = (themeId?: ThemeId, opts?: GetThemeOpts) => {
+export const getThemeById = (themeId?: ThemeId) => {
   if (themeId === 'none') return ''
 
-  const styles = presets[themeId || 'default'] ?? defaultTheme
+  return presets[themeId || 'default'] ?? defaultTheme
+}
 
-  // Wrap the styles in a layer if requested
-  if (opts?.layer) return `@layer ${opts.layer} {\n${styles}}`
+/**
+ * Get the theme and base variables for a given theme
+ */
+export const getThemeStyles = (themeId?: ThemeId, opts?: GetThemeOpts) => {
+  const { variables = true, fonts = true, layer = 'scalar-theme' } = opts ?? {}
+
+  // Combined theme, base variables and default fonts if configured
+  const styles = [
+    getThemeById(themeId),
+    variables ? baseVariables : '',
+    fonts ? defaultFonts : '',
+  ].join('')
+
+  // Wrap the styles in a layer if configured
+  if (layer) return `@layer ${layer} {\n${styles}}`
   return styles
 }
