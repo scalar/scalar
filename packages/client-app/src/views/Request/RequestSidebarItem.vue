@@ -49,8 +49,7 @@ defineSlots<{
   leftIcon(): void
 }>()
 
-const { activeRequest, collections, folders, requests, requestExamples } =
-  useWorkspace()
+const { activeRequest, folders, requests, requestExamples } = useWorkspace()
 
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const router = useRouter()
