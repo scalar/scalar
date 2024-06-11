@@ -1,6 +1,7 @@
 import pixelPreset from '@rise8/tailwind-pixel-perfect-preset'
 import type { Config } from 'tailwindcss'
 
+/** Scalar Tailwind Preset */
 export default {
   darkMode: ['selector', '.dark-mode'],
   presets: [pixelPreset],

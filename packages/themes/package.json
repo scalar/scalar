@@ -30,15 +30,16 @@
   "main": "./dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./base.css": "./dist/base.css",
+    "./tailwind": "./src/tailwind.ts",
+    "./app.css": "./dist/app.css",
+    "./core.css": "./dist/core.css",
+    "./scrollbars.css": "./dist/scrollbars.css",
     "./fonts.css": "./dist/fonts.css",
-    "./style.css": "./dist/style.css",
     "./presets/alternate.css": "./dist/presets/alternate.css",
     "./presets/default.css": "./dist/presets/default.css",
     "./presets/moon.css": "./dist/presets/moon.css",
     "./presets/purple.css": "./dist/presets/purple.css",
-    "./presets/solarized.css": "./dist/presets/solarized.css",
-    "./tailwind": "./src/tailwind.ts"
+    "./presets/solarized.css": "./dist/presets/solarized.css"
   },
   "files": [
     "dist",
@@ -56,10 +57,6 @@
     "vite": "^5.2.10",
     "vite-plugin-static-copy": "^1.0.2",
     "vitest": "^1.6.0",
-    "vue": "^3.4.22",
     "vue-tsc": "^2.0.13"
-  },
-  "peerDependencies": {
-    "vue": "^3.3.0"
   }
 }

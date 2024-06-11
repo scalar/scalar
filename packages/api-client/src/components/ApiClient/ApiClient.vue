@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import '@scalar/components/style.css'
-import { type ThemeId, ThemeStyles } from '@scalar/themes'
-import '@scalar/themes/style.css'
+import { type ThemeId, getThemeStyles } from '@scalar/themes'
+import '@scalar/themes/core.css'
 import { useMagicKeys, useMediaQuery, whenever } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
@@ -11,6 +11,7 @@ import HttpMethod from '../HttpMethod.vue'
 import AddressBar from './AddressBar.vue'
 import { Request } from './Request'
 import { Response } from './Response'
+import Style from './Style.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -61,11 +62,9 @@ watch(
 </script>
 
 <template>
-  <ThemeStyles
-    :id="theme"
-    :withDefaultFonts="withDefaultFonts" />
+  <Style>{{ getThemeStyles(theme, { fonts: withDefaultFonts }) }}</Style>
   <HttpMethod
-    class="scalar-api-client"
+    class="scalar-app scalar-api-client"
     :method="activeRequest.type ?? 'get'"
     property="--scalar-api-client-color"
     @keydown.esc="emit('escapeKeyPress')">

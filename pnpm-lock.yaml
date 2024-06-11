@@ -1936,9 +1936,6 @@ importers:
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
-      vue:
-        specifier: ^3.4.22
-        version: 3.4.27(typescript@5.4.3)
       vue-tsc:
         specifier: ^2.0.13
         version: 2.0.19(typescript@5.4.3)

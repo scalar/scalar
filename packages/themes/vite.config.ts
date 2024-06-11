@@ -9,15 +9,7 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: 'src/base.css',
-          dest: './',
-        },
-        {
-          src: 'src/fonts.css',
-          dest: './',
-        },
-        {
-          src: 'src/scrollbar.css',
+          src: 'src/*.css',
           dest: './',
         },
         {
