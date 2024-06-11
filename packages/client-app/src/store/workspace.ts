@@ -36,6 +36,11 @@ import {
 import { iterateTitle } from '@scalar/oas-utils/helpers'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
+import {
+  type Path,
+  type PathValue,
+  setNestedValue,
+} from '@scalar/object-utils/nested'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, reactive, readonly } from 'vue'
 
@@ -286,6 +291,12 @@ const workspaceRequests = computed(() =>
   })),
 )
 
+/** Edit workspace mutator */
+const editWorkspace = <P extends Path<Workspace>>(
+  path: P,
+  value: PathValue<Workspace, P>,
+) => setNestedValue(workspace, path, value)
+
 // ---------------------------------------------------------------------------
 // COLLECTION
 
@@ -518,6 +529,9 @@ export function useWorkspace() {
       ...serverMutators,
       add: addServer,
       delete: deleteServer,
+    },
+    workspaceMutators: {
+      edit: editWorkspace,
     },
   }
 }

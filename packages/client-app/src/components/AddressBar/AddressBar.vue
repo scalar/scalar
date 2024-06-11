@@ -149,7 +149,7 @@ const isSelectedServer = (serverId: string) => {
 <template>
   <div
     v-if="activeRequest && activeExample"
-    class="min-h-header flex flex-row items-center"
+    class="order-last lg:order-none lg:w-auto w-full"
     :class="[themeClasses.topContainer]">
     <!-- <div class="text-c-2 flex w-80 flex-row items-center gap-1 p-4">
       <ScalarIcon
@@ -165,7 +165,7 @@ const isSelectedServer = (serverId: string) => {
         v-model="selectedRequest">
         <div
           :class="[
-            'text-xxs bg-b-1 relative flex w-[720px] flex-1 flex-row items-stretch rounded border p-[3px]',
+            'text-xxs bg-b-1 relative flex w-full lg:min-w-[720px] order-last lg:order-none flex-1 flex-row items-stretch rounded border p-[3px]',
             { 'rounded-b-none': open },
             { 'border-transparent': open },
           ]">
@@ -178,7 +178,7 @@ const isSelectedServer = (serverId: string) => {
           </div>
           <div class="flex gap-1">
             <HttpMethod
-              class="font-bold"
+              class="font-code text-xxs font-medium"
               isEditable
               isSquare
               :method="activeRequest.method"
@@ -272,7 +272,7 @@ const isSelectedServer = (serverId: string) => {
               <ListboxOption
                 v-for="({ response }, index) in history"
                 :key="index"
-                class="ui-active:bg-b-2 text-c-1 ui-active:text-c-1 flex cursor-pointer flex-row gap-2.5 rounded px-2.5 py-1.5 pr-3"
+                class="ui-active:bg-b-2 text-c-1 ui-active:text-c-1 flex cursor-pointer flex-row gap-2.5 rounded py-1.5 pr-3"
                 :value="index">
                 <div class="font-code flex flex-1 gap-1.5 text-sm font-medium">
                   <span

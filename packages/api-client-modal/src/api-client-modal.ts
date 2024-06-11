@@ -22,7 +22,7 @@ export const createScalarClient = async (
   const config = reactive(initialConfig)
 
   const modalState = useModal()
-  const { importSpecFile } = useWorkspace()
+  const { importSpecFile, workspaceMutators } = useWorkspace()
 
   // Import the spec if needed
   if (config.spec.url) {
@@ -50,6 +50,7 @@ export const createScalarClient = async (
   if (mountOnInitialize) mount()
 
   modalState.open = true
+  workspaceMutators.edit('isReadOnly', true)
 
   return {
     /** Update the API client config */

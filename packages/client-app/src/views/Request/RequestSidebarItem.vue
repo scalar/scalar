@@ -49,9 +49,8 @@ defineSlots<{
   leftIcon(): void
 }>()
 
-const { activeRequest, collections, folders, requests, requestExamples } =
+const { activeRequest, folders, requests, requestExamples, workspace } =
   useWorkspace()
-
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const router = useRouter()
 
@@ -141,7 +140,9 @@ const showChildren = computed(
             {{ getTitle(item) }}
           </span>
           <div class="relative">
-            <RequestSidebarItemMenu :item="item" />
+            <RequestSidebarItemMenu
+              v-if="!workspace.isReadOnly"
+              :item="item" />
             <span class="flex">
               &hairsp;
               <HttpMethod
