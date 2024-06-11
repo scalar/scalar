@@ -1,5 +1,6 @@
 import { createScalarClient } from '@/api-client-modal'
-import content from '@scalar/galaxy/latest.json'
+// @ts-expect-error Just doesn't like raw for some reason
+import content from '@scalar/galaxy/latest.json?raw'
 
 const el = document.getElementById('root')
 console.log(el)
