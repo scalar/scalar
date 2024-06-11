@@ -2,10 +2,9 @@ import { createViteBuildOptions, findEntryPoints } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
 import { URL, fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
-import svgLoader from 'vite-svg-loader'
 
 export default defineConfig({
-  plugins: [vue(), svgLoader()],
+  plugins: [vue()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -13,7 +12,7 @@ export default defineConfig({
     dedupe: ['vue'],
   },
   server: {
-    port: 5065,
+    port: 5066,
   },
   build: createViteBuildOptions({
     entry: await findEntryPoints({ allowCss: true }),

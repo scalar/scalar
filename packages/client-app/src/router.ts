@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createMemoryHistory, createRouter, createWebHistory } from 'vue-router'
 
 export enum PathId {
   Request = 'request',
@@ -11,8 +11,25 @@ export enum PathId {
   Server = 'server',
 }
 
-const routes = [
+/** Routes required by the client modal */
+export const clientRoutes = [
   { path: '/', redirect: '/request/default' },
+  {
+    path: '/request',
+    redirect: '/request/default',
+  },
+  {
+    path: `/request/:${PathId.Request}`,
+    component: () => import('@/views/Request/Request.vue'),
+  },
+  {
+    path: `/request/:${PathId.Request}/example/:${PathId.Example}`,
+    component: () => import('@/views/Request/Request.vue'),
+  },
+]
+
+const routes = [
+  ...clientRoutes,
   {
     path: '/collection',
     redirect: '/collection/default',
@@ -28,18 +45,6 @@ const routes = [
         component: () => import('@/views/Request/Request.vue'),
       },
     ],
-  },
-  {
-    path: '/request',
-    redirect: '/request/default',
-  },
-  {
-    path: `/request/:${PathId.Request}`,
-    component: () => import('@/views/Request/Request.vue'),
-  },
-  {
-    path: `/request/:${PathId.Request}/example/:${PathId.Example}`,
-    component: () => import('@/views/Request/Request.vue'),
   },
   /** Components will map to each section of the spec components object */
   {
@@ -83,6 +88,12 @@ export const router = createRouter({
   routes,
 })
 
+/** Creates the in memory client router */
+export const clientRouter = createRouter({
+  history: createMemoryHistory(),
+  routes: clientRoutes,
+})
+
 export const activeRouterParams = computed(() => {
   const pathParams = {
     [PathId.Collection]: 'default',
@@ -94,10 +105,15 @@ export const activeRouterParams = computed(() => {
     [PathId.Server]: 'default',
   }
 
-  if (router.currentRoute.value) {
+  // Snag current route from active router
+  const currentRoute = clientRouter.currentRoute.value.matched.length
+    ? clientRouter.currentRoute.value
+    : router.currentRoute.value
+
+  if (currentRoute) {
     Object.values(PathId).forEach((k) => {
-      if (router.currentRoute.value.params[k]) {
-        pathParams[k] = router.currentRoute.value.params[k] as string
+      if (currentRoute.params[k]) {
+        pathParams[k] = currentRoute.params[k] as string
       }
     })
   }

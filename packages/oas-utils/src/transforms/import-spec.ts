@@ -6,6 +6,7 @@ import { tagObjectSchema } from '@/entities/workspace/spec/spec'
 import type { RequestMethod } from '@/helpers'
 import { parseJsonOrYaml } from '@/helpers/parse'
 import { schemaModel } from '@/helpers/schema-model'
+import type { AnyObject } from '@/types'
 import { openapi } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from 'openapi-types'
 
@@ -17,7 +18,7 @@ const PARAM_DICTIONARY = {
 } as const
 
 /** Import an OpenAPI spec file and convert it to workspace entities */
-export const importSpecToWorkspace = async (spec: string) => {
+export const importSpecToWorkspace = async (spec: string | AnyObject) => {
   const importWarnings: string[] = []
   const requests: Request[] = []
   const parsedSpec = parseJsonOrYaml(spec) as OpenAPIV3_1.Document

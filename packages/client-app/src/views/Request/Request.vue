@@ -17,8 +17,6 @@ import { type DeepReadonly, computed } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
 
-defineEmits<{ (event: 'openModal', tab: string): void }>()
-
 const { activeExample, activeRequest, activeServer, collections, workspace } =
   useWorkspace()
 const { collapsedSidebarFolders } = useSidebar()
@@ -197,7 +195,7 @@ const addItemHandler = () => {
 </script>
 <template>
   <Sidebar>
-    <template #title>Workspace Name</template>
+    <template #title>{{ workspace.name }}</template>
     <template #content>
       <div class="bg-b-1 sticky top-0 z-50 px-3 py-2.5 pb-0">
         <button

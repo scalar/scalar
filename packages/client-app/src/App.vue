@@ -4,7 +4,6 @@ import SideNav from '@/components/SideNav/SideNav.vue'
 import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
-import '@scalar/components/style.css'
 import {
   REQUEST_METHODS,
   type RequestMethod,
@@ -22,8 +21,8 @@ onMounted(() => {
 })
 
 const { isDark } = useDarkModeState()
-
 const { importSpecFile, activeRequest } = useWorkspace()
+
 onMounted(async () => {
   const spec = await fetchSpecFromUrl(
     'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
@@ -61,6 +60,13 @@ const getBackgroundColor = () => {
   <ScalarToasts />
 </template>
 <style>
+@import '@scalar/components/style.css';
+
+@import './assets/reset.css';
+@import './assets/scrollbar.css';
+@import './assets/tailwind.css';
+@import './assets/variables.css';
+
 #app {
   display: flex;
   flex-direction: column;

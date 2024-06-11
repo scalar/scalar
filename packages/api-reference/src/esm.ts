@@ -1,8 +1,9 @@
+import type { SpecConfiguration } from '@scalar/oas-utils'
+import { objectMerge } from '@scalar/oas-utils/helpers'
 import { createApp, reactive } from 'vue'
 
 import ApiReference from './components/ApiReference.vue'
-import { objectMerge } from './helpers'
-import type { ReferenceConfiguration, SpecConfiguration } from './types'
+import type { ReferenceConfiguration } from './types'
 
 /** Initialize Scalar References and  */
 export function createScalarReferences(

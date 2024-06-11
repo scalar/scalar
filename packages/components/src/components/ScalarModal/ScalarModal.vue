@@ -37,6 +37,7 @@ const modal = cva({
       sm: 'max-w-screen-sm',
       md: 'max-w-screen-md',
       lg: 'max-w-screen-lg',
+      full: 'mt-0 overflow-hidden',
     },
     variant: {
       history: 'scalar-modal-history bg-b-1',
@@ -79,6 +80,7 @@ export const useModal = () =>
           'scalar-modal-layout fixed left-0 top-0',
           'z-[1001] h-[100dvh] w-[100dvw]',
           'bg-backdrop p-5 opacity-0',
+          size === 'full' && 'flex',
         )
       ">
       <DialogPanel
@@ -90,7 +92,14 @@ export const useModal = () =>
           :class="{ 'pb-0 pt-6': variant === 'history' }">
           {{ title }}
         </DialogTitle>
-        <DialogDescription :class="cx(bodyClass, body({ variant }))">
+        <div
+          v-if="size === 'full'"
+          :class="bodyClass">
+          <slot />
+        </div>
+        <DialogDescription
+          v-else
+          :class="cx(bodyClass, body({ variant }))">
           <slot />
         </DialogDescription>
       </DialogPanel>
