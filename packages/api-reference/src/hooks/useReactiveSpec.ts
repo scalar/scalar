@@ -1,9 +1,9 @@
+import type { SpecConfiguration } from '@scalar/oas-utils'
 import { fetchSpecFromUrl, prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { type MaybeRefOrGetter, reactive, ref, toValue, watch } from 'vue'
 
 import { createEmptySpecification, isValidUrl } from '../helpers'
 import { parse } from '../helpers/parse'
-import type { SpecConfiguration } from '../types'
 
 /**
  * Get the spec content from the provided configuration:
