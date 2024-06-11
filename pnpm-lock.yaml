@@ -658,8 +658,8 @@ importers:
         specifier: workspace:*
         version: link:../oas-utils
       '@scalar/openapi-parser':
-        specifier: ^0.3.2
-        version: 0.3.2(terser@5.30.0)
+        specifier: ^0.6.0
+        version: 0.6.0
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -854,8 +854,8 @@ importers:
         specifier: workspace:*
         version: link:../oas-utils
       '@scalar/openapi-parser':
-        specifier: ^0.3.2
-        version: 0.3.2(terser@5.30.0)
+        specifier: ^0.6.0
+        version: 0.6.0
       '@scalar/snippetz':
         specifier: ^0.1.6
         version: 0.1.6
@@ -1085,8 +1085,8 @@ importers:
         specifier: workspace:*
         version: link:../oas-utils
       '@scalar/openapi-parser':
-        specifier: ^0.3.2
-        version: 0.3.2(terser@5.30.0)
+        specifier: ^0.6.0
+        version: 0.6.0
       commander:
         specifier: ^12.0.0
         version: 12.0.0
@@ -1154,9 +1154,6 @@ importers:
       '@scalar/object-utils':
         specifier: workspace:*
         version: link:../object-utils
-      '@scalar/openapi-parser':
-        specifier: ^0.3.2
-        version: 0.3.2(terser@5.30.0)
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
@@ -1612,8 +1609,8 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@scalar/openapi-parser':
-        specifier: ^0.3.2
-        version: 0.3.2(terser@5.30.0)
+        specifier: ^0.6.0
+        version: 0.6.0
       '@vitest/coverage-v8':
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
@@ -1658,8 +1655,8 @@ importers:
         specifier: workspace:*
         version: link:../oas-utils
       '@scalar/openapi-parser':
-        specifier: ^0.3.2
-        version: 0.3.2(terser@5.30.0)
+        specifier: ^0.6.0
+        version: 0.6.0
       hono:
         specifier: ^4.2.7
         version: 4.2.8
@@ -1816,8 +1813,8 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@scalar/openapi-parser':
-        specifier: ^0.3.2
-        version: 0.3.2(terser@5.30.0)
+        specifier: ^0.6.0
+        version: 0.6.0
       axios:
         specifier: ^1.6.8
         version: 1.6.8(debug@4.3.4)
@@ -1871,8 +1868,8 @@ importers:
         specifier: workspace:*
         version: link:../oas-utils
       '@scalar/openapi-parser':
-        specifier: ^0.3.2
-        version: 0.3.2(terser@5.30.0)
+        specifier: ^0.6.0
+        version: 0.6.0
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -3861,10 +3858,6 @@ packages:
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
     engines: {node: '>=12.22'}
 
-  '@humanwhocodes/momoa@3.0.1':
-    resolution: {integrity: sha512-Yj2GOwIDb77+A5p4oV2x27edQ7NX86+vKBGWySnfwjKesxn8JCa90Q0Z0eyBBy2G1FulTDrRtfIdmPpIOGhCmQ==}
-    engines: {node: '>=18'}
-
   '@humanwhocodes/object-schema@2.0.2':
     resolution: {integrity: sha512-6EwiSjwWYP7pTckG6I5eyFANjPhmPjUX9JRLUSfNPC7FX7zK9gyZAfUEaECL6ALTpGX5AjnBq3C9XmVWPitNpw==}
 
@@ -5057,8 +5050,8 @@ packages:
   '@rushstack/ts-command-line@4.17.1':
     resolution: {integrity: sha512-2jweO1O57BYP5qdBGl6apJLB+aRIn5ccIRTPDyULh0KMwVzFqWtw6IZWt1qtUoZD/pD2RNkIOosH6Cq45rIYeg==}
 
-  '@scalar/openapi-parser@0.3.2':
-    resolution: {integrity: sha512-o38wF1rKqCc7R0zFMta5rPTiY4cWwVcZPJkV1OCcnPsF2eE79uPkhYU2j/kdocJXVwMqqAe9a6+0o4R8YjgPVw==}
+  '@scalar/openapi-parser@0.6.0':
+    resolution: {integrity: sha512-m01gvKxOnjvRSLhw2wIPpgF5hJlpGCpe+ROVnnxhHaHVlmrKeaTNteYYCrEoTxLT5eMJLmXW1T5cxZA47ltz0Q==}
     engines: {node: '>=18'}
 
   '@scalar/snippetz-core@0.1.4':
@@ -6651,6 +6644,14 @@ packages:
       ajv:
         optional: true
 
+  ajv-formats@3.0.1:
+    resolution: {integrity: sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==}
+    peerDependencies:
+      ajv: ^8.0.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
+
   ajv-keywords@3.5.2:
     resolution: {integrity: sha512-5p6WTN0DdTGVQk6VjcEju19IgaHudalcfabD7yhDGeA6bcQnmL+CpveLJq/3hvfwd1aof6L386Ougkx6RfyMIQ==}
     peerDependencies:
@@ -6666,6 +6667,9 @@ packages:
 
   ajv@8.12.0:
     resolution: {integrity: sha512-sRu1kpcO9yLtYxBKvqfTeh9KzZEwO3STyX1HT+4CaDzC6HpTGYhIhPIzj9XuKU7KYDwnaeh5hcOwjy1QuJzBPA==}
+
+  ajv@8.16.0:
+    resolution: {integrity: sha512-F0twR8U1ZU67JIEtekUcLkXkoO5mMMmgGD8sK/xUFzJ805jxHQl92hImFAqqXMyMYjSPOyUPAwHYhB72g5sTXw==}
 
   algoliasearch-helper@3.16.3:
     resolution: {integrity: sha512-1OuJT6sONAa9PxcOmWo5WCAT3jQSpCR9/m5Azujja7nhUQwAUDvaaAYrcmUySsrvHh74usZHbE3jFfGnWtZj8w==}
@@ -14871,6 +14875,11 @@ packages:
     engines: {node: '>= 14'}
     hasBin: true
 
+  yaml@2.4.5:
+    resolution: {integrity: sha512-aBx2bnqDzVOyNKfsysjA2ms5ZlnjSAW2eG3/L5G/CSujfjLJTJsEw1bGw8kCf04KodQWk1pxlGnZ56CRxiawmg==}
+    engines: {node: '>= 14'}
+    hasBin: true
+
   yargs-parser@18.1.3:
     resolution: {integrity: sha512-o50j0JeToy/4K6OZcaQmW6lyXXKhq7csREXcDwk2omFPJEwUNOVtJKvmDr9EI1fAJZUyZcRF7kxGBWmRXudrCQ==}
     engines: {node: '>=6'}
@@ -17752,8 +17761,6 @@ snapshots:
 
   '@humanwhocodes/module-importer@1.0.1': {}
 
-  '@humanwhocodes/momoa@3.0.1': {}
-
   '@humanwhocodes/object-schema@2.0.2': {}
 
   '@iconify/types@2.0.0': {}
@@ -19399,26 +19406,14 @@ snapshots:
       colors: 1.2.5
       string-argv: 0.3.2
 
-  '@scalar/openapi-parser@0.3.2(terser@5.30.0)':
+  '@scalar/openapi-parser@0.6.0':
     dependencies:
-      '@humanwhocodes/momoa': 3.0.1
-      '@types/node': 20.11.26
-      ajv: 8.12.0
-      ajv-draft-04: 1.0.0(ajv@8.12.0)
-      ajv-formats: 2.1.1(ajv@8.12.0)
-      js-yaml: 4.1.0
+      ajv: 8.16.0
+      ajv-draft-04: 1.0.0(ajv@8.16.0)
+      ajv-formats: 3.0.1(ajv@8.16.0)
       jsonpointer: 5.0.1
       leven: 4.0.0
-      openapi-types: 12.1.3
-      vite: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
-      yaml: 2.4.1
-    transitivePeerDependencies:
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - terser
+      yaml: 2.4.5
 
   '@scalar/snippetz-core@0.1.4':
     dependencies:
@@ -22063,13 +22058,17 @@ snapshots:
       clean-stack: 2.2.0
       indent-string: 4.0.0
 
-  ajv-draft-04@1.0.0(ajv@8.12.0):
+  ajv-draft-04@1.0.0(ajv@8.16.0):
     optionalDependencies:
-      ajv: 8.12.0
+      ajv: 8.16.0
 
   ajv-formats@2.1.1(ajv@8.12.0):
     optionalDependencies:
       ajv: 8.12.0
+
+  ajv-formats@3.0.1(ajv@8.16.0):
+    optionalDependencies:
+      ajv: 8.16.0
 
   ajv-keywords@3.5.2(ajv@6.12.6):
     dependencies:
@@ -22088,6 +22087,13 @@ snapshots:
       uri-js: 4.4.1
 
   ajv@8.12.0:
+    dependencies:
+      fast-deep-equal: 3.1.3
+      json-schema-traverse: 1.0.0
+      require-from-string: 2.0.2
+      uri-js: 4.4.1
+
+  ajv@8.16.0:
     dependencies:
       fast-deep-equal: 3.1.3
       json-schema-traverse: 1.0.0
@@ -32576,6 +32582,8 @@ snapshots:
   yaml@2.0.0-1: {}
 
   yaml@2.4.1: {}
+
+  yaml@2.4.5: {}
 
   yargs-parser@18.1.3:
     dependencies:
