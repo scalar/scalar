@@ -153,18 +153,18 @@ type FieldArrayPath<TFieldValues extends FieldValues> = ArrayPath<TFieldValues>
  * ```
  */
 type PathValue<T, P extends Path<T> | ArrayPath<T>> = T extends any
-  ? P extends `${infer K}.${infer R}`
-    ? K extends keyof T
-      ? R extends Path<T[K]>
-        ? PathValue<T[K], R>
-        : never
-      : K extends `${ArrayKey}`
-        ? T extends ReadonlyArray<infer V>
-          ? PathValue<V, R & Path<V>>
+  ? P extends keyof T
+    ? T[P]
+    : P extends `${infer K}.${infer R}`
+      ? K extends keyof T
+        ? R extends Path<T[K]>
+          ? PathValue<T[K], R>
           : never
-        : never
-    : P extends keyof T
-      ? T[P]
+        : K extends `${ArrayKey}`
+          ? T extends ReadonlyArray<infer V>
+            ? PathValue<V, R & Path<V>>
+            : never
+          : never
       : P extends `${ArrayKey}`
         ? T extends ReadonlyArray<infer V>
           ? V

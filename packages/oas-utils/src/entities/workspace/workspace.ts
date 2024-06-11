@@ -5,7 +5,10 @@ import { nanoidSchema } from './shared'
 const workspaceSchema = z.object({
   uid: nanoidSchema,
   name: z.string().default('Default Workspace'),
+  /** Workspace description */
   description: z.string().default('Basic Scalar Workspace'),
+  /** Controls read only mode for most entitites, but not things like params */
+  isReadOnly: z.boolean().default(false),
   /** List of all collection uids in a given workspace */
   collectionUids: z.array(z.string()).default([]),
   /** List of all environment uids in a given workspace */
