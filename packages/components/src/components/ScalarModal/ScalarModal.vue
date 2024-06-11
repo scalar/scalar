@@ -37,7 +37,7 @@ const modal = cva({
       sm: 'max-w-screen-sm',
       md: 'max-w-screen-md',
       lg: 'max-w-screen-lg',
-      full: 'mt-0',
+      full: 'mt-0 overflow-hidden',
     },
     variant: {
       history: 'scalar-modal-history bg-b-1',
