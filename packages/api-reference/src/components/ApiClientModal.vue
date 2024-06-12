@@ -17,8 +17,8 @@ onMounted(async () => {
   console.log(props.parsedSpec)
   console.log(props.proxyUrl)
 
-  const { createScalarClient } = await import('@scalar/api-client-modal')
-  const { open } = await createScalarClient(el.value, {
+  const { createScalarApiClient } = await import('@scalar/api-client-modal')
+  const { open } = await createScalarApiClient(el.value, {
     spec: {
       url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
     },

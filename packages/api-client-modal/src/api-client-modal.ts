@@ -6,7 +6,7 @@ import { objectMerge } from '@scalar/oas-utils/helpers'
 import { createApp, reactive } from 'vue'
 
 /** Initialize Scalar API Client Modal */
-export const createScalarClient = async (
+export const createScalarApiClient = async (
   /** Element to mount the references to */
   el: HTMLElement,
   /** Configuration object for Scalar References */
