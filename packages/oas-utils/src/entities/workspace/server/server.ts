@@ -32,7 +32,7 @@ const serverSchema = z.object({
    * the host location is relative to the location where the OpenAPI document is being served. Variable substitutions
    * will be made when a variable is named in {brackets}.
    */
-  url: z.string().url(),
+  url: z.string(),
   /**
    * An optional string describing the host designated by the URL. CommonMark syntax MAY be used for rich text
    * representation.
