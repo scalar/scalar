@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Spec } from '@scalar/oas-utils'
-import { onMounted, ref, toRaw } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import { apiClientBus } from './api-client-bus'
 
@@ -19,8 +19,6 @@ onMounted(async () => {
 
   const { createScalarClient } = await import('@scalar/api-client-modal')
   const { open } = await createScalarClient(el.value, {
-    // TODO need @hans to figure out why this gives an error
-    // parsedSpec: toRaw(props.parsedSpec),
     spec: {
       url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
     },
