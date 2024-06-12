@@ -9,10 +9,6 @@ export default {
   darkMode: ['selector', '.dark-mode'],
   theme: {
     extend: {
-      boxShadow: {
-        inset: 'inset 0 0 0 1px var(--scalar-border-color)',
-        insetsm: 'inset 0 0 0 .5px var(--scalar-border-color)',
-      },
       colors: {
         // Sidebar
         sidebar: {
