@@ -35,7 +35,13 @@ export const createScalarApiClient = async (
   } else if (config.spec?.content) {
     importSpecFile({ spec: config.spec?.content })
   } else {
-    console.error('You MUST provide a spec, cannot create Scalar API Client')
+    console.error(
+      `[@scalar/api-client-modal] Could not create the API client.`,
+      `Please provide an OpenAPI document: { spec: { url: '…' } }`,
+      `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client-modal1111`,
+    )
+
+    return null
   }
 
   const app = createApp(ApiClientModal, { config, modalState })
