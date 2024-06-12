@@ -9,6 +9,10 @@ export default {
   darkMode: ['selector', '.dark-mode'],
   theme: {
     extend: {
+      boxShadow: {
+        inset: 'inset 0 0 0 1px var(--scalar-border-color)',
+        insetsm: 'inset 0 0 0 .5px var(--scalar-border-color)',
+      },
       colors: {
         // Sidebar
         sidebar: {
@@ -40,9 +44,15 @@ export default {
       height: { header: 'var(--scalar-client-header-height)' },
       width: { sidebar: 'var(--scalar-sidebar-width)' },
       minHeight: { header: 'var(--scalar-client-header-height)' },
-      boxShadow: {
-        inset: 'inset 0 0 0 1px var(--scalar-border-color)',
-        insetsm: 'inset 0 0 0 .5px var(--scalar-border-color)',
+      zIndex: {
+        // Numeric indexes
+        10: '10',
+        20: '20',
+        50: '50',
+        // Contextual overlays like dropdowns, popovers, tooltips
+        context: '1000',
+        // Full screen overlays / modals
+        overlay: '10000',
       },
     },
   },
