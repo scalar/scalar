@@ -466,6 +466,8 @@ async function importSpecFile(payload: ImportSpecPayload) {
 
 // Function to fetch and import a spec from a URL
 async function importSpecFromUrl(url: string) {
+  // TODO: This doesn't use the proxy. :|
+  // We could use the existing `fetchSpecFromUrl`, but we need access to the configured proxy URL here.
   try {
     const response = await fetch(url)
     if (!response.ok) {
