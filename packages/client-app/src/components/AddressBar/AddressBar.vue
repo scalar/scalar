@@ -214,7 +214,7 @@ const handlePaste = (event: ClipboardEvent) => {
               :options="serverOptions"
               :value="activeCollection?.selectedServerUid">
               <ScalarButton
-                class="font-code text-sm whitespace-nowrap"
+                class="font-code lg:text-sm text-xs whitespace-nowrap"
                 size="sm"
                 variant="outlined"
                 @click.stop>
@@ -263,7 +263,7 @@ const handlePaste = (event: ClipboardEvent) => {
 
             <!-- TODO wrap vars in spans for special effects like mouseOver descriptions -->
             <div
-              class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap text-sm font-medium leading-[24.5px]"
+              class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap lg:text-sm text-xs font-medium leading-[24.5px]"
               contenteditable
               @input="(ev) => onUrlChange((ev.target as HTMLElement).innerText)"
               @keydown.enter.prevent="executeRequestBus.emit()"
@@ -320,7 +320,7 @@ const handlePaste = (event: ClipboardEvent) => {
                     {{ httpStatusCodes[response.status]?.name }}
                   </span>
                   <HttpMethod
-                    class="text-sm"
+                    class="lg:text-sm text-xs"
                     :method="activeRequest.method" />
                 </div>
               </ListboxOption>
@@ -333,7 +333,7 @@ const handlePaste = (event: ClipboardEvent) => {
               class="relative z-10 w-2 shrink-0"
               icon="Play"
               size="xs" />
-            <span class="text-xxs relative z-10">Send</span>
+            <span class="text-xxs relative z-10 lg:flex hidden">Send</span>
           </ScalarButton>
         </div>
       </Listbox>

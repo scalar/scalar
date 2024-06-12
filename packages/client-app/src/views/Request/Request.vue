@@ -228,7 +228,7 @@ const getBackgroundColor = () => {
           type="button"
           @click="showSideBar = !showSideBar">
           <ScalarIcon
-            :icon="showSideBar ? 'SideBarClosed' : 'SideBarOpen'"
+            :icon="showSideBar ? 'SideBarOpen' : 'SideBarClosed'"
             size="sm" />
         </button>
       </div>
@@ -304,7 +304,9 @@ const getBackgroundColor = () => {
           </div>
         </template>
         <template #button>
-          <SidebarButton :click="addItemHandler">
+          <SidebarButton
+            v-if="!workspace.isReadOnly"
+            :click="addItemHandler">
             <template #title>Add Item</template>
           </SidebarButton>
         </template>
@@ -326,3 +328,15 @@ const getBackgroundColor = () => {
     </ViewLayout>
   </div>
 </template>
+<style scoped>
+.request-text-color {
+  color: color-mix(in srgb, var(--tw-bg-base) 15%, var(--scalar-color-3));
+}
+.request-text-color-text {
+  color: color-mix(in srgb, var(--tw-bg-base) 25%, var(--scalar-color-1));
+}
+.request-text-color-text:active,
+.request-text-color:active {
+  color: var(--scalar-color-1);
+}
+</style>

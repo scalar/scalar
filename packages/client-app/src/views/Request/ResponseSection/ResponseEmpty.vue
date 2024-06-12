@@ -3,6 +3,9 @@ import Computer from '@/assets/computer.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { executeRequestBus } from '@/libs'
+import { useWorkspace } from '@/store/workspace'
+
+const { workspace } = useWorkspace()
 </script>
 <template>
   <div
@@ -21,6 +24,7 @@ import { executeRequestBus } from '@/libs'
         <ScalarHotkey hotkey="↵" />
       </button>
       <button
+        v-if="!workspace.isReadOnly"
         class="flex items-center gap-1.5"
         type="button">
         New Request

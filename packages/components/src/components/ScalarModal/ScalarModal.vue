@@ -79,7 +79,7 @@ export const useModal = () =>
         cx(
           'scalar-modal-layout fixed left-0 top-0',
           'z-[1001] h-[100dvh] w-[100dvw]',
-          'bg-backdrop p-5 opacity-0',
+          'bg-backdrop opacity-0',
           size === 'full' && 'flex',
         )
       ">
@@ -111,8 +111,22 @@ export const useModal = () =>
   animation: modal-fade 0.2s forwards;
 }
 .scalar-modal {
-  transform: scale(0.98);
   animation: modal-pop 0.15s 0.15s forwards;
+  height: calc(100% - 120px);
+  width: calc(100% - 8px);
+  max-width: 1390px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+}
+@media (max-width: 1280px) {
+  .scalar-modal {
+    height: calc(100% - 56px);
+    top: 46px;
+  }
 }
 @keyframes modal-fade {
   from {
@@ -128,7 +142,6 @@ export const useModal = () =>
   }
   100% {
     opacity: 1;
-    transform: scale(1);
   }
 }
 </style>
