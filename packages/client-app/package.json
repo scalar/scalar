@@ -105,6 +105,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
+    "@scalar/themes": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@types/content-type": "^1.1.8",
     "@vitejs/plugin-vue": "^5.0.4",
