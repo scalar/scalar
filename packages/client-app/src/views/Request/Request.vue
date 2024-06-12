@@ -232,12 +232,12 @@ const getBackgroundColor = () => {
       <AddressBar />
       <div
         class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 justify-end w-6/12">
-        <button
+        <!-- <button
           class="request-text-color-text bg-mix-transparent hover:bg-mix-amount-95 px-2 py-1.5 rounded bg-mix-amount-90 font-medium text-sm"
           :class="getBackgroundColor()"
           type="button">
           Test Acctual Locally
-        </button>
+        </button> -->
         <button
           class="request-text-color bg-mix-transparent hover:bg-mix-amount-95 p-2 rounded bg-mix-amount-100"
           :class="getBackgroundColor()"
