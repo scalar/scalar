@@ -40,8 +40,6 @@ export const createScalarApiClient = async (
       `Please provide an OpenAPI document: { spec: { url: '…' } }`,
       `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client-modal`,
     )
-
-    return null
   }
 
   const app = createApp(ApiClientModal, { config, modalState })
