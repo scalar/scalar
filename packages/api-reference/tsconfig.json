@@ -4,5 +4,8 @@
   "exclude": ["dist", "vite.config.ts", "node_modules"],
   "ts-node": {
     "require": ["tsconfig-paths/register"]
+  },
+  "compilerOptions": {
+    "types": ["vite/client"]
   }
 }
