@@ -185,10 +185,10 @@ const isSelectedServer = (serverId: string) => {
               @change="updateRequestMethod" />
             <ScalarDropdown
               v-if="serverOptions"
-              class="font-code text-sm whitespace-nowrap"
               :options="serverOptions"
               :value="activeCollection?.selectedServerUid">
               <ScalarButton
+                class="font-code text-sm whitespace-nowrap"
                 size="sm"
                 variant="outlined"
                 @click.stop>
@@ -198,7 +198,7 @@ const isSelectedServer = (serverId: string) => {
                 <ScalarDropdownItem
                   v-for="server in serverOptions"
                   :key="server.id"
-                  class="flex group font-code text-sm whitespace-nowrap text-ellipsis overflow-hidden"
+                  class="flex !gap-1.5 group font-code text-xxs whitespace-nowrap text-ellipsis overflow-hidden"
                   :value="server.id"
                   @click="updateSelectedServer(server.id)">
                   <div
@@ -219,7 +219,7 @@ const isSelectedServer = (serverId: string) => {
                 <ScalarDropdownDivider />
                 <ScalarDropdownItem>
                   <RouterLink
-                    class="flex items-center gap-3"
+                    class="font-code text-xxs flex items-center gap-1.5"
                     to="/servers">
                     <div class="flex items-center justify-center h-4 w-4">
                       <ScalarIcon
