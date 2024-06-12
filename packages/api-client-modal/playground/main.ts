@@ -6,8 +6,8 @@ const el = document.getElementById('root')
 console.log(el)
 
 if (el) {
-  const { modalState } = await createScalarClient(el, {
+  const { open } = await createScalarClient(el, {
     spec: { content },
   })
-  modalState.show()
+  open()
 }

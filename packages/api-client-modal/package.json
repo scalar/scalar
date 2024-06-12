@@ -67,6 +67,7 @@
     "@scalar/galaxy": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "tsc-alias": "^1.8.8",
+    "type-fest": "^4.20.0",
     "vite": "^5.2.10",
     "vue": "^3.4.22",
     "vue-tsc": "^2.0.13"

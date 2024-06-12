@@ -1,5 +1,6 @@
 import { useSidebar } from '@/hooks'
 import { PathId, activeRouterParams, fallbackMissingParams } from '@/router'
+import { useModal } from '@scalar/components'
 import {
   type Workspace,
   createWorkspace,
@@ -479,6 +480,9 @@ async function importSpecFromUrl(url: string) {
   }
 }
 
+/** This state is to be used by the API Client Modal component to control the modal */
+const modalState = useModal()
+
 export function useWorkspace() {
   return {
     // ---------------------------------------------------------------------------
@@ -497,6 +501,7 @@ export function useWorkspace() {
     activeServer,
     activeRequest,
     activeExample,
+    modalState,
     // ---------------------------------------------------------------------------
     // METHODS
     importSpecFile,

@@ -35,6 +35,7 @@ export const importSpecToWorkspace = async (payload: ImportSpecPayload) => {
     (parseJsonOrYaml(payload.spec) as OpenAPIV3_1.Document)
 
   const { schema, errors } = await openapi().load(parsedSpec).resolve()
+
   if (errors?.length || !schema) {
     console.warn(
       'Please open an issue on https://github.com/scalar/scalar\n',

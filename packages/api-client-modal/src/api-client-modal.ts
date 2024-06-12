@@ -1,11 +1,14 @@
 import { ApiClientModal } from '@/components'
 import { clientRouter, useWorkspace } from '@scalar/client-app'
-import { useModal } from '@scalar/components'
 import type { SpecConfiguration } from '@scalar/oas-utils'
 import { objectMerge } from '@scalar/oas-utils/helpers'
 import { createApp, reactive } from 'vue'
 
 import type { ClientConfiguration } from './types'
+
+type OpenPayload =
+  | { requestUid?: string }
+  | { requestUid: string; exampleUid?: string }
 
 /** Initialize Scalar API Client Modal */
 export const createScalarClient = async (
@@ -21,8 +24,7 @@ export const createScalarClient = async (
 ) => {
   const config = reactive(initialConfig)
 
-  const modalState = useModal()
-  const { importSpecFile, importSpecFromUrl, workspaceMutators } =
+  const { importSpecFile, importSpecFromUrl, modalState, workspaceMutators } =
     useWorkspace()
 
   // Import the spec if needed
@@ -60,13 +62,23 @@ export const createScalarClient = async (
       } else {
         objectMerge(config, newConfig)
       }
+      if (newConfig.spec) importSpecFile({ spec: newConfig.spec })
     },
     /** Update the spec file, this will re-parse it */
     updateSpec(spec: SpecConfiguration) {
-      config.spec = spec
+      importSpecFile({ spec })
     },
-    /** To open and close the API client modal */
-    modalState,
+    /** Open the  API client modal */
+    open: (payload: OpenPayload = {}) => {
+      let path = ''
+
+      // See if we want to route to a specific request
+      if (payload.requestUid) path = `/request/${payload.requestUid}`
+      if ('exampleUid' in payload) path += `/example/${payload.exampleUid}`
+      clientRouter.push(path)
+
+      modalState.open = true
+    },
     /** Mount the references to a given element */
     mount,
   }
