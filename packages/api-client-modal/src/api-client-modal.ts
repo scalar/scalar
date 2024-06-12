@@ -3,12 +3,12 @@ import type { ClientConfiguration, OpenClientPayload } from '@/types'
 import { clientRouter, useWorkspace } from '@scalar/client-app'
 import type { SpecConfiguration } from '@scalar/oas-utils'
 import { objectMerge } from '@scalar/oas-utils/helpers'
-import { createApp, reactive } from 'vue'
+import { createApp, reactive, toRaw } from 'vue'
 
 /** Initialize Scalar API Client Modal */
 export const createScalarApiClient = async (
   /** Element to mount the references to */
-  el: HTMLElement,
+  el: HTMLElement | null,
   /** Configuration object for Scalar References */
   initialConfig: ClientConfiguration,
   /**
@@ -76,13 +76,24 @@ export const createScalarApiClient = async (
       importSpecFile({ spec })
     },
     /** Open the  API client modal */
-    open: (payload: OpenClientPayload) => {
+    open: (payload?: OpenClientPayload) => {
       // Find the request from path + method
-      const request = Object.values(requests).find(
-        ({ path, method }) =>
-          path === payload.path && method === payload.method,
+
+      const request = Object.values(requests).find(({ path, method }) =>
+        payload
+          ? // The given operation
+            path === payload.path && method === payload.method
+          : // Or the first request
+            true,
       )
-      if (request) clientRouter.push(`/request/${request.uid}`)
+
+      console.log('requests', toRaw(Object.values(requests)))
+      console.log('payload', payload)
+      console.log('request', request)
+
+      if (request) {
+        clientRouter.push(`/request/${request.uid}`)
+      }
 
       modalState.open = true
     },

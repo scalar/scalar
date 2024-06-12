@@ -64,7 +64,6 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/galaxy": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "tsc-alias": "^1.8.8",
     "type-fest": "^4.20.0",

@@ -746,9 +746,6 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@scalar/galaxy':
-        specifier: workspace:*
-        version: link:../galaxy
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vue@3.4.27(typescript@5.4.3))

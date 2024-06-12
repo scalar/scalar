@@ -13,14 +13,24 @@ npm install @scalar/api-client-modal
 
 ## Usage
 
-A complete example can be found the [playground](https://github.com/scalar/scalar/tree/main/packages/api-client-modal/playground), but basically you need a data structure like:
-
-DOCS are not ready yet
-
 ```ts
+import { createScalarApiClient } from '@/api-client-modal'
 
+// Initialize
+const { open } = await createScalarApiClient(document.getElementById('root'), {
+  spec: {
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  },
+})
+
+// Open the API client right-away
+open()
+
+// Or: Open a specific operation
+// open({
+//   method: 'GET',
+//   path: '/me',
+// })
 ```
 
-### Example
-
-You can find an example in this repo under the [playground](https://github.com/scalar/scalar/tree/main/packages/api-client-modal/playground)
+You can find this example in the [playground folder](https://github.com/scalar/scalar/tree/main/packages/api-client-modal/playground).

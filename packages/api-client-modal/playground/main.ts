@@ -1,13 +1,17 @@
 import { createScalarApiClient } from '@/api-client-modal'
-// @ts-expect-error Just doesn't like raw for some reason
-import content from '@scalar/galaxy/latest.json?raw'
 
-const el = document.getElementById('root')
-console.log(el)
+// Initialize
+const { open } = await createScalarApiClient(document.getElementById('root'), {
+  spec: {
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  },
+})
 
-if (el) {
-  const { open } = await createScalarApiClient(el, {
-    spec: { content },
-  })
-  open()
-}
+// Open the API client right-away
+open()
+
+// Or: Open a specific operation
+// open({
+//   method: 'GET',
+//   path: '/me',
+// })
