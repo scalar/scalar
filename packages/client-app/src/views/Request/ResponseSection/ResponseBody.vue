@@ -4,7 +4,6 @@ import DataTableHeader from '@/components/DataTable/DataTableHeader.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
-import contentType from 'content-type'
 import { computed, nextTick, ref, watch } from 'vue'
 
 const props = withDefaults(
@@ -20,40 +19,14 @@ const props = withDefaults(
   },
 )
 
-const mediaType = computed(() => {
-  const contentTypeHeader = props.headers.find(
-    (header) => header.name.toLowerCase() === 'content-type',
-  )
+const codeLanguage = computed(() => {
+  const contentTypeHeader =
+    props.headers.find((header) => header.name.toLowerCase() === 'content-type')
+      ?.value ?? ''
 
-  if (!contentTypeHeader) {
-    return 'text/html'
-  }
-
-  try {
-    return contentType.parse(contentTypeHeader.value).type
-  } catch {
-    return 'text/html'
-  }
-})
-
-const codeMirrorLanguage = computed((): string | null => {
-  if (
-    mediaType.value === 'application/json' ||
-    mediaType.value === 'application/problem+json' ||
-    mediaType.value === 'application/vnd.api+json'
-  ) {
-    return 'json'
-  }
-
-  if (mediaType.value === 'text/html') {
-    return 'html'
-  }
-
-  if (mediaType.value === 'text/plain') {
-    return 'html'
-  }
-
-  return null
+  if (contentTypeHeader.includes('json')) return 'json'
+  if (contentTypeHeader.includes('html')) return 'html'
+  return 'plaintext'
 })
 
 const iframe = ref<HTMLIFrameElement | null>(null)
@@ -110,21 +83,9 @@ watch(
         <DataTableRow>
           <template v-if="activePreview === 'raw'">
             <ScalarCodeBlock
-              v-if="codeMirrorLanguage"
               class="force-text-sm rounded-b border-t-0"
               :content="data"
-              :lang="codeMirrorLanguage" />
-            <div
-              v-else
-              class="text-c-3 flex min-h-[58px] w-full items-center justify-center rounded border border-dashed text-center text-base">
-              <template v-if="mediaType">
-                No Preview Available ({{ mediaType }})
-              </template>
-              <template v-else>
-                Can’t render a preview. The Content-Type header is missing or
-                unknown.
-              </template>
-            </div>
+              :lang="codeLanguage" />
           </template>
           <template v-else>
             <iframe

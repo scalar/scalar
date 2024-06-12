@@ -16,7 +16,7 @@ const props = withDefaults(
     hideCredentials?: string | string[]
   }>(),
   {
-    lang: 'js',
+    lang: 'plaintext',
     lineNumbers: false,
   },
 )

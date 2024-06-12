@@ -16,21 +16,14 @@ import type {
 import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import { getRequestFromOperation } from '@scalar/oas-utils/spec-getters'
 import { snippetz } from '@scalar/snippetz'
+import { asyncComputed } from '@vueuse/core'
 import { HTTPSnippet } from 'httpsnippet-lite'
-import {
-  computed,
-  inject,
-  onServerPrefetch,
-  ref,
-  useSSRContext,
-  watch,
-} from 'vue'
+import { computed, inject, onServerPrefetch, ref, useSSRContext } from 'vue'
 
 import {
   GLOBAL_SECURITY_SYMBOL,
   getApiClientRequest,
   getHarRequest,
-  sleep,
 } from '../../../helpers'
 import { useClipboard } from '../../../hooks'
 import { useHttpClientStore } from '../../../stores'
@@ -48,7 +41,6 @@ const ssrHash = createHash(
 const ssrStateKey =
   `components-Content-Operation-Example-Request${ssrHash}` satisfies ExampleRequestSSRKey
 
-const generatedCode = ref<string>(ssrState[ssrStateKey] ?? '')
 const selectedExampleKey = ref<string>()
 
 const { copyToClipboard } = useClipboard()
@@ -65,17 +57,15 @@ const { authentication: authenticationState } = useAuthenticationStore()
 
 const hasMultipleExamples = computed<boolean>(
   () =>
-    props.operation.information?.requestBody?.content?.['application/json']
-      ?.examples &&
     Object.keys(
       props.operation.information?.requestBody?.content?.['application/json']
-        .examples,
+        ?.examples ?? {},
     ).length > 1,
 )
 
 const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
 
-const generateSnippet = async (): Promise<string> => {
+async function generateSnippet() {
   // Generate a request object
   const request = getHarRequest(
     {
@@ -94,27 +84,25 @@ const generateSnippet = async (): Promise<string> => {
     ),
   )
 
-  // Actually generate the snippet
-  try {
-    // Snippetz
-    if (
-      snippetz().hasPlugin(
-        httpClient.targetKey.replace('javascript', 'js'),
-        // @ts-ignore
-        httpClient.clientKey,
-      )
-    ) {
-      return (
-        snippetz().print(
-          // @ts-ignore
-          httpClient.targetKey.replace('javascript', 'js'),
-          httpClient.clientKey,
-          request,
-        ) ?? ''
-      )
-    }
+  const clientKey =
+    httpClient.clientKey === 'undici' ||
+    httpClient.clientKey === 'fetch' ||
+    httpClient.clientKey === 'ofetch'
+      ? httpClient.clientKey
+      : null
 
-    // httpsnippet-lite
+  const targetKey = httpClient.targetKey.replace('javascript', 'js')
+
+  if (
+    clientKey &&
+    snippetz().hasPlugin(targetKey, clientKey) &&
+    (targetKey === 'node' || targetKey === 'js')
+  ) {
+    return snippetz().print(targetKey, clientKey, request as any) ?? ''
+  }
+
+  // Use httpsnippet-lite for other languages
+  try {
     const snippet = new HTTPSnippet(request)
     return (await snippet.convert(
       httpClient.targetKey,
@@ -126,32 +114,17 @@ const generateSnippet = async (): Promise<string> => {
   }
 }
 
-watch(
-  [
-    // Update snippet when a different client is selected
-    () => httpClient,
-    // … or the global server state changed
-    () => serverState,
-    // … or the global authentication state changed
-    () => authenticationState,
-    // … or the selected example key
-    () => selectedExampleKey,
-  ],
-  async () => {
-    generatedCode.value = await generateSnippet()
-  },
-  {
-    deep: true,
-    immediate: true,
-  },
+const generatedCode = asyncComputed<string>(
+  generateSnippet,
+  ssrState[ssrStateKey] ?? '',
 )
 
 onServerPrefetch(async () => {
   const ctx = useSSRContext<SSRState>()
-  await sleep(1)
-  ctx!.payload.data[ssrStateKey] = generatedCode.value
+  ctx!.payload.data[ssrStateKey] = await generateSnippet()
 })
 
+/** @hans TODO What is this doing? Computed properties should not be used as side effects  */
 computed(() => {
   return getApiClientRequest({
     serverState: serverState,
@@ -159,6 +132,15 @@ computed(() => {
     operation: props.operation,
     globalSecurity: getGlobalSecurity?.(),
   })
+})
+
+/** For some snippets we use alternative highlight language packages */
+const language = computed(() => {
+  const key = httpClient.targetKey
+
+  if (key === 'shell' && generatedCode.value.includes('curl')) return 'curl'
+  if (key === 'c' && generatedCode.value.includes('CURL')) return 'cpp'
+  return key
 })
 </script>
 <template>
@@ -218,7 +200,7 @@ computed(() => {
           :hideCredentials="
             getSecretCredentialsFromAuthentication(authenticationState)
           "
-          :lang="httpClient.targetKey"
+          :lang="language"
           lineNumbers />
       </div>
     </CardContent>

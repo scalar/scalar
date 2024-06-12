@@ -47,7 +47,6 @@ html[data-theme='dark'] body {
   --scalar-color-accent: var(--ifm-menu-color-active, #1fa588);
 
   --scalar-background-1: var(--ifm-background-color, #1b1b1d);
-  --scalar-background-2: var(--prism-background-color, #212121);
   --scalar-background-3: #323232;
   --scalar-background-accent: var(
     --ifm-menu-color-background-active,

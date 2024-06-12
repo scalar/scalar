@@ -39,7 +39,6 @@
     "@mdx-js/react": "^3.0.0",
     "@scalar/docusaurus": "workspace:*",
     "clsx": "^2.0.0",
-    "prism-react-renderer": "^2.3.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
