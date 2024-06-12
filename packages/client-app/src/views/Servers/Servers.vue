@@ -4,6 +4,7 @@ import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
+import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { themeClasses } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
 import { createServer } from '@scalar/oas-utils/entities/workspace/server'
@@ -24,28 +25,30 @@ const addServerHandler = () => {
 }
 </script>
 <template>
-  <Sidebar>
-    <template #title>Servers</template>
-    <template #content>
-      <div class="flex-1">
-        <SidebarList>
-          <SidebarListElement
-            v-for="serverUid in activeCollection?.spec.serverUids"
-            :key="serverUid"
-            class="text-xs"
-            :variable="{ name: servers[serverUid].url, uid: serverUid }" />
-        </SidebarList>
-      </div>
-    </template>
-    <template #button>
-      <SidebarButton :click="addServerHandler">
-        <template #title>Add Server</template>
-      </SidebarButton>
-    </template>
-  </Sidebar>
+  <ViewLayout>
+    <Sidebar>
+      <template #title>Servers</template>
+      <template #content>
+        <div class="flex-1">
+          <SidebarList>
+            <SidebarListElement
+              v-for="serverUid in activeCollection?.spec.serverUids"
+              :key="serverUid"
+              class="text-xs"
+              :variable="{ name: servers[serverUid].url, uid: serverUid }" />
+          </SidebarList>
+        </div>
+      </template>
+      <template #button>
+        <SidebarButton :click="addServerHandler">
+          <template #title>Add Server</template>
+        </SidebarButton>
+      </template>
+    </Sidebar>
 
-  <!-- TODO possible loading state -->
-  <ViewLayout :class="[themeClasses.view]">
-    <ServerForm />
+    <!-- TODO possible loading state -->
+    <ViewLayoutContent :class="[themeClasses.view]">
+      <ServerForm />
+    </ViewLayoutContent>
   </ViewLayout>
 </template>

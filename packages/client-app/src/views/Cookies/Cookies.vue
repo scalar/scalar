@@ -4,6 +4,7 @@ import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
+import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { themeClasses } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
 import { createCookie } from '@scalar/oas-utils/entities/workspace/cookie'
@@ -28,29 +29,31 @@ const addCookieHandler = () => {
 }
 </script>
 <template>
-  <Sidebar>
-    <template #title>Domain</template>
-    <template #content>
-      <div class="flex-1">
-        <SidebarList>
-          <SidebarListElement
-            v-for="cookie in cookies"
-            :key="cookie.uid"
-            class="text-xs"
-            :variable="{ name: cookie.name, uid: cookie.uid }" />
-        </SidebarList>
-      </div>
-    </template>
-    <template #button>
-      <SidebarButton :click="addCookieHandler">
-        <template #title>Add Item</template>
-      </SidebarButton>
-    </template>
-  </Sidebar>
+  <ViewLayout>
+    <Sidebar>
+      <template #title>Domain</template>
+      <template #content>
+        <div class="flex-1">
+          <SidebarList>
+            <SidebarListElement
+              v-for="cookie in cookies"
+              :key="cookie.uid"
+              class="text-xs"
+              :variable="{ name: cookie.name, uid: cookie.uid }" />
+          </SidebarList>
+        </div>
+      </template>
+      <template #button>
+        <SidebarButton :click="addCookieHandler">
+          <template #title>Add Item</template>
+        </SidebarButton>
+      </template>
+    </Sidebar>
 
-  <!-- TODO possible loading state -->
-  <ViewLayout :class="[themeClasses.view]">
-    <CookieForm />
-    <CookieRaw />
+    <!-- TODO possible loading state -->
+    <ViewLayoutContent :class="[themeClasses.view]">
+      <CookieForm />
+      <CookieRaw />
+    </ViewLayoutContent>
   </ViewLayout>
 </template>
