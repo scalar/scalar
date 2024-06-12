@@ -6,10 +6,9 @@ import { tagObjectSchema } from '@/entities/workspace/spec/spec'
 import type { RequestMethod } from '@/helpers'
 import { parseJsonOrYaml } from '@/helpers/parse'
 import { schemaModel } from '@/helpers/schema-model'
-import type { AnyObject, Spec } from '@/types'
+import type { AnyObject } from '@/types'
 import { openapi } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from 'openapi-types'
-import type { RequireExactlyOne } from 'type-fest'
 
 const PARAM_DICTIONARY = {
   cookie: 'cookies',
@@ -18,21 +17,11 @@ const PARAM_DICTIONARY = {
   query: 'query',
 } as const
 
-export type ImportSpecPayload = RequireExactlyOne<
-  {
-    spec: string | AnyObject
-    parsedSpec: Spec
-  },
-  'spec' | 'parsedSpec'
->
-
 /** Import an OpenAPI spec file and convert it to workspace entities */
-export const importSpecToWorkspace = async (payload: ImportSpecPayload) => {
+export const importSpecToWorkspace = async (spec: string | AnyObject) => {
   const importWarnings: string[] = []
   const requests: Request[] = []
-  const parsedSpec =
-    payload.parsedSpec ??
-    (parseJsonOrYaml(payload.spec) as OpenAPIV3_1.Document)
+  const parsedSpec = parseJsonOrYaml(spec) as OpenAPIV3_1.Document
 
   const { schema, errors } = await openapi().load(parsedSpec).resolve()
 
@@ -46,6 +35,8 @@ export const importSpecToWorkspace = async (payload: ImportSpecPayload) => {
 
   // Keep a list of all tags used in requests so we can reference them later
   const requestTags: Set<string> = new Set()
+
+  console.log({ schema })
 
   Object.entries(schema?.paths || {}).forEach(([pathString, path]) => {
     if (!path) return

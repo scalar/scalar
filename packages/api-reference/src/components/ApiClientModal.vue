@@ -12,9 +12,7 @@ const props = defineProps<{
 const el = ref<HTMLDivElement | null>(null)
 
 onMounted(async () => {
-  if (!el.value) {
-    return
-  }
+  if (!el.value) return
 
   const { createScalarApiClient } = await import('@scalar/api-client-modal')
 

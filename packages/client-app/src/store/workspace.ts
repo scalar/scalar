@@ -34,17 +34,14 @@ import {
   createRequestExampleParameter,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { iterateTitle } from '@scalar/oas-utils/helpers'
-import {
-  type ImportSpecPayload,
-  importSpecToWorkspace,
-} from '@scalar/oas-utils/transforms'
+import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import {
   type Path,
   type PathValue,
   setNestedValue,
 } from '@scalar/object-utils/nested'
-import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { AnyObject, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, reactive, readonly } from 'vue'
 
 const { setCollapsedSidebarFolder } = useSidebar()
@@ -448,8 +445,8 @@ const deleteServer = (serverUid: string, collectionUid: string) => {
 // ---------------------------------------------------------------------------
 
 /** Helper function to import a OpenAPI spec file into the local workspace */
-async function importSpecFile(payload: ImportSpecPayload) {
-  const workspaceEntities = await importSpecToWorkspace(payload)
+async function importSpecFile(spec: string | AnyObject) {
+  const workspaceEntities = await importSpecToWorkspace(spec)
 
   // Add all the new requests into the request collection, the already have parent folders
   workspaceEntities.requests.forEach((request) => addRequest(request))
@@ -474,7 +471,7 @@ async function importSpecFromUrl(url: string) {
       throw new Error(`Error ${response.status} fetching the spec from: ${url}`)
     }
     const spec = await response.text()
-    await importSpecFile({ spec })
+    await importSpecFile(spec)
   } catch (error) {
     console.error('Failed to fetch spec from URL:', error)
   }
