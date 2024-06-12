@@ -5,6 +5,7 @@ import AddressBar from '@/components/AddressBar/AddressBar.vue'
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
+import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { themeClasses } from '@/constants'
 import { type ActionModalTab, useActionModal, useSidebar } from '@/hooks'
 import { executeRequestBus, sendRequest } from '@/libs'
@@ -251,8 +252,7 @@ const getBackgroundColor = () => {
         </button>
       </div>
     </div>
-    <div
-      class="m-1 mt-0 flex min-h-0 flex-1 rounded xl:rounded-lg xl:border xl:overflow-hidden leading-[19.5px]">
+    <ViewLayout>
       <Sidebar v-if="showSideBar">
         <template #title>{{ workspace.name }}</template>
         <template #content>
@@ -310,7 +310,7 @@ const getBackgroundColor = () => {
         </template>
       </Sidebar>
       <!-- TODO possible loading state -->
-      <ViewLayout
+      <ViewLayoutContent
         v-if="activeExample"
         :class="[themeClasses.view]">
         <RequestSection />
@@ -319,10 +319,10 @@ const getBackgroundColor = () => {
             activeRequest?.history?.[activeRequest?.history?.length - 1]
               ?.response
           " />
-      </ViewLayout>
+      </ViewLayoutContent>
       <ActionModal
         :state="actionModalState"
         @update:tab="handleTabChange" />
-    </div>
+    </ViewLayout>
   </div>
 </template>

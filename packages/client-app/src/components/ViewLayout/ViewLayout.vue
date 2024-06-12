@@ -1,6 +1,6 @@
 <template>
   <div
-    class="divide divide-y xl:divide-y-0 xl:divide-x flex xl:flex-row flex-col custom-scroll rounded">
+    class="m-1 mt-0 flex min-h-0 flex-1 rounded xl:rounded-lg xl:border xl:overflow-hidden leading-3">
     <slot />
   </div>
 </template>

@@ -5,6 +5,7 @@ import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
+import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { themeClasses } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
@@ -64,50 +65,52 @@ const setActiveEnvironment = () => {
 onMounted(setActiveEnvironment)
 </script>
 <template>
-  <Sidebar>
-    <template #title>Environment</template>
-    <template #content>
-      <div class="flex-1">
-        <SidebarList>
-          <SidebarListElement
-            v-for="environment in environments"
-            :key="environment.uid"
-            class="text-xs"
-            :variable="{
-              name: environment.name,
-              uid: environment.uid,
-              color: environment.color,
-              isDefault: environment.isDefault,
-            }"
-            @click="activeEnvironmentID = environment.uid"
-            @delete="removeEnvironmentVariable(environment.uid)" />
-        </SidebarList>
-      </div>
-    </template>
-    <template #button>
-      <SidebarButton :click="addEnvironmentVariable">
-        <template #title>Add Environment Variable</template>
-      </SidebarButton>
-    </template>
-  </Sidebar>
-  <ViewLayout :class="[themeClasses.view]">
-    <ViewLayoutSection>
-      <template
-        v-if="activeEnvironmentID"
-        #title>
-        <span>{{ environments[activeEnvironmentID].name }}</span>
-        <div class="colors ml-auto">
-          <EnvironmentColors
-            :activeColor="environments[activeEnvironmentID].color"
-            @select="handleColorSelect" />
+  <ViewLayout>
+    <Sidebar>
+      <template #title>Environment</template>
+      <template #content>
+        <div class="flex-1">
+          <SidebarList>
+            <SidebarListElement
+              v-for="environment in environments"
+              :key="environment.uid"
+              class="text-xs"
+              :variable="{
+                name: environment.name,
+                uid: environment.uid,
+                color: environment.color,
+                isDefault: environment.isDefault,
+              }"
+              @click="activeEnvironmentID = environment.uid"
+              @delete="removeEnvironmentVariable(environment.uid)" />
+          </SidebarList>
         </div>
       </template>
-      <CodeInput
-        v-if="activeEnvironmentID"
-        class="px-2 py-2.5"
-        lineNumbers
-        :modelValue="environments[activeEnvironmentID].raw"
-        @update:modelValue="handleEnvironmentUpdate" />
-    </ViewLayoutSection>
+      <template #button>
+        <SidebarButton :click="addEnvironmentVariable">
+          <template #title>Add Environment Variable</template>
+        </SidebarButton>
+      </template>
+    </Sidebar>
+    <ViewLayoutContent :class="[themeClasses.view]">
+      <ViewLayoutSection>
+        <template
+          v-if="activeEnvironmentID"
+          #title>
+          <span>{{ environments[activeEnvironmentID].name }}</span>
+          <div class="colors ml-auto">
+            <EnvironmentColors
+              :activeColor="environments[activeEnvironmentID].color"
+              @select="handleColorSelect" />
+          </div>
+        </template>
+        <CodeInput
+          v-if="activeEnvironmentID"
+          class="px-2 py-2.5"
+          lineNumbers
+          :modelValue="environments[activeEnvironmentID].raw"
+          @update:modelValue="handleEnvironmentUpdate" />
+      </ViewLayoutSection>
+    </ViewLayoutContent>
   </ViewLayout>
 </template>
