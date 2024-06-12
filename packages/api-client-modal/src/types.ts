@@ -1,4 +1,5 @@
 import type { Spec, SpecConfiguration } from '@scalar/oas-utils'
+import type { RequestMethod } from '@scalar/oas-utils/helpers'
 import type { RequireExactlyOne } from 'type-fest'
 
 /** Configuration options for the Scalar API client */
@@ -46,3 +47,5 @@ export type ClientConfiguration = RequireExactlyOne<
   },
   'spec' | 'parsedSpec'
 >
+
+export type OpenClientPayload = { path: string; method: RequestMethod }

@@ -56,7 +56,6 @@ defineEmits<{
 
 /** "Feature flag" for the new Modal */
 const NEW_API_MODAL = true
-console.log(import.meta)
 
 defineOptions({
   inheritAttrs: false,
@@ -318,12 +317,12 @@ useDeprecationWarnings(props.configuration)
               name="footer" />
           </div>
         </template>
-        <!-- REST API Client Overlay -->
-        <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
         <ApiClientModal
           v-if="NEW_API_MODAL"
           :parsedSpec="parsedSpec"
           :proxyUrl="configuration.proxy" />
+        <!-- REST API Client Overlay -->
+        <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
         <ApiClientModalOld
           v-else
           :parsedSpec="parsedSpec"

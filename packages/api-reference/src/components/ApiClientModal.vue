@@ -2,18 +2,20 @@
 import type { Spec } from '@scalar/oas-utils'
 import { onMounted, ref, toRaw } from 'vue'
 
+import { apiClientBus } from './api-client-bus'
+
 const props = defineProps<{
   parsedSpec: Spec
   proxyUrl?: string
 }>()
 
-console.log(props.parsedSpec)
-console.log(props.proxyUrl)
-
 const el = ref<HTMLDivElement | null>(null)
 
 onMounted(async () => {
   if (!el.value) return
+
+  console.log(props.parsedSpec)
+  console.log(props.proxyUrl)
 
   const { createScalarClient } = await import('@scalar/api-client-modal')
   const { open } = await createScalarClient(el.value, {
@@ -25,7 +27,8 @@ onMounted(async () => {
     proxyUrl: props.proxyUrl,
   })
 
-  open()
+  // Event bus to listen to apiClient events
+  apiClientBus.on(open)
 })
 </script>
 <template>

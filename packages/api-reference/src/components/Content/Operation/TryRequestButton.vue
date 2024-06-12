@@ -5,6 +5,7 @@ import type { TransformedOperation } from '@scalar/oas-utils'
 import { inject } from 'vue'
 
 import { GLOBAL_SECURITY_SYMBOL, openClientFor } from '../../../helpers'
+import { apiClientBus } from '../../api-client-bus'
 
 defineProps<{
   operation: TransformedOperation
@@ -18,7 +19,12 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
     class="show-api-client-button"
     :method="operation.httpVerb"
     type="button"
-    @click.stop="openClientFor(operation, getGlobalSecurity?.())">
+    @click.stop="
+      apiClientBus.emit({
+        path: operation.path,
+        method: operation.httpVerb.toUpperCase(),
+      })
+    ">
     <ScalarIcon icon="PaperAirplane" />
     <span>Test Request</span>
   </HttpMethod>
