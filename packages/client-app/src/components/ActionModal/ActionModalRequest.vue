@@ -91,16 +91,17 @@ function handleSubmit() {
         v-model="selectedFolder"
         :options="folders"
         resize>
-        <button
-          class="relative flex h-full min-h-10 w-full cursor-pointer items-center justify-between rounded border p-2"
-          type="button">
+        <ScalarButton
+          class="justify-between p-2 w-full"
+          variant="outlined">
           <span :class="selectedFolder ? 'text-c-1' : 'text-c-3'">{{
             selectedFolder ? selectedFolder.label : 'Select Folder'
           }}</span>
           <ScalarIcon
+            class="text-c-3"
             icon="ChevronDown"
             size="xs" />
-        </button>
+        </ScalarButton>
       </ScalarListbox>
     </div>
     <ScalarButton type="submit"> Create </ScalarButton>
