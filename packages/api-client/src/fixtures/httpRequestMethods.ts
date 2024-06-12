@@ -13,7 +13,7 @@ export const validRequestMethods = [
 export type RequestMethod = typeof validRequestMethods[number];
 
 export function isRequestMethod(s: string): s is RequestMethod {
-return validRequestMethods.includes(s as RequestMethod)
+    return validRequestMethods.includes(s as RequestMethod)
 }
 
 export const requestMethodColors: { [x in RequestMethod]: string } = {

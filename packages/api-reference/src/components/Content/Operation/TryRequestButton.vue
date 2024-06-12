@@ -22,7 +22,7 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
     @click.stop="
       apiClientBus.emit({
         path: operation.path,
-        method: operation.httpVerb.toUpperCase(),
+        method: operation.httpVerb,
       })
     ">
     <ScalarIcon icon="PaperAirplane" />

@@ -1,5 +1,6 @@
 import type { ExternalDocumentation } from '@/entities/workspace/collection'
 import type { Server } from '@/entities/workspace/server'
+import type { RequestMethod } from '@/helpers'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { HarRequest } from 'httpsnippet-lite'
 
@@ -71,7 +72,7 @@ export type Information = {
 }
 
 export type Operation = {
-  httpVerb: string
+  httpVerb: RequestMethod
   path: string
   operationId?: string
   name?: string
