@@ -141,6 +141,32 @@ const isSelectedServer = (serverId: string) => {
   return activeCollection.value?.selectedServerUid === serverId
 }
 
+/** prevent line breaks on pasted content */
+const handlePaste = (event: ClipboardEvent) => {
+  event.preventDefault()
+  const text = event.clipboardData?.getData('text/plain') || ''
+  const sanitizedText = text.replace(/\n/g, '')
+
+  const selection = window.getSelection()
+  if (!selection || selection.rangeCount === 0) return
+
+  const range = selection.getRangeAt(0)
+  range.deleteContents()
+  const textNode = document.createTextNode(sanitizedText)
+  range.insertNode(textNode)
+
+  /** move the cursor to the end of the inserted text */
+  range.setStartAfter(textNode)
+  selection.removeAllRanges()
+  selection.addRange(range)
+
+  /** scroll and focus at the end of the pasted content */
+  const editableDiv = range.startContainer.parentElement
+  if (editableDiv) {
+    editableDiv.scrollLeft = editableDiv.scrollWidth
+  }
+}
+
 /**
  * TODO: This component is pretty much mocked for now, will come back and finish it up once we
  * Start making requests and adding some history
@@ -165,7 +191,7 @@ const isSelectedServer = (serverId: string) => {
         v-model="selectedRequest">
         <div
           :class="[
-            'text-xxs bg-b-1 relative flex w-full lg:min-w-[720px] order-last lg:order-none flex-1 flex-row items-stretch rounded border p-[3px]',
+            'text-xxs bg-b-1 relative flex w-full lg:min-w-[720px] lg:max-w-[720px] order-last lg:order-none flex-1 flex-row items-stretch rounded border p-[3px]',
             { 'rounded-b-none': open },
             { 'border-transparent': open },
           ]">
@@ -185,10 +211,10 @@ const isSelectedServer = (serverId: string) => {
               @change="updateRequestMethod" />
             <ScalarDropdown
               v-if="serverOptions"
-              class="font-code text-sm whitespace-nowrap"
               :options="serverOptions"
               :value="activeCollection?.selectedServerUid">
               <ScalarButton
+                class="font-code text-sm whitespace-nowrap"
                 size="sm"
                 variant="outlined"
                 @click.stop>
@@ -198,7 +224,7 @@ const isSelectedServer = (serverId: string) => {
                 <ScalarDropdownItem
                   v-for="server in serverOptions"
                   :key="server.id"
-                  class="flex group font-code text-sm whitespace-nowrap text-ellipsis overflow-hidden"
+                  class="flex !gap-1.5 group font-code text-xxs whitespace-nowrap text-ellipsis overflow-hidden"
                   :value="server.id"
                   @click="updateSelectedServer(server.id)">
                   <div
@@ -219,7 +245,7 @@ const isSelectedServer = (serverId: string) => {
                 <ScalarDropdownDivider />
                 <ScalarDropdownItem>
                   <RouterLink
-                    class="flex items-center gap-3"
+                    class="font-code text-xxs flex items-center gap-1.5"
                     to="/servers">
                     <div class="flex items-center justify-center h-4 w-4">
                       <ScalarIcon
@@ -232,20 +258,17 @@ const isSelectedServer = (serverId: string) => {
               </template>
             </ScalarDropdown>
           </div>
-          <div class="scroll-timeline-x relative flex w-full overflow-hidden">
+          <div class="custom-scroll scroll-timeline-x relative flex w-full">
             <div class="fade-left"></div>
 
             <!-- TODO wrap vars in spans for special effects like mouseOver descriptions -->
-            <div class="flex w-full">
-              <div
-                class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap text-sm font-medium leading-[24.5px]"
-                contenteditable
-                @input="
-                  (ev) => onUrlChange((ev.target as HTMLElement).innerText)
-                "
-                @keydown.enter.prevent="executeRequestBus.emit()">
-                {{ activeRequest.path }}
-              </div>
+            <div
+              class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap text-sm font-medium leading-[24.5px]"
+              contenteditable
+              @input="(ev) => onUrlChange((ev.target as HTMLElement).innerText)"
+              @keydown.enter.prevent="executeRequestBus.emit()"
+              @paste="handlePaste">
+              {{ activeRequest.path }}
             </div>
             <div class="fade-right"></div>
           </div>
@@ -334,8 +357,8 @@ const isSelectedServer = (serverId: string) => {
   -ms-overflow-style: none; /* IE and Edge */
 }
 .scroll-timeline-x-address {
+  line-height: 27px;
   scrollbar-width: none; /* Firefox */
-  overflow: auto;
 }
 /* make clickable are to left of send button */
 .scroll-timeline-x-address:after {
@@ -372,6 +395,7 @@ const isSelectedServer = (serverId: string) => {
   );
   left: 0;
   min-width: 3px;
+  animation-direction: normal;
 }
 .fade-right {
   background: linear-gradient(
@@ -382,13 +406,12 @@ const isSelectedServer = (serverId: string) => {
   );
   right: 0;
   min-width: 24px;
-  animation-direction: reverse;
 }
 @keyframes fadein {
   0% {
     opacity: 0;
   }
-  2% {
+  1% {
     opacity: 1;
   }
 }
