@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { syntaxHighlight } from '@scalar/code-highlight'
+import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight'
 import '@scalar/code-highlight/css/code.css'
 import { computed } from 'vue'
 
@@ -11,7 +11,7 @@ import { prettyPrintString } from './utils/prettyPrintString'
 const props = withDefaults(
   defineProps<{
     content: string | object
-    lang?: string
+    lang: string
     lineNumbers?: boolean
     hideCredentials?: string | string[]
   }>(),
@@ -23,7 +23,8 @@ const props = withDefaults(
 
 const highlightedCode = computed(() => {
   const html = syntaxHighlight(prettyPrintString(props.content), {
-    lang: props.lang,
+    lang: props.lang.trim(),
+    languages: standardLanguages,
     lineNumbers: props.lineNumbers,
     maskCredentials: props.hideCredentials,
   })

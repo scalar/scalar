@@ -1,5 +1,6 @@
 import { rehypeHighlight } from '@/rehype-highlight'
 import type { Element, Root } from 'hast'
+import type { LanguageFn } from 'highlight.js'
 import rehypeParse from 'rehype-parse'
 import rehypeStringify from 'rehype-stringify'
 import { type Plugin, unified } from 'unified'
@@ -9,8 +10,9 @@ import { codeBlockLinesPlugin } from './line-numbers'
 
 export function syntaxHighlight(
   codeString: string,
-  options?: {
-    lang?: string
+  options: {
+    lang: string
+    languages: Record<string, LanguageFn>
     lineNumbers?: boolean
     maskCredentials?: string | string[]
   },
@@ -30,7 +32,8 @@ export function syntaxHighlight(
     return true
   })
 
-  const className = options?.lang ? `language-${options?.lang}` : ''
+  // Classname is used by lowlight to select the language model
+  const className = `language-${options.lang}`
 
   const nullPlugin = (() => {}) satisfies Plugin
 
@@ -42,7 +45,7 @@ export function syntaxHighlight(
     .use(injectRawCodeStringPlugin(codeString))
     // Syntax highlighting
     .use(rehypeHighlight, {
-      detect: options?.lang ? false : true,
+      languages: options.languages,
     })
     .use(options?.lineNumbers ? codeBlockLinesPlugin : nullPlugin)
     // Converts the HTML AST to a string

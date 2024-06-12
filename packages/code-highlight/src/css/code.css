@@ -1,7 +1,7 @@
 @layer scalar-base {
   code.hljs * {
-    font-size: var(--scalar-small) !important;
-    font-family: var(--scalar-font-code) !important;
+    font-size: var(--scalar-small);
+    font-family: var(--scalar-font-code);
     text-align: left;
     white-space: pre;
     word-spacing: normal;
@@ -11,6 +11,8 @@
     tab-size: 4;
   }
   code.hljs {
+    font-size: var(--scalar-small);
+    font-family: var(--scalar-font-code);
     display: inline-block;
     counter-reset: linenumber;
   }
@@ -29,12 +31,72 @@
     min-width: calc(var(--line-digits) * 1ch);
     text-align: right;
   }
-
+  /* ------------------------------------------------------------- */
+  /* Data types */
   .hljs-comment,
   .hljs-quote {
     color: var(--scalar-color-3);
     font-style: italic;
   }
+
+  .hljs-number {
+    color: var(--scalar-color-orange);
+  }
+
+  .hljs-regexp,
+  .hljs-string {
+    color: var(--scalar-color-blue);
+  }
+
+  /** Globals such as `var()` and `!important` */
+  .hljs-built_in {
+    color: var(--scalar-color-blue);
+  }
+
+  /** Class initializers such as `Array` or `Date` */
+  /** Type declarations such as `Record` */
+  .hljs-title.class_ {
+    color: var(--scalar-color-red);
+  }
+
+  /** Language indicators such as `new`, `const`, or `function` in JS  */
+  .hljs-keyword {
+    color: var(--scalar-color-purple);
+  }
+
+  /** Function names when declaring and calling */
+  .hljs-title.function_ {
+    color: var(--scalar-color-orange);
+  }
+
+  /** Template substitution */
+  .hljs-subst {
+    color: var(--scalar-color-blue);
+  }
+
+  /** HTML Tag name */
+  .hljs-name {
+    color: var(--scalar-color-red);
+  }
+
+  /** Attribute name (ex. `class`, `id`) */
+  .hljs-attr,
+  .hljs-attribute {
+    color: var(--scalar-color-1);
+  }
+
+  /** For HTML we leave the content strings brighter */
+  .hljs.language-html {
+    color: var(--scalar-color-1);
+  }
+
+  /** For HTML make the attr text different than the content */
+  .hljs.language-html .hljs-attr {
+    color: var(--scalar-color-2);
+  }
+  /* ------------------------------------------------------------- */
+  /* CSS */
+
   .hljs-addition,
   .hljs-literal,
   .hljs-selector-tag,
@@ -42,56 +104,46 @@
     color: var(--scalar-color-green);
   }
 
-  .hljs-keyword {
-    color: var(--scalar-color-purple);
-  }
-
-  .hljs-number,
   .hljs-selector-attr,
-  .hljs-selector-pseudo,
-  .hljs-title.function_ {
+  .hljs-selector-pseudo {
     color: var(--scalar-color-orange);
   }
-  .hljs-doctag,
-  .hljs-regexp,
-  .hljs-string {
+  .hljs-doctag {
     color: var(--scalar-color-blue);
   }
-  .hljs-built_in,
-  .hljs-name,
+
   .hljs-section,
   .hljs-title {
     color: var(--scalar-color-blue);
   }
-  .hljs-class .hljs-title,
+
   .hljs-selector-id,
   .hljs-template-variable,
-  .hljs-title.class_,
   .hljs-variable {
     color: var(--scalar-color-1);
   }
+
   .hljs-name,
   .hljs-section,
   .hljs-strong {
     font-weight: var(--scalar-semibold);
   }
+
   .hljs-bullet,
   .hljs-link,
   .hljs-meta,
-  .hljs-subst,
   .hljs-symbol {
     color: var(--scalar-color-blue);
   }
+
   .hljs-deletion {
     color: var(--scalar-color-red);
   }
+
   .hljs-formula {
     background: var(--scalar-color-1);
   }
-  .hljs-attr,
-  .hljs-attribute {
-    color: var(--scalar-color-1);
-  }
+
   .hljs-emphasis {
     font-style: italic;
   }

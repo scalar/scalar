@@ -1,6 +1,6 @@
 import type { Element, ElementContent, Root } from 'hast'
 import { toText } from 'hast-util-to-text'
-import { type LanguageFn, common, createLowlight } from 'lowlight'
+import { type LanguageFn, createLowlight } from 'lowlight'
 import { visit } from 'unist-util-visit'
 import type { VFile } from 'vfile'
 
@@ -14,8 +14,6 @@ type HighlightOptions = {
     | Readonly<Record<string, ReadonlyArray<string> | string>>
     | null
     | undefined
-  /** Highlight code without language classes by guessing the language (default: `false`). */
-  detect?: boolean | null | undefined
   /** Register languages (default: `common`) passed to `lowlight.register` */
   languages?: Readonly<Record<string, LanguageFn>> | null | undefined
   /** List of language names to not highlight (optional). Note: you can also add `no-highlight` classes. */
@@ -38,8 +36,8 @@ export function rehypeHighlight(
 ) {
   const settings = options || emptyOptions
   const aliases = settings.aliases
-  const detect = settings.detect || false
-  const languages = settings.languages || common
+  const detect = false
+  const languages = settings.languages
   const plainText = settings.plainText
   const prefix = settings.prefix
   const subset = settings.subset

@@ -1,3 +1,4 @@
+import { standardLanguages } from '@/languages'
 import { rehypeHighlight } from '@/rehype-highlight'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
@@ -35,7 +36,7 @@ export async function htmlFromMarkdown(
     })
     // Syntax highlighting
     .use(rehypeHighlight, {
-      detect: true,
+      languages: standardLanguages,
     })
     // Adds target="_blank" to external links
     .use(rehypeExternalLinks, { target: '_blank' })
