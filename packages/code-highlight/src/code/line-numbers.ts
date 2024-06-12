@@ -38,7 +38,7 @@ export function codeBlockLinesPlugin() {
 
           // Wraps each line in a span
           node.children = addLines(node)
-          console.log(node)
+
           // Adds a line break to the end of each line
           node.children.forEach((child: ElementContent) => {
             if (child.type === 'element' && child.tagName === 'span') {

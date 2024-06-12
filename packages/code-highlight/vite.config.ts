@@ -13,5 +13,4 @@ export default defineConfig({
   server: {
     port: 9000,
   },
-  publicDir: './src/css',
 })

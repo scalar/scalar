@@ -1,5 +1,5 @@
 {
-  "name": "@scalar/use-code-highlight",
+  "name": "@scalar/code-highlight",
   "description": "Central methods and themes for code highlighting in Scalar projects",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",

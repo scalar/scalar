@@ -1,25 +1,32 @@
 @layer scalar-base {
-  pre * {
+  code.hljs * {
     font-size: var(--scalar-small) !important;
     font-family: var(--scalar-font-code) !important;
+    text-align: left;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.4;
+    tab-size: 4;
   }
   code.hljs {
     display: inline-block;
-    padding: 3px 5px;
     counter-reset: linenumber;
   }
   .hljs {
-    background: var(--scalar-background-4, var(--scalar-background-3));
-    color: var(--scalar-color-1);
+    background: transparent;
+    color: var(--scalar-color-2);
   }
 
   .hljs .line::before {
+    color: var(--scalar-color-3);
     display: inline-block;
     counter-increment: linenumber;
     content: counter(linenumber);
-    padding-right: 1em;
+    margin-right: 0.7em;
     /* Variable is set on the code element by the plugin when line numbers are used */
-    width: calc(var(--line-digits) * 0.6em);
+    min-width: calc(var(--line-digits) * 1ch);
     text-align: right;
   }
 
@@ -29,15 +36,20 @@
     font-style: italic;
   }
   .hljs-addition,
-  .hljs-keyword,
   .hljs-literal,
   .hljs-selector-tag,
   .hljs-type {
     color: var(--scalar-color-green);
   }
+
+  .hljs-keyword {
+    color: var(--scalar-color-purple);
+  }
+
   .hljs-number,
   .hljs-selector-attr,
-  .hljs-selector-pseudo {
+  .hljs-selector-pseudo,
+  .hljs-title.function_ {
     color: var(--scalar-color-orange);
   }
   .hljs-doctag,
@@ -82,5 +94,19 @@
   }
   .hljs-emphasis {
     font-style: italic;
+  }
+
+  /** Hide credentials */
+  .credentials {
+    font-size: 0 !important;
+    color: transparent;
+  }
+
+  /** Show a few dots instead */
+  .credentials::after {
+    content: '·····';
+    font-size: var(--scalar-small);
+    color: var(--scalar-color-3);
+    user-select: none;
   }
 }

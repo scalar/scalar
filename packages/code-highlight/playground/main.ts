@@ -26,7 +26,7 @@ function createHeader(text: string) {
 
 createHeader('Basic Codeblock')
 const code = document.createElement('div')
-code.innerHTML = await syntaxHighlight(
+code.innerHTML = syntaxHighlight(
   `const boo = 'booooooo'
 function scare() {
     console.log(boo)
@@ -35,11 +35,20 @@ function scare() {
 )
 document.body.appendChild(code)
 
-createHeader('Longer Codeblock')
+createHeader('HTML Codeblock')
+const codeHtml = document.createElement('div')
+codeHtml.innerHTML = syntaxHighlight(
+  `<div>Some <b>html</b> content is also highlight</div>
+`,
+)
+document.body.appendChild(codeHtml)
+
+createHeader('Longer Codeblock with Credential Masking')
 const codeLong = document.createElement('div')
-codeLong.innerHTML = await syntaxHighlight(codeExampleLarge, {
+codeLong.innerHTML = syntaxHighlight(codeExampleLarge, {
   lang: 'ts',
   lineNumbers: true,
+  maskCredentials: [''],
 })
 document.body.appendChild(codeLong)
 

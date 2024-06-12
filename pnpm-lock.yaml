@@ -1360,6 +1360,9 @@ importers:
       '@headlessui/vue':
         specifier: ^1.7.20
         version: 1.7.20(vue@3.4.27(typescript@5.4.3))
+      '@scalar/code-highlight':
+        specifier: workspace:*
+        version: link:../code-highlight
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
@@ -1375,9 +1378,6 @@ importers:
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
-      prismjs:
-        specifier: ^1.29.0
-        version: 1.29.0
       tailwind-merge:
         specifier: ^2.3.0
         version: 2.3.0
@@ -1418,9 +1418,6 @@ importers:
       '@types/node':
         specifier: ^20.8.4
         version: 20.11.22
-      '@types/prismjs':
-        specifier: ^1.26.3
-        version: 1.26.3
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10(@types/node@20.11.22)(terser@5.30.0))(vue@3.4.27(typescript@5.4.3))
