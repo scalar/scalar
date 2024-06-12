@@ -44,13 +44,14 @@ function handleSelect(request: any) {
         placement="bottom"
         resize>
         <ScalarButton
-          class="flex w-full items-center justify-between border px-3"
-          variant="secondary"
+          class="justify-between p-2 w-full"
+          variant="outlined"
           @click="handleSelect(selectedRequest)">
           {{ selectedRequest.summary }}
           <div class="flex items-center gap-2">
             <HttpMethod :method="selectedRequest.method" />
             <ScalarIcon
+              class="text-c-3"
               icon="ChevronDown"
               size="xs" />
           </div>
@@ -60,7 +61,7 @@ function handleSelect(request: any) {
             <ScalarDropdownItem
               v-for="request in workspaceRequests"
               :key="request.uid"
-              class="flex w-full items-center justify-between px-1 pr-[30px]"
+              class="flex h-7 w-full items-center justify-between px-1 pr-[26px]"
               @click="handleSelect(request)">
               {{ request.summary }}
               <HttpMethod :method="request.method" />
