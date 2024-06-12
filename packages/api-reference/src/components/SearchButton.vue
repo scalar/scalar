@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ScalarIcon, useModal } from '@scalar/components'
+import type { Spec } from '@scalar/oas-utils'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
 
-import type { Spec } from '../types'
 import SearchModal from './SearchModal.vue'
 
 const props = withDefaults(

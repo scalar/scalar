@@ -4,12 +4,11 @@ import {
   SecuritySchemeSelector,
   useAuthenticationStore,
 } from '@scalar/api-client'
-import type { SSRState } from '@scalar/oas-utils'
+import type { SSRState, Spec } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, onServerPrefetch, useSSRContext, watch } from 'vue'
 
 import { hasSecuritySchemes, sleep } from '../../../helpers'
-import type { Spec } from '../../../types'
 
 const props = defineProps<{ parsedSpec?: Spec; proxy?: string }>()
 

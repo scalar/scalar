@@ -14,6 +14,7 @@ import { ScalarToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
   computed,
+  defineAsyncComponent,
   getCurrentInstance,
   onBeforeMount,
   onMounted,
@@ -24,6 +25,7 @@ import {
   watch,
 } from 'vue'
 
+import { NEW_API_MODAL } from '../features'
 import {
   GLOBAL_SECURITY_SYMBOL,
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
@@ -38,7 +40,6 @@ import type {
   ReferenceLayoutSlot,
   ReferenceSlotProps,
 } from '../types'
-import { default as ApiClientModal } from './ApiClientModal.vue'
 import { Content } from './Content'
 import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
@@ -52,6 +53,34 @@ defineEmits<{
   (e: 'linkSwaggerFile'): void
   (e: 'toggleDarkMode'): void
 }>()
+
+/**
+ * Lazy load the new API CLient, so we don’t have to bundle it if it’s not used.
+ */
+const ApiClientModal = defineAsyncComponent(() => {
+  return NEW_API_MODAL
+    ? // Load component
+      import('./ApiClientModal.vue')
+    : // Empty component
+      new Promise((resolve) => {
+        // @ts-expect-error Needs a type
+        resolve({ render: () => null })
+      })
+})
+
+/**
+ * Lazy load the old API CLient, so we don’t have to bundle it if it’s not used.
+ */
+const ApiClientModalOld = defineAsyncComponent(() => {
+  return NEW_API_MODAL
+    ? // Empty component
+      new Promise((resolve) => {
+        // @ts-expect-error Needs a type
+        resolve({ render: () => null })
+      })
+    : // Load component
+      import('./ApiClientModalOld.vue')
+})
 
 defineOptions({
   inheritAttrs: false,
@@ -313,9 +342,14 @@ useDeprecationWarnings(props.configuration)
               name="footer" />
           </div>
         </template>
-        <!-- REST API Client Overlay -->
-        <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
         <ApiClientModal
+          v-if="NEW_API_MODAL"
+          :proxyUrl="configuration.proxy"
+          :spec="configuration.spec" />
+        <!-- API Client Overlay -->
+        <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
+        <ApiClientModalOld
+          v-else
           :parsedSpec="parsedSpec"
           :proxyUrl="configuration?.proxy">
           <template #sidebar-start>
@@ -328,7 +362,7 @@ useDeprecationWarnings(props.configuration)
               v-bind="referenceSlotProps"
               name="sidebar-end" />
           </template>
-        </ApiClientModal>
+        </ApiClientModalOld>
       </div>
     </ScrollbarStyles>
   </ResetStyles>

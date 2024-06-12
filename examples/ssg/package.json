@@ -17,6 +17,7 @@
   "type": "module",
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
     "vue": "^3.4.22"
   },
   "devDependencies": {

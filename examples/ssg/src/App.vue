@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { RenderedReference, Sidebar, type Spec } from '@scalar/api-reference'
+import { RenderedReference, Sidebar } from '@scalar/api-reference'
+import type { Spec } from '@scalar/oas-utils'
 import { reactive } from 'vue'
 
 const reactiveSpec = reactive<Spec>({

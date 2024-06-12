@@ -19,13 +19,19 @@ import { type DeepReadonly, computed } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
 
-const { activeExample, activeRequest, activeServer, collections, workspace } =
-  useWorkspace()
+const {
+  activeExample,
+  activeRequest,
+  activeServer,
+  collections,
+  modalState,
+  workspace,
+} = useWorkspace()
 const { collapsedSidebarFolders } = useSidebar()
-const modalState = useActionModal()
+const actionModalState = useActionModal()
 
 const handleTabChange = (activeTab: string) => {
-  modalState.tab = activeTab as ActionModalTab
+  actionModalState.tab = activeTab as ActionModalTab
 }
 
 /**
@@ -192,7 +198,7 @@ const onDragEnd = (
 }
 
 const addItemHandler = () => {
-  modalState.show()
+  actionModalState.show()
 }
 const getBackgroundColor = () => {
   if (!activeRequest.value) return ''
@@ -226,16 +232,17 @@ const getBackgroundColor = () => {
       <AddressBar />
       <div
         class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 justify-end w-6/12">
-        <button
+        <!-- <button
           class="request-text-color-text bg-mix-transparent hover:bg-mix-amount-95 px-2 py-1.5 rounded bg-mix-amount-90 font-medium text-sm"
           :class="getBackgroundColor()"
           type="button">
           Test Acctual Locally
-        </button>
+        </button> -->
         <button
           class="request-text-color bg-mix-transparent hover:bg-mix-amount-95 p-2 rounded bg-mix-amount-100"
           :class="getBackgroundColor()"
-          type="button">
+          type="button"
+          @click="modalState.hide()">
           <ScalarIcon
             icon="Close"
             size="xs" />
@@ -312,7 +319,7 @@ const getBackgroundColor = () => {
           " />
       </ViewLayout>
       <ActionModal
-        :state="modalState"
+        :state="actionModalState"
         @update:tab="handleTabChange" />
     </div>
   </div>

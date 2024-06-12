@@ -2,7 +2,13 @@
  * Unfortunately, this file is very messy. I think we should get rid of it entirely. :)
  * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
  */
-import { type RequestMethod, validRequestMethods } from '@scalar/api-client'
+import {
+  type RequestMethod,
+  normalizeRequestMethod,
+  validRequestMethods,
+} from '@scalar/api-client'
+// AnyStringOrObject
+import type { Spec } from '@scalar/oas-utils'
 import {
   type AnyObject,
   type OpenAPIV2,
@@ -13,8 +19,6 @@ import {
 } from '@scalar/openapi-parser'
 
 import { createEmptySpecification } from '../helpers'
-// AnyStringOrObject
-import type { Spec } from '../types'
 
 export const parse = (specification: any): Promise<Spec> => {
   // eslint-disable-next-line no-async-promise-executor
@@ -104,7 +108,7 @@ const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
 
       newWebhooks[name][httpVerb] = {
         // Transformed data
-        httpVerb: httpVerb,
+        httpVerb: normalizeRequestMethod(httpVerb),
         path: name,
         operationId: originalWebhook?.operationId || name,
         name: originalWebhook?.summary || name || '',
@@ -153,7 +157,7 @@ const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
 
       // Transform the operation
       const newOperation = {
-        httpVerb: requestMethod,
+        httpVerb: normalizeRequestMethod(requestMethod),
         path,
         operationId: operation.operationId || path,
         name: operation.summary || path || '',

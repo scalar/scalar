@@ -4,7 +4,9 @@ import { ScalarIcon } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/oas-utils'
 import { inject } from 'vue'
 
+import { NEW_API_MODAL } from '../../../features'
 import { GLOBAL_SECURITY_SYMBOL, openClientFor } from '../../../helpers'
+import { apiClientBus } from '../../api-client-bus'
 
 defineProps<{
   operation: TransformedOperation
@@ -18,7 +20,16 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
     class="show-api-client-button"
     :method="operation.httpVerb"
     type="button"
-    @click.stop="openClientFor(operation, getGlobalSecurity?.())">
+    @click.stop="
+      NEW_API_MODAL
+        ? // @scalar/api-client@2.0
+          apiClientBus.emit({
+            path: operation.path,
+            method: operation.httpVerb,
+          })
+        : // @scalar/api-client@1.x
+          openClientFor(operation, getGlobalSecurity?.())
+    ">
     <ScalarIcon icon="PaperAirplane" />
     <span>Test Request</span>
   </HttpMethod>

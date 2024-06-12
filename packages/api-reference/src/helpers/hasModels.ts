@@ -1,4 +1,5 @@
-import type { Spec } from '../types'
+import type { Spec } from '@scalar/oas-utils'
+
 import { getModels } from './getModels'
 
 export const hasModels = (spec?: Spec) => {

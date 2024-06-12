@@ -1,6 +1,6 @@
 import { useSidebar } from '@/hooks'
 import { PathId, activeRouterParams, fallbackMissingParams } from '@/router'
-import type { AnyObject } from '@scalar/oas-utils'
+import { useModal } from '@scalar/components'
 import {
   type Workspace,
   createWorkspace,
@@ -34,7 +34,10 @@ import {
   createRequestExampleParameter,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { iterateTitle } from '@scalar/oas-utils/helpers'
-import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
+import {
+  type ImportSpecPayload,
+  importSpecToWorkspace,
+} from '@scalar/oas-utils/transforms'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import {
   type Path,
@@ -445,8 +448,8 @@ const deleteServer = (serverUid: string, collectionUid: string) => {
 // ---------------------------------------------------------------------------
 
 /** Helper function to import a OpenAPI spec file into the local workspace */
-async function importSpecFile(spec: string | AnyObject) {
-  const workspaceEntities = await importSpecToWorkspace(spec)
+async function importSpecFile(payload: ImportSpecPayload) {
+  const workspaceEntities = await importSpecToWorkspace(payload)
 
   // Add all the new requests into the request collection, the already have parent folders
   workspaceEntities.requests.forEach((request) => addRequest(request))
@@ -459,23 +462,26 @@ async function importSpecFile(spec: string | AnyObject) {
 
   // Servers
   workspaceEntities.servers.forEach((server) => addServer(server))
-
-  console.log(workspace)
 }
 
 // Function to fetch and import a spec from a URL
 async function importSpecFromUrl(url: string) {
+  // TODO: This doesn't use the proxy. :|
+  // We could use the existing `fetchSpecFromUrl`, but we need access to the configured proxy URL here.
   try {
     const response = await fetch(url)
     if (!response.ok) {
       throw new Error(`Error ${response.status} fetching the spec from: ${url}`)
     }
     const spec = await response.text()
-    await importSpecFile(spec)
+    await importSpecFile({ spec })
   } catch (error) {
     console.error('Failed to fetch spec from URL:', error)
   }
 }
+
+/** This state is to be used by the API Client Modal component to control the modal */
+const modalState = useModal()
 
 export function useWorkspace() {
   return {
@@ -495,6 +501,7 @@ export function useWorkspace() {
     activeServer,
     activeRequest,
     activeExample,
+    modalState,
     // ---------------------------------------------------------------------------
     // METHODS
     importSpecFile,

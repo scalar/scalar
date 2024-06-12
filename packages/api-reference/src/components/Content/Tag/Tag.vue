@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { Spec, Tag } from '@scalar/oas-utils'
 import { ref } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
-import type { Spec, Tag } from '../../../types'
 import { SectionContainer } from '../../Section'
 import ShowMoreButton from '../../ShowMoreButton.vue'
 import Endpoints from './Endpoints.vue'

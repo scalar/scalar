@@ -1,7 +1,8 @@
 <!-- eslint-disable vue/no-unused-properties -->
 <script setup lang="ts">
+import type { Spec, Tag } from '@scalar/oas-utils'
+
 import { useNavState } from '../../../hooks'
-import type { Spec, Tag } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { MarkdownRenderer } from '../../MarkdownRenderer'
 import { SectionContainerAccordion, SectionHeader } from '../../Section'

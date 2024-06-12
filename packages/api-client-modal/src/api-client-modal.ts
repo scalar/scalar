@@ -1,14 +1,12 @@
 import { ApiClientModal } from '@/components'
+import type { ClientConfiguration, OpenClientPayload } from '@/types'
 import { clientRouter, useWorkspace } from '@scalar/client-app'
-import { useModal } from '@scalar/components'
 import type { SpecConfiguration } from '@scalar/oas-utils'
-import { fetchSpecFromUrl, objectMerge } from '@scalar/oas-utils/helpers'
-import { createApp, reactive } from 'vue'
-
-import type { ClientConfiguration } from './types'
+import { objectMerge } from '@scalar/oas-utils/helpers'
+import { createApp, reactive, toRaw } from 'vue'
 
 /** Initialize Scalar API Client Modal */
-export const createScalarClient = async (
+export const createScalarApiClient = async (
   /** Element to mount the references to */
   el: HTMLElement | null,
   /** Configuration object for Scalar References */
@@ -21,17 +19,27 @@ export const createScalarClient = async (
 ) => {
   const config = reactive(initialConfig)
 
-  const modalState = useModal()
-  const { importSpecFile, workspaceMutators } = useWorkspace()
+  const {
+    importSpecFile,
+    requests,
+    importSpecFromUrl,
+    modalState,
+    workspaceMutators,
+  } = useWorkspace()
 
   // Import the spec if needed
-  if (config.spec.url) {
-    const spec = await fetchSpecFromUrl(config.spec.url)
-    importSpecFile(spec)
-  } else if (config.spec.content) {
-    importSpecFile(config.spec.content)
+  if (config.parsedSpec) {
+    importSpecFile({ parsedSpec: config.parsedSpec })
+  } else if (config.spec?.url) {
+    importSpecFromUrl(config.spec.url)
+  } else if (config.spec?.content) {
+    importSpecFile({ spec: config.spec?.content })
   } else {
-    console.error('You MUST provide a spec')
+    console.error(
+      `[@scalar/api-client-modal] Could not create the API client.`,
+      `Please provide an OpenAPI document: { spec: { url: '…' } }`,
+      `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client-modal`,
+    )
   }
 
   const app = createApp(ApiClientModal, { config, modalState })
@@ -39,17 +47,18 @@ export const createScalarClient = async (
 
   const mount = (mountingEl = el) => {
     if (!mountingEl) {
-      console.warn(
-        'Invalid HTML element provided. Cannot mount Scalar References',
+      console.error(
+        `[@scalar/api-client-modal] Could not create the API client.`,
+        `Invalid HTML element provided.`,
+        `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client-modal`,
       )
+
       return
     }
     app.mount(mountingEl)
   }
 
   if (mountOnInitialize) mount()
-
-  modalState.open = true
   workspaceMutators.edit('isReadOnly', true)
 
   return {
@@ -60,13 +69,30 @@ export const createScalarClient = async (
       } else {
         objectMerge(config, newConfig)
       }
+      if (newConfig.spec) importSpecFile({ spec: newConfig.spec })
     },
     /** Update the spec file, this will re-parse it */
     updateSpec(spec: SpecConfiguration) {
-      config.spec = spec
+      importSpecFile({ spec })
     },
-    /** Opens the API client modal */
-    open: modalState.show,
+    /** Open the  API client modal */
+    open: (payload?: OpenClientPayload) => {
+      // Find the request from path + method
+
+      const request = Object.values(requests).find(({ path, method }) =>
+        payload
+          ? // The given operation
+            path === payload.path && method === payload.method
+          : // Or the first request
+            true,
+      )
+
+      if (request) {
+        clientRouter.push(`/request/${request.uid}`)
+      }
+
+      modalState.open = true
+    },
     /** Mount the references to a given element */
     mount,
   }
