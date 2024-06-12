@@ -24,6 +24,7 @@ import {
   watch,
 } from 'vue'
 
+import { NEW_API_MODAL } from '../features'
 import {
   GLOBAL_SECURITY_SYMBOL,
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
@@ -53,9 +54,6 @@ defineEmits<{
   (e: 'linkSwaggerFile'): void
   (e: 'toggleDarkMode'): void
 }>()
-
-/** "Feature flag" for the new Modal */
-const NEW_API_MODAL = true
 
 defineOptions({
   inheritAttrs: false,
