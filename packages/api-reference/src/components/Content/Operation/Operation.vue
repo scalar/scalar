@@ -17,7 +17,7 @@ import EndpointDetails from './EndpointDetails.vue'
 import EndpointPath from './EndpointPath.vue'
 import ExampleRequest from './ExampleRequest.vue'
 import { PathResponses } from './PathResponses'
-import TryRequestButton from './TryRequestButton.vue'
+import TestRequestButton from './TestRequestButton.vue'
 
 const props = defineProps<{
   id?: string
@@ -74,7 +74,7 @@ const customRequestExamples = computed(() => {
                   :path="operation.path" />
               </template>
               <template #footer>
-                <TryRequestButton :operation="operation" />
+                <TestRequestButton :operation="operation" />
               </template>
             </CustomRequestExamples>
             <ExampleRequest
@@ -87,7 +87,7 @@ const customRequestExamples = computed(() => {
                   :path="operation.path" />
               </template>
               <template #footer>
-                <TryRequestButton :operation="operation" />
+                <TestRequestButton :operation="operation" />
               </template>
             </ExampleRequest>
             <PathResponses

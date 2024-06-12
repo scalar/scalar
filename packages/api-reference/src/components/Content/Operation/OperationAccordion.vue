@@ -11,7 +11,7 @@ import EndpointDetailsCard from './EndpointDetailsCard.vue'
 import EndpointPath from './EndpointPath.vue'
 import ExampleRequest from './ExampleRequest.vue'
 import { PathResponses } from './PathResponses'
-import TryRequestButton from './TryRequestButton.vue'
+import TestRequestButton from './TestRequestButton.vue'
 
 defineProps<{
   id?: string
@@ -48,7 +48,7 @@ const { copyToClipboard } = useClipboard()
       </h3>
     </template>
     <template #actions="{ active }">
-      <TryRequestButton
+      <TestRequestButton
         v-if="active"
         :operation="operation" />
       <ScalarIcon
