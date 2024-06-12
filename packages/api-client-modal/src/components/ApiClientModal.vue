@@ -12,7 +12,7 @@ defineProps<{
 
 <template>
   <ScalarModal
-    bodyClass="row flex-1"
+    bodyClass="h-full"
     size="full"
     :state="modalState">
     <RouterView key="$route.fullPath" />
