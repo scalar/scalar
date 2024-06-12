@@ -70,16 +70,12 @@ export const createScalarClient = async (
     },
     /** Open the  API client modal */
     open: (payload: OpenClientPayload) => {
-      console.log(payload)
       // Find the request from path + method
       const request = Object.values(requests).find(
         ({ path, method }) =>
           path === payload.path && method === payload.method,
       )
       if (request) clientRouter.push(`/request/${request.uid}`)
-      console.log(requests)
-
-      console.log(request)
 
       modalState.open = true
     },
