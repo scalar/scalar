@@ -15,6 +15,7 @@ module.exports = {
     '@vue/typescript/recommended',
     '@vue/eslint-config-typescript',
     'prettier',
+    'plugin:tailwindcss/recommended',
     'plugin:storybook/recommended',
   ],
   plugins: ['@typescript-eslint', 'prettier'],
@@ -98,6 +99,9 @@ module.exports = {
         '@typescript-eslint/prefer-optional-chain': 'warn',
         'camelcase': 'off',
         'max-len': ['warn', { code: 120, comments: 120 }],
+        'tailwindcss/no-arbitrary-value': 'warn',
+        'tailwindcss/no-custom-classname': 'off',
+        'tailwindcss/classnames-order': 'off',
         '@typescript-eslint/naming-convention': [
           'error',
           // {
