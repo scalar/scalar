@@ -15,6 +15,7 @@ const handleClick = () => {
     <ScalarButton
       class="bg-b-1 text-c-1 hover:bg-b-2 group relative w-full border p-1.5 h-auto"
       icon="Plus"
+      variant="ghost"
       @click="handleClick">
       <slot name="title" />
       <ScalarHotkey

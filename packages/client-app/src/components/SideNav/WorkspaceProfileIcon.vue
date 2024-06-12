@@ -36,8 +36,9 @@ defineProps<{
   display: flex;
   justify-content: center;
   transition: border 0.2s;
+  min-height: 37px;
   height: 37px;
-  width: 37px;
+  width: 100%;
 }
 .dark-mode .workspace-avatar {
   --gradient-color-1: color-mix(
@@ -68,6 +69,16 @@ defineProps<{
 }
 .shine-effect:before {
   background-color: rgba(255, 255, 255, 0.2);
+  content: '';
+  filter: blur(2px);
+  height: 150%;
+  left: -100%;
+  position: absolute;
+  transform: rotate(30deg);
+  width: 16px;
+}
+.dark-mode .shine-effect:before {
+  background-color: rgba(0, 0, 0, 0.2);
   content: '';
   filter: blur(2px);
   height: 150%;
