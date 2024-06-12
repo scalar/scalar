@@ -12,6 +12,10 @@ export default {
       xl: 'var(--scalar-radius-xl)',
       full: '9999px',
     },
+    borderWidth: {
+      'DEFAULT': 'var(--scalar-border-width)',
+      '1/2': 'calc(var(--scalar-border-width) / 2)',
+    },
     boxShadow: {
       DEFAULT: 'var(--scalar-shadow-1)',
       lg: 'var(--scalar-shadow-2)',
@@ -117,7 +121,6 @@ export default {
     },
     extend: {
       borderColor: { DEFAULT: 'var(--scalar-border-color)' },
-      borderWidth: { DEFAULT: 'var(--scalar-border-width)' },
       brightness: {
         lifted: 'var(--scalar-lifted-brightness)',
         backdrop: 'var(--scalar-backdrop-brightness)',

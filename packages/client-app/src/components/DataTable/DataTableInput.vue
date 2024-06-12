@@ -64,7 +64,7 @@ const handleDropdownMouseUp = () => {
   <DataTableCell class="relative flex">
     <div
       v-if="$slots.default"
-      class="text-c-2 flex min-w-[100px] items-center border-r-[.5px] pl-2 pr-0">
+      class="text-c-2 flex min-w-[100px] items-center border-r-1/2 pl-2 pr-0">
       <slot />
     </div>
     <input

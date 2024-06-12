@@ -327,7 +327,7 @@ watch(
           <template v-else-if="contentType == 'multipartForm'">
             <RequestTable
               ref="tableWrapperRef"
-              class="!m-0 rounded-t-none border-[.5px] border-t-0 shadow-none"
+              class="!m-0 rounded-t-none border-1/2 border-t-0 shadow-none"
               :columns="['36px', '', '', '0.7fr']"
               :items="formParams"
               showUploadButton
@@ -340,7 +340,7 @@ watch(
           <template v-else-if="contentType == 'formUrlEncoded'">
             <RequestTable
               ref="tableWrapperRef"
-              class="!m-0 rounded-t-none border-[.5px] border-t-0 shadow-none"
+              class="!m-0 rounded-t-none border-1/2 border-t-0 shadow-none"
               :columns="['36px', '', '', '0.7fr']"
               :items="formParams"
               showUploadButton

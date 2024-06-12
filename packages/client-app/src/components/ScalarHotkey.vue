@@ -39,7 +39,7 @@ whenever(
 <template>
   <div
     v-bind="$attrs"
-    class="border-b-3 inline-block overflow-hidden rounded border-[0.5px]">
+    class="border-b-3 inline-block overflow-hidden rounded border-1/2">
     <div class="bg-b-2 text-xxs rounded-b px-1 font-medium uppercase">
       {{ displayHotkey }}
     </div>
