@@ -87,10 +87,6 @@ export const createScalarApiClient = async (
             true,
       )
 
-      console.log('requests', toRaw(Object.values(requests)))
-      console.log('payload', payload)
-      console.log('request', request)
-
       if (request) {
         clientRouter.push(`/request/${request.uid}`)
       }
