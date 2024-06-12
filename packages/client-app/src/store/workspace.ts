@@ -462,8 +462,6 @@ async function importSpecFile(payload: ImportSpecPayload) {
 
   // Servers
   workspaceEntities.servers.forEach((server) => addServer(server))
-
-  console.log(workspace)
 }
 
 // Function to fetch and import a spec from a URL
