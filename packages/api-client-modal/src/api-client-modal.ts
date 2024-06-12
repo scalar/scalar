@@ -38,7 +38,7 @@ export const createScalarApiClient = async (
     console.error(
       `[@scalar/api-client-modal] Could not create the API client.`,
       `Please provide an OpenAPI document: { spec: { url: '…' } }`,
-      `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client-modal1111`,
+      `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client-modal`,
     )
 
     return null
@@ -49,9 +49,12 @@ export const createScalarApiClient = async (
 
   const mount = (mountingEl = el) => {
     if (!mountingEl) {
-      console.warn(
-        'Invalid HTML element provided. Cannot mount Scalar API Client',
+      console.error(
+        `[@scalar/api-client-modal] Could not create the API client.`,
+        `Invalid HTML element provided.`,
+        `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client-modal`,
       )
+
       return
     }
     app.mount(mountingEl)
