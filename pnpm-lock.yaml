@@ -27,8 +27,8 @@ importers:
         specifier: ^6.21.0
         version: 6.21.0(eslint@8.57.0)(typescript@5.4.3)
       '@vitest/coverage-v8':
-        specifier: ^1.5.0
-        version: 1.5.0(vitest@1.6.0(@types/node@20.11.22)(jsdom@23.2.0)(terser@5.30.0))
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
       '@vue/eslint-config-typescript':
         specifier: ^12.0.0
         version: 12.0.0(eslint-plugin-vue@9.22.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.4.3)
@@ -79,7 +79,7 @@ importers:
         version: 1.5.0(@types/node@20.11.22)(terser@5.30.0)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.22)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
       vue-eslint-parser:
         specifier: ^9.4.2
         version: 9.4.2(eslint@8.57.0)
@@ -710,8 +710,8 @@ importers:
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vue@3.4.27(typescript@5.4.3))
       '@vitest/coverage-v8':
-        specifier: ^1.5.0
-        version: 1.5.0(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
       tsc-alias:
         specifier: ^1.8.8
         version: 1.8.8
@@ -720,7 +720,7 @@ importers:
         version: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
       vue:
         specifier: ^3.4.22
         version: 3.4.27(typescript@5.4.3)
@@ -787,8 +787,8 @@ importers:
         specifier: ^20.8.4
         version: 20.11.22
       '@vitest/coverage-v8':
-        specifier: ^1.5.0
-        version: 1.5.0(vitest@1.6.0(@types/node@20.11.22)(jsdom@23.2.0)(terser@5.30.0))
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
       nodemon:
         specifier: ^3.0.1
         version: 3.1.0
@@ -806,7 +806,7 @@ importers:
         version: 1.5.0(@types/node@20.11.22)(terser@5.30.0)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.22)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
 
   packages/api-client-react:
     dependencies:
@@ -949,7 +949,7 @@ importers:
         version: 8.0.8(@types/react@18.2.60)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/addon-interactions':
         specifier: ^8.0.8
-        version: 8.0.8(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))
+        version: 8.0.8(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
       '@storybook/addon-links':
         specifier: ^8.0.8
         version: 8.0.8(react@18.3.1)
@@ -969,8 +969,8 @@ importers:
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vue@3.4.27(typescript@5.4.3))
       '@vitest/coverage-v8':
-        specifier: ^1.5.0
-        version: 1.5.0(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
       '@vue/test-utils':
         specifier: ^2.4.1
         version: 2.4.4(@vue/server-renderer@3.4.27(vue@3.4.27(typescript@5.4.3)))(vue@3.4.27(typescript@5.4.3))
@@ -1003,10 +1003,10 @@ importers:
         version: 3.4.0(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
       vitest-matchmedia-mock:
         specifier: ^1.0.5
-        version: 1.0.5(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.0.5(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
       vue:
         specifier: ^3.4.22
         version: 3.4.27(typescript@5.4.3)
@@ -1100,7 +1100,7 @@ importers:
         version: 5.2.10(@types/node@20.11.22)(terser@5.30.0)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.22)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
     devDependencies:
       tsc-alias:
         specifier: ^1.8.8
@@ -1359,7 +1359,7 @@ importers:
         version: link:../oas-utils
       '@storybook/test':
         specifier: ^8.0.8
-        version: 8.0.8(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))(vitest@1.6.0(@types/node@20.11.22)(jsdom@22.1.0)(terser@5.30.0))
+        version: 8.0.8(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))(vitest@1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@22.1.0)(terser@5.30.0))
       '@vueuse/core':
         specifier: ^10.10.0
         version: 10.10.0(vue@3.4.27(typescript@5.4.3))
@@ -1390,7 +1390,7 @@ importers:
         version: 8.0.8(@types/react@18.2.60)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/addon-interactions':
         specifier: ^8.0.8
-        version: 8.0.8(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))(vitest@1.6.0(@types/node@20.11.22)(jsdom@22.1.0)(terser@5.30.0))
+        version: 8.0.8(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))(vitest@1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@22.1.0)(terser@5.30.0))
       '@storybook/addon-links':
         specifier: ^8.0.8
         version: 8.0.8(react@18.3.1)
@@ -1474,7 +1474,7 @@ importers:
         version: 5.1.0(vue@3.4.27(typescript@5.4.3))
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.22)(jsdom@22.1.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@22.1.0)(terser@5.30.0)
       vue:
         specifier: ^3.4.22
         version: 3.4.27(typescript@5.4.3)
@@ -1550,8 +1550,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       '@vitest/coverage-v8':
-        specifier: ^1.5.0
-        version: 1.5.0(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
       nodemon:
         specifier: ^3.0.1
         version: 3.1.0
@@ -1569,7 +1569,7 @@ importers:
         version: 1.5.0(@types/node@20.11.26)(terser@5.30.0)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
 
   packages/express-api-reference:
     dependencies:
@@ -1591,7 +1591,7 @@ importers:
         version: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
 
   packages/fastify-api-reference:
     dependencies:
@@ -1603,8 +1603,8 @@ importers:
         specifier: workspace:*
         version: link:../api-reference
       '@vitest/coverage-v8':
-        specifier: ^1.5.0
-        version: 1.5.0(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
       fastify:
         specifier: ^4.26.2
         version: 4.26.2
@@ -1631,7 +1631,7 @@ importers:
         version: 1.0.2(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
       vue:
         specifier: ^3.4.22
         version: 3.4.27(typescript@5.4.3)
@@ -1648,8 +1648,8 @@ importers:
         specifier: ^0.3.2
         version: 0.3.2(terser@5.30.0)
       '@vitest/coverage-v8':
-        specifier: ^1.5.0
-        version: 1.5.0(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
       tsc-alias:
         specifier: ^1.8.8
         version: 1.8.8
@@ -1661,7 +1661,7 @@ importers:
         version: 1.0.2(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
 
   packages/hono-api-reference:
     dependencies:
@@ -1680,7 +1680,7 @@ importers:
         version: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
 
   packages/mock-server:
     dependencies:
@@ -1754,7 +1754,7 @@ importers:
         version: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
 
   packages/nextjs-api-reference:
     dependencies:
@@ -1816,7 +1816,7 @@ importers:
         version: 3.11.2(rollup@4.16.4)
       '@nuxt/test-utils':
         specifier: ^3.12.0
-        version: 3.12.0(@jest/globals@29.7.0)(@playwright/test@1.42.0)(@vue/test-utils@2.4.4(vue@3.4.27(typescript@5.4.3)))(h3@1.11.1)(jsdom@23.2.0)(playwright-core@1.42.0)(rollup@4.16.4)(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))(vue-router@4.3.2(vue@3.4.27(typescript@5.4.3)))(vue@3.4.27(typescript@5.4.3))
+        version: 3.12.0(@jest/globals@29.7.0)(@playwright/test@1.42.0)(@vue/test-utils@2.4.4(vue@3.4.27(typescript@5.4.3)))(h3@1.11.1)(happy-dom@14.12.0)(jsdom@23.2.0)(playwright-core@1.42.0)(rollup@4.16.4)(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))(vue-router@4.3.2(vue@3.4.27(typescript@5.4.3)))(vue@3.4.27(typescript@5.4.3))
       '@types/node':
         specifier: ^20.8.4
         version: 20.11.26
@@ -1831,7 +1831,7 @@ importers:
         version: 3.11.2(@parcel/watcher@2.4.1)(@types/node@20.11.26)(@unocss/reset@0.59.2)(axios@1.6.8)(encoding@0.1.13)(eslint@8.57.0)(floating-vue@5.2.2(@nuxt/kit@3.11.2(rollup@4.16.4))(vue@3.4.27(typescript@5.4.3)))(fuse.js@7.0.0)(ioredis@5.3.2)(nprogress@0.2.0)(optionator@0.9.3)(rollup@4.16.4)(terser@5.30.0)(typescript@5.4.3)(unocss@0.59.2(postcss@8.4.38)(rollup@4.16.4)(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0)))(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vue-tsc@2.0.19(typescript@5.4.3))
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
 
   packages/oas-utils:
     dependencies:
@@ -1874,7 +1874,7 @@ importers:
         version: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
 
   packages/object-utils:
     dependencies:
@@ -1956,8 +1956,8 @@ importers:
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vue@3.4.27(typescript@5.4.3))
       '@vitest/coverage-v8':
-        specifier: ^1.5.0
-        version: 1.5.0(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
       tailwindcss:
         specifier: ^3.4.3
         version: 3.4.3(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))
@@ -1972,7 +1972,7 @@ importers:
         version: 1.0.2(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
       vue:
         specifier: ^3.4.22
         version: 3.4.27(typescript@5.4.3)
@@ -2039,8 +2039,8 @@ importers:
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vue@3.4.27(typescript@5.4.3))
       '@vitest/coverage-v8':
-        specifier: ^1.5.0
-        version: 1.5.0(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
       tsc-alias:
         specifier: ^1.8.8
         version: 1.8.8
@@ -2049,7 +2049,7 @@ importers:
         version: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
       vue:
         specifier: ^3.4.22
         version: 3.4.27(typescript@5.4.3)
@@ -2073,8 +2073,8 @@ importers:
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vue@3.4.27(typescript@5.4.3))
       '@vitest/coverage-v8':
-        specifier: ^1.5.0
-        version: 1.5.0(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
@@ -2089,7 +2089,7 @@ importers:
         version: 3.4.0(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
       vue:
         specifier: ^3.4.22
         version: 3.4.27(typescript@5.4.3)
@@ -2106,8 +2106,8 @@ importers:
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vue@3.4.27(typescript@5.4.3))
       '@vitest/coverage-v8':
-        specifier: ^1.5.0
-        version: 1.5.0(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
       tippy.js:
         specifier: ^6.3.7
         version: 6.3.7
@@ -2119,7 +2119,7 @@ importers:
         version: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
       vue:
         specifier: ^3.4.22
         version: 3.4.27(typescript@5.4.3)
@@ -6280,10 +6280,10 @@ packages:
       vite: ^5.0.0
       vue: ^3.2.25
 
-  '@vitest/coverage-v8@1.5.0':
-    resolution: {integrity: sha512-1igVwlcqw1QUMdfcMlzzY4coikSIBN944pkueGi0pawrX5I5Z+9hxdTR+w3Sg6Q3eZhvdMAs8ZaF9JuTG1uYOQ==}
+  '@vitest/coverage-v8@1.6.0':
+    resolution: {integrity: sha512-KvapcbMY/8GYIG0rlwwOKCVNRc0OL20rrhFkg/CHNzncV03TE2XWvO5w9uZYoxNiMEBacAJt3unSOiZ7svePew==}
     peerDependencies:
-      vitest: 1.5.0
+      vitest: 1.6.0
 
   '@vitest/expect@1.3.1':
     resolution: {integrity: sha512-xofQFwIzfdmLLlHa6ag0dPV8YsnKOCP1KdAeVVh34vSjN2dcUiXYCD9htu/9eM7t8Xln4v03U9HLxLpPlsXdZw==}
@@ -9225,6 +9225,10 @@ packages:
     resolution: {integrity: sha512-vafaFqs8MZkRrSX7sFVUdo3ap/eNiLnb4IakshzvP56X5Nr1iGKAIqdX6tMlm6HcNRIkr6AxO5jFEoJzzpT8aQ==}
     engines: {node: '>=0.4.7'}
     hasBin: true
+
+  happy-dom@14.12.0:
+    resolution: {integrity: sha512-dHcnlGFY2o2CdxfuYpqwSrBrpj/Kuzv4u4f3TU5yHW1GL24dKij4pv1BRjXnXc3uWo8qsCbToF9weaDsm/He8A==}
+    engines: {node: '>=16.0.0'}
 
   hard-rejection@2.1.0:
     resolution: {integrity: sha512-VIZB+ibDhx7ObhAe7OVtoEbuP4h/MuOTHJ+J8h/eBXotJYl0fBgR72xDFCKgIh22OJZIOVNxBMWuhAr10r8HdA==}
@@ -18695,7 +18699,7 @@ snapshots:
       - rollup
       - supports-color
 
-  '@nuxt/test-utils@3.12.0(@jest/globals@29.7.0)(@playwright/test@1.42.0)(@vue/test-utils@2.4.4(vue@3.4.27(typescript@5.4.3)))(h3@1.11.1)(jsdom@23.2.0)(playwright-core@1.42.0)(rollup@4.16.4)(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))(vue-router@4.3.2(vue@3.4.27(typescript@5.4.3)))(vue@3.4.27(typescript@5.4.3))':
+  '@nuxt/test-utils@3.12.0(@jest/globals@29.7.0)(@playwright/test@1.42.0)(@vue/test-utils@2.4.4(vue@3.4.27(typescript@5.4.3)))(h3@1.11.1)(happy-dom@14.12.0)(jsdom@23.2.0)(playwright-core@1.42.0)(rollup@4.16.4)(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))(vue-router@4.3.2(vue@3.4.27(typescript@5.4.3)))(vue@3.4.27(typescript@5.4.3))':
     dependencies:
       '@nuxt/kit': 3.11.2(rollup@4.16.4)
       '@nuxt/schema': 3.11.2(rollup@4.16.4)
@@ -18721,16 +18725,17 @@ snapshots:
       unenv: 1.9.0
       unplugin: 1.10.1
       vite: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
-      vitest-environment-nuxt: 1.0.0(@jest/globals@29.7.0)(@playwright/test@1.42.0)(@vue/test-utils@2.4.4(vue@3.4.27(typescript@5.4.3)))(h3@1.11.1)(jsdom@23.2.0)(playwright-core@1.42.0)(rollup@4.16.4)(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))(vue-router@4.3.2(vue@3.4.27(typescript@5.4.3)))(vue@3.4.27(typescript@5.4.3))
+      vitest-environment-nuxt: 1.0.0(@jest/globals@29.7.0)(@playwright/test@1.42.0)(@vue/test-utils@2.4.4(vue@3.4.27(typescript@5.4.3)))(h3@1.11.1)(happy-dom@14.12.0)(jsdom@23.2.0)(playwright-core@1.42.0)(rollup@4.16.4)(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))(vue-router@4.3.2(vue@3.4.27(typescript@5.4.3)))(vue@3.4.27(typescript@5.4.3))
       vue: 3.4.27(typescript@5.4.3)
       vue-router: 4.3.2(vue@3.4.27(typescript@5.4.3))
     optionalDependencies:
       '@jest/globals': 29.7.0
       '@playwright/test': 1.42.0
       '@vue/test-utils': 2.4.4(@vue/server-renderer@3.4.27(vue@3.4.27(typescript@5.4.3)))(vue@3.4.27(typescript@5.4.3))
+      happy-dom: 14.12.0
       jsdom: 23.2.0
       playwright-core: 1.42.0
-      vitest: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+      vitest: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
     transitivePeerDependencies:
       - rollup
       - supports-color
@@ -19633,11 +19638,11 @@ snapshots:
     dependencies:
       '@storybook/global': 5.0.0
 
-  '@storybook/addon-interactions@8.0.8(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))(vitest@1.6.0(@types/node@20.11.22)(jsdom@22.1.0)(terser@5.30.0))':
+  '@storybook/addon-interactions@8.0.8(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))(vitest@1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@22.1.0)(terser@5.30.0))':
     dependencies:
       '@storybook/global': 5.0.0
       '@storybook/instrumenter': 8.0.8
-      '@storybook/test': 8.0.8(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))(vitest@1.6.0(@types/node@20.11.22)(jsdom@22.1.0)(terser@5.30.0))
+      '@storybook/test': 8.0.8(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))(vitest@1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@22.1.0)(terser@5.30.0))
       '@storybook/types': 8.0.8
       polished: 4.3.1
       ts-dedent: 2.2.0
@@ -19648,11 +19653,11 @@ snapshots:
       - jest
       - vitest
 
-  '@storybook/addon-interactions@8.0.8(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))':
+  '@storybook/addon-interactions@8.0.8(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))':
     dependencies:
       '@storybook/global': 5.0.0
       '@storybook/instrumenter': 8.0.8
-      '@storybook/test': 8.0.8(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))
+      '@storybook/test': 8.0.8(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
       '@storybook/types': 8.0.8
       polished: 4.3.1
       ts-dedent: 2.2.0
@@ -20251,14 +20256,14 @@ snapshots:
       - encoding
       - supports-color
 
-  '@storybook/test@8.0.8(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))(vitest@1.6.0(@types/node@20.11.22)(jsdom@22.1.0)(terser@5.30.0))':
+  '@storybook/test@8.0.8(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))(vitest@1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@22.1.0)(terser@5.30.0))':
     dependencies:
       '@storybook/client-logger': 8.0.8
       '@storybook/core-events': 8.0.8
       '@storybook/instrumenter': 8.0.8
       '@storybook/preview-api': 8.0.8
       '@testing-library/dom': 9.3.4
-      '@testing-library/jest-dom': 6.4.2(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))(vitest@1.6.0(@types/node@20.11.22)(jsdom@22.1.0)(terser@5.30.0))
+      '@testing-library/jest-dom': 6.4.2(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))(vitest@1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@22.1.0)(terser@5.30.0))
       '@testing-library/user-event': 14.5.2(@testing-library/dom@9.3.4)
       '@vitest/expect': 1.3.1
       '@vitest/spy': 1.5.0
@@ -20271,14 +20276,14 @@ snapshots:
       - jest
       - vitest
 
-  '@storybook/test@8.0.8(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))':
+  '@storybook/test@8.0.8(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))':
     dependencies:
       '@storybook/client-logger': 8.0.8
       '@storybook/core-events': 8.0.8
       '@storybook/instrumenter': 8.0.8
       '@storybook/preview-api': 8.0.8
       '@testing-library/dom': 9.3.4
-      '@testing-library/jest-dom': 6.4.2(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))
+      '@testing-library/jest-dom': 6.4.2(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
       '@testing-library/user-event': 14.5.2(@testing-library/dom@9.3.4)
       '@vitest/expect': 1.3.1
       '@vitest/spy': 1.5.0
@@ -20624,7 +20629,7 @@ snapshots:
       lz-string: 1.5.0
       pretty-format: 27.5.1
 
-  '@testing-library/jest-dom@6.4.2(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))(vitest@1.6.0(@types/node@20.11.22)(jsdom@22.1.0)(terser@5.30.0))':
+  '@testing-library/jest-dom@6.4.2(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))(vitest@1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@22.1.0)(terser@5.30.0))':
     dependencies:
       '@adobe/css-tools': 4.3.3
       '@babel/runtime': 7.24.5
@@ -20638,9 +20643,9 @@ snapshots:
       '@jest/globals': 29.7.0
       '@types/jest': 29.5.12
       jest: 29.7.0(@types/node@20.11.22)(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3))
-      vitest: 1.6.0(@types/node@20.11.22)(jsdom@22.1.0)(terser@5.30.0)
+      vitest: 1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@22.1.0)(terser@5.30.0)
 
-  '@testing-library/jest-dom@6.4.2(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))':
+  '@testing-library/jest-dom@6.4.2(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))':
     dependencies:
       '@adobe/css-tools': 4.3.3
       '@babel/runtime': 7.24.5
@@ -20651,7 +20656,7 @@ snapshots:
       lodash: 4.17.21
       redent: 3.0.0
     optionalDependencies:
-      vitest: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+      vitest: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
 
   '@testing-library/user-event@14.5.2(@testing-library/dom@9.3.4)':
     dependencies:
@@ -21517,7 +21522,7 @@ snapshots:
       vite: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
       vue: 3.4.27(typescript@5.4.3)
 
-  '@vitest/coverage-v8@1.5.0(vitest@1.6.0(@types/node@20.11.22)(jsdom@23.2.0)(terser@5.30.0))':
+  '@vitest/coverage-v8@1.6.0(vitest@1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -21526,17 +21531,17 @@ snapshots:
       istanbul-lib-report: 3.0.1
       istanbul-lib-source-maps: 5.0.4
       istanbul-reports: 3.1.7
-      magic-string: 0.30.9
+      magic-string: 0.30.10
       magicast: 0.3.3
       picocolors: 1.0.0
       std-env: 3.7.0
       strip-literal: 2.1.0
       test-exclude: 6.0.0
-      vitest: 1.6.0(@types/node@20.11.22)(jsdom@23.2.0)(terser@5.30.0)
+      vitest: 1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@1.5.0(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))':
+  '@vitest/coverage-v8@1.6.0(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -21545,13 +21550,13 @@ snapshots:
       istanbul-lib-report: 3.0.1
       istanbul-lib-source-maps: 5.0.4
       istanbul-reports: 3.1.7
-      magic-string: 0.30.9
+      magic-string: 0.30.10
       magicast: 0.3.3
       picocolors: 1.0.0
       std-env: 3.7.0
       strip-literal: 2.1.0
       test-exclude: 6.0.0
-      vitest: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+      vitest: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -25254,6 +25259,13 @@ snapshots:
       wordwrap: 1.0.0
     optionalDependencies:
       uglify-js: 3.17.4
+
+  happy-dom@14.12.0:
+    dependencies:
+      entities: 4.5.0
+      webidl-conversions: 7.0.0
+      whatwg-mimetype: 3.0.0
+    optional: true
 
   hard-rejection@2.1.0: {}
 
@@ -31903,9 +31915,9 @@ snapshots:
       fsevents: 2.3.3
       terser: 5.30.0
 
-  vitest-environment-nuxt@1.0.0(@jest/globals@29.7.0)(@playwright/test@1.42.0)(@vue/test-utils@2.4.4(vue@3.4.27(typescript@5.4.3)))(h3@1.11.1)(jsdom@23.2.0)(playwright-core@1.42.0)(rollup@4.16.4)(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))(vue-router@4.3.2(vue@3.4.27(typescript@5.4.3)))(vue@3.4.27(typescript@5.4.3)):
+  vitest-environment-nuxt@1.0.0(@jest/globals@29.7.0)(@playwright/test@1.42.0)(@vue/test-utils@2.4.4(vue@3.4.27(typescript@5.4.3)))(h3@1.11.1)(happy-dom@14.12.0)(jsdom@23.2.0)(playwright-core@1.42.0)(rollup@4.16.4)(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))(vue-router@4.3.2(vue@3.4.27(typescript@5.4.3)))(vue@3.4.27(typescript@5.4.3)):
     dependencies:
-      '@nuxt/test-utils': 3.12.0(@jest/globals@29.7.0)(@playwright/test@1.42.0)(@vue/test-utils@2.4.4(vue@3.4.27(typescript@5.4.3)))(h3@1.11.1)(jsdom@23.2.0)(playwright-core@1.42.0)(rollup@4.16.4)(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))(vue-router@4.3.2(vue@3.4.27(typescript@5.4.3)))(vue@3.4.27(typescript@5.4.3))
+      '@nuxt/test-utils': 3.12.0(@jest/globals@29.7.0)(@playwright/test@1.42.0)(@vue/test-utils@2.4.4(vue@3.4.27(typescript@5.4.3)))(h3@1.11.1)(happy-dom@14.12.0)(jsdom@23.2.0)(playwright-core@1.42.0)(rollup@4.16.4)(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))(vue-router@4.3.2(vue@3.4.27(typescript@5.4.3)))(vue@3.4.27(typescript@5.4.3))
     transitivePeerDependencies:
       - '@cucumber/cucumber'
       - '@jest/globals'
@@ -31924,9 +31936,9 @@ snapshots:
       - vue
       - vue-router
 
-  vitest-matchmedia-mock@1.0.5(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0):
+  vitest-matchmedia-mock@1.0.5(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0):
     dependencies:
-      vitest: 1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0)
+      vitest: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0)
     transitivePeerDependencies:
       - '@edge-runtime/vm'
       - '@types/node'
@@ -31942,7 +31954,7 @@ snapshots:
       - supports-color
       - terser
 
-  vitest@1.6.0(@types/node@20.11.22)(jsdom@22.1.0)(terser@5.30.0):
+  vitest@1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@22.1.0)(terser@5.30.0):
     dependencies:
       '@vitest/expect': 1.6.0
       '@vitest/runner': 1.6.0
@@ -31966,6 +31978,7 @@ snapshots:
       why-is-node-running: 2.2.2
     optionalDependencies:
       '@types/node': 20.11.22
+      happy-dom: 14.12.0
       jsdom: 22.1.0
     transitivePeerDependencies:
       - less
@@ -31976,7 +31989,7 @@ snapshots:
       - supports-color
       - terser
 
-  vitest@1.6.0(@types/node@20.11.22)(jsdom@23.2.0)(terser@5.30.0):
+  vitest@1.6.0(@types/node@20.11.22)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0):
     dependencies:
       '@vitest/expect': 1.6.0
       '@vitest/runner': 1.6.0
@@ -32000,6 +32013,7 @@ snapshots:
       why-is-node-running: 2.2.2
     optionalDependencies:
       '@types/node': 20.11.22
+      happy-dom: 14.12.0
       jsdom: 23.2.0
     transitivePeerDependencies:
       - less
@@ -32010,7 +32024,7 @@ snapshots:
       - supports-color
       - terser
 
-  vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0):
+  vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0):
     dependencies:
       '@vitest/expect': 1.6.0
       '@vitest/runner': 1.6.0
@@ -32034,6 +32048,7 @@ snapshots:
       why-is-node-running: 2.2.2
     optionalDependencies:
       '@types/node': 20.11.26
+      happy-dom: 14.12.0
       jsdom: 23.2.0
     transitivePeerDependencies:
       - less
