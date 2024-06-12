@@ -83,7 +83,10 @@ export const importSpecToWorkspace = async (payload: ImportSpecPayload) => {
       operation.parameters?.forEach((_param: any) => {
         const param = _param
 
-        if ('name' in param) {
+        if (
+          'name' in param &&
+          PARAM_DICTIONARY[param.in as keyof typeof PARAM_DICTIONARY]
+        ) {
           parameters[
             // Map cookie -> and header -> headers
             PARAM_DICTIONARY[param.in as keyof typeof PARAM_DICTIONARY]
