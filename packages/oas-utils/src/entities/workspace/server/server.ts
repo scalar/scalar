@@ -39,7 +39,7 @@ const serverSchema = z.object({
    */
   description: z.string().optional(),
   /** A map between a variable name and its value. The value is used for substitution in the server’s URL template. */
-  variables: z.record(z.string(), serverVariableSchema).optional(),
+  variables: z.record(z.string(), serverVariableSchema).nullable().optional(),
 })
 
 /**
