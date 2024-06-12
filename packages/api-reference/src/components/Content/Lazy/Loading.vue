@@ -1,10 +1,13 @@
 <script lang="ts" setup>
-import type { TransformedOperation } from '@scalar/oas-utils'
+import type {
+  Spec,
+  Tag as TagType,
+  TransformedOperation,
+} from '@scalar/oas-utils'
 import { onMounted, ref, watch } from 'vue'
 
 import { getModels, scrollToId } from '../../../helpers'
 import { useNavState } from '../../../hooks'
-import type { Spec, Tag as TagType } from '../../../types'
 import { Anchor } from '../../Anchor'
 import {
   Section,

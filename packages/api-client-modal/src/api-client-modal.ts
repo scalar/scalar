@@ -2,7 +2,7 @@ import { ApiClientModal } from '@/components'
 import { clientRouter, useWorkspace } from '@scalar/client-app'
 import { useModal } from '@scalar/components'
 import type { SpecConfiguration } from '@scalar/oas-utils'
-import { fetchSpecFromUrl, objectMerge } from '@scalar/oas-utils/helpers'
+import { objectMerge } from '@scalar/oas-utils/helpers'
 import { createApp, reactive } from 'vue'
 
 import type { ClientConfiguration } from './types'
@@ -10,7 +10,7 @@ import type { ClientConfiguration } from './types'
 /** Initialize Scalar API Client Modal */
 export const createScalarClient = async (
   /** Element to mount the references to */
-  el: HTMLElement | null,
+  el: HTMLElement,
   /** Configuration object for Scalar References */
   initialConfig: ClientConfiguration,
   /**
@@ -22,16 +22,18 @@ export const createScalarClient = async (
   const config = reactive(initialConfig)
 
   const modalState = useModal()
-  const { importSpecFile, workspaceMutators } = useWorkspace()
+  const { importSpecFile, importSpecFromUrl, workspaceMutators } =
+    useWorkspace()
 
   // Import the spec if needed
-  if (config.spec.url) {
-    const spec = await fetchSpecFromUrl(config.spec.url)
-    importSpecFile(spec)
-  } else if (config.spec.content) {
-    importSpecFile(config.spec.content)
+  if (config.parsedSpec) {
+    importSpecFile({ parsedSpec: config.parsedSpec })
+  } else if (config.spec?.url) {
+    importSpecFromUrl(config.spec.url)
+  } else if (config.spec?.content) {
+    importSpecFile({ spec: config.spec?.content })
   } else {
-    console.error('You MUST provide a spec')
+    console.error('You MUST provide a spec, cannot create Scalar API Client')
   }
 
   const app = createApp(ApiClientModal, { config, modalState })
@@ -40,7 +42,7 @@ export const createScalarClient = async (
   const mount = (mountingEl = el) => {
     if (!mountingEl) {
       console.warn(
-        'Invalid HTML element provided. Cannot mount Scalar References',
+        'Invalid HTML element provided. Cannot mount Scalar API Client',
       )
       return
     }
@@ -48,8 +50,6 @@ export const createScalarClient = async (
   }
 
   if (mountOnInitialize) mount()
-
-  modalState.open = true
   workspaceMutators.edit('isReadOnly', true)
 
   return {
@@ -65,8 +65,8 @@ export const createScalarClient = async (
     updateSpec(spec: SpecConfiguration) {
       config.spec = spec
     },
-    /** Opens the API client modal */
-    open: modalState.show,
+    /** To open and close the API client modal */
+    modalState,
     /** Mount the references to a given element */
     mount,
   }

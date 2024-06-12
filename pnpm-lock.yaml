@@ -568,6 +568,9 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../../packages/api-reference
+      '@scalar/oas-utils':
+        specifier: workspace:*
+        version: link:../../packages/oas-utils
       vue:
         specifier: ^3.4.22
         version: 3.4.27(typescript@5.4.3)
@@ -844,6 +847,9 @@ importers:
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../api-client
+      '@scalar/api-client-modal':
+        specifier: workspace:*
+        version: link:../api-client-modal
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
@@ -1860,6 +1866,9 @@ importers:
       tsc-alias:
         specifier: ^1.8.8
         version: 1.8.8
+      type-fest:
+        specifier: ^4.20.0
+        version: 4.20.0
       vite:
         specifier: ^5.2.10
         version: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
@@ -1891,6 +1900,9 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
+      '@scalar/oas-utils':
+        specifier: workspace:*
+        version: link:../oas-utils
       '@scalar/openapi-parser':
         specifier: ^0.3.2
         version: 0.3.2(terser@5.30.0)
@@ -13895,6 +13907,10 @@ packages:
   type-fest@3.13.1:
     resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
     engines: {node: '>=14.16'}
+
+  type-fest@4.20.0:
+    resolution: {integrity: sha512-MBh+PHUHHisjXf4tlx0CFWoMdjx8zCMLJHOjnV1prABYZFHqtFOyauCIK2/7w4oIfwkF8iNhLtnJEfVY2vn3iw==}
+    engines: {node: '>=16'}
 
   type-is@1.6.18:
     resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}
@@ -31152,6 +31168,8 @@ snapshots:
   type-fest@2.19.0: {}
 
   type-fest@3.13.1: {}
+
+  type-fest@4.20.0: {}
 
   type-is@1.6.18:
     dependencies:

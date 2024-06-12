@@ -1,4 +1,4 @@
-export { default as ApiClientModal } from './components/ApiClientModal.vue'
+export { default as ApiClientModal } from './components/ApiClientModalOld.vue'
 export { default as ApiReference } from './components/ApiReference.vue'
 export { default as ApiReferenceLayout } from './components/ApiReferenceLayout.vue'
 export { default as ModernLayout } from './components/Layouts/ModernLayout.vue'

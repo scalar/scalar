@@ -7,7 +7,7 @@ import {
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
-import type { TransformedOperation } from '@scalar/oas-utils'
+import type { Spec, TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import Fuse, { type FuseResult } from 'fuse.js'
@@ -16,7 +16,6 @@ import { computed, ref, toRef, watch } from 'vue'
 import { getHeadingsFromMarkdown, getModels } from '../helpers'
 import { extractRequestBody } from '../helpers/specHelpers'
 import { type ParamMap, useNavState, useOperation, useSidebar } from '../hooks'
-import type { Spec } from '../types'
 import SidebarHttpBadge from './Sidebar/SidebarHttpBadge.vue'
 
 type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'

@@ -1,6 +1,5 @@
+import type { Spec } from '@scalar/oas-utils'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
-
-import type { Spec } from '../types'
 
 export function getModels(spec?: Spec) {
   if (!spec) {

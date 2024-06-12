@@ -1,4 +1,6 @@
-import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { ExternalDocumentation } from '@/entities/workspace/collection'
+import type { Server } from '@/entities/workspace/server'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { HarRequest } from 'httpsnippet-lite'
 
 export type AnyObject = Record<string, any>
@@ -199,4 +201,54 @@ export type SSRState = {
     data: ScalarState
   }
   url: string
+}
+
+export type Tag = {
+  'name': string
+  'description': string
+  'operations': TransformedOperation[]
+  'x-displayName'?: string
+}
+
+export type TagGroup = {
+  name: string
+  tags: string[]
+}
+
+export type SecurityScheme =
+  | Record<string, never> // Empty objects
+  | OpenAPIV2.SecuritySchemeObject
+  | OpenAPIV3.SecuritySchemeObject
+  | OpenAPIV3_1.SecuritySchemeObject
+
+export type Definitions = OpenAPIV2.DefinitionsObject
+
+export type Webhooks = Record<
+  string,
+  Record<
+    OpenAPIV3_1.HttpMethods,
+    TransformedOperation & {
+      'x-internal'?: boolean
+    }
+  >
+>
+
+export type Spec = {
+  'tags'?: Tag[]
+  'info':
+    | Partial<OpenAPIV2.Document['info']>
+    | Partial<OpenAPIV3.Document['info']>
+    | Partial<OpenAPIV3_1.Document['info']>
+  'host'?: OpenAPIV2.Document['host']
+  'basePath'?: OpenAPIV2.Document['basePath']
+  'schemes'?: OpenAPIV2.Document['schemes']
+  'externalDocs'?: ExternalDocumentation
+  'servers'?: Server[]
+  'components'?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
+  'webhooks'?: Webhooks
+  'definitions'?: Definitions
+  'swagger'?: OpenAPIV2.Document['swagger']
+  'openapi'?: OpenAPIV3.Document['openapi'] | OpenAPIV3_1.Document['openapi']
+  'x-tagGroups'?: TagGroup[]
+  'security'?: OpenAPIV3.SecurityRequirementObject[]
 }

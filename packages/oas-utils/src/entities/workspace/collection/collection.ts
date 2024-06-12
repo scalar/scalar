@@ -72,6 +72,7 @@ const exteralDocumentationSchema = z.object({
   /** REQUIRED. The URL for the target documentation. This MUST be in the form of a URL. */
   url: z.string().url(),
 })
+export type ExternalDocumentation = z.infer<typeof exteralDocumentationSchema>
 
 /**
  * Tag

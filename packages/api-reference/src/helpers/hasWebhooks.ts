@@ -1,4 +1,4 @@
-import type { Spec } from '../types'
+import type { Spec } from '@scalar/oas-utils'
 
 export const hasWebhooks = (spec?: Spec) => {
   if (!spec) {

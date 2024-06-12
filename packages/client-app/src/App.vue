@@ -3,7 +3,6 @@ import SideNav from '@/components/SideNav/SideNav.vue'
 import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
-import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { onMounted, watchEffect } from 'vue'
 import { RouterView } from 'vue-router'
@@ -16,13 +15,12 @@ onMounted(() => {
 })
 
 const { isDark } = useDarkModeState()
-const { importSpecFile } = useWorkspace()
+const { importSpecFromUrl } = useWorkspace()
 
-onMounted(async () => {
-  const spec = await fetchSpecFromUrl(
+onMounted(() => {
+  importSpecFromUrl(
     'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
   )
-  importSpecFile(spec)
 })
 </script>
 <template>

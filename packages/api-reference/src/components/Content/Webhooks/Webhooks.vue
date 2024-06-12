@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import type { Webhooks } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
 import { useNavState } from '../../../hooks'
-import type { Webhooks } from '../../../types'
 import { Anchor } from '../../Anchor'
 import { MarkdownRenderer } from '../../MarkdownRenderer'
 import {

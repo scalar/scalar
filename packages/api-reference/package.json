@@ -61,6 +61,7 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.20",
     "@scalar/api-client": "workspace:*",
+    "@scalar/api-client-modal": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.3.2",

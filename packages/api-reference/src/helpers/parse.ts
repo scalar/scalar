@@ -3,6 +3,8 @@
  * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
  */
 import { type RequestMethod, validRequestMethods } from '@scalar/api-client'
+// AnyStringOrObject
+import type { Spec } from '@scalar/oas-utils'
 import {
   type AnyObject,
   type OpenAPIV2,
@@ -13,8 +15,6 @@ import {
 } from '@scalar/openapi-parser'
 
 import { createEmptySpecification } from '../helpers'
-// AnyStringOrObject
-import type { Spec } from '../types'
 
 export const parse = (specification: any): Promise<Spec> => {
   // eslint-disable-next-line no-async-promise-executor

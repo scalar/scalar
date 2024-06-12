@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import type { Spec } from '@scalar/oas-utils'
 import { onMounted, ref, watch } from 'vue'
 
 import { sleep } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
-import type { Spec } from '../../types'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
 

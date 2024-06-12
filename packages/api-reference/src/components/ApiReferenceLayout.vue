@@ -38,7 +38,8 @@ import type {
   ReferenceLayoutSlot,
   ReferenceSlotProps,
 } from '../types'
-import { default as ApiClientModal } from './ApiClientModal.vue'
+import ApiClientModal from './ApiClientModal.vue'
+import { default as ApiClientModalOld } from './ApiClientModalOld.vue'
 import { Content } from './Content'
 import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
@@ -52,6 +53,10 @@ defineEmits<{
   (e: 'linkSwaggerFile'): void
   (e: 'toggleDarkMode'): void
 }>()
+
+/** "Feature flag" for the new Modal */
+const NEW_API_MODAL = true
+console.log(import.meta)
 
 defineOptions({
   inheritAttrs: false,
@@ -316,6 +321,11 @@ useDeprecationWarnings(props.configuration)
         <!-- REST API Client Overlay -->
         <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
         <ApiClientModal
+          v-if="NEW_API_MODAL"
+          :parsedSpec="parsedSpec"
+          :proxyUrl="configuration.proxy" />
+        <ApiClientModalOld
+          v-else
           :parsedSpec="parsedSpec"
           :proxyUrl="configuration?.proxy">
           <template #sidebar-start>
@@ -328,7 +338,7 @@ useDeprecationWarnings(props.configuration)
               v-bind="referenceSlotProps"
               name="sidebar-end" />
           </template>
-        </ApiClientModal>
+        </ApiClientModalOld>
       </div>
     </ScrollbarStyles>
   </ResetStyles>

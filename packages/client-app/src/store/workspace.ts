@@ -1,6 +1,5 @@
 import { useSidebar } from '@/hooks'
 import { PathId, activeRouterParams, fallbackMissingParams } from '@/router'
-import type { AnyObject } from '@scalar/oas-utils'
 import {
   type Workspace,
   createWorkspace,
@@ -34,7 +33,10 @@ import {
   createRequestExampleParameter,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { iterateTitle } from '@scalar/oas-utils/helpers'
-import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
+import {
+  type ImportSpecPayload,
+  importSpecToWorkspace,
+} from '@scalar/oas-utils/transforms'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import {
   type Path,
@@ -445,8 +447,8 @@ const deleteServer = (serverUid: string, collectionUid: string) => {
 // ---------------------------------------------------------------------------
 
 /** Helper function to import a OpenAPI spec file into the local workspace */
-async function importSpecFile(spec: string | AnyObject) {
-  const workspaceEntities = await importSpecToWorkspace(spec)
+async function importSpecFile(payload: ImportSpecPayload) {
+  const workspaceEntities = await importSpecToWorkspace(payload)
 
   // Add all the new requests into the request collection, the already have parent folders
   workspaceEntities.requests.forEach((request) => addRequest(request))
@@ -471,7 +473,7 @@ async function importSpecFromUrl(url: string) {
       throw new Error(`Error ${response.status} fetching the spec from: ${url}`)
     }
     const spec = await response.text()
-    await importSpecFile(spec)
+    await importSpecFile({ spec })
   } catch (error) {
     console.error('Failed to fetch spec from URL:', error)
   }

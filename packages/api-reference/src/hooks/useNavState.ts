@@ -1,9 +1,9 @@
-import type { Heading, TransformedOperation } from '@scalar/oas-utils'
+import type { Heading, Tag, TransformedOperation } from '@scalar/oas-utils'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import { slug } from 'github-slugger'
 import { ref } from 'vue'
 
-import type { PathRouting, Tag } from '../types'
+import type { PathRouting } from '../types'
 
 // Keeps track of the URL hash without the #
 const hash = ref(ssrState.hash ?? '')

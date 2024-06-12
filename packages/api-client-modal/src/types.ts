@@ -1,9 +1,12 @@
-import type { SpecConfiguration } from '@scalar/oas-utils'
+import type { Spec, SpecConfiguration } from '@scalar/oas-utils'
 
 /** Configuration options for the Scalar API client */
+// TODO require at least one of spec or parsedSpec
 export type ClientConfiguration = {
   /** The Swagger/OpenAPI spec to render */
-  spec: SpecConfiguration
+  spec?: SpecConfiguration
+  /** A spec which has already been parsed by the OpenAPI parser */
+  parsedSpec?: Spec
   /** Enables the scalar proxy for the API client */
   useProxy?: boolean
   /** Whether to show the sidebar */
