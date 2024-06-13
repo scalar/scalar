@@ -213,13 +213,12 @@ const handlePaste = (event: ClipboardEvent) => {
               v-if="serverOptions"
               :options="serverOptions"
               :value="activeCollection?.selectedServerUid">
-              <ScalarButton
-                class="font-code lg:text-sm text-xs whitespace-nowrap"
-                size="sm"
-                variant="outlined"
+              <button
+                class="font-code lg:text-sm text-xs whitespace-nowrap border rounded px-1.5 text-c-2"
+                type="button"
                 @click.stop>
                 {{ servers[activeCollection?.selectedServerUid ?? '']?.url }}
-              </ScalarButton>
+              </button>
               <template #items>
                 <ScalarDropdownItem
                   v-for="server in serverOptions"
