@@ -90,7 +90,7 @@
     "./entities/workspace/collection": "./src/entities/workspace/collection/index.ts"
   },
   "publishConfig": {
-    "main": "./index.js",
+    "main": "dist/index.js",
     "exports": {
       ".": {
         "import": "./dist/index.js",
