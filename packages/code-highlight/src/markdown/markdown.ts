@@ -11,13 +11,21 @@ import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
 
 /** Take a markdown string and generate a raw HTML string */
-export async function htmlFromMarkdown(
+export function htmlFromMarkdown(
   markdownString: string,
   options?: {
     removeTags?: string[]
+    allowTags?: string[]
   },
 ) {
-  const html = await unified()
+  // Add permitted tags and remove stripped ones
+  const removeTags = options?.removeTags ?? []
+  const tagNames = [
+    ...(defaultSchema.tagNames ?? []),
+    ...(options?.allowTags ?? []),
+  ].filter((t) => !removeTags.includes(t))
+
+  const html = unified()
     // Parses markdown
     .use(remarkParse)
     // Support autolink literals, footnotes, strikethrough, tables and tasklists
@@ -30,9 +38,11 @@ export async function htmlFromMarkdown(
     .use(rehypeSanitize, {
       ...defaultSchema,
       // Makes it even more strict
-      tagNames: defaultSchema.tagNames?.filter(
-        (tag) => !(options?.removeTags ?? []).includes(tag),
-      ),
+      tagNames,
+      attributes: {
+        ...defaultSchema.attributes,
+        abbr: ['title'],
+      },
     })
     // Syntax highlighting
     .use(rehypeHighlight, {
@@ -45,7 +55,7 @@ export async function htmlFromMarkdown(
     // Converts the HTML AST to a string
     .use(rehypeStringify)
     // Run the pipeline
-    .process(markdownString)
+    .processSync(markdownString)
 
   return html.toString()
 }
