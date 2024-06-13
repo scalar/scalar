@@ -61,6 +61,5 @@
   },
   "devDependencies": {
     "tsc-alias": "^1.8.8"
-  },
-  "imports": {}
+  }
 }
