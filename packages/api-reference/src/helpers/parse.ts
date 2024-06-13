@@ -2,7 +2,11 @@
  * Unfortunately, this file is very messy. I think we should get rid of it entirely. :)
  * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
  */
-import { type RequestMethod, validRequestMethods } from '@scalar/api-client'
+import {
+  type RequestMethod,
+  normalizeRequestMethod,
+  validRequestMethods,
+} from '@scalar/api-client'
 import type { Spec } from '@scalar/oas-utils'
 import {
   type AnyObject,
