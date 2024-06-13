@@ -5,11 +5,11 @@ const isObject = (item: unknown) => {
 /**
  * Kind of type safe deep merge for objects
  *
- * TODO switch to PartialDeep for better type safety
+ * TODO Fix types but works for now with the as unknown as keyof
  */
-export const deepMerge = <T extends object>(
+export const deepMerge = <T extends object, I extends object>(
   target: T,
-  ...sources: Partial<T>[]
+  ...sources: I[]
 ): T => {
   if (!sources.length) return target
   const source = sources.shift()
@@ -17,8 +17,12 @@ export const deepMerge = <T extends object>(
   if (isObject(target) && isObject(source)) {
     for (const key in source) {
       if (isObject(source[key])) {
-        if (!target[key as keyof T]) Object.assign(target, { [key]: {} })
-        deepMerge(target[key] as object, source[key] as object)
+        if (!target[key as unknown as keyof T])
+          Object.assign(target, { [key]: {} })
+        deepMerge(
+          target[key as unknown as keyof T] as object,
+          source[key] as object,
+        )
       } else {
         Object.assign(target, { [key]: source[key] })
       }

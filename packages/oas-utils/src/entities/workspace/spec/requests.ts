@@ -1,5 +1,5 @@
 import { nanoidSchema } from '@/entities/workspace/shared'
-import { REQUEST_METHODS, type RequestMethod } from '@/helpers'
+import { REQUEST_METHODS, type RequestMethod, deepMerge } from '@/helpers'
 import type { AxiosResponse } from 'axios'
 import type { OpenAPIV3_1 } from 'openapi-types'
 import { type ZodSchema, z } from 'zod'
@@ -23,8 +23,11 @@ const requestBodySchema = z.any() satisfies ZodSchema<RequestBody>
 const parametersSchema = z.record(z.string(), z.any())
 
 const requestSchema = z.object({
-  path: z.string(),
-  method: z.enum(Object.keys(REQUEST_METHODS) as [RequestMethod]),
+  path: z.string().optional().default('/'),
+  method: z
+    .enum(Object.keys(REQUEST_METHODS) as [RequestMethod])
+    .optional()
+    .default('GET'),
   uid: nanoidSchema,
   ref: $refSchema.nullable().default(null),
   /** A list of tags for API documentation control. Tags can be used for logical
@@ -74,4 +77,4 @@ export type RequestPayload = z.input<typeof requestSchema> & {
 
 /** Create request helper */
 export const createRequest = (payload: RequestPayload) =>
-  requestSchema.parse(payload)
+  deepMerge(requestSchema.parse({}), payload)
