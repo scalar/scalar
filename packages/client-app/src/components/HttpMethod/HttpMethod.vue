@@ -54,7 +54,7 @@ const httpLabel = computed(() => method.value.short)
     :options="methodOptions">
     <div
       class="h-full"
-      :class="{ 'pointer-events-none': isEditable }">
+      :class="{ 'pointer-events-none': !isEditable }">
       <button
         class="relative h-full cursor-pointer gap-1"
         :class="
