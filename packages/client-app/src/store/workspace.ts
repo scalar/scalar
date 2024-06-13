@@ -33,7 +33,7 @@ import {
   createRequestExample,
   createRequestExampleParameter,
 } from '@scalar/oas-utils/entities/workspace/spec'
-import { iterateTitle } from '@scalar/oas-utils/helpers'
+import { fetchSpecFromUrl, iterateTitle } from '@scalar/oas-utils/helpers'
 import {
   type ImportSpecPayload,
   importSpecToWorkspace,
@@ -465,15 +465,11 @@ async function importSpecFile(payload: ImportSpecPayload) {
 }
 
 // Function to fetch and import a spec from a URL
-async function importSpecFromUrl(url: string) {
+async function importSpecFromUrl(url: string, proxy?: string) {
   // TODO: This doesn't use the proxy. :|
   // We could use the existing `fetchSpecFromUrl`, but we need access to the configured proxy URL here.
   try {
-    const response = await fetch(url)
-    if (!response.ok) {
-      throw new Error(`Error ${response.status} fetching the spec from: ${url}`)
-    }
-    const spec = await response.text()
+    const spec = await fetchSpecFromUrl(url, proxy)
     await importSpecFile({ spec })
   } catch (error) {
     console.error('Failed to fetch spec from URL:', error)
