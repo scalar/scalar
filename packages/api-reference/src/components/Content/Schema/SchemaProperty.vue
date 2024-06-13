@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { MarkdownRenderer } from '../../MarkdownRenderer'
+import { ScalarMarkdown } from '@scalar/components'
+
 import Schema from './Schema.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
@@ -95,12 +96,12 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     <div
       v-if="displayDescription(description, value)"
       class="property-description">
-      <MarkdownRenderer :value="displayDescription(description, value)" />
+      <ScalarMarkdown :value="displayDescription(description, value)" />
     </div>
     <div
       v-else-if="generatePropertyDescription(value)"
       class="property-description">
-      <MarkdownRenderer :value="generatePropertyDescription(value) || ''" />
+      <ScalarMarkdown :value="generatePropertyDescription(value) || ''" />
     </div>
     <!-- Example -->
     <div
@@ -127,8 +128,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
               </div>
             </div>
             <div class="property-description">
-              <MarkdownRenderer
-                :value="value['x-enumDescriptions'][enumValue]" />
+              <ScalarMarkdown :value="value['x-enumDescriptions'][enumValue]" />
             </div>
           </div>
         </div>

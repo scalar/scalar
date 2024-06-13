@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
+import { ScalarMarkdown } from '@scalar/components'
 import { computed } from 'vue'
 
-import { MarkdownRenderer } from '../../MarkdownRenderer'
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
@@ -45,7 +45,7 @@ const handleClick = (e: MouseEvent) =>
       <div
         v-if="value?.description"
         class="schema-card-description">
-        <MarkdownRenderer :value="value.description" />
+        <ScalarMarkdown :value="value.description" />
       </div>
       <div
         class="schema-properties"

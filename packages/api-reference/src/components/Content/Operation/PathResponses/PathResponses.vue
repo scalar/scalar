@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
+import { ScalarMarkdown } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/oas-utils'
 import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
@@ -12,7 +13,6 @@ import {
   CardTab,
   CardTabHeader,
 } from '../../../Card'
-import { MarkdownRenderer } from '../../../MarkdownRenderer'
 import ExamplePicker from '../ExamplePicker.vue'
 import ExampleResponse from './ExampleResponse.vue'
 
@@ -162,7 +162,7 @@ const showSchema = ref(false)
       <div
         v-else-if="currentResponse?.description"
         class="response-description">
-        <MarkdownRenderer
+        <ScalarMarkdown
           class="markdown"
           :value="currentResponse.description" />
       </div>

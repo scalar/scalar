@@ -76,7 +76,7 @@
 
   /** HTML Tag name */
   .hljs-name {
-    color: var(--scalar-color-red);
+    color: var(--scalar-color-blue);
   }
 
   /** Attribute name (ex. `class`, `id`) */

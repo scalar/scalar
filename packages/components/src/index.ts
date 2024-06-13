@@ -13,6 +13,7 @@ import {
   type ScalarListboxOption,
 } from './components/ScalarListbox'
 import { ScalarLoading, useLoadingState } from './components/ScalarLoading'
+import { ScalarMarkdown } from './components/ScalarMarkdown'
 import {
   type ModalState,
   ScalarModal,
@@ -30,6 +31,7 @@ import './tailwind/tailwind.css'
 export {
   ScalarButton,
   ScalarCodeBlock,
+  ScalarMarkdown,
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,

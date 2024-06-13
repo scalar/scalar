@@ -2,22 +2,37 @@
 
 @layer scalar-base {
   .markdown {
-    color: var(--scalar-color-1);
-    all: unset;
-    word-break: break-word;
-  }
-  /* all elements inside .markdown */
-  .markdown {
-    /* all: unset; */
-    margin: 12px 0;
     font-family: var(--scalar-font);
     color: var(--scalar-color-1);
+    word-break: break-word;
   }
+
+  /* Apply base padding for all block elements */
+  .markdown h1,
+  .markdown h2,
+  .markdown h3,
+  .markdown h4,
+  .markdown h5,
+  .markdown h6,
+  .markdown p,
+  .markdown div,
+  .markdown img,
+  .markdown details,
+  .markdown summary,
+  .markdown ul,
+  .markdown ol,
+  .markdown table,
+  .markdown blockquote,
+  .markdown code {
+    margin: 12px 0;
+  }
+
   .markdown details {
     margin: 12px 0;
     color: var(--scalar-color-1);
   }
   .markdown summary {
+    display: block;
     margin: 12px 0;
     padding-left: 20px;
     position: relative;

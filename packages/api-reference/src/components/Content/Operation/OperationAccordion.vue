@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { HttpMethod } from '@scalar/api-client'
 import { ScalarIcon, ScalarIconButton } from '@scalar/components'
+import { ScalarMarkdown } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/oas-utils'
 
 import { useClipboard } from '../../../hooks'
 import { Anchor } from '../../Anchor'
-import { MarkdownRenderer } from '../../MarkdownRenderer'
 import { SectionAccordion } from '../../Section'
 import EndpointDetailsCard from './EndpointDetailsCard.vue'
 import EndpointPath from './EndpointPath.vue'
@@ -66,7 +66,7 @@ const { copyToClipboard } = useClipboard()
     <template
       v-if="operation.description"
       #description>
-      <MarkdownRenderer
+      <ScalarMarkdown
         :value="operation.description"
         withImages />
     </template>

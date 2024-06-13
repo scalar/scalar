@@ -47,6 +47,8 @@ export function htmlFromMarkdown(
     // Syntax highlighting
     .use(rehypeHighlight, {
       languages: standardLanguages,
+      // Enable auto detection
+      detect: true,
     })
     // Adds target="_blank" to external links
     .use(rehypeExternalLinks, { target: '_blank' })

@@ -22,6 +22,8 @@ type HighlightOptions = {
   prefix?: string | null | undefined
   /** Names of languages to check when detecting (default: all registered languages) */
   subset?: ReadonlyArray<string> | null | undefined
+  /** Option to autodetect languages */
+  detect?: boolean
 }
 
 const emptyOptions: HighlightOptions = {}
@@ -36,7 +38,7 @@ export function rehypeHighlight(
 ) {
   const settings = options || emptyOptions
   const aliases = settings.aliases
-  const detect = false
+  const detect = options?.detect ?? false
   const languages = settings.languages
   const plainText = settings.plainText
   const prefix = settings.prefix
