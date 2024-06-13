@@ -83,7 +83,7 @@ const handleFileUpload = (idx: number) => {
                 icon="Info"
                 size="sm" />
               <span
-                class="fixed pointer-events-none w-40 shadow-lg rounded bg-b-1 z-100 p-1.5 text-xxs leading-5 -translate-x-full translate-y-[24px] opacity-0 group-hover/info:opacity-100 z-10"
+                class="fixed pointer-events-none w-40 shadow-lg rounded bg-b-1 z-100 p-1.5 text-xxs leading-5 -translate-x-full translate-y-[24px] opacity-0 group-hover/info:opacity-100 z-10 text-c-1"
                 >{{ item.description }}</span
               >
             </div>
