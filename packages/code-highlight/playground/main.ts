@@ -24,6 +24,23 @@ function createHeader(text: string) {
   document.body.appendChild(header)
 }
 
+function createCodeBlock(
+  content: string,
+  name: string,
+  lang: string,
+  mask?: string[],
+) {
+  createHeader(name)
+  const el = document.createElement('div')
+  el.innerHTML = syntaxHighlight(content, {
+    lang,
+    languages: standardLanguages,
+    lineNumbers: true,
+    maskCredentials: mask,
+  })
+  document.body.appendChild(el)
+}
+
 document.getElementById('dark-mode-btn')?.addEventListener('click', () => {
   document.body.classList.toggle('dark-mode')
   document.body.classList.toggle('light-mode')
@@ -36,39 +53,60 @@ document.adoptedStyleSheets.push(styleSheet)
 // ---------------------------------------------------------------------------
 // Codeblock example
 
-createHeader('Basic Codeblock')
-const code = document.createElement('div')
-code.innerHTML = syntaxHighlight(
-  `const boo = 'booooooo'
-function scare() {
+createCodeBlock(
+  `const data = JSON.stringify({
+  id: 1,
+  name: 'Mars',
+  description: 'The red planet',
+  image: 'https://cdn.scalar.com/photos/mars.jpg',
+  creator: {
+    id: 1,
+    name: 'Marc',
+    email: 'marc@scalar.com'
+  }
+});
 
-    console.log(boo)
-    window.alert('boo')
+const xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
 
-}
+xhr.addEventListener('readystatechange', function () {
+  if (this.readyState === this.DONE) {
+    console.log(this.responseText);
+  }
+});
 
-const template = \`\${date.now()} is Today!\`
-const arr = new Array()
-const date = new Date()
+xhr.open('POST', 'https://galaxy.scalar.com/planets');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.setRequestHeader('Authorization', 'Bearer YOUR_SECRET_TOKEN');
+
+xhr.send(data);
 `,
-  { languages: standardLanguages, lang: 'js' },
+  'Basic Codeblock',
+  'js',
 )
-document.body.appendChild(code)
 
-createHeader('HTML Codeblock')
-const codeHtml = document.createElement('div')
-codeHtml.innerHTML = syntaxHighlight(
+createCodeBlock(
+  codeExampleLarge,
+  'Longer Codeblock with Credential Masking',
+  'ts',
+  ['javascript'],
+)
+
+// ---------------------------------------------------------------------------
+// HTML
+createCodeBlock(
   `<div id="wrap" class="my-name">
   Some <b>html</b> content is also highlighted
 </div>
 `,
-  { lang: 'html', languages: standardLanguages },
+  'HTML',
+  'html',
 )
-document.body.appendChild(codeHtml)
 
-createHeader('CSS Codeblock')
-const cssHtml = document.createElement('div')
-cssHtml.innerHTML = syntaxHighlight(
+// ---------------------------------------------------------------------------
+// CSS
+
+createCodeBlock(
   `code.hljs * {
   font-size: var(--scalar-small) !important;
   font-family: var(--scalar-font-code) !important;
@@ -85,19 +123,12 @@ code.hljs {
   counter-reset: linenumber;
 }
 `,
-  { lang: 'css', languages: standardLanguages },
+  'CSS',
+  'css',
 )
-document.body.appendChild(cssHtml)
 
-createHeader('Longer Codeblock with Credential Masking')
-const codeLong = document.createElement('div')
-codeLong.innerHTML = syntaxHighlight(codeExampleLarge, {
-  lang: 'typescript',
-  languages: standardLanguages,
-  lineNumbers: true,
-  maskCredentials: ['javascript'],
-})
-document.body.appendChild(codeLong)
+// ---------------------------------------------------------------------------
+// Kotlin
 
 const kotlin = String.raw`val client = OkHttpClient()
 
@@ -111,15 +142,10 @@ val request = Request.Builder()
 
 val response = client.newCall(request).execute()`
 
-createHeader('Kotlin with escaped strings')
-const codeKotlin = document.createElement('div')
-codeKotlin.innerHTML = syntaxHighlight(kotlin, {
-  lang: 'kotlin',
-  languages: standardLanguages,
-  lineNumbers: true,
-  maskCredentials: [''],
-})
-document.body.appendChild(codeKotlin)
+createCodeBlock(kotlin, 'Kotlin', 'kotlin')
+
+// ---------------------------------------------------------------------------
+// Curl
 
 const shellString = String.raw`curl --request POST \
   --url https://galaxy.scalar.com/user/signup \
@@ -130,16 +156,172 @@ const shellString = String.raw`curl --request POST \
   "password": "i-love-scalar"
 }'`
 
-createHeader('Shell Highlighting')
-const shell = document.createElement('div')
-shell.innerHTML = syntaxHighlight(shellString, {
-  lang: 'curl',
-  languages: standardLanguages,
-  lineNumbers: true,
-  maskCredentials: [''],
-})
-document.body.appendChild(shell)
+createCodeBlock(shellString, 'Curl', 'curl')
 
+// ---------------------------------------------------------------------------
+// C#
+
+const csharp = String.raw`
+using System.Net.Http.Headers;
+var client = new HttpClient();
+var request = new HttpRequestMessage
+{
+    Method = HttpMethod.Post,
+    RequestUri = new Uri("https://galaxy.scalar.com/user/signup"),
+    Content = new StringContent("{\n  \"name\": \"Marc\",\n  \"email\": \"marc@scalar.com\",\n  \"password\": \"i-love-scalar\"\n}")
+    {
+        Headers =
+        {
+            ContentType = new MediaTypeHeaderValue("application/json")
+        }
+    }
+};
+using (var response = await client.SendAsync(request))
+{
+    response.EnsureSuccessStatusCode();
+    var body = await response.Content.ReadAsStringAsync();
+    Console.WriteLine(body);
+}
+
+var client = new RestClient("https://galaxy.scalar.com/planets");
+var request = new RestRequest(Method.POST);
+request.AddHeader("Content-Type", "application/json");
+request.AddHeader("Authorization", "Bearer YOUR_SECRET_TOKEN");
+request.AddParameter("application/json", "{\n  \"id\": 1,\n  \"name\": \"Mars\",\n  \"description\": \"The red planet\",\n  \"image\": \"https://cdn.scalar.com/photos/mars.jpg\",\n  \"creator\": {\n    \"id\": 1,\n    \"name\": \"Marc\",\n    \"email\": \"marc@scalar.com\"\n  }\n}", ParameterType.RequestBody);
+IRestResponse response = client.Execute(request);
+`
+
+createCodeBlock(csharp, 'C#', 'c++')
+
+// ---------------------------------------------------------------------------
+// PHP
+
+const php = String.raw`<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://galaxy.scalar.com/planets",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "POST",
+  CURLOPT_POSTFIELDS => json_encode([
+    'id' => 1,
+    'name' => 'Mars',
+    'description' => 'The red planet',
+    'image' => 'https://cdn.scalar.com/photos/mars.jpg',
+    'creator' => [
+        'id' => 1,
+        'name' => 'Marc',
+        'email' => 'marc@scalar.com'
+    ]
+  ]),
+  CURLOPT_HTTPHEADER => [
+    "Authorization: Bearer YOUR_SECRET_TOKEN",
+    "Content-Type: application/json"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}`
+
+createCodeBlock(php, 'PHP', 'php')
+
+// ---------------------------------------------------------------------------
+// Objective C
+
+const oc = String.raw`#import <Foundation/Foundation.h>
+
+NSDictionary *headers = @{ @"Content-Type": @"application/json",
+                           @"Authorization": @"Bearer YOUR_SECRET_TOKEN" };
+NSDictionary *parameters = @{ @"id": @1,
+                              @"name": @"Mars",
+                              @"description": @"The red planet",
+                              @"image": @"https://cdn.scalar.com/photos/mars.jpg",
+                              @"creator": @{ @"id": @1, @"name": @"Marc", @"email": @"marc@scalar.com" } };
+
+NSData *postData = [NSJSONSerialization dataWithJSONObject:parameters options:0 error:nil];
+
+NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://galaxy.scalar.com/planets"]
+                                                       cachePolicy:NSURLRequestUseProtocolCachePolicy
+                                                   timeoutInterval:10.0];
+[request setHTTPMethod:@"POST"];
+[request setAllHTTPHeaderFields:headers];
+[request setHTTPBody:postData];
+
+NSURLSession *session = [NSURLSession sharedSession];
+NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
+                                            completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                                if (error) {
+                                                    NSLog(@"%@", error);
+                                                } else {
+                                                    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *) response;
+                                                    NSLog(@"%@", httpResponse);
+                                                }
+                                            }];
+[dataTask resume];`
+
+createCodeBlock(oc, 'Objective C', 'objectivec')
+
+// ---------------------------------------------------------------------------
+// Powershell
+
+const pshell = String.raw`$headers=@{}
+$headers.Add("Content-Type", "application/json")
+$headers.Add("Authorization", "Bearer YOUR_SECRET_TOKEN")
+$response = Invoke-WebRequest -Uri 'https://galaxy.scalar.com/planets' -Method POST -Headers $headers -ContentType 'application/json' -Body '{
+  "id": 1,
+  "name": "Mars",
+  "description": "The red planet",
+  "image": "https://cdn.scalar.com/photos/mars.jpg",
+  "creator": {
+    "id": 1,
+    "name": "Marc",
+    "email": "marc@scalar.com"
+  }
+}'`
+
+createCodeBlock(pshell, 'Powershell', 'powershell')
+
+// ---------------------------------------------------------------------------
+// Python
+
+const py = String.raw`import requests
+
+url = "https://galaxy.scalar.com/planets"
+
+payload = {
+    "id": 1,
+    "name": "Mars",
+    "description": "The red planet",
+    "image": "https://cdn.scalar.com/photos/mars.jpg",
+    "creator": {
+        "id": 1,
+        "name": "Marc",
+        "email": "marc@scalar.com"
+    }
+}
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer YOUR_SECRET_TOKEN"
+}
+
+response = requests.post(url, json=payload, headers=headers)
+
+print(response.json())`
+
+createCodeBlock(py, 'Python', 'python')
 // ---------------------------------------------------------------------------
 // Markdown render example
 

@@ -56,7 +56,7 @@
   /** Class initializers such as `Array` or `Date` */
   /** Type declarations such as `Record` */
   .hljs-title.class_ {
-    color: var(--scalar-color-red);
+    color: var(--scalar-color-1);
   }
 
   /** Language indicators such as `new`, `const`, or `function` in JS  */
@@ -84,18 +84,6 @@
   .hljs-attribute {
     color: var(--scalar-color-1);
   }
-
-  /** For HTML we leave the content strings brighter */
-  .hljs.language-html {
-    color: var(--scalar-color-1);
-  }
-
-  /** For HTML make the attr text different than the content */
-  .hljs.language-html .hljs-attr {
-    color: var(--scalar-color-2);
-  }
-  /* ------------------------------------------------------------- */
-  /* CSS */
 
   .hljs-addition,
   .hljs-literal,
@@ -161,4 +149,54 @@
     color: var(--scalar-color-3);
     user-select: none;
   }
+}
+
+/* -------------------------------------------------------------- */
+/* Language specific overrides */
+
+/** For HTML we leave the content strings brighter */
+.hljs.language-html {
+  color: var(--scalar-color-1);
+}
+
+/** For HTML make the attr text different than the content */
+.hljs.language-html .hljs-attr {
+  color: var(--scalar-color-2);
+}
+
+.hljs.language-curl .hljs-keyword {
+  color: var(--scalar-color-orange);
+}
+
+.hljs.language-curl .hljs-string {
+  color: var(--scalar-color-1);
+}
+
+.hljs.language-curl .hljs-literal {
+  color: var(--scalar-color-blue);
+}
+
+.hljs.language-curl .hljs-literal {
+  color: var(--scalar-color-blue);
+}
+
+/** Compromise here */
+.hljs.language-cpp .hljs-built_in {
+  /* color: var(--scalar-color-1); */
+}
+
+.hljs.language-php .hljs-variable {
+  color: var(--scalar-color-blue);
+}
+
+.hljs.language-objectivec .hljs-meta {
+  color: var(--scalar-color-1);
+}
+
+.hljs.language-objectivec .hljs-built_in {
+  color: var(--scalar-color-orange);
+}
+
+.hljs-built_in {
+  color: var(--scalar-color-orange);
 }

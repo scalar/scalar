@@ -1,3 +1,4 @@
+import { lowlightLanguageMappings } from '@/constants'
 import { rehypeHighlight } from '@/rehype-highlight'
 import type { Element, Root } from 'hast'
 import type { LanguageFn } from 'highlight.js'
@@ -33,7 +34,7 @@ export function syntaxHighlight(
   })
 
   // Classname is used by lowlight to select the language model
-  const className = `language-${options.lang}`
+  const className = `language-${lowlightLanguageMappings[options.lang] ?? options.lang}`
 
   const nullPlugin = (() => {}) satisfies Plugin
 

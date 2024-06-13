@@ -139,7 +139,8 @@ const language = computed(() => {
   const key = httpClient.targetKey
 
   if (key === 'shell' && generatedCode.value.includes('curl')) return 'curl'
-  if (key === 'c' && generatedCode.value.includes('CURL')) return 'cpp'
+  if (key === 'c') return 'cpp'
+  if (key === 'csharp') return 'cpp'
   return key
 })
 </script>
