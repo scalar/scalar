@@ -5,6 +5,7 @@
 import {
   type RequestMethod,
   normalizeRequestMethod,
+  redirectToProxy,
   validRequestMethods,
 } from '@scalar/api-client'
 import type { Spec } from '@scalar/oas-utils'
@@ -21,7 +22,14 @@ import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 
 import { createEmptySpecification } from '../helpers'
 
-export const parse = (specification: any): Promise<Spec> => {
+export const parse = (
+  specification: any,
+  {
+    proxy,
+  }: {
+    proxy?: string
+  } = {},
+): Promise<Spec> => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
     try {
@@ -37,7 +45,12 @@ export const parse = (specification: any): Promise<Spec> => {
       const { filesystem } = await load(specification, {
         plugins: [
           fetchUrls({
-            // TODO: Use proxy here
+            fetch: (url) => {
+              console.log('FETCH')
+              console.log('url', url)
+              console.log('proxy', proxy)
+              return fetch(proxy ? redirectToProxy(proxy, url) : url)
+            },
           }),
         ],
       })
