@@ -34,10 +34,11 @@ const {
   collectionMutators,
   servers,
   requestMutators,
+  requestsHistory,
   workspace,
 } = useWorkspace()
 
-const history = computed(() => activeRequest.value?.history ?? [])
+const history = requestsHistory
 const selectedRequest = ref(history.value[0])
 
 const keys = useMagicKeys()
@@ -277,7 +278,7 @@ const handlePaste = (event: ClipboardEvent) => {
 
           <!-- History -->
           <ListboxButton
-            v-if="activeRequest.history.length"
+            v-if="history.length"
             class="hover:bg-b-2 mr-1 rounded p-1.5">
             <ScalarIcon
               class="text-c-3"
@@ -323,7 +324,7 @@ const handlePaste = (event: ClipboardEvent) => {
                   </span>
                   <HttpMethod
                     class="lg:text-sm text-xs"
-                    :method="activeRequest.method" />
+                    :method="response.config.method" />
                 </div>
               </ListboxOption>
             </ListboxOptions>
