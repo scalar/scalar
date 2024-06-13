@@ -7,6 +7,7 @@ const requestExampleParametersSchema = z.object({
   value: z.union([z.string(), z.number()]).transform(String).default(''),
   enabled: z.boolean().default(true),
   file: z.instanceof(File).optional(),
+  description: z.string().optional(),
   /** Params are linked to parents such as path params and global headers/cookies */
   refUid: nanoidSchema.optional(),
 })

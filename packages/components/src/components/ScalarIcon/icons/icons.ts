@@ -29,6 +29,7 @@ export const ICONS = [
   'GitHub',
   'Hide',
   'History',
+  'Info',
   'JsonObject',
   'Key',
   'Leave',
