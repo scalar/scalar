@@ -64,7 +64,7 @@ const handleFileUpload = (idx: number) => {
 
       <!-- todo grab required from the ref -->
       <!-- :required="item.required" -->
-      <div class="flex">
+      <div class="flex w-full">
         <DataTableInput
           :modelValue="item.value"
           placeholder="Value"
@@ -76,11 +76,17 @@ const handleFileUpload = (idx: number) => {
           <template
             v-if="item.description"
             #icon>
-            <span>{{ item.description }}</span>
-            <ScalarIcon
-              class="ml-1"
-              icon="Upload"
-              size="xs" />
+            <div
+              class="relative group/info overflow-hidden flex items-center pr-2">
+              <ScalarIcon
+                class="ml-1 text-c-3 group-hover/info:text-c-1"
+                icon="Info"
+                size="sm" />
+              <span
+                class="fixed pointer-events-none w-40 shadow-lg rounded bg-b-1 z-100 p-1.5 text-xxs leading-5 -translate-x-full translate-y-[24px] opacity-0 group-hover/info:opacity-100 z-10"
+                >{{ item.description }}</span
+              >
+            </div>
           </template>
         </DataTableInput>
       </div>
