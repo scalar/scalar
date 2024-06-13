@@ -3,7 +3,7 @@ import type { ClientConfiguration, OpenClientPayload } from '@/types'
 import { clientRouter, useWorkspace } from '@scalar/client-app'
 import type { SpecConfiguration } from '@scalar/oas-utils'
 import { objectMerge } from '@scalar/oas-utils/helpers'
-import { createApp, reactive, toRaw } from 'vue'
+import { createApp, reactive } from 'vue'
 
 /** Initialize Scalar API Client Modal */
 export const createScalarApiClient = async (
@@ -28,12 +28,10 @@ export const createScalarApiClient = async (
   } = useWorkspace()
 
   // Import the spec if needed
-  if (config.parsedSpec) {
-    importSpecFile({ parsedSpec: config.parsedSpec })
-  } else if (config.spec?.url) {
+  if (config.spec?.url) {
     importSpecFromUrl(config.spec.url)
   } else if (config.spec?.content) {
-    importSpecFile({ spec: config.spec?.content })
+    importSpecFile(config.spec?.content)
   } else {
     console.error(
       `[@scalar/api-client-modal] Could not create the API client.`,
@@ -69,11 +67,11 @@ export const createScalarApiClient = async (
       } else {
         objectMerge(config, newConfig)
       }
-      if (newConfig.spec) importSpecFile({ spec: newConfig.spec })
+      if (newConfig.spec) importSpecFile(newConfig.spec)
     },
     /** Update the spec file, this will re-parse it */
     updateSpec(spec: SpecConfiguration) {
-      importSpecFile({ spec })
+      importSpecFile(spec)
     },
     /** Open the  API client modal */
     open: (payload?: OpenClientPayload) => {

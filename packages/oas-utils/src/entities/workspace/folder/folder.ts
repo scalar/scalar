@@ -1,11 +1,12 @@
 import { nanoidSchema } from '@/entities/workspace/shared'
+import { deepMerge } from '@/helpers'
 import { z } from 'zod'
 
 const folderSchema = z.object({
   /** Used for database sync only */
   uid: nanoidSchema,
   /** Will correspond to the slash separate path some, some/nested or some/nested/folder */
-  name: z.string(),
+  name: z.string().optional().default('Folder'),
   /** Folder descriptions */
   description: z.string().optional(),
   /**
@@ -21,4 +22,4 @@ export type FolderPayload = z.input<typeof folderSchema>
 
 /** Create folder helper */
 export const createFolder = (payload: FolderPayload) =>
-  folderSchema.parse(payload)
+  deepMerge(folderSchema.parse({}), payload)

@@ -24,7 +24,7 @@ const { open: openSpecFileDialog } = useFileDialog({
       const reader = new FileReader()
       reader.onload = async (e) => {
         const text = e.target?.result as string
-        importSpecFile({ spec: text })
+        importSpecFile(text)
         handleSubmit()
       }
       reader.readAsText(file)

@@ -1,4 +1,5 @@
 export * from './createHash'
+export * from './deepMerge'
 export * from './fetchSpecFromUrl'
 export * from './httpMethods'
 export * from './httpStatusCodes'

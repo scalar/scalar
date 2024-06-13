@@ -1,3 +1,4 @@
+import { deepMerge } from '@/helpers'
 import { z } from 'zod'
 
 import { nanoidSchema } from '../shared'
@@ -49,4 +50,4 @@ export type CookiePayload = z.input<typeof cookieSchema>
 
 /** Create cookie helper */
 export const createCookie = (payload: CookiePayload) =>
-  cookieSchema.parse(payload)
+  deepMerge(cookieSchema.parse({}), payload)

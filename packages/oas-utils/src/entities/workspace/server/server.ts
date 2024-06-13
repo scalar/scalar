@@ -1,3 +1,4 @@
+import { deepMerge } from '@/helpers'
 import { z } from 'zod'
 
 import { nanoidSchema } from '../shared'
@@ -20,7 +21,7 @@ const serverVariableSchema = z.object({
    * Note this behavior is different than the Schema Object’s treatment of default values, because in those cases
    * parameter values are optional. If the enum is defined, the value MUST exist in the enum’s values.
    */
-  default: z.string(),
+  default: z.string().optional().default('default'),
   /** An optional description for the server variable. CommonMark syntax MAY be used for rich text representation. */
   description: z.string().optional(),
 })
@@ -32,7 +33,7 @@ const serverSchema = z.object({
    * the host location is relative to the location where the OpenAPI document is being served. Variable substitutions
    * will be made when a variable is named in {brackets}.
    */
-  url: z.string(),
+  url: z.string().optional().default(''),
   /**
    * An optional string describing the host designated by the URL. CommonMark syntax MAY be used for rich text
    * representation.
@@ -53,4 +54,4 @@ export type ServerPayload = z.input<typeof serverSchema>
 
 /** Create server helper */
 export const createServer = (payload: ServerPayload) =>
-  serverSchema.parse(payload)
+  deepMerge(serverSchema.parse({}), payload)

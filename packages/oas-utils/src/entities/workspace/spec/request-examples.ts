@@ -1,4 +1,5 @@
 import { nanoidSchema } from '@/entities/workspace/shared'
+import { deepMerge } from '@/helpers'
 import { z } from 'zod'
 
 const requestExampleParametersSchema = z.object({
@@ -21,12 +22,12 @@ export type RequestExampleParameterPayload = z.input<
 /** Create request example parameter helper */
 export const createRequestExampleParameter = (
   payload: RequestExampleParameterPayload,
-) => requestExampleParametersSchema.parse(payload)
+) => deepMerge(requestExampleParametersSchema.parse({}), payload)
 
 const requestExampleSchema = z.object({
   uid: nanoidSchema,
   requestUid: z.string().min(7),
-  name: z.string(),
+  name: z.string().optional().default('Name'),
   body: z
     .object({
       raw: z
@@ -59,13 +60,17 @@ const requestExampleSchema = z.object({
         .union([z.literal('raw'), z.literal('formData'), z.literal('binary')])
         .default('raw'),
     })
+    .optional()
     .default({}),
-  parameters: z.object({
-    path: requestExampleParametersSchema.array().default([]),
-    query: requestExampleParametersSchema.array().default([]),
-    headers: requestExampleParametersSchema.array().default([]),
-    cookies: requestExampleParametersSchema.array().default([]),
-  }),
+  parameters: z
+    .object({
+      path: requestExampleParametersSchema.array().default([]),
+      query: requestExampleParametersSchema.array().default([]),
+      headers: requestExampleParametersSchema.array().default([]),
+      cookies: requestExampleParametersSchema.array().default([]),
+    })
+    .optional()
+    .default({}),
   auth: z.record(z.string(), z.any()).default({}),
 })
 
@@ -75,4 +80,7 @@ export type RequestExamplePayload = z.input<typeof requestExampleSchema>
 
 /** Create request example helper */
 export const createRequestExample = (payload: RequestExamplePayload) =>
-  requestExampleSchema.parse(payload)
+  deepMerge(
+    requestExampleSchema.parse({ requestUid: payload.requestUid }),
+    payload,
+  )
