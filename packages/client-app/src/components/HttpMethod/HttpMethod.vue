@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useWorkspace } from '@/store/workspace'
 import { ScalarIcon, ScalarListbox } from '@scalar/components'
 import {
   REQUEST_METHODS,
@@ -21,8 +20,6 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'change', value: RequestMethod): void
 }>()
-
-const { workspace } = useWorkspace()
 
 const method = computed(() => getRequest(props.method))
 
@@ -57,7 +54,7 @@ const httpLabel = computed(() => method.value.short)
     :options="methodOptions">
     <div
       class="h-full"
-      :class="{ 'pointer-events-none': workspace.isReadOnly }">
+      :class="{ 'pointer-events-none': isEditable }">
       <button
         class="relative h-full cursor-pointer gap-1"
         :class="
@@ -70,7 +67,7 @@ const httpLabel = computed(() => method.value.short)
         type="button">
         <span>{{ httpLabel }}</span>
         <ScalarIcon
-          v-if="!workspace.isReadOnly"
+          v-if="isEditable"
           :class="method.color"
           icon="ChevronDown"
           size="xs" />
