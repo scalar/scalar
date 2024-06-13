@@ -11,6 +11,8 @@ import { ref } from 'vue'
 
 const { activeRequest } = useWorkspace()
 
+const bodyMethods = ['POST', 'PUT', 'PATCH']
+
 const sections = [
   'All',
   'Auth',
@@ -62,7 +64,10 @@ const activeSection = ref<ActiveSections>('All')
         paramKey="query"
         title="Query Parameters" />
       <RequestBody
-        v-show="activeSection === 'All' || activeSection === 'Body'"
+        v-show="
+          (activeSection === 'All' || activeSection === 'Body') &&
+          bodyMethods.includes(activeRequest.method)
+        "
         body="foo"
         title="Body" />
     </div>
