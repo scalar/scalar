@@ -64,14 +64,17 @@ const handleFileUpload = (idx: number) => {
 
       <!-- todo grab required from the ref -->
       <!-- :required="item.required" -->
-      <DataTableInput
-        :modelValue="item.value"
-        placeholder="Value"
-        @blur="emit('inputBlur')"
-        @focus="emit('inputFocus')"
-        @input="items && idx === items.length - 1 && emit('addRow')"
-        @selectVariable="(v) => handleSelectVariable(idx, 'value', v)"
-        @update:modelValue="(v) => emit('updateRow', idx, 'value', v)" />
+      <div class="flex">
+        <DataTableInput
+          :modelValue="item.value"
+          placeholder="Value"
+          @blur="emit('inputBlur')"
+          @focus="emit('inputFocus')"
+          @input="items && idx === items.length - 1 && emit('addRow')"
+          @selectVariable="(v) => handleSelectVariable(idx, 'value', v)"
+          @update:modelValue="(v) => emit('updateRow', idx, 'value', v)" />
+        <span v-if="item.description">{{ item.description }}</span>
+      </div>
       <DataTableCell
         v-if="showUploadButton"
         class="group/upload p-1 overflow-hidden relative text-ellipsis whitespace-nowrap">
