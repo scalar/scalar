@@ -554,8 +554,8 @@ importers:
         specifier: ^8.4.38
         version: 8.4.38
       tailwindcss:
-        specifier: ^3.4.3
-        version: 3.4.3(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))
+        specifier: ^3.4.4
+        version: 3.4.4(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))
       typescript:
         specifier: ^5.4.3
         version: 5.4.3
@@ -1152,7 +1152,7 @@ importers:
     dependencies:
       '@headlessui/tailwindcss':
         specifier: ^0.2.0
-        version: 0.2.0(tailwindcss@3.4.3(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3)))
+        version: 0.2.0(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3)))
       '@headlessui/vue':
         specifier: ^1.7.20
         version: 1.7.20(vue@3.4.27(typescript@5.4.3))
@@ -1221,11 +1221,11 @@ importers:
         specifier: ^8.4.38
         version: 8.4.38
       tailwindcss:
-        specifier: ^3.4.3
-        version: 3.4.3(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))
+        specifier: ^3.4.4
+        version: 3.4.4(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))
       tailwindcss-color-mix:
         specifier: ^0.0.8
-        version: 0.0.8(tailwindcss@3.4.3(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3)))
+        version: 0.0.8(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3)))
       tsc-alias:
         specifier: ^1.8.8
         version: 1.8.8
@@ -1350,7 +1350,7 @@ importers:
     devDependencies:
       '@headlessui/tailwindcss':
         specifier: ^0.2.0
-        version: 0.2.0(tailwindcss@3.4.3(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))
+        version: 0.2.0(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -1411,9 +1411,9 @@ importers:
       postcss:
         specifier: ^8.4.38
         version: 8.4.38
-      postcss-prefix-selector:
-        specifier: ^1.16.0
-        version: 1.16.0(postcss@8.4.38)
+      postcss-nested:
+        specifier: ^6.0.1
+        version: 6.0.1(postcss@8.4.38)
       storybook:
         specifier: ^8.0.8
         version: 8.0.8(@babel/preset-env@7.24.0)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1424,11 +1424,14 @@ importers:
         specifier: ^2.7.1
         version: 2.7.1
       tailwindcss:
-        specifier: ^3.4.3
-        version: 3.4.3(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3))
+        specifier: ^3.4.4
+        version: 3.4.4(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3))
       tailwindcss-color-mix:
         specifier: ^0.0.8
-        version: 0.0.8(tailwindcss@3.4.3(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))
+        version: 0.0.8(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))
+      tailwindcss-scoped-preflight:
+        specifier: ^3.2.7
+        version: 3.2.7(postcss@8.4.38)(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))
       ts-node:
         specifier: ^10.9.1
         version: 10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)
@@ -1911,7 +1914,7 @@ importers:
     devDependencies:
       '@rise8/tailwind-pixel-perfect-preset':
         specifier: ^1.0.1
-        version: 1.0.1(tailwindcss@3.4.3(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3)))
+        version: 1.0.1(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3)))
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -1922,8 +1925,8 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0(vitest@1.6.0(@types/node@20.11.26)(jsdom@23.2.0)(terser@5.30.0))
       tailwindcss:
-        specifier: ^3.4.3
-        version: 3.4.3(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))
+        specifier: ^3.4.4
+        version: 3.4.4(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))
       tsc-alias:
         specifier: ^1.8.8
         version: 1.8.8
@@ -11897,11 +11900,6 @@ packages:
     peerDependencies:
       postcss: ^8.4.31
 
-  postcss-prefix-selector@1.16.0:
-    resolution: {integrity: sha512-rdVMIi7Q4B0XbXqNUEI+Z4E+pueiu/CS5E6vRCQommzdQ/sgsS4dK42U7GX8oJR+TJOtT+Qv3GkNo6iijUMp3Q==}
-    peerDependencies:
-      postcss: '>4 <9'
-
   postcss-reduce-idents@6.0.3:
     resolution: {integrity: sha512-G3yCqZDpsNPoQgbDUy3T0E6hqOQ5xigUtBQyrmq3tn2GxlyiL0yyl7H+T8ulQR6kOcHJ9t7/9H4/R2tv8tJbMA==}
     engines: {node: ^14 || ^16 || >=18.0}
@@ -13420,8 +13418,14 @@ packages:
     peerDependencies:
       tailwindcss: ^3.0.0
 
-  tailwindcss@3.4.3:
-    resolution: {integrity: sha512-U7sxQk/n397Bmx4JHbJx/iSOOv5G+II3f1kpLpY2QeUv5DcPdcTsYLlusZfq1NthHS1c1cZoyFmmkex1rzke0A==}
+  tailwindcss-scoped-preflight@3.2.7:
+    resolution: {integrity: sha512-p0N1V1AAdKFDKyAP/ssaiIgpI6ey+O5058NR0GpHDphaaU3bOZeEwLOMaFbXmBLfDVVQzJIDEu1D/iRId8b8LA==}
+    peerDependencies:
+      postcss: ^8
+      tailwindcss: ^3
+
+  tailwindcss@3.4.4:
+    resolution: {integrity: sha512-ZoyXOdJjISB7/BcLTR6SEsLgKtDStYyYZVLsUtWChO4Ps20CBad7lfJKVDiejocV4ME1hLmyY0WJE3hSDcmQ2A==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -17668,13 +17672,13 @@ snapshots:
     dependencies:
       '@hapi/hoek': 9.3.0
 
-  '@headlessui/tailwindcss@0.2.0(tailwindcss@3.4.3(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))':
+  '@headlessui/tailwindcss@0.2.0(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)))':
     dependencies:
-      tailwindcss: 3.4.3(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3))
+      tailwindcss: 3.4.4(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3))
 
-  '@headlessui/tailwindcss@0.2.0(tailwindcss@3.4.3(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3)))':
+  '@headlessui/tailwindcss@0.2.0(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3)))':
     dependencies:
-      tailwindcss: 3.4.3(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))
+      tailwindcss: 3.4.4(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))
 
   '@headlessui/vue@1.7.20(vue@3.4.27(typescript@5.4.3))':
     dependencies:
@@ -19117,9 +19121,9 @@ snapshots:
       '@codemirror/state': 6.4.1
       '@codemirror/view': 6.24.1
 
-  '@rise8/tailwind-pixel-perfect-preset@1.0.1(tailwindcss@3.4.3(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3)))':
+  '@rise8/tailwind-pixel-perfect-preset@1.0.1(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3)))':
     dependencies:
-      tailwindcss: 3.4.3(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))
+      tailwindcss: 3.4.4(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))
 
   '@rollup/plugin-alias@5.1.0(rollup@3.29.4)':
     dependencies:
@@ -28757,10 +28761,6 @@ snapshots:
       postcss: 8.4.38
       postcss-value-parser: 4.2.0
 
-  postcss-prefix-selector@1.16.0(postcss@8.4.38):
-    dependencies:
-      postcss: 8.4.38
-
   postcss-reduce-idents@6.0.3(postcss@8.4.38):
     dependencies:
       postcss: 8.4.38
@@ -30523,15 +30523,20 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.24.5
 
-  tailwindcss-color-mix@0.0.8(tailwindcss@3.4.3(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3))):
+  tailwindcss-color-mix@0.0.8(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3))):
     dependencies:
-      tailwindcss: 3.4.3(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3))
+      tailwindcss: 3.4.4(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3))
 
-  tailwindcss-color-mix@0.0.8(tailwindcss@3.4.3(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))):
+  tailwindcss-color-mix@0.0.8(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))):
     dependencies:
-      tailwindcss: 3.4.3(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))
+      tailwindcss: 3.4.4(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3))
 
-  tailwindcss@3.4.3(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)):
+  tailwindcss-scoped-preflight@3.2.7(postcss@8.4.38)(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3))):
+    dependencies:
+      postcss: 8.4.38
+      tailwindcss: 3.4.4(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3))
+
+  tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.4.2)(@types/node@20.11.22)(typescript@5.4.3)):
     dependencies:
       '@alloc/quick-lru': 5.2.0
       arg: 5.0.2
@@ -30558,7 +30563,7 @@ snapshots:
     transitivePeerDependencies:
       - ts-node
 
-  tailwindcss@3.4.3(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3)):
+  tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.11.26)(typescript@5.4.3)):
     dependencies:
       '@alloc/quick-lru': 5.2.0
       arg: 5.0.2

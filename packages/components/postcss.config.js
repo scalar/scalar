@@ -1,8 +1,9 @@
-/** Global prefix class used to scoped tailwind */
-export default () => ({
+import postcss from 'postcss'
+
+export default {
   plugins: {
-    'tailwindcss/nesting': {},
+    'postcss-nested': {},
     'tailwindcss': {},
     'autoprefixer': {},
   },
-})
+}
