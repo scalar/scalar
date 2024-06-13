@@ -267,8 +267,8 @@ const getBackgroundColor = () => {
             <RequestSidebarItem
               v-for="(collection, collectionIndex) in workspaceCollections"
               :key="collection.uid"
-              :isDraggable="FOLDER_MODE"
-              :isDroppable="FOLDER_MODE"
+              :isDraggable="FOLDER_MODE && !workspace.isReadOnly"
+              :isDroppable="FOLDER_MODE && !workspace.isReadOnly"
               :item="collection"
               :parentUids="[]"
               @onDragEnd="
