@@ -6,7 +6,7 @@ function guessFromFormat(schema: Record<string, any>, fallback: string = '') {
     // 'date-time': '1970-01-01T00:00:00Z',
     'date-time': new Date().toISOString(),
     // 'date': '1970-01-01',
-    'date': new Date().toISOString().split('T')[0],
+    'date': new Date().toISOString().split('T')[0] as string,
     'email': 'hello@example.com',
     'hostname': 'example.com',
     // https://tools.ietf.org/html/rfc6531#section-3.3
@@ -25,7 +25,7 @@ function guessFromFormat(schema: Record<string, any>, fallback: string = '') {
     'relative-json-pointer': '1/nested/objects',
     // full-time in https://tools.ietf.org/html/rfc3339#section-5.6
     // 'time': '00:00:00Z',
-    'time': new Date().toISOString().split('T')[1].split('.')[0],
+    'time': new Date().toISOString().split('T')[1]?.split('.')[0] as string,
     // either a URI or relative-reference https://tools.ietf.org/html/rfc3986#section-4.1
     'uri-reference': '../folder',
     'uri-template': 'https://example.com/{id}',

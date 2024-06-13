@@ -36,7 +36,7 @@ export function getRequestBodyFromOperation(
 
   // Let’s use the first example
   const selectedExample = (examples ?? {})?.[
-    selectedExampleKey ?? Object.keys(examples ?? {})[0]
+    selectedExampleKey ?? Object.keys(examples ?? {})[0] ?? ''
   ]
 
   if (selectedExample) {
@@ -62,7 +62,7 @@ export function getRequestBodyFromOperation(
     return {
       postData: {
         mimeType: 'application/json',
-        text: prettyPrintJson(bodyParameters[0].value),
+        text: prettyPrintJson(bodyParameters[0]?.value),
       },
     }
   }
