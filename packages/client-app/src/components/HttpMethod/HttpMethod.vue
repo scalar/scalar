@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useWorkspace } from '@/store/workspace'
 import { ScalarIcon, ScalarListbox } from '@scalar/components'
 import {
   REQUEST_METHODS,
@@ -20,6 +21,8 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'change', value: RequestMethod): void
 }>()
+
+const { workspace } = useWorkspace()
 
 const method = computed(() => getRequest(props.method))
 
@@ -52,22 +55,27 @@ const httpLabel = computed(() => method.value.short)
     v-if="isEditable"
     v-model="selectedMethod"
     :options="methodOptions">
-    <button
-      class="relative h-full cursor-pointer gap-1"
-      :class="
-        cx(
-          variants({ isSquare, isEditable }),
-          method.color,
-          isSquare && method.backgroundColor,
-        )
-      "
-      type="button">
-      <span>{{ httpLabel }}</span>
-      <ScalarIcon
-        :class="method.color"
-        icon="ChevronDown"
-        size="xs" />
-    </button>
+    <div
+      class="h-full"
+      :class="{ 'pointer-events-none': workspace.isReadOnly }">
+      <button
+        class="relative h-full cursor-pointer gap-1"
+        :class="
+          cx(
+            variants({ isSquare, isEditable }),
+            method.color,
+            isSquare && method.backgroundColor,
+          )
+        "
+        type="button">
+        <span>{{ httpLabel }}</span>
+        <ScalarIcon
+          v-if="!workspace.isReadOnly"
+          :class="method.color"
+          icon="ChevronDown"
+          size="xs" />
+      </button>
+    </div>
   </ScalarListbox>
   <!-- Display only -->
   <div
