@@ -33,7 +33,6 @@ const {
   activeCollection,
   collectionMutators,
   servers,
-  workspace,
   requestMutators,
 } = useWorkspace()
 
@@ -242,8 +241,8 @@ const handlePaste = (event: ClipboardEvent) => {
                     {{ server.label }}
                   </span>
                 </ScalarDropdownItem>
-                <ScalarDropdownDivider v-if="!workspace.isReadOnly" />
-                <ScalarDropdownItem v-if="!workspace.isReadOnly">
+                <ScalarDropdownDivider />
+                <ScalarDropdownItem>
                   <RouterLink
                     class="font-code text-xxs flex items-center gap-1.5"
                     to="/servers">
