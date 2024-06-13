@@ -253,16 +253,20 @@ const getBackgroundColor = () => {
       </div>
     </div>
     <ViewLayout>
-      <Sidebar v-if="showSideBar">
+      <Sidebar
+        v-if="showSideBar"
+        :class="[showSideBar ? 'sidebar-active-width' : '']">
         <template #title>{{ workspace.name }}</template>
         <template #content>
           <div class="bg-b-1 sticky top-0 z-50 px-3 py-2.5 pb-0">
             <button
               class="shadow-inset text-c-2 flex w-full items-center rounded p-1.5"
               type="button">
-              <ScalarIcon
-                icon="Search"
-                size="xs" />
+              <div class="w-[15px] flex items-center justify-center">
+                <ScalarIcon
+                  icon="Search"
+                  size="xs" />
+              </div>
               <div
                 class="sidebar-search-input ml-1.5 flex w-full items-center justify-between text-sm font-medium">
                 <span class="sidebar-search-placeholder">Search</span>
@@ -314,7 +318,10 @@ const getBackgroundColor = () => {
       <!-- TODO possible loading state -->
       <ViewLayoutContent
         v-if="activeExample"
-        :class="[themeClasses.view]">
+        :class="[
+          themeClasses.view,
+          showSideBar ? 'sidebar-active-hide-layout' : '',
+        ]">
         <RequestSection />
         <ResponseSection
           :response="
@@ -338,5 +345,15 @@ const getBackgroundColor = () => {
 .request-text-color-text:active,
 .request-text-color:active {
   color: var(--scalar-color-1);
+}
+@media screen and (max-width: 780px) {
+  .sidebar-active-hide-layout {
+    display: none;
+  }
+  .sidebar-active-width {
+    width: 100%;
+    border: 1px solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius);
+  }
 }
 </style>
