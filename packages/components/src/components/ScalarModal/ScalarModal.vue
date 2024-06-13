@@ -122,6 +122,17 @@ export const useModal = () =>
   right: 0;
   margin: auto;
 }
+.scalar-modal.scalar-modal-search {
+  max-width: 540px;
+  background-color: transparent;
+}
+.modal-content-search .modal-body {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 440px;
+}
 @media (max-width: 1280px) {
   .scalar-modal {
     height: calc(100% - 56px);
