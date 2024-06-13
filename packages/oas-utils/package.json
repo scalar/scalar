@@ -70,6 +70,10 @@
       "import": "./dist/entities/workspace/server/index.js",
       "types": "./dist/entities/workspace/server/index.d.ts"
     },
+    "./entities/workspace/security-schemes": {
+      "import": "./dist/entities/workspace/security-schemes/index.js",
+      "types": "./dist/entities/workspace/security-schemes/index.d.ts"
+    },
     "./entities/workspace/folder": {
       "import": "./dist/entities/workspace/folder/index.js",
       "types": "./dist/entities/workspace/folder/index.d.ts"

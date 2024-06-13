@@ -1,4 +1,5 @@
 import { nanoidSchema } from '@/entities/workspace/shared'
+import { deepMerge } from '@/helpers'
 import { z } from 'zod'
 
 /**
@@ -8,7 +9,7 @@ import { z } from 'zod'
  */
 const licenseSchema = z.object({
   /** REQUIRED. The license name used for the API. */
-  name: z.string(),
+  name: z.string().default('name'),
   /** An SPDX license expression for the API. The identifier field is mutually exclusive of the url field. */
   identifier: z.string().optional(),
   /**
@@ -42,7 +43,7 @@ const contactSchema = z.object({
  */
 const infoSchema = z.object({
   /** REQUIRED. The title of the API. */
-  title: z.string(),
+  title: z.string().default('default'),
   /** A short summary of the API. */
   summary: z.string().optional(),
   /** A description of the API. CommonMark syntax MAY be used for rich text representation. */
@@ -70,7 +71,7 @@ const exteralDocumentationSchema = z.object({
   /** A description of the target documentation. CommonMark syntax MAY be used for rich text representation. */
   description: z.string().optional(),
   /** REQUIRED. The URL for the target documentation. This MUST be in the form of a URL. */
-  url: z.string().url(),
+  url: z.string().default(''),
 })
 export type ExternalDocumentation = z.infer<typeof exteralDocumentationSchema>
 
@@ -83,7 +84,7 @@ export type ExternalDocumentation = z.infer<typeof exteralDocumentationSchema>
  */
 const tagSchema = z.object({
   /** REQUIRED. The name of the tag. */
-  name: z.string(),
+  name: z.string().default('default'),
   /** A description for the tag. CommonMark syntax MAY be used for rich text representation. */
   description: z.string().optional(),
   /** Additional external documentation for this tag. */
@@ -105,7 +106,7 @@ const specSchema = z.object({
 
 const collectionSchema = z.object({
   uid: nanoidSchema,
-  spec: specSchema,
+  spec: specSchema.default({}),
   /** The currently selected server */
   selectedServerUid: z.string().default(''),
   /**  List of uids that correspond to collection requests or folders */
@@ -123,5 +124,5 @@ export type Collection = z.infer<typeof collectionSchema>
 export type CollectionPayload = z.input<typeof collectionSchema>
 
 /** Create Collction helper */
-export const createCollection = (payload: CollectionPayload) =>
-  collectionSchema.parse(payload)
+export const createCollection = (payload: Partial<Collection>) =>
+  deepMerge(collectionSchema.parse({}), payload)
