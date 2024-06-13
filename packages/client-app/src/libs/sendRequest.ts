@@ -19,6 +19,13 @@ const paramsReducer = (params: RequestExampleParameter[] = []) =>
     {} as Record<string, string>,
   )
 
+/** Skip the proxy for requests to localhost */
+const isRequestToLocalhost = (url: string) => {
+  const { hostname } = new URL(url)
+  const listOfLocalUrls = ['localhost', '127.0.0.1', '[::1]']
+  return listOfLocalUrls.includes(hostname)
+}
+
 /**
  * Execute the request
  * called from the send button as well as keyboard shortcuts
@@ -76,7 +83,9 @@ export const sendRequest = async (
   }
 
   const config: AxiosRequestConfig = {
-    url: `https://proxy.scalar.com/?scalar_url=${encodeURI(url)}`,
+    url: isRequestToLocalhost(url)
+      ? url
+      : `https://proxy.scalar.com/?scalar_url=${encodeURI(url)}`,
     method: request.method,
     headers,
     params: paramsReducer(example.parameters.query),
