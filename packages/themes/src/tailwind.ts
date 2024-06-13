@@ -15,6 +15,7 @@ export default {
     borderWidth: {
       'DEFAULT': 'var(--scalar-border-width)',
       '1/2': 'calc(var(--scalar-border-width) / 2)',
+      '0': '0',
     },
     boxShadow: {
       'DEFAULT': 'var(--scalar-shadow-1)',
