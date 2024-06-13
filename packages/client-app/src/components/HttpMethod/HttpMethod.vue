@@ -52,22 +52,27 @@ const httpLabel = computed(() => method.value.short)
     v-if="isEditable"
     v-model="selectedMethod"
     :options="methodOptions">
-    <button
-      class="relative h-full cursor-pointer gap-1"
-      :class="
-        cx(
-          variants({ isSquare, isEditable }),
-          method.color,
-          isSquare && method.backgroundColor,
-        )
-      "
-      type="button">
-      <span>{{ httpLabel }}</span>
-      <ScalarIcon
-        :class="method.color"
-        icon="ChevronDown"
-        size="xs" />
-    </button>
+    <div
+      class="h-full"
+      :class="{ 'pointer-events-none': isEditable }">
+      <button
+        class="relative h-full cursor-pointer gap-1"
+        :class="
+          cx(
+            variants({ isSquare, isEditable }),
+            method.color,
+            isSquare && method.backgroundColor,
+          )
+        "
+        type="button">
+        <span>{{ httpLabel }}</span>
+        <ScalarIcon
+          v-if="isEditable"
+          :class="method.color"
+          icon="ChevronDown"
+          size="xs" />
+      </button>
+    </div>
   </ScalarListbox>
   <!-- Display only -->
   <div
