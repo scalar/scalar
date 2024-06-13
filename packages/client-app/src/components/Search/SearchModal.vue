@@ -106,7 +106,6 @@ whenever(keys.enter, () => {
   }
 
   onSearchResultClick(selectedEntry.value)
-  props.modalState.hide()
 })
 
 whenever(keys.ArrowDown, () => {
@@ -175,10 +174,9 @@ whenever(keys.ArrowUp, () => {
       :noResults="!searchResultsWithPlaceholderResults.length">
       <ScalarSearchResultItem
         v-for="(entry, index) in searchResultsWithPlaceholderResults"
-        :id="entry.item.id"
+        :id="`#search-modal-${entry.item.id}`"
         :key="entry.refIndex"
         :active="selectedSearchResult === index"
-        :href="`search-modal-${entry.item.id}`"
         @click="onSearchResultClick(entry)"
         @focus="selectedSearchResult = index">
         {{ entry.item.title }}
