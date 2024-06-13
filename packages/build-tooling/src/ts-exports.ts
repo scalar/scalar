@@ -7,27 +7,14 @@
 import fs from 'fs/promises'
 import { glob } from 'glob'
 
-const cssExports = {
-  /** Adds provisions for a css folder in the built output */
-  './css/*.css': {
-    import: './dist/css/*.css',
-    require: './dist/css/*.css',
-  },
-  /** Optional root folder css files */
-  './*.css': {
-    import: './dist/*.css',
-    require: './dist/*.css',
-  },
-}
-
 /** Search for ALL index.ts files in the repo and export them as nested exports */
-export async function findEntryPoints({
+export async function findTsEntryPoints({
   allowCss,
 }: { allowCss?: boolean } = {}) {
   const entries: string[] = []
   glob.sync('./src/**/index.ts').forEach((e) => entries.push(e))
 
-  await addPackageFileExports({ allowCss, entries })
+  await addPackageTsFileExports({ allowCss, entries })
   return entries
 }
 
@@ -37,15 +24,19 @@ export async function findEntryPoints({
  *
  * ex. import { foo } from '@scalar/some-package/foo-domain'
  */
-export async function addPackageFileExports({
-  allowCss,
+async function addPackageTsFileExports({
   entries,
 }: {
   allowCss?: boolean
   entries: string | string[]
 }) {
   /** package.json type exports need to be updated */
-  const packageExports: Record<string, { import: string; types: string }> = {}
+  const packageExports: Record<string, string> = {}
+  const packageExportsPublish: Record<
+    string,
+    { import: string; types: string }
+  > = {}
+  const packageImports: Record<string, string> = {}
 
   const paths = Array.isArray(entries) ? entries : [entries]
 
@@ -60,17 +51,25 @@ export async function addPackageFileExports({
     /** Output filepath relative to ./dist and not ./src */
     const filepath = [...namespace, filename].join('/')
 
-    packageExports[namespace.length ? `./${namespace.join('/')}` : '.'] = {
-      import: `./dist/${filepath}.js`,
-      types: `./dist/${filepath}.d.ts`,
+    packageExports[namespace.length ? `./${namespace.join('/')}` : '.'] =
+      `./src/${filepath}.ts`
+    packageExportsPublish[namespace.length ? `./${namespace.join('/')}` : '.'] =
+      {
+        import: `./dist/${filepath}.js`,
+        types: `./dist/${filepath}.d.ts`,
+      }
+    if (namespace.length) {
+      packageImports[`#${namespace.join('/')}`] = `./src/${filepath}.ts`
     }
   })
 
   // Update the package file with the new exports
   const packageFile = JSON.parse(await fs.readFile('./package.json', 'utf-8'))
-  packageFile.exports = {
-    ...packageExports,
-    ...(allowCss ? cssExports : {}),
+  packageFile.imports = packageImports
+  packageFile.exports = packageExports
+  packageFile.publishConfig = {
+    main: 'dist/index.js',
+    exports: packageExportsPublish,
   }
 
   console.log('\x1b[32m%s\x1b[0m', '...Updating package.json exports field') //cyan

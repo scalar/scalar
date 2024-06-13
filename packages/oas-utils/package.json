@@ -33,67 +33,6 @@
   },
   "type": "module",
   "main": "src/index.ts",
-  "publishConfig": {
-    "main": "dist/index.js"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./transforms": {
-      "import": "./dist/transforms/index.js",
-      "types": "./dist/transforms/index.d.ts"
-    },
-    "./spec-getters": {
-      "import": "./dist/spec-getters/index.js",
-      "types": "./dist/spec-getters/index.d.ts"
-    },
-    "./helpers": {
-      "import": "./dist/helpers/index.js",
-      "types": "./dist/helpers/index.d.ts"
-    },
-    "./entities": {
-      "import": "./dist/entities/index.js",
-      "types": "./dist/entities/index.d.ts"
-    },
-    "./entities/workspace": {
-      "import": "./dist/entities/workspace/index.js",
-      "types": "./dist/entities/workspace/index.d.ts"
-    },
-    "./entities/workspace/spec": {
-      "import": "./dist/entities/workspace/spec/index.js",
-      "types": "./dist/entities/workspace/spec/index.d.ts"
-    },
-    "./entities/workspace/shared": {
-      "import": "./dist/entities/workspace/shared/index.js",
-      "types": "./dist/entities/workspace/shared/index.d.ts"
-    },
-    "./entities/workspace/server": {
-      "import": "./dist/entities/workspace/server/index.js",
-      "types": "./dist/entities/workspace/server/index.d.ts"
-    },
-    "./entities/workspace/security-schemes": {
-      "import": "./dist/entities/workspace/security-schemes/index.js",
-      "types": "./dist/entities/workspace/security-schemes/index.d.ts"
-    },
-    "./entities/workspace/folder": {
-      "import": "./dist/entities/workspace/folder/index.js",
-      "types": "./dist/entities/workspace/folder/index.d.ts"
-    },
-    "./entities/workspace/environment": {
-      "import": "./dist/entities/workspace/environment/index.js",
-      "types": "./dist/entities/workspace/environment/index.d.ts"
-    },
-    "./entities/workspace/cookie": {
-      "import": "./dist/entities/workspace/cookie/index.js",
-      "types": "./dist/entities/workspace/cookie/index.d.ts"
-    },
-    "./entities/workspace/collection": {
-      "import": "./dist/entities/workspace/collection/index.js",
-      "types": "./dist/entities/workspace/collection/index.d.ts"
-    }
-  },
   "files": [
     "dist",
     "CHANGELOG.md"
@@ -133,5 +72,82 @@
     "#entities/workspace/environment": "./src/entities/workspace/environment/index.ts",
     "#entities/workspace/cookie": "./src/entities/workspace/cookie/index.ts",
     "#entities/workspace/collection": "./src/entities/workspace/collection/index.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./transforms": "./src/transforms/index.ts",
+    "./spec-getters": "./src/spec-getters/index.ts",
+    "./helpers": "./src/helpers/index.ts",
+    "./entities": "./src/entities/index.ts",
+    "./entities/workspace": "./src/entities/workspace/index.ts",
+    "./entities/workspace/spec": "./src/entities/workspace/spec/index.ts",
+    "./entities/workspace/shared": "./src/entities/workspace/shared/index.ts",
+    "./entities/workspace/server": "./src/entities/workspace/server/index.ts",
+    "./entities/workspace/security-schemes": "./src/entities/workspace/security-schemes/index.ts",
+    "./entities/workspace/folder": "./src/entities/workspace/folder/index.ts",
+    "./entities/workspace/environment": "./src/entities/workspace/environment/index.ts",
+    "./entities/workspace/cookie": "./src/entities/workspace/cookie/index.ts",
+    "./entities/workspace/collection": "./src/entities/workspace/collection/index.ts"
+  },
+  "publishConfig": {
+    "main": "./index.js",
+    "exports": {
+      ".": {
+        "import": "./dist/index.js",
+        "types": "./dist/index.d.ts"
+      },
+      "./transforms": {
+        "import": "./dist/transforms/index.js",
+        "types": "./dist/transforms/index.d.ts"
+      },
+      "./spec-getters": {
+        "import": "./dist/spec-getters/index.js",
+        "types": "./dist/spec-getters/index.d.ts"
+      },
+      "./helpers": {
+        "import": "./dist/helpers/index.js",
+        "types": "./dist/helpers/index.d.ts"
+      },
+      "./entities": {
+        "import": "./dist/entities/index.js",
+        "types": "./dist/entities/index.d.ts"
+      },
+      "./entities/workspace": {
+        "import": "./dist/entities/workspace/index.js",
+        "types": "./dist/entities/workspace/index.d.ts"
+      },
+      "./entities/workspace/spec": {
+        "import": "./dist/entities/workspace/spec/index.js",
+        "types": "./dist/entities/workspace/spec/index.d.ts"
+      },
+      "./entities/workspace/shared": {
+        "import": "./dist/entities/workspace/shared/index.js",
+        "types": "./dist/entities/workspace/shared/index.d.ts"
+      },
+      "./entities/workspace/server": {
+        "import": "./dist/entities/workspace/server/index.js",
+        "types": "./dist/entities/workspace/server/index.d.ts"
+      },
+      "./entities/workspace/security-schemes": {
+        "import": "./dist/entities/workspace/security-schemes/index.js",
+        "types": "./dist/entities/workspace/security-schemes/index.d.ts"
+      },
+      "./entities/workspace/folder": {
+        "import": "./dist/entities/workspace/folder/index.js",
+        "types": "./dist/entities/workspace/folder/index.d.ts"
+      },
+      "./entities/workspace/environment": {
+        "import": "./dist/entities/workspace/environment/index.js",
+        "types": "./dist/entities/workspace/environment/index.d.ts"
+      },
+      "./entities/workspace/cookie": {
+        "import": "./dist/entities/workspace/cookie/index.js",
+        "types": "./dist/entities/workspace/cookie/index.d.ts"
+      },
+      "./entities/workspace/collection": {
+        "import": "./dist/entities/workspace/collection/index.js",
+        "types": "./dist/entities/workspace/collection/index.d.ts"
+      }
+    }
   }
 }
