@@ -88,7 +88,7 @@ export const parseJsonOrYaml = (value: string | AnyObject): AnyObject => {
   if (jsonObject) return jsonObject
 
   // Value is probably supposed to be JSON. Throw
-  if (value.length > 0 && ['{', '['].includes(value[0])) {
+  if (value.length > 0 && ['{', '['].includes(value[0] ?? '')) {
     throw Error('Invalid JSON or YAML')
   }
 
