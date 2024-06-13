@@ -73,7 +73,13 @@ const handleFileUpload = (idx: number) => {
           @input="items && idx === items.length - 1 && emit('addRow')"
           @selectVariable="(v) => handleSelectVariable(idx, 'value', v)"
           @update:modelValue="(v) => emit('updateRow', idx, 'value', v)" />
-        <span v-if="item.description">{{ item.description }}</span>
+        <template v-if="item.description">
+          <span>{{ item.description }}</span>
+          <ScalarIcon
+            class="ml-1"
+            icon="Upload"
+            size="xs" />
+        </template>
       </div>
       <DataTableCell
         v-if="showUploadButton"
