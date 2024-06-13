@@ -2,12 +2,7 @@
  * Unfortunately, this file is very messy. I think we should get rid of it entirely. :)
  * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
  */
-import {
-  type RequestMethod,
-  normalizeRequestMethod,
-  validRequestMethods,
-} from '@scalar/api-client'
-// AnyStringOrObject
+import { type RequestMethod, validRequestMethods } from '@scalar/api-client'
 import type { Spec } from '@scalar/oas-utils'
 import {
   type AnyObject,
@@ -16,9 +11,9 @@ import {
   type OpenAPIV3,
   type OpenAPIV3_1,
   dereference,
-  fetchUrlsPlugin,
   load,
 } from '@scalar/openapi-parser'
+import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 
 import { createEmptySpecification } from '../helpers'
 
@@ -36,7 +31,11 @@ export const parse = (specification: any): Promise<Spec> => {
       const start = performance.now()
 
       const { filesystem } = await load(specification, {
-        plugins: [fetchUrlsPlugin()],
+        plugins: [
+          fetchUrls({
+            // TODO: Use proxy here
+          }),
+        ],
       })
 
       const { schema, errors } = await dereference(filesystem)
