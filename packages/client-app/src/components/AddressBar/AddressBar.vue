@@ -34,6 +34,7 @@ const {
   collectionMutators,
   servers,
   requestMutators,
+  workspace,
 } = useWorkspace()
 
 const history = computed(() => activeRequest.value?.history ?? [])
@@ -205,7 +206,7 @@ const handlePaste = (event: ClipboardEvent) => {
           <div class="flex gap-1">
             <HttpMethod
               class="font-code text-xxs font-medium"
-              isEditable
+              :isEditable="!workspace.isReadOnly"
               isSquare
               :method="activeRequest.method"
               @change="updateRequestMethod" />
@@ -241,19 +242,21 @@ const handlePaste = (event: ClipboardEvent) => {
                     {{ server.label }}
                   </span>
                 </ScalarDropdownItem>
-                <ScalarDropdownDivider />
-                <ScalarDropdownItem>
-                  <RouterLink
-                    class="font-code text-xxs flex items-center gap-1.5"
-                    to="/servers">
-                    <div class="flex items-center justify-center h-4 w-4">
-                      <ScalarIcon
-                        class="h-2.5"
-                        icon="Add" />
-                    </div>
-                    <span>Add Server</span>
-                  </RouterLink>
-                </ScalarDropdownItem>
+                <template v-if="!workspace.isReadOnly">
+                  <ScalarDropdownDivider />
+                  <ScalarDropdownItem>
+                    <RouterLink
+                      class="font-code text-xxs flex items-center gap-1.5"
+                      to="/servers">
+                      <div class="flex items-center justify-center h-4 w-4">
+                        <ScalarIcon
+                          class="h-2.5"
+                          icon="Add" />
+                      </div>
+                      <span>Add Server</span>
+                    </RouterLink>
+                  </ScalarDropdownItem>
+                </template>
               </template>
             </ScalarDropdown>
           </div>
