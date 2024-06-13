@@ -29,7 +29,7 @@ export const createScalarApiClient = async (
 
   // Import the spec if needed
   if (config.spec?.url) {
-    importSpecFromUrl(config.spec.url)
+    importSpecFromUrl(config.spec.url, config.proxyUrl)
   } else if (config.spec?.content) {
     importSpecFile(config.spec?.content)
   } else {
