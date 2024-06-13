@@ -356,7 +356,7 @@ watch(
               :language="codeInputLanguage"
               lineNumbers
               :modelValue="activeExample?.body.raw.value ?? ''"
-              @change="updateRequestBody" />
+              @update:modelValue="updateRequestBody" />
           </template>
         </DataTableRow>
         <!-- Hacky... but effective, extra table row to trick the last group -->
