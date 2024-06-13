@@ -31,12 +31,14 @@ export async function createMockServer(options?: {
   app.use(cors())
 
   // OpenAPI JSON file
-  app.get('/openapi.json', (c) => {
+  app.get('/openapi.json', async (c) => {
     if (!options?.specification) {
       return c.text('Not found', 404)
     }
 
-    return c.json(openapi().load(options.specification).get())
+    const { specification } = await openapi().load(options.specification).get()
+
+    return c.json(specification)
   })
 
   // OpenAPI YAML file
@@ -45,7 +47,9 @@ export async function createMockServer(options?: {
       return c.text('Not found', 404)
     }
 
-    return c.text(await openapi().load(options.specification).toYaml())
+    const specification = await openapi().load(options.specification).toYaml()
+
+    return c.text(specification)
   })
 
   // Paths
