@@ -1,12 +1,8 @@
-import type {
-  OpenAPI,
-  OpenAPIV3_1,
-  ResolvedOpenAPI,
-} from '@scalar/openapi-parser'
+import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-parser'
 
 export function isBasicAuthenticationRequired(
   operation: OpenAPI.Operation,
-  schema?: ResolvedOpenAPI.Document,
+  schema?: OpenAPI.Document,
 ) {
   const allowedSecuritySchemes = operation.security?.map(
     (securityScheme: OpenAPIV3_1.SecurityRequirementObject) => {
