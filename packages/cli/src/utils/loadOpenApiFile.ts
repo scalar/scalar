@@ -1,4 +1,6 @@
 import { load, validate } from '@scalar/openapi-parser'
+import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
+import { readFiles } from '@scalar/openapi-parser/plugins/read-urls'
 import kleur from 'kleur'
 
 import { getFileOrUrl } from './getFileOrUrl'
@@ -7,7 +9,9 @@ export async function loadOpenApiFile(input: string) {
   const specification = await getFileOrUrl(input)
 
   try {
-    const { filesystem } = await load(specification)
+    const { filesystem } = await load(specification, {
+      plugins: [fetchUrls(), readFiles()],
+    })
     const result = await validate(filesystem)
 
     // Invalid specification
