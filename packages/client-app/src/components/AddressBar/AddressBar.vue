@@ -267,7 +267,7 @@ const handlePaste = (event: ClipboardEvent) => {
             <!-- TODO wrap vars in spans for special effects like mouseOver descriptions -->
             <div
               class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap lg:text-sm text-xs font-medium leading-[24.5px]"
-              contenteditable
+              :contenteditable="!workspace.isReadOnly"
               @input="(ev) => onUrlChange((ev.target as HTMLElement).innerText)"
               @keydown.enter.prevent="executeRequestBus.emit()"
               @paste="handlePaste">
