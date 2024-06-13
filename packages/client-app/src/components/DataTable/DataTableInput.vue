@@ -80,6 +80,7 @@ const handleDropdownMouseUp = () => {
       @blur="handleBlur"
       @focus="emit('inputFocus')"
       @input="handleInput" />
+    <slot name="icon" />
     <ScalarIconButton
       v-if="type === 'password'"
       class="-ml-.5 mr-1 h-6 w-6 self-center p-1.5"
