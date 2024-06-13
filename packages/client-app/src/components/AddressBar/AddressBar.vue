@@ -2,12 +2,7 @@
 import { themeClasses } from '@/constants'
 import { executeRequestBus, syncPathParamsFromURL } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-} from '@headlessui/vue'
+import { Listbox } from '@headlessui/vue'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -15,17 +10,14 @@ import {
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
-import {
-  REQUEST_METHODS,
-  type RequestMethod,
-  httpStatusCodes,
-} from '@scalar/oas-utils/helpers'
+import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
-import AddressBarHistory from './AddressBarHistory.vue'
+
+// import AddressBarHistory from './AddressBarHistory.vue'
 
 const {
   activeRequest,
