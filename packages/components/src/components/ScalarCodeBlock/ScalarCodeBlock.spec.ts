@@ -23,7 +23,7 @@ describe('ScalarCodeBlock', () => {
 
     // Confirm the syntax highlighting has been applied
     expect(code.html()).toBe(
-      `<code class="hljs language-js"><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>()</code>`,
+      `<code class="hljs language-javascript"><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>()</code>`,
     )
   })
 
