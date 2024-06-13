@@ -243,6 +243,13 @@ const activeExample = computed(
 )
 
 // ---------------------------------------------------------------------------
+// REQUEST HISTORY
+
+const requestsHistory = computed(() => {
+  return Object.values(requests).flatMap((request) => request.history)
+})
+
+// ---------------------------------------------------------------------------
 // ENVIRONMENT
 
 /** Initialize default environment */
@@ -532,6 +539,7 @@ export function useWorkspace() {
       add: addRequestExample,
       delete: deleteRequestExample,
     },
+    requestsHistory,
     serverMutators: {
       ...serverMutators,
       add: addServer,
