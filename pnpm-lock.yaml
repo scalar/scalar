@@ -658,8 +658,8 @@ importers:
         specifier: workspace:*
         version: link:../oas-utils
       '@scalar/openapi-parser':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.7.1
+        version: 0.7.1
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -854,8 +854,8 @@ importers:
         specifier: workspace:*
         version: link:../oas-utils
       '@scalar/openapi-parser':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.7.1
+        version: 0.7.1
       '@scalar/snippetz':
         specifier: ^0.1.6
         version: 0.1.6
@@ -1085,8 +1085,8 @@ importers:
         specifier: workspace:*
         version: link:../oas-utils
       '@scalar/openapi-parser':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.7.1
+        version: 0.7.1
       commander:
         specifier: ^12.0.0
         version: 12.0.0
@@ -1154,6 +1154,9 @@ importers:
       '@scalar/object-utils':
         specifier: workspace:*
         version: link:../object-utils
+      '@scalar/openapi-parser':
+        specifier: ^0.7.1
+        version: 0.7.1
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
@@ -1609,8 +1612,8 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@scalar/openapi-parser':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.7.1
+        version: 0.7.1
       '@vitest/coverage-v8':
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
@@ -1655,8 +1658,8 @@ importers:
         specifier: workspace:*
         version: link:../oas-utils
       '@scalar/openapi-parser':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.7.1
+        version: 0.7.1
       hono:
         specifier: ^4.2.7
         version: 4.2.8
@@ -1813,8 +1816,8 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@scalar/openapi-parser':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.7.1
+        version: 0.7.1
       axios:
         specifier: ^1.6.8
         version: 1.6.8(debug@4.3.4)
@@ -1868,8 +1871,8 @@ importers:
         specifier: workspace:*
         version: link:../oas-utils
       '@scalar/openapi-parser':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.7.1
+        version: 0.7.1
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -5050,8 +5053,8 @@ packages:
   '@rushstack/ts-command-line@4.17.1':
     resolution: {integrity: sha512-2jweO1O57BYP5qdBGl6apJLB+aRIn5ccIRTPDyULh0KMwVzFqWtw6IZWt1qtUoZD/pD2RNkIOosH6Cq45rIYeg==}
 
-  '@scalar/openapi-parser@0.6.0':
-    resolution: {integrity: sha512-m01gvKxOnjvRSLhw2wIPpgF5hJlpGCpe+ROVnnxhHaHVlmrKeaTNteYYCrEoTxLT5eMJLmXW1T5cxZA47ltz0Q==}
+  '@scalar/openapi-parser@0.7.1':
+    resolution: {integrity: sha512-FR2ezONBF0OOe5w5fa8uBInWvlGjC2+hEEmRZnJn/n1VMII8gg88VmBpE1wD2TqE4d6KIPCp/yxr5h10a8D1vw==}
     engines: {node: '>=18'}
 
   '@scalar/snippetz-core@0.1.4':
@@ -19406,7 +19409,7 @@ snapshots:
       colors: 1.2.5
       string-argv: 0.3.2
 
-  '@scalar/openapi-parser@0.6.0':
+  '@scalar/openapi-parser@0.7.1':
     dependencies:
       ajv: 8.16.0
       ajv-draft-04: 1.0.0(ajv@8.16.0)

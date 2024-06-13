@@ -103,7 +103,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/openapi-parser": "^0.6.0",
+    "@scalar/openapi-parser": "^0.7.1",
     "axios": "^1.6.8",
     "httpsnippet-lite": "^3.0.5",
     "openapi-types": "^12.1.3",
