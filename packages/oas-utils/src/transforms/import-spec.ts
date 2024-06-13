@@ -1,13 +1,13 @@
-import { createCollection } from '@/entities/workspace/collection'
-import { type Folder, createFolder } from '@/entities/workspace/folder'
-import { createServer } from '@/entities/workspace/server'
-import { type Request, createRequest } from '@/entities/workspace/spec'
-import { tagObjectSchema } from '@/entities/workspace/spec/spec'
-import type { RequestMethod } from '@/helpers'
-import { parseJsonOrYaml } from '@/helpers/parse'
-import { schemaModel } from '@/helpers/schema-model'
-import type { AnyObject } from '@/types'
-import { openapi } from '@scalar/openapi-parser'
+import { createCollection } from '#entities/workspace/collection'
+import { type Folder, createFolder } from '#entities/workspace/folder'
+import { createServer } from '#entities/workspace/server'
+import {
+  type Request,
+  createRequest,
+  tagObjectSchema,
+} from '#entities/workspace/spec'
+import { type RequestMethod, parseJsonOrYaml, schemaModel } from '#helpers'
+import { type AnyObject, openapi } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from 'openapi-types'
 
 const PARAM_DICTIONARY = {

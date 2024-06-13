@@ -1,5 +1,5 @@
-import { nanoidSchema } from '@/entities/workspace/shared'
-import { REQUEST_METHODS, type RequestMethod, deepMerge } from '@/helpers'
+import { nanoidSchema } from '#entities/workspace/shared'
+import { REQUEST_METHODS, type RequestMethod, deepMerge } from '#helpers'
 import type { AxiosResponse } from 'axios'
 import type { OpenAPIV3_1 } from 'openapi-types'
 import { type ZodSchema, z } from 'zod'

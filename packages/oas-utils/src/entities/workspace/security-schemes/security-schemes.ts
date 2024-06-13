@@ -1,4 +1,4 @@
-import { deepMerge } from '@/helpers'
+import { deepMerge } from '#helpers'
 import { z } from 'zod'
 
 const securityScheme = z.object({

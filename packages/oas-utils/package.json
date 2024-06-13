@@ -115,5 +115,20 @@
   },
   "peerDependencies": {
     "axios": "^1.5"
+  },
+  "imports": {
+    "#transforms": "./src/transforms/index.ts",
+    "#spec-getters": "./src/spec-getters/index.ts",
+    "#helpers": "./src/helpers/index.ts",
+    "#entities": "./src/entities/index.ts",
+    "#entities/workspace": "./src/entities/workspace/index.ts",
+    "#entities/workspace/spec": "./src/entities/workspace/spec/index.ts",
+    "#entities/workspace/shared": "./src/entities/workspace/shared/index.ts",
+    "#entities/workspace/server": "./src/entities/workspace/server/index.ts",
+    "#entities/workspace/security-schemes": "./src/entities/workspace/security-schemes/index.ts",
+    "#entities/workspace/folder": "./src/entities/workspace/folder/index.ts",
+    "#entities/workspace/environment": "./src/entities/workspace/environment/index.ts",
+    "#entities/workspace/cookie": "./src/entities/workspace/cookie/index.ts",
+    "#entities/workspace/collection": "./src/entities/workspace/collection/index.ts"
   }
 }

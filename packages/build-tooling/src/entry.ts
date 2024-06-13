@@ -46,6 +46,7 @@ export async function addPackageFileExports({
 }) {
   /** package.json type exports need to be updated */
   const packageExports: Record<string, { import: string; types: string }> = {}
+  const packageImports: Record<string, string> = {}
 
   const paths = Array.isArray(entries) ? entries : [entries]
 
@@ -64,10 +65,14 @@ export async function addPackageFileExports({
       import: `./dist/${filepath}.js`,
       types: `./dist/${filepath}.d.ts`,
     }
+    if (namespace.length) {
+      packageImports[`#${namespace.join('/')}`] = `./src/${filepath}.ts`
+    }
   })
 
   // Update the package file with the new exports
   const packageFile = JSON.parse(await fs.readFile('./package.json', 'utf-8'))
+  packageFile.imports = packageImports
   packageFile.exports = {
     ...packageExports,
     ...(allowCss ? cssExports : {}),

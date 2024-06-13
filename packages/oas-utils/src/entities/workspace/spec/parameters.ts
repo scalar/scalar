@@ -1,4 +1,4 @@
-import type { SchemaObject } from '@/entities/workspace/spec/components'
+import type { SchemaObject } from '#entities/workspace/spec'
 
 export type ParameterStyle =
   | 'matrix'

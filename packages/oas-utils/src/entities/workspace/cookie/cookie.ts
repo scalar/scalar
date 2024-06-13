@@ -1,7 +1,6 @@
-import { deepMerge } from '@/helpers'
+import { nanoidSchema } from '#entities/workspace/shared'
+import { deepMerge } from '#helpers'
 import { z } from 'zod'
-
-import { nanoidSchema } from '../shared'
 
 const cookieSchema = z.object({
   uid: nanoidSchema,

@@ -1,6 +1,5 @@
+import { nanoidSchema } from '#entities/workspace/shared'
 import { z } from 'zod'
-
-import { nanoidSchema } from './shared'
 
 const workspaceSchema = z.object({
   uid: nanoidSchema,

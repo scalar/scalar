@@ -1,5 +1,5 @@
-import { nanoidSchema } from '@/entities/workspace/shared'
-import { deepMerge } from '@/helpers'
+import { nanoidSchema } from '#entities/workspace/shared'
+import { deepMerge } from '#helpers'
 import { z } from 'zod'
 
 const requestExampleParametersSchema = z.object({
