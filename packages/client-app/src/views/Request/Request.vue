@@ -2,7 +2,7 @@
 import { Sidebar } from '@/components'
 import ActionModal from '@/components/ActionModal/ActionModal.vue'
 import AddressBar from '@/components/AddressBar/AddressBar.vue'
-import ScalarHotkey from '@/components/ScalarHotkey.vue'
+import SearchButton from '@/components/Search/SearchButton.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
@@ -258,22 +258,7 @@ const getBackgroundColor = () => {
         :class="[showSideBar ? 'sidebar-active-width' : '']">
         <template #title>{{ workspace.name }}</template>
         <template #content>
-          <div class="bg-b-1 sticky top-0 z-50 px-3 py-2.5 pb-0">
-            <button
-              class="shadow-inset text-c-2 flex w-full items-center rounded p-1.5"
-              type="button">
-              <div class="w-[15px] flex items-center justify-center">
-                <ScalarIcon
-                  icon="Search"
-                  size="xs" />
-              </div>
-              <div
-                class="sidebar-search-input ml-1.5 flex w-full items-center justify-between text-sm font-medium">
-                <span class="sidebar-search-placeholder">Search</span>
-                <ScalarHotkey hotkey="k" />
-              </div>
-            </button>
-          </div>
+          <SearchButton></SearchButton>
           <div
             class="custom-scroll flex flex-1 flex-col overflow-visible px-3 pb-12 pt-2.5"
             @dragenter.prevent
