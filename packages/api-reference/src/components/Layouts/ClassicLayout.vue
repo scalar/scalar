@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import type { ReferenceLayoutProps, ReferenceSlots } from '../../types'
+import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '../../types'
 import ApiReferenceLayout from '../ApiReferenceLayout.vue'
 import ClassicHeader from '../ClassicHeader.vue'
 import { DarkModeIconToggle } from '../DarkModeToggle'
@@ -11,9 +11,11 @@ const props = defineProps<ReferenceLayoutProps>()
 
 defineEmits<{
   (e: 'toggleDarkMode'): void
+  (e: 'updateContent', v: string): void
 }>()
 
-defineSlots<ReferenceSlots>()
+const slots = defineSlots<ReferenceLayoutSlots>()
+
 // Override the sidebar value and hide it
 const config = computed(() => ({ ...props.configuration, showSidebar: false }))
 </script>
@@ -21,7 +23,16 @@ const config = computed(() => ({ ...props.configuration, showSidebar: false }))
   <ApiReferenceLayout
     :configuration="config"
     :parsedSpec="parsedSpec"
-    :rawSpec="rawSpec">
+    :rawSpec="rawSpec"
+    @updateContent="$emit('updateContent', $event)">
+    <!-- Expose all layout slots upwards -->
+    <template
+      v-for="(_, name) in slots"
+      #[name]="slotProps">
+      <slot
+        :name="name"
+        v-bind="slotProps || {}"></slot>
+    </template>
     <template #content-start="{ spec }">
       <ClassicHeader>
         <SearchButton
@@ -34,10 +45,6 @@ const config = computed(() => ({ ...props.configuration, showSidebar: false }))
             @toggleDarkMode="$emit('toggleDarkMode')" />
         </template>
       </ClassicHeader>
-    </template>
-    <!-- Expose the content end slot as a slot for the footer -->
-    <template #content-end>
-      <slot name="footer" />
     </template>
   </ApiReferenceLayout>
 </template>
