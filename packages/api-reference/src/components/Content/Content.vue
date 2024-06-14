@@ -20,6 +20,7 @@ const props = defineProps<{
   layout?: 'default' | 'accordion'
   baseServerURL?: string
   proxy?: string
+  servers?: Server[]
 }>()
 
 const { getOperationId, getTagId, hash } = useNavState()
@@ -47,7 +48,9 @@ watch(
       { url: typeof window !== 'undefined' ? window.location.origin : '/' },
     ]
 
-    if (parsedSpec.servers && parsedSpec.servers.length > 0) {
+    if (props.servers) {
+      servers = props.servers
+    } else if (parsedSpec.servers && parsedSpec.servers.length > 0) {
       servers = parsedSpec.servers
     } else if (props.parsedSpec.host) {
       // Use the first scheme if available, otherwise default to http
