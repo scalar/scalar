@@ -52,7 +52,7 @@ defineExpose({
     <slot></slot>
   </div>
 </template>
-<style>
+<style scoped>
 .editor-input {
   position: relative;
   flex: 1;
@@ -74,13 +74,13 @@ defineExpose({
   z-index: 3;
 }
 
-.editor-input .cm-editor {
+.editor-input :deep(.cm-editor) {
   max-height: 100%;
   height: 100%;
   padding-top: 3px;
 }
 
-.editor-input .cm-line:first-of-type:last-of-type:has(br):before {
+.editor-input :deep(.cm-line:first-of-type:last-of-type:has(br):before) {
   content: 'Paste your Swagger file here...';
   color: var(--theme-color-3, var(--default-theme-color-3));
   position: absolute;

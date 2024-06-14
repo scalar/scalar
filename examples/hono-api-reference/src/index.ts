@@ -28,7 +28,7 @@ app.openapi(
     },
   }),
   (c) => {
-    // @ts-expect-error invalid type depth
+    // @ts-expect-error type depth error
     return c.json({
       message: 'hello',
     })
