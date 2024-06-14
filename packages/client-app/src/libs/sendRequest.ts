@@ -37,11 +37,15 @@ export const sendRequest = async (
 ) => {
   let url = rawUrl
 
-  // Replace path params
-  example.parameters.path.forEach((pathParam) => {
-    if (pathParam.key && pathParam.value) {
-      url = url.replace(`{${pathParam.key}}`, pathParam.value)
+  // Replace path variables
+  // Example: https://example.com/{path} -> https://example.com/example
+  // TODO: This replaces variables in the URL, not just in the path
+  example.parameters.path.forEach((parameter) => {
+    if (!parameter.key || !parameter.value) {
+      return
     }
+
+    url = url.replace(`{${parameter.key}}`, parameter.value)
   })
 
   const headers = paramsReducer(example.parameters.headers)
@@ -93,8 +97,6 @@ export const sendRequest = async (
   }
 
   const response = await axios(config).catch((error: AxiosError) => {
-    // TODO handle error
-    console.error(error)
     return error.response
   })
 
