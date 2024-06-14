@@ -10,7 +10,7 @@ const { activeCollection, servers, serverMutators } = useWorkspace()
 const options = [
   { label: 'URL', key: 'url', placeholder: 'https://galaxy.scalar.com/api/v1' },
   {
-    label: 'Title',
+    label: 'Label',
     key: 'description',
     placeholder: 'Production',
   },
