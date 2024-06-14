@@ -31,14 +31,15 @@ const codeLanguage = computed(() => {
 
 const iframe = ref<HTMLIFrameElement | null>(null)
 
-const activePreview = ref('raw')
-const previewOptions = ['raw', 'preview']
+const previewOptions = ['preview', 'raw'] as const
+const selectedPreview = ref<(typeof previewOptions)[number]>('preview')
 
 watch(
-  () => activePreview.value,
+  () => selectedPreview.value,
   async (newValue) => {
-    if (newValue === 'preview') {
+    if (newValue === 'raw') {
       await nextTick()
+
       if (iframe.value) {
         const doc =
           iframe.value.contentDocument || iframe.value.contentWindow?.document
@@ -61,15 +62,17 @@ watch(
             class="relative col-span-full flex h-8 cursor-pointer items-center px-[2.25px] py-[2.25px]">
             <div
               class="text-c-2 group-hover:text-c-1 flex h-full w-full items-center justify-start rounded px-1.5">
-              <span class="capitalize">{{ activePreview }}</span>
+              <span class="capitalize">
+                {{ selectedPreview }}
+              </span>
               <ScalarIcon
                 class="text-c-3 ml-1 mt-px"
                 icon="ChevronDown"
                 size="xs" />
             </div>
             <select
-              v-model="activePreview"
-              class="absolute inset-0 w-auto opacity-0"
+              v-model="selectedPreview"
+              class="absolute inset-0 w-auto opacity-0 capitalize"
               @click.prevent>
               <option
                 v-for="value in previewOptions"
@@ -81,7 +84,7 @@ watch(
           </DataTableHeader>
         </DataTableRow>
         <DataTableRow>
-          <template v-if="activePreview === 'raw'">
+          <template v-if="selectedPreview === 'preview'">
             <ScalarCodeBlock
               class="force-text-sm rounded-b border-t-0"
               :content="data"
