@@ -36,6 +36,8 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
     )
   }
 
+  console.log(schema)
+
   // Keep a list of all tags used in requests so we can reference them later
   const requestTags: Set<string> = new Set()
 
