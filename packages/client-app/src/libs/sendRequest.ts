@@ -92,14 +92,11 @@ export const sendRequest = async (
     data,
   }
 
-  const response = (await axios(config).catch((error: AxiosError) => {
+  const response = await axios(config).catch((error: AxiosError) => {
     // TODO handle error
     console.error(error)
-    return {
-      request: example!,
-      response: error.response!,
-    }
-  })) as ResponseInstance
+    return error.response
+  })
 
   if (response) {
     return {
