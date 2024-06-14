@@ -8,7 +8,12 @@ import { $refSchema } from './refs'
 import type { RequestExample } from './request-examples'
 
 /** A single set of populated values for a sent request */
-export type ResponseInstance = AxiosResponse
+export type ResponseInstance = AxiosResponse & {
+  /**
+   * Time in ms the request took
+   **/
+  duration: number
+}
 
 /** A single request/response set to save to the history stack */
 export type RequestEvent = {

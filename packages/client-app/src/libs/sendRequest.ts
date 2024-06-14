@@ -34,7 +34,11 @@ export const sendRequest = async (
   request: Request,
   example: RequestExample,
   rawUrl: string,
-) => {
+): Promise<{
+  sentTime?: number
+  request?: RequestExample
+  response?: ResponseInstance
+}> => {
   let url = rawUrl
 
   // Replace path params
