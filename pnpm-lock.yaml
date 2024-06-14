@@ -1175,6 +1175,12 @@ importers:
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
+      pretty-bytes:
+        specifier: ^6.1.1
+        version: 6.1.1
+      pretty-ms:
+        specifier: ^8.0.0
+        version: 8.0.0
       vue:
         specifier: ^3.4.22
         version: 3.4.29(typescript@5.4.5)
