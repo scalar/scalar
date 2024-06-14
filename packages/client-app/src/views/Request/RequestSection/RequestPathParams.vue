@@ -10,7 +10,12 @@ const props = defineProps<{
   paramKey: keyof RequestExample['parameters']
 }>()
 
-const { activeRequest, activeExample } = useWorkspace()
+const {
+  activeRequest,
+  activeExample,
+  requestMutators,
+  requestExampleMutators,
+} = useWorkspace()
 
 const params = computed(
   () => activeExample.value?.parameters[props.paramKey] ?? [],
@@ -18,45 +23,39 @@ const params = computed(
 
 /** Update a field in a parameter row */
 const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
-  // if (!activeRequest.value || !activeExample.value) return
-  //
-  // const parameters = activeExample.value.parameters[props.paramKey]
-  // const oldKey = parameters[rowIdx]?.key
-  //
-  // /** Change variable in path as well */
-  // if (field === 'key') {
-  //   if (!value) {
-  //     /** Remove parameter if path params table key is empty */
-  //     parameters.splice(rowIdx, 1)
-  //     const regx = new RegExp(`/:${encodeURIComponent(oldKey)}(?=[/?#]|$)`, 'g')
-  //     const newPath = activeExample.value.url.replace(regx, '')
-  //     updateRequestExample(
-  //       activeRequest.value.uid,
-  //       activeExample.value.uid,
-  //       'url',
-  //       newPath,
-  //     )
-  //   } else {
-  //     /** Update URL with path params table key */
-  //     const encodedOldKey = encodeURIComponent(oldKey)
-  //     const encodedNewKey = encodeURIComponent(value)
-  //     const regx = new RegExp(`(?<=/):${encodedOldKey}(?=[/?#]|$)`, 'g')
-  //     const newPath = activeExample.value.url.replace(regx, `:${encodedNewKey}`)
-  //     updateRequestExample(
-  //       activeRequest.value.uid,
-  //       activeExampleIdx,
-  //       'url',
-  //       newPath,
-  //     )
-  //   }
-  // }
-  //
-  // updateRequestExample(
-  //   activeRequest.value.uid,
-  //   activeExampleIdx,
-  //   `parameters.${props.paramKey}.${rowIdx}.${field}`,
-  //   value,
-  // )
+  if (!activeRequest.value || !activeExample.value) return
+
+  const parameters = activeExample.value.parameters[props.paramKey]
+  const oldKey = parameters[rowIdx]?.key
+
+  /** Change variable in path as well */
+  if (field === 'key') {
+    if (!value) {
+      /** Remove parameter if path params table key is empty */
+      parameters.splice(rowIdx, 1)
+      const regx = new RegExp(`/:${encodeURIComponent(oldKey)}(?=[/?#]|$)`, 'g')
+      const newPath = activeRequest.value.path.replace(regx, '')
+
+      requestMutators.edit(activeRequest.value.uid, 'path', newPath)
+    } else {
+      /** Update URL with path params table key */
+      const encodedOldKey = encodeURIComponent(oldKey)
+      const encodedNewKey = encodeURIComponent(value)
+      const regx = new RegExp(`(?<=/):${encodedOldKey}(?=[/?#]|$)`, 'g')
+      const newPath = activeRequest.value.path.replace(
+        regx,
+        `:${encodedNewKey}`,
+      )
+      requestMutators.edit(activeRequest.value.uid, 'path', newPath)
+    }
+  }
+
+  console.log('iok')
+  requestExampleMutators.edit(
+    activeExample.value.uid,
+    `parameters.${props.paramKey}.${rowIdx}.${field}`,
+    value,
+  )
 }
 </script>
 <template>

@@ -40,7 +40,7 @@ export const sendRequest = async (
   // Replace path params
   example.parameters.path.forEach((pathParam) => {
     if (pathParam.key && pathParam.value) {
-      url = url.replace(`:${pathParam.key}`, pathParam.value)
+      url = url.replace(`{${pathParam.key}}`, pathParam.value)
     }
   })
 
