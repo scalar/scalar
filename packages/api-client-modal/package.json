@@ -13,6 +13,7 @@
   "keywords": [
     "vue api client modal"
   ],
+  "private": true,
   "version": "0.0.2",
   "engines": {
     "node": ">=18"
