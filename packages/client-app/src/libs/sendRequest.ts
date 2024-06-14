@@ -95,6 +95,9 @@ export const sendRequest = async (
     data,
   }
 
+  /** start time to get response duration */
+  const startTime = Date.now()
+
   const response = await axios(config).catch((error: AxiosError) => {
     // TODO handle error
     console.error(error)
@@ -117,8 +120,12 @@ export const sendRequest = async (
     }
 
     return {
+      sentTime: Date.now(),
       request: example,
-      response: response,
+      response: {
+        ...response,
+        duration: Date.now() - startTime,
+      },
     }
   } else {
     return {}
