@@ -1,5 +1,11 @@
 # @scalar/api-client-modal
 
+## 0.0.6
+
+### Patch Changes
+
+- @scalar/client-app@0.1.4
+
 ## 0.0.5
 
 ### Patch Changes

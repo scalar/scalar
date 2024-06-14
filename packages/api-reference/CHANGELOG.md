@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.24.4
+
+### Patch Changes
+
+- Updated dependencies [c65697c]
+  - @scalar/use-tooltip@0.7.2
+  - @scalar/api-client@1.3.7
+  - @scalar/api-client-modal@0.0.6
+
 ## 1.24.3
 
 ### Patch Changes
