@@ -50,7 +50,6 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
     }
   }
 
-  console.log('iok')
   requestExampleMutators.edit(
     activeExample.value.uid,
     `parameters.${props.paramKey}.${rowIdx}.${field}`,
