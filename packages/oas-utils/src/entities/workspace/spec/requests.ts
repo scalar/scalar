@@ -1,3 +1,4 @@
+import { securityRequirement } from '@/entities/workspace/security'
 import { nanoidSchema } from '@/entities/workspace/shared'
 import { REQUEST_METHODS, type RequestMethod, deepMerge } from '@/helpers'
 import type { AxiosResponse } from 'axios'
@@ -56,6 +57,14 @@ const requestSchema = z.object({
       cookies: parametersSchema,
     })
     .default({ path: {}, query: {}, headers: {}, cookies: {} }),
+  /**
+   * A declaration of which security mechanisms can be used across the API. The list of
+   * values includes alternative security requirement objects that can be used. Only
+   * one of the security requirement objects need to be satisfied to authorize a request.
+   * Individual operations can override this definition. To make security optional, an empty
+   * security requirement ({}) can be included in the array.
+   */
+  security: z.array(securityRequirement).optional(),
   /**
    * The request body applicable for this operation. The requestBody is fully supported in HTTP methods where the
    * HTTP 1.1 specification [RFC7231] has explicitly defined semantics for request bodies. In other cases where the

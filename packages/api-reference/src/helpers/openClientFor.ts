@@ -40,5 +40,8 @@ export function openClientFor(
   setOperation(operation)
   setGlobalSecurity(globalSecurity)
 
+  console.log(request)
+  console.log(globalSecurity)
+
   toggleApiClient(request, true)
 }
