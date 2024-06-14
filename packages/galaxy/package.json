@@ -21,7 +21,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "vite build && pnpm build:format && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
     "build:format": "./scripts/format.sh",
     "dev": "pnpm dlx @scalar/cli serve ./src/specifications/3.1.yaml --watch",
     "lint:check": "eslint .",
