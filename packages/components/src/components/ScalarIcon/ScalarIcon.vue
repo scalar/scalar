@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { VariantProps } from 'cva'
+import { ref, watch } from 'vue'
 
 import { cva, cx } from '../../cva'
 import { type Icon, getIcon } from './icons/'
@@ -32,16 +33,26 @@ const iconProps = cva({
   },
 })
 
-const iconComp = getIcon(props.icon)
+const iconComp = ref<SVGElement | null>(null)
+const isLoading = ref(true)
+
+watch(
+  () => props.icon,
+  async (newIcon) => {
+    isLoading.value = true
+    iconComp.value = await getIcon(newIcon)
+    isLoading.value = false
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
+  <div
+    v-if="isLoading"
+    :class="iconProps({ size: !size ? 'xs' : size })"></div>
   <component
-    :is="getIcon(icon)"
-    v-if="iconComp"
-    :class="cx('scalar-icon', iconProps({ size }))" />
-  <!-- Temp fallback to match with other component but we should remove this -->
-  <img
+    :is="iconComp"
     v-else
-    :src="icon" />
+    :class="cx('scalar-icon', iconProps({ size }))" />
 </template>
