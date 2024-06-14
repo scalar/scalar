@@ -43,5 +43,6 @@ const highlightedCode = computed(() => {
   margin: 0;
   padding: 0.5rem;
   overflow: auto;
+  background: transparent;
 }
 </style>
