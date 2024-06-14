@@ -7,10 +7,11 @@ import {
   useHttpClientStore,
   useReactiveSpec,
 } from '@scalar/api-reference'
+import '@scalar/api-reference/style.css'
 import type { SpecConfiguration } from '@scalar/oas-utils'
 import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { createHead, useSeoMeta } from 'unhead'
-import { computed, ref, watch, watchEffect } from 'vue'
+import { computed, ref, toRef, watch, watchEffect } from 'vue'
 
 import EditorInput from './EditorInput.vue'
 
@@ -52,7 +53,6 @@ function setSpec({ url, content }: SpecConfiguration) {
 
 // Set the content whenever the input props change
 watchEffect(() => {
-  console.log('update spec')
   setSpec(props.configuration?.spec ?? { content: '' })
 })
 
@@ -80,13 +80,7 @@ function handleInput(evt: CustomEvent<{ value: string }>) {
 
 // Set defaults as needed on the provided configuration
 const configuration = computed<ReferenceConfiguration>(() => {
-  console.log(
-    'config',
-    props.configuration?.useExternalState,
-    props.configuration?.spec,
-  )
   return {
-    proxy: 'https://api.scalar.com/request-proxy',
     theme: 'default',
     showSidebar: true,
     isEditable: true,
@@ -130,8 +124,8 @@ const { setExcludedClients } = useHttpClientStore()
 mapConfigToState('hiddenClients', setExcludedClients)
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
-  proxy: () => configuration.value.proxy || '',
-  specConfig: () => configuration.value.spec || {},
+  proxy: toRef(() => configuration.value.proxy || ''),
+  specConfig: toRef(() => configuration.value.spec || {}),
 })
 </script>
 <template>
