@@ -580,6 +580,7 @@ To customize the behavior of the API Reference, you can use the following config
 - `showSidebar`: Whether the sidebar should be shown.
 - `customCss`: Pass custom CSS directly to the component.
 - `searchHotKey`: Key used with CTRL/CMD to open the search modal.
+- `servers`: Override the OpenAPI servers
 - `metaData`: Configure meta-information for the page.
 - `hiddenClients`: List of `httpsnippet` clients to hide from the client's menu, by default hides Unirest,
   pass `[]` to show all clients.

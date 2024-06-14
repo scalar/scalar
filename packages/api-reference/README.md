@@ -194,6 +194,17 @@ Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
 <ApiReference :configuration="{ searchHotKey: 'l'} />
 ```
 
+#### servers?: Server[]
+
+List of servers to override the openapi spec servers
+
+@default undefined
+@example [{ url: 'https://api.scalar.com', description: 'Production server' }]
+
+```vue
+<ApiReference :configuration="{ servers: [{ url: 'https://api.scalar.com', description: 'Production server' }] } />
+```
+
 #### metaData?: object
 
 You can pass information to the config object to configure meta information out of the box.
