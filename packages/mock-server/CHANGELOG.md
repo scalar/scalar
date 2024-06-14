@@ -1,5 +1,15 @@
 # @scalar/mock-server
 
+## 0.2.1
+
+### Patch Changes
+
+- e0fc110: chore: patch bump all package
+- f0acc89: chore: upgrade to new @scalar/openapi-parser version
+- Updated dependencies [e0fc110]
+- Updated dependencies [f0acc89]
+  - @scalar/oas-utils@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes

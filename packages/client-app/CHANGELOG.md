@@ -1,5 +1,21 @@
 # @scalar/client-app
 
+## 0.1.3
+
+### Patch Changes
+
+- be3a679: chore: make client app public
+- e0fc110: chore: patch bump all package
+- f0acc89: chore: upgrade to new @scalar/openapi-parser version
+- Updated dependencies [e0fc110]
+- Updated dependencies [f0acc89]
+  - @scalar/components@0.11.1
+  - @scalar/draggable@0.1.1
+  - @scalar/oas-utils@0.2.1
+  - @scalar/object-utils@1.1.1
+  - @scalar/use-toasts@0.7.1
+  - @scalar/use-tooltip@0.7.1
+
 ## 0.1.0
 
 ### Minor Changes

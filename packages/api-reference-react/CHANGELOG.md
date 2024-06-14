@@ -1,5 +1,14 @@
 # @scalar/api-reference-react
 
+## 0.3.1
+
+### Patch Changes
+
+- e0fc110: chore: patch bump all package
+- Updated dependencies [e0fc110]
+- Updated dependencies [f0acc89]
+  - @scalar/api-reference@1.24.3
+
 ## 0.3.0
 
 ### Minor Changes

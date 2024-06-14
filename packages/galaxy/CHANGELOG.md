@@ -1,5 +1,12 @@
 # @scalar/galaxy
 
+## 0.2.1
+
+### Patch Changes
+
+- e0fc110: chore: patch bump all package
+- f0acc89: chore: upgrade to new @scalar/openapi-parser version
+
 ## 0.2.0
 
 ### Minor Changes

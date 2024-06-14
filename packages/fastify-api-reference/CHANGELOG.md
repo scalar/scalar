@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.24.3
+
+### Patch Changes
+
+- e0fc110: chore: patch bump all package
+
 ## 1.24.0
 
 ### Minor Changes

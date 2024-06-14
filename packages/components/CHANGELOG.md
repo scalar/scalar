@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.11.1
+
+### Patch Changes
+
+- e0fc110: chore: patch bump all package
+- Updated dependencies [e0fc110]
+- Updated dependencies [f0acc89]
+  - @scalar/code-highlight@0.0.3
+  - @scalar/oas-utils@0.2.1
+
 ## 0.11.0
 
 ### Minor Changes
