@@ -21,6 +21,11 @@ import {
   createFolder,
 } from '@scalar/oas-utils/entities/workspace/folder'
 import {
+  type SecurityScheme,
+  type SecuritySchemePayload,
+  createSecurityScheme,
+} from '@scalar/oas-utils/entities/workspace/security'
+import {
   type Server,
   type ServerPayload,
   createServer,
@@ -129,6 +134,8 @@ const activeRequest = computed(() => {
       setCollapsedSidebarFolder(uid, true),
     )
   }
+
+  console.log('new active request', request)
 
   return request
 })
@@ -447,6 +454,19 @@ const deleteFolder = (
 }
 
 // ---------------------------------------------------------------------------
+// SECURITY SCHEMES
+
+const securitySchemes = reactive<Record<string, SecurityScheme>>({})
+const securitySchemeMutators = mutationFactory(securitySchemes, reactive({}))
+
+const activeSecurityRequirements = computed(
+  () =>
+    activeRequest.value?.security ??
+    activeCollection.value?.spec.security ??
+    [],
+)
+
+// ---------------------------------------------------------------------------
 // SERVERS
 
 const servers = reactive<Record<string, Server>>({})
@@ -501,6 +521,16 @@ async function importSpecFile(spec: string | AnyObject) {
 
   // Servers
   workspaceEntities.servers.forEach((server) => addServer(server))
+
+  // Security Schemes
+  Object.entries(
+    (workspaceEntities.components?.securitySchemes ?? {}) as Record<
+      string,
+      SecurityScheme
+    >,
+  ).forEach(([key, securityScheme]) =>
+    securitySchemeMutators.add({ ...securityScheme, uid: key }),
+  )
 }
 
 // Function to fetch and import a spec from a URL
@@ -529,9 +559,11 @@ export function useWorkspace() {
     folders,
     cookies,
     servers,
+    securitySchemes,
     activeCookieId,
     activeCollection,
     activeServer,
+    activeSecurityRequirements,
     activeRequest,
     activeExample,
     modalState,
@@ -566,6 +598,7 @@ export function useWorkspace() {
       delete: deleteRequestExample,
     },
     requestsHistory,
+    securitySchemeMutators,
     serverMutators: {
       ...serverMutators,
       add: addServer,

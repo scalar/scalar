@@ -1,11 +1,14 @@
 import { deepMerge } from '@/helpers'
 import { z } from 'zod'
 
+/** The uid here is actually the name key, called uid to re-use our mutators */
+const uid = z.string().optional().default('default')
 /* A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
 const description = z.string().optional()
 
 const securitySchemeApiKey = z.object({
   type: z.literal('apiKey'),
+  uid,
   description,
   /** REQUIRED. The name of the header, query or cookie parameter to be used. */
   name: z.string().optional().default('default'),
@@ -15,6 +18,7 @@ const securitySchemeApiKey = z.object({
 
 const securitySchemeHttp = z.object({
   type: z.literal('http'),
+  uid,
   description,
   /**
    * REQUIRED. The name of the HTTP Authorization scheme to be used in the Authorization header as defined in
@@ -89,6 +93,7 @@ const oauthFlowSchema = z.object({
 
 const securitySchemeOauth2 = z.object({
   type: z.literal('oauth2'),
+  uid,
   description,
   /** REQUIRED. An object containing configuration information for the flow types supported. */
   flows: oauthFlowSchema,
@@ -96,6 +101,7 @@ const securitySchemeOauth2 = z.object({
 
 const securitySchemeOpenId = z.object({
   type: z.literal('openIdConnect'),
+  uid,
   description,
   /**
    * REQUIRED. OpenId Connect URL to discover OAuth2 configuration values. This MUST be in the
