@@ -29,10 +29,7 @@ const highlightedCode = computed(() => {
   })
 
   // Need to remove the wrapping <pre> element so we can use v-html without another wrapper
-  // return html.slice(5, -6)
-
-  console.log(props.content, prettyPrintJson(props.content), html)
-  return html
+  return html.slice(5, -6)
 })
 </script>
 <template>
