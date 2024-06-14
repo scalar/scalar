@@ -26,13 +26,13 @@ const mediaType = computed(() => {
   )
 
   if (!contentTypeHeader) {
-    return null
+    return 'text/html'
   }
 
   try {
     return contentType.parse(contentTypeHeader.value).type
   } catch {
-    return null
+    return 'text/html'
   }
 })
 
