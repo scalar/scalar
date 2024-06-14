@@ -5,35 +5,60 @@
 import {
   type RequestMethod,
   normalizeRequestMethod,
+  redirectToProxy,
   validRequestMethods,
 } from '@scalar/api-client'
-// AnyStringOrObject
 import type { Spec } from '@scalar/oas-utils'
 import {
   type AnyObject,
+  type OpenAPI,
   type OpenAPIV2,
   type OpenAPIV3,
   type OpenAPIV3_1,
-  type ResolvedOpenAPI,
-  openapi,
+  dereference,
+  load,
 } from '@scalar/openapi-parser'
+import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 
 import { createEmptySpecification } from '../helpers'
 
-export const parse = (specification: any): Promise<Spec> => {
+export const parse = (
+  specification: any,
+  {
+    proxy,
+  }: {
+    proxy?: string
+  } = {},
+): Promise<Spec> => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
     try {
       // Return an empty resolved specification if the given specification is empty
       if (!specification) {
         return resolve(
-          transformResult(
-            createEmptySpecification() as ResolvedOpenAPI.Document,
-          ),
+          transformResult(createEmptySpecification() as OpenAPI.Document),
         )
       }
 
-      const { schema, errors } = await openapi().load(specification).resolve()
+      const start = performance.now()
+
+      const { filesystem } = await load(specification, {
+        plugins: [
+          fetchUrls({
+            fetch: (url) => {
+              console.log('FETCH')
+              console.log('url', url)
+              console.log('proxy', proxy)
+              return fetch(proxy ? redirectToProxy(proxy, url) : url)
+            },
+          }),
+        ],
+      })
+
+      const { schema, errors } = await dereference(filesystem)
+
+      const end = performance.now()
+      console.log(`dereference: ${Math.round(end - start)} ms`)
 
       if (errors?.length) {
         console.warn(
@@ -44,12 +69,10 @@ export const parse = (specification: any): Promise<Spec> => {
       }
 
       if (schema === undefined) {
-        reject(errors?.[0]?.error ?? 'Failed to parse the OpenAPI file.')
+        reject(errors?.[0]?.message ?? 'Failed to parse the OpenAPI file.')
 
         return resolve(
-          transformResult(
-            createEmptySpecification() as ResolvedOpenAPI.Document,
-          ),
+          transformResult(createEmptySpecification() as OpenAPI.Document),
         )
       }
 
@@ -59,12 +82,12 @@ export const parse = (specification: any): Promise<Spec> => {
     }
 
     return resolve(
-      transformResult(createEmptySpecification() as ResolvedOpenAPI.Document),
+      transformResult(createEmptySpecification() as OpenAPI.Document),
     )
   })
 }
 
-const transformResult = (originalSchema: ResolvedOpenAPI.Document): Spec => {
+const transformResult = (originalSchema: OpenAPI.Document): Spec => {
   // Make it an object
   let schema = {} as AnyObject
 

@@ -1,5 +1,5 @@
 import type { AuthenticationState } from '@scalar/oas-utils'
-import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { HarRequest } from 'httpsnippet-lite'
 
 import { encodeStringAsBase64 } from './encodeStringAsBase64'
@@ -65,7 +65,10 @@ export function getRequestFromAuthentication(
       ),
   )
 
-  // If the (globally) selected security scheme is not allowed for the operation, use the first available security scheme.
+  /**
+   * If the (globally) selected security scheme is not allowed for the operation,
+   * use the first available security scheme.
+   */
   const operationSecurityKey =
     operationAllowsSelectedSecurityScheme || authentication.customSecurity
       ? authentication.preferredSecurityScheme
@@ -115,15 +118,18 @@ export function getRequestFromAuthentication(
     // HTTP Header Auth
     else if (
       'type' in securityScheme &&
-      // @ts-ignore
       (securityScheme.type === 'http' || securityScheme.type === 'basic')
     ) {
       // Basic Auth
       if (
         'type' in securityScheme &&
-        // @ts-ignore
         (securityScheme.type === 'basic' ||
-          (securityScheme.type === 'http' && securityScheme.scheme === 'basic'))
+          (securityScheme.type === 'http' &&
+            (
+              securityScheme as
+                | OpenAPIV3.HttpSecurityScheme
+                | OpenAPIV3_1.HttpSecurityScheme
+            ).scheme === 'basic'))
       ) {
         const { username, password } = authentication.http.basic
 
@@ -138,7 +144,11 @@ export function getRequestFromAuthentication(
       else if (
         'type' in securityScheme &&
         securityScheme.type === 'http' &&
-        securityScheme.scheme === 'bearer'
+        (
+          securityScheme as
+            | OpenAPIV3.HttpSecurityScheme
+            | OpenAPIV3_1.HttpSecurityScheme
+        ).scheme === 'bearer'
       ) {
         const token = authentication.http.bearer.token.length
           ? authentication.http.bearer.token

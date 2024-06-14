@@ -53,7 +53,7 @@
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/openapi-parser": "^0.3.2",
+    "@scalar/openapi-parser": "^0.7.1",
     "@scalar/themes": "workspace:*",
     "@vueuse/core": "^10.10.0"
   },

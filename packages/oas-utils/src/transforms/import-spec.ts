@@ -7,7 +7,7 @@ import type { RequestMethod } from '@/helpers'
 import { parseJsonOrYaml } from '@/helpers/parse'
 import { schemaModel } from '@/helpers/schema-model'
 import type { AnyObject } from '@/types'
-import { openapi } from '@scalar/openapi-parser'
+import { dereference, load } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from 'openapi-types'
 
 const PARAM_DICTIONARY = {
@@ -23,7 +23,10 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
   const requests: Request[] = []
   const parsedSpec = parseJsonOrYaml(spec) as OpenAPIV3_1.Document
 
-  const { schema, errors } = await openapi().load(parsedSpec).resolve()
+  // TODO: `parsedSpec` can have circular reference and will break.
+  // We always have to use the original document.
+  const { filesystem } = await load(parsedSpec)
+  const { schema, errors } = await dereference(filesystem)
 
   if (errors?.length || !schema) {
     console.warn(

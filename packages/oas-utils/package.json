@@ -98,12 +98,12 @@
   "module": "dist/index.js",
   "dependencies": {
     "nanoid": "^5.0.7",
-    "yaml": "^2.4.1",
+    "yaml": "^2.4.5",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/openapi-parser": "^0.3.2",
+    "@scalar/openapi-parser": "^0.7.1",
     "axios": "^1.6.8",
     "httpsnippet-lite": "^3.0.5",
     "openapi-types": "^12.1.3",

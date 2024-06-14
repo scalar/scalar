@@ -91,7 +91,7 @@
     "@scalar/draggable": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/object-utils": "workspace:*",
-    "@scalar/openapi-parser": "^0.3.2",
+    "@scalar/openapi-parser": "^0.7.1",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
     "@vueuse/core": "^10.10.0",

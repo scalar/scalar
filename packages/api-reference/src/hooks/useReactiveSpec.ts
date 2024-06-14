@@ -70,7 +70,9 @@ export function useReactiveSpec({
   function parseInput(value?: string) {
     if (!value) return Object.assign(parsedSpec, createEmptySpecification())
 
-    return parse(value)
+    return parse(value, {
+      proxy: proxy ? toValue(proxy) : undefined,
+    })
       .then((validSpec) => {
         specErrors.value = null
 

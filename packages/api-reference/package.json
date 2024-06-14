@@ -64,7 +64,7 @@
     "@scalar/api-client-modal": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/openapi-parser": "^0.3.2",
+    "@scalar/openapi-parser": "^0.7.1",
     "@scalar/snippetz": "^0.1.6",
     "@scalar/themes": "workspace:*",
     "@scalar/use-toasts": "workspace:*",

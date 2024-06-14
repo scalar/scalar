@@ -19,7 +19,7 @@ export function ValidateCommand() {
     const specification = await getFileOrUrl(input)
 
     // Validate
-    const result = await openapi().load(specification).validate()
+    const result = await openapi().load(specification).validate().get()
 
     if (result.valid) {
       console.log(

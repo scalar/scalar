@@ -41,7 +41,7 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/mock-server": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/openapi-parser": "^0.3.2",
+    "@scalar/openapi-parser": "^0.7.1",
     "commander": "^12.0.0",
     "glob": "^10.3.10",
     "hono": "^4.2.7",

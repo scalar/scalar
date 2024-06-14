@@ -3,7 +3,7 @@ import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 
 export function getModels(spec?: Spec) {
   if (!spec) {
-    return {}
+    return {} as Record<string, OpenAPIV3_1.SchemaObject>
   }
 
   return (

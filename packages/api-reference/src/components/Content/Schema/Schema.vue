@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon } from '@scalar/components'
-import { ScalarMarkdown } from '@scalar/components'
+import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
 import SchemaHeading from './SchemaHeading.vue'
@@ -9,7 +9,14 @@ import SchemaProperty from './SchemaProperty.vue'
 
 const props = withDefaults(
   defineProps<{
-    value?: Record<string, any> | string
+    value?:
+      | OpenAPIV2.DefinitionsObject
+      | OpenAPIV3.SchemaObject
+      | OpenAPIV3.ArraySchemaObject
+      | OpenAPIV3.NonArraySchemaObject
+      | OpenAPIV3_1.SchemaObject
+      | OpenAPIV3_1.ArraySchemaObject
+      | OpenAPIV3_1.NonArraySchemaObject
     /** Track how deep we’ve gone */
     level?: number
     /* Show as a heading */
@@ -43,7 +50,7 @@ const handleClick = (e: MouseEvent) =>
         { 'schema-card--compact': compact, 'schema-card--open': open },
       ]">
       <div
-        v-if="value?.description"
+        v-if="value?.description && typeof value.description === 'string'"
         class="schema-card-description">
         <ScalarMarkdown :value="value.description" />
       </div>
@@ -88,7 +95,7 @@ const handleClick = (e: MouseEvent) =>
               icon="ChevronRight"
               size="md" />
             <SchemaHeading
-              :name="value?.title ?? name"
+              :name="(value?.title ?? name) as string"
               :value="value" />
           </template>
         </DisclosureButton>
@@ -122,7 +129,12 @@ const handleClick = (e: MouseEvent) =>
                 :compact="compact"
                 :level="level"
                 noncollapsible
-                :value="{ type: 'any', ...value.additionalProperties }" />
+                :value="{
+                  type: 'any',
+                  ...(typeof value.additionalProperties === 'object'
+                    ? value.additionalProperties
+                    : {}),
+                }" />
               <!-- Allows a specific type of additional property value -->
               <SchemaProperty
                 v-else
@@ -137,7 +149,7 @@ const handleClick = (e: MouseEvent) =>
             <SchemaProperty
               :compact="compact"
               :level="level"
-              :name="value.name"
+              :name="(value as OpenAPIV2.SchemaObject).name"
               :value="value" />
           </template>
         </DisclosurePanel>
