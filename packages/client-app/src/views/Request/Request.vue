@@ -16,6 +16,8 @@ import { ScalarIcon } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
 import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
+import { isMacOS } from '@scalar/use-tooltip'
+import { useMagicKeys, whenever } from '@vueuse/core'
 import { type DeepReadonly, computed, ref } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
@@ -207,6 +209,12 @@ const getBackgroundColor = () => {
   const { method } = activeRequest.value
   return REQUEST_METHODS[method as RequestMethod].backgroundColor
 }
+
+const keys = useMagicKeys()
+whenever(
+  isMacOS() ? keys.meta_b : keys.ctrl_b,
+  () => (showSideBar.value = !showSideBar.value),
+)
 </script>
 <template>
   <div
