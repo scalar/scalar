@@ -4,7 +4,6 @@
 "@scalar/api-reference-react": minor
 "@scalar/api-client-proxy": minor
 "@scalar/api-client-react": minor
-"@scalar/use-code-highlight": minor
 "@scalar/use-codemirror": minor
 "@scalar/api-reference": minor
 "@scalar/object-utils": minor
