@@ -37,7 +37,7 @@ const language = computed(() => {
     'Kotlin': 'kotlin',
     'Objective-C': 'objc',
     // 'Perl': '',
-    // 'PHP': '',
+    'PHP': 'php',
     'PowerShell': 'powershell',
     'Python': 'python',
     'Ruby': 'ruby',
@@ -45,8 +45,8 @@ const language = computed(() => {
     // 'Scala': '',
     'Shell': 'shell',
     'Swift': 'swift',
-    'TypeScript': 'javascript',
-    'cURL': 'shell',
+    'TypeScript': 'typescript',
+    'cURL': 'curl',
   }
 
   return (

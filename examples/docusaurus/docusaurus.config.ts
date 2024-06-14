@@ -1,7 +1,6 @@
 import type * as Preset from '@docusaurus/preset-classic'
 import type { Config } from '@docusaurus/types'
 import type { ScalarOptions } from '@scalar/docusaurus'
-import { themes as prismThemes } from 'prism-react-renderer'
 
 const config: Config = {
   title: 'My Site',
@@ -138,10 +137,6 @@ const config: Config = {
         },
       ],
       copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
-    },
-    prism: {
-      theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
     },
   } satisfies Preset.ThemeConfig,
 }

@@ -8,6 +8,7 @@ describe('ScalarCodeBlock', () => {
     const wrapper = mount(ScalarCodeBlock, {
       attrs: {
         content: 'console.log()',
+        lang: 'js',
       },
     })
 
@@ -22,13 +23,14 @@ describe('ScalarCodeBlock', () => {
 
     // Confirm the syntax highlighting has been applied
     expect(code.html()).toBe(
-      `<code class="scalar-codeblock-code language-js">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token punctuation">)</span></code>`,
+      `<code class="hljs language-javascript"><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>()</code>`,
     )
   })
 
   it('renders a schema', async () => {
     const wrapper = mount(ScalarCodeBlock, {
       attrs: {
+        lang: 'json',
         content: {
           description: 'successful operation',
           schema: {
@@ -61,23 +63,23 @@ describe('ScalarCodeBlock', () => {
 
     // Confirm the syntax highlighting has been applied
     expect(code.html())
-      .toBe(`<code class="scalar-codeblock-code language-js"><span class="token punctuation">{</span>
-  <span class="token string-property property">"description"</span><span class="token operator">:</span> <span class="token string">"successful operation"</span><span class="token punctuation">,</span>
-  <span class="token string-property property">"schema"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-    <span class="token string-property property">"type"</span><span class="token operator">:</span> <span class="token string">"object"</span><span class="token punctuation">,</span>
-    <span class="token string-property property">"properties"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-      <span class="token string-property property">"code"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-        <span class="token string-property property">"type"</span><span class="token operator">:</span> <span class="token string">"integer"</span><span class="token punctuation">,</span>
-        <span class="token string-property property">"format"</span><span class="token operator">:</span> <span class="token string">"int32"</span>
-      <span class="token punctuation">}</span><span class="token punctuation">,</span>
-      <span class="token string-property property">"type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-        <span class="token string-property property">"type"</span><span class="token operator">:</span> <span class="token string">"string"</span>
-      <span class="token punctuation">}</span><span class="token punctuation">,</span>
-      <span class="token string-property property">"message"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-        <span class="token string-property property">"type"</span><span class="token operator">:</span> <span class="token string">"string"</span>
-      <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-  <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code>`)
+      .toBe(`<code class="hljs language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">"description"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"successful operation"</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">"schema"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"object"</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">"properties"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">"code"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"integer"</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">"format"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"int32"</span>
+      <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"string"</span>
+      <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">"message"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"string"</span>
+      <span class="hljs-punctuation">}</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span></code>`)
   })
 })

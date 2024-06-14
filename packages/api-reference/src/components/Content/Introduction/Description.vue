@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarMarkdown } from '@scalar/components'
 import type { DescriptionSectionSSRKey, SSRState } from '@scalar/oas-utils'
 import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import { computedAsync } from '@vueuse/core'
@@ -13,7 +14,6 @@ import {
 } from '../../../helpers'
 import { useNavState } from '../../../hooks'
 import IntersectionObserver from '../../IntersectionObserver.vue'
-import { MarkdownRenderer } from '../../MarkdownRenderer'
 
 const props = defineProps<{
   value?: string
@@ -88,14 +88,14 @@ onServerPrefetch(async () => {
           :id="getHeadingId(section.heading)"
           class="introduction-description-heading"
           @intersecting="() => handleScroll(getHeadingId(section.heading))">
-          <MarkdownRenderer
+          <ScalarMarkdown
             :value="section.content"
             withImages />
         </IntersectionObserver>
       </template>
       <!-- Without a heading -->
       <template v-else>
-        <MarkdownRenderer
+        <ScalarMarkdown
           :value="section.content"
           withImages />
       </template>

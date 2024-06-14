@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { ScalarMarkdown } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/oas-utils'
 
 import { useOperation, useResponses } from '../../../hooks'
-import { MarkdownRenderer } from '../../MarkdownRenderer'
 import Parameters from './Parameters.vue'
 import RequestBody from './RequestBody.vue'
 
@@ -15,7 +15,7 @@ const { responses } = useResponses(props.operation)
 <template>
   <div class="endpoint-details">
     <div class="endpoint-description">
-      <MarkdownRenderer
+      <ScalarMarkdown
         :value="operation.description"
         withImages />
     </div>

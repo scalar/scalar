@@ -35,7 +35,7 @@ export default defineNuxtConfig({
   },
   imports: {
     transform: {
-      exclude: [/programming-language-php/],
+      exclude: [/scalar/],
     },
   },
   devtools: { enabled: true },

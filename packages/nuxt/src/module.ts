@@ -53,7 +53,6 @@ export default defineNuxtModule<ModuleOptions>({
     _nuxt.options.vite.optimizeDeps.include.push(
       'debug',
       'extend',
-      'prismjs',
       'stringify-object',
       'rehype-highlight',
     )

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
+import { ScalarMarkdown } from '@scalar/components'
 import type { Webhooks } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
 import { useNavState } from '../../../hooks'
 import { Anchor } from '../../Anchor'
-import { MarkdownRenderer } from '../../MarkdownRenderer'
 import {
   Section,
   SectionContainer,
@@ -46,7 +46,7 @@ const { getWebhookId } = useNavState()
             </SectionHeader>
 
             <!-- Description -->
-            <MarkdownRenderer
+            <ScalarMarkdown
               v-if="webhooks[name][httpVerb]?.description"
               :value="webhooks[name][httpVerb]?.description"
               withImages />

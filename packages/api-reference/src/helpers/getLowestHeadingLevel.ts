@@ -1,4 +1,4 @@
-import type { Headings } from './getHeadingsFromMarkdown'
+import type { Heading } from '@scalar/oas-utils'
 
 export type HeadingLevels = 1 | 2 | 3 | 4 | 5 | 6
 
@@ -7,7 +7,7 @@ export type HeadingLevels = 1 | 2 | 3 | 4 | 5 | 6
  *
  * If there are h1, h2, h3 … h1 is the lowest heading level.
  */
-export const getLowestHeadingLevel = (headings: Headings): HeadingLevels => {
+export const getLowestHeadingLevel = (headings: Heading[]): HeadingLevels => {
   const lowestLevel = Math.min(...headings.map((heading) => heading.depth))
 
   if (lowestLevel >= 1 && lowestLevel <= 6) {

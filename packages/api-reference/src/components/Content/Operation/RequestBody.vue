@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { ScalarMarkdown } from '@scalar/components'
 import type { ContentType, RequestBody } from '@scalar/oas-utils'
 import { computed, ref } from 'vue'
 
-import { MarkdownRenderer } from '../../MarkdownRenderer'
 import { Schema } from '../Schema'
 
 const prop = defineProps<{ requestBody?: RequestBody }>()
@@ -43,7 +43,7 @@ if (prop.requestBody?.content) {
       <div
         v-if="prop?.requestBody.description"
         class="request-body-description">
-        <MarkdownRenderer :value="prop.requestBody.description" />
+        <ScalarMarkdown :value="prop.requestBody.description" />
       </div>
     </div>
     <div

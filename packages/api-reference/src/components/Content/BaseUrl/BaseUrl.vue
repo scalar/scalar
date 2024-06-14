@@ -5,9 +5,9 @@ import {
   useServerStore,
 } from '@scalar/api-client'
 import { ScalarIcon } from '@scalar/components'
+import { ScalarMarkdown } from '@scalar/components'
 import { ref, watch } from 'vue'
 
-import { MarkdownRenderer } from '../../MarkdownRenderer'
 import ServerItem from './ServerItem.vue'
 import ServerVariables from './ServerVariables.vue'
 
@@ -103,7 +103,7 @@ watch(
       v-if="server.description"
       muted>
       <div class="description">
-        <MarkdownRenderer :value="server.description" />
+        <ScalarMarkdown :value="server.description" />
       </div>
     </div>
   </div>
