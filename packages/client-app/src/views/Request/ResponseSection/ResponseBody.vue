@@ -19,6 +19,12 @@ const props = withDefaults(
   },
 )
 
+// Preview options
+const previewOptions = ['preview', 'raw'] as const
+type PreviewOption = (typeof previewOptions)[number]
+const selectedPreview = ref<PreviewOption>('preview')
+
+// Code language based on the Content-Type header
 const codeLanguage = computed(() => {
   const contentTypeHeader =
     props.headers.find((header) => header.name.toLowerCase() === 'content-type')
@@ -26,13 +32,13 @@ const codeLanguage = computed(() => {
 
   if (contentTypeHeader.includes('json')) return 'json'
   if (contentTypeHeader.includes('html')) return 'html'
+
+  // Default
   return 'plaintext'
 })
 
+// Update the iframe content
 const iframe = ref<HTMLIFrameElement | null>(null)
-
-const previewOptions = ['preview', 'raw'] as const
-const selectedPreview = ref<(typeof previewOptions)[number]>('preview')
 
 watch(
   () => selectedPreview.value,
@@ -56,7 +62,7 @@ watch(
   <ViewLayoutCollapse>
     <template #title>{{ title }}</template>
     <template v-if="active">
-      <DataTable :columns="['']">
+      <DataTable :columns="[]">
         <DataTableRow>
           <DataTableHeader
             class="relative col-span-full flex h-8 cursor-pointer items-center px-[2.25px] py-[2.25px]">
@@ -84,12 +90,14 @@ watch(
           </DataTableHeader>
         </DataTableRow>
         <DataTableRow>
+          <!-- Preview -->
           <template v-if="selectedPreview === 'preview'">
             <ScalarCodeBlock
               class="force-text-sm rounded-b border-t-0"
               :content="data"
               :lang="codeLanguage" />
           </template>
+          <!-- Raw -->
           <template v-else>
             <iframe
               ref="iframe"
