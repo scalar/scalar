@@ -44,6 +44,9 @@ export const sendRequest = async (
     }
   })
 
+  // Decide whether to use a proxy or not
+  const shouldUseProxy = !isRequestToLocalhost(url)
+
   const headers = paramsReducer(example.parameters.headers)
 
   let data: FormData | string | File | null = null
@@ -83,9 +86,9 @@ export const sendRequest = async (
   }
 
   const config: AxiosRequestConfig = {
-    url: isRequestToLocalhost(url)
-      ? url
-      : `https://proxy.scalar.com/?scalar_url=${encodeURI(url)}`,
+    url: shouldUseProxy
+      ? `http://localhost:5051/?scalar_url=${encodeURI(url)}`
+      : url,
     method: request.method,
     headers,
     params: paramsReducer(example.parameters.query),
@@ -99,6 +102,20 @@ export const sendRequest = async (
   })
 
   if (response) {
+    if (shouldUseProxy) {
+      // Remove headers, that are added by the proxy
+      const headersToRemove = [
+        'Access-Control-Allow-Headers',
+        'Access-Control-Allow-Origin',
+        'Access-Control-Allow-Methods',
+        'Access-Control-Expose-Headers',
+      ]
+
+      headersToRemove
+        .map((header) => header.toLowerCase())
+        .forEach((header) => delete response.headers[header])
+    }
+
     return {
       request: example,
       response: response,
