@@ -374,6 +374,7 @@ useDeprecationWarnings(props.configuration)
     /* Classic layout is wider */
     --refs-content-max-width: var(--scalar-content-max-width, 1420px);
     min-height: 100dvh;
+    --refs-sidebar-width: 0;
   }
 }
 
