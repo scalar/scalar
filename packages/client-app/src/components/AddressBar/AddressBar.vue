@@ -184,55 +184,66 @@ const handlePaste = (event: ClipboardEvent) => {
               isSquare
               :method="activeRequest.method"
               @change="updateRequestMethod" />
-            <ScalarDropdown
-              v-if="serverOptions"
-              :options="serverOptions"
-              :value="activeCollection?.selectedServerUid">
-              <button
-                class="font-code lg:text-sm text-xs whitespace-nowrap border rounded px-1.5 text-c-2"
-                type="button"
-                @click.stop>
-                {{ servers[activeCollection?.selectedServerUid ?? '']?.url }}
-              </button>
-              <template #items>
-                <ScalarDropdownItem
-                  v-for="server in serverOptions"
-                  :key="server.id"
-                  class="flex !gap-1.5 group font-code text-xxs whitespace-nowrap text-ellipsis overflow-hidden"
-                  :value="server.id"
-                  @click="updateSelectedServer(server.id)">
-                  <div
-                    class="flex size-4 items-center justify-center rounded-full p-[3px] group-hover:shadow-border"
-                    :class="
-                      isSelectedServer(server.id)
-                        ? 'bg-blue text-b-1'
-                        : 'text-transparent'
-                    ">
-                    <ScalarIcon
-                      class="relative top-[0.5px] size-2.5 stroke-[1.75]"
-                      icon="Checkmark" />
-                  </div>
-                  <span class="whitespace-nowrap text-ellipsis overflow-hidden">
-                    {{ server.label }}
-                  </span>
-                </ScalarDropdownItem>
-                <template v-if="!workspace.isReadOnly">
-                  <ScalarDropdownDivider />
-                  <ScalarDropdownItem>
-                    <RouterLink
-                      class="font-code text-xxs flex items-center gap-1.5"
-                      to="/servers">
-                      <div class="flex items-center justify-center h-4 w-4">
-                        <ScalarIcon
-                          class="h-2.5"
-                          icon="Add" />
-                      </div>
-                      <span>Add Server</span>
-                    </RouterLink>
+            <template
+              v-if="
+                serverOptions &&
+                (serverOptions.length > 1 || !workspace.isReadOnly)
+              ">
+              <ScalarDropdown
+                :options="serverOptions"
+                :value="activeCollection?.selectedServerUid">
+                <button
+                  class="font-code lg:text-sm text-xs whitespace-nowrap border border-b-3 border-solid rounded px-1.5 text-c-2"
+                  type="button"
+                  @click.stop>
+                  {{ servers[activeCollection?.selectedServerUid ?? '']?.url }}
+                </button>
+                <template #items>
+                  <ScalarDropdownItem
+                    v-for="server in serverOptions"
+                    :key="server.id"
+                    class="flex !gap-1.5 group font-code text-xxs whitespace-nowrap text-ellipsis overflow-hidden"
+                    :value="server.id"
+                    @click="updateSelectedServer(server.id)">
+                    <div
+                      class="flex size-4 items-center justify-center rounded-full p-[3px] group-hover:shadow-border"
+                      :class="
+                        isSelectedServer(server.id)
+                          ? 'bg-blue text-b-1'
+                          : 'text-transparent'
+                      ">
+                      <ScalarIcon
+                        class="relative top-[0.5px] size-2.5 stroke-[1.75]"
+                        icon="Checkmark" />
+                    </div>
+                    <span
+                      class="whitespace-nowrap text-ellipsis overflow-hidden">
+                      {{ server.label }}
+                    </span>
                   </ScalarDropdownItem>
+                  <template v-if="!workspace.isReadOnly">
+                    <ScalarDropdownDivider />
+                    <ScalarDropdownItem>
+                      <RouterLink
+                        class="font-code text-xxs flex items-center gap-1.5"
+                        to="/servers">
+                        <div class="flex items-center justify-center h-4 w-4">
+                          <ScalarIcon
+                            class="h-2.5"
+                            icon="Add" />
+                        </div>
+                        <span>Add Server</span>
+                      </RouterLink>
+                    </ScalarDropdownItem>
+                  </template>
                 </template>
-              </template>
-            </ScalarDropdown>
+              </ScalarDropdown>
+            </template>
+            <template v-else>
+              <div class="flex items-center font-code lg:text-sm text-xs">
+                {{ servers[activeCollection?.selectedServerUid ?? '']?.url }}
+              </div>
+            </template>
           </div>
           <div class="custom-scroll scroll-timeline-x relative flex w-full">
             <div class="fade-left"></div>
