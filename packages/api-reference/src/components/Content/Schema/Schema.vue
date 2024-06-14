@@ -52,7 +52,7 @@ const handleClick = (e: MouseEvent) =>
       <div
         v-if="value?.description"
         class="schema-card-description">
-        <ScalarMarkdown :value="value.description" />
+        <ScalarMarkdown :value="value.description as string" />
       </div>
       <div
         class="schema-properties"
