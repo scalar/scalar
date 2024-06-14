@@ -53,7 +53,9 @@ export function createRollupConfig(props: {
     }),
   )
 
-  const external: string[] = []
+  const external = Array.isArray(props.options?.external)
+    ? props.options.external
+    : []
 
   if ('dependencies' in pkgFile)
     external.push(...Object.keys(pkgFile.dependencies))
@@ -79,11 +81,11 @@ export function createRollupConfig(props: {
       preserveModulesRoot: './src',
       dir: './dist',
     },
+    ...props.options,
     // Do not bundle any dependencies by default.
     external: external.map(
       (packageName) => new RegExp(`^${packageName}(/.*)?`),
     ),
-    ...props.options,
     plugins,
   }
 }
