@@ -1245,6 +1245,9 @@ importers:
       fuse.js:
         specifier: ^7.0.0
         version: 7.0.0
+      jsdom:
+        specifier: ^22.1.0
+        version: 22.1.0
       postcss:
         specifier: ^8.4.38
         version: 8.4.38
@@ -1263,6 +1266,9 @@ importers:
       vite-svg-loader:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.4.27(typescript@5.4.3))
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@22.1.0)(terser@5.30.0)
       vue:
         specifier: ^3.4.22
         version: 3.4.27(typescript@5.4.3)
@@ -32015,6 +32021,41 @@ snapshots:
       '@types/node': 20.11.22
       happy-dom: 14.12.0
       jsdom: 23.2.0
+    transitivePeerDependencies:
+      - less
+      - lightningcss
+      - sass
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+
+  vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@22.1.0)(terser@5.30.0):
+    dependencies:
+      '@vitest/expect': 1.6.0
+      '@vitest/runner': 1.6.0
+      '@vitest/snapshot': 1.6.0
+      '@vitest/spy': 1.6.0
+      '@vitest/utils': 1.6.0
+      acorn-walk: 8.3.2
+      chai: 4.4.1
+      debug: 4.3.4(supports-color@5.5.0)
+      execa: 8.0.1
+      local-pkg: 0.5.0
+      magic-string: 0.30.10
+      pathe: 1.1.2
+      picocolors: 1.0.0
+      std-env: 3.7.0
+      strip-literal: 2.1.0
+      tinybench: 2.6.0
+      tinypool: 0.8.4
+      vite: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
+      vite-node: 1.6.0(@types/node@20.11.26)(terser@5.30.0)
+      why-is-node-running: 2.2.2
+    optionalDependencies:
+      '@types/node': 20.11.26
+      happy-dom: 14.12.0
+      jsdom: 22.1.0
     transitivePeerDependencies:
       - less
       - lightningcss

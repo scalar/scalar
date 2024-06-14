@@ -1,3 +1,6 @@
+/**
+ * @vitest-environment jsdom
+ */
 import {
   type ServerPayload,
   createServer,
