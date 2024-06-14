@@ -1023,6 +1023,9 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.4(vite@5.2.10(@types/node@20.11.26)(terser@5.30.0))(vue@3.4.27(typescript@5.4.3))
+      tsc-alias:
+        specifier: ^1.8.8
+        version: 1.8.8
       vite:
         specifier: ^5.2.10
         version: 5.2.10(@types/node@20.11.26)(terser@5.30.0)
