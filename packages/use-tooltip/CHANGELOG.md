@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 0.7.2
+
+### Patch Changes
+
+- c65697c: fix: move tippy to dependencies
+
 ## 0.7.1
 
 ### Patch Changes

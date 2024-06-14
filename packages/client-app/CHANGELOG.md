@@ -1,5 +1,12 @@
 # @scalar/client-app
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [c65697c]
+  - @scalar/use-tooltip@0.7.2
+
 ## 0.1.3
 
 ### Patch Changes
