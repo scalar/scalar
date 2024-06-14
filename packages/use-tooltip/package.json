@@ -40,11 +40,13 @@
     "CHANGELOG.md"
   ],
   "module": "dist/index.js",
+  "dependencies": {
+    "tippy.js": "^6.3.7"
+  },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.6.0",
-    "tippy.js": "^6.3.7",
     "tsc-alias": "^1.8.8",
     "vite": "^5.2.10",
     "vitest": "^1.6.0",

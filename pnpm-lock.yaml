@@ -2065,6 +2065,10 @@ importers:
         version: 2.0.19(typescript@5.4.3)
 
   packages/use-tooltip:
+    dependencies:
+      tippy.js:
+        specifier: ^6.3.7
+        version: 6.3.7
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -2075,9 +2079,6 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.11.26)(happy-dom@14.12.0)(jsdom@23.2.0)(terser@5.30.0))
-      tippy.js:
-        specifier: ^6.3.7
-        version: 6.3.7
       tsc-alias:
         specifier: ^1.8.8
         version: 1.8.8
