@@ -2,6 +2,7 @@
 import type { SpecConfiguration } from '@scalar/oas-utils'
 import { onMounted, ref } from 'vue'
 
+import { modalStateBus } from './api-client-bus'
 import { apiClientBus } from './api-client-bus'
 
 const props = defineProps<{
@@ -16,10 +17,12 @@ onMounted(async () => {
 
   const { createScalarApiClient } = await import('@scalar/api-client-modal')
 
-  const { open } = await createScalarApiClient(el.value, {
+  const { open, modalState: state } = await createScalarApiClient(el.value, {
     spec: props.spec ?? {},
     proxyUrl: props.proxyUrl,
   })
+
+  modalStateBus.emit(state)
 
   // Event bus to listen to apiClient events
   apiClientBus.on(open)
