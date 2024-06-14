@@ -81,6 +81,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		res.Header.Del("Access-Control-Allow-Headers")
 		res.Header.Del("Access-Control-Allow-Origin")
 		res.Header.Del("Access-Control-Allow-Methods")
+		res.Header.Del("Access-Control-Expose-Headers")
 
 		return nil
 	}
