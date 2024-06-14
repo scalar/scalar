@@ -8,7 +8,11 @@ import { encodeStringAsBase64 } from './encodeStringAsBase64'
  * Check whether the given security scheme key is in the `security` configuration for this operation.
  **/
 function authenticationRequired(
-  security?: OpenAPIV3.SecurityRequirementObject[],
+  security?: (
+    | OpenAPIV2.SecurityDefinitionsObject
+    | OpenAPIV3.SecurityRequirementObject
+    | OpenAPIV3_1.SecurityRequirementObject
+  )[],
 ): boolean {
   // If security is not defined, auth is not required.
   if (!security) {
@@ -38,6 +42,7 @@ function authenticationRequired(
 export function getRequestFromAuthentication(
   authentication: AuthenticationState,
   operationSecurity?: (
+    | OpenAPIV2.SecurityDefinitionsObject
     | OpenAPIV3.SecurityRequirementObject
     | OpenAPIV3_1.SecurityRequirementObject
   )[],
