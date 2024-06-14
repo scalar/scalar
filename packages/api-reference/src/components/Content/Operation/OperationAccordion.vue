@@ -131,7 +131,9 @@ const { copyToClipboard } = useClipboard()
 
   font-size: 20px;
 }
-
+.endpoint-anchor.label {
+  display: flex;
+}
 .endpoint-label {
   display: flex;
   align-items: baseline;
