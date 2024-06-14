@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.24.5
+
+### Patch Changes
+
+- ee584b9: feat: add base server override
+
 ## 1.24.4
 
 ### Patch Changes
