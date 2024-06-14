@@ -1,5 +1,32 @@
 # @scalar/play-button
 
+## 0.2.0
+
+### Minor Changes
+
+- 7f8ef74: chore: remove aliasing
+
+### Patch Changes
+
+- 6fbb57e: feat: release all the packages
+- Updated dependencies [1de697b]
+- Updated dependencies [7f8ef74]
+- Updated dependencies [689677a]
+- Updated dependencies [326dcfb]
+- Updated dependencies [b4db5da]
+- Updated dependencies [d54eb42]
+- Updated dependencies [68eede9]
+- Updated dependencies [96347a1]
+- Updated dependencies [8494349]
+- Updated dependencies [b38c7ed]
+- Updated dependencies [6fbb57e]
+- Updated dependencies [6d11a8a]
+- Updated dependencies [e63b12d]
+  - @scalar/api-client@2.0.0
+  - @scalar/api-reference@1.24.0
+  - @scalar/oas-utils@0.2.0
+  - @scalar/themes@0.9.0
+
 ## 0.1.5
 
 ### Patch Changes

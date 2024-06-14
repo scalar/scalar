@@ -1,5 +1,24 @@
 # @scalar/api-client-react
 
+## 0.5.0
+
+### Minor Changes
+
+- 7f8ef74: chore: remove aliasing
+
+### Patch Changes
+
+- 6fbb57e: feat: release all the packages
+- Updated dependencies [1de697b]
+- Updated dependencies [7f8ef74]
+- Updated dependencies [689677a]
+- Updated dependencies [326dcfb]
+- Updated dependencies [8494349]
+- Updated dependencies [b38c7ed]
+- Updated dependencies [6fbb57e]
+- Updated dependencies [e63b12d]
+  - @scalar/api-client@2.0.0
+
 ## 0.4.4
 
 ### Patch Changes
