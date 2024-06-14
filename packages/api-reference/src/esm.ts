@@ -1,5 +1,6 @@
 import type { SpecConfiguration } from '@scalar/oas-utils'
 import { objectMerge } from '@scalar/oas-utils/helpers'
+import { createHead } from '@unhead/vue'
 import { createApp, reactive } from 'vue'
 
 import ApiReference from './components/ApiReference.vue'
@@ -20,6 +21,9 @@ export function createScalarReferences(
   const configuration = reactive(initialConfig)
 
   const app = createApp(ApiReference, { configuration })
+
+  const head = createHead()
+  app.use(head)
 
   function mount(mountingEl = el) {
     if (!mountingEl) {
