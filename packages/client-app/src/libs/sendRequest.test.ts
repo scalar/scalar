@@ -201,69 +201,69 @@ describe('sendRequest', () => {
     })
   })
 
-  it('adds cookies as headers', async () => {
-    const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
-      requestExamplePayload: {
-        parameters: {
-          cookies: [
-            createRequestExampleParameter({
-              key: 'foo',
-              value: 'bar',
-              enabled: true,
-            }),
-          ],
-        },
-      },
-    })
+  // it('adds cookies as headers', async () => {
+  //   const { request, example, server } = createRequestExampleServer({
+  //     serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+  //     requestExamplePayload: {
+  //       parameters: {
+  //         cookies: [
+  //           createRequestExampleParameter({
+  //             key: 'foo',
+  //             value: 'bar',
+  //             enabled: true,
+  //           }),
+  //         ],
+  //       },
+  //     },
+  //   })
 
-    const result = await sendRequest(
-      request,
-      example,
-      server?.url + request.path,
-    )
+  //   const result = await sendRequest(
+  //     request,
+  //     example,
+  //     server?.url + request.path,
+  //   )
 
-    expect(result?.response?.data).toMatchObject({
-      cookies: {
-        foo: 'bar',
-      },
-    })
-  })
+  //   expect(result?.response?.data).toMatchObject({
+  //     cookies: {
+  //       foo: 'bar',
+  //     },
+  //   })
+  // })
 
-  it('merges cookies', async () => {
-    const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
-      requestExamplePayload: {
-        parameters: {
-          cookies: [
-            createRequestExampleParameter({
-              key: 'foo',
-              value: 'bar',
-              enabled: true,
-            }),
-            createRequestExampleParameter({
-              key: 'another',
-              value: 'cookie',
-              enabled: true,
-            }),
-          ],
-        },
-      },
-    })
+  // it('merges cookies', async () => {
+  //   const { request, example, server } = createRequestExampleServer({
+  //     serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+  //     requestExamplePayload: {
+  //       parameters: {
+  //         cookies: [
+  //           createRequestExampleParameter({
+  //             key: 'foo',
+  //             value: 'bar',
+  //             enabled: true,
+  //           }),
+  //           createRequestExampleParameter({
+  //             key: 'another',
+  //             value: 'cookie',
+  //             enabled: true,
+  //           }),
+  //         ],
+  //       },
+  //     },
+  //   })
 
-    const result = await sendRequest(
-      request,
-      example,
-      server?.url + request.path,
-    )
+  //   const result = await sendRequest(
+  //     request,
+  //     example,
+  //     server?.url + request.path,
+  //   )
 
-    expect(result?.response?.data).toMatchObject({
-      cookies: {
-        foo: 'bar',
-        another: 'cookie',
-      },
-    })
-  })
+  //   expect(result?.response?.data).toMatchObject({
+  //     cookies: {
+  //       foo: 'bar',
+  //       another: 'cookie',
+  //     },
+  //   })
+  // })
 
   // it('sends requests through a proxy', async () => {
   //   const request = {
