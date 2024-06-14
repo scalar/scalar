@@ -844,9 +844,6 @@ importers:
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../api-client
-      '@scalar/api-client-modal':
-        specifier: workspace:*
-        version: link:../api-client-modal
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
