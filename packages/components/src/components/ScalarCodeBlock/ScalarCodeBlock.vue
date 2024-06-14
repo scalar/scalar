@@ -37,7 +37,7 @@ const highlightedCode = computed(() => {
     class="scalar-component scalar-codeblock-pre"
     v-html="highlightedCode"></pre>
 </template>
-<style scoped>
+<style>
 /* Code blocks */
 .scalar-codeblock-pre {
   margin: 0;
