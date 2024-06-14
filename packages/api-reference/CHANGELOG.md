@@ -1,5 +1,44 @@
 # @scalar/api-reference
 
+## 1.24.0
+
+### Minor Changes
+
+- 7f8ef74: chore: remove aliasing
+
+### Patch Changes
+
+- 689677a: fix: auto importing css backup
+- 326dcfb: chore: remove @scalar/use-modal package
+- b4db5da: fix: different response examples for different status codes
+- d54eb42: fix: pathRouting when only using a slash in references and nux
+- 68eede9: fix: ensure there's no padding on the response tabs
+- 96347a1: feat: use example values for path variables
+- 8494349: Migrate to highlightjs based syntax highlighting
+- b38c7ed: Update build configs to a standardized format
+- 6fbb57e: feat: release all the packages
+- 6d11a8a: fix: default example response is moved to the first position
+- Updated dependencies [1de697b]
+- Updated dependencies [190bcb6]
+- Updated dependencies [7f8ef74]
+- Updated dependencies [689677a]
+- Updated dependencies [f82a767]
+- Updated dependencies [326dcfb]
+- Updated dependencies [96347a1]
+- Updated dependencies [8494349]
+- Updated dependencies [b38c7ed]
+- Updated dependencies [6fbb57e]
+- Updated dependencies [e63b12d]
+- Updated dependencies [94084bf]
+- Updated dependencies [c5760b9]
+  - @scalar/api-client@2.0.0
+  - @scalar/components@0.11.0
+  - @scalar/use-tooltip@0.7.0
+  - @scalar/use-toasts@0.7.0
+  - @scalar/oas-utils@0.2.0
+  - @scalar/themes@0.9.0
+  - @scalar/api-client-modal@0.0.2
+
 ## 1.23.5
 
 ### Patch Changes

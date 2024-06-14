@@ -1,5 +1,15 @@
 # @scalar/draggable
 
+## 0.1.0
+
+### Minor Changes
+
+- 7f8ef74: chore: remove aliasing
+
+### Patch Changes
+
+- 6fbb57e: feat: release all the packages
+
 ## 0.0.7
 
 ### Patch Changes

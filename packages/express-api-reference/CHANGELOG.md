@@ -1,5 +1,23 @@
 # @scalar/express-api-reference
 
+## 0.4.63
+
+### Patch Changes
+
+- 6fbb57e: feat: release all the packages
+- Updated dependencies [7f8ef74]
+- Updated dependencies [689677a]
+- Updated dependencies [326dcfb]
+- Updated dependencies [b4db5da]
+- Updated dependencies [d54eb42]
+- Updated dependencies [68eede9]
+- Updated dependencies [96347a1]
+- Updated dependencies [8494349]
+- Updated dependencies [b38c7ed]
+- Updated dependencies [6fbb57e]
+- Updated dependencies [6d11a8a]
+  - @scalar/api-reference@1.24.0
+
 ## 0.4.62
 
 ### Patch Changes

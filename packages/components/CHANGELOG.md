@@ -1,5 +1,28 @@
 # @scalar/components
 
+## 0.11.0
+
+### Minor Changes
+
+- 7f8ef74: chore: remove aliasing
+
+### Patch Changes
+
+- 190bcb6: feat: scalar dropdown and listbox offset prop addition
+- f82a767: fix: update dropdown styles
+- 326dcfb: chore: remove @scalar/use-modal package
+- 8494349: Migrate to highlightjs based syntax highlighting
+- b38c7ed: Update build configs to a standardized format
+- 6fbb57e: feat: release all the packages
+- 94084bf: feat: scalar floating teleport
+- c5760b9: fix: focus state in scalar listbox
+- Updated dependencies [7f8ef74]
+- Updated dependencies [96347a1]
+- Updated dependencies [8494349]
+- Updated dependencies [6fbb57e]
+  - @scalar/oas-utils@0.2.0
+  - @scalar/code-highlight@0.0.2
+
 ## 0.10.1
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @scalar/use-toasts
 
+## 0.7.0
+
+### Minor Changes
+
+- 7f8ef74: chore: remove aliasing
+
+### Patch Changes
+
+- b38c7ed: Update build configs to a standardized format
+- 6fbb57e: feat: release all the packages
+
 ## 0.6.7
 
 ### Patch Changes

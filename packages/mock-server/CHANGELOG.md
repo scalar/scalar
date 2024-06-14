@@ -1,5 +1,21 @@
 # @scalar/mock-server
 
+## 0.2.0
+
+### Minor Changes
+
+- 7f8ef74: chore: remove aliasing
+
+### Patch Changes
+
+- b38c7ed: Update build configs to a standardized format
+- 6fbb57e: feat: release all the packages
+- Updated dependencies [7f8ef74]
+- Updated dependencies [96347a1]
+- Updated dependencies [8494349]
+- Updated dependencies [6fbb57e]
+  - @scalar/oas-utils@0.2.0
+
 ## 0.1.72
 
 ### Patch Changes

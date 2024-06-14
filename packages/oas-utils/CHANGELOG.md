@@ -1,5 +1,17 @@
 # @scalar/oas-utils
 
+## 0.2.0
+
+### Minor Changes
+
+- 7f8ef74: chore: remove aliasing
+
+### Patch Changes
+
+- 96347a1: feat: use example values for path variables
+- 8494349: Migrate to highlightjs based syntax highlighting
+- 6fbb57e: feat: release all the packages
+
 ## 0.1.17
 
 ### Patch Changes
