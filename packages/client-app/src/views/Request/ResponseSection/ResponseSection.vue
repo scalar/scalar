@@ -3,6 +3,7 @@ import ContextBar from '@/components/ContextBar.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import ResponseBody from '@/views/Request/ResponseSection/ResponseBody.vue'
 import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'
+import ResponseMetaInformation from '@/views/Request/ResponseSection/ResponseMetaInformation.vue'
 import { ScalarIcon } from '@scalar/components'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/workspace/spec'
 import { isJsonString } from '@scalar/oas-utils/helpers'
@@ -76,9 +77,11 @@ const activeSection = ref<ActiveSections>('All')
         class="text-c-3 mr-1.5 rotate-180"
         icon="ExternalLink"
         size="sm" />
-      <div class="flex-1">
+      <div class="flex items-center flex-1">
         Response
-        <span class="text-c-3 pl-1">{{ response?.status }}</span>
+        <ResponseMetaInformation
+          v-if="response"
+          :response="response" />
       </div>
     </template>
     <div class="custom-scroll flex flex-1 flex-col px-2 xl:px-6 py-2.5">
