@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.11.1
+
+### Patch Changes
+
+- e0fc110: chore: patch bump all package
+
 ## 0.11.0
 
 ### Minor Changes

@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.24.3
+
+### Patch Changes
+
+- e0fc110: chore: patch bump all package
+- f0acc89: chore: upgrade to new @scalar/openapi-parser version
+- Updated dependencies [a9b2395]
+- Updated dependencies [e0fc110]
+- Updated dependencies [f0acc89]
+  - @scalar/api-client-modal@0.0.5
+  - @scalar/api-client@1.3.6
+  - @scalar/components@0.11.1
+  - @scalar/oas-utils@0.2.1
+  - @scalar/themes@0.9.1
+  - @scalar/use-toasts@0.7.1
+  - @scalar/use-tooltip@0.7.1
+
 ## 1.24.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @scalar/draggable
 
+## 0.1.1
+
+### Patch Changes
+
+- e0fc110: chore: patch bump all package
+
 ## 0.1.0
 
 ### Minor Changes

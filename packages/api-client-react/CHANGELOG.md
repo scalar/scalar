@@ -1,5 +1,14 @@
 # @scalar/api-client-react
 
+## 0.5.1
+
+### Patch Changes
+
+- e0fc110: chore: patch bump all package
+- Updated dependencies [e0fc110]
+- Updated dependencies [f0acc89]
+  - @scalar/api-client@1.3.6
+
 ## 0.5.0
 
 ### Minor Changes

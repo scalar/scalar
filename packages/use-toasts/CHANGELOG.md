@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.7.1
+
+### Patch Changes
+
+- e0fc110: chore: patch bump all package
+
 ## 0.7.0
 
 ### Minor Changes

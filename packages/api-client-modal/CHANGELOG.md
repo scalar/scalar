@@ -1,5 +1,18 @@
 # @scalar/api-client-modal
 
+## 0.0.5
+
+### Patch Changes
+
+- a9b2395: chore: make api client modal public
+- e0fc110: chore: patch bump all package
+- Updated dependencies [be3a679]
+- Updated dependencies [e0fc110]
+- Updated dependencies [f0acc89]
+  - @scalar/client-app@0.1.3
+  - @scalar/components@0.11.1
+  - @scalar/oas-utils@0.2.1
+
 ## 0.0.2
 
 ### Patch Changes

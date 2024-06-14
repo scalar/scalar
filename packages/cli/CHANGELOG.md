@@ -1,5 +1,17 @@
 # @scalar/cli
 
+## 0.2.108
+
+### Patch Changes
+
+- e0fc110: chore: patch bump all package
+- f0acc89: chore: upgrade to new @scalar/openapi-parser version
+- Updated dependencies [e0fc110]
+- Updated dependencies [f0acc89]
+  - @scalar/api-reference@1.24.3
+  - @scalar/mock-server@0.2.1
+  - @scalar/oas-utils@0.2.1
+
 ## 0.2.104
 
 ### Patch Changes

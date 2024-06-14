@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.1
+
+### Patch Changes
+
+- e0fc110: chore: patch bump all package
+
 ## 0.9.0
 
 ### Minor Changes

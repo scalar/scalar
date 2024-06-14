@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.1.6
+
+### Patch Changes
+
+- e0fc110: chore: patch bump all package
+
 ## 0.1.5
 
 ### Patch Changes
