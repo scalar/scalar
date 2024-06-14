@@ -1,5 +1,15 @@
 # @scalar/fastify-api-reference
 
+## 1.24.0
+
+### Minor Changes
+
+- 7f8ef74: chore: remove aliasing
+
+### Patch Changes
+
+- 6fbb57e: feat: release all the packages
+
 ## 1.23.5
 
 ## 1.23.4

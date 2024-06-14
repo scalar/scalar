@@ -1,5 +1,37 @@
 # @scalar/api-client
 
+## 2.0.0
+
+### Minor Changes
+
+- 7f8ef74: chore: remove aliasing
+
+### Patch Changes
+
+- 1de697b: fix: URL is not encoded when sent to the proxy
+- 689677a: fix: auto importing css backup
+- 326dcfb: chore: remove @scalar/use-modal package
+- 8494349: Migrate to highlightjs based syntax highlighting
+- b38c7ed: Update build configs to a standardized format
+- 6fbb57e: feat: release all the packages
+- e63b12d: feat: better error output for failed requests
+- Updated dependencies [190bcb6]
+- Updated dependencies [7f8ef74]
+- Updated dependencies [f82a767]
+- Updated dependencies [326dcfb]
+- Updated dependencies [96347a1]
+- Updated dependencies [8494349]
+- Updated dependencies [b38c7ed]
+- Updated dependencies [6fbb57e]
+- Updated dependencies [94084bf]
+- Updated dependencies [c5760b9]
+  - @scalar/components@0.11.0
+  - @scalar/use-codemirror@0.11.0
+  - @scalar/use-tooltip@0.7.0
+  - @scalar/use-toasts@0.7.0
+  - @scalar/oas-utils@0.2.0
+  - @scalar/themes@0.9.0
+
 ## 1.3.4
 
 ### Patch Changes

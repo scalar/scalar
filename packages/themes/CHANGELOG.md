@@ -1,5 +1,17 @@
 # @scalar/themes
 
+## 0.9.0
+
+### Minor Changes
+
+- 7f8ef74: chore: remove aliasing
+
+### Patch Changes
+
+- 8494349: Migrate to highlightjs based syntax highlighting
+- b38c7ed: Update build configs to a standardized format
+- 6fbb57e: feat: release all the packages
+
 ## 0.8.2
 
 ### Patch Changes

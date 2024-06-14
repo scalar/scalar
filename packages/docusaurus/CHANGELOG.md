@@ -1,5 +1,20 @@
 # @scalar/docusaurus
 
+## 0.4.0
+
+### Minor Changes
+
+- 7f8ef74: chore: remove aliasing
+
+### Patch Changes
+
+- 8494349: Migrate to highlightjs based syntax highlighting
+- 6fbb57e: feat: release all the packages
+- Updated dependencies [7f8ef74]
+- Updated dependencies [8494349]
+- Updated dependencies [6fbb57e]
+  - @scalar/api-reference-react@0.3.0
+
 ## 0.3.5
 
 ### Patch Changes

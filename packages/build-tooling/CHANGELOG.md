@@ -1,5 +1,14 @@
 # @scalar/build-tooling
 
+## 0.1.5
+
+### Patch Changes
+
+- 689677a: fix: auto importing css backup
+- 8494349: Migrate to highlightjs based syntax highlighting
+- b38c7ed: Update build configs to a standardized format
+- 6fbb57e: feat: release all the packages
+
 ## 0.1.4
 
 ### Patch Changes
