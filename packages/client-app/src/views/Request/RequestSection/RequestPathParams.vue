@@ -74,8 +74,8 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
     <div
       v-else
       class="text-c-3 px-4 text-sm border rounded min-h-12 justify-center flex items-center bg-b-1 mx-1">
-      Add to address bar, i.e:
-      <code class="bg-b-2 ml-1 px-1 rounded">/path/:var</code>
+      You can use variables in your path:
+      <code class="bg-b-2 ml-1 px-1 rounded">/endpoint/{my_path_variable}</code>
     </div>
   </ViewLayoutCollapse>
 </template>
