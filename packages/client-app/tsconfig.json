@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "lib": ["dom"],
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
