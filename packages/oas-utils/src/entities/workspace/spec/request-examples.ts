@@ -2,11 +2,23 @@ import { nanoidSchema } from '@/entities/workspace/shared'
 import { deepMerge } from '@/helpers'
 import { z } from 'zod'
 
+// Define a schema that mimics the File type
+const fileSchema = z.object({
+  name: z.string(),
+  size: z.number(),
+  type: z.string(),
+  lastModified: z.number(),
+  slice: z
+    .function()
+    .args(z.number().optional(), z.number().optional(), z.string().optional())
+    .returns(z.instanceof(Blob)),
+})
+
 const requestExampleParametersSchema = z.object({
   key: z.string().default(''),
   value: z.union([z.string(), z.number()]).transform(String).default(''),
   enabled: z.boolean().default(true),
-  file: z.instanceof(File).optional(),
+  file: fileSchema.optional(),
   description: z.string().optional(),
   /** Params are linked to parents such as path params and global headers/cookies */
   refUid: nanoidSchema.optional(),
