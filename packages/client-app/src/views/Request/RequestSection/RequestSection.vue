@@ -7,22 +7,34 @@ import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
 import { ScalarIcon } from '@scalar/components'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
-const { activeRequest } = useWorkspace()
+const { activeRequest, activeExample } = useWorkspace()
 
 const bodyMethods = ['POST', 'PUT', 'PATCH']
 
-const sections = [
-  'All',
-  'Auth',
-  'Request',
-  'Cookies',
-  'Headers',
-  'Query',
-  'Body',
-]
-type ActiveSections = (typeof sections)[number]
+const sections = computed(() => {
+  const allSections = [
+    'All',
+    'Auth',
+    'Request',
+    'Cookies',
+    'Headers',
+    'Query',
+    'Body',
+  ]
+
+  if (!activeExample.value.parameters.path.length) {
+    allSections.splice(allSections.indexOf('Request'), 1)
+  }
+
+  if (!bodyMethods.includes(activeRequest.value.method)) {
+    allSections.splice(allSections.indexOf('Body'), 1)
+  }
+  return allSections
+})
+
+type ActiveSections = (typeof sections.value)[number]
 
 const activeSection = ref<ActiveSections>('All')
 </script>
@@ -48,7 +60,10 @@ const activeSection = ref<ActiveSections>('All')
         v-show="activeSection === 'All' || activeSection === 'Auth'"
         title="Authentication" />
       <RequestPathParams
-        v-show="activeSection === 'All' || activeSection === 'Request'"
+        v-show="
+          (activeSection === 'All' || activeSection === 'Request') &&
+          activeExample.parameters.path.length > 0
+        "
         paramKey="path"
         title="Path Variables" />
       <RequestParams
