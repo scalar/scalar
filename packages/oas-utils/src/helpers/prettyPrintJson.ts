@@ -3,7 +3,9 @@ import { isJsonString } from '@/helpers/parse'
 /**
  * Takes JSON and formats it.
  **/
-export const prettyPrintJson = (value: string | any[] | Record<any, any>) => {
+export const prettyPrintJson = (
+  value: string | number | any[] | Record<any, any>,
+) => {
   if (typeof value === 'string') {
     // JSON string
     if (isJsonString(value)) {
@@ -23,7 +25,7 @@ export const prettyPrintJson = (value: string | any[] | Record<any, any>) => {
     }
   }
 
-  return ''
+  return value.toString()
 }
 
 /**

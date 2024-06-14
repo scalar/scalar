@@ -15,6 +15,10 @@ describe('prettyPrintJson', () => {
     expect(prettyPrintJson('foo')).toBe('foo')
   })
 
+  it('transforms numbers', async () => {
+    expect(prettyPrintJson(123)).toBe('123')
+  })
+
   it('deals with circular references', async () => {
     const foo: Record<string, any> = { foo: 'bar' }
 
