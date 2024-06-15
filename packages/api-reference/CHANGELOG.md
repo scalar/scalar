@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.24.7
+
+### Patch Changes
+
+- 43f0d4b: fix: Remove terser for now standalone
+
 ## 1.24.6
 
 ### Patch Changes
