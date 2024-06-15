@@ -1,5 +1,17 @@
 # @scalar/client-app
 
+## 0.1.5
+
+### Patch Changes
+
+- a2cb3c3: Migrate away from unintended peer dependencies
+- Updated dependencies [a2cb3c3]
+  - @scalar/use-tooltip@0.7.3
+  - @scalar/components@0.11.2
+  - @scalar/use-toasts@0.7.2
+  - @scalar/draggable@0.1.2
+  - @scalar/oas-utils@0.2.2
+
 ## 0.1.4
 
 ### Patch Changes

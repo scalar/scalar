@@ -1,5 +1,11 @@
 # @scalar/draggable
 
+## 0.1.2
+
+### Patch Changes
+
+- a2cb3c3: Migrate away from unintended peer dependencies
+
 ## 0.1.1
 
 ### Patch Changes

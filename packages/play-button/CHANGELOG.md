@@ -1,5 +1,16 @@
 # @scalar/play-button
 
+## 0.2.4
+
+### Patch Changes
+
+- a2cb3c3: Migrate away from unintended peer dependencies
+- Updated dependencies [a2cb3c3]
+  - @scalar/api-reference@1.24.6
+  - @scalar/api-client@1.3.8
+  - @scalar/oas-utils@0.2.2
+  - @scalar/themes@0.9.2
+
 ## 0.2.3
 
 ### Patch Changes

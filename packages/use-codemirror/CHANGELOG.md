@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.11.2
+
+### Patch Changes
+
+- a2cb3c3: Migrate away from unintended peer dependencies
+
 ## 0.11.1
 
 ### Patch Changes

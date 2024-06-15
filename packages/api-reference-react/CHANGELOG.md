@@ -1,5 +1,13 @@
 # @scalar/api-reference-react
 
+## 0.3.4
+
+### Patch Changes
+
+- a2cb3c3: Migrate away from unintended peer dependencies
+- Updated dependencies [a2cb3c3]
+  - @scalar/api-reference@1.24.6
+
 ## 0.3.3
 
 ### Patch Changes

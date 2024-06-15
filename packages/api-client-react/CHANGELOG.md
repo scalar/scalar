@@ -1,5 +1,13 @@
 # @scalar/api-client-react
 
+## 0.5.3
+
+### Patch Changes
+
+- a2cb3c3: Migrate away from unintended peer dependencies
+- Updated dependencies [a2cb3c3]
+  - @scalar/api-client@1.3.8
+
 ## 0.5.2
 
 ### Patch Changes
