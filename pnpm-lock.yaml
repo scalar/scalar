@@ -2003,6 +2003,9 @@ importers:
       y-codemirror.next:
         specifier: ^0.3.2
         version: 0.3.4(@codemirror/state@6.4.1)(@codemirror/view@6.28.1)(yjs@13.6.16)
+      yjs:
+        specifier: ^13.6.0
+        version: 13.6.16
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -2025,9 +2028,6 @@ importers:
       vue-tsc:
         specifier: ^2.0.13
         version: 2.0.21(typescript@5.4.5)
-      yjs:
-        specifier: ^13.6.0
-        version: 13.6.16
 
   packages/use-toasts:
     dependencies:
@@ -26089,7 +26089,8 @@ snapshots:
 
   isobject@3.0.1: {}
 
-  isomorphic.js@0.2.5: {}
+  isomorphic.js@0.2.5:
+    optional: true
 
   istanbul-lib-coverage@3.2.2: {}
 
@@ -26816,6 +26817,7 @@ snapshots:
   lib0@0.2.94:
     dependencies:
       isomorphic.js: 0.2.5
+    optional: true
 
   light-my-request@5.13.0:
     dependencies:
@@ -32612,6 +32614,7 @@ snapshots:
   yjs@13.6.16:
     dependencies:
       lib0: 0.2.94
+    optional: true
 
   yn@3.1.1: {}
 
