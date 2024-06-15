@@ -41,6 +41,7 @@
   ],
   "module": "dist/index.js",
   "optionalDependencies": {
+    "yjs": "^13.6.0",
     "y-codemirror.next": "^0.3.2"
   },
   "dependencies": {
@@ -58,7 +59,8 @@
     "@lezer/lr": "^1.4.0",
     "@replit/codemirror-css-color-picker": "^6.1.0",
     "@uiw/codemirror-themes": "^4.21.21",
-    "codemirror": "^6.0.0"
+    "codemirror": "^6.0.0",
+    "vue": "^3.4.22"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
@@ -69,11 +71,6 @@
     "vitest": "^1.6.0",
     "vue": "^3.4.22",
     "vue-tsc": "^2.0.13",
-    "y-codemirror.next": "^0.3.2",
-    "yjs": "^13.6.0"
-  },
-  "peerDependencies": {
-    "vue": "^3.3.0",
     "y-codemirror.next": "^0.3.2",
     "yjs": "^13.6.0"
   }

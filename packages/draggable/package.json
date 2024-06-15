@@ -42,6 +42,9 @@
     "CHANGELOG.md"
   ],
   "module": "dist/index.js",
+  "dependencies": {
+    "vue": "^3.4.22"
+  },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
     "tsc-alias": "^1.8.8",
@@ -50,8 +53,5 @@
     "vite-svg-loader": "^5.1.0",
     "vue": "^3.4.22",
     "vue-tsc": "^2.0.13"
-  },
-  "peerDependencies": {
-    "vue": "^3.3.0"
   }
 }

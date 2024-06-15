@@ -43,7 +43,7 @@
     "vue": "^3.3.0",
     "tsc-alias": "^1.8.8"
   },
-  "peerDependencies": {
+  "dependencies": {
     "vue": "^3.3.0"
   }
 }

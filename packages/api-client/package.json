@@ -59,7 +59,8 @@
     "httpsnippet-lite": "^3.0.5",
     "nanoid": "^5.0.7",
     "pretty-bytes": "^6.1.1",
-    "pretty-ms": "^8.0.0"
+    "pretty-ms": "^8.0.0",
+    "vue": "^3.4.22"
   },
   "devDependencies": {
     "@scalar/api-client-proxy": "workspace:*",
@@ -72,11 +73,6 @@
     "tsc-alias": "^1.8.8",
     "vite": "^5.2.10",
     "vitest": "^1.6.0",
-    "vue": "^3.4.22",
     "vue-tsc": "^2.0.13"
-  },
-  "peerDependencies": {
-    "@scalar/oas-utils": "workspace:*",
-    "vue": "^3.3.0"
   }
 }

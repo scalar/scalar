@@ -41,7 +41,8 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "tippy.js": "^6.3.7"
+    "tippy.js": "^6.3.7",
+    "vue": "^3.4.22"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
@@ -52,8 +53,5 @@
     "vitest": "^1.6.0",
     "vue": "^3.4.22",
     "vue-tsc": "^2.0.13"
-  },
-  "peerDependencies": {
-    "vue": "^3.3.0"
   }
 }
