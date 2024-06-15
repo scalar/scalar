@@ -40,7 +40,9 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
-    "@scalar/api-client": "workspace:*"
+    "@scalar/api-client": "workspace:*",
+    "react": "^18.3.1",
+    "vue": "^3.4.22"
   },
   "devDependencies": {
     "@types/react": "^18.2.60",
@@ -49,11 +51,6 @@
     "path": "^0.12.7",
     "react": "^18.3.1",
     "vite": "^5.2.10",
-    "vite-plugin-dts": "^3.6.3",
-    "vue": "^3.4.22"
-  },
-  "peerDependencies": {
-    "react": "^18.0.0",
-    "vue": "^3.3.0"
+    "vite-plugin-dts": "^3.6.3"
   }
 }

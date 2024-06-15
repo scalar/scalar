@@ -55,7 +55,8 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.7.1",
     "@scalar/themes": "workspace:*",
-    "@vueuse/core": "^10.10.0"
+    "@vueuse/core": "^10.10.0",
+    "vue": "^3.4.22"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
@@ -66,10 +67,6 @@
     "vite-plugin-banner": "^0.7.1",
     "vite-plugin-css-injected-by-js": "^3.4.0",
     "vite-svg-loader": "^5.1.0",
-    "vue": "^3.4.22",
     "vue-tsc": "^2.0.13"
-  },
-  "peerDependencies": {
-    "vue": "^3.3.0"
   }
 }

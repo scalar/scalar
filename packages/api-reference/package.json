@@ -76,7 +76,9 @@
     "github-slugger": "^2.0.0",
     "httpsnippet-lite": "^3.0.5",
     "postcss-nested": "^6.0.1",
-    "unhead": "^1.8.3"
+    "unhead": "^1.8.3",
+    "unified": "^11.0.4",
+    "vue": "^3.4.22"
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",
@@ -103,11 +105,6 @@
     "vite-plugin-css-injected-by-js": "^3.4.0",
     "vitest": "^1.6.0",
     "vitest-matchmedia-mock": "^1.0.5",
-    "vue": "^3.4.22",
     "vue-tsc": "^2.0.13"
-  },
-  "peerDependencies": {
-    "unified": "^11.0.0",
-    "vue": "^3.3.0"
   }
 }

@@ -46,6 +46,9 @@
     "src/tailwind.ts"
   ],
   "module": "./dist/index.js",
+  "dependencies": {
+    "vue": "^3.4.22"
+  },
   "devDependencies": {
     "@rise8/tailwind-pixel-perfect-preset": "^1.0.1",
     "@scalar/build-tooling": "workspace:*",
@@ -56,10 +59,6 @@
     "vite": "^5.2.10",
     "vite-plugin-static-copy": "^1.0.2",
     "vitest": "^1.6.0",
-    "vue": "^3.4.22",
     "vue-tsc": "^2.0.13"
-  },
-  "peerDependencies": {
-    "vue": "^3.3.0"
   }
 }
