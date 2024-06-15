@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.7.2
+
+### Patch Changes
+
+- a2cb3c3: Migrate away from unintended peer dependencies
+
 ## 0.7.1
 
 ### Patch Changes

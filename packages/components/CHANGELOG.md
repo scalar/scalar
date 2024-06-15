@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.11.2
+
+### Patch Changes
+
+- a2cb3c3: Migrate away from unintended peer dependencies
+- Updated dependencies [a2cb3c3]
+  - @scalar/oas-utils@0.2.2
+  - @scalar/code-highlight@0.0.3
+
 ## 0.11.1
 
 ### Patch Changes

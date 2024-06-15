@@ -1,5 +1,15 @@
 # @scalar/api-client-modal
 
+## 0.0.7
+
+### Patch Changes
+
+- a2cb3c3: Migrate away from unintended peer dependencies
+- Updated dependencies [a2cb3c3]
+  - @scalar/client-app@0.1.5
+  - @scalar/components@0.11.2
+  - @scalar/oas-utils@0.2.2
+
 ## 0.0.6
 
 ### Patch Changes

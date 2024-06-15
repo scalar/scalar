@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.2
+
+### Patch Changes
+
+- a2cb3c3: Migrate away from unintended peer dependencies
+
 ## 0.9.1
 
 ### Patch Changes

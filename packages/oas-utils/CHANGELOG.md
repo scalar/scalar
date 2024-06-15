@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.2
+
+### Patch Changes
+
+- a2cb3c3: Migrate away from unintended peer dependencies
+
 ## 0.2.1
 
 ### Patch Changes

@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.24.6
+
+### Patch Changes
+
+- a2cb3c3: Migrate away from unintended peer dependencies
+- Updated dependencies [a2cb3c3]
+  - @scalar/api-client-modal@0.0.7
+  - @scalar/use-tooltip@0.7.3
+  - @scalar/api-client@1.3.8
+  - @scalar/components@0.11.2
+  - @scalar/use-toasts@0.7.2
+  - @scalar/oas-utils@0.2.2
+  - @scalar/themes@0.9.2
+
 ## 1.24.5
 
 ### Patch Changes
