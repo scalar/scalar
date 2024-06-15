@@ -10,7 +10,7 @@ const meta = {
   component: ScalarLoading,
   tags: ['autodocs'],
   argTypes: {
-    size: { control: 'string', default: '24px' },
+    size: { control: 'text', default: '24px' },
   },
   render: () => ({
     components: { ScalarButton, ScalarLoading },
