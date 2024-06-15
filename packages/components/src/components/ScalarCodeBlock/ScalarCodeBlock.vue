@@ -44,5 +44,7 @@ const highlightedCode = computed(() => {
   padding: 0.5rem;
   overflow: auto;
   background: transparent;
+  text-wrap: nowrap;
+  white-space-collapse: preserve;
 }
 </style>
