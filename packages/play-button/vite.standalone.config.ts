@@ -56,10 +56,7 @@ export default defineConfig({
       output: {
         entryFileNames: '[name].js',
       },
-      external: [
-        ...Object.keys(pkg.peerDependencies),
-        ...Object.keys(pkg.dependencies),
-      ],
+      external: [...Object.keys(pkg.dependencies)],
     },
   },
   test: {
