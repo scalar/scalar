@@ -35,10 +35,10 @@ export default defineConfig({
     emptyOutDir: false,
     outDir: 'dist/browser',
     commonjsOptions: {
-      include: [/@scalar\/swagger-editor/, /node_modules/],
+      include: [/node_modules/],
     },
     cssCodeSplit: false,
-    minify: 'terser',
+    minify: false,
     lib: {
       entry: ['src/standalone.ts'],
       name: '@scalar/api-reference',
@@ -51,9 +51,6 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
     dedupe: ['vue'],
   },
   test: {
