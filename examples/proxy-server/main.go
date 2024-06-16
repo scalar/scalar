@@ -15,6 +15,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Headers", "*")
 		w.Header().Set("Access-Control-Allow-Origin", "*") // Allow all origins
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, PATCH")
+		w.Header().Set("Access-Control-Expose-Headers", "*")
 
 		// Handle pre-flight requests
 		if r.Method == "OPTIONS" {
@@ -80,6 +81,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		res.Header.Del("Access-Control-Allow-Headers")
 		res.Header.Del("Access-Control-Allow-Origin")
 		res.Header.Del("Access-Control-Allow-Methods")
+		res.Header.Del("Access-Control-Expose-Headers")
 
 		return nil
 	}
