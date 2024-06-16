@@ -12,13 +12,19 @@ export default {
       xl: 'var(--scalar-radius-xl)',
       full: '9999px',
     },
+    borderWidth: {
+      'DEFAULT': 'var(--scalar-border-width)',
+      '1/2': 'calc(var(--scalar-border-width) / 2)',
+      '0': '0',
+    },
     boxShadow: {
-      DEFAULT: 'var(--scalar-shadow-1)',
-      lg: 'var(--scalar-shadow-2)',
-      md: 'var(--scalar-shadow-1)',
-      sm: 'rgba(0, 0, 0, 0.09) 0px 1px 4px',
-      none: '0 0 #0000',
-      border: 'inset 0 0 0 1px var(--scalar-border-color)',
+      'DEFAULT': 'var(--scalar-shadow-1)',
+      'lg': 'var(--scalar-shadow-2)',
+      'md': 'var(--scalar-shadow-1)',
+      'sm': 'rgba(0, 0, 0, 0.09) 0px 1px 4px',
+      'none': '0 0 #0000',
+      'border': 'inset 0 0 0 1px var(--scalar-border-color)',
+      'border-1/2': 'inset 0 0 0 .5px var(--scalar-border-color)',
     },
     fontFamily: {
       DEFAULT: 'var(--scalar-font)',
@@ -117,10 +123,12 @@ export default {
     },
     extend: {
       borderColor: { DEFAULT: 'var(--scalar-border-color)' },
-      borderWidth: { DEFAULT: 'var(--scalar-border-width)' },
       brightness: {
         lifted: 'var(--scalar-lifted-brightness)',
         backdrop: 'var(--scalar-backdrop-brightness)',
+      },
+      spacing: {
+        px: '1px',
       },
     },
   },

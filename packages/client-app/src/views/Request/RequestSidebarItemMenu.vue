@@ -64,7 +64,7 @@ const isRequest = computed(() => 'summary' in props.item)
         class="flex !gap-2"
         @click="addExample">
         <ScalarIcon
-          class="text-c-2 inline-flex p-[1px]"
+          class="text-c-2 inline-flex p-px"
           icon="Add"
           size="xs" />
         <span>Add Example</span>
@@ -75,7 +75,7 @@ const isRequest = computed(() => 'summary' in props.item)
       </ScalarDropdownItem>
       <ScalarDropdownItem class="flex !gap-2">
         <ScalarIcon
-          class="text-c-2 inline-flex p-[1px]"
+          class="text-c-2 inline-flex p-px"
           icon="Edit"
           size="xs" />
         <span>Rename</span>
@@ -86,7 +86,7 @@ const isRequest = computed(() => 'summary' in props.item)
       </ScalarDropdownItem>
       <ScalarDropdownItem class="flex !gap-2">
         <ScalarIcon
-          class="text-c-2 inline-flex p-[1px]"
+          class="text-c-2 inline-flex p-px"
           icon="Duplicate"
           size="xs" />
         <span>Duplicate</span>
@@ -98,7 +98,7 @@ const isRequest = computed(() => 'summary' in props.item)
       <ScalarDropdownDivider />
       <ScalarDropdownItem class="flex !gap-2">
         <ScalarIcon
-          class="text-c-2 inline-flex p-[1px]"
+          class="text-c-2 inline-flex p-px"
           icon="Trash"
           size="xs" />
         <span>Delete</span>
