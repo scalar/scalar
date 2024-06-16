@@ -52,7 +52,7 @@ describe('sendRequest', () => {
       server?.url + request.path,
     )
 
-    expect(result?.response?.data).toContain(
+    expect(result?.response?.data ?? '').toContain(
       'The `scalar_url` query parameter is required.',
     )
   })
@@ -92,56 +92,29 @@ describe('sendRequest', () => {
     })
   })
 
-  // it('replaces variables', async () => {
-  //   const { request, example, server } = createRequestExampleServer({
-  //     serverPayload: { url: `http://localhost:${ECHO_PORT}` },
-  //     requestPayload: {
-  //       path: ':path',
-  //     },
-  //     requestExamplePayload: {
-  //       parameters: {
-  //         path: [
-  //           createRequestExampleParameter({
-  //             key: 'path',
-  //             value: 'example',
-  //             enabled: true,
-  //           }),
-  //         ],
-  //       },
-  //     },
-  //   })
+  it('replaces variables in urls', async () => {
+    const { request, example, server } = createRequestExampleServer({
+      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      requestExamplePayload: {
+        parameters: {
+          path: [
+            createRequestExampleParameter({
+              key: 'path',
+              value: 'example',
+              enabled: true,
+            }),
+          ],
+        },
+      },
+    })
 
-  //   const result = await sendRequest(
-  //     request,
-  //     example,
-  //     server?.url + request.path,
-  //   )
+    const result = await sendRequest(request, example, `${server?.url}/{path}`)
 
-  //   expect(result?.response?.data).toMatchObject({
-  //     method: 'GET',
-  //     path: '/example',
-  //   })
-  // })
-
-  // it('replaces variables in urls', async () => {
-  //   const request = {
-  //     url: `http://127.0.0.1:${ECHO_PORT}/{path}`,
-  //     variables: [
-  //       {
-  //         name: 'path',
-  //         value: 'example',
-  //         enabled: true,
-  //       },
-  //     ],
-  //   }
-
-  //   const result = await sendRequest(request)
-
-  //   expect(result?.response.data).toMatchObject({
-  //     method: 'GET',
-  //     path: '/example',
-  //   })
-  // })
+    expect(result?.response?.data).toMatchObject({
+      method: 'GET',
+      path: '/example',
+    })
+  })
 
   it('sends query parameters', async () => {
     const { request, example, server } = createRequestExampleServer({
@@ -262,19 +235,6 @@ describe('sendRequest', () => {
   //       foo: 'bar',
   //       another: 'cookie',
   //     },
-  //   })
-  // })
-
-  // it('sends requests through a proxy', async () => {
-  //   const request = {
-  //     url: `http://127.0.0.1:${ECHO_PORT}/v1`,
-  //   }
-
-  //   const result = await sendRequest(request, `http://127.0.0.1:${PROXY_PORT}`)
-
-  //   expect(result?.response.data).toMatchObject({
-  //     method: 'GET',
-  //     path: '/v1',
   //   })
   // })
 
