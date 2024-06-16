@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.24.9
+
+### Patch Changes
+
+- Updated dependencies [db89d01]
+  - @scalar/api-client@1.3.10
+
 ## 1.24.8
 
 ### Patch Changes

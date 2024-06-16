@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 1.3.10
+
+### Patch Changes
+
+- db89d01: fix: scoping request component styles
+
 ## 1.3.9
 
 ### Patch Changes
