@@ -8,12 +8,12 @@ import { useRoute } from 'vue-router'
 const { activeCollection, servers, serverMutators } = useWorkspace()
 
 const options = [
-  {
-    label: 'Description',
-    key: 'description',
-    placeholder: 'The Scalar Galaxy is an example OpenAPI...',
-  },
   { label: 'URL', key: 'url', placeholder: 'https://galaxy.scalar.com/api/v1' },
+  {
+    label: 'Label',
+    key: 'description',
+    placeholder: 'Production',
+  },
 ]
 
 const route = useRoute()
