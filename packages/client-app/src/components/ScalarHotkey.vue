@@ -29,12 +29,9 @@ const keys = useMagicKeys({
   },
 })
 
-whenever(
-  keys[`${isMacOS() ? 'meta' : 'control'}_${resolvedHotkey.value}`],
-  () => {
-    emit('hotkeyPressed', resolvedHotkey.value || '')
-  },
-)
+whenever(keys[`${isMacOS() ? 'meta' : 'control'}_${props.hotkey}`], () => {
+  emit('hotkeyPressed', resolvedHotkey.value || '')
+})
 </script>
 <template>
   <div

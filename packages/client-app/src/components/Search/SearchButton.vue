@@ -21,7 +21,9 @@ const modalState = useModal()
       <div
         class="sidebar-search-input ml-1.5 flex w-full items-center justify-between text-sm font-medium">
         <span class="sidebar-search-placeholder">Search</span>
-        <ScalarHotkey hotkey="k" />
+        <ScalarHotkey
+          hotkey="k"
+          @hotkeyPressed="modalState.show()" />
       </div>
     </button>
   </div>

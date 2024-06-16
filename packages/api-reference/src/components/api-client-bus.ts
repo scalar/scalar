@@ -5,3 +5,4 @@ const apiClientBusKey: EventBusKey<OpenClientPayload> = Symbol()
 
 /** Event bus to open the API Client */
 export const apiClientBus = useEventBus(apiClientBusKey)
+export const modalStateBus = useEventBus('modalState')

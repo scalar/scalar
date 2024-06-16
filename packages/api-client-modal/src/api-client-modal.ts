@@ -93,5 +93,6 @@ export const createScalarApiClient = async (
     },
     /** Mount the references to a given element */
     mount,
+    modalState,
   }
 }
