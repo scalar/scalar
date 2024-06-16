@@ -34,7 +34,11 @@ export const sendRequest = async (
   request: Request,
   example: RequestExample,
   rawUrl: string,
-) => {
+): Promise<{
+  sentTime?: number
+  request?: RequestExample
+  response?: ResponseInstance
+}> => {
   let url = rawUrl
 
   // Replace path variables
@@ -99,6 +103,9 @@ export const sendRequest = async (
     data,
   }
 
+  /** start time to get response duration */
+  const startTime = Date.now()
+
   const response = await axios(config).catch((error: AxiosError) => {
     return error.response
   })
@@ -119,8 +126,12 @@ export const sendRequest = async (
     }
 
     return {
+      sentTime: Date.now(),
       request: example,
-      response: response,
+      response: {
+        ...response,
+        duration: Date.now() - startTime,
+      },
     }
   } else {
     return {}
