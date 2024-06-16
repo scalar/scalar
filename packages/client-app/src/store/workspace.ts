@@ -34,6 +34,7 @@ import {
   createRequestExampleParameter,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { fetchSpecFromUrl, iterateTitle } from '@scalar/oas-utils/helpers'
+import { getRequestBodyFromOperation } from '@scalar/oas-utils/spec-getters'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import {
@@ -191,16 +192,51 @@ const createExampleFromRequest = (request: Request): RequestExample => {
   }
 
   // TODO body
+  const body: {
+    activeBody: 'raw'
+    raw: {
+      encoding: 'json'
+      value: string
+    }
+  } = {
+    activeBody: 'raw',
+    raw: {
+      encoding: 'json',
+      value: '',
+    },
+  }
+
+  if (request.requestBody) {
+    const requestBody = getRequestBodyFromOperation({
+      httpVerb: request.method,
+      path: request.path,
+      information: {
+        requestBody: request.requestBody,
+      },
+    })
+    if (requestBody?.postData?.['mimeType'] === 'application/json') {
+      parameters.headers.push({
+        key: 'Content-Type',
+        value: 'application/json',
+        enabled: true,
+      })
+      body.activeBody = 'raw'
+      body.raw.value = requestBody.postData.text
+    }
+  }
 
   // Check all current examples for the title and iterate
   const name = iterateTitle((request.summary ?? 'Example') + ' #1', (t) =>
     request.childUids.some((uid) => t === requestExamples[uid].name),
   )
 
+  console.log(body)
+
   const example = createRequestExample({
     requestUid: request.uid,
     parameters,
     name,
+    body,
   })
 
   requestExampleMutators.add(example)
@@ -471,8 +507,6 @@ async function importSpecFile(spec: string | AnyObject) {
 
 // Function to fetch and import a spec from a URL
 async function importSpecFromUrl(url: string, proxy?: string) {
-  // TODO: This doesn't use the proxy. :|
-  // We could use the existing `fetchSpecFromUrl`, but we need access to the configured proxy URL here.
   try {
     const spec = await fetchSpecFromUrl(url, proxy)
     await importSpecFile(spec)

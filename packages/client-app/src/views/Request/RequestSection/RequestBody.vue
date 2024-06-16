@@ -8,6 +8,7 @@ import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { createRequestExampleParameter } from '@scalar/oas-utils/entities/workspace/spec'
+import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 import { computed, nextTick, ref, watch } from 'vue'
 
 import RequestTable from './RequestTable.vue'
@@ -39,15 +40,15 @@ const tableWrapperRef = ref<HTMLInputElement | null>(null)
 /** use-codemirror package to be udpated accordingly */
 const contentTypeToLanguageMap = {
   json: 'json',
-  xml: 'json',
+  xml: 'xml',
   yaml: 'yaml',
-  edn: 'json',
+  edn: 'edn',
   other: 'html',
 } as const
 
 const codeInputLanguage = computed(() => {
   const type = contentType.value as keyof typeof contentTypeToLanguageMap
-  return contentTypeToLanguageMap[type] || 'plaintext'
+  return (contentTypeToLanguageMap[type] ?? 'plaintext') as CodeMirrorLanguage
 })
 
 function deleteRow() {
@@ -253,6 +254,38 @@ const selectedContentType = computed({
     if (opt?.id) contentType.value = opt.id as keyof typeof contentTypeOptions
   },
 })
+
+const activeExampleContentType = computed(() => {
+  if (!activeExample.value) return 'none'
+  if (
+    activeExample.value.body.formData &&
+    activeExample.value.body.formData.value.length > 0
+  )
+    return 'multipartForm'
+  if (
+    activeExample.value.body.raw &&
+    activeExample.value.body.raw.value.trim() !== ''
+  )
+    return activeExample.value.body.raw.encoding
+  /** keep the content if populated */
+  return contentType.value
+})
+
+/** set content type if active example has a value */
+if (activeExampleContentType.value !== 'none') {
+  contentType.value =
+    activeExampleContentType.value as keyof typeof contentTypeOptions
+}
+
+watch(
+  activeExampleContentType,
+  (newType) => {
+    if (newType) {
+      contentType.value = newType as keyof typeof contentTypeOptions
+    }
+  },
+  { immediate: true },
+)
 
 // we always add an empty row if its empty :)
 watch(
