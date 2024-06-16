@@ -6,7 +6,7 @@ import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { createRequestExampleParameter } from '@scalar/oas-utils/entities/workspace/spec'
 import { computed, nextTick, ref, watch } from 'vue'
 
@@ -33,7 +33,6 @@ const contentTypeOptions = {
 const { activeRequest, activeExample, requestExampleMutators } = useWorkspace()
 
 const contentType = ref<keyof typeof contentTypeOptions>('none')
-const contentTypeLabel = computed(() => contentTypeOptions[contentType.value])
 
 const tableWrapperRef = ref<HTMLInputElement | null>(null)
 
@@ -240,6 +239,21 @@ function handleFileUpload() {
   open()
 }
 
+const getContentTypeOptions = Object.entries(contentTypeOptions).map(
+  ([id, label]) => ({
+    id,
+    label,
+    value: id as keyof typeof contentTypeOptions,
+  }),
+)
+
+const selectedContentType = computed({
+  get: () => getContentTypeOptions.find((opt) => opt.id === contentType.value),
+  set: (opt) => {
+    if (opt?.id) contentType.value = opt.id as keyof typeof contentTypeOptions
+  },
+})
+
 // we always add an empty row if its empty :)
 watch(
   contentType,
@@ -269,26 +283,22 @@ watch(
         <DataTableRow>
           <DataTableHeader
             class="relative col-span-full flex h-8 cursor-pointer items-center px-[2.25px] py-[2.25px]">
-            <div
-              class="text-c-2 group-hover:text-c-1 flex h-full w-full items-center justify-start rounded px-1.5">
-              <span>{{ contentTypeLabel }}</span>
-              <ScalarIcon
-                class="text-c-3 ml-1 mt-px"
-                icon="ChevronDown"
-                size="xs" />
-            </div>
-            <select
-              v-model="contentType"
-              class="absolute inset-0 w-auto opacity-0"
-              @change="updateActiveBody(contentType)"
-              @click.prevent>
-              <option
-                v-for="(label, value) in contentTypeOptions"
-                :key="value"
-                :value="value">
-                {{ label }}
-              </option>
-            </select>
+            <ScalarListbox
+              v-model="selectedContentType"
+              class="font-code text-xxs w-full"
+              :options="getContentTypeOptions"
+              teleport>
+              <ScalarButton
+                class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal"
+                fullWidth
+                variant="ghost">
+                <span>{{ selectedContentType?.label }}</span>
+                <ScalarIcon
+                  class="text-c-3 ml-1 mt-px"
+                  icon="ChevronDown"
+                  size="xs" />
+              </ScalarButton>
+            </ScalarListbox>
           </DataTableHeader>
         </DataTableRow>
         <DataTableRow>

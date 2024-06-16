@@ -5,7 +5,7 @@ import DataTableHeader from '@/components/DataTable/DataTableHeader.vue'
 import DataTableInput from '@/components/DataTable/DataTableInput.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { computed, ref } from 'vue'
 
 defineProps<{
@@ -36,17 +36,23 @@ const scheme = ref<Scheme>(Scheme.None)
 const user = ref('')
 const password = ref('')
 
-const schemeOptions = {
-  [Scheme.None]: 'None',
-  [Scheme.Bearer]: 'Bearer Authentication (bearerAuth)',
-  [Scheme.Basic]: 'Basic Authentication (basicAuth)',
-  [Scheme.ApiKeyHeader]: 'API Key (apiKeyHeader)',
-  [Scheme.ApiKeyQuery]: 'API Key (apiKeyQuery)',
-  [Scheme.ApiKeyCookie]: 'API Key (apiKeyCookie)',
-  [Scheme.OAuth2]: 'OAuth 2.0 (oauth2)',
-}
+const schemeOptions = [
+  { id: String(Scheme.None), label: 'None' },
+  { id: String(Scheme.Bearer), label: 'Bearer Authentication (bearerAuth)' },
+  { id: String(Scheme.Basic), label: 'Basic Authentication (basicAuth)' },
+  { id: String(Scheme.ApiKeyHeader), label: 'API Key (apiKeyHeader)' },
+  { id: String(Scheme.ApiKeyQuery), label: 'API Key (apiKeyQuery)' },
+  { id: String(Scheme.ApiKeyCookie), label: 'API Key (apiKeyCookie)' },
+  { id: String(Scheme.OAuth2), label: 'OAuth 2.0 (oauth2)' },
+]
 
-const schemeLabel = computed(() => schemeOptions[scheme.value])
+const selectedScheme = computed({
+  get: () =>
+    schemeOptions.find(({ id }) => id === scheme.value) || schemeOptions[0],
+  set: (opt) => {
+    if (opt?.id) scheme.value = opt.id as Scheme
+  },
+})
 
 const itemCount = computed(() => {
   if (scheme.value === Scheme.Basic && (user.value || password.value)) return 1
@@ -69,25 +75,21 @@ const itemCount = computed(() => {
       <DataTableRow>
         <DataTableHeader
           class="relative col-span-full h-8 cursor-pointer py-[2.25px] px-[2.25px] flex items-center">
-          <div
-            class="items-center justify-start flex rounded px-1.5 w-full h-full text-c-2 group-hover:text-c-1">
-            <span>{{ schemeLabel }}</span>
-            <ScalarIcon
-              class="text-c-3 ml-1 mt-px"
-              icon="ChevronDown"
-              size="xs" />
-          </div>
-          <select
-            v-model="scheme"
-            class="absolute inset-0 w-auto opacity-0"
-            @click.prevent>
-            <option
-              v-for="(label, value) in schemeOptions"
-              :key="value"
-              :value="value">
-              {{ label }}
-            </option>
-          </select>
+          <ScalarListbox
+            v-model="selectedScheme"
+            class="font-code text-xxs w-full"
+            :options="schemeOptions"
+            teleport>
+            <ScalarButton
+              class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal"
+              fullWidth
+              variant="ghost">
+              <span>{{ selectedScheme?.label }}</span>
+              <ScalarIcon
+                icon="ChevronDown"
+                size="xs" />
+            </ScalarButton>
+          </ScalarListbox>
         </DataTableHeader>
       </DataTableRow>
       <DataTableRow v-if="scheme === Scheme.Bearer">
