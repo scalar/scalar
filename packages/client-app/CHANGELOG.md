@@ -1,5 +1,12 @@
 # @scalar/client-app
 
+## 0.1.6
+
+### Patch Changes
+
+- Updated dependencies [7dbb241]
+  - @scalar/components@0.11.3
+
 ## 0.1.5
 
 ### Patch Changes
