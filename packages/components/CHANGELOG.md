@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.11.3
+
+### Patch Changes
+
+- 7dbb241: fix: wrapped code blocks
+
 ## 0.11.2
 
 ### Patch Changes
