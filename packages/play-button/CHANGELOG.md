@@ -1,5 +1,16 @@
 # @scalar/play-button
 
+## 0.2.8
+
+### Patch Changes
+
+- d982f18: chore: enable minification
+- Updated dependencies [0fae180]
+- Updated dependencies [d982f18]
+  - @scalar/themes@0.9.3
+  - @scalar/api-reference@1.24.10
+  - @scalar/api-client@1.3.11
+
 ## 0.2.7
 
 ### Patch Changes
