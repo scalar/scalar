@@ -38,7 +38,7 @@ export default defineConfig({
       include: [/node_modules/],
     },
     cssCodeSplit: false,
-    minify: false,
+    minify: 'terser',
     lib: {
       entry: ['src/standalone.ts'],
       name: '@scalar/api-reference',
