@@ -57,7 +57,6 @@
     "lint": "pnpm -r lint:check",
     "lint:fix": "pnpm -r lint:fix",
     "pack:packages": "./scripts/pack.sh",
-    "preview:standalone": "pnpm --filter api-reference preview:standalone",
     "playwright:install": "npx playwright install --with-deps",
     "postinstall": "pnpm -r dev:prepare",
     "test": "vitest",
