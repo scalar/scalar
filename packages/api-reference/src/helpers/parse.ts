@@ -45,12 +45,7 @@ export const parse = (
       const { filesystem } = await load(specification, {
         plugins: [
           fetchUrls({
-            fetch: (url) => {
-              console.log('FETCH')
-              console.log('url', url)
-              console.log('proxy', proxy)
-              return fetch(proxy ? redirectToProxy(proxy, url) : url)
-            },
+            fetch: (url) => fetch(proxy ? redirectToProxy(proxy, url) : url),
           }),
         ],
       })
