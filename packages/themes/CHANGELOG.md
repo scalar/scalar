@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.3
+
+### Patch Changes
+
+- 0fae180: chore: move client app to use @scalar/themes tailwind preset
+
 ## 0.9.2
 
 ### Patch Changes

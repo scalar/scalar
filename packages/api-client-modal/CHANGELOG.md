@@ -1,5 +1,15 @@
 # @scalar/api-client-modal
 
+## 0.0.9
+
+### Patch Changes
+
+- Updated dependencies [3d6ca80]
+- Updated dependencies [0fae180]
+- Updated dependencies [d982f18]
+  - @scalar/components@0.11.4
+  - @scalar/client-app@0.1.7
+
 ## 0.0.8
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.11.4
+
+### Patch Changes
+
+- 3d6ca80: fix: scalar modal component padding reset
+- 0fae180: chore: move client app to use @scalar/themes tailwind preset
+  - @scalar/code-highlight@0.0.3
+
 ## 0.11.3
 
 ### Patch Changes

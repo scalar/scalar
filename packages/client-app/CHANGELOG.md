@@ -1,5 +1,15 @@
 # @scalar/client-app
 
+## 0.1.7
+
+### Patch Changes
+
+- 0fae180: chore: move client app to use @scalar/themes tailwind preset
+- d982f18: chore: enable minification
+- Updated dependencies [3d6ca80]
+- Updated dependencies [0fae180]
+  - @scalar/components@0.11.4
+
 ## 0.1.6
 
 ### Patch Changes

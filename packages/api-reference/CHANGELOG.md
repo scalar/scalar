@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.24.10
+
+### Patch Changes
+
+- d982f18: chore: enable minification
+- Updated dependencies [3d6ca80]
+- Updated dependencies [0fae180]
+  - @scalar/components@0.11.4
+  - @scalar/themes@0.9.3
+  - @scalar/api-client@1.3.11
+  - @scalar/api-client-modal@0.0.9
+
 ## 1.24.9
 
 ### Patch Changes
