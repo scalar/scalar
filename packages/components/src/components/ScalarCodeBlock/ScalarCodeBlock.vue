@@ -46,5 +46,6 @@ const highlightedCode = computed(() => {
   background: transparent;
   text-wrap: nowrap;
   white-space-collapse: preserve;
+  border-radius: 0;
 }
 </style>
