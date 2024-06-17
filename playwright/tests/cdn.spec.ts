@@ -8,7 +8,7 @@ test('Renders scalar/galaxy api reference from the live CDN', async ({
   page,
   isMobile,
 }) => {
-  await page.goto(`http://${HOST}:3173/live`)
+  await page.goto(`http://${HOST}:3173/jsdelivr`)
 
   await apiReference(page, isMobile)
 

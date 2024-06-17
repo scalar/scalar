@@ -9,10 +9,14 @@ await app.register(fastifyStatic, {
   prefix: '/',
 })
 
-app.get('/live', (_request, reply) => {
+app.get('/', (_request, reply) => {
+  reply.sendFile('index.html')
+})
+
+app.get('/jsdelivr', (_request, reply) => {
   // overriding the options disabling cache-control headers)
   // serving path.join(__dirname, 'public', 'myHtml.html') directly
-  reply.sendFile('api-reference-cdn-live.html', { cacheControl: false })
+  reply.sendFile('api-reference-cdn-jsdelivr.html', { cacheControl: false })
 })
 
 app.get('/local', (_request, reply) => {
