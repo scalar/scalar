@@ -29,7 +29,7 @@ withDefaults(
 const modal = cva({
   base: [
     'scalar-modal',
-    'col relative mx-auto mb-0 mt-20 w-full rounded-lg bg-b-2 text-left leading-snug text-c-1 opacity-0',
+    'col relative mx-auto mb-0 mt-20 w-full rounded-lg bg-b-2 p-0 text-left leading-snug text-c-1 opacity-0',
   ].join(' '),
   variants: {
     size: {
