@@ -35,7 +35,7 @@
   "scripts": {
     "build": "turbo build",
     "build:packages": "turbo --filter './packages/**' build",
-    "build:standalone": "pnpm --filter api-reference play-button build:standalone",
+    "build:standalone": "pnpm --filter api-reference --filter play-button build:standalone",
     "bump": "pnpm test:ci && pnpm changeset version",
     "clean": "pnpm clean:nodeModules; pnpm clean:dist; pnpm clean:turbo; pnpm clean:nuxt",
     "clean:build": "pnpm clean ; pnpm i && pnpm build:packages",
