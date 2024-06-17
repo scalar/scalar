@@ -39,7 +39,17 @@ export default defineConfig({
     },
     cssCodeSplit: false,
     minify: 'terser',
-    // minify: false,
+    // With the default terserOptions, highlight.js breaks the build.
+    // * They’re using terser, too.
+    // * Copying their options fixes the build.
+    // * `max_line_len: 80` is the one setting that makes the difference.
+    //
+    // Source: https://github.com/highlightjs/highlight.js/blob/b9ae5fea90514b864f2c9b2889d7d3302d6156dc/tools/build_config.js#L58-L73
+    terserOptions: {
+      format: {
+        max_line_len: 80,
+      },
+    },
     lib: {
       entry: ['src/standalone.ts'],
       name: '@scalar/api-reference',
