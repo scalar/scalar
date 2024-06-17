@@ -31,7 +31,7 @@ jobs:
       - name: Build
         run: pnpm turbo build
       - name: Start HTML Server
-        run: pnpm --filter @scalar/examples-cdn-api-reference dev &
+        run: pnpm --filter @scalar-examples/cdn-api-reference dev &
       - name: Get installed Playwright version
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package.json').devDependencies['@playwright/test'])")" >> $GITHUB_ENV
