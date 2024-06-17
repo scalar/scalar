@@ -1,4 +1,5 @@
 import fastifyStatic from '@fastify/static'
+import standaloneBundle from '@scalar/api-reference/browser/standalone.js?raw'
 import fastify from 'fastify'
 import { join } from 'node:path'
 
@@ -25,9 +26,16 @@ app.get('/local', (_request, reply) => {
   reply.sendFile('api-reference-cdn-local.html', { cacheControl: false })
 })
 
+app.get('/local/standalone.js', (_request, reply) => {
+  reply
+    .code(200)
+    .header('Content-Type', 'text/javascript; charset=utf-8')
+    .send(standaloneBundle)
+})
+
 // Run the server!
 try {
-  await app.listen({ port: 3173 }, () => {
+  app.listen({ port: 3173 }, () => {
     console.log()
     console.info(`📦 CDN Example listening on http://127.0.0.1:3173/`)
     console.log()

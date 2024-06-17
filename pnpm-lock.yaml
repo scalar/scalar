@@ -89,6 +89,9 @@ importers:
       '@fastify/static':
         specifier: ^7.0.1
         version: 7.0.4
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../packages/api-reference
       fastify:
         specifier: ^4.26.2
         version: 4.28.0
