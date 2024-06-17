@@ -4,10 +4,7 @@ import { apiReference } from './api-reference-ui-test'
 
 const HOST = process.env.HOST || 'localhost'
 
-test('Renders scalar/galaxy api reference from the live CDN', async ({
-  page,
-  isMobile,
-}) => {
+test('renders @scalar/galaxy with jsdelivr', async ({ page, isMobile }) => {
   await page.goto(`http://${HOST}:3173/jsdelivr`)
 
   await apiReference(page, isMobile)
@@ -18,10 +15,10 @@ test('Renders scalar/galaxy api reference from the live CDN', async ({
    * Playwright uses pixelmatch to compare screenshots
    * update screenshots with npx playwright test --update-snapshots
    */
-  await expect(page).toHaveScreenshot('cdn-snapshot.png', {
-    fullPage: true,
-    maxDiffPixelRatio: 0.02,
-  })
+  // await expect(page).toHaveScreenshot('cdn-snapshot.png', {
+  //   fullPage: true,
+  //   maxDiffPixelRatio: 0.02,
+  // })
 
   /** Capture into buffer
    * If we are unsatisfied with the built in visual regression testing

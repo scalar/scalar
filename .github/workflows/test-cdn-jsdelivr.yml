@@ -1,11 +1,13 @@
-name: Test api reference
+name: Test CDN Build (jsdelivr)
 
 on:
+  schedule:
+    # every hour
+    - cron: '0 * * * *'
   push:
     paths:
-      - 'packages/**'
-      - '.github/workflows/test-api-reference-local.yml'
-      - 'playwright/tests/**'
+      - 'packages/cdn-api-reference/**'
+      - '.github/workflows/test-api-reference-cdn.yml'
 
 jobs:
   test:
@@ -22,19 +24,18 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
-      - name: Install fastify api reference dependencies
-        run: pnpm --filter "@scalar-examples/fastify-api-reference..." install
-      - name: Install CDN api reference dependencies
-        run: pnpm --filter cdn-api-reference install
+      - name: Install dependencies
+        run: pnpm --filter "@scalar-examples/cdn-api-reference..." install
       - name: Turborepo cache
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
-      - name: Start local api-reference server
-        run: pnpm --filter @scalar-examples/fastify-api-reference dev &
-      - name: Start static html server
-        run: pnpm --filter cdn-api-reference dev &
+      - name: Build dependencies
+        run: pnpm --filter "@scalar-examples/cdn-api-reference..." build
+      - name: Start HTML Server
+        run: pnpm --filter @scalar/examples-cdn-api-reference dev &
       - name: Get installed Playwright version
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package.json').devDependencies['@playwright/test'])")" >> $GITHUB_ENV
+      # TODO doesn't work
       - name: Cache playwright binaries
         uses: actions/cache@v4
         id: playwright-cache
@@ -44,5 +45,5 @@ jobs:
           restore-keys: ${{ runner.os }}-playwright-
       - name: Install Playwright browser binaries & OS dependencies
         run: pnpm exec playwright install --with-deps
-      - name: Run e2e tests
-        run: CI=1 pnpm -r --parallel test:e2e:local
+      - name: Run e2e tests (jsdelivr)
+        run: CI=1 pnpm test:e2e:jsdelivr

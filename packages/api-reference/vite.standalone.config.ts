@@ -39,6 +39,7 @@ export default defineConfig({
     },
     cssCodeSplit: false,
     minify: 'terser',
+    // minify: false,
     lib: {
       entry: ['src/standalone.ts'],
       name: '@scalar/api-reference',
