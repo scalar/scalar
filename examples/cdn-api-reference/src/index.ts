@@ -10,16 +10,24 @@ await app.register(fastifyStatic, {
 })
 
 app.get('/live', (_request, reply) => {
-  reply.sendFile('api-reference-cdn-live.html', { cacheControl: false }) // overriding the options disabling cache-control headers) // serving path.join(__dirname, 'public', 'myHtml.html') directly
+  // overriding the options disabling cache-control headers)
+  // serving path.join(__dirname, 'public', 'myHtml.html') directly
+  reply.sendFile('api-reference-cdn-live.html', { cacheControl: false })
 })
 
 app.get('/local', (_request, reply) => {
-  reply.sendFile('api-reference-cdn-local.html', { cacheControl: false }) // overriding the options disabling cache-control headers) // serving path.join(__dirname, 'public', 'myHtml.html') directly
+  // overriding the options disabling cache-control headers
+  // serving path.join(__dirname, 'public', 'myHtml.html') directly
+  reply.sendFile('api-reference-cdn-local.html', { cacheControl: false })
 })
 
 // Run the server!
 try {
-  await app.listen({ port: 3173 })
+  await app.listen({ port: 3173 }, () => {
+    console.log()
+    console.info(`📦 CDN Example listening on http://127.0.0.1:3173/`)
+    console.log()
+  })
 } catch (err) {
   app.log.error(err)
   process.exit(1)
