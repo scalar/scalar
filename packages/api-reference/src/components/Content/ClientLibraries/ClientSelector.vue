@@ -245,6 +245,8 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   color: var(--scalar-color-1);
 }
 .client-libraries__select select {
+  background: var(--scalar-background-3);
+  color: var(--scalar-color-2);
   opacity: 0;
   height: 100%;
   width: 100%;
