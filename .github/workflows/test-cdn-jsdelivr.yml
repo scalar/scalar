@@ -25,11 +25,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm --filter "@scalar-examples/cdn-api-reference..." install
+        run: pnpm install
       - name: Turborepo cache
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
-      - name: Build dependencies
-        run: pnpm --filter "@scalar-examples/cdn-api-reference..." build
+      - name: Build
+        run: pnpm turbo build
       - name: Start HTML Server
         run: pnpm --filter @scalar/examples-cdn-api-reference dev &
       - name: Get installed Playwright version
