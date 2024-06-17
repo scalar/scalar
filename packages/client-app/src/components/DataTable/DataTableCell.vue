@@ -11,7 +11,7 @@ withDefaults(
 <template>
   <component
     :is="is"
-    class="h-8 w-full min-w-0 border-b-1/2 border-r-1/2 border-r-[inherit] text-sm last:border-r-0 group-last:border-b-transparent"
+    class="h-8 min-w-0 border-b-1/2 border-r-1/2 border-r-[inherit] text-sm last:border-r-0 group-last:border-b-transparent w-fit min-w-full"
     role="cell">
     <slot />
   </component>
