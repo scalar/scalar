@@ -8,6 +8,7 @@ on:
       - 'examples/web/**'
       - 'packages/api-client/**'
       - 'packages/api-reference/**'
+      - 'packages/components/**'
       - '.github/workflows/deploy-preview-examples.yml'
   pull_request:
     types:
@@ -16,6 +17,7 @@ on:
       - 'examples/web/**'
       - 'packages/api-client/**'
       - 'packages/api-reference/**'
+      - 'packages/components/**'
       - '.github/workflows/deploy-preview-examples.yml'
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
