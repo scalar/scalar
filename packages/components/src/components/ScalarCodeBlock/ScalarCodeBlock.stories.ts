@@ -27,33 +27,32 @@ export const Wrapper = () => {
   )
 }
 `
-const contentJson = `[
+const contentJson = JSON.stringify([
   {
-    "id": 1,
-    "name": "Children",
-    "normalized_name": "children",
-    "gender": ""
+    id: 1,
+    name: 'Children',
+    normalized_name: 'children',
+    gender: '',
   },
   {
-    "id": 2,
-    "name": "Mechanical Santa",
-    "normalized_name": "mechanical santa",
-    "gender": ""
+    id: 2,
+    name: 'Mechanical Santa',
+    normalized_name: 'mechanical santa',
+    gender: '',
   },
   {
-    "id": 3,
-    "name": "Tattoo Man",
-    "normalized_name": "tattoo man",
-    "gender": ""
+    id: 3,
+    name: 'Tattoo Man',
+    normalized_name: 'tattoo man',
+    gender: '',
   },
   {
-    "id": 4,
-    "name": "DOCTOR ZITSOFSKY",
-    "normalized_name": "doctor zitsofsky",
-    "gender": ""
-  }
-]
-`
+    id: 4,
+    name: 'DOCTOR ZITSOFSKY',
+    normalized_name: 'doctor zitsofsky',
+    gender: '',
+  },
+])
 
 /**
  * Syntax highlighting in a light weight component
@@ -79,7 +78,7 @@ export const LineNumbers: Story = {
   args: { content: contentJs, lineNumbers: true },
 }
 
-export const JSON: Story = {
+export const JSONString: Story = {
   args: { content: contentJson, lineNumbers: true, lang: 'json' },
 }
 
