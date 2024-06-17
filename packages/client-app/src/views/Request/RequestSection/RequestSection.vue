@@ -7,11 +7,11 @@ import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
 import { ScalarIcon } from '@scalar/components'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const { activeRequest, activeExample } = useWorkspace()
 
-const bodyMethods = ['POST', 'PUT', 'PATCH']
+const bodyMethods = ['POST', 'PUT', 'PATCH', 'DELETE']
 
 const sections = computed(() => {
   const allSections = [
@@ -37,6 +37,15 @@ const sections = computed(() => {
 type ActiveSections = (typeof sections.value)[number]
 
 const activeSection = ref<ActiveSections>('All')
+
+watch(activeRequest, (newRequest) => {
+  if (
+    activeSection.value === 'Body' &&
+    !bodyMethods.includes(newRequest.method)
+  ) {
+    activeSection.value = 'All'
+  }
+})
 </script>
 <template>
   <ViewLayoutSection>
