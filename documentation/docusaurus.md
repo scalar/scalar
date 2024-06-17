@@ -70,8 +70,6 @@ const config = {
 }
 ```
 
-> Note: If you’re using JavaScript just remove two parts: `: Config` and ` as ScalarOptions`, both is TypeScript syntax and won’t work in JavaScript.
-
 That’s it, you made it! This should render our Scalar Galaxy example on <http://localhost:3000/scalar>.
 
 ## Alternative: Docusaurus Configuration in TypeScript
