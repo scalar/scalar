@@ -149,6 +149,7 @@ export type AuthenticationState = {
   customSecurity: boolean
   preferredSecurityScheme: string | null
   securitySchemes?:
+    | OpenAPIV2.SecurityDefinitionsObject
     | OpenAPIV3.ComponentsObject['securitySchemes']
     | OpenAPIV3_1.ComponentsObject['securitySchemes']
   http: {

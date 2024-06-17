@@ -1,22 +1,15 @@
 <script lang="ts" setup>
 import { ScalarIcon } from '@scalar/components'
-import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, onMounted, onServerPrefetch } from 'vue'
 
 import { useAuthenticationStore } from '../../../../stores'
 
 const props = defineProps<{
   value?:
-    | {
-        [key: string]:
-          | OpenAPIV3.SecuritySchemeObject
-          | OpenAPIV3.ReferenceObject
-      }
-    | Record<
-        string,
-        OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.ReferenceObject
-      >
-    | undefined
+    | OpenAPIV2.SecurityDefinitionsObject
+    | OpenAPIV3.ComponentsObject['securitySchemes']
+    | OpenAPIV3_1.ComponentsObject['securitySchemes']
 }>()
 
 // Emit updates

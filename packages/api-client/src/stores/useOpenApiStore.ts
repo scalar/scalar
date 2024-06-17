@@ -3,14 +3,13 @@ import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { reactive } from 'vue'
 
 export type OpenApiState = {
-  operation: TransformedOperation
+  operation: Partial<TransformedOperation>
   globalSecurity:
     | OpenAPIV3.SecurityRequirementObject[]
     | OpenAPIV3_1.SecurityRequirementObject[]
 }
 
 export const createEmptyOpenApiState = (): OpenApiState => ({
-  // @ts-ignore
   operation: {},
   globalSecurity: [],
 })
