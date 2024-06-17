@@ -76,14 +76,13 @@ const handleFileUpload = (idx: number) => {
           <template
             v-if="item.description"
             #icon>
-            <div
-              class="relative group/info overflow-hidden flex items-center pr-2">
+            <div class="relative group/info flex items-center pr-2">
               <ScalarIcon
                 class="ml-1 text-c-3 group-hover/info:text-c-1"
                 icon="Info"
                 size="sm" />
               <span
-                class="fixed pointer-events-none w-40 shadow-lg rounded bg-b-1 z-100 p-1.5 text-xxs leading-5 -translate-x-full translate-y-[24px] opacity-0 group-hover/info:opacity-100 z-10 text-c-1"
+                class="absolute pointer-events-none w-40 shadow-lg rounded bg-b-1 z-100 p-1.5 text-xxs leading-5 -translate-x-full translate-y-[24px] opacity-0 group-hover/info:opacity-100 z-10 text-c-1"
                 >{{ item.description }}</span
               >
             </div>
