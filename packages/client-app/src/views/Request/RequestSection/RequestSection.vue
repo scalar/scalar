@@ -11,7 +11,7 @@ import { computed, ref, watch } from 'vue'
 
 const { activeRequest, activeExample } = useWorkspace()
 
-const bodyMethods = ['POST', 'PUT', 'PATCH']
+const bodyMethods = ['POST', 'PUT', 'PATCH', 'DELETE']
 
 const sections = computed(() => {
   const allSections = [
