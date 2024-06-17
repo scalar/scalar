@@ -395,6 +395,9 @@ plugins: [
 ],
 ```
 
+We wrote
+a [detailed integration guide for Docusaurus](https://github.com/scalar/scalar/tree/main/documentation/docusaurus.md), too.
+
 For more information, check out
 the [Docusaurus package](https://github.com/scalar/scalar/tree/main/packages/docusaurus/README.md)
 
