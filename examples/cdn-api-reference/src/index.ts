@@ -39,6 +39,9 @@ try {
     console.log()
     console.info(`📦 CDN Example listening on http://127.0.0.1:3173/`)
     console.log()
+    console.info('  ➜ http://127.0.0.1:3173/jsdelivr')
+    console.info('  ➜ http://127.0.0.1:3173/local')
+    console.log()
   })
 } catch (err) {
   app.log.error(err)
