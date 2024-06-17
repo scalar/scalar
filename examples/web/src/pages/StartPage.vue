@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import '@scalar/themes/app.css'
+import '@scalar/themes/style.css'
 
 import PageLink from '../components/PageLink.vue'
 

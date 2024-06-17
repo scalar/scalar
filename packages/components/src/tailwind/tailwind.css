@@ -1,41 +1,32 @@
+@import '@scalar/themes/style.css';
+
 /**
  * Put the Tailwind output into our Scalar cascade layers
  *
  * @see https://emamoah.medium.com/using-native-css-cascade-layers-with-tailwindcss-cb11af266104
  */
 @tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-/** 
- * Custom Reset - copied over from the tailwind reset
+.scalar-app {
+  @tailwind components;
+  @tailwind utilities;
 
- * @link https://tailwindcss.com/docs/preflight 
- */
-@layer base {
-  * {
-    box-sizing: border-box;
-    border-width: 0;
-    border-style: solid;
-    border-color: var(--scalar-border-color);
-
-    font-family: inherit;
-    font-feature-settings: inherit;
-    font-variation-settings: inherit;
-    font-size: unset;
-    font-weight: inherit;
-    line-height: inherit;
-    color: inherit;
-    margin: unset;
-    padding: unset;
-  }
-}
-
-@layer utilities {
-  .row {
-    @apply flex flex-row;
-  }
-  .col {
-    @apply flex flex-col;
-  }
+  /** Custom utilities to make life easier */
+  /* @layer utilities { */
+  /*   .row { */
+  /*     @apply flex flex-row; */
+  /*   } */
+  /*   .row-1 { */
+  /*     @apply flex flex-1 flex-row; */
+  /*   } */
+  /*   .col { */
+  /*     @apply flex flex-col; */
+  /*   } */
+  /*   .col-1 { */
+  /*     @apply flex flex-1 flex-col; */
+  /*   } */
+  /*   .center { */
+  /*     @apply items-center justify-center; */
+  /*   } */
+  /* } */
 }

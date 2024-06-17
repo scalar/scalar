@@ -1,5 +1,4 @@
-/* Use :where to lower specificity */
-:where(.scalar-app) {
+.scalar-app {
   /** Add some more things which are normally applied to `html`. */
   font-family: var(--scalar-font);
   line-height: 1.15;

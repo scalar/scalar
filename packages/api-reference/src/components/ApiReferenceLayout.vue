@@ -4,7 +4,6 @@ import '@scalar/components/style.css'
 import type { SSRState } from '@scalar/oas-utils'
 import { defaultStateFactory } from '@scalar/oas-utils/helpers'
 import { type ThemeId, getThemeStyles } from '@scalar/themes'
-import '@scalar/themes/core.css'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {

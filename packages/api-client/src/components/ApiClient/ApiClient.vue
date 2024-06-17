@@ -2,7 +2,6 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import '@scalar/components/style.css'
 import { type ThemeId, getThemeStyles } from '@scalar/themes'
-import '@scalar/themes/core.css'
 import { useMagicKeys, useMediaQuery, whenever } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
