@@ -270,7 +270,7 @@ useDeprecationWarnings(props.configuration)
               v-bind="referenceSlotProps"
               name="sidebar-end" />
           </template>
-        </ApiClientModalOld>
+        </Sidebar>
       </div>
     </aside>
     <!-- Swagger file editing -->
@@ -324,6 +324,13 @@ useDeprecationWarnings(props.configuration)
     <!-- REST API Client Overlay -->
     <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
     <ApiClientModal
+      v-if="NEW_API_MODAL"
+      :proxyUrl="configuration.proxy"
+      :spec="configuration.spec" />
+    <!-- API Client Overlay -->
+    <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
+    <ApiClientModalOld
+      v-else
       :parsedSpec="parsedSpec"
       :proxyUrl="configuration?.proxy">
       <template #sidebar-start>
@@ -336,7 +343,7 @@ useDeprecationWarnings(props.configuration)
           v-bind="referenceSlotProps"
           name="sidebar-end" />
       </template>
-    </ApiClientModal>
+    </ApiClientModalOld>
   </div>
   <ScalarToasts />
 </template>
