@@ -1,13 +1,9 @@
-name: Test api reference - live CDN
+name: Test CDN Build (local)
 
 on:
-  schedule:
-    # every hour
-    - cron: '0 * * * *'
-  push:
-    paths:
-      - 'packages/cdn-api-reference/**'
-      - '.github/workflows/test-api-reference-cdn.yml'
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
@@ -25,11 +21,13 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm --filter cdn-api-reference install
+        run: pnpm install
       - name: Turborepo cache
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
-      - name: Start static html server
-        run: pnpm --filter cdn-api-reference dev &
+      - name: Build Packages
+        run: pnpm build:packages
+      - name: Start HTML Server
+        run: pnpm --filter @scalar-examples/cdn-api-reference dev &
       - name: Get installed Playwright version
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package.json').devDependencies['@playwright/test'])")" >> $GITHUB_ENV
@@ -43,5 +41,5 @@ jobs:
           restore-keys: ${{ runner.os }}-playwright-
       - name: Install Playwright browser binaries & OS dependencies
         run: pnpm exec playwright install --with-deps
-      - name: Run e2e tests
-        run: CI=1 pnpm test:e2e:cdn
+      - name: Run e2e tests (local)
+        run: CI=1 pnpm test:e2e:local

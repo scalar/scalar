@@ -1,6 +1,6 @@
 import { type Page, expect } from '@playwright/test'
 
-// Check for basic elements on the scalar api reference page
+// Check for basic elements
 export async function apiReference(page: Page, isMobile: boolean) {
   // The heading
   await expect(
