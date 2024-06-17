@@ -1,7 +1,10 @@
 import { type Page, expect } from '@playwright/test'
 
 // Check for basic elements
-export async function apiReference(page: Page, isMobile: boolean) {
+export async function playButton(page: Page, isMobile: boolean) {
+  // Click button
+  await page.click('text=Try it Out')
+
   // The heading
   await expect(
     page.getByRole('heading', { name: 'Scalar Galaxy' }),

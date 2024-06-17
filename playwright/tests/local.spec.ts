@@ -1,14 +1,12 @@
-import { expect, test } from '@playwright/test'
+import { test } from '@playwright/test'
 
 import { apiReference } from './api-reference-ui-test'
+import { playButton } from './play-button-ui-test'
 
 const HOST = process.env.HOST || 'localhost'
 
-test('renders @scalar/galaxy with the local standalone build', async ({
-  page,
-  isMobile,
-}) => {
-  await page.goto(`http://${HOST}:3173/local`)
+test('@scalar/api-reference local build', async ({ page, isMobile }) => {
+  await page.goto(`http://${HOST}:3173/api-reference/local`)
 
   await apiReference(page, isMobile)
 
@@ -29,4 +27,11 @@ test('renders @scalar/galaxy with the local standalone build', async ({
    *   const buffer = await page.screenshot()
    *   console.log(buffer.toString('base64'))
    */
+})
+
+// TODO: The package is just broken and needs to be fixed.
+test.skip('@scalar/play-button local build', async ({ page, isMobile }) => {
+  await page.goto(`http://${HOST}:3173/play-button/local`)
+
+  await playButton(page, isMobile)
 })

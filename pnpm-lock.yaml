@@ -92,6 +92,9 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../../packages/api-reference
+      '@scalar/play-button':
+        specifier: workspace:*
+        version: link:../../packages/play-button
       fastify:
         specifier: ^4.26.2
         version: 4.28.0
