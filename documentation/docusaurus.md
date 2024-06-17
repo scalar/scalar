@@ -46,8 +46,42 @@ pnpm add @scalar/docusaurus
 Done! There’s just one more step required: Adding the plugin to your Docusaurus configuration.
 
 ```ts
-// docusaurus.config.js (or .ts if you’re project is in TypeScript)
-import { ScalarOptions } from '@scalar/docusaurus'
+// docusaurus.config.js
+
+// …
+
+const config = {
+  // …
+  plugins: [
+    [
+      '@scalar/docusaurus',
+      {
+        label: 'Scalar',
+        route: '/scalar',
+        configuration: {
+          spec: {
+            // Put the URL to your OpenAPI document here:
+            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+          },
+        },
+      },
+    ],
+  ],
+}
+```
+
+> Note: If you’re using JavaScript just remove two parts: `: Config` and ` as ScalarOptions`, both is TypeScript syntax and won’t work in JavaScript.
+
+That’s it, you made it! This should render our Scalar Galaxy example on <http://localhost:3000/scalar>.
+
+## Alternative: Docusaurus Configuration in TypeScript
+
+Hey, big TypeScript fans here. If you’re one, too, here’s the Docusaurus configuration in TypeScript:
+
+```ts
+// docusaurus.config.ts
+import type { Config } from '@docusaurus/types'
+import type { ScalarOptions } from '@scalar/docusaurus'
 
 // …
 
@@ -70,7 +104,3 @@ const config: Config = {
   ],
 }
 ```
-
-> Note: If you’re using JavaScript just remove two parts: `: Config` and ` as ScalarOptions`, both is TypeScript syntax and won’t work in JavaScript.
-
-That’s it, you made it! This should render our Scalar Galaxy example on <http://localhost:3000/scalar>.
