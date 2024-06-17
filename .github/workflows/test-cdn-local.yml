@@ -1,4 +1,4 @@
-name: Test CDN Build (Local Bundle)
+name: Test CDN Build (local)
 
 on:
   pull_request:
