@@ -18,6 +18,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Send Slack Notification
+        if: success() || failure()
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          # Slack channel id, channel name, or user id to post message.
+          # See also: https://api.slack.com/methods/chat.postMessage#channels
+          channel-id: 'U04R4E8R53P'
+          slack-message: "GitHub Test Result: ${{ job.status }}\nGitHub Action Workflow Run: https://github.com/scalar/scalar/actions/runs/${{ github.run_id }}"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
       - uses: pnpm/action-setup@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
