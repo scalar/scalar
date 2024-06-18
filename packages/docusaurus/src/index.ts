@@ -44,13 +44,23 @@ const ScalarDocusaurus = (
         position: 'left',
       })
 
-      addRoute({
-        path: options.route,
-        component: path.resolve(__dirname, './ScalarDocusaurus'),
-        // Provide the path to the loaded spec as a prop to your component
-        exact: true,
-        ...content,
-      })
+      if (typeof require === 'function') {
+        addRoute({
+          path: options.route,
+          component: path.resolve(__dirname, './ScalarDocusaurusCommonJS'),
+          // Provide the path to the loaded spec as a prop to your component
+          exact: true,
+          ...content,
+        })
+      } else {
+        addRoute({
+          path: options.route,
+          component: path.resolve(__dirname, './ScalarDocusaurus'),
+          // Provide the path to the loaded spec as a prop to your component
+          exact: true,
+          ...content,
+        })
+      }
     },
   }
 }
