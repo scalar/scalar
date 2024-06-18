@@ -262,6 +262,9 @@ const config = {
 export const GET = ApiReference(config)
 ```
 
+We wrote
+a [detailed integration guide for Next.js](https://github.com/scalar/scalar/tree/main/documentation/nextjs.md), too.
+
 Read more: [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nextjs-api-reference)
 
 ### Fastify
