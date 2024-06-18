@@ -123,7 +123,6 @@ const scrollToSection = async (id?: string) => {
  */
 onBeforeMount(() => {
   const observer = new MutationObserver((records: MutationRecord[]) => {
-    console.log(records)
     const headlessRoot = records.find((record) =>
       Array.from(record.addedNodes).find(
         (node) => (node as HTMLDivElement).id === 'headlessui-portal-root',
@@ -135,7 +134,6 @@ onBeforeMount(() => {
       )
       observer.disconnect()
     }
-    console.log(headlessRoot)
   })
   observer.observe(document.body, { childList: true })
 })
