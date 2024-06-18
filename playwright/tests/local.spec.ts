@@ -6,7 +6,7 @@ import { playButton } from './play-button-ui-test'
 const HOST = process.env.HOST || 'localhost'
 
 test('@scalar/api-reference local build', async ({ page, isMobile }) => {
-  await page.goto(`http://${HOST}:3173/api-reference/local`)
+  await page.goto(`http://${HOST}:3173/api-reference-local.html`)
 
   await apiReference(page, isMobile)
 
@@ -31,7 +31,7 @@ test('@scalar/api-reference local build', async ({ page, isMobile }) => {
 
 // TODO: The package is just broken and needs to be fixed.
 test.skip('@scalar/play-button local build', async ({ page, isMobile }) => {
-  await page.goto(`http://${HOST}:3173/play-button/local`)
+  await page.goto(`http://${HOST}:3173/play-button-local.html`)
 
   await playButton(page, isMobile)
 })

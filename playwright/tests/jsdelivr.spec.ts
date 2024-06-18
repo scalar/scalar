@@ -6,7 +6,7 @@ import { playButton } from './play-button-ui-test'
 const HOST = process.env.HOST || 'localhost'
 
 test('@scalar/api-reference jsdelivr build', async ({ page, isMobile }) => {
-  await page.goto(`http://${HOST}:3173/api-reference/jsdelivr`)
+  await page.goto(`http://${HOST}:3173/api-reference-jsdelivr.html`)
 
   await apiReference(page, isMobile)
 
@@ -31,7 +31,7 @@ test('@scalar/api-reference jsdelivr build', async ({ page, isMobile }) => {
 
 // TODO: The package is just broken and needs to be fixed.
 test.skip('@scalar/play-button jsdelivr build', async ({ page, isMobile }) => {
-  await page.goto(`http://${HOST}:3173/play-button/jsdelivr`)
+  await page.goto(`http://${HOST}:3173/play-button-jsdelivr.html`)
 
   await playButton(page, isMobile)
 })
