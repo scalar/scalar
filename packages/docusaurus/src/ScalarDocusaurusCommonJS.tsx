@@ -11,16 +11,15 @@ type Props = {
 }
 
 class ScalarDocusaurusCommonJS extends Component<Props> {
-  observer: MutationObserver | null = null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  observer: any = null
 
   constructor(props: Props) {
     super(props)
     this.mutationCallback = this.mutationCallback.bind(this)
-    this.observer = new MutationObserver(this.mutationCallback)
-  }
-
-  componentDidMount() {
-    this.setupAPIReference()
+    if (typeof window !== 'undefined') {
+      this.observer = new MutationObserver(this.mutationCallback)
+    }
   }
 
   componentWillUnmount() {
@@ -89,7 +88,9 @@ class ScalarDocusaurusCommonJS extends Component<Props> {
       <Layout>
         <BrowserOnly>
           {() => {
-            this.setupAPIReference()
+            if (typeof window !== 'undefined') {
+              this.setupAPIReference()
+            }
             return <div id="api-reference-container"></div>
           }}
         </BrowserOnly>
