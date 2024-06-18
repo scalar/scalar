@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.24.12
+
+### Patch Changes
+
+- bcbcfc5: fix: standalone always defaults to light mode
+
 ## 1.24.11
 
 ### Patch Changes
