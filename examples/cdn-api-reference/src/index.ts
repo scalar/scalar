@@ -10,6 +10,7 @@ const app = await fastify({ logger: true })
 await app.register(fastifyStatic, {
   root: join(__dirname, 'public'),
   prefix: '/',
+  cacheControl: false,
 })
 
 // @scalar/api-reference bundle
