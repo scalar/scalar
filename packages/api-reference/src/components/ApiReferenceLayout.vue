@@ -40,7 +40,7 @@ import type {
   ReferenceLayoutSlot,
   ReferenceSlotProps,
 } from '../types'
-import ApiClientModal from './ApiClientModal.vue'
+// import ApiClientModal from './ApiClientModal.vue'
 import { Content } from './Content'
 import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
@@ -330,14 +330,13 @@ useDeprecationWarnings(props.configuration)
               name="footer" />
           </div>
         </template>
-        <ApiClientModal
+        <!-- <ApiClientModal
           v-if="NEW_API_MODAL"
           :proxyUrl="configuration.proxy"
-          :spec="configuration.spec" />
+          :spec="configuration.spec" /> -->
         <!-- API Client Overlay -->
         <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
         <ApiClientModalOld
-          v-else
           :parsedSpec="parsedSpec"
           :proxyUrl="configuration?.proxy">
           <template #sidebar-start>
