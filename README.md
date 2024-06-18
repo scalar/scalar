@@ -225,7 +225,6 @@ We have created a client side wrapper in React:
 ```ts
 import { ApiReferenceReact } from '@scalar/api-reference-react'
 import '@scalar/api-reference-react/style.css'
-import React from 'react'
 
 function App() {
   return (
@@ -241,6 +240,9 @@ function App() {
 
 export default App
 ```
+
+We wrote
+a [detailed integration guide for React](https://github.com/scalar/scalar/tree/main/documentation/react.md), too.
 
 ### Next.js
 
