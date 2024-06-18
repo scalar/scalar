@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 1.3.12
+
+### Patch Changes
+
+- 362d47a: chore: less @ts-ignore comments
+- Updated dependencies [362d47a]
+- Updated dependencies [2ca1af2]
+- Updated dependencies [627e0e5]
+  - @scalar/oas-utils@0.2.3
+  - @scalar/themes@0.9.4
+  - @scalar/components@0.11.5
+
 ## 1.3.11
 
 ### Patch Changes

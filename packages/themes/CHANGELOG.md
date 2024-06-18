@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.4
+
+### Patch Changes
+
+- 2ca1af2: fix: kepler theme darkmode
+
 ## 0.9.3
 
 ### Patch Changes

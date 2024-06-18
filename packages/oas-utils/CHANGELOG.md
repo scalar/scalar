@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.3
+
+### Patch Changes
+
+- 362d47a: chore: less @ts-ignore comments
+
 ## 0.2.2
 
 ### Patch Changes
