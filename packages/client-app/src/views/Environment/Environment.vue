@@ -10,7 +10,7 @@ import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { themeClasses } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
 import { nanoid } from 'nanoid'
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import EnvironmentColors from './EnvironmentColors.vue'
@@ -19,6 +19,8 @@ const router = useRouter()
 const { environments, environmentMutators } = useWorkspace()
 
 const activeEnvironmentID = ref<string | null>(null)
+const nameInputRef = ref<HTMLInputElement | null>(null)
+const isEditingName = ref(false)
 
 function addEnvironmentVariable() {
   const environment = {
@@ -62,6 +64,30 @@ const setActiveEnvironment = () => {
   }
 }
 
+/** display a focused input to edit environment name */
+const enableNameEditing = () => {
+  if (
+    activeEnvironmentID.value &&
+    !environments[activeEnvironmentID.value].isDefault
+  ) {
+    isEditingName.value = true
+    nextTick(() => {
+      nameInputRef.value?.focus()
+    })
+  }
+}
+
+const updateEnvironmentName = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const newName = target.value
+  if (
+    activeEnvironmentID.value &&
+    !environments[activeEnvironmentID.value].isDefault
+  ) {
+    environments[activeEnvironmentID.value].name = newName
+  }
+}
+
 onMounted(setActiveEnvironment)
 </script>
 <template>
@@ -97,7 +123,21 @@ onMounted(setActiveEnvironment)
         <template
           v-if="activeEnvironmentID"
           #title>
-          <span>{{ environments[activeEnvironmentID].name }}</span>
+          <span
+            v-if="!isEditingName || environments[activeEnvironmentID].isDefault"
+            @dblclick="enableNameEditing">
+            {{ environments[activeEnvironmentID].name }}
+          </span>
+          <input
+            v-else
+            ref="nameInputRef"
+            class="ring-1 ring-offset-4 ring-b-outline rounded"
+            spellcheck="false"
+            type="text"
+            :value="environments[activeEnvironmentID].name"
+            @blur="isEditingName = false"
+            @input="updateEnvironmentName"
+            @keyup.enter="isEditingName = false" />
           <div class="colors ml-auto">
             <EnvironmentColors
               :activeColor="environments[activeEnvironmentID].color"
