@@ -24,14 +24,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
+      - name: Use pnpm
+        uses: pnpm/action-setup@v4
       - name: Install dependencies
         run: pnpm install
       - name: Build Packages
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
       - name: Build packages
         run: pnpm build:packages
-      - name: Start HTML server
-        run: pnpm --filter @scalar-examples/cdn-api-reference dev &
       - name: Get Playwright version
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> $GITHUB_ENV

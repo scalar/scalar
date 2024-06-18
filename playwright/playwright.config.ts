@@ -71,7 +71,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command: 'pnpm --filter @scalar-examples/cdn-api-reference dev',
-    url: 'http://127.0.0.1:3173',
+    url: 'http://127.0.0.1:3173/ping',
     reuseExistingServer: !process.env.CI,
   },
 })
