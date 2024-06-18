@@ -1,5 +1,11 @@
 # @scalar/docusaurus
 
+## 0.4.10
+
+### Patch Changes
+
+- 738975e: fix: support commonjs docusaurus builds
+
 ## 0.4.9
 
 ### Patch Changes
