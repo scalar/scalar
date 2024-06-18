@@ -26,28 +26,23 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Turborepo cache
-        uses: actions/cache@v4
-        with:
-          path: .turbo
-          key: ${{ runner.os }}-turbo-node-${{ matrix.node-version }}
-          restore-keys: |
-            ${{ runner.os }}-turbo-node-
       - name: Build Packages
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+      - name: Build packages
         run: pnpm build:packages
-      - name: Start HTML Server
+      - name: Start HTML server
         run: pnpm --filter @scalar-examples/cdn-api-reference dev &
-      - name: Get installed Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package.json').devDependencies['@playwright/test'])")" >> $GITHUB_ENV
-      - name: Cache playwright binaries
-        uses: actions/cache@v4
+      - name: Get Playwright version
+        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package.json').devDependencies['@playwright/test'])")" >> $GITHUB_ENV && echo $PLAYWRIGHT_VERSION
+      - name: Cache Playwright binaries
         id: playwright-cache
+        uses: actions/cache@v4
         with:
           path: '~/.cache/ms-playwright'
           key: '${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}'
           restore-keys: ${{ runner.os }}-playwright-
-      - name: Install Playwright browser binaries & OS dependencies
+      - name: Install Playwright binaries
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps
-      - name: Run e2e tests (jsdelivr)
+      - name: Run E2E tests (jsdelivr)
         run: CI=1 pnpm test:e2e:jsdelivr
