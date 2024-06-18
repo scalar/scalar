@@ -58,13 +58,13 @@ const getSpecUrl = () => {
   return undefined
 }
 
-const getSpec = (): Record<string, any> | undefined => {
+const getSpec = (): string | undefined => {
   // <script id="api-reference" type="application/json">{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}</script>
   if (specScriptTag) {
     const specFromScriptTag = specScriptTag.innerHTML?.trim()
 
     if (specFromScriptTag) {
-      return JSON.parse(specFromScriptTag)
+      return specFromScriptTag
     }
   }
 
@@ -76,7 +76,7 @@ const getSpec = (): Record<string, any> | undefined => {
     const specFromSpecElement = specElement.getAttribute('data-spec')?.trim()
 
     if (specFromSpecElement) {
-      return JSON.parse(specFromSpecElement)
+      return specFromSpecElement
     }
   }
 
