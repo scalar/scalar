@@ -1,4 +1,4 @@
-name: Test Nuxt integration
+name: Test Nuxt Integration
 
 on:
   pull_request:
