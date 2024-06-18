@@ -7,7 +7,6 @@ import { join } from 'node:path'
 
 const app = await fastify({ logger: true })
 
-// serve all files in public/
 await app.register(fastifyStatic, {
   root: join(__dirname, 'public'),
   prefix: '/',

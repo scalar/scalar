@@ -49,5 +49,7 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
       - name: Install Playwright dependencies
         run: npx playwright install-deps
+      - name: Start HTML Server
+        run: pnpm --filter @scalar-examples/cdn-api-reference dev &
       - name: Run E2E tests (jsdelivr)
         run: CI=1 pnpm test:e2e:jsdelivr
