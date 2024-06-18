@@ -50,7 +50,7 @@
   }
 
   /*
-    Reset the default inset border style for form controls
+    Bring back a basic border style for form controls
   */
   input:where(:not([type='button'], [type='reset'], [type='submit'])),
   select,
