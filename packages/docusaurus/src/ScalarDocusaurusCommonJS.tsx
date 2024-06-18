@@ -1,7 +1,8 @@
 // Workaround to handle commonjs failing with older react version
+import BrowserOnly from '@docusaurus/BrowserOnly'
 import type { ReferenceProps } from '@scalar/api-reference-react'
 import Layout from '@theme/Layout'
-import React, { useEffect } from 'react'
+import React, { Component } from 'react'
 
 import './theme.css'
 
@@ -9,53 +10,88 @@ type Props = {
   route: ReferenceProps
 }
 
-const ScalarDocusaurusCommonJS = ({ route }: Props) => {
-  useEffect(() => {
-    const container = document.getElementById('api-reference-container')
+class ScalarDocusaurusCommonJS extends Component<Props> {
+  observer: MutationObserver
 
-    if (container && route.configuration) {
-      const { spec, ...config } = route.configuration
+  constructor(props: Props) {
+    super(props)
+    this.observer = new MutationObserver(this.mutationCallback)
+  }
 
-      const apiReferenceScript = document.createElement('script')
-      apiReferenceScript.id = 'api-reference'
-      apiReferenceScript.type = 'application/json'
+  componentDidMount() {
+    this.setupAPIReference()
+  }
 
-      const contentString = spec?.content
-        ? typeof spec.content === 'function'
-          ? JSON.stringify(spec.content())
-          : JSON.stringify(spec.content)
-        : ''
+  componentWillUnmount() {
+    this.observer.disconnect()
+  }
 
-      const configString = JSON.stringify(config ?? {})
-        .split('"')
-        .join('&quot;')
+  mutationCallback = (mutations: MutationRecord[]) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'childList') {
+        const container = document.getElementById('api-reference-container')
 
-      apiReferenceScript.dataset.configuration = configString
-      apiReferenceScript.innerHTML = contentString
+        if (
+          container &&
+          this.props.route.configuration &&
+          !document.getElementById('api-reference')
+        ) {
+          const { spec, ...config } = this.props.route.configuration
 
-      container.appendChild(apiReferenceScript)
+          const apiReferenceScript = document.createElement('script')
+          apiReferenceScript.id = 'api-reference'
+          apiReferenceScript.type = 'application/json'
 
-      // Creating and appending the script element
-      const script = document.createElement('script')
-      script.src = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
-      script.async = true
-      script.onload = () => {
-        console.log('Script loaded successfully')
+          const contentString = spec?.content
+            ? typeof spec.content === 'function'
+              ? JSON.stringify(spec.content())
+              : JSON.stringify(spec.content)
+            : ''
+
+          const configString = JSON.stringify(config ?? {})
+            .split('"')
+            .join('&quot;')
+
+          apiReferenceScript.dataset.configuration = configString
+          apiReferenceScript.innerHTML = contentString
+
+          container.appendChild(apiReferenceScript)
+
+          // Creating and appending the script element
+          const script = document.createElement('script')
+          script.src = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
+          script.async = true
+          script.onload = () => {
+            console.log('Script loaded successfully')
+          }
+          script.onerror = (error) => {
+            console.error('Error loading script:', error)
+          }
+          container.appendChild(script)
+
+          // Stop observing once the container is found and script is added
+          this.observer.disconnect()
+        }
       }
-      script.onerror = (error) => {
-        console.error('Error loading script:', error)
-      }
-      container.appendChild(script)
-    } else {
-      console.error('#api-reference-container not found')
-    }
-  }, [])
+    })
+  }
 
-  return (
-    <Layout>
-      <div id="api-reference-container"></div>
-    </Layout>
-  )
+  setupAPIReference = () => {
+    this.observer.observe(document.body, { childList: true, subtree: true })
+  }
+
+  render() {
+    return (
+      <Layout>
+        <BrowserOnly>
+          {() => {
+            this.setupAPIReference()
+            return <div id="api-reference-container"></div>
+          }}
+        </BrowserOnly>
+      </Layout>
+    )
+  }
 }
 
 export default ScalarDocusaurusCommonJS
