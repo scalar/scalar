@@ -11,10 +11,11 @@ type Props = {
 }
 
 class ScalarDocusaurusCommonJS extends Component<Props> {
-  observer: MutationObserver
+  observer: MutationObserver | null = null
 
   constructor(props: Props) {
     super(props)
+    this.mutationCallback = this.mutationCallback.bind(this)
     this.observer = new MutationObserver(this.mutationCallback)
   }
 
@@ -23,10 +24,10 @@ class ScalarDocusaurusCommonJS extends Component<Props> {
   }
 
   componentWillUnmount() {
-    this.observer.disconnect()
+    this.observer?.disconnect()
   }
 
-  mutationCallback = (mutations: MutationRecord[]) => {
+  mutationCallback(mutations: MutationRecord[]) {
     mutations.forEach((mutation) => {
       if (mutation.type === 'childList') {
         const container = document.getElementById('api-reference-container')
@@ -70,14 +71,17 @@ class ScalarDocusaurusCommonJS extends Component<Props> {
           container.appendChild(script)
 
           // Stop observing once the container is found and script is added
-          this.observer.disconnect()
+          this.observer?.disconnect()
         }
       }
     })
   }
 
   setupAPIReference = () => {
-    this.observer.observe(document.body, { childList: true, subtree: true })
+    if (typeof window !== 'undefined') {
+      this.observer = new MutationObserver(this.mutationCallback)
+      this.observer.observe(document.body, { childList: true, subtree: true })
+    }
   }
 
   render() {
