@@ -121,7 +121,11 @@ if (!specUrlElement && !specElement && !specScriptTag) {
     },
   })
 
-  document.body?.classList.add('light-mode')
+  if (getConfiguration().darkMode) {
+    document.body?.classList.add('dark-mode')
+  } else {
+    document.body?.classList.add('light-mode')
+  }
 
   // If it’s a script tag, we can’t mount the Vue.js app inside that tag.
   // We need to add a new container div before the script tag.
