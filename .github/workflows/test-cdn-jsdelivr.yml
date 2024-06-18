@@ -6,6 +6,7 @@ on:
     - cron: '0 * * * *'
   push:
     paths:
+      - 'playwright/tests/**'
       - 'examples/cdn-api-reference/**'
       - '.github/workflows/test-cdn-jsdelivr.yml'
 

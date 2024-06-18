@@ -1,11 +1,9 @@
-name: Test nuxt integration
+name: Test Nuxt integration
 
 on:
-  push:
-    paths:
-      - 'packages/**'
-      - '.github/workflows/test-nuxt-integration.yml'
-      - 'playwright/tests/**'
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
