@@ -241,6 +241,9 @@ function App() {
 export default App
 ```
 
+We wrote
+a [detailed integration guide for React](https://github.com/scalar/scalar/tree/main/documentation/react.md), too.
+
 ### Next.js
 
 Our Next.js handler makes it easy to render a reference; just add it to an API
