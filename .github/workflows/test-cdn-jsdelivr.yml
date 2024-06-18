@@ -28,6 +28,7 @@ jobs:
           slack-message: "GitHub Test Result: ${{ job.status }}\nGitHub Action Workflow Run: https://github.com/scalar/scalar/actions/runs/${{ github.run_id }}"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
       - uses: pnpm/action-setup@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
