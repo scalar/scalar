@@ -2,6 +2,7 @@ import fastifyStatic from '@fastify/static'
 import apiReferenceBundle from '@scalar/api-reference/browser/standalone.js?raw'
 import playButtonBundle from '@scalar/play-button?raw'
 import fastify from 'fastify'
+import { readdirSync } from 'node:fs'
 import { join } from 'node:path'
 
 const app = await fastify({ logger: true })
@@ -11,34 +12,18 @@ await app.register(fastifyStatic, {
   prefix: '/',
 })
 
-// @scalar/api-reference
+// @scalar/api-reference bundle
 
-app.get('/api-reference/jsdelivr', (_request, reply) => {
-  reply.sendFile('api-reference-jsdelivr.html', { cacheControl: false })
-})
-
-app.get('/api-reference/local', (_request, reply) => {
-  reply.sendFile('api-reference-local.html', { cacheControl: false })
-})
-
-app.get('/api-reference/local/standalone.js', (_request, reply) => {
+app.get('/api-reference/standalone.js', (_request, reply) => {
   reply
     .code(200)
     .header('Content-Type', 'text/javascript; charset=utf-8')
     .send(apiReferenceBundle)
 })
 
-// @scalar/play-button
+// @scalar/play-button bundle
 
-app.get('/play-button/jsdelivr', (_request, reply) => {
-  reply.sendFile('play-button-jsdelivr.html', { cacheControl: false })
-})
-
-app.get('/play-button/local', (_request, reply) => {
-  reply.sendFile('play-button-local.html', { cacheControl: false })
-})
-
-app.get('/play-button/local/standalone.js', (_request, reply) => {
+app.get('/play-button/standalone.js', (_request, reply) => {
   reply
     .code(200)
     .header('Content-Type', 'text/javascript; charset=utf-8')
@@ -51,11 +36,10 @@ try {
     console.log()
     console.info(`📦 CDN Example listening on http://127.0.0.1:3173`)
     console.log()
-    console.info('  ➜ http://127.0.0.1:3173/api-reference/jsdelivr')
-    console.info('  ➜ http://127.0.0.1:3173/api-reference/local')
-    console.log()
-    console.info('  ➜ http://127.0.0.1:3173/play-button/jsdelivr')
-    console.info('  ➜ http://127.0.0.1:3173/play-button/local')
+    // List all files in the public directory
+    readdirSync(join(__dirname, 'public')).forEach((file) => {
+      console.info(`  ➜ http://127.0.0.1:3173/${file}`)
+    })
     console.log()
   })
 } catch (err) {
