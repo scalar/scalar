@@ -117,6 +117,29 @@ const scrollToSection = async (id?: string) => {
   isIntersectionEnabled.value = true
 }
 
+/**
+ * Ensure we add our scalar wrapper class to the headless ui root
+ * mounted is too late
+ */
+onBeforeMount(() => {
+  const observer = new MutationObserver((records: MutationRecord[]) => {
+    console.log(records)
+    const headlessRoot = records.find((record) =>
+      Array.from(record.addedNodes).find(
+        (node) => (node as HTMLDivElement).id === 'headlessui-portal-root',
+      ),
+    )
+    if (headlessRoot) {
+      ;(headlessRoot.addedNodes[0] as HTMLDivElement).classList.add(
+        'scalar-app',
+      )
+      observer.disconnect()
+    }
+    console.log(headlessRoot)
+  })
+  observer.observe(document.body, { childList: true })
+})
+
 onMounted(() => {
   // Enable the spec download event bus
   downloadSpecBus.on(({ specTitle }) => {
