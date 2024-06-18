@@ -32,6 +32,7 @@
   button {
     border: unset;
     background: unset;
+    font-size: unset;
     appearance: unset;
     font-family: var(--scalar-font);
   }
