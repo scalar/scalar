@@ -34,6 +34,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
       - name: Turborepo cache
         uses: actions/cache@v4
         with:
@@ -41,12 +47,6 @@ jobs:
           key: ${{ runner.os }}-turbo-node-${{ matrix.node-version }}
           restore-keys: |
             ${{ runner.os }}-turbo-node-
-      - uses: pnpm/action-setup@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
       - name: Install netlify
         run: pnpm install -g netlify
       - name: Generate Run UUID
