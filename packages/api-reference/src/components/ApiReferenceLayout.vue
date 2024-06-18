@@ -40,6 +40,21 @@ import type {
   ReferenceLayoutSlot,
   ReferenceSlotProps,
 } from '../types'
+
+/**
+ * Lazy load the old API CLient, so we don’t have to bundle it if it’s not used.
+ */
+// const ApiClientModalOld = defineAsyncComponent(() => {
+//   return NEW_API_MODAL
+//     ? // Empty component
+//       new Promise((resolve) => {
+//         // @ts-expect-error Needs a type
+//         resolve({ render: () => null })
+//       })
+//     : // Load component
+//       import('./ApiClientModalOld.vue')
+// })
+import ApiClientModalOld from './ApiClientModalOld.vue'
 // import ApiClientModal from './ApiClientModal.vue'
 import { Content } from './Content'
 import GettingStarted from './GettingStarted.vue'
@@ -54,20 +69,6 @@ defineEmits<{
   (e: 'linkSwaggerFile'): void
   (e: 'toggleDarkMode'): void
 }>()
-
-/**
- * Lazy load the old API CLient, so we don’t have to bundle it if it’s not used.
- */
-const ApiClientModalOld = defineAsyncComponent(() => {
-  return NEW_API_MODAL
-    ? // Empty component
-      new Promise((resolve) => {
-        // @ts-expect-error Needs a type
-        resolve({ render: () => null })
-      })
-    : // Load component
-      import('./ApiClientModalOld.vue')
-})
 
 defineOptions({
   inheritAttrs: false,
