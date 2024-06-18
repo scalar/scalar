@@ -23,10 +23,14 @@ for dir in */ ; do
     echo "$dir cannot be packaged"
   else
     cd "$CURRENT/$dir"
-    rm -f ./*.tgz
-    pnpm pack
-    file=$(ls *.tgz)
-    mv "$file" "${file%-*}.tgz"
+    if [ -f './package.json' ]; then
+      rm -f ./*.tgz
+      pnpm pack
+      file=$(ls *.tgz)
+      mv "$file" "${file%-*}.tgz"
+    else
+      echo "$dir cannot be packaged"
+    fi
   fi
 done
 
