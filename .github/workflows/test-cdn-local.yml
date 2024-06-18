@@ -14,6 +14,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-node-${{ matrix.node-version }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-node-
       - uses: pnpm/action-setup@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -22,8 +29,6 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Turborepo cache
-        uses: dtinth/setup-github-actions-caching-for-turbo@v1
       - name: Build Packages
         run: pnpm build:packages
       - name: Start HTML Server
