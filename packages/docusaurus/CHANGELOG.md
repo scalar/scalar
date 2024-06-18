@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.4.11
+
+### Patch Changes
+
+- b351b08: fix: dont parse json from fetch just as text
+- a7ab350: fix: remove use effect from docusaurus
+
 ## 0.4.10
 
 ### Patch Changes
