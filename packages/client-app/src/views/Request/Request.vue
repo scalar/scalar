@@ -250,6 +250,7 @@ whenever(
           Test Acctual Locally
         </button> -->
         <button
+          v-if="workspace.isReadOnly"
           class="request-text-color bg-mix-transparent hover:bg-mix-amount-95 p-2 rounded bg-mix-amount-100"
           :class="getBackgroundColor()"
           type="button"
