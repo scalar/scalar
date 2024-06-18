@@ -47,7 +47,7 @@ npm add adonis-autoswagger
 
 We’ll also need to add a configuration file:
 
-```
+```ts
 // config/openapi.ts
 import path from 'node:path'
 import url from 'node:url'
@@ -76,11 +76,11 @@ export default {
 
 To actually serve an OpenAPI file and render the reference with Scalar you can extend your routes file:
 
-```
+```ts
 // start/routes.ts
+import openapi from '#config/openapi'
 import router from '@adonisjs/core/services/router'
 import AutoSwagger from 'adonis-autoswagger'
-import openapi from '#config/openapi'
 
 // Just an example route
 router.get('/', async () => {
