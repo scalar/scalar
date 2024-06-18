@@ -121,8 +121,6 @@ if (!specUrlElement && !specElement && !specScriptTag) {
     },
   })
 
-  console.log('marc', getConfiguration())
-
   if (getConfiguration().darkMode) {
     document.body?.classList.add('dark-mode')
   } else {
