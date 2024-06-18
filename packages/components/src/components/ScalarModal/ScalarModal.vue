@@ -106,12 +106,6 @@ export const useModal = () =>
     </div>
   </Dialog>
 </template>
-<style>
-/** Headless ui overrides */
-#headlessui-portal-root a {
-  color: inherit;
-}
-</style>
 <style scoped>
 .scalar-modal-layout {
   animation: modal-fade 0.2s forwards;

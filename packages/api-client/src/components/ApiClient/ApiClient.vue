@@ -129,8 +129,7 @@ watch(
   --scalar-loaded-api-client: true;
 }
 
-.scalar-api-client,
-#headlessui-portal-root {
+.scalar-api-client {
   background: var(--scalar-background-1);
   position: relative;
   height: 100%;
@@ -138,15 +137,6 @@ watch(
   display: flex;
   flex-direction: column;
   font-family: var(--scalar-font);
-
-  /** Make sure box-sizing is set properly. */
-  box-sizing: border-box;
-
-  *,
-  *:before,
-  *:after {
-    box-sizing: inherit;
-  }
 }
 .scalar-api-client {
   flex: 1;
