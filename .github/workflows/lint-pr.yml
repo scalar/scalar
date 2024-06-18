@@ -12,7 +12,6 @@ permissions:
 
 jobs:
   lint:
-    name: Validate PR title
     runs-on: ubuntu-latest
     steps:
       # https://github.com/marketplace/actions/semantic-pull-request
