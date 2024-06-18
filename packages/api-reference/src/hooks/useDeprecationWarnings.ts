@@ -37,15 +37,6 @@ export function useDeprecationWarnings(configuration: ReferenceConfiguration) {
           `[DEPRECATED] Action Required: You need to use our new proxy (written in Go). Read more: https://github.com/scalar/scalar/tree/main/examples/proxy-server`,
         )
       }
-
-      /**
-       * Deprecate old theme config, we should import the css files directly now
-       */
-      if (configuration.theme) {
-        console.warn(
-          `[DEPRECATED] Warning: configuration.theme has been deprecated. Please import the themed css files directly. Read more: https://github.com/scalar/scalar?tab=readme-ov-file#themes.`,
-        )
-      }
     },
     {
       immediate: true,
