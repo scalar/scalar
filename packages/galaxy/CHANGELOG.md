@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.2
+
+### Patch Changes
+
+- c185f10: chore: use Node script to format specifications
+
 ## 0.2.1
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.11.5
+
+### Patch Changes
+
+- 627e0e5: fix: docusaurus scalar codeblock border radius
+- Updated dependencies [362d47a]
+  - @scalar/oas-utils@0.2.3
+  - @scalar/code-highlight@0.0.3
+
 ## 0.11.4
 
 ### Patch Changes
