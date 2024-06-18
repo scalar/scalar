@@ -1366,9 +1366,6 @@ importers:
       tailwind-merge:
         specifier: ^2.3.0
         version: 2.3.0
-      tailwindcss-scoped-preflight:
-        specifier: ^3.2.8
-        version: 3.2.8(postcss@8.4.38)(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5)))
       vue:
         specifier: ^3.4.22
         version: 3.4.29(typescript@5.4.5)
@@ -13821,12 +13818,6 @@ packages:
     resolution: {integrity: sha512-agTN7BAA9eny2WABRX6jpHciQoBoSYGkZfLM1PpHAyNBPErQKFWUm1o1HjwNsZkilJL3hhUi2+H9MoCg+HT89A==}
     peerDependencies:
       tailwindcss: ^3.0.0
-
-  tailwindcss-scoped-preflight@3.2.8:
-    resolution: {integrity: sha512-Ktb/FC0K7LgqXAhdbj5aHlvuvnSO7Lz9gtSSbnGBfu5F1a8CssG0vWsOVi8ISFA5myvrFp1z3TvoCou4Ona42g==}
-    peerDependencies:
-      postcss: ^8
-      tailwindcss: ^3
 
   tailwindcss@3.4.4:
     resolution: {integrity: sha512-ZoyXOdJjISB7/BcLTR6SEsLgKtDStYyYZVLsUtWChO4Ps20CBad7lfJKVDiejocV4ME1hLmyY0WJE3hSDcmQ2A==}
@@ -30881,11 +30872,6 @@ snapshots:
 
   tailwindcss-color-mix@0.0.8(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5))):
     dependencies:
-      tailwindcss: 3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5))
-
-  tailwindcss-scoped-preflight@3.2.8(postcss@8.4.38)(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5))):
-    dependencies:
-      postcss: 8.4.38
       tailwindcss: 3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5))
 
   tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5)):
