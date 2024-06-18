@@ -28,8 +28,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
+      - name: Install dependencies (Nuxt)
+        run: pnpm --filter nuxt install
+      - name: Turborepo cache
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
       - name: Build packages
         run: pnpm build:packages
       - name: Get Playwright version

@@ -20,8 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-      - name: Use pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -29,7 +28,7 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Build Packages
+      - name: Turborepo cache
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
       - name: Build packages
         run: pnpm build:packages
