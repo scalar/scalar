@@ -343,14 +343,13 @@ useDeprecationWarnings(props.configuration)
     </template>
     <!-- REST API Client Overlay -->
     <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
-    <ApiClientModal
-      v-if="NEW_API_MODAL"
-      :proxyUrl="configuration.proxy"
-      :spec="configuration.spec" />
+    <!-- <ApiClientModal -->
+    <!--   v-if="NEW_API_MODAL" -->
+    <!--   :proxyUrl="configuration.proxy" -->
+    <!--   :spec="configuration.spec" /> -->
     <!-- API Client Overlay -->
     <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
     <ApiClientModalOld
-      v-else
       :parsedSpec="parsedSpec"
       :proxyUrl="configuration?.proxy">
       <template #sidebar-start>
