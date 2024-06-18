@@ -1,7 +1,6 @@
 /* Import core stylesheets  */
 @import 'reset.css';
 @import 'scrollbars.css';
-@import 'fonts.css';
 
 /* Import a copy of the base variables and default theme */
 @import 'variables.css';
