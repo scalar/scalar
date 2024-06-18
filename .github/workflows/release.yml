@@ -49,7 +49,10 @@ jobs:
           # The command to use to build and publish packages
           publish: 'pnpm -r publish --access public'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # https://github.com/settings/tokens/new
+          # Expiration: No expiration
+          # Select: repo.*
+          GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           # https://www.npmjs.com/settings/YOUR_ACCOUNT_HANDLE/tokens/granular-access-tokens/new
           # Custom Expiration: 01-01-2100
           # Permissions: Read and Write
