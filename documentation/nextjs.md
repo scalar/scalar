@@ -10,7 +10,7 @@ Sometimes, it’s great to start on a blank slate and set up a new project:
 npx create-next-app@latest my-awesome-app
 ```
 
-You’ll get some questions, you can leave all the recommended answer - or pick what you prefer:
+You’ll get some questions, you can leave all the default answers – or pick what you prefer:
 
 ```bash
 ? Would you like to use TypeScript? › No
@@ -21,7 +21,7 @@ You’ll get some questions, you can leave all the recommended answer - or pick 
 ? Would you like to customize the default import alias (@/*)? … No
 ```
 
-That should be it! Jump into the folder and start the development server:
+That should be it. Jump into the folder and start the development server:
 
 ```bash
 cd my-awesome-app
@@ -32,7 +32,7 @@ Great! Open <http://localhost:3000> and see the default Next.js homepage. :)
 
 ## Render your OpenAPI reference with Scalar
 
-Ready to add your API reference? Cool, there are a few options to integrate your API reference. The reommended way is to use our Next.js integration for app routing:
+Ready to add your API reference? Cool, there are a few options to integrate your API reference. The recommended way is to use our Next.js integration for app routing:
 
 ```bash
 npm add @scalar/nextjs-api-reference
