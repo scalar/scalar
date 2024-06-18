@@ -21,7 +21,7 @@ const ScalarDocusaurus = (
       // Check if we need to download a spec
       if (options.configuration?.spec?.url) {
         const resp = await fetch(options.configuration.spec.url)
-        const content = await resp.json()
+        const content = await resp.text()
         return {
           configuration: { ...options.configuration, spec: { content } },
         }
