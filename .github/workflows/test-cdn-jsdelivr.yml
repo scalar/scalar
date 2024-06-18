@@ -6,7 +6,7 @@ on:
     - cron: '0 * * * *'
   push:
     paths:
-      - 'packages/cdn-api-reference/**'
+      - 'examples/cdn-api-reference/**'
       - '.github/workflows/test-cdn-jsdelivr.yml'
 
 jobs:
@@ -40,7 +40,6 @@ jobs:
       - name: Get installed Playwright version
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package.json').devDependencies['@playwright/test'])")" >> $GITHUB_ENV
-      # TODO doesn't work
       - name: Cache playwright binaries
         uses: actions/cache@v4
         id: playwright-cache
