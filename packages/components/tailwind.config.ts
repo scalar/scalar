@@ -2,15 +2,14 @@ import headlessPlugin from '@headlessui/tailwindcss'
 import scalarPreset from '@scalar/themes/tailwind'
 import { type Config } from 'tailwindcss'
 import colorMix from 'tailwindcss-color-mix'
-import {
-  isolateInsideOfContainer,
-  scopedPreflightStyles,
-} from 'tailwindcss-scoped-preflight'
 import plugin from 'tailwindcss/plugin'
 
 export default {
   presets: [scalarPreset],
   content: ['./src/**/*.{vue,ts}'],
+  corePlugins: {
+    preflight: false,
+  },
   plugins: [
     headlessPlugin,
     colorMix(),
@@ -18,9 +17,6 @@ export default {
       addVariant('has-actv-btn', '&:has(button:active)')
       addVariant('!empty', '&:not(:empty)')
       addVariant('hocus', ['&:hover', '&:focus-visible'])
-    }),
-    scopedPreflightStyles({
-      isolationStrategy: isolateInsideOfContainer('.scalar-app'),
     }),
   ],
   theme: {

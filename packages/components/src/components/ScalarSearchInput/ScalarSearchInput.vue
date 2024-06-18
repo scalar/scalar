@@ -40,7 +40,7 @@ const attrs = computed(() => {
       autocapitalize="off"
       autocomplete="off"
       autocorrect="off"
-      class="flex-1 rounded bg-transparent p-3 outline-none"
+      class="flex-1 rounded border-none bg-transparent p-3 outline-none"
       placeholder="Search..."
       spellcheck="false"
       type="text"
