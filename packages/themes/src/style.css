@@ -1,0 +1,9 @@
+@layer scalar-base, scalar-theme;
+
+/* Import core stylesheets  */
+@import 'reset.css';
+@import 'scrollbars.css';
+
+/* Import a copy of the base variables and default theme */
+@import 'variables.css' layer(scalar-base);
+@import 'presets/default.css' layer(scalar-base);

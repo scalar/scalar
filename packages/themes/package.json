@@ -30,15 +30,9 @@
   "main": "./dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./base.css": "./dist/base.css",
-    "./fonts.css": "./dist/fonts.css",
+    "./tailwind": "./src/tailwind.ts",
     "./style.css": "./dist/style.css",
-    "./presets/alternate.css": "./dist/presets/alternate.css",
-    "./presets/default.css": "./dist/presets/default.css",
-    "./presets/moon.css": "./dist/presets/moon.css",
-    "./presets/purple.css": "./dist/presets/purple.css",
-    "./presets/solarized.css": "./dist/presets/solarized.css",
-    "./tailwind": "./src/tailwind.ts"
+    "./presets/*.css": "./dist/presets/*.css"
   },
   "files": [
     "dist",
@@ -54,7 +48,7 @@
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.6.0",
-    "tailwindcss": "^3.4.3",
+    "tailwindcss": "^3.4.4",
     "tsc-alias": "^1.8.8",
     "vite": "^5.2.10",
     "vite-plugin-static-copy": "^1.0.2",

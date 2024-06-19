@@ -3,13 +3,7 @@ import { provideUseId } from '@headlessui/vue'
 import '@scalar/components/style.css'
 import type { SSRState } from '@scalar/oas-utils'
 import { defaultStateFactory } from '@scalar/oas-utils/helpers'
-import {
-  ResetStyles,
-  ScrollbarStyles,
-  type ThemeId,
-  ThemeStyles,
-} from '@scalar/themes'
-import '@scalar/themes/style.css'
+import { type ThemeId, getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
@@ -44,6 +38,7 @@ import type {
 import { Content } from './Content'
 import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
+import { Style } from './Util'
 
 const props = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
 
@@ -121,6 +116,27 @@ const scrollToSection = async (id?: string) => {
   await sleep(100)
   isIntersectionEnabled.value = true
 }
+
+/**
+ * Ensure we add our scalar wrapper class to the headless ui root
+ * mounted is too late
+ */
+onBeforeMount(() => {
+  const observer = new MutationObserver((records: MutationRecord[]) => {
+    const headlessRoot = records.find((record) =>
+      Array.from(record.addedNodes).find(
+        (node) => (node as HTMLDivElement).id === 'headlessui-portal-root',
+      ),
+    )
+    if (headlessRoot) {
+      ;(headlessRoot.addedNodes[0] as HTMLDivElement).classList.add(
+        'scalar-app',
+      )
+      observer.disconnect()
+    }
+  })
+  observer.observe(document.body, { childList: true })
+})
 
 onMounted(() => {
   // Enable the spec download event bus
@@ -232,113 +248,38 @@ hideModels.value = props.configuration.hideModels ?? false
 useDeprecationWarnings(props.configuration)
 </script>
 <template>
-  <ThemeStyles
-    :id="configuration?.theme"
-    :withDefaultFonts="configuration?.withDefaultFonts" />
-  <ResetStyles v-slot="{ styles: reset }">
-    <ScrollbarStyles v-slot="{ styles: scrollbars }">
-      <div
-        ref="documentEl"
-        class="scalar-api-reference references-layout"
-        :class="[
-          {
-            'references-editable': configuration.isEditable,
-            'references-sidebar': configuration.showSidebar,
-            'references-sidebar-mobile-open': isSidebarOpen,
-            'references-classic': configuration.layout === 'classic',
-          },
-          reset,
-          scrollbars,
-          $attrs.class,
-        ]"
-        :style="{ '--full-height': elementHeight }"
-        @scroll.passive="debouncedScroll">
-        <!-- Header -->
-        <div class="references-header">
-          <slot
-            v-bind="referenceSlotProps"
-            name="header" />
-        </div>
-        <!-- Navigation (sidebar) wrapper -->
-        <aside
-          v-if="configuration.showSidebar"
-          class="references-navigation t-doc__sidebar">
-          <!-- Navigation tree / Table of Contents -->
-          <div class="references-navigation-list">
-            <Sidebar :parsedSpec="parsedSpec">
-              <template #sidebar-start>
-                <slot
-                  v-bind="referenceSlotProps"
-                  name="sidebar-start" />
-              </template>
-              <template #sidebar-end>
-                <slot
-                  v-bind="referenceSlotProps"
-                  name="sidebar-end" />
-              </template>
-            </Sidebar>
-          </div>
-        </aside>
-        <!-- Swagger file editing -->
-        <div
-          v-show="configuration.isEditable"
-          class="references-editor">
-          <div class="references-editor-textarea">
-            <slot
-              v-bind="referenceSlotProps"
-              name="editor" />
-          </div>
-        </div>
-        <!-- Rendered reference -->
-        <template v-if="showRenderedContent">
-          <div class="references-rendered">
-            <Content
-              :baseServerURL="configuration.baseServerURL"
-              :layout="
-                configuration.layout === 'classic' ? 'accordion' : 'default'
-              "
-              :parsedSpec="parsedSpec"
-              :proxy="configuration.proxy"
-              :servers="configuration.servers">
-              <template #start>
-                <slot
-                  v-bind="referenceSlotProps"
-                  name="content-start" />
-              </template>
-              <template
-                v-if="configuration?.isEditable"
-                #empty-state>
-                <GettingStarted
-                  :theme="configuration?.theme || 'default'"
-                  @changeTheme="$emit('changeTheme', $event)"
-                  @linkSwaggerFile="$emit('linkSwaggerFile')"
-                  @loadSwaggerFile="$emit('loadSwaggerFile')"
-                  @updateContent="$emit('updateContent', $event)" />
-              </template>
-              <template #end>
-                <slot
-                  v-bind="referenceSlotProps"
-                  name="content-end" />
-              </template>
-            </Content>
-          </div>
-          <div
-            v-if="$slots.footer"
-            class="references-footer">
-            <slot
-              v-bind="referenceSlotProps"
-              name="footer" />
-          </div>
-        </template>
-        <!-- <ApiClientModal
-          v-if="NEW_API_MODAL"
-          :proxyUrl="configuration.proxy"
-          :spec="configuration.spec" /> -->
-        <!-- API Client Overlay -->
-        <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
-        <ApiClientModalOld
-          :parsedSpec="parsedSpec"
-          :proxyUrl="configuration?.proxy">
+  <Style>{{
+    getThemeStyles(configuration.theme, {
+      fonts: configuration.withDefaultFonts,
+    })
+  }}</Style>
+  <div
+    ref="documentEl"
+    class="scalar-app scalar-api-reference references-layout"
+    :class="[
+      {
+        'references-editable': configuration.isEditable,
+        'references-sidebar': configuration.showSidebar,
+        'references-sidebar-mobile-open': isSidebarOpen,
+        'references-classic': configuration.layout === 'classic',
+      },
+      $attrs.class,
+    ]"
+    :style="{ '--full-height': elementHeight }"
+    @scroll.passive="debouncedScroll">
+    <!-- Header -->
+    <div class="references-header">
+      <slot
+        v-bind="referenceSlotProps"
+        name="header" />
+    </div>
+    <!-- Navigation (sidebar) wrapper -->
+    <aside
+      v-if="configuration.showSidebar"
+      class="references-navigation t-doc__sidebar">
+      <!-- Navigation tree / Table of Contents -->
+      <div class="references-navigation-list">
+        <Sidebar :parsedSpec="parsedSpec">
           <template #sidebar-start>
             <slot
               v-bind="referenceSlotProps"
@@ -349,10 +290,80 @@ useDeprecationWarnings(props.configuration)
               v-bind="referenceSlotProps"
               name="sidebar-end" />
           </template>
-        </ApiClientModalOld>
+        </Sidebar>
       </div>
-    </ScrollbarStyles>
-  </ResetStyles>
+    </aside>
+    <!-- Swagger file editing -->
+    <div
+      v-show="configuration.isEditable"
+      class="references-editor">
+      <div class="references-editor-textarea">
+        <slot
+          v-bind="referenceSlotProps"
+          name="editor" />
+      </div>
+    </div>
+    <!-- Rendered reference -->
+    <template v-if="showRenderedContent">
+      <div class="references-rendered">
+        <Content
+          :baseServerURL="configuration.baseServerURL"
+          :layout="configuration.layout === 'classic' ? 'accordion' : 'default'"
+          :parsedSpec="parsedSpec"
+          :proxy="configuration.proxy">
+          <template #start>
+            <slot
+              v-bind="referenceSlotProps"
+              name="content-start" />
+          </template>
+          <template
+            v-if="configuration?.isEditable"
+            #empty-state>
+            <GettingStarted
+              :theme="configuration?.theme || 'default'"
+              @changeTheme="$emit('changeTheme', $event)"
+              @linkSwaggerFile="$emit('linkSwaggerFile')"
+              @loadSwaggerFile="$emit('loadSwaggerFile')"
+              @updateContent="$emit('updateContent', $event)" />
+          </template>
+          <template #end>
+            <slot
+              v-bind="referenceSlotProps"
+              name="content-end" />
+          </template>
+        </Content>
+      </div>
+      <div
+        v-if="$slots.footer"
+        class="references-footer">
+        <slot
+          v-bind="referenceSlotProps"
+          name="footer" />
+      </div>
+    </template>
+    <!-- REST API Client Overlay -->
+    <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
+    <!-- <ApiClientModal -->
+    <!--   v-if="NEW_API_MODAL" -->
+    <!--   :proxyUrl="configuration.proxy" -->
+    <!--   :spec="configuration.spec" /> -->
+    <!-- API Client Overlay -->
+    <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
+    <ApiClientModalOld
+      :parsedSpec="parsedSpec"
+      :proxyUrl="configuration?.proxy">
+      <template #sidebar-start>
+        <slot
+          v-bind="referenceSlotProps"
+          name="sidebar-start" />
+      </template>
+      <template #sidebar-end>
+        <slot
+          v-bind="referenceSlotProps"
+          name="sidebar-end" />
+      </template>
+    </ApiClientModalOld>
+  </div>
   <ScalarToasts />
 </template>
 <style>

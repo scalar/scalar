@@ -7,7 +7,6 @@ import {
   ListboxOptions,
 } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
-import { ResetStyles } from '@scalar/themes'
 import { computed, ref } from 'vue'
 
 import CardFormButton from './CardFormButton.vue'

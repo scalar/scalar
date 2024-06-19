@@ -1,39 +1,21 @@
 import { createViteBuildOptions } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
-import { viteStaticCopy } from 'vite-plugin-static-copy'
+import { readdirSync } from 'fs'
 import { defineConfig } from 'vitest/config'
 
+// Grab all presets
+const presets = readdirSync('src/presets').map(
+  (fileName) => `src/presets/${fileName}`,
+)
+
 export default defineConfig({
-  plugins: [
-    vue(),
-    viteStaticCopy({
-      targets: [
-        {
-          src: 'src/base.css',
-          dest: './',
-        },
-        {
-          src: 'src/fonts.css',
-          dest: './',
-        },
-        {
-          src: 'src/scrollbar.css',
-          dest: './',
-        },
-        {
-          src: 'src/presets',
-          dest: './',
-        },
-        {
-          src: 'src/fonts',
-          dest: './',
-        },
-      ],
+  plugins: [vue()],
+  build: {
+    ...createViteBuildOptions({
+      entry: ['src/index.ts', 'src/style.css', ...presets],
     }),
-  ],
-  build: createViteBuildOptions({
-    entry: ['src/index.ts'],
-  }),
+    cssCodeSplit: true,
+  },
   test: {
     coverage: {
       enabled: true,

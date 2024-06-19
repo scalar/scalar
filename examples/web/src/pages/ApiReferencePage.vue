@@ -16,7 +16,7 @@ const content = ref('')
 const configuration = reactive<ReferenceConfiguration>({
   theme: 'default',
   proxy: import.meta.env.VITE_REQUEST_PROXY_URL,
-  isEditable: true,
+  isEditable: false,
   showSidebar: true,
   layout: 'modern',
   spec: { content },

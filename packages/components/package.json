@@ -81,7 +81,7 @@
     "storybook": "^8.0.8",
     "storybook-dark-mode": "^4.0.1",
     "svglint": "^2.7.1",
-    "tailwindcss": "^3.4.3",
+    "tailwindcss": "^3.4.4",
     "tailwindcss-color-mix": "^0.0.8",
     "ts-node": "^10.9.1",
     "typescript": "^5.4.3",

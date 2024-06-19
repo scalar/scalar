@@ -1,42 +1,40 @@
-/**
- * Put the Tailwind output into our Scalar cascade layers
- *
- * @see https://emamoah.medium.com/using-native-css-cascade-layers-with-tailwindcss-cb11af266104
- */
-@import 'tailwindcss/base' layer(scalar-base);
-@import 'tailwindcss/components' layer(scalar-components);
-@import 'tailwindcss/utilities' layer(scalar-utilities);
+@import '@scalar/themes/style.css';
 
-/** 
- * Custom Reset - copied over from the tailwind reset
- * Auto-magically scoped by postcss (in postcss.config.js)
- *
- * @link https://tailwindcss.com/docs/preflight 
- */
-@layer scalar-base {
-  * {
-    box-sizing: border-box;
-    border-width: 0;
-    border-style: solid;
-    border-color: var(--scalar-border-color);
+@tailwind base;
 
-    font-family: inherit;
-    font-feature-settings: inherit;
-    font-variation-settings: inherit;
-    font-size: unset;
-    font-weight: inherit;
-    line-height: inherit;
-    color: inherit;
-    margin: unset;
-    padding: unset;
-  }
-}
+.scalar-app {
+  @tailwind components;
+  @tailwind utilities;
 
-@layer scalar-utilities {
-  .row {
-    @apply flex flex-row;
-  }
-  .col {
-    @apply flex flex-col;
+  /** 
+   * Custom utilities to make life easier 
+   * For some reason it was bugging on apply so I just used css for now 
+   */
+  @layer utilities {
+    .row {
+      /* @apply flex flex-row; */
+      display: flex;
+      flex-direction: row;
+    }
+    .row-1 {
+      /* @apply flex flex-1 flex-row; */
+      display: flex;
+      flex-direction: row;
+      flex: 1 1 0%;
+    }
+    .col {
+      /* @apply flex flex-col; */
+      display: flex;
+      flex-direction: column;
+    }
+    .col-1 {
+      /* @apply flex flex-1 flex-col; */
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 0%;
+    }
+    /* .center { */
+    /* @apply flex items-center justify-center; */
+    /* } */
   }
 }

@@ -1,0 +1,102 @@
+:root {
+  --scalar-border-width: 1px;
+  --scalar-radius: 3px;
+  --scalar-radius-lg: 6px;
+  --scalar-radius-xl: 8px;
+
+  /* TYPOGRAPHY ------------------------------------ */
+  --scalar-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --scalar-font-code: 'JetBrains Mono', ui-monospace, Menlo, Monaco,
+    'Cascadia Mono', 'Segoe UI Mono', 'Roboto Mono', 'Oxygen Mono',
+    'Ubuntu Monospace', 'Source Code Pro', 'Fira Mono', 'Droid Sans Mono',
+    'Courier New', monospace;
+
+  /** Font sizes for rendered text content (editor styles or static content) */
+  --scalar-heading-1: 40px; /* Editor Page heading */
+  --scalar-page-description: 24px;
+  --scalar-heading-2: 24px; /* Editor section headings */
+  --scalar-heading-3: 20px;
+  --scalar-heading-4: 16px;
+  --scalar-heading-5: 16px;
+  --scalar-heading-6: 16px;
+
+  --scalar-paragraph: 16px;
+  --scalar-small: 14px;
+  --scalar-mini: 13px;
+  --scalar-micro: 12px;
+  --scalar-bold: 600;
+  --scalar-semibold: 500;
+  --scalar-regular: 400;
+
+  /* Font sizes for interactive applications (not rendered text content) */
+  --scalar-font-size-1: 24px;
+  --scalar-font-size-2: 16px;
+  --scalar-font-size-3: 14px;
+  --scalar-font-size-4: 13px;
+  --scalar-font-size-5: 12px;
+  --scalar-font-size-6: 12px;
+  --scalar-font-size-7: 10px;
+
+  --scalar-line-height-1: 32px;
+  --scalar-line-height-2: 24px;
+  --scalar-line-height-3: 20px;
+  --scalar-line-height-4: 18px;
+  --scalar-line-height-5: 16px;
+
+  --scalar-font-medium: 500;
+  --scalar-font-bold: 700;
+
+  --scalar-text-decoration: none;
+  --scalar-text-decoration-hover: underline;
+}
+.dark-mode {
+  color-scheme: dark;
+  --scalar-scrollbar-color: rgba(255, 255, 255, 0.18);
+  --scalar-scrollbar-color-active: rgba(255, 255, 255, 0.36);
+  --scalar-button-1: rgba(255, 255, 255, 1);
+  --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
+  --scalar-button-1-color: black;
+
+  --scalar-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
+  --scalar-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px,
+    rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+  --scalar-sidebar-indent-border: transparent;
+  --scalar-sidebar-indent-border-hover: transparent;
+  --scalar-sidebar-indent-border-active: transparent;
+}
+.light-mode {
+  color-scheme: light;
+  --scalar-scrollbar-color-active: rgba(0, 0, 0, 0.36);
+  --scalar-scrollbar-color: rgba(0, 0, 0, 0.18);
+  --scalar-button-1: rgba(0, 0, 0, 1);
+  --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
+  --scalar-button-1-color: rgba(255, 255, 255, 0.9);
+
+  --scalar-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
+  --scalar-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px,
+    rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 1px;
+
+  --scalar-sidebar-indent-border: transparent;
+  --scalar-sidebar-indent-border-hover: transparent;
+  --scalar-sidebar-indent-border-active: transparent;
+}
+/* On some browsers, the light color scheme takes precedence when the light mode is active */
+.light-mode .dark-mode {
+  color-scheme: dark !important;
+}
+@media (max-width: 460px) {
+  :root {
+    --scalar-font-size-1: 22px;
+    --scalar-font-size-2: 14px;
+    --scalar-font-size-3: 12px;
+  }
+}
+
+@media (max-width: 720px) {
+  :root {
+    --scalar-heading-1: 24px;
+    --scalar-page-description: 20px;
+  }
+}

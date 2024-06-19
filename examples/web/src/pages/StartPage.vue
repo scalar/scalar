@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { ThemeStyles } from '@scalar/themes'
+import '@scalar/themes/style.css'
 
 import PageLink from '../components/PageLink.vue'
 
 const inDevelopment = import.meta.env.DEV
 </script>
 <template>
-  <ThemeStyles id="default" />
   <div class="main dark-mode">
     <div class="logo">
       <svg

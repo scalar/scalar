@@ -1,0 +1,72 @@
+/*
+  Custom reset (loosely) based on Tailwind Preflight
+
+  @see https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/preflight.css
+*/
+
+/* Use :where to lower specificity */
+:where(.scalar-app) {
+  /** Add some more things which are normally applied to `html`. */
+  font-family: var(--scalar-font);
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
+
+  *,
+  *:before,
+  *:after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: var(--scalar-border-color);
+
+    font-family: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    font-size: unset;
+    font-weight: inherit;
+    line-height: inherit;
+    color: inherit;
+    margin: unset;
+    padding: unset;
+
+    /** Smooth text rendering */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /*
+    Remove the default background color.
+  */
+  button,
+  input,
+  optgroup,
+  select,
+  textarea,
+  ::file-selector-button {
+    background: transparent;
+  }
+
+  /*
+    Bring back a basic border style for form controls
+  */
+  input:where(:not([type='button'], [type='reset'], [type='submit'])),
+  select,
+  textarea {
+    border-radius: var(--scalar-radius);
+    border-width: 1px;
+  }
+
+  input::placeholder,
+  input:-ms-input-placeholder,
+  input::-webkit-input-placeholder {
+    color: var(--scalar-color-3);
+    font-family: var(--scalar-font);
+  }
+  /** Remove yellow/blue autofill indicator */
+  input:-webkit-autofill {
+    background-clip: text !important;
+  }
+}

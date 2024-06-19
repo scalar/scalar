@@ -1,4 +1,4 @@
-@layer scalar-base {
+.scalar-app {
   code.hljs * {
     font-size: var(--scalar-small);
     font-family: var(--scalar-font-code);
