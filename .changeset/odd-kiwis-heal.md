@@ -2,4 +2,4 @@
 "@scalar/api-reference": patch
 ---
 
-fix: custom metadata
+fix: configuration metaData isn’t used
