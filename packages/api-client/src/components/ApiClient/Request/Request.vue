@@ -93,7 +93,8 @@ const readOnly = true
   }
 }
 
-.scalar-api-client__main__left {
+.scalar-api-client__main__left,
+.scalar-api-client__main__right {
   .scalar-api-client__item__content {
     flex-flow: wrap;
     color: var(--scalar-color-3);
