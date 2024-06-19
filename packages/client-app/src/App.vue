@@ -4,7 +4,7 @@ import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarToasts } from '@scalar/use-toasts'
-import { onMounted, watchEffect } from 'vue'
+import { onBeforeMount, onMounted, watchEffect } from 'vue'
 import { RouterView } from 'vue-router'
 
 onMounted(() => {
@@ -12,10 +12,33 @@ onMounted(() => {
     document.body.classList.toggle('dark-mode', isDark.value)
     document.body.classList.toggle('light-mode', !isDark.value)
   })
+
+  /** add scalar-app class to the root component */
+  const appElement = document.getElementById('app')
+  if (appElement) {
+    appElement.classList.add('scalar-app')
+  }
 })
 
 const { isDark } = useDarkModeState()
 const { importSpecFromUrl } = useWorkspace()
+
+onBeforeMount(() => {
+  const observer = new MutationObserver((records: MutationRecord[]) => {
+    const headlessRoot = records.find((record) =>
+      Array.from(record.addedNodes).find(
+        (node) => (node as HTMLDivElement).id === 'headlessui-portal-root',
+      ),
+    )
+    if (headlessRoot) {
+      ;(headlessRoot.addedNodes[0] as HTMLDivElement).classList.add(
+        'scalar-app',
+      )
+      observer.disconnect()
+    }
+  })
+  observer.observe(document.body, { childList: true })
+})
 
 onMounted(() => {
   importSpecFromUrl(
@@ -37,11 +60,7 @@ onMounted(() => {
 </template>
 <style>
 @import '@scalar/components/style.css';
-
-@import './assets/reset.css';
-@import './assets/scrollbar.css';
 @import './assets/tailwind.css';
-@import './assets/variables.css';
 
 #app {
   display: flex;
