@@ -241,8 +241,7 @@ function App() {
 export default App
 ```
 
-We wrote
-a [detailed integration guide for React](https://github.com/scalar/scalar/tree/main/documentation/react.md), too.
+We wrote a [detailed integration guide for React](https://github.com/scalar/scalar/tree/main/documentation/react.md), too.
 
 ### Next.js
 
@@ -262,8 +261,7 @@ const config = {
 export const GET = ApiReference(config)
 ```
 
-We wrote
-a [detailed integration guide for Next.js](https://github.com/scalar/scalar/tree/main/documentation/nextjs.md), too.
+We wrote a [detailed integration guide for Next.js](https://github.com/scalar/scalar/tree/main/documentation/nextjs.md), too.
 
 Read more: [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nextjs-api-reference)
 
@@ -288,8 +286,7 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
-We wrote
-a [detailed integration guide for Fastify](https://github.com/scalar/scalar/tree/main/documentation/fastify.md), too.
+We wrote a [detailed integration guide for Fastify](https://github.com/scalar/scalar/tree/main/documentation/fastify.md), too.
 
 Read more about the
 package: [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference)
@@ -400,8 +397,7 @@ plugins: [
 ],
 ```
 
-We wrote
-a [detailed integration guide for Docusaurus](https://github.com/scalar/scalar/tree/main/documentation/docusaurus.md), too.
+We wrote a [detailed integration guide for Docusaurus](https://github.com/scalar/scalar/tree/main/documentation/docusaurus.md), too.
 
 For more information, check out
 the [Docusaurus package](https://github.com/scalar/scalar/tree/main/packages/docusaurus/README.md)
@@ -412,8 +408,7 @@ There’s [a community package to generate OpenAPI files in AdonisJS,](https://g
 and it comes with support for the
 Scalar API reference already.
 
-We wrote
-a [detailed integration guide for AdonisJS](https://github.com/scalar/scalar/tree/main/documentation/adonisjs.md).
+We wrote a [detailed integration guide for AdonisJS](https://github.com/scalar/scalar/tree/main/documentation/adonisjs.md).
 
 ### Laravel
 
@@ -432,8 +427,7 @@ return [
 ];
 ```
 
-We wrote
-a [detailed integration guide for Laravel Scribe](https://github.com/scalar/scalar/tree/main/documentation/laravel-scribe.md),
+We wrote a [detailed integration guide for Laravel Scribe](https://github.com/scalar/scalar/tree/main/documentation/laravel-scribe.md),
 too.
 
 ### Rust
