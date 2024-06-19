@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>API Reference</title>
+    <title>Scalar API Reference</title>
     <meta charset="utf-8" />
     <meta
       name="viewport"
@@ -22,20 +22,12 @@
       }
     </style>
   </head>
-  <body class="layout">
+  <body>
     <header class="header">Scalar API References</header>
-    <!-- References will be injected here  -->
-    <script id="api-reference"></script>
-    <!-- References Configuration -->
-    <script>
-      var configuration = {
-        theme: 'purple',
-        spec: { url: 'https://petstore3.swagger.io/api/v3/openapi.json' },
-        proxy: 'https://api.scalar.com/request-proxy',
-      }
-      var apiReference = document.getElementById('api-reference')
-      apiReference.dataset.configuration = JSON.stringify(configuration)
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+    <script
+      id="api-reference"
+      data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml"
+      data-proxy-url="https://proxy.scalar.com"></script>
+    <script src="/api-reference/standalone.js"></script>
   </body>
 </html>
