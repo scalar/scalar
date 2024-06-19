@@ -37,6 +37,7 @@ Ready to add your API reference? Cool, there are a few options to integrate your
 ```bash
 npm add @scalar/nextjs-api-reference
 ```
+### App router
 
 … and add a new app route:
 
