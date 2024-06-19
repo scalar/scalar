@@ -77,7 +77,10 @@
     "fuse.js": "^7.0.0",
     "github-slugger": "^2.0.0",
     "httpsnippet-lite": "^3.0.5",
-    "postcss-nested": "^6.0.1"
+    "postcss-nested": "^6.0.1",
+    "unhead": "^1.8.3",
+    "unified": "^11.0.4",
+    "vue": "^3.4.22"
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",

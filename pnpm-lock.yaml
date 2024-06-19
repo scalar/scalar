@@ -877,6 +877,9 @@ importers:
       '@unhead/schema':
         specifier: ^1.9.5
         version: 1.9.13
+      '@unhead/vue':
+        specifier: ^1.9.13
+        version: 1.9.13(vue@3.4.29(typescript@5.4.5))
       '@vueuse/core':
         specifier: ^10.10.0
         version: 10.11.0(vue@3.4.29(typescript@5.4.5))
