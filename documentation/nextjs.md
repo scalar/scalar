@@ -55,6 +55,8 @@ export const GET = ApiReference(config)
 
 Open <http://localhost:3000/reference> and there it is: Your new API reference. :)
 
+### Page router
+
 But you can also just use our React integration and add a page route:
 
 ```js
