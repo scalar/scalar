@@ -45,7 +45,6 @@ describe('useSidebar', async () => {
         paths: {
           '/hello': {
             get: {
-              operationId: 'helloWorld',
               summary: 'Hello World',
             },
           },
@@ -67,7 +66,6 @@ describe('useSidebar', async () => {
         paths: {
           '/hello': {
             get: {
-              operationId: 'helloWorld',
               summary: 'Hello World',
             },
           },
@@ -75,7 +73,6 @@ describe('useSidebar', async () => {
         webhooks: {
           hello: {
             post: {
-              operationId: 'helloWebhook',
               summary: 'Hello Webhook',
             },
           },
@@ -107,7 +104,6 @@ describe('useSidebar', async () => {
         paths: {
           '/hello': {
             get: {
-              operationId: 'helloWorld',
               summary: 'Hello World',
             },
           },
@@ -129,7 +125,6 @@ describe('useSidebar', async () => {
         paths: {
           '/hello': {
             get: {
-              operationId: 'helloWorld',
               summary: 'Hello World',
               tags: ['Foobar'],
             },
@@ -161,7 +156,6 @@ describe('useSidebar', async () => {
         paths: {
           '/hello': {
             get: {
-              operationId: 'helloWorld',
               summary: 'Hello World',
               tags: ['Foobar', 'Barfoo'],
             },
@@ -207,7 +201,6 @@ describe('useSidebar', async () => {
         paths: {
           '/hello': {
             get: {
-              operationId: 'helloWorld',
               summary: 'Hello World',
               tags: ['Foobar'],
             },
@@ -245,12 +238,10 @@ describe('useSidebar', async () => {
         paths: {
           '/hello': {
             get: {
-              operationId: 'getHelloWorld',
               summary: 'Get Hello World',
               tags: ['foobar'],
             },
             post: {
-              operationId: 'postHelloWorld',
               summary: 'Post Hello World',
             },
           },
@@ -325,7 +316,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it.todo('groups tags by x-tagGroups and shows webhooks', async () => {
+  it('groups tags by x-tagGroups and shows default webhook group', async () => {
     expect(
       await getItemsForDocument({
         'openapi': '3.1.0',
@@ -355,7 +346,7 @@ describe('useSidebar', async () => {
         'webhooks': {
           hello: {
             post: {
-              operationId: 'helloWebhook',
+              tags: ['planets'],
               summary: 'Hello Webhook',
             },
           },
@@ -376,12 +367,73 @@ describe('useSidebar', async () => {
             },
           ],
         },
-
         {
           title: 'Webhook',
           children: [
             {
               title: 'Hello Webhook',
+            },
+          ],
+        },
+      ],
+    })
+  })
+
+  it('groups tags by x-tagGroups and adds the webhooks to one group', async () => {
+    expect(
+      await getItemsForDocument({
+        'openapi': '3.1.0',
+        'info': {
+          title: 'Example',
+          version: '1.0',
+        },
+        'tags': [
+          {
+            name: 'planets',
+          },
+        ],
+        'x-tagGroups': [
+          {
+            name: 'galaxy',
+            tags: ['planets', 'webhooks'],
+          },
+        ],
+        'paths': {
+          '/planets': {
+            get: {
+              summary: 'Get all planets',
+              tags: ['planets'],
+            },
+          },
+        },
+        'webhooks': {
+          hello: {
+            post: {
+              summary: 'Hello Webhook',
+            },
+          },
+        },
+      }),
+    ).toMatchObject({
+      entries: [
+        {
+          title: 'galaxy',
+          children: [
+            {
+              title: 'planets',
+              children: [
+                {
+                  title: 'Get all planets',
+                },
+              ],
+            },
+            {
+              title: 'Webhook',
+              children: [
+                {
+                  title: 'Hello Webhook',
+                },
+              ],
             },
           ],
         },
