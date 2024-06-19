@@ -15,8 +15,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "run-p typegen:icons types:check \"build-only {@}\" --",
-    "build-only": "vite build",
+    "build": "scalar-build-vite",
     "build:storybook": "storybook build",
     "dev": "storybook dev -p 5100 --ci",
     "format": "pnpm prettier --write .",
@@ -27,7 +26,8 @@
     "storybook": "storybook dev -p 5100",
     "test": "vitest",
     "typegen:icons": "node --no-warnings --loader ts-node/esm ./src/scripts/typegen.ts",
-    "types:check": "vue-tsc --noEmit  --composite false"
+    "types:build": "scalar-types-build-vue",
+    "types:check": "scalar-types-check-vue"
   },
   "type": "module",
   "main": "./dist/index.cjs",
@@ -84,6 +84,7 @@
     "tailwindcss": "^3.4.3",
     "tailwindcss-color-mix": "^0.0.8",
     "ts-node": "^10.9.1",
+    "tsc-alias": "^1.8.8",
     "typescript": "^5.4.3",
     "vite": "^5.2.10",
     "vite-plugin-dts": "^3.6.3",

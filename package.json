@@ -7,13 +7,13 @@
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
     "@playwright/test": "^1.42.0",
+    "@scalar/build-tooling": "workspace:*",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/node": "^20.8.4",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "@vitest/coverage-v8": "^1.6.0",
     "@vue/eslint-config-typescript": "^12.0.0",
-    "concurrently": "^8.2.2",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard-with-typescript": "^43.0.1",
@@ -21,6 +21,8 @@
     "eslint-plugin-storybook": "^0.6.15",
     "eslint-plugin-vue": "^9.21.1",
     "lefthook": "^1.6.1",
+    "prefix-stream-lines": "^1.0.2",
+    "prepend-transform": "^0.0.1019",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.11",
     "start-server-and-test": "^2.0.3",
@@ -69,7 +71,9 @@
     "test:e2e:themes": "pnpm --filter playwright test:e2e themes",
     "test:e2e:nuxt": "pnpm --filter playwright test:e2e nuxt",
     "types:check": "turbo --concurrency=100 types:check",
-    "bootstrap:package": "vite-node scripts/bootstrap-package/bootstrap-package.ts"
+    "bootstrap:package": "-node scripts/bootstrap-package/bootstrap-package.ts",
+    "build:watch": "NODE_OPTIONS=--max-old-space-size=8000 node packages/build-watch/dist/index.js",
+    "build:watch:test": "NODE_OPTIONS=--max-old-space-size=8000 node packages/build-watch/dist/spawn-test.js"
   },
   "exports": {
     "./css/*.css": {
