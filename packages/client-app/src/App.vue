@@ -61,6 +61,7 @@ onMounted(() => {
 <style>
 @import '@scalar/components/style.css';
 @import './assets/tailwind.css';
+@import './assets/variables.css';
 
 #app {
   display: flex;
