@@ -46,8 +46,9 @@ const { setCollapsedSidebarItem } = useSidebar()
   cursor: pointer;
 }
 .show-more-icon {
-  width: 14px;
-  height: 14px;
+  /* todo remove but its for docusaurus */
+  width: 14px !important;
+  height: 14px !important;
   margin-left: 3px;
 }
 .show-more:active {
