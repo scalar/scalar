@@ -13,6 +13,11 @@ await app.register(fastifyStatic, {
   cacheControl: false,
 })
 
+// health check
+app.get('/ping', (_request, reply) => {
+  reply.send('pong')
+})
+
 // @scalar/api-reference bundle
 
 app.get('/api-reference/standalone.js', (_request, reply) => {

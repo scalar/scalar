@@ -29,22 +29,26 @@ jobs:
           key: ${{ runner.os }}-turbo-node-${{ matrix.node-version }}
           restore-keys: |
             ${{ runner.os }}-turbo-node-
-      - name: Build Packages
+      - name: Build packages
         run: pnpm build:packages
-      - name: Start HTML Server
-        run: pnpm --filter @scalar-examples/cdn-api-reference dev &
-      - name: Get installed Playwright version
+      - name: Get Playwright version
         id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package.json').devDependencies['@playwright/test'])")" >> $GITHUB_ENV
-      # TODO doesn't work
-      - name: Cache playwright binaries
+        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> $GITHUB_ENV
+      - name: Playwright binary cache
         uses: actions/cache@v4
         id: playwright-cache
         with:
-          path: '~/.cache/ms-playwright'
-          key: '${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}'
-          restore-keys: ${{ runner.os }}-playwright-
-      - name: Install Playwright browser binaries & OS dependencies
-        run: pnpm exec playwright install --with-deps
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.PLAYWRIGHT_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+      - name: Install Playwright browsers
+        run: npx playwright install
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+      - name: Install Playwright dependencies
+        run: npx playwright install-deps
+      - name: Start HTML server
+        run: pnpm --filter @scalar-examples/cdn-api-reference dev &
       - name: Run e2e tests (local)
         run: CI=1 pnpm test:e2e:local
