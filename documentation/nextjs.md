@@ -34,7 +34,7 @@ Great! Open <http://localhost:3000> and see the default Next.js homepage. :)
 
 Ready to add your API reference? Cool, there are a few options to integrate your API reference. The recommended way is to use our Next.js integration for app routing:
 
-### App router
+### Recommended: App router
 
 Install the package:
 
@@ -59,13 +59,15 @@ export const GET = ApiReference(config)
 
 Open <http://localhost:3000/reference> and there it is: Your new API reference. :)
 
-### Pages router
+### Alternative: Pages router
 
 But you can also just use our React integration and add a page route:
 
 ```bash
 npm add @scalar/api-reference-react
 ```
+
+… and aa a new page route:
 
 ```js
 import { ApiReferenceReact } from '@scalar/api-reference-react'
