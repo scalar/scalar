@@ -1,14 +1,16 @@
 import { test } from '@playwright/test'
 
-import { apiReference } from './api-reference-ui-test'
-import { playButton } from './play-button-ui-test'
+import { testApiReference, testHelloWorld } from './testApiReference'
+import { testPlayButton } from './testPlayButton'
 
 const HOST = process.env.HOST || 'localhost'
 
-test('@scalar/api-reference local build', async ({ page, isMobile }) => {
+test('@scalar/api-reference local build (data-url)', async ({
+  page,
+  isMobile,
+}) => {
   await page.goto(`http://${HOST}:3173/api-reference-local.html`)
-
-  await apiReference(page, isMobile)
+  await testApiReference(page, isMobile)
 
   // TODO: fix the dev workflow
   /** Visual Regression Testing
@@ -29,9 +31,18 @@ test('@scalar/api-reference local build', async ({ page, isMobile }) => {
    */
 })
 
+test('@scalar/api-reference local build (json content)', async ({ page }) => {
+  await page.goto(`http://${HOST}:3173/api-reference-local-json-content.html`)
+  await testHelloWorld(page)
+})
+
+test('@scalar/api-reference local build (yaml content)', async ({ page }) => {
+  await page.goto(`http://${HOST}:3173/api-reference-local-yaml-content.html`)
+  await testHelloWorld(page)
+})
+
 // TODO: The package is just broken and needs to be fixed.
 test.skip('@scalar/play-button local build', async ({ page, isMobile }) => {
   await page.goto(`http://${HOST}:3173/play-button-local.html`)
-
-  await playButton(page, isMobile)
+  await testPlayButton(page, isMobile)
 })

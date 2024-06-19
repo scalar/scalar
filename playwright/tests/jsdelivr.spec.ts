@@ -1,14 +1,13 @@
 import { test } from '@playwright/test'
 
-import { apiReference } from './api-reference-ui-test'
-import { playButton } from './play-button-ui-test'
+import { testApiReference, testHelloWorld } from './testApiReference'
+import { testPlayButton } from './testPlayButton'
 
 const HOST = process.env.HOST || 'localhost'
 
 test('@scalar/api-reference jsdelivr build', async ({ page, isMobile }) => {
   await page.goto(`http://${HOST}:3173/api-reference-jsdelivr.html`)
-
-  await apiReference(page, isMobile)
+  await testApiReference(page, isMobile)
 
   // TODO: fix the dev workflow
   /** Visual Regression Testing
@@ -29,9 +28,27 @@ test('@scalar/api-reference jsdelivr build', async ({ page, isMobile }) => {
    */
 })
 
+test('@scalar/api-reference jsdelivr build (json content)', async ({
+  page,
+}) => {
+  await page.goto(
+    `http://${HOST}:3173/api-reference-jsdelivr-json-content.html`,
+  )
+  await testHelloWorld(page)
+})
+
+// TODO: Will be fixed with the next release.
+test.skip('@scalar/api-reference jsdelivr build (yaml content)', async ({
+  page,
+}) => {
+  await page.goto(
+    `http://${HOST}:3173/api-reference-jsdelivr-yaml-content.html`,
+  )
+  await testHelloWorld(page)
+})
+
 // TODO: The package is just broken and needs to be fixed.
 test.skip('@scalar/play-button jsdelivr build', async ({ page, isMobile }) => {
   await page.goto(`http://${HOST}:3173/play-button-jsdelivr.html`)
-
-  await playButton(page, isMobile)
+  await testPlayButton(page, isMobile)
 })
