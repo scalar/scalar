@@ -1,5 +1,13 @@
 # @scalar/nextjs-api-reference
 
+## 0.4.12
+
+### Patch Changes
+
+- 008ac8c: feat: add URL support
+- Updated dependencies [fb9baa5]
+  - @scalar/api-reference@1.24.14
+
 ## 0.4.11
 
 ### Patch Changes
