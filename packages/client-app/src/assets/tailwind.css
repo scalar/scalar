@@ -9,7 +9,7 @@
    * Custom utilities to make life easier 
    * For some reason it was bugging on apply so I just used css for now 
    */
-  @layer utilities {
+  @layer components {
     .row {
       /* @apply flex flex-row; */
       display: flex;
