@@ -61,25 +61,27 @@ const handleDropdownMouseUp = () => {
 }
 </script>
 <template>
-  <DataTableCell class="relative flex">
+  <DataTableCell class="relative row">
     <div
       v-if="$slots.default"
       class="text-c-2 flex min-w-[100px] items-center border-r-1/2 pl-2 pr-0">
       <slot />
     </div>
-    <input
-      v-bind="$attrs"
-      autocomplete="off"
-      class="placeholder:text-c-3 focus:text-c-1 text-c-2 min-w-0 flex-1 px-2 py-[5.75px]"
-      data-1p-ignore
-      :readOnly="readOnly"
-      :required="required"
-      spellcheck="false"
-      :type="inputType"
-      :value="modelValue"
-      @blur="handleBlur"
-      @focus="emit('inputFocus')"
-      @input="handleInput" />
+    <div class="row-1">
+      <input
+        v-bind="$attrs"
+        autocomplete="off"
+        class="border-none focus:text-c-1 text-c-2 min-w-0 w-full px-2 py-1.5 outline-none"
+        data-1p-ignore
+        :readOnly="readOnly"
+        :required="required"
+        spellcheck="false"
+        :type="inputType"
+        :value="modelValue"
+        @blur="handleBlur"
+        @focus="emit('inputFocus')"
+        @input="handleInput" />
+    </div>
     <slot name="icon" />
     <ScalarIconButton
       v-if="type === 'password'"
@@ -94,3 +96,10 @@ const handleDropdownMouseUp = () => {
       @select="handleSelect" />
   </DataTableCell>
 </template>
+
+<style scoped>
+/* Tailwind placeholder is busted */
+input::placeholder {
+  color: var(--scalar-color-3);
+}
+</style>

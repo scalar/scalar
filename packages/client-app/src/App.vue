@@ -4,7 +4,7 @@ import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarToasts } from '@scalar/use-toasts'
-import { onMounted, watchEffect } from 'vue'
+import { onBeforeMount, onMounted, watchEffect } from 'vue'
 import { RouterView } from 'vue-router'
 
 onMounted(() => {
@@ -17,6 +17,23 @@ onMounted(() => {
 const { isDark } = useDarkModeState()
 const { importSpecFromUrl } = useWorkspace()
 
+onBeforeMount(() => {
+  const observer = new MutationObserver((records: MutationRecord[]) => {
+    const headlessRoot = records.find((record) =>
+      Array.from(record.addedNodes).find(
+        (node) => (node as HTMLDivElement).id === 'headlessui-portal-root',
+      ),
+    )
+    if (headlessRoot) {
+      const el = headlessRoot.addedNodes[0] as HTMLDivElement
+      el.classList.add('scalar-app')
+      el.classList.add('scalar-client')
+      observer.disconnect()
+    }
+  })
+  observer.observe(document.body, { childList: true })
+})
+
 onMounted(() => {
   importSpecFromUrl(
     'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
@@ -28,7 +45,7 @@ onMounted(() => {
   <!-- min-h-0 is to allow scrolling of individual flex children -->
   <main class="flex min-h-0 flex-1">
     <SideNav />
-    <div class="flex flex-1 flex-col">
+    <div class="flex flex-1 flex-col min-w-0">
       <!-- <AddressBar /> -->
       <RouterView />
     </div>
@@ -37,9 +54,6 @@ onMounted(() => {
 </template>
 <style>
 @import '@scalar/components/style.css';
-
-@import './assets/reset.css';
-@import './assets/scrollbar.css';
 @import './assets/tailwind.css';
 @import './assets/variables.css';
 

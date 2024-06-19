@@ -8,8 +8,7 @@ import { useWorkspace } from '@/store/workspace'
 const { workspace } = useWorkspace()
 </script>
 <template>
-  <div
-    class="tems-center relative flex flex-1 flex-col justify-center gap-6 p-2 capitalize">
+  <div class="relative col-1 flex-center gap-6 p-2 capitalize">
     <div
       class="flex h-[calc(100%_-_50px)] flex-col items-center justify-center">
       <ScalarAsciiArt :art="Computer" />
