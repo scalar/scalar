@@ -34,7 +34,8 @@ jobs:
         run: pnpm format:check
       - name: Build
         run: pnpm turbo build
-      - name: Check types
+      - if: matrix.node-version == 20
+        name: Check types
         run: pnpm turbo types:check
       - name: Run tests
         run: pnpm test:ci
