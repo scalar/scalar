@@ -5,9 +5,8 @@ import DataTableHeader from '@/components/DataTable/DataTableHeader.vue'
 import DataTableInput from '@/components/DataTable/DataTableInput.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { useWorkspace } from '@/store/workspace'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { computed, ref } from 'vue'
 
 defineProps<{
