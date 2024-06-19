@@ -27,7 +27,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Turborepo cache
-        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-node-${{ matrix.node-version }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-node-
       - name: Build Packages
         run: pnpm build:packages
       - name: Start HTML Server
