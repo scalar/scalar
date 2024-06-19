@@ -1153,7 +1153,7 @@ importers:
     dependencies:
       '@headlessui/tailwindcss':
         specifier: ^0.2.0
-        version: 0.2.1(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5)))
+        version: 0.2.1(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.14.2)(typescript@5.4.5)))
       '@headlessui/vue':
         specifier: ^1.7.20
         version: 1.7.22(vue@3.4.29(typescript@5.4.5))
@@ -1238,7 +1238,7 @@ importers:
         version: 3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5))
       tailwindcss-color-mix:
         specifier: ^0.0.8
-        version: 0.0.8(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5)))
+        version: 0.0.8(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.14.2)(typescript@5.4.5)))
       tsc-alias:
         specifier: ^1.8.8
         version: 1.8.10
@@ -1375,7 +1375,7 @@ importers:
     devDependencies:
       '@headlessui/tailwindcss':
         specifier: ^0.2.0
-        version: 0.2.1(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5)))
+        version: 0.2.1(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.14.2)(typescript@5.4.5)))
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -1450,7 +1450,7 @@ importers:
         version: 3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5))
       tailwindcss-color-mix:
         specifier: ^0.0.8
-        version: 0.0.8(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5)))
+        version: 0.0.8(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.14.2)(typescript@5.4.5)))
       ts-node:
         specifier: ^10.9.1
         version: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5)
@@ -17727,7 +17727,7 @@ snapshots:
     dependencies:
       '@hapi/hoek': 9.3.0
 
-  '@headlessui/tailwindcss@0.2.1(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5)))':
+  '@headlessui/tailwindcss@0.2.1(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.14.2)(typescript@5.4.5)))':
     dependencies:
       tailwindcss: 3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5))
 
@@ -30873,7 +30873,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.24.7
 
-  tailwindcss-color-mix@0.0.8(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5))):
+  tailwindcss-color-mix@0.0.8(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.14.2)(typescript@5.4.5))):
     dependencies:
       tailwindcss: 3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5))
 
