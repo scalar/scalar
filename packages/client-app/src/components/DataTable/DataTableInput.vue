@@ -96,3 +96,10 @@ const handleDropdownMouseUp = () => {
       @select="handleSelect" />
   </DataTableCell>
 </template>
+
+<style scoped>
+/* Tailwind placeholder is busted */
+input::placeholder {
+  color: var(--scalar-color-3);
+}
+</style>
