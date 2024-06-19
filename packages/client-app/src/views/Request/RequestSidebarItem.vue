@@ -174,7 +174,7 @@ const showChildren = computed(
           </slot>
           &hairsp;
         </span>
-        <span class="z-10 font-medium w-full">
+        <span class="z-10 font-medium">
           {{ getTitle(item) }}
         </span>
       </button>
