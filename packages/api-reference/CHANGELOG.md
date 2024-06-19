@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.24.15
+
+### Patch Changes
+
+- d7a011a: fix: configuration metaData isn’t used
+- 40d7c3d: fix: remove layers in docusaurus and fix precedence issue
+
 ## 1.24.14
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.4.15
+
+### Patch Changes
+
+- 40d7c3d: fix: remove layers in docusaurus and fix precedence issue
+  - @scalar/api-reference-react@0.3.13
+
 ## 0.4.14
 
 ### Patch Changes
