@@ -71,6 +71,7 @@
   -moz-osx-font-smoothing: grayscale;
 
   font-family: var(--scalar-font);
+  line-height: 1.5;
   color: var(--scalar-color-1);
   background-color: var(--scalar-background-1);
 }
