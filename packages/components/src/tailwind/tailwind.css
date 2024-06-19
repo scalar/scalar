@@ -1,10 +1,10 @@
 @import '@scalar/themes/style.css';
-
-@tailwind base;
+@import 'tailwindcss/base' layer(scalar-base);
 
 .scalar-app {
   @tailwind components;
   @tailwind utilities;
+  @tailwind variants;
 
   /** 
    * Custom utilities to make life easier 
@@ -33,8 +33,37 @@
       flex-direction: column;
       flex: 1 1 0%;
     }
-    /* .center { */
-    /* @apply flex items-center justify-center; */
-    /* } */
+    .flex-center {
+      /* @apply flex items-center justify-center; */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .centered-x {
+      /* @apply left-1/2 -translate-x-1/2; */
+      left: 50%;
+      --tw-translate-x: -50%;
+      transform: translate(var(--tw-translate-x), var(--tw-translate-y))
+        rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
+        scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+    }
+    .centered-y {
+      /* @apply top-1/2 -translate-y-1/2; */
+      top: 50%;
+      --tw-translate-y: -50%;
+      transform: translate(var(--tw-translate-x), var(--tw-translate-y))
+        rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
+        scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+    }
+    .centered {
+      /* @apply centered-x centered-y; */
+      left: 50%;
+      --tw-translate-x: -50%;
+      top: 50%;
+      --tw-translate-y: -50%;
+      transform: translate(var(--tw-translate-x), var(--tw-translate-y))
+        rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
+        scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+    }
   }
 }

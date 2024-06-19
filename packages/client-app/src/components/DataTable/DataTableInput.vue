@@ -70,7 +70,7 @@ const handleDropdownMouseUp = () => {
     <input
       v-bind="$attrs"
       autocomplete="off"
-      class="border-none placeholder:text-c-3 focus:text-c-1 text-c-2 min-w-0 flex-1 px-2 py-[5.75px]"
+      class="border-none focus:text-c-1 text-c-2 min-w-0 flex-1 px-2 py-1.5 outline-none"
       data-1p-ignore
       :readOnly="readOnly"
       :required="required"

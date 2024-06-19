@@ -12,12 +12,6 @@ onMounted(() => {
     document.body.classList.toggle('dark-mode', isDark.value)
     document.body.classList.toggle('light-mode', !isDark.value)
   })
-
-  /** add scalar-app class to the root component */
-  const appElement = document.getElementById('app')
-  if (appElement) {
-    appElement.classList.add('scalar-app')
-  }
 })
 
 const { isDark } = useDarkModeState()
@@ -31,9 +25,9 @@ onBeforeMount(() => {
       ),
     )
     if (headlessRoot) {
-      ;(headlessRoot.addedNodes[0] as HTMLDivElement).classList.add(
-        'scalar-app',
-      )
+      const el = headlessRoot.addedNodes[0] as HTMLDivElement
+      el.classList.add('scalar-app')
+      el.classList.add('scalar-client')
       observer.disconnect()
     }
   })

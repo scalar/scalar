@@ -230,8 +230,6 @@ const createExampleFromRequest = (request: Request): RequestExample => {
     request.childUids.some((uid) => t === requestExamples[uid].name),
   )
 
-  console.log(body)
-
   const example = createRequestExample({
     requestUid: request.uid,
     parameters,
