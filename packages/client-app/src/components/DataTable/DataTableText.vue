@@ -7,7 +7,7 @@ defineProps<{
 </script>
 <template>
   <DataTableCell class="relative flex">
-    <span class="flex-1 px-2 py-[5.75px] whitespace-nowrap">
+    <span class="flex-1 px-2 py-1.5 whitespace-nowrap">
       {{ text }}
     </span>
   </DataTableCell>
