@@ -379,7 +379,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it('groups tags by x-tagGroups and adds the webhooks to one group', async () => {
+  it('groups tags by x-tagGroups and adds the webhooks to the tag group', async () => {
     expect(
       await getItemsForDocument({
         'openapi': '3.1.0',
@@ -434,6 +434,68 @@ describe('useSidebar', async () => {
                   title: 'Hello Webhook',
                 },
               ],
+            },
+          ],
+        },
+      ],
+    })
+  })
+
+  it('groups tags by x-tagGroups and keeps the webhook default entry', async () => {
+    expect(
+      await getItemsForDocument({
+        'openapi': '3.1.0',
+        'info': {
+          title: 'Example',
+          version: '1.0',
+        },
+        'tags': [
+          {
+            name: 'planets',
+          },
+        ],
+        'x-tagGroups': [
+          {
+            name: 'galaxy',
+            tags: ['planets'],
+          },
+        ],
+        'paths': {
+          '/planets': {
+            get: {
+              summary: 'Get all planets',
+              tags: ['planets'],
+            },
+          },
+        },
+        'webhooks': {
+          hello: {
+            post: {
+              summary: 'Hello Webhook',
+            },
+          },
+        },
+      }),
+    ).toMatchObject({
+      entries: [
+        {
+          title: 'galaxy',
+          children: [
+            {
+              title: 'planets',
+              children: [
+                {
+                  title: 'Get all planets',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Webhook',
+          children: [
+            {
+              title: 'Hello Webhook',
             },
           ],
         },
