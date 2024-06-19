@@ -8,6 +8,7 @@
   /** 
    * Custom utilities to make life easier 
    * For some reason it was bugging on apply so I just used css for now 
+   * Replicated in components until we figure out how to share  
    */
   @layer components {
     .row {

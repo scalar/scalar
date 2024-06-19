@@ -64,31 +64,29 @@ const handleFileUpload = (idx: number) => {
 
       <!-- todo grab required from the ref -->
       <!-- :required="item.required" -->
-      <div class="flex w-full">
-        <DataTableInput
-          :modelValue="item.value"
-          placeholder="Value"
-          @blur="emit('inputBlur')"
-          @focus="emit('inputFocus')"
-          @input="items && idx === items.length - 1 && emit('addRow')"
-          @selectVariable="(v) => handleSelectVariable(idx, 'value', v)"
-          @update:modelValue="(v) => emit('updateRow', idx, 'value', v)">
-          <template
-            v-if="item.description"
-            #icon>
-            <div class="relative group/info flex items-center pr-2">
-              <ScalarIcon
-                class="ml-1 text-c-3 group-hover/info:text-c-1"
-                icon="Info"
-                size="sm" />
-              <span
-                class="absolute pointer-events-none w-40 shadow-lg rounded bg-b-1 z-100 p-1.5 text-xxs leading-5 -translate-x-full translate-y-[24px] opacity-0 group-hover/info:opacity-100 z-10 text-c-1"
-                >{{ item.description }}</span
-              >
-            </div>
-          </template>
-        </DataTableInput>
-      </div>
+      <DataTableInput
+        :modelValue="item.value"
+        placeholder="Value"
+        @blur="emit('inputBlur')"
+        @focus="emit('inputFocus')"
+        @input="items && idx === items.length - 1 && emit('addRow')"
+        @selectVariable="(v) => handleSelectVariable(idx, 'value', v)"
+        @update:modelValue="(v) => emit('updateRow', idx, 'value', v)">
+        <template
+          v-if="item.description"
+          #icon>
+          <div class="relative group/info flex items-center pr-2">
+            <ScalarIcon
+              class="ml-1 text-c-3 group-hover/info:text-c-1"
+              icon="Info"
+              size="sm" />
+            <span
+              class="absolute pointer-events-none w-40 shadow-lg rounded bg-b-1 z-100 p-1.5 text-xxs leading-5 -translate-x-full translate-y-[24px] opacity-0 group-hover/info:opacity-100 z-10 text-c-1">
+              {{ item.description }}
+            </span>
+          </div>
+        </template>
+      </DataTableInput>
       <DataTableCell
         v-if="showUploadButton"
         class="group/upload p-1 overflow-hidden relative text-ellipsis whitespace-nowrap">
