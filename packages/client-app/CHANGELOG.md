@@ -1,5 +1,13 @@
 # @scalar/client-app
 
+## 0.1.9
+
+### Patch Changes
+
+- 5e92eab: feat(#doc-1996): themes css exports
+- Updated dependencies [5e92eab]
+  - @scalar/components@0.11.6
+
 ## 0.1.8
 
 ### Patch Changes

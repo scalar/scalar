@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 1.3.13
+
+### Patch Changes
+
+- 88ae0a5: fix: add api client right to scope
+- 5e92eab: feat(#doc-1996): themes css exports
+- Updated dependencies [5e92eab]
+  - @scalar/components@0.11.6
+  - @scalar/themes@0.9.5
+
 ## 1.3.12
 
 ### Patch Changes

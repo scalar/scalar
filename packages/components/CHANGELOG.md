@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.11.6
+
+### Patch Changes
+
+- 5e92eab: feat(#doc-1996): themes css exports
+- Updated dependencies [5e92eab]
+  - @scalar/code-highlight@0.0.4
+
 ## 0.11.5
 
 ### Patch Changes
