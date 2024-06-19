@@ -2,6 +2,7 @@
  * This file is the entry point for the CDN version of the API Reference.
  * It’s responsible for finding the spec and configuration in the HTML, and mounting the Vue.js app.
  */
+import { createHead } from '@unhead/vue'
 import { createApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from './components/ApiReference.vue'
@@ -145,6 +146,9 @@ if (!specUrlElement && !specElement && !specScriptTag) {
   // Wrap create app in factory for re-loading
   const createAppFactory = () => {
     const _app = createApp(() => h(ApiReference, props))
+
+    const head = createHead()
+    _app.use(head)
 
     if (container) {
       _app.mount(container)

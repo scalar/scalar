@@ -71,6 +71,7 @@
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
     "@unhead/schema": "^1.9.5",
+    "@unhead/vue": "^1.9.13",
     "@vueuse/core": "^10.10.0",
     "axios": "^1.6.8",
     "fuse.js": "^7.0.0",

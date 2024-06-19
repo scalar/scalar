@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAuthenticationStore } from '@scalar/api-client'
 import { migrateThemeVariables } from '@scalar/themes'
-import { createHead, useSeoMeta } from 'unhead'
+import { useSeoMeta } from '@unhead/vue'
 import { computed, toRef, watch } from 'vue'
 
 import { useDarkModeState, useReactiveSpec } from '../hooks'
@@ -50,9 +50,7 @@ const configuration = computed<ReferenceConfiguration>(() => ({
   customCss: customCss.value,
 }))
 
-// Create the head tag if the configuration has meta data
 if (configuration.value?.metaData) {
-  createHead()
   useSeoMeta(configuration.value.metaData)
 }
 
