@@ -174,7 +174,7 @@ const items = computed(() => {
         })
 
   // Models
-  const modelEntries: SidebarEntry[] =
+  let modelEntries: SidebarEntry[] =
     hasModels(parsedSpec.value) && !hideModels.value
       ? [
           {
@@ -198,36 +198,8 @@ const items = computed(() => {
         ]
       : []
 
-  const groupOperations: SidebarEntry[] | undefined = parsedSpec.value?.[
-    'x-tagGroups'
-  ]
-    ? parsedSpec.value?.['x-tagGroups']?.map((tagGroup) => {
-        const children: SidebarEntry[] = []
-        tagGroup.tags.map((tagName: string) => {
-          if (tagName === 'models' && modelEntries.length > 0) {
-            children.push(modelEntries[0])
-          } else {
-            const tag = operationEntries?.find(
-              (entry) => entry.title === tagName,
-            )
-            if (tag) {
-              children.push(tag)
-            }
-          }
-        })
-        const sidebarTagGroup = {
-          id: tagGroup.name,
-          title: tagGroup.name,
-          children,
-          show: true,
-          isGroup: true,
-        }
-        return sidebarTagGroup
-      })
-    : undefined
-
   // Webhooks
-  const webhookEntries: SidebarEntry[] = hasWebhooks(parsedSpec.value)
+  let webhookEntries: SidebarEntry[] = hasWebhooks(parsedSpec.value)
     ? [
         {
           id: getWebhookId(),
@@ -256,12 +228,49 @@ const items = computed(() => {
       ]
     : []
 
+  const groupOperations: SidebarEntry[] | undefined = parsedSpec.value?.[
+    'x-tagGroups'
+  ]
+    ? parsedSpec.value?.['x-tagGroups']?.map((tagGroup) => {
+        const children: SidebarEntry[] = []
+        tagGroup.tags?.map((tagName: string) => {
+          if (tagName === 'models' && modelEntries.length > 0) {
+            // Add default models entry to the group
+            children.push(modelEntries[0])
+            // Don’t show default models entry
+            modelEntries = []
+          } else if (tagName === 'webhooks' && webhookEntries.length > 0) {
+            // Add default webhooks entry to the group
+            children.push(webhookEntries[0])
+            // Don’t show default webhooks entry
+            webhookEntries = []
+          } else {
+            const tag = operationEntries?.find(
+              (entry) => entry.title === tagName,
+            )
+
+            if (tag) {
+              children.push(tag)
+            }
+          }
+        })
+        const sidebarTagGroup = {
+          id: tagGroup.name,
+          title: tagGroup.name,
+          children,
+          show: true,
+          isGroup: true,
+        }
+        return sidebarTagGroup
+      })
+    : undefined
+
   return {
     entries: [
       ...headingEntries,
       ...(groupOperations ?? operationEntries ?? []),
-      ...(groupOperations ? [] : webhookEntries),
-      ...(groupOperations ? [] : modelEntries),
+      ...webhookEntries,
+      ...modelEntries,
     ],
     titles: titlesById,
   }
