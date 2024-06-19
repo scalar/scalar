@@ -1,18 +1,41 @@
-/**
- * Put the Tailwind base into the Scalar base cascade layer
- */
-@import 'tailwindcss/base' layer(scalar-base);
-@tailwind components;
-@tailwind utilities;
+@import '@scalar/themes/style.css';
 
-@layer components {
-  .centered-x {
-    @apply left-1/2 -translate-x-1/2;
-  }
-  .centered-y {
-    @apply top-1/2 -translate-y-1/2;
-  }
-  .centered {
-    @apply centered-x centered-y;
+@tailwind base;
+
+.scalar-app {
+  @tailwind components;
+  @tailwind utilities;
+  @tailwind variants;
+
+  /**
+   * Custom utilities to make life easier
+   * For some reason it was bugging on apply so I just used css for now
+   */
+  @layer utilities {
+    .row {
+      /* @apply flex flex-row; */
+      display: flex;
+      flex-direction: row;
+    }
+    .row-1 {
+      /* @apply flex flex-1 flex-row; */
+      display: flex;
+      flex-direction: row;
+      flex: 1 1 0%;
+    }
+    .col {
+      /* @apply flex flex-col; */
+      display: flex;
+      flex-direction: column;
+    }
+    .col-1 {
+      /* @apply flex flex-1 flex-col; */
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 0%;
+    }
+    /* .center { */
+    /* @apply flex items-center justify-center; */
+    /* } */
   }
 }
