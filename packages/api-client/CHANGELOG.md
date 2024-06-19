@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 1.3.14
+
+### Patch Changes
+
+- b1fd179: fix: remove reset style wrapper from security schemes
+
 ## 1.3.13
 
 ### Patch Changes

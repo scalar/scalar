@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.24.14
+
+### Patch Changes
+
+- fb9baa5: fix: doesn’t show webhooks when x-tagGroups is used
+- Updated dependencies [b1fd179]
+  - @scalar/api-client@1.3.14
+
 ## 1.24.13
 
 ### Patch Changes
