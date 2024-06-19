@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.5
+
+### Patch Changes
+
+- 5e92eab: feat(#doc-1996): themes css exports
+
 ## 0.9.4
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.24.13
+
+### Patch Changes
+
+- 5e92eab: feat(#doc-1996): themes css exports
+- Updated dependencies [88ae0a5]
+- Updated dependencies [5e92eab]
+  - @scalar/api-client@1.3.13
+  - @scalar/components@0.11.6
+  - @scalar/themes@0.9.5
+  - @scalar/api-client-modal@0.0.11
+
 ## 1.24.12
 
 ### Patch Changes
