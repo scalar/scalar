@@ -71,13 +71,18 @@ const onUrlChange = (newPath: string) => {
 }
 
 const percentage = ref(100)
+const isRequesting = ref(false)
 
 executeRequestBus.on(() => {
+  if (isRequesting.value) return
+  isRequesting.value = true
+
   const interval = setInterval(() => {
     percentage.value -= 5
     if (percentage.value <= 0) {
       clearInterval(interval)
       percentage.value = 100
+      isRequesting.value = false
     }
   }, 20)
 })
@@ -264,6 +269,7 @@ const handlePaste = (event: ClipboardEvent) => {
           <!-- <AddressBarHistory :open="open" /> -->
           <ScalarButton
             class="relative h-auto shrink-0 gap-1.5 overflow-hidden px-2.5 py-1"
+            :disabled="isRequesting"
             @click="executeRequestBus.emit()">
             <ScalarIcon
               class="relative z-10 w-2 shrink-0"
