@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { VariantProps } from 'cva'
-import { ref, watch } from 'vue'
+import { ref, shallowRef, watch } from 'vue'
 
 import { cva, cx } from '../../cva'
 import { type Icon, getIcon } from './icons/'
@@ -33,7 +33,7 @@ const iconProps = cva({
   },
 })
 
-const iconComp = ref<SVGElement | null>(null)
+const iconComp = shallowRef<SVGElement | null>(null)
 const isLoading = ref(true)
 
 watch(
