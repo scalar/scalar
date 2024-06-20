@@ -103,7 +103,7 @@ importers:
         specifier: ^20.8.4
         version: 20.14.2
       nodemon:
-        specifier: ^3.0.1
+        specifier: ^3.1.3
         version: 3.1.3
       typescript:
         specifier: ^5.4.3
@@ -162,7 +162,7 @@ importers:
         version: 16.4.5
     devDependencies:
       nodemon:
-        specifier: ^3.0.1
+        specifier: ^3.1.3
         version: 3.1.3
       vite:
         specifier: ^5.2.10
@@ -206,7 +206,7 @@ importers:
         specifier: ^6.0.3
         version: 6.0.4
       nodemon:
-        specifier: ^3.0.1
+        specifier: ^3.1.3
         version: 3.1.3
       tsc-alias:
         specifier: ^1.8.8
@@ -231,7 +231,7 @@ importers:
         version: 4.28.0
     devDependencies:
       nodemon:
-        specifier: ^3.0.1
+        specifier: ^3.1.3
         version: 3.1.3
       tsc-alias:
         specifier: ^1.8.8
@@ -262,7 +262,7 @@ importers:
         version: 4.4.6
     devDependencies:
       nodemon:
-        specifier: ^3.0.1
+        specifier: ^3.1.3
         version: 3.1.3
       tsc-alias:
         specifier: ^1.8.8
@@ -793,7 +793,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.14.2)(jsdom@24.1.0)(terser@5.31.1))
       nodemon:
-        specifier: ^3.0.1
+        specifier: ^3.1.3
         version: 3.1.3
       tsc-alias:
         specifier: ^1.8.8
@@ -1545,7 +1545,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.14.2)(jsdom@24.1.0)(terser@5.31.1))
       nodemon:
-        specifier: ^3.0.1
+        specifier: ^3.1.3
         version: 3.1.3
       tsc-alias:
         specifier: ^1.8.8
@@ -2120,6 +2120,43 @@ importers:
       vue-tsc:
         specifier: ^2.0.13
         version: 2.0.21(typescript@5.4.5)
+
+  packages/void-server:
+    dependencies:
+      '@hono/node-server':
+        specifier: ^1.11.0
+        version: 1.11.3
+      hono:
+        specifier: ^4.2.7
+        version: 4.4.6
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      esbuild:
+        specifier: ^0.21.1
+        version: 0.21.5
+      nodemon:
+        specifier: ^3.1.3
+        version: 3.1.3
+      rollup:
+        specifier: ^4.16.4
+        version: 4.18.0
+      rollup-plugin-delete:
+        specifier: ^2.0.0
+        version: 2.0.0
+      rollup-plugin-dts:
+        specifier: ^6.1.0
+        version: 6.1.1(rollup@4.18.0)(typescript@5.4.5)
+      rollup-plugin-esbuild:
+        specifier: ^6.1.1
+        version: 6.1.1(esbuild@0.21.5)(rollup@4.18.0)
+      tslib:
+        specifier: ^2.6.2
+        version: 2.6.3
+      typescript:
+        specifier: ^5.4.3
+        version: 5.4.5
 
   playwright:
     devDependencies:
