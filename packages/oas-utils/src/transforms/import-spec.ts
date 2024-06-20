@@ -92,6 +92,7 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
         tags: operation.tags || ['default'],
         description: operation.description,
         operationId: operation.operationId,
+        security: operation.security,
         summary: operation.summary,
         externalDocs: operation.externalDocs,
         requestBody: operation.requestBody,
@@ -141,15 +142,20 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
         },
       ]
   const servers = unparsedServers.map((server) => createServer(server))
+  const selectedSecurityKey = parsedSpec.security?.length
+    ? Object.keys(parsedSpec.security[0] ?? {})?.[0]
+    : ''
 
   const collection = createCollection({
     spec: {
       openapi: parsedSpec.openapi,
       info: schema?.info,
+      security: parsedSpec.security,
       externalDocs: schema?.externalDocs,
       serverUids: servers.map(({ uid }) => uid),
       tags,
     },
+    selectedSecurityKeys: [selectedSecurityKey],
     selectedServerUid: servers[0].uid,
     // We default to having all the requests in the root folder
     childUids: folders.map(({ uid }) => uid),

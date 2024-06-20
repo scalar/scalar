@@ -9,7 +9,8 @@ import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.
 import { ScalarIcon } from '@scalar/components'
 import { computed, ref, watch } from 'vue'
 
-const { activeRequest, activeExample } = useWorkspace()
+const { activeRequest, activeExample, activeSecurityRequirements } =
+  useWorkspace()
 
 const bodyMethods = ['POST', 'PUT', 'PATCH', 'DELETE']
 
@@ -31,8 +32,18 @@ const sections = computed(() => {
   if (!bodyMethods.includes(activeRequest.value.method)) {
     allSections.splice(allSections.indexOf('Body'), 1)
   }
+
+  if (isAuthHidden.value) allSections.splice(allSections.indexOf('Auth'), 1)
+
   return allSections
 })
+
+// If security = [] or [{}] just hide it
+const isAuthHidden = computed(
+  () =>
+    activeSecurityRequirements.value.length === 0 ||
+    JSON.stringify(activeSecurityRequirements.value) === '[{}]',
+)
 
 type ActiveSections = (typeof sections.value)[number]
 
@@ -66,7 +77,9 @@ watch(activeRequest, (newRequest) => {
         :sections="sections"
         @setActiveSection="activeSection = $event" />
       <RequestAuth
-        v-show="activeSection === 'All' || activeSection === 'Auth'"
+        v-show="
+          !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
+        "
         title="Authentication" />
       <RequestPathParams
         v-show="

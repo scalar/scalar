@@ -2,6 +2,8 @@ import { nanoidSchema } from '@/entities/workspace/shared'
 import { deepMerge } from '@/helpers'
 import { z } from 'zod'
 
+import { securityRequirement } from '../security'
+
 /**
  * License information for the exposed API.
  *
@@ -96,6 +98,14 @@ const specSchema = z.object({
     .union([z.string(), z.literal('3.1.0'), z.literal('4.0.0')])
     .optional()
     .default('3.1.0'),
+  /**
+   * A declaration of which security mechanisms can be used across the API. The list of
+   * values includes alternative security requirement objects that can be used. Only
+   * one of the security requirement objects need to be satisfied to authorize a request.
+   * Individual operations can override this definition. To make security optional, an empty
+   * security requirement ({}) can be included in the array.
+   */
+  security: z.array(securityRequirement).optional().default([]),
   /** OAS info */
   info: infoSchema.optional(),
   /** Uids which refer to servers on the workspace base */
@@ -108,6 +118,11 @@ const specSchema = z.object({
 const collectionSchema = z.object({
   uid: nanoidSchema,
   spec: specSchema.optional().default({}),
+  /**
+   * The currently selected security scheme key
+   * TODO eventually we will need to maintain one per request + collection but this will do for now
+   */
+  selectedSecurityKeys: z.array(z.string()).default([]),
   /** The currently selected server */
   selectedServerUid: z.string().default(''),
   /**  List of uids that correspond to collection requests or folders */

@@ -62,7 +62,7 @@ const variants = cva({
       </ListboxButton>
       <template #floating="{ width }">
         <ListboxOptions
-          class="relative flex w-40 flex-col p-0.75"
+          class="relative flex w-40 flex-col rounded border p-0.75"
           :style="{ width }"
           v-bind="$attrs">
           <ListboxOption

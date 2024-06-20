@@ -21,6 +21,10 @@ import {
   createFolder,
 } from '@scalar/oas-utils/entities/workspace/folder'
 import {
+  type SecurityScheme,
+  createSecurityScheme,
+} from '@scalar/oas-utils/entities/workspace/security'
+import {
   type Server,
   type ServerPayload,
   createServer,
@@ -448,6 +452,26 @@ const deleteFolder = (
 }
 
 // ---------------------------------------------------------------------------
+// SECURITY SCHEMES
+
+const securitySchemes = reactive<Record<string, SecurityScheme>>({})
+const securitySchemeMutators = mutationFactory(securitySchemes, reactive({}))
+
+/**
+ * Security requirements for currently active request
+ * These are a bit confusing so its best to read the docs but tldr:
+ * - if a request has security then use that one, else use the collections
+ * - if the security contains an empty object {} then it is optional and none is allowed
+ * - if the requirement on an operation is an empty array [] then it overrides the collections'
+ */
+const activeSecurityRequirements = computed(
+  () =>
+    activeRequest.value?.security ??
+    activeCollection.value?.spec.security ??
+    [],
+)
+
+// ---------------------------------------------------------------------------
 // SERVERS
 
 const servers = reactive<Record<string, Server>>({})
@@ -502,6 +526,18 @@ async function importSpecFile(spec: string | AnyObject) {
 
   // Servers
   workspaceEntities.servers.forEach((server) => addServer(server))
+
+  // Security Schemes
+  Object.entries(
+    (workspaceEntities.components?.securitySchemes ?? {}) as Record<
+      string,
+      SecurityScheme
+    >,
+  ).forEach(([key, securityScheme]) =>
+    securitySchemeMutators.add(
+      createSecurityScheme({ ...securityScheme, uid: key }),
+    ),
+  )
 }
 
 // Function to fetch and import a spec from a URL
@@ -530,9 +566,11 @@ export function useWorkspace() {
     folders,
     cookies,
     servers,
+    securitySchemes,
     activeCookieId,
     activeCollection,
     activeServer,
+    activeSecurityRequirements,
     activeRequest,
     activeExample,
     modalState,
@@ -567,6 +605,7 @@ export function useWorkspace() {
       delete: deleteRequestExample,
     },
     requestsHistory,
+    securitySchemeMutators,
     serverMutators: {
       ...serverMutators,
       add: addServer,
