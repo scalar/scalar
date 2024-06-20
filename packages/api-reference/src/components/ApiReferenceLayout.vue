@@ -34,7 +34,7 @@ import type {
   ReferenceLayoutSlot,
   ReferenceSlotProps,
 } from '../types'
-// import ApiClientModal from './ApiClientModal.vue'
+import ApiClientModal from './ApiClientModal.vue'
 import { Content } from './Content'
 import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
@@ -129,9 +129,9 @@ onBeforeMount(() => {
       ),
     )
     if (headlessRoot) {
-      ;(headlessRoot.addedNodes[0] as HTMLDivElement).classList.add(
-        'scalar-app',
-      )
+      const el = headlessRoot.addedNodes[0] as HTMLDivElement
+      el.classList.add('scalar-app')
+      el.classList.add('scalar-client')
       observer.disconnect()
     }
   })
@@ -343,13 +343,14 @@ useDeprecationWarnings(props.configuration)
     </template>
     <!-- REST API Client Overlay -->
     <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
-    <!-- <ApiClientModal -->
-    <!--   v-if="NEW_API_MODAL" -->
-    <!--   :proxyUrl="configuration.proxy" -->
-    <!--   :spec="configuration.spec" /> -->
+    <ApiClientModal
+      v-if="NEW_API_MODAL"
+      :proxyUrl="configuration.proxy"
+      :spec="configuration.spec" />
     <!-- API Client Overlay -->
     <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
     <ApiClientModalOld
+      v-else
       :parsedSpec="parsedSpec"
       :proxyUrl="configuration?.proxy">
       <template #sidebar-start>
