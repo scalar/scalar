@@ -76,7 +76,7 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
     v-if="isOpen"
     :disabled="!teleport"
     to="body">
-    <div class="scalar-app">
+    <div class="scalar-app scalar-client">
       <div
         ref="floatingRef"
         class="relative z-overlay"
