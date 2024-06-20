@@ -5,7 +5,7 @@ import { z } from 'zod'
 const uid = z.string().optional().default('default')
 /* A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
 const description = z.string().optional()
-/** A generic string value used for most fields */
+/** A generic string value used for filling in fields  */
 const value = z.string().optional().default('')
 
 const securitySchemeApiKey = z.object({
@@ -16,6 +16,7 @@ const securitySchemeApiKey = z.object({
   name: z.string().optional().default('default'),
   /** REQUIRED. The location of the API key. Valid values are "query", "header" or "cookie". */
   in: z.enum(['query', 'header', 'cookie']).optional().default('header'),
+
   value,
 })
 
@@ -37,6 +38,7 @@ const securitySchemeHttp = z.object({
     .union([z.literal('JWT'), z.string()])
     .optional()
     .default('JWT'),
+
   value,
   secondValue: value,
 })
@@ -62,13 +64,17 @@ const refreshUrl = z.string().optional()
  * between the scope name and a short description for it. The map MAY be empty.
  */
 const scopes = z
-  .union([z.map(z.string().optional(), z.string().optional()), z.object({})])
+  .union([z.map(z.string(), z.string().optional()), z.object({})])
   .optional()
   // TODO remove this, just for testing
   .default({
     testing: 'This is just a quick desc',
     default: 'ANother scope lies here',
+    another: 'dont pick me',
   })
+
+/** User selected scopes per flow */
+const selectedScopes = z.array(z.string()).optional().default([])
 
 const oauthFlowSchema = z
   .object({
@@ -78,6 +84,8 @@ const oauthFlowSchema = z
         authorizationUrl,
         refreshUrl,
         scopes,
+
+        selectedScopes,
       })
       .optional(),
     /** Configuration for the OAuth Resource Owner Password flow */
@@ -86,6 +94,10 @@ const oauthFlowSchema = z
         tokenUrl,
         refreshUrl,
         scopes,
+
+        username: value,
+        password: value,
+        selectedScopes,
       })
       .optional(),
     /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
@@ -94,6 +106,8 @@ const oauthFlowSchema = z
         tokenUrl,
         refreshUrl,
         scopes,
+
+        clientSecret: value,
       })
       .optional(),
     /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0.*/
@@ -103,6 +117,9 @@ const oauthFlowSchema = z
         tokenUrl,
         refreshUrl,
         scopes,
+
+        code: value,
+        clientSecret: value,
       })
       .optional(),
   })
@@ -117,6 +134,8 @@ const securitySchemeOauth2 = z.object({
   description,
   /** REQUIRED. An object containing configuration information for the flow types supported. */
   flows: oauthFlowSchema,
+  clientId: value,
+  token: value,
 })
 
 const securitySchemeOpenId = z.object({

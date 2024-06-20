@@ -48,9 +48,6 @@ const getLabel = (id: string) => {
 
 console.log(securitySchemes)
 
-// Temp until we replace the last two
-const password = ref('')
-
 /** Generate the options for the dropdown */
 const schemeOptions = computed<
   { id: string; label: string; flowKey?: string; uid?: string }[]
@@ -201,32 +198,35 @@ const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
       </DataTableRow>
 
       <!-- oAuth 2 -->
-      <DataTableRow
-        v-else-if="activeScheme?.type === 'oauth2'"
-        class="border-r-transparent">
-        <DataTableInput
-          v-model="password"
-          placeholder="12345">
-          Client ID
-        </DataTableInput>
-        <DataTableCell class="flex items-center p-0.5">
-          <ScalarButton size="sm">Authorize</ScalarButton>
-        </DataTableCell>
-      </DataTableRow>
+      <template v-else-if="activeScheme?.type === 'oauth2'">
+        <DataTableRow
+          v-if="schemeModel.flowKey === 'implicit'"
+          class="border-r-transparent">
+          <DataTableInput
+            :modelValue="activeScheme.value"
+            placeholder="12345"
+            @update:modelValue="(v) => updateScheme('value', v)">
+            Client ID
+          </DataTableInput>
+          <DataTableCell class="flex items-center p-0.5">
+            <ScalarButton size="sm">Authorize</ScalarButton>
+          </DataTableCell>
+        </DataTableRow>
+      </template>
 
       <!-- Open ID Connect -->
-      <DataTableRow
-        v-else-if="activeScheme?.type === 'openIdConnect'"
-        class="border-r-transparent">
-        <DataTableInput
-          v-model="password"
-          placeholder="Token">
-          TODO
-        </DataTableInput>
-        <DataTableCell class="flex items-center">
-          <ScalarButton size="sm"> Authorize </ScalarButton>
-        </DataTableCell>
-      </DataTableRow>
+      <!-- <DataTableRow -->
+      <!--   v-else-if="activeScheme?.type === 'openIdConnect'" -->
+      <!--   class="border-r-transparent"> -->
+      <!--   <DataTableInput -->
+      <!--     v-model="password" -->
+      <!--     placeholder="Token"> -->
+      <!--     TODO -->
+      <!--   </DataTableInput> -->
+      <!--   <DataTableCell class="flex items-center"> -->
+      <!--     <ScalarButton size="sm"> Authorize </ScalarButton> -->
+      <!--   </DataTableCell> -->
+      <!-- </DataTableRow> -->
     </DataTable>
   </ViewLayoutCollapse>
 </template>
