@@ -27,6 +27,7 @@ import {
 } from '@scalar/oas-utils/entities/workspace/server'
 import {
   type Request,
+  type RequestEvent,
   type RequestExample,
   type RequestPayload,
   createRequest,
@@ -277,7 +278,7 @@ const activeExample = computed(
 // ---------------------------------------------------------------------------
 // REQUEST HISTORY
 
-const requestsHistory = computed(() => {
+const requestsHistory = computed<RequestEvent[]>(() => {
   return Object.values(requests).flatMap((request) => request.history)
 })
 

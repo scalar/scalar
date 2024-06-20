@@ -31,6 +31,11 @@ export function mutationFactory<
       delete entityMap[uid]
       delete mutationMap[uid]
     },
+    /** Destructive, overwrites a record to a new item and creates a new mutation tracking instance */
+    set: (item: T) => {
+      entityMap[item.uid] = item
+      mutationMap[item.uid] = new Mutation(item, maxNumberRecords)
+    },
     /** Update a nested property and track the mutation */
     edit: <P extends Path<T>>(uid: string, path: P, value: PathValue<T, P>) => {
       const mutator = getMutator(uid)
