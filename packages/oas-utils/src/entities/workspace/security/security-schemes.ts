@@ -64,7 +64,11 @@ const refreshUrl = z.string().optional()
 const scopes = z
   .union([z.map(z.string().optional(), z.string().optional()), z.object({})])
   .optional()
-  .default({})
+  // TODO remove this, just for testing
+  .default({
+    testing: 'This is just a quick desc',
+    default: 'ANother scope lies here',
+  })
 
 const oauthFlowSchema = z
   .object({
@@ -142,5 +146,9 @@ export type SecurityScheme = z.infer<typeof securityScheme>
 export type SecuritySchemePayload = z.input<typeof securityScheme>
 
 /** Create Security Scheme with defaults */
+// export const createSecurityScheme = (payload: SecuritySchemePayload) =>
+//   deepMerge(securityScheme.parse({ type: payload.type }), payload)
+
+// TODO remove temp for testing
 export const createSecurityScheme = (payload: SecuritySchemePayload) =>
-  deepMerge(securityScheme.parse({ type: payload.type }), payload)
+  securityScheme.parse(payload)

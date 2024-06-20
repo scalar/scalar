@@ -534,9 +534,24 @@ async function importSpecFile(spec: string | AnyObject) {
       SecurityScheme
     >,
   ).forEach(([key, securityScheme]) =>
-    securitySchemeMutators.add(
-      createSecurityScheme({ ...securityScheme, uid: key }),
-    ),
+    // TODO remove Temp for testing
+    key === 'oauth2'
+      ? securitySchemeMutators.add(
+          createSecurityScheme({
+            ...securityScheme,
+            type: 'oauth2',
+            flows: {
+              implicit: {},
+              password: {},
+              clientCredentials: {},
+              authorizationCode: {},
+            },
+            uid: key,
+          }),
+        )
+      : securitySchemeMutators.add(
+          createSecurityScheme({ ...securityScheme, uid: key }),
+        ),
   )
 }
 
