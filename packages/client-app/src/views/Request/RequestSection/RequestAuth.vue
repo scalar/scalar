@@ -78,6 +78,7 @@ const itemCount = computed(() => {
           <ScalarListbox
             v-model="selectedScheme"
             class="font-code text-xxs w-full"
+            fullWidth
             :options="schemeOptions"
             teleport>
             <ScalarButton
