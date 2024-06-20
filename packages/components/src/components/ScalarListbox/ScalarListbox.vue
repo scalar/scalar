@@ -15,6 +15,7 @@ defineProps<
   {
     options: Option[]
     modelValue?: Option
+    fullWidth?: boolean
   } & Omit<FloatingOptions, 'middleware' | 'offset'>
 >()
 
@@ -28,7 +29,7 @@ const variants = cva({
   base: [
     // Layout
     'group',
-    'text-lef flex min-w-0 items-center gap-1.5 rounded px-2 py-1.5',
+    'flex min-w-0 items-center gap-1.5 rounded px-2 py-1.5 text-left',
     'first-of-type:mt-0.75 last-of-type:mb-0.75',
     // Text / background style
     'truncate bg-transparent text-c-1',
@@ -46,7 +47,7 @@ const variants = cva({
   <Listbox
     v-slot="{ open }"
     as="div"
-    class="text-xs"
+    :class="[{ 'w-full': fullWidth }, 'text-xs']"
     :modelValue="modelValue"
     @update:modelValue="(v) => $emit('update:modelValue', v)">
     <ScalarFloating
@@ -54,7 +55,9 @@ const variants = cva({
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
       :teleport="teleport">
-      <ListboxButton as="template">
+      <ListboxButton
+        as="template"
+        class="justify-start">
         <slot />
       </ListboxButton>
       <template #floating="{ width }">
