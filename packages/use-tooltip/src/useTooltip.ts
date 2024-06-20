@@ -1,32 +1,92 @@
-import tippy, { type Instance, type Props } from 'tippy.js'
-import { ref, shallowRef, watchEffect } from 'vue'
+import {
+  TooltipContent,
+  TooltipPortal,
+  TooltipProvider,
+  TooltipRoot,
+  TooltipTrigger,
+} from 'radix-vue'
+import { defineComponent, h, ref, shallowRef } from 'vue'
 
 import { isMacOS } from './isMacOS'
 
-export function useTooltip(props: Partial<Props> = {}) {
+// Shared state to track the last hidden timestamp globally
+let globalLastHiddenTimestamp: number | null = null
+
+export function useTooltip({ delay }: { delay?: number }) {
   const elementRef = shallowRef<HTMLElement | null>(null)
+  const tooltipVisible = ref(false)
+  let hoverTimeout: ReturnType<typeof setTimeout> | null = null
 
-  const tooltip = ref<Instance | null>(null)
-
-  watchEffect(() => {
-    tooltip.value?.destroy()
-
-    if (elementRef.value && props.content) {
-      tooltip.value = tippy(elementRef.value, {
-        allowHTML: true,
-        theme: 'app-tooltip',
-        arrow: false,
-        delay: 400,
-        duration: [100, 200],
-        offset: [0, 5],
-        placement: 'top',
-        ...props,
-      })
+  const handleMouseEnter = () => {
+    const now = Date.now()
+    if (globalLastHiddenTimestamp && now - globalLastHiddenTimestamp < 1000) {
+      tooltipVisible.value = true
+      return
     }
-  })
+    hoverTimeout = setTimeout(() => {
+      tooltipVisible.value = true
+    }, delay || 500)
+  }
 
-  return elementRef
+  const handleMouseLeave = () => {
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout)
+      hoverTimeout = null
+    }
+    tooltipVisible.value = false
+    globalLastHiddenTimestamp = Date.now()
+  }
+
+  return { elementRef, tooltipVisible, handleMouseEnter, handleMouseLeave }
 }
+
+export const TooltipComponent = defineComponent({
+  inheritAttrs: false,
+  props: {
+    tooltipVisible: {
+      type: Boolean,
+      required: true,
+    },
+    class: {
+      type: String,
+      default: null,
+    },
+  },
+  setup(props, { slots }) {
+    return () =>
+      h(TooltipProvider, null, [
+        h(TooltipRoot, null, {
+          default: () => [
+            h(
+              TooltipTrigger,
+              { as: 'div' },
+              {
+                default: () => [
+                  h(
+                    'div',
+                    {
+                      class: props.class,
+                      style: {
+                        display: props.tooltipVisible ? 'block' : 'none',
+                      },
+                    },
+                    [slots.content ? slots.content() : null],
+                  ),
+                ],
+              },
+            ),
+            h(TooltipPortal, null, {
+              default: () => [
+                h(TooltipContent, { class: props.class }, [
+                  slots.content ? slots.content() : null,
+                ]),
+              ],
+            }),
+          ],
+        }),
+      ])
+  },
+})
 
 // ---------------------------------------------------------------------------
 
