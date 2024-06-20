@@ -22,7 +22,6 @@ import {
 } from '@scalar/oas-utils/entities/workspace/folder'
 import {
   type SecurityScheme,
-  type SecuritySchemePayload,
   createSecurityScheme,
 } from '@scalar/oas-utils/entities/workspace/security'
 import {
@@ -38,11 +37,7 @@ import {
   createRequestExample,
   createRequestExampleParameter,
 } from '@scalar/oas-utils/entities/workspace/spec'
-import {
-  fetchSpecFromUrl,
-  isEmptyObject,
-  iterateTitle,
-} from '@scalar/oas-utils/helpers'
+import { fetchSpecFromUrl, iterateTitle } from '@scalar/oas-utils/helpers'
 import { getRequestBodyFromOperation } from '@scalar/oas-utils/spec-getters'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
@@ -138,8 +133,6 @@ const activeRequest = computed(() => {
       setCollapsedSidebarFolder(uid, true),
     )
   }
-
-  console.log('new active request', request)
 
   return request
 })
@@ -470,12 +463,11 @@ const securitySchemeMutators = mutationFactory(securitySchemes, reactive({}))
  * - if the security contains an empty object {} then it is optional and none is allowed
  * - if the requirement on an operation is an empty array [] then it overrides the collections'
  */
-const activeSecurityRequirements = computed(() =>
-  (
+const activeSecurityRequirements = computed(
+  () =>
     activeRequest.value?.security ??
     activeCollection.value?.spec.security ??
-    []
-  ).map((secReq) => (isEmptyObject(secReq) ? { none: [''] } : secReq)),
+    [],
 )
 
 // ---------------------------------------------------------------------------
@@ -541,7 +533,9 @@ async function importSpecFile(spec: string | AnyObject) {
       SecurityScheme
     >,
   ).forEach(([key, securityScheme]) =>
-    securitySchemeMutators.add({ ...securityScheme, uid: key }),
+    securitySchemeMutators.add(
+      createSecurityScheme({ ...securityScheme, uid: key }),
+    ),
   )
 }
 

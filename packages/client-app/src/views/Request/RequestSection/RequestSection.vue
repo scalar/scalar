@@ -38,11 +38,11 @@ const sections = computed(() => {
   return allSections
 })
 
-// If security = [] or [{none: ['']}] just hide it
+// If security = [] or [{}] just hide it
 const isAuthHidden = computed(
   () =>
     activeSecurityRequirements.value.length === 0 ||
-    JSON.stringify(activeSecurityRequirements.value) === '[{"none":[""]}]',
+    JSON.stringify(activeSecurityRequirements.value) === '[{}]',
 )
 
 type ActiveSections = (typeof sections.value)[number]
