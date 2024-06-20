@@ -182,7 +182,7 @@ export default defineNuxtConfig({
 })
 ```
 
-Read more: [@scalar/nuxt](https://github.com/scalar/scalar/tree/main/packages/nuxt)
+Read more: [@scalar/nuxt](/packages/nuxt)
 
 ### Vue.js
 
@@ -211,7 +211,7 @@ import '@scalar/api-reference/style.css'
 </template>
 ```
 
-You can [pass props to customize the API reference](https://github.com/scalar/scalar/tree/main/packages/api-reference).
+You can [pass props to customize the API reference](/packages/api-reference).
 
 ### React
 
@@ -241,7 +241,7 @@ function App() {
 export default App
 ```
 
-We wrote a [detailed integration guide for React](https://github.com/scalar/scalar/tree/main/documentation/react.md), too.
+We wrote a [detailed integration guide for React](/documentation/react.md), too.
 
 ### Next.js
 
@@ -261,9 +261,9 @@ const config = {
 export const GET = ApiReference(config)
 ```
 
-We wrote a [detailed integration guide for Next.js](https://github.com/scalar/scalar/tree/main/documentation/nextjs.md), too.
+We wrote a [detailed integration guide for Next.js](/documentation/nextjs.md), too.
 
-Read more: [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nextjs-api-reference)
+Read more: [@scalar/nextjs-api-reference](/packages/nextjs-api-reference)
 
 ### Fastify
 
@@ -286,10 +286,10 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
-We wrote a [detailed integration guide for Fastify](https://github.com/scalar/scalar/tree/main/documentation/fastify.md), too.
+We wrote a [detailed integration guide for Fastify](/documentation/fastify.md), too.
 
 Read more about the
-package: [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference)
+package: [@scalar/fastify-api-reference](/packages/fastify-api-reference)
 
 ### Platformatic
 
@@ -314,7 +314,7 @@ app.get(
 )
 ```
 
-Read more: [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)
+Read more: [@scalar/hono-api-reference](/packages/hono-api-reference)
 
 ### ElysiaJS
 
@@ -352,7 +352,7 @@ app.use(
 )
 ```
 
-Read more: [@scalar/express-api-reference](https://github.com/scalar/scalar/tree/main/packages/express-api-reference)
+Read more: [@scalar/express-api-reference](/packages/express-api-reference)
 
 ### NestJS
 
@@ -371,7 +371,7 @@ app.use(
 )
 ```
 
-Read more: [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)
+Read more: [@scalar/nestjs-api-reference](/packages/nestjs-api-reference)
 
 ### Docusaurus
 
@@ -397,10 +397,10 @@ plugins: [
 ],
 ```
 
-We wrote a [detailed integration guide for Docusaurus](https://github.com/scalar/scalar/tree/main/documentation/docusaurus.md), too.
+We wrote a [detailed integration guide for Docusaurus](/documentation/docusaurus.md), too.
 
 For more information, check out
-the [Docusaurus package](https://github.com/scalar/scalar/tree/main/packages/docusaurus/README.md)
+the [Docusaurus package](/packages/docusaurus/README.md)
 
 ### AdonisJS
 
@@ -408,7 +408,7 @@ There’s [a community package to generate OpenAPI files in AdonisJS,](https://g
 and it comes with support for the
 Scalar API reference already.
 
-We wrote a [detailed integration guide for AdonisJS](https://github.com/scalar/scalar/tree/main/documentation/adonisjs.md).
+We wrote a [detailed integration guide for AdonisJS](/documentation/adonisjs.md).
 
 ### Laravel
 
@@ -427,7 +427,7 @@ return [
 ];
 ```
 
-We wrote a [detailed integration guide for Laravel Scribe](https://github.com/scalar/scalar/tree/main/documentation/laravel-scribe.md),
+We wrote a [detailed integration guide for Laravel Scribe](/documentation/laravel-scribe.md),
 too.
 
 ### Rust
@@ -480,7 +480,7 @@ Ready? [Create an account on scalar.com](https://scalar.com).
 We’ve also got a nice command-line interface that you can use to play with OpenAPI files locally,
 integrate validation into your CI or share them easily (with us or anyone else).
 
-[CLI documentation](https://github.com/scalar/scalar/tree/main/packages/cli)
+[CLI documentation](/packages/cli)
 
 Here are a few use cases:
 
@@ -547,7 +547,7 @@ Want to share your OpenAPI file? The following command will upload the given spe
 scalar share openapi.json
 ```
 
-Read [more about the CLI here](https://github.com/scalar/scalar/tree/main/packages/cli).
+Read [more about the CLI here](/packages/cli).
 
 ## Markdown
 
@@ -747,9 +747,9 @@ We recommend updating your theme variables as soon as possible:
 - `--sidebar-*` → `--scalar-sidebar-*`
 
 For a before and after example of an updated theme
-see [`legacyTheme.css`](https://github.com/scalar/scalar/tree/main/packages/themes/src/fixtures/legacyTheme.css)
-and [`updatedTheme.css`](https://github.com/scalar/scalar/tree/main/packages/themes/src/fixtures/updatedTheme.css)
-in the [`@scalar/themes`](https://github.com/scalar/scalar/tree/main/packages/themes/) package.
+see [`legacyTheme.css`](/packages/themes/src/fixtures/legacyTheme.css)
+and [`updatedTheme.css`](/packages/themes/src/fixtures/updatedTheme.css)
+in the [`@scalar/themes`](/packages/themes/) package.
 
 ## Community
 
@@ -759,23 +759,23 @@ We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
 This repository contains all our open source projects, and there’s definitely more to discover.
 
-| Package                                                                                                    | Description              |
-| ---------------------------------------------------------------------------------------------------------- | ------------------------ |
-| [@scalar/api-client](https://github.com/scalar/scalar/tree/main/packages/api-client)                       | API client               |
-| [@scalar/api-reference-react](https://github.com/scalar/scalar/tree/main/packages/api-reference-react)     | React integration        |
-| [@scalar/api-reference](https://github.com/scalar/scalar/tree/main/packages/api-reference)                 | Beautiful API references |
-| [@scalar/cli](https://github.com/scalar/scalar/tree/main/packages/cli)                                     | OpenAPI CLI              |
-| [@scalar/docusaurus](https://github.com/scalar/scalar/tree/main/packages/docusaurus)                       | Docusaurus integration   |
-| [@scalar/echo-server](https://github.com/scalar/scalar/tree/main/packages/echo-server)                     | HTTP Mirror              |
-| [@scalar/express-api-reference](https://github.com/scalar/scalar/tree/main/packages/express-api-reference) | Express plugin           |
-| [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference) | Fastify plugin           |
-| [@scalar/galaxy](https://github.com/scalar/scalar/tree/main/packages/galaxy)                               | OpenAPI Example          |
-| [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)       | Hono middleware          |
-| [@scalar/mock-server](https://github.com/scalar/scalar/tree/main/packages/mock-server)                     | OpenAPI Mock Server      |
-| [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)   | NestJS middleware        |
-| [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nextjs-api-reference)   | Next.js adapter          |
-| [@scalar/nuxt](https://github.com/scalar/scalar/tree/main/packages/nuxt)                                   | Nuxt module              |
-| [@scalar/play-button](https://github.com/scalar/scalar/tree/main/packages/play-button)                     | Quick API Client Embed   |
+| Package                                                          | Description              |
+| ---------------------------------------------------------------- | ------------------------ |
+| [@scalar/api-client](/packages/api-client)                       | API client               |
+| [@scalar/api-reference-react](/packages/api-reference-react)     | React integration        |
+| [@scalar/api-reference](/packages/api-reference)                 | Beautiful API references |
+| [@scalar/cli](/packages/cli)                                     | OpenAPI CLI              |
+| [@scalar/docusaurus](/packages/docusaurus)                       | Docusaurus integration   |
+| [@scalar/echo-server](/packages/echo-server)                     | HTTP Mirror              |
+| [@scalar/express-api-reference](/packages/express-api-reference) | Express plugin           |
+| [@scalar/fastify-api-reference](/packages/fastify-api-reference) | Fastify plugin           |
+| [@scalar/galaxy](/packages/galaxy)                               | OpenAPI Example          |
+| [@scalar/hono-api-reference](/packages/hono-api-reference)       | Hono middleware          |
+| [@scalar/mock-server](/packages/mock-server)                     | OpenAPI Mock Server      |
+| [@scalar/nestjs-api-reference](/packages/nestjs-api-reference)   | NestJS middleware        |
+| [@scalar/nextjs-api-reference](/packages/nextjs-api-reference)   | Next.js adapter          |
+| [@scalar/nuxt](/packages/nuxt)                                   | Nuxt module              |
+| [@scalar/play-button](/packages/play-button)                     | Quick API Client Embed   |
 
 ## Contributors
 
