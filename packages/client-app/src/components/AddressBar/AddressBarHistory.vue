@@ -105,6 +105,7 @@ function handleHistoryClick(index: number) {
             {{ httpStatusCodes[response.status]?.name }}
           </span>
           <HttpMethod
+            v-if="response.config.method"
             class="lg:text-sm text-xs"
             :method="response.config.method" />
         </div>
