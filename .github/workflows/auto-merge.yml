@@ -8,7 +8,7 @@ permissions:
 jobs:
   contributors:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.user.login == 'github-actions[bot]'
+    if: github.actor == 'hanspagel'
     steps:
       - name: Approve PR
         if: contains(github.event.pull_request.title, 'docs(contributor)')
