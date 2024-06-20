@@ -82,6 +82,7 @@ function handleSubmit() {
         @change="handleChangeMethod" />
       <input
         v-model="requestName"
+        class="border-transparent outline-none w-full"
         label="Request Name"
         placeholder="Request Name" />
     </div>
