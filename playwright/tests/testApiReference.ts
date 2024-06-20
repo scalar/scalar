@@ -1,7 +1,7 @@
 import { type Page, expect } from '@playwright/test'
 
 // Check for basic elements
-export async function apiReference(page: Page, isMobile: boolean) {
+export async function testApiReference(page: Page, isMobile: boolean) {
   // The heading
   await expect(
     page.getByRole('heading', { name: 'Scalar Galaxy' }),
@@ -18,4 +18,11 @@ export async function apiReference(page: Page, isMobile: boolean) {
       page.getByRole('link', { name: 'Planets', exact: true }),
     ).toBeVisible()
   }
+}
+
+export async function testHelloWorld(page: Page) {
+  // The heading
+  await expect(page.getByRole('heading', { name: 'Hello World' })).toBeVisible()
+  // http client
+  await expect(page.getByText('Client Libraries')).toBeVisible()
 }
