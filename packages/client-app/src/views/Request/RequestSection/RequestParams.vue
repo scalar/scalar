@@ -157,7 +157,7 @@ watch(
     <div ref="tableWrapperRef">
       <RequestTable
         class="flex-1"
-        :columns="['36px', '', '']"
+        :columns="['32px', '', '']"
         :items="params"
         @addRow="addRow"
         @toggleRow="toggleRow"
