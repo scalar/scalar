@@ -319,6 +319,7 @@ watch(
             <ScalarListbox
               v-model="selectedContentType"
               class="font-code text-xxs w-full"
+              fullWidth
               :options="getContentTypeOptions"
               teleport>
               <ScalarButton
