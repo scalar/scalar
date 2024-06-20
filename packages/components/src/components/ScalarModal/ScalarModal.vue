@@ -77,7 +77,7 @@ export const useModal = () =>
     <div
       :class="
         cx(
-          'scalar-modal-layout fixed left-0 top-0',
+          'scalar-modal-layout fixed left-0 top-0 flex items-center justify-center',
           'z-[1001] h-[100dvh] w-[100dvw]',
           'bg-backdrop opacity-0',
           size === 'full' && 'flex',
