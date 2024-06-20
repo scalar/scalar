@@ -759,21 +759,23 @@ We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
 This repository contains all our open source projects, and there’s definitely more to discover.
 
-| Package                                                                                                    | Description                                       |
-| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| [@scalar/api-client](https://github.com/scalar/scalar/tree/main/packages/api-client)                       | API testing client                                |
-| [@scalar/api-reference](https://github.com/scalar/scalar/tree/main/packages/api-reference)                 | beautiful API references                          |
-| [@scalar/cli](https://github.com/scalar/scalar/tree/main/packages/cli)                                     | CLI to work with OpenAPi files                    |
-| [@scalar/echo-server](https://github.com/scalar/scalar/tree/main/packages/echo-server)                     | a server that replies with the request data       |
-| [@scalar/express-api-reference](https://github.com/scalar/scalar/tree/main/packages/express-api-reference) | Express plugin                                    |
-| [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference) | Fastify plugin                                    |
-| [@scalar/galaxy](https://github.com/scalar/scalar/tree/main/packages/galaxy)                               | OpenAPI example specification                     |
-| [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)       | Hono middleware                                   |
-| [@scalar/mock-server](https://github.com/scalar/scalar/tree/main/packages/mock-server)                     | fake data based on an OpenAPI specification files |
-| [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)   | NestJS middleware                                 |
-| [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nextjs-api-reference)   | Next.js adapter                                   |
-| [@scalar/swagger-editor](https://github.com/scalar/scalar/tree/main/packages/swagger-editor)               | editor tailored to write OpenAPI files            |
-| [@scalar/swagger-parser](https://github.com/scalar/scalar/tree/main/packages/swagger-parser)               | parse OpenAPI files                               |
+| Package                                                                                                    | Description              |
+| ---------------------------------------------------------------------------------------------------------- | ------------------------ |
+| [@scalar/api-client](https://github.com/scalar/scalar/tree/main/packages/api-client)                       | API client               |
+| [@scalar/api-reference-react](https://github.com/scalar/scalar/tree/main/packages/api-reference-react)     | React integration        |
+| [@scalar/api-reference](https://github.com/scalar/scalar/tree/main/packages/api-reference)                 | Beautiful API references |
+| [@scalar/cli](https://github.com/scalar/scalar/tree/main/packages/cli)                                     | OpenAPI CLI              |
+| [@scalar/docusaurus](https://github.com/scalar/scalar/tree/main/packages/docusaurus)                       | Docusaurus integration   |
+| [@scalar/echo-server](https://github.com/scalar/scalar/tree/main/packages/echo-server)                     | HTTP Mirror              |
+| [@scalar/express-api-reference](https://github.com/scalar/scalar/tree/main/packages/express-api-reference) | Express plugin           |
+| [@scalar/fastify-api-reference](https://github.com/scalar/scalar/tree/main/packages/fastify-api-reference) | Fastify plugin           |
+| [@scalar/galaxy](https://github.com/scalar/scalar/tree/main/packages/galaxy)                               | OpenAPI Example          |
+| [@scalar/hono-api-reference](https://github.com/scalar/scalar/tree/main/packages/hono-api-reference)       | Hono middleware          |
+| [@scalar/mock-server](https://github.com/scalar/scalar/tree/main/packages/mock-server)                     | OpenAPI Mock Server      |
+| [@scalar/nestjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nestjs-api-reference)   | NestJS middleware        |
+| [@scalar/nextjs-api-reference](https://github.com/scalar/scalar/tree/main/packages/nextjs-api-reference)   | Next.js adapter          |
+| [@scalar/nuxt](https://github.com/scalar/scalar/tree/main/packages/nuxt)                                   | Nuxt module              |
+| [@scalar/play-button](https://github.com/scalar/scalar/tree/main/packages/play-button)                     | Quick API Client Embed   |
 
 ## Contributors
 
