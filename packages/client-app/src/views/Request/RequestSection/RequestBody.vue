@@ -371,7 +371,7 @@ watch(
             <RequestTable
               ref="tableWrapperRef"
               class="!m-0 rounded-t-none border-1/2 border-t-0 shadow-none"
-              :columns="['36px', '', '', '0.7fr']"
+              :columns="['32px', '', '', '0.7fr']"
               :items="formParams"
               showUploadButton
               @addRow="addRow"
@@ -384,7 +384,7 @@ watch(
             <RequestTable
               ref="tableWrapperRef"
               class="!m-0 rounded-t-none border-1/2 border-t-0 shadow-none"
-              :columns="['36px', '', '', '0.7fr']"
+              :columns="['32px', '', '', '0.7fr']"
               :items="formParams"
               showUploadButton
               @addRow="addRow"
