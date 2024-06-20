@@ -62,6 +62,10 @@
       "import": "./dist/components/HttpMethod/index.js",
       "types": "./dist/components/HttpMethod/index.d.ts"
     },
+    "./components/DataTable": {
+      "import": "./dist/components/DataTable/index.js",
+      "types": "./dist/components/DataTable/index.d.ts"
+    },
     "./components/DarkModeToggle": {
       "import": "./dist/components/DarkModeToggle/index.js",
       "types": "./dist/components/DarkModeToggle/index.d.ts"

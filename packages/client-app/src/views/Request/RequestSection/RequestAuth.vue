@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import DataTable from '@/components/DataTable/DataTable.vue'
-import DataTableCell from '@/components/DataTable/DataTableCell.vue'
-import DataTableHeader from '@/components/DataTable/DataTableHeader.vue'
-import DataTableInput from '@/components/DataTable/DataTableInput.vue'
-import DataTableRow from '@/components/DataTable/DataTableRow.vue'
+import {
+  DataTable,
+  DataTableHeader,
+  DataTableInput,
+  DataTableRow,
+} from '@/components/DataTable'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { camelToTitleWords } from '@scalar/oas-utils/helpers'
-import { capitalize, computed, ref } from 'vue'
+import { capitalize, computed } from 'vue'
+
+import AuthOauth2, { type SecuritySchemeOption } from './AuthOauth2.vue'
 
 defineProps<{
   title: string
@@ -25,7 +28,7 @@ const {
 const columnLayout = computed(() =>
   activeScheme.value?.type === 'oauth2' ||
   activeScheme.value?.type === 'openIdConnect'
-    ? ['', 'auto']
+    ? ['', 'auto', 'auto']
     : [''],
 )
 
@@ -49,9 +52,7 @@ const getLabel = (id: string) => {
 console.log(securitySchemes)
 
 /** Generate the options for the dropdown */
-const schemeOptions = computed<
-  { id: string; label: string; flowKey?: string; uid?: string }[]
->(() =>
+const schemeOptions = computed<SecuritySchemeOption[]>(() =>
   activeSecurityRequirements.value.flatMap((req) => {
     const keys = Object.keys(req)
 
@@ -197,36 +198,11 @@ const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
         </DataTableInput>
       </DataTableRow>
 
-      <!-- oAuth 2 -->
-      <template v-else-if="activeScheme?.type === 'oauth2'">
-        <DataTableRow
-          v-if="schemeModel.flowKey === 'implicit'"
-          class="border-r-transparent">
-          <DataTableInput
-            :modelValue="activeScheme.value"
-            placeholder="12345"
-            @update:modelValue="(v) => updateScheme('value', v)">
-            Client ID
-          </DataTableInput>
-          <DataTableCell class="flex items-center p-0.5">
-            <ScalarButton size="sm">Authorize</ScalarButton>
-          </DataTableCell>
-        </DataTableRow>
-      </template>
-
-      <!-- Open ID Connect -->
-      <!-- <DataTableRow -->
-      <!--   v-else-if="activeScheme?.type === 'openIdConnect'" -->
-      <!--   class="border-r-transparent"> -->
-      <!--   <DataTableInput -->
-      <!--     v-model="password" -->
-      <!--     placeholder="Token"> -->
-      <!--     TODO -->
-      <!--   </DataTableInput> -->
-      <!--   <DataTableCell class="flex items-center"> -->
-      <!--     <ScalarButton size="sm"> Authorize </ScalarButton> -->
-      <!--   </DataTableCell> -->
-      <!-- </DataTableRow> -->
+      <!-- OAuth 2 -->
+      <AuthOauth2
+        v-else-if="activeScheme?.type === 'oauth2' && schemeModel"
+        :activeScheme="activeScheme"
+        :schemeModel="schemeModel" />
     </DataTable>
   </ViewLayoutCollapse>
 </template>

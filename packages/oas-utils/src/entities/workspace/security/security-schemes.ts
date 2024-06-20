@@ -64,14 +64,12 @@ const refreshUrl = z.string().optional()
  * between the scope name and a short description for it. The map MAY be empty.
  */
 const scopes = z
-  .union([z.map(z.string(), z.string().optional()), z.object({})])
+  .union([
+    z.map(z.string(), z.string().optional()),
+    z.record(z.string(), z.string().optional()),
+    z.object({}),
+  ])
   .optional()
-  // TODO remove this, just for testing
-  .default({
-    testing: 'This is just a quick desc',
-    default: 'ANother scope lies here',
-    another: 'dont pick me',
-  })
 
 /** User selected scopes per flow */
 const selectedScopes = z.array(z.string()).optional().default([])
@@ -86,6 +84,7 @@ const oauthFlowSchema = z
         scopes,
 
         selectedScopes,
+        token: value,
       })
       .optional(),
     /** Configuration for the OAuth Resource Owner Password flow */
@@ -98,6 +97,7 @@ const oauthFlowSchema = z
         username: value,
         password: value,
         selectedScopes,
+        token: value,
       })
       .optional(),
     /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
@@ -108,6 +108,8 @@ const oauthFlowSchema = z
         scopes,
 
         clientSecret: value,
+        selectedScopes,
+        token: value,
       })
       .optional(),
     /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0.*/
@@ -120,6 +122,8 @@ const oauthFlowSchema = z
 
         code: value,
         clientSecret: value,
+        selectedScopes,
+        token: value,
       })
       .optional(),
   })
@@ -134,9 +138,10 @@ const securitySchemeOauth2 = z.object({
   description,
   /** REQUIRED. An object containing configuration information for the flow types supported. */
   flows: oauthFlowSchema,
+
   clientId: value,
-  token: value,
 })
+export type SecuritySchemeOauth2 = z.infer<typeof securitySchemeOauth2>
 
 const securitySchemeOpenId = z.object({
   type: z.literal('openIdConnect'),

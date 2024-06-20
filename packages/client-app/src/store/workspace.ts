@@ -541,7 +541,13 @@ async function importSpecFile(spec: string | AnyObject) {
             ...securityScheme,
             type: 'oauth2',
             flows: {
-              implicit: {},
+              implicit: {
+                scopes: {
+                  testing: 'This is just a quick desc',
+                  default: 'ANother scope lies here',
+                  another: 'dont pick me',
+                },
+              },
               password: {},
               clientCredentials: {},
               authorizationCode: {},
