@@ -146,7 +146,7 @@ importers:
         specifier: ^3.3.2
         version: 3.4.0
       '@docusaurus/types':
-        specifier: ^3.3.2
+        specifier: ^3.4.0
         version: 3.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       typescript:
         specifier: ^5.4.3
@@ -1483,7 +1483,7 @@ importers:
         version: 18.3.1
     devDependencies:
       '@docusaurus/types':
-        specifier: ^3.3.2
+        specifier: ^3.4.0
         version: 3.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/react':
         specifier: ^18.2.60

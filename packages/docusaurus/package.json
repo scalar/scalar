@@ -24,7 +24,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsc --declaration && cp ./src/theme.css ./dist/",
+    "build": "rm -Rf ./dist && tsc --declaration && cp ./src/theme.css ./dist/",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "types:check": "tsc --noEmit --skipLibCheck"
@@ -39,7 +39,7 @@
     "react": "^18.3.1"
   },
   "devDependencies": {
-    "@docusaurus/types": "^3.3.2",
+    "@docusaurus/types": "^3.4.0",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
     "path": "^0.12.7",
