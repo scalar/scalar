@@ -2,8 +2,7 @@
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import type { Route } from '@/constants'
 import { ScalarIcon } from '@scalar/components'
-import { useTooltip } from '@scalar/use-tooltip'
-import { type Ref, ref } from 'vue'
+import { TooltipComponent, useTooltip } from '@scalar/use-tooltip'
 
 defineProps<
   Route & {
@@ -16,22 +15,23 @@ defineEmits<{
   (e: 'close'): void
 }>()
 
-const focused = ref(false)
-const labelRef: Ref<HTMLDivElement | null> = ref(null)
-
-const tooltipRef = useTooltip({
-  content: () => labelRef.value || '',
-  offset: [0, 5],
+const {
+  elementRef: tooltipRef,
+  tooltipVisible,
+  handleMouseEnter,
+  handleMouseLeave,
+} = useTooltip({
   delay: 500,
 })
 </script>
+
 <template>
   <div
     ref="tooltipRef"
     class="nav-item"
     :class="{ 'nav-item__active': active }"
-    @mouseenter="focused = true"
-    @mouseleave="focused = false">
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave">
     <div
       class="nav-item-icon-copy flex flex-1 items-center justify-center gap-1.5">
       <ScalarIcon
@@ -40,19 +40,25 @@ const tooltipRef = useTooltip({
         size="xs" />
       <span class="nav-item-copy text-xs">{{ label }}</span>
     </div>
-    <div
-      v-if="hotkey"
-      ref="labelRef">
-      <ScalarHotkey :hotkey="hotkey" />
-    </div>
     <button
       class="nav-item-close"
       type="button"
       @click="$emit('close')">
       <ScalarIcon icon="Close" />
     </button>
+    <TooltipComponent
+      class="absolute centered-x top-8 z-10"
+      :tooltipVisible="tooltipVisible">
+      <template #content>
+        <ScalarHotkey
+          v-if="hotkey"
+          class="!bg-b-1"
+          :hotkey="hotkey" />
+      </template>
+    </TooltipComponent>
   </div>
 </template>
+
 <style scoped>
 .nav-item {
   padding: 0 1rem;
@@ -67,7 +73,6 @@ const tooltipRef = useTooltip({
   color: var(--scalar-color-3);
   padding: 4.5px;
   min-width: 0;
-  overflow: hidden;
   position: relative;
 }
 .nav-item-icon-copy {
