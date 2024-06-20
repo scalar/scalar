@@ -157,7 +157,7 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
       serverUids: servers.map(({ uid }) => uid),
       tags,
     },
-    selectedSecurityKey,
+    selectedSecurityKeys: [selectedSecurityKey],
     selectedServerUid: servers[0].uid,
     // We default to having all the requests in the root folder
     childUids: folders.map(({ uid }) => uid),

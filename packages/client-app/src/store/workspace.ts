@@ -38,7 +38,11 @@ import {
   createRequestExample,
   createRequestExampleParameter,
 } from '@scalar/oas-utils/entities/workspace/spec'
-import { fetchSpecFromUrl, iterateTitle } from '@scalar/oas-utils/helpers'
+import {
+  fetchSpecFromUrl,
+  isEmptyObject,
+  iterateTitle,
+} from '@scalar/oas-utils/helpers'
 import { getRequestBodyFromOperation } from '@scalar/oas-utils/spec-getters'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
@@ -459,11 +463,19 @@ const deleteFolder = (
 const securitySchemes = reactive<Record<string, SecurityScheme>>({})
 const securitySchemeMutators = mutationFactory(securitySchemes, reactive({}))
 
-const activeSecurityRequirements = computed(
-  () =>
+/**
+ * Security requirements for currently active request
+ * These are a bit confusing so its best to read the docs but tldr:
+ * - if a request has security then use that one, else use the collections
+ * - if the security contains an empty object {} then it is optional and none is allowed
+ * - if the requirement on an operation is an empty array [] then it overrides the collections'
+ */
+const activeSecurityRequirements = computed(() =>
+  (
     activeRequest.value?.security ??
     activeCollection.value?.spec.security ??
-    [],
+    []
+  ).map((secReq) => (isEmptyObject(secReq) ? { none: [''] } : secReq)),
 )
 
 // ---------------------------------------------------------------------------

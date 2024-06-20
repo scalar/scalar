@@ -122,7 +122,7 @@ const collectionSchema = z.object({
    * The currently selected security scheme key
    * TODO eventually we will need to maintain one per request + collection but this will do for now
    */
-  selectedSecurityKey: z.string().default(''),
+  selectedSecurityKeys: z.array(z.string()).default([]),
   /** The currently selected server */
   selectedServerUid: z.string().default(''),
   /**  List of uids that correspond to collection requests or folders */

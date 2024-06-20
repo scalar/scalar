@@ -15,64 +15,77 @@ defineProps<{
 
 const {
   activeCollection,
-  activeRequest,
+  collectionMutators,
   activeSecurityRequirements,
   securitySchemes,
 } = useWorkspace()
 
-enum Scheme {
-  None = 0,
-  Bearer = 'bearer',
-  Basic = 'basic',
-  ApiKeyHeader = 'apiKeyHeader',
-  ApiKeyQuery = 'apiKeyQuery',
-  ApiKeyCookie = 'apiKeyCookie',
-  OAuth2 = 'oauth2',
+// const LAYOUTS = {
+//   'none': [''],
+//   '': [''],
+//   [Scheme.Basic]: [''],
+//   [Scheme.ApiKeyHeader]: [''],
+//   [Scheme.ApiKeyQuery]: [''],
+//   [Scheme.ApiKeyCookie]: [''],
+//   [Scheme.OAuth2]: ['', 'auto'],
+// } as const
+//
+
+/** Generate pretty name for the dropdown label */
+const getPrettyName = (id: string) => {
+  const scheme = securitySchemes[id]
+
+  switch (scheme.type) {
+    case 'apiKey':
+      return `API id (${id})`
+    case 'http': {
+      const name = scheme.scheme[0].toUpperCase() + scheme.scheme.slice(1)
+      return `${name} Authentication (${id})`
+    }
+    case 'oauth2':
+      return `OAuth 2.0 (${id})`
+    case 'openIdConnect':
+      return `Open ID Connect (${id})`
+    default:
+      return 'None'
+  }
 }
 
-const LAYOUTS = {
-  [Scheme.None]: [''],
-  [Scheme.Bearer]: [''],
-  [Scheme.Basic]: [''],
-  [Scheme.ApiKeyHeader]: [''],
-  [Scheme.ApiKeyQuery]: [''],
-  [Scheme.ApiKeyCookie]: [''],
-  [Scheme.OAuth2]: ['', 'auto'],
-}
-
-const scheme = ref<Scheme>(Scheme.None)
 const user = ref('')
 const password = ref('')
+const schemeOptions = computed(() =>
+  activeSecurityRequirements.value.flatMap((req) =>
+    Object.keys(req).map((id) =>
+      id === 'none' ? { id, label: 'None' } : { id, label: getPrettyName(id) },
+    ),
+  ),
+)
 
-const schemeOptions = [
-  { id: String(Scheme.None), label: 'None' },
-  { id: String(Scheme.Bearer), label: 'Bearer Authentication (bearerAuth)' },
-  { id: String(Scheme.Basic), label: 'Basic Authentication (basicAuth)' },
-  { id: String(Scheme.ApiKeyHeader), label: 'API Key (apiKeyHeader)' },
-  { id: String(Scheme.ApiKeyQuery), label: 'API Key (apiKeyQuery)' },
-  { id: String(Scheme.ApiKeyCookie), label: 'API Key (apiKeyCookie)' },
-  { id: String(Scheme.OAuth2), label: 'OAuth 2.0 (oauth2)' },
-]
+const activeScheme = computed(
+  () => securitySchemes[schemeModal.value?.id ?? ''],
+)
 
-const selectedScheme = computed({
+const schemeModal = computed({
   get: () =>
-    schemeOptions.find(({ id }) => id === scheme.value) || schemeOptions[0],
-  set: (opt) => {
-    if (opt?.id) scheme.value = opt.id as Scheme
-  },
-})
-
-const itemCount = computed(() => {
-  if (scheme.value === Scheme.Basic && (user.value || password.value)) return 1
-  if (scheme.value !== Scheme.None && password.value) return 1
-  return 0
+    schemeOptions.value.find(
+      ({ id }) =>
+        id ===
+        (activeCollection.value?.selectedSecurityKeys[0] ??
+          schemeOptions.value[0].id),
+    ),
+  set: (opt) =>
+    opt?.id &&
+    collectionMutators.edit(
+      activeCollection.value!.uid,
+      'selectedSecurityKeys',
+      [opt.id],
+    ),
 })
 </script>
 <template>
   <ViewLayoutCollapse
     class="group/params"
-    :itemCount="itemCount">
-    -- {{ activeSecurityRequirements }}
+    :itemCount="schemeOptions.length">
     <template #title>
       <div class="flex gap-1">
         {{ title }}
@@ -80,12 +93,13 @@ const itemCount = computed(() => {
     </template>
     <DataTable
       class="flex-1"
-      :columns="LAYOUTS[scheme]">
+      :columns="['']">
+      <!-- :columns="LAYOUTS[scheme]"> -->
       <DataTableRow>
         <DataTableHeader
           class="relative col-span-full h-8 cursor-pointer py-[2.25px] px-[2.25px] flex items-center">
           <ScalarListbox
-            v-model="selectedScheme"
+            v-model="schemeModal"
             class="font-code text-xxs w-full"
             :options="schemeOptions"
             teleport>
@@ -93,7 +107,7 @@ const itemCount = computed(() => {
               class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal"
               fullWidth
               variant="ghost">
-              <span>{{ selectedScheme?.label }}</span>
+              <span>{{ schemeModal?.label }}</span>
               <ScalarIcon
                 icon="ChevronDown"
                 size="xs" />
@@ -101,7 +115,10 @@ const itemCount = computed(() => {
           </ScalarListbox>
         </DataTableHeader>
       </DataTableRow>
-      <DataTableRow v-if="scheme === Scheme.Bearer">
+      <DataTableRow
+        v-if="
+          activeScheme?.type === 'http' && activeScheme.scheme === 'bearer'
+        ">
         <DataTableInput
           v-model="password"
           placeholder="Token"
@@ -109,7 +126,10 @@ const itemCount = computed(() => {
           Bearer Token
         </DataTableInput>
       </DataTableRow>
-      <template v-else-if="scheme === Scheme.Basic">
+      <template
+        v-else-if="
+          activeScheme?.type === 'http' && activeScheme.scheme === 'basic'
+        ">
         <DataTableRow>
           <DataTableInput
             v-model="user"
@@ -127,7 +147,7 @@ const itemCount = computed(() => {
           </DataTableInput>
         </DataTableRow>
       </template>
-      <DataTableRow v-else-if="scheme === Scheme.ApiKeyHeader">
+      <DataTableRow v-else-if="activeScheme?.type === 'apiKey'">
         <DataTableInput
           v-model="password"
           placeholder="Token"
@@ -135,29 +155,29 @@ const itemCount = computed(() => {
           Header API
         </DataTableInput>
       </DataTableRow>
-      <DataTableRow v-else-if="scheme === Scheme.ApiKeyQuery">
-        <DataTableInput
-          v-model="password"
-          placeholder="Token"
-          type="password">
-          Query API
-        </DataTableInput>
-      </DataTableRow>
-      <DataTableRow v-else-if="scheme === Scheme.ApiKeyCookie">
-        <DataTableInput
-          v-model="password"
-          placeholder="Token"
-          type="password">
-          Cookie API
-        </DataTableInput>
-      </DataTableRow>
       <DataTableRow
-        v-else-if="scheme === Scheme.OAuth2"
+        v-else-if="activeScheme?.type === 'oauth2'"
         class="border-r-transparent">
         <DataTableInput
           v-model="password"
           placeholder="Token">
           Client ID
+        </DataTableInput>
+        <DataTableCell class="flex items-center">
+          <ScalarButton
+            class="mr-[2.25px]"
+            size="sm">
+            Authorize
+          </ScalarButton>
+        </DataTableCell>
+      </DataTableRow>
+      <DataTableRow
+        v-else-if="activeScheme?.type === 'openIdConnect'"
+        class="border-r-transparent">
+        <DataTableInput
+          v-model="password"
+          placeholder="Token">
+          TODO
         </DataTableInput>
         <DataTableCell class="flex items-center">
           <ScalarButton
