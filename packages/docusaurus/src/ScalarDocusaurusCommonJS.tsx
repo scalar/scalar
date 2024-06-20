@@ -36,24 +36,36 @@ class ScalarDocusaurusCommonJS extends Component<Props> {
           this.props.route.configuration &&
           !document.getElementById('api-reference')
         ) {
-          const { spec, ...config } = this.props.route.configuration
+          const config = this.props.route.configuration
 
-          const apiReferenceScript = document.createElement('script')
-          apiReferenceScript.id = 'api-reference'
-          apiReferenceScript.type = 'application/json'
+          // Execute content function if it exists
+          if (typeof config.spec?.content === 'function') {
+            config.spec.content = config.spec.content()
+          }
 
-          const contentString = spec?.content
-            ? typeof spec.content === 'function'
-              ? JSON.stringify(spec.content())
-              : JSON.stringify(spec.content)
+          // Convert the document to a string
+          const documentString = config?.spec?.content
+            ? typeof config?.spec?.content === 'string'
+              ? config.spec.content
+              : JSON.stringify(config.spec.content)
             : ''
 
+          // Delete content from configuration
+          if (config?.spec?.content) {
+            delete config.spec.content
+          }
+
+          // Convert the configuration to a string
           const configString = JSON.stringify(config ?? {})
             .split('"')
             .join('&quot;')
 
+          // Create and append a script element with the configuration and the content
+          const apiReferenceScript = document.createElement('script')
+          apiReferenceScript.id = 'api-reference'
+          apiReferenceScript.type = 'application/json'
           apiReferenceScript.dataset.configuration = configString
-          apiReferenceScript.innerHTML = contentString
+          apiReferenceScript.innerHTML = documentString
 
           container.appendChild(apiReferenceScript)
 
