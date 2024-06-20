@@ -15,4 +15,7 @@ jobs:
         with:
           use_username: true
         env:
+          # https://github.com/settings/tokens/new
+          # Expiration: No expiration
+          # Select: read:org
           GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
