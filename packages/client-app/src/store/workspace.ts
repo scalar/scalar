@@ -542,8 +542,10 @@ async function importSpecFile(spec: string | AnyObject) {
             type: 'oauth2',
             flows: {
               implicit: {
+                authorizationUrl:
+                  'https://www.oauth.com/playground/auth-dialog.html',
                 scopes: {
-                  testing: 'This is just a quick desc',
+                  photo: 'This is just a quick desc',
                   default: 'ANother scope lies here',
                   another: 'dont pick me',
                 },
