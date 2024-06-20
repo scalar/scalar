@@ -16,8 +16,7 @@ import { useMagicKeys, whenever } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
-
-// import AddressBarHistory from './AddressBarHistory.vue'
+import AddressBarHistory from './AddressBarHistory.vue'
 
 const {
   activeRequest,
@@ -260,8 +259,7 @@ const handlePaste = (event: ClipboardEvent) => {
             <div class="fade-right"></div>
           </div>
 
-          <!-- commenting out history for now -->
-          <!-- <AddressBarHistory :open="open" /> -->
+          <AddressBarHistory :open="open" />
           <ScalarButton
             class="relative h-auto shrink-0 gap-1.5 overflow-hidden px-2.5 py-1"
             @click="executeRequestBus.emit()">

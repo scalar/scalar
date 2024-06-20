@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { router } from '@/router'
+import { useTopNav } from '@/store/topNav'
 import { useWorkspace } from '@/store/workspace'
 import { ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
@@ -11,9 +13,12 @@ defineProps<{
   open: boolean
 }>()
 
-const { requestsHistory } = useWorkspace()
-
-const history = requestsHistory
+const {
+  requestsHistory,
+  activeRequest,
+  activeExample,
+  requestExampleMutators,
+} = useWorkspace()
 
 /**
  * Get a part of the URL object from the scalar proxy request
@@ -33,11 +38,28 @@ function getUrlPart(request: XMLHttpRequest, part: keyof URL) {
 
   return baseUrl
 }
+
+const { addNavItem, setNavItemIdx, topNavItems } = useTopNav()
+
+function handleHistoryClick(index: number) {
+  const historicalRequest = requestsHistory.value[index]
+
+  // see if we need to update the topnav
+  // todo potentially search and find a previous open request id of this maybe
+  // or we can open it in a draft state if the request is already open :)
+  if (activeRequest.value.uid !== historicalRequest.request.requestUid) {
+    addNavItem()
+    setNavItemIdx(topNavItems.length - 1)
+    router.push(historicalRequest.request.uid)
+  }
+  requestExampleMutators.set(historicalRequest.request)
+  activeRequest.value.history[0].response = historicalRequest.response
+}
 </script>
 <template>
   <!-- History -->
   <ListboxButton
-    v-if="history.length"
+    v-if="requestsHistory.length"
     class="hover:bg-b-2 mr-1 rounded p-1.5">
     <ScalarIcon
       class="text-c-3"
@@ -55,10 +77,11 @@ function getUrlPart(request: XMLHttpRequest, part: keyof URL) {
     <ListboxOptions
       class="bg-b-1 custom-scroll bg-mix-transparent bg-mix-amount-30 max-h-[300px] rounded-b p-[3px] pt-0 backdrop-blur">
       <ListboxOption
-        v-for="({ response }, index) in history"
+        v-for="({ response }, index) in requestsHistory"
         :key="index"
         class="ui-active:bg-b-2 text-c-1 ui-active:text-c-1 flex cursor-pointer flex-row gap-2.5 rounded py-1.5 pr-3"
-        :value="index">
+        :value="index"
+        @click="handleHistoryClick(index)">
         <div class="font-code flex flex-1 gap-1.5 text-sm font-medium">
           <span
             class="mr-[1px] min-w-[44px] pr-2 text-right"
