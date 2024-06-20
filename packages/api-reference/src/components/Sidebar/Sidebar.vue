@@ -197,6 +197,7 @@ onMounted(() => {
 @media (max-width: 1000px) {
   .sidebar {
     min-height: 0;
+    border-right: none;
   }
   .sidebar-pages {
     padding-top: 12px;

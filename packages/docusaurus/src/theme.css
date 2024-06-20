@@ -214,8 +214,6 @@ html[data-theme='light'] body .api-client-drawer {
   position: relative !important;
 }
 .references-layout {
-  height: initial !important;
-  max-height: initial !important;
   overflow: initial !important;
   grid-template-rows: 0 repeat(2, auto) !important;
 }
