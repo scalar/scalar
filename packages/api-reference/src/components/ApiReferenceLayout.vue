@@ -80,6 +80,16 @@ const documentEl = ref<HTMLElement | null>(null)
 useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height + 'px'
 })
+// Find scalar Y offset to support users who have tried to add their own headers
+const yPosition = ref(0)
+onMounted(() => {
+  const pbcr = documentEl.value?.parentElement?.getBoundingClientRect()
+  const bcr = documentEl.value?.getBoundingClientRect()
+  if (pbcr && bcr) {
+    const difference = bcr.top - pbcr.top
+    yPosition.value = difference < 2 ? 0 : difference
+  }
+})
 
 const {
   breadcrumb,
@@ -265,7 +275,9 @@ useDeprecationWarnings(props.configuration)
       },
       $attrs.class,
     ]"
-    :style="{ '--full-height': elementHeight }"
+    :style="{
+      '--scalar-y-offset': `var(--scalar-custom-header-height, ${yPosition}px)`,
+    }"
     @scroll.passive="debouncedScroll">
     <!-- Header -->
     <div class="references-header">
@@ -378,7 +390,9 @@ useDeprecationWarnings(props.configuration)
 @layer scalar-config {
   .scalar-api-reference {
     --refs-sidebar-width: var(--scalar-sidebar-width, 0px);
-    --refs-header-height: var(--scalar-header-height, 0px);
+    --refs-header-height: calc(
+      var(--scalar-y-offset) + var(--scalar-header-height, 0px)
+    );
     --refs-content-max-width: var(--scalar-content-max-width, 1540px);
   }
 
@@ -394,16 +408,10 @@ useDeprecationWarnings(props.configuration)
 /* References Layout */
 .references-layout {
   /* Try to fill the container */
-  height: 100dvh;
-  max-height: 100%;
-  width: 100dvw;
+  min-height: 100dvh;
+  min-width: 100%;
   max-width: 100%;
   flex: 1;
-
-  /* Scroll vertically */
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-gutter: stable;
 
   /*
   Calculated by a resize observer and set in the style attribute
@@ -413,7 +421,7 @@ useDeprecationWarnings(props.configuration)
 
   /* Grid layout */
   display: grid;
-  grid-template-rows: var(--refs-header-height) repeat(2, auto);
+  grid-template-rows: var(--scalar-header-height, 0px) repeat(2, auto);
   grid-template-columns: var(--refs-sidebar-width) 1fr;
   grid-template-areas:
     'header header'
@@ -426,10 +434,10 @@ useDeprecationWarnings(props.configuration)
 .references-header {
   grid-area: header;
   position: sticky;
-  top: 0;
+  top: var(--scalar-custom-header-height, 0px);
   z-index: 10;
 
-  height: var(--refs-header-height);
+  height: var(--scalar-header-height, 0px);
 }
 
 .references-editor {
@@ -459,7 +467,7 @@ useDeprecationWarnings(props.configuration)
 .references-navigation-list {
   position: sticky;
   top: var(--refs-header-height);
-  height: calc(var(--full-height) - var(--refs-header-height));
+  height: calc(100dvh - var(--refs-header-height));
   background: var(--scalar-sidebar-background-1 var(--scalar-background-1));
   overflow-y: auto;
   display: flex;
@@ -509,16 +517,13 @@ useDeprecationWarnings(props.configuration)
   /* Stack view on mobile */
   .references-layout {
     grid-template-columns: auto;
-    grid-template-rows: var(--refs-header-height) 0px auto auto;
+    grid-template-rows: var(--scalar-header-height, 0px) 0px auto auto;
 
     grid-template-areas:
       'header'
       'navigation'
       'rendered'
       'footer';
-  }
-  .references-sidebar.references-sidebar-mobile-open {
-    overflow-y: hidden;
   }
   .references-editable {
     grid-template-areas:
@@ -538,14 +543,15 @@ useDeprecationWarnings(props.configuration)
 
   .references-navigation {
     display: none;
-    position: sticky;
-    top: var(--refs-header-height);
-    height: 0px;
     z-index: 10;
   }
 
   .references-sidebar-mobile-open .references-navigation {
     display: block;
+    top: var(--refs-header-height);
+    height: calc(100dvh - var(--refs-header-height));
+    width: 100%;
+    position: sticky;
   }
 
   .references-navigation-list {

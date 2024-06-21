@@ -38,7 +38,7 @@ const configuration = reactive<ReferenceConfiguration>({
 }
 .container {
   flex: 1;
-  overflow: hidden;
+  overflow: auto;
   border: 1px solid #000;
   border-radius: 3px;
 }
