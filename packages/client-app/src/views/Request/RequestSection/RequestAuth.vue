@@ -7,7 +7,7 @@ import {
 } from '@/components/DataTable'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store/workspace'
-import { Oauth2 } from '@/views/Request/components'
+import { OAuth2 } from '@/views/Request/components'
 import type {
   SecuritySchemeOption,
   SecuritySchemeOptionOauth,
@@ -207,7 +207,7 @@ const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
       </DataTableRow>
 
       <!-- OAuth 2 -->
-      <Oauth2
+      <OAuth2
         v-else-if="activeScheme?.type === 'oauth2' && 'uid' in schemeModel"
         :activeScheme="activeScheme"
         :schemeModel="schemeModel" />

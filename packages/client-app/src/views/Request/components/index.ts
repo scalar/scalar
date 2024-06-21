@@ -1,1 +1,1 @@
-export { default as Oauth2 } from './Oauth2.vue'
+export { default as OAuth2 } from './OAuth2.vue'
