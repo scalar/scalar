@@ -199,7 +199,7 @@ Did it work? OMG, this is so cool! It didn’t? [Create a new issue](https://git
 
 Congratulations, you’ve come really far. And I have good news for you, you’re just a few lines of code away from a stunning API reference for your Fastify project. Time to pull our package:
 
-```
+```bash
 npm install @scalar/fastify-api-reference
 ```
 
@@ -237,12 +237,12 @@ await fastify.register(ScalarApiReference, {
   configuration: {
     layout: 'classic',
     // Learn more about configuration:
-    // https://github.com/scalar/scalar/tree/main/packages/api-reference#configuration
+    // https://github.com/scalar/scalar/tree/main/documentation/configuration.md
   },
 })
 ```
 
-TypeScript should give you a nice autocomplete for all options. If you’re more into reading an actual reference, you can read about all options here: <https://github.com/scalar/scalar/tree/main/packages/api-reference#configuration>
+TypeScript should give you a nice autocomplete for all options. If you’re more into reading an actual reference, you can read about all options here: <https://github.com/scalar/scalar/tree/main/documentation/configuration.md>
 
 ## Advanced: Handcrafted OpenAPI files
 

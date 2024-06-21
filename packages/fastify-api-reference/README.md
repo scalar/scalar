@@ -40,7 +40,7 @@ fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
-With the [@fastify/swagger](https://github.com/fastify/fastify-swagger) you can even generate your Swagger spec from the registered routes and directly pass it to the plugin:
+With [@fastify/swagger](https://github.com/fastify/fastify-swagger) you can even generate your OpenAPI documents from the registered routes and directly pass it to the plugin:
 
 ```ts
 await fastify.register(require('@scalar/fastify-api-reference'), {
@@ -74,7 +74,9 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
-The fastify plugin takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/packages/api-reference#configuration) in the core package README.
+We wrote a [detailed integration guide for Fastify](https://github.com/scalar/scalar/tree/main/documentation/fastify.md).
+
+The fastify plugin takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/documentation/configuration.md) in the core package README.
 
 ## Themes
 

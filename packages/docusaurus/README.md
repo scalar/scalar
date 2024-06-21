@@ -15,8 +15,7 @@ npm install @scalar/docusaurus
 
 ## Usage
 
-Simple add to the plugins section of your Docusaurus config. If you are using
-typescript you can import the type options type as well
+Simply add to the plugins section of your Docusaurus config. If you are using Typescript you can import the type options type as well.
 
 ```ts
 import type { ScalarOptions } from '@scalar/docusaurus'
@@ -37,9 +36,11 @@ plugins: [
 ],
 ```
 
+We wrote a [detailed integration guide for Docusaurus](https://github.com/scalar/scalar/tree/main/documentation/docusaurus.md).
+
 ### Multiple API descriptions
 
-Is it possible to add show multiple API descriptions? Yes, it is! :)
+Is it possible to show multiple API descriptions? Yes, it is! :)
 
 ```ts
 import type { ScalarOptions } from '@scalar/docusaurus'
