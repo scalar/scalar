@@ -2129,6 +2129,9 @@ importers:
       hono:
         specifier: ^4.2.7
         version: 4.4.6
+      object-to-xml:
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -7946,6 +7949,12 @@ packages:
       typescript:
         optional: true
 
+  dank-each@1.0.0:
+    resolution: {integrity: sha512-gMDy24y+3LlnAaHq4WFwRKliMZRkGp41Gy9JVsD1BO5tprb/lEh4afJlkankcTqRoppSaHRwgFQX61QjJ5ClfQ==}
+
+  dank-map@0.1.0:
+    resolution: {integrity: sha512-mQoLySkWc5bQM8XKXz0rIuISX/+12rSSfPojYlTVT6KPj3LsvfLURtrv0w+QEt1gRIKwp9mxnwOcL5nsOTkk2Q==}
+
   data-urls@4.0.0:
     resolution: {integrity: sha512-/mMTei/JXPqvFqQtfyTowxmJVwr2PVAeCcDxyFf6LhoOu/09TX2OX3kb2wzi4DMXcfj4OItwDOnhl5oziPnT6g==}
     engines: {node: '>=14'}
@@ -11512,6 +11521,9 @@ packages:
     resolution: {integrity: sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==}
     engines: {node: '>= 0.4'}
 
+  object-to-xml@2.0.0:
+    resolution: {integrity: sha512-bArXy7WCF1V9R88/zF9adSZSeFQnFmmKhMqNuNLAxqrbkvzcWP8HgnaRCcVJsfvIgvpdHiYd0qzJi7LM7QFfcQ==}
+
   object.assign@4.1.5:
     resolution: {integrity: sha512-byy+U7gp+FVwmyzKPYhW2h5l3crpmGsxl7X2s8y43IgxvG4g3QZ6CffDtsNQy1WsmZpQbO+ybo0AlW7TY6DcBQ==}
     engines: {node: '>= 0.4'}
@@ -13218,6 +13230,9 @@ packages:
 
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
+
+  sanitizer@0.1.3:
+    resolution: {integrity: sha512-j05vL56tR90rsYqm9ZD05v6K4HI7t4yMDEvvU0x4f+IADXM9Jx1x9mzatxOs5drJq6dGhugxDW99mcPvXVLl+Q==}
 
   sax@1.4.1:
     resolution: {integrity: sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==}
@@ -23505,6 +23520,10 @@ snapshots:
     optionalDependencies:
       typescript: 5.4.5
 
+  dank-each@1.0.0: {}
+
+  dank-map@0.1.0: {}
+
   data-urls@4.0.0:
     dependencies:
       abab: 2.0.6
@@ -28340,6 +28359,12 @@ snapshots:
 
   object-keys@1.1.1: {}
 
+  object-to-xml@2.0.0:
+    dependencies:
+      dank-each: 1.0.0
+      dank-map: 0.1.0
+      sanitizer: 0.1.3
+
   object.assign@4.1.5:
     dependencies:
       call-bind: 1.0.7
@@ -30173,6 +30198,8 @@ snapshots:
   safe-stable-stringify@2.4.3: {}
 
   safer-buffer@2.1.2: {}
+
+  sanitizer@0.1.3: {}
 
   sax@1.4.1: {}
 
