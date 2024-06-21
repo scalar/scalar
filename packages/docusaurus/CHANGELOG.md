@@ -1,5 +1,13 @@
 # @scalar/docusaurus
 
+## 0.4.16
+
+### Patch Changes
+
+- 5812c2f: feat: allow custom headers
+- b11d4a9: feat: add support for relative URLs
+  - @scalar/api-reference-react@0.3.14
+
 ## 0.4.15
 
 ### Patch Changes

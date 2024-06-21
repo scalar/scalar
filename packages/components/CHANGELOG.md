@@ -1,5 +1,18 @@
 # @scalar/components
 
+## 0.12.0
+
+### Minor Changes
+
+- e4419ce: feat: add scalar tooltip component
+
+### Patch Changes
+
+- f2c1019: fix: center scalar modal component
+- fd0c93d: fix: shalow ref over ref in scalar icon
+- 7b87b8c: fix: components tailwind specificity
+- 512c815: feat: scalar listbox component full width
+
 ## 0.11.6
 
 ### Patch Changes

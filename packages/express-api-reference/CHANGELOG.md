@@ -1,5 +1,15 @@
 # @scalar/express-api-reference
 
+## 0.4.77
+
+### Patch Changes
+
+- 1267f1c: feat: add content-type text/html to the HTML response
+- Updated dependencies [716811f]
+- Updated dependencies [5812c2f]
+- Updated dependencies [ee5fdee]
+  - @scalar/api-reference@1.24.16
+
 ## 0.4.76
 
 ### Patch Changes

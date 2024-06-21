@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 1.0.0
+
+### Major Changes
+
+- e5ac3e1: feat: update use-tooltip usage and dependencies
+
 ## 0.7.3
 
 ### Patch Changes
