@@ -46,7 +46,9 @@ const config = {
 }
 ```
 
-The Next.js handler takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/packages/api-reference#configuration) in the core package README.
+We wrote a [detailed integration guide for Next.js](/documentation/nextjs.md).
+
+The Next.js handler takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/documentation/configuration.md) in the core package README.
 
 ## Themes
 

@@ -29,284 +29,119 @@ import '@scalar/api-reference/style.css'
 </template>
 ```
 
-You can even [mount the component in React](https://github.com/scalar/scalar/blob/main/examples/react/src/App.tsx).
+### CDN
 
-## OpenAPI Specification
+```html
+<!doctype html>
+<html>
+  <head>
+    <title>Scalar API Reference</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <!-- Add your own OpenAPI/Swagger specification URL here: -->
+    <!-- Note: The example is our public proxy (to avoid CORS issues). You can remove the `data-proxy-url` attribute if you don’t need it. -->
+    <script
+      id="api-reference"
+      data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml"
+      data-proxy-url="https://proxy.scalar.com"></script>
 
-We’re expecting the passed specification to adhere to [the Swagger 2.0, OpenAPI 3.0 or OpenAPI 3.1 specification](https://github.com/OAI/OpenAPI-Specification).
+    <!-- Optional: You can set a full configuration object like this: -->
+    <script>
+      var configuration = {
+        theme: 'purple',
+      }
 
-On top of that, we’ve added a few things for your convenience:
-
-### x-displayName
-
-You can overwrite tag names with `x-displayName`.
-
-```diff
-openapi: 3.1.0
-info:
-  title: Example
-  version: "1.0"
-tags:
-  - name: pl4n3t5
-+    x-displayName: planets
-paths:
-  '/planets':
-    get:
-      summary: Get all planets
-      tags:
-        - pl4n3t5
+      document.getElementById('api-reference').dataset.configuration =
+        JSON.stringify(configuration)
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+  </body>
+</html>
 ```
 
-### x-tagGroup
+You can also use the following syntax to directly pass an OpenAPI specification:
 
-You can group your tags with `x-tagGroup`.
-
-```diff
-openapi: 3.1.0
-info:
-  title: Example
-  version: "1.0"
-tags:
-  - name: planets
-+x-tagGroups:
-+  - name: galaxy
-+    tags:
-+      - planets
-paths:
-  '/planets':
-    get:
-      summary: Get all planets
-      tags:
-        - planets
+```html
+<script
+  id="api-reference"
+  type="application/json">
+  { … }
+</script>
 ```
 
-### x-internal
+If you’d like to add a request proxy for the API client (to avoid CORS issues):
 
-You can hide operations from the reference with `x-internal`.
-
-```diff
-openapi: 3.1.0
-info:
-  title: Example
-  version: "1.0"
-paths:
-  '/planets':
-    get:
-      summary: Get all planets
-    post:
-      summary: Create a new planet
-+      x-internal: true
+```html
+<script
+  id="api-reference"
+  type="application/json"
+  data-proxy-url="https://proxy.scalar.com">
+  { … }
+</script>
 ```
 
-## Configuration
+#### Events [beta]
 
-There’s a configuration object that can be used on all platforms. In Vue.js, you use it like this:
+We have recently added two events to the standalone CDN build only.
 
-#### isEditable?: boolean
+##### scalar:reload-references
 
-Whether the Swagger editor should be shown.
+Reload the references, this will re-mount the app in case you have switched pages or the dom
+elements have been removed.
+
+```ts
+document.dispatchEvent(new Event('scalar:reload-references'))
+```
+
+##### scalar:update-references-config
+
+If you have updated the config or spec, you can trigger this event with the new payload to update
+the app. It should update reactively so you do not need to trigger the reload event above after.
+
+```ts
+import { type ReferenceProps } from './types'
+
+const ev = new CustomEvent('scalar:update-references-config', {
+  detail: {
+    configuration: {
+      spec: {
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+      },
+    },
+  } satisfies ReferenceProps,
+})
+document.dispatchEvent(ev)
+```
+
+## Vue.js
+
+The API Reference is built in Vue.js. If you’re working in Vue.js, too, you can directly use our Vue components.
+Install them via `npm`:
+
+```bash
+npm install @scalar/api-reference
+```
+
+And import the `ApiReference` component and style to your app:
 
 ```vue
-<ApiReference :configuration="{ isEditable: true }" />
-```
-
-#### spec.content?: string
-
-Directly pass an OpenAPI/Swagger spec.
-
-```vue
-<ApiReference :configuration="{ spec: { content: '{ … }' } }" />
-```
-
-#### spec.url?: string
-
-Pass the URL of a spec file (JSON or Yaml).
-
-```vue
-<ApiReference :configuration="{ spec: { url: '/openapi.json' } }" />
-```
-
-#### proxyUrl?: string
-
-Making requests to other domains is restricted in the browser and requires [CORS headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). It’s recommended to use a proxy to send requests to other origins.
-
-```vue
-<ApiReference :configuration="{ proxy: 'https://proxy.example.com' }" />
-```
-
-You can use our hosted proxy:
-
-```vue
-<ApiReference :configuration="{ proxy: 'https://proxy.scalar.com' }" />
-```
-
-If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/examples/proxy-server).
-
-#### showSidebar?: boolean
-
-Whether the sidebar should be shown.
-
-```vue
-<ApiReference :configuration="{ showSidebar: true } />
-```
-
-#### hideModels?: boolean
-
-Whether models (`components.schemas` or `definitions`) should be shown in the sidebar, search and content.
-
-`@default false`
-
-```vue
-<ApiReference :configuration="{ hideModels: true } />
-```
-
-#### hideDownloadButton?: boolean
-
-Whether to show the "Download OpenAPI Specification" button
-
-`@default false`
-
-```vue
-<ApiReference :configuration="{ hideDownloadButton: true } />
-```
-
-### customCss?: string
-
-You can pass custom CSS directly to the component. This is helpful for the integrations for Fastify, Express, Hono and others where you it’s easier to add CSS to the configuration.
-
-In Vue or React you’d probably use other ways to add custom CSS.
-
-```vue
-<script setup>
-const customCss = `* { font-family: "Comic Sans MS", cursive, sans-serif; }`
+<script setup lang="ts">
+import { ApiReference } from '@scalar/api-reference'
+import '@scalar/api-reference/style.css'
 </script>
 
 <template>
-  <ApiReference :configuration="{ customCss }" />
+  <ApiReference
+    :configuration="{
+      spec: {
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+      },
+    }" />
 </template>
 ```
 
-#### searchHotKey?: string
-
-Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
-
-```vue
-<ApiReference :configuration="{ searchHotKey: 'l'} />
-```
-
-#### servers?: Server[]
-
-List of servers to override the openapi spec servers
-
-@default undefined
-@example [{ url: 'https://api.scalar.com', description: 'Production server' }]
-
-```vue
-<ApiReference :configuration="{ servers: [{ url: 'https://api.scalar.com', description: 'Production server' }] } />
-```
-
-#### metaData?: object
-
-You can pass information to the config object to configure meta information out of the box.
-
-```vue
-<ApiReference :configuration="{
-  metaData: {
-        title: 'Page title',
-        description: 'My page page',
-        ogDescription: 'Still about my my page',
-        ogTitle: 'Page title',
-        ogImage: 'https://example.com/image.png',
-        twitterCard: 'summary_large_image',
-        //Add more...
-      }
-  } />
-```
-
-#### hiddenClients?: array | true
-
-You can pass an array of [httpsnippet clients](https://github.com/Kong/httpsnippet/wiki/Targets) to hide from the clients menu.
-
-```vue
-<ApiReference :configuration="{
-  hiddenClients: ['fetch']
-  } />
-```
-
-By default hides Unirest, pass `[]` to **show** all clients or `true` to **hide** all clients:
-
-```vue
-<ApiReference :configuration="{
-  hiddenClients: true
-  } />
-```
-
-#### onSpecUpdate?: (spec: string) => void
-
-You can listen to spec changes with onSpecUpdate that runs on spec/swagger content change
-
-```vue
-<ApiReference :configuration="{
-    onSpecUpdate: (value: string) => {
-      console.log('Content updated:', value)
-    }
-  } />
-```
-
-#### authentication?: Partial<AuthenticationState>
-
-To make authentication easier you can prefill the credentials for your users:
-
-```vue
-<ApiReference :configuration="{
-  authentication: {
-      // The OpenAPI file has keys for all security schemes:
-      // Which one should be used by default?
-      preferredSecurityScheme: 'my_custom_security_scheme',
-      // The `my_custom_security_scheme` security scheme is of type `apiKey`, so prefill the token:
-      apiKey: {
-        token: 'super-secret-token',
-      },
-    },
-  } />
-```
-
-For OpenAuth2 it’s more looking like this:
-
-```vue
-<ApiReference :configuration="{
-  authentication: {
-      // The OpenAPI file has keys for all security schemes
-      // Which one should be used by default?
-      preferredSecurityScheme: 'oauth2',
-      // The `oauth2` security scheme is of type `oAuth2`, so prefill the client id and the scopes:
-      oAuth2: {
-        clientId: 'foobar123',
-        // optional:
-        scopes: ['read:planets', 'write:planets'],
-      },
-    },
-  } />
-```
-
-#### withDefaultFonts?: boolean
-
-By default we’re using Inter and JetBrains Mono, served by Google Fonts. If you use a different font or just don’t want to use Google Fonts, pass `withDefaultFonts: false` to the configuration.
-
-```vue
-<ApiReference :configuration="{
-  withDefaultFonts: false
-} />
-```
-
-#### theme?: string
-
-You don’t like the color scheme? We’ve prepared some themes for you:
-
-Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, **bluePlanet**, **saturn**, **kepler**, **mars**, **deepSpace**, **none**
-
-```vue
-<ApiReference :configuration="{
-  theme: default
-} />
-```
+You can [pass props to customize the API reference](https://github.com/scalar/scalar/tree/main/documentation/configuration.md).

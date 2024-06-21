@@ -237,12 +237,12 @@ await fastify.register(ScalarApiReference, {
   configuration: {
     layout: 'classic',
     // Learn more about configuration:
-    // https://github.com/scalar/scalar/tree/main/packages/api-reference#configuration
+    // https://github.com/scalar/scalar/tree/main/documentation/configuration.md
   },
 })
 ```
 
-TypeScript should give you a nice autocomplete for all options. If you’re more into reading an actual reference, you can read about all options here: <https://github.com/scalar/scalar/tree/main/packages/api-reference#configuration>
+TypeScript should give you a nice autocomplete for all options. If you’re more into reading an actual reference, you can read about all options here: <https://github.com/scalar/scalar/tree/main/documentation/configuration.md>
 
 ## Advanced: Handcrafted OpenAPI files
 
