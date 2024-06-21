@@ -71,12 +71,13 @@ We’re offering a free and paid managed hosting on the edge, too:
 
 - Write your API documentation and publish your API references (free)
 - Get SSL and a super cool `*.apidocumentation.com` subdomain (free)
+- Write free text documentation (paid)
 - Collaborate with your whole team (paid)
 - Use any domain (paid)
 
 Ready? [Create your account on scalar.com](https://scalar.com).
 
-## Tools
+## Projects
 
 | Project                                                            | Description            |
 | ------------------------------------------------------------------ | ---------------------- |
@@ -85,7 +86,7 @@ Ready? [Create your account on scalar.com](https://scalar.com).
 | [Scalar Galaxy](/packages/galaxy/README)                           | OpenAPI Example        |
 | [Scalar Play Button](/packages/play-button/README)                 | Quick API Client Embed |
 | [Scalar Mock Server](/packages/mock-server/README)                 | OpenAPI Mock Server    |
-| [Scalar Void Server](/packages/void-server/README)                 | HTTP Mirror            |
+| [Scalar Void Server](/packages/void-server/README)                 | HTTP Request Mirror    |
 | [Scalar Open API Parser](https://github.com/scalar/openapi-parser) | OpenAPI SDK            |
 | [Scalar Sandbox](https://sandbox.scalar.com/)                      | Online OpenAPI Editor  |
 
