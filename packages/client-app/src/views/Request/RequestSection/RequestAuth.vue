@@ -7,11 +7,14 @@ import {
 } from '@/components/DataTable'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store/workspace'
+import { Oauth2 } from '@/views/Request/components'
+import type {
+  SecuritySchemeOption,
+  SecuritySchemeOptionOauth,
+} from '@/views/Request/libs'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { camelToTitleWords } from '@scalar/oas-utils/helpers'
 import { capitalize, computed } from 'vue'
-
-import AuthOauth2, { type SecuritySchemeOption } from './AuthOauth2.vue'
 
 defineProps<{
   title: string
@@ -25,6 +28,7 @@ const {
   securitySchemeMutators,
 } = useWorkspace()
 
+/** Different oauth flows will require different layouts */
 const columnLayout = computed(() =>
   activeScheme.value?.type === 'oauth2' ||
   activeScheme.value?.type === 'openIdConnect'
@@ -77,8 +81,14 @@ const schemeOptions = computed<SecuritySchemeOption[]>(() =>
   }),
 )
 
+/** Currently selected scheme */
 const activeScheme = computed(
-  () => securitySchemes[schemeModel.value?.uid || schemeModel.value.id || ''],
+  () =>
+    securitySchemes[
+      (schemeModel.value as SecuritySchemeOptionOauth)?.uid ||
+        schemeModel.value.id ||
+        ''
+    ],
 )
 
 const schemeModel = computed({
@@ -94,10 +104,10 @@ const schemeModel = computed({
   // Update the mutator on set
   set: (opt) => {
     if (!opt?.id) return
-    const { id, flowKey, uid } = opt
 
     // Handle the case for oauth flow
-    const payload = flowKey && uid ? { flowKey, uid } : { uid: id }
+    const payload =
+      'uid' in opt ? { flowKey: opt.flowKey, uid: opt.uid } : { uid: opt.id }
 
     collectionMutators.edit(
       activeCollection.value!.uid,
@@ -197,8 +207,8 @@ const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
       </DataTableRow>
 
       <!-- OAuth 2 -->
-      <AuthOauth2
-        v-else-if="activeScheme?.type === 'oauth2' && schemeModel"
+      <Oauth2
+        v-else-if="activeScheme?.type === 'oauth2' && 'uid' in schemeModel"
         :activeScheme="activeScheme"
         :schemeModel="schemeModel" />
     </DataTable>

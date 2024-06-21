@@ -1,28 +1,21 @@
-<script lang="ts">
-import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
-import { computed } from 'vue'
-
-/** Type for the dropdown options */
-export type SecuritySchemeOption = {
-  id: string
-  label: string
-  flowKey?: keyof SecuritySchemeOauth2['flows']
-  uid?: string
-}
-</script>
-
 <script setup lang="ts">
 import {
   DataTableCell,
   DataTableInput,
   DataTableRow,
 } from '@/components/DataTable'
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { useWorkspace } from '@/store/workspace'
+import {
+  type SecuritySchemeOptionOauth,
+  authorizeOauth2,
+} from '@/views/Request/libs'
+import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
+import { computed } from 'vue'
 
 const props = defineProps<{
   activeScheme: SecuritySchemeOauth2
-  schemeModel: Required<SecuritySchemeOption>
+  schemeModel: SecuritySchemeOptionOauth
 }>()
 
 const { securitySchemeMutators } = useWorkspace()
@@ -56,52 +49,14 @@ type MutatorArgs = Parameters<typeof securitySchemeMutators.edit>
 const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
   securitySchemeMutators.edit(props.activeScheme.uid, path, value)
 
-// TODO move to lib
-const authorize = () => {
-  if (!activeFlow.value) return
-  const flow = activeFlow.value
-
-  const scopes = flow.selectedScopes.join(' ')
-  const state = (Math.random() + 1).toString(36).substring(7)
-  const url = new URL(
-    'authorizationUrl' in flow ? flow.authorizationUrl : flow.tokenUrl,
+/** Authorize the user using specified flow */
+const handleAuthorize = async () => {
+  const accessToken = await authorizeOauth2(
+    activeFlow.value,
+    props.activeScheme,
   )
-
-  url.searchParams.set('response_type', 'token')
-  url.searchParams.set('client_id', props.activeScheme.clientId)
-  url.searchParams.set('redirect_uri', window.location.href)
-  url.searchParams.set('scope', scopes)
-  url.searchParams.set('state', state)
-
-  const windowFeatures = 'left=100,top=100,width=800,height=600'
-  const authWindow = window.open(url, 'openAuth2Window', windowFeatures)
-
-  if (authWindow) {
-    console.log('we have an auth windoww')
-    const checkWindowClosed = setInterval(function () {
-      try {
-        const urlParams = new URLSearchParams(authWindow.location.href)
-        const accessToken = urlParams.get('access_token')
-
-        if (authWindow.closed || accessToken) {
-          clearInterval(checkWindowClosed)
-
-          // State is a hash fragment and cannot be found through search params
-          const _state = authWindow.location.href.match(/state=([^&]*)/)?.[1]
-          if (accessToken && _state === state) {
-            updateScheme(
-              `flows.${props.schemeModel.flowKey}.token`,
-              accessToken,
-            )
-            console.log(accessToken)
-          }
-          authWindow.close()
-        }
-      } catch {
-        // Ignore CORS error from popup
-      }
-    }, 200)
-  }
+  if (accessToken)
+    updateScheme(`flows.${props.schemeModel.flowKey}.token`, accessToken)
 }
 </script>
 
@@ -125,8 +80,7 @@ const authorize = () => {
           fullWidth
           multiple
           :options="scopeOptions"
-          teleport
-          @update:modelValue="console.log">
+          teleport>
           <ScalarButton
             class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal"
             fullWidth
@@ -149,7 +103,7 @@ const authorize = () => {
       <DataTableCell class="flex items-center p-0.5">
         <ScalarButton
           size="sm"
-          @click="authorize">
+          @click="handleAuthorize">
           Authorize
         </ScalarButton>
       </DataTableCell>
