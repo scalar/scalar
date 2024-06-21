@@ -543,7 +543,6 @@ useDeprecationWarnings(props.configuration)
 
   .references-navigation {
     display: none;
-    position: fixed;
     z-index: 10;
   }
 
@@ -552,6 +551,7 @@ useDeprecationWarnings(props.configuration)
     top: var(--refs-header-height);
     height: calc(100dvh - var(--refs-header-height));
     width: 100%;
+    position: sticky;
   }
 
   .references-navigation-list {
