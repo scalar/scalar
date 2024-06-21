@@ -1102,6 +1102,9 @@ importers:
       '@scalar/openapi-parser':
         specifier: ^0.7.1
         version: 0.7.1
+      '@scalar/void-server':
+        specifier: workspace:*
+        version: link:../void-server
       commander:
         specifier: ^12.0.0
         version: 12.1.0
