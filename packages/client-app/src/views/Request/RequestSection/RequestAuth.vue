@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import DataTable from '@/components/DataTable/DataTable.vue'
-import DataTableCell from '@/components/DataTable/DataTableCell.vue'
-import DataTableHeader from '@/components/DataTable/DataTableHeader.vue'
-import DataTableInput from '@/components/DataTable/DataTableInput.vue'
-import DataTableRow from '@/components/DataTable/DataTableRow.vue'
+import {
+  DataTable,
+  DataTableHeader,
+  DataTableInput,
+  DataTableRow,
+} from '@/components/DataTable'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store/workspace'
+import { OAuth2 } from '@/views/Request/components'
+import type {
+  SecuritySchemeOption,
+  SecuritySchemeOptionOauth,
+} from '@/views/Request/libs'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import { capitalize, computed, ref } from 'vue'
+import { camelToTitleWords } from '@scalar/oas-utils/helpers'
+import { capitalize, computed } from 'vue'
 
 defineProps<{
   title: string
@@ -21,10 +28,11 @@ const {
   securitySchemeMutators,
 } = useWorkspace()
 
+/** Different oauth flows will require different layouts */
 const columnLayout = computed(() =>
   activeScheme.value?.type === 'oauth2' ||
   activeScheme.value?.type === 'openIdConnect'
-    ? ['', 'auto']
+    ? ['', 'auto', 'auto']
     : [''],
 )
 
@@ -38,8 +46,6 @@ const getLabel = (id: string) => {
     case 'http': {
       return `${capitalize(scheme.scheme)} Authentication (${id})`
     }
-    case 'oauth2':
-      return `OAuth 2.0 (${id})`
     case 'openIdConnect':
       return `Open ID Connect (${id})`
     default:
@@ -47,11 +53,8 @@ const getLabel = (id: string) => {
   }
 }
 
-// Temp until we replace the last two
-const password = ref('')
-
 /** Generate the options for the dropdown */
-const schemeOptions = computed(() =>
+const schemeOptions = computed<SecuritySchemeOption[]>(() =>
   activeSecurityRequirements.value.flatMap((req) => {
     const keys = Object.keys(req)
 
@@ -59,33 +62,59 @@ const schemeOptions = computed(() =>
     if (keys.length === 0) return { id: 'none', label: 'None' }
 
     // Active requirements
-    return keys.map((id) =>
-      id === 'none' ? { id, label: 'None' } : { id, label: getLabel(id) },
-    )
+    return keys.flatMap((id) => {
+      const scheme = securitySchemes[id]
+
+      // For OAuth2 add all flows
+      if (scheme.type === 'oauth2') {
+        return Object.keys(scheme.flows).map((flowKey) => ({
+          // Since ID's must be unique, we also store the uid and flowKey separately
+          id: `${id}${flowKey}`,
+          label: `${camelToTitleWords(flowKey)} (${id})`,
+          flowKey,
+          uid: id,
+        }))
+      }
+      // Or add just a single item
+      else return { id, label: getLabel(id) }
+    })
   }),
 )
 
+/** Currently selected scheme */
 const activeScheme = computed(
-  () => securitySchemes[schemeModel.value?.id ?? ''],
+  () =>
+    securitySchemes[
+      (schemeModel.value as SecuritySchemeOptionOauth)?.uid ||
+        schemeModel.value.id ||
+        ''
+    ],
 )
 
 const schemeModel = computed({
   // Grab the selected OR first security scheme
-  get: () =>
-    schemeOptions.value.find(
-      ({ id }) =>
-        id ===
-        (activeCollection.value?.selectedSecurityKeys[0] ??
-          schemeOptions.value[0].id),
-    ),
+  get: () => {
+    const selectedScheme = activeCollection.value?.selectedSecuritySchemes?.[0]
+    return (
+      schemeOptions.value.find(
+        ({ id }) => id === `${selectedScheme?.uid}${selectedScheme?.flowKey}`,
+      ) || schemeOptions.value[0]
+    )
+  },
   // Update the mutator on set
-  set: (opt) =>
-    opt?.id &&
+  set: (opt) => {
+    if (!opt?.id) return
+
+    // Handle the case for OAuth flow
+    const payload =
+      'uid' in opt ? { flowKey: opt.flowKey, uid: opt.uid } : { uid: opt.id }
+
     collectionMutators.edit(
       activeCollection.value!.uid,
-      'selectedSecurityKeys',
-      [opt.id],
-    ),
+      'selectedSecuritySchemes',
+      [payload],
+    )
+  },
 })
 
 /** Steal the type from the mutator */
@@ -177,33 +206,11 @@ const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
         </DataTableInput>
       </DataTableRow>
 
-      <!-- oAuth 2 -->
-      <DataTableRow
-        v-else-if="activeScheme?.type === 'oauth2'"
-        class="border-r-transparent">
-        <DataTableInput
-          v-model="password"
-          placeholder="Token">
-          Client ID
-        </DataTableInput>
-        <DataTableCell class="flex items-center p-0.5">
-          <ScalarButton size="sm">Authorize</ScalarButton>
-        </DataTableCell>
-      </DataTableRow>
-
-      <!-- Open ID Connect -->
-      <DataTableRow
-        v-else-if="activeScheme?.type === 'openIdConnect'"
-        class="border-r-transparent">
-        <DataTableInput
-          v-model="password"
-          placeholder="Token">
-          TODO
-        </DataTableInput>
-        <DataTableCell class="flex items-center">
-          <ScalarButton size="sm"> Authorize </ScalarButton>
-        </DataTableCell>
-      </DataTableRow>
+      <!-- OAuth 2 -->
+      <OAuth2
+        v-else-if="activeScheme?.type === 'oauth2' && 'uid' in schemeModel"
+        :activeScheme="activeScheme"
+        :schemeModel="schemeModel" />
     </DataTable>
   </ViewLayoutCollapse>
 </template>

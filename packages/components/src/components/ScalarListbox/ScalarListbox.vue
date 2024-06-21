@@ -11,13 +11,22 @@ import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
 import { ScalarIcon } from '../ScalarIcon'
 import type { Option } from './types'
 
-defineProps<
-  {
-    options: Option[]
-    modelValue?: Option
-    fullWidth?: boolean
-  } & Omit<FloatingOptions, 'middleware' | 'offset'>
->()
+withDefaults(
+  defineProps<
+    {
+      /**
+       * Allow selecting multiple values
+       *
+       * @default false
+       */
+      multiple?: boolean
+      options: Option[]
+      modelValue?: Option
+      fullWidth?: boolean
+    } & Omit<FloatingOptions, 'middleware' | 'offset'>
+  >(),
+  { multiple: false },
+)
 
 defineEmits<{
   (e: 'update:modelValue', v: Option): void
@@ -49,6 +58,7 @@ const variants = cva({
     as="div"
     :class="[{ 'w-full': fullWidth }, 'text-xs']"
     :modelValue="modelValue"
+    :multiple="multiple"
     @update:modelValue="(v) => $emit('update:modelValue', v)">
     <ScalarFloating
       :isOpen="open ?? isOpen"

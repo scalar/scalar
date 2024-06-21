@@ -97,7 +97,6 @@ module.exports = {
         ],
         '@typescript-eslint/prefer-optional-chain': 'warn',
         'camelcase': 'off',
-        'max-len': ['warn', { code: 120, comments: null }],
         '@typescript-eslint/naming-convention': [
           'error',
           // {

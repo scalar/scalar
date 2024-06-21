@@ -142,9 +142,22 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
         },
       ]
   const servers = unparsedServers.map((server) => createServer(server))
-  const selectedSecurityKey = parsedSpec.security?.length
-    ? Object.keys(parsedSpec.security[0] ?? {})?.[0]
-    : ''
+
+  // Select initial security
+  const firstSecurityKey = Object.keys(parsedSpec?.security?.[0] ?? {})?.[0]
+  const firstScheme = parsedSpec.components?.securitySchemes?.[
+    firstSecurityKey ?? ''
+  ] as OpenAPIV3_1.SecuritySchemeObject
+
+  // In the case of oauth2 we need to select the flow as well
+  const flowKey =
+    firstScheme.type === 'oauth2'
+      ? Object.keys(firstScheme.flows ?? {})[0]
+      : undefined
+
+  const selectedSecuritySchemes = firstSecurityKey
+    ? [{ uid: firstSecurityKey, ...(flowKey ? { flowKey } : {}) }]
+    : []
 
   const collection = createCollection({
     spec: {
@@ -155,7 +168,7 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
       serverUids: servers.map(({ uid }) => uid),
       tags,
     },
-    selectedSecurityKeys: [selectedSecurityKey],
+    selectedSecuritySchemes,
     selectedServerUid: servers[0].uid,
     // We default to having all the requests in the root folder
     childUids: folders.map(({ uid }) => uid),
