@@ -4,104 +4,74 @@ import {
   DataTableInput,
   DataTableRow,
 } from '@/components/DataTable'
-import { useWorkspace } from '@/store/workspace'
+import type { UpdateCurrentScheme } from '@/store/workspace'
 import {
   type SecuritySchemeOptionOauth,
   authorizeOauth2,
 } from '@/views/Request/libs'
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import { ScalarButton, useLoadingState } from '@scalar/components'
 import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
 import { computed } from 'vue'
+
+import ScopesDropdown from './ScopesDropdown.vue'
 
 const props = defineProps<{
   activeScheme: SecuritySchemeOauth2
   schemeModel: SecuritySchemeOptionOauth
+  updateCurrentScheme: UpdateCurrentScheme
 }>()
 
-const { securitySchemeMutators } = useWorkspace()
+const loadingState = useLoadingState()
 
 const activeFlow = computed(
   () => props.activeScheme.flows[props.schemeModel.flowKey],
 )
 
-/** Handles updating the mutators as well as displaying */
-const scopeModel = computed({
-  get: () =>
-    activeFlow.value?.selectedScopes.map((scopeName) =>
-      scopeOptions.value.find(({ id }) => id === scopeName),
-    ),
-  set: (opts) =>
-    updateScheme(
-      `flows.${props.schemeModel.flowKey}.selectedScopes`,
-      opts?.flatMap((opt) => (opt?.id ? opt.id : [])),
-    ),
-})
-
-/** Scope dropdown options */
-const scopeOptions = computed(() =>
-  Object.entries(activeFlow.value?.scopes ?? {}).map(([key, val]) => ({
-    id: key,
-    label: [key, val].join(' - '),
-  })),
-)
-
-type MutatorArgs = Parameters<typeof securitySchemeMutators.edit>
-const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
-  securitySchemeMutators.edit(props.activeScheme.uid, path, value)
-
 /** Authorize the user using specified flow */
 const handleAuthorize = async () => {
+  if (loadingState.isLoading) return
+  loadingState.startLoading()
+
   const accessToken = await authorizeOauth2(
-    activeFlow.value,
     props.activeScheme,
-  )
+    props.schemeModel,
+  ).finally(() => loadingState.stopLoading())
+
   if (accessToken)
-    updateScheme(`flows.${props.schemeModel.flowKey}.token`, accessToken)
+    props.updateCurrentScheme(
+      `flows.${props.schemeModel.flowKey}.token`,
+      accessToken,
+    )
 }
 </script>
 
 <template>
-  <!-- Implicit -->
+  <!-- Implicit / Authorization Code -->
   <DataTableRow
-    v-if="schemeModel.flowKey === 'implicit'"
+    v-if="
+      schemeModel.flowKey === 'implicit' ||
+      schemeModel.flowKey === 'authorizationCode'
+    "
     class="border-r-transparent">
     <template v-if="!activeFlow?.token">
       <DataTableInput
         :modelValue="activeScheme.clientId"
         placeholder="12345"
-        @update:modelValue="(v) => updateScheme('clientId', v)">
+        @update:modelValue="(v) => props.updateCurrentScheme('clientId', v)">
         Client ID
       </DataTableInput>
 
       <DataTableCell class="flex items-center p-0.5">
-        <ScalarListbox
-          v-model="scopeModel"
-          class="font-code text-xxs w-full"
-          fullWidth
-          multiple
-          :options="scopeOptions"
-          teleport>
-          <ScalarButton
-            class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal"
-            fullWidth
-            variant="ghost">
-            <span>
-              Scopes
-              {{ activeFlow?.selectedScopes.length }} /
-              {{
-                Object.keys(activeScheme.flows.implicit?.scopes ?? {}).length
-              }}
-            </span>
-            <ScalarIcon
-              icon="ChevronDown"
-              size="xs" />
-          </ScalarButton>
-        </ScalarListbox>
+        <ScopesDropdown
+          :activeFlow="activeFlow"
+          :schemeModel="schemeModel"
+          :updateCurrentScheme="updateCurrentScheme" />
       </DataTableCell>
 
       <!-- Access Token -->
       <DataTableCell class="flex items-center p-0.5">
         <ScalarButton
+          :loading="loadingState"
           size="sm"
           @click="handleAuthorize">
           Authorize
@@ -113,7 +83,8 @@ const handleAuthorize = async () => {
         :modelValue="activeFlow.token"
         type="password"
         @update:modelValue="
-          (v) => updateScheme(`flows.${props.schemeModel.flowKey}.token`, v)
+          (v) =>
+            updateCurrentScheme(`flows.${props.schemeModel.flowKey}.token`, v)
         ">
         Access Token
       </DataTableInput>
@@ -121,7 +92,9 @@ const handleAuthorize = async () => {
         <ScalarButton
           size="sm"
           variant="ghost"
-          @click="updateScheme(`flows.${props.schemeModel.flowKey}.token`, '')">
+          @click="
+            updateCurrentScheme(`flows.${props.schemeModel.flowKey}.token`, '')
+          ">
           Clear
         </ScalarButton>
       </DataTableCell>
@@ -129,19 +102,19 @@ const handleAuthorize = async () => {
   </DataTableRow>
 
   <!-- Password -->
-  <DataTableRow
-    v-if="schemeModel.flowKey === 'password'"
-    class="border-r-transparent">
-    <DataTableInput
-      :modelValue="activeScheme.clientId"
-      placeholder="12345"
-      @update:modelValue="(v) => updateScheme('clientId', v)">
-      Client ID
-    </DataTableInput>
-    <DataTableCell class="flex items-center p-0.5">
-      <ScalarButton size="sm">Authorize</ScalarButton>
-    </DataTableCell>
-  </DataTableRow>
+  <!-- <DataTableRow -->
+  <!--   v-if="schemeModel.flowKey === 'password'" -->
+  <!--   class="border-r-transparent"> -->
+  <!--   <DataTableInput -->
+  <!--     :modelValue="activeScheme.clientId" -->
+  <!--     placeholder="12345" -->
+  <!--     @update:modelValue="(v) => updateScheme('clientId', v)"> -->
+  <!--     Client ID -->
+  <!--   </DataTableInput> -->
+  <!--   <DataTableCell class="flex items-center p-0.5"> -->
+  <!--     <ScalarButton size="sm">Authorize</ScalarButton> -->
+  <!--   </DataTableCell> -->
+  <!-- </DataTableRow> -->
 
   <!-- Client Credentials -->
   <DataTableRow
@@ -150,22 +123,7 @@ const handleAuthorize = async () => {
     <DataTableInput
       :modelValue="activeScheme.clientId"
       placeholder="12345"
-      @update:modelValue="(v) => updateScheme('clientId', v)">
-      Client ID
-    </DataTableInput>
-    <DataTableCell class="flex items-center p-0.5">
-      <ScalarButton size="sm">Authorize</ScalarButton>
-    </DataTableCell>
-  </DataTableRow>
-
-  <!-- Authorization Code -->
-  <DataTableRow
-    v-if="schemeModel.flowKey === 'authorizationCode'"
-    class="border-r-transparent">
-    <DataTableInput
-      :modelValue="activeScheme.clientId"
-      placeholder="12345"
-      @update:modelValue="(v) => updateScheme('clientId', v)">
+      @update:modelValue="(v) => updateCurrentScheme('clientId', v)">
       Client ID
     </DataTableInput>
     <DataTableCell class="flex items-center p-0.5">

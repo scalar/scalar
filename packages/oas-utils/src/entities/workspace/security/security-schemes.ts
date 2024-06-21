@@ -87,19 +87,25 @@ const oauthFlowSchema = z
         token: value,
       })
       .optional(),
-    /** Configuration for the OAuth Resource Owner Password flow */
-    password: z
-      .object({
-        tokenUrl,
-        refreshUrl,
-        scopes,
-
-        username: value,
-        password: value,
-        selectedScopes,
-        token: value,
-      })
-      .optional(),
+    /**
+     * Configuration for the OAuth Resource Owner Password flow
+     * Currently disabled as nobody uses it anymore
+     *
+     * @deprecated
+     * @see https://oauth.net/2/grant-types/password/
+     */
+    // password: z
+    //   .object({
+    //     tokenUrl,
+    //     refreshUrl,
+    //     scopes,
+    //
+    //     username: value,
+    //     password: value,
+    //     selectedScopes,
+    //     token: value,
+    //   })
+    //   .optional(),
     /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
     clientCredentials: z
       .object({
@@ -170,5 +176,9 @@ export type SecurityScheme = z.infer<typeof securityScheme>
 export type SecuritySchemePayload = z.input<typeof securityScheme>
 
 /** Create Security Scheme with defaults */
+// export const createSecurityScheme = (payload: SecuritySchemePayload) =>
+//   deepMerge(securityScheme.parse({ type: payload.type }), payload)
+
+// TODO remove temp for testing
 export const createSecurityScheme = (payload: SecuritySchemePayload) =>
-  deepMerge(securityScheme.parse({ type: payload.type }), payload)
+  securityScheme.parse(payload)

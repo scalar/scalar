@@ -456,6 +456,11 @@ const deleteFolder = (
 
 const securitySchemes = reactive<Record<string, SecurityScheme>>({})
 const securitySchemeMutators = mutationFactory(securitySchemes, reactive({}))
+type SecurityMutatorEditArgs = Parameters<typeof securitySchemeMutators.edit>
+export type UpdateCurrentScheme = (
+  path: SecurityMutatorEditArgs[1],
+  value: SecurityMutatorEditArgs[2],
+) => void
 
 /**
  * Security requirements for currently active request
@@ -534,9 +539,30 @@ async function importSpecFile(spec: string | AnyObject) {
       SecurityScheme
     >,
   ).forEach(([key, securityScheme]) =>
-    securitySchemeMutators.add(
-      createSecurityScheme({ ...securityScheme, uid: key }),
-    ),
+    // TODOtest remove Temp for testing
+    key === 'oauth2'
+      ? securitySchemeMutators.add(
+          createSecurityScheme({
+            ...securityScheme,
+            type: 'oauth2',
+            flows: {
+              authorizationCode: {
+                authorizationUrl:
+                  'https://www.oauth.com/playground/auth-dialog.html',
+                scopes: {
+                  photo: 'This is just a quick desc',
+                  default: 'ANother scope lies here',
+                  another: 'dont pick me',
+                },
+              },
+              clientCredentials: {},
+            },
+            uid: key,
+          }),
+        )
+      : securitySchemeMutators.add(
+          createSecurityScheme({ ...securityScheme, uid: key }),
+        ),
   )
 }
 

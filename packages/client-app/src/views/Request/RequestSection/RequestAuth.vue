@@ -6,7 +6,7 @@ import {
   DataTableRow,
 } from '@/components/DataTable'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { useWorkspace } from '@/store/workspace'
+import { type UpdateCurrentScheme, useWorkspace } from '@/store/workspace'
 import { OAuth2 } from '@/views/Request/components'
 import type {
   SecuritySchemeOption,
@@ -118,8 +118,7 @@ const schemeModel = computed({
 })
 
 /** Steal the type from the mutator */
-type MutatorArgs = Parameters<typeof securitySchemeMutators.edit>
-const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
+const updateCurrentScheme: UpdateCurrentScheme = (path, value) =>
   securitySchemeMutators.edit(activeScheme.value.uid, path, value)
 </script>
 <template>
@@ -165,7 +164,7 @@ const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
           :modelValue="activeScheme.value"
           placeholder="Token"
           type="password"
-          @update:modelValue="(v) => updateScheme('value', v)">
+          @update:modelValue="(v) => updateCurrentScheme('value', v)">
           Bearer Token
         </DataTableInput>
       </DataTableRow>
@@ -180,7 +179,7 @@ const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
             class="text-c-2"
             :modelValue="activeScheme.value"
             placeholder="Username"
-            @update:modelValue="(v) => updateScheme('value', v)">
+            @update:modelValue="(v) => updateCurrentScheme('value', v)">
             Username
           </DataTableInput>
         </DataTableRow>
@@ -189,7 +188,7 @@ const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
             :modelValue="activeScheme.secondValue"
             placeholder="Token"
             type="password"
-            @update:modelValue="(v) => updateScheme('secondValue', v)">
+            @update:modelValue="(v) => updateCurrentScheme('secondValue', v)">
             Password
           </DataTableInput>
         </DataTableRow>
@@ -201,7 +200,7 @@ const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
           :modelValue="activeScheme.value"
           placeholder="Value"
           type="password"
-          @update:modelValue="(v) => updateScheme('value', v)">
+          @update:modelValue="(v) => updateCurrentScheme('value', v)">
           {{ activeScheme.name }}
         </DataTableInput>
       </DataTableRow>
@@ -210,7 +209,8 @@ const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
       <OAuth2
         v-else-if="activeScheme?.type === 'oauth2' && 'uid' in schemeModel"
         :activeScheme="activeScheme"
-        :schemeModel="schemeModel" />
+        :schemeModel="schemeModel"
+        :updateCurrentScheme="updateCurrentScheme" />
     </DataTable>
   </ViewLayoutCollapse>
 </template>
