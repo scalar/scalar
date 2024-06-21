@@ -49,8 +49,6 @@ const getLabel = (id: string) => {
   }
 }
 
-console.log(securitySchemes)
-
 /** Generate the options for the dropdown */
 const schemeOptions = computed<SecuritySchemeOption[]>(() =>
   activeSecurityRequirements.value.flatMap((req) => {

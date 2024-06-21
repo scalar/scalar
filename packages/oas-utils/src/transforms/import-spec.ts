@@ -92,8 +92,7 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
         tags: operation.tags || ['default'],
         description: operation.description,
         operationId: operation.operationId,
-        // TODO just for testing, remove
-        security: [{ oauth2: ['testing', 'default'] }],
+        security: operation.security,
         summary: operation.summary,
         externalDocs: operation.externalDocs,
         requestBody: operation.requestBody,
