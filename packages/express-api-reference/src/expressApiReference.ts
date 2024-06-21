@@ -130,7 +130,7 @@ export const ApiReference = (options: ApiReferenceOptions) => {
  */
 export function apiReference(options: ApiReferenceOptions) {
   return (req: Request, res: Response) => {
-    res.send(`
+    res.type('text/html').send(`
   <!DOCTYPE html>
   <html>
     <head>
