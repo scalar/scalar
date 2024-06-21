@@ -54,11 +54,11 @@ export async function createVoidServer() {
 
     const acceptedContentType = accepts(c, {
       header: 'Accept',
-      supports: ['application/json', 'application/xml', 'application/zip'],
+      supports: ['text/html', 'application/xml', 'application/zip'],
       default: 'application/json',
     })
 
-    if (acceptedContentType === 'application/html') {
+    if (acceptedContentType === 'text/html') {
       return createHtmlResponse(c, requestData)
     }
 
