@@ -194,7 +194,9 @@ const handlePaste = (event: ClipboardEvent) => {
                 (serverOptions.length > 1 || !workspace.isReadOnly)
               ">
               <ScalarDropdown
+                class="scalar-client"
                 :options="serverOptions"
+                teleport
                 :value="activeCollection?.selectedServerUid">
                 <button
                   class="font-code lg:text-sm text-xs whitespace-nowrap border border-b-3 border-solid rounded px-1.5 text-c-2"

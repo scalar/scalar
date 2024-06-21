@@ -48,7 +48,9 @@ const isRequest = computed(() => 'summary' in props.item)
 </script>
 
 <template>
-  <ScalarDropdown teleport>
+  <ScalarDropdown
+    class="scalar-client"
+    teleport>
     <ScalarButton
       class="z-10 hover:bg-b-3 transition-none p-1 group-hover:flex ui-open:flex absolute left-0 hidden -translate-x-full -ml-1"
       size="sm"
