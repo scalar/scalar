@@ -35,11 +35,12 @@ const variants = cva({
   base: 'text-center font-code text-3xs justify-center items-center flex',
   variants: {
     isSquare: {
-      true: 'px-2.5 rounded-md bg-mix-transparent bg-mix-amount-90 dark:bg-mix-amount-80 hover:bg-mix-b-2',
+      true: 'px-2.5 rounded-md bg-mix-transparent bg-mix-amount-90 dark:bg-mix-amount-80',
       false: 'rounded-full',
     },
     isEditable: {
-      true: 'px-0',
+      true: 'px-0 hover:bg-mix-b-2',
+      false: 'cusor-pointer',
     },
   },
 })
@@ -56,7 +57,7 @@ const httpLabel = computed(() => method.value.short)
       class="h-full"
       :class="{ 'pointer-events-none': !isEditable }">
       <button
-        class="relative h-full cursor-pointer gap-1"
+        class="relative h-full gap-1"
         :class="
           cx(
             variants({ isSquare, isEditable }),
@@ -77,7 +78,7 @@ const httpLabel = computed(() => method.value.short)
   <!-- Display only -->
   <div
     v-else
-    class="relative cursor-pointer gap-1"
+    class="relative gap-1"
     :class="
       cx(
         variants({ isSquare, isEditable }),
