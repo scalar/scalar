@@ -2,4 +2,4 @@
 '@scalar/express-api-reference': patch
 ---
 
-Fix missing content-type
+feat: add content-type text/html to the HTML response
