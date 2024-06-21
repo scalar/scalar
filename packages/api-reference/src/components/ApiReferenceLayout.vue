@@ -80,6 +80,7 @@ const documentEl = ref<HTMLElement | null>(null)
 useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height + 'px'
 })
+// Find scalar Y offset to support users who have tried to add their own headers
 const yPosition = ref(0)
 onMounted(() => {
   const pbcr = documentEl.value?.parentElement?.getBoundingClientRect()
