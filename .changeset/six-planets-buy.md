@@ -2,4 +2,4 @@
 '@scalar/client-app': patch
 ---
 
-feat(client-app): add scalar-client class to teleported dropdowns
+feat(client-app): teleport dropdowns to #scalar-client instead of <body> 

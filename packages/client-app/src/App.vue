@@ -57,7 +57,7 @@ onMounted(() => {
 @import './assets/tailwind.css';
 @import './assets/variables.css';
 
-#app.scalar-client {
+#scalar-client {
   display: flex;
   flex-direction: column;
   height: 100vh;
