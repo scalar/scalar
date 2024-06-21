@@ -16,7 +16,7 @@ The Scalar Proxy redirects requests to another server to avoid CORS issues. Itâ€
 go run main.go
 ```
 
-```
+```bash
 2024/05/08 10:49:59 ðŸ¥¤ Proxy Server listening on http://localhost:1337
 ```
 
@@ -26,7 +26,7 @@ PORT=8080 go run main.go
 
 ### Example
 
-```
+```bash
 curl --request GET \
      --url 'localhost:1337?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets'
 ```

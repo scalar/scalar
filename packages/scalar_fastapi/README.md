@@ -28,5 +28,4 @@ async def scalar_html():
         openapi_url=app.openapi_url,
         title=app.title,
     )
-
 ```

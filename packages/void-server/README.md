@@ -9,7 +9,7 @@ An Hono server that responds with the request data. Kind of a mirror for HTTP re
 
 ## Installation
 
-```
+```bash
 npm add @scalar/void-server
 ```
 

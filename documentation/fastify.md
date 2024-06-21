@@ -199,7 +199,7 @@ Did it work? OMG, this is so cool! It didn’t? [Create a new issue](https://git
 
 Congratulations, you’ve come really far. And I have good news for you, you’re just a few lines of code away from a stunning API reference for your Fastify project. Time to pull our package:
 
-```
+```bash
 npm install @scalar/fastify-api-reference
 ```
 

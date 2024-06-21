@@ -56,13 +56,13 @@ cd my-new-app
 
 I’ve selected SQLite, so I need to create an empty database:
 
-```
+```bash
 touch database/database.sqlite
 ```
 
 If you’ve choosen another database driver, add the required credentials to your `.env` file. Once you’re done, you can use [Laravel Herd](https://herd.laravel.com/) or just spin up a tiny PHP server from the command-line:
 
-```
+```bash
 php artisan serve
 ```
 

@@ -116,6 +116,6 @@ we sort out what is causing the package issues.
 
 To do this, just create a `.npmrc` file in your project root and fill it with:
 
-```
+```bash
 shamefully-hoist=true
 ```
