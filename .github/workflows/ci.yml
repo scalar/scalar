@@ -1,4 +1,4 @@
-name: Check build, types, and units tests are passing
+name: Check build, types, and units tests
 
 on:
   pull_request:
