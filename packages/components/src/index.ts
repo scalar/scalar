@@ -26,6 +26,7 @@ import {
   ScalarSearchResultList,
 } from './components/ScalarSearchResults'
 import { ScalarTextField } from './components/ScalarTextField'
+import { ScalarTooltip } from './components/ScalarTooltip'
 import './tailwind/tailwind.css'
 
 export {
@@ -46,6 +47,7 @@ export {
   ScalarSearchResultItem,
   ScalarSearchResultList,
   ScalarTextField,
+  ScalarTooltip,
   type Icon,
   type ScalarListboxOption,
   type ModalState,

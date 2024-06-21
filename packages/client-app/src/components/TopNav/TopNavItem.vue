@@ -2,7 +2,7 @@
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import type { Route } from '@/constants'
 import { ScalarIcon } from '@scalar/components'
-import { TooltipComponent, useTooltip } from '@scalar/use-tooltip'
+import { ScalarTooltip } from '@scalar/components'
 
 defineProps<
   Route & {
@@ -14,49 +14,39 @@ defineProps<
 defineEmits<{
   (e: 'close'): void
 }>()
-
-const {
-  elementRef: tooltipRef,
-  tooltipVisible,
-  handleMouseEnter,
-  handleMouseLeave,
-} = useTooltip({
-  delay: 500,
-})
 </script>
 
 <template>
-  <div
-    ref="tooltipRef"
-    class="nav-item"
-    :class="{ 'nav-item__active': active }"
-    @mouseenter="handleMouseEnter"
-    @mouseleave="handleMouseLeave">
-    <div
-      class="nav-item-icon-copy flex flex-1 items-center justify-center gap-1.5">
-      <ScalarIcon
-        class="p-[0.5px]"
-        :icon="icon"
-        size="xs" />
-      <span class="nav-item-copy text-xs">{{ label }}</span>
-    </div>
-    <button
-      class="nav-item-close"
-      type="button"
-      @click="$emit('close')">
-      <ScalarIcon icon="Close" />
-    </button>
-    <TooltipComponent
-      class="absolute centered-x top-8 z-10"
-      :tooltipVisible="tooltipVisible">
-      <template #content>
-        <ScalarHotkey
-          v-if="hotkey"
-          class="!bg-b-1"
-          :hotkey="hotkey" />
-      </template>
-    </TooltipComponent>
-  </div>
+  <ScalarTooltip
+    class="scalar-client"
+    :delay="500"
+    :sideOffset="4">
+    <template #trigger>
+      <div
+        class="nav-item"
+        :class="{ 'nav-item__active': active }">
+        <div
+          class="nav-item-icon-copy flex flex-1 items-center justify-center gap-1.5">
+          <ScalarIcon
+            class="p-[0.5px]"
+            :icon="icon"
+            size="xs" />
+          <span class="nav-item-copy text-xs">{{ label }}</span>
+        </div>
+        <button
+          class="nav-item-close"
+          type="button"
+          @click="$emit('close')">
+          <ScalarIcon icon="Close" />
+        </button>
+      </div>
+    </template>
+    <template #content>
+      <ScalarHotkey
+        v-if="hotkey"
+        :hotkey="hotkey" />
+    </template>
+  </ScalarTooltip>
 </template>
 
 <style scoped>
@@ -73,6 +63,7 @@ const {
   color: var(--scalar-color-3);
   padding: 4.5px;
   min-width: 0;
+  overflow: hidden;
   position: relative;
 }
 .nav-item-icon-copy {
