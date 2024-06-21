@@ -65,7 +65,7 @@ const schemeOptions = computed<SecuritySchemeOption[]>(() =>
     return keys.flatMap((id) => {
       const scheme = securitySchemes[id]
 
-      // For oAuth2 add all flows
+      // For OAuth2 add all flows
       if (scheme.type === 'oauth2') {
         return Object.keys(scheme.flows).map((flowKey) => ({
           // Since ID's must be unique, we also store the uid and flowKey separately
@@ -105,7 +105,7 @@ const schemeModel = computed({
   set: (opt) => {
     if (!opt?.id) return
 
-    // Handle the case for oauth flow
+    // Handle the case for OAuth flow
     const payload =
       'uid' in opt ? { flowKey: opt.flowKey, uid: opt.uid } : { uid: opt.id }
 
