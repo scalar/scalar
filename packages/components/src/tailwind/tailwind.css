@@ -1,14 +1,14 @@
 @import '@scalar/themes/style.css';
 @import 'tailwindcss/base' layer(scalar-base);
 
-.scalar-app {
+:where(.scalar-app) {
   @tailwind components;
   @tailwind utilities;
   @tailwind variants;
 
-  /** 
-   * Custom utilities to make life easier 
-   * For some reason it was bugging on apply so I just used css for now 
+  /**
+   * Custom utilities to make life easier
+   * For some reason it was bugging on apply so I just used css for now
    */
   @layer utilities {
     .row {
