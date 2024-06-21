@@ -56,7 +56,7 @@ type MutatorArgs = Parameters<typeof securitySchemeMutators.edit>
 const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
   securitySchemeMutators.edit(props.activeScheme.uid, path, value)
 
-// To move to lib
+// TODO move to lib
 const authorize = () => {
   if (!activeFlow.value) return
   const flow = activeFlow.value
@@ -72,10 +72,6 @@ const authorize = () => {
   url.searchParams.set('redirect_uri', window.location.href)
   url.searchParams.set('scope', scopes)
   url.searchParams.set('state', state)
-
-  console.log('==============')
-  console.log(url)
-  console.log(url.toString())
 
   const windowFeatures = 'left=100,top=100,width=800,height=600'
   const authWindow = window.open(url, 'openAuth2Window', windowFeatures)
@@ -149,6 +145,7 @@ const authorize = () => {
         </ScalarListbox>
       </DataTableCell>
 
+      <!-- Access Token -->
       <DataTableCell class="flex items-center p-0.5">
         <ScalarButton
           size="sm"
@@ -157,17 +154,24 @@ const authorize = () => {
         </ScalarButton>
       </DataTableCell>
     </template>
-
-    <DataTableInput
-      v-else
-      :modelValue="activeFlow.token"
-      placeholder="*******"
-      type="password"
-      @update:modelValue="
-        (v) => updateScheme(`flows.${props.schemeModel.flowKey}.token`, v)
-      ">
-      Access Token
-    </DataTableInput>
+    <template v-else>
+      <DataTableInput
+        :modelValue="activeFlow.token"
+        type="password"
+        @update:modelValue="
+          (v) => updateScheme(`flows.${props.schemeModel.flowKey}.token`, v)
+        ">
+        Access Token
+      </DataTableInput>
+      <DataTableCell class="flex items-center p-0.5">
+        <ScalarButton
+          size="sm"
+          variant="ghost"
+          @click="updateScheme(`flows.${props.schemeModel.flowKey}.token`, '')">
+          Clear
+        </ScalarButton>
+      </DataTableCell>
+    </template>
   </DataTableRow>
 
   <!-- Password -->
