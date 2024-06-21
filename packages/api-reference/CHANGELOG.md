@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.24.16
+
+### Patch Changes
+
+- 716811f: fix: HTML API does not work with YAML content inside script tag
+- 5812c2f: feat: allow custom headers
+- ee5fdee: fix: api reference allof items merge objects
+- Updated dependencies [e4419ce]
+- Updated dependencies [e5ac3e1]
+- Updated dependencies [f2c1019]
+- Updated dependencies [fd0c93d]
+- Updated dependencies [7b87b8c]
+- Updated dependencies [512c815]
+  - @scalar/components@0.12.0
+  - @scalar/use-tooltip@1.0.0
+  - @scalar/api-client@1.3.15
+  - @scalar/api-client-modal@0.0.12
+
 ## 1.24.15
 
 ### Patch Changes

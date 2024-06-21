@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 1.3.15
+
+### Patch Changes
+
+- Updated dependencies [e4419ce]
+- Updated dependencies [e5ac3e1]
+- Updated dependencies [f2c1019]
+- Updated dependencies [fd0c93d]
+- Updated dependencies [7b87b8c]
+- Updated dependencies [512c815]
+  - @scalar/components@0.12.0
+  - @scalar/use-tooltip@1.0.0
+
 ## 1.3.14
 
 ### Patch Changes

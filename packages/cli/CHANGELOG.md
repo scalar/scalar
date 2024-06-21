@@ -1,5 +1,17 @@
 # @scalar/cli
 
+## 0.2.121
+
+### Patch Changes
+
+- 9a03d0e: feat: add void command
+- Updated dependencies [716811f]
+- Updated dependencies [1af9124]
+- Updated dependencies [5812c2f]
+- Updated dependencies [ee5fdee]
+  - @scalar/api-reference@1.24.16
+  - @scalar/void-server@2.0.0
+
 ## 0.2.120
 
 ### Patch Changes
