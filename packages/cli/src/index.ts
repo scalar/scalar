@@ -10,6 +10,7 @@ import {
   ServeCommand,
   ShareCommand,
   ValidateCommand,
+  VoidCommand,
 } from './commands'
 
 const program = new Command()
@@ -28,6 +29,7 @@ program.addCommand(ValidateCommand())
 program.addCommand(BundleCommand())
 program.addCommand(ServeCommand())
 program.addCommand(MockCommand())
+program.addCommand(VoidCommand())
 program.addCommand(ShareCommand())
 
 /** display help if no argument has been provided */

@@ -9,12 +9,13 @@
 
 # Commands
 commands=(
-    # "pnpm vite-node ./src/index.ts validate https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"
-    # "pnpm vite-node ./src/index.ts format https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json --output ./dist/.temp"
-    # "pnpm vite-node ./src/index.ts share https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"
+    "pnpm vite-node ./src/index.ts validate https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"
+    "pnpm vite-node ./src/index.ts format https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json --output ./dist/.temp"
+    "pnpm vite-node ./src/index.ts share https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"
     "pnpm vite-node ./src/index.ts serve https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json --once"
     "pnpm vite-node ./src/index.ts mock https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json --once"
-    # "pnpm vite-node ./src/index.ts help"
+    "pnpm vite-node ./src/index.ts void https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json --once"
+    "pnpm vite-node ./src/index.ts help"
 )
 
 # Take screenshots
