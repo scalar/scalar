@@ -134,6 +134,22 @@ And it even works with URLs:
 scalar mock https://example.com/openapi.json --watch
 ```
 
+### void
+
+![](./screenshots/void.png)
+
+Start a HTTP dummy server, that just responds with the request data.
+
+```bash
+scalar void
+```
+
+This will boot up a server on port 3000, but you can also change the port like this:
+
+```bash
+scalar void --port 8080
+```
+
 ### bundle
 
 > Warning! The bundle command isn’t ready for production yet. Circular dependencies are not supported yet.
