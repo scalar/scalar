@@ -59,7 +59,7 @@ export const authorizeOauth2 = (
         let code: string | null = null
 
         try {
-          const urlParams = new URLSearchParams(authWindow.location.href)
+          const urlParams = new URL(authWindow.location.href).searchParams
           accessToken = urlParams.get('access_token')
           code = urlParams.get('code')
         } catch (e) {
