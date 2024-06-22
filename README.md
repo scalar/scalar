@@ -31,42 +31,9 @@ You’re just one HTML file away from having an awesome API reference:
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1" />
-    <style>
-      /* Important, define your custom header height*/
-      :root {
-        --scalar-custom-header-height: 50px;
-      }
-      .custom-header {
-        height: var(--scalar-custom-header-height);
-        background-color: var(--scalar-background-1);
-        box-shadow: inset 0 -1px 0 var(--scalar-border-color);
-        color: var(--scalar-color-1);
-        font-size: var(--scalar-font-size-2);
-        padding: 0 18px;
-        position: sticky;
-        justify-content: space-between;
-        top: 0;
-        z-index: 100;
-      }
-      .custom-header,
-      .custom-header nav {
-        display: flex;
-        align-items: center;
-        gap: 18px;
-      }
-      .custom-header a:hover {
-        color: var(--scalar-color-2);
-      }
-    </style>
   </head>
   <body>
-    <header class="custom-header">
-      <b>Scalar</b>
-      <nav>
-        <a href="https://twitter.com/scalar">Twitter</a>
-        <a href="https://discord.gg/8HeZcRGPFS">Discord</a>
-      </nav>
-    </header>
+    <!-- Need a Custom Header? Check out this example https://codepen.io/scalarorg/pen/VwOXqam -->
     <script
       id="api-reference"
       data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml"></script>
