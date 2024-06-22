@@ -1,4 +1,7 @@
-import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
+import type {
+  SecuritySchemeOauth2,
+  SelectedSchemeOauth2,
+} from '@scalar/oas-utils/entities/workspace/security'
 
 export type SecuritySchemeOptionBase = {
   id: string
@@ -23,12 +26,11 @@ export type SecuritySchemeOption =
  * @returns the accessToken
  */
 export const authorizeOauth2 = (
-  activeScheme: SecuritySchemeOauth2,
+  activeScheme: SelectedSchemeOauth2,
   schemeModel: SecuritySchemeOptionOauth,
 ) =>
   new Promise<string>((resolve, reject) => {
-    const flow = activeScheme.flows[schemeModel.flowKey]
-    if (!flow) return
+    const { flow, scheme } = activeScheme
 
     const scopes = flow.selectedScopes.join(' ')
     const state = (Math.random() + 1).toString(36).substring(7)
@@ -44,7 +46,7 @@ export const authorizeOauth2 = (
     }
 
     // Common to all flows
-    url.searchParams.set('client_id', activeScheme.clientId)
+    url.searchParams.set('client_id', scheme.clientId)
     url.searchParams.set('redirect_uri', window.location.href)
     url.searchParams.set('scope', scopes)
     url.searchParams.set('state', state)
@@ -81,21 +83,20 @@ export const authorizeOauth2 = (
           }
 
           // Authorization Code Flow
-          else if (code && 'tokenUrl' in flow) {
+          else if (code && 'tokenUrl' in flow && 'clientSecret' in flow) {
             const formData = new URLSearchParams()
             formData.set('grant_type', 'authorization_code')
-            formData.set('client_id', activeScheme.clientId)
+            formData.set('client_id', scheme.clientId)
             formData.set('code', code)
             formData.set('client_secret', flow.clientSecret)
             formData.set('redirect_uri', window.location.href)
             formData.set('scope', scopes)
 
             // Make the call
-            // TODO add proxy here as well
             fetch(flow.tokenUrl, {
               method: 'POST',
               headers: {
-                'Authorization': `Basic ${btoa(`${activeScheme.clientId}:${flow.clientSecret}`)}`,
+                'Authorization': `Basic ${btoa(`${scheme.clientId}:${flow.clientSecret}`)}`,
                 'Content-Type': 'application/x-www-form-urlencoded',
               },
               body: formData,

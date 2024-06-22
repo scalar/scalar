@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { UpdateCurrentScheme } from '@/store/workspace'
+import type { UpdateScheme } from '@/store/workspace'
 import type { SecuritySchemeOptionOauth } from '@/views/Request/libs'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
@@ -9,7 +9,7 @@ import { computed } from 'vue'
 const props = defineProps<{
   activeFlow: ValueOf<SecuritySchemeOauth2['flows']>
   schemeModel: SecuritySchemeOptionOauth
-  updateCurrentScheme: UpdateCurrentScheme
+  updateScheme: UpdateScheme
 }>()
 
 /** Scope dropdown options */
@@ -23,11 +23,11 @@ const scopeOptions = computed(() =>
 /** Handles updating the mutators as well as displaying */
 const scopeModel = computed({
   get: () =>
-    props.activeFlow?.selectedScopes.map((scopeName) =>
+    props.activeFlow?.selectedScopes?.map((scopeName) =>
       scopeOptions.value.find(({ id }) => id === scopeName),
     ),
   set: (opts) =>
-    props.updateCurrentScheme(
+    props.updateScheme(
       `flows.${props.schemeModel.flowKey}.selectedScopes`,
       opts?.flatMap((opt) => (opt?.id ? opt.id : [])),
     ),

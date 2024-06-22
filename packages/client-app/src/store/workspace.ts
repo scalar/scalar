@@ -456,11 +456,28 @@ const deleteFolder = (
 
 const securitySchemes = reactive<Record<string, SecurityScheme>>({})
 const securitySchemeMutators = mutationFactory(securitySchemes, reactive({}))
+
 type SecurityMutatorEditArgs = Parameters<typeof securitySchemeMutators.edit>
-export type UpdateCurrentScheme = (
+export type UpdateScheme = (
   path: SecurityMutatorEditArgs[1],
   value: SecurityMutatorEditArgs[2],
 ) => void
+
+/**
+ * Returns both the active security schemes as well as the corresponding active flows in the case of oauth
+ * TODO this will eventually support multiples but we just return the first for now
+ */
+const activeSecurityScheme = computed(
+  () =>
+    activeCollection.value?.selectedSecuritySchemes.map((opt) => {
+      const scheme = securitySchemes[opt.uid]
+      const flowObj =
+        opt.flowKey && 'flows' in scheme
+          ? { flow: scheme.flows[opt.flowKey] }
+          : {}
+      return { scheme, ...flowObj }
+    })[0],
+)
 
 /**
  * Security requirements for currently active request
@@ -598,6 +615,7 @@ export function useWorkspace() {
     activeCollection,
     activeServer,
     activeSecurityRequirements,
+    activeSecurityScheme,
     activeRequest,
     activeExample,
     modalState,

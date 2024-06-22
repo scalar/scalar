@@ -4,28 +4,23 @@ import {
   DataTableInput,
   DataTableRow,
 } from '@/components/DataTable'
-import type { UpdateCurrentScheme } from '@/store/workspace'
+import type { UpdateScheme } from '@/store/workspace'
 import {
   type SecuritySchemeOptionOauth,
   authorizeOauth2,
 } from '@/views/Request/libs'
 import { ScalarButton, useLoadingState } from '@scalar/components'
-import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
-import { computed } from 'vue'
+import type { SelectedSchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
 
 import ScopesDropdown from './ScopesDropdown.vue'
 
 const props = defineProps<{
-  activeScheme: SecuritySchemeOauth2
+  activeScheme: SelectedSchemeOauth2
   schemeModel: SecuritySchemeOptionOauth
-  updateCurrentScheme: UpdateCurrentScheme
+  updateScheme: UpdateScheme
 }>()
 
 const loadingState = useLoadingState()
-
-const activeFlow = computed(
-  () => props.activeScheme.flows[props.schemeModel.flowKey]!,
-)
 
 /** Authorize the user using specified flow */
 const handleAuthorize = async () => {
@@ -38,24 +33,20 @@ const handleAuthorize = async () => {
   ).finally(() => loadingState.stopLoading())
 
   if (accessToken)
-    props.updateCurrentScheme(
-      `flows.${props.schemeModel.flowKey}.token`,
-      accessToken,
-    )
+    props.updateScheme(`flows.${props.schemeModel.flowKey}.token`, accessToken)
 }
 </script>
 
 <template>
   <!-- Access Token Granted -->
   <DataTableRow
-    v-if="activeFlow.token"
+    v-if="activeScheme.flow.token"
     class="border-r-transparent">
     <DataTableInput
-      :modelValue="activeFlow.token"
+      :modelValue="activeScheme.flow.token"
       type="password"
       @update:modelValue="
-        (v) =>
-          updateCurrentScheme(`flows.${props.schemeModel.flowKey}.token`, v)
+        (v) => updateScheme(`flows.${props.schemeModel.flowKey}.token`, v)
       ">
       Access Token
     </DataTableInput>
@@ -63,9 +54,7 @@ const handleAuthorize = async () => {
       <ScalarButton
         size="sm"
         variant="ghost"
-        @click="
-          updateCurrentScheme(`flows.${props.schemeModel.flowKey}.token`, '')
-        ">
+        @click="updateScheme(`flows.${props.schemeModel.flowKey}.token`, '')">
         Clear
       </ScalarButton>
     </DataTableCell>
@@ -75,17 +64,17 @@ const handleAuthorize = async () => {
     <!-- Client ID shared by all auth -->
     <DataTableRow class="border-r-transparent">
       <DataTableInput
-        :modelValue="activeScheme.clientId"
+        :modelValue="activeScheme.scheme.clientId"
         placeholder="12345"
-        @update:modelValue="(v) => props.updateCurrentScheme('clientId', v)">
+        @update:modelValue="(v) => props.updateScheme('clientId', v)">
         Client ID
       </DataTableInput>
 
       <DataTableCell class="flex items-center p-0.5">
         <ScopesDropdown
-          :activeFlow="activeFlow"
+          :activeFlow="activeScheme.flow"
           :schemeModel="schemeModel"
-          :updateCurrentScheme="updateCurrentScheme" />
+          :updateScheme="updateScheme" />
       </DataTableCell>
 
       <!-- Authorize button only for implicit here -->
@@ -103,10 +92,10 @@ const handleAuthorize = async () => {
 
     <!-- Client Secret (Authorization Code / Client Credentials) -->
     <DataTableRow
-      v-if="'clientSecret' in activeFlow"
+      v-if="'clientSecret' in activeScheme.flow"
       class="border-r-transparent">
       <DataTableInput
-        :modelValue="activeFlow.clientSecret"
+        :modelValue="activeScheme.flow.clientSecret"
         placeholder="XYZ123"
         type="password"
         @update:modelValue="
@@ -114,10 +103,7 @@ const handleAuthorize = async () => {
             // Vue cant figure out the type if we check in the template above so we do it here
             (schemeModel.flowKey === 'authorizationCode' ||
               schemeModel.flowKey === 'clientCredentials') &&
-            props.updateCurrentScheme(
-              `flows.${schemeModel.flowKey}.clientSecret`,
-              v,
-            )
+            props.updateScheme(`flows.${schemeModel.flowKey}.clientSecret`, v)
         ">
         Client Secret
       </DataTableInput>
@@ -152,9 +138,9 @@ const handleAuthorize = async () => {
       v-if="schemeModel.flowKey === 'clientCredentials'"
       class="border-r-transparent">
       <DataTableInput
-        :modelValue="activeScheme.clientId"
+        :modelValue="activeScheme.scheme.clientId"
         placeholder="12345"
-        @update:modelValue="(v) => updateCurrentScheme('clientId', v)">
+        @update:modelValue="(v) => updateScheme('clientId', v)">
         Client ID
       </DataTableInput>
       <DataTableCell class="flex items-center p-0.5">

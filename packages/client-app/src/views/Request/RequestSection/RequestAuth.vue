@@ -6,13 +6,11 @@ import {
   DataTableRow,
 } from '@/components/DataTable'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { type UpdateCurrentScheme, useWorkspace } from '@/store/workspace'
+import { type UpdateScheme, useWorkspace } from '@/store/workspace'
 import { OAuth2 } from '@/views/Request/components'
-import type {
-  SecuritySchemeOption,
-  SecuritySchemeOptionOauth,
-} from '@/views/Request/libs'
+import type { SecuritySchemeOption } from '@/views/Request/libs'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import type { SelectedSchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
 import { camelToTitleWords } from '@scalar/oas-utils/helpers'
 import { capitalize, computed } from 'vue'
 
@@ -24,13 +22,17 @@ const {
   activeCollection,
   collectionMutators,
   activeSecurityRequirements,
+  activeSecurityScheme,
   securitySchemes,
   securitySchemeMutators,
 } = useWorkspace()
 
 /** Different security schemes  will require different layouts */
 const columnLayout = computed(() => {
-  if (activeScheme.value.type === 'oauth2' && 'flowKey' in schemeModel.value) {
+  if (
+    activeSecurityScheme.value?.scheme.type === 'oauth2' &&
+    'flowKey' in schemeModel.value
+  ) {
     if (schemeModel.value.flowKey === 'implicit') {
       return ['', 'auto', 'auto']
     } else return ['', 'auto']
@@ -82,16 +84,6 @@ const schemeOptions = computed<SecuritySchemeOption[]>(() =>
   }),
 )
 
-/** Currently selected scheme */
-const activeScheme = computed(
-  () =>
-    securitySchemes[
-      (schemeModel.value as SecuritySchemeOptionOauth)?.uid ||
-        schemeModel.value.id ||
-        ''
-    ],
-)
-
 const schemeModel = computed({
   // Grab the selected OR first security scheme
   get: () => {
@@ -119,8 +111,12 @@ const schemeModel = computed({
 })
 
 /** Steal the type from the mutator */
-const updateCurrentScheme: UpdateCurrentScheme = (path, value) =>
-  securitySchemeMutators.edit(activeScheme.value.uid, path, value)
+const updateScheme: UpdateScheme = (path, value) =>
+  securitySchemeMutators.edit(
+    activeSecurityScheme.value?.scheme.uid ?? '',
+    path,
+    value,
+  )
 </script>
 <template>
   <ViewLayoutCollapse
@@ -159,13 +155,14 @@ const updateCurrentScheme: UpdateCurrentScheme = (path, value) =>
       <!-- HTTP Bearer -->
       <DataTableRow
         v-if="
-          activeScheme?.type === 'http' && activeScheme.scheme === 'bearer'
+          activeSecurityScheme?.scheme.type === 'http' &&
+          activeSecurityScheme.scheme.scheme === 'bearer'
         ">
         <DataTableInput
-          :modelValue="activeScheme.value"
+          :modelValue="activeSecurityScheme.scheme.value"
           placeholder="Token"
           type="password"
-          @update:modelValue="(v) => updateCurrentScheme('value', v)">
+          @update:modelValue="(v) => updateScheme('value', v)">
           Bearer Token
         </DataTableInput>
       </DataTableRow>
@@ -173,45 +170,50 @@ const updateCurrentScheme: UpdateCurrentScheme = (path, value) =>
       <!-- HTTP Basic -->
       <template
         v-else-if="
-          activeScheme?.type === 'http' && activeScheme.scheme === 'basic'
+          activeSecurityScheme?.scheme.type === 'http' &&
+          activeSecurityScheme.scheme.scheme === 'basic'
         ">
         <DataTableRow>
           <DataTableInput
             class="text-c-2"
-            :modelValue="activeScheme.value"
+            :modelValue="activeSecurityScheme.scheme.value"
             placeholder="Username"
-            @update:modelValue="(v) => updateCurrentScheme('value', v)">
+            @update:modelValue="(v) => updateScheme('value', v)">
             Username
           </DataTableInput>
         </DataTableRow>
         <DataTableRow>
           <DataTableInput
-            :modelValue="activeScheme.secondValue"
+            :modelValue="activeSecurityScheme.scheme.secondValue"
             placeholder="Token"
             type="password"
-            @update:modelValue="(v) => updateCurrentScheme('secondValue', v)">
+            @update:modelValue="(v) => updateScheme('secondValue', v)">
             Password
           </DataTableInput>
         </DataTableRow>
       </template>
 
       <!-- API Key -->
-      <DataTableRow v-else-if="activeScheme?.type === 'apiKey'">
+      <DataTableRow v-else-if="activeSecurityScheme?.scheme.type === 'apiKey'">
         <DataTableInput
-          :modelValue="activeScheme.value"
+          :modelValue="activeSecurityScheme.scheme.value"
           placeholder="Value"
           type="password"
-          @update:modelValue="(v) => updateCurrentScheme('value', v)">
-          {{ activeScheme.name }}
+          @update:modelValue="(v) => updateScheme('value', v)">
+          {{ activeSecurityScheme.scheme.name }}
         </DataTableInput>
       </DataTableRow>
 
       <!-- OAuth 2 -->
       <OAuth2
-        v-else-if="activeScheme?.type === 'oauth2' && 'uid' in schemeModel"
-        :activeScheme="activeScheme"
+        v-else-if="
+          activeSecurityScheme?.scheme.type === 'oauth2' &&
+          'uid' in schemeModel &&
+          activeSecurityScheme.flow
+        "
+        :activeScheme="activeSecurityScheme as SelectedSchemeOauth2"
         :schemeModel="schemeModel"
-        :updateCurrentScheme="updateCurrentScheme" />
+        :updateScheme="updateScheme" />
     </DataTable>
   </ViewLayoutCollapse>
 </template>

@@ -1,4 +1,5 @@
 import { deepMerge } from '@/helpers'
+import type { ValueOf } from 'type-fest'
 import { z } from 'zod'
 
 /** The uid here is actually the name key, called uid to re-use our mutators */
@@ -87,25 +88,19 @@ const oauthFlowSchema = z
         token: value,
       })
       .optional(),
-    /**
-     * Configuration for the OAuth Resource Owner Password flow
-     * Currently disabled as nobody uses it anymore
-     *
-     * @deprecated
-     * @see https://oauth.net/2/grant-types/password/
-     */
-    // password: z
-    //   .object({
-    //     tokenUrl,
-    //     refreshUrl,
-    //     scopes,
-    //
-    //     username: value,
-    //     password: value,
-    //     selectedScopes,
-    //     token: value,
-    //   })
-    //   .optional(),
+    /** Configuration for the OAuth Resource Owner Password flow */
+    password: z
+      .object({
+        tokenUrl,
+        refreshUrl,
+        scopes,
+
+        username: value,
+        password: value,
+        selectedScopes,
+        token: value,
+      })
+      .optional(),
     /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
     clientCredentials: z
       .object({
@@ -147,6 +142,10 @@ const securitySchemeOauth2 = z.object({
   clientId: value,
 })
 export type SecuritySchemeOauth2 = z.infer<typeof securitySchemeOauth2>
+export type SelectedSchemeOauth2 = {
+  scheme: SecuritySchemeOauth2
+  flow: ValueOf<Required<SecuritySchemeOauth2['flows']>>
+}
 
 const securitySchemeOpenId = z.object({
   type: z.literal('openIdConnect'),
@@ -175,9 +174,5 @@ export type SecurityScheme = z.infer<typeof securityScheme>
 export type SecuritySchemePayload = z.input<typeof securityScheme>
 
 /** Create Security Scheme with defaults */
-// export const createSecurityScheme = (payload: SecuritySchemePayload) =>
-//   deepMerge(securityScheme.parse({ type: payload.type }), payload)
-
-// TODO remove temp for testing
 export const createSecurityScheme = (payload: SecuritySchemePayload) =>
-  securityScheme.parse(payload)
+  deepMerge(securityScheme.parse({ type: payload.type }), payload)

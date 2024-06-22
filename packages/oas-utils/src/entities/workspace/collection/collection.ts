@@ -123,7 +123,20 @@ const collectionSchema = z.object({
    * TODO eventually we will need to maintain one per request + collection but this will do for now
    */
   selectedSecuritySchemes: z
-    .array(z.object({ uid: z.string(), flowKey: z.string().optional() }))
+    .array(
+      z.object({
+        uid: z.string(),
+        // Wasn't sure how to extract the keys from another schema so hard coded these for now
+        flowKey: z
+          .enum([
+            'implicit',
+            'clientCredentials',
+            'password',
+            'authorizationCode',
+          ])
+          .optional(),
+      }),
+    )
     .default([]),
   /** The currently selected server */
   selectedServerUid: z.string().default(''),

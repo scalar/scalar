@@ -1,5 +1,6 @@
 import { createCollection } from '@/entities/workspace/collection'
 import { type Folder, createFolder } from '@/entities/workspace/folder'
+import type { SecuritySchemeOauth2 } from '@/entities/workspace/security'
 import { createServer } from '@/entities/workspace/server'
 import { type Request, createRequest } from '@/entities/workspace/spec'
 import { tagObjectSchema } from '@/entities/workspace/spec/spec'
@@ -154,7 +155,9 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
   // In the case of oauth2 we need to select the flow as well
   const flowKey =
     firstScheme?.type === 'oauth2'
-      ? Object.keys(firstScheme.flows ?? {})[0]
+      ? (Object.keys(
+          firstScheme.flows ?? {},
+        )[0] as keyof SecuritySchemeOauth2['flows'])
       : undefined
 
   const selectedSecuritySchemes = firstSecurityKey
