@@ -26,6 +26,7 @@ const {
   activeExample,
   activeRequest,
   activeServer,
+  activeSecurityScheme,
   collections,
   modalState,
   workspace,
@@ -55,6 +56,7 @@ executeRequestBus.on(async () => {
     activeExample.value,
     /** to be added as a fullUrl?  */
     activeServer.value?.url + activeRequest.value.path,
+    activeSecurityScheme.value,
   )
 
   if (request && response) {

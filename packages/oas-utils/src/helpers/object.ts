@@ -17,3 +17,10 @@ export function objectMerge<A extends object, B extends object>(
 
   return target as unknown as B
 }
+
+/**
+ * Type safe version of Object.keys
+ * Can probably remove this whenever typescript adds it
+ */
+export const getObjectKeys = <T extends object>(obj: T): (keyof T)[] =>
+  Object.keys(obj) as (keyof T)[]

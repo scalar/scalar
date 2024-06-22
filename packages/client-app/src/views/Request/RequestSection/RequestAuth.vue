@@ -6,13 +6,11 @@ import {
   DataTableRow,
 } from '@/components/DataTable'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { useWorkspace } from '@/store/workspace'
+import { type UpdateScheme, useWorkspace } from '@/store/workspace'
 import { OAuth2 } from '@/views/Request/components'
-import type {
-  SecuritySchemeOption,
-  SecuritySchemeOptionOauth,
-} from '@/views/Request/libs'
+import type { SecuritySchemeOption } from '@/views/Request/libs'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import type { SelectedSchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
 import { camelToTitleWords } from '@scalar/oas-utils/helpers'
 import { capitalize, computed } from 'vue'
 
@@ -24,17 +22,22 @@ const {
   activeCollection,
   collectionMutators,
   activeSecurityRequirements,
+  activeSecurityScheme,
   securitySchemes,
   securitySchemeMutators,
 } = useWorkspace()
 
-/** Different oauth flows will require different layouts */
-const columnLayout = computed(() =>
-  activeScheme.value?.type === 'oauth2' ||
-  activeScheme.value?.type === 'openIdConnect'
-    ? ['', 'auto', 'auto']
-    : [''],
-)
+/** Different security schemes  will require different layouts */
+const columnLayout = computed(() => {
+  if (
+    activeSecurityScheme.value?.scheme.type === 'oauth2' &&
+    'flowKey' in schemeModel.value
+  ) {
+    if (schemeModel.value.flowKey === 'implicit') {
+      return ['', 'auto', 'auto']
+    } else return ['', 'auto']
+  } else return ['']
+})
 
 /** Generate pretty name for the dropdown label */
 const getLabel = (id: string) => {
@@ -81,16 +84,6 @@ const schemeOptions = computed<SecuritySchemeOption[]>(() =>
   }),
 )
 
-/** Currently selected scheme */
-const activeScheme = computed(
-  () =>
-    securitySchemes[
-      (schemeModel.value as SecuritySchemeOptionOauth)?.uid ||
-        schemeModel.value.id ||
-        ''
-    ],
-)
-
 const schemeModel = computed({
   // Grab the selected OR first security scheme
   get: () => {
@@ -118,9 +111,12 @@ const schemeModel = computed({
 })
 
 /** Steal the type from the mutator */
-type MutatorArgs = Parameters<typeof securitySchemeMutators.edit>
-const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
-  securitySchemeMutators.edit(activeScheme.value.uid, path, value)
+const updateScheme: UpdateScheme = (path, value) =>
+  securitySchemeMutators.edit(
+    activeSecurityScheme.value?.scheme.uid ?? '',
+    path,
+    value,
+  )
 </script>
 <template>
   <ViewLayoutCollapse
@@ -159,10 +155,11 @@ const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
       <!-- HTTP Bearer -->
       <DataTableRow
         v-if="
-          activeScheme?.type === 'http' && activeScheme.scheme === 'bearer'
+          activeSecurityScheme?.scheme.type === 'http' &&
+          activeSecurityScheme.scheme.scheme === 'bearer'
         ">
         <DataTableInput
-          :modelValue="activeScheme.value"
+          :modelValue="activeSecurityScheme.scheme.value"
           placeholder="Token"
           type="password"
           @update:modelValue="(v) => updateScheme('value', v)">
@@ -173,12 +170,13 @@ const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
       <!-- HTTP Basic -->
       <template
         v-else-if="
-          activeScheme?.type === 'http' && activeScheme.scheme === 'basic'
+          activeSecurityScheme?.scheme.type === 'http' &&
+          activeSecurityScheme.scheme.scheme === 'basic'
         ">
         <DataTableRow>
           <DataTableInput
             class="text-c-2"
-            :modelValue="activeScheme.value"
+            :modelValue="activeSecurityScheme.scheme.value"
             placeholder="Username"
             @update:modelValue="(v) => updateScheme('value', v)">
             Username
@@ -186,7 +184,7 @@ const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
         </DataTableRow>
         <DataTableRow>
           <DataTableInput
-            :modelValue="activeScheme.secondValue"
+            :modelValue="activeSecurityScheme.scheme.secondValue"
             placeholder="Token"
             type="password"
             @update:modelValue="(v) => updateScheme('secondValue', v)">
@@ -196,21 +194,26 @@ const updateScheme = (path: MutatorArgs[1], value: MutatorArgs[2]) =>
       </template>
 
       <!-- API Key -->
-      <DataTableRow v-else-if="activeScheme?.type === 'apiKey'">
+      <DataTableRow v-else-if="activeSecurityScheme?.scheme.type === 'apiKey'">
         <DataTableInput
-          :modelValue="activeScheme.value"
+          :modelValue="activeSecurityScheme.scheme.value"
           placeholder="Value"
           type="password"
           @update:modelValue="(v) => updateScheme('value', v)">
-          {{ activeScheme.name }}
+          {{ activeSecurityScheme.scheme.name }}
         </DataTableInput>
       </DataTableRow>
 
       <!-- OAuth 2 -->
       <OAuth2
-        v-else-if="activeScheme?.type === 'oauth2' && 'uid' in schemeModel"
-        :activeScheme="activeScheme"
-        :schemeModel="schemeModel" />
+        v-else-if="
+          activeSecurityScheme?.scheme.type === 'oauth2' &&
+          'uid' in schemeModel &&
+          activeSecurityScheme.flow
+        "
+        :activeScheme="activeSecurityScheme as SelectedSchemeOauth2"
+        :schemeModel="schemeModel"
+        :updateScheme="updateScheme" />
     </DataTable>
   </ViewLayoutCollapse>
 </template>

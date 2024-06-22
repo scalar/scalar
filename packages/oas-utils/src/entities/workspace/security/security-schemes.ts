@@ -1,4 +1,4 @@
-import { deepMerge } from '@/helpers'
+import type { ValueOf } from 'type-fest'
 import { z } from 'zod'
 
 /** The uid here is actually the name key, called uid to re-use our mutators */
@@ -120,7 +120,6 @@ const oauthFlowSchema = z
         refreshUrl,
         scopes,
 
-        code: value,
         clientSecret: value,
         selectedScopes,
         token: value,
@@ -140,8 +139,13 @@ const securitySchemeOauth2 = z.object({
   flows: oauthFlowSchema,
 
   clientId: value,
+  redirectUri: z.string().url().optional().default(''),
 })
 export type SecuritySchemeOauth2 = z.infer<typeof securitySchemeOauth2>
+export type SelectedSchemeOauth2 = {
+  scheme: SecuritySchemeOauth2
+  flow: ValueOf<Required<SecuritySchemeOauth2['flows']>>
+}
 
 const securitySchemeOpenId = z.object({
   type: z.literal('openIdConnect'),
@@ -171,4 +175,4 @@ export type SecuritySchemePayload = z.input<typeof securityScheme>
 
 /** Create Security Scheme with defaults */
 export const createSecurityScheme = (payload: SecuritySchemePayload) =>
-  deepMerge(securityScheme.parse({ type: payload.type }), payload)
+  securityScheme.parse(payload)

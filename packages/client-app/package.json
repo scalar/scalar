@@ -34,6 +34,14 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
+    "./views/Request/libs": {
+      "import": "./dist/views/Request/libs/index.js",
+      "types": "./dist/views/Request/libs/index.d.ts"
+    },
+    "./views/Request/components": {
+      "import": "./dist/views/Request/components/index.js",
+      "types": "./dist/views/Request/components/index.d.ts"
+    },
     "./libs": {
       "import": "./dist/libs/index.js",
       "types": "./dist/libs/index.d.ts"

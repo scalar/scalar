@@ -1,5 +1,7 @@
-import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
-import type { ValueOf } from 'type-fest'
+import type {
+  SecuritySchemeOauth2,
+  SelectedSchemeOauth2,
+} from '@scalar/oas-utils/entities/workspace/security'
 
 export type SecuritySchemeOptionBase = {
   id: string
@@ -24,11 +26,11 @@ export type SecuritySchemeOption =
  * @returns the accessToken
  */
 export const authorizeOauth2 = (
-  flow: ValueOf<SecuritySchemeOauth2['flows']>,
-  activeScheme: SecuritySchemeOauth2,
+  activeScheme: SelectedSchemeOauth2,
+  schemeModel: SecuritySchemeOptionOauth,
 ) =>
   new Promise<string>((resolve, reject) => {
-    if (!flow) return
+    const { flow, scheme } = activeScheme
 
     const scopes = flow.selectedScopes.join(' ')
     const state = (Math.random() + 1).toString(36).substring(7)
@@ -36,36 +38,84 @@ export const authorizeOauth2 = (
       'authorizationUrl' in flow ? flow.authorizationUrl : flow.tokenUrl,
     )
 
-    url.searchParams.set('response_type', 'token')
-    url.searchParams.set('client_id', activeScheme.clientId)
-    url.searchParams.set('redirect_uri', window.location.href)
+    // Params unique to the flows
+    if (schemeModel.flowKey === 'implicit') {
+      url.searchParams.set('response_type', 'token')
+    } else if (schemeModel.flowKey === 'authorizationCode') {
+      url.searchParams.set('response_type', 'code')
+    }
+
+    // Common to all flows
+    url.searchParams.set('client_id', scheme.clientId)
+    url.searchParams.set('redirect_uri', scheme.redirectUri)
     url.searchParams.set('scope', scopes)
     url.searchParams.set('state', state)
 
     const windowFeatures = 'left=100,top=100,width=800,height=600'
     const authWindow = window.open(url, 'openAuth2Window', windowFeatures)
 
+    // Open up a window and poll until closed or we have the data we want
     if (authWindow) {
       const checkWindowClosed = setInterval(function () {
         let accessToken: string | null = null
+        let code: string | null = null
+
         try {
-          const urlParams = new URLSearchParams(authWindow.location.href)
+          const urlParams = new URL(authWindow.location.href).searchParams
           accessToken = urlParams.get('access_token')
+          code = urlParams.get('code')
         } catch (e) {
           // Ignore CORS error from popup
         }
 
-        // The window has closed so we stop polling
-        if (authWindow.closed || accessToken) {
+        // The window has closed OR we have what we are looking for so we stop polling
+        if (authWindow.closed || accessToken || code) {
           clearInterval(checkWindowClosed)
+          authWindow.close()
 
+          // Implicit Flow
           if (accessToken) {
             // State is a hash fragment and cannot be found through search params
             const _state = authWindow.location.href.match(/state=([^&]*)/)?.[1]
             if (accessToken && _state === state) {
               resolve(accessToken)
             }
-            authWindow.close()
+          }
+
+          // Authorization Code Flow
+          else if (code && 'tokenUrl' in flow && 'clientSecret' in flow) {
+            const formData = new URLSearchParams()
+            formData.set('grant_type', 'authorization_code')
+            formData.set('client_id', scheme.clientId)
+            formData.set('code', code)
+            formData.set('client_secret', flow.clientSecret)
+            formData.set('redirect_uri', scheme.redirectUri)
+            formData.set('scope', scopes)
+
+            // Make the call
+            fetch(flow.tokenUrl, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Basic ${btoa(`${scheme.clientId}:${flow.clientSecret}`)}`,
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: formData,
+            })
+              .then((response) => {
+                // Check if is a 2xx response
+                if (!response.ok) {
+                  reject(
+                    new Error(
+                      'Failed to get an access token. Please check your credentials.',
+                    ),
+                  )
+                }
+                return response.json()
+              })
+              .then((data) => {
+                resolve(data.access_token)
+              })
+              .catch(reject)
           }
           // User closed window without authorizing
           else {

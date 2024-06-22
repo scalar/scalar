@@ -8,6 +8,8 @@ import DataTableCell from './DataTableCell.vue'
 const props = withDefaults(
   defineProps<{
     type?: string
+    /** Class for the wrapping cell because attrs is bound to the input */
+    containerClass?: string
     required?: boolean
     modelValue: string | number
     readOnly?: boolean
@@ -61,7 +63,9 @@ const handleDropdownMouseUp = () => {
 }
 </script>
 <template>
-  <DataTableCell class="relative row">
+  <DataTableCell
+    class="relative row"
+    :class="containerClass">
     <div
       v-if="$slots.default"
       class="text-c-2 flex min-w-[100px] items-center border-r-1/2 pl-2 pr-0">
