@@ -85,6 +85,7 @@ export const authorizeOauth2 = (
             const formData = new URLSearchParams()
             formData.set('grant_type', 'authorization_code')
             formData.set('client_id', activeScheme.clientId)
+            formData.set('code', code)
             formData.set('client_secret', flow.clientSecret)
             formData.set('redirect_uri', window.location.href)
             formData.set('scope', scopes)
