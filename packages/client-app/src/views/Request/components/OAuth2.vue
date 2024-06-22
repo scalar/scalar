@@ -61,7 +61,18 @@ const handleAuthorize = async () => {
   </DataTableRow>
 
   <template v-else>
-    <!-- Client ID shared by all auth -->
+    <DataTableRow class="border-r-transparent">
+      <!-- Redirect URI -->
+      <DataTableInput
+        containerClass="col-start-1 col-end-3"
+        :modelValue="activeScheme.scheme.redirectUri"
+        placeholder="https://galaxy.scalar.com/callback"
+        @update:modelValue="(v) => props.updateScheme('redirectUri', v)">
+        Redirect URI
+      </DataTableInput>
+    </DataTableRow>
+
+    <!-- Client ID -->
     <DataTableRow class="border-r-transparent">
       <DataTableInput
         :modelValue="activeScheme.scheme.clientId"

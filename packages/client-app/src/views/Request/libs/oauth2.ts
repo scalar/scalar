@@ -47,7 +47,7 @@ export const authorizeOauth2 = (
 
     // Common to all flows
     url.searchParams.set('client_id', scheme.clientId)
-    url.searchParams.set('redirect_uri', window.location.href)
+    url.searchParams.set('redirect_uri', scheme.redirectUri)
     url.searchParams.set('scope', scopes)
     url.searchParams.set('state', state)
 
@@ -89,7 +89,7 @@ export const authorizeOauth2 = (
             formData.set('client_id', scheme.clientId)
             formData.set('code', code)
             formData.set('client_secret', flow.clientSecret)
-            formData.set('redirect_uri', window.location.href)
+            formData.set('redirect_uri', scheme.redirectUri)
             formData.set('scope', scopes)
 
             // Make the call

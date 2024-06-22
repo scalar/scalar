@@ -48,8 +48,8 @@ const scopeModel = computed({
       variant="ghost">
       <span>
         Scopes
-        {{ activeFlow?.selectedScopes.length }} /
-        {{ Object.keys(activeFlow?.scopes ?? {}).length }}
+        {{ activeFlow?.selectedScopes?.length || 0 }} /
+        {{ Object.keys(activeFlow?.scopes ?? {}).length || 0 }}
       </span>
       <ScalarIcon
         icon="ChevronDown"

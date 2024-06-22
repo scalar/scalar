@@ -556,31 +556,9 @@ async function importSpecFile(spec: string | AnyObject) {
       SecurityScheme
     >,
   ).forEach(([key, securityScheme]) =>
-    // TODOtest remove Temp for testing
-    key === 'oauth2'
-      ? securitySchemeMutators.add(
-          createSecurityScheme({
-            ...securityScheme,
-            type: 'oauth2',
-            flows: {
-              implicit: {},
-              authorizationCode: {
-                authorizationUrl:
-                  'https://www.oauth.com/playground/auth-dialog.html',
-                scopes: {
-                  photo: 'This is just a quick desc',
-                  default: 'ANother scope lies here',
-                  another: 'dont pick me',
-                },
-              },
-              clientCredentials: {},
-            },
-            uid: key,
-          }),
-        )
-      : securitySchemeMutators.add(
-          createSecurityScheme({ ...securityScheme, uid: key }),
-        ),
+    securitySchemeMutators.add(
+      createSecurityScheme({ ...securityScheme, uid: key }),
+    ),
   )
 }
 

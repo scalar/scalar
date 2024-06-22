@@ -1,4 +1,3 @@
-import { deepMerge } from '@/helpers'
 import type { ValueOf } from 'type-fest'
 import { z } from 'zod'
 
@@ -140,6 +139,7 @@ const securitySchemeOauth2 = z.object({
   flows: oauthFlowSchema,
 
   clientId: value,
+  redirectUri: z.string().url().optional().default(''),
 })
 export type SecuritySchemeOauth2 = z.infer<typeof securitySchemeOauth2>
 export type SelectedSchemeOauth2 = {
@@ -175,4 +175,4 @@ export type SecuritySchemePayload = z.input<typeof securityScheme>
 
 /** Create Security Scheme with defaults */
 export const createSecurityScheme = (payload: SecuritySchemePayload) =>
-  deepMerge(securityScheme.parse({ type: payload.type }), payload)
+  securityScheme.parse(payload)

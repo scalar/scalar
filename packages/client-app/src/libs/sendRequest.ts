@@ -1,4 +1,8 @@
 import type {
+  SecurityScheme,
+  SelectedSchemeOauth2,
+} from '@scalar/oas-utils/entities/workspace/security'
+import type {
   Request,
   RequestExample,
   RequestExampleParameter,
@@ -34,6 +38,10 @@ export const sendRequest = async (
   request: Request,
   example: RequestExample,
   rawUrl: string,
+  securityScheme?: {
+    scheme: SecurityScheme
+    flow?: SelectedSchemeOauth2['flow']
+  },
 ): Promise<{
   sentTime?: number
   request?: RequestExample
@@ -53,7 +61,7 @@ export const sendRequest = async (
   })
 
   // Decide whether to use a proxy or not
-  const shouldUseProxy = !isRequestToLocalhost(url)
+  const shouldUseProxy = false //!isRequestToLocalhost(url)
 
   const headers = paramsReducer(example.parameters.headers)
 
@@ -81,6 +89,12 @@ export const sendRequest = async (
       data = bodyFormData
     }
   }
+
+  // Oauth 2
+  if (securityScheme?.flow?.token) {
+    headers['Authorization'] = `Bearer ${securityScheme.flow.token}`
+  }
+  // TODO other auth
 
   // Add cookies to the headers
   if (example.parameters.cookies) {
