@@ -107,6 +107,12 @@ export const sendRequest = async (
       .join('; ')
   }
 
+  const queryString = new URLSearchParams(
+    paramsReducer(example.parameters.query),
+  ).toString()
+
+  url = `${url}${queryString ? '&' + queryString : ''}`
+
   const config: AxiosRequestConfig = {
     url: shouldUseProxy
       ? `http://localhost:5051/?scalar_url=${encodeURI(url)}`
