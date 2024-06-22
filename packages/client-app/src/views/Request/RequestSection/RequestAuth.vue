@@ -28,13 +28,14 @@ const {
   securitySchemeMutators,
 } = useWorkspace()
 
-/** Different oauth flows will require different layouts */
-const columnLayout = computed(() =>
-  activeScheme.value?.type === 'oauth2' ||
-  activeScheme.value?.type === 'openIdConnect'
-    ? ['', 'auto', 'auto']
-    : [''],
-)
+/** Different security schemes  will require different layouts */
+const columnLayout = computed(() => {
+  if (activeScheme.value.type === 'oauth2' && 'flowKey' in schemeModel.value) {
+    if (schemeModel.value.flowKey === 'implicit') {
+      return ['', 'auto', 'auto']
+    } else return ['', 'auto']
+  } else return ['']
+})
 
 /** Generate pretty name for the dropdown label */
 const getLabel = (id: string) => {

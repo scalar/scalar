@@ -24,7 +24,7 @@ const props = defineProps<{
 const loadingState = useLoadingState()
 
 const activeFlow = computed(
-  () => props.activeScheme.flows[props.schemeModel.flowKey],
+  () => props.activeScheme.flows[props.schemeModel.flowKey]!,
 )
 
 /** Authorize the user using specified flow */
@@ -46,14 +46,34 @@ const handleAuthorize = async () => {
 </script>
 
 <template>
-  <!-- Implicit / Authorization Code -->
+  <!-- Access Token Granted -->
   <DataTableRow
-    v-if="
-      schemeModel.flowKey === 'implicit' ||
-      schemeModel.flowKey === 'authorizationCode'
-    "
+    v-if="activeFlow.token"
     class="border-r-transparent">
-    <template v-if="!activeFlow?.token">
+    <DataTableInput
+      :modelValue="activeFlow.token"
+      type="password"
+      @update:modelValue="
+        (v) =>
+          updateCurrentScheme(`flows.${props.schemeModel.flowKey}.token`, v)
+      ">
+      Access Token
+    </DataTableInput>
+    <DataTableCell class="flex items-center p-0.5">
+      <ScalarButton
+        size="sm"
+        variant="ghost"
+        @click="
+          updateCurrentScheme(`flows.${props.schemeModel.flowKey}.token`, '')
+        ">
+        Clear
+      </ScalarButton>
+    </DataTableCell>
+  </DataTableRow>
+
+  <template v-else>
+    <!-- Client ID shared by all auth -->
+    <DataTableRow class="border-r-transparent">
       <DataTableInput
         :modelValue="activeScheme.clientId"
         placeholder="12345"
@@ -68,7 +88,40 @@ const handleAuthorize = async () => {
           :updateCurrentScheme="updateCurrentScheme" />
       </DataTableCell>
 
-      <!-- Access Token -->
+      <!-- Authorize button only for implicit here -->
+      <DataTableCell
+        v-if="schemeModel.flowKey === 'implicit'"
+        class="flex items-center p-0.5">
+        <ScalarButton
+          :loading="loadingState"
+          size="sm"
+          @click="handleAuthorize">
+          Authorize
+        </ScalarButton>
+      </DataTableCell>
+    </DataTableRow>
+
+    <!-- Client Secret (Authorization Code / Client Credentials) -->
+    <DataTableRow
+      v-if="'clientSecret' in activeFlow"
+      class="border-r-transparent">
+      <DataTableInput
+        :modelValue="activeFlow.clientSecret"
+        placeholder="XYZ123"
+        type="password"
+        @update:modelValue="
+          (v) =>
+            // Vue cant figure out the type if we check in the template above so we do it here
+            (schemeModel.flowKey === 'authorizationCode' ||
+              schemeModel.flowKey === 'clientCredentials') &&
+            props.updateCurrentScheme(
+              `flows.${schemeModel.flowKey}.clientSecret`,
+              v,
+            )
+        ">
+        Client Secret
+      </DataTableInput>
+
       <DataTableCell class="flex items-center p-0.5">
         <ScalarButton
           :loading="loadingState"
@@ -77,71 +130,50 @@ const handleAuthorize = async () => {
           Authorize
         </ScalarButton>
       </DataTableCell>
-    </template>
-    <template v-else>
+    </DataTableRow>
+
+    <!-- Password -->
+    <!-- <DataTableRow -->
+    <!--   v-if="schemeModel.flowKey === 'password'" -->
+    <!--   class="border-r-transparent"> -->
+    <!--   <DataTableInput -->
+    <!--     :modelValue="activeScheme.clientId" -->
+    <!--     placeholder="12345" -->
+    <!--     @update:modelValue="(v) => updateScheme('clientId', v)"> -->
+    <!--     Client ID -->
+    <!--   </DataTableInput> -->
+    <!--   <DataTableCell class="flex items-center p-0.5"> -->
+    <!--     <ScalarButton size="sm">Authorize</ScalarButton> -->
+    <!--   </DataTableCell> -->
+    <!-- </DataTableRow> -->
+
+    <!-- Client Credentials -->
+    <DataTableRow
+      v-if="schemeModel.flowKey === 'clientCredentials'"
+      class="border-r-transparent">
       <DataTableInput
-        :modelValue="activeFlow.token"
-        type="password"
-        @update:modelValue="
-          (v) =>
-            updateCurrentScheme(`flows.${props.schemeModel.flowKey}.token`, v)
-        ">
-        Access Token
+        :modelValue="activeScheme.clientId"
+        placeholder="12345"
+        @update:modelValue="(v) => updateCurrentScheme('clientId', v)">
+        Client ID
       </DataTableInput>
       <DataTableCell class="flex items-center p-0.5">
-        <ScalarButton
-          size="sm"
-          variant="ghost"
-          @click="
-            updateCurrentScheme(`flows.${props.schemeModel.flowKey}.token`, '')
-          ">
-          Clear
-        </ScalarButton>
+        <ScalarButton size="sm">Authorize</ScalarButton>
       </DataTableCell>
-    </template>
-  </DataTableRow>
+    </DataTableRow>
 
-  <!-- Password -->
-  <!-- <DataTableRow -->
-  <!--   v-if="schemeModel.flowKey === 'password'" -->
-  <!--   class="border-r-transparent"> -->
-  <!--   <DataTableInput -->
-  <!--     :modelValue="activeScheme.clientId" -->
-  <!--     placeholder="12345" -->
-  <!--     @update:modelValue="(v) => updateScheme('clientId', v)"> -->
-  <!--     Client ID -->
-  <!--   </DataTableInput> -->
-  <!--   <DataTableCell class="flex items-center p-0.5"> -->
-  <!--     <ScalarButton size="sm">Authorize</ScalarButton> -->
-  <!--   </DataTableCell> -->
-  <!-- </DataTableRow> -->
-
-  <!-- Client Credentials -->
-  <DataTableRow
-    v-if="schemeModel.flowKey === 'clientCredentials'"
-    class="border-r-transparent">
-    <DataTableInput
-      :modelValue="activeScheme.clientId"
-      placeholder="12345"
-      @update:modelValue="(v) => updateCurrentScheme('clientId', v)">
-      Client ID
-    </DataTableInput>
-    <DataTableCell class="flex items-center p-0.5">
-      <ScalarButton size="sm">Authorize</ScalarButton>
-    </DataTableCell>
-  </DataTableRow>
-
-  <!-- Open ID Connect -->
-  <!-- <DataTableRow -->
-  <!--   v-else-if="activeScheme?.type === 'openIdConnect'" -->
-  <!--   class="border-r-transparent"> -->
-  <!--   <DataTableInput -->
-  <!--     v-model="password" -->
-  <!--     placeholder="Token"> -->
-  <!--     TODO -->
-  <!--   </DataTableInput> -->
-  <!--   <DataTableCell class="flex items-center"> -->
-  <!--     <ScalarButton size="sm"> Authorize </ScalarButton> -->
-  <!--   </DataTableCell> -->
-  <!-- </DataTableRow> -->
+    <!-- Open ID Connect -->
+    <!-- <DataTableRow -->
+    <!--   v-else-if="activeScheme?.type === 'openIdConnect'" -->
+    <!--   class="border-r-transparent"> -->
+    <!--   <DataTableInput -->
+    <!--     v-model="password" -->
+    <!--     placeholder="Token"> -->
+    <!--     TODO -->
+    <!--   </DataTableInput> -->
+    <!--   <DataTableCell class="flex items-center"> -->
+    <!--     <ScalarButton size="sm"> Authorize </ScalarButton> -->
+    <!--   </DataTableCell> -->
+    <!-- </DataTableRow> -->
+  </template>
 </template>

@@ -546,6 +546,7 @@ async function importSpecFile(spec: string | AnyObject) {
             ...securityScheme,
             type: 'oauth2',
             flows: {
+              implicit: {},
               authorizationCode: {
                 authorizationUrl:
                   'https://www.oauth.com/playground/auth-dialog.html',

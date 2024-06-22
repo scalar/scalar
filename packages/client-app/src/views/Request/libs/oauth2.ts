@@ -71,16 +71,49 @@ export const authorizeOauth2 = (
           clearInterval(checkWindowClosed)
           authWindow.close()
 
+          // Implicit Flow
           if (accessToken) {
             // State is a hash fragment and cannot be found through search params
             const _state = authWindow.location.href.match(/state=([^&]*)/)?.[1]
             if (accessToken && _state === state) {
               resolve(accessToken)
             }
-          } else if (code && 'code' in flow) {
-            console.log('tiger tiget tiger woods yall')
-            console.log({ code })
-            getAuthorizationCodeToken(flow, code)
+          }
+
+          // Authorization Code Flow
+          else if (code && 'tokenUrl' in flow) {
+            const formData = new URLSearchParams()
+            formData.set('grant_type', 'authorization_code')
+            formData.set('client_id', activeScheme.clientId)
+            formData.set('client_secret', flow.clientSecret)
+            formData.set('redirect_uri', window.location.href)
+            formData.set('scope', scopes)
+
+            // Make the call
+            // TODO add proxy here as well
+            fetch(flow.tokenUrl, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Basic ${btoa(`${activeScheme.clientId}:${flow.clientSecret}`)}`,
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: formData,
+            })
+              .then((response) => {
+                // Check if is a 2xx response
+                if (!response.ok) {
+                  reject(
+                    new Error(
+                      'Failed to get an access token. Please check your credentials.',
+                    ),
+                  )
+                }
+                return response.json()
+              })
+              .then((data) => {
+                resolve(data.access_token)
+              })
+              .catch(reject)
           }
           // User closed window without authorizing
           else {
@@ -93,14 +126,3 @@ export const authorizeOauth2 = (
       }, 200)
     }
   })
-
-/**
- * Used in the authflow when grabbing a token from the backend
- */
-const getAuthorizationCodeToken = async (
-  flow: SecuritySchemeOauth2['flows']['authorizationCode'],
-  code: string,
-) => {
-  console.log(flow)
-  console.log(code)
-}

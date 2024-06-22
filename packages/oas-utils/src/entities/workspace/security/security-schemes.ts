@@ -126,7 +126,6 @@ const oauthFlowSchema = z
         refreshUrl,
         scopes,
 
-        code: value,
         clientSecret: value,
         selectedScopes,
         token: value,
