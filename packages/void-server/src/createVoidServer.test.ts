@@ -154,4 +154,28 @@ describe('createVoidServer', () => {
       },
     })
   })
+
+  it('returns XML', async () => {
+    const server = await createVoidServer()
+
+    const response = await server.request('/', {
+      headers: {
+        Accept: 'application/xml',
+      },
+    })
+
+    expect(await response.text()).toContain('<method>GET</method>')
+  })
+
+  it('returns HTML', async () => {
+    const server = await createVoidServer()
+
+    const response = await server.request('/', {
+      headers: {
+        Accept: 'text/html',
+      },
+    })
+
+    expect(await response.text()).toContain('<strong>method:</strong> GET</li>')
+  })
 })
