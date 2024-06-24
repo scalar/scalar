@@ -10,12 +10,6 @@ import type {
 } from '@scalar/oas-utils/entities/workspace/spec'
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 
-export type Query = {
-  name: string
-  value: string
-  enabled: boolean
-}
-
 /**
  * Convert the parameters array to an object for axios to consume
  */
@@ -113,23 +107,24 @@ export const sendRequest = async (
       .join('; ')
   }
 
+  // Extract query parameters from the URL
+  const queryParametersFromUrl: RequestExampleParameter[] = []
   const [urlWithoutQueryString, urlQueryString] = url.split('?')
-
-  const queryStringsFromUrl: RequestExampleParameter[] = []
-
   new URLSearchParams(urlQueryString ?? '').forEach((value, key) => {
-    queryStringsFromUrl.push({
+    queryParametersFromUrl.push({
       key,
       value,
       enabled: true,
     })
   })
 
+  // Create a new query string from the URL and given parameters
   const queryString = new URLSearchParams({
     ...paramsReducer(example.parameters.query),
-    ...paramsReducer(queryStringsFromUrl),
+    ...paramsReducer(queryParametersFromUrl),
   }).toString()
 
+  // Append new query string to the URL
   url = `${urlWithoutQueryString}${queryString ? '?' + queryString : ''}`
 
   const config: AxiosRequestConfig = {
