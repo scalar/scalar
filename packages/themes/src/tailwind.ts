@@ -1,3 +1,4 @@
+// @ts-ignore module missing types
 import pixelPreset from '@rise8/tailwind-pixel-perfect-preset'
 import type { Config } from 'tailwindcss'
 

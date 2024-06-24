@@ -1,0 +1,59 @@
+{
+  "name": "@scalar/build-watch",
+  "description": "Auto builds for Scalar workspace",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/build-watch"
+  },
+  "keywords": [],
+  "version": "0.1.6",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "scalar-build-rollup",
+    "dev": "vite",
+    "format": "bash scripts/format.sh",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "dotenv -o -- vite preview",
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./css/*.css": {
+      "import": "./dist/css/*.css",
+      "require": "./dist/css/*.css"
+    },
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css"
+    }
+  },
+  "dependencies": {
+    "chokidar": "^3.6.0",
+    "execa": "^9.2.0",
+    "glob": "^10.3.10",
+    "vite": "^5.2.10",
+    "vitest": "^1.6.0"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@types/node": "^20.8.4",
+    "@types/picomatch": "^2.3.3",
+    "rollup": "^4.16.4",
+    "tsc-alias": "^1.8.8",
+    "tslib": "^2.6.2"
+  }
+}
