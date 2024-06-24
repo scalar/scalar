@@ -1,5 +1,6 @@
-import pixelPreset from '@rise8/tailwind-pixel-perfect-preset'
 import type { Config } from 'tailwindcss'
+
+import pixelPreset from './utilities/pixelPreset'
 
 /** Scalar Tailwind Preset */
 export default {

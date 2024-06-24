@@ -1966,9 +1966,6 @@ importers:
         specifier: ^3.4.22
         version: 3.4.29(typescript@5.4.5)
     devDependencies:
-      '@rise8/tailwind-pixel-perfect-preset':
-        specifier: ^1.0.1
-        version: 1.0.1(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.14.2)(typescript@5.4.5)))
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -5022,11 +5019,6 @@ packages:
       '@codemirror/language': ^6.0.0
       '@codemirror/state': ^6.0.0
       '@codemirror/view': ^6.0.0
-
-  '@rise8/tailwind-pixel-perfect-preset@1.0.1':
-    resolution: {integrity: sha512-XFIMm3t21O2Ubb6c49aTqMm/neYzutijYvWKVwYXkeRS4mPn42WpeBJXcy6FWJcAGS8SfwulZGHVlvl+9wDNpQ==}
-    peerDependencies:
-      tailwindcss: ^3.0.0
 
   '@rollup/plugin-alias@5.1.0':
     resolution: {integrity: sha512-lpA3RZ9PdIG7qqhEfv79tBffNaoDuukFDrmhLqg9ifv99u/ehn+lOg30x2zmhf8AQqQUZaMk/B9fZraQ6/acDQ==}
@@ -19706,10 +19698,6 @@ snapshots:
       '@codemirror/language': 6.10.2
       '@codemirror/state': 6.4.1
       '@codemirror/view': 6.28.1
-
-  '@rise8/tailwind-pixel-perfect-preset@1.0.1(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.14.2)(typescript@5.4.5)))':
-    dependencies:
-      tailwindcss: 3.4.4(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.4.5))
 
   '@rollup/plugin-alias@5.1.0(rollup@3.29.4)':
     dependencies:
