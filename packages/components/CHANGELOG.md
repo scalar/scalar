@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.12.1
+
+### Patch Changes
+
+- c20c7d0: style: minor improvements to the dropdown and listbox comppnents
+- Updated dependencies [c20c7d0]
+  - @scalar/oas-utils@0.2.4
+
 ## 0.12.0
 
 ### Minor Changes

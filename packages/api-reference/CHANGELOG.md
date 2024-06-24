@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.24.17
+
+### Patch Changes
+
+- Updated dependencies [c20c7d0]
+- Updated dependencies [c20c7d0]
+  - @scalar/components@0.12.1
+  - @scalar/oas-utils@0.2.4
+  - @scalar/api-client@1.3.16
+  - @scalar/api-client-modal@0.0.13
+
 ## 1.24.16
 
 ### Patch Changes
