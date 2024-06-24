@@ -134,16 +134,14 @@ export function InitCommand() {
     // Create `scalar.config.json` file
     s.start('Creating Scalar configuration file...')
 
-    setTimeout(() => {
-      fs.writeFileSync(configFile, content)
-      s.stop(
-        `Scalar configuration file created: ${kleur.reset().green(`${CONFIG_FILE}`)}`,
-      )
-      console.log()
-      nextSteps()
-      console.log()
-      console.log()
-    }, 1000)
+    fs.writeFileSync(configFile, content)
+    s.stop(
+      `Scalar configuration file created: ${kleur.reset().green(`${CONFIG_FILE}`)}`,
+    )
+    console.log()
+    nextSteps()
+    console.log()
+    console.log()
   })
 
   return cmd
