@@ -48,7 +48,6 @@ import {
   setNestedValue,
 } from '@scalar/object-utils/nested'
 import type { AnyObject, OpenAPIV3_1 } from '@scalar/openapi-parser'
-import { log } from 'console'
 import { computed, reactive, readonly } from 'vue'
 
 const { setCollapsedSidebarFolder } = useSidebar()
@@ -568,10 +567,9 @@ async function importSpecFile(spec: string | AnyObject) {
         ...securityScheme,
         type: 'oauth2',
         flows: {
-          implicit: {
-            scopes: securityScheme.flows.authorizationCode.scopes,
-          },
           authorizationCode: {
+            authorizationUrl: 'https://accounts.spotify.com/authorize',
+            tokenUrl: 'https://accounts.spotify.com/api/token',
             scopes: securityScheme.flows.authorizationCode.scopes,
           },
           clientCredentials: {
