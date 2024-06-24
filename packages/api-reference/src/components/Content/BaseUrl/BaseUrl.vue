@@ -4,8 +4,7 @@ import {
   findVariables,
   useServerStore,
 } from '@scalar/api-client'
-import { ScalarIcon } from '@scalar/components'
-import { ScalarMarkdown } from '@scalar/components'
+import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import { ref, watch } from 'vue'
 
 import ServerItem from './ServerItem.vue'

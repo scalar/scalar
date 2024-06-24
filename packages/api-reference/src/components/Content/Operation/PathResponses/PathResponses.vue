@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
-import { ScalarMarkdown } from '@scalar/components'
+import { ScalarCodeBlock, ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/oas-utils'
 import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'

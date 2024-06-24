@@ -13,12 +13,8 @@ defineProps<{
   open: boolean
 }>()
 
-const {
-  requestsHistory,
-  activeRequest,
-  activeExample,
-  requestExampleMutators,
-} = useWorkspace()
+const { requestsHistory, activeRequest, requestExampleMutators } =
+  useWorkspace()
 
 /**
  * Get a part of the URL object from the scalar proxy request

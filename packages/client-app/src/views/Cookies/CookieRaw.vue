@@ -3,7 +3,7 @@ import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useWorkspace } from '@/store/workspace'
 
-const { cookies, activeCookieId, cookieMutators } = useWorkspace()
+const { cookies, activeCookieId } = useWorkspace()
 </script>
 <template>
   <ViewLayoutSection>

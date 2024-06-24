@@ -50,7 +50,7 @@ const language = computed(() => {
   }
 
   return (
-    // @ts-ignore
+    // @ts-expect-error Type isn’t correct
     languages[props.examples[selectedExample.value].lang as string] ??
     props.examples[selectedExample.value].lang
   )
@@ -61,7 +61,7 @@ const currentExample = computed(() => {
 })
 
 watch(props.examples, () => {
-  // @ts-ignore
+  // @ts-expect-error Type isn’t correct
   if (props.examples[selectedExample.value] === 'undefined') {
     selectedExample.value = 0
   }

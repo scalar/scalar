@@ -67,8 +67,7 @@ export const getRequestFromOperation = (
       ...getParametersFromOperation(operation, 'header', options?.requiredOnly),
       ...(requestBody?.headers ?? []),
     ] as Header[],
-    // TODO: Sorry, something is off here and I don’t get it.
-    // @ts-ignore
+    // @ts-expect-error Sorry, something is off here and I don’t get it.
     postData: requestBody?.postData,
     queryString: getParametersFromOperation(
       operation,

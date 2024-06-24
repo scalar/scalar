@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Request from '@/assets/ascii/request.ascii?raw'
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
