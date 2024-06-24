@@ -124,7 +124,10 @@ module.exports = {
             format: ['PascalCase'],
           },
         ],
-        'jsdoc/require-jsdoc': ['warn', { publicOnly: true }],
+        'jsdoc/require-jsdoc': [
+          'warn',
+          { publicOnly: true, enableFixer: false },
+        ],
       },
     },
     /** Vue SFC linting rules */
