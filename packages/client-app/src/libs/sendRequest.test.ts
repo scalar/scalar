@@ -166,11 +166,9 @@ describe('sendRequest', () => {
       server?.url + request.path,
     )
 
-    expect(result?.response?.data).toMatchObject({
-      query: {
-        example: 'parameter',
-        foo: 'bar',
-      },
+    expect(result?.response?.data?.query).toStrictEqual({
+      example: 'parameter',
+      foo: 'bar',
     })
   })
 

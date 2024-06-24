@@ -90,7 +90,7 @@ export const sendRequest = async (
     }
   }
 
-  // Oauth 2
+  // OAuth 2
   if (securityScheme?.flow?.token) {
     headers['Authorization'] = `Bearer ${securityScheme.flow.token}`
   }
@@ -107,17 +107,36 @@ export const sendRequest = async (
       .join('; ')
   }
 
+  // Extract query parameters from the URL
+  const queryParametersFromUrl: RequestExampleParameter[] = []
+  const [urlWithoutQueryString, urlQueryString] = url.split('?')
+  new URLSearchParams(urlQueryString ?? '').forEach((value, key) => {
+    queryParametersFromUrl.push({
+      key,
+      value,
+      enabled: true,
+    })
+  })
+
+  // Create a new query string from the URL and given parameters
+  const queryString = new URLSearchParams({
+    ...paramsReducer(example.parameters.query),
+    ...paramsReducer(queryParametersFromUrl),
+  }).toString()
+
+  // Append new query string to the URL
+  url = `${urlWithoutQueryString}${queryString ? '?' + queryString : ''}`
+
   const config: AxiosRequestConfig = {
     url: shouldUseProxy
       ? `http://localhost:5051/?scalar_url=${encodeURI(url)}`
       : url,
     method: request.method,
     headers,
-    params: paramsReducer(example.parameters.query),
     data,
   }
 
-  /** start time to get response duration */
+  // Start timer to get response duration
   const startTime = Date.now()
 
   const response = await axios(config).catch((error: AxiosError) => {
