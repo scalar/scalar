@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.4
+
+### Patch Changes
+
+- c20c7d0: feat: security schemes and requirements
+
 ## 0.2.3
 
 ### Patch Changes

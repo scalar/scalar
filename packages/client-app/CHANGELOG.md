@@ -1,5 +1,16 @@
 # @scalar/client-app
 
+## 0.1.11
+
+### Patch Changes
+
+- c20c7d0: feat: add authentication
+- b3ba2a5: feat(client-app): teleport dropdowns to #scalar-client instead of <body>
+- Updated dependencies [c20c7d0]
+- Updated dependencies [c20c7d0]
+  - @scalar/components@0.12.1
+  - @scalar/oas-utils@0.2.4
+
 ## 0.1.10
 
 ### Patch Changes
