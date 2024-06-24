@@ -17,7 +17,7 @@ module.exports = {
     'prettier',
     'plugin:storybook/recommended',
   ],
-  plugins: ['@typescript-eslint', 'prettier'],
+  plugins: ['@typescript-eslint', 'prettier', 'eslint-plugin-jsdoc'],
   ignorePatterns: [
     '**/dist/**',
     'api-reference/packages/swagger-parser/**',
@@ -124,6 +124,7 @@ module.exports = {
             format: ['PascalCase'],
           },
         ],
+        'jsdoc/require-jsdoc': ['warn', { publicOnly: true }],
       },
     },
     /** Vue SFC linting rules */
