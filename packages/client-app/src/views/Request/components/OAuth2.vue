@@ -36,11 +36,10 @@ const handleAuthorize = async () => {
 
 <template>
   <!-- Access Token Granted -->
-  <DataTableRow
-    v-if="activeScheme.flow.token"
-    class="border-r-transparent">
+  <DataTableRow v-if="activeScheme.flow.token">
     <RequestAuthDataTableInput
       id="oauth2-access-token"
+      class="border-r-transparent"
       :modelValue="activeScheme.flow.token"
       type="password"
       @update:modelValue="
