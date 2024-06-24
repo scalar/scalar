@@ -23,10 +23,16 @@ describe('init', () => {
         'init',
         '--file',
         './packages/cli/src/commands/validate/valid.json',
+        '--force',
+        '--subdomain',
+        'foobar.apidocumentation.com',
       ])
 
     // Output
-    logs.should.contain('Scalar configuration file created: scalar.config.json')
+    logs.should.contain(`"subdomain": "foobar.apidocumentation.com"`)
+    logs.should.contain(
+      `"path": "./packages/cli/src/commands/validate/valid.json"`,
+    )
 
     // File exists
     expect(fs.existsSync(configFile)).toBe(true)

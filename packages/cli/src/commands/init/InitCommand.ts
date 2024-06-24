@@ -1,10 +1,45 @@
-import { cancel, confirm, isCancel, spinner, text } from '@clack/prompts'
+import { cancel, confirm, isCancel, text } from '@clack/prompts'
 import { Command } from 'commander'
+import GithubSlugger from 'github-slugger'
 import kleur from 'kleur'
 import fs from 'node:fs'
 import path from 'node:path'
 
 import { CONFIG_FILE } from '../../utils'
+
+/**
+ * Scalar configuration file (scalar.config.json)
+ */
+export type ScalarConfigurationFile = {
+  subdomain: string
+  references: ScalarReferenceEntry[]
+  guides: ScalarGuideEntry[]
+}
+
+/**
+ * Entry for an API reference
+ */
+export type ScalarReferenceEntry = {
+  name: string
+  path: string
+}
+
+/**
+ * Entry for the guide
+ */
+export type ScalarGuideEntry = {
+  name: string
+  sidebar: ScalarSidebarEntry[]
+}
+
+/**
+ * Entry for the sidebar (folder or page)
+ */
+export type ScalarSidebarEntry = {
+  path?: string
+  type: 'folder' | 'page'
+  items?: ScalarSidebarEntry[]
+}
 
 export function InitCommand() {
   const cmd = new Command('init')
@@ -13,11 +48,12 @@ export function InitCommand() {
     'Create a new `scalar.config.json` file to configure where your OpenAPI file is placed.',
   )
   cmd.option('-f, --file [file]', 'your OpenAPI file')
-  cmd.action(async ({ file }) => {
+  cmd.option('-s, --subdomain [url]', 'subdomain to publish on')
+  cmd.option('--force', 'override existing configuration')
+  cmd.action(async ({ file, subdomain, force }) => {
     // Path to `scalar.config.json` file
     const configFile = path.resolve(CONFIG_FILE)
-    const s = spinner()
-    let validInput = false
+    let validInput: boolean
     let input = file
 
     const nextSteps = () => {
@@ -40,7 +76,6 @@ export function InitCommand() {
           `Run ${kleur.magenta('scalar --help')} to see all available commands.`,
         ),
       )
-      console.log()
     }
 
     // Handle cancel from the user
@@ -57,34 +92,74 @@ export function InitCommand() {
       return validExtensions.includes(extension)
     }
 
-    if (input && isValidFile(input)) {
-      validInput = true
-    }
-
     // Check if `scalar.config.json` already exists
     if (fs.existsSync(configFile)) {
       console.log(
-        `${kleur.green('✔')} Found Scalar configuration file: ${kleur.reset().green(`${CONFIG_FILE}`)}`,
+        `${kleur.green('⚠')} Found existing configuration: ${kleur.reset().green(`${CONFIG_FILE}`)}`,
       )
 
-      const overwrite = await confirm({
-        message: 'Do you want to override the file?',
-        initialValue: false,
+      if (force) {
+        console.log(`${kleur.green('✔')} Overwriting existing file…`)
+      }
+
+      const shouldOverwriteExisting =
+        force ??
+        (await confirm({
+          message: 'Do you want to override the file?',
+          initialValue: false,
+        }))
+
+      if (isCancel(shouldOverwriteExisting)) {
+        handleCancel()
+      }
+
+      if (!shouldOverwriteExisting) {
+        handleCancel()
+      }
+    }
+
+    // New configuration object
+    const configuration: ScalarConfigurationFile = {
+      subdomain: '',
+      references: [],
+      guides: [],
+    }
+
+    // Subdomain
+    validInput = !!subdomain
+
+    while (!validInput) {
+      const response = await text({
+        message: `What’s the name of your project? We’ll use that to create a custom subdomain for you.`,
+        validate(value) {
+          if (value.trim().length === 0) {
+            return `You didn’t provide a project name. Please provide a name!`
+          }
+
+          return null
+        },
       })
 
-      if (isCancel(overwrite)) {
+      // TODO: Check if the subdomain is available
+
+      if (isCancel(response)) {
         handleCancel()
+      } else {
+        validInput = true
       }
 
-      if (!overwrite) {
-        handleCancel()
-      }
+      const slugger = new GithubSlugger()
+      const slug = slugger.slug(response.toString())
+
+      // eslint-disable-next-line no-param-reassign
+      subdomain = `${slug}.apidocumentation.com`
+
+      console.log(`${kleur.green('✔')} Subdomain: ${kleur.green(subdomain)}`)
     }
 
-    // Ask for the OpenAPI file
-    const configuration = {
-      references: [],
-    }
+    configuration.subdomain = subdomain.trim()
+
+    // Reference
 
     // Check if the file option is provided and valid
     if (input) {
@@ -95,16 +170,18 @@ export function InitCommand() {
           kleur.red('✖'),
           `Please enter a valid file path ${validExtensions.join(', ')}.`,
         )
-      } else {
-        validInput = true
       }
     }
+
+    // Ask for the file path
+    validInput = input && isValidFile(input)
 
     while (!validInput) {
       const response = await text({
         message: `Where is your OpenAPI file? ${kleur.reset().grey('(Add a path to the file)')}`,
         validate(value) {
           if (value.length === 0) return `Value is required!`
+          return null
         },
       })
 
@@ -132,18 +209,24 @@ export function InitCommand() {
     const content = JSON.stringify(configuration, null, 2)
 
     // Create `scalar.config.json` file
-    s.start('Creating Scalar configuration file...')
+    fs.writeFileSync(configFile, content)
+    console.log(`${kleur.green('✔')} Configuration stored.`)
+    console.log()
 
-    setTimeout(() => {
-      fs.writeFileSync(configFile, content)
-      s.stop(
-        `Scalar configuration file created: ${kleur.reset().green(`${CONFIG_FILE}`)}`,
-      )
-      console.log()
-      nextSteps()
-      console.log()
-      console.log()
-    }, 1000)
+    console.log(`${kleur.bold().green(`${CONFIG_FILE}`)}`)
+    console.log()
+    console.log(
+      `${kleur.grey(
+        content
+          .split('\n')
+          .map((line) => `  ${line}`)
+          .join('\n'),
+      )}`,
+    )
+
+    console.log()
+    nextSteps()
+    console.log()
   })
 
   return cmd
