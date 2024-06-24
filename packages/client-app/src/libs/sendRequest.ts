@@ -90,7 +90,7 @@ export const sendRequest = async (
     }
   }
 
-  // Oauth 2
+  // OAuth 2
   if (securityScheme?.flow?.token) {
     headers['Authorization'] = `Bearer ${securityScheme.flow.token}`
   }
@@ -136,7 +136,7 @@ export const sendRequest = async (
     data,
   }
 
-  /** start time to get response duration */
+  // Start timer to get response duration
   const startTime = Date.now()
 
   const response = await axios(config).catch((error: AxiosError) => {
