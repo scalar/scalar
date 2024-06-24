@@ -13,7 +13,8 @@ export function InitCommand() {
     'Create a new `scalar.config.json` file to configure where your OpenAPI file is placed.',
   )
   cmd.option('-f, --file [file]', 'your OpenAPI file')
-  cmd.action(async ({ file }) => {
+  cmd.option('--force', 'override existing configuration')
+  cmd.action(async ({ file, force }) => {
     // Path to `scalar.config.json` file
     const configFile = path.resolve(CONFIG_FILE)
     const s = spinner()
@@ -40,7 +41,6 @@ export function InitCommand() {
           `Run ${kleur.magenta('scalar --help')} to see all available commands.`,
         ),
       )
-      console.log()
     }
 
     // Handle cancel from the user
@@ -64,19 +64,23 @@ export function InitCommand() {
     // Check if `scalar.config.json` already exists
     if (fs.existsSync(configFile)) {
       console.log(
-        `${kleur.green('✔')} Found Scalar configuration file: ${kleur.reset().green(`${CONFIG_FILE}`)}`,
+        `${kleur.green('⚠')} Found existing configuration: ${kleur.reset().green(`${CONFIG_FILE}`)}`,
       )
 
-      const overwrite = await confirm({
-        message: 'Do you want to override the file?',
-        initialValue: false,
-      })
+      console.log(`${kleur.green('✔')} Overwriting existing file…`)
 
-      if (isCancel(overwrite)) {
+      const shouldOverwriteExisting =
+        force ??
+        (await confirm({
+          message: 'Do you want to override the file?',
+          initialValue: false,
+        }))
+
+      if (isCancel(shouldOverwriteExisting)) {
         handleCancel()
       }
 
-      if (!overwrite) {
+      if (!shouldOverwriteExisting) {
         handleCancel()
       }
     }
@@ -133,15 +137,23 @@ export function InitCommand() {
     const content = JSON.stringify(configuration, null, 2)
 
     // Create `scalar.config.json` file
-    s.start('Creating Scalar configuration file...')
-
     fs.writeFileSync(configFile, content)
-    s.stop(
-      `Scalar configuration file created: ${kleur.reset().green(`${CONFIG_FILE}`)}`,
+    console.log(`${kleur.green('✔')} Configuration stored.`)
+    console.log()
+
+    console.log(`${kleur.bold().green(`${CONFIG_FILE}`)}`)
+    console.log()
+    console.log(
+      `${kleur.grey(
+        content
+          .split('\n')
+          .map((line) => `  ${line}`)
+          .join('\n'),
+      )}`,
     )
+
     console.log()
     nextSteps()
-    console.log()
     console.log()
   })
 
