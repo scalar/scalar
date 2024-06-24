@@ -16,6 +16,9 @@ const { toggleApiClient } = useApiClientStore()
 
 const { setActiveRequest, resetActiveResponse } = useRequestStore()
 
+/**
+ * Prepares all the data to open the API client for a specific operation.
+ */
 export function openClientFor(
   operation: TransformedOperation,
   globalSecurity?: OpenAPIV3.SecurityRequirementObject[],
