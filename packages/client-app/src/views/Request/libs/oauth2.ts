@@ -32,99 +32,127 @@ export const authorizeOauth2 = (
   new Promise<string>((resolve, reject) => {
     const { flow, scheme } = activeScheme
 
-    const scopes = flow.selectedScopes.join(' ')
-    const state = (Math.random() + 1).toString(36).substring(7)
-    const url = new URL(
-      'authorizationUrl' in flow ? flow.authorizationUrl : flow.tokenUrl,
-    )
+    // Client Credentials Server Flow
+    if (schemeModel.flowKey === 'clientCredentials') {
+      console.log('askdhakjsdh')
+      authorizeServers(activeScheme).then(resolve).catch(reject)
+    } else {
+      const scopes = flow.selectedScopes.join(' ')
+      const state = (Math.random() + 1).toString(36).substring(7)
+      const url = new URL(
+        'authorizationUrl' in flow ? flow.authorizationUrl : flow.tokenUrl,
+      )
 
-    // Params unique to the flows
-    if (schemeModel.flowKey === 'implicit') {
-      url.searchParams.set('response_type', 'token')
-    } else if (schemeModel.flowKey === 'authorizationCode') {
-      url.searchParams.set('response_type', 'code')
-    }
+      // Params unique to the flows
+      if (schemeModel.flowKey === 'implicit') {
+        url.searchParams.set('response_type', 'token')
+      } else if (schemeModel.flowKey === 'authorizationCode') {
+        url.searchParams.set('response_type', 'code')
+      }
 
-    // Common to all flows
-    url.searchParams.set('client_id', scheme.clientId)
-    url.searchParams.set('redirect_uri', scheme.redirectUri)
-    url.searchParams.set('scope', scopes)
-    url.searchParams.set('state', state)
+      // Common to all flows
+      url.searchParams.set('client_id', scheme.clientId)
+      url.searchParams.set('redirect_uri', scheme.redirectUri)
+      url.searchParams.set('scope', scopes)
+      url.searchParams.set('state', state)
 
-    const windowFeatures = 'left=100,top=100,width=800,height=600'
-    const authWindow = window.open(url, 'openAuth2Window', windowFeatures)
+      const windowFeatures = 'left=100,top=100,width=800,height=600'
+      const authWindow = window.open(url, 'openAuth2Window', windowFeatures)
 
-    // Open up a window and poll until closed or we have the data we want
-    if (authWindow) {
-      const checkWindowClosed = setInterval(function () {
-        let accessToken: string | null = null
-        let code: string | null = null
+      // Open up a window and poll until closed or we have the data we want
+      if (authWindow) {
+        const checkWindowClosed = setInterval(function () {
+          let accessToken: string | null = null
+          let code: string | null = null
 
-        try {
-          const urlParams = new URL(authWindow.location.href).searchParams
-          accessToken = urlParams.get('access_token')
-          code = urlParams.get('code')
-        } catch (e) {
-          // Ignore CORS error from popup
-        }
+          try {
+            const urlParams = new URL(authWindow.location.href).searchParams
+            accessToken = urlParams.get('access_token')
+            code = urlParams.get('code')
+          } catch (e) {
+            // Ignore CORS error from popup
+          }
 
-        // The window has closed OR we have what we are looking for so we stop polling
-        if (authWindow.closed || accessToken || code) {
-          clearInterval(checkWindowClosed)
-          authWindow.close()
+          // The window has closed OR we have what we are looking for so we stop polling
+          if (authWindow.closed || accessToken || code) {
+            clearInterval(checkWindowClosed)
+            authWindow.close()
 
-          // Implicit Flow
-          if (accessToken) {
-            // State is a hash fragment and cannot be found through search params
-            const _state = authWindow.location.href.match(/state=([^&]*)/)?.[1]
-            if (accessToken && _state === state) {
-              resolve(accessToken)
+            // Implicit Flow
+            if (accessToken) {
+              // State is a hash fragment and cannot be found through search params
+              const _state =
+                authWindow.location.href.match(/state=([^&]*)/)?.[1]
+              if (accessToken && _state === state) {
+                resolve(accessToken)
+              }
+            }
+
+            // Authorization Code Server Flow
+            else if (code) {
+              authorizeServers(activeScheme, code).then(resolve).catch(reject)
+            }
+            // User closed window without authorizing
+            else {
+              clearInterval(checkWindowClosed)
+              reject(
+                new Error('Window was closed without granting authorization'),
+              )
             }
           }
-
-          // Authorization Code Flow
-          else if (code && 'tokenUrl' in flow && 'clientSecret' in flow) {
-            const formData = new URLSearchParams()
-            formData.set('grant_type', 'authorization_code')
-            formData.set('client_id', scheme.clientId)
-            formData.set('code', code)
-            formData.set('client_secret', flow.clientSecret)
-            formData.set('redirect_uri', scheme.redirectUri)
-            formData.set('scope', scopes)
-
-            // Make the call
-            fetch(flow.tokenUrl, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Basic ${btoa(`${scheme.clientId}:${flow.clientSecret}`)}`,
-                'Content-Type': 'application/x-www-form-urlencoded',
-              },
-              body: formData,
-            })
-              .then((response) => {
-                // Check if is a 2xx response
-                if (!response.ok) {
-                  reject(
-                    new Error(
-                      'Failed to get an access token. Please check your credentials.',
-                    ),
-                  )
-                }
-                return response.json()
-              })
-              .then((data) => {
-                resolve(data.access_token)
-              })
-              .catch(reject)
-          }
-          // User closed window without authorizing
-          else {
-            clearInterval(checkWindowClosed)
-            reject(
-              new Error('Window was closed without granting authorization'),
-            )
-          }
-        }
-      }, 200)
+        }, 200)
+      }
     }
   })
+
+/**
+ * Makes the BE authorization call to grab the token server to server
+ * Used for clientCredentials and authorizationCode
+ */
+export const authorizeServers = async (
+  activeScheme: SelectedSchemeOauth2,
+  code?: string,
+): Promise<string> => {
+  if (!('clientSecret' in activeScheme.flow))
+    throw new Error(
+      'Authorize Servers only works for Client Credentials or Authorization Code flow',
+    )
+  if (!activeScheme.flow) throw new Error('OAuth2 flow was not defined')
+
+  const { flow, scheme } = activeScheme
+  const scopes = flow.selectedScopes.join(' ')
+
+  const formData = new URLSearchParams()
+  formData.set('client_id', scheme.clientId)
+  formData.set('client_secret', flow.clientSecret)
+  formData.set('redirect_uri', scheme.redirectUri)
+  formData.set('scope', scopes)
+
+  // Authorization Code
+  if (code) {
+    formData.set('code', code)
+    formData.set('grant_type', 'authorization_code')
+  }
+  // Client Credentials
+  else {
+    formData.set('grant_type', 'client_credentials')
+  }
+
+  try {
+    // Make the call
+    const resp = await fetch(flow.tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${btoa(`${scheme.clientId}:${flow.clientSecret}`)}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: formData,
+    })
+    const { access_token } = await resp.json()
+    return access_token
+  } catch {
+    throw new Error(
+      'Failed to get an access token. Please check your credentials.',
+    )
+  }
+}

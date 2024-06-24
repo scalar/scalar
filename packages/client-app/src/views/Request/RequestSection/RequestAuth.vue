@@ -35,7 +35,7 @@ const columnLayout = computed(() => {
   ) {
     if (schemeModel.value.flowKey === 'implicit') {
       return ['', 'auto']
-    } else return ['']
+    } else return ['', 'auto']
   } else return ['']
 })
 

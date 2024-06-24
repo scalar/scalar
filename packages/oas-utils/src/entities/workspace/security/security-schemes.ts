@@ -176,4 +176,5 @@ export type SecuritySchemePayload = z.input<typeof securityScheme>
 
 /** Create Security Scheme with defaults */
 export const createSecurityScheme = (payload: SecuritySchemePayload) =>
-  deepMerge(securityScheme.parse({ type: payload.type }), payload)
+  // deepMerge(securityScheme.parse({ type: payload.type }), payload)
+  securityScheme.parse(payload)
