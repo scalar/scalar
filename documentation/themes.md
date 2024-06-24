@@ -72,8 +72,7 @@ Here is an example of how to use the `Roboto` font from Google Fonts with the CD
 </html>
 ```
 
-You can [use all variables](https://github.com/scalar/scalar/blob/main/packages/themes/src/base.css) available in the
-base styles as well as overwrite the color theme.
+You can [use all variables](../packages/themes/src/variables.css) as well as overwrite the color theme.
 
 To build your own color themes, overwrite the night mode and day mode variables.
 Here are some basic variables to get you started:

@@ -63,7 +63,7 @@ Time to run it:
 npm run dev
 ```
 
-This should output the URL the server is running on: <http://127.0.0.1:3000> Try opening this in your browser and you should see the example JSON.
+This should output the URL the server is running on: <http://localhost:3000> Try opening this in your browser and you should see the example JSON.
 
 Congratulations, you’ve set up your (first?) Fastify project!
 
@@ -191,7 +191,7 @@ Your server should be restarted automatically (that’s what we added `nodemon` 
 npm run dev
 ```
 
-I cross my fingers for you, but this should give you a pretty decent OpenAPI file on <http://127.0.0.1:3000/openapi.json>
+I cross my fingers for you, but this should give you a pretty decent OpenAPI file on <http://localhost:3000/openapi.json>
 
 Did it work? OMG, this is so cool! It didn’t? [Create a new issue](https://github.com/scalar/scalar/issues/new/choose) so we can improve this guide here — I mean, that’s the beauty of open source, isn’t it?
 
@@ -221,7 +221,7 @@ _Note: It’s not really a problem to have an `import` statement in the middle o
 
 Wow, this is it already. Restart the server, if it didn’t already and take a look at your new API reference:
 
-<http://127.0.0.1:3000/reference>
+<http://localhost:3000/reference>
 
 That’s it, you made it! You can keep adding routes to Fastify now and the reference will keep in sync with them.
 
