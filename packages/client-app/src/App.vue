@@ -36,8 +36,7 @@ onBeforeMount(() => {
 
 onMounted(() => {
   importSpecFromUrl(
-    'https://developer.spotify.com/reference/web-api/open-api-schema.yaml',
-    'https://proxy.scalar.com',
+    'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
   )
 })
 </script>
