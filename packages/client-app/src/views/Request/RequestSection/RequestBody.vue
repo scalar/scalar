@@ -145,39 +145,40 @@ const updateRequestBody = (content: string) => {
   )
 }
 
-const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
-  if (!activeRequest.value || !activeExample.value) return
+// TODO: This isn’t used? Can we delete this?
+// const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
+//   if (!activeRequest.value || !activeExample.value) return
 
-  let activeBodyType: { encoding: string; value: any } | undefined
-  let bodyPath: 'body.raw.value' | 'body.formData.value' = 'body.raw.value'
-  let bodyType: 'raw' | 'formData' | 'binary' = 'raw'
+//   let activeBodyType: { encoding: string; value: any } | undefined
+//   let bodyPath: 'body.raw.value' | 'body.formData.value' = 'body.raw.value'
+//   let bodyType: 'raw' | 'formData' | 'binary' = 'raw'
 
-  if (type === 'multipartForm' || type === 'formUrlEncoded') {
-    activeBodyType = { encoding: 'form-data', value: formParams.value || [] }
-    bodyPath = 'body.formData.value'
-    bodyType = 'formData'
-  } else if (type === 'binaryFile') {
-    bodyType = 'binary'
-  } else {
-    const rawValue = activeExample.value?.body.raw.value ?? ''
-    activeBodyType = { encoding: type, value: rawValue }
-    bodyPath = 'body.raw.value'
-    bodyType = 'raw'
-  }
+//   if (type === 'multipartForm' || type === 'formUrlEncoded') {
+//     activeBodyType = { encoding: 'form-data', value: formParams.value || [] }
+//     bodyPath = 'body.formData.value'
+//     bodyType = 'formData'
+//   } else if (type === 'binaryFile') {
+//     bodyType = 'binary'
+//   } else {
+//     const rawValue = activeExample.value?.body.raw.value ?? ''
+//     activeBodyType = { encoding: type, value: rawValue }
+//     bodyPath = 'body.raw.value'
+//     bodyType = 'raw'
+//   }
 
-  if (activeBodyType) {
-    requestExampleMutators.edit(
-      activeExample.value.uid,
-      bodyPath,
-      activeBodyType.value,
-    )
-  }
-  requestExampleMutators.edit(
-    activeExample.value.uid,
-    'body.activeBody',
-    bodyType,
-  )
-}
+//   if (activeBodyType) {
+//     requestExampleMutators.edit(
+//       activeExample.value.uid,
+//       bodyPath,
+//       activeBodyType.value,
+//     )
+//   }
+//   requestExampleMutators.edit(
+//     activeExample.value.uid,
+//     'body.activeBody',
+//     bodyType,
+//   )
+// }
 
 const handleFileUploadFormData = async (rowIdx: number) => {
   const { open } = useFileDialog({

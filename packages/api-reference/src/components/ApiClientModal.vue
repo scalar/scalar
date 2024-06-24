@@ -2,8 +2,7 @@
 import type { SpecConfiguration } from '@scalar/oas-utils'
 import { onMounted, ref } from 'vue'
 
-import { modalStateBus } from './api-client-bus'
-import { apiClientBus } from './api-client-bus'
+import { apiClientBus, modalStateBus } from './api-client-bus'
 
 const props = defineProps<{
   proxyUrl?: string

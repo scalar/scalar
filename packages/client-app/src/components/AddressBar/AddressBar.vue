@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { themeClasses } from '@/constants'
-import { executeRequestBus, syncPathParamsFromURL } from '@/libs'
+import { executeRequestBus } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import { Listbox } from '@headlessui/vue'
 import {

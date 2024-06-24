@@ -71,8 +71,8 @@ watch(
           {{ variable.name }}
         </div>
         <span class="w-20 overflow-hidden text-ellipsis text-right">
-          {{ variable.raw }}</span
-        >
+          {{ variable.raw }}
+        </span>
       </li>
     </ul>
     <ScalarButton

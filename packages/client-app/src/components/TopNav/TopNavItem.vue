@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import type { Route } from '@/constants'
-import { ScalarIcon } from '@scalar/components'
-import { ScalarTooltip } from '@scalar/components'
+import { ScalarIcon, ScalarTooltip } from '@scalar/components'
 
 defineProps<
   Route & {

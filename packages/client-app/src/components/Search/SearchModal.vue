@@ -8,8 +8,7 @@ import {
   ScalarSearchResultList,
 } from '@scalar/components'
 import { useMagicKeys, whenever } from '@vueuse/core'
-import type { FuseResult } from 'fuse.js'
-import Fuse from 'fuse.js'
+import Fuse, { type FuseResult } from 'fuse.js'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
