@@ -23,6 +23,9 @@ describe('init', () => {
         'init',
         '--file',
         './packages/cli/src/commands/validate/valid.json',
+        '--force',
+        '--subdomain',
+        'foobar.apidocumentation.com',
       ])
 
     // Output
