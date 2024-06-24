@@ -23,6 +23,9 @@
     "lefthook": "^1.6.1",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.11",
+    "remark-cli": "^12.0.1",
+    "remark-lint-no-dead-urls": "^1.1.0",
+    "remark-validate-links": "^13.0.1",
     "start-server-and-test": "^2.0.3",
     "syncpack": "^12.3.0",
     "turbo": "^2.0.1",
@@ -68,7 +71,8 @@
     "test:e2e:themes": "pnpm --filter playwright test:e2e themes",
     "test:e2e:nuxt": "pnpm --filter playwright test:e2e nuxt",
     "types:check": "turbo --concurrency=100 types:check",
-    "bootstrap:package": "vite-node scripts/bootstrap-package/bootstrap-package.ts"
+    "bootstrap:package": "vite-node scripts/bootstrap-package/bootstrap-package.ts",
+    "markdown:check": "remark --frail ."
   },
   "exports": {
     "./css/*.css": {
@@ -80,5 +84,18 @@
       "require": "./dist/*.css"
     }
   },
-  "packageManager": "pnpm@9.2.0"
+  "packageManager": "pnpm@9.2.0",
+  "remarkConfig": {
+    "plugins": [
+      "remark-validate-links",
+      [
+        "remark-lint-no-dead-urls",
+        {
+          "skipUrlPatterns": [
+            "http://localhost"
+          ]
+        }
+      ]
+    ]
+  }
 }
