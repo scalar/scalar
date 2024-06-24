@@ -1,3 +1,4 @@
+import { deepMerge } from '@/helpers'
 import type { ValueOf } from 'type-fest'
 import { z } from 'zod'
 
@@ -139,7 +140,7 @@ const securitySchemeOauth2 = z.object({
   flows: oauthFlowSchema,
 
   clientId: value,
-  redirectUri: z.string().url().optional().default(''),
+  redirectUri: z.string().optional().default(''),
 })
 export type SecuritySchemeOauth2 = z.infer<typeof securitySchemeOauth2>
 export type SelectedSchemeOauth2 = {
@@ -155,7 +156,7 @@ const securitySchemeOpenId = z.object({
    * REQUIRED. OpenId Connect URL to discover OAuth2 configuration values. This MUST be in the
    * form of a URL. The OpenID Connect standard requires the use of TLS.
    */
-  openIdConnectUrl: z.string().url().optional().default('https://scalar.com'),
+  openIdConnectUrl: z.string().optional().default(''),
 })
 
 const securityScheme = z.union([
@@ -175,4 +176,4 @@ export type SecuritySchemePayload = z.input<typeof securityScheme>
 
 /** Create Security Scheme with defaults */
 export const createSecurityScheme = (payload: SecuritySchemePayload) =>
-  securityScheme.parse(payload)
+  deepMerge(securityScheme.parse({ type: payload.type }), payload)
