@@ -10,6 +10,12 @@ import type {
 } from '@scalar/oas-utils/entities/workspace/spec'
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 
+export type Query = {
+  name: string
+  value: string
+  enabled: boolean
+}
+
 /**
  * Convert the parameters array to an object for axios to consume
  */
@@ -107,11 +113,24 @@ export const sendRequest = async (
       .join('; ')
   }
 
-  const queryString = new URLSearchParams(
-    paramsReducer(example.parameters.query),
-  ).toString()
+  const [urlWithoutQueryString, urlQueryString] = url.split('?')
 
-  url = `${url}${queryString ? '&' + queryString : ''}`
+  const queryStringsFromUrl: RequestExampleParameter[] = []
+
+  new URLSearchParams(urlQueryString ?? '').forEach((value, key) => {
+    queryStringsFromUrl.push({
+      key,
+      value,
+      enabled: true,
+    })
+  })
+
+  const queryString = new URLSearchParams({
+    ...paramsReducer(example.parameters.query),
+    ...paramsReducer(queryStringsFromUrl),
+  }).toString()
+
+  url = `${urlWithoutQueryString}${queryString ? '?' + queryString : ''}`
 
   const config: AxiosRequestConfig = {
     url: shouldUseProxy
@@ -119,7 +138,6 @@ export const sendRequest = async (
       : url,
     method: request.method,
     headers,
-    params: paramsReducer(example.parameters.query),
     data,
   }
 
