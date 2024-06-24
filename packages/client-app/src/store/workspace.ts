@@ -597,7 +597,7 @@ async function importSpecFromUrl(url: string, proxy?: string) {
 const modalState = useModal()
 
 /**
- * Global hool which contains the store for the whole app
+ * Global hook which contains the store for the whole app
  * We may want to break this up at some point due to the massive file size
  */
 export const useWorkspace = () => ({
