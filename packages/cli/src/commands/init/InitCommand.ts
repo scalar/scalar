@@ -105,6 +105,7 @@ export function InitCommand() {
         message: `Where is your OpenAPI file? ${kleur.reset().grey('(Add a path to the file)')}`,
         validate(value) {
           if (value.length === 0) return `Value is required!`
+          return null
         },
       })
 
