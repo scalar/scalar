@@ -6,7 +6,7 @@ defineProps<{
 }>()
 </script>
 <template>
-  <div
+  <form
     class="border-1/2 rounded mx-1 bg-b-1"
     :class="scroll ? 'overflow-x-auto custom-scroll' : 'overflow-visible'">
     <table
@@ -22,5 +22,5 @@ defineProps<{
       </caption>
       <slot />
     </table>
-  </div>
+  </form>
 </template>

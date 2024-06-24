@@ -46,7 +46,7 @@ const scopeModel = computed({
       class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal"
       fullWidth
       variant="ghost">
-      <span>
+      <span class="tabular-nums">
         Scopes
         {{ activeFlow?.selectedScopes?.length || 0 }} /
         {{ Object.keys(activeFlow?.scopes ?? {}).length || 0 }}

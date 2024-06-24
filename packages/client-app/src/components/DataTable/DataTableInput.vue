@@ -7,6 +7,7 @@ import DataTableCell from './DataTableCell.vue'
 
 const props = withDefaults(
   defineProps<{
+    id?: string
     type?: string
     /** Class for the wrapping cell because attrs is bound to the input */
     containerClass?: string
@@ -74,6 +75,7 @@ const handleDropdownMouseUp = () => {
     <div class="row-1">
       <input
         v-bind="$attrs"
+        :id="id"
         autocomplete="off"
         class="border-none focus:text-c-1 text-c-2 min-w-0 w-full px-2 py-1.5 outline-none"
         data-1p-ignore
