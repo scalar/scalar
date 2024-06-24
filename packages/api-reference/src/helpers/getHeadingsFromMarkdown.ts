@@ -9,6 +9,9 @@ const withSlugs = (headings: Heading[], slugger: GithubSlugger): Heading[] =>
     }
   })
 
+/**
+ * Extracts all headings from a Markdown string.
+ */
 export function getHeadingsFromMarkdown(input: string): Heading[] {
   const slugger = new GithubSlugger()
 

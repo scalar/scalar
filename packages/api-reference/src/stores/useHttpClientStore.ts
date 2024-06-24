@@ -32,6 +32,9 @@ const httpClientTitle = computed(() => {
   return getClientTitle(httpClient)
 })
 
+/**
+ * Filters out hidden clients from the available targets (based on the given configuration).
+ */
 export function filterHiddenClients(
   targets: AvailableTarget[],
   exclude: Ref<HiddenClients>,

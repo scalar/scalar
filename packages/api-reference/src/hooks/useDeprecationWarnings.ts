@@ -6,6 +6,9 @@ const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 const NEW_PROXY_URL = 'https://proxy.scalar.com'
 const LOCAL_PROXY_URL = 'http://localhost:5051'
 
+/**
+ * Warns the user about deprecated configurations in the browser console.
+ */
 export function useDeprecationWarnings(configuration: ReferenceConfiguration) {
   watch(
     () => configuration,
