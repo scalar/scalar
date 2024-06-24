@@ -64,7 +64,6 @@ const handleAuthorize = async () => {
       <!-- Redirect URI -->
       <RequestAuthDataTableInput
         id="oauth2-redirect-uri"
-        containerClass="col-start-1 col-end-3"
         :modelValue="activeScheme.scheme.redirectUri"
         placeholder="https://galaxy.scalar.com/callback"
         @update:modelValue="(v) => props.updateScheme('redirectUri', v)">
@@ -84,23 +83,54 @@ const handleAuthorize = async () => {
         @update:modelValue="(v) => props.updateScheme('clientId', v)">
         Client ID
       </RequestAuthDataTableInput>
+    </DataTableRow>
 
-      <DataTableCell
-        v-if="schemeModel.flowKey === 'implicit'"
-        class="flex items-center p-0.5">
-        <ScopesDropdown
-          :activeFlow="activeScheme.flow"
-          :schemeModel="schemeModel"
-          :updateScheme="updateScheme" />
-
+    <!-- Scopes -->
+    <DataTableRow class="border-r-transparent">
+      <DataTableCell class="items-center p-0 py-0 min-h-8 h-auto">
+        <div class="flex h-full w-full">
+          <div
+            class="text-c-2 min-w-[100px] items-center pr-0 pl-2 h-full border-r-1/2">
+            <span class="h-8 flex items-center"> Scopes </span>
+          </div>
+          <div class="w-full">
+            <div class="min-h-8 flex items-center">
+              <ScopesDropdown
+                :activeFlow="activeScheme.flow"
+                class="px-2"
+                :schemeModel="schemeModel"
+                :updateScheme="updateScheme" />
+            </div>
+            <div>
+              <div
+                class="border-t-1/2 hover:bg-b-2 pointer text-c-2 cursor-pointer flex">
+                <div class="w-full px-2 py-1.5">
+                  write:planets - modify planets in your account
+                </div>
+                <div class="border-l-1/2">check</div>
+              </div>
+              <div
+                class="border-t-1/2 hover:bg-b-2 pointer text-c-2 cursor-pointer flex">
+                <div class="w-full px-2 py-1.5">
+                  read:planets - read your planets
+                </div>
+                <div class="border-l-1/2">check</div>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- Authorize button only for implicit here -->
+      </DataTableCell>
+    </DataTableRow>
+    <DataTableRow class="border-r-transparent min-w-full">
+      <div class="h-8 flex items-center justify-self-end">
         <ScalarButton
           :loading="loadingState"
           size="sm"
           @click="handleAuthorize">
           Authorize
         </ScalarButton>
-      </DataTableCell>
+      </div>
     </DataTableRow>
 
     <!-- Client Secret (Authorization Code / Client Credentials) -->

@@ -146,7 +146,7 @@ const showChildren = computed(
             <span class="flex">
               &hairsp;
               <HttpMethod
-                class="font-bold"
+                class="font-[550]"
                 :method="method" />
             </span>
           </div>
