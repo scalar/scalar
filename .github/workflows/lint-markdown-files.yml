@@ -1,9 +1,9 @@
 name: Lint Markdown files
 
 on:
-  push:
-    paths:
-      - '*/**/*.md'
+  pull_request:
+    branches:
+      - main
 
 jobs:
   ci:
