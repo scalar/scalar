@@ -40,4 +40,4 @@ We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
 ## License
 
-The source code in this repository is licensed under [MIT](https://github.com/scalar/void/blob/main/LICENSE).
+The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/packages/void-server/LICENSE).

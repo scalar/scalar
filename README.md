@@ -46,25 +46,25 @@ And there’s an ever-growing list of plugins and integrations:
 
 ## Integrations
 
-- [.NET](/packages/scalar.aspnetcore/README.md)
-- [AdonisJS](/documentation/adonisjs.md)
-- [Docusaurus](/packages/docusaurus/README.md)
-- [ElysiaJS](/documentation/elysiajs.md)
-- [Express](/packages/express-api-reference/README.md)
-- [FastAPI](/packages/scalar_fastapi/README.md)
-- [Fastify](/packages/fastify-api-reference/README.md)
-- [Go](/documentation/go.md)
-- [Hono](/packages/hono-api-reference/README.md)
-- [Laravel](/documentation/laravel.md)
+- [.NET](packages/scalar.aspnetcore/README.md)
+- [AdonisJS](documentation/adonisjs.md)
+- [Docusaurus](packages/docusaurus/README.md)
+- [ElysiaJS](documentation/elysiajs.md)
+- [Express](packages/express-api-reference/README.md)
+- [FastAPI](packages/scalar_fastapi/README.md)
+- [Fastify](packages/fastify-api-reference/README.md)
+- [Go](documentation/go.md)
+- [Hono](packages/hono-api-reference/README.md)
+- [Laravel](documentation/laravel.md)
 - [Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
-- [NestJS](/packages/nestjs-api-reference/README.md)
-- [Next.js](/packages/nextjs-api-reference/README.md)
-- [Nitro](/documentation/nitro.md)
-- [Nuxt](/packages/nuxt/README.md)
-- [Platformatic](/documentation/platformatic.md)
-- [React](/packages/api-reference-react/README.md)
-- [Rust](/documentation/rust.md)
-- [Vue.js](/packages/api-reference/README.md)
+- [NestJS](packages/nestjs-api-reference/README.md)
+- [Next.js](packages/nextjs-api-reference/README.md)
+- [Nitro](documentation/nitro.md)
+- [Nuxt](packages/nuxt/README.md)
+- [Platformatic](documentation/platformatic.md)
+- [React](packages/api-reference-react/README.md)
+- [Rust](documentation/rust.md)
+- [Vue.js](packages/api-reference/README.md)
 
 ## Managed Hosting
 
@@ -82,23 +82,23 @@ Ready? [Create your account on scalar.com](https://scalar.com).
 
 | Project                                                            | Description            |
 | ------------------------------------------------------------------ | ---------------------- |
-| [Scalar API Client](/packages/api-client/README.md)                | API client             |
-| [Scalar CLI](/packages/cli/README.md)                              | Command-line interface |
-| [Scalar Galaxy](/packages/galaxy/README.md)                        | OpenAPI Example        |
-| [Scalar Play Button](/packages/play-button/README.md)              | Quick API Client Embed |
-| [Scalar Mock Server](/packages/mock-server/README.md)              | OpenAPI Mock Server    |
-| [Scalar Void Server](/packages/void-server/README.md)              | HTTP Request Mirror    |
+| [Scalar API Client](packages/api-client/README.md)                 | API client             |
+| [Scalar CLI](packages/cli/README.md)                               | Command-line interface |
+| [Scalar Galaxy](packages/galaxy/README.md)                         | OpenAPI Example        |
+| [Scalar Play Button](packages/play-button/README.md)               | Quick API Client Embed |
+| [Scalar Mock Server](packages/mock-server/README.md)               | OpenAPI Mock Server    |
+| [Scalar Void Server](packages/void-server/README.md)               | HTTP Request Mirror    |
 | [Scalar Open API Parser](https://github.com/scalar/openapi-parser) | OpenAPI SDK            |
 | [Scalar Sandbox](https://sandbox.scalar.com/)                      | Online OpenAPI Editor  |
 
 ## Documentation
 
-| Topic                                            | Description                        |
-| ------------------------------------------------ | ---------------------------------- |
-| [Themes](/documentation/themes.md)               | Themes, layouts & styling          |
-| [Configuration](/documentation/configuration.md) | The universal configuration object |
-| [OpenAPI](/documentation/openapi.md)             | OpenAPI and our extensions to it   |
-| [Markdown](/documentation/markdown.md)           | Markdown syntax                    |
+| Topic                                           | Description                        |
+| ----------------------------------------------- | ---------------------------------- |
+| [Themes](documentation/themes.md)               | Themes, layouts & styling          |
+| [Configuration](documentation/configuration.md) | The universal configuration object |
+| [OpenAPI](documentation/openapi.md)             | OpenAPI and our extensions to it   |
+| [Markdown](documentation/markdown.md)           | Markdown syntax                    |
 
 ## Community
 

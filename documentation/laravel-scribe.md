@@ -2,13 +2,6 @@
 
 Laravel Scribe is an amazing package to generate OpenAPI files from your existing code base. Clumsy annotations aren’t required, the package will just analyze your code.
 
-## Table of Contents
-
-- [Scalar API Reference for Laravel Scribe](#scalar-api-reference-for-laravel-scribe)
-  - [Table of Contents](#table-of-contents)
-  - [Set up Laravel (optional)](#set-up-laravel-optional)
-  - [Set up Laravel Scribe](#set-up-laravel-scribe)
-
 ## Create a new Laravel project (optional)
 
 If you’re starting fresh, download the Laravel installer with composer:
