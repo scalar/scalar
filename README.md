@@ -82,12 +82,12 @@ Ready? [Create your account on scalar.com](https://scalar.com).
 
 | Project                                                            | Description            |
 | ------------------------------------------------------------------ | ---------------------- |
-| [Scalar API Client](/packages/api-client/README)                   | API client             |
-| [Scalar CLI](/packages/cli/README)                                 | Command-line interface |
-| [Scalar Galaxy](/packages/galaxy/README)                           | OpenAPI Example        |
-| [Scalar Play Button](/packages/play-button/README)                 | Quick API Client Embed |
-| [Scalar Mock Server](/packages/mock-server/README)                 | OpenAPI Mock Server    |
-| [Scalar Void Server](/packages/void-server/README)                 | HTTP Request Mirror    |
+| [Scalar API Client](/packages/api-client/README.md)                | API client             |
+| [Scalar CLI](/packages/cli/README.md)                              | Command-line interface |
+| [Scalar Galaxy](/packages/galaxy/README.md)                        | OpenAPI Example        |
+| [Scalar Play Button](/packages/play-button/README.md)              | Quick API Client Embed |
+| [Scalar Mock Server](/packages/mock-server/README.md)              | OpenAPI Mock Server    |
+| [Scalar Void Server](/packages/void-server/README.md)              | HTTP Request Mirror    |
 | [Scalar Open API Parser](https://github.com/scalar/openapi-parser) | OpenAPI SDK            |
 | [Scalar Sandbox](https://sandbox.scalar.com/)                      | Online OpenAPI Editor  |
 
