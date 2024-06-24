@@ -44,6 +44,7 @@
     "@scalar/openapi-parser": "^0.7.1",
     "@scalar/void-server": "workspace:*",
     "commander": "^12.0.0",
+    "github-slugger": "^2.0.0",
     "glob": "^10.3.10",
     "hono": "^4.2.7",
     "kleur": "^4.1.5",
