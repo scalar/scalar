@@ -2,11 +2,11 @@
 import {
   DataTable,
   DataTableHeader,
-  DataTableInput,
   DataTableRow,
 } from '@/components/DataTable'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { type UpdateScheme, useWorkspace } from '@/store/workspace'
+import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { OAuth2 } from '@/views/Request/components'
 import type { SecuritySchemeOption } from '@/views/Request/libs'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
@@ -34,8 +34,8 @@ const columnLayout = computed(() => {
     'flowKey' in schemeModel.value
   ) {
     if (schemeModel.value.flowKey === 'implicit') {
-      return ['', 'auto', 'auto']
-    } else return ['', 'auto']
+      return ['', 'auto']
+    } else return ['']
   } else return ['']
 })
 
@@ -158,13 +158,14 @@ const updateScheme: UpdateScheme = (path, value) =>
           activeSecurityScheme?.scheme.type === 'http' &&
           activeSecurityScheme.scheme.scheme === 'bearer'
         ">
-        <DataTableInput
+        <RequestAuthDataTableInput
+          id="http-bearer-token"
           :modelValue="activeSecurityScheme.scheme.value"
           placeholder="Token"
           type="password"
           @update:modelValue="(v) => updateScheme('value', v)">
           Bearer Token
-        </DataTableInput>
+        </RequestAuthDataTableInput>
       </DataTableRow>
 
       <!-- HTTP Basic -->
@@ -174,34 +175,37 @@ const updateScheme: UpdateScheme = (path, value) =>
           activeSecurityScheme.scheme.scheme === 'basic'
         ">
         <DataTableRow>
-          <DataTableInput
+          <RequestAuthDataTableInput
+            id="http-basic-username"
             class="text-c-2"
             :modelValue="activeSecurityScheme.scheme.value"
             placeholder="Username"
             @update:modelValue="(v) => updateScheme('value', v)">
             Username
-          </DataTableInput>
+          </RequestAuthDataTableInput>
         </DataTableRow>
         <DataTableRow>
-          <DataTableInput
+          <RequestAuthDataTableInput
+            id="http-basic-password"
             :modelValue="activeSecurityScheme.scheme.secondValue"
             placeholder="Token"
             type="password"
             @update:modelValue="(v) => updateScheme('secondValue', v)">
             Password
-          </DataTableInput>
+          </RequestAuthDataTableInput>
         </DataTableRow>
       </template>
 
       <!-- API Key -->
       <DataTableRow v-else-if="activeSecurityScheme?.scheme.type === 'apiKey'">
-        <DataTableInput
+        <RequestAuthDataTableInput
+          :id="`api-key-${activeSecurityScheme.scheme.name}`"
           :modelValue="activeSecurityScheme.scheme.value"
           placeholder="Value"
           type="password"
           @update:modelValue="(v) => updateScheme('value', v)">
           {{ activeSecurityScheme.scheme.name }}
-        </DataTableInput>
+        </RequestAuthDataTableInput>
       </DataTableRow>
 
       <!-- OAuth 2 -->
