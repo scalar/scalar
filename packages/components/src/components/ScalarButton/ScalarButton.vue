@@ -40,23 +40,29 @@ const attrs = computed(() => {
     :class="
       cx(
         variants({ fullWidth, disabled, size, variant }),
-        { 'pl-9 pr-3': loading },
+        { relative: loading?.isLoading },
         `${attrs.class}`,
       )
     "
     :type="type">
     <div
       v-if="$slots.icon"
-      class="mr-2 h-4 w-4">
+      class="mr-2 h-4 w-4"
+      :class="{ invisible: loading?.isLoading }">
       <slot name="icon" />
     </div>
-    <slot />
-    <div
+    <span
       v-if="loading"
-      class="ml-2">
+      :class="{ invisible: loading?.isLoading }">
+      <slot />
+    </span>
+    <slot v-else />
+    <div
+      v-if="loading?.isLoading"
+      class="centered-x absolute">
       <ScalarLoading
         :loadingState="loading"
-        size="20px" />
+        size="12px" />
     </div>
   </button>
 </template>
