@@ -13,7 +13,8 @@ const { activeRequest } = useWorkspace()
 const topNavItems = reactive<Route[]>([{ label: '', path: '', icon: 'Add' }])
 const activeNavItemIdx = ref(0)
 
-/** Logic to handle adding a nav item
+/**
+ * Logic to handle adding a nav item
  * based on the current route
  */
 function handleNavLabelAdd() {
@@ -45,7 +46,8 @@ function handleNavRoute() {
   router.push(topNavItems[activeNavItemIdx.value].path)
 }
 
-/** adding a nav item sets the new index and nav item
+/**
+ * adding a nav item sets the new index and nav item
  * based on the route
  */
 function addNavItem() {

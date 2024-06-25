@@ -4,7 +4,7 @@ export type FloatingOptions = {
   /**
    * Where to place the floating element relative to its reference element.
    * @default 'bottom'
-   * */
+   */
   placement?: Placement
   /**
    * Whether or not track the reference element's width

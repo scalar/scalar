@@ -50,12 +50,14 @@ const securitySchemeHttp = z.object({
  */
 const authorizationUrl = z.string().optional().default('https://scalar.com')
 
-/** REQUIRED. The token URL to be used for this flow. This MUST be in the
+/**
+ * REQUIRED. The token URL to be used for this flow. This MUST be in the
  * form of a URL. The OAuth2 standard requires the use of TLS.
  */
 const tokenUrl = z.string().optional().default('https://scalar.com')
 
-/** The URL to be used for obtaining refresh tokens. This MUST be in the form of a
+/**
+ * The URL to be used for obtaining refresh tokens. This MUST be in the form of a
  * URL. The OAuth2 standard requires the use of TLS.
  */
 const refreshUrl = z.string().optional()

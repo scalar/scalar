@@ -23,13 +23,15 @@ const cookieSchema = z.object({
    * immediately. If both Expires and Max-Age are set, Max-Age has precedence.
    */
   maxAge: z.number().optional(),
-  /** Indicates that the cookie should be stored using partitioned storage. See Cookies Having Independent Partitioned
+  /**
+   * Indicates that the cookie should be stored using partitioned storage. See Cookies Having Independent Partitioned
    * State (CHIPS) for more details.
    */
   partitioned: z.boolean().optional(),
   /** Indicates the path that must exist in the requested URL for the browser to send the Cookie header. */
   path: z.string().optional(),
-  /** Controls whether or not a cookie is sent with cross-site requests, providing some protection against cross-site
+  /**
+   * Controls whether or not a cookie is sent with cross-site requests, providing some protection against cross-site
    * request forgery attacks (CSRF).
    */
   sameSite: z.union([z.literal('Lax'), z.literal('Strict'), z.literal('None')]),

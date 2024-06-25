@@ -3,5 +3,5 @@
  *
  * To enable the new API client, copy `packages/api-reference/.env.example` to `packages/api-reference/.env`
  * and set `NEW_API_CLIENT=true`.
- **/
+ */
 export const NEW_API_MODAL = import.meta.env.VITE_NEW_API_CLIENT === 'true'

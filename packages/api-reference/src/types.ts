@@ -111,7 +111,7 @@ export type ReferenceConfiguration = {
   /**
    * If used, passed data will be added to the HTML header
    * @see https://unhead.unjs.io/usage/composables/use-seo-meta
-   * */
+   */
   metaData?: UseSeoMetaInput
   /**
    * List of httpsnippet clients to hide from the clients menu
