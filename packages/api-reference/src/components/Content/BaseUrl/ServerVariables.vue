@@ -24,15 +24,17 @@ const getValue = (name: string) => {
 }
 </script>
 <template>
-  <div v-if="value">
-    <div
+  <div
+    v-if="value"
+    class="variable-container">
+    <template
       v-for="variable in value"
-      :key="variable.name"
-      class="input">
-      <label :for="`variable-${variable.name}`">
+      :key="variable.name">
+      <label
+        class="variable-description"
+        :for="`variable-${variable.name}`">
         <code>{{ variable.name }}</code>
       </label>
-
       <template v-if="variable.enum">
         <select
           :id="`variable-${variable.name}`"
@@ -53,17 +55,22 @@ const getValue = (name: string) => {
         <input
           :id="`variable-${variable.name}`"
           autocomplete="off"
+          class="input-value"
           placeholder="value"
           spellcheck="false"
           type="text"
           :value="getValue(variable.name)"
           @input="(event) => handleInput(variable.name, event)" />
       </template>
-    </div>
+    </template>
   </div>
 </template>
 
 <style scoped>
+.variable-container {
+  display: grid;
+  grid-template-columns: min-content 1fr;
+}
 .input select {
   position: absolute;
   top: 0;
@@ -75,16 +82,23 @@ const getValue = (name: string) => {
   -webkit-appearance: none;
   appearance: none;
 }
-
+.variable-description,
 .input-value {
+  padding: 9px;
+}
+.input-value {
+  border-color: transparent;
+  border-radius: 0;
+  border-left: 1px solid var(--scalar-border-color);
+  border-top: 1px solid var(--scalar-border-color);
   color: var(--scalar-color-1);
   font-size: var(--scalar-micro);
-  padding: 9px;
+  outline: none;
 }
 
 .variable-description {
-  padding: 6px 12px;
-  font-size: var(--scalar-small);
+  border-top: 1px solid var(--scalar-border-color);
+  font-size: var(--scalar-micro);
 }
 .variable-description :deep(.markdown) {
   font-size: var(--scalar-micro);
@@ -98,9 +112,5 @@ const getValue = (name: string) => {
 }
 .input {
   align-items: center;
-}
-.input:first-of-type {
-  border-radius: 0;
-  border-top: 1px solid var(--scalar-border-color);
 }
 </style>
