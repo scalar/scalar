@@ -4,7 +4,7 @@ import type { Route } from '@/constants'
 import { ScalarIcon, ScalarTooltip } from '@scalar/components'
 
 defineProps<
-  Route & {
+  Omit<Route, 'path'> & {
     hotkey?: string
     active: boolean
   }
