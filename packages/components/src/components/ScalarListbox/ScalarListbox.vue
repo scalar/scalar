@@ -23,6 +23,7 @@ withDefaults(
       options: Option[]
       modelValue?: Option
       fullWidth?: boolean
+      id?: string
     } & Omit<FloatingOptions, 'middleware' | 'offset'>
   >(),
   { multiple: false },
@@ -66,6 +67,7 @@ const variants = cva({
       :resize="resize"
       :teleport="teleport">
       <ListboxButton
+        :id="id"
         as="template"
         class="justify-start">
         <slot />
