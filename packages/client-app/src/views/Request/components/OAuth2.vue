@@ -9,7 +9,7 @@ import {
 import { ScalarButton, useLoadingState } from '@scalar/components'
 import type { SelectedSchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
 
-import ScopesDropdown from './ScopesDropdown.vue'
+import OAuthScopesInput from './OAuthScopesInput.vue'
 
 const props = defineProps<{
   activeScheme: SelectedSchemeOauth2
@@ -58,13 +58,10 @@ const handleAuthorize = async () => {
   </DataTableRow>
 
   <template v-else>
-    <DataTableRow
-      v-if="schemeModel.flowKey !== 'clientCredentials'"
-      class="border-r-transparent">
+    <DataTableRow v-if="schemeModel.flowKey !== 'clientCredentials'">
       <!-- Redirect URI -->
       <RequestAuthDataTableInput
         id="oauth2-redirect-uri"
-        containerClass="col-start-1 col-end-3"
         :modelValue="activeScheme.scheme.redirectUri"
         placeholder="https://galaxy.scalar.com/callback"
         @update:modelValue="(v) => props.updateScheme('redirectUri', v)">
@@ -73,40 +70,25 @@ const handleAuthorize = async () => {
     </DataTableRow>
 
     <!-- Client ID -->
-    <DataTableRow class="border-r-transparent">
+    <DataTableRow>
       <RequestAuthDataTableInput
         id="oauth2-client-id"
-        :containerClass="
-          schemeModel.flowKey !== 'implicit' ? 'col-start-1 col-end-3' : ''
-        "
         :modelValue="activeScheme.scheme.clientId"
         placeholder="12345"
         @update:modelValue="(v) => props.updateScheme('clientId', v)">
         Client ID
       </RequestAuthDataTableInput>
-
-      <DataTableCell
-        v-if="schemeModel.flowKey === 'implicit'"
-        class="flex items-center p-0.5">
-        <ScopesDropdown
-          :activeFlow="activeScheme.flow"
-          :schemeModel="schemeModel"
-          :updateScheme="updateScheme" />
-
-        <!-- Authorize button only for implicit here -->
-        <ScalarButton
-          :loading="loadingState"
-          size="sm"
-          @click="handleAuthorize">
-          Authorize
-        </ScalarButton>
-      </DataTableCell>
     </DataTableRow>
 
+    <!-- Scopes -->
+    <DataTableRow v-if="activeScheme.flow.scopes">
+      <OAuthScopesInput
+        :activeFlow="activeScheme.flow"
+        :schemeModel="schemeModel"
+        :updateScheme="updateScheme" />
+    </DataTableRow>
     <!-- Client Secret (Authorization Code / Client Credentials) -->
-    <DataTableRow
-      v-if="'clientSecret' in activeScheme.flow"
-      class="border-r-transparent">
+    <DataTableRow v-if="'clientSecret' in activeScheme.flow">
       <RequestAuthDataTableInput
         id="oauth2-client-secret"
         :modelValue="activeScheme.flow.clientSecret"
@@ -121,20 +103,17 @@ const handleAuthorize = async () => {
         ">
         Client Secret
       </RequestAuthDataTableInput>
+    </DataTableRow>
 
-      <DataTableCell class="flex items-center p-0.5">
-        <ScopesDropdown
-          :activeFlow="activeScheme.flow"
-          :schemeModel="schemeModel"
-          :updateScheme="updateScheme" />
-
+    <DataTableRow class="min-w-full">
+      <div class="h-8 flex items-center justify-self-end">
         <ScalarButton
           :loading="loadingState"
           size="sm"
           @click="handleAuthorize">
           Authorize
         </ScalarButton>
-      </DataTableCell>
+      </div>
     </DataTableRow>
 
     <!-- Password -->
@@ -167,3 +146,4 @@ const handleAuthorize = async () => {
     <!-- </DataTableRow> -->
   </template>
 </template>
+./OAuthScopesInput.vue

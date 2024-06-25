@@ -43,6 +43,7 @@ export default {
     },
     fontWeight: {
       DEFAULT: 'var(--scalar-regular)',
+      normal: 'var(--scalar-regular)',
       medium: 'var(--scalar-semibold)',
       bold: 'var(--scalar-bold)',
     },

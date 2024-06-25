@@ -27,18 +27,6 @@ const {
   securitySchemeMutators,
 } = useWorkspace()
 
-/** Different security schemes  will require different layouts */
-const columnLayout = computed(() => {
-  if (
-    activeSecurityScheme.value?.scheme.type === 'oauth2' &&
-    'flowKey' in schemeModel.value
-  ) {
-    if (schemeModel.value.flowKey === 'implicit') {
-      return ['', 'auto']
-    } else return ['', 'auto']
-  } else return ['']
-})
-
 /** Generate pretty name for the dropdown label */
 const getLabel = (id: string) => {
   const scheme = securitySchemes[id]
@@ -129,24 +117,30 @@ const updateScheme: UpdateScheme = (path, value) =>
     </template>
     <DataTable
       class="flex-1"
-      :columns="columnLayout">
+      :columns="['']">
       <DataTableRow>
         <DataTableHeader
-          class="relative col-span-full h-8 cursor-pointer py-[2.25px] px-[2.25px] flex items-center">
+          class="relative col-span-full cursor-pointer py-[0px] px-[0px] flex items-center">
           <ScalarListbox
             v-model="schemeModel"
-            class="font-code text-xxs w-full"
+            class="text-xs w-full left-2"
             fullWidth
             :options="schemeOptions"
             teleport>
             <ScalarButton
-              class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal"
+              class="flex gap-1.5 h-auto py-0 px-0 text-c-2 hover:text-c-1 font-normal"
               fullWidth
               variant="ghost">
-              <span>{{ schemeModel?.label }}</span>
-              <ScalarIcon
-                icon="ChevronDown"
-                size="xs" />
+              <div class="flex h-8 items-center">
+                <div
+                  class="text-c-2 flex min-w-[100px] items-center border-r-1/2 pr-0 pl-2 h-full">
+                  Auth Type
+                </div>
+                <span class="pl-2">{{ schemeModel?.label }}</span>
+                <ScalarIcon
+                  icon="ChevronDown"
+                  size="xs" />
+              </div>
             </ScalarButton>
           </ScalarListbox>
         </DataTableHeader>
