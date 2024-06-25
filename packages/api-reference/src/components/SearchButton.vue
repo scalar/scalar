@@ -33,8 +33,8 @@ const keys = useMagicKeys({
 })
 
 onMounted(() => {
-  modalStateBus.on((state: unknown) => {
-    apiClientModalState.value = state as { open: boolean } | null
+  modalStateBus.on((state) => {
+    apiClientModalState.value = state
   })
 })
 
