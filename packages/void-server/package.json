@@ -50,6 +50,6 @@
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-esbuild": "^6.1.1",
     "tslib": "^2.6.2",
-    "typescript": "^5.4.3"
+    "typescript": "^5.5.2"
   }
 }
