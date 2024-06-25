@@ -120,6 +120,12 @@ function defaultRow() {
   /** ensure one empty row by default */
   if (params.value.length === 0) {
     addRow()
+  } else if (params.value.length >= 1) {
+    /** ensure we always have a trailing empty row */
+    const lastParam = params.value[params.value.length - 1]
+    if (lastParam.key !== '' && lastParam.value !== '') {
+      addRow()
+    }
   }
 }
 
