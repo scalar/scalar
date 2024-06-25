@@ -231,7 +231,8 @@ type FieldPathByValue<TFieldValues extends FieldValues, TValue> = {
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 
-/** Set a nested value from an object using a dot separated path.
+/**
+ * Set a nested value from an object using a dot separated path.
  *
  * Basic Path: `'foo.bar'`
  *
@@ -255,7 +256,8 @@ export function setNestedValue<T, P extends Path<T>>(
   return obj
 }
 
-/** Get a nested value from an object using a dot separated path.
+/**
+ * Get a nested value from an object using a dot separated path.
  *
  * Basic Path: `'foo.bar'`
  *

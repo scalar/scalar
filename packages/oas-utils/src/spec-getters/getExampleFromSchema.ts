@@ -45,7 +45,7 @@ export const getExampleFromSchema = (
     /**
      * The fallback string for empty string values.
      * @default ''
-     **/
+     */
     emptyString?: string
     /**
      * Whether to use the XML tag names as keys

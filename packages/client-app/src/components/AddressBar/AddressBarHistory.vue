@@ -20,7 +20,7 @@ const { requestsHistory, activeRequest, requestExampleMutators } =
  * Get a part of the URL object from the scalar proxy request
  *
  * @param request
- * @param the part of the url you want ex: origin or pathname etc
+ * @param part the part of the url you want ex: origin or pathname etc
  */
 function getUrlPart(request: XMLHttpRequest, part: keyof URL) {
   const url = new URL(request.responseURL)

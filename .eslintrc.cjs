@@ -29,6 +29,7 @@ module.exports = {
     '**/vite.standalone.config.ts',
     '**/cdn/**',
     '**/hydrateClient.d.ts',
+    '**/hydrateClient.d.mts',
   ],
   rules: {
     // ---------------------------------------------------------------------------

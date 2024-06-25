@@ -2,7 +2,7 @@ import { isJsonString } from '@/helpers/parse'
 
 /**
  * Takes JSON and formats it.
- **/
+ */
 export const prettyPrintJson = (
   value: string | number | any[] | Record<any, any>,
 ) => {

@@ -59,15 +59,15 @@ export type Information = {
   'deprecated'?: boolean
   /**
    * Scalar
-   **/
+   */
   'x-custom-examples'?: CustomRequestExample[]
   /**
    * Redocly, current
-   **/
+   */
   'x-codeSamples'?: CustomRequestExample[]
   /**
    * Redocly, deprecated
-   **/
+   */
   'x-code-samples'?: CustomRequestExample[]
 }
 

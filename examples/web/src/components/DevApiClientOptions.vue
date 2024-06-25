@@ -16,8 +16,9 @@ const emit = defineEmits<{
   (e: 'update:modelValue', v: ApiClientConfig): void
 }>()
 
-/** Computed config proxy for v-model
- * @see https://skirtles-code.github.io/vue-examples/patterns/computed-v-model.html#advanced-usage-proxying-objects */
+/**
+ * Computed config proxy for v-model
+  @see https://skirtles-code.github.io/vue-examples/patterns/computed-v-model.html#advanced-usage-proxying-objects */
 const config = computed(
   () =>
     new Proxy(props.modelValue, {

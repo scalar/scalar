@@ -82,7 +82,7 @@ async function init() {
     },
   })
 
-  editor.onDidChangeModelContent((_) => {
+  editor.onDidChangeModelContent(() => {
     const newValue = editor?.getValue()
 
     model.value = newValue

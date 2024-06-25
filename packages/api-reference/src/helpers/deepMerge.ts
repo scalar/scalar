@@ -1,6 +1,6 @@
 /**
  * Deep merge for objects
- **/
+ */
 export function deepMerge(source: Record<any, any>, target: Record<any, any>) {
   for (const [key, val] of Object.entries(source)) {
     if (val !== null && typeof val === `object`) {

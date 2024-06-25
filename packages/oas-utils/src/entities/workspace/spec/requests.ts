@@ -12,7 +12,7 @@ import type { RequestExample } from './request-examples'
 export type ResponseInstance = AxiosResponse & {
   /**
    * Time in ms the request took
-   **/
+   */
   duration: number
 }
 
@@ -36,7 +36,8 @@ const requestSchema = z.object({
     .default('GET'),
   uid: nanoidSchema,
   ref: $refSchema.nullable().default(null),
-  /** A list of tags for API documentation control. Tags can be used for logical
+  /**
+   * A list of tags for API documentation control. Tags can be used for logical
    * grouping of operations by resources or any other qualifier.
    */
   tags: z.string().array().default(['default']),
@@ -44,7 +45,8 @@ const requestSchema = z.object({
   summary: z.string().optional(),
   /** A verbose explanation of the operation behavior. CommonMark syntax MAY be used for rich text representation. */
   description: z.string().optional(),
-  /** Unique string used to identify the operation. The id MUST be unique among all operations described in the API.
+  /**
+   * Unique string used to identify the operation. The id MUST be unique among all operations described in the API.
    * The operationId value is case-sensitive. Tools and libraries MAY use the operationId to uniquely identify an
    * operation, therefore, it is RECOMMENDED to follow bin common programming naming conventions./
    */
