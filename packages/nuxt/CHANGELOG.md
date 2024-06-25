@@ -1,5 +1,17 @@
 # @scalar/nuxt
 
+## 0.2.17
+
+### Patch Changes
+
+- b981770: chore: introduce the new @scalar/api-reference-editor
+- Updated dependencies [b981770]
+- Updated dependencies [89afbcf]
+- Updated dependencies [06471ed]
+- Updated dependencies [06471ed]
+  - @scalar/api-reference@1.24.19
+  - @scalar/api-client@1.3.18
+
 ## 0.2.16
 
 ### Patch Changes

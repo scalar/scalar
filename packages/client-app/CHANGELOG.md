@@ -1,5 +1,20 @@
 # @scalar/client-app
 
+## 0.1.13
+
+### Patch Changes
+
+- 132acd4: fix: file upload and binary file ui
+- 3b53db5: style(client-app): new authentication UI
+- b981770: chore: introduce the new @scalar/api-reference-editor
+- 16e4794: fix: resize client app address bar server dropdown
+- Updated dependencies [132acd4]
+- Updated dependencies [b981770]
+- Updated dependencies [fd18932]
+- Updated dependencies [06471ed]
+  - @scalar/components@0.12.3
+  - @scalar/use-toasts@0.7.3
+
 ## 0.1.12
 
 ### Patch Changes

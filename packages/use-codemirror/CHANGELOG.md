@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.11.3
+
+### Patch Changes
+
+- b981770: chore: introduce the new @scalar/api-reference-editor
+
 ## 0.11.2
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @scalar/api-client
 
+## 1.3.18
+
+### Patch Changes
+
+- 06471ed: fix: display enum select in api reference
+- Updated dependencies [132acd4]
+- Updated dependencies [3b53db5]
+- Updated dependencies [b981770]
+- Updated dependencies [fd18932]
+- Updated dependencies [06471ed]
+  - @scalar/components@0.12.3
+  - @scalar/themes@0.9.7
+  - @scalar/use-codemirror@0.11.3
+  - @scalar/use-toasts@0.7.3
+
 ## 1.3.17
 
 ### Patch Changes
