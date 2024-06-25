@@ -56,7 +56,7 @@ function setScope(id: string, checked: boolean) {
         class="flex flex-col w-full">
         <DisclosureButton
           v-slot="{ open }"
-          class="group/scopes-accordion flex items-center text-left min-h-8 gap-1.5 h-auto pl-1.5 hover:bg-b-2 pr-2.5 cursor-pointer">
+          class="group/scopes-accordion flex items-center text-left min-h-8 gap-1.5 h-auto pl-2 hover:bg-b-2 pr-2.5 cursor-pointer">
           <div class="flex-1">
             Selected
             {{ activeFlow?.selectedScopes?.length || 0 }} /
@@ -64,7 +64,7 @@ function setScope(id: string, checked: boolean) {
           </div>
           <ScalarIcon
             class="text-c-3 group-hover/scopes-accordion:text-c-2"
-            :icon="open ? 'ChevronDown' : 'ChevronLeft'"
+            :icon="open ? 'ChevronDown' : 'ChevronRight'"
             size="xs" />
         </DisclosureButton>
         <DisclosurePanel as="template">
@@ -74,14 +74,16 @@ function setScope(id: string, checked: boolean) {
             <DataTableRow
               v-for="{ id, label, description } in scopes"
               :key="id"
-              class="text-c-2">
-              <DataTableCell class="w-full px-2 py-1.5">
+              class="text-c-2"
+              @click="setScope(id, !selectedScopes.includes(id))">
+              <DataTableCell
+                class="w-full px-2 py-1.5 hover:bg-b-2 cursor-pointer">
                 <span class="font-code text-xs">{{ label }}</span>
                 &nbsp;&ndash; {{ description }}
               </DataTableCell>
               <DataTableCheckbox
                 :modelValue="selectedScopes.includes(id)"
-                @update:modelValue="(checked) => setScope(id, checked)" />
+                @update:modelValue="() => {}" />
             </DataTableRow>
           </table>
         </DisclosurePanel>
