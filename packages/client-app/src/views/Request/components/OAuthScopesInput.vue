@@ -6,6 +6,7 @@ import {
 } from '@/components/DataTable'
 import type { UpdateScheme } from '@/store/workspace'
 import type { SecuritySchemeOptionOauth } from '@/views/Request/libs'
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
 import type { ValueOf } from 'type-fest'
@@ -50,35 +51,41 @@ function setScope(id: string, checked: boolean) {
       <div class="text-c-2 min-w-[100px] items-center pl-2 h-full border-r-1/2">
         <span class="h-8 flex items-center"> Scopes </span>
       </div>
-      <div class="flex flex-col w-full">
-        <div
-          class="flex items-center min-h-8 gap-1.5 h-auto pl-1.5 hover:bg-b-2 pr-2.5 cursor-pointer">
+      <Disclosure
+        as="div"
+        class="flex flex-col w-full">
+        <DisclosureButton
+          v-slot="{ open }"
+          class="group/scopes-accordion flex items-center text-left min-h-8 gap-1.5 h-auto pl-1.5 hover:bg-b-2 pr-2.5 cursor-pointer">
           <div class="flex-1">
             Selected
             {{ activeFlow?.selectedScopes?.length || 0 }} /
             {{ Object.keys(activeFlow?.scopes ?? {}).length || 0 }}
           </div>
           <ScalarIcon
-            class="text-c-3"
-            icon="ChevronDown"
+            class="text-c-3 group-hover/scopes-accordion:text-c-2"
+            :icon="open ? 'ChevronDown' : 'ChevronLeft'"
             size="xs" />
-        </div>
-        <table
-          class="grid auto-rows-auto border-t-1/2"
-          :style="{ gridTemplateColumns: '1fr auto' }">
-          <DataTableRow
-            v-for="{ id, label, description } in scopes"
-            :key="id"
-            class="text-c-2 cursor-pointer">
-            <DataTableCell class="w-full px-2 py-1.5">
-              {{ label }} - {{ description }}
-            </DataTableCell>
-            <DataTableCheckbox
-              :modelValue="selectedScopes.includes(id)"
-              @update:modelValue="(checked) => setScope(id, checked)" />
-          </DataTableRow>
-        </table>
-      </div>
+        </DisclosureButton>
+        <DisclosurePanel as="template">
+          <table
+            class="grid auto-rows-auto border-t-1/2"
+            :style="{ gridTemplateColumns: '1fr auto' }">
+            <DataTableRow
+              v-for="{ id, label, description } in scopes"
+              :key="id"
+              class="text-c-2">
+              <DataTableCell class="w-full px-2 py-1.5">
+                <span class="font-code text-xs">{{ label }}</span>
+                &nbsp;&ndash; {{ description }}
+              </DataTableCell>
+              <DataTableCheckbox
+                :modelValue="selectedScopes.includes(id)"
+                @update:modelValue="(checked) => setScope(id, checked)" />
+            </DataTableRow>
+          </table>
+        </DisclosurePanel>
+      </Disclosure>
     </div>
     <!-- Authorize button only for implicit here -->
   </DataTableCell>
