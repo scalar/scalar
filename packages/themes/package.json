@@ -44,7 +44,6 @@
     "vue": "^3.4.22"
   },
   "devDependencies": {
-    "@rise8/tailwind-pixel-perfect-preset": "^1.0.1",
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.6.0",
