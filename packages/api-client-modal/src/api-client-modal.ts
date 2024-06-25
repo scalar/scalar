@@ -1,7 +1,7 @@
 import { ApiClientModal } from '@/components'
 import type { ClientConfiguration, OpenClientPayload } from '@/types'
 import { clientRouter, useWorkspace } from '@scalar/client-app'
-import type { SpecConfiguration } from '@scalar/oas-utils'
+import type { AuthenticationState, SpecConfiguration } from '@scalar/oas-utils'
 import { objectMerge } from '@scalar/oas-utils/helpers'
 import { createApp, reactive } from 'vue'
 
@@ -21,9 +21,11 @@ export const createScalarApiClient = async (
 
   const {
     importSpecFile,
-    requests,
     importSpecFromUrl,
     modalState,
+    requests,
+    securitySchemeMutators,
+    securitySchemes,
     workspaceMutators,
   } = useWorkspace()
 
@@ -69,10 +71,29 @@ export const createScalarApiClient = async (
       }
       if (newConfig.spec) importSpecFile(newConfig.spec)
     },
-    /** Update the spec file, this will re-parse it */
-    updateSpec(spec: SpecConfiguration) {
-      importSpecFile(spec)
+    /**
+     * Update the security schemes
+     * maps the references useAuthenticationStore to the client auth
+     */
+    updateAuth: (auth: AuthenticationState) => {
+      console.log('securitySchemes')
+      console.log(securitySchemes)
+      const schemes = Object.values(securitySchemes)
+
+      // ApiKey
+      if (auth.apiKey.token?.length) {
+        // schemes.gcc
+      }
+
+      //selected scopes
+      //     securitySchemeMutators.edit(
+      // activeSecurityScheme.value?.scheme.uid ?? '',
+      // path,
+      // value,
+      // )
     },
+    /** Update the spec file, this will re-parse it and clear your store */
+    updateSpec: (spec: SpecConfiguration) => importSpecFile(spec),
     /** Open the  API client modal */
     open: (payload?: OpenClientPayload) => {
       // Find the request from path + method
