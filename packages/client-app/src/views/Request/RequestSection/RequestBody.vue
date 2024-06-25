@@ -319,17 +319,17 @@ watch(
             class="relative col-span-full flex h-8 cursor-pointer items-center px-[2.25px] py-[2.25px]">
             <ScalarListbox
               v-model="selectedContentType"
-              class="font-code text-xxs w-full"
+              class="text-xxs w-full"
               fullWidth
               :options="getContentTypeOptions"
               teleport>
               <ScalarButton
-                class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal"
+                class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal hover:text-c-1"
                 fullWidth
                 variant="ghost">
                 <span>{{ selectedContentType?.label }}</span>
                 <ScalarIcon
-                  class="text-c-3 ml-1 mt-px"
+                  class="stroke-[1]"
                   icon="ChevronDown"
                   size="xs" />
               </ScalarButton>
@@ -344,26 +344,30 @@ watch(
             </div>
           </template>
           <template v-else-if="contentType === 'binaryFile'">
-            <div class="flex items-center justify-center p-1.5">
+            <div class="flex items-center justify-center p-1.5 overflow-hidden">
               <template v-if="activeExample?.body.binary">
-                <span class="text-c-2">{{
-                  activeExample?.body.binary.name
-                }}</span>
-                <button
-                  type="button"
+                <span
+                  class="text-c-2 text-xs w-full border rounded p-1 max-w-full overflow-hidden whitespace-nowrap"
+                  >{{ activeExample?.body.binary.name }}</span
+                >
+                <ScalarButton
+                  class="bg-b-2 hover:bg-b-3 border-0 text-c-2 ml-1"
+                  size="sm"
+                  variant="outlined"
                   @click="removeBinaryFile">
-                  remove
-                </button>
+                  Delete
+                </ScalarButton>
               </template>
               <template v-else>
                 <ScalarButton
+                  class="bg-b-2 hover:bg-b-3 border-0 text-c-2"
                   size="sm"
                   variant="outlined"
                   @click="handleFileUpload">
                   <span>Upload File</span>
                   <ScalarIcon
-                    class="ml-1"
-                    icon="Upload"
+                    class="ml-1 stroke-[2.5]"
+                    icon="UploadSimple"
                     size="xs" />
                 </ScalarButton>
               </template>
@@ -372,8 +376,8 @@ watch(
           <template v-else-if="contentType == 'multipartForm'">
             <RequestTable
               ref="tableWrapperRef"
-              class="!m-0 rounded-t-none border-1/2 border-t-0 shadow-none"
-              :columns="['32px', '', '', '0.7fr']"
+              class="!m-0 rounded-t-none shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
+              :columns="['32px', '', '', '61px']"
               :items="formParams"
               showUploadButton
               @addRow="addRow"
@@ -385,8 +389,8 @@ watch(
           <template v-else-if="contentType == 'formUrlEncoded'">
             <RequestTable
               ref="tableWrapperRef"
-              class="!m-0 rounded-t-none border-1/2 border-t-0 shadow-none"
-              :columns="['32px', '', '', '0.7fr']"
+              class="!m-0 rounded-t-none border-t-0 shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
+              :columns="['32px', '', '', '61px']"
               :items="formParams"
               showUploadButton
               @addRow="addRow"
