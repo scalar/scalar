@@ -1,7 +1,9 @@
 'use client'
 
-import { createScalarReferences } from '@scalar/api-reference'
-import type { ReferenceProps } from '@scalar/api-reference'
+import {
+  type ReferenceProps,
+  createScalarReferences,
+} from '@scalar/api-reference'
 import '@scalar/api-reference/style.css'
 import React, { useEffect, useRef, useState } from 'react'
 
