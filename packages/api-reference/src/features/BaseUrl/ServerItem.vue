@@ -1,39 +1,35 @@
 <script lang="ts" setup>
-import {
-  type Server,
-  type Variable,
-  replaceVariables,
-} from '@scalar/api-client'
+import { replaceVariables } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
 
-import { useClipboard } from '../../../hooks'
+import { useClipboard } from '../../hooks'
+import type { Server, ServerVariableValues } from './types'
 
 const props = defineProps<{
-  value?: Server
-  variables?: Variable[]
+  server?: Server
+  variables?: ServerVariableValues
 }>()
 
 const { copyToClipboard } = useClipboard()
 
 const formattedServerUrl = computed(() => {
-  const url = props.value?.url ?? ''
+  const url = props.server?.url ?? ''
 
-  /* Remove HTML */
+  // Remove HTML
   const urlWithoutHtml = url.replace(/(<([^>]+)>)/gi, '')
 
-  return replaceVariables(urlWithoutHtml, (match: string) => {
-    const variable = props.variables?.find(
-      (currentVariable: Variable) => currentVariable.name === match,
-    )
+  // Replace variables with values (if available)
+  return replaceVariables(urlWithoutHtml, (matchedVariable: string) => {
+    const value = props.variables?.[matchedVariable] ?? ''
 
     return `<span class="base-url-variable">${
-      (variable?.value ?? '') !== '' ? variable?.value : `{${match}}`
+      value !== '' ? value : `{${matchedVariable}}`
     }</span>`
   })
 })
 
 /**
- * We don’t want to just replace all variables, but keep variables without a value.
+ * We don’t want to just replace all variables, but keep variables without a server.
  *
  * Examples:
  *  - `https://example.com/{foo}` (without foo) should return `https://example.com/{foo}`
@@ -46,10 +42,10 @@ const plainTextUrl = computed(() =>
 )
 </script>
 <template>
-  <template v-if="value">
+  <template v-if="server">
     <a
       class="base-url"
-      :title="value.description"
+      :title="server.description"
       @click="copyToClipboard(plainTextUrl)"
       v-html="formattedServerUrl" />
   </template>

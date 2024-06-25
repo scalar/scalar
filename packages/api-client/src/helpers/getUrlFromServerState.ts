@@ -1,5 +1,6 @@
+import { replaceVariables } from '@scalar/oas-utils/helpers'
+
 import type { ServerState } from '../types'
-import { replaceVariables } from './replaceVariables'
 
 /**
  * Get the URL from the server state.

@@ -142,6 +142,6 @@ export type Variable = {
 export type ServerState = {
   selectedServer: null | number
   description?: string
-  servers: Server[]
-  variables: Variable[]
+  servers?: Server[]
+  variables: { [key: string]: string }
 }
