@@ -78,8 +78,10 @@ function setScope(id: string, checked: boolean) {
               @click="setScope(id, !selectedScopes.includes(id))">
               <DataTableCell
                 class="w-full px-2 py-1.5 hover:bg-b-2 cursor-pointer">
-                <span class="font-code text-xs">{{ label }}</span>
-                &nbsp;&ndash; {{ description }}
+                <span>
+                  <span class="font-code text-xs">{{ label }}</span>
+                  <span>&nbsp;&ndash; {{ description }}</span>
+                </span>
               </DataTableCell>
               <DataTableCheckbox
                 :modelValue="selectedScopes.includes(id)"
