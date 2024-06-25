@@ -134,7 +134,9 @@ export type ServerVariables = Record<
 >
 
 export type Variable = {
-  [key: string]: string
+  name: string
+  value: string
+  enum?: (string | number)[]
 }
 
 export type ServerState = {

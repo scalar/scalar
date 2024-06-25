@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { type Variable, useServerStore } from '@scalar/api-client'
+import {
+  ScalarButton,
+  ScalarIcon,
+  ScalarListbox,
+  type ScalarListboxOption,
+} from '@scalar/components'
+import { computed } from 'vue'
 
 defineProps<{ value?: Variable[] }>()
 
 const { server, setServer } = useServerStore()
 
-const handleInput = (name: string, event: Event) => {
-  const newValue = (event.target as HTMLSelectElement).value
+const handleInput = (name: string, newValue: string) => {
   const newVariables = [...server.variables]
   const index = newVariables.findIndex((variable) => variable.name === name)
 
@@ -18,52 +24,89 @@ const handleInput = (name: string, event: Event) => {
 }
 
 const getValue = (name: string) => {
-  const index = server.variables.findIndex((variable) => variable.name === name)
+  const index = server.variables.findIndex(
+    (variable: Variable) => variable.name === name,
+  )
 
-  return server.variables[index].value ?? ''
+  return server.variables[index]?.value ?? ''
 }
+
+const enumOptions = (variable: Variable) =>
+  variable.enum?.map((enumValue: string | number) => ({
+    id: String(enumValue),
+    label: String(enumValue),
+  })) ?? []
+
+const selectedEnum = (variable: Variable) =>
+  computed({
+    get: () =>
+      enumOptions(variable).find(
+        ({ id }: { id: string }) => id === getValue(variable.name),
+      ) ?? null,
+    set: (opt: ScalarListboxOption | null) =>
+      opt?.id && handleInput(variable.name, opt.id),
+  })
 </script>
 <template>
-  <div v-if="value">
-    <div
+  <div
+    v-if="value"
+    class="variable-container">
+    <template
       v-for="variable in value"
-      :key="variable.name"
-      class="input">
-      <label :for="`variable-${variable.name}`">
-        <code>{{ variable.name }}</code>
-      </label>
-
-      <template v-if="variable.enum">
-        <select
-          :id="`variable-${variable.name}`"
-          :value="getValue(variable.name)"
-          @input="(event) => handleInput(variable.name, event)">
-          <option
-            v-for="enumValue in variable.enum"
-            :key="enumValue"
-            :value="enumValue">
-            {{ enumValue }}
-          </option>
-        </select>
-        <div class="input-value">
-          {{ variable.default }}
-        </div>
-      </template>
-      <template v-else>
-        <input
-          :id="`variable-${variable.name}`"
-          autocomplete="off"
-          placeholder="value"
-          spellcheck="false"
-          type="text"
-          :value="getValue(variable.name)"
-          @input="(event) => handleInput(variable.name, event)" />
-      </template>
-    </div>
+      :key="variable.name">
+      <div class="variable-container-item">
+        <label
+          class="variable-description"
+          :for="`variable-${variable.name}`">
+          <code>{{ variable.name }}</code>
+        </label>
+        <template v-if="variable.enum && variable.enum.length">
+          <div class="w-full">
+            <ScalarListbox
+              :id="`variable-${variable.name}`"
+              v-model="selectedEnum(variable).value"
+              :options="enumOptions(variable)">
+              <ScalarButton
+                class="variable-value"
+                fullWidth
+                variant="ghost">
+                <span>
+                  {{ selectedEnum(variable).value?.label ?? 'Select a value' }}
+                </span>
+                <ScalarIcon
+                  icon="ChevronDown"
+                  size="xs" />
+              </ScalarButton>
+            </ScalarListbox>
+          </div>
+        </template>
+        <template v-else>
+          <input
+            :id="`variable-${variable.name}`"
+            autocomplete="off"
+            class="variable-value"
+            placeholder="value"
+            spellcheck="false"
+            type="text"
+            :value="getValue(variable.name)"
+            @input="
+              (event) =>
+                handleInput(
+                  variable.name,
+                  (event.target as HTMLInputElement).value,
+                )
+            " />
+        </template>
+      </div>
+    </template>
   </div>
 </template>
 
 <style scoped>
+.variable-container-item {
+  display: flex;
+  width: 100%;
+}
 .input select {
   position: absolute;
   top: 0;
@@ -75,16 +118,38 @@ const getValue = (name: string) => {
   -webkit-appearance: none;
   appearance: none;
 }
-
-.input-value {
-  color: var(--scalar-color-1);
-  font-size: var(--scalar-micro);
-  padding: 9px;
-}
-
 .variable-description {
-  padding: 6px 12px;
-  font-size: var(--scalar-small);
+  padding: 9px 0 9px 9px;
+  color: var(--scalar-color-2);
+}
+.variable-value {
+  padding: 9px 9px 9px 0;
+  color: var(--scalar-color-1);
+}
+.variable-description:after {
+  content: ':';
+  margin-right: 6px;
+}
+.variable-value {
+  align-items: center;
+  border-color: transparent;
+  border-radius: 0;
+  border-top: 1px solid var(--scalar-border-color);
+  display: flex;
+  font-size: var(--scalar-micro);
+  font-weight: var(--scalar-regular);
+  gap: 3px;
+  height: auto;
+  outline: none;
+  width: 100%;
+}
+.variable-value svg {
+  color: var(--scalar-color-2);
+  stroke-width: 1;
+}
+.variable-description {
+  border-top: 1px solid var(--scalar-border-color);
+  font-size: var(--scalar-micro);
 }
 .variable-description :deep(.markdown) {
   font-size: var(--scalar-micro);
@@ -95,12 +160,5 @@ const getValue = (name: string) => {
 }
 .variable-description :deep(.markdown > *:first-child) {
   margin-top: 0;
-}
-.input {
-  align-items: center;
-}
-.input:first-of-type {
-  border-radius: 0;
-  border-top: 1px solid var(--scalar-border-color);
 }
 </style>
