@@ -50,6 +50,8 @@ info:
     email: marc@scalar.com
 servers:
   - url: https://galaxy.scalar.com
+  - url: https://void.scalar.com
+    description: Responds with your request data
 security:
   - bearerAuth: []
   - basicAuth: []
