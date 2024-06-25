@@ -4,7 +4,8 @@ import '@scalar/components/style.css'
 import type { SSRState } from '@scalar/oas-utils'
 import { defaultStateFactory } from '@scalar/oas-utils/helpers'
 import { type ThemeId, getThemeStyles } from '@scalar/themes'
-import { ScalarToasts } from '@scalar/use-toasts'
+import '@scalar/themes/style.css'
+import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
   computed,
@@ -49,6 +50,10 @@ defineEmits<{
   (e: 'linkSwaggerFile'): void
   (e: 'toggleDarkMode'): void
 }>()
+
+// Configure Reference toasts to use vue-sonner
+const { initializeToasts, toast } = useToasts()
+initializeToasts((message) => toast(message))
 
 /**
  * Lazy load the old API CLient, so we don’t have to bundle it if it’s not used.

@@ -12,9 +12,11 @@ export { useReactiveSpec } from './hooks/useReactiveSpec'
 export * from './components/DarkModeToggle'
 export * from './components/Sidebar'
 export * from './components/Card'
+export * from './components/Layouts'
 
 export * from './stores'
 export * from './helpers'
 export * from './types'
+export * from './hooks'
 
 export { useApiClientStore } from '@scalar/api-client'

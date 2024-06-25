@@ -7,7 +7,7 @@ import { computed, toRef, watch } from 'vue'
 import { useDarkModeState, useReactiveSpec } from '../hooks'
 import { useHttpClientStore } from '../stores'
 import type { ReferenceConfiguration, ReferenceProps } from '../types'
-import Layouts from './Layouts/'
+import { Layouts } from './Layouts'
 
 const props = defineProps<ReferenceProps>()
 
@@ -80,8 +80,8 @@ const { setExcludedClients } = useHttpClientStore()
 mapConfigToState('hiddenClients', setExcludedClients)
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
-  proxy: toRef(() => props.configuration?.proxy || ''),
-  specConfig: toRef(() => props.configuration?.spec || {}),
+  proxy: toRef(() => configuration.value.proxy || ''),
+  specConfig: toRef(() => configuration.value.spec || {}),
 })
 </script>
 <template>
@@ -91,8 +91,7 @@ const { parsedSpec, rawSpec } = useReactiveSpec({
     v-if="configuration?.customCss">
     {{ configuration.customCss }}
   </component>
-  <Component
-    :is="Layouts[configuration?.layout || 'modern']"
+  <Layouts
     :configuration="configuration"
     :isDark="isDark"
     :parsedSpec="parsedSpec"
@@ -100,7 +99,9 @@ const { parsedSpec, rawSpec } = useReactiveSpec({
     @toggleDarkMode="() => toggleDarkMode()"
     @updateContent="$emit('updateContent', $event)">
     <template #footer><slot name="footer" /></template>
-  </Component>
+    <!-- Expose the content end slot as a slot for the footer -->
+    <template #content-end><slot name="footer" /></template>
+  </Layouts>
 </template>
 <style>
 body {

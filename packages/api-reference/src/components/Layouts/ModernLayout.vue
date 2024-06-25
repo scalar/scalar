@@ -3,7 +3,7 @@ import { useMediaQuery } from '@vueuse/core'
 import { watch } from 'vue'
 
 import { useNavState, useSidebar } from '../../hooks'
-import type { ReferenceLayoutProps, ReferenceSlots } from '../../types'
+import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '../../types'
 import ApiReferenceLayout from '../ApiReferenceLayout.vue'
 import { DarkModeToggle } from '../DarkModeToggle'
 import MobileHeader from '../MobileHeader.vue'
@@ -12,9 +12,10 @@ import SearchButton from '../SearchButton.vue'
 const props = defineProps<ReferenceLayoutProps>()
 defineEmits<{
   (e: 'toggleDarkMode'): void
+  (e: 'updateContent', v: string): void
 }>()
 
-defineSlots<ReferenceSlots>()
+const slots = defineSlots<ReferenceLayoutSlots>()
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
 const { isSidebarOpen } = useSidebar()
@@ -38,7 +39,15 @@ watch(hash, (newHash, oldHash) => {
     }"
     :configuration="configuration"
     :parsedSpec="parsedSpec"
-    :rawSpec="rawSpec">
+    :rawSpec="rawSpec"
+    @updateContent="$emit('updateContent', $event)">
+    <template
+      v-for="(_, name) in slots"
+      #[name]="slotProps">
+      <slot
+        :name="name"
+        v-bind="slotProps || {}"></slot>
+    </template>
     <template #header>
       <MobileHeader
         v-if="props.configuration.showSidebar"
@@ -56,8 +65,6 @@ watch(hash, (newHash, oldHash) => {
         :isDarkMode="isDark"
         @toggleDarkMode="$emit('toggleDarkMode')" />
     </template>
-    <!-- Expose the content end slot as a slot for the footer -->
-    <template #content-end><slot name="footer" /></template>
   </ApiReferenceLayout>
 </template>
 <style>

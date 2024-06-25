@@ -996,6 +996,46 @@ importers:
         specifier: ^2.0.13
         version: 2.0.21(typescript@5.4.5)
 
+  packages/api-reference-editor:
+    dependencies:
+      '@scalar/api-client':
+        specifier: workspace:*
+        version: link:../api-client
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../api-reference
+      '@scalar/oas-utils':
+        specifier: workspace:*
+        version: link:../oas-utils
+      '@scalar/use-codemirror':
+        specifier: workspace:*
+        version: link:../use-codemirror
+      unhead:
+        specifier: ^1.8.3
+        version: 1.9.13
+      vue:
+        specifier: ^3.4.22
+        version: 3.4.29(typescript@5.4.5)
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@vitejs/plugin-vue':
+        specifier: ^5.0.4
+        version: 5.0.5(vite@5.3.1(@types/node@20.14.2)(terser@5.31.1))(vue@3.4.29(typescript@5.4.5))
+      tsc-alias:
+        specifier: ^1.8.8
+        version: 1.8.10
+      vite:
+        specifier: ^5.2.10
+        version: 5.3.1(@types/node@20.14.2)(terser@5.31.1)
+      vite-svg-loader:
+        specifier: ^5.1.0
+        version: 5.1.0(vue@3.4.29(typescript@5.4.5))
+      vue-tsc:
+        specifier: ^2.0.13
+        version: 2.0.21(typescript@5.4.5)
+
   packages/api-reference-react:
     dependencies:
       '@scalar/api-reference':

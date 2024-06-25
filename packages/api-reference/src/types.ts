@@ -250,7 +250,19 @@ export type ReferenceLayoutSlot =
   | 'sidebar-start'
   | 'sidebar-end'
 
+export type ReferenceLayoutSlots = {
+  [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
+}
+
 export type ReferenceSlotProps = {
   spec: Spec
   breadcrumb: string
+}
+
+export type ReferenceLayoutEvents = {
+  (e: 'changeTheme', value: ThemeId): void
+  (e: 'updateContent', value: string): void
+  (e: 'loadSwaggerFile'): void
+  (e: 'linkSwaggerFile'): void
+  (e: 'toggleDarkMode'): void
 }
