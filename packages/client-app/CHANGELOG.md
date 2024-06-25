@@ -1,5 +1,14 @@
 # @scalar/client-app
 
+## 0.1.12
+
+### Patch Changes
+
+- 4643bfa: fix: contain client app input in form
+- ee1e97e: fix: query params not added to request url
+- Updated dependencies [65f7bf5]
+  - @scalar/components@0.12.2
+
 ## 0.1.11
 
 ### Patch Changes
