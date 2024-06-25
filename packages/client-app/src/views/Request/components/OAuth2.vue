@@ -43,7 +43,7 @@ const handleAuthorize = async () => {
       :modelValue="activeScheme.flow.token"
       type="password"
       @update:modelValue="
-        (v) => updateScheme(`flows.${props.schemeModel.flowKey}.token`, v)
+        (v) => updateScheme(`flows.${schemeModel.flowKey}.token`, v)
       ">
       Access Token
     </RequestAuthDataTableInput>
@@ -51,14 +51,16 @@ const handleAuthorize = async () => {
       <ScalarButton
         size="sm"
         variant="ghost"
-        @click="updateScheme(`flows.${props.schemeModel.flowKey}.token`, '')">
+        @click="updateScheme(`flows.${schemeModel.flowKey}.token`, '')">
         Clear
       </ScalarButton>
     </DataTableCell>
   </DataTableRow>
 
   <template v-else>
-    <DataTableRow class="border-r-transparent">
+    <DataTableRow
+      v-if="schemeModel.flowKey !== 'clientCredentials'"
+      class="border-r-transparent">
       <!-- Redirect URI -->
       <RequestAuthDataTableInput
         id="oauth2-redirect-uri"
@@ -74,13 +76,18 @@ const handleAuthorize = async () => {
     <DataTableRow class="border-r-transparent">
       <RequestAuthDataTableInput
         id="oauth2-client-id"
+        :containerClass="
+          schemeModel.flowKey !== 'implicit' ? 'col-start-1 col-end-3' : ''
+        "
         :modelValue="activeScheme.scheme.clientId"
         placeholder="12345"
         @update:modelValue="(v) => props.updateScheme('clientId', v)">
         Client ID
       </RequestAuthDataTableInput>
 
-      <DataTableCell class="flex items-center p-0.5">
+      <DataTableCell
+        v-if="schemeModel.flowKey === 'implicit'"
+        class="flex items-center p-0.5">
         <ScopesDropdown
           :activeFlow="activeScheme.flow"
           :schemeModel="schemeModel"
@@ -88,7 +95,6 @@ const handleAuthorize = async () => {
 
         <!-- Authorize button only for implicit here -->
         <ScalarButton
-          v-if="schemeModel.flowKey === 'implicit'"
           :loading="loadingState"
           size="sm"
           @click="handleAuthorize">
@@ -117,6 +123,11 @@ const handleAuthorize = async () => {
       </RequestAuthDataTableInput>
 
       <DataTableCell class="flex items-center p-0.5">
+        <ScopesDropdown
+          :activeFlow="activeScheme.flow"
+          :schemeModel="schemeModel"
+          :updateScheme="updateScheme" />
+
         <ScalarButton
           :loading="loadingState"
           size="sm"
@@ -140,22 +151,6 @@ const handleAuthorize = async () => {
     <!--     <ScalarButton size="sm">Authorize</ScalarButton> -->
     <!--   </DataTableCell> -->
     <!-- </DataTableRow> -->
-
-    <!-- Client Credentials -->
-    <DataTableRow
-      v-if="schemeModel.flowKey === 'clientCredentials'"
-      class="border-r-transparent">
-      <RequestAuthDataTableInput
-        id="oauth2-client-credentials"
-        :modelValue="activeScheme.scheme.clientId"
-        placeholder="12345"
-        @update:modelValue="(v) => updateScheme('clientId', v)">
-        Client ID
-      </RequestAuthDataTableInput>
-      <DataTableCell class="flex items-center p-0.5">
-        <ScalarButton size="sm">Authorize</ScalarButton>
-      </DataTableCell>
-    </DataTableRow>
 
     <!-- Open ID Connect -->
     <!-- <DataTableRow -->

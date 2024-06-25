@@ -472,7 +472,7 @@ const activeSecurityScheme = computed(
     activeCollection.value?.selectedSecuritySchemes.map((opt) => {
       const scheme = securitySchemes[opt.uid]
       const flowObj =
-        opt.flowKey && 'flows' in scheme
+        opt.flowKey && 'flows' in scheme && scheme.flows
           ? { flow: scheme.flows[opt.flowKey] }
           : {}
       return { scheme, ...flowObj }
@@ -560,6 +560,27 @@ async function importSpecFile(spec: string | AnyObject) {
       createSecurityScheme({ ...securityScheme, uid: key }),
     ),
   )
+  // TODOtest remove Temp for testing
+  // ).forEach(([key, securityScheme]) =>
+  //   securitySchemeMutators.add(
+  //     createSecurityScheme({
+  //       ...securityScheme,
+  //       type: 'oauth2',
+  //       flows: {
+  //         authorizationCode: {
+  //           authorizationUrl: 'https://accounts.spotify.com/authorize',
+  //           tokenUrl: 'https://accounts.spotify.com/api/token',
+  //           scopes: securityScheme.flows.authorizationCode.scopes,
+  //         },
+  //         clientCredentials: {
+  //           tokenUrl: 'https://accounts.spotify.com/api/token',
+  //           scopes: securityScheme.flows.authorizationCode.scopes,
+  //         },
+  //       },
+  //       uid: key,
+  //     }),
+  //   ),
+  // )
 }
 
 // Function to fetch and import a spec from a URL
@@ -575,67 +596,69 @@ async function importSpecFromUrl(url: string, proxy?: string) {
 /** This state is to be used by the API Client Modal component to control the modal */
 const modalState = useModal()
 
-export function useWorkspace() {
-  return {
-    // ---------------------------------------------------------------------------
-    // STATE
-    workspace: readonly(workspace),
-    workspaceRequests,
-    collections,
-    requests,
-    environments,
-    requestExamples,
-    folders,
-    cookies,
-    servers,
-    securitySchemes,
-    activeCookieId,
-    activeCollection,
-    activeServer,
-    activeSecurityRequirements,
-    activeSecurityScheme,
-    activeRequest,
-    activeExample,
-    modalState,
-    // ---------------------------------------------------------------------------
-    // METHODS
-    importSpecFile,
-    importSpecFromUrl,
-    cookieMutators,
-    createExampleFromRequest,
-    collectionMutators: {
-      ...collectionMutators,
-      add: addCollection,
-      delete: deleteCollection,
-    },
-    environmentMutators: {
-      ...environmentMutators,
-      delete: deleteEnvironment,
-    },
-    folderMutators: {
-      ...folderMutators,
-      add: addFolder,
-      delete: deleteFolder,
-    },
-    requestMutators: {
-      ...requestMutators,
-      add: addRequest,
-      delete: deleteRequest,
-    },
-    requestExampleMutators: {
-      ...requestExampleMutators,
-      add: addRequestExample,
-      delete: deleteRequestExample,
-    },
-    requestsHistory,
-    securitySchemeMutators,
-    serverMutators: {
-      ...serverMutators,
-      add: addServer,
-      delete: deleteServer,
-    },
-    workspaceMutators: {
-      edit: editWorkspace,
-    },
-  }
-}
+/**
+ * Global hook which contains the store for the whole app
+ * We may want to break this up at some point due to the massive file size
+ */
+export const useWorkspace = () => ({
+  // ---------------------------------------------------------------------------
+  // STATE
+  workspace: readonly(workspace),
+  workspaceRequests,
+  collections,
+  requests,
+  environments,
+  requestExamples,
+  folders,
+  cookies,
+  servers,
+  securitySchemes,
+  activeCookieId,
+  activeCollection,
+  activeServer,
+  activeSecurityRequirements,
+  activeSecurityScheme,
+  activeRequest,
+  activeExample,
+  modalState,
+  // ---------------------------------------------------------------------------
+  // METHODS
+  importSpecFile,
+  importSpecFromUrl,
+  cookieMutators,
+  createExampleFromRequest,
+  collectionMutators: {
+    ...collectionMutators,
+    add: addCollection,
+    delete: deleteCollection,
+  },
+  environmentMutators: {
+    ...environmentMutators,
+    delete: deleteEnvironment,
+  },
+  folderMutators: {
+    ...folderMutators,
+    add: addFolder,
+    delete: deleteFolder,
+  },
+  requestMutators: {
+    ...requestMutators,
+    add: addRequest,
+    delete: deleteRequest,
+  },
+  requestExampleMutators: {
+    ...requestExampleMutators,
+    add: addRequestExample,
+    delete: deleteRequestExample,
+  },
+  requestsHistory,
+  securitySchemeMutators,
+  serverMutators: {
+    ...serverMutators,
+    add: addServer,
+    delete: deleteServer,
+  },
+  workspaceMutators: {
+    edit: editWorkspace,
+  },
+})
