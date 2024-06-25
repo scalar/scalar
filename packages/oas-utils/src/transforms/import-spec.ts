@@ -105,7 +105,10 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
     })
   })
 
-  const tags = schemaModel(schema?.tags, tagObjectSchema.array())
+  // todo workaround till we have createTags
+  const tags = schemaModel(schema?.tags, tagObjectSchema.array(), false) ?? [
+    { name: 'default' },
+  ]
 
   // If there are request tags that are only defined in
   requestTags.forEach((requestTag) => {
