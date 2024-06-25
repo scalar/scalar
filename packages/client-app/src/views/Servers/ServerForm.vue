@@ -33,12 +33,44 @@ const updateServer = (key: string, value: string) => {
   if (!activeCollection.value) return
   serverMutators.edit(activeServer.value.uid, key as keyof Server, value)
 }
+
+const updateVariable = (key: string, value: string) => {
+  // TODO: Hook that up to the workspace
+  console.log('updateVariable', key, value)
+}
+
+const variableOptions = computed(() => {
+  const variables = activeServer.value?.variables ?? {}
+
+  const keys = Object.keys(variables)
+
+  return keys.map((key: string) => ({
+    key,
+    label: key,
+    placeholder: variables?.[key]?.default ?? '',
+  }))
+})
+
+// TODO: Get data from the workspace, use `default` as the default value
+const variablesData = {
+  basePath: '/api/v1',
+}
 </script>
 <template>
-  <Form
-    v-if="activeServer"
-    :data="activeServer"
-    :onUpdate="updateServer"
-    :options="options"
-    title="Server" />
+  <div class="w-full">
+    <template v-if="activeServer">
+      <Form
+        :data="activeServer"
+        :onUpdate="updateServer"
+        :options="options"
+        title="Server" />
+
+      <!-- TODO: Only if we have variables -->
+      <Form
+        :data="variablesData"
+        :onUpdate="updateVariable"
+        :options="variableOptions"
+        title="Variables" />
+    </template>
+  </div>
 </template>
