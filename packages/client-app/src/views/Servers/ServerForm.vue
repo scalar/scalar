@@ -35,8 +35,14 @@ const updateServer = (key: string, value: string) => {
 }
 
 const updateVariable = (key: string, value: string) => {
-  // TODO: Hook that up to the workspace
-  console.log('updateVariable', key, value)
+  if (!activeCollection.value) return
+
+  serverMutators.edit(activeServer.value.uid, `variables.${key}`, {
+    uid: 'foobar',
+    default: '',
+    ...activeServer.value.variables?.[key],
+    value,
+  })
 }
 
 const variableOptions = computed(() => {
@@ -51,10 +57,21 @@ const variableOptions = computed(() => {
   }))
 })
 
-// TODO: Get data from the workspace, use `default` as the default value
-const variablesData = {
-  basePath: '/api/v1',
-}
+/**
+ * Get values from the workspace, use `default` as fallback
+ */
+const variablesData = computed(() => {
+  return Object.keys(activeServer.value.variables ?? {}).reduce(
+    (acc, variable) => ({
+      ...acc,
+      [variable]:
+        activeServer.value.variables?.[variable].value ??
+        activeServer.value.variables?.[variable].default ??
+        '',
+    }),
+    {},
+  )
+})
 </script>
 <template>
   <div class="w-full">
