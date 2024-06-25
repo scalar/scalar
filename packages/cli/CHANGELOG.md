@@ -1,5 +1,13 @@
 # @scalar/cli
 
+## 0.2.123
+
+### Patch Changes
+
+- 23c5739: feat: add a subdomain to the configuration file
+- 23c5739: feat: add --force flag to overwrite existing files
+  - @scalar/api-reference@1.24.18
+
 ## 0.2.122
 
 ### Patch Changes

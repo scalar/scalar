@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.2
+
+### Patch Changes
+
+- 65f7bf5: fix: scalar icon info update
+  - @scalar/code-highlight@0.0.4
+
 ## 0.12.1
 
 ### Patch Changes

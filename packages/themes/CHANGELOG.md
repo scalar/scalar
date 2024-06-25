@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.6
+
+### Patch Changes
+
+- e88a2c2: refactor(themes): internalize tailwind pixel preset
+
 ## 0.9.5
 
 ### Patch Changes

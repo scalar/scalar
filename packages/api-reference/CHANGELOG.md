@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.24.18
+
+### Patch Changes
+
+- Updated dependencies [e88a2c2]
+- Updated dependencies [65f7bf5]
+  - @scalar/themes@0.9.6
+  - @scalar/components@0.12.2
+  - @scalar/api-client@1.3.17
+  - @scalar/api-client-modal@0.0.14
+
 ## 1.24.17
 
 ### Patch Changes
