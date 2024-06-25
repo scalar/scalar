@@ -78,7 +78,8 @@ const schemeModel = computed({
     const selectedScheme = activeCollection.value?.selectedSecuritySchemes?.[0]
     return (
       schemeOptions.value.find(
-        ({ id }) => id === `${selectedScheme?.uid}${selectedScheme?.flowKey}`,
+        ({ id }) =>
+          id === `${selectedScheme?.uid}${selectedScheme?.flowKey ?? ''}`,
       ) || schemeOptions.value[0]
     )
   },
