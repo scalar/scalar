@@ -27,6 +27,7 @@ watch(
           return {
             name: name,
             value: variables[name].default?.toString() ?? '',
+            enum: variables[name].enum ?? [],
           }
         })
       : []
@@ -42,6 +43,7 @@ watch(
         prefilledVariables.push({
           name: variable,
           value: '',
+          enum: [],
         })
       })
 
