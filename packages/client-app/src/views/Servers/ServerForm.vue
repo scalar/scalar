@@ -82,8 +82,8 @@ const variablesData = computed(() => {
         :options="options"
         title="Server" />
 
-      <!-- TODO: Only if we have variables -->
       <Form
+        v-if="Object.keys(variablesData).length"
         :data="variablesData"
         :onUpdate="updateVariable"
         :options="variableOptions"
