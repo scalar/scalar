@@ -13,10 +13,10 @@ defineEmits<{
 }>()
 </script>
 <template>
-  <DataTableCell class="group/cell relative flex min-w-8 cursor-pointer">
+  <DataTableCell class="group/cell relative flex min-w-8">
     <input
       :checked="modelValue"
-      class="peer absolute inset-0 opacity-0"
+      class="peer absolute inset-0 opacity-0 cursor-pointer"
       :disabled="disabled"
       tabindex="-1"
       type="checkbox"

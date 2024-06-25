@@ -9,7 +9,7 @@ import {
 import { ScalarButton, useLoadingState } from '@scalar/components'
 import type { SelectedSchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
 
-import ScopesDropdown from './ScopesDropdown.vue'
+import OAuthScopesInput from './OAuthScopesInput.vue'
 
 const props = defineProps<{
   activeScheme: SelectedSchemeOauth2
@@ -87,40 +87,10 @@ const handleAuthorize = async () => {
 
     <!-- Scopes -->
     <DataTableRow class="border-r-transparent">
-      <DataTableCell class="items-center p-0 py-0 min-h-8 h-auto">
-        <div class="flex h-full w-full">
-          <div
-            class="text-c-2 min-w-[100px] items-center pr-0 pl-2 h-full border-r-1/2">
-            <span class="h-8 flex items-center"> Scopes </span>
-          </div>
-          <div class="w-full">
-            <div class="min-h-8 flex items-center">
-              <ScopesDropdown
-                :activeFlow="activeScheme.flow"
-                class="px-2"
-                :schemeModel="schemeModel"
-                :updateScheme="updateScheme" />
-            </div>
-            <div>
-              <div
-                class="border-t-1/2 hover:bg-b-2 pointer text-c-2 cursor-pointer flex">
-                <div class="w-full px-2 py-1.5">
-                  write:planets - modify planets in your account
-                </div>
-                <div class="border-l-1/2">check</div>
-              </div>
-              <div
-                class="border-t-1/2 hover:bg-b-2 pointer text-c-2 cursor-pointer flex">
-                <div class="w-full px-2 py-1.5">
-                  read:planets - read your planets
-                </div>
-                <div class="border-l-1/2">check</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Authorize button only for implicit here -->
-      </DataTableCell>
+      <OAuthScopesInput
+        :activeFlow="activeScheme.flow"
+        :schemeModel="schemeModel"
+        :updateScheme="updateScheme" />
     </DataTableRow>
     <DataTableRow class="border-r-transparent min-w-full">
       <div class="h-8 flex items-center justify-self-end">
@@ -197,3 +167,4 @@ const handleAuthorize = async () => {
     <!-- </DataTableRow> -->
   </template>
 </template>
+./OAuthScopesInput.vue
