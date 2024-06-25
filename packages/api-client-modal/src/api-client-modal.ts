@@ -82,7 +82,7 @@ export const createScalarApiClient = async (
 
       // ApiKey
       if (auth.apiKey.token?.length) {
-        // schemes.gcc
+        // schemes.filter(scheme => scheme.type === 'apiKey' && !scheme.value.length).forEach(scheme => scheme.)
       }
 
       //selected scopes
