@@ -555,32 +555,32 @@ async function importSpecFile(spec: string | AnyObject) {
       string,
       SecurityScheme
     >,
-    // ).forEach(([key, securityScheme]) =>
-    //   securitySchemeMutators.add(
-    //     createSecurityScheme({ ...securityScheme, uid: key }),
-    //   ),
-    // )
-    // TODOtest remove Temp for testing
   ).forEach(([key, securityScheme]) =>
     securitySchemeMutators.add(
-      createSecurityScheme({
-        ...securityScheme,
-        type: 'oauth2',
-        flows: {
-          authorizationCode: {
-            authorizationUrl: 'https://accounts.spotify.com/authorize',
-            tokenUrl: 'https://accounts.spotify.com/api/token',
-            scopes: securityScheme.flows.authorizationCode.scopes,
-          },
-          clientCredentials: {
-            tokenUrl: 'https://accounts.spotify.com/api/token',
-            scopes: securityScheme.flows.authorizationCode.scopes,
-          },
-        },
-        uid: key,
-      }),
+      createSecurityScheme({ ...securityScheme, uid: key }),
     ),
   )
+  // TODOtest remove Temp for testing
+  // ).forEach(([key, securityScheme]) =>
+  //   securitySchemeMutators.add(
+  //     createSecurityScheme({
+  //       ...securityScheme,
+  //       type: 'oauth2',
+  //       flows: {
+  //         authorizationCode: {
+  //           authorizationUrl: 'https://accounts.spotify.com/authorize',
+  //           tokenUrl: 'https://accounts.spotify.com/api/token',
+  //           scopes: securityScheme.flows.authorizationCode.scopes,
+  //         },
+  //         clientCredentials: {
+  //           tokenUrl: 'https://accounts.spotify.com/api/token',
+  //           scopes: securityScheme.flows.authorizationCode.scopes,
+  //         },
+  //       },
+  //       uid: key,
+  //     }),
+  //   ),
+  // )
 }
 
 // Function to fetch and import a spec from a URL
