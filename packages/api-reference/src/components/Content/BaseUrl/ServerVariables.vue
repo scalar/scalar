@@ -54,54 +54,58 @@ const selectedEnum = (variable: Variable) =>
     <template
       v-for="variable in value"
       :key="variable.name">
-      <label
-        class="variable-description"
-        :for="`variable-${variable.name}`">
-        <code>{{ variable.name }}</code>
-      </label>
-      <template v-if="variable.enum && variable.enum.length">
-        <ScalarListbox
-          :id="`variable-${variable.name}`"
-          v-model="selectedEnum(variable).value"
-          :options="enumOptions(variable)">
-          <ScalarButton
+      <div class="variable-container-item">
+        <label
+          class="variable-description"
+          :for="`variable-${variable.name}`">
+          <code>{{ variable.name }}</code>
+        </label>
+        <template v-if="variable.enum && variable.enum.length">
+          <div class="w-full">
+            <ScalarListbox
+              :id="`variable-${variable.name}`"
+              v-model="selectedEnum(variable).value"
+              :options="enumOptions(variable)">
+              <ScalarButton
+                class="variable-value"
+                fullWidth
+                variant="ghost">
+                <span>
+                  {{ selectedEnum(variable).value?.label ?? 'Select a value' }}
+                </span>
+                <ScalarIcon
+                  icon="ChevronDown"
+                  size="xs" />
+              </ScalarButton>
+            </ScalarListbox>
+          </div>
+        </template>
+        <template v-else>
+          <input
+            :id="`variable-${variable.name}`"
+            autocomplete="off"
             class="variable-value"
-            fullWidth
-            variant="ghost">
-            <span>
-              {{ selectedEnum(variable).value?.label ?? 'Select a value' }}
-            </span>
-            <ScalarIcon
-              icon="ChevronDown"
-              size="xs" />
-          </ScalarButton>
-        </ScalarListbox>
-      </template>
-      <template v-else>
-        <input
-          :id="`variable-${variable.name}`"
-          autocomplete="off"
-          class="variable-value"
-          placeholder="value"
-          spellcheck="false"
-          type="text"
-          :value="getValue(variable.name)"
-          @input="
-            (event) =>
-              handleInput(
-                variable.name,
-                (event.target as HTMLInputElement).value,
-              )
-          " />
-      </template>
+            placeholder="value"
+            spellcheck="false"
+            type="text"
+            :value="getValue(variable.name)"
+            @input="
+              (event) =>
+                handleInput(
+                  variable.name,
+                  (event.target as HTMLInputElement).value,
+                )
+            " />
+        </template>
+      </div>
     </template>
   </div>
 </template>
 
 <style scoped>
-.variable-container {
-  display: grid;
-  grid-template-columns: min-content 1fr;
+.variable-container-item {
+  display: flex;
+  width: 100%;
 }
 .input select {
   position: absolute;
@@ -114,23 +118,30 @@ const selectedEnum = (variable: Variable) =>
   -webkit-appearance: none;
   appearance: none;
 }
-.variable-description,
+.variable-description {
+  padding: 9px 0 9px 9px;
+  color: var(--scalar-color-2);
+}
 .variable-value {
-  padding: 9px;
+  padding: 9px 9px 9px 0;
+  color: var(--scalar-color-1);
+}
+.variable-description:after {
+  content: ':';
+  margin-right: 6px;
 }
 .variable-value {
   align-items: center;
   border-color: transparent;
   border-radius: 0;
-  border-left: 1px solid var(--scalar-border-color);
   border-top: 1px solid var(--scalar-border-color);
-  color: var(--scalar-color-1);
   display: flex;
   font-size: var(--scalar-micro);
   font-weight: var(--scalar-regular);
   gap: 3px;
   height: auto;
   outline: none;
+  width: 100%;
 }
 .variable-value svg {
   color: var(--scalar-color-2);
