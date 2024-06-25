@@ -61,6 +61,7 @@ export const ICONS = [
   'Trash',
   'Unlock',
   'Upload',
+  'UploadSimple',
   'User',
   'programming-framework-angular',
   'programming-framework-astro',

@@ -91,24 +91,27 @@ const handleFileUpload = (idx: number) => {
         v-if="showUploadButton"
         class="group/upload p-1 overflow-hidden relative text-ellipsis whitespace-nowrap">
         <template v-if="item.file">
-          <span class="text-c-2">{{ item.file?.name }}</span>
+          <div
+            class="text-c-2 max-w-[100%] overflow-hidden filemask flex items-end justify-end">
+            <span>{{ item.file?.name }}</span>
+          </div>
           <button
-            class="absolute backdrop-blur-sm border centered-x centered-y hidden rounded text-center p-0.5 w-[calc(100%_-_8px)] group-hover/upload:block"
+            class="absolute bg-b-2 font-medium centered-x centered-y hidden rounded text-center p-0.5 w-[calc(100%_-_8px)] group-hover/upload:block text-xs"
             type="button"
             @click="emit('removeFile', idx)">
-            Remove
+            Delete
           </button>
         </template>
         <template v-else>
           <ScalarButton
-            class="w-full"
+            class="bg-b-2 hover:bg-b-3 border-0 text-c-2"
             size="sm"
             variant="outlined"
             @click="handleFileUpload(idx)">
-            <span>Upload File</span>
+            <span>File</span>
             <ScalarIcon
-              class="ml-1"
-              icon="Upload"
+              class="ml-1 stroke-[2.5]"
+              icon="UploadSimple"
               size="xs" />
           </ScalarButton>
         </template>
@@ -116,3 +119,12 @@ const handleFileUpload = (idx: number) => {
     </DataTableRow>
   </DataTable>
 </template>
+<style scoped>
+.filemask {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    var(--scalar-background-2) 20px
+  );
+}
+</style>
