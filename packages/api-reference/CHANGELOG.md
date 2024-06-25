@@ -1,5 +1,25 @@
 # @scalar/api-reference
 
+## 1.24.19
+
+### Patch Changes
+
+- b981770: chore: introduce the new @scalar/api-reference-editor
+- 89afbcf: fix: extract server variable inputs into components
+- 06471ed: fix: display enum select in api reference
+- 06471ed: fix: api reference server variables style
+- Updated dependencies [132acd4]
+- Updated dependencies [3b53db5]
+- Updated dependencies [b981770]
+- Updated dependencies [06471ed]
+- Updated dependencies [fd18932]
+- Updated dependencies [06471ed]
+  - @scalar/components@0.12.3
+  - @scalar/themes@0.9.7
+  - @scalar/use-toasts@0.7.3
+  - @scalar/api-client@1.3.18
+  - @scalar/api-client-modal@0.0.15
+
 ## 1.24.18
 
 ### Patch Changes

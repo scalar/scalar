@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.7
+
+### Patch Changes
+
+- 3b53db5: style(client-app): new authentication UI
+
 ## 0.9.6
 
 ### Patch Changes

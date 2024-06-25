@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.3
+
+### Patch Changes
+
+- 18bfa05: feat: add void.scalar.com as an alternative server
+
 ## 0.2.2
 
 ### Patch Changes

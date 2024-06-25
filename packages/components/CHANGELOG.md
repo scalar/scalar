@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.12.3
+
+### Patch Changes
+
+- 132acd4: fix: file upload and binary file ui
+- b981770: chore: introduce the new @scalar/api-reference-editor
+- fd18932: fix: scalar button loading state
+- 06471ed: feat: add scalar listbox id prop
+  - @scalar/code-highlight@0.0.4
+
 ## 0.12.2
 
 ### Patch Changes
