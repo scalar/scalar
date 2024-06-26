@@ -32,7 +32,7 @@ function getUrlPart(request: XMLHttpRequest, part: keyof URL) {
   const scalarUrlParsed = new URL(scalarUrl)
   const baseUrl = scalarUrlParsed[part]
 
-  return baseUrl
+  return baseUrl.toString()
 }
 
 const { addNavItem, setNavItemIdx, topNavItems } = useTopNav()
@@ -66,7 +66,7 @@ function handleHistoryClick(index: number) {
   <!-- History shadow and placement-->
   <div
     :class="[
-      'absolute left-0 top-[31px] w-full rounded before:pointer-events-none before:absolute before:left-0 before:top-[-31.5px] before:h-[calc(100%+31.5px)] before:w-full before:rounded z-50',
+      'absolute left-0 top-[33px] w-full rounded before:pointer-events-none before:absolute before:left-0 before:top-[-33px] before:h-[calc(100%+33px)] before:w-full before:rounded z-50',
       { 'before:shadow-lg': open },
     ]">
     <!-- History Item -->
@@ -85,10 +85,10 @@ function handleHistoryClick(index: number) {
             {{ response.status }}
           </span>
           <span class="text-c-2 gap-0">
-            {{ getUrlPart(response.request, 'origin') }}
-            <em class="text-c-1 ml-[-8px]">{{
+            {{
+              getUrlPart(response.request, 'origin') +
               getUrlPart(response.request, 'pathname')
-            }}</em>
+            }}
           </span>
         </div>
 
