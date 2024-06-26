@@ -32,11 +32,16 @@ export const authorizeOauth2 = (
   new Promise<string>((resolve, reject) => {
     const { flow, scheme } = activeScheme
 
-    // Client Credentials Server Flow
-    if (schemeModel.flowKey === 'clientCredentials') {
-      console.log('askdhakjsdh')
+    // Client Credentials or Password Flow
+    if (
+      schemeModel.flowKey === 'clientCredentials' ||
+      schemeModel.flowKey === 'password'
+    ) {
       authorizeServers(activeScheme).then(resolve).catch(reject)
-    } else {
+    }
+
+    // OAuth2 flows with a login popup
+    else {
       const scopes = flow.selectedScopes.join(' ')
       const state = (Math.random() + 1).toString(36).substring(7)
       const url = new URL(
@@ -44,11 +49,10 @@ export const authorizeOauth2 = (
       )
 
       // Params unique to the flows
-      if (schemeModel.flowKey === 'implicit') {
+      if (schemeModel.flowKey === 'implicit')
         url.searchParams.set('response_type', 'token')
-      } else if (schemeModel.flowKey === 'authorizationCode') {
+      else if (schemeModel.flowKey === 'authorizationCode')
         url.searchParams.set('response_type', 'code')
-      }
 
       // Common to all flows
       url.searchParams.set('client_id', scheme.clientId)
@@ -124,14 +128,21 @@ export const authorizeServers = async (
 
   const formData = new URLSearchParams()
   formData.set('client_id', scheme.clientId)
-  formData.set('client_secret', flow.clientSecret)
-  formData.set('redirect_uri', scheme.redirectUri)
   formData.set('scope', scopes)
+
+  if (flow.clientSecret) formData.set('client_secret', flow.clientSecret)
+  if (scheme.redirectUri) formData.set('redirect_uri', scheme.redirectUri)
 
   // Authorization Code
   if (code) {
     formData.set('code', code)
     formData.set('grant_type', 'authorization_code')
+  }
+  // Password
+  if ('secondValue' in flow) {
+    formData.set('grant_type', 'password')
+    formData.set('username', flow.value)
+    formData.set('password', flow.secondValue)
   }
   // Client Credentials
   else {
@@ -139,13 +150,19 @@ export const authorizeServers = async (
   }
 
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }
+
+    // Add client id + secret to headers
+    if (scheme.clientId && flow.clientSecret) {
+      headers.Authorization = `Basic ${btoa(`${scheme.clientId}:${flow.clientSecret}`)}`
+    }
+
     // Make the call
     const resp = await fetch(flow.tokenUrl, {
       method: 'POST',
-      headers: {
-        'Authorization': `Basic ${btoa(`${scheme.clientId}:${flow.clientSecret}`)}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+      headers,
       body: formData,
     })
     const { access_token } = await resp.json()

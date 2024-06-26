@@ -58,16 +58,44 @@ const handleAuthorize = async () => {
   </DataTableRow>
 
   <template v-else>
-    <DataTableRow v-if="schemeModel.flowKey !== 'clientCredentials'">
+    <DataTableRow
+      v-if="['implicit', 'authorizationCode'].includes(schemeModel.flowKey)">
       <!-- Redirect URI -->
       <RequestAuthDataTableInput
         id="oauth2-redirect-uri"
         :modelValue="activeScheme.scheme.redirectUri"
         placeholder="https://galaxy.scalar.com/callback"
-        @update:modelValue="(v) => props.updateScheme('redirectUri', v)">
+        @update:modelValue="(v) => updateScheme('redirectUri', v)">
         Redirect URI
       </RequestAuthDataTableInput>
     </DataTableRow>
+
+    <!-- Username and password -->
+    <template
+      v-if="schemeModel.flowKey === 'password' && 'value' in activeScheme.flow">
+      <DataTableRow>
+        <RequestAuthDataTableInput
+          id="oauth2-password-username"
+          class="text-c-2"
+          :modelValue="activeScheme.flow.value"
+          placeholder="ScalarFan2000"
+          @update:modelValue="(v) => updateScheme('flows.password.value', v)">
+          Username
+        </RequestAuthDataTableInput>
+      </DataTableRow>
+      <DataTableRow>
+        <RequestAuthDataTableInput
+          id="oauth2-password-password"
+          :modelValue="activeScheme.flow.secondValue"
+          placeholder="XYZ123"
+          type="password"
+          @update:modelValue="
+            (v) => updateScheme('flows.password.secondValue', v)
+          ">
+          Password
+        </RequestAuthDataTableInput>
+      </DataTableRow>
+    </template>
 
     <!-- Client ID -->
     <DataTableRow>
@@ -75,19 +103,12 @@ const handleAuthorize = async () => {
         id="oauth2-client-id"
         :modelValue="activeScheme.scheme.clientId"
         placeholder="12345"
-        @update:modelValue="(v) => props.updateScheme('clientId', v)">
+        @update:modelValue="(v) => updateScheme('clientId', v)">
         Client ID
       </RequestAuthDataTableInput>
     </DataTableRow>
 
-    <!-- Scopes -->
-    <DataTableRow v-if="activeScheme.flow.scopes">
-      <OAuthScopesInput
-        :activeFlow="activeScheme.flow"
-        :schemeModel="schemeModel"
-        :updateScheme="updateScheme" />
-    </DataTableRow>
-    <!-- Client Secret (Authorization Code / Client Credentials) -->
+    <!-- Client Secret (Authorization Code / Client Credentials / Password (optional)) -->
     <DataTableRow v-if="'clientSecret' in activeScheme.flow">
       <RequestAuthDataTableInput
         id="oauth2-client-secret"
@@ -98,11 +119,20 @@ const handleAuthorize = async () => {
           (v) =>
             // Vue cant figure out the type if we check in the template above so we do it here
             (schemeModel.flowKey === 'authorizationCode' ||
-              schemeModel.flowKey === 'clientCredentials') &&
-            props.updateScheme(`flows.${schemeModel.flowKey}.clientSecret`, v)
+              schemeModel.flowKey === 'clientCredentials' ||
+              schemeModel.flowKey === 'password') &&
+            updateScheme(`flows.${schemeModel.flowKey}.clientSecret`, v)
         ">
         Client Secret
       </RequestAuthDataTableInput>
+    </DataTableRow>
+
+    <!-- Scopes -->
+    <DataTableRow v-if="activeScheme.flow.scopes">
+      <OAuthScopesInput
+        :activeFlow="activeScheme.flow"
+        :schemeModel="schemeModel"
+        :updateScheme="updateScheme" />
     </DataTableRow>
 
     <DataTableRow class="min-w-full">
@@ -115,21 +145,6 @@ const handleAuthorize = async () => {
         </ScalarButton>
       </div>
     </DataTableRow>
-
-    <!-- Password -->
-    <!-- <DataTableRow -->
-    <!--   v-if="schemeModel.flowKey === 'password'" -->
-    <!--   class="border-r-transparent"> -->
-    <!--   <DataTableInput -->
-    <!--     :modelValue="activeScheme.clientId" -->
-    <!--     placeholder="12345" -->
-    <!--     @update:modelValue="(v) => updateScheme('clientId', v)"> -->
-    <!--     Client ID -->
-    <!--   </DataTableInput> -->
-    <!--   <DataTableCell class="flex items-center p-0.5"> -->
-    <!--     <ScalarButton size="sm">Authorize</ScalarButton> -->
-    <!--   </DataTableCell> -->
-    <!-- </DataTableRow> -->
 
     <!-- Open ID Connect -->
     <!-- <DataTableRow -->
