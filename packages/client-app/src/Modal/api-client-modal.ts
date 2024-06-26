@@ -3,6 +3,8 @@ import { useWorkspace } from '@/store/workspace'
 import type { AuthenticationState, SpecConfiguration } from '@scalar/oas-utils'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
 import { type RequestMethod, objectMerge } from '@scalar/oas-utils/helpers'
+import { createServer } from '@scalar/oas-utils/entities/workspace/server'
+import { objectMerge } from '@scalar/oas-utils/helpers'
 import { getNestedValue } from '@scalar/object-utils/nested'
 import type { Paths } from 'type-fest'
 import { createApp, reactive } from 'vue'
@@ -72,6 +74,7 @@ export const createScalarApiClient = async (
     requests,
     securitySchemeMutators,
     securitySchemes,
+    serverMutators,
     workspaceMutators,
   } = useWorkspace()
 
@@ -120,6 +123,19 @@ export const createScalarApiClient = async (
         objectMerge(config, newConfig)
       }
       if (newConfig.spec) importSpecFile(newConfig.spec)
+    },
+    updateServerUrl: (serverUrl: string) => {
+      // TODO: Delete all existing servers
+      // Object.values(servers).forEach(({ uid }) => {
+      //   serverMutators.delete(firstCollection.uid, uid)
+      // })
+
+      // Add new server
+      serverMutators.add({
+        url: serverUrl,
+      })
+
+      // TODO: Switch to the new server
     },
     /**
      * Update the security schemes
