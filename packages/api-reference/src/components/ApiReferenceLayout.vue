@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
+import { addScalarClassesToHeadless } from '@scalar/components'
 import '@scalar/components/style.css'
 import type { SSRState } from '@scalar/oas-utils'
 import { defaultStateFactory } from '@scalar/oas-utils/helpers'
@@ -136,22 +137,7 @@ const scrollToSection = async (id?: string) => {
  * Ensure we add our scalar wrapper class to the headless ui root
  * mounted is too late
  */
-onBeforeMount(() => {
-  const observer = new MutationObserver((records: MutationRecord[]) => {
-    const headlessRoot = records.find((record) =>
-      Array.from(record.addedNodes).find(
-        (node) => (node as HTMLDivElement).id === 'headlessui-portal-root',
-      ),
-    )
-    if (headlessRoot) {
-      const el = headlessRoot.addedNodes[0] as HTMLDivElement
-      el.classList.add('scalar-app')
-      el.classList.add('scalar-client')
-      observer.disconnect()
-    }
-  })
-  observer.observe(document.body, { childList: true })
-})
+onBeforeMount(() => addScalarClassesToHeadless())
 
 onMounted(() => {
   // Enable the spec download event bus

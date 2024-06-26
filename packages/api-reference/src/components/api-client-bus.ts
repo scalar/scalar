@@ -1,4 +1,4 @@
-import type { OpenClientPayload } from '@scalar/api-client-modal'
+import type { OpenClientPayload } from '@scalar/client-app'
 import type { ModalState } from '@scalar/components'
 import type { AuthenticationState } from '@scalar/oas-utils'
 import { type EventBusKey, useEventBus } from '@vueuse/core'

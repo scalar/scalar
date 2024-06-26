@@ -1,11 +1,22 @@
 <script setup lang="ts">
-import { ScalarModal, type useModal } from '@scalar/components'
+import {
+  ScalarModal,
+  addScalarClassesToHeadless,
+  type useModal,
+} from '@scalar/components'
+import { onBeforeMount } from 'vue'
 import { RouterView } from 'vue-router'
 
 defineProps<{
   /** Controls opening and closing the modal */
   modalState: ReturnType<typeof useModal>
 }>()
+
+/**
+ * Ensure we add our scalar wrapper class to the headless ui root
+ * mounted is too late
+ */
+onBeforeMount(() => addScalarClassesToHeadless())
 </script>
 
 <template>
@@ -19,6 +30,6 @@ defineProps<{
 
 <style>
 @import '@scalar/components/style.css';
-@import '../assets/tailwind.css';
-@import '../assets/variables.css';
+@import '@/assets/tailwind.css';
+@import '@/assets/variables.css';
 </style>

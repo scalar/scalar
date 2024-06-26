@@ -3,7 +3,7 @@ import { htmlFromMarkdown } from '@scalar/code-highlight'
 import '@scalar/code-highlight/css/markdown.css'
 import { computed, onServerPrefetch } from 'vue'
 
-import { sleep } from '../../helpers'
+import { sleep } from '../../helpers/oas-utils'
 
 const props = withDefaults(
   defineProps<{
