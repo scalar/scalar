@@ -1,11 +1,11 @@
 // Theming
-import '@scalar/themes/base.css'
-import '@scalar/themes/fonts.css'
-import '@scalar/themes/presets/default.css'
+import '@scalar/themes/style.css'
 import type { Preview } from '@storybook/vue3'
 
 import '../src/tailwind/tailwind.css'
 import './preview.css'
+
+document.documentElement.classList.add('scalar-app')
 
 const preview: Preview = {
   parameters: {
