@@ -11,6 +11,7 @@ defineProps<
 >()
 
 defineEmits<{
+  (e: 'click'): void
   (e: 'close'): void
 }>()
 </script>
@@ -23,7 +24,8 @@ defineEmits<{
     <template #trigger>
       <div
         class="nav-item"
-        :class="{ 'nav-item__active': active }">
+        :class="{ 'nav-item__active': active }"
+        @click="$emit('click')">
         <div
           class="nav-item-icon-copy flex flex-1 items-center justify-center gap-1.5">
           <ScalarIcon
