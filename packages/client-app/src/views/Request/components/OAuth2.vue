@@ -78,7 +78,7 @@ const handleAuthorize = async () => {
           id="oauth2-password-username"
           class="text-c-2"
           :modelValue="activeScheme.flow.value"
-          placeholder="ScalarFan2000"
+          placeholder="ScalarEnjoyer01"
           @update:modelValue="(v) => updateScheme('flows.password.value', v)">
           Username
         </RequestAuthDataTableInput>

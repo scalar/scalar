@@ -1,12 +1,55 @@
-import { ApiClientModal } from '@/components'
-import type { ClientConfiguration, OpenClientPayload } from '@/types'
-import { clientRouter, useWorkspace } from '@scalar/client-app'
+import { clientRouter } from '@/router'
+import { useWorkspace } from '@/store/workspace'
 import type { AuthenticationState, SpecConfiguration } from '@scalar/oas-utils'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
-import { objectMerge } from '@scalar/oas-utils/helpers'
+import { type RequestMethod, objectMerge } from '@scalar/oas-utils/helpers'
 import { getNestedValue } from '@scalar/object-utils/nested'
 import type { Paths } from 'type-fest'
 import { createApp, reactive } from 'vue'
+
+import ApiClientModal from './ApiClientModal.vue'
+
+/** Configuration options for the Scalar API client */
+export type ClientConfiguration = {
+  /** The Swagger/OpenAPI spec to render */
+  spec: SpecConfiguration
+  /** Pass in a proxy to the API client */
+  proxyUrl?: string
+  /** Whether to show the sidebar */
+  showSidebar?: boolean
+  /** Whether dark mode is on or off initially (light mode) */
+  // darkMode?: boolean
+  /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
+  searchHotKey?:
+    | 'a'
+    | 'b'
+    | 'c'
+    | 'd'
+    | 'e'
+    | 'f'
+    | 'g'
+    | 'h'
+    | 'i'
+    | 'j'
+    | 'k'
+    | 'l'
+    | 'm'
+    | 'n'
+    | 'o'
+    | 'p'
+    | 'q'
+    | 'r'
+    | 's'
+    | 't'
+    | 'u'
+    | 'v'
+    | 'w'
+    | 'x'
+    | 'y'
+    | 'z'
+}
+
+export type OpenClientPayload = { path: string; method: RequestMethod }
 
 /** Initialize Scalar API Client Modal */
 export const createScalarApiClient = async (

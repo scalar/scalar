@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import '@scalar/client-app/style.css'
 import { ScalarModal, type useModal } from '@scalar/components'
-import '@scalar/components/style.css'
 import { RouterView } from 'vue-router'
 
 defineProps<{
@@ -18,3 +16,9 @@ defineProps<{
     <RouterView key="$route.fullPath" />
   </ScalarModal>
 </template>
+
+<style>
+@import '@scalar/components/style.css';
+@import '../assets/tailwind.css';
+@import '../assets/variables.css';
+</style>

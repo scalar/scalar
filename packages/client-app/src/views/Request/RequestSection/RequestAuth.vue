@@ -175,7 +175,7 @@ const updateScheme: UpdateScheme = (path, value) =>
               id="http-basic-username"
               class="text-c-2"
               :modelValue="activeSecurityScheme.scheme.value"
-              placeholder="Username"
+              placeholder="ScalarEnjoyer01"
               @update:modelValue="(v) => updateScheme('value', v)">
               Username
             </RequestAuthDataTableInput>
@@ -184,7 +184,7 @@ const updateScheme: UpdateScheme = (path, value) =>
             <RequestAuthDataTableInput
               id="http-basic-password"
               :modelValue="activeSecurityScheme.scheme.secondValue"
-              placeholder="Password"
+              placeholder="xxxxxx"
               type="password"
               @update:modelValue="(v) => updateScheme('secondValue', v)">
               Password

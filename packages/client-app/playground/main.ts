@@ -1,4 +1,4 @@
-import { createScalarApiClient } from '@/api-client-modal'
+import { createScalarApiClient } from '@/Modal'
 
 // Initialize
 const { open } = await createScalarApiClient(document.getElementById('root'), {
