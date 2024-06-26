@@ -754,6 +754,9 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
+      '@scalar/object-utils':
+        specifier: workspace:*
+        version: link:../object-utils
       vue:
         specifier: ^3.4.22
         version: 3.4.29(typescript@5.4.5)

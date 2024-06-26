@@ -59,6 +59,7 @@
     "@scalar/client-app": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
+    "@scalar/object-utils": "workspace:*",
     "vue": "^3.4.22",
     "vue-router": "^4.3.0"
   },
