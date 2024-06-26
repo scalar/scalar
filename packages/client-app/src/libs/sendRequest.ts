@@ -9,6 +9,7 @@ import type {
   ResponseInstance,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
+import Cookies from 'js-cookie'
 
 /**
  * Convert the parameters array to an object for axios to consume
@@ -102,9 +103,27 @@ export const sendRequest = async (
       (example.parameters.cookies ?? []).filter((cookie) => cookie.enabled),
     )
 
-    headers.Cookie = Object.keys(cookies)
-      .map((key) => `${key}=${cookies[key]}`)
-      .join('; ')
+    /**
+     * Cross-origin cookies are hard.
+     *
+     * - Axios needs to have `withCredentials: true`
+     * - We can only send cookies to the same domain (client.scalar.com -> proxy.scalar.com)
+     * - Subdomains are okay.
+     * - The target URL must have https.
+     * - The proxy needs to have a few headers:
+     *   1) Access-Control-Allow-Credentials: true
+     *   2) Access-Control-Allow-Origin: client.scalar.com (not *)
+     *
+     * Everything else is just ommitted.
+     */
+    Object.keys(cookies).forEach((key) => {
+      Cookies.set(key, cookies[key], {
+        // Means that the browser sends the cookie with both cross-site and same-site requests.
+        sameSite: 'None',
+        // The Secure attribute must also be set when setting SameSite=None.
+        secure: true,
+      })
+    })
   }
 
   // Extract query parameters from the URL
