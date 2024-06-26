@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { themeClasses } from '@/constants'
 import { useTopNav } from '@/store/topNav'
 import { ScalarIcon } from '@scalar/components'
 
@@ -14,9 +13,7 @@ const {
 } = useTopNav()
 </script>
 <template>
-  <nav
-    class="flex h-10"
-    :class="[themeClasses.topTav]">
+  <nav class="flex h-10 t-app__top-nav">
     <div
       class="flex h-10 flex-1 items-center justify-center gap-1.5 text-sm font-medium">
       <template v-if="topNavItems.length === 1">
@@ -51,7 +48,7 @@ const {
     </div>
   </nav>
 </template>
-<style>
+<style scoped>
 .t-app__top-nav {
   padding-left: 53px;
   padding-right: 9px;

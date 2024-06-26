@@ -9,7 +9,6 @@ import Sidebar from '@/components/Sidebar/Sidebar.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import { themeClasses } from '@/constants'
 import { reactive } from 'vue'
 
 const data = reactive<{ key: string; value: string; enabled: boolean }[]>([
@@ -23,7 +22,7 @@ const data = reactive<{ key: string; value: string; enabled: boolean }[]>([
     <Sidebar>
       <template #title>Collection</template>
     </Sidebar>
-    <ViewLayoutContent :class="[themeClasses.view]">
+    <ViewLayoutContent class="flex-1">
       <ViewLayoutSection>
         <template #title>Section 1</template>
         <div class="flex flex-col p-2">

@@ -6,7 +6,6 @@ import SearchButton from '@/components/Search/SearchButton.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import { themeClasses } from '@/constants'
 import { type ActionModalTab, useActionModal, useSidebar } from '@/hooks'
 import { executeRequestBus, sendRequest } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
@@ -320,10 +319,8 @@ useEventListener(document, 'keydown', (event) => {
       <!-- TODO possible loading state -->
       <ViewLayoutContent
         v-if="activeExample"
-        :class="[
-          themeClasses.view,
-          showSideBar ? 'sidebar-active-hide-layout' : '',
-        ]">
+        class="flex-1"
+        :class="[showSideBar ? 'sidebar-active-hide-layout' : '']">
         <RequestSection />
         <ResponseSection
           :response="

@@ -7,7 +7,6 @@ import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import { themeClasses } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
 import { nanoid } from 'nanoid'
 import { nextTick, onMounted, ref } from 'vue'
@@ -118,7 +117,7 @@ onMounted(setActiveEnvironment)
         </SidebarButton>
       </template>
     </Sidebar>
-    <ViewLayoutContent :class="[themeClasses.view]">
+    <ViewLayoutContent class="flex-1">
       <ViewLayoutSection>
         <template
           v-if="activeEnvironmentID"
