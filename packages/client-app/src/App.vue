@@ -51,9 +51,4 @@ onMounted(() => {
   width: 100vw;
   background: var(--scalar-background-1);
 }
-
-/* Main app view wrapper */
-.t-app__view {
-  flex: 1;
-}
 </style>
