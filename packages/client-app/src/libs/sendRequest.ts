@@ -52,7 +52,7 @@ export const sendRequest = async (
   // Replace path variables
   // Example: https://example.com/{path} -> https://example.com/example
   // TODO: This replaces variables in the URL, not just in the path
-  example.parameters.path.forEach((parameter) => {
+  example.parameters.path.forEach((parameter: RequestExampleParameter) => {
     if (!parameter.key || !parameter.value) {
       return
     }
@@ -79,13 +79,15 @@ export const sendRequest = async (
 
     const bodyFormData = new FormData()
     if (example.body.formData.encoding === 'form-data') {
-      example.body.formData.value.forEach((formParam) => {
-        if (formParam.key && formParam.value) {
-          bodyFormData.append(formParam.key, formParam.value)
-        } else if (formParam.file) {
-          bodyFormData.append(formParam.file.name, formParam.file)
-        }
-      })
+      example.body.formData.value.forEach(
+        (formParam: { key: string; value: string; file?: File }) => {
+          if (formParam.key && formParam.value) {
+            bodyFormData.append(formParam.key, formParam.value)
+          } else if (formParam.file) {
+            bodyFormData.append(formParam.file.name, formParam.file)
+          }
+        },
+      )
       data = bodyFormData
     }
   }
@@ -99,7 +101,9 @@ export const sendRequest = async (
   // Add cookies to the headers
   if (example.parameters.cookies) {
     const cookies = paramsReducer(
-      (example.parameters.cookies ?? []).filter((cookie) => cookie.enabled),
+      (example.parameters.cookies ?? []).filter(
+        (cookie: RequestExampleParameter) => cookie.enabled,
+      ),
     )
 
     headers.Cookie = Object.keys(cookies)
@@ -139,11 +143,9 @@ export const sendRequest = async (
   // Start timer to get response duration
   const startTime = Date.now()
 
-  const response = await axios(config).catch((error: AxiosError) => {
-    return error.response
-  })
+  try {
+    const response = await axios(config)
 
-  if (response) {
     if (shouldUseProxy) {
       // Remove headers, that are added by the proxy
       const headersToRemove = [
@@ -166,7 +168,21 @@ export const sendRequest = async (
         duration: Date.now() - startTime,
       },
     }
-  } else {
-    return {}
+  } catch (error) {
+    const axiosError = error as AxiosError
+    const response = axiosError.response
+
+    console.error('ERROR', error)
+
+    return {
+      sentTime: Date.now(),
+      request: example,
+      response: response
+        ? {
+            ...response,
+            duration: Date.now() - startTime,
+          }
+        : undefined,
+    }
   }
 }
