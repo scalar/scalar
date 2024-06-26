@@ -13,7 +13,14 @@ import (
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Headers", "*")
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Allow all origins
+
+		allowOrigin := "*"
+		if r.Header.Get("Origin") != "" {
+			allowOrigin = r.Header.Get("Origin")
+		}
+		w.Header().Set("Access-Control-Allow-Origin", allowOrigin)
+
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, PATCH")
 		w.Header().Set("Access-Control-Expose-Headers", "*")
 
