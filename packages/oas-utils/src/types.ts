@@ -1,5 +1,4 @@
 import type { ExternalDocumentation } from '@/entities/workspace/collection'
-import type { Server } from '@/entities/workspace/server'
 import type { RequestMethod } from '@/helpers'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { HarRequest } from 'httpsnippet-lite'
@@ -245,7 +244,7 @@ export type Spec = {
   'basePath'?: OpenAPIV2.Document['basePath']
   'schemes'?: OpenAPIV2.Document['schemes']
   'externalDocs'?: ExternalDocumentation
-  'servers'?: Server[]
+  'servers'?: OpenAPIV3.Document['servers'] | OpenAPIV3_1.Document['servers']
   'components'?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
   'webhooks'?: Webhooks
   'definitions'?: Definitions

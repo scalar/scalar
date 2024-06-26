@@ -1,6 +1,5 @@
 import type { Spec } from '@scalar/oas-utils'
 import { concatenateUrlAndPath, findVariables } from '@scalar/oas-utils/helpers'
-import type { OpenAPI } from '@scalar/openapi-parser'
 
 import type { Server } from '../types'
 

@@ -32,7 +32,9 @@ const getVariable = (name: string) => {
       v-for="name in Object.keys(variables)"
       :key="name">
       <div class="variable-container-item">
-        <label :for="`variable-${name}`">
+        <label
+          class="variable-label"
+          :for="`variable-${name}`">
           <code>{{ name }}</code>
         </label>
 
@@ -56,5 +58,16 @@ const getVariable = (name: string) => {
 .variable-container-item {
   display: flex;
   width: 100%;
+}
+
+.variable-label {
+  padding: 9px 0 9px 9px;
+  color: var(--scalar-color-2);
+  border-top: 1px solid var(--scalar-border-color);
+  font-size: var(--scalar-micro);
+}
+.variable-label:after {
+  content: ':';
+  margin-right: 6px;
 }
 </style>

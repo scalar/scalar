@@ -7,7 +7,7 @@ import type { Spec } from '@scalar/oas-utils'
 import { ref, watch } from 'vue'
 
 import ServerForm from './ServerForm.vue'
-import type { Server, ServerVariables } from './types'
+import type { Server } from './types'
 import { getServers } from './utils'
 
 const props = defineProps<{
@@ -23,18 +23,6 @@ const props = defineProps<{
 
 const { server: serverState, setServer } = useServerStore()
 
-// Watch the spec and set the servers
-watch(
-  () => props.specification,
-  () =>
-    setServer({
-      servers: getServers(props.specification, {
-        defaultServerUrl: props.defaultServerUrl,
-      }) as ApiClientServer[],
-    }),
-  { deep: true, immediate: true },
-)
-
 // Keep the selected item in sync with the store
 const selected = ref<number>(0)
 
@@ -49,6 +37,63 @@ watch(
   },
 )
 
+// Watch the spec and set the servers
+watch(
+  () => props.specification,
+  () => {
+    const servers = getServers(props.specification, {
+      defaultServerUrl: props.defaultServerUrl,
+    }) as ApiClientServer[]
+
+    setServer({
+      servers,
+      variables: {
+        // Set the initial values for the variables
+        ...getDefaultValuesFromServers(
+          servers[selected.value]?.variables ?? {},
+        ),
+        // Don’t overwrite existing values, but filter out non-existing variables
+        ...removeNotExistingVariables(
+          serverState.variables,
+          servers[selected.value],
+        ),
+      },
+    })
+  },
+  { deep: true, immediate: true },
+)
+
+/**
+ * Get the default values for the server variables
+ */
+function getDefaultValuesFromServers(variables: ApiClientServer['variables']) {
+  return Object.fromEntries(
+    Object.entries(variables ?? {}).map(([name, variable]) => [
+      name,
+      // 1) Default
+      variable.default?.toString() ??
+        // 2) First enum value
+        variable.enum?.[0]?.toString() ??
+        // 3) Empty string
+        '',
+    ]),
+  )
+}
+
+/**
+ * Remove variables that are not present in the servers list
+ */
+function removeNotExistingVariables(
+  variables: Record<string, string>,
+  server: ApiClientServer,
+) {
+  return Object.fromEntries(
+    Object.entries(variables).filter(
+      ([name]) => name in (server.variables ?? {}),
+    ),
+  )
+}
+
 function onUpdateVariable(name: string, value: string) {
   setServer({
     variables: {
@@ -59,11 +104,14 @@ function onUpdateVariable(name: string, value: string) {
 }
 </script>
 <template>
-  <div></div>
   <ServerForm
     :selected="selected"
     :servers="serverState.servers as Server[]"
     :variables="serverState.variables"
-    @update:selected="(value) => (selected = value)"
+    @update:selected="
+      (value) => {
+        selected = value
+      }
+    "
     @update:variable="onUpdateVariable" />
 </template>
