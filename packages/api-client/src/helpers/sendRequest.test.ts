@@ -5,12 +5,6 @@ import { sendRequest } from './sendRequest'
 const PROXY_PORT = 5051
 const ECHO_PORT = 5052
 
-function createProxyRequest({ url }: { url?: string }) {
-  return {
-    url: `http://127.0.0.1:${PROXY_PORT}?scalar_url=${encodeURIComponent(url ?? '')}`,
-  }
-}
-
 describe('sendRequest', () => {
   it('shows a warning when scalar_url is missing', async () => {
     const request = {
@@ -39,11 +33,11 @@ describe('sendRequest', () => {
   })
 
   it('reaches the echo server *with* the proxy', async () => {
-    const request = createProxyRequest({
+    const request = {
       url: `http://localhost:${ECHO_PORT}`,
-    })
+    }
 
-    const result = await sendRequest(request)
+    const result = await sendRequest(request, 'http://127.0.0.1:${PROXY_PORT}')
 
     expect(result?.response.data).toMatchObject({
       method: 'GET',
@@ -213,8 +207,6 @@ describe('sendRequest', () => {
     }
 
     const result = await sendRequest(request, `http://127.0.0.1:${PROXY_PORT}`)
-
-    console.log(result?.response.data)
 
     expect(result?.response.data?.trim().toLowerCase()).toContain(
       'dial tcp: lookup does_not_exist',
