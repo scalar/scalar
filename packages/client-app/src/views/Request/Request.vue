@@ -60,7 +60,11 @@ executeRequestBus.on(async () => {
   )
 
   if (request && response) {
-    activeRequest.value.history.push({ request, response })
+    activeRequest.value.history.push({
+      request,
+      response,
+      timestamp: Date.now(),
+    })
   } else {
     console.warn('No response or request was returned')
   }

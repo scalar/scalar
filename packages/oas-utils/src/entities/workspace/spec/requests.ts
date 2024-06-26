@@ -20,6 +20,7 @@ export type ResponseInstance = AxiosResponse & {
 export type RequestEvent = {
   request: RequestExample
   response: ResponseInstance
+  timestamp: number
 }
 
 // TODO fill out body
