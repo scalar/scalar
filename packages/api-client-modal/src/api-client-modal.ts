@@ -117,8 +117,15 @@ export const createScalarApiClient = async (
               edit(auth.oAuth2.accessToken, 'flows.implicit.token')
               edit(auth.oAuth2.scopes, 'flows.implicit.selectedScopes')
             }
+
+            // Password
+            else if (scheme.flows.password) {
+              edit(auth.oAuth2.accessToken, 'flows.password.token')
+              edit(auth.oAuth2.scopes, 'flows.password.selectedScopes')
+              edit(auth.oAuth2.username, 'flows.password.value')
+              edit(auth.oAuth2.password, 'flows.password.secondValue')
+            }
             break
-          // TODO password
         }
       })
     },

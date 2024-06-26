@@ -40,7 +40,9 @@ const securitySchemeHttp = z.object({
     .optional()
     .default('JWT'),
 
+  /** Username */
   value,
+  /** Password */
   secondValue: value,
 })
 
@@ -97,7 +99,9 @@ const oauthFlowSchema = z
         refreshUrl,
         scopes,
 
+        /** Username */
         value: value,
+        /** Password */
         secondValue: value,
         selectedScopes,
         clientSecret: value,
