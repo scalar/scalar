@@ -282,8 +282,12 @@ const activeExample = computed(
 // ---------------------------------------------------------------------------
 // REQUEST HISTORY
 
+/** history sorted most recent first */
 const requestsHistory = computed<RequestEvent[]>(() => {
-  return Object.values(requests).flatMap((request) => request.history)
+  return Object.values(requests)
+    .flatMap((request) => request.history)
+    .filter((event): event is RequestEvent => event.request && event.response)
+    .sort((a, b) => b.timestamp - a.timestamp)
 })
 
 // ---------------------------------------------------------------------------
