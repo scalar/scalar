@@ -8,7 +8,7 @@ import { useRoute } from 'vue-router'
 const { activeCollection, servers, serverMutators } = useWorkspace()
 
 const options = [
-  { label: 'URL', key: 'url', placeholder: 'https://galaxy.scalar.com/api/v1' },
+  { label: 'URL', key: 'url', placeholder: 'https://void.scalar.com/api' },
   {
     label: 'Label',
     key: 'description',
