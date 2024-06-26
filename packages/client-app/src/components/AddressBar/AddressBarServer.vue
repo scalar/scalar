@@ -38,7 +38,7 @@ const isSelectedServer = (serverId: string) => {
 }
 </script>
 <template>
-  <template v-if="false && serverOptions && !workspace.isReadOnly">
+  <template v-if="serverOptions && !workspace.isReadOnly">
     <ScalarDropdown
       :options="serverOptions"
       resize
