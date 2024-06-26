@@ -5,7 +5,6 @@ import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import { themeClasses } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
 import { createCookie } from '@scalar/oas-utils/entities/workspace/cookie'
 
@@ -50,8 +49,7 @@ const addCookieHandler = () => {
       </template>
     </Sidebar>
 
-    <!-- TODO possible loading state -->
-    <ViewLayoutContent :class="[themeClasses.view]">
+    <ViewLayoutContent class="flex-1">
       <CookieForm />
       <CookieRaw />
     </ViewLayoutContent>

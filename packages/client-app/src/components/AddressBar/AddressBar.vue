@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { themeClasses } from '@/constants'
 import { executeRequestBus } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import { Listbox } from '@headlessui/vue'
@@ -123,8 +122,7 @@ const handlePaste = (event: ClipboardEvent) => {
 <template>
   <div
     v-if="activeRequest && activeExample"
-    class="order-last lg:order-none lg:w-auto w-full"
-    :class="[themeClasses.topContainer]">
+    class="order-last lg:order-none lg:w-auto w-full">
     <!-- <div class="text-c-2 flex w-80 flex-row items-center gap-1 p-4">
       <ScalarIcon
         icon="Branch"
