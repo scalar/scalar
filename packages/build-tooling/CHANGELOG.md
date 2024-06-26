@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.1.7
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+
 ## 0.1.6
 
 ### Patch Changes

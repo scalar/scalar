@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.24.20
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+
 ## 1.24.19
 
 ## 1.24.18

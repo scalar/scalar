@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.5
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+
 ## 0.0.4
 
 ### Patch Changes

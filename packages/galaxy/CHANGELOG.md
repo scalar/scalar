@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.4
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+
 ## 0.2.3
 
 ### Patch Changes

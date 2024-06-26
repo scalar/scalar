@@ -1,5 +1,18 @@
 # @scalar/api-reference-editor
 
+## 0.1.1
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+- Updated dependencies [a298195]
+- Updated dependencies [326bd3d]
+- Updated dependencies [94e68ab]
+  - @scalar/oas-utils@0.2.5
+  - @scalar/api-client@1.3.19
+  - @scalar/api-reference@1.24.20
+  - @scalar/use-codemirror@0.11.4
+
 ## 0.1.0
 
 ### Minor Changes

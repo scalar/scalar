@@ -1,5 +1,13 @@
 # @scalar/oas-utils
 
+## 0.2.5
+
+### Patch Changes
+
+- a298195: feat: add timestamp in request event type
+- 326bd3d: fix: URL is not encoded when sent to the proxy
+- 94e68ab: chore: upgrade typescript to 5.5
+
 ## 0.2.4
 
 ### Patch Changes

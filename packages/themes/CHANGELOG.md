@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.8
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+
 ## 0.9.7
 
 ### Patch Changes

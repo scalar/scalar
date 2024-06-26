@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.1.2
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+
 ## 1.1.1
 
 ### Patch Changes

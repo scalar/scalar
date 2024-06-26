@@ -1,5 +1,14 @@
 # @scalar/api-client-react
 
+## 0.5.14
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+- Updated dependencies [326bd3d]
+- Updated dependencies [94e68ab]
+  - @scalar/api-client@1.3.19
+
 ## 0.5.13
 
 ### Patch Changes

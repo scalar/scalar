@@ -1,5 +1,24 @@
 # @scalar/api-client-modal
 
+## 0.0.16
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+- Updated dependencies [3ab472b]
+- Updated dependencies [50c2944]
+- Updated dependencies [a298195]
+- Updated dependencies [326bd3d]
+- Updated dependencies [4aa74e3]
+- Updated dependencies [a298195]
+- Updated dependencies [94e68ab]
+- Updated dependencies [5103023]
+- Updated dependencies [1734dd6]
+  - @scalar/client-app@0.1.14
+  - @scalar/oas-utils@0.2.5
+  - @scalar/components@0.12.4
+  - @scalar/object-utils@1.1.2
+
 ## 0.0.15
 
 ### Patch Changes

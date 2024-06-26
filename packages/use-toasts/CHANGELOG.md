@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.7.4
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+
 ## 0.7.3
 
 ### Patch Changes

@@ -1,5 +1,21 @@
 # @scalar/api-client
 
+## 1.3.19
+
+### Patch Changes
+
+- 326bd3d: fix: URL is not encoded when sent to the proxy
+- 94e68ab: chore: upgrade typescript to 5.5
+- Updated dependencies [a298195]
+- Updated dependencies [326bd3d]
+- Updated dependencies [94e68ab]
+  - @scalar/oas-utils@0.2.5
+  - @scalar/components@0.12.4
+  - @scalar/themes@0.9.8
+  - @scalar/use-codemirror@0.11.4
+  - @scalar/use-toasts@0.7.4
+  - @scalar/use-tooltip@1.0.1
+
 ## 1.3.18
 
 ### Patch Changes
