@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAuthenticationStore } from '@scalar/api-client'
 import type { SpecConfiguration } from '@scalar/oas-utils'
 import { onMounted, ref } from 'vue'
 
@@ -10,21 +11,31 @@ const props = defineProps<{
 }>()
 
 const el = ref<HTMLDivElement | null>(null)
+const { authentication } = useAuthenticationStore()
 
 onMounted(async () => {
   if (!el.value) return
 
   const { createScalarApiClient } = await import('@scalar/api-client-modal')
 
-  const { open, modalState: state } = await createScalarApiClient(el.value, {
-    spec: props.spec ?? {},
-    proxyUrl: props.proxyUrl,
-  })
+  const { modalState, open, updateAuth } = await createScalarApiClient(
+    el.value,
+    {
+      spec: props.spec ?? {},
+      proxyUrl: props.proxyUrl,
+    },
+  )
 
-  modalStateBus.emit(state)
+  modalStateBus.emit(modalState)
 
   // Event bus to listen to apiClient events
-  apiClientBus.on(open)
+  apiClientBus.on((event) => {
+    // Right now we just update auth every time we open but eventually we should do it when something in auth changes
+    // if (event.updateAuth) updateAuth(event.updateAuth)
+    updateAuth(authentication)
+
+    if (event.open) open(event.open)
+  })
 })
 </script>
 <template>

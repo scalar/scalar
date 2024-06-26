@@ -24,8 +24,10 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
       NEW_API_MODAL
         ? // @scalar/api-client@2.0
           apiClientBus.emit({
-            path: operation.path,
-            method: operation.httpVerb,
+            open: {
+              path: operation.path,
+              method: operation.httpVerb,
+            },
           })
         : // @scalar/api-client@1.x
           openClientFor(operation, getGlobalSecurity?.())
