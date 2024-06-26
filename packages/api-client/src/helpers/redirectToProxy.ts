@@ -7,7 +7,7 @@ export function redirectToProxy(proxy: string, url: string): string {
   newUrl.href = proxy
 
   // Add the original URL as a query parameter
-  newUrl.searchParams.append('scalar_url', encodeURI(url))
+  newUrl.searchParams.append('scalar_url', encodeURIComponent(url))
 
   return newUrl.toString()
 }

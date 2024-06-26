@@ -7,7 +7,7 @@ const ECHO_PORT = 5052
 
 function createProxyRequest({ url }: { url?: string }) {
   return {
-    url: `http://127.0.0.1:${PROXY_PORT}?scalar_url=${encodeURI(url ?? '')}`,
+    url: `http://127.0.0.1:${PROXY_PORT}?scalar_url=${encodeURIComponent(url ?? '')}`,
   }
 }
 
