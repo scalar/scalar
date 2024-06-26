@@ -34,15 +34,9 @@ const updateServer = (key: string, value: string) => {
   serverMutators.edit(activeServer.value.uid, key as keyof Server, value)
 }
 
-const updateVariable = (key: string, value: string) => {
+const updateVariable = (key: string, value: any) => {
   if (!activeCollection.value) return
-
-  serverMutators.edit(activeServer.value.uid, `variables.${key}`, {
-    uid: 'foobar',
-    default: '',
-    ...activeServer.value.variables?.[key],
-    value,
-  })
+  serverMutators.edit(activeServer.value.uid, `variables.${key}.value`, value)
 }
 
 const variableOptions = computed(() => {
