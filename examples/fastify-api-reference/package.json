@@ -24,7 +24,6 @@
   "devDependencies": {
     "nodemon": "^3.1.3",
     "tsc-alias": "^1.8.8",
-    "typescript": "^5.4.3",
     "vite": "^5.2.10",
     "vite-node": "^1.3.1"
   }
