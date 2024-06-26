@@ -129,7 +129,7 @@ export const sendRequest = async (
 
   const config: AxiosRequestConfig = {
     url: shouldUseProxy
-      ? `http://localhost:5051/?scalar_url=${encodeURI(url)}`
+      ? `http://localhost:5051/?scalar_url=${encodeURIComponent(url)}`
       : url,
     method: request.method,
     headers,

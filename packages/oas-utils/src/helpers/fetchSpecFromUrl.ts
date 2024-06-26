@@ -7,7 +7,7 @@ const NEW_PROXY_URL = 'https://proxy.scalar.com'
 
 /** Redirects the request to a proxy server with a given URL. */
 function redirectToProxy(proxy: string, url: string): string {
-  return `${proxy}?scalar_url=${encodeURI(url)}`
+  return `${proxy}?scalar_url=${encodeURIComponent(url)}`
 }
 
 /** Fetches an OpenAPI/Swagger specification from a given URL. */
