@@ -11,6 +11,11 @@
       "persistent": true,
       "dependsOn": ["^build"]
     },
+    "dev:modal": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"]
+    },
     "types:check": {}
   }
 }
