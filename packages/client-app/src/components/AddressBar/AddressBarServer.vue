@@ -36,6 +36,20 @@ const updateSelectedServer = (serverUid: string) => {
 const isSelectedServer = (serverId: string) => {
   return activeCollection.value?.selectedServerUid === serverId
 }
+
+// Replace variables in URL
+const serverUrl = computed(() => {
+  const server = servers[activeCollection.value?.selectedServerUid ?? '']
+  const url = server?.url
+
+  // TODO: use `replaceVariables` from `@scalar/oas-utils/helpers`
+  // Note: Currently, it’s in @scalar/api-client, but that’s about to change.
+  const singleCurlyBrackets = /{\s*([\w.-]+)\s*}/g
+  return url.replace(singleCurlyBrackets, (match, key) => {
+    const variable = server?.variables?.[key]
+    return variable?.value || variable?.default || variable?.enum?.[0] || match
+  })
+})
 </script>
 <template>
   <template v-if="serverOptions && !workspace.isReadOnly">
@@ -48,7 +62,7 @@ const isSelectedServer = (serverId: string) => {
         class="font-code lg:text-sm text-xs whitespace-nowrap border border-b-3 border-solid rounded px-1.5 text-c-2"
         type="button"
         @click.stop>
-        {{ servers[activeCollection?.selectedServerUid ?? '']?.url }}
+        {{ serverUrl }}
       </button>
       <template #items>
         <ScalarDropdownItem
@@ -93,7 +107,7 @@ const isSelectedServer = (serverId: string) => {
   <template v-else>
     <div
       class="flex whitespace-nowrap items-center font-code lg:text-sm text-xs">
-      {{ servers[activeCollection?.selectedServerUid ?? '']?.url }}
+      {{ serverUrl }}
     </div>
   </template>
 </template>
