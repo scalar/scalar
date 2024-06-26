@@ -38,7 +38,7 @@ const isSelectedServer = (serverId: string) => {
 }
 </script>
 <template>
-  <template v-if="serverOptions && !workspace.isReadOnly">
+  <template v-if="false && serverOptions && !workspace.isReadOnly">
     <ScalarDropdown
       :options="serverOptions"
       resize
@@ -91,7 +91,8 @@ const isSelectedServer = (serverId: string) => {
     </ScalarDropdown>
   </template>
   <template v-else>
-    <div class="flex items-center font-code lg:text-sm text-xs">
+    <div
+      class="flex whitespace-nowrap items-center font-code lg:text-sm text-xs">
       {{ servers[activeCollection?.selectedServerUid ?? '']?.url }}
     </div>
   </template>
