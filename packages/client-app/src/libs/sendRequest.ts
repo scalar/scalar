@@ -93,43 +93,6 @@ export const sendRequest = async (
     }
   }
 
-  // OAuth 2
-  if (securityScheme?.flow?.token) {
-    headers['Authorization'] = `Bearer ${securityScheme.flow.token}`
-  }
-  // TODO other auth
-
-  // Add cookies to the headers
-  if (example.parameters.cookies) {
-    const cookies = paramsReducer(
-      (example.parameters.cookies ?? []).filter(
-        (cookie: RequestExampleParameter) => cookie.enabled,
-      ),
-    )
-
-    /**
-     * Cross-origin cookies are hard.
-     *
-     * - Axios needs to have `withCredentials: true`
-     * - We can only send cookies to the same domain (client.scalar.com -> proxy.scalar.com)
-     * - Subdomains are okay.
-     * - The target URL must have https.
-     * - The proxy needs to have a few headers:
-     *   1) Access-Control-Allow-Credentials: true
-     *   2) Access-Control-Allow-Origin: client.scalar.com (not *)
-     *
-     * Everything else is just ommitted.
-     */
-    Object.keys(cookies).forEach((key) => {
-      Cookies.set(key, cookies[key], {
-        // Means that the browser sends the cookie with both cross-site and same-site requests.
-        sameSite: 'None',
-        // The Secure attribute must also be set when setting SameSite=None.
-        secure: true,
-      })
-    })
-  }
-
   // Extract query parameters from the URL
   const queryParametersFromUrl: RequestExampleParameter[] = []
   const [urlWithoutQueryString, urlQueryString] = url.split('?')
@@ -141,11 +104,78 @@ export const sendRequest = async (
     })
   })
 
-  // Create a new query string from the URL and given parameters
-  const queryString = new URLSearchParams({
+  const query: Record<string, string> = {
     ...paramsReducer(example.parameters.query),
     ...paramsReducer(queryParametersFromUrl),
-  }).toString()
+  }
+  const cookies: Record<string, string> = {
+    ...paramsReducer(
+      (example.parameters.cookies ?? []).filter(
+        (cookie: RequestExampleParameter) => cookie.enabled,
+      ),
+    ),
+  }
+
+  // Add auth
+  if (securityScheme?.scheme) {
+    const { scheme } = securityScheme
+
+    // apiKey
+    if (scheme.type === 'apiKey' && scheme.value) {
+      switch (scheme.in) {
+        case 'cookie':
+          cookies[scheme.name] = scheme.value
+          break
+        case 'query':
+          query[scheme.name] = scheme.value
+          break
+        case 'header':
+          headers[scheme.name] = scheme.value
+          break
+      }
+    }
+    // http
+    else if (scheme.type === 'http' && scheme.value) {
+      // Basic
+      if (scheme.scheme === 'basic' && scheme.secondValue) {
+        headers['Authorization'] =
+          `Basic ${btoa(`${scheme.value}:${scheme.secondValue}`)}`
+      }
+      // Bearer
+      else {
+        headers['Authorization'] = `Bearer ${scheme.value}`
+      }
+    }
+    // OAuth 2
+    else if (scheme.type === 'oauth2' && securityScheme.flow?.token) {
+      headers['Authorization'] = `Bearer ${securityScheme.flow.token}`
+    }
+  }
+
+  /**
+   * Cross-origin cookies are hard.
+   *
+   * - Axios needs to have `withCredentials: true`
+   * - We can only send cookies to the same domain (client.scalar.com -> proxy.scalar.com)
+   * - Subdomains are okay.
+   * - The target URL must have https.
+   * - The proxy needs to have a few headers:
+   *   1) Access-Control-Allow-Credentials: true
+   *   2) Access-Control-Allow-Origin: client.scalar.com (not *)
+   *
+   * Everything else is just ommitted.
+   */
+  Object.keys(cookies).forEach((key) => {
+    Cookies.set(key, cookies[key], {
+      // Means that the browser sends the cookie with both cross-site and same-site requests.
+      sameSite: 'None',
+      // The Secure attribute must also be set when setting SameSite=None.
+      secure: true,
+    })
+  })
+
+  // Create a new query string from the URL and given parameters
+  const queryString = new URLSearchParams(query).toString()
 
   // Append new query string to the URL
   url = `${urlWithoutQueryString}${queryString ? '?' + queryString : ''}`
