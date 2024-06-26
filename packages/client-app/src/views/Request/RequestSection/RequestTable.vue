@@ -104,7 +104,7 @@ const handleFileUpload = (idx: number) => {
         </template>
         <template v-else>
           <ScalarButton
-            class="bg-b-2 hover:bg-b-3 border-0 text-c-2"
+            class="bg-b-2 hover:bg-b-3 border-0 py-px text-c-2"
             size="sm"
             variant="outlined"
             @click="handleFileUpload(idx)">
