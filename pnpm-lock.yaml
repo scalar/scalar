@@ -584,9 +584,6 @@ importers:
 
   examples/web:
     dependencies:
-      '@scalar/api-client':
-        specifier: workspace:*
-        version: link:../../packages/api-client
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../../packages/api-reference

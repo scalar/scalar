@@ -19,7 +19,6 @@
   },
   "type": "module",
   "dependencies": {
-    "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@scalar/themes": "workspace:*",
