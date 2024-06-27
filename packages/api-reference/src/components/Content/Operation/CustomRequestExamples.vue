@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { HttpMethod } from '@scalar/api-client'
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
 import type {
   CustomRequestExample,
@@ -7,6 +6,7 @@ import type {
 } from '@scalar/oas-utils'
 import { computed, ref, watch } from 'vue'
 
+import { HttpMethod } from '../../../components/HttpMethod'
 import { useClipboard } from '../../../hooks'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import TextSelect from './TextSelect.vue'

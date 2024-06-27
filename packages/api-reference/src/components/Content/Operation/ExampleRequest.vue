@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  HttpMethod,
   getRequestFromAuthentication,
   getSecretCredentialsFromAuthentication,
   getUrlFromServerState,
@@ -28,6 +27,7 @@ import {
 import { useClipboard } from '../../../hooks'
 import { useHttpClientStore } from '../../../stores'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
+import { HttpMethod } from '../../HttpMethod'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 

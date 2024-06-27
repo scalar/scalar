@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { HttpMethod } from '@scalar/api-client'
+import { HttpMethod } from '../HttpMethod'
 
 defineProps<{
   active?: boolean

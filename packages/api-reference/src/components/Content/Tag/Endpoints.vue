@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { HttpMethod } from '@scalar/api-client'
 import { ScalarMarkdown } from '@scalar/components'
 import type { Tag, TransformedOperation } from '@scalar/oas-utils'
 
 import { useNavState, useSidebar } from '../../../hooks'
 import { Anchor } from '../../Anchor'
 import { Card, CardContent, CardHeader } from '../../Card'
+import { HttpMethod } from '../../HttpMethod'
 import {
   Section,
   SectionColumn,
