@@ -242,7 +242,7 @@ useEventListener(document, 'keydown', (event) => {
       <div
         class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 w-6/12">
         <button
-          class="request-text-color bg-mix-transparent hover:bg-mix-amount-95 p-2 rounded"
+          class="text-c-3 hover:bg-b-3 active:text-c-1 p-2 rounded"
           type="button"
           @click="showSideBar = !showSideBar">
           <ScalarIcon
@@ -260,7 +260,7 @@ useEventListener(document, 'keydown', (event) => {
         </button> -->
         <button
           v-if="workspace.isReadOnly"
-          class="request-text-color bg-mix-transparent hover:bg-mix-amount-95 p-2 rounded bg-mix-amount-100"
+          class="text-c-3 hover:bg-b-3 active:text-c-1 p-2 rounded"
           type="button"
           @click="modalState.hide()">
           <ScalarIcon
@@ -336,12 +336,6 @@ useEventListener(document, 'keydown', (event) => {
   </div>
 </template>
 <style scoped>
-.request-text-color {
-  color: var(--scalar-color-3);
-}
-.request-text-color:hover {
-  background: var(--scalar-background-2);
-}
 .request-text-color-text {
   color: var(--scalar-color-1);
   background: linear-gradient(
@@ -349,10 +343,6 @@ useEventListener(document, 'keydown', (event) => {
     var(--scalar-background-3)
   );
   box-shadow: 0 0 0 1px var(--scalar-border-color);
-}
-.request-text-color-text:active,
-.request-text-color:active {
-  color: var(--scalar-color-1);
 }
 @media screen and (max-width: 780px) {
   .sidebar-active-hide-layout {
