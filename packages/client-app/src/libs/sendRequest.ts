@@ -63,7 +63,7 @@ export const sendRequest = async (
   })
 
   // Decide whether to use a proxy or not
-  const shouldUseProxy = !isRequestToLocalhost(url)
+  const shouldUseProxy = !isRequestToLocalhost(url) && !!proxyUrl
 
   const headers = paramsReducer(example.parameters.headers)
 
