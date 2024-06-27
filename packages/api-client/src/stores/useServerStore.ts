@@ -5,7 +5,7 @@ import type { ServerState } from '../types'
 export const createEmptyServerState = (): ServerState => ({
   selectedServer: null,
   servers: [],
-  variables: [],
+  variables: {},
 })
 
 const server = reactive<ServerState>(createEmptyServerState())

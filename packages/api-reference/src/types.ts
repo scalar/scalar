@@ -9,6 +9,8 @@ import type { UseSeoMetaInput } from '@unhead/schema'
 import type { HarRequest, TargetId } from 'httpsnippet-lite'
 import type { Slot } from 'vue'
 
+import type { Server } from './features/BaseUrl'
+
 // ---------------------------------------------------------------------------
 // Types copied from package as they are not exported
 type ClientInfo = {
@@ -16,10 +18,6 @@ type ClientInfo = {
   title: string
   link: string
   description: string
-}
-export type Server = {
-  url: string
-  description?: string
 }
 
 export type TargetInfo = {

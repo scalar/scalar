@@ -27,12 +27,9 @@ describe('getUrlFromServerState', () => {
           url: 'https://{example_variable}.fantasy',
         },
       ],
-      variables: [
-        {
-          name: 'example_variable',
-          value: 'unicorn',
-        },
-      ],
+      variables: {
+        example_variable: 'unicorn',
+      },
     })
 
     expect(request).toMatchObject('https://unicorn.fantasy')
@@ -41,16 +38,10 @@ describe('getUrlFromServerState', () => {
   it('replaces variables first, and then checks whether a prefix is necessary', () => {
     const request = getUrlFromServerState({
       ...createEmptyServerState(),
-      variables: [
-        {
-          name: 'protocol',
-          value: 'https',
-        },
-        {
-          name: 'managementAPIHost',
-          value: 'localhost:8083',
-        },
-      ],
+      variables: {
+        protocol: 'https',
+        managementAPIHost: 'localhost:8083',
+      },
       selectedServer: 0,
       servers: [
         {

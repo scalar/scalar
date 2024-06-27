@@ -1,3 +1,7 @@
+import {
+  concatenateUrlAndPath,
+  replaceVariables,
+} from '@scalar/oas-utils/helpers'
 import axios, { type AxiosRequestConfig } from 'axios'
 import { nanoid } from 'nanoid'
 
@@ -8,12 +12,10 @@ import type {
   SendRequestConfig,
 } from '../types'
 import {
-  concatenateUrlAndPath,
   mapFromArray,
   normalizePath,
   normalizeRequestMethod,
   normalizeUrl,
-  replaceVariables,
 } from './'
 import { redirectToProxy } from './redirectToProxy'
 

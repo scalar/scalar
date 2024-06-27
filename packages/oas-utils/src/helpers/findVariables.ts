@@ -1,6 +1,5 @@
 /**
  * Find all strings wrapped in {} or {{}} in value.
- *
  */
 export const findVariables = (value: string) => {
   // Wrapped in single or double curly braces.
