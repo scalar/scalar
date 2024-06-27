@@ -340,7 +340,7 @@ useEventListener(document, 'keydown', (event) => {
   color: var(--scalar-color-3);
 }
 .request-text-color:hover {
-  color: var(--scalar-color-2);
+  background: var(--scalar-background-2);
 }
 .request-text-color-text {
   color: var(--scalar-color-1);
