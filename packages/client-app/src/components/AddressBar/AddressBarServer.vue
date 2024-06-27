@@ -40,12 +40,13 @@ const isSelectedServer = (serverId: string) => {
 // Replace variables in URL
 const serverUrl = computed(() => {
   const server = servers[activeCollection.value?.selectedServerUid ?? '']
-  const url = server?.url
+  const url = server?.url as string | undefined
 
   // TODO: use `replaceVariables` from `@scalar/oas-utils/helpers`
   // Note: Currently, it’s in @scalar/api-client, but that’s about to change.
   const singleCurlyBrackets = /{\s*([\w.-]+)\s*}/g
-  return url.replace(singleCurlyBrackets, (match, key) => {
+
+  return url?.replace(singleCurlyBrackets, (match, key) => {
     const variable = server?.variables?.[key]
     return variable?.value || variable?.default || variable?.enum?.[0] || match
   })
