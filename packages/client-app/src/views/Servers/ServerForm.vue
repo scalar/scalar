@@ -39,17 +39,13 @@ const updateVariable = (key: string, value: any) => {
   serverMutators.edit(activeServer.value.uid, `variables.${key}.value`, value)
 }
 
-const variableOptions = computed(() => {
-  const variables = activeServer.value?.variables ?? {}
-
-  const keys = Object.keys(variables)
-
-  return keys.map((key: string) => ({
+const variableOptions = computed(() =>
+  Object.entries(activeServer.value?.variables ?? {}).map(([key, val]) => ({
     key,
     label: key,
-    placeholder: variables?.[key]?.default ?? '',
-  }))
-})
+    placeholder: val ?? '',
+  })),
+)
 
 /**
  * Get values from the workspace, use `default` as fallback
