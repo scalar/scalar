@@ -71,6 +71,7 @@ executeRequestBus.on(async () => {
     activeExample.value,
     url,
     activeSecurityScheme.value,
+    workspace.proxyUrl,
   )
 
   if (request && response) {

@@ -43,6 +43,7 @@ export const sendRequest = async (
     scheme: SecurityScheme
     flow?: SelectedSchemeOauth2['flow']
   },
+  proxyUrl?: string,
 ): Promise<{
   sentTime?: number
   request?: RequestExample
@@ -62,7 +63,7 @@ export const sendRequest = async (
   })
 
   // Decide whether to use a proxy or not
-  const shouldUseProxy = !isRequestToLocalhost(url)
+  const shouldUseProxy = !isRequestToLocalhost(url) && !!proxyUrl
 
   const headers = paramsReducer(example.parameters.headers)
 
@@ -182,7 +183,7 @@ export const sendRequest = async (
 
   const config: AxiosRequestConfig = {
     url: shouldUseProxy
-      ? `http://localhost:5051/?scalar_url=${encodeURIComponent(url)}`
+      ? `${proxyUrl}?scalar_url=${encodeURIComponent(url)}`
       : url,
     method: request.method,
     headers,
