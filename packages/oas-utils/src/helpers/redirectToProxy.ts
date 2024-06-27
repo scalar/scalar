@@ -1,34 +1,34 @@
 /** Redirects the request to a proxy server with a given URL. */
-export function redirectToProxy(proxy: string, url: string): string {
+export function redirectToProxy(proxy?: string, url?: string): string {
   if (!shouldUseProxy(proxy, url)) {
-    return url
+    return url as string
   }
 
   // Create new URL object from url
-  const newUrl = new URL(url)
+  const newUrl = new URL(url as string)
 
   // Rewrite the URL with the proxy
-  newUrl.href = proxy
+  newUrl.href = proxy as string
 
   // Add the original URL as a query parameter
-  newUrl.searchParams.append('scalar_url', url)
+  newUrl.searchParams.append('scalar_url', url as string)
 
   return newUrl.toString()
 }
 
 /** Returns false for requests to localhost, relative URLs, if no proxy is defined … */
 export function shouldUseProxy(proxy?: string, url?: string): boolean {
-  // no proxy or url
+  // No proxy or url
   if (!proxy || !url) {
     return false
   }
 
-  // relative URLs
+  // Relative URLs
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     return false
   }
 
-  // requests to localhost
+  // Requests to localhost
   if (isRequestToLocalhost(url)) {
     return false
   }

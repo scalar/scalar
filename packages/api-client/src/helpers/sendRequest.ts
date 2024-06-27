@@ -1,6 +1,8 @@
 import {
   concatenateUrlAndPath,
+  redirectToProxy,
   replaceVariables,
+  shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
 import axios, { type AxiosRequestConfig } from 'axios'
 import { nanoid } from 'nanoid'
@@ -17,16 +19,6 @@ import {
   normalizeRequestMethod,
   normalizeUrl,
 } from './'
-import { redirectToProxy } from './redirectToProxy'
-
-/** Skip the proxy for requests to localhost */
-function isRequestToLocalhost(url: string) {
-  const { hostname } = new URL(url)
-
-  const listOfLocalUrls = ['localhost', '127.0.0.1', '[::1]']
-
-  return listOfLocalUrls.includes(hostname)
-}
 
 /**
  * Send a request via the proxy
@@ -115,13 +107,9 @@ export async function sendRequest(
     data: request.body,
   }
 
-  const shouldUseProxy = proxyUrl && !isRequestToLocalhost(requestConfig.url)
-
   const axiosRequestConfig: AxiosRequestConfig = {
     method: requestConfig.method,
-    url: shouldUseProxy
-      ? redirectToProxy(proxyUrl, requestConfig.url)
-      : requestConfig.url,
+    url: redirectToProxy(proxyUrl, requestConfig.url),
     headers: requestConfig.headers,
     data: requestConfig.data,
   }
@@ -132,7 +120,7 @@ export async function sendRequest(
     axiosRequestConfig.withCredentials = true
   }
 
-  if (shouldUseProxy) {
+  if (shouldUseProxy(proxyUrl, requestConfig.url)) {
     console.info(
       `${requestConfig.method} ${requestConfig.url} (proxy: ${proxyUrl})`,
     )
