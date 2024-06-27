@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { htmlFromMarkdown } from '@scalar/code-highlight'
-import '@scalar/code-highlight/css/markdown.css'
 import { computed, onServerPrefetch } from 'vue'
 
 import { sleep } from '../../helpers/oas-utils'
@@ -30,3 +29,7 @@ onServerPrefetch(async () => await sleep(1))
     class="markdown"
     v-html="html" />
 </template>
+
+<style>
+@import '@scalar/code-highlight/css/markdown.css';
+</style>
