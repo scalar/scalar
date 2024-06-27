@@ -37,7 +37,7 @@ const isSelectedServer = (serverId: string) => {
   return activeCollection.value?.selectedServerUid === serverId
 }
 
-// Replace variables in URL
+/** Server URL with variables replaced */
 const serverUrl = computed(() => {
   const server = servers[activeCollection.value?.selectedServerUid ?? '']
   const url = server?.url as string | undefined
