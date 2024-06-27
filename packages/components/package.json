@@ -48,7 +48,6 @@
     "@floating-ui/vue": "^1.0.2",
     "@headlessui/vue": "^1.7.20",
     "@scalar/code-highlight": "workspace:*",
-    "@scalar/oas-utils": "workspace:*",
     "@storybook/test": "^8.0.8",
     "@vueuse/core": "^10.10.0",
     "cva": "1.0.0-beta.1",

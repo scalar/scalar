@@ -29,6 +29,8 @@ import { ScalarTextField } from './components/ScalarTextField'
 import { ScalarTooltip } from './components/ScalarTooltip'
 import './tailwind/tailwind.css'
 
+export * from './helpers'
+
 export {
   ScalarButton,
   ScalarCodeBlock,

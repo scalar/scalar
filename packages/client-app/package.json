@@ -20,6 +20,7 @@
   "scripts": {
     "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
     "dev": "vite",
+    "dev:modal": "vite ./playground -c ./vite.config.ts",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
@@ -81,6 +82,10 @@
     "./components/AddressBar": {
       "import": "./dist/components/AddressBar/index.js",
       "types": "./dist/components/AddressBar/index.d.ts"
+    },
+    "./Modal": {
+      "import": "./dist/Modal/index.js",
+      "types": "./dist/Modal/index.d.ts"
     },
     "./css/*.css": {
       "import": "./dist/css/*.css",

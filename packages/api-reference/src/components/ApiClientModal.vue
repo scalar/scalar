@@ -16,7 +16,7 @@ const { authentication } = useAuthenticationStore()
 onMounted(async () => {
   if (!el.value) return
 
-  const { createScalarApiClient } = await import('@scalar/api-client-modal')
+  const { createScalarApiClient } = await import('@scalar/client-app')
 
   const { modalState, open, updateAuth } = await createScalarApiClient(
     el.value,
@@ -38,6 +38,11 @@ onMounted(async () => {
   })
 })
 </script>
+
 <template>
   <div ref="el" />
 </template>
+
+<style>
+@import '@scalar/client-app/style.css';
+</style>
