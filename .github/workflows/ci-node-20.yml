@@ -1,0 +1,59 @@
+name: Check build, types, and units tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Get dependencies
+        uses: ./.github/actions/cached-deps
+      - name: Build
+        run: pnpm turbo build
+      - uses: actions/cache/save@v4
+        id: build-cache
+        with:
+          path: dist
+          key: ${{ runner.os }}-${{ hashFiles('**/.turbo/turbo-build.log') }}
+
+  validate:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      # TODO: Depends on build?
+      - uses: actions/cache/restore@v4
+        id: build-cache
+        with:
+          path: dist
+          key: ${{ runner.os }}-${{ hashFiles('**/.turbo/turbo-build.log') }}
+
+      - name: Check code style
+        run: pnpm format:check
+      - if: github.head_ref == 'changeset-release/main'
+        name: Check types
+        run: pnpm turbo types:check
+      - name: Run tests
+        run: pnpm test:ci
+      - name: Send bundle stats and build information to RelativeCI
+        uses: relative-ci/agent-action@v2
+        with:
+          key: ${{ secrets.RELATIVE_CI_KEY }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
