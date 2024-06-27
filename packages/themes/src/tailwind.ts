@@ -76,7 +76,7 @@ export default {
       },
 
       // Utility Colors
-      backdrop: 'rgba(0, 0, 0, 0.44)', // Overlay Backdrops
+      backdrop: 'rgba(0, 0, 0, 0.22)', // Overlay Backdrops
       border: 'var(--scalar-border-color)',
       brand: 'var(--scalar-brand)',
 

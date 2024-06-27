@@ -225,11 +225,6 @@ const onDragEnd = (
 const addItemHandler = () => {
   actionModalState.show()
 }
-const getBackgroundColor = () => {
-  if (!activeRequest.value) return ''
-  const { method } = activeRequest.value
-  return REQUEST_METHODS[method as RequestMethod].backgroundColor
-}
 
 const keys = useMagicKeys()
 
@@ -241,21 +236,13 @@ useEventListener(document, 'keydown', (event) => {
 </script>
 <template>
   <div
-    class="bg-mix-transparent bg-mix-amount-95 flex flex-1 flex-col rounded-lg rounded-b-none rounded-r-none pt-0 h-full"
-    :class="getBackgroundColor()"
-    style="
-      background: linear-gradient(
-        color-mix(in srgb, var(--tw-bg-base) 6%, transparent) 1%,
-        var(--scalar-background-2) 9%
-      );
-    ">
+    class="bg-b-2 flex flex-1 flex-col rounded-lg rounded-b-none rounded-r-none pt-0 h-full">
     <div
       class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container">
       <div
         class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 w-6/12">
         <button
-          class="request-text-color bg-mix-transparent hover:bg-mix-amount-95 p-2 rounded bg-mix-amount-100"
-          :class="getBackgroundColor()"
+          class="request-text-color bg-mix-transparent hover:bg-mix-amount-95 p-2 rounded"
           type="button"
           @click="showSideBar = !showSideBar">
           <ScalarIcon
@@ -268,14 +255,12 @@ useEventListener(document, 'keydown', (event) => {
         class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 justify-end w-6/12">
         <!-- <button
           class="request-text-color-text bg-mix-transparent hover:bg-mix-amount-95 px-2 py-1.5 rounded bg-mix-amount-90 font-medium text-sm"
-          :class="getBackgroundColor()"
           type="button">
           Test Acctual Locally
         </button> -->
         <button
           v-if="workspace.isReadOnly"
           class="request-text-color bg-mix-transparent hover:bg-mix-amount-95 p-2 rounded bg-mix-amount-100"
-          :class="getBackgroundColor()"
           type="button"
           @click="modalState.hide()">
           <ScalarIcon
@@ -352,10 +337,18 @@ useEventListener(document, 'keydown', (event) => {
 </template>
 <style scoped>
 .request-text-color {
-  color: color-mix(in srgb, var(--tw-bg-base) 15%, var(--scalar-color-3));
+  color: var(--scalar-color-3);
+}
+.request-text-color:hover {
+  color: var(--scalar-color-2);
 }
 .request-text-color-text {
-  color: color-mix(in srgb, var(--tw-bg-base) 25%, var(--scalar-color-1));
+  color: var(--scalar-color-1);
+  background: linear-gradient(
+    var(--scalar-background-1),
+    var(--scalar-background-3)
+  );
+  box-shadow: 0 0 0 1px var(--scalar-border-color);
 }
 .request-text-color-text:active,
 .request-text-color:active {
