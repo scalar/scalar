@@ -47,21 +47,15 @@ const variableOptions = computed(() =>
   })),
 )
 
-/**
- * Get values from the workspace, use `default` as fallback
- */
-const variablesData = computed(() => {
-  return Object.keys(activeServer.value.variables ?? {}).reduce(
-    (acc, variable) => ({
-      ...acc,
-      [variable]:
-        activeServer.value.variables?.[variable].value ??
-        activeServer.value.variables?.[variable].default ??
-        '',
-    }),
-    {},
-  )
-})
+/** Get values from the workspace, use `default` or `enum[0]` as fallback */
+const variablesData = computed(() =>
+  Object.entries(activeServer.value.variables ?? {}).reduce<
+    Record<string, string>
+  >((acc, [key, entry]) => {
+    acc[key] = entry.value ?? entry.default ?? entry?.enum?.[0] ?? ''
+    return acc
+  }, {}),
+)
 </script>
 <template>
   <div class="w-full">
