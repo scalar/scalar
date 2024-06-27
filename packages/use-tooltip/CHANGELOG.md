@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 1.0.2
+
+### Patch Changes
+
+- e1af8ed: revert: scalar use tooltip dependency update
+
 ## 1.0.1
 
 ### Patch Changes

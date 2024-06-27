@@ -1,5 +1,13 @@
 # @scalar/oas-utils
 
+## 0.2.6
+
+### Patch Changes
+
+- cefe804: feat: findVariables, replaceVariables, concatenateUrlAndPath
+- fec6f8e: feat: add a value to the server variables
+- d0aec62: fix: remove hardcoded proxy url for new client
+
 ## 0.2.5
 
 ### Patch Changes

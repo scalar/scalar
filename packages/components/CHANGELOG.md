@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.5
+
+### Patch Changes
+
+- 4861362: chore: merge modal package into client-app
+
 ## 0.12.4
 
 ### Patch Changes

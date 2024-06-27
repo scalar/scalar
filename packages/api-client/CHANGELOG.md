@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 1.3.20
+
+### Patch Changes
+
+- cefe804: refactor: server feature
+- Updated dependencies [e1af8ed]
+- Updated dependencies [4861362]
+- Updated dependencies [cefe804]
+- Updated dependencies [fec6f8e]
+- Updated dependencies [d0aec62]
+  - @scalar/use-tooltip@1.0.2
+  - @scalar/components@0.12.5
+  - @scalar/oas-utils@0.2.6
+
 ## 1.3.19
 
 ### Patch Changes
