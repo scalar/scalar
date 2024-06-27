@@ -37,7 +37,7 @@ function getUrlPart(request: XMLHttpRequest, part: keyof URL) {
   return baseUrl.toString()
 }
 
-const { addNavItem, setNavItemIdx, topNavItems } = useTopNav()
+// const { addNavItem, setNavItemIdx, topNavItems } = useTopNav()
 
 function handleHistoryClick(index: number) {
   const historicalRequest = requestsHistory.value[index]
@@ -46,8 +46,8 @@ function handleHistoryClick(index: number) {
   // todo potentially search and find a previous open request id of this maybe
   // or we can open it in a draft state if the request is already open :)
   if (activeRequest.value.uid !== historicalRequest.request.requestUid) {
-    addNavItem()
-    setNavItemIdx(topNavItems.length - 1)
+    // addNavItem()
+    // setNavItemIdx(topNavItems.length - 1)
     router.push(`/request/${historicalRequest.request.requestUid}`)
   }
   requestExampleMutators.set(historicalRequest.request)
