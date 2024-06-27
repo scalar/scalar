@@ -76,7 +76,6 @@
     "lowlight": "^3.1.0",
     "rehype-external-links": "^3.0.0",
     "rehype-format": "^5.0.0",
-    "rehype-highlight": "^7.0.0",
     "rehype-parse": "^9.0.0",
     "rehype-raw": "^7.0.0",
     "rehype-sanitize": "^6.0.0",
