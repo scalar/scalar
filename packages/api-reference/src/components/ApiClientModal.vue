@@ -38,7 +38,8 @@ onMounted(async () => {
     updateAuth(authentication)
 
     // Just replace the current server with this string
-    updateServerUrl(getUrlFromServerState(server))
+    const serverUrl = getUrlFromServerState(server)
+    if (serverUrl) updateServerUrl(serverUrl)
 
     if (event.open) open(event.open)
   })
