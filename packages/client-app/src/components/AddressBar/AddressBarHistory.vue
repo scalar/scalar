@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { router } from '@/router'
 import { useTopNav } from '@/store/topNav'
 import { useWorkspace } from '@/store/workspace'
 import { ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
+import { useRouter } from 'vue-router'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import { getStatusCodeColor } from './httpStatusCodeColors'
@@ -15,6 +15,8 @@ defineProps<{
 
 const { requestsHistory, activeRequest, requestExampleMutators } =
   useWorkspace()
+
+const router = useRouter()
 
 /**
  * Get a part of the URL object from the scalar proxy request
@@ -46,7 +48,7 @@ function handleHistoryClick(index: number) {
   if (activeRequest.value.uid !== historicalRequest.request.requestUid) {
     addNavItem()
     setNavItemIdx(topNavItems.length - 1)
-    router.push(historicalRequest.request.uid)
+    router.push(`/request/${historicalRequest.request.requestUid}`)
   }
   requestExampleMutators.set(historicalRequest.request)
   activeRequest.value.history[0].response = historicalRequest.response
