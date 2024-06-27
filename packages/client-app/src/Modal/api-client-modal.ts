@@ -107,6 +107,10 @@ export const createScalarApiClient = async (
   if (mountOnInitialize) mount()
   workspaceMutators.edit('isReadOnly', true)
 
+  if (config.proxyUrl) {
+    workspaceMutators.edit('proxyUrl', config.proxyUrl)
+  }
+
   return {
     /** Update the API client config */
     updateConfig(newConfig: ClientConfiguration, mergeConfigs = true) {

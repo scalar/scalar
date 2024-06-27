@@ -56,6 +56,7 @@ executeRequestBus.on(async () => {
     /** to be added as a fullUrl?  */
     activeServer.value?.url + activeRequest.value.path,
     activeSecurityScheme.value,
+    workspace.proxyUrl,
   )
 
   if (request && response) {

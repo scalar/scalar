@@ -15,6 +15,8 @@ const workspaceSchema = z.object({
   environmentUids: z.array(z.string()).default([]),
   /** List of all cookie uids in a given workspace */
   cookieUids: z.array(z.string()).default([]),
+  /** Workspace level proxy for all requests to be sent through */
+  proxyUrl: z.string().optional(),
 })
 
 /** The base scalar workspace */

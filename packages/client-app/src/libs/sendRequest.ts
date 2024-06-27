@@ -43,6 +43,7 @@ export const sendRequest = async (
     scheme: SecurityScheme
     flow?: SelectedSchemeOauth2['flow']
   },
+  proxyUrl?: string,
 ): Promise<{
   sentTime?: number
   request?: RequestExample
@@ -182,7 +183,7 @@ export const sendRequest = async (
 
   const config: AxiosRequestConfig = {
     url: shouldUseProxy
-      ? `http://localhost:5051/?scalar_url=${encodeURIComponent(url)}`
+      ? `${proxyUrl}?scalar_url=${encodeURIComponent(url)}`
       : url,
     method: request.method,
     headers,
