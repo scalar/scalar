@@ -1,14 +1,11 @@
+import { redirectToProxy } from '@/helpers/redirectToProxy'
+
 import { formatJsonOrYamlString } from './parse'
 
 // Doesn’t work
 const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 // Does work
 const NEW_PROXY_URL = 'https://proxy.scalar.com'
-
-/** Redirects the request to a proxy server with a given URL. */
-function redirectToProxy(proxy: string, url: string): string {
-  return `${proxy}?scalar_url=${encodeURIComponent(url)}`
-}
 
 /** Fetches an OpenAPI/Swagger specification from a given URL. */
 export async function fetchSpecFromUrl(

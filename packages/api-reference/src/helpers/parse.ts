@@ -8,6 +8,7 @@ import {
   validRequestMethods,
 } from '@scalar/api-client'
 import type { Spec } from '@scalar/oas-utils'
+import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import {
   type AnyObject,
   type OpenAPI,
@@ -19,7 +20,7 @@ import {
 } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 
-import { createEmptySpecification, redirectToProxy } from '../helpers'
+import { createEmptySpecification } from '../helpers'
 
 export const parse = (
   specification: any,

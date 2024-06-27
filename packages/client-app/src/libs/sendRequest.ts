@@ -8,6 +8,7 @@ import type {
   RequestExampleParameter,
   ResponseInstance,
 } from '@scalar/oas-utils/entities/workspace/spec'
+import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 import Cookies from 'js-cookie'
 
@@ -63,7 +64,7 @@ export const sendRequest = async (
   })
 
   // Decide whether to use a proxy or not
-  const shouldUseProxy = !isRequestToLocalhost(url) && !!proxyUrl
+  const shouldUseProxy = !!proxyUrl && !isRequestToLocalhost(url)
 
   const headers = paramsReducer(example.parameters.headers)
 
@@ -182,9 +183,7 @@ export const sendRequest = async (
   url = `${urlWithoutQueryString}${queryString ? '?' + queryString : ''}`
 
   const config: AxiosRequestConfig = {
-    url: shouldUseProxy
-      ? `${proxyUrl}?scalar_url=${encodeURIComponent(url)}`
-      : url,
+    url: shouldUseProxy ? redirectToProxy(proxyUrl, url) : url,
     method: request.method,
     headers,
     data,
