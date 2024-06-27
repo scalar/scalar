@@ -38,12 +38,14 @@ const selected = computed<ScalarListboxOption | undefined>({
       resize>
       <ScalarButton
         class="url-select"
+        :class="{ 'pointer-events-none': options.length <= 1 }"
         fullWidth
         variant="ghost">
         <span>
           <slot></slot>
         </span>
         <ScalarIcon
+          v-if="options.length > 1"
           icon="ChevronDown"
           size="xs" />
       </ScalarButton>
