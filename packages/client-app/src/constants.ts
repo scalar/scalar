@@ -7,5 +7,5 @@ export const ROUTES: Route[] = [
   { label: 'Cookies', icon: 'Cookie', path: '/cookies' },
   { label: 'Environment', icon: 'Brackets', path: '/environment' },
   { label: 'Servers', icon: 'CodeFolder', path: '/servers' },
-  { label: 'Git Sync', icon: 'Branch', path: '/git-sync' },
+  // { label: 'Git Sync', icon: 'Branch', path: '/git-sync' },
 ] as const
