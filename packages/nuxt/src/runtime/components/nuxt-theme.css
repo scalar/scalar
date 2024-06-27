@@ -1,0 +1,66 @@
+.light-mode {
+  --scalar-background-1: #fff;
+  --scalar-background-2: #f8fafc;
+  --scalar-background-3: #e7e7e7;
+  --scalar-background-accent: #8ab4f81f;
+  --scalar-color-1: #000;
+  --scalar-color-2: #6b7280;
+  --scalar-color-3: #9ca3af;
+  --scalar-color-accent: #00c16a;
+  --scalar-border-color: #e5e7eb;
+  --scalar-color-green: #069061;
+  --scalar-color-red: #ef4444;
+  --scalar-color-yellow: #f59e0b;
+  --scalar-color-blue: #1d4ed8;
+  --scalar-color-orange: #fb892c;
+  --scalar-color-purple: #6d28d9;
+  --scalar-button-1: #000;
+  --scalar-button-1-hover: rgba(0, 0, 0, 0.9);
+  --scalar-button-1-color: #fff;
+}
+.dark-mode {
+  --scalar-background-1: #020420;
+  --scalar-background-2: #121a31;
+  --scalar-background-3: #1e293b;
+  --scalar-background-accent: #8ab4f81f;
+  --scalar-color-1: #fff;
+  --scalar-color-2: #cbd5e1;
+  --scalar-color-3: #94a3b8;
+  --scalar-color-accent: #00dc82;
+  --scalar-border-color: #1e293b;
+  --scalar-color-green: #069061;
+  --scalar-color-red: #f87171;
+  --scalar-color-yellow: #fde68a;
+  --scalar-color-blue: #60a5fa;
+  --scalar-color-orange: #fb892c;
+  --scalar-color-purple: #ddd6fe;
+  --scalar-button-1: hsla(0, 0%, 100%, 0.9);
+  --scalar-button-1-hover: hsla(0, 0%, 100%, 0.8);
+  --scalar-button-1-color: #000;
+}
+.dark-mode .t-doc__sidebar,
+.light-mode .t-doc__sidebar {
+  --scalar-sidebar-background-1: var(--scalar-background-1);
+  --scalar-sidebar-color-1: var(--scalar-color-1);
+  --scalar-sidebar-color-2: var(--scalar-color-3);
+  --scalar-sidebar-border-color: var(--scalar-border-color);
+  --scalar-sidebar-item-hover-background: transparent;
+  --scalar-sidebar-item-hover-color: var(--scalar-color-1);
+  --scalar-sidebar-item-active-background: transparent;
+  --scalar-sidebar-color-active: var(--scalar-color-accent);
+  --scalar-sidebar-search-background: transparent;
+  --scalar-sidebar-search-color: var(--scalar-color-3);
+  --scalar-sidebar-search-border-color: var(--scalar-border-color);
+  --scalar-sidebar-indent-border: var(--scalar-border-color);
+  --scalar-sidebar-indent-border-hover: var(--scalar-color-1);
+  --scalar-sidebar-indent-border-active: var(--scalar-color-accent);
+}
+.scalar-card .request-card-footer {
+  --scalar-background-3: var(--scalar-background-2);
+  --scalar-button-1: #0f172a;
+  --scalar-button-1-hover: rgba(30, 41, 59, 0.5);
+  --scalar-button-1-color: #fff;
+}
+.scalar-card .show-api-client-button {
+  border: 1px solid #334155 !important;
+}
