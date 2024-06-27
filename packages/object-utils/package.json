@@ -18,14 +18,14 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "build": "scalar-build-rollup",
     "dev": "vite",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
     "test": "vitest",
-    "types:build": "tsc -p tsconfig.build.json",
-    "types:check": "tsc --noEmit --skipLibCheck --composite false"
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -65,7 +65,6 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "tsc-alias": "^1.8.8",
     "vite": "^5.2.10"
   }
 }
