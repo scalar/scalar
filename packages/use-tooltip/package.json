@@ -41,7 +41,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "radix-vue": "^1.8.4",
+    "tippy.js": "^6.3.7",
     "vue": "^3.4.22"
   },
   "devDependencies": {
