@@ -1,7 +1,6 @@
 /** Redirects the request to a proxy server with a given URL. */
 export function redirectToProxy(proxy: string, url: string): string {
-  // Skip relative URLs
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+  if (!shouldUseProxy(proxy, url)) {
     return url
   }
 
@@ -15,4 +14,31 @@ export function redirectToProxy(proxy: string, url: string): string {
   newUrl.searchParams.append('scalar_url', url)
 
   return newUrl.toString()
+}
+
+/** Returns false for requests to localhost, relative URLs, if no proxy is defined … */
+export function shouldUseProxy(proxy?: string, url?: string): boolean {
+  // no proxy or url
+  if (!proxy || !url) {
+    return false
+  }
+
+  // relative URLs
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    return false
+  }
+
+  // requests to localhost
+  if (isRequestToLocalhost(url)) {
+    return false
+  }
+
+  return true
+}
+
+/** Detect requests to localhost */
+export function isRequestToLocalhost(url: string) {
+  const { hostname } = new URL(url)
+  const listOfLocalUrls = ['localhost', '127.0.0.1', '[::1]']
+  return listOfLocalUrls.includes(hostname)
 }

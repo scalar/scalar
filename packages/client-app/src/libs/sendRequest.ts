@@ -8,7 +8,7 @@ import type {
   RequestExampleParameter,
   ResponseInstance,
 } from '@scalar/oas-utils/entities/workspace/spec'
-import { redirectToProxy } from '@scalar/oas-utils/helpers'
+import { redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 import Cookies from 'js-cookie'
 
@@ -24,13 +24,6 @@ const paramsReducer = (params: RequestExampleParameter[] = []) =>
     },
     {} as Record<string, string>,
   )
-
-/** Skip the proxy for requests to localhost */
-const isRequestToLocalhost = (url: string) => {
-  const { hostname } = new URL(url)
-  const listOfLocalUrls = ['localhost', '127.0.0.1', '[::1]']
-  return listOfLocalUrls.includes(hostname)
-}
 
 /**
  * Execute the request
@@ -62,9 +55,6 @@ export const sendRequest = async (
 
     url = url.replace(`{${parameter.key}}`, parameter.value)
   })
-
-  // Decide whether to use a proxy or not
-  const shouldUseProxy = !!proxyUrl && !isRequestToLocalhost(url)
 
   const headers = paramsReducer(example.parameters.headers)
 
@@ -183,7 +173,7 @@ export const sendRequest = async (
   url = `${urlWithoutQueryString}${queryString ? '?' + queryString : ''}`
 
   const config: AxiosRequestConfig = {
-    url: shouldUseProxy ? redirectToProxy(proxyUrl, url) : url,
+    url: redirectToProxy(proxyUrl, url),
     method: request.method,
     headers,
     data,
@@ -195,7 +185,7 @@ export const sendRequest = async (
   try {
     const response = await axios(config)
 
-    if (shouldUseProxy) {
+    if (shouldUseProxy(proxyUrl, url)) {
       // Remove headers, that are added by the proxy
       const headersToRemove = [
         'Access-Control-Allow-Headers',

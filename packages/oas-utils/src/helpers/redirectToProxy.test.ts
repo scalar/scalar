@@ -20,6 +20,12 @@ describe('redirectToProxy', () => {
     )
   })
 
+  it('skips the proxy if no proxy url is passed', async () => {
+    expect(redirectToProxy('', 'https://example.com')).toBe(
+      'https://example.com',
+    )
+  })
+
   it('skips the proxy for relative URLs starting with a slash', async () => {
     expect(redirectToProxy('https://proxy.scalar.com', '/api')).toBe('/api')
   })
