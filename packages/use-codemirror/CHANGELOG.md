@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.11.4
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+
 ## 0.11.3
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/docusaurus
 
+## 0.4.20
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+- Updated dependencies [94e68ab]
+  - @scalar/api-reference-react@0.3.18
+
 ## 0.4.19
 
 ### Patch Changes

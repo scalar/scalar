@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.0.2
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+
 ## 2.0.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 1.0.1
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+
 ## 1.0.0
 
 ### Major Changes

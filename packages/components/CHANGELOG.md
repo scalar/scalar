@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.12.4
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+- Updated dependencies [a298195]
+- Updated dependencies [326bd3d]
+- Updated dependencies [94e68ab]
+  - @scalar/oas-utils@0.2.5
+  - @scalar/code-highlight@0.0.5
+
 ## 0.12.3
 
 ### Patch Changes

@@ -1,5 +1,27 @@
 # @scalar/client-app
 
+## 0.1.14
+
+### Patch Changes
+
+- 3ab472b: fix: client app top nav item click emit
+- 50c2944: fix: client app request basic auth placeholder
+- 326bd3d: fix: URL is not encoded when sent to the proxy
+- 4aa74e3: feat: client app send request error handling
+- a298195: feat: sort request history most recent first
+- 94e68ab: chore: upgrade typescript to 5.5
+- 5103023: fix: cookies are not sent
+- 1734dd6: fix: address bar request history item style
+- Updated dependencies [a298195]
+- Updated dependencies [326bd3d]
+- Updated dependencies [94e68ab]
+  - @scalar/oas-utils@0.2.5
+  - @scalar/components@0.12.4
+  - @scalar/draggable@0.1.3
+  - @scalar/object-utils@1.1.2
+  - @scalar/use-toasts@0.7.4
+  - @scalar/use-tooltip@1.0.1
+
 ## 0.1.13
 
 ### Patch Changes

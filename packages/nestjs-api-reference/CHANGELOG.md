@@ -1,5 +1,13 @@
 # @scalar/nestjs-api-reference
 
+## 0.3.81
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+- Updated dependencies [94e68ab]
+  - @scalar/api-reference@1.24.20
+
 ## 0.3.80
 
 ### Patch Changes

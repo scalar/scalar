@@ -1,5 +1,11 @@
 # @scalar/draggable
 
+## 0.1.3
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+
 ## 0.1.2
 
 ### Patch Changes

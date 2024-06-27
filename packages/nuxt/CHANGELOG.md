@@ -1,5 +1,15 @@
 # @scalar/nuxt
 
+## 0.2.18
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+- Updated dependencies [326bd3d]
+- Updated dependencies [94e68ab]
+  - @scalar/api-client@1.3.19
+  - @scalar/api-reference@1.24.20
+
 ## 0.2.17
 
 ### Patch Changes

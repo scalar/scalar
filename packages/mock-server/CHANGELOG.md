@@ -1,5 +1,15 @@
 # @scalar/mock-server
 
+## 0.2.5
+
+### Patch Changes
+
+- 94e68ab: chore: upgrade typescript to 5.5
+- Updated dependencies [a298195]
+- Updated dependencies [326bd3d]
+- Updated dependencies [94e68ab]
+  - @scalar/oas-utils@0.2.5
+
 ## 0.2.4
 
 ### Patch Changes
