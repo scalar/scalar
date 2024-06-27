@@ -1,7 +1,7 @@
 /** Redirects the request to a proxy server with a given URL. */
 export function redirectToProxy(proxy?: string, url?: string): string {
   if (!shouldUseProxy(proxy, url)) {
-    return url as string
+    return url ?? ''
   }
 
   // Create new URL object from url
