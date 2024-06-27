@@ -1,5 +1,10 @@
 /** Redirects the request to a proxy server with a given URL. */
 export function redirectToProxy(proxy: string, url: string): string {
+  // Skip relative URLs
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    return url
+  }
+
   // Create new URL object from url
   const newUrl = new URL(url)
 

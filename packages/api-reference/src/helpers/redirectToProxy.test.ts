@@ -19,4 +19,12 @@ describe('redirectToProxy', () => {
       'https://proxy.scalar.com/?foo=bar&scalar_url=https%3A%2F%2Fexample.com',
     )
   })
+
+  it('skips the proxy for relative URLs starting with a slash', async () => {
+    expect(redirectToProxy('https://proxy.scalar.com', '/api')).toBe('/api')
+  })
+
+  it('skips the proxy for relative URLs not starting with a slash', async () => {
+    expect(redirectToProxy('https://proxy.scalar.com', 'api')).toBe('api')
+  })
 })
