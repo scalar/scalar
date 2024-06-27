@@ -68,6 +68,7 @@ export const createScalarApiClient = async (
   const config = reactive(initialConfig)
 
   const {
+    activeCollection,
     importSpecFile,
     importSpecFromUrl,
     modalState,
@@ -124,19 +125,16 @@ export const createScalarApiClient = async (
       }
       if (newConfig.spec) importSpecFile(newConfig.spec)
     },
-    updateServerUrl: (serverUrl: string) => {
-      // TODO: Delete all existing servers
-      // Object.values(servers).forEach(({ uid }) => {
-      //   serverMutators.delete(firstCollection.uid, uid)
-      // })
-
-      // Add new server
-      serverMutators.add({
-        url: serverUrl,
-      })
-
-      // TODO: Switch to the new server
-    },
+    /**
+     * TODO this is just temporary for the modal, we'll put in a proper solution later
+     * Here we update the currently selected serverUrl
+     */
+    updateServerUrl: (serverUrl: string) =>
+      serverMutators.edit(
+        activeCollection.value?.selectedServerUid ?? '',
+        'url',
+        serverUrl,
+      ),
     /**
      * Update the security schemes
      * maps the references useAuthenticationStore to the client auth
