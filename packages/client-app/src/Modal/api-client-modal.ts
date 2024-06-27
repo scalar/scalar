@@ -15,6 +15,8 @@ export type ClientConfiguration = {
   spec: SpecConfiguration
   /** Pass in a proxy to the API client */
   proxyUrl?: string
+  /** Pass in a theme API client */
+  themeId?: string
   /** Whether to show the sidebar */
   showSidebar?: boolean
   /** Whether dark mode is on or off initially (light mode) */
@@ -111,6 +113,10 @@ export const createScalarApiClient = async (
 
   if (config.proxyUrl) {
     workspaceMutators.edit('proxyUrl', config.proxyUrl)
+  }
+
+  if (config.themeId) {
+    workspaceMutators.edit('themeId', config.themeId)
   }
 
   return {
