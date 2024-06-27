@@ -57,7 +57,7 @@ function setScope(id: string, checked: boolean) {
         <DisclosureButton
           v-slot="{ open }"
           class="group/scopes-accordion flex items-center text-left min-h-8 gap-1.5 h-auto pl-2 hover:bg-b-2 pr-2.5 cursor-pointer">
-          <div class="flex-1">
+          <div class="flex-1 text-c-3">
             Selected
             {{ activeFlow?.selectedScopes?.length || 0 }} /
             {{ Object.keys(activeFlow?.scopes ?? {}).length || 0 }}

@@ -3,7 +3,10 @@ import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableHeader from '@/components/DataTable/DataTableHeader.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
+import { useDarkModeState } from '@/hooks'
+import { useWorkspace } from '@/store/workspace'
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
+import { type ThemeId, getThemeStyles } from '@scalar/themes'
 import { computed, nextTick, ref, watch } from 'vue'
 
 const props = withDefaults(
@@ -18,6 +21,8 @@ const props = withDefaults(
     data: null,
   },
 )
+
+const { workspace } = useWorkspace()
 
 const codeLanguage = computed(() => {
   const contentTypeHeader =
@@ -34,6 +39,7 @@ const iframe = ref<HTMLIFrameElement | null>(null)
 const activePreview = ref('raw')
 const previewOptions = ['raw', 'preview']
 
+const { isDark } = useDarkModeState()
 watch(
   () => activePreview.value,
   async (newValue) => {
@@ -45,6 +51,45 @@ watch(
         if (!doc) return
         doc.open()
         doc.write(props.data)
+        doc.close()
+      }
+    }
+  },
+)
+
+watch(
+  () => isDark.value,
+  async (newValue) => {
+    await nextTick()
+    if (iframe.value) {
+      const doc =
+        iframe.value.contentDocument || iframe.value.contentWindow?.document
+      if (!doc) return
+      doc.body.classList.toggle('dark-mode', isDark.value)
+      doc.body.classList.toggle('light-mode', !isDark.value)
+    }
+  },
+)
+
+watch(
+  () => activePreview.value,
+  async (newValue) => {
+    if (newValue === 'preview') {
+      await nextTick()
+      if (iframe.value) {
+        const doc =
+          iframe.value.contentDocument || iframe.value.contentWindow?.document
+        if (!doc) return
+        doc.open()
+        doc.write(props.data)
+        doc.body.classList.toggle('dark-mode', isDark.value)
+        doc.body.classList.toggle('light-mode', !isDark.value)
+        doc.write(
+          '<style>body,html {body:not(:has(* + style + style)) {font-family: var(--scalar-font-code); font-size: 12px; font-weight: 400;background:var(--scalar-background-1); color: var(--scalar-color-2)}</style>',
+        )
+        doc.write(
+          `<style>${getThemeStyles(workspace.themeId as ThemeId)}</style>`,
+        )
         doc.close()
       }
     }
@@ -91,6 +136,7 @@ watch(
             <iframe
               ref="iframe"
               allowfullscreen
+              allowtransparency="true"
               class="w-full aspect-video"
               frameborder="0"></iframe>
           </template>
@@ -102,5 +148,8 @@ watch(
 <style scoped>
 .force-text-sm {
   --scalar-small: 13px;
+}
+iframe {
+  background-color: transparent;
 }
 </style>

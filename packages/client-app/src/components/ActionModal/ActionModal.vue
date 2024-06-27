@@ -51,9 +51,9 @@ const changeTab = (index: number) => {
     :open="state.open"
     @close="state.hide()">
     <div
-      class="animate-modal-fade bg-backdrop fixed left-0 top-0 z-[1001] h-screen w-screen p-[20px] opacity-0">
+      class="animate-modal-fade bg-backdrop fixed left-0 top-0 z-[1001] h-screen w-screen p-[20px] opacity-0 cursor-pointer">
       <DialogPanel
-        class="animate-modal-pop before:bg-b-1 relative mx-auto mt-20 w-full max-w-[480px] scale-[0.98] rounded-lg opacity-0 before:absolute before:z-0 before:block before:h-full before:w-full before:rounded-lg before:content-['']">
+        class="animate-modal-pop before:bg-b-1 relative mx-auto mt-20 w-full max-w-[480px] scale-[0.98] rounded-lg opacity-0 before:absolute before:z-0 before:block before:h-full before:w-full before:rounded-lg before:content-[''] cursor-auto">
         <DialogDescription
           class="bg-b-1 custom-scroll relative overflow-visible rounded-lg">
           <TabGroup
