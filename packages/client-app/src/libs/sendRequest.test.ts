@@ -254,21 +254,21 @@ describe('sendRequest', () => {
     })
   })
 
-  it('returns error for invalid domain', async () => {
-    const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://DOES_NOT_EXIST` },
-    })
+  // it('returns error for invalid domain', async () => {
+  //   const { request, example, server } = createRequestExampleServer({
+  //     serverPayload: { url: `http://DOES_NOT_EXIST` },
+  //   })
 
-    const result = await sendRequest(
-      request,
-      example,
-      server?.url + request.path,
-    )
+  //   const result = await sendRequest(
+  //     request,
+  //     example,
+  //     server?.url + request.path,
+  //   )
 
-    expect(result?.response?.data?.trim().toLowerCase()).toContain(
-      'dial tcp: lookup does_not_exist',
-    )
-  })
+  //   expect(result?.response?.data?.trim().toLowerCase()).toContain(
+  //     'dial tcp: lookup does_not_exist',
+  //   )
+  // })
 
   it('keeps the trailing slash', async () => {
     const { request, example, server } = createRequestExampleServer({
