@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ServerVariableSelect from './ServerVariableSelect.vue'
-import ServerVariableTextbox from './ServerVariableTextbox.vue'
+import ServerVariablesSelect from './ServerVariablesSelect.vue'
+import ServerVariablesTextbox from './ServerVariablesTextbox.vue'
 import type { ServerVariableValues, ServerVariables } from './types'
 
 const props = defineProps<{
@@ -39,13 +39,13 @@ const getVariable = (name: string) => {
         </label>
 
         <template v-if="variables?.[name].enum?.length">
-          <ServerVariableSelect
+          <ServerVariablesSelect
             :enum="variables[name]?.enum?.map((v) => `${v}`) ?? []"
             :value="getVariable(name)"
             @change="(s) => setVariable(name, s)" />
         </template>
         <template v-else>
-          <ServerVariableTextbox
+          <ServerVariablesTextbox
             :value="getVariable(name)"
             @change="(s) => setVariable(name, s)" />
         </template>

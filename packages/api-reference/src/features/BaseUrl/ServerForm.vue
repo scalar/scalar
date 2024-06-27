@@ -2,7 +2,7 @@
 import { ScalarMarkdown } from '@scalar/components'
 import { computed, toRef } from 'vue'
 
-import ServerItem from './ServerItem.vue'
+import ServerUrl from './ServerUrl.vue'
 import ServerUrlSelect from './ServerUrlSelect.vue'
 import ServerVariablesForm from './ServerVariablesForm.vue'
 import type { Server, ServerVariableValues } from './types'
@@ -48,7 +48,7 @@ const server = computed(() => props.servers?.[selectedRef.value])
             :options="servers"
             :value="selectedRef"
             @change="updateSelectedIndex">
-            <ServerItem
+            <ServerUrl
               :server="server"
               :variables="variables" />
           </ServerUrlSelect>

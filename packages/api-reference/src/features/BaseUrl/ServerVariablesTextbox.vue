@@ -23,7 +23,6 @@ const model = computed<string>({
     spellcheck="false"
     type="text" />
 </template>
-
 <style scoped>
 .variable-textbox {
   padding: 9px 9px 9px 0;
