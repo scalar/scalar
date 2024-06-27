@@ -2,7 +2,6 @@
 import { replaceVariables } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
 
-import { useClipboard } from '../../hooks'
 import type { Server, ServerVariableValues } from './types'
 
 const props = defineProps<{
@@ -10,9 +9,9 @@ const props = defineProps<{
   variables?: ServerVariableValues
 }>()
 
-const { copyToClipboard } = useClipboard()
-
+/** Server url with HTML to highlight variables */
 const formattedServerUrl = computed(() => {
+  // Get the server URL
   const url = props.server?.url ?? ''
 
   // Remove HTML
@@ -27,31 +26,18 @@ const formattedServerUrl = computed(() => {
     }</span>`
   })
 })
-
-/**
- * We don’t want to just replace all variables, but keep variables without a server.
- *
- * Examples:
- *  - `https://example.com/{foo}` (without foo) should return `https://example.com/{foo}`
- *  - `https://example.com/{foo}` (with foo: 123) should return `https://example.com/123`
- *
- * So we just what we did above, but strip the HTML.
- */
-const plainTextUrl = computed(() =>
-  formattedServerUrl.value.replace(/(<([^>]+)>)/gi, ''),
-)
 </script>
 <template>
   <template v-if="server">
     <a
       class="base-url"
       :title="server.description"
-      @click="copyToClipboard(plainTextUrl)"
       v-html="formattedServerUrl" />
   </template>
 </template>
 
 <style>
+/* This variable is only added through code and must not be scoped. */
 .base-url-variable {
   color: var(--scalar-color-1);
 }
@@ -63,7 +49,6 @@ const plainTextUrl = computed(() =>
   cursor: pointer;
   font-family: var(--scalar-font-code);
   display: inline-block;
-  padding: 10px 0;
   font-size: var(--scalar-micro);
   min-width: 0;
   overflow: hidden;
