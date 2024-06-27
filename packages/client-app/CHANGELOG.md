@@ -1,5 +1,24 @@
 # @scalar/client-app
 
+## 0.1.15
+
+### Patch Changes
+
+- fec6f8e: feat: variables in server urls
+- cefe804: refactor: server feature
+- 4861362: chore: merge modal package into client-app
+- de13666: fix: request history routing
+- d0aec62: fix: remove hardcoded proxy url for new client
+- 2c0bd57: feat: client app address bar path request
+- Updated dependencies [e1af8ed]
+- Updated dependencies [4861362]
+- Updated dependencies [cefe804]
+- Updated dependencies [fec6f8e]
+- Updated dependencies [d0aec62]
+  - @scalar/use-tooltip@1.0.2
+  - @scalar/components@0.12.5
+  - @scalar/oas-utils@0.2.6
+
 ## 0.1.14
 
 ### Patch Changes
