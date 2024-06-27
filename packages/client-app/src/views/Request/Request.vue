@@ -50,11 +50,26 @@ executeRequestBus.on(async () => {
     return
   }
 
+  let url = activeServer.value?.url + activeRequest.value.path
+
+  // Replace vraible
+  // TODO: use `replaceVariables` from `@scalar/oas-utils/helpers`
+  // Note: Currently, it’s in @scalar/api-client, but that’s about to change.
+  // TODO: This is not really the best place. I to replace variables. It should probably happen in sendRequest? Let me think about that.
+  if (activeServer.value?.variables) {
+    const singleCurlyBrackets = /{\s*([\w.-]+)\s*}/g
+    url = url.replace(singleCurlyBrackets, (match, key) => {
+      const variable = activeServer.value?.variables?.[key]
+      return (
+        variable?.value || variable?.default || variable?.enum?.[0] || match
+      )
+    })
+  }
+
   const { request, response } = await sendRequest(
     activeRequest.value,
     activeExample.value,
-    /** to be added as a fullUrl?  */
-    activeServer.value?.url + activeRequest.value.path,
+    url,
     activeSecurityScheme.value,
   )
 

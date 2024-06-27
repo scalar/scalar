@@ -24,6 +24,8 @@ const serverVariableSchema = z.object({
   default: z.string().optional().default('default'),
   /** An optional description for the server variable. CommonMark syntax MAY be used for rich text representation. */
   description: z.string().optional(),
+  /** An optional value for the server variable */
+  value: z.string().optional(),
 })
 
 const serverSchema = z.object({
