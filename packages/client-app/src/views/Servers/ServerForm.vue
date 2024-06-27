@@ -39,20 +39,23 @@ const updateVariable = (key: string, value: any) => {
   serverMutators.edit(activeServer.value.uid, `variables.${key}.value`, value)
 }
 
+/** Fields for the table */
 const variableOptions = computed(() =>
-  Object.entries(activeServer.value?.variables ?? {}).map(([key, val]) => ({
-    key,
-    label: key,
-    placeholder: val ?? '',
-  })),
+  Object.entries(activeServer.value?.variables ?? {}).map(
+    ([key, variable]) => ({
+      key,
+      label: key,
+      placeholder: variable.default ?? variable?.enum?.[0] ?? '',
+    }),
+  ),
 )
 
-/** Get values from the workspace, use `default` or `enum[0]` as fallback */
+/** Values from the workspace, use `default` or `enum[0]` as fallback */
 const variablesData = computed(() =>
   Object.entries(activeServer.value.variables ?? {}).reduce<
     Record<string, string>
-  >((acc, [key, entry]) => {
-    acc[key] = entry.value ?? entry.default ?? entry?.enum?.[0] ?? ''
+  >((acc, [key, variable]) => {
+    acc[key] = variable.value ?? variable.default ?? variable?.enum?.[0] ?? ''
     return acc
   }, {}),
 )
