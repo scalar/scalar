@@ -6,7 +6,7 @@ import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
@@ -48,17 +48,21 @@ whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, () =>
 //   },
 // )
 //
-/** Ensure we update the instance path parameters on change as well */
+/** update the instance path parameters on change */
 const onUrlChange = (newPath: string) => {
   if (!activeRequest.value) return
 
-  // updateRequestInstance(
-  //   activeRequest.value.uid,
-  //   activeInstanceIdx,
-  //   'url',
-  //   newPath,
-  // )
+  requestMutators.edit(activeRequest.value.uid, 'path', newPath)
 }
+
+/** watch for changes in the URL */
+watch(
+  () => activeRequest.value?.path,
+  (newURL) => {
+    if (!activeRequest.value) return
+    onUrlChange(newURL)
+  },
+)
 
 const percentage = ref(100)
 const isRequesting = ref(false)
