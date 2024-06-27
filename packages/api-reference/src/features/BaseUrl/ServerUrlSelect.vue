@@ -26,16 +26,7 @@ const options = computed<ScalarListboxOption[]>(() =>
 )
 
 const selected = computed<ScalarListboxOption | undefined>({
-  get: () => {
-    console.log(
-      'selected',
-      options.value?.find((opt) => opt.id === props.value.toString()),
-      options,
-      props.value,
-      typeof props.value,
-    )
-    return options.value?.find((opt) => opt.id === props.value.toString())
-  },
+  get: () => options.value?.find((opt) => opt.id === props.value.toString()),
   set: (opt?: ScalarListboxOption) => emit('change', opt?.id ?? ''),
 })
 </script>
