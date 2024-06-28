@@ -18,7 +18,13 @@ import type { Collection } from '@scalar/oas-utils/entities/workspace/collection
 import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useEventListener, useMagicKeys } from '@vueuse/core'
-import { type DeepReadonly, computed, ref } from 'vue'
+import {
+  type DeepReadonly,
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+} from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
 
@@ -44,7 +50,7 @@ const handleTabChange = (activeTab: string) => {
  * Execute the request
  * called from the send button as well as keyboard shortcuts
  */
-executeRequestBus.on(async () => {
+const executeRequest = async () => {
   if (!activeRequest.value || !activeExample.value) {
     console.warn(
       'There is no request active at the moment. Please select one then try again.',
@@ -85,7 +91,15 @@ executeRequestBus.on(async () => {
   } else {
     console.warn('No response or request was returned')
   }
-})
+}
+onMounted(() => executeRequestBus.on(executeRequest))
+
+/**
+ * Need to manually remove listener on unmount due to vueuse memory leak
+ *
+ * @see https://github.com/vueuse/vueuse/issues/3498#issuecomment-2055546566
+ */
+onBeforeUnmount(() => executeRequestBus.off(executeRequest))
 
 // TODO temp switch for folder mode
 const FOLDER_MODE = true
