@@ -1,5 +1,11 @@
 # @scalar/nuxt
 
+## 0.2.22
+
+### Patch Changes
+
+- 906ab1f: fix: nuxt build
+
 ## 0.2.21
 
 ### Patch Changes
