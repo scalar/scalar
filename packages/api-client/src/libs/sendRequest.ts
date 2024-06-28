@@ -56,7 +56,9 @@ export const sendRequest = async (
     url = url.replace(`{${parameter.key}}`, parameter.value)
   })
 
-  const headers = paramsReducer(example.parameters.headers)
+  const headers = paramsReducer(
+    example.parameters.headers.filter(({ enabled }) => enabled),
+  )
 
   let data: FormData | string | File | null = null
 
@@ -97,14 +99,12 @@ export const sendRequest = async (
   })
 
   const query: Record<string, string> = {
-    ...paramsReducer(example.parameters.query),
+    ...paramsReducer(example.parameters.query.filter(({ enabled }) => enabled)),
     ...paramsReducer(queryParametersFromUrl),
   }
   const cookies: Record<string, string> = {
     ...paramsReducer(
-      (example.parameters.cookies ?? []).filter(
-        (cookie: RequestExampleParameter) => cookie.enabled,
-      ),
+      (example.parameters.cookies ?? []).filter(({ enabled }) => enabled),
     ),
   }
 
