@@ -220,7 +220,19 @@ export const createScalarApiClient = async (
       }
     },
     /** Update the spec file, this will re-parse it and clear your store */
-    updateSpec: (spec: SpecConfiguration) => importSpecFile(spec),
+    updateSpec: (spec: SpecConfiguration) => {
+      if (spec?.url) {
+        importSpecFromUrl(toRaw(spec.url), toRaw(config.proxyUrl))
+      } else if (spec?.content) {
+        importSpecFile(toRaw(spec?.content))
+      } else {
+        console.error(
+          `[@scalar/api-client-modal] Could not create the API client.`,
+          `Please provide an OpenAPI document: { spec: { url: '…' } }`,
+          `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client-modal`,
+        )
+      }
+    },
     /** Open the  API client modal */
     open: (payload?: OpenClientPayload) => {
       // Find the request from path + method

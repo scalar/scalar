@@ -5,7 +5,7 @@ import {
   useServerStore,
 } from '#legacy'
 import type { SpecConfiguration } from '@scalar/oas-utils'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import { apiClientBus, modalStateBus } from './api-client-bus'
 
@@ -23,7 +23,7 @@ onMounted(async () => {
 
   const { createScalarApiClient } = await import('@scalar/api-client')
 
-  const { modalState, open, updateAuth, updateServerUrl } =
+  const { modalState, open, updateAuth, updateServerUrl, updateSpec } =
     await createScalarApiClient(el.value, {
       spec: props.spec ?? {},
       proxyUrl: props.proxyUrl,
@@ -35,14 +35,24 @@ onMounted(async () => {
   apiClientBus.on((event) => {
     // Right now we just update auth every time we open but eventually we should do it when something in auth changes
     // if (event.updateAuth) updateAuth(event.updateAuth)
-    updateAuth(authentication)
+    if (event.open) {
+      updateAuth(authentication)
 
-    // Just replace the current server with this string
-    const serverUrl = getUrlFromServerState(server)
-    if (serverUrl) updateServerUrl(serverUrl)
+      // Just replace the current server with this string
+      const serverUrl = getUrlFromServerState(server)
+      if (serverUrl) updateServerUrl(serverUrl)
 
-    if (event.open) open(event.open)
+      open(event.open)
+    }
+
+    if (event.updateSpec) updateSpec(event.updateSpec)
   })
+
+  watch(
+    () => props.spec,
+    (newSpec) => newSpec && updateSpec(newSpec),
+    { deep: true },
+  )
 })
 </script>
 
