@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.24.24
+
+### Patch Changes
+
+- bbbabe6: fix: server description padding
+- Updated dependencies [ec52346]
+- Updated dependencies [ded1303]
+- Updated dependencies [6aae9fe]
+- Updated dependencies [14e71cd]
+  - @scalar/api-client@2.0.1
+  - @scalar/components@0.12.7
+  - @scalar/oas-utils@0.2.7
+  - @scalar/themes@0.9.9
+  - @scalar/use-toasts@0.7.4
+  - @scalar/use-tooltip@1.0.2
+
 ## 1.24.23
 
 ### Patch Changes
