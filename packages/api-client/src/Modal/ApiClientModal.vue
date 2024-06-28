@@ -14,7 +14,6 @@ defineProps<{
 
 /**
  * Ensure we add our scalar wrapper class to the headless ui root
- * mounted is too late
  */
 onBeforeMount(() => addScalarClassesToHeadless())
 </script>
