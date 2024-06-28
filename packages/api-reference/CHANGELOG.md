@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.24.25
+
+### Patch Changes
+
+- 429e928: feat: watch spec and update
+- Updated dependencies [209a7e1]
+- Updated dependencies [429e928]
+- Updated dependencies [3ba80b9]
+  - @scalar/api-client@2.0.2
+
 ## 1.24.24
 
 ### Patch Changes
