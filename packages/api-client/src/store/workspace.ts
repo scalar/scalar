@@ -555,10 +555,9 @@ async function importSpecFile(spec: string | AnyObject) {
 
   // Security Schemes
   Object.entries(
-    (workspaceEntities.components?.securitySchemes ?? {}) as Record<
-      string,
-      SecurityScheme
-    >,
+    ((workspaceEntities.components?.securitySchemes ||
+      workspaceEntities.securityDefinitions) ??
+      {}) as Record<string, SecurityScheme>,
   ).forEach(([key, securityScheme]) =>
     securitySchemeMutators.add(
       createSecurityScheme({ ...securityScheme, uid: key }),

@@ -31,7 +31,7 @@ const {
 const getLabel = (id: string) => {
   const scheme = securitySchemes[id]
 
-  switch (scheme.type) {
+  switch (scheme?.type) {
     case 'apiKey':
       return `${capitalize(scheme.in)} (${id})`
     case 'http': {
