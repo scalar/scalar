@@ -18,5 +18,3 @@ export * from './stores'
 export * from './helpers'
 export * from './types'
 export * from './hooks'
-
-export { useApiClientStore } from '@scalar/api-client'
