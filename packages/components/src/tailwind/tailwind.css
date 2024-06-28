@@ -16,6 +16,11 @@
       display: flex;
       flex-direction: row;
     }
+    .scalar-row {
+      /* @apply flex flex-row; */
+      display: flex;
+      flex-direction: row;
+    }
     .row-1 {
       /* @apply flex flex-1 flex-row; */
       display: flex;

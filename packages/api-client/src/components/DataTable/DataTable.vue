@@ -10,7 +10,7 @@ defineProps<{
     class="border-1/2 rounded mx-1 bg-b-1"
     :class="scroll ? 'overflow-x-auto custom-scroll' : 'overflow-visible'">
     <table
-      class="grid auto-rows-auto min-h-8"
+      class="grid auto-rows-auto min-h-8 mb-0"
       :class="{ 'min-w-full w-max': scroll }"
       :style="{
         gridTemplateColumns: columns.map((col) => col || '1fr').join(' '),
