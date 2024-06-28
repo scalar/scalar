@@ -180,6 +180,7 @@ const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
     value:
       param.schema && 'default' in param.schema ? param.schema.default : '',
     description: param.description,
+    required: param.required,
   })
 
 /**
