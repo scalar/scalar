@@ -1,5 +1,13 @@
 # @scalar/client-app
 
+## 0.1.16
+
+### Patch Changes
+
+- 3b83b82: fix: empty html response show theme background
+- Updated dependencies [c533665]
+  - @scalar/components@0.12.6
+
 ## 0.1.15
 
 ### Patch Changes

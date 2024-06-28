@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.6
+
+### Patch Changes
+
+- c533665: fix: move css imports to style tags
+  - @scalar/code-highlight@0.0.5
+
 ## 0.12.5
 
 ### Patch Changes

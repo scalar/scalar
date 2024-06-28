@@ -1,5 +1,13 @@
 # @scalar/nuxt
 
+## 0.2.20
+
+### Patch Changes
+
+- 1444963: fix: add back missing nuxt theme
+  - @scalar/api-client@1.3.21
+  - @scalar/api-reference@1.24.22
+
 ## 0.2.19
 
 ### Patch Changes

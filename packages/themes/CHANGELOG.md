@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.9
+
+### Patch Changes
+
+- 3b83b82: fix: empty html response show theme background
+
 ## 0.9.8
 
 ### Patch Changes
