@@ -1,13 +1,16 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src"],
+  "include": ["./src"],
   "exclude": ["dist", "node_modules"],
   "compilerOptions": {
+    "rootDir": "./src",
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
     },
-    "types": ["vite/client"],
-    "rootDir": "src/"
+    "types": ["vite/client"]
+  },
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
   }
 }
