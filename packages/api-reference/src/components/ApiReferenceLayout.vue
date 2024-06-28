@@ -10,7 +10,6 @@ import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
   computed,
-  defineAsyncComponent,
   getCurrentInstance,
   onBeforeMount,
   onMounted,
