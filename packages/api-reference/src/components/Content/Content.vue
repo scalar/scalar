@@ -2,7 +2,7 @@
 import type { Spec } from '@scalar/oas-utils'
 import { computed } from 'vue'
 
-import { BaseUrl } from '../../features/BaseUrl'
+import { BaseUrl, type Server } from '../../features/BaseUrl'
 import { getModels, hasModels } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
 import { Authentication } from './Authentication'
@@ -18,6 +18,7 @@ const props = defineProps<{
   parsedSpec: Spec
   layout?: 'default' | 'accordion'
   baseServerURL?: string
+  servers?: Server[]
   proxy?: string
 }>()
 
@@ -67,6 +68,7 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
           :class="{ 'introduction-card-row': layout === 'accordion' }">
           <BaseUrl
             :defaultServerUrl="baseServerURL"
+            :servers="props.servers"
             :specification="parsedSpec" />
           <Authentication
             :parsedSpec="parsedSpec"
