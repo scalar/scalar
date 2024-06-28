@@ -178,7 +178,13 @@ const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
   createRequestExampleParameter({
     key: param.name,
     value:
-      param.schema && 'default' in param.schema ? param.schema.default : '',
+      param.schema && 'default' in param.schema
+        ? param.schema.default
+        : param.schema &&
+            'examples' in param.schema &&
+            param.schema.examples.length > 0
+          ? param.schema.examples[0]
+          : '',
     description: param.description,
     required: param.required,
   })
