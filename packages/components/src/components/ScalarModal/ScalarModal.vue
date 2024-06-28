@@ -136,7 +136,7 @@ export const useModal = () =>
 @media (max-width: 1280px) {
   .scalar-modal {
     height: calc(100% - 56px);
-    top: 46px;
+    top: 28px;
   }
 }
 @keyframes modal-fade {
