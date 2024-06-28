@@ -6,11 +6,30 @@ on:
       - main
 
 jobs:
+  # Always use Node 20
+  # Add Node 18 to the matrix if we’re in the release PR
+  define-matrix:
+    runs-on: ubuntu-latest
+
+    outputs:
+      node-versions: ${{ steps.node-versions.outputs.node-versions }}
+
+    steps:
+      - name: Node Version Matrix
+        id: node-versions
+        run: |
+          if [ "${{ github.head_ref }}" == "changeset-release/main" ]; then
+            echo 'node-versions=[18, 20]' >> "$GITHUB_ENV"
+          else
+            echo 'node-versions=[20]' >> "$GITHUB_ENV"
+          fi
+
   ci:
     runs-on: ubuntu-20.04
+    needs: define-matrix
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: ${{ fromJSON(needs.define-matrix.outputs.node-versions) }}
 
     steps:
       - uses: actions/checkout@v4
