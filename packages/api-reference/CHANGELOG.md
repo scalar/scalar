@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.24.23
+
+### Patch Changes
+
+- b87617c: fix: configured servers list is ignored
+- 975e555: fix: api reference sidebar method font weight
+- 646dab2: chore: don’t expose useApiClientStore anymore
+- 7f4d22e: refactor: new redirectToProxy helper
+- a32f137: refactor: add HttpMethod component
+- Updated dependencies [bd67d8f]
+- Updated dependencies [7f4d22e]
+  - @scalar/api-client@2.0.0
+  - @scalar/oas-utils@0.2.7
+
 ## 1.24.22
 
 ### Patch Changes

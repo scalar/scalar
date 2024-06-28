@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.7
+
+### Patch Changes
+
+- 7f4d22e: refactor: new redirectToProxy helper
+
 ## 0.2.6
 
 ### Patch Changes
