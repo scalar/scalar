@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.7
+
+### Patch Changes
+
+- 14e71cd: fix: api client top position on mobile
+  - @scalar/code-highlight@0.0.5
+
 ## 0.12.6
 
 ### Patch Changes

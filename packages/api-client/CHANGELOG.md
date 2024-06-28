@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 2.0.1
+
+### Patch Changes
+
+- ec52346: fix: request no longer being sent multiple times
+- ded1303: fix: only send enabled parameters
+- 6aae9fe: fix: select the correct auth when opening the client
+- Updated dependencies [14e71cd]
+  - @scalar/components@0.12.7
+  - @scalar/oas-utils@0.2.7
+  - @scalar/object-utils@1.1.2
+  - @scalar/use-toasts@0.7.4
+  - @scalar/use-tooltip@1.0.2
+
 ## 2.0.0
 
 ### Major Changes
