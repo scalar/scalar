@@ -3,7 +3,7 @@ import {
   type ServerState,
   getRequestFromAuthentication,
   getUrlFromServerState,
-} from '@scalar/api-client'
+} from '#legacy'
 import type {
   AuthenticationState,
   TransformedOperation,

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type HttpHeader, httpHeaders } from '@scalar/api-client'
+import { type HttpHeader, httpHeaders } from '#legacy'
 import { computed } from 'vue'
 
 import { mapFromObject } from '../../../../helpers'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useApiClientStore } from '@scalar/api-client'
+import { useApiClientStore } from '#legacy'
 import { ScalarIcon } from '@scalar/components'
 import type { Spec } from '@scalar/oas-utils'
 import type { ThemeId } from '@scalar/themes'
