@@ -1,10 +1,13 @@
 <script lang="ts" setup>
-import { concatenateUrlAndPath } from '@scalar/oas-utils/helpers'
+import {
+  concatenateUrlAndPath,
+  redirectToProxy,
+} from '@scalar/oas-utils/helpers'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { useToasts } from '@scalar/use-toasts'
 import { computed } from 'vue'
 
-import { getUrlFromServerState, redirectToProxy } from '../helpers'
+import { getUrlFromServerState } from '../helpers'
 import { useAuthenticationStore, useServerStore } from '../stores'
 import CardForm from './CardForm.vue'
 import CardFormButton from './CardFormButton.vue'
