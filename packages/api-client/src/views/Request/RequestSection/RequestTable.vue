@@ -56,14 +56,12 @@ const handleFileUpload = (idx: number) => {
       <DataTableInput
         :modelValue="item.key"
         placeholder="Key"
+        :required="item.required"
         @blur="emit('inputBlur')"
         @focus="emit('inputFocus')"
         @input="items && idx === items.length - 1 && emit('addRow')"
         @selectVariable="(v) => handleSelectVariable(idx, 'key', v)"
         @update:modelValue="(v) => emit('updateRow', idx, 'key', v)" />
-
-      <!-- todo grab required from the ref -->
-      <!-- :required="item.required" -->
       <DataTableInput
         :modelValue="item.value"
         placeholder="Value"

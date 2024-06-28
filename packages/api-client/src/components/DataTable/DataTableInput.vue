@@ -72,7 +72,12 @@ const handleDropdownMouseUp = () => {
       class="text-c-2 flex min-w-[100px] items-center border-r-1/2 pl-2 pr-0">
       <slot />
     </div>
-    <div class="row-1">
+    <div
+      class="group row-1"
+      :class="{
+        'relative after:absolute after:content-[\'Required\'] after:centered-y after:right-0 after:pt-px after:pr-2 after:text-xxs after:font-medium after:text-c-3 after:bg-b-1 after:shadow-[-8px_0_4px_var(--scalar-background-1)] group-has-[:focus]:after:hidden':
+          required,
+      }">
       <input
         v-bind="$attrs"
         :id="id"
