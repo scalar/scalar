@@ -40,20 +40,6 @@ defineProps<{
   max-height: calc(100% - calc(var(--scalar-app-header-height)));
   border-radius: 8px;
 }
-.scalar-api-client__close {
-  appearance: none;
-  border: none;
-  outline: none;
-  display: flex;
-  align-items: center;
-  background: transparent;
-  color: var(--scalar-color-1);
-  font-size: var(--scalar-small);
-  font-weight: var(--scalar-semibold);
-}
-.scalar-api-client__close:hover {
-  cursor: pointer;
-}
 .scalar .scalar-app {
   background: var(--scalar-background-3);
   height: calc(100% - 120px);
