@@ -5,7 +5,7 @@ import {
   useServerStore,
 } from '#legacy'
 import type { SpecConfiguration } from '@scalar/oas-utils'
-import { onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { apiClientBus, modalStateBus } from './api-client-bus'
 
@@ -23,7 +23,7 @@ onMounted(async () => {
 
   const { createScalarApiClient } = await import('@scalar/api-client')
 
-  const { modalState, open, updateAuth, updateServerUrl, updateSpec } =
+  const { app, open, updateAuth, updateServerUrl, modalState, updateSpec } =
     await createScalarApiClient(el.value, {
       spec: props.spec ?? {},
       proxyUrl: props.proxyUrl,
@@ -53,6 +53,7 @@ onMounted(async () => {
     (newSpec) => newSpec && updateSpec(newSpec),
     { deep: true },
   )
+  onBeforeUnmount(() => app.unmount())
 })
 </script>
 
