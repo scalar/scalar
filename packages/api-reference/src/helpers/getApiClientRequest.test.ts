@@ -1,4 +1,4 @@
-import { useAuthenticationStore, useServerStore } from '@scalar/api-client'
+import { useAuthenticationStore, useServerStore } from '#legacy'
 import { describe, expect, it } from 'vitest'
 
 import { getApiClientRequest } from './getApiClientRequest'

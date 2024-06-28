@@ -1,8 +1,5 @@
 <script lang="ts" setup>
-import {
-  type Server as ApiClientServer,
-  useServerStore,
-} from '@scalar/api-client'
+import { type Server as ApiClientServer, useServerStore } from '#legacy'
 import type { Spec } from '@scalar/oas-utils'
 import { ref, watch } from 'vue'
 

@@ -6,6 +6,7 @@
     "require": ["tsconfig-paths/register"]
   },
   "compilerOptions": {
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "rootDir": "src/"
   }
 }

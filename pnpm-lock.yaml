@@ -786,6 +786,9 @@ importers:
 
   packages/api-reference:
     dependencies:
+      '@floating-ui/vue':
+        specifier: ^1.0.2
+        version: 1.0.6(vue@3.4.29(typescript@5.4.5))
       '@headlessui/vue':
         specifier: ^1.7.20
         version: 1.7.22(vue@3.4.29(typescript@5.4.5))
@@ -837,6 +840,9 @@ importers:
       httpsnippet-lite:
         specifier: ^3.0.5
         version: 3.0.5
+      nanoid:
+        specifier: ^5.0.7
+        version: 5.0.7
       postcss-nested:
         specifier: ^6.0.1
         version: 6.0.1(postcss@8.4.38)
@@ -18027,6 +18033,15 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
 
   '@floating-ui/utils@0.2.2': {}
+
+  '@floating-ui/vue@1.0.6(vue@3.4.29(typescript@5.4.5))':
+    dependencies:
+      '@floating-ui/dom': 1.6.5
+      '@floating-ui/utils': 0.2.2
+      vue-demi: 0.14.8(vue@3.4.29(typescript@5.4.5))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
 
   '@floating-ui/vue@1.0.6(vue@3.4.29(typescript@5.5.2))':
     dependencies:

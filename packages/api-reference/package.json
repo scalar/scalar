@@ -45,10 +45,7 @@
   "main": "./dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
+    ".": "./dist/index.js",
     "./style.css": "./dist/style.css",
     "./browser/standalone.js": "./dist/browser/standalone.js"
   },
@@ -57,9 +54,13 @@
     "!dist/webpack-stats.json",
     "CHANGELOG.md"
   ],
+  "imports": {
+    "#legacy": "./src/legacy/index.ts"
+  },
   "browser": "./dist/browser/standalone.js",
   "module": "./dist/index.js",
   "dependencies": {
+    "@floating-ui/vue": "^1.0.2",
     "@headlessui/vue": "^1.7.20",
     "@scalar/api-client": "workspace:*",
     "@scalar/client-app": "workspace:*",
@@ -77,6 +78,7 @@
     "fuse.js": "^7.0.0",
     "github-slugger": "^2.0.0",
     "httpsnippet-lite": "^3.0.5",
+    "nanoid": "^5.0.7",
     "postcss-nested": "^6.0.1",
     "unhead": "^1.8.3",
     "unified": "^11.0.4",

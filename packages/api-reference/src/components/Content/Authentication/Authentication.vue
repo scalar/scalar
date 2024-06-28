@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import {
-  SecurityScheme,
-  SecuritySchemeSelector,
-  useAuthenticationStore,
-} from '@scalar/api-client'
+import { useAuthenticationStore } from '#legacy'
 import type { SSRState, Spec } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, onServerPrefetch, useSSRContext, watch } from 'vue'
 
 import { hasSecuritySchemes, sleep } from '../../../helpers'
+import SecurityScheme from '../../../legacy/components/SecurityScheme.vue'
+import SecuritySchemeSelector from '../../../legacy/components/SecuritySchemeSelector.vue'
 
 const props = defineProps<{ parsedSpec?: Spec; proxy?: string }>()
 

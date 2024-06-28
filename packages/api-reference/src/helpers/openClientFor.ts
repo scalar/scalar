@@ -3,7 +3,7 @@ import {
   useOpenApiStore,
   useRequestStore,
   useServerStore,
-} from '@scalar/api-client'
+} from '#legacy'
 import type { TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV3 } from '@scalar/openapi-parser'
 

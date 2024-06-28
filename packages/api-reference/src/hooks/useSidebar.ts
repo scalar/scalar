@@ -1,4 +1,4 @@
-import { useApiClientStore, useOpenApiStore } from '@scalar/api-client'
+import { useApiClientStore, useOpenApiStore } from '#legacy'
 import type { Spec, Tag, TransformedOperation } from '@scalar/oas-utils'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'

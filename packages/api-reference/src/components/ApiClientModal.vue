@@ -3,7 +3,7 @@ import {
   getUrlFromServerState,
   useAuthenticationStore,
   useServerStore,
-} from '@scalar/api-client'
+} from '#legacy'
 import type { SpecConfiguration } from '@scalar/oas-utils'
 import { onMounted, ref } from 'vue'
 

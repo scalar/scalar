@@ -6,7 +6,7 @@ import {
   type RequestMethod,
   normalizeRequestMethod,
   validRequestMethods,
-} from '@scalar/api-client'
+} from '#legacy'
 import type { Spec } from '@scalar/oas-utils'
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import {
