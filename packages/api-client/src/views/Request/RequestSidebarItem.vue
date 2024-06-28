@@ -76,11 +76,17 @@ const handleNavigation = (event: MouseEvent, uid: string) => {
 
 const getTitle = (item: (typeof props)['item']) => {
   // Collection
-  if ('spec' in item) return item.spec.info?.title
+  if ('spec' in item) {
+    return item.spec.info?.title
+  }
   // Request
-  else if ('summary' in item) return item.summary
+  else if ('summary' in item) {
+    return item.summary || item.path
+  }
   // Folder/Example
-  else if ('name' in item) return item.name
+  else if ('name' in item) {
+    return item.name
+  }
   return ''
 }
 
