@@ -339,7 +339,7 @@ useEventListener(document, 'keydown', (event) => {
         @update:tab="handleTabChange" />
     </ViewLayout>
   </div>
-  <SearchModal :modalState="modalState" />
+  <SearchModal :modalState="searchModalState" />
 </template>
 <style scoped>
 .request-text-color-text {
