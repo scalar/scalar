@@ -21,7 +21,7 @@ const { server } = useServerStore()
 onMounted(async () => {
   if (!el.value) return
 
-  const { createScalarApiClient } = await import('@scalar/client-app')
+  const { createScalarApiClient } = await import('@scalar/api-client')
 
   const { modalState, open, updateAuth, updateServerUrl } =
     await createScalarApiClient(el.value, {
@@ -51,5 +51,5 @@ onMounted(async () => {
 </template>
 
 <style>
-@import '@scalar/client-app/style.css';
+@import '@scalar/api-client/style.css';
 </style>

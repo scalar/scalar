@@ -1,8 +1,6 @@
 /// <reference types="vite/client" />
 
-type ImportMetaEnv = {
-  readonly VITE_NEW_API_CLIENT: boolean
-}
+type ImportMetaEnv = {}
 
 type ImportMeta = {
   readonly env: ImportMetaEnv

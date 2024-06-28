@@ -1,21 +1,31 @@
-import { autoCSSInject, createViteBuildOptions } from '@scalar/build-tooling'
+import {
+  ViteWatchWorkspace,
+  createViteBuildOptions,
+  findEntryPoints,
+} from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vitest/config'
+import { URL, fileURLToPath } from 'node:url'
+import { defineConfig } from 'vite'
+import svgLoader from 'vite-svg-loader'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), svgLoader(), ViteWatchWorkspace()],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+    dedupe: ['vue'],
+  },
+  optimizeDeps: {
+    exclude: ['@scalar/*'],
+  },
+  server: {
+    port: 5065,
+  },
   build: createViteBuildOptions({
-    entry: ['src/index.ts'],
+    entry: await findEntryPoints({ allowCss: true }),
     options: {
-      rollupOptions: {
-        plugins: [autoCSSInject('client')],
-      },
+      ssr: false,
     },
   }),
-  test: {
-    coverage: {
-      enabled: true,
-      reporter: 'text',
-    },
-  },
 })

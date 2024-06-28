@@ -21,7 +21,6 @@ import {
   watch,
 } from 'vue'
 
-import { NEW_API_MODAL } from '../features'
 import {
   GLOBAL_SECURITY_SYMBOL,
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
@@ -55,20 +54,6 @@ defineEmits<{
 // Configure Reference toasts to use vue-sonner
 const { initializeToasts, toast } = useToasts()
 initializeToasts((message) => toast(message))
-
-/**
- * Lazy load the old API CLient, so we don’t have to bundle it if it’s not used.
- */
-const ApiClientModalOld = defineAsyncComponent(() => {
-  return NEW_API_MODAL
-    ? // Empty component
-      new Promise((resolve) => {
-        // @ts-expect-error Needs a type
-        resolve({ render: () => null })
-      })
-    : // Load component
-      import('./ApiClientModalOld.vue')
-})
 
 defineOptions({
   inheritAttrs: false,
@@ -347,26 +332,8 @@ useDeprecationWarnings(props.configuration)
     <!-- REST API Client Overlay -->
     <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
     <ApiClientModal
-      v-if="NEW_API_MODAL"
       :proxyUrl="configuration.proxy"
       :spec="configuration.spec" />
-    <!-- API Client Overlay -->
-    <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
-    <ApiClientModalOld
-      v-else
-      :parsedSpec="parsedSpec"
-      :proxyUrl="configuration?.proxy">
-      <template #sidebar-start>
-        <slot
-          v-bind="referenceSlotProps"
-          name="sidebar-start" />
-      </template>
-      <template #sidebar-end>
-        <slot
-          v-bind="referenceSlotProps"
-          name="sidebar-end" />
-      </template>
-    </ApiClientModalOld>
   </div>
   <ScalarToasts />
 </template>
