@@ -1,9 +1,11 @@
 import { clientRouter } from '@/router'
 import { useWorkspace } from '@/store/workspace'
 import type { AuthenticationState, SpecConfiguration } from '@scalar/oas-utils'
+import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
 import { type RequestMethod, objectMerge } from '@scalar/oas-utils/helpers'
 import { getNestedValue } from '@scalar/object-utils/nested'
+import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { Paths } from 'type-fest'
 import { createApp, reactive, toRaw } from 'vue'
 
@@ -69,6 +71,7 @@ export const createScalarApiClient = async (
 
   const {
     activeCollection,
+    collectionMutators,
     importSpecFile,
     importSpecFromUrl,
     modalState,
@@ -193,6 +196,28 @@ export const createScalarApiClient = async (
             break
         }
       })
+
+      // Select the correct scheme
+      if (auth.preferredSecurityScheme) {
+        const payload: Collection['selectedSecuritySchemes'][0] = {
+          uid: auth.preferredSecurityScheme!,
+        }
+        const preferredScheme = auth.securitySchemes?.[
+          auth.preferredSecurityScheme ?? ''
+        ] as OpenAPIV3_1.SecuritySchemeObject
+
+        if (preferredScheme?.type === 'oauth2') {
+          payload.flowKey = preferredScheme.flows?.implicit
+            ? 'implicit'
+            : 'password'
+        }
+
+        collectionMutators.edit(
+          activeCollection.value!.uid,
+          'selectedSecuritySchemes',
+          [payload],
+        )
+      }
     },
     /** Update the spec file, this will re-parse it and clear your store */
     updateSpec: (spec: SpecConfiguration) => importSpecFile(spec),
