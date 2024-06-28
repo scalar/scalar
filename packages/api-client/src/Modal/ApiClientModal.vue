@@ -1,17 +1,23 @@
 <script setup lang="ts">
 import type { useModal } from '@scalar/components'
-import { onBeforeMount } from 'vue'
+import { onBeforeUnmount, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
-defineProps<{
+const props = defineProps<{
   /** Controls opening and closing the modal */
   modalState: ReturnType<typeof useModal>
 }>()
 
-/**
- * Ensure we add our scalar wrapper class to the headless ui root
- * mounted is too late
- */
+// Disable scrolling while the modal is open
+watch(
+  () => props.modalState.open,
+  (open) => {
+    if (open) document.documentElement.style.overflow = 'hidden'
+    else document.documentElement.style.removeProperty('overflow')
+  },
+)
+// Make sure scrolling is back!
+onBeforeUnmount(() => document.documentElement.style.removeProperty('overflow'))
 </script>
 
 <template>

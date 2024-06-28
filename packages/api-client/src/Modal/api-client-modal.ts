@@ -123,6 +123,8 @@ export const createScalarApiClient = async (
   }
 
   return {
+    /** The vue app instance for the modal, be careful with this */
+    app,
     /** Update the API client config */
     updateConfig(newConfig: ClientConfiguration, mergeConfigs = true) {
       if (mergeConfigs) {
