@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.0.2
+
+### Patch Changes
+
+- 209a7e1: fix: default proxy for client app and revert to scalar galaxy
+- 429e928: feat: watch spec and update
+- 3ba80b9: fix: move to pure css solution for client modal no more headless ui
+
 ## 2.0.1
 
 ### Patch Changes
