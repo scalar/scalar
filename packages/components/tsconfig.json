@@ -21,5 +21,6 @@
     "verbatimModuleSyntax": true
   },
   "exclude": ["node_modules"],
-  "include": ["src", "env.d.ts"]
+  "include": ["src", "env.d.ts"],
+  "types": ["vite/client"]
 }
