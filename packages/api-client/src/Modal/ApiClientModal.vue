@@ -18,6 +18,10 @@ watch(
 )
 // Make sure scrolling is back!
 onBeforeUnmount(() => document.documentElement.style.removeProperty('overflow'))
+/**
+ * Ensure we add our scalar wrapper class to the headless ui root
+ */
+onBeforeMount(() => addScalarClassesToHeadless())
 </script>
 
 <template>
