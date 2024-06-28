@@ -4,6 +4,34 @@ We’re expecting the passed specification to adhere to [the Swagger 2.0, OpenAP
 
 On top of that, we’ve added a few things for your convenience:
 
+## x-codeSamples
+
+We provide examples for a lot of popular HTTP clients and frameworks. For something completly custom, for example to show the use of your own SDK, you can use `x-codeSamples`:
+
+```diff
+openapi: 3.1.0
+info:
+  title: Val Town API
+  version: '1.0'
+paths:
+  '/v1/eval':
+    post:
++      x-codeSamples:
++      - lang: JavaScript
++        source: |-
++          import ValTown from '@valtown/sdk';
++
++          const valTown = new ValTown();
++
++          async function main() {
++            const valRunAnonymousResponse = await valTown.vals.runAnonymous({ code: 'console.log(1);' });
++
++            console.log(valRunAnonymousResponse);
++          }
++
++          main();
+```
+
 ## x-displayName
 
 You can overwrite tag names with `x-displayName`.
@@ -12,7 +40,7 @@ You can overwrite tag names with `x-displayName`.
 openapi: 3.1.0
 info:
   title: Example
-  version: "1.0"
+  version: '1.0'
 tags:
   - name: pl4n3t5
 +    x-displayName: planets
@@ -32,7 +60,7 @@ You can group your tags with `x-tagGroup`.
 openapi: 3.1.0
 info:
   title: Example
-  version: "1.0"
+  version: '1.0'
 tags:
   - name: planets
 +x-tagGroups:
@@ -55,7 +83,7 @@ You can hide operations from the reference with `x-internal`.
 openapi: 3.1.0
 info:
   title: Example
-  version: "1.0"
+  version: '1.0'
 paths:
   '/planets':
     get:
