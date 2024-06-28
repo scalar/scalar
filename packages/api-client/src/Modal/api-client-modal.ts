@@ -5,7 +5,7 @@ import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/securi
 import { type RequestMethod, objectMerge } from '@scalar/oas-utils/helpers'
 import { getNestedValue } from '@scalar/object-utils/nested'
 import type { Paths } from 'type-fest'
-import { createApp, reactive } from 'vue'
+import { createApp, reactive, toRaw } from 'vue'
 
 import ApiClientModal from './ApiClientModal.vue'
 
@@ -65,7 +65,7 @@ export const createScalarApiClient = async (
    */
   mountOnInitialize = true,
 ) => {
-  const config = reactive(initialConfig)
+  const config = toRaw(initialConfig)
 
   const {
     activeCollection,
@@ -81,9 +81,9 @@ export const createScalarApiClient = async (
 
   // Import the spec if needed
   if (config.spec?.url) {
-    importSpecFromUrl(config.spec.url, config.proxyUrl)
+    importSpecFromUrl(toRaw(config.spec.url), toRaw(config.proxyUrl))
   } else if (config.spec?.content) {
-    importSpecFile(config.spec?.content)
+    importSpecFile(toRaw(config.spec?.content))
   } else {
     console.error(
       `[@scalar/api-client-modal] Could not create the API client.`,
@@ -92,7 +92,7 @@ export const createScalarApiClient = async (
     )
   }
 
-  const app = createApp(ApiClientModal, { config, modalState })
+  const app = createApp(ApiClientModal, { config: toRaw(config), modalState })
   app.use(clientRouter)
 
   const mount = (mountingEl = el) => {
