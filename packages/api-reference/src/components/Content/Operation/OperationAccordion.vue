@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { HttpMethod } from '@scalar/api-client'
 import {
   ScalarIcon,
   ScalarIconButton,
@@ -9,6 +8,7 @@ import type { TransformedOperation } from '@scalar/oas-utils'
 
 import { useClipboard } from '../../../hooks'
 import { Anchor } from '../../Anchor'
+import { HttpMethod } from '../../HttpMethod'
 import { SectionAccordion } from '../../Section'
 import EndpointDetailsCard from './EndpointDetailsCard.vue'
 import EndpointPath from './EndpointPath.vue'
