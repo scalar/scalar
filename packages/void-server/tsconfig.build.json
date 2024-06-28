@@ -1,14 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src", "package.json"],
-  "exclude": [
-    "dist",
-    "test",
-    "vite.config.ts",
-    "**/*.test.ts",
-    "**/*.test.json",
-    "**/*.test.md"
-  ],
+  "include": ["src"],
   "compilerOptions": {
     "skipLibCheck": true,
     "declaration": true,

@@ -54,7 +54,6 @@ export default defineNuxtModule<ModuleOptions>({
       'debug',
       'extend',
       'stringify-object',
-      'rehype-highlight',
     )
 
     // Also check for Nitro OpenAPI auto generation
