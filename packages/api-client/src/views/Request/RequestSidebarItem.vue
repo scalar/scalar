@@ -139,7 +139,7 @@ const showChildren = computed(
             activeRequest?.uid === item.uid
               ? 'before:bg-sidebar-active-b text-sidebar-active-c transition-none'
               : 'text-sidebar-c-2',
-            !isDroppable ? `pl-6` : 'pl-4',
+            !isDroppable ? `pl-3` : 'pl-3',
           ]"
           @click="($event) => handleNavigation($event, item.uid)">
           <span class="z-10 font-medium w-full editable-sidebar-hover-item">
