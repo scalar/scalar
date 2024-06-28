@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useAuthenticationStore } from '@scalar/api-client'
 import {
   Layouts,
   type ReferenceConfiguration,
+  useAuthenticationStore,
   useDarkModeState,
   useHttpClientStore,
   useReactiveSpec,

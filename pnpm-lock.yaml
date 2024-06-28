@@ -789,8 +789,8 @@ importers:
   packages/api-client-react:
     dependencies:
       '@scalar/api-client':
-        specifier: 1.3.20
-        version: 1.3.20(typescript@5.5.2)(vitest@1.6.0(@types/node@20.14.2)(jsdom@24.1.0)(terser@5.31.1))
+        specifier: workspace:*
+        version: link:../api-client
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -968,8 +968,8 @@ importers:
   packages/api-reference-editor:
     dependencies:
       '@scalar/api-client':
-        specifier: 1.3.20
-        version: 1.3.20(typescript@5.5.2)(vitest@1.6.0(@types/node@20.14.2)(jsdom@24.1.0)(terser@5.31.1))
+        specifier: workspace:*
+        version: link:../api-client
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
@@ -1713,7 +1713,7 @@ importers:
         specifier: ^3.13.1
         version: 3.13.1(@jest/globals@29.7.0)(@playwright/test@1.44.1)(@vue/test-utils@2.4.6)(h3@1.11.1)(jsdom@24.1.0)(magicast@0.3.4)(nitropack@2.9.6(@opentelemetry/api@1.9.0)(encoding@0.1.13)(magicast@0.3.4))(playwright-core@1.44.1)(rollup@4.18.0)(vite@5.3.1(@types/node@20.14.9)(terser@5.31.1))(vitest@1.6.0(@types/node@20.14.9)(jsdom@24.1.0)(terser@5.31.1))(vue-router@4.3.3(vue@3.4.29(typescript@5.5.2)))(vue@3.4.29(typescript@5.5.2))
       '@types/node':
-        specifier: ^20.14.9
+        specifier: ^20.8.4
         version: 20.14.9
       changelogen:
         specifier: ^0.5.5
@@ -5073,22 +5073,6 @@ packages:
   '@rushstack/ts-command-line@4.19.1':
     resolution: {integrity: sha512-J7H768dgcpG60d7skZ5uSSwyCZs/S2HrWP1Ds8d1qYAyaaeJmpmmLr9BVw97RjFzmQPOYnoXcKA4GkqDCkduQg==}
 
-  '@scalar/api-client@1.3.20':
-    resolution: {integrity: sha512-DJKq+RL0q1JjpC5XXnyqLWBfwoV8zHBJzn0RGERryqjwQCiYqtHDb6F6bJpjx/YFCnap6V9bPL70bMe/pdNuSw==}
-    engines: {node: '>=18'}
-
-  '@scalar/code-highlight@0.0.5':
-    resolution: {integrity: sha512-/8Q68WBvrVeqda5sW6E0mxmLwK0vbuDPHyfuugkYlHj9F7o5lKV+VviBxeaUh18nbGp3qWjdxv6X2mbUe2TyNA==}
-    engines: {node: '>=18'}
-
-  '@scalar/components@0.12.5':
-    resolution: {integrity: sha512-LLjGqcGAG17VgVofF9VTOGHgpOnVTOdySDcycgLGfn+CYnviXFrrAzW+envimo/QvLz36xV3jI8kBzC0va7LRA==}
-    engines: {node: '>=18'}
-
-  '@scalar/oas-utils@0.2.6':
-    resolution: {integrity: sha512-QRV58kCr3ESnQTNQdi7/DBFlb8vAcwP/bUBTMV8mB1myuKyqsOWxtCVTfkCNNAwNeySjkYJFhbPp8Is1fgeFSA==}
-    engines: {node: '>=18'}
-
   '@scalar/openapi-parser@0.7.1':
     resolution: {integrity: sha512-FR2ezONBF0OOe5w5fa8uBInWvlGjC2+hEEmRZnJn/n1VMII8gg88VmBpE1wD2TqE4d6KIPCp/yxr5h10a8D1vw==}
     engines: {node: '>=18'}
@@ -5113,22 +5097,6 @@ packages:
 
   '@scalar/snippetz@0.1.6':
     resolution: {integrity: sha512-z3DEpT/FIZq9yeHL/tz2v6WvdHIiZ4uvK96RdeTPKUUJ0IXvA5vONG3PF5LE0Q/408PCzWsZpGs9f97ztaeJSQ==}
-
-  '@scalar/themes@0.9.8':
-    resolution: {integrity: sha512-eMgYw8DkPI3BzI4hFOYc9HvnhxkSP+6IfbHDC2YqHCjw+/0c2lh3lc0CW4FZT5jBRA1MP/uu+4caiQToqsv2mQ==}
-    engines: {node: '>=18'}
-
-  '@scalar/use-codemirror@0.11.4':
-    resolution: {integrity: sha512-pS1uefkmV7Guaou8cyltcCLtt1EReq1ZqYHwDbZlzPyQYPEVoFWgA14U+ChvHzvUVlLogMvGbcRL4PNZDHfUSQ==}
-    engines: {node: '>=18'}
-
-  '@scalar/use-toasts@0.7.4':
-    resolution: {integrity: sha512-LvnY0Gl0G09kgf65A3ArtZ1pOjB3Y7Rs29IS2GRlVKICGYOgdiWEdeWzXZCMtvvmIEM+LH5FTbuoqpiwXJ1OXg==}
-    engines: {node: '>=18'}
-
-  '@scalar/use-tooltip@1.0.2':
-    resolution: {integrity: sha512-bj3RkmGGtCPNgEuopNLOXfQtFM3KnsfAQc9LQEr6iC9FNUa+Ddrlq85wgAK4W740aducchrgK+fBZDpXQbzQTw==}
-    engines: {node: '>=18'}
 
   '@sideway/address@4.1.5':
     resolution: {integrity: sha512-IqO/DUQHUkPeixNQ8n0JA6102hT9CmaljNTPmQ1u8MEhBo/R4Q8eKLN/vGZxuebwOroDB4cbpjheD4+/sKFK4Q==}
@@ -19525,89 +19493,6 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@scalar/api-client@1.3.20(typescript@5.5.2)(vitest@1.6.0(@types/node@20.14.2)(jsdom@24.1.0)(terser@5.31.1))':
-    dependencies:
-      '@floating-ui/vue': 1.0.6(vue@3.4.29(typescript@5.5.2))
-      '@headlessui/vue': 1.7.22(vue@3.4.29(typescript@5.5.2))
-      '@scalar/components': 0.12.5(typescript@5.5.2)(vitest@1.6.0(@types/node@20.14.2)(jsdom@24.1.0)(terser@5.31.1))
-      '@scalar/oas-utils': 0.2.6
-      '@scalar/openapi-parser': 0.7.1
-      '@scalar/themes': 0.9.8(typescript@5.5.2)
-      '@scalar/use-codemirror': 0.11.4(typescript@5.5.2)
-      '@scalar/use-toasts': 0.7.4(typescript@5.5.2)
-      '@scalar/use-tooltip': 1.0.2(typescript@5.5.2)
-      '@vueuse/core': 10.11.0(vue@3.4.29(typescript@5.5.2))
-      axios: 1.7.2(debug@4.3.5)
-      httpsnippet-lite: 3.0.5
-      nanoid: 5.0.7
-      pretty-bytes: 6.1.1
-      pretty-ms: 8.0.0
-      vue: 3.4.29(typescript@5.5.2)
-    transitivePeerDependencies:
-      - '@jest/globals'
-      - '@types/bun'
-      - '@types/jest'
-      - '@vue/composition-api'
-      - debug
-      - jest
-      - supports-color
-      - typescript
-      - vitest
-
-  '@scalar/code-highlight@0.0.5':
-    dependencies:
-      hast-util-to-text: 4.0.2
-      highlight.js: 11.9.0
-      highlightjs-curl: 1.3.0
-      highlightjs-vue: 1.0.0
-      lowlight: 3.1.0
-      rehype-external-links: 3.0.0
-      rehype-format: 5.0.0
-      rehype-highlight: 7.0.0
-      rehype-parse: 9.0.0
-      rehype-raw: 7.0.0
-      rehype-sanitize: 6.0.0
-      rehype-stringify: 10.0.0
-      remark-gfm: 4.0.0
-      remark-parse: 11.0.0
-      remark-rehype: 11.1.0
-      unified: 11.0.4
-      unist-util-visit: 5.0.0
-    transitivePeerDependencies:
-      - supports-color
-
-  '@scalar/components@0.12.5(typescript@5.5.2)(vitest@1.6.0(@types/node@20.14.2)(jsdom@24.1.0)(terser@5.31.1))':
-    dependencies:
-      '@floating-ui/utils': 0.2.2
-      '@floating-ui/vue': 1.0.6(vue@3.4.29(typescript@5.5.2))
-      '@headlessui/vue': 1.7.22(vue@3.4.29(typescript@5.5.2))
-      '@scalar/code-highlight': 0.0.5
-      '@storybook/test': 8.1.9(vitest@1.6.0(@types/node@20.14.2)(jsdom@24.1.0)(terser@5.31.1))
-      '@vueuse/core': 10.11.0(vue@3.4.29(typescript@5.5.2))
-      cva: 1.0.0-beta.1(typescript@5.5.2)
-      nanoid: 5.0.7
-      radix-vue: 1.8.4(vue@3.4.29(typescript@5.5.2))
-      tailwind-merge: 2.3.0
-      vue: 3.4.29(typescript@5.5.2)
-    transitivePeerDependencies:
-      - '@jest/globals'
-      - '@types/bun'
-      - '@types/jest'
-      - '@vue/composition-api'
-      - jest
-      - supports-color
-      - typescript
-      - vitest
-
-  '@scalar/oas-utils@0.2.6':
-    dependencies:
-      axios: 1.7.2(debug@4.3.5)
-      nanoid: 5.0.7
-      yaml: 2.4.5
-      zod: 3.23.8
-    transitivePeerDependencies:
-      - debug
-
   '@scalar/openapi-parser@0.7.1':
     dependencies:
       ajv: 8.16.0
@@ -19649,51 +19534,6 @@ snapshots:
       '@scalar/snippetz-plugin-node-fetch': 0.1.2
       '@scalar/snippetz-plugin-node-ofetch': 0.1.1
       '@scalar/snippetz-plugin-node-undici': 0.1.6
-
-  '@scalar/themes@0.9.8(typescript@5.5.2)':
-    dependencies:
-      vue: 3.4.29(typescript@5.5.2)
-    transitivePeerDependencies:
-      - typescript
-
-  '@scalar/use-codemirror@0.11.4(typescript@5.5.2)':
-    dependencies:
-      '@codemirror/autocomplete': 6.16.2(@codemirror/language@6.10.2)(@codemirror/state@6.4.1)(@codemirror/view@6.28.1)(@lezer/common@1.2.1)
-      '@codemirror/commands': 6.6.0
-      '@codemirror/lang-css': 6.2.1(@codemirror/view@6.28.1)
-      '@codemirror/lang-html': 6.4.9
-      '@codemirror/lang-json': 6.0.1
-      '@codemirror/lang-yaml': 6.1.1(@codemirror/view@6.28.1)
-      '@codemirror/language': 6.10.2
-      '@codemirror/state': 6.4.1
-      '@codemirror/view': 6.28.1
-      '@lezer/common': 1.2.1
-      '@lezer/highlight': 1.2.0
-      '@lezer/lr': 1.4.1
-      '@replit/codemirror-css-color-picker': 6.1.1(@codemirror/language@6.10.2)(@codemirror/state@6.4.1)(@codemirror/view@6.28.1)
-      '@uiw/codemirror-themes': 4.22.2(@codemirror/language@6.10.2)(@codemirror/state@6.4.1)(@codemirror/view@6.28.1)
-      codemirror: 6.0.1(@lezer/common@1.2.1)
-      vue: 3.4.29(typescript@5.5.2)
-    optionalDependencies:
-      y-codemirror.next: 0.3.4(@codemirror/state@6.4.1)(@codemirror/view@6.28.1)(yjs@13.6.16)
-      yjs: 13.6.16
-    transitivePeerDependencies:
-      - typescript
-
-  '@scalar/use-toasts@0.7.4(typescript@5.5.2)':
-    dependencies:
-      nanoid: 5.0.7
-      vue: 3.4.29(typescript@5.5.2)
-      vue-sonner: 1.1.2
-    transitivePeerDependencies:
-      - typescript
-
-  '@scalar/use-tooltip@1.0.2(typescript@5.5.2)':
-    dependencies:
-      tippy.js: 6.3.7
-      vue: 3.4.29(typescript@5.5.2)
-    transitivePeerDependencies:
-      - typescript
 
   '@sideway/address@4.1.5':
     dependencies:
@@ -20438,25 +20278,6 @@ snapshots:
       - jest
       - vitest
 
-  '@storybook/test@8.1.9(vitest@1.6.0(@types/node@20.14.2)(jsdom@24.1.0)(terser@5.31.1))':
-    dependencies:
-      '@storybook/client-logger': 8.1.9
-      '@storybook/core-events': 8.1.9
-      '@storybook/instrumenter': 8.1.9
-      '@storybook/preview-api': 8.1.9
-      '@testing-library/dom': 9.3.4
-      '@testing-library/jest-dom': 6.4.6(vitest@1.6.0(@types/node@20.14.2)(jsdom@24.1.0)(terser@5.31.1))
-      '@testing-library/user-event': 14.5.2(@testing-library/dom@9.3.4)
-      '@vitest/expect': 1.3.1
-      '@vitest/spy': 1.6.0
-      util: 0.12.5
-    transitivePeerDependencies:
-      - '@jest/globals'
-      - '@types/bun'
-      - '@types/jest'
-      - jest
-      - vitest
-
   '@storybook/test@8.1.9(vitest@1.6.0(@types/node@20.14.9)(jsdom@24.1.0)(terser@5.31.1))':
     dependencies:
       '@storybook/client-logger': 8.1.9
@@ -20873,19 +20694,6 @@ snapshots:
       '@types/jest': 29.5.12
       jest: 29.7.0(@types/node@20.14.2)(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.5.2))
       vitest: 1.6.0(@types/node@20.14.2)(jsdom@22.1.0)(terser@5.31.1)
-
-  '@testing-library/jest-dom@6.4.6(vitest@1.6.0(@types/node@20.14.2)(jsdom@24.1.0)(terser@5.31.1))':
-    dependencies:
-      '@adobe/css-tools': 4.4.0
-      '@babel/runtime': 7.24.7
-      aria-query: 5.3.0
-      chalk: 3.0.0
-      css.escape: 1.5.1
-      dom-accessibility-api: 0.6.3
-      lodash: 4.17.21
-      redent: 3.0.0
-    optionalDependencies:
-      vitest: 1.6.0(@types/node@20.14.2)(jsdom@24.1.0)(terser@5.31.1)
 
   '@testing-library/jest-dom@6.4.6(vitest@1.6.0(@types/node@20.14.9)(jsdom@24.1.0)(terser@5.31.1))':
     dependencies:
