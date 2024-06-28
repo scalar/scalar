@@ -4,4 +4,4 @@
 '@scalar/nuxt': patch
 ---
 
-Remove stale packages
+chore: remove stale packages
