@@ -15,10 +15,10 @@ export const ClientWrapper = () => {
       <ApiClientReact
         close={() => setIsOpen(false)}
         isOpen={isOpen}
-        request={{
-          url: 'https://api.sampleapis.com',
-          type: 'GET',
-          path: '/simpsons/products',
+        configuration={{
+          spec: {
+            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+          },
         }}
       />
     </div>
