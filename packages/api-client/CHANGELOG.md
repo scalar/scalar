@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 2.0.0
+
+### Major Changes
+
+- bd67d8f: feat: switch to the brand new client app
+
+### Patch Changes
+
+- Updated dependencies [7f4d22e]
+  - @scalar/oas-utils@0.2.7
+
 ## 1.3.21
 
 ### Patch Changes
