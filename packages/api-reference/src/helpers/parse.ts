@@ -5,10 +5,10 @@
 import {
   type RequestMethod,
   normalizeRequestMethod,
-  redirectToProxy,
   validRequestMethods,
 } from '@scalar/api-client'
 import type { Spec } from '@scalar/oas-utils'
+import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import {
   type AnyObject,
   type OpenAPI,
