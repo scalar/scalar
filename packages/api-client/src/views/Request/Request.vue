@@ -3,6 +3,7 @@ import { Sidebar } from '@/components'
 import ActionModal from '@/components/ActionModal/ActionModal.vue'
 import AddressBar from '@/components/AddressBar/AddressBar.vue'
 import SearchButton from '@/components/Search/SearchButton.vue'
+import SearchModal from '@/components/Search/SearchModal.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
@@ -11,7 +12,7 @@ import { executeRequestBus, sendRequest } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIcon, useModal } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
 import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
@@ -32,6 +33,7 @@ const {
 } = useWorkspace()
 const { collapsedSidebarFolders } = useSidebar()
 const actionModalState = useActionModal()
+const searchModalState = useModal()
 const showSideBar = ref(false)
 
 const handleTabChange = (activeTab: string) => {
@@ -232,6 +234,9 @@ useEventListener(document, 'keydown', (event) => {
   if ((isMacOS() ? keys.meta.value : keys.ctrl.value) && event.key === 'b') {
     showSideBar.value = !showSideBar.value
   }
+  if ((isMacOS() ? keys.meta.value : keys.ctrl.value) && event.key === 'k') {
+    searchModalState.open ? searchModalState.hide() : searchModalState.show()
+  }
 })
 </script>
 <template>
@@ -275,7 +280,7 @@ useEventListener(document, 'keydown', (event) => {
         :class="[showSideBar ? 'sidebar-active-width' : '']">
         <template #title>{{ workspace.name }}</template>
         <template #content>
-          <SearchButton></SearchButton>
+          <SearchButton @openSearchModal="searchModalState.show()" />
           <div
             class="custom-scroll flex flex-1 flex-col overflow-visible px-3 pb-12 pt-2.5"
             @dragenter.prevent
@@ -334,6 +339,7 @@ useEventListener(document, 'keydown', (event) => {
         @update:tab="handleTabChange" />
     </ViewLayout>
   </div>
+  <SearchModal :modalState="modalState" />
 </template>
 <style scoped>
 .request-text-color-text {
