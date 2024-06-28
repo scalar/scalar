@@ -6,7 +6,6 @@ import {
   useAuthenticationStore,
   useServerStore,
 } from '#legacy'
-import { HttpMethod } from '@scalar/api-client'
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
 import type {
   ExampleRequestSSRKey,
