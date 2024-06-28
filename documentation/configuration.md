@@ -144,8 +144,8 @@ You can pass information to the config object to configure meta information out 
     ogImage: 'https://example.com/image.png',
     twitterCard: 'summary_large_image',
     // Add more...
-    }
   }
+}
 ```
 
 #### hiddenClients?: array | true
@@ -211,7 +211,7 @@ For OpenAuth2 it’s more looking like this:
     scopes: ['read:planets', 'write:planets'],
     },
   },
-  }
+}
 ```
 
 #### withDefaultFonts?: boolean

@@ -116,13 +116,6 @@ export type ReferenceConfiguration = {
    * By default hides Unirest, pass `[]` to show all clients
    */
   hiddenClients?: HiddenClients
-  /**
-   * List of servers to override the openapi spec servers
-   *
-   * @default undefined
-   * @example [{ url: 'https://api.scalar.com', description: 'Production server' }]
-   */
-  servers?: Server[]
   /** Custom CSS to be added to the page */
   customCss?: string
   /** onSpecUpdate is fired on spec/swagger content change */
@@ -149,6 +142,13 @@ export type ReferenceConfiguration = {
    * @example 'http://localhost:3000'
    */
   baseServerURL?: string
+  /**
+   * List of servers to override the openapi spec servers
+   *
+   * @default undefined
+   * @example [{ url: 'https://api.scalar.com', description: 'Production server' }]
+   */
+  servers?: Server[]
   /**
    * We’re using Inter and JetBrains Mono as the default fonts. If you want to use your own fonts, set this to false.
    *

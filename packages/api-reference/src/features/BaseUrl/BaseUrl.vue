@@ -3,9 +3,10 @@ import { type Server as ApiClientServer, useServerStore } from '#legacy'
 import type { Spec } from '@scalar/oas-utils'
 import { ref, watch } from 'vue'
 
+import { createEmptySpecification } from '../../helpers'
 import ServerForm from './ServerForm.vue'
 import type { Server } from './types'
-import { getServers } from './utils'
+import { getServers } from './utils/getServers'
 
 const props = defineProps<{
   /**
@@ -16,6 +17,10 @@ const props = defineProps<{
    * The fallback server URL to use if no servers are found in the specification
    */
   defaultServerUrl?: string
+  /**
+   * Overwrite the list of servers
+   */
+  servers?: Server[]
 }>()
 
 const { server: serverState, setServer } = useServerStore()
@@ -38,7 +43,16 @@ watch(
 watch(
   () => props.specification,
   () => {
-    const servers = getServers(props.specification, {
+    const specification =
+      // Use the specification
+      props.servers === undefined
+        ? props.specification
+        : // Or create an empty one with the specified servers list
+          createEmptySpecification({
+            servers: props.servers,
+          })
+
+    const servers = getServers(specification, {
       defaultServerUrl: props.defaultServerUrl,
     }) as ApiClientServer[]
 
