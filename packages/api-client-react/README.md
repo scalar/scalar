@@ -5,6 +5,10 @@
 [![License](https://img.shields.io/npm/l/%40scalar%2Fapi-client-react)](https://www.npmjs.com/package/@scalar/api-client-react)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
+> **Deprecated Package**
+>
+> This package has been DEPRECATED in favour of the new [@scalar/api-client](https://www.npmjs.com/package/@scalar/api-client) which is now framework-agnostic.
+
 ## Installation
 
 ```bash

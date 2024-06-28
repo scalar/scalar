@@ -1,16 +1,16 @@
-@import '@scalar/themes/style.css';
 @import 'tailwindcss/base' layer(scalar-base);
 
-:where(.scalar-app) {
+.scalar-client {
   @tailwind components;
   @tailwind utilities;
   @tailwind variants;
 
-  /**
-   * Custom utilities to make life easier
-   * For some reason it was bugging on apply so I just used css for now
+  /** 
+   * Custom utilities to make life easier 
+   * For some reason it was bugging on apply so I just used css for now 
+   * Replicated in components until we figure out how to share  
    */
-  @layer utilities {
+  @layer components {
     .row {
       /* @apply flex flex-row; */
       display: flex;
@@ -71,4 +71,7 @@
         scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
     }
   }
+
+  line-height: 1.5;
+  color: var(--scalar-color-1);
 }

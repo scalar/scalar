@@ -1,12 +1,15 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src", "src/declarations", "global.d.ts", "vite-env.d.ts"],
-  "exclude": ["dist", "vite.config.ts", "node_modules"],
+  "include": ["./src"],
+  "compilerOptions": {
+    "rootDir": "./src",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@test/*": ["./test/*"]
+    },
+    "types": ["vite/client"]
+  },
   "ts-node": {
     "require": ["tsconfig-paths/register"]
-  },
-  "compilerOptions": {
-    "types": ["vite/client"],
-    "rootDir": "src/"
   }
 }

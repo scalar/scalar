@@ -9,7 +9,7 @@ const icons = import.meta.glob<SVGElement>('./*.svg')
 /**
  * Generate a vue component from the icon SVGs
  */
-export async function getIcon(name: Icon) {
+export const getIcon = (name: Icon) => {
   const filename = `./${name}.svg`
 
   if (!icons[filename]) {

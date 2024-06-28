@@ -1,59 +1,49 @@
-import { type ClientRequestConfig, useRequestStore } from '@scalar/api-client'
-import React, { useEffect, useState } from 'react'
+import { ClientConfiguration, createScalarApiClient } from '@scalar/api-client'
+import React, { ReactNode, useEffect, useRef, useState } from 'react'
 
-import { ApiClientReactBase } from './ApiClientReactBase'
 import './style.css'
 
 type Props = {
-  // Function to close the modal
-  close: () => void
-  // Controls whether the modal is open or closed
+  /** Controls whether the modal is open or closed */
   isOpen: boolean
-  // optional proxy url for requests
-  proxy?: string
-  // TheOpenApi request object
-  request: ClientRequestConfig | null
+  /** You must set isOpen to false in this method */
+  close: () => void
+  /** If you change the config, it clears your current state and imports a new spec */
+  configuration: ClientConfiguration
+  children?: ReactNode
 }
-
-const { resetActiveResponse, setActiveRequest } = useRequestStore()
 
 /**
  * Api Client React
  */
 export const ApiClientReact = ({
-  proxy = '',
   close,
   isOpen = false,
-  request,
+  configuration,
+  children,
 }: Props) => {
+  const el = useRef(null)
+
+  const [client, setClient] = useState<Awaited<
+    ReturnType<typeof createScalarApiClient>
+  > | null>(null)
+
   useEffect(() => {
-    resetActiveResponse()
-    if (request) setActiveRequest(request)
-  }, [isOpen, request])
+    if (!el.current) return
+    createScalarApiClient(el.current, configuration).then(setClient)
+  }, [el])
 
-  const [host, setHost] = useState('')
-  useEffect(() => setHost(window.location.host), [])
+  useEffect(() => {
+    if (client?.modalState.open === false) close()
+  }, [client?.modalState.open])
 
-  return (
-    <div
-      className="scalar"
-      style={{ display: isOpen ? 'block' : 'none' }}>
-      <div className="scalar-container">
-        <div className="scalar-app">
-          <div className="scalar-app-header">
-            <span>API Client</span>
-            <a
-              href={`https://www.scalar.com?utm_campaign=${host}`}
-              target="_blank">
-              Powered by scalar.com
-            </a>
-          </div>
-          <ApiClientReactBase proxy={proxy} />
-        </div>
-        <div
-          onClick={close}
-          className="scalar-app-exit"></div>
-      </div>
-    </div>
-  )
+  useEffect(() => {
+    if (isOpen && client) client.open()
+  }, [isOpen])
+
+  useEffect(() => {
+    client?.updateConfig(configuration)
+  }, [configuration])
+
+  return <div ref={el}>{children}</div>
 }

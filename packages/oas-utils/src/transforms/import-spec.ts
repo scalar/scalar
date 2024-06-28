@@ -149,9 +149,11 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
 
   // Select initial security
   const firstSecurityKey = Object.keys(
-    parsedSpec.components?.securitySchemes ?? {},
+    (schema?.components?.securitySchemes || schema?.securityDefinitions) ?? {},
   )?.[0]
-  const firstScheme = parsedSpec.components?.securitySchemes?.[
+
+  const firstScheme = (schema?.components?.securitySchemes ||
+    schema?.securityDefinitions)?.[
     firstSecurityKey ?? ''
   ] as OpenAPIV3_1.SecuritySchemeObject
 
@@ -169,9 +171,9 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
 
   const collection = createCollection({
     spec: {
-      openapi: parsedSpec.openapi,
+      openapi: schema?.openapi,
       info: schema?.info,
-      security: parsedSpec.security,
+      security: schema?.security || schema?.securityDefinitions,
       externalDocs: schema?.externalDocs,
       serverUids: servers.map(({ uid }) => uid),
       tags,
@@ -183,6 +185,7 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
   })
 
   const components = schema?.components
+  const securityDefinitions = schema?.securityDefinitions
 
   return {
     tags,
@@ -191,5 +194,6 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
     requests,
     collection,
     components,
+    securityDefinitions,
   }
 }

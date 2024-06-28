@@ -1,9 +1,6 @@
-export { ApiClient } from './components/ApiClient'
-export * from './components/ApiClient/Request/RequestAuthentication'
+export { default as ScalarClient } from './App.vue'
+export * from './Modal'
 
-export { default as HttpMethod } from './components/HttpMethod.vue'
+export { useWorkspace } from './store/workspace'
 
-export * from './helpers'
-export * from './stores'
-export * from './types'
-export * from './fixtures'
+export { clientRoutes, clientRouter } from './router'

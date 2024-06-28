@@ -2,9 +2,10 @@
  * This file is the entry point for the CDN version of the Scalar Test Button.
  * It’s responsible for finding the spec and configuration in the HTML, and mounting the Vue.js app.
  */
-import { ApiClientModal, openClientFor, parse } from '@scalar/api-reference'
+import { createScalarApiClient } from '@scalar/api-client'
+import { parse } from '@scalar/api-reference'
 import type { Spec } from '@scalar/oas-utils'
-import { createApp, h, reactive } from 'vue'
+import { reactive } from 'vue'
 
 const specScriptTag = document.getElementById('scalar-play-button-script')
 const testButtons = document.getElementsByClassName('scalar-play-button')
@@ -80,15 +81,13 @@ if (!specUrlElement && !specElement && !specScriptTag) {
     //   }),
     // )
 
-    const _app = createApp(
-      h(ApiClientModal, {
-        parsedSpec,
-        theme: 'default',
-      }),
-    )
-
     if (container) {
-      _app.mount(container)
+      const { open } = await createScalarApiClient(container as HTMLElement, {
+        spec: {
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        },
+        proxyUrl: 'https://proxy.scalar.com',
+      })
 
       for (const testButton of testButtons) {
         const operationId = testButton.getAttribute('scalar-operation-id')
@@ -98,11 +97,17 @@ if (!specUrlElement && !specElement && !specScriptTag) {
 
         testButton?.addEventListener('click', () => {
           if (specifiedOperation) {
-            openClientFor(specifiedOperation)
+            open({
+              path: specifiedOperation.path,
+              method: specifiedOperation.httpVerb,
+            })
           } else {
             const firstOperation = parsedSpec.tags?.[0]?.operations?.[0]
             if (firstOperation) {
-              openClientFor(firstOperation)
+              open({
+                path: firstOperation.path,
+                method: firstOperation.httpVerb,
+              })
             }
           }
         })
@@ -110,7 +115,7 @@ if (!specUrlElement && !specElement && !specScriptTag) {
     } else {
       console.error('Could not find a mount point for API References')
     }
-    return _app
+    return null
   }
 
   createAppFactory()

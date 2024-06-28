@@ -1,9 +1,15 @@
 {
   "extends": "../../tsconfig.json",
+  "include": ["./src"],
   "compilerOptions": {
+    "rootDir": "./src",
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
-    }
+    },
+    "types": ["vite/client"]
+  },
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
   }
 }
