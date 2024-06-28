@@ -1,7 +1,8 @@
 import pm from 'picomatch'
 import type { Plugin } from 'vite'
 
-export function ViteWatchWorkspace(): Plugin {
+/** Reboots the vite server when workspace dependencies changes are detected */
+export function ViteWatchWorkspace(packageDir = 'scalar/packages'): Plugin {
   const currentDir = process.cwd().split('/').at(-1)
 
   const timer = {
@@ -18,7 +19,7 @@ export function ViteWatchWorkspace(): Plugin {
   }
 
   // We match any workspace package dist that are not the current one
-  const matcher = pm(`**/scalar/packages/!(${currentDir})/dist/**`)
+  const matcher = pm(`**/${packageDir}/!(${currentDir})/dist/**`)
   return {
     name: `vite-plugin-workspace-watch`,
     apply: 'serve',
