@@ -142,6 +142,9 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
   border: 1px solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
 }
+.introduction-card :deep(.description) {
+  padding: 0;
+}
 .introduction-card-title {
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-mini);
