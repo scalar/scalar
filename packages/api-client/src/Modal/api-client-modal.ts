@@ -7,7 +7,7 @@ import { type RequestMethod, objectMerge } from '@scalar/oas-utils/helpers'
 import { getNestedValue } from '@scalar/object-utils/nested'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { Paths } from 'type-fest'
-import { createApp, toRaw } from 'vue'
+import { createApp } from 'vue'
 
 import ApiClientModal from './ApiClientModal.vue'
 
@@ -84,7 +84,7 @@ export const createScalarApiClient = async (
   if (config.spec?.url) {
     importSpecFromUrl(config.spec.url, config.proxyUrl)
   } else if (config.spec?.content) {
-    importSpecFile(toRaw(config.spec?.content))
+    importSpecFile(config.spec?.content)
   } else {
     console.error(
       `[@scalar/api-client-modal] Could not create the API client.`,
@@ -224,7 +224,7 @@ export const createScalarApiClient = async (
       if (spec?.url) {
         importSpecFromUrl(spec.url, config.proxyUrl)
       } else if (spec?.content) {
-        importSpecFile(toRaw(spec?.content))
+        importSpecFile(spec?.content)
       } else {
         console.error(
           `[@scalar/api-client-modal] Could not create the API client.`,
