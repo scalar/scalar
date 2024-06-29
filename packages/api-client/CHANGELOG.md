@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.0.3
+
+### Patch Changes
+
+- 9f208d5: fix: only send query params with a value
+
 ## 2.0.2
 
 ### Patch Changes
