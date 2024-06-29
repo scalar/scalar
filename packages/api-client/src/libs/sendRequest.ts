@@ -99,7 +99,11 @@ export const sendRequest = async (
   })
 
   const query: Record<string, string> = {
-    ...paramsReducer(example.parameters.query.filter(({ enabled }) => enabled)),
+    ...paramsReducer(
+      example.parameters.query
+        .filter(({ enabled }) => enabled)
+        .filter(({ value }) => value !== ''),
+    ),
     ...paramsReducer(queryParametersFromUrl),
   }
   const cookies: Record<string, string> = {
