@@ -7,7 +7,7 @@ import { type RequestMethod, objectMerge } from '@scalar/oas-utils/helpers'
 import { getNestedValue } from '@scalar/object-utils/nested'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { Paths } from 'type-fest'
-import { createApp, reactive, toRaw } from 'vue'
+import { createApp, toRaw } from 'vue'
 
 import ApiClientModal from './ApiClientModal.vue'
 
@@ -60,15 +60,13 @@ export const createScalarApiClient = async (
   /** Element to mount the references to */
   el: HTMLElement | null,
   /** Configuration object for Scalar References */
-  initialConfig: ClientConfiguration,
+  config: ClientConfiguration,
   /**
    * Will attempt to mount the references immediately
    * For SSR this may need to be blocked and done client side
    */
   mountOnInitialize = true,
 ) => {
-  const config = toRaw(initialConfig)
-
   const {
     activeCollection,
     collectionMutators,
@@ -84,7 +82,7 @@ export const createScalarApiClient = async (
 
   // Import the spec if needed
   if (config.spec?.url) {
-    importSpecFromUrl(toRaw(config.spec.url), toRaw(config.proxyUrl))
+    importSpecFromUrl(config.spec.url, config.proxyUrl)
   } else if (config.spec?.content) {
     importSpecFile(toRaw(config.spec?.content))
   } else {
@@ -95,7 +93,7 @@ export const createScalarApiClient = async (
     )
   }
 
-  const app = createApp(ApiClientModal, { config: toRaw(config), modalState })
+  const app = createApp(ApiClientModal, { modalState })
   app.use(clientRouter)
 
   const mount = (mountingEl = el) => {
@@ -224,7 +222,7 @@ export const createScalarApiClient = async (
     /** Update the spec file, this will re-parse it and clear your store */
     updateSpec: (spec: SpecConfiguration) => {
       if (spec?.url) {
-        importSpecFromUrl(toRaw(spec.url), toRaw(config.proxyUrl))
+        importSpecFromUrl(spec.url, config.proxyUrl)
       } else if (spec?.content) {
         importSpecFile(toRaw(spec?.content))
       } else {
