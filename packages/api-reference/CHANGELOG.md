@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.24.27
+
+### Patch Changes
+
+- Updated dependencies [a01df62]
+  - @scalar/oas-utils@0.2.8
+  - @scalar/api-client@2.0.4
+
 ## 1.24.26
 
 ### Patch Changes

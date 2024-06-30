@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.8
+
+### Patch Changes
+
+- a01df62: fix: ensure path and operation params are merged on import
+
 ## 0.2.7
 
 ### Patch Changes
