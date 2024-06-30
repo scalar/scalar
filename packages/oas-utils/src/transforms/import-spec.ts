@@ -74,9 +74,11 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
 
       // An operation can have component level parameters as well :)
       const pathAndOperationParameters = [
-        ...path.parameters,
-        operation.parameters,
+        ...(path.parameters || []),
+        ...(operation.parameters || []),
       ].filter((p) => p)
+
+      console.log(pathAndOperationParameters)
 
       // Loop over params to set request params
       pathAndOperationParameters.forEach((_param: any) => {
