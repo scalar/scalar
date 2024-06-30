@@ -72,8 +72,14 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
         cookies: {},
       }
 
+      // An operation can have component level parameters as well :)
+      const pathAndOperationParameters = [
+        ...(path.parameters || []),
+        ...(operation.parameters || []),
+      ].filter((p) => p)
+
       // Loop over params to set request params
-      operation.parameters?.forEach((_param: any) => {
+      pathAndOperationParameters.forEach((_param: any) => {
         const param = _param
 
         if (
