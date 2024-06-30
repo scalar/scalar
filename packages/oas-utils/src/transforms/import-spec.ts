@@ -78,8 +78,6 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
         ...(operation.parameters || []),
       ].filter((p) => p)
 
-      console.log(pathAndOperationParameters)
-
       // Loop over params to set request params
       pathAndOperationParameters.forEach((_param: any) => {
         const param = _param
