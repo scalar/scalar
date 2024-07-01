@@ -11,34 +11,12 @@ export async function getBody(c: Context) {
     contentType?.includes('application/x-www-form-urlencoded') ||
     contentType?.includes('multipart/form-data')
   ) {
-    const formData = await c.req.formData()
-
-    // Transform FormData to a key value object
-    const body: Record<string, any> = {}
-
-    for (const [key, value] of formData.entries()) {
-      // String
-      if (typeof value === 'string') {
-        body[key] = value
-        continue
-      }
-
-      // File
-      if (value instanceof File) {
-        body[key] = {
-          name: value?.name,
-          sizeInBytes: value?.size,
-          type: value?.type,
-          // Get date time string from unix timestamp
-          lastModified: value.lastModified
-            ? new Date(value.lastModified).toISOString()
-            : undefined,
-        }
-        continue
-      }
-    }
-
-    return body
+    return transformFormData(
+      await c.req.parseBody({
+        dot: true,
+        all: true,
+      }),
+    )
   }
 
   const body = await c.req.text()
@@ -51,5 +29,63 @@ export async function getBody(c: Context) {
   }
 
   // Plain text
+  return body
+}
+
+/**
+ * Transform form data to a more readable format, including file information
+ */
+function transformFormData(formData: Record<string, any>) {
+  console.log(formData)
+  const body: Record<string, any> = {}
+
+  for (const [key, value] of Object.entries(formData)) {
+    // String
+    if (typeof value === 'string') {
+      body[key] = value
+      continue
+    }
+
+    // File
+    if (value instanceof File) {
+      body[key] = {
+        name: value?.name,
+        sizeInBytes: value?.size,
+        type: value?.type,
+        // Get date time string from unix timestamp
+        lastModified: value.lastModified
+          ? new Date(value.lastModified).toISOString()
+          : undefined,
+      }
+      continue
+    }
+
+    // Array
+    if (Array.isArray(value)) {
+      body[key] = value.map((v) => {
+        if (value instanceof File) {
+          return {
+            name: value?.name,
+            sizeInBytes: value?.size,
+            type: value?.type,
+            // Get date time string from unix timestamp
+            lastModified: value.lastModified
+              ? new Date(value.lastModified).toISOString()
+              : undefined,
+          }
+        }
+
+        return value
+      })
+      continue
+    }
+
+    // Object
+    if (typeof value === 'object') {
+      body[key] = transformFormData(value)
+      continue
+    }
+  }
+
   return body
 }

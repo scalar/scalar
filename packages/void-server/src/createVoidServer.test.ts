@@ -158,6 +158,26 @@ describe('createVoidServer', () => {
     expect(body.file.lastModified).toBeDefined()
   })
 
+  it('returns form data with dot syntax', async () => {
+    const server = await createVoidServer()
+
+    const formData = new FormData()
+
+    // Dot syntax
+    formData.append('foo.bar', 'yes')
+
+    const response = await server.request('/', {
+      method: 'POST',
+      body: formData,
+    })
+
+    expect((await response.json()).body).toStrictEqual({
+      foo: {
+        bar: 'yes',
+      },
+    })
+  })
+
   it('returns the cookies', async () => {
     const server = await createVoidServer()
 
