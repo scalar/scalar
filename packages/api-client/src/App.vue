@@ -3,6 +3,7 @@ import SideNav from '@/components/SideNav/SideNav.vue'
 import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
+import { addScalarClassesToHeadless } from '@scalar/components'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { onBeforeMount, onMounted, watchEffect } from 'vue'
 import { RouterView } from 'vue-router'
@@ -19,7 +20,11 @@ const { importSpecFromUrl, workspaceMutators } = useWorkspace()
 
 workspaceMutators.edit('proxyUrl', 'https://proxy.scalar.com')
 
-onBeforeMount(() => {})
+/**
+ * Ensure we add our scalar wrapper class to the headless ui root
+ * mounted is too late
+ */
+onBeforeMount(() => addScalarClassesToHeadless())
 
 onMounted(() => {
   importSpecFromUrl(
