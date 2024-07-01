@@ -7,6 +7,8 @@ import type { InputPluginOption, RollupOptions } from 'rollup'
 import copy, { type Target } from 'rollup-plugin-copy'
 import css from 'rollup-plugin-import-css'
 
+import emptyOutDir from './rollup-plugins/emptyOutDir'
+
 export type StrictPluginOptions = RollupOptions & {
   plugins?: InputPluginOption[]
 }
@@ -28,6 +30,12 @@ export function createRollupConfig(props: {
   typescript?: boolean
   copy?: Target[]
   options?: StrictPluginOptions
+  /**
+   * Remove the ./dist folder
+   *
+   * @default true
+   */
+  emptyOutDir?: boolean
 }): RollupOptions {
   /** Load the pkg file if not provided */
   const pkgFile =
@@ -38,6 +46,12 @@ export function createRollupConfig(props: {
     : []
 
   // Optional list of files to copy over
+  if (props?.emptyOutDir !== false)
+    plugins.push(
+      emptyOutDir({
+        dir: './dist',
+      }),
+    )
   if (props?.copy) plugins.push(copy({ targets: props.copy }))
   // For vanilla rollup (not Vite) we need to enable transpilation
   if (props.typescript) plugins.push(typescript())
