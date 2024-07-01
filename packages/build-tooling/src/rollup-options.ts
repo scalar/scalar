@@ -45,14 +45,23 @@ export function createRollupConfig(props: {
     ? [...props.options.plugins]
     : []
 
-  // Optional list of files to copy over
-  if (props?.emptyOutDir !== false)
+  // Remove the ./dist folder by default
+  if (props?.emptyOutDir !== false) {
     plugins.push(
       emptyOutDir({
         dir: './dist',
       }),
     )
-  if (props?.copy) plugins.push(copy({ targets: props.copy }))
+  }
+  // Optional list of files to copy over
+  if (props?.copy)
+    plugins.push(
+      copy({
+        targets: props.copy,
+        // Use the `generateBundle` hook to copy files, otherwise they are deleted by the `emptyOutDir` plugin
+        hook: 'generateBundle',
+      }),
+    )
   // For vanilla rollup (not Vite) we need to enable transpilation
   if (props.typescript) plugins.push(typescript())
   plugins.push(json())
@@ -77,6 +86,7 @@ export function createRollupConfig(props: {
     external.push(...Object.keys(pkgFile.devDependencies))
   if ('peerDependencies' in pkgFile)
     external.push(...Object.keys(pkgFile.peerDependencies))
+
   return {
     treeshake: {
       annotations: true,
