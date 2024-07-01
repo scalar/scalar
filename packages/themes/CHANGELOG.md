@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.10
+
+### Patch Changes
+
+- cdfb8c5: feat: focus visible outline style
+
 ## 0.9.9
 
 ### Patch Changes

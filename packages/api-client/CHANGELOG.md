@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.0.5
+
+### Patch Changes
+
+- 6709507: fix: api client missing scalar ui root style
+- 8f06fcd: fix: api client required after content out of tailwind
+- 8f06fcd: fix: prevent api client path param key update
+- cdfb8c5: feat: focus visible outline style
+  - @scalar/components@0.12.7
+
 ## 2.0.4
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # @scalar/play-button
 
+## 0.2.26
+
+### Patch Changes
+
+- 3cac6f7: fix: does not work with YAML
+- Updated dependencies [6709507]
+- Updated dependencies [8f06fcd]
+- Updated dependencies [8f06fcd]
+- Updated dependencies [cdfb8c5]
+  - @scalar/api-client@2.0.5
+  - @scalar/themes@0.9.10
+  - @scalar/api-reference@1.24.28
+
 ## 0.2.25
 
 ### Patch Changes
