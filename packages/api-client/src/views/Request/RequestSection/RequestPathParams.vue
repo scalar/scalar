@@ -30,6 +30,10 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
 
   /** Change variable in path as well */
   if (field === 'key') {
+    if (parameters[rowIdx]?.required) {
+      /** Prevent updating the key of a required item */
+      return
+    }
     if (!value) {
       /** Remove parameter if path params table key is empty */
       parameters.splice(rowIdx, 1)

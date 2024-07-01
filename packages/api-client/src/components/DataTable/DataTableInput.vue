@@ -75,7 +75,7 @@ const handleDropdownMouseUp = () => {
     <div
       class="group row-1"
       :class="{
-        'relative after:absolute after:content-[\'Required\'] after:centered-y after:right-0 after:pt-px after:pr-2 after:text-xxs after:font-medium after:text-c-3 after:bg-b-1 after:shadow-[-8px_0_4px_var(--scalar-background-1)] group-has-[:focus]:after:hidden':
+        'relative required after:absolute after:centered-y after:right-0 after:pt-px after:pr-2 after:text-xxs after:font-medium after:text-c-3 after:bg-b-1 after:shadow-[-8px_0_4px_var(--scalar-background-1)] group-has-[:focus]:after:hidden':
           required,
       }">
       <input
@@ -109,6 +109,9 @@ const handleDropdownMouseUp = () => {
 </template>
 
 <style scoped>
+.required::after {
+  content: 'Required';
+}
 /* Tailwind placeholder is busted */
 input::placeholder {
   color: var(--scalar-color-3);
