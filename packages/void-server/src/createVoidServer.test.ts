@@ -158,6 +158,38 @@ describe('createVoidServer', () => {
     expect(body.file.lastModified).toBeDefined()
   })
 
+  it('returns multipart form data with multiple files', async () => {
+    const server = await createVoidServer()
+
+    // Multiple files in a single field
+    const formData = new FormData()
+    formData.append('files', new Blob(['foobar']), 'file1.txt')
+    formData.append('files', new Blob(['foobar']), 'file2.txt')
+
+    const response = await server.request('/', {
+      method: 'POST',
+      body: formData,
+    })
+
+    const body = (await response.json()).body
+
+    expect(body.files).toMatchObject([
+      {
+        name: 'file1.txt',
+        sizeInBytes: 6,
+        type: 'application/octet-stream',
+      },
+      {
+        name: 'file2.txt',
+        sizeInBytes: 6,
+        type: 'application/octet-stream',
+      },
+    ])
+
+    expect(body.files[0].lastModified).toBeDefined()
+    expect(body.files[1].lastModified).toBeDefined()
+  })
+
   it('returns form data with dot syntax', async () => {
     const server = await createVoidServer()
 

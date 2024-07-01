@@ -36,7 +36,6 @@ export async function getBody(c: Context) {
  * Transform form data to a more readable format, including file information
  */
 function transformFormData(formData: Record<string, any>) {
-  console.log(formData)
   const body: Record<string, any> = {}
 
   for (const [key, value] of Object.entries(formData)) {
@@ -62,15 +61,15 @@ function transformFormData(formData: Record<string, any>) {
 
     // Array
     if (Array.isArray(value)) {
-      body[key] = value.map((v) => {
-        if (value instanceof File) {
+      body[key] = value.map((item: string | File) => {
+        if (item instanceof File) {
           return {
-            name: value?.name,
-            sizeInBytes: value?.size,
-            type: value?.type,
+            name: item?.name,
+            sizeInBytes: item?.size,
+            type: item?.type,
             // Get date time string from unix timestamp
-            lastModified: value.lastModified
-              ? new Date(value.lastModified).toISOString()
+            lastModified: item.lastModified
+              ? new Date(item.lastModified).toISOString()
               : undefined,
           }
         }
