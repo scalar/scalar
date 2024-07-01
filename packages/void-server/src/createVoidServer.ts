@@ -1,6 +1,8 @@
 import { type Context, Hono } from 'hono'
 import { accepts } from 'hono/accepts'
 import { cors } from 'hono/cors'
+import type { StatusCode } from 'hono/utils/http-status'
+import { parse } from 'path'
 
 import {
   createHtmlResponse,
@@ -19,20 +21,58 @@ export async function createVoidServer() {
   // CORS headers
   app.use(cors())
 
-  // 404
-  app.all('/404', async (c: Context) => {
+  // HTTP errors
+  app.all('/:status{[4-5][0-9][0-9]}', async (c: Context) => {
     console.info(`${c.req.method} ${c.req.path}`)
 
-    c.status(404)
+    const { status: originalStatusCode } = c.req.param()
+    const status = parseInt(originalStatusCode, 10) as StatusCode
 
-    return c.text('Not Found')
-  })
+    c.status(status)
 
-  // Return zip files for all requests ending with .zip
-  app.all('/:filename{.+\\.zip$}', async (c: Context) => {
-    console.info(`${c.req.method} ${c.req.path}`)
+    // HTTP Error list
+    const errors: Partial<Record<StatusCode, string>> = {
+      '400': 'Bad Request',
+      '401': 'Unauthorized',
+      '402': 'Payment Required',
+      '403': 'Forbidden',
+      '404': 'Not Found',
+      '406': 'Not Acceptable',
+      '407': 'Proxy Authentication Required',
+      '408': 'Request Time-out',
+      '409': 'Conflict',
+      '410': 'Gone',
+      '411': 'Length Required',
+      '412': 'Precondition Failed',
+      '413': 'Request Entity Too Large',
+      '414': 'Request-URI Too Long',
+      '415': 'Unsupported Media Type',
+      '416': 'Requested Range Not Satisfiable',
+      '417': 'Expectation Failed',
+      '418': 'I’m a teapot',
+      '421': 'Unprocessable Entity',
+      '422': 'Misdirected Request',
+      '423': 'Locked',
+      '424': 'Failed Dependency',
+      '426': 'Upgrade Required',
+      '428': 'Precondition Required',
+      '429': 'Too Many Requests',
+      '431': 'Request Header Fileds Too Large',
+      '451': 'Unavailable For Legal Reasons',
+      '500': 'Internal Server Error',
+      '501': 'Not Implemented',
+      '502': 'Bad Gateway',
+      '503': 'Service Unavailable',
+      '504': 'Gateway Timeout',
+      '505': 'HTTP Version Not Supported',
+      '506': 'Variant Also Negotiates',
+      '507': 'Insufficient Storage',
+      '508': 'Loop Detected',
+      '510': 'Not Extended',
+      '511': 'Network Authentication Required',
+    }
 
-    return createZipFileResponse(c)
+    return c.text(errors?.[status] ?? 'ERROR')
   })
 
   // Return HTML files for all requests ending with .html
