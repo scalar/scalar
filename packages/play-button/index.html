@@ -8,8 +8,9 @@
       content="width=device-width, initial-scale=1" />
   </head>
   <body>
+    <h2>getMe</h2>
     <button
-      scalar-operation-id="getPetById"
+      scalar-operation-id="getMe"
       class="scalar-play-button scalar-api-client-small"
       style="
         all: unset;
@@ -46,8 +47,10 @@
       </svg>
       Test API
     </button>
+
+    <h2>getAllData</h2>
     <button
-      scalar-operation-id="deletePet"
+      scalar-operation-id="getAllData"
       class="scalar-play-button scalar-api-client-small"
       style="
         all: unset;
@@ -86,11 +89,7 @@
     </button>
     <script
       id="scalar-play-button-script"
-      data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml"
-      type="application/json">
-      { "openapi": "3.1.0", "info": { "title": "Example" }, "paths": {} }
-    </script>
-
+      data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml"></script>
     <script
       type="module"
       src="src/index.ts"></script>

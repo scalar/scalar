@@ -1,6 +1,8 @@
 import { type Page, expect } from '@playwright/test'
 
-// Check for basic elements
+/**
+ * Test the @scalar/api-reference page
+ */
 export async function testApiReference(page: Page, isMobile: boolean) {
   // The heading
   await expect(
@@ -20,6 +22,9 @@ export async function testApiReference(page: Page, isMobile: boolean) {
   }
 }
 
+/**
+ * Test the hello world page
+ */
 export async function testHelloWorld(page: Page) {
   // The heading
   await expect(page.getByRole('heading', { name: 'Hello World' })).toBeVisible()

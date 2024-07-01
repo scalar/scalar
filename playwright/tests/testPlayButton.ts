@@ -1,9 +1,21 @@
 import { type Page, expect } from '@playwright/test'
 
-// Check for basic elements
-export async function testPlayButton(page: Page, isMobile: boolean) {
+/**
+ * Test the play button
+ */
+export async function testPlayButton(page: Page) {
+  // Wait
+  await page.waitForTimeout(500)
+  // Button has scalar-operation-id="getAllData"
+  await page.waitForSelector('button[scalar-operation-id="getAllData"]')
   // Click button
   await page.click('text=Try it Out')
 
-  // TODO: Write test :)
+  // Wait until a button with text="Send Request" is visible
+  await page.waitForSelector('.scalar-client')
+
+  // URL
+  await expect(page.getByText('https://galaxy.scalar.com')).toBeVisible()
+  // Path
+  await expect(page.getByText('/planets')).toBeVisible()
 }
