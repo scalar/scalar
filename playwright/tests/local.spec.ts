@@ -44,7 +44,7 @@ test('@scalar/api-reference local build (yaml content)', async ({ page }) => {
 })
 
 // TODO: The package is just broken and needs to be fixed.
-test.skip('@scalar/play-button local build', async ({ page, isMobile }) => {
+test.only('@scalar/play-button local build', async ({ page }) => {
   await page.goto(`http://${HOST}:3173/play-button-local.html`)
-  await testPlayButton(page, isMobile)
+  await testPlayButton(page)
 })

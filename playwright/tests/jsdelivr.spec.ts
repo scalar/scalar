@@ -50,7 +50,7 @@ test.skip('@scalar/api-reference jsdelivr build (yaml content)', async ({
 })
 
 // TODO: The package is just broken and needs to be fixed.
-test.skip('@scalar/play-button jsdelivr build', async ({ page, isMobile }) => {
+test.skip('@scalar/play-button jsdelivr build', async ({ page }) => {
   await page.goto(`http://${HOST}:3173/play-button-jsdelivr.html`)
-  await testPlayButton(page, isMobile)
+  await testPlayButton(page)
 })
