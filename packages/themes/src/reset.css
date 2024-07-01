@@ -69,4 +69,10 @@
   input:-webkit-autofill {
     background-clip: text !important;
   }
+
+  /** Custom outline style for focus visible */
+  :focus-visible {
+    outline: 1px solid var(--scalar-color-accent);
+    outline-offset: 1px;
+  }
 }
