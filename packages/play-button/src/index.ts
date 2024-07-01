@@ -4,7 +4,7 @@
  */
 import { createScalarApiClient } from '@scalar/api-client'
 import { parse } from '@scalar/api-reference'
-import type { Spec } from '@scalar/oas-utils'
+import type { Spec, Tag, TransformedOperation } from '@scalar/oas-utils'
 import { reactive } from 'vue'
 
 const specScriptTag = document.getElementById('scalar-play-button-script')
@@ -64,12 +64,7 @@ if (!specUrlElement && !specElement && !specScriptTag) {
   const createAppFactory = async () => {
     const specUrl = getSpecUrl()
 
-    if (!specUrl) return null
-
-    const resp = await fetch(specUrl)
-    const spec = await resp.json()
-
-    const parsedSpec: Spec = reactive(await parse(spec))
+    const parsedSpec: Spec = reactive(await parse(specUrl))
 
     // const _app = createApp(
     //   h(ScalarButtonStyles, null, {
@@ -90,12 +85,24 @@ if (!specUrlElement && !specElement && !specScriptTag) {
       })
 
       for (const testButton of testButtons) {
-        const operationId = testButton.getAttribute('scalar-operation-id')
-        const specifiedOperation = parsedSpec.tags?.[0]?.operations?.find(
-          (op) => op.operationId === operationId,
-        )
-
         testButton?.addEventListener('click', () => {
+          // Operation ID from data attribute
+          const operationId = testButton.getAttribute('scalar-operation-id')
+
+          // Loop through all tags and operations to find the specified operation
+          const specifiedOperation = parsedSpec.tags?.reduce(
+            (acc: TransformedOperation | undefined, tag: Tag) => {
+              if (acc) {
+                return acc
+              }
+
+              return tag.operations?.find(
+                (operation) => operation.operationId === operationId,
+              )
+            },
+            undefined,
+          ) as unknown as TransformedOperation
+
           if (specifiedOperation) {
             open({
               path: specifiedOperation.path,
@@ -103,6 +110,7 @@ if (!specUrlElement && !specElement && !specScriptTag) {
             })
           } else {
             const firstOperation = parsedSpec.tags?.[0]?.operations?.[0]
+
             if (firstOperation) {
               open({
                 path: firstOperation.path,
