@@ -135,7 +135,7 @@ const showChildren = computed(
         custom
         :to="`/request/${item.uid}`">
         <div
-          class="group relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2 editable-sidebar-hover"
+          class="group relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2 rounded editable-sidebar-hover"
           :class="[
             highlightClasses,
             activeRequest?.uid === item.uid
@@ -165,7 +165,7 @@ const showChildren = computed(
       <!-- Collection/Folder -->
       <button
         v-else-if="!workspace.isReadOnly || parentUids.length"
-        class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5"
+        class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 z-[1]"
         :class="highlightClasses"
         type="button"
         @click="toggleSidebarFolder(item.uid)">
