@@ -34,6 +34,14 @@ const getSpecUrl = () => {
     }
   }
 
+  // <script id="scalar-play-button-script" type="application/json">{ "openapi": "3.1.0", … }</script>
+  // <script id="scalar-play-button-script" type="application/yaml">…</script>
+  const specFromScriptTag = specScriptTag?.innerHTML?.trim()
+
+  if (specFromScriptTag) {
+    return specFromScriptTag
+  }
+
   return undefined
 }
 
