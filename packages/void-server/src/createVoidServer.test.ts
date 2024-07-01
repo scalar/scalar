@@ -210,6 +210,18 @@ describe('createVoidServer', () => {
     })
   })
 
+  it('returns just a blob', async () => {
+    const server = await createVoidServer()
+
+    // Send just a blob
+    const response = await server.request('/', {
+      method: 'POST',
+      body: new Blob(['foobar']),
+    })
+
+    expect((await response.json()).body).toStrictEqual('foobar')
+  })
+
   it('returns the cookies', async () => {
     const server = await createVoidServer()
 
