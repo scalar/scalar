@@ -95,6 +95,69 @@ describe('createVoidServer', () => {
     expect((await response.json()).body).toBe('foobar')
   })
 
+  it('returns form data', async () => {
+    const server = await createVoidServer()
+
+    const response = await server.request('/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'foo=bar&foo%20bar=yes',
+    })
+
+    expect((await response.json()).body).toStrictEqual({
+      'foo': 'bar',
+      'foo bar': 'yes',
+    })
+  })
+
+  it('returns multipart form data', async () => {
+    const server = await createVoidServer()
+
+    const formData = new FormData()
+
+    // Just a simple string
+    formData.append('foo', 'bar')
+    // Key has whitespaces
+    formData.append('foo bar', 'yes')
+
+    const response = await server.request('/', {
+      method: 'POST',
+      body: formData,
+    })
+
+    expect((await response.json()).body).toStrictEqual({
+      'foo': 'bar',
+      'foo bar': 'yes',
+    })
+  })
+
+  it('returns multipart form data with a file', async () => {
+    const server = await createVoidServer()
+
+    // File
+    const formData = new FormData()
+    formData.append('file', new Blob(['foobar']), 'file.txt')
+
+    const response = await server.request('/', {
+      method: 'POST',
+      body: formData,
+    })
+
+    const body = (await response.json()).body
+
+    expect(body).toMatchObject({
+      file: {
+        name: 'file.txt',
+        sizeInBytes: 6,
+        type: 'application/octet-stream',
+      },
+    })
+
+    expect(body.file.lastModified).toBeDefined()
+  })
+
   it('returns the cookies', async () => {
     const server = await createVoidServer()
 
