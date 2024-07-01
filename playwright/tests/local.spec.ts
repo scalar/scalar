@@ -13,7 +13,8 @@ test('@scalar/api-reference local build (data-url)', async ({
   await testApiReference(page, isMobile)
 
   // TODO: fix the dev workflow
-  /** Visual Regression Testing
+  /**
+   * Visual Regression Testing
    * use Playwright built in screenshot functionality https://playwright.dev/docs/screenshots
    * Playwright uses pixelmatch to compare screenshots
    * update screenshots with npx playwright test --update-snapshots
@@ -23,7 +24,8 @@ test('@scalar/api-reference local build (data-url)', async ({
   //     maxDiffPixelRatio: 0.02,
   //   })
 
-  /** Capture into buffer
+  /**
+   * Capture into buffer
    * If we are unsatisfied with the built in visual regression testing
    * this is how we could pass it to a third party pixel diff facility eg. Chromatic
    *   const buffer = await page.screenshot()
