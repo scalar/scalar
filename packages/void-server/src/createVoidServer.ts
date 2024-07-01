@@ -72,7 +72,7 @@ export async function createVoidServer() {
       '511': 'Network Authentication Required',
     }
 
-    return c.text(errors?.[status] ?? 'Error')
+    return c.text(errors?.[status] ?? 'Unknown Error')
   })
 
   // Return HTML files for all requests ending with .html
