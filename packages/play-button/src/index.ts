@@ -66,63 +66,55 @@ if (!specUrlElement && !specElement && !specScriptTag) {
 
     const parsedSpec: Spec = reactive(await parse(specUrl))
 
-    // const _app = createApp(
-    //   h(ScalarButtonStyles, null, {
-    //     default: () =>
-    //       h(ApiClientModal, {
-    //         parsedSpec,
-    //         theme: 'default',
-    //       }),
-    //   }),
-    // )
-
-    if (container) {
-      const { open } = await createScalarApiClient(container as HTMLElement, {
-        spec: {
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-        },
-        proxyUrl: 'https://proxy.scalar.com',
-      })
-
-      for (const testButton of testButtons) {
-        testButton?.addEventListener('click', () => {
-          // Operation ID from data attribute
-          const operationId = testButton.getAttribute('scalar-operation-id')
-
-          // Loop through all tags and operations to find the specified operation
-          const specifiedOperation = parsedSpec.tags?.reduce(
-            (acc: TransformedOperation | undefined, tag: Tag) => {
-              if (acc) {
-                return acc
-              }
-
-              return tag.operations?.find(
-                (operation) => operation.operationId === operationId,
-              )
-            },
-            undefined,
-          ) as unknown as TransformedOperation
-
-          if (specifiedOperation) {
-            open({
-              path: specifiedOperation.path,
-              method: specifiedOperation.httpVerb,
-            })
-          } else {
-            const firstOperation = parsedSpec.tags?.[0]?.operations?.[0]
-
-            if (firstOperation) {
-              open({
-                path: firstOperation.path,
-                method: firstOperation.httpVerb,
-              })
-            }
-          }
-        })
-      }
-    } else {
+    if (!container) {
       console.error('Could not find a mount point for API References')
+      return null
     }
+
+    const { open } = await createScalarApiClient(container as HTMLElement, {
+      spec: {
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+      },
+      proxyUrl: 'https://proxy.scalar.com',
+    })
+
+    for (const testButton of testButtons) {
+      testButton?.addEventListener('click', () => {
+        // Operation ID from data attribute
+        const operationId = testButton.getAttribute('scalar-operation-id')
+
+        // Loop through all tags and operations to find the specified operation
+        const specifiedOperation = parsedSpec.tags?.reduce(
+          (acc: TransformedOperation | undefined, tag: Tag) => {
+            if (acc) {
+              return acc
+            }
+
+            return tag.operations?.find(
+              (operation) => operation.operationId === operationId,
+            )
+          },
+          undefined,
+        ) as unknown as TransformedOperation
+
+        if (specifiedOperation) {
+          open({
+            path: specifiedOperation.path,
+            method: specifiedOperation.httpVerb,
+          })
+        } else {
+          const firstOperation = parsedSpec.tags?.[0]?.operations?.[0]
+
+          if (firstOperation) {
+            open({
+              path: firstOperation.path,
+              method: firstOperation.httpVerb,
+            })
+          }
+        }
+      })
+    }
+
     return null
   }
 
