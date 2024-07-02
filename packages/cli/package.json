@@ -53,9 +53,9 @@
   "devDependencies": {
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-typescript": "^11.1.6",
-    "@types/node": "^20.8.4",
+    "@types/node": "^20.14.9",
     "execa": "^8.0.1",
-    "rollup": "^4.16.4",
+    "rollup": "^4.18.0",
     "rollup-plugin-delete": "^2.0.0",
     "strip-ansi": "^7.1.0",
     "tslib": "^2.6.2",
