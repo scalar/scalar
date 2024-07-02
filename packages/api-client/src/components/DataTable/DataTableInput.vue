@@ -4,6 +4,7 @@ import { ScalarIconButton } from '@scalar/components'
 import { computed, ref } from 'vue'
 
 import DataTableCell from './DataTableCell.vue'
+import DataTableInputEnumSelect from './DataTableInputEnumSelect.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -14,6 +15,7 @@ const props = withDefaults(
     required?: boolean
     modelValue: string | number
     readOnly?: boolean
+    enum?: string[]
   }>(),
   { required: false, readOnly: false },
 )
@@ -78,20 +80,28 @@ const handleDropdownMouseUp = () => {
         'relative required after:absolute after:centered-y after:right-0 after:pt-px after:pr-2 after:text-xxs after:font-medium after:text-c-3 after:bg-b-1 after:shadow-[-8px_0_4px_var(--scalar-background-1)] group-has-[:focus]:after:hidden':
           required,
       }">
-      <input
-        v-bind="$attrs"
-        :id="id"
-        autocomplete="off"
-        class="border-none focus:text-c-1 text-c-2 min-w-0 w-full px-2 py-1.5 outline-none"
-        data-1p-ignore
-        :readOnly="readOnly"
-        :required="required"
-        spellcheck="false"
-        :type="inputType"
-        :value="modelValue"
-        @blur="handleBlur"
-        @focus="emit('inputFocus')"
-        @input="handleInput" />
+      <template v-if="props.enum && props.enum.length">
+        <DataTableInputEnumSelect
+          :enum="props.enum"
+          :modelValue="props.modelValue"
+          @update:modelValue="emit('update:modelValue', $event)" />
+      </template>
+      <template v-else>
+        <input
+          v-bind="$attrs"
+          :id="id"
+          autocomplete="off"
+          class="border-none focus:text-c-1 text-c-2 min-w-0 w-full px-2 py-1.5 outline-none"
+          data-1p-ignore
+          :readOnly="readOnly"
+          :required="required"
+          spellcheck="false"
+          :type="inputType"
+          :value="modelValue"
+          @blur="handleBlur"
+          @focus="emit('inputFocus')"
+          @input="handleInput" />
+      </template>
     </div>
     <slot name="icon" />
     <ScalarIconButton

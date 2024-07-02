@@ -187,6 +187,7 @@ const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
           : '',
     description: param.description,
     required: param.required,
+    enum: param.schema?.enum,
   })
 
 /**

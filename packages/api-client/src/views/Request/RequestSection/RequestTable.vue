@@ -63,6 +63,7 @@ const handleFileUpload = (idx: number) => {
         @selectVariable="(v) => handleSelectVariable(idx, 'key', v)"
         @update:modelValue="(v) => emit('updateRow', idx, 'key', v)" />
       <DataTableInput
+        :enum="item.enum"
         :modelValue="item.value"
         placeholder="Value"
         @blur="emit('inputBlur')"
