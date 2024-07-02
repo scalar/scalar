@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build": "rm -Rf dist/ && rollup -c",
-    "dev": "nodemon --exec \"vite-node example/index.ts\" --ext ts --quiet",
+    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet",
     "test": "vitest",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
