@@ -65,7 +65,7 @@
     "pack:packages": "./scripts/pack.sh",
     "playwright:install": "npx playwright install --with-deps",
     "test": "vitest",
-    "test:ci": "start-server-and-test 'pnpm dev:proxy-server & pnpm dev:echo-server' 'http://127.0.0.1:5051/ping|http://127.0.0.1:5052' 'CI=1 vitest --silent'",
+    "test:ci": "start-server-and-test 'pnpm dev:proxy-server & pnpm dev:void-server' 'http://127.0.0.1:5051/ping|http://127.0.0.1:5052' 'CI=1 vitest --silent'",
     "test:e2e": "pnpm --filter playwright test:e2e",
     "test:e2e:ui": "pnpm --filter playwright test:e2e:ui",
     "test:e2e:jsdelivr": "pnpm --filter playwright test:e2e jsdelivr",
