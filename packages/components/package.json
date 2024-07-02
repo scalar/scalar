@@ -15,8 +15,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "run-p typegen:icons types:check \"build-only {@}\" --",
-    "build-only": "vite build",
+    "build": "pnpm typegen:icons && pnpm build-only",
+    "build-only": "scalar-build-vite",
     "build:storybook": "storybook build",
     "dev": "storybook dev -p 5100 --ci",
     "format": "pnpm prettier --write .",
@@ -26,8 +26,9 @@
     "lint:icons": "svglint src/components/ScalarIcon/icons/*.svg --config src/components/ScalarIcon/.svglintrc.js",
     "storybook": "storybook dev -p 5100",
     "test": "vitest",
-    "typegen:icons": "node --no-warnings --loader ts-node/esm ./src/scripts/typegen.ts",
-    "types:check": "vue-tsc --noEmit  --composite false"
+    "typegen:icons": "vite-node ./src/scripts/typegen.ts",
+    "types:build": "scalar-types-build-vue",
+    "types:check": "scalar-types-check-vue"
   },
   "type": "module",
   "main": "./dist/index.cjs",
@@ -83,7 +84,6 @@
     "svglint": "^2.7.1",
     "tailwindcss": "^3.4.4",
     "tailwindcss-color-mix": "^0.0.8",
-    "ts-node": "^10.9.1",
     "vite": "^5.2.10",
     "vite-plugin-dts": "^3.6.3",
     "vite-svg-loader": "^5.1.0",
