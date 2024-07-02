@@ -74,12 +74,18 @@ importers:
       remark-validate-links:
         specifier: ^13.0.1
         version: 13.0.1
+      rollup:
+        specifier: ^4.16.4
+        version: 4.18.0
       start-server-and-test:
         specifier: ^2.0.3
         version: 2.0.4
       syncpack:
         specifier: ^12.3.0
         version: 12.3.2(typescript@5.5.2)
+      tsc-alias:
+        specifier: ^1.8.8
+        version: 1.8.10
       turbo:
         specifier: ^2.0.1
         version: 2.0.4
@@ -1783,9 +1789,6 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      tsc-alias:
-        specifier: ^1.8.8
-        version: 1.8.10
       vite:
         specifier: ^5.2.10
         version: 5.3.1(@types/node@20.14.9)(terser@5.31.1)
