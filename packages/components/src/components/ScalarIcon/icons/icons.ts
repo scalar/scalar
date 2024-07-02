@@ -51,6 +51,7 @@ export const ICONS = [
   'Refresh',
   'Response',
   'Search',
+  'Server',
   'Show',
   'SideBarClosed',
   'SideBarOpen',
