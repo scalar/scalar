@@ -8,6 +8,7 @@ import {
 } from '#legacy'
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
 import type {
+  CustomRequestExample,
   ExampleRequestSSRKey,
   SSRState,
   TransformedOperation,
@@ -17,7 +18,14 @@ import { getRequestFromOperation } from '@scalar/oas-utils/spec-getters'
 import { snippetz } from '@scalar/snippetz'
 import { asyncComputed } from '@vueuse/core'
 import { HTTPSnippet } from 'httpsnippet-lite'
-import { computed, inject, onServerPrefetch, ref, useSSRContext } from 'vue'
+import {
+  computed,
+  inject,
+  onServerPrefetch,
+  ref,
+  useSSRContext,
+  watch,
+} from 'vue'
 
 import {
   GLOBAL_SECURITY_SYMBOL,
@@ -25,13 +33,14 @@ import {
   getHarRequest,
 } from '../../../helpers'
 import { useClipboard } from '../../../hooks'
-import { useHttpClientStore } from '../../../stores'
+import { type HttpClientState, useHttpClientStore } from '../../../stores'
 import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
 import { HttpMethod } from '../../HttpMethod'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
 const props = defineProps<{
+  customExamples?: CustomRequestExample[]
   operation: TransformedOperation
 }>()
 
@@ -66,6 +75,14 @@ const hasMultipleExamples = computed<boolean>(
 const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
 
 async function generateSnippet() {
+  console.log('generateSnippet', localHttpClient.value, props.customExamples)
+  if ((localHttpClient.value.targetKey as never) === 'customExamples') {
+    return (
+      props.customExamples?.[localHttpClient.value.clientKey as never]
+        ?.source ?? ''
+    )
+  }
+
   // Generate a request object
   const request = getHarRequest(
     {
@@ -136,12 +153,98 @@ computed(() => {
 
 /** For some snippets we use alternative highlight language packages */
 const language = computed(() => {
+  if (localHttpClient.value?.targetKey === 'customExamples') {
+    return (
+      props.customExamples?.[httpClient.clientKey as never]?.lang ?? 'plaintext'
+    )
+  }
+
   const key = httpClient.targetKey
 
   if (key === 'shell' && generatedCode.value.includes('curl')) return 'curl'
   if (key === 'c') return 'cpp'
   if (key === 'csharp') return 'cpp'
   return key
+})
+
+/** All options for the dropdown */
+const options = computed(() => {
+  // Add available the client libraries
+  const entries: {
+    value: string
+    label: string
+    options: { value: string; label: string }[]
+  }[] = availableTargets.value.map((target) => {
+    return {
+      value: target.key,
+      label: target.title,
+      options: target.clients.map((client) => {
+        return {
+          value: JSON.stringify({
+            targetKey: target.key,
+            clientKey: client.key,
+          }),
+          label: client.title,
+        }
+      }),
+    }
+  })
+
+  // Add entries for all available custom examples
+  if (props.customExamples?.length) {
+    entries.unshift({
+      value: 'customExamples',
+      label: 'Examples',
+      options: props.customExamples.map((example, index) => {
+        return {
+          value: JSON.stringify({
+            targetKey: 'customExamples',
+            clientKey: index,
+          }),
+          label: example.label ?? example.lang ?? `Example #${index + 1}`,
+        }
+      }),
+    })
+  }
+
+  return entries
+})
+
+/** Set custom example, or update the selected HTTP client globally */
+function updateHttpClient(value: string) {
+  const data = JSON.parse(value)
+
+  if (data.targetKey === 'customExamples') {
+    localHttpClient.value = data
+  } else {
+    setHttpClient(data)
+  }
+}
+
+/** Use the selected custom example or the globally selected HTTP client */
+const localHttpClient = ref<
+  | HttpClientState
+  | {
+      targetKey: 'customExamples'
+      clientKey: number
+    }
+>(
+  props.customExamples?.length
+    ? {
+        targetKey: 'customExamples',
+        clientKey: 0,
+      }
+    : {
+        targetKey: httpClient.targetKey,
+        clientKey: httpClient.clientKey,
+      },
+)
+
+watch(httpClient, () => {
+  localHttpClient.value = {
+    targetKey: httpClient.targetKey,
+    clientKey: httpClient.clientKey,
+  }
 })
 </script>
 <template>
@@ -157,27 +260,20 @@ const language = computed(() => {
       <template #actions>
         <TextSelect
           class="request-client-picker"
-          :modelValue="JSON.stringify(httpClient)"
-          :options="
-            availableTargets.map((target) => {
-              return {
-                value: target.key,
-                label: target.title,
-                options: target.clients.map((client) => {
-                  return {
-                    value: JSON.stringify({
-                      targetKey: target.key,
-                      clientKey: client.key,
-                    }),
-                    label: client.title,
-                  }
-                }),
-              }
-            })
-          "
-          @update:modelValue="(value) => setHttpClient(JSON.parse(value))">
-          {{ httpTargetTitle }}
-          {{ httpClientTitle }}
+          :modelValue="JSON.stringify(localHttpClient)"
+          :options="options"
+          @update:modelValue="updateHttpClient">
+          <template
+            v-if="(localHttpClient.targetKey as never) === 'customExamples'">
+            {{
+              props.customExamples?.[localHttpClient.clientKey as never]
+                .label ?? 'Custom Example'
+            }}
+          </template>
+          <template v-else>
+            {{ httpTargetTitle }}
+            {{ httpClientTitle }}
+          </template>
         </TextSelect>
 
         <button

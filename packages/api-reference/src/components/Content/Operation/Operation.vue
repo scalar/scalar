@@ -63,7 +63,7 @@ const customRequestExamples = computed(() => {
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
-            <CustomRequestExamples
+            <!-- <CustomRequestExamples
               v-if="customRequestExamples"
               :examples="customRequestExamples"
               :operation="operation">
@@ -76,9 +76,10 @@ const customRequestExamples = computed(() => {
               <template #footer>
                 <TestRequestButton :operation="operation" />
               </template>
-            </CustomRequestExamples>
+            </CustomRequestExamples> -->
             <ExampleRequest
-              v-else-if="availableTargets.length"
+              v-if="availableTargets.length"
+              :customExamples="customRequestExamples"
               :operation="operation">
               <template #header>
                 <EndpointPath
