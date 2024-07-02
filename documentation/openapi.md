@@ -17,7 +17,8 @@ paths:
   '/v1/eval':
     post:
 +      x-codeSamples:
-+      - lang: JavaScript
++      - label: ValTown JS SDK
++        lang: JavaScript
 +        source: |-
 +          import ValTown from '@valtown/sdk';
 +
