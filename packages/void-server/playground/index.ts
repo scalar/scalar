@@ -15,7 +15,7 @@ serve(
   },
   (info) => {
     console.log()
-    console.log(`Listening on http://localhost:${info.port}`)
+    console.log(`🔁 Void Server listening on http://localhost:${info.port}`)
     console.log()
   },
 )
