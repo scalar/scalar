@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 2.0.6
+
+### Patch Changes
+
+- 632d6f7: fix: add cookie handler and schema
+- d6a2a4d: feat: api client data table input enum select component
+- Updated dependencies [d6a2a4d]
+- Updated dependencies [04ca40b]
+- Updated dependencies [632d6f7]
+  - @scalar/oas-utils@0.2.9
+  - @scalar/object-utils@1.1.3
+
 ## 2.0.5
 
 ### Patch Changes
