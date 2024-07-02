@@ -48,7 +48,7 @@ import {
   setNestedValue,
 } from '@scalar/object-utils/nested'
 import type { AnyObject, OpenAPIV3_1 } from '@scalar/openapi-parser'
-import { computed, reactive, readonly } from 'vue'
+import { computed, reactive, readonly, toRaw } from 'vue'
 
 const { setCollapsedSidebarFolder } = useSidebar()
 
@@ -545,7 +545,8 @@ const deleteServer = (serverUid: string, collectionUid: string) => {
 // ---------------------------------------------------------------------------
 
 /** Helper function to import a OpenAPI spec file into the local workspace */
-async function importSpecFile(spec: string | AnyObject) {
+async function importSpecFile(_spec: string | AnyObject) {
+  const spec = toRaw(_spec)
   const workspaceEntities = await importSpecToWorkspace(spec)
 
   // Add all the new requests into the request collection, the already have parent folders
