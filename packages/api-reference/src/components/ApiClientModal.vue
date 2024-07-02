@@ -5,7 +5,7 @@ import {
   useServerStore,
 } from '#legacy'
 import type { SpecConfiguration } from '@scalar/oas-utils'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { type App, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { apiClientBus, modalStateBus } from './api-client-bus'
 
@@ -15,6 +15,8 @@ const props = defineProps<{
 }>()
 
 const el = ref<HTMLDivElement | null>(null)
+const appRef = ref<App<HTMLDivElement> | null>(null)
+
 const { authentication } = useAuthenticationStore()
 const { server } = useServerStore()
 
@@ -53,8 +55,12 @@ onMounted(async () => {
     (newSpec) => newSpec && updateSpec(newSpec),
     { deep: true },
   )
-  onBeforeUnmount(() => app.unmount())
+
+  // @ts-expect-error not sure why this complains about the type, ends up working correctly
+  appRef.value = app
 })
+
+onBeforeUnmount(() => appRef.value?.unmount())
 </script>
 
 <template>

@@ -45,17 +45,13 @@ export default defineNuxtModule<ModuleOptions>({
      */
     _nuxt.options.build.transpile.push('yaml')
 
-    // Check if it exists and push else assign it
-    _nuxt.options.vite.optimizeDeps ||= {}
-    _nuxt.options.vite.optimizeDeps.include ||= []
-
-    // Ensure we transform these cjs dependencies, remove as they get converted to ejs
-    _nuxt.options.vite.optimizeDeps.include.push(
-      'debug',
-      'extend',
-      'stringify-object',
-      'rehype-highlight',
-    )
+    /**
+     * Disable transforming references to fix
+     * redeclaration of import h
+     */
+    _nuxt.options.imports.transform ||= {}
+    _nuxt.options.imports.transform.exclude ||= []
+    _nuxt.options.imports.transform.exclude.push(/scalar/)
 
     // Also check for Nitro OpenAPI auto generation
     _nuxt.hook('nitro:config', (config) => {
