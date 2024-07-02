@@ -76,11 +76,8 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
 
 async function generateSnippet() {
   console.log('generateSnippet', localHttpClient.value, props.customExamples)
-  if ((localHttpClient.value.targetKey as never) === 'customExamples') {
-    return (
-      props.customExamples?.[localHttpClient.value.clientKey as never]
-        ?.source ?? ''
-    )
+  if (localHttpClient.value.targetKey === 'customExamples') {
+    return props.customExamples?.[localHttpClient.value.clientKey]?.source ?? ''
   }
 
   // Generate a request object
@@ -153,12 +150,15 @@ computed(() => {
 
 /** For some snippets we use alternative highlight language packages */
 const language = computed(() => {
+  // Use the custom example language if selected
   if (localHttpClient.value?.targetKey === 'customExamples') {
     return (
-      props.customExamples?.[httpClient.clientKey as never]?.lang ?? 'plaintext'
+      props.customExamples?.[localHttpClient.value.clientKey]?.lang ??
+      'plaintext'
     )
   }
 
+  // Use the selected HTTP client language
   const key = httpClient.targetKey
 
   if (key === 'shell' && generatedCode.value.includes('curl')) return 'curl'
@@ -229,17 +229,20 @@ const localHttpClient = ref<
       clientKey: number
     }
 >(
+  // Default to first custom example
   props.customExamples?.length
     ? {
         targetKey: 'customExamples',
         clientKey: 0,
       }
-    : {
+    : // Otherwise use the globally selected HTTP client
+      {
         targetKey: httpClient.targetKey,
         clientKey: httpClient.clientKey,
       },
 )
 
+// Overwrite the locally selected HTTP client when the global one changes
 watch(httpClient, () => {
   localHttpClient.value = {
     targetKey: httpClient.targetKey,
@@ -258,16 +261,16 @@ watch(httpClient, () => {
         <slot name="header" />
       </div>
       <template #actions>
+        {{ localHttpClient }}
         <TextSelect
           class="request-client-picker"
           :modelValue="JSON.stringify(localHttpClient)"
           :options="options"
           @update:modelValue="updateHttpClient">
-          <template
-            v-if="(localHttpClient.targetKey as never) === 'customExamples'">
+          <template v-if="localHttpClient.targetKey === 'customExamples'">
             {{
-              props.customExamples?.[localHttpClient.clientKey as never]
-                .label ?? 'Custom Example'
+              props.customExamples?.[localHttpClient.clientKey].label ??
+              'Custom Example'
             }}
           </template>
           <template v-else>
