@@ -6,8 +6,8 @@ import { nanoidSchema } from '../shared'
 const cookieSchema = z.object({
   uid: nanoidSchema,
   /**  Defines the cookie name and its value. A cookie definition begins with a name-value pair.  */
-  name: z.string(),
-  value: z.string(),
+  name: z.string().default('Default Cookie'),
+  value: z.string().default('Default Value'),
   /** Defines the host to which the cookie will be sent. */
   domain: z.string().optional(),
   /** Indicates the maximum lifetime of the cookie as an HTTP-date timestamp. See Date for the required formatting. */
@@ -34,7 +34,9 @@ const cookieSchema = z.object({
    * Controls whether or not a cookie is sent with cross-site requests, providing some protection against cross-site
    * request forgery attacks (CSRF).
    */
-  sameSite: z.union([z.literal('Lax'), z.literal('Strict'), z.literal('None')]),
+  sameSite: z
+    .union([z.literal('Lax'), z.literal('Strict'), z.literal('None')])
+    .default('None'),
   /**
    * Indicates that the cookie is sent to the server only when a request is made with the https: scheme (except on
    * localhost), and therefore, is more resistant to man-in-the-middle attacks.

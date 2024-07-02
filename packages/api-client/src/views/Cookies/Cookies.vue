@@ -7,6 +7,7 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useWorkspace } from '@/store/workspace'
 import { createCookie } from '@scalar/oas-utils/entities/workspace/cookie'
+import { nanoid } from 'nanoid'
 
 import CookieForm from './CookieForm.vue'
 import CookieRaw from './CookieRaw.vue'
@@ -15,6 +16,7 @@ const { cookies, cookieMutators } = useWorkspace()
 
 const addCookieHandler = () => {
   const cookie = createCookie({
+    uid: nanoid(),
     name: 'new cookie',
     value: 'new value',
     domain: 'localhost',
