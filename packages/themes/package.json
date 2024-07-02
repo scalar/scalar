@@ -37,7 +37,8 @@
   "files": [
     "dist",
     "CHANGELOG.md",
-    "src/tailwind.ts"
+    "src/tailwind.ts",
+    "src/pixelPreset.ts"
   ],
   "module": "./dist/index.js",
   "dependencies": {

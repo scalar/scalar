@@ -1,6 +1,6 @@
 import type { Config } from 'tailwindcss'
 
-import pixelPreset from './utilities/pixelPreset'
+import pixelPreset from './pixelPreset'
 
 /** Scalar Tailwind Preset */
 export default {
