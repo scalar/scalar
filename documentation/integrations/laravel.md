@@ -14,6 +14,3 @@ return [
   // …
 ];
 ```
-
-We wrote a [detailed integration guide for Laravel Scribe](/documentation/laravel-scribe.md),
-too.

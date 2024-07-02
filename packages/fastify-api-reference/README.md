@@ -74,7 +74,7 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
-We wrote a [detailed integration guide for Fastify](https://github.com/scalar/scalar/tree/main/documentation/fastify.md).
+We wrote a [detailed integration guide for Fastify](https://github.com/scalar/scalar/tree/main/documentation/integrations/fastify.md).
 
 The fastify plugin takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/documentation/configuration.md) in the core package README.
 
