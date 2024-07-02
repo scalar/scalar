@@ -40,7 +40,7 @@ jobs:
         run: pnpm build:packages
       - name: Get Playwright version
         id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> $GITHUB_ENV && echo $PLAYWRIGHT_VERSION
+        run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
       - name: Playwright binary cache
         uses: actions/cache@v4
         id: playwright-cache
