@@ -6,6 +6,7 @@ import colorMix from 'tailwindcss-color-mix'
 export default {
   presets: [scalarPreset],
   content: ['./index.html', './src/**/*.{js,jsx,ts,tsx,vue}'],
+  corePlugins: { preflight: false },
   darkMode: ['selector', '.dark-mode'],
   theme: {
     extend: {

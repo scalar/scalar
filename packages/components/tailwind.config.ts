@@ -7,9 +7,7 @@ import plugin from 'tailwindcss/plugin'
 export default {
   presets: [scalarPreset],
   content: ['./src/**/*.{vue,ts}'],
-  corePlugins: {
-    preflight: false,
-  },
+  corePlugins: { preflight: false },
   plugins: [
     headlessPlugin,
     colorMix(),

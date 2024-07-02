@@ -1,7 +1,7 @@
 /*
   Custom reset (loosely) based on Tailwind Preflight
 
-  @see https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/preflight.css
+  @see https://github.com/tailwindlabs/tailwindcss/blob/3.3/src/css/preflight.css
 */
 
 /* Use :where to lower specificity */
@@ -35,6 +35,11 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::before,
+  ::after {
+    --tw-content: '';
   }
 
   /*
@@ -74,5 +79,16 @@
   :focus-visible {
     outline: 1px solid var(--scalar-color-accent);
     outline-offset: 1px;
+  }
+
+  /** Set the default cursor for buttons. */
+  button,
+  [role='button'] {
+    cursor: pointer;
+  }
+
+  /** Make sure disabled buttons don't get the pointer cursor. */
+  :disabled {
+    cursor: default;
   }
 }

@@ -5,6 +5,9 @@
   @tailwind utilities;
   @tailwind variants;
 
+  line-height: 1.5;
+  color: var(--scalar-color-1);
+
   /** 
    * Custom utilities to make life easier 
    * For some reason it was bugging on apply so I just used css for now 
@@ -71,7 +74,4 @@
         scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
     }
   }
-
-  line-height: 1.5;
-  color: var(--scalar-color-1);
 }

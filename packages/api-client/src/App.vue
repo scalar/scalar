@@ -48,6 +48,7 @@ onMounted(() => {
 </template>
 <style>
 @import '@scalar/components/style.css';
+@import '@scalar/themes/style.css';
 @import './assets/tailwind.css';
 @import './assets/variables.css';
 
