@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.1.3
+
+### Patch Changes
+
+- 04ca40b: Move to vanilla rollup
+
 ## 1.1.2
 
 ### Patch Changes
