@@ -1,5 +1,25 @@
 # @scalar/api-client
 
+## 2.0.6
+
+### Patch Changes
+
+- 4385ae2: fix: add missing dependencies
+- 632d6f7: fix: add cookie handler and schema
+- a5aedf5: feat: lint workspace sidenav icons
+- a5aedf5: feat: add server icon
+- d6a2a4d: feat: api client data table input enum select component
+- cd5d1a4: fix: made adding of scalar classes to headless more robust
+- Updated dependencies [d6a2a4d]
+- Updated dependencies [04ca40b]
+- Updated dependencies [632d6f7]
+- Updated dependencies [a5aedf5]
+- Updated dependencies [a5aedf5]
+- Updated dependencies [cd5d1a4]
+  - @scalar/oas-utils@0.2.9
+  - @scalar/object-utils@1.1.3
+  - @scalar/components@0.12.8
+
 ## 2.0.5
 
 ### Patch Changes

@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.24.29
+
+### Patch Changes
+
+- ebf1ee9: fix: removed api-reference forced reliance on Style tag injection to fix nuxt/SSR
+- 613def2: fix(#2352): move css imports into style tag
+- Updated dependencies [d6a2a4d]
+- Updated dependencies [4385ae2]
+- Updated dependencies [632d6f7]
+- Updated dependencies [a5aedf5]
+- Updated dependencies [a5aedf5]
+- Updated dependencies [d6a2a4d]
+- Updated dependencies [cd5d1a4]
+  - @scalar/oas-utils@0.2.9
+  - @scalar/api-client@2.0.6
+  - @scalar/components@0.12.8
+
 ## 1.24.28
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.12.8
+
+### Patch Changes
+
+- a5aedf5: feat: lint workspace sidenav icons
+- a5aedf5: feat: add server icon
+- cd5d1a4: fix: made adding of scalar classes to headless more robust
+
 ## 0.12.7
 
 ### Patch Changes
