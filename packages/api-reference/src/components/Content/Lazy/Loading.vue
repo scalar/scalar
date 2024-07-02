@@ -114,7 +114,7 @@ watch(
     }
     // Descriptions
     else {
-      scrollToId(hash.value)
+      if (typeof window !== 'undefined') scrollToId(hash.value)
       setTimeout(() => (isIntersectionEnabled.value = true), 1000)
     }
   },

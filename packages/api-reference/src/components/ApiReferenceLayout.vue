@@ -231,11 +231,15 @@ hideModels.value = props.configuration.hideModels ?? false
 useDeprecationWarnings(props.configuration)
 </script>
 <template>
-  <Style>{{
-    getThemeStyles(configuration.theme, {
-      fonts: configuration.withDefaultFonts,
-    })
-  }}</Style>
+  <!-- Beware: This does NOT work in SSR -->
+  <Style
+    v-if="props.configuration.withDefaultFonts || props.configuration.theme">
+    {{
+      getThemeStyles(configuration.theme, {
+        fonts: configuration.withDefaultFonts,
+      })
+    }}
+  </Style>
   <div
     ref="documentEl"
     class="scalar-app scalar-api-reference references-layout"
