@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { useModal } from '@scalar/components'
-import { onBeforeUnmount, watch } from 'vue'
+import { addScalarClassesToHeadless, type useModal } from '@scalar/components'
+import { onBeforeMount, onBeforeUnmount, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 const props = defineProps<{
@@ -16,6 +16,10 @@ watch(
     else document.documentElement.style.removeProperty('overflow')
   },
 )
+
+// Ensure we add our scalar wrapper class to the headless ui root
+onBeforeMount(() => addScalarClassesToHeadless())
+
 // Make sure scrolling is back!
 onBeforeUnmount(() => document.documentElement.style.removeProperty('overflow'))
 </script>
