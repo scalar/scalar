@@ -1,6 +1,7 @@
 import { type Context, Hono } from 'hono'
 import { accepts } from 'hono/accepts'
 import { cors } from 'hono/cors'
+import type { StatusCode } from 'hono/utils/http-status'
 
 import {
   createHtmlResponse,
@@ -9,6 +10,7 @@ import {
   createZipFileResponse,
   getRequestData,
 } from './utils'
+import { errors } from './utils/constants'
 
 /**
  * Create a mock server instance
@@ -19,20 +21,16 @@ export async function createVoidServer() {
   // CORS headers
   app.use(cors())
 
-  // 404
-  app.all('/404', async (c: Context) => {
+  // HTTP errors
+  app.all('/:status{[4-5][0-9][0-9]}', async (c: Context) => {
     console.info(`${c.req.method} ${c.req.path}`)
 
-    c.status(404)
+    const { status: originalStatusCode } = c.req.param()
+    const status = parseInt(originalStatusCode, 10) as StatusCode
 
-    return c.text('Not Found')
-  })
+    c.status(status)
 
-  // Return zip files for all requests ending with .zip
-  app.all('/:filename{.+\\.zip$}', async (c: Context) => {
-    console.info(`${c.req.method} ${c.req.path}`)
-
-    return createZipFileResponse(c)
+    return c.text(errors?.[status] ?? 'Unknown Error')
   })
 
   // Return HTML files for all requests ending with .html

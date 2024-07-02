@@ -247,6 +247,24 @@ describe('createVoidServer', () => {
     expect(await response.text()).toBe('Not Found')
   })
 
+  it('returns 500', async () => {
+    const server = await createVoidServer()
+
+    const response = await server.request('/500')
+
+    expect(response.status).toBe(500)
+    expect(await response.text()).toBe('Internal Server Error')
+  })
+
+  it('returns 503', async () => {
+    const server = await createVoidServer()
+
+    const response = await server.request('/503')
+
+    expect(response.status).toBe(503)
+    expect(await response.text()).toBe('Service Unavailable')
+  })
+
   it('returns the authentication header bearer', async () => {
     const server = await createVoidServer()
 
