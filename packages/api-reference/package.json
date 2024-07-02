@@ -102,7 +102,7 @@
     "rollup-plugin-webpack-stats": "^0.2.5",
     "storybook": "^8.0.8",
     "storybook-dark-mode": "^4.0.1",
-    "tsc-alias": "^1.8.8",
+    "tsc-alias": "^1.8.10",
     "type-fest": "^4.20.0",
     "vite": "^5.2.10",
     "vite-plugin-banner": "^0.7.1",
