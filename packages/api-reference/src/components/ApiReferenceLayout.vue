@@ -231,7 +231,6 @@ hideModels.value = props.configuration.hideModels ?? false
 useDeprecationWarnings(props.configuration)
 </script>
 <template>
-  <!-- Beware: This does NOT work in SSR -->
   <Style
     v-if="props.configuration.withDefaultFonts || props.configuration.theme">
     {{
