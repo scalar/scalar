@@ -51,6 +51,15 @@ export async function createVoidServer() {
     return createJsonResponse(c, requestData)
   })
 
+  // Return XML for all requests ending with .xml
+  app.all('/:filename{.+\\.xml$}', async (c: Context) => {
+    console.info(`${c.req.method} ${c.req.path}`)
+
+    const requestData = await getRequestData(c)
+
+    return createJsonResponse(c, requestData)
+  })
+
   // All other requests just respond with a JSON containing all the request data
   app.all('/*', async (c: Context) => {
     console.info(`${c.req.method} ${c.req.path}`)
