@@ -44,9 +44,7 @@ namespace Scalar.AspNetCore
                           <body>
                               <script id="api-reference" data-url="/openapi/{{documentName}}.json"></script>
                               <script>
-                              var configuration = {
-                                  {{configurationJson}}
-                              }
+                              var configuration = {{configurationJson}}
 
                               document.getElementById('api-reference').dataset.configuration =
                                   JSON.stringify(configuration)
