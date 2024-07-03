@@ -8,7 +8,6 @@ import {
   type DraggingItem,
   type HoveredItem,
 } from '@scalar/draggable'
-import '@scalar/draggable/style.css'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
 import type { Folder } from '@scalar/oas-utils/entities/workspace/folder'
 import type {
@@ -205,6 +204,9 @@ const showChildren = computed(
   </div>
 </template>
 
+<style>
+@import '@scalar/draggable/style.css';
+</style>
 <style scoped>
 .before-left-offset:before {
   left: v-bind(leftOffset);
