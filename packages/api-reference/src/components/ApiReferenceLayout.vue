@@ -168,6 +168,7 @@ onServerPrefetch(() => {
   const ctx = useSSRContext<SSRState>()
   if (!ctx) return
 
+  ctx.payload ||= { data: defaultStateFactory() }
   ctx.payload.data ||= defaultStateFactory()
 
   // Set initial hash value
