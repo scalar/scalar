@@ -51,7 +51,6 @@ function handleHistoryClick(index: number) {
     router.push(`/request/${historicalRequest.request.requestUid}`)
   }
   requestExampleMutators.set(historicalRequest.request)
-  activeRequest.value.history[0].response = historicalRequest.response
 }
 </script>
 <template>
