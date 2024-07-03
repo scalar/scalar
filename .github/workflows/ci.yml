@@ -27,8 +27,8 @@ jobs:
         run: echo "node-versions=${{ steps.node-versions.outputs.node-versions }}"
       - name: Check Node version matrix
         run: |
-          if [ -z "${{ steps.node-versions.outputs.node-versions }}" ]; then
-            echo "No Node versions found in the matrix"
+          if [ "${{ steps.node-versions.outputs.node-versions }}" != "[18, 20]" ] && [ "${{ steps.node-versions.outputs.node-versions }}" != "[20]" ]; then
+            echo "Node version matrix is not [18, 20] or [20]"
             exit 1
           fi
 
