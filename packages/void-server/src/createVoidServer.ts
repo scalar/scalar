@@ -33,29 +33,21 @@ export async function createVoidServer() {
     return c.text(errors?.[status] ?? 'Unknown Error')
   })
 
-  // Return HTML files for all requests ending with .html
-  app.all('/:filename{.+\\.html$}', async (c: Context) => {
+  // Return content based on the file extension
+  app.all('/:filename{.+\\.(html|xml|json|zip)$}', async (c: Context) => {
     console.info(`${c.req.method} ${c.req.path}`)
 
     const requestData = await getRequestData(c)
 
-    return createHtmlResponse(c, requestData)
-  })
+    const { filename } = c.req.param()
 
-  // Return JSON for all requests ending with .json
-  app.all('/:filename{.+\\.json$}', async (c: Context) => {
-    console.info(`${c.req.method} ${c.req.path}`)
-
-    const requestData = await getRequestData(c)
-
-    return createJsonResponse(c, requestData)
-  })
-
-  // Return XML for all requests ending with .xml
-  app.all('/:filename{.+\\.xml$}', async (c: Context) => {
-    console.info(`${c.req.method} ${c.req.path}`)
-
-    const requestData = await getRequestData(c)
+    if (filename.endsWith('.html')) {
+      return createHtmlResponse(c, requestData)
+    } else if (filename.endsWith('.xml')) {
+      return createXmlResponse(c, requestData)
+    } else if (filename.endsWith('.zip')) {
+      return createZipFileResponse(c)
+    }
 
     return createJsonResponse(c, requestData)
   })
@@ -74,13 +66,9 @@ export async function createVoidServer() {
 
     if (acceptedContentType === 'text/html') {
       return createHtmlResponse(c, requestData)
-    }
-
-    if (acceptedContentType === 'application/xml') {
+    } else if (acceptedContentType === 'application/xml') {
       return createXmlResponse(c, requestData)
-    }
-
-    if (acceptedContentType === 'application/zip') {
+    } else if (acceptedContentType === 'application/zip') {
       return createZipFileResponse(c)
     }
 
