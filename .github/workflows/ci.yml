@@ -19,9 +19,9 @@ jobs:
         id: node-versions
         run: |
           if [ "${{ github.head_ref }}" == "changeset-release/main" ]; then
-            echo 'node-versions=[18, 20]' >> "$GITHUB_ENV"
+            echo 'node-versions=[18, 20]' >> "$GITHUB_OUTPUT"
           else
-            echo 'node-versions=[20]' >> "$GITHUB_ENV"
+            echo 'node-versions=[20]' >> "$GITHUB_OUTPUT"
           fi
       - name: Print Node version matrix
         run: echo "node-versions=${{ steps.node-versions.outputs.node-versions }}"
