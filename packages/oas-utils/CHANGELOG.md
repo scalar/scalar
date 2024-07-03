@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.2.9
+
+### Patch Changes
+
+- d6a2a4d: feat: oas-utils request example parameters enum
+- 632d6f7: fix: add cookie handler and schema
+
 ## 0.2.8
 
 ### Patch Changes

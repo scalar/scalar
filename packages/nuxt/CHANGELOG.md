@@ -1,5 +1,21 @@
 # @scalar/nuxt
 
+## 0.2.28
+
+### Patch Changes
+
+- ebf1ee9: fix: nuxt module export default bug
+- Updated dependencies [4385ae2]
+- Updated dependencies [ebf1ee9]
+- Updated dependencies [632d6f7]
+- Updated dependencies [a5aedf5]
+- Updated dependencies [a5aedf5]
+- Updated dependencies [d6a2a4d]
+- Updated dependencies [613def2]
+- Updated dependencies [cd5d1a4]
+  - @scalar/api-client@2.0.6
+  - @scalar/api-reference@1.24.29
+
 ## 0.2.27
 
 ### Patch Changes
