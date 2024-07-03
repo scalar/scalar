@@ -12,13 +12,17 @@ const props = withDefaults(
     click?: () => void
     delay?: number
     skipDelay?: number
+    align?: 'start' | 'center' | 'end'
     side?: 'top' | 'right' | 'bottom' | 'left'
     sideOffset?: number
     class?: string
+    triggerClass?: string
+    resize?: boolean
   }>(),
   {
     skipDelay: 1000,
     side: 'top',
+    align: 'center',
   },
 )
 
@@ -33,12 +37,14 @@ defineEmits<{
     :skipDelayDuration="props.skipDelay">
     <TooltipRoot>
       <TooltipTrigger
-        class="w-full"
+        class="flex items-center justify-center"
+        :class="[props.resize ? 'w-full' : '', props.triggerClass]"
         @click="props.click">
         <slot name="trigger" />
       </TooltipTrigger>
-      <TooltipPortal>
+      <TooltipPortal to=".scalar-client">
         <TooltipContent
+          :align="props.align"
           class="scalar-app"
           :class="props.class"
           :side="props.side"
