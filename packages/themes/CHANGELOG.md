@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.11
+
+### Patch Changes
+
+- 4250fe2: fix: build tailwind preset with vite before exporting
+
 ## 0.9.10
 
 ### Patch Changes
