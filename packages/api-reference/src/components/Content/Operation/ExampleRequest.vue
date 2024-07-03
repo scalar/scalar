@@ -40,7 +40,7 @@ import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
 const props = defineProps<{
-  customExamples?: CustomRequestExample[]
+  customExamples?: CustomRequestExample[] | null
   operation: TransformedOperation
 }>()
 

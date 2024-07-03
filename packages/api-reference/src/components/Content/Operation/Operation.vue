@@ -12,7 +12,6 @@ import {
   SectionContent,
   SectionHeader,
 } from '../../Section'
-import CustomRequestExamples from './CustomRequestExamples.vue'
 import EndpointDetails from './EndpointDetails.vue'
 import EndpointPath from './EndpointPath.vue'
 import ExampleRequest from './ExampleRequest.vue'
@@ -63,20 +62,6 @@ const customRequestExamples = computed(() => {
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
-            <!-- <CustomRequestExamples
-              v-if="customRequestExamples"
-              :examples="customRequestExamples"
-              :operation="operation">
-              <template #header>
-                <EndpointPath
-                  class="example-path"
-                  :deprecated="operation.information?.deprecated"
-                  :path="operation.path" />
-              </template>
-              <template #footer>
-                <TestRequestButton :operation="operation" />
-              </template>
-            </CustomRequestExamples> -->
             <ExampleRequest
               v-if="availableTargets.length"
               :customExamples="customRequestExamples"
