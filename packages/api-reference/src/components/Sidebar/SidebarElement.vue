@@ -46,11 +46,11 @@ const handleClick = async () => {
 const generateLink = () => {
   if (pathRouting.value) {
     return joinWithSlash(pathRouting.value.basePath, props.item.id)
-  } else {
+  } else if (typeof window !== 'undefined') {
     const newUrl = new URL(window.location.href)
     newUrl.hash = props.item.id
     return `${newUrl.pathname}${newUrl.search}${newUrl.hash}`
-  }
+  } else return `#${props.item.id}`
 }
 
 // For path routing we want to handle the clicks
