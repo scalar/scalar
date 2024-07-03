@@ -31,6 +31,8 @@ jobs:
             echo "Node version matrix is not [18, 20] or [20]"
             exit 1
           fi
+      - name: Print Node Version Matrix
+        run: echo ${{ steps.node-versions.outputs.node-versions }}
 
   build:
     runs-on: ubuntu-20.04
