@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.24.30
+
+### Patch Changes
+
+- b4d6d4a: fix: accessing window durring SSG when generating links
+- Updated dependencies [f2e3b0e]
+- Updated dependencies [4250fe2]
+  - @scalar/api-client@2.0.7
+  - @scalar/themes@0.9.11
+  - @scalar/components@0.12.8
+
 ## 1.24.29
 
 ### Patch Changes

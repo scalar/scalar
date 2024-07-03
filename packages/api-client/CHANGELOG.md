@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 2.0.7
+
+### Patch Changes
+
+- f2e3b0e: fix(#2351): global css import bug
+- Updated dependencies [4250fe2]
+  - @scalar/themes@0.9.11
+  - @scalar/components@0.12.8
+
 ## 2.0.6
 
 ### Patch Changes

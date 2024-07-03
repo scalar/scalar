@@ -1,5 +1,12 @@
 # @scalar/void-server
 
+## 2.0.4
+
+### Patch Changes
+
+- 122b1ea: feat: force json responses for all paths ending with .json
+- 122b1ea: feat: force xml responses for all paths ending with .xml
+
 ## 2.0.3
 
 ### Patch Changes
