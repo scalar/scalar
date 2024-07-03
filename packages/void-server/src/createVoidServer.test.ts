@@ -340,7 +340,7 @@ describe('createVoidServer', () => {
     expect(await response.text()).toContain('<strong>method:</strong> GET</li>')
   })
 
-  it.only('returns HTML for path ending with .html', async () => {
+  it('returns HTML for path ending with .html', async () => {
     const server = await createVoidServer()
 
     const response = await server.request('/foobar.html')
