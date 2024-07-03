@@ -15,7 +15,7 @@ jobs:
       node-versions: ${{ steps.node-versions.outputs.node-versions }}
 
     steps:
-      - name: Node Version Matrix
+      - name: Node version matrix
         id: node-versions
         run: |
           if [ "${{ github.head_ref }}" == "changeset-release/main" ]; then
@@ -23,8 +23,14 @@ jobs:
           else
             echo 'node-versions=[20]' >> "$GITHUB_ENV"
           fi
-      - name: Print Node Version Matrix
+      - name: Print Node version matrix
         run: echo "node-versions=${{ steps.node-versions.outputs.node-versions }}"
+      - name: Check Node version matrix
+        run: |
+          if [ -z "${{ steps.node-versions.outputs.node-versions }}" ]; then
+            echo "No Node versions found in the matrix"
+            exit 1
+          fi
 
   ci:
     runs-on: ubuntu-20.04
