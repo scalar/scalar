@@ -15,13 +15,21 @@ jobs:
       node-versions: ${{ steps.node-versions.outputs.node-versions }}
 
     steps:
-      - name: Node Version Matrix
+      - name: Node version matrix
         id: node-versions
         run: |
           if [ "${{ github.head_ref }}" == "changeset-release/main" ]; then
-            echo 'node-versions=[18, 20]' >> "$GITHUB_ENV"
+            echo 'node-versions=[18, 20]' >> "$GITHUB_OUTPUT"
           else
-            echo 'node-versions=[20]' >> "$GITHUB_ENV"
+            echo 'node-versions=[20]' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Print Node version matrix
+        run: echo "node-versions=${{ steps.node-versions.outputs.node-versions }}"
+      - name: Check Node version matrix
+        run: |
+          if [ "${{ steps.node-versions.outputs.node-versions }}" != "[18, 20]" ] && [ "${{ steps.node-versions.outputs.node-versions }}" != "[20]" ]; then
+            echo "Node version matrix is not [18, 20] or [20]"
+            exit 1
           fi
 
   ci:
