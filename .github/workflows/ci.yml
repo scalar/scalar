@@ -1,4 +1,4 @@
-name: Check build, types, and unit tests
+name: CI
 
 on:
   pull_request:
