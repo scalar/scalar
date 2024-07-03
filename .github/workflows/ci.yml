@@ -34,6 +34,7 @@ jobs:
 
   build:
     runs-on: ubuntu-20.04
+    if: ${{ always() }}
     needs: define-matrix
     strategy:
       matrix:
@@ -81,6 +82,7 @@ jobs:
 
   types:
     runs-on: ubuntu-20.04
+    if: ${{ always() }}
     needs: [define-matrix, build]
     strategy:
       matrix:
@@ -112,6 +114,7 @@ jobs:
 
   test:
     runs-on: ubuntu-20.04
+    if: ${{ always() }}
     needs: [define-matrix, build]
     strategy:
       matrix:
@@ -142,6 +145,7 @@ jobs:
 
   stats:
     runs-on: ubuntu-20.04
+    if: ${{ always() }}
     needs: build
     strategy:
       matrix:
