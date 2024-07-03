@@ -139,6 +139,7 @@ jobs:
 
   stats:
     runs-on: ubuntu-20.04
+    needs: build
     strategy:
       matrix:
         node-version: [20]
