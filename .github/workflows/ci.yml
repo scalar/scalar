@@ -1,4 +1,4 @@
-name: Check build, types, and units tests
+name: Check build, types, and unit tests
 
 on:
   pull_request:
@@ -32,7 +32,7 @@ jobs:
             exit 1
           fi
 
-  ci:
+  build:
     runs-on: ubuntu-20.04
     needs: define-matrix
     strategy:
@@ -56,18 +56,113 @@ jobs:
           key: ${{ runner.os }}-turbo-node-${{ matrix.node-version }}
           restore-keys: |
             ${{ runner.os }}-turbo-node-
-      - if: matrix.node-version == 20
-        name: Check code style
+      - name: Build
+        run: pnpm turbo build
+
+  format:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dev dependencies
+        run: pnpm install --dev
+      - name: Check code style
         run: pnpm format:check
+
+  types:
+    runs-on: ubuntu-20.04
+    needs: [define-matrix, build]
+    strategy:
+      matrix:
+        node-version: ${{ fromJSON(needs.define-matrix.outputs.node-versions) }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-node-${{ matrix.node-version }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-node-
       - name: Build
         run: pnpm turbo build
       - if: matrix.node-version == 20 || github.head_ref == 'changeset-release/main'
         name: Check types
         run: pnpm turbo types:check
+
+  test:
+    runs-on: ubuntu-20.04
+    needs: [define-matrix, build]
+    strategy:
+      matrix:
+        node-version: ${{ fromJSON(needs.define-matrix.outputs.node-versions) }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-node-${{ matrix.node-version }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-node-
+      - name: Build packages
+        run: pnpm build:packages
       - name: Run tests
         run: pnpm test:ci
-      - if: matrix.node-version == 20
-        name: Send bundle stats and build information to RelativeCI
+
+  stats:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-node-${{ matrix.node-version }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-node-
+      - name: Build @scalar/api-reference
+        run: pnpm build:api-reference
+      - name: Send bundle stats and build information to RelativeCI
         uses: relative-ci/agent-action@v2
         with:
           key: ${{ secrets.RELATIVE_CI_KEY }}
