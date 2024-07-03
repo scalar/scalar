@@ -4,6 +4,7 @@ import type { TransformedOperation } from '@scalar/oas-utils'
 import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 
+import { ExamplePicker } from '../../../../features/ExampleRequest'
 import { useClipboard } from '../../../../hooks'
 import {
   Card,
@@ -12,7 +13,6 @@ import {
   CardTab,
   CardTabHeader,
 } from '../../../Card'
-import ExamplePicker from '../ExamplePicker.vue'
 import ExampleResponse from './ExampleResponse.vue'
 
 // import Headers from './Headers.vue'

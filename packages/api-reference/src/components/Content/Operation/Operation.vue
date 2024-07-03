@@ -2,6 +2,7 @@
 import type { TransformedOperation } from '@scalar/oas-utils'
 import { computed } from 'vue'
 
+import { ExampleRequest } from '../../../features/ExampleRequest'
 import { useHttpClientStore } from '../../../stores'
 import { Anchor } from '../../Anchor'
 import { Badge } from '../../Badge'
@@ -14,7 +15,6 @@ import {
 } from '../../Section'
 import EndpointDetails from './EndpointDetails.vue'
 import EndpointPath from './EndpointPath.vue'
-import ExampleRequest from './ExampleRequest.vue'
 import { PathResponses } from './PathResponses'
 import TestRequestButton from './TestRequestButton.vue'
 

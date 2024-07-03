@@ -28,14 +28,19 @@ import {
 } from 'vue'
 
 import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '../../components/Card'
+import { HttpMethod } from '../../components/HttpMethod'
+import {
   GLOBAL_SECURITY_SYMBOL,
   getApiClientRequest,
   getHarRequest,
-} from '../../../helpers'
-import { useClipboard } from '../../../hooks'
-import { type HttpClientState, useHttpClientStore } from '../../../stores'
-import { Card, CardContent, CardFooter, CardHeader } from '../../Card'
-import { HttpMethod } from '../../HttpMethod'
+} from '../../helpers'
+import { useClipboard } from '../../hooks'
+import { type HttpClientState, useHttpClientStore } from '../../stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
@@ -271,7 +276,7 @@ function updateHttpClient(value: string) {
           <template v-if="localHttpClient.targetKey === 'customExamples'">
             {{
               props.customExamples?.[localHttpClient.clientKey].label ??
-              'Custom Example'
+              'Example'
             }}
           </template>
           <template v-else>
