@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatMs } from '@/libs/formatters'
 import { useTopNav } from '@/store/topNav'
 import { useWorkspace } from '@/store/workspace'
 import { ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
@@ -81,11 +82,10 @@ function handleHistoryClick(index: number) {
         :value="index"
         @click="handleHistoryClick(index)">
         <div class="font-code flex flex-1 gap-1.5 text-sm font-medium">
-          <span
-            class="mr-[1px] min-w-[44px] pr-2 text-right"
-            :class="[getStatusCodeColor(response.status).color]">
-            {{ response.status }}
-          </span>
+          <HttpMethod
+            v-if="response.config.method"
+            class="text-[11px] min-w-[44px]"
+            :method="response.config.method" />
           <span class="text-c-2 gap-0">
             {{
               getUrlPart(response.request, 'origin') +
@@ -93,19 +93,16 @@ function handleHistoryClick(index: number) {
             }}
           </span>
         </div>
-
         <!-- Response info -->
         <div
-          class="font-code text-c-3 flex flex-row items-center gap-3 text-sm font-medium">
-          <!-- <span>{{ formatMs(response.ms) }}</span> -->
-          <!-- <span>{{ formatBytes(response.bytes) }}</span> -->
+          class="font-code text-c-3 flex flex-row items-center gap-1.5 text-sm font-medium">
+          <span>{{ formatMs(response.duration) }}</span>
+          <span :class="[getStatusCodeColor(response.status).color]">
+            {{ response.status }}
+          </span>
           <span>
             {{ httpStatusCodes[response.status]?.name }}
           </span>
-          <HttpMethod
-            v-if="response.config.method"
-            class="lg:text-sm text-xs"
-            :method="response.config.method" />
         </div>
       </ListboxOption>
     </ListboxOptions>
