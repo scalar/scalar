@@ -181,22 +181,20 @@ computed(() => {
   })
 })
 
-/** For some snippets we use alternative highlight language packages */
+/** Code language of the snippet */
 const language = computed(() => {
-  // Use the custom example language if selected
-  if (localHttpClient.value?.targetKey === 'customExamples') {
-    return (
-      props.customExamples?.[localHttpClient.value.clientKey]?.lang ??
-      'plaintext'
-    )
-  }
+  const key =
+    // Specified language
+    localHttpClient.value?.targetKey === 'customExamples'
+      ? props.customExamples?.[localHttpClient.value.clientKey]?.lang ??
+        'plaintext'
+      : // Or language for the globally selected HTTP client
+        httpClient.targetKey
 
-  // Use the selected HTTP client language
-  const key = httpClient.targetKey
-
+  // Normalize language
   if (key === 'shell' && generatedCode.value.includes('curl')) return 'curl'
-  if (key === 'c') return 'cpp'
-  if (key === 'csharp') return 'cpp'
+  if (key === 'Objective-C') return 'objc'
+
   return key
 })
 
