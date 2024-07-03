@@ -2,4 +2,4 @@
 '@scalar/api-reference': patch
 ---
 
-fix: link generation window call on SSG
+fix: accessing window durring SSG when generating links
