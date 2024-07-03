@@ -54,11 +54,11 @@
     "@scalar/api-reference": "workspace:*"
   },
   "devDependencies": {
+    "@nuxt/devtools": "^1.1.5",
+    "@nuxt/eslint-config": "^0.3.4",
     "@nuxt/module-builder": "^0.8.1",
     "@nuxt/schema": "^3.12.3",
     "@nuxt/test-utils": "^3.13.1",
-    "@nuxt/devtools": "^1.1.5",
-    "@nuxt/eslint-config": "^0.3.4",
     "@types/node": "^20.14.9",
     "changelogen": "^0.5.5",
     "eslint": "^8.56.0",
