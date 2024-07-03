@@ -64,6 +64,35 @@ const {
 const { server: serverState } = useServerStore()
 const { authentication: authenticationState } = useAuthenticationStore()
 
+/** Use the selected custom example or the globally selected HTTP client */
+const localHttpClient = ref<
+  | HttpClientState
+  | {
+      targetKey: 'customExamples'
+      clientKey: number
+    }
+>(
+  // Default to first custom example
+  props.customExamples?.length
+    ? {
+        targetKey: 'customExamples',
+        clientKey: 0,
+      }
+    : // Otherwise use the globally selected HTTP client
+      {
+        targetKey: httpClient.targetKey,
+        clientKey: httpClient.clientKey,
+      },
+)
+
+// Overwrite the locally selected HTTP client when the global one changes
+watch(httpClient, () => {
+  localHttpClient.value = {
+    targetKey: httpClient.targetKey,
+    clientKey: httpClient.clientKey,
+  }
+})
+
 const hasMultipleExamples = computed<boolean>(
   () =>
     Object.keys(
@@ -75,7 +104,7 @@ const hasMultipleExamples = computed<boolean>(
 const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
 
 async function generateSnippet() {
-  console.log('generateSnippet', localHttpClient.value, props.customExamples)
+  // Use the selected custom example
   if (localHttpClient.value.targetKey === 'customExamples') {
     return props.customExamples?.[localHttpClient.value.clientKey]?.source ?? ''
   }
@@ -128,10 +157,14 @@ async function generateSnippet() {
   }
 }
 
-const generatedCode = asyncComputed<string>(
-  generateSnippet,
-  ssrState[ssrStateKey] ?? '',
-)
+const generatedCode = asyncComputed<string>(async () => {
+  try {
+    return await generateSnippet()
+  } catch (error) {
+    console.error('[generateSnippet]', error)
+    return ''
+  }
+}, ssrState[ssrStateKey] ?? '')
 
 onServerPrefetch(async () => {
   const ctx = useSSRContext<SSRState>()
@@ -220,35 +253,6 @@ function updateHttpClient(value: string) {
     setHttpClient(data)
   }
 }
-
-/** Use the selected custom example or the globally selected HTTP client */
-const localHttpClient = ref<
-  | HttpClientState
-  | {
-      targetKey: 'customExamples'
-      clientKey: number
-    }
->(
-  // Default to first custom example
-  props.customExamples?.length
-    ? {
-        targetKey: 'customExamples',
-        clientKey: 0,
-      }
-    : // Otherwise use the globally selected HTTP client
-      {
-        targetKey: httpClient.targetKey,
-        clientKey: httpClient.clientKey,
-      },
-)
-
-// Overwrite the locally selected HTTP client when the global one changes
-watch(httpClient, () => {
-  localHttpClient.value = {
-    targetKey: httpClient.targetKey,
-    clientKey: httpClient.clientKey,
-  }
-})
 </script>
 <template>
   <Card class="dark-mode">
@@ -261,7 +265,6 @@ watch(httpClient, () => {
         <slot name="header" />
       </div>
       <template #actions>
-        {{ localHttpClient }}
         <TextSelect
           class="request-client-picker"
           :modelValue="JSON.stringify(localHttpClient)"
