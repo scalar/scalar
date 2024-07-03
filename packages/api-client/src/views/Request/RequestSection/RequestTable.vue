@@ -7,6 +7,8 @@ import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/workspace/spec'
 
+import RequestTableTooltip from './RequestTableTooltip.vue'
+
 const props = withDefaults(
   defineProps<{
     items?: RequestExampleParameter[]
@@ -41,6 +43,10 @@ const handleSelectVariable = (
 const handleFileUpload = (idx: number) => {
   emit('uploadFile', idx)
 }
+
+const showTooltip = (item: RequestExampleParameter) => {
+  return !!(item.description || item.type || item.default || item.format)
+}
 </script>
 <template>
   <DataTable
@@ -71,19 +77,10 @@ const handleFileUpload = (idx: number) => {
         @input="items && idx === items.length - 1 && emit('addRow')"
         @selectVariable="(v) => handleSelectVariable(idx, 'value', v)"
         @update:modelValue="(v) => emit('updateRow', idx, 'value', v)">
-        <template
-          v-if="item.description"
-          #icon>
-          <div class="relative group/info flex items-center pr-2">
-            <ScalarIcon
-              class="ml-1 text-c-3 group-hover/info:text-c-1"
-              icon="Info"
-              size="sm" />
-            <span
-              class="absolute pointer-events-none w-40 shadow-lg rounded bg-b-1 z-100 p-1.5 text-xxs leading-5 -translate-x-full translate-y-[24px] opacity-0 group-hover/info:opacity-100 z-10 text-c-1">
-              {{ item.description }}
-            </span>
-          </div>
+        <template #icon>
+          <RequestTableTooltip
+            v-if="showTooltip(item)"
+            :item="item" />
         </template>
       </DataTableInput>
       <DataTableCell
