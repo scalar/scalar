@@ -26,6 +26,7 @@ jobs:
 
   ci:
     runs-on: ubuntu-20.04
+    if: ${{ always() }}
     needs: define-matrix
     strategy:
       matrix:
