@@ -23,6 +23,8 @@ jobs:
           else
             echo 'node-versions=[20]' >> "$GITHUB_ENV"
           fi
+      - name: Print Node Version Matrix
+        run: echo "node-versions=${{ steps.node-versions.outputs.node-versions }}"
 
   ci:
     runs-on: ubuntu-20.04
