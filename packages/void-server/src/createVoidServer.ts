@@ -37,11 +37,18 @@ export async function createVoidServer() {
   app.all('/:filename{.+\\.html$}', async (c: Context) => {
     console.info(`${c.req.method} ${c.req.path}`)
 
-    // make sure to not execute another route
-
     const requestData = await getRequestData(c)
 
     return createHtmlResponse(c, requestData)
+  })
+
+  // Return JSON for all requests ending with .json
+  app.all('/:filename{.+\\.json$}', async (c: Context) => {
+    console.info(`${c.req.method} ${c.req.path}`)
+
+    const requestData = await getRequestData(c)
+
+    return createJsonResponse(c, requestData)
   })
 
   // All other requests just respond with a JSON containing all the request data
