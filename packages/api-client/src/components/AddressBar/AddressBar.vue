@@ -50,7 +50,7 @@ whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, () =>
 //
 /** update the instance path parameters on change */
 const onUrlChange = (newPath: string) => {
-  if (!activeRequest.value) return
+  if (!activeRequest.value || activeRequest.value.path === newPath) return
 
   requestMutators.edit(activeRequest.value.uid, 'path', newPath)
 }
