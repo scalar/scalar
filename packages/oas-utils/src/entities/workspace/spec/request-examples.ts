@@ -14,6 +14,8 @@ const requestExampleParametersSchema = z.object({
   enum: z.array(z.string()).optional(),
   type: z.string().optional(),
   format: z.string().optional(),
+  minimum: z.number().optional(),
+  maximum: z.number().optional(),
   default: z.any().optional(),
 })
 
