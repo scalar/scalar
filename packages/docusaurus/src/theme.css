@@ -692,11 +692,6 @@ code.hljs {
   border-bottom: 1px solid var(--scalar-border-color);
 }
 
-.markdown img {
-  max-height: 150px;
-  border-radius: var(--scalar-radius);
-}
-
 .markdown blockquote {
   border-left: 3px solid var(--scalar-border-color);
   padding-left: 12px;
