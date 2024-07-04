@@ -7,7 +7,7 @@ defineProps<{ item: RequestExampleParameter }>()
 <template>
   <ScalarTooltip
     align="start"
-    class="w-64"
+    class="w-full"
     :delay="0"
     side="left"
     triggerClass="p-[7px]">
@@ -28,14 +28,27 @@ defineProps<{ item: RequestExampleParameter }>()
             >{{ item.format }}</span
           >
           <span
+            v-if="item.minimum"
+            class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-pre"
+            >min: {{ item.minimum }}</span
+          >
+          <span
+            v-if="item.maximum"
+            class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-pre"
+            >max: {{ item.maximum }}</span
+          >
+          <span
             v-if="item.default"
             class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-pre"
             >default: {{ item.default }}</span
           >
         </div>
-        <span class="leading-snug text-pretty text-sm">{{
-          item.description
-        }}</span>
+        <span
+          v-if="item.description"
+          class="leading-snug text-pretty text-sm"
+          :style="{ maxWidth: '16rem' }"
+          >{{ item.description }}</span
+        >
       </div>
     </template>
   </ScalarTooltip>

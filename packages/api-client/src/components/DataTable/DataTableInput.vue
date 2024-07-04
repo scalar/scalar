@@ -16,6 +16,8 @@ const props = withDefaults(
     modelValue: string | number
     readOnly?: boolean
     enum?: string[]
+    min?: number
+    max?: number
   }>(),
   { required: false, readOnly: false },
 )
@@ -93,6 +95,8 @@ const handleDropdownMouseUp = () => {
           autocomplete="off"
           class="border-none focus:text-c-1 text-c-2 min-w-0 w-full px-2 py-1.5 outline-none"
           data-1p-ignore
+          :max="max"
+          :min="min"
           :readOnly="readOnly"
           :required="required"
           spellcheck="false"
@@ -102,6 +106,11 @@ const handleDropdownMouseUp = () => {
           @focus="emit('inputFocus')"
           @input="handleInput" />
       </template>
+    </div>
+    <div
+      v-if="$slots.warning"
+      class="absolute centered-y right-7 text-orange text-xs">
+      <slot name="warning" />
     </div>
     <slot name="icon" />
     <ScalarIconButton
