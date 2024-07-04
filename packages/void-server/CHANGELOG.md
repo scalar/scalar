@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.0.5
+
+### Patch Changes
+
+- 796717d: fix: Node 18 does not have File
+
 ## 2.0.4
 
 ### Patch Changes

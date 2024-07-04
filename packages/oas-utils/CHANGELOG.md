@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.10
+
+### Patch Changes
+
+- d58841b: feat: type, format and default to request example parameters schema
+
 ## 0.2.9
 
 ### Patch Changes
