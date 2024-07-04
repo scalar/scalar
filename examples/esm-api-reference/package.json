@@ -43,7 +43,6 @@
     "@scalar/galaxy": "workspace:*"
   },
   "devDependencies": {
-    "tsc-alias": "^1.8.8",
     "vite": "^5.2.10"
   }
 }

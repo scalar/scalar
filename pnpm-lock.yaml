@@ -173,9 +173,6 @@ importers:
         specifier: workspace:*
         version: link:../../packages/galaxy
     devDependencies:
-      tsc-alias:
-        specifier: ^1.8.8
-        version: 1.8.10
       vite:
         specifier: ^5.2.10
         version: 5.3.1(@types/node@20.14.9)(terser@5.31.1)
@@ -201,15 +198,9 @@ importers:
       nodemon:
         specifier: ^3.1.3
         version: 3.1.3
-      tsc-alias:
-        specifier: ^1.8.8
-        version: 1.8.10
       vite:
         specifier: ^5.2.10
         version: 5.3.1(@types/node@20.14.9)(terser@5.31.1)
-      vite-node:
-        specifier: ^1.3.1
-        version: 1.6.0(@types/node@20.14.9)(terser@5.31.1)
 
   examples/fastify-api-reference:
     dependencies:
@@ -1183,9 +1174,6 @@ importers:
       rehype-format:
         specifier: ^5.0.0
         version: 5.0.0
-      rehype-highlight:
-        specifier: ^7.0.0
-        version: 7.0.0
       rehype-parse:
         specifier: ^9.0.0
         version: 9.0.0
@@ -2026,27 +2014,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      esbuild:
-        specifier: ^0.21.1
-        version: 0.21.5
       nodemon:
         specifier: ^3.1.3
         version: 3.1.3
-      rollup:
-        specifier: ^4.16.4
-        version: 4.18.0
-      rollup-plugin-delete:
-        specifier: ^2.0.0
-        version: 2.0.0
-      rollup-plugin-dts:
-        specifier: ^6.1.0
-        version: 6.1.1(rollup@4.18.0)(typescript@5.5.2)
-      rollup-plugin-esbuild:
-        specifier: ^6.1.1
-        version: 6.1.1(esbuild@0.21.5)(rollup@4.18.0)
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.3
 
   playwright:
     devDependencies:
@@ -13075,9 +13045,6 @@ packages:
 
   rehype-format@5.0.0:
     resolution: {integrity: sha512-kM4II8krCHmUhxrlvzFSptvaWh280Fr7UGNJU5DCMuvmAwGCNmGfi9CvFAQK6JDjsNoRMWQStglK3zKJH685Wg==}
-
-  rehype-highlight@7.0.0:
-    resolution: {integrity: sha512-QtobgRgYoQaK6p1eSr2SD1i61f7bjF2kZHAQHxeCHAuJf7ZUDMvQ7owDq9YTkmar5m5TSUol+2D3bp3KfJf/oA==}
 
   rehype-minify-whitespace@6.0.0:
     resolution: {integrity: sha512-i9It4YHR0Sf3GsnlR5jFUKXRr9oayvEk9GKQUkwZv6hs70OH9q3OCZrq9PpLvIGKt3W+JxBOxCidNVpH/6rWdA==}
@@ -30677,14 +30644,6 @@ snapshots:
       html-whitespace-sensitive-tag-names: 3.0.0
       rehype-minify-whitespace: 6.0.0
       unist-util-visit-parents: 6.0.1
-
-  rehype-highlight@7.0.0:
-    dependencies:
-      '@types/hast': 3.0.4
-      hast-util-to-text: 4.0.2
-      lowlight: 3.1.0
-      unist-util-visit: 5.0.0
-      vfile: 6.0.1
 
   rehype-minify-whitespace@6.0.0:
     dependencies:
