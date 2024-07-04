@@ -61,6 +61,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@vueuse/core": "^10.10.0",
     "just-clone": "^6.2.0"
   },
   "devDependencies": {

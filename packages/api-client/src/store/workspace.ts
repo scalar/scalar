@@ -370,7 +370,6 @@ watchDebounced(
   {
     debounce: LS_CONFIG.DEBOUNCE_MS,
     maxWait: LS_CONFIG.MAX_WAIT_MS,
-    immediate: true,
   },
 )
 

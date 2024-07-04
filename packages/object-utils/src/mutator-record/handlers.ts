@@ -1,5 +1,6 @@
 import { Mutation } from '@/mutator-record/mutations'
 import type { Path, PathValue } from '@/nested'
+import { useDebounceFn } from '@vueuse/core'
 import type { ValueOf } from 'type-fest'
 
 import type { LS_CONFIG, LS_KEYS } from './local-storage'
@@ -12,10 +13,11 @@ export function mutationFactory<
 >(
   entityMap: Partial<Record<string, T>>,
   mutationMap: Partial<Record<string, Mutation<T>>>,
-  localStorageKey: ValueOf<typeof LS_KEYS>,
+  localStorageKey?: ValueOf<typeof LS_KEYS>,
   maxNumberRecords: number = MAX_MUTATION_RECORDS,
 ) {
-  const rando = localStorageKey
+  console.log('creating', localStorageKey)
+
   function getMutator(uid: string) {
     const mutator = mutationMap[uid]
 
@@ -26,29 +28,41 @@ export function mutationFactory<
 
     return mutator ?? null
   }
+
+  /** Triggers on any action to the mutator */
+  const onChange = localStorageKey
+    ? useDebounceFn(() => {
+        localStorage.setItem(localStorageKey, JSON.stringify(entityMap))
+      }, 1000)
+    : () => null
+
   return {
     /** Adds a new item to the record of tracked items and creates a new mutation tracking instance */
     add: (item: T) => {
       entityMap[item.uid] = item
       mutationMap[item.uid] = new Mutation(item, maxNumberRecords)
-      console.log('adding', rando, item)
+      console.log('adding', localStorageKey, item)
+      onChange()
     },
     delete: (uid: string) => {
       delete entityMap[uid]
       delete mutationMap[uid]
-      console.log('deleting', rando)
+      console.log('deleting', localStorageKey)
+      onChange()
     },
     /** Destructive, overwrites a record to a new item and creates a new mutation tracking instance */
     set: (item: T) => {
       entityMap[item.uid] = item
       mutationMap[item.uid] = new Mutation(item, maxNumberRecords)
-      console.log('setting', rando, item)
+      console.log('set', localStorageKey, item)
+      onChange()
     },
     /** Update a nested property and track the mutation */
     edit: <P extends Path<T>>(uid: string, path: P, value: PathValue<T, P>) => {
       const mutator = getMutator(uid)
       mutator?.mutate(path, value)
-      console.log('editing', rando, path)
+      console.log('edit', localStorageKey, path)
+      onChange()
     },
     /** Commit an untracked edit to the object (undo/redo will not work) */
     untrackedEdit: <P extends Path<T>>(
@@ -58,19 +72,22 @@ export function mutationFactory<
     ) => {
       const mutator = getMutator(uid)
       mutator?._unsavedMutate(path, value)
-      console.log('untracked edit', rando)
+      console.log('untracked edit', localStorageKey)
+      onChange()
     },
     /** Undo the last mutation */
     undo: (uid: string) => {
       const mutator = getMutator(uid)
       mutator?.undo()
-      console.log('undo', rando)
+      console.log('undo', localStorageKey)
+      onChange()
     },
     /** Redo a mutation if available */
     redo: (uid: string) => {
       const mutator = getMutator(uid)
       mutator?.redo()
-      console.log('redo', rando)
+      console.log('redo', localStorageKey)
+      onChange()
     },
   }
 }

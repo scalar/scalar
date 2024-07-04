@@ -34,9 +34,9 @@ onBeforeMount(async () => {
     // Get raw mutator.add so no fancy business
   } else {
     importSpecFromUrl(
-      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-      // 'https://developer.spotify.com/reference/web-api/open-api-schema.yaml',
-      // 'https://proxy.scalar.com',
+      // 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+      'https://developer.spotify.com/reference/web-api/open-api-schema.yaml',
+      'https://proxy.scalar.com',
     )
   }
 

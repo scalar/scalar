@@ -1748,6 +1748,9 @@ importers:
 
   packages/object-utils:
     dependencies:
+      '@vueuse/core':
+        specifier: ^10.10.0
+        version: 10.11.0(vue@3.4.31(typescript@5.5.2))
       just-clone:
         specifier: ^6.2.0
         version: 6.2.0
@@ -22398,6 +22401,16 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
+  '@vueuse/core@10.11.0(vue@3.4.31(typescript@5.5.2))':
+    dependencies:
+      '@types/web-bluetooth': 0.0.20
+      '@vueuse/metadata': 10.11.0
+      '@vueuse/shared': 10.11.0(vue@3.4.31(typescript@5.5.2))
+      vue-demi: 0.14.8(vue@3.4.31(typescript@5.5.2))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+
   '@vueuse/metadata@10.11.0': {}
 
   '@vueuse/shared@10.11.0(vue@3.4.29(typescript@5.4.5))':
@@ -22410,6 +22423,13 @@ snapshots:
   '@vueuse/shared@10.11.0(vue@3.4.29(typescript@5.5.2))':
     dependencies:
       vue-demi: 0.14.8(vue@3.4.29(typescript@5.5.2))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+
+  '@vueuse/shared@10.11.0(vue@3.4.31(typescript@5.5.2))':
+    dependencies:
+      vue-demi: 0.14.8(vue@3.4.31(typescript@5.5.2))
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -33281,6 +33301,10 @@ snapshots:
   vue-demi@0.14.8(vue@3.4.29(typescript@5.5.2)):
     dependencies:
       vue: 3.4.29(typescript@5.5.2)
+
+  vue-demi@0.14.8(vue@3.4.31(typescript@5.5.2)):
+    dependencies:
+      vue: 3.4.31(typescript@5.5.2)
 
   vue-devtools-stub@0.1.0: {}
 
