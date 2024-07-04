@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 2.0.9
+
+### Patch Changes
+
+- 1bb94c7: fix: set created cookie page active
+- f1b5390: fix: remove tailwind preflight from api client app
+- ad7fd7e: feat: add min max value to request params
+- Updated dependencies [ad7fd7e]
+- Updated dependencies [f1b5390]
+  - @scalar/oas-utils@0.2.11
+  - @scalar/components@0.12.10
+  - @scalar/themes@0.9.12
+
 ## 2.0.8
 
 ### Patch Changes
