@@ -1,4 +1,6 @@
 import type { Context } from 'hono'
+// Node 18 doesn’t have File, so we need to import it from 'undici'
+import { File } from 'undici'
 
 /**
  * Get the body of a request, no matter if it’s JSON or text
