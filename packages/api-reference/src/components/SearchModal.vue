@@ -96,7 +96,7 @@ watch(
 
     // Headings from the description
     const headingsData: FuseData[] = []
-    const headings = await getHeadingsFromMarkdown(
+    const headings = getHeadingsFromMarkdown(
       props.parsedSpec.info?.description ?? '',
     )
 

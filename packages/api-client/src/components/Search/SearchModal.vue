@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { HttpMethod } from '@/components/HttpMethod'
 import { useWorkspace } from '@/store/workspace'
 import {
   type ModalState,
@@ -9,7 +10,7 @@ import {
 } from '@scalar/components'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import Fuse, { type FuseResult } from 'fuse.js'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
@@ -49,28 +50,33 @@ watch(
   () => props.modalState.open,
   (open) => {
     if (!open) return
+    searchModalRef.value?.focus()
     searchText.value = ''
     selectedSearchResult.value = 0
     searchResults.value = []
   },
 )
 
-onMounted(() => {
-  searchModalRef.value?.focus()
-  Object.keys(requests).forEach((request) => {
-    const req = requests[request]
+// Populate our fuseDataArray with the request items
+watch(
+  requests,
+  (newRequests) => {
+    Object.keys(newRequests).forEach((request) => {
+      const req = requests[request]
 
-    fuseDataArray.value.push({
-      id: request,
-      title: req.summary ?? req.method,
-      description: req.description ?? '',
-      httpVerb: req.method,
-      path: req.path,
+      fuseDataArray.value.push({
+        id: request,
+        title: req.summary ?? req.method,
+        description: req.description ?? '',
+        httpVerb: req.method,
+        path: req.path,
+      })
     })
-  })
 
-  fuse.setCollection(fuseDataArray.value)
-})
+    fuse.setCollection(fuseDataArray.value)
+  },
+  { immediate: true },
+)
 
 function onSearchResultClick(entry: FuseResult<FuseData>) {
   router.push(entry.item.id)
@@ -176,6 +182,7 @@ whenever(keys.ArrowUp, () => {
         :id="`#search-modal-${entry.item.id}`"
         :key="entry.refIndex"
         :active="selectedSearchResult === index"
+        icon="Terminal"
         @click="onSearchResultClick(entry)"
         @focus="selectedSearchResult = index">
         {{ entry.item.title }}
@@ -191,6 +198,9 @@ whenever(keys.ArrowUp, () => {
           v-else-if="entry.item.description"
           #description>
           {{ entry.item.description }}
+        </template>
+        <template #addon>
+          <HttpMethod :method="entry.item.httpVerb ?? 'get'" />
         </template>
       </ScalarSearchResultItem>
       <template #query>{{ searchText }}</template>
