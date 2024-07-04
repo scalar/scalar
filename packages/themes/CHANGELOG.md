@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.12
+
+### Patch Changes
+
+- f1b5390: fix: remove tailwind preflight from api client app
+
 ## 0.9.11
 
 ### Patch Changes

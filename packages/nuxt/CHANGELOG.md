@@ -1,5 +1,16 @@
 # @scalar/nuxt
 
+## 0.2.31
+
+### Patch Changes
+
+- 9b035b0: chore: remove stale packages
+- Updated dependencies [1bb94c7]
+- Updated dependencies [f1b5390]
+- Updated dependencies [ad7fd7e]
+  - @scalar/api-client@2.0.9
+  - @scalar/api-reference@1.24.32
+
 ## 0.2.30
 
 ### Patch Changes

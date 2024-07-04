@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.12.10
+
+### Patch Changes
+
+- f1b5390: fix: remove tailwind preflight from api client app
+- Updated dependencies [9b035b0]
+  - @scalar/code-highlight@0.0.6
+
 ## 0.12.9
 
 ### Patch Changes

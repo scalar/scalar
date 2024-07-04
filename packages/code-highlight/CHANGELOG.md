@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.6
+
+### Patch Changes
+
+- 9b035b0: chore: remove stale packages
+
 ## 0.0.5
 
 ### Patch Changes

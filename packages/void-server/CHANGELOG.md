@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.0.6
+
+### Patch Changes
+
+- 9b035b0: chore: remove stale packages
+
 ## 2.0.5
 
 ### Patch Changes

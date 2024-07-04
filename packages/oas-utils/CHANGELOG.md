@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.11
+
+### Patch Changes
+
+- ad7fd7e: feat: add min max to request example parameters schema
+
 ## 0.2.10
 
 ### Patch Changes
