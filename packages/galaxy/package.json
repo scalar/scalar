@@ -52,7 +52,6 @@
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-parser": "^0.7.2",
     "@vitest/coverage-v8": "^1.6.0",
-    "tsc-alias": "^1.8.8",
     "vite": "^5.2.10",
     "vite-plugin-static-copy": "^1.0.2",
     "vitest": "^1.6.0"
