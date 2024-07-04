@@ -23,7 +23,7 @@ const attrs = computed(() => {
       v-bind="attrs.rest"
       :class="
         cx(
-          'group flex cursor-pointer gap-2 rounded px-3 py-1.5 no-underline hover:bg-b-2',
+          'group flex cursor-pointer gap-2.5 rounded px-3 py-1.5 no-underline hover:bg-b-2',
           {
             'bg-b-2': active,
           },
