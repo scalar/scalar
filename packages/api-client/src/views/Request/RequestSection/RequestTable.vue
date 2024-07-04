@@ -6,6 +6,7 @@ import DataTableInput from '@/components/DataTable/DataTableInput.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/workspace/spec'
+import { computed } from 'vue'
 
 import RequestTableTooltip from './RequestTableTooltip.vue'
 
@@ -47,6 +48,21 @@ const handleFileUpload = (idx: number) => {
 const showTooltip = (item: RequestExampleParameter) => {
   return !!(item.description || item.type || item.default || item.format)
 }
+
+const valueOutOfRange = (item: RequestExampleParameter) => {
+  return computed(() => {
+    if (item.type === 'integer' && item.value !== undefined) {
+      const value = Number(item.value)
+      if (item.minimum !== undefined && value < item.minimum) {
+        return `Min is ${item.minimum}`
+      }
+      if (item.maximum !== undefined && value > item.maximum) {
+        return `Max is ${item.maximum}`
+      }
+    }
+    return false
+  })
+}
 </script>
 <template>
   <DataTable
@@ -70,13 +86,21 @@ const showTooltip = (item: RequestExampleParameter) => {
         @update:modelValue="(v) => emit('updateRow', idx, 'key', v)" />
       <DataTableInput
         :enum="item.enum"
+        :max="item.maximum"
+        :min="item.minimum"
         :modelValue="item.value"
         placeholder="Value"
+        :type="item.type === 'integer' ? 'number' : 'text'"
         @blur="emit('inputBlur')"
         @focus="emit('inputFocus')"
         @input="items && idx === items.length - 1 && emit('addRow')"
         @selectVariable="(v) => handleSelectVariable(idx, 'value', v)"
         @update:modelValue="(v) => emit('updateRow', idx, 'value', v)">
+        <template
+          v-if="valueOutOfRange(item).value"
+          #warning>
+          {{ valueOutOfRange(item).value }}
+        </template>
         <template #icon>
           <RequestTableTooltip
             v-if="showTooltip(item)"
@@ -115,6 +139,17 @@ const showTooltip = (item: RequestExampleParameter) => {
     </DataTableRow>
   </DataTable>
 </template>
+<style>
+/* Input number arrows hidden */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+</style>
 <style scoped>
 .filemask {
   mask-image: linear-gradient(

@@ -190,6 +190,8 @@ const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
     enum: param.schema?.enum,
     type: param.schema?.type,
     format: param.schema?.format,
+    minimum: param.schema?.minimum,
+    maximum: param.schema?.maximum,
     default: param.schema?.default,
   })
 
