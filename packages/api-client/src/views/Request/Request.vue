@@ -290,7 +290,7 @@ useEventListener(document, 'keydown', (event) => {
     </div>
     <ViewLayout>
       <Sidebar
-        v-if="showSideBar"
+        v-show="showSideBar"
         :class="[showSideBar ? 'sidebar-active-width' : '']">
         <template #title>{{ workspace.name }}</template>
         <template #content>
