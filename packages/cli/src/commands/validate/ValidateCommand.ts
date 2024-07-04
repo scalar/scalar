@@ -1,11 +1,15 @@
 import { openapi } from '@scalar/openapi-parser'
+import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
+import { readFiles } from '@scalar/openapi-parser/plugins/read-files'
 import { Command } from 'commander'
 import kleur from 'kleur'
 import prettyjson from 'prettyjson'
 
 import { useGivenFileOrConfiguration } from '../../utils'
-import { getFileOrUrl } from '../../utils/getFileOrUrl'
 
+/**
+ * Validate an OpenAPI file against the OpenAPI specifications
+ */
 export function ValidateCommand() {
   const cmd = new Command('validate')
 
@@ -16,12 +20,16 @@ export function ValidateCommand() {
 
     // Read file
     const input = useGivenFileOrConfiguration(inputArgument)
-    const specification = await getFileOrUrl(input)
 
     // Validate
-    const result = await openapi().load(specification).validate().get()
+    const result = await openapi()
+      .load(input, {
+        plugins: [fetchUrls(), readFiles()],
+      })
+      .validate()
+      .get()
 
-    if (result.valid) {
+    if (result.valid && result.version) {
       console.log(
         kleur.green(
           `Matches the OpenAPI specification${kleur.white(
