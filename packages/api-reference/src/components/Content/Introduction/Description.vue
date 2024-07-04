@@ -112,4 +112,7 @@ onServerPrefetch(async () => {
   flex-direction: column;
   gap: 18px;
 }
+.references-classic .introduction-description :deep(img) {
+  max-width: 720px;
+}
 </style>
