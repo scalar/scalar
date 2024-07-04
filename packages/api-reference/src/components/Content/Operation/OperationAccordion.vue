@@ -6,13 +6,13 @@ import {
 } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/oas-utils'
 
+import { ExampleRequest } from '../../../features/ExampleRequest'
 import { useClipboard } from '../../../hooks'
 import { Anchor } from '../../Anchor'
 import { HttpMethod } from '../../HttpMethod'
 import { SectionAccordion } from '../../Section'
 import EndpointDetailsCard from './EndpointDetailsCard.vue'
 import EndpointPath from './EndpointPath.vue'
-import ExampleRequest from './ExampleRequest.vue'
 import { PathResponses } from './PathResponses'
 import TestRequestButton from './TestRequestButton.vue'
 

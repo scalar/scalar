@@ -2,6 +2,7 @@
 import type { TransformedOperation } from '@scalar/oas-utils'
 import { computed } from 'vue'
 
+import { ExampleRequest } from '../../../features/ExampleRequest'
 import { useHttpClientStore } from '../../../stores'
 import { Anchor } from '../../Anchor'
 import { Badge } from '../../Badge'
@@ -12,10 +13,8 @@ import {
   SectionContent,
   SectionHeader,
 } from '../../Section'
-import CustomRequestExamples from './CustomRequestExamples.vue'
 import EndpointDetails from './EndpointDetails.vue'
 import EndpointPath from './EndpointPath.vue'
-import ExampleRequest from './ExampleRequest.vue'
 import { PathResponses } from './PathResponses'
 import TestRequestButton from './TestRequestButton.vue'
 
@@ -63,22 +62,9 @@ const customRequestExamples = computed(() => {
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
-            <CustomRequestExamples
-              v-if="customRequestExamples"
-              :examples="customRequestExamples"
-              :operation="operation">
-              <template #header>
-                <EndpointPath
-                  class="example-path"
-                  :deprecated="operation.information?.deprecated"
-                  :path="operation.path" />
-              </template>
-              <template #footer>
-                <TestRequestButton :operation="operation" />
-              </template>
-            </CustomRequestExamples>
             <ExampleRequest
-              v-else-if="availableTargets.length"
+              v-if="availableTargets.length"
+              :customExamples="customRequestExamples"
               :operation="operation">
               <template #header>
                 <EndpointPath
