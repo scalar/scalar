@@ -8,11 +8,13 @@ import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useWorkspace } from '@/store/workspace'
 import { createCookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import { nanoid } from 'nanoid'
+import { useRouter } from 'vue-router'
 
 import CookieForm from './CookieForm.vue'
 import CookieRaw from './CookieRaw.vue'
 
 const { cookies, cookieMutators } = useWorkspace()
+const router = useRouter()
 
 const addCookieHandler = () => {
   const cookie = createCookie({
@@ -27,6 +29,7 @@ const addCookieHandler = () => {
   })
 
   cookieMutators.add(cookie)
+  router.push(cookie.uid)
 }
 </script>
 <template>
