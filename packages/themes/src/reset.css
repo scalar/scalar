@@ -1,7 +1,7 @@
 /*
   Custom reset (loosely) based on Tailwind Preflight
 
-  @see https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/preflight.css
+  @see https://github.com/tailwindlabs/tailwindcss/blob/3.3/src/css/preflight.css
 */
 
 /* Use :where to lower specificity */
@@ -37,9 +37,12 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /*
-    Remove the default background color.
-  */
+  ::before,
+  ::after {
+    --tw-content: '';
+  }
+
+  /** Remove the default background color. */
   button,
   input,
   optgroup,
@@ -49,9 +52,7 @@
     background: transparent;
   }
 
-  /*
-    Bring back a basic border style for form controls
-  */
+  /** Bring back a basic border style for form controls */
   input:where(:not([type='button'], [type='reset'], [type='submit'])),
   select,
   textarea {
@@ -74,5 +75,38 @@
   :focus-visible {
     outline: 1px solid var(--scalar-color-accent);
     outline-offset: 1px;
+  }
+
+  /** Set the default cursor for buttons. */
+  button,
+  [role='button'] {
+    cursor: pointer;
+  }
+
+  /** Make sure disabled buttons don't get the pointer cursor. */
+  :disabled {
+    cursor: default;
+  }
+
+  /**
+    1. Make replaced elements `display: block` by default. (https://github.com/mozdevs/cssremedy/issues/14)
+    2. Add `vertical-align: middle` to align replaced elements more sensibly by default. (https://github.com/jensimmons/cssremedy/issues/14#issuecomment-634934210)
+  */
+
+  img,
+  svg,
+  video,
+  canvas,
+  audio,
+  iframe,
+  embed,
+  object {
+    display: block; /* 1 */
+    vertical-align: middle; /* 2 */
+  }
+
+  /** Make elements with the HTML hidden attribute stay hidden by default */
+  [hidden] {
+    display: none;
   }
 }
