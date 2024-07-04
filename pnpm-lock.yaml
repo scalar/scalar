@@ -1755,6 +1755,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
+      type-fest:
+        specifier: ^4.20.0
+        version: 4.20.0
       vite:
         specifier: ^5.2.10
         version: 5.3.1(@types/node@20.14.9)(terser@5.31.1)

@@ -41,13 +41,18 @@ import {
 import { fetchSpecFromUrl, iterateTitle } from '@scalar/oas-utils/helpers'
 import { getRequestBodyFromOperation } from '@scalar/oas-utils/spec-getters'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
-import { mutationFactory } from '@scalar/object-utils/mutator-record'
+import {
+  LS_CONFIG,
+  LS_KEYS,
+  mutationFactory,
+} from '@scalar/object-utils/mutator-record'
 import {
   type Path,
   type PathValue,
   setNestedValue,
 } from '@scalar/object-utils/nested'
 import type { AnyObject, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import { watchDebounced } from '@vueuse/core'
 import { computed, reactive, readonly, toRaw } from 'vue'
 
 const { setCollapsedSidebarFolder } = useSidebar()
@@ -57,7 +62,11 @@ const { setCollapsedSidebarFolder } = useSidebar()
 
 /** Local list of all requests (will be associated with a database collection) */
 const requests = reactive<Record<string, Request>>({})
-const requestMutators = mutationFactory(requests, reactive({}))
+const requestMutators = mutationFactory(
+  requests,
+  reactive({}),
+  LS_KEYS.REQUESTS,
+)
 
 /** Add request */
 const addRequest = (
@@ -171,7 +180,11 @@ const findRequestFolders = (
  * Multiple test cases can each be saved as an example and switched between
  */
 const requestExamples = reactive<Record<string, RequestExample>>({})
-const requestExampleMutators = mutationFactory(requestExamples, reactive({}))
+const requestExampleMutators = mutationFactory(
+  requestExamples,
+  reactive({}),
+  LS_KEYS.REQUEST_EXAMPLES,
+)
 
 /** Create new instance parameter from a request parameter */
 const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
@@ -317,7 +330,11 @@ const environments = reactive<Record<string, Environment>>({
     isDefault: true,
   }),
 })
-const environmentMutators = mutationFactory(environments, reactive({}))
+const environmentMutators = mutationFactory(
+  environments,
+  reactive({}),
+  LS_KEYS.ENVIRONMENTS,
+)
 
 /** prevent deletion of the default environment */
 const deleteEnvironment = (uid: string) => {
@@ -332,7 +349,7 @@ const deleteEnvironment = (uid: string) => {
 // COOKIES
 
 const cookies = reactive<Record<string, Cookie>>({})
-const cookieMutators = mutationFactory(cookies, reactive({}))
+const cookieMutators = mutationFactory(cookies, reactive({}), LS_KEYS.COOKIES)
 
 /** Cookie associated with the current route */
 const activeCookieId = computed<string | undefined>(
@@ -344,6 +361,18 @@ const activeCookieId = computed<string | undefined>(
 
 /** Active workspace object (will be associated with an entry in the workspace collection) */
 const workspace = reactive<Workspace>(createWorkspace({}))
+
+/** Workspace doesn't have a mutator yet so we manually have to set it in local storage */
+watchDebounced(
+  workspace,
+  (newWorkspace) =>
+    localStorage.setItem(LS_KEYS.WORKSPACE, JSON.stringify(newWorkspace)),
+  {
+    debounce: LS_CONFIG.DEBOUNCE_MS,
+    maxWait: LS_CONFIG.MAX_WAIT_MS,
+    immediate: true,
+  },
+)
 
 /** Simplified list of requests in the workspace for displaying */
 const workspaceRequests = computed(() =>
@@ -365,7 +394,11 @@ const editWorkspace = <P extends Path<Workspace>>(
 // COLLECTION
 
 const collections = reactive<Record<string, Collection>>({})
-const collectionMutators = mutationFactory(collections, reactive({}))
+const collectionMutators = mutationFactory(
+  collections,
+  reactive({}),
+  LS_KEYS.COLLECTIONS,
+)
 
 const addCollection = (payload: CollectionPayload) => {
   const collection = createCollection(payload)
@@ -410,7 +443,7 @@ const activeServer = computed(
 // FOLDERS
 
 const folders = reactive<Record<string, Folder>>({})
-const folderMutators = mutationFactory(folders, reactive({}))
+const folderMutators = mutationFactory(folders, reactive({}), LS_KEYS.FOLDERS)
 
 /**
  * Add a new folder to a folder or colleciton
@@ -472,7 +505,11 @@ const deleteFolder = (
 // SECURITY SCHEMES
 
 const securitySchemes = reactive<Record<string, SecurityScheme>>({})
-const securitySchemeMutators = mutationFactory(securitySchemes, reactive({}))
+const securitySchemeMutators = mutationFactory(
+  securitySchemes,
+  reactive({}),
+  LS_KEYS.SECURITY_SCHEMES,
+)
 
 type SecurityMutatorEditArgs = Parameters<typeof securitySchemeMutators.edit>
 export type UpdateScheme = (
@@ -514,7 +551,7 @@ const activeSecurityRequirements = computed(
 // SERVERS
 
 const servers = reactive<Record<string, Server>>({})
-const serverMutators = mutationFactory(servers, reactive({}))
+const serverMutators = mutationFactory(servers, reactive({}), LS_KEYS.SERVERS)
 
 /**
  * Add a server
@@ -577,27 +614,6 @@ async function importSpecFile(_spec: string | AnyObject) {
       createSecurityScheme({ ...securityScheme, uid: key }),
     ),
   )
-  // TODOtest remove Temp for testing
-  // ).forEach(([key, securityScheme]) =>
-  //   securitySchemeMutators.add(
-  //     createSecurityScheme({
-  //       ...securityScheme,
-  //       type: 'oauth2',
-  //       flows: {
-  //         authorizationCode: {
-  //           authorizationUrl: 'https://accounts.spotify.com/authorize',
-  //           tokenUrl: 'https://accounts.spotify.com/api/token',
-  //           scopes: securityScheme.flows.authorizationCode.scopes,
-  //         },
-  //         clientCredentials: {
-  //           tokenUrl: 'https://accounts.spotify.com/api/token',
-  //           scopes: securityScheme.flows.authorizationCode.scopes,
-  //         },
-  //       },
-  //       uid: key,
-  //     }),
-  //   ),
-  // )
 }
 
 // Function to fetch and import a spec from a URL
@@ -623,20 +639,20 @@ export const useWorkspace = () => ({
   workspace: readonly(workspace),
   workspaceRequests,
   collections,
-  requests,
-  environments,
-  requestExamples,
-  folders,
   cookies,
+  environments,
+  folders,
+  requestExamples,
+  requests,
   servers,
   securitySchemes,
-  activeCookieId,
   activeCollection,
-  activeServer,
+  activeCookieId,
+  activeExample,
+  activeRequest,
   activeSecurityRequirements,
   activeSecurityScheme,
-  activeRequest,
-  activeExample,
+  activeServer,
   modalState,
   // ---------------------------------------------------------------------------
   // METHODS

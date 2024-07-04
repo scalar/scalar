@@ -4,6 +4,7 @@ import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
 import { addScalarClassesToHeadless } from '@scalar/components'
+import { LS_KEYS } from '@scalar/object-utils/mutator-record'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { onBeforeMount, onMounted, watchEffect } from 'vue'
 import { RouterView } from 'vue-router'
@@ -20,19 +21,29 @@ const { importSpecFromUrl, workspaceMutators } = useWorkspace()
 
 workspaceMutators.edit('proxyUrl', 'https://proxy.scalar.com')
 
-/**
- * Ensure we add our scalar wrapper class to the headless ui root
- * mounted is too late
- */
-onBeforeMount(() => addScalarClassesToHeadless())
+// Ensure we add our scalar wrapper class to the headless ui root
+onBeforeMount(async () => {
+  // Check if we have localStorage data
+  const workspace = localStorage.getItem(LS_KEYS.WORKSPACE)
+  console.log({ workspace })
 
-onMounted(() => {
-  importSpecFromUrl(
-    'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-    // 'https://developer.spotify.com/reference/web-api/open-api-schema.yaml',
-    // 'https://proxy.scalar.com',
-  )
+  // eslint-disable-next-line no-constant-condition
+  if (false && workspace) {
+    console.log('=====')
+    console.log(workspace)
+    // Get raw mutator.add so no fancy business
+  } else {
+    importSpecFromUrl(
+      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+      // 'https://developer.spotify.com/reference/web-api/open-api-schema.yaml',
+      // 'https://proxy.scalar.com',
+    )
+  }
+
+  addScalarClassesToHeadless()
 })
+
+onBeforeMount(() => {})
 </script>
 <template>
   <TopNav />
