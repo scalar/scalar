@@ -20,6 +20,7 @@ defineEmits<{
   <ScalarTooltip
     class="scalar-client"
     :delay="500"
+    resize
     :sideOffset="4">
     <template #trigger>
       <div

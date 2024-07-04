@@ -12,6 +12,9 @@ const requestExampleParametersSchema = z.object({
   refUid: nanoidSchema.optional(),
   required: z.boolean().optional(),
   enum: z.array(z.string()).optional(),
+  type: z.string().optional(),
+  format: z.string().optional(),
+  default: z.any().optional(),
 })
 
 /** Request examples - formerly known as instances - are "children" of requests */
