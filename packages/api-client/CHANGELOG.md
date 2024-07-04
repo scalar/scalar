@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 2.0.8
+
+### Patch Changes
+
+- ba3f5cb: feat: address bar history item infos
+- 0b6e3aa: fix: address bar history item infos
+- d58841b: feat: request table tooltip component
+- Updated dependencies [d58841b]
+- Updated dependencies [d58841b]
+  - @scalar/oas-utils@0.2.10
+  - @scalar/components@0.12.9
+
 ## 2.0.7
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.24.31
+
+### Patch Changes
+
+- 7662097: fix: create payload for non-Nuxt SSG
+- f8982ed: feat: show custom examples along the generated examples
+- Updated dependencies [ba3f5cb]
+- Updated dependencies [d58841b]
+- Updated dependencies [0b6e3aa]
+- Updated dependencies [d58841b]
+- Updated dependencies [d58841b]
+  - @scalar/api-client@2.0.8
+  - @scalar/oas-utils@0.2.10
+  - @scalar/components@0.12.9
+
 ## 1.24.30
 
 ### Patch Changes

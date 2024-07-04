@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.9
+
+### Patch Changes
+
+- d58841b: feat: add props to scalar tooltip
+
 ## 0.12.8
 
 ### Patch Changes
