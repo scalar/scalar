@@ -89,9 +89,6 @@ importers:
       ts-node:
         specifier: ^10.9.1
         version: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.2)(typescript@5.5.2)
-      tsc:
-        specifier: ^2.0.4
-        version: 2.0.4
       tsc-alias:
         specifier: ^1.8.10
         version: 1.8.10
@@ -1753,8 +1750,12 @@ importers:
 =======
       next:
         specifier: ^14.1.1
+<<<<<<< HEAD
         version: 14.2.4(@opentelemetry/api@1.9.0)(@playwright/test@1.44.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 >>>>>>> edffcf313 (chore: hoist workspace packages)
+=======
+        version: 14.2.4(@babel/core@7.24.7)(@opentelemetry/api@1.9.0)(@playwright/test@1.44.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+>>>>>>> 91efb8bbc (chore: remove deprecated tsc package)
       react:
         specifier: ^18.0.0
         version: 18.3.1
@@ -14962,10 +14963,6 @@ packages:
 
   tsc-alias@1.8.10:
     resolution: {integrity: sha512-Ibv4KAWfFkFdKJxnWfVtdOmB0Zi1RJVxcbPGiCDsFpCQSsmpWyuzHG3rQyI5YkobWwxFPEyQfu1hdo4qLG2zPw==}
-    hasBin: true
-
-  tsc@2.0.4:
-    resolution: {integrity: sha512-fzoSieZI5KKJVBYGvwbVZs/J5za84f2lSTLPYf6AGiIf43tZ3GNrI1QzTLcjtyDDP4aLxd46RTZq1nQxe7+k5Q==}
     hasBin: true
 
   tsconfck@3.1.1:
@@ -30839,10 +30836,14 @@ snapshots:
   neo-async@2.6.2: {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   next@14.2.4(@babel/core@7.24.8)(@opentelemetry/api@1.9.0)(@playwright/test@1.44.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
 =======
   next@14.2.4(@opentelemetry/api@1.9.0)(@playwright/test@1.44.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
 >>>>>>> edffcf313 (chore: hoist workspace packages)
+=======
+  next@14.2.4(@babel/core@7.24.7)(@opentelemetry/api@1.9.0)(@playwright/test@1.44.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+>>>>>>> 91efb8bbc (chore: remove deprecated tsc package)
     dependencies:
       '@next/env': 14.2.4
       '@swc/helpers': 0.5.5
@@ -30853,10 +30854,14 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 <<<<<<< HEAD
+<<<<<<< HEAD
       styled-jsx: 5.1.1(@babel/core@7.24.8)(react@18.3.1)
 =======
       styled-jsx: 5.1.1(react@18.3.1)
 >>>>>>> edffcf313 (chore: hoist workspace packages)
+=======
+      styled-jsx: 5.1.1(@babel/core@7.24.7)(react@18.3.1)
+>>>>>>> 91efb8bbc (chore: remove deprecated tsc package)
     optionalDependencies:
       '@next/swc-darwin-arm64': 14.2.4
       '@next/swc-darwin-x64': 14.2.4
@@ -34031,6 +34036,7 @@ snapshots:
       inline-style-parser: 0.2.3
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   styled-jsx@5.1.1(@babel/core@7.24.8)(react@18.3.1):
     dependencies:
       client-only: 0.0.1
@@ -34043,6 +34049,14 @@ snapshots:
       client-only: 0.0.1
       react: 18.3.1
 >>>>>>> edffcf313 (chore: hoist workspace packages)
+=======
+  styled-jsx@5.1.1(@babel/core@7.24.7)(react@18.3.1):
+    dependencies:
+      client-only: 0.0.1
+      react: 18.3.1
+    optionalDependencies:
+      '@babel/core': 7.24.7
+>>>>>>> 91efb8bbc (chore: remove deprecated tsc package)
 
   stylehacks@6.1.1(postcss@8.4.38):
     dependencies:
@@ -34657,8 +34671,6 @@ snapshots:
       mylas: 2.1.13
       normalize-path: 3.0.0
       plimit-lit: 1.6.1
-
-  tsc@2.0.4: {}
 
   tsconfck@3.1.1(typescript@5.5.2):
     optionalDependencies:

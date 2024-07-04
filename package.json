@@ -32,7 +32,6 @@
     "start-server-and-test": "^2.0.3",
     "syncpack": "^12.3.0",
     "ts-node": "^10.9.1",
-    "tsc": "^2.0.4",
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "turbo": "^2.0.1",
