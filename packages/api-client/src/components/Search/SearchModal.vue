@@ -90,7 +90,6 @@ const selectedEntry = computed<FuseResult<FuseData>>(
 const searchResultsWithPlaceholderResults = computed(
   (): FuseResult<FuseData>[] => {
     if (searchText.value.length === 0) {
-      console.log({ fuseDataArray })
       return fuseDataArray.value.map((item) => {
         return {
           item: item,
