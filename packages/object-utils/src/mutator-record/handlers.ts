@@ -30,10 +30,15 @@ export function mutationFactory<
   }
 
   /** Triggers on any action to the mutator */
+  // todo this debounce is not working
   const onChange = localStorageKey
-    ? useDebounceFn(() => {
-        localStorage.setItem(localStorageKey, JSON.stringify(entityMap))
-      }, 1000)
+    ? useDebounceFn(
+        () => {
+          localStorage.setItem(localStorageKey, JSON.stringify(entityMap))
+        },
+        100000,
+        { maxWait: 500 },
+      )
     : () => null
 
   return {
