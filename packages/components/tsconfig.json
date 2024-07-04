@@ -1,25 +1,10 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "allowJs": true,
-    "allowImportingTsExtensions": true,
-    "composite": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "incremental": true,
-    "isolatedModules": true,
-    "lib": ["esnext", "dom", "dom.iterable"],
-    "module": "ESnext",
-    "moduleDetection": "force",
-    "moduleResolution": "Bundler",
-    "noEmit": true,
-    "noUncheckedIndexedAccess": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "strict": true,
-    "target": "es2022",
-    "verbatimModuleSyntax": true
-  },
-  "exclude": ["node_modules"],
-  "include": ["src", "env.d.ts"]
+    "paths": {
+      "@/*": ["./src/*"],
+      "@test/*": ["./test/*"]
+    },
+    "types": ["vite/client"]
+  }
 }
