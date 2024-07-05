@@ -17,17 +17,12 @@ export function getOperationByMethodAndPath(
   method: string,
   path: string,
 ) {
-  // Compare just the strings
-  if (schema.paths?.[path]) {
-    return schema.paths
-  }
-
   // Normalization
   const normalizedMethod = method.toString().toLowerCase()
   const pathObject = schema.paths?.[path] as PathItemObject
 
   // Direct match
-  if (pathObject[normalizedMethod]) {
+  if (pathObject?.[normalizedMethod]) {
     return pathObject[normalizedMethod]
   }
 
