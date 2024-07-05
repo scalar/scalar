@@ -1,5 +1,10 @@
 import { computed } from 'vue'
-import { createMemoryHistory, createRouter, createWebHistory } from 'vue-router'
+import {
+  type RouteRecordRaw,
+  createMemoryHistory,
+  createRouter,
+  createWebHistory,
+} from 'vue-router'
 
 export enum PathId {
   Request = 'request',
@@ -9,89 +14,129 @@ export enum PathId {
   Schema = 'schema',
   Environment = 'environment',
   Server = 'server',
+  Workspace = 'workspace',
 }
 
-/** Routes required by the client modal */
-export const clientRoutes = [
-  { path: '/', redirect: '/request/default' },
+/** Routes for the request section */
+const requestRoutes = [
   {
-    path: '/request',
-    redirect: '/request/default',
+    path: '',
+    redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/request/default`,
   },
+  {
+    path: 'request',
+    redirect: 'request/default',
+  },
+  {
+    name: PathId.Request,
+    path: `request/:${PathId.Request}`,
+    component: () => import('@/views/Request/Request.vue'),
+  },
+  {
+    path: `request/:${PathId.Request}/example/:${PathId.Example}`,
+    component: () => import('@/views/Request/Request.vue'),
+  },
+] satisfies RouteRecordRaw[]
+
+/** Routes required by the client modal */
+export const modalRoutes = [
+  {
+    path: '/',
+    redirect: '/workspace/default/request/default',
+  },
+  {
+    path: '/workspace',
+    redirect: '/workspace/default/request/default',
+  },
+  /** This redirect is for the modal so its okay to go to default workspace as there should only be one */
   {
     path: `/request/:${PathId.Request}`,
-    component: () => import('@/views/Request/Request.vue'),
+    redirect: (to) => `/workspace/default/request/${to.params.request}`,
   },
   {
-    path: `/request/:${PathId.Request}/example/:${PathId.Example}`,
-    component: () => import('@/views/Request/Request.vue'),
+    path: `/workspace/:${PathId.Workspace}`,
+    children: requestRoutes,
   },
-]
+] satisfies RouteRecordRaw[]
 
+/** Routes for the client app */
 const routes = [
-  ...clientRoutes,
   {
-    path: '/collection',
-    redirect: '/collection/default',
+    path: '/',
+    redirect: '/workspace/default/request/default',
   },
   {
-    name: PathId.Collection,
-    path: `/collection/:${PathId.Collection}`,
-    component: () => import('@/views/Collection/Collection.vue'),
+    path: '/workspace',
+    redirect: '/workspace/default/request/default',
+  },
+  {
+    path: `/workspace/:${PathId.Workspace}`,
     children: [
-      // Nested collection request
+      ...requestRoutes,
       {
-        path: `request/${PathId.Request}`,
-        component: () => import('@/views/Request/Request.vue'),
+        path: '/collection',
+        redirect: '/collection/default',
+      },
+      {
+        name: PathId.Collection,
+        path: `/collection/:${PathId.Collection}`,
+        component: () => import('@/views/Collection/Collection.vue'),
+        children: [
+          // Nested collection request
+          {
+            path: `request/${PathId.Request}`,
+            component: () => import('@/views/Request/Request.vue'),
+          },
+        ],
+      },
+      /** Components will map to each section of the spec components object */
+      {
+        path: '/components',
+        redirect: '/components/schemas/default',
+        children: [
+          {
+            path: `schemas/:${PathId.Schema}`,
+            component: () => import('@/views/Components/Schemas/Schemas.vue'),
+          },
+        ],
+      },
+      {
+        path: '/environment',
+        redirect: '/environment/default',
+      },
+      {
+        path: `/environment/:${PathId.Environment}`,
+        component: () => import('@/views/Environment/Environment.vue'),
+      },
+      {
+        path: '/cookies',
+        redirect: '/cookies/default',
+      },
+      {
+        path: `/cookies/:${PathId.Cookies}`,
+        component: () => import('@/views/Cookies/Cookies.vue'),
+      },
+      {
+        path: '/servers',
+        redirect: '/servers/default',
+      },
+      {
+        path: `/servers/:${PathId.Server}`,
+        component: () => import('@/views/Servers/Servers.vue'),
       },
     ],
   },
-  /** Components will map to each section of the spec components object */
-  {
-    path: '/components',
-    redirect: '/components/schemas/default',
-    children: [
-      {
-        path: `schemas/:${PathId.Schema}`,
-        component: () => import('@/views/Components/Schemas/Schemas.vue'),
-      },
-    ],
-  },
-  {
-    path: '/environment',
-    redirect: '/environment/default',
-  },
-  {
-    path: `/environment/:${PathId.Environment}`,
-    component: () => import('@/views/Environment/Environment.vue'),
-  },
-  {
-    path: '/cookies',
-    redirect: '/cookies/default',
-  },
-  {
-    path: `/cookies/:${PathId.Cookies}`,
-    component: () => import('@/views/Cookies/Cookies.vue'),
-  },
-  {
-    path: '/servers',
-    redirect: '/servers/default',
-  },
-  {
-    path: `/servers/:${PathId.Server}`,
-    component: () => import('@/views/Servers/Servers.vue'),
-  },
-]
+] satisfies RouteRecordRaw[]
 
 export const router = createRouter({
   history: createWebHistory(),
   routes,
 })
 
-/** Creates the in memory client router */
-export const clientRouter = createRouter({
+/** Creates the in memory router for the modal */
+export const modalRouter = createRouter({
   history: createMemoryHistory(),
-  routes: clientRoutes,
+  routes: modalRoutes,
 })
 
 export const activeRouterParams = computed(() => {
@@ -103,11 +148,12 @@ export const activeRouterParams = computed(() => {
     [PathId.Schema]: 'default',
     [PathId.Cookies]: 'default',
     [PathId.Server]: 'default',
+    [PathId.Workspace]: 'default',
   }
 
   // Snag current route from active router
-  const currentRoute = clientRouter.currentRoute.value.matched.length
-    ? clientRouter.currentRoute.value
+  const currentRoute = modalRouter.currentRoute.value.matched.length
+    ? modalRouter.currentRoute.value
     : router.currentRoute.value
 
   if (currentRoute) {

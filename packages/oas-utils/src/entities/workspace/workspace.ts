@@ -1,3 +1,4 @@
+import { themeIds } from '@scalar/themes'
 import { z } from 'zod'
 
 import { nanoidSchema } from './shared'
@@ -18,7 +19,7 @@ const workspaceSchema = z.object({
   /** Workspace level proxy for all requests to be sent through */
   proxyUrl: z.string().optional(),
   /** Workspace level theme, we might move this to user level later */
-  themeId: z.string().optional().default('default'),
+  themeId: z.enum(themeIds).optional().default('default'),
 })
 
 /** The base scalar workspace */

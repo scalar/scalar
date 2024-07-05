@@ -8,11 +8,8 @@ import {
 } from '@scalar/components'
 import { computed } from 'vue'
 
-defineProps<{
-  workspace: any
-}>()
-
-const { activeCollection, servers, collectionMutators } = useWorkspace()
+const { activeCollection, isReadOnly, servers, collectionMutators } =
+  useWorkspace()
 
 const serverOptions = computed(() =>
   activeCollection.value?.spec.serverUids?.map((serverUid: string) => ({
@@ -53,7 +50,7 @@ const serverUrl = computed(() => {
 })
 </script>
 <template>
-  <template v-if="serverOptions && !workspace.isReadOnly">
+  <template v-if="serverOptions && !isReadOnly">
     <ScalarDropdown
       :options="serverOptions"
       resize
@@ -87,21 +84,19 @@ const serverUrl = computed(() => {
             {{ server.label }}
           </span>
         </ScalarDropdownItem>
-        <template v-if="!workspace.isReadOnly">
-          <ScalarDropdownDivider />
-          <ScalarDropdownItem>
-            <RouterLink
-              class="font-code text-xxs flex items-center gap-1.5"
-              to="/servers">
-              <div class="flex items-center justify-center h-4 w-4">
-                <ScalarIcon
-                  class="h-2.5"
-                  icon="Add" />
-              </div>
-              <span>Add Server</span>
-            </RouterLink>
-          </ScalarDropdownItem>
-        </template>
+        <ScalarDropdownDivider />
+        <ScalarDropdownItem>
+          <RouterLink
+            class="font-code text-xxs flex items-center gap-1.5"
+            to="/servers">
+            <div class="flex items-center justify-center h-4 w-4">
+              <ScalarIcon
+                class="h-2.5"
+                icon="Add" />
+            </div>
+            <span>Add Server</span>
+          </RouterLink>
+        </ScalarDropdownItem>
       </template>
     </ScalarDropdown>
   </template>

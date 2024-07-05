@@ -1,10 +1,7 @@
 import { useSidebar } from '@/hooks'
 import { PathId, activeRouterParams, fallbackMissingParams } from '@/router'
 import { useModal } from '@scalar/components'
-import {
-  type Workspace,
-  createWorkspace,
-} from '@scalar/oas-utils/entities/workspace'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import {
   type Collection,
   type CollectionPayload,
@@ -41,18 +38,8 @@ import {
 import { fetchSpecFromUrl, iterateTitle } from '@scalar/oas-utils/helpers'
 import { getRequestBodyFromOperation } from '@scalar/oas-utils/spec-getters'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
-import {
-  LS_CONFIG,
-  LS_KEYS,
-  mutationFactory,
-} from '@scalar/object-utils/mutator-record'
-import {
-  type Path,
-  type PathValue,
-  setNestedValue,
-} from '@scalar/object-utils/nested'
+import { LS_KEYS, mutationFactory } from '@scalar/object-utils/mutator-record'
 import type { AnyObject, OpenAPIV3_1 } from '@scalar/openapi-parser'
-import { watchDebounced } from '@vueuse/core'
 import { computed, reactive, readonly, toRaw } from 'vue'
 
 const { setCollapsedSidebarFolder } = useSidebar()
@@ -356,18 +343,21 @@ const activeCookieId = computed<string | undefined>(
 // WORKSPACE
 
 /** Active workspace object (will be associated with an entry in the workspace collection) */
-const workspace = reactive<Workspace>(createWorkspace({}))
-
-/** Workspace doesn't have a mutator yet so we manually have to set it in local storage */
-watchDebounced(
-  workspace,
-  (newWorkspace) =>
-    localStorage.setItem(LS_KEYS.WORKSPACE, JSON.stringify(newWorkspace)),
-  {
-    debounce: LS_CONFIG.DEBOUNCE_MS,
-    maxWait: LS_CONFIG.MAX_WAIT_MS,
-  },
+const workspaces = reactive<Record<string, Workspace>>({})
+const workspaceMutators = mutationFactory(
+  workspaces,
+  reactive({}),
+  LS_KEYS.WORKSPACE,
 )
+
+/** The currently selected workspace */
+const activeWorkspace = computed(() => {
+  const firstKey = Object.keys(workspaces)[0]
+  return (
+    workspaces[activeRouterParams.value[PathId.Workspace]] ??
+    workspaces[firstKey]
+  )
+})
 
 /** Simplified list of requests in the workspace for displaying */
 const workspaceRequests = computed(() =>
@@ -379,11 +369,8 @@ const workspaceRequests = computed(() =>
   })),
 )
 
-/** Edit workspace mutator */
-const editWorkspace = <P extends Path<Workspace>>(
-  path: P,
-  value: PathValue<Workspace, P>,
-) => setNestedValue(workspace, path, value)
+/** Most commonly used property of workspace, we don't need check activeWorkspace.value this way */
+const isReadOnly = computed(() => activeWorkspace.value?.isReadOnly ?? false)
 
 // ---------------------------------------------------------------------------
 // COLLECTION
@@ -396,21 +383,25 @@ const collectionMutators = mutationFactory(
 )
 
 const addCollection = (payload: CollectionPayload) => {
+  if (!activeWorkspace.value) return
+
   const collection = createCollection(payload)
-  workspace.collectionUids.push(collection.uid)
+  workspaceMutators.edit(activeWorkspace.value.uid, 'collectionUids', [
+    ...activeWorkspace.value.collectionUids,
+    collection.uid,
+  ])
   collectionMutators.add(collection)
 }
 
 const deleteCollection = (collectionUid: string) => {
-  const idx = workspace.collectionUids.findIndex((uid) => uid === collectionUid)
-  if (idx >= 0) {
-    workspace.collectionUids.splice(idx, 1)
-    collectionMutators.delete(collectionUid)
+  if (!activeWorkspace.value) return
 
-    // TODO do we want to cascade delete folders + requests + examples
-  } else {
-    console.error('Tried to remove a collection that does not exist')
-  }
+  workspaceMutators.edit(
+    activeWorkspace.value.uid,
+    'collectionUids',
+    activeWorkspace.value.collectionUids.filter((uid) => uid !== collectionUid),
+  )
+  collectionMutators.delete(collectionUid)
 }
 
 /**
@@ -632,7 +623,7 @@ export const useWorkspace = () =>
   ({
     // ---------------------------------------------------------------------------
     // STATE
-    workspace: readonly(workspace),
+    workspaces,
     workspaceRequests,
     collections,
     cookies,
@@ -649,7 +640,9 @@ export const useWorkspace = () =>
     activeSecurityRequirements,
     activeSecurityScheme,
     activeServer,
+    activeWorkspace,
     modalState,
+    isReadOnly,
     // ---------------------------------------------------------------------------
     // METHODS
     importSpecFile,
@@ -692,7 +685,5 @@ export const useWorkspace = () =>
       add: addServer,
       delete: deleteServer,
     },
-    workspaceMutators: {
-      edit: editWorkspace,
-    },
+    workspaceMutators,
   }) as const

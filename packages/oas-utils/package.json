@@ -97,6 +97,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@scalar/themes": "workspace:*",
     "axios": "^1.6.8",
     "nanoid": "^5.0.7",
     "yaml": "^2.4.5",

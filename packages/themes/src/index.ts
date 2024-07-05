@@ -13,21 +13,24 @@ import baseVariables from './variables.css?inline'
 
 export { migrateThemeVariables } from './utilities/legacy'
 
+export const themeIds = [
+  'alternate',
+  'default',
+  'moon',
+  'purple',
+  'solarized',
+  'bluePlanet',
+  'deepSpace',
+  'saturn',
+  'kepler',
+  'mars',
+  'none',
+] as const
+
 /**
  * Available theme IDs as a type.
  */
-export type ThemeId =
-  | 'alternate'
-  | 'default'
-  | 'moon'
-  | 'purple'
-  | 'solarized'
-  | 'bluePlanet'
-  | 'deepSpace'
-  | 'saturn'
-  | 'kepler'
-  | 'mars'
-  | 'none'
+export type ThemeId = (typeof themeIds)[number]
 
 /**
  * User readable theme names / labels

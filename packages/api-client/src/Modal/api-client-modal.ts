@@ -1,4 +1,4 @@
-import { clientRouter } from '@/router'
+import { modalRouter } from '@/router'
 import { useWorkspace } from '@/store/workspace'
 import type { AuthenticationState, SpecConfiguration } from '@scalar/oas-utils'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
@@ -6,6 +6,7 @@ import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/securi
 import { type RequestMethod, objectMerge } from '@scalar/oas-utils/helpers'
 import { getNestedValue } from '@scalar/object-utils/nested'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { ThemeId } from '@scalar/themes'
 import type { Paths } from 'type-fest'
 import { createApp } from 'vue'
 
@@ -18,7 +19,7 @@ export type ClientConfiguration = {
   /** Pass in a proxy to the API client */
   proxyUrl?: string
   /** Pass in a theme API client */
-  themeId?: string
+  themeId?: ThemeId
   /** Whether to show the sidebar */
   showSidebar?: boolean
   /** Whether dark mode is on or off initially (light mode) */
@@ -69,6 +70,7 @@ export const createScalarApiClient = async (
 ) => {
   const {
     activeCollection,
+    activeWorkspace,
     collectionMutators,
     importSpecFile,
     importSpecFromUrl,
@@ -82,9 +84,9 @@ export const createScalarApiClient = async (
 
   // Import the spec if needed
   if (config.spec?.url) {
-    importSpecFromUrl(config.spec.url, config.proxyUrl)
+    await importSpecFromUrl(config.spec.url, config.proxyUrl)
   } else if (config.spec?.content) {
-    importSpecFile(config.spec?.content)
+    await importSpecFile(config.spec?.content)
   } else {
     console.error(
       `[@scalar/api-client-modal] Could not create the API client.`,
@@ -94,7 +96,7 @@ export const createScalarApiClient = async (
   }
 
   const app = createApp(ApiClientModal, { modalState })
-  app.use(clientRouter)
+  app.use(modalRouter)
 
   const mount = (mountingEl = el) => {
     if (!mountingEl) {
@@ -109,15 +111,26 @@ export const createScalarApiClient = async (
     app.mount(mountingEl)
   }
 
-  if (mountOnInitialize) mount()
-  workspaceMutators.edit('isReadOnly', true)
+  if (activeWorkspace.value) {
+    if (mountOnInitialize) mount()
 
-  if (config.proxyUrl) {
-    workspaceMutators.edit('proxyUrl', config.proxyUrl)
-  }
+    workspaceMutators.edit(activeWorkspace.value.uid, 'isReadOnly', true)
 
-  if (config.themeId) {
-    workspaceMutators.edit('themeId', config.themeId)
+    if (config.proxyUrl) {
+      workspaceMutators.edit(
+        activeWorkspace.value.uid,
+        'proxyUrl',
+        config.proxyUrl,
+      )
+    }
+
+    if (config.themeId) {
+      workspaceMutators.edit(
+        activeWorkspace.value.uid,
+        'themeId',
+        config.themeId,
+      )
+    }
   }
 
   return {
@@ -243,7 +256,7 @@ export const createScalarApiClient = async (
           : // Or the first request
             true,
       )
-      if (request) clientRouter.push(`/request/${request.uid}`)
+      if (request) modalRouter.push(`/request/${request.uid}`)
 
       modalState.open = true
     },

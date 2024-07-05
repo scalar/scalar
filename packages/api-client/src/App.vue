@@ -20,8 +20,6 @@ onMounted(() => {
 const { isDark } = useDarkModeState()
 const workspaceStore = useWorkspace()
 
-workspaceStore.workspaceMutators.edit('proxyUrl', 'https://proxy.scalar.com')
-
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(async () => {
   // Check if we have localStorage data
