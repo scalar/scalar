@@ -1,4 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" fill="currentColor">
-	<path
-		d="M8.3 3.6L3.7.3C3.4.1 3.1 0 2.8 0c-.3 0-.6 0-.9.2-.3.2-.5.4-.7.7-.1.2-.2.5-.2.9v6.5c0 .3.1.6.2.9.2.3.4.5.7.6.3.1.6.2.9.2.3 0 .6-.1.9-.3l4.6-3.2c.2-.2.4-.4.5-.6.1-.3.2-.6.2-.9 0-.3-.1-.6-.2-.8-.1-.3-.3-.5-.5-.6z" />
-</svg>
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6.663c0-1.582 1.75-2.538 3.082-1.682l8.301 5.337a2 2 0 0 1 0 3.364L9.082 19.02C7.75 19.875 6 18.919 6 17.337V6.663Z" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>

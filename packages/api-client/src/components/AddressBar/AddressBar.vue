@@ -178,11 +178,11 @@ const handlePaste = (event: ClipboardEvent) => {
 
           <AddressBarHistory :open="open" />
           <ScalarButton
-            class="relative h-auto shrink-0 gap-1.5 overflow-hidden px-2.5 py-1 z-[1]"
+            class="relative h-auto shrink-0 gap-1 overflow-hidden pl-2 pr-2.5 py-1 z-[1]"
             :disabled="isRequesting"
             @click="executeRequestBus.emit()">
             <ScalarIcon
-              class="relative z-10 w-2 shrink-0"
+              class="relative z-10 shrink-0"
               icon="Play"
               size="xs" />
             <span class="text-xxs relative z-10 lg:flex hidden">Send</span>
