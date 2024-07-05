@@ -46,13 +46,18 @@ import type { AnyObject, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, reactive, toRaw } from 'vue'
 
 const { setCollapsedSidebarFolder } = useSidebar()
+const isLocalStorageEnabled = true
 
 // ---------------------------------------------------------------------------
 // REQUEST
 
 /** Local list of all requests (will be associated with a database collection) */
 const requests = reactive<Record<string, Request>>({})
-const requestMutators = mutationFactory(requests, reactive({}), LS_KEYS.REQUEST)
+const requestMutators = mutationFactory(
+  requests,
+  reactive({}),
+  isLocalStorageEnabled && LS_KEYS.REQUEST,
+)
 
 /** Add request */
 const addRequest = (
@@ -169,7 +174,7 @@ const requestExamples = reactive<Record<string, RequestExample>>({})
 const requestExampleMutators = mutationFactory(
   requestExamples,
   reactive({}),
-  LS_KEYS.REQUEST_EXAMPLE,
+  isLocalStorageEnabled && LS_KEYS.REQUEST_EXAMPLE,
 )
 
 /** Create new instance parameter from a request parameter */
@@ -319,7 +324,7 @@ const environments = reactive<Record<string, Environment>>({
 const environmentMutators = mutationFactory(
   environments,
   reactive({}),
-  LS_KEYS.ENVIRONMENT,
+  isLocalStorageEnabled && LS_KEYS.ENVIRONMENT,
 )
 
 /** prevent deletion of the default environment */
@@ -335,7 +340,11 @@ const deleteEnvironment = (uid: string) => {
 // COOKIES
 
 const cookies = reactive<Record<string, Cookie>>({})
-const cookieMutators = mutationFactory(cookies, reactive({}), LS_KEYS.COOKIE)
+const cookieMutators = mutationFactory(
+  cookies,
+  reactive({}),
+  isLocalStorageEnabled && LS_KEYS.COOKIE,
+)
 
 /** Cookie associated with the current route */
 const activeCookieId = computed<string | undefined>(
@@ -351,7 +360,7 @@ const createWorkspaceMutators = (workspaceUid: string) =>
   mutationFactory(
     workspaces,
     reactive({}),
-    `${LS_KEYS.WORKSPACE}${workspaceUid}`,
+    isLocalStorageEnabled && `${LS_KEYS.WORKSPACE}${workspaceUid}`,
   )
 // TODO we will create new mutators on workspace change with the updated workspace uid
 const workspaceMutators = createWorkspaceMutators('default')
@@ -384,7 +393,7 @@ const collections = reactive<Record<string, Collection>>({})
 const collectionMutators = mutationFactory(
   collections,
   reactive({}),
-  LS_KEYS.COLLECTION,
+  isLocalStorageEnabled && LS_KEYS.COLLECTION,
 )
 
 const addCollection = (payload: CollectionPayload) => {
@@ -434,7 +443,11 @@ const activeServer = computed(
 // FOLDERS
 
 const folders = reactive<Record<string, Folder>>({})
-const folderMutators = mutationFactory(folders, reactive({}), LS_KEYS.FOLDER)
+const folderMutators = mutationFactory(
+  folders,
+  reactive({}),
+  isLocalStorageEnabled && LS_KEYS.FOLDER,
+)
 
 /**
  * Add a new folder to a folder or colleciton
@@ -499,7 +512,7 @@ const securitySchemes = reactive<Record<string, SecurityScheme>>({})
 const securitySchemeMutators = mutationFactory(
   securitySchemes,
   reactive({}),
-  LS_KEYS.SECURITY_SCHEME,
+  isLocalStorageEnabled && LS_KEYS.SECURITY_SCHEME,
 )
 
 type SecurityMutatorEditArgs = Parameters<typeof securitySchemeMutators.edit>
@@ -542,7 +555,11 @@ const activeSecurityRequirements = computed(
 // SERVERS
 
 const servers = reactive<Record<string, Server>>({})
-const serverMutators = mutationFactory(servers, reactive({}), LS_KEYS.SERVER)
+const serverMutators = mutationFactory(
+  servers,
+  reactive({}),
+  isLocalStorageEnabled && LS_KEYS.SERVER,
+)
 
 /**
  * Add a server
