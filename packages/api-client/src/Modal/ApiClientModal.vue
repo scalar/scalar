@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { addScalarClassesToHeadless, type useModal } from '@scalar/components'
+import { useMagicKeys, whenever } from '@vueuse/core'
 import { onBeforeMount, onBeforeUnmount, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
@@ -7,6 +8,14 @@ const props = defineProps<{
   /** Controls opening and closing the modal */
   modalState: ReturnType<typeof useModal>
 }>()
+
+const keys = useMagicKeys()
+
+whenever(keys.escape, () => {
+  if (props.modalState.open) {
+    props.modalState.hide()
+  }
+})
 
 // Disable scrolling while the modal is open
 watch(
