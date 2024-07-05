@@ -13,7 +13,7 @@ export function mutationFactory<
 >(
   entityMap: Partial<Record<string, T>>,
   mutationMap: Partial<Record<string, Mutation<T>>>,
-  localStorageKey?: ValueOf<typeof LS_KEYS>,
+  localStorageKey?: ValueOf<typeof LS_KEYS> | `workspace${string}`,
   maxNumberRecords: number = MAX_MUTATION_RECORDS,
 ) {
   function getMutator(uid: string) {

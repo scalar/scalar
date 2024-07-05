@@ -347,11 +347,14 @@ const activeCookieId = computed<string | undefined>(
 
 /** Active workspace object (will be associated with an entry in the workspace collection) */
 const workspaces = reactive<Record<string, Workspace>>({})
-const workspaceMutators = mutationFactory(
-  workspaces,
-  reactive({}),
-  LS_KEYS.WORKSPACE,
-)
+const createWorkspaceMutators = (workspaceUid: string) =>
+  mutationFactory(
+    workspaces,
+    reactive({}),
+    `${LS_KEYS.WORKSPACE}${workspaceUid}`,
+  )
+// TODO we will create new mutators on workspace change with the updated workspace uid
+const workspaceMutators = createWorkspaceMutators('default')
 
 /** The currently selected workspace OR the first one */
 const activeWorkspace = computed(
