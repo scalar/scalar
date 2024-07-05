@@ -62,11 +62,7 @@ const { setCollapsedSidebarFolder } = useSidebar()
 
 /** Local list of all requests (will be associated with a database collection) */
 const requests = reactive<Record<string, Request>>({})
-const requestMutators = mutationFactory(
-  requests,
-  reactive({}),
-  LS_KEYS.REQUESTS,
-)
+const requestMutators = mutationFactory(requests, reactive({}), LS_KEYS.REQUEST)
 
 /** Add request */
 const addRequest = (
@@ -183,7 +179,7 @@ const requestExamples = reactive<Record<string, RequestExample>>({})
 const requestExampleMutators = mutationFactory(
   requestExamples,
   reactive({}),
-  LS_KEYS.REQUEST_EXAMPLES,
+  LS_KEYS.REQUEST_EXAMPLE,
 )
 
 /** Create new instance parameter from a request parameter */
@@ -333,7 +329,7 @@ const environments = reactive<Record<string, Environment>>({
 const environmentMutators = mutationFactory(
   environments,
   reactive({}),
-  LS_KEYS.ENVIRONMENTS,
+  LS_KEYS.ENVIRONMENT,
 )
 
 /** prevent deletion of the default environment */
@@ -349,7 +345,7 @@ const deleteEnvironment = (uid: string) => {
 // COOKIES
 
 const cookies = reactive<Record<string, Cookie>>({})
-const cookieMutators = mutationFactory(cookies, reactive({}), LS_KEYS.COOKIES)
+const cookieMutators = mutationFactory(cookies, reactive({}), LS_KEYS.COOKIE)
 
 /** Cookie associated with the current route */
 const activeCookieId = computed<string | undefined>(
@@ -396,7 +392,7 @@ const collections = reactive<Record<string, Collection>>({})
 const collectionMutators = mutationFactory(
   collections,
   reactive({}),
-  LS_KEYS.COLLECTIONS,
+  LS_KEYS.COLLECTION,
 )
 
 const addCollection = (payload: CollectionPayload) => {
@@ -442,7 +438,7 @@ const activeServer = computed(
 // FOLDERS
 
 const folders = reactive<Record<string, Folder>>({})
-const folderMutators = mutationFactory(folders, reactive({}), LS_KEYS.FOLDERS)
+const folderMutators = mutationFactory(folders, reactive({}), LS_KEYS.FOLDER)
 
 /**
  * Add a new folder to a folder or colleciton
@@ -507,7 +503,7 @@ const securitySchemes = reactive<Record<string, SecurityScheme>>({})
 const securitySchemeMutators = mutationFactory(
   securitySchemes,
   reactive({}),
-  LS_KEYS.SECURITY_SCHEMES,
+  LS_KEYS.SECURITY_SCHEME,
 )
 
 type SecurityMutatorEditArgs = Parameters<typeof securitySchemeMutators.edit>
@@ -550,7 +546,7 @@ const activeSecurityRequirements = computed(
 // SERVERS
 
 const servers = reactive<Record<string, Server>>({})
-const serverMutators = mutationFactory(servers, reactive({}), LS_KEYS.SERVERS)
+const serverMutators = mutationFactory(servers, reactive({}), LS_KEYS.SERVER)
 
 /**
  * Add a server
@@ -632,65 +628,71 @@ const modalState = useModal()
  * Global hook which contains the store for the whole app
  * We may want to break this up at some point due to the massive file size
  */
-export const useWorkspace = () => ({
-  // ---------------------------------------------------------------------------
-  // STATE
-  workspace: readonly(workspace),
-  workspaceRequests,
-  collections,
-  cookies,
-  environments,
-  folders,
-  requestExamples,
-  requests,
-  servers,
-  securitySchemes,
-  activeCollection,
-  activeCookieId,
-  activeExample,
-  activeRequest,
-  activeSecurityRequirements,
-  activeSecurityScheme,
-  activeServer,
-  modalState,
-  // ---------------------------------------------------------------------------
-  // METHODS
-  importSpecFile,
-  importSpecFromUrl,
-  cookieMutators,
-  createExampleFromRequest,
-  collectionMutators: {
-    ...collectionMutators,
-    add: addCollection,
-    delete: deleteCollection,
-  },
-  environmentMutators: {
-    ...environmentMutators,
-    delete: deleteEnvironment,
-  },
-  folderMutators: {
-    ...folderMutators,
-    add: addFolder,
-    delete: deleteFolder,
-  },
-  requestMutators: {
-    ...requestMutators,
-    add: addRequest,
-    delete: deleteRequest,
-  },
-  requestExampleMutators: {
-    ...requestExampleMutators,
-    add: addRequestExample,
-    delete: deleteRequestExample,
-  },
-  requestsHistory,
-  securitySchemeMutators,
-  serverMutators: {
-    ...serverMutators,
-    add: addServer,
-    delete: deleteServer,
-  },
-  workspaceMutators: {
-    edit: editWorkspace,
-  },
-})
+export const useWorkspace = () =>
+  ({
+    // ---------------------------------------------------------------------------
+    // STATE
+    workspace: readonly(workspace),
+    workspaceRequests,
+    collections,
+    cookies,
+    environments,
+    folders,
+    requestExamples,
+    requests,
+    servers,
+    securitySchemes,
+    activeCollection,
+    activeCookieId,
+    activeExample,
+    activeRequest,
+    activeSecurityRequirements,
+    activeSecurityScheme,
+    activeServer,
+    modalState,
+    // ---------------------------------------------------------------------------
+    // METHODS
+    importSpecFile,
+    importSpecFromUrl,
+    cookieMutators,
+    createExampleFromRequest,
+    collectionMutators: {
+      ...collectionMutators,
+      rawAdd: collectionMutators.add,
+      add: addCollection,
+      delete: deleteCollection,
+    },
+    environmentMutators: {
+      ...environmentMutators,
+      delete: deleteEnvironment,
+    },
+    folderMutators: {
+      ...folderMutators,
+      rawAdd: folderMutators.add,
+      add: addFolder,
+      delete: deleteFolder,
+    },
+    requestMutators: {
+      ...requestMutators,
+      rawAdd: requestMutators.add,
+      add: addRequest,
+      delete: deleteRequest,
+    },
+    requestExampleMutators: {
+      ...requestExampleMutators,
+      rawAdd: requestExampleMutators.add,
+      add: addRequestExample,
+      delete: deleteRequestExample,
+    },
+    requestsHistory,
+    securitySchemeMutators,
+    serverMutators: {
+      ...serverMutators,
+      rawAdd: serverMutators.add,
+      add: addServer,
+      delete: deleteServer,
+    },
+    workspaceMutators: {
+      edit: editWorkspace,
+    },
+  }) as const

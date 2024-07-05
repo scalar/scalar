@@ -1,13 +1,13 @@
 /** localStorage keys for resources */
 export const LS_KEYS = {
-  COLLECTIONS: 'collections',
-  COOKIES: 'cookies',
-  ENVIRONMENTS: 'environments',
-  FOLDERS: 'folders',
-  REQUEST_EXAMPLES: 'request-examples',
-  REQUESTS: 'requests',
-  SERVERS: 'servers',
-  SECURITY_SCHEMES: 'security-schemes',
+  COLLECTION: 'collection',
+  COOKIE: 'cookie',
+  ENVIRONMENT: 'environment',
+  FOLDER: 'folder',
+  REQUEST_EXAMPLE: 'requestExample',
+  REQUEST: 'request',
+  SERVER: 'server',
+  SECURITY_SCHEME: 'securityScheme',
   WORKSPACE: 'workspace',
 } as const
 

@@ -2,6 +2,7 @@
 import SideNav from '@/components/SideNav/SideNav.vue'
 import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
+import { loadAllResources } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { LS_KEYS } from '@scalar/object-utils/mutator-record'
@@ -17,33 +18,43 @@ onMounted(() => {
 })
 
 const { isDark } = useDarkModeState()
-const { importSpecFromUrl, workspaceMutators } = useWorkspace()
+const workspaceStore = useWorkspace()
 
-workspaceMutators.edit('proxyUrl', 'https://proxy.scalar.com')
+workspaceStore.workspaceMutators.edit('proxyUrl', 'https://proxy.scalar.com')
 
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(async () => {
   // Check if we have localStorage data
-  const workspace = localStorage.getItem(LS_KEYS.WORKSPACE)
-  console.log({ workspace })
+  if (localStorage.getItem(LS_KEYS.WORKSPACE)) {
+    // TODO remove this before going live
+    console.info('Remove this before going live, but here are the stats: ')
+    const size: Record<string, string> = {}
+    let _lsTotal = 0
+    let _xLen = 0
+    let _key = ''
 
-  // eslint-disable-next-line no-constant-condition
-  if (false && workspace) {
-    console.log('=====')
-    console.log(workspace)
-    // Get raw mutator.add so no fancy business
+    for (_key in localStorage) {
+      if (!Object.prototype.hasOwnProperty.call(localStorage, _key)) {
+        continue
+      }
+      _xLen = (localStorage[_key].length + _key.length) * 2
+      _lsTotal += _xLen
+      size[_key] = (_xLen / 1024).toFixed(2) + ' KB'
+    }
+    size['Total'] = (_lsTotal / 1024).toFixed(2) + ' KB'
+    console.table(size)
+
+    loadAllResources(workspaceStore)
   } else {
-    importSpecFromUrl(
-      // 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-      'https://developer.spotify.com/reference/web-api/open-api-schema.yaml',
-      'https://proxy.scalar.com',
+    workspaceStore.importSpecFromUrl(
+      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+      // 'https://developer.spotify.com/reference/web-api/open-api-schema.yaml',
+      // 'https://proxy.scalar.com',
     )
   }
 
   addScalarClassesToHeadless()
 })
-
-onBeforeMount(() => {})
 </script>
 <template>
   <TopNav />
