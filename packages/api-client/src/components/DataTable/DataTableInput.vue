@@ -76,12 +76,7 @@ const handleDropdownMouseUp = () => {
       class="text-c-2 flex min-w-[100px] items-center border-r-1/2 pl-2 pr-0">
       <slot />
     </div>
-    <div
-      class="group row-1"
-      :class="{
-        'relative required after:absolute after:centered-y after:right-0 after:pt-px after:pr-2 after:text-xxs after:font-medium after:text-c-3 after:bg-b-1 after:shadow-[-8px_0_4px_var(--scalar-background-1)] group-has-[:focus]:after:hidden':
-          required,
-      }">
+    <div class="row-1">
       <template v-if="props.enum && props.enum.length">
         <DataTableInputEnumSelect
           :enum="props.enum"
@@ -93,7 +88,7 @@ const handleDropdownMouseUp = () => {
           v-bind="$attrs"
           :id="id"
           autocomplete="off"
-          class="border-none focus:text-c-1 text-c-2 min-w-0 w-full px-2 py-1.5 outline-none"
+          class="border-none focus:text-c-1 text-c-2 min-w-0 w-full peer px-2 py-1.5 outline-none"
           data-1p-ignore
           :max="max"
           :min="min"
@@ -105,6 +100,11 @@ const handleDropdownMouseUp = () => {
           @blur="handleBlur"
           @focus="emit('inputFocus')"
           @input="handleInput" />
+        <div
+          v-if="required"
+          class="absolute centered-y right-0 pt-px pr-2 text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-focus:opacity-0">
+          Required
+        </div>
       </template>
     </div>
     <div
