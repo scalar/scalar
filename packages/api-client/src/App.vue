@@ -23,7 +23,7 @@ const workspaceStore = useWorkspace()
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(async () => {
   // Check if we have localStorage data
-  if (localStorage.getItem(LS_KEYS.WORKSPACE)) {
+  if (localStorage.getItem(`${LS_KEYS.WORKSPACE}${'default'}`)) {
     // TODO remove this before going live
     console.info('Remove this before going live, but here are the stats: ')
     const size: Record<string, string> = {}
