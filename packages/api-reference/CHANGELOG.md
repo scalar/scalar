@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.24.35
+
+### Patch Changes
+
+- 0a33194: fix: flatten default array value
+- Updated dependencies [0a33194]
+  - @scalar/api-client@2.0.12
+
 ## 1.24.34
 
 ### Patch Changes

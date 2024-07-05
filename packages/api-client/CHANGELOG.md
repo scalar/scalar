@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.0.12
+
+### Patch Changes
+
+- 0a33194: fix: flatten default array value
+
 ## 2.0.11
 
 ### Patch Changes
