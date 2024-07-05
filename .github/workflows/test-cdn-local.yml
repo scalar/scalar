@@ -26,10 +26,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-branch-${{ github.head_ref }}
-          restore-keys: |
-            turbo-${{ runner.os }}-node-${{ matrix.node-version }}-branch-
-            turbo-${{ runner.os }}-node-
+          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
       - name: Build packages
         run: pnpm build:packages
       - name: Get Playwright version

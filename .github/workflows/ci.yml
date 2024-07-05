@@ -53,10 +53,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-branch-${{ github.head_ref }}
-          restore-keys: |
-            turbo-${{ runner.os }}-node-${{ matrix.node-version }}-branch-
-            turbo-${{ runner.os }}-node-
+          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
       - name: Build
         run: pnpm turbo build
 
@@ -100,10 +97,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-branch-${{ github.head_ref }}
-          restore-keys: |
-            turbo-${{ runner.os }}-node-${{ matrix.node-version }}-branch-
-            turbo-${{ runner.os }}-node-
+          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
       - name: Build
         run: pnpm turbo build
       - if: matrix.node-version == 20 || github.head_ref == 'changeset-release/main'
@@ -131,10 +125,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-branch-${{ github.head_ref }}
-          restore-keys: |
-            turbo-${{ runner.os }}-node-${{ matrix.node-version }}-branch-
-            turbo-${{ runner.os }}-node-
+          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
       - name: Build packages
         run: pnpm build:packages
       - name: Run tests
@@ -161,10 +152,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-branch-${{ github.head_ref }}
-          restore-keys: |
-            turbo-${{ runner.os }}-node-${{ matrix.node-version }}-branch-
-            turbo-${{ runner.os }}-node-
+          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
       - name: Build @scalar/api-reference
         run: pnpm build:api-reference
       - name: Send bundle stats and build information to RelativeCI
