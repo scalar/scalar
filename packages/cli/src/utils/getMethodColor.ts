@@ -1,5 +1,17 @@
+export type KleurColor =
+  | 'black'
+  | 'red'
+  | 'green'
+  | 'yellow'
+  | 'blue'
+  | 'magenta'
+  | 'cyan'
+  | 'white'
+  | 'gray'
+  | 'grey'
+
 export function getMethodColor(method: string) {
-  const colors = {
+  const colors: Record<string, KleurColor> = {
     get: 'green',
     post: 'cyan',
     put: 'yellow',
@@ -7,5 +19,5 @@ export function getMethodColor(method: string) {
     patch: 'magenta',
   }
 
-  return colors[method.toLowerCase()] ?? 'grey'
+  return (colors[method.toLowerCase()] ?? 'grey') as KleurColor
 }

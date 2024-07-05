@@ -57,7 +57,7 @@ export function ServeCommand() {
       const app = new Hono()
 
       app.get('/', (c) => {
-        return c.html(getHtmlDocument(specification, watch))
+        return c.html(getHtmlDocument(specification ?? {}, watch))
       })
 
       app.use('/__watcher', async (c, next) => {

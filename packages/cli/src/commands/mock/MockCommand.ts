@@ -27,7 +27,7 @@ export function MockCommand() {
       { watch, once, port }: { watch?: boolean; once?: boolean; port?: number },
     ) => {
       // Server instance
-      let server: ReturnType<typeof serve> = null
+      let server: ReturnType<typeof serve>
 
       // Configuration
       const input = useGivenFileOrConfiguration(fileArgument)
@@ -74,16 +74,27 @@ export function MockCommand() {
             specification = newResult.specification
 
             // Update mock server
-            server.close()
-            server = await bootServer({
-              specification,
-              port,
-            })
+            if (specification) {
+              server.close()
+              server = await bootServer({
+                specification: specification,
+                port,
+              })
+            }
           }
         })
       }
 
       // Show all paths from the specification
+      if (!specification) {
+        console.error(
+          kleur.bold().yellow('[WARN]'),
+          kleur.grey('Couldn’t find any paths in the OpenAPI file.'),
+        )
+
+        return
+      }
+
       printAvailablePaths(specification)
 
       // Listen for requests
@@ -148,8 +159,17 @@ function printAvailablePaths(specification: OpenAPI.Document) {
 
   // loop through all paths
   for (const path in specification?.paths ?? []) {
+    if (specification?.paths?.[path] === undefined) {
+      continue
+    }
+
     // loop through all methods
-    for (const method in specification.paths?.[path]) {
+    for (const method in specification.paths[path]) {
+      // @ts-expect-error - we know that the path exists
+      if (specification.paths[path][method] === undefined) {
+        continue
+      }
+
       console.log(
         `${kleur
           .bold()

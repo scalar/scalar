@@ -12,9 +12,12 @@ export function useGivenFileOrConfiguration(file?: string) {
 
   // Try to load the configuration
   try {
-    // check if file exists
-
     const content = readFile(CONFIG_FILE)
+
+    if (!content) {
+      throw new Error('No configuration file found.')
+    }
+
     const configuration = JSON.parse(content)
 
     if (configuration?.reference?.file) {
