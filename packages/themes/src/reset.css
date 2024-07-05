@@ -4,6 +4,14 @@
   @see https://github.com/tailwindlabs/tailwindcss/blob/3.3/src/css/preflight.css
 */
 
+/* Reset <body> in a layer  */
+@layer scalar-base {
+  body {
+    margin: 0;
+    line-height: inherit;
+  }
+}
+
 /* Use :where to lower specificity */
 :where(.scalar-app) {
   /** Add some more things which are normally applied to `html`. */
@@ -50,6 +58,13 @@
   textarea,
   ::file-selector-button {
     background: transparent;
+  }
+
+  /** Remove the default list style */
+  ol,
+  ul,
+  menu {
+    list-style: none;
   }
 
   /** Bring back a basic border style for form controls */
