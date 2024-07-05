@@ -40,7 +40,7 @@ const {
 const { collapsedSidebarFolders } = useSidebar()
 const actionModalState = useActionModal()
 const searchModalState = useModal()
-const showSideBar = ref(!workspace.isReadOnly)
+const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
 
 const handleTabChange = (activeTab: string) => {
   actionModalState.tab = activeTab as ActionModalTab

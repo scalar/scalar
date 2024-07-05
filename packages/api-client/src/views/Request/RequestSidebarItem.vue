@@ -61,8 +61,7 @@ const highlightClasses =
 /** Due to the nesting, we need a dynamic left offset for hover and active backgrounds */
 const leftOffset = computed(() => {
   if (!props.parentUids.length) return '0px'
-  else if (workspace.isReadOnly)
-    return `-${(props.parentUids.length - 1) * 16}px`
+  else if (isReadOnly) return `-${(props.parentUids.length - 1) * 16}px`
   else return `-${props.parentUids.length * 16}px`
 })
 

@@ -1,7 +1,10 @@
 import { useSidebar } from '@/hooks'
 import { PathId, activeRouterParams, fallbackMissingParams } from '@/router'
 import { useModal } from '@scalar/components'
-import type { Workspace } from '@scalar/oas-utils/entities/workspace'
+import {
+  type Workspace,
+  createWorkspace,
+} from '@scalar/oas-utils/entities/workspace'
 import {
   type Collection,
   type CollectionPayload,
@@ -40,7 +43,7 @@ import { getRequestBodyFromOperation } from '@scalar/oas-utils/spec-getters'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
 import { LS_KEYS, mutationFactory } from '@scalar/object-utils/mutator-record'
 import type { AnyObject, OpenAPIV3_1 } from '@scalar/openapi-parser'
-import { computed, reactive, readonly, toRaw } from 'vue'
+import { computed, reactive, toRaw } from 'vue'
 
 const { setCollapsedSidebarFolder } = useSidebar()
 
@@ -350,14 +353,13 @@ const workspaceMutators = mutationFactory(
   LS_KEYS.WORKSPACE,
 )
 
-/** The currently selected workspace */
-const activeWorkspace = computed(() => {
-  const firstKey = Object.keys(workspaces)[0]
-  return (
-    workspaces[activeRouterParams.value[PathId.Workspace]] ??
-    workspaces[firstKey]
-  )
-})
+/** The currently selected workspace OR the first one */
+const activeWorkspace = computed(
+  () =>
+    // TODO bring this back with the routing
+    // workspaces[activeRouterParams.value[PathId.Workspace]] ??
+    workspaces[Object.keys(workspaces)[0]],
+)
 
 /** Simplified list of requests in the workspace for displaying */
 const workspaceRequests = computed(() =>
@@ -577,6 +579,10 @@ const deleteServer = (serverUid: string, collectionUid: string) => {
 async function importSpecFile(_spec: string | AnyObject) {
   const spec = toRaw(_spec)
   const workspaceEntities = await importSpecToWorkspace(spec)
+
+  // Create workspace
+  const _workspace = createWorkspace({ uid: 'default' })
+  workspaceMutators.add(_workspace)
 
   // Add all the new requests into the request collection, the already have parent folders
   workspaceEntities.requests.forEach((request) => addRequest(request))
