@@ -6,7 +6,7 @@ import {
   useAuthenticationStore,
   useServerStore,
 } from '#legacy'
-import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
+import { ScalarCodeBlock } from '@scalar/components'
 import type {
   CustomRequestExample,
   ExampleRequestSSRKey,
@@ -39,7 +39,6 @@ import {
   getApiClientRequest,
   getHarRequest,
 } from '../../helpers'
-import { useClipboard } from '../../hooks'
 import { type HttpClientState, useHttpClientStore } from '../../stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
@@ -57,7 +56,6 @@ const ssrStateKey =
 
 const selectedExampleKey = ref<string>()
 
-const { copyToClipboard } = useClipboard()
 const {
   httpClient,
   setHttpClient,
@@ -284,15 +282,6 @@ function updateHttpClient(value: string) {
             {{ httpClientTitle }}
           </template>
         </TextSelect>
-
-        <button
-          class="copy-button"
-          type="button"
-          @click="copyToClipboard(generatedCode)">
-          <ScalarIcon
-            icon="Clipboard"
-            width="10px" />
-        </button>
       </template>
     </CardHeader>
     <CardContent
@@ -346,43 +335,7 @@ function updateHttpClient(value: string) {
 .request-client-picker {
   padding-left: 12px;
   padding-right: 9px;
-  border-right: 1px solid var(--scalar-border-color);
 }
-
-.copy-button {
-  appearance: none;
-  -webkit-appearance: none;
-  outline: none;
-  background: transparent;
-  display: flex;
-  cursor: pointer;
-  color: var(--scalar-color-3);
-  margin-left: 6px;
-  margin-right: 10.5px;
-  border: none;
-  border-radius: 3px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  height: fit-content;
-}
-/* Can't use flex align center on parent (scalar-card-header-actions) so have to match sibling font size vertically align*/
-.copy-button:after {
-  content: '.';
-  color: transparent;
-  font-size: var(--scalar-mini);
-  line-height: 1.35;
-  width: 0px;
-}
-.copy-button:hover {
-  color: var(--scalar-color-1);
-}
-
-.copy-button svg {
-  width: 13px;
-  height: 13px;
-}
-
 .request-card-footer {
   display: flex;
   justify-content: flex-end;
@@ -400,7 +353,6 @@ function updateHttpClient(value: string) {
   display: flex;
   flex: 1;
 }
-
 .code-snippet {
   display: flex;
   flex-direction: column;

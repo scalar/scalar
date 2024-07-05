@@ -111,7 +111,7 @@ const showSchema = ref(false)
           @click="() => copyToClipboard(currentJsonResponse?.example)">
           <ScalarIcon
             icon="Clipboard"
-            width="10px"
+            width="12px"
             x="asd" />
         </button>
         <label

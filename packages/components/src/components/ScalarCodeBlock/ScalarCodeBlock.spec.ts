@@ -15,7 +15,7 @@ describe('ScalarCodeBlock', () => {
     await flushPromises()
 
     // Check the outer elements
-    const pre = wrapper.find('*')
+    const pre = wrapper.find('pre.scalar-codeblock-pre')
     const code = pre.find('code')
 
     expect(pre.element.nodeName.toLowerCase()).toBe('pre')
@@ -55,7 +55,7 @@ describe('ScalarCodeBlock', () => {
     await flushPromises()
 
     // Check the outer elements
-    const pre = wrapper.find('*')
+    const pre = wrapper.find('pre.scalar-codeblock-pre')
     const code = pre.find('code')
 
     expect(pre.element.nodeName.toLowerCase()).toBe('pre')
@@ -81,5 +81,35 @@ describe('ScalarCodeBlock', () => {
     <span class="hljs-punctuation">}</span>
   <span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">}</span></code>`)
+  })
+
+  it('does not render the copy button when content is null', async () => {
+    const wrapper = mount(ScalarCodeBlock, {
+      attrs: {
+        content: null,
+        lang: 'js',
+      },
+    })
+
+    await flushPromises()
+
+    // Check that the button is not rendered
+    const button = wrapper.find('button.copy-button')
+    expect(button.exists()).toBe(false)
+  })
+
+  it('does not render the copy button when content is "null"', async () => {
+    const wrapper = mount(ScalarCodeBlock, {
+      attrs: {
+        content: 'null',
+        lang: 'js',
+      },
+    })
+
+    await flushPromises()
+
+    // Check that the button is not rendered
+    const button = wrapper.find('button.copy-button')
+    expect(button.exists()).toBe(false)
   })
 })

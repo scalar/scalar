@@ -24,7 +24,7 @@ const props = defineProps<CardContentProps>()
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-mini);
   color: var(--scalar-color-3);
-  padding: 9px 0 9px 12px;
+  padding: 9px 3px 9px 12px;
   flex-shrink: 0;
 }
 .scalar-card-header.scalar-card--borderless + :deep(.scalar-card-content) {
