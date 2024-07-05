@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.1.9
+
+### Patch Changes
+
+- 7cb664a: feat: rollup removes dist folder by default
+
 ## 0.1.8
 
 ### Patch Changes

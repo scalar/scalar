@@ -1,5 +1,20 @@
 # @scalar/api-client
 
+## 2.0.11
+
+### Patch Changes
+
+- e8a7f82: fix: favor nowrap over pre for table tooltip value
+- c16413d: feat: display sidebar by default if not read-only
+- b9a7a4e: feat: hide client modal on esc
+  - @scalar/components@0.12.10
+  - @scalar/oas-utils@0.2.11
+  - @scalar/object-utils@1.1.3
+  - @scalar/themes@0.9.12
+  - @scalar/use-codemirror@0.11.4
+  - @scalar/use-toasts@0.7.4
+  - @scalar/use-tooltip@1.0.2
+
 ## 2.0.10
 
 ### Patch Changes
