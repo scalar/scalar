@@ -287,8 +287,9 @@ useEventListener(document, 'keydown', (event) => {
           type="button"
           @click="modalState.hide()">
           <ScalarIcon
+            class="stroke-[1.75]"
             icon="Close"
-            size="xs" />
+            size="lg" />
         </button>
       </div>
     </div>

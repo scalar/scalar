@@ -39,7 +39,9 @@ defineEmits<{
           class="nav-item-close"
           type="button"
           @click="$emit('close')">
-          <ScalarIcon icon="Close" />
+          <ScalarIcon
+            class="stroke-[1.75]"
+            icon="Close" />
         </button>
       </div>
     </template>
@@ -99,7 +101,7 @@ defineEmits<{
 .nav-item-close {
   position: absolute;
   right: 3px;
-  padding: 5px;
+  padding: 2px;
   border-radius: var(--scalar-radius);
   background: transparent;
   max-width: 20px;
