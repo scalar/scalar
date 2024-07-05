@@ -29,17 +29,17 @@ defineProps<{ item: RequestExampleParameter }>()
           >
           <span
             v-if="item.minimum"
-            class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-pre"
+            class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap"
             >min: {{ item.minimum }}</span
           >
           <span
             v-if="item.maximum"
-            class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-pre"
+            class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap"
             >max: {{ item.maximum }}</span
           >
           <span
             v-if="item.default"
-            class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-pre"
+            class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap"
             >default: {{ item.default }}</span
           >
         </div>
