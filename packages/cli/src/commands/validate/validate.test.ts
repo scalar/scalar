@@ -28,7 +28,7 @@ describe('validate', () => {
       .invoke(['validate', './packages/cli/src/commands/validate/invalid.json'])
 
     logs.should.contain(
-      'Cannot find supported Swagger/OpenAPI version in specification, version must be a string.',
+      'Can’t find supported Swagger/OpenAPI version in specification, version must be a string.',
     )
     logs.should.not.contain('OpenAPI 3.1')
     expect(exitCode).toBe(1)
