@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 2.0.10
+
+### Patch Changes
+
+- b65d1fa: fix: the client search modal was missing icons, methods, and had a racecondition
+- b655c7a: fix: indent request sidebar highlight properly in readonly mode
+
 ## 2.0.9
 
 ### Patch Changes
