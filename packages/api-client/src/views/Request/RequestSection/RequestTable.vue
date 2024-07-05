@@ -63,6 +63,12 @@ const valueOutOfRange = (item: RequestExampleParameter) => {
     return false
   })
 }
+
+const flattenValue = (item: RequestExampleParameter) => {
+  return Array.isArray(item.default) && item.default.length === 1
+    ? item.default[0]
+    : item.default
+}
 </script>
 <template>
   <DataTable
@@ -104,7 +110,7 @@ const valueOutOfRange = (item: RequestExampleParameter) => {
         <template #icon>
           <RequestTableTooltip
             v-if="showTooltip(item)"
-            :item="item" />
+            :item="{ ...item, default: flattenValue(item) }" />
         </template>
       </DataTableInput>
       <DataTableCell

@@ -16,6 +16,12 @@ withDefaults(
 )
 
 const rules = ['oneOf', 'anyOf', 'allOf', 'not']
+
+const flattenValue = (value: Record<string, any>) => {
+  return Array.isArray(value?.default) && value.default.length === 1
+    ? value.default[0]
+    : value?.default
+}
 </script>
 <template>
   <div class="property-heading">
@@ -117,7 +123,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         v-if="value.default"
         truncate>
         <template #prefix>default:</template>
-        {{ value.default }}
+        {{ flattenValue(value) }}
       </SchemaPropertyDetail>
     </div>
     <div
