@@ -77,7 +77,7 @@ describe('sendRequest', () => {
 
   it('reaches the echo server *with* the proxy', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://localhost:${ECHO_PORT}` },
+      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
     })
 
     const result = await sendRequest(
