@@ -85,7 +85,7 @@ const isSelected = (value: string) => {
             :value="option"
             @click="updateSelected(option)">
             <div
-              class="flex items-center justify-center rounded-full p-[3px] group-hover/item:shadow-border"
+              class="flex items-center justify-center rounded-full p-[3px] w-4 h-4 group-hover/item:shadow-border"
               :class="
                 isSelected(option) ? 'bg-blue text-b-1' : 'text-transparent'
               ">
