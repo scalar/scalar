@@ -10,6 +10,9 @@ import svgLoader from 'vite-svg-loader'
 
 export default defineConfig({
   plugins: [vue(), svgLoader(), ViteWatchWorkspace()],
+  define: {
+    'process.env.ENABLE_LOCAL_STORAGE': 'true',
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

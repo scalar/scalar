@@ -46,7 +46,7 @@ import type { AnyObject, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, reactive, toRaw } from 'vue'
 
 const { setCollapsedSidebarFolder } = useSidebar()
-const isLocalStorageEnabled = true
+const isLocalStorageEnabled = !process.env.DISABLE_CLIENT_LOCAL_STORAGE
 
 // ---------------------------------------------------------------------------
 // REQUEST
