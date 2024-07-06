@@ -30,7 +30,7 @@ const requestBodySchema = z.any() satisfies ZodSchema<RequestBody>
 const parametersSchema = z.record(z.string(), z.any())
 
 const requestSchema = z.object({
-  path: z.string().optional().default('/'),
+  path: z.string().optional().default(''),
   method: z
     .enum(Object.keys(REQUEST_METHODS) as [RequestMethod])
     .optional()

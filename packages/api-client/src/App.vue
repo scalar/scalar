@@ -5,6 +5,7 @@ import { useDarkModeState } from '@/hooks'
 import { loadAllResources } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import { addScalarClassesToHeadless } from '@scalar/components'
+import { createWorkspace } from '@scalar/oas-utils/entities/workspace'
 import { LS_KEYS } from '@scalar/object-utils/mutator-record'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { onBeforeMount, onMounted, watchEffect } from 'vue'
@@ -44,10 +45,25 @@ onBeforeMount(async () => {
 
     loadAllResources(workspaceStore)
   } else {
-    workspaceStore.importSpecFromUrl(
-      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-      // 'https://developer.spotify.com/reference/web-api/open-api-schema.yaml',
-      // 'https://proxy.scalar.com',
+    // Create default workspace
+    const _workspace = createWorkspace({
+      uid: 'default',
+      proxyUrl: 'https://proxy.scalar.com',
+    })
+    workspaceStore.workspaceMutators.add(_workspace)
+
+    workspaceStore.collectionMutators.add({
+      uid: 'drafts',
+      spec: {
+        info: {
+          title: 'Drafts',
+        },
+      },
+    })
+
+    workspaceStore.requestMutators.add(
+      { summary: 'My First Request' },
+      'drafts',
     )
   }
 
@@ -60,7 +76,6 @@ onBeforeMount(async () => {
   <main class="flex min-h-0 flex-1">
     <SideNav />
     <div class="flex flex-1 flex-col min-w-0">
-      <!-- <AddressBar /> -->
       <RouterView />
     </div>
   </main>
