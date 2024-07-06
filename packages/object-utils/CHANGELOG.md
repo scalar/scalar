@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.1.4
+
+### Patch Changes
+
+- 618285e: feat: add localStorage syncing to client app
+
 ## 1.1.3
 
 ### Patch Changes

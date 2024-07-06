@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.13
+
+### Patch Changes
+
+- 618285e: feat: add localStorage syncing to client app
+
 ## 0.9.12
 
 ### Patch Changes

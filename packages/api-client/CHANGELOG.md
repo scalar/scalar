@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 2.0.13
+
+### Patch Changes
+
+- 618285e: feat: add localStorage syncing to client app
+- Updated dependencies [618285e]
+  - @scalar/object-utils@1.1.4
+  - @scalar/oas-utils@0.2.12
+  - @scalar/themes@0.9.13
+  - @scalar/components@0.12.10
+
 ## 2.0.12
 
 ### Patch Changes
