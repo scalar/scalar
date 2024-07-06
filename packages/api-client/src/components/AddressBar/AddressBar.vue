@@ -15,9 +15,9 @@ import AddressBarServer from './AddressBarServer.vue'
 const {
   activeRequest,
   activeExample,
+  isReadOnly,
   requestMutators,
   requestsHistory,
-  workspace,
 } = useWorkspace()
 
 const history = requestsHistory
@@ -50,7 +50,7 @@ whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, () =>
 //
 /** update the instance path parameters on change */
 const onUrlChange = (newPath: string) => {
-  if (!activeRequest.value) return
+  if (!activeRequest.value || activeRequest.value.path === newPath) return
 
   requestMutators.edit(activeRequest.value.uid, 'path', newPath)
 }
@@ -155,11 +155,11 @@ const handlePaste = (event: ClipboardEvent) => {
           <div class="flex gap-1">
             <HttpMethod
               class="font-code text-xxs font-medium"
-              :isEditable="!workspace.isReadOnly"
+              :isEditable="!isReadOnly"
               isSquare
               :method="activeRequest.method"
               @change="updateRequestMethod" />
-            <AddressBarServer :workspace="workspace" />
+            <AddressBarServer />
           </div>
           <div class="custom-scroll scroll-timeline-x relative flex w-full">
             <div class="fade-left"></div>
@@ -167,7 +167,7 @@ const handlePaste = (event: ClipboardEvent) => {
             <!-- TODO wrap vars in spans for special effects like mouseOver descriptions -->
             <div
               class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap lg:text-sm text-xs font-medium leading-[24.5px] outline-none"
-              :contenteditable="!workspace.isReadOnly"
+              :contenteditable="!isReadOnly"
               @input="(ev) => onUrlChange((ev.target as HTMLElement).innerText)"
               @keydown.enter.prevent="executeRequestBus.emit()"
               @paste="handlePaste">

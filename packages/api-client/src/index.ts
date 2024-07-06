@@ -3,4 +3,4 @@ export * from './Modal'
 
 export { useWorkspace } from './store/workspace'
 
-export { clientRoutes, clientRouter } from './router'
+export { modalRouter } from './router'

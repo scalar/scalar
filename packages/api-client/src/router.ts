@@ -12,7 +12,7 @@ export enum PathId {
 }
 
 /** Routes required by the client modal */
-export const clientRoutes = [
+export const modalRoutes = [
   { path: '/', redirect: '/request/default' },
   {
     path: '/request',
@@ -29,7 +29,7 @@ export const clientRoutes = [
 ]
 
 const routes = [
-  ...clientRoutes,
+  ...modalRoutes,
   {
     path: '/collection',
     redirect: '/collection/default',
@@ -89,9 +89,9 @@ export const router = createRouter({
 })
 
 /** Creates the in memory client router */
-export const clientRouter = createRouter({
+export const modalRouter = createRouter({
   history: createMemoryHistory(),
-  routes: clientRoutes,
+  routes: modalRoutes,
 })
 
 export const activeRouterParams = computed(() => {
@@ -106,8 +106,8 @@ export const activeRouterParams = computed(() => {
   }
 
   // Snag current route from active router
-  const currentRoute = clientRouter.currentRoute.value.matched.length
-    ? clientRouter.currentRoute.value
+  const currentRoute = modalRouter.currentRoute.value.matched.length
+    ? modalRouter.currentRoute.value
     : router.currentRoute.value
 
   if (currentRoute) {

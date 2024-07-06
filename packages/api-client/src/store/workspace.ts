@@ -41,23 +41,28 @@ import {
 import { fetchSpecFromUrl, iterateTitle } from '@scalar/oas-utils/helpers'
 import { getRequestBodyFromOperation } from '@scalar/oas-utils/spec-getters'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
-import { mutationFactory } from '@scalar/object-utils/mutator-record'
-import {
-  type Path,
-  type PathValue,
-  setNestedValue,
-} from '@scalar/object-utils/nested'
+import { LS_KEYS, mutationFactory } from '@scalar/object-utils/mutator-record'
 import type { AnyObject, OpenAPIV3_1 } from '@scalar/openapi-parser'
-import { computed, reactive, readonly, toRaw } from 'vue'
+import { computed, reactive, toRaw } from 'vue'
 
 const { setCollapsedSidebarFolder } = useSidebar()
+
+// Disable localStorage in references - we must check it like this ;)
+const isLocalStorageEnabled = Boolean(
+  typeof process !== 'undefined' &&
+    Object.hasOwn(process.env, 'ENABLE_LOCAL_STORAGE'),
+)
 
 // ---------------------------------------------------------------------------
 // REQUEST
 
 /** Local list of all requests (will be associated with a database collection) */
 const requests = reactive<Record<string, Request>>({})
-const requestMutators = mutationFactory(requests, reactive({}))
+const requestMutators = mutationFactory(
+  requests,
+  reactive({}),
+  isLocalStorageEnabled && LS_KEYS.REQUEST,
+)
 
 /** Add request */
 const addRequest = (
@@ -171,7 +176,11 @@ const findRequestFolders = (
  * Multiple test cases can each be saved as an example and switched between
  */
 const requestExamples = reactive<Record<string, RequestExample>>({})
-const requestExampleMutators = mutationFactory(requestExamples, reactive({}))
+const requestExampleMutators = mutationFactory(
+  requestExamples,
+  reactive({}),
+  isLocalStorageEnabled && LS_KEYS.REQUEST_EXAMPLE,
+)
 
 /** Create new instance parameter from a request parameter */
 const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
@@ -317,7 +326,11 @@ const environments = reactive<Record<string, Environment>>({
     isDefault: true,
   }),
 })
-const environmentMutators = mutationFactory(environments, reactive({}))
+const environmentMutators = mutationFactory(
+  environments,
+  reactive({}),
+  isLocalStorageEnabled && LS_KEYS.ENVIRONMENT,
+)
 
 /** prevent deletion of the default environment */
 const deleteEnvironment = (uid: string) => {
@@ -332,7 +345,11 @@ const deleteEnvironment = (uid: string) => {
 // COOKIES
 
 const cookies = reactive<Record<string, Cookie>>({})
-const cookieMutators = mutationFactory(cookies, reactive({}))
+const cookieMutators = mutationFactory(
+  cookies,
+  reactive({}),
+  isLocalStorageEnabled && LS_KEYS.COOKIE,
+)
 
 /** Cookie associated with the current route */
 const activeCookieId = computed<string | undefined>(
@@ -343,7 +360,23 @@ const activeCookieId = computed<string | undefined>(
 // WORKSPACE
 
 /** Active workspace object (will be associated with an entry in the workspace collection) */
-const workspace = reactive<Workspace>(createWorkspace({}))
+const workspaces = reactive<Record<string, Workspace>>({})
+const createWorkspaceMutators = (workspaceUid: string) =>
+  mutationFactory(
+    workspaces,
+    reactive({}),
+    isLocalStorageEnabled && `${LS_KEYS.WORKSPACE}${workspaceUid}`,
+  )
+// TODO we will create new mutators on workspace change with the updated workspace uid
+const workspaceMutators = createWorkspaceMutators('default')
+
+/** The currently selected workspace OR the first one */
+const activeWorkspace = computed(
+  () =>
+    // TODO bring this back with the routing
+    // workspaces[activeRouterParams.value[PathId.Workspace]] ??
+    workspaces[Object.keys(workspaces)[0]],
+)
 
 /** Simplified list of requests in the workspace for displaying */
 const workspaceRequests = computed(() =>
@@ -355,34 +388,39 @@ const workspaceRequests = computed(() =>
   })),
 )
 
-/** Edit workspace mutator */
-const editWorkspace = <P extends Path<Workspace>>(
-  path: P,
-  value: PathValue<Workspace, P>,
-) => setNestedValue(workspace, path, value)
+/** Most commonly used property of workspace, we don't need check activeWorkspace.value this way */
+const isReadOnly = computed(() => activeWorkspace.value?.isReadOnly ?? false)
 
 // ---------------------------------------------------------------------------
 // COLLECTION
 
 const collections = reactive<Record<string, Collection>>({})
-const collectionMutators = mutationFactory(collections, reactive({}))
+const collectionMutators = mutationFactory(
+  collections,
+  reactive({}),
+  isLocalStorageEnabled && LS_KEYS.COLLECTION,
+)
 
 const addCollection = (payload: CollectionPayload) => {
+  if (!activeWorkspace.value) return
+
   const collection = createCollection(payload)
-  workspace.collectionUids.push(collection.uid)
+  workspaceMutators.edit(activeWorkspace.value.uid, 'collectionUids', [
+    ...activeWorkspace.value.collectionUids,
+    collection.uid,
+  ])
   collectionMutators.add(collection)
 }
 
 const deleteCollection = (collectionUid: string) => {
-  const idx = workspace.collectionUids.findIndex((uid) => uid === collectionUid)
-  if (idx >= 0) {
-    workspace.collectionUids.splice(idx, 1)
-    collectionMutators.delete(collectionUid)
+  if (!activeWorkspace.value) return
 
-    // TODO do we want to cascade delete folders + requests + examples
-  } else {
-    console.error('Tried to remove a collection that does not exist')
-  }
+  workspaceMutators.edit(
+    activeWorkspace.value.uid,
+    'collectionUids',
+    activeWorkspace.value.collectionUids.filter((uid) => uid !== collectionUid),
+  )
+  collectionMutators.delete(collectionUid)
 }
 
 /**
@@ -410,7 +448,11 @@ const activeServer = computed(
 // FOLDERS
 
 const folders = reactive<Record<string, Folder>>({})
-const folderMutators = mutationFactory(folders, reactive({}))
+const folderMutators = mutationFactory(
+  folders,
+  reactive({}),
+  isLocalStorageEnabled && LS_KEYS.FOLDER,
+)
 
 /**
  * Add a new folder to a folder or colleciton
@@ -472,7 +514,11 @@ const deleteFolder = (
 // SECURITY SCHEMES
 
 const securitySchemes = reactive<Record<string, SecurityScheme>>({})
-const securitySchemeMutators = mutationFactory(securitySchemes, reactive({}))
+const securitySchemeMutators = mutationFactory(
+  securitySchemes,
+  reactive({}),
+  isLocalStorageEnabled && LS_KEYS.SECURITY_SCHEME,
+)
 
 type SecurityMutatorEditArgs = Parameters<typeof securitySchemeMutators.edit>
 export type UpdateScheme = (
@@ -514,7 +560,11 @@ const activeSecurityRequirements = computed(
 // SERVERS
 
 const servers = reactive<Record<string, Server>>({})
-const serverMutators = mutationFactory(servers, reactive({}))
+const serverMutators = mutationFactory(
+  servers,
+  reactive({}),
+  isLocalStorageEnabled && LS_KEYS.SERVER,
+)
 
 /**
  * Add a server
@@ -555,6 +605,10 @@ async function importSpecFile(_spec: string | AnyObject) {
   const spec = toRaw(_spec)
   const workspaceEntities = await importSpecToWorkspace(spec)
 
+  // Create workspace
+  const _workspace = createWorkspace({ uid: 'default' })
+  workspaceMutators.add(_workspace)
+
   // Add all the new requests into the request collection, the already have parent folders
   workspaceEntities.requests.forEach((request) => addRequest(request))
 
@@ -577,27 +631,6 @@ async function importSpecFile(_spec: string | AnyObject) {
       createSecurityScheme({ ...securityScheme, uid: key }),
     ),
   )
-  // TODOtest remove Temp for testing
-  // ).forEach(([key, securityScheme]) =>
-  //   securitySchemeMutators.add(
-  //     createSecurityScheme({
-  //       ...securityScheme,
-  //       type: 'oauth2',
-  //       flows: {
-  //         authorizationCode: {
-  //           authorizationUrl: 'https://accounts.spotify.com/authorize',
-  //           tokenUrl: 'https://accounts.spotify.com/api/token',
-  //           scopes: securityScheme.flows.authorizationCode.scopes,
-  //         },
-  //         clientCredentials: {
-  //           tokenUrl: 'https://accounts.spotify.com/api/token',
-  //           scopes: securityScheme.flows.authorizationCode.scopes,
-  //         },
-  //       },
-  //       uid: key,
-  //     }),
-  //   ),
-  // )
 }
 
 // Function to fetch and import a spec from a URL
@@ -617,65 +650,71 @@ const modalState = useModal()
  * Global hook which contains the store for the whole app
  * We may want to break this up at some point due to the massive file size
  */
-export const useWorkspace = () => ({
-  // ---------------------------------------------------------------------------
-  // STATE
-  workspace: readonly(workspace),
-  workspaceRequests,
-  collections,
-  requests,
-  environments,
-  requestExamples,
-  folders,
-  cookies,
-  servers,
-  securitySchemes,
-  activeCookieId,
-  activeCollection,
-  activeServer,
-  activeSecurityRequirements,
-  activeSecurityScheme,
-  activeRequest,
-  activeExample,
-  modalState,
-  // ---------------------------------------------------------------------------
-  // METHODS
-  importSpecFile,
-  importSpecFromUrl,
-  cookieMutators,
-  createExampleFromRequest,
-  collectionMutators: {
-    ...collectionMutators,
-    add: addCollection,
-    delete: deleteCollection,
-  },
-  environmentMutators: {
-    ...environmentMutators,
-    delete: deleteEnvironment,
-  },
-  folderMutators: {
-    ...folderMutators,
-    add: addFolder,
-    delete: deleteFolder,
-  },
-  requestMutators: {
-    ...requestMutators,
-    add: addRequest,
-    delete: deleteRequest,
-  },
-  requestExampleMutators: {
-    ...requestExampleMutators,
-    add: addRequestExample,
-    delete: deleteRequestExample,
-  },
-  requestsHistory,
-  securitySchemeMutators,
-  serverMutators: {
-    ...serverMutators,
-    add: addServer,
-    delete: deleteServer,
-  },
-  workspaceMutators: {
-    edit: editWorkspace,
-  },
-})
+export const useWorkspace = () =>
+  ({
+    // ---------------------------------------------------------------------------
+    // STATE
+    workspaces,
+    workspaceRequests,
+    collections,
+    cookies,
+    environments,
+    folders,
+    requestExamples,
+    requests,
+    servers,
+    securitySchemes,
+    activeCollection,
+    activeCookieId,
+    activeExample,
+    activeRequest,
+    activeSecurityRequirements,
+    activeSecurityScheme,
+    activeServer,
+    activeWorkspace,
+    modalState,
+    isReadOnly,
+    // ---------------------------------------------------------------------------
+    // METHODS
+    importSpecFile,
+    importSpecFromUrl,
+    cookieMutators,
+    createExampleFromRequest,
+    collectionMutators: {
+      ...collectionMutators,
+      rawAdd: collectionMutators.add,
+      add: addCollection,
+      delete: deleteCollection,
+    },
+    environmentMutators: {
+      ...environmentMutators,
+      delete: deleteEnvironment,
+    },
+    folderMutators: {
+      ...folderMutators,
+      rawAdd: folderMutators.add,
+      add: addFolder,
+      delete: deleteFolder,
+    },
+    requestMutators: {
+      ...requestMutators,
+      rawAdd: requestMutators.add,
+      add: addRequest,
+      delete: deleteRequest,
+    },
+    requestExampleMutators: {
+      ...requestExampleMutators,
+      rawAdd: requestExampleMutators.add,
+      add: addRequestExample,
+      delete: deleteRequestExample,
+    },
+    requestsHistory,
+    securitySchemeMutators,
+    serverMutators: {
+      ...serverMutators,
+      rawAdd: serverMutators.add,
+      add: addServer,
+      delete: deleteServer,
+    },
+    workspaceMutators,
+  }) as const

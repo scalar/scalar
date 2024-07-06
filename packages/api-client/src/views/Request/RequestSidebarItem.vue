@@ -48,7 +48,7 @@ defineSlots<{
   leftIcon(): void
 }>()
 
-const { activeRequest, folders, requests, requestExamples, workspace } =
+const { activeRequest, folders, isReadOnly, requests, requestExamples } =
   useWorkspace()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const router = useRouter()
@@ -61,8 +61,7 @@ const highlightClasses =
 /** Due to the nesting, we need a dynamic left offset for hover and active backgrounds */
 const leftOffset = computed(() => {
   if (!props.parentUids.length) return '0px'
-  else if (workspace.isReadOnly)
-    return `-${(props.parentUids.length - 1) * 16}px`
+  else if (isReadOnly) return `-${(props.parentUids.length - 1) * 16}px`
   else return `-${props.parentUids.length * 16}px`
 })
 
@@ -115,8 +114,8 @@ const showChildren = computed(
   <div
     class="relative flex flex-row"
     :class="[
-      (workspace.isReadOnly && parentUids.length > 1) ||
-      (!workspace.isReadOnly && parentUids.length)
+      (isReadOnly && parentUids.length > 1) ||
+      (!isReadOnly && parentUids.length)
         ? 'before:bg-b-3 pl-4 before:absolute before:left-[calc(.75rem_+_.5px)] before:top-0 before:z-10 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-px mb-[.5px] last:mb-0'
         : '',
     ]">
@@ -150,7 +149,7 @@ const showChildren = computed(
           </span>
           <div class="relative">
             <RequestSidebarItemMenu
-              v-if="!workspace.isReadOnly"
+              v-if="!isReadOnly"
               :item="item" />
             <span class="flex">
               &hairsp;
@@ -164,7 +163,7 @@ const showChildren = computed(
 
       <!-- Collection/Folder -->
       <button
-        v-else-if="!workspace.isReadOnly || parentUids.length"
+        v-else-if="!isReadOnly || parentUids.length"
         class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 z-[1]"
         :class="highlightClasses"
         type="button"

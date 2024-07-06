@@ -1705,6 +1705,9 @@ importers:
 
   packages/oas-utils:
     dependencies:
+      '@scalar/themes':
+        specifier: workspace:*
+        version: link:../themes
       axios:
         specifier: ^1.6.8
         version: 1.7.2(debug@4.3.5)
@@ -1748,6 +1751,9 @@ importers:
 
   packages/object-utils:
     dependencies:
+      '@vueuse/core':
+        specifier: ^10.10.0
+        version: 10.11.0(vue@3.4.31(typescript@5.5.2))
       just-clone:
         specifier: ^6.2.0
         version: 6.2.0
@@ -1755,6 +1761,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
+      type-fest:
+        specifier: ^4.20.0
+        version: 4.20.0
       vite:
         specifier: ^5.2.10
         version: 5.3.1(@types/node@20.14.9)(terser@5.31.1)
@@ -15043,8 +15052,8 @@ packages:
   vue-component-type-helpers@2.0.21:
     resolution: {integrity: sha512-3NaicyZ7N4B6cft4bfb7dOnPbE9CjLcx+6wZWAg5zwszfO4qXRh+U52dN5r5ZZfc6iMaxKCEcoH9CmxxoFZHLg==}
 
-  vue-component-type-helpers@2.0.24:
-    resolution: {integrity: sha512-Jr5N8QVYEcbQuMN1LRgvg61758G8HTnzUlQsAFOxx6Y6X8kmhJ7C+jOvWsQruYxi3uHhhS6BghyRlyiwO99DBg==}
+  vue-component-type-helpers@2.0.26:
+    resolution: {integrity: sha512-sO9qQ8oC520SW6kqlls0iqDak53gsTVSrYylajgjmkt1c0vcgjsGSy1KzlDrbEx8pm02IEYhlUkU5hCYf8rwtg==}
 
   vue-demi@0.14.8:
     resolution: {integrity: sha512-Uuqnk9YE9SsWeReYqK2alDI5YzciATE0r2SkA6iMAtuXvNTMNACJLJEXNXaEy94ECuBe4Sk6RzRU80kjdbIo1Q==}
@@ -20919,7 +20928,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.4.29(typescript@5.4.5)
-      vue-component-type-helpers: 2.0.24
+      vue-component-type-helpers: 2.0.26
     transitivePeerDependencies:
       - encoding
       - prettier
@@ -20936,7 +20945,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.4.29(typescript@5.5.2)
-      vue-component-type-helpers: 2.0.24
+      vue-component-type-helpers: 2.0.26
     transitivePeerDependencies:
       - encoding
       - prettier
@@ -22395,6 +22404,16 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
+  '@vueuse/core@10.11.0(vue@3.4.31(typescript@5.5.2))':
+    dependencies:
+      '@types/web-bluetooth': 0.0.20
+      '@vueuse/metadata': 10.11.0
+      '@vueuse/shared': 10.11.0(vue@3.4.31(typescript@5.5.2))
+      vue-demi: 0.14.8(vue@3.4.31(typescript@5.5.2))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+
   '@vueuse/metadata@10.11.0': {}
 
   '@vueuse/shared@10.11.0(vue@3.4.29(typescript@5.4.5))':
@@ -22407,6 +22426,13 @@ snapshots:
   '@vueuse/shared@10.11.0(vue@3.4.29(typescript@5.5.2))':
     dependencies:
       vue-demi: 0.14.8(vue@3.4.29(typescript@5.5.2))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+
+  '@vueuse/shared@10.11.0(vue@3.4.31(typescript@5.5.2))':
+    dependencies:
+      vue-demi: 0.14.8(vue@3.4.31(typescript@5.5.2))
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -33269,7 +33295,7 @@ snapshots:
 
   vue-component-type-helpers@2.0.21: {}
 
-  vue-component-type-helpers@2.0.24: {}
+  vue-component-type-helpers@2.0.26: {}
 
   vue-demi@0.14.8(vue@3.4.29(typescript@5.4.5)):
     dependencies:
@@ -33278,6 +33304,10 @@ snapshots:
   vue-demi@0.14.8(vue@3.4.29(typescript@5.5.2)):
     dependencies:
       vue: 3.4.29(typescript@5.5.2)
+
+  vue-demi@0.14.8(vue@3.4.31(typescript@5.5.2)):
+    dependencies:
+      vue: 3.4.31(typescript@5.5.2)
 
   vue-devtools-stub@0.1.0: {}
 

@@ -61,10 +61,12 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@vueuse/core": "^10.10.0",
     "just-clone": "^6.2.0"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
+    "type-fest": "^4.20.0",
     "vite": "^5.2.10"
   }
 }

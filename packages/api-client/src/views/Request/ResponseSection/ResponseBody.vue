@@ -6,7 +6,7 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useDarkModeState } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarCodeBlock, ScalarIcon } from '@scalar/components'
-import { type ThemeId, getThemeStyles } from '@scalar/themes'
+import { getThemeStyles } from '@scalar/themes'
 import { computed, nextTick, ref, watch } from 'vue'
 
 const props = withDefaults(
@@ -22,7 +22,7 @@ const props = withDefaults(
   },
 )
 
-const { workspace } = useWorkspace()
+const { activeWorkspace } = useWorkspace()
 
 const codeLanguage = computed(() => {
   const contentTypeHeader =
@@ -87,9 +87,11 @@ watch(
         doc.write(
           '<style>body,html {body:not(:has(* + style + style)) {font-family: var(--scalar-font-code); font-size: 12px; font-weight: 400;background:var(--scalar-background-1); color: var(--scalar-color-2)}</style>',
         )
-        doc.write(
-          `<style>${getThemeStyles(workspace.themeId as ThemeId)}</style>`,
-        )
+        if (activeWorkspace.value?.themeId) {
+          doc.write(
+            `<style>${getThemeStyles(activeWorkspace.value.themeId)}</style>`,
+          )
+        }
         doc.close()
       }
     }

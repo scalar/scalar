@@ -33,14 +33,14 @@ const {
   activeRequest,
   activeServer,
   activeSecurityScheme,
+  activeWorkspace,
   collections,
   modalState,
-  workspace,
 } = useWorkspace()
 const { collapsedSidebarFolders } = useSidebar()
 const actionModalState = useActionModal()
 const searchModalState = useModal()
-const showSideBar = ref(!workspace.isReadOnly)
+const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
 
 const handleTabChange = (activeTab: string) => {
   actionModalState.tab = activeTab as ActionModalTab
@@ -79,7 +79,7 @@ const executeRequest = async () => {
     activeExample.value,
     url,
     activeSecurityScheme.value,
-    workspace.proxyUrl,
+    activeWorkspace.value?.proxyUrl,
   )
 
   if (request && response) {
@@ -101,12 +101,8 @@ onMounted(() => executeRequestBus.on(executeRequest))
  */
 onBeforeUnmount(() => executeRequestBus.off(executeRequest))
 
-// TODO temp switch for folder mode
-const FOLDER_MODE = true
+const workspaceCollections = computed(() => Object.values(collections))
 
-const workspaceCollections = computed(() =>
-  workspace.collectionUids.map((uid) => collections[uid]),
-)
 // const collections = computed(() => {
 //   if (FOLDER_MODE) {
 //     return workspace.collections
@@ -255,6 +251,7 @@ useEventListener(document, 'keydown', (event) => {
 </script>
 <template>
   <div
+    v-if="activeWorkspace"
     class="bg-b-2 flex flex-1 flex-col rounded-lg rounded-b-none rounded-r-none pt-0 h-full">
     <div
       class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container">
@@ -278,7 +275,7 @@ useEventListener(document, 'keydown', (event) => {
           Test Acctual Locally
         </button> -->
         <button
-          v-if="workspace.isReadOnly"
+          v-if="activeWorkspace.isReadOnly"
           class="text-c-3 hover:bg-b-3 active:text-c-1 p-2 rounded"
           type="button"
           @click="modalState.hide()">
@@ -292,7 +289,7 @@ useEventListener(document, 'keydown', (event) => {
       <Sidebar
         v-show="showSideBar"
         :class="[showSideBar ? 'sidebar-active-width' : '']">
-        <template #title>{{ workspace.name }}</template>
+        <template #title>{{ activeWorkspace.name }}</template>
         <template #content>
           <SearchButton @openSearchModal="searchModalState.show()" />
           <div
@@ -303,8 +300,8 @@ useEventListener(document, 'keydown', (event) => {
             <RequestSidebarItem
               v-for="(collection, collectionIndex) in workspaceCollections"
               :key="collection.uid"
-              :isDraggable="FOLDER_MODE && !workspace.isReadOnly"
-              :isDroppable="FOLDER_MODE && !workspace.isReadOnly"
+              :isDraggable="!activeWorkspace.isReadOnly"
+              :isDroppable="!activeWorkspace.isReadOnly"
               :item="collection"
               :parentUids="[]"
               @onDragEnd="
@@ -330,7 +327,7 @@ useEventListener(document, 'keydown', (event) => {
         </template>
         <template #button>
           <SidebarButton
-            v-if="!workspace.isReadOnly"
+            v-if="!activeWorkspace.isReadOnly"
             :click="addItemHandler">
             <template #title>Add Item</template>
           </SidebarButton>

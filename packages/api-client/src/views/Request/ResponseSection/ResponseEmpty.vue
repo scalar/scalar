@@ -5,7 +5,7 @@ import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { executeRequestBus } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 
-const { workspace } = useWorkspace()
+const { isReadOnly } = useWorkspace()
 </script>
 <template>
   <div class="relative col-1 flex-center gap-6 p-2 capitalize">
@@ -23,7 +23,7 @@ const { workspace } = useWorkspace()
         <ScalarHotkey hotkey="↵" />
       </button>
       <button
-        v-if="!workspace.isReadOnly"
+        v-if="!isReadOnly"
         class="flex items-center gap-1.5"
         type="button">
         New Request

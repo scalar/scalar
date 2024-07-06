@@ -2,8 +2,10 @@
 import SideNav from '@/components/SideNav/SideNav.vue'
 import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
+import { loadAllResources } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import { addScalarClassesToHeadless } from '@scalar/components'
+import { LS_KEYS } from '@scalar/object-utils/mutator-record'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { onBeforeMount, onMounted, watchEffect } from 'vue'
 import { RouterView } from 'vue-router'
@@ -16,22 +18,40 @@ onMounted(() => {
 })
 
 const { isDark } = useDarkModeState()
-const { importSpecFromUrl, workspaceMutators } = useWorkspace()
+const workspaceStore = useWorkspace()
 
-workspaceMutators.edit('proxyUrl', 'https://proxy.scalar.com')
+// Ensure we add our scalar wrapper class to the headless ui root
+onBeforeMount(async () => {
+  // Check if we have localStorage data
+  if (localStorage.getItem(`${LS_KEYS.WORKSPACE}${'default'}`)) {
+    // TODO remove this before going live
+    console.info('Remove this before going live, but here are the stats: ')
+    const size: Record<string, string> = {}
+    let _lsTotal = 0
+    let _xLen = 0
+    let _key = ''
 
-/**
- * Ensure we add our scalar wrapper class to the headless ui root
- * mounted is too late
- */
-onBeforeMount(() => addScalarClassesToHeadless())
+    for (_key in localStorage) {
+      if (!Object.prototype.hasOwnProperty.call(localStorage, _key)) {
+        continue
+      }
+      _xLen = (localStorage[_key].length + _key.length) * 2
+      _lsTotal += _xLen
+      size[_key] = (_xLen / 1024).toFixed(2) + ' KB'
+    }
+    size['Total'] = (_lsTotal / 1024).toFixed(2) + ' KB'
+    console.table(size)
 
-onMounted(() => {
-  importSpecFromUrl(
-    'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-    // 'https://developer.spotify.com/reference/web-api/open-api-schema.yaml',
-    // 'https://proxy.scalar.com',
-  )
+    loadAllResources(workspaceStore)
+  } else {
+    workspaceStore.importSpecFromUrl(
+      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+      // 'https://developer.spotify.com/reference/web-api/open-api-schema.yaml',
+      // 'https://proxy.scalar.com',
+    )
+  }
+
+  addScalarClassesToHeadless()
 })
 </script>
 <template>
