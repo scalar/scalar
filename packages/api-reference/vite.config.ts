@@ -5,7 +5,6 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   define: {
     'process.env.NODE_ENV': '"production"',
-    'process.env.DISABLE_CLIENT_LOCAL_STORAGE': 'true',
   },
   plugins: [vue()],
   build: createViteBuildOptions({
