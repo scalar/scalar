@@ -153,19 +153,19 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/cameronrohani">
-                    <img src="https://avatars.githubusercontent.com/u/6201407?v=4" width="100;" alt="cameronrohani"/>
+                <a href="https://github.com/antlio">
+                    <img src="https://avatars.githubusercontent.com/u/14966155?v=4" width="100;" alt="antlio"/>
                     <br />
-                    <sub><b>cameronrohani</b></sub>
+                    <sub><b>antlio</b></sub>
                 </a>
             </td>
 		</tr>
 		<tr>
             <td align="center">
-                <a href="https://github.com/antlio">
-                    <img src="https://avatars.githubusercontent.com/u/14966155?v=4" width="100;" alt="antlio"/>
+                <a href="https://github.com/cameronrohani">
+                    <img src="https://avatars.githubusercontent.com/u/6201407?v=4" width="100;" alt="cameronrohani"/>
                     <br />
-                    <sub><b>antlio</b></sub>
+                    <sub><b>cameronrohani</b></sub>
                 </a>
             </td>
             <td align="center">
