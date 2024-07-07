@@ -125,7 +125,7 @@ function closeHandler() {
         <div
           v-show="
             group.commands.filter((command) =>
-              command.name.includes(commandQuery),
+              command.name.toLowerCase().includes(commandQuery.toLowerCase()),
             ).length > 0
           "
           class="text-c-3 font-medium text-xs mt-2">
@@ -133,7 +133,7 @@ function closeHandler() {
         </div>
         <div
           v-for="command in group.commands.filter((command) =>
-            command.name.includes(commandQuery),
+            command.name.toLowerCase().includes(commandQuery.toLowerCase()),
           )"
           :key="command.name"
           class="commandmenu-item text-sm flex items-center py-1.5 px-2 rounded hover:bg-b-2 cursor-pointer"
