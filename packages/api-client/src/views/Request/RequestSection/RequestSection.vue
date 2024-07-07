@@ -6,11 +6,16 @@ import RequestAuth from '@/views/Request/RequestSection/RequestAuth.vue'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
+import RequestScripts from '@/views/Request/RequestSection/RequestScripts.vue'
 import { ScalarIcon } from '@scalar/components'
 import { computed, ref, watch } from 'vue'
 
-const { activeRequest, activeExample, activeSecurityRequirements } =
-  useWorkspace()
+const {
+  activeRequest,
+  activeExample,
+  activeSecurityRequirements,
+  activeWorkspace,
+} = useWorkspace()
 
 const bodyMethods = ['POST', 'PUT', 'PATCH', 'DELETE']
 
@@ -24,6 +29,8 @@ const sections = computed(() => {
     'Query',
     'Body',
   ]
+
+  if (!activeWorkspace.value.isReadOnly) allSections.push('Scripts')
 
   if (!activeExample.value.parameters.path.length) {
     allSections.splice(allSections.indexOf('Request'), 1)
@@ -107,6 +114,11 @@ watch(activeRequest, (newRequest) => {
         "
         body="foo"
         title="Body" />
+      <RequestScripts
+        v-show="
+          (activeSection === 'All' || activeSection === 'Scripts') &&
+          !activeWorkspace.isReadOnly
+        " />
     </div>
   </ViewLayoutSection>
 </template>

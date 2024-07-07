@@ -7,10 +7,16 @@ import type {
   RequestExample,
   RequestExampleParameter,
   ResponseInstance,
+  ResponseTest,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 import Cookies from 'js-cookie'
+
+import {
+  executePostRequestScript,
+  executePreRequestScript,
+} from './scalarScripts'
 
 /**
  * Convert the parameters array to an object for axios to consume
@@ -42,6 +48,7 @@ export const sendRequest = async (
   sentTime?: number
   request?: RequestExample
   response?: ResponseInstance
+  testResults?: ResponseTest[]
 }> => {
   let url = rawUrl
 
@@ -176,15 +183,29 @@ export const sendRequest = async (
   // Append new query string to the URL
   url = `${urlWithoutQueryString}${queryString ? '?' + queryString : ''}`
 
-  const config: AxiosRequestConfig = {
+  let config: AxiosRequestConfig = {
     url: redirectToProxy(proxyUrl, url),
     method: request.method,
     headers,
     data,
   }
 
+  // We can handle the pre request scripts now
+  if (example.preSendScript) {
+    try {
+      const { config: customConfig } = executePreRequestScript(
+        example.preSendScript,
+        config,
+      )
+      config = customConfig
+    } catch (error) {
+      console.warn('Pre-send script error:', error)
+    }
+  }
+
   // Start timer to get response duration
   const startTime = Date.now()
+  let testResults: ResponseTest[] = []
 
   try {
     const response = await axios(config)
@@ -203,6 +224,19 @@ export const sendRequest = async (
         .forEach((header) => delete response.headers[header])
     }
 
+    // We can handle the post request scripts now
+    if (example.postSendScript) {
+      try {
+        const postRequest = executePostRequestScript(
+          example.postSendScript,
+          response,
+        )
+        testResults = postRequest.testResults
+      } catch (error) {
+        console.warn('Post-send script error:', error)
+      }
+    }
+
     return {
       sentTime: Date.now(),
       request: example,
@@ -210,6 +244,7 @@ export const sendRequest = async (
         ...response,
         duration: Date.now() - startTime,
       },
+      testResults,
     }
   } catch (error) {
     const axiosError = error as AxiosError
@@ -217,9 +252,23 @@ export const sendRequest = async (
 
     console.error('ERROR', error)
 
+    // We can handle the post request scripts now
+    if (example.postSendScript) {
+      try {
+        const postRequest = executePostRequestScript(
+          example.postSendScript,
+          response,
+        )
+        testResults = postRequest.testResults
+      } catch (err) {
+        console.warn('Post-send script error:', err)
+      }
+    }
+
     return {
       sentTime: Date.now(),
       request: example,
+      testResults,
       response: response
         ? {
             ...response,

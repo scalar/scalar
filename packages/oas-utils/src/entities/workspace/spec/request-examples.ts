@@ -79,6 +79,8 @@ const requestExampleSchema = z.object({
     })
     .optional()
     .default({}),
+  preSendScript: z.string().optional().default(''),
+  postSendScript: z.string().optional().default(''),
   auth: z.record(z.string(), z.any()).default({}),
 })
 

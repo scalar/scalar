@@ -76,7 +76,7 @@ const executeRequest = async () => {
     })
   }
 
-  const { request, response } = await sendRequest(
+  const { request, response, testResults } = await sendRequest(
     activeRequest.value,
     activeExample.value,
     url,
@@ -89,6 +89,7 @@ const executeRequest = async () => {
       request,
       response,
       timestamp: Date.now(),
+      testResults,
     })
   } else {
     console.warn('No response or request was returned')
@@ -350,6 +351,10 @@ useEventListener(document, 'keydown', (event) => {
           :response="
             activeRequest?.history?.[activeRequest?.history?.length - 1]
               ?.response
+          "
+          :tests="
+            activeRequest?.history?.[activeRequest?.history?.length - 1]
+              ?.testResults
           " />
       </ViewLayoutContent>
       <ActionModal
