@@ -150,7 +150,12 @@ const showChildren = computed(
           <div class="relative">
             <RequestSidebarItemMenu
               v-if="!isReadOnly"
-              :item="item" />
+              :item="item"
+              :parentUid="
+                parentUids.length
+                  ? parentUids[parentUids.length - 1]
+                  : undefined
+              " />
             <span class="flex">
               &hairsp;
               <HttpMethod
