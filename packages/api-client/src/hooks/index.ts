@@ -1,6 +1,5 @@
 export * from './useDarkModeState'
 export * from './useClipboard'
 export * from './useKeyMap'
-export * from './useActionModal'
 export * from './useFileDialog'
 export { useSidebar } from './useSidebar'

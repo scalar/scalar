@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { Sidebar } from '@/components'
-import ActionModal from '@/components/ActionModal/ActionModal.vue'
 import AddressBar from '@/components/AddressBar/AddressBar.vue'
+import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
 import SearchButton from '@/components/Search/SearchButton.vue'
 import SearchModal from '@/components/Search/SearchModal.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import { type ActionModalTab, useActionModal, useSidebar } from '@/hooks'
+import { useSidebar } from '@/hooks'
 import { executeRequestBus, sendRequest } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
@@ -15,7 +15,6 @@ import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue
 import { ScalarIcon, useModal } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
-import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useEventListener, useMagicKeys } from '@vueuse/core'
 import {
@@ -38,13 +37,9 @@ const {
   modalState,
 } = useWorkspace()
 const { collapsedSidebarFolders } = useSidebar()
-const actionModalState = useActionModal()
 const searchModalState = useModal()
+const commandPaletteState = useModal()
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
-
-const handleTabChange = (activeTab: string) => {
-  actionModalState.tab = activeTab as ActionModalTab
-}
 
 /**
  * Execute the request
@@ -248,7 +243,7 @@ const onDragEnd = (
 }
 
 const addItemHandler = () => {
-  actionModalState.show()
+  commandPaletteState.show()
 }
 
 const keys = useMagicKeys()
@@ -353,9 +348,7 @@ useEventListener(document, 'keydown', (event) => {
               ?.response
           " />
       </ViewLayoutContent>
-      <ActionModal
-        :state="actionModalState"
-        @update:tab="handleTabChange" />
+      <CommandPalette :state="commandPaletteState" />
     </ViewLayout>
   </div>
   <SearchModal :modalState="searchModalState" />
