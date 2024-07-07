@@ -58,7 +58,9 @@ const executeRequest = async () => {
     return
   }
 
-  let url = activeServer.value?.url + activeRequest.value.path
+  let url = activeServer.value?.url
+    ? activeServer.value?.url + activeRequest.value.path
+    : activeRequest.value.path
 
   // Replace vraible
   // TODO: use `replaceVariables` from `@scalar/oas-utils/helpers`
@@ -101,7 +103,18 @@ onMounted(() => executeRequestBus.on(executeRequest))
  */
 onBeforeUnmount(() => executeRequestBus.off(executeRequest))
 
-const workspaceCollections = computed(() => Object.values(collections))
+const workspaceCollections = computed(() => {
+  // let's move drafts to the bottom
+  const c = Object.values(collections)
+  const index = c.findIndex((obj) => obj.uid === 'drafts')
+
+  const [draftsObj] = c.splice(index, 1)
+
+  // Add the object to the end of the array
+  c.push(draftsObj)
+
+  return c
+})
 
 // const collections = computed(() => {
 //   if (FOLDER_MODE) {
@@ -251,7 +264,6 @@ useEventListener(document, 'keydown', (event) => {
 </script>
 <template>
   <div
-    v-if="activeWorkspace"
     class="bg-b-2 flex flex-1 flex-col rounded-lg rounded-b-none rounded-r-none pt-0 h-full">
     <div
       class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container">
@@ -269,11 +281,6 @@ useEventListener(document, 'keydown', (event) => {
       <AddressBar />
       <div
         class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 justify-end w-6/12">
-        <!-- <button
-          class="request-text-color-text bg-mix-transparent hover:bg-mix-amount-95 px-2 py-1.5 rounded bg-mix-amount-90 font-medium text-sm"
-          type="button">
-          Test Acctual Locally
-        </button> -->
         <button
           v-if="activeWorkspace.isReadOnly"
           class="text-c-3 hover:bg-b-3 active:text-c-1 p-2 rounded"

@@ -50,7 +50,7 @@ const serverUrl = computed(() => {
 })
 </script>
 <template>
-  <template v-if="serverOptions && !isReadOnly">
+  <template v-if="serverOptions && serverOptions.length > 0 && !isReadOnly">
     <ScalarDropdown
       :options="serverOptions"
       resize
@@ -100,7 +100,7 @@ const serverUrl = computed(() => {
       </template>
     </ScalarDropdown>
   </template>
-  <template v-else>
+  <template v-else-if="serverUrl">
     <div
       class="flex whitespace-nowrap items-center font-code lg:text-sm text-xs">
       {{ serverUrl }}
