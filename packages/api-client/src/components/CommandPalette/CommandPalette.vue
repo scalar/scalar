@@ -121,7 +121,7 @@ function closeHandler() {
         type="text" />
       <template
         v-for="group in availableCommands"
-        :key="group.lavel">
+        :key="group.label">
         <div
           v-show="
             group.commands.filter((command) =>
