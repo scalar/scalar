@@ -77,7 +77,7 @@ export const useModal = () =>
     <div
       :class="
         cx(
-          'scalar-modal-layout fixed left-0 top-0 flex items-center justify-center',
+          'scalar-modal-layout fixed left-0 top-0 flex items-start justify-center',
           'z-[1001] h-[100dvh] w-[100dvw]',
           'bg-backdrop opacity-0',
           size === 'full' && 'flex',
@@ -88,7 +88,7 @@ export const useModal = () =>
         :style="{ maxWidth }">
         <DialogTitle
           v-if="title"
-          class="scalar-modal-header font-semiBold m-0 rounded-lg px-6 py-3 text-left text-xs text-c-1"
+          class="scalar-modal-header m-0 rounded-lg px-6 py-3 text-left text-xs font-medium text-c-1"
           :class="{ 'pb-0 pt-6': variant === 'history' }">
           {{ title }}
         </DialogTitle>
@@ -112,9 +112,6 @@ export const useModal = () =>
 }
 .scalar-modal {
   animation: modal-pop 0.15s 0.15s forwards;
-  height: calc(100% - 120px);
-  width: calc(100% - 8px);
-  max-width: 1390px;
   position: fixed;
   left: 0;
   top: 0;
