@@ -13,18 +13,16 @@ const emit = defineEmits<{
 </script>
 <template>
   <form
-    class="flex flex-col gap-3"
+    class="flex flex-col gap-6 text-base"
     @submit.prevent="emit('submit')">
     <slot />
-    <div class="flex gap-3">
+    <div class="flex justify-end gap-3">
       <ScalarButton
-        class="flex-1"
         variant="outlined"
         @click="emit('cancel')">
         Cancel
       </ScalarButton>
       <ScalarButton
-        class="flex-1"
         :error="danger"
         type="submit">
         {{ label ?? 'Submit' }}
