@@ -1,5 +1,11 @@
 # @scalar/express-api-reference
 
+## 0.4.99
+
+### Patch Changes
+
+- @scalar/api-reference@1.24.38
+
 ## 0.4.98
 
 ### Patch Changes
