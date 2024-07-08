@@ -10,7 +10,7 @@ export default defineConfig({
     }) as Plugin,
     devServer({
       adapter,
-      entry: 'src/index.tsx',
+      entry: 'src/index.ts',
     }) as Plugin,
   ],
   build: {
