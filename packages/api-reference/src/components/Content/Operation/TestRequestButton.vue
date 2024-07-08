@@ -21,7 +21,9 @@ defineProps<{
         },
       })
     ">
-    <ScalarIcon icon="PaperAirplane" />
+    <ScalarIcon
+      icon="Play"
+      size="sm" />
     <span>Test Request</span>
   </button>
 </template>
@@ -55,8 +57,6 @@ defineProps<{
   background: var(--scalar-button-1-hover);
 }
 .show-api-client-button svg {
-  height: 12px;
-  width: auto;
-  margin-right: 6px;
+  margin-right: 4px;
 }
 </style>
