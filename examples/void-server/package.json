@@ -1,0 +1,53 @@
+{
+  "name": "@scalar-examples/void-server",
+  "description": "Replies with the request data",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "examples/void-server"
+  },
+  "keywords": [
+    "http testing"
+  ],
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "_test": "open https://github.com/cloudflare/workers-sdk/issues/6071",
+    "build": "vite build",
+    "deploy": "$npm_execpath run build && wrangler pages deploy dist",
+    "dev": "vite",
+    "format": "$npm_execpath prettier --write .",
+    "format:check": "$npm_execpath prettier --check .",
+    "preview": "wrangler pages dev dist",
+    "types:check": "tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
+  "dependencies": {
+    "@scalar/void-server": "workspace:*",
+    "follow-redirects": "^1.15.6",
+    "form-data": "^4.0.0",
+    "hono": "^4.4.7",
+    "proxy-from-env": "^1.1.0",
+    "yaml": "^2.4.5"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.4.6",
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "@hono/vite-cloudflare-pages": "^0.4.1",
+    "@hono/vite-dev-server": "^0.12.2",
+    "@originjs/vite-plugin-commonjs": "^1.0.3",
+    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "prettier": "^3.3.2",
+    "typescript": "^5.5.2",
+    "vite": "^5.3.1",
+    "vitest": "^1.6.0",
+    "wrangler": "^3.61.0"
+  }
+}

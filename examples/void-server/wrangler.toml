@@ -1,0 +1,4 @@
+compatibility_date="2024-04-19"
+compatibility_flags=["nodejs_compat"]
+
+name="void"

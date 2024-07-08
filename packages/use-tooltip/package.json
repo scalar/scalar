@@ -49,7 +49,7 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.6.0",
     "tsc-alias": "^1.8.8",
-    "vite": "^5.2.10",
+    "vite": "^5.3.1",
     "vitest": "^1.6.0",
     "vue": "^3.4.22",
     "vue-tsc": "^2.0.13"
