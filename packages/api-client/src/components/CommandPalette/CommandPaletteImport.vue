@@ -2,7 +2,7 @@
 import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 defineProps<{
   title: string
@@ -39,6 +39,11 @@ const handleSubmit = async () => {
     emits('close')
   }
 }
+
+const importInput = ref<HTMLInputElement | null>(null)
+onMounted(() => {
+  importInput.value?.focus()
+})
 </script>
 <template>
   <h2>{{ title }}</h2>
@@ -52,6 +57,7 @@ const handleSubmit = async () => {
         for="requestimport"></label>
       <input
         id="requestimport"
+        ref="importInput"
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
         label="Paste Swagger File URL"
         placeholder="Paste Swagger File URL" />

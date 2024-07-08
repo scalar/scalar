@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 defineProps<{
   title: string
@@ -43,6 +43,11 @@ const handleSubmit = () => {
     emits('close')
   }
 }
+
+const folderInput = ref<HTMLInputElement | null>(null)
+onMounted(() => {
+  folderInput.value?.focus()
+})
 </script>
 <template>
   <h2>{{ title }}</h2>
@@ -56,6 +61,7 @@ const handleSubmit = () => {
         for="foldername"></label>
       <input
         id="foldername"
+        ref="folderInput"
         v-model="folderName"
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
         label="Folder Name"

@@ -4,7 +4,7 @@ import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import type { RequestMethod } from '@scalar/oas-utils/helpers'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 defineProps<{
@@ -66,6 +66,11 @@ function handleSubmit() {
   push(`/request/${newRequest.uid}`)
   emits('close')
 }
+
+const requestInput = ref<HTMLInputElement | null>(null)
+onMounted(() => {
+  requestInput.value?.focus()
+})
 </script>
 <template>
   <h2>{{ title }}</h2>
@@ -79,6 +84,7 @@ function handleSubmit() {
         for="requestname"></label>
       <input
         id="requestname"
+        ref="requestInput"
         v-model="requestName"
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
         label="Request Name"

@@ -7,7 +7,7 @@ import {
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 defineProps<{
   title: string
@@ -18,12 +18,17 @@ const emits = defineEmits<{
 }>()
 
 const { workspaceRequests } = useWorkspace()
-const variantName = ref('')
+const exampleName = ref('')
 const selectedRequest = ref(workspaceRequests.value[0])
 
 function handleSelect(request: any) {
   selectedRequest.value = request
 }
+
+const exampleInput = ref<HTMLInputElement | null>(null)
+onMounted(() => {
+  exampleInput.value?.focus()
+})
 </script>
 <template>
   <h2>{{ title }}</h2>
@@ -34,10 +39,11 @@ function handleSelect(request: any) {
       class="gap-3 rounded bg-b-2 focus-within:bg-b-1 focus-within:shadow-border min-h-20 relative">
       <label
         class="absolute w-full h-full opacity-0 cursor-text"
-        for="variantnanme"></label>
+        for="examplename"></label>
       <input
-        id="variantnanme"
-        v-model="variantName"
+        id="examplename"
+        ref="exampleInput"
+        v-model="exampleName"
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
         label="Variant Name"
         placeholder="Variant Name" />
@@ -77,7 +83,7 @@ function handleSelect(request: any) {
       <ScalarButton
         class="max-h-8 text-xs p-0 px-3"
         type="submit">
-        Create Variant
+        Create Example
       </ScalarButton>
     </div>
   </form>

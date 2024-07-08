@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { type Icon, type ModalState, ScalarIcon } from '@scalar/components'
 import { useMagicKeys, whenever } from '@vueuse/core'
-import { type Component, ref } from 'vue'
+import { type Component, computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import CommandPaletteCollection from './CommandPaletteCollection.vue'
+import CommandPaletteExample from './CommandPaletteExample.vue'
 import CommandPaletteFolder from './CommandPaletteFolder.vue'
 import CommandPaletteImport from './CommandPaletteImport.vue'
 import CommandPaletteRequest from './CommandPaletteRequest.vue'
-import CommandPaletteVariant from './CommandPaletteVariant.vue'
 
 const props = defineProps<{
   state: ModalState
@@ -32,7 +32,7 @@ const PaletteComponents: Record<string, Component> = {
   'Create Request': CommandPaletteRequest,
   'Add Folder': CommandPaletteFolder,
   'Create Collection': CommandPaletteCollection,
-  'Add Example': CommandPaletteVariant,
+  'Add Example': CommandPaletteExample,
 }
 
 type Command = {
@@ -98,6 +98,17 @@ const keys = useMagicKeys()
 
 const commandQuery = ref('')
 const activeCommand = ref<CommandNames>('')
+const selectedSearchResult = ref<number>(0)
+const commandRefs = ref<HTMLElement[]>([])
+
+const searchResultsWithPlaceholderResults = computed(() =>
+  availableCommands.reduce((acc, group) => {
+    const filteredGroupCommands = group.commands.filter((command) =>
+      command.name.toLowerCase().includes(commandQuery.value.toLowerCase()),
+    )
+    return [...acc, ...filteredGroupCommands]
+  }, [] as Command[]),
+)
 
 whenever(keys.escape, () => {
   if (props.state.open) props.state.hide()
@@ -108,12 +119,72 @@ function closeHandler() {
   commandQuery.value = ''
   activeCommand.value = ''
 }
+
+whenever(keys.enter, () => {
+  if (!props.state.open) {
+    return
+  }
+
+  if (!window) {
+    return
+  }
+
+  const command =
+    searchResultsWithPlaceholderResults.value[selectedSearchResult.value]
+  command?.overloadAction?.() ?? (activeCommand.value = command.name)
+})
+
+whenever(keys.ArrowDown, () => {
+  if (!props.state.open) {
+    return
+  }
+
+  if (!window) {
+    return
+  }
+
+  if (
+    selectedSearchResult.value <
+    searchResultsWithPlaceholderResults.value.length - 1
+  ) {
+    selectedSearchResult.value++
+  } else {
+    selectedSearchResult.value = 0
+  }
+
+  commandRefs.value[selectedSearchResult.value]?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center',
+  })
+})
+
+whenever(keys.ArrowUp, () => {
+  if (!props.state.open) {
+    return
+  }
+
+  if (!window) {
+    return
+  }
+
+  if (selectedSearchResult.value > 0) {
+    selectedSearchResult.value--
+  } else {
+    selectedSearchResult.value =
+      searchResultsWithPlaceholderResults.value.length - 1
+  }
+
+  commandRefs.value[selectedSearchResult.value]?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center',
+  })
+})
 </script>
 <template>
   <div
     v-show="state.open"
     class="commandmenu-clickout"
-    @click="state.hide()"></div>
+    @click="closeHandler()"></div>
   <div
     v-show="state.open"
     class="commandmenu">
@@ -134,7 +205,7 @@ function closeHandler() {
           type="text" />
       </div>
       <template
-        v-for="group in availableCommands"
+        v-for="(group, gIdx) in availableCommands"
         :key="group.label">
         <div
           v-show="
@@ -146,11 +217,23 @@ function closeHandler() {
           {{ group.label }}
         </div>
         <div
-          v-for="command in group.commands.filter((command) =>
+          v-for="(command, index) in group.commands.filter((command) =>
             command.name.toLowerCase().includes(commandQuery.toLowerCase()),
           )"
           :key="command.name"
+          :ref="
+            (el) => {
+              if (el) commandRefs[index] = el as HTMLElement
+            }
+          "
           class="commandmenu-item text-sm flex items-center py-1.5 px-2 rounded hover:bg-b-2 cursor-pointer"
+          :class="{
+            'bg-b-2':
+              gIdx > 0
+                ? selectedSearchResult ===
+                  index + availableCommands[gIdx - 1].commands.length
+                : selectedSearchResult === index,
+          }"
           @click="
             command?.overloadAction?.() ?? (activeCommand = command.name)
           ">

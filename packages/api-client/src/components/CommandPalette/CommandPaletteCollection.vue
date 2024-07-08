@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton } from '@scalar/components'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 defineProps<{
   title: string
@@ -26,6 +26,11 @@ const handleSubmit = () => {
   })
   emits('close')
 }
+
+const collectionInput = ref<HTMLInputElement | null>(null)
+onMounted(() => {
+  collectionInput.value?.focus()
+})
 </script>
 <template>
   <h2>{{ title }}</h2>
@@ -39,6 +44,7 @@ const handleSubmit = () => {
         for="collectionanme"></label>
       <input
         id="collectionanme"
+        ref="collectionInput"
         v-model="collectionName"
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
         label="Collection Name"
@@ -48,9 +54,9 @@ const handleSubmit = () => {
       <div class="flex flex-1 gap-2 max-h-8"></div>
       <ScalarButton
         class="max-h-8 text-xs p-0 px-3"
-        type="submit"
-        >Continue</ScalarButton
-      >
+        type="submit">
+        Continue
+      </ScalarButton>
     </div>
   </form>
 </template>
