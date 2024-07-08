@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.12.11
+
+### Patch Changes
+
+- e649da6: feat: set copy clipboard in scalar codeblock
+- a1d59de: fix: resize scalar modal
+- Updated dependencies [c2362ee]
+  - @scalar/code-highlight@0.0.7
+
 ## 0.12.10
 
 ### Patch Changes

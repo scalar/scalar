@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.13
+
+### Patch Changes
+
+- 1a675be: feat: add empty state + drafts collection
+
 ## 0.2.12
 
 ### Patch Changes

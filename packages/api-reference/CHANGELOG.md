@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.24.37
+
+### Patch Changes
+
+- e649da6: feat: set copy clipboard in scalar codeblock
+- Updated dependencies [e649da6]
+- Updated dependencies [6b32eee]
+- Updated dependencies [1a675be]
+- Updated dependencies [a1d59de]
+- Updated dependencies [a1d59de]
+  - @scalar/components@0.12.11
+  - @scalar/api-client@2.0.14
+  - @scalar/oas-utils@0.2.13
+
 ## 1.24.36
 
 ### Patch Changes

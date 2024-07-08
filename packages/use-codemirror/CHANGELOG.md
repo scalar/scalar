@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.11.5
+
+### Patch Changes
+
+- 6b32eee: feat: add json linter
+
 ## 0.11.4
 
 ### Patch Changes
