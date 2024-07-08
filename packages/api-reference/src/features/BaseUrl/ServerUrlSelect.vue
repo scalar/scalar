@@ -55,7 +55,8 @@ const selected = computed<ScalarListboxOption | undefined>({
 
 <style scoped>
 .url-select {
-  padding: 10px 9px 9px 0;
+  padding: 0;
+  min-height: 32px;
   color: var(--scalar-color-1);
   align-items: center;
   display: flex;
@@ -65,6 +66,10 @@ const selected = computed<ScalarListboxOption | undefined>({
   height: auto;
   outline: none;
   width: 100%;
+}
+.url-select span {
+  display: flex;
+  align-items: center;
 }
 .url-select svg {
   color: var(--scalar-color-2);
