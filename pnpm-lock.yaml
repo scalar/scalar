@@ -227,6 +227,64 @@ importers:
         specifier: ^1.3.1
         version: 1.6.0(@types/node@20.14.9)(terser@5.31.1)
 
+  examples/galaxy-server:
+    dependencies:
+      '@scalar/galaxy':
+        specifier: workspace:*
+        version: link:../../packages/galaxy
+      '@scalar/mock-server':
+        specifier: workspace:*
+        version: link:../../packages/mock-server
+      follow-redirects:
+        specifier: ^1.15.6
+        version: 1.15.6(debug@4.3.5)
+      form-data:
+        specifier: ^4.0.0
+        version: 4.0.0
+      hono:
+        specifier: ^4.4.8
+        version: 4.4.12
+      proxy-from-env:
+        specifier: ^1.1.0
+        version: 1.1.0
+      yaml:
+        specifier: ^2.4.5
+        version: 2.4.5
+    devDependencies:
+      '@cloudflare/vitest-pool-workers':
+        specifier: ^0.4.7
+        version: 0.4.9(@cloudflare/workers-types@4.20240620.0)(@vitest/runner@1.6.0)(@vitest/snapshot@1.6.0)(vitest@1.6.0(@types/node@20.14.9)(jsdom@24.1.0)(terser@5.31.1))
+      '@cloudflare/workers-types':
+        specifier: ^4.20240620.0
+        version: 4.20240620.0
+      '@hono/vite-cloudflare-pages':
+        specifier: ^0.4.1
+        version: 0.4.2(hono@4.4.12)
+      '@hono/vite-dev-server':
+        specifier: ^0.12.2
+        version: 0.12.2(hono@4.4.12)
+      '@originjs/vite-plugin-commonjs':
+        specifier: ^1.0.3
+        version: 1.0.3
+      '@trivago/prettier-plugin-sort-imports':
+        specifier: ^4.3.0
+        version: 4.3.0(@vue/compiler-sfc@3.4.31)(prettier@3.3.2)
+      prettier:
+        specifier: ^3.3.2
+        version: 3.3.2
+      typescript:
+        specifier: ^5.5.2
+        version: 5.5.2
+      vite:
+        specifier: ^5.3.1
+        version: 5.3.2(@types/node@20.14.9)(terser@5.31.1)
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@20.14.9)(jsdom@24.1.0)(terser@5.31.1)
+      wrangler:
+        specifier: ^3.62.0
+        version: 3.63.1(@cloudflare/workers-types@4.20240620.0)
+
   examples/hono-api-reference:
     dependencies:
       '@hono/node-server':
@@ -239,7 +297,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/hono-api-reference
       hono:
-        specifier: ^4.4.7
+        specifier: ^4.4.8
         version: 4.4.12
     devDependencies:
       nodemon:
@@ -572,7 +630,7 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       hono:
-        specifier: ^4.4.7
+        specifier: ^4.4.8
         version: 4.4.12
       proxy-from-env:
         specifier: ^1.1.0
@@ -582,7 +640,7 @@ importers:
         version: 2.4.5
     devDependencies:
       '@cloudflare/vitest-pool-workers':
-        specifier: ^0.4.6
+        specifier: ^0.4.7
         version: 0.4.9(@cloudflare/workers-types@4.20240620.0)(@vitest/runner@1.6.0)(@vitest/snapshot@1.6.0)(vitest@1.6.0(@types/node@20.14.9)(jsdom@24.1.0)(terser@5.31.1))
       '@cloudflare/workers-types':
         specifier: ^4.20240620.0
@@ -612,7 +670,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.9)(jsdom@24.1.0)(terser@5.31.1)
       wrangler:
-        specifier: ^3.61.0
+        specifier: ^3.62.0
         version: 3.63.1(@cloudflare/workers-types@4.20240620.0)
 
   examples/web:
@@ -1169,7 +1227,7 @@ importers:
         specifier: ^10.3.10
         version: 10.4.1
       hono:
-        specifier: ^4.4.7
+        specifier: ^4.4.8
         version: 4.4.12
       kleur:
         specifier: ^4.1.5
@@ -1597,7 +1655,7 @@ importers:
         specifier: workspace:*
         version: link:../api-reference
       hono:
-        specifier: ^4.4.7
+        specifier: ^4.4.8
         version: 4.4.12
     devDependencies:
       tsup:
@@ -1622,7 +1680,7 @@ importers:
         specifier: ^0.7.1
         version: 0.7.1
       hono:
-        specifier: ^4.4.7
+        specifier: ^4.4.8
         version: 4.4.12
     devDependencies:
       '@scalar/build-tooling':
@@ -2063,7 +2121,7 @@ importers:
         specifier: ^1.11.0
         version: 1.11.3
       hono:
-        specifier: ^4.4.7
+        specifier: ^4.4.8
         version: 4.4.12
       object-to-xml:
         specifier: ^2.0.0
@@ -23684,7 +23742,7 @@ snapshots:
       ohash: 1.1.3
       pathe: 1.1.2
       perfect-debounce: 1.0.0
-      pkg-types: 1.1.1
+      pkg-types: 1.1.2
       rc9: 2.1.2
     optionalDependencies:
       magicast: 0.3.4
@@ -28285,7 +28343,7 @@ snapshots:
   local-pkg@0.5.0:
     dependencies:
       mlly: 1.7.1
-      pkg-types: 1.1.1
+      pkg-types: 1.1.2
 
   locate-path@3.0.0:
     dependencies:
@@ -29153,7 +29211,7 @@ snapshots:
       mlly: 1.7.1
       mri: 1.2.0
       pathe: 1.1.2
-      pkg-types: 1.1.1
+      pkg-types: 1.1.2
       postcss: 8.4.39
       postcss-nested: 6.0.1(postcss@8.4.39)
       semver: 7.6.2
@@ -29165,7 +29223,7 @@ snapshots:
     dependencies:
       acorn: 8.12.0
       pathe: 1.1.2
-      pkg-types: 1.1.1
+      pkg-types: 1.1.2
       ufo: 1.5.3
 
   mnemonist@0.39.6:
@@ -33037,7 +33095,7 @@ snapshots:
       mkdist: 1.5.1(typescript@5.5.2)(vue-tsc@2.0.21(typescript@5.5.2))
       mlly: 1.7.1
       pathe: 1.1.2
-      pkg-types: 1.1.1
+      pkg-types: 1.1.2
       pretty-bytes: 6.1.1
       rollup: 3.29.4
       rollup-plugin-dts: 6.1.1(rollup@3.29.4)(typescript@5.5.2)

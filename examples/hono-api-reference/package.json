@@ -19,7 +19,7 @@
     "@hono/node-server": "^1.11.0",
     "@hono/zod-openapi": "^0.8.6",
     "@scalar/hono-api-reference": "workspace:*",
-    "hono": "^4.4.7"
+    "hono": "^4.4.8"
   },
   "devDependencies": {
     "nodemon": "^3.1.3",
