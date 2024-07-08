@@ -16,9 +16,19 @@ describe('javascript', () => {
       javascript({
         spec: {
           url,
-          cdn: 'https://fastly.jsdelivr.net/npm/@scalar/api-reference',
         },
       }).toString(),
     ).toContain(`https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml`)
+  })
+
+  it('uses a custom CDN', () => {
+    expect(
+      javascript({
+        spec: {
+          url,
+        },
+        cdn: 'https://custom.example.com/cdn/@scalar/galaxy',
+      }).toString(),
+    ).toContain('script src="https://custom.example.com/cdn/@scalar/galaxy"')
   })
 })

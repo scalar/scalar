@@ -15,24 +15,21 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsup ./src/index.ts --format esm,cjs --dts",
+    "build": "scalar-build-rollup",
+    "build:playground": "cd playground && scalar-build-rollup",
     "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet --watch ./",
-    "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/hono-api-reference/Dockerfile .",
-    "test": "vitest run"
+    "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./playground/Dockerfile .",
+    "test": "vitest",
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
   },
   "type": "module",
-  "main": "dist/index.cjs",
-  "types": "dist/index.d.cts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "files": [
@@ -40,14 +37,17 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@scalar/api-reference": "workspace:*",
     "hono": "^4.2.7"
   },
   "devDependencies": {
     "@hono/node-server": "^1.11.0",
     "@hono/zod-openapi": "^0.8.6",
+    "@scalar/build-tooling": "workspace:*",
     "hono": "^4.2.7",
     "tsup": "^7.2.0",
     "vite": "^5.2.10",
+    "vite-node": "^1.3.1",
     "vitest": "^1.6.0"
   }
 }
