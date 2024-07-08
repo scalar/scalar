@@ -230,16 +230,16 @@ provide(
 hideModels.value = props.configuration.hideModels ?? false
 
 useDeprecationWarnings(props.configuration)
+
+const fontsStyleTag = computed(
+  () => `<style>
+  ${getThemeStyles(props.configuration.theme, {
+    fonts: props.configuration.withDefaultFonts,
+  })}</style>`,
+)
 </script>
 <template>
-  <Style
-    v-if="props.configuration.withDefaultFonts || props.configuration.theme">
-    {{
-      getThemeStyles(configuration.theme, {
-        fonts: configuration.withDefaultFonts,
-      })
-    }}
-  </Style>
+  <div v-html="fontsStyleTag"></div>
   <div
     ref="documentEl"
     class="scalar-app scalar-api-reference references-layout"
