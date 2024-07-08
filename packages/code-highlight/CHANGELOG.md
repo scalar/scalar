@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.7
+
+### Patch Changes
+
+- c2362ee: fix: don't constrain markdown image height
+
 ## 0.0.6
 
 ### Patch Changes

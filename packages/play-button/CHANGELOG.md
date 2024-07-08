@@ -1,5 +1,17 @@
 # @scalar/play-button
 
+## 0.2.35
+
+### Patch Changes
+
+- Updated dependencies [e649da6]
+- Updated dependencies [6b32eee]
+- Updated dependencies [1a675be]
+- Updated dependencies [a1d59de]
+  - @scalar/api-reference@1.24.37
+  - @scalar/api-client@2.0.14
+  - @scalar/oas-utils@0.2.13
+
 ## 0.2.34
 
 ### Patch Changes

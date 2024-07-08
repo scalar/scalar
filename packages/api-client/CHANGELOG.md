@@ -1,5 +1,20 @@
 # @scalar/api-client
 
+## 2.0.14
+
+### Patch Changes
+
+- 6b32eee: feat: enable lint on request body
+- 1a675be: feat: add empty state + drafts collection
+- a1d59de: fix: update sidebar list element modal style
+- Updated dependencies [e649da6]
+- Updated dependencies [6b32eee]
+- Updated dependencies [1a675be]
+- Updated dependencies [a1d59de]
+  - @scalar/components@0.12.11
+  - @scalar/use-codemirror@0.11.5
+  - @scalar/oas-utils@0.2.13
+
 ## 2.0.13
 
 ### Patch Changes

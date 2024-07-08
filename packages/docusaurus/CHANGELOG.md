@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.4.37
+
+### Patch Changes
+
+- c2362ee: fix: don't constrain markdown image height
+  - @scalar/api-reference-react@0.3.35
+
 ## 0.4.36
 
 ### Patch Changes
