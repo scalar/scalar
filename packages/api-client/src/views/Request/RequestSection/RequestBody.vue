@@ -404,6 +404,7 @@ watch(
               content=""
               :language="codeInputLanguage"
               lineNumbers
+              lint
               :modelValue="activeExample?.body.raw.value ?? ''"
               @update:modelValue="updateRequestBody" />
           </template>

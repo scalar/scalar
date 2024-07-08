@@ -17,6 +17,7 @@ import {
   indentOnInput,
   syntaxHighlighting,
 } from '@codemirror/language'
+import { type Diagnostic, linter } from '@codemirror/lint'
 import { type Extension, StateEffect } from '@codemirror/state'
 import {
   EditorView,
@@ -56,6 +57,8 @@ type BaseParameters = {
   lineNumbers?: MaybeRefOrGetter<boolean | undefined>
   withVariables?: MaybeRefOrGetter<boolean | undefined>
   disableEnter?: MaybeRefOrGetter<boolean | undefined>
+  /** Option to lint and show error in the editor */
+  lint?: MaybeRefOrGetter<boolean | undefined>
   onBlur?: (v: string) => void
   onFocus?: (v: string) => void
 }
@@ -147,6 +150,7 @@ export const useCodeMirror = (
     withVariables: toValue(params.withVariables),
     disableEnter: toValue(params.withVariables),
     withoutTheme: toValue(params.withoutTheme),
+    lint: toValue(params.lint),
     additionalExtensions: toValue(params.extensions),
   }))
 
@@ -250,6 +254,7 @@ function getCodeMirrorExtensions({
   withVariables = false,
   disableEnter = false,
   withoutTheme = false,
+  lint = false,
   additionalExtensions = [],
 }: {
   classes?: string[]
@@ -263,6 +268,7 @@ function getCodeMirrorExtensions({
   onBlur?: (val: string) => void
   withoutTheme?: boolean
   provider: Extension | null
+  lint?: boolean
   additionalExtensions?: Extension[]
 }) {
   const extensions: Extension[] = [
@@ -274,6 +280,17 @@ function getCodeMirrorExtensions({
       },
       '.cm-gutterElement': {
         lineHeight: '20px',
+      },
+      '.cm-tooltip': {
+        border: '1px solid #f5c6cb',
+        fontSize: '12px',
+      },
+      '.cm-tooltip-lint': {
+        backgroundColor: '#ffffff',
+      },
+      '.cm-diagnostic-error': {
+        borderLeft: '0',
+        color: '#dc1b19',
       },
     }),
     // Listen to updates
@@ -321,6 +338,27 @@ function getCodeMirrorExtensions({
   // Syntax highlighting
   if (language && languageExtensions[language]) {
     extensions.push(languageExtensions[language]())
+  }
+
+  // JSON Linter
+  if (lint && language === 'json') {
+    const jsonLinter = linter((view) => {
+      const diagnostics: Diagnostic[] = []
+      try {
+        JSON.parse(view.state.doc.toString())
+      } catch (e) {
+        if (e instanceof Error) {
+          diagnostics.push({
+            from: 0,
+            to: view.state.doc.length,
+            severity: 'error',
+            message: e.message,
+          })
+        }
+      }
+      return diagnostics
+    })
+    extensions.push(jsonLinter)
   }
 
   // Line numbers
