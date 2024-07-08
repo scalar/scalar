@@ -10,8 +10,6 @@
       "vite/client",
       "@cloudflare/workers-types/experimental",
       "@cloudflare/vitest-pool-workers"
-    ],
-    "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx"
+    ]
   }
 }
