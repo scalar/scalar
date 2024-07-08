@@ -20,7 +20,7 @@ export function BundleCommand() {
     const { specification: newContent } = await loadOpenApiFile(file)
 
     // Replace file content with newContent
-    const cache = []
+    const cache: any[] = []
     const json = JSON.stringify(
       newContent,
       (key, value) => {
@@ -29,6 +29,7 @@ export function BundleCommand() {
             // Circular reference found, discard key
             return
           }
+
           // Store value in our collection
           cache.push(value)
         }

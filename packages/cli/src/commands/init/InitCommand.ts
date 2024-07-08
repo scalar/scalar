@@ -86,7 +86,7 @@ export function InitCommand() {
     }
 
     // Function to validate file extension
-    function isValidFile(filePath) {
+    function isValidFile(filePath: string) {
       const validExtensions = ['.json', '.yaml', '.yml']
       const extension = path.extname(filePath).toLowerCase()
       return validExtensions.includes(extension)
@@ -131,12 +131,12 @@ export function InitCommand() {
     while (!validInput) {
       const response = await text({
         message: `What’s the name of your project? We’ll use that to create a custom subdomain for you.`,
-        validate(value) {
+        validate(value: string) {
           if (value.trim().length === 0) {
             return `You didn’t provide a project name. Please provide a name!`
           }
 
-          return null
+          return
         },
       })
 
@@ -179,9 +179,12 @@ export function InitCommand() {
     while (!validInput) {
       const response = await text({
         message: `Where is your OpenAPI file? ${kleur.reset().grey('(Add a path to the file)')}`,
-        validate(value) {
-          if (value.length === 0) return `Value is required!`
-          return null
+        validate(value: string) {
+          if (value.length === 0) {
+            return `Value is required!`
+          }
+
+          return
         },
       })
 

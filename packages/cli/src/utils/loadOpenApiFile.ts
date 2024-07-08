@@ -1,4 +1,4 @@
-import { load, validate } from '@scalar/openapi-parser'
+import { type ErrorObject, load, validate } from '@scalar/openapi-parser'
 import kleur from 'kleur'
 
 import { getFileOrUrl } from './getFileOrUrl'
@@ -34,8 +34,11 @@ export async function loadOpenApiFile(input: string) {
     }
 
     return result
-  } catch (error) {
-    console.warn(kleur.bold().red('[ERROR]'), kleur.red(error))
+  } catch (error: ErrorObject | any) {
+    console.warn(
+      kleur.bold().red('[ERROR]'),
+      error ? kleur.red(error.toString()) : 'Unknown error.',
+    )
     console.log()
 
     return {
@@ -45,7 +48,7 @@ export async function loadOpenApiFile(input: string) {
       schema: undefined,
       errors: [
         {
-          error: error.message,
+          error: error?.message,
           path: '',
         },
       ],

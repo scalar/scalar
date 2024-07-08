@@ -19,7 +19,7 @@ export function VoidCommand() {
       port?: number
     }) => {
       // Server instance
-      let server: ReturnType<typeof serve> = null
+      let server: ReturnType<typeof serve> | undefined = undefined
 
       // Listen for requests
       server = await bootServer({
