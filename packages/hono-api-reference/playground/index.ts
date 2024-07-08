@@ -1,6 +1,7 @@
 import { serve } from '@hono/node-server'
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
-import { apiReference } from '@scalar/hono-api-reference'
+
+import { apiReference } from '../src/index'
 
 const PORT = Number(process.env.PORT) || 5054
 const HOST = process.env.HOST || '0.0.0.0'
