@@ -124,7 +124,7 @@ export default {
 :deep(.cm-tooltip) {
   background: transparent !important;
   filter: brightness(var(--scalar-lifted-brightness));
-  border-radius: var(--scalar-radius-xl);
+  border-radius: var(--scalar-radius);
   box-shadow: var(--scalar-shadow-2);
   border: none !important;
   outline: none !important;
