@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import Import from '@/assets/ascii/import.ascii?raw'
-import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
@@ -43,25 +41,39 @@ const handleSubmit = async () => {
 }
 </script>
 <template>
-  <ScalarAsciiArt :art="Import" />
   <h2>{{ title }}</h2>
   <form
     class="flex w-full flex-col gap-3"
     @submit.prevent="handleSubmit">
-    <ScalarButton
-      class="relative"
-      variant="outlined"
-      @click="openSpecFileDialog">
-      JSON, or YAML Files
-      <ScalarIcon
-        class="text-c-3 absolute right-3 -rotate-90"
-        icon="ArrowRight"
-        size="sm" />
-    </ScalarButton>
-    <input
-      class="h-10 rounded border p-2"
-      label="Paste Swagger File URL"
-      placeholder="Paste Swagger File URL" />
-    <ScalarButton type="submit"> Continue </ScalarButton>
+    <div
+      class="gap-3 rounded bg-b-2 focus-within:bg-b-1 focus-within:shadow-border min-h-20 relative">
+      <label
+        class="absolute w-full h-full opacity-0 cursor-text"
+        for="requestimport"></label>
+      <input
+        id="requestimport"
+        class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
+        label="Paste Swagger File URL"
+        placeholder="Paste Swagger File URL" />
+    </div>
+    <div class="flex gap-2">
+      <div class="flex flex-1 gap-2 max-h-8">
+        <ScalarButton
+          class="p-2 max-h-8 gap-1 text-xs hover:bg-b-2 relative"
+          variant="outlined"
+          @click="openSpecFileDialog">
+          JSON, or YAML Files
+          <ScalarIcon
+            class="text-c-3 -rotate-90"
+            icon="ArrowRight"
+            size="sm" />
+        </ScalarButton>
+      </div>
+      <ScalarButton
+        class="max-h-8 text-xs p-0 px-3"
+        type="submit">
+        Import Collection
+      </ScalarButton>
+    </div>
   </form>
 </template>

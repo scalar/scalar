@@ -18,10 +18,10 @@ const router = useRouter()
 
 type CommandNames =
   | 'Import Collection'
-  | 'Add Request'
+  | 'Create Request'
   | 'Add Folder'
-  | 'Add Collection'
-  | 'Add Variant'
+  | 'Create Collection'
+  | 'Add Example'
   | 'Add Server'
   | 'Add Environment'
   | 'Add Cookie'
@@ -29,10 +29,10 @@ type CommandNames =
 
 const PaletteComponents: Record<string, Component> = {
   'Import Collection': CommandPaletteImport,
-  'Add Request': CommandPaletteRequest,
+  'Create Request': CommandPaletteRequest,
   'Add Folder': CommandPaletteFolder,
-  'Add Collection': CommandPaletteCollection,
-  'Add Variant': CommandPaletteVariant,
+  'Create Collection': CommandPaletteCollection,
+  'Add Example': CommandPaletteVariant,
 }
 
 type Command = {
@@ -51,24 +51,24 @@ const availableCommands: Group[] = [
     label: 'Add to Request Sidebar',
     commands: [
       {
-        name: 'Import Collection',
-        icon: 'CodeFolder',
+        name: 'Create Request',
+        icon: 'ExternalLink',
       },
       {
-        name: 'Add Request',
-        icon: 'ExternalLink',
+        name: 'Import Collection',
+        icon: 'Import',
       },
       {
         name: 'Add Folder',
-        icon: 'CodeFolder',
+        icon: 'Folder',
       },
       {
-        name: 'Add Collection',
-        icon: 'CodeFolder',
+        name: 'Create Collection',
+        icon: 'Collection',
       },
       {
-        name: 'Add Variant',
-        icon: 'ExternalLink',
+        name: 'Add Example',
+        icon: 'Example',
       },
     ],
   },
@@ -112,13 +112,27 @@ function closeHandler() {
 <template>
   <div
     v-show="state.open"
+    class="commandmenu-clickout"
+    @click="state.hide()"></div>
+  <div
+    v-show="state.open"
     class="commandmenu">
     <template v-if="!activeCommand">
-      <input
-        v-model="commandQuery"
-        class="w-full rounded bg-b-2 border-none py-1.5 px-2 mb-2 text-sm"
-        placeholder="Search commands..."
-        type="text" />
+      <div
+        class="bg-b-2 flex items-center rounded mb-2 pl-2 focus-within:bg-b-1 focus-within:shadow-border">
+        <label for="commandmenu">
+          <ScalarIcon
+            class="text-c-1 mr-2.5 !stroke-1.5"
+            icon="SearchNew"
+            size="sm" />
+        </label>
+        <input
+          id="commandmenu"
+          v-model="commandQuery"
+          class="w-full rounded bg-none border-none py-1.5 text-sm focus:outline-none"
+          placeholder="Search commands..."
+          type="text" />
+      </div>
       <template
         v-for="group in availableCommands"
         :key="group.label">
@@ -150,9 +164,13 @@ function closeHandler() {
     </template>
     <template v-else>
       <button
+        class="absolute p-1 hover:bg-b-3 rounded text-c-3 active:text-c-1 m-1.5 z-10"
         type="button"
         @click="activeCommand = ''">
-        back
+        <ScalarIcon
+          class="!stroke-1.5"
+          icon="ChevronLeft"
+          size="sm" />
       </button>
       <component
         :is="PaletteComponents[activeCommand]"
@@ -164,7 +182,7 @@ function closeHandler() {
 /* command menu */
 .commandmenu {
   box-shadow: var(--scalar-shadow-2);
-  border-radius: var(--scalar-radius);
+  border-radius: var(--scalar-radius-lg);
   background-color: var(--scalar-background-1);
   width: 100%;
   max-width: 580px;
@@ -173,7 +191,40 @@ function closeHandler() {
   position: fixed;
   z-index: 10;
   left: 50%;
-  top: 50%;
-  transform: translate3d(-50%, -50%, 0);
+  top: 150px;
+  opacity: 0;
+  transform: translate3d(-50%, 10px, 0);
+  z-index: 100;
+  animation: fadeincommandmenu ease-in-out 0.3s forwards;
+  animation-delay: 0.1s;
+}
+.commandmenu-clickout {
+  background: rgba(0, 0, 0, 0.2);
+  animation: fadeincommand ease-in-out 0.3s forwards;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  cursor: pointer;
+}
+@keyframes fadeincommand {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fadeincommandmenu {
+  0% {
+    opacity: 0;
+    transform: translate3d(-50%, 10px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0);
+  }
 }
 </style>

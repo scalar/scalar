@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import Collection from '@/assets/ascii/collection.ascii?raw'
-import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton } from '@scalar/components'
 import { ref } from 'vue'
@@ -30,18 +28,29 @@ const handleSubmit = () => {
 }
 </script>
 <template>
-  <ScalarAsciiArt
-    :art="Collection"
-    class="mt-[3px]" />
   <h2>{{ title }}</h2>
   <form
     class="flex w-full flex-col gap-3"
     @submit.prevent="handleSubmit">
-    <input
-      v-model="collectionName"
-      class="h-10 rounded border p-2"
-      label="Collection Name"
-      placeholder="Collection Name" />
-    <ScalarButton type="submit">Continue</ScalarButton>
+    <div
+      class="gap-3 rounded bg-b-2 focus-within:bg-b-1 focus-within:shadow-border min-h-20 relative">
+      <label
+        class="absolute w-full h-full opacity-0 cursor-text"
+        for="collectionanme"></label>
+      <input
+        id="collectionanme"
+        v-model="collectionName"
+        class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
+        label="Collection Name"
+        placeholder="Collection Name" />
+    </div>
+    <div class="flex">
+      <div class="flex flex-1 gap-2 max-h-8"></div>
+      <ScalarButton
+        class="max-h-8 text-xs p-0 px-3"
+        type="submit"
+        >Continue</ScalarButton
+      >
+    </div>
   </form>
 </template>
