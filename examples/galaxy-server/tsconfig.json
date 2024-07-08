@@ -1,11 +1,8 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "strict": true,
-    "lib": ["ESNext"],
     "types": [
+      "node",
       "@cloudflare/workers-types",
       "vite/client",
       "@cloudflare/workers-types/experimental",
