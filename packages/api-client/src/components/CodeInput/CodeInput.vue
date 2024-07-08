@@ -15,6 +15,7 @@ const props = withDefaults(
     error?: boolean
     emitOnBlur?: boolean
     lineNumbers?: boolean
+    lint?: boolean
     language?: CodeMirrorLanguage
     handleFieldSubmit?: (e: string) => void
     handleFieldChange?: (e: string) => void
@@ -75,6 +76,7 @@ const { codeMirror } = useCodeMirror({
   codeMirrorRef,
   lineNumbers: toRef(() => props.lineNumbers),
   language: toRef(() => props.language),
+  lint: toRef(() => props.lint),
   extensions,
 })
 
