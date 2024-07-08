@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.0.15
+
+### Patch Changes
+
+- f86a242: fix: data table input fixtures
+- Updated dependencies [f86a242]
+  - @scalar/components@0.12.12
+
 ## 2.0.14
 
 ### Patch Changes

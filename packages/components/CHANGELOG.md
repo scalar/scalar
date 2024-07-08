@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.12
+
+### Patch Changes
+
+- f86a242: fix: remove scalar dropdown button border
+
 ## 0.12.11
 
 ### Patch Changes
