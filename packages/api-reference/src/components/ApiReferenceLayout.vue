@@ -36,7 +36,6 @@ import ApiClientModal from './ApiClientModal.vue'
 import { Content } from './Content'
 import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
-import { Style } from './Util'
 
 const props = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
 
@@ -230,16 +229,16 @@ provide(
 hideModels.value = props.configuration.hideModels ?? false
 
 useDeprecationWarnings(props.configuration)
+
+const fontsStyleTag = computed(
+  () => `<style>
+  ${getThemeStyles(props.configuration.theme, {
+    fonts: props.configuration.withDefaultFonts,
+  })}</style>`,
+)
 </script>
 <template>
-  <Style
-    v-if="props.configuration.withDefaultFonts || props.configuration.theme">
-    {{
-      getThemeStyles(configuration.theme, {
-        fonts: configuration.withDefaultFonts,
-      })
-    }}
-  </Style>
+  <div v-html="fontsStyleTag"></div>
   <div
     ref="documentEl"
     class="scalar-app scalar-api-reference references-layout"
