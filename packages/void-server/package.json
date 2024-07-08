@@ -42,7 +42,7 @@
   "module": "dist/index.js",
   "dependencies": {
     "@hono/node-server": "^1.11.0",
-    "hono": "^4.4.8",
+    "hono": "^4.2.7",
     "object-to-xml": "^2.0.0",
     "undici": "^6.19.2"
   },
