@@ -17,7 +17,7 @@
   },
   "scripts": {
     "build": "vite build",
-    "deploy": "pnpm run build && wrangler pages deploy ./dist",
+    "deploy": "pnpm run build && wrangler pages deploy ./dist --project-name=client",
     "dev": "vite",
     "preview": "pnpm run build && wrangler pages dev ./dist",
     "test:unit": "vitest",
