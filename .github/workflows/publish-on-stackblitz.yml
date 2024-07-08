@@ -24,10 +24,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-node-20-branch-${{ github.head_ref }}
-          restore-keys: |
-            turbo-${{ runner.os }}-node-20-branch-
-            turbo-${{ runner.os }}-node-
+          key: turbo-${{ runner.os }}-node-20
       - name: Build packages
         run: pnpm build:packages
       - name: Publish on Stackblitz
