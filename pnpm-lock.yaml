@@ -266,21 +266,9 @@ importers:
       '@originjs/vite-plugin-commonjs':
         specifier: ^1.0.3
         version: 1.0.3
-      '@trivago/prettier-plugin-sort-imports':
-        specifier: ^4.3.0
-        version: 4.3.0(@vue/compiler-sfc@3.4.31)(prettier@3.3.2)
-      prettier:
-        specifier: ^3.3.2
-        version: 3.3.2
-      typescript:
-        specifier: ^5.5.2
-        version: 5.5.2
       vite:
         specifier: ^5.3.1
         version: 5.3.2(@types/node@20.14.9)(terser@5.31.1)
-      vitest:
-        specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.14.9)(jsdom@24.1.0)(terser@5.31.1)
       wrangler:
         specifier: ^3.62.0
         version: 3.63.1(@cloudflare/workers-types@4.20240620.0)
@@ -654,21 +642,9 @@ importers:
       '@originjs/vite-plugin-commonjs':
         specifier: ^1.0.3
         version: 1.0.3
-      '@trivago/prettier-plugin-sort-imports':
-        specifier: ^4.3.0
-        version: 4.3.0(@vue/compiler-sfc@3.4.31)(prettier@3.3.2)
-      prettier:
-        specifier: ^3.3.2
-        version: 3.3.2
-      typescript:
-        specifier: ^5.5.2
-        version: 5.5.2
       vite:
         specifier: ^5.3.1
         version: 5.3.2(@types/node@20.14.9)(terser@5.31.1)
-      vitest:
-        specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.14.9)(jsdom@24.1.0)(terser@5.31.1)
       wrangler:
         specifier: ^3.62.0
         version: 3.63.1(@cloudflare/workers-types@4.20240620.0)

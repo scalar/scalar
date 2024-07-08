@@ -16,13 +16,13 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "vite build",
-    "deploy": "$npm_execpath run build && wrangler pages deploy dist",
-    "dev": "vite",
-    "format": "$npm_execpath prettier --write .",
-    "format:check": "$npm_execpath prettier --check .",
-    "preview": "wrangler pages dev dist",
     "_test": "open https://github.com/cloudflare/workers-sdk/issues/6071",
+    "build": "vite build",
+    "deploy": "pnpm run build && wrangler pages deploy dist",
+    "dev": "vite",
+    "format": "pnpm prettier --write .",
+    "format:check": "pnpm prettier --check .",
+    "preview": "wrangler pages dev dist",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
@@ -41,11 +41,7 @@
     "@hono/vite-cloudflare-pages": "^0.4.1",
     "@hono/vite-dev-server": "^0.12.2",
     "@originjs/vite-plugin-commonjs": "^1.0.3",
-    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "prettier": "^3.3.2",
-    "typescript": "^5.5.2",
     "vite": "^5.3.1",
-    "vitest": "^1.6.0",
     "wrangler": "^3.62.0"
   }
 }
