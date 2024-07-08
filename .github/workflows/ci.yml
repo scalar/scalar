@@ -189,14 +189,12 @@ jobs:
         with:
           files_yaml: |
             void:
+              - examples/void-server/**
               - packages/void-server/**
-              - projects/void/**
-      - name: Run step if doc file(s) change
-        if: steps.changed-files.outputs.void_any_changed == 'true'
-        env:
-          CHANGED_FILES: ${{ steps.changed-files.outputs.void_all_changed_files }}
-        run: |
-          echo "Files that have changed: $CHANGED_FILES"
+            galaxy:
+              - examples/galaxy-server/**
+              - packages/galaxy/**
+              - packages/mock-server/**
       - uses: pnpm/action-setup@v4
       - name: Use Node.js 20
         uses: actions/setup-node@v4
@@ -212,9 +210,10 @@ jobs:
           key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
       - name: Build
         run: pnpm turbo build
-      - name: Deploy to Cloudflare
+      - name: Deploy void.scalar.com
         # Eventually only deploy the main branch
         # if: github.ref == 'refs/heads/main'
+        if: steps.changed-files.outputs.void_any_changed == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           # 1) Log in to the Cloudflare dashboard.
@@ -226,3 +225,20 @@ jobs:
           # 2) Create a token with the following permissions:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           command: pages deploy dist --project-name=void
+          workingDirectory: examples/void-server
+      - name: Deploy galaxy.scalar.com
+        # Eventually only deploy the main branch
+        # if: github.ref == 'refs/heads/main'
+        if: steps.changed-files.outputs.galaxy_any_changed == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          # 1) Log in to the Cloudflare dashboard.
+          # 2) Select Workers & Pages.
+          # 3) See the Account ID in the right sidebar.
+          # Read more: https://developers.cloudflare.com/fundamentals/setup/find-account-and-zone-ids/
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # 1) Go to https://dash.cloudflare.com/profile/api-tokens
+          # 2) Create a token with the following permissions:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: pages deploy dist --project-name=galaxy
+          workingDirectory: examples/galaxy-server
