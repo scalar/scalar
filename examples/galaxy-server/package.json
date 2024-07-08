@@ -41,7 +41,7 @@
     "@hono/vite-cloudflare-pages": "^0.4.1",
     "@hono/vite-dev-server": "^0.12.2",
     "@originjs/vite-plugin-commonjs": "^1.0.3",
-    "vite": "^5.3.1",
+    "vite": "^5.2.10",
     "wrangler": "^3.62.0"
   }
 }

@@ -53,7 +53,7 @@
     "decode-named-character-reference": "^1.0.2",
     "path": "^0.12.7",
     "react": "^18.3.1",
-    "vite": "^5.3.1",
+    "vite": "^5.2.10",
     "vite-plugin-dts": "^3.6.3",
     "vue": "^3.4.22"
   }
