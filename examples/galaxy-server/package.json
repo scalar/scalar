@@ -22,7 +22,7 @@
     "format": "$npm_execpath prettier --write .",
     "format:check": "$npm_execpath prettier --check .",
     "preview": "wrangler pages dev dist",
-    "test": "vitest",
+    "_test": "open https://github.com/cloudflare/workers-sdk/issues/6071",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
