@@ -31,7 +31,7 @@
     "@scalar/mock-server": "workspace:*",
     "follow-redirects": "^1.15.6",
     "form-data": "^4.0.0",
-    "hono": "^4.2.7",
+    "hono": "^4.4.8",
     "proxy-from-env": "^1.1.0",
     "yaml": "^2.4.5"
   },
