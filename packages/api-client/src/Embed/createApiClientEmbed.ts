@@ -103,8 +103,6 @@ export const createApiClientEmbed = async (
   if (activeWorkspace.value) {
     if (mountOnInitialize) mount()
 
-    workspaceMutators.edit(activeWorkspace.value.uid, 'isReadOnly', true)
-
     if (config.proxyUrl) {
       workspaceMutators.edit(
         activeWorkspace.value.uid,
