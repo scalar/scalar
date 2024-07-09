@@ -14,12 +14,12 @@ npm install @scalar/api-client
 ## Usage
 
 ```ts
-import { createScalarApiClient } from '@scalar/api-client'
+import { createApiClientModal } from '@scalar/api-client'
 
 const targetElement = document.getElementById('root')
 
 // Initialize
-const { open } = await createScalarApiClient(targetElement, {
+const { open } = await createApiClientModal(targetElement, {
   spec: {
     // Load a spec from URL
     url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
@@ -89,7 +89,7 @@ export type ClientConfiguration = {
 
 ## Available Methods
 
-The following methods are returned from the `createScalarApiClient` call:
+The following methods are returned from the `createApiClientModal` call:
 
 ### open
 
