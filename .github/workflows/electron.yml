@@ -25,8 +25,8 @@ jobs:
         with:
           path: .turbo
           key: turbo-${{ runner.os }}-node-20
-      - name: Build
-        run: pnpm turbo build
+      - name: Build packages
+        run: pnpm build:packages
       - name: Build/release Electron app
         uses: cryogenicplanet/action-electron-builder@v2
         with:
