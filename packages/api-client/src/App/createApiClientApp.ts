@@ -1,5 +1,6 @@
 import type { ClientConfiguration } from '@/Modal'
 import { router } from '@/router'
+import { appRouter } from '@/router'
 import { useWorkspace } from '@/store/workspace'
 import type { SpecConfiguration } from '@scalar/oas-utils'
 import { objectMerge } from '@scalar/oas-utils/helpers'
