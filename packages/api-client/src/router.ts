@@ -97,12 +97,6 @@ export const modalRouter = createRouter({
   routes: modalRoutes,
 })
 
-/** Router for the API Client app */
-export const appRouter = createRouter({
-  history: createMemoryHistory(),
-  routes,
-})
-
 export const activeRouterParams = computed(() => {
   const pathParams = {
     [PathId.Collection]: 'default',
