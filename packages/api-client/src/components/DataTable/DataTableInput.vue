@@ -119,11 +119,11 @@ const handleDropdownMouseUp = () => {
       :icon="mask ? 'Show' : 'Hide'"
       :label="mask ? 'Show Password' : 'Hide Password'"
       @click="mask = !mask" />
-    <EnvironmentVariableDropdown
+    <!-- <EnvironmentVariableDropdown
       :query="query"
       @mousedown="handleDropdownMouseDown"
       @mouseup="handleDropdownMouseUp"
-      @select="handleSelect" />
+      @select="handleSelect" /> -->
   </DataTableCell>
 </template>
 

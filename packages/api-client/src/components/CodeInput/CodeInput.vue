@@ -9,6 +9,9 @@ import { nanoid } from 'nanoid'
 import { ref, toRef, useAttrs, watch, type Ref, computed } from 'vue'
 import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
 
+import { overlayPlugin } from './codeVariableOverlay'
+import { pillPlugin, backspaceCommand } from './codeVariableWidget'
+
 const props = withDefaults(
   defineProps<{
     colorPicker?: boolean
@@ -78,6 +81,9 @@ function handleBlur(value: string) {
 
 const extensions: Extension[] = []
 if (props.colorPicker) extensions.push(colorPickerExtension)
+
+extensions.push(overlayPlugin)
+extensions.push(pillPlugin, backspaceCommand)
 
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
@@ -244,5 +250,14 @@ export default {
 }
 :deep(.cm-gutter + .cm-gutter .cm-gutterElement) {
   padding-left: 0 !important;
+}
+</style>
+<style>
+.cm-pill {
+  background-color: #e0e0e0;
+  color: #333;
+  padding: 2px 5px;
+  border-radius: 3px;
+  display: inline-block;
 }
 </style>

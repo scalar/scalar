@@ -112,6 +112,8 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@codemirror/state": "^6.4.1",
+    "@codemirror/view": "^6.28.1",
     "@headlessui/tailwindcss": "^0.2.0",
     "@headlessui/vue": "^1.7.20",
     "@scalar/components": "workspace:*",
