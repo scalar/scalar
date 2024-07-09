@@ -75,9 +75,17 @@ const { open } = await createApiClientModal(document.getElementById('app'), {
 import { createApiClientEmbed } from '@/Embed'
 
 // Initialize
+<<<<<<< HEAD:packages/api-client/playground/modal/main.ts
 await createApiClientEmbed(document.getElementById('app'), {
 >>>>>>> 89318fb7d (feat: add new createApiClientEmbed method (wip)):packages/api-client/playground/main.ts
+<<<<<<< HEAD
 >>>>>>> fdb828894 (feat: add new createApiClientEmbed method (wip))
+=======
+=======
+// TODO: The ID must not be something else than `scalar-client`, because this adds styles.
+await createApiClientEmbed(document.getElementById('scalar-client'), {
+>>>>>>> 67f070020 (fix: background not visible):packages/api-client/playground/main.ts
+>>>>>>> 1013e3b3c (fix: background not visible)
   spec: {
     url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
   },
