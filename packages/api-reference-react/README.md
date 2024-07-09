@@ -37,7 +37,7 @@ function App() {
 export default App
 ```
 
-We wrote a [detailed integration guide for React](https://github.com/scalar/scalar/tree/main/documentation/react.md), too.
+We wrote a [detailed integration guide for React](https://github.com/scalar/scalar/tree/main/documentation/integrations/react.md), too.
 
 ### Example
 
