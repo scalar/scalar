@@ -1,5 +1,5 @@
 import type { ClientConfiguration } from '@/Modal'
-import { appRouter } from '@/router'
+import { router } from '@/router'
 import { useWorkspace } from '@/store/workspace'
 import type { SpecConfiguration } from '@scalar/oas-utils'
 import { objectMerge } from '@scalar/oas-utils/helpers'
@@ -43,7 +43,7 @@ export const createApiClientApp = async (
   }
 
   const app = createApp(ApiClientApp)
-  app.use(appRouter)
+  app.use(router)
 
   const mount = (mountingEl = el) => {
     if (!mountingEl) {

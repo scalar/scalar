@@ -85,7 +85,6 @@ const routes = [
 
 /**
  * Router for the API Client app
- * @deprecated Use `appRouter` instead
  */
 export const router = createRouter({
   history: createWebHistory(),
@@ -96,12 +95,6 @@ export const router = createRouter({
 export const modalRouter = createRouter({
   history: createMemoryHistory(),
   routes: modalRoutes,
-})
-
-/** Router for the API Client app */
-export const appRouter = createRouter({
-  history: createMemoryHistory(),
-  routes,
 })
 
 export const activeRouterParams = computed(() => {
