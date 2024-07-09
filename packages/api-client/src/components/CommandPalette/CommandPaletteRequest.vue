@@ -1,12 +1,10 @@
 <script setup lang="ts">
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Request from '@/assets/ascii/request.ascii?raw'
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
-import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import type { RequestMethod } from '@scalar/oas-utils/helpers'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 defineProps<{
@@ -68,44 +66,58 @@ function handleSubmit() {
   push(`/request/${newRequest.uid}`)
   emits('close')
 }
+
+const requestInput = ref<HTMLInputElement | null>(null)
+onMounted(() => {
+  requestInput.value?.focus()
+})
 </script>
 <template>
-  <ScalarAsciiArt :art="Request" />
   <h2>{{ title }}</h2>
   <form
     class="flex w-full flex-col gap-3"
     @submit.prevent="handleSubmit">
-    <div class="flex min-h-10 gap-3 rounded border p-1">
-      <HttpMethod
-        :isEditable="true"
-        isSquare
-        :method="requestMethod"
-        @change="handleChangeMethod" />
+    <div
+      class="gap-3 rounded bg-b-2 focus-within:bg-b-1 focus-within:shadow-border min-h-20 relative">
+      <label
+        class="absolute w-full h-full opacity-0 cursor-text"
+        for="requestname"></label>
       <input
+        id="requestname"
+        ref="requestInput"
         v-model="requestName"
-        class="border-transparent outline-none w-full"
+        class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
         label="Request Name"
         placeholder="Request Name" />
     </div>
-    <div>
-      <span class="mb-1 block font-medium">Inside:</span>
-      <ScalarListbox
-        v-model="selectedFolder"
-        :options="folders"
-        resize>
-        <ScalarButton
-          class="justify-between p-2 w-full"
-          variant="outlined">
-          <span :class="selectedFolder ? 'text-c-1' : 'text-c-3'">{{
-            selectedFolder ? selectedFolder.label : 'Select Folder'
-          }}</span>
-          <ScalarIcon
-            class="text-c-3"
-            icon="ChevronDown"
-            size="xs" />
-        </ScalarButton>
-      </ScalarListbox>
+    <div class="flex">
+      <div class="flex flex-1 gap-2 max-h-8">
+        <HttpMethod
+          :isEditable="true"
+          isSquare
+          :method="requestMethod"
+          @change="handleChangeMethod" />
+        <ScalarListbox
+          v-model="selectedFolder"
+          :options="folders">
+          <ScalarButton
+            class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
+            variant="outlined">
+            <span :class="selectedFolder ? 'text-c-1' : 'text-c-3'">{{
+              selectedFolder ? selectedFolder.label : 'Select Folder'
+            }}</span>
+            <ScalarIcon
+              class="text-c-3"
+              icon="ChevronDown"
+              size="xs" />
+          </ScalarButton>
+        </ScalarListbox>
+      </div>
+      <ScalarButton
+        class="max-h-8 text-xs p-0 px-3"
+        type="submit">
+        Create Request
+      </ScalarButton>
     </div>
-    <ScalarButton type="submit"> Create </ScalarButton>
   </form>
 </template>
