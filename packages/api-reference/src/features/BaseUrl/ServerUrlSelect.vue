@@ -41,7 +41,7 @@ const selected = computed<ScalarListboxOption | undefined>({
         :class="{ 'pointer-events-none': options.length <= 1 }"
         fullWidth
         variant="ghost">
-        <span>
+        <span class="custom-scroll">
           <slot></slot>
         </span>
         <ScalarIcon
