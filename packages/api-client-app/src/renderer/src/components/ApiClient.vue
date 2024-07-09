@@ -16,9 +16,20 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div ref="client"></div>
+  <div
+    ref="client"
+    class="api-client-wrapper"></div>
 </template>
 
 <style>
 @import '@scalar/api-client/style.css';
+</style>
+
+<style scoped>
+/** Make it full-height */
+.api-client-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
 </style>
