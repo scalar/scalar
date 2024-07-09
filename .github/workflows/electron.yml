@@ -27,20 +27,5 @@ jobs:
           key: turbo-${{ runner.os }}-node-20
       - name: Build packages
         run: pnpm build:packages
-      - name: Enable corepack
-        run: corepack enable
-      - name: Build/release Electron app
-        uses: cryogenicplanet/action-electron-builder@v2
-        with:
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-          # We prefer to use pnpm
-          skip_install: true
-
-          # If the commit is tagged with a version (e.g. "v1.0.0"),
-          # release the app after building
-          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
-
-          package_root: packages/api-client-app
+      - name: Build Electron
+        run: pnpm build:mac
