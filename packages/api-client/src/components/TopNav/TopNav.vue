@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useTopNav } from '@/store/topNav'
 import { ScalarIcon } from '@scalar/components'
+import { computed } from 'vue'
 
 import TopNavItem from './TopNavItem.vue'
 
@@ -11,6 +12,8 @@ const {
   setNavItemIdx,
   removeNavItem,
 } = useTopNav()
+
+const activeNavItemIdxValue = computed(() => activeNavItemIdx.value)
 </script>
 <template>
   <nav class="flex h-10 t-app__top-nav">
@@ -28,11 +31,10 @@ const {
         <TopNavItem
           v-for="(topNavItem, index) in topNavItems"
           :key="index"
-          :active="index === activeNavItemIdx"
+          :active="index === activeNavItemIdxValue"
           :hotkey="(index + 1).toString()"
           :icon="topNavItem.icon"
           :label="topNavItem.label"
-          :path="topNavItem.path"
           @click="setNavItemIdx(index)"
           @close="removeNavItem(index)">
         </TopNavItem>
