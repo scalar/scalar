@@ -93,15 +93,9 @@
       "import": "./dist/Modal/index.js",
       "types": "./dist/Modal/index.d.ts"
     },
-<<<<<<< HEAD
     "./App": {
       "import": "./dist/App/index.js",
       "types": "./dist/App/index.d.ts"
-=======
-    "./Embed": {
-      "import": "./dist/Embed/index.js",
-      "types": "./dist/Embed/index.d.ts"
->>>>>>> 89318fb7d (feat: add new createApiClientEmbed method (wip))
     },
     "./css/*.css": {
       "import": "./dist/css/*.css",

@@ -1,15 +1,28 @@
 import type { ClientConfiguration } from '@/Modal'
+<<<<<<< HEAD
 import { router } from '@/router'
 import { useWorkspace } from '@/store/workspace'
 import type { SpecConfiguration } from '@scalar/oas-utils'
 import { objectMerge } from '@scalar/oas-utils/helpers'
+=======
+import { appRouter } from '@/router'
+import { useWorkspace } from '@/store/workspace'
+import type { SpecConfiguration } from '@scalar/oas-utils'
+import { type RequestMethod, objectMerge } from '@scalar/oas-utils/helpers'
+>>>>>>> e07234844 (refactor: rename createApiClientEmbed to createApiClientApp)
 import { createApp } from 'vue'
 
 import ApiClientApp from './ApiClientApp.vue'
 
+<<<<<<< HEAD
 /**
  * Mount the full-blown API Client modal to a given element.
  */
+=======
+export type OpenClientPayload = { path: string; method: RequestMethod }
+
+/** Initialize Scalar API Client embed */
+>>>>>>> e07234844 (refactor: rename createApiClientEmbed to createApiClientApp)
 export const createApiClientApp = async (
   /** Element to mount the references to */
   el: HTMLElement | null,
