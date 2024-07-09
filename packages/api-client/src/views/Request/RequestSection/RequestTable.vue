@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableCell from '@/components/DataTable/DataTableCell.vue'
 import DataTableCheckbox from '@/components/DataTable/DataTableCheckbox.vue'
-import DataTableInput from '@/components/DataTable/DataTableInput.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/workspace/spec'
@@ -81,38 +81,46 @@ const flattenValue = (item: RequestExampleParameter) => {
         v-if="!isEnabledHidden"
         :modelValue="item.enabled"
         @update:modelValue="(v) => emit('toggleRow', idx, v)" />
-      <DataTableInput
-        :modelValue="item.key"
-        placeholder="Key"
-        :required="item.required"
-        @blur="emit('inputBlur')"
-        @focus="emit('inputFocus')"
-        @input="items && idx === items.length - 1 && emit('addRow')"
-        @selectVariable="(v) => handleSelectVariable(idx, 'key', v)"
-        @update:modelValue="(v) => emit('updateRow', idx, 'key', v)" />
-      <DataTableInput
-        :enum="item.enum"
-        :max="item.maximum"
-        :min="item.minimum"
-        :modelValue="item.value"
-        placeholder="Value"
-        :type="item.type === 'integer' ? 'number' : 'text'"
-        @blur="emit('inputBlur')"
-        @focus="emit('inputFocus')"
-        @input="items && idx === items.length - 1 && emit('addRow')"
-        @selectVariable="(v) => handleSelectVariable(idx, 'value', v)"
-        @update:modelValue="(v) => emit('updateRow', idx, 'value', v)">
-        <template
-          v-if="valueOutOfRange(item).value"
-          #warning>
-          {{ valueOutOfRange(item).value }}
-        </template>
-        <template #icon>
-          <RequestTableTooltip
-            v-if="showTooltip(item)"
-            :item="{ ...item, default: flattenValue(item) }" />
-        </template>
-      </DataTableInput>
+      <DataTableCell>
+        <CodeInput
+          :modelValue="item.key"
+          placeholder="Key"
+          :required="item.required"
+          @blur="emit('inputBlur')"
+          @focus="emit('inputFocus')"
+          @input="items && idx === items.length - 1 && emit('addRow')"
+          @selectVariable="(v: string) => handleSelectVariable(idx, 'key', v)"
+          @update:modelValue="
+            (v: string) => emit('updateRow', idx, 'key', v)
+          " />
+      </DataTableCell>
+      <DataTableCell>
+        <CodeInput
+          :enum="item.enum"
+          :max="item.maximum"
+          :min="item.minimum"
+          :modelValue="item.value"
+          placeholder="Value"
+          :type="item.type === 'integer' ? 'number' : 'text'"
+          @blur="emit('inputBlur')"
+          @focus="emit('inputFocus')"
+          @input="items && idx === items.length - 1 && emit('addRow')"
+          @selectVariable="(v: string) => handleSelectVariable(idx, 'value', v)"
+          @update:modelValue="
+            (v: string) => emit('updateRow', idx, 'value', v)
+          ">
+          <template
+            v-if="valueOutOfRange(item).value"
+            #warning>
+            {{ valueOutOfRange(item).value }}
+          </template>
+          <template #icon>
+            <RequestTableTooltip
+              v-if="showTooltip(item)"
+              :item="{ ...item, default: flattenValue(item) }" />
+          </template>
+        </CodeInput>
+      </DataTableCell>
       <DataTableCell
         v-if="showUploadButton"
         class="group/upload p-1 overflow-hidden relative text-ellipsis whitespace-nowrap">
@@ -145,18 +153,18 @@ const flattenValue = (item: RequestExampleParameter) => {
     </DataTableRow>
   </DataTable>
 </template>
-<style>
-/* Input number arrows hidden */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-input[type='number'] {
-  -moz-appearance: textfield;
-}
-</style>
 <style scoped>
+:deep(.cm-editor) {
+  padding: 0;
+}
+:deep(.cm-content) {
+  font-family: var(--scalar-font);
+  font-size: var(--scalar-mini);
+  padding: 6px 8px;
+}
+:deep(.cm-line) {
+  padding: 0;
+}
 .filemask {
   mask-image: linear-gradient(
     to right,
