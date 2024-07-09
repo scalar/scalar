@@ -92,6 +92,10 @@
       "import": "./dist/Modal/index.js",
       "types": "./dist/Modal/index.d.ts"
     },
+    "./Embed": {
+      "import": "./dist/Embed/index.js",
+      "types": "./dist/Embed/index.d.ts"
+    },
     "./css/*.css": {
       "import": "./dist/css/*.css",
       "require": "./dist/css/*.css"
