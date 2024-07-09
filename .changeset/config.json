@@ -7,10 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": [
-    "@scalar-examples/*",
-    "playwright",
-    "@scalar/api-client-react",
-    "@scalar/echo-server"
-  ]
+  "ignore": ["@scalar-examples/*", "playwright"]
 }
