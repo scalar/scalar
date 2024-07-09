@@ -28,4 +28,4 @@ jobs:
       - name: Build packages
         run: pnpm build:packages
       - name: Build Electron
-        run: pnpm --filter @scalar/api-client-app build:mac
+        run: pnpm --filter scalar-api-client build:mac
