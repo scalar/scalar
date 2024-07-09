@@ -9,7 +9,9 @@ import ApiClientApp from './ApiClientApp.vue'
 
 export type OpenClientPayload = { path: string; method: RequestMethod }
 
-/** Initialize Scalar API Client embed */
+/**
+ * Mount the full-blown API Client modal to a given element.
+ */
 export const createApiClientApp = async (
   /** Element to mount the references to */
   el: HTMLElement | null,
