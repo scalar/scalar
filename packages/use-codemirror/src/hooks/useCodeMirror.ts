@@ -54,6 +54,8 @@ type BaseParameters = {
   classes?: MaybeRefOrGetter<string[] | undefined>
   /** Put the editor into read-only mode */
   readOnly?: MaybeRefOrGetter<boolean | undefined>
+  /** Disable indent with tab */
+  disableTabIndent?: MaybeRefOrGetter<boolean | undefined>
   /** Option to show line numbers in the editor */
   lineNumbers?: MaybeRefOrGetter<boolean | undefined>
   withVariables?: MaybeRefOrGetter<boolean | undefined>
@@ -145,6 +147,7 @@ export const useCodeMirror = (
     onChange: params.onChange,
     onBlur: params.onBlur,
     onFocus: params.onFocus,
+    disableTabIndent: toValue(params.disableTabIndent),
     language: toValue(params.language),
     classes: toValue(params.classes),
     readOnly: toValue(params.readOnly),
@@ -256,6 +259,7 @@ function getCodeMirrorExtensions({
   lineNumbers = false,
   withVariables = false,
   disableEnter = false,
+  disableTabIndent = false,
   withoutTheme = false,
   lint = false,
   additionalExtensions = [],
@@ -265,6 +269,7 @@ function getCodeMirrorExtensions({
   language?: CodeMirrorLanguage
   readOnly?: boolean
   lineNumbers?: boolean
+  disableTabIndent?: boolean
   withVariables?: boolean
   disableEnter?: boolean
   onChange?: (val: string) => void
@@ -334,10 +339,23 @@ function getCodeMirrorExtensions({
       keymap.of([
         ...completionKeymap,
         ...closeBracketsKeymap,
-        indentWithTab,
         selectAllKeyBinding,
       ]),
     )
+
+    if (disableTabIndent) {
+      extensions.push(
+        keymap.of([
+          {
+            key: 'Tab',
+            run: () => false, // Prevent default Tab behavior
+            shift: () => false, // Prevent default Shift+Tab behavior
+          },
+        ]),
+      )
+    } else {
+      extensions.push(keymap.of([indentWithTab]))
+    }
   }
 
   // Add placeholder extension if placeholder is provided

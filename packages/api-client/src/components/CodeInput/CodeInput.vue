@@ -16,6 +16,7 @@ const props = withDefaults(
     emitOnBlur?: boolean
     lineNumbers?: boolean
     lint?: boolean
+    disableTabIndent?: boolean
     language?: CodeMirrorLanguage
     handleFieldSubmit?: (e: string) => void
     handleFieldChange?: (e: string) => void
@@ -23,6 +24,7 @@ const props = withDefaults(
     required?: boolean
   }>(),
   {
+    disableTabIndent: false,
     emitOnBlur: true,
     colorPicker: false,
   },
@@ -78,6 +80,7 @@ const { codeMirror } = useCodeMirror({
   onFocus: () => (isFocused.value = true),
   onBlur: (val) => handleBlur(val),
   codeMirrorRef,
+  disableTabIndent: toRef(() => props.disableTabIndent),
   lineNumbers: toRef(() => props.lineNumbers),
   language: toRef(() => props.language),
   lint: toRef(() => props.lint),
