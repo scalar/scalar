@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { useWorkspace } from '@/store/workspace'
 import {
   ScalarButton,
@@ -64,48 +63,32 @@ const isRequest = computed(() => 'summary' in props.item)
         class="flex !gap-2"
         @click="addExample">
         <ScalarIcon
-          class="text-c-2 inline-flex p-px"
-          icon="Add"
-          size="xs" />
+          class="inline-flex !stroke-[1.5]"
+          icon="AddLine"
+          size="sm" />
         <span>Add Example</span>
-        <ScalarHotkey
-          class="absolute right-2 text-c-3"
-          hotkey="1"
-          @hotkeyPressed="addExample" />
       </ScalarDropdownItem>
       <ScalarDropdownItem class="flex !gap-2">
         <ScalarIcon
-          class="text-c-2 inline-flex p-px"
+          class="inline-flex !stroke-[1.5]"
           icon="Edit"
-          size="xs" />
+          size="sm" />
         <span>Rename</span>
-        <ScalarHotkey
-          class="absolute right-2 text-c-3"
-          hotkey="2"
-          @hotkeyPressed="handleItemRename" />
       </ScalarDropdownItem>
       <ScalarDropdownItem class="flex !gap-2">
         <ScalarIcon
-          class="text-c-2 inline-flex p-px"
+          class="inline-flex !stroke-[1.5]"
           icon="Duplicate"
-          size="xs" />
+          size="sm" />
         <span>Duplicate</span>
-        <ScalarHotkey
-          class="absolute right-2 text-c-3"
-          hotkey="3"
-          @hotkeyPressed="handleItemDuplicate" />
       </ScalarDropdownItem>
       <ScalarDropdownDivider />
       <ScalarDropdownItem class="flex !gap-2">
         <ScalarIcon
-          class="text-c-2 inline-flex p-px"
+          class="inline-flex !stroke-[1.5]"
           icon="Trash"
-          size="xs" />
+          size="sm" />
         <span>Delete</span>
-        <ScalarHotkey
-          class="absolute right-2 text-c-3"
-          hotkey="4"
-          @hotkeyPressed="handleItemDelete" />
       </ScalarDropdownItem>
     </template>
   </ScalarDropdown>

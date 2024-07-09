@@ -12,7 +12,7 @@ defineProps<{
 <template>
   <router-link
     activeClass="active-link"
-    class="w-[37px] hover:text-c-1 flex items-center justify-center rounded-lg p-[7px]"
+    class="w-[37px] hover:bg-b-2 active:text-c-1 flex items-center justify-center rounded-lg p-[7px]"
     :class="{ 'bg-b-2 transition-none hover:cursor-auto text-c-1': active }"
     :to="path">
     <ScalarIcon
