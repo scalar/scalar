@@ -13,6 +13,49 @@ npm install @scalar/api-client
 
 ## Usage
 
+### App
+
+You can mount the full-blown API Client to your DOM like this:
+
+```html
+<!-- index.html -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Scalar API Client App</title>
+  </head>
+  <body>
+    <div
+      id="scalar-client"
+      class="scalar-app scalar-client"></div>
+    <script
+      type="module"
+      src="./main.js"></script>
+  </body>
+</html>
+```
+
+```ts
+// main.js
+import { createApiClientApp } from '@/App'
+
+// Initialize
+await createApiClientApp(document.getElementById('scalar-client'), {
+  spec: {
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  },
+  proxyUrl: 'https://proxy.scalar.com',
+})
+```
+
+### Modal
+
+Or you can mount a more compact version, which is living in a modal:
+
 ```ts
 import { createApiClientModal } from '@scalar/api-client'
 
