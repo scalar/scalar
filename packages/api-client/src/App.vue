@@ -7,8 +7,9 @@ import { useWorkspace } from '@/store/workspace'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { createWorkspace } from '@scalar/oas-utils/entities/workspace'
 import { LS_KEYS } from '@scalar/object-utils/mutator-record'
+import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
-import { onBeforeMount, onMounted, watchEffect } from 'vue'
+import { computed, onBeforeMount, onMounted, watchEffect } from 'vue'
 import { RouterView } from 'vue-router'
 
 onMounted(() => {
@@ -69,8 +70,15 @@ onBeforeMount(async () => {
 
   addScalarClassesToHeadless()
 })
+const fontsStyleTag = computed(
+  () => `<style>
+  ${getThemeStyles(workspaceStore.activeWorkspace.value.themeId, {
+    fonts: true,
+  })}</style>`,
+)
 </script>
 <template>
+  <div v-html="fontsStyleTag"></div>
   <TopNav />
   <!-- min-h-0 is to allow scrolling of individual flex children -->
   <main class="flex min-h-0 flex-1">
