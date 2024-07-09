@@ -83,6 +83,8 @@ const flattenValue = (item: RequestExampleParameter) => {
         @update:modelValue="(v) => emit('toggleRow', idx, v)" />
       <DataTableCell>
         <CodeInput
+          disableCloseBrackets
+          disableEnter
           disableTabIndent
           :modelValue="item.key"
           placeholder="Key"
@@ -97,6 +99,8 @@ const flattenValue = (item: RequestExampleParameter) => {
       </DataTableCell>
       <DataTableCell>
         <CodeInput
+          disableCloseBrackets
+          disableEnter
           disableTabIndent
           :enum="item.enum"
           :max="item.maximum"

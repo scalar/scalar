@@ -60,6 +60,7 @@ type BaseParameters = {
   lineNumbers?: MaybeRefOrGetter<boolean | undefined>
   withVariables?: MaybeRefOrGetter<boolean | undefined>
   disableEnter?: MaybeRefOrGetter<boolean | undefined>
+  disableCloseBrackets?: MaybeRefOrGetter<boolean | undefined>
   /** Option to lint and show error in the editor */
   lint?: MaybeRefOrGetter<boolean | undefined>
   onBlur?: (v: string) => void
@@ -153,7 +154,8 @@ export const useCodeMirror = (
     readOnly: toValue(params.readOnly),
     lineNumbers: toValue(params.lineNumbers),
     withVariables: toValue(params.withVariables),
-    disableEnter: toValue(params.withVariables),
+    disableEnter: toValue(params.disableEnter),
+    disableCloseBrackets: toValue(params.disableCloseBrackets),
     withoutTheme: toValue(params.withoutTheme),
     lint: toValue(params.lint),
     additionalExtensions: toValue(params.extensions),
@@ -259,6 +261,7 @@ function getCodeMirrorExtensions({
   lineNumbers = false,
   withVariables = false,
   disableEnter = false,
+  disableCloseBrackets = false,
   disableTabIndent = false,
   withoutTheme = false,
   lint = false,
@@ -269,6 +272,7 @@ function getCodeMirrorExtensions({
   language?: CodeMirrorLanguage
   readOnly?: boolean
   lineNumbers?: boolean
+  disableCloseBrackets?: boolean
   disableTabIndent?: boolean
   withVariables?: boolean
   disableEnter?: boolean
@@ -335,13 +339,12 @@ function getCodeMirrorExtensions({
       indentOnInput(),
       bracketMatching(),
       autocompletion(),
-      closeBrackets(),
-      keymap.of([
-        ...completionKeymap,
-        ...closeBracketsKeymap,
-        selectAllKeyBinding,
-      ]),
+      keymap.of([...completionKeymap, selectAllKeyBinding]),
+      bracketMatching(),
     )
+
+    if (!disableCloseBrackets)
+      extensions.push(closeBrackets(), keymap.of([...closeBracketsKeymap]))
 
     if (disableTabIndent) {
       extensions.push(

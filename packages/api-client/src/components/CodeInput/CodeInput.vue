@@ -22,8 +22,12 @@ const props = withDefaults(
     handleFieldChange?: (e: string) => void
     placeholder?: string
     required?: boolean
+    disableEnter?: boolean
+    disableCloseBrackets?: boolean
   }>(),
   {
+    disableCloseBrackets: false,
+    disableEnter: false,
     disableTabIndent: false,
     emitOnBlur: true,
     colorPicker: false,
@@ -81,6 +85,8 @@ const { codeMirror } = useCodeMirror({
   onBlur: (val) => handleBlur(val),
   codeMirrorRef,
   disableTabIndent: toRef(() => props.disableTabIndent),
+  disableEnter: toRef(() => props.disableEnter),
+  disableCloseBrackets: toRef(() => props.disableCloseBrackets),
   lineNumbers: toRef(() => props.lineNumbers),
   language: toRef(() => props.language),
   lint: toRef(() => props.lint),
