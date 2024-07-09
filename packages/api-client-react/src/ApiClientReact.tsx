@@ -1,4 +1,4 @@
-import { ClientConfiguration, createScalarApiClient } from '@scalar/api-client'
+import { ClientConfiguration, createApiClientModal } from '@scalar/api-client'
 import React, { ReactNode, useEffect, useRef, useState } from 'react'
 
 import './style.css'
@@ -25,12 +25,12 @@ export const ApiClientReact = ({
   const el = useRef(null)
 
   const [client, setClient] = useState<Awaited<
-    ReturnType<typeof createScalarApiClient>
+    ReturnType<typeof createApiClientModal>
   > | null>(null)
 
   useEffect(() => {
     if (!el.current) return
-    createScalarApiClient(el.current, configuration).then(setClient)
+    createApiClientModal(el.current, configuration).then(setClient)
   }, [el])
 
   useEffect(() => {

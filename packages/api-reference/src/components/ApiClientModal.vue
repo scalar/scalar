@@ -23,10 +23,10 @@ const { server } = useServerStore()
 onMounted(async () => {
   if (!el.value) return
 
-  const { createScalarApiClient } = await import('@scalar/api-client')
+  const { createApiClientModal } = await import('@scalar/api-client')
 
   const { app, open, updateAuth, updateServerUrl, modalState, updateSpec } =
-    await createScalarApiClient(el.value, {
+    await createApiClientModal(el.value, {
       spec: props.spec ?? {},
       proxyUrl: props.proxyUrl,
     })

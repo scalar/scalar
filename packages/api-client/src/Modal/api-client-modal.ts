@@ -57,7 +57,7 @@ export type ClientConfiguration = {
 export type OpenClientPayload = { path: string; method: RequestMethod }
 
 /** Initialize Scalar API Client Modal */
-export const createScalarApiClient = async (
+export const createApiClientModal = async (
   /** Element to mount the references to */
   el: HTMLElement | null,
   /** Configuration object for Scalar References */
