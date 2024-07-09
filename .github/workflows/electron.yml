@@ -27,6 +27,8 @@ jobs:
           key: turbo-${{ runner.os }}-node-20
       - name: Build packages
         run: pnpm build:packages
+      - name: Enable corepack
+        run: corepack enable
       - name: Build/release Electron app
         uses: cryogenicplanet/action-electron-builder@v2
         with:
