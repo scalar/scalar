@@ -25,6 +25,7 @@ import {
   highlightSpecialChars,
   keymap,
   lineNumbers as lineNumbersExtension,
+  placeholder as placeholderExtension,
 } from '@codemirror/view'
 import {
   type MaybeRefOrGetter,
@@ -61,6 +62,7 @@ type BaseParameters = {
   lint?: MaybeRefOrGetter<boolean | undefined>
   onBlur?: (v: string) => void
   onFocus?: (v: string) => void
+  placeholder?: MaybeRefOrGetter<string | undefined>
 }
 
 export type UseCodeMirrorParameters =
@@ -152,6 +154,7 @@ export const useCodeMirror = (
     withoutTheme: toValue(params.withoutTheme),
     lint: toValue(params.lint),
     additionalExtensions: toValue(params.extensions),
+    placeholder: toValue(params.placeholder),
   }))
 
   // Provider must be watched separately because we need to restart codemirror if the provider changes
@@ -256,6 +259,7 @@ function getCodeMirrorExtensions({
   withoutTheme = false,
   lint = false,
   additionalExtensions = [],
+  placeholder,
 }: {
   classes?: string[]
   language?: CodeMirrorLanguage
@@ -270,6 +274,7 @@ function getCodeMirrorExtensions({
   provider: Extension | null
   lint?: boolean
   additionalExtensions?: Extension[]
+  placeholder?: string
 }) {
   const extensions: Extension[] = [
     highlightSpecialChars(),
@@ -333,6 +338,11 @@ function getCodeMirrorExtensions({
         selectAllKeyBinding,
       ]),
     )
+  }
+
+  // Add placeholder extension if placeholder is provided
+  if (placeholder) {
+    extensions.push(placeholderExtension(placeholder))
   }
 
   // Syntax highlighting
