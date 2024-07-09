@@ -10,6 +10,7 @@ function createWindow(): void {
     width: 1280,
     height: 760,
     show: false,
+    title: 'Scalar API Client',
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {

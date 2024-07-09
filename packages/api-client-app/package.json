@@ -1,6 +1,6 @@
 {
-  "name": "api-client-app",
-  "description": "An Electron application with Vue and TypeScript",
+  "name": "@scalar/api-client-app",
+  "description": "HTTP Client to play with any API",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
