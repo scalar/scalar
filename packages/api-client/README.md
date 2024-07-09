@@ -57,19 +57,13 @@ await createApiClientApp(document.getElementById('scalar-client'), {
 Or you can mount a more compact version, which is living in a modal:
 
 ```ts
-import { createApiClientModal } from '@scalar/api-client'
-
-const targetElement = document.getElementById('root')
+// main.js
+import { createApiClientApp } from '@/App'
 
 // Initialize
-const { open } = await createApiClientModal(targetElement, {
+const { open } = await createApiClientApp(document.getElementById('scalar-client'), {
   spec: {
-    // Load a spec from URL
     url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-    // OR the spec directly
-    content: {
-      ...
-    }
   },
   proxyUrl: 'https://proxy.scalar.com',
 })
@@ -78,10 +72,10 @@ const { open } = await createApiClientModal(targetElement, {
 open()
 
 // Or: Open a specific operation
-open({
-  method: 'GET',
-  path: '/me',
-})
+// open({
+//   method: 'GET',
+//   path: '/me',
+// })
 ```
 
 ## Configuration
