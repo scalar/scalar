@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.24.39
+
+### Patch Changes
+
+- 0ac627d: fix: no rendering of fonts
+- 9840fdd: fix: vertical align server url
+
 ## 1.24.38
 
 ### Patch Changes
