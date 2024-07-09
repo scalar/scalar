@@ -30,10 +30,9 @@ function createWindow(): void {
   })
 
   // DevTools
-  // TODO: Should only be enabled in development
-  // if (is.dev) {
-  mainWindow.webContents.openDevTools()
-  // }
+  if (is.dev) {
+    mainWindow.webContents.openDevTools()
+  }
 
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
