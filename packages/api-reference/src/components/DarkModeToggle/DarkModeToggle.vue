@@ -15,7 +15,9 @@ defineEmits<{
       class="darklight"
       type="button"
       @click="$emit('toggleDarkMode')">
-      <ScalarIcon icon="LightDarkModeToggle" />
+      <ScalarIcon
+        icon="LightDarkModeToggle"
+        size="md" />
       <template v-if="isDarkMode">
         <span>Light Mode</span>
       </template>
@@ -51,6 +53,9 @@ defineEmits<{
   text-indent: 9px;
   width: 100%;
 }
+.darklight svg {
+  stroke-width: 1.5;
+}
 .darklight-reference {
   width: 100%;
   margin-top: auto;
@@ -58,12 +63,6 @@ defineEmits<{
 .darklight:hover {
   cursor: pointer;
   color: var(--scalar-sidebar-color-1, var(--scalar-color-1));
-}
-
-.darklight svg {
-  stroke: currentColor;
-  height: 12px;
-  width: 12px;
 }
 .darklight-reference-promo {
   padding: 6px 24px 12px;
