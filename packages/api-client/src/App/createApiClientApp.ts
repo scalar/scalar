@@ -27,6 +27,7 @@ export const createApiClientApp = async (
     importSpecFromUrl,
     workspaceMutators,
   } = useWorkspace()
+  // TODO: Don’t require a spec
 
   // Import the spec if needed
   if (config.spec?.url) {
