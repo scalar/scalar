@@ -18,12 +18,12 @@
   "scripts": {
     "_test": "open https://github.com/cloudflare/workers-sdk/issues/6071",
     "build": "vite build",
-    "deploy": "pnpm run build && wrangler pages deploy dist",
+    "deploy": "pnpm run build && wrangler pages deploy dist --project-name void",
     "dev": "vite",
     "format": "pnpm prettier --write .",
     "format:check": "pnpm prettier --check .",
     "preview": "wrangler pages dev dist",
-    "types:check": "tsc --noEmit --skipLibCheck"
+    "types:check": "tsc --noEmit --skipLibCheck --jsx preserve"
   },
   "type": "module",
   "dependencies": {
