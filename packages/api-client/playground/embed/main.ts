@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createApiClientModal } from '@/Modal'
 
 // Initialize
@@ -7,6 +8,14 @@ const { open } = await createApiClientModal(document.getElementById('app'), {
 =======
 const { open } = await createApiClientModal(document.getElementById('root'), {
 =======
+=======
+<<<<<<< HEAD:packages/api-client/playground/modal/main.ts
+import { createApiClientModal } from '@/Modal'
+
+// Initialize
+const { open } = await createApiClientModal(document.getElementById('app'), {
+=======
+>>>>>>> 85aaec8df (chore: add two different playgrounds for the modal and the embed)
 // import { createScalarApiClient } from '@/Modal'
 // // Initialize
 // const { open } = await createScalarApiClient(document.getElementById('root'), {
@@ -26,6 +35,7 @@ import { createApiClientEmbed } from '@/Embed'
 
 // Initialize
 <<<<<<< HEAD
+<<<<<<< HEAD
 await createApiClientEmbed(document.getElementById('app'), {
 >>>>>>> 89318fb7d (feat: add new createApiClientEmbed method (wip))
 <<<<<<< HEAD:packages/api-client/playground/modal/main.ts
@@ -36,6 +46,15 @@ await createApiClientEmbed(document.getElementById('app'), {
 await createApiClientEmbed(document.getElementById('scalar-client'), {
 >>>>>>> 67f070020 (fix: background not visible)
 >>>>>>> 8b495c88b (fix: background not visible):packages/api-client/playground/main.ts
+=======
+<<<<<<< HEAD:packages/api-client/playground/modal/main.ts
+await createApiClientEmbed(document.getElementById('app'), {
+>>>>>>> 89318fb7d (feat: add new createApiClientEmbed method (wip)):packages/api-client/playground/main.ts
+=======
+// TODO: The ID must not be something else than `scalar-client`, because this adds styles.
+await createApiClientEmbed(document.getElementById('scalar-client'), {
+>>>>>>> 67f070020 (fix: background not visible):packages/api-client/playground/main.ts
+>>>>>>> 85aaec8df (chore: add two different playgrounds for the modal and the embed)
   spec: {
     url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
   },
