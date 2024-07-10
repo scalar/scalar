@@ -24,12 +24,12 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
 }
 </script>
 <template>
-  <div v-if="response?.example">
+  <template v-if="response?.example">
     <ScalarCodeBlock
       :content="prettyPrintJson(response?.example)"
       lang="json" />
-  </div>
-  <div v-else-if="response?.schema">
+  </template>
+  <template v-else-if="response?.schema">
     <!-- oneOf, anyOf, not … -->
     <template
       v-for="rule in rules"
@@ -110,7 +110,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
         )
       "
       lang="json" />
-  </div>
+  </template>
   <div
     v-else
     class="empty-state">
