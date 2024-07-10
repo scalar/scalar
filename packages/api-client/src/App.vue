@@ -84,7 +84,11 @@ const fontsStyleTag = computed(
   <main class="flex min-h-0 flex-1">
     <SideNav />
     <div class="flex flex-1 flex-col min-w-0">
-      <RouterView />
+      <RouterView v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </RouterView>
     </div>
   </main>
   <ScalarToasts />
