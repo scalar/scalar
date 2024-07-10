@@ -30,7 +30,7 @@ mac:
     - dmg
     - zip
 dmg:
-  artifactName: ${name}-${version}.${ext}
+  artifactName: ${name} ${version}.${ext}
 linux:
   target:
     - AppImage
