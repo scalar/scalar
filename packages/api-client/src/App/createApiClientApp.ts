@@ -2,15 +2,10 @@ import type { ClientConfiguration } from '@/Modal'
 import { router } from '@/router'
 import { useWorkspace } from '@/store/workspace'
 import type { SpecConfiguration } from '@scalar/oas-utils'
-import { type RequestMethod, objectMerge } from '@scalar/oas-utils/helpers'
+import { objectMerge } from '@scalar/oas-utils/helpers'
 import { createApp } from 'vue'
 
 import ApiClientApp from './ApiClientApp.vue'
-
-/**
- * Mount the full-blown API Client modal to a given element.
- */
-export type OpenClientPayload = { path: string; method: RequestMethod }
 
 /** Initialize Scalar API Client embed */
 export const createApiClientApp = async (
