@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createApiClientModal } from '@/Modal'
 
 // Initialize
@@ -43,6 +44,12 @@ import { createScalarApiClient } from '@/Modal'
 // Initialize
 const { open } = await createScalarApiClient(document.getElementById('app'), {
 >>>>>>> 362cb0714 (chore: add two different playgrounds for the modal and the embed)
+=======
+import { createApiClientModal } from '@/Modal'
+
+// Initialize
+const { open } = await createApiClientModal(document.getElementById('app'), {
+>>>>>>> d86314823 (fix: playground broken)
   spec: {
     url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
   },
