@@ -8,7 +8,8 @@ import {
   type ViewUpdate,
   WidgetType,
 } from '@codemirror/view'
-import { computed } from 'vue'
+import { ScalarTooltip } from '@scalar/components'
+import { computed, createApp, defineComponent, h } from 'vue'
 
 const { environments } = useWorkspace()
 
@@ -45,47 +46,43 @@ class PillWidget extends WidgetType {
     const span = document.createElement('span')
     span.className = 'cm-pill'
     span.textContent = `{{${this.variableName}}}`
-    span.style.cssText = `
-      background-color: #e0e0e0;
-      color: #333;
-      padding: 2px 5px;
-      border-radius: 3px;
-      display: inline-block;
-    `
 
-    const tooltip = document.createElement('span')
-    tooltip.className = 'cm-tooltip'
-    tooltip.style.cssText = `
-      visibility: hidden;
-      background-color: black;
-      color: black;
-      text-align: center;
-      padding: 5px;
-      border-radius: 6px;
-      position: absolute;
-      z-index: 11231231231231231123;
-      margin-top: 5px;
-      width: 120px;
-      opacity: 0;
-      transition: opacity 0.3s;
-    `
+    const tooltipComponent = defineComponent({
+      props: ['variableName'],
+      render() {
+        const val = parsedEnvironments.value.find(
+          (thing) => thing.key === this.variableName,
+        )
+        const tooltipContent = val
+          ? (val.value as string)
+          : 'Variable not found'
 
-    span.appendChild(tooltip)
-
-    span.addEventListener('mouseover', () => {
-      const val = parsedEnvironments.value.find(
-        (thing) => thing.key === this.variableName,
-      )
-      tooltip.textContent = val ? (val.value as string) : 'Variable not found'
-      console.log(tooltip)
-      tooltip.style.visibility = 'visible'
-      tooltip.style.opacity = '1'
+        return h(
+          ScalarTooltip,
+          {
+            align: 'start',
+            class: 'bg-b-1 w-full',
+            delay: 0,
+            side: 'bottom',
+            sideOffset: 6,
+          },
+          {
+            trigger: () => h('span', `{{${this.variableName}}}`),
+            content: () =>
+              h(
+                'div',
+                {
+                  class:
+                    'pointer-events-none w-content shadow-lg rounded bg-b-1 p-2 text-xxs leading-5 text-c-1',
+                },
+                tooltipContent,
+              ),
+          },
+        )
+      },
     })
 
-    span.addEventListener('mouseout', () => {
-      tooltip.style.visibility = 'hidden'
-      tooltip.style.opacity = '0'
-    })
+    createApp(tooltipComponent, { variableName: this.variableName }).mount(span)
 
     return span
   }

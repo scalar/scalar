@@ -202,9 +202,6 @@ export default {
   background: var(--scalar-background-2) !important;
   color: var(--scalar-color-1) !important;
 }
-.cell:has(.cm-focused) + .required {
-  color: red;
-}
 :deep(.cm-tooltip-autocomplete ul) {
   padding: 6px !important;
   z-index: 10000;
@@ -254,9 +251,9 @@ export default {
 </style>
 <style>
 .cm-pill {
-  background-color: #e0e0e0;
-  color: #333;
-  padding: 2px 5px;
+  background-color: var(--scalar-background-accent);
+  color: var(--scalar-color-accent);
+  padding: 2px 4px;
   border-radius: 3px;
   display: inline-block;
 }
