@@ -1,4 +1,4 @@
-appId: com.scalar.app
+appId: com.scalar.api-client
 productName: Scalar API Client
 directories:
   buildResources: build
