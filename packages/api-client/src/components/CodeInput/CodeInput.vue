@@ -11,16 +11,24 @@ import { ref, toRef, useAttrs, watch, type Ref } from 'vue'
 const props = withDefaults(
   defineProps<{
     colorPicker?: boolean
-    modelValue: string
+    modelValue: string | number
     error?: boolean
     emitOnBlur?: boolean
     lineNumbers?: boolean
     lint?: boolean
+    disableTabIndent?: boolean
     language?: CodeMirrorLanguage
     handleFieldSubmit?: (e: string) => void
     handleFieldChange?: (e: string) => void
+    placeholder?: string
+    required?: boolean
+    disableEnter?: boolean
+    disableCloseBrackets?: boolean
   }>(),
   {
+    disableCloseBrackets: false,
+    disableEnter: false,
+    disableTabIndent: false,
     emitOnBlur: true,
     colorPicker: false,
   },
@@ -69,15 +77,21 @@ if (props.colorPicker) extensions.push(colorPickerExtension)
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
 const { codeMirror } = useCodeMirror({
-  content: toRef(() => props.modelValue ?? ''),
+  content: toRef(() =>
+    props.modelValue !== undefined ? String(props.modelValue) : '',
+  ),
   onChange: handleChange,
   onFocus: () => (isFocused.value = true),
   onBlur: (val) => handleBlur(val),
   codeMirrorRef,
+  disableTabIndent: toRef(() => props.disableTabIndent),
+  disableEnter: toRef(() => props.disableEnter),
+  disableCloseBrackets: toRef(() => props.disableCloseBrackets),
   lineNumbers: toRef(() => props.lineNumbers),
   language: toRef(() => props.language),
   lint: toRef(() => props.lint),
   extensions,
+  placeholder: toRef(() => props.placeholder),
 })
 
 codeMirror.value?.focus()
@@ -103,10 +117,21 @@ export default {
     :id="uid"
     v-bind="$attrs"
     ref="codeMirrorRef"
-    class="font-code w-full whitespace-nowrap text-xs leading-[1.44]"
+    class="peer font-code w-full whitespace-nowrap text-xs leading-[1.44] relative"
     :class="{
       'flow-code-input--error': error,
-    }" />
+    }"></div>
+  <div
+    v-if="$slots.warning"
+    class="absolute centered-y right-7 text-orange text-xs">
+    <slot name="warning" />
+  </div>
+  <slot name="icon"></slot>
+  <div
+    v-if="required"
+    class="required absolute centered-y right-0 pt-px pr-2 text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-has-[.cm-focused]:opacity-0">
+    Required
+  </div>
 </template>
 <style scoped>
 /*
@@ -141,6 +166,9 @@ export default {
 :deep(.cm-tooltip-autocomplete ul li[aria-selected]) {
   background: var(--scalar-background-2) !important;
   color: var(--scalar-color-1) !important;
+}
+.cell:has(.cm-focused) + .required {
+  color: red;
 }
 :deep(.cm-tooltip-autocomplete ul) {
   padding: 6px !important;

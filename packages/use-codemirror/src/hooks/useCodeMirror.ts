@@ -25,6 +25,7 @@ import {
   highlightSpecialChars,
   keymap,
   lineNumbers as lineNumbersExtension,
+  placeholder as placeholderExtension,
 } from '@codemirror/view'
 import {
   type MaybeRefOrGetter,
@@ -53,14 +54,18 @@ type BaseParameters = {
   classes?: MaybeRefOrGetter<string[] | undefined>
   /** Put the editor into read-only mode */
   readOnly?: MaybeRefOrGetter<boolean | undefined>
+  /** Disable indent with tab */
+  disableTabIndent?: MaybeRefOrGetter<boolean | undefined>
   /** Option to show line numbers in the editor */
   lineNumbers?: MaybeRefOrGetter<boolean | undefined>
   withVariables?: MaybeRefOrGetter<boolean | undefined>
   disableEnter?: MaybeRefOrGetter<boolean | undefined>
+  disableCloseBrackets?: MaybeRefOrGetter<boolean | undefined>
   /** Option to lint and show error in the editor */
   lint?: MaybeRefOrGetter<boolean | undefined>
   onBlur?: (v: string) => void
   onFocus?: (v: string) => void
+  placeholder?: MaybeRefOrGetter<string | undefined>
 }
 
 export type UseCodeMirrorParameters =
@@ -143,15 +148,18 @@ export const useCodeMirror = (
     onChange: params.onChange,
     onBlur: params.onBlur,
     onFocus: params.onFocus,
+    disableTabIndent: toValue(params.disableTabIndent),
     language: toValue(params.language),
     classes: toValue(params.classes),
     readOnly: toValue(params.readOnly),
     lineNumbers: toValue(params.lineNumbers),
     withVariables: toValue(params.withVariables),
-    disableEnter: toValue(params.withVariables),
+    disableEnter: toValue(params.disableEnter),
+    disableCloseBrackets: toValue(params.disableCloseBrackets),
     withoutTheme: toValue(params.withoutTheme),
     lint: toValue(params.lint),
     additionalExtensions: toValue(params.extensions),
+    placeholder: toValue(params.placeholder),
   }))
 
   // Provider must be watched separately because we need to restart codemirror if the provider changes
@@ -253,14 +261,19 @@ function getCodeMirrorExtensions({
   lineNumbers = false,
   withVariables = false,
   disableEnter = false,
+  disableCloseBrackets = false,
+  disableTabIndent = false,
   withoutTheme = false,
   lint = false,
   additionalExtensions = [],
+  placeholder,
 }: {
   classes?: string[]
   language?: CodeMirrorLanguage
   readOnly?: boolean
   lineNumbers?: boolean
+  disableCloseBrackets?: boolean
+  disableTabIndent?: boolean
   withVariables?: boolean
   disableEnter?: boolean
   onChange?: (val: string) => void
@@ -270,6 +283,7 @@ function getCodeMirrorExtensions({
   provider: Extension | null
   lint?: boolean
   additionalExtensions?: Extension[]
+  placeholder?: string
 }) {
   const extensions: Extension[] = [
     highlightSpecialChars(),
@@ -325,14 +339,31 @@ function getCodeMirrorExtensions({
       indentOnInput(),
       bracketMatching(),
       autocompletion(),
-      closeBrackets(),
-      keymap.of([
-        ...completionKeymap,
-        ...closeBracketsKeymap,
-        indentWithTab,
-        selectAllKeyBinding,
-      ]),
+      keymap.of([...completionKeymap, selectAllKeyBinding]),
+      bracketMatching(),
     )
+
+    if (!disableCloseBrackets)
+      extensions.push(closeBrackets(), keymap.of([...closeBracketsKeymap]))
+
+    if (disableTabIndent) {
+      extensions.push(
+        keymap.of([
+          {
+            key: 'Tab',
+            run: () => false, // Prevent default Tab behavior
+            shift: () => false, // Prevent default Shift+Tab behavior
+          },
+        ]),
+      )
+    } else {
+      extensions.push(keymap.of([indentWithTab]))
+    }
+  }
+
+  // Add placeholder extension if placeholder is provided
+  if (placeholder) {
+    extensions.push(placeholderExtension(placeholder))
   }
 
   // Syntax highlighting
