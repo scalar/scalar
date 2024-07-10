@@ -74,9 +74,9 @@ const activeSection = ref<ActiveSections>('All')
   <ViewLayoutSection>
     <template #title>
       <ScalarIcon
-        class="text-c-3 mr-1.5 rotate-180 stroke-2"
+        class="text-c-3 mr-2 rotate-180 stroke-[2]"
         icon="ExternalLink"
-        size="md" />
+        size="sm" />
       <div class="flex items-center flex-1">
         Response
         <ResponseMetaInformation

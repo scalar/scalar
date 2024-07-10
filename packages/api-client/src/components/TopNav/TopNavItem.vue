@@ -30,7 +30,7 @@ defineEmits<{
         <div
           class="nav-item-icon-copy flex flex-1 items-center justify-center gap-1.5">
           <ScalarIcon
-            class="p-[0.5px]"
+            class="stroke-[2]"
             :icon="icon"
             size="xs" />
           <span class="nav-item-copy text-xs">{{ label }}</span>
