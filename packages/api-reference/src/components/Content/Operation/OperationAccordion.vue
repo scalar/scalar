@@ -57,7 +57,7 @@ const { copyToClipboard } = useClipboard()
       <ScalarIcon
         v-else
         class="endpoint-try-hint"
-        icon="PaperAirplane" />
+        icon="Play" />
       <ScalarIconButton
         class="endpoint-copy"
         icon="Clipboard"
@@ -176,19 +176,13 @@ const { copyToClipboard } = useClipboard()
   height: 24px;
   width: 24px;
   flex-shrink: 0;
-  opacity: 0.44;
-}
-
-.endpoint-copy,
-.endpoint-copy:hover {
-  color: currentColor;
 }
 
 .endpoint-copy {
-  opacity: 0.44;
+  color: currentColor;
 }
-.endpoint-copy:hover {
-  opacity: 1;
+.endpoint-copy :deep(svg) {
+  stroke-width: 2px;
 }
 
 .endpoint-content {
