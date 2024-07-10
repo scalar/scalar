@@ -55,14 +55,18 @@ const router = useRouter()
 
 const hasChildren = computed(() => 'childUids' in props.item)
 
-const highlightClasses =
-  'hover:before:bg-sidebar-active-b before:absolute before:inset-0 before:rounded before-left-offset'
+const highlightClasses = 'hover:bg-sidebar-active-b indent-padding-left'
 
 /** Due to the nesting, we need a dynamic left offset for hover and active backgrounds */
 const leftOffset = computed(() => {
+  if (!props.parentUids.length) return '12px'
+  else if (isReadOnly.value) return `${(props.parentUids.length - 1) * 12}px`
+  else return `${props.parentUids.length * 12}px`
+})
+const paddingOffset = computed(() => {
   if (!props.parentUids.length) return '0px'
-  else if (isReadOnly) return `-${(props.parentUids.length - 1) * 16}px`
-  else return `-${props.parentUids.length * 16}px`
+  else if (isReadOnly.value) return `${(props.parentUids.length - 1) * 12}px`
+  else return `${props.parentUids.length * 12}px`
 })
 
 const handleNavigation = (event: MouseEvent, uid: string) => {
@@ -116,7 +120,7 @@ const showChildren = computed(
     :class="[
       (isReadOnly && parentUids.length > 1) ||
       (!isReadOnly && parentUids.length)
-        ? 'before:bg-b-3 pl-4 before:absolute before:left-[calc(.75rem_+_.5px)] before:top-0 before:z-10 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-px mb-[.5px] last:mb-0'
+        ? 'before:bg-b-3 before:absolute before:left-[calc(.75rem_+_.5px)] before:top-0 before:z-10 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-px mb-[.5px] last:mb-0 indent-border-line-offset'
         : '',
     ]">
     <Draggable
@@ -138,13 +142,13 @@ const showChildren = computed(
           :class="[
             highlightClasses,
             activeRequest?.uid === item.uid
-              ? 'before:bg-sidebar-active-b text-sidebar-active-c transition-none'
+              ? 'bg-sidebar-active-b text-sidebar-active-c transition-none'
               : 'text-sidebar-c-2',
-            !isDroppable ? `pl-3` : 'pl-3',
           ]"
           tabindex="0"
           @click="($event) => handleNavigation($event, item.uid)">
-          <span class="z-10 font-medium w-full editable-sidebar-hover-item">
+          <span
+            class="z-10 font-medium w-full editable-sidebar-hover-item pl-2">
             {{ getTitle(item) }}
           </span>
           <div class="relative">
@@ -168,7 +172,7 @@ const showChildren = computed(
         :class="highlightClasses"
         type="button"
         @click="toggleSidebarFolder(item.uid)">
-        <span class="z-10 mr-[-.5px] flex h-fit items-center justify-center">
+        <span class="z-10 flex h-fit items-center justify-center max-w-[14px]">
           <slot name="leftIcon">
             <div
               :class="{
@@ -208,8 +212,11 @@ const showChildren = computed(
 @import '@scalar/draggable/style.css';
 </style>
 <style scoped>
-.before-left-offset:before {
+.indent-border-line-offset:before {
   left: v-bind(leftOffset);
+}
+.indent-padding-left {
+  padding-left: calc(v-bind(paddingOffset) + 6px);
 }
 .editable-sidebar-hover:hover .editable-sidebar-hover-item {
   mask-image: linear-gradient(
