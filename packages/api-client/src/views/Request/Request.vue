@@ -276,6 +276,7 @@ useEventListener(document, 'keydown', (event) => {
       <AddressBar />
       <div
         class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 justify-end w-6/12">
+        <!-- TODO: There should be an `ìsModal` flag instead -->
         <button
           v-if="activeWorkspace.isReadOnly"
           class="text-c-3 hover:bg-b-3 active:text-c-1 p-2 rounded"

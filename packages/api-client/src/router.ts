@@ -83,12 +83,15 @@ const routes = [
   },
 ]
 
+/**
+ * Router for the API Client app
+ */
 export const router = createRouter({
   history: createWebHistory(),
   routes,
 })
 
-/** Creates the in memory client router */
+/** Router for the API Client modal */
 export const modalRouter = createRouter({
   history: createMemoryHistory(),
   routes: modalRoutes,
