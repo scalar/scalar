@@ -38,6 +38,8 @@ const parsedEnvironments = computed(() => {
 })
 
 class PillWidget extends WidgetType {
+  private app: any
+
   constructor(private variableName: string) {
     super()
   }
@@ -82,9 +84,16 @@ class PillWidget extends WidgetType {
       },
     })
 
-    createApp(tooltipComponent, { variableName: this.variableName }).mount(span)
+    this.app = createApp(tooltipComponent, { variableName: this.variableName })
+    this.app.mount(span)
 
     return span
+  }
+
+  destroy() {
+    if (this.app) {
+      this.app.unmount()
+    }
   }
 
   eq(other: WidgetType) {
