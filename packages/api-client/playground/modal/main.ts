@@ -1,7 +1,7 @@
-import { createScalarApiClient } from '@/Modal'
+import { createApiClientModal } from '@/Modal'
 
 // Initialize
-const { open } = await createScalarApiClient(document.getElementById('app'), {
+const { open } = await createApiClientModal(document.getElementById('app'), {
   spec: {
     url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
   },
