@@ -42,9 +42,6 @@ const isContentValid = computed(() => {
 </script>
 <template>
   <div class="scalar-code-block">
-    <pre
-      class="scalar-codeblock-pre"
-      v-html="highlightedCode"></pre>
     <button
       v-if="isContentValid"
       class="copy-button"
@@ -55,10 +52,18 @@ const isContentValid = computed(() => {
         icon="Clipboard"
         size="md" />
     </button>
+    <pre
+      class="scalar-codeblock-pre"
+      v-html="highlightedCode"></pre>
   </div>
 </template>
 <style>
 @import '@scalar/code-highlight/css/code.css';
+.scalar-code-block {
+  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+  position: relative;
+  overflow: auto;
+}
 .scalar-code-block:hover .copy-button {
   opacity: 100;
   visibility: visible;
@@ -66,7 +71,6 @@ const isContentValid = computed(() => {
 /* Code blocks */
 .scalar-codeblock-pre {
   margin: 0;
-  padding: 0.5rem 3rem 0.5rem 0.75rem;
   overflow: auto;
   background: transparent;
   text-wrap: nowrap;
@@ -75,19 +79,19 @@ const isContentValid = computed(() => {
 }
 .copy-button {
   align-items: center;
-  background: var(--scalar-background-2);
+  background-color: var(inherit, --scalar-background-2);
   border: 1px solid var(--scalar-border-color);
   border-radius: 3px;
   color: var(--scalar-color-3);
   cursor: pointer;
   display: flex;
   height: 30px;
-  margin: 8px;
+  margin-bottom: -30px;
   opacity: 0;
   padding: 6px;
-  position: absolute;
-  right: 0;
-  top: 36px;
+  position: sticky;
+  left: 100dvw;
+  top: 0;
   transition:
     opacity 0.15s ease-in-out,
     color 0.15s ease-in-out;

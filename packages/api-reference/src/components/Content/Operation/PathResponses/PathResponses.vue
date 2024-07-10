@@ -237,6 +237,7 @@ const showSchema = ref(false)
 .scalar-card-container {
   flex: 1;
   background: var(--scalar-background-2);
+  display: grid;
 }
 .scalar-card-container :deep(.cm-scroller) {
   overflow-y: hidden;
