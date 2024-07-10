@@ -8,10 +8,10 @@ import {
   type ViewUpdate,
   WidgetType,
 } from '@codemirror/view'
-import { ScalarTooltip } from '@scalar/components'
+import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import { computed, createApp, defineComponent, h } from 'vue'
 
-const { environments } = useWorkspace()
+const { environments, isReadOnly } = useWorkspace()
 
 const parsedEnvironments = computed(() => {
   return Object.values(environments)
@@ -56,8 +56,28 @@ class PillWidget extends WidgetType {
           (thing) => thing.key === this.variableName,
         )
         const tooltipContent = val
-          ? (val.value as string)
-          : 'Variable not found'
+          ? h('div', { class: 'p-2' }, val.value as string)
+          : h('div', { class: 'divide-y divide-1/2 grid' }, [
+              h('span', { class: 'p-2' }, 'Variable not found'),
+              !isReadOnly.value &&
+                h('div', { class: 'p-1' }, [
+                  h(
+                    ScalarButton,
+                    {
+                      class:
+                        'gap-1.5 justify-start font-normal px-1 py-1.5 h-auto transition-colors rounded no-underline text-xxs w-full hover:bg-b-2',
+                      variant: 'ghost',
+                      onClick: () => {
+                        window.location.href = '/environment'
+                      },
+                    },
+                    [
+                      h(ScalarIcon, { class: 'w-2', icon: 'Add', size: 'xs' }),
+                      'Add variable',
+                    ],
+                  ),
+                ]),
+            ])
 
         return h(
           ScalarTooltip,
@@ -75,7 +95,7 @@ class PillWidget extends WidgetType {
                 'div',
                 {
                   class:
-                    'pointer-events-none w-content shadow-lg rounded bg-b-1 p-2 text-xxs leading-5 text-c-1',
+                    'w-content shadow-lg rounded bg-b-1 text-xxs leading-5 text-c-1',
                 },
                 tooltipContent,
               ),
