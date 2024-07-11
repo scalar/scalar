@@ -12,7 +12,7 @@ const emit = defineEmits<{
   (e: 'select', variable: string): void
 }>()
 
-const { environments } = useWorkspace()
+const { environments, activeWorkspace } = useWorkspace()
 const router = useRouter()
 const dialogVisible = ref(false)
 
@@ -48,7 +48,8 @@ const selectVariable = (variable: { name: string }) => {
 watch(
   () => props.query,
   (newQuery) => {
-    dialogVisible.value = newQuery.includes('{{')
+    dialogVisible.value =
+      newQuery.includes('{{') && !activeWorkspace.value?.isReadOnly
   },
 )
 </script>
