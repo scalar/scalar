@@ -7,7 +7,9 @@ import { createApp } from 'vue'
 
 import ApiClientApp from './ApiClientApp.vue'
 
-/** Initialize Scalar API Client embed */
+/**
+ * Mount the full-blown API Client modal to a given element.
+ */
 export const createApiClientApp = async (
   /** Element to mount the references to */
   el: HTMLElement | null,
