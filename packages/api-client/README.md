@@ -61,12 +61,15 @@ Or you can mount a more compact version, which is living in a modal:
 import { createApiClientApp } from '@/App'
 
 // Initialize
-const { open } = await createApiClientApp(document.getElementById('scalar-client'), {
-  spec: {
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+const { open } = await createApiClientApp(
+  document.getElementById('scalar-client'),
+  {
+    spec: {
+      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+    },
+    proxyUrl: 'https://proxy.scalar.com',
   },
-  proxyUrl: 'https://proxy.scalar.com',
-})
+)
 
 // Open the API client right-away
 open()
