@@ -4,7 +4,7 @@ import { ScalarIconButton } from '@scalar/components'
 import { computed, ref } from 'vue'
 
 import DataTableCell from './DataTableCell.vue'
-import DataTableInputEnumSelect from './DataTableInputEnumSelect.vue'
+import DataTableInputSelect from './DataTableInputSelect.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -78,9 +78,9 @@ const handleDropdownMouseUp = () => {
     </div>
     <div class="row-1">
       <template v-if="props.enum && props.enum.length">
-        <DataTableInputEnumSelect
-          :enum="props.enum"
+        <DataTableInputSelect
           :modelValue="props.modelValue"
+          :value="props.enum"
           @update:modelValue="emit('update:modelValue', $event)" />
       </template>
       <template v-else>

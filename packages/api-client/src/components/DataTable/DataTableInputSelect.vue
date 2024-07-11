@@ -10,14 +10,14 @@ import { computed, ref, watch } from 'vue'
 
 const props = defineProps<{
   modelValue: string | number
-  enum?: string[]
+  value?: string[]
 }>()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', v: string): void
 }>()
 
-const options = computed(() => props.enum ?? [])
+const options = computed(() => props.value ?? [])
 
 const selected = ref<string>(props.modelValue.toString())
 const addingCustomValue = ref(false)
