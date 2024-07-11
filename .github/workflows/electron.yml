@@ -1,4 +1,4 @@
-name: Electron Build & Release
+name: Build Electron
 
 on: push
 
@@ -25,12 +25,17 @@ jobs:
         with:
           path: .turbo
           key: turbo-${{ runner.os }}-node-20
-      - name: Import code signing certificates
+      - name: Build packages
+        run: pnpm build:packages
+      - if: matrix.os == 'macos-latest'
+        name: Import code signing certificates
         uses: apple-actions/import-codesign-certs@v3
         with:
           p12-file-base64: ${{ secrets.MAC_CERTS }}
           p12-password: ${{ secrets.MAC_CERTS_PASSWORD }}
-      - name: Build packages
-        run: pnpm build:packages
-      - name: Build Electron
+      - name: Build Electron for ${{ matrix.os }}
         run: pnpm --filter scalar-api-client build:mac
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}

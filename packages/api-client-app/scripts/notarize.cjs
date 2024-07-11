@@ -58,6 +58,7 @@ exports.default = async function notarizing(context) {
 
   console.log()
   if (missingEnvironmentVariables.length) {
+    console.log()
     console.error('❌ Notarization failed. Missing environment variables.')
     console.log()
     return
