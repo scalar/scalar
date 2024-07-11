@@ -25,6 +25,11 @@ jobs:
         with:
           path: .turbo
           key: turbo-${{ runner.os }}-node-20
+      - name: Import code signing certificates
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.MAC_CERTS }}
+          p12-password: ${{ secrets.MAC_CERTS_PASSWORD }}
       - name: Build packages
         run: pnpm build:packages
       - name: Build Electron
