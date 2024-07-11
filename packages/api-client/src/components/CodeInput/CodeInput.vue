@@ -6,7 +6,7 @@ import {
   type Extension,
 } from '@scalar/use-codemirror'
 import { nanoid } from 'nanoid'
-import { ref, toRef, useAttrs, watch, type Ref } from 'vue'
+import { ref, toRef, useAttrs, watch, type Ref, computed } from 'vue'
 import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
 
 const props = withDefaults(
@@ -27,6 +27,7 @@ const props = withDefaults(
     disableCloseBrackets?: boolean
     enum?: string[]
     type?: string
+    nullable?: boolean
   }>(),
   {
     disableCloseBrackets: false,
@@ -34,6 +35,7 @@ const props = withDefaults(
     disableTabIndent: false,
     emitOnBlur: true,
     colorPicker: false,
+    nullable: false,
   },
 )
 const emit = defineEmits<{
@@ -108,6 +110,15 @@ watch(codeMirror, () => {
     codeMirror.value.focus()
   }
 })
+
+// Computed property to check if type is boolean and nullable
+const booleanOptions = computed(() => {
+  return props.type === 'boolean' ||
+    props.type?.includes('boolean') ||
+    props.nullable
+    ? ['true', 'false', 'null']
+    : ['true', 'false']
+})
 </script>
 <script lang="ts">
 // use normal <script> to declare options
@@ -122,10 +133,11 @@ export default {
       :value="props.enum"
       @update:modelValue="emit('update:modelValue', $event)" />
   </template>
-  <template v-else-if="props.type === 'boolean'">
+  <template
+    v-else-if="props.type === 'boolean' || props.type?.includes('boolean')">
     <DataTableInputSelect
       :modelValue="props.modelValue"
-      :value="['true', 'false']"
+      :value="booleanOptions"
       @update:modelValue="emit('update:modelValue', $event)" />
   </template>
   <template v-else>

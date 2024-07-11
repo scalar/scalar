@@ -106,6 +106,7 @@ const flattenValue = (item: RequestExampleParameter) => {
           :max="item.maximum"
           :min="item.minimum"
           :modelValue="item.value"
+          :nullable="item.nullable"
           placeholder="Value"
           :type="item.type"
           @blur="emit('inputBlur')"
