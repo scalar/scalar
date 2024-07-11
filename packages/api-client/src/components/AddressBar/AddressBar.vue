@@ -161,7 +161,8 @@ const handlePaste = (event: ClipboardEvent) => {
               @change="updateRequestMethod" />
             <AddressBarServer />
           </div>
-          <div class="custom-scroll scroll-timeline-x relative flex w-full">
+          <div
+            class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full">
             <div class="fade-left"></div>
 
             <!-- TODO wrap vars in spans for special effects like mouseOver descriptions -->
@@ -207,6 +208,14 @@ const handlePaste = (event: ClipboardEvent) => {
   /* Firefox supports */
   scroll-timeline: --scroll-timeline horizontal;
   -ms-overflow-style: none; /* IE and Edge */
+}
+.scroll-timeline-x-hidden {
+  overflow: auto;
+  scrollbar-width: none;
+}
+.scroll-timeline-x-hidden::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 .scroll-timeline-x-address {
   line-height: 27px;
