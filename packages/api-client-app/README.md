@@ -1,12 +1,8 @@
-# api-client-app
+# Scalar API Client
 
-An Electron application with Vue and TypeScript
+An open-source HTTP testing tool for macOS, Windows & Linux.
 
-## Recommended IDE Setup
-
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin)
-
-## Project Setup
+## Development
 
 ### Install
 
@@ -14,7 +10,7 @@ An Electron application with Vue and TypeScript
 $ pnpm install
 ```
 
-### Development
+### Run
 
 ```bash
 $ pnpm dev
@@ -23,7 +19,7 @@ $ pnpm dev
 ### Build
 
 ```bash
-# For windows
+# For Windows
 $ pnpm build:win
 
 # For macOS
