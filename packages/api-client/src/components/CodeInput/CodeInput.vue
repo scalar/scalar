@@ -11,6 +11,7 @@ import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
 
 import { overlayPlugin } from './codeVariableOverlay'
 import { pillPlugin, backspaceCommand } from './codeVariableWidget'
+import { serverPlugin } from './codeServerWidget'
 
 const props = withDefaults(
   defineProps<{
@@ -31,6 +32,7 @@ const props = withDefaults(
     enum?: string[]
     type?: string
     nullable?: boolean
+    server?: boolean
   }>(),
   {
     disableCloseBrackets: false,
@@ -39,6 +41,7 @@ const props = withDefaults(
     emitOnBlur: true,
     colorPicker: false,
     nullable: false,
+    server: false,
   },
 )
 const emit = defineEmits<{
@@ -81,6 +84,7 @@ function handleBlur(value: string) {
 
 const extensions: Extension[] = []
 if (props.colorPicker) extensions.push(colorPickerExtension)
+if (props.server) extensions.push(serverPlugin)
 
 extensions.push(overlayPlugin)
 extensions.push(pillPlugin, backspaceCommand)

@@ -8,9 +8,9 @@ import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
+import CodeInput from '../CodeInput/CodeInput.vue'
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
-import AddressBarServer from './AddressBarServer.vue'
 
 const {
   activeRequest,
@@ -92,32 +92,6 @@ function getBackgroundColor() {
   return REQUEST_METHODS[method as RequestMethod].backgroundColor
 }
 
-/** prevent line breaks on pasted content */
-const handlePaste = (event: ClipboardEvent) => {
-  event.preventDefault()
-  const text = event.clipboardData?.getData('text/plain') || ''
-  const sanitizedText = text.replace(/\n/g, '')
-
-  const selection = window.getSelection()
-  if (!selection || selection.rangeCount === 0) return
-
-  const range = selection.getRangeAt(0)
-  range.deleteContents()
-  const textNode = document.createTextNode(sanitizedText)
-  range.insertNode(textNode)
-
-  /** move the cursor to the end of the inserted text */
-  range.setStartAfter(textNode)
-  selection.removeAllRanges()
-  selection.addRange(range)
-
-  /** scroll and focus at the end of the pasted content */
-  const editableDiv = range.startContainer.parentElement
-  if (editableDiv) {
-    editableDiv.scrollLeft = editableDiv.scrollWidth
-  }
-}
-
 /**
  * TODO: This component is pretty much mocked for now, will come back and finish it up once we
  * Start making requests and adding some history
@@ -159,21 +133,19 @@ const handlePaste = (event: ClipboardEvent) => {
               isSquare
               :method="activeRequest.method"
               @change="updateRequestMethod" />
-            <AddressBarServer />
           </div>
           <div
             class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full">
             <div class="fade-left"></div>
-
-            <!-- TODO wrap vars in spans for special effects like mouseOver descriptions -->
-            <div
-              class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap lg:text-sm text-xs font-medium leading-[24.5px] outline-none"
-              :contenteditable="!isReadOnly"
-              @input="(ev) => onUrlChange((ev.target as HTMLElement).innerText)"
-              @keydown.enter.prevent="executeRequestBus.emit()"
-              @paste="handlePaste">
-              {{ activeRequest.path }}
-            </div>
+            <CodeInput
+              v-model="activeRequest.path"
+              disableCloseBrackets
+              :disabled="isReadOnly"
+              disableEnter
+              disableTabIndent
+              placeholder="Enter URL or cURL request"
+              server
+              @submit="executeRequestBus.emit()" />
             <div class="fade-right"></div>
           </div>
 
@@ -197,11 +169,26 @@ const handlePaste = (event: ClipboardEvent) => {
 :deep(.cm-editor) {
   background-color: var(--scalar-background-1);
   height: 100%;
+  padding: 0;
   outline: none;
   width: 100%;
 }
 :deep(.cm-content) {
-  padding: 2px 0;
+  align-items: center;
+  display: flex;
+  padding: 0;
+}
+:deep(.cm-line) {
+  align-items: center;
+  display: flex;
+  padding: 0;
+}
+:deep(.cm-line),
+:deep(.cm-placeholder) {
+  line-height: 24px;
+}
+:deep(.cm-server) {
+  margin-right: 3px;
 }
 .scroll-timeline-x {
   scroll-timeline: --scroll-timeline x;
@@ -222,19 +209,6 @@ const handlePaste = (event: ClipboardEvent) => {
   scrollbar-width: none; /* Firefox */
 }
 /* make clickable are to left of send button */
-.scroll-timeline-x-address:after {
-  content: '';
-  position: absolute;
-  height: 100%;
-  width: 24px;
-  right: 0;
-  cursor: text;
-}
-.scroll-timeline-x-address:empty:before {
-  content: 'Enter URL or cURL request';
-  color: var(--scalar-color-3);
-  pointer-events: none;
-}
 .fade-left,
 .fade-right {
   content: '';
