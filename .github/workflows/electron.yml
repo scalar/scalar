@@ -31,11 +31,13 @@ jobs:
         name: Import code signing certificates
         uses: apple-actions/import-codesign-certs@v3
         with:
+          keychain: 'signing'
           p12-file-base64: ${{ secrets.MAC_CERTS }}
           p12-password: ${{ secrets.MAC_CERTS_PASSWORD }}
       - name: Build Electron for ${{ matrix.os }}
         run: pnpm --filter scalar-api-client build:mac
         env:
+          CSC_KEYCHAIN: signing
           # # The base64-encoded data of the certificate (*.p12 or *.pfx file).
           # CSC_LINK: ${{ secrets.MAC_CERTS }}
           # # The password to decrypt the certificate given in CSC_LINK.
