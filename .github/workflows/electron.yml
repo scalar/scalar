@@ -36,6 +36,9 @@ jobs:
       - name: Build Electron for ${{ matrix.os }}
         run: pnpm --filter scalar-api-client build:mac
         env:
+          # The username of your Apple Developer account
           APPLE_ID: ${{ secrets.APPLE_ID }}
+          # https://support.apple.com/en-us/102654
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          # https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}

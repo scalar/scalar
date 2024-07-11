@@ -75,11 +75,8 @@ exports.default = async function notarizing(context) {
     tool: 'notarytool',
     appBundleId,
     appPath: `${appOutDir}/${appName}.app`,
-    // The username of your Apple Developer account
     appleId: process.env.APPLE_ID,
-    // https://support.apple.com/en-us/102654
     appleIdPassword: process.env.APPLE_ID_PASSWORD,
-    // https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/
     teamId: process.env.APPLE_TEAM_ID,
   })
 
