@@ -199,10 +199,13 @@ jobs:
             api_client:
               - examples/api-client/**
               - packages/api-client/**
-      - name: Deploy to client.scalar.com
-        if: steps.changed-files.outputs.api_client_any_changed == 'true'
+      - if: steps.changed-files.outputs.api_client_any_changed == 'true'
+        name: Deploy to client.scalar.com
+        id: deploy-client
         uses: cloudflare/wrangler-action@v3
         with:
+          command: pages deploy dist --project-name=client
+          workingDirectory: examples/api-client
           # 1) Log in to the Cloudflare dashboard.
           # 2) Select Workers & Pages.
           # 3) See the Account ID in the right sidebar.
@@ -211,5 +214,7 @@ jobs:
           # 1) Go to https://dash.cloudflare.com/profile/api-tokens
           # 2) Create a token with the following permissions:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          command: pages deploy dist --project-name=client
-          workingDirectory: examples/api-client
+      - name: Cloudflare preview URL
+        env:
+          CLIENT_PREVIEW_URL: ${{ steps.deploy-client.outputs.deployment-url }}
+        run: echo $CLIENT_PREVIEW_URL
