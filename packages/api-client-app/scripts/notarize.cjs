@@ -24,12 +24,10 @@ exports.default = async function notarizing(context) {
   console.log()
   console.log('📦 Notarizing the app…')
   console.log()
-  console.log('electronPlatformName:', electronPlatformName)
-  console.log('appOutDir:', appOutDir)
-  console.log('productFilename:', appName)
-  console.log('appBundleId:', appBundleId)
-  console.log()
-  console.log('🫡')
+  console.log('  electronPlatformName:', electronPlatformName)
+  console.log('  appOutDir:', appOutDir)
+  console.log('  productFilename:', appName)
+  console.log('  appBundleId:', appBundleId)
 
   if (electronPlatformName !== 'darwin') {
     return
@@ -66,10 +64,11 @@ exports.default = async function notarizing(context) {
   } else {
     console.log('🔑 Found all necessary credentials.')
   }
-  console.log()
 
   // Notarization
+  console.log()
   console.log('⬆️ Uploading the app to Apple’s notary service…')
+  console.log()
 
   await notarize({
     tool: 'notarytool',
@@ -84,4 +83,5 @@ exports.default = async function notarizing(context) {
   })
 
   console.log('✅ The app has been notarized.')
+  console.log()
 }
