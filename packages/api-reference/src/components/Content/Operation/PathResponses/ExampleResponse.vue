@@ -86,7 +86,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
       "
       lang="json" />
     <ScalarCodeBlock
-      v-if="response?.schema['items']?.['allOf']"
+      v-else-if="response?.schema['items']?.['allOf']"
       :content="
         mergeAllObjects(
           response?.schema['items']['allOf'].map((schema: any) =>
