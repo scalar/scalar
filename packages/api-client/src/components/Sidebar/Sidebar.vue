@@ -1,17 +1,93 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store/workspace'
+import { defineProps, ref, watch } from 'vue'
 
 defineProps<{ title?: string }>()
 
+const props = withDefaults(defineProps<{ showSideBar: boolean }>(), {
+  showSideBar: true,
+})
+const emit = defineEmits<{
+  (e: 'update:showSideBar', v: boolean): void
+}>()
 const { isReadOnly } = useWorkspace()
+const isDragging = ref(false)
+const sidebarRef = ref<HTMLElement | null>(null)
+const sidebarWidth = ref('250px')
+
+/**
+ * Resets the sidebar width to the default value to prevent
+ * having it shrinked on click display after dragging.
+ */
+const initialSidebarWidth = () => {
+  sidebarWidth.value = '250px'
+}
+
+const startDrag = (event: MouseEvent) => {
+  event.preventDefault()
+
+  const startX = event.clientX
+  /** Current sidebar width when dragging starts */
+  const startWidth = parseInt(
+    getComputedStyle(sidebarRef.value!).width || '250px',
+    10,
+  )
+
+  const doDrag = (dragEvent: MouseEvent) => {
+    isDragging.value = true
+    document.body.classList.add('dragging')
+    let newWidth = startWidth + dragEvent.clientX - startX
+    if (newWidth > 360) newWidth = 360
+    if (newWidth < 160) {
+      newWidth = 0
+      emit('update:showSideBar', false)
+    } else {
+      emit('update:showSideBar', true)
+    }
+    sidebarWidth.value = `${newWidth}px`
+  }
+
+  const stopDrag = () => {
+    isDragging.value = false
+    document.body.classList.remove('dragging')
+    document.documentElement.removeEventListener('mousemove', doDrag, false)
+    document.documentElement.removeEventListener('mouseup', stopDrag, false)
+  }
+
+  document.documentElement.addEventListener('mousemove', doDrag, false)
+  document.documentElement.addEventListener('mouseup', stopDrag, false)
+}
+
+watch(
+  () => props.showSideBar,
+  (newVal) => {
+    const sidebar = document.querySelector('.sidebar')
+    if (sidebar) {
+      if (!newVal) {
+        sidebar.classList.add('blur-content')
+        document.body.classList.remove('dragging')
+      } else {
+        sidebar.classList.remove('blur-content')
+      }
+    }
+    initialSidebarWidth()
+  },
+)
 </script>
 <template>
-  <aside class="w-sidebar relative flex flex-col border-r-1/2 bg-b-1">
+  <aside
+    v-show="props.showSideBar"
+    ref="sidebarRef"
+    class="sidebar overflow-hidden relative flex flex-col border-r bg-b-1"
+    :class="{ dragging: isDragging }"
+    :style="{ width: sidebarWidth }">
     <slot name="header" />
     <div
       v-if="!isReadOnly && title"
-      class="xl:min-h-header py-2.5 flex items-center border-b-1/2 px-4 text-sm">
-      <h2 class="font-medium m-0 text-sm">{{ title }}</h2>
+      class="xl:min-h-header py-2.5 flex items-center border-b px-4 text-sm">
+      <h2 class="font-medium m-0 text-sm whitespace-nowrap">
+        <slot name="title" />
+      </h2>
     </div>
     <div
       class="custom-scroll sidebar-height"
@@ -21,6 +97,9 @@ const { isReadOnly } = useWorkspace()
       <slot name="content" />
     </div>
     <slot name="button" />
+    <div
+      class="resizer"
+      @mousedown="startDrag"></div>
   </aside>
 </template>
 <style>
@@ -35,5 +114,32 @@ const { isReadOnly } = useWorkspace()
     transparent 40px,
     var(--scalar-background-2) 60px
   );
+}
+.resizer {
+  width: 5px;
+  cursor: col-resize;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  border-right: 2px solid transparent;
+  transition: border-right-color 0.3s;
+  z-index: 100;
+}
+.resizer:hover,
+.dragging .resizer {
+  border-right-color: var(--scalar-background-3);
+}
+.dragging {
+  cursor: col-resize;
+  transition: width 0.1s;
+}
+.dragging::before {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 99;
 }
 </style>
