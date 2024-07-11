@@ -27,13 +27,20 @@ jobs:
           key: turbo-${{ runner.os }}-node-20
       - name: Build packages
         run: pnpm build:packages
+      - if: matrix.os == 'macos-latest'
+        name: Import code signing certificates
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.MAC_CERTS }}
+          p12-password: ${{ secrets.MAC_CERTS_PASSWORD }}
       - name: Build Electron for ${{ matrix.os }}
         run: pnpm --filter scalar-api-client build:mac
         env:
-          # The base64-encoded data of the certificate (*.p12 or *.pfx file).
-          CSC_LINK: ${{ secrets.MAC_CERTS }}
-          # The password to decrypt the certificate given in CSC_LINK.
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
+          # # The base64-encoded data of the certificate (*.p12 or *.pfx file).
+          # CSC_LINK: ${{ secrets.MAC_CERTS }}
+          # # The password to decrypt the certificate given in CSC_LINK.
+          # CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
+          # CSC_IDENTITY_AUTO_DISCOVERY: true
           # The username of your Apple Developer account
           APPLE_ID: ${{ secrets.APPLE_ID }}
           # https://support.apple.com/en-us/102654
