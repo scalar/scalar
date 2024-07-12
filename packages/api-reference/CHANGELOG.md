@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.24.42
+
+### Patch Changes
+
+- 274af41: fix: make default tag check computed for reactivity bugs
+- Updated dependencies [8654323]
+  - @scalar/api-client@2.0.18
+
 ## 1.24.41
 
 ### Patch Changes
