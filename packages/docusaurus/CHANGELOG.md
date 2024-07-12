@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.4.41
+
+### Patch Changes
+
+- fb06bf4: fix: scope docusaurus theme styles
+  - @scalar/api-reference-react@0.3.39
+
 ## 0.4.40
 
 ### Patch Changes
