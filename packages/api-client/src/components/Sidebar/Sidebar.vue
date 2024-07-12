@@ -13,14 +13,14 @@ const emit = defineEmits<{
 const { isReadOnly } = useWorkspace()
 const isDragging = ref(false)
 const sidebarRef = ref<HTMLElement | null>(null)
-const sidebarWidth = ref('250px')
+const sidebarWidth = ref('280px')
 
 /**
  * Resets the sidebar width to the default value to prevent
  * having it shrinked on click display after dragging.
  */
 const initialSidebarWidth = () => {
-  sidebarWidth.value = '250px'
+  sidebarWidth.value = '280px'
 }
 
 const startDrag = (event: MouseEvent) => {
@@ -29,7 +29,7 @@ const startDrag = (event: MouseEvent) => {
   const startX = event.clientX
   /** Current sidebar width when dragging starts */
   const startWidth = parseInt(
-    getComputedStyle(sidebarRef.value!).width || '250px',
+    getComputedStyle(sidebarRef.value!).width || '280px',
     10,
   )
 
@@ -38,7 +38,7 @@ const startDrag = (event: MouseEvent) => {
     document.body.classList.add('dragging')
     let newWidth = startWidth + dragEvent.clientX - startX
     if (newWidth > 360) newWidth = 360
-    if (newWidth < 160) {
+    if (newWidth < 240) {
       newWidth = 0
       emit('update:showSideBar', false)
     } else {
