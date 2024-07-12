@@ -45,7 +45,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
-    "@types/node": "^20.8.4",
+    "@types/node": "^20.14.10",
     "esbuild": "^0.21.1",
     "rollup": "^4.16.4",
     "rollup-plugin-delete": "^2.0.0",
