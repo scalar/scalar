@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.0.17
+
+### Patch Changes
+
+- 91b97fa: fix: input checked by default on required item
+- 05bc858: feat: display select for boolean type
+- 05bc858: fix: data table input enum select back
+
 ## 2.0.16
 
 ### Patch Changes
