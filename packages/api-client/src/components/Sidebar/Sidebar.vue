@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store/workspace'
-import { defineProps, ref, watch } from 'vue'
+import { defineProps, onMounted, ref, watch } from 'vue'
 
 defineProps<{ title?: string }>()
 
@@ -13,14 +13,19 @@ const emit = defineEmits<{
 const { isReadOnly } = useWorkspace()
 const isDragging = ref(false)
 const sidebarRef = ref<HTMLElement | null>(null)
-const sidebarWidth = ref('280px')
+const sidebarWidth = ref(localStorage.getItem('sidebarWidth') || '280px')
 
 /**
  * Resets the sidebar width to the default value to prevent
  * having it shrinked on click display after dragging.
  */
 const initialSidebarWidth = () => {
-  sidebarWidth.value = '280px'
+  if (
+    sidebarWidth.value === '0px' ||
+    localStorage.getItem('sidebarWidth') === '0px'
+  ) {
+    sidebarWidth.value = '280px'
+  }
 }
 
 const startDrag = (event: MouseEvent) => {
@@ -45,6 +50,7 @@ const startDrag = (event: MouseEvent) => {
       emit('update:showSideBar', true)
     }
     sidebarWidth.value = `${newWidth}px`
+    localStorage.setItem('sidebarWidth', sidebarWidth.value)
   }
 
   const stopDrag = () => {
@@ -73,6 +79,10 @@ watch(
     initialSidebarWidth()
   },
 )
+
+onMounted(() => {
+  initialSidebarWidth()
+})
 </script>
 <template>
   <aside
