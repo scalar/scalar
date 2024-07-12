@@ -2,11 +2,12 @@
 import { useWorkspace } from '@/store/workspace'
 import { defineProps, onMounted, ref, watch } from 'vue'
 
-defineProps<{ title?: string }>()
-
-const props = withDefaults(defineProps<{ showSideBar: boolean }>(), {
-  showSideBar: true,
-})
+const props = withDefaults(
+  defineProps<{ title?: string; showSideBar: boolean }>(),
+  {
+    showSideBar: true,
+  },
+)
 const emit = defineEmits<{
   (e: 'update:showSideBar', v: boolean): void
 }>()
@@ -19,7 +20,7 @@ const sidebarWidth = ref(localStorage.getItem('sidebarWidth') || '280px')
  * Resets the sidebar width to the default value to prevent
  * having it shrinked on click display after dragging.
  */
-const initialSidebarWidth = () => {
+const setInitialSidebarWidth = () => {
   if (
     sidebarWidth.value === '0px' ||
     localStorage.getItem('sidebarWidth') === '0px'
@@ -42,7 +43,10 @@ const startDrag = (event: MouseEvent) => {
     isDragging.value = true
     document.body.classList.add('dragging')
     let newWidth = startWidth + dragEvent.clientX - startX
-    if (newWidth > 360) newWidth = 360
+    if (newWidth > 360) {
+      /** Elastic effect */
+      newWidth = 360 + (newWidth - 360) * 0.2
+    }
     if (newWidth < 240) {
       newWidth = 0
       emit('update:showSideBar', false)
@@ -50,7 +54,8 @@ const startDrag = (event: MouseEvent) => {
       emit('update:showSideBar', true)
     }
     sidebarWidth.value = `${newWidth}px`
-    localStorage.setItem('sidebarWidth', sidebarWidth.value)
+    /** Limit max width to be stored as 360px */
+    localStorage.setItem('sidebarWidth', `${Math.min(newWidth, 360)}px`)
   }
 
   const stopDrag = () => {
@@ -58,6 +63,10 @@ const startDrag = (event: MouseEvent) => {
     document.body.classList.remove('dragging')
     document.documentElement.removeEventListener('mousemove', doDrag, false)
     document.documentElement.removeEventListener('mouseup', stopDrag, false)
+    /** Reset to max width if exceeded */
+    if (parseInt(sidebarWidth.value, 10) > 360) {
+      sidebarWidth.value = '360px'
+    }
   }
 
   document.documentElement.addEventListener('mousemove', doDrag, false)
@@ -76,12 +85,12 @@ watch(
         sidebar.classList.remove('blur-content')
       }
     }
-    initialSidebarWidth()
+    setInitialSidebarWidth()
   },
 )
 
 onMounted(() => {
-  initialSidebarWidth()
+  setInitialSidebarWidth()
 })
 </script>
 <template>
