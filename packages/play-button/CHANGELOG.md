@@ -1,5 +1,27 @@
 # @scalar/play-button
 
+## 0.2.38
+
+### Patch Changes
+
+- fc096b6: refactor!: rename `createScalarApiClient` to `createApiClientModal`
+- Updated dependencies [a5b295c]
+- Updated dependencies [e285a6b]
+- Updated dependencies [bff602a]
+- Updated dependencies [4023d52]
+- Updated dependencies [6f4d20d]
+- Updated dependencies [1ba4267]
+- Updated dependencies [2f10a39]
+- Updated dependencies [c2ac68a]
+- Updated dependencies [58da2c6]
+- Updated dependencies [9e3348a]
+- Updated dependencies [fe16789]
+- Updated dependencies [fc096b6]
+- Updated dependencies [ebdc9cf]
+- Updated dependencies [1961751]
+  - @scalar/api-client@2.0.16
+  - @scalar/api-reference@1.24.40
+
 ## 0.2.37
 
 ### Patch Changes

@@ -1,5 +1,27 @@
 # @scalar/api-client
 
+## 2.0.16
+
+### Patch Changes
+
+- a5b295c: fix: address bar scrollbar shown offset
+- bff602a: fix: client sidebar item width + some icon issues
+- 6f4d20d: fix: update client icon weights
+- 1ba4267: fix: top nav path error
+- 58da2c6: feat: new createApiClientApp method
+- 9e3348a: feat: use code input in request table
+- fe16789: fix: make env variable dropdown readonly
+- fc096b6: refactor!: rename `createScalarApiClient` to `createApiClientModal`
+- ebdc9cf: feat: new command palette
+- Updated dependencies [e285a6b]
+- Updated dependencies [bff602a]
+- Updated dependencies [6f4d20d]
+- Updated dependencies [2f10a39]
+- Updated dependencies [9e3348a]
+- Updated dependencies [2f10a39]
+  - @scalar/components@0.12.13
+  - @scalar/use-codemirror@0.11.6
+
 ## 2.0.15
 
 ### Patch Changes
