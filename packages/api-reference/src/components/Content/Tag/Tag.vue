@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Spec, Tag } from '@scalar/oas-utils'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
 import { SectionContainer } from '../../Section'
@@ -19,10 +19,12 @@ const sectionContainerRef = ref<HTMLElement | null>(null)
 const { collapsedSidebarItems } = useSidebar()
 const { getTagId } = useNavState()
 
-const moreThanOneDefaultTag = (tag: Tag) =>
-  props.spec.tags?.length !== 1 ||
-  tag?.name !== 'default' ||
-  tag?.description !== ''
+const moreThanOneDefaultTag = computed(
+  () =>
+    props.spec.tags?.length !== 1 ||
+    props.tag?.name !== 'default' ||
+    props.tag?.description !== '',
+)
 
 const redirectToOperation = (operationId: string) => {
   window.location.href = `#${operationId}`
@@ -56,7 +58,7 @@ const observeAndNavigate = (operationId: string) => {
     ref="sectionContainerRef"
     class="tag-section-container">
     <Endpoints
-      v-if="moreThanOneDefaultTag(tag)"
+      v-if="moreThanOneDefaultTag"
       :id="id"
       :tag="tag"
       @observeAndNavigate="observeAndNavigate" />
