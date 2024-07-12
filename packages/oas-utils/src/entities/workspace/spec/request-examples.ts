@@ -17,6 +17,7 @@ const requestExampleParametersSchema = z.object({
   minimum: z.number().optional(),
   maximum: z.number().optional(),
   default: z.any().optional(),
+  nullable: z.boolean().optional(),
 })
 
 /** Request examples - formerly known as instances - are "children" of requests */

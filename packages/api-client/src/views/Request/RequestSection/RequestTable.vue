@@ -106,8 +106,9 @@ const flattenValue = (item: RequestExampleParameter) => {
           :max="item.maximum"
           :min="item.minimum"
           :modelValue="item.value"
+          :nullable="item.nullable"
           placeholder="Value"
-          :type="item.type === 'integer' ? 'number' : 'text'"
+          :type="item.type"
           @blur="emit('inputBlur')"
           @focus="emit('inputFocus')"
           @input="items && idx === items.length - 1 && emit('addRow')"
@@ -164,6 +165,7 @@ const flattenValue = (item: RequestExampleParameter) => {
   padding: 0;
 }
 :deep(.cm-content) {
+  background-color: var(--scalar-background-1);
   font-family: var(--scalar-font);
   font-size: var(--scalar-mini);
   padding: 6px 8px;

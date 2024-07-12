@@ -6,7 +6,8 @@ import {
   type Extension,
 } from '@scalar/use-codemirror'
 import { nanoid } from 'nanoid'
-import { ref, toRef, useAttrs, watch, type Ref } from 'vue'
+import { ref, toRef, useAttrs, watch, type Ref, computed } from 'vue'
+import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -24,6 +25,9 @@ const props = withDefaults(
     required?: boolean
     disableEnter?: boolean
     disableCloseBrackets?: boolean
+    enum?: string[]
+    type?: string
+    nullable?: boolean
   }>(),
   {
     disableCloseBrackets: false,
@@ -31,6 +35,7 @@ const props = withDefaults(
     disableTabIndent: false,
     emitOnBlur: true,
     colorPicker: false,
+    nullable: false,
   },
 )
 const emit = defineEmits<{
@@ -105,6 +110,15 @@ watch(codeMirror, () => {
     codeMirror.value.focus()
   }
 })
+
+// Computed property to check if type is boolean and nullable
+const booleanOptions = computed(() => {
+  return props.type === 'boolean' ||
+    props.type?.includes('boolean') ||
+    props.nullable
+    ? ['true', 'false', 'null']
+    : ['true', 'false']
+})
 </script>
 <script lang="ts">
 // use normal <script> to declare options
@@ -113,14 +127,29 @@ export default {
 }
 </script>
 <template>
-  <div
-    :id="uid"
-    v-bind="$attrs"
-    ref="codeMirrorRef"
-    class="peer font-code w-full whitespace-nowrap text-xs leading-[1.44] relative"
-    :class="{
-      'flow-code-input--error': error,
-    }"></div>
+  <template v-if="props.enum && props.enum.length">
+    <DataTableInputSelect
+      :modelValue="props.modelValue"
+      :value="props.enum"
+      @update:modelValue="emit('update:modelValue', $event)" />
+  </template>
+  <template
+    v-else-if="props.type === 'boolean' || props.type?.includes('boolean')">
+    <DataTableInputSelect
+      :modelValue="props.modelValue"
+      :value="booleanOptions"
+      @update:modelValue="emit('update:modelValue', $event)" />
+  </template>
+  <template v-else>
+    <div
+      :id="uid"
+      v-bind="$attrs"
+      ref="codeMirrorRef"
+      class="peer font-code w-full whitespace-nowrap text-xs leading-[1.44] relative"
+      :class="{
+        'flow-code-input--error': error,
+      }"></div>
+  </template>
   <div
     v-if="$slots.warning"
     class="absolute centered-y right-7 text-orange text-xs">
@@ -138,7 +167,6 @@ export default {
  Deep styling for customizing Codemirror
 */
 :deep(.cm-editor) {
-  background-color: transparent;
   height: 100%;
   outline: none;
   padding: 3px 0;

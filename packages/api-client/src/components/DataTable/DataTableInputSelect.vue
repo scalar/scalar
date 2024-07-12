@@ -6,22 +6,23 @@ import {
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
 const props = defineProps<{
   modelValue: string | number
-  enum?: string[]
+  value?: string[]
 }>()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', v: string): void
 }>()
 
-const options = computed(() => props.enum ?? [])
+const options = computed(() => props.value ?? [])
 
 const selected = ref<string>(props.modelValue.toString())
 const addingCustomValue = ref(false)
 const customValue = ref('')
+const inputRef = ref<HTMLInputElement | null>(null)
 
 watch(customValue, (newValue) => {
   emit('update:modelValue', newValue)
@@ -50,12 +51,21 @@ const handleBlur = () => {
 const isSelected = (value: string) => {
   return selected.value === value
 }
+
+watch(addingCustomValue, (newValue) => {
+  if (newValue) {
+    nextTick(() => {
+      inputRef.value?.focus()
+    })
+  }
+})
 </script>
 
 <template>
   <div class="w-full">
     <template v-if="addingCustomValue">
       <input
+        ref="inputRef"
         v-model="customValue"
         class="border-none focus:text-c-1 text-c-2 min-w-0 w-full px-2 py-1.5 outline-none"
         placeholder="Value"
