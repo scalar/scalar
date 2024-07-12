@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.12.13
+
+### Patch Changes
+
+- e285a6b: fix: scalar code block copy
+- bff602a: fix: client sidebar item width + some icon issues
+- 6f4d20d: fix: update client icon weights
+- 2f10a39: fix: dark mode icon
+- 2f10a39: fix: lint client scalar icons
+
 ## 0.12.12
 
 ### Patch Changes

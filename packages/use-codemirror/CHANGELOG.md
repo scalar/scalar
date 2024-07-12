@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.11.6
+
+### Patch Changes
+
+- 9e3348a: feat: set placeholder usage
+
 ## 0.11.5
 
 ### Patch Changes
