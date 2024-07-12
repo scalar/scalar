@@ -97,7 +97,7 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.6.0",
     "@vue/test-utils": "^2.4.1",
-    "eslint": "^8.56.0",
+    "eslint": "^8.57.0",
     "postcss": "^8.4.38",
     "rollup-plugin-webpack-stats": "^0.2.5",
     "storybook": "^8.0.8",

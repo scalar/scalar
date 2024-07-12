@@ -25,7 +25,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "pnpm dev:prepare nuxt-module-build build",
+    "build": "pnpm dev:prepare && nuxt-module-build build",
     "dev": "pnpm dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
@@ -59,9 +59,9 @@
     "@nuxt/module-builder": "^0.8.1",
     "@nuxt/schema": "^3.12.3",
     "@nuxt/test-utils": "^3.13.1",
-    "@types/node": "^20.8.4",
+    "@types/node": "^20.14.10",
     "changelogen": "^0.5.5",
-    "eslint": "^8.56.0",
+    "eslint": "^8.57.0",
     "nuxt": "^3.12.3",
     "vitest": "^1.6.0"
   }
