@@ -1,20 +1,28 @@
 <script setup lang="ts">
 import ContextBar from '@/components/ContextBar.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
+import { useWorkspace } from '@/store/workspace'
 import ResponseBody from '@/views/Request/ResponseSection/ResponseBody.vue'
 import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'
 import ResponseMetaInformation from '@/views/Request/ResponseSection/ResponseMetaInformation.vue'
 import { ScalarIcon } from '@scalar/components'
-import type { ResponseInstance } from '@scalar/oas-utils/entities/workspace/spec'
+import type {
+  ResponseInstance,
+  ResponseTest,
+} from '@scalar/oas-utils/entities/workspace/spec'
 import { isJsonString } from '@scalar/oas-utils/helpers'
 import { computed, ref, toRaw } from 'vue'
 
 import ResponseCookies from './ResponseCookies.vue'
 import ResponseHeaders from './ResponseHeaders.vue'
+import ResponseTests from './ResponseTests.vue'
 
 const props = defineProps<{
   response: ResponseInstance | undefined
+  tests?: ResponseTest[]
 }>()
+
+const { activeWorkspace } = useWorkspace()
 
 // Headers
 const responseHeaders = computed(() => {
@@ -65,7 +73,9 @@ const responseData = computed(() => {
   return value
 })
 
-const sections = ['All', 'Body', 'Headers', 'Cookies']
+const sections = ['All', 'Body', 'Headers', 'Cookies', 'Tests']
+if (!activeWorkspace.value.isReadOnly) sections.push('Scripts')
+
 type ActiveSections = (typeof sections)[number]
 
 const activeSection = ref<ActiveSections>('All')
@@ -105,6 +115,12 @@ const activeSection = ref<ActiveSections>('All')
           :data="responseData"
           :headers="responseHeaders"
           title="Body" />
+        <ResponseTests
+          v-if="
+            (activeSection === 'All' || activeSection === 'Tests') &&
+            !activeWorkspace.isReadOnly
+          "
+          :tests="tests" />
       </template>
     </div>
   </ViewLayoutSection>

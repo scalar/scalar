@@ -16,11 +16,20 @@ export type ResponseInstance = AxiosResponse & {
   duration: number
 }
 
+export type ResponseTest = {
+  title: string
+  passed: boolean
+  error?: string
+}
+
+const responseTestSchema = z.any() satisfies ZodSchema<ResponseTest>
+
 /** A single request/response set to save to the history stack */
 export type RequestEvent = {
   request: RequestExample
   response: ResponseInstance
   timestamp: number
+  testResults?: ResponseTest[]
 }
 
 // TODO fill out body
@@ -78,6 +87,8 @@ const requestSchema = z.object({
   /** Ordered exampleUids for the sidenav */
   childUids: nanoidSchema.array().default([]),
   history: z.any().array().default([]),
+  /** Test Results */
+  testResults: responseTestSchema.array().default([]),
 })
 
 /**
