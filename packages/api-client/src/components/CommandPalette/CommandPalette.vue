@@ -193,9 +193,10 @@ whenever(keys.ArrowUp, () => {
         class="bg-b-2 flex items-center rounded mb-2 pl-2 focus-within:bg-b-1 focus-within:shadow-border">
         <label for="commandmenu">
           <ScalarIcon
-            class="text-c-1 mr-2.5 !stroke-1.5"
+            class="text-c-1 mr-2.5"
             icon="Search"
-            size="sm" />
+            size="sm"
+            thickness="3" />
         </label>
         <input
           id="commandmenu"
@@ -238,9 +239,10 @@ whenever(keys.ArrowUp, () => {
             command?.overloadAction?.() ?? (activeCommand = command.name)
           ">
           <ScalarIcon
-            class="text-c-1 mr-2.5 !stroke-1.5"
+            class="text-c-1 mr-2.5"
             :icon="command.icon"
-            size="md" />
+            size="md"
+            thickness="3" />
           {{ command.name }}
         </div>
       </template>
@@ -251,9 +253,9 @@ whenever(keys.ArrowUp, () => {
         type="button"
         @click="activeCommand = ''">
         <ScalarIcon
-          class="!stroke-1.5"
           icon="ChevronLeft"
-          size="sm" />
+          size="sm"
+          thickness="3" />
       </button>
       <component
         :is="PaletteComponents[activeCommand]"

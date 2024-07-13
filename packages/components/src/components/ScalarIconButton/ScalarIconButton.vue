@@ -15,6 +15,7 @@ withDefaults(
     disabled?: boolean
     variant?: Variants['variant']
     size?: Variants['size']
+    thickness?: string
   }>(),
   {
     variant: 'ghost',
@@ -51,7 +52,9 @@ const attrs = computed(() => {
     :ariaDisabled="disabled || undefined"
     :class="cx(variants({ size, variant, disabled }), attrs.class)"
     type="button">
-    <ScalarIcon :icon="icon" />
+    <ScalarIcon
+      :icon="icon"
+      :thickness="thickness" />
     <span class="sr-only">{{ label }}</span>
   </button>
 </template>

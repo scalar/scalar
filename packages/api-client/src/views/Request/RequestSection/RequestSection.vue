@@ -62,7 +62,7 @@ watch(activeRequest, (newRequest) => {
   <ViewLayoutSection>
     <template #title>
       <ScalarIcon
-        class="text-c-3 mr-2 stroke-[2]"
+        class="text-c-3 mr-2"
         icon="ExternalLink"
         size="sm" />
       <div class="flex-1">

@@ -53,9 +53,10 @@ const attrs = computed(() => {
       size="20px" />
     <ScalarIconButton
       v-else-if="modelValue"
-      class="stroke-[1.5] p-2.5"
+      class="p-2.5"
       icon="Close"
       label="Clear Search"
+      thickness="1.5"
       @click="emit('update:modelValue', '')" />
   </label>
 </template>

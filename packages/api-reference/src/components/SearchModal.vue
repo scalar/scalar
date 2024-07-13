@@ -28,7 +28,7 @@ const reactiveSpec = toRef(props, 'parsedSpec')
 
 const ENTRY_ICONS: { [x in EntryType]: Icon } = {
   heading: 'DocsPage',
-  model: 'JsonObject',
+  model: 'Brackets',
   req: 'Terminal',
   tag: 'CodeFolder',
   webhook: 'Terminal',

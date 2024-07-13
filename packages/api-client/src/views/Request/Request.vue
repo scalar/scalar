@@ -283,9 +283,9 @@ useEventListener(document, 'keydown', (event) => {
           type="button"
           @click="modalState.hide()">
           <ScalarIcon
-            class="stroke-[1.75]"
             icon="Close"
-            size="lg" />
+            size="lg"
+            thickness="1.75" />
         </button>
       </div>
     </div>
@@ -313,7 +313,7 @@ useEventListener(document, 'keydown', (event) => {
               ">
               <template #leftIcon>
                 <ScalarIcon
-                  class="text-sidebar-c-2 stroke-[1] text-sm group-hover:hidden"
+                  class="text-sidebar-c-2 text-sm group-hover:hidden"
                   icon="CodeFolder"
                   size="sm" />
                 <div

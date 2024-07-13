@@ -100,8 +100,9 @@ watch(addingCustomValue, (newValue) => {
                 isSelected(option) ? 'bg-blue text-b-1' : 'text-transparent'
               ">
               <ScalarIcon
-                class="size-2.5 stroke-[1.75]"
-                icon="Checkmark" />
+                class="size-2.5"
+                icon="Checkmark"
+                thickness="3.5" />
             </div>
             {{ option }}
           </ScalarDropdownItem>

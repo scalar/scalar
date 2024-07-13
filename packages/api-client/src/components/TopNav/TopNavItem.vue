@@ -30,7 +30,6 @@ defineEmits<{
         <div
           class="nav-item-icon-copy flex flex-1 items-center justify-center gap-1.5">
           <ScalarIcon
-            class="stroke-[2]"
             :icon="icon"
             size="xs" />
           <span class="nav-item-copy text-xs">{{ label }}</span>
@@ -40,8 +39,8 @@ defineEmits<{
           type="button"
           @click="$emit('close')">
           <ScalarIcon
-            class="stroke-[1.75]"
-            icon="Close" />
+            icon="Close"
+            thickness="1.75" />
         </button>
       </div>
     </template>

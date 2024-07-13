@@ -77,8 +77,9 @@ const serverUrl = computed(() => {
                 : 'text-transparent'
             ">
             <ScalarIcon
-              class="relative top-[0.5px] size-2.5 stroke-[1.75]"
-              icon="Checkmark" />
+              class="relative top-[0.5px] size-2.5"
+              icon="Checkmark"
+              thickness="3.5" />
           </div>
           <span class="whitespace-nowrap text-ellipsis overflow-hidden">
             {{ server.label }}

@@ -56,7 +56,8 @@ whenever(
     <ScalarIcon
       class="search-icon"
       icon="Search"
-      size="sm" />
+      size="sm"
+      thickness="2.5" />
     <div class="sidebar-search-input">
       <span class="sidebar-search-placeholder">Search</span>
       <span class="sidebar-search-shortcut">

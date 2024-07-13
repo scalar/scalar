@@ -11,8 +11,9 @@ const { toggleDarkMode, isDark } = useDarkModeState()
     type="button"
     @click="toggleDarkMode">
     <ScalarIcon
-      class="block h-6 w-6 stroke-[1.5]"
-      icon="LightDarkModeToggle" />
+      class="block h-6 w-6"
+      icon="LightDarkModeToggle"
+      thickness="1.5" />
     <ScreenReader>
       Switch to {{ isDark ? 'Light' : 'Dark' }} Mode
     </ScreenReader>

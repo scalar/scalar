@@ -151,9 +151,10 @@ const flattenValue = (item: RequestExampleParameter) => {
             @click="handleFileUpload(idx)">
             <span>File</span>
             <ScalarIcon
-              class="ml-1 stroke-[2.5]"
+              class="ml-1"
               icon="UploadSimple"
-              size="xs" />
+              size="xs"
+              thickness="2.5" />
           </ScalarButton>
         </template>
       </DataTableCell>
