@@ -170,6 +170,7 @@ export default {
   height: 100%;
   outline: none;
   padding: 3px 0;
+  background: transparent;
 }
 :deep(.cm-content) {
   font-family: var(--scalar-font-code);
