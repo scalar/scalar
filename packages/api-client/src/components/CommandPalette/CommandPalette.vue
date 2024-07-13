@@ -194,7 +194,7 @@ whenever(keys.ArrowUp, () => {
         <label for="commandmenu">
           <ScalarIcon
             class="text-c-1 mr-2.5 !stroke-1.5"
-            icon="SearchNew"
+            icon="Search"
             size="sm" />
         </label>
         <input

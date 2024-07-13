@@ -64,7 +64,7 @@ const isRequest = computed(() => 'summary' in props.item)
         @click="addExample">
         <ScalarIcon
           class="inline-flex !stroke-[1.5]"
-          icon="AddLine"
+          icon="Add"
           size="sm" />
         <span>Add Example</span>
       </ScalarDropdownItem>
