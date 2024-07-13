@@ -121,6 +121,7 @@ export const useModal = () =>
 }
 .scalar-modal.scalar-modal-search {
   max-width: 540px;
+  max-height: 540px;
   background-color: transparent;
 }
 .modal-content-search .modal-body {
