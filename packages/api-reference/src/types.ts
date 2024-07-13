@@ -156,7 +156,7 @@ export type ReferenceConfiguration = {
    */
   withDefaultFonts?: boolean
   /**
-   * Open all the tags in scalar : )
+   * By default we only open the relevant tag based on the url, however if you want all the tags open by default then set this configuration option :)
    *
    * @default false
    */

@@ -224,6 +224,16 @@ By default we’re using Inter and JetBrains Mono, served by Google Fonts. If yo
 }
 ```
 
+#### defaultOpenAllTags?: boolean
+
+By default we only open the relevant tag based on the url, however if you want all the tags open by default then set this configuration option :)
+
+```js
+{
+  defaultOpenAllTags: true
+}
+```
+
 #### theme?: string
 
 You don’t like the color scheme? We’ve prepared some themes for you:
