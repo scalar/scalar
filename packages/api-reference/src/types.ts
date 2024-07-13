@@ -155,6 +155,12 @@ export type ReferenceConfiguration = {
    * @default true
    */
   withDefaultFonts?: boolean
+  /**
+   * Open all the tags in scalar : )
+   *
+   * @default false
+   */
+  defaultOpenAllTags?: boolean
 }
 
 export type PathRouting = {
