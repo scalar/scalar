@@ -11,7 +11,7 @@ When adding a new icon, the icon...
 - ❌ **Should not** hard code any colors, e.g. `fill="#000"` or `fill="black"`
 - ✅ **Should** have a square aspect ratio
 
-Additionally, when adding a _line icon_, the line icon **should** be scaled to `12px` by `12px` (e.g. `viewbox="0 0 12 12"`) and the stroke thickness **should not** be set. Line icons **should** also have `stroke-linecap="round"` and `stroke-linejoin="round"` set if applicable.
+Additionally, when adding a _line icon_, the line icon **should** be scaled to `24px` by `24px` (e.g. `viewbox="0 0 24 24"`) and the stroke thickness **should not** be set. Line icons **should** also have `stroke-linecap="round"` and `stroke-linejoin="round"` set if applicable.
 
 After adding the new icons run `pnpm typegen:icons` to add the icons to the list in [`icon.ts`](./icons/icons.ts).
 
@@ -51,8 +51,8 @@ After adding the new icons run `pnpm typegen:icons` to add the icons to the list
 ```
 
 ```svg
-<!-- sets a stroke-width and viewBox isn't 12x12 -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+<!-- sets a stroke-width and viewBox isn't 24x24 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
 	<polyline stroke="currentColor" stroke-width="2" points="21.4,4.6 10.5,19.4 2.5,13" stroke-linecap="round"
 		stroke-linejoin="round" />
 </svg>
