@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.14
+
+### Patch Changes
+
+- e1aa4fc: fix: add max height to search modal
+
 ## 0.12.13
 
 ### Patch Changes
