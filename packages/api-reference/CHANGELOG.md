@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.24.43
+
+### Patch Changes
+
+- 3f579d8: feat: add defaultOpenAllTags configuration option
+- Updated dependencies [a0bb23a]
+  - @scalar/api-client@2.0.19
+
 ## 1.24.42
 
 ### Patch Changes
