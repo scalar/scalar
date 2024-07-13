@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.0.19
+
+### Patch Changes
+
+- a0bb23a: fix: api client codemirror bg color
+
 ## 2.0.18
 
 ### Patch Changes
