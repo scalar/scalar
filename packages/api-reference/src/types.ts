@@ -155,6 +155,12 @@ export type ReferenceConfiguration = {
    * @default true
    */
   withDefaultFonts?: boolean
+  /**
+   * By default we only open the relevant tag based on the url, however if you want all the tags open by default then set this configuration option :)
+   *
+   * @default false
+   */
+  defaultOpenAllTags?: boolean
 }
 
 export type PathRouting = {

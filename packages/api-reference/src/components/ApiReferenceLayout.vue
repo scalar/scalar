@@ -84,6 +84,7 @@ const {
   isSidebarOpen,
   setCollapsedSidebarItem,
   hideModels,
+  defaultOpenAllTags,
   setParsedSpec,
 } = useSidebar()
 
@@ -227,6 +228,7 @@ provide(
 )
 
 hideModels.value = props.configuration.hideModels ?? false
+defaultOpenAllTags.value = props.configuration.defaultOpenAllTags ?? false
 
 useDeprecationWarnings(props.configuration)
 

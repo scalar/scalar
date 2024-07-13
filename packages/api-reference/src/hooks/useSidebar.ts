@@ -44,6 +44,7 @@ function setParsedSpec(spec: Spec) {
 }
 
 const hideModels = ref(false)
+const defaultOpenAllTags = ref(false)
 
 // Track which sidebar items are collapsed
 type CollapsedSidebarItems = Record<string, boolean>
@@ -265,13 +266,22 @@ const items = computed(() => {
       })
     : undefined
 
+  const entries = [
+    ...headingEntries,
+    ...(groupOperations ?? operationEntries ?? []),
+    ...webhookEntries,
+    ...modelEntries,
+  ]
+
+  if (defaultOpenAllTags.value) {
+    entries.forEach((entry) => {
+      setCollapsedSidebarItem(entry.id, true)
+      entry.show = true
+    })
+  }
+
   return {
-    entries: [
-      ...headingEntries,
-      ...(groupOperations ?? operationEntries ?? []),
-      ...webhookEntries,
-      ...modelEntries,
-    ],
+    entries,
     titles: titlesById,
   }
 })
@@ -329,5 +339,6 @@ export function useSidebar(options?: { parsedSpec: Spec }) {
     setCollapsedSidebarItem,
     hideModels,
     setParsedSpec,
+    defaultOpenAllTags,
   }
 }
