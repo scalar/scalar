@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.0.21
+
+### Patch Changes
+
+- d48e4ac: fix: update active body when content type changes
+
 ## 2.0.20
 
 ### Patch Changes
