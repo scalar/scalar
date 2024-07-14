@@ -180,6 +180,24 @@ const updateRequestBody = (content: string) => {
 //   )
 // }
 
+const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
+  let bodyType: 'raw' | 'formData' | 'binary' = 'raw'
+
+  if (type === 'multipartForm' || type === 'formUrlEncoded') {
+    bodyType = 'formData'
+  } else if (type === 'binaryFile') {
+    bodyType = 'binary'
+  } else {
+    bodyType = 'raw'
+  }
+
+  requestExampleMutators.edit(
+    activeExample.value.uid,
+    'body.activeBody',
+    bodyType,
+  )
+}
+
 const handleFileUploadFormData = async (rowIdx: number) => {
   const { open } = useFileDialog({
     onChange: async (files) => {
@@ -295,6 +313,7 @@ watch(
     if (val === 'multipartForm' || val === 'formUrlEncoded') {
       defaultRow()
     }
+    updateActiveBody(val)
   },
   { immediate: true },
 )
