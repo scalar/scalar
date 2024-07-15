@@ -17,27 +17,44 @@ export enum PathId {
   Workspace = 'workspace',
 }
 
-/** Routes required by the client modal */
-export const modalRoutes = [
-  { path: '/', redirect: '/request/default' },
+/** Shared request routes between modal and app */
+const requestRoutes = [
   {
-    path: '/request',
-    redirect: '/request/default',
+    path: '',
+    redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/request/default`,
   },
   {
-    path: `/request/:${PathId.Request}`,
+    path: 'request',
+    redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,
+  },
+  {
+    name: PathId.Request,
+    path: `request/:${PathId.Request}`,
     component: () => import('@/views/Request/Request.vue'),
   },
   {
-    path: `/request/:${PathId.Request}/example/:${PathId.Example}`,
+    path: `request/:${PathId.Request}/example/:${PathId.Example}`,
     component: () => import('@/views/Request/Request.vue'),
   },
 ] satisfies RouteRecordRaw[]
 
-/**
- * Routes for the client-appthe
- * the request routes are similar but do NOT start with a /
- */
+/** Routes required by the client modal */
+export const modalRoutes = [
+  {
+    path: '/',
+    redirect: '/workspace/default/request/default',
+  },
+  {
+    path: '/workspace',
+    redirect: '/workspace/default/request/default',
+  },
+  {
+    path: `/workspace/:${PathId.Workspace}`,
+    children: requestRoutes,
+  },
+] satisfies RouteRecordRaw[]
+
+/** Routes for the client-app */
 const routes = [
   {
     path: '/',
@@ -50,23 +67,7 @@ const routes = [
   {
     path: `/workspace/:${PathId.Workspace}`,
     children: [
-      {
-        path: '',
-        redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/request/default`,
-      },
-      {
-        path: 'request',
-        redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,
-      },
-      {
-        name: PathId.Request,
-        path: `request/:${PathId.Request}`,
-        component: () => import('@/views/Request/Request.vue'),
-      },
-      {
-        path: `request/:${PathId.Request}/example/:${PathId.Example}`,
-        component: () => import('@/views/Request/Request.vue'),
-      },
+      ...requestRoutes,
       // {
       //   path: 'collection',
       //   redirect: (to) =>
