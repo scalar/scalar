@@ -18,7 +18,7 @@
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "vue": "^3.4.22"
+    "vue": "^3.4.29"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",

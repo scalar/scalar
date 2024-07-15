@@ -54,7 +54,7 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "unhead": "^1.8.3",
-    "vue": "^3.4.22"
+    "vue": "^3.4.29"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

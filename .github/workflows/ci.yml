@@ -166,3 +166,55 @@ jobs:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
           webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
+
+  deploy:
+    runs-on: ubuntu-20.04
+    needs: [define-matrix, build]
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Turborepo cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
+      - name: Build
+        run: pnpm turbo build
+      - name: Check which files were touched
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files_yaml: |
+            api_client:
+              - examples/api-client/**
+              - packages/api-client/**
+      - if: steps.changed-files.outputs.api_client_any_changed == 'true'
+        name: Deploy to client.scalar.com
+        id: deploy-client
+        uses: cloudflare/wrangler-action@v3
+        with:
+          command: pages deploy dist --project-name=client
+          workingDirectory: examples/api-client
+          # 1) Log in to the Cloudflare dashboard.
+          # 2) Select Workers & Pages.
+          # 3) See the Account ID in the right sidebar.
+          # Read more: https://developers.cloudflare.com/fundamentals/setup/find-account-and-zone-ids/
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # 1) Go to https://dash.cloudflare.com/profile/api-tokens
+          # 2) Create a token with the following permissions:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Cloudflare preview URL
+        env:
+          CLIENT_PREVIEW_URL: ${{ steps.deploy-client.outputs.deployment-url }}
+        run: echo $CLIENT_PREVIEW_URL
