@@ -179,13 +179,9 @@ function getBackgroundColor() {
   padding: 0;
 }
 :deep(.cm-line) {
-  align-items: center;
+  align-items: baseline;
   display: flex;
   padding: 0;
-}
-:deep(.cm-line),
-:deep(.cm-placeholder) {
-  line-height: 24px;
 }
 :deep(.cm-server) {
   margin-right: 3px;
