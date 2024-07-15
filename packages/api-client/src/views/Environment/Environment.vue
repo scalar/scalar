@@ -91,8 +91,7 @@ onMounted(setActiveEnvironment)
 </script>
 <template>
   <ViewLayout>
-    <Sidebar>
-      <template #title>Environment</template>
+    <Sidebar title="Environment">
       <template #content>
         <div class="flex-1">
           <SidebarList>

@@ -2,9 +2,7 @@
 import Sidebar from '@/components/Sidebar/Sidebar.vue'
 </script>
 <template>
-  <Sidebar>
-    <template #title>Workspace Name</template>
-  </Sidebar>
+  <Sidebar title="Workspace Name" />
   <div class="flex-1">SCHEMA!!</div>
 </template>
 <style scoped></style>

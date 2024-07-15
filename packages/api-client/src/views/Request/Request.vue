@@ -26,6 +26,7 @@ import {
 } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
+import { WorkspaceDropdown } from './components'
 
 const {
   activeExample,
@@ -293,7 +294,7 @@ useEventListener(document, 'keydown', (event) => {
       <Sidebar
         v-show="showSideBar"
         :class="[showSideBar ? 'sidebar-active-width' : '']">
-        <template #title>{{ activeWorkspace.name }}</template>
+        <template #header><WorkspaceDropdown /></template>
         <template #content>
           <SearchButton @openSearchModal="searchModalState.show()" />
           <div
