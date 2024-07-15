@@ -63,21 +63,21 @@ const isRequest = computed(() => 'summary' in props.item)
         class="flex !gap-2"
         @click="addExample">
         <ScalarIcon
-          class="inline-flex !stroke-[1.5]"
-          icon="AddLine"
+          class="inline-flex"
+          icon="Add"
           size="sm" />
         <span>Add Example</span>
       </ScalarDropdownItem>
       <ScalarDropdownItem class="flex !gap-2">
         <ScalarIcon
-          class="inline-flex !stroke-[1.5]"
+          class="inline-flex"
           icon="Edit"
           size="sm" />
         <span>Rename</span>
       </ScalarDropdownItem>
       <ScalarDropdownItem class="flex !gap-2">
         <ScalarIcon
-          class="inline-flex !stroke-[1.5]"
+          class="inline-flex"
           icon="Duplicate"
           size="sm" />
         <span>Duplicate</span>
@@ -85,7 +85,7 @@ const isRequest = computed(() => 'summary' in props.item)
       <ScalarDropdownDivider />
       <ScalarDropdownItem class="flex !gap-2">
         <ScalarIcon
-          class="inline-flex !stroke-[1.5]"
+          class="inline-flex"
           icon="Trash"
           size="sm" />
         <span>Delete</span>

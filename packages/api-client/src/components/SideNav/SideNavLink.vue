@@ -16,8 +16,8 @@ defineProps<{
     :class="{ 'bg-b-2 transition-none hover:cursor-auto text-c-1': active }"
     :to="path">
     <ScalarIcon
-      class="stroke-[1.5]"
-      :icon="icon" />
+      :icon="icon"
+      thickness="1.5" />
     <span class="sr-only"><slot /></span>
   </router-link>
 </template>

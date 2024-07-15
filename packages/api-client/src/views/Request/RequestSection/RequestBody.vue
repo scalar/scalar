@@ -348,9 +348,9 @@ watch(
                 variant="ghost">
                 <span>{{ selectedContentType?.label }}</span>
                 <ScalarIcon
-                  class="stroke-[1]"
                   icon="ChevronDown"
-                  size="xs" />
+                  size="xs"
+                  thickness="2.5" />
               </ScalarButton>
             </ScalarListbox>
           </DataTableHeader>
@@ -366,9 +366,9 @@ watch(
             <div class="flex items-center justify-center p-1.5 overflow-hidden">
               <template v-if="activeExample?.body.binary">
                 <span
-                  class="text-c-2 text-xs w-full border rounded p-1 max-w-full overflow-hidden whitespace-nowrap"
-                  >{{ activeExample?.body.binary.name }}</span
-                >
+                  class="text-c-2 text-xs w-full border rounded p-1 max-w-full overflow-hidden whitespace-nowrap">
+                  {{ activeExample?.body.binary.name }}
+                </span>
                 <ScalarButton
                   class="bg-b-2 hover:bg-b-3 border-0 text-c-2 ml-1"
                   size="sm"
@@ -385,9 +385,10 @@ watch(
                   @click="handleFileUpload">
                   <span>Upload File</span>
                   <ScalarIcon
-                    class="ml-1 stroke-[2.5]"
+                    class="ml-1"
                     icon="UploadSimple"
-                    size="xs" />
+                    size="xs"
+                    thickness="2.5" />
                 </ScalarButton>
               </template>
             </div>

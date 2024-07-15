@@ -48,7 +48,7 @@ function handleDelete(id: string) {
       type="button"
       @click="copyToClipboard(variable.name)">
       <ScalarIcon
-        class="h-3 w-3 stroke-[1.5]"
+        class="h-3 w-3"
         icon="Clipboard" />
     </button>
     <button
@@ -57,7 +57,7 @@ function handleDelete(id: string) {
       type="button"
       @click.prevent="startActionFlow(ModalAction.Delete)">
       <ScalarIcon
-        class="h-3.5 w-3.5 stroke-[1.5]"
+        class="h-3.5 w-3.5"
         icon="Close" />
     </button>
   </div>

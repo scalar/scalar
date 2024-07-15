@@ -33,8 +33,8 @@ export default {
         // ViewBox must be square and namespace must be set
         'viewBox': /^0 0 (\d+) \1$/,
         'xmlns': 'http://www.w3.org/2000/svg',
-        // Require fill property on <svg> tag
-        'fill': true,
+        // Allow fill property on <svg> tag
+        'fill?': true,
         // Allow stroke properties
         ...strokeOpts,
         // Make sure the svg is responsive

@@ -93,8 +93,9 @@ const variants = cva({
                 :class="selected ? 'bg-blue text-b-1' : 'text-transparent'">
                 <!-- Icon needs help to be optically centered (╥﹏╥) -->
                 <ScalarIcon
-                  class="relative top-[0.5px] size-2.5 stroke-[1.75]"
-                  icon="Checkmark" />
+                  class="relative top-[0.5px] size-2.5"
+                  icon="Checkmark"
+                  thickness="2.5" />
               </div>
               <span class="inline-block min-w-0 flex-1 truncate text-c-1">{{
                 option.label

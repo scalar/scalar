@@ -15,7 +15,8 @@ const emit = defineEmits<{
       <div class="w-[15px] flex items-center justify-center">
         <ScalarIcon
           icon="Search"
-          size="xs" />
+          size="xs"
+          thickness="2.5" />
       </div>
       <div
         class="sidebar-search-input ml-1.5 flex w-full items-center justify-between text-sm font-medium">

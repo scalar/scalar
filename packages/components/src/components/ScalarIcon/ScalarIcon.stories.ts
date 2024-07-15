@@ -13,6 +13,7 @@ const meta = {
       control: 'select',
       options: ['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'],
     },
+    thickness: { control: { type: 'range', min: 0, max: 3, step: 0.1 } },
   },
   parameters: {
     docs: {
@@ -39,7 +40,7 @@ export const Base: Story = {
 }
 
 export const AllSizes: Story = {
-  args: { icon: 'CodeFolder' },
+  args: { icon: 'Checkmark' },
   render: (args) => ({
     components: { ScalarIcon },
     setup() {
