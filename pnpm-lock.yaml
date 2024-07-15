@@ -114,39 +114,18 @@ importers:
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client
-      '@tsconfig/node20':
-        specifier: ^20.1.4
-        version: 20.1.4
-      '@types/jsdom':
-        specifier: ^21.1.3
-        version: 21.1.7
       '@types/node':
         specifier: ^20.14.10
         version: 20.14.10
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.5(vite@5.3.3(@types/node@20.14.10)(terser@5.31.2))(vue@3.4.31(typescript@5.5.2))
-      '@vue/test-utils':
-        specifier: ^2.4.1
-        version: 2.4.6
-      '@vue/tsconfig':
-        specifier: ^0.4.0
-        version: 0.4.0
-      jsdom:
-        specifier: ^22.1.0
-        version: 22.1.0
-      npm-run-all2:
-        specifier: ^6.1.1
-        version: 6.2.0
-      typescript:
-        specifier: ^5.5.2
-        version: 5.5.2
       vite:
         specifier: ^5.2.10
         version: 5.3.3(@types/node@20.14.10)(terser@5.31.2)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.14.10)(jsdom@22.1.0)(terser@5.31.2)
+        version: 1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)
       vue-tsc:
         specifier: ^2.0.13
         version: 2.0.21(typescript@5.5.2)
@@ -6231,9 +6210,6 @@ packages:
 
   '@tsconfig/node18@18.2.4':
     resolution: {integrity: sha512-5xxU8vVs9/FNcvm3gE07fPbn9tl6tqGGWA9tSlwsUEkBxtRnTsNmwrV8gasZ9F/EobaSv9+nu8AxUKccw77JpQ==}
-
-  '@tsconfig/node20@20.1.4':
-    resolution: {integrity: sha512-sqgsT69YFeLWf5NtJ4Xq/xAF8p4ZQHlmGW74Nu2tD4+g5fAsposc4ZfaaPixVu4y01BEiDCWLRDCvDM5JOsRxg==}
 
   '@types/acorn@4.0.6':
     resolution: {integrity: sha512-veQTnWP+1D/xbxVrPC3zHnCZRjSrKfhbMUlEA43iMZLu7EsnTtkJklIuwrCPbOi8YkvDQAiW05VQQFvvz9oieQ==}
@@ -22926,8 +22902,6 @@ snapshots:
 
   '@tsconfig/node18@18.2.4': {}
 
-  '@tsconfig/node20@20.1.4': {}
-
   '@types/acorn@4.0.6':
     dependencies:
       '@types/estree': 1.0.5
@@ -33094,7 +33068,7 @@ snapshots:
 
   resolve@1.19.0:
     dependencies:
-      is-core-module: 2.13.1
+      is-core-module: 2.14.0
       path-parse: 1.0.7
 
   resolve@1.22.8:
