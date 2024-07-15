@@ -8,8 +8,13 @@ import {
 } from '@scalar/components'
 import { computed } from 'vue'
 
-const { activeCollection, isReadOnly, servers, collectionMutators } =
-  useWorkspace()
+const {
+  activeCollection,
+  activeWorkspace,
+  isReadOnly,
+  servers,
+  collectionMutators,
+} = useWorkspace()
 
 const serverOptions = computed(() =>
   activeCollection.value?.spec.serverUids?.map((serverUid: string) => ({
@@ -89,7 +94,7 @@ const serverUrl = computed(() => {
         <ScalarDropdownItem>
           <RouterLink
             class="font-code text-xxs flex items-center gap-1.5"
-            to="/servers">
+            :to="`/workspace/${activeWorkspace.uid}/servers`">
             <div class="flex items-center justify-center h-4 w-4">
               <ScalarIcon
                 class="h-2.5"

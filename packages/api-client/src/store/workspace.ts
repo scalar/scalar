@@ -374,8 +374,7 @@ const workspaceMutators = createWorkspaceMutators('default')
 /** The currently selected workspace OR the first one */
 const activeWorkspace = computed(
   () =>
-    // TODO bring this back with the routing
-    // workspaces[activeRouterParams.value[PathId.Workspace]] ??
+    workspaces[activeRouterParams.value[PathId.Workspace]] ??
     workspaces[Object.keys(workspaces)[0]],
 )
 

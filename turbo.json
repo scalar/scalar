@@ -11,7 +11,7 @@
       "persistent": true,
       "dependsOn": ["^build"]
     },
-    "dev:modal": {
+    "playground:modal": {
       "cache": false,
       "persistent": true,
       "dependsOn": ["^build"]

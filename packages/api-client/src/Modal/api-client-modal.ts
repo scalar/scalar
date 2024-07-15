@@ -256,7 +256,7 @@ export const createApiClientModal = async (
           : // Or the first request
             true,
       )
-      if (request) modalRouter.push(`/request/${request.uid}`)
+      if (request) modalRouter.push(`/workspace/default/request/${request.uid}`)
 
       modalState.open = true
     },

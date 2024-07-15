@@ -52,7 +52,7 @@
     "clean:turbo": "find . -name .turbo -type d -exec rm -rf {} \\;",
     "dev": "turbo dev --concurrency=100 --filter './examples/*' --filter=@scalar/nuxt --filter=@scalar/draggable --filter @scalar/components --filter @scalar/api-client",
     "dev:app": "turbo dev --filter @scalar/api-client",
-    "dev:modal": "turbo dev:modal --filter @scalar/api-client",
+    "dev:modal": "turbo playground:modal --filter @scalar/api-client",
     "dev:proxy-server": "pnpm --filter @scalar-examples/proxy-server dev",
     "dev:reference": "turbo dev --filter @scalar/api-reference",
     "dev:void-server": "pnpm --filter @scalar/void-server dev",
