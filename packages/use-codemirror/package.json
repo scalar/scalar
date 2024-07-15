@@ -61,7 +61,7 @@
     "@replit/codemirror-css-color-picker": "^6.1.0",
     "@uiw/codemirror-themes": "^4.21.21",
     "codemirror": "^6.0.0",
-    "vue": "^3.4.22"
+    "vue": "3.4.29"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
@@ -70,7 +70,7 @@
     "tsc-alias": "^1.8.8",
     "vite": "5.2.10",
     "vitest": "^1.6.0",
-    "vue": "^3.4.22",
+    "vue": "3.4.29",
     "vue-tsc": "^2.0.13",
     "y-codemirror.next": "^0.3.2",
     "yjs": "^13.6.0"

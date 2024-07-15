@@ -44,7 +44,7 @@
   "dependencies": {
     "@scalar/api-client": "workspace:*",
     "react": "^18.3.1",
-    "vue": "^3.4.22"
+    "vue": "3.4.29"
   },
   "devDependencies": {
     "@types/react": "^18.2.60",

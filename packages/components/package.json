@@ -55,7 +55,7 @@
     "nanoid": "^5.0.7",
     "radix-vue": "^1.8.4",
     "tailwind-merge": "^2.3.0",
-    "vue": "^3.4.22"
+    "vue": "3.4.29"
   },
   "devDependencies": {
     "@headlessui/tailwindcss": "^0.2.0",

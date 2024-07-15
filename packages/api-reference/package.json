@@ -81,7 +81,7 @@
     "postcss-nested": "^6.0.1",
     "unhead": "^1.8.3",
     "unified": "^11.0.4",
-    "vue": "^3.4.22"
+    "vue": "3.4.29"
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",
