@@ -182,7 +182,6 @@ export const sendRequest = async (
     headers,
   }
 
-  console.log(data)
   if (data) config.data = data
 
   // Start timer to get response duration
