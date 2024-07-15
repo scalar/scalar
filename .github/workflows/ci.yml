@@ -56,6 +56,11 @@ jobs:
           key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
       - name: Build
         run: pnpm turbo build
+      - name: Update Turborepo cache
+        uses: actions/cache/save@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
 
   format:
     runs-on: ubuntu-20.04
