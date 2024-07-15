@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src 'self' https://proxy.scalar.com; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src https://fonts.scalar.com" />
+  </head>
+
+  <body>
+    <div
+      id="scalar-client"
+      class="scalar-app scalar-client"></div>
+    <script
+      type="module"
+      src="/src/main.ts"></script>
+  </body>
+</html>

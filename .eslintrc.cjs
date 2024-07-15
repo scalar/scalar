@@ -30,6 +30,7 @@ module.exports = {
     '**/cdn/**',
     '**/hydrateClient.d.ts',
     '**/hydrateClient.d.mts',
+    'packages/api-client-app/src/preload/index.d.ts',
   ],
   rules: {
     // ---------------------------------------------------------------------------
