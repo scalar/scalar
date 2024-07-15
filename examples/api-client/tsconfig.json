@@ -1,17 +1,7 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    },
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.vitest.json"
-    }
-  ],
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "types": ["@cloudflare/workers-types/2023-07-01"]
+    "noEmit": true,
+    "types": ["vite/client", "@cloudflare/workers-types/2023-07-01"]
   }
 }
