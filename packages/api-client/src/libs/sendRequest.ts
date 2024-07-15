@@ -67,7 +67,7 @@ export const sendRequest = async (
     headers['Content-Disposition'] =
       `attachment; filename="${example.body.binary.name}"`
     data = example.body.binary
-  } else if (example.body.activeBody === 'raw') {
+  } else if (example.body.activeBody === 'raw' && example.body.raw.value) {
     data = example.body.raw.value
   } else if (example.body.activeBody === 'formData') {
     headers['Content-Type'] = 'multipart/form-data'
@@ -180,8 +180,9 @@ export const sendRequest = async (
     url: redirectToProxy(proxyUrl, url),
     method: request.method,
     headers,
-    data,
   }
+
+  if (data) config.data = data
 
   // Start timer to get response duration
   const startTime = Date.now()
