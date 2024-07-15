@@ -60,6 +60,13 @@ export async function addPackageFileExports({
     /** Output filepath relative to ./dist and not ./src */
     const filepath = [...namespace, filename].join('/')
 
+    if (filepath.includes('playground')) {
+      console.info(
+        'INFO: will not add ./playground file exports to package.json',
+      )
+      return
+    }
+
     packageExports[namespace.length ? `./${namespace.join('/')}` : '.'] = {
       import: `./dist/${filepath}.js`,
       types: `./dist/${filepath}.d.ts`,

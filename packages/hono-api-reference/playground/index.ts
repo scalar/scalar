@@ -29,7 +29,6 @@ app.openapi(
     },
   }),
   (c) => {
-    // @ts-expect-error type depth error
     return c.json({
       message: 'hello',
     })
@@ -180,11 +179,6 @@ app.get(
   apiReference({
     spec: {
       url: '/openapi.json',
-      // content: {
-      //   openapi: '3.1.0',
-      //   info: { title: 'Example' },
-      //   paths: {},
-      // },
     },
     pageTitle: 'Hono API Reference Demo',
   }),

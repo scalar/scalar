@@ -16,9 +16,9 @@
   },
   "scripts": {
     "build": "scalar-build-rollup",
-    "build:playground": "cd playground && scalar-build-rollup",
     "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet --watch ./",
-    "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./playground/Dockerfile .",
+    "docker:build": "docker buildx build --platform=linux/amd64 -t scalar-hono-reference --build-arg=\"BASE_IMAGE=scalar-base\" .",
+    "docker:run": "docker run -t scalar-hono-reference",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
