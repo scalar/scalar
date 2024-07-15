@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.0.22
+
+### Patch Changes
+
+- 45b956f: fix: only add body data if body data is not null
+
 ## 2.0.21
 
 ### Patch Changes
