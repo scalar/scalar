@@ -27,7 +27,7 @@ await fastify.register(fastifySwagger, {
 })
 
 // Add some routes
-fastify.put(
+fastify.put<{ Body: { hello: string; obj?: { some?: string } } }>(
   '/example-route/:id',
   {
     schema: {
@@ -54,6 +54,7 @@ fastify.put(
             },
           },
         },
+        required: ['hello'],
       },
       response: {
         201: {
@@ -66,7 +67,9 @@ fastify.put(
       },
     },
   },
-  () => {},
+  (req, reply) => {
+    reply.code(201).send({ hello: `Hello ${req.body.hello}` })
+  },
 )
 
 // Add the plugin
