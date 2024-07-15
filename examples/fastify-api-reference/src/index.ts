@@ -27,66 +27,48 @@ await fastify.register(fastifySwagger, {
 })
 
 // Add some routes
-fastify.put(
-  '/example-route/:id',
+fastify.put<{ Body: { name: string } }>(
+  '/hello',
   {
     schema: {
-      description: 'post some data',
-      tags: ['user', 'code'],
-      summary: 'qwerty',
-      params: {
-        type: 'object',
-        properties: {
-          id: {
-            type: 'string',
-            description: 'user id',
-          },
-        },
-      },
+      description: 'Greet a user',
+      tags: ['user'],
+      summary: 'Replies with a nice greeting',
       body: {
         type: 'object',
         properties: {
-          hello: { type: 'string' },
-          obj: {
-            type: 'object',
-            properties: {
-              some: { type: 'string' },
-            },
+          name: {
+            type: 'string',
+            examples: ['Marc'],
           },
         },
+        required: ['name'],
       },
       response: {
         201: {
           description: 'Successful response',
           type: 'object',
           properties: {
-            hello: { type: 'string' },
+            greeting: { type: 'string' },
           },
         },
       },
     },
   },
-  () => {},
+  (req, reply) => {
+    reply.code(201).send({ greeting: `Hello ${req.body.name}` })
+  },
 )
 
 // Add the plugin
 await fastify.register(fastifyApiReference, {
   routePrefix: '/reference',
-  // configuration: {
-  // theme: 'moon',
-  // spec: {
-  // content: { openapi: '3.1.0', info: { title: 'Example' }, paths: {} },
-  // content: () => fastify.swagger(),
-  // url: '/scalar.json',
-  // },
-  // customCss: `body { border: 10px solid red; }`,
-  // },
 })
 
 const PORT = Number(process.env.PORT) || 5053
 const HOST = process.env.HOST || '0.0.0.0'
 
 // Start the server
-fastify.listen({ port: PORT, host: HOST }, function (err, address) {
+fastify.listen({ port: PORT, host: HOST }, function (_, address) {
   console.log(`⚡️ Fastify Plugin running on ${address}/reference`)
 })
