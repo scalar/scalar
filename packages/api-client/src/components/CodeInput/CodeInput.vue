@@ -9,7 +9,7 @@ import { nanoid } from 'nanoid'
 import { ref, toRef, useAttrs, watch, type Ref, computed } from 'vue'
 import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
 
-import { overlayPlugin } from './codeVariableOverlay'
+import { dropdownPlugin } from './codeDropdownWidget'
 import { pillPlugin, backspaceCommand } from './codeVariableWidget'
 import { serverPlugin } from './codeServerWidget'
 
@@ -33,6 +33,7 @@ const props = withDefaults(
     type?: string
     nullable?: boolean
     server?: boolean
+    withVariables?: boolean
   }>(),
   {
     disableCloseBrackets: false,
@@ -42,6 +43,7 @@ const props = withDefaults(
     colorPicker: false,
     nullable: false,
     server: false,
+    withVariables: true,
   },
 )
 const emit = defineEmits<{
@@ -85,8 +87,9 @@ function handleBlur(value: string) {
 const extensions: Extension[] = []
 if (props.colorPicker) extensions.push(colorPickerExtension)
 if (props.server) extensions.push(serverPlugin)
-
-extensions.push(overlayPlugin)
+if (props.withVariables) {
+  extensions.push(dropdownPlugin())
+}
 extensions.push(pillPlugin, backspaceCommand)
 
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)

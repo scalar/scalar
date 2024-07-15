@@ -2,17 +2,19 @@
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import Fuse from 'fuse.js'
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   query: string
-  select: (variable: string) => void
 }>()
 
-const { environments, activeWorkspace } = useWorkspace()
+const emit = defineEmits<{
+  (e: 'select', variable: string): void
+}>()
+
+const { environments } = useWorkspace()
 const router = useRouter()
-const dialogVisible = ref(false)
 
 const parsedEnvironments = computed(() => {
   return Object.values(environments)
@@ -58,21 +60,13 @@ const filteredVariables = computed(() => {
 })
 
 const selectVariable = (variableKey: string) => {
-  props.select(variableKey)
+  emit('select', variableKey)
 }
-
-watch(
-  () => props.query,
-  (newQuery) => {
-    dialogVisible.value =
-      newQuery.includes('{{') && !activeWorkspace.value?.isReadOnly
-  },
-)
 </script>
 <template>
   <dialog
     id="env-dialog"
-    class="absolute left-2 top-7 z-10 w-60 rounded border bg-white p-1"
+    class="z-10 w-60 rounded border bg-b-1 p-1"
     :open="true"
     tabindex="0">
     <ul v-if="filteredVariables.length">
