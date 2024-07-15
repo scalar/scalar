@@ -37,7 +37,10 @@ fastify.put<{ Body: { name: string } }>(
       body: {
         type: 'object',
         properties: {
-          name: { type: 'string' },
+          name: {
+            type: 'string',
+            examples: ['Marc'],
+          },
         },
         required: ['name'],
       },
