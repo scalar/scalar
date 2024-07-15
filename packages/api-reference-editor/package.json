@@ -54,13 +54,13 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "unhead": "^1.8.3",
-    "vue": "3.4.29"
+    "vue": "^3.4.29"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "tsc-alias": "^1.8.8",
-    "vite": "5.2.10",
+    "vite": "^5.2.10",
     "vite-svg-loader": "^5.1.0",
     "vue-tsc": "^2.0.13"
   }

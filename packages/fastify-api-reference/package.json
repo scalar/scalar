@@ -52,9 +52,9 @@
     "rollup-plugin-node-externals": "^7.1.2",
     "terser": "^5.30.0",
     "tsc-alias": "^1.8.8",
-    "vite": "5.2.10",
+    "vite": "^5.2.10",
     "vite-plugin-static-copy": "^1.0.2",
     "vitest": "^1.6.0",
-    "vue": "3.4.29"
+    "vue": "^3.4.29"
   }
 }
