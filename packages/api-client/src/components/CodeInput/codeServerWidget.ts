@@ -57,6 +57,7 @@ class ServerWidget extends WidgetType {
 export const serverPlugin = ViewPlugin.fromClass(
   class {
     decorations: DecorationSet
+    widgetRemoved: boolean = false
 
     constructor(view: EditorView) {
       this.decorations = this.buildDecorations(view)
@@ -64,7 +65,12 @@ export const serverPlugin = ViewPlugin.fromClass(
 
     update(update: ViewUpdate) {
       if (update.docChanged || update.viewportChanged) {
-        this.decorations = this.buildDecorations(update.view)
+        if (update.view.state.doc.length === 0) {
+          this.decorations = Decoration.none
+          this.widgetRemoved = true
+        } else if (!this.widgetRemoved) {
+          this.decorations = this.buildDecorations(update.view)
+        }
       }
     }
 
