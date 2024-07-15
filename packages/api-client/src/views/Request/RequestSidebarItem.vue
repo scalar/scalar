@@ -48,8 +48,14 @@ defineSlots<{
   leftIcon(): void
 }>()
 
-const { activeRequest, folders, isReadOnly, requests, requestExamples } =
-  useWorkspace()
+const {
+  activeRequest,
+  activeWorkspace,
+  folders,
+  isReadOnly,
+  requests,
+  requestExamples,
+} = useWorkspace()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const router = useRouter()
 
@@ -70,10 +76,12 @@ const paddingOffset = computed(() => {
 })
 
 const handleNavigation = (event: MouseEvent, uid: string) => {
+  const requestLink = `/workspace/${activeWorkspace.value.uid}/request/${uid}`
+
   if (event.metaKey) {
-    window.open(`/request/${uid}`, '_blank')
+    window.open(requestLink, '_blank')
   } else {
-    router.push(`/request/${uid}`)
+    router.push(requestLink)
   }
 }
 
@@ -136,7 +144,7 @@ const showChildren = computed(
       <RouterLink
         v-if="'summary' in item || 'requestUid' in item"
         custom
-        :to="`/request/${item.uid}`">
+        :to="`/workspace/${activeWorkspace.uid}/request/${item.uid}`">
         <div
           class="group relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2 rounded editable-sidebar-hover"
           :class="[
