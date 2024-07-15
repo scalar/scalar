@@ -1,14 +1,14 @@
 import { useWorkspace } from '@/store/workspace'
-import { RangeSetBuilder } from '@codemirror/state'
+import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import {
   Decoration,
   type DecorationSet,
   EditorView,
+  RangeSetBuilder,
   ViewPlugin,
   type ViewUpdate,
   WidgetType,
-} from '@codemirror/view'
-import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
+} from '@scalar/use-codemirror'
 import { computed, createApp, defineComponent, h } from 'vue'
 
 const { environments, isReadOnly } = useWorkspace()

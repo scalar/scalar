@@ -1,13 +1,13 @@
 import { useWorkspace } from '@/store/workspace'
-import { RangeSetBuilder } from '@codemirror/state'
 import {
   Decoration,
   type DecorationSet,
   type EditorView,
+  RangeSetBuilder,
   ViewPlugin,
   type ViewUpdate,
   WidgetType,
-} from '@codemirror/view'
+} from '@scalar/use-codemirror'
 import { createApp, h } from 'vue'
 
 import AddressBarServer from '../AddressBar/AddressBarServer.vue'

@@ -1,13 +1,13 @@
 import { router } from '@/router'
-import { StateEffect } from '@codemirror/state'
 import {
   Decoration,
   type DecorationSet,
   type EditorView,
+  StateEffect,
   ViewPlugin,
   type ViewUpdate,
   WidgetType,
-} from '@codemirror/view'
+} from '@scalar/use-codemirror'
 import { Teleport, createApp, h } from 'vue'
 
 import EnvironmentVariableDropdownVue from '../../views/Environment/EnvironmentVariableDropdown.vue'

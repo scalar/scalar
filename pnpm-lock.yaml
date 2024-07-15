@@ -639,12 +639,6 @@ importers:
 
   packages/api-client:
     dependencies:
-      '@codemirror/state':
-        specifier: ^6.4.1
-        version: 6.4.1
-      '@codemirror/view':
-        specifier: ^6.28.1
-        version: 6.28.1
       '@headlessui/tailwindcss':
         specifier: ^0.2.0
         version: 0.2.1(tailwindcss@3.4.4(ts-node@10.9.2(@types/node@20.14.10)(typescript@5.5.2)))
@@ -1997,10 +1991,10 @@ importers:
         specifier: ^6.8.1
         version: 6.8.1
       '@codemirror/state':
-        specifier: ^6.4.1
+        specifier: ^6.4.0
         version: 6.4.1
       '@codemirror/view':
-        specifier: ^6.28.1
+        specifier: ^6.23.1
         version: 6.28.1
       '@lezer/common':
         specifier: ^1.2.1
