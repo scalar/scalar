@@ -50,6 +50,7 @@ defineProps<{
 }
 .show-api-client-button span,
 .show-api-client-button svg {
+  fill: currentColor;
   color: var(--scalar-button-1-color);
   z-index: 1;
 }
