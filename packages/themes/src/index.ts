@@ -1,20 +1,14 @@
 import defaultFonts from './fonts.css?inline'
-
-/**
- * Import the raw CSS (?raw, not ?inline) to avoid minification by Vite/Rollup
- *
- * @see https://github.com/scalar/scalar/pull/2462
- */
-import alternateTheme from './presets/alternate.css?raw'
-import bluePlanetTheme from './presets/bluePlanet.css?raw'
-import deepSpaceTheme from './presets/deepSpace.css?raw'
-import defaultTheme from './presets/default.css?raw'
-import keplerTheme from './presets/kepler.css?raw'
-import marsTheme from './presets/mars.css?raw'
-import moonTheme from './presets/moon.css?raw'
-import purpleTheme from './presets/purple.css?raw'
-import saturnTheme from './presets/saturn.css?raw'
-import solarizedTheme from './presets/solarized.css?raw'
+import alternateTheme from './presets/alternate.css?inline'
+import bluePlanetTheme from './presets/bluePlanet.css?inline'
+import deepSpaceTheme from './presets/deepSpace.css?inline'
+import defaultTheme from './presets/default.css?inline'
+import keplerTheme from './presets/kepler.css?inline'
+import marsTheme from './presets/mars.css?inline'
+import moonTheme from './presets/moon.css?inline'
+import purpleTheme from './presets/purple.css?inline'
+import saturnTheme from './presets/saturn.css?inline'
+import solarizedTheme from './presets/solarized.css?inline'
 import baseVariables from './variables.css?inline'
 
 export { migrateThemeVariables } from './utilities/legacy'
