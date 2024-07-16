@@ -370,14 +370,7 @@ const workspaceMutators = mutationFactory(
 )
 
 const addWorkspace = (payload: WorkspacePayload = {}) => {
-  // Iterate name if we don't pass one in
-  const name =
-    !payload.name &&
-    iterateTitle('Workspace #2', (t) =>
-      Object.values(workspaces).some(({ name: _name }) => t === _name),
-    )
-
-  const workspace = createWorkspace({ ...payload, ...(name ? { name } : {}) })
+  const workspace = createWorkspace(payload)
   workspaceMutators.add(workspace)
 
   const collection = addCollection(
@@ -642,19 +635,23 @@ const deleteServer = (serverUid: string, collectionUid: string) => {
 // ---------------------------------------------------------------------------
 
 /** Helper function to import a OpenAPI spec file into the local workspace */
-async function importSpecFile(_spec: string | AnyObject) {
+async function importSpecFile(
+  _spec: string | AnyObject,
+  workspaceUid = 'default',
+  _createWorkspace = true,
+) {
   const spec = toRaw(_spec)
   const workspaceEntities = await importSpecToWorkspace(spec)
 
   // Create workspace
-  const _workspace = createWorkspace({ uid: 'default' })
-  workspaceMutators.add(_workspace)
+  if (_createWorkspace)
+    workspaceMutators.add(createWorkspace({ uid: workspaceUid }))
 
   // Add all the new requests into the request collection, the already have parent folders
   workspaceEntities.requests.forEach((request) => addRequest(request))
 
   // Create a new collection for the spec file
-  addCollection(workspaceEntities.collection, 'default')
+  addCollection(workspaceEntities.collection, workspaceUid)
 
   // Folders
   workspaceEntities.folders.forEach((folder) => addFolder(folder))

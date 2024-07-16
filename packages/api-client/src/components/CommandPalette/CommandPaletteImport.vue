@@ -8,7 +8,7 @@ const emits = defineEmits<{
   (event: 'close'): void
 }>()
 
-const { importSpecFile, importSpecFromUrl } = useWorkspace()
+const { activeWorkspace, importSpecFile, importSpecFromUrl } = useWorkspace()
 const specUrl = ref('')
 
 const { open: openSpecFileDialog } = useFileDialog({
@@ -18,7 +18,7 @@ const { open: openSpecFileDialog } = useFileDialog({
       const reader = new FileReader()
       reader.onload = async (e) => {
         const text = e.target?.result as string
-        importSpecFile(text)
+        importSpecFile(text, activeWorkspace.value.uid, false)
         handleSubmit()
         emits('close')
       }
