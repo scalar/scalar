@@ -39,7 +39,20 @@ const {
 // Track the parsed spec
 const parsedSpec = ref<Spec | undefined>(undefined)
 
+/** Keep track of the given options */
+const optionsRef = reactive<Partial<ParsedSpecOption & TagsSorterOption>>({})
+
+/** Helper to overwrite the current OpenAPI document */
 function setParsedSpec(spec: Spec) {
+  // Sort tags alphabetically
+  if (optionsRef.tagsSorter === 'alpha') {
+    spec.tags = spec.tags?.sort((a, b) => a.name.localeCompare(b.name))
+  }
+  // Custom tags sorting
+  else if (typeof optionsRef.tagsSorter === 'function') {
+    spec.tags = spec.tags?.sort(optionsRef.tagsSorter)
+  }
+
   return (parsedSpec.value = spec)
 }
 
@@ -65,7 +78,7 @@ function setCollapsedSidebarItem(key: string, value: boolean) {
 const headings = ref<any[]>([])
 
 const updateHeadings = async (description: string) => {
-  const newHeadings = await getHeadingsFromMarkdown(description)
+  const newHeadings = getHeadingsFromMarkdown(description)
   const lowestLevel = getLowestHeadingLevel(newHeadings)
 
   return newHeadings.filter((heading) => {
@@ -294,12 +307,22 @@ const isSidebarOpen = ref(false)
 
 const breadcrumb = computed(() => items.value?.titles?.[hash.value] ?? '')
 
+export type ParsedSpecOption = {
+  parsedSpec: Spec
+}
+
+export type TagsSorterOption = {
+  tagsSorter?: 'alpha' | ((a: Tag, b: Tag) => number)
+}
+
 /**
  * Provides the sidebar state and methods to control it.
  */
-export function useSidebar(options?: { parsedSpec: Spec }) {
+export function useSidebar(options?: ParsedSpecOption & TagsSorterOption) {
+  Object.assign(optionsRef, options)
+
   if (options?.parsedSpec) {
-    parsedSpec.value = options.parsedSpec
+    setParsedSpec(options.parsedSpec)
 
     // Open the first tag section by default OR specific section from hash
     watch(

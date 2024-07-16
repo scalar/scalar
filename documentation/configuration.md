@@ -234,6 +234,30 @@ By default we only open the relevant tag based on the url, however if you want a
 }
 ```
 
+#### tagsSorter?: 'alpha' | (a: Tag, b: Tag) => number
+
+Sort tags alphanumerically (`'alpha'`):
+
+```js
+{
+  tagsSorter: 'alpha'
+}
+```
+
+Or specify a custom function to sort the tags:
+
+```js
+{
+  /** @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort */
+  tagsSorter: (a, b) => {
+    if (a.name === 'Super Important Tag') return -1
+    return 1
+  }
+}
+```
+
+Learn more about Array sort functions: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+
 #### theme?: string
 
 You don’t like the color scheme? We’ve prepared some themes for you:
