@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.12.15
+
+### Patch Changes
+
+- 7076725: feat(components): add outline icons
+- 1e72b03: fix(components): polish history icon
+- dd2a42e: feat: outline page icon
+
 ## 0.12.14
 
 ### Patch Changes
