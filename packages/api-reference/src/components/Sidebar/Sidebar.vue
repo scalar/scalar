@@ -3,19 +3,22 @@ import type { Spec } from '@scalar/oas-utils'
 import { onMounted, ref, watch } from 'vue'
 
 import { sleep } from '../../helpers'
-import { useNavState, useSidebar } from '../../hooks'
+import { type TagsSorterOption, useNavState, useSidebar } from '../../hooks'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
 
-const props = defineProps<{
-  parsedSpec: Spec
-}>()
+const props = defineProps<
+  {
+    parsedSpec: Spec
+  } & TagsSorterOption
+>()
 
 const { hash, isIntersectionEnabled } = useNavState()
 
 const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } = useSidebar(
   {
     parsedSpec: props.parsedSpec,
+    tagsSorter: props.tagsSorter,
   },
 )
 

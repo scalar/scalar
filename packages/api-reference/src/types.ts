@@ -1,3 +1,4 @@
+import type { TagsSorterOption } from '@/hooks'
 import type {
   AuthenticationState,
   ContentType,
@@ -161,6 +162,10 @@ export type ReferenceConfiguration = {
    * @default false
    */
   defaultOpenAllTags?: boolean
+  /**
+   * Sort tags alphabetically or with a custom sort function
+   */
+  tagsSorter?: TagsSorterOption['tagsSorter']
 }
 
 export type PathRouting = {

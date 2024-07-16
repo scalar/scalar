@@ -269,7 +269,9 @@ const fontsStyleTag = computed(
       class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
-        <Sidebar :parsedSpec="parsedSpec">
+        <Sidebar
+          :parsedSpec="parsedSpec"
+          :tagsSorter="configuration.tagsSorter">
           <template #sidebar-start>
             <slot
               v-bind="referenceSlotProps"
