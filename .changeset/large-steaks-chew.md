@@ -2,4 +2,4 @@
 '@scalar/themes': patch
 ---
 
-fix(themes): don't minify themes css
+fix: don’t minify the CSS
