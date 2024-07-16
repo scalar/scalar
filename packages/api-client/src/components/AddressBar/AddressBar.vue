@@ -183,7 +183,7 @@ const handlePaste = (event: ClipboardEvent) => {
             :disabled="isRequesting"
             @click="executeRequestBus.emit()">
             <ScalarIcon
-              class="relative z-10 shrink-0"
+              class="relative z-10 shrink-0 fill-current"
               icon="Play"
               size="xs" />
             <span class="text-xxs relative z-10 lg:flex hidden">Send</span>

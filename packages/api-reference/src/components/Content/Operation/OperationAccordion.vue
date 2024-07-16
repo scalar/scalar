@@ -176,6 +176,7 @@ const { copyToClipboard } = useClipboard()
   height: 24px;
   width: 24px;
   flex-shrink: 0;
+  fill: currentColor;
 }
 
 .endpoint-copy {
