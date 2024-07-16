@@ -83,5 +83,5 @@ export const loadAllResources = (mutators: ReturnType<typeof useWorkspace>) => {
   const workspaces = Object.values(
     JSON.parse(localStorage.getItem(LS_KEYS.WORKSPACE) || '{}'),
   ) as Workspace[]
-  workspaces.forEach(workspaceMutators.add)
+  workspaces.forEach(workspaceMutators.rawAdd)
 }

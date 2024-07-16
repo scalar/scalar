@@ -14,11 +14,13 @@ const { push } = useRouter()
 
 const updateSelected = (uid: string) => {
   if (uid === activeWorkspace.value.uid) return
-  console.log('the new uid is: ', uid)
+  push(`/workspace/${uid}`)
 }
 
 const createNewWorkspace = () => {
-  const newWorkspace = workspaceMutators.add()
+  const newWorkspace = workspaceMutators.add({
+    proxyUrl: activeWorkspace.value.proxyUrl,
+  })
   if (newWorkspace) push(`/workspace/${newWorkspace.uid}`)
 }
 </script>

@@ -5,7 +5,6 @@ import { useDarkModeState } from '@/hooks'
 import { loadAllResources } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import { addScalarClassesToHeadless } from '@scalar/components'
-import { createWorkspace } from '@scalar/oas-utils/entities/workspace'
 import { LS_KEYS } from '@scalar/object-utils/mutator-record'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
@@ -47,25 +46,11 @@ onBeforeMount(async () => {
     loadAllResources(workspaceStore)
   } else {
     // Create default workspace
-    const _workspace = createWorkspace({
+    workspaceStore.workspaceMutators.add({
       uid: 'default',
+      name: 'Default Workspace',
       proxyUrl: 'https://proxy.scalar.com',
     })
-    workspaceStore.workspaceMutators.add(_workspace)
-
-    workspaceStore.collectionMutators.add({
-      uid: 'drafts',
-      spec: {
-        info: {
-          title: 'Drafts',
-        },
-      },
-    })
-
-    workspaceStore.requestMutators.add(
-      { summary: 'My First Request' },
-      'drafts',
-    )
   }
 
   addScalarClassesToHeadless()

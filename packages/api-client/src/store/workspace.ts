@@ -129,7 +129,7 @@ const deleteRequest = (
 /** Request associated with the current route */
 const activeRequest = computed(() => {
   const key = activeRouterParams.value[PathId.Request]
-  const firstKey = workspaceRequests.value[0]?.uid
+  const firstKey = activeWorkspaceRequests.value?.[0]?.uid
 
   const request = requests[key] ?? requests[firstKey]
   fallbackMissingParams(PathId.Request, request)
@@ -380,6 +380,18 @@ const addWorkspace = (payload: WorkspacePayload = {}) => {
   const workspace = createWorkspace({ ...payload, ...(name ? { name } : {}) })
   workspaceMutators.add(workspace)
 
+  const collection = addCollection(
+    {
+      spec: {
+        info: {
+          title: 'Drafts',
+        },
+      },
+    },
+    workspace.uid,
+  )
+  addRequest({ summary: 'My First Request' }, collection.uid)
+
   return workspace
 }
 
@@ -399,14 +411,22 @@ const activeWorkspace = computed(
     workspaces[Object.keys(workspaces)[0]],
 )
 
+/** Ordered list of the active workspace's collections with drafts last */
+const activeWorkspaceCollections = computed(() =>
+  activeWorkspace.value.collectionUids
+    .map((uid) => collections[uid])
+    .sort((collection) => (collection.spec?.info?.title === 'Drafts' ? -1 : 0)),
+)
+
+/** Helper to flatMap folders into requests */
+const flatMapFolder = (uid: string): Request | Request[] =>
+  requests[uid] ?? folders[uid].childUids.flatMap((_uid) => flatMapFolder(_uid))
+
 /** Simplified list of requests in the workspace for displaying */
-const workspaceRequests = computed(() =>
-  Object.values(requests).map((r) => ({
-    uid: r.uid,
-    path: r.path,
-    method: r.method,
-    summary: r.summary,
-  })),
+const activeWorkspaceRequests = computed(() =>
+  activeWorkspaceCollections.value.flatMap((collection) =>
+    collection.childUids.flatMap((uid) => flatMapFolder(uid)),
+  ),
 )
 
 /** Most commonly used property of workspace, we don't need check activeWorkspace.value this way */
@@ -422,15 +442,15 @@ const collectionMutators = mutationFactory(
   isLocalStorageEnabled && LS_KEYS.COLLECTION,
 )
 
-const addCollection = (payload: CollectionPayload) => {
-  if (!activeWorkspace.value) return
-
+const addCollection = (payload: CollectionPayload, workspaceUid: string) => {
   const collection = createCollection(payload)
-  workspaceMutators.edit(activeWorkspace.value.uid, 'collectionUids', [
-    ...activeWorkspace.value.collectionUids,
+  workspaceMutators.edit(workspaceUid, 'collectionUids', [
+    ...workspaces[workspaceUid].collectionUids,
     collection.uid,
   ])
   collectionMutators.add(collection)
+
+  return collection
 }
 
 const deleteCollection = (collectionUid: string) => {
@@ -634,7 +654,7 @@ async function importSpecFile(_spec: string | AnyObject) {
   workspaceEntities.requests.forEach((request) => addRequest(request))
 
   // Create a new collection for the spec file
-  addCollection(workspaceEntities.collection)
+  addCollection(workspaceEntities.collection, 'default')
 
   // Folders
   workspaceEntities.folders.forEach((folder) => addFolder(folder))
@@ -670,13 +690,15 @@ const modalState = useModal()
 /**
  * Global hook which contains the store for the whole app
  * We may want to break this up at some point due to the massive file size
+ *
+ * The rawAdd methods are the mutator.add methods. Some add methods have been replaced when we need some side effects
+ * ex: add examples when adding a request
  */
 export const useWorkspace = () =>
   ({
     // ---------------------------------------------------------------------------
     // STATE
     workspaces,
-    workspaceRequests,
     collections,
     cookies,
     environments,
@@ -693,6 +715,8 @@ export const useWorkspace = () =>
     activeSecurityScheme,
     activeServer,
     activeWorkspace,
+    activeWorkspaceCollections,
+    activeWorkspaceRequests,
     modalState,
     isReadOnly,
     // ---------------------------------------------------------------------------
@@ -739,6 +763,7 @@ export const useWorkspace = () =>
     },
     workspaceMutators: {
       ...workspaceMutators,
+      rawAdd: workspaceMutators.add,
       add: addWorkspace,
       delete: deleteWorkspace,
     },
