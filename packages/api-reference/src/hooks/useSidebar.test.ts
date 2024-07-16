@@ -603,4 +603,155 @@ describe('useSidebar', async () => {
       ],
     })
   })
+
+  it('hides operations with x-internal: true', async () => {
+    expect(
+      await getItemsForDocument({
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/hello': {
+            get: {
+              'summary': 'Get',
+              'x-internal': false,
+            },
+            post: {
+              'summary': 'Post',
+              'x-internal': true,
+            },
+          },
+        },
+      }),
+    ).toMatchObject({
+      entries: [{ title: 'Get' }],
+    })
+  })
+
+  it('hides webhooks with x-internal: true', async () => {
+    expect(
+      await getItemsForDocument({
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/hello': {
+            get: {
+              summary: 'Get',
+            },
+          },
+        },
+        webhooks: {
+          hello: {
+            post: {
+              'summary': 'Hello Webhook',
+              'x-internal': true,
+            },
+          },
+        },
+      }),
+    ).toMatchObject({
+      entries: [{ title: 'Get' }],
+    })
+  })
+
+  it('shows schemas', async () => {
+    expect(
+      await getItemsForDocument({
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/hello': {
+            get: {
+              summary: 'Get',
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Planet: {
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      }),
+    ).toMatchObject({
+      entries: [
+        { title: 'Get' },
+        {
+          title: 'Models',
+          children: [
+            {
+              title: 'Planet',
+            },
+          ],
+        },
+      ],
+    })
+  })
+
+  it('hides schemas with x-internal: true', async () => {
+    expect(
+      await getItemsForDocument({
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/hello': {
+            get: {
+              summary: 'Get',
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Planet: {
+              'type': 'object',
+              'x-internal': false,
+              'properties': {
+                name: {
+                  type: 'string',
+                },
+              },
+            },
+            User: {
+              'type': 'object',
+              'x-internal': true,
+              'properties': {
+                name: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      }),
+    ).toMatchObject({
+      entries: [
+        { title: 'Get' },
+        {
+          title: 'Models',
+          children: [
+            {
+              title: 'Planet',
+            },
+          ],
+        },
+      ],
+    })
+  })
 })
