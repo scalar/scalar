@@ -244,7 +244,9 @@ Sort tags alphanumerically (`'alpha'`):
 }
 ```
 
-Or specify a custom function to sort the tags:
+Or specify a custom function to sort the tags.
+
+> Note: Most of our integrations pass the configuration as JSON and you can’t use custom sort functions there. It will work in Vue, Nuxt, React, Next and all integrations that don’t need to pass the configuration as a JSON string.
 
 ```js
 {
