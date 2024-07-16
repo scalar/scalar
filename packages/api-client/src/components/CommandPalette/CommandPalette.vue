@@ -196,7 +196,7 @@ whenever(keys.ArrowUp, () => {
             class="text-c-1 mr-2.5"
             icon="Search"
             size="sm"
-            thickness="3" />
+            thickness="1.5" />
         </label>
         <input
           id="commandmenu"
@@ -242,7 +242,7 @@ whenever(keys.ArrowUp, () => {
             class="text-c-1 mr-2.5"
             :icon="command.icon"
             size="md"
-            thickness="3" />
+            thickness="1.5" />
           {{ command.name }}
         </div>
       </template>
@@ -254,8 +254,7 @@ whenever(keys.ArrowUp, () => {
         @click="activeCommand = ''">
         <ScalarIcon
           icon="ChevronLeft"
-          size="sm"
-          thickness="3" />
+          size="sm" />
       </button>
       <component
         :is="PaletteComponents[activeCommand]"
