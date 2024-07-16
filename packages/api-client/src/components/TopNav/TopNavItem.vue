@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
-import type { Route } from '@/constants'
-import { ScalarIcon, ScalarTooltip } from '@scalar/components'
+import { type Icon, ScalarIcon, ScalarTooltip } from '@scalar/components'
 
-defineProps<
-  Omit<Route, 'path'> & {
-    hotkey?: string
-    active: boolean
-  }
->()
+defineProps<{
+  hotkey?: string
+  active: boolean
+  label: string
+  icon: Icon
+}>()
 
 defineEmits<{
   (e: 'click'): void

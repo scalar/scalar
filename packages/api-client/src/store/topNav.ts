@@ -1,5 +1,7 @@
-import { ROUTES, type Route } from '@/constants'
+import { ROUTES } from '@/constants'
 import { router } from '@/router'
+import type { Icon } from '@scalar/components'
+import { capitalize } from '@scalar/oas-utils/helpers'
 import { reactive, readonly, ref, watch } from 'vue'
 
 import { useWorkspace } from './workspace'
@@ -10,7 +12,7 @@ const { activeRequest } = useWorkspace()
 // Nav list
 
 /** Nav Items list */
-const topNavItems = reactive<Route[]>([{ label: '', path: '', icon: 'Add' }])
+const topNavItems = reactive([{ label: '', path: '', icon: 'Add' as Icon }])
 const activeNavItemIdx = ref(0)
 
 /**
@@ -19,13 +21,13 @@ const activeNavItemIdx = ref(0)
  */
 function handleNavLabelAdd() {
   const activeRoute = ROUTES.find((route) => {
-    return router.currentRoute.value.path.startsWith(route.path)
+    return router.currentRoute.value.name == route.name
   })
 
   if (!activeRoute) return
 
   // if it's a request we can push in a request
-  if (activeRoute?.label === 'Requests') {
+  if (activeRoute?.name === 'request') {
     topNavItems[activeNavItemIdx.value] = {
       label: activeRequest.value?.summary || '',
       path: router.currentRoute.value.path,
@@ -35,7 +37,7 @@ function handleNavLabelAdd() {
     // not requests so its the other nav items
     // we can eventually be more granular
     topNavItems[activeNavItemIdx.value] = {
-      label: activeRoute?.label || '',
+      label: capitalize(activeRoute?.name) || '',
       path: router.currentRoute.value.path,
       icon: activeRoute.icon,
     }

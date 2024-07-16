@@ -12,3 +12,9 @@ export const camelToTitleWords = (camelStr: string) =>
     .replace(/([A-Z])/g, (match) => ` ${match}`)
     .replace(/^./, (match) => match.toUpperCase())
     .trim()
+
+/**
+ * Capitalize first letter
+ * You should normally do this in css, only use this if you have to
+ */
+export const capitalize = (str: string) => str[0].toUpperCase() + str.slice(1)

@@ -16,13 +16,13 @@ const { currentRoute } = useRouter()
     <WorkspaceProfileIcon />
     <ul class="mt-3.5 flex flex-col gap-1.5">
       <li
-        v-for="({ icon, label, path }, i) in ROUTES"
+        v-for="({ icon, name }, i) in ROUTES"
         :key="i">
         <SideNavLink
-          :active="currentRoute.path.startsWith(path)"
+          :active="currentRoute.name === name"
           :icon="icon"
-          :path="path">
-          {{ label }}
+          :name="name">
+          {{ name }}
         </SideNavLink>
       </li>
     </ul>

@@ -413,7 +413,7 @@ const activeWorkspace = computed(
 
 /** Ordered list of the active workspace's collections with drafts last */
 const activeWorkspaceCollections = computed(() =>
-  activeWorkspace.value.collectionUids
+  activeWorkspace.value?.collectionUids
     .map((uid) => collections[uid])
     .sort((collection) => (collection.spec?.info?.title === 'Drafts' ? -1 : 0)),
 )
@@ -424,7 +424,7 @@ const flatMapFolder = (uid: string): Request | Request[] =>
 
 /** Simplified list of requests in the workspace for displaying */
 const activeWorkspaceRequests = computed(() =>
-  activeWorkspaceCollections.value.flatMap((collection) =>
+  activeWorkspaceCollections.value?.flatMap((collection) =>
     collection.childUids.flatMap((uid) => flatMapFolder(uid)),
   ),
 )
