@@ -9,10 +9,6 @@ import {
 } from '@scalar/components'
 import { onMounted, ref } from 'vue'
 
-defineProps<{
-  title: string
-}>()
-
 const emits = defineEmits<{
   (event: 'close'): void
 }>()
@@ -31,7 +27,6 @@ onMounted(() => {
 })
 </script>
 <template>
-  <h2>{{ title }}</h2>
   <form
     class="flex w-full flex-col gap-3"
     @submit.prevent="emits('close')">
