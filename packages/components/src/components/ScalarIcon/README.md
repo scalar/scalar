@@ -27,7 +27,7 @@ After adding the new icons run `pnpm typegen:icons` to add the icons to the list
 
 ```svg
 <!-- Line Icon -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
     <path stroke-linecap="round" stroke="currentColor" d="M10.7 1.3l-9.4 9.4m0-9.4l9.4 9.4" />
 </svg>
 ```
