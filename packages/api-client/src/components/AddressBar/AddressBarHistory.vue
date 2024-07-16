@@ -62,7 +62,8 @@ function handleHistoryClick(index: number) {
     <ScalarIcon
       class="text-c-3"
       icon="History"
-      size="xs" />
+      size="sm"
+      thickness="2.25" />
   </ListboxButton>
 
   <!-- History shadow and placement-->
