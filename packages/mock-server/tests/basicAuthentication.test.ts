@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { createMockServer } from '../src/createMockServer'
 
-describe('authentication', () => {
+describe('basicAuthentication', () => {
   it('doesn’t require authentication', async () => {
     const specification = {
       openapi: '3.1.0',

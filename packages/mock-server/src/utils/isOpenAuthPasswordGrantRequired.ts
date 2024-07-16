@@ -1,6 +1,6 @@
 import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 
-export function isBasicAuthenticationRequired(
+export function isOpenAuthPasswordGrantRequired(
   operation: OpenAPI.Operation,
   schema?: OpenAPI.Document,
 ) {
@@ -14,16 +14,17 @@ export function isBasicAuthenticationRequired(
     },
   )
 
-  // Check if one of them is HTTP Basic Auth
-  const httpBasicAuthIsRequired =
+  // Check if one of them is OpenAuth2 Password Grant
+  const passwordGrantRequired =
     allowedSecuritySchemes?.findIndex((securitySchemeKey: string) => {
       const securityScheme =
         schema?.components?.securitySchemes?.[securitySchemeKey]
 
       return (
-        securityScheme?.type === 'http' && securityScheme?.scheme === 'basic'
+        securityScheme?.type === 'oauth2' &&
+        securityScheme?.flows?.password !== undefined
       )
     }) >= 0
 
-  return httpBasicAuthIsRequired
+  return passwordGrantRequired
 }
