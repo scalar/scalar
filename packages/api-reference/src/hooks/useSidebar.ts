@@ -204,7 +204,7 @@ const items = computed(() => {
     ? [
         {
           id: getWebhookId(),
-          title: 'Webhook',
+          title: 'Webhooks',
           show: !state.showApiClient,
           children: Object.keys(parsedSpec.value?.webhooks ?? {})
             .map((name) => {
