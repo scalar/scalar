@@ -30,14 +30,17 @@ onBeforeMount(async () => {
   })
   workspaceStore.workspaceMutators.add(_workspace)
 
-  workspaceStore.collectionMutators.add({
-    uid: 'drafts',
-    spec: {
-      info: {
-        title: 'Drafts',
+  workspaceStore.collectionMutators.add(
+    {
+      uid: 'drafts',
+      spec: {
+        info: {
+          title: 'Drafts',
+        },
       },
     },
-  })
+    'default',
+  )
 
   workspaceStore.requestMutators.add({ summary: 'My First Request' }, 'drafts')
 
