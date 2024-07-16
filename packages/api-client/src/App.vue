@@ -48,7 +48,7 @@ onBeforeMount(async () => {
     // Create default workspace
     workspaceStore.workspaceMutators.add({
       uid: 'default',
-      name: 'Default Workspace',
+      name: 'Workspace',
       proxyUrl: 'https://proxy.scalar.com',
     })
   }
