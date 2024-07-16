@@ -1,6 +1,10 @@
 import defaultFonts from './fonts.css?inline'
 
-/* Must be imported as ?raw to avoid minification by Vite / Rollup */
+/**
+ * Import the raw CSS (?raw, not ?inline) to avoid minification by Vite/Rollup
+ *
+ * @see https://github.com/scalar/scalar/pull/2462
+ */
 import alternateTheme from './presets/alternate.css?raw'
 import bluePlanetTheme from './presets/bluePlanet.css?raw'
 import deepSpaceTheme from './presets/deepSpace.css?raw'
