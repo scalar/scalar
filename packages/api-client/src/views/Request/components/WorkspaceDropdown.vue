@@ -43,7 +43,7 @@ const createNewWorkspace = () => {
           v-for="(workspace, uid) in workspaces"
           :key="uid"
           class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden"
-          @click="updateSelected(uid)">
+          @click.stop="updateSelected(uid)">
           <div
             class="flex items-center justify-center rounded-full p-[3px] w-4 h-4 group-hover/item:shadow-border"
             :class="

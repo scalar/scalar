@@ -277,9 +277,9 @@ useEventListener(document, 'keydown', (event) => {
         :class="[showSideBar ? 'sidebar-active-width' : '']">
         <template
           v-if="!activeWorkspace.isReadOnly"
-          #header
-          ><WorkspaceDropdown
-        /></template>
+          #header>
+          <WorkspaceDropdown />
+        </template>
         <template #content>
           <SearchButton @openSearchModal="searchModalState.show()" />
           <div
