@@ -1,4 +1,5 @@
 import type { TagsSorterOption } from '@/hooks'
+import type { HttpClientState } from '@/stores'
 import type {
   AuthenticationState,
   ContentType,
@@ -117,6 +118,8 @@ export type ReferenceConfiguration = {
    * By default hides Unirest, pass `[]` to show all clients
    */
   hiddenClients?: HiddenClients
+  /** Determine the HTTP client that’s selected by default */
+  defaultHttpClient?: HttpClientState
   /** Custom CSS to be added to the page */
   customCss?: string
   /** onSpecUpdate is fired on spec/swagger content change */

@@ -4,8 +4,15 @@ import { type Ref, computed, reactive, readonly, ref } from 'vue'
 
 import type { AvailableTarget, HiddenClients } from '../types'
 
-// Gets the client title from the availableTargets
-// { targetKey: 'shell', clientKey: 'curl' } -> 'Shell'
+const FALLBACK_HTTP_CLIENT: HttpClientState = {
+  targetKey: 'shell',
+  clientKey: 'curl',
+}
+
+/**
+ * Gets the client title from the availableTargets
+ * { targetKey: 'shell', clientKey: 'curl' } -> 'Shell'
+ */
 function getTargetTitle(client: HttpClientState) {
   return (
     availableTargets.value.find((target) => target.key === client.targetKey)
@@ -13,8 +20,10 @@ function getTargetTitle(client: HttpClientState) {
   )
 }
 
-// Gets the client title from the availableTargets
-// { targetKey: 'shell', clientKey: 'curl' } -> 'cURL'
+/**
+ * Gets the client title from the availableTargets
+ * { targetKey: 'shell', clientKey: 'curl' } -> 'cURL'
+ */
 function getClientTitle(client: HttpClientState) {
   return (
     availableTargets.value
@@ -24,10 +33,12 @@ function getClientTitle(client: HttpClientState) {
   )
 }
 
+/** Human-readable title for the selected language */
 const httpTargetTitle = computed(() => {
   return getTargetTitle(httpClient)
 })
 
+/** Humand-readable title for the selected client */
 const httpClientTitle = computed(() => {
   return getClientTitle(httpClient)
 })
@@ -89,6 +100,9 @@ export function filterHiddenClients(
   })
 }
 
+/**
+ * Get all available targets with the hidden clients filtered out
+ */
 const availableTargets = computed<AvailableTarget[]>(() => {
   const targets = allTargets()
 
@@ -105,6 +119,7 @@ const availableTargets = computed<AvailableTarget[]>(() => {
   return filterHiddenClients(targets, excludedClients)
 })
 
+/** The selected HTTP client */
 export type HttpClientState = { targetKey: TargetId; clientKey: string }
 
 const DEFAULT_EXCLUDED_CLIENTS = {
@@ -115,34 +130,58 @@ const excludedClients = ref<HiddenClients>({
   ...(DEFAULT_EXCLUDED_CLIENTS === true ? {} : DEFAULT_EXCLUDED_CLIENTS),
 })
 
-const defaultHttpClientState = (): HttpClientState => {
-  // Check if available targets has shell/curl
-  // If not, return the first available target
-  const curlIsAvailable = availableTargets.value.find(
-    (target) =>
-      target.key === 'shell' &&
-      target.clients.find((client) => client.key === 'curl'),
-  )
+const defaultHttpClient = ref<HttpClientState>()
 
-  if (curlIsAvailable) {
-    return {
-      targetKey: 'shell',
-      clientKey: 'curl',
-    }
+function setDefaultHttpClient(httpClient?: HttpClientState) {
+  if (httpClient === undefined) {
+    return
   }
 
+  defaultHttpClient.value = httpClient
+
+  setHttpClient(getDefaultHttpClient())
+}
+
+/** Determine the default HTTP Client */
+const getDefaultHttpClient = (): HttpClientState => {
+  // Check the configured HTTPcClient
+  if (isClientAvailable(defaultHttpClient.value)) {
+    // @ts-expect-error Trust me, TypeScript. We checked whether it’s available.
+    return defaultHttpClient.value
+  }
+
+  // Check the defined fallback HTTP client
+  if (isClientAvailable(FALLBACK_HTTP_CLIENT)) {
+    return FALLBACK_HTTP_CLIENT
+  }
+
+  // Just use the first available client
   return {
     targetKey: availableTargets.value[0]?.key,
     clientKey: availableTargets.value[0]?.clients?.[0]?.key,
   }
 }
 
-const httpClient = reactive<HttpClientState>(defaultHttpClientState())
+/** Look for the given HTTP client in the list of available clients */
+function isClientAvailable(httpClient?: HttpClientState) {
+  if (httpClient === undefined) {
+    return false
+  }
 
-function resetState() {
-  objectMerge(httpClient, defaultHttpClientState())
+  return !!availableTargets.value.find(
+    (target) =>
+      target.key === httpClient.targetKey &&
+      target.clients.find((client) => client.key === httpClient.clientKey),
+  )
 }
 
+function resetState() {
+  objectMerge(httpClient, getDefaultHttpClient())
+}
+
+const httpClient = reactive<HttpClientState>(getDefaultHttpClient())
+
+/** Update the selected HTTP client */
 const setHttpClient = (newState: Partial<HttpClientState>) => {
   Object.assign(httpClient, {
     ...httpClient,
@@ -150,21 +189,25 @@ const setHttpClient = (newState: Partial<HttpClientState>) => {
   })
 }
 
-export const useHttpClientStore = () => ({
-  httpClient: readonly(httpClient),
-  resetState,
-  setHttpClient,
-  excludedClients: readonly(excludedClients) as Ref<HiddenClients>,
-  setExcludedClients: (v: HiddenClients) => {
-    // Update the excluded clients
-    excludedClients.value = v
+/** Keep track of the available and the selected HTTP client(s) */
+export const useHttpClientStore = () => {
+  return {
+    httpClient: readonly(httpClient),
+    resetState,
+    setHttpClient,
+    setDefaultHttpClient,
+    excludedClients: readonly(excludedClients) as Ref<HiddenClients>,
+    setExcludedClients: (v: HiddenClients) => {
+      // Update the excluded clients
+      excludedClients.value = v
 
-    // Reset the default state
-    objectMerge(httpClient, defaultHttpClientState())
-  },
-  availableTargets,
-  getClientTitle,
-  getTargetTitle,
-  httpTargetTitle,
-  httpClientTitle,
-})
+      // Reset the default state
+      objectMerge(httpClient, getDefaultHttpClient())
+    },
+    availableTargets,
+    getClientTitle,
+    getTargetTitle,
+    httpTargetTitle,
+    httpClientTitle,
+  }
+}

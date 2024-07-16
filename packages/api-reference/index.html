@@ -15,6 +15,20 @@
       id="api-reference"
       data-proxy-url="https://proxy.scalar.com"
       data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"></script>
+
+    <!-- Optional: You can set a full configuration object like this: -->
+    <script>
+      var configuration = {
+        // defaultHttpClient: {
+        //   targetKey: 'node',
+        //   clientKey: 'undici',
+        // },
+      }
+
+      document.getElementById('api-reference').dataset.configuration =
+        JSON.stringify(configuration)
+    </script>
+
     <script
       src="src/standalone.ts"
       type="module"></script>
