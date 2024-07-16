@@ -82,7 +82,7 @@ describe('useSidebar', async () => {
       entries: [
         { title: 'Hello World' },
         {
-          title: 'Webhook',
+          title: 'Webhooks',
           children: [
             {
               title: 'Hello Webhook',
@@ -368,7 +368,7 @@ describe('useSidebar', async () => {
           ],
         },
         {
-          title: 'Webhook',
+          title: 'Webhooks',
           children: [
             {
               title: 'Hello Webhook',
@@ -428,7 +428,7 @@ describe('useSidebar', async () => {
               ],
             },
             {
-              title: 'Webhook',
+              title: 'Webhooks',
               children: [
                 {
                   title: 'Hello Webhook',
@@ -492,7 +492,7 @@ describe('useSidebar', async () => {
           ],
         },
         {
-          title: 'Webhook',
+          title: 'Webhooks',
           children: [
             {
               title: 'Hello Webhook',
