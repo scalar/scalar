@@ -1667,9 +1667,6 @@ importers:
 
   packages/mock-server:
     dependencies:
-      '@hono/node-server':
-        specifier: ^1.11.0
-        version: 1.11.3
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
@@ -1680,6 +1677,9 @@ importers:
         specifier: ^4.2.7
         version: 4.4.6
     devDependencies:
+      '@hono/node-server':
+        specifier: ^1.11.0
+        version: 1.11.3
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -1689,24 +1689,6 @@ importers:
       '@types/node':
         specifier: ^20.14.10
         version: 20.14.10
-      esbuild:
-        specifier: ^0.21.1
-        version: 0.21.5
-      rollup:
-        specifier: ^4.16.4
-        version: 4.18.0
-      rollup-plugin-delete:
-        specifier: ^2.0.0
-        version: 2.0.0
-      rollup-plugin-dts:
-        specifier: ^6.1.0
-        version: 6.1.1(rollup@4.18.0)(typescript@5.5.2)
-      rollup-plugin-esbuild:
-        specifier: ^6.1.1
-        version: 6.1.1(esbuild@0.21.5)(rollup@4.18.0)
-      tslib:
-        specifier: ^2.6.2
-        version: 2.6.3
       vite-node:
         specifier: ^1.3.1
         version: 1.6.0(@types/node@20.14.10)(terser@5.31.2)
@@ -13817,13 +13799,6 @@ packages:
     peerDependencies:
       rollup: ^3.29.4 || ^4
       typescript: ^4.5 || ^5.0
-
-  rollup-plugin-esbuild@6.1.1:
-    resolution: {integrity: sha512-CehMY9FAqJD5OUaE/Mi1r5z0kNeYxItmRO2zG4Qnv2qWKF09J2lTy5GUzjJR354ZPrLkCj4fiBN41lo8PzBUhw==}
-    engines: {node: '>=14.18.0'}
-    peerDependencies:
-      esbuild: '>=0.18.0'
-      rollup: ^1.20.0 || ^2.0.0 || ^3.0.0 || ^4.0.0
 
   rollup-plugin-import-css@3.5.0:
     resolution: {integrity: sha512-JOVow6n00qt2C/NnsqPmIjFOfxIAudwWqC5SaC84CodMGiMFaP1gPAdgnJ8g8hcG+P85TCYp2kI98grYCEt5pg==}
@@ -33023,17 +32998,6 @@ snapshots:
       typescript: 5.5.2
     optionalDependencies:
       '@babel/code-frame': 7.24.7
-
-  rollup-plugin-esbuild@6.1.1(esbuild@0.21.5)(rollup@4.18.0):
-    dependencies:
-      '@rollup/pluginutils': 5.1.0(rollup@4.18.0)
-      debug: 4.3.5(supports-color@5.5.0)
-      es-module-lexer: 1.5.3
-      esbuild: 0.21.5
-      get-tsconfig: 4.7.5
-      rollup: 4.18.0
-    transitivePeerDependencies:
-      - supports-color
 
   rollup-plugin-import-css@3.5.0(rollup@4.18.0):
     dependencies:

@@ -21,15 +21,20 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "rm -Rf dist/ && rollup -c",
+    "build": "scalar-build-rollup",
+    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet",
     "test": "vitest",
-    "types:check": "tsc --noEmit --skipLibCheck"
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
   },
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
-    "import": "./dist/index.js"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
   "files": [
     "./dist",
@@ -37,21 +42,15 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "@hono/node-server": "^1.11.0",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.7.2",
     "hono": "^4.2.7"
   },
   "devDependencies": {
+    "@hono/node-server": "^1.11.0",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@types/node": "^20.14.10",
-    "esbuild": "^0.21.1",
-    "rollup": "^4.16.4",
-    "rollup-plugin-delete": "^2.0.0",
-    "rollup-plugin-dts": "^6.1.0",
-    "rollup-plugin-esbuild": "^6.1.1",
-    "tslib": "^2.6.2",
     "vite-node": "^1.3.1"
   }
 }
