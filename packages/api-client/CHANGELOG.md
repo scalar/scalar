@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.0.23
+
+### Patch Changes
+
+- 3928ac3: feat: add routing portion for multiple workspaces
+- Updated dependencies [96e7106]
+  - @scalar/themes@0.9.14
+  - @scalar/components@0.12.14
+  - @scalar/oas-utils@0.2.14
+
 ## 2.0.22
 
 ### Patch Changes
