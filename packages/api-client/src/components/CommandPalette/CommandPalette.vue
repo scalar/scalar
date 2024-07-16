@@ -59,10 +59,6 @@ const availableCommands: Group[] = [
         icon: 'ExternalLink',
       },
       {
-        name: 'Create Workspace',
-        icon: 'Import',
-      },
-      {
         name: 'Import Collection',
         icon: 'Import',
       },
@@ -83,6 +79,10 @@ const availableCommands: Group[] = [
   {
     label: 'More Actions',
     commands: [
+      {
+        name: 'Create Workspace',
+        icon: 'Workspace',
+      },
       {
         name: 'Add Server',
         icon: 'Brackets',

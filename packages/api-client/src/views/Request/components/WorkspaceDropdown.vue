@@ -30,14 +30,18 @@ const createNewWorkspace = () => {
   <CommandPalette
     defaultCommand="Create Workspace"
     :state="commandPaletteState" />
-  <div class="xl:min-h-header py-2.5 flex items-center border-b px-4 text-sm">
-    <ScalarDropdown resize>
+  <div class="xl:min-h-header py-2.5 flex items-center border-b px-2.5 text-sm">
+    <ScalarDropdown>
       <ScalarButton
-        class="font-normal h-full justify-start py-1.5 px-0 text-c-1"
+        class="font-normal h-full justify-start py-1.5 px-1.5 text-c-1 hover:bg-b-2 w-fit"
         fullWidth
         variant="ghost">
-        <h2 class="font-medium m-0 text-sm">
+        <h2 class="font-medium m-0 text-sm flex gap-1.5 items-center">
           {{ activeWorkspace.name }}
+          <ScalarIcon
+            class="size-2.5"
+            icon="ChevronDown"
+            thickness="3.5" />
         </h2>
       </ScalarButton>
 
