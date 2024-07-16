@@ -10,6 +10,7 @@ export function getOpenAuthTokenUrl(schema?: OpenAPI.Document) {
     return false
   }
 
+  // TODO: Make this work with other OpenAuth workflows
   const openAuthPasswordGrant = Object.values(securitySchemes).filter(
     (securityScheme) => {
       if (
