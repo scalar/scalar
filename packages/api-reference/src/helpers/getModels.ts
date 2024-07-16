@@ -27,7 +27,7 @@ export function getModels(spec?: Spec) {
   // Filter out all schemas with `x-internal: true`
   Object.keys(models ?? {}).forEach((key) => {
     // @ts-expect-error upstream type issue in @scalar/openapi-parser
-    if (models[key]?.['x-internal']) {
+    if (models[key]?.['x-internal'] === true) {
       delete models[key]
     }
   })
