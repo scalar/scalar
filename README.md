@@ -46,6 +46,7 @@ And there’s an ever-growing list of plugins and integrations:
 
 ## Integrations
 
+- [HTML](documentation/integrations/html.md)
 - [.NET](packages/scalar.aspnetcore/README.md)
 - [AdonisJS](documentation/integrations/adonisjs.md)
 - [Docusaurus](packages/docusaurus/README.md)
