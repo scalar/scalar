@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.24.47
+
+### Patch Changes
+
+- c144aea: feat: hide schemas with `x-internal: true`
+- 5271732: feat: new `tagsSorter` option
+- af5b342: chore: rename Webhook to Webhooks
+- Updated dependencies [3928ac3]
+- Updated dependencies [96e7106]
+  - @scalar/api-client@2.0.23
+  - @scalar/themes@0.9.14
+  - @scalar/components@0.12.14
+  - @scalar/oas-utils@0.2.14
+
 ## 1.24.46
 
 ### Patch Changes

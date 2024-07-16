@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.14
+
+### Patch Changes
+
+- 96e7106: fix: switch from font-size unset to inherit
+
 ## 0.9.13
 
 ### Patch Changes
