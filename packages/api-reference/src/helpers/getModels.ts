@@ -9,7 +9,7 @@ export function getModels(spec?: Spec) {
     return {} as Record<string, OpenAPIV3_1.SchemaObject>
   }
 
-  return (
+  const models =
     // OpenAPI 3.x
     (
       Object.keys(spec?.components?.schemas ?? {}).length
@@ -23,5 +23,14 @@ export function getModels(spec?: Spec) {
       | OpenAPIV2.DefinitionsObject
       | Record<string, OpenAPIV3.SchemaObject>
       | Record<string, OpenAPIV3_1.SchemaObject>
-  )
+
+  // Filter out all schemas with `x-internal: true`
+  Object.keys(models ?? {}).forEach((key) => {
+    // @ts-expect-error upstream type issue in @scalar/openapi-parser
+    if (models[key]?.['x-internal']) {
+      delete models[key]
+    }
+  })
+
+  return models
 }
