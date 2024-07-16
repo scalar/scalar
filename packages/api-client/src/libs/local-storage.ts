@@ -18,10 +18,7 @@ import { LS_KEYS } from '@scalar/object-utils/mutator-record'
  *
  * Currently not working for workspace
  */
-export const loadAllResources = (
-  mutators: ReturnType<typeof useWorkspace>,
-  workspaceUid = 'default',
-) => {
+export const loadAllResources = (mutators: ReturnType<typeof useWorkspace>) => {
   const {
     collectionMutators,
     cookieMutators,
@@ -84,7 +81,7 @@ export const loadAllResources = (
 
   // Workspace
   const workspaces = Object.values(
-    JSON.parse(localStorage.getItem(LS_KEYS.WORKSPACE + workspaceUid) || '{}'),
+    JSON.parse(localStorage.getItem(LS_KEYS.WORKSPACE) || '{}'),
   ) as Workspace[]
   workspaces.forEach(workspaceMutators.add)
 }

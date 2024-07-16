@@ -7,8 +7,10 @@ import {
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
+import { useRouter } from 'vue-router'
 
-const { activeWorkspace, workspaces } = useWorkspace()
+const { activeWorkspace, workspaces, workspaceMutators } = useWorkspace()
+const { push } = useRouter()
 
 const updateSelected = (uid: string) => {
   if (uid === activeWorkspace.value.uid) return
@@ -16,7 +18,8 @@ const updateSelected = (uid: string) => {
 }
 
 const createNewWorkspace = () => {
-  console.log('creating new workspace')
+  const newWorkspace = workspaceMutators.add()
+  if (newWorkspace) push(`/workspace/${newWorkspace.uid}`)
 }
 </script>
 
@@ -31,6 +34,8 @@ const createNewWorkspace = () => {
           {{ activeWorkspace.name }}
         </h2>
       </ScalarButton>
+
+      <!-- Workspace list -->
       <template #items>
         <ScalarDropdownItem
           v-for="(workspace, uid) in workspaces"
@@ -52,6 +57,8 @@ const createNewWorkspace = () => {
           {{ workspace.name }}
         </ScalarDropdownItem>
         <ScalarDropdownDivider />
+
+        <!-- Add new workspace -->
         <ScalarDropdownItem
           class="flex items-center gap-1.5"
           @click="createNewWorkspace">

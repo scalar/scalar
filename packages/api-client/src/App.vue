@@ -25,7 +25,7 @@ const workspaceStore = useWorkspace()
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(async () => {
   // Check if we have localStorage data
-  if (localStorage.getItem(`${LS_KEYS.WORKSPACE}${'default'}`)) {
+  if (localStorage.getItem(LS_KEYS.WORKSPACE)) {
     // TODO remove this before going live
     console.info('Remove this before going live, but here are the stats: ')
     const size: Record<string, string> = {}
@@ -71,7 +71,9 @@ onBeforeMount(async () => {
   addScalarClassesToHeadless()
 })
 const fontsStyleTag = computed(
-  () => `<style>
+  () =>
+    workspaceStore.activeWorkspace.value &&
+    `<style>
   ${getThemeStyles(workspaceStore.activeWorkspace.value.themeId, {
     fonts: true,
   })}</style>`,
@@ -80,8 +82,11 @@ const fontsStyleTag = computed(
 <template>
   <div v-html="fontsStyleTag"></div>
   <TopNav />
+  <!-- Ensure we have the workspace loaded from localStorage above -->
   <!-- min-h-0 is to allow scrolling of individual flex children -->
-  <main class="flex min-h-0 flex-1">
+  <main
+    v-if="workspaceStore.activeWorkspace.value?.uid"
+    class="flex min-h-0 flex-1">
     <SideNav />
     <div class="flex flex-1 flex-col min-w-0">
       <RouterView v-slot="{ Component }">

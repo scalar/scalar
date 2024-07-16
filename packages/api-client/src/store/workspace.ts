@@ -3,6 +3,7 @@ import { PathId, activeRouterParams, fallbackMissingParams } from '@/router'
 import { useModal } from '@scalar/components'
 import {
   type Workspace,
+  type WorkspacePayload,
   createWorkspace,
 } from '@scalar/oas-utils/entities/workspace'
 import {
@@ -362,14 +363,34 @@ const activeCookieId = computed<string | undefined>(
 
 /** Active workspace object (will be associated with an entry in the workspace collection) */
 const workspaces = reactive<Record<string, Workspace>>({})
-const createWorkspaceMutators = (workspaceUid: string) =>
-  mutationFactory(
-    workspaces,
-    reactive({}),
-    isLocalStorageEnabled && `${LS_KEYS.WORKSPACE}${workspaceUid}`,
-  )
-// TODO we will create new mutators on workspace change with the updated workspace uid
-const workspaceMutators = createWorkspaceMutators('default')
+const workspaceMutators = mutationFactory(
+  workspaces,
+  reactive({}),
+  isLocalStorageEnabled && LS_KEYS.WORKSPACE,
+)
+
+const addWorkspace = (payload: WorkspacePayload = {}) => {
+  // Iterate name if we don't pass one in
+  const name =
+    !payload.name &&
+    iterateTitle('Workspace #2', (t) =>
+      Object.values(workspaces).some(({ name: _name }) => t === _name),
+    )
+
+  const workspace = createWorkspace({ ...payload, ...(name ? { name } : {}) })
+  workspaceMutators.add(workspace)
+
+  return workspace
+}
+
+/** Prevent deletion of the default workspace */
+const deleteWorkspace = (uid: string) => {
+  if (uid === 'default') {
+    console.warn('Default environment cannot be deleted.')
+    return
+  }
+  workspaceMutators.delete(uid)
+}
 
 /** The currently selected workspace OR the first one */
 const activeWorkspace = computed(
@@ -716,5 +737,9 @@ export const useWorkspace = () =>
       add: addServer,
       delete: deleteServer,
     },
-    workspaceMutators,
+    workspaceMutators: {
+      ...workspaceMutators,
+      add: addWorkspace,
+      delete: deleteWorkspace,
+    },
   }) as const
