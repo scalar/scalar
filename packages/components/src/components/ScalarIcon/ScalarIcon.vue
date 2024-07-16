@@ -42,6 +42,7 @@ const stroke = computed(() => props.thickness ?? '2')
     :class="cx('scalar-icon', iconProps({ size }))" />
 </template>
 <style scoped>
+.scalar-icon,
 .scalar-icon * {
   stroke-width: v-bind(stroke);
 }

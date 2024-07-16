@@ -4,6 +4,12 @@ import { ref } from 'vue'
 import { ScalarIconButton } from '../ScalarIconButton'
 import { ICONS } from './icons/icons'
 
+defineProps<{
+  thickness?: string
+}>()
+
+defineOptions({ inheritAttrs: false })
+
 const copyToClipboard = (value: string) =>
   navigator.clipboard.writeText(value).then(() => {
     copied.value = true
@@ -22,6 +28,8 @@ const copied = ref(false)
         class="hover:bg-b-2"
         :icon="icon"
         :label="icon"
+        :thickness="thickness"
+        v-bind="$attrs"
         @click="copyToClipboard(icon)"
         @mouseenter="selected = icon" />
     </div>

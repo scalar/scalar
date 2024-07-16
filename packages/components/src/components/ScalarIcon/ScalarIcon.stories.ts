@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
-import IconGrid from './IconList.vue'
+import IconList from './IconList.vue'
 import ScalarIcon from './ScalarIcon.vue'
 import { ICONS } from './icons/icons'
 
@@ -14,6 +14,8 @@ const meta = {
       options: ['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'],
     },
     thickness: { control: { type: 'range', min: 0, max: 3, step: 0.1 } },
+    class: { control: 'text' },
+    style: { control: 'text' },
   },
   parameters: {
     docs: {
@@ -61,11 +63,11 @@ export const AllSizes: Story = {
 }
 
 export const AllIcons: StoryObj = {
-  render: () => ({
-    components: { IconGrid },
+  render: (args) => ({
+    components: { IconList },
     setup() {
-      return { icons: ICONS }
+      return { args, icons: ICONS }
     },
-    template: `<IconGrid :icons="icons" />`,
+    template: `<IconList :icons="icons" v-bind="args" />`,
   }),
 }
