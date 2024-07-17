@@ -151,6 +151,8 @@ const updateExampleUrlHandler = (url: string) => {
 }
 :deep(.cm-content) {
   padding: 0;
+  display: flex;
+  align-items: center;
 }
 .scroll-timeline-x {
   scroll-timeline: --scroll-timeline x;
