@@ -15,6 +15,7 @@ import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue
 import { ScalarIcon, useModal } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
+import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useEventListener, useMagicKeys } from '@vueuse/core'
 import { type DeepReadonly, onBeforeUnmount, onMounted, ref } from 'vue'
@@ -238,10 +239,17 @@ useEventListener(document, 'keydown', (event) => {
     searchModalState.open ? searchModalState.hide() : searchModalState.show()
   }
 })
+
+const getBackgroundColor = () => {
+  if (!activeRequest.value) return ''
+  const { method } = activeRequest.value
+  return REQUEST_METHODS[method as RequestMethod].backgroundColor
+}
 </script>
 <template>
   <div
-    class="bg-b-2 flex flex-1 flex-col rounded-lg rounded-b-none rounded-r-none pt-0 h-full">
+    class="flex flex-1 flex-col rounded-lg rounded-b-none rounded-r-none pt-0 h-full client-wrapper-bg-color"
+    :class="getBackgroundColor()">
     <div
       class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container">
       <div
@@ -360,5 +368,14 @@ useEventListener(document, 'keydown', (event) => {
     border: 1px solid var(--scalar-border-color);
     border-radius: var(--scalar-radius);
   }
+}
+.dark-mode .client-wrapper-bg-color {
+  background: linear-gradient(
+    color-mix(in srgb, var(--tw-bg-base) 6%, transparent) 1%,
+    color-mix(in srgb, var(--scalar-background-1) 30%, black) 9%
+  );
+}
+.light-mode .client-wrapper-bg-color {
+  background-color: var(--scalar-background-2) !important;
 }
 </style>
