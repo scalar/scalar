@@ -261,7 +261,7 @@ export default {
 <style>
 .cm-pill {
   background-color: var(--scalar-background-1);
-  color: var(--scalar-color-1);
+  color: var(--scalar-color-2);
   box-shadow: 0 0 0 0.5px var(--scalar-border-color);
   padding: 1.5px 6px;
   margin: 0 6px;

@@ -150,7 +150,7 @@ const updateExampleUrlHandler = (url: string) => {
   width: 100%;
 }
 :deep(.cm-content) {
-  padding: 2px 0;
+  padding: 0;
 }
 .scroll-timeline-x {
   scroll-timeline: --scroll-timeline x;
