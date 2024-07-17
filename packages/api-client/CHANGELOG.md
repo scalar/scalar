@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 2.0.24
+
+### Patch Changes
+
+- 7076725: feat(components): add outline icons
+- 1e72b03: fix(components): polish history icon
+- cbe984b: fix: adjust command palette icon thickness
+- Updated dependencies [7076725]
+- Updated dependencies [1e72b03]
+- Updated dependencies [dd2a42e]
+  - @scalar/components@0.12.15
+
 ## 2.0.23
 
 ### Patch Changes

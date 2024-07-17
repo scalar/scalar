@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.24.48
+
+### Patch Changes
+
+- 7076725: feat(components): add outline icons
+- Updated dependencies [7076725]
+- Updated dependencies [1e72b03]
+- Updated dependencies [dd2a42e]
+- Updated dependencies [cbe984b]
+  - @scalar/api-client@2.0.24
+  - @scalar/components@0.12.15
+
 ## 1.24.47
 
 ### Patch Changes
