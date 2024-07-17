@@ -171,6 +171,9 @@ const flattenValue = (item: RequestExampleParameter) => {
   font-size: var(--scalar-mini);
   padding: 6px 8px;
 }
+:deep(.cm-content):has(.cm-pill) {
+  padding: 4px 8px;
+}
 :deep(.cm-line) {
   padding: 0;
 }

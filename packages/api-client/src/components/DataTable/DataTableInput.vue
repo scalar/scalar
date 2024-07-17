@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import EnvironmentVariableDropdown from '@/views/Environment/EnvironmentVariableDropdown.vue'
 import { ScalarIconButton } from '@scalar/components'
 import { computed, ref } from 'vue'
 
@@ -119,11 +118,6 @@ const handleDropdownMouseUp = () => {
       :icon="mask ? 'Show' : 'Hide'"
       :label="mask ? 'Show Password' : 'Hide Password'"
       @click="mask = !mask" />
-    <EnvironmentVariableDropdown
-      :query="query"
-      @mousedown="handleDropdownMouseDown"
-      @mouseup="handleDropdownMouseUp"
-      @select="handleSelect" />
   </DataTableCell>
 </template>
 

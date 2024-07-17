@@ -9,6 +9,10 @@ import { nanoid } from 'nanoid'
 import { ref, toRef, useAttrs, watch, type Ref, computed } from 'vue'
 import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
 
+import { dropdownPlugin } from './codeDropdownWidget'
+import { pillPlugin, backspaceCommand } from './codeVariableWidget'
+import { useWorkspace } from '@/store/workspace'
+
 const props = withDefaults(
   defineProps<{
     colorPicker?: boolean
@@ -28,6 +32,7 @@ const props = withDefaults(
     enum?: string[]
     type?: string
     nullable?: boolean
+    withVariables?: boolean
   }>(),
   {
     disableCloseBrackets: false,
@@ -36,6 +41,7 @@ const props = withDefaults(
     emitOnBlur: true,
     colorPicker: false,
     nullable: false,
+    withVariables: true,
   },
 )
 const emit = defineEmits<{
@@ -47,6 +53,8 @@ const attrs = useAttrs()
 const uid = (attrs.id as string) || `id-${nanoid()}`
 
 const isFocused = ref(false)
+
+const { activeWorkspace } = useWorkspace()
 
 // ---------------------------------------------------------------------------
 // Event mapping from codemirror to standard input interfaces
@@ -78,6 +86,10 @@ function handleBlur(value: string) {
 
 const extensions: Extension[] = []
 if (props.colorPicker) extensions.push(colorPickerExtension)
+if (props.withVariables && !activeWorkspace.value.isReadOnly) {
+  extensions.push(dropdownPlugin())
+  extensions.push(pillPlugin, backspaceCommand)
+}
 
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
@@ -196,9 +208,6 @@ export default {
   background: var(--scalar-background-2) !important;
   color: var(--scalar-color-1) !important;
 }
-.cell:has(.cm-focused) + .required {
-  color: red;
-}
 :deep(.cm-tooltip-autocomplete ul) {
   padding: 6px !important;
   z-index: 10000;
@@ -244,5 +253,17 @@ export default {
 }
 :deep(.cm-gutter + .cm-gutter .cm-gutterElement) {
   padding-left: 0 !important;
+}
+</style>
+<style>
+.cm-pill {
+  background-color: var(--scalar-background-accent);
+  color: var(--scalar-color-accent);
+  padding: 1px 5px;
+  margin: 1px 0;
+  border-radius: 3px;
+  display: inline-block;
+  border-radius: 30px;
+  font-size: var(--scalar-mini);
 }
 </style>
