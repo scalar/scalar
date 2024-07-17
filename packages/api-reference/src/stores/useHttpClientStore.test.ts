@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
 
-import { filterHiddenClients } from './useHttpClientStore'
+import { filterHiddenClients, useHttpClientStore } from './useHttpClientStore'
 
 describe('useHttpClientStore', () => {
   it('filters hidden targets', () => {
@@ -209,5 +209,54 @@ describe('useHttpClientStore', () => {
         ref({}),
       ),
     ).toMatchObject([])
+  })
+
+  it.sequential('uses the fallback HTTP client', () => {
+    const { httpClient, resetState } = useHttpClientStore()
+
+    resetState()
+
+    expect(httpClient).toStrictEqual({
+      targetKey: 'shell',
+      clientKey: 'curl',
+    })
+  })
+
+  it.sequential('uses the specified HTTP client as the default', () => {
+    const { httpClient, resetState, setDefaultHttpClient } =
+      useHttpClientStore()
+
+    resetState()
+
+    setDefaultHttpClient({
+      targetKey: 'node',
+      clientKey: 'undici',
+    })
+
+    expect(httpClient).toStrictEqual({
+      targetKey: 'node',
+      clientKey: 'undici',
+    })
+  })
+
+  it.sequential('uses the first available HTTP client', () => {
+    const { httpClient, resetState, setExcludedClients, setDefaultHttpClient } =
+      useHttpClientStore()
+
+    resetState()
+
+    setDefaultHttpClient({
+      targetKey: 'shell',
+      clientKey: 'curl',
+    })
+
+    setExcludedClients({
+      shell: true,
+    })
+
+    expect(httpClient).toStrictEqual({
+      targetKey: 'c',
+      clientKey: 'libcurl',
+    })
   })
 })

@@ -76,7 +76,8 @@ const { setAuthentication } = useAuthenticationStore()
 mapConfigToState('authentication', setAuthentication)
 
 // Hides any client snippets from the references
-const { setExcludedClients } = useHttpClientStore()
+const { setExcludedClients, setDefaultHttpClient } = useHttpClientStore()
+mapConfigToState('defaultHttpClient', setDefaultHttpClient)
 mapConfigToState('hiddenClients', setExcludedClients)
 
 const { parsedSpec, rawSpec } = useReactiveSpec({

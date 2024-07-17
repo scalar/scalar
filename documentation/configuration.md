@@ -148,6 +148,21 @@ You can pass information to the config object to configure meta information out 
 }
 ```
 
+#### defaultHttpClient?: HttpClientState
+
+By default, we’re using Shell/curl as the default HTTP client. Or, if that’s disabled (through `hiddenClients`), we’re just using the first available HTTP client.
+
+You can explicitly set the default HTTP client, though:
+
+```js
+{
+  defaultHttpClient: {
+    targetKey: 'node',
+    clientKey: 'undici',
+  }
+}
+```
+
 #### hiddenClients?: array | true
 
 You can pass an array of [httpsnippet clients](https://github.com/Kong/httpsnippet/wiki/Targets) to hide from the clients menu.
@@ -158,7 +173,15 @@ You can pass an array of [httpsnippet clients](https://github.com/Kong/httpsnipp
 }
 ```
 
-By default hides Unirest, pass `[]` to **show** all clients or `true` to **hide** all clients:
+By default hides Unirest, pass `[]` to **show** all clients:
+
+```js
+{
+  hiddenClients: []
+}
+```
+
+Or `true` to **hide** all clients:
 
 ```js
 {
