@@ -188,8 +188,6 @@ export default {
 :deep(.cm-content) {
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-mini);
-  display: flex;
-  align-items: center;
 }
 /* Tooltip helper */
 :deep(.cm-tooltip) {
