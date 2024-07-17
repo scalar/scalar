@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import EnvironmentVariableDropdown from '@/views/Environment/EnvironmentVariableDropdown.vue'
 import { ScalarIconButton } from '@scalar/components'
 import { computed, ref } from 'vue'
 
