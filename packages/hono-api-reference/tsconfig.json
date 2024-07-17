@@ -1,7 +1,5 @@
 {
   "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "types": ["vitest/globals"]
-  },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  "compilerOptions": {},
+  "include": ["src", "rollup.config.ts"]
 }

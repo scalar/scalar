@@ -15,22 +15,21 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsup ./src/index.ts --format esm,cjs --dts",
-    "test": "vitest run"
+    "build": "scalar-build-rollup",
+    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet --watch ./",
+    "docker:build": "docker buildx build --platform=linux/amd64 -t scalar-hono-reference --build-arg=\"BASE_IMAGE=scalar-base\" .",
+    "docker:run": "docker run -t scalar-hono-reference",
+    "test": "vitest",
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
   },
   "type": "module",
-  "main": "dist/index.cjs",
-  "types": "dist/index.d.cts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "files": [
@@ -42,9 +41,13 @@
     "hono": "^4.2.7"
   },
   "devDependencies": {
+    "@hono/node-server": "^1.11.0",
+    "@hono/zod-openapi": "^0.8.6",
+    "@scalar/build-tooling": "workspace:*",
     "hono": "^4.2.7",
     "tsup": "^7.2.0",
     "vite": "^5.2.10",
+    "vite-node": "^1.3.1",
     "vitest": "^1.6.0"
   }
 }

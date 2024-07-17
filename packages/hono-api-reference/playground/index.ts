@@ -1,6 +1,7 @@
 import { serve } from '@hono/node-server'
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
-import { apiReference } from '@scalar/hono-api-reference'
+
+import { apiReference } from '../src/index'
 
 const PORT = Number(process.env.PORT) || 5054
 const HOST = process.env.HOST || '0.0.0.0'
@@ -28,7 +29,6 @@ app.openapi(
     },
   }),
   (c) => {
-    // @ts-expect-error type depth error
     return c.json({
       message: 'hello',
     })
@@ -179,11 +179,6 @@ app.get(
   apiReference({
     spec: {
       url: '/openapi.json',
-      // content: {
-      //   openapi: '3.1.0',
-      //   info: { title: 'Example' },
-      //   paths: {},
-      // },
     },
     pageTitle: 'Hono API Reference Demo',
   }),

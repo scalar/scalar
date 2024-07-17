@@ -143,7 +143,7 @@ steps:
         '-t',
         'gcr.io/${_PROJECT_ID}/${_SERVICE_HONO}',
         '-f',
-        './examples/hono-api-reference/Dockerfile',
+        './packages/hono-api-reference/Dockerfile',
         '.',
       ]
   - name: 'gcr.io/cloud-builders/docker'
