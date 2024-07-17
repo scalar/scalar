@@ -408,7 +408,11 @@ const activeWorkspace = computed(
 const activeWorkspaceCollections = computed(() =>
   activeWorkspace.value?.collectionUids
     .map((uid) => collections[uid])
-    .sort((collection) => (collection.spec?.info?.title === 'Drafts' ? -1 : 0)),
+    .sort((a, b) => {
+      if (a.spec?.info?.title === 'Drafts') return 1
+      else if (b.spec?.info?.title === 'Drafts') return -1
+      else return 0
+    }),
 )
 
 /** Helper to flatMap folders into requests */
