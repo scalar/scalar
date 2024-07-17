@@ -4,7 +4,6 @@ import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
 import { addScalarClassesToHeadless } from '@scalar/components'
-import { createWorkspace } from '@scalar/oas-utils/entities/workspace'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { computed, onBeforeMount, onMounted, watchEffect } from 'vue'
@@ -23,24 +22,11 @@ const workspaceStore = useWorkspace()
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(async () => {
   // Create default workspace
-  const _workspace = createWorkspace({
+  workspaceStore.workspaceMutators.add({
     uid: 'default',
     // TODO: Make this configurable
     proxyUrl: 'https://proxy.scalar.com',
   })
-  workspaceStore.workspaceMutators.add(_workspace)
-
-  workspaceStore.collectionMutators.add({
-    uid: 'drafts',
-    spec: {
-      info: {
-        title: 'Drafts',
-      },
-    },
-  })
-
-  workspaceStore.requestMutators.add({ summary: 'My First Request' }, 'drafts')
-
   addScalarClassesToHeadless()
 })
 

@@ -9,9 +9,11 @@ import CommandPaletteExample from './CommandPaletteExample.vue'
 import CommandPaletteFolder from './CommandPaletteFolder.vue'
 import CommandPaletteImport from './CommandPaletteImport.vue'
 import CommandPaletteRequest from './CommandPaletteRequest.vue'
+import CommandPaletteWorkspace from './CommandPaletteWorkspace.vue'
 
 const props = defineProps<{
   state: ModalState
+  defaultCommand?: CommandNames
 }>()
 
 const router = useRouter()
@@ -19,6 +21,7 @@ const router = useRouter()
 type CommandNames =
   | 'Import Collection'
   | 'Create Request'
+  | 'Create Workspace'
   | 'Add Folder'
   | 'Create Collection'
   | 'Add Example'
@@ -30,6 +33,7 @@ type CommandNames =
 const PaletteComponents: Record<string, Component> = {
   'Import Collection': CommandPaletteImport,
   'Create Request': CommandPaletteRequest,
+  'Create Workspace': CommandPaletteWorkspace,
   'Add Folder': CommandPaletteFolder,
   'Create Collection': CommandPaletteCollection,
   'Add Example': CommandPaletteExample,
@@ -76,6 +80,10 @@ const availableCommands: Group[] = [
     label: 'More Actions',
     commands: [
       {
+        name: 'Create Workspace',
+        icon: 'Workspace',
+      },
+      {
         name: 'Add Server',
         icon: 'Brackets',
         overloadAction: () => router.push('/servers'),
@@ -97,7 +105,7 @@ const availableCommands: Group[] = [
 const keys = useMagicKeys()
 
 const commandQuery = ref('')
-const activeCommand = ref<CommandNames>('')
+const activeCommand = ref<CommandNames>(props.defaultCommand ?? '')
 const selectedSearchResult = ref<number>(0)
 const commandRefs = ref<HTMLElement[]>([])
 

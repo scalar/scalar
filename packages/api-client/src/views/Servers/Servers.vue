@@ -25,8 +25,7 @@ const addServerHandler = () => {
 </script>
 <template>
   <ViewLayout>
-    <Sidebar>
-      <template #title>Servers</template>
+    <Sidebar title="Servers">
       <template #content>
         <div class="flex-1">
           <SidebarList>

@@ -68,6 +68,7 @@ export const ICONS = [
   'Upload',
   'UploadSimple',
   'User',
+  'Workspace',
   'programming-framework-angular',
   'programming-framework-astro',
   'programming-framework-laravel',

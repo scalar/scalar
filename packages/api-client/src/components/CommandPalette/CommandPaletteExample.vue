@@ -9,17 +9,13 @@ import {
 } from '@scalar/components'
 import { onMounted, ref } from 'vue'
 
-defineProps<{
-  title: string
-}>()
-
 const emits = defineEmits<{
   (event: 'close'): void
 }>()
 
-const { workspaceRequests } = useWorkspace()
+const { activeWorkspaceRequests } = useWorkspace()
 const exampleName = ref('')
-const selectedRequest = ref(workspaceRequests.value[0])
+const selectedRequest = ref(activeWorkspaceRequests.value[0])
 
 function handleSelect(request: any) {
   selectedRequest.value = request
@@ -31,7 +27,6 @@ onMounted(() => {
 })
 </script>
 <template>
-  <h2>{{ title }}</h2>
   <form
     class="flex w-full flex-col gap-3"
     @submit.prevent="emits('close')">
@@ -69,7 +64,7 @@ onMounted(() => {
           <template #items>
             <div class="max-h-40 custom-scroll">
               <ScalarDropdownItem
-                v-for="request in workspaceRequests"
+                v-for="request in activeWorkspaceRequests"
                 :key="request.uid"
                 class="flex h-7 w-full items-center justify-between px-1 pr-[26px]"
                 @click="handleSelect(request)">

@@ -34,8 +34,7 @@ const addCookieHandler = () => {
 </script>
 <template>
   <ViewLayout>
-    <Sidebar>
-      <template #title>Domain</template>
+    <Sidebar title="Domain">
       <template #content>
         <div class="flex-1">
           <SidebarList>

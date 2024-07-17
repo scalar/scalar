@@ -3,6 +3,7 @@ import { PathId, activeRouterParams, fallbackMissingParams } from '@/router'
 import { useModal } from '@scalar/components'
 import {
   type Workspace,
+  type WorkspacePayload,
   createWorkspace,
 } from '@scalar/oas-utils/entities/workspace'
 import {
@@ -128,7 +129,7 @@ const deleteRequest = (
 /** Request associated with the current route */
 const activeRequest = computed(() => {
   const key = activeRouterParams.value[PathId.Request]
-  const firstKey = workspaceRequests.value[0]?.uid
+  const firstKey = activeWorkspaceRequests.value?.[0]?.uid
 
   const request = requests[key] ?? requests[firstKey]
   fallbackMissingParams(PathId.Request, request)
@@ -362,14 +363,39 @@ const activeCookieId = computed<string | undefined>(
 
 /** Active workspace object (will be associated with an entry in the workspace collection) */
 const workspaces = reactive<Record<string, Workspace>>({})
-const createWorkspaceMutators = (workspaceUid: string) =>
-  mutationFactory(
-    workspaces,
-    reactive({}),
-    isLocalStorageEnabled && `${LS_KEYS.WORKSPACE}${workspaceUid}`,
+const workspaceMutators = mutationFactory(
+  workspaces,
+  reactive({}),
+  isLocalStorageEnabled && LS_KEYS.WORKSPACE,
+)
+
+const addWorkspace = (payload: WorkspacePayload = {}) => {
+  const workspace = createWorkspace(payload)
+  workspaceMutators.add(workspace)
+
+  const collection = addCollection(
+    {
+      spec: {
+        info: {
+          title: 'Drafts',
+        },
+      },
+    },
+    workspace.uid,
   )
-// TODO we will create new mutators on workspace change with the updated workspace uid
-const workspaceMutators = createWorkspaceMutators('default')
+  addRequest({ summary: 'My First Request' }, collection.uid)
+
+  return workspace
+}
+
+/** Prevent deletion of the default workspace */
+const deleteWorkspace = (uid: string) => {
+  if (uid === 'default') {
+    console.warn('Default environment cannot be deleted.')
+    return
+  }
+  workspaceMutators.delete(uid)
+}
 
 /** The currently selected workspace OR the first one */
 const activeWorkspace = computed(
@@ -378,14 +404,26 @@ const activeWorkspace = computed(
     workspaces[Object.keys(workspaces)[0]],
 )
 
+/** Ordered list of the active workspace's collections with drafts last */
+const activeWorkspaceCollections = computed(() =>
+  activeWorkspace.value?.collectionUids
+    .map((uid) => collections[uid])
+    .sort((a, b) => {
+      if (a.spec?.info?.title === 'Drafts') return 1
+      else if (b.spec?.info?.title === 'Drafts') return -1
+      else return 0
+    }),
+)
+
+/** Helper to flatMap folders into requests */
+const flatMapFolder = (uid: string): Request | Request[] =>
+  requests[uid] ?? folders[uid].childUids.flatMap((_uid) => flatMapFolder(_uid))
+
 /** Simplified list of requests in the workspace for displaying */
-const workspaceRequests = computed(() =>
-  Object.values(requests).map((r) => ({
-    uid: r.uid,
-    path: r.path,
-    method: r.method,
-    summary: r.summary,
-  })),
+const activeWorkspaceRequests = computed(() =>
+  activeWorkspaceCollections.value?.flatMap((collection) =>
+    collection.childUids.flatMap((uid) => flatMapFolder(uid)),
+  ),
 )
 
 /** Most commonly used property of workspace, we don't need check activeWorkspace.value this way */
@@ -401,15 +439,15 @@ const collectionMutators = mutationFactory(
   isLocalStorageEnabled && LS_KEYS.COLLECTION,
 )
 
-const addCollection = (payload: CollectionPayload) => {
-  if (!activeWorkspace.value) return
-
+const addCollection = (payload: CollectionPayload, workspaceUid: string) => {
   const collection = createCollection(payload)
-  workspaceMutators.edit(activeWorkspace.value.uid, 'collectionUids', [
-    ...activeWorkspace.value.collectionUids,
+  workspaceMutators.edit(workspaceUid, 'collectionUids', [
+    ...workspaces[workspaceUid].collectionUids,
     collection.uid,
   ])
   collectionMutators.add(collection)
+
+  return collection
 }
 
 const deleteCollection = (collectionUid: string) => {
@@ -601,19 +639,23 @@ const deleteServer = (serverUid: string, collectionUid: string) => {
 // ---------------------------------------------------------------------------
 
 /** Helper function to import a OpenAPI spec file into the local workspace */
-async function importSpecFile(_spec: string | AnyObject) {
+async function importSpecFile(
+  _spec: string | AnyObject,
+  workspaceUid = 'default',
+  _createWorkspace = true,
+) {
   const spec = toRaw(_spec)
   const workspaceEntities = await importSpecToWorkspace(spec)
 
   // Create workspace
-  const _workspace = createWorkspace({ uid: 'default' })
-  workspaceMutators.add(_workspace)
+  if (_createWorkspace)
+    workspaceMutators.add(createWorkspace({ uid: workspaceUid }))
 
   // Add all the new requests into the request collection, the already have parent folders
   workspaceEntities.requests.forEach((request) => addRequest(request))
 
   // Create a new collection for the spec file
-  addCollection(workspaceEntities.collection)
+  addCollection(workspaceEntities.collection, workspaceUid)
 
   // Folders
   workspaceEntities.folders.forEach((folder) => addFolder(folder))
@@ -649,13 +691,15 @@ const modalState = useModal()
 /**
  * Global hook which contains the store for the whole app
  * We may want to break this up at some point due to the massive file size
+ *
+ * The rawAdd methods are the mutator.add methods. Some add methods have been replaced when we need some side effects
+ * ex: add examples when adding a request
  */
 export const useWorkspace = () =>
   ({
     // ---------------------------------------------------------------------------
     // STATE
     workspaces,
-    workspaceRequests,
     collections,
     cookies,
     environments,
@@ -672,6 +716,8 @@ export const useWorkspace = () =>
     activeSecurityScheme,
     activeServer,
     activeWorkspace,
+    activeWorkspaceCollections,
+    activeWorkspaceRequests,
     modalState,
     isReadOnly,
     // ---------------------------------------------------------------------------
@@ -716,5 +762,10 @@ export const useWorkspace = () =>
       add: addServer,
       delete: deleteServer,
     },
-    workspaceMutators,
+    workspaceMutators: {
+      ...workspaceMutators,
+      rawAdd: workspaceMutators.add,
+      add: addWorkspace,
+      delete: deleteWorkspace,
+    },
   }) as const

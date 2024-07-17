@@ -2,33 +2,27 @@
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton } from '@scalar/components'
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const emits = defineEmits<{
   (event: 'close'): void
 }>()
 
-const { activeWorkspace, collectionMutators } = useWorkspace()
-const collectionName = ref('')
+const { push } = useRouter()
+const { workspaceMutators } = useWorkspace()
+const workspaceName = ref('')
 
 const handleSubmit = () => {
-  collectionMutators.add(
-    {
-      spec: {
-        openapi: '3.1.0',
-        info: {
-          title: collectionName.value,
-          version: '0.0.1',
-        },
-      },
-    },
-    activeWorkspace.value.uid,
-  )
+  const workspace = workspaceMutators.add({
+    name: workspaceName.value,
+  })
+  push(`/workspace/${workspace.uid}`)
   emits('close')
 }
 
-const collectionInput = ref<HTMLInputElement | null>(null)
+const workspaceInput = ref<HTMLInputElement | null>(null)
 onMounted(() => {
-  collectionInput.value?.focus()
+  workspaceInput.value?.focus()
 })
 </script>
 <template>
@@ -39,14 +33,15 @@ onMounted(() => {
       class="gap-3 rounded bg-b-2 focus-within:bg-b-1 focus-within:shadow-border min-h-20 relative">
       <label
         class="absolute w-full h-full opacity-0 cursor-text"
-        for="collectionanme"></label>
+        for="workspacename"></label>
       <input
-        id="collectionanme"
-        ref="collectionInput"
-        v-model="collectionName"
+        id="workspacename"
+        ref="workspaceInput"
+        v-model="workspaceName"
+        autofocus
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
-        label="Collection Name"
-        placeholder="Collection Name" />
+        label="Workspace Name"
+        placeholder="Workspace Name" />
     </div>
     <div class="flex">
       <div class="flex flex-1 gap-2 max-h-8"></div>

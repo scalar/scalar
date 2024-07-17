@@ -17,15 +17,10 @@ import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useEventListener, useMagicKeys } from '@vueuse/core'
-import {
-  type DeepReadonly,
-  computed,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-} from 'vue'
+import { type DeepReadonly, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
+import { WorkspaceDropdown } from './components'
 
 const {
   activeExample,
@@ -33,7 +28,7 @@ const {
   activeServer,
   activeSecurityScheme,
   activeWorkspace,
-  collections,
+  activeWorkspaceCollections,
   modalState,
 } = useWorkspace()
 const { collapsedSidebarFolders } = useSidebar()
@@ -97,19 +92,6 @@ onMounted(() => executeRequestBus.on(executeRequest))
  * @see https://github.com/vueuse/vueuse/issues/3498#issuecomment-2055546566
  */
 onBeforeUnmount(() => executeRequestBus.off(executeRequest))
-
-const workspaceCollections = computed(() => {
-  // let's move drafts to the bottom
-  const c = Object.values(collections)
-  const index = c.findIndex((obj) => obj.uid === 'drafts')
-
-  const [draftsObj] = c.splice(index, 1)
-
-  // Add the object to the end of the array
-  c.push(draftsObj)
-
-  return c
-})
 
 // const collections = computed(() => {
 //   if (FOLDER_MODE) {
@@ -293,7 +275,11 @@ useEventListener(document, 'keydown', (event) => {
       <Sidebar
         v-show="showSideBar"
         :class="[showSideBar ? 'sidebar-active-width' : '']">
-        <template #title>{{ activeWorkspace.name }}</template>
+        <template
+          v-if="!activeWorkspace.isReadOnly"
+          #header>
+          <WorkspaceDropdown />
+        </template>
         <template #content>
           <SearchButton @openSearchModal="searchModalState.show()" />
           <div
@@ -302,7 +288,9 @@ useEventListener(document, 'keydown', (event) => {
             @dragover.prevent>
             <!-- Collections -->
             <RequestSidebarItem
-              v-for="(collection, collectionIndex) in workspaceCollections"
+              v-for="(
+                collection, collectionIndex
+              ) in activeWorkspaceCollections"
               :key="collection.uid"
               :isDraggable="!activeWorkspace.isReadOnly"
               :isDroppable="!activeWorkspace.isReadOnly"

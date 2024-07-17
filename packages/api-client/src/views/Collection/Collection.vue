@@ -19,9 +19,7 @@ const data = reactive<{ key: string; value: string; enabled: boolean }[]>([
 </script>
 <template>
   <ViewLayout>
-    <Sidebar>
-      <template #title>Collection</template>
-    </Sidebar>
+    <Sidebar title="Collection" />
     <ViewLayoutContent class="flex-1">
       <ViewLayoutSection>
         <template #title>Section 1</template>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
@@ -7,38 +6,41 @@ import type { RequestMethod } from '@scalar/oas-utils/helpers'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-defineProps<{
-  title: string
-}>()
-
 const emits = defineEmits<{
   (event: 'close'): void
 }>()
 
 const { push } = useRouter()
 
-const { requestMutators, activeCollection, folders: _folders } = useWorkspace()
+const {
+  activeCollection,
+  activeWorkspace,
+  activeWorkspaceCollections,
+  requestMutators,
+  folders: _folders,
+} = useWorkspace()
+
 const requestName = ref('')
 const requestMethod = ref('GET')
 const selectedFolderId = ref('')
 
-const folders = computed(() => {
-  if (!activeCollection.value) return []
-
-  // Check if child of collection is folder as it could be a request
-  return Object.values(activeCollection.value.childUids).flatMap((uid) => {
-    const folder = _folders[uid]
-
-    return folder
-      ? [
-          {
-            id: folder.uid,
-            label: folder.name,
-          },
-        ]
-      : []
-  })
-})
+/** All folders in active workspace */
+const folders = computed(() =>
+  activeWorkspaceCollections.value.flatMap((collection) =>
+    collection.childUids.flatMap((uid) => {
+      // Check if child of collection is folder as it could be a request
+      const folder = _folders[uid]
+      return folder
+        ? [
+            {
+              id: folder.uid,
+              label: folder.name,
+            },
+          ]
+        : []
+    }),
+  ),
+)
 
 const selectedFolder = computed({
   get: () => folders.value.find(({ id }) => id === selectedFolderId.value),
@@ -51,19 +53,23 @@ function handleChangeMethod(method: string) {
   requestMethod.value = method
 }
 
-function handleSubmit() {
+const handleSubmit = () => {
   if (!activeCollection.value) return
+  const parentUid = selectedFolder.value?.id ?? activeCollection.value?.uid
 
-  const newRequest = requestMutators.add({
-    path: '',
-    method: requestMethod.value.toUpperCase() as RequestMethod,
-    description: requestName.value,
-    operationId: requestName.value,
-    summary: requestName.value,
-    tags: ['default'],
-  })
+  const newRequest = requestMutators.add(
+    {
+      path: '',
+      method: requestMethod.value.toUpperCase() as RequestMethod,
+      description: requestName.value,
+      operationId: requestName.value,
+      summary: requestName.value,
+      tags: ['default'],
+    },
+    parentUid,
+  )
 
-  push(`/request/${newRequest.uid}`)
+  push(`/workspace/${activeWorkspace.value.uid}/request/${newRequest.uid}`)
   emits('close')
 }
 
@@ -73,7 +79,6 @@ onMounted(() => {
 })
 </script>
 <template>
-  <h2>{{ title }}</h2>
   <form
     class="flex w-full flex-col gap-3"
     @submit.prevent="handleSubmit">

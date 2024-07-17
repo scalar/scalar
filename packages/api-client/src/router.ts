@@ -13,7 +13,7 @@ export enum PathId {
   Collection = 'collection',
   Schema = 'schema',
   Environment = 'environment',
-  Server = 'server',
+  Servers = 'servers',
   Workspace = 'workspace',
 }
 
@@ -101,6 +101,7 @@ const routes = [
         redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,
       },
       {
+        name: PathId.Environment,
         path: `environment/:${PathId.Environment}`,
         component: () => import('@/views/Environment/Environment.vue'),
       },
@@ -109,6 +110,7 @@ const routes = [
         redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,
       },
       {
+        name: PathId.Cookies,
         path: `cookies/:${PathId.Cookies}`,
         component: () => import('@/views/Cookies/Cookies.vue'),
       },
@@ -117,7 +119,8 @@ const routes = [
         redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,
       },
       {
-        path: `servers/:${PathId.Server}`,
+        name: PathId.Servers,
+        path: `servers/:${PathId.Servers}`,
         component: () => import('@/views/Servers/Servers.vue'),
       },
     ],
@@ -146,7 +149,7 @@ export const activeRouterParams = computed(() => {
     [PathId.Example]: 'default',
     [PathId.Schema]: 'default',
     [PathId.Cookies]: 'default',
-    [PathId.Server]: 'default',
+    [PathId.Servers]: 'default',
     [PathId.Workspace]: 'default',
   }
 
