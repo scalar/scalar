@@ -97,16 +97,20 @@ const handlePaste = (event: ClipboardEvent) => {
   event.preventDefault()
   const text = event.clipboardData?.getData('text/plain') || ''
   const sanitizedText = text.replace(/\n/g, '')
+
   const selection = window.getSelection()
   if (!selection || selection.rangeCount === 0) return
+
   const range = selection.getRangeAt(0)
   range.deleteContents()
   const textNode = document.createTextNode(sanitizedText)
   range.insertNode(textNode)
+
   /** move the cursor to the end of the inserted text */
   range.setStartAfter(textNode)
   selection.removeAllRanges()
   selection.addRange(range)
+
   /** scroll and focus at the end of the pasted content */
   const editableDiv = range.startContainer.parentElement
   if (editableDiv) {
@@ -160,6 +164,7 @@ const handlePaste = (event: ClipboardEvent) => {
           <div
             class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full">
             <div class="fade-left"></div>
+
             <!-- TODO wrap vars in spans for special effects like mouseOver descriptions -->
             <div
               class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap lg:text-sm text-xs font-medium leading-[24.5px] outline-none"
@@ -178,7 +183,7 @@ const handlePaste = (event: ClipboardEvent) => {
             :disabled="isRequesting"
             @click="executeRequestBus.emit()">
             <ScalarIcon
-              class="relative z-10 shrink-0"
+              class="relative z-10 shrink-0 fill-current"
               icon="Play"
               size="xs" />
             <span class="text-xxs relative z-10 lg:flex hidden">Send</span>
