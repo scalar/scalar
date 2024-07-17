@@ -260,8 +260,11 @@ export default {
 .cm-pill {
   background-color: var(--scalar-background-accent);
   color: var(--scalar-color-accent);
-  padding: 2px 4px;
+  padding: 1px 5px;
+  margin: 1px 0;
   border-radius: 3px;
   display: inline-block;
+  border-radius: 30px;
+  font-size: var(--scalar-mini);
 }
 </style>
