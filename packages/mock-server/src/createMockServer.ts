@@ -10,7 +10,10 @@ import {
   routeFromPath,
 } from './utils'
 import { anyBasicAuthentication } from './utils/anyBasicAuthentication'
+import { anyOpenAuthPasswordGrantAuthentication } from './utils/anyOpenAuthPasswordGrantAuthentication'
+import { getOpenAuthTokenUrl } from './utils/getOpenAuthTokenUrl'
 import { isBasicAuthenticationRequired } from './utils/isBasicAuthenticationRequired'
+import { isOpenAuthPasswordGrantRequired } from './utils/isOpenAuthPasswordGrantRequired'
 
 /**
  * Create a mock server instance
@@ -52,6 +55,31 @@ export async function createMockServer(options?: {
     return c.text(specification)
   })
 
+  // OpenAuth2 token endpoint
+  const tokenUrl = getOpenAuthTokenUrl(result?.schema)
+
+  if (typeof tokenUrl === 'string') {
+    app.post(tokenUrl, async (c) => {
+      return c.json(
+        {
+          access_token: 'super-secret-token',
+          token_type: 'Bearer',
+          expires_in: 3600,
+          refresh_token: 'secret-refresh-token',
+        },
+        200,
+        /**
+         * When responding with an access token, the server must also include the additional Cache-Control: no-store
+         * HTTP header to ensure clients do not cache this request.
+         * @see https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
+         */
+        {
+          'Cache-Control': 'no-store',
+        },
+      )
+    })
+  }
+
   // Paths
   Object.keys(result.schema?.paths ?? {}).forEach((path) => {
     // Operations
@@ -65,7 +93,8 @@ export async function createMockServer(options?: {
       const requiresAuthentication = isAuthenticationRequired(
         operation.security,
       )
-      // Get all available authentication methods
+
+      // Check whether we need basic authentication
       const requiresBasicAuthentication = isBasicAuthenticationRequired(
         operation,
         result?.schema,
@@ -75,6 +104,18 @@ export async function createMockServer(options?: {
       if (requiresAuthentication && requiresBasicAuthentication) {
         // @ts-expect-error Needs a proper type
         app[method](route, anyBasicAuthentication())
+      }
+
+      // Check whether we need OpenAuth password grant authentication
+      const requiresOpenAuthPasswordGrant = isOpenAuthPasswordGrantRequired(
+        operation,
+        result?.schema,
+      )
+
+      // Add HTTP basic authentication
+      if (requiresAuthentication && requiresOpenAuthPasswordGrant) {
+        // @ts-expect-error Needs a proper type
+        app[method](route, anyOpenAuthPasswordGrantAuthentication())
       }
 
       // Route
