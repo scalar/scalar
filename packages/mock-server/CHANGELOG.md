@@ -1,5 +1,13 @@
 # @scalar/mock-server
 
+## 0.2.15
+
+### Patch Changes
+
+- 6d2cfe8: chore: update build setup
+- 3f219f4: feat: add OpenAuth2 token endpoint
+- 3f219f4: feat: check whether OpenAuth2 password grant authentication is required
+
 ## 0.2.14
 
 ### Patch Changes

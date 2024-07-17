@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.24.49
+
+### Patch Changes
+
+- d894fb7: feat: configure the `defaultHttpClient`
+- cf92fab: fix: set background color on body
+
 ## 1.24.48
 
 ### Patch Changes

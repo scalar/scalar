@@ -1,5 +1,14 @@
 # @scalar/nextjs-api-reference
 
+## 0.4.47
+
+### Patch Changes
+
+- 8e593ae: chore: make react and next a peer dependency
+- Updated dependencies [d894fb7]
+- Updated dependencies [cf92fab]
+  - @scalar/api-reference@1.24.49
+
 ## 0.4.46
 
 ### Patch Changes

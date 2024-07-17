@@ -1,5 +1,13 @@
 # @scalar/api-reference-editor
 
+## 0.1.30
+
+### Patch Changes
+
+- Updated dependencies [d894fb7]
+- Updated dependencies [cf92fab]
+  - @scalar/api-reference@1.24.49
+
 ## 0.1.29
 
 ### Patch Changes
