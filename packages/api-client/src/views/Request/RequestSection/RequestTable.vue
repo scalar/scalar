@@ -166,7 +166,7 @@ const flattenValue = (item: RequestExampleParameter) => {
   padding: 0;
 }
 :deep(.cm-content) {
-  background-color: var(--scalar-background-1);
+  background-color: transparent;
   font-family: var(--scalar-font);
   font-size: var(--scalar-mini);
   padding: 6px 8px;
