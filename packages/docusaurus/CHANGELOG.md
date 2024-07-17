@@ -1,5 +1,13 @@
 # @scalar/docusaurus
 
+## 0.4.49
+
+### Patch Changes
+
+- 8e593ae: chore: make react and next a peer dependency
+- Updated dependencies [8e593ae]
+  - @scalar/api-reference-react@0.3.47
+
 ## 0.4.48
 
 ### Patch Changes
