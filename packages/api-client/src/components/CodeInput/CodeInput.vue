@@ -12,6 +12,7 @@ import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
 import { dropdownPlugin } from './codeDropdownWidget'
 import { pillPlugin, backspaceCommand } from './codeVariableWidget'
 import { serverPlugin } from './codeServerWidget'
+import { useWorkspace } from '@/store/workspace'
 
 const props = withDefaults(
   defineProps<{
@@ -56,6 +57,8 @@ const uid = (attrs.id as string) || `id-${nanoid()}`
 
 const isFocused = ref(false)
 
+const { activeWorkspace } = useWorkspace()
+
 // ---------------------------------------------------------------------------
 // Event mapping from codemirror to standard input interfaces
 
@@ -87,10 +90,10 @@ function handleBlur(value: string) {
 const extensions: Extension[] = []
 if (props.colorPicker) extensions.push(colorPickerExtension)
 if (props.server) extensions.push(serverPlugin)
-if (props.withVariables) {
+if (props.withVariables && !activeWorkspace.value.isReadOnly) {
   extensions.push(dropdownPlugin())
+  extensions.push(pillPlugin, backspaceCommand)
 }
-extensions.push(pillPlugin, backspaceCommand)
 
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
