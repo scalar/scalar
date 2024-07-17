@@ -30,11 +30,9 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
     "autoprefixer": "^10.4.19",
-    "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.21.1",
     "postcss": "^8.4.38",
     "postcss-nested": "^6.0.1",
-    "vite": "^5.2.10",
-    "vue-tsc": "^2.0.13"
+    "vite": "^5.2.10"
   }
 }
