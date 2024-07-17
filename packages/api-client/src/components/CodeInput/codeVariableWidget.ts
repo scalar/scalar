@@ -1,3 +1,4 @@
+/* eslint-disable vue/one-component-per-file */
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import {
@@ -9,33 +10,9 @@ import {
   type ViewUpdate,
   WidgetType,
 } from '@scalar/use-codemirror'
-import { computed, createApp, defineComponent, h } from 'vue'
+import { createApp, defineComponent, h } from 'vue'
 
-const { environments, isReadOnly } = useWorkspace()
-
-const parsedEnvironments = computed(() => {
-  return Object.values(environments)
-    .map((env) => {
-      try {
-        return {
-          _scalarEnvId: env.uid,
-          ...JSON.parse(env.raw),
-        }
-      } catch {
-        return null
-      }
-    })
-    .filter((env) => env)
-    .flatMap((obj) =>
-      Object.entries(obj).flatMap(([key, value]) => {
-        // Exclude the _scalarEnvId from the key-value pairs
-        if (key !== '_scalarEnvId') {
-          return [{ _scalarEnvId: obj._scalarEnvId, key, value }]
-        }
-        return []
-      }),
-    )
-})
+const { activeParsedEnvironments, isReadOnly } = useWorkspace()
 
 class PillWidget extends WidgetType {
   private app: any
@@ -52,7 +29,7 @@ class PillWidget extends WidgetType {
     const tooltipComponent = defineComponent({
       props: ['variableName'],
       render() {
-        const val = parsedEnvironments.value.find(
+        const val = activeParsedEnvironments.value.find(
           (thing) => thing.key === this.variableName,
         )
         const tooltipContent = val

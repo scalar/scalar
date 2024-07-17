@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import { executeRequestBus } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import { Listbox } from '@headlessui/vue'
@@ -10,13 +11,13 @@ import { ref, watch } from 'vue'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
-import AddressBarServer from './AddressBarServer.vue'
 
 const {
   activeRequest,
   activeExample,
   isReadOnly,
   requestMutators,
+  requestExampleMutators,
   requestsHistory,
 } = useWorkspace()
 
@@ -28,26 +29,6 @@ whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, () =>
   executeRequestBus.emit(),
 )
 
-// watch(
-//   () => activeInstance.value?.url,
-//   (newURL, oldURL) => {
-//     if (!activeRequest.value) return
-//
-//     const toUpdate = syncPathParamsFromURL(
-//       newURL,
-//       oldURL,
-//       activeInstance.value?.parameters.path,
-//     )
-//     if (toUpdate)
-//       updateRequestInstance(
-//         activeRequest.value.uid,
-//         activeInstanceIdx,
-//         toUpdate.key,
-//         toUpdate.value,
-//       )
-//   },
-// )
-//
 /** update the instance path parameters on change */
 const onUrlChange = (newPath: string) => {
   if (!activeRequest.value || activeRequest.value.path === newPath) return
@@ -92,48 +73,15 @@ function getBackgroundColor() {
   return REQUEST_METHODS[method as RequestMethod].backgroundColor
 }
 
-/** prevent line breaks on pasted content */
-const handlePaste = (event: ClipboardEvent) => {
-  event.preventDefault()
-  const text = event.clipboardData?.getData('text/plain') || ''
-  const sanitizedText = text.replace(/\n/g, '')
-
-  const selection = window.getSelection()
-  if (!selection || selection.rangeCount === 0) return
-
-  const range = selection.getRangeAt(0)
-  range.deleteContents()
-  const textNode = document.createTextNode(sanitizedText)
-  range.insertNode(textNode)
-
-  /** move the cursor to the end of the inserted text */
-  range.setStartAfter(textNode)
-  selection.removeAllRanges()
-  selection.addRange(range)
-
-  /** scroll and focus at the end of the pasted content */
-  const editableDiv = range.startContainer.parentElement
-  if (editableDiv) {
-    editableDiv.scrollLeft = editableDiv.scrollWidth
-  }
+const updateExampleUrlHandler = (url: string) => {
+  if (!activeExample.value) return
+  requestExampleMutators.edit(activeExample.value.uid, 'url', url)
 }
-
-/**
- * TODO: This component is pretty much mocked for now, will come back and finish it up once we
- * Start making requests and adding some history
- */
 </script>
 <template>
   <div
     v-if="activeRequest && activeExample"
     class="order-last lg:order-none lg:w-auto w-full">
-    <!-- <div class="text-c-2 flex w-80 flex-row items-center gap-1 p-4">
-      <ScalarIcon
-        icon="Branch"
-        size="md" />
-      <h2 class="text-sm">Branch Name</h2>
-    </div> -->
-
     <div class="m-auto flex basis-1/2 flex-row items-center">
       <!-- Address Bar -->
       <Listbox
@@ -159,21 +107,21 @@ const handlePaste = (event: ClipboardEvent) => {
               isSquare
               :method="activeRequest.method"
               @change="updateRequestMethod" />
-            <AddressBarServer />
           </div>
           <div
             class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full">
             <div class="fade-left"></div>
 
-            <!-- TODO wrap vars in spans for special effects like mouseOver descriptions -->
-            <div
-              class="scroll-timeline-x-address font-code text-c-1 flex flex-1 items-center whitespace-nowrap lg:text-sm text-xs font-medium leading-[24.5px] outline-none"
-              :contenteditable="!isReadOnly"
-              @input="(ev) => onUrlChange((ev.target as HTMLElement).innerText)"
-              @keydown.enter.prevent="executeRequestBus.emit()"
-              @paste="handlePaste">
-              {{ activeRequest.path }}
-            </div>
+            <CodeInput
+              disableCloseBrackets
+              :disabled="isReadOnly"
+              disableEnter
+              disableTabIndent
+              :modelValue="activeExample.url"
+              placeholder="Enter URL or cURL request"
+              server
+              @submit="executeRequestBus.emit()"
+              @update:modelValue="updateExampleUrlHandler" />
             <div class="fade-right"></div>
           </div>
 

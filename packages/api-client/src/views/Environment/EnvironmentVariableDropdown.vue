@@ -7,47 +7,26 @@ import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   query: string
+  // withServers?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'select', variable: string): void
 }>()
 
-const { environments } = useWorkspace()
+const { activeParsedEnvironments } = useWorkspace()
 const router = useRouter()
 
-const parsedEnvironments = computed(() => {
-  return Object.values(environments)
-    .map((env) => {
-      try {
-        return {
-          _scalarEnvId: env.uid,
-          ...JSON.parse(env.raw),
-        }
-      } catch {
-        return null
-      }
-    })
-    .filter((env) => env)
-    .flatMap((obj) =>
-      Object.entries(obj).flatMap(([key, value]) => {
-        // Exclude the _scalarEnvId from the key-value pairs
-        if (key !== '_scalarEnvId') {
-          return [{ _scalarEnvId: obj._scalarEnvId, key, value }]
-        }
-        return []
-      }),
-    )
+const fuse = new Fuse(activeParsedEnvironments.value, {
+  keys: ['key', 'value'],
 })
-
-const fuse = new Fuse(parsedEnvironments.value, { keys: ['key', 'value'] })
 
 const filteredVariables = computed(() => {
   const searchQuery = props.query
 
   if (!searchQuery) {
     /** return the last 4 environment variables on first display */
-    return parsedEnvironments.value.slice(-4)
+    return activeParsedEnvironments.value.slice(-4)
   }
 
   /** filter environment variables by name */
@@ -78,9 +57,8 @@ const selectVariable = (variableKey: string) => {
           @click="selectVariable(item.key)">
           <!-- @click.stop="selectVariable(variable)" -->
           <div class="flex items-center gap-1.5 whitespace-nowrap">
-            <span
-              class="h-2.5 w-2.5 min-w-2.5 rounded-full"
-              :class="`bg-${environments[item._scalarEnvId as string].color}`"></span>
+            <!-- :class="`bg-${environments[item._scalarEnvId as string].color}`" -->
+            <span class="h-2.5 w-2.5 min-w-2.5 rounded-full"></span>
             {{ item.key }}
           </div>
           <span class="w-20 overflow-hidden text-ellipsis text-right">

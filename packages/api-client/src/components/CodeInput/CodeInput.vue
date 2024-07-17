@@ -33,6 +33,7 @@ const props = withDefaults(
     type?: string
     nullable?: boolean
     withVariables?: boolean
+    withServers?: boolean
   }>(),
   {
     disableCloseBrackets: false,
@@ -42,6 +43,7 @@ const props = withDefaults(
     colorPicker: false,
     nullable: false,
     withVariables: true,
+    withServers: false,
   },
 )
 const emit = defineEmits<{
@@ -87,7 +89,7 @@ function handleBlur(value: string) {
 const extensions: Extension[] = []
 if (props.colorPicker) extensions.push(colorPickerExtension)
 if (props.withVariables && !activeWorkspace.value.isReadOnly) {
-  extensions.push(dropdownPlugin())
+  extensions.push(dropdownPlugin({ withServers: props.withServers }))
   extensions.push(pillPlugin, backspaceCommand)
 }
 
