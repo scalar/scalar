@@ -63,7 +63,6 @@ const executeRequest = async () => {
   )
 
   const doubleCurlyBrackets = /\{\{(.*?)\}\}/g
-  // /{{(.+)}}/g
   url = url.replace(doubleCurlyBrackets, (_match, key) => {
     // check if a server
     activeWorkspaceServers.value.forEach((server) => {

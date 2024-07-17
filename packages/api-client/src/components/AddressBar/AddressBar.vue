@@ -117,6 +117,7 @@ const updateExampleUrlHandler = (url: string) => {
               :disabled="isReadOnly"
               disableEnter
               disableTabIndent
+              :emitOnBlur="false"
               :modelValue="activeExample.url"
               placeholder="Enter URL or cURL request"
               server

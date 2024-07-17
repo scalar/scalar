@@ -24,7 +24,7 @@ class PillWidget extends WidgetType {
   toDOM() {
     const span = document.createElement('span')
     span.className = 'cm-pill'
-    span.textContent = `{{${this.variableName}}}`
+    span.textContent = `${this.variableName}`
 
     const tooltipComponent = defineComponent({
       props: ['variableName'],
@@ -66,7 +66,7 @@ class PillWidget extends WidgetType {
             sideOffset: 6,
           },
           {
-            trigger: () => h('span', `{{${this.variableName}}}`),
+            trigger: () => h('span', `${this.variableName}`),
             content: () =>
               h(
                 'div',
@@ -130,6 +130,7 @@ export const pillPlugin = ViewPlugin.fromClass(
           const start = from + match.index
           const end = start + match[0].length
           const variableName = match[1]
+          console.log(variableName)
           builder.add(
             start,
             end,
