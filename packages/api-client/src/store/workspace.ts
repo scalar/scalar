@@ -70,11 +70,12 @@ const addRequest = (
   payload: RequestPayload,
   /** parentUid can be either a folderUid or collectionUid */
   parentUid?: string,
+  server?: Server,
 ) => {
   const request = createRequest(payload)
 
   // Add initial example
-  const example = createExampleFromRequest(request)
+  const example = createExampleFromRequest(request, server)
   request.childUids.push(example.uid)
 
   // Add request
@@ -213,7 +214,10 @@ const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
  *
  * TODO body
  */
-const createExampleFromRequest = (request: Request): RequestExample => {
+const createExampleFromRequest = (
+  request: Request,
+  server?: Server,
+): RequestExample => {
   const parameters = {
     path: Object.values(request.parameters.path).map(createParamInstance),
     query: Object.values(request.parameters.query).map(createParamInstance),
@@ -221,7 +225,6 @@ const createExampleFromRequest = (request: Request): RequestExample => {
     cookies: Object.values(request.parameters.cookies).map(createParamInstance),
   }
 
-  // TODO body
   const body: {
     activeBody: 'raw'
     raw: {
@@ -261,6 +264,7 @@ const createExampleFromRequest = (request: Request): RequestExample => {
   )
 
   const example = createRequestExample({
+    url: server?.url ? `{{${server?.url}}}${request.path}` : request.path,
     requestUid: request.uid,
     parameters,
     name,
@@ -344,6 +348,37 @@ const deleteEnvironment = (uid: string) => {
   environmentMutators.delete(uid)
 }
 
+const activeParsedEnvironments = computed(() => {
+  const flattenedServers = activeWorkspaceServers.value.map((server) => ({
+    key: server.url,
+    value: server.url,
+  }))
+
+  const flattenedEnvs = Object.values(environments)
+    .map((env) => {
+      try {
+        return {
+          _scalarEnvId: env.uid,
+          ...JSON.parse(env.raw),
+        }
+      } catch {
+        return null
+      }
+    })
+    .filter((env) => env)
+    .flatMap((obj) =>
+      Object.entries(obj).flatMap(([key, value]) => {
+        // Exclude the _scalarEnvId from the key-value pairs
+        if (key !== '_scalarEnvId') {
+          return [{ _scalarEnvId: obj._scalarEnvId, key, value }]
+        }
+        return []
+      }),
+    )
+
+  return [...flattenedServers, ...flattenedEnvs]
+})
+
 // ---------------------------------------------------------------------------
 // COOKIES
 
@@ -414,6 +449,13 @@ const activeWorkspaceCollections = computed(() =>
       else if (b.spec?.info?.title === 'Drafts') return -1
       else return 0
     }),
+)
+
+/** Simplified list of servers in the workspace for displaying */
+const activeWorkspaceServers = computed(() =>
+  activeWorkspaceCollections.value?.flatMap((collection) =>
+    collection.spec.serverUids.map((uid) => servers[uid]),
+  ),
 )
 
 /** Helper to flatMap folders into requests */
@@ -653,7 +695,9 @@ async function importSpecFile(
     workspaceMutators.add(createWorkspace({ uid: workspaceUid }))
 
   // Add all the new requests into the request collection, the already have parent folders
-  workspaceEntities.requests.forEach((request) => addRequest(request))
+  workspaceEntities.requests.forEach((request) =>
+    addRequest(request, undefined, workspaceEntities.servers[0]),
+  )
 
   // Create a new collection for the spec file
   addCollection(workspaceEntities.collection, workspaceUid)
@@ -718,6 +762,8 @@ export const useWorkspace = () =>
     activeServer,
     activeWorkspace,
     activeWorkspaceCollections,
+    activeWorkspaceServers,
+    activeParsedEnvironments,
     activeWorkspaceRequests,
     modalState,
     isReadOnly,

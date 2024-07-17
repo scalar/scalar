@@ -26,9 +26,10 @@ import { WorkspaceDropdown } from './components'
 const {
   activeExample,
   activeRequest,
-  activeServer,
   activeSecurityScheme,
+  activeWorkspaceServers,
   activeWorkspace,
+  environments,
   activeWorkspaceCollections,
   modalState,
 } = useWorkspace()
@@ -49,23 +50,30 @@ const executeRequest = async () => {
     return
   }
 
-  let url = activeServer.value?.url
-    ? activeServer.value?.url + activeRequest.value.path
-    : activeRequest.value.path
+  let url = activeExample.value.url
 
-  // Replace vraible
-  // TODO: use `replaceVariables` from `@scalar/oas-utils/helpers`
-  // Note: Currently, it’s in @scalar/api-client, but that’s about to change.
-  // TODO: This is not really the best place. I to replace variables. It should probably happen in sendRequest? Let me think about that.
-  if (activeServer.value?.variables) {
-    const singleCurlyBrackets = /{\s*([\w.-]+)\s*}/g
-    url = url.replace(singleCurlyBrackets, (match, key) => {
-      const variable = activeServer.value?.variables?.[key]
-      return (
-        variable?.value || variable?.default || variable?.enum?.[0] || match
-      )
+  const variables: Record<string, any> = Object.values(environments).reduce(
+    (prev, env) => {
+      try {
+        return { ...prev, ...JSON.parse(env.raw) }
+      } catch {
+        return prev
+      }
+    },
+    {},
+  )
+
+  const doubleCurlyBrackets = /\{\{(.*?)\}\}/g
+  url = url.replace(doubleCurlyBrackets, (_match, key) => {
+    // check if a server
+    activeWorkspaceServers.value.forEach((server) => {
+      if (server.url === key) {
+        return key
+      }
     })
-  }
+
+    return variables[key] || key
+  })
 
   const { request, response } = await sendRequest(
     activeRequest.value,

@@ -16,11 +16,17 @@ class DropdownWidget extends WidgetType {
   private queryTerm: string
   private onSelect: (item: string) => void
   private dropdown: any = null
+  private withServers?: boolean
 
-  constructor(queryTerm: string, onSelect: (item: string) => void) {
+  constructor(
+    queryTerm: string,
+    onSelect: (item: string) => void,
+    withServers?: boolean,
+  ) {
     super()
     this.queryTerm = queryTerm
     this.onSelect = onSelect
+    this.withServers = withServers
   }
 
   updateQueryTerm(newQueryTerm: string) {
@@ -51,6 +57,7 @@ class DropdownWidget extends WidgetType {
                 h(EnvironmentVariableDropdownVue, {
                   query: this.queryTerm,
                   onSelect: this.onSelect,
+                  withServers: this.withServers,
                   style: {
                     position: 'absolute',
                     left: `${coords.left - scalarClientRect.left}px`,
@@ -80,7 +87,7 @@ class DropdownWidget extends WidgetType {
   }
 }
 
-export const dropdownPlugin = () =>
+export const dropdownPlugin = (props: { withServers?: boolean }) =>
   ViewPlugin.fromClass(
     class {
       decorations: DecorationSet
@@ -116,6 +123,7 @@ export const dropdownPlugin = () =>
         this.widget = new DropdownWidget(
           newQueryTerm,
           this.handleDropdownSelect,
+          props.withServers,
         )
         this.decorations = Decoration.set([
           Decoration.widget({

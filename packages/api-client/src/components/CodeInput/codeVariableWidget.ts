@@ -1,3 +1,4 @@
+/* eslint-disable vue/one-component-per-file */
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import {
@@ -9,33 +10,9 @@ import {
   type ViewUpdate,
   WidgetType,
 } from '@scalar/use-codemirror'
-import { computed, createApp, defineComponent, h } from 'vue'
+import { createApp, defineComponent, h } from 'vue'
 
-const { environments, isReadOnly } = useWorkspace()
-
-const parsedEnvironments = computed(() => {
-  return Object.values(environments)
-    .map((env) => {
-      try {
-        return {
-          _scalarEnvId: env.uid,
-          ...JSON.parse(env.raw),
-        }
-      } catch {
-        return null
-      }
-    })
-    .filter((env) => env)
-    .flatMap((obj) =>
-      Object.entries(obj).flatMap(([key, value]) => {
-        // Exclude the _scalarEnvId from the key-value pairs
-        if (key !== '_scalarEnvId') {
-          return [{ _scalarEnvId: obj._scalarEnvId, key, value }]
-        }
-        return []
-      }),
-    )
-})
+const { activeParsedEnvironments, isReadOnly } = useWorkspace()
 
 class PillWidget extends WidgetType {
   private app: any
@@ -47,12 +24,12 @@ class PillWidget extends WidgetType {
   toDOM() {
     const span = document.createElement('span')
     span.className = 'cm-pill'
-    span.textContent = `{{${this.variableName}}}`
+    span.textContent = `${this.variableName}`
 
     const tooltipComponent = defineComponent({
       props: ['variableName'],
       render() {
-        const val = parsedEnvironments.value.find(
+        const val = activeParsedEnvironments.value.find(
           (thing) => thing.key === this.variableName,
         )
         const tooltipContent = val
@@ -89,7 +66,7 @@ class PillWidget extends WidgetType {
             sideOffset: 6,
           },
           {
-            trigger: () => h('span', `{{${this.variableName}}}`),
+            trigger: () => h('span', `${this.variableName}`),
             content: () =>
               h(
                 'div',
@@ -153,6 +130,7 @@ export const pillPlugin = ViewPlugin.fromClass(
           const start = from + match.index
           const end = start + match[0].length
           const variableName = match[1]
+          console.log(variableName)
           builder.add(
             start,
             end,

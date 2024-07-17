@@ -35,6 +35,7 @@ export const createRequestExampleParameter = (
 
 const requestExampleSchema = z.object({
   uid: nanoidSchema,
+  url: z.string().optional().default(''),
   requestUid: z.string().min(7),
   name: z.string().optional().default('Name'),
   body: z
