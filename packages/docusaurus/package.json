@@ -35,14 +35,15 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/api-reference-react": "workspace:*",
-    "react": "^18.3.1"
+    "@scalar/api-reference-react": "workspace:*"
   },
   "devDependencies": {
     "@docusaurus/types": "^3.4.0",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
-    "path": "^0.12.7",
-    "react": "^18.3.1"
+    "path": "^0.12.7"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
   }
 }
