@@ -149,7 +149,7 @@ export const activeRouterParams = computed(() => {
     [PathId.Example]: 'default',
     [PathId.Schema]: 'default',
     [PathId.Cookies]: 'default',
-    [PathId.Server]: 'default',
+    [PathId.Servers]: 'default',
     [PathId.Workspace]: 'default',
   }
 
