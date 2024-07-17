@@ -11,7 +11,6 @@ import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
 
 import { dropdownPlugin } from './codeDropdownWidget'
 import { pillPlugin, backspaceCommand } from './codeVariableWidget'
-import { serverPlugin } from './codeServerWidget'
 import { useWorkspace } from '@/store/workspace'
 
 const props = withDefaults(
@@ -33,7 +32,6 @@ const props = withDefaults(
     enum?: string[]
     type?: string
     nullable?: boolean
-    server?: boolean
     withVariables?: boolean
   }>(),
   {
@@ -43,7 +41,6 @@ const props = withDefaults(
     emitOnBlur: true,
     colorPicker: false,
     nullable: false,
-    server: false,
     withVariables: true,
   },
 )
@@ -89,7 +86,6 @@ function handleBlur(value: string) {
 
 const extensions: Extension[] = []
 if (props.colorPicker) extensions.push(colorPickerExtension)
-if (props.server) extensions.push(serverPlugin)
 if (props.withVariables && !activeWorkspace.value.isReadOnly) {
   extensions.push(dropdownPlugin())
   extensions.push(pillPlugin, backspaceCommand)
