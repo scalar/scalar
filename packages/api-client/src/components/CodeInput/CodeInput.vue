@@ -182,12 +182,14 @@ export default {
 :deep(.cm-editor) {
   height: 100%;
   outline: none;
-  padding: 3px 0;
+  padding: 0;
   background: transparent;
 }
 :deep(.cm-content) {
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-mini);
+  display: flex;
+  align-items: center;
 }
 /* Tooltip helper */
 :deep(.cm-tooltip) {
@@ -258,13 +260,17 @@ export default {
 </style>
 <style>
 .cm-pill {
-  background-color: var(--scalar-background-accent);
-  color: var(--scalar-color-accent);
-  padding: 1px 5px;
-  margin: 1px 0;
+  background-color: var(--scalar-background-1);
+  color: var(--scalar-color-1);
+  box-shadow: 0 0 0 0.5px var(--scalar-border-color);
+  padding: 1.5px 6px;
+  margin: 0 6px;
   border-radius: 3px;
   display: inline-block;
   border-radius: 30px;
   font-size: var(--scalar-mini);
+}
+.cm-pill:first-of-type {
+  margin-left: 0;
 }
 </style>
