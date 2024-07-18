@@ -304,7 +304,7 @@ const deleteRequestExample = (requestExample: RequestExample) => {
 /** Currently active example OR the first one */
 const activeExample = computed(
   () =>
-    requestExamples[activeRouterParams.value[PathId.Example]] ??
+    requestExamples[activeRouterParams.value[PathId.Examples]] ??
     requestExamples[activeRequest.value?.childUids[0] ?? ''],
 )
 

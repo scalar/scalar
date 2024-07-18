@@ -13,18 +13,23 @@ const emits = defineEmits<{
   (event: 'close'): void
 }>()
 
-const { activeWorkspaceRequests } = useWorkspace()
+const { activeRequest, activeWorkspaceRequests } = useWorkspace()
 const exampleName = ref('')
-const selectedRequest = ref(activeWorkspaceRequests.value[0])
+const selectedRequest = ref(activeRequest.value)
 
 function handleSelect(request: any) {
+  console.log('handleSelectasinsd')
+  console.log(request)
   selectedRequest.value = request
 }
 
+// Autofocus input
 const exampleInput = ref<HTMLInputElement | null>(null)
-onMounted(() => {
-  exampleInput.value?.focus()
-})
+onMounted(() => exampleInput.value?.focus())
+
+const handleSubmit = () => {
+  console.log('submitting')
+}
 </script>
 <template>
   <form
@@ -77,7 +82,8 @@ onMounted(() => {
       </div>
       <ScalarButton
         class="max-h-8 text-xs p-0 px-3"
-        type="submit">
+        type="submit"
+        @click="handleSubmit">
         Create Example
       </ScalarButton>
     </div>

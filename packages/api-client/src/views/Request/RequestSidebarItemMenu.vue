@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { useWorkspace } from '@/store/workspace'
+import { CommandPalette } from '@/components/CommandPalette'
 import {
   ScalarButton,
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
   ScalarIcon,
+  useModal,
 } from '@scalar/components'
 import type {
   Request,
@@ -16,20 +17,11 @@ import { computed } from 'vue'
 const props = defineProps<{
   item: Request | RequestExample
 }>()
-const { createExampleFromRequest, requestMutators } = useWorkspace()
 
-const addExample = () => {
-  if (!('summary' in props.item)) return
+const commandPaletteState = useModal()
 
-  const example = createExampleFromRequest(props.item)
-
-  requestMutators.edit(props.item.uid, 'childUids', [
-    ...props.item.childUids,
-    example.uid,
-  ])
-
-  // TOOD route to example?
-}
+/** Add example */
+const handleAddExample = () => commandPaletteState.show()
 
 const handleItemRename = () => {
   console.log('rename')
@@ -47,6 +39,9 @@ const isRequest = computed(() => 'summary' in props.item)
 </script>
 
 <template>
+  <CommandPalette
+    defaultCommand="Add Example"
+    :state="commandPaletteState" />
   <ScalarDropdown teleport="#scalar-client">
     <ScalarButton
       class="z-10 hover:bg-b-3 transition-none p-1 group-hover:flex ui-open:flex absolute left-0 hidden -translate-x-full -ml-1"
@@ -61,7 +56,7 @@ const isRequest = computed(() => 'summary' in props.item)
       <ScalarDropdownItem
         v-if="isRequest"
         class="flex !gap-2"
-        @click="addExample">
+        @click="handleAddExample">
         <ScalarIcon
           class="inline-flex"
           icon="Add"

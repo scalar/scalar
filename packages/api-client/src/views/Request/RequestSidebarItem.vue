@@ -121,6 +121,12 @@ const showChildren = computed(
     (activeRequest.value?.uid === props.item.uid &&
       (props.item as Request).childUids.length > 1),
 )
+
+/** Generate the request OR example link */
+const generateLink = () =>
+  'requestUid' in props.item
+    ? `/workspace/${activeWorkspace.value.uid}/request/${props.item.requestUid}/examples/${props.item.uid}`
+    : `/workspace/${activeWorkspace.value.uid}/request/${props.item.uid}`
 </script>
 <template>
   <div
@@ -144,7 +150,7 @@ const showChildren = computed(
       <RouterLink
         v-if="'summary' in item || 'requestUid' in item"
         custom
-        :to="`/workspace/${activeWorkspace.uid}/request/${item.uid}`">
+        :to="generateLink()">
         <div
           class="group relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2 rounded editable-sidebar-hover"
           :class="[
