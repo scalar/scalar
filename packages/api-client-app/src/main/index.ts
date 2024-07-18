@@ -1,8 +1,11 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
+import todesktop from '@todesktop/runtime'
 import { BrowserWindow, app, ipcMain, shell } from 'electron'
 import { join } from 'path'
 
 import icon from '../../build/icon.png?asset'
+
+todesktop.init()
 
 function createWindow(): void {
   // Create the browser window.

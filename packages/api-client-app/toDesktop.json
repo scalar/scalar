@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "240718bnjmcfyp4",
+  "appPath": "./out/renderer/index.html",
+  "appFiles": ["./out/renderer/**/*", "./out/main/**/*"],
+  "icon": "./build/icon.png",
+  "nodeVersion": "20",
+  "packageManager": "pnpm"
+}
