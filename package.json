@@ -44,7 +44,6 @@
     "build:packages": "turbo --filter './packages/**' build",
     "build:api-reference": "turbo --filter './packages/api-reference' build",
     "build:standalone": "pnpm --filter api-reference --filter play-button build:standalone",
-    "bump": "pnpm test:ci && pnpm changeset version",
     "clean": "pnpm clean:nodeModules; pnpm clean:dist; pnpm clean:turbo; pnpm clean:nuxt",
     "clean:build": "pnpm clean ; pnpm i && pnpm build:packages",
     "clean:nodeModules": "find . -name node_modules -type d -exec rm -rf {} \\;",
