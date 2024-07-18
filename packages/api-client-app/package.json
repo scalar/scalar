@@ -21,7 +21,7 @@
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts,.vue --fix",
     "start": "electron-vite preview",
-    "todesktop:build": "npm run build && todesktop build --code-sign=false",
+    "todesktop:build": "npm run build && todesktop build",
     "todesktop:release": "todesktop release",
     "todesktop:test": "todesktop smoke-test",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
