@@ -78,17 +78,17 @@ const availableCommands = [
       {
         name: 'Add Server',
         icon: 'Brackets',
-        route: '/servers',
+        path: '/servers',
       },
       {
         name: 'Add Environment',
         icon: 'Server',
-        route: '/environment',
+        path: '/environment',
       },
       {
         name: 'Add Cookie',
         icon: 'Cookie',
-        route: '/cookies',
+        path: '/cookies',
       },
     ],
   },
@@ -169,13 +169,13 @@ whenever(keys.ArrowUp, () => {
   })
 })
 
-/** Handle execution of the command, some have routes while others trigger a palette */
+/** Handle execution of the command, some have routes while others show another palette */
 const executeCommand = (
   command: (typeof availableCommands)[number]['commands'][number],
 ) => {
   // Route to the page
-  if ('route' in command) {
-    push(`/workspace/${activeWorkspace.value.uid}${command.route}`)
+  if ('path' in command) {
+    push(`/workspace/${activeWorkspace.value.uid}${command.path}`)
     closeHandler()
   }
   // Open respective command palette
