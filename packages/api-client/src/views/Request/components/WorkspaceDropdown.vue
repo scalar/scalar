@@ -18,7 +18,8 @@ const updateSelected = (uid: string) => {
   push(`/workspace/${uid}`)
 }
 
-const createNewWorkspace = () => commandPaletteBus.emit('Create Workspace')
+const createNewWorkspace = () =>
+  commandPaletteBus.emit({ commandName: 'Create Workspace' })
 </script>
 
 <template>

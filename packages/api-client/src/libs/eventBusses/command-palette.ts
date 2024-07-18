@@ -1,7 +1,8 @@
 import type { CommandNames } from '@/components/CommandPalette/TheCommandPalette.vue'
 import { type EventBusKey, useEventBus } from '@vueuse/core'
 
-const commandPaletteKey: EventBusKey<CommandNames | undefined> = Symbol()
+export type CommandPaletteEvent = { commandName?: CommandNames }
+const commandPaletteKey: EventBusKey<CommandPaletteEvent> = Symbol()
 
 /**
  * Event bus for controlling the Command Palette

@@ -36,7 +36,10 @@ import { useMagicKeys, whenever } from '@vueuse/core'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
+import {
+  commandPaletteBus,
+  type CommandPaletteEvent,
+} from '@/libs/eventBusses/command-palette'
 
 /** Available Commands for the Command Palette */
 const availableCommands = [
@@ -180,7 +183,7 @@ const executeCommand = (
 }
 
 /** Handles opening the command pallete to the correct palette */
-const openCommandPalette = (commandName?: CommandNames) => {
+const openCommandPalette = ({ commandName }: CommandPaletteEvent = {}) => {
   activeCommand.value = commandName ?? null
   modalState.show()
 }
