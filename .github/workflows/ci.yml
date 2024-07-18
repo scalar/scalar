@@ -269,7 +269,8 @@ jobs:
           # 1) Go to https://dash.cloudflare.com/profile/api-tokens
           # 2) Create a token with the following permissions:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      - name: Cloudflare preview URL
+      - if: steps.deploy-client.outputs.deployment-url
+        name: Cloudflare preview URL
         env:
           CLIENT_PREVIEW_URL: ${{ steps.deploy-client.outputs.deployment-url }}
         run: echo $CLIENT_PREVIEW_URL
