@@ -84,8 +84,8 @@ const fontsStyleTag = computed(
 <style>
 @import '@scalar/components/style.css';
 @import '@scalar/themes/style.css';
-@import '../assets/tailwind.css';
-@import '../assets/variables.css';
+@import '@/assets/tailwind.css';
+@import '@/assets/variables.css';
 
 #scalar-client {
   display: flex;
