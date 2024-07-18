@@ -9,7 +9,7 @@ import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { createRequestExampleParameter } from '@scalar/oas-utils/entities/workspace/spec'
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, unref, watch } from 'vue'
 
 import RequestTable from './RequestTable.vue'
 
@@ -181,14 +181,24 @@ const updateRequestBody = (content: string) => {
 // }
 
 const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
+  let contentTypeHeader = ''
   let bodyType: 'raw' | 'formData' | 'binary' = 'raw'
 
   if (type === 'multipartForm' || type === 'formUrlEncoded') {
     bodyType = 'formData'
+    contentTypeHeader = 'multipart/form-data'
   } else if (type === 'binaryFile') {
     bodyType = 'binary'
-  } else {
+    contentTypeHeader = 'application/octet-stream'
+  } else if (type !== 'none') {
     bodyType = 'raw'
+    const mappedType = type === 'other' ? 'html' : type
+    contentTypeHeader = `application/${mappedType}`
+    requestExampleMutators.edit(
+      activeExample.value.uid,
+      'body.raw.encoding',
+      mappedType,
+    )
   }
 
   requestExampleMutators.edit(
@@ -196,6 +206,27 @@ const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
     'body.activeBody',
     bodyType,
   )
+
+  if (contentTypeHeader) {
+    // now lets handle the header
+    const headersWithoutContentType = unref(
+      activeExample.value,
+    ).parameters.headers.filter(
+      (header) => header.key.toLowerCase() !== 'Content-Type'.toLowerCase(),
+    )
+    console.log('headersWithoutContentType', headersWithoutContentType)
+    headersWithoutContentType.push({
+      key: 'Content-Type',
+      value: contentTypeHeader,
+      enabled: true,
+    })
+
+    requestExampleMutators.edit(
+      activeExample.value.uid,
+      'parameters.headers',
+      headersWithoutContentType,
+    )
+  }
 }
 
 const handleFileUploadFormData = async (rowIdx: number) => {
@@ -276,16 +307,16 @@ const selectedContentType = computed({
 
 const activeExampleContentType = computed(() => {
   if (!activeExample.value) return 'none'
-  if (
-    activeExample.value.body.formData &&
-    activeExample.value.body.formData.value.length > 0
-  )
-    return 'multipartForm'
-  if (
-    activeExample.value.body.raw &&
-    activeExample.value.body.raw.value.trim() !== ''
-  )
+  if (activeExample.value.body.activeBody === 'formData') {
+    if (
+      activeExample.value.body.formData &&
+      activeExample.value.body.formData.value.length > 0
+    ) {
+      return 'multipartForm'
+    }
+  } else if (activeExample.value.body.activeBody === 'raw') {
     return activeExample.value.body.raw.encoding
+  }
   /** keep the content if populated */
   return contentType.value
 })
