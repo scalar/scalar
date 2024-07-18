@@ -24,7 +24,8 @@ const activeNavItemIdxValue = computed(() => activeNavItemIdx.value)
         <div class="flex items-center gap-1 w-full justify-center">
           <ScalarIcon
             :icon="topNavItems[0].icon"
-            size="xs" />
+            size="xs"
+            thickness="2.5" />
           <div>{{ topNavItems[0].label }}</div>
         </div>
       </template>
@@ -46,7 +47,8 @@ const activeNavItemIdxValue = computed(() => activeNavItemIdx.value)
         @click="addNavItem">
         <ScalarIcon
           icon="Add"
-          size="xs" />
+          size="xs"
+          thickness="2.5" />
       </button>
     </div>
   </nav>

@@ -138,8 +138,10 @@ const handleAuthorize = async () => {
     <DataTableRow class="min-w-full">
       <div class="h-8 flex items-center justify-self-end">
         <ScalarButton
+          class="p-0 py-0.5 px-2 mr-1"
           :loading="loadingState"
           size="sm"
+          variant="outlined"
           @click="handleAuthorize">
           Authorize
         </ScalarButton>

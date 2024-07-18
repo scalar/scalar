@@ -189,7 +189,8 @@ const showChildren = computed(
               <ScalarIcon
                 class="text-c-3 text-sm"
                 icon="ChevronRight"
-                size="sm" />
+                size="sm"
+                thickness="2.5" />
             </div>
           </slot>
           &hairsp;

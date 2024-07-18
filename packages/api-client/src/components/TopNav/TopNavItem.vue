@@ -30,7 +30,8 @@ defineEmits<{
           class="nav-item-icon-copy flex flex-1 items-center justify-center gap-1.5">
           <ScalarIcon
             :icon="icon"
-            size="xs" />
+            size="xs"
+            thickness="2.5" />
           <span class="nav-item-copy text-xs">{{ label }}</span>
         </div>
         <button

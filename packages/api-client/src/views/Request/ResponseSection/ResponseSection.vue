@@ -76,7 +76,8 @@ const activeSection = ref<ActiveSections>('All')
       <ScalarIcon
         class="text-c-3 mr-2 rotate-180"
         icon="ExternalLink"
-        size="sm" />
+        size="sm"
+        thickness="2.5" />
       <div class="flex items-center flex-1">
         Response
         <ResponseMetaInformation

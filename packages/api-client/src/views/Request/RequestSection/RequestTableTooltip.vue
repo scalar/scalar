@@ -15,7 +15,8 @@ defineProps<{ item: RequestExampleParameter }>()
       <ScalarIcon
         class="ml-1 text-c-3 group-hover/info:text-c-1"
         icon="Info"
-        size="sm" />
+        size="sm"
+        thickness="1.5" />
     </template>
     <template #content>
       <div

@@ -64,7 +64,8 @@ watch(activeRequest, (newRequest) => {
       <ScalarIcon
         class="text-c-3 mr-2"
         icon="ExternalLink"
-        size="sm" />
+        size="sm"
+        thickness="2.5" />
       <div class="flex-1">
         Request
         <span class="text-c-3 pl-1">{{ activeRequest?.summary }}</span>

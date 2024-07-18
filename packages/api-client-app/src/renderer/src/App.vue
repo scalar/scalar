@@ -12,4 +12,11 @@ import FileDrop from './components/FileDrop.vue'
 .t-app__top-nav {
   padding-left: 75px !important;
 }
+.scalar-sidenav {
+  min-width: 75px !important;
+  padding: 6px 16px !important;
+}
+.scalar-sidenav .workspace-avatar {
+  height: 43px !important;
+}
 </style>
