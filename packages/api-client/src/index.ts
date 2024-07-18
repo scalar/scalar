@@ -1,4 +1,4 @@
-export * from './Modal'
-export * from './App'
+export * from './layouts/Modal'
+export * from './layouts/App'
 
 export { useWorkspace } from './store/workspace'
