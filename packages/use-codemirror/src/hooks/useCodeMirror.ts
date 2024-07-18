@@ -4,7 +4,7 @@ import {
   closeBracketsKeymap,
   completionKeymap,
 } from '@codemirror/autocomplete'
-import { indentWithTab } from '@codemirror/commands'
+import { indentWithTab, insertNewline } from '@codemirror/commands'
 import { css } from '@codemirror/lang-css'
 import { html } from '@codemirror/lang-html'
 import { json } from '@codemirror/lang-json'
@@ -419,6 +419,15 @@ function getCodeMirrorExtensions({
           run: () => {
             return true
           },
+        },
+      ]),
+    )
+  } else {
+    extensions.push(
+      keymap.of([
+        {
+          key: 'Enter',
+          run: insertNewline,
         },
       ]),
     )
