@@ -93,6 +93,10 @@
       "import": "./dist/components/DarkModeToggle/index.js",
       "types": "./dist/components/DarkModeToggle/index.d.ts"
     },
+    "./components/CommandPalette": {
+      "import": "./dist/components/CommandPalette/index.js",
+      "types": "./dist/components/CommandPalette/index.d.ts"
+    },
     "./components/AddressBar": {
       "import": "./dist/components/AddressBar/index.js",
       "types": "./dist/components/AddressBar/index.d.ts"

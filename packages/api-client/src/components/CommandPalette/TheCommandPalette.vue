@@ -1,8 +1,5 @@
-<script setup lang="ts">
-import { type Icon, type ModalState, ScalarIcon } from '@scalar/components'
-import { useMagicKeys, whenever } from '@vueuse/core'
-import { type Component, computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+<script lang="ts">
+import { useWorkspace } from '@/store/workspace'
 
 import CommandPaletteCollection from './CommandPaletteCollection.vue'
 import CommandPaletteExample from './CommandPaletteExample.vue'
@@ -11,46 +8,38 @@ import CommandPaletteImport from './CommandPaletteImport.vue'
 import CommandPaletteRequest from './CommandPaletteRequest.vue'
 import CommandPaletteWorkspace from './CommandPaletteWorkspace.vue'
 
-const props = defineProps<{
-  state: ModalState
-  defaultCommand?: CommandNames
-}>()
+/**
+ * The Command Palette
+ *
+ * This component is a singleton so should only exist in our app once we will use the event bus to trigger it
+ */
+export default {
+  name: 'TheCommandPalette',
+}
 
-const router = useRouter()
-
-type CommandNames =
-  | 'Import Collection'
-  | 'Create Request'
-  | 'Create Workspace'
-  | 'Add Folder'
-  | 'Create Collection'
-  | 'Add Example'
-  | 'Add Server'
-  | 'Add Environment'
-  | 'Add Cookie'
-  | ''
-
-const PaletteComponents: Record<string, Component> = {
+export const PaletteComponents = {
   'Import Collection': CommandPaletteImport,
   'Create Request': CommandPaletteRequest,
   'Create Workspace': CommandPaletteWorkspace,
   'Add Folder': CommandPaletteFolder,
   'Create Collection': CommandPaletteCollection,
   'Add Example': CommandPaletteExample,
-}
+} as const
 
-type Command = {
-  name: CommandNames
-  icon: Icon
-  overloadAction?: () => void
-}
+/** Infer the types from the commands  */
+export type CommandNames = keyof typeof PaletteComponents
+</script>
 
-type Group = {
-  label: string
-  commands: Command[]
-}
+<script setup lang="ts">
+import { ScalarIcon, useModal } from '@scalar/components'
+import { useMagicKeys, whenever } from '@vueuse/core'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-const availableCommands: Group[] = [
+import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
+
+/** Available Commands for the Command Palette */
+const availableCommands = [
   {
     label: 'Add to Request Sidebar',
     commands: [
@@ -86,26 +75,30 @@ const availableCommands: Group[] = [
       {
         name: 'Add Server',
         icon: 'Brackets',
-        overloadAction: () => router.push('/servers'),
+        route: '/servers',
       },
       {
         name: 'Add Environment',
         icon: 'Server',
-        overloadAction: () => router.push('/environment'),
+        route: '/environment',
       },
       {
         name: 'Add Cookie',
         icon: 'Cookie',
-        overloadAction: () => router.push('/cookies'),
+        route: '/cookies',
       },
     ],
   },
-]
+] as const
+type Command = (typeof availableCommands)[number]['commands'][number]
 
 const keys = useMagicKeys()
+const modalState = useModal()
+const { push } = useRouter()
+const { activeWorkspace } = useWorkspace()
 
 const commandQuery = ref('')
-const activeCommand = ref<CommandNames>(props.defaultCommand ?? '')
+const activeCommand = ref<keyof typeof PaletteComponents | null>(null)
 const selectedSearchResult = ref<number>(0)
 const commandRefs = ref<HTMLElement[]>([])
 
@@ -118,38 +111,29 @@ const searchResultsWithPlaceholderResults = computed(() =>
   }, [] as Command[]),
 )
 
-whenever(keys.escape, () => {
-  if (props.state.open) props.state.hide()
-})
-
-function closeHandler() {
-  props.state.hide()
+/** Reset state on close */
+const closeHandler = () => {
+  modalState.hide()
   commandQuery.value = ''
-  activeCommand.value = ''
+  activeCommand.value = null
 }
 
-whenever(keys.enter, () => {
-  if (!props.state.open) {
-    return
-  }
+/** Close on escape */
+whenever(keys.escape, () => {
+  if (modalState.open) modalState.hide()
+})
 
-  if (!window) {
-    return
-  }
+whenever(keys.enter, () => {
+  if (!modalState.open) return
 
   const command =
     searchResultsWithPlaceholderResults.value[selectedSearchResult.value]
-  command?.overloadAction?.() ?? (activeCommand.value = command.name)
+
+  executeCommand(command)
 })
 
 whenever(keys.ArrowDown, () => {
-  if (!props.state.open) {
-    return
-  }
-
-  if (!window) {
-    return
-  }
+  if (!modalState.open) return
 
   if (
     selectedSearchResult.value <
@@ -167,13 +151,7 @@ whenever(keys.ArrowDown, () => {
 })
 
 whenever(keys.ArrowUp, () => {
-  if (!props.state.open) {
-    return
-  }
-
-  if (!window) {
-    return
-  }
+  if (!modalState.open) return
 
   if (selectedSearchResult.value > 0) {
     selectedSearchResult.value--
@@ -187,15 +165,39 @@ whenever(keys.ArrowUp, () => {
     block: 'center',
   })
 })
+
+/** Handle execution of the command, some have routes while others trigger a palette */
+const executeCommand = (
+  command: (typeof availableCommands)[number]['commands'][number],
+) => {
+  // Route to the page
+  if ('route' in command) {
+    push(`/workspace/${activeWorkspace.value.uid}${command.route}`)
+    closeHandler()
+  }
+  // Open respective command palette
+  else activeCommand.value = command.name
+}
+
+/** Handles opening the command pallete to the correct palette */
+const openCommandPalette = (commandName?: CommandNames) => {
+  activeCommand.value = commandName ?? null
+  modalState.show()
+}
+
+onMounted(() => commandPaletteBus.on(openCommandPalette))
+onBeforeUnmount(() => commandPaletteBus.off(openCommandPalette))
 </script>
 <template>
   <div
-    v-show="state.open"
+    v-show="modalState.open"
     class="commandmenu-clickout"
     @click="closeHandler()"></div>
+
   <div
-    v-show="state.open"
+    v-show="modalState.open"
     class="commandmenu">
+    <!-- Default palette (command list) -->
     <template v-if="!activeCommand">
       <div
         class="bg-b-2 flex items-center rounded mb-2 pl-2 focus-within:bg-b-1 focus-within:shadow-border">
@@ -243,9 +245,7 @@ whenever(keys.ArrowUp, () => {
                   index + availableCommands[gIdx - 1].commands.length
                 : selectedSearchResult === index,
           }"
-          @click="
-            command?.overloadAction?.() ?? (activeCommand = command.name)
-          ">
+          @click="executeCommand(command)">
           <ScalarIcon
             class="text-c-1 mr-2.5"
             :icon="command.icon"
@@ -255,11 +255,13 @@ whenever(keys.ArrowUp, () => {
         </div>
       </template>
     </template>
+
+    <!-- Specific command palette -->
     <template v-else>
       <button
         class="absolute p-1 hover:bg-b-3 rounded text-c-3 active:text-c-1 m-1.5 z-10"
         type="button"
-        @click="activeCommand = ''">
+        @click="activeCommand = null">
         <ScalarIcon
           icon="ChevronLeft"
           size="sm" />

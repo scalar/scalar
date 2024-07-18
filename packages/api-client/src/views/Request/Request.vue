@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Sidebar } from '@/components'
 import AddressBar from '@/components/AddressBar/AddressBar.vue'
-import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
 import SearchButton from '@/components/Search/SearchButton.vue'
 import SearchModal from '@/components/Search/SearchModal.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
@@ -9,6 +8,7 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useSidebar } from '@/hooks'
 import { executeRequestBus, sendRequest } from '@/libs'
+import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
 import { useWorkspace } from '@/store/workspace'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
@@ -35,7 +35,6 @@ const {
 } = useWorkspace()
 const { collapsedSidebarFolders } = useSidebar()
 const searchModalState = useModal()
-const commandPaletteState = useModal()
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
 
 /**
@@ -233,9 +232,8 @@ const onDragEnd = (
   // }
 }
 
-const addItemHandler = () => {
-  commandPaletteState.show()
-}
+/* Opens the Command Palette */
+const addItemHandler = () => commandPaletteBus.emit()
 
 const keys = useMagicKeys()
 
@@ -353,7 +351,6 @@ const getBackgroundColor = () => {
               ?.response
           " />
       </ViewLayoutContent>
-      <CommandPalette :state="commandPaletteState" />
     </ViewLayout>
   </div>
   <SearchModal :modalState="searchModalState" />
