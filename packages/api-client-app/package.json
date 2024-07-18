@@ -32,7 +32,6 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
-    "@scalar/api-client": "workspace:*",
     "@todesktop/runtime": "^1.6.3",
     "electron-updater": "^6.1.7"
   },
