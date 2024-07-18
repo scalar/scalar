@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "240718bnjmcfyp4",
-  "appFiles": ["./out/renderer/**/*", "./out/main/**/*"],
+  "appFiles": ["./out/renderer/**/*", "./out/main/**/*", "./out/preload/**/*"],
   "icon": "./build/icon.png",
   "nodeVersion": "20",
   "packageManager": "pnpm"
