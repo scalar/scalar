@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
+import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
 import { useWorkspace } from '@/store/workspace'
 import {
   ScalarButton,
@@ -7,11 +7,8 @@ import {
   ScalarDropdownDivider,
   ScalarDropdownItem,
   ScalarIcon,
-  useModal,
 } from '@scalar/components'
 import { useRouter } from 'vue-router'
-
-const commandPaletteState = useModal()
 
 const { activeWorkspace, workspaces } = useWorkspace()
 const { push } = useRouter()
@@ -21,15 +18,11 @@ const updateSelected = (uid: string) => {
   push(`/workspace/${uid}`)
 }
 
-const createNewWorkspace = () => {
-  commandPaletteState.show()
-}
+const createNewWorkspace = () =>
+  commandPaletteBus.emit({ commandName: 'Create Workspace' })
 </script>
 
 <template>
-  <CommandPalette
-    defaultCommand="Create Workspace"
-    :state="commandPaletteState" />
   <div class="xl:min-h-header py-2.5 flex items-center border-b px-2.5 text-sm">
     <ScalarDropdown>
       <ScalarButton
