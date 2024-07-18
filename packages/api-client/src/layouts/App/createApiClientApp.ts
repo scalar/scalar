@@ -1,4 +1,4 @@
-import type { ClientConfiguration } from '@/Modal'
+import type { ClientConfiguration } from '@/layouts/Modal'
 import { router } from '@/router'
 import { useWorkspace } from '@/store/workspace'
 import type { SpecConfiguration } from '@scalar/oas-utils'

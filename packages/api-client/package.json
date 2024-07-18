@@ -24,7 +24,7 @@
   },
   "scripts": {
     "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "dev": "vite",
+    "dev": "pnpm playground:app",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "playground:app": "vite ./playground/app -c ./vite.config.ts",
@@ -57,6 +57,14 @@
       "import": "./dist/libs/eventBusses/index.js",
       "types": "./dist/libs/eventBusses/index.d.ts"
     },
+    "./layouts/Modal": {
+      "import": "./dist/layouts/Modal/index.js",
+      "types": "./dist/layouts/Modal/index.d.ts"
+    },
+    "./layouts/App": {
+      "import": "./dist/layouts/App/index.js",
+      "types": "./dist/layouts/App/index.d.ts"
+    },
     "./hooks": {
       "import": "./dist/hooks/index.js",
       "types": "./dist/hooks/index.d.ts"
@@ -88,14 +96,6 @@
     "./components/AddressBar": {
       "import": "./dist/components/AddressBar/index.js",
       "types": "./dist/components/AddressBar/index.d.ts"
-    },
-    "./Modal": {
-      "import": "./dist/Modal/index.js",
-      "types": "./dist/Modal/index.d.ts"
-    },
-    "./App": {
-      "import": "./dist/App/index.js",
-      "types": "./dist/App/index.d.ts"
     },
     "./css/*.css": {
       "import": "./dist/css/*.css",

@@ -1,4 +1,4 @@
-import { createApiClientApp } from '@/App'
+import { createApiClientApp } from '@/layouts/App'
 
 // Initialize
 await createApiClientApp(document.getElementById('scalar-client'), {
