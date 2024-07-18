@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { CommandPalette } from '@/components/CommandPalette'
+import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
 import {
   ScalarButton,
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
   ScalarIcon,
-  useModal,
 } from '@scalar/components'
 import type {
   Request,
@@ -18,10 +17,9 @@ const props = defineProps<{
   item: Request | RequestExample
 }>()
 
-const commandPaletteState = useModal()
-
 /** Add example */
-const handleAddExample = () => commandPaletteState.show()
+const handleAddExample = () =>
+  commandPaletteBus.emit({ commandName: 'Add Example' })
 
 const handleItemRename = () => {
   console.log('rename')
@@ -39,9 +37,6 @@ const isRequest = computed(() => 'summary' in props.item)
 </script>
 
 <template>
-  <CommandPalette
-    defaultCommand="Add Example"
-    :state="commandPaletteState" />
   <ScalarDropdown teleport="#scalar-client">
     <ScalarButton
       class="z-10 hover:bg-b-3 transition-none p-1 group-hover:flex ui-open:flex absolute left-0 hidden -translate-x-full -ml-1"

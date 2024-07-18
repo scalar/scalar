@@ -17,7 +17,7 @@ const { activeRequest, activeWorkspaceRequests } = useWorkspace()
 const exampleName = ref('')
 const selectedRequest = ref(activeRequest.value)
 
-function handleSelect(request: any) {
+const handleSelect = (request: any) => {
   console.log('handleSelectasinsd')
   console.log(request)
   selectedRequest.value = request
@@ -45,8 +45,8 @@ const handleSubmit = () => {
         ref="exampleInput"
         v-model="exampleName"
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
-        label="Variant Name"
-        placeholder="Variant Name" />
+        label="Example Name"
+        placeholder="Example Name" />
     </div>
     <div class="flex gap-2">
       <div class="flex flex-1 max-h-8">
