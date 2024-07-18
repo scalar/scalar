@@ -317,7 +317,8 @@ const getBackgroundColor = () => {
                 <ScalarIcon
                   class="text-sidebar-c-2 text-sm group-hover:hidden"
                   icon="CodeFolder"
-                  size="sm" />
+                  size="sm"
+                  thickness="2" />
                 <div
                   :class="{
                     'rotate-90': collapsedSidebarFolders[collection.uid],

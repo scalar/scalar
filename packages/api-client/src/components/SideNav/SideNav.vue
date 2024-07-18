@@ -11,7 +11,7 @@ const { currentRoute } = useRouter()
 <template>
   <nav
     aria-label="Side Navigation"
-    class="text-c-2 w-15 flex flex-col items-center px-2 py-2"
+    class="text-c-2 w-15 flex flex-col items-center px-2 py-2 scalar-sidenav"
     role="navigation">
     <WorkspaceProfileIcon />
     <ul class="mt-3.5 flex flex-col gap-1.5">
