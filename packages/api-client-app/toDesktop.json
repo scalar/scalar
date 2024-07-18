@@ -4,6 +4,5 @@
   "appFiles": ["./out/renderer/**/*", "./out/main/**/*"],
   "icon": "./build/icon.png",
   "nodeVersion": "20",
-  "packageManager": "pnpm",
-  "electronVersion": "31.2.0"
+  "packageManager": "pnpm"
 }
