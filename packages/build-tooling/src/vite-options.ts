@@ -40,6 +40,7 @@ export function createViteBuildOptions(props: {
     rollupOptions: createRollupConfig({
       pkgFile: props.pkgFile,
       options: props.options?.rollupOptions,
+      emptyOutDir: false,
     }),
   }
 }
