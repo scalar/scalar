@@ -2,8 +2,10 @@
 import SideNav from '@/components/SideNav/SideNav.vue'
 import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
+import { loadAllResources } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import { addScalarClassesToHeadless } from '@scalar/components'
+import { LS_KEYS } from '@scalar/object-utils/mutator-record'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { computed, onBeforeMount, onMounted, watchEffect } from 'vue'
@@ -21,17 +23,40 @@ const workspaceStore = useWorkspace()
 
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(async () => {
-  // Create default workspace
-  workspaceStore.workspaceMutators.add({
-    uid: 'default',
-    // TODO: Make this configurable
-    proxyUrl: 'https://proxy.scalar.com',
-  })
+  // Check if we have localStorage data
+  if (localStorage.getItem(LS_KEYS.WORKSPACE)) {
+    const size: Record<string, string> = {}
+    let _lsTotal = 0
+    let _xLen = 0
+    let _key = ''
+
+    for (_key in localStorage) {
+      if (!Object.prototype.hasOwnProperty.call(localStorage, _key)) {
+        continue
+      }
+      _xLen = (localStorage[_key].length + _key.length) * 2
+      _lsTotal += _xLen
+      size[_key] = (_xLen / 1024).toFixed(2) + ' KB'
+    }
+    size['Total'] = (_lsTotal / 1024).toFixed(2) + ' KB'
+    console.table(size)
+
+    loadAllResources(workspaceStore)
+  } else {
+    // Create default workspace
+    workspaceStore.workspaceMutators.add({
+      uid: 'default',
+      name: 'Workspace',
+      proxyUrl: 'https://proxy.scalar.com',
+    })
+  }
+
   addScalarClassesToHeadless()
 })
-
 const fontsStyleTag = computed(
-  () => `<style>
+  () =>
+    workspaceStore.activeWorkspace.value &&
+    `<style>
   ${getThemeStyles(workspaceStore.activeWorkspace.value.themeId, {
     fonts: true,
   })}</style>`,
@@ -40,11 +65,18 @@ const fontsStyleTag = computed(
 <template>
   <div v-html="fontsStyleTag"></div>
   <TopNav />
+  <!-- Ensure we have the workspace loaded from localStorage above -->
   <!-- min-h-0 is to allow scrolling of individual flex children -->
-  <main class="flex min-h-0 flex-1">
+  <main
+    v-if="workspaceStore.activeWorkspace.value?.uid"
+    class="flex min-h-0 flex-1">
     <SideNav />
     <div class="flex flex-1 flex-col min-w-0">
-      <RouterView />
+      <RouterView v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </RouterView>
     </div>
   </main>
   <ScalarToasts />
