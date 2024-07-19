@@ -1,5 +1,27 @@
 # @scalar/api-reference
 
+## 1.24.50
+
+### Patch Changes
+
+- Updated dependencies [591fe24]
+- Updated dependencies [7f17fe4]
+- Updated dependencies [1dab515]
+- Updated dependencies [4d76ff5]
+- Updated dependencies [e8cd161]
+- Updated dependencies [a431eb0]
+- Updated dependencies [5e060b1]
+- Updated dependencies [ff59399]
+- Updated dependencies [ec47287]
+- Updated dependencies [747e80e]
+- Updated dependencies [9d561b7]
+  - @scalar/api-client@2.0.25
+  - @scalar/oas-utils@0.2.15
+  - @scalar/themes@0.9.15
+  - @scalar/components@0.12.16
+  - @scalar/use-toasts@0.7.4
+  - @scalar/use-tooltip@1.0.2
+
 ## 1.24.49
 
 ### Patch Changes

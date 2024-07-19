@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.16
+
+### Patch Changes
+
+- ff59399: fix: api client spacing issues, and icon thickness
+  - @scalar/code-highlight@0.0.7
+
 ## 0.12.15
 
 ### Patch Changes

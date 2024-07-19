@@ -1,5 +1,13 @@
 # @scalar/oas-utils
 
+## 0.2.15
+
+### Patch Changes
+
+- 1dab515: feat: revamp address bar
+- Updated dependencies [5e060b1]
+  - @scalar/themes@0.9.15
+
 ## 0.2.14
 
 ### Patch Changes
