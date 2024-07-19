@@ -12,7 +12,26 @@ import {
 } from '@scalar/use-codemirror'
 import { createApp, defineComponent, h } from 'vue'
 
-const { activeParsedEnvironments, isReadOnly } = useWorkspace()
+const { activeParsedEnvironments, isReadOnly, environments } = useWorkspace()
+
+const getEnvColor = (
+  item:
+    | {
+        key: string
+        value: string
+      }
+    | {
+        _scalarEnvId: any
+        key: string
+        value: unknown
+      },
+) => {
+  if ('_scalarEnvId' in item) {
+    return `bg-${environments[item._scalarEnvId as string].color}`
+  }
+  // this is a server but we can eventually is a 🌐 icon
+  return `bg-grey`
+}
 
 class PillWidget extends WidgetType {
   private app: any
@@ -32,6 +51,9 @@ class PillWidget extends WidgetType {
         const val = activeParsedEnvironments.value.find(
           (thing) => thing.key === this.variableName,
         )
+        if (val) {
+          span.className += ` ${getEnvColor(val)}`
+        }
         const tooltipContent = val
           ? h('div', { class: 'p-2' }, val.value as string)
           : h('div', { class: 'divide-y divide-1/2 grid' }, [

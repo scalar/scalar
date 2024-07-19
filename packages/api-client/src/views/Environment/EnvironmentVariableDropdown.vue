@@ -14,7 +14,7 @@ const emit = defineEmits<{
   (e: 'select', variable: string): void
 }>()
 
-const { activeParsedEnvironments } = useWorkspace()
+const { activeParsedEnvironments, environments } = useWorkspace()
 const router = useRouter()
 
 const fuse = new Fuse(activeParsedEnvironments.value, {
@@ -41,6 +41,25 @@ const filteredVariables = computed(() => {
 const selectVariable = (variableKey: string) => {
   emit('select', variableKey)
 }
+
+const getEnvColor = (
+  item:
+    | {
+        key: string
+        value: string
+      }
+    | {
+        _scalarEnvId: any
+        key: string
+        value: unknown
+      },
+) => {
+  if ('_scalarEnvId' in item) {
+    return `bg-${environments[item._scalarEnvId as string].color}`
+  }
+  // this is a server but we can eventually is a 🌐 icon
+  return `bg-grey`
+}
 </script>
 <template>
   <dialog
@@ -57,8 +76,9 @@ const selectVariable = (variableKey: string) => {
           @click="selectVariable(item.key)">
           <!-- @click.stop="selectVariable(variable)" -->
           <div class="flex items-center gap-1.5 whitespace-nowrap">
-            <!-- :class="`bg-${environments[item._scalarEnvId as string].color}`" -->
-            <span class="h-2.5 w-2.5 min-w-2.5 rounded-full"></span>
+            <span
+              class="h-2.5 w-2.5 min-w-2.5 rounded-full"
+              :class="getEnvColor(item)"></span>
             {{ item.key }}
           </div>
           <span class="w-20 overflow-hidden text-ellipsis text-right">
