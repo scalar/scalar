@@ -24,6 +24,9 @@
     "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false"
   },
   "main": "./out/main/index.js",
+  "optionalDependencies": {
+    "@scalar/api-client": "workspace:*"
+  },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
