@@ -1,9 +1,8 @@
-import { createApiClientApp } from '@/layouts/App'
+import App from '@/layouts/App/ApiClientApp.vue'
+import { router } from '@/router'
+import { createApp } from 'vue'
 
-// Initialize
-await createApiClientApp(document.getElementById('scalar-client'), {
-  spec: {
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-  },
-  proxyUrl: 'https://proxy.scalar.com',
-})
+const app = createApp(App)
+
+app.use(router)
+app.mount('#scalar-client')

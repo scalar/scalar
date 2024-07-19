@@ -8,7 +8,7 @@ import {
 
 export enum PathId {
   Request = 'request',
-  Example = 'example',
+  Examples = 'examples',
   Cookies = 'cookies',
   Collection = 'collection',
   Schema = 'schema',
@@ -33,7 +33,8 @@ const requestRoutes = [
     component: () => import('@/views/Request/Request.vue'),
   },
   {
-    path: `request/:${PathId.Request}/example/:${PathId.Example}`,
+    name: 'requestExamples',
+    path: `request/:${PathId.Request}/examples/:${PathId.Examples}`,
     component: () => import('@/views/Request/Request.vue'),
   },
 ] satisfies RouteRecordRaw[]
@@ -146,7 +147,7 @@ export const activeRouterParams = computed(() => {
     [PathId.Collection]: 'default',
     [PathId.Environment]: 'default',
     [PathId.Request]: 'default',
-    [PathId.Example]: 'default',
+    [PathId.Examples]: 'default',
     [PathId.Schema]: 'default',
     [PathId.Cookies]: 'default',
     [PathId.Servers]: 'default',

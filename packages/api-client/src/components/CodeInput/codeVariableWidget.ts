@@ -130,7 +130,6 @@ export const pillPlugin = ViewPlugin.fromClass(
           const start = from + match.index
           const end = start + match[0].length
           const variableName = match[1]
-          console.log(variableName)
           builder.add(
             start,
             end,

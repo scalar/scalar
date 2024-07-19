@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { useWorkspace } from '@/store/workspace'
+import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
+import { PathId, activeRouterParams } from '@/router'
+import { findRequestFolders, useWorkspace } from '@/store/workspace'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -12,24 +14,22 @@ import type {
   RequestExample,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   item: Request | RequestExample
 }>()
-const { createExampleFromRequest, requestMutators } = useWorkspace()
 
-const addExample = () => {
-  if (!('summary' in props.item)) return
+const { activeWorkspace, requestMutators, requestExampleMutators } =
+  useWorkspace()
+const { replace } = useRouter()
 
-  const example = createExampleFromRequest(props.item)
-
-  requestMutators.edit(props.item.uid, 'childUids', [
-    ...props.item.childUids,
-    example.uid,
-  ])
-
-  // TOOD route to example?
-}
+/** Add example */
+const handleAddExample = () =>
+  commandPaletteBus.emit({
+    commandName: 'Add Example',
+    metaData: props.item.uid,
+  })
 
 const handleItemRename = () => {
   console.log('rename')
@@ -39,8 +39,26 @@ const handleItemDuplicate = () => {
   console.log('duplicate')
 }
 
+/** Delete handles both requests and requestExamples */
 const handleItemDelete = () => {
-  console.log('delete')
+  // Delete example
+  if ('requestUid' in props.item) {
+    requestExampleMutators.delete(props.item)
+    if (activeRouterParams.value[PathId.Examples] === props.item.uid) {
+      replace(`/workspace/${activeWorkspace.value}/request/default`)
+    }
+  }
+  // Delete request
+  else {
+    // We need to find out what the parent is first
+    const uids = findRequestFolders(props.item.uid)
+    if (!uids.length) return
+
+    requestMutators.delete(props.item, uids[0])
+    if (activeRouterParams.value[PathId.Request] === props.item.uid) {
+      replace(`/workspace/${activeWorkspace.value.uid}/request/default`)
+    }
+  }
 }
 
 const isRequest = computed(() => 'summary' in props.item)
@@ -58,24 +76,33 @@ const isRequest = computed(() => 'summary' in props.item)
         size="sm" />
     </ScalarButton>
     <template #items>
+      <!-- Add example -->
       <ScalarDropdownItem
         v-if="isRequest"
         class="flex !gap-2"
-        @click="addExample">
+        @click="handleAddExample">
         <ScalarIcon
           class="inline-flex"
           icon="Add"
           size="sm" />
         <span>Add Example</span>
       </ScalarDropdownItem>
-      <ScalarDropdownItem class="flex !gap-2">
+
+      <!-- Rename -->
+      <ScalarDropdownItem
+        class="flex !gap-2"
+        @click="handleItemRename">
         <ScalarIcon
           class="inline-flex"
           icon="Edit"
           size="sm" />
         <span>Rename</span>
       </ScalarDropdownItem>
-      <ScalarDropdownItem class="flex !gap-2">
+
+      <!-- Duplicate -->
+      <ScalarDropdownItem
+        class="flex !gap-2"
+        @click="handleItemDuplicate">
         <ScalarIcon
           class="inline-flex"
           icon="Duplicate"
@@ -83,7 +110,11 @@ const isRequest = computed(() => 'summary' in props.item)
         <span>Duplicate</span>
       </ScalarDropdownItem>
       <ScalarDropdownDivider />
-      <ScalarDropdownItem class="flex !gap-2">
+
+      <!-- Delete -->
+      <ScalarDropdownItem
+        class="flex !gap-2"
+        @click="handleItemDelete">
         <ScalarIcon
           class="inline-flex"
           icon="Trash"

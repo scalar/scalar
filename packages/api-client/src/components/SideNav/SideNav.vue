@@ -19,7 +19,7 @@ const { currentRoute } = useRouter()
         v-for="({ icon, name }, i) in ROUTES"
         :key="i">
         <SideNavLink
-          :active="currentRoute.name === name"
+          :active="(currentRoute.name as string | undefined)?.startsWith(name)"
           :icon="icon"
           :name="name">
           {{ name }}

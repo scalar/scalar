@@ -7,24 +7,54 @@ import {
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
+import type { Request } from '@scalar/oas-utils/entities/workspace/spec'
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const props = defineProps<{
+  /** The request uid to pre-select */
+  metaData?: string
+}>()
 
 const emits = defineEmits<{
   (event: 'close'): void
 }>()
 
-const { activeWorkspaceRequests } = useWorkspace()
+const { push } = useRouter()
+const {
+  activeRequest,
+  activeWorkspace,
+  activeWorkspaceRequests,
+  requests,
+  requestExampleMutators,
+} = useWorkspace()
+
 const exampleName = ref('')
-const selectedRequest = ref(activeWorkspaceRequests.value[0])
+const selectedRequest = ref(
+  // Ensure we pre-select the correct request
+  requests[props.metaData ?? ''] ?? activeRequest.value,
+)
 
-function handleSelect(request: any) {
-  selectedRequest.value = request
-}
+/** Select request in dropdown */
+const handleSelect = (request: Request) => (selectedRequest.value = request)
 
+/** Autofocus input */
 const exampleInput = ref<HTMLInputElement | null>(null)
-onMounted(() => {
-  exampleInput.value?.focus()
-})
+onMounted(() => exampleInput.value?.focus())
+
+/** Add a new request example */
+const handleSubmit = () => {
+  const example = requestExampleMutators.add(
+    selectedRequest.value,
+    exampleName.value,
+  )
+  if (!example) return
+
+  // Route to new request example
+  push(
+    `/workspace/${activeWorkspace.value.uid}/request/${selectedRequest.value.uid}/examples/${example.uid}`,
+  )
+}
 </script>
 <template>
   <form
@@ -40,8 +70,8 @@ onMounted(() => {
         ref="exampleInput"
         v-model="exampleName"
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
-        label="Variant Name"
-        placeholder="Variant Name" />
+        label="Example Name"
+        placeholder="Example Name" />
     </div>
     <div class="flex gap-2">
       <div class="flex flex-1 max-h-8">
@@ -77,7 +107,8 @@ onMounted(() => {
       </div>
       <ScalarButton
         class="max-h-8 text-xs p-0 px-3"
-        type="submit">
+        type="submit"
+        @click="handleSubmit">
         Create Example
       </ScalarButton>
     </div>

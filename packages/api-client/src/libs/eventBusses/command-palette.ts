@@ -1,7 +1,12 @@
 import type { CommandNames } from '@/components/CommandPalette/TheCommandPalette.vue'
 import { type EventBusKey, useEventBus } from '@vueuse/core'
 
-export type CommandPaletteEvent = { commandName?: CommandNames }
+export type CommandPaletteEvent = {
+  /** The command name which matches with the command palette */
+  commandName?: CommandNames
+  /** Any extra metadata we want to pass to the command palettes */
+  metaData?: string
+}
 const commandPaletteKey: EventBusKey<CommandPaletteEvent> = Symbol()
 
 /**

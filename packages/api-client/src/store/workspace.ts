@@ -151,7 +151,7 @@ const activeRequest = computed(() => {
  * TODO we definitely need a more performant way of doing this, but because folders can have multiple parents
  * theres no easy short circuit we can store. This can work for now but replace this!
  */
-const findRequestFolders = (
+export const findRequestFolders = (
   uid: string,
   foldersToOpen: string[] = [],
 ): string[] => {
@@ -217,6 +217,7 @@ const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
 const createExampleFromRequest = (
   request: Request,
   server?: Server,
+  _name?: string,
 ): RequestExample => {
   const parameters = {
     path: Object.values(request.parameters.path).map(createParamInstance),
@@ -259,9 +260,11 @@ const createExampleFromRequest = (
   }
 
   // Check all current examples for the title and iterate
-  const name = iterateTitle((request.summary ?? 'Example') + ' #1', (t) =>
-    request.childUids.some((uid) => t === requestExamples[uid].name),
-  )
+  const name =
+    _name ??
+    iterateTitle((request.summary ?? 'Example') + ' #1', (t) =>
+      request.childUids.some((uid) => t === requestExamples[uid].name),
+    )
 
   const example = createRequestExample({
     url: server?.url ? `{{${server?.url}}}${request.path}` : request.path,
@@ -272,18 +275,23 @@ const createExampleFromRequest = (
   })
 
   requestExampleMutators.add(example)
-
   return example
 }
 
 /** Ensure we add to the base examples as well as the request it is in */
-const addRequestExample = (request: Request) => {
-  const example = createExampleFromRequest(request)
+const addRequestExample = (request: Request, name?: string) => {
+  const example = createExampleFromRequest(
+    request,
+    activeWorkspaceServers.value[0],
+    name,
+  )
 
   requestMutators.edit(request.uid, 'childUids', [
     ...request.childUids,
     example.uid,
   ])
+
+  return example
 }
 
 /** Ensure we remove from the base as well as from the request it is in */
@@ -304,7 +312,7 @@ const deleteRequestExample = (requestExample: RequestExample) => {
 /** Currently active example OR the first one */
 const activeExample = computed(
   () =>
-    requestExamples[activeRouterParams.value[PathId.Example]] ??
+    requestExamples[activeRouterParams.value[PathId.Examples]] ??
     requestExamples[activeRequest.value?.childUids[0] ?? ''],
 )
 
@@ -496,6 +504,16 @@ const addCollection = (payload: CollectionPayload, workspaceUid: string) => {
 const deleteCollection = (collectionUid: string) => {
   if (!activeWorkspace.value) return
 
+  if (collections[collectionUid]?.spec?.info?.title === 'Drafts') {
+    console.warn('The drafts collection cannot be deleted')
+    return
+  }
+
+  if (Object.values(collections).length === 1) {
+    console.warn('You must have at least one collection')
+    return
+  }
+
   workspaceMutators.edit(
     activeWorkspace.value.uid,
     'collectionUids',
@@ -510,13 +528,14 @@ const deleteCollection = (collectionUid: string) => {
  * TODO we should add collection to the route and grab this from the params
  */
 const activeCollection = computed(() => {
-  if (!activeRequest.value) return null
+  const firstCollection = Object.values(collections)[0]
+  if (!activeRequest.value) return firstCollection
 
   const uids = findRequestFolders(activeRequest.value.uid)
   if (!uids.length) return null
 
   const collectionUid = uids[uids.length - 1]
-  return collections[collectionUid]
+  return collections[collectionUid] ?? firstCollection
 })
 
 /** The currently selected server in the addressBar */
@@ -772,7 +791,6 @@ export const useWorkspace = () =>
     importSpecFile,
     importSpecFromUrl,
     cookieMutators,
-    createExampleFromRequest,
     collectionMutators: {
       ...collectionMutators,
       rawAdd: collectionMutators.add,
