@@ -51,9 +51,7 @@ const { setCollapsedSidebarFolder } = useSidebar()
 // Grab config flag from dom
 const isLocalStorageEnabled = Boolean(
   typeof window !== 'undefined' &&
-    document
-      ?.getElementById('scalar-client')
-      ?.getAttribute('data-enable-local-storage'),
+    document?.getElementById('scalar-client')?.getAttribute('data-persist'),
 )
 
 // ---------------------------------------------------------------------------
