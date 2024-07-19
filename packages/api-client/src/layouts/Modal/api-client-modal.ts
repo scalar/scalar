@@ -15,7 +15,7 @@ import ApiClientModal from './ApiClientModal.vue'
 /** Configuration options for the Scalar API client */
 export type ClientConfiguration = {
   /** The Swagger/OpenAPI spec to render */
-  spec: SpecConfiguration
+  spec?: SpecConfiguration
   /** Pass in a proxy to the API client */
   proxyUrl?: string
   /** Pass in a theme API client */
@@ -88,11 +88,11 @@ export const createApiClientModal = async (
   } else if (config.spec?.content) {
     await importSpecFile(config.spec?.content)
   } else {
-    console.error(
-      `[@scalar/api-client-modal] Could not create the API client.`,
-      `Please provide an OpenAPI document: { spec: { url: '…' } }`,
-      `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client-modal`,
-    )
+    workspaceMutators.add({
+      uid: 'default',
+      name: 'Workspace',
+      proxyUrl: 'https://proxy.scalar.com',
+    })
   }
 
   const app = createApp(ApiClientModal, { modalState })
