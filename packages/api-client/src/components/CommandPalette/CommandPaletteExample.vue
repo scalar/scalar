@@ -11,6 +11,11 @@ import type { Request } from '@scalar/oas-utils/entities/workspace/spec'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+const props = defineProps<{
+  /** The request uid to pre-select */
+  metaData?: string
+}>()
+
 const emits = defineEmits<{
   (event: 'close'): void
 }>()
@@ -20,11 +25,14 @@ const {
   activeRequest,
   activeWorkspace,
   activeWorkspaceRequests,
+  requests,
   requestExampleMutators,
 } = useWorkspace()
 
 const exampleName = ref('')
-const selectedRequest = ref(activeRequest.value)
+const selectedRequest = ref(
+  requests[props.metaData ?? ''] ?? activeRequest.value,
+)
 
 /** Select request in dropdown */
 const handleSelect = (request: Request) => (selectedRequest.value = request)

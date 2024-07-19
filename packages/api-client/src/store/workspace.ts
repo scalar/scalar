@@ -275,7 +275,6 @@ const createExampleFromRequest = (
   })
 
   requestExampleMutators.add(example)
-
   return example
 }
 

@@ -26,7 +26,10 @@ const { replace } = useRouter()
 
 /** Add example */
 const handleAddExample = () =>
-  commandPaletteBus.emit({ commandName: 'Add Example' })
+  commandPaletteBus.emit({
+    commandName: 'Add Example',
+    metaData: props.item.uid,
+  })
 
 const handleItemRename = () => {
   console.log('rename')

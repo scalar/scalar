@@ -100,6 +100,8 @@ const modalState = useModal()
 const { push } = useRouter()
 const { activeWorkspace } = useWorkspace()
 
+/** Additional metadata for the command palettes */
+const metaData = ref<string>()
 const commandQuery = ref('')
 const activeCommand = ref<keyof typeof PaletteComponents | null>(null)
 const selectedSearchResult = ref<number>(0)
@@ -183,8 +185,12 @@ const executeCommand = (
 }
 
 /** Handles opening the command pallete to the correct palette */
-const openCommandPalette = ({ commandName }: CommandPaletteEvent = {}) => {
+const openCommandPalette = ({
+  commandName,
+  metaData: _metaData,
+}: CommandPaletteEvent = {}) => {
   activeCommand.value = commandName ?? null
+  metaData.value = _metaData
   modalState.show()
 }
 
@@ -271,6 +277,7 @@ onBeforeUnmount(() => commandPaletteBus.off(openCommandPalette))
       </button>
       <component
         :is="PaletteComponents[activeCommand]"
+        :metaData="metaData"
         @close="closeHandler" />
     </template>
   </div>
