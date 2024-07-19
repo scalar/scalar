@@ -31,6 +31,7 @@ const {
 
 const exampleName = ref('')
 const selectedRequest = ref(
+  // Ensure we pre-select the correct request
   requests[props.metaData ?? ''] ?? activeRequest.value,
 )
 

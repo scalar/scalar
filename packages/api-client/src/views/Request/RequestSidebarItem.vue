@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { HttpMethod } from '@/components/HttpMethod'
 import { useSidebar } from '@/hooks'
+import { PathId, activeRouterParams } from '@/router'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarIcon } from '@scalar/components'
 import {
@@ -116,6 +117,13 @@ const generateLink = () =>
   'requestUid' in props.item
     ? `/workspace/${activeWorkspace.value.uid}/request/${props.item.requestUid}/examples/${props.item.uid}`
     : `/workspace/${activeWorkspace.value.uid}/request/${props.item.uid}`
+
+/** Since we have exact routing, we should check if the default request is active */
+const isDefaultActive = computed(
+  () =>
+    activeRouterParams.value[PathId.Request] === 'default' &&
+    activeRequest.value.uid === props.item.uid,
+)
 </script>
 <template>
   <div
@@ -145,7 +153,7 @@ const generateLink = () =>
           class="group relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2 rounded editable-sidebar-hover"
           :class="[
             highlightClasses,
-            isExactActive
+            isExactActive || isDefaultActive
               ? 'bg-sidebar-active-b text-sidebar-active-c transition-none'
               : 'text-sidebar-c-2',
           ]"
