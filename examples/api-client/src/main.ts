@@ -1,5 +1,9 @@
+import { router } from '@scalar/api-client'
+import { ApiClientApp } from '@scalar/api-client/layouts/App'
+import '@scalar/api-client/style.css'
 import { createApp } from 'vue'
 
-import App from './App.vue'
+const app = createApp(ApiClientApp)
 
-createApp(App).mount('#scalar-client')
+app.use(router)
+app.mount('#scalar-client')
