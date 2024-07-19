@@ -145,61 +145,31 @@ const updateRequestBody = (content: string) => {
   )
 }
 
-// TODO: This isn’t used? Can we delete this?
-// const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
-//   if (!activeRequest.value || !activeExample.value) return
+const getContentTypeHeader = (type: keyof typeof contentTypeOptions) => {
+  if (type === 'multipartForm') {
+    return 'multipart/form-data'
+  } else if (type === 'formUrlEncoded') {
+    return 'application/x-www-form-urlencoded'
+  } else if (type === 'binaryFile') {
+    return 'application/octet-stream'
+  } else if (type !== 'none') {
+    return `application/${type}`
+  }
+  return ''
+}
 
-//   let activeBodyType: { encoding: string; value: any } | undefined
-//   let bodyPath: 'body.raw.value' | 'body.formData.value' = 'body.raw.value'
-//   let bodyType: 'raw' | 'formData' | 'binary' = 'raw'
-
-//   if (type === 'multipartForm' || type === 'formUrlEncoded') {
-//     activeBodyType = { encoding: 'form-data', value: formParams.value || [] }
-//     bodyPath = 'body.formData.value'
-//     bodyType = 'formData'
-//   } else if (type === 'binaryFile') {
-//     bodyType = 'binary'
-//   } else {
-//     const rawValue = activeExample.value?.body.raw.value ?? ''
-//     activeBodyType = { encoding: type, value: rawValue }
-//     bodyPath = 'body.raw.value'
-//     bodyType = 'raw'
-//   }
-
-//   if (activeBodyType) {
-//     requestExampleMutators.edit(
-//       activeExample.value.uid,
-//       bodyPath,
-//       activeBodyType.value,
-//     )
-//   }
-//   requestExampleMutators.edit(
-//     activeExample.value.uid,
-//     'body.activeBody',
-//     bodyType,
-//   )
-// }
+const getBodyType = (type: keyof typeof contentTypeOptions) => {
+  if (type === 'multipartForm' || type === 'formUrlEncoded') {
+    return 'formData'
+  } else if (type === 'binaryFile') {
+    return 'binary'
+  }
+  return 'raw'
+}
 
 const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
-  let contentTypeHeader = ''
-  let bodyType: 'raw' | 'formData' | 'binary' = 'raw'
-
-  if (type === 'multipartForm' || type === 'formUrlEncoded') {
-    bodyType = 'formData'
-    contentTypeHeader = 'multipart/form-data'
-  } else if (type === 'binaryFile') {
-    bodyType = 'binary'
-    contentTypeHeader = 'application/octet-stream'
-  } else if (type !== 'none') {
-    bodyType = 'raw'
-    const mappedType = type === 'other' ? 'html' : type
-    contentTypeHeader = `application/${mappedType}`
-    requestExampleMutators.edit(
-      activeExample.value.uid,
-      'body.raw.encoding',
-      mappedType,
-    )
-  }
+  const contentTypeHeader = getContentTypeHeader(type)
+  const bodyType = getBodyType(type)
 
   requestExampleMutators.edit(
     activeExample.value.uid,
@@ -209,12 +179,12 @@ const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
 
   if (contentTypeHeader) {
     // now lets handle the header
-    const headersWithoutContentType = unref(
-      activeExample.value,
-    ).parameters.headers.filter(
-      (header) => header.key.toLowerCase() !== 'Content-Type'.toLowerCase(),
-    )
-    console.log('headersWithoutContentType', headersWithoutContentType)
+    const headersWithoutContentType = [
+      ...activeExample.value.parameters.headers.filter(
+        (header) => header.key.toLowerCase() !== 'Content-Type'.toLowerCase(),
+      ),
+    ]
+
     headersWithoutContentType.push({
       key: 'Content-Type',
       value: contentTypeHeader,
@@ -307,13 +277,12 @@ const selectedContentType = computed({
 
 const activeExampleContentType = computed(() => {
   if (!activeExample.value) return 'none'
-  if (activeExample.value.body.activeBody === 'formData') {
-    if (
-      activeExample.value.body.formData &&
-      activeExample.value.body.formData.value.length > 0
-    ) {
-      return 'multipartForm'
-    }
+  if (
+    activeExample.value.body.activeBody === 'formData' &&
+    activeExample.value.body.formData &&
+    activeExample.value.body.formData.value.length > 0
+  ) {
+    return 'multipartForm'
   } else if (activeExample.value.body.activeBody === 'raw') {
     return activeExample.value.body.raw.encoding
   }
