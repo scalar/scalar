@@ -173,6 +173,9 @@ jobs:
   release:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+      id-token: write
     needs: [build, test]
     strategy:
       matrix:
