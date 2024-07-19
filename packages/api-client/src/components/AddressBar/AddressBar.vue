@@ -119,7 +119,7 @@ const updateExampleUrlHandler = (url: string) => {
               disableTabIndent
               :emitOnBlur="false"
               :modelValue="activeExample.url"
-              placeholder="Enter URL or cURL request"
+              placeholder="Enter URL to get started"
               server
               @submit="executeRequestBus.emit()"
               @update:modelValue="updateExampleUrlHandler" />
