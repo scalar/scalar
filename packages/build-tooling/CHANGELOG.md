@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.1.10
+
+### Patch Changes
+
+- 2a1b5f4: Prevent dist deletion in vite builds
+
 ## 0.1.9
 
 ### Patch Changes

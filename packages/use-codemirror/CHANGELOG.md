@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.11.7
+
+### Patch Changes
+
+- 694c1d8: Add explicit newline
+
 ## 0.11.6
 
 ### Patch Changes

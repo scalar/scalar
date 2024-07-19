@@ -1,5 +1,31 @@
 # @scalar/api-client
 
+## 2.0.25
+
+### Patch Changes
+
+- 591fe24: fix: clipped border radius in requests items
+- 7f17fe4: feat: move command palette into the client app base
+- 1dab515: feat: revamp address bar
+- 4d76ff5: feat: add support for multiple workspaces
+- e8cd161: feat: store workspace in local storage
+- a431eb0: fix: table checkbox for required params on import
+- ff59399: fix: api client spacing issues, and icon thickness
+- ec47287: feat: made request examples functional in client
+- 747e80e: fix: only flex addressbar codemirror
+- 9d561b7: fix: make app topbar draggable
+- Updated dependencies [1dab515]
+- Updated dependencies [5e060b1]
+- Updated dependencies [ff59399]
+- Updated dependencies [694c1d8]
+  - @scalar/oas-utils@0.2.15
+  - @scalar/themes@0.9.15
+  - @scalar/components@0.12.16
+  - @scalar/use-codemirror@0.11.7
+  - @scalar/object-utils@1.1.4
+  - @scalar/use-toasts@0.7.4
+  - @scalar/use-tooltip@1.0.2
+
 ## 2.0.24
 
 ### Patch Changes

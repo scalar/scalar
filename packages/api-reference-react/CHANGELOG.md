@@ -1,5 +1,12 @@
 # @scalar/api-reference-react
 
+## 0.3.48
+
+### Patch Changes
+
+- 2a335dd: chore: exclude react from the build to avoid version conflicts
+  - @scalar/api-reference@1.24.50
+
 ## 0.3.47
 
 ### Patch Changes

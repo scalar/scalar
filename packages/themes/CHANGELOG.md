@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.15
+
+### Patch Changes
+
+- 5e060b1: fix: don’t minify the CSS
+
 ## 0.9.14
 
 ### Patch Changes
