@@ -117,7 +117,6 @@ export const useModal = () =>
   top: 0;
   bottom: 0;
   right: 0;
-  margin: auto;
 }
 .scalar-modal.scalar-modal-search {
   max-width: 540px;
