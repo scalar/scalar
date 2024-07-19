@@ -5,6 +5,9 @@ import { resolve } from 'path'
 export default defineConfig({
   main: {
     plugins: [externalizeDepsPlugin()],
+    define: {
+      'process.env.ENABLE_LOCAL_STORAGE': 'true',
+    },
   },
   preload: {
     plugins: [externalizeDepsPlugin()],
