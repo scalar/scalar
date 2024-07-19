@@ -151,7 +151,7 @@ const activeRequest = computed(() => {
  * TODO we definitely need a more performant way of doing this, but because folders can have multiple parents
  * theres no easy short circuit we can store. This can work for now but replace this!
  */
-const findRequestFolders = (
+export const findRequestFolders = (
   uid: string,
   foldersToOpen: string[] = [],
 ): string[] => {
@@ -505,6 +505,16 @@ const addCollection = (payload: CollectionPayload, workspaceUid: string) => {
 const deleteCollection = (collectionUid: string) => {
   if (!activeWorkspace.value) return
 
+  if (collections[collectionUid]?.spec?.info?.title === 'Drafts') {
+    console.warn('The drafts collection cannot be deleted')
+    return
+  }
+
+  if (Object.values(collections).length === 1) {
+    console.warn('You must have at least one collection')
+    return
+  }
+
   workspaceMutators.edit(
     activeWorkspace.value.uid,
     'collectionUids',
@@ -519,13 +529,14 @@ const deleteCollection = (collectionUid: string) => {
  * TODO we should add collection to the route and grab this from the params
  */
 const activeCollection = computed(() => {
-  if (!activeRequest.value) return null
+  const firstCollection = Object.values(collections)[0]
+  if (!activeRequest.value) return firstCollection
 
   const uids = findRequestFolders(activeRequest.value.uid)
   if (!uids.length) return null
 
   const collectionUid = uids[uids.length - 1]
-  return collections[collectionUid]
+  return collections[collectionUid] ?? firstCollection
 })
 
 /** The currently selected server in the addressBar */

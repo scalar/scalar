@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
+import { PathId, activeRouterParams } from '@/router'
+import { findRequestFolders, useWorkspace } from '@/store/workspace'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -12,10 +14,15 @@ import type {
   RequestExample,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   item: Request | RequestExample
 }>()
+
+const { activeWorkspace, requestMutators, requestExampleMutators } =
+  useWorkspace()
+const { currentRoute, replace } = useRouter()
 
 /** Add example */
 const handleAddExample = () =>
@@ -29,8 +36,26 @@ const handleItemDuplicate = () => {
   console.log('duplicate')
 }
 
+/** Delete handles both requests and requestExamples */
 const handleItemDelete = () => {
-  console.log('delete')
+  // Delete example
+  if ('requestUid' in props.item) {
+    requestExampleMutators.delete(props.item)
+    if (activeRouterParams.value[PathId.Examples] === props.item.uid) {
+      replace(`/workspace/${activeWorkspace.value}/request/default`)
+    }
+  }
+  // Delete request
+  else {
+    // We need to find out what the parent is first
+    const uids = findRequestFolders(props.item.uid)
+    if (!uids.length) return
+
+    requestMutators.delete(props.item, uids[0])
+    if (activeRouterParams.value[PathId.Request] === props.item.uid) {
+      replace(`/workspace/${activeWorkspace.value.uid}/request/default`)
+    }
+  }
 }
 
 const isRequest = computed(() => 'summary' in props.item)
@@ -73,7 +98,9 @@ const isRequest = computed(() => 'summary' in props.item)
         <span>Duplicate</span>
       </ScalarDropdownItem>
       <ScalarDropdownDivider />
-      <ScalarDropdownItem class="flex !gap-2">
+      <ScalarDropdownItem
+        class="flex !gap-2"
+        @click="handleItemDelete">
         <ScalarIcon
           class="inline-flex"
           icon="Trash"
