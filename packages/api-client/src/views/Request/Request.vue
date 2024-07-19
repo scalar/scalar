@@ -30,6 +30,7 @@ const {
   activeWorkspaceServers,
   activeWorkspace,
   environments,
+  requestMutators,
   activeWorkspaceCollections,
   modalState,
 } = useWorkspace()
@@ -83,11 +84,14 @@ const executeRequest = async () => {
   )
 
   if (request && response) {
-    activeRequest.value.history.push({
-      request,
-      response,
-      timestamp: Date.now(),
-    })
+    requestMutators.edit(activeRequest.value.uid, 'history', [
+      ...activeRequest.value.history,
+      {
+        request,
+        response,
+        timestamp: Date.now(),
+      },
+    ])
   } else {
     console.warn('No response or request was returned')
   }
