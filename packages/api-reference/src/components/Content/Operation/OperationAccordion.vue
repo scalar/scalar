@@ -172,15 +172,19 @@ const { copyToClipboard } = useClipboard()
 }
 
 .endpoint-try-hint {
-  padding: 6px;
+  padding: 2px;
   height: 24px;
   width: 24px;
   flex-shrink: 0;
-  fill: currentColor;
+  stroke-width: 1.75px !important;
+  fill: transparent;
 }
-
+.endpoint-try-hint :deep(path) {
+  stroke-width: 1.75px !important;
+}
 .endpoint-copy {
   color: currentColor;
+  padding: 2px;
 }
 .endpoint-copy :deep(svg) {
   stroke-width: 2px;
