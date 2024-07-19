@@ -1,6 +1,5 @@
 {
   "name": "scalar-api-client",
-  "productName": "Scalar",
   "description": "HTTP Client to play with any API",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
@@ -25,9 +24,7 @@
     "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false"
   },
   "main": "./out/main/index.js",
-  "optionalDependencies": {
-    "@scalar/api-client": "workspace:*"
-  },
+  "productName": "Scalar",
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
@@ -44,6 +41,10 @@
     "electron": "^31.0.2",
     "electron-vite": "^2.3.0",
     "vite": "^5.2.10",
-    "vue": "^3.4.29"
+    "vue": "^3.4.29",
+    "vue-tsc": "^2.0.13"
+  },
+  "peerDependencies": {
+    "@scalar/api-client": "workspace:*"
   }
 }
