@@ -38,7 +38,7 @@ export const createApiClientApp = async (
     console.error(
       `[createApiClientApp] Could not create the API client.`,
       `Please provide an OpenAPI document: { spec: { url: '…' } }`,
-      `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client-modal`,
+      `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client`,
     )
   }
 
@@ -50,7 +50,7 @@ export const createApiClientApp = async (
       console.error(
         `[createApiClientApp] Could not create the API client.`,
         `Invalid HTML element provided.`,
-        `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client-modal`,
+        `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client`,
       )
 
       return
@@ -100,7 +100,7 @@ export const createApiClientApp = async (
         console.error(
           `[createApiClientApp] Could not create the API client.`,
           `Please provide an OpenAPI document: { spec: { url: '…' } }`,
-          `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client-modal`,
+          `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client`,
         )
       }
     },
