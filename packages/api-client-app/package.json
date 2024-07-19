@@ -1,5 +1,6 @@
 {
   "name": "scalar-api-client",
+  "productName": "Scalar",
   "description": "HTTP Client to play with any API",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
