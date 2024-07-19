@@ -19,9 +19,9 @@ const router = useRouter()
 const addCookieHandler = () => {
   const cookie = createCookie({
     uid: nanoid(),
-    name: 'new cookie',
-    value: 'new value',
-    domain: 'localhost',
+    name: 'Cookie',
+    value: '',
+    domain: '',
     path: '/',
     secure: false,
     httpOnly: false,

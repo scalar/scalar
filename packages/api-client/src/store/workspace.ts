@@ -11,7 +11,10 @@ import {
   type CollectionPayload,
   createCollection,
 } from '@scalar/oas-utils/entities/workspace/collection'
-import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
+import {
+  type Cookie,
+  createCookie,
+} from '@scalar/oas-utils/entities/workspace/cookie'
 import {
   type Environment,
   createEnvironment,
@@ -390,7 +393,18 @@ const activeParsedEnvironments = computed(() => {
 // ---------------------------------------------------------------------------
 // COOKIES
 
-const cookies = reactive<Record<string, Cookie>>({})
+const cookies = reactive<Record<string, Cookie>>({
+  default: createCookie({
+    uid: 'default',
+    name: 'Cookie',
+    value: '',
+    domain: '',
+    path: '/',
+    secure: false,
+    httpOnly: false,
+    sameSite: 'None',
+  }),
+})
 const cookieMutators = mutationFactory(
   cookies,
   reactive({}),
