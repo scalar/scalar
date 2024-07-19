@@ -95,14 +95,7 @@ const availableCommands = [
 ] as const
 type Command = (typeof availableCommands)[number]['commands'][number]
 
-const keys = useMagicKeys({
-  passive: false,
-  onEventFired(e) {
-    // Prevent enter from submitting the next form
-    if (e.key === 'Enter' && e.type === 'keydown') e.preventDefault()
-  },
-})
-
+const keys = useMagicKeys()
 const modalState = useModal()
 const { push } = useRouter()
 const { activeWorkspace } = useWorkspace()
