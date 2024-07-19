@@ -15,7 +15,7 @@ import type {
   RequestExample,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { computed } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
 
 import RequestSidebarItemMenu from './RequestSidebarItemMenu.vue'
 
@@ -57,7 +57,6 @@ const {
   requestExamples,
 } = useWorkspace()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
-const router = useRouter()
 
 const hasChildren = computed(() => 'childUids' in props.item)
 
@@ -74,16 +73,6 @@ const paddingOffset = computed(() => {
   else if (isReadOnly.value) return `${(props.parentUids.length - 1) * 12}px`
   else return `${props.parentUids.length * 12}px`
 })
-
-const handleNavigation = (event: MouseEvent, uid: string) => {
-  const requestLink = `/workspace/${activeWorkspace.value.uid}/request/${uid}`
-
-  if (event.metaKey) {
-    window.open(requestLink, '_blank')
-  } else {
-    router.push(requestLink)
-  }
-}
 
 const getTitle = (item: (typeof props)['item']) => {
   // Collection
@@ -149,18 +138,18 @@ const generateLink = () =>
       <!-- Request -->
       <RouterLink
         v-if="'summary' in item || 'requestUid' in item"
-        custom
+        v-slot="{ isExactActive }"
+        class="no-underline"
         :to="generateLink()">
         <div
           class="group relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2 rounded editable-sidebar-hover"
           :class="[
             highlightClasses,
-            activeRequest?.uid === item.uid
+            isExactActive
               ? 'bg-sidebar-active-b text-sidebar-active-c transition-none'
               : 'text-sidebar-c-2',
           ]"
-          tabindex="0"
-          @click="($event) => handleNavigation($event, item.uid)">
+          tabindex="0">
           <span
             class="z-10 font-medium w-full editable-sidebar-hover-item pl-2">
             {{ getTitle(item) }}
@@ -209,8 +198,11 @@ const generateLink = () =>
       <div
         v-if="'childUids' in item"
         v-show="showChildren">
+        <!-- We never want to show the first example -->
         <RequestSidebarItem
-          v-for="uid in item.childUids"
+          v-for="uid in 'summary' in item
+            ? item.childUids.slice(1)
+            : item.childUids"
           :key="uid"
           :isDraggable="isDraggable"
           :isDroppable="isDroppable"

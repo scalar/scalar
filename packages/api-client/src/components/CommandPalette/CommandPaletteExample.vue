@@ -7,28 +7,44 @@ import {
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
+import type { Request } from '@scalar/oas-utils/entities/workspace/spec'
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const emits = defineEmits<{
   (event: 'close'): void
 }>()
 
-const { activeRequest, activeWorkspaceRequests } = useWorkspace()
+const { push } = useRouter()
+const {
+  activeRequest,
+  activeWorkspace,
+  activeWorkspaceRequests,
+  requestExampleMutators,
+} = useWorkspace()
+
 const exampleName = ref('')
 const selectedRequest = ref(activeRequest.value)
 
-const handleSelect = (request: any) => {
-  console.log('handleSelectasinsd')
-  console.log(request)
-  selectedRequest.value = request
-}
+/** Select request in dropdown */
+const handleSelect = (request: Request) => (selectedRequest.value = request)
 
-// Autofocus input
+/** Autofocus input */
 const exampleInput = ref<HTMLInputElement | null>(null)
 onMounted(() => exampleInput.value?.focus())
 
+/** Add a new request example */
 const handleSubmit = () => {
-  console.log('submitting')
+  const example = requestExampleMutators.add(
+    selectedRequest.value,
+    exampleName.value,
+  )
+  if (!example) return
+
+  // Route to new request example
+  push(
+    `/workspace/${activeWorkspace.value.uid}/request/${selectedRequest.value.uid}/examples/${example.uid}`,
+  )
 }
 </script>
 <template>

@@ -217,6 +217,7 @@ const createParamInstance = (param: OpenAPIV3_1.ParameterObject) =>
 const createExampleFromRequest = (
   request: Request,
   server?: Server,
+  _name?: string,
 ): RequestExample => {
   const parameters = {
     path: Object.values(request.parameters.path).map(createParamInstance),
@@ -259,9 +260,11 @@ const createExampleFromRequest = (
   }
 
   // Check all current examples for the title and iterate
-  const name = iterateTitle((request.summary ?? 'Example') + ' #1', (t) =>
-    request.childUids.some((uid) => t === requestExamples[uid].name),
-  )
+  const name =
+    _name ??
+    iterateTitle((request.summary ?? 'Example') + ' #1', (t) =>
+      request.childUids.some((uid) => t === requestExamples[uid].name),
+    )
 
   const example = createRequestExample({
     url: server?.url ? `{{${server?.url}}}${request.path}` : request.path,
@@ -277,13 +280,19 @@ const createExampleFromRequest = (
 }
 
 /** Ensure we add to the base examples as well as the request it is in */
-const addRequestExample = (request: Request) => {
-  const example = createExampleFromRequest(request)
+const addRequestExample = (request: Request, name?: string) => {
+  const example = createExampleFromRequest(
+    request,
+    activeWorkspaceServers.value[0],
+    name,
+  )
 
   requestMutators.edit(request.uid, 'childUids', [
     ...request.childUids,
     example.uid,
   ])
+
+  return request
 }
 
 /** Ensure we remove from the base as well as from the request it is in */
@@ -772,7 +781,6 @@ export const useWorkspace = () =>
     importSpecFile,
     importSpecFromUrl,
     cookieMutators,
-    createExampleFromRequest,
     collectionMutators: {
       ...collectionMutators,
       rawAdd: collectionMutators.add,
