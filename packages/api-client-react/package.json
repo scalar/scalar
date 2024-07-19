@@ -2,7 +2,11 @@
   "name": "@scalar/api-client-react",
   "description": "the open source API testing client for react",
   "license": "MIT",
-  "author": "Scalar (https://github.com/scalar)",
+  "author": {
+    "name": "Scalar (https://github.com/scalar)",
+    "email": "marc@scalar.com",
+    "url": "https://scalar.com"
+  },
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "repository": {
