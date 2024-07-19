@@ -12,7 +12,8 @@
   --refs-sidebar-width: 300px;
 }
 /* basic theme */
-html[data-theme='light'] body {
+html[data-theme='light'] body,
+html[data-theme='light'] .scalar-card.dark-mode {
   --scalar-color-1: var(--ifm-font-color-base, #1c1e21);
   --scalar-color-2: var(--ifm-color-emphasis-700, #606770);
   --scalar-color-3: var(--ifm-color-emphasis-600, #8d949e);
@@ -40,14 +41,24 @@ html[data-theme='light'] body {
   }
 }
 
-html[data-theme='dark'] body {
+html[data-theme='dark'] body,
+.scalar-card.dark-mode {
   --scalar-color-1: var(--ifm-font-color-base, rgb(227, 227, 227));
   --scalar-color-2: var(--ifm-color-emphasis-700, #dadde1);
   --scalar-color-3: var(--ifm-color-emphasis-400, #8d949e);
   --scalar-color-accent: var(--ifm-menu-color-active, #1fa588);
 
   --scalar-background-1: var(--ifm-background-color, #1b1b1d);
-  --scalar-background-3: #323232;
+  --scalar-background-2: color-mix(
+    in srgb,
+    rgba(255, 255, 255, 1) 6%,
+    var(--ifm-background-color)
+  );
+  --scalar-background-3: color-mix(
+    in srgb,
+    rgba(255, 255, 255, 1) 12%,
+    var(--ifm-background-color)
+  );
   --scalar-background-accent: var(
     --ifm-menu-color-background-active,
     hsla(0, 0%, 100%, 0.05)
@@ -87,7 +98,8 @@ html[data-theme='dark'] body .t-doc__sidebar {
   );
 }
 /* advanced */
-html[data-theme='light'] body {
+html[data-theme='light'] body,
+html[data-theme='light'] .scalar-card.dark-mode {
   --scalar-color-green: #00a400;
   --scalar-color-red: #fa383e;
   --scalar-color-yellow: #ffba00;
@@ -104,8 +116,12 @@ html[data-theme='light'] body {
     inset 0 0 1px 1px #fff,
     0 1px 2px 1px rgba(30, 35, 90, 0.4)
   );
+  --scalar-button-1: rgba(0, 0, 0, 1);
+  --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
+  --scalar-button-1-color: rgba(255, 255, 255, 0.9);
 }
-html[data-theme='dark'] body {
+html[data-theme='dark'] body,
+.scalar-card.dark-mode {
   --scalar-color-green: #00a400;
   --scalar-color-red: #fa383e;
   --scalar-color-yellow: #ffba00;
@@ -231,6 +247,9 @@ html[data-theme='light'] body .api-client-drawer {
   max-height: calc(
     ((var(--full-height) - var(--refs-header-height)) - 60px) / 2
   );
+}
+.scalar-card .scalar-code-block {
+  padding: 0;
 }
 .sidebar-heading-chevron {
   padding: var(--ifm-menu-link-padding-vertical)
