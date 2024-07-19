@@ -48,10 +48,12 @@ import { computed, reactive, toRaw } from 'vue'
 
 const { setCollapsedSidebarFolder } = useSidebar()
 
-// Disable localStorage in references - we must check it like this ;)
+// Grab config flag from dom
 const isLocalStorageEnabled = Boolean(
-  typeof process !== 'undefined' &&
-    Object.hasOwn(process.env, 'ENABLE_LOCAL_STORAGE'),
+  typeof window !== 'undefined' &&
+    document
+      ?.getElementById('scalar-client')
+      ?.getAttribute('data-enable-local-storage'),
 )
 
 // ---------------------------------------------------------------------------
