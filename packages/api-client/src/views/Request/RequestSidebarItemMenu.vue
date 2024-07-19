@@ -22,7 +22,7 @@ const props = defineProps<{
 
 const { activeWorkspace, requestMutators, requestExampleMutators } =
   useWorkspace()
-const { currentRoute, replace } = useRouter()
+const { replace } = useRouter()
 
 /** Add example */
 const handleAddExample = () =>
@@ -73,6 +73,7 @@ const isRequest = computed(() => 'summary' in props.item)
         size="sm" />
     </ScalarButton>
     <template #items>
+      <!-- Add example -->
       <ScalarDropdownItem
         v-if="isRequest"
         class="flex !gap-2"
@@ -83,14 +84,22 @@ const isRequest = computed(() => 'summary' in props.item)
           size="sm" />
         <span>Add Example</span>
       </ScalarDropdownItem>
-      <ScalarDropdownItem class="flex !gap-2">
+
+      <!-- Rename -->
+      <ScalarDropdownItem
+        class="flex !gap-2"
+        @click="handleItemRename">
         <ScalarIcon
           class="inline-flex"
           icon="Edit"
           size="sm" />
         <span>Rename</span>
       </ScalarDropdownItem>
-      <ScalarDropdownItem class="flex !gap-2">
+
+      <!-- Duplicate -->
+      <ScalarDropdownItem
+        class="flex !gap-2"
+        @click="handleItemDuplicate">
         <ScalarIcon
           class="inline-flex"
           icon="Duplicate"
@@ -98,6 +107,8 @@ const isRequest = computed(() => 'summary' in props.item)
         <span>Duplicate</span>
       </ScalarDropdownItem>
       <ScalarDropdownDivider />
+
+      <!-- Delete -->
       <ScalarDropdownItem
         class="flex !gap-2"
         @click="handleItemDelete">
