@@ -292,7 +292,7 @@ const addRequestExample = (request: Request, name?: string) => {
     example.uid,
   ])
 
-  return request
+  return example
 }
 
 /** Ensure we remove from the base as well as from the request it is in */
