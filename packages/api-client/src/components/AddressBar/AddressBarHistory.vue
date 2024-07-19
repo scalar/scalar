@@ -14,34 +14,26 @@ defineProps<{
   open: boolean
 }>()
 
-const { requestsHistory, activeRequest, requestExampleMutators } =
-  useWorkspace()
+const { activeRequest, requestExampleMutators } = useWorkspace()
 
 const router = useRouter()
 
-/**
- * Get a part of the URL object from the scalar proxy request
- *
- * @param request
- * @param part the part of the url you want ex: origin or pathname etc
- */
-function getUrlPart(request: XMLHttpRequest, part: keyof URL) {
-  const url = new URL(request.responseURL)
+function getPrettyResponseUrl(rawUrl: string) {
+  const url = new URL(rawUrl)
   const params = new URLSearchParams(url.search)
 
   const scalarUrl = params.get('scalar_url')
-  if (!scalarUrl) return url.origin
+  if (!scalarUrl) return url.href
 
   const scalarUrlParsed = new URL(scalarUrl)
-  const baseUrl = scalarUrlParsed[part]
 
-  return baseUrl.toString()
+  return scalarUrlParsed.href
 }
 
 // const { addNavItem, setNavItemIdx, topNavItems } = useTopNav()
 
 function handleHistoryClick(index: number) {
-  const historicalRequest = requestsHistory.value[index]
+  const historicalRequest = activeRequest.value.history[index]
 
   // see if we need to update the topnav
   // todo potentially search and find a previous open request id of this maybe
@@ -57,7 +49,7 @@ function handleHistoryClick(index: number) {
 <template>
   <!-- History -->
   <ListboxButton
-    v-if="requestsHistory.length"
+    v-if="activeRequest.history.length"
     class="hover:bg-b-2 mr-1 rounded p-1.5">
     <ScalarIcon
       class="text-c-3"
@@ -76,7 +68,7 @@ function handleHistoryClick(index: number) {
     <ListboxOptions
       class="bg-b-1 custom-scroll bg-mix-transparent bg-mix-amount-30 max-h-[300px] rounded-b p-[3px] pt-0 backdrop-blur">
       <ListboxOption
-        v-for="({ response }, index) in requestsHistory"
+        v-for="({ response }, index) in activeRequest.history"
         :key="index"
         class="ui-active:bg-b-2 text-c-1 ui-active:text-c-1 flex cursor-pointer flex-row gap-2.5 rounded py-1.5 pr-3"
         :value="index"
@@ -87,13 +79,9 @@ function handleHistoryClick(index: number) {
             class="text-[11px] min-w-[44px]"
             :method="response.config.method" />
           <span class="text-c-2 gap-0">
-            {{
-              getUrlPart(response.request, 'origin') +
-              getUrlPart(response.request, 'pathname')
-            }}
+            {{ getPrettyResponseUrl(response.config.url) }}
           </span>
         </div>
-        <!-- Response info -->
         <div
           class="font-code text-c-3 flex flex-row items-center gap-1.5 text-sm font-medium">
           <span>{{ formatMs(response.duration) }}</span>
