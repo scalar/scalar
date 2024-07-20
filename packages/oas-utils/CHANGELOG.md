@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.16
+
+### Patch Changes
+
+- 7761630: fix: use window location origin if no servers
+
 ## 0.2.15
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 2.0.26
+
+### Patch Changes
+
+- 54f7654: fix: add local storage to client.scalar/com
+- b0b3290: feat: create a default workspace if no OpenAPI document is passed to the modal
+- 7e01b12: fix: only trigger codeinput change event if the value has changed
+- b7211fb: fix: request history
+- Updated dependencies [67aefbf]
+- Updated dependencies [7761630]
+  - @scalar/components@0.12.17
+  - @scalar/oas-utils@0.2.16
+
 ## 2.0.25
 
 ### Patch Changes

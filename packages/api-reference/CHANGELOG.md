@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.24.51
+
+### Patch Changes
+
+- 401446c: fix: docusaurus missing variables + icon uniformity
+- Updated dependencies [54f7654]
+- Updated dependencies [67aefbf]
+- Updated dependencies [b0b3290]
+- Updated dependencies [7e01b12]
+- Updated dependencies [7761630]
+- Updated dependencies [b7211fb]
+  - @scalar/api-client@2.0.26
+  - @scalar/components@0.12.17
+  - @scalar/oas-utils@0.2.16
+
 ## 1.24.50
 
 ### Patch Changes
