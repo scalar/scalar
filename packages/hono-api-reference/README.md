@@ -75,7 +75,7 @@ app.get(
 You can use a custom CDN ，default is `https://cdn.jsdelivr.net/npm/@scalar/api-reference`.
 
 ```ts
-import { apiReference } from '@scalar/nestjs-api-reference'
+import { apiReference } from '@scalar/hono-api-reference'
 
 app.use(
   '/reference',
