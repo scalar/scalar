@@ -1,4 +1,4 @@
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent, h } from 'vue'
 
 import type { ICONS } from './icons'
 
@@ -17,5 +17,10 @@ export const getIcon = (name: Icon) => {
     return null
   }
 
-  return defineAsyncComponent(icons[filename]!)
+  return defineAsyncComponent({
+    loader: icons[filename]!,
+    // Provide a square svg as a placeholder while the icon loads
+    loadingComponent: () => h('svg', { viewBox: '0 0 1 1' }),
+    delay: 0,
+  })
 }
