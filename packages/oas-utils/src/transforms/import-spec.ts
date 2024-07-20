@@ -147,7 +147,10 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
     ? parsedSpec.servers!
     : [
         {
-          url: 'http://localhost',
+          url:
+            typeof window !== 'undefined'
+              ? window.location.origin
+              : 'http://localhost',
           description: 'Replace with your API server',
         },
       ]
