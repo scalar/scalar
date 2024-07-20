@@ -130,7 +130,7 @@ const openRenameModal = () => {
       </ScalarDropdownItem>
 
       <!-- Duplicate -->
-      <ScalarDropdownItem
+      <!-- <ScalarDropdownItem
         class="flex !gap-2"
         @click="handleItemDuplicate">
         <ScalarIcon
@@ -139,7 +139,7 @@ const openRenameModal = () => {
           size="sm" />
         <span>Duplicate</span>
       </ScalarDropdownItem>
-      <ScalarDropdownDivider />
+      <ScalarDropdownDivider /> -->
 
       <!-- Delete -->
       <ScalarDropdownItem
