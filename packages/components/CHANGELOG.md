@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.17
+
+### Patch Changes
+
+- 67aefbf: fix: scalar api client fixed to bottom
+
 ## 0.12.16
 
 ### Patch Changes

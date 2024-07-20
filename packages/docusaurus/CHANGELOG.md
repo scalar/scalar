@@ -1,5 +1,13 @@
 # @scalar/docusaurus
 
+## 0.4.51
+
+### Patch Changes
+
+- 401446c: fix: docusaurus missing variables + icon uniformity
+- 1ba3b29: fix(docusaurus): build docusaurus theme css with postcss
+  - @scalar/api-reference-react@0.3.49
+
 ## 0.4.50
 
 ### Patch Changes
