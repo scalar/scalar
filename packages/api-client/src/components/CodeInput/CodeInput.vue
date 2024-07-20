@@ -63,6 +63,9 @@ const { activeWorkspace } = useWorkspace()
 
 /** Change is emitted during typing. This does not trigger validation */
 function handleChange(value: string) {
+  // We need to be careful, only if the value is different we trigger an update
+  // on initial load of the component, this gets triggered cause we set the content
+  if (value === props.modelValue) return null
   return props.handleFieldChange
     ? props.handleFieldChange(value)
     : emit('update:modelValue', value)
