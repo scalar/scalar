@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store/workspace'
@@ -8,12 +9,15 @@ import {
   ScalarDropdownDivider,
   ScalarDropdownItem,
   ScalarIcon,
+  ScalarModal,
+  ScalarTextField,
+  useModal,
 } from '@scalar/components'
 import type {
   Request,
   RequestExample,
 } from '@scalar/oas-utils/entities/workspace/spec'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
@@ -35,10 +39,6 @@ const handleAddExample = () =>
     commandName: 'Add Example',
     metaData: props.item.uid,
   })
-
-const handleItemRename = () => {
-  console.log('rename')
-}
 
 const handleItemDuplicate = () => {
   console.log('duplicate')
@@ -67,6 +67,32 @@ const handleItemDelete = () => {
 }
 
 const isRequest = computed(() => 'summary' in props.item)
+const itemName = computed(() => {
+  if ('summary' in props.item) return props.item.summary || ''
+  if ('name' in props.item) return props.item.name || ''
+  return ''
+})
+
+const tempName = ref('')
+
+const handleItemRename = () => {
+  // rename request
+  if ('summary' in props.item) {
+    requestMutators.edit(props.item.uid, 'summary', tempName.value)
+  } else if (!('summary' in props.item)) {
+    // rename example
+    requestExampleMutators.edit(props.item.uid, 'name', tempName.value)
+  }
+  tempName.value = ''
+  renameModal.hide()
+}
+
+const renameModal = useModal()
+const deleteModal = useModal()
+const openRenameModal = () => {
+  tempName.value = itemName.value
+  renameModal.show()
+}
 </script>
 
 <template>
@@ -95,7 +121,7 @@ const isRequest = computed(() => 'summary' in props.item)
       <!-- Rename -->
       <ScalarDropdownItem
         class="flex !gap-2"
-        @click="handleItemRename">
+        @click="openRenameModal">
         <ScalarIcon
           class="inline-flex"
           icon="Edit"
@@ -118,7 +144,7 @@ const isRequest = computed(() => 'summary' in props.item)
       <!-- Delete -->
       <ScalarDropdownItem
         class="flex !gap-2"
-        @click="handleItemDelete">
+        @click="deleteModal.show()">
         <ScalarIcon
           class="inline-flex"
           icon="Trash"
@@ -127,4 +153,34 @@ const isRequest = computed(() => 'summary' in props.item)
       </ScalarDropdownItem>
     </template>
   </ScalarDropdown>
+  <ScalarModal
+    :size="'sm'"
+    :state="deleteModal"
+    :title="isRequest ? 'Delete Request' : 'Delete Example'">
+    <DeleteSidebarListElement
+      :variableName="itemName"
+      @close="deleteModal.hide()"
+      @delete="handleItemDelete" />
+  </ScalarModal>
+  <ScalarModal
+    :state="renameModal"
+    :title="isRequest ? 'Rename Request' : 'Rename Example'">
+    <ScalarTextField
+      v-model="tempName"
+      :label="isRequest ? 'Request' : 'Example'" />
+    <div class="flex gap-3">
+      <ScalarButton
+        class="flex-1"
+        variant="outlined"
+        @click="renameModal.hide()">
+        Cancel
+      </ScalarButton>
+      <ScalarButton
+        class="flex-1"
+        type="submit"
+        @click="handleItemRename">
+        Save
+      </ScalarButton>
+    </div>
+  </ScalarModal>
 </template>
