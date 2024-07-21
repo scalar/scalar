@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.24.52
+
+### Patch Changes
+
+- 5ebcee3: chore(api-references): use thickness instead of css overrides
+- Updated dependencies [19d8b6a]
+- Updated dependencies [c112f24]
+- Updated dependencies [83fc241]
+- Updated dependencies [2e1ef12]
+  - @scalar/api-client@2.0.27
+  - @scalar/components@0.12.18
+
 ## 1.24.51
 
 ### Patch Changes

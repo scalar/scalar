@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.18
+
+### Patch Changes
+
+- 19d8b6a: feat: animate sidebar icon
+
 ## 0.12.17
 
 ### Patch Changes
