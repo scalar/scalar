@@ -266,6 +266,15 @@ const getBackgroundColor = () => {
       <div
         class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 w-6/12">
         <SidebarToggle v-model="showSideBar" />
+        <div class="text-c-2 text-sm font-medium gitbook-hidden">
+          Powered by
+          <a
+            class="hover:text-c-1"
+            href="https://scalar.com/"
+            target="_blank"
+            >Scalar.com</a
+          >
+        </div>
       </div>
       <AddressBar />
       <div
@@ -381,5 +390,8 @@ const getBackgroundColor = () => {
 }
 .light-mode .client-wrapper-bg-color {
   background-color: var(--scalar-background-2) !important;
+}
+.gitbook-hidden {
+  display: none;
 }
 </style>
