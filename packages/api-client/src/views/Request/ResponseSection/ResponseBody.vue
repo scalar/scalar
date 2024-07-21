@@ -39,18 +39,22 @@ useCodeMirror({
 <template>
   <ViewLayoutCollapse>
     <template #title>{{ title }}</template>
-    <DataTable :columns="['']">
-      <DataTableRow>
-        <div ref="codeMirrorRef" />
-      </DataTableRow>
-    </DataTable>
+    <div ref="codeMirrorRef" />
   </ViewLayoutCollapse>
 </template>
 <style scoped>
 .force-text-sm {
   --scalar-small: 13px;
 }
-iframe {
+:deep(.cm-editor) {
   background-color: transparent;
+  font-size: var(--scalar-mini);
+  outline: none;
+  border-radius: var(--scalar-radius);
+  border: 0.5px solid var(--scalar-border-color);
+}
+:deep(.cm-gutters) {
+  background-color: var(--scalar-background-1);
+  border-radius: var(--scalar-radius) 0 0 var(--scalar-radius);
 }
 </style>
