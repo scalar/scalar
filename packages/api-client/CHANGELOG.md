@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 2.0.27
+
+### Patch Changes
+
+- 19d8b6a: feat: animate sidebar icon
+- c112f24: fix: remove ScalarCodeBlock that freezes browser in response preview
+- 83fc241: fix: constantly adding empty header
+- 2e1ef12: fix: set content type on body change and add proper header
+- Updated dependencies [19d8b6a]
+- Updated dependencies [c112f24]
+  - @scalar/components@0.12.18
+  - @scalar/use-codemirror@0.11.8
+
 ## 2.0.26
 
 ### Patch Changes

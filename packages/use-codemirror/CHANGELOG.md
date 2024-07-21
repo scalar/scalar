@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.11.8
+
+### Patch Changes
+
+- c112f24: fix: remove ScalarCodeBlock that freezes browser in response preview
+
 ## 0.11.7
 
 ### Patch Changes
