@@ -4,6 +4,7 @@ import AddressBar from '@/components/AddressBar/AddressBar.vue'
 import SearchButton from '@/components/Search/SearchButton.vue'
 import SearchModal from '@/components/Search/SearchModal.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
+import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useSidebar } from '@/hooks'
@@ -264,14 +265,7 @@ const getBackgroundColor = () => {
       class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container">
       <div
         class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 w-6/12">
-        <button
-          class="text-c-3 hover:bg-b-3 active:text-c-1 p-2 rounded"
-          type="button"
-          @click="showSideBar = !showSideBar">
-          <ScalarIcon
-            :icon="showSideBar ? 'SideBarOpen' : 'SideBarClosed'"
-            size="sm" />
-        </button>
+        <SidebarToggle v-model="showSideBar" />
       </div>
       <AddressBar />
       <div

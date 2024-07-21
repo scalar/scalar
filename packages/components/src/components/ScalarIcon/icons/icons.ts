@@ -57,8 +57,6 @@ export const ICONS = [
   'Search',
   'Server',
   'Show',
-  'SideBarClosed',
-  'SideBarOpen',
   'Sort',
   'Terminal',
   'ThumbsDown',
