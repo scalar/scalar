@@ -72,7 +72,7 @@ export type UseCodeMirrorParameters =
   | (BaseParameters & {
       /** Prefill the content. Will be ignored when a provider is given. */
       content: MaybeRefOrGetter<string | undefined>
-      onChange: (v: string) => void
+      onChange?: (v: string) => void
     })
   | (BaseParameters & {
       provider: MaybeRefOrGetter<Extension | null>
