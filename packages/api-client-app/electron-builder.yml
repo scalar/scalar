@@ -13,6 +13,7 @@ asarUnpack:
   - resources/**
 win:
   executableName: scalar-api-client
+  icon: build/icon.png
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
@@ -21,7 +22,7 @@ nsis:
 mac:
   artifactName: ${name}-${version}.${ext}
   entitlementsInherit: build/entitlements.mac.plist
-  icon: build/icon.icns
+  icon: build/icon.png
   hardenedRuntime: true
   extendInfo:
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
@@ -40,6 +41,7 @@ linux:
     - deb
   maintainer: electronjs.org
   category: Utility
+  icon: build/icon.png
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false

@@ -2,7 +2,9 @@ import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { BrowserWindow, app, ipcMain, shell } from 'electron'
 import { join } from 'path'
 
-import icon from '../../build/icon.png?asset'
+const icon = join(process.env.PUBLIC || app.getAppPath(), 'build', 'icon.png')
+
+const iconPath = is.dev ? join(__dirname, '../../build/icon.png') : icon
 
 function createWindow(): void {
   // Create the browser window.
@@ -14,7 +16,7 @@ function createWindow(): void {
     titleBarStyle: 'hidden',
     trafficLightPosition: { x: 11, y: 12 },
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    icon: iconPath,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
