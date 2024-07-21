@@ -177,7 +177,27 @@ const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
     bodyType,
   )
 
-  if (contentTypeHeader) {
+  const oldContentTypeIdx = [
+    ...activeExample.value.parameters.headers,
+  ].findIndex(
+    (header) => header.key.toLowerCase() === 'Content-Type'.toLowerCase(),
+  )
+  const oldContentType = [...activeExample.value.parameters.headers][
+    oldContentTypeIdx
+  ]
+
+  if (oldContentType?.value === contentTypeHeader) return
+
+  if (oldContentType && contentTypeHeader) {
+    const oldHeaders = [...activeExample.value.parameters.headers]
+    oldHeaders[oldContentTypeIdx].value = contentTypeHeader
+
+    requestExampleMutators.edit(
+      activeExample.value.uid,
+      'parameters.headers',
+      oldHeaders,
+    )
+  } else if (contentTypeHeader) {
     // now lets handle the header
     const headersWithoutContentType = [
       ...activeExample.value.parameters.headers.filter(
