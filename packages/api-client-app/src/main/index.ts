@@ -12,6 +12,7 @@ function createWindow(): void {
     show: false,
     title: 'Scalar API Client',
     titleBarStyle: 'hidden',
+    trafficLightPosition: { x: 11, y: 12 },
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {

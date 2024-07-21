@@ -259,14 +259,17 @@ export default {
 <style>
 .cm-pill {
   background-color: var(--scalar-background-1);
-  color: var(--scalar-color-2);
-  box-shadow: 0 0 0 0.5px var(--scalar-border-color);
+  color: var(--tw-bg-base);
   padding: 1.5px 6px;
   margin: 0 6px;
   border-radius: 3px;
   display: inline-block;
   border-radius: 30px;
   font-size: var(--scalar-mini);
+  background: color-mix(in srgb, var(--tw-bg-base), transparent 90%) !important;
+}
+.dark-mode .cm-pill {
+  background: color-mix(in srgb, var(--tw-bg-base), transparent 80%) !important;
 }
 .cm-pill:first-of-type {
   margin-left: 0;
