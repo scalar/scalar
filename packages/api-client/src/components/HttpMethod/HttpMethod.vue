@@ -35,7 +35,7 @@ const variants = cva({
   base: 'text-center font-code text-3xs justify-center items-center flex',
   variants: {
     isSquare: {
-      true: 'px-2.5 rounded-md bg-mix-transparent bg-mix-amount-90 dark:bg-mix-amount-80',
+      true: 'px-2.5 rounded-md shadow-border',
       false: 'rounded-full',
     },
     isEditable: {
@@ -58,13 +58,7 @@ const httpLabel = computed(() => method.value.short)
       :class="{ 'pointer-events-none': !isEditable }">
       <button
         class="relative h-full gap-1"
-        :class="
-          cx(
-            variants({ isSquare, isEditable }),
-            method.color,
-            isSquare && method.backgroundColor,
-          )
-        "
+        :class="cx(variants({ isSquare, isEditable }), method.color)"
         type="button">
         <span>{{ httpLabel }}</span>
         <ScalarIcon
