@@ -277,4 +277,7 @@ export default {
 .cm-pill:first-of-type {
   margin-left: 0;
 }
+.cm-widgetBuffer {
+  /* display: none !important; */
+}
 </style>
