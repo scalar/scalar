@@ -4,16 +4,16 @@ import { type Context, Hono } from 'hono'
 import { cors } from 'hono/cors'
 import type { StatusCode } from 'hono/utils/http-status'
 
-import {
-  findPreferredResponseKey,
-  isAuthenticationRequired,
-  routeFromPath,
-} from './utils'
+import type { HttpMethod } from './types'
 import { anyBasicAuthentication } from './utils/anyBasicAuthentication'
 import { anyOpenAuthPasswordGrantAuthentication } from './utils/anyOpenAuthPasswordGrantAuthentication'
+import { findPreferredResponseKey } from './utils/findPreferredResponseKey'
 import { getOpenAuthTokenUrl } from './utils/getOpenAuthTokenUrl'
+import { getOperations } from './utils/getOperations'
+import { isAuthenticationRequired } from './utils/isAuthenticationRequired'
 import { isBasicAuthenticationRequired } from './utils/isBasicAuthenticationRequired'
 import { isOpenAuthPasswordGrantRequired } from './utils/isOpenAuthPasswordGrantRequired'
+import { routeFromPath } from './utils/routeFromPath'
 
 /**
  * Create a mock server instance
@@ -81,45 +81,39 @@ export async function createMockServer(options?: {
   }
 
   // Paths
-  Object.keys(result.schema?.paths ?? {}).forEach((path) => {
-    // Operations
-    Object.keys(result.schema?.paths?.[path] ?? {}).forEach((method) => {
+  const paths = result.schema?.paths ?? {}
+
+  Object.keys(paths).forEach((path) => {
+    const methods = Object.keys(getOperations(paths[path])) as HttpMethod[]
+
+    methods.forEach((method) => {
       const route = routeFromPath(path)
-
-      // @ts-expect-error Needs a proper type
-      const operation = result.schema?.paths?.[path]?.[method]
-
+      const operation = result.schema?.paths?.[path]?.[
+        method
+      ] as OpenAPI.Operation
       // Check if authentication is required
       const requiresAuthentication = isAuthenticationRequired(
         operation.security,
       )
-
       // Check whether we need basic authentication
       const requiresBasicAuthentication = isBasicAuthenticationRequired(
         operation,
         result?.schema,
       )
-
       // Add HTTP basic authentication
       if (requiresAuthentication && requiresBasicAuthentication) {
-        // @ts-expect-error Needs a proper type
         app[method](route, anyBasicAuthentication())
       }
-
       // Check whether we need OpenAuth password grant authentication
       const requiresOpenAuthPasswordGrant = isOpenAuthPasswordGrantRequired(
         operation,
         result?.schema,
       )
-
       // Add HTTP basic authentication
       if (requiresAuthentication && requiresOpenAuthPasswordGrant) {
-        // @ts-expect-error Needs a proper type
         app[method](route, anyOpenAuthPasswordGrantAuthentication())
       }
-
       // Route
-      // @ts-expect-error Needs a proper type
       app[method](route, (c: Context) => {
         // Call onRequest callback
         if (options?.onRequest) {
@@ -128,20 +122,17 @@ export async function createMockServer(options?: {
             operation,
           })
         }
-
         // Response
         // default, 200, 201 …
         const preferredResponseKey = findPreferredResponseKey(
           Object.keys(operation.responses ?? {}),
         )
-
         // Focus on JSON for now
         const jsonResponse = preferredResponseKey
           ? operation.responses?.[preferredResponseKey]?.content?.[
               'application/json'
             ]
           : null
-
         // Get or generate JSON
         const response = jsonResponse?.example
           ? jsonResponse.example
@@ -151,7 +142,6 @@ export async function createMockServer(options?: {
                 variables: c.req.param(),
               })
             : null
-
         // Status code
         const statusCode = parseInt(
           preferredResponseKey === 'default'
@@ -159,7 +149,6 @@ export async function createMockServer(options?: {
             : preferredResponseKey ?? '200',
           10,
         ) as StatusCode
-
         return c.json(response, statusCode)
       })
     })
