@@ -40,8 +40,7 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "vite": "^5.1.1",
     "vite-svg-loader": "^5.1.0",
-    "vue": "^3.3.0",
-    "tsc-alias": "^1.8.8"
+    "vue": "^3.3.0"
   },
   "dependencies": {
     "vue": "^3.3.0"
