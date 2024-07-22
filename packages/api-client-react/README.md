@@ -5,10 +5,6 @@
 [![License](https://img.shields.io/npm/l/%40scalar%2Fapi-client-react)](https://www.npmjs.com/package/@scalar/api-client-react)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-> **Deprecated Package**
->
-> This package has been DEPRECATED in favour of the new [@scalar/api-client](https://www.npmjs.com/package/@scalar/api-client) which is now framework-agnostic.
-
 ## Installation
 
 ```bash
@@ -17,79 +13,35 @@ npm install @scalar/api-client-react
 
 ## Usage
 
-```ts
-import { ApiClientReact } from '@scalar/api-client-react'
-import React, { useState } from 'react'
+First we need to add the provider, you should add it in the highest place you have a unique spec.
 
-export const Wrapper = () => {
-  const [isOpen, setIsOpen] = useState(false)
+```tsx
+import { ApiClientModalProvider } from '@scalar/api-client-react'
+import '@scalar/api-client-react/style.css'
 
-  return (
-    <>
-      <button onClick={() => setIsOpen(true)}>
-        Click me to open the Api Client
-      </button>
-
-      <ApiClientReact
-        close={() => setIsOpen(false)}
-        isOpen={isOpen}
-        request={{
-          url: 'https://api.sampleapis.com',
-          type: 'GET',
-          path: '/simpsons/products',
-        }}
-      />
-    </>
-  )
-}
+;<ApiClientModalProvider
+  configuration={{
+    spec: {
+      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+    },
+  }}>
+  {children}
+</ApiClientModalProvider>
 ```
 
-You will also need one of the following classes on a parent element:
+Then you can trigger it from anywhere inside of that provider by calling the `useApiClientModal()`
 
-```css
-.dark-mode
-.light-mode
+```tsx
+import { useApiClientModal } from '@scalar/api-client-react'
+
+const client = useApiClientModal()
+
+return (
+  <button
+    onClick={() => client?.open({ path: '/auth/token', method: 'get' })}>
+    Click me to open the Api Client
+  </button>
+)
 ```
 
-## Props
-
-### close: function
-
-function to close the dialog, as seen above
-
-### isOpen: boolean
-
-boolean which controls the visibility of the dialog containing the client
-
-### request: ClientRequestConfig
-
-```ts
-export type ClientRequestConfig = {
-  id?: string
-  name?: string
-  url: string
-  /** HTTP Request Method */
-  type: string
-  /** Request path */
-  path: string
-  /** Variables */
-  variables?: BaseParameter[]
-  /** Query parameters */
-  query?: Query[]
-  /** Cookies */
-  cookies?: Cookie[]
-  /** Request headers */
-  headers?: Header[]
-  /** Content type matched body */
-  body?: string
-  /** Optional form data body */
-  formData?: FormDataItem[]
-}
-```
-
-## ApiClientReactBase
-
-We also export the base component if you do not want the modal.
-`ApiClientReactBase`
-
-Details on how to use it can be found in the source code for `ApiClientReact`
+Check out the playground for a working example.

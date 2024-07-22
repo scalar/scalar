@@ -1,1 +1,1 @@
-export * from './ApiClientReact'
+export * from './ApiClientModalProvider'

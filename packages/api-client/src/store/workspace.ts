@@ -719,13 +719,16 @@ async function importSpecFile(
   _spec: string | AnyObject,
   workspaceUid = 'default',
   _createWorkspace = true,
+  _isReadOnly = false,
 ) {
   const spec = toRaw(_spec)
   const workspaceEntities = await importSpecToWorkspace(spec)
 
   // Create workspace
   if (_createWorkspace)
-    workspaceMutators.add(createWorkspace({ uid: workspaceUid }))
+    workspaceMutators.add(
+      createWorkspace({ uid: workspaceUid, isReadOnly: _isReadOnly }),
+    )
 
   // Add all the new requests into the request collection, the already have parent folders
   workspaceEntities.requests.forEach((request) =>
@@ -754,10 +757,14 @@ async function importSpecFile(
 }
 
 // Function to fetch and import a spec from a URL
-async function importSpecFromUrl(url: string, proxy?: string) {
+async function importSpecFromUrl(
+  url: string,
+  proxy?: string,
+  _isReadOnly = false,
+) {
   try {
     const spec = await fetchSpecFromUrl(url, proxy)
-    await importSpecFile(spec)
+    await importSpecFile(spec, undefined, undefined, _isReadOnly)
   } catch (error) {
     console.error('Failed to fetch spec from URL:', error)
   }
