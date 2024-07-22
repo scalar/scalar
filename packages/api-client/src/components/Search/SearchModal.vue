@@ -19,7 +19,7 @@ const props = defineProps<{
 
 const router = useRouter()
 
-const { requests } = useWorkspace()
+const { activeWorkspaceRequests } = useWorkspace()
 
 const keys = useMagicKeys()
 
@@ -49,7 +49,13 @@ const fuseSearch = (): void => {
 watch(
   () => props.modalState.open,
   (open) => {
-    if (!open) return
+    if (!open) {
+      if (fuseDataArray.value.length > 0) {
+        fuseDataArray.value = []
+        fuse.setCollection(fuseDataArray.value)
+      }
+      return
+    }
     searchModalRef.value?.focus()
     searchText.value = ''
     selectedSearchResult.value = 0
@@ -59,17 +65,15 @@ watch(
 
 // Populate our fuseDataArray with the request items
 watch(
-  requests,
+  activeWorkspaceRequests,
   (newRequests) => {
-    Object.keys(newRequests).forEach((request) => {
-      const req = requests[request]
-
+    Object.values(newRequests).forEach((request) => {
       fuseDataArray.value.push({
-        id: request,
-        title: req.summary ?? req.method,
-        description: req.description ?? '',
-        httpVerb: req.method,
-        path: req.path,
+        id: request.uid,
+        title: request.summary ?? request.method,
+        description: request.description ?? '',
+        httpVerb: request.method,
+        path: request.path,
       })
     })
 
