@@ -35,7 +35,7 @@ const variants = cva({
   base: 'text-center font-code text-3xs justify-center items-center flex',
   variants: {
     isSquare: {
-      true: 'px-2.5 rounded-md shadow-border whitespace-nowrap',
+      true: 'px-2.5 rounded-md shadow-border whitespace-nowrap !bg-transparent font-bold',
       false: 'rounded-full',
     },
     isEditable: {
@@ -73,13 +73,7 @@ const httpLabel = computed(() => method.value.short)
   <div
     v-else
     class="relative gap-1"
-    :class="
-      cx(
-        variants({ isSquare, isEditable }),
-        method.color,
-        isSquare && method.backgroundColor,
-      )
-    "
+    :class="cx(variants({ isSquare, isEditable }), method.color)"
     type="button">
     {{ method.short }}
   </div>
