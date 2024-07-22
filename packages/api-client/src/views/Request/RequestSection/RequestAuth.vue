@@ -209,6 +209,7 @@ const updateScheme: UpdateScheme = (path, value) =>
         <OAuth2
           v-else-if="
             activeSecurityScheme?.scheme.type === 'oauth2' &&
+            schemeModel &&
             'uid' in schemeModel &&
             activeSecurityScheme.flow
           "
