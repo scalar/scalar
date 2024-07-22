@@ -1,12 +1,12 @@
 import React from 'react'
 
-import { ClientWrapper } from './components/ClientWrapper'
+import { Button, ClientWrapper } from './components'
 
 const Page = () => {
   return (
-    <>
-      <ClientWrapper />
-    </>
+    <ClientWrapper>
+      <Button />
+    </ClientWrapper>
   )
 }
 
