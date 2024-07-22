@@ -16,7 +16,10 @@ npm install @scalar/api-client-react
 First we need to add the provider, you should add it in the highest place you have a unique spec.
 
 ```tsx
-<ApiClientModalProvider
+import { ApiClientModalProvider } from '@scalar/api-client-react'
+import '@scalar/api-client-react/style.css'
+
+;<ApiClientModalProvider
   configuration={{
     spec: {
       url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
@@ -29,6 +32,8 @@ First we need to add the provider, you should add it in the highest place you ha
 Then you can trigger it from anywhere inside of that provider by calling the `useApiClientModal()`
 
 ```tsx
+import { useApiClientModal } from '@scalar/api-client-react'
+
 const client = useApiClientModal()
 
 return (
