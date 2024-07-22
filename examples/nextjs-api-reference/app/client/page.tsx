@@ -5,6 +5,7 @@ import React from 'react'
 const Page = () => {
   return (
     <div></div>
+    // todo investigate why window fails
     // <ClientWrapper>
     //   <Button />
     // </ClientWrapper>
