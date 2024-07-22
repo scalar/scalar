@@ -278,6 +278,6 @@ export default {
   margin-left: 0;
 }
 .cm-widgetBuffer {
-  /* display: none !important; */
+  display: none !important;
 }
 </style>
