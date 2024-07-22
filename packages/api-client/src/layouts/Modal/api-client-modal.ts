@@ -54,9 +54,16 @@ export type ClientConfiguration = {
     | 'z'
 }
 
-export type OpenClientPayload = { path: string; method: RequestMethod }
+export type OpenClientPayload = {
+  path: string
+  method: RequestMethod | Lowercase<RequestMethod>
+}
 
-/** Initialize Scalar API Client Modal */
+/**
+ * Initialize Scalar API Client Modal
+ *
+ * This async method includes importing the spec
+ */
 export const createApiClientModal = async (
   /** Element to mount the references to */
   el: HTMLElement | null,
@@ -67,6 +74,44 @@ export const createApiClientModal = async (
    * For SSR this may need to be blocked and done client side
    */
   mountOnInitialize = true,
+) => {
+  const { importSpecFile, importSpecFromUrl, workspaceMutators } =
+    useWorkspace()
+
+  // Import the spec if needed
+  if (config.spec?.url) {
+    await importSpecFromUrl(config.spec.url, config.proxyUrl, true)
+  } else if (config.spec?.content) {
+    await importSpecFile(config.spec?.content, undefined, undefined, true)
+  } else {
+    workspaceMutators.add({
+      uid: 'default',
+      name: 'Workspace',
+      isReadOnly: true,
+      proxyUrl: 'https://proxy.scalar.com',
+    })
+  }
+
+  return createApiClientModalSync(el, config, mountOnInitialize, false)
+}
+
+/**
+ * Sync method to create client modal
+ *
+ * This method will NOT import the spec, just create the modal so you must use update/updateConfig before opening
+ */
+export const createApiClientModalSync = (
+  /** Element to mount the references to */
+  el: HTMLElement | null,
+  /** Configuration object for Scalar References */
+  config: Omit<ClientConfiguration, 'spec'>,
+  /**
+   * Will attempt to mount the references immediately
+   * For SSR this may need to be blocked and done client side
+   */
+  mountOnInitialize = true,
+  /** Creates a default workspace */
+  createDefaultWorkspace = false,
 ) => {
   const {
     activeCollection,
@@ -82,22 +127,20 @@ export const createApiClientModal = async (
     workspaceMutators,
   } = useWorkspace()
 
-  // Import the spec if needed
-  if (config.spec?.url) {
-    await importSpecFromUrl(config.spec.url, config.proxyUrl)
-  } else if (config.spec?.content) {
-    await importSpecFile(config.spec?.content)
-  } else {
+  // Create a default workspace
+  if (createDefaultWorkspace) {
     workspaceMutators.add({
       uid: 'default',
       name: 'Workspace',
-      proxyUrl: 'https://proxy.scalar.com',
+      isReadOnly: true,
+      proxyUrl: config.proxyUrl ?? 'https://proxy.scalar.com',
     })
   }
 
   const app = createApp(ApiClientModal, { modalState })
   app.use(modalRouter)
 
+  // Mount the vue app
   const mount = (mountingEl = el) => {
     if (!mountingEl) {
       console.error(
@@ -111,10 +154,9 @@ export const createApiClientModal = async (
     app.mount(mountingEl)
   }
 
+  // Update some workspace params from the config
   if (activeWorkspace.value) {
     if (mountOnInitialize) mount()
-
-    workspaceMutators.edit(activeWorkspace.value.uid, 'isReadOnly', true)
 
     if (config.proxyUrl) {
       workspaceMutators.edit(
@@ -143,7 +185,9 @@ export const createApiClientModal = async (
       } else {
         objectMerge(config, newConfig)
       }
-      if (newConfig.spec) importSpecFile(newConfig.spec)
+      if (newConfig.spec) {
+        importSpecFile(newConfig.spec, undefined, undefined, true)
+      }
     },
     /**
      * TODO this is just temporary for the modal, we'll put in a proper solution later
@@ -235,9 +279,9 @@ export const createApiClientModal = async (
     /** Update the spec file, this will re-parse it and clear your store */
     updateSpec: (spec: SpecConfiguration) => {
       if (spec?.url) {
-        importSpecFromUrl(spec.url, config.proxyUrl)
+        importSpecFromUrl(spec.url, config.proxyUrl, true)
       } else if (spec?.content) {
-        importSpecFile(spec?.content)
+        importSpecFile(spec?.content, undefined, undefined, true)
       } else {
         console.error(
           `[@scalar/api-client-modal] Could not create the API client.`,
@@ -252,7 +296,8 @@ export const createApiClientModal = async (
       const request = Object.values(requests).find(({ path, method }) =>
         payload
           ? // The given operation
-            path === payload.path && method === payload.method
+            path === payload.path &&
+            method.toUpperCase() === payload.method.toUpperCase()
           : // Or the first request
             true,
       )

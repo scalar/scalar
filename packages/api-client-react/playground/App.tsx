@@ -1,26 +1,15 @@
-import React, { useState } from 'react'
+import React from 'react'
 
-import { ApiClientReact } from '../src'
+import { useApiClientModal } from '../src/ApiClientModalProvider'
 
 export const App = () => {
-  const [isOpen, setIsOpen] = useState(false)
+  const client = useApiClientModal()
 
   return (
-    <div>
-      <button onClick={() => setIsOpen(true)}>
-        Click me to open the Api Client
-      </button>
-
-      <ApiClientReact
-        close={() => setIsOpen(false)}
-        isOpen={isOpen}
-        configuration={{
-          spec: {
-            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-          },
-        }}
-      />
-    </div>
+    <button
+      onClick={() => client?.open({ path: '/auth/token', method: 'get' })}>
+      Click me to open the Api Client
+    </button>
   )
 }
 
