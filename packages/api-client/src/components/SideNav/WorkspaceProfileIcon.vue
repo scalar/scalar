@@ -37,7 +37,7 @@ defineProps<{
   justify-content: center;
   transition: border 0.2s;
   min-height: 37px;
-  height: 37px;
+  aspect-ratio: 1;
   width: 100%;
 }
 .dark-mode .workspace-avatar {
