@@ -174,7 +174,7 @@ export default {
   <slot name="icon"></slot>
   <div
     v-if="required"
-    class="required absolute centered-y right-0 pt-px pr-2 text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-has-[.cm-focused]:opacity-0">
+    class="required absolute centered-y right-0 pt-px pr-2 text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-has-[.cm-focused]:opacity-0 pointer-events-none">
     Required
   </div>
 </template>

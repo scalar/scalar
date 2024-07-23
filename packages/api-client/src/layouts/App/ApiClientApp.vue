@@ -98,6 +98,17 @@ const fontsStyleTag = computed(
   flex-direction: column;
   height: 100vh;
   width: 100vw;
+  position: relative;
+}
+#scalar-client:before {
+  content: '';
   background: var(--scalar-background-1);
+  opacity: 0.97;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -10;
 }
 </style>

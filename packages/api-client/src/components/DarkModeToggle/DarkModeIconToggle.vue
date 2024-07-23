@@ -7,7 +7,7 @@ const { toggleDarkMode, isDark } = useDarkModeState()
 </script>
 <template>
   <button
-    class="w-[37px] hover:bg-b-2 flex items-center justify-center rounded-lg p-[7px]"
+    class="min-w-[37px] max-w-[42px] hover:bg-b-2 flex items-center justify-center rounded-lg p-[7px]"
     type="button"
     @click="toggleDarkMode">
     <ScalarIcon

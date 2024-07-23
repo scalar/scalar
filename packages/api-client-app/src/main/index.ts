@@ -10,6 +10,7 @@ function createWindow(): void {
     width: 1280,
     height: 760,
     show: false,
+    transparent: true,
     title: 'Scalar',
     titleBarStyle: 'hidden',
     trafficLightPosition: { x: 11, y: 12 },

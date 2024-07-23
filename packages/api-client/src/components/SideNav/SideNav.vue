@@ -11,17 +11,18 @@ const { currentRoute } = useRouter()
 <template>
   <nav
     aria-label="Side Navigation"
-    class="text-c-2 w-15 flex flex-col items-center px-2 py-2 scalar-sidenav"
+    class="text-c-2 w-15 flex flex-col items-center px-2 py-2 scalar-sidenav relative"
     role="navigation">
     <WorkspaceProfileIcon />
     <ul class="mt-3.5 flex flex-col gap-1.5">
       <li
-        v-for="({ icon, name }, i) in ROUTES"
+        v-for="({ icon, name, prettyName }, i) in ROUTES"
         :key="i">
         <SideNavLink
           :active="(currentRoute.name as string | undefined)?.startsWith(name)"
           :icon="icon"
-          :name="name">
+          :name="name"
+          :prettyName="prettyName">
           {{ name }}
         </SideNavLink>
       </li>
@@ -33,3 +34,8 @@ const { currentRoute } = useRouter()
     </ul>
   </nav>
 </template>
+<style scoped>
+.scalar-sidenav {
+  width: 52px;
+}
+</style>

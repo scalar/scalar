@@ -33,7 +33,7 @@ const requestRoutes = [
     component: () => import('@/views/Request/Request.vue'),
   },
   {
-    name: 'requestExamples',
+    name: PathId.Examples,
     path: `request/:${PathId.Request}/examples/:${PathId.Examples}`,
     component: () => import('@/views/Request/Request.vue'),
   },

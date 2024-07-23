@@ -145,7 +145,7 @@ const flattenValue = (item: RequestExampleParameter) => {
         </template>
         <template v-else>
           <ScalarButton
-            class="bg-b-2 hover:bg-b-3 border-0 py-px text-c-2"
+            class="bg-b-2 hover:bg-b-3 border-0 py-px text-c-2 shadow-none"
             size="sm"
             variant="outlined"
             @click="handleFileUpload(idx)">

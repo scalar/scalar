@@ -259,7 +259,7 @@ const getBackgroundColor = () => {
 </script>
 <template>
   <div
-    class="flex flex-1 flex-col rounded-lg rounded-b-none rounded-r-none pt-0 h-full client-wrapper-bg-color"
+    class="flex flex-1 flex-col rounded rounded-b-none rounded-r-none pt-0 h-full client-wrapper-bg-color relative"
     :class="getBackgroundColor()">
     <div
       class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container">

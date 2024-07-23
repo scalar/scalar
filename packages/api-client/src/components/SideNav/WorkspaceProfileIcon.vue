@@ -36,9 +36,10 @@ defineProps<{
   display: flex;
   justify-content: center;
   transition: border 0.2s;
-  min-height: 37px;
   aspect-ratio: 1;
   width: 100%;
+  min-height: 37px;
+  max-width: 42px;
 }
 .dark-mode .workspace-avatar {
   --gradient-color-1: color-mix(
