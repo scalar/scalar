@@ -1,0 +1,7 @@
+.scalar-sidenav {
+  min-width: 75px !important;
+  padding: 6px 16px !important;
+}
+.scalar-sidenav .workspace-avatar {
+  height: 43px !important;
+}
