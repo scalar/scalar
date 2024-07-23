@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.0.29
+
+### Patch Changes
+
+- d5408e8: fix: subpages now have headers in the api client
+
 ## 2.0.28
 
 ### Patch Changes

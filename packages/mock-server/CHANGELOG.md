@@ -1,5 +1,11 @@
 # @scalar/mock-server
 
+## 0.2.18
+
+### Patch Changes
+
+- de9e775: fix: tries to register non-http methods as routes
+
 ## 0.2.17
 
 ### Patch Changes
