@@ -10,7 +10,7 @@ defineProps<
     options: Option[]
     modelValue?: Option
     placeholder?: string
-  } & FloatingOptions
+  } & Omit<FloatingOptions, 'middleware'>
 >()
 
 defineEmits<{
@@ -23,7 +23,6 @@ defineOptions({ inheritAttrs: false })
   <Popover v-slot="{ open }">
     <ScalarFloating
       :isOpen="open ?? isOpen"
-      :middleware="middleware"
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
       :teleport="teleport">
