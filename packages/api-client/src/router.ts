@@ -3,6 +3,7 @@ import {
   type RouteRecordRaw,
   createMemoryHistory,
   createRouter,
+  createWebHashHistory,
   createWebHistory,
 } from 'vue-router'
 
@@ -39,7 +40,7 @@ const requestRoutes = [
   },
 ] satisfies RouteRecordRaw[]
 
-/** Routes required by the client modal */
+/** Routes required by the API client modal */
 export const modalRoutes = [
   {
     path: '/',
@@ -55,7 +56,7 @@ export const modalRoutes = [
   },
 ] satisfies RouteRecordRaw[]
 
-/** Routes for the client-app */
+/** Routes for the API client app */
 const routes = [
   {
     path: '/',
@@ -129,14 +130,24 @@ const routes = [
 ] satisfies RouteRecordRaw[]
 
 /**
- * Router for the API Client app
+ * Router for the API client app
  */
 export const router = createRouter({
   history: createWebHistory(),
   routes,
 })
 
-/** Router for the API Client modal */
+/**
+ * Router for the API client app (but using hash history)
+ */
+export const webHashRouter = createRouter({
+  history: createWebHashHistory(),
+  routes,
+})
+
+/**
+ * Router for the API client modal
+ */
 export const modalRouter = createRouter({
   history: createMemoryHistory(),
   routes: modalRoutes,
@@ -157,7 +168,9 @@ export const activeRouterParams = computed(() => {
   // Snag current route from active router
   const currentRoute = modalRouter.currentRoute.value.matched.length
     ? modalRouter.currentRoute.value
-    : router.currentRoute.value
+    : webHashRouter.currentRoute.value.matched.length
+      ? webHashRouter.currentRoute.value
+      : router.currentRoute.value
 
   if (currentRoute) {
     Object.values(PathId).forEach((k) => {
