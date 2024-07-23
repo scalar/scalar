@@ -1,5 +1,13 @@
 # @scalar/api-client-react
 
+## 1.0.2
+
+### Patch Changes
+
+- 5d19345: feat(api-client-react): adds use client directive at the top of file for next.js
+- Updated dependencies [d5408e8]
+  - @scalar/api-client@2.0.29
+
 ## 1.0.1
 
 ### Patch Changes
