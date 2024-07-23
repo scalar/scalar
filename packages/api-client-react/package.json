@@ -51,9 +51,11 @@
   "module": "./dist/index.js",
   "dependencies": {
     "@scalar/api-client": "workspace:*",
+    "rollup-preserve-directives": "^1.1.1",
     "vue": "^3.4.29"
   },
   "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.2.1",

@@ -1,3 +1,5 @@
+'use client'
+
 import type {
   ClientConfiguration,
   createApiClientModalSync as CreateApiClientModalSync,
