@@ -5,15 +5,17 @@ import { cors } from 'hono/cors'
 import type { StatusCode } from 'hono/utils/http-status'
 
 import type { HttpMethod } from './types'
-import { anyBasicAuthentication } from './utils/anyBasicAuthentication'
-import { anyOpenAuthPasswordGrantAuthentication } from './utils/anyOpenAuthPasswordGrantAuthentication'
-import { findPreferredResponseKey } from './utils/findPreferredResponseKey'
-import { getOpenAuthTokenUrl } from './utils/getOpenAuthTokenUrl'
-import { getOperations } from './utils/getOperations'
-import { isAuthenticationRequired } from './utils/isAuthenticationRequired'
-import { isBasicAuthenticationRequired } from './utils/isBasicAuthenticationRequired'
-import { isOpenAuthPasswordGrantRequired } from './utils/isOpenAuthPasswordGrantRequired'
-import { routeFromPath } from './utils/routeFromPath'
+import {
+  anyBasicAuthentication,
+  anyOpenAuthPasswordGrantAuthentication,
+  findPreferredResponseKey,
+  getOpenAuthTokenUrl,
+  getOperations,
+  honoRouteFromPath,
+  isAuthenticationRequired,
+  isBasicAuthenticationRequired,
+  isOpenAuthPasswordGrantRequired,
+} from './utils'
 
 /**
  * Create a mock server instance
@@ -24,8 +26,8 @@ export async function createMockServer(options?: {
 }) {
   const app = new Hono()
 
-  // Resolve references
-  const result = await openapi()
+  /** Dereferenced OpenAPI document */
+  const { schema } = await openapi()
     .load(options?.specification ?? {})
     .dereference()
     .get()
@@ -56,7 +58,7 @@ export async function createMockServer(options?: {
   })
 
   // OpenAuth2 token endpoint
-  const tokenUrl = getOpenAuthTokenUrl(result?.schema)
+  const tokenUrl = getOpenAuthTokenUrl(schema)
 
   if (typeof tokenUrl === 'string') {
     app.post(tokenUrl, async (c) => {
@@ -80,25 +82,27 @@ export async function createMockServer(options?: {
     })
   }
 
-  // Paths
-  const paths = result.schema?.paths ?? {}
+  /** Paths specified in the OpenAPI document */
+  const paths = schema?.paths ?? {}
 
   Object.keys(paths).forEach((path) => {
     const methods = Object.keys(getOperations(paths[path])) as HttpMethod[]
 
+    /** Keys for all operations of a specified path */
     methods.forEach((method) => {
-      const route = routeFromPath(path)
-      const operation = result.schema?.paths?.[path]?.[
-        method
-      ] as OpenAPI.Operation
+      const route = honoRouteFromPath(path)
+
+      const operation = schema?.paths?.[path]?.[method] as OpenAPI.Operation
+
       // Check if authentication is required
       const requiresAuthentication = isAuthenticationRequired(
         operation.security,
       )
+
       // Check whether we need basic authentication
       const requiresBasicAuthentication = isBasicAuthenticationRequired(
         operation,
-        result?.schema,
+        schema,
       )
       // Add HTTP basic authentication
       if (requiresAuthentication && requiresBasicAuthentication) {
@@ -107,12 +111,14 @@ export async function createMockServer(options?: {
       // Check whether we need OpenAuth password grant authentication
       const requiresOpenAuthPasswordGrant = isOpenAuthPasswordGrantRequired(
         operation,
-        result?.schema,
+        schema,
       )
+
       // Add HTTP basic authentication
       if (requiresAuthentication && requiresOpenAuthPasswordGrant) {
         app[method](route, anyOpenAuthPasswordGrantAuthentication())
       }
+
       // Route
       app[method](route, (c: Context) => {
         // Call onRequest callback
@@ -122,17 +128,20 @@ export async function createMockServer(options?: {
             operation,
           })
         }
+
         // Response
         // default, 200, 201 …
         const preferredResponseKey = findPreferredResponseKey(
           Object.keys(operation.responses ?? {}),
         )
+
         // Focus on JSON for now
         const jsonResponse = preferredResponseKey
           ? operation.responses?.[preferredResponseKey]?.content?.[
               'application/json'
             ]
           : null
+
         // Get or generate JSON
         const response = jsonResponse?.example
           ? jsonResponse.example
@@ -142,6 +151,7 @@ export async function createMockServer(options?: {
                 variables: c.req.param(),
               })
             : null
+
         // Status code
         const statusCode = parseInt(
           preferredResponseKey === 'default'

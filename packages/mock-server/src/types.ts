@@ -1,4 +1,4 @@
-/** Available HTTP methods */
+/** Available HTTP methods for Hono routes */
 export const httpMethods = [
   'get',
   'put',
