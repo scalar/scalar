@@ -50,11 +50,7 @@ const sortKeys = ['dependencies', 'devDependencies', 'scripts']
 /** Provide hardcoded overrides for some fields */
 const overrides: Record<string, unknown> = {
   license: 'MIT',
-  author: {
-    name: 'Scalar (https://github.com/scalar)',
-    email: 'marc@scalar.com',
-    url: 'https://scalar.com',
-  },
+  author: 'Scalar (https://github.com/scalar)',
   bugs: 'https://github.com/scalar/scalar/issues/new/choose',
   homepage: 'https://github.com/scalar/scalar',
 }
