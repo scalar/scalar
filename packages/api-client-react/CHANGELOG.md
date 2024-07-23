@@ -1,5 +1,11 @@
 # @scalar/api-client-react
 
+## 1.0.1
+
+### Patch Changes
+
+- 2945efe: chore: make api client react public
+
 ## 1.0.0
 
 ### Major Changes
