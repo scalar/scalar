@@ -46,7 +46,7 @@
     "electron-vite": "^2.3.0",
     "vite": "^5.2.10",
     "vue": "^3.4.29",
-    "vue-tsc": "^2.0.13"
+    "vue-tsc": "^2.0.26"
   },
   "peerDependencies": {
     "@scalar/api-client": "workspace:*"
