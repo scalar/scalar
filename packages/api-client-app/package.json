@@ -11,17 +11,17 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "npm run typecheck && electron-vite build",
+    "build": "npm run types:check && electron-vite build",
     "dev": "electron-vite dev",
-    "format": "prettier --write .",
-    "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts,.vue --fix",
-    "start": "electron-vite preview",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "preview": "electron-vite preview",
     "todesktop:build": "npm run build && todesktop build",
     "todesktop:release": "todesktop release",
     "todesktop:test": "todesktop smoke-test",
-    "typecheck": "npm run typecheck:node && npm run typecheck:web",
-    "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
-    "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false"
+    "types:check": "npm run types:check:node && npm run types:check:web",
+    "types:check:node": "tsc --noEmit -p tsconfig.node.json --composite false",
+    "types:check:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false"
   },
   "main": "./out/main/index.js",
   "productName": "Scalar",
