@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 2.0.28
+
+### Patch Changes
+
+- 23d498b: fix: scope search to active workspace
+- 624696e: chore: update broken links in error messages
+- 41341e9: fix: api client http method bg
+- 5402338: fix: scalap app sidenav spacing
+- 33f5a09: fix: revived the api-client-react package
+- 9f4db12: fix: remove trailing whitespace codemirror env pill
+- aee3783: fix: http method whitespace wrap
+- 9ca5d7d: fix: add null check to scheme model
+- d97bffd: fix: add powered by scalar for gitbook
+
 ## 2.0.27
 
 ### Patch Changes
