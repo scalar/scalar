@@ -33,7 +33,7 @@ defineOptions({ inheritAttrs: false })
       <template #floating="{ width }">
         <PopoverPanel
           v-slot="{ close }"
-          class="relative flex w-40 flex-col rounded border text-xs"
+          class="relative flex w-40 flex-col rounded border text-sm"
           focus
           :style="{ width }"
           v-bind="$attrs">

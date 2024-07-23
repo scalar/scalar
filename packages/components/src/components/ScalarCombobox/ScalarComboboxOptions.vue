@@ -62,10 +62,16 @@ const variants = cva({
   <Combobox
     :modelValue="modelValue"
     @update:modelValue="(v) => $emit('update:modelValue', v)">
-    <ComboboxInput
-      class="rounded-b-none border-0 px-3 py-2.5 text-c-1 outline-none"
-      :placeholder="placeholder"
-      @change="query = $event.target.value" />
+    <div class="flex items-center gap-2 px-3 py-2.5">
+      <ScalarIcon
+        class="text-c-3"
+        icon="Search"
+        size="sm" />
+      <ComboboxInput
+        class="h-3.5 min-w-0 flex-1 border-0 p-0 text-c-1 outline-none"
+        :placeholder="placeholder"
+        @change="query = $event.target.value" />
+    </div>
 
     <ComboboxOptions
       v-show="filtered.length"
