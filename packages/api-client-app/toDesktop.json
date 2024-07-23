@@ -4,5 +4,14 @@
   "appFiles": ["./out/renderer/**/*", "./out/main/**/*", "./out/preload/**/*"],
   "icon": "./build/icon.png",
   "nodeVersion": "20",
-  "packageManager": "pnpm"
+  "packageManager": "pnpm",
+  "packageJson": {
+    "extends": "package.json",
+    "author": {
+      "name": "Scalar (https://github.com/scalar)",
+      "email": "marc@scalar.com",
+      "url": "https://scalar.com"
+    },
+    "optionalDependencies": {}
+  }
 }

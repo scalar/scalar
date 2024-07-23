@@ -675,12 +675,13 @@ importers:
       '@electron-toolkit/utils':
         specifier: ^3.0.0
         version: 3.0.0(electron@31.2.0)
-      '@scalar/api-client':
-        specifier: workspace:*
-        version: link:../api-client
       '@todesktop/runtime':
         specifier: ^1.6.3
         version: 1.6.4
+    optionalDependencies:
+      '@scalar/api-client':
+        specifier: workspace:*
+        version: link:../api-client
     devDependencies:
       '@electron-toolkit/tsconfig':
         specifier: ^1.0.1
