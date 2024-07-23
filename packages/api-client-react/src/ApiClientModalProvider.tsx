@@ -1,6 +1,6 @@
-import {
+import type {
   ClientConfiguration,
-  createApiClientModalSync,
+  createApiClientModalSync as CreateApiClientModalSync,
 } from '@scalar/api-client'
 import React, {
   PropsWithChildren,
@@ -14,7 +14,7 @@ import React, {
 import './style.css'
 
 const ApiClientModalContext = createContext<ReturnType<
-  typeof createApiClientModalSync
+  typeof CreateApiClientModalSync
 > | null>(null)
 
 type Props = PropsWithChildren<{
@@ -37,20 +37,27 @@ export const ApiClientModalProvider = ({
 }: Props) => {
   const el = useRef<HTMLDivElement | null>(null)
 
+  const [createClient, setCreateClient] = useState<
+    typeof CreateApiClientModalSync | null
+  >(null)
   const [client, setClient] = useState<ReturnType<
-    typeof createApiClientModalSync
+    typeof CreateApiClientModalSync
   > | null>(null)
 
+  // Lazyload the js to create the client
   useEffect(() => {
-    if (!el.current) return
+    const loadApiClientJs = async () => {
+      const { createApiClientModalSync } = await import('@scalar/api-client')
+      setCreateClient(() => createApiClientModalSync)
+    }
+    loadApiClientJs()
+  }, [])
+
+  useEffect(() => {
+    if (!el.current || !createClient) return
 
     // Create vue app
-    const _client = createApiClientModalSync(
-      el.current,
-      configuration,
-      true,
-      true,
-    )
+    const _client = createClient(el.current, configuration, true, true)
     setClient(_client)
 
     // We update the config as we are using the sync version
@@ -62,7 +69,7 @@ export const ApiClientModalProvider = ({
       _client.app.unmount()
       setClient(null)
     }
-  }, [el])
+  }, [el, createClient])
 
   return (
     <ApiClientModalContext.Provider value={client}>
