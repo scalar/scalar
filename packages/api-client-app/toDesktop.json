@@ -13,6 +13,8 @@
       "email": "marc@scalar.com",
       "url": "https://scalar.com"
     },
-    "peerDependencies": {}
+    "dependencies": {
+      "@scalar/api-client": null
+    }
   }
 }
