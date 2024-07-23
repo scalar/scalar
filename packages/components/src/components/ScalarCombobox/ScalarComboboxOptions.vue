@@ -68,7 +68,7 @@ const variants = cva({
         icon="Search"
         size="sm" />
       <ComboboxInput
-        class="h-3.5 min-w-0 flex-1 border-0 p-0 text-c-1 outline-none"
+        class="h-3.5 min-w-0 flex-1 rounded-none border-0 p-0 text-c-1 outline-none"
         :placeholder="placeholder"
         @change="query = $event.target.value" />
     </div>
@@ -89,7 +89,7 @@ const variants = cva({
             cx(variants({ active, selected, disabled: option.disabled }))
           ">
           <div
-            class="flex size-4 items-center justify-center rounded-full p-[3px] group-hover:shadow-border"
+            class="flex size-4 items-center justify-center rounded-full p-0.75 group-hover:shadow-border"
             :class="selected ? 'bg-blue text-b-1' : 'text-transparent'">
             <!-- Icon needs help to be optically centered (╥﹏╥) -->
             <ScalarIcon
