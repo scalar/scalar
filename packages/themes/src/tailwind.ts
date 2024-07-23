@@ -13,6 +13,7 @@ export default {
       lg: 'var(--scalar-radius-lg)',
       xl: 'var(--scalar-radius-xl)',
       full: '9999px',
+      none: '0px',
     },
     borderWidth: {
       'DEFAULT': 'var(--scalar-border-width)',
