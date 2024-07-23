@@ -52,7 +52,6 @@
   "module": "./dist/index.js",
   "dependencies": {
     "@scalar/api-client": "workspace:*",
-    "react": "^18.3.1",
     "vue": "^3.4.29"
   },
   "devDependencies": {
@@ -64,5 +63,8 @@
     "react-dom": "^18.3.1",
     "vite": "^5.2.10",
     "vite-plugin-dts": "^3.6.3"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
   }
 }
