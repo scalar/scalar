@@ -1,5 +1,11 @@
 # @scalar/api-client-react
 
+## 1.0.0
+
+### Major Changes
+
+- e41c15e: fix: SSR issue with api-client-react
+
 ## 0.5.45
 
 ### Patch Changes
