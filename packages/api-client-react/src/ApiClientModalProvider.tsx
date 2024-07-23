@@ -54,7 +54,7 @@ export const ApiClientModalProvider = ({
   }, [])
 
   useEffect(() => {
-    if (!el.current || !createClient) return
+    if (!el?.current || !createClient) return
 
     // Create vue app
     const _client = createClient(el.current, configuration, true, true)
