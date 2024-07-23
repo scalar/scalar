@@ -42,6 +42,49 @@ describe('createMockServer', () => {
     })
   })
 
+  it('uses http verbs only to register routes', async () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          summary: '',
+          description: '',
+          parameters: {},
+          servers: {},
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    example: {
+                      foo: 'bar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({
+      specification,
+    })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toMatchObject({
+      foo: 'bar',
+    })
+  })
+
   it('POST /foobar -> example JSON', async () => {
     const specification = {
       openapi: '3.1.0',

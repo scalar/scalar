@@ -4,16 +4,18 @@ import { type Context, Hono } from 'hono'
 import { cors } from 'hono/cors'
 import type { StatusCode } from 'hono/utils/http-status'
 
+import type { HttpMethod } from './types'
 import {
+  anyBasicAuthentication,
+  anyOpenAuthPasswordGrantAuthentication,
   findPreferredResponseKey,
+  getOpenAuthTokenUrl,
+  getOperations,
+  honoRouteFromPath,
   isAuthenticationRequired,
-  routeFromPath,
+  isBasicAuthenticationRequired,
+  isOpenAuthPasswordGrantRequired,
 } from './utils'
-import { anyBasicAuthentication } from './utils/anyBasicAuthentication'
-import { anyOpenAuthPasswordGrantAuthentication } from './utils/anyOpenAuthPasswordGrantAuthentication'
-import { getOpenAuthTokenUrl } from './utils/getOpenAuthTokenUrl'
-import { isBasicAuthenticationRequired } from './utils/isBasicAuthenticationRequired'
-import { isOpenAuthPasswordGrantRequired } from './utils/isOpenAuthPasswordGrantRequired'
 
 /**
  * Create a mock server instance
@@ -24,8 +26,8 @@ export async function createMockServer(options?: {
 }) {
   const app = new Hono()
 
-  // Resolve references
-  const result = await openapi()
+  /** Dereferenced OpenAPI document */
+  const { schema } = await openapi()
     .load(options?.specification ?? {})
     .dereference()
     .get()
@@ -56,7 +58,7 @@ export async function createMockServer(options?: {
   })
 
   // OpenAuth2 token endpoint
-  const tokenUrl = getOpenAuthTokenUrl(result?.schema)
+  const tokenUrl = getOpenAuthTokenUrl(schema)
 
   if (typeof tokenUrl === 'string') {
     app.post(tokenUrl, async (c) => {
@@ -80,14 +82,17 @@ export async function createMockServer(options?: {
     })
   }
 
-  // Paths
-  Object.keys(result.schema?.paths ?? {}).forEach((path) => {
-    // Operations
-    Object.keys(result.schema?.paths?.[path] ?? {}).forEach((method) => {
-      const route = routeFromPath(path)
+  /** Paths specified in the OpenAPI document */
+  const paths = schema?.paths ?? {}
 
-      // @ts-expect-error Needs a proper type
-      const operation = result.schema?.paths?.[path]?.[method]
+  Object.keys(paths).forEach((path) => {
+    const methods = Object.keys(getOperations(paths[path])) as HttpMethod[]
+
+    /** Keys for all operations of a specified path */
+    methods.forEach((method) => {
+      const route = honoRouteFromPath(path)
+
+      const operation = schema?.paths?.[path]?.[method] as OpenAPI.Operation
 
       // Check if authentication is required
       const requiresAuthentication = isAuthenticationRequired(
@@ -97,29 +102,24 @@ export async function createMockServer(options?: {
       // Check whether we need basic authentication
       const requiresBasicAuthentication = isBasicAuthenticationRequired(
         operation,
-        result?.schema,
+        schema,
       )
-
       // Add HTTP basic authentication
       if (requiresAuthentication && requiresBasicAuthentication) {
-        // @ts-expect-error Needs a proper type
         app[method](route, anyBasicAuthentication())
       }
-
       // Check whether we need OpenAuth password grant authentication
       const requiresOpenAuthPasswordGrant = isOpenAuthPasswordGrantRequired(
         operation,
-        result?.schema,
+        schema,
       )
 
       // Add HTTP basic authentication
       if (requiresAuthentication && requiresOpenAuthPasswordGrant) {
-        // @ts-expect-error Needs a proper type
         app[method](route, anyOpenAuthPasswordGrantAuthentication())
       }
 
       // Route
-      // @ts-expect-error Needs a proper type
       app[method](route, (c: Context) => {
         // Call onRequest callback
         if (options?.onRequest) {
@@ -159,7 +159,6 @@ export async function createMockServer(options?: {
             : preferredResponseKey ?? '200',
           10,
         ) as StatusCode
-
         return c.json(response, statusCode)
       })
     })
