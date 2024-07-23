@@ -16,7 +16,7 @@ const variants = cva({
     // Layout
     'min-w-0 items-center gap-1.5 rounded px-2.5 py-1.5 text-left',
     // Text / background style
-    'truncate text-xs text-c-1',
+    'truncate text-sm text-c-1',
     // Interaction
     'cursor-pointer hover:bg-b-2 hover:text-c-1',
   ],
