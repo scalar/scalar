@@ -24,7 +24,6 @@
     "types:check:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false"
   },
   "main": "./out/main/index.js",
-  "productName": "Scalar",
   "optionalDependencies": {
     "@scalar/api-client": "workspace:*"
   },
