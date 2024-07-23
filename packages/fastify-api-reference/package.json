@@ -2,11 +2,7 @@
   "name": "@scalar/fastify-api-reference",
   "description": "a fastify plugin to render an API reference from an OpenAPI file",
   "license": "MIT",
-  "author": {
-    "name": "Scalar (https://github.com/scalar)",
-    "email": "marc@scalar.com",
-    "url": "https://scalar.com"
-  },
+  "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "repository": {

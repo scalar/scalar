@@ -2,11 +2,7 @@
   "name": "@scalar/use-codemirror",
   "description": "CodeMirror for Vue",
   "license": "MIT",
-  "author": {
-    "name": "Scalar (https://github.com/scalar)",
-    "email": "marc@scalar.com",
-    "url": "https://scalar.com"
-  },
+  "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "repository": {
