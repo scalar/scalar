@@ -90,6 +90,36 @@ Whether to show the "Download OpenAPI Specification" button
 }
 ```
 
+#### darkMode?: boolean
+
+Whether dark mode is on or off initially (light mode)
+
+```js
+{
+  darkMode: true
+}
+```
+
+#### forceDarkModeState?: 'dark' | 'light'
+
+forceDarkModeState makes it always this state no matter what
+
+```js
+{
+  forceDarkModeState: 'dark'
+}
+```
+
+#### hideDarkModeToggle?: boolean
+
+Whether to show the dark mode toggle
+
+```js
+{
+  hideDarkModeToggle: true
+}
+```
+
 ### customCss?: string
 
 You can pass custom CSS directly to the component. This is helpful for the integrations for Fastify, Express, Hono and others where you it’s easier to add CSS to the configuration.
