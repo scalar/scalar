@@ -24,9 +24,6 @@
     "types:check:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false"
   },
   "main": "./out/main/index.js",
-  "optionalDependencies": {
-    "@scalar/api-client": "workspace:*"
-  },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
@@ -45,5 +42,8 @@
     "vite": "^5.2.10",
     "vue": "^3.4.29",
     "vue-tsc": "^2.0.26"
+  },
+  "peerDependencies": {
+    "@scalar/api-client": "workspace:*"
   }
 }

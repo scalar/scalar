@@ -13,6 +13,6 @@
       "email": "marc@scalar.com",
       "url": "https://scalar.com"
     },
-    "optionalDependencies": {}
+    "peerDependencies": {}
   }
 }
