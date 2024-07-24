@@ -28,10 +28,10 @@ export const Base: Story = {
     options: [
       { id: '1', label: 'Apple' },
       { id: '2', label: 'Banana' },
-      { id: '3', label: 'Strawberry with a label that needs to be truncated' },
-      { id: '4', label: 'Raspberry' },
-      { id: '5', label: 'Blueberry (Disabled)', disabled: true },
-      { id: '6', label: 'Blackberry' },
+      { id: '3', label: 'Superduperlongnameberry' },
+      { id: '4', label: 'Strawberry' },
+      { id: '5', label: 'Raspberry' },
+      { id: '7', label: 'Blackberry' },
     ],
   },
   render: (args) => ({
