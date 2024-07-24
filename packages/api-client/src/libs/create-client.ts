@@ -55,7 +55,7 @@ export type ClientConfiguration = {
 
 export type OpenClientPayload = {
   path: string
-  method: RequestMethod | Lowercase<RequestMethod> | string
+  method: (RequestMethod | Lowercase<RequestMethod>) & string
 }
 
 type CreateApiClientParams = {
@@ -67,6 +67,7 @@ type CreateApiClientParams = {
   configuration: Omit<ClientConfiguration, 'spec'>
   /** Read only version of the client app */
   isReadOnly?: boolean
+  /** Persist the workspace to localStoragfe */
   persistData?: boolean
   /**
    * Will attempt to mount the references immediately
@@ -258,11 +259,11 @@ export const createApiClient = ({
       }
     },
     /** Update the spec file, this will re-parse it and clear your store */
-    updateSpec: (spec: SpecConfiguration) => {
+    updateSpec: async (spec: SpecConfiguration) => {
       if (spec?.url) {
-        importSpecFromUrl(spec.url, configuration.proxyUrl)
+        await importSpecFromUrl(spec.url, configuration.proxyUrl)
       } else if (spec?.content) {
-        importSpecFile(spec?.content)
+        await importSpecFile(spec?.content)
       } else {
         console.error(
           `[@scalar/api-client-modal] Could not create the API client.`,
@@ -271,18 +272,34 @@ export const createApiClient = ({
         )
       }
     },
-    /** Open the  API client modal */
-    open: (payload?: OpenClientPayload) => {
-      // Find the request from path + method
-      const request = Object.values(requests).find(({ path, method }) =>
-        payload
-          ? // The given operation
-            path === payload.path &&
-            method.toUpperCase() === payload.method.toUpperCase()
-          : // Or the first request
-            true,
+    /** Route to a method + path */
+    route: (
+      /** The first request you would like to display */
+      params: OpenClientPayload,
+    ) => {
+      // Initial route
+      const request = Object.values(requests).find(
+        ({ path, method }) =>
+          path === params.path &&
+          method.toUpperCase() === params.method.toUpperCase(),
       )
       if (request) router.push(`/workspace/default/request/${request.uid}`)
+    },
+
+    /** Open the API client modal and optionally route to a request */
+    open: (payload?: OpenClientPayload) => {
+      // Find the request from path + method
+      if (payload) {
+        const _request = Object.values(requests).find(({ path, method }) =>
+          payload
+            ? // The given operation
+              path === payload.path &&
+              method.toUpperCase() === payload.method.toUpperCase()
+            : // Or the first request
+              true,
+        )
+        if (_request) router.push(`/workspace/default/request/${_request.uid}`)
+      }
 
       modalState.open = true
     },
