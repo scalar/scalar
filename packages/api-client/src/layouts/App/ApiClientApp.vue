@@ -26,6 +26,7 @@ const workspaceStore = useWorkspace()
 onBeforeMount(async () => {
   // Check if we have localStorage data
   if (localStorage.getItem(LS_KEYS.WORKSPACE)) {
+    console.log('we are loading from local')
     const size: Record<string, string> = {}
     let _lsTotal = 0
     let _xLen = 0
@@ -44,6 +45,7 @@ onBeforeMount(async () => {
 
     loadAllResources(workspaceStore)
   } else {
+    console.log('we aint')
     // Create default workspace
     workspaceStore.workspaceMutators.add({
       uid: 'default',

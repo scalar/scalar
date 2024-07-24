@@ -21,6 +21,7 @@ export const createApiClientApp = async (
     el,
     appComponent: ApiClientApp,
     configuration,
+    isReadOnly: false,
     mountOnInitialize,
     router,
   })
@@ -35,6 +36,7 @@ export const createApiClientApp = async (
   }
   // Or add default workspace
   else {
+    console.log('where we at holla back')
     workspaceMutators.add({
       uid: 'default',
       name: 'Workspace',
