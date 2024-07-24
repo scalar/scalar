@@ -56,7 +56,8 @@ const uid = (attrs.id as string) || `id-${nanoid()}`
 
 const isFocused = ref(false)
 
-const { activeWorkspace } = useWorkspace()
+const { activeWorkspace, activeParsedEnvironments, isReadOnly, environments } =
+  useWorkspace()
 
 // ---------------------------------------------------------------------------
 // Event mapping from codemirror to standard input interfaces
@@ -94,7 +95,10 @@ if (props.colorPicker) extensions.push(colorPickerExtension)
 if (props.withVariables && !activeWorkspace.value.isReadOnly) {
   extensions.push(dropdownPlugin({ withServers: props.withServers }))
 }
-extensions.push(pillPlugin, backspaceCommand)
+extensions.push(
+  pillPlugin({ environments, activeParsedEnvironments, isReadOnly }),
+)
+extensions.push(backspaceCommand)
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
 const { codeMirror } = useCodeMirror({

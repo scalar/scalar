@@ -1,6 +1,7 @@
 /* eslint-disable vue/one-component-per-file */
-import { useWorkspace } from '@/store/workspace'
+import type { WorkspaceStore } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
+import type { Environment } from '@scalar/oas-utils/entities/workspace/environment'
 import {
   Decoration,
   type DecorationSet,
@@ -11,8 +12,6 @@ import {
   WidgetType,
 } from '@scalar/use-codemirror'
 import { createApp, defineComponent, h } from 'vue'
-
-// const { activeParsedEnvironments, isReadOnly, environments } = useWorkspace()
 
 const getEnvColor = (
   item:
@@ -25,19 +24,34 @@ const getEnvColor = (
         key: string
         value: unknown
       },
+  environments: Record<string, Environment>,
 ) => {
   if ('_scalarEnvId' in item) {
-    // return `bg-${environments[item._scalarEnvId as string].color}`
+    return `bg-${environments[item._scalarEnvId as string].color}`
   }
   // this is a server but we can eventually is a 🌐 icon
   return `bg-grey`
 }
 
+type ActiveParsedEnvironments = WorkspaceStore['activeParsedEnvironments']
+
 class PillWidget extends WidgetType {
   private app: any
+  environments: Record<string, Environment>
+  activeParsedEnvironments: ActiveParsedEnvironments
+  isReadOnly: boolean
 
-  constructor(private variableName: string) {
+  constructor(
+    private variableName: string,
+    environments: Record<string, Environment>,
+    activeParsedEnvironments: ActiveParsedEnvironments,
+    isReadOnly: boolean,
+  ) {
     super()
+    this.variableName = variableName
+    this.environments = environments
+    this.activeParsedEnvironments = activeParsedEnvironments
+    this.isReadOnly = isReadOnly
   }
 
   toDOM() {
@@ -47,36 +61,36 @@ class PillWidget extends WidgetType {
 
     const tooltipComponent = defineComponent({
       props: ['variableName'],
-      render() {
-        // const val = activeParsedEnvironments.value.find(
-        //   (thing) => thing.key === this.variableName,
-        // )
-        // if (val) {
-        //   span.className += ` ${getEnvColor(val)}`
-        // }
-        // const tooltipContent = val
-        //   ? h('div', { class: 'p-2' }, val.value as string)
-        //   : h('div', { class: 'divide-y divide-1/2 grid' }, [
-        //       h('span', { class: 'p-2' }, 'Variable not found'),
-        //       !isReadOnly.value &&
-        //         h('div', { class: 'p-1' }, [
-        //           h(
-        //             ScalarButton,
-        //             {
-        //               class:
-        //                 'gap-1.5 justify-start font-normal px-1 py-1.5 h-auto transition-colors rounded no-underline text-xxs w-full hover:bg-b-2',
-        //               variant: 'ghost',
-        //               onClick: () => {
-        //                 window.location.href = '/environment'
-        //               },
-        //             },
-        //             [
-        //               h(ScalarIcon, { class: 'w-2', icon: 'Add', size: 'xs' }),
-        //               'Add variable',
-        //             ],
-        //           ),
-        //         ]),
-        //     ])
+      render: () => {
+        const val = this.activeParsedEnvironments.value.find(
+          (thing) => thing.key === this.variableName,
+        )
+        if (val) {
+          span.className += ` ${getEnvColor(val, this.environments)}`
+        }
+        const tooltipContent = val
+          ? h('div', { class: 'p-2' }, val.value as string)
+          : h('div', { class: 'divide-y divide-1/2 grid' }, [
+              h('span', { class: 'p-2' }, 'Variable not found'),
+              !this.isReadOnly &&
+                h('div', { class: 'p-1' }, [
+                  h(
+                    ScalarButton,
+                    {
+                      class:
+                        'gap-1.5 justify-start font-normal px-1 py-1.5 h-auto transition-colors rounded no-underline text-xxs w-full hover:bg-b-2',
+                      variant: 'ghost',
+                      onClick: () => {
+                        window.location.href = '/environment'
+                      },
+                    },
+                    [
+                      h(ScalarIcon, { class: 'w-2', icon: 'Add', size: 'xs' }),
+                      'Add variable',
+                    ],
+                  ),
+                ]),
+            ])
 
         return h(
           ScalarTooltip,
@@ -96,7 +110,7 @@ class PillWidget extends WidgetType {
                   class:
                     'w-content shadow-lg rounded bg-b-1 text-xxs leading-5 text-c-1',
                 },
-                // tooltipContent,
+                tooltipContent,
               ),
           },
         )
@@ -126,50 +140,60 @@ class PillWidget extends WidgetType {
   }
 }
 
-export const pillPlugin = ViewPlugin.fromClass(
-  class {
-    decorations: DecorationSet
+export const pillPlugin = (props: {
+  environments: Record<string, Environment>
+  activeParsedEnvironments: ActiveParsedEnvironments
+  isReadOnly: boolean
+}) =>
+  ViewPlugin.fromClass(
+    class {
+      decorations: DecorationSet
 
-    constructor(view: EditorView) {
-      this.decorations = this.buildDecorations(view)
-    }
-
-    update(update: ViewUpdate) {
-      if (update.docChanged || update.viewportChanged) {
-        this.decorations = this.buildDecorations(update.view)
+      constructor(view: EditorView) {
+        this.decorations = this.buildDecorations(view)
       }
-    }
 
-    buildDecorations(view: EditorView) {
-      const builder = new RangeSetBuilder<Decoration>()
-
-      for (const { from, to } of view.visibleRanges) {
-        const text = view.state.doc.sliceString(from, to)
-        const regex = /{{(.*?)}}/g
-        let match
-
-        while ((match = regex.exec(text)) !== null) {
-          const start = from + match.index
-          const end = start + match[0].length
-          const variableName = match[1]
-          builder.add(
-            start,
-            end,
-            Decoration.widget({
-              widget: new PillWidget(variableName),
-              side: 1,
-            }),
-          )
+      update(update: ViewUpdate) {
+        if (update.docChanged || update.viewportChanged) {
+          this.decorations = this.buildDecorations(update.view)
         }
       }
 
-      return builder.finish()
-    }
-  },
-  {
-    decorations: (v) => v.decorations,
-  },
-)
+      buildDecorations(view: EditorView) {
+        const builder = new RangeSetBuilder<Decoration>()
+
+        for (const { from, to } of view.visibleRanges) {
+          const text = view.state.doc.sliceString(from, to)
+          const regex = /{{(.*?)}}/g
+          let match
+
+          while ((match = regex.exec(text)) !== null) {
+            const start = from + match.index
+            const end = start + match[0].length
+            const variableName = match[1]
+            builder.add(
+              start,
+              end,
+              Decoration.widget({
+                widget: new PillWidget(
+                  variableName,
+                  props.environments,
+                  props.activeParsedEnvironments,
+                  props.isReadOnly,
+                ),
+                side: 1,
+              }),
+            )
+          }
+        }
+
+        return builder.finish()
+      }
+    },
+    {
+      decorations: (v) => v.decorations,
+    },
+  )
 
 export const backspaceCommand = EditorView.domEventHandlers({
   keydown(event, view) {
