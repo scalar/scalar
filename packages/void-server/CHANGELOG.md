@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.0.7
+
+### Patch Changes
+
+- a28ba3b: chore: remove undici dependency
+
 ## 2.0.6
 
 ### Patch Changes
