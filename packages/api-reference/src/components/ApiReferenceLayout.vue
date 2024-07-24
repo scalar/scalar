@@ -107,9 +107,15 @@ onBeforeMount(() => updateHash())
 const scrollToSection = async (id?: string) => {
   isIntersectionEnabled.value = false
   updateHash()
-
-  if (id) scrollToId(id)
-  else documentEl.value?.scrollTo(0, 0)
+  if (id) {
+    // Open the section if it's collapsed
+    const sectionId = getSectionId(id)
+    if (sectionId !== id) {
+      setCollapsedSidebarItem(getSectionId(id), true)
+      await sleep(100)
+    }
+    scrollToId(id)
+  } else documentEl.value?.scrollTo(0, 0)
 
   await sleep(100)
   isIntersectionEnabled.value = true
