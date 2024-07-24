@@ -129,29 +129,18 @@ const routes = [
   },
 ] satisfies RouteRecordRaw[]
 
-/**
- * Router for the API client app
- */
+/** Router for the API client app */
 export const router = createRouter({
   history: createWebHistory(),
   routes,
 })
 
-/**
- * Router for the API client app (but using hash history)
- */
+/** Router for the API client app (but using hash history) */
 export const webHashRouter = createRouter({
   history: createWebHashHistory(),
   routes,
 })
 
-/**
- * Router for the API client modal
- */
-export const modalRouter = createRouter({
-  history: createMemoryHistory(),
-  routes: modalRoutes,
-})
 /** Router factory for the API Client modal */
 export const createModalRouter = () =>
   createRouter({
@@ -172,11 +161,11 @@ export const activeRouterParams = computed(() => {
   }
 
   // Snag current route from active router
-  const currentRoute = modalRouter.currentRoute.value.matched.length
-    ? modalRouter.currentRoute.value
-    : webHashRouter.currentRoute.value.matched.length
-      ? webHashRouter.currentRoute.value
-      : router.currentRoute.value
+  // const currentRoute = modalRouter.currentRoute.value.matched.length
+  //   ? modalRouter.currentRoute.value
+  //   : webHashRouter.currentRoute.value.matched.length
+  //     ? webHashRouter.currentRoute.value
+  //     : router.currentRoute.value
   // const currentRoute = modalRouter.currentRoute.value.matched.length
   //   ? modalRouter.currentRoute.value
   //   : router.currentRoute.value

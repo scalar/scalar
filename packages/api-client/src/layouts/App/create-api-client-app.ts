@@ -1,5 +1,5 @@
 import { type ClientConfiguration, createApiClient } from '@/libs'
-import { router } from '@/router'
+import { router as _router } from '@/router'
 
 import ApiClientApp from './ApiClientApp.vue'
 
@@ -16,6 +16,8 @@ export const createApiClientApp = async (
    * For SSR this may need to be blocked and done client side
    */
   mountOnInitialize = true,
+  /** Vue router to use */
+  router = _router,
 ) => {
   const client = createApiClient({
     el,
@@ -36,7 +38,6 @@ export const createApiClientApp = async (
   }
   // Or add default workspace
   else {
-    console.log('where we at holla back')
     workspaceMutators.add({
       uid: 'default',
       name: 'Workspace',
