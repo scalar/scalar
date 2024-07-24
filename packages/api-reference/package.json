@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.24.54",
+  "version": "1.24.55",
   "engines": {
     "node": ">=18"
   },

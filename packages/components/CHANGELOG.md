@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.12.19
+
+### Patch Changes
+
+- a5f3a84: feat(components): create combo box component
+- 9a08f46: fix: set component font size to 13px
+  - @scalar/code-highlight@0.0.7
+
 ## 0.12.18
 
 ### Patch Changes

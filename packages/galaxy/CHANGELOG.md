@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.5
+
+### Patch Changes
+
+- 05c1360: fix(api-reference): allow scrolling to collapsed sections via hash
+
 ## 0.2.4
 
 ### Patch Changes

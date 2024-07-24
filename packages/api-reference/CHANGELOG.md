@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.24.55
+
+### Patch Changes
+
+- 05c1360: fix(api-reference): allow scrolling to collapsed sections via hash
+- Updated dependencies [a5f3a84]
+- Updated dependencies [b4199e9]
+- Updated dependencies [9a08f46]
+  - @scalar/components@0.12.19
+  - @scalar/themes@0.9.16
+  - @scalar/api-client@2.0.30
+  - @scalar/oas-utils@0.2.17
+
 ## 1.24.54
 
 ### Patch Changes

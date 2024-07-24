@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 2.0.30
+
+### Patch Changes
+
+- b4199e9: fix: api client app clean up (font sizes, spacing, etc)
+- Updated dependencies [a5f3a84]
+- Updated dependencies [9a08f46]
+  - @scalar/components@0.12.19
+  - @scalar/themes@0.9.16
+  - @scalar/oas-utils@0.2.17
+
 ## 2.0.29
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.16
+
+### Patch Changes
+
+- a5f3a84: feat(components): create combo box component
+
 ## 0.9.15
 
 ### Patch Changes
