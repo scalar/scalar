@@ -27,8 +27,6 @@ export const createApiClientApp = async (
 
   const { importSpecFile, importSpecFromUrl, workspaceMutators } = client.store
 
-  console.log(client.store)
-
   // Import the spec if needed
   if (config.spec?.url) {
     await importSpecFromUrl(config.spec.url, config.proxyUrl)

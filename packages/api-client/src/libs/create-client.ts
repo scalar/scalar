@@ -168,7 +168,7 @@ export const createApiClient = ({
         objectMerge(config, newConfig)
       }
       if (newConfig.spec) {
-        importSpecFile(newConfig.spec, undefined, undefined, true)
+        importSpecFile(newConfig.spec)
       }
     },
     /**
@@ -261,9 +261,9 @@ export const createApiClient = ({
     /** Update the spec file, this will re-parse it and clear your store */
     updateSpec: (spec: SpecConfiguration) => {
       if (spec?.url) {
-        importSpecFromUrl(spec.url, config.proxyUrl, true)
+        importSpecFromUrl(spec.url, config.proxyUrl)
       } else if (spec?.content) {
-        importSpecFile(spec?.content, undefined, undefined, true)
+        importSpecFile(spec?.content)
       } else {
         console.error(
           `[@scalar/api-client-modal] Could not create the API client.`,

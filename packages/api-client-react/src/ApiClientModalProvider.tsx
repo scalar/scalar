@@ -1,9 +1,10 @@
 'use client'
 
+import { ApiClientModal } from '@scalar/api-client/layouts/Modal'
 import type {
   ClientConfiguration,
-  createApiClientModalSync as CreateApiClientModalSync,
-} from '@scalar/api-client'
+  createApiClient as CreateApiClient,
+} from '@scalar/api-client/libs'
 import React, {
   PropsWithChildren,
   createContext,
@@ -16,11 +17,11 @@ import React, {
 import './style.css'
 
 const ApiClientModalContext = createContext<ReturnType<
-  typeof CreateApiClientModalSync
+  typeof CreateApiClient
 > | null>(null)
 
 type Props = PropsWithChildren<{
-  configuration?: ClientConfiguration
+  config?: ClientConfiguration
 }>
 
 // These are required for the vue bundler version
@@ -33,24 +34,21 @@ globalThis.__VUE_PROD_DEVTOOLS__ = false
  *
  * Provider which mounts the Scalar Api Client Modal vue app
  */
-export const ApiClientModalProvider = ({
-  children,
-  configuration = {},
-}: Props) => {
+export const ApiClientModalProvider = ({ children, config = {} }: Props) => {
   const el = useRef<HTMLDivElement | null>(null)
 
   const [createClient, setCreateClient] = useState<
-    typeof CreateApiClientModalSync | null
+    typeof CreateApiClient | null
   >(null)
   const [client, setClient] = useState<ReturnType<
-    typeof CreateApiClientModalSync
+    typeof CreateApiClient
   > | null>(null)
 
   // Lazyload the js to create the client
   useEffect(() => {
     const loadApiClientJs = async () => {
-      const { createApiClientModalSync } = await import('@scalar/api-client')
-      setCreateClient(() => createApiClientModalSync)
+      const { createApiClient } = await import('@scalar/api-client/libs')
+      setCreateClient(() => createApiClient)
     }
     loadApiClientJs()
   }, [])
@@ -59,11 +57,18 @@ export const ApiClientModalProvider = ({
     if (!el?.current || !createClient) return
 
     // Create vue app
-    const _client = createClient(el.current, configuration, true, true)
+    const _client = createClient({
+      el: el.current,
+      appComponent: ApiClientModal,
+      config,
+      isReadOnly: true,
+      mountOnInitialize: true,
+      persistData: false,
+    })
     setClient(_client)
 
     // We update the config as we are using the sync version
-    if (configuration.spec) _client.updateSpec(configuration.spec)
+    if (config.spec) _client.updateSpec(config.spec)
 
     // Ensure we unmount the vue app on unmount
     // eslint-disable-next-line consistent-return
