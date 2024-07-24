@@ -91,7 +91,7 @@ export const createApiClient = ({
   mountOnInitialize = true,
   router,
 }: CreateApiClientParams) => {
-  const store = createWorkspaceStore(persistData)
+  const store = createWorkspaceStore(router, persistData)
 
   // Strictly make the default workspace with no side effects, to be overwritten by importing a spec
   store.workspaceMutators.rawAdd(

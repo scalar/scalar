@@ -1,5 +1,5 @@
 import { useSidebar } from '@/hooks'
-import { PathId, activeRouterParams, fallbackMissingParams } from '@/router'
+import { PathId, fallbackMissingParams } from '@/router'
 import { useModal } from '@scalar/components'
 import {
   type Workspace,
@@ -49,6 +49,7 @@ import { LS_KEYS, mutationFactory } from '@scalar/object-utils/mutator-record'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import type { AnyObject, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, inject, reactive, toRaw } from 'vue'
+import type { Router } from 'vue-router'
 
 export type UpdateScheme = <P extends Path<SecurityScheme>>(
   path: P,
@@ -61,7 +62,32 @@ const { setCollapsedSidebarFolder } = useSidebar()
  * Factory for creating the entire store for the api-client
  * This should be injected once per app instance
  */
-export const createWorkspaceStore = (persistData = true) => {
+export const createWorkspaceStore = (router: Router, persistData = true) => {
+  /** Gives the required UID usually per route */
+  const activeRouterParams = computed(() => {
+    const pathParams = {
+      [PathId.Collection]: 'default',
+      [PathId.Environment]: 'default',
+      [PathId.Request]: 'default',
+      [PathId.Examples]: 'default',
+      [PathId.Schema]: 'default',
+      [PathId.Cookies]: 'default',
+      [PathId.Servers]: 'default',
+      [PathId.Workspace]: 'default',
+    }
+
+    const currentRoute = router.currentRoute.value
+
+    if (currentRoute) {
+      Object.values(PathId).forEach((k) => {
+        if (currentRoute.params[k]) {
+          pathParams[k] = currentRoute.params[k] as string
+        }
+      })
+    }
+
+    return pathParams
+  })
   // ---------------------------------------------------------------------------
   // REQUEST
 
@@ -784,6 +810,7 @@ export const createWorkspaceStore = (persistData = true) => {
     activeCookieId,
     activeExample,
     activeRequest,
+    activeRouterParams,
     activeSecurityRequirements,
     activeSecurityScheme,
     activeServer,

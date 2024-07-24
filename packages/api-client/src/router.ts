@@ -1,4 +1,3 @@
-import { computed } from 'vue'
 import {
   type RouteRecordRaw,
   createMemoryHistory,
@@ -147,41 +146,6 @@ export const createModalRouter = () =>
     history: createMemoryHistory(),
     routes: modalRoutes,
   })
-
-export const activeRouterParams = computed(() => {
-  const pathParams = {
-    [PathId.Collection]: 'default',
-    [PathId.Environment]: 'default',
-    [PathId.Request]: 'default',
-    [PathId.Examples]: 'default',
-    [PathId.Schema]: 'default',
-    [PathId.Cookies]: 'default',
-    [PathId.Servers]: 'default',
-    [PathId.Workspace]: 'default',
-  }
-
-  // Snag current route from active router
-  // const currentRoute = modalRouter.currentRoute.value.matched.length
-  //   ? modalRouter.currentRoute.value
-  //   : webHashRouter.currentRoute.value.matched.length
-  //     ? webHashRouter.currentRoute.value
-  //     : router.currentRoute.value
-  // const currentRoute = modalRouter.currentRoute.value.matched.length
-  //   ? modalRouter.currentRoute.value
-  //   : router.currentRoute.value
-
-  const currentRoute = router.currentRoute.value
-
-  if (currentRoute) {
-    Object.values(PathId).forEach((k) => {
-      if (currentRoute.params[k]) {
-        pathParams[k] = currentRoute.params[k] as string
-      }
-    })
-  }
-
-  return pathParams
-})
 
 /** If we try to navigate to a entity UID that does not exist then we fallback to the default */
 export function fallbackMissingParams(
