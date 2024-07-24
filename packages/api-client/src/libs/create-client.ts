@@ -103,7 +103,7 @@ export const createApiClient = ({
     }),
   )
 
-  const app = createApp(appComponent, { modalState: store.modalState })
+  const app = createApp(appComponent)
   app.use(router)
   app.provide('workspace', store)
 
