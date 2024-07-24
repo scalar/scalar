@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { useWorkspace } from '@/store/workspace'
+import type { WorkspaceStore } from '@/store/workspace'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import Fuse from 'fuse.js'
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import type { Router } from 'vue-router'
 
 const props = defineProps<{
   query: string
+  activeParsedEnvironments: WorkspaceStore['activeParsedEnvironments']
+  environments: WorkspaceStore['environments']
+  router: Router
   // withServers?: boolean
 }>()
 
@@ -14,10 +17,9 @@ const emit = defineEmits<{
   (e: 'select', variable: string): void
 }>()
 
-const { activeParsedEnvironments, environments } = useWorkspace()
-const router = useRouter()
+const { push } = props.router
 
-const fuse = new Fuse(activeParsedEnvironments.value, {
+const fuse = new Fuse(props.activeParsedEnvironments.value, {
   keys: ['key', 'value'],
 })
 
@@ -26,7 +28,7 @@ const filteredVariables = computed(() => {
 
   if (!searchQuery) {
     /** return the last 4 environment variables on first display */
-    return activeParsedEnvironments.value.slice(-4)
+    return props.activeParsedEnvironments.value.slice(-4)
   }
 
   /** filter environment variables by name */
@@ -55,7 +57,7 @@ const getEnvColor = (
       },
 ) => {
   if ('_scalarEnvId' in item) {
-    return `bg-${environments[item._scalarEnvId as string].color}`
+    return `bg-${props.environments[item._scalarEnvId as string].color}`
   }
   // this is a server but we can eventually is a 🌐 icon
   return `bg-grey`
@@ -91,7 +93,7 @@ const getEnvColor = (
       v-else
       class="font-code text-3xs hover:bg-b-2 flex h-7 w-full justify-start gap-2 px-2 transition-colors duration-150"
       variant="secondary"
-      @click="router.push('/environment')">
+      @click="push('/environment')">
       <ScalarIcon
         class="w-2"
         icon="Add"
