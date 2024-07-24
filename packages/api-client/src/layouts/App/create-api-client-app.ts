@@ -27,21 +27,13 @@ export const createApiClientApp = async (
     router,
   })
 
-  const { importSpecFile, importSpecFromUrl, workspaceMutators } = client.store
+  const { importSpecFile, importSpecFromUrl } = client.store
 
   // Import the spec if needed
   if (configuration.spec?.url) {
     await importSpecFromUrl(configuration.spec.url, configuration.proxyUrl)
   } else if (configuration.spec?.content) {
     await importSpecFile(configuration.spec?.content)
-  }
-  // Or add default workspace
-  else {
-    workspaceMutators.add({
-      uid: 'default',
-      name: 'Workspace',
-      proxyUrl: 'https://proxy.scalar.com',
-    })
   }
 
   return client
