@@ -2,26 +2,39 @@
 import type { ROUTES } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarIcon } from '@scalar/components'
+import { useRouter } from 'vue-router'
 
 type IconProps = InstanceType<typeof ScalarIcon>['$props']
 
 defineProps<{
   icon: IconProps['icon']
   name: (typeof ROUTES)[number]['name']
+  prettyName: (typeof ROUTES)[number]['prettyName']
   active?: boolean
 }>()
 
 const { activeWorkspace } = useWorkspace()
+
+const { currentRoute } = useRouter()
 </script>
 <template>
   <router-link
     activeClass="active-link"
-    class="w-[37px] hover:bg-b-2 active:text-c-1 flex items-center justify-center rounded-lg p-[7px]"
-    :class="{ 'bg-b-2 transition-none hover:cursor-auto text-c-1': active }"
+    class="flex flex-col items-center gap-1 group no-underline"
     :to="`/workspace/${activeWorkspace.uid}/${name}/default`">
-    <ScalarIcon
-      :icon="icon"
-      thickness="1.5" />
+    <div
+      class="min-w-[37px] max-w-[42px] group-hover:bg-b-2 active:text-c-1 flex items-center justify-center rounded-lg p-[7px] scalar-app-nav-padding"
+      :class="{
+        'bg-b-2 transition-none group-hover:cursor-auto text-c-1': active,
+      }">
+      <ScalarIcon
+        :icon="icon"
+        thickness="1.5" />
+    </div>
+    <div
+      class="no-underline font-medium text-[11px] hidden scalar-app-show capitalize">
+      {{ prettyName }}
+    </div>
     <span class="sr-only"><slot /></span>
   </router-link>
 </template>

@@ -128,7 +128,7 @@ const updateExampleUrlHandler = (url: string) => {
 
           <AddressBarHistory :open="open" />
           <ScalarButton
-            class="relative h-auto shrink-0 gap-1 overflow-hidden pl-2 pr-2.5 py-1 z-[1]"
+            class="relative h-auto shrink-0 gap-1 overflow-hidden pl-2 pr-2.5 py-1 z-[1] font-bold"
             :disabled="isRequesting"
             @click="executeRequestBus.emit()">
             <ScalarIcon

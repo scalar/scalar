@@ -3,7 +3,7 @@ import { ScalarIcon } from '@scalar/components'
 </script>
 <template>
   <div
-    class="flex flex-1 flex-col rounded-lg rounded-b-none rounded-r-none pt-0 h-full bg-b-2">
+    class="flex flex-1 flex-col rounded-lg rounded-b-none rounded-r-none pt-0 h-full bg-b-2 relative">
     <div
       class="lg:min-h-header items-center w-full p-1 t-app__top-container flex items-center">
       <router-link

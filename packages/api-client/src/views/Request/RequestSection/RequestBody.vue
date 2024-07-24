@@ -390,7 +390,7 @@ watch(
                   {{ activeExample?.body.binary.name }}
                 </span>
                 <ScalarButton
-                  class="bg-b-2 hover:bg-b-3 border-0 text-c-2 ml-1"
+                  class="bg-b-2 hover:bg-b-3 border-0 text-c-2 ml-1 shadow-none"
                   size="sm"
                   variant="outlined"
                   @click="removeBinaryFile">
@@ -399,7 +399,7 @@ watch(
               </template>
               <template v-else>
                 <ScalarButton
-                  class="bg-b-2 hover:bg-b-3 border-0 text-c-2"
+                  class="bg-b-2 hover:bg-b-3 border-0 text-c-2 shadow-none"
                   size="sm"
                   variant="outlined"
                   @click="handleFileUpload">
