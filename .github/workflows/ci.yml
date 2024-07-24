@@ -226,7 +226,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   stackblitz:
-    # if: github.head_ref == 'changeset-release/main'
+    if: github.head_ref == 'changeset-release/main'
     runs-on: ubuntu-20.04
     needs: [build]
     strategy:
