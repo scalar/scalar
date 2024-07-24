@@ -23,7 +23,6 @@ export const createApiClientApp = async (
     el,
     appComponent: ApiClientApp,
     configuration,
-    isReadOnly: false,
     mountOnInitialize,
     router,
   })
@@ -41,7 +40,6 @@ export const createApiClientApp = async (
     workspaceMutators.add({
       uid: 'default',
       name: 'Workspace',
-      isReadOnly: true,
       proxyUrl: 'https://proxy.scalar.com',
     })
   }

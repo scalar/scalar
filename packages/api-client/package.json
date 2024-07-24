@@ -49,6 +49,10 @@
       "import": "./dist/views/Request/components/index.js",
       "types": "./dist/views/Request/components/index.d.ts"
     },
+    "./store": {
+      "import": "./dist/store/index.js",
+      "types": "./dist/store/index.d.ts"
+    },
     "./libs": {
       "import": "./dist/libs/index.js",
       "types": "./dist/libs/index.d.ts"

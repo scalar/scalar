@@ -821,6 +821,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     activeWorkspaceRequests,
     modalState,
     isReadOnly,
+    router,
     // ---------------------------------------------------------------------------
     // METHODS
     findRequestFolders,
