@@ -64,7 +64,7 @@ type CreateApiClientParams = {
   /** Main vue app component to create the vue app */
   appComponent: Component
   /** Configuration object for Scalar References */
-  config: Omit<ClientConfiguration, 'spec'>
+  configuration: Omit<ClientConfiguration, 'spec'>
   /** Read only version of the client app */
   isReadOnly?: boolean
   persistData?: boolean
@@ -85,7 +85,7 @@ type CreateApiClientParams = {
 export const createApiClient = ({
   el,
   appComponent,
-  config,
+  configuration,
   isReadOnly = false,
   persistData = true,
   mountOnInitialize = true,
@@ -99,7 +99,7 @@ export const createApiClient = ({
       uid: 'default',
       name: 'Workspace',
       isReadOnly,
-      proxyUrl: config.proxyUrl ?? 'https://proxy.scalar.com',
+      proxyUrl: configuration.proxyUrl ?? 'https://proxy.scalar.com',
     }),
   )
 
@@ -139,19 +139,19 @@ export const createApiClient = ({
   if (activeWorkspace.value) {
     if (mountOnInitialize) mount()
 
-    if (config.proxyUrl) {
+    if (configuration.proxyUrl) {
       workspaceMutators.edit(
         activeWorkspace.value.uid,
         'proxyUrl',
-        config.proxyUrl,
+        configuration.proxyUrl,
       )
     }
 
-    if (config.themeId) {
+    if (configuration.themeId) {
       workspaceMutators.edit(
         activeWorkspace.value.uid,
         'themeId',
-        config.themeId,
+        configuration.themeId,
       )
     }
   }
@@ -162,9 +162,9 @@ export const createApiClient = ({
     /** Update the API client config */
     updateConfig(newConfig: ClientConfiguration, mergeConfigs = true) {
       if (mergeConfigs) {
-        Object.assign(config, newConfig)
+        Object.assign(configuration, newConfig)
       } else {
-        objectMerge(config, newConfig)
+        objectMerge(configuration, newConfig)
       }
       if (newConfig.spec) {
         importSpecFile(newConfig.spec)
@@ -260,7 +260,7 @@ export const createApiClient = ({
     /** Update the spec file, this will re-parse it and clear your store */
     updateSpec: (spec: SpecConfiguration) => {
       if (spec?.url) {
-        importSpecFromUrl(spec.url, config.proxyUrl)
+        importSpecFromUrl(spec.url, configuration.proxyUrl)
       } else if (spec?.content) {
         importSpecFile(spec?.content)
       } else {

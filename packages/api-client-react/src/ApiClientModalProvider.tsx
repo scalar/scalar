@@ -22,7 +22,7 @@ const ApiClientModalContext = createContext<ReturnType<
 > | null>(null)
 
 type Props = PropsWithChildren<{
-  config?: ClientConfiguration
+  configuration?: ClientConfiguration
 }>
 
 // These are required for the vue bundler version
@@ -35,7 +35,10 @@ globalThis.__VUE_PROD_DEVTOOLS__ = false
  *
  * Provider which mounts the Scalar Api Client Modal vue app
  */
-export const ApiClientModalProvider = ({ children, config = {} }: Props) => {
+export const ApiClientModalProvider = ({
+  children,
+  configuration = {},
+}: Props) => {
   const el = useRef<HTMLDivElement | null>(null)
 
   const [createClient, setCreateClient] = useState<
@@ -61,7 +64,7 @@ export const ApiClientModalProvider = ({ children, config = {} }: Props) => {
     const _client = createClient({
       el: el.current,
       appComponent: ApiClientModal,
-      config,
+      configuration,
       isReadOnly: true,
       mountOnInitialize: true,
       persistData: false,
@@ -70,7 +73,7 @@ export const ApiClientModalProvider = ({ children, config = {} }: Props) => {
     setClient(_client)
 
     // We update the config as we are using the sync version
-    if (config.spec) _client.updateSpec(config.spec)
+    if (configuration.spec) _client.updateSpec(configuration.spec)
 
     // Ensure we unmount the vue app on unmount
     // eslint-disable-next-line consistent-return
