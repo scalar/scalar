@@ -19,12 +19,14 @@ $ pnpm dev
 ### Build
 
 ```bash
-# For Windows
-$ pnpm build:win
+# Requires access to our toDesktop team
+$ pnpm todesktop:build
+```
 
-# For macOS
-$ pnpm build:mac
+Web UI: https://app.todesktop.com/apps/240718bnjmcfyp4
 
-# For Linux
-$ pnpm build:linux
+### Release
+
+```bash
+$ pnpm todesktop:build && pnpm todesktop:release
 ```

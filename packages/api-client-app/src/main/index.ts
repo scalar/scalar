@@ -1,8 +1,26 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
+import todesktop from '@todesktop/runtime'
 import { BrowserWindow, app, ipcMain, shell } from 'electron'
 import { join } from 'path'
 
 import icon from '../../build/icon.png?asset'
+
+todesktop.init({
+  updateReadyAction: {
+    showNotification: 'never',
+    showInstallAndRestartPrompt: async (context) => {
+      if (!context.appIsInForeground) return
+
+      // eslint-disable-next-line consistent-return
+      return {
+        message: 'Update Available',
+        detail: `Version ${context.updateInfo?.version} is ready to be installed.`,
+        installOnNextLaunchButton: 'Install on next launch',
+        restartAndInstallButton: 'Install now and restart',
+      }
+    },
+  },
+})
 
 function createWindow(): void {
   // Create the browser window.
@@ -12,8 +30,9 @@ function createWindow(): void {
     show: false,
     transparent: true,
     title: 'Scalar',
-    titleBarStyle: 'hidden',
     trafficLightPosition: { x: 11, y: 12 },
+    // Borderless Window, for macOS only
+    ...(process.platform === 'darwin' ? { titleBarStyle: 'hidden' } : {}),
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
