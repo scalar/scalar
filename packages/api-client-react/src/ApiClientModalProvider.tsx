@@ -1,11 +1,7 @@
 'use client'
 
-import { createModalRouter } from '@scalar/api-client'
-import { ApiClientModal } from '@scalar/api-client/layouts/Modal'
-import type {
-  ClientConfiguration,
-  createApiClient as CreateApiClient,
-} from '@scalar/api-client/libs'
+import type { createApiClientModalSync as CreateApiClientModalSync } from '@scalar/api-client/layouts/Modal'
+import type { ClientConfiguration } from '@scalar/api-client/libs'
 import React, {
   PropsWithChildren,
   createContext,
@@ -18,7 +14,7 @@ import React, {
 import './style.css'
 
 const ApiClientModalContext = createContext<ReturnType<
-  typeof CreateApiClient
+  typeof CreateApiClientModalSync
 > | null>(null)
 
 type Props = PropsWithChildren<{
@@ -42,17 +38,19 @@ export const ApiClientModalProvider = ({
   const el = useRef<HTMLDivElement | null>(null)
 
   const [createClient, setCreateClient] = useState<
-    typeof CreateApiClient | null
+    typeof CreateApiClientModalSync | null
   >(null)
   const [client, setClient] = useState<ReturnType<
-    typeof CreateApiClient
+    typeof CreateApiClientModalSync
   > | null>(null)
 
   // Lazyload the js to create the client
   useEffect(() => {
     const loadApiClientJs = async () => {
-      const { createApiClient } = await import('@scalar/api-client/libs')
-      setCreateClient(() => createApiClient)
+      const { createApiClientModalSync } = await import(
+        '@scalar/api-client/layouts/Modal'
+      )
+      setCreateClient(() => createApiClientModalSync)
     }
     loadApiClientJs()
   }, [])
@@ -61,15 +59,7 @@ export const ApiClientModalProvider = ({
     if (!el?.current || !createClient) return
 
     // Create vue app
-    const _client = createClient({
-      el: el.current,
-      appComponent: ApiClientModal,
-      configuration,
-      isReadOnly: true,
-      mountOnInitialize: true,
-      persistData: false,
-      router: createModalRouter(),
-    })
+    const _client = createClient(el.current, configuration)
     setClient(_client)
 
     // We update the config as we are using the sync version

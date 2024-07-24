@@ -49,3 +49,29 @@ export const createApiClientModal = async (
 
   return client
 }
+
+/**
+ * Initialize Scalar API Client Modal Sync
+ *
+ * This sync method does not include the spec, just sets up an empty workspace
+ */
+export const createApiClientModalSync = (
+  /** Element to mount the references to */
+  el: HTMLElement | null,
+  /** Configuration object for Scalar References */
+  configuration: ClientConfiguration,
+  /**
+   * Will attempt to mount the references immediately
+   * For SSR this may need to be blocked and done client side
+   */
+  mountOnInitialize = true,
+) =>
+  createApiClient({
+    el,
+    appComponent: ApiClientModal,
+    configuration,
+    persistData: false,
+    isReadOnly: true,
+    mountOnInitialize,
+    router: createModalRouter(),
+  })
