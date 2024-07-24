@@ -126,7 +126,7 @@ onMounted(() => {
         v-if="label"
         :class="
           cx(
-            'scalar-input-label pointer-events-none absolute left-0 top-0 mx-2 my-3 px-1 text-xs',
+            'scalar-input-label pointer-events-none absolute left-0 top-0 mx-2 my-3 px-1 text-sm',
             'z-10 origin-top-left rounded text-c-3 shadow-current transition-transform',
           )
         "
@@ -145,7 +145,7 @@ onMounted(() => {
     <span
       :class="
         cx(
-          'helper-text before:font-black mt-1.5 flex items-center text-xs text-error before:rounded-full',
+          'helper-text before:font-black mt-1.5 flex items-center text-sm text-error before:rounded-full',
           'before:mr-1.5 before:block before:h-4 before:w-4 before:text-center before:text-xxs before:leading-4',
           `before:bg-error before:text-white before:content-['!'] empty:hidden`,
         )

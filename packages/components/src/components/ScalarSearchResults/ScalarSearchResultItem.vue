@@ -49,11 +49,11 @@ const attrs = computed(() => {
           </div>
           <div
             v-if="$slots.addon"
-            class="text-xs text-c-2">
+            class="text-sm text-c-2">
             <slot name="addon" />
           </div>
         </div>
-        <div class="truncate text-xs text-c-2">
+        <div class="truncate text-sm text-c-2">
           <slot name="description" />
         </div>
       </div>

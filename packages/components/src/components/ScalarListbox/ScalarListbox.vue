@@ -57,7 +57,7 @@ const variants = cva({
   <Listbox
     v-slot="{ open }"
     as="div"
-    :class="[{ 'w-full': fullWidth }, 'text-xs']"
+    :class="[{ 'w-full': fullWidth }, 'text-sm']"
     :modelValue="modelValue"
     :multiple="multiple"
     @update:modelValue="(v) => $emit('update:modelValue', v)">
