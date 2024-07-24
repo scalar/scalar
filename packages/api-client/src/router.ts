@@ -1,4 +1,3 @@
-import { computed } from 'vue'
 import {
   type RouteRecordRaw,
   createMemoryHistory,
@@ -129,59 +128,24 @@ const routes = [
   },
 ] satisfies RouteRecordRaw[]
 
-/**
- * Router for the API client app
- */
+/** Router for the API client app */
 export const router = createRouter({
   history: createWebHistory(),
   routes,
 })
 
-/**
- * Router for the API client app (but using hash history)
- */
+/** Router for the API client app (but using hash history) */
 export const webHashRouter = createRouter({
   history: createWebHashHistory(),
   routes,
 })
 
-/**
- * Router for the API client modal
- */
-export const modalRouter = createRouter({
-  history: createMemoryHistory(),
-  routes: modalRoutes,
-})
-
-export const activeRouterParams = computed(() => {
-  const pathParams = {
-    [PathId.Collection]: 'default',
-    [PathId.Environment]: 'default',
-    [PathId.Request]: 'default',
-    [PathId.Examples]: 'default',
-    [PathId.Schema]: 'default',
-    [PathId.Cookies]: 'default',
-    [PathId.Servers]: 'default',
-    [PathId.Workspace]: 'default',
-  }
-
-  // Snag current route from active router
-  const currentRoute = modalRouter.currentRoute.value.matched.length
-    ? modalRouter.currentRoute.value
-    : webHashRouter.currentRoute.value.matched.length
-      ? webHashRouter.currentRoute.value
-      : router.currentRoute.value
-
-  if (currentRoute) {
-    Object.values(PathId).forEach((k) => {
-      if (currentRoute.params[k]) {
-        pathParams[k] = currentRoute.params[k] as string
-      }
-    })
-  }
-
-  return pathParams
-})
+/** Router factory for the API Client modal */
+export const createModalRouter = () =>
+  createRouter({
+    history: createMemoryHistory(),
+    routes: modalRoutes,
+  })
 
 /** If we try to navigate to a entity UID that does not exist then we fallback to the default */
 export function fallbackMissingParams(

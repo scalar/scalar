@@ -56,7 +56,13 @@ const uid = (attrs.id as string) || `id-${nanoid()}`
 
 const isFocused = ref(false)
 
-const { activeWorkspace } = useWorkspace()
+const {
+  activeWorkspace,
+  activeParsedEnvironments,
+  isReadOnly,
+  environments,
+  router,
+} = useWorkspace()
 
 // ---------------------------------------------------------------------------
 // Event mapping from codemirror to standard input interfaces
@@ -92,9 +98,19 @@ function handleBlur(value: string) {
 const extensions: Extension[] = []
 if (props.colorPicker) extensions.push(colorPickerExtension)
 if (props.withVariables && !activeWorkspace.value.isReadOnly) {
-  extensions.push(dropdownPlugin({ withServers: props.withServers }))
+  extensions.push(
+    dropdownPlugin({
+      withServers: props.withServers,
+      activeParsedEnvironments,
+      environments,
+      router,
+    }),
+  )
 }
-extensions.push(pillPlugin, backspaceCommand)
+extensions.push(
+  pillPlugin({ environments, activeParsedEnvironments, isReadOnly }),
+)
+extensions.push(backspaceCommand)
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
 const { codeMirror } = useCodeMirror({

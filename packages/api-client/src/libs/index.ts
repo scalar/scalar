@@ -1,3 +1,4 @@
+export * from './create-client'
 export * from './formatters'
 export * from './eventBusses'
 export * from './local-storage'

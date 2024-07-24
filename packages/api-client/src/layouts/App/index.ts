@@ -1,2 +1,2 @@
 export { default as ApiClientApp } from './ApiClientApp.vue'
-export * from './createApiClientApp'
+export * from './create-api-client-app'

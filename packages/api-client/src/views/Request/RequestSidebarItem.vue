@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { HttpMethod } from '@/components/HttpMethod'
 import { useSidebar } from '@/hooks'
-import { PathId, activeRouterParams } from '@/router'
+import { PathId } from '@/router'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarIcon } from '@scalar/components'
 import {
@@ -51,6 +51,7 @@ defineSlots<{
 
 const {
   activeRequest,
+  activeRouterParams,
   activeWorkspace,
   folders,
   isReadOnly,

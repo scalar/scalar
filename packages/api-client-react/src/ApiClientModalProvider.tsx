@@ -1,9 +1,10 @@
 'use client'
 
+import type { createApiClientModalSync as CreateApiClientModalSync } from '@scalar/api-client/layouts/Modal'
 import type {
   ClientConfiguration,
-  createApiClientModalSync as CreateApiClientModalSync,
-} from '@scalar/api-client'
+  OpenClientPayload,
+} from '@scalar/api-client/libs'
 import React, {
   PropsWithChildren,
   createContext,
@@ -20,6 +21,9 @@ const ApiClientModalContext = createContext<ReturnType<
 > | null>(null)
 
 type Props = PropsWithChildren<{
+  /** Choose a request to initially route to */
+  initialRequest?: OpenClientPayload
+  /** Configuration for the Api Client */
   configuration?: ClientConfiguration
 }>
 
@@ -35,6 +39,7 @@ globalThis.__VUE_PROD_DEVTOOLS__ = false
  */
 export const ApiClientModalProvider = ({
   children,
+  initialRequest,
   configuration = {},
 }: Props) => {
   const el = useRef<HTMLDivElement | null>(null)
@@ -49,7 +54,9 @@ export const ApiClientModalProvider = ({
   // Lazyload the js to create the client
   useEffect(() => {
     const loadApiClientJs = async () => {
-      const { createApiClientModalSync } = await import('@scalar/api-client')
+      const { createApiClientModalSync } = await import(
+        '@scalar/api-client/layouts/Modal'
+      )
       setCreateClient(() => createApiClientModalSync)
     }
     loadApiClientJs()
@@ -59,11 +66,17 @@ export const ApiClientModalProvider = ({
     if (!el?.current || !createClient) return
 
     // Create vue app
-    const _client = createClient(el.current, configuration, true, true)
+    const _client = createClient(el.current, configuration)
     setClient(_client)
 
+    const updateSpec = async () => {
+      await _client.updateSpec(configuration.spec!)
+      if (initialRequest) _client.route(initialRequest)
+    }
+
     // We update the config as we are using the sync version
-    if (configuration.spec) _client.updateSpec(configuration.spec)
+    if (configuration.spec) updateSpec()
+    else if (initialRequest) _client.route(initialRequest)
 
     // Ensure we unmount the vue app on unmount
     // eslint-disable-next-line consistent-return

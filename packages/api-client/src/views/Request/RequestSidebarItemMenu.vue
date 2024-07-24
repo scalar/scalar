@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
-import { PathId, activeRouterParams } from '@/router'
-import { findRequestFolders, useWorkspace } from '@/store/workspace'
+import { PathId } from '@/router'
+import { useWorkspace } from '@/store/workspace'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -20,8 +20,13 @@ const props = defineProps<{
   item: Request | RequestExample
 }>()
 
-const { activeWorkspace, requestMutators, requestExampleMutators } =
-  useWorkspace()
+const {
+  activeWorkspace,
+  activeRouterParams,
+  findRequestFolders,
+  requestMutators,
+  requestExampleMutators,
+} = useWorkspace()
 const { replace } = useRouter()
 
 /** Add example */

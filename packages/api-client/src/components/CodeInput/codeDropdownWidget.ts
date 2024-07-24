@@ -1,4 +1,4 @@
-import { router } from '@/router'
+import type { WorkspaceStore } from '@/store'
 import {
   Decoration,
   type DecorationSet,
@@ -9,6 +9,7 @@ import {
   WidgetType,
 } from '@scalar/use-codemirror'
 import { Teleport, createApp, h } from 'vue'
+import type { Router } from 'vue-router'
 
 import EnvironmentVariableDropdownVue from '../../views/Environment/EnvironmentVariableDropdown.vue'
 
@@ -17,16 +18,25 @@ class DropdownWidget extends WidgetType {
   private onSelect: (item: string) => void
   private dropdown: any = null
   private withServers?: boolean
+  private activeParsedEnvironments: WorkspaceStore['activeParsedEnvironments']
+  private environments: WorkspaceStore['environments']
+  private router: Router
 
   constructor(
     queryTerm: string,
     onSelect: (item: string) => void,
+    activeParsedEnvironments: WorkspaceStore['activeParsedEnvironments'],
+    environments: WorkspaceStore['environments'],
+    router: Router,
     withServers?: boolean,
   ) {
     super()
     this.queryTerm = queryTerm
     this.onSelect = onSelect
     this.withServers = withServers
+    this.activeParsedEnvironments = activeParsedEnvironments
+    this.environments = environments
+    this.router = router
   }
 
   updateQueryTerm(newQueryTerm: string) {
@@ -58,6 +68,9 @@ class DropdownWidget extends WidgetType {
                   query: this.queryTerm,
                   onSelect: this.onSelect,
                   withServers: this.withServers,
+                  activeParsedEnvironments: this.activeParsedEnvironments,
+                  environments: this.environments,
+                  router: this.router,
                   style: {
                     position: 'absolute',
                     left: `${coords.left - scalarClientRect.left}px`,
@@ -68,7 +81,7 @@ class DropdownWidget extends WidgetType {
             },
           })
         }
-        this.dropdown.use(router)
+        this.dropdown.use(this.router)
         this.dropdown.mount(dropdownElement)
       }
     }, 0)
@@ -87,7 +100,12 @@ class DropdownWidget extends WidgetType {
   }
 }
 
-export const dropdownPlugin = (props: { withServers?: boolean }) =>
+export const dropdownPlugin = (props: {
+  withServers?: boolean
+  activeParsedEnvironments: WorkspaceStore['activeParsedEnvironments']
+  environments: WorkspaceStore['environments']
+  router: Router
+}) =>
   ViewPlugin.fromClass(
     class {
       decorations: DecorationSet
@@ -123,6 +141,9 @@ export const dropdownPlugin = (props: { withServers?: boolean }) =>
         this.widget = new DropdownWidget(
           newQueryTerm,
           this.handleDropdownSelect,
+          props.activeParsedEnvironments,
+          props.environments,
+          props.router,
           props.withServers,
         )
         this.decorations = Decoration.set([
@@ -153,6 +174,9 @@ export const dropdownPlugin = (props: { withServers?: boolean }) =>
             this.widget = new DropdownWidget(
               queryTerm,
               this.handleDropdownSelect,
+              props.activeParsedEnvironments,
+              props.environments,
+              props.router,
             )
           } else {
             this.widget.updateQueryTerm(queryTerm)

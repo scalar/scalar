@@ -1,6 +1,7 @@
 /* eslint-disable vue/one-component-per-file */
-import { useWorkspace } from '@/store/workspace'
+import type { WorkspaceStore } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
+import type { Environment } from '@scalar/oas-utils/entities/workspace/environment'
 import {
   Decoration,
   type DecorationSet,
@@ -11,8 +12,6 @@ import {
   WidgetType,
 } from '@scalar/use-codemirror'
 import { createApp, defineComponent, h } from 'vue'
-
-const { activeParsedEnvironments, isReadOnly, environments } = useWorkspace()
 
 const getEnvColor = (
   item:
@@ -25,6 +24,7 @@ const getEnvColor = (
         key: string
         value: unknown
       },
+  environments: Record<string, Environment>,
 ) => {
   if ('_scalarEnvId' in item) {
     return `bg-${environments[item._scalarEnvId as string].color}`
@@ -33,11 +33,26 @@ const getEnvColor = (
   return `bg-grey`
 }
 
+type ActiveParsedEnvironments = WorkspaceStore['activeParsedEnvironments']
+type IsReadOnly = WorkspaceStore['isReadOnly']
+
 class PillWidget extends WidgetType {
   private app: any
+  environments: Record<string, Environment>
+  activeParsedEnvironments: ActiveParsedEnvironments
+  isReadOnly: IsReadOnly
 
-  constructor(private variableName: string) {
+  constructor(
+    private variableName: string,
+    environments: Record<string, Environment>,
+    activeParsedEnvironments: ActiveParsedEnvironments,
+    isReadOnly: IsReadOnly,
+  ) {
     super()
+    this.variableName = variableName
+    this.environments = environments
+    this.activeParsedEnvironments = activeParsedEnvironments
+    this.isReadOnly = isReadOnly
   }
 
   toDOM() {
@@ -46,19 +61,19 @@ class PillWidget extends WidgetType {
     span.textContent = `${this.variableName}`
 
     const tooltipComponent = defineComponent({
-      props: ['variableName'],
-      render() {
-        const val = activeParsedEnvironments.value.find(
+      props: { variableName: { type: String, default: null } },
+      render: () => {
+        const val = this.activeParsedEnvironments.value.find(
           (thing) => thing.key === this.variableName,
         )
         if (val) {
-          span.className += ` ${getEnvColor(val)}`
+          span.className += ` ${getEnvColor(val, this.environments)}`
         }
         const tooltipContent = val
           ? h('div', { class: 'p-2' }, val.value as string)
           : h('div', { class: 'divide-y divide-1/2 grid' }, [
               h('span', { class: 'p-2' }, 'Variable not found'),
-              !isReadOnly.value &&
+              !this.isReadOnly &&
                 h('div', { class: 'p-1' }, [
                   h(
                     ScalarButton,
@@ -121,55 +136,65 @@ class PillWidget extends WidgetType {
     )
   }
 
-  ignoreEvent(event: Event) {
+  ignoreEvent() {
     return false
   }
 }
 
-export const pillPlugin = ViewPlugin.fromClass(
-  class {
-    decorations: DecorationSet
+export const pillPlugin = (props: {
+  environments: Record<string, Environment>
+  activeParsedEnvironments: ActiveParsedEnvironments
+  isReadOnly: IsReadOnly
+}) =>
+  ViewPlugin.fromClass(
+    class {
+      decorations: DecorationSet
 
-    constructor(view: EditorView) {
-      this.decorations = this.buildDecorations(view)
-    }
-
-    update(update: ViewUpdate) {
-      if (update.docChanged || update.viewportChanged) {
-        this.decorations = this.buildDecorations(update.view)
+      constructor(view: EditorView) {
+        this.decorations = this.buildDecorations(view)
       }
-    }
 
-    buildDecorations(view: EditorView) {
-      const builder = new RangeSetBuilder<Decoration>()
-
-      for (const { from, to } of view.visibleRanges) {
-        const text = view.state.doc.sliceString(from, to)
-        const regex = /{{(.*?)}}/g
-        let match
-
-        while ((match = regex.exec(text)) !== null) {
-          const start = from + match.index
-          const end = start + match[0].length
-          const variableName = match[1]
-          builder.add(
-            start,
-            end,
-            Decoration.widget({
-              widget: new PillWidget(variableName),
-              side: 1,
-            }),
-          )
+      update(update: ViewUpdate) {
+        if (update.docChanged || update.viewportChanged) {
+          this.decorations = this.buildDecorations(update.view)
         }
       }
 
-      return builder.finish()
-    }
-  },
-  {
-    decorations: (v) => v.decorations,
-  },
-)
+      buildDecorations(view: EditorView) {
+        const builder = new RangeSetBuilder<Decoration>()
+
+        for (const { from, to } of view.visibleRanges) {
+          const text = view.state.doc.sliceString(from, to)
+          const regex = /{{(.*?)}}/g
+          let match
+
+          while ((match = regex.exec(text)) !== null) {
+            const start = from + match.index
+            const end = start + match[0].length
+            const variableName = match[1]
+            builder.add(
+              start,
+              end,
+              Decoration.widget({
+                widget: new PillWidget(
+                  variableName,
+                  props.environments,
+                  props.activeParsedEnvironments,
+                  props.isReadOnly,
+                ),
+                side: 1,
+              }),
+            )
+          }
+        }
+
+        return builder.finish()
+      }
+    },
+    {
+      decorations: (v) => v.decorations,
+    },
+  )
 
 export const backspaceCommand = EditorView.domEventHandlers({
   keydown(event, view) {

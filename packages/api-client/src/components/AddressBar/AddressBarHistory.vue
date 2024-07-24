@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { formatMs } from '@/libs/formatters'
-import { useTopNav } from '@/store/topNav'
 import { useWorkspace } from '@/store/workspace'
 import { ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
@@ -30,8 +29,6 @@ function getPrettyResponseUrl(rawUrl: string) {
   return scalarUrlParsed.href
 }
 
-// const { addNavItem, setNavItemIdx, topNavItems } = useTopNav()
-
 function handleHistoryClick(index: number) {
   const historicalRequest = activeRequest.value.history[index]
 
@@ -39,8 +36,6 @@ function handleHistoryClick(index: number) {
   // todo potentially search and find a previous open request id of this maybe
   // or we can open it in a draft state if the request is already open :)
   if (activeRequest.value.uid !== historicalRequest.request.requestUid) {
-    // addNavItem()
-    // setNavItemIdx(topNavItems.length - 1)
     router.push(`/request/${historicalRequest.request.requestUid}`)
   }
   requestExampleMutators.set(historicalRequest.request)
