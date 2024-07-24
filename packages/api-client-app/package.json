@@ -13,6 +13,7 @@
   "scripts": {
     "build": "npm run types:check && electron-vite build",
     "dev": "electron-vite dev",
+    "dev:update": "electron-vite dev -- --runtime-simulate-updates=update-available",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "preview": "electron-vite preview",
