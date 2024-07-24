@@ -45,7 +45,7 @@ export const Base: Story = {
       return { args, selected }
     },
     template: `
-<div class="flex justify-center w-full h-60">
+<div class="flex justify-center w-full h-72">
   <ScalarCombobox v-model="selected" placeholder="Change fruit..." v-bind="args">
     <ScalarButton class="w-48 px-3" variant="outlined">
       <div class="flex flex-1 items-center min-w-0">

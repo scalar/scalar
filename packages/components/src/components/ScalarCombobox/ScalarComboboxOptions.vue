@@ -65,16 +65,16 @@ function moveActive(dir: 1 | -1) {
 }
 </script>
 <template>
-  <div class="flex items-center gap-2 px-3 py-2.5">
+  <div class="relative flex">
     <ScalarIcon
-      class="text-c-3"
+      class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-c-3"
       icon="Search"
       size="sm" />
     <input
       v-model="query"
       aria-autocomplete="list"
       :aria-controls="id"
-      class="h-3.5 min-w-0 flex-1 rounded-none border-0 p-0 text-c-1 outline-none"
+      class="min-w-0 flex-1 rounded-none border-0 py-2.5 pl-8 pr-3 text-c-1 outline-none"
       :placeholder="placeholder"
       role="combobox"
       tabindex="0"
