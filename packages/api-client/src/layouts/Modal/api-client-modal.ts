@@ -1,5 +1,5 @@
 import { type ClientConfiguration, createApiClient } from '@/libs'
-import { modalRouter } from '@/router'
+import { createModalRouter } from '@/router'
 
 import ApiClientModal from './ApiClientModal.vue'
 
@@ -26,7 +26,7 @@ export const createApiClientModal = async (
     persistData: false,
     isReadOnly: true,
     mountOnInitialize,
-    router: modalRouter,
+    router: createModalRouter(),
   })
 
   const { importSpecFile, importSpecFromUrl, workspaceMutators } = client.store

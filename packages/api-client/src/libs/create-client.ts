@@ -1,4 +1,3 @@
-import { modalRouter } from '@/router'
 import { createWorkspaceStore } from '@/store/workspace'
 import type { AuthenticationState, SpecConfiguration } from '@scalar/oas-utils'
 import { createWorkspace } from '@scalar/oas-utils/entities/workspace'
@@ -283,7 +282,7 @@ export const createApiClient = ({
           : // Or the first request
             true,
       )
-      if (request) modalRouter.push(`/workspace/default/request/${request.uid}`)
+      if (request) router.push(`/workspace/default/request/${request.uid}`)
 
       modalState.open = true
     },

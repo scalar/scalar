@@ -152,6 +152,12 @@ export const modalRouter = createRouter({
   history: createMemoryHistory(),
   routes: modalRoutes,
 })
+/** Router factory for the API Client modal */
+export const createModalRouter = () =>
+  createRouter({
+    history: createMemoryHistory(),
+    routes: modalRoutes,
+  })
 
 export const activeRouterParams = computed(() => {
   const pathParams = {
@@ -171,6 +177,11 @@ export const activeRouterParams = computed(() => {
     : webHashRouter.currentRoute.value.matched.length
       ? webHashRouter.currentRoute.value
       : router.currentRoute.value
+  // const currentRoute = modalRouter.currentRoute.value.matched.length
+  //   ? modalRouter.currentRoute.value
+  //   : router.currentRoute.value
+
+  const currentRoute = router.currentRoute.value
 
   if (currentRoute) {
     Object.values(PathId).forEach((k) => {

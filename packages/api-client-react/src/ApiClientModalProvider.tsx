@@ -5,6 +5,7 @@ import type {
   ClientConfiguration,
   createApiClient as CreateApiClient,
 } from '@scalar/api-client/libs'
+import { createModalRouter } from 'node_modules/@scalar/api-client/dist/router'
 import React, {
   PropsWithChildren,
   createContext,
@@ -64,6 +65,7 @@ export const ApiClientModalProvider = ({ children, config = {} }: Props) => {
       isReadOnly: true,
       mountOnInitialize: true,
       persistData: false,
+      router: createModalRouter(),
     })
     setClient(_client)
 
