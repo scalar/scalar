@@ -12,7 +12,7 @@ import {
 } from '@scalar/use-codemirror'
 import { createApp, defineComponent, h } from 'vue'
 
-const { activeParsedEnvironments, isReadOnly, environments } = useWorkspace()
+// const { activeParsedEnvironments, isReadOnly, environments } = useWorkspace()
 
 const getEnvColor = (
   item:
@@ -27,7 +27,7 @@ const getEnvColor = (
       },
 ) => {
   if ('_scalarEnvId' in item) {
-    return `bg-${environments[item._scalarEnvId as string].color}`
+    // return `bg-${environments[item._scalarEnvId as string].color}`
   }
   // this is a server but we can eventually is a 🌐 icon
   return `bg-grey`
@@ -48,35 +48,35 @@ class PillWidget extends WidgetType {
     const tooltipComponent = defineComponent({
       props: ['variableName'],
       render() {
-        const val = activeParsedEnvironments.value.find(
-          (thing) => thing.key === this.variableName,
-        )
-        if (val) {
-          span.className += ` ${getEnvColor(val)}`
-        }
-        const tooltipContent = val
-          ? h('div', { class: 'p-2' }, val.value as string)
-          : h('div', { class: 'divide-y divide-1/2 grid' }, [
-              h('span', { class: 'p-2' }, 'Variable not found'),
-              !isReadOnly.value &&
-                h('div', { class: 'p-1' }, [
-                  h(
-                    ScalarButton,
-                    {
-                      class:
-                        'gap-1.5 justify-start font-normal px-1 py-1.5 h-auto transition-colors rounded no-underline text-xxs w-full hover:bg-b-2',
-                      variant: 'ghost',
-                      onClick: () => {
-                        window.location.href = '/environment'
-                      },
-                    },
-                    [
-                      h(ScalarIcon, { class: 'w-2', icon: 'Add', size: 'xs' }),
-                      'Add variable',
-                    ],
-                  ),
-                ]),
-            ])
+        // const val = activeParsedEnvironments.value.find(
+        //   (thing) => thing.key === this.variableName,
+        // )
+        // if (val) {
+        //   span.className += ` ${getEnvColor(val)}`
+        // }
+        // const tooltipContent = val
+        //   ? h('div', { class: 'p-2' }, val.value as string)
+        //   : h('div', { class: 'divide-y divide-1/2 grid' }, [
+        //       h('span', { class: 'p-2' }, 'Variable not found'),
+        //       !isReadOnly.value &&
+        //         h('div', { class: 'p-1' }, [
+        //           h(
+        //             ScalarButton,
+        //             {
+        //               class:
+        //                 'gap-1.5 justify-start font-normal px-1 py-1.5 h-auto transition-colors rounded no-underline text-xxs w-full hover:bg-b-2',
+        //               variant: 'ghost',
+        //               onClick: () => {
+        //                 window.location.href = '/environment'
+        //               },
+        //             },
+        //             [
+        //               h(ScalarIcon, { class: 'w-2', icon: 'Add', size: 'xs' }),
+        //               'Add variable',
+        //             ],
+        //           ),
+        //         ]),
+        //     ])
 
         return h(
           ScalarTooltip,
@@ -96,7 +96,7 @@ class PillWidget extends WidgetType {
                   class:
                     'w-content shadow-lg rounded bg-b-1 text-xxs leading-5 text-c-1',
                 },
-                tooltipContent,
+                // tooltipContent,
               ),
           },
         )

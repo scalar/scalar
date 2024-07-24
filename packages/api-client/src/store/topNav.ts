@@ -1,12 +1,11 @@
 import { ROUTES } from '@/constants'
 import { router } from '@/router'
 import type { Icon } from '@scalar/components'
+// import { useWorkspace } from './workspace'
 import { capitalize } from '@scalar/oas-utils/helpers'
 import { reactive, readonly, ref, watch } from 'vue'
 
-import { useWorkspace } from './workspace'
-
-const { activeRequest } = useWorkspace()
+// const { activeRequest } = useWorkspace()
 
 // ---------------------------------------------------------------------------
 // Nav list
@@ -29,7 +28,7 @@ function handleNavLabelAdd() {
   // if it's a request we can push in a request
   if (activeRoute?.name === 'request') {
     topNavItems[activeNavItemIdx.value] = {
-      label: activeRequest.value?.summary || '',
+      label: '', //todo || activeRequest.value?.summary || '',
       path: router.currentRoute.value.path,
       icon: activeRoute.icon,
     }

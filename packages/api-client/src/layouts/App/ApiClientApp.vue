@@ -9,7 +9,7 @@ import { addScalarClassesToHeadless } from '@scalar/components'
 import { LS_KEYS } from '@scalar/object-utils/mutator-record'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
-import { computed, onBeforeMount, onMounted, watchEffect } from 'vue'
+import { computed, inject, onBeforeMount, onMounted, watchEffect } from 'vue'
 import { RouterView } from 'vue-router'
 
 onMounted(() => {
@@ -21,6 +21,9 @@ onMounted(() => {
 
 const { isDark } = useDarkModeState()
 const workspaceStore = useWorkspace()
+
+const stuff = inject('workspace')
+console.log('stuff', stuff)
 
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(async () => {

@@ -1,14 +1,12 @@
 import { type ClientConfiguration, createApiClient } from '@/libs'
-import { modalRouter } from '@/router'
+import { router } from '@/router'
 
-import ApiClientModal from './ApiClientModal.vue'
+import ApiClientApp from './ApiClientApp.vue'
 
 /**
- * Initialize Scalar API Client Modal
- *
- * This async method includes importing the spec
+ * Mount the full-blown API Client modal to a given element.
  */
-export const createApiClientModal = async (
+export const createApiClientApp = async (
   /** Element to mount the references to */
   el: HTMLElement | null,
   /** Configuration object for Scalar References */
@@ -21,15 +19,15 @@ export const createApiClientModal = async (
 ) => {
   const client = createApiClient({
     el,
-    appComponent: ApiClientModal,
+    appComponent: ApiClientApp,
     config,
-    persistData: false,
-    isReadOnly: true,
     mountOnInitialize,
-    router: modalRouter,
+    router,
   })
 
   const { importSpecFile, importSpecFromUrl, workspaceMutators } = client.store
+
+  console.log(client.store)
 
   // Import the spec if needed
   if (config.spec?.url) {
