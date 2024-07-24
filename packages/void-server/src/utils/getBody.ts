@@ -1,5 +1,5 @@
 import type { Context } from 'hono'
-// Node 18 doesn’t have File, so we need to import it from 'undici'
+// Node 18 doesn’t have File, so we need to import it
 import { File } from 'node:buffer'
 
 /**
