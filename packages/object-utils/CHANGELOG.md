@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.1.5
+
+### Patch Changes
+
+- 240a618: feat: allow multiple api-clients on single page
+
 ## 1.1.4
 
 ### Patch Changes

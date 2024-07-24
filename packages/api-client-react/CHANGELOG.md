@@ -1,5 +1,13 @@
 # @scalar/api-client-react
 
+## 1.0.4
+
+### Patch Changes
+
+- 240a618: feat: allow multiple api-clients on single page
+- Updated dependencies [240a618]
+  - @scalar/api-client@2.0.31
+
 ## 1.0.3
 
 ### Patch Changes

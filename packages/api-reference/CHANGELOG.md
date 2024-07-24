@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.24.56
+
+### Patch Changes
+
+- 240a618: feat: allow multiple api-clients on single page
+- Updated dependencies [240a618]
+  - @scalar/api-client@2.0.31
+
 ## 1.24.55
 
 ### Patch Changes
