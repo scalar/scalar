@@ -34,18 +34,19 @@ const getEnvColor = (
 }
 
 type ActiveParsedEnvironments = WorkspaceStore['activeParsedEnvironments']
+type IsReadOnly = WorkspaceStore['isReadOnly']
 
 class PillWidget extends WidgetType {
   private app: any
   environments: Record<string, Environment>
   activeParsedEnvironments: ActiveParsedEnvironments
-  isReadOnly: boolean
+  isReadOnly: IsReadOnly
 
   constructor(
     private variableName: string,
     environments: Record<string, Environment>,
     activeParsedEnvironments: ActiveParsedEnvironments,
-    isReadOnly: boolean,
+    isReadOnly: IsReadOnly,
   ) {
     super()
     this.variableName = variableName
@@ -60,7 +61,7 @@ class PillWidget extends WidgetType {
     span.textContent = `${this.variableName}`
 
     const tooltipComponent = defineComponent({
-      props: ['variableName'],
+      props: { variableName: { type: String, default: null } },
       render: () => {
         const val = this.activeParsedEnvironments.value.find(
           (thing) => thing.key === this.variableName,
@@ -135,7 +136,7 @@ class PillWidget extends WidgetType {
     )
   }
 
-  ignoreEvent(event: Event) {
+  ignoreEvent() {
     return false
   }
 }
@@ -143,7 +144,7 @@ class PillWidget extends WidgetType {
 export const pillPlugin = (props: {
   environments: Record<string, Environment>
   activeParsedEnvironments: ActiveParsedEnvironments
-  isReadOnly: boolean
+  isReadOnly: IsReadOnly
 }) =>
   ViewPlugin.fromClass(
     class {
