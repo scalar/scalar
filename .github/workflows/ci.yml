@@ -225,9 +225,10 @@ jobs:
           # Select packages: @scalar
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  deploy:
+  stackblitz:
+    # if: github.head_ref == 'changeset-release/main'
     runs-on: ubuntu-20.04
-    needs: [define-matrix, build]
+    needs: [build]
     strategy:
       matrix:
         node-version: [20]
@@ -235,10 +236,65 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-      - name: Use Node.js 20
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Turborepo cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
+      - name: Build packages
+        run: pnpm build:packages
+      - name: Publish on Stackblitz
+        # We can’t use npx pkg-pr-new publish ./packages/* here.
+        # We want to explicitly publish the packages we want to save some time.
+        run: npx pkg-pr-new publish
+          ./packages/api-client /
+          ./packages/api-reference /
+          ./packages/api-reference-editor /
+          ./packages/api-reference-react /
+          ./packages/build-tooling /
+          ./packages/cli /
+          ./packages/code-highlight /
+          ./packages/components /
+          ./packages/docusaurus /
+          ./packages/draggable /
+          ./packages/express-api-reference /
+          ./packages/fastify-api-reference /
+          ./packages/galaxy /
+          ./packages/hono-api-reference /
+          ./packages/mock-server /
+          ./packages/nestjs-api-reference /
+          ./packages/nextjs-api-reference /
+          ./packages/nuxt /
+          ./packages/oas-utils /
+          ./packages/object-utils /
+          ./packages/play-button /
+          ./packages/themes /
+          ./packages/use-codemirror /
+          ./packages/use-toasts /
+          ./packages/use-tooltip /
+          ./packages/void-server
+
+  deploy:
+    runs-on: ubuntu-20.04
+    needs: [build]
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
