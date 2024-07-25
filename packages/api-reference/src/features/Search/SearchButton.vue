@@ -5,8 +5,8 @@ import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 
-import SearchModal from './SearchModal.vue'
-import { modalStateBus } from './api-client-bus'
+import { modalStateBus } from '../../components/api-client-bus'
+import Search from './Search.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -67,7 +67,7 @@ whenever(
       </span>
     </div>
   </button>
-  <SearchModal
+  <Search
     :modalState="modalState"
     :parsedSpec="spec" />
 </template>

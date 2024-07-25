@@ -11,12 +11,17 @@ import type { Spec, TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import Fuse, { type FuseResult } from 'fuse.js'
-import { computed, ref, toRef, watch } from 'vue'
+import { type Ref, computed, ref, toRef, watch } from 'vue'
 
-import { getHeadingsFromMarkdown, getModels } from '../helpers'
-import { extractRequestBody } from '../helpers/specHelpers'
-import { type ParamMap, useNavState, useOperation, useSidebar } from '../hooks'
-import SidebarHttpBadge from './Sidebar/SidebarHttpBadge.vue'
+import SidebarHttpBadge from '../../components/Sidebar/SidebarHttpBadge.vue'
+import { getHeadingsFromMarkdown, getModels } from '../../helpers'
+import { extractRequestBody } from '../../helpers/specHelpers'
+import {
+  type ParamMap,
+  useNavState,
+  useOperation,
+  useSidebar,
+} from '../../hooks'
 
 type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
 
@@ -83,130 +88,141 @@ watch(
 
 const { setCollapsedSidebarItem, hideModels } = useSidebar()
 
-watch(
-  reactiveSpec.value,
-  async () => {
-    fuseDataArray.value = []
+useSearchIndex({
+  specification: reactiveSpec,
+})
 
-    // Likely an incomplete/invalid spec
-    if (!props.parsedSpec?.tags?.length && !props.parsedSpec?.webhooks) {
-      fuse.setCollection([])
-      return
-    }
+function useSearchIndex({ specification }: { specification: Ref<Spec> }) {
+  watch(
+    specification.value,
+    async () => {
+      const start = performance.now()
 
-    // Headings from the description
-    const headingsData: FuseData[] = []
-    const headings = getHeadingsFromMarkdown(
-      props.parsedSpec.info?.description ?? '',
-    )
+      fuseDataArray.value = []
 
-    if (headings.length) {
-      headings.forEach((heading) => {
-        headingsData.push({
-          type: 'heading',
-          title: `Info > ${heading.value}`,
-          description: '',
-          href: `#${getHeadingId(heading)}`,
-          tag: heading.slug,
-          body: '',
-        })
-      })
-
-      fuseDataArray.value = fuseDataArray.value.concat(headingsData)
-    }
-
-    // Tags
-    props.parsedSpec.tags?.forEach((tag) => {
-      const tagData: FuseData = {
-        title: tag['x-displayName'] ?? tag.name,
-        href: `#${getTagId(tag)}`,
-        description: tag.description,
-        type: 'tag',
-        tag: tag.name,
-        body: '',
+      // Likely an incomplete/invalid spec
+      if (!props.parsedSpec?.tags?.length && !props.parsedSpec?.webhooks) {
+        fuse.setCollection([])
+        return
       }
 
-      fuseDataArray.value.push(tagData)
+      // Headings from the description
+      const headingsData: FuseData[] = []
+      const headings = getHeadingsFromMarkdown(
+        props.parsedSpec.info?.description ?? '',
+      )
 
-      if (tag.operations) {
-        tag.operations.forEach((operation) => {
-          const { parameterMap } = useOperation({ operation })
-          const bodyData = extractRequestBody(operation) || parameterMap.value
-          let body = null
-          if (typeof bodyData !== 'boolean') {
-            body = bodyData
-          }
-
-          const operationData: FuseData = {
-            type: 'req',
-            title: operation.name ?? operation.path,
-            href: `#${getOperationId(operation, tag)}`,
-            operationId: operation.operationId,
-            description: operation.description ?? '',
-            httpVerb: operation.httpVerb,
-            path: operation.path,
-            tag: tag.name,
-            operation,
-          }
-
-          if (body) {
-            operationData.body = body
-          }
-
-          fuseDataArray.value.push(operationData)
-        })
-      }
-    })
-
-    // Adding webhooks
-    const webhooks = props.parsedSpec.webhooks
-    const webhookData: FuseData[] = []
-
-    if (webhooks) {
-      Object.keys(webhooks).forEach((name) => {
-        const httpVerbs = Object.keys(
-          webhooks[name],
-        ) as OpenAPIV3_1.HttpMethods[]
-
-        httpVerbs.forEach((httpVerb) => {
-          webhookData.push({
-            type: 'webhook',
-            title: `Webhook: ${webhooks[name][httpVerb]?.name}`,
-            href: `#${getWebhookId(name, httpVerb)}`,
-            description: name,
-            httpVerb,
-            tag: name,
+      if (headings.length) {
+        headings.forEach((heading) => {
+          headingsData.push({
+            type: 'heading',
+            title: `Info > ${heading.value}`,
+            description: '',
+            href: `#${getHeadingId(heading)}`,
+            tag: heading.slug,
             body: '',
           })
         })
 
-        fuseDataArray.value = fuseDataArray.value.concat(webhookData)
-      })
-    }
+        fuseDataArray.value = fuseDataArray.value.concat(headingsData)
+      }
 
-    // Adding models as well
-    const schemas = hideModels.value ? {} : getModels(props.parsedSpec)
-    const modelData: FuseData[] = []
-
-    if (schemas) {
-      Object.keys(schemas).forEach((k) => {
-        modelData.push({
-          type: 'model',
-          title: 'Model',
-          href: `#${getModelId(k)}`,
-          description: (schemas[k] as any).title ?? k,
-          tag: k,
+      // Tags
+      props.parsedSpec.tags?.forEach((tag) => {
+        const tagData: FuseData = {
+          title: tag['x-displayName'] ?? tag.name,
+          href: `#${getTagId(tag)}`,
+          description: tag.description,
+          type: 'tag',
+          tag: tag.name,
           body: '',
-        })
+        }
+
+        fuseDataArray.value.push(tagData)
+
+        if (tag.operations) {
+          tag.operations.forEach((operation) => {
+            const { parameterMap } = useOperation({ operation })
+            const bodyData = extractRequestBody(operation) || parameterMap.value
+            let body = null
+            if (typeof bodyData !== 'boolean') {
+              body = bodyData
+            }
+
+            const operationData: FuseData = {
+              type: 'req',
+              title: operation.name ?? operation.path,
+              href: `#${getOperationId(operation, tag)}`,
+              operationId: operation.operationId,
+              description: operation.description ?? '',
+              httpVerb: operation.httpVerb,
+              path: operation.path,
+              tag: tag.name,
+              operation,
+            }
+
+            if (body) {
+              operationData.body = body
+            }
+
+            fuseDataArray.value.push(operationData)
+          })
+        }
       })
 
-      fuseDataArray.value = fuseDataArray.value.concat(modelData)
-    }
+      // Adding webhooks
+      const webhooks = props.parsedSpec.webhooks
+      const webhookData: FuseData[] = []
 
-    fuse.setCollection(fuseDataArray.value)
-  },
-  { immediate: true },
-)
+      if (webhooks) {
+        Object.keys(webhooks).forEach((name) => {
+          const httpVerbs = Object.keys(
+            webhooks[name],
+          ) as OpenAPIV3_1.HttpMethods[]
+
+          httpVerbs.forEach((httpVerb) => {
+            webhookData.push({
+              type: 'webhook',
+              title: `Webhook: ${webhooks[name][httpVerb]?.name}`,
+              href: `#${getWebhookId(name, httpVerb)}`,
+              description: name,
+              httpVerb,
+              tag: name,
+              body: '',
+            })
+          })
+
+          fuseDataArray.value = fuseDataArray.value.concat(webhookData)
+        })
+      }
+
+      // Adding models as well
+      const schemas = hideModels.value ? {} : getModels(props.parsedSpec)
+      const modelData: FuseData[] = []
+
+      if (schemas) {
+        Object.keys(schemas).forEach((k) => {
+          modelData.push({
+            type: 'model',
+            title: 'Model',
+            href: `#${getModelId(k)}`,
+            description: (schemas[k] as any).title ?? k,
+            tag: k,
+            body: '',
+          })
+        })
+
+        fuseDataArray.value = fuseDataArray.value.concat(modelData)
+      }
+
+      fuse.setCollection(fuseDataArray.value)
+
+      const end = performance.now()
+      console.log(`create-search-index: ${Math.round(end - start)} ms`)
+    },
+    { immediate: true },
+  )
+}
 
 whenever(keys.enter, () => {
   if (!props.modalState.open) {

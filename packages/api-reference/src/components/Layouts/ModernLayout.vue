@@ -2,12 +2,12 @@
 import { useMediaQuery } from '@vueuse/core'
 import { watch } from 'vue'
 
+import { SearchButton } from '../../features/Search'
 import { useNavState, useSidebar } from '../../hooks'
 import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '../../types'
 import ApiReferenceLayout from '../ApiReferenceLayout.vue'
 import { DarkModeToggle } from '../DarkModeToggle'
 import MobileHeader from '../MobileHeader.vue'
-import SearchButton from '../SearchButton.vue'
 
 const props = defineProps<ReferenceLayoutProps>()
 defineEmits<{
