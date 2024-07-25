@@ -1,6 +1,7 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import todesktop from '@todesktop/runtime'
 import { BrowserWindow, app, ipcMain, shell } from 'electron'
+import { session } from 'electron'
 import { join } from 'path'
 
 import icon from '../../build/icon.png?asset'
@@ -88,6 +89,17 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+
+  // Block all permission requests (but for notifications)
+  session
+    .fromPartition('main')
+    .setPermissionRequestHandler((_, permission, callback) => {
+      if (permission === 'notifications') {
+        callback(true)
+      } else {
+        callback(false)
+      }
+    })
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
