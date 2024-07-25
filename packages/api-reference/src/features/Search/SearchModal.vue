@@ -7,29 +7,29 @@ import {
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
-import type { Spec, TransformedOperation } from '@scalar/oas-utils'
-import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { Spec } from '@scalar/oas-utils'
 import { useMagicKeys, whenever } from '@vueuse/core'
-import Fuse, { type FuseResult } from 'fuse.js'
-import { type Ref, computed, ref, toRef, watch } from 'vue'
+import type { FuseResult } from 'fuse.js'
+import { computed, ref, toRef, watch } from 'vue'
 
 import SidebarHttpBadge from '../../components/Sidebar/SidebarHttpBadge.vue'
-import { getHeadingsFromMarkdown, getModels } from '../../helpers'
-import { extractRequestBody } from '../../helpers/specHelpers'
-import {
-  type ParamMap,
-  useNavState,
-  useOperation,
-  useSidebar,
-} from '../../hooks'
-
-type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
+import { useSidebar } from '../../hooks'
+import { type EntryType, type FuseData, useSearchIndex } from './useSearchIndex'
 
 const props = defineProps<{
   parsedSpec: Spec
   modalState: ModalState
 }>()
-const reactiveSpec = toRef(props, 'parsedSpec')
+
+const {
+  resetSearch,
+  fuseSearch,
+  selectedSearchResult,
+  searchResultsWithPlaceholderResults,
+  searchText,
+} = useSearchIndex({
+  specification: toRef(props, 'parsedSpec'),
+})
 
 const ENTRY_ICONS: { [x in EntryType]: Icon } = {
   heading: 'DocsPage',
@@ -41,189 +41,21 @@ const ENTRY_ICONS: { [x in EntryType]: Icon } = {
 
 const keys = useMagicKeys()
 
-type FuseData = {
-  title: string
-  href: string
-  type: EntryType
-  operationId?: string
-  description: string
-  body?: string | string[] | ParamMap
-  httpVerb?: string
-  path?: string
-  tag?: string
-  operation?: TransformedOperation
-}
-
-const fuseDataArray = ref<FuseData[]>([])
-const searchResults = ref<FuseResult<FuseData>[]>([])
-const selectedSearchResult = ref<number>(0)
-const searchText = ref<string>('')
 const searchModalRef = ref<HTMLElement | null>(null)
-
-const fuse = new Fuse(fuseDataArray.value, {
-  keys: ['title', 'description', 'body'],
-})
-
-const fuseSearch = (): void => {
-  selectedSearchResult.value = 0
-  searchResults.value = fuse.search(searchText.value)
-}
-
-const selectedEntry = computed<FuseResult<FuseData>>(
-  () => searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
-)
-
-const { getHeadingId, getWebhookId, getModelId, getOperationId, getTagId } =
-  useNavState()
 
 watch(
   () => props.modalState.open,
   (open) => {
     if (!open) return
-    searchText.value = ''
-    selectedSearchResult.value = 0
-    searchResults.value = []
+    resetSearch()
   },
 )
 
-const { setCollapsedSidebarItem, hideModels } = useSidebar()
+const selectedEntry = computed<FuseResult<FuseData>>(
+  () => searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
+)
 
-useSearchIndex({
-  specification: reactiveSpec,
-})
-
-function useSearchIndex({ specification }: { specification: Ref<Spec> }) {
-  watch(
-    specification.value,
-    async () => {
-      const start = performance.now()
-
-      fuseDataArray.value = []
-
-      // Likely an incomplete/invalid spec
-      if (!props.parsedSpec?.tags?.length && !props.parsedSpec?.webhooks) {
-        fuse.setCollection([])
-        return
-      }
-
-      // Headings from the description
-      const headingsData: FuseData[] = []
-      const headings = getHeadingsFromMarkdown(
-        props.parsedSpec.info?.description ?? '',
-      )
-
-      if (headings.length) {
-        headings.forEach((heading) => {
-          headingsData.push({
-            type: 'heading',
-            title: `Info > ${heading.value}`,
-            description: '',
-            href: `#${getHeadingId(heading)}`,
-            tag: heading.slug,
-            body: '',
-          })
-        })
-
-        fuseDataArray.value = fuseDataArray.value.concat(headingsData)
-      }
-
-      // Tags
-      props.parsedSpec.tags?.forEach((tag) => {
-        const tagData: FuseData = {
-          title: tag['x-displayName'] ?? tag.name,
-          href: `#${getTagId(tag)}`,
-          description: tag.description,
-          type: 'tag',
-          tag: tag.name,
-          body: '',
-        }
-
-        fuseDataArray.value.push(tagData)
-
-        if (tag.operations) {
-          tag.operations.forEach((operation) => {
-            const { parameterMap } = useOperation({ operation })
-            const bodyData = extractRequestBody(operation) || parameterMap.value
-            let body = null
-            if (typeof bodyData !== 'boolean') {
-              body = bodyData
-            }
-
-            const operationData: FuseData = {
-              type: 'req',
-              title: operation.name ?? operation.path,
-              href: `#${getOperationId(operation, tag)}`,
-              operationId: operation.operationId,
-              description: operation.description ?? '',
-              httpVerb: operation.httpVerb,
-              path: operation.path,
-              tag: tag.name,
-              operation,
-            }
-
-            if (body) {
-              operationData.body = body
-            }
-
-            fuseDataArray.value.push(operationData)
-          })
-        }
-      })
-
-      // Adding webhooks
-      const webhooks = props.parsedSpec.webhooks
-      const webhookData: FuseData[] = []
-
-      if (webhooks) {
-        Object.keys(webhooks).forEach((name) => {
-          const httpVerbs = Object.keys(
-            webhooks[name],
-          ) as OpenAPIV3_1.HttpMethods[]
-
-          httpVerbs.forEach((httpVerb) => {
-            webhookData.push({
-              type: 'webhook',
-              title: `Webhook: ${webhooks[name][httpVerb]?.name}`,
-              href: `#${getWebhookId(name, httpVerb)}`,
-              description: name,
-              httpVerb,
-              tag: name,
-              body: '',
-            })
-          })
-
-          fuseDataArray.value = fuseDataArray.value.concat(webhookData)
-        })
-      }
-
-      // Adding models as well
-      const schemas = hideModels.value ? {} : getModels(props.parsedSpec)
-      const modelData: FuseData[] = []
-
-      if (schemas) {
-        Object.keys(schemas).forEach((k) => {
-          modelData.push({
-            type: 'model',
-            title: 'Model',
-            href: `#${getModelId(k)}`,
-            description: (schemas[k] as any).title ?? k,
-            tag: k,
-            body: '',
-          })
-        })
-
-        fuseDataArray.value = fuseDataArray.value.concat(modelData)
-      }
-
-      fuse.setCollection(fuseDataArray.value)
-
-      const end = performance.now()
-      console.log(`create-search-index: ${Math.round(end - start)} ms`)
-    },
-    { immediate: true },
-  )
-}
-
+const { setCollapsedSidebarItem } = useSidebar()
 whenever(keys.enter, () => {
   if (!props.modalState.open) {
     return
@@ -283,20 +115,6 @@ whenever(keys.ArrowUp, () => {
     block: 'center',
   })
 })
-
-const searchResultsWithPlaceholderResults = computed(
-  (): FuseResult<FuseData>[] => {
-    if (searchText.value.length === 0) {
-      return fuseDataArray.value.map((item) => {
-        return {
-          item: item,
-        } as FuseResult<FuseData>
-      })
-    }
-
-    return searchResults.value
-  },
-)
 
 const tagRegex = /#(tag\/[^/]*)/
 
