@@ -20,6 +20,7 @@ export function useDarkModeState(isDarkInitially?: boolean) {
     // Fall back to system setting
     if (
       typeof window !== 'undefined' &&
+      typeof window?.matchMedia === 'function' &&
       window?.matchMedia('(prefers-color-scheme: dark)')?.matches
     ) {
       return true
