@@ -20,9 +20,9 @@ defineProps<{
 
 const {
   activeCollection,
+  activeSecuritySchemes,
   collectionMutators,
   activeSecurityRequirements,
-  activeSecurityScheme,
   securitySchemes,
   securitySchemeMutators,
 } = useWorkspace()
@@ -74,27 +74,24 @@ const schemeOptions = computed<SecuritySchemeOption[]>(() =>
 
 const schemeModel = computed({
   // Grab the selected OR first security scheme
-  get: () => {
-    const selectedScheme = activeCollection.value?.selectedSecuritySchemes?.[0]
-    return (
-      schemeOptions.value.find(
-        ({ id }) =>
-          id === `${selectedScheme?.uid}${selectedScheme?.flowKey ?? ''}`,
-      ) || schemeOptions.value[0]
-    )
-  },
-  // Update the mutator on set
-  set: (opt) => {
-    if (!opt?.id) return
+  get: () =>
+    schemeOptions.value.filter(({ id }) =>
+      activeCollection.value?.selectedSecuritySchemes?.find(
+        (scheme) => id === `${scheme.uid}${scheme.flowKey ?? ''}`,
+      ),
+    ) || [schemeOptions.value[0]],
 
+  // Update the mutator on set
+  set: (options) => {
     // Handle the case for OAuth flow
-    const payload =
-      'uid' in opt ? { flowKey: opt.flowKey, uid: opt.uid } : { uid: opt.id }
+    const payload = options.map((opt) =>
+      'uid' in opt ? { flowKey: opt.flowKey, uid: opt.uid } : { uid: opt.id },
+    )
 
     collectionMutators.edit(
       activeCollection.value!.uid,
       'selectedSecuritySchemes',
-      [payload],
+      payload,
     )
   },
 })
@@ -106,6 +103,12 @@ const updateScheme: UpdateScheme = (path, value) =>
     path,
     value,
   )
+/** Combine values from all selected options */
+const selectedLabel = computed(() =>
+  schemeModel.value.length
+    ? schemeModel.value.map(({ label }) => label).join(', ')
+    : 'None',
+)
 </script>
 <template>
   <ViewLayoutCollapse
@@ -127,6 +130,7 @@ const updateScheme: UpdateScheme = (path, value) =>
               v-model="schemeModel"
               class="text-xs w-full left-2"
               fullWidth
+              multiple
               :options="schemeOptions"
               teleport>
               <ScalarButton
@@ -138,7 +142,7 @@ const updateScheme: UpdateScheme = (path, value) =>
                     class="text-c-2 flex min-w-[100px] items-center border-r-1/2 pr-0 pl-2 h-full">
                     Auth Type
                   </div>
-                  <span class="pl-2">{{ schemeModel?.label }}</span>
+                  <span class="pl-2">{{ selectedLabel }}</span>
                   <ScalarIcon
                     icon="ChevronDown"
                     size="xs" />
@@ -148,74 +152,79 @@ const updateScheme: UpdateScheme = (path, value) =>
           </DataTableHeader>
         </DataTableRow>
 
-        <!-- HTTP Bearer -->
-        <DataTableRow
-          v-if="
-            activeSecurityScheme?.scheme.type === 'http' &&
-            activeSecurityScheme.scheme.scheme === 'bearer'
-          ">
-          <RequestAuthDataTableInput
-            id="http-bearer-token"
-            :modelValue="activeSecurityScheme.scheme.value"
-            placeholder="Token"
-            type="password"
-            @update:modelValue="(v) => updateScheme('value', v)">
-            Bearer Token
-          </RequestAuthDataTableInput>
-        </DataTableRow>
-
-        <!-- HTTP Basic -->
-        <template
-          v-else-if="
-            activeSecurityScheme?.scheme.type === 'http' &&
-            activeSecurityScheme.scheme.scheme === 'basic'
-          ">
-          <DataTableRow>
+        <!-- Loop over for multiple auth selection -->
+        <div
+          v-for="activeSecurityScheme in activeSecuritySchemes"
+          :key="activeSecurityScheme.scheme.uid">
+          <!-- HTTP Bearer -->
+          <DataTableRow
+            v-if="
+              activeSecurityScheme?.scheme.type === 'http' &&
+              activeSecurityScheme.scheme.scheme === 'bearer'
+            ">
             <RequestAuthDataTableInput
-              id="http-basic-username"
-              class="text-c-2"
+              id="http-bearer-token"
               :modelValue="activeSecurityScheme.scheme.value"
-              placeholder="ScalarEnjoyer01"
-              @update:modelValue="(v) => updateScheme('value', v)">
-              Username
-            </RequestAuthDataTableInput>
-          </DataTableRow>
-          <DataTableRow>
-            <RequestAuthDataTableInput
-              id="http-basic-password"
-              :modelValue="activeSecurityScheme.scheme.secondValue"
-              placeholder="xxxxxx"
+              placeholder="Token"
               type="password"
-              @update:modelValue="(v) => updateScheme('secondValue', v)">
-              Password
+              @update:modelValue="(v) => updateScheme('value', v)">
+              Bearer Token
             </RequestAuthDataTableInput>
           </DataTableRow>
-        </template>
 
-        <!-- API Key -->
-        <DataTableRow
-          v-else-if="activeSecurityScheme?.scheme.type === 'apiKey'">
-          <RequestAuthDataTableInput
-            :id="`api-key-${activeSecurityScheme.scheme.name}`"
-            :modelValue="activeSecurityScheme.scheme.value"
-            placeholder="Value"
-            type="password"
-            @update:modelValue="(v) => updateScheme('value', v)">
-            {{ activeSecurityScheme.scheme.name }}
-          </RequestAuthDataTableInput>
-        </DataTableRow>
+          <!-- HTTP Basic -->
+          <template
+            v-else-if="
+              activeSecurityScheme?.scheme.type === 'http' &&
+              activeSecurityScheme.scheme.scheme === 'basic'
+            ">
+            <DataTableRow>
+              <RequestAuthDataTableInput
+                id="http-basic-username"
+                class="text-c-2"
+                :modelValue="activeSecurityScheme.scheme.value"
+                placeholder="ScalarEnjoyer01"
+                @update:modelValue="(v) => updateScheme('value', v)">
+                Username
+              </RequestAuthDataTableInput>
+            </DataTableRow>
+            <DataTableRow>
+              <RequestAuthDataTableInput
+                id="http-basic-password"
+                :modelValue="activeSecurityScheme.scheme.secondValue"
+                placeholder="xxxxxx"
+                type="password"
+                @update:modelValue="(v) => updateScheme('secondValue', v)">
+                Password
+              </RequestAuthDataTableInput>
+            </DataTableRow>
+          </template>
 
-        <!-- OAuth 2 -->
-        <OAuth2
-          v-else-if="
-            activeSecurityScheme?.scheme.type === 'oauth2' &&
-            schemeModel &&
-            'uid' in schemeModel &&
-            activeSecurityScheme.flow
-          "
-          :activeScheme="activeSecurityScheme as SelectedSchemeOauth2"
-          :schemeModel="schemeModel"
-          :updateScheme="updateScheme" />
+          <!-- API Key -->
+          <DataTableRow
+            v-else-if="activeSecurityScheme?.scheme.type === 'apiKey'">
+            <RequestAuthDataTableInput
+              :id="`api-key-${activeSecurityScheme.scheme.name}`"
+              :modelValue="activeSecurityScheme.scheme.value"
+              placeholder="Value"
+              type="password"
+              @update:modelValue="(v) => updateScheme('value', v)">
+              {{ activeSecurityScheme.scheme.name }}
+            </RequestAuthDataTableInput>
+          </DataTableRow>
+
+          <!-- OAuth 2 -->
+          <OAuth2
+            v-else-if="
+              activeSecurityScheme?.scheme.type === 'oauth2' &&
+              schemeModel &&
+              'uid' in schemeModel &&
+              activeSecurityScheme.flow
+            "
+            :activeScheme="activeSecurityScheme as SelectedSchemeOauth2"
+            :schemeModel="schemeModel"
+            :updateScheme="updateScheme" />
+        </div>
       </DataTable>
     </form>
   </ViewLayoutCollapse>
