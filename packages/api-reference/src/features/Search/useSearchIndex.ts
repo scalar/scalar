@@ -75,7 +75,7 @@ export function useSearchIndex({
   )
 
   watch(
-    specification,
+    specification.value,
     async () => {
       const start = performance.now()
 
@@ -85,7 +85,7 @@ export function useSearchIndex({
       // TODO: Or just an OpenAPI document without tags and webhooks?
       if (
         !specification.value?.tags?.length &&
-        !specification.value?.webhooks
+        !specification.value?.webhooks?.length
       ) {
         fuse.setCollection([])
         return

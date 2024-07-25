@@ -8,18 +8,21 @@ import {
   ScalarSearchResultList,
 } from '@scalar/components'
 import type { Spec } from '@scalar/oas-utils'
-import { useMagicKeys, whenever } from '@vueuse/core'
 import type { FuseResult } from 'fuse.js'
-import { computed, ref, toRef, watch } from 'vue'
+import { ref, toRef, watch } from 'vue'
 
 import SidebarHttpBadge from '../../components/Sidebar/SidebarHttpBadge.vue'
 import { useSidebar } from '../../hooks'
+import { useKeyboardNavigation } from './useKeyboardNavigation'
 import { type EntryType, type FuseData, useSearchIndex } from './useSearchIndex'
 
 const props = defineProps<{
   parsedSpec: Spec
   modalState: ModalState
 }>()
+
+const specification = toRef(props, 'parsedSpec')
+const modalIsOpen = toRef(props.modalState.open)
 
 const {
   resetSearch,
@@ -28,7 +31,14 @@ const {
   searchResultsWithPlaceholderResults,
   searchText,
 } = useSearchIndex({
-  specification: toRef(props, 'parsedSpec'),
+  specification,
+})
+
+useKeyboardNavigation({
+  selectedSearchResult,
+  active: modalIsOpen,
+  searchResultsWithPlaceholderResults,
+  onSearchResultClick,
 })
 
 const ENTRY_ICONS: { [x in EntryType]: Icon } = {
@@ -39,87 +49,23 @@ const ENTRY_ICONS: { [x in EntryType]: Icon } = {
   webhook: 'Terminal',
 }
 
-const keys = useMagicKeys()
-
 const searchModalRef = ref<HTMLElement | null>(null)
 
 watch(
   () => props.modalState.open,
   (open) => {
-    if (!open) return
-    resetSearch()
+    if (open) {
+      resetSearch()
+    }
   },
 )
 
-const selectedEntry = computed<FuseResult<FuseData>>(
-  () => searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
-)
-
 const { setCollapsedSidebarItem } = useSidebar()
-whenever(keys.enter, () => {
-  if (!props.modalState.open) {
-    return
-  }
-
-  if (!window) {
-    return
-  }
-
-  onSearchResultClick(selectedEntry.value)
-  window.location.hash = selectedEntry.value.item.href
-  props.modalState.hide()
-})
-
-whenever(keys.ArrowDown, () => {
-  if (!props.modalState.open) {
-    return
-  }
-
-  if (!window) {
-    return
-  }
-
-  if (
-    selectedSearchResult.value <
-    searchResultsWithPlaceholderResults.value.length - 1
-  ) {
-    selectedSearchResult.value++
-  } else {
-    selectedSearchResult.value = 0
-  }
-
-  document.getElementById(selectedEntry.value.item.href)?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'center',
-  })
-})
-
-whenever(keys.ArrowUp, () => {
-  if (!props.modalState.open) {
-    return
-  }
-
-  if (!window) {
-    return
-  }
-
-  if (selectedSearchResult.value > 0) {
-    selectedSearchResult.value--
-  } else {
-    selectedSearchResult.value =
-      searchResultsWithPlaceholderResults.value.length - 1
-  }
-
-  document.getElementById(selectedEntry.value.item.href)?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'center',
-  })
-})
 
 const tagRegex = /#(tag\/[^/]*)/
 
 // Ensure we open the section
-const onSearchResultClick = (entry: FuseResult<FuseData>) => {
+function onSearchResultClick(entry: FuseResult<FuseData>) {
   let parentId = 'models'
   const tagMatch = entry.item.href.match(tagRegex)
 

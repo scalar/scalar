@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ref, toRef } from 'vue'
+import { toRef } from 'vue'
 
 import { createEmptySpecification, parse } from '../../helpers'
 import { useSearchIndex } from './useSearchIndex'
