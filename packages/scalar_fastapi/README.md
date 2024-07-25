@@ -29,3 +29,11 @@ async def scalar_html():
         title=app.title,
     )
 ```
+
+
+## Configuration
+
+Currently available [configuration options](https://github.com/scalar/scalar/blob/main/documentation/configuration.md) are listed below.
+- `hide_models` (default `false`)
+- `hidden_clients` (default `[]`)
+- `servers` (default `[]`)
