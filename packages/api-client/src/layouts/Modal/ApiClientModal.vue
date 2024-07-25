@@ -32,7 +32,7 @@ onBeforeUnmount(() => document.documentElement.style.removeProperty('overflow'))
     v-show="modalState.open"
     class="scalar">
     <div className="scalar-container">
-      <div className="scalar-app scalar-client">
+      <div className="scalar-app scalar-client scalar-app-layout">
         <RouterView key="$route.fullPath" />
       </div>
       <div
@@ -53,7 +53,7 @@ onBeforeUnmount(() => document.documentElement.style.removeProperty('overflow'))
   max-height: calc(100% - calc(var(--scalar-app-header-height)));
   border-radius: 8px;
 }
-.scalar .scalar-app {
+.scalar .scalar-app-layout {
   background: var(--scalar-background-3);
   height: calc(100% - 120px);
   max-width: 1390px;
