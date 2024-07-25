@@ -7,7 +7,7 @@ import { type RequestMethod, objectMerge } from '@scalar/oas-utils/helpers'
 import { getNestedValue } from '@scalar/object-utils/nested'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { ThemeId } from '@scalar/themes'
-import type { Paths } from 'type-fest'
+import type { LiteralUnion, Paths } from 'type-fest'
 import { type Component, createApp } from 'vue'
 import type { Router } from 'vue-router'
 
@@ -55,7 +55,7 @@ export type ClientConfiguration = {
 
 export type OpenClientPayload = {
   path: string
-  method: (RequestMethod | Lowercase<RequestMethod>) & string
+  method: LiteralUnion<RequestMethod | Lowercase<RequestMethod>, string>
 }
 
 type CreateApiClientParams = {
