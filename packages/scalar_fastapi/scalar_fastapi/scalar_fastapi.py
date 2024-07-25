@@ -154,6 +154,15 @@ def get_scalar_api_reference(
             """
         ),
     ] = scalar_theme,
+    hide_download_button: Annotated[
+        bool,
+        Doc(
+            """
+            A boolean to hide the download button.
+            Default is False which means the download button is shown.
+            """
+        ),
+    ] = False,
     hide_models: Annotated[
         bool,
         Doc(
@@ -183,6 +192,15 @@ def get_scalar_api_reference(
             """
         ),
     ] = [],
+    default_open_all_tags: Annotated[
+        bool,
+        Doc(
+            """
+            A boolean to open all tags by default.
+            Default is False which means all tags are closed by default.
+            """
+        ),
+    ] = False,
 ) -> HTMLResponse:
     html = f"""
     <!DOCTYPE html>
@@ -213,9 +231,11 @@ def get_scalar_api_reference(
       data-proxy-url="{scalar_proxy_url}"></script>
     <script>
       var configuration = {{
+        hideDownloadButton: {json.dumps(hide_download_button)},
         hideModels: {json.dumps(hide_models)},
         hiddenClients: {json.dumps(hidden_clients)},
         servers: {json.dumps(servers)},
+        defaultOpenAllTags: {json.dumps(default_open_all_tags)},
       }}
 
       document.getElementById('api-reference').dataset.configuration =
