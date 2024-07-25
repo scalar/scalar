@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.0.32
+
+### Patch Changes
+
+- 6123165: fix(api-client-react): loosen type for initialRequest
+
 ## 2.0.31
 
 ### Patch Changes
