@@ -88,7 +88,7 @@ importers:
         version: 12.3.2(typescript@5.5.2)
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.5.2)
+        version: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.5.2)
       tsc-alias:
         specifier: ^1.8.10
         version: 1.8.10
@@ -681,6 +681,9 @@ importers:
       '@todesktop/runtime':
         specifier: ^1.6.3
         version: 1.6.4
+      electron-window-state:
+        specifier: ^5.0.3
+        version: 5.0.3
     devDependencies:
       '@electron-toolkit/tsconfig':
         specifier: ^1.0.1
@@ -8830,6 +8833,10 @@ packages:
       '@swc/core':
         optional: true
 
+  electron-window-state@5.0.3:
+    resolution: {integrity: sha512-1mNTwCfkolXl3kMf50yW3vE2lZj0y92P/HYWFBrb+v2S/pCka5mdwN3cagKm458A7NjndSwijynXgcLWRodsVg==}
+    engines: {node: '>=8.0.0'}
+
   electron@31.2.0:
     resolution: {integrity: sha512-5w+kjOsGiTXytPSErBPNp/3znnuEMKc42RD41MqRoQkiYaR8x/Le2+qWk1cL60UwE/67oeKnOHnnol8xEuldGg==}
     engines: {node: '>= 12.20.55'}
@@ -15917,8 +15924,8 @@ packages:
   vue-component-type-helpers@2.0.21:
     resolution: {integrity: sha512-3NaicyZ7N4B6cft4bfb7dOnPbE9CjLcx+6wZWAg5zwszfO4qXRh+U52dN5r5ZZfc6iMaxKCEcoH9CmxxoFZHLg==}
 
-  vue-component-type-helpers@2.0.28:
-    resolution: {integrity: sha512-hoK0UsKXrXDY9zdpdk+drqOqYHpPhbmfQUJ2mFYK57+l73mQxcYyCteQsolllwGaxhWihT077+OA/FR5ZPTceg==}
+  vue-component-type-helpers@2.0.29:
+    resolution: {integrity: sha512-58i+ZhUAUpwQ+9h5Hck0D+jr1qbYl4voRt5KffBx8qzELViQ4XdT/Tuo+mzq8u63teAG8K0lLaOiL5ofqW38rg==}
 
   vue-demi@0.14.8:
     resolution: {integrity: sha512-Uuqnk9YE9SsWeReYqK2alDI5YzciATE0r2SkA6iMAtuXvNTMNACJLJEXNXaEy94ECuBe4Sk6RzRU80kjdbIo1Q==}
@@ -18090,7 +18097,7 @@ snapshots:
       '@babel/plugin-syntax-private-property-in-object': 7.14.5(@babel/core@7.24.8)
       '@babel/plugin-syntax-top-level-await': 7.14.5(@babel/core@7.24.8)
       '@babel/plugin-syntax-unicode-sets-regex': 7.18.6(@babel/core@7.24.8)
-      '@babel/plugin-transform-arrow-functions': 7.24.7(@babel/core@7.24.8)
+      '@babel/plugin-transform-arrow-functions': 7.24.7(@babel/core@7.24.7)
       '@babel/plugin-transform-async-generator-functions': 7.24.7(@babel/core@7.24.8)
       '@babel/plugin-transform-async-to-generator': 7.24.7(@babel/core@7.24.8)
       '@babel/plugin-transform-block-scoped-functions': 7.24.7(@babel/core@7.24.8)
@@ -22985,7 +22992,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.4.31(typescript@5.5.2)
-      vue-component-type-helpers: 2.0.28
+      vue-component-type-helpers: 2.0.29
     transitivePeerDependencies:
       - encoding
       - prettier
@@ -26662,6 +26669,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  electron-window-state@5.0.3:
+    dependencies:
+      jsonfile: 4.0.0
+      mkdirp: 0.5.6
+
   electron@31.2.0:
     dependencies:
       '@electron/get': 2.0.3
@@ -29490,7 +29502,7 @@ snapshots:
       strip-json-comments: 3.1.1
     optionalDependencies:
       '@types/node': 20.14.10
-      ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.5.2)
+      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.5.2)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -29521,7 +29533,7 @@ snapshots:
       strip-json-comments: 3.1.1
     optionalDependencies:
       '@types/node': 20.14.10
-      ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.5.2)
+      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.5.2)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -32181,7 +32193,7 @@ snapshots:
       yaml: 2.4.5
     optionalDependencies:
       postcss: 8.4.39
-      ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.5.2)
+      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.5.2)
 
   postcss-load-config@5.1.0(jiti@1.21.6)(postcss@8.4.39):
     dependencies:
@@ -34846,7 +34858,7 @@ snapshots:
       '@swc/core': 1.5.29(@swc/helpers@0.5.5)
     optional: true
 
-  ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.5.2):
+  ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.5.2):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
@@ -35926,7 +35938,7 @@ snapshots:
 
   vue-component-type-helpers@2.0.21: {}
 
-  vue-component-type-helpers@2.0.28: {}
+  vue-component-type-helpers@2.0.29: {}
 
   vue-demi@0.14.8(vue@3.4.31(typescript@5.5.2)):
     dependencies:
