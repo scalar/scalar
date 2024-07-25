@@ -1,6 +1,5 @@
 import { createApiClientModal } from '@/layouts/Modal'
 
-// Initialize
 const { open } = await createApiClientModal(document.getElementById('app'), {
   spec: {
     url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
