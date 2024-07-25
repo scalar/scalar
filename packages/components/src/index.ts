@@ -1,6 +1,10 @@
 import { ScalarButton } from './components/ScalarButton'
 import { ScalarCodeBlock } from './components/ScalarCodeBlock'
 import {
+  ScalarCombobox,
+  type ScalarComboboxOption,
+} from './components/ScalarCombobox'
+import {
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
@@ -34,6 +38,7 @@ export * from './helpers'
 export {
   ScalarButton,
   ScalarCodeBlock,
+  ScalarCombobox,
   ScalarMarkdown,
   ScalarDropdown,
   ScalarDropdownDivider,
@@ -52,6 +57,7 @@ export {
   ScalarTooltip,
   type Icon,
   type ScalarListboxOption,
+  type ScalarComboboxOption,
   type ModalState,
   useLoadingState,
   useModal,
