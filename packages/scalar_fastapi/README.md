@@ -34,6 +34,8 @@ async def scalar_html():
 ## Configuration
 
 Currently available [configuration options](https://github.com/scalar/scalar/blob/main/documentation/configuration.md) are listed below.
+- `hide_download_button` (default `false`)
 - `hide_models` (default `false`)
 - `hidden_clients` (default `[]`)
 - `servers` (default `[]`)
+- `default_open_all_tags` (default `false`)
