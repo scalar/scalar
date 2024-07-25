@@ -313,8 +313,8 @@ jobs:
             api_client:
               - examples/api-client/**
               - packages/api-client/**
-      # - if: steps.changed-files.outputs.api_client_any_changed == 'true'
-      - name: Deploy to client.scalar.com
+      - if: steps.changed-files.outputs.api_client_any_changed == 'true'
+        name: Deploy to client.scalar.com
         id: deploy-client
         uses: cloudflare/wrangler-action@v3
         with:
