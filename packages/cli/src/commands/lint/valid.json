@@ -1,0 +1,34 @@
+{
+  "subdomain": "test.apidocumentation.com",
+  "theme": "some-theme",
+  "guides": [
+    {
+      "name": "First Guide",
+      "sidebar": [
+        {
+          "path": "src/page-one.md",
+          "type": "page",
+          "name": "My First Page!!"
+        },
+        {
+          "path": "src/page-two.md",
+          "type": "page",
+          "name": "Page title in the config!"
+        },
+        {
+          "path": "src/page-large.md",
+          "type": "page"
+        },
+        {
+          "path": "src/page-test.md",
+          "type": "page",
+          "name": "A weird test page!"
+        }
+      ]
+    }
+  ],
+  "references": [],
+  "siteConfig": {
+    "footer": "<footer>\r\n  <p>This is the testing footer!!</p>\r\n</footer>"
+  }
+}
