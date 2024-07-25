@@ -9,8 +9,8 @@ import ApiClientApp from './ApiClientApp.vue'
 export const createApiClientApp = async (
   /** Element to mount the references to */
   el: HTMLElement | null,
-  /** Configuration object for Scalar References */
-  configuration?: ClientConfiguration,
+  /** Configuration object for API client */
+  configuration: ClientConfiguration = {},
   /**
    * Will attempt to mount the references immediately
    * For SSR this may need to be blocked and done client side
@@ -22,7 +22,7 @@ export const createApiClientApp = async (
   const client = createApiClient({
     el,
     appComponent: ApiClientApp,
-    configuration: configuration ?? {},
+    configuration: configuration,
     mountOnInitialize,
     router,
   })
@@ -30,10 +30,10 @@ export const createApiClientApp = async (
   const { importSpecFile, importSpecFromUrl } = client.store
 
   // Import the spec if needed
-  if (configuration?.spec?.url) {
-    await importSpecFromUrl(configuration?.spec.url, configuration?.proxyUrl)
-  } else if (configuration?.spec?.content) {
-    await importSpecFile(configuration?.spec?.content)
+  if (configuration.spec?.url) {
+    await importSpecFromUrl(configuration.spec.url, configuration.proxyUrl)
+  } else if (configuration.spec?.content) {
+    await importSpecFile(configuration.spec?.content)
   }
 
   return client

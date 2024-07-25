@@ -63,7 +63,7 @@ type CreateApiClientParams = {
   el: HTMLElement | null
   /** Main vue app component to create the vue app */
   appComponent: Component
-  /** Configuration object for Scalar References */
+  /** Configuration object for API client */
   configuration?: Omit<ClientConfiguration, 'spec'>
   /** Read only version of the client app */
   isReadOnly?: boolean
