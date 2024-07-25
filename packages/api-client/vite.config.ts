@@ -28,4 +28,7 @@ export default defineConfig({
       ssr: false,
     },
   }),
+  test: {
+    environment: 'jsdom',
+  },
 })
