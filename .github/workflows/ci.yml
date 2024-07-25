@@ -335,4 +335,5 @@ jobs:
           name: cf-preview-url-client
           token: ${{ secrets.GITHUB_TOKEN }}
           id: cf-preview-url-client
-          conclusion: ${{ steps.deploy-client.outputs.deployment-url }}
+          conclusion: success
+          action_url: ${{ steps.deploy-client.outputs.deployment-url }}
