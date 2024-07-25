@@ -62,15 +62,18 @@ export function useSearchIndex({
 
   const searchResultsWithPlaceholderResults = computed<FuseResult<FuseData>[]>(
     (): FuseResult<FuseData>[] => {
+      // Rendering a lot of items is slow, so we limit the results.
+      const LIMIT = 25
+
       if (searchText.value.length === 0) {
-        return fuseDataArray.value.map((item) => {
+        return fuseDataArray.value.slice(0, LIMIT).map((item) => {
           return {
             item: item,
           } as FuseResult<FuseData>
         })
       }
 
-      return searchResults.value
+      return searchResults.value.slice(0, LIMIT)
     },
   )
 
