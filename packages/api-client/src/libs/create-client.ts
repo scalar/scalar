@@ -100,7 +100,7 @@ export const createApiClient = ({
       uid: 'default',
       name: 'Workspace',
       isReadOnly,
-      proxyUrl: configuration.proxyUrl ?? 'https://proxy.scalar.com',
+      proxyUrl: configuration.proxyUrl,
     }),
   )
 
