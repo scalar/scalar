@@ -126,6 +126,7 @@ const updateScheme: UpdateScheme = (path, value) =>
             <ScalarCombobox
               v-model="schemeModel"
               :options="schemeOptions"
+              placeholder="Filter by auth type..."
               resize>
               <ScalarButton
                 class="flex gap-1.5 h-full justify-start !p-0 text-c-2 flex-1 hover:text-c-1 font-normal"
