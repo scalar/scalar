@@ -335,3 +335,5 @@ jobs:
           name: Cloudflare Preview for client.scalar.com
           conclusion: ${{ job.status }}
           details_url: ${{ steps.deploy-client.outputs.deployment-url }}
+          output: |
+            {"summary":"${{ steps.deploy-client.outputs.deployment-url }}"}
