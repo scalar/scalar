@@ -677,16 +677,15 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
    * Returns both the active security schemes as well as the corresponding active flows in the case of oauth
    * TODO this will eventually support multiples but we just return the first for now
    */
-  const activeSecurityScheme = computed(
-    () =>
-      activeCollection.value?.selectedSecuritySchemes.map((opt) => {
-        const scheme = securitySchemes[opt.uid]
-        const flowObj =
-          opt.flowKey && 'flows' in scheme && scheme.flows
-            ? { flow: scheme.flows[opt.flowKey] }
-            : {}
-        return { scheme, ...flowObj }
-      })[0],
+  const activeSecuritySchemes = computed(() =>
+    activeCollection.value?.selectedSecuritySchemes.map((opt) => {
+      const scheme = securitySchemes[opt.uid]
+      const flowObj =
+        opt.flowKey && 'flows' in scheme && scheme.flows
+          ? { flow: scheme.flows[opt.flowKey] }
+          : {}
+      return { scheme, ...flowObj }
+    }),
   )
 
   /**
@@ -813,7 +812,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     activeRequest,
     activeRouterParams,
     activeSecurityRequirements,
-    activeSecurityScheme,
+    activeSecuritySchemes,
     activeServer,
     activeWorkspace,
     activeWorkspaceCollections,
