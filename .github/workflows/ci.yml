@@ -336,3 +336,4 @@ jobs:
           conclusion: success
           status: completed
           details_url: ${{ steps.deploy-client.outputs.deployment-url }}
+          action_url: ${{ steps.deploy-client.outputs.deployment-url }}
