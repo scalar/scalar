@@ -9,7 +9,7 @@ import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.
 import { ScalarIcon } from '@scalar/components'
 import { computed, ref, watch } from 'vue'
 
-const { activeRequest, activeExample, activeSecurityRequirements, isReadOnly } =
+const { activeRequest, activeExample, activeSecurityRequirements } =
   useWorkspace()
 
 const bodyMethods = ['POST', 'PUT', 'PATCH', 'DELETE']
@@ -41,9 +41,8 @@ const sections = computed(() => {
 // If security = [] or [{}] just hide it on readOnly mode
 const isAuthHidden = computed(
   () =>
-    isReadOnly.value &&
-    (activeSecurityRequirements.value.length === 0 ||
-      JSON.stringify(activeSecurityRequirements.value) === '[{}]'),
+    activeSecurityRequirements.value.length === 0 ||
+    JSON.stringify(activeSecurityRequirements.value) === '[{}]',
 )
 
 type ActiveSections = (typeof sections.value)[number]
