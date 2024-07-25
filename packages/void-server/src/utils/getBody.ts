@@ -1,6 +1,4 @@
 import type { Context } from 'hono'
-// Node 18 doesn’t have File, so we need to import it
-import { File } from 'node:buffer'
 
 /**
  * Get the body of a request, no matter if it’s JSON or text
@@ -48,7 +46,14 @@ function transformFormData(formData: Record<string, any>) {
     }
 
     // File
-    if (value instanceof File) {
+    const isFile =
+      typeof value === 'object' &&
+      value.name !== undefined &&
+      value.size !== undefined &&
+      value.type !== undefined &&
+      value.lastModified !== undefined
+
+    if (isFile) {
       body[key] = {
         name: value?.name,
         sizeInBytes: value?.size,
