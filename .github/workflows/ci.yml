@@ -333,7 +333,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           name: Cloudflare Preview for client.scalar.com
-          conclusion: ${{ job.status }}
+          conclusion: success
+          status: completed
           details_url: ${{ steps.deploy-client.outputs.deployment-url }}
-          output: |
-            {"summary":"${{ steps.deploy-client.outputs.deployment-url }}"}
