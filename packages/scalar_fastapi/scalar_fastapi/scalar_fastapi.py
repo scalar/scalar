@@ -1,3 +1,4 @@
+import json
 from typing_extensions import Annotated, Doc
 from fastapi.responses import HTMLResponse
 
@@ -153,6 +154,35 @@ def get_scalar_api_reference(
             """
         ),
     ] = scalar_theme,
+    hide_models: Annotated[
+        bool,
+        Doc(
+            """
+            A boolean to hide all models.
+            Default is False which means all models are shown.
+            """
+        ),
+    ] = False,
+    hidden_clients: Annotated[
+        bool | dict[str, bool | list[str]] | list[str],
+        Doc(
+            """
+            A dictionary with the keys being the target names and the values being a boolean to hide all clients of the target or a list clients.
+            If a boolean is provided, it will hide all the clients with that name.
+            Backwards compatibility: If a list of strings is provided, it will hide the clients with the name and the list of strings.
+            Default is [] which means no clients are hidden.
+            """
+        ),
+    ] = [],
+    servers: Annotated[
+        list[dict[str, str]],
+        Doc(
+            """
+            A list of dictionaries with the keys being the server name and the value being the server URL.
+            Default is [] which means no servers are provided.
+            """
+        ),
+    ] = [],
 ) -> HTMLResponse:
     html = f"""
     <!DOCTYPE html>
@@ -181,6 +211,16 @@ def get_scalar_api_reference(
       id="api-reference"
       data-url="{openapi_url}"
       data-proxy-url="{scalar_proxy_url}"></script>
+    <script>
+      var configuration = {{
+        hideModels: {json.dumps(hide_models)},
+        hiddenClients: {json.dumps(hidden_clients)},
+        servers: {json.dumps(servers)},
+      }}
+
+      document.getElementById('api-reference').dataset.configuration =
+        JSON.stringify(configuration)
+    </script>
     <script src="{scalar_js_url}"></script>
     </body>
     </html>
