@@ -124,7 +124,7 @@ jobs:
       - name: Build @scalar/api-reference
         uses: ./.github/actions/build
         with:
-          node-version: 20
+          node-version: ${{ matrix.node-version }}
           packages-only: 'api-reference'
       - name: Send bundle stats and build information to RelativeCI
         uses: relative-ci/agent-action@v2
@@ -235,10 +235,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
       - name: Check which files were touched
         id: changed-files
         uses: tj-actions/changed-files@v44
@@ -247,6 +243,11 @@ jobs:
             api_client:
               - examples/api-client/**
               - packages/api-client/**
+      - if: steps.changed-files.outputs.api_client_any_changed == 'true'
+        name: Build
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Deploy to client.scalar.com
         id: deploy-client
