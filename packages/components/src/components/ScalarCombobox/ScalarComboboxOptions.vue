@@ -98,8 +98,7 @@ function moveActive(dir: 1 | -1) {
   <ul
     v-show="filtered.length"
     :id="id"
-    class="border-t p-0.75"
-    static>
+    class="border-t p-0.75">
     <ComboboxOption
       v-for="option in filtered"
       :key="option.id"
