@@ -1,7 +1,7 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import todesktop from '@todesktop/runtime'
-import { BrowserWindow, app, ipcMain, shell } from 'electron'
-import { session } from 'electron'
+import { BrowserWindow, app, ipcMain, session, shell } from 'electron'
+import windowStateKeeper from 'electron-window-state'
 import { join } from 'path'
 
 import icon from '../../build/icon.png?asset'
@@ -24,10 +24,18 @@ todesktop.init({
 })
 
 function createWindow(): void {
-  // Create the browser window.
+  // Load the previous state with fallback to defaults
+  const mainWindowState = windowStateKeeper({
+    defaultWidth: 1280,
+    defaultHeight: 720,
+  })
+
+  // Create the browser window
   const mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 760,
+    x: mainWindowState.x,
+    y: mainWindowState.y,
+    width: mainWindowState.width,
+    height: mainWindowState.height,
     show: false,
     transparent: true,
     title: 'Scalar',
@@ -41,6 +49,9 @@ function createWindow(): void {
       sandbox: false,
     },
   })
+
+  // Register listeners to save the window size and position
+  mainWindowState.manage(mainWindow)
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
