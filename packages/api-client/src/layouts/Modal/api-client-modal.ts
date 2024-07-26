@@ -11,8 +11,8 @@ import ApiClientModal from './ApiClientModal.vue'
 export const createApiClientModal = async (
   /** Element to mount the references to */
   el: HTMLElement | null,
-  /** Configuration object for Scalar References */
-  configuration: ClientConfiguration,
+  /** Configuration object for the API client */
+  configuration: ClientConfiguration = {},
   /**
    * Will attempt to mount the references immediately
    * For SSR this may need to be blocked and done client side
@@ -22,7 +22,7 @@ export const createApiClientModal = async (
   const client = createApiClient({
     el,
     appComponent: ApiClientModal,
-    configuration,
+    configuration: configuration,
     persistData: false,
     isReadOnly: true,
     mountOnInitialize,
@@ -58,8 +58,8 @@ export const createApiClientModal = async (
 export const createApiClientModalSync = (
   /** Element to mount the references to */
   el: HTMLElement | null,
-  /** Configuration object for Scalar References */
-  configuration: ClientConfiguration,
+  /** Configuration object for API client */
+  configuration: ClientConfiguration = {},
   /**
    * Will attempt to mount the references immediately
    * For SSR this may need to be blocked and done client side

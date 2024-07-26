@@ -63,8 +63,8 @@ type CreateApiClientParams = {
   el: HTMLElement | null
   /** Main vue app component to create the vue app */
   appComponent: Component
-  /** Configuration object for Scalar References */
-  configuration: Omit<ClientConfiguration, 'spec'>
+  /** Configuration object for API client */
+  configuration?: Omit<ClientConfiguration, 'spec'>
   /** Read only version of the client app */
   isReadOnly?: boolean
   /** Persist the workspace to localStoragfe */
@@ -86,7 +86,7 @@ type CreateApiClientParams = {
 export const createApiClient = ({
   el,
   appComponent,
-  configuration,
+  configuration = {},
   isReadOnly = false,
   persistData = true,
   mountOnInitialize = true,
@@ -100,7 +100,7 @@ export const createApiClient = ({
       uid: 'default',
       name: 'Workspace',
       isReadOnly,
-      proxyUrl: configuration.proxyUrl,
+      proxyUrl: configuration?.proxyUrl,
     }),
   )
 
@@ -140,19 +140,19 @@ export const createApiClient = ({
   if (activeWorkspace.value) {
     if (mountOnInitialize) mount()
 
-    if (configuration.proxyUrl) {
+    if (configuration?.proxyUrl) {
       workspaceMutators.edit(
         activeWorkspace.value.uid,
         'proxyUrl',
-        configuration.proxyUrl,
+        configuration?.proxyUrl,
       )
     }
 
-    if (configuration.themeId) {
+    if (configuration?.themeId) {
       workspaceMutators.edit(
         activeWorkspace.value.uid,
         'themeId',
-        configuration.themeId,
+        configuration?.themeId,
       )
     }
   }
@@ -163,9 +163,9 @@ export const createApiClient = ({
     /** Update the API client config */
     updateConfig(newConfig: ClientConfiguration, mergeConfigs = true) {
       if (mergeConfigs) {
-        Object.assign(configuration, newConfig)
+        Object.assign(configuration ?? {}, newConfig)
       } else {
-        objectMerge(configuration, newConfig)
+        objectMerge(configuration ?? {}, newConfig)
       }
       if (newConfig.spec) {
         importSpecFile(newConfig.spec)
@@ -261,7 +261,7 @@ export const createApiClient = ({
     /** Update the spec file, this will re-parse it and clear your store */
     updateSpec: async (spec: SpecConfiguration) => {
       if (spec?.url) {
-        await importSpecFromUrl(spec.url, configuration.proxyUrl)
+        await importSpecFromUrl(spec.url, configuration?.proxyUrl)
       } else if (spec?.content) {
         await importSpecFile(spec?.content)
       } else {

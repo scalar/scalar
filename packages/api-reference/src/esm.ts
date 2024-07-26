@@ -6,7 +6,7 @@ import { createApp, reactive } from 'vue'
 import ApiReference from './components/ApiReference.vue'
 import type { ReferenceConfiguration } from './types'
 
-/** Initialize Scalar References and  */
+/** Initialize Scalar References */
 export function createScalarReferences(
   /** Element to mount the references to */
   el: HTMLElement | null,
