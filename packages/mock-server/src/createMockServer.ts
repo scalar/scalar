@@ -1,6 +1,7 @@
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import { type OpenAPI, openapi } from '@scalar/openapi-parser'
 import { type Context, Hono } from 'hono'
+import { accepts } from 'hono/accepts'
 import { cors } from 'hono/cors'
 import type { StatusCode } from 'hono/utils/http-status'
 
@@ -135,18 +136,45 @@ export async function createMockServer(options?: {
           Object.keys(operation.responses ?? {}),
         )
 
-        // Focus on JSON for now
-        const jsonResponse = preferredResponseKey
-          ? operation.responses?.[preferredResponseKey]?.content?.[
-              'application/json'
-            ]
+        const preferredResponse = preferredResponseKey
+          ? operation.responses?.[preferredResponseKey]
           : null
 
-        // Get or generate JSON
-        const response = jsonResponse?.example
-          ? jsonResponse.example
-          : jsonResponse?.schema
-            ? getExampleFromSchema(jsonResponse.schema, {
+        const supportedContentTypes = Object.keys(
+          preferredResponse?.content ?? {},
+        )
+
+        // Headers
+        const headers = preferredResponse?.headers ?? {}
+
+        Object.keys(headers).forEach((header) => {
+          c.header(
+            header,
+            headers[header].schema
+              ? getExampleFromSchema(headers[header].schema)
+              : null,
+          )
+        })
+
+        // Content-Type
+        const acceptedContentType = accepts(c, {
+          header: 'Accept',
+          supports: supportedContentTypes,
+          default: supportedContentTypes.includes('application/json')
+            ? 'application/json'
+            : supportedContentTypes[0],
+        })
+
+        c.header('Content-Type', acceptedContentType)
+
+        const acceptedResponse =
+          preferredResponse?.content?.[acceptedContentType]
+
+        // Body
+        const body = acceptedResponse?.example
+          ? acceptedResponse.example
+          : acceptedResponse?.schema
+            ? getExampleFromSchema(acceptedResponse.schema, {
                 emptyString: '…',
                 variables: c.req.param(),
               })
@@ -160,21 +188,12 @@ export async function createMockServer(options?: {
           10,
         ) as StatusCode
 
-        // Headers
-        const headers = preferredResponseKey
-          ? operation.responses?.[preferredResponseKey]?.headers ?? {}
-          : {}
+        c.status(statusCode)
 
-        Object.keys(headers).forEach((header) => {
-          c.header(
-            header,
-            headers[header].schema
-              ? getExampleFromSchema(headers[header].schema)
-              : null,
-          )
-        })
-
-        return c.json(response, statusCode)
+        return c.body(
+          // TODO: What about xml?
+          typeof body === 'object' ? JSON.stringify(body, null, 2) : body,
+        )
       })
     })
   })

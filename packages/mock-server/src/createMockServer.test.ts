@@ -42,6 +42,92 @@ describe('createMockServer', () => {
     })
   })
 
+  it('GET /foobar -> return HTML if accepted', async () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    example: {
+                      foo: 'bar',
+                    },
+                  },
+                  'text/html': {
+                    example: 'foobar',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({
+      specification,
+    })
+
+    const response = await server.request('/foobar', {
+      headers: {
+        Accept: 'text/html',
+      },
+    })
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('foobar')
+  })
+
+  it('GET /foobar -> fall back to JSON', async () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    example: {
+                      foo: 'bar',
+                    },
+                  },
+                  'text/html': {
+                    example: 'foobar',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({
+      specification,
+    })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toMatchObject({
+      foo: 'bar',
+    })
+  })
+
   it('uses http verbs only to register routes', async () => {
     const specification = {
       openapi: '3.1.0',
