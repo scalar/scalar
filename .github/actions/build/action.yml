@@ -1,13 +1,18 @@
 name: 'Build'
 description: 'Build everything'
+inputs:
+  node-version:
+    description: 'Node Version'
+    required: false
+    default: '20'
 runs:
   using: 'composite'
   steps:
     - uses: pnpm/action-setup@v4
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js ${{ inputs.node-version }}
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: ${{ inputs.node-version }}
         cache: 'pnpm'
     - name: Install dependencies
       shell: bash
@@ -16,7 +21,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: .turbo
-        key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
+        key: turbo-${{ runner.os }}-node-${{ inputs.node-version }}
     - name: Build
       shell: bash
       run: pnpm turbo build

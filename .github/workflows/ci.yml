@@ -47,6 +47,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Build
         uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
       - name: Update Turborepo cache
         uses: actions/cache/save@v4
         with:
