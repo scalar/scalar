@@ -227,7 +227,7 @@ jobs:
       - if: steps.changesets.outputs.publishedPackages
         name: List all published packages
         run: echo "${{ steps.changesets.outputs.publishedPackages }}"
-      - if: steps.changesets.outputs.publishedPackages.*.name == 'scalar-api-client'
+      - if: contains(steps.changesets.outputs.publishedPackages, 'scalar-api-client')
         name: Check whether scalar-api-client was published
         run: echo "scalar-api-client was published"
 
