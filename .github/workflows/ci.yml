@@ -224,6 +224,12 @@ jobs:
           # Permissions: Read and Write
           # Select packages: @scalar
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - if: steps.changesets.outputs.published == 'true'
+        name: List all published packages
+        run: echo "${{ steps.changesets.outputs.publishedPackages }}"
+      - if: steps.changesets.outputs.publishedPackages.*.name == 'scalar-api-client'
+        name: Check whether scalar-api-client was published
+        run: echo "scalar-api-client was published"
 
   stackblitz:
     if: github.head_ref == 'changeset-release/main'
