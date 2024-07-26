@@ -4,10 +4,10 @@ import { computed, ref, watch } from 'vue'
 
 import { ScalarIcon } from '../ScalarIcon'
 import ComboboxOption from './ScalarComboboxOption.vue'
-import type { Option } from './types'
+import { type Option, type OptionGroup, isGroups } from './types'
 
 const props = defineProps<{
-  options: Option[]
+  options: Option[] | OptionGroup[]
   modelValue?: Option[]
   placeholder?: string
   open?: boolean
@@ -22,8 +22,22 @@ defineOptions({ inheritAttrs: false })
 
 const id = nanoid()
 
+/** A flat list of all options */
+const optionsList = computed<Option[]>(() =>
+  isGroups(props.options)
+    ? props.options.flatMap((group) => group.options)
+    : props.options,
+)
+
+/** An list of all groups */
+const groupsList = computed<OptionGroup[]>(() =>
+  isGroups(props.options)
+    ? props.options
+    : [{ label: '', options: props.options }],
+)
+
 const query = ref<string>('')
-const active = ref<Option>(props.modelValue?.[0] ?? props.options[0])
+const active = ref<Option>(props.modelValue?.[0] ?? optionsList.value[0])
 
 // Clear the query on open and close
 watch(
@@ -39,8 +53,8 @@ watch(
 
 const filtered = computed<Option[]>(() =>
   query.value === ''
-    ? props.options
-    : props.options.filter((option) => {
+    ? optionsList.value
+    : optionsList.value.filter((option) => {
         return option.label.toLowerCase().includes(query.value.toLowerCase())
       }),
 )
@@ -87,6 +101,7 @@ function moveActive(dir: 1 | -1) {
       aria-autocomplete="list"
       :aria-controls="id"
       class="min-w-0 flex-1 rounded-none border-0 py-2.5 pl-8 pr-3 leading-none text-c-1 outline-none"
+      data-1p-ignore
       :placeholder="placeholder"
       role="combobox"
       tabindex="0"
@@ -99,14 +114,26 @@ function moveActive(dir: 1 | -1) {
     v-show="filtered.length"
     :id="id"
     class="border-t p-0.75">
-    <ComboboxOption
-      v-for="option in filtered"
-      :key="option.id"
-      :active="active?.id === option.id"
-      :selected="selected.some((o) => o.id === option.id)"
-      @click="toggleSelected(option)"
-      @mouseenter="active = option">
-      {{ option.label }}
-    </ComboboxOption>
+    <template
+      v-for="(group, i) in groupsList"
+      :key="i">
+      <div
+        v-if="group.label"
+        class="min-w-0 truncate px-2 py-1.5 text-left text-c-2">
+        {{ group.label }}
+      </div>
+      <template
+        v-for="option in filtered"
+        :key="option.id">
+        <ComboboxOption
+          v-if="group.options.some((o) => o.id === option.id)"
+          :active="active?.id === option.id"
+          :selected="selected.some((o) => o.id === option.id)"
+          @click="toggleSelected(option)"
+          @mouseenter="active = option">
+          {{ option.label }}
+        </ComboboxOption>
+      </template>
+    </template>
   </ul>
 </template>
