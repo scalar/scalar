@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
-import type { UpdateScheme } from '@/store/workspace'
+import { type UpdateScheme, useWorkspace } from '@/store/workspace'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import {
   type SecuritySchemeOptionOauth,
@@ -14,10 +14,14 @@ import OAuthScopesInput from './OAuthScopesInput.vue'
 const props = defineProps<{
   activeScheme: SelectedSchemeOauth2
   schemeModel: SecuritySchemeOptionOauth
-  updateScheme: UpdateScheme
 }>()
 
 const loadingState = useLoadingState()
+const { securitySchemeMutators } = useWorkspace()
+
+/** Update the current scheme */
+const updateScheme: UpdateScheme = (path, value) =>
+  securitySchemeMutators.edit(props.activeScheme.scheme.uid, path, value)
 
 /** Authorize the user using specified flow */
 const handleAuthorize = async () => {
@@ -30,7 +34,7 @@ const handleAuthorize = async () => {
   ).finally(() => loadingState.stopLoading())
 
   if (accessToken)
-    props.updateScheme(`flows.${props.schemeModel.flowKey}.token`, accessToken)
+    updateScheme(`flows.${props.schemeModel.flowKey}.token`, accessToken)
 }
 </script>
 
@@ -163,4 +167,3 @@ const handleAuthorize = async () => {
     <!-- </DataTableRow> -->
   </template>
 </template>
-./OAuthScopesInput.vue
