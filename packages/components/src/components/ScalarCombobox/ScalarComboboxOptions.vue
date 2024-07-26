@@ -91,9 +91,9 @@ function moveActive(dir: 1 | -1) {
       role="combobox"
       tabindex="0"
       type="text"
-      @keydown.down="moveActive(1)"
+      @keydown.down.prevent="moveActive(1)"
       @keydown.enter.prevent="toggleSelected(active)"
-      @keydown.up="moveActive(-1)" />
+      @keydown.up.prevent="moveActive(-1)" />
   </div>
   <ul
     v-show="filtered.length"
