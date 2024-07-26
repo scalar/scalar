@@ -6,6 +6,13 @@ import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
 defineProps<Omit<FloatingOptions, 'middleware'>>()
 
 defineOptions({ inheritAttrs: false })
+
+/** Open the popover of the up or down arrows are pressed */
+function handleKeydown(e: KeyboardEvent) {
+  if (!['ArrowUp', 'ArrowDown'].includes(e.key)) return
+  e.preventDefault()
+  e.target?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
+}
 </script>
 <template>
   <Popover
@@ -16,7 +23,9 @@ defineOptions({ inheritAttrs: false })
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
       :teleport="teleport">
-      <PopoverButton as="template">
+      <PopoverButton
+        as="template"
+        @keydown="handleKeydown">
         <slot />
       </PopoverButton>
       <template #floating="{ width }">
