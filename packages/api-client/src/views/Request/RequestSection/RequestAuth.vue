@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { DataTable, DataTableCell, DataTableRow } from '@/components/DataTable'
+import {
+  DataTable,
+  DataTableHeader,
+  DataTableRow,
+} from '@/components/DataTable'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { type UpdateScheme, useWorkspace } from '@/store/workspace'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { OAuth2 } from '@/views/Request/components'
 import type { SecuritySchemeOption } from '@/views/Request/libs'
-import { ScalarButton, ScalarCombobox, ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import type { SelectedSchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
 import { camelToTitleWords } from '@scalar/oas-utils/helpers'
 import { capitalize, computed } from 'vue'
@@ -117,28 +121,31 @@ const updateScheme: UpdateScheme = (path, value) =>
         class="flex-1"
         :columns="['']">
         <DataTableRow>
-          <DataTableCell
-            class="relative col-span-full !p-0 h-8 flex items-center">
-            <div
-              class="text-c-2 flex min-w-[100px] items-center border-r-1/2 pr-0 pl-2 h-full">
-              Auth Type
-            </div>
-            <ScalarCombobox
+          <DataTableHeader
+            class="relative col-span-full cursor-pointer py-[0px] px-[0px] flex items-center">
+            <ScalarListbox
               v-model="schemeModel"
+              class="text-xs w-full left-2"
+              fullWidth
               :options="schemeOptions"
-              placeholder="Filter by auth type..."
-              resize>
+              teleport>
               <ScalarButton
-                class="flex gap-1.5 h-full justify-start !p-0 text-c-2 flex-1 hover:text-c-1 font-normal"
+                class="flex gap-1.5 h-auto py-0 px-0 text-c-2 hover:text-c-1 font-normal"
                 fullWidth
                 variant="ghost">
-                <span class="pl-2">{{ schemeModel?.label }}</span>
-                <ScalarIcon
-                  icon="ChevronDown"
-                  size="xs" />
+                <div class="flex h-8 items-center">
+                  <div
+                    class="text-c-2 flex min-w-[100px] items-center border-r-1/2 pr-0 pl-2 h-full">
+                    Auth Type
+                  </div>
+                  <span class="pl-2">{{ schemeModel?.label }}</span>
+                  <ScalarIcon
+                    icon="ChevronDown"
+                    size="xs" />
+                </div>
               </ScalarButton>
-            </ScalarCombobox>
-          </DataTableCell>
+            </ScalarListbox>
+          </DataTableHeader>
         </DataTableRow>
 
         <!-- HTTP Bearer -->
