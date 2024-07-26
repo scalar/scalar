@@ -36,7 +36,7 @@ export const sendRequest = async (
   securityScheme?: {
     scheme: SecurityScheme
     flow?: SelectedSchemeOauth2['flow']
-  },
+  }[],
   proxyUrl?: string,
 ): Promise<{
   sentTime?: number

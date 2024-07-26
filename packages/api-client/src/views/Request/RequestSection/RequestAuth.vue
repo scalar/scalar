@@ -232,7 +232,7 @@ const selectedLabel = computed(() => {
           <!-- HTTP Bearer -->
           <DataTableRow
             v-if="
-              activeSecurityScheme?.scheme.type === 'http' &&
+              activeSecurityScheme.scheme.type === 'http' &&
               activeSecurityScheme.scheme.scheme === 'bearer'
             ">
             <RequestAuthDataTableInput
@@ -250,7 +250,7 @@ const selectedLabel = computed(() => {
           <!-- HTTP Basic -->
           <template
             v-else-if="
-              activeSecurityScheme?.scheme.type === 'http' &&
+              activeSecurityScheme.scheme.type === 'http' &&
               activeSecurityScheme.scheme.scheme === 'basic'
             ">
             <DataTableRow>
@@ -281,7 +281,7 @@ const selectedLabel = computed(() => {
 
           <!-- API Key -->
           <DataTableRow
-            v-else-if="activeSecurityScheme?.scheme.type === 'apiKey'">
+            v-else-if="activeSecurityScheme.scheme.type === 'apiKey'">
             <RequestAuthDataTableInput
               :id="`api-key-${activeSecurityScheme.scheme.name}`"
               :modelValue="activeSecurityScheme.scheme.value"
@@ -297,7 +297,7 @@ const selectedLabel = computed(() => {
           <!-- OAuth 2 -->
           <OAuth2
             v-else-if="
-              activeSecurityScheme?.scheme.type === 'oauth2' &&
+              activeSecurityScheme.scheme.type === 'oauth2' &&
               schemeModel[index] &&
               'uid' in schemeModel[index] &&
               activeSecurityScheme.flow
