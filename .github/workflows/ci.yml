@@ -43,8 +43,10 @@ jobs:
         node-version: ${{ fromJSON(needs.define-matrix.outputs.node-versions) }}
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/build
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build
+        uses: ./.github/actions/build
       - name: Update Turborepo cache
         uses: actions/cache/save@v4
         with:
@@ -58,7 +60,8 @@ jobs:
         node-version: [20]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -78,7 +81,8 @@ jobs:
         node-version: ${{ fromJSON(needs.define-matrix.outputs.node-versions) }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -106,7 +110,8 @@ jobs:
         node-version: ${{ fromJSON(needs.define-matrix.outputs.node-versions) }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -133,7 +138,8 @@ jobs:
         node-version: [20]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -168,7 +174,8 @@ jobs:
         node-version: [20]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -220,7 +227,8 @@ jobs:
         node-version: [20]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -275,7 +283,8 @@ jobs:
         node-version: [20]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
