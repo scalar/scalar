@@ -8,17 +8,15 @@ import type { StatusCode } from 'hono/utils/http-status'
 import objectToXML from 'object-to-xml'
 
 import type { HttpMethod } from './types'
-import {
-  anyBasicAuthentication,
-  anyOpenAuthPasswordGrantAuthentication,
-  findPreferredResponseKey,
-  getOpenAuthTokenUrl,
-  getOperations,
-  honoRouteFromPath,
-  isAuthenticationRequired,
-  isBasicAuthenticationRequired,
-  isOpenAuthPasswordGrantRequired,
-} from './utils'
+import { anyBasicAuthentication } from './utils/anyBasicAuthentication'
+import { anyOpenAuthPasswordGrantAuthentication } from './utils/anyOpenAuthPasswordGrantAuthentication'
+import { findPreferredResponseKey } from './utils/findPreferredResponseKey'
+import { getOpenAuthTokenUrl } from './utils/getOpenAuthTokenUrl'
+import { getOperations } from './utils/getOperations'
+import { honoRouteFromPath } from './utils/honoRouteFromPath'
+import { isAuthenticationRequired } from './utils/isAuthenticationRequired'
+import { isBasicAuthenticationRequired } from './utils/isBasicAuthenticationRequired'
+import { isOpenAuthPasswordGrantRequired } from './utils/isOpenAuthPasswordGrantRequired'
 
 /**
  * Create a mock server instance
