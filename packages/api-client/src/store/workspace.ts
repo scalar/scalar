@@ -26,6 +26,7 @@ import {
 } from '@scalar/oas-utils/entities/workspace/folder'
 import {
   type SecurityScheme,
+  type SecuritySchemePayload,
   createSecurityScheme,
 } from '@scalar/oas-utils/entities/workspace/security'
 import {
@@ -608,7 +609,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
   )
 
   /**
-   * Add a new folder to a folder or colleciton
+   * Add a new folder to a folder or collection
    * If the parentUid is included it is added ot the parent as well
    */
   const addFolder = (
@@ -712,6 +713,31 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     persistData && LS_KEYS.SERVER,
   )
 
+  /** Adds a security scheme and appends it to either a colleciton or a request */
+  const addSecurityScheme = (
+    payload: SecuritySchemePayload,
+    collectionUid?: string,
+    requestUid?: string,
+  ) => {}
+
+  /** Delete a security scheme and remove the key from its corresponding parent */
+  const deleteSecurityScheme = (
+    scheme: SecurityScheme,
+    collection: Collection,
+    request: Request,
+  ) => {
+    // Remove from collection
+    if (collection) {
+      // remove from selectedSecuritySchemes
+      // remove from spec.security
+      // remove from securitySchemeDict
+    }
+
+    // Remove from request
+    if (request) {
+    }
+  }
+
   /**
    * Add a server
    * If the collectionUid is included it is added to the collection as well
@@ -775,7 +801,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
         {}) as Record<string, SecurityScheme>,
     ).forEach(([key, securityScheme]) =>
       securitySchemeMutators.add(
-        createSecurityScheme({ ...securityScheme, uid: key }),
+        createSecurityScheme({ ...securityScheme, nameKey: key }),
       ),
     )
   }

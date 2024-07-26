@@ -55,46 +55,46 @@ const schemeOptions = computed<SecuritySchemeOption[]>(() => {
   const additionalAuth = isReadOnly.value
     ? []
     : [
-        {
-          id: 'apiKeyCookie',
-          label: 'API Key in Cookies',
-        },
-        {
-          id: 'apiKeyHeader',
-          label: 'API Key in Headers',
-        },
-        {
-          id: 'apiKeyQuery',
-          label: 'API Key in Query Params',
-        },
-        {
-          id: 'httpBasic',
-          label: 'HTTP Basic',
-        },
-        {
-          id: 'httpBearer',
-          label: 'HTTP Bearer',
-        },
-        {
-          id: 'oauth2Implicit',
-          label: 'Oauth2 Implicit Flow',
-        },
-        {
-          id: 'oauth2Password',
-          label: 'Oauth2 Password Flow',
-        },
-        {
-          id: 'oauth2ClientCredentials',
-          label: 'Oauth2 Client Credentials',
-        },
-        {
-          id: 'oauth2AuthorizationFlow',
-          label: 'Oauth2 Authorization Flow',
-        },
-        {
-          id: 'oauth2Implicit',
-          label: 'Oauth2 Implicit Flow',
-        },
+        // {
+        //   id: 'apiKeyCookie',
+        //   label: 'API Key in Cookies',
+        // },
+        // {
+        //   id: 'apiKeyHeader',
+        //   label: 'API Key in Headers',
+        // },
+        // {
+        //   id: 'apiKeyQuery',
+        //   label: 'API Key in Query Params',
+        // },
+        // {
+        //   id: 'httpBasic',
+        //   label: 'HTTP Basic',
+        // },
+        // {
+        //   id: 'httpBearer',
+        //   label: 'HTTP Bearer',
+        // },
+        // {
+        //   id: 'oauth2Implicit',
+        //   label: 'Oauth2 Implicit Flow',
+        // },
+        // {
+        //   id: 'oauth2Password',
+        //   label: 'Oauth2 Password Flow',
+        // },
+        // {
+        //   id: 'oauth2ClientCredentials',
+        //   label: 'Oauth2 Client Credentials',
+        // },
+        // {
+        //   id: 'oauth2AuthorizationFlow',
+        //   label: 'Oauth2 Authorization Flow',
+        // },
+        // {
+        //   id: 'oauth2Implicit',
+        //   label: 'Oauth2 Implicit Flow',
+        // },
       ]
 
   return [

@@ -2,16 +2,20 @@ import { deepMerge } from '@/helpers'
 import type { ValueOf } from 'type-fest'
 import { z } from 'zod'
 
-/** The uid here is actually the name key, called uid to re-use our mutators */
-const uid = z.string().optional().default('default')
+import { nanoidSchema } from '../shared'
+
+const uid = nanoidSchema
 /* A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
 const description = z.string().optional()
+/** The name key that links a security requirement to a security object */
+const nameKey = z.string().optional().default('')
 /** A generic string value used for filling in fields  */
 const value = z.string().optional().default('')
 
 const securitySchemeApiKey = z.object({
   type: z.literal('apiKey'),
   uid,
+  nameKey,
   description,
   /** REQUIRED. The name of the header, query or cookie parameter to be used. */
   name: z.string().optional().default('default'),
@@ -24,6 +28,7 @@ const securitySchemeApiKey = z.object({
 const securitySchemeHttp = z.object({
   type: z.literal('http'),
   uid,
+  nameKey,
   description,
   /**
    * REQUIRED. The name of the HTTP Authorization scheme to be used in the Authorization header as defined in
@@ -80,10 +85,11 @@ const scopes = z
 const selectedScopes = z.array(z.string()).optional().default([])
 
 const oauthFlowSchema = z
-  .object({
+  .union([
     /** Configuration for the OAuth Implicit flow */
-    implicit: z
+    z
       .object({
+        type: z.literal('implicit'),
         authorizationUrl,
         refreshUrl,
         scopes,
@@ -93,14 +99,15 @@ const oauthFlowSchema = z
       })
       .optional(),
     /** Configuration for the OAuth Resource Owner Password flow */
-    password: z
+    z
       .object({
+        type: z.literal('password'),
         tokenUrl,
         refreshUrl,
         scopes,
 
         /** Username */
-        value: value,
+        value,
         /** Password */
         secondValue: value,
         selectedScopes,
@@ -109,8 +116,9 @@ const oauthFlowSchema = z
       })
       .optional(),
     /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
-    clientCredentials: z
+    z
       .object({
+        type: z.literal('clientCredentials'),
         tokenUrl,
         refreshUrl,
         scopes,
@@ -121,8 +129,9 @@ const oauthFlowSchema = z
       })
       .optional(),
     /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0.*/
-    authorizationCode: z
+    z
       .object({
+        type: z.literal('authorizationCode'),
         authorizationUrl,
         tokenUrl,
         refreshUrl,
@@ -133,15 +142,14 @@ const oauthFlowSchema = z
         token: value,
       })
       .optional(),
-  })
+  ])
   .optional()
-  .default({
-    implicit: {},
-  })
+  .default({ type: 'implicit' })
 
 const securitySchemeOauth2 = z.object({
   type: z.literal('oauth2'),
   uid,
+  nameKey,
   description,
   /** REQUIRED. An object containing configuration information for the flow types supported. */
   flows: oauthFlowSchema,
@@ -158,6 +166,7 @@ export type SelectedSchemeOauth2 = {
 const securitySchemeOpenId = z.object({
   type: z.literal('openIdConnect'),
   uid,
+  nameKey,
   description,
   /**
    * REQUIRED. OpenId Connect URL to discover OAuth2 configuration values. This MUST be in the
