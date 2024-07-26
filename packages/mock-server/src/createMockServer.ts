@@ -159,6 +159,23 @@ export async function createMockServer(options?: {
             : preferredResponseKey ?? '200',
           10,
         ) as StatusCode
+
+        // Headers
+        const headers = preferredResponseKey
+          ? operation.responses?.[preferredResponseKey]?.headers ?? {}
+          : {}
+
+        Object.keys(headers).forEach((header) => {
+          c.header(
+            header,
+            headers[header].examples?.[0] ??
+              headers[header].example ??
+              headers[header].schema
+              ? getExampleFromSchema(headers[header].schema)
+              : null,
+          )
+        })
+
         return c.json(response, statusCode)
       })
     })

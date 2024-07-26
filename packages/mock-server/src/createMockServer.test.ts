@@ -407,4 +407,42 @@ describe('createMockServer', () => {
       foo: 'bar',
     })
   })
+
+  it('adds headers', async () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                headers: {
+                  'X-Custom': {
+                    schema: {
+                      type: 'string',
+                      example: 'foobar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({
+      specification,
+    })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('X-Custom')).toBe('foobar')
+  })
 })
