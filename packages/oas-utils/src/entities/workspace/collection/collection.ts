@@ -118,10 +118,7 @@ const specSchema = z.object({
 const collectionSchema = z.object({
   uid: nanoidSchema,
   spec: specSchema.optional().default({}),
-  /**
-   * The currently selected security scheme key
-   * TODO eventually we will need to maintain one per request + collection but this will do for now
-   */
+  /** The currently selected security schemes at the collection level */
   selectedSecuritySchemes: z
     .array(
       z.object({
