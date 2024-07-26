@@ -7,13 +7,13 @@ import type { Option } from './types'
 defineProps<
   {
     options: Option[]
-    modelValue?: Option
+    modelValue?: Option[]
     placeholder?: string
   } & Omit<FloatingOptions, 'middleware'>
 >()
 
 defineEmits<{
-  (e: 'update:modelValue', v: Option): void
+  (e: 'update:modelValue', v: Option[]): void
 }>()
 </script>
 <template>
@@ -23,15 +23,14 @@ defineEmits<{
     :resize="resize"
     :teleport="teleport">
     <slot />
-    <template #popover="{ open, close }">
+    <template #popover="{ open }">
       <ComboboxOptions
-        :modelValue="modelValue ? [modelValue] : []"
+        :modelValue="modelValue"
+        multiselect
         :open="open"
         :options="options"
         :placeholder="placeholder"
-        @update:modelValue="
-          (v) => (close(), $emit('update:modelValue', v[0]))
-        " />
+        @update:modelValue="(v) => $emit('update:modelValue', v)" />
     </template>
   </ComboboxPopover>
 </template>
