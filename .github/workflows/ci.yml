@@ -224,7 +224,7 @@ jobs:
           # Permissions: Read and Write
           # Select packages: @scalar
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - if: steps.changesets.outputs.published == 'true'
+      - if: steps.changesets.outputs.publishedPackages
         name: List all published packages
         run: echo "${{ steps.changesets.outputs.publishedPackages }}"
       - if: steps.changesets.outputs.publishedPackages.*.name == 'scalar-api-client'
