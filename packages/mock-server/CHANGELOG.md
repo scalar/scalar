@@ -1,5 +1,14 @@
 # @scalar/mock-server
 
+## 0.2.20
+
+### Patch Changes
+
+- ad002b9: feat: add headers to mocked responses
+- f4e0edc: fix: imports cause a circular reference
+- ad002b9: feat: support redirects
+- ad002b9: feat: support all content types
+
 ## 0.2.19
 
 ### Patch Changes

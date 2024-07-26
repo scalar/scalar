@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.24.58
+
+### Patch Changes
+
+- 81b330e: feat: limit search results to 25, improve search modal performance
+- 201b661: feat: log some performance metrics
+- 0bea5b6: fix: window.matchMedia is not a function
+- Updated dependencies [ce3f630]
+- Updated dependencies [b2a662a]
+- Updated dependencies [86014b5]
+- Updated dependencies [d88c403]
+- Updated dependencies [a60c916]
+- Updated dependencies [0bea5b6]
+- Updated dependencies [2c61c21]
+- Updated dependencies [19a50de]
+  - @scalar/api-client@2.0.33
+  - @scalar/components@0.12.20
+
 ## 1.24.57
 
 ### Patch Changes

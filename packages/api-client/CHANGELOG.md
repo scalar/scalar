@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 2.0.33
+
+### Patch Changes
+
+- ce3f630: fix: remove layout code from scalar-app class
+- d88c403: fix(api-client): remove default proxy
+- 0bea5b6: fix: window.matchMedia is not a function
+- 2c61c21: feat: make the configuration for createApiClientApp and createApiClientModal optional
+- 19a50de: feat: do not hide auth on write mode
+- Updated dependencies [b2a662a]
+- Updated dependencies [86014b5]
+- Updated dependencies [a60c916]
+  - @scalar/components@0.12.20
+
 ## 2.0.32
 
 ### Patch Changes

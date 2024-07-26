@@ -1,5 +1,12 @@
 # @scalar/void-server
 
+## 2.0.8
+
+### Patch Changes
+
+- 1c5e924: chore: remove node:buffer import
+- f4e0edc: fix: wrong directory in package.json
+
 ## 2.0.7
 
 ### Patch Changes
