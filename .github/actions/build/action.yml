@@ -1,4 +1,5 @@
 name: 'Build'
+description: 'Build everything'
 runs:
   using: 'composite'
   steps:
@@ -9,6 +10,7 @@ runs:
         node-version: ${{ matrix.node-version }}
         cache: 'pnpm'
     - name: Install dependencies
+      shell: bash
       run: pnpm install
     - name: Turborepo cache
       uses: actions/cache@v4
@@ -16,4 +18,5 @@ runs:
         path: .turbo
         key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
     - name: Build
+      shell: bash
       run: pnpm turbo build
