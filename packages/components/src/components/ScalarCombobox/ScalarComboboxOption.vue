@@ -5,6 +5,7 @@ import { ScalarIcon } from '../ScalarIcon'
 defineProps<{
   active?: boolean
   selected?: boolean
+  style?: 'radio' | 'checkbox'
 }>()
 
 const variants = cva({
@@ -26,8 +27,11 @@ const variants = cva({
 <template>
   <li :class="cx(variants({ active, selected }))">
     <div
-      class="flex size-4 items-center justify-center rounded-full p-0.75 group-hover:shadow-border"
-      :class="selected ? 'bg-blue text-b-1' : 'text-transparent'">
+      class="flex size-4 items-center justify-center p-0.75 group-hover:shadow-border"
+      :class="[
+        selected ? 'bg-blue text-b-1' : 'text-transparent',
+        style === 'checkbox' ? 'rounded' : 'rounded-full',
+      ]">
       <!-- Icon needs help to be optically centered (╥﹏╥) -->
       <ScalarIcon
         class="relative top-[0.5px] size-2.5"

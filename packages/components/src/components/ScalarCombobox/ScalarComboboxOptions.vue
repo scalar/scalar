@@ -129,6 +129,7 @@ function moveActive(dir: 1 | -1) {
           v-if="group.options.some((o) => o.id === option.id)"
           :active="active?.id === option.id"
           :selected="selected.some((o) => o.id === option.id)"
+          :style="multiselect ? 'checkbox' : 'radio'"
           @click="toggleSelected(option)"
           @mouseenter="active = option">
           {{ option.label }}
