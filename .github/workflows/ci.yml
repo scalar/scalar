@@ -89,8 +89,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
-      - if: matrix.node-version == 20 || github.head_ref == 'changeset-release/main'
-        name: Check types
+      - name: Check types
         run: pnpm turbo types:check
 
   test:
