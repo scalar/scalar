@@ -86,7 +86,7 @@ type CreateApiClientParams = {
 export const createApiClient = ({
   el,
   appComponent,
-  configuration,
+  configuration = {},
   isReadOnly = false,
   persistData = true,
   mountOnInitialize = true,
