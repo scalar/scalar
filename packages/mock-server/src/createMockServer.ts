@@ -4,6 +4,7 @@ import { type Context, Hono } from 'hono'
 import { accepts } from 'hono/accepts'
 import { cors } from 'hono/cors'
 import type { StatusCode } from 'hono/utils/http-status'
+// @ts-expect-error Doesn’t come with types
 import objectToXML from 'object-to-xml'
 
 import type { HttpMethod } from './types'
