@@ -5,6 +5,10 @@ inputs:
     description: 'Node Version'
     required: false
     default: '20'
+  packages-only:
+    description: 'Whether to build packages/ only'
+    required: false
+    default: 'false'
 runs:
   using: 'composite'
   steps:
@@ -22,6 +26,15 @@ runs:
       with:
         path: .turbo
         key: turbo-${{ runner.os }}-node-${{ inputs.node-version }}
-    - name: Build
+    - if: ${{ inputs.packages-only != 'false' }}
+      name: Build
       shell: bash
       run: pnpm turbo build
+    - if: ${{ inputs.packages-only == 'true' }}
+      name: Build packages
+      shell: bash
+      run: pnpm build:packages
+    - if: ${{ inputs.packages-only != 'true' && inputs.packages-only != 'false' }}
+      name: Build package
+      shell: bash
+      run: pnpm turbo --filter './packages/${{inputs.packages-only}}' build

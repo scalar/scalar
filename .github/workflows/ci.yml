@@ -103,21 +103,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - name: Build packages
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
-      - name: Turborepo cache
-        uses: actions/cache/restore@v4
-        with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
-      - name: Build packages
-        run: pnpm build:packages
+          packages-only: 'true'
       - name: Run tests
         run: pnpm test:ci
 
@@ -131,21 +121,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
-      - name: Turborepo cache
-        uses: actions/cache/restore@v4
-        with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
       - name: Build @scalar/api-reference
-        run: pnpm build:api-reference
+        uses: ./.github/actions/build
+        with:
+          node-version: 20
+          packages-only: 'api-reference'
       - name: Send bundle stats and build information to RelativeCI
         uses: relative-ci/agent-action@v2
         with:
@@ -209,21 +189,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - name: Build packages
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
-      - name: Turborepo cache
-        uses: actions/cache/restore@v4
-        with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
-      - name: Build packages
-        run: pnpm build:packages
+          packages-only: 'true'
       - name: Publish on Stackblitz
         # We can’t use npx pkg-pr-new publish ./packages/* here.
         # We want to explicitly publish the packages we want to save some time.
