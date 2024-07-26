@@ -9,7 +9,9 @@ defineProps<Omit<FloatingOptions, 'middleware'>>()
 defineOptions({ inheritAttrs: false })
 </script>
 <template>
-  <Popover v-slot="{ open }">
+  <Popover
+    v-slot="{ open }"
+    as="template">
     <ScalarFloating
       v-bind="$props"
       :isOpen="open ?? isOpen"

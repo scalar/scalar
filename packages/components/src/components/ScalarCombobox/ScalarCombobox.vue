@@ -20,7 +20,9 @@ defineEmits<{
 defineOptions({ inheritAttrs: false })
 </script>
 <template>
-  <Popover v-slot="{ open }">
+  <Popover
+    v-slot="{ open }"
+    as="template">
     <ScalarFloating
       :isOpen="open ?? isOpen"
       :placement="placement ?? 'bottom-start'"

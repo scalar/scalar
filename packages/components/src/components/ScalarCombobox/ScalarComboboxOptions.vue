@@ -74,7 +74,7 @@ function moveActive(dir: 1 | -1) {
       v-model="query"
       aria-autocomplete="list"
       :aria-controls="id"
-      class="min-w-0 flex-1 rounded-none border-0 py-2.5 pl-8 pr-3 text-c-1 outline-none"
+      class="min-w-0 flex-1 rounded-none border-0 py-2.5 pl-8 pr-3 leading-none text-c-1 outline-none"
       :placeholder="placeholder"
       role="combobox"
       tabindex="0"
