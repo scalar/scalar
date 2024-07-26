@@ -694,11 +694,10 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
    * - if a request has security then use that one, else use the collections
    * - if the security contains an empty object {} then it is optional and none is allowed
    * - if the requirement on an operation is an empty array [] then it overrides the collections'
-   * - if we are not in read only mode, then just show all auth all the time
    */
   const activeSecurityRequirements = computed(
     () =>
-      (isReadOnly.value ? activeRequest.value?.security : null) ??
+      activeRequest.value?.security ??
       activeCollection.value?.spec.security ??
       [],
   )

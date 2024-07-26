@@ -24,11 +24,12 @@ defineProps<{
 
 const {
   activeCollection,
+  activeSecurityRequirements,
   activeSecuritySchemes,
   collectionMutators,
-  activeSecurityRequirements,
-  securitySchemes,
+  isReadOnly,
   securitySchemeMutators,
+  securitySchemes,
 } = useWorkspace()
 
 /** Generate pretty name for the dropdown label */
@@ -49,39 +50,88 @@ const getLabel = (id: string) => {
 }
 
 /** Generate the options for the dropdown */
-const schemeOptions = computed<SecuritySchemeOption[]>(() =>
-  activeSecurityRequirements.value.flatMap((req) => {
-    const keys = Object.keys(req)
+const schemeOptions = computed<SecuritySchemeOption[]>(() => {
+  // For the client app we provide all options
+  const additionalAuth = isReadOnly.value
+    ? []
+    : [
+        {
+          id: 'apiKeyCookie',
+          label: 'API Key in Cookies',
+        },
+        {
+          id: 'apiKeyHeader',
+          label: 'API Key in Headers',
+        },
+        {
+          id: 'apiKeyQuery',
+          label: 'API Key in Query Params',
+        },
+        {
+          id: 'httpBasic',
+          label: 'HTTP Basic',
+        },
+        {
+          id: 'httpBearer',
+          label: 'HTTP Bearer',
+        },
+        {
+          id: 'oauth2Implicit',
+          label: 'Oauth2 Implicit Flow',
+        },
+        {
+          id: 'oauth2Password',
+          label: 'Oauth2 Password Flow',
+        },
+        {
+          id: 'oauth2ClientCredentials',
+          label: 'Oauth2 Client Credentials',
+        },
+        {
+          id: 'oauth2AuthorizationFlow',
+          label: 'Oauth2 Authorization Flow',
+        },
+        {
+          id: 'oauth2Implicit',
+          label: 'Oauth2 Implicit Flow',
+        },
+      ]
 
-    // Optional
-    if (keys.length === 0)
-      return { id: 'none', label: 'None', labelWithoutId: 'None' }
+  return [
+    ...activeSecurityRequirements.value.flatMap((req) => {
+      const keys = Object.keys(req)
 
-    // Active requirements
-    return keys.flatMap((id) => {
-      const scheme = securitySchemes[id]
+      // Optional
+      if (keys.length === 0)
+        return { id: 'none', label: 'None', labelWithoutId: 'None' }
 
-      // For OAuth2 add all flows
-      if (scheme?.type === 'oauth2') {
-        return Object.keys(scheme.flows).map((flowKey) => ({
-          // Since ID's must be unique, we also store the uid and flowKey separately
-          id: `${id}${flowKey}`,
-          label: `${camelToTitleWords(flowKey)} (${id})`,
-          labelWithoutId: camelToTitleWords(flowKey),
-          flowKey,
-          uid: id,
-        }))
-      }
-      // Or add just a single item
-      else
-        return {
-          id,
-          labelWithoutId: getLabel(id),
-          label: `${getLabel(id)} (${id})`,
+      // Active requirements
+      return keys.flatMap((id) => {
+        const scheme = securitySchemes[id]
+
+        // For OAuth2 add all flows
+        if (scheme?.type === 'oauth2') {
+          return Object.keys(scheme.flows).map((flowKey) => ({
+            // Since ID's must be unique, we also store the uid and flowKey separately
+            id: `${id}${flowKey}`,
+            label: `${camelToTitleWords(flowKey)} (${id})`,
+            labelWithoutId: camelToTitleWords(flowKey),
+            flowKey,
+            uid: id,
+          }))
         }
-    })
-  }),
-)
+        // Or add just a single item
+        else
+          return {
+            id,
+            labelWithoutId: getLabel(id),
+            label: `${getLabel(id)} (${id})`,
+          }
+      })
+    }),
+    ...additionalAuth,
+  ]
+})
 
 const schemeModel = computed({
   // Grab the selected OR first security scheme
