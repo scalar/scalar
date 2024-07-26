@@ -128,6 +128,43 @@ describe('createMockServer', () => {
     })
   })
 
+  it('GET /foobar -> XML', async () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/xml': {
+                    example: {
+                      foo: 'bar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({
+      specification,
+    })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toContain('<foo>bar</foo>')
+  })
+
   it('uses http verbs only to register routes', async () => {
     const specification = {
       openapi: '3.1.0',

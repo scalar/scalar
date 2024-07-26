@@ -4,6 +4,7 @@ import { type Context, Hono } from 'hono'
 import { accepts } from 'hono/accepts'
 import { cors } from 'hono/cors'
 import type { StatusCode } from 'hono/utils/http-status'
+import objectToXML from 'object-to-xml'
 
 import type { HttpMethod } from './types'
 import {
@@ -191,8 +192,14 @@ export async function createMockServer(options?: {
         c.status(statusCode)
 
         return c.body(
-          // TODO: What about xml?
-          typeof body === 'object' ? JSON.stringify(body, null, 2) : body,
+          typeof body === 'object'
+            ? // XML
+              acceptedContentType?.includes('xml')
+              ? `<?xml version="1.0" encoding="UTF-8"?>${objectToXML(body)}`
+              : // JSON
+                JSON.stringify(body, null, 2)
+            : // String
+              body,
         )
       })
     })

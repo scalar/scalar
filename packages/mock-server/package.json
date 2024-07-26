@@ -44,7 +44,8 @@
   "dependencies": {
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.7.2",
-    "hono": "^4.2.7"
+    "hono": "^4.2.7",
+    "object-to-xml": "^2.0.0"
   },
   "devDependencies": {
     "@hono/node-server": "^1.11.0",
