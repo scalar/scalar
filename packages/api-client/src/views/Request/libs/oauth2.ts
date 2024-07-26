@@ -6,6 +6,7 @@ import type {
 export type SecuritySchemeOptionBase = {
   id: string
   label: string
+  labelWithoutId: string
 }
 export type SecuritySchemeOptionOauth = SecuritySchemeOptionBase & {
   flowKey: keyof SecuritySchemeOauth2['flows']
@@ -14,10 +15,7 @@ export type SecuritySchemeOptionOauth = SecuritySchemeOptionBase & {
 
 /** Type for the dropdown options */
 export type SecuritySchemeOption =
-  | {
-      id: string
-      label: string
-    }
+  | SecuritySchemeOptionBase
   | SecuritySchemeOptionOauth
 
 /**

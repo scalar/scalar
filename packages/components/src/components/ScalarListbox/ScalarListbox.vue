@@ -21,7 +21,7 @@ withDefaults(
        */
       multiple?: boolean
       options: Option[]
-      modelValue?: Option
+      modelValue?: Option | Option[]
       fullWidth?: boolean
       id?: string
     } & Omit<FloatingOptions, 'middleware' | 'offset'>
