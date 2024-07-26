@@ -1,6 +1,41 @@
 import json
+from enum import Enum
 from typing_extensions import Annotated, Doc
 from fastapi.responses import HTMLResponse
+
+
+class Layout(Enum):
+    MODERN = "modern"
+    CLASSIC = "classic"
+
+
+class SearchHotKey(Enum):
+    A = "a"
+    B = "b"
+    C = "c"
+    D = "d"
+    E = "e"
+    F = "f"
+    G = "g"
+    H = "h"
+    I = "i"
+    J = "j"
+    K = "k"
+    L = "l"
+    M = "m"
+    N = "n"
+    O = "o"
+    P = "p"
+    Q = "q"
+    R = "r"
+    S = "s"
+    T = "t"
+    U = "u"
+    V = "v"
+    W = "w"
+    X = "x"
+    Y = "y"
+    Z = "z"
 
 
 scalar_theme = """
@@ -154,6 +189,24 @@ def get_scalar_api_reference(
             """
         ),
     ] = scalar_theme,
+    layout: Annotated[
+        Layout,
+        Doc(
+            """
+            The layout to use for Scalar.
+            Default is "modern".
+            """
+        ),
+    ] = Layout.MODERN,
+    show_sidebar: Annotated[
+        bool,
+        Doc(
+            """
+            A boolean to show the sidebar.
+            Default is True which means the sidebar is shown.
+            """
+        ),
+    ] = True,
     hide_download_button: Annotated[
         bool,
         Doc(
@@ -172,6 +225,24 @@ def get_scalar_api_reference(
             """
         ),
     ] = False,
+    dark_mode: Annotated[
+        bool,
+        Doc(
+            """
+            Whether dark mode is on or off initially (light mode).
+            Default is True which means dark mode is used.
+            """
+        ),
+    ] = True,
+    search_hot_key: Annotated[
+        SearchHotKey,
+        Doc(
+            """
+            The hotkey to use for search.
+            Default is "k" (e.g. CMD+k).
+            """
+        ),
+    ] = SearchHotKey.K,
     hidden_clients: Annotated[
         bool | dict[str, bool | list[str]] | list[str],
         Doc(
@@ -231,8 +302,12 @@ def get_scalar_api_reference(
       data-proxy-url="{scalar_proxy_url}"></script>
     <script>
       var configuration = {{
+        layout: "{layout.value}",
+        showSidebar: {json.dumps(show_sidebar)},
         hideDownloadButton: {json.dumps(hide_download_button)},
         hideModels: {json.dumps(hide_models)},
+        darkMode: {json.dumps(dark_mode)},
+        searchHotKey: "{search_hot_key.value}",
         hiddenClients: {json.dumps(hidden_clients)},
         servers: {json.dumps(servers)},
         defaultOpenAllTags: {json.dumps(default_open_all_tags)},
