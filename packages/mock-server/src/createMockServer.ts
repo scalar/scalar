@@ -168,9 +168,7 @@ export async function createMockServer(options?: {
         Object.keys(headers).forEach((header) => {
           c.header(
             header,
-            headers[header].examples?.[0] ??
-              headers[header].example ??
-              headers[header].schema
+            headers[header].schema
               ? getExampleFromSchema(headers[header].schema)
               : null,
           )
