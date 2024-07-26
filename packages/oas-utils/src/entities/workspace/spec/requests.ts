@@ -10,9 +10,7 @@ import type { RequestExample } from './request-examples'
 
 /** A single set of populated values for a sent request */
 export type ResponseInstance = AxiosResponse & {
-  /**
-   * Time in ms the request took
-   */
+  /** Time in ms the request took */
   duration: number
 }
 

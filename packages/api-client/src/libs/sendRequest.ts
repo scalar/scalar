@@ -41,7 +41,7 @@ export const sendRequest = async (
   securityScheme?: {
     scheme: SecurityScheme
     flow?: SelectedSchemeOauth2['flow']
-  },
+  }[],
   proxyUrl?: string,
   workspaceCookies?: Record<string, Cookie>,
 ): Promise<{
