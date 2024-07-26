@@ -2,6 +2,8 @@ import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import todesktop from '@todesktop/runtime'
 import { BrowserWindow, app, ipcMain, session, shell } from 'electron'
 import windowStateKeeper from 'electron-window-state'
+import { dialog } from 'electron/main'
+import fs from 'node:fs'
 import { join } from 'path'
 
 import icon from '../../build/icon.png?asset'
@@ -123,6 +125,11 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
+  // Open file dialog
+  ipcMain.handle('openFile', handleFileOpen)
+  // Read files
+  ipcMain.handle('readFile', handleReadFile)
+
   createWindow()
 
   app.on('activate', function () {
@@ -135,6 +142,7 @@ app.whenReady().then(() => {
   session
     .fromPartition('main')
     .setPermissionRequestHandler((_, permission, callback) => {
+      console.log('permission', permission)
       if (permission === 'notifications') {
         callback(true)
       } else {
@@ -191,4 +199,36 @@ function upsertKeyValue(
 
   // Insert at end instead
   obj[keyToChangeLower] = value
+}
+
+/**
+ * Open the native file dialog
+ */
+async function handleFileOpen() {
+  console.info('[handleFileOpen] Open file dialog …')
+
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    filters: [
+      { name: 'OpenAPI Documents', extensions: ['*.yml', '*.yaml', '*.json'] },
+    ],
+  })
+
+  if (!canceled) {
+    return filePaths[0]
+  }
+
+  return undefined
+}
+
+/**
+ * Read the file content
+ */
+async function handleReadFile(_: Event, filePath: string) {
+  if (filePath) {
+    console.info('[handleReadFile] Reading', filePath, '…')
+
+    return fs.promises.readFile(filePath, 'utf-8')
+  }
+
+  return undefined
 }
