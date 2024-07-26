@@ -6,17 +6,16 @@ import { ScalarIcon } from '../ScalarIcon'
 import ComboboxOption from './ScalarComboboxOption.vue'
 import type { Option } from './types'
 
-type MaybeOption = Option | undefined
-
 const props = defineProps<{
   options: Option[]
-  modelValue?: Option
+  modelValue?: Option[]
   placeholder?: string
   open?: boolean
+  multiselect?: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', v: Option): void
+  (e: 'update:modelValue', v: Option[]): void
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -24,7 +23,7 @@ defineOptions({ inheritAttrs: false })
 const id = nanoid()
 
 const query = ref<string>('')
-const active = ref<Option>(props.modelValue ?? props.options[0])
+const active = ref<Option>(props.modelValue?.[0] ?? props.options[0])
 
 // Clear the query on open and close
 watch(
@@ -46,10 +45,23 @@ const filtered = computed<Option[]>(() =>
       }),
 )
 
-const selected = computed<MaybeOption>({
-  get: () => props.modelValue,
-  set: (o) => o && emit('update:modelValue', o),
+const selected = computed<Option[]>({
+  get: () => props.modelValue ?? [],
+  set: (o: Option[]) => o && emit('update:modelValue', o),
 })
+
+function toggleSelected(option: Option) {
+  if (props.multiselect) {
+    // Remove from selection list
+    if (selected.value.some((o) => o.id === option.id))
+      selected.value = selected.value.filter((o) => o.id !== option.id)
+    // Add to selection list
+    else selected.value = [...selected.value, option]
+  } else {
+    // Set selection for single select mode
+    selected.value = [option]
+  }
+}
 
 function moveActive(dir: 1 | -1) {
   const list = filtered.value
@@ -80,7 +92,7 @@ function moveActive(dir: 1 | -1) {
       tabindex="0"
       type="text"
       @keydown.down="moveActive(1)"
-      @keydown.enter.prevent="selected = active"
+      @keydown.enter.prevent="toggleSelected(active)"
       @keydown.up="moveActive(-1)" />
   </div>
   <ul
@@ -92,8 +104,8 @@ function moveActive(dir: 1 | -1) {
       v-for="option in filtered"
       :key="option.id"
       :active="active?.id === option.id"
-      :selected="selected?.id === option.id"
-      @click="selected = option"
+      :selected="selected.some((o) => o.id === option.id)"
+      @click="toggleSelected(option)"
       @mouseenter="active = option">
       {{ option.label }}
     </ComboboxOption>

@@ -8,13 +8,13 @@ import type { Option } from './types'
 defineProps<
   {
     options: Option[]
-    modelValue?: Option
+    modelValue?: Option[]
     placeholder?: string
   } & Omit<FloatingOptions, 'middleware'>
 >()
 
 defineEmits<{
-  (e: 'update:modelValue', v: Option): void
+  (e: 'update:modelValue', v: Option[]): void
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -33,19 +33,17 @@ defineOptions({ inheritAttrs: false })
       </PopoverButton>
       <template #floating="{ width }">
         <PopoverPanel
-          v-slot="{ close }"
           class="relative flex w-40 flex-col rounded border text-sm"
           focus
           :style="{ width }"
           v-bind="$attrs">
           <ComboboxOptions
-            :modelValue="modelValue ? [modelValue] : []"
+            :modelValue="modelValue"
+            multiselect
             :open="open"
             :options="options"
             :placeholder="placeholder"
-            @update:modelValue="
-              (v) => (close(), $emit('update:modelValue', v[0]))
-            " />
+            @update:modelValue="(v) => $emit('update:modelValue', v)" />
           <div
             class="absolute inset-0 -z-1 rounded bg-b-1 shadow-md brightness-lifted" />
         </PopoverPanel>

@@ -2,6 +2,7 @@ import { ScalarButton } from './components/ScalarButton'
 import { ScalarCodeBlock } from './components/ScalarCodeBlock'
 import {
   ScalarCombobox,
+  ScalarComboboxMultiselect,
   type ScalarComboboxOption,
 } from './components/ScalarCombobox'
 import {
@@ -39,6 +40,7 @@ export {
   ScalarButton,
   ScalarCodeBlock,
   ScalarCombobox,
+  ScalarComboboxMultiselect,
   ScalarMarkdown,
   ScalarDropdown,
   ScalarDropdownDivider,
