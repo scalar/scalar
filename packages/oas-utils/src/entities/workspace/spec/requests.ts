@@ -66,23 +66,10 @@ const requestSchema = z.object({
    * security requirement ({}) can be included in the array.
    */
   security: z.array(securityRequirement).optional(),
+  /** Security schemes which have been created specifically for this request */
+  securitySchemeUids: z.array(nanoidSchema).optional().default([]),
   /** The currently selected security schemes at the request level */
-  selectedSecuritySchemes: z
-    .array(
-      z.object({
-        uid: z.string(),
-        // Wasn't sure how to extract the keys from another schema so hard coded these for now
-        flowKey: z
-          .enum([
-            'implicit',
-            'clientCredentials',
-            'password',
-            'authorizationCode',
-          ])
-          .optional(),
-      }),
-    )
-    .default([]),
+  selectedSecuritySchemeUids: z.array(nanoidSchema).default([]),
   /**
    * The request body applicable for this operation. The requestBody is fully supported in HTTP methods where the
    * HTTP 1.1 specification [RFC7231] has explicitly defined semantics for request bodies. In other cases where the

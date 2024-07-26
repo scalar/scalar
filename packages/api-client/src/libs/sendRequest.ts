@@ -134,40 +134,40 @@ export const sendRequest = async (
   }
 
   // Add auth
-  if (securityScheme?.scheme) {
-    const { scheme } = securityScheme
-
-    // apiKey
-    if (scheme.type === 'apiKey' && scheme.value) {
-      switch (scheme.in) {
-        case 'cookie':
-          cookies[scheme.name] = scheme.value
-          break
-        case 'query':
-          query[scheme.name] = scheme.value
-          break
-        case 'header':
-          headers[scheme.name] = scheme.value
-          break
-      }
-    }
-    // http
-    else if (scheme.type === 'http' && scheme.value) {
-      // Basic
-      if (scheme.scheme === 'basic' && scheme.secondValue) {
-        headers['Authorization'] =
-          `Basic ${btoa(`${scheme.value}:${scheme.secondValue}`)}`
-      }
-      // Bearer
-      else {
-        headers['Authorization'] = `Bearer ${scheme.value}`
-      }
-    }
-    // OAuth 2
-    else if (scheme.type === 'oauth2' && securityScheme.flow?.token) {
-      headers['Authorization'] = `Bearer ${securityScheme.flow.token}`
-    }
-  }
+  // if (securityScheme?.scheme) {
+  //   const { scheme } = securityScheme
+  //
+  //   // apiKey
+  //   if (scheme.type === 'apiKey' && scheme.value) {
+  //     switch (scheme.in) {
+  //       case 'cookie':
+  //         cookies[scheme.name] = scheme.value
+  //         break
+  //       case 'query':
+  //         query[scheme.name] = scheme.value
+  //         break
+  //       case 'header':
+  //         headers[scheme.name] = scheme.value
+  //         break
+  //     }
+  //   }
+  //   // http
+  //   else if (scheme.type === 'http' && scheme.value) {
+  //     // Basic
+  //     if (scheme.scheme === 'basic' && scheme.secondValue) {
+  //       headers['Authorization'] =
+  //         `Basic ${btoa(`${scheme.value}:${scheme.secondValue}`)}`
+  //     }
+  //     // Bearer
+  //     else {
+  //       headers['Authorization'] = `Bearer ${scheme.value}`
+  //     }
+  //   }
+  //   // OAuth 2
+  //   else if (scheme.type === 'oauth2' && securityScheme.flow?.token) {
+  //     headers['Authorization'] = `Bearer ${securityScheme.flow.token}`
+  //   }
+  // }
 
   /**
    * Cross-origin cookies are hard.
