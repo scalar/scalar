@@ -61,7 +61,7 @@ if (prop.requestBody?.content) {
 .request-body-title {
   display: flex;
   align-items: center;
-  font-size: var(--scalar-heading-4);
+  font-size: var(--scalar-font-size-3);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
   line-height: 1.45;
@@ -75,7 +75,7 @@ if (prop.requestBody?.content) {
   padding-left: 9px;
   height: fit-content;
   color: var(--scalar-color-2);
-  font-size: var(--scalar-font-size-3);
+  font-weight: var(--scalar-regular);
   display: flex;
   align-items: center;
 }
