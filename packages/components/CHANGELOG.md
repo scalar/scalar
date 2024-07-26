@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.12.20
+
+### Patch Changes
+
+- b2a662a: fix: provide a placeholder for icons while loading
+- 86014b5: feat(components): update combobox styles
+- a60c916: feat(components): add multiselect combobox
+
 ## 0.12.19
 
 ### Patch Changes

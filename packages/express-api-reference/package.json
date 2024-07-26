@@ -10,7 +10,7 @@
     "url": "https://github.com/scalar/scalar.git",
     "directory": "packages/express-api-reference"
   },
-  "version": "0.4.118",
+  "version": "0.4.119",
   "engines": {
     "node": ">=18"
   },
