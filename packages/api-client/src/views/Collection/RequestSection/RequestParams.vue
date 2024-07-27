@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store/workspace'
-import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
+import RequestTable from '@/views/Collection/RequestSection/RequestTable.vue'
 import { ScalarButton } from '@scalar/components'
 import {
   type RequestExample,

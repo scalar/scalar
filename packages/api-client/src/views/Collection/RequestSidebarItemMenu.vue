@@ -26,6 +26,7 @@ const {
   findRequestFolders,
   requestMutators,
   requestExampleMutators,
+  activeCollection,
 } = useWorkspace()
 const { replace } = useRouter()
 
@@ -61,7 +62,9 @@ const handleItemDelete = () => {
 
     requestMutators.delete(props.item, uids[0])
     if (activeRouterParams.value[PathId.Request] === props.item.uid) {
-      replace(`/workspace/${activeWorkspace.value.uid}/request/default`)
+      replace(
+        `/workspace/${activeWorkspace.value.uid}/collection/${activeCollection.value?.uid ?? 'default'}request/default`,
+      )
     }
   }
 }

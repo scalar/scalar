@@ -2,26 +2,26 @@
 import type { ROUTES } from '@/constants'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarIcon } from '@scalar/components'
-import { useRouter } from 'vue-router'
 
 type IconProps = InstanceType<typeof ScalarIcon>['$props']
 
-defineProps<{
+const props = defineProps<{
   icon: IconProps['icon']
   name: (typeof ROUTES)[number]['name']
   prettyName: (typeof ROUTES)[number]['prettyName']
   active?: boolean
 }>()
 
-const { activeWorkspace } = useWorkspace()
+const { activeWorkspace, activeCollection } = useWorkspace()
 
-const { currentRoute } = useRouter()
+const getLink = () =>
+  `/workspace/${activeWorkspace.value.uid}${props.name === 'request' ? `/collection/${activeCollection.value?.uid ?? 'default'}/request` : `/${props.name}`}/default`
 </script>
 <template>
   <router-link
     activeClass="active-link"
     class="flex flex-col items-center gap-1 group no-underline"
-    :to="`/workspace/${activeWorkspace.uid}/${name}/default`">
+    :to="getLink()">
     <div
       class="min-w-[37px] max-w-[42px] group-hover:bg-b-2 active:text-c-1 flex items-center justify-center rounded-lg p-[7px] scalar-app-nav-padding"
       :class="{

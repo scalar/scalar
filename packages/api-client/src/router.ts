@@ -20,22 +20,34 @@ export enum PathId {
 /** Shared request routes between modal and app */
 const requestRoutes = [
   {
-    path: '',
-    redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/request/default`,
-  },
-  {
-    path: 'request',
+    path: 'collection',
     redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,
   },
   {
-    name: PathId.Request,
-    path: `request/:${PathId.Request}`,
-    component: () => import('@/views/Request/Request.vue'),
-  },
-  {
-    name: PathId.Examples,
-    path: `request/:${PathId.Request}/examples/:${PathId.Examples}`,
-    component: () => import('@/views/Request/Request.vue'),
+    name: PathId.Collection,
+    path: `collection/:${PathId.Collection}`,
+    component: () => import('@/views/Collection/CollectionContainer.vue'),
+    children: [
+      {
+        path: '',
+        name: 'ignore',
+        component: () => import('@/views/Collection/Collection.vue'),
+      },
+      {
+        path: 'request',
+        redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,
+      },
+      {
+        name: PathId.Request,
+        path: `request/:${PathId.Request}`,
+        component: () => import('@/views/Collection/Request.vue'),
+      },
+      {
+        name: PathId.Examples,
+        path: `request/:${PathId.Request}/examples/:${PathId.Examples}`,
+        component: () => import('@/views/Collection/Request.vue'),
+      },
+    ],
   },
 ] satisfies RouteRecordRaw[]
 
@@ -43,11 +55,11 @@ const requestRoutes = [
 export const modalRoutes = [
   {
     path: '/',
-    redirect: '/workspace/default/request/default',
+    redirect: '/workspace/default/collection/default/request/default',
   },
   {
     path: '/workspace',
-    redirect: '/workspace/default/request/default',
+    redirect: '/workspace/default/collection/default/request/default',
   },
   {
     path: `/workspace/:${PathId.Workspace}`,
@@ -59,44 +71,16 @@ export const modalRoutes = [
 const routes = [
   {
     path: '/',
-    redirect: '/workspace/default/request/default',
+    redirect: '/workspace/default/collection/default/request/default',
   },
   {
     path: '/workspace',
-    redirect: '/workspace/default/request/default',
+    redirect: '/workspace/default/collection/default/request/default',
   },
   {
     path: `/workspace/:${PathId.Workspace}`,
     children: [
       ...requestRoutes,
-      // {
-      //   path: 'collection',
-      //   redirect: (to) =>
-      //     `${to.fullPath.replace(/\/$/, '')}/default`,
-      // },
-      // {
-      //   name: PathId.Collection,
-      //   path: `collection/:${PathId.Collection}`,
-      //   component: () => import('@/views/Collection/Collection.vue'),
-      //   children: [
-      //     // Nested collection request
-      //     {
-      //       path: `request/${PathId.Request}`,
-      //       component: () => import('@/views/Request/Request.vue'),
-      //     },
-      //   ],
-      // },
-      /** Components will map to each section of the spec components object */
-      // {
-      //   path: 'components',
-      //   redirect: '/components/schemas/default',
-      //   children: [
-      //     {
-      //       path: `schemas/:${PathId.Schema}`,
-      //       component: () => import('@/views/Components/Schemas/Schemas.vue'),
-      //     },
-      //   ],
-      // },
       {
         path: 'environment',
         redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,

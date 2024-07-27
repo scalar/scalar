@@ -6,13 +6,10 @@ import SearchModal from '@/components/Search/SearchModal.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
-import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useSidebar } from '@/hooks'
 import { executeRequestBus, sendRequest } from '@/libs'
 import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
 import { useWorkspace } from '@/store/workspace'
-import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
-import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 import { ScalarIcon, useModal } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
@@ -20,6 +17,7 @@ import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useEventListener, useMagicKeys } from '@vueuse/core'
 import { type DeepReadonly, onBeforeUnmount, onMounted, ref } from 'vue'
+import { RouterView } from 'vue-router'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
 import { WorkspaceDropdown } from './components'
@@ -347,17 +345,11 @@ const getBackgroundColor = () => {
         </template>
       </Sidebar>
       <!-- TODO possible loading state -->
-      <ViewLayoutContent
-        v-if="activeExample"
-        class="flex-1"
-        :class="[showSideBar ? 'sidebar-active-hide-layout' : '']">
-        <RequestSection />
-        <ResponseSection
-          :response="
-            activeRequest?.history?.[activeRequest?.history?.length - 1]
-              ?.response
-          " />
-      </ViewLayoutContent>
+      <RouterView v-slot="{ Component }">
+        <component
+          :is="Component"
+          :showSideBar="showSideBar" />
+      </RouterView>
     </ViewLayout>
   </div>
   <SearchModal :modalState="searchModalState" />

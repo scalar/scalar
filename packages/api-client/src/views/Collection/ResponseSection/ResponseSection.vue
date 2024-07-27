@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import ContextBar from '@/components/ContextBar.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import ResponseBody from '@/views/Request/ResponseSection/ResponseBody.vue'
-import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'
-import ResponseMetaInformation from '@/views/Request/ResponseSection/ResponseMetaInformation.vue'
+import ResponseBody from '@/views/Collection/ResponseSection/ResponseBody.vue'
+import ResponseEmpty from '@/views/Collection/ResponseSection/ResponseEmpty.vue'
+import ResponseMetaInformation from '@/views/Collection/ResponseSection/ResponseMetaInformation.vue'
 import { ScalarIcon } from '@scalar/components'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/workspace/spec'
 import { isJsonString } from '@scalar/oas-utils/helpers'

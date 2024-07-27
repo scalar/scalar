@@ -5,7 +5,7 @@ import {
   DataTableRow,
 } from '@/components/DataTable'
 import type { UpdateScheme } from '@/store/workspace'
-import type { SecuritySchemeOptionOauth } from '@/views/Request/libs'
+import type { SecuritySchemeOptionOauth } from '@/views/Collection/libs'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'

@@ -53,6 +53,7 @@ const {
   activeRequest,
   activeRouterParams,
   activeWorkspace,
+  activeCollection,
   folders,
   isReadOnly,
   requests,
@@ -116,8 +117,8 @@ const showChildren = computed(
 /** Generate the request OR example link */
 const generateLink = () =>
   'requestUid' in props.item
-    ? `/workspace/${activeWorkspace.value.uid}/request/${props.item.requestUid}/examples/${props.item.uid}`
-    : `/workspace/${activeWorkspace.value.uid}/request/${props.item.uid}`
+    ? `/workspace/${activeWorkspace.value.uid}/collection/${activeCollection.value?.uid ?? 'default'}/request/${props.item.requestUid}/examples/${props.item.uid}`
+    : `/workspace/${activeWorkspace.value.uid}/collection/${activeCollection.value?.uid ?? 'default'}/request/${props.item.uid}`
 
 /** Since we have exact routing, we should check if the default request is active */
 const isDefaultActive = computed(
@@ -176,8 +177,40 @@ const isDefaultActive = computed(
           </div>
         </div>
       </RouterLink>
-
-      <!-- Collection/Folder -->
+      <!-- collection -->
+      <div
+        v-else-if="!isReadOnly && 'spec' in item"
+        class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 z-[1]"
+        :class="highlightClasses">
+        <button
+          type="button"
+          @click="toggleSidebarFolder(item.uid)">
+          <span
+            class="z-10 flex h-fit items-center justify-center max-w-[14px]">
+            <slot name="leftIcon">
+              <div
+                :class="{
+                  'rotate-90': collapsedSidebarFolders[item.uid],
+                }">
+                <ScalarIcon
+                  class="text-c-3 text-sm"
+                  icon="ChevronRight"
+                  size="sm"
+                  thickness="2.5" />
+              </div>
+            </slot>
+            &hairsp;
+          </span>
+        </button>
+        <RouterLink
+          class="no-underline"
+          :to="`/workspace/${activeWorkspace.uid}/collection/${item.uid}`">
+          <span class="z-10 font-medium">
+            {{ getTitle(item) }}
+          </span>
+        </RouterLink>
+      </div>
+      <!-- Folder -->
       <button
         v-else-if="!isReadOnly || parentUids.length"
         class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 z-[1]"

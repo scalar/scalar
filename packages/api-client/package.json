@@ -41,13 +41,13 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./views/Request/libs": {
-      "import": "./dist/views/Request/libs/index.js",
-      "types": "./dist/views/Request/libs/index.d.ts"
+    "./views/Collection/libs": {
+      "import": "./dist/views/Collection/libs/index.js",
+      "types": "./dist/views/Collection/libs/index.d.ts"
     },
-    "./views/Request/components": {
-      "import": "./dist/views/Request/components/index.js",
-      "types": "./dist/views/Request/components/index.d.ts"
+    "./views/Collection/components": {
+      "import": "./dist/views/Collection/components/index.js",
+      "types": "./dist/views/Collection/components/index.d.ts"
     },
     "./store": {
       "import": "./dist/store/index.js",

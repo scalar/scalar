@@ -8,7 +8,7 @@ import { ScalarIcon } from '@scalar/components'
       class="lg:min-h-header items-center w-full p-1 t-app__top-container flex items-center">
       <router-link
         class="text-c-2 text-sm font-medium gitbook-show ml-1 flex items-center p-1.5 hover:bg-b-3 rounded cursor-pointer gap-1 active:text-c-1 no-underline"
-        to="/workspace/default/request/default">
+        to="/workspace/default/collection/default/request/default">
         <ScalarIcon
           icon="ChevronLeft"
           size="sm" />
