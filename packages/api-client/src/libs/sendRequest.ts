@@ -1,8 +1,4 @@
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
-import type {
-  SecurityScheme,
-  SelectedSchemeOauth2,
-} from '@scalar/oas-utils/entities/workspace/security'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
 import type {
   Request,
