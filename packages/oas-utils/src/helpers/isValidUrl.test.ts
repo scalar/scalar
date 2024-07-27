@@ -2,16 +2,20 @@ import { describe, expect, it } from 'vitest'
 
 import { isValidUrl } from './isValidUrl'
 
-describe('isValidUrl', () => {
-  it('is a valid url', () => {
-    expect(isValidUrl('galaxy.scalar.com')).toBe(true)
-  })
-
-  it('is an invalid empty url', () => {
+describe('isValidUrl ', () => {
+  it('says false for empty string', () => {
     expect(isValidUrl('')).toBe(false)
   })
 
-  it('is an invalid url', () => {
-    expect(isValidUrl('marc is a human but not valid . domain')).toBe(false)
+  it('says false for a path', () => {
+    expect(isValidUrl('/some-path')).toBe(false)
+  })
+
+  it('says false for a origin without a protocol', () => {
+    expect(isValidUrl('google.com')).toBe(false)
+  })
+
+  it('says true for a protocol, origin, host, path and query parameters', () => {
+    expect(isValidUrl('https://google.com/maps?some=thing')).toBe(true)
   })
 })
