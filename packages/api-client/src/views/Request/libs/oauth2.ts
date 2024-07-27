@@ -25,11 +25,7 @@ export const authorizeOauth2 = (scheme: SecuritySchemeOauth2) =>
     else {
       const scopes = scheme.flow.selectedScopes.join(' ')
       const state = (Math.random() + 1).toString(36).substring(7)
-      const url = new URL(
-        scheme.flow.type === 'authorizationCode'
-          ? scheme.flow.tokenUrl
-          : scheme.flow.authorizationUrl,
-      )
+      const url = new URL(scheme.flow.authorizationUrl)
 
       // Params unique to the flows
       if (scheme.flow.type === 'implicit')

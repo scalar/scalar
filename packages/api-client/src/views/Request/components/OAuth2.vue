@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DataTableCell, DataTableRow } from '@/components/DataTable'
+import { DataTableRow } from '@/components/DataTable'
 import { type UpdateScheme, useWorkspace } from '@/store/workspace'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { authorizeOauth2 } from '@/views/Request/libs'
@@ -36,24 +36,30 @@ const handleAuthorize = async () => {
 
 <template>
   <!-- Access Token Granted -->
-  <DataTableRow v-if="scheme.flow.token">
-    <RequestAuthDataTableInput
-      id="oauth2-access-token"
-      class="border-r-transparent"
-      :modelValue="scheme.flow.token"
-      type="password"
-      @update:modelValue="(v) => updateScheme('flow.token', v)">
-      Access Token
-    </RequestAuthDataTableInput>
-    <DataTableCell class="flex items-center p-0.5">
-      <ScalarButton
-        size="sm"
-        variant="ghost"
-        @click="updateScheme('flow.token', '')">
-        Clear
-      </ScalarButton>
-    </DataTableCell>
-  </DataTableRow>
+  <template v-if="scheme.flow.token">
+    <DataTableRow>
+      <RequestAuthDataTableInput
+        id="oauth2-access-token"
+        class="border-r-transparent"
+        :modelValue="scheme.flow.token"
+        type="password"
+        @update:modelValue="(v) => updateScheme('flow.token', v)">
+        Access Token
+      </RequestAuthDataTableInput>
+    </DataTableRow>
+    <DataTableRow class="min-w-full">
+      <div class="h-8 flex items-center justify-self-end">
+        <ScalarButton
+          class="p-0 py-0.5 px-2 mr-1"
+          :loading="loadingState"
+          size="sm"
+          variant="outlined"
+          @click="updateScheme('flow.token', '')">
+          Clear
+        </ScalarButton>
+      </div>
+    </DataTableRow>
+  </template>
 
   <template v-else>
     <DataTableRow
