@@ -24,6 +24,8 @@ const securitySchemeApiKey = z.object({
   value,
 })
 
+export type SecuritySchemeApiKey = z.infer<typeof securitySchemeApiKey>
+
 const securitySchemeHttp = z.object({
   type: z.literal('http'),
   uid,
@@ -66,7 +68,7 @@ const tokenUrl = z.string().optional().default('https://scalar.com')
  * The URL to be used for obtaining refresh tokens. This MUST be in the form of a
  * URL. The OAuth2 standard requires the use of TLS.
  */
-const refreshUrl = z.string().optional()
+const refreshUrl = z.string().optional().default('')
 
 /**
  * REQUIRED. The available scopes for the OAuth2 security scheme. A map
@@ -84,66 +86,58 @@ const scopes = z
 const selectedScopes = z.array(z.string()).optional().default([])
 
 const oauthFlowSchema = z
-  .union([
+  .discriminatedUnion('type', [
     /** Configuration for the OAuth Implicit flow */
-    z
-      .object({
-        type: z.literal('implicit'),
-        authorizationUrl,
-        refreshUrl,
-        scopes,
+    z.object({
+      type: z.literal('implicit'),
+      authorizationUrl,
+      refreshUrl,
+      scopes,
 
-        selectedScopes,
-        token: value,
-      })
-      .optional(),
+      selectedScopes,
+      token: value,
+    }),
     /** Configuration for the OAuth Resource Owner Password flow */
-    z
-      .object({
-        type: z.literal('password'),
-        tokenUrl,
-        refreshUrl,
-        scopes,
+    z.object({
+      type: z.literal('password'),
+      tokenUrl,
+      refreshUrl,
+      scopes,
 
-        /** Username */
-        value,
-        /** Password */
-        secondValue: value,
-        selectedScopes,
-        clientSecret: value,
-        token: value,
-      })
-      .optional(),
+      /** Username */
+      value,
+      /** Password */
+      secondValue: value,
+      selectedScopes,
+      clientSecret: value,
+      token: value,
+    }),
     /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
-    z
-      .object({
-        type: z.literal('clientCredentials'),
-        tokenUrl,
-        refreshUrl,
-        scopes,
+    z.object({
+      type: z.literal('clientCredentials'),
+      tokenUrl,
+      refreshUrl,
+      scopes,
 
-        clientSecret: value,
-        selectedScopes,
-        token: value,
-      })
-      .optional(),
+      clientSecret: value,
+      selectedScopes,
+      token: value,
+    }),
     /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0.*/
-    z
-      .object({
-        type: z.literal('authorizationCode'),
-        authorizationUrl,
-        tokenUrl,
-        refreshUrl,
-        scopes,
+    z.object({
+      type: z.literal('authorizationCode'),
+      authorizationUrl,
+      tokenUrl,
+      refreshUrl,
+      scopes,
 
-        clientSecret: value,
-        selectedScopes,
-        token: value,
-      })
-      .optional(),
+      clientSecret: value,
+      selectedScopes,
+      token: value,
+    }),
   ])
   .optional()
-  .default({ type: 'implicit' })
+  .default({ type: 'authorizationCode' })
 
 const securitySchemeOauth2 = z.object({
   type: z.literal('oauth2'),

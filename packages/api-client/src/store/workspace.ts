@@ -1,6 +1,7 @@
 import { useSidebar } from '@/hooks'
 import { PathId, fallbackMissingParams } from '@/router'
 import { useModal } from '@scalar/components'
+import type { AuthenticationState } from '@scalar/oas-utils'
 import {
   type Workspace,
   type WorkspacePayload,
@@ -26,6 +27,7 @@ import {
 } from '@scalar/oas-utils/entities/workspace/folder'
 import {
   type SecurityScheme,
+  type SecuritySchemeApiKey,
   type SecuritySchemePayload,
   createSecurityScheme,
 } from '@scalar/oas-utils/entities/workspace/security'
@@ -48,7 +50,13 @@ import { getRequestBodyFromOperation } from '@scalar/oas-utils/spec-getters'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
 import { LS_KEYS, mutationFactory } from '@scalar/object-utils/mutator-record'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import type { AnyObject, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type {
+  AnyObject,
+  OpenAPIV2,
+  OpenAPIV3,
+  OpenAPIV3_1,
+} from '@scalar/openapi-parser'
+import type { Entries } from 'type-fest'
 import { computed, inject, reactive, toRaw } from 'vue'
 import type { Router } from 'vue-router'
 
@@ -813,10 +821,16 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     const workspaceEntities = await importSpecToWorkspace(spec)
     const requestsWithAuth: Request[] = []
 
+    // OAS Security Scheme Objects from the parser
     const securitySchemeEntries = Object.entries(
       ((workspaceEntities.components?.securitySchemes ||
         workspaceEntities.securityDefinitions) ??
-        {}) as Record<string, SecurityScheme>,
+        {}) as Record<
+        string,
+        | OpenAPIV2.SecuritySchemeObject
+        | OpenAPIV3.SecuritySchemeObject
+        | OpenAPIV3_1.SecuritySchemeObject
+      >,
     )
 
     // Add all the new requests into the request collection, the already have parent folders
@@ -845,10 +859,63 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     // Servers
     workspaceEntities.servers.forEach((server) => addServer(server))
 
-    // Security Schemes
-    securitySchemeEntries.forEach(([key, securityScheme]) =>
-      addSecurityScheme({ ...securityScheme, nameKey: key }, collection.uid),
-    )
+    // Security Schemes, we need to set some failsafes from the parsed spec
+    securitySchemeEntries.forEach(([key, securityScheme]) => {
+      // Oauth2
+      if (securityScheme && 'flows' in securityScheme) {
+        const { flows, ...rest } = securityScheme
+        if (flows) {
+          const entries = Object.entries(flows) as Entries<typeof flows>
+          const [type, flow] = entries[0]
+
+          // Some type shennanigans making openapi match ours
+          if (type && flow)
+            addSecurityScheme(
+              {
+                ...rest,
+                type: 'oauth2',
+                flow: { ...flow, type },
+                nameKey: key,
+              },
+              collection.uid,
+            )
+        }
+      }
+      // HTTP Basic from openapi 2
+      else if (securityScheme.type === 'basic') {
+        addSecurityScheme(
+          { ...securityScheme, type: 'http', scheme: 'basic', nameKey: key },
+          collection.uid,
+        )
+      }
+      // HTTP from openapi 3+
+      else if (securityScheme.type === 'http') {
+        addSecurityScheme(
+          {
+            ...securityScheme,
+            type: 'http',
+            scheme: securityScheme.scheme === 'bearer' ? 'bearer' : 'basic',
+            nameKey: key,
+          },
+          collection.uid,
+        )
+      }
+      // API Key
+      else if (securityScheme.type === 'apiKey')
+        addSecurityScheme(
+          {
+            ...securityScheme,
+            type: 'apiKey',
+            in: ['header', 'query', 'cookie'].includes(
+              securityScheme.in as SecuritySchemeApiKey['in'],
+            )
+              ? (securityScheme.in as SecuritySchemeApiKey['in'])
+              : 'header',
+            nameKey: key,
+          },
+          collection.uid,
+        )
+    })
 
     // By now we have the collection security dictionary so we can pre-select auth per request
     requestsWithAuth.forEach((request) => {
